@@ -1,132 +1,95 @@
 /**
  * @file KeyNames.hpp
- * @brief Contains all hardcoded key names used within Nebulite.
- * 
- * @todo Move key names into classes as static members!
+ * @brief Defines constant key names used throughout the Nebulite framework.
  */
+
 #ifndef NEBULITE_CONSTANTS_KEYNAMES_HPP
 #define NEBULITE_CONSTANTS_KEYNAMES_HPP
 
-//------------------------------------------
-// Includes
+#include <string_view>
 
-// Standard library
-#include <string>
-
-//------------------------------------------
 namespace Nebulite::Constants {
-/**
- * @struct keyName
- * @brief Contains all hardcoded key names used within Nebulite.
- */
-const struct keyName {
-    /**
-     * @struct renderer
-     * @brief Contains all hardcoded key names used within the Nebulite::Core::Renderer class.
-     */
-    const struct renderer {
-        std::string _self = "renderer";
-        std::string dispResX = "display.resolution.X";
-        std::string dispResY = "display.resolution.Y";
-        std::string positionX = "display.position.X";
-        std::string positionY = "display.position.Y";
-        std::string time_t = "time.t";
-        std::string time_t_ms = "time.t_ms";
-        std::string time_dt = "time.dt";
-        std::string time_dt_ms = "time.dt_ms";
-    } renderer;
 
-    /**
-     * @struct Random
-     * @brief Contains all hardcoded key names used for random number generation.
-     */
-    const struct RNGs {
-        std::string A = "random.A";
-        std::string B = "random.B";
-        std::string C = "random.C";
-        std::string D = "random.D";
-        std::string min = "random.min";
-        std::string max = "random.max";
-    } RNGs;
+struct KeyNames {
+    struct Renderer {
+        inline static constexpr std::string_view self = "renderer";
+        inline static constexpr std::string_view dispResX = "display.resolution.X";
+        inline static constexpr std::string_view dispResY = "display.resolution.Y";
+        inline static constexpr std::string_view positionX = "display.position.X";
+        inline static constexpr std::string_view positionY = "display.position.Y";
+        inline static constexpr std::string_view time_t = "time.t";
+        inline static constexpr std::string_view time_t_ms = "time.t_ms";
+        inline static constexpr std::string_view time_dt = "time.dt";
+        inline static constexpr std::string_view time_dt_ms = "time.dt_ms";
+    };
 
-    /**
-     * @struct renderObject
-     * @brief Contains all hardcoded key names used within the Nebulite::Core::RenderObject class.
-     */
-    const struct renderObject {
-        // Core properties
-        std::string _self = "renderObject";
-        std::string id = "id";
-        std::string positionX = "posX";
-        std::string positionY = "posY";
-        std::string layer = "layer";
+    struct RNGs {
+        inline static constexpr std::string_view A = "random.A";
+        inline static constexpr std::string_view B = "random.B";
+        inline static constexpr std::string_view C = "random.C";
+        inline static constexpr std::string_view D = "random.D";
+        inline static constexpr std::string_view min = "random.min";
+        inline static constexpr std::string_view max = "random.max";
+    };
 
-        // Sprite properties
-        std::string pixelSizeX = "sprite.sizeX";
-        std::string pixelSizeY = "sprite.sizeY";
-        std::string imageLocation = "sprite.link";
-        std::string isSpritesheet = "sprite.spritesheet.isSpritesheet";
-        std::string spritesheetSizeX = "sprite.spritesheet.sizeX";
-        std::string spritesheetSizeY = "sprite.spritesheet.sizeY";
-        std::string spritesheetOffsetX = "sprite.spritesheet.offsetX";
-        std::string spritesheetOffsetY = "sprite.spritesheet.offsetY";
+    struct RenderObject {
+        inline static constexpr std::string_view self = "renderObject";
+        inline static constexpr std::string_view id = "id";
+        inline static constexpr std::string_view positionX = "posX";
+        inline static constexpr std::string_view positionY = "posY";
+        inline static constexpr std::string_view layer = "layer";
 
-        // Interaction properties
-        std::string invokes = "invokes";                            // Todo: name "rulesets"?
-        std::string invokeSubscriptions = "invokeSubscriptions";    // TODO: name "rulesetSubscriptions"?
+        inline static constexpr std::string_view pixelSizeX = "sprite.sizeX";
+        inline static constexpr std::string_view pixelSizeY = "sprite.sizeY";
+        inline static constexpr std::string_view imageLocation = "sprite.link";
+        inline static constexpr std::string_view isSpritesheet = "sprite.spritesheet.isSpritesheet";
+        inline static constexpr std::string_view spritesheetSizeX = "sprite.spritesheet.sizeX";
+        inline static constexpr std::string_view spritesheetSizeY = "sprite.spritesheet.sizeY";
+        inline static constexpr std::string_view spritesheetOffsetX = "sprite.spritesheet.offsetX";
+        inline static constexpr std::string_view spritesheetOffsetY = "sprite.spritesheet.offsetY";
 
-        // Text properties
-        std::string textFontsize = "text.fontSize";
-        std::string textStr = "text.str";
-        std::string textColorR = "text.color.R";
-        std::string textColorG = "text.color.G";
-        std::string textColorB = "text.color.B";
-        std::string textColorA = "text.color.A";
-        std::string textDx = "text.dx";
-        std::string textDy = "text.dy";
-    } renderObject;
+        inline static constexpr std::string_view invokes = "invokes";
+        inline static constexpr std::string_view invokeSubscriptions = "invokeSubscriptions";
 
-    /**
-     * @struct invoke
-     * @brief Contains all hardcoded key names used within the Nebulite::Interaction::Invoke class.
-     */
-    const struct invoke {
-        std::string _self = "invoke";
-        std::string typeSelf = "self";
-        std::string typeOther = "other";
-        std::string typeGlobal = "global";
+        inline static constexpr std::string_view textFontsize = "text.fontSize";
+        inline static constexpr std::string_view textStr = "text.str";
+        inline static constexpr std::string_view textColorR = "text.color.R";
+        inline static constexpr std::string_view textColorG = "text.color.G";
+        inline static constexpr std::string_view textColorB = "text.color.B";
+        inline static constexpr std::string_view textColorA = "text.color.A";
+        inline static constexpr std::string_view textDx = "text.dx";
+        inline static constexpr std::string_view textDy = "text.dy";
+    };
 
-        // TODO: Use Ruleset instead for all keys below
-        std::string logicalArg = "logicalArg";
-        std::string topic = "topic";
-        std::string exprVector = "exprs";
-        std::string functioncalls_global = "functioncalls.global";
-        std::string functioncalls_self = "functioncalls.self";
-        std::string functioncalls_other = "functioncalls.other";
-    } invoke;
+    struct Invoke {
+        inline static constexpr std::string_view self = "invoke";
+        inline static constexpr std::string_view typeSelf = "self";
+        inline static constexpr std::string_view typeOther = "other";
+        inline static constexpr std::string_view typeGlobal = "global";
 
-    /**
-     * @struct Ruleset
-     * @brief Contains all hardcoded key names used within the Nebulite::Interaction::Ruleset class
-     *        as well as its subclasses.
-     */
-    const struct Ruleset {
-        std::string _self = "ruleset";
-        std::string topic = "topic";
-        std::string condition = "condition";
-        std::string assignments = "assignments";
-        std::string parseOnGlobal = "functioncalls.global";
-        std::string parseOnSelf   = "functioncalls.self";
-        std::string parseOnOther  = "functioncalls.other";
-    } ruleset;
+        inline static constexpr std::string_view logicalArg = "logicalArg";
+        inline static constexpr std::string_view topic = "topic";
+        inline static constexpr std::string_view exprVector = "exprs";
+        inline static constexpr std::string_view functioncalls_global = "functioncalls.global";
+        inline static constexpr std::string_view functioncalls_self = "functioncalls.self";
+        inline static constexpr std::string_view functioncalls_other = "functioncalls.other";
+    };
 
-    /**
-     * @struct Environment
-     * @brief Contains all hardcoded key names used within the Nebulite::Core::Environment class.
-     */
-    const struct Environment {
-        std::string renderObjectContainer = "RenderObjectContainer";
-    } environment;
-} keyName;
+    struct Ruleset {
+        inline static constexpr std::string_view self = "ruleset";
+        inline static constexpr std::string_view topic = "topic";
+        inline static constexpr std::string_view condition = "condition";
+        inline static constexpr std::string_view assignments = "assignments";
+        inline static constexpr std::string_view parseOnGlobal = "functioncalls.global";
+        inline static constexpr std::string_view parseOnSelf   = "functioncalls.self";
+        inline static constexpr std::string_view parseOnOther  = "functioncalls.other";
+    };
+
+    struct Environment {
+        inline static constexpr std::string_view renderObjectContainer = "RenderObjectContainer";
+    };
+};
+
 } // namespace Nebulite::Constants
+
 #endif // NEBULITE_CONSTANTS_KEYNAMES_HPP

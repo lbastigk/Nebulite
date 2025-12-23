@@ -166,7 +166,7 @@ Constants::Error Debug::textureStatus(int argc, char** argv) {
     Nebulite::cout() << "Texture Status:" << Nebulite::endl;
 
     // Nebulite info
-    Nebulite::cout() << std::string(" - Texture Key   : ") + domain->getDoc()->get<std::string>(Constants::keyName.renderObject.imageLocation.c_str(), "None") << Nebulite::endl;
+    Nebulite::cout() << std::string(" - Texture Key   : ") + domain->getDoc()->get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "None") << Nebulite::endl;
     Nebulite::cout() << std::string(" - Valid Texture : ") + (domain->getTexture()->isTextureValid() ? "Yes" : "No") << Nebulite::endl;
     Nebulite::cout() << std::string(" - Local Texture : ") + (domain->getTexture()->isTextureStoredLocally() ? "Yes" : "No") << Nebulite::endl;
 

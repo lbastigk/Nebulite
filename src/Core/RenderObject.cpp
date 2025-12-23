@@ -19,35 +19,35 @@ namespace Nebulite::Core {
 // Helper function to initialize RenderObject in constructor
 void setStandardValues(Data::JSON& document) {
     // General
-    document.set(Constants::keyName.renderObject.id, 0);    // Initialize to 0, Renderer itself sets proper id, which starts at 1
-    document.set(Constants::keyName.renderObject.positionX, 0);
-    document.set(Constants::keyName.renderObject.positionY, 0);
-    document.set(Constants::keyName.renderObject.imageLocation, std::string("Resources/Sprites/TEST001P/001.bmp"));
-    document.set(Constants::keyName.renderObject.layer, 0);
+    document.set(Constants::KeyNames::RenderObject::id, 0);    // Initialize to 0, Renderer itself sets proper id, which starts at 1
+    document.set(Constants::KeyNames::RenderObject::positionX, 0);
+    document.set(Constants::KeyNames::RenderObject::positionY, 0);
+    document.set(Constants::KeyNames::RenderObject::imageLocation, std::string("Resources/Sprites/TEST001P/001.bmp"));
+    document.set(Constants::KeyNames::RenderObject::layer, 0);
 
     //for sprite
-    document.set(Constants::keyName.renderObject.isSpritesheet, false);
-    document.set(Constants::keyName.renderObject.spritesheetOffsetX, 0);
-    document.set(Constants::keyName.renderObject.spritesheetOffsetY, 0);
-    document.set(Constants::keyName.renderObject.spritesheetSizeX, 0);
-    document.set(Constants::keyName.renderObject.spritesheetSizeY, 0);
-    document.set(Constants::keyName.renderObject.pixelSizeX, 32);
-    document.set(Constants::keyName.renderObject.pixelSizeY, 32);
+    document.set(Constants::KeyNames::RenderObject::isSpritesheet, false);
+    document.set(Constants::KeyNames::RenderObject::spritesheetOffsetX, 0);
+    document.set(Constants::KeyNames::RenderObject::spritesheetOffsetY, 0);
+    document.set(Constants::KeyNames::RenderObject::spritesheetSizeX, 0);
+    document.set(Constants::KeyNames::RenderObject::spritesheetSizeY, 0);
+    document.set(Constants::KeyNames::RenderObject::pixelSizeX, 32);
+    document.set(Constants::KeyNames::RenderObject::pixelSizeY, 32);
 
     // Invokes
-    document.setEmptyArray(Constants::keyName.renderObject.invokes.c_str());
-    document.setEmptyArray(Constants::keyName.renderObject.invokeSubscriptions.c_str());
-    document.set(Constants::keyName.renderObject.invokeSubscriptions + "[0]", std::string("all"));
+    document.setEmptyArray(Constants::KeyNames::RenderObject::invokes);
+    document.setEmptyArray(Constants::KeyNames::RenderObject::invokeSubscriptions);
+    document.set(std::string(Constants::KeyNames::RenderObject::invokeSubscriptions) + "[0]", std::string("all"));
 
     // Text
-    document.set(Constants::keyName.renderObject.textStr, std::string(""));
-    document.set(Constants::keyName.renderObject.textFontsize, 0);
-    document.set(Constants::keyName.renderObject.textDx, 0.0);
-    document.set(Constants::keyName.renderObject.textDy, 0.0);
-    document.set(Constants::keyName.renderObject.textColorR, 255);
-    document.set(Constants::keyName.renderObject.textColorG, 255);
-    document.set(Constants::keyName.renderObject.textColorB, 255);
-    document.set(Constants::keyName.renderObject.textColorA, 255);
+    document.set(Constants::KeyNames::RenderObject::textStr, std::string(""));
+    document.set(Constants::KeyNames::RenderObject::textFontsize, 0);
+    document.set(Constants::KeyNames::RenderObject::textDx, 0.0);
+    document.set(Constants::KeyNames::RenderObject::textDy, 0.0);
+    document.set(Constants::KeyNames::RenderObject::textColorR, 255);
+    document.set(Constants::KeyNames::RenderObject::textColorG, 255);
+    document.set(Constants::KeyNames::RenderObject::textColorB, 255);
+    document.set(Constants::KeyNames::RenderObject::textColorA, 255);
 }
 
 RenderObject::RenderObject() : Domain("RenderObject", this, &document), baseTexture(&document) {
@@ -232,29 +232,29 @@ void RenderObject::calculateSrcRect() {
 
 void RenderObject::linkFrequentRefs() {
     // Identity
-    refs.id = document.getStableDoublePointer(Constants::keyName.renderObject.id);
+    refs.id = document.getStableDoublePointer(Constants::KeyNames::RenderObject::id);
 
     // Position and Size
-    refs.posX = document.getStableDoublePointer(Constants::keyName.renderObject.positionX);
-    refs.posY = document.getStableDoublePointer(Constants::keyName.renderObject.positionY);
-    refs.pixelSizeX = document.getStableDoublePointer(Constants::keyName.renderObject.pixelSizeX);
-    refs.pixelSizeY = document.getStableDoublePointer(Constants::keyName.renderObject.pixelSizeY);
+    refs.posX = document.getStableDoublePointer(Constants::KeyNames::RenderObject::positionX);
+    refs.posY = document.getStableDoublePointer(Constants::KeyNames::RenderObject::positionY);
+    refs.pixelSizeX = document.getStableDoublePointer(Constants::KeyNames::RenderObject::pixelSizeX);
+    refs.pixelSizeY = document.getStableDoublePointer(Constants::KeyNames::RenderObject::pixelSizeY);
 
     // Spritesheet
-    refs.isSpritesheet = document.getStableDoublePointer(Constants::keyName.renderObject.isSpritesheet);
-    refs.spritesheetOffsetX = document.getStableDoublePointer(Constants::keyName.renderObject.spritesheetOffsetX);
-    refs.spritesheetOffsetY = document.getStableDoublePointer(Constants::keyName.renderObject.spritesheetOffsetY);
-    refs.spritesheetSizeX = document.getStableDoublePointer(Constants::keyName.renderObject.spritesheetSizeX);
-    refs.spritesheetSizeY = document.getStableDoublePointer(Constants::keyName.renderObject.spritesheetSizeY);
+    refs.isSpritesheet = document.getStableDoublePointer(Constants::KeyNames::RenderObject::isSpritesheet);
+    refs.spritesheetOffsetX = document.getStableDoublePointer(Constants::KeyNames::RenderObject::spritesheetOffsetX);
+    refs.spritesheetOffsetY = document.getStableDoublePointer(Constants::KeyNames::RenderObject::spritesheetOffsetY);
+    refs.spritesheetSizeX = document.getStableDoublePointer(Constants::KeyNames::RenderObject::spritesheetSizeX);
+    refs.spritesheetSizeY = document.getStableDoublePointer(Constants::KeyNames::RenderObject::spritesheetSizeY);
 
     // Text
-    refs.fontSize = document.getStableDoublePointer(Constants::keyName.renderObject.textFontsize);
-    refs.textDx = document.getStableDoublePointer(Constants::keyName.renderObject.textDx);
-    refs.textDy = document.getStableDoublePointer(Constants::keyName.renderObject.textDy);
-    refs.textColorR = document.getStableDoublePointer(Constants::keyName.renderObject.textColorR);
-    refs.textColorG = document.getStableDoublePointer(Constants::keyName.renderObject.textColorG);
-    refs.textColorB = document.getStableDoublePointer(Constants::keyName.renderObject.textColorB);
-    refs.textColorA = document.getStableDoublePointer(Constants::keyName.renderObject.textColorA);
+    refs.fontSize = document.getStableDoublePointer(Constants::KeyNames::RenderObject::textFontsize);
+    refs.textDx = document.getStableDoublePointer(Constants::KeyNames::RenderObject::textDx);
+    refs.textDy = document.getStableDoublePointer(Constants::KeyNames::RenderObject::textDy);
+    refs.textColorR = document.getStableDoublePointer(Constants::KeyNames::RenderObject::textColorR);
+    refs.textColorG = document.getStableDoublePointer(Constants::KeyNames::RenderObject::textColorG);
+    refs.textColorB = document.getStableDoublePointer(Constants::KeyNames::RenderObject::textColorB);
+    refs.textColorA = document.getStableDoublePointer(Constants::KeyNames::RenderObject::textColorA);
 }
 
 //------------------------------------------
@@ -322,7 +322,7 @@ void RenderObject::calculateText(SDL_Renderer* renderer, TTF_Font* font, int con
 
         // Settings influenced by a new text
         double constexpr scalar = 1.0; // Perhaps needed later on for scaling
-        auto const text = document.get<std::string>(Constants::keyName.renderObject.textStr);
+        auto const text = document.get<std::string>(Constants::KeyNames::RenderObject::textStr);
         textRect.w = static_cast<int>(*refs.fontSize * static_cast<double>(text.length()) * scalar);
         textRect.h = static_cast<int>(*refs.fontSize * 1.5 * scalar);
 

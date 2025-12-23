@@ -32,8 +32,8 @@ Constants::Error Texture::update() {
 bool Texture::copyTexture() {
     // If no texture is linked, try to load from the document
     if (texture == nullptr) {
-        std::string const imageLocation = Constants::keyName.renderObject.imageLocation;
-        texture = Nebulite::global().getRenderer()->loadTextureToMemory(getDoc()->get<std::string>(imageLocation, ""));
+        std::string const& imageLink = getDoc()->get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "");
+        texture = Nebulite::global().getRenderer()->loadTextureToMemory(imageLink);
 
         if (texture == nullptr) {
             return false; // No texture to copy

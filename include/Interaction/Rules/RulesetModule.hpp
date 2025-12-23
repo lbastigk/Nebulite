@@ -33,7 +33,7 @@
 #define BIND_STATIC_ASSERT(type, func, topic, description) \
     static_assert(Nebulite::Interaction::Rules::RulesetModule::isValidTopic(topic), \
     "BIND_STATIC_ASSERT(): A static rulesets topic must start with '::'. Tried to bind variable: " #topic); \
-    bind(type, func, topic, description);
+    bind(type, func, topic, description)
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {
@@ -108,7 +108,7 @@ protected:
      * @param keys The array of keys to retrieve values for.
      * @return A pointer to an array of double pointers, each pointing to a base value.
      */
-    double** getBaseList(Interaction::Execution::DomainBase& ctx, std::vector<std::string> const& keys) {
+    double** getBaseList(Interaction::Execution::DomainBase& ctx, std::vector<std::string_view> const& keys) {
         return ensureOrderedCacheList(*ctx.getDoc(), keys)->data();
     }
 
@@ -126,11 +126,10 @@ private:
      *        Use the function name itself "::<function>" as the unique identifier
      *        hash in globalspace to avoid collisions.
      * @param doc The document in which to retrieve the values
-     * @param identifier The unique identifier for the array of values
      * @param keys The array of keys to retrieve values for
      * @return An array of values corresponding to the provided keys
      */
-    Data::odpvec* ensureOrderedCacheList(Nebulite::Data::JSON& doc, std::vector<std::string> const& keys) const {
+    Data::odpvec* ensureOrderedCacheList(Nebulite::Data::JSON& doc, std::vector<std::string_view> const& keys) const {
         return doc.getOrderedCacheListMap()->ensureOrderedCacheList(id, &doc, keys);
     }
 };

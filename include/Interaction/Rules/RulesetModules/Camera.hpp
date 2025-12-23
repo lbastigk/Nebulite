@@ -62,11 +62,11 @@ private:
     //------------------------------------------
     // Base value caching for camera alignment
 
-    const std::vector<std::string> keys = {
-        Nebulite::Constants::keyName.renderObject.positionX,
-        Nebulite::Constants::keyName.renderObject.positionY,
-        Nebulite::Constants::keyName.renderObject.pixelSizeX,
-        Nebulite::Constants::keyName.renderObject.pixelSizeY
+    const std::vector<std::string_view> keys = {
+        Nebulite::Constants::KeyNames::RenderObject::positionX,
+        Nebulite::Constants::KeyNames::RenderObject::positionY,
+        Nebulite::Constants::KeyNames::RenderObject::pixelSizeX,
+        Nebulite::Constants::KeyNames::RenderObject::pixelSizeY
     };
 
     enum class Key : std::size_t {

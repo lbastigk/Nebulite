@@ -264,6 +264,8 @@ public:
      */
     template <typename T>
     void set(std::string const& key, T const& val);
+    template <typename T> void set(std::string_view const& key, T const& val) { set<T>(std::string(key), val); }
+    template <typename T> void set(char const* key, T const& val) { set<T>(std::string(key), val); }
 
     /**
      * @brief Sets a variant value of supported simple values in the JSON document.
@@ -290,6 +292,8 @@ public:
      * @param key The key of the array to set.
      */
     void setEmptyArray(char const* key);
+    void setEmptyArray(std::string const& key) { setEmptyArray(key.c_str()); }
+    void setEmptyArray(std::string_view key) { setEmptyArray(std::string(key).c_str()); }
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
@@ -323,6 +327,8 @@ public:
      */
     template <typename T>
     T get(std::string const& key, T const& defaultValue = T());
+    template <typename T> T get(std::string_view key, T const& defaultValue = T()) { return get<T>(std::string(key), defaultValue); }
+    template <typename T> T get(char const* key, T const& defaultValue = T()) { return get<T>(std::string(key), defaultValue); }
 
     /**
      * @brief Gets a variant value from the JSON document.
@@ -344,12 +350,16 @@ public:
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
      */
     JSON getSubDoc(std::string const& key);
+    JSON getSubDoc(std::string_view key) { return getSubDoc(std::string(key)); }
+    JSON getSubDoc(char const* key) { return getSubDoc(std::string(key)); }
 
     /**
      * @brief Gets a pointer to a double value pointer in the JSON document.
      * @return A pointer to the double value associated with the key.
      */
     double* getStableDoublePointer(std::string const& key);
+    double* getStableDoublePointer(std::string_view key) { return getStableDoublePointer(std::string(key)); }
+    double* getStableDoublePointer(char const* key) { return getStableDoublePointer(std::string(key)); }
 
     /**
      * @brief Provides access to the internal mutex for thread-safe operations.
@@ -367,7 +377,7 @@ public:
      *       - in Expressions, the map is only used for "other" references and uses the expression as hash
      *       - in Static Rulesets, the map is used for both "self" and "other" references, and uses the function name as hash
      *
-     *       Later on, with more context such as parent, we need to find different hashes for each context.
+     *       Later on: With more context such as parent, we need to find different hashes for each context.
      *       perhaps: <context>::<function>
      *       and for static rulesets, just using ::<function> is enough.
      *       But we can use multiple retrievals if we desire, specifying different contexts.
@@ -397,6 +407,8 @@ public:
      * @return The type of the key.
      */
     KeyType memberType(std::string const& key);
+    KeyType memberType(std::string_view key) { return memberType(std::string(key)); }
+    KeyType memberType(char const* key) { return memberType(std::string(key)); }
 
     /**
      * @brief Checks the size of a key in the JSON document.
@@ -406,6 +418,8 @@ public:
      * @return The size of the key.
      */
     size_t memberSize(std::string const& key);
+    size_t memberSize(std::string_view key) { return memberSize(std::string(key)); }
+    size_t memberSize(char const* key) { return memberSize(std::string(key)); }
 
     /**
      * @brief Removes a key from the JSON document.

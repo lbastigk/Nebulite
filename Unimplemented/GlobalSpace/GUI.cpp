@@ -10,7 +10,7 @@ Nebulite::Constants::Error GUI::update() {
     // This is used to update all variables/states that are INTERNAL ONLY
 
     // We can also update internal states from the local level:
-    // int displaySizeX = self->global.get<int>(Nebulite::Constants::keyName.renderer.dispResX.c_str(), 0);
+    // int displaySizeX = self->global.get<int>(Nebulite::Constants::KeyNames::Renderer::dispResX.c_str(), 0);
     return Nebulite::Constants::ErrorTable::NONE();
 }
 

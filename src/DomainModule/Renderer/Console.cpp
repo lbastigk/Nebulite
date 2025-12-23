@@ -92,12 +92,12 @@ bool Console::ensureConsoleTexture() {
     // Prerequisites
 
     // Derive consoleRect size from display size
-    double const consoleHeight = static_cast<double>(globalDoc->get<size_t>(Constants::keyName.renderer.dispResY, 360)) * consoleLayout.heightRatio;
+    double const consoleHeight = static_cast<double>(globalDoc->get<size_t>(Constants::KeyNames::Renderer::dispResY, 360)) * consoleLayout.heightRatio;
     static SDL_Rect currentConsolePosition;
     currentConsolePosition.x = 0;
-    currentConsolePosition.y = static_cast<int>(globalDoc->get<double>(Constants::keyName.renderer.dispResY, 360) - consoleHeight);
-    currentConsolePosition.w = globalDoc->get<int>(Constants::keyName.renderer.dispResX, 360);
-    currentConsolePosition.h = globalDoc->get<int>(Constants::keyName.renderer.dispResY, 360) - currentConsolePosition.y;
+    currentConsolePosition.y = static_cast<int>(globalDoc->get<double>(Constants::KeyNames::Renderer::dispResY, 360) - consoleHeight);
+    currentConsolePosition.w = globalDoc->get<int>(Constants::KeyNames::Renderer::dispResX, 360);
+    currentConsolePosition.h = globalDoc->get<int>(Constants::KeyNames::Renderer::dispResY, 360) - currentConsolePosition.y;
 
     //------------------------------------------
     // Texture Setup

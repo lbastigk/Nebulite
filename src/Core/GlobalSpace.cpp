@@ -189,13 +189,11 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
 }
 
 Constants::Error GlobalSpace::parseQueue() {
-    Constants::Error lastCriticalResult;
     queueResult.clear();
     for (auto const& t : tasks) {
         queueResult[t.first] = t.second->resolve(*this, cmdVars.recover);
         if (queueResult[t.first].encounteredCriticalResult && !cmdVars.recover) {
-            lastCriticalResult = queueResult[t.first].errors.back();
-            return lastCriticalResult;
+            return queueResult[t.first].errors.back();
         }
     }
     return Constants::ErrorTable::NONE();
@@ -220,8 +218,8 @@ Constants::Error GlobalSpace::preParse() {
 void GlobalSpace::updateRNGs() {
     // Set Min and Max values for RNGs in document
     // Always set, so overwrites don't stick around
-    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.min, std::numeric_limits<RngVars::rngSize_t>::min());
-    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.max, std::numeric_limits<RngVars::rngSize_t>::max());
+    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::min, std::numeric_limits<RngVars::rngSize_t>::min());
+    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::max, std::numeric_limits<RngVars::rngSize_t>::max());
 
     // Generate seeds in a predictable manner
     // Since updateRNG is called at specific times only, we can simply increment RNG with a new seed
@@ -237,10 +235,10 @@ void GlobalSpace::updateRNGs() {
     rng.D.update(seedD);
 
     // Set RNG values in global document
-    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.A, rng.A.get());
-    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.B, rng.B.get());
-    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.C, rng.C.get());
-    document.set<RngVars::rngSize_t>(Constants::keyName.RNGs.D, rng.D.get());
+    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::A, rng.A.get());
+    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::B, rng.B.get());
+    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::C, rng.C.get());
+    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::D, rng.D.get());
 }
 
 } // namespace Nebulite::Core

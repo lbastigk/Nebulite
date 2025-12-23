@@ -6,10 +6,10 @@ namespace Nebulite::Interaction::Rules::Construction {
 
 void RulesetCompiler::getFunctionCalls(Data::JSON& entryDoc, JsonRuleset& Ruleset, Core::RenderObject const* self) {
     // Get function calls: GLOBAL, SELF, OTHER
-    if (entryDoc.memberType(Constants::keyName.invoke.functioncalls_global) == Data::JSON::KeyType::array) {
-        size_t const funcSize = entryDoc.memberSize(Constants::keyName.invoke.functioncalls_global);
+    if (entryDoc.memberType(Constants::KeyNames::Invoke::functioncalls_global) == Data::JSON::KeyType::array) {
+        size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Invoke::functioncalls_global);
         for (size_t j = 0; j < funcSize; ++j) {
-            std::string funcKey = Constants::keyName.invoke.functioncalls_global + "[" + std::to_string(j) + "]";
+            std::string funcKey = std::string(Constants::KeyNames::Invoke::functioncalls_global) + "[" + std::to_string(j) + "]";
             auto funcCall = entryDoc.get<std::string>(funcKey, "");
 
             // Create a new Expression, parse the function call
@@ -18,10 +18,10 @@ void RulesetCompiler::getFunctionCalls(Data::JSON& entryDoc, JsonRuleset& Rulese
             Ruleset.functioncalls_global.emplace_back(std::move(invokeExpr));
         }
     }
-    if (entryDoc.memberType(Constants::keyName.invoke.functioncalls_self) == Data::JSON::KeyType::array) {
-        size_t const funcSize = entryDoc.memberSize(Constants::keyName.invoke.functioncalls_self);
+    if (entryDoc.memberType(Constants::KeyNames::Invoke::functioncalls_self) == Data::JSON::KeyType::array) {
+        size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Invoke::functioncalls_self);
         for (size_t j = 0; j < funcSize; ++j) {
-            std::string funcKey = Constants::keyName.invoke.functioncalls_self + "[" + std::to_string(j) + "]";
+            std::string funcKey = std::string(Constants::KeyNames::Invoke::functioncalls_self) + "[" + std::to_string(j) + "]";
             auto funcCall = entryDoc.get<std::string>(funcKey, "");
 
             // The first arg has to be some reference of where the function is called
@@ -37,10 +37,10 @@ void RulesetCompiler::getFunctionCalls(Data::JSON& entryDoc, JsonRuleset& Rulese
             Ruleset.functioncalls_self.emplace_back(std::move(invokeExpr));
         }
     }
-    if (entryDoc.memberType(Constants::keyName.invoke.functioncalls_other) == Data::JSON::KeyType::array) {
-        size_t const funcSize = entryDoc.memberSize(Constants::keyName.invoke.functioncalls_other);
+    if (entryDoc.memberType(Constants::KeyNames::Invoke::functioncalls_other) == Data::JSON::KeyType::array) {
+        size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Invoke::functioncalls_other);
         for (size_t j = 0; j < funcSize; ++j) {
-            std::string funcKey = Constants::keyName.invoke.functioncalls_other + "[" + std::to_string(j) + "]";
+            std::string funcKey = std::string(Constants::KeyNames::Invoke::functioncalls_other) + "[" + std::to_string(j) + "]";
             auto funcCall = entryDoc.get<std::string>(funcKey, "");
 
             // The first arg has to be some reference of where the function is called
@@ -58,22 +58,26 @@ void RulesetCompiler::getFunctionCalls(Data::JSON& entryDoc, JsonRuleset& Rulese
 }
 
 bool RulesetCompiler::getExpression(Logic::Assignment& assignmentExpr, Data::JSON& entry, size_t const& index) {
-    auto const exprKey = Constants::keyName.invoke.exprVector + "[" + std::to_string(index) + "]";
+    static std::string const startSelf = std::string(Constants::KeyNames::Invoke::typeSelf) + ".";
+    static std::string const startOther = std::string(Constants::KeyNames::Invoke::typeOther) + ".";
+    static std::string const startGlobal = std::string(Constants::KeyNames::Invoke::typeGlobal) + ".";
+
+    auto const exprKey = std::string(Constants::KeyNames::Invoke::exprVector) + "[" + std::to_string(index) + "]";
 
     // Get expression
     auto expr = entry.get<std::string>(exprKey, "");
 
     // needs to start with "self.", "other." or "global."
     std::string prefix;
-    if (expr.starts_with(Constants::keyName.invoke.typeSelf + ".")) {
+    if (expr.starts_with(startSelf)) {
         assignmentExpr.onType = Logic::Assignment::Type::Self;
-        prefix = Constants::keyName.invoke.typeSelf + ".";
-    } else if (expr.starts_with(Constants::keyName.invoke.typeOther + ".")) {
+        prefix = startSelf;
+    } else if (expr.starts_with(startOther)) {
         assignmentExpr.onType = Logic::Assignment::Type::Other;
-        prefix = Constants::keyName.invoke.typeOther + ".";
-    } else if (expr.starts_with(Constants::keyName.invoke.typeGlobal + ".")) {
+        prefix = startOther;
+    } else if (expr.starts_with(startGlobal)) {
         assignmentExpr.onType = Logic::Assignment::Type::Global;
-        prefix = Constants::keyName.invoke.typeGlobal + ".";
+        prefix = startGlobal;
     } else {
         // Invalid expression
         assignmentExpr.onType = Logic::Assignment::Type::null;
@@ -104,8 +108,8 @@ bool RulesetCompiler::getExpression(Logic::Assignment& assignmentExpr, Data::JSO
 }
 
 bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JSON* entry, Data::JSON* self) {
-    if (entry->memberType(Constants::keyName.invoke.exprVector) == Data::JSON::KeyType::array) {
-        size_t const exprSize = entry->memberSize(Constants::keyName.invoke.exprVector);
+    if (entry->memberType(Constants::KeyNames::Invoke::exprVector) == Data::JSON::KeyType::array) {
+        size_t const exprSize = entry->memberSize(Constants::KeyNames::Invoke::exprVector);
         for (size_t j = 0; j < exprSize; ++j) {
             if (Logic::Assignment assignmentExpr; getExpression(assignmentExpr, *entry, j)) {
                 // Successfully parsed expression
@@ -175,7 +179,7 @@ void RulesetCompiler::setMetaData(
     std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsGlobal
     ) {
     // Set IDs
-    auto const id = self->getDoc()->get<uint32_t>(Nebulite::Constants::keyName.renderObject.id, 0);
+    auto const id = self->getDoc()->get<uint32_t>(Nebulite::Constants::KeyNames::RenderObject::id, 0);
     for (auto const& entry : rulesetsLocal) {
         entry->id = id;
     }
@@ -200,12 +204,12 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
     Data::JSON* doc = self->getDoc();
 
     // Check if doc is valid
-    if (doc->memberType(Constants::keyName.renderObject.invokes) != Data::JSON::KeyType::array) {
+    if (doc->memberType(Constants::KeyNames::RenderObject::invokes) != Data::JSON::KeyType::array) {
         return;
     }
 
     // Get size of entries
-    size_t const size = doc->memberSize(Constants::keyName.renderObject.invokes);
+    size_t const size = doc->memberSize(Constants::KeyNames::RenderObject::invokes);
     if (size == 0) {
         // Object has no rulesets
         return;
@@ -214,7 +218,7 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
     // Iterate through all entries
     for (size_t idx = 0; idx < size; ++idx) {
         // Parse entry into separate JSON object
-        std::string const key = Constants::keyName.renderObject.invokes + "[" + std::to_string(idx) + "]";
+        std::string const key = std::string(Constants::KeyNames::RenderObject::invokes) + "[" + std::to_string(idx) + "]";
         auto Ruleset = getRuleset(*doc, key, self);
 
         if (std::holds_alternative<std::monostate>(Ruleset)) {
@@ -298,7 +302,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JSON& doc, std::st
     }
     // Is a valid JSON-defined ruleset
     auto Ruleset = std::make_shared<Interaction::Rules::JsonRuleset>();
-    Ruleset->topic = entry.get<std::string>(Constants::keyName.invoke.topic, "all");
+    Ruleset->topic = entry.get<std::string>(Constants::KeyNames::Invoke::topic, "all");
     Ruleset->_isGlobal = (!Ruleset->topic.empty()); // If topic is empty, it is a local invoke
     Ruleset->logicalArg.parse(getLogicalArg(entry), self->getDoc());
 

@@ -71,19 +71,18 @@ private:
     /**
      * @brief List of keys for physics-related base values in the ordered cache list.
      */
-    const std::vector<std::string> keys = {
-        Nebulite::Constants::keyName.renderObject.positionX,
-        Nebulite::Constants::keyName.renderObject.positionY,
-        Nebulite::Constants::keyName.renderObject.pixelSizeX,
-        Nebulite::Constants::keyName.renderObject.pixelSizeY,
+    const std::vector<std::string_view> keys = {
+        Nebulite::Constants::KeyNames::RenderObject::positionX,
+        Nebulite::Constants::KeyNames::RenderObject::positionY,
+        Nebulite::Constants::KeyNames::RenderObject::pixelSizeX,
+        Nebulite::Constants::KeyNames::RenderObject::pixelSizeY,
         "physics.aX",
         "physics.aY",
         "physics.vX",
         "physics.vY",
         "physics.mass", // TODO: rename to physics.m . Renaming all json files keys is necessary.
         "physics.FX",
-        "physics.FY",
-
+        "physics.FY"
     };
 
     /**

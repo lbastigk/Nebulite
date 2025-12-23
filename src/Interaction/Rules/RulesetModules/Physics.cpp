@@ -15,8 +15,8 @@ Physics::Physics() : RulesetModule(moduleName) {
 
     // Global Variables
     globalVal.G = Nebulite::global().getDoc()->getStableDoublePointer("physics.G"); // Gravitational constant
-    globalVal.dt = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::keyName.renderer.time_dt); // Simulation delta time
-    globalVal.t = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::keyName.renderer.time_t); // Simulation time
+    globalVal.dt = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::time_dt); // Simulation delta time
+    globalVal.t = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::time_t); // Simulation time
 }
 
 // Global rulesets

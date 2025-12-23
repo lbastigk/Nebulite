@@ -239,7 +239,7 @@ T Nebulite::Data::DocumentCache::get(std::string const& doc_key, T const& defaul
     }
 
     // Retrieve the value from the document
-    T data = docPtr->document.get<T>(key.c_str(), defaultValue);
+    T data = docPtr->document.get<T>(key, defaultValue);
 
     // Update the cache (unload old documents)
     update();

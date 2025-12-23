@@ -48,7 +48,7 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, N
     return &newIt->second.orderedValues;
 }
 
-odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, Nebulite::Data::JSON* reference, std::vector<std::string> const& keys) {
+odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, Nebulite::Data::JSON* reference, std::vector<std::string_view> const& keys) {
     // Quick-cache path protected by mtxCache
     if (uniqueId < Data::MappedOrderedDoublePointers::quickCacheSize) {
         {
@@ -92,4 +92,4 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, N
     return &newIt->second.orderedValues;
 }
 
-}
+} // namespace Nebulite::Data

@@ -152,7 +152,7 @@ public:
     odpvec* ensureOrderedCacheList(
         uint64_t uniqueId,
         Nebulite::Data::JSON* reference,
-        std::vector<std::string> const& keys
+        std::vector<std::string_view> const& keys
         );
 
 private:

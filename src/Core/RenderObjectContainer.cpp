@@ -1,11 +1,12 @@
 #include "Core/RenderObjectContainer.hpp"
 
-//------------------------------------------
-// RenderObjectContainer
+namespace Nebulite::Core {
+
+
 
 //------------------------------------------
 //Marshalling
-std::string Nebulite::Core::RenderObjectContainer::serialize() {
+std::string RenderObjectContainer::serialize() {
     //------------------------------------------
     // Setup
 
@@ -34,7 +35,7 @@ std::string Nebulite::Core::RenderObjectContainer::serialize() {
     return doc.serialize();
 }
 
-void Nebulite::Core::RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY) {
+void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY) {
     Data::JSON layer;
     layer.deserialize(serialOrLink);
     if (layer.memberType("objects") == Data::JSON::KeyType::array) {
@@ -59,20 +60,20 @@ void Nebulite::Core::RenderObjectContainer::deserialize(std::string const& seria
 //------------------------------------------
 // Pipeline
 
-std::pair<int16_t, int16_t> getTilePos(Nebulite::Core::RenderObject* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
+std::pair<int16_t, int16_t> getTilePos(RenderObject* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
     // Calculate correspondingTilePositionX using positionX
-    auto const positionX = toAppend->getDoc()->get<double>(Nebulite::Constants::keyName.renderObject.positionX.c_str(), 0.0);
+    auto const positionX = toAppend->getDoc()->get<double>(Nebulite::Constants::KeyNames::RenderObject::positionX, 0.0);
     auto correspondingTilePositionX = static_cast<int16_t>(positionX / static_cast<double>(displayResolutionX));
 
     // Calculate correspondingTilePositionY using positionY
-    auto const positionY = toAppend->getDoc()->get<double>(Nebulite::Constants::keyName.renderObject.positionY.c_str(), 0.0);
+    auto const positionY = toAppend->getDoc()->get<double>(Nebulite::Constants::KeyNames::RenderObject::positionY, 0.0);
     auto correspondingTilePositionY = static_cast<int16_t>(positionY / static_cast<double>(displayResolutionY));
 
     // Form pair and return
     return std::make_pair(correspondingTilePositionX, correspondingTilePositionY);
 }
 
-void Nebulite::Core::RenderObjectContainer::append(RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY) {
+void RenderObjectContainer::append(RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY) {
     std::pair<int16_t, int16_t> const pos = getTilePos(toAppend, dispResX, dispResY);
 
     // Try to insert into an existing batch
@@ -90,7 +91,7 @@ void Nebulite::Core::RenderObjectContainer::append(RenderObject* toAppend, uint1
     ObjectContainer[pos].push_back(std::move(newBatch));
 }
 
-std::thread Nebulite::Core::RenderObjectContainer::createBatchWorker(Batch& work, std::pair<int16_t, int16_t> pos, uint16_t dispResX, uint16_t dispResY) {
+std::thread RenderObjectContainer::createBatchWorker(Batch& work, std::pair<int16_t, int16_t> pos, uint16_t dispResX, uint16_t dispResY) {
     return std::thread([&work, pos, this, dispResX, dispResY] {
         // Every batch worker has potential objects to move or delete
         std::vector<RenderObject*> to_move_local;
@@ -125,7 +126,7 @@ std::thread Nebulite::Core::RenderObjectContainer::createBatchWorker(Batch& work
     });
 }
 
-void Nebulite::Core::RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tilePosY, uint16_t const& dispResX, uint16_t const& dispResY) {
+void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tilePosY, uint16_t const& dispResX, uint16_t const& dispResY) {
     //------------------------------------------
     // Define tile offsets that are being rendered
 
@@ -196,7 +197,7 @@ void Nebulite::Core::RenderObjectContainer::update(int16_t const& tilePosX, int1
     reinsertionProcess.queue.clear();
 }
 
-void Nebulite::Core::RenderObjectContainer::reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY) {
+void RenderObjectContainer::reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY) {
     // Collect all objects
     std::vector<RenderObject*> toReinsert;
     for (auto& batches : std::views::values(ObjectContainer)) {
@@ -215,13 +216,13 @@ void Nebulite::Core::RenderObjectContainer::reinsertAllObjects(uint16_t const& d
     }
 }
 
-bool Nebulite::Core::RenderObjectContainer::isValidPosition(std::pair<uint16_t, uint16_t> const& position) {
+bool RenderObjectContainer::isValidPosition(std::pair<uint16_t, uint16_t> const& position) {
     // Check if ObjectContainer is not empty
     auto const it = ObjectContainer.find(position);
     return it != ObjectContainer.end();
 }
 
-void Nebulite::Core::RenderObjectContainer::purgeObjects() {
+void RenderObjectContainer::purgeObjects() {
     for (auto it = ObjectContainer.begin(); it != ObjectContainer.end();) {
         for (auto& [objects, _] : it->second) {
             // Move all objects to trash
@@ -232,7 +233,7 @@ void Nebulite::Core::RenderObjectContainer::purgeObjects() {
     }
 }
 
-size_t Nebulite::Core::RenderObjectContainer::getObjectCount() const {
+size_t RenderObjectContainer::getObjectCount() const {
     // Calculate the total item count
     size_t totalCount = 0;
     for (auto const it = ObjectContainer.begin(); it != ObjectContainer.end();) {
@@ -244,7 +245,7 @@ size_t Nebulite::Core::RenderObjectContainer::getObjectCount() const {
 //------------------------------------------
 // Batch
 
-Nebulite::Core::RenderObject* Nebulite::Core::RenderObjectContainer::Batch::pop() {
+RenderObject* RenderObjectContainer::Batch::pop() {
     if (objects.empty())
         return nullptr;
 
@@ -255,12 +256,12 @@ Nebulite::Core::RenderObject* Nebulite::Core::RenderObjectContainer::Batch::pop(
     return obj;
 }
 
-void Nebulite::Core::RenderObjectContainer::Batch::push(RenderObject* obj) {
+void RenderObjectContainer::Batch::push(RenderObject* obj) {
     estimatedCost += obj->estimateComputationalCost();
     objects.push_back(obj);
 }
 
-bool Nebulite::Core::RenderObjectContainer::Batch::removeObject(RenderObject* obj) {
+bool RenderObjectContainer::Batch::removeObject(RenderObject* obj) {
     if (auto const it = std::ranges::find(objects.begin(), objects.end(), obj); it != objects.end()) {
         estimatedCost -= obj->estimateComputationalCost();
         objects.erase(it);
@@ -268,3 +269,5 @@ bool Nebulite::Core::RenderObjectContainer::Batch::removeObject(RenderObject* ob
     }
     return false;
 }
+
+} // namespace Nebulite::Core

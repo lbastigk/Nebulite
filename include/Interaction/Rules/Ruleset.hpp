@@ -228,7 +228,7 @@ public:
 
     /**
      * @brief Checks if the ruleset is true in the context of the other render object.
-     * @param otherObj The other render object to compare against.
+     * @param other The other render object to compare against.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
     bool evaluateCondition(Interaction::Execution::DomainBase const* other) override;

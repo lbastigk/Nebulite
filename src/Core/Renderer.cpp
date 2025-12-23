@@ -82,11 +82,11 @@ Renderer::Renderer(Data::JSON* docRef, bool* flag_headless, unsigned int const& 
 
     //------------------------------------------
     // Set basic values inside global doc
-    getDoc()->set<unsigned int>(Constants::keyName.renderer.dispResX, X);
-    getDoc()->set<unsigned int>(Constants::keyName.renderer.dispResY, Y);
+    getDoc()->set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X);
+    getDoc()->set<unsigned int>(Constants::KeyNames::Renderer::dispResY, Y);
 
-    getDoc()->set<unsigned int>(Constants::keyName.renderer.positionX, 0);
-    getDoc()->set<unsigned int>(Constants::keyName.renderer.positionY, 0);
+    getDoc()->set<unsigned int>(Constants::KeyNames::Renderer::positionX, 0);
+    getDoc()->set<unsigned int>(Constants::KeyNames::Renderer::positionY, 0);
 
     //------------------------------------------
     // Start timers
@@ -119,8 +119,8 @@ void Renderer::initSDL() {
     // Define window via x|y|w|h
     int constexpr x = SDL_WINDOWPOS_CENTERED;
     int constexpr y = SDL_WINDOWPOS_CENTERED;
-    int const w = getDoc()->get<int>(Constants::keyName.renderer.dispResX, 0);
-    int const h = getDoc()->get<int>(Constants::keyName.renderer.dispResY, 0);
+    int const w = getDoc()->get<int>(Constants::KeyNames::Renderer::dispResX, 0);
+    int const h = getDoc()->get<int>(Constants::KeyNames::Renderer::dispResY, 0);
 
     uint32_t flags = *headless ? SDL_WINDOW_HIDDEN : SDL_WINDOW_SHOWN;
     //flags = flags | SDL_WINDOW_RESIZABLE; // Disabled for now, as it causes issues with the logical size rendering
@@ -259,25 +259,25 @@ bool Renderer::timeToRender() {
 
 void Renderer::append(RenderObject* toAppend) {
     // Set ID
-    toAppend->getDoc()->set<uint32_t>(Constants::keyName.renderObject.id, renderObjectIdCounter);
+    toAppend->getDoc()->set<uint32_t>(Constants::KeyNames::RenderObject::id, renderObjectIdCounter);
     renderObjectIdCounter++;
 
     //Append to environment, based on layer
     env.append(
         toAppend,
-        getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResX, 0),
-        getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResY, 0),
-        toAppend->getDoc()->get<uint8_t>(Constants::keyName.renderObject.layer, 0)
+        getDoc()->get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
+        getDoc()->get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0),
+        toAppend->getDoc()->get<uint8_t>(Constants::KeyNames::RenderObject::layer, 0)
         );
 
     //Load texture
-    loadTexture(toAppend->getDoc()->get<std::string>(Constants::keyName.renderObject.imageLocation));
+    loadTexture(toAppend->getDoc()->get<std::string>(Constants::KeyNames::RenderObject::imageLocation));
 }
 
 void Renderer::reinsertAllObjects() {
     env.reinsertAllObjects(
-        getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResX, 0),
-        getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResY, 0)
+        getDoc()->get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
+        getDoc()->get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0)
         );
 }
 
@@ -407,19 +407,19 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint16_t const& scal
         return;
     }
 
-    getDoc()->set<int>(Constants::keyName.renderer.dispResX, w);
-    getDoc()->set<int>(Constants::keyName.renderer.dispResY, h);
+    getDoc()->set<int>(Constants::KeyNames::Renderer::dispResX, w);
+    getDoc()->set<int>(Constants::KeyNames::Renderer::dispResY, h);
 
     // Update the window size
     SDL_SetWindowSize(
         window,
-        getDoc()->get<int>(Constants::keyName.renderer.dispResX, 360) * WindowScale,
-        getDoc()->get<int>(Constants::keyName.renderer.dispResY, 360) * WindowScale
+        getDoc()->get<int>(Constants::KeyNames::Renderer::dispResX, 360) * WindowScale,
+        getDoc()->get<int>(Constants::KeyNames::Renderer::dispResY, 360) * WindowScale
         );
     SDL_RenderSetLogicalSize(
         renderer,
-        getDoc()->get<int>(Constants::keyName.renderer.dispResX, 360),
-        getDoc()->get<int>(Constants::keyName.renderer.dispResY, 360)
+        getDoc()->get<int>(Constants::KeyNames::Renderer::dispResX, 360),
+        getDoc()->get<int>(Constants::KeyNames::Renderer::dispResY, 360)
         );
 
     // Turn off console mode
@@ -432,24 +432,24 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint16_t const& scal
 
 void Renderer::moveCam(int const& dX, int const& dY) const {
     getDoc()->set<int>(
-        Constants::keyName.renderer.positionX,
-        getDoc()->get<int>(Constants::keyName.renderer.positionX, 0) + dX
+        Constants::KeyNames::Renderer::positionX,
+        getDoc()->get<int>(Constants::KeyNames::Renderer::positionX, 0) + dX
         );
     getDoc()->set<int>(
-        Constants::keyName.renderer.positionY,
-        getDoc()->get<int>(Constants::keyName.renderer.positionY, 0) + dY
+        Constants::KeyNames::Renderer::positionY,
+        getDoc()->get<int>(Constants::KeyNames::Renderer::positionY, 0) + dY
         );
 }
 
 void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle) const {
     if (isMiddle) {
-        int const newPosX = X - getDoc()->get<int>(Constants::keyName.renderer.dispResX, 0) / 2;
-        int const newPosY = Y - getDoc()->get<int>(Constants::keyName.renderer.dispResY, 0) / 2;
-        getDoc()->set<int>(Constants::keyName.renderer.positionX, newPosX);
-        getDoc()->set<int>(Constants::keyName.renderer.positionY, newPosY);
+        int const newPosX = X - getDoc()->get<int>(Constants::KeyNames::Renderer::dispResX, 0) / 2;
+        int const newPosY = Y - getDoc()->get<int>(Constants::KeyNames::Renderer::dispResY, 0) / 2;
+        getDoc()->set<int>(Constants::KeyNames::Renderer::positionX, newPosX);
+        getDoc()->set<int>(Constants::KeyNames::Renderer::positionY, newPosY);
     } else {
-        getDoc()->set<int>(Constants::keyName.renderer.positionX, X);
-        getDoc()->set<int>(Constants::keyName.renderer.positionY, Y);
+        getDoc()->set<int>(Constants::KeyNames::Renderer::positionX, X);
+        getDoc()->set<int>(Constants::KeyNames::Renderer::positionY, Y);
     }
 }
 
@@ -479,8 +479,8 @@ void Renderer::updateState() {
     Nebulite::global().getInvoke().update();
 
     // Update environment
-    auto const dispResX = getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResX, 0);
-    auto const dispResY = getDoc()->get<uint16_t>(Constants::keyName.renderer.dispResY, 0);
+    auto const dispResX = getDoc()->get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0);
+    auto const dispResY = getDoc()->get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0);
     env.updateObjects(tilePositionX, tilePositionY, dispResX, dispResY);
 }
 
@@ -489,12 +489,12 @@ void Renderer::renderFrame() {
     // Store for faster access
 
     // Get camera position
-    auto const dispPosX = getDoc()->get<int16_t>(Constants::keyName.renderer.positionX, 0);
-    auto const dispPosY = getDoc()->get<int16_t>(Constants::keyName.renderer.positionY, 0);
+    auto const dispPosX = getDoc()->get<int16_t>(Constants::KeyNames::Renderer::positionX, 0);
+    auto const dispPosY = getDoc()->get<int16_t>(Constants::KeyNames::Renderer::positionY, 0);
 
     // Depending on position, set tiles to render
-    tilePositionX = static_cast<int16_t>(dispPosX / getDoc()->get<int16_t>(Constants::keyName.renderer.dispResX, 0));
-    tilePositionY = static_cast<int16_t>(dispPosY / getDoc()->get<int16_t>(Constants::keyName.renderer.dispResY, 0));
+    tilePositionX = static_cast<int16_t>(dispPosX / getDoc()->get<int16_t>(Constants::KeyNames::Renderer::dispResX, 0));
+    tilePositionY = static_cast<int16_t>(dispPosY / getDoc()->get<int16_t>(Constants::KeyNames::Renderer::dispResY, 0));
 
     //------------------------------------------
     // FPS Count and Control
@@ -536,7 +536,7 @@ void Renderer::renderFrame() {
                 for (auto const& obj : objectsInThisBatch) {
                     error = renderObjectToScreen(obj, dispPosX, dispPosY);
                     if (error != 0) {
-                        Nebulite::cerr() << "Error rendering object ID " << obj->getDoc()->get<uint32_t>(Constants::keyName.renderObject.id, 0) << ": " << error << Nebulite::endl;
+                        Nebulite::cerr() << "Error rendering object ID " << obj->getDoc()->get<uint32_t>(Constants::KeyNames::RenderObject::id, 0) << ": " << error << Nebulite::endl;
                     }
                 }
             }
@@ -557,7 +557,7 @@ int Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int c
     // Texture Loading
 
     // Check for texture
-    auto const innerDirectory = obj->getDoc()->get<std::string>(Constants::keyName.renderObject.imageLocation);
+    auto const innerDirectory = obj->getDoc()->get<std::string>(Constants::KeyNames::RenderObject::imageLocation);
 
     // Load texture if not yet loaded
     if (TextureContainer.find(innerDirectory) == TextureContainer.end()) {
@@ -585,7 +585,7 @@ int Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int c
     if (!obj->getSDLTexture()) {
         Nebulite::cerr()
             << "Error: RenderObject ID "
-            << obj->getDoc()->get<uint32_t>(Constants::keyName.renderObject.id, 0)
+            << obj->getDoc()->get<uint32_t>(Constants::KeyNames::RenderObject::id, 0)
             << " texture with path '"
             << innerDirectory
             << "' not found"
@@ -601,7 +601,7 @@ int Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int c
 
     // Render the text
     int error_text = 0;
-    if (obj->getDoc()->get<double>(Constants::keyName.renderObject.textFontsize) > 0) {
+    if (obj->getDoc()->get<double>(Constants::KeyNames::RenderObject::textFontsize) > 0) {
         obj->calculateText(
             renderer,
             font,

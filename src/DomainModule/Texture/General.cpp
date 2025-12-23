@@ -20,7 +20,7 @@ Constants::Error General::reloadTexture(int argc, char** argv) {
     }
 
     // Load new texture from the document
-    auto const path = domain->getDoc()->get<std::string>(Constants::keyName.renderObject.imageLocation, "");
+    auto const path = domain->getDoc()->get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "");
     if (path.empty()) {
         return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE(); // No valid path in document
     }
