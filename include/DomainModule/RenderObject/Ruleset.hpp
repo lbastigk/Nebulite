@@ -62,7 +62,7 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Ruleset) {
         // Bind functions
-        bindFunction(&Ruleset::once, once_name,&once_desc);
+        bindFunction(&Ruleset::once, once_name, once_desc);
     }
 
     // TODO: For some reason, only obj id2 is broadcasting??

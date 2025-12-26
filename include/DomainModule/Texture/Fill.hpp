@@ -53,7 +53,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Fill) {
-        bindFunction(&Fill::fill, fill_name, &fill_desc);
+        bindFunction(&Fill::fill, fill_name, fill_desc);
     }
 };
 } // namespace Nebulite::DomainModule::Texture

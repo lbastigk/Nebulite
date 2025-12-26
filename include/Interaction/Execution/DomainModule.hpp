@@ -79,7 +79,13 @@ public:
      * @param helpDescription Pointer to a string containing the help description for the function.
      */
     template <typename ClassType, typename FuncTreeType, typename ReturnType, typename... Args>
-    void bindFunctionStatic(FuncTreeType* tree, ClassType* obj, ReturnType (ClassType::*methodPtr)(Args...), std::string const& name, std::string const* helpDescription) {
+    void bindFunctionStatic(
+        FuncTreeType* tree,
+        ClassType* obj,
+        ReturnType (ClassType::*methodPtr)(Args...),
+        std::string_view const& name,
+        std::string_view const& helpDescription
+        ) {
         using MemberVariant = FuncTreeType::template MemberMethod<ClassType>;
         MemberVariant methodVariant{methodPtr}; // Wrap the member function pointer in the variant
         std::visit([&](auto mpr) {
@@ -103,12 +109,15 @@ public:
      * @tparam Args The argument types of the member function.
      * @param methodPtr A pointer to the member function to bind.
      * @param name The name to associate with the bound function.
-     * @param helpDescription A pointer to a string containing the help description for the function.
-     * @todo Use string_view instead of string for name and helpDescription to avoid unnecessary copies.
-     *       Do the same for FuncTree bindFunction methods.
+     * @param helpDescription The help description for the function.
+     *                        First line is shown in the general help, full description in detailed help
      */
     template <typename ClassType, typename ReturnType, typename... Args>
-    void bindFunction(ReturnType (ClassType::*methodPtr)(Args...), std::string const& name, std::string const* helpDescription) {
+    void bindFunction(
+        ReturnType (ClassType::*methodPtr)(Args...),
+        std::string_view const& name,
+        std::string_view const& helpDescription
+        ) {
         bindFunctionStatic(funcTree.get(), static_cast<ClassType*>(this), methodPtr, name, helpDescription);
     }
 
@@ -116,22 +125,23 @@ public:
      * @brief Binds a category to the FuncTree.
      * @details A category acts as a "function bundler" to the main tree.
      * @param name Name of the category
-     * @param helpDescription Description of the category, shown in the help command. First line is shown in the general help, full description in detailed help
+     * @param helpDescription Description of the category, shown in the help command.
+     *                        First line is shown in the general help, full description in detailed help
      * @return true if the category was created successfully, false if a category with the same name already exists
      */
-    bool bindCategory(std::string const& name, std::string const* helpDescription) const {
+    bool bindCategory(std::string_view const& name, std::string_view const& helpDescription) const {
         return funcTree->bindCategory(name, helpDescription);
     }
 
     /**
      * @brief Binds a variable to the command tree.
+     * @details Once bound, it can be set via command line arguments: --varName=value (Must be before the function name!)
+     *          A simple argument of '--varName' will set the value to "true"
      * @param variablePtr Pointer to the variable to bind.
      * @param name Name of the variable in the command tree.
      * @param helpDescription Description of the variable, shown in the help command.
-     * @details Once bound, it can be set via command line arguments: --varName=value (Must be before the function name!)
-     *          A simple argument of '--varName' will set the value to "true"
      */
-    void bindVariable(bool* variablePtr, std::string const& name, std::string const* helpDescription) const {
+    void bindVariable(bool* variablePtr, std::string_view const& name, std::string_view const& helpDescription) const {
         // Bind a variable to the FuncTree
         funcTree->bindVariable(variablePtr, name, helpDescription);
     }

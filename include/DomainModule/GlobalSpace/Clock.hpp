@@ -38,8 +38,8 @@ public:
      * @brief Adds a clock to the global clock list.
      */
     Constants::Error addClock(int argc, char** argv);
-    static std::string const addClock_name;
-    static std::string const addClock_desc;
+    static std::string_view constexpr addClock_name = "add-clock";
+    static std::string_view constexpr addClock_desc = "Adds a clock with specified interval (ms) to the global clock system";
 
     //------------------------------------------
     // Keys in the global document
@@ -49,7 +49,7 @@ public:
      * 
      * access with key_arr_active_clocks + ".ms" + <interval_padded>
      */
-    static std::string const key_arr_active_clocks;
+    static std::string_view constexpr key_arr_active_clocks = "clocks.active";
 
     /**
      * @brief Key for accessing the status of each clock.
@@ -58,7 +58,7 @@ public:
      * 
      * Example: key_doc_status_clocks + ".ms000100" for the clock with 100ms interval
      */
-    static std::string const key_doc_status_clocks;
+    static std::string_view constexpr key_doc_status_clocks = "clocks.status";
 
     //------------------------------------------
     // Setup
@@ -69,7 +69,7 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Clock) {
         //------------------------------------------
         // Binding functions to the FuncTree
-        bindFunction(&Clock::addClock, addClock_name, &addClock_desc);
+        bindFunction(&Clock::addClock, addClock_name, addClock_desc);
 
         // Read clock list from document
         readClocksFromDocument();

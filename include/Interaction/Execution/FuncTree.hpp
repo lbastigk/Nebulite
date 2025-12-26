@@ -131,7 +131,7 @@ public:
      * @param valDefault Value to return if everything is okay
      * @param valFunctionNotFound Value to return if the parsed function was not found
      */
-    FuncTree(std::string treeName, returnValue valDefault, returnValue valFunctionNotFound);
+    FuncTree(std::string_view const& treeName, returnValue const& valDefault, returnValue const& valFunctionNotFound);
 
     /**
      * @brief Inherits functions from another Tree.
@@ -196,11 +196,11 @@ public:
      * @brief Creates a category.
      *        A category acts a "function bundler" to the main tree.
      * @param name Name of the category
-     * @param helpDescription Pointer to description of the category, shown in the help command. First line is shown in the general help, full description in detailed help
+     * @param helpDescription Description of the category, shown in the help command. First line is shown in the general help, full description in detailed help
      * @return true if the category was created successfully, 
      * false if a category with the same name already exists.
      */
-    bool bindCategory(std::string const& name, std::string const* helpDescription);
+    bool bindCategory(std::string_view const& name, std::string_view const& helpDescription);
 
     /**
      * @brief Binds a function to the command tree.
@@ -215,7 +215,7 @@ public:
      * @param helpDescription Help description for the function. First line is shown in the general help, full description in detailed help.
      */
     template <typename ClassType>
-    void bindFunction(ClassType* obj, MemberMethod<ClassType> method, std::string const& name, std::string const* helpDescription);
+    void bindFunction(ClassType* obj, MemberMethod<ClassType> method, std::string_view const& name, std::string_view const& helpDescription);
 
     /**
      * @brief Binds a variable to the command tree.
@@ -225,7 +225,7 @@ public:
      * @param name Name of the variable in the command tree
      * @param helpDescription Help description for the variable. First line is shown in the general help, full description in detailed help.
      */
-    void bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription);
+    void bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription);
 
 private:
     // Name of the tree, used for help and output
@@ -245,7 +245,7 @@ private:
      */
     struct CategoryInfo {
         std::unique_ptr<FuncTree> tree;
-        std::string const* description;
+        std::string_view const& description;
     };
 
     /**
@@ -254,7 +254,7 @@ private:
      */
     struct FunctionInfo {
         FunctionPtr function;
-        std::string const* description;
+        std::string_view const& description;
     };
 
     /**
@@ -263,7 +263,7 @@ private:
      */
     struct VariableInfo {
         bool* pointer;
-        std::string const* description;
+        std::string_view const& description;
     };
 
     // inherited FuncTrees linked to this tree
@@ -327,15 +327,14 @@ private:
      */
     std::vector<std::pair<std::string, std::string const*>> getAllVariables();
 
-    /**
-     * @brief Help description for the help function.
-     */
-    std::string const help_desc = R"(Show available commands and their descriptions)";
+    //------------------------------------------
+    // Descriptions for built-in functions
 
-    /**
-     * @brief Help description for the complete function.
-     */
-    std::string const complete_desc = R"(Provide command completion suggestions based on the current arguments)";
+    static std::string_view constexpr helpName = "help";
+    static std::string_view constexpr helpDesc = R"(Show available commands and their descriptions)";
+
+    static std::string_view constexpr completeName = "__complete__";
+    static std::string_view constexpr completeDesc = R"(Provide command completion suggestions based on the current arguments)";
 
     //------------------------------------------
     // Helper functions for better readability
@@ -436,18 +435,18 @@ private:
      *          Returns true if no conflicts are found.
      * @param name The name of the function to check for conflicts.
      */
-    bool conflictCheck(std::string const& name);
+    bool conflictCheck(std::string_view const& name);
 
     /**
      * @brief Binds a function directly to this FuncTree without checking for categories or conflicts.
      * @tparam ClassType The class type of the object instance
      * @param name The name of the function to bind
-     * @param helpDescription Pointer to the help description for the function
+     * @param helpDescription The help description for the function
      * @param method The member method to bind
      * @param obj The object instance that holds the member method
      */
     template <typename ClassType>
-    void directBind(std::string const& name, std::string const* helpDescription, MemberMethod<ClassType> method, ClassType* obj);
+    void directBind(std::string_view const& name, std::string_view const& helpDescription, MemberMethod<ClassType> method, ClassType* obj);
 
     //------------------------------------------
     // Completion function

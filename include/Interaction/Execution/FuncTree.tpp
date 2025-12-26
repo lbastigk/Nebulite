@@ -24,7 +24,7 @@
 // Binding error messages
 
 namespace bindErrorMessage {
-[[noreturn]] inline void MissingCategory(std::string const& tree, std::string const& category, std::string const& function) {
+[[noreturn]] inline void MissingCategory(std::string_view const& tree, std::string_view const& category, std::string_view const& function) {
     Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------" << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "A Nebulite FuncTree binding failed!" << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "Error: Category '" << category << "' does not exist when trying to bind function '" << function << "'." << Nebulite::Utility::Capture::endl;
@@ -33,14 +33,14 @@ namespace bindErrorMessage {
     throw std::runtime_error("FuncTree binding failed due to missing category.");
 }
 
-[[noreturn]] inline void FunctionShadowsCategory(std::string const& function) {
+[[noreturn]] inline void FunctionShadowsCategory(std::string_view const& function) {
     Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------" << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "A Nebulite FuncTree binding failed!" << Nebulite::Utility::Capture::endl;
     Nebulite::Utility::Capture::cerr() << "Error: Cannot bind function '" << function << "' because a category with the same name already exists." << Nebulite::Utility::Capture::endl;
     throw std::runtime_error("FuncTree binding failed due to function shadowing category.");
 }
 
-[[noreturn]] inline void FunctionExistsInInheritedTree(std::string const& tree, std::string const& inheritedTree, std::string const& function) {
+[[noreturn]] inline void FunctionExistsInInheritedTree(std::string_view const& tree, std::string_view const& inheritedTree, std::string_view const& function) {
     Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
     Nebulite::Utility::Capture::cerr() << "A Nebulite FuncTree initialization failed!\n";
     Nebulite::Utility::Capture::cerr() << "Error: A bound Function already exists in the inherited FuncTree.\n";
@@ -52,20 +52,20 @@ namespace bindErrorMessage {
     throw std::runtime_error("FuncTree binding failed due to function existing in inherited tree.");
 }
 
-[[noreturn]] inline void ParentCategoryDoesNotExists(std::string const& name, std::string const& currentCategoryName) {
+[[noreturn]] inline void ParentCategoryDoesNotExist(std::string_view const& name, std::string_view const& currentCategoryName) {
     Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
     Nebulite::Utility::Capture::cerr() << "Error: Cannot create category '" << name << "' because parent category '" << currentCategoryName << "' does not exist." << Nebulite::Utility::Capture::endl;
     throw std::runtime_error("FuncTree binding failed due to missing parent category.");
 }
 
-[[noreturn]] inline void CategoryExists(std::string const& name) {
+[[noreturn]] inline void CategoryExists(std::string_view const& name) {
     Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
     Nebulite::Utility::Capture::cerr() << "A Nebulite FuncTree initialization failed!\n";
     Nebulite::Utility::Capture::cerr() << "Error: Cannot create category '" << name << "' because it already exists." << Nebulite::Utility::Capture::endl;
     throw std::runtime_error("FuncTree binding failed due to category already existing.");
 }
 
-[[noreturn]] inline void FunctionExists(std::string const& tree, std::string const& function) {
+[[noreturn]] inline void FunctionExists(std::string_view const& tree, std::string_view const& function) {
     Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
     Nebulite::Utility::Capture::cerr() << "Nebulite FuncTree initialization failed!\n";
     Nebulite::Utility::Capture::cerr() << "Error: A bound Function already exists in this tree.\n";
@@ -76,7 +76,7 @@ namespace bindErrorMessage {
     throw std::runtime_error("FuncTree binding failed due to function already existing.");
 }
 
-[[noreturn]] inline void UnknownMethodPointerType(std::string const& tree, std::string const& function) {
+[[noreturn]] inline void UnknownMethodPointerType(std::string_view const& tree, std::string_view const& function) {
     Nebulite::Utility::Capture::cerr() << "---------------------------------------------------------------\n";
     Nebulite::Utility::Capture::cerr() << "Nebulite FuncTree initialization failed!\n";
     Nebulite::Utility::Capture::cerr() << "Error: Unknown method pointer type for function '" << function << "' in FuncTree '" << tree << "'.\n";
@@ -104,19 +104,19 @@ namespace Nebulite::Interaction::Execution {
 // Constructor implementation
 
 template <typename returnType, typename... additionalArgs>
-FuncTree<returnType, additionalArgs...>::FuncTree(std::string treeName, returnType valDefault, returnType valFunctionNotFound)
+FuncTree<returnType, additionalArgs...>::FuncTree(std::string_view const& treeName, returnType const& valDefault, returnType const& valFunctionNotFound)
     : TreeName(std::move(treeName)),
       standardReturn{valDefault, valFunctionNotFound} {
     // construct the help entry in-place to avoid assignment and ambiguous lambda conversions
     bindingContainer.functions.emplace(
-        "help",
+        helpName,
         FunctionInfo{
             std::function<returnType(std::span<std::string const> const&, additionalArgs...)>(
                 [this](std::span<std::string const> const& args, additionalArgs... rest) {
                     return this->help(args, std::forward<additionalArgs>(rest)...);
                 }
                 ),
-            &help_desc
+            helpDesc
         }
         );
 
@@ -129,7 +129,7 @@ FuncTree<returnType, additionalArgs...>::FuncTree(std::string treeName, returnTy
                     return this->complete(args, std::forward<additionalArgs>(rest)...);
                 }
                 ),
-            &complete_desc
+            completeDesc
         }
         );
 }
@@ -155,11 +155,11 @@ template <typename ClassType>
 void FuncTree<returnType, additionalArgs...>::bindFunction(
     ClassType* obj,
     MemberMethod<ClassType> method,
-    std::string const& name,
-    std::string const* helpDescription) {
+    std::string_view const& name,
+    std::string_view const& helpDescription) {
     // If the name has a whitespace, the function has to be bound to a category hierarchically
     if (name.find(' ') != std::string::npos) {
-        std::vector<std::string> const pathStructure = Utility::StringHandler::split(name, ' ');
+        std::vector<std::string> const pathStructure = Utility::StringHandler::split(std::string(name), ' ');
         if (pathStructure.size() < 2) {
             Nebulite::Utility::Capture::cerr() << "Error: Invalid function name '" << name << "'." << Nebulite::Utility::Capture::endl;
             return;
@@ -169,7 +169,7 @@ void FuncTree<returnType, additionalArgs...>::bindFunction(
         for (size_t idx = 0; idx < pathStructure.size() - 1; idx++) {
             std::string const& currentCategoryName = pathStructure[idx];
             if (currentCategoryMap->find(currentCategoryName) == currentCategoryMap->end()) {
-                bindErrorMessage::MissingCategory(TreeName, currentCategoryName, name);
+                bindErrorMessage::MissingCategory(TreeName, currentCategoryName, std::string(name));
             }
             targetTree = (*currentCategoryMap)[currentCategoryName].tree.get();
             currentCategoryMap = &targetTree->bindingContainer.categories;
@@ -186,8 +186,8 @@ void FuncTree<returnType, additionalArgs...>::bindFunction(
 }
 
 template <typename returnType, typename... additionalArgs>
-bool FuncTree<returnType, additionalArgs...>::bindCategory(std::string const& name, std::string const* helpDescription) {
-    if (bindingContainer.categories.find(name) != bindingContainer.categories.end()) {
+bool FuncTree<returnType, additionalArgs...>::bindCategory(std::string_view const& name, std::string_view const& helpDescription) {
+    if (bindingContainer.categories.find(std::string(name)) != bindingContainer.categories.end()) {
         // Category already exists
         /**
          * @note Warning is suppressed here,
@@ -197,7 +197,7 @@ bool FuncTree<returnType, additionalArgs...>::bindCategory(std::string const& na
         return false;
     }
     // Split based on whitespaces
-    std::vector<std::string> const categoryStructure = Utility::StringHandler::split(name, ' ');
+    std::vector<std::string> const categoryStructure = Utility::StringHandler::split(std::string(name), ' ');
     size_t const depth = categoryStructure.size();
 
     absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
@@ -211,13 +211,13 @@ bool FuncTree<returnType, additionalArgs...>::bindCategory(std::string const& na
                 currentCategoryMap = &(*currentCategoryMap)[currentCategoryName].tree->bindingContainer.categories;
             } else {
                 // Category does not exist, throw error
-                bindErrorMessage::ParentCategoryDoesNotExists(name, currentCategoryName);
+                bindErrorMessage::ParentCategoryDoesNotExist(std::string(name), currentCategoryName);
             }
         } else {
             // Last category, create it, if it doesn't exist yet
             if (currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()) {
                 // Category exists, throw error
-                bindErrorMessage::CategoryExists(name);
+                bindErrorMessage::CategoryExists(std::string(name));
             }
             // Create category
             (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree>(currentCategoryName, standardReturn.valDefault, standardReturn.valFunctionNotFound), helpDescription};
@@ -230,7 +230,7 @@ bool FuncTree<returnType, additionalArgs...>::bindCategory(std::string const& na
 // But this causes issues with binding variables.
 template <typename returnType, typename... additionalArgs>
 // NOLINTNEXTLINE
-void FuncTree<returnType, additionalArgs...>::bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription) {
+void FuncTree<returnType, additionalArgs...>::bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription) {
     // Make sure there are no whitespaces in the variable name
     if (name.find(' ') != std::string::npos) {
         Nebulite::Utility::Capture::cerr() << "Error: Variable name '" << name << "' cannot contain whitespaces." << Nebulite::Utility::Capture::endl;
@@ -251,7 +251,7 @@ void FuncTree<returnType, additionalArgs...>::bindVariable(bool* varPtr, std::st
 // Binding helper functions
 
 template <typename returnType, typename... additionalArgs>
-bool FuncTree<returnType, additionalArgs...>::conflictCheck(std::string const& name) {
+bool FuncTree<returnType, additionalArgs...>::conflictCheck(std::string_view const& name) {
     for (auto const& [categoryName, _] : bindingContainer.categories) {
         if (categoryName == name) {
             bindErrorMessage::FunctionShadowsCategory(name);
@@ -285,7 +285,7 @@ bool FuncTree<returnType, additionalArgs...>::conflictCheck(std::string const& n
 
 template <typename returnType, typename... additionalArgs>
 template <typename ClassType>
-void FuncTree<returnType, additionalArgs...>::directBind(std::string const& name, std::string const* helpDescription, MemberMethod<ClassType> method, ClassType* obj) {
+void FuncTree<returnType, additionalArgs...>::directBind(std::string_view const& name, std::string_view const& helpDescription, MemberMethod<ClassType> method, ClassType* obj) {
     // Use std::visit to bind the correct function type
     std::visit([&]<typename MethodPointer>(MethodPointer&& methodPointer) {
         using MethodType = std::decay_t<MethodPointer>;
@@ -298,35 +298,41 @@ void FuncTree<returnType, additionalArgs...>::directBind(std::string const& name
 
         // Legacy Bindings, not supporting additionalArgs at the moment
         if constexpr (std::is_same_v<MethodType, returnType (ClassType::*)(int, char**)>) {
-            bindingContainer.functions.emplace(name, FunctionInfo{
-                                                   std::function<returnType(int, char**)>(
-                                                       [obj, methodPointer](int argc, char** argv) {
-                                                           return (obj->*methodPointer)(argc, argv);
-                                                       }
-                                                       ),
-                                                   helpDescription
-                                               });
+            bindingContainer.functions.emplace(
+                name,
+                FunctionInfo{
+               std::function<returnType(int, char**)>(
+                   [obj, methodPointer](int argc, char** argv) {
+                       return (obj->*methodPointer)(argc, argv);
+                   }
+                   ),
+               helpDescription
+           });
         } else if constexpr (std::is_same_v<MethodType, returnType (ClassType::*)(int, char const**)>) {
-            bindingContainer.functions.emplace(name, FunctionInfo{
-                                                   std::function<returnType(int, char const**)>(
-                                                       [obj, methodPointer](int argc, char const** argv) {
-                                                           return (obj->*methodPointer)(argc, argv);
-                                                       }
-                                                       ),
-                                                   helpDescription
-                                               });
+            bindingContainer.functions.emplace(
+                name,
+                FunctionInfo{
+               std::function<returnType(int, char const**)>(
+                   [obj, methodPointer](int argc, char const** argv) {
+                       return (obj->*methodPointer)(argc, argv);
+                   }
+                   ),
+               helpDescription
+           });
         }
 
         // Modern Bindings, allow additionalArgs...
         else if constexpr (isModern || isModernRefArgs) {
-            bindingContainer.functions.emplace(name, FunctionInfo{
-                                                   std::function<returnType(std::span<std::string const>, additionalArgs...)>(
-                                                       [obj, methodPointer](std::span<std::string const> args, additionalArgs... rest) {
-                                                           return (obj->*methodPointer)(args, std::forward<additionalArgs>(rest)...);
-                                                       }
-                                                       ),
-                                                   helpDescription
-                                               });
+            bindingContainer.functions.emplace(
+                name,
+                FunctionInfo{
+               std::function<returnType(std::span<std::string const>, additionalArgs...)>(
+                   [obj, methodPointer](std::span<std::string const> args, additionalArgs... rest) {
+                       return (obj->*methodPointer)(args, std::forward<additionalArgs>(rest)...);
+                   }
+                   ),
+               helpDescription
+           });
         }
         // 5.) Unsupported method pointer type
         else {
@@ -585,7 +591,7 @@ void FuncTree<returnType, additionalArgs...>::specificHelp(std::string const& fu
         if (searchResult.function) {
             // Found function, display detailed help
             Nebulite::Utility::Capture::cout() << "\nHelp for function '" << funcName << "':\n" << Nebulite::Utility::Capture::endl;
-            Nebulite::Utility::Capture::cout() << *searchResult.funIt->second.description << "\n";
+            Nebulite::Utility::Capture::cout() << searchResult.funIt->second.description << "\n";
         }
         // 2.) Category
         else if (searchResult.category) {
@@ -596,7 +602,7 @@ void FuncTree<returnType, additionalArgs...>::specificHelp(std::string const& fu
         else if (searchResult.variable) {
             // Found variable, display detailed help
             Nebulite::Utility::Capture::cout() << "\nHelp for variable '--" << funcName << "':\n" << Nebulite::Utility::Capture::endl;
-            Nebulite::Utility::Capture::cout() << *searchResult.varIt->second.description << "\n";
+            Nebulite::Utility::Capture::cout() << searchResult.varIt->second.description << "\n";
         }
     } else {
         Nebulite::Utility::Capture::cerr() << "Function or Category '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";

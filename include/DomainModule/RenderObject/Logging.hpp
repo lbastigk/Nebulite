@@ -94,11 +94,11 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Logging) {
-        bindFunction(&Logging::echo, echo_name, &echo_desc);
+        bindFunction(&Logging::echo, echo_name, echo_desc);
 
-        (void)bindCategory(log_name, &log_desc);
-        bindFunction(&Logging::log_all, log_all_name, &log_all_desc);
-        bindFunction(&Logging::log_key, log_key_name, &log_key_desc);
+        (void)bindCategory(log_name, log_desc);
+        bindFunction(&Logging::log_all, log_all_name, log_all_desc);
+        bindFunction(&Logging::log_key, log_key_name, log_key_desc);
     }
 };
 } // namespace Nebulite::DomainModule::RenderObject

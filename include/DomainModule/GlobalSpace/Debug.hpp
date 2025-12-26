@@ -180,20 +180,20 @@ public:
 
         //------------------------------------------
         // Binding functions to the FuncTree
-        bindFunction(&Debug::errorlog, errorlog_name, &errorlog_desc);
-        bindFunction(&Debug::clearConsole, clearConsole_name, &clearConsole_desc);
-        bindFunction(&Debug::error, error_name, &error_desc);
-        bindFunction(&Debug::crash, crash_name, &crash_desc);
-        bindFunction(&Debug::warn, warn_name, &warn_desc);
-        bindFunction(&Debug::critical, critical_name, &critical_desc);
-        bindFunction(&Debug::waitForInput, waitForInput_name, &waitForInput_desc);
+        bindFunction(&Debug::errorlog, errorlog_name, errorlog_desc);
+        bindFunction(&Debug::clearConsole, clearConsole_name, clearConsole_desc);
+        bindFunction(&Debug::error, error_name, error_desc);
+        bindFunction(&Debug::crash, crash_name, crash_desc);
+        bindFunction(&Debug::warn, warn_name, warn_desc);
+        bindFunction(&Debug::critical, critical_name, critical_desc);
+        bindFunction(&Debug::waitForInput, waitForInput_name, waitForInput_desc);
 
-        (void)bindCategory(log_name, &log_desc);
-        bindFunction(&Debug::log_global, log_global_name, &log_global_desc);
-        bindFunction(&Debug::log_state, log_state_name, &log_state_desc);
+        (void)bindCategory(log_name, log_desc);
+        bindFunction(&Debug::log_global, log_global_name, log_global_desc);
+        bindFunction(&Debug::log_state, log_state_name, log_state_desc);
 
-        (void)bindCategory(standardfile_name, &standardfile_desc);
-        bindFunction(&Debug::standardfile_renderobject, standardfile_renderobject_name, &standardfile_renderobject_desc);
+        (void)bindCategory(standardfile_name, standardfile_desc);
+        bindFunction(&Debug::standardfile_renderobject, standardfile_renderobject_name, standardfile_renderobject_desc);
     }
 
 private:

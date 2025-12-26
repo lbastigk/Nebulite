@@ -70,7 +70,7 @@ public:
     /**
      * @brief Binds a variable to the FuncTree.
      */
-    void bindVariable(bool* varPtr, std::string const& name, std::string const* helpDescription) const {
+    void bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription) const {
         funcTree->bindVariable(varPtr, name, helpDescription);
     }
 

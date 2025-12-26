@@ -50,7 +50,7 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JSON, Debug) {
         // Binding
-        bindFunction(&Debug::print, print_name, &print_desc);
+        bindFunction(&Debug::print, print_name, print_desc);
     }
 
 private:

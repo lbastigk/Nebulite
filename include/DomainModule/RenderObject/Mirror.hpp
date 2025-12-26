@@ -102,12 +102,12 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Mirror) {
-        (void)bindCategory(mirror_name, &mirror_desc);
-        bindFunction(&Mirror::mirror_once, mirror_once_name, &mirror_once_desc);
-        bindFunction(&Mirror::mirror_on, mirror_on_name, &mirror_on_desc);
-        bindFunction(&Mirror::mirror_off, mirror_off_name, &mirror_off_desc);
-        bindFunction(&Mirror::mirror_delete, mirror_delete_name, &mirror_delete_desc);
-        bindFunction(&Mirror::mirror_fetch, mirror_fetch_name, &mirror_fetch_desc);
+        (void)bindCategory(mirror_name, mirror_desc);
+        bindFunction(&Mirror::mirror_once, mirror_once_name, mirror_once_desc);
+        bindFunction(&Mirror::mirror_on, mirror_on_name, mirror_on_desc);
+        bindFunction(&Mirror::mirror_off, mirror_off_name, mirror_off_desc);
+        bindFunction(&Mirror::mirror_delete, mirror_delete_name, mirror_delete_desc);
+        bindFunction(&Mirror::mirror_fetch, mirror_fetch_name, mirror_fetch_desc);
     }
 
 private:

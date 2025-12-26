@@ -94,12 +94,12 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Debug) {
         // Some functions like selected-object need eval to resolve variables
-        bindFunction(&Debug::eval, eval_name, &eval_desc);
+        bindFunction(&Debug::eval, eval_name, eval_desc);
 
-        (void)bindCategory(debug_name, &debug_desc);
-        bindFunction(&Debug::printSrcRect, printSrcRect_name, &printSrcRect_desc);
-        bindFunction(&Debug::printDstRect, printDstRect_name, &printDstRect_desc);
-        bindFunction(&Debug::textureStatus, textureStatus_name, &textureStatus_desc);
+        (void)bindCategory(debug_name, debug_desc);
+        bindFunction(&Debug::printSrcRect, printSrcRect_name, printSrcRect_desc);
+        bindFunction(&Debug::printDstRect, printDstRect_name, printDstRect_desc);
+        bindFunction(&Debug::textureStatus, textureStatus_name, textureStatus_desc);
     }
 };
 } // namespace Nebulite::DomainModule::RenderObject

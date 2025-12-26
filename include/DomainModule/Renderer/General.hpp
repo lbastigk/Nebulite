@@ -250,24 +250,24 @@ public:
      * The only downside currently is that we have to implement a method to lazy-init the SDL Renderer within the Renderer domain itself.
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, General) {
-        bindFunction(&General::spawn, spawn_name, &spawn_desc);
-        bindFunction(&General::setResolution, setResolution_name, &setResolution_desc);
-        bindFunction(&General::setFPS, setFPS_name, &setFPS_desc);
-        bindFunction(&General::showFPS, showFPS_name, &showFPS_desc);
-        bindFunction(&General::snapshot, snapshot_name, &snapshot_desc);
-        bindFunction(&General::beep, beep_name, &beep_desc);
+        bindFunction(&General::spawn, spawn_name, spawn_desc);
+        bindFunction(&General::setResolution, setResolution_name, setResolution_desc);
+        bindFunction(&General::setFPS, setFPS_name, setFPS_desc);
+        bindFunction(&General::showFPS, showFPS_name, showFPS_desc);
+        bindFunction(&General::snapshot, snapshot_name, snapshot_desc);
+        bindFunction(&General::beep, beep_name, beep_desc);
 
-        (void)bindCategory(cam_name, &cam_desc);
-        bindFunction(&General::cam_move, cam_move_name, &cam_move_desc);
-        bindFunction(&General::cam_set, cam_set_name, &cam_set_desc);
+        (void)bindCategory(cam_name, cam_desc);
+        bindFunction(&General::cam_move, cam_move_name, cam_move_desc);
+        bindFunction(&General::cam_set, cam_set_name, cam_set_desc);
 
-        (void)bindCategory(selectedObject_name, &selectedObject_desc);
-        bindFunction(&General::selectedObject_get, selectedObject_get_name, &selectedObject_get_desc);
-        bindFunction(&General::selectedObject_Parse, selectedObject_Parse_name, &selectedObject_Parse_desc);
+        (void)bindCategory(selectedObject_name, selectedObject_desc);
+        bindFunction(&General::selectedObject_get, selectedObject_get_name, selectedObject_get_desc);
+        bindFunction(&General::selectedObject_Parse, selectedObject_Parse_name, selectedObject_Parse_desc);
 
-        (void)bindCategory(env_name, &env_desc);
-        bindFunction(&General::env_load, env_load_name, &env_load_desc);
-        bindFunction(&General::env_deload, env_deload_name, &env_deload_desc);
+        (void)bindCategory(env_name, env_desc);
+        bindFunction(&General::env_load, env_load_name, env_load_desc);
+        bindFunction(&General::env_deload, env_deload_name, env_deload_desc);
     }
 
 private:

@@ -76,9 +76,9 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Console) {
         // we cannot do much here, since renderer might not be initialized yet
         // so we do the actual initialization in update() when needed
-        (void)bindCategory(console_name, &console_desc);
-        bindFunction(&Console::consoleZoom, consoleZoom_name, &consoleZoom_desc);
-        bindFunction(&Console::consoleSetBackground, consoleSetBackground_name, &consoleSetBackground_desc);
+        (void)bindCategory(console_name, console_desc);
+        bindFunction(&Console::consoleZoom, consoleZoom_name, consoleZoom_desc);
+        bindFunction(&Console::consoleSetBackground, consoleSetBackground_name, consoleSetBackground_desc);
     }
 
 private:

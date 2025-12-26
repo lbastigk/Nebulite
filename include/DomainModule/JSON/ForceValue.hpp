@@ -66,9 +66,9 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JSON, ForceValue)
     {
         // Binding
-        (void)bindCategory(force_name, &force_desc);
-        bindFunction(&ForceValue::force_set, force_set_name, &force_set_desc);
-        bindFunction(&ForceValue::force_clear, force_clear_name, &force_clear_desc);
+        (void)bindCategory(force_name, force_desc);
+        bindFunction(&ForceValue::force_set, force_set_name, force_set_desc);
+        bindFunction(&ForceValue::force_clear, force_clear_name, force_clear_desc);
     }
 
     private
