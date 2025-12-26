@@ -53,9 +53,6 @@ Constants::Error Ruleset::update() {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const Ruleset::Ruleset_name = "ruleset";
-std::string const Ruleset::Ruleset_desc = "Ruleset management functions for the RenderObject domain.";
-
 //------------------------------------------
 // Available Functions
 
@@ -78,15 +75,9 @@ Constants::Error Ruleset::once(std::span<std::string const> const& args) {
     return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
 }
 
-std::string const Ruleset::once_name = "once";
-std::string const Ruleset::once_desc = "Executes a ruleset once from a given string input.\nEither a static ruleset name or a link to a json-defined ruleset.";
-
 Constants::Error Ruleset::reload(std::span<std::string const> const& args) {
     reloadRulesets = true;
     return Constants::ErrorTable::NONE();
 }
-
-std::string const Ruleset::reload_name = "reload";
-std::string const Ruleset::reload_desc = "Reloads all rulesets for this RenderObject on the next update.";
 
 } // namespace Nebulite::DomainModule::RenderObject
