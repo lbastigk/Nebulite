@@ -33,9 +33,6 @@ public:
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Builds a funcTree with extra arguments and tests it.
-     */
     Constants::Error testFuncTree(std::span<std::string const> const& args);
     static std::string_view constexpr testFuncTree_name = "feature-test functree";
     static std::string_view constexpr testFuncTree_desc = "Builds a funcTree with extra arguments and tests it";

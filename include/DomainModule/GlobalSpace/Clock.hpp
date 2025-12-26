@@ -46,17 +46,14 @@ public:
 
     /**
      * @brief Key for accessing the list of active clocks.
-     * 
-     * access with key_arr_active_clocks + ".ms" + <interval_padded>
+     * @details access with `"<key_arr_active_clocks>.ms<interval_padded>"`
      */
     static std::string_view constexpr key_arr_active_clocks = "clocks.active";
 
     /**
      * @brief Key for accessing the status of each clock.
-     * 
-     * Current status of each clock (0 or 1), access with key_doc_status_clocks + ".ms" + <interval_padded>
-     * 
-     * Example: key_doc_status_clocks + ".ms000100" for the clock with 100ms interval
+     * @details Current status of each clock (0 or 1), access with `"<key_doc_status_clocks>.ms<interval_padded>"`
+     *          Example: ".ms000100" for the clock with 100ms interval
      */
     static std::string_view constexpr key_doc_status_clocks = "clocks.status";
 
@@ -78,8 +75,7 @@ public:
 private:
     /**
      * @brief Current time in milliseconds since the program started.
-     * 
-     * Extracted from the global document, calculated via GSDM_Time.
+     * @details Extracted from the global document, calculated via GSDM_Time.
      */
     uint64_t current_time_ms = 0;
 
@@ -96,25 +92,22 @@ private:
 
         /**
          * @brief Updates the clock entry, setting the global reference based on the timer.
-         * 
-         * If dt is greater than or equal to the interval, sets the global reference to 1.0.
-         * Otherwise, sets it to 0.0.
+         * @details If dt is greater than or equal to the interval, sets the global reference to 1.0.
+         *          Otherwise, sets it to 0.0.
          */
         void update(uint64_t const& current_time);
     };
 
     /**
      * @brief Map of clock interval to ClockEntry.
-     * 
-     * We use a hashmap so we can easily create new entries and check existing ones.
+     * @details We use a hashmap so we can easily create new entries and check existing ones.
      */
     absl::flat_hash_map<uint64_t, ClockEntry> clockEntries;
 
     /**
      * @brief Reads the clock list from the global document.
-     * 
-     * This function initializes the clocks hashmap based on available entries in the global document.
-     * This ensures that any pre-configured clocks are loaded and ready for use.
+     * @details This function initializes the clocks hashmap based on available entries in the global document.
+     *          This ensures that any pre-configured clocks are loaded and ready for use.
      */
     void readClocksFromDocument();
 
