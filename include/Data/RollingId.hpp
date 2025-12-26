@@ -2,7 +2,6 @@
  * @file RollingId.hpp
  * @brief This file contains the declaration of the RollingId class, which provides
  *        a thread-safe mechanism for generating unique rolling IDs.
- * @todo Use this class-local as static member instead of globalspace ID counters.
  */
 
 #ifndef NEBULITE_DATA_ROLLING_ID_HPP
