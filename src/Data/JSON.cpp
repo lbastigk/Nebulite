@@ -177,8 +177,7 @@ JSON JSON::getSubDoc(std::string const& key) {
 
     // Check if a transformation is present
     if (key.contains('|')) {
-        JSON tmp;
-        if (getSubDocWithTransformations(key, tmp)) {
+        if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
             return tmp;
         }
         return JSON{};
