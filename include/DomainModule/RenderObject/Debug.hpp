@@ -24,6 +24,7 @@ namespace Nebulite::DomainModule::RenderObject {
 /**
  * @class Nebulite::DomainModule::RenderObject::Debug
  * @brief Debug management for the RenderObject tree DomainModule.
+ * @todo Move texture debugging function to Texture Domain later on, once src/dst rect is properly handled there too.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Debug) {
 public:
@@ -33,64 +34,59 @@ public:
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Evaluates an expression string and executes it
-     * 
-     * Same as for GlobalSpace within GSDM_General.hpp, but local to the RenderObject
-     * for variable resolution.
-     * 
-     * Examples:
-     * 
-     * eval echo $(1+1)    outputs:    2.000000
-     * eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: the string to evaluate
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error eval(int argc, char** argv);
-    static std::string const eval_name;
-    static std::string const eval_desc;
+    static std::string_view constexpr eval_name = "eval";
+    static std::string_view constexpr eval_desc = "Evaluate an expression and execute the result.\n"
+        "Example: eval echo $(1+1)\n"
+        "\n"
+        "Examples:\n\n"
+        "eval echo $(1+1)    outputs:    2.000000\n"
+        "eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json\n";
 
-    /**
-     * @brief Prints the source rectangle of the spritesheet to console
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: None
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error printSrcRect(int argc, char** argv);
-    static std::string const printSrcRect_name;
-    static std::string const printSrcRect_desc;
+    static std::string_view constexpr printSrcRect_name = "debug print-src-rect";
+    static std::string_view constexpr printSrcRect_desc = "Prints debug information about the source rectangle to console\n"
+        "\n"
+        "Usage: debug print-src-rect\n"
+        "\n"
+        "Outputs:\n"
+        "Source Rectangle: { x: ..., y: ..., w: ..., h: ... }\n"
+        "If the RenderObject is not a spritesheet, indicates that instead:\n"
+        "This RenderObject is not a spritesheet.\n";
 
-    /**
-     * @brief Prints the destination rectangle of the spritesheet to console
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: None
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error printDstRect(int argc, char** argv);
-    static std::string const printDstRect_name;
-    static std::string const printDstRect_desc;
+    static std::string_view constexpr printDstRect_name = "debug print-dst-rect";
+    static std::string_view constexpr printDstRect_desc = "Prints debug information about the destination rectangle to console\n"
+        "\n"
+        "Usage: debug print-dst-rect\n"
+        "\n"
+        "Outputs:\n"
+        "Destination Rectangle: { x: ..., y: ..., w: ..., h: ... }\n"
+        "If the RenderObject is not a spritesheet, indicates that instead:\n"
+        "Destination rectangle is not set.\n";
 
-    /**
-     * @brief Prints the texture status to cout
-     */
     Constants::Error textureStatus(int argc, char** argv);
-    static std::string const textureStatus_name;
-    static std::string const textureStatus_desc;
+    static std::string_view constexpr textureStatus_name = "debug texture-status";
+    static std::string_view constexpr textureStatus_desc = "Prints debug information about the texture to console\n"
+        "\n"
+        "Usage: debug texture-status\n"
+        "\n"
+        "Outputs various details about the texture, including:\n"
+        " - Texture Key\n"
+        " - Valid Texture\n"
+        " - Local Texture\n"
+        " - SDL Texture Info (Width, Height, Access, Format)\n";
 
     //------------------------------------------
     // Category names
-    static std::string const debug_name;
-    static std::string const debug_desc;
+    static std::string_view constexpr debug_name = "debug";
+    static std::string_view constexpr debug_desc = "Debugging functions for RenderObject domains";
 
     //------------------------------------------
     // Setup
 
     /**
-     * @brief Initializes the module, binding functions and variables. 
+     * @brief Initializes the module, binding functions and variables.
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Debug) {
         // Some functions like selected-object need eval to resolve variables
