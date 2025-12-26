@@ -141,7 +141,8 @@ bindFunction(/**/,"MyCategory foo","<Description of foo>"); //<-- This would fai
  * @brief Contains the DomainModule of the GlobalSpace for MyFeature functions.
  */
 
-#pragma once
+#ifndef NEBULITE_RODM_MYMODULE_HPP
+#define NEBULITE_RODM_MYMODULE_HPP
 
 //------------------------------------------
 // Includes
@@ -152,48 +153,59 @@ bindFunction(/**/,"MyCategory foo","<Description of foo>"); //<-- This would fai
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Core{
-    class GlobalSpace; // Forward declaration of domain class GlobalSpace
+namespace Nebulite::Core {
+class RenderObject;
 }
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace GlobalSpace {
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, MyModule){
+namespace Nebulite::DomainModule::RenderObject {
+/**
+ * @class Nebulite::DomainModule::RenderObject::MyModule
+ * @brief Example module for RenderObject domain using the Debug.hpp conventions.
+ */
+NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, MyModule) {
 public:
-    /**
-     * @brief Overridden update function.
-     * For implementing internal update-procedures 
-     * on each new frame
-     */
-    Nebulite::Constants::Error update();
+    Constants::Error update() override;
+    void reinit() override {}
 
-    //----------------------------------------
+    //------------------------------------------
     // Available Functions
 
-    Nebulite::Constants::Error spawnCircle(std::span<std::string const> const& args);
-    static std::string const spawnCircleName;   // Defined in MyModule.cpp: "spawn geometry circle"
-    static std::string const spawnCircleDesc;   // Defined in MyModule.cpp: "<oneline-description>\n<details>"
+    Constants::Error exampleCommand(int argc, char** argv);
+    static std::string_view constexpr exampleCommand_name = "example do-something";
+    static std::string_view constexpr exampleCommand_desc = "Performs an example action on the current RenderObject.\n"
+        "\n"
+        "Usage: example do-something [args]\n";
+
+    Constants::Error anotherCmd(int argc, char** argv);
+    static std::string_view constexpr anotherCmd_name = "example another-cmd";
+    static std::string_view constexpr anotherCmd_desc = "Another example command demonstrating binding and descriptions.\n"
+        "\n";
+        "Usage: example another-cmd [args]\n";
+
+    //------------------------------------------
+    // Category names
+    static std::string_view constexpr example_name = "example";
+    static std::string_view constexpr example_desc = "Example functions for RenderObject domain";
 
     //------------------------------------------
     // Setup
 
     /**
-     * @brief Initializes the module, binding functions and variables. 
+     * @brief Initializes the module, binding functions and variables.
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, MyModule){
-        //------------------------------------------
-        // Binding functions to the Domain
-        bindCategory("spawn","Spawn functions");
-        bindCategory("spawn geometry", "Geometric forms");
-        bindFunction(&MyModule::spawnCircle, MyModule::spawnCircleName, &MyModule::spawnCircleDesc);
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, MyModule) {
+        // Ensure category exists before binding functions that include it
+        (void)bindCategory(example_name, example_desc);
+
+        // Bind functions using the name/description constants above
+        bindFunction(&MyModule::exampleCommand, exampleCommand_name, exampleCommand_desc);
+        bindFunction(&MyModule::anotherCmd, anotherCmd_name, anotherCmd_desc);
     }
-private:
-    /*Add necessary variables here*/
 };
-}
-}
+} // namespace Nebulite::DomainModule::RenderObject
+
+#endif // NEBULITE_RODM_MYMODULE_HPP
 ```
 
 **Then add the header file to `include/DomainModule/Initializer.hpp` and initialize in the cpp file.**
