@@ -21,15 +21,15 @@ void Clock::readClocksFromDocument() {
     clockEntries.clear();
 
     // Read all clocks from the document
-    if (domain->getDoc()->memberType(key_arr_active_clocks) != Data::JSON::KeyType::array) {
+    if (domain->getDoc()->memberType(Key::arr_active_clocks) != Data::JSON::KeyType::array) {
         // No clocks found, nothing to do
         return;
     }
 
-    uint64_t const size = domain->getDoc()->memberSize(key_arr_active_clocks);
+    uint64_t const size = domain->getDoc()->memberSize(Key::arr_active_clocks);
 
     for (uint64_t i = 0; i < size; i++) {
-        std::string key = std::string(key_arr_active_clocks) + "[" + std::to_string(i) + "]";
+        std::string key = std::string(Key::arr_active_clocks) + "[" + std::to_string(i) + "]";
         if (auto const interval_type = domain->getDoc()->memberType(key); interval_type != Data::JSON::KeyType::value) {
             // Invalid entry, skip
             continue;
@@ -75,7 +75,7 @@ Constants::Error Clock::addClock(int const argc, char** argv) {
     }
 
     // Add to document
-    std::string const key = std::string(key_arr_active_clocks) + "[" + std::to_string(domain->getDoc()->memberSize(key_arr_active_clocks)) + "]";
+    std::string const key = std::string(Key::arr_active_clocks) + "[" + std::to_string(domain->getDoc()->memberSize(Key::arr_active_clocks)) + "]";
     domain->getDoc()->set(key, interval_ms);
 
     // Create new ClockEntry
@@ -91,7 +91,7 @@ Clock::ClockEntry::ClockEntry(uint64_t const& interval, Data::JSON* doc, uint64_
     last_trigger_ms(current_time),
     interval_ms(interval) {
     // Extract reference to global document entry
-    std::string const key = std::string(key_doc_status_clocks) + "." + intervalToKey(interval_ms);
+    std::string const key = std::string(Key::doc_status_clocks) + "." + intervalToKey(interval_ms);
     doc->set(key, 0.0); // Initialize to 0.0
     this->globalReference = doc->getStableDoublePointer(key);
 }

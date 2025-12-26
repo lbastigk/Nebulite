@@ -1,5 +1,6 @@
 /**
  * @file Clock.hpp
+ * @brief Contains the Clock DomainModule for GlobalSpace.
  */
 
 #ifndef NEBULITE_GSDM_CLOCK_HPP
@@ -34,9 +35,6 @@ public:
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Adds a clock to the global clock list.
-     */
     Constants::Error addClock(int argc, char** argv);
     static std::string_view constexpr addClock_name = "add-clock";
     static std::string_view constexpr addClock_desc = "Adds a clock with specified interval (ms) to the global clock system";
@@ -44,18 +42,21 @@ public:
     //------------------------------------------
     // Keys in the global document
 
-    /**
-     * @brief Key for accessing the list of active clocks.
-     * @details access with `"<key_arr_active_clocks>.ms<interval_padded>"`
-     */
-    static std::string_view constexpr key_arr_active_clocks = "clocks.active";
+    struct Key {
+        /**
+         * @brief Key for accessing the list of active clocks.
+         * @details access with `"<key_arr_active_clocks>.ms<interval_padded>"`
+         */
+        static std::string_view constexpr arr_active_clocks = "clocks.active";
 
-    /**
-     * @brief Key for accessing the status of each clock.
-     * @details Current status of each clock (0 or 1), access with `"<key_doc_status_clocks>.ms<interval_padded>"`
-     *          Example: ".ms000100" for the clock with 100ms interval
-     */
-    static std::string_view constexpr key_doc_status_clocks = "clocks.status";
+        /**
+         * @brief Key for accessing the status of each clock.
+         * @details Current status of each clock (0 or 1), access with `"<key_doc_status_clocks>.ms<interval_padded>"`
+         *          Example: ".ms000100" for the clock with 100ms interval
+         */
+        static std::string_view constexpr doc_status_clocks = "clocks.status";
+    };
+
 
     //------------------------------------------
     // Setup
@@ -113,15 +114,11 @@ private:
 
     /**
      * @brief Converts a clock interval in milliseconds to a key string.
-     * 
-     * This function takes a clock interval in milliseconds and converts it into a key string with zero-padding
-     * that can be used to access the corresponding clock entry in the global document.
-     * 
-     * While up to uint64_t is supported, practical clock intervals should be much lower, so we don't pad for the full length.
-     * This makes the keys more manageable while still being properly sorted for typical use cases.
-     * 
-     * Example: An interval of 100ms becomes "ms000100".
-     * 
+     * @details Takes a clock interval in milliseconds and converts it into a key string with zero-padding
+     *          that can be used to access the corresponding clock entry in the global document.
+     *          While up to uint64_t is supported, practical clock intervals should be much lower, so we don't pad for the full length.
+     *          This makes the keys more manageable while still being properly sorted for typical use cases.
+     *          Example: An interval of 100ms becomes "ms000100".
      * @param interval_ms The clock interval in milliseconds.
      * @return The key string for the clock entry.
      */
