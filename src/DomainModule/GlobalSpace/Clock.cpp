@@ -7,7 +7,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
 
 Constants::Error Clock::update() {
     // Update current time from document
-    current_time_ms = domain->getDoc()->get<uint64_t>(Time::key_time_t_ms);
+    current_time_ms = domain->getDoc()->get<uint64_t>(Time::Key::time_t_ms);
 
     // Check all Timers against their desired time
     for (auto& clockEntry : std::views::values(clockEntries)) {
