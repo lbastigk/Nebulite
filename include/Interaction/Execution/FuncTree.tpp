@@ -159,7 +159,7 @@ void FuncTree<returnType, additionalArgs...>::bindFunction(
     std::string_view const& helpDescription) {
     // If the name has a whitespace, the function has to be bound to a category hierarchically
     if (name.find(' ') != std::string::npos) {
-        std::vector<std::string> const pathStructure = Utility::StringHandler::split(std::string(name), ' ');
+        std::vector<std::string> const pathStructure = Utility::StringHandler::split(name, ' ');
         if (pathStructure.size() < 2) {
             Nebulite::Utility::Capture::cerr() << "Error: Invalid function name '" << name << "'." << Nebulite::Utility::Capture::endl;
             return;
@@ -197,7 +197,7 @@ bool FuncTree<returnType, additionalArgs...>::bindCategory(std::string_view cons
         return false;
     }
     // Split based on whitespaces
-    std::vector<std::string> const categoryStructure = Utility::StringHandler::split(std::string(name), ' ');
+    std::vector<std::string> const categoryStructure = Utility::StringHandler::split(name, ' ');
     size_t const depth = categoryStructure.size();
 
     absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
@@ -345,8 +345,8 @@ void FuncTree<returnType, additionalArgs...>::directBind(std::string_view const&
 // Getter
 
 template <typename returnType, typename... additionalArgs>
-std::vector<std::pair<std::string, std::string const*>> FuncTree<returnType, additionalArgs...>::getAllFunctions() {
-    std::vector<std::pair<std::string, std::string const*>> allFunctions;
+std::vector<std::pair<std::string, std::string_view>> FuncTree<returnType, additionalArgs...>::getAllFunctions() {
+    std::vector<std::pair<std::string, std::string_view>> allFunctions;
     for (auto const& [name, info] : bindingContainer.functions) {
         allFunctions.emplace_back(name, info.description);
     }
@@ -369,8 +369,8 @@ std::vector<std::pair<std::string, std::string const*>> FuncTree<returnType, add
 }
 
 template <typename returnType, typename... additionalArgs>
-std::vector<std::pair<std::string, std::string const*>> FuncTree<returnType, additionalArgs...>::getAllVariables() {
-    std::vector<std::pair<std::string, std::string const*>> allVariables;
+std::vector<std::pair<std::string, std::string_view>> FuncTree<returnType, additionalArgs...>::getAllVariables() {
+    std::vector<std::pair<std::string, std::string_view>> allVariables;
     for (auto const& [name, info] : bindingContainer.variables) {
         allVariables.emplace_back(name, info.description);
     }
@@ -511,7 +511,7 @@ returnType FuncTree<returnType, additionalArgs...>::executeFunction(std::string 
 }
 
 template <typename returnType, typename... additionalArgs>
-bool FuncTree<returnType, additionalArgs...>::hasFunction(std::string const& nameOrCommand) {
+bool FuncTree<returnType, additionalArgs...>::hasFunction(std::string_view const& nameOrCommand) {
     // Make sure only the command name is used
     std::vector<std::string> tokens = Utility::StringHandler::split(nameOrCommand, ' ');
 
@@ -616,11 +616,11 @@ void FuncTree<returnType, additionalArgs...>::generalHelp() {
     uint16_t constexpr namePaddingSize = 25;
 
     // Define a lambda to process each member
-    auto displayMember = [](std::string const& name, std::string const* description) -> void {
+    auto displayMember = [](std::string const& name, std::string_view const& description) -> void {
         // Only show the first line of the description
-        std::string descriptionFirstLine = *description;
-        if (size_t const newlinePos = description->find('\n'); newlinePos != std::string::npos) {
-            descriptionFirstLine = description->substr(0, newlinePos);
+        std::string descriptionFirstLine = std::string(description);
+        if (size_t const newlinePos = description.find('\n'); newlinePos != std::string::npos) {
+            descriptionFirstLine = description.substr(0, newlinePos);
         }
         std::string paddedName = name;
         paddedName.resize(namePaddingSize, ' ');

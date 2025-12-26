@@ -82,8 +82,8 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug_Domain_Collision_Detection) {
         // Bind the categories for the functions
-        (void)bindCategory(debug_name, &debug_desc);
-        (void)bindCategory(collisionDetect_name, &collisionDetect_desc);
+        (void)bindCategory(debug_name,  debug_desc);
+        (void)bindCategory(collisionDetect_name,  collisionDetect_desc);
 
         // Function bindings
         bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_function, debug_collisionDetect_function_name, debug_collisionDetect_function_desc);

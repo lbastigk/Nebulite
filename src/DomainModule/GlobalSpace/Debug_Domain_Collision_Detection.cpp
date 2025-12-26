@@ -33,10 +33,10 @@ Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_functio
 
     if (fail) {
         // This will fail, as the function name is already registered in GlobalSpace
-        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_function, debug_collisionDetect_function_name, &debug_collisionDetect_function_desc);
+        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_function, debug_collisionDetect_function_name, debug_collisionDetect_function_desc);
     } else {
         // Try to bind a new function with a unique name
-        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_function, "123456", &debug_collisionDetect_function_desc);
+        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_function, "123456", debug_collisionDetect_function_desc);
     }
     return Constants::ErrorTable::NONE();
 }
@@ -66,19 +66,19 @@ Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_categor
 
     if (fail) {
         // This will fail, as the category name is already registered in GlobalSpace
-        if (!bindCategory(collisionDetect_name, &debug_collisionDetect_category_desc)) {
+        if (!bindCategory(collisionDetect_name, debug_collisionDetect_category_desc)) {
             // Binding failed as expected
             return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION();
         }
     } else {
         // Try to bind a new category with a unique name
-        if (!bindCategory("123456", &debug_collisionDetect_category_desc)) {
+        if (!bindCategory("123456", debug_collisionDetect_category_desc)) {
             // This should not happen
             return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION();
         }
 
         // Just to be safe, we bind a sub-category as well
-        if (!bindCategory("123456 789", &debug_collisionDetect_category_desc)) {
+        if (!bindCategory("123456 789", debug_collisionDetect_category_desc)) {
             // This should not happen
             return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION();
         }
@@ -113,11 +113,11 @@ Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_variabl
         // This will fail, as the variable name is already registered in GlobalSpace
         static bool headless = false;
         const static std::string headless_var_desc = "Indicates whether the application is running in headless mode (without GUI).";
-        bindVariable(&headless, "headless", &headless_var_desc);
+        bindVariable(&headless, "headless", headless_var_desc);
     } else {
         // Try to bind a new variable with a unique name
         static bool testVar = false;
-        bindVariable(&testVar, "debug_collision_detect_test_variable", &debug_collisionDetect_variable_desc);
+        bindVariable(&testVar, "debug_collision_detect_test_variable", debug_collisionDetect_variable_desc);
     }
     return Constants::ErrorTable::NONE();
 }

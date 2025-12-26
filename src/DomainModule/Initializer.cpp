@@ -75,8 +75,8 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
 
     //------------------------------------------
     // Initialize Variable Bindings
-    target->bindVariable(&target->cmdVars.headless, "headless", &headless_desc);
-    target->bindVariable(&target->cmdVars.recover, "recover", &recover_desc);
+    target->bindVariable(&target->cmdVars.headless, "headless", headless_desc);
+    target->bindVariable(&target->cmdVars.recover, "recover", recover_desc);
 }
 
 void Initializer::initJSON(Data::JSON* target) {

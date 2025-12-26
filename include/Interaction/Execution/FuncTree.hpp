@@ -245,7 +245,7 @@ private:
      */
     struct CategoryInfo {
         std::unique_ptr<FuncTree> tree;
-        std::string_view const& description;
+        std::string_view description;
     };
 
     /**
@@ -254,7 +254,7 @@ private:
      */
     struct FunctionInfo {
         FunctionPtr function;
-        std::string_view const& description;
+        std::string_view description;
     };
 
     /**
@@ -263,7 +263,7 @@ private:
      */
     struct VariableInfo {
         bool* pointer;
-        std::string_view const& description;
+        std::string_view description;
     };
 
     // inherited FuncTrees linked to this tree
@@ -297,7 +297,7 @@ private:
      *        ```
      * @param nameOrCommand Name of the function or full command string
      */
-    bool hasFunction(std::string const& nameOrCommand);
+    bool hasFunction(std::string_view const& nameOrCommand);
 
     /**
      * @brief Looks up the function by name and calls it with the provided arguments.
@@ -319,13 +319,13 @@ private:
      * @brief Retrieves a list of all functions and their descriptions.
      * @return A vector of pairs containing function names and their descriptions.
      */
-    std::vector<std::pair<std::string, std::string const*>> getAllFunctions();
+    std::vector<std::pair<std::string, std::string_view>> getAllFunctions();
 
     /**
      * @brief Retrieves a list of all variables and their descriptions.
      * @return A vector of pairs containing variable names and their descriptions.
      */
-    std::vector<std::pair<std::string, std::string const*>> getAllVariables();
+    std::vector<std::pair<std::string, std::string_view>> getAllVariables();
 
     //------------------------------------------
     // Descriptions for built-in functions

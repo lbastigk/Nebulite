@@ -154,7 +154,10 @@ public:
      * @param desc The description of the function
      * @todo FuncTree needs the ability to bind static methods directly
      */
-    void bindTransformationFunction(typename Interaction::Execution::FuncTree<bool, JSON*>::template MemberMethod<JsonRvalueTransformer> func,std::string const& name,std::string const* desc) {
+    void bindTransformationFunction(
+        typename Interaction::Execution::FuncTree<bool, JSON*>::template MemberMethod<JsonRvalueTransformer> func,
+        std::string_view const& name,
+        std::string_view const& desc) {
         transformationFuncTree->bindFunction(this,func,name,desc);
     }
 

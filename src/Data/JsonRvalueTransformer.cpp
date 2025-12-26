@@ -15,31 +15,31 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     // Bind transformation functions
 
     // Functions: Arithmetic
-    bindTransformationFunction(&JsonRvalueTransformer::add, addName, &addDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::mod, modName, &modDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::multiply, multiplyName, &multiplyDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::pow, powName, &powDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::add, addName, addDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::mod, modName, modDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::multiply, multiplyName, multiplyDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::pow, powName, powDesc);
 
     // Functions: Array-related
-    bindTransformationFunction(&JsonRvalueTransformer::at, atName, &atDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::length, lengthName, &lengthDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::reverse, reverseName, &reverseDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::at, atName, atDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::length, lengthName, lengthDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::reverse, reverseName, reverseDesc);
 
     // Functions: Casting
-    bindTransformationFunction(&JsonRvalueTransformer::toInt, toIntName, &toIntDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::toString, toStringName, &toStringDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::toInt, toIntName, toIntDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::toString, toStringName, toStringDesc);
 
     // Functions: Collection
     //bindTransformationFunction(&JsonRvalueTransformer::filter, filterName, &filterDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::map, mapName, &mapDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::map, mapName, mapDesc);
 
     // Functions: Debugging
-    bindTransformationFunction(&JsonRvalueTransformer::echo, echoName, &echoDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::print, printName, &printDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::echo, echoName, echoDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::print, printName, printDesc);
 
     // Functions: Type-related
-    bindTransformationFunction(&JsonRvalueTransformer::typeAsNumber, typeAsNumberName, &typeAsNumberDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::typeAsString, typeAsStringName, &typeAsStringDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::typeAsNumber, typeAsNumberName, typeAsNumberDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::typeAsString, typeAsStringName, typeAsStringDesc);
 }
 
 bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JSON* jsonDoc) {

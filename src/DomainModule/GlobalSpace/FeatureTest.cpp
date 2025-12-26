@@ -44,7 +44,7 @@ Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& a
     std::string const addDesc = "Adds all provided numbers to the input number.\nUsage: <name> add num1 num2 ... numN";
 
     // Using the DomainModule bindFunctionStatic to bind the add method, otherwise we would need to do some complex template/visit gymnastics here
-    DomainModule::bindFunctionStatic(&testTree, &mathModifier, &MathModifier::add, addName, &addDesc);
+    DomainModule::bindFunctionStatic(&testTree, &mathModifier, &MathModifier::add, addName, addDesc);
 
     // Call the function
     std::string const funcCall = "<name> add 1.5 2.5 3.0";
