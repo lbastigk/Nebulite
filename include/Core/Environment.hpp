@@ -66,9 +66,11 @@ public:
     static constexpr uint8_t LayerCount = 5;
 
     //------------------------------------------
-    //Constructor
+    // Special Members
 
     explicit Environment(Nebulite::Data::JSON* documentPtr);
+
+    ~Environment() override ;
 
     // Suppress copy/move operators
     Environment(Environment&& other) = delete;

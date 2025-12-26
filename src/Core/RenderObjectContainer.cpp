@@ -60,6 +60,7 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_
 //------------------------------------------
 // Pipeline
 
+namespace {
 std::pair<int16_t, int16_t> getTilePos(RenderObject* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
     // Calculate correspondingTilePositionX using positionX
     auto const positionX = toAppend->getDoc()->get<double>(Nebulite::Constants::KeyNames::RenderObject::positionX, 0.0);
@@ -72,6 +73,7 @@ std::pair<int16_t, int16_t> getTilePos(RenderObject* toAppend, uint16_t const& d
     // Form pair and return
     return std::make_pair(correspondingTilePositionX, correspondingTilePositionY);
 }
+} // anonymous namespace
 
 void RenderObjectContainer::append(RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY) {
     std::pair<int16_t, int16_t> const pos = getTilePos(toAppend, dispResX, dispResY);

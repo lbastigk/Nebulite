@@ -1,5 +1,6 @@
 #include "Data/DocumentCache.hpp"
 
+namespace Nebulite::Data {
 void Nebulite::Data::DocumentCache::update() {
     readOnlyDocs.update();
 }
@@ -20,3 +21,4 @@ double* Nebulite::Data::DocumentCache::getStableDoublePointer(std::string const&
     // Return pointer to double value inside the document
     return docPtr->document.getStableDoublePointer(key);
 }
+} // namespace Nebulite::Data
