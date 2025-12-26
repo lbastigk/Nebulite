@@ -6,9 +6,6 @@
 
 namespace Nebulite::DomainModule::RenderObject {
 
-std::string const Logging::log_name = "log";
-std::string const Logging::log_desc = R"(Logging utilities)";
-
 //------------------------------------------
 // Update
 Constants::Error Logging::update() {
@@ -28,18 +25,6 @@ Constants::Error Logging::echo(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const Logging::echo_name = "echo";
-std::string const Logging::echo_desc = R"(Echoes all arguments as string to the standard output.
-
-Usage: echo <string>
-
-This command concatenates all arguments with a whitespace and outputs them to the standard output (cout).
-Example:
-./bin/Nebulite echo Hello World!
-Outputs:
-Hello World!
-)";
-
 // NOLINTNEXTLINE
 Constants::Error Logging::log_all(int argc, char** argv) {
     std::string const serialized = domain->serialize();
@@ -53,14 +38,6 @@ Constants::Error Logging::log_all(int argc, char** argv) {
     }
     return Constants::ErrorTable::NONE();
 }
-
-std::string const Logging::log_all_name = "log all";
-std::string const Logging::log_all_desc = R"(Logs the entire RenderObject to a file.
-
-Usage: log [filename]
-
-Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
-)";
 
 // NOLINTNEXTLINE
 Constants::Error Logging::log_key(int argc, char** argv) {
@@ -76,14 +53,5 @@ Constants::Error Logging::log_key(int argc, char** argv) {
     Utility::FileManagement::WriteFile(file, value);
     return Constants::ErrorTable::NONE();
 }
-
-std::string const Logging::log_key_name = "log key";
-std::string const Logging::log_key_desc = R"(Logs a specific value from the RenderObject to a file.
-
-Usage: log key <key> [filename]
-
-Logs the value associated with <key> to the specified [filename], 
-or to `RenderObject_id<id>.log.jsonc` if no filename is provided.
-)";
 
 } // namespace Nebulite::DomainModule::RenderObject
