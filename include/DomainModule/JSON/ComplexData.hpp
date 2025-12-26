@@ -23,8 +23,7 @@ class JSON;
 namespace Nebulite::DomainModule::JSON {
 /**
  * @class Nebulite::DomainModule::JSON::ComplexData
- * 
- * DomainModule for complex data operations on domain class Nebulite::Data::JSON
+ * @brief DomainModule for complex data operations on domain class Nebulite::Data::JSON
  */
 NEBULITE_DOMAINMODULE(Nebulite::Data::JSON, ComplexData) {
 public:
@@ -35,36 +34,29 @@ public:
     // Available Functions
 
     /**
-     * @brief Sets a key from a SQL query result.
-     * 
-     * @param argc The argument count.
-     * @param argv The argument vector: <key> <query>
-     * @return Potential errors that occurred on command execution.
-     * 
      * @todo Not implemented yet
      */
     Constants::Error querySet(int argc, char** argv);
-    static std::string const querySet_name;
-    static std::string const querySet_desc;
+    static std::string_view constexpr querySet_name = "query set";
+    static std::string_view constexpr querySet_desc = "Sets a key from a SQL query result.\n"
+        "Not implemented yet.";
 
-    /**
-     * @brief Sets a key from a JSON document.
-     * 
-     * @param argc The argument count.
-     * @param argv The argument vector: <key> <link:key>
-     * @return Potential errors that occurred on command execution.
-     */
     Constants::Error jsonSet(int argc, char** argv);
-    static std::string const jsonSet_name;
-    static std::string const jsonSet_desc;
+    static std::string_view constexpr jsonSet_name = "json set";
+    static std::string_view constexpr jsonSet_desc = "Sets a key from a read-only JSON document.\n"
+        "Usage: json set <key> <link:key>\n"
+        "\n"
+        "Where <link:key> is a link to a JSON document.\n"
+        "The document is dynamically loaded and cached for future use.";
 
     //------------------------------------------
     // Category names
-    static std::string const query_name;
-    static std::string const query_desc;
 
-    static std::string const json_name;
-    static std::string const json_desc;
+    static std::string_view constexpr query_name = "query";
+    static std::string_view constexpr query_desc = "Functions to manipulate JSON data via SQL query results";
+
+    static std::string_view constexpr json_name = "json";
+    static std::string_view constexpr json_desc = "Functions to manipulate JSON data via read-only JSON documents";
 
     //------------------------------------------
     // Setup
@@ -79,7 +71,7 @@ public:
         (void)bindCategory(query_name, query_desc);
         bindFunction(&ComplexData::querySet, querySet_name, querySet_desc);
 
-        // Set from read only jsons
+        // Set from read only JSON documents
         (void)bindCategory(json_name, json_desc);
         bindFunction(&ComplexData::jsonSet, jsonSet_name, jsonSet_desc);
     }
