@@ -23,7 +23,7 @@
 
 namespace Nebulite::Core {
 class Renderer; // Forward declaration of domain class Renderer
-}
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::DomainModule::Renderer {
