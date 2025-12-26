@@ -435,7 +435,7 @@ void Console::keyTriggerZoomIn(SDL_KeyboardEvent const& key) const {
     // Make sure that ctrl is held
     if (!(key.keysym.mod & KMOD_CTRL))
         return;
-    if (auto const err = domain->parseStr(__FUNCTION__ + std::string(" ") + consoleZoom_name + " in"); err != Constants::ErrorTable::NONE()) {
+    if (auto const err = domain->parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " in"); err != Constants::ErrorTable::NONE()) {
         Nebulite::cerr() << "Error: Failed to zoom into console: " << err.getDescription() << Nebulite::endl;
     }
 }
@@ -444,7 +444,7 @@ void Console::keyTriggerZoomOut(SDL_KeyboardEvent const& key) const {
     // Make sure that ctrl is held
     if (!(key.keysym.mod & KMOD_CTRL))
         return;
-    if (auto const err = domain->parseStr(__FUNCTION__ + std::string(" ") + consoleZoom_name + " out"); err != Constants::ErrorTable::NONE()) {
+    if (auto const err = domain->parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " out"); err != Constants::ErrorTable::NONE()) {
         Nebulite::cerr() << "Error: Failed to zoom out console: " << err.getDescription() << Nebulite::endl;
     }
 }
@@ -603,14 +603,6 @@ void Console::processMode() {
 }
 
 //------------------------------------------
-// Category strings
-
-std::string const Console::console_name = "console";
-std::string const Console::console_desc = R"(Console commands and settings.
-Contains commands to manipulate the in-application console.
-)";
-
-//------------------------------------------
 // Available Functions
 
 // NOLINTNEXTLINE
@@ -647,14 +639,6 @@ Constants::Error Console::consoleZoom(int argc, char** argv) {
     // Return
     return Constants::ErrorTable::NONE();
 }
-
-std::string const Console::consoleZoom_name = "console zoom";
-std::string const Console::consoleZoom_desc = R"(Reduces or increases the console font size.
-
-Usage: zoom [in/out/+/-]
-- in  / + : Zooms in  (increases font size)
-- out / - : Zooms out (decreases font size)
-)";
 
 // NOLINTNEXTLINE
 Constants::Error Console::consoleSetBackground(int argc, char** argv) {
@@ -703,11 +687,5 @@ Constants::Error Console::consoleSetBackground(int argc, char** argv) {
     // Return
     return Constants::ErrorTable::NONE();
 }
-
-std::string const Console::consoleSetBackground_name = "console set-background";
-std::string const Console::consoleSetBackground_desc = R"(Sets a background image for the console.
-
-Usage: set-background <image_path>
-)";
 
 } // namespace Nebulite::DomainModule::GlobalSpace::Console
