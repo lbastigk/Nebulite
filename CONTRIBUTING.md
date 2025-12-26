@@ -171,13 +171,13 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error exampleCommand(int argc, char** argv);
+    Constants::Error exampleCommand(std::span<std::string const> const& args);
     static std::string_view constexpr exampleCommand_name = "example do-something";
     static std::string_view constexpr exampleCommand_desc = "Performs an example action on the current RenderObject.\n"
         "\n"
         "Usage: example do-something [args]\n";
 
-    Constants::Error anotherCmd(int argc, char** argv);
+    Constants::Error anotherCmd(std::span<std::string const> const& args);
     static std::string_view constexpr anotherCmd_name = "example another-cmd";
     static std::string_view constexpr anotherCmd_desc = "Another example command demonstrating binding and descriptions.\n"
         "\n";
