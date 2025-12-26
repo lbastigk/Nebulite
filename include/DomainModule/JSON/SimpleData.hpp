@@ -34,104 +34,61 @@ public:
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Set a key to a value in the JSON document
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <key> <newvalue>
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error set(int argc, char** argv);
-    static std::string const set_name;
-    static std::string const set_desc;
+    static std::string_view constexpr set_name = "set";
+    static std::string_view constexpr set_desc = "Set a key to a value in the JSON document.\n"
+        "\n"
+        "Usage: set <key> <value>\n"
+        "\n"
+        "Note: All values are stored as strings.\n";
 
-    /**
-     * @brief Move data from one key to another
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <source_key> <destination_key>
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error move(int argc, char** argv);
-    static std::string const move_name;
-    static std::string const move_desc;
+    static std::string_view constexpr move_name = "move";
+    static std::string_view constexpr move_desc = "Move data from one key to another.\n"
+        "\n"
+        "Usage: move <source_key> <destination_key>\n";
 
-    /**
-     * @brief Copy data from one key to another
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <source_key> <destination_key>
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error copy(int argc, char** argv);
-    static std::string const copy_name;
-    static std::string const copy_desc;
+    static std::string_view constexpr copy_name = "copy";
+    static std::string_view constexpr copy_desc = "Copy data from one key to another.\n"
+        "\n"
+        "Usage: copy <source_key> <destination_key>\n";
 
-    /**
-     * @brief Delete a key from the JSON document
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <key>
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error keyDelete(int argc, char** argv);
-    static std::string const keyDelete_name;
-    static std::string const keyDelete_desc;
+    static std::string_view constexpr keyDelete_name = "keyDelete";
+    static std::string_view constexpr keyDelete_desc = "Delete a key from the JSON document.\n"
+        "\n"
+        "Usage: keyDelete <key>\n";
 
-    /**
-     * @brief Ensures that a key is an array, converting a value to an array if necessary
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <key>
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error ensureArray(int argc, char** argv);
-    static std::string const ensureArray_name;
-    static std::string const ensureArray_desc;
+    static std::string_view constexpr ensureArray_name = "ensure-array";
+    static std::string_view constexpr ensureArray_desc = "Ensure that a key is an array, converting a value to an array if necessary.\n"
+        "\n"
+        "Usage: ensure-array <key>\n";
 
-    /**
-     * @brief Pushes a value to the back of an array
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <key> <newvalue>
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error push_back(int argc, char** argv);
-    static std::string const push_back_name;
-    static std::string const push_back_desc;
+    static std::string_view constexpr push_back_name = "push-back";
+    static std::string_view constexpr push_back_desc = "Push a value to the back of an array.\n"
+        "\n"
+        "Usage: push-back <key> <value>\n";
 
-    /**
-     * @brief Pops a value from the back of an array
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <key>
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error pop_back(int argc, char** argv);
-    static std::string const pop_back_name;
-    static std::string const pop_back_desc;
+    static std::string_view constexpr pop_back_name = "pop-back";
+    static std::string_view constexpr pop_back_desc = "Pop a value from the back of an array.\n"
+        "\n"
+        "Usage: pop-back <key>\n";
 
-    /**
-     * @brief Pushes a value to the front of an array
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <key> <newvalue>
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error push_front(int argc, char** argv);
-    static std::string const push_front_name;
-    static std::string const push_front_desc;
+    static std::string_view constexpr push_front_name = "push-front";
+    static std::string_view constexpr push_front_desc = "Push a value to the front of an array.\n"
+        "\n"
+        "Usage: push-front <key> <value>\n";
 
-    /**
-     * @brief Pops a value from the front of an array
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <key>
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error pop_front(int argc, char** argv);
-    static std::string const pop_front_name;
-    static std::string const pop_front_desc;
+    static std::string_view constexpr pop_front_name = "pop-front";
+    static std::string_view constexpr pop_front_desc = "Pop a value from the front of an array.\n"
+        "\n"
+        "Usage: pop-front <key>\n";
 
     //------------------------------------------
     // Setup

@@ -37,14 +37,6 @@ Constants::Error SimpleData::set(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const SimpleData::set_name = "set";
-std::string const SimpleData::set_desc = R"(Set a key to a value in the JSON document.
-
-Usage: set <key> <value>
-
-Note: All values are stored as strings.
-)";
-
 // NOLINTNEXTLINE
 Constants::Error SimpleData::move(int argc, char** argv) {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
@@ -86,12 +78,6 @@ Constants::Error SimpleData::move(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const SimpleData::move_name = "move";
-std::string const SimpleData::move_desc = R"(Move data from one key to another.
-
-Usage: move <source_key> <destination_key>
-)";
-
 // NOLINTNEXTLINE
 Constants::Error SimpleData::copy(int argc, char** argv) {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
@@ -131,12 +117,6 @@ Constants::Error SimpleData::copy(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const SimpleData::copy_name = "copy";
-std::string const SimpleData::copy_desc = R"(Copy data from one key to another.
-
-Usage: copy <source_key> <destination_key>
-)";
-
 // NOLINTNEXTLINE
 Constants::Error SimpleData::keyDelete(int argc, char** argv) {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
@@ -148,12 +128,6 @@ Constants::Error SimpleData::keyDelete(int argc, char** argv) {
     domain->removeKey(key.c_str());
     return Constants::ErrorTable::NONE();
 }
-
-std::string const SimpleData::keyDelete_name = "keyDelete";
-std::string const SimpleData::keyDelete_desc = R"(Delete a key from the JSON document.
-
-Usage: keyDelete <key>
-)";
 
 //------------------------------------------
 // Array manipulation functions
@@ -196,12 +170,6 @@ Constants::Error SimpleData::ensureArray(int argc, char** argv) {
     return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 
-std::string const SimpleData::ensureArray_name = "ensure-array";
-std::string const SimpleData::ensureArray_desc = R"(Ensure that a key is an array, converting a value to an array if necessary.
-
-Usage: ensure-array <key>
-)";
-
 // NOLINTNEXTLINE
 Constants::Error SimpleData::push_back(int argc, char** argv) {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
@@ -221,7 +189,7 @@ Constants::Error SimpleData::push_back(int argc, char** argv) {
 
     if (domain->memberType(key) != Data::JSON::KeyType::array) {
         std::string command = __FUNCTION__;
-        command += " " + ensureArray_name;
+        command += " " + std::string(ensureArray_name);
         command += " " + key;
         if (Constants::Error const result = domain->parseStr(command); result != Constants::ErrorTable::NONE()) {
             Nebulite::cerr() << "Error: Failed to ensure array for key '" << key << "'." << Nebulite::endl;
@@ -234,12 +202,6 @@ Constants::Error SimpleData::push_back(int argc, char** argv) {
     domain->set(itemKey, value);
     return Constants::ErrorTable::NONE();
 }
-
-std::string const SimpleData::push_back_name = "push-back";
-std::string const SimpleData::push_back_desc = R"(Push a value to the back of an array.
-
-Usage: push-back <key> <value>
-)";
 
 // NOLINTNEXTLINE
 Constants::Error SimpleData::pop_back(int argc, char** argv) {
@@ -256,7 +218,7 @@ Constants::Error SimpleData::pop_back(int argc, char** argv) {
 
     if (domain->memberType(key) != Data::JSON::KeyType::array) {
         std::string command = __FUNCTION__;
-        command += " " + ensureArray_name;
+        command += " " + std::string(ensureArray_name);
         command += " " + key;
         if (Constants::Error const result = domain->parseStr(command); result != Constants::ErrorTable::NONE()) {
             Nebulite::cerr() << "Error: Failed to ensure array for key '" << key << "'." << Nebulite::endl;
@@ -274,12 +236,6 @@ Constants::Error SimpleData::pop_back(int argc, char** argv) {
     domain->removeKey(itemKey.c_str());
     return Constants::ErrorTable::NONE();
 }
-
-std::string const SimpleData::pop_back_name = "pop-back";
-std::string const SimpleData::pop_back_desc = R"(Pop a value from the back of an array.
-
-Usage: pop-back <key>
-)";
 
 // NOLINTNEXTLINE
 Constants::Error SimpleData::push_front(int argc, char** argv) {
@@ -300,7 +256,7 @@ Constants::Error SimpleData::push_front(int argc, char** argv) {
 
     if (domain->memberType(key) != Data::JSON::KeyType::array) {
         std::string command = __FUNCTION__;
-        command += " " + ensureArray_name;
+        command += " " + std::string(ensureArray_name);
         command += " " + key;
         if (Constants::Error const result = domain->parseStr(command); result != Constants::ErrorTable::NONE()) {
             Nebulite::cerr() << "Error: Failed to ensure array for key '" << key << "'." << Nebulite::endl;
@@ -335,12 +291,6 @@ Constants::Error SimpleData::push_front(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const SimpleData::push_front_name = "push-front";
-std::string const SimpleData::push_front_desc = R"(Push a value to the front of an array.
-
-Usage: push-front <key> <value>
-)";
-
 // NOLINTNEXTLINE
 Constants::Error SimpleData::pop_front(int argc, char** argv) {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
@@ -356,7 +306,7 @@ Constants::Error SimpleData::pop_front(int argc, char** argv) {
 
     if (domain->memberType(key) != Data::JSON::KeyType::array) {
         std::string command = __FUNCTION__;
-        command += " " + ensureArray_name;
+        command += " " + std::string(ensureArray_name);
         command += " " + key;
         if (Constants::Error const result = domain->parseStr(command); result != Constants::ErrorTable::NONE()) {
             Nebulite::cerr() << "Error: Failed to ensure array for key '" << key << "'." << Nebulite::endl;
@@ -391,11 +341,5 @@ Constants::Error SimpleData::pop_front(int argc, char** argv) {
 
     return Constants::ErrorTable::NONE();
 }
-
-std::string const SimpleData::pop_front_name = "pop-front";
-std::string const SimpleData::pop_front_desc = R"(Pop a value from the front of an array.
-
-Usage: pop-front <key>
-)";
 
 } // namespace Nebulite::DomainModule::JSON

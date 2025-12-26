@@ -29,18 +29,12 @@ public:
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Prints the JSON document to the console for debugging purposes
-     * 
-     * If key is empty, prints the entire document.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: [key]
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error print(int argc, char** argv);
-    static std::string const print_name;
-    static std::string const print_desc;
+    static std::string_view constexpr print_name = "print";
+    static std::string_view constexpr print_desc = "Prints the JSON document to the console for debugging purposes.\n"
+        "If key is empty, prints the entire document.\n"
+        "\n"
+        "Usage: print [key]\n";
 
     //------------------------------------------
     // Setup

@@ -22,6 +22,13 @@ class JSON;
 
 //------------------------------------------
 namespace Nebulite::DomainModule::JSON {
+/**
+ * @class Nebulite::DomainModule::JSON::ForceValue
+ * @brief DomainModule for forcing JSON variable values.
+ * @details This module allows users to force specific keys in the global JSON data
+ *          to have specified values, overriding any existing values. It is useful for
+ *          testing or overriding configuration values.
+ */
 NEBULITE_DOMAINMODULE(Nebulite::Data::JSON, ForceValue) {
 public:
     Constants::Error update() override;
@@ -30,32 +37,23 @@ public:
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Forces a variable to a specific value
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <key> <newvalue>
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error force_set(int argc, char** argv);
-    static std::string const force_set_name;
-    static std::string const force_set_desc;
+    static std::string_view constexpr force_set_name = "force set";
+    static std::string_view constexpr force_set_desc = "Force a variable to a value.\n"
+        "\n"
+        "Usage: force set <key> <value>";
 
-    /**
-     * @brief Clears all forced variables
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: No arguments available
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error force_clear(int argc, char** argv);
-    static std::string const force_clear_name;
-    static std::string const force_clear_desc;
+    static std::string_view constexpr force_clear_name = "force clear";
+    static std::string_view constexpr force_clear_desc = "Clear all forced variables.\n"
+        "\n"
+        "Usage: force clear";
 
     //------------------------------------------
     // Category names
-    static std::string const force_name;
-    static std::string const force_desc;
+    static std::string_view constexpr force_name = "force";
+    static std::string_view constexpr force_desc = "Category for forcing variables to specific values.\n"
+        "This is useful for testing or overriding configuration values.\n";
 
     //------------------------------------------
     // Setup
