@@ -66,10 +66,4 @@ Constants::Error Rotation::rotate(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const Rotation::rotate_name = "rotate";
-std::string const Rotation::rotate_desc = R"(Rotate the texture by a given angle
-
-Usage: rotate <angle>
-)";
-
 } // namespace Nebulite::DomainModule::Texture

@@ -29,10 +29,4 @@ Constants::Error General::reloadTexture(int argc, char** argv) {
     return Constants::ErrorTable::NONE(); // No error
 }
 
-std::string const General::reloadTexture_name = "reload-texture";
-std::string const General::reloadTexture_desc = R"(Reload the texture from the document.
-
-Usage: reload-texture
-)";
-
 } // namespace Nebulite::DomainModule::Texture

@@ -34,17 +34,15 @@ public:
 
     //------------------------------------------
     // Available Functions
-
-    /**
-     * @brief Fills the texture with a specified color.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: "fill <color>" or "fill <R> <G> <B>"
-     * @return Potential errors that occurred on command execution
-     */
+    
     Constants::Error fill(int argc, char** argv);
-    static std::string const fill_name;
-    static std::string const fill_desc;
+    static std::string_view constexpr fill_name = "fill";
+    static std::string_view constexpr fill_desc = "Fills the texture with a specified color.\n"
+        "Usage:\n"
+        "  fill <color>\n"
+        "  fill <r> <g> <b>\n"
+        "Where <color> can be 'red', 'green', or 'blue',\n"
+        "and <r>, <g>, <b> are integer values (0-255) for red, green, and blue components.";
 
     //------------------------------------------
     // Setup

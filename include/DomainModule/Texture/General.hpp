@@ -33,16 +33,11 @@ public:
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Reloads the texture from the document.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: no arguments required, texture is reloaded from document
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error reloadTexture(int argc, char** argv);
-    static std::string const reloadTexture_name;
-    static std::string const reloadTexture_desc;
+    static std::string_view constexpr reloadTexture_name = "reload-texture";
+    static std::string_view constexpr reloadTexture_desc = "Reload the texture from the document.\n"
+        "\n"
+        "Usage: reload-texture\n";
 
     //------------------------------------------
     // Setup
