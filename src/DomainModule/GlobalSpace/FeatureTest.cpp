@@ -53,12 +53,4 @@ Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& a
     return Constants::ErrorTable::NONE();
 }
 
-std::string const FeatureTest::testFuncTree_name = "feature-test functree";
-std::string const FeatureTest::testFuncTree_desc = "Builds a funcTree with extra arguments and tests it";
-
-//------------------------------------------
-std::string const FeatureTest::category_feature_test_name = "feature-test";
-std::string const FeatureTest::category_feature_test_desc = "Functions for testing features in the GlobalSpace";
-
-
 } // namespace Nebulite::DomainModule::GlobalSpace
