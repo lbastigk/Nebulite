@@ -557,7 +557,9 @@ int Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int c
     // Texture Loading
 
     // Check for texture
-    // TODO: Use unique ID instead of path string, with an obj->getTextureID() function
+    // TODO: Find some way to remove the get-call. Perhaps it's better to store the path inside the RenderObject directly?
+    //       Then we can add a function reloadTexture() to the RenderObject that forces reloading from disk.
+    //       As well as fetching the path only once during initialization.
     auto const innerDirectory = obj->getDoc()->get<std::string>(Constants::KeyNames::RenderObject::imageLocation);
 
     // Load texture if not yet loaded
