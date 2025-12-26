@@ -98,7 +98,7 @@ int main(int const argc, char* argv[]) {
 
     // Parser handles if error files need to be closed
     try {
-        if (Nebulite::Constants::Error const result = Nebulite::global().parseStr(binaryName + " " + Nebulite::DomainModule::GlobalSpace::Debug::errorlog_name + " off"); result.isCritical()) {
+        if (Nebulite::Constants::Error const result = Nebulite::global().parseStr(binaryName + " " + std::string(Nebulite::DomainModule::GlobalSpace::Debug::errorlog_name) + " off"); result.isCritical()) {
             Nebulite::cerr() << "Error disabling error log: " << result.getDescription() << "\n";
             return Nebulite::Constants::MainReturnValues::logCloseError; // Closing log failed without exceptions
         }

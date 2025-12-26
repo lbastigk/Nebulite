@@ -186,6 +186,7 @@ public:
      * @param cmd Command string to parse
      * @param addArgs Additional arguments to pass to the executed function
      * @return The return value of the executed function, or the standard/error value.
+     * @todo Add support for string_view as well as vector<string_view> as command input
      */
     returnValue parseStr(std::string const& cmd, additionalArgs... addArgs);
 
