@@ -171,10 +171,10 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
     // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
     // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
     for (int16_t const dX : tileOffsetsX) {
-        uint16_t const currentTilePosX = tilePosX - dX;
+        int16_t const currentTilePosX = tilePosX - dX;
         for (int16_t const dY : tileOffsetsY) {
-            uint16_t const currentTilePosY = tilePosY - dY;
-            std::pair<uint16_t, uint16_t> pos = std::make_pair(currentTilePosX, currentTilePosY);
+            int16_t const currentTilePosY = tilePosY - dY;
+            std::pair<int16_t, int16_t> pos = std::make_pair(currentTilePosX, currentTilePosY);
             auto& tile = ObjectContainer[pos];
 
             // Create batch workers for each batch in the tile
