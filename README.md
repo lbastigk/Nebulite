@@ -169,8 +169,8 @@ or via static rulesets in C++ code:
 // Called with keyword "::physics:gravity" (both broadcast and listen)
 void Physics::gravity(ContextBase const& context) {
     // Get ordered cache lists for both entities for base values
-    double** slf = getBaseList(context.self);
-    double** otr = getBaseList(context.other);
+    double** slf = getBaseList(context.self, keys);
+    double** otr = getBaseList(context.other, keys);
 
     // Calculate distance components
     double const distanceX = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
