@@ -4,7 +4,9 @@
 #include <array>
 #include <chrono>
 
-std::string Nebulite::Utility::Time::TimeIso8601(ISO8601Format const& format, bool const& local) noexcept {
+namespace Nebulite::Utility {
+
+std::string Time::TimeIso8601(ISO8601Format const& format, bool const& local) noexcept {
     // Get current time
     std::time_t const time = std::time(nullptr);
 
@@ -48,7 +50,7 @@ std::string Nebulite::Utility::Time::TimeIso8601(ISO8601Format const& format, bo
     return {buffer.data(), retLen};
 }
 
-uint64_t Nebulite::Utility::Time::getTime() noexcept {
+uint64_t Time::getTime() noexcept {
     return static_cast<uint64_t>(
         std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()
@@ -56,14 +58,16 @@ uint64_t Nebulite::Utility::Time::getTime() noexcept {
     );
 }
 
-void Nebulite::Utility::Time::wait(uint64_t const& milliseconds) {
+void Time::wait(uint64_t const& milliseconds) {
     std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
 
-void Nebulite::Utility::Time::waitMicroseconds(uint64_t const& microseconds) {
+void Time::waitMicroseconds(uint64_t const& microseconds) {
     std::this_thread::sleep_for(std::chrono::microseconds(microseconds));
 }
 
-void Nebulite::Utility::Time::waitNanoseconds(uint64_t const& nanoseconds) {
+void Time::waitNanoseconds(uint64_t const& nanoseconds) {
     std::this_thread::sleep_for(std::chrono::nanoseconds(nanoseconds));
 }
+
+} // namespace Nebulite::Utility
