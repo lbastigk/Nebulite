@@ -73,6 +73,9 @@ public:
      */
     void deserialize(std::string const& serialOrLink);
 
+    //------------------------------------------
+    // Getters for Rectangles and Textures
+
     /**
      * @brief Gets a pointer to the SDL_Rect describing the destination of the sprite.
      * @return A pointer to the SDL_Rect describing the destination of the sprite.
@@ -96,6 +99,11 @@ public:
      * @return A pointer to the SDL_Texture representing the text.
      */
     [[nodiscard]] SDL_Texture* getTextTexture() const;
+
+    //------------------------------------------
+    // State Checkers
+
+
 
     //------------------------------------------
     // Update-Oriented functions
@@ -154,7 +162,16 @@ public:
     } flag;
 
     //------------------------------------------
-    // Texture related
+    // Texture/Font related
+
+    /**
+     * @brief Checks if text rendering is enabled for this RenderObject.
+     * @details This checks if the font size is not zero.
+     * @return true if texture rendering is enabled, false otherwise.
+     */
+    [[nodiscard]] bool isTextRenderingEnabled() const {
+        return (std::fabs(*refs.fontSize) > DBL_EPSILON);
+    }
 
     /**
      * @brief Links an external SDL_Texture to this domain.

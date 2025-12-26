@@ -557,6 +557,7 @@ int Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int c
     // Texture Loading
 
     // Check for texture
+    // TODO: Use unique ID instead of path string, with an obj->getTextureID() function
     auto const innerDirectory = obj->getDoc()->get<std::string>(Constants::KeyNames::RenderObject::imageLocation);
 
     // Load texture if not yet loaded
@@ -601,7 +602,7 @@ int Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int c
 
     // Render the text
     int error_text = 0;
-    if (obj->getDoc()->get<double>(Constants::KeyNames::RenderObject::textFontsize) > 0) {
+    if (obj->isTextRenderingEnabled()) {
         obj->calculateText(
             renderer,
             font,
