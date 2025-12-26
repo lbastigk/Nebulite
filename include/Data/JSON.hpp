@@ -274,6 +274,8 @@ public:
      * @param val The variant value to set.
      */
     void setVariant(std::string const& key, RjDirectAccess::simpleValue const& val);
+    void setVariant(std::string_view const& key, RjDirectAccess::simpleValue const& val) { setVariant(std::string(key), val); }
+    void setVariant(char const* key, RjDirectAccess::simpleValue const& val) { setVariant(std::string(key), val); }
 
     /**
      * @brief Sets a sub-document in the JSON document.
@@ -283,6 +285,8 @@ public:
      * @param child The sub-document to set.
      */
     void setSubDoc(char const* key, JSON& child);
+    void setSubDoc(std::string const& key, JSON& child) { setSubDoc(key.c_str(), child); }
+    void setSubDoc(std::string_view key, JSON& child) { setSubDoc(std::string(key).c_str(), child); }
 
     /**
      * @brief Sets an empty array in the JSON document.
@@ -301,17 +305,17 @@ public:
     /**
      * @brief Performs an addition operation on a numeric value in the JSON document.
      */
-    void set_add(std::string const& key, double const& val);
+    void set_add(std::string_view const& key, double const& val);
 
     /**
      * @brief Performs a multiplication operation on a numeric value in the JSON document.
      */
-    void set_multiply(std::string const& key, double const& val);
+    void set_multiply(std::string_view const& key, double const& val);
 
     /**
      * @brief Performs a concatenation operation on a string value in the JSON document.
      */
-    void set_concat(std::string const& key, std::string const& valStr);
+    void set_concat(std::string_view const& key, std::string const& valStr);
 
     //------------------------------------------
     // Get methods
@@ -338,6 +342,8 @@ public:
      * @return The variant value associated with the key, or void if the key does not exist.
      */
     std::optional<RjDirectAccess::simpleValue> getVariant(std::string const& key);
+    std::optional<RjDirectAccess::simpleValue> getVariant(std::string_view key) { return getVariant(std::string(key)); }
+    std::optional<RjDirectAccess::simpleValue> getVariant(char const* key) { return getVariant(std::string(key)); }
 
     /**
      * @brief Gets a sub-document from the JSON document.
@@ -428,6 +434,8 @@ public:
      * @param key The key to remove.
      */
     void removeKey(char const* key);
+    void removeKey(std::string const& key) { removeKey(key.c_str()); }
+    void removeKey(std::string_view key) { removeKey(std::string(key).c_str()); }
 
     //------------------------------------------
     // Serialize/Deserialize

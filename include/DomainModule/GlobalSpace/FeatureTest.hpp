@@ -33,17 +33,15 @@ public:
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Builds a funcTree with extra arguments and tests it.
-     */
     Constants::Error testFuncTree(std::span<std::string const> const& args);
-    static std::string const testFuncTree_name;
-    static std::string const testFuncTree_desc;
+    static std::string_view constexpr testFuncTree_name = "feature-test functree";
+    static std::string_view constexpr testFuncTree_desc = "Builds a funcTree with extra arguments and tests it";
 
     //------------------------------------------
     // Category names and descriptions
-    static std::string const category_feature_test_name;
-    static std::string const category_feature_test_desc;
+
+    static std::string_view constexpr category_feature_test_name = "feature-test";
+    static std::string_view constexpr category_feature_test_desc = "Functions for testing features in the GlobalSpace";
 
     //------------------------------------------
     // Setup
@@ -54,8 +52,8 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, FeatureTest) {
         //------------------------------------------
         // Binding functions to the FuncTree
-        (void)bindCategory(category_feature_test_name, &category_feature_test_desc);
-        bindFunction(&FeatureTest::testFuncTree, testFuncTree_name, &testFuncTree_desc);
+        (void)bindCategory(category_feature_test_name, category_feature_test_desc);
+        bindFunction(&FeatureTest::testFuncTree, testFuncTree_name, testFuncTree_desc);
     }
 };
 } // namespace Nebulite::DomainModule::GlobalSpace

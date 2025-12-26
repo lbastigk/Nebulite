@@ -3,9 +3,6 @@
 
 namespace Nebulite::DomainModule::Renderer {
 
-std::string const RenderObjectDraft::draft_name = "draft";
-std::string const RenderObjectDraft::draft_desc = R"(Functions to manipulate and spawn RenderObjects in draft state)";
-
 Constants::Error RenderObjectDraft::update() {
     // Add Domain-specific updates here!
     // General rule:
@@ -22,20 +19,6 @@ Constants::Error RenderObjectDraft::draft_parse(int argc, char** argv) {
     return draft.get()->parseStr(__FUNCTION__ + std::string(" ") + command);
 }
 
-std::string const RenderObjectDraft::draft_parse_name = "draft parse";
-std::string const RenderObjectDraft::draft_parse_desc = R"(Parse Renderobject-specific functions on the draft.
-
-Usage: draft parse <function> [args...]
-
-Use 'draft parse help' to see available functions.
-
-Examples:
-
-draft parse set text.str Hello World
-draft parse set posX 100
-draft parse set posY 200
-)";
-
 // NOLINTNEXTLINE
 Constants::Error RenderObjectDraft::draft_spawn(int argc, char** argv) {
     if (argc != 1) {
@@ -50,12 +33,6 @@ Constants::Error RenderObjectDraft::draft_spawn(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const RenderObjectDraft::draft_spawn_name = "draft spawn";
-std::string const RenderObjectDraft::draft_spawn_desc = R"(Spawn the created draft object.
-
-Usage: draft spawn
-)";
-
 // NOLINTNEXTLINE
 Constants::Error RenderObjectDraft::draft_reset(int argc, char** argv) {
     if (argc != 1) {
@@ -65,13 +42,5 @@ Constants::Error RenderObjectDraft::draft_reset(int argc, char** argv) {
     draft.get()->deserialize(newDraft.serialize());
     return Constants::ErrorTable::NONE();
 }
-
-std::string const RenderObjectDraft::draft_reset_name = "draft reset";
-std::string const RenderObjectDraft::draft_reset_desc = R"(Reset the draft object.
-
-This does not reset any spawned ones!
-
-Usage: draft reset
-)";
 
 } // namespace Nebulite::DomainModule::GlobalSpace

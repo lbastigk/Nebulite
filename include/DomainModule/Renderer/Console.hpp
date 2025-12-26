@@ -25,7 +25,6 @@ namespace Nebulite::Core {
 class Renderer;
 } // namespace Nebulite::Core
 
-
 //------------------------------------------
 namespace Nebulite::DomainModule::Renderer {
 /**
@@ -41,31 +40,27 @@ public:
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Zooms the console in or out.
-     * @param argc Number of arguments.
-     * @param argv Argument values: [in/out/+/-], defaults to in/+.
-     * @return Error code.
-     */
     Constants::Error consoleZoom(int argc, char** argv);
-    static std::string const consoleZoom_name;
-    static std::string const consoleZoom_desc;
+    static std::string_view constexpr consoleZoom_name = "console zoom";
+    static std::string_view constexpr consoleZoom_desc = "Reduces or increases the console font size.\n"
+        "\n"
+        "Usage: zoom [in/out/+/-]\n"
+        "- in  / + : Zooms in  (increases font size)\n"
+        "- out / - : Zooms out (decreases font size)\n";
 
-    /**
-     * @brief Sets a background image for the console.
-     * @param argc Number of arguments.
-     * @param argv Argument values: [image_path].
-     * @return Error code.
-     */
     Constants::Error consoleSetBackground(int argc, char** argv);
-    static std::string const consoleSetBackground_name;
-    static std::string const consoleSetBackground_desc;
+    static std::string_view constexpr consoleSetBackground_name = "console set-background";
+    static std::string_view constexpr consoleSetBackground_desc = "Sets a background image for the console.\n"
+        "\n"
+        "Usage: set-background <image_path>\n";
 
     //------------------------------------------
     // Category strings
 
-    static std::string const console_name;
-    static std::string const console_desc;
+    static std::string_view constexpr console_name = "console";
+    static std::string_view constexpr console_desc = "Console commands and settings.\n"
+        "\n"
+        "Contains commands to manipulate the in-application console.\n";
 
     //------------------------------------------
     // Setup
@@ -76,9 +71,9 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Console) {
         // we cannot do much here, since renderer might not be initialized yet
         // so we do the actual initialization in update() when needed
-        (void)bindCategory(console_name, &console_desc);
-        bindFunction(&Console::consoleZoom, consoleZoom_name, &consoleZoom_desc);
-        bindFunction(&Console::consoleSetBackground, consoleSetBackground_name, &consoleSetBackground_desc);
+        (void)bindCategory(console_name, console_desc);
+        bindFunction(&Console::consoleZoom, consoleZoom_name, consoleZoom_desc);
+        bindFunction(&Console::consoleSetBackground, consoleSetBackground_name, consoleSetBackground_desc);
     }
 
 private:
@@ -181,11 +176,9 @@ private:
 
     /**
      * @brief Populates vector line_y_positions with the y positions of each line,
-     * and sets font size accordingly.
-     *
+     *        and sets font size accordingly.
      * @param rect_height The height of the console rectangle in pixels.
      * @return The calculated line height.
-     *
      * @todo Make sure the lines are aligned at the top instead of the bottom to reduce jitter when resizing.
      */
     uint16_t calculateTextAlignment(uint16_t const& rect_height);
@@ -256,9 +249,7 @@ private:
 
     /**
      * @brief Draws the output lines.
-     *
      * @param maxLineLength The maximum length of a line before line breaking happens, in characters.
-     *
      * @todo Newline handling does not work if a line is split into more than two lines.
      */
     void drawOutput(uint16_t const& maxLineLength);

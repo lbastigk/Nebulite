@@ -33,46 +33,45 @@ public:
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Tests collision detection functionalities of functions.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: None.
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error debug_collisionDetect_function(int argc, char const* argv[]);
-    static std::string const debug_collisionDetect_function_name;
-    static std::string const debug_collisionDetect_function_desc;
+    static std::string_view constexpr debug_collisionDetect_function_name = "debug collision-detect function";
+    static std::string_view constexpr debug_collisionDetect_function_desc = "Tests collision detection of function names\n"
+        "\n"
+        "Tries to bind a function name to globalspace that is already registered, expecting a collision error.\n"
+        "\n"
+        "Usage: debug collision-detect function [fail/succeed]\n"
+        "\n"
+        "Defaults to fail\n";
 
-    /**
-     * @brief Tests collision detection functionalities of categories.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: None.
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error debug_collisionDetect_category(int argc, char const* argv[]);
-    static std::string const debug_collisionDetect_category_name;
-    static std::string const debug_collisionDetect_category_desc;
+    static std::string_view constexpr debug_collisionDetect_category_name = "debug collision-detect category";
+    static std::string_view constexpr debug_collisionDetect_category_desc = "Tests collision detection of category names\n"
+        "\n"
+        "Tries to bind a category name to globalspace that is already registered, expecting a collision error.\n"
+        "\n"
+        "Usage: debug collision-detect category [fail/succeed]\n"
+        "\n"
+        "Defaults to fail\n";
 
-    /**
-     * @brief Tests collision detection functionalities of variables.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: None.
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error debug_collisionDetect_variable(int argc, char const* argv[]);
-    static std::string const debug_collisionDetect_variable_name;
-    static std::string const debug_collisionDetect_variable_desc;
+    static std::string_view constexpr debug_collisionDetect_variable_name = "debug collision-detect variable";
+    static std::string_view constexpr debug_collisionDetect_variable_desc = "Tests collision detection of variable names\n"
+        "\n"
+        "Tries to bind a variable name to globalspace that is already registered, expecting a collision error.\n"
+        "\n"
+        "Usage: debug collision-detect variable [fail/succeed]\n"
+        "\n"
+        "Defaults to fail\n";
+
 
     //------------------------------------------
     // Category names
-    static std::string const debug_name;
-    static std::string const debug_desc;
 
-    static std::string const collisionDetect_name;
-    static std::string const collisionDetect_desc;
+    static std::string_view constexpr debug_name = "debug";
+    static std::string_view constexpr debug_desc = "DomainModule for special debugging capabilities within the GlobalSpace.";
+
+    static std::string_view constexpr collisionDetect_name = "debug collision-detect";
+    static std::string_view constexpr collisionDetect_desc = "Utilities for testing collision detection functionalities.";
 
     //------------------------------------------
     // Setup
@@ -82,13 +81,13 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug_Domain_Collision_Detection) {
         // Bind the categories for the functions
-        (void)bindCategory(debug_name, &debug_desc);
-        (void)bindCategory(collisionDetect_name, &collisionDetect_desc);
+        (void)bindCategory(debug_name,  debug_desc);
+        (void)bindCategory(collisionDetect_name,  collisionDetect_desc);
 
         // Function bindings
-        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_function, debug_collisionDetect_function_name, &debug_collisionDetect_function_desc);
-        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_category, debug_collisionDetect_category_name, &debug_collisionDetect_category_desc);
-        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_variable, debug_collisionDetect_variable_name, &debug_collisionDetect_variable_desc);
+        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_function, debug_collisionDetect_function_name, debug_collisionDetect_function_desc);
+        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_category, debug_collisionDetect_category_name, debug_collisionDetect_category_desc);
+        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_variable, debug_collisionDetect_variable_name, debug_collisionDetect_variable_desc);
     }
 };
 } // namespace Nebulite::DomainModule::GlobalSpace

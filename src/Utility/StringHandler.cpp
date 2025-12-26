@@ -64,7 +64,7 @@ std::string StringHandler::rStrip(std::string const& input, char const& specialC
     return end == std::string::npos ? "" : input.substr(0, end + 1);
 }
 
-std::vector<std::string> StringHandler::split(std::string const& input, char const& delimiter, bool const& keepDelimiter) {
+std::vector<std::string> StringHandler::split(std::string_view const& input, char const& delimiter, bool const& keepDelimiter) {
     std::vector<std::string> tokens;
 
     if (!keepDelimiter) {
@@ -72,11 +72,11 @@ std::vector<std::string> StringHandler::split(std::string const& input, char con
         size_t start = 0;
         size_t end = 0;
         while ((end = input.find(delimiter, start)) != std::string::npos) {
-            tokens.push_back(input.substr(start, end - start));
+            tokens.push_back(std::string(input.substr(start, end - start)));
             start = end + 1;
         }
         if (start < input.length()) {
-            tokens.push_back(input.substr(start));
+            tokens.push_back(std::string(input.substr(start)));
         }
     } else {
         // New behavior - split and keep delimiter at start of tokens
@@ -86,24 +86,24 @@ std::vector<std::string> StringHandler::split(std::string const& input, char con
         while ((pos = input.find(delimiter, start)) != std::string::npos) {
             // Add everything before the delimiter as a token (if not empty)
             if (pos > start) {
-                tokens.push_back(input.substr(start, pos - start));
+                tokens.push_back(std::string(input.substr(start, pos - start)));
             }
 
             // Find the next delimiter to determine where this token ends
             size_t const nextPos = input.find(delimiter, pos + 1);
             if (nextPos == std::string::npos) {
                 // No more delimiters, take rest of string
-                tokens.push_back(input.substr(pos));
+                tokens.push_back(std::string(input.substr(pos)));
                 break;
             }
             // Take from current delimiter to next delimiter
-            tokens.push_back(input.substr(pos, nextPos - pos));
+            tokens.push_back(std::string(input.substr(pos, nextPos - pos)));
             start = nextPos;
         }
 
         // If we never found a delimiter, add the whole string
         if (tokens.empty() && !input.empty()) {
-            tokens.push_back(input);
+            tokens.push_back(std::string(input));
         }
     }
 

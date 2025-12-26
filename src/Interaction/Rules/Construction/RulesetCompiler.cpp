@@ -257,12 +257,17 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
 }
 
 void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JSON* self) {
-    // Valid operations for direct double pointer assignment
-    auto& ops = numeric_operations;
+    // List of operations that are considered numeric and thus eligible for direct pointer assignment.
+    // Any new numeric operation must be added here to benefit from optimization techniques in the Invoke class.
+    std::array<Logic::Assignment::Operation,3> const numeric_operations = {
+        Logic::Assignment::Operation::set,
+        Logic::Assignment::Operation::add,
+        Logic::Assignment::Operation::multiply
+    };
 
     for (auto& assignment : entry->assignments) {
         if (assignment.onType == Logic::Assignment::Type::Self) {
-            if (std::ranges::find(ops, assignment.operation) != std::ranges::end(ops)) {
+            if (std::ranges::find(numeric_operations, assignment.operation) != std::ranges::end(numeric_operations)) {
                 // Numeric operation on self, try to get a direct pointer
                 if (double* ptr = self->getStableDoublePointer(assignment.key.eval(self)); ptr != nullptr) {
                     assignment.targetValuePtr = ptr;
@@ -270,7 +275,7 @@ void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Data::
             }
         }
         if (assignment.onType == Logic::Assignment::Type::Global) {
-            if (std::ranges::find(ops, assignment.operation) != std::ranges::end(ops)) {
+            if (std::ranges::find(numeric_operations, assignment.operation) != std::ranges::end(numeric_operations)) {
                 // Numeric operation on global, try to get a direct pointer
                 if (double* ptr = Nebulite::global().getDoc()->getStableDoublePointer(assignment.key.eval(self)); ptr != nullptr) {
                     assignment.targetValuePtr = ptr;

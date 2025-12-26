@@ -16,6 +16,7 @@ namespace Nebulite::Core {
 //------------------------------------------
 // Special member Functions
 
+namespace {
 // Helper function to initialize RenderObject in constructor
 void setStandardValues(Data::JSON& document) {
     // General
@@ -49,6 +50,7 @@ void setStandardValues(Data::JSON& document) {
     document.set(Constants::KeyNames::RenderObject::textColorB, 255);
     document.set(Constants::KeyNames::RenderObject::textColorA, 255);
 }
+} // namespace
 
 RenderObject::RenderObject() : Domain("RenderObject", this, &document), baseTexture(&document) {
     //------------------------------------------
@@ -149,7 +151,7 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
                 std::string key = token.substr(0, pos);
                 std::string value = token.substr(pos + 1);
                 std::string call = __FUNCTION__;
-                call.append(" " + DomainModule::JSON::SimpleData::set_name);
+                call.append(" " + std::string(DomainModule::JSON::SimpleData::set_name));
                 call.append(" " + key);
                 call.append(" " + value);
                 if (auto const err = parseStr(call); err != Constants::ErrorTable::NONE()) {

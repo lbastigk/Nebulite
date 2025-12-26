@@ -15,31 +15,31 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     // Bind transformation functions
 
     // Functions: Arithmetic
-    bindTransformationFunction(&JsonRvalueTransformer::add, addName, &addDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::mod, modName, &modDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::multiply, multiplyName, &multiplyDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::pow, powName, &powDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::add, addName, addDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::mod, modName, modDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::multiply, multiplyName, multiplyDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::pow, powName, powDesc);
 
     // Functions: Array-related
-    bindTransformationFunction(&JsonRvalueTransformer::at, atName, &atDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::length, lengthName, &lengthDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::reverse, reverseName, &reverseDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::at, atName, atDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::length, lengthName, lengthDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::reverse, reverseName, reverseDesc);
 
     // Functions: Casting
-    bindTransformationFunction(&JsonRvalueTransformer::toInt, toIntName, &toIntDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::toString, toStringName, &toStringDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::toInt, toIntName, toIntDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::toString, toStringName, toStringDesc);
 
     // Functions: Collection
     //bindTransformationFunction(&JsonRvalueTransformer::filter, filterName, &filterDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::map, mapName, &mapDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::map, mapName, mapDesc);
 
     // Functions: Debugging
-    bindTransformationFunction(&JsonRvalueTransformer::echo, echoName, &echoDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::print, printName, &printDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::echo, echoName, echoDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::print, printName, printDesc);
 
     // Functions: Type-related
-    bindTransformationFunction(&JsonRvalueTransformer::typeAsNumber, typeAsNumberName, &typeAsNumberDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::typeAsString, typeAsStringName, &typeAsStringDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::typeAsNumber, typeAsNumberName, typeAsNumberDesc);
+    bindTransformationFunction(&JsonRvalueTransformer::typeAsString, typeAsStringName, typeAsStringDesc);
 }
 
 bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JSON* jsonDoc) {
@@ -52,9 +52,6 @@ bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JSON* js
         return transformationFuncTree->parseStr(call, jsonDoc);
     });
 }
-
-// Uses an empty string as key, so the entire JSON document is the value used.
-std::string const JsonRvalueTransformer::valueKey;
 
 //------------------------------------------
 // Functions: Arithmetic
@@ -76,10 +73,6 @@ bool JsonRvalueTransformer::add(std::span<std::string const> const& args, JSON* 
     return true;
 }
 
-std::string const JsonRvalueTransformer::addName = "add";
-std::string const JsonRvalueTransformer::addDesc = "Adds a numeric value to the current JSON value.\n"
-    "Usage: |add <number1> <number2> ... -> {number}";
-
 // NOLINTNEXTLINE
 bool JsonRvalueTransformer::multiply(std::span<std::string const> const& args, JSON* jsonDoc) {
     if (args.size() < 2) {
@@ -96,10 +89,6 @@ bool JsonRvalueTransformer::multiply(std::span<std::string const> const& args, J
     }
     return true;
 }
-
-std::string const JsonRvalueTransformer::multiplyName = "mul";
-std::string const JsonRvalueTransformer::multiplyDesc = "Multiplies the current JSON value by a numeric value.\n"
-    "Usage: |multiply <number1> <number2> ...";
 
 // NOLINTNEXTLINE
 bool JsonRvalueTransformer::mod(std::span<std::string const> const& args, JSON* jsonDoc) {
@@ -120,10 +109,6 @@ bool JsonRvalueTransformer::mod(std::span<std::string const> const& args, JSON* 
     }
 }
 
-std::string const JsonRvalueTransformer::modName = "mod";
-std::string const JsonRvalueTransformer::modDesc = "Calculates the modulo of the current JSON value by a numeric value.\n"
-    "Usage: |mod <number> -> {number}";
-
 // NOLINTNEXTLINE
 bool JsonRvalueTransformer::pow(std::span<std::string const> const& args, JSON* jsonDoc) {
     if (args.size() != 2) {
@@ -140,10 +125,6 @@ bool JsonRvalueTransformer::pow(std::span<std::string const> const& args, JSON* 
     }
 }
 
-std::string const JsonRvalueTransformer::powName = "pow";
-std::string const JsonRvalueTransformer::powDesc = "Raises the current JSON value to the power of a numeric value.\n"
-    "Usage: |pow <exponent> -> {number}";
-
 //------------------------------------------
 // Functions: Array-related
 
@@ -158,18 +139,13 @@ bool JsonRvalueTransformer::at(std::span<std::string const> const& args, JSON* j
         if (index >= arraySize) {
             return false; // Index out of bounds
         }
-        JSON temp = jsonDoc->getSubDoc(valueKey + "[" + std::to_string(index) + "]");
-        jsonDoc->setSubDoc(valueKey.c_str(), temp);
+        JSON temp = jsonDoc->getSubDoc(std::string(valueKey) + "[" + std::to_string(index) + "]");
+        jsonDoc->setSubDoc(valueKey, temp);
         return true;
     } catch (...) {
         return false;
     }
 }
-
-std::string const JsonRvalueTransformer::atName = "at";
-std::string const JsonRvalueTransformer::atDesc = "Gets the element at the specified index from the array in the current JSON value.\n"
-    "If the index is out of bounds, the transformation fails.\n"
-    "Usage: |at <index> -> {value}";
 
 // NOLINTNEXTLINE
 bool JsonRvalueTransformer::length(std::span<std::string const> const& args, JSON* jsonDoc) {
@@ -178,16 +154,12 @@ bool JsonRvalueTransformer::length(std::span<std::string const> const& args, JSO
     return true;
 }
 
-std::string const JsonRvalueTransformer::lengthName = "length";
-std::string const JsonRvalueTransformer::lengthDesc = "Gets the length of the array in the current JSON value.\n"
-    "Usage: |length -> {number}";
-
 // NOLINTNEXTLINE
 bool JsonRvalueTransformer::reverse(std::span<std::string const> const& args, JSON* jsonDoc) {
     if (jsonDoc->memberType(valueKey) == JSON::KeyType::value) {
         // Single value, we wrap it into an array
         JSON tmp = jsonDoc->getSubDoc(valueKey);
-        std::string const key = valueKey + "[0]";
+        std::string const key = std::string(valueKey) + "[0]";
         jsonDoc->setSubDoc(key.c_str(), tmp);
     }
     if (jsonDoc->memberType(valueKey) != JSON::KeyType::array) {
@@ -197,18 +169,12 @@ bool JsonRvalueTransformer::reverse(std::span<std::string const> const& args, JS
     size_t arraySize = jsonDoc->memberSize(valueKey);
     JSON tmp = jsonDoc->getSubDoc(valueKey);
     for (size_t i = 0; i < arraySize; ++i) {
-        std::string const key = valueKey + "[" + std::to_string(i) + "]";
+        std::string const key = std::string(valueKey) + "[" + std::to_string(i) + "]";
         JSON element = tmp.getSubDoc("[" + std::to_string(arraySize - 1 - i) + "]");
         jsonDoc->setSubDoc(key.c_str(), element);
     }
     return true;
 }
-
-std::string const JsonRvalueTransformer::reverseName = "reverse";
-std::string const JsonRvalueTransformer::reverseDesc = "Reverses the array in the current JSON value.\n"
-    "If the current value is not an array, it is first wrapped into a single-element array.\n"
-    "Usage: |reverse -> {array}";
-
 
 //------------------------------------------
 // Functions: Casting
@@ -221,22 +187,12 @@ bool JsonRvalueTransformer::toInt(std::span<std::string const> const& args, JSON
     return true;
 }
 
-std::string const JsonRvalueTransformer::toIntName = "toInt";
-std::string const JsonRvalueTransformer::toIntDesc = "Converts the current JSON value to an integer.\n"
-    "Never fails, defaults to 0 if the provided value is non-numeric.\n"
-    "Usage: |toInt -> {number}";
-
 // NOLINTNEXTLINE
 bool JsonRvalueTransformer::toString(std::span<std::string const> const& args, JSON* jsonDoc) {
     auto const valAsString = jsonDoc->get<std::string>(valueKey, "");
     jsonDoc->set<std::string>(valueKey, valAsString);
     return true;
 }
-
-std::string const JsonRvalueTransformer::toStringName = "toString";
-std::string const JsonRvalueTransformer::toStringDesc = "Converts the current JSON value to a string.\n"
-    "Never fails, defaults to an empty string if no conversion is possible.\n"
-    "Usage: |toString -> {string}";
 
 //------------------------------------------
 // Functions: Collection
@@ -246,7 +202,7 @@ bool JsonRvalueTransformer::map(std::span<std::string const> const& args, JSON* 
     if (jsonDoc->memberType(valueKey) == JSON::KeyType::value) {
         // Single value, we wrap it into an array
         JSON tmp = jsonDoc->getSubDoc(valueKey);
-        std::string const key = valueKey + "[0]";
+        std::string const key = std::string(valueKey) + "[0]";
         jsonDoc->setSubDoc(key.c_str(), tmp);
     }
     // Now we expect an array
@@ -263,25 +219,20 @@ bool JsonRvalueTransformer::map(std::span<std::string const> const& args, JSON* 
     size_t arraySize = jsonDoc->memberSize(valueKey);
     for (uint32_t idx = 0; idx < arraySize; ++idx) {
         // Set temp document with current element
-        std::string const elementKey = valueKey + "[" + std::to_string(idx) + "]";
+        std::string const elementKey = std::string(valueKey) + "[" + std::to_string(idx) + "]";
         JSON element = jsonDoc->getSubDoc(elementKey);
         JSON tempDoc;
-        tempDoc.setSubDoc(valueKey.c_str(), element);
+        tempDoc.setSubDoc(valueKey, element);
 
         // Parse transformation command
         if (!transformationFuncTree->parseStr(cmd, &tempDoc)) {
-            tempDoc.removeKey(valueKey.c_str());
+            tempDoc.removeKey(valueKey);
         }
         JSON transformedElement = tempDoc.getSubDoc(valueKey);
-        jsonDoc->setSubDoc(elementKey.c_str(), transformedElement);
+        jsonDoc->setSubDoc(elementKey, transformedElement);
     }
     return true;
 }
-
-std::string const JsonRvalueTransformer::mapName = "map";
-std::string const JsonRvalueTransformer::mapDesc = "Applies a mapping function to each element in the array of the current JSON value.\n"
-    "If the current value is not an array, it is first wrapped into a single-element array.\n"
-    "Usage: |map <function> -> {array}";
 
 //------------------------------------------
 // Functions: Debugging
@@ -299,10 +250,6 @@ bool JsonRvalueTransformer::echo(std::span<std::string const> const& args, JSON*
     return true;
 }
 
-std::string const JsonRvalueTransformer::echoName = "echo";
-std::string const JsonRvalueTransformer::echoDesc = "Echoes the provided arguments to the console, with newline.\n"
-    "Usage: |echo <arg1> <arg2> ...";
-
 // NOLINTNEXTLINE
 bool JsonRvalueTransformer::print(std::span<std::string const> const& args, JSON* jsonDoc) {
     // Print to cout, no modifications
@@ -314,10 +261,6 @@ bool JsonRvalueTransformer::print(std::span<std::string const> const& args, JSON
     return true;
 }
 
-std::string const JsonRvalueTransformer::printName = "print";
-std::string const JsonRvalueTransformer::printDesc = "Prints the current JSON value to the console.\n"
-    "Usage: |print";
-
 //------------------------------------------
 // Functions: Type-related
 
@@ -326,10 +269,6 @@ bool JsonRvalueTransformer::typeAsNumber(std::span<std::string const> const& arg
     jsonDoc->set<int>(valueKey, static_cast<int>(jsonDoc->memberType(valueKey)));
     return true;
 }
-
-std::string const JsonRvalueTransformer::typeAsNumberName = "typeAsNumber";
-std::string const JsonRvalueTransformer::typeAsNumberDesc = "Converts the current JSON type value to a number.\n"
-    "Usage: |typeAsNumber -> {number}, where the number reflects the enum value JSON::KeyType.";
 
 // NOLINTNEXTLINE
 bool JsonRvalueTransformer::typeAsString(std::span<std::string const> const& args, JSON* jsonDoc) {
@@ -365,9 +304,5 @@ bool JsonRvalueTransformer::typeAsString(std::span<std::string const> const& arg
     }
     return true;
 }
-
-std::string const JsonRvalueTransformer::typeAsStringName = "typeAsString";
-std::string const JsonRvalueTransformer::typeAsStringDesc = "Converts the current JSON type value to a string.\n"
-    "Usage: |typeAsString -> {value,array,object}";
 
 } // namespace Nebulite::Utility

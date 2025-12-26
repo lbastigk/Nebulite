@@ -85,11 +85,6 @@ void getMemoryUsageMB(double& virtualMemMB, double& residentMemMB) {
 } // anonymous namespace
 
 namespace Nebulite::DomainModule::GlobalSpace {
-std::string const Debug::log_name = "log";
-std::string const Debug::log_desc = R"(Functions to log various data to files)";
-
-std::string const Debug::standardfile_name = "standardfile";
-std::string const Debug::standardfile_desc = R"(Functions to generate standard files)";
 
 //------------------------------------------
 // Update
@@ -132,15 +127,6 @@ Constants::Error Debug::log_global(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const Debug::log_global_name = "log global";
-std::string const Debug::log_global_desc = R"(Logs the global document to a file.
-
-Usage: log global [<filenames>...]
-
-- <filenames>: Optional. One or more filenames to log the global document to.
-                If no filenames are provided, defaults to 'global.log.jsonc'.
-)";
-
 // NOLINTNEXTLINE
 Constants::Error Debug::log_state(int argc, char** argv) {
     std::string const serialized = domain->getRenderer()->serialize();
@@ -154,29 +140,12 @@ Constants::Error Debug::log_state(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const Debug::log_state_name = "log state";
-std::string const Debug::log_state_desc = R"(Logs the current state of the renderer to a file.
-
-Usage: log state [<filenames>...]
-
-- <filenames>: Optional. One or more filenames to log the renderer state to.
-                If no filenames are provided, defaults to 'state.log.jsonc'.
-)";
-
 // NOLINTNEXTLINE
 Constants::Error Debug::standardfile_renderobject(int argc, char** argv) {
     Core::RenderObject ro;
     Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize());
     return Constants::ErrorTable::NONE();
 }
-
-std::string const Debug::standardfile_renderobject_name = "standardfile renderobject";
-std::string const Debug::standardfile_renderobject_desc = R"(Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
-
-Usage: standardfile renderobject
-
-Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.
-)";
 
 // NOLINTNEXTLINE
 Constants::Error Debug::errorlog(int argc, char** argv) {
@@ -215,16 +184,6 @@ Constants::Error Debug::errorlog(int argc, char** argv) {
     }
     return Constants::ErrorTable::NONE();
 }
-
-std::string const Debug::errorlog_name = "errorlog";
-std::string const Debug::errorlog_desc = R"(Activates or deactivates error logging to a file.
-
-Usage: errorlog <on/off>
-
-- on:  Activates error logging to 'error.log' in the working directory.
-- off: Deactivates error logging, reverting to standard error output.
-Note: Ensure you have write permissions in the working directory when activating error logging.
-)";
 
 inline void clear_screen() {
 #if defined(_WIN32)
@@ -282,15 +241,6 @@ Constants::Error Debug::clearConsole(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const Debug::clearConsole_name = "clear";
-std::string const Debug::clearConsole_desc = R"(Clears the console screen.
-
-Usage: clear
-
-Note: This function attempts to clear the console screen using system-specific commands.
-        It may not work in all environments or IDEs.
-)";
-
 // NOLINTNEXTLINE
 Constants::Error Debug::crash(int argc, char** argv) {
     // If an argument is provided, use it to select crash type
@@ -319,18 +269,6 @@ Constants::Error Debug::crash(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const Debug::crash_name = "crash";
-std::string const Debug::crash_desc = R"(Crashes the program, useful for checking if the testing suite can catch crashes.
-
-Usage: crash [<type>]
-
-- <type>: Optional. The type of crash to induce. Options are:
-    - segfault   : Causes a segmentation fault (default)
-    - abort      : Calls std::abort()
-    - terminate  : Calls std::terminate()
-    - throw      : Throws an uncaught exception
-)";
-
 // NOLINTNEXTLINE
 Constants::Error Debug::error(int argc, char** argv) {
     for (int i = 1; i < argc; ++i) {
@@ -345,14 +283,6 @@ Constants::Error Debug::error(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const Debug::error_name = "error";
-std::string const Debug::error_desc = R"(Echoes all arguments as string to the standard error.
-
-Usage: error <string...>
-
-- <string...>: One or more strings to echo to the standard error.
-)";
-
 // NOLINTNEXTLINE
 Constants::Error Debug::warn(int argc, char** argv) {
     if (argc < 2) {
@@ -361,14 +291,6 @@ Constants::Error Debug::warn(int argc, char** argv) {
     std::string const args = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
     return Constants::ErrorTable::addError(args, Constants::Error::NON_CRITICAL);
 }
-
-std::string const Debug::warn_name = "warn";
-std::string const Debug::warn_desc = R"(Returns a warning: a custom, noncritical error.
-
-Usage: warn <string>
-
-- <string>: The warning message.
-)";
 
 // NOLINTNEXTLINE
 Constants::Error Debug::critical(int argc, char** argv) {
@@ -379,14 +301,6 @@ Constants::Error Debug::critical(int argc, char** argv) {
     std::string const args = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
     return Constants::ErrorTable::addError(args, Constants::Error::CRITICAL);
 }
-
-std::string const Debug::critical_name = "critical";
-std::string const Debug::critical_desc = R"(Returns a critical error.
-
-Usage: critical <string>
-
-- <string>: The critical error message.
-)";
 
 // NOLINTNEXTLINE
 Constants::Error Debug::waitForInput(int argc, char** argv) {
@@ -402,14 +316,6 @@ Constants::Error Debug::waitForInput(int argc, char** argv) {
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return Constants::ErrorTable::NONE();
 }
-
-std::string const Debug::waitForInput_name = "input-wait";
-std::string const Debug::waitForInput_desc = R"(Waits for user input before continuing.
-
-Usage: input-wait [prompt]
-
-Note: This function pauses execution until the user presses Enter.
-)";
 
 //------------------------------------------
 // Private Methods

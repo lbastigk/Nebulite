@@ -20,18 +20,18 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
 class Renderer; // Forward declaration of domain class Renderer
-}
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::DomainModule::Renderer {
 /**
  * @class Nebulite::DomainModule::Renderer::RenderObjectDraft
  * @brief Utilities for creating and manipulating RenderObjects
- * 
- * Allows for the creation and manipulation of RenderObjects in a draft state.
- * Allowing us to easily create draft object to continuously spawn.
+ * @details Allows for the creation and manipulation of RenderObjects in a draft state
+ *          before spawning them into the Environment.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, RenderObjectDraft) {
 public:
@@ -41,44 +41,38 @@ public:
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Parse Renderobject-specific functions on the draft
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: the arguments for the RenderObject to parse.
-     * 
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error draft_parse(int argc, char** argv);
-    static std::string const draft_parse_name;
-    static std::string const draft_parse_desc;
+    static std::string_view constexpr draft_parse_name = "draft parse";
+    static std::string_view constexpr draft_parse_desc = "Parse Renderobject-specific functions on the draft.\n"
+        "\n"
+        "Usage: draft parse <function> [args...]\n"
+        "\n"
+        "Use 'draft parse help' to see available functions.\n"
+        "\n"
+        "Examples:\n"
+        "draft parse set text.str Hello World\n"
+        "draft parse set posX 100\n"
+        "draft parse set posY 200\n";
 
-    /**
-     * @brief Spawn the created draft object
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: no arguments available
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error draft_spawn(int argc, char** argv);
-    static std::string const draft_spawn_name;
-    static std::string const draft_spawn_desc;
+    static std::string_view constexpr draft_spawn_name = "draft spawn";
+    static std::string_view constexpr draft_spawn_desc = "Spawn the created draft object.\n"
+        "\n"
+        "Usage: draft spawn\n";
 
-    /**
-     * @brief Reset the draft (does not reset any spawned ones!)
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: no arguments available
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error draft_reset(int argc, char** argv);
-    static std::string const draft_reset_name;
-    static std::string const draft_reset_desc;
+    static std::string_view constexpr draft_reset_name = "draft reset";
+    static std::string_view constexpr draft_reset_desc = "Reset the draft object.\n"
+        "\n"
+        "This does not reset any spawned ones!\n"
+        "\n"
+        "Usage: draft reset\n";
 
     //------------------------------------------
     // Category names
-    static std::string const draft_name;
-    static std::string const draft_desc;
+    
+    static std::string_view constexpr draft_name = "draft";
+    static std::string_view constexpr draft_desc = "Functions to manipulate and spawn RenderObjects in draft state";
 
     //------------------------------------------
     // Setup
@@ -88,19 +82,20 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RenderObjectDraft) {
         // Bind functions
-        (void)bindCategory(draft_name, &draft_desc);
-        bindFunction(&RenderObjectDraft::draft_parse, draft_parse_name, &draft_parse_desc);
-        bindFunction(&RenderObjectDraft::draft_spawn, draft_spawn_name, &draft_spawn_desc);
-        bindFunction(&RenderObjectDraft::draft_reset, draft_reset_name, &draft_reset_desc);
+        (void)bindCategory(draft_name, draft_desc);
+        bindFunction(&RenderObjectDraft::draft_parse, draft_parse_name, draft_parse_desc);
+        bindFunction(&RenderObjectDraft::draft_spawn, draft_spawn_name, draft_spawn_desc);
+        bindFunction(&RenderObjectDraft::draft_reset, draft_reset_name, draft_reset_desc);
     }
 
 private:
     /**
      * @class DraftHolder
      * @brief Protector struct for draft RenderObject
-     * Ensuring the draft is only initialized when accessed through lazy-init
+     * @details Ensuring the draft is only initialized when accessed through lazy-init
      */
     class DraftHolder {
+    private:
         std::unique_ptr<Core::RenderObject> ptr;
 
     public:

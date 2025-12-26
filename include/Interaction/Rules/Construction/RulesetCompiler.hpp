@@ -161,16 +161,6 @@ private:
         std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsLocal,
         std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsGlobal
         );
-
-    /**
-     * @brief List of operations that are considered numeric and thus eligible for direct pointer assignment.
-     * @note Any new numeric operation must be added here to benefit from optimization techniques in the Invoke class.
-     */
-    inline static std::vector<Logic::Assignment::Operation> const numeric_operations = {
-        Logic::Assignment::Operation::set,
-        Logic::Assignment::Operation::add,
-        Logic::Assignment::Operation::multiply
-    };
 };
 } // namespace Nebulite::Interaction::Rules::Construction
 #endif // NEBULITE_RULESET_COMPILER_HPP

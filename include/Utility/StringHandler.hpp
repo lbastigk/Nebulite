@@ -95,7 +95,7 @@ public:
      * Keeps the delimiter at the start of the token. (Optional, default: false)
      * @return A vector of tokens extracted from the input string.
      */
-    static std::vector<std::string> split(std::string const& input, char const& delimiter, bool const& keepDelimiter = false);
+    static std::vector<std::string> split(std::string_view const& input, char const& delimiter, bool const& keepDelimiter = false);
 
     /**
      * @brief Splits a string on the same depth of parentheses.

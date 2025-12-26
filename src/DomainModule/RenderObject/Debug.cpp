@@ -6,9 +6,6 @@
 
 namespace Nebulite::DomainModule::RenderObject {
 
-std::string const Debug::debug_name = "debug";
-std::string const Debug::debug_desc = R"(Debugging functions for RenderObject)";
-
 //------------------------------------------
 // Update
 
@@ -27,16 +24,6 @@ Constants::Error Debug::eval(int argc, char** argv) {
     std::string const argsEvaluated = Interaction::Logic::Expression::eval(args, context);
     return domain->parseStr(argsEvaluated);
 }
-
-std::string const Debug::eval_name = "eval";
-std::string const Debug::eval_desc = R"(Evaluate an expression and execute the result.
-Example: eval echo $(1+1)
-
-Examples:
-
-eval echo $(1+1)    outputs:    2.000000
-eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
-)";
 
 // NOLINTNEXTLINE
 Constants::Error Debug::printSrcRect(int argc, char** argv) {
@@ -60,17 +47,6 @@ Constants::Error Debug::printSrcRect(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const Debug::printSrcRect_name = "debug print-src-rect";
-std::string const Debug::printSrcRect_desc = R"(Prints debug information about the source rectangle to console
-
-Usage: debug print-src-rect
-
-Outputs:
-Source Rectangle: { x: ..., y: ..., w: ..., h: ... }
-If the RenderObject is not a spritesheet, indicates that instead:
-This RenderObject is not a spritesheet.
-)";
-
 // NOLINTNEXTLINE
 Constants::Error Debug::printDstRect(int argc, char** argv) {
     if (argc != 1) {
@@ -92,17 +68,6 @@ Constants::Error Debug::printDstRect(int argc, char** argv) {
 
     return Constants::ErrorTable::NONE();
 }
-
-std::string const Debug::printDstRect_name = "debug print-dst-rect";
-std::string const Debug::printDstRect_desc = R"(Prints debug information about the destination rectangle to console
-
-Usage: debug print-dst-rect
-
-Outputs:
-Destination Rectangle: { x: ..., y: ..., w: ..., h: ... }
-If the RenderObject is not a spritesheet, indicates that instead:
-Destination rectangle is not set.
-)";
 
 // Texture debugging helper
 namespace {
@@ -175,17 +140,5 @@ Constants::Error Debug::textureStatus(int argc, char** argv) {
     Nebulite::cout() << getTextureInfoString(domain->getTexture()->getSDLTexture()) << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
-
-std::string const Debug::textureStatus_name = "debug texture-status";
-std::string const Debug::textureStatus_desc = R"(Prints debug information about the texture to console
-
-Usage: debug texture-status
-
-Outputs various details about the texture, including:
- - Texture Key
- - Valid Texture
- - Local Texture
- - SDL Texture Info (Width, Height, Access, Format)
-)";
 
 } // namespace Nebulite::DomainModule::RenderObject

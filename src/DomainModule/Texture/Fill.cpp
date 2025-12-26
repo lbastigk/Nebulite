@@ -77,14 +77,4 @@ Constants::Error Fill::fill(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const Fill::fill_name = "fill";
-std::string const Fill::fill_desc = R"(Fill the texture with a color
-
-Usage:
-fill <color> 
-fill [R] [G] [B]
-- <color>: Predefined color name (e.g., "red", "green", "blue")
-- [R] [G] [B]: RGB color values (0-255)
-)";
-
 } // namespace Nebulite::DomainModule::Texture

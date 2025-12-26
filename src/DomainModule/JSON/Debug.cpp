@@ -41,11 +41,4 @@ Constants::Error Debug::print(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-std::string const Debug::print_name = "print";
-std::string const Debug::print_desc = R"(Prints the JSON document to the console for debugging purposes.
-If key is empty, prints the entire document.
-
-Usage: print [key]
-)";
-
 } // namespace Nebulite::DomainModule::JSON

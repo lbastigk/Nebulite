@@ -5,12 +5,6 @@
 
 namespace Nebulite::DomainModule::JSON {
 
-std::string const ComplexData::query_name = "query";
-std::string const ComplexData::query_desc = R"(Functions to manipulate JSON data via SQL query results)";
-
-std::string const ComplexData::json_name = "json";
-std::string const ComplexData::json_desc = R"(Functions to manipulate JSON data via read-only JSON documents)";
-
 //------------------------------------------
 // Update
 Constants::Error ComplexData::update() {
@@ -28,11 +22,6 @@ Constants::Error ComplexData::querySet(int argc, char** argv) {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
-
-std::string const ComplexData::querySet_name = "query set";
-std::string const ComplexData::querySet_desc = R"(Sets a key from a SQL query result.
-Not implemented yet.
-)";
 
 // NOLINTNEXTLINE
 Constants::Error ComplexData::jsonSet(int argc, char** argv) {
@@ -74,14 +63,4 @@ Constants::Error ComplexData::jsonSet(int argc, char** argv) {
     }
     return Constants::ErrorTable::NONE();
 }
-
-std::string const ComplexData::jsonSet_name = "json set";
-std::string const ComplexData::jsonSet_desc = R"(Sets a key from a JSON document.
-
-Usage: json set <key_to_set> <link:key>
-
-Where <link:key> is a link to a JSON document.
-The document is dynamically loaded and cached for future use.
-)";
-
 } // namespace Nebulite::DomainModule::JSON

@@ -24,8 +24,7 @@ namespace Nebulite::DomainModule::RenderObject {
 /**
  * @class Nebulite::DomainModule::RenderObject::Logging
  * @brief Logging DomainModule of the RenderObject Domain.
- * 
- * Contains RenderObject-specific logging functionality.
+ * @details Contains RenderObject-specific logging functionality.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Logging) {
 public:
@@ -35,57 +34,34 @@ public:
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Echoes the provided arguments to cout
-     * 
-     * Note that this function is primarily for debugging purposes, and should not be used in production code.
-     * The output may be mangled due to threading issues.
-     * Try to limit the amount of RenderObjects that echo at once, to avoid thread contention.
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: ...
-     * @return Potential errors that occurred on command execution
-     */
+    // Same as GlobalSpace echo, but perhaps useful to quickly check if a RenderObjects ruleset is triggered.
+    // Compared to the global echo, this one is not delayed by any taskqueue.
     Constants::Error echo(int argc, char** argv);
-    static std::string const echo_name;
-    static std::string const echo_desc;
+    static std::string_view constexpr echo_name = "echo";
+    static std::string_view constexpr echo_desc = "Echoes all arguments as string to the standard output.\n"
+        "\n"
+        "Usage: echo <string>\n";
 
-    /**
-     * @brief
-     */
-
-    /**
-     * @brief Logs the entire RenderObject to a file
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: [filename]
-     * 
-     * Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
-     * 
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error log_all(int argc, char** argv);
-    static std::string const log_all_name;
-    static std::string const log_all_desc;
+    static std::string_view constexpr log_all_name = "log all";
+    static std::string_view constexpr log_all_desc = "Logs the entire RenderObject to a file.\n"
+        "\n"
+        "Usage: log [filename]\n"
+        "\n"
+        "Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.\n";
 
-    /**
-     * @brief Logs a value to a given file
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <key> [file]
-     * 
-     * Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
-     * 
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error log_key(int argc, char** argv);
-    static std::string const log_key_name;
-    static std::string const log_key_desc;
+    static std::string_view constexpr log_key_name = "log key";
+    static std::string_view constexpr log_key_desc = "Logs a specific key's value to a file.\n"
+        "\n"
+        "Usage: log key <key> [filename]\n"
+        "\n"
+        "Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.\n";
 
     //------------------------------------------
     // Category names
-    static std::string const log_name;
-    static std::string const log_desc;
+    static std::string_view constexpr log_name = "log";
+    static std::string_view constexpr log_desc = "Logging utilities";
 
     //------------------------------------------
     // Setup
@@ -94,11 +70,11 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Logging) {
-        bindFunction(&Logging::echo, echo_name, &echo_desc);
+        bindFunction(&Logging::echo, echo_name, echo_desc);
 
-        (void)bindCategory(log_name, &log_desc);
-        bindFunction(&Logging::log_all, log_all_name, &log_all_desc);
-        bindFunction(&Logging::log_key, log_key_name, &log_key_desc);
+        (void)bindCategory(log_name, log_desc);
+        bindFunction(&Logging::log_all, log_all_name, log_all_desc);
+        bindFunction(&Logging::log_key, log_key_name, log_key_desc);
     }
 };
 } // namespace Nebulite::DomainModule::RenderObject

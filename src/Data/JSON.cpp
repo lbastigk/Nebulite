@@ -514,7 +514,7 @@ void JSON::removeKey(char const* key) {
 // TODO: optimize by avoiding double cache lookups
 // special get-function that returns the cache pointer instead of value
 
-void JSON::set_add(std::string const& key, double const& val) {
+void JSON::set_add(std::string_view const& key, double const& val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
@@ -534,7 +534,7 @@ void JSON::set_add(std::string const& key, double const& val) {
     }
 }
 
-void JSON::set_multiply(std::string const& key, double const& val) {
+void JSON::set_multiply(std::string_view const& key, double const& val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
@@ -554,7 +554,7 @@ void JSON::set_multiply(std::string const& key, double const& val) {
     }
 }
 
-void JSON::set_concat(std::string const& key, std::string const& valStr) {
+void JSON::set_concat(std::string_view const& key, std::string const& valStr) {
     std::scoped_lock const lockGuard(mtx);
 
     auto const current = get<std::string>(key, "");

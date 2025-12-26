@@ -35,16 +35,14 @@ public:
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Evaluates an expression string and executes it
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: rotation angle in degrees
-     * @return Potential errors that occurred on command execution
-     */
     Constants::Error rotate(int argc, char** argv);
-    static std::string const rotate_name;
-    static std::string const rotate_desc;
+    static std::string_view constexpr rotate_name = "rotate";
+    static std::string_view constexpr rotate_desc = "Rotate the texture by a specified angle.\n"
+        "\n"
+        "Usage: rotate <angle>\n"
+        "\n"
+        "Arguments:\n"
+        "  angle   The angle in degrees to rotate the texture.\n";
 
     //------------------------------------------
     // Setup
@@ -53,7 +51,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Rotation) {
-        bindFunction(&Rotation::rotate, rotate_name, &rotate_desc);
+        bindFunction(&Rotation::rotate, rotate_name, rotate_desc);
     }
 };
 } // namespace Nebulite::DomainModule::Texture

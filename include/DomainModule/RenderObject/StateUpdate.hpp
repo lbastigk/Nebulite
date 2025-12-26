@@ -5,8 +5,8 @@
  *       Later on, the text update function should be moved to the texture domain once that works properly.
  */
 
-#ifndef NEBULITE_RODM_STATEUPDATE_HPP
-#define NEBULITE_RODM_STATEUPDATE_HPP
+#ifndef NEBULITE_RODM_STATE_UPDATE_HPP
+#define NEBULITE_RODM_STATE_UPDATE_HPP
 
 //------------------------------------------
 // Includes
@@ -19,7 +19,7 @@
 // Forward declarations
 namespace Nebulite::Core {
 class RenderObject;
-}
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::DomainModule::RenderObject {
@@ -36,12 +36,20 @@ public:
     // Available Functions
 
     Constants::Error func_delete(int argc, char** argv);
-    static std::string const func_delete_name;
-    static std::string const func_delete_desc;
+    static std::string_view constexpr func_delete_name = "delete";
+    static std::string_view constexpr func_delete_desc = "Marks object for deletion\n"
+        "\n"
+        "Usage: delete\n"
+        "\n"
+        "Marks the object for deletion on the next update cycle.\n";
 
     Constants::Error updateText(int argc, char** argv);
-    static std::string const updateText_name;
-    static std::string const updateText_desc;
+    static std::string_view constexpr updateText_name = "update-text";
+    static std::string_view constexpr updateText_desc = "Calculate text texture\n"
+        "\n"
+        "Usage: update-text\n"
+        "\n"
+        "Triggers a recalculation of the text texture.\n";
 
     //------------------------------------------
     // Setup
@@ -50,9 +58,9 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, StateUpdate) {
-        bindFunction(&StateUpdate::func_delete, func_delete_name, &func_delete_desc);
-        bindFunction(&StateUpdate::updateText, updateText_name, &updateText_desc);
+        bindFunction(&StateUpdate::func_delete, func_delete_name, func_delete_desc);
+        bindFunction(&StateUpdate::updateText, updateText_name, updateText_desc);
     }
 };
 } // namespace Nebulite::DomainModule::RenderObject
-#endif // NEBULITE_RODM_STATEUPDATE_HPP
+#endif // NEBULITE_RODM_STATE_UPDATE_HPP
