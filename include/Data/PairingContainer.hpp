@@ -49,7 +49,11 @@ struct PairingContainer {
     void insertBroadcaster(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
     void insertListener(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId);
 
-    PairingContainer() = default;
+    void swap(PairingContainer& other);
+
+    void process(); // Worker thread processing function
+
+    PairingContainer(std::atomic<bool>& stop) : stopFlag(stop) {}
 
     absl::flat_hash_map<
         std::string,            // The topic of the broadcasted entry
@@ -60,6 +64,8 @@ struct PairingContainer {
     > data;
 
     std::mutex mutex;
+
+    std::atomic<bool>& stopFlag;
 };
 
 } // namespace Nebulite::Data

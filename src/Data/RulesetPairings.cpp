@@ -20,8 +20,7 @@ void BroadCastListenPairs::listen(Interaction::Execution::DomainBase* listener, 
 // Worker Thread Methods
 
 void BroadCastListenPairs::prepare() {
-    std::scoped_lock lock(thisFrame.mutex, nextFrame.mutex);
-    std::swap(thisFrame.data, nextFrame.data);
+    thisFrame.swap(nextFrame);
 }
 
 void BroadCastListenPairs::startWork() {
@@ -40,11 +39,6 @@ void BroadCastListenPairs::waitForWorkFinished() const {
 // Private Methods
 
 void BroadCastListenPairs::process()  {
-    // Thread-local random generator for probabilistic cleanup
-    thread_local std::mt19937 cleanup_rng(std::random_device{}());
-    thread_local std::uniform_int_distribution<int> cleanup_dist(0, 99); // uniform, avoids modulo bias
-
-    // Set locks etc.
     while (!threadState.stopFlag) {
         // Wait for work to be ready
         std::unique_lock lock(thisFrame.mutex);
@@ -52,39 +46,7 @@ void BroadCastListenPairs::process()  {
             return threadState.workReady.load() || threadState.stopFlag.load();
         });
         // Process
-        if (threadState.stopFlag)
-            break;
-
-        // Actual processing of thisFrame
-        for (auto& map_other : std::views::values(thisFrame.data)) {
-            for (auto& [isActive, rulesets] : std::views::values(map_other)) {
-                if (!isActive)
-                    continue;
-                for (auto& [entry, listeners] : std::ranges::views::values(rulesets)) {
-                    // Process active listeners (single pass, no erases here)
-                    for (auto & it : listeners) {
-                        auto &pair = it.second;
-                        if (pair.active) {
-                            pair.entry->apply(pair.contextOther);
-                            pair.active = false;
-                        }
-                    }
-                    // Probabilistic cleanup performed once per ruleset
-                    if (cleanup_dist(cleanup_rng) == 0) {
-                        for (auto it = listeners.begin(); it != listeners.end();) {
-                            if (!it->second.active) {
-                                auto itToErase = it++;
-                                listeners.erase(itToErase); // erase returns void in Abseil
-                            } else {
-                                ++it;
-                            }
-                        }
-                    }
-                }
-                // Reset activity flag, must be activated on broadcast
-                isActive = false;
-            }
-        }
+        thisFrame.process();
 
         // Set work flags
         threadState.workReady = false;

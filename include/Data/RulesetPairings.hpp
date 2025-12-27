@@ -24,16 +24,12 @@
 //------------------------------------------
 namespace Nebulite::Data{
 
-// TODO: Break into a chain of nibble-trees for faster access?
-//       uint32_t -> 8 nibble traversal. vector<vector<vector<vector<...<OnTopicFromId>...>>>?
-//       Should be WAY faster for lookups, easy cleanup as well.
-//       Byte-Tree should be fine as well, just 4 levels instead of 8.
-//       Another option would be to insert all pairs into a flat vector and iterate through that.
-//       Meaning we store generated pairs, and insert into a vector if listening was successful.
+/**
+ * @brief Class to manage broadcast-listen pairs of rulesets. With this and next frame management.
+ */
 class BroadCastListenPairs {
 public:
-
-    BroadCastListenPairs(std::atomic<bool>& stopFlag) : threadState{ .stopFlag = stopFlag } {
+    BroadCastListenPairs(std::atomic<bool>& stopFlag) : thisFrame(stopFlag), nextFrame(stopFlag), threadState{ .stopFlag = stopFlag }{
         // Start worker thread
         workerThread = std::thread([this] {
             this->process();
@@ -85,7 +81,6 @@ public:
     void waitForWorkFinished() const ;
 
 private:
-
     Data::PairingContainer thisFrame;
     Data::PairingContainer nextFrame;
 
