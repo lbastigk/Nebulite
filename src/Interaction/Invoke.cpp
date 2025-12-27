@@ -21,18 +21,18 @@ namespace Nebulite::Interaction {
 
 Invoke::Invoke() {
     // Initialize synchronization primitives
-    threadState.stopFlag = false;
+    stopFlag = false;
 
     // Create and start threads
     for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
-        w = std::make_unique<Data::BroadCastListenPairs>(threadState.stopFlag);
+        w = std::make_unique<Data::BroadCastListenPairs>(stopFlag);
     }
 }
 
 Invoke::~Invoke() {
     // Signal threads to stop and finish
     // Stopping is handled in BroadCastListenPairs destructor
-    threadState.stopFlag = true;
+    stopFlag = true;
 }
 
 //------------------------------------------
