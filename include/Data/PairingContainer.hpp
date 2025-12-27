@@ -34,6 +34,22 @@ struct BroadCastListenPair {
 struct ListenersOnRuleset {
     std::shared_ptr<Interaction::Rules::Ruleset> entry;
     absl::flat_hash_map<uint32_t, BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
+
+    void cleanup() {
+        // Thread-local random generator for probabilistic cleanup
+        thread_local std::mt19937 cleanup_rng(std::random_device{}());
+        thread_local std::uniform_int_distribution<int> cleanup_dist(0, 99); // uniform, avoids modulo bias
+        if (cleanup_dist(cleanup_rng) == 0) {
+                    for (auto it = listeners.begin(); it != listeners.end();) {
+                        if (!it->second.active) {
+                            auto itToErase = it++;
+                            listeners.erase(itToErase); // erase returns void in Abseil
+                        } else {
+                            ++it;
+                        }
+                    }
+                }
+    }
 };
 
 struct OnTopicFromId {

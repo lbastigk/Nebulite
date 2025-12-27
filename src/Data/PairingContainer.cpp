@@ -46,10 +46,6 @@ void PairingContainer::swap(PairingContainer& other) {
 }
 
 void PairingContainer::process() {
-    // Thread-local random generator for probabilistic cleanup
-    thread_local std::mt19937 cleanup_rng(std::random_device{}());
-    thread_local std::uniform_int_distribution<int> cleanup_dist(0, 99); // uniform, avoids modulo bias
-
     auto lock = this->lock();
 
     if (stopFlag)
@@ -60,21 +56,12 @@ void PairingContainer::process() {
         for (auto& [isActive, rulesets] : std::views::values(map_other)) {
             if (!isActive)
                 continue;
-            for (auto& [entry, listeners] : std::ranges::views::values(rulesets)) {
+            for (auto& listenersOnRuleset : std::ranges::views::values(rulesets)) {
                 // Probabilistic cleanup performed once per ruleset
-                if (cleanup_dist(cleanup_rng) == 0) {
-                    for (auto it = listeners.begin(); it != listeners.end();) {
-                        if (!it->second.active) {
-                            auto itToErase = it++;
-                            listeners.erase(itToErase); // erase returns void in Abseil
-                        } else {
-                            ++it;
-                        }
-                    }
-                }
+                listenersOnRuleset.cleanup();
 
                 // Process active listeners (single pass, no erases here)
-                for (auto & it : listeners) {
+                for (auto & it : listenersOnRuleset.listeners) {
                     auto &pair = it.second;
                     if (pair.active) {
                         pair.entry->apply(pair.contextOther);
