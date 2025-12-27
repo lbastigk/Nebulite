@@ -104,59 +104,6 @@ public:
      */
     void update();
 
-    //------------------------------------------
-    // Standalone Expression Evaluation
-
-    /**
-     * @brief Evaluates a standalone expression.
-     * @details Returns the result as a string. As this happens inside the invoke class,
-     *          it has access to the global document as well as the DocumentCache.
-     *          An empty document is used for the `self` and `other` context:
-     *          - All variable access outside an expression defaults to an empty string
-     *          - All variable access inside an expression defaults to 0.0
-     * @param input The expression to evaluate.
-     * @return The result of the evaluation.
-     */
-    [[nodiscard]] std::string evaluateStandaloneExpression(std::string const& input) const;
-
-    /**
-     * @brief Evaluates a standalone expression with context from a RenderObject.
-     * @param input The expression to evaluate.
-     * @param selfAndOther The RenderObject providing context for `self` and `other`.
-     * @return The result of the evaluation.
-     */
-    static std::string evaluateStandaloneExpression(std::string const& input, Core::RenderObject const* selfAndOther);
-
-    /**
-     * @brief Evaluates a standalone expression and returns the result as a double.
-     * @param input The expression to evaluate.
-     * @return The result of the evaluation as a double.
-     */
-    [[nodiscard]] double evaluateStandaloneExpressionAsDouble(std::string const& input) const;
-
-    /**
-     * @brief Evaluates a standalone expression with context from a RenderObject and returns the result as a double.
-     * @param input The expression to evaluate.
-     * @param selfAndOther The RenderObject providing context for `self` and `other`.
-     * @return The result of the evaluation as a double.
-     */
-    static double evaluateStandaloneExpressionAsDouble(std::string const& input, Core::RenderObject const* selfAndOther);
-
-    /**
-     * @brief Evaluates a standalone expression and returns the result as a boolean.
-     * @param input The expression to evaluate.
-     * @return The result of the evaluation as a boolean.
-     */
-    [[nodiscard]] bool evaluateStandaloneExpressionAsBool(std::string const& input) const;
-
-    /**
-     * @brief Evaluates a standalone expression with context from a RenderObject and returns the result as a boolean.
-     * @param input The expression to evaluate.
-     * @param selfAndOther The RenderObject providing context for `self` and `other`.
-     * @return The result of the evaluation as a boolean.
-     */
-    static bool evaluateStandaloneExpressionAsBool(std::string const& input, Core::RenderObject const* selfAndOther);
-
 private:
     //------------------------------------------
     // Threading Containers
