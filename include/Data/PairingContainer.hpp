@@ -1,7 +1,8 @@
 #ifndef NEBULITE_DATA_PAIRING_CONTAINER_HPP
 #define NEBULITE_DATA_PAIRING_CONTAINER_HPP
 
-// TODO: Compiles, but causes deadlock. Investigate later.
+// TODO: Compiles, but not working as expected. All ::at calls lead to values with NULL, inactive pairs
+//       All sizes are somehow zero...
 #define USE_BYTETREE_CONTAINER 0
 
 //------------------------------------------
@@ -64,7 +65,8 @@ struct ListenersOnRuleset {
     }
 
     void insert(uint32_t const& id, BroadCastListenPair const& pair) const {
-        (*listeners)[id] = pair;
+        auto& pairReference = (*listeners)[id];
+        pairReference = pair;
     }
 
 #else
