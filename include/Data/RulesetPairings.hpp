@@ -7,6 +7,12 @@
 #ifndef NEBULITE_INTERACTION_RULES_RULESET_PAIRINGS_HPP
 #define NEBULITE_INTERACTION_RULES_RULESET_PAIRINGS_HPP
 
+/**
+ * @brief Flag to determine whether to use a ByteTree for ruleset pairings.
+ * @details If false, a flat_hash_map is used instead.
+ */
+#define USE_BYTE_TREE_FOR_RULESET_PAIRINGS 0
+
 //------------------------------------------
 // Includes
 
@@ -107,14 +113,22 @@ private:
     struct OnTopicFromId {
         bool active = false; // If false, this is skipped during update
         absl::flat_hash_map<uint32_t, ListenersOnRuleset> rulesets; // idx_ruleset -> ListenersOnRuleset
+
+        [[nodiscard]] bool isActive() const {
+            return active;
+        }
     };
 
     using PairingContainer = absl::flat_hash_map<
         std::string,            // The topic of the broadcasted entry
+#if USE_BYTE_TREE_FOR_RULESET_PAIRINGS
+        ByteTree<OnTopicFromId>
+#else
         absl::flat_hash_map<
             uint32_t,           // The ID of self.
             OnTopicFromId       // The struct containing active flag and rulesets
         >
+#endif
     >;
 
     PairingContainer thisFrame;
