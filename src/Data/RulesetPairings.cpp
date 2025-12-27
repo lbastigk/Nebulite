@@ -5,20 +5,23 @@
 
 namespace Nebulite::Data {
 
+//------------------------------------------
+// Container Methods
+
 void BroadCastListenPairs::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
-    std::scoped_lock lock(mutexNextFrame);
-    auto& [isActive, rulesets] = nextFrame[entry->getTopic()][entry->getId()];
+    std::scoped_lock lock(nextFrame.mutex);
+    auto& [isActive, rulesets] = nextFrame.data[entry->getTopic()][entry->getId()];
     rulesets[entry->getIndex()].entry = entry;
     isActive = true;
 }
 
 void BroadCastListenPairs::listen(Core::RenderObject* obj, std::string const& topic, uint32_t const& listenerId) {
     // Lock to safely read from broadcasted.entriesThisFrame
-    std::scoped_lock broadcastLock(mutexThisFrame);
+    std::scoped_lock broadcastLock(thisFrame.mutex);
 
     // Check if any object has broadcasted on this topic
-    auto topicIt = thisFrame.find(topic);
-    if (topicIt == thisFrame.end()) {
+    auto topicIt = thisFrame.data.find(topic);
+    if (topicIt == thisFrame.data.end()) {
         return; // No entries for this topic in this thread
     }
 
@@ -39,6 +42,26 @@ void BroadCastListenPairs::listen(Core::RenderObject* obj, std::string const& to
 }
 
 //------------------------------------------
+// Worker Thread Methods
+
+void BroadCastListenPairs::prepare() {
+    std::scoped_lock lock(thisFrame.mutex, nextFrame.mutex);
+    std::swap(thisFrame.data, nextFrame.data);
+}
+
+void BroadCastListenPairs::startWork() {
+    threadState.workReady = true;
+    threadState.workFinished = false;
+    threadState.condition.notify_one();
+}
+
+void BroadCastListenPairs::waitForWorkFinished() const {
+    while (!threadState.workFinished.load()) {
+        std::this_thread::yield();
+    }
+}
+
+//------------------------------------------
 // Private Methods
 
 void BroadCastListenPairs::process()  {
@@ -49,7 +72,7 @@ void BroadCastListenPairs::process()  {
     // Set locks etc.
     while (!threadState.stopFlag) {
         // Wait for work to be ready
-        std::unique_lock lock(mutexThisFrame);
+        std::unique_lock lock(thisFrame.mutex);
         threadState.condition.wait(lock, [this] {
             return threadState.workReady.load() || threadState.stopFlag.load();
         });
@@ -58,7 +81,7 @@ void BroadCastListenPairs::process()  {
             break;
 
         // Actual processing of thisFrame
-        for (auto& map_other : std::views::values(thisFrame)) {
+        for (auto& map_other : std::views::values(thisFrame.data)) {
             for (auto& [isActive, rulesets] : std::views::values(map_other)) {
                 if (!isActive)
                     continue;

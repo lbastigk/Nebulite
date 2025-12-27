@@ -7,12 +7,6 @@
 #ifndef NEBULITE_INTERACTION_RULES_RULESET_PAIRINGS_HPP
 #define NEBULITE_INTERACTION_RULES_RULESET_PAIRINGS_HPP
 
-/**
- * @brief Flag to determine whether to use a ByteTree for ruleset pairings.
- * @details If false, a flat_hash_map is used instead.
- */
-#define USE_BYTE_TREE_FOR_RULESET_PAIRINGS 0
-
 //------------------------------------------
 // Includes
 
@@ -54,13 +48,8 @@ public:
         }
     }
 
-    /**
-     * @brief Listens for rulesets on a specific topic.
-     * @param obj The render object to check.
-     * @param topic The topic to listen for.
-     * @param listenerId The unique ID of the listener render object.
-     */
-    void listen(Core::RenderObject* obj, std::string const& topic, uint32_t const& listenerId);
+    //------------------------------------------
+    // Container Methods
 
     /**
      * @brief Broadcasts a ruleset to all listeners on its topic.
@@ -69,30 +58,30 @@ public:
     void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
 
     /**
+     * @brief Listens for rulesets on a specific topic.
+     * @param obj The render object to check.
+     * @param topic The topic to listen for.
+     * @param listenerId The unique ID of the listener render object.
+     */
+    void listen(Core::RenderObject* obj, std::string const& topic, uint32_t const& listenerId);
+
+    //------------------------------------------
+    // Worker Thread Methods
+
+    /**
      * @brief Prepares for the next frame by swapping the current and next frame containers.
      */
-    void prepare() {
-        std::scoped_lock lock(mutexThisFrame, mutexNextFrame);
-        std::swap(thisFrame, nextFrame);
-    }
+    void prepare();
 
     /**
      * @brief Notifies the worker thread to start processing.
      */
-    void startWork() {
-        threadState.workReady = true;
-        threadState.workFinished = false;
-        threadState.condition.notify_one();
-    }
+    void startWork();
 
     /**
      * @brief Waits for the worker thread to finish processing.
      */
-    void waitForWorkFinished() const {
-        while (!threadState.workFinished.load()) {
-            std::this_thread::yield();
-        }
-    }
+    void waitForWorkFinished() const ;
 
 private:
     /**
@@ -103,6 +92,10 @@ private:
         std::shared_ptr<Interaction::Rules::Ruleset> entry; // The Ruleset that was broadcasted
         Core::RenderObject* contextOther; // The object that listened to the Broadcast
         bool active = true; // If false, this pair is skipped during update
+
+        [[nodiscard]] bool isActive() const {
+            return active;
+        }
     };
 
     struct ListenersOnRuleset {
@@ -119,23 +112,22 @@ private:
         }
     };
 
-    using PairingContainer = absl::flat_hash_map<
-        std::string,            // The topic of the broadcasted entry
-#if USE_BYTE_TREE_FOR_RULESET_PAIRINGS
-        ByteTree<OnTopicFromId>
-#else
+    struct PairingContainer {
+        PairingContainer() = default;
+
         absl::flat_hash_map<
-            uint32_t,           // The ID of self.
-            OnTopicFromId       // The struct containing active flag and rulesets
-        >
-#endif
-    >;
+            std::string,            // The topic of the broadcasted entry
+            absl::flat_hash_map<
+                uint32_t,           // The ID of self.
+                OnTopicFromId       // The struct containing active flag and rulesets
+            >
+        > data;
+
+        std::mutex mutex;
+    };
 
     PairingContainer thisFrame;
     PairingContainer nextFrame;
-
-    mutable std::mutex mutexThisFrame; // for read/write access to the container
-    mutable std::mutex mutexNextFrame; // for read/write access to the container
 
     // Threading variables
     struct ThreadState {
