@@ -58,19 +58,12 @@ void PairingContainer::process() {
                 listenersOnRuleset.cleanup();
 
                 // Process active listeners (single pass, no erases here)
-                for (auto & it : listenersOnRuleset.listeners) {
-                    auto &pair = it.second;
-                    if (pair.active) {
-                        pair.entry->apply(pair.contextOther);
-                        pair.active = false;
-                    }
-                }
+                listenersOnRuleset.apply();
             }
             // Reset activity flag, must be activated on broadcast
             isActive = false;
         }
     }
 }
-
 
 } // namespace Nebulite::Data

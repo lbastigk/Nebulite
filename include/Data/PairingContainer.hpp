@@ -1,6 +1,7 @@
 #ifndef NEBULITE_DATA_PAIRING_CONTAINER_HPP
 #define NEBULITE_DATA_PAIRING_CONTAINER_HPP
 
+// TODO: Compiles, but causes deadlock and throws a bunch of warnings. Investigate later.
 #define USE_BYTETREE_CONTAINER 0
 
 //------------------------------------------
@@ -33,9 +34,14 @@ struct BroadCastListenPair {
     [[nodiscard]] bool isActive() const {
         return active;
     }
+
+    // Apply function
+    void apply() {
+        entry->apply(contextOther);
+        active = false;
+    }
 };
 
-// TODO: Needs proper forEachActive implementation for ByteTree and flat_hash_map
 struct ListenersOnRuleset {
     std::shared_ptr<Interaction::Rules::Ruleset> entry;
 
@@ -45,6 +51,10 @@ struct ListenersOnRuleset {
 
     void cleanup() {
         listeners.cleanup();
+    }
+
+    void apply() {
+        listeners.apply();
     }
 
 #else
@@ -63,6 +73,15 @@ struct ListenersOnRuleset {
                 } else {
                     ++it;
                 }
+            }
+        }
+    }
+
+    void apply() {
+        for (auto & it : listeners) {
+            auto &pair = it.second;
+            if (pair.active) {
+                pair.apply();
             }
         }
     }

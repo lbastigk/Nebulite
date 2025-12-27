@@ -14,9 +14,6 @@
 #include <atomic>
 #include <condition_variable>
 
-// External
-#include "absl/container/flat_hash_map.h"
-
 // Nebulite
 #include "Data/PairingContainer.hpp"
 #include "Interaction/Rules/Ruleset.hpp"

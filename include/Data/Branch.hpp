@@ -14,6 +14,7 @@
 #include <concepts>
 #include <cstddef>
 #include <mutex>
+#include <new> // for placement new
 #include <random>
 #include <stdexcept>
 #include <type_traits>
@@ -42,14 +43,49 @@ public:
 
     // Ensure StoreType
     // - provides isActive() -> bool
+    // - provides apply() method
     // - is default-constructible
     static_assert(requires(StoreType const& s) { { s.isActive() } -> std::convertible_to<bool>; },
               "StoreType must provide isActive() -> bool");
+    static_assert(requires(StoreType& s) { s.apply(); },
+                          "StoreType must provide apply() method");
     static_assert(std::is_default_constructible_v<StoreType>,
                   "StoreType must be default-constructible for cleanup()");
 
     Branch() = default;
     virtual ~Branch() = default;
+
+    // Copy constructor: create a new mutex, copy protected by locking source
+    Branch(Branch const& other) {
+        std::scoped_lock lock(other.mutex);
+        storage = other.storage;
+        randNum = other.randNum;
+    }
+
+    // Move constructor: create a new mutex, move-protect by locking source
+    Branch(Branch&& other) noexcept {
+        std::scoped_lock lock(other.mutex);
+        storage = std::move(other.storage);
+        randNum = other.randNum;
+    }
+
+    // Copy assignment: lock both (scoped_lock uses std::lock internally), keep this->mutex intact
+    Branch& operator=(Branch const& other) {
+        if (this == &other) return *this;
+        std::scoped_lock lock(mutex, other.mutex);
+        storage = other.storage;
+        randNum = other.randNum;
+        return *this;
+    }
+
+    // Move assignment: lock both, move storage, keep this->mutex intact
+    Branch& operator=(Branch&& other) noexcept {
+        if (this == &other) return *this;
+        std::scoped_lock lock(mutex, other.mutex);
+        storage = std::move(other.storage);
+        randNum = other.randNum;
+        return *this;
+    }
 
     /**
      * @brief Accesses the element corresponding to the given ID.
@@ -80,7 +116,8 @@ public:
 
         std::scoped_lock lock(mutex);
         if (index < storage.size() && !storage[index].isActive()) {
-            storage[index] = StoreType(); // Reset to default
+            storage[index].~StoreType();
+            ::new (static_cast<void*>(&storage[index])) StoreType();
         }
     }
 
@@ -102,15 +139,12 @@ public:
 
     /**
      * @brief Applies a function to all active entries in the tree.
-     * @tparam Func The type of the function to apply.
-     * @param func The function to apply to each active entry.
      */
-    template<typename Func>
-    void forEachActive(Func&& func) {
+    void apply() {
         std::scoped_lock lock(mutex);
         for (size_t i = 0; i < size(); ++i) {
             if (storage[i].isActive()) {
-                func(storage[i]);
+                storage[i].apply();
             }
         }
     }

@@ -24,6 +24,9 @@ namespace Nebulite::Data {
 template<typename StoreType>
 class ByteTree {
 public:
+    ByteTree() = default;
+    ~ByteTree() = default;
+
     StoreType& at(uint32_t const& id);
 
     StoreType& operator[](uint32_t const& id);
@@ -35,32 +38,61 @@ public:
 
     /**
      * @brief Applies a function to all active entries in the tree.
-     * @tparam Func The type of the function to apply.
-     * @param func The function to apply to each active entry.
      */
-    template<typename Func>
-    void forEachActive(Func&& func) {
-        rootLayer.forEachActive(std::forward<Func>(func));
+    void apply() {
+        rootLayer.apply();
     }
 
 private:
     class Layer1 : public Branch<StoreType, uint32_t, 8> {
     public:
+        Layer1() = default;
+
+        // Allow copy and move
+        Layer1(Layer1 const&) = default;
+        Layer1(Layer1&&) noexcept = default;
+        Layer1& operator=(Layer1 const&) = default;
+        Layer1& operator=(Layer1&&) noexcept = default;
+
         [[nodiscard]] size_t idToIndex(uint32_t const& id) const override;
     };
 
     class Layer2 : public Branch<Layer1, uint32_t, 8> {
     public:
+        Layer2() = default;
+
+        // Allow copy and move
+        Layer2(Layer2 const&) = default;
+        Layer2(Layer2&&) noexcept = default;
+        Layer2& operator=(Layer2 const&) = default;
+        Layer2& operator=(Layer2&&) noexcept = default;
+
         [[nodiscard]] size_t idToIndex(uint32_t const& id) const override;
     };
 
     class Layer3 : public Branch<Layer2, uint32_t, 8> {
     public:
+        Layer3() = default;
+
+        // Allow copy and move
+        Layer3(Layer3 const&) = default;
+        Layer3(Layer3&&) noexcept = default;
+        Layer3& operator=(Layer3 const&) = default;
+        Layer3& operator=(Layer3&&) noexcept = default;
+
         [[nodiscard]] size_t idToIndex(uint32_t const& id) const override;
     };
 
     class Layer4 : public Branch<Layer3, uint32_t, 8> {
     public:
+        Layer4() = default;
+
+        // Allow copy and move
+        Layer4(Layer4 const&) = default;
+        Layer4(Layer4&&) noexcept = default;
+        Layer4& operator=(Layer4 const&) = default;
+        Layer4& operator=(Layer4&&) noexcept = default;
+
         [[nodiscard]] size_t idToIndex(uint32_t const& id) const override;
     };
 
