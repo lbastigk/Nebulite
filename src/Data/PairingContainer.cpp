@@ -4,16 +4,15 @@
 namespace Nebulite::Data {
 
 void PairingContainer::insertBroadcaster(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
-    std::scoped_lock lock(mutex);
-    auto& [isActive, rulesets] = data[entry->getTopic()][entry->getId()];
-    rulesets[entry->getIndex()].entry = entry;
+    auto const topic = entry->getTopic();
+    auto const id = entry->getId();
+    auto const index = entry->getIndex();
+    auto& [isActive, rulesets] = data[topic][id]; // creates maps/entries if missing
+    rulesets[index].entry = entry;
     isActive = true;
 }
 
 void PairingContainer::insertListener(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId) {
-    // Lock to safely read from broadcasted.entriesThisFrame
-    std::scoped_lock broadcastLock(mutex);
-
     // Check if any object has broadcasted on this topic
     auto topicIt = data.find(topic);
     if (topicIt == data.end()) {

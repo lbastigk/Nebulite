@@ -90,7 +90,7 @@ private:
         /**
          * @brief Condition variables for thread synchronization.
          */
-        std::condition_variable condition = {};
+        std::condition_variable_any condition = {};
 
         /**
          * @brief Flags to indicate when work is ready for each thread.

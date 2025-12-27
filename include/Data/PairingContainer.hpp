@@ -4,12 +4,12 @@
 /**
  * @define USE_BYTETREE_CONTAINER
  * @brief Define to use ByteTree as the internal container for listeners on rulesets.
- *        Set to 0 to use Abseil's flat_hash_map instead.
- * @details Using ByteTree is a work in progress, and currently about half fast as flat_hash_map.
+ *        Set to 0 to use Abseil's node_hash_map instead.
+ * @details Using ByteTree is a work in progress, and currently about half fast as node_hash_map.
  * @todo ByteTree may perform better once the entire container system is based on it.
  *       This way, locking mechanisms can be optimized for ByteTree usage.
  */
-#define USE_BYTETREE_CONTAINER 1
+#define USE_BYTETREE_CONTAINER 0
 
 //------------------------------------------
 // Includes
@@ -18,7 +18,7 @@
 #include <mutex>
 
 // External
-#include "absl/container/flat_hash_map.h"
+#include "absl/container/node_hash_map.h"
 
 // Nebulite
 #include "Data/ByteTree.hpp"
@@ -89,7 +89,7 @@ struct ListenersOnRuleset {
 
 #else
 
-    absl::flat_hash_map<uint32_t, BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
+    absl::node_hash_map<uint32_t, BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
 
     void cleanup() {
         // Thread-local random generator for probabilistic cleanup
@@ -135,20 +135,21 @@ public:
     PairingContainer() = default;
     ~PairingContainer() = default;
 
-    std::unique_lock<std::mutex> lock() {
-        return std::unique_lock<std::mutex>(mutex);
+    std::unique_lock<std::shared_mutex> lock() {
+        return std::unique_lock<std::shared_mutex>(mutex);
     }
 
 private:
-    absl::flat_hash_map<
-        std::string,            // The topic of the broadcasted entry
-        absl::flat_hash_map<
+    // Using a node hash map to keep iterators stable during insertions
+    absl::node_hash_map<
+        std::string,            // The topic of the broadcasted entry. TODO: Consider a rolling id system so we can simplify this key
+        absl::node_hash_map<
             uint32_t,           // The ID of self.
             OnTopicFromId       // The struct containing active flag and rulesets
         >
     > data;
 
-    std::mutex mutex;
+    mutable std::shared_mutex mutex; // Mutex for thread-safe access
 };
 
 } // namespace Nebulite::Data
