@@ -61,14 +61,6 @@ void PairingContainer::process() {
             if (!isActive)
                 continue;
             for (auto& [entry, listeners] : std::ranges::views::values(rulesets)) {
-                // Process active listeners (single pass, no erases here)
-                for (auto & it : listeners) {
-                    auto &pair = it.second;
-                    if (pair.active) {
-                        pair.entry->apply(pair.contextOther);
-                        pair.active = false;
-                    }
-                }
                 // Probabilistic cleanup performed once per ruleset
                 if (cleanup_dist(cleanup_rng) == 0) {
                     for (auto it = listeners.begin(); it != listeners.end();) {
@@ -78,6 +70,15 @@ void PairingContainer::process() {
                         } else {
                             ++it;
                         }
+                    }
+                }
+
+                // Process active listeners (single pass, no erases here)
+                for (auto & it : listeners) {
+                    auto &pair = it.second;
+                    if (pair.active) {
+                        pair.entry->apply(pair.contextOther);
+                        pair.active = false;
                     }
                 }
             }
