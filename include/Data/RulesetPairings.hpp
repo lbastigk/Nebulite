@@ -114,6 +114,5 @@ private:
      */
     void process();
 };
-
 } // namespace Nebulite::Data
 #endif // NEBULITE_INTERACTION_RULES_RULESET_PAIRINGS_HPP

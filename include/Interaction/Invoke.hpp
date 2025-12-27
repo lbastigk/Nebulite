@@ -28,15 +28,15 @@ class RenderObject;
 
 namespace Nebulite::Data {
 class JSON;
-}
+} // namespace Nebulite::Data
 
 namespace Nebulite::Interaction::Rules {
 class Ruleset;
-}
+} // namespace Nebulite::Interaction::Rules
 
 namespace Nebulite::Interaction::Logic {
 class Assignment;
-}
+} // namespace Nebulite::Interaction::Logic
 
 //------------------------------------------
 namespace Nebulite::Interaction {
@@ -46,14 +46,15 @@ namespace Nebulite::Interaction {
  * @details This class is responsible for handling the invocation of functions and the
  *          communication between different render objects within the Nebulite engine.
  *          Interactions work on a self-other-global / self-global basis.
- *          Rulesets consist of:
+ * @details JSON Rulesets consist of:
  *          - a broadcasting topic for the domain 'other' to listen to
  *          - a logical condition necessary to be true
  *          - a list of expressions to evaluate and their corresponding domains 'self', 'other' and 'global'
  *          - a list of function calls to execute on the domains 'self', 'other' and 'global'
- *          Expressions allow for simple value modifications, whereas function calls can encapsulate more complex behavior.
+ * @details Expressions allow for simple value modifications, whereas function calls can encapsulate more complex behavior.
  *          rulesets are designed to be lightweight and easily modifiable, allowing for rapid iteration and experimentation.
  *          They are encoded in a JSON format for easy manipulation and storage.
+ * @details Static rulesets are direct c++ code being executed on the domains and offer faster performance for critical interactions.
  */
 class Invoke {
 public:
@@ -96,11 +97,11 @@ public:
      * @brief Updates all pairs built from RenderObject broadcasting and listening.
      * @details This function iterates through all pairs of rulesets and their associated
      *          render objects, updating their states based on the rulesets.
-     *          Example:
-     *          RenderObject1 broadcasts entry on topic1 to manipulate other, if other has mass > 0
-     *          RenderObject2 listens on topic1, checks the logical condition and if true, adds the pair to the list for later evaluation.
-     *          on update, this list is processed to apply the changes.
-     *          Changes happen in domain `self`, `other` and `global`.
+     * @details Example:
+     *          - RenderObject1 broadcasts entry on topic1 to manipulate other, if other has mass > 0
+     *          - RenderObject2 listens on topic1, checks the logical condition and if true, adds the pair to the list for later evaluation.
+     *          - on update, this list is processed to apply the changes.
+     * @details Changes happen in domain `self`, `other` and `global`.
      */
     void update();
 
