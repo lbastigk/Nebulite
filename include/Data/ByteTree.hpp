@@ -24,68 +24,38 @@ namespace Nebulite::Data {
 template<typename StoreType>
 class ByteTree {
 public:
-    StoreType& at(uint32_t const& id) {
-        /**
-         * @todo Check if the one-after-another access is faster
-         *       perhaps the locking works better that way?
-         */
-        /*
-        auto L4out = rootLayer.at(id);
-        auto L3out = L4out.at(id);
-        auto L2out = L3out.at(id);
-        auto L1out = L2out.at(id);
-        return L1out;
-        //*/
+    StoreType& at(uint32_t const& id);
 
-        //               L4     L3     L2     L1
-        return rootLayer.at(id).at(id).at(id).at(id);
-    }
-
-    StoreType& operator[](uint32_t const& id) {
-        return at(id);
-    }
+    StoreType& operator[](uint32_t const& id);
 
     /**
      * @brief Probabilistic cleanup of inactive entries in the entire tree.
      */
-    void cleanup() {
-        rootLayer.cleanup();
-    }
+    void cleanup();
 
 private:
     class Layer1 : public Branch<StoreType, uint32_t, 8> {
     public:
-        size_t idToIndex(uint32_t const& id) const override {
-            // Use last 8 bits from left side for index
-            return (size_t(id & 0xFF));
-        }
+        [[nodiscard]] size_t idToIndex(uint32_t const& id) const override;
     };
 
     class Layer2 : public Branch<Layer1, uint32_t, 8> {
     public:
-        size_t idToIndex(uint32_t const& id) const override {
-            // Use third 8 bits from left side for index
-            return (size_t((id >> 8) & 0xFF));
-        }
+        [[nodiscard]] size_t idToIndex(uint32_t const& id) const override;
     };
 
     class Layer3 : public Branch<Layer2, uint32_t, 8> {
     public:
-        size_t idToIndex(uint32_t const& id) const override {
-            // Use second 8 bits from left side for index
-            return (size_t((id >> 16) & 0xFF));
-        }
+        [[nodiscard]] size_t idToIndex(uint32_t const& id) const override;
     };
 
     class Layer4 : public Branch<Layer3, uint32_t, 8> {
     public:
-        size_t idToIndex(uint32_t const& id) const override {
-            // Use first 8 bits from left side for index
-            return (size_t((id >> 24) & 0xFF));
-        }
+        [[nodiscard]] size_t idToIndex(uint32_t const& id) const override;
     };
 
     Layer4 rootLayer;
-
 };
 } // namespace Nebulite::Data
+#include "Data/ByteTree.tpp"
+#endif // NEBULITE_DATA_BYTE_TREE_HPP

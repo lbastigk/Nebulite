@@ -43,10 +43,13 @@ public:
     // Ensure StoreType
     // - provides isActive() -> bool
     // - is default-constructible
-    static_assert(requires(StoreType s) { { s.isActive() } -> std::convertible_to<bool>; },
-                  "StoreType must provide isActive() -> bool");
+    static_assert(requires(StoreType const& s) { { s.isActive() } -> std::convertible_to<bool>; },
+              "StoreType must provide isActive() -> bool");
     static_assert(std::is_default_constructible_v<StoreType>,
                   "StoreType must be default-constructible for cleanup()");
+
+    Branch() = default;
+    virtual ~Branch() = default;
 
     /**
      * @brief Accesses the element corresponding to the given ID.
@@ -81,14 +84,6 @@ public:
         }
     }
 
-protected:
-    /**
-     * @brief Converts an ID to its corresponding index in the storage.
-     * @param id The ID to convert.
-     * @return The index corresponding to the given ID.
-     */
-    virtual size_t idToIndex(idType const& id) const = 0;
-
     /**
      * @brief Checks if the container is active
      * @return true if the container has any elements, false otherwise.
@@ -104,6 +99,14 @@ protected:
         }
         return active;
     }
+
+protected:
+    /**
+     * @brief Converts an ID to its corresponding index in the storage.
+     * @param id The ID to convert.
+     * @return The index corresponding to the given ID.
+     */
+    [[nodiscard]] virtual size_t idToIndex(idType const& id) const = 0;
 
 private:
     [[nodiscard]] size_t size() const {
