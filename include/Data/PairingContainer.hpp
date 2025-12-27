@@ -1,6 +1,8 @@
 #ifndef NEBULITE_DATA_PAIRING_CONTAINER_HPP
 #define NEBULITE_DATA_PAIRING_CONTAINER_HPP
 
+#define USE_BYTETREE_PAIRING_CONTAINER 0
+
 //------------------------------------------
 // Includes
 
@@ -26,6 +28,7 @@ struct BroadCastListenPair {
     Interaction::Execution::DomainBase* contextOther; // The domain that listened to the Broadcast
     bool active = true; // If false, this pair is skipped during update
 
+    // Required for ByteTree storage
     [[nodiscard]] bool isActive() const {
         return active;
     }
@@ -40,15 +43,15 @@ struct ListenersOnRuleset {
         thread_local std::mt19937 cleanup_rng(std::random_device{}());
         thread_local std::uniform_int_distribution<int> cleanup_dist(0, 99); // uniform, avoids modulo bias
         if (cleanup_dist(cleanup_rng) == 0) {
-                    for (auto it = listeners.begin(); it != listeners.end();) {
-                        if (!it->second.active) {
-                            auto itToErase = it++;
-                            listeners.erase(itToErase); // erase returns void in Abseil
-                        } else {
-                            ++it;
-                        }
-                    }
+            for (auto it = listeners.begin(); it != listeners.end();) {
+                if (!it->second.active) {
+                    auto itToErase = it++;
+                    listeners.erase(itToErase); // erase returns void in Abseil
+                } else {
+                    ++it;
                 }
+            }
+        }
     }
 };
 
@@ -56,6 +59,7 @@ struct OnTopicFromId {
     bool active = false; // If false, this is skipped during update
     absl::flat_hash_map<uint32_t, ListenersOnRuleset> rulesets; // idx_ruleset -> ListenersOnRuleset
 
+    // Required for ByteTree storage
     [[nodiscard]] bool isActive() const {
         return active;
     }
