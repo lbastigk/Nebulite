@@ -1,7 +1,7 @@
 #ifndef NEBULITE_DATA_PAIRING_CONTAINER_HPP
 #define NEBULITE_DATA_PAIRING_CONTAINER_HPP
 
-#define USE_BYTETREE_PAIRING_CONTAINER 0
+#define USE_BYTETREE_CONTAINER 0
 
 //------------------------------------------
 // Includes
@@ -13,6 +13,7 @@
 #include "absl/container/flat_hash_map.h"
 
 // Nebulite
+#include "Data/ByteTree.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 
@@ -34,8 +35,20 @@ struct BroadCastListenPair {
     }
 };
 
+// TODO: Needs proper forEachActive implementation for ByteTree and flat_hash_map
 struct ListenersOnRuleset {
     std::shared_ptr<Interaction::Rules::Ruleset> entry;
+
+#if USE_BYTETREE_CONTAINER
+
+    Data::ByteTree<BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
+
+    void cleanup() {
+        listeners.cleanup();
+    }
+
+#else
+
     absl::flat_hash_map<uint32_t, BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
 
     void cleanup() {
@@ -53,6 +66,8 @@ struct ListenersOnRuleset {
             }
         }
     }
+
+#endif
 };
 
 struct OnTopicFromId {

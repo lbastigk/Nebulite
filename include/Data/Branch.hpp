@@ -100,6 +100,21 @@ public:
         return active;
     }
 
+    /**
+     * @brief Applies a function to all active entries in the tree.
+     * @tparam Func The type of the function to apply.
+     * @param func The function to apply to each active entry.
+     */
+    template<typename Func>
+    void forEachActive(Func&& func) {
+        std::scoped_lock lock(mutex);
+        for (size_t i = 0; i < size(); ++i) {
+            if (storage[i].isActive()) {
+                func(storage[i]);
+            }
+        }
+    }
+
 protected:
     /**
      * @brief Converts an ID to its corresponding index in the storage.

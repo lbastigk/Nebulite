@@ -33,6 +33,16 @@ public:
      */
     void cleanup();
 
+    /**
+     * @brief Applies a function to all active entries in the tree.
+     * @tparam Func The type of the function to apply.
+     * @param func The function to apply to each active entry.
+     */
+    template<typename Func>
+    void forEachActive(Func&& func) {
+        rootLayer.forEachActive(std::forward<Func>(func));
+    }
+
 private:
     class Layer1 : public Branch<StoreType, uint32_t, 8> {
     public:
