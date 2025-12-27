@@ -31,20 +31,27 @@ void PairingContainer::insertListener(Interaction::Execution::DomainBase* listen
 
         // For all rulesets under this broadcaster and topic
         for (auto& listenersOnRuleset : std::ranges::views::values(onTopicFromId.rulesets)) {
+#if USE_BYTETREE_CONTAINER
+            if (listenersOnRuleset.entry->evaluateCondition(listener)) {
+                auto blp = BroadCastListenPair{
+                    listenersOnRuleset.entry,
+                    listener
+                };
+                listenersOnRuleset.insert(listenerId, blp);
+            }
+#else
             auto blp = BroadCastListenPair{
                 listenersOnRuleset.entry,
                 listener,
                 listenersOnRuleset.entry->evaluateCondition(listener)
             };
             listenersOnRuleset.insert(listenerId, blp);
+#endif // USE_BYTETREE_CONTAINER
         }
     }
 }
 
 void PairingContainer::process() {
-    auto lock = this->lock();
-
-    // Actual processing of thisFrame
     for (auto& map_other : std::views::values(data)) {
         for (auto& [isActive, rulesets] : std::views::values(map_other)) {
             if (!isActive)

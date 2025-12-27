@@ -16,6 +16,7 @@
 #include <mutex>
 #include <new> // for placement new
 #include <random>
+#include <shared_mutex>
 #include <stdexcept>
 #include <type_traits>
 #include <vector>
@@ -100,7 +101,7 @@ public:
         return;
 
         // Take random index and check if inactive
-        thread_local std::uniform_int_distribution<size_t> distribution(0, MaxSize - 1);
+        std::uniform_int_distribution<size_t> distribution(0, MaxSize - 1);
         size_t const index = distribution(randNum);
 
         std::scoped_lock lock(mutex);
@@ -122,7 +123,7 @@ public:
         }
 
         // Reset access tracking
-        wasAccessed.fill(false);
+        std::fill(wasAccessed.begin(), wasAccessed.end(), false);
     }
 
 protected:
@@ -136,16 +137,13 @@ protected:
 private:
     static constexpr std::size_t MaxSize = std::size_t(1) << MaxBits;
 
-    // Mutex for thread-safe access
-    mutable std::mutex mutex;
-
-    // Storage for the branch elements
-    std::vector<std::shared_ptr<StoreType>> storage{};
-
-    std::array<bool, MaxSize> wasAccessed{false};
-
     // RNG generator
     std::mt19937 randNum{std::random_device{}()};
+
+    mutable std::shared_mutex mutex;
+    mutable std::mutex accessedMutex;
+    std::vector<std::shared_ptr<StoreType>> storage;
+    std::vector<bool> wasAccessed;
 };
 
 } // namespace Nebulite::Data

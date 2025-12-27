@@ -6,6 +6,8 @@
  * @brief Define to use ByteTree as the internal container for listeners on rulesets.
  *        Set to 0 to use Abseil's flat_hash_map instead.
  * @details Using ByteTree is a work in progress, and currently about half fast as flat_hash_map.
+ * @todo ByteTree may perform better once the entire container system is based on it.
+ *       This way, locking mechanisms can be optimized for ByteTree usage.
  */
 #define USE_BYTETREE_CONTAINER 1
 
@@ -33,6 +35,13 @@ namespace Nebulite::Data {
 struct BroadCastListenPair {
     std::shared_ptr<Interaction::Rules::Ruleset> entry; // The Ruleset that was broadcasted
     Interaction::Execution::DomainBase* contextOther = nullptr; // The domain that listened to the Broadcast
+
+#if USE_BYTETREE_CONTAINER
+    // Apply function
+    void apply() {
+        entry->apply(contextOther);
+    }
+#else
     bool active = false; // If false, this pair is skipped during update
 
     // Apply function
@@ -42,6 +51,9 @@ struct BroadCastListenPair {
             active = false;
         }
     }
+#endif
+
+
 };
 
 struct ListenersOnRuleset {
@@ -67,9 +79,12 @@ struct ListenersOnRuleset {
 
     void insert(uint32_t const& id, BroadCastListenPair const& pair) const {
         auto pairPtr = listeners->at(id);
-        pairPtr->entry = pair.entry;
-        pairPtr->contextOther = pair.contextOther;
-        pairPtr->active = pair.active;
+
+        // We only need to copy if the existing entry is invalid
+        if (!pairPtr->entry) {
+            pairPtr->entry = pair.entry;
+            pairPtr->contextOther = pair.contextOther;
+        }
     }
 
 #else
@@ -108,11 +123,6 @@ struct ListenersOnRuleset {
 struct OnTopicFromId {
     bool active = false; // If false, this is skipped during update
     absl::flat_hash_map<uint32_t, ListenersOnRuleset> rulesets; // idx_ruleset -> ListenersOnRuleset
-
-    // Required for ByteTree storage
-    [[nodiscard]] bool isActive() const {
-        return active;
-    }
 };
 
 class PairingContainer {
