@@ -29,7 +29,7 @@ namespace Nebulite::Data{
  */
 class BroadCastListenPairs {
 public:
-    BroadCastListenPairs(std::atomic<bool>& stopFlag) : thisFrame(stopFlag), nextFrame(stopFlag), threadState{ .stopFlag = stopFlag }{
+    BroadCastListenPairs(std::atomic<bool>& stopFlag) : threadState{ .stopFlag = stopFlag }{
         // Start worker thread
         workerThread = std::thread([this] {
             this->process();

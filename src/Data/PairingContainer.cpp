@@ -48,9 +48,6 @@ void PairingContainer::swap(PairingContainer& other) {
 void PairingContainer::process() {
     auto lock = this->lock();
 
-    if (stopFlag)
-        return;
-
     // Actual processing of thisFrame
     for (auto& map_other : std::views::values(data)) {
         for (auto& [isActive, rulesets] : std::views::values(map_other)) {

@@ -70,7 +70,8 @@ public:
 
     void process(); // Worker thread processing function
 
-    PairingContainer(std::atomic<bool>& stop) : stopFlag(stop) {}
+    PairingContainer() = default;
+    ~PairingContainer() = default;
 
     std::unique_lock<std::mutex> lock() {
         return std::unique_lock<std::mutex>(mutex);
@@ -86,8 +87,6 @@ private:
     > data;
 
     std::mutex mutex;
-
-    std::atomic<bool>& stopFlag;
 };
 
 } // namespace Nebulite::Data
