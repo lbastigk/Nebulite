@@ -26,9 +26,7 @@ class ByteTree {
 public:
     ByteTree() = default;
 
-    StoreType& at(uint32_t const& id);
-
-    StoreType& operator[](uint32_t const& id);
+    std::shared_ptr<StoreType> at(uint32_t const& id);
 
     /**
      * @brief Probabilistic cleanup of inactive entries in the entire tree.

@@ -4,16 +4,11 @@ namespace Nebulite::Data {
 
 // ByteTree member implementations
 template<typename StoreType>
-StoreType& ByteTree<StoreType>::at(uint32_t const& id) {
+std::shared_ptr<StoreType> ByteTree<StoreType>::at(uint32_t const& id) {
     auto L3 = rootLayer.at(id);
-    auto L2 = L3.at(id);
-    auto L1 = L2.at(id);
-    return L1.at(id);
-}
-
-template<typename StoreType>
-StoreType& ByteTree<StoreType>::operator[](uint32_t const& id) {
-    return at(id);
+    auto L2 = L3->at(id);
+    auto L1 = L2->at(id);
+    return L1->at(id);
 }
 
 template<typename StoreType>

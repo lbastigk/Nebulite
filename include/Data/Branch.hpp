@@ -87,23 +87,10 @@ public:
     /**
      * @brief Accesses the element corresponding to the given ID.
      * @param id The ID of the element to access.
-     * @return A reference to the element corresponding to the given ID.
+     * @return A unique pointer to the element corresponding to the given ID.
      * @throws std::out_of_range if the computed index exceeds MaxSize.
      */
-    StoreType& at(idType const& id) {
-        std::size_t const index = idToIndex(id);
-        if (index >= MaxSize) {
-            throw std::out_of_range(std::string(__FUNCTION__) + " - index exceeds MaxSize");
-        }
-        std::scoped_lock lock(mutex);
-
-        if (storage.size() <= index) {
-            storage.resize(index + 1);
-        }
-
-        wasAccessed[index] = true;
-        return storage[index];
-    }
+    std::shared_ptr<StoreType> at(idType const& id);
 
     /**
      * @brief Probabilistic cleanup of inactive entries.
@@ -113,13 +100,12 @@ public:
         return;
 
         // Take random index and check if inactive
-        std::uniform_int_distribution<size_t> distribution(0, MaxSize - 1);
+        thread_local std::uniform_int_distribution<size_t> distribution(0, MaxSize - 1);
         size_t const index = distribution(randNum);
 
         std::scoped_lock lock(mutex);
         if (index < storage.size() && !wasAccessed[index]) {
-            storage[index].~StoreType();
-            ::new (static_cast<void*>(&storage[index])) StoreType();
+            // TODO...
         }
     }
 
@@ -131,7 +117,7 @@ public:
         size_t const n = storage.size();
         for (size_t i = 0; i < n; ++i) {
             if (wasAccessed[i]) {
-                storage[i].apply();
+                storage[i]->apply();
             }
         }
 
@@ -154,7 +140,7 @@ private:
     mutable std::mutex mutex;
 
     // Storage for the branch elements
-    std::vector<StoreType> storage{};
+    std::vector<std::shared_ptr<StoreType>> storage{};
 
     std::array<bool, MaxSize> wasAccessed{false};
 
@@ -163,4 +149,5 @@ private:
 };
 
 } // namespace Nebulite::Data
+#include "Data/Branch.tpp"
 #endif // NEBULITE_DATA_BRANCH_HPP
