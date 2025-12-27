@@ -1,7 +1,7 @@
 #ifndef NEBULITE_DATA_PAIRING_CONTAINER_HPP
 #define NEBULITE_DATA_PAIRING_CONTAINER_HPP
 
-// TODO: Compiles, but causes deadlock and throws a bunch of warnings. Investigate later.
+// TODO: Compiles, but causes deadlock. Investigate later.
 #define USE_BYTETREE_CONTAINER 0
 
 //------------------------------------------
@@ -27,7 +27,7 @@ namespace Nebulite::Data {
  */
 struct BroadCastListenPair {
     std::shared_ptr<Interaction::Rules::Ruleset> entry; // The Ruleset that was broadcasted
-    Interaction::Execution::DomainBase* contextOther; // The domain that listened to the Broadcast
+    Interaction::Execution::DomainBase* contextOther = nullptr; // The domain that listened to the Broadcast
     bool active = true; // If false, this pair is skipped during update
 
     // Required for ByteTree storage
@@ -47,14 +47,24 @@ struct ListenersOnRuleset {
 
 #if USE_BYTETREE_CONTAINER
 
-    Data::ByteTree<BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
+    // store pointer to avoid expensive object moves inside the flat_hash_map
+    std::unique_ptr<Data::ByteTree<BroadCastListenPair>> listeners;
 
-    void cleanup() {
-        listeners.cleanup();
+    // initialize the unique_ptr
+    ListenersOnRuleset()
+        : listeners(std::make_unique<Data::ByteTree<BroadCastListenPair>>())
+    {}
+
+    void cleanup() const {
+        if (listeners) listeners->cleanup();
     }
 
-    void apply() {
-        listeners.apply();
+    void apply() const {
+        if (listeners) listeners->apply();
+    }
+
+    void insert(uint32_t const& id, BroadCastListenPair const& pair) const {
+        (*listeners)[id] = pair;
     }
 
 #else
@@ -84,6 +94,10 @@ struct ListenersOnRuleset {
                 pair.apply();
             }
         }
+    }
+
+    void insert(uint32_t const& id, BroadCastListenPair const& pair) {
+        listeners[id] = pair;
     }
 
 #endif

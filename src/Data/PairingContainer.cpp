@@ -30,12 +30,13 @@ void PairingContainer::insertListener(Interaction::Execution::DomainBase* listen
             continue;
 
         // For all rulesets under this broadcaster and topic
-        for (auto& [entry, listeners] : std::ranges::views::values(onTopicFromId.rulesets)) {
-            listeners[listenerId] = BroadCastListenPair{
-                entry,
+        for (auto& listenersOnRuleset : std::ranges::views::values(onTopicFromId.rulesets)) {
+            auto blp = BroadCastListenPair{
+                listenersOnRuleset.entry,
                 listener,
-                entry->evaluateCondition(listener)
+                listenersOnRuleset.entry->evaluateCondition(listener)
             };
+            listenersOnRuleset.insert(listenerId, blp);
         }
     }
 }

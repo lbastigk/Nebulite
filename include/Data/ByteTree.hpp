@@ -25,7 +25,6 @@ template<typename StoreType>
 class ByteTree {
 public:
     ByteTree() = default;
-    ~ByteTree() = default;
 
     StoreType& at(uint32_t const& id);
 
