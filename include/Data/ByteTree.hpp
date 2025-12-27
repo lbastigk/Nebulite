@@ -42,6 +42,10 @@ public:
         rootLayer.apply();
     }
 
+    void swap(ByteTree& other) noexcept {
+        rootLayer.swap(other.rootLayer);
+    }
+
 private:
     class Layer1 : public Branch<StoreType, uint32_t, 8> {
     public:

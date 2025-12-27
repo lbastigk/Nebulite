@@ -41,11 +41,6 @@ void PairingContainer::insertListener(Interaction::Execution::DomainBase* listen
     }
 }
 
-void PairingContainer::swap(PairingContainer& other) {
-    std::scoped_lock lock(mutex, other.mutex);
-    data.swap(other.data);
-}
-
 void PairingContainer::process() {
     auto lock = this->lock();
 

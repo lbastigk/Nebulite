@@ -118,8 +118,6 @@ public:
     void insertBroadcaster(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
     void insertListener(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId);
 
-    void swap(PairingContainer& other);
-
     void process(); // Worker thread processing function
 
     PairingContainer() = default;

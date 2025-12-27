@@ -9,18 +9,19 @@ namespace Nebulite::Data {
 // Container Methods
 
 void BroadCastListenPairs::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
-    nextFrame.insertBroadcaster(entry);
+    nextFrame->insertBroadcaster(entry);
 }
 
 void BroadCastListenPairs::listen(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId) {
-    thisFrame.insertListener(listener, topic, listenerId);
+    thisFrame->insertListener(listener, topic, listenerId);
 }
 
 //------------------------------------------
 // Worker Thread Methods
 
 void BroadCastListenPairs::prepare() {
-    thisFrame.swap(nextFrame);
+    // Swap pointers
+    std::swap(thisFrame, nextFrame);
 }
 
 void BroadCastListenPairs::startWork() {
@@ -42,14 +43,14 @@ void BroadCastListenPairs::process()  {
     while (!threadState.stopFlag) {
         // Wait for work to be ready
         {
-            std::unique_lock lock = thisFrame.lock();
+            std::unique_lock lock = thisFrame->lock();
             threadState.condition.wait(lock, [this] {
                 return threadState.workReady.load() || threadState.stopFlag.load();
             });
         }
 
         // Process
-        thisFrame.process();
+        thisFrame->process();
 
         // Set work flags
         threadState.workReady = false;

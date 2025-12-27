@@ -100,9 +100,17 @@ public:
         }
 
         std::scoped_lock lock(mutex);
+
+        // Emplace default-constructed StoreType if not already constructed
+        // index 0 -> size 1
         if (index >= storage.size()) {
             storage.resize(index + 1);
         }
+
+        if (storage.size() == 0) {
+            throw std::out_of_range(std::string(__FUNCTION__) + " - storage size is zero after resize");
+        }
+
         return storage[index];
     }
 
@@ -110,6 +118,9 @@ public:
      * @brief Probabilistic cleanup of inactive entries.
      */
     void cleanup() {
+        // Turn off for now
+        return;
+
         // Take random index and check if inactive
         std::uniform_int_distribution<size_t> distribution(0, MaxSize - 1);
         size_t const index = distribution(randNum);
@@ -126,15 +137,14 @@ public:
      * @return true if the container has any elements, false otherwise.
      */
     [[nodiscard]] bool isActive() const {
-        bool active = false;
         std::scoped_lock lock(mutex);
-        for (size_t i = 0; i < size(); ++i) {
+        size_t const n = storage.size();    // TODO: Somehow always 0, even when elements exist?
+        for (size_t i = 0; i < n; ++i) {
             if (storage[i].isActive()) {
-                active = true;
-                break;
+                return true;
             }
         }
-        return active;
+        return false;
     }
 
     /**
@@ -142,7 +152,8 @@ public:
      */
     void apply() {
         std::scoped_lock lock(mutex);
-        for (size_t i = 0; i < size(); ++i) {
+        size_t const n = storage.size();
+        for (size_t i = 0; i < n; ++i) {
             if (storage[i].isActive()) {
                 storage[i].apply();
             }
@@ -158,11 +169,6 @@ protected:
     [[nodiscard]] virtual size_t idToIndex(idType const& id) const = 0;
 
 private:
-    [[nodiscard]] size_t size() const {
-        std::scoped_lock lock(mutex);
-        return storage.size();
-    }
-
     static constexpr std::size_t MaxSize = std::size_t(1) << MaxBits;
 
     // Mutex for thread-safe access

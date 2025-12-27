@@ -5,20 +5,10 @@ namespace Nebulite::Data {
 // ByteTree member implementations
 template<typename StoreType>
 StoreType& ByteTree<StoreType>::at(uint32_t const& id) {
-    /**
-     * @todo Check if the one-after-another access is faster
-     *       perhaps the locking works better that way?
-     */
-    /*
-    auto L4out = rootLayer.at(id);
-    auto L3out = L4out.at(id);
-    auto L2out = L3out.at(id);
-    auto L1out = L2out.at(id);
-    return L1out;
-    //*/
-
-    //               L4     L3     L2     L1
-    return rootLayer.at(id).at(id).at(id).at(id);
+    auto L3 = rootLayer.at(id);
+    auto L2 = L3.at(id);
+    auto L1 = L2.at(id);
+    return L1.at(id);
 }
 
 template<typename StoreType>

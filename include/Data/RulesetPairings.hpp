@@ -27,6 +27,10 @@ namespace Nebulite::Data{
 class BroadCastListenPairs {
 public:
     BroadCastListenPairs(std::atomic<bool>& stopFlag) : threadState{ .stopFlag = stopFlag }{
+        // Initialize frame containers
+        thisFrame = new Data::PairingContainer();
+        nextFrame = new Data::PairingContainer();
+
         // Start worker thread
         workerThread = std::thread([this] {
             this->process();
@@ -78,8 +82,8 @@ public:
     void waitForWorkFinished() const ;
 
 private:
-    Data::PairingContainer thisFrame;
-    Data::PairingContainer nextFrame;
+    Data::PairingContainer* thisFrame = nullptr;
+    Data::PairingContainer* nextFrame = nullptr;
 
     // Threading variables
     struct ThreadState {
