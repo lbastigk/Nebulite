@@ -60,11 +60,11 @@ public:
 
     /**
      * @brief Listens for rulesets on a specific topic.
-     * @param obj The render object to check.
+     * @param listener The listening domain.
      * @param topic The topic to listen for.
      * @param listenerId The unique ID of the listener render object.
      */
-    void listen(Core::RenderObject* obj, std::string const& topic, uint32_t const& listenerId);
+    void listen(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId);
 
     //------------------------------------------
     // Worker Thread Methods

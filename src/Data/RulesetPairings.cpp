@@ -9,36 +9,11 @@ namespace Nebulite::Data {
 // Container Methods
 
 void BroadCastListenPairs::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
-    std::scoped_lock lock(nextFrame.mutex);
-    auto& [isActive, rulesets] = nextFrame.data[entry->getTopic()][entry->getId()];
-    rulesets[entry->getIndex()].entry = entry;
-    isActive = true;
+    nextFrame.insertBroadcaster(entry);
 }
 
-void BroadCastListenPairs::listen(Core::RenderObject* obj, std::string const& topic, uint32_t const& listenerId) {
-    // Lock to safely read from broadcasted.entriesThisFrame
-    std::scoped_lock broadcastLock(thisFrame.mutex);
-
-    // Check if any object has broadcasted on this topic
-    auto topicIt = thisFrame.data.find(topic);
-    if (topicIt == thisFrame.data.end()) {
-        return; // No entries for this topic in this thread
-    }
-
-    for (auto& [id_self, onTopicFromId] : topicIt->second) {
-        // Skip if broadcaster and listener are the same object
-        if (id_self == listenerId)
-            continue;
-
-        // Skip if inactive
-        if (!onTopicFromId.active)
-            continue;
-
-        // For all rulesets under this broadcaster and topic
-        for (auto& [entry, listeners] : std::ranges::views::values(onTopicFromId.rulesets)) {
-            listeners[listenerId] = BroadCastListenPair{entry, obj, entry->evaluateCondition(obj)};
-        }
-    }
+void BroadCastListenPairs::listen(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId) {
+    thisFrame.insertListener(listener, topic, listenerId);
 }
 
 //------------------------------------------

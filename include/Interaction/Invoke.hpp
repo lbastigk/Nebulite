@@ -109,11 +109,11 @@ public:
      *
      *        WARNING: This function must not be called concurrently with `update()`,
      *        as it may lead to race conditions and undefined behavior!
-     * @param obj The render object to check.
+     * @param listener The listening domain
      * @param topic The topic to listen for.
-     * @param listenerId The unique ID of the listener render object.
+     * @param listenerId The unique ID of the listener domain.
      */
-    void listen(Core::RenderObject* obj, std::string const& topic, uint32_t const& listenerId);
+    void listen(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId);
 
     //------------------------------------------
     // Updating
@@ -144,7 +144,7 @@ public:
      * @param input The expression to evaluate.
      * @return The result of the evaluation.
      */
-    std::string evaluateStandaloneExpression(std::string const& input) const;
+    [[nodiscard]] std::string evaluateStandaloneExpression(std::string const& input) const;
 
     /**
      * @brief Evaluates a standalone expression with context from a RenderObject.
@@ -159,7 +159,7 @@ public:
      * @param input The expression to evaluate.
      * @return The result of the evaluation as a double.
      */
-    double evaluateStandaloneExpressionAsDouble(std::string const& input) const;
+    [[nodiscard]] double evaluateStandaloneExpressionAsDouble(std::string const& input) const;
 
     /**
      * @brief Evaluates a standalone expression with context from a RenderObject and returns the result as a double.
@@ -174,7 +174,7 @@ public:
      * @param input The expression to evaluate.
      * @return The result of the evaluation as a boolean.
      */
-    bool evaluateStandaloneExpressionAsBool(std::string const& input) const;
+    [[nodiscard]] bool evaluateStandaloneExpressionAsBool(std::string const& input) const;
 
     /**
      * @brief Evaluates a standalone expression with context from a RenderObject and returns the result as a boolean.

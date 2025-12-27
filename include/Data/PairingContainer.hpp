@@ -11,6 +11,7 @@
 #include "absl/container/flat_hash_map.h"
 
 // Nebulite
+#include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 
 //------------------------------------------
@@ -22,7 +23,7 @@ namespace Nebulite::Data {
  */
 struct BroadCastListenPair {
     std::shared_ptr<Interaction::Rules::Ruleset> entry; // The Ruleset that was broadcasted
-    Core::RenderObject* contextOther; // The object that listened to the Broadcast
+    Interaction::Execution::DomainBase* contextOther; // The domain that listened to the Broadcast
     bool active = true; // If false, this pair is skipped during update
 
     [[nodiscard]] bool isActive() const {
@@ -45,6 +46,9 @@ struct OnTopicFromId {
 };
 
 struct PairingContainer {
+    void insertBroadcaster(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
+    void insertListener(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId);
+
     PairingContainer() = default;
 
     absl::flat_hash_map<
