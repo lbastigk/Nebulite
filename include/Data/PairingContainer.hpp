@@ -45,7 +45,8 @@ struct OnTopicFromId {
     }
 };
 
-struct PairingContainer {
+class PairingContainer {
+public:
     void insertBroadcaster(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
     void insertListener(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId);
 
@@ -55,6 +56,11 @@ struct PairingContainer {
 
     PairingContainer(std::atomic<bool>& stop) : stopFlag(stop) {}
 
+    std::unique_lock<std::mutex> lock() {
+        return std::unique_lock<std::mutex>(mutex);
+    }
+
+private:
     absl::flat_hash_map<
         std::string,            // The topic of the broadcasted entry
         absl::flat_hash_map<

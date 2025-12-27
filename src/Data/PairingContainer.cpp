@@ -50,6 +50,8 @@ void PairingContainer::process() {
     thread_local std::mt19937 cleanup_rng(std::random_device{}());
     thread_local std::uniform_int_distribution<int> cleanup_dist(0, 99); // uniform, avoids modulo bias
 
+    auto lock = this->lock();
+
     if (stopFlag)
         return;
 

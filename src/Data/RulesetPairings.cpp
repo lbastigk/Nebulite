@@ -41,10 +41,13 @@ void BroadCastListenPairs::waitForWorkFinished() const {
 void BroadCastListenPairs::process()  {
     while (!threadState.stopFlag) {
         // Wait for work to be ready
-        std::unique_lock lock(thisFrame.mutex);
-        threadState.condition.wait(lock, [this] {
-            return threadState.workReady.load() || threadState.stopFlag.load();
-        });
+        {
+            std::unique_lock lock = thisFrame.lock();
+            threadState.condition.wait(lock, [this] {
+                return threadState.workReady.load() || threadState.stopFlag.load();
+            });
+        }
+
         // Process
         thisFrame.process();
 
