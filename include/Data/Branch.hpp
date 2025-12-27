@@ -42,11 +42,8 @@ public:
                   "MaxBits must be > 0 and fit in size_t");
 
     // Ensure StoreType
-    // - provides isActive() -> bool
     // - provides apply() method
     // - is default-constructible
-    static_assert(requires(StoreType const& s) { { s.isActive() } -> std::convertible_to<bool>; },
-              "StoreType must provide isActive() -> bool");
     static_assert(requires(StoreType& s) { s.apply(); },
                           "StoreType must provide apply() method");
     static_assert(std::is_default_constructible_v<StoreType>,
@@ -98,19 +95,13 @@ public:
         if (index >= MaxSize) {
             throw std::out_of_range(std::string(__FUNCTION__) + " - index exceeds MaxSize");
         }
-
         std::scoped_lock lock(mutex);
 
-        // Emplace default-constructed StoreType if not already constructed
-        // index 0 -> size 1
-        if (index >= storage.size()) {
+        if (storage.size() <= index) {
             storage.resize(index + 1);
         }
 
-        if (storage.size() == 0) {
-            throw std::out_of_range(std::string(__FUNCTION__) + " - storage size is zero after resize");
-        }
-
+        wasAccessed[index] = true;
         return storage[index];
     }
 
@@ -126,25 +117,10 @@ public:
         size_t const index = distribution(randNum);
 
         std::scoped_lock lock(mutex);
-        if (index < storage.size() && !storage[index].isActive()) {
+        if (index < storage.size() && !wasAccessed[index]) {
             storage[index].~StoreType();
             ::new (static_cast<void*>(&storage[index])) StoreType();
         }
-    }
-
-    /**
-     * @brief Checks if the container is active
-     * @return true if the container has any elements, false otherwise.
-     */
-    [[nodiscard]] bool isActive() const {
-        std::scoped_lock lock(mutex);
-        size_t const n = storage.size();    // TODO: Somehow always 0, even when elements exist?
-        for (size_t i = 0; i < n; ++i) {
-            if (storage[i].isActive()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -154,10 +130,13 @@ public:
         std::scoped_lock lock(mutex);
         size_t const n = storage.size();
         for (size_t i = 0; i < n; ++i) {
-            if (storage[i].isActive()) {
+            if (wasAccessed[i]) {
                 storage[i].apply();
             }
         }
+
+        // Reset access tracking
+        wasAccessed.fill(false);
     }
 
 protected:
@@ -175,7 +154,9 @@ private:
     mutable std::mutex mutex;
 
     // Storage for the branch elements
-    std::vector<StoreType> storage;
+    std::vector<StoreType> storage{};
+
+    std::array<bool, MaxSize> wasAccessed{false};
 
     // RNG generator
     std::mt19937 randNum{std::random_device{}()};

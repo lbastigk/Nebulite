@@ -29,17 +29,14 @@ namespace Nebulite::Data {
 struct BroadCastListenPair {
     std::shared_ptr<Interaction::Rules::Ruleset> entry; // The Ruleset that was broadcasted
     Interaction::Execution::DomainBase* contextOther = nullptr; // The domain that listened to the Broadcast
-    bool active = true; // If false, this pair is skipped during update
-
-    // Required for ByteTree storage
-    [[nodiscard]] bool isActive() const {
-        return active;
-    }
+    bool active = false; // If false, this pair is skipped during update
 
     // Apply function
     void apply() {
-        entry->apply(contextOther);
-        active = false;
+        if (active) {
+            entry->apply(contextOther);
+            active = false;
+        }
     }
 };
 
@@ -57,11 +54,11 @@ struct ListenersOnRuleset {
     {}
 
     void cleanup() const {
-        if (listeners) listeners->cleanup();
+        listeners->cleanup();
     }
 
     void apply() const {
-        if (listeners) listeners->apply();
+        listeners->apply();
     }
 
     void insert(uint32_t const& id, BroadCastListenPair const& pair) const {
@@ -91,10 +88,7 @@ struct ListenersOnRuleset {
 
     void apply() {
         for (auto & it : listeners) {
-            auto &pair = it.second;
-            if (pair.active) {
-                pair.apply();
-            }
+            it.second.apply();
         }
     }
 

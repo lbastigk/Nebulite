@@ -36,17 +36,25 @@ public:
     void cleanup();
 
     /**
-     * @brief Applies a function to all active entries in the tree.
+     * @brief Applies the given operation to all active entries in the tree.
      */
     void apply() {
         rootLayer.apply();
     }
 
-    void swap(ByteTree& other) noexcept {
-        rootLayer.swap(other.rootLayer);
-    }
-
 private:
+    // Layers
+    // Layer4 -> Layer3 -> Layer2 -> Layer1 -> StoreType
+    // uin32_t split into 4 bytes for indexing each layer
+    // Bits: [31-24] [23-16] [15-8] [7-0]
+    //       Layer4  Layer3  Layer2  Layer1
+
+    // TODO: For some reason we never reach Layer1 on apply calls...
+    //       Say we have id 235, we Should emplace back:
+    //       Layer4[0] -> Layer3[0] -> Layer2[0] -> Layer1[235] -> StoreType
+    //       But Layer1 is never reached...
+
+    // Lowest layer, directly storing StoreType
     class Layer1 : public Branch<StoreType, uint32_t, 8> {
     public:
         Layer1() = default;
@@ -60,6 +68,7 @@ private:
         [[nodiscard]] size_t idToIndex(uint32_t const& id) const override;
     };
 
+    // Second layer, storing Layer1
     class Layer2 : public Branch<Layer1, uint32_t, 8> {
     public:
         Layer2() = default;
@@ -73,6 +82,7 @@ private:
         [[nodiscard]] size_t idToIndex(uint32_t const& id) const override;
     };
 
+    // Third layer, storing Layer2
     class Layer3 : public Branch<Layer2, uint32_t, 8> {
     public:
         Layer3() = default;
@@ -86,6 +96,7 @@ private:
         [[nodiscard]] size_t idToIndex(uint32_t const& id) const override;
     };
 
+    // Top layer, storing Layer3
     class Layer4 : public Branch<Layer3, uint32_t, 8> {
     public:
         Layer4() = default;

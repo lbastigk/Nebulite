@@ -14,7 +14,7 @@
  * @note Hypothesis:
  *       Should be approximately ORDERED_DOUBLE_POINTERS_MAPS x INVOKE_EXPR_POOL_SIZE ?
  */
-#define THREADRUNNER_COUNT 25
+#define THREADRUNNER_COUNT 1
 
 /**
  * @def ORDERED_DOUBLE_POINTERS_MAPS

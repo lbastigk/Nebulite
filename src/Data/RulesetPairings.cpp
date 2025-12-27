@@ -1,5 +1,6 @@
 #include "Data/RulesetPairings.hpp"
 
+#include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
