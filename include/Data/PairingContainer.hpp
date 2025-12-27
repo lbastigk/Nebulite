@@ -35,7 +35,6 @@ namespace Nebulite::Data {
 struct BroadCastListenPair {
     std::shared_ptr<Interaction::Rules::Ruleset> entry; // The Ruleset that was broadcasted
     Interaction::Execution::DomainBase* contextOther = nullptr; // The domain that listened to the Broadcast
-
 #if USE_BYTETREE_CONTAINER
     // Apply function
     void apply() {
@@ -51,16 +50,12 @@ struct BroadCastListenPair {
             active = false;
         }
     }
-#endif
-
-
+#endif // USE_BYTETREE_CONTAINER
 };
 
 struct ListenersOnRuleset {
     std::shared_ptr<Interaction::Rules::Ruleset> entry;
-
 #if USE_BYTETREE_CONTAINER
-
     // store pointer to avoid expensive object moves inside the flat_hash_map
     std::unique_ptr<Data::ByteTree<BroadCastListenPair>> listeners;
 
@@ -86,9 +81,7 @@ struct ListenersOnRuleset {
             pairPtr->contextOther = pair.contextOther;
         }
     }
-
 #else
-
     absl::node_hash_map<uint32_t, BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
 
     void cleanup() {
@@ -127,17 +120,13 @@ struct OnTopicFromId {
 
 class PairingContainer {
 public:
-    void insertBroadcaster(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
-    void insertListener(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId);
-
-    void process(); // Worker thread processing function
-
     PairingContainer() = default;
     ~PairingContainer() = default;
 
-    std::unique_lock<std::shared_mutex> lock() {
-        return std::unique_lock<std::shared_mutex>(mutex);
-    }
+    void insertBroadcaster(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
+    void insertListener(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId);
+    void process(); // Worker thread processing function
+    std::unique_lock<std::shared_mutex> lock() {return std::unique_lock<std::shared_mutex>(mutex);}
 
 private:
     // Using a node hash map to keep iterators stable during insertions
@@ -148,10 +137,7 @@ private:
             OnTopicFromId       // The struct containing active flag and rulesets
         >
     > data;
-
     mutable std::shared_mutex mutex; // Mutex for thread-safe access
 };
-
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_PAIRING_CONTAINER_HPP
-
