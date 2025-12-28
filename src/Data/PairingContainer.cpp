@@ -20,17 +20,14 @@ void PairingContainer::insertListener(Interaction::Execution::DomainBase* listen
     }
 
     for (auto& [id_self, onTopicFromId] : topicIt->second) {
-        // Skip if broadcaster and listener are the same object
-        if (id_self == listenerId)
-            continue;
-
-        // Skip if inactive
-        if (!onTopicFromId.active)
+        // Skip if broadcaster and listener are the same object, or if the broadcaster is inactive
+        if (id_self == listenerId || !onTopicFromId.active)
             continue;
 
         // For all rulesets under this broadcaster and topic
         for (auto& listenersOnRuleset : std::ranges::views::values(onTopicFromId.rulesets)) {
 #if USE_BYTETREE_CONTAINER
+            // Insert in this frame
             if (listenersOnRuleset.entry->evaluateCondition(listener)) {
                 auto blp = BroadCastListenPair{
                     listenersOnRuleset.entry,

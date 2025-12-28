@@ -8,7 +8,6 @@
  * @details Using ByteTree is a work in progress, and currently about half fast as node_hash_map.
  * @todo ByteTree may perform better once the entire container system is based on it.
  *       This way, locking mechanisms can be optimized for ByteTree usage.
- * @todo Current implementation doesnt work without ByteTree on larger simulations: deadlocks occur.
  */
 #define USE_BYTETREE_CONTAINER 1
 
@@ -54,27 +53,24 @@ struct BroadCastListenPair {
 #endif // USE_BYTETREE_CONTAINER
 };
 
-struct ListenersOnRuleset {
-    std::shared_ptr<Interaction::Rules::Ruleset> entry;
+class ListenersOnRuleset {
 #if USE_BYTETREE_CONTAINER
-    // store pointer to avoid expensive object moves inside the flat_hash_map
-    std::unique_ptr<Data::ByteTree<BroadCastListenPair>> listeners;
+private:
+    Data::ByteTree<BroadCastListenPair> listeners;
 
-    // initialize the unique_ptr
-    ListenersOnRuleset()
-        : listeners(std::make_unique<Data::ByteTree<BroadCastListenPair>>())
-    {}
+public:
+    std::shared_ptr<Interaction::Rules::Ruleset> entry;
 
-    void cleanup() const {
-        listeners->cleanup();
+    void cleanup() {
+        listeners.cleanup();
     }
 
-    void apply() const {
-        listeners->apply();
+    void apply() {
+        listeners.apply();
     }
 
-    void insert(uint32_t const& id, BroadCastListenPair const& pair) const {
-        auto pairPtr = listeners->at(id);
+    void insert(uint32_t const& id, BroadCastListenPair const& pair) {
+        auto pairPtr = listeners.at(id);
 
         // We only need to copy if the existing entry is invalid
         if (!pairPtr->entry) {
@@ -82,13 +78,38 @@ struct ListenersOnRuleset {
             pairPtr->contextOther = pair.contextOther;
         }
     }
+
 #else
+private:
+    mutable std::shared_mutex mutex;
+
     absl::node_hash_map<uint32_t, BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
+
+public:
+    ListenersOnRuleset() = default;
+    ~ListenersOnRuleset() = default;
+
+    ListenersOnRuleset(ListenersOnRuleset const& other) {
+        std::shared_lock<std::shared_mutex> slock(other.mutex);
+        listeners = other.listeners;
+        entry = other.entry;
+    }
+
+    ListenersOnRuleset& operator=(ListenersOnRuleset const& other) {
+        if (this == &other) return *this;
+        std::scoped_lock lock(mutex, other.mutex);
+        listeners = other.listeners;
+        entry = other.entry;
+        return *this;
+    }
+
+    std::shared_ptr<Interaction::Rules::Ruleset> entry;
 
     void cleanup() {
         // Thread-local random generator for probabilistic cleanup
         thread_local std::mt19937 cleanup_rng(std::random_device{}());
         thread_local std::uniform_int_distribution<int> cleanup_dist(0, 99); // uniform, avoids modulo bias
+        std::unique_lock<std::shared_mutex> ulock(mutex);
         if (cleanup_dist(cleanup_rng) == 0) {
             for (auto it = listeners.begin(); it != listeners.end();) {
                 if (!it->second.active) {
@@ -102,15 +123,16 @@ struct ListenersOnRuleset {
     }
 
     void apply() {
+        std::shared_lock<std::shared_mutex> slock(mutex);
         for (auto & it : listeners) {
             it.second.apply();
         }
     }
 
     void insert(uint32_t const& id, BroadCastListenPair const& pair) {
+        std::unique_lock<std::shared_mutex> ulock(mutex);
         listeners[id] = pair;
     }
-
 #endif // USE_BYTETREE_CONTAINER
 };
 
