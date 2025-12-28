@@ -53,7 +53,7 @@ private:
     bool mod(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string_view constexpr modName = "mod";
     static std::string_view constexpr modDesc = "Calculates the modulo of the current JSON value by a numeric value.\n"
-        "Usage: |mod <number>";
+        "Usage: |mod <number> -> {number}";
 
     // TODO: using multiple numbers should output array?
     bool multiply(std::span<std::string const> const& args, JSON* jsonDoc);
