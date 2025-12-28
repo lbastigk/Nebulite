@@ -38,4 +38,34 @@ std::shared_ptr<StoreType> Branch<StoreType, idType, MaxBits>::at(idType const& 
         return storage[index];
     }
 }
+
+template<typename StoreType, typename idType, std::size_t MaxBits>
+void Branch<StoreType, idType, MaxBits>::cleanup()  {
+    // Turn off for now
+    return;
+
+    // Take random index and check if inactive
+    std::uniform_int_distribution<size_t> distribution(0, MaxSize - 1);
+    size_t const index = distribution(randNum);
+
+    std::scoped_lock lock(mutex);
+    if (index < storage.size() && !wasAccessed[index]) {
+        // TODO...
+    }
+}
+
+template<typename StoreType, typename idType, std::size_t MaxBits>
+void Branch<StoreType, idType, MaxBits>::apply() {
+    std::scoped_lock lock(mutex);
+    size_t const n = storage.size();
+    for (size_t i = 0; i < n; ++i) {
+        if (wasAccessed[i]) {
+            storage[i]->apply();
+        }
+    }
+
+    // Reset access tracking
+    std::fill(wasAccessed.begin(), wasAccessed.end(), false);
+}
+
 } // namespace Nebulite::Data

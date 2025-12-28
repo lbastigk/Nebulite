@@ -96,35 +96,12 @@ public:
     /**
      * @brief Probabilistic cleanup of inactive entries.
      */
-    void cleanup() {
-        // Turn off for now
-        return;
-
-        // Take random index and check if inactive
-        std::uniform_int_distribution<size_t> distribution(0, MaxSize - 1);
-        size_t const index = distribution(randNum);
-
-        std::scoped_lock lock(mutex);
-        if (index < storage.size() && !wasAccessed[index]) {
-            // TODO...
-        }
-    }
+    void cleanup();
 
     /**
      * @brief Applies a function to all active entries in the tree.
      */
-    void apply() {
-        std::scoped_lock lock(mutex);
-        size_t const n = storage.size();
-        for (size_t i = 0; i < n; ++i) {
-            if (wasAccessed[i]) {
-                storage[i]->apply();
-            }
-        }
-
-        // Reset access tracking
-        std::fill(wasAccessed.begin(), wasAccessed.end(), false);
-    }
+    void apply();
 
 protected:
     /**
