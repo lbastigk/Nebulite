@@ -64,11 +64,13 @@ print-src-rect
 push-back
 push-front
 query
+reload
 reload-texture
 renderobject
 return
 reverse
 rotate
+ruleset
 selected-object
 set
 set-background

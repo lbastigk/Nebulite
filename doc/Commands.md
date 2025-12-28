@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Mon Dec 22 09:34:40 CET 2025
+Generated on: Sun Dec 28 19:15:55 CET 2025
 
 ## Table of Contents
 
@@ -48,7 +48,7 @@ Available Functions
 | `input-wait` | Waits for user input before continuing. |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
-| `log` | Functions to log various data to files |
+| `log` | Functions for logging various states and documents to files. |
 | `move` | Move data from one key to another. |
 | `nop` | No operation. Does nothing. |
 | `pop-back` | Pop a value from the back of an array. |
@@ -65,7 +65,7 @@ Available Functions
 | `show-fps` | Show FPS of renderer. |
 | `snapshot` | Create a snapshot of the current renderer state. |
 | `spawn` | Spawn a RenderObject from a json/jsonc file. |
-| `standardfile` | Functions to generate standard files |
+| `standardfile` | Functions for generating standard files for common resources. |
 | `task` | Loads tasks from a file into the taskQueue. |
 | `time` | Commands for time management |
 | `wait` | Sets the waitCounter to the given value to halt all script tasks for a given amount of frames. |
@@ -163,11 +163,10 @@ Note: All values are stored as strings.
 
 ```
 Clears the console screen.
-
 Usage: clear
 
 Note: This function attempts to clear the console screen using system-specific commands.
-        It may not work in all environments or IDEs.
+      It may not work in all environments or IDEs.
 ```
 
 #### `console`
@@ -196,7 +195,6 @@ Usage: copy <source_key> <destination_key>
 
 ```
 Crashes the program, useful for checking if the testing suite can catch crashes.
-
 Usage: crash [<type>]
 
 - <type>: Optional. The type of crash to induce. Options are:
@@ -210,7 +208,6 @@ Usage: crash [<type>]
 
 ```
 Returns a critical error.
-
 Usage: critical <string>
 
 - <string>: The critical error message.
@@ -267,7 +264,6 @@ Available Functions
 
 ```
 Echoes all arguments as string to the standard error.
-
 Usage: error <string...>
 
 - <string...>: One or more strings to echo to the standard error.
@@ -277,7 +273,6 @@ Usage: error <string...>
 
 ```
 Activates or deactivates error logging to a file.
-
 Usage: errorlog <on/off>
 
 - on:  Activates error logging to 'error.log' in the working directory.
@@ -359,10 +354,6 @@ Usage: if <condition> <functioncall>
 
 It is recommended to wrap the condition in quotes to prevent parsing issues.
 
-However, This is not supported for in-console usage.
-This is because the console itself removes quotes before passing the arguments to the FuncTree,
-rendering them useless.
-
 Example:
 if '$(eq(1+1,2))' echo Condition is true!
 ```
@@ -371,10 +362,9 @@ if '$(eq(1+1,2))' echo Condition is true!
 
 ```
 Waits for user input before continuing.
-
 Usage: input-wait [prompt]
 
-Note: This function pauses execution until the user presses Enter.
+Note: This function pauses execution until the user presses Enter
 ```
 
 #### `json`
@@ -384,7 +374,7 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `help` | Show available commands and their descriptions |
-| `set` | Sets a key from a JSON document. |
+| `set` | Sets a key from a read-only JSON document. |
 
 ##### `json set`
 
@@ -430,6 +420,7 @@ Usage: move <source_key> <destination_key>
 
 ```
 No operation. Does nothing.
+
 Usage: nop <blind arguments>
 
 Useful for testing or as a placeholder in scripts where no action is required,
@@ -507,7 +498,6 @@ This command creates a custom critical error with the given string as descriptio
 This can be used to exit from a task queue with a custom message.
 
 Example:
-
 ./bin/Nebulite return We did not anticipate this happening, weird.
 Outputs:
 We did not anticipate this happening, weird.
@@ -667,10 +657,7 @@ Usage: wait <frames>
 This command pauses the execution of all script tasks for the specified number of frames.
 This does not halt any tasks coming from objects within the environment and cannot be used by them.
 
-The wait-command is intended for scripts only, allowing for timed delays between commands.
-
-This is useful for:
-- Creating pauses in scripts to wait for certain conditions to be met.
+This is useful for:- Creating pauses in scripts to wait for certain conditions to be met.
 - Timing events in a sequence.
 - Tool assisted speedruns (TAS)
 ```
@@ -679,7 +666,6 @@ This is useful for:
 
 ```
 Returns a warning: a custom, noncritical error.
-
 Usage: warn <string>
 
 - <string>: The warning message.
@@ -696,19 +682,18 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `copy` | Copy data from one key to another. |
-| `debug` | Debugging functions for RenderObject |
+| `debug` | Debugging functions for RenderObject domains |
 | `delete` | Marks object for deletion |
 | `echo` | Echoes all arguments as string to the standard output. |
 | `ensure-array` | Ensure that a key is an array, converting a value to an array if necessary. |
 | `eval` | Evaluate an expression and execute the result. |
-| `fill` | Fill the texture with a color |
+| `fill` | Fills the texture with a specified color. |
 | `help` | Show available commands and their descriptions |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
 | `log` | Logging utilities |
 | `mirror` | Mirror utilities for RenderObject to GlobalSpace synchronization |
 | `move` | Move data from one key to another. |
-| `once` | Executes a ruleset once from a given string input. |
 | `pop-back` | Pop a value from the back of an array. |
 | `pop-front` | Pop a value from the front of an array. |
 | `print` | Prints the JSON document to the console for debugging purposes. |
@@ -716,7 +701,8 @@ Available Functions
 | `push-front` | Push a value to the front of an array. |
 | `query` | Functions to manipulate JSON data via SQL query results |
 | `reload-texture` | Reload the texture from the document. |
-| `rotate` | Rotate the texture by a given angle |
+| `rotate` | Rotate the texture by a specified angle. |
+| `ruleset` | Ruleset management functions for the RenderObject domain. |
 | `set` | Set a key to a value in the JSON document. |
 | `update-text` | Calculate text texture |
 
@@ -761,12 +747,6 @@ Marks the object for deletion on the next update cycle.
 Echoes all arguments as string to the standard output.
 
 Usage: echo <string>
-
-This command concatenates all arguments with a whitespace and outputs them to the standard output (cout).
-Example:
-./bin/Nebulite echo Hello World!
-Outputs:
-Hello World!
 ```
 
 #### `ensure-array`
@@ -792,13 +772,12 @@ eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
 #### `fill`
 
 ```
-Fill the texture with a color
-
+Fills the texture with a specified color.
 Usage:
-fill <color> 
-fill [R] [G] [B]
-- <color>: Predefined color name (e.g., "red", "green", "blue")
-- [R] [G] [B]: RGB color values (0-255)
+  fill <color>
+  fill <r> <g> <b>
+Where <color> can be 'red', 'green', or 'blue',
+and <r>, <g>, <b> are integer values (0-255) for red, green, and blue components.
 ```
 
 #### `json`
@@ -808,7 +787,7 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `help` | Show available commands and their descriptions |
-| `set` | Sets a key from a JSON document. |
+| `set` | Sets a key from a read-only JSON document. |
 
 ##### `json set`
 
@@ -836,7 +815,7 @@ Available Functions
 |----------|-------------|
 | `all` | Logs the entire RenderObject to a file. |
 | `help` | Show available commands and their descriptions |
-| `key` | Logs a specific value from the RenderObject to a file. |
+| `key` | Logs a specific key's value to a file. |
 
 ##### `log all`
 
@@ -873,24 +852,12 @@ Marks the object for deletion on the next update cycle.
 
 ##### `mirror once`
 
-```
-Executes a ruleset once from a given string input.
-Either a static ruleset name or a link to a json-defined ruleset.
-```
-
 #### `move`
 
 ```
 Move data from one key to another.
 
 Usage: move <source_key> <destination_key>
-```
-
-#### `once`
-
-```
-Executes a ruleset once from a given string input.
-Either a static ruleset name or a link to a json-defined ruleset.
 ```
 
 #### `pop-back`
@@ -964,10 +931,27 @@ Usage: reload-texture
 #### `rotate`
 
 ```
-Rotate the texture by a given angle
+Rotate the texture by a specified angle.
 
 Usage: rotate <angle>
+
+Arguments:
+  angle   The angle in degrees to rotate the texture.
 ```
+
+#### `ruleset`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `once` | Applies all rulesets once on the next update |
+| `reload` | Reloads all rulesets for this RenderObject on the next update. |
+
+##### `ruleset once`
+
+##### `ruleset reload`
 
 #### `set`
 
@@ -1057,7 +1041,7 @@ Usage: |map <function> -> {array}
 
 ```
 Calculates the modulo of the current JSON value by a numeric value.
-Usage: |mod <number> -> {number}
+Usage: |mod <number>
 ```
 
 #### `mul`
