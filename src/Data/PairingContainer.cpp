@@ -4,9 +4,9 @@
 namespace Nebulite::Data {
 
 void PairingContainer::insertBroadcaster(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
-    auto const topic = entry->getTopic();
-    auto const id = entry->getId();
-    auto const index = entry->getIndex();
+    auto& topic = entry->getTopic();
+    auto& id = entry->getId();
+    auto& index = entry->getIndex();
     auto& [isActive, rulesets] = data[topic][id]; // creates maps/entries if missing
     rulesets[index].entry = entry;
     isActive = true;
