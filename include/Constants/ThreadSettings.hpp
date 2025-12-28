@@ -9,14 +9,6 @@
 //------------------------------------------
 
 /**
- * @def THREADRUNNER_COUNT
- * @brief Number of thread runners for processing broadcast-listen pairs.
- * @note Hypothesis:
- *       Should be approximately ORDERED_DOUBLE_POINTERS_MAPS x INVOKE_EXPR_POOL_SIZE ?
- */
-#define THREADRUNNER_COUNT 25
-
-/**
  * @def ORDERED_DOUBLE_POINTERS_MAPS
  * @brief Number of ordered double pointer maps for expression evaluations.
  * @details If set to 1, all threads share the same map.
@@ -31,7 +23,14 @@
  *       A pool size of 1 (no pool) is minimally faster.
  *       Perhaps a small overhaul is needed to actually make use of the pool?
  */
-#define INVOKE_EXPR_POOL_SIZE ORDERED_DOUBLE_POINTERS_MAPS
+#define EXPRESSION_POOL_SIZE 5
+
+/**
+ * @def THREADRUNNER_COUNT
+ * @brief Number of thread runners for processing broadcast-listen pairs.
+ */
+#define THREADRUNNER_COUNT 5
+
 
 /**
  * @def BATCH_COST_GOAL

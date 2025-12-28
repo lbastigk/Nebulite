@@ -1,6 +1,7 @@
 /**
  * @file Ruleset.hpp
  * @brief This file contains the Ruleset struct, representing a single invoke entry of a RenderObject for manipulation.
+ * @todo Use references instead of pointers where possible.
  */
 
 #ifndef NEBULITE_INTERACTION_RULES_RULESET_HPP

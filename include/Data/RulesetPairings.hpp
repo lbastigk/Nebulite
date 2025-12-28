@@ -14,25 +14,23 @@
 #include <atomic>
 #include <condition_variable>
 
-// External
-#include "absl/container/flat_hash_map.h"
-
 // Nebulite
+#include "Data/PairingContainer.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data{
 
-// TODO: Break into a chain of nibble-trees for faster access?
-//       uint32_t -> 8 nibble traversal. vector<vector<vector<vector<...<OnTopicFromId>...>>>?
-//       Should be WAY faster for lookups, easy cleanup as well.
-//       Byte-Tree should be fine as well, just 4 levels instead of 8.
-//       Another option would be to insert all pairs into a flat vector and iterate through that.
-//       Meaning we store generated pairs, and insert into a vector if listening was successful.
+/**
+ * @brief Class to manage broadcast-listen pairs of rulesets. With this and next frame management.
+ */
 class BroadCastListenPairs {
 public:
+    BroadCastListenPairs(std::atomic<bool>& stopFlag) : threadState{ .stopFlag = stopFlag }{
+        // Initialize frame containers
+        thisFrame = new Data::PairingContainer();
+        nextFrame = new Data::PairingContainer();
 
-    BroadCastListenPairs(std::atomic<bool>& stopFlag) : threadState{ .stopFlag = stopFlag } {
         // Start worker thread
         workerThread = std::thread([this] {
             this->process();
@@ -48,13 +46,8 @@ public:
         }
     }
 
-    /**
-     * @brief Listens for rulesets on a specific topic.
-     * @param obj The render object to check.
-     * @param topic The topic to listen for.
-     * @param listenerId The unique ID of the listener render object.
-     */
-    void listen(Core::RenderObject* obj, std::string const& topic, uint32_t const& listenerId);
+    //------------------------------------------
+    // Container Methods
 
     /**
      * @brief Broadcasts a ruleset to all listeners on its topic.
@@ -63,72 +56,41 @@ public:
     void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
 
     /**
+     * @brief Listens for rulesets on a specific topic.
+     * @param listener The listening domain.
+     * @param topic The topic to listen for.
+     * @param listenerId The unique ID of the listener render object.
+     */
+    void listen(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId);
+
+    //------------------------------------------
+    // Worker Thread Methods
+
+    /**
      * @brief Prepares for the next frame by swapping the current and next frame containers.
      */
-    void prepare() {
-        std::scoped_lock lock(mutexThisFrame, mutexNextFrame);
-        std::swap(thisFrame, nextFrame);
-    }
+    void prepare();
 
     /**
      * @brief Notifies the worker thread to start processing.
      */
-    void startWork() {
-        threadState.workReady = true;
-        threadState.workFinished = false;
-        threadState.condition.notify_one();
-    }
+    void startWork();
 
     /**
      * @brief Waits for the worker thread to finish processing.
      */
-    void waitForWorkFinished() const {
-        while (!threadState.workFinished.load()) {
-            std::this_thread::yield();
-        }
-    }
+    void waitForWorkFinished() const ;
 
 private:
-    /**
-     * @struct BroadCastListenPair
-     * @brief Structure to hold a broadcast-listen pair.
-     */
-    struct BroadCastListenPair {
-        std::shared_ptr<Interaction::Rules::Ruleset> entry; // The Ruleset that was broadcasted
-        Core::RenderObject* contextOther; // The object that listened to the Broadcast
-        bool active = true; // If false, this pair is skipped during update
-    };
-
-    struct ListenersOnRuleset {
-        std::shared_ptr<Interaction::Rules::Ruleset> entry;
-        absl::flat_hash_map<uint32_t, BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
-    };
-
-    struct OnTopicFromId {
-        bool active = false; // If false, this is skipped during update
-        absl::flat_hash_map<uint32_t, ListenersOnRuleset> rulesets; // idx_ruleset -> ListenersOnRuleset
-    };
-
-    using PairingContainer = absl::flat_hash_map<
-        std::string,            // The topic of the broadcasted entry
-        absl::flat_hash_map<
-            uint32_t,           // The ID of self.
-            OnTopicFromId       // The struct containing active flag and rulesets
-        >
-    >;
-
-    PairingContainer thisFrame;
-    PairingContainer nextFrame;
-
-    mutable std::mutex mutexThisFrame; // for read/write access to the container
-    mutable std::mutex mutexNextFrame; // for read/write access to the container
+    Data::PairingContainer* thisFrame = nullptr;
+    Data::PairingContainer* nextFrame = nullptr;
 
     // Threading variables
     struct ThreadState {
         /**
          * @brief Condition variables for thread synchronization.
          */
-        std::condition_variable condition = {};
+        std::condition_variable_any condition = {};
 
         /**
          * @brief Flags to indicate when work is ready for each thread.
@@ -153,6 +115,5 @@ private:
      */
     void process();
 };
-
 } // namespace Nebulite::Data
 #endif // NEBULITE_INTERACTION_RULES_RULESET_PAIRINGS_HPP

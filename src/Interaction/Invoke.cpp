@@ -21,32 +21,33 @@ namespace Nebulite::Interaction {
 
 Invoke::Invoke() {
     // Initialize synchronization primitives
-    threadState.stopFlag = false;
+    stopFlag = false;
 
     // Create and start threads
     for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
-        w = std::make_unique<Data::BroadCastListenPairs>(threadState.stopFlag);
+        w = std::make_unique<Data::BroadCastListenPairs>(stopFlag);
     }
 }
 
 Invoke::~Invoke() {
     // Signal threads to stop and finish
     // Stopping is handled in BroadCastListenPairs destructor
-    threadState.stopFlag = true;
+    stopFlag = true;
 }
 
 //------------------------------------------
 // Interactions
 
 void Invoke::broadcast(std::shared_ptr<Rules::Ruleset> const& entry) {
-    // Get index
+    // Thread assignment based on entry owner ID
     uint32_t const threadIndex = entry->getId() % THREADRUNNER_COUNT;
     worker[threadIndex]->broadcast(entry);
 }
 
-void Invoke::listen(Core::RenderObject* obj, std::string const& topic, uint32_t const& listenerId) {
+void Invoke::listen(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId) {
+    // Listening happens on all threads
     for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
-        w->listen(obj, topic, listenerId);
+        w->listen(listener, topic, listenerId);
     }
 }
 
