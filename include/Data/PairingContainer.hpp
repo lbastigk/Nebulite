@@ -8,8 +8,9 @@
  * @details Using ByteTree is a work in progress, and currently about half fast as node_hash_map.
  * @todo ByteTree may perform better once the entire container system is based on it.
  *       This way, locking mechanisms can be optimized for ByteTree usage.
+ * @todo Current implementation doesnt work without ByteTree on larger simulations: deadlocks occur.
  */
-#define USE_BYTETREE_CONTAINER 0
+#define USE_BYTETREE_CONTAINER 1
 
 //------------------------------------------
 // Includes
