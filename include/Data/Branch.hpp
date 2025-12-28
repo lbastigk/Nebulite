@@ -53,40 +53,61 @@ public:
     static_assert(std::is_default_constructible_v<StoreType>,
                   "StoreType must be default-constructible for cleanup()");
 
+    //------------------------------------------
+    // Constructor / Destructor
+
     Branch() = default;
     virtual ~Branch() = default;
 
+    //------------------------------------------
+    // Copy / Move semantics
+
     // Copy constructor: create a new mutex, copy protected by locking source
     Branch(Branch const& other) {
-        std::scoped_lock lock(other.mutex);
+        std::scoped_lock lock(other.storageMutex);
         storage = other.storage;
         randNum = other.randNum;
+        for (size_t i = 0; i < trackerSize; ++i) {
+            tracker[i].store(other.tracker[i].load(std::memory_order_relaxed), std::memory_order_relaxed);
+        }
     }
 
     // Move constructor: create a new mutex, move-protect by locking source
     Branch(Branch&& other) noexcept {
-        std::scoped_lock lock(other.mutex);
+        std::scoped_lock lock(other.storageMutex);
         storage = std::move(other.storage);
         randNum = other.randNum;
+        for (size_t i = 0; i < trackerSize; ++i) {
+            tracker[i].store(other.tracker[i].load(std::memory_order_relaxed), std::memory_order_relaxed);
+        }
     }
 
     // Copy assignment: lock both (scoped_lock uses std::lock internally), keep this->mutex intact
     Branch& operator=(Branch const& other) {
         if (this == &other) return *this;
-        std::scoped_lock lock(mutex, other.mutex);
+        std::scoped_lock lock(storageMutex, other.storageMutex);
         storage = other.storage;
         randNum = other.randNum;
+        for (size_t i = 0; i < trackerSize; ++i) {
+            tracker[i].store(other.tracker[i].load(std::memory_order_relaxed), std::memory_order_relaxed);
+        }
         return *this;
     }
 
     // Move assignment: lock both, move storage, keep this->mutex intact
     Branch& operator=(Branch&& other) noexcept {
         if (this == &other) return *this;
-        std::scoped_lock lock(mutex, other.mutex);
+        std::scoped_lock lock(storageMutex, other.storageMutex);
         storage = std::move(other.storage);
         randNum = other.randNum;
+        for (size_t i = 0; i < trackerSize; ++i) {
+            tracker[i].store(other.tracker[i].load(std::memory_order_relaxed), std::memory_order_relaxed);
+        }
         return *this;
     }
+
+    //------------------------------------------
+    // Public Methods
 
     /**
      * @brief Accesses the element corresponding to the given ID.
@@ -117,36 +138,41 @@ protected:
 private:
     static constexpr std::size_t MaxSize = std::size_t(1) << MaxBits;
 
-    // RNG generator
-    std::mt19937 randNum{std::random_device{}()};
-
-    mutable std::shared_mutex mutex;
-    mutable std::mutex accessedMutex;
+    //------------------------------------------
+    // Storage
 
     // Storage array
     template<typename T> using arr = absl::InlinedVector<T, 4>;
     arr<std::shared_ptr<StoreType>> storage;
 
-    // Access array
-    static constexpr std::size_t AccessArraySize = (MaxSize + 63) / 64;
-    std::array<std::atomic<uint64_t>, AccessArraySize> accessArray{0};
+    // Mutex for thread-safe access
+    mutable std::shared_mutex storageMutex;
+
+    // RNG generator for cleanup
+    std::mt19937 randNum{std::random_device{}()};
+
+    //------------------------------------------
+    // Access Tracking
+
+    static constexpr std::size_t trackerSize = (MaxSize + 63) / 64;
+    std::array<std::atomic<uint64_t>, trackerSize> tracker{0};
 
     void markAccessed(std::size_t index) {
         std::size_t arrayIndex = index / 64;
         std::size_t bitPosition = index % 64;
         uint64_t mask = uint64_t(1) << bitPosition;
-        accessArray[arrayIndex].fetch_or(mask, std::memory_order_relaxed);
+        tracker[arrayIndex].fetch_or(mask, std::memory_order_relaxed);
     }
 
     bool wasAccessed(std::size_t index) const {
         std::size_t arrayIndex = index / 64;
         std::size_t bitPosition = index % 64;
         uint64_t mask = uint64_t(1) << bitPosition;
-        return (accessArray[arrayIndex].load(std::memory_order_relaxed) & mask) != 0;
+        return (tracker[arrayIndex].load(std::memory_order_relaxed) & mask) != 0;
     }
 
     void resetAccessed() {
-        for (auto& atomicVal : accessArray) {
+        for (auto& atomicVal : tracker) {
             atomicVal.store(0, std::memory_order_relaxed);
         }
     }

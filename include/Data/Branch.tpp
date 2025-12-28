@@ -10,7 +10,7 @@ std::shared_ptr<StoreType> Branch<StoreType, idType, MaxBits>::at(idType const& 
 
     // -------- Fast path: shared read --------
     {
-        std::shared_lock<std::shared_mutex> slock(mutex);
+        std::shared_lock<std::shared_mutex> slock(storageMutex);
 
         if (index < storage.size()) {
             auto ptr = storage[index];
@@ -27,7 +27,7 @@ std::shared_ptr<StoreType> Branch<StoreType, idType, MaxBits>::at(idType const& 
     auto newObj = std::make_shared<StoreType>();
 
     {
-        std::unique_lock<std::shared_mutex> ulock(mutex);
+        std::unique_lock<std::shared_mutex> ulock(storageMutex);
 
         // Ensure storage is large enough
         if (storage.size() <= index) {
@@ -49,7 +49,7 @@ template<typename StoreType, typename idType, std::size_t MaxBits>
 void Branch<StoreType, idType, MaxBits>::cleanup()  {
     thread_local std::uniform_int_distribution<size_t> distribution(0, MaxSize - 1);
     size_t const index = distribution(randNum);
-    std::scoped_lock lock(mutex);
+    std::scoped_lock lock(storageMutex);
     if (index < storage.size() && !wasAccessed(index)) {
         storage[index] = nullptr;
     }
@@ -57,7 +57,7 @@ void Branch<StoreType, idType, MaxBits>::cleanup()  {
 
 template<typename StoreType, typename idType, std::size_t MaxBits>
 void Branch<StoreType, idType, MaxBits>::apply() {
-    std::scoped_lock lock(mutex);
+    std::scoped_lock lock(storageMutex);
     size_t const n = storage.size();
     for (size_t i = 0; i < n; ++i) {
         if (wasAccessed(i)) {   // Storage validity is guarenteed through ::at()
