@@ -80,17 +80,17 @@ public:
      * @param self The JSON object representing the "self" context.
      */
     void parse(std::string const& expr, Data::JSON* self){
-        static_assert(INVOKE_EXPR_POOL_SIZE > 0, "INVOKE_EXPR_POOL_SIZE must be greater than 0");
+        static_assert(EXPRESSION_POOL_SIZE > 0, "INVOKE_EXPR_POOL_SIZE must be greater than 0");
 
         fullExpression = expr;
 
         // Parse each entry in the pool
-        for (size_t i = 0; i < INVOKE_EXPR_POOL_SIZE; ++i){
+        for (size_t i = 0; i < EXPRESSION_POOL_SIZE; ++i){
             pool[i].parse(expr, self);
         }
 
         // Calculate metadata and unique ID from first entry
-        #if INVOKE_EXPR_POOL_SIZE > 1
+        #if EXPRESSION_POOL_SIZE > 1
             _isReturnableAsDouble = pool[0].recalculateIsReturnableAsDouble();
             _isAlwaysTrue = pool[0].recalculateIsAlwaysTrue();
         #else
@@ -106,7 +106,7 @@ public:
      * @return The result of the evaluation as a string.
      */
     std::string eval(Data::JSON* current_other){
-        thread_local size_t const idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % INVOKE_EXPR_POOL_SIZE;
+        thread_local size_t const idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % EXPRESSION_POOL_SIZE;
         std::scoped_lock const guard(locks[idx]);
         return pool[idx].eval(current_other);
     }
@@ -118,7 +118,7 @@ public:
      * @return The result of the evaluation as a double.
      */
     double evalAsDouble(Data::JSON* current_other){
-        thread_local size_t const idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % INVOKE_EXPR_POOL_SIZE;
+        thread_local size_t const idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % EXPRESSION_POOL_SIZE;
         std::scoped_lock const guard(locks[idx]);
         return pool[idx].evalAsDouble(current_other);
     }
@@ -156,10 +156,10 @@ public:
 
 private:
     // Pool of expressions
-    std::array<Expression, INVOKE_EXPR_POOL_SIZE> pool;
+    std::array<Expression, EXPRESSION_POOL_SIZE> pool;
 
     // Locks for thread safety
-    std::array<std::mutex, INVOKE_EXPR_POOL_SIZE> locks;
+    std::array<std::mutex, EXPRESSION_POOL_SIZE> locks;
 
     //------------------------------------------
     // The following variables are shared across all pool entries

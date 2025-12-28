@@ -5,10 +5,7 @@ namespace Nebulite::Data {
 // ByteTree member implementations
 template<typename StoreType>
 std::shared_ptr<StoreType> ByteTree<StoreType>::at(uint32_t const& id) {
-    auto L3 = rootLayer.at(id);
-    auto L2 = L3->at(id);
-    auto L1 = L2->at(id);
-    return L1->at(id);
+    return rootLayer.at(id)->at(id)->at(id)->at(id);
 }
 
 template<typename StoreType>
@@ -16,7 +13,8 @@ void ByteTree<StoreType>::cleanup() {
     rootLayer.cleanup();
 }
 
-// Layer idToIndex implementations
+// Layer-dependent idToIndex implementations
+
 template<typename StoreType>
 size_t ByteTree<StoreType>::Layer1::idToIndex(uint32_t const& id) const {
     return static_cast<size_t>(id & 0xFF);

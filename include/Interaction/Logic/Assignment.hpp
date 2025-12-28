@@ -111,7 +111,7 @@ private:
     std::string value;
 
     // Activate threadsafe expression pool only if needed
-#if INVOKE_EXPR_POOL_SIZE > 1
+#if EXPRESSION_POOL_SIZE > 1
     /**
      * @brief The parsed expression in a thread-friendly Pool-Configuration
      */

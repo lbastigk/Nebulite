@@ -5,11 +5,9 @@
  * @define USE_BYTETREE_CONTAINER
  * @brief Define to use ByteTree as the internal container for listeners on rulesets.
  *        Set to 0 to use Abseil's node_hash_map instead.
- * @details Using ByteTree is a work in progress, and currently about half fast as node_hash_map.
- * @todo ByteTree may perform better once the entire container system is based on it.
- *       This way, locking mechanisms can be optimized for ByteTree usage.
+ * @details Using ByteTree is a work in progress, and currently about half fast as the hash map.
  */
-#define USE_BYTETREE_CONTAINER 1
+#define USE_BYTETREE_CONTAINER 0
 
 //------------------------------------------
 // Includes

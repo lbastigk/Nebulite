@@ -433,7 +433,7 @@ void Expression::parse(std::string const& expr, Data::JSON* self) {
     }
 
     // Calculate optimization flags in-expression only if pools are not used
-#if INVOKE_EXPR_POOL_SIZE == 1
+#if EXPRESSION_POOL_SIZE == 1
     _isReturnableAsDouble = recalculateIsReturnableAsDouble();
     _isAlwaysTrue = recalculateIsAlwaysTrue();
 #endif
