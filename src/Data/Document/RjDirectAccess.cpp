@@ -10,7 +10,7 @@
 
 // Nebulite
 #include "Nebulite.hpp"
-#include "Data/RjDirectAccess.hpp"
+#include "Data/Document/RjDirectAccess.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------

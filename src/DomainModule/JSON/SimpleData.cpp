@@ -1,5 +1,5 @@
 #include "Nebulite.hpp"
-#include "Data/JSON.hpp"
+#include "Data/Document/JSON.hpp"
 #include "DomainModule/JSON/SimpleData.hpp"
 
 namespace Nebulite::DomainModule::JSON {

@@ -26,9 +26,9 @@
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Interaction/Execution/Domain.hpp"
-#include "Data/JsonRvalueTransformer.hpp"
+#include "Data/Document/JsonRvalueTransformer.hpp"
+#include "Data/Document/RjDirectAccess.hpp"
 #include "Data/OrderedDoublePointers.hpp"
-#include "Data/RjDirectAccess.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

@@ -12,7 +12,7 @@
 #include "Nebulite.hpp"
 #include "Core/Environment.hpp"
 #include "Core/RenderObjectContainer.hpp"
-#include "Data/JSON.hpp"
+#include "Data/Document/JSON.hpp"
 
 //------------------------------------------
 

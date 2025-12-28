@@ -2,8 +2,8 @@
 // Includes
 
 #include "Nebulite.hpp"
-#include "Data/JSON.hpp"
-#include "Data/JsonRvalueTransformer.hpp"
+#include "Data/Document/JSON.hpp"
+#include "Data/Document/JsonRvalueTransformer.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

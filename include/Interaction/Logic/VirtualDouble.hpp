@@ -13,8 +13,8 @@
 // Includes
 
 // Nebulite
-#include "Data/DocumentCache.hpp"
-#include "Data/JSON.hpp"
+#include "Data/Document/DocumentCache.hpp"
+#include "Data/Document/JSON.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {

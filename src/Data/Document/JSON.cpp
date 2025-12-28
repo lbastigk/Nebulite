@@ -2,7 +2,7 @@
 
 #include "Nebulite.hpp"
 #include "Constants/ErrorTypes.hpp"
-#include "Data/JSON.hpp"
+#include "Data/Document/JSON.hpp"
 #include "DomainModule/Initializer.hpp"
 
 namespace Nebulite::Data {

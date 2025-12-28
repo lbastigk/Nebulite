@@ -6,7 +6,7 @@
 #include "Core/Renderer.hpp"
 #include "Core/Texture.hpp"
 #include "Core/RenderObject.hpp"
-#include "Data/JSON.hpp"
+#include "Data/Document/JSON.hpp"
 
 //------------------------------------------
 // DomainModules

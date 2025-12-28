@@ -4,7 +4,7 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
-#include "Data/JSON.hpp"
+#include "Data/Document/JSON.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "DomainModule/JSON/SimpleData.hpp"
 #include "Interaction/Rules/Ruleset.hpp"

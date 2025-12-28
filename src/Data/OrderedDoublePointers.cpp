@@ -1,5 +1,5 @@
+#include "Data/Document/JSON.hpp"
 #include "Data/OrderedDoublePointers.hpp"
-#include "Data/JSON.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
 
 namespace Nebulite::Data {

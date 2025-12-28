@@ -23,7 +23,7 @@
 // Nebulite
 #include "Core/Renderer.hpp"
 #include "Constants/ErrorTypes.hpp"
-#include "Data/DocumentCache.hpp"
+#include "Data/Document/DocumentCache.hpp"
 #include "Data/TaskQueue.hpp"
 #include "Interaction/Context.hpp"
 #include "Interaction/Invoke.hpp"

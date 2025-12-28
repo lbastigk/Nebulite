@@ -1,5 +1,5 @@
 #include "DomainModule/JSON/ComplexData.hpp"
-#include "Data/JSON.hpp"
+#include "Data/Document/JSON.hpp"
 
 #include "Nebulite.hpp"
 

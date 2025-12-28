@@ -3,7 +3,7 @@
 #include "Nebulite.hpp"
 #include "Core/GlobalSpace.hpp"
 #include "Core/RenderObject.hpp"
-#include "Data/JSON.hpp"
+#include "Data/Document/JSON.hpp"
 
 
 namespace Nebulite::Interaction::Logic {

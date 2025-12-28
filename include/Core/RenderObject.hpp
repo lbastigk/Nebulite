@@ -16,7 +16,7 @@
 // Nebulite
 #include "Constants/KeyNames.hpp"
 #include "Core/Texture.hpp"
-#include "Data/JSON.hpp"
+#include "Data/Document/JSON.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------

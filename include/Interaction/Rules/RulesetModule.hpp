@@ -17,7 +17,7 @@
 // External
 
 // Nebulite
-#include "Data/JSON.hpp"
+#include "Data/Document/JSON.hpp"
 #include "Data/OrderedDoublePointers.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 

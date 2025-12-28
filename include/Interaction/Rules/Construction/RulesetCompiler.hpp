@@ -11,8 +11,8 @@
 
 // Nebulite
 #include "Core/RenderObject.hpp"
-#include "Data/DocumentCache.hpp"
-#include "Data/JSON.hpp"
+#include "Data/Document/DocumentCache.hpp"
+#include "Data/Document/JSON.hpp"
 #include "Interaction/Logic/Assignment.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"

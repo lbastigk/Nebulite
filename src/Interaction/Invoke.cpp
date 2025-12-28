@@ -7,8 +7,8 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
-#include "Data/DocumentCache.hpp"
-#include "Data/JSON.hpp"
+#include "Data/Document/DocumentCache.hpp"
+#include "Data/Document/JSON.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Logic/Assignment.hpp"
 #include "Interaction/Rules/Ruleset.hpp"

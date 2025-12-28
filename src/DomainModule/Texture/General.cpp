@@ -2,7 +2,7 @@
 
 #include "Constants/KeyNames.hpp"
 #include "Core/Texture.hpp"
-#include "Data/JSON.hpp"
+#include "Data/Document/JSON.hpp"
 
 namespace Nebulite::DomainModule::Texture {
 

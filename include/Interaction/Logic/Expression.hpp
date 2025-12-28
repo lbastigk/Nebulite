@@ -19,7 +19,7 @@
 #include <tinyexpr.h>
 
 // Nebulite
-#include "Data/DocumentCache.hpp"
+#include "Data/Document/DocumentCache.hpp"
 #include "Data/RollingId.hpp"
 #include "Interaction/Context.hpp"
 #include "Interaction/Logic/VariableNameGenerator.hpp"

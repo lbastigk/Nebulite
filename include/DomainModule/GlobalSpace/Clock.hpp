@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
-#include "Data/JSON.hpp"
+#include "Data/Document/JSON.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
