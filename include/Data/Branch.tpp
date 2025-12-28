@@ -5,37 +5,43 @@
 namespace Nebulite::Data {
 
 template<typename StoreType, typename idType, std::size_t MaxBits>
-std::shared_ptr<StoreType> Branch<StoreType, idType, MaxBits>::at(idType const& id) {
-    std::size_t const index = idToIndex(id);
+std::shared_ptr<StoreType> Branch<StoreType, idType, MaxBits>::at(idType const& id){
+    const std::size_t index = idToIndex(id);
 
-    // Fast path: shared read lock — no resize or creation
+    // -------- Fast path: shared read --------
     {
         std::shared_lock<std::shared_mutex> slock(mutex);
+
         if (index < storage.size()) {
-            auto ptr = storage[index]; // safe while holding shared lock
+            auto ptr = storage[index];
             if (ptr) {
-                // mark accessed under a small dedicated lock to avoid upgrading the main lock
-                std::lock_guard<std::mutex> lg(accessedMutex);
-                wasAccessed[index] = true;
+                markAccessed(index);
                 return ptr;
             }
         }
     }
 
-    // Need to resize or create: acquire exclusive lock and re-check
+    // -------- Slow path: resize / create --------
+
+    // Create outside lock to minimize exclusive hold time
+    auto newObj = std::make_shared<StoreType>();
+
     {
         std::unique_lock<std::shared_mutex> ulock(mutex);
+
+        // Ensure storage is large enough
         if (storage.size() <= index) {
             storage.resize(index + 1);
-            wasAccessed.resize(index + 1);
         }
-        if (!storage[index]) {
-            storage[index] = std::make_shared<StoreType>();
+
+        // Another thread may have created it already
+        auto& slot = storage[index];
+        if (!slot) {
+            slot = std::move(newObj);
         }
-        // mark accessed under accessedMutex (consistent locking order: storage mutex then accessedMutex)
-        std::lock_guard<std::mutex> lg(accessedMutex);
-        wasAccessed[index] = true;
-        return storage[index];
+
+        markAccessed(index);
+        return slot;
     }
 }
 
@@ -44,7 +50,7 @@ void Branch<StoreType, idType, MaxBits>::cleanup()  {
     thread_local std::uniform_int_distribution<size_t> distribution(0, MaxSize - 1);
     size_t const index = distribution(randNum);
     std::scoped_lock lock(mutex);
-    if (index < storage.size() && !wasAccessed[index]) {
+    if (index < storage.size() && !wasAccessed(index)) {
         storage[index] = nullptr;
     }
 }
@@ -54,13 +60,13 @@ void Branch<StoreType, idType, MaxBits>::apply() {
     std::scoped_lock lock(mutex);
     size_t const n = storage.size();
     for (size_t i = 0; i < n; ++i) {
-        if (wasAccessed[i]) {
+        if (wasAccessed(i)) {   // Storage validity is guarenteed through ::at()
             storage[i]->apply();
         }
     }
 
     // Reset access tracking
-    std::fill(wasAccessed.begin(), wasAccessed.end(), false);
+    resetAccessed();
 }
 
 } // namespace Nebulite::Data

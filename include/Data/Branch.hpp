@@ -123,10 +123,33 @@ private:
     mutable std::shared_mutex mutex;
     mutable std::mutex accessedMutex;
 
-    template<typename T> using storageType = absl::InlinedVector<T, 4>;
+    // Storage array
+    template<typename T> using arr = absl::InlinedVector<T, 4>;
+    arr<std::shared_ptr<StoreType>> storage;
 
-    storageType<std::shared_ptr<StoreType>> storage;
-    storageType<bool> wasAccessed;
+    // Access array
+    static constexpr std::size_t AccessArraySize = (MaxSize + 63) / 64;
+    std::array<std::atomic<uint64_t>, AccessArraySize> accessArray{0};
+
+    void markAccessed(std::size_t index) {
+        std::size_t arrayIndex = index / 64;
+        std::size_t bitPosition = index % 64;
+        uint64_t mask = uint64_t(1) << bitPosition;
+        accessArray[arrayIndex].fetch_or(mask, std::memory_order_relaxed);
+    }
+
+    bool wasAccessed(std::size_t index) const {
+        std::size_t arrayIndex = index / 64;
+        std::size_t bitPosition = index % 64;
+        uint64_t mask = uint64_t(1) << bitPosition;
+        return (accessArray[arrayIndex].load(std::memory_order_relaxed) & mask) != 0;
+    }
+
+    void resetAccessed() {
+        for (auto& atomicVal : accessArray) {
+            atomicVal.store(0, std::memory_order_relaxed);
+        }
+    }
 };
 
 } // namespace Nebulite::Data
