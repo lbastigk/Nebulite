@@ -34,14 +34,14 @@ struct BroadCastListenPair {
     std::shared_ptr<Interaction::Rules::Ruleset> entry; // The Ruleset that was broadcasted
     Interaction::Execution::DomainBase* contextOther = nullptr; // The domain that listened to the Broadcast
 #if USE_BYTETREE_CONTAINER
-    // Apply function
+    // Apply function: ByteTree keeps track of active entries internally
     void apply() {
         entry->apply(contextOther);
     }
 #else
     bool active = false; // If false, this pair is skipped during update
 
-    // Apply function
+    // Apply function: Hash map version needs to check active flag
     void apply() {
         if (active) {
             entry->apply(contextOther);
