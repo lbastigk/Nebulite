@@ -21,6 +21,9 @@
 #include <type_traits>
 #include <vector>
 
+// External
+#include "absl/container/inlined_vector.h"
+
 //------------------------------------------
 
 namespace Nebulite::Data {
@@ -119,8 +122,11 @@ private:
 
     mutable std::shared_mutex mutex;
     mutable std::mutex accessedMutex;
-    std::vector<std::shared_ptr<StoreType>> storage;
-    std::vector<bool> wasAccessed;
+
+    template<typename T> using storageType = absl::InlinedVector<T, 4>;
+
+    storageType<std::shared_ptr<StoreType>> storage;
+    storageType<bool> wasAccessed;
 };
 
 } // namespace Nebulite::Data
