@@ -24,9 +24,9 @@ from typing import List, Dict, Tuple, Optional
 
 # Define the root commands for GlobalSpace and RenderObject
 # We simply need to add "help" to these commands to get the list of available functions/variables
-ROOT_GLOBALSPACE = "./bin/Nebulite <arg>"
-ROOT_RENDEROBJECT = "./bin/Nebulite draft parse <arg>"
-ROOT_JSON_TRANSFORMATIONS = "./bin/Nebulite eval nop {global.var|<arg>}"
+ROOT_GLOBALSPACE = "./bin/Nebulite --headless <arg>"
+ROOT_RENDEROBJECT = "./bin/Nebulite --headless draft parse <arg>"
+ROOT_JSON_TRANSFORMATIONS = "./bin/Nebulite --headless eval nop {global.var|<arg>}"
 
 # Output file for the generated documentation
 OUTPUT_FILE = "./doc/Commands.md"
@@ -180,6 +180,9 @@ def parse_command_list(help_output: str) -> Tuple[List[str], List[str]]:
             match = re.match(r'\s+([a-zA-Z0-9_-]+)\s+-\s+(.+)', line)
             if match:
                 name = match.group(1)
+                # Ignore internal completion entries
+                if "__complete__" in name:
+                    continue
                 if current_section == "functions":
                     functions.append(name)
                 elif current_section == "variables":
@@ -270,6 +273,10 @@ def process_command_recursively(base_command: str, command_name: str = "",
         for func in functions:
             # Skip 'help' function to avoid recursion
             if func == 'help':
+                continue
+
+            # Skip internal completion entries
+            if "__complete__" in func:
                 continue
 
             # For GlobalSpace, avoid exploring "draft parse" subcommands
