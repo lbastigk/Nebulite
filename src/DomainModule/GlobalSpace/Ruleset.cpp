@@ -13,7 +13,7 @@ Constants::Error Ruleset::update() {
 //------------------------------------------
 // Available Functions
 
-Constants::Error Ruleset::broadcast(std::span<std::string const> const args) {
+Constants::Error Ruleset::broadcast(std::span<std::string const> const& args) {
     if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -29,7 +29,7 @@ Constants::Error Ruleset::broadcast(std::span<std::string const> const args) {
     return Constants::ErrorTable::RULESET::CRITICAL_RULESET_PARSING_FAILED();
 }
 
-Constants::Error Ruleset::listen(std::span<std::string const> const args) {
+Constants::Error Ruleset::listen(std::span<std::string const> const& args) {
     if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

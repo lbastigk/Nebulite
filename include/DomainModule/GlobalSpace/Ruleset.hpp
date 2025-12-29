@@ -34,14 +34,14 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error broadcast(std::span<std::string const> const args);
+    Constants::Error broadcast(std::span<std::string const> const& args);
     static std::string_view constexpr broadcast_name = "ruleset broadcast";
     static std::string_view constexpr broadcast_desc = "Broadcasts a ruleset to its specified topic.\n"
         "Usage: broadcast <ruleset>\n"
         "\n"
         "- ruleset: The ruleset content to be broadcasted.";
 
-    Constants::Error listen(std::span<std::string const> const args);
+    Constants::Error listen(std::span<std::string const> const& args);
     static std::string_view constexpr listen_name = "ruleset listen";
     static std::string_view constexpr listen_desc = "Listens for rulesets on a specified topic.\n"
         "Usage: listen <topic>\n"
