@@ -25,7 +25,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
  * @class Nebulite::DomainModule::GlobalSpace::Debug_Domain_Collision_Detection
  * @brief DomainModule for debugging capabilities within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug_Domain_Collision_Detection) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, FunctionCollision) {
 public:
     Constants::Error update() override;
     void reinit() override {}
@@ -79,15 +79,15 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug_Domain_Collision_Detection) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, FunctionCollision) {
         // Bind the categories for the functions
         (void)bindCategory(debug_name,  debug_desc);
         (void)bindCategory(collisionDetect_name,  collisionDetect_desc);
 
         // Function bindings
-        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_function, debug_collisionDetect_function_name, debug_collisionDetect_function_desc);
-        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_category, debug_collisionDetect_category_name, debug_collisionDetect_category_desc);
-        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_variable, debug_collisionDetect_variable_name, debug_collisionDetect_variable_desc);
+        bindFunction(&FunctionCollision::debug_collisionDetect_function, debug_collisionDetect_function_name, debug_collisionDetect_function_desc);
+        bindFunction(&FunctionCollision::debug_collisionDetect_category, debug_collisionDetect_category_name, debug_collisionDetect_category_desc);
+        bindFunction(&FunctionCollision::debug_collisionDetect_variable, debug_collisionDetect_variable_name, debug_collisionDetect_variable_desc);
     }
 };
 } // namespace Nebulite::DomainModule::GlobalSpace

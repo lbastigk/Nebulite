@@ -1,8 +1,8 @@
-#include "DomainModule/GlobalSpace/Debug_Domain_Collision_Detection.hpp"
+#include "DomainModule/GlobalSpace/FunctionCollision.hpp"
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Constants::Error Debug_Domain_Collision_Detection::update() {
+Constants::Error FunctionCollision::update() {
     // No periodic update needed for this domain module
     return Constants::ErrorTable::NONE();
 }
@@ -11,7 +11,7 @@ Constants::Error Debug_Domain_Collision_Detection::update() {
 // Available Functions
 
 // NOLINTNEXTLINE
-Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_function(int argc, char const* argv[]) {
+Constants::Error FunctionCollision::debug_collisionDetect_function(int argc, char const* argv[]) {
     bool fail = true;
     if (argc >= 2) {
         if (std::string const mode = argv[1]; mode == "succeed") {
@@ -25,16 +25,16 @@ Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_functio
 
     if (fail) {
         // This will fail, as the function name is already registered in GlobalSpace
-        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_function, debug_collisionDetect_function_name, debug_collisionDetect_function_desc);
+        bindFunction(&FunctionCollision::debug_collisionDetect_function, debug_collisionDetect_function_name, debug_collisionDetect_function_desc);
     } else {
         // Try to bind a new function with a unique name
-        bindFunction(&Debug_Domain_Collision_Detection::debug_collisionDetect_function, "123456", debug_collisionDetect_function_desc);
+        bindFunction(&FunctionCollision::debug_collisionDetect_function, "123456", debug_collisionDetect_function_desc);
     }
     return Constants::ErrorTable::NONE();
 }
 
 // NOLINTNEXTLINE
-Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_category(int argc, char const* argv[]) {
+Constants::Error FunctionCollision::debug_collisionDetect_category(int argc, char const* argv[]) {
     bool fail = true;
     if (argc >= 2) {
         if (std::string const mode = argv[1]; mode == "succeed") {
@@ -69,7 +69,7 @@ Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_categor
 }
 
 // NOLINTNEXTLINE
-Constants::Error Debug_Domain_Collision_Detection::debug_collisionDetect_variable(int argc, char const* argv[]) {
+Constants::Error FunctionCollision::debug_collisionDetect_variable(int argc, char const* argv[]) {
     bool fail = true;
     if (argc >= 2) {
         if (std::string const mode = argv[1]; mode == "succeed") {

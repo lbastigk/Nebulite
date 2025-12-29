@@ -14,7 +14,7 @@
 // GlobalSpace
 #include "DomainModule/GlobalSpace/Clock.hpp"               // Clock management functions
 #include "DomainModule/GlobalSpace/Debug.hpp"               // Debugging and logging functions
-#include "DomainModule/GlobalSpace/Debug_Domain_Collision_Detection.hpp" // Special debugging utilities for domain collision detection
+#include "DomainModule/GlobalSpace/FunctionCollision.hpp"   // Special debugging utilities for domain collision detection
 #include "DomainModule/GlobalSpace/FeatureTest.hpp"         // Feature testing module
 #include "DomainModule/GlobalSpace/General.hpp"             // General functions like eval, exit, wait, etc.
 #include "DomainModule/GlobalSpace/Input.hpp"               // Input handling
@@ -57,7 +57,7 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
 
     //------------------------------------------
     // Special debugging utilities
-    target->initModule<Debug_Domain_Collision_Detection>("Global Debug Domain Collision Detection");
+    target->initModule<FunctionCollision>("Global Function Collision Detection utilities");
 
     //------------------------------------------
     // Feature Test Modules
