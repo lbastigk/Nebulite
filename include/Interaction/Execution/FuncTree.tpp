@@ -137,6 +137,7 @@ FuncTree<returnType, additionalArgs...>::FuncTree(std::string_view const& treeNa
 //------------------------------------------
 // Template comparison
 
+// TODO: Move to private part of FuncTree
 template <typename T> bool isEqual(T const& a, T const& b) {
     if constexpr (std::is_floating_point_v<T>) {
         // Consider EPSILON for floating point comparison

@@ -32,7 +32,7 @@ class Ruleset {
 public:
     //------------------------------------------
     // Make Entry non-copyable and non-movable
-    // All entries are local to their RenderObject
+    // All entries are local to their Domain
 
     Ruleset() = default;
     virtual ~Ruleset() = default;
@@ -56,7 +56,7 @@ public:
     [[nodiscard]] uint32_t const& getId() const { return id; }
 
     /**
-     * @brief Gets the index of the ruleset in the owning RenderObject's list of entries.
+     * @brief Gets the index of the ruleset in the owning Domain's list of entries.
      * @return The index of the ruleset, as const reference.
      */
     [[nodiscard]] uint32_t const& getIndex() const { return index; }
@@ -90,8 +90,8 @@ public:
     virtual bool evaluateCondition(Interaction::Execution::DomainBase const* other);
 
     /**
-     * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
-     * @return True if the ruleset is true in the context of its own RenderObject, false otherwise.
+     * @brief Checks if the ruleset is true in the context of its own Domain as other.
+     * @return True if the ruleset is true in the context of its own Domain, false otherwise.
      */
     virtual bool evaluateCondition();
 
@@ -102,7 +102,7 @@ public:
     virtual void apply(Interaction::Execution::DomainBase* contextOther);
 
     /**
-     * @brief Applies the ruleset to its own RenderObject as contextOther.
+     * @brief Applies the ruleset to its own Domain as context other.
      */
     virtual void apply();
 
@@ -113,7 +113,7 @@ protected:
     uint32_t id = 0;
 
     /**
-     * @brief The index of this entry in the list of entries of the owning RenderObject.
+     * @brief The index of this entry in the list of entries of the owning Domain.
      */
     uint32_t index = 0;
 
@@ -124,7 +124,7 @@ protected:
     bool _isGlobal = true;
 
     /**
-     * @brief Pointer to the RenderObject that owns this ruleset; the `self` domain.
+     * @brief Pointer to the Domain that owns this ruleset; the `self` domain.
      */
     Interaction::Execution::DomainBase* selfPtr = nullptr;
 
@@ -135,7 +135,7 @@ protected:
 
     /**
      * @brief The topic of the ruleset, used for routing and filtering in the broadcast-listen-model of the Invoke class.
-     * @details e.g. `gravity`, `hitbox`, `collision`. `all` is the default value. Any RenderObject should be subscribed to this topic.
+     * @details e.g. `gravity`, `hitbox`, `collision`. `all` is the default value. Any Domain listening should be subscribed to this topic.
      *          However, we are allowed to remove the topic listen `all` from any object, though it is not recommended.
      *          As an example, say we wish to implement a console feature to quickly remove any object.
      *          We can do so by sending an `ambassador` object that finds all other object at location (x,y) and deletes them.
@@ -154,7 +154,7 @@ class StaticRuleset : public Ruleset {
 public:
     //------------------------------------------
     // Make Entry non-copyable and non-movable
-    // All entries are local to their RenderObject
+    // All entries are local to their Domain
 
     StaticRuleset() = default;
     ~StaticRuleset() override = default;
@@ -180,9 +180,9 @@ public:
     bool evaluateCondition(Interaction::Execution::DomainBase const* other) override { (void)other ; return true; }
 
     /**
-     * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
+     * @brief Checks if the ruleset is true in the context of its own Domain as other.
      * @details For StaticRuleset, this always returns true.
-     * @return True if the ruleset is true in the context of its own RenderObject, false otherwise.
+     * @return True if the ruleset is true in the context of its own Domain, false otherwise.
      */
     bool evaluateCondition() override { return evaluateCondition(selfPtr); }
 
@@ -193,7 +193,7 @@ public:
     void apply(Interaction::Execution::DomainBase* contextOther) override ;
 
     /**
-     * @brief Applies the ruleset to its own RenderObject as contextOther.
+     * @brief Applies the ruleset to its own Domain as context other.
      */
     void apply() override { apply(selfPtr); }
 
@@ -209,7 +209,7 @@ class JsonRuleset : public Ruleset {
 public:
     //------------------------------------------
     // Make Entry non-copyable and non-movable
-    // All entries are local to their RenderObject
+    // All entries are local to their Domain
 
     JsonRuleset() = default;
     ~JsonRuleset() override = default;
@@ -234,8 +234,8 @@ public:
     bool evaluateCondition(Interaction::Execution::DomainBase const* other) override;
 
     /**
-     * @brief Checks if the ruleset is true in the context of its own RenderObject as otherObj.
-     * @return True if the ruleset is true in the context of its own RenderObject, false otherwise.
+     * @brief Checks if the ruleset is true in the context of its own Domain as otherObj.
+     * @return True if the ruleset is true in the context of its own Domain, false otherwise.
      */
     bool evaluateCondition() override { return evaluateCondition(selfPtr); }
 
@@ -246,7 +246,7 @@ public:
     void apply(Interaction::Execution::DomainBase* contextOther) override;
 
     /**
-     * @brief Applies the ruleset to its own RenderObject as contextOther.
+     * @brief Applies the ruleset to its own Domain as contextOther.
      */
     void apply() override { apply(selfPtr); }
 

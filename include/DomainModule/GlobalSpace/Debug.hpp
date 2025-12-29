@@ -1,5 +1,6 @@
 /**
  * @file Debug.hpp
+ * @brief Contains the declaration of the Debug DomainModule for the GlobalSpace domain.
  */
 
 #ifndef NEBULITE_GSDM_DEBUG_HPP
