@@ -12,13 +12,14 @@
 // DomainModules
 
 // GlobalSpace
-#include "DomainModule/GlobalSpace/FeatureTest.hpp"         // Feature testing module
-#include "DomainModule/GlobalSpace/Time.hpp"                // Basic Time management functions
 #include "DomainModule/GlobalSpace/Clock.hpp"               // Clock management functions
-#include "DomainModule/GlobalSpace/General.hpp"             // General functions like eval, exit, wait, etc.
 #include "DomainModule/GlobalSpace/Debug.hpp"               // Debugging and logging functions
-#include "DomainModule/GlobalSpace/Input.hpp"               // Input handling
 #include "DomainModule/GlobalSpace/Debug_Domain_Collision_Detection.hpp" // Special debugging utilities for domain collision detection
+#include "DomainModule/GlobalSpace/FeatureTest.hpp"         // Feature testing module
+#include "DomainModule/GlobalSpace/General.hpp"             // General functions like eval, exit, wait, etc.
+#include "DomainModule/GlobalSpace/Input.hpp"               // Input handling
+#include "DomainModule/GlobalSpace/Ruleset.hpp"             // Ruleset management
+#include "DomainModule/GlobalSpace/Time.hpp"                // Basic Time management functions
 
 // JSON
 #include "DomainModule/JSON/SimpleData.hpp"
@@ -52,6 +53,7 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     target->initModule<General>("Global General Functions");
     target->initModule<Debug>("Global Debug Functions");
     target->initModule<Input>("Global Input Functions");
+    target->initModule<Ruleset>("Global Ruleset Functions");
 
     //------------------------------------------
     // Special debugging utilities
