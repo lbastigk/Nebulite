@@ -25,6 +25,9 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     bindTransformationFunction(&JsonRvalueTransformer::length, lengthName, lengthDesc);
     bindTransformationFunction(&JsonRvalueTransformer::reverse, reverseName, reverseDesc);
 
+    // Functions: Assertions
+    bindTransformationFunction(&JsonRvalueTransformer::assertNonEmpty, assertNonEmptyName, assertNonEmptyDesc);
+
     // Functions: Casting
     bindTransformationFunction(&JsonRvalueTransformer::toInt, toIntName, toIntDesc);
     bindTransformationFunction(&JsonRvalueTransformer::toString, toStringName, toStringDesc);
@@ -172,6 +175,19 @@ bool JsonRvalueTransformer::reverse(std::span<std::string const> const& args, JS
         std::string const key = std::string(valueKey) + "[" + std::to_string(i) + "]";
         JSON element = tmp.getSubDoc("[" + std::to_string(arraySize - 1 - i) + "]");
         jsonDoc->setSubDoc(key.c_str(), element);
+    }
+    return true;
+}
+
+//------------------------------------------
+// Functions: Assertions
+
+bool JsonRvalueTransformer::assertNonEmpty(std::span<std::string const> const& args, JSON* jsonDoc) {
+    static std::string errorMessage = std::string(__FUNCTION__) + " JSON value is null";
+
+    if (jsonDoc->memberType(valueKey) == JSON::KeyType::null) {
+        throw std::runtime_error(errorMessage);
+        //return false;
     }
     return true;
 }

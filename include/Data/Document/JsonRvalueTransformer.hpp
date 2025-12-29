@@ -93,6 +93,15 @@ private:
     // TODO: dedupe, subarray, sort, sortby, pick, omit
 
     //------------------------------------------
+    // Functions: Assertions
+
+    bool assertNonEmpty(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string_view constexpr assertNonEmptyName = "assertNonEmpty";
+    static std::string_view constexpr assertNonEmptyDesc = "Asserts that the current JSON value is non-empty.\n"
+        "If the value is empty, the transformation fails and the program exits\n"
+        "Usage: |assertNonEmpty -> {value,<Exception thrown if empty>}";
+
+    //------------------------------------------
     // Functions: Casting
 
     bool toInt(std::span<std::string const> const& args, JSON* jsonDoc);
