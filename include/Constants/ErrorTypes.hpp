@@ -376,6 +376,17 @@ public:
         }
     };
 
+    /**
+     * @struct RULESET
+     * @brief Struct grouping Ruleset related errors.
+     */
+    struct RULESET {
+        static Error CRITICAL_RULESET_PARSING_FAILED() {
+            static Error error = addError("Critical Error: Ruleset parsing failed.", Error::CRITICAL);
+            return error;
+        }
+    };
+
     //------------------------------------------
     // Non-specific errors
 
