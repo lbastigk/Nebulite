@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sun Dec 28 19:15:55 CET 2025
+Generated on: Mon Dec 29 09:48:26 CET 2025
 
 ## Table of Contents
 
@@ -58,6 +58,7 @@ Available Functions
 | `push-front` | Push a value to the front of an array. |
 | `query` | Functions to manipulate JSON data via SQL query results |
 | `return` | Returns a custom value as a Critical Error. |
+| `ruleset` | Functions for managing rulesets in the GlobalSpace. |
 | `selected-object` | Functions to select and interact with a selected RenderObject |
 | `set` | Set a key to a value in the JSON document. |
 | `set-fps` | Set FPS of renderer. |
@@ -503,6 +504,20 @@ Outputs:
 We did not anticipate this happening, weird.
 Critical Error: We did not anticipate this happening, weird.
 ```
+
+#### `ruleset`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `broadcast` | Broadcasts a ruleset to its specified topic. |
+| `help` | Show available commands and their descriptions |
+| `listen` | Listens for rulesets on a specified topic. |
+
+##### `ruleset broadcast`
+
+##### `ruleset listen`
 
 #### `selected-object`
 
@@ -1041,7 +1056,7 @@ Usage: |map <function> -> {array}
 
 ```
 Calculates the modulo of the current JSON value by a numeric value.
-Usage: |mod <number>
+Usage: |mod <number> -> {number}
 ```
 
 #### `mul`

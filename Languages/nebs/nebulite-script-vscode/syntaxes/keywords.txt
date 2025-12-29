@@ -8,6 +8,7 @@ always-clear
 assert
 at
 beep
+broadcast
 cam
 clear
 collision-detect
@@ -41,6 +42,7 @@ json
 key
 keyDelete
 length
+listen
 load
 lock
 log

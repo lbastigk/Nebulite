@@ -23,7 +23,7 @@
     },
     {
       "name": "keyword.control.nebs",
-      "match": "\\b(collision-detect|selected-object|print-dst-rect|print-src-rect|reload-texture|set-background|texture-status|master-unlock|always-clear|ensure-array|feature-test|renderobject|set-fixed-dt|standardfile|typeAsNumber|typeAsString|update-text|--headless|input-wait|push-front|--recover|add-clock|halt-once|keyDelete|pop-front|push-back|critical|errorlog|functree|pop-back|show-fps|snapshot|toString|console|reverse|ruleset|set-fps|set-res|always|assert|delete|deload|global|length|mirror|reload|return|rotate|unlock|clear|crash|debug|draft|error|fetch|parse|print|query|spawn|state|toInt|beep|copy|echo|eval|exit|fill|help|json|load|lock|move|once|task|time|wait|warn|zoom|add|all|cam|env|for|get|key|log|map|mod|mul|nop|off|pow|set|at|if|on)\\b"
+      "match": "\\b(collision-detect|selected-object|print-dst-rect|print-src-rect|reload-texture|set-background|texture-status|master-unlock|always-clear|ensure-array|feature-test|renderobject|set-fixed-dt|standardfile|typeAsNumber|typeAsString|update-text|--headless|input-wait|push-front|--recover|add-clock|broadcast|halt-once|keyDelete|pop-front|push-back|critical|errorlog|functree|pop-back|show-fps|snapshot|toString|console|reverse|ruleset|set-fps|set-res|always|assert|delete|deload|global|length|listen|mirror|reload|return|rotate|unlock|clear|crash|debug|draft|error|fetch|parse|print|query|spawn|state|toInt|beep|copy|echo|eval|exit|fill|help|json|load|lock|move|once|task|time|wait|warn|zoom|add|all|cam|env|for|get|key|log|map|mod|mul|nop|off|pow|set|at|if|on)\\b"
     },
     {
       "name": "markup.underline.link",
