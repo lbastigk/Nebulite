@@ -10,7 +10,6 @@
 // Includes
 
 // Nebulite
-#include "Core/RenderObject.hpp"
 #include "Data/Document/DocumentCache.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Interaction/Logic/Assignment.hpp"
@@ -22,7 +21,7 @@ namespace Nebulite::Interaction::Rules::Construction {
 /**
  * @class RulesetCompiler
  * @brief Responsible for parsing compatible JSON documents into `Ruleset` structs.
- * @details A `Core::RenderObject` instance is required for context during parsing.
+ * @details A `Interaction::Execution::DomainBase` instance is required for context during parsing.
  *          It's field `invokes` holds the relevant invoke information.
  * @todo Idea for Invoke ruleset overwrites:
  *       In addition, add the field "overwrites" to the JSON doc.
@@ -52,26 +51,26 @@ public:
     using AnyRuleset = std::variant<std::monostate, std::shared_ptr<StaticRuleset>, std::shared_ptr<JsonRuleset>>;
 
     /**
-     * @brief Parses a JSON encoded set of Invoke Entries inside a RenderObject into Ruleset objects.
+     * @brief Parses a JSON encoded set of Invoke Entries inside a Domain into Ruleset objects.
      * @param rulesetsGlobal The global Ruleset objects.
      * @param rulesetsLocal The local Ruleset objects.
-     * @param self The RenderObject instance associated with the entries.
+     * @param self The Domain instance associated with the entries.
      */
     static void parse(
         std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal,
         std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal,
-        Core::RenderObject* self
+        Interaction::Execution::DomainBase* self
         );
 
     /**
-     * @brief Parses a single Ruleset from a JSON key inside a RenderObject or a static ruleset identifier.
-     * @param identifier The key of the Ruleset entry in the RenderObject's JSON document, or a static ruleset identifier.
-     * @param self The RenderObject instance associated with the entry.
+     * @brief Parses a single Ruleset from a JSON key inside a Domain or a static ruleset identifier.
+     * @param identifier The key of the Ruleset entry in the Domain's JSON document, or a static ruleset identifier.
+     * @param self The Domain instance associated with the entry.
      * @return An optional shared pointer to the parsed Ruleset object, or std::nullopt if parsing failed.
      */
     static std::optional<std::shared_ptr<Ruleset>> parseSingle(
         std::string const& identifier,
-        Core::RenderObject* self
+        Interaction::Execution::DomainBase* self
         );
 
 private:
@@ -79,12 +78,12 @@ private:
      * @brief Extracts function calls from a JSON entry document.
      * @param entryDoc The JSON document containing the entry.
      * @param Ruleset The Ruleset object to populate with function calls.
-     * @param self The RenderObject instance associated with the entry.
+     * @param self The Domain instance associated with the entry.
      */
     static void getFunctionCalls(
         Data::JSON& entryDoc,
         JsonRuleset& Ruleset,
-        Core::RenderObject const* self
+        Interaction::Execution::DomainBase const* self
         );
 
     /**
@@ -133,31 +132,31 @@ private:
      * @brief Extracts a Ruleset from a JSON document or static ruleset identifier.
      * @param doc The JSON document containing the entry.
      * @param key The key of the entry in the document.
-     * @param self The RenderObject instance associated with the entry.
+     * @param self The Domain instance associated with the entry.
      * @return An optional shared pointer to the parsed Ruleset object, or std::monostate if parsing failed.
      */
     static AnyRuleset getRuleset(
         Data::JSON& doc,
         std::string const& key,
-        Core::RenderObject* self
+        Interaction::Execution::DomainBase* self
         );
 
     /**
      * @brief Optimizes a Ruleset by linking direct target pointers.
      * @details Potentially modifying self and global by registering stable double pointers.
      * @param entry The Ruleset object to optimize.
-     * @param self The RenderObject instance associated with the entries.
+     * @param self The Domain instance associated with the entries.
      */
     static void optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JSON* self);
 
     /**
      * @brief Sets metadata in the object itself and in each Ruleset entry, including IDs, indices, and estimated computational cost.
-     * @param self The RenderObject that owns the entries.
+     * @param self The Domain that owns the entries.
      * @param rulesetsLocal The local Ruleset objects.
      * @param rulesetsGlobal The global Ruleset objects.
      */
     static void setMetaData(
-        Nebulite::Core::RenderObject* self,
+        Interaction::Execution::DomainBase* self,
         std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsLocal,
         std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsGlobal
         );

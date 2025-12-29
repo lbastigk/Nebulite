@@ -4,7 +4,7 @@
 
 namespace Nebulite::Interaction::Rules::Construction {
 
-void RulesetCompiler::getFunctionCalls(Data::JSON& entryDoc, JsonRuleset& Ruleset, Core::RenderObject const* self) {
+void RulesetCompiler::getFunctionCalls(Data::JSON& entryDoc, JsonRuleset& Ruleset, Interaction::Execution::DomainBase const* self) {
     // Get function calls: GLOBAL, SELF, OTHER
     if (entryDoc.memberType(Constants::KeyNames::Invoke::functioncalls_global) == Data::JSON::KeyType::array) {
         size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Invoke::functioncalls_global);
@@ -174,7 +174,7 @@ bool RulesetCompiler::getJsonRuleset(Data::JSON& doc, Data::JSON& entry, std::st
 }
 
 void RulesetCompiler::setMetaData(
-    Nebulite::Core::RenderObject* self,
+    Nebulite::Interaction::Execution::DomainBase* self,
     std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsLocal,
     std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsGlobal
     ) {
@@ -196,7 +196,7 @@ void RulesetCompiler::setMetaData(
     }
 }
 
-void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal, std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal, Core::RenderObject* self) {
+void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal, std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal, Interaction::Execution::DomainBase* self) {
     // Clean up existing entries - shared pointers will automatically handle cleanup
     rulesetsGlobal.clear();
     rulesetsLocal.clear();
@@ -285,7 +285,7 @@ void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Data::
     }
 }
 
-RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JSON& doc, std::string const& key, Core::RenderObject* self) {
+RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JSON& doc, std::string const& key, Interaction::Execution::DomainBase* self) {
     Data::JSON entry;
     if (!getJsonRuleset(doc, entry, key)) {
         // See if it's a static ruleset
@@ -337,7 +337,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JSON& doc, std::st
     return Ruleset;
 }
 
-std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string const& identifier, Core::RenderObject* self) {
+std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string const& identifier, Interaction::Execution::DomainBase* self) {
     Data::JSON tempDoc;
     tempDoc.set("", identifier);
     auto rs = getRuleset(tempDoc, "", self);
