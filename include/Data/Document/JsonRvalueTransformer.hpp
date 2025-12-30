@@ -42,26 +42,23 @@ private:
 
     //------------------------------------------
     // Functions: Arithmetic
+    // TODO: For all arithmetic functions: using multiple numbers should output array?
 
-    // TODO: using multiple numbers should output array?
     bool add(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string_view constexpr addName = "add";
     static std::string_view constexpr addDesc = "Adds a numeric value to the current JSON value.\n"
         "Usage: |add <number1> <number2> ... -> {number}";
 
-    // TODO: using multiple numbers should output array?
     bool mod(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string_view constexpr modName = "mod";
     static std::string_view constexpr modDesc = "Calculates the modulo of the current JSON value by a numeric value.\n"
         "Usage: |mod <number> -> {number}";
 
-    // TODO: using multiple numbers should output array?
     bool multiply(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string_view constexpr multiplyName = "mul";
     static std::string_view constexpr multiplyDesc = "Multiplies the current JSON value by a numeric value.\n"
         "Usage: |multiply <number1> <number2> ...";
 
-    // TODO: using multiple numbers should output array?
     bool pow(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string_view constexpr powName = "pow";
     static std::string_view constexpr powDesc = "Raises the current JSON value to the power of a numeric value.\n"
@@ -69,6 +66,12 @@ private:
 
     //------------------------------------------
     // Functions: Array-related
+
+    bool ensureArray(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string_view constexpr ensureArrayName = "ensureArray";
+    static std::string_view constexpr ensureArrayDesc = "Ensures the current JSON value is an array.\n"
+        "If the current value is not an array, it is wrapped into a single-element array.\n"
+        "Usage: |ensureArray -> {array}";
 
     bool at(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string_view constexpr atName = "at";
@@ -87,9 +90,21 @@ private:
         "If the current value is not an array, it is first wrapped into a single-element array.\n"
         "Usage: |reverse -> {array}";
 
+    bool first(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string_view constexpr firstName = "first";
+    static std::string_view constexpr firstDesc = "Gets the first element of the array in the current JSON value.\n"
+        "If the current value is not an array, it is first wrapped into a single-element array.\n"
+        "Usage: |first -> {value}";
+
+    bool last(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string_view constexpr lastName = "last";
+    static std::string_view constexpr lastDesc = "Gets the last element of the array in the current JSON value.\n"
+        "If the current value is not an array, it is first wrapped into a single-element array.\n"
+        "Usage: |last -> {value}";
+
     // TODO: push, pop, insert, remove, clear, etc.
     //       but first, add these functionalities to JSON class
-    // TODO: first, last
+
     // TODO: dedupe, subarray, sort, sortby, pick, omit
 
     //------------------------------------------
@@ -110,14 +125,32 @@ private:
         "Never fails, defaults to 0 if the provided value is non-numeric.\n"
         "Usage: |toInt -> {number}";
 
+    // TODO: complicated casting for string to anything via serialization
     bool toString(std::span<std::string const> const& args, JSON* jsonDoc);
     static std::string_view constexpr toStringName = "toString";
     static std::string_view constexpr toStringDesc = "Converts the current JSON value to a string.\n"
         "Never fails, defaults to an empty string if no conversion is possible.\n"
         "Usage: |toString -> {string}";
 
-    // TODO: toBool, toDouble, fallback (if input is empty, set to provided value), etc.
-    // TODO: complicated casting for string to anything via serialization
+    bool toBool(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string_view constexpr toBoolName = "toBool";
+    static std::string_view constexpr toBoolDesc = "Converts the current JSON value to a boolean.\n"
+        "Usage: |toBool -> {bool}\n"
+        "'true' values: true, 1, '1', 'true', 'yes', 'on' (case-insensitive)\n"
+        "'false' values: false, 0, '0', 'false', 'no', 'off' (case-insensitive)\n"
+        "Any other value defaults to false.";
+
+    bool toDouble(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string_view constexpr toDoubleName = "toDouble";
+    static std::string_view constexpr toDoubleDesc = "Converts the current JSON value to a double.\n"
+        "Usage: |toDouble -> {number}\n"
+        "Non-numeric values default to 0.0.";
+
+    bool toBoolString(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string_view constexpr toBoolStringName = "toBoolString";
+    static std::string_view constexpr toBoolStringDesc = "Converts the current JSON value to a boolean string.\n"
+        "Usage: |toBoolString -> {string}\n"
+        "'true' or 'false'";
 
     //------------------------------------------
     // Functions: Collection
@@ -135,7 +168,15 @@ private:
         "If the current value is not an array, it is first wrapped into a single-element array.\n"
         "Usage: |map <function> -> {array}";
 
-    // TODO: get <key>
+    bool get(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string_view constexpr getName = "get";
+    static std::string_view constexpr getDesc = "Gets the value at the specified key from the current JSON object.\n"
+        "Usage: |get <key> -> {value}";
+
+    bool getMultiple(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string_view constexpr getMultipleName = "getMultiple";
+    static std::string_view constexpr getMultipleDesc = "Gets multiple values at the specified keys from the current JSON object.\n"
+        "Usage: |getMultiple <key1> <key2> ... -> {array of values}";
 
     //------------------------------------------
     // Functions: Debugging
@@ -149,6 +190,14 @@ private:
     static std::string_view constexpr printName = "print";
     static std::string_view constexpr printDesc = "Prints the current JSON value to the console.\n"
         "Usage: |print";
+
+    //------------------------------------------
+    // Functions: Domain
+
+    bool nebs(std::span<std::string const> const& args, JSON* jsonDoc);
+    static std::string_view constexpr nebsName = "nebs";
+    static std::string_view constexpr nebsDesc = "Parses a Nebulite Script command on the JSON\n"
+        "Usage: |nebs <command> -> {value}";
 
     //------------------------------------------
     // Functions: Statistics
