@@ -107,31 +107,38 @@ template <typename returnType, typename... additionalArgs>
 FuncTree<returnType, additionalArgs...>::FuncTree(std::string_view const& treeName, returnType const& valDefault, returnType const& valFunctionNotFound)
     : TreeName(std::move(treeName)),
       standardReturn{valDefault, valFunctionNotFound} {
-    // construct the help entry in-place to avoid assignment and ambiguous lambda conversions
+
+    // Add help function for displaying help information
     bindingContainer.functions.emplace(
         helpName,
         FunctionInfo{
-            std::function<returnType(std::span<std::string const> const&, additionalArgs...)>(
-                [this](std::span<std::string const> const& args, additionalArgs... rest) {
-                    return this->help(args, std::forward<additionalArgs>(rest)...);
-                }
-                ),
+            FunctionPtr(
+                std::in_place_type<SpanFnConstRefNoAddArgs>,
+                std::function<returnType(std::span<std::string const> const&)>(
+                    [this](std::span<std::string const> const& args) {
+                        return this->help(args);
+                    }
+                )
+            ),
             helpDesc
         }
-        );
+    );
 
     // Add __complete__ function for command completion
     bindingContainer.functions.emplace(
         "__complete__",
         FunctionInfo{
-            std::function<returnType(std::span<std::string const> const&, additionalArgs...)>(
-                [this](std::span<std::string const> const& args, additionalArgs... rest) {
-                    return this->complete(args, std::forward<additionalArgs>(rest)...);
-                }
-                ),
+            FunctionPtr(
+                std::in_place_type<SpanFnConstRefNoAddArgs>,
+                std::function<returnType(std::span<std::string const> const&)>(
+                    [this](std::span<std::string const> const& args) {
+                        return this->complete(args);
+                    }
+                )
+            ),
             completeDesc
         }
-        );
+    );
 }
 
 //------------------------------------------
@@ -292,10 +299,17 @@ void FuncTree<returnType, additionalArgs...>::directBind(std::string_view const&
         using MethodType = std::decay_t<MethodPointer>;
 
         // See if the method pointer is a modernized function
+        bool constexpr isModernNoAddArgs = std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs)>
+                                        || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs) const>;
+        bool constexpr isModernRefArgsNoAdd = std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgsConstRef)>
+                                       || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgsConstRef) const>;
+
         bool constexpr isModern = std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs, additionalArgs...)>
-                                  || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs, additionalArgs...) const>;
+                               || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs, additionalArgs...) const>;
         bool constexpr isModernRefArgs = std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgsConstRef, additionalArgs...)>
-                                         || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgsConstRef, additionalArgs...) const>;
+                                      || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgsConstRef, additionalArgs...) const>;
+
+
 
         // Legacy Bindings, not supporting additionalArgs at the moment
         if constexpr (std::is_same_v<MethodType, returnType (ClassType::*)(int, char**)>) {
@@ -322,6 +336,20 @@ void FuncTree<returnType, additionalArgs...>::directBind(std::string_view const&
            });
         }
 
+        // Modern Bindings, no additionalArgs
+        else if constexpr (isModernNoAddArgs || isModernRefArgsNoAdd) {
+            bindingContainer.functions.emplace(
+                name,
+                FunctionInfo{
+               std::function<returnType(std::span<std::string const>)>(
+                   [obj, methodPointer](std::span<std::string const> args) {
+                       return (obj->*methodPointer)(args);
+                   }
+                   ),
+               helpDescription
+           });
+        }
+
         // Modern Bindings, allow additionalArgs...
         else if constexpr (isModern || isModernRefArgs) {
             bindingContainer.functions.emplace(
@@ -335,6 +363,7 @@ void FuncTree<returnType, additionalArgs...>::directBind(std::string_view const&
                helpDescription
            });
         }
+
         // 5.) Unsupported method pointer type
         else {
             bindErrorMessage::UnknownMethodPointerType(TreeName, name);
@@ -487,6 +516,12 @@ returnType FuncTree<returnType, additionalArgs...>::executeFunction(std::string 
             else if constexpr (std::is_same_v<T, NoBaseArgsFn>) {
                 return func(addArgs...);
             }
+            else if constexpr (std::is_same_v<T, SpanFnNoAddArgs> || std::is_same_v<T, SpanFnConstRefNoAddArgs>) {
+                return func(args);
+            }
+            else if constexpr (std::is_same_v<T, NoArgsFn>) {
+                return func();
+            }
             // Unknown function type
             else {
                 Nebulite::Utility::Capture::cerr() << "Error: Unknown function signature for function '" << function << "' in FuncTree '" << TreeName << "'." << Nebulite::Utility::Capture::endl;
@@ -571,13 +606,13 @@ inline auto caseInsensitiveLess = [](auto const& a, auto const& b) {
 } // namespace SortFunctions
 
 template <typename returnType, typename... additionalArgs>
-returnType FuncTree<returnType, additionalArgs...>::help(std::span<std::string const> const& args, additionalArgs... addArgs) {
+returnType FuncTree<returnType, additionalArgs...>::help(std::span<std::string const> const& args) {
     //------------------------------------------
     // Case 1: Detailed help for a specific function, category or variable
     if (args.size() > 1) {
         // Call specific help for each argument, except the first one (which is the binary name or last function name)
         for (auto const& arg : args.subspan(1)) {
-            specificHelp(arg, addArgs...);
+            specificHelp(arg);
         }
         return standardReturn.valDefault;
     }
@@ -589,7 +624,7 @@ returnType FuncTree<returnType, additionalArgs...>::help(std::span<std::string c
 }
 
 template <typename returnType, typename... additionalArgs>
-void FuncTree<returnType, additionalArgs...>::specificHelp(std::string const& funcName, additionalArgs... addArgs) {
+void FuncTree<returnType, additionalArgs...>::specificHelp(std::string const& funcName) {
     if (BindingSearchResult const searchResult = find(funcName); searchResult.any) {
         // 1.) Function
         if (searchResult.function) {
@@ -600,7 +635,7 @@ void FuncTree<returnType, additionalArgs...>::specificHelp(std::string const& fu
         // 2.) Category
         else if (searchResult.category) {
             // Found category, display detailed help
-            searchResult.catIt->second.tree->help({}, addArgs...); // Display all functions in the category
+            searchResult.catIt->second.tree->help({}); // Display all functions in the category
         }
         // 3.) Variable
         else if (searchResult.variable) {
@@ -701,7 +736,7 @@ FuncTree<returnType, additionalArgs...>::find(std::string const& name) {
 }
 
 template <typename returnValue, typename ... additionalArgs>
-returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::string const> const& args, additionalArgs... addArgs){
+returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::string const> const& args){
     auto argsSpan = args.subspan(1); // Skip binary name or last function name
     FuncTree<returnValue, additionalArgs...>* ftree = this;
     while (argsSpan.size() > 1) {

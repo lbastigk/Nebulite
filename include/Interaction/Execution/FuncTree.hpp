@@ -92,19 +92,38 @@ public:
     // canonical span function type (no reference-qualified std::function)
     using SpanArgs = std::span<std::string const>;
     using SpanArgsConstRef = std::span<std::string const> const&;
+
+    // Functions
     using SpanFn = std::function<returnValue (SpanArgs, additionalArgs...)>;
     using SpanFnConstRef = std::function<returnValue (SpanArgsConstRef, additionalArgs...)>;
+    using SpanFnNoAddArgs = std::function<returnValue (SpanArgs)>;
+    using SpanFnConstRefNoAddArgs = std::function<returnValue (SpanArgsConstRef)>;
     using NoBaseArgsFn = std::function<returnValue (additionalArgs...)>;
+    using NoArgsFn = std::function<returnValue ()>;
 
     // Function pointer type
-    using FunctionPtr = std::variant<
-        // Legacy (goal is to rewrite all functions to modern style, so we can remove these eventually)
-        std::function<returnValue (int, char**)>,
-        std::function<returnValue (int, char const**)>,
-        // Modern
-        SpanFn,
-        SpanFnConstRef,
-        NoBaseArgsFn
+    using FunctionPtr = std::conditional_t<
+        (sizeof...(additionalArgs) == 0),
+        // no additional args -> avoid duplicates (keep only no-add variants)
+        std::variant<
+            std::function<returnValue (int, char**)>,
+            std::function<returnValue (int, char const**)>,
+            SpanFnNoAddArgs,
+            SpanFnConstRefNoAddArgs,
+            NoBaseArgsFn, // becomes NoArgsFn
+            NoArgsFn
+        >,
+        // with additional args -> include full set
+        std::variant<
+            std::function<returnValue (int, char**)>,
+            std::function<returnValue (int, char const**)>,
+            SpanFn,
+            SpanFnConstRef,
+            SpanFnNoAddArgs,
+            SpanFnConstRefNoAddArgs,
+            NoBaseArgsFn,
+            NoArgsFn
+        >
     >;
 
     /**
@@ -113,19 +132,46 @@ public:
 
     // Function pointer with class type
     template <typename ClassType>
-    using MemberMethod = std::variant<
-        // Legacy
-        returnValue (ClassType::*)(int, char**),
-        returnValue (ClassType::*)(int, char const**),
-        // Modern
-        returnValue (ClassType::*)(SpanArgs, additionalArgs...),
-        returnValue (ClassType::*)(SpanArgs, additionalArgs...) const,
-        returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...),
-        returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...) const,
+    using MemberMethod = std::conditional_t<
+        (sizeof...(additionalArgs) == 0),
+        // no additional args
+        std::variant<
+            // Legacy
+            returnValue (ClassType::*)(int, char**),
+            returnValue (ClassType::*)(int, char const**),
 
-        // Modern: No Args
-        returnValue (ClassType::*)(additionalArgs...),
-        returnValue (ClassType::*)(additionalArgs...) const
+            // Modern: No additionalArgs variants only (no trailing pack)
+            returnValue (ClassType::*)(SpanArgs),
+            returnValue (ClassType::*)(SpanArgs) const,
+            returnValue (ClassType::*)(SpanArgsConstRef),
+            returnValue (ClassType::*)(SpanArgsConstRef) const,
+
+            // No base args => becomes returnValue (ClassType::*)()
+            returnValue (ClassType::*)(),
+            returnValue (ClassType::*)() const
+        >,
+        // with additional args
+        std::variant<
+            // Legacy
+            returnValue (ClassType::*)(int, char**),
+            returnValue (ClassType::*)(int, char const**),
+
+            // Modern: Full Args (with additionalArgs...)
+            returnValue (ClassType::*)(SpanArgs, additionalArgs...),
+            returnValue (ClassType::*)(SpanArgs, additionalArgs...) const,
+            returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...),
+            returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...) const,
+
+            // Modern: No Additional Args overloads (still allowed)
+            returnValue (ClassType::*)(SpanArgs),
+            returnValue (ClassType::*)(SpanArgs) const,
+            returnValue (ClassType::*)(SpanArgsConstRef),
+            returnValue (ClassType::*)(SpanArgsConstRef) const,
+
+            // Modern: No Base Args (additionalArgs... only)
+            returnValue (ClassType::*)(additionalArgs...),
+            returnValue (ClassType::*)(additionalArgs...) const
+        >
     >;
 
     //------------------------------------------
@@ -319,8 +365,9 @@ private:
 
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
+     * @return The standard return value.
      */
-    returnValue help(std::span<std::string const> const& args, additionalArgs... addArgs);
+    returnValue help(std::span<std::string const> const& args);
 
     /**
      * @brief Retrieves a list of all functions and their descriptions.
@@ -349,7 +396,7 @@ private:
     /**
      * @brief Displays detailed help for a specific function, category, or variable.
      */
-    void specificHelp(std::string const& funcName, additionalArgs... addArgs);
+    void specificHelp(std::string const& funcName);
 
     /**
      * @struct BindingSearchResult
@@ -462,10 +509,9 @@ private:
      * @brief Provides command completion suggestions based on the current arguments.
      * @details Prints possible completions to stdout.
      * @param args A list of arguments to complete
-     * @param addArgs Additional arguments
-     * @return A returnValue containing completion suggestions
+     * @return The standard return value.
      */
-    returnValue complete(std::span<std::string const> const& args, additionalArgs... addArgs);
+    returnValue complete(std::span<std::string const> const& args);
 
     /**
      * @brief Finds possible completions for a given pattern and prefix in the current FuncTree.
