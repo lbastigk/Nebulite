@@ -94,6 +94,7 @@ public:
     using SpanArgsConstRef = std::span<std::string const> const&;
     using SpanFn = std::function<returnValue (SpanArgs, additionalArgs...)>;
     using SpanFnConstRef = std::function<returnValue (SpanArgsConstRef, additionalArgs...)>;
+    using NoBaseArgsFn = std::function<returnValue (additionalArgs...)>;
 
     // Function pointer type
     using FunctionPtr = std::variant<
@@ -102,7 +103,8 @@ public:
         std::function<returnValue (int, char const**)>,
         // Modern
         SpanFn,
-        SpanFnConstRef
+        SpanFnConstRef,
+        NoBaseArgsFn
     >;
 
     /**
@@ -119,7 +121,11 @@ public:
         returnValue (ClassType::*)(SpanArgs, additionalArgs...),
         returnValue (ClassType::*)(SpanArgs, additionalArgs...) const,
         returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...),
-        returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...) const
+        returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...) const,
+
+        // Modern: No Args
+        returnValue (ClassType::*)(additionalArgs...),
+        returnValue (ClassType::*)(additionalArgs...) const
     >;
 
     //------------------------------------------

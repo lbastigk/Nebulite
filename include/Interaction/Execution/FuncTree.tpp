@@ -484,6 +484,9 @@ returnType FuncTree<returnType, additionalArgs...>::executeFunction(std::string 
             else if constexpr (std::is_same_v<T, SpanFn> || std::is_same_v<T, SpanFnConstRef>) {
                 return func(args, addArgs...);
             }
+            else if constexpr (std::is_same_v<T, NoBaseArgsFn>) {
+                return func(addArgs...);
+            }
             // Unknown function type
             else {
                 Nebulite::Utility::Capture::cerr() << "Error: Unknown function signature for function '" << function << "' in FuncTree '" << TreeName << "'." << Nebulite::Utility::Capture::endl;
