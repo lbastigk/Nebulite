@@ -88,41 +88,45 @@ public:
 
     //------------------------------------------
     // Important types
-
-    // canonical span function type (no reference-qualified std::function)
     using SpanArgs = std::span<std::string const>;
     using SpanArgsConstRef = std::span<std::string const> const&;
 
-    // Functions
-    using SpanFn = std::function<returnValue (SpanArgs, additionalArgs...)>;
-    using SpanFnConstRef = std::function<returnValue (SpanArgsConstRef, additionalArgs...)>;
-    using SpanFnNoAddArgs = std::function<returnValue (SpanArgs)>;
-    using SpanFnConstRefNoAddArgs = std::function<returnValue (SpanArgsConstRef)>;
-    using NoBaseArgsFn = std::function<returnValue (additionalArgs...)>;
-    using NoArgsFn = std::function<returnValue ()>;
+    struct SupportedFunctions {
+        struct Legacy {
+            using IntChar = std::function<returnValue(int, char**)>;
+            using IntConstChar = std::function<returnValue(int, char const**)>;
+        };
+
+        struct Modern {
+            using Full = std::function<returnValue(SpanArgs, additionalArgs...)>;
+            using FullConstRef = std::function<returnValue(SpanArgsConstRef, additionalArgs...)>;
+            using NoAddArgs = std::function<returnValue(SpanArgs)>;
+            using NoAddArgsConstRef = std::function<returnValue(SpanArgsConstRef)>;
+            using NoCmdArgs = std::function<returnValue(additionalArgs...)>;
+            using NoArgs = std::function<returnValue()>;
+        };
+    };
 
     // Function pointer type
     using FunctionPtr = std::conditional_t<
         (sizeof...(additionalArgs) == 0),
         // no additional args -> avoid duplicates (keep only no-add variants)
         std::variant<
-            std::function<returnValue (int, char**)>,
-            std::function<returnValue (int, char const**)>,
-            SpanFnNoAddArgs,
-            SpanFnConstRefNoAddArgs,
-            NoBaseArgsFn, // becomes NoArgsFn
-            NoArgsFn
+            typename SupportedFunctions::Legacy::IntChar,
+            typename SupportedFunctions::Legacy::IntConstChar,
+            typename SupportedFunctions::Modern::NoAddArgs,
+            typename SupportedFunctions::Modern::NoAddArgsConstRef,
+            typename SupportedFunctions::Modern::NoArgs
         >,
         // with additional args -> include full set
         std::variant<
-            std::function<returnValue (int, char**)>,
-            std::function<returnValue (int, char const**)>,
-            SpanFn,
-            SpanFnConstRef,
-            SpanFnNoAddArgs,
-            SpanFnConstRefNoAddArgs,
-            NoBaseArgsFn,
-            NoArgsFn
+            typename SupportedFunctions::Legacy::IntChar,
+            typename SupportedFunctions::Legacy::IntConstChar,
+            typename SupportedFunctions::Modern::Full,
+            typename SupportedFunctions::Modern::FullConstRef,
+            typename SupportedFunctions::Modern::NoAddArgs,
+            typename SupportedFunctions::Modern::NoAddArgsConstRef,
+            typename SupportedFunctions::Modern::NoCmdArgs
         >
     >;
 

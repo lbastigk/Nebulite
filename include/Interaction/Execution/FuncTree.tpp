@@ -103,8 +103,8 @@ namespace Nebulite::Interaction::Execution {
 //------------------------------------------
 // Constructor implementation
 
-template <typename returnType, typename... additionalArgs>
-FuncTree<returnType, additionalArgs...>::FuncTree(std::string_view const& treeName, returnType const& valDefault, returnType const& valFunctionNotFound)
+template <typename returnValue, typename... additionalArgs>
+FuncTree<returnValue, additionalArgs...>::FuncTree(std::string_view const& treeName, returnValue const& valDefault, returnValue const& valFunctionNotFound)
     : TreeName(std::move(treeName)),
       standardReturn{valDefault, valFunctionNotFound} {
 
@@ -113,8 +113,8 @@ FuncTree<returnType, additionalArgs...>::FuncTree(std::string_view const& treeNa
         helpName,
         FunctionInfo{
             FunctionPtr(
-                std::in_place_type<SpanFnConstRefNoAddArgs>,
-                std::function<returnType(std::span<std::string const> const&)>(
+                std::in_place_type<typename SupportedFunctions::Modern::NoAddArgsConstRef>,
+                std::function<returnValue(std::span<std::string const> const&)>(
                     [this](std::span<std::string const> const& args) {
                         return this->help(args);
                     }
@@ -129,8 +129,8 @@ FuncTree<returnType, additionalArgs...>::FuncTree(std::string_view const& treeNa
         "__complete__",
         FunctionInfo{
             FunctionPtr(
-                std::in_place_type<SpanFnConstRefNoAddArgs>,
-                std::function<returnType(std::span<std::string const> const&)>(
+                std::in_place_type<typename SupportedFunctions::Modern::NoAddArgsConstRef>,
+                std::function<returnValue(std::span<std::string const> const&)>(
                     [this](std::span<std::string const> const& args) {
                         return this->complete(args);
                     }
@@ -158,9 +158,9 @@ template <typename T> bool isEqual(T const& a, T const& b) {
 //------------------------------------------
 // Binding (Functions, Categories, Variables)
 
-template <typename returnType, typename... additionalArgs>
+template <typename returnValue, typename... additionalArgs>
 template <typename ClassType>
-void FuncTree<returnType, additionalArgs...>::bindFunction(
+void FuncTree<returnValue, additionalArgs...>::bindFunction(
     ClassType* obj,
     MemberMethod<ClassType> method,
     std::string_view const& name,
@@ -193,8 +193,8 @@ void FuncTree<returnType, additionalArgs...>::bindFunction(
     }
 }
 
-template <typename returnType, typename... additionalArgs>
-bool FuncTree<returnType, additionalArgs...>::bindCategory(std::string_view const& name, std::string_view const& helpDescription) {
+template <typename returnValue, typename... additionalArgs>
+bool FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view const& name, std::string_view const& helpDescription) {
     if (bindingContainer.categories.find(std::string(name)) != bindingContainer.categories.end()) {
         // Category already exists
         /**
@@ -236,9 +236,9 @@ bool FuncTree<returnType, additionalArgs...>::bindCategory(std::string_view cons
 
 // Using noLint, as varPtr would be flagged as it's not const.
 // But this causes issues with binding variables.
-template <typename returnType, typename... additionalArgs>
+template <typename returnValue, typename... additionalArgs>
 // NOLINTNEXTLINE
-void FuncTree<returnType, additionalArgs...>::bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription) {
+void FuncTree<returnValue, additionalArgs...>::bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription) {
     // Make sure there are no whitespaces in the variable name
     if (name.find(' ') != std::string::npos) {
         Nebulite::Utility::Capture::cerr() << "Error: Variable name '" << name << "' cannot contain whitespaces." << Nebulite::Utility::Capture::endl;
@@ -258,8 +258,8 @@ void FuncTree<returnType, additionalArgs...>::bindVariable(bool* varPtr, std::st
 //------------------------------------------
 // Binding helper functions
 
-template <typename returnType, typename... additionalArgs>
-bool FuncTree<returnType, additionalArgs...>::conflictCheck(std::string_view const& name) {
+template <typename returnValue, typename... additionalArgs>
+bool FuncTree<returnValue, additionalArgs...>::conflictCheck(std::string_view const& name) {
     for (auto const& [categoryName, _] : bindingContainer.categories) {
         if (categoryName == name) {
             bindErrorMessage::FunctionShadowsCategory(name);
@@ -291,82 +291,97 @@ bool FuncTree<returnType, additionalArgs...>::conflictCheck(std::string_view con
     return true;
 }
 
-template <typename returnType, typename... additionalArgs>
+namespace {
+template <typename returnValue, typename args, typename... additionalArgs>
+struct unsupported_method_pointer_type {};
+}
+
+
+template <typename returnValue, typename... additionalArgs>
 template <typename ClassType>
-void FuncTree<returnType, additionalArgs...>::directBind(std::string_view const& name, std::string_view const& helpDescription, MemberMethod<ClassType> method, ClassType* obj) {
+void FuncTree<returnValue, additionalArgs...>::directBind(std::string_view const& name, std::string_view const& helpDescription, MemberMethod<ClassType> method, ClassType* obj) {
     // Use std::visit to bind the correct function type
     std::visit([&]<typename MethodPointer>(MethodPointer&& methodPointer) {
         using MethodType = std::decay_t<MethodPointer>;
 
-        // See if the method pointer is a modernized function
-        bool constexpr isModernNoAddArgs = std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs)>
-                                        || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs) const>;
-        bool constexpr isModernRefArgsNoAdd = std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgsConstRef)>
-                                       || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgsConstRef) const>;
+        // Detect method pointer shapes
+        bool constexpr isLegacyIntChar = std::is_same_v<MethodType, returnValue (ClassType::*)(int, char**)>;
+        bool constexpr isLegacyIntConstChar = std::is_same_v<MethodType, returnValue (ClassType::*)(int, char const**)>;
+        bool constexpr isModernNoAddArgs = std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgs)>
+                                        || std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgs) const>;
+        bool constexpr isModernRefArgsNoAdd = std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgsConstRef)>
+                                           || std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgsConstRef) const>;
+        bool constexpr isModern = std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgs, additionalArgs...)>
+                               || std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgs, additionalArgs...) const>;
+        bool constexpr isModernRefArgs = std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...)>
+                                      || std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...) const>;
 
-        bool constexpr isModern = std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs, additionalArgs...)>
-                               || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgs, additionalArgs...) const>;
-        bool constexpr isModernRefArgs = std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgsConstRef, additionalArgs...)>
-                                      || std::is_same_v<MethodType, returnType (ClassType::*)(SpanArgsConstRef, additionalArgs...) const>;
-
-
-
-        // Legacy Bindings, not supporting additionalArgs at the moment
-        if constexpr (std::is_same_v<MethodType, returnType (ClassType::*)(int, char**)>) {
+        auto emplaceFn = [&]<typename FnType>(auto&& callable) {
             bindingContainer.functions.emplace(
                 name,
                 FunctionInfo{
-               std::function<returnType(int, char**)>(
-                   [obj, methodPointer](int argc, char** argv) {
-                       return (obj->*methodPointer)(argc, argv);
-                   }
-                   ),
-               helpDescription
-           });
-        } else if constexpr (std::is_same_v<MethodType, returnType (ClassType::*)(int, char const**)>) {
-            bindingContainer.functions.emplace(
-                name,
-                FunctionInfo{
-               std::function<returnType(int, char const**)>(
-                   [obj, methodPointer](int argc, char const** argv) {
-                       return (obj->*methodPointer)(argc, argv);
-                   }
-                   ),
-               helpDescription
-           });
+                    FunctionPtr(FnType(std::forward<decltype(callable)>(callable))),
+                    helpDescription
+                }
+            );
+        };
+
+
+        // 1) Legacy int/char**
+        if constexpr (isLegacyIntChar) {
+            emplaceFn.template operator()<typename SupportedFunctions::Legacy::IntChar>(
+                [obj, methodPointer](int argc, char** argv) {
+                    return (obj->*methodPointer)(argc, argv);
+                }
+            );
+        }
+        // 2) Legacy int, char const**
+        else if constexpr (isLegacyIntConstChar) {
+            emplaceFn.template operator()<typename SupportedFunctions::Legacy::IntConstChar>(
+                [obj, methodPointer](int argc, char const** argv) {
+                    return (obj->*methodPointer)(argc, argv);
+                }
+            );
         }
 
-        // Modern Bindings, no additionalArgs
-        else if constexpr (isModernNoAddArgs || isModernRefArgsNoAdd) {
-            bindingContainer.functions.emplace(
-                name,
-                FunctionInfo{
-               std::function<returnType(std::span<std::string const>)>(
-                   [obj, methodPointer](std::span<std::string const> args) {
-                       return (obj->*methodPointer)(args);
-                   }
-                   ),
-               helpDescription
-           });
+        // 3) Modern no additional args - by-value span
+        else if constexpr (isModernNoAddArgs) {
+            emplaceFn.template operator()<typename SupportedFunctions::Modern::NoAddArgs>(
+                [obj, methodPointer](SpanArgs args) {
+                    return (obj->*methodPointer)(args);
+                }
+            );
+        }
+        // 4) Modern no additional args - span const& variant
+        else if constexpr (isModernRefArgsNoAdd) {
+            emplaceFn.template operator()<typename SupportedFunctions::Modern::NoAddArgsConstRef>(
+                [obj, methodPointer](SpanArgsConstRef args) {
+                    return (obj->*methodPointer)(args);
+                }
+            );
         }
 
-        // Modern Bindings, allow additionalArgs...
-        else if constexpr (isModern || isModernRefArgs) {
-            bindingContainer.functions.emplace(
-                name,
-                FunctionInfo{
-               std::function<returnType(std::span<std::string const>, additionalArgs...)>(
-                   [obj, methodPointer](std::span<std::string const> args, additionalArgs... rest) {
-                       return (obj->*methodPointer)(args, std::forward<additionalArgs>(rest)...);
-                   }
-                   ),
-               helpDescription
-           });
+        // 5) Modern with additionalArgs... - by-value span
+        else if constexpr (isModern) {
+            emplaceFn.template operator()<typename SupportedFunctions::Modern::Full>(
+                [obj, methodPointer](SpanArgs args, additionalArgs... rest) {
+                    return (obj->*methodPointer)(args, std::forward<additionalArgs>(rest)...);
+                }
+            );
         }
-
-        // 5.) Unsupported method pointer type
+        // 6) Modern with additionalArgs... - span const& variant
+        else if constexpr (isModernRefArgs) {
+            emplaceFn.template operator()<typename SupportedFunctions::Modern::FullConstRef>(
+                [obj, methodPointer](SpanArgsConstRef args, additionalArgs... rest) {
+                    return (obj->*methodPointer)(args, std::forward<additionalArgs>(rest)...);
+                }
+            );
+        }
+        // 8) Unsupported method pointer type
         else {
-            bindErrorMessage::UnknownMethodPointerType(TreeName, name);
+            // Use a template so we can see the type in the error message
+            unsupported_method_pointer_type<returnValue, MethodType, additionalArgs...> _;
+            //bindErrorMessage::UnknownMethodPointerType(TreeName, name);
         }
     }, method);
 }
@@ -374,8 +389,8 @@ void FuncTree<returnType, additionalArgs...>::directBind(std::string_view const&
 //------------------------------------------
 // Getter
 
-template <typename returnType, typename... additionalArgs>
-std::vector<std::pair<std::string, std::string_view>> FuncTree<returnType, additionalArgs...>::getAllFunctions() {
+template <typename returnValue, typename... additionalArgs>
+std::vector<std::pair<std::string, std::string_view>> FuncTree<returnValue, additionalArgs...>::getAllFunctions() {
     std::vector<std::pair<std::string, std::string_view>> allFunctions;
     for (auto const& [name, info] : bindingContainer.functions) {
         allFunctions.emplace_back(name, info.description);
@@ -398,8 +413,8 @@ std::vector<std::pair<std::string, std::string_view>> FuncTree<returnType, addit
     return allFunctions;
 }
 
-template <typename returnType, typename... additionalArgs>
-std::vector<std::pair<std::string, std::string_view>> FuncTree<returnType, additionalArgs...>::getAllVariables() {
+template <typename returnValue, typename... additionalArgs>
+std::vector<std::pair<std::string, std::string_view>> FuncTree<returnValue, additionalArgs...>::getAllVariables() {
     std::vector<std::pair<std::string, std::string_view>> allVariables;
     for (auto const& [name, info] : bindingContainer.variables) {
         allVariables.emplace_back(name, info.description);
@@ -421,8 +436,8 @@ std::vector<std::pair<std::string, std::string_view>> FuncTree<returnType, addit
 //------------------------------------------
 // Parsing and execution
 
-template <typename returnType, typename... additionalArgs>
-returnType FuncTree<returnType, additionalArgs...>::parseStr(std::string const& cmd, additionalArgs... addArgs) {
+template <typename returnValue, typename... additionalArgs>
+returnValue FuncTree<returnValue, additionalArgs...>::parseStr(std::string const& cmd, additionalArgs... addArgs) {
     // Quote-aware tokenization
     std::vector<std::string> tokens = Utility::StringHandler::parseQuotedArguments(cmd);
 
@@ -477,11 +492,11 @@ returnType FuncTree<returnType, additionalArgs...>::parseStr(std::string const& 
     return executeFunction(funcName, static_cast<int>(argc), argv, tokensSpan, addArgs...);
 }
 
-template <typename returnType, typename... additionalArgs>
-returnType FuncTree<returnType, additionalArgs...>::executeFunction(std::string const& name, int argc, char** argv, std::span<std::string const> const& args, additionalArgs... addArgs) {
+template <typename returnValue, typename... additionalArgs>
+returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::string const& name, int argc, char** argv, std::span<std::string const> const& args, additionalArgs... addArgs) {
     // Call preParse function if set
     if (preParse != nullptr) {
-        if (returnType err = preParse(); !isEqual(err, standardReturn.valDefault)) {
+        if (returnValue err = preParse(); !isEqual(err, standardReturn.valDefault)) {
             return err; // Return error if preParse failed
         }
     }
@@ -499,10 +514,10 @@ returnType FuncTree<returnType, additionalArgs...>::executeFunction(std::string 
             using T = std::decay_t<Func>;
 
             // Legacy function types
-            if constexpr (std::is_same_v<T, std::function<returnType(int, char**)>>) {
+            if constexpr (std::is_same_v<T, std::function<returnValue(int, char**)>>) {
                 // Convert to argc/argv
                 return func(argc, argv);
-            } else if constexpr (std::is_same_v<T, std::function<returnType(int, char const**)>>) {
+            } else if constexpr (std::is_same_v<T, std::function<returnValue(int, char const**)>>) {
                 // Convert char** to char const**
                 std::vector<char const*> argv_const(static_cast<size_t>(argc));
                 for (size_t i = 0; i < static_cast<size_t>(argc); ++i)
@@ -510,16 +525,16 @@ returnType FuncTree<returnType, additionalArgs...>::executeFunction(std::string 
                 return func(argc, argv_const.data());
             }
             // Modern function types
-            else if constexpr (std::is_same_v<T, SpanFn> || std::is_same_v<T, SpanFnConstRef>) {
+            else if constexpr (std::is_same_v<T, typename SupportedFunctions::Modern::Full> || std::is_same_v<T, typename SupportedFunctions::Modern::FullConstRef>) {
                 return func(args, addArgs...);
             }
-            else if constexpr (std::is_same_v<T, NoBaseArgsFn>) {
+            else if constexpr (std::is_same_v<T, typename SupportedFunctions::Modern::NoCmdArgs>) {
                 return func(addArgs...);
             }
-            else if constexpr (std::is_same_v<T, SpanFnNoAddArgs> || std::is_same_v<T, SpanFnConstRefNoAddArgs>) {
+            else if constexpr (std::is_same_v<T, typename SupportedFunctions::Modern::NoAddArgs> || std::is_same_v<T, typename SupportedFunctions::Modern::NoAddArgsConstRef>) {
                 return func(args);
             }
-            else if constexpr (std::is_same_v<T, NoArgsFn>) {
+            else if constexpr (std::is_same_v<T, typename SupportedFunctions::Modern::NoArgs>) {
                 return func();
             }
             // Unknown function type
@@ -549,8 +564,8 @@ returnType FuncTree<returnType, additionalArgs...>::executeFunction(std::string 
     return standardReturn.valFunctionNotFound; // Return error if function not found
 }
 
-template <typename returnType, typename... additionalArgs>
-bool FuncTree<returnType, additionalArgs...>::hasFunction(std::string_view const& nameOrCommand) {
+template <typename returnValue, typename... additionalArgs>
+bool FuncTree<returnValue, additionalArgs...>::hasFunction(std::string_view const& nameOrCommand) {
     // Make sure only the command name is used
     std::vector<std::string> tokens = Utility::StringHandler::split(nameOrCommand, ' ');
 
@@ -605,8 +620,8 @@ inline auto caseInsensitiveLess = [](auto const& a, auto const& b) {
 };
 } // namespace SortFunctions
 
-template <typename returnType, typename... additionalArgs>
-returnType FuncTree<returnType, additionalArgs...>::help(std::span<std::string const> const& args) {
+template <typename returnValue, typename... additionalArgs>
+returnValue FuncTree<returnValue, additionalArgs...>::help(std::span<std::string const> const& args) {
     //------------------------------------------
     // Case 1: Detailed help for a specific function, category or variable
     if (args.size() > 1) {
@@ -623,8 +638,8 @@ returnType FuncTree<returnType, additionalArgs...>::help(std::span<std::string c
     return standardReturn.valDefault;
 }
 
-template <typename returnType, typename... additionalArgs>
-void FuncTree<returnType, additionalArgs...>::specificHelp(std::string const& funcName) {
+template <typename returnValue, typename... additionalArgs>
+void FuncTree<returnValue, additionalArgs...>::specificHelp(std::string const& funcName) {
     if (BindingSearchResult const searchResult = find(funcName); searchResult.any) {
         // 1.) Function
         if (searchResult.function) {
@@ -648,8 +663,8 @@ void FuncTree<returnType, additionalArgs...>::specificHelp(std::string const& fu
     }
 }
 
-template <typename returnType, typename... additionalArgs>
-void FuncTree<returnType, additionalArgs...>::generalHelp() {
+template <typename returnValue, typename... additionalArgs>
+void FuncTree<returnValue, additionalArgs...>::generalHelp() {
     // Padding size for names
     // '<name padded> - <description>'
     uint16_t constexpr namePaddingSize = 25;
@@ -689,9 +704,9 @@ void FuncTree<returnType, additionalArgs...>::generalHelp() {
     });
 }
 
-template <typename returnType, typename... additionalArgs>
-FuncTree<returnType, additionalArgs...>::BindingSearchResult
-FuncTree<returnType, additionalArgs...>::find(std::string const& name) {
+template <typename returnValue, typename... additionalArgs>
+FuncTree<returnValue, additionalArgs...>::BindingSearchResult
+FuncTree<returnValue, additionalArgs...>::find(std::string const& name) {
     BindingSearchResult result;
 
     // Helper lambda to search in inherited trees
