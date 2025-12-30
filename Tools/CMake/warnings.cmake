@@ -77,7 +77,7 @@ function(configure_warnings target_name)
                 -Wno-ctad-maybe-unsupported
                 -Wno-padded
                 -Wno-exit-time-destructors
-                -Wno-unused-parameter # Too many false positives due to funcTree bindings. FuncTree needs ability to bind functions with no arg parameters.
+                #-Wno-unused-parameter # Too many false positives due to funcTree bindings. FuncTree needs ability to bind functions with no arg parameters.
                 -Wno-reserved-identifier # False positives with struct _SDL_Haptic
                 -Wno-covered-switch-default # False positives with enums used as flags where default is used to catch new enum values
                 # TODO: Make sure no SDL-Errors are caught, then re-enable:
