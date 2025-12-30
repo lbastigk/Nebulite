@@ -289,6 +289,14 @@ public:
     void setSubDoc(std::string_view key, JSON& child) { setSubDoc(std::string(key).c_str(), child); }
 
     /**
+     * @brief Copies the entire content from another JSON document into this one.
+     * @param other The other JSON document to copy from.
+     */
+    void copyFrom(JSON& other) {
+        setSubDoc("", other);
+    }
+
+    /**
      * @brief Sets an empty array in the JSON document.
      *        This function sets an empty array in the JSON document.
      *        If the key already exists, the array is updated.
