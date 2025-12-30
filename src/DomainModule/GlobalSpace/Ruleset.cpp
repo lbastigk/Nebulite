@@ -20,7 +20,6 @@ Constants::Error Ruleset::broadcast(std::span<std::string const> const& args) {
     if (args.size() > 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-
     auto rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(args[1], domain);
     if (rs.has_value()) {
         domain->getInvoke().broadcast(rs.value());
@@ -36,9 +35,9 @@ Constants::Error Ruleset::listen(std::span<std::string const> const& args) {
     if (args.size() > 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-
-    domain->getInvoke().listen(domain, args[1], 0); // TODO: Listener ID zero reserved for GlobalSpace?
-
+    // TODO: Is Listener ID zero properly reserved for GlobalSpace?
+    //       create a proper static object id handler with an enum for reserved ids?
+    domain->getInvoke().listen(domain, args[1], 0);
     return Constants::ErrorTable::FUNCTIONAL::FEATURE_NOT_IMPLEMENTED();
 }
 
