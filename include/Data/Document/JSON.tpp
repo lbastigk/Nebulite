@@ -97,6 +97,86 @@ namespace ConverterHelper {
         }
     }
 
+    inline uint8_t stringToUInt8(std::string const& stored, uint8_t const& defaultValue){
+        //if (stored == "true") return 1;
+        //if (stored == "false") return 0;
+        try {
+            return static_cast<uint8_t>(std::stoul(stored));
+        } catch (...){
+            return defaultValue;
+        }
+    }
+
+    inline int8_t stringToInt8(std::string const& stored, int8_t const& defaultValue){
+        //if (stored == "true") return 1;
+        //if (stored == "false") return 0;
+        try {
+            return static_cast<int8_t>(std::stol(stored));
+        } catch (...){
+            return defaultValue;
+        }
+    }
+
+    inline uint16_t stringToUInt16(std::string const& stored, uint16_t const& defaultValue){
+        //if (stored == "true") return 1;
+        //if (stored == "false") return 0;
+        try {
+            return static_cast<uint16_t>(std::stoul(stored));
+        } catch (...){
+            return defaultValue;
+        }
+    }
+
+    inline int16_t stringToInt16(std::string const& stored, int16_t const& defaultValue){
+        //if (stored == "true") return 1;
+        //if (stored == "false") return 0;
+        try {
+            return static_cast<int16_t>(std::stol(stored));
+        } catch (...){
+            return defaultValue;
+        }
+    }
+
+    inline uint32_t stringToUInt32(std::string const& stored, uint32_t const& defaultValue){
+        //if (stored == "true") return 1;
+        //if (stored == "false") return 0;
+        try {
+            return static_cast<uint32_t>(std::stoul(stored));
+        } catch (...){
+            return defaultValue;
+        }
+    }
+
+    inline int32_t stringToInt32(std::string const& stored, int32_t const& defaultValue){
+        //if (stored == "true") return 1;
+        //if (stored == "false") return 0;
+        try {
+            return static_cast<int32_t>(std::stol(stored));
+        } catch (...){
+            return defaultValue;
+        }
+    }
+
+    inline uint64_t stringToUInt64(std::string const& stored, uint64_t const& defaultValue){
+        //if (stored == "true") return 1;
+        //if (stored == "false") return 0;
+        try {
+            return static_cast<uint64_t>(std::stoull(stored));
+        } catch (...){
+            return defaultValue;
+        }
+    }
+
+    inline int64_t stringToInt64(std::string const& stored, int64_t const& defaultValue){
+        //if (stored == "true") return 1;
+        //if (stored == "false") return 0;
+        try {
+            return static_cast<int64_t>(std::stoll(stored));
+        } catch (...){
+            return defaultValue;
+        }
+    }
+
     inline double stringToDouble(std::string const& stored, double const& defaultValue){
         //if (stored == "true") return 1.0;
         //if (stored == "false") return 0.0;
@@ -120,6 +200,11 @@ namespace ConverterHelper {
     }
 } // namespace ConverterHelper
 
+namespace {
+template <typename From, typename To>
+struct unsupported_conversion;
+}
+
 template<typename newType>
 newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue){
     return std::visit([&]<typename T>(T const& stored)
@@ -127,38 +212,74 @@ newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType con
         // Removing all qualifiers (const, volatile, references, etc.)
         using StoredT = std::decay_t<decltype(stored)>;
 
-        // [DIRECT]
-        // Directly cast if types are convertible
-        if constexpr (std::is_same_v<StoredT, newType>) {
-            return stored;
+        // [DOUBLE] -> [BOOL]
+        // First, as static_cast doesnt work well for this conversion
+        if constexpr (std::is_same_v<StoredT, double> && std::is_same_v<newType, bool>){
+            return std::fabs(stored) > std::numeric_limits<double>::epsilon();
         }
-        if constexpr (std::is_convertible_v<StoredT, newType>){
+
+        // Basic direct conversions
+        else if constexpr (std::is_convertible_v<StoredT, newType>){
             return static_cast<newType>(stored);
         }
 
         // [STRING] -> [BOOL]
         // Handle string to bool
-        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, bool>){
+        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, bool>){
             return ConverterHelper::stringToBool(stored, defaultValue);
         }
 
+        // [STRING] -> [INT]
+        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int>){
+            return ConverterHelper::stringToInt(stored, defaultValue);
+        }
+        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, uint8_t>){
+            return ConverterHelper::stringToUInt8(stored, defaultValue);
+        }
+        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int8_t>){
+            return ConverterHelper::stringToInt8(stored, defaultValue);
+        }
+        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, uint16_t>){
+            return ConverterHelper::stringToUInt16(stored, defaultValue);
+        }
+        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int16_t>){
+            return ConverterHelper::stringToInt16(stored, defaultValue);
+        }
+        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, uint32_t>){
+            return ConverterHelper::stringToUInt32(stored, defaultValue);
+        }
+        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int32_t>){
+            return ConverterHelper::stringToInt32(stored, defaultValue);
+        }
+        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, uint64_t>){
+            return ConverterHelper::stringToUInt64(stored, defaultValue);
+        }
+        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int64_t>){
+            return ConverterHelper::stringToInt64(stored, defaultValue);
+        }
+
         // [STRING] -> [DOUBLE]
-        if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, double>){
+        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, double>){
             return ConverterHelper::stringToDouble(stored, defaultValue);
         }
 
         // [ARITHMETIC] -> [STRING]
-        if constexpr (std::is_arithmetic_v<StoredT> && std::is_same_v<newType, std::string>){
+        else if constexpr (std::is_arithmetic_v<StoredT> && std::is_same_v<newType, std::string>){
             return std::to_string(stored);
         }
 
         //------------------------------------------
         // [ERROR] Unsupported conversion
-        //static_assert(std::is_same_v<StoredT, newType>, "Unsupported conversion in JSON::convertVariant");
-        std::string const oldTypeName = abi::__cxa_demangle(typeid(stored).name(), nullptr, nullptr, nullptr);
-        std::string const newTypeName = abi::__cxa_demangle(typeid(newType).name(), nullptr, nullptr, nullptr);
-        ConverterHelper::convertVariantErrorMessage(oldTypeName, newTypeName);
-        return defaultValue;
+        else {
+            unsupported_conversion<StoredT, newType> error;
+            return defaultValue; // unreachable, but keeps the compiler happy
+
+            // Old runtime error message
+            //std::string constexpr oldTypeName = abi::__cxa_demangle(typeid(stored).name(), nullptr, nullptr, nullptr);
+            //std::string constexpr newTypeName = abi::__cxa_demangle(typeid(newType).name(), nullptr, nullptr, nullptr);
+            //ConverterHelper::convertVariantErrorMessage(oldTypeName, newTypeName);
+            //return defaultValue;
+        }
     },
     var);
 }
