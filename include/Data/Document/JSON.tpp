@@ -129,6 +129,9 @@ newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType con
 
         // [DIRECT]
         // Directly cast if types are convertible
+        if constexpr (std::is_same_v<StoredT, newType>) {
+            return stored;
+        }
         if constexpr (std::is_convertible_v<StoredT, newType>){
             return static_cast<newType>(stored);
         }
@@ -151,6 +154,7 @@ newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType con
 
         //------------------------------------------
         // [ERROR] Unsupported conversion
+        //static_assert(std::is_same_v<StoredT, newType>, "Unsupported conversion in JSON::convertVariant");
         std::string const oldTypeName = abi::__cxa_demangle(typeid(stored).name(), nullptr, nullptr, nullptr);
         std::string const newTypeName = abi::__cxa_demangle(typeid(newType).name(), nullptr, nullptr, nullptr);
         ConverterHelper::convertVariantErrorMessage(oldTypeName, newTypeName);
