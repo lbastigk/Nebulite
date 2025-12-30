@@ -132,7 +132,7 @@ private:
         "Never fails, defaults to an empty string if no conversion is possible.\n"
         "Usage: |toString -> {string}";
 
-    bool toBool(std::span<std::string const> const& args, JSON* jsonDoc);
+    bool toBool(JSON* jsonDoc);
     static std::string_view constexpr toBoolName = "toBool";
     static std::string_view constexpr toBoolDesc = "Converts the current JSON value to a boolean.\n"
         "Usage: |toBool -> {bool}\n"
