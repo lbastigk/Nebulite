@@ -53,7 +53,7 @@ public:
         "- off: Deactivates error logging, reverting to standard error output.\n"
         "Note: Ensure you have write permissions in the working directory when activating error logging.";
 
-    Constants::Error clearConsole(int argc, char** argv);
+    Constants::Error clearConsole();
     static std::string_view constexpr clearConsole_name = "clear";
     static std::string_view constexpr clearConsole_desc = "Clears the console screen.\n"
         "Usage: clear\n"
@@ -116,9 +116,9 @@ public:
         "\n"
         "Note: This function pauses execution until the user presses Enter";
 
-    Constants::Error standardfile_renderobject(int argc, char** argv);
-    static std::string_view constexpr standardfile_renderobject_name = "standardfile renderobject";
-    static std::string_view constexpr standardfile_renderobject_desc = "Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.\n"
+    Constants::Error standardfileRenderobject();
+    static std::string_view constexpr standardfileRenderobject_name = "standardfile renderobject";
+    static std::string_view constexpr standardfileRenderobject_desc = "Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.\n"
         "Usage: standardfile renderobject\n"
         "\n"
         "Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.";
@@ -157,7 +157,7 @@ public:
         bindFunction(&Debug::log_state, log_state_name, log_state_desc);
 
         (void)bindCategory(standardfile_name, standardfile_desc);
-        bindFunction(&Debug::standardfile_renderobject, standardfile_renderobject_name, standardfile_renderobject_desc);
+        bindFunction(&Debug::standardfileRenderobject, standardfileRenderobject_name, standardfileRenderobject_desc);
     }
 
 private:

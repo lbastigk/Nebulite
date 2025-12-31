@@ -12,13 +12,7 @@ Constants::Error General::update() {
 }
 
 // NOLINTNEXTLINE
-Constants::Error General::reloadTexture(int argc, char** argv) {
-    // Check for correct number of arguments
-    if (argc != 1) {
-        // Only the command itself should be present
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
-    }
-
+Constants::Error General::reloadTexture() {
     // Load new texture from the document
     auto const path = domain->getDoc()->get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "");
     if (path.empty()) {

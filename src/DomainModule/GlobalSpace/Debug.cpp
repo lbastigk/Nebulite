@@ -141,7 +141,7 @@ Constants::Error Debug::log_state(int argc, char** argv) {
 }
 
 // NOLINTNEXTLINE
-Constants::Error Debug::standardfile_renderobject(int argc, char** argv) {
+Constants::Error Debug::standardfileRenderobject() {
     Core::RenderObject ro;
     Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize());
     return Constants::ErrorTable::NONE();
@@ -232,10 +232,7 @@ inline void clear_screen() {
 }
 
 // NOLINTNEXTLINE
-Constants::Error Debug::clearConsole(int argc, char** argv) {
-    if (argc > 1) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
-    }
+Constants::Error Debug::clearConsole() {
     clear_screen();
     Utility::Capture::clear();
     return Constants::ErrorTable::NONE();
