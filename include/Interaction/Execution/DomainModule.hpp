@@ -21,6 +21,7 @@
 // Includes
 
 // Standard library
+#include <type_traits>
 #include <utility>
 
 // Nebulite
@@ -29,6 +30,7 @@
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
+
 /**
  * @class Nebulite::Interaction::Execution::DomainModule
  * @brief Wrapper class for binding functions to a specific category in the FuncTree and adding separate update routines.
@@ -47,9 +49,7 @@ public:
         std::string name,
         DomainType* domainPtr,
         std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr
-        )
-        : moduleName(std::move(name)), domain(domainPtr), funcTree(std::move(funcTreePtr)) {
-    }
+    ) : moduleName(std::move(name)), domain(domainPtr), funcTree(std::move(funcTreePtr)) {}
 
     /**
      * @brief Virtual destructor for DomainModule.
@@ -67,59 +67,57 @@ public:
     virtual void reinit() {}
 
     /**
-     * @brief Static helper function to bind a member function to a given FuncTree.
-     * @tparam ClassType The type of the class containing the member function.
-     * @tparam FuncTreeType The type of the FuncTree to bind the function to.
-     * @tparam ReturnType The return type of the member function, must match the FuncTree's return type.
-     * @tparam Args The argument types of the member function, must match the FuncTree's additional argument types.
-     * @param tree Pointer to the FuncTree to bind the function to.
-     * @param obj Pointer to the object instance containing the member function.
-     * @param methodPtr Pointer to the member function to bind.
-     * @param name Name to associate with the bound function.
-     * @param helpDescription Pointer to a string containing the help description for the function.
+     * @brief Binds a static/free function to the FuncTree.
+     * @details This function template allows for binding static or free functions
+     *          to the FuncTree, automatically handling the necessary type conversions.
+     * @tparam FuncTreeType The type of the FuncTree to bind to.
+     * @tparam ReturnType The return type of the function.
+     * @tparam Args The argument types of the function.
+     * @param functionPtr A pointer to the static/free function to bind.
+     * @param name The name to associate with the bound function.
+     * @param helpDescription The help description for the function.
+     *                        First line is shown in the general help, full description in detailed help
      */
-    template <typename ClassType, typename FuncTreeType, typename ReturnType, typename... Args>
+    template <typename FuncTreeType, typename ReturnType, typename... Args>
     void bindFunctionStatic(
         FuncTreeType* tree,
-        ClassType* obj,
-        ReturnType (ClassType::*methodPtr)(Args...),
+        ReturnType (*functionPtr)(Args...),
         std::string_view const& name,
         std::string_view const& helpDescription
-        ) {
-        using MemberVariant = FuncTreeType::template MemberMethod<ClassType>;
-        MemberVariant methodVariant{methodPtr}; // Wrap the member function pointer in the variant
-        std::visit([&](auto mpr) {
-            // Dispatch to the actual funcTree->bindFunction using std::visit
-            tree->bindFunction(
-                obj,
-                MemberVariant(mpr),
-                name,
-                helpDescription
-                );
-        }, methodVariant);
-    }
+    );
 
     /**
      * @brief Binds a member function to the FuncTree.
-     * @details This function template allows for binding member functions of any class type
+     * @details This function template allows for binding member functions
      *          to the FuncTree, automatically handling the necessary type conversions.
-     *          This function is a wrapper around the static bindFunctionStatic helper for methods inside the DomainModule.
-     * @tparam ClassType The type of the class containing the member function.
-     * @tparam ReturnType The return type of the member function.
-     * @tparam Args The argument types of the member function.
+     * @tparam Func The type of the member function pointer.
      * @param methodPtr A pointer to the member function to bind.
      * @param name The name to associate with the bound function.
      * @param helpDescription The help description for the function.
      *                        First line is shown in the general help, full description in detailed help
      */
+    template <typename Func>
+    void bindFunction(
+        Func methodPtr,
+        std::string_view const& name,
+        std::string_view const& helpDescription
+    );
+
     template <typename ClassType, typename ReturnType, typename... Args>
     void bindFunction(
+        ClassType* obj,
         ReturnType (ClassType::*methodPtr)(Args...),
         std::string_view const& name,
         std::string_view const& helpDescription
-        ) {
-        bindFunctionStatic(funcTree.get(), static_cast<ClassType*>(this), methodPtr, name, helpDescription);
-    }
+    );
+
+    template <typename ClassType, typename ReturnType, typename... Args>
+    void bindFunction(
+        ClassType* obj,
+        ReturnType (ClassType::*methodPtr)(Args...) const,
+        std::string_view const& name,
+        std::string_view const& helpDescription
+    );
 
     /**
      * @brief Binds a category to the FuncTree.
@@ -181,4 +179,5 @@ private:
     std::shared_ptr<FuncTree<Constants::Error>> funcTree;
 };
 } // namespace Nebulite::Interaction::Execution
+#include "Interaction/Execution/DomainModule.tpp"
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_HPP

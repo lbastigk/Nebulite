@@ -3,30 +3,6 @@
  * @brief This file defines the FuncTree class, which is responsible for managing and executing functions
  *        through a command tree structure.
  *        The main goal of this class is to manage hierarchical commands and arguments for modular and flexible execution.
- * 
- *        Example usage:
- *        ```cpp
- *        #include "Interaction/Execution/FuncTree.hpp"
- *        int main(int argc,  char** argv){
- *            FuncTree<std::string> funcTree("Nebulite", "ok", "Function not found");
- *            funcTree.bindFunction([](int argc, char** argv){
- *                // Function implementation
- *                return "Function executed";
- *            }, "myFunction", "This function does something");
- *
- *            std::string result = funcTree.parse(argc,argv);
- *            Nebulite::cout() << result << "\n";
- *        }
- *        ```
- *
- *        This will parse the command-line arguments and execute the "myFunction" if it is called:
- *        ```bash
- *        ./main myFunction        #-> cout: "Function executed"
- *        ./main                   #-> cout: "ok" (SUCCESS: no function called)
- *        ./main help              #-> cout: shows available commands and their descriptions
- *        ./main someOtherFunction #-> cout: "Function not found",
- *                                 #   cerr: "Function 'someOtherFunction' not found."
- *        ```
  */
 
 #ifndef NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
@@ -56,25 +32,6 @@ namespace Nebulite::Interaction::Execution {
  *        Functions are identified by their names and can have multiple arguments.
  *        Variables can be bound to the command tree and accessed within functions,
  *        provided the functions themselves have access to the space of the variables.
- *
- *        Example:
- *
- *        ```cpp
- *        bool myArgument = false;
- *        int foo(std::span<std::string const> const& args){Nebulite::Utility::Capture::cerr() << "foo: " << myArgument << Nebulite::Utility::Capture::endl}
- *        int bar(std::span<std::string const> const& args){Nebulite::Utility::Capture::cerr() << "bar: " << myArgument << Nebulite::Utility::Capture::endl}
- *
- *        // Note: The description actually needs to be a pointer to a string, so that it can be stored without copying.
- *        // The snippet below is simplified for clarity.
- *        FuncTree<int> funcTree;
- *        funcTree.bindCategory("myCategory", "This is my category");
- *        funcTree.bindVariable(&myArgument, "myArgument", "This is my argument");
- *        funcTree.bindFunction(&foo, "foo",            "This function does foo");
- *        funcTree.bindFunction(&bar, "myCategory bar", "This function does bar and is only callable via the category");
- *
- *        std::string command = "FromExample --myArgument foo";
- *        funcTree.parseStr(command);  // output: "foo: true"
- *        ```
  */
 template <typename returnValue, typename... additionalArgs>
 class FuncTree {
@@ -133,54 +90,6 @@ public:
         >
     >;
 
-    /**
-     * @todo Allow for the binding of static functions as well!
-     */
-
-    // Function pointer with class type
-    template <typename ClassType>
-    using MemberMethod = std::conditional_t<
-        (sizeof...(additionalArgs) == 0),
-        // no additional args
-        std::variant<
-            // Legacy
-            returnValue (ClassType::*)(int, char**),
-            returnValue (ClassType::*)(int, char const**),
-
-            // Modern: No additionalArgs variants only (no trailing pack)
-            returnValue (ClassType::*)(typename CmdArgs::Span),
-            returnValue (ClassType::*)(typename CmdArgs::Span) const,
-            returnValue (ClassType::*)(typename CmdArgs::SpanConstRef),
-            returnValue (ClassType::*)(typename CmdArgs::SpanConstRef) const,
-
-            // No base args => becomes returnValue (ClassType::*)()
-            returnValue (ClassType::*)(),
-            returnValue (ClassType::*)() const
-        >,
-        // with additional args
-        std::variant<
-            // Legacy
-            returnValue (ClassType::*)(int, char**),
-            returnValue (ClassType::*)(int, char const**),
-
-            // Modern: Full Args (with additionalArgs...)
-            returnValue (ClassType::*)(typename CmdArgs::Span, additionalArgs...),
-            returnValue (ClassType::*)(typename CmdArgs::Span, additionalArgs...) const,
-            returnValue (ClassType::*)(typename CmdArgs::SpanConstRef, additionalArgs...),
-            returnValue (ClassType::*)(typename CmdArgs::SpanConstRef, additionalArgs...) const,
-
-            // Modern: No Additional Args overloads (still allowed)
-            returnValue (ClassType::*)(typename CmdArgs::Span),
-            returnValue (ClassType::*)(typename CmdArgs::Span) const,
-            returnValue (ClassType::*)(typename CmdArgs::SpanConstRef),
-            returnValue (ClassType::*)(typename CmdArgs::SpanConstRef) const,
-
-            // Modern: No Base Args (additionalArgs... only)
-            returnValue (ClassType::*)(additionalArgs...),
-            returnValue (ClassType::*)(additionalArgs...) const
-        >
-    >;
-
     //------------------------------------------
     // Constructor and inheritance
 
@@ -218,30 +127,6 @@ public:
      *        The first argument should be used to identify where the execution comes from.
      *        All subsequent arguments starting with -- are treated as variable assignments.
      *        The first argument after the variable assignments is the function to execute.
-     *
-     *        Example:
-     *
-     *        ```cpp
-     *        // Input string:
-     *        "./bin/Nebulite --headless if '$({myCondition} and {myOtherCondition})' echo here!"
-     *        // Result being parsed:
-     *        argv[0] = "./bin/Nebulite"                           // The executable name or any other name specified on FuncTree construction
-     *        argv[1] = "--headless"                               // Variable assignment
-     *        argv[2] = "if"                                       // The function being executed
-     *        argv[3] = "$({myCondition} and {myOtherCondition})"  // due to the quotes, this is treated as a single argument
-     *        argv[4] = "echo"                                     // function argument
-     *        argv[5] = "here!"                                    // function argument
-     *        ```
-     *
-     *        The following arguments are passed to the executed function:
-     *
-     *        - argv[0] = "if"
-     *
-     *        - argv[1] = "$({myCondition} and {myOtherCondition})"
-     *
-     *        - argv[2] = "echo"
-     *
-     *        - argv[3] = "here!"
      * @param cmd Command string to parse
      * @param addArgs Additional arguments to pass to the executed function
      * @return The return value of the executed function, or the standard/error value.
@@ -268,14 +153,11 @@ public:
      *        ```cpp
      *        returnValue functionName(int argc, char** argv);
      *        ```
-     * @tparam ClassType The class type of the object instance
-     * @param obj Pointer to the object instance (for member functions)
-     * @param method Pointer to the member function to bind
+     * @param func Pointer to the function to bind
      * @param name Name of the function in the command tree
      * @param helpDescription Help description for the function. First line is shown in the general help, full description in detailed help.
      */
-    template <typename ClassType>
-    void bindFunction(ClassType* obj, MemberMethod<ClassType> method, std::string_view const& name, std::string_view const& helpDescription);
+    void bindFunction(FunctionPtr const& func, std::string_view const& name, std::string_view const& helpDescription);
 
     /**
      * @brief Binds a variable to the command tree.
@@ -500,14 +382,11 @@ private:
 
     /**
      * @brief Binds a function directly to this FuncTree without checking for categories or conflicts.
-     * @tparam ClassType The class type of the object instance
      * @param name The name of the function to bind
      * @param helpDescription The help description for the function
-     * @param method The member method to bind
-     * @param obj The object instance that holds the member method
+     * @param func The function to bind
      */
-    template <typename ClassType>
-    void directBind(std::string_view const& name, std::string_view const& helpDescription, MemberMethod<ClassType> method, ClassType* obj);
+    void directBind(std::string_view const& name, std::string_view const& helpDescription, FunctionPtr const& func);
 
     //------------------------------------------
     // Completion function
