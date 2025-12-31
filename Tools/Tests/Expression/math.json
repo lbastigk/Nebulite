@@ -1,7 +1,7 @@
 [
     {
         "command": "eval echo $(1+1)",
-        "expected": { "cout": ["2.000000"], "cerr": [] }
+        "expected": { "cout": ["2"], "cerr": [] }
     },
     {
         "command": "eval echo $i(gt(1,0))",

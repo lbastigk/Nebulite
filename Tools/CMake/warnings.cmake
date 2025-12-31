@@ -16,6 +16,11 @@ function(configure_warnings target_name)
         ${CMAKE_SOURCE_DIR}/include/*.cxx
     )
 
+    # Allow for as many warnings as possible for the restricted sources
+    #target_compile_options(${target_name} PRIVATE
+    #    -ferror-limit=0
+    #)
+
     # Collect external include directories and prepare -isystem flags so headers under external are treated as system headers.
     file(GLOB _external_include_dirs CONFIGURE_DEPENDS
         ${CMAKE_SOURCE_DIR}/external/*/include

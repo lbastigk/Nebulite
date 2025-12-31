@@ -5,7 +5,7 @@
 
 [![Author](https://img.shields.io/badge/Author-lbastigk-blue)](https://github.com/lbastigk)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE.md)
-[![C++ Standard](https://img.shields.io/badge/C%2B%2B-23-blue)]()
+[![C++ Standard](https://img.shields.io/badge/C%2B%2B-26-blue)]()
 [![Status](https://img.shields.io/badge/State-Active%20Dev-orange)]()
 
 
@@ -45,7 +45,7 @@
 <!-- TOC --><a name="overview"></a>
 ## Overview
 
-**Nebulite** is a C++23 2D game engine with a custom Domain-Specific Language (DSL) as well as JSON/JSONC-defined objects
+**Nebulite** is a C++26 2D game engine with a custom Domain-Specific Language (DSL) as well as JSON/JSONC-defined objects
 such as Rulesets, RenderObjects and Environments.
 It focuses on:
 - Declarative composition of rulesets (gravity, AI, triggers) via small JSON fragments

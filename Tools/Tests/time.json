@@ -15,7 +15,7 @@
         "expected": { 
             "cout": [
                 "1",
-                "0.001000"
+                "0.001"
             ], 
             "cerr": [] 
         }
@@ -24,11 +24,11 @@
         "command": "task TaskFiles/Tests/Short/clock.nebs",
         "expected": { 
             "cout": [
-                "0.000000",
+                "0",
                 "99",
-                "1.000000",
+                "1",
                 "100",
-                "0.000000",
+                "0",
                 "101"
             ], 
             "cerr": [] 
