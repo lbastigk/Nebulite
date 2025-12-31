@@ -11,7 +11,6 @@ Constants::Error General::update() {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::reloadTexture() {
     // Load new texture from the document
     auto const path = domain->getDoc()->get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "");

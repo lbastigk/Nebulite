@@ -16,40 +16,40 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     // Bind transformation functions
 
     // Functions: Arithmetic
-    bindTransformationFunction(&JsonRvalueTransformer::add, addName, addDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::mod, modName, modDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::multiply, multiplyName, multiplyDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::pow, powName, powDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::add, addName, addDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::mod, modName, modDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::multiply, multiplyName, multiplyDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::pow, powName, powDesc);
 
     // Functions: Array-related
-    bindTransformationFunction(&JsonRvalueTransformer::ensureArray, ensureArrayName, ensureArrayDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::at, atName, atDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::length, lengthName, lengthDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::reverse, reverseName, reverseDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::first, firstName, firstDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::last, lastName, lastDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::ensureArray, ensureArrayName, ensureArrayDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::at, atName, atDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::length, lengthName, lengthDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::reverse, reverseName, reverseDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::first, firstName, firstDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::last, lastName, lastDesc);
 
     // Functions: Assertions
-    bindTransformationFunction(&JsonRvalueTransformer::assertNonEmpty, assertNonEmptyName, assertNonEmptyDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::assertNonEmpty, assertNonEmptyName, assertNonEmptyDesc);
 
     // Functions: Casting
-    bindTransformationFunction(&JsonRvalueTransformer::toInt, toIntName, toIntDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::toString, toStringName, toStringDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::toBool, toBoolName, toBoolDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::toDouble, toDoubleName, toDoubleDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::toBoolString, toBoolStringName, toBoolStringDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::toInt, toIntName, toIntDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::toString, toStringName, toStringDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::toBool, toBoolName, toBoolDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::toDouble, toDoubleName, toDoubleDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::toBoolString, toBoolStringName, toBoolStringDesc);
 
     // Functions: Collection
     //bindTransformationFunction(&JsonRvalueTransformer::filter, filterName, &filterDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::map, mapName, mapDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::get, getName, getDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::map, mapName, mapDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::get, getName, getDesc);
 
     // Functions: Debugging
-    bindTransformationFunction(&JsonRvalueTransformer::echo, echoName, echoDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::print, printName, printDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::echo, echoName, echoDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::print, printName, printDesc);
 
     // Functions: Domain
-    bindTransformationFunction(&JsonRvalueTransformer::nebs, nebsName, nebsDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::nebs, nebsName, nebsDesc);
 
     // Functions: Statistics
     // ...
@@ -58,8 +58,8 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     // ...
 
     // Functions: Type-related
-    bindTransformationFunction(&JsonRvalueTransformer::typeAsNumber, typeAsNumberName, typeAsNumberDesc);
-    bindTransformationFunction(&JsonRvalueTransformer::typeAsString, typeAsStringName, typeAsStringDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::typeAsNumber, typeAsNumberName, typeAsNumberDesc);
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, &JsonRvalueTransformer::typeAsString, typeAsStringName, typeAsStringDesc);
 }
 
 bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JSON* jsonDoc) {
@@ -439,4 +439,4 @@ bool JsonRvalueTransformer::typeAsString(std::span<std::string const> const& arg
     return true;
 }
 
-} // namespace Nebulite::Utility
+} // namespace Nebulite::Data

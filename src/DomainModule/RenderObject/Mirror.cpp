@@ -27,7 +27,6 @@ Constants::Error Mirror::update() {
 //------------------------------------------
 // Available Functions
 
-// NOLINTNEXTLINE
 Constants::Error Mirror::mirror_once(int argc, char** argv) {
     if (auto const err = setupMirrorKey(); err.isError())
         return err;
@@ -35,7 +34,6 @@ Constants::Error Mirror::mirror_once(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Mirror::mirror_on(int argc, char** argv) {
     if (auto const err = setupMirrorKey(); err.isError())
         return err;
@@ -43,19 +41,16 @@ Constants::Error Mirror::mirror_on(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Mirror::mirror_off(int argc, char** argv) {
     mirrorEnabled = false;
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Mirror::mirror_delete(int argc, char** argv) {
     Nebulite::global().getDoc()->removeKey(mirrorKey.c_str());
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Mirror::mirror_fetch(int argc, char** argv) {
     if (Nebulite::global().getDoc()->memberType(mirrorKey) != Data::JSON::KeyType::object) {
         return Constants::ErrorTable::addError("Mirror fetch failed: Key '" + mirrorKey + "' not of type document", Constants::Error::NON_CRITICAL);

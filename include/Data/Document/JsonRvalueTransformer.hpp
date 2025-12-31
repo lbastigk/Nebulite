@@ -236,16 +236,22 @@ public:
 
     /**
      * @brief Binding helper using std::variant and std::
-     * @param func The function to bind
+     * @param functionPtr The function to bind
      * @param name The name of the function
      * @param desc The description of the function
-     * @todo FuncTree needs the ability to bind static methods directly
      */
+    template <typename Func>
     void bindTransformationFunction(
-        typename Interaction::Execution::FuncTree<bool, JSON*>::template MemberMethod<JsonRvalueTransformer> func,
+        Func functionPtr,
         std::string_view const& name,
-        std::string_view const& desc) {
-        transformationFuncTree->bindFunction(this,func,name,desc);
+        std::string_view const& desc
+    ) {
+        Interaction::Execution::DomainModuleBase::bindFunctionStatic(
+            transformationFuncTree.get(),
+            functionPtr,
+            name,
+            desc
+        );
     }
 
     /**

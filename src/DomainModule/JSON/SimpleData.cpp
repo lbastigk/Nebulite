@@ -20,7 +20,6 @@ Constants::Error SimpleData::update() {
 //------------------------------------------
 // General set/get/remove functions
 
-// NOLINTNEXTLINE
 Constants::Error SimpleData::set(int argc, char** argv) {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 3) {
@@ -37,7 +36,6 @@ Constants::Error SimpleData::set(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error SimpleData::move(int argc, char** argv) {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc != 3) {
@@ -78,7 +76,6 @@ Constants::Error SimpleData::move(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error SimpleData::copy(int argc, char** argv) {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc != 3) {
@@ -117,7 +114,6 @@ Constants::Error SimpleData::copy(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error SimpleData::keyDelete(int argc, char** argv) {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc != 2) {
@@ -132,7 +128,6 @@ Constants::Error SimpleData::keyDelete(int argc, char** argv) {
 //------------------------------------------
 // Array manipulation functions
 
-// NOLINTNEXTLINE
 Constants::Error SimpleData::ensureArray(int argc, char** argv) {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 2) {
@@ -170,7 +165,6 @@ Constants::Error SimpleData::ensureArray(int argc, char** argv) {
     return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 
-// NOLINTNEXTLINE
 Constants::Error SimpleData::push_back(int argc, char** argv) {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc > 3) {
@@ -203,7 +197,6 @@ Constants::Error SimpleData::push_back(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error SimpleData::pop_back(int argc, char** argv) {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 2) {
@@ -237,7 +230,6 @@ Constants::Error SimpleData::pop_back(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error SimpleData::push_front(int argc, char** argv) {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc > 3) {
@@ -291,7 +283,6 @@ Constants::Error SimpleData::push_front(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error SimpleData::pop_front(int argc, char** argv) {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     if (argc < 2) {

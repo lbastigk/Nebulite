@@ -3,30 +3,75 @@
 
 #include "Interaction/Execution/DomainModule.hpp"
 
+// Small utilities
+#include <type_traits>
+#include <tuple>
+#include <functional>
+#include <variant>
+
 namespace Nebulite::Interaction::Execution {
 
-template <typename DomainType>
-template <typename FuncTreeType, typename ReturnType, typename... Args>
-void DomainModule<DomainType>::bindFunctionStatic(
+// Implementation: free/static/function-object overload
+template <typename Func, typename FuncTreeType>
+void DomainModuleBase::bindFunctionStatic(
     FuncTreeType* tree,
-    ReturnType (*functionPtr)(Args...),
+    Func functionPtr,
     std::string_view const& name,
     std::string_view const& helpDescription
 ) {
-    // Bind the wrapped function to the FuncTree
-    tree->bindFunction(functionPtr, name, helpDescription);
+    // Delegate to FuncTree helper to construct FunctionPtr and bind
+    auto fp = FuncTreeType::makeFunctionPtr(functionPtr);
+    tree->bindFunction(fp, name, helpDescription);
 }
 
-//------------------------------------------
-
-template <typename DomainType>
-template <typename Func>
-void DomainModule<DomainType>::bindFunction(
-    Func methodPtr,
+// Implementation: object + member-function-pointer overload
+template <typename Obj, typename Func, typename FuncTreeType>
+void DomainModuleBase::bindFunctionStatic(
+    FuncTreeType* tree,
+    Obj* objectPtr,
+    Func functionPtr,
     std::string_view const& name,
     std::string_view const& helpDescription
 ) {
-    bindFunctionStatic(funcTree.get(), methodPtr, name, helpDescription);
+    static_assert(std::is_member_function_pointer_v<Func>, "This overload requires a member function pointer.");
+
+    // Delegate to FuncTree helper that binds the member pointer to the object
+    auto fp = FuncTreeType::makeFunctionPtr(objectPtr, functionPtr);
+    tree->bindFunction(fp, name, helpDescription);
+}
+
+// --- New definitions: category-last overloads ---
+
+// Non-static overload: member-function pointer (non-const)
+template <typename R, typename C, typename... Ps>
+void DomainModuleBase::bindFunction(
+    R (C::*functionPtr)(Ps...),
+    std::string_view const& name,
+    std::string_view const& helpDescription
+) {
+    // forward to static helper, binding 'this' as the object pointer of type C*
+    bindFunctionStatic(funcTree.get(), static_cast<C*>(this), functionPtr, name, helpDescription);
+}
+
+// Non-static overload: member-function pointer (const)
+template <typename R, typename C, typename... Ps>
+void DomainModuleBase::bindFunction(
+    R (C::*functionPtr)(Ps...) const,
+    std::string_view const& name,
+    std::string_view const& helpDescription
+) {
+    // forward to static helper, binding 'this' as the object pointer of type C*
+    bindFunctionStatic(funcTree.get(), static_cast<const C*>(this), functionPtr, name, helpDescription);
+}
+
+// Non-static overload: generic free/static/callable
+template <typename Func>
+void DomainModuleBase::bindFunction(
+    Func functionPtr,
+    std::string_view const& name,
+    std::string_view const& helpDescription
+) {
+    bindFunctionStatic(funcTree.get(), functionPtr, name, helpDescription);
 }
 
 } // namespace Nebulite::Interaction::Execution

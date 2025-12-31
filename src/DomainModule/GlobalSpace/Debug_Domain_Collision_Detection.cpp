@@ -10,7 +10,6 @@ Constants::Error FunctionCollision::update() {
 //------------------------------------------
 // Available Functions
 
-// NOLINTNEXTLINE
 Constants::Error FunctionCollision::debug_collisionDetect_function(int argc, char const* argv[]) {
     bool fail = true;
     if (argc >= 2) {
@@ -33,7 +32,6 @@ Constants::Error FunctionCollision::debug_collisionDetect_function(int argc, cha
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error FunctionCollision::debug_collisionDetect_category(int argc, char const* argv[]) {
     bool fail = true;
     if (argc >= 2) {
@@ -68,7 +66,6 @@ Constants::Error FunctionCollision::debug_collisionDetect_category(int argc, cha
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error FunctionCollision::debug_collisionDetect_variable(int argc, char const* argv[]) {
     bool fail = true;
     if (argc >= 2) {

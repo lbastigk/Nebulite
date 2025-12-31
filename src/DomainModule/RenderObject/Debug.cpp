@@ -17,7 +17,6 @@ Constants::Error Debug::update() {
 //------------------------------------------
 // Available Functions
 
-// NOLINTNEXTLINE
 Constants::Error Debug::eval(int argc, char** argv) {
     std::string const args = Utility::StringHandler::recombineArgs(argc, argv);
     Interaction::ContextBase context{*domain, *domain, Nebulite::global()};    // Both self and other are this RenderObject?
@@ -25,7 +24,6 @@ Constants::Error Debug::eval(int argc, char** argv) {
     return domain->parseStr(argsEvaluated);
 }
 
-// NOLINTNEXTLINE
 Constants::Error Debug::printSrcRect(int argc, char** argv) {
     if (argc != 1) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
@@ -47,7 +45,6 @@ Constants::Error Debug::printSrcRect(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Debug::printDstRect(int argc, char** argv) {
     if (argc != 1) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
@@ -120,7 +117,6 @@ std::string getTextureInfoString(SDL_Texture* texture) {
 }
 } // unnamed namespace
 
-// NOLINTNEXTLINE
 Constants::Error Debug::textureStatus(int argc, char** argv) {
     if (argc != 1) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected

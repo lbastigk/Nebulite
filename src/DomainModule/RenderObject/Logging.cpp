@@ -18,14 +18,12 @@ Constants::Error Logging::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-// NOLINTNEXTLINE
 Constants::Error Logging::echo(int argc, char** argv) {
     std::string const args = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
     Nebulite::cout() << args << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Logging::log_all(int argc, char** argv) {
     std::string const serialized = domain->serialize();
     if (argc > 1) {
@@ -39,7 +37,6 @@ Constants::Error Logging::log_all(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Logging::log_key(int argc, char** argv) {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();

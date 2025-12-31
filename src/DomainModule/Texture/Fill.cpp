@@ -10,7 +10,6 @@ Constants::Error Fill::update() {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Fill::fill(int argc, char** argv) {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();

@@ -132,7 +132,7 @@ public:
         "Usage: snapshot [filename]\n\n"
         "Defaults to \"./Resources/Snapshots/snapshot.png\" if no argument is provided";
 
-    Constants::Error beep(int argc, char** argv);
+    Constants::Error beep();
     static std::string_view constexpr beep_name = "beep";
     static std::string_view constexpr beep_desc = "Make a beep noise.\n"
         "\n"

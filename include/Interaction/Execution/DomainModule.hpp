@@ -31,90 +31,55 @@
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
 
-/**
- * @class Nebulite::Interaction::Execution::DomainModule
- * @brief Wrapper class for binding functions to a specific category in the FuncTree and adding separate update routines.
- * @details Allows for cleaner separation of object files for different categories
- *          and reduces boilerplate code when attaching functions to the FuncTree.
- */
-template <typename DomainType>
-class DomainModule {
+class DomainModuleBase {
 public:
-    /**
-     * @brief Constructor for the DomainModule base class.
-     * @details The constructor initializes the DomainModule with a reference to the domain and
-     *          the FuncTree.
-     */
-    DomainModule(
-        std::string name,
-        DomainType* domainPtr,
-        std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr
-    ) : moduleName(std::move(name)), domain(domainPtr), funcTree(std::move(funcTreePtr)) {}
+        /**
+         * @brief Constructor for the DomainModule base class.
+         * @details The constructor initializes the DomainModuleBase with
+         *          the FuncTree pointer for binding functions and variables.
+         */
+    DomainModuleBase(std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr)
+        : funcTree(std::move(funcTreePtr)) {}
 
-    /**
-     * @brief Virtual destructor for DomainModule.
-     */
-    virtual ~DomainModule() = default;
-
-    /**
-     * @brief Virtual update function to be Overwritten by derived classes.
-     */
-    virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
-
-    /**
-     * @brief Virtual re-initialization function to be Overwritten by derived classes.
-     */
-    virtual void reinit() {}
-
-    /**
-     * @brief Binds a static/free function to the FuncTree.
-     * @details This function template allows for binding static or free functions
-     *          to the FuncTree, automatically handling the necessary type conversions.
-     * @tparam FuncTreeType The type of the FuncTree to bind to.
-     * @tparam ReturnType The return type of the function.
-     * @tparam Args The argument types of the function.
-     * @param functionPtr A pointer to the static/free function to bind.
-     * @param name The name to associate with the bound function.
-     * @param helpDescription The help description for the function.
-     *                        First line is shown in the general help, full description in detailed help
-     */
-    template <typename FuncTreeType, typename ReturnType, typename... Args>
-    void bindFunctionStatic(
+    // Static version
+    template <typename Func,typename FuncTreeType>
+    static void bindFunctionStatic(
         FuncTreeType* tree,
-        ReturnType (*functionPtr)(Args...),
+        Func functionPtr,
         std::string_view const& name,
         std::string_view const& helpDescription
     );
 
-    /**
-     * @brief Binds a member function to the FuncTree.
-     * @details This function template allows for binding member functions
-     *          to the FuncTree, automatically handling the necessary type conversions.
-     * @tparam Func The type of the member function pointer.
-     * @param methodPtr A pointer to the member function to bind.
-     * @param name The name to associate with the bound function.
-     * @param helpDescription The help description for the function.
-     *                        First line is shown in the general help, full description in detailed help
-     */
+    // New static overload: accept an object pointer + member-function pointer
+    template <typename Obj, typename Func, typename FuncTreeType>
+    static void bindFunctionStatic(
+        FuncTreeType* tree,
+        Obj* objectPtr,
+        Func functionPtr,
+        std::string_view const& name,
+        std::string_view const& helpDescription
+    );
+
+    // Non-static version: member-function pointer (non-const)
+    template <typename R, typename C, typename... Ps>
+    void bindFunction(
+        R (C::*functionPtr)(Ps...),
+        std::string_view const& name,
+        std::string_view const& helpDescription
+    );
+
+    // Non-static version: member-function pointer (const)
+    template <typename R, typename C, typename... Ps>
+    void bindFunction(
+        R (C::*functionPtr)(Ps...) const,
+        std::string_view const& name,
+        std::string_view const& helpDescription
+    );
+
+    // Non-static version: generic free/static/callable
     template <typename Func>
     void bindFunction(
-        Func methodPtr,
-        std::string_view const& name,
-        std::string_view const& helpDescription
-    );
-
-    template <typename ClassType, typename ReturnType, typename... Args>
-    void bindFunction(
-        ClassType* obj,
-        ReturnType (ClassType::*methodPtr)(Args...),
-        std::string_view const& name,
-        std::string_view const& helpDescription
-    );
-
-    template <typename ClassType, typename ReturnType, typename... Args>
-    void bindFunction(
-        ClassType* obj,
-        ReturnType (ClassType::*methodPtr)(Args...) const,
+        Func functionPtr,
         std::string_view const& name,
         std::string_view const& helpDescription
     );
@@ -144,6 +109,53 @@ public:
         funcTree->bindVariable(variablePtr, name, helpDescription);
     }
 
+protected:
+    /**
+     * @brief Pointer to the internal FuncTree for binding functions and variables.
+     * @details We need a pointer here to avoid circular dependencies that are hard to resolve,
+     *          as both Domain and DomainModule are templated classes
+     *          FuncTree, however, is fully defined at this point, so we can use it directly.
+     *          Instead of making a mess by untangling the templates, we simply use a pointer
+     *          to the non-templated interface.
+     */
+    std::shared_ptr<FuncTree<Constants::Error>> funcTree;
+};
+
+/**
+ * @class Nebulite::Interaction::Execution::DomainModule
+ * @brief Wrapper class for binding functions to a specific category in the FuncTree and adding separate update routines.
+ * @details Allows for cleaner separation of object files for different categories
+ *          and reduces boilerplate code when attaching functions to the FuncTree.
+ */
+template <typename DomainType>
+class DomainModule : public DomainModuleBase {
+public:
+    /**
+     * @brief Constructor for the DomainModule base class.
+     * @details The constructor initializes the DomainModule with a reference to the domain and
+     *          the FuncTree.
+     */
+    DomainModule(
+        std::string name,
+        DomainType* domainPtr,
+        std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr
+    ) : DomainModuleBase(std::move(funcTreePtr)), moduleName(std::move(name)), domain(domainPtr) {}
+
+    /**
+     * @brief Virtual destructor for DomainModule.
+     */
+    virtual ~DomainModule() = default;
+
+    /**
+     * @brief Virtual update function to be Overwritten by derived classes.
+     */
+    virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
+
+    /**
+     * @brief Virtual re-initialization function to be Overwritten by derived classes.
+     */
+    virtual void reinit() {}
+
     // Prevent copying
     DomainModule(DomainModule const&) = delete;
 
@@ -166,17 +178,6 @@ protected:
      * @brief Workspace of the DomainModule
      */
     DomainType* domain;
-
-private:
-    /**
-     * @brief Pointer to the internal FuncTree for binding functions and variables.
-     * @details We need a pointer here to avoid circular dependencies that are hard to resolve,
-     *          as both Domain and DomainModule are templated classes
-     *          FuncTree, however, is fully defined at this point, so we can use it directly.
-     *          Instead of making a mess by untangling the templates, we simply use a pointer
-     *          to the non-templated interface.
-     */
-    std::shared_ptr<FuncTree<Constants::Error>> funcTree;
 };
 } // namespace Nebulite::Interaction::Execution
 #include "Interaction/Execution/DomainModule.tpp"

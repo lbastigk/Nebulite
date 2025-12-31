@@ -9,7 +9,6 @@ Constants::Error Rotation::update() {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Rotation::rotate(int argc, char** argv) {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
