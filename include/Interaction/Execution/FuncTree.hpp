@@ -91,6 +91,22 @@ public:
     >;
 
     //------------------------------------------
+
+    /**
+     * @brief Creates a FunctionPtr variant from a user-provided callable (free function pointer,
+     *        std::function, lambda, etc.). Throws/aborts on unknown signatures.
+     */
+    template <typename Func>
+    static FunctionPtr makeFunctionPtr(Func functionPtr);
+
+    /**
+     * @brief Creates a FunctionPtr variant by binding a member-function pointer to a concrete object.
+     *        Usage: FuncTree::makeFunctionPtr(objPtr, &Obj::member)
+     */
+    template <typename Obj, typename MemFunc>
+    static FunctionPtr makeFunctionPtr(Obj* objectPtr, MemFunc memberFunctionPtr);
+
+    //------------------------------------------
     // Constructor and inheritance
 
     /**
@@ -380,14 +396,6 @@ private:
      */
     bool conflictCheck(std::string_view const& name);
 
-    /**
-     * @brief Binds a function directly to this FuncTree without checking for categories or conflicts.
-     * @param name The name of the function to bind
-     * @param helpDescription The help description for the function
-     * @param func The function to bind
-     */
-    void directBind(std::string_view const& name, std::string_view const& helpDescription, FunctionPtr const& func);
-
     //------------------------------------------
     // Completion function
 
@@ -420,3 +428,35 @@ private:
 
 // Template implementation
 #include "Interaction/Execution/FuncTree.tpp"
+
+/*
+enum class FunctionShape {
+        Unknown,
+
+        // Member shapes
+        Member_Legacy_IntChar,
+        Member_Legacy_IntConstChar,
+
+        Member_Modern_NoAddArgs,
+        Member_Modern_NoAddArgsConstRef,
+
+        Member_Modern_Full,
+        Member_Modern_FullConstRef,
+
+        Member_NoCmdArgs,
+        Member_NoArgs,
+
+        // Free / static shapes
+        Free_Legacy_IntChar,
+        Free_Legacy_IntConstChar,
+
+        Free_Modern_NoAddArgs,
+        Free_Modern_NoAddArgsConstRef,
+
+        Free_Modern_Full,
+        Free_Modern_FullConstRef,
+
+        Free_NoArgs,
+        Free_NoCmdArgs
+    };
+*/

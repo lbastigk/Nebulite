@@ -188,7 +188,12 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(
 
     // Check for name conflicts, then bind directly
     if (conflictCheck(name)) {
-        directBind(name, helpDescription, func);
+        bindingContainer.functions.emplace(
+            std::string(name),
+            FunctionInfo{
+                func, helpDescription
+            }
+        );
     }
 }
 
@@ -299,32 +304,32 @@ namespace {
 
     constexpr bool breakBuild = false;
 
-    template <typename returnValue, typename... additionalArgs>
-    struct unsupported_function_pointer_type {
-        unsupported_function_pointer_type() {
-            static_assert(always_false<returnValue>,
-                              "Unsupported function pointer type for FuncTree binding");
-        }
-    };
-
     enum class FunctionShape {
         Unknown,
 
         // Member shapes
         Member_Legacy_IntChar,
         Member_Legacy_IntConstChar,
+
         Member_Modern_NoAddArgs,
         Member_Modern_NoAddArgsConstRef,
+
         Member_Modern_Full,
         Member_Modern_FullConstRef,
+
+        Member_NoArgs,
+        Member_NoCmdArgs,
 
         // Free / static shapes
         Free_Legacy_IntChar,
         Free_Legacy_IntConstChar,
+
         Free_Modern_NoAddArgs,
         Free_Modern_NoAddArgsConstRef,
+
         Free_Modern_Full,
         Free_Modern_FullConstRef,
+
         Free_NoArgs,
         Free_NoCmdArgs
     };
@@ -358,40 +363,25 @@ namespace {
         using Span = typename FuncTree<returnValue, additionalArgs...>::CmdArgs::Span;
         using SpanConstRef = typename FuncTree<returnValue, additionalArgs...>::CmdArgs::SpanConstRef;
 
-        // Legacy: (int, char**)
-        if constexpr (
-            std::is_same_v<Params, std::tuple<int, char**>>) {
+        //------------------------------------------
+        if constexpr      (std::is_same_v<Params, std::tuple<int, char**>>)
             return FunctionShape::Member_Legacy_IntChar;
-        }
-        // Legacy: (int, char const**)
-        else if constexpr (
-            std::is_same_v<Params, std::tuple<int, char const**>>) {
+        else if constexpr (std::is_same_v<Params, std::tuple<int, char const**>>)
             return FunctionShape::Member_Legacy_IntConstChar;
-        }
-        // Modern: No additional args, Span (accept Span and const& variants)
-        else if constexpr (
-            std::is_same_v<Params, std::tuple<Span>> ||
-            std::is_same_v<Params, std::tuple<SpanConstRef>>) {
+        else if constexpr (std::is_same_v<Params, std::tuple<Span>> || std::is_same_v<Params, std::tuple<SpanConstRef>>)
             return FunctionShape::Member_Modern_NoAddArgs;
-        }
-        // Modern: No additional args, SpanConstRef (explicit mapping)
-        else if constexpr (
-            std::is_same_v<Params, std::tuple<SpanConstRef>>) {
+        else if constexpr (std::is_same_v<Params, std::tuple<SpanConstRef>>)
             return FunctionShape::Member_Modern_NoAddArgsConstRef;
-        }
-        // Modern: Full (Span, additionalArgs...)
-        else if constexpr (
-            std::is_same_v<Params, std::tuple<Span, additionalArgs...>>) {
+        else if constexpr (std::is_same_v<Params, std::tuple<Span, additionalArgs...>>)
             return FunctionShape::Member_Modern_Full;
-        }
-        // Modern: Full with SpanConstRef (const&)
-        else if constexpr (
-            std::is_same_v<Params, std::tuple<SpanConstRef, additionalArgs...>>) {
+        else if constexpr (std::is_same_v<Params, std::tuple<SpanConstRef, additionalArgs...>>)
             return FunctionShape::Member_Modern_FullConstRef;
-        }
-        else {
+        else if constexpr (std::is_same_v<Params, std::tuple<additionalArgs...>>)
+            return FunctionShape::Member_NoCmdArgs;
+        else if constexpr (std::is_same_v<Params, std::tuple<>>)
+            return FunctionShape::Member_NoArgs;
+        else
             return FunctionShape::Unknown;
-        }
     }
 
     // Classify free/static function pointers
@@ -428,144 +418,180 @@ namespace {
                              std::is_function_v<std::remove_pointer_t<FunctionPointer>>) {
             return classifyFreeFunction<FunctionPointer, returnValue, additionalArgs...>();
         } else {
+            static_assert(always_false<FunctionPointer>, "classifyFunction received an unsupported function pointer type.");
             return FunctionShape::Unknown;
         }
     }
 
-    template <typename Variant>
-    struct VariantDispatcher {
-        template <std::size_t I = 0, typename VariantT = Variant, typename Handler>
-        static void call(VariantT const& v, Handler&& h) {
-            if constexpr (I < std::variant_size_v<VariantT>) {
-                if (v.index() == static_cast<int>(I)) {
-                    using AltT = std::variant_alternative_t<I, VariantT>;
-                    h(std::get<I>(v));
-                    return;
-                } else {
-                    // recurse to next index
-                    VariantDispatcher<VariantT>::template call<I + 1>(v, std::forward<Handler>(h));
-                }
-            } else {
-                // unreachable for valid variants
-            }
-        }
-    };
-
 } // anonymous namespace
 
 template <typename returnValue, typename... additionalArgs>
-void FuncTree<returnValue, additionalArgs...>::directBind(std::string_view const& name, std::string_view const& helpDescription, FunctionPtr const& func) {
-    // Use dispatcher to emulate std::visit but avoid templated visitor vtable issues
-    VariantDispatcher<FunctionPtr>::call(func, [&](auto&& functionPointer) {
-        using FunctionType = std::decay_t<decltype(functionPointer)>;
+template <typename Func>
+typename FuncTree<returnValue, additionalArgs...>::FunctionPtr
+FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Func functionPtr) {
+    using This = FuncTree<returnValue, additionalArgs...>;
+    using FunctionPtrT = typename This::FunctionPtr;
+    using DecayF = std::decay_t<Func>;
 
-        // Single compile-time shape detection
-        constexpr FunctionShape shape = classifyFunction<FunctionType, returnValue, additionalArgs...>();
+    // Helpful compile-time error for pointer-to-member functions passed without an object
+    if constexpr (std::is_member_function_pointer_v<DecayF>) {
+        static_assert(always_false<Func>,
+                      "makeFunctionPtr(func) received a pointer-to-member-function. "
+                      "Pass an object + member pointer using makeFunctionPtr(objPtr, &Class::mem) "
+                      "or provide a free/static function or callable (lambda/std::function).");
+    }
 
-        // Helper to emplace function
-        auto emplaceFn = [&]<typename FnType>(auto&& callable) {
-            bindingContainer.functions.emplace(
-                std::string(name),
-                FunctionInfo{
-                    FunctionPtr(FnType(std::forward<decltype(callable)>(callable))),
-                    helpDescription
-                }
-            );
-        };
+    // If already a FunctionPtr, forward
+    if constexpr (std::is_same_v<DecayF, FunctionPtrT>) {
+        return functionPtr;
+    }
 
-        // Function branches
-        if constexpr (shape == FunctionShape::Member_Legacy_IntChar) {
-            emplaceFn.template operator()<typename SupportedFunctions::Legacy::IntChar>(
-                [functionPointer](int argc, char** argv) { return (*functionPointer)(argc, argv); }
-            );
-        }
-        else if constexpr (shape == FunctionShape::Member_Legacy_IntConstChar) {
-            emplaceFn.template operator()<typename SupportedFunctions::Legacy::IntConstChar>(
-                [functionPointer](int argc, char const** argv) { return (*functionPointer)(argc, argv); }
-            );
-        }
-        else if constexpr (shape == FunctionShape::Member_Modern_NoAddArgs) {
-            emplaceFn.template operator()<typename SupportedFunctions::Modern::NoAddArgs>(
-                [functionPointer](typename CmdArgs::Span args) { return (*functionPointer)(args); }
-            );
-        }
-        else if constexpr (shape == FunctionShape::Member_Modern_NoAddArgsConstRef) {
-            emplaceFn.template operator()<typename SupportedFunctions::Modern::NoAddArgsConstRef>(
-                [functionPointer](typename CmdArgs::SpanConstRef args) { return (*functionPointer)(args); }
-            );
-        }
-        else if constexpr (shape == FunctionShape::Member_Modern_Full) {
-            emplaceFn.template operator()<typename SupportedFunctions::Modern::Full>(
-                [functionPointer](typename CmdArgs::Span args, additionalArgs... rest) {
-                    return (functionPointer)(args, std::forward<additionalArgs>(rest)...);
-                }
-            );
-        }
-        else if constexpr (shape == FunctionShape::Member_Modern_FullConstRef) {
-            emplaceFn.template operator()<typename SupportedFunctions::Modern::FullConstRef>(
-                [functionPointer](typename CmdArgs::SpanConstRef args, additionalArgs... rest) {
-                    return (functionPointer)(args, std::forward<additionalArgs>(rest)...);
-                }
-            );
-        }
-
-        // Free/static function branches
-        else if constexpr (shape == FunctionShape::Free_Legacy_IntChar) {
-            emplaceFn.template operator()<typename SupportedFunctions::Legacy::IntChar>(
-                [functionPointer](int argc, char** argv) { return functionPointer(argc, argv); }
-            );
+    // If raw function pointer (free/static)
+    if constexpr (std::is_pointer_v<DecayF> && std::is_function_v<std::remove_pointer_t<DecayF>>) {
+        constexpr FunctionShape shape = classifyFunction<DecayF, returnValue, additionalArgs...>();
+        if constexpr (shape == FunctionShape::Free_Legacy_IntChar) {
+            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Legacy::IntChar>,
+                                std::function<returnValue(int, char**)>(functionPtr));
         }
         else if constexpr (shape == FunctionShape::Free_Legacy_IntConstChar) {
-            emplaceFn.template operator()<typename SupportedFunctions::Legacy::IntConstChar>(
-                [functionPointer](int argc, char const** argv) { return functionPointer(argc, argv); }
-            );
+            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Legacy::IntConstChar>,
+                                std::function<returnValue(int, char const**)>(functionPtr));
         }
         else if constexpr (shape == FunctionShape::Free_Modern_NoAddArgs) {
-            emplaceFn.template operator()<typename SupportedFunctions::Modern::NoAddArgs>(
-                [functionPointer](typename CmdArgs::Span args) { return functionPointer(args); }
-            );
+            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoAddArgs>,
+                                std::function<returnValue(typename This::CmdArgs::Span)>(functionPtr));
         }
         else if constexpr (shape == FunctionShape::Free_Modern_NoAddArgsConstRef) {
-            emplaceFn.template operator()<typename SupportedFunctions::Modern::NoAddArgsConstRef>(
-                [functionPointer](typename CmdArgs::SpanConstRef args) { return functionPointer(args); }
-            );
+            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoAddArgsConstRef>,
+                                std::function<returnValue(typename This::CmdArgs::SpanConstRef)>(functionPtr));
         }
         else if constexpr (shape == FunctionShape::Free_Modern_Full) {
-            emplaceFn.template operator()<typename SupportedFunctions::Modern::Full>(
-                [functionPointer](typename CmdArgs::Span args, additionalArgs... rest) {
-                    return functionPointer(args, std::forward<additionalArgs>(rest)...);
-                }
-            );
+            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::Full>,
+                                std::function<returnValue(typename This::CmdArgs::Span, additionalArgs...)>(functionPtr));
         }
         else if constexpr (shape == FunctionShape::Free_Modern_FullConstRef) {
-            emplaceFn.template operator()<typename SupportedFunctions::Modern::FullConstRef>(
-                [functionPointer](typename CmdArgs::SpanConstRef args, additionalArgs... rest) {
-                    return functionPointer(args, std::forward<additionalArgs>(rest)...);
-                }
-            );
+            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::FullConstRef>,
+                                std::function<returnValue(typename This::CmdArgs::SpanConstRef, additionalArgs...)>(functionPtr));
         }
         else if constexpr (shape == FunctionShape::Free_NoArgs) {
-            emplaceFn.template operator()<typename SupportedFunctions::Modern::NoArgs>(
-                [functionPointer]() { return functionPointer(); }
-            );
+            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoArgs>,
+                                std::function<returnValue()>(functionPtr));
         }
         else if constexpr (shape == FunctionShape::Free_NoCmdArgs) {
-            emplaceFn.template operator()<typename SupportedFunctions::Modern::NoCmdArgs>(
-                [functionPointer](additionalArgs... rest) { return functionPointer(std::forward<additionalArgs>(rest)...); }
-            );
+            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoCmdArgs>,
+                                std::function<returnValue(additionalArgs...)>(functionPtr));
         }
-
-        // Fallback: unknown
         else {
-            if constexpr (breakBuild) {
-                unsupported_function_pointer_type<returnValue, FunctionType, additionalArgs...> _;
-            }
-            else {
-                bindErrorMessage::UnknownFunctionPointerType(TreeName, name, demangle(typeid(FunctionType).name()));
-                std::abort();
-            }
+            bindErrorMessage::UnknownFunctionPointerType(This::helpName, "unknown", demangle(typeid(DecayF).name()));
+            std::abort();
         }
-    });
+    }
+
+    // If it's a callable object (lambda/std::function), try to pick a sensible alternative
+    if constexpr (std::is_invocable_v<Func, typename This::CmdArgs::Span, additionalArgs...>) {
+        return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::Full>,
+                            std::function<returnValue(typename This::CmdArgs::Span, additionalArgs...)>(functionPtr));
+    }
+    else if constexpr (std::is_invocable_v<Func, typename This::CmdArgs::SpanConstRef, additionalArgs...>) {
+        return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::FullConstRef>,
+                            std::function<returnValue(typename This::CmdArgs::SpanConstRef, additionalArgs...)>(functionPtr));
+    }
+    else if constexpr (std::is_invocable_v<Func, typename This::CmdArgs::Span>) {
+        return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoAddArgs>,
+                            std::function<returnValue(typename This::CmdArgs::Span)>(functionPtr));
+    }
+    else if constexpr (std::is_invocable_v<Func, typename This::CmdArgs::SpanConstRef>) {
+        return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoAddArgsConstRef>,
+                            std::function<returnValue(typename This::CmdArgs::SpanConstRef)>(functionPtr));
+    }
+    else if constexpr (std::is_invocable_v<Func>) {
+        return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoArgs>,
+                            std::function<returnValue()>(functionPtr));
+    }
+    else if constexpr (std::is_invocable_v<Func, additionalArgs...>) {
+        return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoCmdArgs>,
+                            std::function<returnValue(additionalArgs...)>(functionPtr));
+    }
+    else {
+        static_assert(always_false<Func>, "makeFunctionPtr(func) could not deduce a supported function shape");
+        std::abort();
+    }
+}
+
+// Member-binding helper: obj + member function pointer -> FunctionPtr
+template <typename returnValue, typename... additionalArgs>
+template <typename Obj, typename MemFunc>
+typename FuncTree<returnValue, additionalArgs...>::FunctionPtr
+FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFunc memberFunctionPtr) {
+    using This = FuncTree<returnValue, additionalArgs...>;
+    using FunctionPtrT = typename This::FunctionPtr;
+    static_assert(std::is_member_function_pointer_v<MemFunc>, "makeFunctionPtr(obj, memfn) requires a member function pointer");
+
+    using MemDecay = std::decay_t<MemFunc>;
+    constexpr FunctionShape shape = classifyFunction<MemDecay, returnValue, additionalArgs...>();
+
+    // Choose appropriate variant and wrap with a lambda that invokes member on objectPtr
+    if constexpr (shape == FunctionShape::Member_Legacy_IntChar) {
+        return FunctionPtrT(
+            std::in_place_type<typename This::SupportedFunctions::Legacy::IntChar>,
+            [objectPtr, memberFunctionPtr](int argc, char** argv) {
+                return std::invoke(memberFunctionPtr, objectPtr, argc, argv);
+        });
+    }
+    else if constexpr (shape == FunctionShape::Member_Legacy_IntConstChar) {
+        return FunctionPtrT(
+            std::in_place_type<typename This::SupportedFunctions::Legacy::IntConstChar>,
+            [objectPtr, memberFunctionPtr](int argc, char const** argv) {
+                return std::invoke(memberFunctionPtr, objectPtr, argc, argv);
+        });
+    }
+    else if constexpr (shape == FunctionShape::Member_Modern_NoAddArgs) {
+        return FunctionPtrT(
+            std::in_place_type<typename This::SupportedFunctions::Modern::NoAddArgs>,
+            [objectPtr, memberFunctionPtr](typename This::CmdArgs::Span args) {
+                return std::invoke(memberFunctionPtr, objectPtr, args);
+        });
+    }
+    else if constexpr (shape == FunctionShape::Member_Modern_NoAddArgsConstRef) {
+        return FunctionPtrT(
+            std::in_place_type<typename This::SupportedFunctions::Modern::NoAddArgsConstRef>,
+            [objectPtr, memberFunctionPtr](typename This::CmdArgs::SpanConstRef args) {
+                return std::invoke(memberFunctionPtr, objectPtr, args);
+        });
+    }
+    else if constexpr (shape == FunctionShape::Member_Modern_Full) {
+        return FunctionPtrT(
+            std::in_place_type<typename This::SupportedFunctions::Modern::Full>,
+            [objectPtr, memberFunctionPtr](typename This::CmdArgs::Span args, additionalArgs... rest) {
+                return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<additionalArgs>(rest)...);
+        });
+    }
+    else if constexpr (shape == FunctionShape::Member_Modern_FullConstRef) {
+        return FunctionPtrT(
+            std::in_place_type<typename This::SupportedFunctions::Modern::FullConstRef>,
+            [objectPtr, memberFunctionPtr](typename This::CmdArgs::SpanConstRef args, additionalArgs... rest) {
+                return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<additionalArgs>(rest)...);
+        });
+    }
+    else if constexpr (shape == FunctionShape::Member_NoCmdArgs) {
+        return FunctionPtrT(
+            std::in_place_type<typename This::SupportedFunctions::Modern::NoCmdArgs>,
+            [objectPtr, memberFunctionPtr](additionalArgs... rest) {
+                return std::invoke(memberFunctionPtr, objectPtr, std::forward<additionalArgs>(rest)...);
+        });
+    }
+    else if constexpr (shape == FunctionShape::Member_NoArgs) {
+        return FunctionPtrT(
+            std::in_place_type<typename This::SupportedFunctions::Modern::NoArgs>,
+            [objectPtr, memberFunctionPtr]() {
+                return std::invoke(memberFunctionPtr, objectPtr);
+        });
+    }
+    else {
+        static_assert(always_false<MemFunc>, "makeFunctionPtr(obj, memfn) received an unsupported member function pointer type");
+        //bindErrorMessage::UnknownFunctionPointerType(This::helpName, "unknown", demangle(typeid(MemFunc).name()));
+        //std::abort();
+    }
 }
 
 //------------------------------------------
@@ -990,7 +1016,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::st
 }
 
 template <typename returnValue, typename ... additionalArgs>
-FuncTree<returnValue, additionalArgs...>* FuncTree<returnValue, additionalArgs...>::traverseIntoCategory(std::string const& categoryName, FuncTree<returnValue, additionalArgs...>* ftree) {
+FuncTree<returnValue, additionalArgs...>* FuncTree<returnValue, additionalArgs...>::traverseIntoCategory(std::string const& categoryName, FuncTree* ftree) {
     bool foundDirect = false;
     bool foundInherited = false;
 
