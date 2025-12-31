@@ -88,9 +88,12 @@ public:
 
     //------------------------------------------
     // Important types
-    using SpanArgs = std::span<std::string const>;
-    using SpanArgsConstRef = std::span<std::string const> const&;
 
+    struct CmdArgs {
+        using Span = std::span<std::string const>;
+        using SpanConstRef = std::span<std::string const> const&;
+    };
+    
     struct SupportedFunctions {
         struct Legacy {
             using IntChar = std::function<returnValue(int, char**)>;
@@ -98,10 +101,10 @@ public:
         };
 
         struct Modern {
-            using Full = std::function<returnValue(SpanArgs, additionalArgs...)>;
-            using FullConstRef = std::function<returnValue(SpanArgsConstRef, additionalArgs...)>;
-            using NoAddArgs = std::function<returnValue(SpanArgs)>;
-            using NoAddArgsConstRef = std::function<returnValue(SpanArgsConstRef)>;
+            using Full = std::function<returnValue(typename CmdArgs::Span, additionalArgs...)>;
+            using FullConstRef = std::function<returnValue(typename CmdArgs::SpanConstRef, additionalArgs...)>;
+            using NoAddArgs = std::function<returnValue(typename CmdArgs::Span)>;
+            using NoAddArgsConstRef = std::function<returnValue(typename CmdArgs::SpanConstRef)>;
             using NoCmdArgs = std::function<returnValue(additionalArgs...)>;
             using NoArgs = std::function<returnValue()>;
         };
@@ -145,10 +148,10 @@ public:
             returnValue (ClassType::*)(int, char const**),
 
             // Modern: No additionalArgs variants only (no trailing pack)
-            returnValue (ClassType::*)(SpanArgs),
-            returnValue (ClassType::*)(SpanArgs) const,
-            returnValue (ClassType::*)(SpanArgsConstRef),
-            returnValue (ClassType::*)(SpanArgsConstRef) const,
+            returnValue (ClassType::*)(typename CmdArgs::Span),
+            returnValue (ClassType::*)(typename CmdArgs::Span) const,
+            returnValue (ClassType::*)(typename CmdArgs::SpanConstRef),
+            returnValue (ClassType::*)(typename CmdArgs::SpanConstRef) const,
 
             // No base args => becomes returnValue (ClassType::*)()
             returnValue (ClassType::*)(),
@@ -161,16 +164,16 @@ public:
             returnValue (ClassType::*)(int, char const**),
 
             // Modern: Full Args (with additionalArgs...)
-            returnValue (ClassType::*)(SpanArgs, additionalArgs...),
-            returnValue (ClassType::*)(SpanArgs, additionalArgs...) const,
-            returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...),
-            returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...) const,
+            returnValue (ClassType::*)(typename CmdArgs::Span, additionalArgs...),
+            returnValue (ClassType::*)(typename CmdArgs::Span, additionalArgs...) const,
+            returnValue (ClassType::*)(typename CmdArgs::SpanConstRef, additionalArgs...),
+            returnValue (ClassType::*)(typename CmdArgs::SpanConstRef, additionalArgs...) const,
 
             // Modern: No Additional Args overloads (still allowed)
-            returnValue (ClassType::*)(SpanArgs),
-            returnValue (ClassType::*)(SpanArgs) const,
-            returnValue (ClassType::*)(SpanArgsConstRef),
-            returnValue (ClassType::*)(SpanArgsConstRef) const,
+            returnValue (ClassType::*)(typename CmdArgs::Span),
+            returnValue (ClassType::*)(typename CmdArgs::Span) const,
+            returnValue (ClassType::*)(typename CmdArgs::SpanConstRef),
+            returnValue (ClassType::*)(typename CmdArgs::SpanConstRef) const,
 
             // Modern: No Base Args (additionalArgs... only)
             returnValue (ClassType::*)(additionalArgs...),
@@ -319,7 +322,7 @@ private:
      * @brief Contains information about a bound variable, including its pointer and description.
      */
     struct VariableInfo {
-        bool* pointer;
+        bool* pointer = nullptr;
         std::string_view description;
     };
 

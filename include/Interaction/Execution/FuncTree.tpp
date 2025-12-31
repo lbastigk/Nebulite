@@ -307,14 +307,14 @@ void FuncTree<returnValue, additionalArgs...>::directBind(std::string_view const
         // Detect method pointer shapes
         bool constexpr isLegacyIntChar = std::is_same_v<MethodType, returnValue (ClassType::*)(int, char**)>;
         bool constexpr isLegacyIntConstChar = std::is_same_v<MethodType, returnValue (ClassType::*)(int, char const**)>;
-        bool constexpr isModernNoAddArgs = std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgs)>
-                                        || std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgs) const>;
-        bool constexpr isModernRefArgsNoAdd = std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgsConstRef)>
-                                           || std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgsConstRef) const>;
-        bool constexpr isModern = std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgs, additionalArgs...)>
-                               || std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgs, additionalArgs...) const>;
-        bool constexpr isModernRefArgs = std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...)>
-                                      || std::is_same_v<MethodType, returnValue (ClassType::*)(SpanArgsConstRef, additionalArgs...) const>;
+        bool constexpr isModernNoAddArgs = std::is_same_v<MethodType, returnValue (ClassType::*)(typename CmdArgs::Span)>
+                                        || std::is_same_v<MethodType, returnValue (ClassType::*)(typename CmdArgs::Span) const>;
+        bool constexpr isModernRefArgsNoAdd = std::is_same_v<MethodType, returnValue (ClassType::*)(typename CmdArgs::SpanConstRef)>
+                                           || std::is_same_v<MethodType, returnValue (ClassType::*)(typename CmdArgs::SpanConstRef) const>;
+        bool constexpr isModern = std::is_same_v<MethodType, returnValue (ClassType::*)(typename CmdArgs::Span, additionalArgs...)>
+                               || std::is_same_v<MethodType, returnValue (ClassType::*)(typename CmdArgs::Span, additionalArgs...) const>;
+        bool constexpr isModernRefArgs = std::is_same_v<MethodType, returnValue (ClassType::*)(typename CmdArgs::SpanConstRef, additionalArgs...)>
+                                      || std::is_same_v<MethodType, returnValue (ClassType::*)(typename CmdArgs::SpanConstRef, additionalArgs...) const>;
 
         auto emplaceFn = [&]<typename FnType>(auto&& callable) {
             bindingContainer.functions.emplace(
@@ -347,7 +347,7 @@ void FuncTree<returnValue, additionalArgs...>::directBind(std::string_view const
         // 3) Modern no additional args - by-value span
         else if constexpr (isModernNoAddArgs) {
             emplaceFn.template operator()<typename SupportedFunctions::Modern::NoAddArgs>(
-                [obj, methodPointer](SpanArgs args) {
+                [obj, methodPointer](typename CmdArgs::Span args) {
                     return (obj->*methodPointer)(args);
                 }
             );
@@ -355,7 +355,7 @@ void FuncTree<returnValue, additionalArgs...>::directBind(std::string_view const
         // 4) Modern no additional args - span const& variant
         else if constexpr (isModernRefArgsNoAdd) {
             emplaceFn.template operator()<typename SupportedFunctions::Modern::NoAddArgsConstRef>(
-                [obj, methodPointer](SpanArgsConstRef args) {
+                [obj, methodPointer](typename CmdArgs::SpanConstRef args) {
                     return (obj->*methodPointer)(args);
                 }
             );
@@ -364,7 +364,7 @@ void FuncTree<returnValue, additionalArgs...>::directBind(std::string_view const
         // 5) Modern with additionalArgs... - by-value span
         else if constexpr (isModern) {
             emplaceFn.template operator()<typename SupportedFunctions::Modern::Full>(
-                [obj, methodPointer](SpanArgs args, additionalArgs... rest) {
+                [obj, methodPointer](typename CmdArgs::Span args, additionalArgs... rest) {
                     return (obj->*methodPointer)(args, std::forward<additionalArgs>(rest)...);
                 }
             );
@@ -372,7 +372,7 @@ void FuncTree<returnValue, additionalArgs...>::directBind(std::string_view const
         // 6) Modern with additionalArgs... - span const& variant
         else if constexpr (isModernRefArgs) {
             emplaceFn.template operator()<typename SupportedFunctions::Modern::FullConstRef>(
-                [obj, methodPointer](SpanArgsConstRef args, additionalArgs... rest) {
+                [obj, methodPointer](typename CmdArgs::SpanConstRef args, additionalArgs... rest) {
                     return (obj->*methodPointer)(args, std::forward<additionalArgs>(rest)...);
                 }
             );
