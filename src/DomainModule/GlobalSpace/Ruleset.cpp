@@ -22,7 +22,7 @@ Constants::Error Ruleset::broadcast(std::span<std::string const> const& args) {
     }
     auto rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(args[1], domain);
     if (rs.has_value()) {
-        domain->getInvoke().broadcast(rs.value());
+        domain->broadcast(rs.value());
         return Constants::ErrorTable::NONE();
     }
     return Constants::ErrorTable::RULESET::CRITICAL_RULESET_PARSING_FAILED();
@@ -37,7 +37,7 @@ Constants::Error Ruleset::listen(std::span<std::string const> const& args) {
     }
     // TODO: Is Listener ID zero properly reserved for GlobalSpace?
     //       create a proper static object id handler with an enum for reserved ids?
-    domain->getInvoke().listen(domain, args[1], 0);
+    domain->listen(domain, args[1], 0);
     return Constants::ErrorTable::FUNCTIONAL::FEATURE_NOT_IMPLEMENTED();
 }
 

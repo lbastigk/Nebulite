@@ -105,6 +105,17 @@ public:
     }
 
     //------------------------------------------
+    // Broadcast/Listen
+
+    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+        invoke.broadcast(entry);
+    }
+
+    void listen(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId) {
+            invoke.listen(listener, topic, listenerId);
+    }
+
+    //------------------------------------------
     // Getters
 
     /**
@@ -122,9 +133,10 @@ public:
     /**
      * @brief Gets a pointer to the Invoke instance.
      * @return Pointer to the Invoke instance.
-     * @todo Exposing Invoke directly may not be necessary, should be enough to just have a broadcast/listen system in GlobalSpace?
+     * @todo Still used inside the renderer, instead we should reconfigure it so that the renderer does not need direct access to it.
+     *       Perhaps having the logic behind updating the renderer or not inside the GlobalSpace would be better.
      */
-    Interaction::Invoke& getInvoke() { return invoke; }
+    [[deprecated]] Interaction::Invoke& getInvoke() { return invoke; }
 
     /**
      * @brief Gets a pointer to the global document cache.

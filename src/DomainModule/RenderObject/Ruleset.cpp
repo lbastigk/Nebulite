@@ -39,13 +39,13 @@ Constants::Error Ruleset::update() {
         for (size_t idx = 0; idx < subscription_size; idx++) {
             std::string key = std::string(Constants::KeyNames::RenderObject::invokeSubscriptions) + "[" + std::to_string(idx) + "]";
             auto const subscription = domain->getDoc()->get<std::string>(key, "");
-            Nebulite::global().getInvoke().listen(domain, subscription, id);
+            Nebulite::global().listen(domain, subscription, id);
         }
 
         // Broadcast global rulesets
         for (auto const& entry : rulesetsGlobal) {
             // add pointer to invoke command to global
-            Nebulite::global().getInvoke().broadcast(entry);
+            Nebulite::global().broadcast(entry);
         }
     } else {
         return Constants::ErrorTable::RENDERER::CRITICAL_INVOKE_NULLPTR();
@@ -62,7 +62,7 @@ Constants::Error Ruleset::once(std::span<std::string const> const& args) {
         auto rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(args[0], domain);
         if (rs.has_value()) {
             if (rs.value()->isGlobal()) {
-                Nebulite::global().getInvoke().broadcast(rs.value());
+                Nebulite::global().broadcast(rs.value());
             }
             else {
                 rs.value()->apply();
