@@ -101,6 +101,18 @@ public:
     Constants::Error update() override;
 
     /**
+     * @brief Updates the Renderer state.
+     * @details Tasks performed:
+     *          - updates timer
+     *          - polls SDL events
+     *          - polls mouse and keyboard state
+     *          - sets global values
+     *          - updates the invoke instance
+     *          - updates the environment
+     */
+    void updateState();
+
+    /**
      * @brief Checks if it's time to render the next frame based on the target FPS.
      */
     bool timeToRender();
@@ -468,18 +480,6 @@ private:
      *        This function clears renderer to an all black screen.
      */
     void clear() const;
-
-    /**
-     * @brief Updates the Renderer state.
-     * @details Tasks performed:
-     *          - updates timer
-     *          - polls SDL events
-     *          - polls mouse and keyboard state
-     *          - sets global values
-     *          - updates the invoke instance
-     *          - updates the environment
-     */
-    void updateState();
 
     /**
      * @brief Renders the current frame.
