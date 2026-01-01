@@ -17,26 +17,22 @@ namespace Nebulite::Utility {
 /**
  * @class Nebulite::Utility::TimeKeeper
  * @brief Manages time-related operations in the Nebulite engine.
- * 
- * The TimeKeeper class provides functionality to track elapsed time,
- * to manage frame rates, handle delays, etc.
- * 
- * The start time is set to construction time. Timer is initialized to not running.
+ * @details The TimeKeeper class provides functionality to track elapsed time,
+ *          to manage frame rates, handle delays, etc.
+ *          The start time is set to construction time.
+ *          Timer is initialized to not running.
  */
 class TimeKeeper{
 public:
     /**
      * @brief Constructs a new TimeKeeper object and initializes the timer.
-     * 
-     * The start time is set to construction time. Timer is initialized to not running.
+     * @details The start time is set to construction time. Timer is initialized to not running.
      */
     TimeKeeper() noexcept : t_start(Time::getTime()) {}
 
     /**
      * @brief Updates the timer.
-     * 
-     * This function calculates the delta time since the last update and updates the timers full runtime.
-     * 
+     * @details Calculates the delta time since the last update and updates the timers full runtime.
      * @param fixed_dt_ms If greater than 0, this value will be used as the delta time instead of the calculated value.
      */
     void update(uint64_t fixed_dt_ms = 0) noexcept {
@@ -69,11 +65,9 @@ public:
 
     /**
      * @brief Starts the timer, updating the running state.
-     * 
-     * This function initializes the timer and begins tracking elapsed time.
-     * 
-     * Make sure to call update() before start() to get an accurate dt,
-     * if you don't start the timer immediately after construction.
+     * @details Initializes the timer and begins tracking elapsed time.
+     *          Make sure to call update() before start() to get an accurate dt,
+     *          if you don't start the timer immediately after construction.
      */
     void start() noexcept {
         running = true;
@@ -81,12 +75,10 @@ public:
 
     /**
      * @brief Stops the timer.
-     * 
-     * This function stops the timer and pauses tracking elapsed time.
-     * Any accumulated time will be preserved.
-     * Note that in stop, `get_dt_ms()` will return the last update's delta time.
-     * 
-     * Make sure to call `update()` before `stop()` to get an accurate dt.
+     * @details Pauses tracking elapsed time.
+     *          Any accumulated time will be preserved.
+     *          Note that in stop, `get_dt_ms()` will return the last update's delta time.
+     *          Make sure to call `update()` before `stop()` to get an accurate dt.
      */
     void stop() noexcept {
         running = false;
@@ -94,7 +86,6 @@ public:
 
     /**
      * @brief Checks if the timer is currently running.
-     * 
      * @return True if the timer is running, false otherwise.
      */
     [[nodiscard]] bool is_running() const noexcept {
@@ -103,10 +94,8 @@ public:
 
     /**
      * @brief Calculates the projected dt if `update()` were to be called.
-     * 
-     * It does this by simulating the passage of time through a direct `system_clock` call for elapsed time.
-     * If the timer is not running, the projected delta time will be zero.
-     * 
+     * @details It does this by simulating the passage of time through a direct `system_clock` call for elapsed time.
+     *          If the timer is not running, the projected delta time will be zero.
      * @return The projected delta time in milliseconds.
      */
     uint64_t projected_dt() noexcept {
@@ -121,11 +110,9 @@ public:
 
     /**
      * @brief Gets the current time in milliseconds since the timer started.
-     * 
-     * This function returns the time elapsed since the timer started.
-     * Note that the returned value is not necessarily equal to elapsed system time, 
-     * as the update function allows for a custom dt.
-     * 
+     * @details Returns the time elapsed since the timer started.
+     *          Note that the returned value is not necessarily equal to elapsed system time,
+     *          as the update function allows for a custom dt.
      * @return The time elapsed since the timer started in milliseconds.
      */
     [[nodiscard]] uint64_t get_t_ms() const noexcept {
@@ -134,11 +121,9 @@ public:
 
     /**
      * @brief Gets the delta time in milliseconds since the last update.
-     * 
-     * This function returns the time difference between the last two updates.
-     * If the timer is not running, it will return the last update's delta time.
-     * Note that the returned value is not necessarily equal to system time, as the update function allows for a custom dt.
-     * 
+     * @details Returns the time difference between the last two updates.
+     *          If the timer is not running, it will return the last update's delta time.
+     *          Note that the returned value is not necessarily equal to system time, as the update function allows for a custom dt.
      * @return The time difference between the last two updates in milliseconds.
      */
     [[nodiscard]] uint64_t get_dt_ms() const noexcept {
@@ -150,8 +135,7 @@ private:
 
     /**
      * @brief The start time in milliseconds when the timer was created.
-     * 
-     * For Reference: This value is used to calculate the total elapsed time since the timer was created.
+     * @details For Reference: This value is used to calculate the total elapsed time since the timer was created.
      */
     uint64_t t_start;
 
@@ -167,8 +151,7 @@ private:
 
     /**
      * @brief Indicates whether the timer is currently running.
-     * 
-     * On construction, the timer is off.
+     * @details On construction, the timer is off.
      */
     bool running = false;
 
