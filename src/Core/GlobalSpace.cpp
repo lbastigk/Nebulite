@@ -98,9 +98,13 @@ Constants::Error GlobalSpace::update() {
             lastCriticalResult = result;
         }
 
-        // Do a Renderer tick and check if an update occurred
-        // Reduce script wait counter if not in console mode or other halting states (tick returns false in those cases)
+        // Update renderer and draw frame
+        if (!renderer.isSkippingUpdate()) {
+            invoke.update();
+            renderer.updateState();
+        }
         renderer.update();
+
         if (!renderer.hasSkippedUpdate()) {
             for (auto const& t : tasks) {
                 t.second->decrementWaitCounter();

@@ -208,12 +208,11 @@ void Renderer::loadFonts() {
 Constants::Error Renderer::update() {
     //------------------------------------------
     // Do all the steps of the rendering pipeline
-    clear(); // 1.) Clear screen FIRST, so that functions like snapshot have access to the latest frame
-    updateState(); // 2.) Update objects, states, etc.
-    renderFrame(); // 3.) Render frame
+    clear();
+    renderFrame();
     if (showFPS)
-        renderFPS(); // 4.) Render fps count
-    showFrame(); // 5.) Show Frame
+        renderFPS();
+    showFrame();
 
     //------------------------------------------
     // SDL Polling at the end of the frame
@@ -238,6 +237,17 @@ Constants::Error Renderer::update() {
 
     // Always return no critical error
     return Constants::ErrorTable::NONE();
+}
+
+void Renderer::updateState() {
+    //------------------------------------------
+    // Skip update if flagged
+    if (!skipUpdate) {
+        // Update environment
+        auto const dispResX = getDoc()->get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0);
+        auto const dispResY = getDoc()->get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0);
+        env.updateObjects(tilePositionX, tilePositionY, dispResX, dispResY);
+    }
 }
 
 bool Renderer::timeToRender() {
@@ -468,21 +478,7 @@ void Renderer::clear() const {
     SDL_RenderClear(renderer);
 }
 
-void Renderer::updateState() {
-    //------------------------------------------
-    // Skip update if flagged
-    if (skipUpdate) {
-        return;
-    }
 
-    // Update invoke pairs, getting broadcast-listen-pairs from last env update
-    Nebulite::global().getInvoke().update();
-
-    // Update environment
-    auto const dispResX = getDoc()->get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0);
-    auto const dispResY = getDoc()->get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0);
-    env.updateObjects(tilePositionX, tilePositionY, dispResX, dispResY);
-}
 
 void Renderer::renderFrame() {
     //------------------------------------------
