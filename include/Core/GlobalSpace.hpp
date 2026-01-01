@@ -131,14 +131,6 @@ public:
     [[nodiscard]] SDL_Renderer* getSdlRenderer() const { return renderer.getSdlRenderer(); }
 
     /**
-     * @brief Gets a pointer to the Invoke instance.
-     * @return Pointer to the Invoke instance.
-     * @todo Still used inside the renderer, instead we should reconfigure it so that the renderer does not need direct access to it.
-     *       Perhaps having the logic behind updating the renderer or not inside the GlobalSpace would be better.
-     */
-    [[deprecated]] Interaction::Invoke& getInvoke() { return invoke; }
-
-    /**
      * @brief Gets a pointer to the global document cache.
      * @return Pointer to the DocumentCache instance.
      */
