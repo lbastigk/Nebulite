@@ -10,12 +10,20 @@
 //------------------------------------------
 // Macro for DomainModule definition
 
+bool constexpr endsWithNewline(std::string_view str) {
+    return !str.empty() && str.back() == '\n';
+}
+
 #define NEBULITE_DOMAINMODULE(DomainName,DomainModuleName) \
     class DomainModuleName final : public Nebulite::Interaction::Execution::DomainModule<DomainName>
 
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
     explicit DomainModuleName(std::string const& name, DomainName* domainPtr, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr) \
     : DomainModule(name, domainPtr, std::move(funcTreePtr))
+
+#define BINDFUNCTION(func, name,desc) \
+    static_assert(endsWithNewline(desc), "Function description must end with a newline character."); \
+    bindFunction(func, name, desc)
 
 //------------------------------------------
 // Includes
