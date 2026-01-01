@@ -166,6 +166,10 @@ Nebulite::Utility::CaptureStream& cerr();
 inline constexpr const char* endl = "\n";
 
 } // namespace Nebulite
+
+//------------------------------------------
+// Header file usage detection
+
 #else
 
 // If NEBULITE_HPP is already defined, the file is likely used in a header file context.
@@ -174,6 +178,8 @@ inline constexpr const char* endl = "\n";
 
 // Toggle between warning and error as needed:
 #define NEBULITE_IN_HEADER_BREAK_BUILD
+
+// Issue a warning or error based on the defined macro
 #ifdef NEBULITE_IN_HEADER_BREAK_BUILD
     // Option 1: Just a warning
     #warning "Likely use of Nebulite.hpp in a header file detected! Including Nebulite.hpp in a header file is discouraged. Please include it only in source files."
