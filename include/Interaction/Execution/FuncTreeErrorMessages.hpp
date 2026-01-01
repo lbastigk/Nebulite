@@ -3,8 +3,10 @@
 
 //------------------------------------------
 // Includes
+#include <string_view>
 
 //------------------------------------------
+// Collection of error messages for FuncTree binding issues
 
 namespace Nebulite::Interaction::Execution::bindErrorMessage {
 
