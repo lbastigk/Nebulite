@@ -41,15 +41,17 @@ namespace Nebulite::Interaction::Execution {
 
 class DomainModuleBase {
 public:
-        /**
-         * @brief Constructor for the DomainModule base class.
-         * @details The constructor initializes the DomainModuleBase with
-         *          the FuncTree pointer for binding functions and variables.
-         */
+    /**
+     * @brief Constructor for the DomainModule base class.
+     * @details The constructor initializes the DomainModuleBase with
+     *          the FuncTree pointer for binding functions and variables.
+     */
     DomainModuleBase(std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr)
         : funcTree(std::move(funcTreePtr)) {}
 
-    // Static version
+    //------------------------------------------
+    // Static Binding Functions
+
     template <typename Func,typename FuncTreeType>
     static void bindFunctionStatic(
         FuncTreeType* tree,
@@ -58,7 +60,6 @@ public:
         std::string_view const& helpDescription
     );
 
-    // New static overload: accept an object pointer + member-function pointer
     template <typename Obj, typename Func, typename FuncTreeType>
     static void bindFunctionStatic(
         FuncTreeType* tree,
@@ -68,7 +69,9 @@ public:
         std::string_view const& helpDescription
     );
 
-    // Non-static version: member-function pointer (non-const)
+    //------------------------------------------
+    // Non-static Binding Functions
+
     template <typename R, typename C, typename... Ps>
     void bindFunction(
         R (C::*functionPtr)(Ps...),
@@ -76,7 +79,6 @@ public:
         std::string_view const& helpDescription
     );
 
-    // Non-static version: member-function pointer (const)
     template <typename R, typename C, typename... Ps>
     void bindFunction(
         R (C::*functionPtr)(Ps...) const,
@@ -84,13 +86,15 @@ public:
         std::string_view const& helpDescription
     );
 
-    // Non-static version: generic free/static/callable
     template <typename Func>
     void bindFunction(
         Func functionPtr,
         std::string_view const& name,
         std::string_view const& helpDescription
     );
+
+    //------------------------------------------
+    // Category and Variable Binding
 
     /**
      * @brief Binds a category to the FuncTree.
@@ -99,6 +103,7 @@ public:
      * @param helpDescription Description of the category, shown in the help command.
      *                        First line is shown in the general help, full description in detailed help
      * @return true if the category was created successfully, false if a category with the same name already exists
+     * @todo Mark as [[nodiscard]] and refactor usage accordingly
      */
     bool bindCategory(std::string_view const& name, std::string_view const& helpDescription) const {
         return funcTree->bindCategory(name, helpDescription);
