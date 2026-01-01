@@ -165,8 +165,8 @@ namespace Nebulite::DomainModule::RenderObject {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, MyModule) {
 public:
-    Constants::Error update() override;
-    void reinit() override {}
+    Constants::Error update() override; // Per-frame update function
+    void reinit() override {}           // What to do on re-initialization
 
     //------------------------------------------
     // Available Functions
@@ -199,13 +199,14 @@ public:
         (void)bindCategory(example_name, example_desc);
 
         // Bind functions using the name/description constants above
-        bindFunction(&MyModule::exampleCommand, exampleCommand_name, exampleCommand_desc);
-        bindFunction(&MyModule::anotherCmd, anotherCmd_name, anotherCmd_desc);
+        // Using a macro to ensure consistency
+        BINDFUNCTION(&MyModule::exampleCommand, exampleCommand_name, exampleCommand_desc);
+        BINDFUNCTION(&MyModule::anotherCmd, anotherCmd_name, anotherCmd_desc);
     }
 };
 } // namespace Nebulite::DomainModule::RenderObject
-
 #endif // NEBULITE_RODM_MYMODULE_HPP
+
 ```
 
 **Then add the header file to `include/DomainModule/Initializer.hpp` and initialize in the cpp file.**

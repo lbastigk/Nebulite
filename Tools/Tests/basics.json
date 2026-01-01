@@ -33,8 +33,8 @@
         "command": "task TaskFiles/Tests/Short/echo_global_value.nebs",
         "expected": { 
             "cout": [
-                "0.001000",
-                "1.001000"
+                "0.001",
+                "1.001"
             ], 
           "cerr": [] 
         }

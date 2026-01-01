@@ -51,15 +51,15 @@ public:
         "\n"
         "- on:  Activates error logging to 'error.log' in the working directory.\n"
         "- off: Deactivates error logging, reverting to standard error output.\n"
-        "Note: Ensure you have write permissions in the working directory when activating error logging.";
+        "Note: Ensure you have write permissions in the working directory when activating error logging.\n";
 
-    Constants::Error clearConsole(int argc, char** argv);
+    Constants::Error clearConsole();
     static std::string_view constexpr clearConsole_name = "clear";
     static std::string_view constexpr clearConsole_desc = "Clears the console screen.\n"
         "Usage: clear\n"
         "\n"
         "Note: This function attempts to clear the console screen using system-specific commands.\n"
-        "      It may not work in all environments or IDEs.";
+        "      It may not work in all environments or IDEs.\n";
 
     Constants::Error log_global(int argc, char** argv);
     static std::string_view constexpr log_global_name = "log global";
@@ -67,7 +67,7 @@ public:
         "Usage: log global [<filenames>...]\n"
         "\n"
         "- <filenames>: Optional. One or more filenames to log the global document to.\n"
-        "               If no filenames are provided, defaults to 'global.log.jsonc'.";
+        "               If no filenames are provided, defaults to 'global.log.jsonc'.\n";
 
     Constants::Error log_state(int argc, char** argv);
     static std::string_view constexpr log_state_name = "log state";
@@ -75,7 +75,7 @@ public:
         "Usage: log state [<filenames>...]\n"
         "\n"
         "- <filenames>: Optional. One or more filenames to log the renderer state to.\n"
-        "               If no filenames are provided, defaults to 'state.log.jsonc'.";
+        "               If no filenames are provided, defaults to 'state.log.jsonc'.\n";
 
     Constants::Error crash(int argc, char** argv);
     static std::string_view constexpr crash_name = "crash";
@@ -86,42 +86,42 @@ public:
         "    - segfault   : Causes a segmentation fault (default)\n"
         "    - abort      : Calls std::abort()\n"
         "    - terminate  : Calls std::terminate()\n"
-        "    - throw      : Throws an uncaught exception";
+        "    - throw      : Throws an uncaught exception\n";
 
     Constants::Error error(int argc, char** argv);
     static std::string_view constexpr error_name = "error";
     static std::string_view constexpr error_desc = "Echoes all arguments as string to the standard error.\n"
         "Usage: error <string...>\n"
         "\n"
-        "- <string...>: One or more strings to echo to the standard error.";
+        "- <string...>: One or more strings to echo to the standard error.\n";
 
     Constants::Error warn(int argc, char** argv);
     static std::string_view constexpr warn_name = "warn";
     static std::string_view constexpr warn_desc = "Returns a warning: a custom, noncritical error.\n"
         "Usage: warn <string>\n"
         "\n"
-        "- <string>: The warning message.";
+        "- <string>: The warning message.\n";
 
     Constants::Error critical(int argc, char** argv);
     static std::string_view constexpr critical_name = "critical";
     static std::string_view constexpr critical_desc = "Returns a critical error.\n"
         "Usage: critical <string>\n"
         "\n"
-        "- <string>: The critical error message.";
+        "- <string>: The critical error message.\n";
 
     Constants::Error waitForInput(int argc, char** argv);
     static std::string_view constexpr waitForInput_name = "input-wait";
     static std::string_view constexpr waitForInput_desc = "Waits for user input before continuing.\n"
         "Usage: input-wait [prompt]\n"
         "\n"
-        "Note: This function pauses execution until the user presses Enter";
+        "Note: This function pauses execution until the user presses Enter\n";
 
-    Constants::Error standardfile_renderobject(int argc, char** argv);
-    static std::string_view constexpr standardfile_renderobject_name = "standardfile renderobject";
-    static std::string_view constexpr standardfile_renderobject_desc = "Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.\n"
+    Constants::Error standardfileRenderobject();
+    static std::string_view constexpr standardfileRenderobject_name = "standardfile renderobject";
+    static std::string_view constexpr standardfileRenderobject_desc = "Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.\n"
         "Usage: standardfile renderobject\n"
         "\n"
-        "Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.";
+        "Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.\n";
 
     //------------------------------------------
     // Category names
@@ -144,20 +144,20 @@ public:
 
         //------------------------------------------
         // Binding functions to the FuncTree
-        bindFunction(&Debug::errorlog, errorlog_name, errorlog_desc);
-        bindFunction(&Debug::clearConsole, clearConsole_name, clearConsole_desc);
-        bindFunction(&Debug::error, error_name, error_desc);
-        bindFunction(&Debug::crash, crash_name, crash_desc);
-        bindFunction(&Debug::warn, warn_name, warn_desc);
-        bindFunction(&Debug::critical, critical_name, critical_desc);
-        bindFunction(&Debug::waitForInput, waitForInput_name, waitForInput_desc);
+        BINDFUNCTION(&Debug::errorlog, errorlog_name, errorlog_desc);
+        BINDFUNCTION(&Debug::clearConsole, clearConsole_name, clearConsole_desc);
+        BINDFUNCTION(&Debug::error, error_name, error_desc);
+        BINDFUNCTION(&Debug::crash, crash_name, crash_desc);
+        BINDFUNCTION(&Debug::warn, warn_name, warn_desc);
+        BINDFUNCTION(&Debug::critical, critical_name, critical_desc);
+        BINDFUNCTION(&Debug::waitForInput, waitForInput_name, waitForInput_desc);
 
         (void)bindCategory(log_name, log_desc);
-        bindFunction(&Debug::log_global, log_global_name, log_global_desc);
-        bindFunction(&Debug::log_state, log_state_name, log_state_desc);
+        BINDFUNCTION(&Debug::log_global, log_global_name, log_global_desc);
+        BINDFUNCTION(&Debug::log_state, log_state_name, log_state_desc);
 
         (void)bindCategory(standardfile_name, standardfile_desc);
-        bindFunction(&Debug::standardfile_renderobject, standardfile_renderobject_name, standardfile_renderobject_desc);
+        BINDFUNCTION(&Debug::standardfileRenderobject, standardfileRenderobject_name, standardfileRenderobject_desc);
     }
 
 private:

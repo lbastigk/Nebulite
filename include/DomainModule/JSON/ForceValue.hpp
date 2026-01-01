@@ -3,8 +3,8 @@
  * @brief Implementation of force and clearForce functions for forcing JSON variable values.
  */
 
-#ifndef NEBULITE_JSDM_FORCEVALUE_HPP
-#define NEBULITE_JSDM_FORCEVALUE_HPP
+#ifndef NEBULITE_JSDM_FORCE_VALUE_HPP
+#define NEBULITE_JSDM_FORCE_VALUE_HPP
 
 //------------------------------------------
 // Includes
@@ -41,13 +41,13 @@ public:
     static std::string_view constexpr force_set_name = "force set";
     static std::string_view constexpr force_set_desc = "Force a variable to a value.\n"
         "\n"
-        "Usage: force set <key> <value>";
+        "Usage: force set <key> <value>\n";
 
-    Constants::Error force_clear(int argc, char** argv);
+    Constants::Error force_clear();
     static std::string_view constexpr force_clear_name = "force clear";
     static std::string_view constexpr force_clear_desc = "Clear all forced variables.\n"
         "\n"
-        "Usage: force clear";
+        "Usage: force clear\n";
 
     //------------------------------------------
     // Category names
@@ -65,8 +65,8 @@ public:
     {
         // Binding
         (void)bindCategory(force_name, force_desc);
-        bindFunction(&ForceValue::force_set, force_set_name, force_set_desc);
-        bindFunction(&ForceValue::force_clear, force_clear_name, force_clear_desc);
+        BINDFUNCTION(&ForceValue::force_set, force_set_name, force_set_desc);
+        BINDFUNCTION(&ForceValue::force_clear, force_clear_name, force_clear_desc);
     }
 
     private
@@ -74,4 +74,4 @@ public:
     absl::flat_hash_map<std::string, std::string> forced_global_values; // Key-Value pairs to set in global JSON
 };
 } // namespace Nebulite::DomainModule::JSON
-#endif // NEBULITE_JSDM_FORCEVALUE_HPP
+#endif // NEBULITE_JSDM_FORCE_VALUE_HPP

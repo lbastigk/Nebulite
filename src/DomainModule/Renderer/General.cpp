@@ -18,8 +18,7 @@ Constants::Error General::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-// NOLINTNEXTLINE
-Constants::Error General::env_load(int argc, char** argv) {
+Constants::Error General::envLoad(int argc, char** argv) {
     if (argc > 1) {
         domain->deserialize(argv[1]);
         return Constants::ErrorTable::NONE();
@@ -29,14 +28,12 @@ Constants::Error General::env_load(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
-Constants::Error General::env_deload(int argc, char** argv) {
+Constants::Error General::envDeload() {
     domain->purgeObjects();
     domain->purgeTextures();
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::spawn(int argc, char** argv) {
     if (argc > 1) {
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
@@ -81,7 +78,6 @@ Constants::Error General::spawn(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::setResolution(int argc, char** argv) {
     int w = 1000;
     int h = 1000;
@@ -103,7 +99,6 @@ Constants::Error General::setResolution(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::setFPS(int argc, char** argv) {
     // Standard value for no argument
     uint16_t fps = 60;
@@ -121,7 +116,6 @@ Constants::Error General::setFPS(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::showFPS(int argc, char** argv) {
     if (argc < 2) {
         domain->toggleFps(true);
@@ -138,7 +132,6 @@ Constants::Error General::showFPS(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::cam_move(int argc, char** argv) {
     if (argc < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -153,7 +146,6 @@ Constants::Error General::cam_move(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::cam_set(int argc, char** argv) {
     if (argc == 3) {
         int const x = std::stoi(argv[1]);
@@ -177,7 +169,6 @@ Constants::Error General::cam_set(int argc, char** argv) {
     return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::snapshot(int argc, char** argv) {
     if (argc == 1) {
         // No link provided, use default
@@ -196,14 +187,12 @@ Constants::Error General::snapshot(int argc, char** argv) {
     return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
 }
 
-// NOLINTNEXTLINE
-Constants::Error General::beep(int argc, char** argv) {
+Constants::Error General::beep() {
     // Beep function for debugging, from SDL
     domain->beep();
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::selectedObject_get(int argc, char** argv) {
     if (argc != 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -219,7 +208,6 @@ Constants::Error General::selectedObject_get(int argc, char** argv) {
     return Constants::ErrorTable::addError("No RenderObject with the specified ID found.", Constants::Error::NON_CRITICAL);
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::selectedObject_Parse(int argc, char** argv) {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();

@@ -33,7 +33,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error reloadTexture(int argc, char** argv);
+    Constants::Error reloadTexture();
     static std::string_view constexpr reloadTexture_name = "reload-texture";
     static std::string_view constexpr reloadTexture_desc = "Reload the texture from the document.\n"
         "\n"
@@ -46,7 +46,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, General) {
-        bindFunction(&General::reloadTexture, reloadTexture_name, reloadTexture_desc);
+        BINDFUNCTION(&General::reloadTexture, reloadTexture_name, reloadTexture_desc);
     }
 };
 } // namespace Nebulite::DomainModule::Texture

@@ -17,7 +17,6 @@ Constants::Error General::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-// NOLINTNEXTLINE
 Constants::Error General::eval(int argc, char** argv) {
     // argc/argv to string for evaluation
     std::string const args = Utility::StringHandler::recombineArgs(argc, argv);
@@ -31,8 +30,7 @@ Constants::Error General::eval(int argc, char** argv) {
     return domain->parseStr(argsEvaluated);
 }
 
-// NOLINTNEXTLINE
-Constants::Error General::exit(int argc, char** argv) {
+Constants::Error General::exit() {
     // Clear all task queues to prevent further execution
     domain->clearAllTaskQueues();
 
@@ -41,7 +39,6 @@ Constants::Error General::exit(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::wait(int argc, char** argv) {
     if (argc == 2) {
         // Standard wait acts on taskQueue "script"
@@ -54,7 +51,6 @@ Constants::Error General::wait(int argc, char** argv) {
     return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::task(int argc, char** argv) {
     std::string const message = "Loading task list from file: " + (argc > 1 ? std::string(argv[1]) : "none");
     Nebulite::cout() << message << Nebulite::endl;
@@ -105,14 +101,12 @@ Constants::Error General::task(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::echo(int argc, char** argv) {
     std::string const args = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
     Nebulite::cout() << args << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::func_if(int argc, char** argv) {
     if (argc < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -129,7 +123,6 @@ Constants::Error General::func_if(int argc, char** argv) {
     return domain->parseStr(commands);
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::func_assert(int argc, char** argv) {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -155,12 +148,10 @@ Constants::Error General::func_assert(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::func_return(int argc, char** argv) {
     return Constants::ErrorTable::addError(Utility::StringHandler::recombineArgs(argc - 1, argv + 1), Constants::Error::CRITICAL);
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::always(int argc, char** argv) {
     if (argc > 1) {
         std::ostringstream oss;
@@ -187,13 +178,11 @@ Constants::Error General::always(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
-Constants::Error General::alwaysClear(int argc, char** argv) {
+Constants::Error General::alwaysClear() {
     domain->getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::always)->clear();
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error General::func_for(int argc, char** argv) {
     if (argc > 4) {
         std::string const varName = argv[1];
@@ -221,8 +210,7 @@ Constants::Error General::func_for(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
-Constants::Error General::nop(std::span<std::string const> const& args) {
+Constants::Error General::nop() {
     // Do nothing
     return Constants::ErrorTable::NONE();
 }

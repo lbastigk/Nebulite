@@ -121,25 +121,25 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Communication){
         // Connection management
-        bindFunction(&Communication::connect,            "connect",              "Establish connection");
-        bindFunction(&Communication::disconnect,         "disconnect",           "Close connection");
-        bindFunction(&Communication::reconnect,          "reconnect",            "Reconnect using last settings");
+        BINDFUNCTION(&Communication::connect,            "connect",              "Establish connection");
+        BINDFUNCTION(&Communication::disconnect,         "disconnect",           "Close connection");
+        BINDFUNCTION(&Communication::reconnect,          "reconnect",            "Reconnect using last settings");
 
         // Status monitoring
-        bindFunction(&Communication::status,             "status",               "Show connection status");
-        bindFunction(&Communication::ping,               "ping",                 "Test connection");
-        bindFunction(&Communication::isConnected,        "is-connected",         "Check if connected");
+        BINDFUNCTION(&Communication::status,             "status",               "Show connection status");
+        BINDFUNCTION(&Communication::ping,               "ping",                 "Test connection");
+        BINDFUNCTION(&Communication::isConnected,        "is-connected",         "Check if connected");
 
         // Command parsing
-        bindFunction(&Communication::parseCommand,       "parse-command",        "Parse incoming command");
-        bindFunction(&Communication::executeRemote,      "execute-remote",       "Execute command from remote");
-        bindFunction(&Communication::setCommandHandler,  "set-command-handler",  "Set command callback");
+        BINDFUNCTION(&Communication::parseCommand,       "parse-command",        "Parse incoming command");
+        BINDFUNCTION(&Communication::executeRemote,      "execute-remote",       "Execute command from remote");
+        BINDFUNCTION(&Communication::setCommandHandler,  "set-command-handler",  "Set command callback");
 
         // Image transfer
-        bindFunction(&Communication::sendImage,          "send-image",           "Send image file");
+        BINDFUNCTION(&Communication::sendImage,          "send-image",           "Send image file");
 
         // Output redirection
-        bindFunction(&Communication::redirectOutput,     "redirect-output",      "Redirect cout to connection <on/off>");
+        BINDFUNCTION(&Communication::redirectOutput,     "redirect-output",      "Redirect cout to connection <on/off>");
     }
 };
 }   // namespace GlobalSpace

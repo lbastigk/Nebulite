@@ -35,15 +35,15 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error func_delete(int argc, char** argv);
-    static std::string_view constexpr func_delete_name = "delete";
-    static std::string_view constexpr func_delete_desc = "Marks object for deletion\n"
+    Constants::Error deleteObject();
+    static std::string_view constexpr deleteObject_name = "delete";
+    static std::string_view constexpr deleteObject_desc = "Marks object for deletion\n"
         "\n"
         "Usage: delete\n"
         "\n"
         "Marks the object for deletion on the next update cycle.\n";
 
-    Constants::Error updateText(int argc, char** argv);
+    Constants::Error updateText();
     static std::string_view constexpr updateText_name = "update-text";
     static std::string_view constexpr updateText_desc = "Calculate text texture\n"
         "\n"
@@ -58,8 +58,8 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, StateUpdate) {
-        bindFunction(&StateUpdate::func_delete, func_delete_name, func_delete_desc);
-        bindFunction(&StateUpdate::updateText, updateText_name, updateText_desc);
+        BINDFUNCTION(&StateUpdate::deleteObject, deleteObject_name, deleteObject_desc);
+        BINDFUNCTION(&StateUpdate::updateText, updateText_name, updateText_desc);
     }
 };
 } // namespace Nebulite::DomainModule::RenderObject

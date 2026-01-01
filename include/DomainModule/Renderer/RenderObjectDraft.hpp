@@ -54,13 +54,13 @@ public:
         "draft parse set posX 100\n"
         "draft parse set posY 200\n";
 
-    Constants::Error draft_spawn(int argc, char** argv);
+    Constants::Error draft_spawn();
     static std::string_view constexpr draft_spawn_name = "draft spawn";
     static std::string_view constexpr draft_spawn_desc = "Spawn the created draft object.\n"
         "\n"
         "Usage: draft spawn\n";
 
-    Constants::Error draft_reset(int argc, char** argv);
+    Constants::Error draft_reset();
     static std::string_view constexpr draft_reset_name = "draft reset";
     static std::string_view constexpr draft_reset_desc = "Reset the draft object.\n"
         "\n"
@@ -83,9 +83,9 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RenderObjectDraft) {
         // Bind functions
         (void)bindCategory(draft_name, draft_desc);
-        bindFunction(&RenderObjectDraft::draft_parse, draft_parse_name, draft_parse_desc);
-        bindFunction(&RenderObjectDraft::draft_spawn, draft_spawn_name, draft_spawn_desc);
-        bindFunction(&RenderObjectDraft::draft_reset, draft_reset_name, draft_reset_desc);
+        BINDFUNCTION(&RenderObjectDraft::draft_parse, draft_parse_name, draft_parse_desc);
+        BINDFUNCTION(&RenderObjectDraft::draft_spawn, draft_spawn_name, draft_spawn_desc);
+        BINDFUNCTION(&RenderObjectDraft::draft_reset, draft_reset_name, draft_reset_desc);
     }
 
 private:

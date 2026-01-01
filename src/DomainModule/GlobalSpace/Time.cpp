@@ -65,13 +65,11 @@ Constants::Error Time::update() {
 //------------------------------------------
 // Available Functions
 
-// NOLINTNEXTLINE
-Constants::Error Time::time_haltOnce(int argc, char** argv) {
+Constants::Error Time::time_haltOnce() {
     haltThisFrame = true;
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Time::time_lock(int argc, char** argv) {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -81,7 +79,6 @@ Constants::Error Time::time_lock(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Time::time_unlock(int argc, char** argv) {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -95,13 +92,11 @@ Constants::Error Time::time_unlock(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
-Constants::Error Time::time_masterUnlock(int argc, char** argv) {
+Constants::Error Time::time_masterUnlock() {
     timeLocks.clear();
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Time::time_setFixedDeltaTime(int argc, char** argv) {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();

@@ -42,7 +42,7 @@ public:
         "  fill <color>\n"
         "  fill <r> <g> <b>\n"
         "Where <color> can be 'red', 'green', or 'blue',\n"
-        "and <r>, <g>, <b> are integer values (0-255) for red, green, and blue components.";
+        "and <r>, <g>, <b> are integer values (0-255) for red, green, and blue components.\n";
 
     //------------------------------------------
     // Setup
@@ -51,7 +51,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Fill) {
-        bindFunction(&Fill::fill, fill_name, fill_desc);
+        BINDFUNCTION(&Fill::fill, fill_name, fill_desc);
     }
 };
 } // namespace Nebulite::DomainModule::Texture

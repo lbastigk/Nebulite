@@ -81,9 +81,9 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Parenting) {
         bindSubtree("parenting", "Functions to manage RenderObject parenting");
-        bindFunction(&Parenting::addChildren,       "parenting add-children",           "Adds children of the RenderObject by name");
-        bindFunction(&Parenting::removeChildren,    "parenting remove-children",        "Removes children from the RenderObject");
-        bindFunction(&Parenting::removeAllChildren, "parenting remove-all-children",    "Removes all children from the RenderObject");
+        BINDFUNCTION(&Parenting::addChildren,       "parenting add-children",           "Adds children of the RenderObject by name");
+        BINDFUNCTION(&Parenting::removeChildren,    "parenting remove-children",        "Removes children from the RenderObject");
+        BINDFUNCTION(&Parenting::removeAllChildren, "parenting remove-all-children",    "Removes all children from the RenderObject");
     }
 };
 }   // namespace DomainModule

@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.16)
 project(Nebulite)
 
 # Set C++ standard
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Build artifacts go to ./tmp/build_<preset>/ via CMake presets,

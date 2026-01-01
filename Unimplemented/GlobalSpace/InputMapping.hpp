@@ -102,9 +102,9 @@ public:
         // Not implemented yet
         /*
         bindSubtree("input-mapping", "Functions to manage input mappings");
-        bindFunction(&InputMapping::readMappingsFromFile,   "input-mapping read-from-file",    "Reads Input Mapping from inputs.jsonc file: [filename]");
-        bindFunction(&InputMapping::updateInputMapping,     "input-mapping map",               "Maps one input mapping: <action> <slot> <key> <type>");
-        bindFunction(&InputMapping::writeMappingsToFile,    "input-mapping write-to-file",     "Writes Input Mapping to inputs.jsonc file: [filename]");
+        BINDFUNCTION(&InputMapping::readMappingsFromFile,   "input-mapping read-from-file",    "Reads Input Mapping from inputs.jsonc file: [filename]");
+        BINDFUNCTION(&InputMapping::updateInputMapping,     "input-mapping map",               "Maps one input mapping: <action> <slot> <key> <type>");
+        BINDFUNCTION(&InputMapping::writeMappingsToFile,    "input-mapping write-to-file",     "Writes Input Mapping to inputs.jsonc file: [filename]");
         */
     }
 

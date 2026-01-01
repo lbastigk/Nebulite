@@ -57,8 +57,8 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, GUI){
-        bindSubtree("gui", "Functions to create GUI elements");
-        bindFunction(&GUI::example, "gui example", "An example function to demonstrate GUI-Elements");
+        bindCategory("gui", "Functions to create GUI elements");
+        BINDFUNCTION(&GUI::example, "gui example", "An example function to demonstrate GUI-Elements\n");
     }
 
 private:

@@ -1,6 +1,5 @@
 /**
  * @file Domain.hpp
- * 
  * @brief This file defines the Domain class, which serves as a base class for creating a Nebulite domain.
  *        The Domain class is split into a templated Domain class and a non-templated DomainBase class.
  *        The non-templated DomainBase class holds all common functionality for domains that do not require template parameters.
@@ -30,7 +29,7 @@ namespace Nebulite::Data {
 // We cannot include JSON directly due to circular dependencies,
 // as JSON itself is a domain.
 class JSON;
-}
+} // namespace Nebulite::Data
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {

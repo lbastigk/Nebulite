@@ -10,7 +10,6 @@ Constants::Error FunctionCollision::update() {
 //------------------------------------------
 // Available Functions
 
-// NOLINTNEXTLINE
 Constants::Error FunctionCollision::debug_collisionDetect_function(int argc, char const* argv[]) {
     bool fail = true;
     if (argc >= 2) {
@@ -25,15 +24,14 @@ Constants::Error FunctionCollision::debug_collisionDetect_function(int argc, cha
 
     if (fail) {
         // This will fail, as the function name is already registered in GlobalSpace
-        bindFunction(&FunctionCollision::debug_collisionDetect_function, debug_collisionDetect_function_name, debug_collisionDetect_function_desc);
+        BINDFUNCTION(&FunctionCollision::debug_collisionDetect_function, debug_collisionDetect_function_name, debug_collisionDetect_function_desc);
     } else {
         // Try to bind a new function with a unique name
-        bindFunction(&FunctionCollision::debug_collisionDetect_function, "123456", debug_collisionDetect_function_desc);
+        BINDFUNCTION(&FunctionCollision::debug_collisionDetect_function, "123456", debug_collisionDetect_function_desc);
     }
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error FunctionCollision::debug_collisionDetect_category(int argc, char const* argv[]) {
     bool fail = true;
     if (argc >= 2) {
@@ -68,7 +66,6 @@ Constants::Error FunctionCollision::debug_collisionDetect_category(int argc, cha
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error FunctionCollision::debug_collisionDetect_variable(int argc, char const* argv[]) {
     bool fail = true;
     if (argc >= 2) {

@@ -15,14 +15,12 @@ Constants::Error StateUpdate::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-// NOLINTNEXTLINE
-Constants::Error StateUpdate::func_delete(int argc, char** argv) {
+Constants::Error StateUpdate::deleteObject() {
     domain->flag.deleteFromScene = true;
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
-Constants::Error StateUpdate::updateText(int argc, char** argv) {
+Constants::Error StateUpdate::updateText() {
     domain->flag.calculateText = true;
     return Constants::ErrorTable::NONE();
 }

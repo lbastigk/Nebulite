@@ -37,7 +37,12 @@ public:
 
     Constants::Error addClock(int argc, char** argv);
     static std::string_view constexpr addClock_name = "add-clock";
-    static std::string_view constexpr addClock_desc = "Adds a clock with specified interval (ms) to the global clock system";
+    static std::string_view constexpr addClock_desc = "Adds a clock with specified interval (ms) to the global clock system\n"
+        "\n"
+        "Usage: add-clock <interval_ms>\n"
+        "\n"
+        "Example:\n"
+        "add-clock 100\n";
 
     //------------------------------------------
     // Keys in the global document
@@ -67,7 +72,7 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Clock) {
         //------------------------------------------
         // Binding functions to the FuncTree
-        bindFunction(&Clock::addClock, addClock_name, addClock_desc);
+        BINDFUNCTION(&Clock::addClock, addClock_name, addClock_desc);
 
         // Read clock list from document
         readClocksFromDocument();

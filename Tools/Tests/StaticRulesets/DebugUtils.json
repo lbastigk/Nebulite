@@ -4,6 +4,6 @@
             "spawn Resources/Renderobjects/Debug/staticRuleset.jsonc",
             "exit"
         ],
-        "expected": { "cout": ["[DEBUG] Static ruleset '::message' invoked!"], "cerr": [] }
+        "expected": { "cout": ["[DEBUG] Static ruleset '::message' invoked! Context ID: 1"], "cerr": [] }
     }
 ]

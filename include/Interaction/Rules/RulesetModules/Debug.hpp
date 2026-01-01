@@ -40,9 +40,9 @@ public:
     static constexpr std::string_view errorDesc = "Outputs a debug error message to the standard error output (cerr).";
 
     // Prints the ids of both contexts
-    void who(ContextBase const& context);
-    static constexpr std::string_view whoName = "::who";
-    static constexpr std::string_view whoDesc = "Prints a message with the unique IDs of the self and other render object contexts.";
+    void whoInteracts(ContextBase const& context);
+    static constexpr std::string_view whoInteractsName = "::whoInteracts";
+    static constexpr std::string_view whoInteractsDesc = "Prints a message with the unique IDs of the self and other render object contexts.";
 
     //------------------------------------------
     // Constructor
@@ -52,7 +52,7 @@ public:
         BIND_STATIC_ASSERT(RulesetType::Local, &Debug::error, errorName, errorDesc);
 
         // Global
-        BIND_STATIC_ASSERT(RulesetType::Global, &Debug::who, whoName, whoDesc);
+        BIND_STATIC_ASSERT(RulesetType::Global, &Debug::whoInteracts, whoInteractsName, whoInteractsDesc);
     }
 private:
     static constexpr std::string_view moduleName = "::debug";

@@ -114,7 +114,6 @@ Constants::Error Debug::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-// NOLINTNEXTLINE
 Constants::Error Debug::log_global(int argc, char** argv) {
     std::string const serialized = domain->getDoc()->serialize();
     if (argc > 1) {
@@ -127,7 +126,6 @@ Constants::Error Debug::log_global(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Debug::log_state(int argc, char** argv) {
     std::string const serialized = domain->getRenderer()->serialize();
     if (argc > 1) {
@@ -140,14 +138,12 @@ Constants::Error Debug::log_state(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
-Constants::Error Debug::standardfile_renderobject(int argc, char** argv) {
+Constants::Error Debug::standardfileRenderobject() {
     Core::RenderObject ro;
     Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize());
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Debug::errorlog(int argc, char** argv) {
     // Initialize the error logging buffer
     if (!originalCerrBuf) {
@@ -231,17 +227,12 @@ inline void clear_screen() {
 #endif
 }
 
-// NOLINTNEXTLINE
-Constants::Error Debug::clearConsole(int argc, char** argv) {
-    if (argc > 1) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
-    }
+Constants::Error Debug::clearConsole() {
     clear_screen();
     Utility::Capture::clear();
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Debug::crash(int argc, char** argv) {
     // If an argument is provided, use it to select crash type
     if (argc > 1 && argv[1]) {
@@ -269,7 +260,6 @@ Constants::Error Debug::crash(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Debug::error(int argc, char** argv) {
     for (int i = 1; i < argc; ++i) {
         Nebulite::cerr() << argv[i];
@@ -283,7 +273,6 @@ Constants::Error Debug::error(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-// NOLINTNEXTLINE
 Constants::Error Debug::warn(int argc, char** argv) {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -292,7 +281,6 @@ Constants::Error Debug::warn(int argc, char** argv) {
     return Constants::ErrorTable::addError(args, Constants::Error::NON_CRITICAL);
 }
 
-// NOLINTNEXTLINE
 Constants::Error Debug::critical(int argc, char** argv) {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -302,7 +290,6 @@ Constants::Error Debug::critical(int argc, char** argv) {
     return Constants::ErrorTable::addError(args, Constants::Error::CRITICAL);
 }
 
-// NOLINTNEXTLINE
 Constants::Error Debug::waitForInput(int argc, char** argv) {
     if (argc > 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();

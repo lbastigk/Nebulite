@@ -18,7 +18,7 @@ Constants::Error FeatureTest::update() {
 
 class MathModifier {
 public:
-    double add(std::span<std::string const> const& args, double input) {
+    static double add(std::span<std::string const> const& args, double input) {
         double sum = input;
         // Add all arguments but the first (which is the function name)
         for (auto const& arg : args.subspan(1)) {
@@ -33,10 +33,7 @@ public:
     }
 };
 
-Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& args) {
-    // Create an instance of MathModifier so we can bind its method
-    MathModifier mathModifier;
-
+Constants::Error FeatureTest::testFuncTree() {
     // Build a FuncTree with extra argument JSON&
     Interaction::Execution::FuncTree<double, double> testTree("TestFuncTree", 0.0, std::numeric_limits<double>::quiet_NaN());
 
@@ -44,7 +41,7 @@ Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& a
     std::string const addDesc = "Adds all provided numbers to the input number.\nUsage: <name> add num1 num2 ... numN";
 
     // Using the DomainModule bindFunctionStatic to bind the add method, otherwise we would need to do some complex template/visit gymnastics here
-    DomainModule::bindFunctionStatic(&testTree, &mathModifier, &MathModifier::add, addName, addDesc);
+    DomainModule::bindFunctionStatic(&testTree, &MathModifier::add, addName, addDesc);
 
     // Call the function
     std::string const funcCall = "<name> add 1.5 2.5 3.0";

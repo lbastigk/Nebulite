@@ -70,20 +70,20 @@ public:
         "- './Planets/sun.jsonc'\n"
         "- './Resources/RenderObjects/Planets/sun.jsonc'\n"
         "- './Resources/Renderobjects/Planets/sun.jsonc'\n"
-        "and spawns the first found object.";
+        "and spawns the first found object.\n";
 
-    Constants::Error env_load(int argc, char** argv);
-    static std::string_view constexpr env_load_name = "env load";
-    static std::string_view constexpr env_load_desc = "Load an environment/level from a json/jsonc file.\n"
+    Constants::Error envLoad(int argc, char** argv);
+    static std::string_view constexpr envLoad_name = "env load";
+    static std::string_view constexpr envLoad_desc = "Load an environment/level from a json/jsonc file.\n"
         "\n"
         "Usage: env load <path/to/file.jsonc>\n\n"
-        "If no argument is provided, an empty environment is loaded.";
+        "If no argument is provided, an empty environment is loaded.\n";
 
-    Constants::Error env_deload(int argc, char** argv);
-    static std::string_view constexpr env_deload_name = "env deload";
-    static std::string_view constexpr env_deload_desc = "Deload entire environment, leaving an empty renderer.\n"
+    Constants::Error envDeload();
+    static std::string_view constexpr envDeload_name = "env deload";
+    static std::string_view constexpr envDeload_desc = "Deload entire environment, leaving an empty renderer.\n"
         "\n"
-        "Usage: env deload";
+        "Usage: env deload\n";
 
     Constants::Error setResolution(int argc, char** argv);
     static std::string_view constexpr setResolution_name = "set-res";
@@ -99,14 +99,14 @@ public:
     static std::string_view constexpr setFPS_desc = "Set FPS of renderer.\n"
         "\n"
         "Usage: set-fps [fps]\n\n"
-        "Defaults to 60 fps if no argument is provided";
+        "Defaults to 60 fps if no argument is provided\n";
 
     Constants::Error showFPS(int argc, char** argv);
     static std::string_view constexpr showFPS_name = "show-fps";
     static std::string_view constexpr showFPS_desc = "Show FPS of renderer.\n"
         "\n"
         "Usage: show-fps [on|off]\n\n"
-        "Defaults to on if no argument is provided";
+        "Defaults to on if no argument is provided\n";
 
     Constants::Error cam_move(int argc, char** argv);
     static std::string_view constexpr cam_move_name = "cam move";
@@ -130,13 +130,13 @@ public:
     static std::string_view constexpr snapshot_desc = "Create a snapshot of the current renderer state.\n"
         "\n"
         "Usage: snapshot [filename]\n\n"
-        "Defaults to \"./Resources/Snapshots/snapshot.png\" if no argument is provided";
+        "Defaults to \"./Resources/Snapshots/snapshot.png\" if no argument is provided\n";
 
-    Constants::Error beep(int argc, char** argv);
+    Constants::Error beep();
     static std::string_view constexpr beep_name = "beep";
     static std::string_view constexpr beep_desc = "Make a beep noise.\n"
         "\n"
-        "Usage: beep";
+        "Usage: beep\n";
 
     /**
      * @todo If an object is deleted, the reference in GlobalSpace::selectedRenderObject is not cleared!
@@ -184,24 +184,24 @@ public:
      *       The only downside currently is that we have to implement a method to lazy-init the SDL Renderer within the Renderer domain itself.
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, General) {
-        bindFunction(&General::spawn, spawn_name, spawn_desc);
-        bindFunction(&General::setResolution, setResolution_name, setResolution_desc);
-        bindFunction(&General::setFPS, setFPS_name, setFPS_desc);
-        bindFunction(&General::showFPS, showFPS_name, showFPS_desc);
-        bindFunction(&General::snapshot, snapshot_name, snapshot_desc);
-        bindFunction(&General::beep, beep_name, beep_desc);
+        BINDFUNCTION(&General::spawn, spawn_name, spawn_desc);
+        BINDFUNCTION(&General::setResolution, setResolution_name, setResolution_desc);
+        BINDFUNCTION(&General::setFPS, setFPS_name, setFPS_desc);
+        BINDFUNCTION(&General::showFPS, showFPS_name, showFPS_desc);
+        BINDFUNCTION(&General::snapshot, snapshot_name, snapshot_desc);
+        BINDFUNCTION(&General::beep, beep_name, beep_desc);
 
         (void)bindCategory(cam_name, cam_desc);
-        bindFunction(&General::cam_move, cam_move_name, cam_move_desc);
-        bindFunction(&General::cam_set, cam_set_name, cam_set_desc);
+        BINDFUNCTION(&General::cam_move, cam_move_name, cam_move_desc);
+        BINDFUNCTION(&General::cam_set, cam_set_name, cam_set_desc);
 
         (void)bindCategory(selectedObject_name, selectedObject_desc);
-        bindFunction(&General::selectedObject_get, selectedObject_get_name, selectedObject_get_desc);
-        bindFunction(&General::selectedObject_Parse, selectedObject_Parse_name, selectedObject_Parse_desc);
+        BINDFUNCTION(&General::selectedObject_get, selectedObject_get_name, selectedObject_get_desc);
+        BINDFUNCTION(&General::selectedObject_Parse, selectedObject_Parse_name, selectedObject_Parse_desc);
 
         (void)bindCategory(env_name, env_desc);
-        bindFunction(&General::env_load, env_load_name, env_load_desc);
-        bindFunction(&General::env_deload, env_deload_name, env_deload_desc);
+        BINDFUNCTION(&General::envLoad, envLoad_name, envLoad_desc);
+        BINDFUNCTION(&General::envDeload, envDeload_name, envDeload_desc);
     }
 
 private:

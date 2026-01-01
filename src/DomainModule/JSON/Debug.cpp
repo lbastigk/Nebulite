@@ -17,7 +17,6 @@ Constants::Error Debug::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-// NOLINTNEXTLINE
 Constants::Error Debug::print(int argc, char** argv) {
     if (argc > 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
