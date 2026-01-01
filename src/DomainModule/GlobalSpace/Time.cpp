@@ -65,7 +65,7 @@ Constants::Error Time::update() {
 //------------------------------------------
 // Available Functions
 
-Constants::Error Time::time_haltOnce(int argc, char** argv) {
+Constants::Error Time::time_haltOnce() {
     haltThisFrame = true;
     return Constants::ErrorTable::NONE();
 }
@@ -92,7 +92,7 @@ Constants::Error Time::time_unlock(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Time::time_masterUnlock(int argc, char** argv) {
+Constants::Error Time::time_masterUnlock() {
     timeLocks.clear();
     return Constants::ErrorTable::NONE();
 }

@@ -18,7 +18,7 @@ Constants::Error General::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Error General::env_load(int argc, char** argv) {
+Constants::Error General::envLoad(int argc, char** argv) {
     if (argc > 1) {
         domain->deserialize(argv[1]);
         return Constants::ErrorTable::NONE();
@@ -28,7 +28,7 @@ Constants::Error General::env_load(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::env_deload(int argc, char** argv) {
+Constants::Error General::envDeload() {
     domain->purgeObjects();
     domain->purgeTextures();
     return Constants::ErrorTable::NONE();

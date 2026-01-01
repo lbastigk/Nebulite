@@ -46,7 +46,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, General) {
-        bindFunction(&General::reloadTexture, reloadTexture_name, reloadTexture_desc);
+        BINDFUNCTION(&General::reloadTexture, reloadTexture_name, reloadTexture_desc);
     }
 };
 } // namespace Nebulite::DomainModule::Texture

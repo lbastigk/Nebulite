@@ -24,11 +24,7 @@ Constants::Error Debug::eval(int argc, char** argv) {
     return domain->parseStr(argsEvaluated);
 }
 
-Constants::Error Debug::printSrcRect(int argc, char** argv) {
-    if (argc != 1) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
-    }
-
+Constants::Error Debug::printSrcRect() {
     if (SDL_Rect const* srcRect = domain->getSrcRect(); srcRect) {
         std::string message;
         message += "Source Rectangle:";
@@ -45,11 +41,7 @@ Constants::Error Debug::printSrcRect(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Debug::printDstRect(int argc, char** argv) {
-    if (argc != 1) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
-    }
-
+Constants::Error Debug::printDstRect() {
     if (SDL_Rect const* dstRect = domain->getDstRect(); dstRect) {
         std::string message;
         message += "Destination Rectangle:";
@@ -117,11 +109,7 @@ std::string getTextureInfoString(SDL_Texture* texture) {
 }
 } // unnamed namespace
 
-Constants::Error Debug::textureStatus(int argc, char** argv) {
-    if (argc != 1) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
-    }
-
+Constants::Error Debug::textureStatus() {
     //------------------------------------------
     // Print Texture Status
     Nebulite::cout() << "Texture Status:" << Nebulite::endl;

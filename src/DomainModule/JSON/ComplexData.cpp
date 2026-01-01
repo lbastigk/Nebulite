@@ -17,7 +17,7 @@ Constants::Error ComplexData::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Error ComplexData::querySet(int argc, char** argv) {
+Constants::Error ComplexData::querySet() {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }

@@ -75,7 +75,7 @@ Constants::Error Ruleset::once(std::span<std::string const> const& args) {
     return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
 }
 
-Constants::Error Ruleset::reload(std::span<std::string const> const& args) {
+Constants::Error Ruleset::reload() {
     reloadRulesets = true;
     return Constants::ErrorTable::NONE();
 }

@@ -26,7 +26,7 @@ Constants::Error ForceValue::force_set(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error ForceValue::force_clear(int argc, char** argv) {
+Constants::Error ForceValue::force_clear() {
     std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
     forced_global_values.clear();
     return Constants::ErrorTable::NONE();

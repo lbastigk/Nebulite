@@ -37,7 +37,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error time_haltOnce(int argc, char** argv);
+    Constants::Error time_haltOnce();
     static std::string_view constexpr time_haltOnce_name = "time halt-once";
     static std::string_view constexpr time_haltOnce_desc = "Halts time for one frame\n"
         "Meaning you can halt time by continuously calling this function.\n"
@@ -62,7 +62,7 @@ public:
         "\n"
         "<lock_name> : Name of the lock to remove. Must match an existing lock.\n";
 
-    Constants::Error time_masterUnlock(int argc, char** argv);
+    Constants::Error time_masterUnlock();
     static std::string_view constexpr time_masterUnlock_name = "time master-unlock";
     static std::string_view constexpr time_masterUnlock_desc = "Removes all time locks.\n"
         "Time can only progress if no locks are present.\n"
@@ -114,11 +114,11 @@ public:
         //------------------------------------------
         // Bind functions
         (void)bindCategory(time_name, time_desc);
-        bindFunction(&Time::time_haltOnce, time_haltOnce_name, time_haltOnce_desc);
-        bindFunction(&Time::time_lock, time_lock_name, time_lock_desc);
-        bindFunction(&Time::time_unlock, time_unlock_name, time_unlock_desc);
-        bindFunction(&Time::time_masterUnlock, time_masterUnlock_name, time_masterUnlock_desc);
-        bindFunction(&Time::time_setFixedDeltaTime, time_setFixedDeltaTime_name, time_setFixedDeltaTime_desc);
+        BINDFUNCTION(&Time::time_haltOnce, time_haltOnce_name, time_haltOnce_desc);
+        BINDFUNCTION(&Time::time_lock, time_lock_name, time_lock_desc);
+        BINDFUNCTION(&Time::time_unlock, time_unlock_name, time_unlock_desc);
+        BINDFUNCTION(&Time::time_masterUnlock, time_masterUnlock_name, time_masterUnlock_desc);
+        BINDFUNCTION(&Time::time_setFixedDeltaTime, time_setFixedDeltaTime_name, time_setFixedDeltaTime_desc);
     }
 
 private:

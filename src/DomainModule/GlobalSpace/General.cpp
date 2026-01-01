@@ -30,7 +30,7 @@ Constants::Error General::eval(int argc, char** argv) {
     return domain->parseStr(argsEvaluated);
 }
 
-Constants::Error General::exit(int argc, char** argv) {
+Constants::Error General::exit() {
     // Clear all task queues to prevent further execution
     domain->clearAllTaskQueues();
 
@@ -178,7 +178,7 @@ Constants::Error General::always(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::alwaysClear(int argc, char** argv) {
+Constants::Error General::alwaysClear() {
     domain->getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::always)->clear();
     return Constants::ErrorTable::NONE();
 }
@@ -210,7 +210,7 @@ Constants::Error General::func_for(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::nop(std::span<std::string const> const& args) {
+Constants::Error General::nop() {
     // Do nothing
     return Constants::ErrorTable::NONE();
 }

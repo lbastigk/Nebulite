@@ -36,10 +36,10 @@ public:
     /**
      * @todo Not implemented yet
      */
-    Constants::Error querySet(int argc, char** argv);
+    Constants::Error querySet();
     static std::string_view constexpr querySet_name = "query set";
     static std::string_view constexpr querySet_desc = "Sets a key from a SQL query result.\n"
-        "Not implemented yet.";
+        "Not implemented yet.\n";
 
     Constants::Error jsonSet(int argc, char** argv);
     static std::string_view constexpr jsonSet_name = "json set";
@@ -47,7 +47,7 @@ public:
         "Usage: json set <key> <link:key>\n"
         "\n"
         "Where <link:key> is a link to a JSON document.\n"
-        "The document is dynamically loaded and cached for future use.";
+        "The document is dynamically loaded and cached for future use.\n";
 
     //------------------------------------------
     // Category names
@@ -69,11 +69,11 @@ public:
 
         // SQL Queries
         (void)bindCategory(query_name, query_desc);
-        bindFunction(&ComplexData::querySet, querySet_name, querySet_desc);
+        BINDFUNCTION(&ComplexData::querySet, querySet_name, querySet_desc);
 
         // Set from read only JSON documents
         (void)bindCategory(json_name, json_desc);
-        bindFunction(&ComplexData::jsonSet, jsonSet_name, jsonSet_desc);
+        BINDFUNCTION(&ComplexData::jsonSet, jsonSet_name, jsonSet_desc);
     }
 };
 } // namespace Nebulite::JSON::DomainModule

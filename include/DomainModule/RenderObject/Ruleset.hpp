@@ -49,7 +49,7 @@ public:
     //       perhaps just an option to reload is enough?
     //       any push/pop could be done via json manipulation directly
 
-    Constants::Error reload(std::span<std::string const> const& args);
+    Constants::Error reload();
     static std::string_view constexpr reload_name = "ruleset reload";
     static std::string_view constexpr reload_desc = "Reloads all rulesets for this RenderObject on the next update.\n"
         "\n"

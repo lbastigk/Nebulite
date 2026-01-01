@@ -52,13 +52,13 @@ public:
         "This evaluates to 'spawn ./Resources/RenderObjects/NAME.json',\n"
         "where NAME is the current value of the global variable ToSpawn\n";
 
-    Constants::Error exit(int argc, char** argv);
+    Constants::Error exit();
     static std::string_view constexpr exit_name = "exit";
     static std::string_view constexpr exit_desc = "Exits the entire program.\n"
         "\n"
         "Usage: exit\n"
         "\n"
-        "Closes the program with exit code 0 (no error)\n"
+        "Closes the program\n"
         "Any queued tasks will be discarded.\n";
 
     Constants::Error wait(int argc, char** argv);
@@ -178,7 +178,7 @@ public:
         "always echo This command runs every frame!\n"
         "This will output \"This command runs every frame!\" on every frame.\n";
 
-    Constants::Error alwaysClear(int argc, char** argv);
+    Constants::Error alwaysClear();
     static std::string_view constexpr alwaysClear_name = "always-clear";
     static std::string_view constexpr alwaysClear_desc = "Clears the entire always-taskqueue.\n"
         "\n"
@@ -188,9 +188,9 @@ public:
         "always-clear\n"
         "This will remove all commands from the always-taskqueue.\n";
 
-    Constants::Error nop(std::span<std::string const> const& args);
-    std::string const nop_name = "nop";
-    std::string const nop_desc = "No operation. Does nothing.\n"
+    Constants::Error nop();
+    static std::string_view constexpr nop_name = "nop";
+    static std::string_view constexpr nop_desc = "No operation. Does nothing.\n"
         "\n"
         "Usage: nop <blind arguments>\n"
         "\n"
@@ -211,18 +211,18 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, General) {
-        bindFunction(&General::eval, eval_name, eval_desc);
-        bindFunction(&General::exit, exit_name, exit_desc);
-        bindFunction(&General::wait, wait_name, wait_desc);
-        bindFunction(&General::task, task_name, task_desc);
-        bindFunction(&General::func_for, func_for_name, func_for_desc);
-        bindFunction(&General::func_if, func_if_name, func_if_desc);
-        bindFunction(&General::func_return, func_return_name, func_return_desc);
-        bindFunction(&General::echo, echo_name, echo_desc);
-        bindFunction(&General::func_assert, assert_name, assert_desc);
-        bindFunction(&General::always, always_name, always_desc);
-        bindFunction(&General::alwaysClear, alwaysClear_name, alwaysClear_desc);
-        bindFunction(&General::nop, nop_name, nop_desc);
+        BINDFUNCTION(&General::eval, eval_name, eval_desc);
+        BINDFUNCTION(&General::exit, exit_name, exit_desc);
+        BINDFUNCTION(&General::wait, wait_name, wait_desc);
+        BINDFUNCTION(&General::task, task_name, task_desc);
+        BINDFUNCTION(&General::func_for, func_for_name, func_for_desc);
+        BINDFUNCTION(&General::func_if, func_if_name, func_if_desc);
+        BINDFUNCTION(&General::func_return, func_return_name, func_return_desc);
+        BINDFUNCTION(&General::echo, echo_name, echo_desc);
+        BINDFUNCTION(&General::func_assert, assert_name, assert_desc);
+        BINDFUNCTION(&General::always, always_name, always_desc);
+        BINDFUNCTION(&General::alwaysClear, alwaysClear_name, alwaysClear_desc);
+        BINDFUNCTION(&General::nop, nop_name, nop_desc);
     }
 };
 } // namespace Nebulite::DomainModule::GlobalSpace

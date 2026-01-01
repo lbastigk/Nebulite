@@ -18,10 +18,7 @@ Constants::Error RenderObjectDraft::draft_parse(int argc, char** argv) {
     return draft.get()->parseStr(__FUNCTION__ + std::string(" ") + command);
 }
 
-Constants::Error RenderObjectDraft::draft_spawn(int argc, char** argv) {
-    if (argc != 1) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
-    }
+Constants::Error RenderObjectDraft::draft_spawn() {
     // Make a copy of the draft's serialized data
     // Create a new RenderObject on the heap and append it to the renderer
     std::string const serial = draft.get()->serialize();
@@ -31,10 +28,7 @@ Constants::Error RenderObjectDraft::draft_spawn(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error RenderObjectDraft::draft_reset(int argc, char** argv) {
-    if (argc != 1) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS(); // No arguments expected
-    }
+Constants::Error RenderObjectDraft::draft_reset() {
     Core::RenderObject newDraft;
     draft.get()->deserialize(newDraft.serialize());
     return Constants::ErrorTable::NONE();
