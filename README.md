@@ -236,7 +236,7 @@ The function calls are parsed and executed in their respective domains after exp
 
 **Requirements**:
 - CMake 3.16+
-- C++23 compiler
+- C++26 compiler
 - Python 3.8+ (for testing and mock asset creation)
 
 **Dependencies**
