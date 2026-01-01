@@ -421,42 +421,18 @@ private:
      * @return Pointer to the FuncTree of the category, or nullptr if not found.
      */
     FuncTree<returnValue, additionalArgs...>* traverseIntoCategory(std::string const& categoryName, FuncTree* ftree);
+
+    //------------------------------------------
+    // Comparison helper
+
+    template <typename T>
+    static bool isEqual(T const& a, T const& b);
 };
 } // namespace Nebulite::Interaction::Execution
 
+// Template implementations
+#include "Interaction/Execution/FuncTree.tpp"
+#include "Interaction/Execution/FuncTreeArgumentCompletion.tpp"
+
 #endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
 
-// Template implementation
-#include "Interaction/Execution/FuncTree.tpp"
-
-/*
-enum class FunctionShape {
-        Unknown,
-
-        // Member shapes
-        Member_Legacy_IntChar,
-        Member_Legacy_IntConstChar,
-
-        Member_Modern_NoAddArgs,
-        Member_Modern_NoAddArgsConstRef,
-
-        Member_Modern_Full,
-        Member_Modern_FullConstRef,
-
-        Member_NoCmdArgs,
-        Member_NoArgs,
-
-        // Free / static shapes
-        Free_Legacy_IntChar,
-        Free_Legacy_IntConstChar,
-
-        Free_Modern_NoAddArgs,
-        Free_Modern_NoAddArgsConstRef,
-
-        Free_Modern_Full,
-        Free_Modern_FullConstRef,
-
-        Free_NoArgs,
-        Free_NoCmdArgs
-    };
-*/
