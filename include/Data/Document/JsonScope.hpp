@@ -76,34 +76,16 @@ NEBULITE_DOMAIN(JsonScope) {
     //------------------------------------------
     // Valid prefix check and generation
 
+    /**
+     * @brief Generates a proper prefix given a user-provided prefix.
+     * @details Ensures that the prefix ends with a dot if it's not empty.
+     * @param givenPrefix The user-provided prefix.
+     * @return The properly formatted prefix.
+     */
     std::string generatePrefix(std::string const& givenPrefix) const {
         std::string fullPrefix = givenPrefix;
         if (!fullPrefix.empty() && !fullPrefix.ends_with(".")) fullPrefix += ".";
         return fullPrefix;
-    }
-
-    std::string generateFullKey(std::string const& key) const {
-        std::string full;
-        full.reserve(scopePrefix.size() + key.size());
-        full = scopePrefix;
-        full.append(key);
-        return full;
-    }
-
-    std::string generateFullKey(std::string_view const& key) const {
-        std::string full;
-        full.reserve(scopePrefix.size() + key.size());
-        full = scopePrefix;
-        full.append(key);
-        return full;
-    }
-
-    std::string generateFullKey(char const* key) const {
-        std::string full;
-        full.reserve(scopePrefix.size() + std::strlen(key));
-        full = scopePrefix;
-        full.append(key);
-        return full;
     }
 
 public:
@@ -137,6 +119,38 @@ public:
     ~JsonScope() override;
 
     //------------------------------------------
+    // Idea: Using a custom type to turn a string literal into a scoped key
+
+    /**
+     * @brief A helper struct to represent unscoped keys.
+     * @details This struct allows for easy conversion of string literals
+     *          into fully scoped keys within the JsonScope.
+     *          This reduces accidental key misusage, as conversion to a usable type
+     *          std::string requires an explicit action.
+     */
+    struct unscopedKey {
+        unscopedKey(std::string_view const& k) : key(k) {}
+        unscopedKey(const char* k) : key(k) {}
+        unscopedKey(std::string const& k) : key(k) {}
+
+        friend class JsonScope;
+    private:
+        /**
+         * @brief Generates the full scoped key using the provided JsonScope.
+         * @param scope The JsonScope to use for generating the full key.
+         * @return The fully scoped key as a std::string.
+         */
+        std::string full(JsonScope const* scope) const {
+            std::string full;
+            full.reserve(scope->scopePrefix.size() + key.size());
+            full = scope->scopePrefix;
+            full.append(key);
+            return full;
+        }
+        std::string_view key;
+    };
+
+    //------------------------------------------
     // Domain related stuff
 
     Constants::Error update() override {
@@ -163,77 +177,35 @@ public:
     //------------------------------------------
     // Sharing a scope
 
-    JsonScope shareScope(std::string const& subPrefix) {
-        return JsonScope(*this, generateFullKey(subPrefix));
+    JsonScope shareScope(unscopedKey const& key) {
+        return JsonScope(*this, key.full(this));
     }
 
     //------------------------------------------
     // Getter
 
     template<typename T>
-    T get(std::string const& key, T const& defaultValue) const {
+    T get(unscopedKey const& key, T const& defaultValue) const {
         return visitBase([&](auto& alt) -> T {
-            return alt.template get<T>(generateFullKey(key), defaultValue);
-        });
-    }
-    template<typename T>
-    T get(std::string_view const& key, T const& defaultValue) const {
-        return visitBase([&](auto& alt) -> T {
-            return alt.template get<T>(generateFullKey(key), defaultValue);
-        });
-    }
-    template<typename T>
-    T get(char const* key, T const& defaultValue) const {
-        return visitBase([&](auto& alt) -> T {
-            return alt.template get<T>(generateFullKey(key), defaultValue);
+            return alt.template get<T>(key.full(this), defaultValue);
         });
     }
 
-    std::optional<RjDirectAccess::simpleValue> getVariant(std::string const& key) const {
+    std::optional<RjDirectAccess::simpleValue> getVariant(unscopedKey const& key) const {
         return visitBase([&](auto& alt) -> std::optional<RjDirectAccess::simpleValue> {
-            return alt.getVariant(generateFullKey(key));
-        });
-    }
-    std::optional<RjDirectAccess::simpleValue> getVariant(std::string_view const& key) const {
-        return visitBase([&](auto& alt) -> std::optional<RjDirectAccess::simpleValue> {
-            return alt.getVariant(generateFullKey(key));
-        });
-    }
-    std::optional<RjDirectAccess::simpleValue> getVariant(char const* key) const {
-        return visitBase([&](auto& alt) -> std::optional<RjDirectAccess::simpleValue> {
-            return alt.getVariant(generateFullKey(key));
+            return alt.getVariant(key.full(this));
         });
     }
 
-    JSON getSubDoc(std::string const& key) const {
+    JSON getSubDoc(unscopedKey const& key) const {
         return visitBase([&](auto& alt) -> JSON {
-            return alt.getSubDoc(generateFullKey(key));
-        });
-    }
-    JSON getSubDoc(std::string_view const& key) const {
-        return visitBase([&](auto& alt) -> JSON {
-            return alt.getSubDoc(generateFullKey(key));
-        });
-    }
-    JSON getSubDoc(char const* key) const {
-        return visitBase([&](auto& alt) -> JSON {
-            return alt.getSubDoc(generateFullKey(key));
+            return alt.getSubDoc(key.full(this));
         });
     }
 
-    double* getStableDoublePointer(std::string const& key) {
+    double* getStableDoublePointer(unscopedKey const& key) {
         return visitBase([&](auto& alt) -> double* {
-            return alt.getStableDoublePointer(generateFullKey(key));
-        });
-    }
-    double* getStableDoublePointer(std::string_view const& key) {
-        return visitBase([&](auto& alt) -> double* {
-            return alt.getStableDoublePointer(generateFullKey(key));
-        });
-    }
-    double* getStableDoublePointer(char const* key) {
-        return visitBase([&](auto& alt) -> double* {
-            return alt.getStableDoublePointer(generateFullKey(key));
+            return alt.getStableDoublePointer(key.full(this));
         });
     }
 
@@ -241,90 +213,48 @@ public:
     // Setter
 
     template<typename T>
-    void set(std::string const& key, T const& value) {
+    void set(unscopedKey const& key, T const& value) {
         visitBase([&](auto& alt) -> void {
-            alt.template set<T>(generateFullKey(key), value);
-        });
-    }
-    template<typename T>
-    void set(std::string_view const& key, T const& value) {
-        visitBase([&](auto& alt) -> void {
-            alt.template set<T>(generateFullKey(key), value);
-        });
-    }
-    template<typename T>
-    void set(char const* key, T const& value) {
-        visitBase([&](auto& alt) -> void {
-            alt.template set<T>(generateFullKey(key), value);
+            alt.template set<T>(key.full(this), value);
         });
     }
 
-    void setVariant(std::string const& key, RjDirectAccess::simpleValue const& value) {
+    void setVariant(unscopedKey const& key, RjDirectAccess::simpleValue const& value) {
         visitBase([&](auto& alt) -> void {
-            alt.setVariant(generateFullKey(key), value);
-        });
-    }
-    void setVariant(std::string_view const& key, RjDirectAccess::simpleValue const& value) {
-        visitBase([&](auto& alt) -> void {
-            alt.setVariant(generateFullKey(key), value);
-        });
-    }
-    void setVariant(char const* key, RjDirectAccess::simpleValue const& value) {
-        visitBase([&](auto& alt) -> void {
-            alt.setVariant(generateFullKey(key), value);
+            alt.setVariant(key.full(this), value);
         });
     }
 
-    void setSubDoc(std::string const& key, JSON& subDoc) {
+    void setSubDoc(unscopedKey const& key, JSON& subDoc) {
         visitBase([&](auto& alt) -> void {
-            alt.setSubDoc(generateFullKey(key), subDoc);
-        });
-    }
-    void setSubDoc(std::string_view const& key, JSON& subDoc) {
-        visitBase([&](auto& alt) -> void {
-            alt.setSubDoc(generateFullKey(key), subDoc);
-        });
-    }
-    void setSubDoc(char const* key, JSON& subDoc) {
-        visitBase([&](auto& alt) -> void {
-            alt.setSubDoc(generateFullKey(key), subDoc);
+            alt.setSubDoc(key.full(this), subDoc);
         });
     }
 
-    void setEmptyArray(std::string const& key) {
+    void setEmptyArray(unscopedKey const& key) {
         visitBase([&](auto& alt) -> void {
-            alt.setEmptyArray(generateFullKey(key));
-        });
-    }
-    void setEmptyArray(std::string_view const& key) {
-        visitBase([&](auto& alt) -> void {
-            alt.setEmptyArray(generateFullKey(key));
-        });
-    }
-    void setEmptyArray(char const* key) {
-        visitBase([&](auto& alt) -> void {
-            alt.setEmptyArray(generateFullKey(key));
+            alt.setEmptyArray(key.full(this));
         });
     }
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
 
-    void set_add(std::string_view const& key, double const& val) {
+    void set_add(unscopedKey const& key, double const& val) {
         visitBase([&](auto& alt) -> void {
-            alt.set_add(generateFullKey(key), val);
+            alt.set_add(key.full(this), val);
         });
     }
 
-    void set_multiply(std::string_view const& key, double const& val) {
+    void set_multiply(unscopedKey const& key, double const& val) {
         visitBase([&](auto& alt) -> void {
-            alt.set_multiply(generateFullKey(key), val);
+            alt.set_multiply(key.full(this), val);
         });
     }
 
-    void set_concat(std::string_view const& key, std::string const& valStr) {
+    void set_concat(unscopedKey const& key, std::string const& valStr) {
         visitBase([&](auto& alt) -> void {
-            alt.set_concat(generateFullKey(key), valStr);
+            alt.set_concat(key.full(this), valStr);
         });
     }
 
@@ -355,63 +285,33 @@ public:
     //------------------------------------------
     // Key Types, Sizes
 
-    JSON::KeyType memberType(std::string const& key) {
+    JSON::KeyType memberType(unscopedKey const& key) {
         return visitBase([&](auto& alt) -> JSON::KeyType {
-            return alt.memberType(generateFullKey(key));
-        });
-    }
-    JSON::KeyType memberType(std::string_view key) {
-        return visitBase([&](auto& alt) -> JSON::KeyType {
-            return alt.memberType(generateFullKey(key));
-        });
-    }
-    JSON::KeyType memberType(char const* key) {
-        return visitBase([&](auto& alt) -> JSON::KeyType {
-            return alt.memberType(generateFullKey(key));
+            return alt.memberType(key.full(this));
         });
     }
 
-    size_t memberSize(std::string const& key) {
+    size_t memberSize(unscopedKey const& key) {
         return visitBase([&](auto& alt) -> size_t {
-            return alt.memberSize(generateFullKey(key));
-        });
-    }
-    size_t memberSize(std::string_view key) {
-        return visitBase([&](auto& alt) -> size_t {
-            return alt.memberSize(generateFullKey(key));
-        });
-    }
-    size_t memberSize(char const* key) {
-        return visitBase([&](auto& alt) -> size_t {
-            return alt.memberSize(generateFullKey(key));
+            return alt.memberSize(key.full(this));
         });
     }
 
-    void removeKey(std::string_view key) {
+    void removeKey(unscopedKey const& key) {
         visitBase([&](auto& alt) -> void {
-            alt.removeKey(generateFullKey(key).c_str());
-        });
-    }
-    void removeKey(std::string const& key) {
-        visitBase([&](auto& alt) -> void {
-            alt.removeKey(generateFullKey(key).c_str());
-        });
-    }
-
-    void removeKey(char const* key) {
-        visitBase([&](auto& alt) -> void {
-            alt.removeKey(generateFullKey(key).c_str());
+            alt.removeKey(key.full(this));
         });
     }
 
     //------------------------------------------
     // Serialize/Deserialize
 
-    std::string serialize(std::string const& key = "") {
+    std::string serialize(unscopedKey const& key = "") {
         return visitBase([&](auto& alt) -> std::string {
-            return alt.serialize(generateFullKey(key));
+            return alt.serialize(key.full(this));
         });
     }
+
     void deserialize(std::string const& serialOrLink) {
         JSON tmp;
         tmp.deserialize(serialOrLink);
