@@ -130,13 +130,11 @@ public:
 
         // Accept any T that is constructible into std::string_view
         template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
-        scopedKey(T const& k) : key(std::string_view(k)) {}
+        scopedKey(T const& k) : key(std::string_view(k)), expectedScope(std::nullopt) {}
 
         // To be used when we want to ensure that the key is used in a specific scope
         template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
-        scopedKey(T const& k, JsonScope const& scope) : key(std::string_view(k)) {
-            expectedScope = scope.getScopePrefix();
-        }
+        scopedKey(T const& k, JsonScope const& scope) : key(std::string_view(k)), expectedScope(scope.getScopePrefix()) {}
 
         // Disable copying and moving to ensure safety of the string_view
         scopedKey(scopedKey const&) = delete;
@@ -153,45 +151,37 @@ public:
          *       Still unsure what is actually needed.
          */
         std::string full(JsonScope const& scope) const {
-            std::string const allowedScope = scope.scopePrefix;
+            // The scope that this JsonScope is allowed to use
+            std::string const& allowedScope = scope.scopePrefix;
 
-            // This needs a better check:
-            // - if expectedScope is: my.Key but scopePrefix is my.Key2, that's an error
-            // We somehow need to ensure that expectedScope is a prefix of scopePrefix
-
-            // Ensure that our scope is valid
-            // E.g.:
-            // - this key was created with expectedScope "status.effects."
-            // - but is now used in a JsonScope with scopePrefix "status.inventory."
-            // This is an error, as the key was created for a different scope
-            if (!expectedScope.empty() && !expectedScope.starts_with(allowedScope)) {
-                std::string const msg =
-                    "ScopedKey scope mismatch: key '" + std::string(key) +
-                    "' was created expecting scope prefix '" + expectedScope +
-                    "' but was used in JsonScope with prefix '" + allowedScope;
-                throw std::invalid_argument(msg);
-            }
-
-            // Now that we know expectedScope is a prefix of scopePrefix, we can check if expectedScope is larger
-            // If that is the case, we use that as the prefix instead
-            // Example:
-            // - We generate a scopedKey with the full key "status.effects.health"
-            //   as: scopedKey("health", effectsScope) where effectsScope has prefix "status.effects."
-            // - If we now use this key in a scope with prefix "status.effects.buffs.", we get an error as "status.effects." is not a prefix of "status.effects.buffs."
-            // - If we use it in a scope with prefix "status.", we are fine
-            //   Then, length comparison kicks in: expectedScope ("status.effects.") is longer than scopePrefix ("status."), so we use expectedScope as the prefix
-            // This ensures we generate the correct full key in all cases
+            // See if we require a specific scope
+            bool const requiresScope = expectedScope.has_value();
             std::string fullKey;
-            if (expectedScope.size() > scope.scopePrefix.size()) {
-                fullKey.reserve(expectedScope.size() + key.size());
-                fullKey = expectedScope;
-                fullKey.append(key);
+            if (requiresScope) {
+                // Ensure that the expected scope lies within the allowed scope
+                // E.g. expectedScope = "module1.submodule." allowedScope = "module1." -> valid
+                //      expectedScope = "module2."           allowedScope = "module1." -> invalid, we are only allowed to use module1.*
+                std::string const& expected = *expectedScope;
+                if (!expected.starts_with(allowedScope)) {
+                    std::string const msg =
+                        "ScopedKey scope mismatch: key '" + std::string(key) +
+                        "' was created expecting scope prefix '" + expected +
+                        "' but was used in JsonScope with prefix '" + allowedScope;
+                    throw std::invalid_argument(msg);
+                }
+
+                // If the expected scope is larger than the allowed scope, we need to use that as prefix
+                if (expected.size() > allowedScope.size()) {
+                    fullKey.reserve(expected.size() + key.size());
+                    fullKey = expected;
+                    fullKey.append(key);
+                    return fullKey;
+                }
             }
-            else {
-                fullKey.reserve(scope.scopePrefix.size() + key.size());
-                fullKey = scope.scopePrefix;
-                fullKey.append(key);
-            }
+
+            fullKey.reserve(allowedScope.size() + key.size());
+            fullKey = scope.scopePrefix;
+            fullKey.append(key);
             return fullKey;
         }
 
@@ -199,7 +189,7 @@ public:
         std::string_view key;
 
         // Expected scope beginning
-        std::string expectedScope = "";
+        std::optional<std::string> expectedScope;
     };
 
     //------------------------------------------
