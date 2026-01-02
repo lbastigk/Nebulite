@@ -46,11 +46,13 @@ public:
     //------------------------------------------
     // Important types
 
+    // Command argument span types
     struct CmdArgs {
         using Span = std::span<std::string const>;
         using SpanConstRef = std::span<std::string const> const&;
     };
-    
+
+    // Supported function signatures
     struct SupportedFunctions {
         struct Legacy {
             using IntChar = std::function<returnValue(int, char**)>;
