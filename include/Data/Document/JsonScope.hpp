@@ -69,10 +69,8 @@ NEBULITE_DOMAIN(JsonScope) {
 
     // Necessary helper for shareScope
     JsonScope& shareManagedScope(std::string const& prefix) const {
-        return shareScope(prefix);
+        return shareScope(scopedKey(prefix));
     }
-
-
 
 public:
     //------------------------------------------
@@ -128,68 +126,66 @@ public:
         // JsonScope should be the only class able to convert scopedKey to full key
         friend class JsonScope;
 
-        // Accept any T that is constructible into std::string_view
-        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
-        scopedKey(T const& k) : key(std::string_view(k)), expectedScope(std::nullopt) {}
+        // Accept any T that is constructible into std::string
+        // We disable linting as the implicit conversion is intended here
+        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string, T>>>
+        // NOLINTNEXTLINE
+        scopedKey(T const& k)
+            : key(std::string(k)), givenScope(std::nullopt) {}
 
         // To be used when we want to ensure that the key is used in a specific scope
-        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
-        scopedKey(T const& k, JsonScope const& scope) : key(std::string_view(k)), expectedScope(scope.getScopePrefix()) {}
-
-        // Disable copying and moving to ensure safety of the string_view
-        scopedKey(scopedKey const&) = delete;
-        scopedKey& operator=(scopedKey const&) = delete;
-        scopedKey(scopedKey&&) = delete;
-        scopedKey& operator=(scopedKey&&) = delete;
+        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string, T>>>
+        scopedKey(T const& k, JsonScope const& scope)
+            : key(std::string(k)), givenScope(scope.getScopePrefix()) {}
 
     private:
         /**
-         * @brief Generates the full scoped key using the provided JsonScope.
+         * @brief Generates the full scoped key using the provided JsonScope
+         * @details Checks if the optional given scope from the key matches the allowed scope
+         *          from the provided JsonScope. If they do not match, an exception is thrown.
+         *          If no given scope is set, the JsonScopes scopePrefix is used directly.
          * @param scope The JsonScope to use for generating the full key.
          * @return The fully scoped key as a std::string.
-         * @todo Work in progress: Current implementation is shitty,
-         *       Still unsure what is actually needed.
          */
         std::string full(JsonScope const& scope) const {
             // The scope that this JsonScope is allowed to use
             std::string const& allowedScope = scope.scopePrefix;
 
             // See if we require a specific scope
-            bool const requiresScope = expectedScope.has_value();
+            bool const requiresScope = givenScope.has_value();
             std::string fullKey;
             if (requiresScope) {
-                // Ensure that the expected scope lies within the allowed scope
-                // E.g. expectedScope = "module1.submodule." allowedScope = "module1." -> valid
-                //      expectedScope = "module2."           allowedScope = "module1." -> invalid, we are only allowed to use module1.*
-                std::string const& expected = *expectedScope;
-                if (!expected.starts_with(allowedScope)) {
+                // Ensure that the given scope lies within the allowed scope
+                // E.g. givenScope = "module1.submodule." allowedScope = "module1." -> valid
+                //      givenScope = "module2."           allowedScope = "module1." -> invalid, we are only allowed to use module1.*
+                std::string const& given = *givenScope;
+                if (!given.starts_with(allowedScope)) {
                     std::string const msg =
                         "ScopedKey scope mismatch: key '" + std::string(key) +
-                        "' was created expecting scope prefix '" + expected +
+                        "' was created with the given scope prefix '" + given +
                         "' but was used in JsonScope with prefix '" + allowedScope;
                     throw std::invalid_argument(msg);
                 }
 
-                // If the expected scope is larger than the allowed scope, we need to use that as prefix
-                if (expected.size() > allowedScope.size()) {
-                    fullKey.reserve(expected.size() + key.size());
-                    fullKey = expected;
-                    fullKey.append(key);
-                    return fullKey;
-                }
+                // Now we can safely use the given scope, as it lies within the allowed scope
+                fullKey.reserve(given.size() + key.size());
+                fullKey = given;
+                fullKey.append(key);
+                return fullKey;
             }
-
-            fullKey.reserve(allowedScope.size() + key.size());
-            fullKey = scope.scopePrefix;
-            fullKey.append(key);
-            return fullKey;
+            else {
+                fullKey.reserve(allowedScope.size() + key.size());
+                fullKey = scope.scopePrefix;
+                fullKey.append(key);
+                return fullKey;
+            }
         }
 
         // The actual key within the scope
-        std::string_view key;
+        std::string key;
 
-        // Expected scope beginning
-        std::optional<std::string> expectedScope;
+        // Optional given scope. The JsonScope must have access to this scope when using the key.
+        std::optional<std::string> givenScope;
     };
 
     //------------------------------------------
@@ -247,7 +243,7 @@ public:
     void setSubDoc(scopedKey const& key, JsonScope const& subDoc) const {
         // Slightly more complicated: If we wish to set the sub-document from another JsonScope,
         // we need to extract the underlying JSON document from it in the correct scope.
-        JSON subDocScope = subDoc.getSubDoc("");
+        JSON subDocScope = subDoc.getSubDoc(scopedKey(""));
         baseDocument->setSubDoc(key.full(*this), subDocScope);
     }
 
@@ -308,7 +304,7 @@ public:
     //------------------------------------------
     // Serialize/Deserialize
 
-    std::string serialize(scopedKey const& key = "") const {
+    std::string serialize(scopedKey const& key = scopedKey("")) const {
         return baseDocument->serialize(key.full(*this));
     }
 
