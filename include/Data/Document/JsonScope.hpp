@@ -162,26 +162,18 @@ public:
     }
 
     //------------------------------------------
-    // Danger territory: access to base document
-
-    [[deprecated("Accessing the base document breaks the scope abstraction. This should only be used temporarly if certain JSON features aren't available in JsonScope. Use with caution.")]]
-    JSON& getBaseDocument() {
-        return visitBase([]<typename Alt>(Alt& alt) -> JSON& {
-            if constexpr (std::is_same_v<std::decay_t<Alt>, JSON>) {
-                return alt;
-            } else {
-                return alt.getBaseDocument();
-            }
-        });
-    }
-
-    //------------------------------------------
     // Sharing a scope
 
     // TODO: Instead of sharing scope of a scope, it may be better to combine the prefixes directly
     //       and share from the base document.
     JsonScope shareScope(unscopedKey const& key) {
         return JsonScope(*this, key.full(this));
+    }
+
+    JsonScope& shareManagedScope(unscopedKey const& key) {
+        return visitBase([&](auto& alt) -> JsonScope& {
+            alt.shareManagedScope(key.full(this));
+        });
     }
 
     //------------------------------------------
