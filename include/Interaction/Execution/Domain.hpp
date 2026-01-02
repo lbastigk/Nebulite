@@ -62,6 +62,11 @@ public:
     DomainBase& operator=(DomainBase&& other) noexcept;
 
     //------------------------------------------
+    // Get Document prefix
+
+    std::string const& scopePrefix() const ;
+
+    //------------------------------------------
     // Binding, initializing and inheriting
 
     /**
