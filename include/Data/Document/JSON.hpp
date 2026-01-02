@@ -160,6 +160,8 @@ private:
     //------------------------------------------
     // Ordered double pointers system
 
+    // TODO: Move to JsonScope for proper abstraction
+
     /**
      * @brief Mapped ordered double pointers for expression references.
      */
@@ -220,6 +222,17 @@ public:
     JSON& operator=(JSON&& other) noexcept;
 
     //------------------------------------------
+    // Custom copy method
+
+    /**
+     * @brief Copies the entire content from another JSON document into this one.
+     * @param other The other JSON document to copy from.
+     */
+    void copyFrom(JSON& other) {
+        setSubDoc("", other);
+    }
+
+    //------------------------------------------
     // Static members
 
     /**
@@ -262,8 +275,7 @@ public:
      * @param key The key of the value to set.
      * @param val The value to set.
      */
-    template <typename T>
-    void set(std::string const& key, T const& val);
+    template <typename T> void set(std::string const& key, T const& val);
     template <typename T> void set(std::string_view const& key, T const& val) { set<T>(std::string(key), val); }
     template <typename T> void set(char const* key, T const& val) { set<T>(std::string(key), val); }
 
@@ -287,14 +299,6 @@ public:
     void setSubDoc(char const* key, JSON& child);
     void setSubDoc(std::string const& key, JSON& child) { setSubDoc(key.c_str(), child); }
     void setSubDoc(std::string_view key, JSON& child) { setSubDoc(std::string(key).c_str(), child); }
-
-    /**
-     * @brief Copies the entire content from another JSON document into this one.
-     * @param other The other JSON document to copy from.
-     */
-    void copyFrom(JSON& other) {
-        setSubDoc("", other);
-    }
 
     /**
      * @brief Sets an empty array in the JSON document.
