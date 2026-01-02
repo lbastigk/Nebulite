@@ -206,7 +206,7 @@ void RjDirectAccess::deserialize(rapidjson::Document& doc, std::string const& se
         //------------------------------------------
         // Load the JSON file
         // First token is the path or serialized JSON
-        jsonString = global().getDocCache()->getDocString(serialOrLink);
+        jsonString = global().getDocCache().getDocString(serialOrLink);
     }
 
     // Strip JSONC comments before parsing

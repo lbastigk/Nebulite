@@ -163,7 +163,7 @@ bool RulesetCompiler::getJsonRuleset(Data::JSON& doc, Data::JSON& entry, std::st
             // Is a static ruleset, return false
             return false;
         }
-        std::string const file = Nebulite::global().getDocCache()->getDocString(potentialLink);
+        std::string const file = Nebulite::global().getDocCache().getDocString(potentialLink);
 
         if (file.empty()) {
             return false;

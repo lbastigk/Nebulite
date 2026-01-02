@@ -23,7 +23,7 @@ Constants::Error Time::update() {
     domain->getDoc()->set<Uint64>(Key::runtime_t_ms, t_ms);
 
     // See if simulation time can progress
-    if (!haltThisFrame && timeLocks.empty() && !domain->getRenderer()->isSkippingUpdate()) {
+    if (!haltThisFrame && timeLocks.empty() && !domain->getRenderer().isSkippingUpdate()) {
         //------------------------------------------
         // Simulation time (can be paused)
 
@@ -54,7 +54,7 @@ Constants::Error Time::update() {
         domain->getDoc()->set<uint64_t>(Key::frameCount, frameCount); // Starts at 0
         frameCount++;
     } else {
-        domain->getRenderer()->skipUpdateNextFrame();
+        domain->getRenderer().skipUpdateNextFrame();
     }
     haltThisFrame = false;
 

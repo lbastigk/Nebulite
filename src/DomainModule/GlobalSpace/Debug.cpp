@@ -127,7 +127,7 @@ Constants::Error Debug::log_global(int argc, char** argv) {
 }
 
 Constants::Error Debug::log_state(int argc, char** argv) {
-    std::string const serialized = domain->getRenderer()->serialize();
+    std::string const serialized = domain->getRenderer().serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
             Utility::FileManagement::WriteFile(argv[i], serialized);

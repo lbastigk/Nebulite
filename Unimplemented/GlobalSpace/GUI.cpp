@@ -24,7 +24,7 @@ Nebulite::Constants::Error GUI::example(int argc, char* argv[]) {
     /*...*/
 
     // Attachment happens once, renderer stores pointer but does not own texture!
-    domain->getRenderer()->attachTextureAboveLayer(
+    domain->getRenderer().attachTextureAboveLayer(
         Nebulite::Core::Environment::Layer::UI, 
         "circle_texture", 
         nullptr /* SDL_Texture* created from DearImgui */

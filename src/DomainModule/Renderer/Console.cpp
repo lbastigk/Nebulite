@@ -335,7 +335,7 @@ void Console::init() {
     globalDoc = domain->getDoc();
 
     // Use a monospaced font for better alignment
-    consoleFont = TTF_OpenFont(consoleFontPath.c_str(), static_cast<int>(consoleLayout.FONT_MAX_SIZE * Nebulite::global().getRenderer()->getWindowScale()));
+    consoleFont = TTF_OpenFont(consoleFontPath.c_str(), static_cast<int>(consoleLayout.FONT_MAX_SIZE * Nebulite::global().getRenderer().getWindowScale()));
     if (!consoleFont) {
         Nebulite::cerr() << "TTF_OpenFont failed: " << TTF_GetError() << Nebulite::endl;
         return;
@@ -399,7 +399,7 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
     }
 
     // Set correct font size for SDL_ttf
-    WindowScale = Nebulite::global().getRenderer()->getWindowScale();
+    WindowScale = Nebulite::global().getRenderer().getWindowScale();
     TTF_SetFontSize(consoleFont, static_cast<int>(LINE_HEIGHT * WindowScale));
 
     return LINE_HEIGHT;

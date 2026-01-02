@@ -7,7 +7,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
 Constants::Error Input::update() {
     //------------------------------------------
     // Only update if SDL is initialized
-    if (domain->getRenderer()->isSdlInitialized()) {
+    if (domain->getRenderer().isSdlInitialized()) {
         if (!timerInitialized) {
             // Starting Polling timer
             RendererPollTime = std::make_shared<Utility::TimeKeeper>();

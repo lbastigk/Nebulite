@@ -76,7 +76,7 @@ int main(int const argc, char* argv[]) {
     const bool criticalStop = lastCriticalResult.isCritical();
 
     // Destroy renderer
-    Nebulite::global().getRenderer()->destroy();
+    Nebulite::global().getRenderer().destroy();
 
     // Inform user about any errors and return error code
     if (criticalStop) {

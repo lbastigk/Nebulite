@@ -482,7 +482,7 @@ bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr
         token = Nebulite::global().getDoc()->get<std::string>(strippedKey, "null");
         break;
     case Component::From::resource:
-        token = Nebulite::global().getDocCache()->get<std::string>(strippedKey, "null");
+        token = Nebulite::global().getDocCache().get<std::string>(strippedKey, "null");
         break;
     case Component::From::None:
     default:
@@ -636,7 +636,7 @@ void Expression::updateCaches(Data::JSON* reference) {
             Expression tempExpr;
             tempExpr.parse(vde->getKey(), references.self);
             std::string const evalResult = tempExpr.eval(reference);
-            vde->setDirect(Nebulite::global().getDocCache()->get<double>(evalResult, 0.0));
+            vde->setDirect(Nebulite::global().getDocCache().get<double>(evalResult, 0.0));
         }
     }
 }

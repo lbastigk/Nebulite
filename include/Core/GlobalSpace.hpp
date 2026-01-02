@@ -107,22 +107,32 @@ public:
     //------------------------------------------
     // Broadcast/Listen
 
+    /**
+     * @brief Broadcasts a ruleset to other domains.
+     * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
+     */
     void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
         invoke.broadcast(entry);
     }
 
+    /**
+     * @brief Listens for rulesets on a specific topic.
+     * @param listener The listening domain
+     * @param topic The topic to listen for.
+     * @param listenerId The unique ID of the listener domain.
+     */
     void listen(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId) {
-            invoke.listen(listener, topic, listenerId);
+        invoke.listen(listener, topic, listenerId);
     }
 
     //------------------------------------------
     // Getters
 
     /**
-     * @brief Gets a pointer to the Renderer instance.
-     * @return Pointer to the Renderer instance.
+     * @brief Gets a reference to the Renderer instance.
+     * @return Reference to the Renderer instance.
      */
-    Renderer* getRenderer() { return &renderer; }
+    Renderer& getRenderer() { return renderer; }
 
     /**
      * @brief Gets a pointer to the SDL Renderer instance.
@@ -131,10 +141,10 @@ public:
     [[nodiscard]] SDL_Renderer* getSdlRenderer() const { return renderer.getSdlRenderer(); }
 
     /**
-     * @brief Gets a pointer to the global document cache.
-     * @return Pointer to the DocumentCache instance.
+     * @brief Gets a reference to the global document cache.
+     * @return Reference to the DocumentCache instance.
      */
-    Data::DocumentCache* getDocCache() { return &docCache; }
+    Data::DocumentCache& getDocCache() { return docCache; }
 
     //------------------------------------------
     // DomainModule variables

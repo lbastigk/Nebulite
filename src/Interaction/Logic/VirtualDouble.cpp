@@ -14,7 +14,7 @@ void VirtualDouble::setUpInternalCache(Data::JSON* json) {
         copied_value = *json->getStableDoublePointer(key);
         reference = &copied_value;
     } else {
-        copied_value = *Nebulite::global().getDocCache()->getStableDoublePointer(key);
+        copied_value = *Nebulite::global().getDocCache().getStableDoublePointer(key);
         reference = &copied_value;
     }
 }
@@ -23,7 +23,7 @@ void VirtualDouble::setUpExternalCache(Data::JSON* json) {
     if (json != nullptr) {
         reference = json->getStableDoublePointer(key);
     } else {
-        reference = Nebulite::global().getDocCache()->getStableDoublePointer(key);
+        reference = Nebulite::global().getDocCache().getStableDoublePointer(key);
     }
 }
 

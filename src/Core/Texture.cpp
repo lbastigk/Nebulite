@@ -33,7 +33,7 @@ bool Texture::copyTexture() {
     // If no texture is linked, try to load from the document
     if (texture == nullptr) {
         std::string const& imageLink = getDoc()->get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "");
-        texture = Nebulite::global().getRenderer()->loadTextureToMemory(imageLink);
+        texture = Nebulite::global().getRenderer().loadTextureToMemory(imageLink);
 
         if (texture == nullptr) {
             return false; // No texture to copy
@@ -81,7 +81,7 @@ bool Texture::copyTexture() {
 
 void Texture::loadTextureFromFile(std::string const& filePath) {
     // Load the texture using the global renderer
-    if (SDL_Texture* newTexture = Nebulite::global().getRenderer()->loadTextureToMemory(filePath); newTexture) {
+    if (SDL_Texture* newTexture = Nebulite::global().getRenderer().loadTextureToMemory(filePath); newTexture) {
         // If a texture already exists and is stored locally, destroy it
         if (textureStoredLocally && texture) {
             SDL_DestroyTexture(texture);
