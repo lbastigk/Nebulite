@@ -29,7 +29,6 @@ bool constexpr endsWithNewline(std::string_view str) {
 // Includes
 
 // Standard library
-#include <type_traits>
 #include <utility>
 
 // Nebulite
