@@ -73,7 +73,7 @@ namespace RenderObject {
 } // namespace RenderObject
 
 /**
- * @namespace Nebulite::DomainModule::JSON
+ * @namespace Nebulite::DomainModule::JsonScope
  * @brief Contains all classes, functions, types and variables related to the JSON DomainModules.
  */
 namespace JSON {

@@ -6,7 +6,7 @@
 #include "Core/RenderObject.hpp"
 #include "Data/Document/JSON.hpp"
 #include "DomainModule/Initializer.hpp"
-#include "DomainModule/JSON/SimpleData.hpp"
+#include "DomainModule/JsonScope/SimpleData.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 
@@ -151,7 +151,7 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
                 std::string key = token.substr(0, pos);
                 std::string value = token.substr(pos + 1);
                 std::string call = __FUNCTION__;
-                call.append(" " + std::string(DomainModule::JSON::SimpleData::set_name));
+                call.append(" " + std::string(DomainModule::JsonScope::SimpleData::set_name));
                 call.append(" " + key);
                 call.append(" " + value);
                 if (auto const err = parseStr(call); err != Constants::ErrorTable::NONE()) {

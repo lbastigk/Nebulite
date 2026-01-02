@@ -1,9 +1,8 @@
-#include "DomainModule/JSON/Debug.hpp"
-#include "Data/Document/JSON.hpp"
-
 #include "Nebulite.hpp"
+#include "Data/Document/JsonScope.hpp"
+#include "DomainModule/JsonScope/Debug.hpp"
 
-namespace Nebulite::DomainModule::JSON {
+namespace Nebulite::DomainModule::JsonScope {
 
 //------------------------------------------
 // Update
@@ -40,4 +39,4 @@ Constants::Error Debug::print(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-} // namespace Nebulite::DomainModule::JSON
+} // namespace Nebulite::DomainModule::JsonScope

@@ -1,20 +1,14 @@
 #include <cfloat>
 
 #include "Nebulite.hpp"
-#include "Constants/ErrorTypes.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonScope.hpp"
-#include "DomainModule/Initializer.hpp"
 
 namespace Nebulite::Data {
 
 std::string const JSON::reservedCharacters = "[]{}.|\":";
 
-JSON::JSON(std::string const& name)
-    : Domain(name, *this, fullScope()) {
-    std::scoped_lock const lockGuard(mtx);
-    DomainModule::Initializer::initJSON(this);
-}
+JSON::JSON(){}
 
 JSON::~JSON() {
     std::scoped_lock const lockGuard(mtx);
@@ -34,8 +28,7 @@ JSON& JSON::operator=(JSON&& other) noexcept {
     return *this;
 }
 
-JSON::JSON(JSON&& other) noexcept
-    : Domain("JSON", *this, fullScope()) {
+JSON::JSON(JSON&& other) noexcept {
     std::scoped_lock lockGuard(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);
     cache = std::move(other.cache);
@@ -46,12 +39,12 @@ JSON::JSON(JSON&& other) noexcept
 
 JsonScope JSON::shareScope(std::string const& prefix) {
     std::scoped_lock const lockGuard(mtx);
-    return JsonScope(*this, prefix, "Shared JSON Scope from " + getName());
+    return JsonScope(*this, prefix, "Shared JSON Scope");
 }
 
 JsonScope& JSON::shareManagedScope(std::string const& prefix) {
     std::scoped_lock const lockGuard(mtx);
-    auto newScope = std::make_unique<JsonScope>(*this, prefix, "Managed Shared JSON Scope from " + getName());
+    auto newScope = std::make_unique<JsonScope>(*this, prefix, "Managed Shared JSON Scope");
     managedScopes.push_back(std::move(newScope));
     return *managedScopes.back();
 }
@@ -101,17 +94,6 @@ void JSON::flush() {
             entry->state = CacheEntry::EntryState::CLEAN;
         }
     }
-}
-
-
-//------------------------------------------
-// Domain-specific methods
-
-Constants::Error JSON::update() {
-    // Used once domain is fully set up
-    std::scoped_lock const lockGuard(mtx);
-    updateModules();
-    return Constants::ErrorTable::NONE();
 }
 
 //------------------------------------------
@@ -380,26 +362,8 @@ void JSON::deserialize(std::string const& serialOrLink) {
     }
 
     //------------------------------------------
-    // Split the input into tokens
-    std::vector<std::string> tokens;
-    if (isJsonOrJsonc(serialOrLink)) {
-        // Direct JSON string, no splitting
-        tokens.push_back(serialOrLink);
-    } else {
-        // Split based on transformations, indicated by '|'
-        tokens = Utility::StringHandler::split(serialOrLink, '|');
-    }
-
-    //------------------------------------------
-    // Validity check
-    if (tokens.empty()) {
-        // Error: No file path given
-        return; // or handle error properly
-    }
-
-    //------------------------------------------
     // Load the JSON file
-    RjDirectAccess::deserialize(doc, tokens[0]);
+    RjDirectAccess::deserialize(doc, serialOrLink);
 
     //------------------------------------------
     // Delete all cache entries
@@ -411,33 +375,6 @@ void JSON::deserialize(std::string const& serialOrLink) {
         *entry->stable_double_ptr = RjDirectAccess::get<double>(key.c_str(), 0.0, doc);
         entry->last_double_value = *entry->stable_double_ptr;
     }
-
-    //------------------------------------------
-    // Now apply modifications
-    tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
-    for (auto const& token : tokens) {
-        if (token.empty())
-            continue; // Skip empty tokens
-
-        // Legacy: Handle key=value pairs
-        if (auto const pos = token.find('='); pos != std::string::npos) {
-            // Handle transformation (key=value)
-            std::string keyAndValue = token;
-            if (pos != std::string::npos)
-                keyAndValue[pos] = ' ';
-
-            // New implementation through functioncall
-            if (std::string const callStr = std::string(__FUNCTION__) + " set " + keyAndValue; parseStr(callStr) != Constants::ErrorTable::NONE()) {
-                Nebulite::cerr() << "Failed to apply deserialize transformation: " << callStr << Nebulite::endl;
-            }
-        } else {
-            // Forward to FunctionTree for resolution
-            if (std::string const callStr = std::string(__FUNCTION__) + " " + token; parseStr(callStr) != Constants::ErrorTable::NONE()) {
-                Nebulite::cerr() << "Failed to apply deserialize transformation: " << callStr << Nebulite::endl;
-            }
-        }
-    }
-    reinitModules();
 }
 
 //------------------------------------------

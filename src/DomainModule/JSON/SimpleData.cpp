@@ -1,8 +1,8 @@
 #include "Nebulite.hpp"
-#include "Data/Document/JSON.hpp"
-#include "DomainModule/JSON/SimpleData.hpp"
+#include "Data/Document/JsonScope.hpp"
+#include "DomainModule/JsonScope/SimpleData.hpp"
 
-namespace Nebulite::DomainModule::JSON {
+namespace Nebulite::DomainModule::JsonScope {
 
 //------------------------------------------
 // Update
@@ -333,4 +333,4 @@ Constants::Error SimpleData::pop_front(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-} // namespace Nebulite::DomainModule::JSON
+} // namespace Nebulite::DomainModule::JsonScope

@@ -16,17 +16,17 @@
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Data {
-class JSON;
+class JsonScope;
 } // namespace Nebulite::Data
 
 
 //------------------------------------------
-namespace Nebulite::DomainModule::JSON {
+namespace Nebulite::DomainModule::JsonScope {
 /**
- * @class Nebulite::DomainModule::JSON::SimpleData
+ * @class Nebulite::DomainModule::JsonScope::SimpleData
  * @brief DomainModule for simple data operations on domain class Nebulite::Data::JSON
  */
-NEBULITE_DOMAINMODULE(Nebulite::Data::JSON, SimpleData) {
+NEBULITE_DOMAINMODULE(Nebulite::Data::JsonScope, SimpleData) {
 public:
     Constants::Error update() override;
     void reinit() override {}
@@ -96,7 +96,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JSON, SimpleData) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JsonScope, SimpleData) {
         // Bind functions specific to complex data handling
         BINDFUNCTION(&SimpleData::set, set_name, set_desc);
 
@@ -115,5 +115,5 @@ public:
         BINDFUNCTION(&SimpleData::ensureArray, ensureArray_name, ensureArray_desc);
     }
 };
-} // namespace Nebulite::DomainModule::JSON
+} // namespace Nebulite::DomainModule::JsonScope
 #endif // NEBULITE_JSDM_SIMPLEDATA_HPP

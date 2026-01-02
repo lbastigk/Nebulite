@@ -1,9 +1,8 @@
-#include "DomainModule/JSON/ComplexData.hpp"
-#include "Data/Document/JSON.hpp"
-
 #include "Nebulite.hpp"
+#include "Data/Document/JsonScope.hpp"
+#include "DomainModule/JsonScope/ComplexData.hpp"
 
-namespace Nebulite::DomainModule::JSON {
+namespace Nebulite::DomainModule::JsonScope {
 
 //------------------------------------------
 // Update
@@ -61,4 +60,4 @@ Constants::Error ComplexData::jsonSet(int argc, char** argv) {
     }
     return Constants::ErrorTable::NONE();
 }
-} // namespace Nebulite::DomainModule::JSON
+} // namespace Nebulite::DomainModule::JsonScope

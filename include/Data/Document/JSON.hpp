@@ -21,6 +21,11 @@
 #include "Data/Document/JsonRvalueTransformer.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
 
+//------------------------------------------
+// Forward declarations
+namespace Nebulite::Data {
+class JsonScope;
+} // namespace Nebulite::Data
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -192,9 +197,8 @@ public:
 
     /**
      * @brief Constructs a new JSON document.
-     * @param name The name of the JSON document. Recommended for debugging purposes.
      */
-    explicit JSON(std::string const& name = "Unnamed JSON Document");
+    JSON();
 
     ~JSON();
 

@@ -1,7 +1,8 @@
-#include "DomainModule/JSON/ForceValue.hpp"
-#include "Data/Document/JSON.hpp"
+#include "Data/Document/JsonScope.hpp"
+#include "DomainModule/JsonScope/ForceValue.hpp"
 
-namespace Nebulite::DomainModule::JSON {
+
+namespace Nebulite::DomainModule::JsonScope {
 
 Constants::Error ForceValue::update() {
     // On each update, re-apply forced values
@@ -31,4 +32,4 @@ Constants::Error ForceValue::force_clear() {
     forced_global_values.clear();
     return Constants::ErrorTable::NONE();
 }
-} // namespace Nebulite::DomainModule::JSON
+} // namespace Nebulite::DomainModule::JsonScope

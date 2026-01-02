@@ -25,9 +25,9 @@ namespace Nebulite::Interaction {
  *        Contains references to the 'self', 'other', and 'global' domains, with base domain types.
  */
 struct ContextBase {
-    Interaction::Execution::DomainBase& self;
-    Interaction::Execution::DomainBase& other;
-    Interaction::Execution::DomainBase& global;
+    Execution::DomainBase& self;
+    Execution::DomainBase& other;
+    Execution::DomainBase& global;
     // TODO: Parent context?
 };
 

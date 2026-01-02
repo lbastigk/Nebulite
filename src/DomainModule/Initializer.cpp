@@ -22,9 +22,9 @@
 #include "DomainModule/GlobalSpace/Time.hpp"                // Basic Time management functions
 
 // JSON
-#include "DomainModule/JSON/SimpleData.hpp"
-#include "DomainModule/JSON/ComplexData.hpp"
-#include "DomainModule/JSON/Debug.hpp"
+#include "DomainModule/JsonScope/SimpleData.hpp"
+#include "DomainModule/JsonScope/ComplexData.hpp"
+#include "DomainModule/JsonScope/Debug.hpp"
 
 // RenderObject
 #include "DomainModule/RenderObject/Debug.hpp"
@@ -78,9 +78,9 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     target->bindVariable(&target->cmdVars.recover, "recover", "Enable recoverable error mode");
 }
 
-void Initializer::initJSON(Data::JSON* target) {
+void Initializer::initJsonScope(Data::JsonScope* target) {
     // Initialize DomainModules
-    using namespace Nebulite::DomainModule::JSON;
+    using namespace Nebulite::DomainModule::JsonScope;
     target->initModule<SimpleData>("JSON Simple Data Functions");
     target->initModule<ComplexData>("JSON Complex Data Functions");
     target->initModule<Debug>("JSON Debug Functions");

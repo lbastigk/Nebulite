@@ -1,4 +1,5 @@
 #include "Data/Document/JSON.hpp"
+#include "Data/Document/JsonScope.hpp"
 
 namespace Nebulite::Data {
 
@@ -39,7 +40,7 @@ std::optional<T> JSON::getWithTransformations(std::string const& key) {
 
     // Using getSubDoc to properly populate the tempDoc with the rapidjson::Value
     // Slower than a manual copy that handles types, but more secure and less error-prone
-    JSON tempDoc = getSubDoc(baseKey);
+    auto tempDoc = getSubDoc(baseKey);
 
     // Apply each transformation in sequence
     if (!transformer.parse(args, &tempDoc)) {

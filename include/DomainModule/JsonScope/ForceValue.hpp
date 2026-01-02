@@ -16,20 +16,20 @@
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Data {
-class JSON;
+class JsonScope;
 } // namespace Nebulite::Data
 
 
 //------------------------------------------
-namespace Nebulite::DomainModule::JSON {
+namespace Nebulite::DomainModule::JsonScope {
 /**
- * @class Nebulite::DomainModule::JSON::ForceValue
+ * @class Nebulite::DomainModule::JsonScope::ForceValue
  * @brief DomainModule for forcing JSON variable values.
  * @details This module allows users to force specific keys in the global JSON data
  *          to have specified values, overriding any existing values. It is useful for
  *          testing or overriding configuration values.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Data::JSON, ForceValue) {
+NEBULITE_DOMAINMODULE(Nebulite::Data::JsonScope, ForceValue) {
 public:
     Constants::Error update() override;
     void reinit() override {}
@@ -61,17 +61,15 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JSON, ForceValue)
-    {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JsonScope, ForceValue){
         // Binding
         (void)bindCategory(force_name, force_desc);
         BINDFUNCTION(&ForceValue::force_set, force_set_name, force_set_desc);
         BINDFUNCTION(&ForceValue::force_clear, force_clear_name, force_clear_desc);
     }
 
-    private
-    :
+private:
     absl::flat_hash_map<std::string, std::string> forced_global_values; // Key-Value pairs to set in global JSON
 };
-} // namespace Nebulite::DomainModule::JSON
+} // namespace Nebulite::DomainModule::JsonScope
 #endif // NEBULITE_JSDM_FORCE_VALUE_HPP

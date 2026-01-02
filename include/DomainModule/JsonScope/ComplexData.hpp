@@ -16,16 +16,16 @@
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Data {
-class JSON;
+class JsonScope;
 } // namespace Nebulite::Data
 
 //------------------------------------------
-namespace Nebulite::DomainModule::JSON {
+namespace Nebulite::DomainModule::JsonScope {
 /**
- * @class Nebulite::DomainModule::JSON::ComplexData
+ * @class Nebulite::DomainModule::JsonScope::ComplexData
  * @brief DomainModule for complex data operations on domain class Nebulite::Data::JSON
  */
-NEBULITE_DOMAINMODULE(Nebulite::Data::JSON, ComplexData) {
+NEBULITE_DOMAINMODULE(Nebulite::Data::JsonScope, ComplexData) {
 public:
     Constants::Error update() override;
     void reinit() override {}
@@ -64,7 +64,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JSON, ComplexData) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JsonScope, ComplexData) {
         // Bind functions specific to complex data handling
 
         // SQL Queries

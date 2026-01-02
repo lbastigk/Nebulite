@@ -27,13 +27,7 @@ namespace Nebulite::Data {
  * @details It allows for modifications to a JSON document within a specific scope,
  *          that is a key-prefixed section of the document. This is useful for modular data management,
  *          where different parts of a JSON document can be managed independently.
- * @todo Needs a proper implementation of domain-related stuff
- *       1.) Ensure domains have a JsonScope instead of direct JSON access
- *       2.) Ensure that the JSON domainModules are either part of the scope or part of both JSON and scope
- *       For now, JsonScope is not a Nebulite domain.
- *       A good idea would be to have JSON not be a domain, but JsonScope be one.
- *       This drastically simplifies things, such as construction of JSON documents,
- *       and having a nice wrapper for scoped access, that itself is a domain.
+ * @todo Probably needs its own lock mechanism to prevent data corruption when multiple threads access the same JsonScope object.
  */
 NEBULITE_DOMAIN(JsonScope) {
     std::variant<std::shared_ptr<JSON>, std::reference_wrapper<JsonScope>> baseDocument;
@@ -99,20 +93,13 @@ public:
     // Constructors
 
     // Constructing a JsonScope from a JSON document and a prefix
-    JsonScope(JSON& doc, std::string const& prefix, std::string const& name = "Unnamed JsonScope")
-        : Domain(name, *this, *this),
-        // create a non-owning shared_ptr to the provided JSON (no delete on destruction)
-        baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){})), scopePrefix(generatePrefix(prefix)) {}
+    JsonScope(JSON& doc, std::string const& prefix, std::string const& name = "Unnamed JsonScope");
 
     // Constructing a JsonScope from another JsonScope and a sub-prefix
-    JsonScope(JsonScope& other, std::string const& prefix, std::string const& name = "Unnamed JsonScope")
-        : Domain(name, *this, *this),
-          baseDocument(std::ref(other)), scopePrefix(generatePrefix(prefix)) {}
+    JsonScope(JsonScope& other, std::string const& prefix, std::string const& name = "Unnamed JsonScope");
 
     // Default constructor, we create a self-owned empty JSON document
-    JsonScope(std::string const& name = "Unnamed JsonScope")
-        : Domain(name, *this, *this),
-          baseDocument(std::make_shared<JSON>()), scopePrefix("") {}
+    JsonScope(std::string const& name = "Unnamed JsonScope");
 
     //------------------------------------------
     // Special member functions
@@ -170,8 +157,7 @@ public:
     // Domain related stuff
 
     Constants::Error update() override {
-        // TODO: Remove domain from JSON, make JsonScope a domain instead
-        //       for now we just return NONE
+        updateModules();
         return Constants::ErrorTable::NONE();
     }
 
@@ -342,28 +328,7 @@ public:
         });
     }
 
-    void deserialize(std::string const& serialOrLink) {
-        if (scopePrefix.empty()) {
-            // Edge case: no scope prefix, we can deserialize directly
-            visitBase([&](auto& alt) -> void {
-                alt.deserialize(serialOrLink);
-            });
-            reinitModules();
-        }
-        else {
-            // Deserialize into a temporary JSON, then set as sub-document
-            JSON tmp;
-            tmp.deserialize(serialOrLink);
-            auto scopePrefixWithoutDot = scopePrefix;
-            if (!scopePrefixWithoutDot.empty() && scopePrefixWithoutDot.ends_with(".")) {
-                scopePrefixWithoutDot = scopePrefixWithoutDot.substr(0, scopePrefixWithoutDot.size() - 1);
-            }
-            visitBase([&](auto& alt) -> void {
-                alt.setSubDoc(scopePrefixWithoutDot, tmp);
-            });
-            reinitModules();
-        }
-    }
+    void deserialize(std::string const& serialOrLink);
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_JSON_SCOPE_HPP
