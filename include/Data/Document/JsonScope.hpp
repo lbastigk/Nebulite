@@ -16,7 +16,6 @@
 
 //------------------------------------------
 namespace Nebulite::Data {
-
 /**
  * @class Nebulite::Data::JsonScope
  * @brief The JsonScope class provides a scoped interface for accessing and modifying JSON documents.
@@ -129,11 +128,25 @@ public:
      *          std::string requires an explicit action.
      */
     struct unscopedKey {
-        unscopedKey(std::string_view const& k) : key(k) {}
-        unscopedKey(const char* k) : key(k) {}
-        unscopedKey(std::string const& k) : key(k) {}
-
         friend class JsonScope;
+
+        // Constructors from various string types
+        template<typename T>
+        unscopedKey(T const& k) : key(std::string_view(k)) {
+            using U = std::remove_cv_t<std::remove_reference_t<T>>;
+            static_assert(
+                std::is_same_v<U, std::string> ||
+                std::is_same_v<U, std::string_view> ||
+                std::is_same_v<U, const char*>,
+                "unscopedKey can only be constructed from std::string, std::string_view, or const char*"
+            );
+        }
+
+        // Disable copying and moving to ensure safety of the string_view
+        unscopedKey(unscopedKey const&) = delete;
+        unscopedKey& operator=(unscopedKey const&) = delete;
+        unscopedKey(unscopedKey&&) = delete;
+        unscopedKey& operator=(unscopedKey&&) = delete;
     private:
         /**
          * @brief Generates the full scoped key using the provided JsonScope.
