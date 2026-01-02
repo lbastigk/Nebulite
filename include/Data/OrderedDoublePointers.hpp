@@ -32,7 +32,7 @@ namespace Nebulite::Data {
 /**
  * @class Nebulite::Data::DynamicFixedArray
  * @brief Dynamic fixed-size array for double pointers.
- * Size is set once at construction and never changes.
+ * @details Size is set once at construction and never changes.
  */
 class DynamicFixedArray {
 public:
