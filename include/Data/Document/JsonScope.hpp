@@ -27,6 +27,7 @@ namespace Nebulite::Data {
  * @details It allows for modifications to a JSON document within a specific scope,
  *          that is a key-prefixed section of the document. This is useful for modular data management,
  *          where different parts of a JSON document can be managed independently.
+ * @todo Move to namespace Nebulite::Core where all other Domain-related classes are located.
  * @todo Probably needs its own lock mechanism to prevent data corruption when multiple threads access the same JsonScope object.
  */
 NEBULITE_DOMAIN(JsonScope) {
@@ -87,6 +88,11 @@ NEBULITE_DOMAIN(JsonScope) {
     }
 
     void swap(JsonScope& o) noexcept ;
+
+    // Necessary helper for shareScope
+    JsonScope& shareManagedScope(std::string const& prefix) {
+        return shareScope(prefix);
+    }
 
 public:
     //------------------------------------------
@@ -164,15 +170,10 @@ public:
     //------------------------------------------
     // Sharing a scope
 
-    // TODO: Instead of sharing scope of a scope, it may be better to combine the prefixes directly
-    //       and share from the base document.
-    JsonScope shareScope(unscopedKey const& key) {
-        return JsonScope(*this, key.full(this));
-    }
-
-    JsonScope& shareManagedScope(unscopedKey const& key) {
+    // Proper scope sharing with nested unscoped key generation
+    JsonScope& shareScope(unscopedKey const& key) {
         return visitBase([&](auto& alt) -> JsonScope& {
-            alt.shareManagedScope(key.full(this));
+            return alt.shareManagedScope(key.full(this));
         });
     }
 
@@ -273,12 +274,6 @@ public:
 
     //------------------------------------------
     // Getters: Unique id based retrieval
-
-    // TODO: Probably best to have an own map for scopes?
-    //       otherwise key clashes may happen, as MappedOrderedDoublePointers
-    //       itself manages the keys internally.
-    //       MappedOrderedDoublePointers* probably needs its own prefixing system!!!
-    //       maybe best to pass on construction, more research needed.
 
     MappedOrderedDoublePointers* getOrderedCacheListMap() {
 #if ORDERED_DOUBLE_POINTERS_MAPS == 1
