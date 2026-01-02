@@ -84,7 +84,7 @@ class JsonScope {
     // Valid prefix check and generation
 
     std::string generatePrefix(std::string const& givenPrefix) const {
-        std::string fullPrefix = scopePrefix + givenPrefix;
+        std::string fullPrefix = givenPrefix;
         if (!fullPrefix.empty() && !fullPrefix.ends_with(".")) fullPrefix += ".";
         return fullPrefix;
     }
@@ -124,9 +124,7 @@ public:
 
     // Constructing a JsonScope from another JsonScope and a sub-prefix
     JsonScope(JsonScope& other, std::string const& prefix)
-        : baseDocument(std::ref(other)), scopePrefix(prefix) {
-        if (!scopePrefix.empty() && !scopePrefix.ends_with(".")) scopePrefix += ".";
-    }
+        : baseDocument(std::ref(other)), scopePrefix(generatePrefix(prefix)) {}
 
     // Default constructor, we create a self-owned empty JSON document
     JsonScope()
