@@ -19,9 +19,9 @@ namespace Nebulite::Data {
 /**
  * @class Nebulite::Data::JsonScope
  * @brief The JsonScope class provides a scoped interface for accessing and modifying JSON documents.
- * @details It allows for temporary modifications to a JSON document within a specific scope,
- *          that is a key-prefixed section of the document.
- * @todo Proper overload order required. Prioritize string_view?
+ * @details It allows for modifications to a JSON document within a specific scope,
+ *          that is a key-prefixed section of the document. This is useful for modular data management,
+ *          where different parts of a JSON document can be managed independently.
  * @todo Needs a proper implementation of domain-related stuff
  *       1.) Ensure domains have a JsonScope instead of direct JSON access
  *       2.) Ensure that the JSON domainModules are either part of the scope or part of both JSON and scope
@@ -128,6 +128,7 @@ public:
      *          std::string requires an explicit action.
      */
     struct unscopedKey {
+        // JsonScope should be the only class able to convert unscopedKey to full key
         friend class JsonScope;
 
         // Constructors from various string types
@@ -137,8 +138,8 @@ public:
             static_assert(
                 std::is_same_v<U, std::string> ||
                 std::is_same_v<U, std::string_view> ||
-                std::is_same_v<U, const char*>,
-                "unscopedKey can only be constructed from std::string, std::string_view, or const char*"
+                std::is_same_v<U, char const*>,
+                "unscopedKey can only be constructed from std::string, std::string_view, or char const*"
             );
         }
 
@@ -326,16 +327,26 @@ public:
     }
 
     void deserialize(std::string const& serialOrLink) {
-        JSON tmp;
-        tmp.deserialize(serialOrLink);
-        auto scopePrefixWithoutDot = scopePrefix;
-        if (!scopePrefixWithoutDot.empty() && scopePrefixWithoutDot.ends_with(".")) {
-            scopePrefixWithoutDot = scopePrefixWithoutDot.substr(0, scopePrefixWithoutDot.size() - 1);
+        if (scopePrefix.empty()) {
+            // Edge case: no scope prefix, we can deserialize directly
+            visitBase([&](auto& alt) -> void {
+                alt.deserialize(serialOrLink);
+            });
+            reinitModules();
         }
-        visitBase([&](auto& alt) -> void {
-            alt.setSubDoc(scopePrefixWithoutDot, tmp);
-        });
-        reinitModules();
+        else {
+            // Deserialize into a temporary JSON, then set as sub-document
+            JSON tmp;
+            tmp.deserialize(serialOrLink);
+            auto scopePrefixWithoutDot = scopePrefix;
+            if (!scopePrefixWithoutDot.empty() && scopePrefixWithoutDot.ends_with(".")) {
+                scopePrefixWithoutDot = scopePrefixWithoutDot.substr(0, scopePrefixWithoutDot.size() - 1);
+            }
+            visitBase([&](auto& alt) -> void {
+                alt.setSubDoc(scopePrefixWithoutDot, tmp);
+            });
+            reinitModules();
+        }
     }
 };
 } // namespace Nebulite::Data
