@@ -29,45 +29,14 @@ namespace Nebulite::Data {
  *          where different parts of a JSON document can be managed independently.
  *          Holds little data itself, mostly acts as a scoped view over an existing JSON document or another JsonScope.
  * @todo Move to namespace Nebulite::Core where all other Domain-related classes are located.
- * @todo If we simplify baseDocument to be just a shared_ptr<JSON>, we can remove the need for std::visit in many places.
- *       This should already be possible with the current design!
- *       Then we can improve the key resolution logic by refactoring DomainModule keynames to include the key and its scope:
- *       instead of a constexpr std::string_view key = "subkey_in_scope",
- *       we can declare it as:
+ * @todo Use scoped keys in DomainModules to reduce accidental key misusage:
  *       JsonScope::scopedKey key = {"subkey_in_scope", domain->getDoc().getScopePrefix()};
  *       We can then use this key outside of the DomainModule without worrying about scope issues.
  *       This would require changing all DomainModules to use JsonScope::scopedKey instead of std::string_view for hardcoded keys.
  */
 NEBULITE_DOMAIN(JsonScope) {
-    std::variant<std::shared_ptr<JSON>, std::reference_wrapper<JsonScope>> baseDocument;
+    std::shared_ptr<JSON> baseDocument;
     std::string scopePrefix;
-
-    //------------------------------------------
-    // Helper for std::visit
-
-    template<typename F>
-    decltype(auto) visitBase(F&& f) {
-        return std::visit([&]<typename Alt>(Alt&& alt) -> decltype(auto) {
-            using AltT = std::decay_t<Alt>;
-            if constexpr (std::is_same_v<AltT, std::shared_ptr<JSON>>) {
-                return std::invoke(std::forward<F>(f), *alt);        // JSON&
-            } else {
-                return std::invoke(std::forward<F>(f), alt.get());   // JsonScope&
-            }
-        }, baseDocument);
-    }
-
-    template<typename F>
-    decltype(auto) visitBase(F&& f) const {
-        return std::visit([&]<typename Alt>(Alt&& alt) -> decltype(auto) {
-            using AltT = std::decay_t<Alt>;
-            if constexpr (std::is_same_v<AltT, std::shared_ptr<JSON>>) {
-                return std::invoke(std::forward<F>(f), *alt);        // JSON&
-            } else {
-                return std::invoke(std::forward<F>(f), alt.get());   // JsonScope&
-            }
-        }, baseDocument);
-    }
 
     //------------------------------------------
     // Ordered double pointers system
@@ -99,9 +68,11 @@ NEBULITE_DOMAIN(JsonScope) {
     void swap(JsonScope& o) noexcept ;
 
     // Necessary helper for shareScope
-    JsonScope& shareManagedScope(std::string const& prefix) {
+    JsonScope& shareManagedScope(std::string const& prefix) const {
         return shareScope(prefix);
     }
+
+
 
 public:
     //------------------------------------------
@@ -111,7 +82,7 @@ public:
     JsonScope(JSON& doc, std::string const& prefix, std::string const& name = "Unnamed JsonScope");
 
     // Constructing a JsonScope from another JsonScope and a sub-prefix
-    JsonScope(JsonScope& other, std::string const& prefix, std::string const& name = "Unnamed JsonScope");
+    JsonScope(JsonScope const& other, std::string const& prefix, std::string const& name = "Unnamed JsonScope");
 
     // Default constructor, we create a self-owned empty JSON document
     explicit JsonScope(std::string const& name = "Unnamed JsonScope");
@@ -144,11 +115,14 @@ public:
     // Helper struct for scoped keys
 
     /**
-     * @brief A helper struct to represent unscoped keys.
+     * @brief A helper struct to represent keys within the JsonScope.
      * @details This struct allows for easy conversion of string literals
      *          into fully scoped keys within the JsonScope.
      *          This reduces accidental key misusage, as conversion to a usable type
      *          std::string requires an explicit action.
+     *          It also provides safety checks to ensure that keys are used within their intended scopes.
+     *          We can use this to generate static scoped keys in DomainModules, ensuring that
+     *          they are always used in the correct scope.
      */
     struct scopedKey {
         // JsonScope should be the only class able to convert scopedKey to full key
@@ -157,6 +131,12 @@ public:
         // Accept any T that is constructible into std::string_view
         template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
         scopedKey(T const& k) : key(std::string_view(k)) {}
+
+        // To be used when we want to ensure that the key is used in a specific scope
+        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
+        scopedKey(T const& k, JsonScope const& scope) : key(std::string_view(k)) {
+            expectedScope = scope.getScopePrefix();
+        }
 
         // Disable copying and moving to ensure safety of the string_view
         scopedKey(scopedKey const&) = delete;
@@ -169,15 +149,57 @@ public:
          * @brief Generates the full scoped key using the provided JsonScope.
          * @param scope The JsonScope to use for generating the full key.
          * @return The fully scoped key as a std::string.
+         * @todo Work in progress: Current implementation is shitty,
+         *       Still unsure what is actually needed.
          */
-        std::string full(JsonScope const* scope) const {
-            std::string full;
-            full.reserve(scope->scopePrefix.size() + key.size());
-            full = scope->scopePrefix;
-            full.append(key);
-            return full;
+        std::string full(JsonScope const& scope) const {
+            std::string const allowedScope = scope.scopePrefix;
+
+            // This needs a better check:
+            // - if expectedScope is: my.Key but scopePrefix is my.Key2, that's an error
+            // We somehow need to ensure that expectedScope is a prefix of scopePrefix
+
+            // Ensure that our scope is valid
+            // E.g.:
+            // - this key was created with expectedScope "status.effects."
+            // - but is now used in a JsonScope with scopePrefix "status.inventory."
+            // This is an error, as the key was created for a different scope
+            if (!expectedScope.empty() && !expectedScope.starts_with(allowedScope)) {
+                std::string const msg =
+                    "ScopedKey scope mismatch: key '" + std::string(key) +
+                    "' was created expecting scope prefix '" + expectedScope +
+                    "' but was used in JsonScope with prefix '" + allowedScope;
+                throw std::invalid_argument(msg);
+            }
+
+            // Now that we know expectedScope is a prefix of scopePrefix, we can check if expectedScope is larger
+            // If that is the case, we use that as the prefix instead
+            // Example:
+            // - We generate a scopedKey with the full key "status.effects.health"
+            //   as: scopedKey("health", effectsScope) where effectsScope has prefix "status.effects."
+            // - If we now use this key in a scope with prefix "status.effects.buffs.", we get an error as "status.effects." is not a prefix of "status.effects.buffs."
+            // - If we use it in a scope with prefix "status.", we are fine
+            //   Then, length comparison kicks in: expectedScope ("status.effects.") is longer than scopePrefix ("status."), so we use expectedScope as the prefix
+            // This ensures we generate the correct full key in all cases
+            std::string fullKey;
+            if (expectedScope.size() > scope.scopePrefix.size()) {
+                fullKey.reserve(expectedScope.size() + key.size());
+                fullKey = expectedScope;
+                fullKey.append(key);
+            }
+            else {
+                fullKey.reserve(scope.scopePrefix.size() + key.size());
+                fullKey = scope.scopePrefix;
+                fullKey.append(key);
+            }
+            return fullKey;
         }
+
+        // The actual key within the scope
         std::string_view key;
+
+        // Expected scope beginning
+        std::string expectedScope = "";
     };
 
     //------------------------------------------
@@ -192,10 +214,8 @@ public:
     // Sharing a scope
 
     // Proper scope sharing with nested unscoped key generation
-    JsonScope& shareScope(scopedKey const& key) {
-        return visitBase([&](auto& alt) -> JsonScope& {
-            return alt.shareManagedScope(key.full(this));
-        });
+    JsonScope& shareScope(scopedKey const& key) const {
+        return baseDocument->shareManagedScope(key.full(*this));
     }
 
     //------------------------------------------
@@ -203,27 +223,19 @@ public:
 
     template<typename T>
     T get(scopedKey const& key, T const& defaultValue = T()) const {
-        return visitBase([&](auto& alt) -> T {
-            return alt.template get<T>(key.full(this), defaultValue);
-        });
+        return baseDocument->get<T>(key.full(*this), defaultValue);
     }
 
     std::optional<RjDirectAccess::simpleValue> getVariant(scopedKey const& key) const {
-        return visitBase([&](auto& alt) -> std::optional<RjDirectAccess::simpleValue> {
-            return alt.getVariant(key.full(this));
-        });
+        return baseDocument->getVariant(key.full(*this));
     }
 
     JSON getSubDoc(scopedKey const& key) const {
-        return visitBase([&](auto& alt) -> JSON {
-            return alt.getSubDoc(key.full(this));
-        });
+        return baseDocument->getSubDoc(key.full(*this));
     }
 
-    double* getStableDoublePointer(scopedKey const& key) {
-        return visitBase([&](auto& alt) -> double* {
-            return alt.getStableDoublePointer(key.full(this));
-        });
+    double* getStableDoublePointer(scopedKey const& key) const {
+        return baseDocument->getStableDoublePointer(key.full(*this));
     }
 
     //------------------------------------------
@@ -231,66 +243,48 @@ public:
 
     template<typename T>
     void set(scopedKey const& key, T const& value) {
-        visitBase([&](auto& alt) -> void {
-            alt.template set<T>(key.full(this), value);
-        });
+        baseDocument->set<T>(key.full(*this), value);
     }
 
-    void setVariant(scopedKey const& key, RjDirectAccess::simpleValue const& value) {
-        visitBase([&](auto& alt) -> void {
-            alt.setVariant(key.full(this), value);
-        });
+    void setVariant(scopedKey const& key, RjDirectAccess::simpleValue const& value) const {
+        baseDocument->setVariant(key.full(*this), value);
     }
 
-    void setSubDoc(scopedKey const& key, JSON& subDoc) {
-        visitBase([&](auto& alt) -> void {
-            alt.setSubDoc(key.full(this), subDoc);
-        });
+    void setSubDoc(scopedKey const& key, JSON& subDoc) const {
+        baseDocument->setSubDoc(key.full(*this), subDoc);
     }
 
-    void setSubDoc(scopedKey const& key, JsonScope const& subDoc) {
+    void setSubDoc(scopedKey const& key, JsonScope const& subDoc) const {
         // Slightly more complicated: If we wish to set the sub-document from another JsonScope,
         // we need to extract the underlying JSON document from it in the correct scope.
         JSON subDocScope = subDoc.getSubDoc("");
-        visitBase([&](auto& alt) -> void {
-            alt.setSubDoc(key.full(this), subDocScope);
-        });
+        baseDocument->setSubDoc(key.full(*this), subDocScope);
     }
 
-    void setEmptyArray(scopedKey const& key) {
-        visitBase([&](auto& alt) -> void {
-            alt.setEmptyArray(key.full(this));
-        });
+    void setEmptyArray(scopedKey const& key) const {
+        baseDocument->setEmptyArray(key.full(*this));
     }
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
 
-    void set_add(scopedKey const& key, double const& val) {
-        visitBase([&](auto& alt) -> void {
-            alt.set_add(key.full(this), val);
-        });
+    void set_add(scopedKey const& key, double const& val) const {
+        baseDocument->set_add(key.full(*this), val);
     }
 
-    void set_multiply(scopedKey const& key, double const& val) {
-        visitBase([&](auto& alt) -> void {
-            alt.set_multiply(key.full(this), val);
-        });
+    void set_multiply(scopedKey const& key, double const& val) const {
+        baseDocument->set_multiply(key.full(*this), val);
     }
 
-    void set_concat(scopedKey const& key, std::string const& valStr) {
-        visitBase([&](auto& alt) -> void {
-            alt.set_concat(key.full(this), valStr);
-        });
+    void set_concat(scopedKey const& key, std::string const& valStr) const {
+        baseDocument->set_concat(key.full(*this), valStr);
     }
 
     //------------------------------------------
     // Locking
 
-    std::scoped_lock<std::recursive_mutex> lock() {
-        return visitBase([&](auto& alt) -> std::scoped_lock<std::recursive_mutex> {
-            return alt.lock();
-        });
+    std::scoped_lock<std::recursive_mutex> lock() const {
+        return baseDocument->lock();
     }
 
     //------------------------------------------
@@ -309,31 +303,23 @@ public:
     //------------------------------------------
     // Key Types, Sizes
 
-    JSON::KeyType memberType(scopedKey const& key) {
-        return visitBase([&](auto& alt) -> JSON::KeyType {
-            return alt.memberType(key.full(this));
-        });
+    JSON::KeyType memberType(scopedKey const& key) const {
+        return baseDocument->memberType(key.full(*this));
     }
 
-    size_t memberSize(scopedKey const& key) {
-        return visitBase([&](auto& alt) -> size_t {
-            return alt.memberSize(key.full(this));
-        });
+    size_t memberSize(scopedKey const& key) const {
+        return baseDocument->memberSize(key.full(*this));
     }
 
-    void removeKey(scopedKey const& key) {
-        visitBase([&](auto& alt) -> void {
-            alt.removeKey(key.full(this));
-        });
+    void removeKey(scopedKey const& key) const {
+        baseDocument->removeKey(key.full(*this));
     }
 
     //------------------------------------------
     // Serialize/Deserialize
 
-    std::string serialize(scopedKey const& key = "") {
-        return visitBase([&](auto& alt) -> std::string {
-            return alt.serialize(key.full(this));
-        });
+    std::string serialize(scopedKey const& key = "") const {
+        return baseDocument->serialize(key.full(*this));
     }
 
     void deserialize(std::string const& serialOrLink);

@@ -14,9 +14,11 @@ JsonScope::JsonScope(JSON& doc, std::string const& prefix, std::string const& na
 }
 
 // Constructing a JsonScope from another JsonScope and a sub-prefix
-JsonScope::JsonScope(JsonScope& other, std::string const& prefix, std::string const& name)
+JsonScope::JsonScope(JsonScope const& other, std::string const& prefix, std::string const& name)
     : Domain(name, *this, *this),
-      baseDocument(std::ref(other)), scopePrefix(generatePrefix(prefix)) {
+      baseDocument(other.baseDocument),
+      scopePrefix(scopedKey(generatePrefix(prefix)).full(other))  // Generate full scoped prefix based on the other JsonScope and the new prefix
+{
     DomainModule::Initializer::initJsonScope(this);
 }
 
@@ -94,9 +96,7 @@ void JsonScope::deserialize(std::string const& serialOrLink) {
     // Load the JSON file
     if (scopePrefix.empty()) {
         // Edge case: no scope prefix, we can deserialize directly
-        visitBase([&](auto& alt) -> void {
-            alt.deserialize(serialOrLink);
-        });
+        baseDocument->deserialize(serialOrLink);
     }
     else {
         // Deserialize into a temporary JSON, then set as sub-document
@@ -106,9 +106,7 @@ void JsonScope::deserialize(std::string const& serialOrLink) {
         if (!scopePrefixWithoutDot.empty() && scopePrefixWithoutDot.ends_with(".")) {
             scopePrefixWithoutDot = scopePrefixWithoutDot.substr(0, scopePrefixWithoutDot.size() - 1);
         }
-        visitBase([&](auto& alt) -> void {
-            alt.setSubDoc(scopePrefixWithoutDot, tmp);
-        });
+        baseDocument->setSubDoc(scopePrefixWithoutDot, tmp);
     }
 
     //------------------------------------------
