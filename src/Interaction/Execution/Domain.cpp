@@ -1,4 +1,5 @@
 #include "Interaction/Execution/Domain.hpp"
+#include "Data/Document/JsonScope.hpp"
 
 namespace Nebulite::Interaction::Execution {
 
@@ -28,5 +29,9 @@ DomainBase& DomainBase::operator=(DomainBase&& other) noexcept {
 }
 
 DomainBase::~DomainBase() = default;
+
+std::string const& DomainBase::scopePrefix() const {
+    return document.getScopePrefix();
+}
 
 } // namespace Nebulite::Interaction::Execution
