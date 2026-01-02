@@ -1,6 +1,6 @@
 /**
  * @file JsonScope.hpp
- * @brief This file contains the definition of the JsonScope class, which provides a scoped interface
+ * @brief This file contains the definition of the JsonScope and JsonScobeBase class, which provides a scoped interface
  *        for accessing and modifying JSON documents within the Nebulite engine.
  */
 
@@ -21,9 +21,10 @@
 
 //------------------------------------------
 namespace Nebulite::Data {
+
 /**
- * @class Nebulite::Data::JsonScope
- * @brief The JsonScope class provides a scoped interface for accessing and modifying JSON documents.
+ * @class Nebulite::Data::JsonScopeBase
+ * @brief The JsonScopeBase class provides a scoped interface for accessing and modifying JSON documents.
  * @details It allows for modifications to a JSON document within a specific scope,
  *          that is a key-prefixed section of the document. This is useful for modular data management,
  *          where different parts of a JSON document can be managed independently.
@@ -34,8 +35,12 @@ namespace Nebulite::Data {
  *       We can then use this key outside of the DomainModule without worrying about scope issues.
  *       This would require changing all DomainModules to use JsonScope::scopedKey instead of std::string_view for hardcoded keys.
  */
-NEBULITE_DOMAIN(JsonScope) {
+class JsonScopeBase {
+protected:
     std::shared_ptr<JSON> baseDocument;
+
+private:
+
     std::string scopePrefix;
 
     //------------------------------------------
@@ -43,7 +48,7 @@ NEBULITE_DOMAIN(JsonScope) {
 
     /**
      * @brief Mapped ordered double pointers for expression references.
-     * @todo A proper refactor so that each MappedOrderedDoublePointers has a JsonScope as root!
+     * @todo A proper refactor so that each MappedOrderedDoublePointers has a JsonScopeBase as root!
      *       This ensures that no accidental wrong key accesses happens.
      *       Increases complexity of construction a bit, but is worth it.
      *       -> Basically: for(m : MappedOrderedDoublePointers) m = MappedOrderedDoublePointers(this);
@@ -65,10 +70,10 @@ NEBULITE_DOMAIN(JsonScope) {
         return fullPrefix;
     }
 
-    void swap(JsonScope& o) noexcept ;
+    void swap(JsonScopeBase& o) noexcept ;
 
     // Necessary helper for shareScope
-    JsonScope& shareManagedScope(std::string const& prefix) const {
+    [[nodiscard]] JsonScope& shareManagedScope(std::string const& prefix) const {
         return shareScope(scopedKey(prefix));
     }
 
@@ -76,26 +81,24 @@ public:
     //------------------------------------------
     // Constructors
 
-    // Constructing a JsonScope from a JSON document and a prefix
-    JsonScope(JSON& doc, std::string const& prefix, std::string const& name = "Unnamed JsonScope");
+    // Constructing a JsonScopeBase from a JSON document and a prefix
+    JsonScopeBase(JSON& doc, std::string const& prefix);
 
-    // Constructing a JsonScope from another JsonScope and a sub-prefix
-    JsonScope(JsonScope const& other, std::string const& prefix, std::string const& name = "Unnamed JsonScope");
+    // Constructing a JsonScopeBase from another JsonScopeBase and a sub-prefix
+    JsonScopeBase(JsonScopeBase const& other, std::string const& prefix);
 
     // Default constructor, we create a self-owned empty JSON document
-    explicit JsonScope(std::string const& name = "Unnamed JsonScope");
+    explicit JsonScopeBase();
 
     //------------------------------------------
     // Special member functions
 
-    // TODO: Implement all copy/move semantics properly
+    JsonScopeBase(JsonScopeBase const& other);
+    JsonScopeBase(JsonScopeBase&& other) noexcept;
+    JsonScopeBase& operator=(JsonScopeBase const& other);
+    JsonScopeBase& operator=(JsonScopeBase&& other) noexcept;
 
-    JsonScope(JsonScope const& other);
-    JsonScope(JsonScope&& other) noexcept;
-    JsonScope& operator=(JsonScope const& other);
-    JsonScope& operator=(JsonScope&& other) noexcept;
-
-    ~JsonScope() override;
+    virtual ~JsonScopeBase();
 
     //------------------------------------------
     // Get the prefix of this scope
@@ -105,7 +108,7 @@ public:
      * @details If the prefix is empty, returns an empty string.
      * @return The scope prefix as a const reference to std::string.
      */
-    std::string const& getScopePrefix() const noexcept {
+    [[nodiscard]] std::string const& getScopePrefix() const noexcept {
         return scopePrefix;
     }
 
@@ -113,100 +116,62 @@ public:
     // Helper struct for scoped keys
 
     /**
-     * @brief A helper struct to represent keys within the JsonScope.
+     * @brief A helper struct to represent keys within the JsonScopeBase.
      * @details This struct allows for easy conversion of string literals
-     *          into fully scoped keys within the JsonScope.
+     *          into fully scoped keys within the JsonScopeBase.
      *          This reduces accidental key misusage, as conversion to a usable type
      *          std::string requires an explicit action.
      *          It also provides safety checks to ensure that keys are used within their intended scopes.
      *          We can use this to generate static scoped keys in DomainModules, ensuring that
      *          they are always used in the correct scope.
      */
-    struct scopedKey {
-        // JsonScope should be the only class able to convert scopedKey to full key
-        friend class JsonScope;
-
-        // Accept any T that is constructible into std::string
-        // We disable linting as the implicit conversion is intended here
-        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
-        // NOLINTNEXTLINE
-        scopedKey(T const& k)
-            : key(std::string_view(k)), givenScope(std::nullopt) {}
-
-        // To be used when we want to ensure that the key is used in a specific scope
-        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
-        scopedKey(T const& k, JsonScope const& scope)
-            : key(std::string_view(k)), givenScope(scope.getScopePrefix()) {}
-
-        // To be used for constexpr
-        template<typename T, typename U>
-        requires std::convertible_to<T, std::string_view> && std::convertible_to<U, std::string_view>
-        constexpr scopedKey(T const& k, U const& fullScopePrefix) noexcept
-            : key(std::string_view(k)), givenScope(std::string_view(fullScopePrefix)) {}
-
-    private:
+    class scopedKey {
         /**
          * @brief Generates the full scoped key using the provided JsonScope
          * @details Checks if the optional given scope from the key matches the allowed scope
          *          from the provided JsonScope. If they do not match, an exception is thrown.
          *          If no given scope is set, the JsonScopes scopePrefix is used directly.
-         * @param scope The JsonScope to use for generating the full key and checking scope validity.
+         * @param scope The JsonScopeBase to use for generating the full key and checking scope validity.
          * @return The fully scoped key as a std::string.
          */
-        [[nodiscard]] std::string full(JsonScope const& scope) const {
-            // The scope that this JsonScope is allowed to use
-            std::string const& allowedScope = scope.scopePrefix;
-
-            // See if we require a specific scope
-            bool const requiresScope = givenScope.has_value();
-            std::string fullKey;
-            if (requiresScope) {
-                // Ensure that the given scope lies within the allowed scope
-                // E.g. givenScope = "module1.submodule." allowedScope = "module1." -> valid
-                //      givenScope = "module2."           allowedScope = "module1." -> invalid, we are only allowed to use module1.*
-                std::string const& given = std::string(*givenScope);
-                if (!given.starts_with(allowedScope)) {
-                    std::string const msg =
-                        "ScopedKey scope mismatch: key '" + std::string(key) +
-                        "' was created with the given scope prefix '" + given +
-                        "' but was used in JsonScope with prefix '" + allowedScope;
-                    throw std::invalid_argument(msg);
-                }
-
-                // Now we can safely use the given scope, as it lies within the allowed scope
-                fullKey.reserve(given.size() + key.size());
-                fullKey = given;
-                fullKey.append(key);
-                return fullKey;
-            }
-            else {
-                fullKey.reserve(allowedScope.size() + key.size());
-                fullKey = scope.scopePrefix;
-                fullKey.append(key);
-                return fullKey;
-            }
-        }
+        [[nodiscard]] std::string full(JsonScopeBase const& scope) const ;
 
         // The actual key within the scope
         std::string_view key;
 
-        // Optional given scope. The JsonScope must have access to this scope when using the key.
-        std::optional<std::string_view> givenScope;
+        // Optional given scope. The JsonScopeBase must have access to this scope when using the key.
+        std::optional<std::string_view> givenScope = std::nullopt;
+
+    public:
+        // JsonScopeBase should be the only class able to convert scopedKey to full key
+        friend class JsonScopeBase;
+
+        // Accept any T that is constructible into std::string
+        // We disable linting as the implicit conversion is intended here
+        // TODO: Activate later on once the key usage is fully integrated
+        //       Provide methods to add strings together to form full keys
+        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
+        // NOLINTNEXTLINE
+        scopedKey(T const& keyInScope)
+            : key(std::string_view(keyInScope)) {}
+
+        // To be used when we want to ensure that the key is used in a specific scope
+        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
+        scopedKey(JsonScopeBase const& scope, T const& keyInScope)
+            : key(std::string_view(keyInScope)), givenScope(scope.getScopePrefix()) {}
+
+        // To be used for constexpr
+        template<typename T, typename U>
+        requires std::convertible_to<T, std::string_view> && std::convertible_to<U, std::string_view>
+        constexpr scopedKey(U const& scope, T const& keyInScope) noexcept
+            : key(std::string_view(keyInScope)), givenScope(std::string_view(scope)) {}
     };
-
-    //------------------------------------------
-    // Domain related stuff
-
-    Constants::Error update() override {
-        updateModules();
-        return Constants::ErrorTable::NONE();
-    }
 
     //------------------------------------------
     // Sharing a scope
 
     // Proper scope sharing with nested unscoped key generation
-    JsonScope& shareScope(scopedKey const& key) const {
+    [[nodiscard]] JsonScope& shareScope(scopedKey const& key) const {
         return baseDocument->shareManagedScope(key.full(*this));
     }
 
@@ -218,15 +183,15 @@ public:
         return baseDocument->get<T>(key.full(*this), defaultValue);
     }
 
-    std::optional<RjDirectAccess::simpleValue> getVariant(scopedKey const& key) const {
+    [[nodiscard]] std::optional<RjDirectAccess::simpleValue> getVariant(scopedKey const& key) const {
         return baseDocument->getVariant(key.full(*this));
     }
 
-    JSON getSubDoc(scopedKey const& key) const {
+    [[nodiscard]] JSON getSubDoc(scopedKey const& key) const {
         return baseDocument->getSubDoc(key.full(*this));
     }
 
-    double* getStableDoublePointer(scopedKey const& key) const {
+    [[nodiscard]] double* getStableDoublePointer(scopedKey const& key) const {
         return baseDocument->getStableDoublePointer(key.full(*this));
     }
 
@@ -246,8 +211,8 @@ public:
         baseDocument->setSubDoc(key.full(*this), subDoc);
     }
 
-    void setSubDoc(scopedKey const& key, JsonScope const& subDoc) const {
-        // Slightly more complicated: If we wish to set the sub-document from another JsonScope,
+    void setSubDoc(scopedKey const& key, JsonScopeBase const& subDoc) const {
+        // Slightly more complicated: If we wish to set the sub-document from another JsonScopeBase,
         // we need to extract the underlying JSON document from it in the correct scope.
         JSON subDocScope = subDoc.getSubDoc(scopedKey(""));
         baseDocument->setSubDoc(key.full(*this), subDocScope);
@@ -275,7 +240,7 @@ public:
     //------------------------------------------
     // Locking
 
-    std::scoped_lock<std::recursive_mutex> lock() const {
+    [[nodiscard]] std::scoped_lock<std::recursive_mutex> lock() const {
         return baseDocument->lock();
     }
 
@@ -295,11 +260,11 @@ public:
     //------------------------------------------
     // Key Types, Sizes
 
-    JSON::KeyType memberType(scopedKey const& key) const {
+    [[nodiscard]] JSON::KeyType memberType(scopedKey const& key) const {
         return baseDocument->memberType(key.full(*this));
     }
 
-    size_t memberSize(scopedKey const& key) const {
+    [[nodiscard]] size_t memberSize(scopedKey const& key) const {
         return baseDocument->memberSize(key.full(*this));
     }
 
@@ -310,11 +275,55 @@ public:
     //------------------------------------------
     // Serialize/Deserialize
 
-    std::string serialize(scopedKey const& key = scopedKey("")) const {
+    [[nodiscard]] std::string serialize(scopedKey const& key = scopedKey("")) const {
         return baseDocument->serialize(key.full(*this));
     }
 
-    void deserialize(std::string const& serialOrLink);
+    virtual void deserialize(std::string const& serialOrLink);
 };
+
+/**
+ * @brief Domain-ized JsonScope class
+ * @details Inherits from Interaction::Execution::Domain to integrate with the Nebulite interaction system.
+ *          Also inherits from JsonScopeBase to provide scoped JSON document access.
+ */
+class JsonScope final : public Interaction::Execution::Domain<JsonScope>, public JsonScopeBase {
+public:
+    //------------------------------------------
+    // Constructors
+
+    // Constructing a JsonScopeBase from a JSON document and a prefix
+    JsonScope(JSON& doc, std::string const& prefix, std::string const& name = "Unnamed JsonScope");
+
+    // Constructing a JsonScopeBase from another JsonScopeBase and a sub-prefix
+    JsonScope(JsonScope const& other, std::string const& prefix, std::string const& name = "Unnamed JsonScope");
+
+    // Default constructor, we create a self-owned empty JSON document
+    explicit JsonScope(std::string const& name = "Unnamed JsonScope");
+
+    //------------------------------------------
+    // Special member functions
+
+    JsonScope(JsonScope const& other);
+    JsonScope(JsonScope&& other) noexcept;
+    JsonScope& operator=(JsonScope const& other);
+    JsonScope& operator=(JsonScope&& other) noexcept;
+
+    ~JsonScope() override = default;
+
+    //------------------------------------------
+    // Domain related stuff
+
+    Constants::Error update() override {
+        updateModules();
+        return Constants::ErrorTable::NONE();
+    }
+
+    //------------------------------------------
+    // Overwrite deserialization to add token parsing
+
+    void deserialize(std::string const& serialOrLink) override ;
+};
+
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_JSON_SCOPE_HPP

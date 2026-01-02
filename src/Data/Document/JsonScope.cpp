@@ -3,37 +3,144 @@
 #include "Data/Document/JsonScope.hpp"
 #include "DomainModule/Initializer.hpp"
 
+// scopedKey methods
 namespace Nebulite::Data {
 
-// Constructing a JsonScope from a JSON document and a prefix
-JsonScope::JsonScope(JSON& doc, std::string const& prefix, std::string const& name)
-    : Domain(name, *this, *this),
-    // create a non-owning shared_ptr to the provided JSON (no delete on destruction)
-    baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){})), scopePrefix(generatePrefix(prefix)) {
-    DomainModule::Initializer::initJsonScope(this);
+std::string JsonScopeBase::scopedKey::full(JsonScopeBase const& scope) const {
+    // The scope that this JsonScopeBase is allowed to use
+    std::string const& allowedScope = scope.scopePrefix;
+
+    // See if we require a specific scope
+    bool const requiresScope = givenScope.has_value();
+    std::string fullKey;
+    if (requiresScope) {
+        // Ensure that the given scope lies within the allowed scope
+        // E.g. givenScope = "module1.submodule." allowedScope = "module1." -> valid
+        //      givenScope = "module2."           allowedScope = "module1." -> invalid, we are only allowed to use module1.*
+        std::string const& given = std::string(*givenScope);
+        if (!given.starts_with(allowedScope)) {
+            std::string const msg =
+                "ScopedKey scope mismatch: key '" + std::string(key) +
+                "' was created with the given scope prefix '" + given +
+                "' but was used in JsonScopeBase with prefix '" + allowedScope;
+            throw std::invalid_argument(msg);
+        }
+
+        // Now we can safely use the given scope, as it lies within the allowed scope
+        fullKey.reserve(given.size() + key.size());
+        fullKey = given;
+        fullKey.append(key);
+        return fullKey;
+    }
+    else {
+        fullKey.reserve(allowedScope.size() + key.size());
+        fullKey = scope.scopePrefix;
+        fullKey.append(key);
+        return fullKey;
+    }
 }
 
-// Constructing a JsonScope from another JsonScope and a sub-prefix
-JsonScope::JsonScope(JsonScope const& other, std::string const& prefix, std::string const& name)
+} // namespace Nebulite::Data
+
+// JsonScopeBase methods
+namespace Nebulite::Data {
+// Constructing a JsonScopeBase from a JSON document and a prefix
+JsonScopeBase::JsonScopeBase(JSON& doc, std::string const& prefix)
+    // create a non-owning shared_ptr to the provided JSON (no delete on destruction)
+    : baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){})), scopePrefix(generatePrefix(prefix))
+{}
+
+// Constructing a JsonScopeBase from another JsonScopeBase and a sub-prefix
+JsonScopeBase::JsonScopeBase(JsonScopeBase const& other, std::string const& prefix)
+    : baseDocument(other.baseDocument),
+      scopePrefix(scopedKey(generatePrefix(prefix)).full(other))  // Generate full scoped prefix based on the other JsonScopeBase and the new prefix
+{}
+
+// Default constructor, we create a self-owned empty JSON document
+JsonScopeBase::JsonScopeBase()
+    : baseDocument(std::make_shared<JSON>()), scopePrefix("")
+{}
+
+// --- Copy constructor
+JsonScopeBase::JsonScopeBase(JsonScopeBase const& other)
+    : baseDocument(other.baseDocument),
+      scopePrefix(other.scopePrefix)
+{}
+
+// --- Move constructor
+JsonScopeBase::JsonScopeBase(JsonScopeBase&& other) noexcept
+    : baseDocument(std::move(other.baseDocument)),
+      scopePrefix(std::move(other.scopePrefix))
+{}
+
+// --- Copy assignment (copy-and-swap)
+JsonScopeBase& JsonScopeBase::operator=(JsonScopeBase const& other) {
+    if (this == &other) return *this;
+    JsonScopeBase tmp(other);
+    swap(tmp);
+    return *this;
+}
+
+// --- Move assignment (copy-and-swap with moved temporary)
+JsonScopeBase& JsonScopeBase::operator=(JsonScopeBase&& other) noexcept {
+    if (this == &other) return *this;
+    JsonScopeBase tmp(std::move(other));
+    swap(tmp);
+    return *this;
+}
+
+// --- swap helper
+void JsonScopeBase::swap(JsonScopeBase& o) noexcept {
+    std::swap(baseDocument, o.baseDocument);
+    std::swap(scopePrefix, o.scopePrefix);
+}
+
+JsonScopeBase::~JsonScopeBase() = default;
+
+//------------------------------------------
+// Deserialize/Serialize
+
+void JsonScopeBase::deserialize(std::string const& serialOrLink) {
+    // No support for any tokens, just forward to baseDocument
+    baseDocument->deserialize(serialOrLink);
+}
+} // namespace Nebulite::Data
+
+// JsonScope methods
+namespace Nebulite::Data {
+
+//------------------------------------------
+// Constructors for JsonScope
+
+
+
+JsonScope::JsonScope(JSON& doc, std::string const& prefix, std::string const& name)
     : Domain(name, *this, *this),
-      baseDocument(other.baseDocument),
-      scopePrefix(scopedKey(generatePrefix(prefix)).full(other))  // Generate full scoped prefix based on the other JsonScope and the new prefix
+      JsonScopeBase(doc, prefix)
 {
     DomainModule::Initializer::initJsonScope(this);
 }
 
-// Default constructor, we create a self-owned empty JSON document
-JsonScope::JsonScope(std::string const& name)
+JsonScope::JsonScope(JsonScope const& other, std::string const& prefix, std::string const& name)
     : Domain(name, *this, *this),
-      baseDocument(std::make_shared<JSON>()), scopePrefix("") {
+      JsonScopeBase(other, prefix)
+{
     DomainModule::Initializer::initJsonScope(this);
 }
+
+JsonScope::JsonScope(std::string const& name)
+    : Domain(name, *this, *this)
+{
+    DomainModule::Initializer::initJsonScope(this);
+}
+
+//------------------------------------------
+// Special member functions for JsonScope
 
 // --- Copy constructor
 JsonScope::JsonScope(JsonScope const& other)
     : Domain(this->getName(), *this, *this),
-      baseDocument(other.baseDocument),
-      scopePrefix(other.scopePrefix)
+      JsonScopeBase(other)
 {
     // If you need to re-register modules / reinit state after copy, do it here:
     reinitModules();
@@ -42,15 +149,15 @@ JsonScope::JsonScope(JsonScope const& other)
 // --- Move constructor
 JsonScope::JsonScope(JsonScope&& other) noexcept
     : Domain(this->getName(), *this, *this),
-      baseDocument(std::move(other.baseDocument)),
-      scopePrefix(std::move(other.scopePrefix))
+      JsonScopeBase(std::move(other))
 {}
 
 // --- Copy assignment (copy-and-swap)
 JsonScope& JsonScope::operator=(JsonScope const& other) {
     if (this == &other) return *this;
     JsonScope tmp(other);
-    swap(tmp);
+    std::swap(*this, tmp);
+    reinitModules();
     return *this;
 }
 
@@ -58,20 +165,9 @@ JsonScope& JsonScope::operator=(JsonScope const& other) {
 JsonScope& JsonScope::operator=(JsonScope&& other) noexcept {
     if (this == &other) return *this;
     JsonScope tmp(std::move(other));
-    swap(tmp);
+    std::swap(*this, tmp);
     return *this;
 }
-
-// --- swap helper
-void JsonScope::swap(JsonScope& o) noexcept {
-    std::swap(baseDocument, o.baseDocument);
-    std::swap(scopePrefix, o.scopePrefix);
-}
-
-JsonScope::~JsonScope() = default;
-
-//------------------------------------------
-// Deserialize/Serialize
 
 void JsonScope::deserialize(std::string const& serialOrLink) {
     //------------------------------------------
@@ -94,7 +190,7 @@ void JsonScope::deserialize(std::string const& serialOrLink) {
 
     //------------------------------------------
     // Load the JSON file
-    if (scopePrefix.empty()) {
+    if (getScopePrefix().empty()) {
         // Edge case: no scope prefix, we can deserialize directly
         baseDocument->deserialize(serialOrLink);
     }
@@ -102,7 +198,7 @@ void JsonScope::deserialize(std::string const& serialOrLink) {
         // Deserialize into a temporary JSON, then set as sub-document
         JSON tmp;
         tmp.deserialize(serialOrLink);
-        auto scopePrefixWithoutDot = scopePrefix;
+        auto scopePrefixWithoutDot = getScopePrefix();
         if (!scopePrefixWithoutDot.empty() && scopePrefixWithoutDot.ends_with(".")) {
             scopePrefixWithoutDot = scopePrefixWithoutDot.substr(0, scopePrefixWithoutDot.size() - 1);
         }
