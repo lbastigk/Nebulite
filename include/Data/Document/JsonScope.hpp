@@ -128,15 +128,21 @@ public:
 
         // Accept any T that is constructible into std::string
         // We disable linting as the implicit conversion is intended here
-        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string, T>>>
+        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
         // NOLINTNEXTLINE
         scopedKey(T const& k)
-            : key(std::string(k)), givenScope(std::nullopt) {}
+            : key(std::string_view(k)), givenScope(std::nullopt) {}
 
         // To be used when we want to ensure that the key is used in a specific scope
-        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string, T>>>
+        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
         scopedKey(T const& k, JsonScope const& scope)
-            : key(std::string(k)), givenScope(scope.getScopePrefix()) {}
+            : key(std::string_view(k)), givenScope(scope.getScopePrefix()) {}
+
+        // To be used for constexpr
+        template<typename T, typename U>
+        requires std::convertible_to<T, std::string_view> && std::convertible_to<U, std::string_view>
+        constexpr scopedKey(T const& k, U const& fullScopePrefix) noexcept
+            : key(std::string_view(k)), givenScope(std::string_view(fullScopePrefix)) {}
 
     private:
         /**
@@ -144,10 +150,10 @@ public:
          * @details Checks if the optional given scope from the key matches the allowed scope
          *          from the provided JsonScope. If they do not match, an exception is thrown.
          *          If no given scope is set, the JsonScopes scopePrefix is used directly.
-         * @param scope The JsonScope to use for generating the full key.
+         * @param scope The JsonScope to use for generating the full key and checking scope validity.
          * @return The fully scoped key as a std::string.
          */
-        std::string full(JsonScope const& scope) const {
+        [[nodiscard]] std::string full(JsonScope const& scope) const {
             // The scope that this JsonScope is allowed to use
             std::string const& allowedScope = scope.scopePrefix;
 
@@ -158,7 +164,7 @@ public:
                 // Ensure that the given scope lies within the allowed scope
                 // E.g. givenScope = "module1.submodule." allowedScope = "module1." -> valid
                 //      givenScope = "module2."           allowedScope = "module1." -> invalid, we are only allowed to use module1.*
-                std::string const& given = *givenScope;
+                std::string const& given = std::string(*givenScope);
                 if (!given.starts_with(allowedScope)) {
                     std::string const msg =
                         "ScopedKey scope mismatch: key '" + std::string(key) +
@@ -182,10 +188,10 @@ public:
         }
 
         // The actual key within the scope
-        std::string key;
+        std::string_view key;
 
         // Optional given scope. The JsonScope must have access to this scope when using the key.
-        std::optional<std::string> givenScope;
+        std::optional<std::string_view> givenScope;
     };
 
     //------------------------------------------
