@@ -155,8 +155,9 @@ public:
      *       And replace all other usages with safe getters/setters in their implementations.
      *       E.g.: instead of obj.getDoc().set(posX) --> obj.setPositionX()
      *       This perhaps bloats the Domain interfaces a bit, but increases safety a lot.
+     * @todo Specifically, we wish to allow getDoc() only outside of DomainModules.
      */
-    [[nodiscard]] Data::JsonScope& getDoc() const { return document; }
+    [[nodiscard]] virtual Data::JsonScope& getDoc() const { return document; }
 
     /**
      * @brief Gets the name of the domain.
@@ -280,5 +281,9 @@ public:
         return domainName;
     }
 };
+
+
 } // namespace Nebulite::Interaction::Execution
+
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
+
