@@ -626,7 +626,7 @@ void Expression::updateCaches(Data::JSON& reference) {
     // Update resource references
     for (auto const& vde : virtualDoubles.nonRemanent.resource) {
         if (isAvailableAsDoublePtr(vde->getKey())) {
-            vde->setUpInternalCache(nullptr);
+            vde->setUpInternalCache();
         } else {
             // One-time handle of multi-resolve and transformations
             Expression tempExpr;

@@ -9,14 +9,14 @@ VirtualDouble::VirtualDouble(std::string k) noexcept : key(std::move(k)) {
         if (key.starts_with(ContextPrefix::global)) { key.erase(0, ContextPrefix::global.size()); }
 }
 
-void VirtualDouble::setUpInternalCache(Data::JSON* json) {
-    if (json != nullptr) {
-        copied_value = *json->getStableDoublePointer(key);
-        reference = &copied_value;
-    } else {
-        copied_value = *Nebulite::global().getDocCache().getStableDoublePointer(key);
-        reference = &copied_value;
-    }
+void VirtualDouble::setUpInternalCache(Data::JSON& json) {
+    copied_value = *json.getStableDoublePointer(key);
+    reference = &copied_value;
+}
+
+void VirtualDouble::setUpInternalCache() {
+    copied_value = *Nebulite::global().getDocCache().getStableDoublePointer(key);
+    reference = &copied_value;
 }
 
 void VirtualDouble::setUpExternalCache(Data::JSON& json) {

@@ -72,13 +72,22 @@ public:
 
     /**
      * @brief Update the cache value from the JSON document or DocumentCache.
-     * @details This function retrieves the double value associated with the key from the provided JSON document
+     * @details Retrieves the double value associated with the key from the provided JSON document
      *          or the DocumentCache, and updates the internal cache accordingly.
      *          This is used for non-remanent documents, meaning the associated document changes
      *          If the key is not found within the associated document, the double value will default to 0.
-     * @param json The JSON document pointer to retrieve the value from. If the pointer is null, we retrieve the value from the document cache.
+     * @param json The JSON document to retrieve the value from.
      */
-    void setUpInternalCache(Data::JSON* json);
+    void setUpInternalCache(Data::JSON& json);
+
+    /**
+     * @brief Update the cache value from the global DocumentCache.
+     * @details Retrieves the double value associated with the key from the global DocumentCache,
+     *          and updates the internal cache accordingly.
+     *          This is used for non-remanent documents, meaning the associated document changes
+     *          If the key is not found within the DocumentCache, the double value will default to 0.
+     */
+    void setUpInternalCache();
 
     /**
      * @brief Register the external cache for this VirtualDouble.
