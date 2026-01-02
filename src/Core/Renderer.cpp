@@ -24,7 +24,7 @@
 namespace Nebulite::Core {
 
 Renderer::Renderer(Data::JSON* docRef, bool* flag_headless, unsigned int const& X, unsigned int const& Y)
-    : Domain("Renderer", this, docRef),
+    : Domain("Renderer", *this, docRef),
       env(docRef){
 
     //------------------------------------------

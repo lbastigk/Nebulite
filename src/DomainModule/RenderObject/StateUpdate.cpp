@@ -16,12 +16,12 @@ Constants::Error StateUpdate::update() {
 // Domain-Bound Functions
 
 Constants::Error StateUpdate::deleteObject() {
-    domain->flag.deleteFromScene = true;
+    domain.flag.deleteFromScene = true;
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error StateUpdate::updateText() {
-    domain->flag.calculateText = true;
+    domain.flag.calculateText = true;
     return Constants::ErrorTable::NONE();
 }
 

@@ -24,7 +24,7 @@ Constants::Error RenderObjectDraft::draft_spawn() {
     std::string const serial = draft.get()->serialize();
     auto* newObj = new Core::RenderObject();
     newObj->deserialize(serial);
-    domain->append(newObj);
+    domain.append(newObj);
     return Constants::ErrorTable::NONE();
 }
 

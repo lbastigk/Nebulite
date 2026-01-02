@@ -13,7 +13,7 @@ Constants::Error Mirror::update() {
     if (mirrorEnabled || mirrorOnceEnabled) {
         // Values
         auto const globalDoc = Nebulite::global().getDoc();
-        auto const objectDoc = domain->getDoc();
+        auto const objectDoc = domain.getDoc();
 
         // Mirror to GlobalSpace
         globalDoc->setSubDoc(mirrorKey.c_str(), *objectDoc);
@@ -55,7 +55,7 @@ Constants::Error Mirror::mirror_fetch() {
     if (Nebulite::global().getDoc()->memberType(mirrorKey) != Data::JSON::KeyType::object) {
         return Constants::ErrorTable::addError("Mirror fetch failed: Key '" + mirrorKey + "' not of type document", Constants::Error::NON_CRITICAL);
     }
-    domain->deserialize(Nebulite::global().getDoc()->serialize(mirrorKey));
+    domain.deserialize(Nebulite::global().getDoc()->serialize(mirrorKey));
     return Constants::ErrorTable::NONE();
 }
 
@@ -64,7 +64,7 @@ Constants::Error Mirror::mirror_fetch() {
 
 Constants::Error Mirror::setupMirrorKey() {
     // Only fetch key once we turn on mirroring
-    int const id = domain->getDoc()->get<int>(Constants::KeyNames::RenderObject::id, 0);
+    int const id = domain.getDoc()->get<int>(Constants::KeyNames::RenderObject::id, 0);
     if (id < 1) {
         return Constants::ErrorTable::addError("Mirror key setup failed: RenderObject has invalid id", Constants::Error::NON_CRITICAL);
     }

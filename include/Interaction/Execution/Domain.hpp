@@ -200,11 +200,11 @@ private:
      * @brief Reference to the domain itself
      *        Used to initialize DomainModules with a reference to the domain
      */
-    DomainType* const domain;
+    DomainType& domain;
 
 public:
-    Domain(std::string const& name, DomainType* domainTypePtr, Data::JSON* documentPtr)
-        : DomainBase(name, documentPtr), domain(domainTypePtr) {
+    Domain(std::string const& name, DomainType& domainTypeReference, Data::JSON* documentPtr)
+        : DomainBase(name, documentPtr), domain(domainTypeReference) {
     }
 
     //------------------------------------------

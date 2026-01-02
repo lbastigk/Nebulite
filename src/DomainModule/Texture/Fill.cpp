@@ -21,7 +21,7 @@ Constants::Error Fill::fill(int argc, char** argv) {
     }
 
     // Get the texture to fill
-    SDL_Texture* texture = domain->getSDLTexture();
+    SDL_Texture* texture = domain.getSDLTexture();
     if (texture == nullptr) {
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_NOT_FOUND();
     }

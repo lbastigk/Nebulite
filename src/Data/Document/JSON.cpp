@@ -10,7 +10,7 @@ namespace Nebulite::Data {
 std::string const JSON::reservedCharacters = "[]{}.|\":";
 
 JSON::JSON(std::string const& name)
-    : Domain(name, this, this) {
+    : Domain(name, *this, this) {
     std::scoped_lock const lockGuard(mtx);
     DomainModule::Initializer::initJSON(this);
 }
@@ -38,7 +38,7 @@ JSON& JSON::operator=(JSON&& other) noexcept {
 }
 
 JSON::JSON(JSON&& other) noexcept
-    : Domain("JSON", this, this) {
+    : Domain("JSON", *this, this) {
     std::scoped_lock lockGuard(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);
     cache = std::move(other.cache);

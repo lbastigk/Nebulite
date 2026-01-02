@@ -15,7 +15,7 @@ Constants::Error Ruleset::update() {
     // An id of zero means the RenderObject is outside the Renderer/RenderObjectContainer scope
     // and should not be updated
     if (id == 0) {
-        id = domain->getDoc()->get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
+        id = domain.getDoc()->get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
     }
 
     //------------------------------------------
@@ -23,7 +23,7 @@ Constants::Error Ruleset::update() {
     if (id != 0) {
         // Reload rulesets if needed
         if (reloadRulesets) {
-            auto mtx = domain->getDoc()->lock();
+            auto mtx = domain.getDoc()->lock();
             Interaction::Rules::Construction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, domain);
             reloadRulesets = false;
         }
@@ -38,7 +38,7 @@ Constants::Error Ruleset::update() {
         // Listen to broadcasts from subscribed topics
         for (size_t idx = 0; idx < subscription_size; idx++) {
             std::string key = std::string(Constants::KeyNames::RenderObject::invokeSubscriptions) + "[" + std::to_string(idx) + "]";
-            auto const subscription = domain->getDoc()->get<std::string>(key, "");
+            auto const subscription = domain.getDoc()->get<std::string>(key, "");
             Nebulite::global().listen(domain, subscription, id);
         }
 

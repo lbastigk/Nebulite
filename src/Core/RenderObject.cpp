@@ -52,7 +52,7 @@ void setStandardValues(Data::JSON& document) {
 }
 } // namespace
 
-RenderObject::RenderObject() : Domain("RenderObject", this, &document), baseTexture(&document) {
+RenderObject::RenderObject() : Domain("RenderObject", *this, &document), baseTexture(&document) {
     //------------------------------------------
     // Set standard values
     setStandardValues(document);
@@ -276,7 +276,7 @@ Constants::Error RenderObject::update() {
 uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
     std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsGlobal;
     std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsLocal;
-    Interaction::Rules::Construction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, this);
+    Interaction::Rules::Construction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, *this);
 
     //------------------------------------------
     // Count number of $ and { in logical Arguments

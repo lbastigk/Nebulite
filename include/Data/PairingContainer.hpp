@@ -145,7 +145,7 @@ public:
     ~PairingContainer() = default;
 
     void insertBroadcaster(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
-    void insertListener(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId);
+    void insertListener(Interaction::Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId);
     void process(); // Worker thread processing function
     std::unique_lock<std::shared_mutex> lock() {return std::unique_lock<std::shared_mutex>(mutex);}
 

@@ -27,22 +27,22 @@ Constants::Error General::eval(int argc, char** argv) {
     std::string const argsEvaluated = Interaction::Logic::Expression::eval(args,context);
 
     // reparse
-    return domain->parseStr(argsEvaluated);
+    return domain.parseStr(argsEvaluated);
 }
 
 Constants::Error General::exit() {
     // Clear all task queues to prevent further execution
-    domain->clearAllTaskQueues();
+    domain.clearAllTaskQueues();
 
     // Set the renderer to quit
-    domain->quitRenderer();
+    domain.quitRenderer();
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error General::wait(int argc, char** argv) {
     if (argc == 2) {
         // Standard wait acts on taskQueue "script"
-        domain->getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::script)->incrementWaitCounter(std::stoull(argv[1]));
+        domain.getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::script)->incrementWaitCounter(std::stoull(argv[1]));
         return Constants::ErrorTable::NONE();
     }
     if (argc < 2) {
@@ -56,7 +56,7 @@ Constants::Error General::task(int argc, char** argv) {
     Nebulite::cout() << message << Nebulite::endl;
 
     // Rollback RNG, loading a task file should not change the RNG state
-    domain->rngRollback();
+    domain.rngRollback();
 
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -96,7 +96,7 @@ Constants::Error General::task(int argc, char** argv) {
 
     // Now insert all lines into the task queue
     for (auto const& taskLine : lines) {
-        domain->getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::script)->pushFront(taskLine);
+        domain.getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::script)->pushFront(taskLine);
     }
     return Constants::ErrorTable::NONE();
 }
@@ -120,7 +120,7 @@ Constants::Error General::func_if(int argc, char** argv) {
     // Build the command string from rest
     std::string commands = Utility::StringHandler::recombineArgs(argc - 2, argv + 2);
     commands = __FUNCTION__ + std::string(" ") + commands;
-    return domain->parseStr(commands);
+    return domain.parseStr(commands);
 }
 
 Constants::Error General::func_assert(int argc, char** argv) {
@@ -171,7 +171,7 @@ Constants::Error General::always(int argc, char** argv) {
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                domain->getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::always)->pushBack(command);
+                domain.getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::always)->pushBack(command);
             }
         }
     }
@@ -179,7 +179,7 @@ Constants::Error General::always(int argc, char** argv) {
 }
 
 Constants::Error General::alwaysClear() {
-    domain->getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::always)->clear();
+    domain.getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::always)->clear();
     return Constants::ErrorTable::NONE();
 }
 
@@ -200,7 +200,7 @@ Constants::Error General::func_for(int argc, char** argv) {
         for (int i = iStart; i <= iEnd; i++) {
             // for + args
             std::string args_replaced = std::string(argv[0]) + " " + Utility::StringHandler::replaceAll(args, '{' + varName + '}', std::to_string(i));
-            if (auto const err = domain->parseStr(args_replaced); err.isCritical()) {
+            if (auto const err = domain.parseStr(args_replaced); err.isCritical()) {
                 return err;
             } else if (err.isError()) {
                 Nebulite::cout() << err.getDescription() << Nebulite::endl;

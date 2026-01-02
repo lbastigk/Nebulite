@@ -20,17 +20,17 @@ Constants::Error General::update() {
 
 Constants::Error General::envLoad(int argc, char** argv) {
     if (argc > 1) {
-        domain->deserialize(argv[1]);
+        domain.deserialize(argv[1]);
         return Constants::ErrorTable::NONE();
     }
     // no name provided, load empty env
-    domain->deserialize("{}");
+    domain.deserialize("{}");
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error General::envDeload() {
-    domain->purgeObjects();
-    domain->purgeTextures();
+    domain.purgeObjects();
+    domain.purgeTextures();
     return Constants::ErrorTable::NONE();
 }
 
@@ -70,7 +70,7 @@ Constants::Error General::spawn(int argc, char** argv) {
 
         // Append to renderer
         // Renderer manages the RenderObjects lifetime
-        domain->append(ro);
+        domain.append(ro);
     } else {
         Nebulite::cerr() << "No renderobject name provided!" << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -95,7 +95,7 @@ Constants::Error General::setResolution(int argc, char** argv) {
             scalar = 1;
         }
     }
-    domain->changeWindowSize(w, h, scalar);
+    domain.changeWindowSize(w, h, scalar);
     return Constants::ErrorTable::NONE();
 }
 
@@ -112,18 +112,18 @@ Constants::Error General::setFPS(int argc, char** argv) {
         if (fpsSigned > 10000)
             fps = 10000;
     }
-    domain->setTargetFPS(fps);
+    domain.setTargetFPS(fps);
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error General::showFPS(int argc, char** argv) {
     if (argc < 2) {
-        domain->toggleFps(true);
+        domain.toggleFps(true);
     } else {
         if (!strcmp(argv[1], "on")) {
-            domain->toggleFps(true);
+            domain.toggleFps(true);
         } else if (!strcmp(argv[1], "off")) {
-            domain->toggleFps(false);
+            domain.toggleFps(false);
         } else {
             // unknown arg
             return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
@@ -142,7 +142,7 @@ Constants::Error General::cam_move(int argc, char** argv) {
 
     int const dx = std::stoi(argv[1]);
     int const dy = std::stoi(argv[2]);
-    domain->moveCam(dx, dy);
+    domain.moveCam(dx, dy);
     return Constants::ErrorTable::NONE();
 }
 
@@ -150,14 +150,14 @@ Constants::Error General::cam_set(int argc, char** argv) {
     if (argc == 3) {
         int const x = std::stoi(argv[1]);
         int const y = std::stoi(argv[2]);
-        domain->setCam(x, y);
+        domain.setCam(x, y);
         return Constants::ErrorTable::NONE();
     }
     if (argc == 4) {
         if (!strcmp(argv[3], "c")) {
             int const x = std::stoi(argv[1]);
             int const y = std::stoi(argv[2]);
-            domain->setCam(x, y, true);
+            domain.setCam(x, y, true);
             return Constants::ErrorTable::NONE();
         }
         // unknown arg
@@ -172,14 +172,14 @@ Constants::Error General::cam_set(int argc, char** argv) {
 Constants::Error General::snapshot(int argc, char** argv) {
     if (argc == 1) {
         // No link provided, use default
-        if (!domain->snapshot("./Resources/Snapshots/snapshot.png")) {
+        if (!domain.snapshot("./Resources/Snapshots/snapshot.png")) {
             return Constants::ErrorTable::RENDERER::CRITICAL_RENDERER_SNAPSHOT_FAILED();
         }
         return Constants::ErrorTable::NONE();
     }
     if (argc == 2) {
         // Link provided
-        if (!domain->snapshot(argv[1])) {
+        if (!domain.snapshot(argv[1])) {
             return Constants::ErrorTable::RENDERER::CRITICAL_RENDERER_SNAPSHOT_FAILED();
         }
         return Constants::ErrorTable::NONE();
@@ -189,7 +189,7 @@ Constants::Error General::snapshot(int argc, char** argv) {
 
 Constants::Error General::beep() {
     // Beep function for debugging, from SDL
-    domain->beep();
+    domain.beep();
     return Constants::ErrorTable::NONE();
 }
 
@@ -200,7 +200,7 @@ Constants::Error General::selectedObject_get(int argc, char** argv) {
 
     // Supports only uint32_t ids
     uint32_t const id = static_cast<uint32_t>(std::stoul(argv[1]));
-    if (Core::RenderObject* obj = domain->getObjectFromId(id); obj) {
+    if (Core::RenderObject* obj = domain.getObjectFromId(id); obj) {
         selectedRenderObject = obj;
         return Constants::ErrorTable::NONE();
     }

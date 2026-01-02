@@ -44,7 +44,7 @@ void Invoke::broadcast(std::shared_ptr<Rules::Ruleset> const& entry) {
     worker[threadIndex]->broadcast(entry);
 }
 
-void Invoke::listen(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId) {
+void Invoke::listen(Interaction::Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId) {
     // Listening happens on all threads
     for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
         w->listen(listener, topic, listenerId);

@@ -61,7 +61,7 @@ public:
      * @param topic The topic to listen for.
      * @param listenerId The unique ID of the listener render object.
      */
-    void listen(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId);
+    void listen(Interaction::Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId);
 
     //------------------------------------------
     // Worker Thread Methods

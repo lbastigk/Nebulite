@@ -24,7 +24,7 @@ Constants::Error Rotation::rotate(int argc, char** argv) {
     }
 
     // Get the texture to rotate
-    SDL_Texture* texture = domain->getSDLTexture();
+    SDL_Texture* texture = domain.getSDLTexture();
     if (texture == nullptr) {
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_NOT_FOUND();
     }
@@ -59,7 +59,7 @@ Constants::Error Rotation::rotate(int argc, char** argv) {
     SDL_SetRenderTarget(renderer, nullptr);
 
     // Replace the original texture with the rotated texture
-    domain->setInternalTexture(rotatedTexture);
+    domain.setInternalTexture(rotatedTexture);
 
     Nebulite::cout() << "Texture rotated by " << angle << " degrees." << Nebulite::endl;
     return Constants::ErrorTable::NONE();

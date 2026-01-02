@@ -13,7 +13,7 @@ void BroadCastListenPairs::broadcast(std::shared_ptr<Interaction::Rules::Ruleset
     nextFrame->insertBroadcaster(entry);
 }
 
-void BroadCastListenPairs::listen(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId) {
+void BroadCastListenPairs::listen(Interaction::Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId) {
     thisFrame->insertListener(listener, topic, listenerId);
 }
 

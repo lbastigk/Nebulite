@@ -12,7 +12,7 @@ void PairingContainer::insertBroadcaster(std::shared_ptr<Interaction::Rules::Rul
     isActive = true;
 }
 
-void PairingContainer::insertListener(Interaction::Execution::DomainBase* listener, std::string const& topic, uint32_t const& listenerId) {
+void PairingContainer::insertListener(Interaction::Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId) {
     // Check if any object has broadcasted on this topic
     auto topicIt = data.find(topic);
     if (topicIt == data.end()) {
@@ -38,8 +38,8 @@ void PairingContainer::insertListener(Interaction::Execution::DomainBase* listen
 #else
             auto blp = BroadCastListenPair{
                 listenersOnRuleset.entry,
-                listener,
-                listenersOnRuleset.entry->evaluateCondition(listener)
+                &listener,
+                listenersOnRuleset.entry->evaluateCondition(&listener)
             };
             listenersOnRuleset.insert(listenerId, blp);
 #endif // USE_BYTETREE_CONTAINER

@@ -18,8 +18,8 @@ bool constexpr endsWithNewline(std::string_view str) {
     class DomainModuleName final : public Nebulite::Interaction::Execution::DomainModule<DomainName>
 
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
-    explicit DomainModuleName(std::string const& name, DomainName* domainPtr, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr) \
-    : DomainModule(name, domainPtr, std::move(funcTreePtr))
+    explicit DomainModuleName(std::string const& name, DomainName& domainReference, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr) \
+    : DomainModule(name, domainReference, std::move(funcTreePtr))
 
 #define BINDFUNCTION(func, name,desc) \
     static_assert(endsWithNewline(desc), "Function description must end with a newline character."); \
@@ -150,9 +150,9 @@ public:
      */
     DomainModule(
         std::string name,
-        DomainType* domainPtr,
+        DomainType& domainReference,
         std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr
-    ) : DomainModuleBase(std::move(funcTreePtr)), moduleName(std::move(name)), domain(domainPtr) {}
+    ) : DomainModuleBase(std::move(funcTreePtr)), moduleName(std::move(name)), domain(domainReference) {}
 
     /**
      * @brief Virtual destructor for DomainModule.
@@ -190,7 +190,7 @@ protected:
     /**
      * @brief Workspace of the DomainModule
      */
-    DomainType* domain;
+    DomainType& domain;
 };
 } // namespace Nebulite::Interaction::Execution
 #include "Interaction/Execution/DomainModule.tpp"

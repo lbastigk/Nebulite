@@ -85,7 +85,7 @@ Maintainers can create their own module classes and add them to a specific domai
 | Specific Textures                 | Extend `Initializer.hpp` by creating Texture DomainModules        | See `include/Core/Texture.hpp` and its modules      `include/DomainModule/Texture/*.hpp`      |
 
 
-Each DomainModule has access to a different domain workspace through `domain->...`,
+Each DomainModule has access to a different domain workspace through `domain....`,
 as well as an update routine, allowing us to declutter classes by binding routines to specific modules:
 - input-reading
 - state-update

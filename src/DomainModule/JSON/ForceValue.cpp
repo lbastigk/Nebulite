@@ -6,13 +6,13 @@ namespace Nebulite::DomainModule::JSON {
 Constants::Error ForceValue::update() {
     // On each update, re-apply forced values
     for (auto const& [key, value] : forced_global_values) {
-        domain->set(key, value);
+        domain.set(key, value);
     }
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error ForceValue::force_set(int argc, char** argv) {
-    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain.lock(); // Lock the domain for thread-safe access
     if (argc < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -27,7 +27,7 @@ Constants::Error ForceValue::force_set(int argc, char** argv) {
 }
 
 Constants::Error ForceValue::force_clear() {
-    std::scoped_lock<std::recursive_mutex> mtx = domain->lock(); // Lock the domain for thread-safe access
+    std::scoped_lock<std::recursive_mutex> mtx = domain.lock(); // Lock the domain for thread-safe access
     forced_global_values.clear();
     return Constants::ErrorTable::NONE();
 }

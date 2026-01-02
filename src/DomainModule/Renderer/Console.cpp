@@ -63,10 +63,10 @@ Constants::Error Console::update() {
 
     //------------------------------------------
     // Toggle
-    events = domain->getEventHandles();
+    events = domain.getEventHandles();
 
     // Toggling console mode
-    if (domain->getDoc()->get<int>(toggleKey, 0) == 1) {
+    if (domain.getDoc()->get<int>(toggleKey, 0) == 1) {
         consoleMode = !consoleMode;
         if (consoleMode) {
             SDL_StartTextInput();
@@ -331,8 +331,8 @@ void Console::renderConsole() {
 void Console::init() {
     //--------------------------------------------------
     // References
-    renderer = domain->getSdlRenderer();
-    globalDoc = domain->getDoc();
+    renderer = domain.getSdlRenderer();
+    globalDoc = domain.getDoc();
 
     // Use a monospaced font for better alignment
     consoleFont = TTF_OpenFont(consoleFontPath.c_str(), static_cast<int>(consoleLayout.FONT_MAX_SIZE * Nebulite::global().getRenderer().getWindowScale()));
@@ -435,7 +435,7 @@ void Console::keyTriggerZoomIn(SDL_KeyboardEvent const& key) const {
     // Make sure that ctrl is held
     if (!(key.keysym.mod & KMOD_CTRL))
         return;
-    if (auto const err = domain->parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " in"); err != Constants::ErrorTable::NONE()) {
+    if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " in"); err != Constants::ErrorTable::NONE()) {
         Nebulite::cerr() << "Error: Failed to zoom into console: " << err.getDescription() << Nebulite::endl;
     }
 }
@@ -444,7 +444,7 @@ void Console::keyTriggerZoomOut(SDL_KeyboardEvent const& key) const {
     // Make sure that ctrl is held
     if (!(key.keysym.mod & KMOD_CTRL))
         return;
-    if (auto const err = domain->parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " out"); err != Constants::ErrorTable::NONE()) {
+    if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " out"); err != Constants::ErrorTable::NONE()) {
         Nebulite::cerr() << "Error: Failed to zoom out console: " << err.getDescription() << Nebulite::endl;
     }
 }
@@ -580,7 +580,7 @@ void Console::processMode() {
         }
 
         // Attach texture above UI layer
-        (void)domain->attachTextureAboveLayer(
+        (void)domain.attachTextureAboveLayer(
             Core::Environment::Layer::UI,
             "console_overlay",
             consoleTexture.texture_ptr,
@@ -588,10 +588,10 @@ void Console::processMode() {
             );
 
         // Skip updating the renderer for this frame, as we are in console mode
-        domain->skipUpdateNextFrame();
+        domain.skipUpdateNextFrame();
     } else {
         // Clear texture and detach
-        (void)domain->detachTextureAboveLayer(
+        (void)domain.detachTextureAboveLayer(
             Core::Environment::Layer::UI,
             "console_overlay"
             );

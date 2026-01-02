@@ -19,13 +19,13 @@ Constants::Error Debug::update() {
 
 Constants::Error Debug::eval(int argc, char** argv) {
     std::string const args = Utility::StringHandler::recombineArgs(argc, argv);
-    Interaction::ContextBase context{*domain, *domain, Nebulite::global()};    // Both self and other are this RenderObject?
+    Interaction::ContextBase context{domain, domain, Nebulite::global()};    // Both self and other are this RenderObject?
     std::string const argsEvaluated = Interaction::Logic::Expression::eval(args, context);
-    return domain->parseStr(argsEvaluated);
+    return domain.parseStr(argsEvaluated);
 }
 
 Constants::Error Debug::printSrcRect() {
-    if (SDL_Rect const* srcRect = domain->getSrcRect(); srcRect) {
+    if (SDL_Rect const* srcRect = domain.getSrcRect(); srcRect) {
         std::string message;
         message += "Source Rectangle:";
         message += "{ x: " + std::to_string(srcRect->x);
@@ -42,7 +42,7 @@ Constants::Error Debug::printSrcRect() {
 }
 
 Constants::Error Debug::printDstRect() {
-    if (SDL_Rect const* dstRect = domain->getDstRect(); dstRect) {
+    if (SDL_Rect const* dstRect = domain.getDstRect(); dstRect) {
         std::string message;
         message += "Destination Rectangle:";
         message += "{ x: " + std::to_string(dstRect->x);
@@ -115,13 +115,13 @@ Constants::Error Debug::textureStatus() {
     Nebulite::cout() << "Texture Status:" << Nebulite::endl;
 
     // Nebulite info
-    Nebulite::cout() << std::string(" - Texture Key   : ") + domain->getDoc()->get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "None") << Nebulite::endl;
-    Nebulite::cout() << std::string(" - Valid Texture : ") + (domain->getTexture()->isTextureValid() ? "Yes" : "No") << Nebulite::endl;
-    Nebulite::cout() << std::string(" - Local Texture : ") + (domain->getTexture()->isTextureStoredLocally() ? "Yes" : "No") << Nebulite::endl;
+    Nebulite::cout() << std::string(" - Texture Key   : ") + domain.getDoc()->get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "None") << Nebulite::endl;
+    Nebulite::cout() << std::string(" - Valid Texture : ") + (domain.getTexture()->isTextureValid() ? "Yes" : "No") << Nebulite::endl;
+    Nebulite::cout() << std::string(" - Local Texture : ") + (domain.getTexture()->isTextureStoredLocally() ? "Yes" : "No") << Nebulite::endl;
 
     // SDL info
     Nebulite::cout() << "SDL Texture Info:" << Nebulite::endl;
-    Nebulite::cout() << getTextureInfoString(domain->getTexture()->getSDLTexture()) << Nebulite::endl;
+    Nebulite::cout() << getTextureInfoString(domain.getTexture()->getSDLTexture()) << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
 

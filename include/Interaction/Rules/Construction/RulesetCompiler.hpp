@@ -59,7 +59,7 @@ public:
     static void parse(
         std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal,
         std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal,
-        Interaction::Execution::DomainBase* self
+        Interaction::Execution::DomainBase& self
         );
 
     /**
@@ -70,7 +70,7 @@ public:
      */
     static std::optional<std::shared_ptr<Ruleset>> parseSingle(
         std::string const& identifier,
-        Interaction::Execution::DomainBase* self
+        Interaction::Execution::DomainBase& self
         );
 
 private:
@@ -83,7 +83,7 @@ private:
     static void getFunctionCalls(
         Data::JSON& entryDoc,
         JsonRuleset& Ruleset,
-        Interaction::Execution::DomainBase const* self
+        Interaction::Execution::DomainBase const& self
         );
 
     /**
@@ -138,7 +138,7 @@ private:
     static AnyRuleset getRuleset(
         Data::JSON& doc,
         std::string const& key,
-        Interaction::Execution::DomainBase* self
+        Interaction::Execution::DomainBase& self
         );
 
     /**
@@ -156,7 +156,7 @@ private:
      * @param rulesetsGlobal The global Ruleset objects.
      */
     static void setMetaData(
-        Interaction::Execution::DomainBase* self,
+        Interaction::Execution::DomainBase& self,
         std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsLocal,
         std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsGlobal
         );

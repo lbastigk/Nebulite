@@ -9,7 +9,7 @@
 namespace Nebulite::Core {
 
 GlobalSpace::GlobalSpace(std::string const& name)
-    : Domain("Nebulite", this, &document),
+    : Domain("Nebulite", *this, &document),
       document("GlobalSpace Document"), // JSON
       renderer(&document, &cmdVars.headless) // Renderer with reference to GlobalSpace and headless mode boolean
 {
