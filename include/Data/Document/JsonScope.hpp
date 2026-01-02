@@ -34,9 +34,32 @@ class JsonScope {
     std::variant<std::shared_ptr<JSON>, std::reference_wrapper<JsonScope>> baseDocument;
     std::string scopePrefix;
 
-    // Helper for std::visit with lambdas
-    template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-    template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+    //------------------------------------------
+    // Helper for std::visit
+
+    template<typename F>
+    decltype(auto) visitBase(F&& f) {
+            return std::visit([&](auto&& alt) -> decltype(auto) {
+                using Alt = std::decay_t<decltype(alt)>;
+                if constexpr (std::is_same_v<Alt, std::shared_ptr<JSON>>) {
+                    return std::invoke(std::forward<F>(f), *alt);        // JSON&
+                } else {
+                    return std::invoke(std::forward<F>(f), alt.get());   // JsonScope&
+                }
+            }, baseDocument);
+        }
+
+    template<typename F>
+    decltype(auto) visitBase(F&& f) const {
+        return std::visit([&](auto const& alt) -> decltype(auto) {
+            using Alt = std::decay_t<decltype(alt)>;
+            if constexpr (std::is_same_v<Alt, std::shared_ptr<JSON>>) {
+                return std::invoke(std::forward<F>(f), *alt);        // JSON&
+            } else {
+                return std::invoke(std::forward<F>(f), alt.get());   // JsonScope&
+            }
+        }, baseDocument);
+    }
 
     //------------------------------------------
     // Ordered double pointers system
@@ -82,6 +105,14 @@ class JsonScope {
         return full;
     }
 
+    std::string generateFullKey(char const* key) const {
+        std::string full;
+        full.reserve(scopePrefix.size() + std::strlen(key));
+        full = scopePrefix;
+        full.append(key);
+        return full;
+    }
+
 public:
     //------------------------------------------
     // Constructors
@@ -107,14 +138,14 @@ public:
 
     [[deprecated("Accessing the base document breaks the scope abstraction. This should only be used temporarly if certain JSON features aren't available in JsonScope. Use with caution.")]]
     JSON& getBaseDocument() {
-        return std::visit(overloaded{
-        [&](std::shared_ptr<JSON> const& p) -> JSON& {
-                return *p;
-        },
-        [&](std::reference_wrapper<JsonScope> const& ref) -> JSON& {
-                return ref.get().getBaseDocument();
-        }
-        }, baseDocument);
+        return visitBase([](auto& alt) -> JSON& {
+            using Alt = std::decay_t<decltype(alt)>;
+            if constexpr (std::is_same_v<Alt, JSON>) {
+                return alt;
+            } else {
+                return alt.getBaseDocument();
+            }
+        });
     }
 
     //------------------------------------------
@@ -129,73 +160,69 @@ public:
 
     template<typename T>
     T get(std::string const& key, T const& defaultValue) const {
-        return std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) -> T {
-                return p->template get<T>(generateFullKey(key), defaultValue);
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) -> T {
-                return ref.get().template get<T>(generateFullKey(key), defaultValue);
-            }
-        }, baseDocument);
+        return visitBase([&](auto& alt) -> T {
+            return alt.template get<T>(generateFullKey(key), defaultValue);
+        });
     }
     template<typename T>
     T get(std::string_view const& key, T const& defaultValue) const {
-        return get<T>(std::string(key), defaultValue);
+        return visitBase([&](auto& alt) -> T {
+            return alt.template get<T>(generateFullKey(key), defaultValue);
+        });
     }
     template<typename T>
     T get(char const* key, T const& defaultValue) const {
-        return get<T>(std::string(key), defaultValue);
+        return visitBase([&](auto& alt) -> T {
+            return alt.template get<T>(generateFullKey(key), defaultValue);
+        });
     }
 
     std::optional<RjDirectAccess::simpleValue> getVariant(std::string const& key) const {
-        return std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) -> std::optional<RjDirectAccess::simpleValue> {
-                return p->getVariant(generateFullKey(key));
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) -> std::optional<RjDirectAccess::simpleValue> {
-                return ref.get().getVariant(generateFullKey(key));
-            }
-        }, baseDocument);
+        return visitBase([&](auto& alt) -> std::optional<RjDirectAccess::simpleValue> {
+            return alt.getVariant(generateFullKey(key));
+        });
     }
     std::optional<RjDirectAccess::simpleValue> getVariant(std::string_view const& key) const {
-        return getVariant(std::string(key));
+        return visitBase([&](auto& alt) -> std::optional<RjDirectAccess::simpleValue> {
+            return alt.getVariant(generateFullKey(key));
+        });
     }
     std::optional<RjDirectAccess::simpleValue> getVariant(char const* key) const {
-        return getVariant(std::string(key));
+        return visitBase([&](auto& alt) -> std::optional<RjDirectAccess::simpleValue> {
+            return alt.getVariant(generateFullKey(key));
+        });
     }
 
     JSON getSubDoc(std::string const& key) const {
-        return std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) -> JSON {
-                return p->getSubDoc(generateFullKey(key));
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) -> JSON {
-                return ref.get().getSubDoc(generateFullKey(key));
-            }
-        }, baseDocument);
+        return visitBase([&](auto& alt) -> JSON {
+            return alt.getSubDoc(generateFullKey(key));
+        });
     }
     JSON getSubDoc(std::string_view const& key) const {
-        return getSubDoc(std::string(key));
+        return visitBase([&](auto& alt) -> JSON {
+            return alt.getSubDoc(generateFullKey(key));
+        });
     }
     JSON getSubDoc(char const* key) const {
-        return getSubDoc(std::string(key));
+        return visitBase([&](auto& alt) -> JSON {
+            return alt.getSubDoc(generateFullKey(key));
+        });
     }
 
     double* getStableDoublePointer(std::string const& key) {
-        return std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) -> double* {
-                return p->getStableDoublePointer(generateFullKey(key));
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) -> double* {
-                return ref.get().getStableDoublePointer(generateFullKey(key));
-            }
-        }, baseDocument);
+        return visitBase([&](auto& alt) -> double* {
+            return alt.getStableDoublePointer(generateFullKey(key));
+        });
     }
     double* getStableDoublePointer(std::string_view const& key) {
-        return getStableDoublePointer(std::string(key));
+        return visitBase([&](auto& alt) -> double* {
+            return alt.getStableDoublePointer(generateFullKey(key));
+        });
     }
     double* getStableDoublePointer(char const* key) {
-        return getStableDoublePointer(std::string(key));
+        return visitBase([&](auto& alt) -> double* {
+            return alt.getStableDoublePointer(generateFullKey(key));
+        });
     }
 
     //------------------------------------------
@@ -203,123 +230,99 @@ public:
 
     template<typename T>
     void set(std::string const& key, T const& value) {
-        std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) {
-                p->template set<T>(generateFullKey(key), value);
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) {
-                ref.get().template set<T>(generateFullKey(key), value);
-            }
-        }, baseDocument);
+        visitBase([&](auto& alt) -> void {
+            alt.template set<T>(generateFullKey(key), value);
+        });
     }
     template<typename T>
     void set(std::string_view const& key, T const& value) {
-        set<T>(std::string(key), value);
+        visitBase([&](auto& alt) -> void {
+            alt.template set<T>(generateFullKey(key), value);
+        });
     }
     template<typename T>
     void set(char const* key, T const& value) {
-        set<T>(std::string(key), value);
+        visitBase([&](auto& alt) -> void {
+            alt.template set<T>(generateFullKey(key), value);
+        });
     }
 
     void setVariant(std::string const& key, RjDirectAccess::simpleValue const& value) {
-        std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) {
-                p->setVariant(generateFullKey(key), value);
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) {
-                ref.get().setVariant(generateFullKey(key), value);
-            }
-        }, baseDocument);
+        visitBase([&](auto& alt) -> void {
+            alt.setVariant(generateFullKey(key), value);
+        });
     }
     void setVariant(std::string_view const& key, RjDirectAccess::simpleValue const& value) {
-        setVariant(std::string(key), value);
+        visitBase([&](auto& alt) -> void {
+            alt.setVariant(generateFullKey(key), value);
+        });
     }
     void setVariant(char const* key, RjDirectAccess::simpleValue const& value) {
-        setVariant(std::string(key), value);
+        visitBase([&](auto& alt) -> void {
+            alt.setVariant(generateFullKey(key), value);
+        });
     }
 
     void setSubDoc(std::string const& key, JSON& subDoc) {
-        std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) {
-                p->setSubDoc(generateFullKey(key), subDoc);
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) {
-                ref.get().setSubDoc(generateFullKey(key), subDoc);
-            }
-        }, baseDocument);
+        visitBase([&](auto& alt) -> void {
+            alt.setSubDoc(generateFullKey(key), subDoc);
+        });
     }
     void setSubDoc(std::string_view const& key, JSON& subDoc) {
-        setSubDoc(std::string(key), subDoc);
+        visitBase([&](auto& alt) -> void {
+            alt.setSubDoc(generateFullKey(key), subDoc);
+        });
     }
     void setSubDoc(char const* key, JSON& subDoc) {
-        setSubDoc(std::string(key), subDoc);
+        visitBase([&](auto& alt) -> void {
+            alt.setSubDoc(generateFullKey(key), subDoc);
+        });
     }
 
     void setEmptyArray(std::string const& key) {
-        std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) {
-                p->setEmptyArray(generateFullKey(key));
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) {
-                ref.get().setEmptyArray(generateFullKey(key));
-            }
-        }, baseDocument);
+        visitBase([&](auto& alt) -> void {
+            alt.setEmptyArray(generateFullKey(key));
+        });
     }
     void setEmptyArray(std::string_view const& key) {
-        setEmptyArray(std::string(key));
+        visitBase([&](auto& alt) -> void {
+            alt.setEmptyArray(generateFullKey(key));
+        });
     }
     void setEmptyArray(char const* key) {
-        setEmptyArray(std::string(key));
+        visitBase([&](auto& alt) -> void {
+            alt.setEmptyArray(generateFullKey(key));
+        });
     }
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
 
     void set_add(std::string_view const& key, double const& val) {
-        std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) {
-                p->set_add(generateFullKey(key), val);
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) {
-                ref.get().set_add(generateFullKey(key), val);
-            }
-        }, baseDocument);
+        visitBase([&](auto& alt) -> void {
+            alt.set_add(generateFullKey(key), val);
+        });
     }
 
     void set_multiply(std::string_view const& key, double const& val) {
-        std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) {
-                p->set_multiply(generateFullKey(key), val);
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) {
-                ref.get().set_multiply(generateFullKey(key), val);
-            }
-        }, baseDocument);
+        visitBase([&](auto& alt) -> void {
+            alt.set_multiply(generateFullKey(key), val);
+        });
     }
 
     void set_concat(std::string_view const& key, std::string const& valStr) {
-        std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) {
-                p->set_concat(generateFullKey(key), valStr);
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) {
-                ref.get().set_concat(generateFullKey(key), valStr);
-            }
-        }, baseDocument);
+        visitBase([&](auto& alt) -> void {
+            alt.set_concat(generateFullKey(key), valStr);
+        });
     }
 
     //------------------------------------------
     // Locking
 
     std::scoped_lock<std::recursive_mutex> lock() {
-        return std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) -> std::scoped_lock<std::recursive_mutex> {
-                return p->lock();
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) -> std::scoped_lock<std::recursive_mutex> {
-                return ref.get().lock();
-            }
-        }, baseDocument);
+        return visitBase([&](auto& alt) -> std::scoped_lock<std::recursive_mutex> {
+            return alt.lock();
+        });
     }
 
     //------------------------------------------
@@ -341,69 +344,61 @@ public:
     // Key Types, Sizes
 
     JSON::KeyType memberType(std::string const& key) {
-        return std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) -> JSON::KeyType {
-                return p->memberType(generateFullKey(key));
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) -> JSON::KeyType {
-                return ref.get().memberType(generateFullKey(key));
-            }
-        }, baseDocument);
+        return visitBase([&](auto& alt) -> JSON::KeyType {
+            return alt.memberType(generateFullKey(key));
+        });
     }
     JSON::KeyType memberType(std::string_view key) {
-        return memberType(std::string(key));
+        return visitBase([&](auto& alt) -> JSON::KeyType {
+            return alt.memberType(generateFullKey(key));
+        });
     }
     JSON::KeyType memberType(char const* key) {
-        return memberType(std::string(key));
+        return visitBase([&](auto& alt) -> JSON::KeyType {
+            return alt.memberType(generateFullKey(key));
+        });
     }
 
     size_t memberSize(std::string const& key) {
-        return std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) -> size_t {
-                return p->memberSize(generateFullKey(key));
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) -> size_t {
-                return ref.get().memberSize(generateFullKey(key));
-            }
-        }, baseDocument);
+        return visitBase([&](auto& alt) -> size_t {
+            return alt.memberSize(generateFullKey(key));
+        });
     }
     size_t memberSize(std::string_view key) {
-        return memberSize(std::string(key));
+        return visitBase([&](auto& alt) -> size_t {
+            return alt.memberSize(generateFullKey(key));
+        });
     }
     size_t memberSize(char const* key) {
-        return memberSize(std::string(key));
+        return visitBase([&](auto& alt) -> size_t {
+            return alt.memberSize(generateFullKey(key));
+        });
     }
 
     void removeKey(std::string_view key) {
-        std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) {
-                p->removeKey(generateFullKey(key).c_str());
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) {
-                ref.get().removeKey(generateFullKey(key).c_str());
-            }
-        }, baseDocument);
+        visitBase([&](auto& alt) -> void {
+            alt.removeKey(generateFullKey(key).c_str());
+        });
     }
     void removeKey(std::string const& key) {
-        removeKey(static_cast<std::string_view>(key));
+        visitBase([&](auto& alt) -> void {
+            alt.removeKey(generateFullKey(key).c_str());
+        });
     }
 
     void removeKey(char const* key) {
-        removeKey(static_cast<std::string_view>(key));
+        visitBase([&](auto& alt) -> void {
+            alt.removeKey(generateFullKey(key).c_str());
+        });
     }
 
     //------------------------------------------
     // Serialize/Deserialize
 
     std::string serialize(std::string const& key = "") {
-        return std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) -> std::string {
-                return p->serialize(generateFullKey(key));
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) -> std::string {
-                return ref.get().serialize(generateFullKey(key));
-            }
-        }, baseDocument);
+        return visitBase([&](auto& alt) -> std::string {
+            return alt.serialize(generateFullKey(key));
+        });
     }
     void deserialize(std::string const& serialOrLink) {
         JSON tmp;
@@ -412,16 +407,10 @@ public:
         if (!scopePrefixWithoutDot.empty() && scopePrefixWithoutDot.ends_with(".")) {
             scopePrefixWithoutDot = scopePrefixWithoutDot.substr(0, scopePrefixWithoutDot.size() - 1);
         }
-        std::visit(overloaded{
-            [&](std::shared_ptr<JSON> const& p) {
-                p->setSubDoc(scopePrefixWithoutDot, tmp);
-            },
-            [&](std::reference_wrapper<JsonScope> const& ref) {
-                ref.get().setSubDoc(scopePrefixWithoutDot, tmp);
-            }
-        }, baseDocument);
+        visitBase([&](auto& alt) -> void {
+            alt.setSubDoc(scopePrefixWithoutDot, tmp);
+        });
     }
-
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_JSON_SCOPE_HPP
