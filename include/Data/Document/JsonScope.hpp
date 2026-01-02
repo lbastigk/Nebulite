@@ -39,21 +39,21 @@ NEBULITE_DOMAIN(JsonScope) {
 
     template<typename F>
     decltype(auto) visitBase(F&& f) {
-            return std::visit([&](auto&& alt) -> decltype(auto) {
-                using Alt = std::decay_t<decltype(alt)>;
-                if constexpr (std::is_same_v<Alt, std::shared_ptr<JSON>>) {
-                    return std::invoke(std::forward<F>(f), *alt);        // JSON&
-                } else {
-                    return std::invoke(std::forward<F>(f), alt.get());   // JsonScope&
-                }
-            }, baseDocument);
-        }
+        return std::visit([&]<typename Alt>(Alt&& alt) -> decltype(auto) {
+            using AltT = std::decay_t<Alt>;
+            if constexpr (std::is_same_v<AltT, std::shared_ptr<JSON>>) {
+                return std::invoke(std::forward<F>(f), *alt);        // JSON&
+            } else {
+                return std::invoke(std::forward<F>(f), alt.get());   // JsonScope&
+            }
+        }, baseDocument);
+    }
 
     template<typename F>
     decltype(auto) visitBase(F&& f) const {
-        return std::visit([&](auto const& alt) -> decltype(auto) {
-            using Alt = std::decay_t<decltype(alt)>;
-            if constexpr (std::is_same_v<Alt, std::shared_ptr<JSON>>) {
+        return std::visit([&]<typename Alt>(Alt&& alt) -> decltype(auto) {
+            using AltT = std::decay_t<Alt>;
+            if constexpr (std::is_same_v<AltT, std::shared_ptr<JSON>>) {
                 return std::invoke(std::forward<F>(f), *alt);        // JSON&
             } else {
                 return std::invoke(std::forward<F>(f), alt.get());   // JsonScope&
@@ -81,7 +81,7 @@ NEBULITE_DOMAIN(JsonScope) {
      * @param givenPrefix The user-provided prefix.
      * @return The properly formatted prefix.
      */
-    std::string generatePrefix(std::string const& givenPrefix) const {
+    static std::string generatePrefix(std::string const& givenPrefix) {
         std::string fullPrefix = givenPrefix;
         if (!fullPrefix.empty() && !fullPrefix.ends_with(".")) fullPrefix += ".";
         return fullPrefix;
@@ -178,9 +178,8 @@ public:
 
     [[deprecated("Accessing the base document breaks the scope abstraction. This should only be used temporarly if certain JSON features aren't available in JsonScope. Use with caution.")]]
     JSON& getBaseDocument() {
-        return visitBase([](auto& alt) -> JSON& {
-            using Alt = std::decay_t<decltype(alt)>;
-            if constexpr (std::is_same_v<Alt, JSON>) {
+        return visitBase([]<typename Alt>(Alt& alt) -> JSON& {
+            if constexpr (std::is_same_v<std::decay_t<Alt>, JSON>) {
                 return alt;
             } else {
                 return alt.getBaseDocument();
@@ -292,7 +291,8 @@ public:
 
     // WARNING: This is not yet implemented!
     [[deprecated("JsonScope::getOrderedCacheListMap is not yet implemented!")]]
-    MappedOrderedDoublePointers* getOrderedCacheListMap() {
+    MappedOrderedDoublePointers* getOrderedCacheListMap() const {
+        (void)this; // suppress "can be made static" warning
         return nullptr; // To be implemented
     }
 
