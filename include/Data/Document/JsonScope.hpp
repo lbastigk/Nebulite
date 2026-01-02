@@ -11,6 +11,7 @@
 // Includes
 
 // Nebulite
+#include "Interaction/Execution/Domain.hpp"
 #include "Data/Document/JSON.hpp"
 
 //------------------------------------------
@@ -30,7 +31,7 @@ namespace Nebulite::Data {
  *       This drastically simplifies things, such as construction of JSON documents,
  *       and having a nice wrapper for scoped access, that itself is a domain.
  */
-class JsonScope {
+NEBULITE_DOMAIN(JsonScope) {
     std::variant<std::shared_ptr<JSON>, std::reference_wrapper<JsonScope>> baseDocument;
     std::string scopePrefix;
 
@@ -72,14 +73,6 @@ class JsonScope {
      */
     MappedOrderedDoublePointers expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
 
-    /**
-     * @brief Super quick double cache based on unique IDs, no hash lookup.
-     *        Used for the first few entries. It's recommended to reserve
-     *        low value uids for frequently used keys.
-     * @todo Add a reserve-mechanism in globalspace for ids, so they are low value.
-     */
-    std::array<double*, JSON::uidQuickCacheSize> uidDoubleCache{nullptr};
-
     //------------------------------------------
     // Valid prefix check and generation
 
@@ -118,17 +111,38 @@ public:
     // Constructors
 
     // Constructing a JsonScope from a JSON document and a prefix
-    JsonScope(JSON& doc, std::string const& prefix)
+    JsonScope(JSON& doc, std::string const& prefix, std::string const& name = "Unnamed JsonScope")
+        : Domain(name, *this, getBaseDocument()),   // TODO: change to *this once JsonScope is used in domains
         // create a non-owning shared_ptr to the provided JSON (no delete on destruction)
-        : baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){})), scopePrefix(generatePrefix(prefix)) {}
+        baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){})), scopePrefix(generatePrefix(prefix)) {}
 
     // Constructing a JsonScope from another JsonScope and a sub-prefix
-    JsonScope(JsonScope& other, std::string const& prefix)
-        : baseDocument(std::ref(other)), scopePrefix(generatePrefix(prefix)) {}
+    JsonScope(JsonScope& other, std::string const& prefix, std::string const& name = "Unnamed JsonScope")
+        : Domain(name, *this, getBaseDocument()),   // TODO: change to *this once JsonScope is used in domains
+          baseDocument(std::ref(other)), scopePrefix(generatePrefix(prefix)) {}
 
     // Default constructor, we create a self-owned empty JSON document
-    JsonScope()
-        : baseDocument(std::make_shared<JSON>()), scopePrefix("") {
+    JsonScope(std::string const& name = "Unnamed JsonScope")
+        : Domain(name, *this, getBaseDocument()),   // TODO: change to *this once JsonScope is used in domains
+          baseDocument(std::make_shared<JSON>()), scopePrefix("") {}
+
+    //------------------------------------------
+    // Special member functions
+
+    JsonScope(JsonScope const&) = delete;
+    JsonScope& operator=(JsonScope const&) = delete;
+    JsonScope(JsonScope&&) noexcept;
+    JsonScope& operator=(JsonScope&&) noexcept;
+
+    ~JsonScope() override;
+
+    //------------------------------------------
+    // Domain related stuff
+
+    Constants::Error update() override {
+        // TODO: Remove domain from JSON, make JsonScope a domain instead
+        //       for now we just return NONE
+        return Constants::ErrorTable::NONE();
     }
 
     //------------------------------------------
