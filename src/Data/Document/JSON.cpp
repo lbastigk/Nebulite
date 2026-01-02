@@ -29,10 +29,6 @@ JSON& JSON::operator=(JSON&& other) noexcept {
         std::scoped_lock lockGuard(mtx, other.mtx);
         doc = std::move(other.doc);
         cache = std::move(other.cache);
-        for (size_t idx = 0; idx < uidQuickCacheSize; ++idx) {
-            uidDoubleCache[idx] = other.uidDoubleCache[idx];
-            other.uidDoubleCache[idx] = nullptr;
-        }
     }
     return *this;
 }

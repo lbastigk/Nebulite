@@ -167,14 +167,6 @@ private:
      */
     MappedOrderedDoublePointers expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
 
-    /**
-     * @brief Super quick double cache based on unique IDs, no hash lookup.
-     *        Used for the first few entries. It's recommended to reserve
-     *        low value uids for frequently used keys.
-     * @todo Add a reserve-mechanism in globalspace for ids, so they are low value.
-     */
-    std::array<double*, uidQuickCacheSize> uidDoubleCache{nullptr};
-
     //------------------------------------------
     // Return Value Transformation system
 
