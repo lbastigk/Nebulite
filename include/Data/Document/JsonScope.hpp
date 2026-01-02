@@ -29,6 +29,14 @@ namespace Nebulite::Data {
  *          where different parts of a JSON document can be managed independently.
  *          Holds little data itself, mostly acts as a scoped view over an existing JSON document or another JsonScope.
  * @todo Move to namespace Nebulite::Core where all other Domain-related classes are located.
+ * @todo If we simplify baseDocument to be just a shared_ptr<JSON>, we can remove the need for std::visit in many places.
+ *       This should already be possible with the current design!
+ *       Then we can improve the key resolution logic by refactoring DomainModule keynames to include the key and its scope:
+ *       instead of a constexpr std::string_view key = "subkey_in_scope",
+ *       we can declare it as:
+ *       JsonScope::scopedKey key = {"subkey_in_scope", domain->getDoc().getScopePrefix()};
+ *       We can then use this key outside of the DomainModule without worrying about scope issues.
+ *       This would require changing all DomainModules to use JsonScope::scopedKey instead of std::string_view for hardcoded keys.
  */
 NEBULITE_DOMAIN(JsonScope) {
     std::variant<std::shared_ptr<JSON>, std::reference_wrapper<JsonScope>> baseDocument;
@@ -106,7 +114,7 @@ public:
     JsonScope(JsonScope& other, std::string const& prefix, std::string const& name = "Unnamed JsonScope");
 
     // Default constructor, we create a self-owned empty JSON document
-    JsonScope(std::string const& name = "Unnamed JsonScope");
+    explicit JsonScope(std::string const& name = "Unnamed JsonScope");
 
     //------------------------------------------
     // Special member functions
@@ -121,7 +129,19 @@ public:
     ~JsonScope() override;
 
     //------------------------------------------
-    // Idea: Using a custom type to turn a string literal into a scoped key
+    // Get the prefix of this scope
+
+    /**
+     * @brief Gets the scope prefix with trailing dot.
+     * @details If the prefix is empty, returns an empty string.
+     * @return The scope prefix as a const reference to std::string.
+     */
+    std::string const& getScopePrefix() const noexcept {
+        return scopePrefix;
+    }
+
+    //------------------------------------------
+    // Helper struct for scoped keys
 
     /**
      * @brief A helper struct to represent unscoped keys.
@@ -130,19 +150,19 @@ public:
      *          This reduces accidental key misusage, as conversion to a usable type
      *          std::string requires an explicit action.
      */
-    struct unscopedKey {
-        // JsonScope should be the only class able to convert unscopedKey to full key
+    struct scopedKey {
+        // JsonScope should be the only class able to convert scopedKey to full key
         friend class JsonScope;
 
         // Accept any T that is constructible into std::string_view
         template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
-        unscopedKey(T const& k) : key(std::string_view(k)) {}
+        scopedKey(T const& k) : key(std::string_view(k)) {}
 
         // Disable copying and moving to ensure safety of the string_view
-        unscopedKey(unscopedKey const&) = delete;
-        unscopedKey& operator=(unscopedKey const&) = delete;
-        unscopedKey(unscopedKey&&) = delete;
-        unscopedKey& operator=(unscopedKey&&) = delete;
+        scopedKey(scopedKey const&) = delete;
+        scopedKey& operator=(scopedKey const&) = delete;
+        scopedKey(scopedKey&&) = delete;
+        scopedKey& operator=(scopedKey&&) = delete;
 
     private:
         /**
@@ -172,7 +192,7 @@ public:
     // Sharing a scope
 
     // Proper scope sharing with nested unscoped key generation
-    JsonScope& shareScope(unscopedKey const& key) {
+    JsonScope& shareScope(scopedKey const& key) {
         return visitBase([&](auto& alt) -> JsonScope& {
             return alt.shareManagedScope(key.full(this));
         });
@@ -182,25 +202,25 @@ public:
     // Getter
 
     template<typename T>
-    T get(unscopedKey const& key, T const& defaultValue = T()) const {
+    T get(scopedKey const& key, T const& defaultValue = T()) const {
         return visitBase([&](auto& alt) -> T {
             return alt.template get<T>(key.full(this), defaultValue);
         });
     }
 
-    std::optional<RjDirectAccess::simpleValue> getVariant(unscopedKey const& key) const {
+    std::optional<RjDirectAccess::simpleValue> getVariant(scopedKey const& key) const {
         return visitBase([&](auto& alt) -> std::optional<RjDirectAccess::simpleValue> {
             return alt.getVariant(key.full(this));
         });
     }
 
-    JSON getSubDoc(unscopedKey const& key) const {
+    JSON getSubDoc(scopedKey const& key) const {
         return visitBase([&](auto& alt) -> JSON {
             return alt.getSubDoc(key.full(this));
         });
     }
 
-    double* getStableDoublePointer(unscopedKey const& key) {
+    double* getStableDoublePointer(scopedKey const& key) {
         return visitBase([&](auto& alt) -> double* {
             return alt.getStableDoublePointer(key.full(this));
         });
@@ -210,25 +230,25 @@ public:
     // Setter
 
     template<typename T>
-    void set(unscopedKey const& key, T const& value) {
+    void set(scopedKey const& key, T const& value) {
         visitBase([&](auto& alt) -> void {
             alt.template set<T>(key.full(this), value);
         });
     }
 
-    void setVariant(unscopedKey const& key, RjDirectAccess::simpleValue const& value) {
+    void setVariant(scopedKey const& key, RjDirectAccess::simpleValue const& value) {
         visitBase([&](auto& alt) -> void {
             alt.setVariant(key.full(this), value);
         });
     }
 
-    void setSubDoc(unscopedKey const& key, JSON& subDoc) {
+    void setSubDoc(scopedKey const& key, JSON& subDoc) {
         visitBase([&](auto& alt) -> void {
             alt.setSubDoc(key.full(this), subDoc);
         });
     }
 
-    void setSubDoc(unscopedKey const& key, JsonScope const& subDoc) {
+    void setSubDoc(scopedKey const& key, JsonScope const& subDoc) {
         // Slightly more complicated: If we wish to set the sub-document from another JsonScope,
         // we need to extract the underlying JSON document from it in the correct scope.
         JSON subDocScope = subDoc.getSubDoc("");
@@ -237,7 +257,7 @@ public:
         });
     }
 
-    void setEmptyArray(unscopedKey const& key) {
+    void setEmptyArray(scopedKey const& key) {
         visitBase([&](auto& alt) -> void {
             alt.setEmptyArray(key.full(this));
         });
@@ -246,19 +266,19 @@ public:
     //------------------------------------------
     // Special sets for threadsafe maths operations
 
-    void set_add(unscopedKey const& key, double const& val) {
+    void set_add(scopedKey const& key, double const& val) {
         visitBase([&](auto& alt) -> void {
             alt.set_add(key.full(this), val);
         });
     }
 
-    void set_multiply(unscopedKey const& key, double const& val) {
+    void set_multiply(scopedKey const& key, double const& val) {
         visitBase([&](auto& alt) -> void {
             alt.set_multiply(key.full(this), val);
         });
     }
 
-    void set_concat(unscopedKey const& key, std::string const& valStr) {
+    void set_concat(scopedKey const& key, std::string const& valStr) {
         visitBase([&](auto& alt) -> void {
             alt.set_concat(key.full(this), valStr);
         });
@@ -289,19 +309,19 @@ public:
     //------------------------------------------
     // Key Types, Sizes
 
-    JSON::KeyType memberType(unscopedKey const& key) {
+    JSON::KeyType memberType(scopedKey const& key) {
         return visitBase([&](auto& alt) -> JSON::KeyType {
             return alt.memberType(key.full(this));
         });
     }
 
-    size_t memberSize(unscopedKey const& key) {
+    size_t memberSize(scopedKey const& key) {
         return visitBase([&](auto& alt) -> size_t {
             return alt.memberSize(key.full(this));
         });
     }
 
-    void removeKey(unscopedKey const& key) {
+    void removeKey(scopedKey const& key) {
         visitBase([&](auto& alt) -> void {
             alt.removeKey(key.full(this));
         });
@@ -310,7 +330,7 @@ public:
     //------------------------------------------
     // Serialize/Deserialize
 
-    std::string serialize(unscopedKey const& key = "") {
+    std::string serialize(scopedKey const& key = "") {
         return visitBase([&](auto& alt) -> std::string {
             return alt.serialize(key.full(this));
         });
