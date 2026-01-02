@@ -1,5 +1,5 @@
 /**
- * @file Debug_Domain_Collision_Detection.hpp
+ * @file FunctionCollision.hpp
  * @brief Contains the Debug Domain Module for testing collision detection functionalities of Domains/DomainModules.
  */
 
@@ -13,16 +13,18 @@
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
+
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Core {
 class GlobalSpace; // Forward declaration of domain class GlobalSpace
 } // namespace Nebulite::Core
 
+
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::Debug_Domain_Collision_Detection
+ * @class Nebulite::DomainModule::GlobalSpace::FunctionCollision
  * @brief DomainModule for debugging capabilities within the GlobalSpace.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, FunctionCollision) {
