@@ -25,6 +25,10 @@ bool constexpr endsWithNewline(std::string_view str) {
     static_assert(endsWithNewline(desc), "Function description must end with a newline character."); \
     bindFunction(func, name, desc)
 
+#define BINDFUNCTION(func, name,desc) \
+    static_assert(endsWithNewline(desc), "Function description must end with a newline character."); \
+    bindFunction(func, name, desc)
+
 //------------------------------------------
 // Includes
 
@@ -34,6 +38,13 @@ bool constexpr endsWithNewline(std::string_view str) {
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Data {
+class JsonScope;
+} // namespace Nebulite::Data
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
@@ -146,17 +157,14 @@ public:
      * @brief Constructor for the DomainModule base class.
      * @details The constructor initializes the DomainModule with a reference to the domain and
      *          the FuncTree.
+     * @todo TODO: Add argument for custom scope prefix
      */
-    DomainModule(
-        std::string name,
-        DomainType& domainReference,
-        std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr
-    ) : DomainModuleBase(std::move(funcTreePtr)), moduleName(std::move(name)), domain(domainReference) {}
+    DomainModule(std::string name, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr);
 
     /**
      * @brief Virtual destructor for DomainModule.
      */
-    virtual ~DomainModule() = default;
+    virtual ~DomainModule();
 
     /**
      * @brief Virtual update function to be Overwritten by derived classes.
@@ -190,6 +198,13 @@ protected:
      * @brief Workspace of the DomainModule
      */
     DomainType& domain;
+
+    /**
+     * @brief Document workspace of the DomainModule
+     * @todo Work in progress, adding this to a DomainModule is difficult due to circular dependencies.
+     *       Perhaps we need a non-domain JsonScope base that can be used here?
+     */
+    std::shared_ptr<Data::JsonScope> documentPtr;
 };
 } // namespace Nebulite::Interaction::Execution
 #include "Interaction/Execution/DomainModule.tpp"

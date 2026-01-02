@@ -41,12 +41,13 @@ namespace Nebulite::Interaction::Execution {
 class DomainBase {
 public:
     DomainBase(std::string const& name, Data::JsonScope& documentReference)
-        : domainName(name), document(documentReference),
-          funcTree(std::make_shared<FuncTree<Constants::Error>>(
-              name,
-              Constants::ErrorTable::NONE(),
-              Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
-              )) {
+        : domainName(name), document(documentReference){
+        funcTree = std::make_shared<FuncTree<Constants::Error>>(
+            name,
+            Constants::ErrorTable::NONE(),
+            Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
+        );
+
         // Set default preParse to DomainBase::preParse
         funcTree->setPreParse([this] { return preParse(); });
     }
@@ -64,7 +65,19 @@ public:
     //------------------------------------------
     // Get Document prefix
 
-    std::string const& scopePrefix() const ;
+    [[nodiscard]] std::string const& scopePrefix() const ;
+
+    //------------------------------------------
+    // Share scope
+
+    // TODO: Generating a new JsonScope from this Domain's document is not possible here,
+    //       as it would create a recursion: constantly generating new DomainBase -> JsonScope -> DomainBase -> ...
+    //       We need a way to create a JsonScope without creating a new DomainBase.
+    //       Or be happy with sharing the full scope with every DomainModule.
+    //       Another option would be a lightweight jsonscope without domain functionality.
+    //       Data::JsonScopeBase or something.
+    //       This one would only be used for document-related operations without the ability to parse commands.
+
 
     //------------------------------------------
     // Binding, initializing and inheriting
@@ -137,6 +150,11 @@ public:
      *        For the JSON domain, this is a reference to itself.
      *        For others, it's a reference to their JSON document.
      * @return A reference to the internal JSON document.
+     * @todo Find a way to disallow getDoc() and instead share a per-domainmodule JsonScope reference.
+     *       Idea is to replace domain.getDoc()... with just document... in DomainModules.
+     *       And replace all other usages with safe getters/setters in their implementations.
+     *       E.g.: instead of obj.getDoc().set(posX) --> obj.setPositionX()
+     *       This perhaps bloats the Domain interfaces a bit, but increases safety a lot.
      */
     [[nodiscard]] Data::JsonScope& getDoc() const { return document; }
 

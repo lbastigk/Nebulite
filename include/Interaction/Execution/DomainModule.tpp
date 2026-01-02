@@ -2,11 +2,25 @@
 #define NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_TPP
 
 #include <type_traits>
+#include <utility>
 #include "Interaction/Execution/DomainModule.hpp"
 
 // Small utilities
 
 namespace Nebulite::Interaction::Execution {
+
+// TODO: Add argument for custom scope prefix
+//       Sharing scopes is difficult, as creating a scope involves creating a new domain instance
+//       -> infinite recursion!
+template <typename DomainType>
+DomainModule<DomainType>::DomainModule(
+    std::string name,
+    DomainType& domainReference,
+    std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr
+) : DomainModuleBase(std::move(funcTreePtr)), moduleName(std::move(name)), domain(domainReference) {}
+
+template <typename DomainType>
+DomainModule<DomainType>::~DomainModule() = default;
 
 // Implementation: free/static/function-object overload
 template <typename Func, typename FuncTreeType>
