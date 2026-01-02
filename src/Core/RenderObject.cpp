@@ -18,7 +18,7 @@ namespace Nebulite::Core {
 
 namespace {
 // Helper function to initialize RenderObject in constructor
-void setStandardValues(Data::JSON& document) {
+void setStandardValues(Data::JsonScope& document) {
     // General
     document.set(Constants::KeyNames::RenderObject::id, 0);    // Initialize to 0, Renderer itself sets proper id, which starts at 1
     document.set(Constants::KeyNames::RenderObject::positionX, 0);

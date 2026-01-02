@@ -13,19 +13,14 @@
 // Includes
 
 // Standard library
-#include <deque>
 #include <string>
 #include <vector>
-#include <mutex>
-#include <cstdint>
-#include <cstddef>
 
 // Nebulite
 #include "Core/Renderer.hpp"
 #include "Constants/ErrorTypes.hpp"
 #include "Data/Document/DocumentCache.hpp"
 #include "Data/TaskQueue.hpp"
-#include "Interaction/Context.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Utility/RNG.hpp"
@@ -219,7 +214,7 @@ private:
     bool continueLoop = true;
 
     // Global JSON Document
-    Data::JSON document;
+    Data::JsonScope document = Data::JsonScope("GlobalSpace Document");
 
     // DocumentCache for read-only documents
     Data::DocumentCache docCache;

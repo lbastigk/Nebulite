@@ -9,7 +9,7 @@ VirtualDouble::VirtualDouble(std::string k) noexcept : key(std::move(k)) {
         if (key.starts_with(ContextPrefix::global)) { key.erase(0, ContextPrefix::global.size()); }
 }
 
-void VirtualDouble::setUpInternalCache(Data::JSON& json) {
+void VirtualDouble::setUpInternalCache(Data::JsonScope& json) {
     copied_value = *json.getStableDoublePointer(key);
     reference = &copied_value;
 }
@@ -19,7 +19,7 @@ void VirtualDouble::setUpInternalCache() {
     reference = &copied_value;
 }
 
-void VirtualDouble::setUpExternalCache(Data::JSON& json) {
+void VirtualDouble::setUpExternalCache(Data::JsonScope& json) {
     reference = json.getStableDoublePointer(key);
 }
 

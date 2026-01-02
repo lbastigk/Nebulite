@@ -3,24 +3,45 @@
 
 namespace Nebulite::Data {
 
-JsonScope::JsonScope(JsonScope&& other) noexcept
-    : Domain("JsonScope", *this, getBaseDocument()), // TODO: change to *this once JsonScope is used in domains
-      baseDocument(std::move(other.baseDocument)),
-      scopePrefix(std::move(other.scopePrefix)) {
-    // TODO: activate once available:
-    //DomainModule::Initializer::initJsonScope(this);
+// --- Copy constructor
+JsonScope::JsonScope(JsonScope const& other)
+    : Domain(this->getName(), *this, *this),
+      baseDocument(other.baseDocument),
+      scopePrefix(other.scopePrefix)
+{
+    // If you need to re-register modules / reinit state after copy, do it here:
+    reinitModules();
 }
 
-JsonScope& JsonScope::operator=(JsonScope&& other) noexcept {
-    if (this != &other) {
-        baseDocument = std::move(other.baseDocument);
-        scopePrefix = std::move(other.scopePrefix);
-    }
+// --- Move constructor
+JsonScope::JsonScope(JsonScope&& other) noexcept
+    : Domain(this->getName(), *this, *this),
+      baseDocument(std::move(other.baseDocument)),
+      scopePrefix(std::move(other.scopePrefix))
+{}
+
+// --- Copy assignment (copy-and-swap)
+JsonScope& JsonScope::operator=(JsonScope const& other) {
+    if (this == &other) return *this;
+    JsonScope tmp(other);
+    swap(tmp);
     return *this;
 }
 
-JsonScope::~JsonScope() {
-    // Nothing special to do here
+// --- Move assignment (copy-and-swap with moved temporary)
+JsonScope& JsonScope::operator=(JsonScope&& other) noexcept {
+    if (this == &other) return *this;
+    JsonScope tmp(std::move(other));
+    swap(tmp);
+    return *this;
 }
+
+// --- swap helper
+void JsonScope::swap(JsonScope& o) noexcept {
+    std::swap(baseDocument, o.baseDocument);
+    std::swap(scopePrefix, o.scopePrefix);
+}
+
+JsonScope::~JsonScope() = default;
 
 } // namespace Nebulite::Data

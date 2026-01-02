@@ -10,9 +10,14 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <thread>
+
 // Nebulite
-#include "Interaction/Execution/Domain.hpp"
+#include "Constants/ThreadSettings.hpp"
 #include "Data/Document/JSON.hpp"
+#include "Data/OrderedDoublePointers.hpp"
+#include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -87,33 +92,37 @@ NEBULITE_DOMAIN(JsonScope) {
         return fullPrefix;
     }
 
+    void swap(JsonScope& o) noexcept ;
+
 public:
     //------------------------------------------
     // Constructors
 
     // Constructing a JsonScope from a JSON document and a prefix
     JsonScope(JSON& doc, std::string const& prefix, std::string const& name = "Unnamed JsonScope")
-        : Domain(name, *this, getBaseDocument()),   // TODO: change to *this once JsonScope is used in domains
+        : Domain(name, *this, *this),
         // create a non-owning shared_ptr to the provided JSON (no delete on destruction)
         baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){})), scopePrefix(generatePrefix(prefix)) {}
 
     // Constructing a JsonScope from another JsonScope and a sub-prefix
     JsonScope(JsonScope& other, std::string const& prefix, std::string const& name = "Unnamed JsonScope")
-        : Domain(name, *this, getBaseDocument()),   // TODO: change to *this once JsonScope is used in domains
+        : Domain(name, *this, *this),
           baseDocument(std::ref(other)), scopePrefix(generatePrefix(prefix)) {}
 
     // Default constructor, we create a self-owned empty JSON document
     JsonScope(std::string const& name = "Unnamed JsonScope")
-        : Domain(name, *this, getBaseDocument()),   // TODO: change to *this once JsonScope is used in domains
+        : Domain(name, *this, *this),
           baseDocument(std::make_shared<JSON>()), scopePrefix("") {}
 
     //------------------------------------------
     // Special member functions
 
-    JsonScope(JsonScope const&) = delete;
-    JsonScope& operator=(JsonScope const&) = delete;
-    JsonScope(JsonScope&&) noexcept;
-    JsonScope& operator=(JsonScope&&) noexcept;
+    // TODO: Implement all copy/move semantics properly
+
+    JsonScope(JsonScope const& other);
+    JsonScope(JsonScope&& other) noexcept;
+    JsonScope& operator=(JsonScope const& other);
+    JsonScope& operator=(JsonScope&& other) noexcept;
 
     ~JsonScope() override;
 
@@ -131,23 +140,16 @@ public:
         // JsonScope should be the only class able to convert unscopedKey to full key
         friend class JsonScope;
 
-        // Constructors from various string types
-        template<typename T>
-        unscopedKey(T const& k) : key(std::string_view(k)) {
-            using U = std::remove_cv_t<std::remove_reference_t<T>>;
-            static_assert(
-                std::is_same_v<U, std::string> ||
-                std::is_same_v<U, std::string_view> ||
-                std::is_same_v<U, char const*>,
-                "unscopedKey can only be constructed from std::string, std::string_view, or char const*"
-            );
-        }
+        // Accept any T that is constructible into std::string_view
+        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
+        unscopedKey(T const& k) : key(std::string_view(k)) {}
 
         // Disable copying and moving to ensure safety of the string_view
         unscopedKey(unscopedKey const&) = delete;
         unscopedKey& operator=(unscopedKey const&) = delete;
         unscopedKey(unscopedKey&&) = delete;
         unscopedKey& operator=(unscopedKey&&) = delete;
+
     private:
         /**
          * @brief Generates the full scoped key using the provided JsonScope.
@@ -190,6 +192,8 @@ public:
     //------------------------------------------
     // Sharing a scope
 
+    // TODO: Instead of sharing scope of a scope, it may be better to combine the prefixes directly
+    //       and share from the base document.
     JsonScope shareScope(unscopedKey const& key) {
         return JsonScope(*this, key.full(this));
     }
@@ -198,7 +202,7 @@ public:
     // Getter
 
     template<typename T>
-    T get(unscopedKey const& key, T const& defaultValue) const {
+    T get(unscopedKey const& key, T const& defaultValue = T()) const {
         return visitBase([&](auto& alt) -> T {
             return alt.template get<T>(key.full(this), defaultValue);
         });
@@ -241,6 +245,15 @@ public:
     void setSubDoc(unscopedKey const& key, JSON& subDoc) {
         visitBase([&](auto& alt) -> void {
             alt.setSubDoc(key.full(this), subDoc);
+        });
+    }
+
+    void setSubDoc(unscopedKey const& key, JsonScope const& subDoc) {
+        // Slightly more complicated: If we wish to set the sub-document from another JsonScope,
+        // we need to extract the underlying JSON document from it in the correct scope.
+        JSON subDocScope = subDoc.getSubDoc("");
+        visitBase([&](auto& alt) -> void {
+            alt.setSubDoc(key.full(this), subDocScope);
         });
     }
 
@@ -289,11 +302,14 @@ public:
     //       MappedOrderedDoublePointers* probably needs its own prefixing system!!!
     //       maybe best to pass on construction, more research needed.
 
-    // WARNING: This is not yet implemented!
-    [[deprecated("JsonScope::getOrderedCacheListMap is not yet implemented!")]]
-    MappedOrderedDoublePointers* getOrderedCacheListMap() const {
-        (void)this; // suppress "can be made static" warning
-        return nullptr; // To be implemented
+    MappedOrderedDoublePointers* getOrderedCacheListMap() {
+#if ORDERED_DOUBLE_POINTERS_MAPS == 1
+        return &expressionRefs[0];
+#else
+        // Each thread gets a unique starting position based on thread ID
+        thread_local const size_t idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % ORDERED_DOUBLE_POINTERS_MAPS;
+        return &expressionRefs[idx];
+#endif
     }
 
     //------------------------------------------

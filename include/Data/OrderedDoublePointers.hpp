@@ -81,11 +81,11 @@ public:
         }
     }
 
-    double*& at(size_t index) noexcept { return data_[index]; }
+    double*& at(size_t index) const noexcept { return data_[index]; }
 
     [[nodiscard]] bool empty() const noexcept { return size_ == 0; }
 
-    double** data() noexcept { return data_; }
+    double** data() const noexcept { return data_; }
 
 private:
     double** data_;
@@ -137,7 +137,7 @@ public:
      */
     odpvec* ensureOrderedCacheList(
         uint64_t uniqueId,
-        Nebulite::Data::JSON& reference,
+        JsonScope& reference,
         std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther
         );
 
@@ -150,8 +150,8 @@ public:
      * @todo Wouldn't reference always be the owner of this object? If so, couldn't we set it up on construction?
      */
     odpvec* ensureOrderedCacheList(
-        uint64_t uniqueId,
-        Nebulite::Data::JSON& reference,
+        uint64_t const& uniqueId,
+        JsonScope& reference,
         std::vector<std::string_view> const& keys
         );
 

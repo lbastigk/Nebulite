@@ -10,13 +10,13 @@
 // Includes
 
 // External
-#include <SDL.h>	// SDL Renderer is used for some methods to calculate text
-#include <SDL_ttf.h>	// Same for ttf
+#include <SDL.h>        // SDL Renderer is used for some methods to calculate text
+#include <SDL_ttf.h>    // Same for ttf
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
 #include "Core/Texture.hpp"
-#include "Data/Document/JSON.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
@@ -215,7 +215,7 @@ public:
 
 private:
     // Each RenderObject has its own JSON document
-    Data::JSON document;
+    Data::JsonScope document;
 
     //------------------------------------------
     // Initialization

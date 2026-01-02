@@ -68,7 +68,7 @@ public:
     //------------------------------------------
     // Special Members
 
-    explicit Environment(Nebulite::Data::JSON& documentReference);
+    explicit Environment(Data::JsonScope& documentReference);
 
     ~Environment() override ;
 

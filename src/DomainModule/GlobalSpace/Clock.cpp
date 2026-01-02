@@ -87,7 +87,7 @@ Constants::Error Clock::addClock(int const argc, char** argv) {
 //------------------------------------------
 // ClockEntry
 
-Clock::ClockEntry::ClockEntry(uint64_t const& interval, Data::JSON& doc, uint64_t const& current_time) :
+Clock::ClockEntry::ClockEntry(uint64_t const& interval, Data::JsonScope& doc, uint64_t const& current_time) :
     last_trigger_ms(current_time),
     interval_ms(interval) {
     // Extract reference to global document entry

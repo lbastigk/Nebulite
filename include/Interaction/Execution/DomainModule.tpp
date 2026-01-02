@@ -1,13 +1,10 @@
 #ifndef NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_TPP
 #define NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_TPP
 
+#include <type_traits>
 #include "Interaction/Execution/DomainModule.hpp"
 
 // Small utilities
-#include <type_traits>
-#include <tuple>
-#include <functional>
-#include <variant>
 
 namespace Nebulite::Interaction::Execution {
 

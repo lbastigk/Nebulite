@@ -33,7 +33,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error reloadTexture();
+    Constants::Error reloadTexture() const;
     static std::string_view constexpr reloadTexture_name = "reload-texture";
     static std::string_view constexpr reloadTexture_desc = "Reload the texture from the document.\n"
         "\n"

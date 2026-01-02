@@ -26,9 +26,7 @@
 // Forward declarations
 
 namespace Nebulite::Data {
-// We cannot include JSON directly due to circular dependencies,
-// as JSON itself is a domain.
-class JSON;
+class JsonScope;
 } // namespace Nebulite::Data
 
 //------------------------------------------
@@ -42,7 +40,7 @@ namespace Nebulite::Interaction::Execution {
  */
 class DomainBase {
 public:
-    DomainBase(std::string const& name, Data::JSON& documentReference)
+    DomainBase(std::string const& name, Data::JsonScope& documentReference)
         : domainName(name), document(documentReference),
           funcTree(std::make_shared<FuncTree<Constants::Error>>(
               name,
@@ -58,10 +56,10 @@ public:
     //------------------------------------------
     // Disallow copying and moving
 
-    DomainBase(DomainBase const&) = delete;
-    DomainBase& operator=(DomainBase const&) = delete;
-    DomainBase(DomainBase&&) = delete;
-    DomainBase& operator=(DomainBase&&) = delete;
+    DomainBase(DomainBase const&) = default;
+    DomainBase& operator=(DomainBase const& other);
+    DomainBase(DomainBase&&) = default;
+    DomainBase& operator=(DomainBase&& other) noexcept;
 
     //------------------------------------------
     // Binding, initializing and inheriting
@@ -135,7 +133,7 @@ public:
      *        For others, it's a reference to their JSON document.
      * @return A reference to the internal JSON document.
      */
-    [[nodiscard]] Data::JSON& getDoc() const { return document; }
+    [[nodiscard]] Data::JsonScope& getDoc() const { return document; }
 
     /**
      * @brief Gets the name of the domain.
@@ -161,9 +159,8 @@ private:
 
     /**
      * @brief Each domain uses a JSON document to store its data.
-     * @todo Change to JsonScope once implemented
      */
-    Data::JSON& document;
+    Data::JsonScope& document;
 
     /**
      * @brief Parsing interface for domain-specific commands.
@@ -192,6 +189,11 @@ private:
      */
     std::vector<std::unique_ptr<DomainModule<DomainType>>> modules;
 
+    /**
+     * @brief Name of the domain type
+     */
+    std::string domainName;
+
     //------------------------------------------
     // Inner references
 
@@ -202,17 +204,17 @@ private:
     DomainType& domain;
 
 public:
-    Domain(std::string const& name, DomainType& domainTypeReference, Data::JSON& documentReference)
-        : DomainBase(name, documentReference), domain(domainTypeReference) {
+    Domain(std::string const& name, DomainType& domainTypeReference, Data::JsonScope& documentReference)
+        : DomainBase(name, documentReference), domainName(name), domain(domainTypeReference) {
     }
 
     //------------------------------------------
     // Disallow copying and moving
 
-    Domain(Domain const&) = delete;
-    Domain& operator=(Domain const&) = delete;
-    Domain(Domain&&) = delete;
-    Domain& operator=(Domain&&) = delete;
+    Domain(Domain const&) = default;
+    Domain& operator=(Domain const&) = default;
+    Domain(Domain&&) = default;
+    Domain& operator=(Domain&&) = default;
 
     //------------------------------------------
     // Module Initialization and Updating
@@ -245,6 +247,14 @@ public:
         for (auto& module : modules) {
             module->reinit();
         }
+    }
+
+    /**
+     * @brief Gets the name of the domain.
+     * @return The name of the domain.
+     */
+    [[nodiscard]] std::string const& getDomainName() const {
+        return domainName;
     }
 };
 } // namespace Nebulite::Interaction::Execution

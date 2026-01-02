@@ -3,6 +3,7 @@
 #include "Nebulite.hpp"
 #include "Constants/ErrorTypes.hpp"
 #include "Data/Document/JSON.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "DomainModule/Initializer.hpp"
 
 namespace Nebulite::Data {
@@ -10,7 +11,7 @@ namespace Nebulite::Data {
 std::string const JSON::reservedCharacters = "[]{}.|\":";
 
 JSON::JSON(std::string const& name)
-    : Domain(name, *this, *this) {
+    : Domain(name, *this, fullScope()) {
     std::scoped_lock const lockGuard(mtx);
     DomainModule::Initializer::initJSON(this);
 }
@@ -34,15 +35,34 @@ JSON& JSON::operator=(JSON&& other) noexcept {
 }
 
 JSON::JSON(JSON&& other) noexcept
-    : Domain("JSON", *this, *this) {
+    : Domain("JSON", *this, fullScope()) {
     std::scoped_lock lockGuard(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);
     cache = std::move(other.cache);
 }
 
+//------------------------------------------
+// Scope sharing
+
+JsonScope JSON::shareScope(std::string const& prefix) {
+    std::scoped_lock const lockGuard(mtx);
+    return JsonScope(*this, prefix, "Shared JSON Scope from " + getName());
+}
+
+JsonScope& JSON::shareManagedScope(std::string const& prefix) {
+    std::scoped_lock const lockGuard(mtx);
+    auto newScope = std::make_unique<JsonScope>(*this, prefix, "Managed Shared JSON Scope from " + getName());
+    managedScopes.push_back(std::move(newScope));
+    return *managedScopes.back();
+}
 
 //------------------------------------------
 // Private methods
+
+JsonScope& JSON::fullScope() {
+    static JsonScope fullScopeInstance(*this, "");
+    return fullScopeInstance;
+}
 
 // Mark all child keys as virtual
 // e.g.: "parent.child1", "parent.child2.subchild", "parent[0]", etc.
@@ -102,8 +122,7 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
 
     // Check for transformations
     if (key.contains('|')) {
-        JSON tmp;
-        if (getSubDocWithTransformations(key, tmp)) {
+        if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
             return tmp.getVariant(JsonRvalueTransformer::valueKey);
         }
         return {};
@@ -430,9 +449,8 @@ JSON::KeyType JSON::memberType(std::string const& key) {
     // See if transformations are present
     if (key.contains('|')) {
         // Apply transformations to a temp document
-        JSON tempDoc;
-        if (getSubDocWithTransformations(key, tempDoc)) {
-            return tempDoc.memberType("");
+        if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
+            return tmp.memberType("");
         }
         return KeyType::null;
     }
@@ -469,8 +487,7 @@ size_t JSON::memberSize(std::string const& key) {
     // See if transformations are present
     if (key.contains('|')) {
         // Apply transformations to a temp document
-        JSON tempDoc;
-        if (getSubDocWithTransformations(key, tempDoc)) {
+        if (JSON tempDoc; getSubDocWithTransformations(key, tempDoc)) {
             return tempDoc.memberSize("");
         }
         return 0;
@@ -561,19 +578,6 @@ void JSON::set_concat(std::string_view const& key, std::string const& valStr) {
         *it->second->stable_double_ptr = 0.0;
         it->second->last_double_value = 0.0;
     }
-}
-
-//------------------------------------------
-// Expression reference pools
-
-MappedOrderedDoublePointers* JSON::getOrderedCacheListMap() {
-#if ORDERED_DOUBLE_POINTERS_MAPS == 1
-    return &expressionRefs[0];
-#else
-    // Each thread gets a unique starting position based on thread ID
-    thread_local const size_t idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % ORDERED_DOUBLE_POINTERS_MAPS;
-    return &expressionRefs[idx];
-#endif
 }
 
 } // namespace Nebulite::Utility

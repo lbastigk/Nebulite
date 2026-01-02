@@ -29,7 +29,7 @@ namespace Nebulite::Interaction::Logic {
 /**
  * @struct Nebulite::Interaction::Logic::Assignment
  * @brief Representing a variable assignment in the Nebulite scripting language.
- * @details <target> <operation> <value>
+ * @details [target] [operation] [value]
  */
 class Assignment{
 public:
@@ -58,7 +58,7 @@ public:
     /**
      * @brief Applies the assignment to the given target document.
      */
-    void apply(Data::JSON& self, Data::JSON& other);
+    void apply(Data::JsonScope& self, Data::JsonScope& other);
 
     /**
      * @brief Get the unevaluated expression as string
@@ -68,8 +68,8 @@ public:
     }
 
 private:
-    void setValueOfKey(std::string const& keyStr, std::string const& value, Data::JSON& target) const ;
-    void setValueOfKey(std::string const& keyStr, double const& value, Data::JSON& target) const ;
+    void setValueOfKey(std::string const& keyStr, std::string const& value, Data::JsonScope& target) const ;
+    void setValueOfKey(std::string const& keyStr, double const& value, Data::JsonScope& target) const ;
     void setValueOfKey(double const& value, double* target) const ;
 
     /**

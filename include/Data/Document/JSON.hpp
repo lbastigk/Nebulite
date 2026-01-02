@@ -10,25 +10,17 @@
 // Includes
 
 // Standard library
-#include <cfloat>
-#include <cmath>
-#include <cxxabi.h>
 #include <mutex>
 #include <string>
-#include <thread>
-#include <type_traits>
-#include <typeinfo>
 #include <variant>
 
 // External
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Constants/ThreadSettings.hpp"
-#include "Interaction/Execution/Domain.hpp"
 #include "Data/Document/JsonRvalueTransformer.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
-#include "Data/OrderedDoublePointers.hpp"
+
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -47,7 +39,7 @@ namespace Nebulite::Data {
  *        - optimized for performance using ordered double pointers and quick cache for unique IDs,
  *          allowing fast access to numeric values in a sorted manner.
  */
-NEBULITE_DOMAIN(JSON) {
+class JSON {
 public:
     //------------------------------------------
     // Unique id Cache size
@@ -137,6 +129,12 @@ private:
     std::recursive_mutex mtx;
 
     /**
+     * @brief Lazy-initialized full JsonScope representing the entire document.
+     * @return Reference to the full JsonScope.
+     */
+    JsonScope& fullScope();
+
+    /**
      * @brief Helper function to convert any type from cache into another type.
      * @param var The variant value stored in the cache.
      * @param defaultValue The default value to return if conversion fails.
@@ -156,16 +154,6 @@ private:
      *        and up-to-date with the cached values.
      */
     void flush();
-
-    //------------------------------------------
-    // Ordered double pointers system
-
-    // TODO: Move to JsonScope for proper abstraction
-
-    /**
-     * @brief Mapped ordered double pointers for expression references.
-     */
-    MappedOrderedDoublePointers expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
 
     //------------------------------------------
     // Return Value Transformation system
@@ -193,6 +181,11 @@ private:
      */
     bool getSubDocWithTransformations(std::string const& key, JSON& outDoc);
 
+    /**
+     * @brief Managed scopes for shareManagedScope.
+     */
+    std::vector<std::unique_ptr<JsonScope>> managedScopes;
+
 public:
     //------------------------------------------
     // Constructor/Destructor
@@ -203,7 +196,7 @@ public:
      */
     explicit JSON(std::string const& name = "Unnamed JSON Document");
 
-    ~JSON() override;
+    ~JSON();
 
     //------------------------------------------
     // Overload of assign operators
@@ -212,6 +205,25 @@ public:
     JSON& operator=(JSON const&) = delete;
     JSON(JSON&& other) noexcept;
     JSON& operator=(JSON&& other) noexcept;
+
+    //------------------------------------------
+    // Scope sharing
+
+    /**
+     * @brief Shares part JSON document as a JsonScope.
+     * @param prefix The prefix representing the part of the JSON document to share.
+     *               If empty, shares the entire document.
+     * @return A JsonScope representing a part of the JSON document.
+     */
+    JsonScope shareScope(std::string const& prefix = "");
+
+    /**
+     * @brief Shares part JSON document as a JsonScop that is managed internally.
+     * @param prefix The prefix representing the part of the JSON document to share.
+     *               If empty, shares the entire document.
+     * @return A JsonScope reference representing a part of the JSON document.
+     */
+    JsonScope& shareManagedScope(std::string const& prefix = "");
 
     //------------------------------------------
     // Custom copy method
@@ -238,11 +250,6 @@ public:
      *       Including a 'why' for each character.
      */
     const static std::string reservedCharacters;
-
-    //------------------------------------------
-    // Domain-specific methods
-
-    Constants::Error update() override;
 
     //------------------------------------------
     // Validity check
@@ -335,7 +342,7 @@ public:
      */
     template <typename T>
     T get(std::string const& key, T const& defaultValue = T());
-    template <typename T> T get(std::string_view key, T const& defaultValue = T()) { return get<T>(std::string(key), defaultValue); }
+    template <typename T> T get(std::string_view const& key, T const& defaultValue = T()) { return get<T>(std::string(key), defaultValue); }
     template <typename T> T get(char const* key, T const& defaultValue = T()) { return get<T>(std::string(key), defaultValue); }
 
     /**
@@ -346,7 +353,7 @@ public:
      * @return The variant value associated with the key, or void if the key does not exist.
      */
     std::optional<RjDirectAccess::simpleValue> getVariant(std::string const& key);
-    std::optional<RjDirectAccess::simpleValue> getVariant(std::string_view key) { return getVariant(std::string(key)); }
+    std::optional<RjDirectAccess::simpleValue> getVariant(std::string_view const& key) { return getVariant(std::string(key)); }
     std::optional<RjDirectAccess::simpleValue> getVariant(char const* key) { return getVariant(std::string(key)); }
 
     /**
@@ -360,7 +367,7 @@ public:
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
      */
     JSON getSubDoc(std::string const& key);
-    JSON getSubDoc(std::string_view key) { return getSubDoc(std::string(key)); }
+    JSON getSubDoc(std::string_view const& key) { return getSubDoc(std::string(key)); }
     JSON getSubDoc(char const* key) { return getSubDoc(std::string(key)); }
 
     /**
@@ -368,7 +375,7 @@ public:
      * @return A pointer to the double value associated with the key.
      */
     double* getStableDoublePointer(std::string const& key);
-    double* getStableDoublePointer(std::string_view key) { return getStableDoublePointer(std::string(key)); }
+    double* getStableDoublePointer(std::string_view const& key) { return getStableDoublePointer(std::string(key)); }
     double* getStableDoublePointer(char const* key) { return getStableDoublePointer(std::string(key)); }
 
     /**
@@ -376,24 +383,6 @@ public:
      *        Allowing modules to lock the JSON document.
      */
     std::scoped_lock<std::recursive_mutex> lock() { return std::scoped_lock(mtx); }
-
-    //------------------------------------------
-    // Getters: Unique id based retrieval
-
-    /**
-     * @brief Retrieves the map of ordered double pointers for expression references.
-     * @return A pointer to the map of ordered double pointers for reference.
-     * @note Use a proper unique Identifier!
-     *       - in Expressions, the map is only used for "other" references and uses the expression as hash
-     *       - in Static Rulesets, the map is used for both "self" and "other" references, and uses the function name as hash
-     *
-     *       Later on: With more context such as parent, we need to find different hashes for each context.
-     *       perhaps: <context>::<function>
-     *       and for static rulesets, just using ::<function> is enough.
-     *       But we can use multiple retrievals if we desire, specifying different contexts.
-     * @todo Implement uid generation for the map here instead of in the globalspace
-     */
-    MappedOrderedDoublePointers* getOrderedCacheListMap();
 
     //------------------------------------------
     // Key Types, Sizes
@@ -417,7 +406,7 @@ public:
      * @return The type of the key.
      */
     KeyType memberType(std::string const& key);
-    KeyType memberType(std::string_view key) { return memberType(std::string(key)); }
+    KeyType memberType(std::string_view const& key) { return memberType(std::string(key)); }
     KeyType memberType(char const* key) { return memberType(std::string(key)); }
 
     /**
@@ -428,7 +417,7 @@ public:
      * @return The size of the key.
      */
     size_t memberSize(std::string const& key);
-    size_t memberSize(std::string_view key) { return memberSize(std::string(key)); }
+    size_t memberSize(std::string_view const& key) { return memberSize(std::string(key)); }
     size_t memberSize(char const* key) { return memberSize(std::string(key)); }
 
     /**
@@ -439,7 +428,7 @@ public:
      */
     void removeKey(char const* key);
     void removeKey(std::string const& key) { removeKey(key.c_str()); }
-    void removeKey(std::string_view key) { removeKey(std::string(key).c_str()); }
+    void removeKey(std::string_view const& key) { removeKey(std::string(key).c_str()); }
 
     //------------------------------------------
     // Serialize/Deserialize

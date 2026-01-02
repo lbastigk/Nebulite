@@ -3,7 +3,6 @@
 
 // Standard library
 #include <random>
-#include <sys/types.h>
 
 // External
 #include <SDL.h>
@@ -23,7 +22,7 @@
 //------------------------------------------
 namespace Nebulite::Core {
 
-Renderer::Renderer(Data::JSON& documentReference, bool* flag_headless, unsigned int const& X, unsigned int const& Y)
+Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, unsigned int const& X, unsigned int const& Y)
     : Domain("Renderer", *this, documentReference),
       env(documentReference){
 
