@@ -15,7 +15,7 @@
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
-#include "Data/Document/JSON.hpp"
+#include "Data/Document/JSON.hpp"       // TODO: Better to remove and forward-declare, but this requires a .tpp file for JsonScope methods that use JSON, where we can include JSON.hpp
 #include "Data/OrderedDoublePointers.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
@@ -27,8 +27,8 @@ namespace Nebulite::Data {
  * @details It allows for modifications to a JSON document within a specific scope,
  *          that is a key-prefixed section of the document. This is useful for modular data management,
  *          where different parts of a JSON document can be managed independently.
+ *          Holds little data itself, mostly acts as a scoped view over an existing JSON document or another JsonScope.
  * @todo Move to namespace Nebulite::Core where all other Domain-related classes are located.
- * @todo Probably needs its own lock mechanism to prevent data corruption when multiple threads access the same JsonScope object.
  */
 NEBULITE_DOMAIN(JsonScope) {
     std::variant<std::shared_ptr<JSON>, std::reference_wrapper<JsonScope>> baseDocument;
@@ -64,11 +64,12 @@ NEBULITE_DOMAIN(JsonScope) {
     //------------------------------------------
     // Ordered double pointers system
 
-    // TODO: To be implemented: Each JsonScope should have its own ordered double pointers system,
-    //       so that expressions and rulesets working within a scope receive the correct pointers.
-
     /**
      * @brief Mapped ordered double pointers for expression references.
+     * @todo A proper refactor so that each MappedOrderedDoublePointers has a JsonScope as root!
+     *       This ensures that no accidental wrong key accesses happens.
+     *       Increases complexity of construction a bit, but is worth it.
+     *       -> Basically: for(m : MappedOrderedDoublePointers) m = MappedOrderedDoublePointers(this);
      */
     MappedOrderedDoublePointers expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
 

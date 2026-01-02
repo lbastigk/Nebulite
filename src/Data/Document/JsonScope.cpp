@@ -1,4 +1,5 @@
 #include "Nebulite.hpp"
+#include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "DomainModule/Initializer.hpp"
 
