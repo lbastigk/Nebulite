@@ -21,7 +21,7 @@ void Clock::readClocksFromDocument() {
     clockEntries.clear();
 
     // Read all clocks from the document
-    if (domain.getDoc().memberType(Key::arr_active_clocks) != Data::JSON::KeyType::array) {
+    if (domain.getDoc().memberType(Key::arr_active_clocks) != Data::KeyType::array) {
         // No clocks found, nothing to do
         return;
     }
@@ -30,7 +30,7 @@ void Clock::readClocksFromDocument() {
 
     for (uint64_t i = 0; i < size; i++) {
         std::string key = std::string(Key::arr_active_clocks) + "[" + std::to_string(i) + "]";
-        if (auto const interval_type = domain.getDoc().memberType(key); interval_type != Data::JSON::KeyType::value) {
+        if (auto const interval_type = domain.getDoc().memberType(key); interval_type != Data::KeyType::value) {
             // Invalid entry, skip
             continue;
         }

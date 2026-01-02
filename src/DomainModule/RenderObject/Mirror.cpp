@@ -48,7 +48,7 @@ Constants::Error Mirror::mirror_delete() {
 }
 
 Constants::Error Mirror::mirror_fetch() {
-    if (Nebulite::global().getDoc().memberType(mirrorKey) != Data::JSON::KeyType::object) {
+    if (Nebulite::global().getDoc().memberType(mirrorKey) != Data::KeyType::object) {
         return Constants::ErrorTable::addError("Mirror fetch failed: Key '" + mirrorKey + "' not of type document", Constants::Error::NON_CRITICAL);
     }
     domain.deserialize(Nebulite::global().getDoc().serialize(mirrorKey));

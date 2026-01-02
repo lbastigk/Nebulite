@@ -6,7 +6,7 @@ namespace Nebulite::Interaction::Rules::Construction {
 
 void RulesetCompiler::getFunctionCalls(Data::JsonScope& entryDoc, JsonRuleset& Ruleset, Execution::DomainBase const& self) {
     // Get function calls: GLOBAL, SELF, OTHER
-    if (entryDoc.memberType(Constants::KeyNames::Invoke::functioncalls_global) == Data::JSON::KeyType::array) {
+    if (entryDoc.memberType(Constants::KeyNames::Invoke::functioncalls_global) == Data::KeyType::array) {
         size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Invoke::functioncalls_global);
         for (size_t j = 0; j < funcSize; ++j) {
             std::string funcKey = std::string(Constants::KeyNames::Invoke::functioncalls_global) + "[" + std::to_string(j) + "]";
@@ -18,7 +18,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScope& entryDoc, JsonRuleset& R
             Ruleset.functioncalls_global.emplace_back(std::move(invokeExpr));
         }
     }
-    if (entryDoc.memberType(Constants::KeyNames::Invoke::functioncalls_self) == Data::JSON::KeyType::array) {
+    if (entryDoc.memberType(Constants::KeyNames::Invoke::functioncalls_self) == Data::KeyType::array) {
         size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Invoke::functioncalls_self);
         for (size_t j = 0; j < funcSize; ++j) {
             std::string funcKey = std::string(Constants::KeyNames::Invoke::functioncalls_self) + "[" + std::to_string(j) + "]";
@@ -37,7 +37,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScope& entryDoc, JsonRuleset& R
             Ruleset.functioncalls_self.emplace_back(std::move(invokeExpr));
         }
     }
-    if (entryDoc.memberType(Constants::KeyNames::Invoke::functioncalls_other) == Data::JSON::KeyType::array) {
+    if (entryDoc.memberType(Constants::KeyNames::Invoke::functioncalls_other) == Data::KeyType::array) {
         size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Invoke::functioncalls_other);
         for (size_t j = 0; j < funcSize; ++j) {
             std::string funcKey = std::string(Constants::KeyNames::Invoke::functioncalls_other) + "[" + std::to_string(j) + "]";
@@ -108,7 +108,7 @@ bool RulesetCompiler::getExpression(Logic::Assignment& assignmentExpr, Data::Jso
 }
 
 bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JsonScope& entry, Data::JsonScope& self) {
-    if (entry.memberType(Constants::KeyNames::Invoke::exprVector) == Data::JSON::KeyType::array) {
+    if (entry.memberType(Constants::KeyNames::Invoke::exprVector) == Data::KeyType::array) {
         size_t const exprSize = entry.memberSize(Constants::KeyNames::Invoke::exprVector);
         for (size_t j = 0; j < exprSize; ++j) {
             if (Logic::Assignment assignmentExpr; getExpression(assignmentExpr, entry, j)) {
@@ -131,7 +131,7 @@ bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset
 
 std::string RulesetCompiler::getLogicalArg(Data::JsonScope& entry) {
     std::string logicalArg;
-    if (entry.memberType("logicalArg") == Data::JSON::KeyType::array) {
+    if (entry.memberType("logicalArg") == Data::KeyType::array) {
         size_t const logicalArgSize = entry.memberSize("logicalArg");
         for (size_t j = 0; j < logicalArgSize; ++j) {
             std::string logicalArgKey = "logicalArg[" + std::to_string(j) + "]";
@@ -154,7 +154,7 @@ std::string RulesetCompiler::getLogicalArg(Data::JsonScope& entry) {
 }
 
 bool RulesetCompiler::getJsonRuleset(Data::JsonScope& doc, Data::JsonScope& entry, std::string const& key) {
-    if (doc.memberType(key) == Data::JSON::KeyType::object) {
+    if (doc.memberType(key) == Data::KeyType::object) {
         entry = doc.shareScope(key);
     } else {
         // Is perhaps link to document
@@ -202,7 +202,7 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
     rulesetsLocal.clear();
 
     // Check if doc is valid
-    if (self.getDoc().memberType(Constants::KeyNames::RenderObject::invokes) != Data::JSON::KeyType::array) {
+    if (self.getDoc().memberType(Constants::KeyNames::RenderObject::invokes) != Data::KeyType::array) {
         return;
     }
 

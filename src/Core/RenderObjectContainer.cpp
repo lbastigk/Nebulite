@@ -1,8 +1,7 @@
 #include "Core/RenderObjectContainer.hpp"
+#include "Data/Document/JSON.hpp"
 
 namespace Nebulite::Core {
-
-
 
 //------------------------------------------
 //Marshalling
@@ -38,7 +37,7 @@ std::string RenderObjectContainer::serialize() {
 void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY) {
     Data::JSON layer;
     layer.deserialize(serialOrLink);
-    if (layer.memberType("objects") == Data::JSON::KeyType::array) {
+    if (layer.memberType("objects") == Data::KeyType::array) {
         for (uint32_t i = 0; i < layer.memberSize("objects"); i++) {
             std::string key = "objects[" + std::to_string(i) + "]";
 
@@ -61,7 +60,7 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_
 // Pipeline
 
 namespace {
-std::pair<int16_t, int16_t> getTilePos(RenderObject* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
+std::pair<int16_t, int16_t> getTilePos(RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
     // Calculate correspondingTilePositionX using positionX
     auto const positionX = toAppend->getDoc().get<double>(Nebulite::Constants::KeyNames::RenderObject::positionX, 0.0);
     auto correspondingTilePositionX = static_cast<int16_t>(positionX / static_cast<double>(displayResolutionX));

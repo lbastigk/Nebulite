@@ -164,13 +164,13 @@ bool JsonRvalueTransformer::pow(std::span<std::string const> const& args, JsonSc
 // Functions: Array-related
 
 bool JsonRvalueTransformer::ensureArray(JsonScope* jsonDoc){
-    if (jsonDoc->memberType(valueKey) != JSON::KeyType::array) {
+    if (jsonDoc->memberType(valueKey) != KeyType::array) {
         // Single value, we wrap it into an array
         JSON tmp = jsonDoc->getSubDoc(valueKey);
         std::string const key = std::string(valueKey) + "[0]";
         jsonDoc->setSubDoc(key.c_str(), tmp);
     }
-    if (jsonDoc->memberType(valueKey) != JSON::KeyType::array) {
+    if (jsonDoc->memberType(valueKey) != KeyType::array) {
         return false;
     }
     return true;
@@ -252,7 +252,7 @@ bool JsonRvalueTransformer::last(JsonScope* jsonDoc) {
 bool JsonRvalueTransformer::assertNonEmpty(JsonScope* jsonDoc) {
     static std::string errorMessage = std::string(__FUNCTION__) + " JSON value is null";
 
-    if (jsonDoc->memberType(valueKey) == JSON::KeyType::null) {
+    if (jsonDoc->memberType(valueKey) == KeyType::null) {
         throw std::runtime_error(errorMessage);
         //return false;
     }
@@ -316,14 +316,14 @@ bool JsonRvalueTransformer::toBoolString(JsonScope* jsonDoc) {
 // Functions: Collection
 
 bool JsonRvalueTransformer::map(std::span<std::string const> const& args, JsonScope* jsonDoc) {
-    if (jsonDoc->memberType(valueKey) == JSON::KeyType::value) {
+    if (jsonDoc->memberType(valueKey) == KeyType::value) {
         // Single value, we wrap it into an array
         JSON tmp = jsonDoc->getSubDoc(valueKey);
         std::string const key = std::string(valueKey) + "[0]";
         jsonDoc->setSubDoc(key.c_str(), tmp);
     }
     // Now we expect an array
-    if (jsonDoc->memberType(valueKey) != JSON::KeyType::array) {
+    if (jsonDoc->memberType(valueKey) != KeyType::array) {
         return false; // Not an array
     }
     // Re-join args into a single transformation command
@@ -438,19 +438,19 @@ bool JsonRvalueTransformer::typeAsString(JsonScope* jsonDoc) {
     //       e.g.: "value:int:32" or "value:string:10"
     //       Perhaps with additional arg to control the format?
     switch (jsonDoc->memberType(valueKey)) {
-    case JSON::KeyType::value: {
+    case KeyType::value: {
         // General type is "value", but we can be more specific by using getVariant or even better:
         // TODO: see above comment
         jsonDoc->set<std::string>(valueKey, "value");
     }
     break;
-    case JSON::KeyType::array:
+    case KeyType::array:
         jsonDoc->set<std::string>(valueKey, "array");
         break;
-    case JSON::KeyType::object:
+    case KeyType::object:
         jsonDoc->set<std::string>(valueKey, "object");
         break;
-    case JSON::KeyType::null:
+    case KeyType::null:
     default:
         jsonDoc->set<std::string>(valueKey, "null");
         break;

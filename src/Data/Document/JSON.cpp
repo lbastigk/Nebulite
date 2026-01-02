@@ -380,7 +380,7 @@ void JSON::deserialize(std::string const& serialOrLink) {
 //------------------------------------------
 // Key Types, Sizes
 
-JSON::KeyType JSON::memberType(std::string const& key) {
+KeyType JSON::memberType(std::string const& key) {
     std::scoped_lock const lockGuard(mtx);
 
     // See if transformations are present

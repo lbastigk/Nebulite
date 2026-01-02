@@ -8,6 +8,19 @@
 #define NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_HPP
 
 //------------------------------------------
+// Includes
+
+// Nebulite
+#include "Constants/ErrorTypes.hpp"
+#include "Interaction/Execution/FuncTree.hpp"
+
+//------------------------------------------
+// Forward declarations
+namespace Nebulite::Data {
+class JsonScopeBase;
+} // namespace Nebulite::Data
+
+//------------------------------------------
 // Macro for DomainModule definition
 
 bool constexpr endsWithNewline(std::string_view str) {
@@ -22,20 +35,8 @@ bool constexpr endsWithNewline(std::string_view str) {
     : DomainModule(name, domainReference, std::move(funcTreePtr))
 
 #define BINDFUNCTION(func, name,desc) \
-    static_assert(endsWithNewline(desc), "Function description must end with a newline character."); \
+static_assert(endsWithNewline(desc), "Function description must end with a newline character."); \
     bindFunction(func, name, desc)
-
-
-//------------------------------------------
-// Includes
-
-// Standard library
-#include <utility>
-
-// Nebulite
-#include "Constants/ErrorTypes.hpp"
-#include "Data/Document/JsonScope.hpp"
-#include "Interaction/Execution/FuncTree.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
@@ -53,8 +54,7 @@ public:
      * @details The constructor initializes the DomainModuleBase with
      *          the FuncTree pointer for binding functions and variables.
      */
-    explicit DomainModuleBase(std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr)
-        : funcTree(std::move(funcTreePtr)) {}
+    explicit DomainModuleBase(std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr);
 
     //------------------------------------------
     // Static Binding Functions
@@ -129,6 +129,12 @@ public:
         funcTree->bindVariable(variablePtr, name, helpDescription);
     }
 
+    /**
+     * @brief Retrieves the JsonScopeBase document based on what was shared with the DomainModule.
+     * @return Reference to the JsonScopeBase document.
+     */
+    [[nodiscard]] Data::JsonScopeBase& getDoc() const ;
+
 protected:
     /**
      * @brief Pointer to the internal FuncTree for binding functions and variables.
@@ -139,6 +145,13 @@ protected:
      *          to the non-templated interface.
      */
     std::shared_ptr<FuncTree<Constants::Error>> funcTree;
+
+    /**
+     * @brief Shared pointer to the JsonScopeBase document.
+     * @details This allows derived DomainModules to access and manipulate
+     *          the JSON document as needed.
+     */
+    std::unique_ptr<Data::JsonScopeBase> docPtr;
 };
 
 /**

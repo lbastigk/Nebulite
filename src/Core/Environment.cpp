@@ -72,7 +72,7 @@ void Environment::deserialize(std::string const& serialOrLink, uint16_t const& d
     // Getting all layers
     for (unsigned int i = 0; i < LayerCount; i++) {
         // Check if the key exists in the document
-        if (std::string key = "containerLayer" + std::to_string(i); file.memberType(key) != Data::JSON::KeyType::null) {
+        if (std::string key = "containerLayer" + std::to_string(i); file.memberType(key) != Data::KeyType::null) {
             // Extract the value corresponding to the key
             Data::JSON layer = file.getSubDoc(key);
 

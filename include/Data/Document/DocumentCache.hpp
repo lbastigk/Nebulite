@@ -10,7 +10,6 @@
 // Includes
 
 // Standard library
-#include <stdexcept>
 
 // Nebulite
 #include "ReadOnlyDocs.hpp"
@@ -88,18 +87,18 @@ public:
      * @param doc_key The document and its key to check.
      * @return The type of the key.
      */
-    Nebulite::Data::JSON::KeyType memberType(std::string const& doc_key) {
+    KeyType memberType(std::string const& doc_key) {
         auto [doc, key] = splitDocKey(doc_key);
 
-        Nebulite::Data::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+        ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr) {
-            return Nebulite::Data::JSON::KeyType::null; // Return null if document loading fails
+            return KeyType::null; // Return null if document loading fails
         }
 
         // Retrieve the key type from the document
-        Nebulite::Data::JSON::KeyType const type = docPtr->document.memberType(key);
+        KeyType const type = docPtr->document.memberType(key);
 
         // Update the cache (unload old documents)
         update();

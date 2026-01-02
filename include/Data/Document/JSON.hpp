@@ -18,6 +18,7 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
+#include "Data/Document/KeyType.hpp"
 #include "Data/Document/JsonRvalueTransformer.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
 
@@ -390,17 +391,6 @@ public:
 
     //------------------------------------------
     // Key Types, Sizes
-
-    /**
-     * @enum KeyType
-     * @brief Enum representing the type stored of a key in the JSON document.
-     */
-    enum class KeyType : uint8_t {
-        null,
-        value,
-        array,
-        object
-    };
 
     /**
      * @brief Checks the type stored of a key in the JSON document.

@@ -11,6 +11,7 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
+#include "Data/Document/JSON.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 
@@ -19,7 +20,6 @@
 namespace Nebulite::Core {
 class GlobalSpace; // Forward declaration of domain class GlobalSpace
 } // namespace Nebulite::Core
-
 
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {

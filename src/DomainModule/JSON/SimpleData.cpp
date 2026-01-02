@@ -46,16 +46,16 @@ Constants::Error SimpleData::move(int argc, char** argv) {
     std::string const sourceKey = argv[1];
     std::string const targetKey = argv[2];
 
-    if (domain.memberType(sourceKey) == Data::JSON::KeyType::null) {
+    if (domain.memberType(sourceKey) == Data::KeyType::null) {
         Nebulite::cerr() << "Error: Source key '" << sourceKey << "' does not exist." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
-    if (domain.memberType(sourceKey) == Data::JSON::KeyType::object) {
+    if (domain.memberType(sourceKey) == Data::KeyType::object) {
         Data::JSON subDoc = domain.getSubDoc(sourceKey);
         domain.removeKey(targetKey.c_str());
         domain.setSubDoc(targetKey.c_str(), subDoc);
         domain.removeKey(sourceKey.c_str());
-    } else if (domain.memberType(sourceKey) == Data::JSON::KeyType::array) {
+    } else if (domain.memberType(sourceKey) == Data::KeyType::array) {
         // Careful handling required:
         domain.removeKey(targetKey.c_str());
 
@@ -86,15 +86,15 @@ Constants::Error SimpleData::copy(int argc, char** argv) {
     std::string const sourceKey = argv[1];
     std::string const targetKey = argv[2];
 
-    if (domain.memberType(sourceKey) == Data::JSON::KeyType::null) {
+    if (domain.memberType(sourceKey) == Data::KeyType::null) {
         Nebulite::cerr() << "Error: Source key '" << sourceKey << "' does not exist." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
-    if (domain.memberType(sourceKey) == Data::JSON::KeyType::object) {
+    if (domain.memberType(sourceKey) == Data::KeyType::object) {
         Data::JSON subDoc = domain.getSubDoc(sourceKey);
         domain.removeKey(targetKey.c_str());
         domain.setSubDoc(targetKey.c_str(), subDoc);
-    } else if (domain.memberType(sourceKey) == Data::JSON::KeyType::array) {
+    } else if (domain.memberType(sourceKey) == Data::KeyType::array) {
         // Careful handling required:
         domain.removeKey(targetKey.c_str());
 
@@ -141,14 +141,14 @@ Constants::Error SimpleData::ensureArray(int argc, char** argv) {
 
     std::string const key = argv[1];
 
-    Data::JSON::KeyType keyType = domain.memberType(key);
+    Data::KeyType keyType = domain.memberType(key);
 
-    if (keyType == Data::JSON::KeyType::array) {
+    if (keyType == Data::KeyType::array) {
         // Already an array, nothing to do
         return Constants::ErrorTable::NONE();
     }
 
-    if (keyType == Data::JSON::KeyType::value) {
+    if (keyType == Data::KeyType::value) {
         // pop out value
         auto const existingValue = domain.get<std::string>(key);
         domain.removeKey(key.c_str());
@@ -181,7 +181,7 @@ Constants::Error SimpleData::push_back(int argc, char** argv) {
         value = argv[2];
     }
 
-    if (domain.memberType(key) != Data::JSON::KeyType::array) {
+    if (domain.memberType(key) != Data::KeyType::array) {
         std::string command = __FUNCTION__;
         command += " " + std::string(ensureArray_name);
         command += " " + key;
@@ -209,7 +209,7 @@ Constants::Error SimpleData::pop_back(int argc, char** argv) {
     }
     std::string const key = argv[1];
 
-    if (domain.memberType(key) != Data::JSON::KeyType::array) {
+    if (domain.memberType(key) != Data::KeyType::array) {
         std::string command = __FUNCTION__;
         command += " " + std::string(ensureArray_name);
         command += " " + key;
@@ -246,7 +246,7 @@ Constants::Error SimpleData::push_front(int argc, char** argv) {
         value = argv[2];
     }
 
-    if (domain.memberType(key) != Data::JSON::KeyType::array) {
+    if (domain.memberType(key) != Data::KeyType::array) {
         std::string command = __FUNCTION__;
         command += " " + std::string(ensureArray_name);
         command += " " + key;
@@ -264,7 +264,7 @@ Constants::Error SimpleData::push_front(int argc, char** argv) {
     // This feature is yet to be implemented!
     for (size_t i = 0; i < size; ++i) {
         std::string itemKey = key + "[" + std::to_string(i) + "]";
-        if (Data::JSON::KeyType const itemType = domain.memberType(itemKey); itemType == Data::JSON::KeyType::object) {
+        if (Data::KeyType const itemType = domain.memberType(itemKey); itemType == Data::KeyType::object) {
             Nebulite::cerr() << "Error: Cannot push_front into an array containing documents." << Nebulite::endl;
             return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
         }
@@ -295,7 +295,7 @@ Constants::Error SimpleData::pop_front(int argc, char** argv) {
     }
     std::string const key = argv[1];
 
-    if (domain.memberType(key) != Data::JSON::KeyType::array) {
+    if (domain.memberType(key) != Data::KeyType::array) {
         std::string command = __FUNCTION__;
         command += " " + std::string(ensureArray_name);
         command += " " + key;
@@ -312,7 +312,7 @@ Constants::Error SimpleData::pop_front(int argc, char** argv) {
     // if any array item is a document, throw error
     // This feature is yet to be implemented!
     for (size_t i = 0; i < size; ++i) {
-        if (domain.memberType(key + "[" + std::to_string(i) + "]") == Data::JSON::KeyType::object) {
+        if (domain.memberType(key + "[" + std::to_string(i) + "]") == Data::KeyType::object) {
             Nebulite::cerr() << "Error: Cannot push_front into an array containing documents." << Nebulite::endl;
             return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
         }

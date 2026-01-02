@@ -20,11 +20,11 @@
 
 namespace Nebulite::Data {
 class JsonScope;
-}
+} // namespace Nebulite::Data
 
 namespace Nebulite::Interaction::Logic {
 class VirtualDouble;
-}
+} // namespace Nebulite::Interaction::Logic
 
 //------------------------------------------
 
@@ -36,8 +36,7 @@ namespace Nebulite::Data {
  */
 class DynamicFixedArray {
 public:
-    DynamicFixedArray() : data_(nullptr), size_(0), capacity_(0) {
-    }
+    DynamicFixedArray() : data_(nullptr), size_(0), capacity_(0) {}
 
     explicit DynamicFixedArray(size_t fixed_size)
         : data_(fixed_size > 0 ? new double*[fixed_size] : nullptr),

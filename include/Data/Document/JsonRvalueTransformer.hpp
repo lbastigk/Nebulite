@@ -219,7 +219,7 @@ private:
     static std::string_view constexpr typeAsNumberName = "typeAsNumber";
     static std::string_view constexpr typeAsNumberDesc = "Converts the current JSON type value to a number.\n"
         "Usage: |typeAsNumber -> {number}"
-        "where the number reflects the enum value JSON::KeyType.\n";
+        "where the number reflects the enum value KeyType.\n";
 
     bool typeAsString(JsonScope* jsonDoc);
     static std::string_view constexpr typeAsStringName = "typeAsString";

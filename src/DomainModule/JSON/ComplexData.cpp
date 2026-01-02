@@ -37,7 +37,7 @@ Constants::Error ComplexData::jsonSet(int argc, char** argv) {
     // Depending on the type of docKey, we retrieve the value
 
     // === DOCUMENT ===
-    if (Data::JSON::KeyType const type = Nebulite::global().getDocCache().memberType(docKey); type == Data::JSON::KeyType::object) {
+    if (Data::KeyType const type = Nebulite::global().getDocCache().memberType(docKey); type == Data::KeyType::object) {
         // Retrieve the sub-document
         Data::JSON subDoc = Nebulite::global().getDocCache().getSubDoc(docKey);
 
@@ -45,11 +45,11 @@ Constants::Error ComplexData::jsonSet(int argc, char** argv) {
         domain.setSubDoc(myKey.c_str(), subDoc);
     }
     // === VALUE ===
-    else if (type == Data::JSON::KeyType::value) {
+    else if (type == Data::KeyType::value) {
         domain.set(myKey, Nebulite::global().getDocCache().get<std::string>(docKey));
     }
     // === ARRAY ===
-    else if (type == Data::JSON::KeyType::array) {
+    else if (type == Data::KeyType::array) {
         size_t const size = Nebulite::global().getDocCache().memberSize(docKey);
         for (size_t i = 0; i < size; ++i) {
             std::string itemKey = docKey + "[" + std::to_string(i) + "]";
