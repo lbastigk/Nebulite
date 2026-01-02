@@ -422,6 +422,7 @@ public:
         visitBase([&](auto& alt) -> void {
             alt.setSubDoc(scopePrefixWithoutDot, tmp);
         });
+        reinitModules();
     }
 };
 } // namespace Nebulite::Data

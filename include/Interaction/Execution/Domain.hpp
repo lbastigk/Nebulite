@@ -161,8 +161,7 @@ private:
 
     /**
      * @brief Each domain uses a JSON document to store its data.
-     *        We use a pointer here, as the JSON class itself is a domain.
-     *        Meaning the internal JSON doc references to itself.
+     * @todo Change to JsonScope once implemented
      */
     Data::JSON& document;
 
