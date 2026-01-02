@@ -4,7 +4,7 @@
 
 namespace Nebulite::Data {
 
-odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, Nebulite::Data::JSON* reference, std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther) {
+odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, Nebulite::Data::JSON& reference, std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther) {
     // Quick-cache path protected by mtxCache
     if (uniqueId < Data::MappedOrderedDoublePointers::quickCacheSize) {
         {
@@ -19,7 +19,7 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, N
         if (quickCache[uniqueId].orderedValues.empty()) {
             Data::OrderedDoublePointers newCacheList(contextOther.size());
             for (auto const& vde : contextOther) {
-                double* ptr = reference->getStableDoublePointer(vde->getKey());
+                double* ptr = reference.getStableDoublePointer(vde->getKey());
                 newCacheList.orderedValues.push_back(ptr);
             }
             quickCache[uniqueId] = std::move(newCacheList);
@@ -41,14 +41,14 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, N
     auto [newIt, inserted] = map.try_emplace(uniqueId, Data::OrderedDoublePointers(contextOther.size()));
     if (inserted) {
         for (auto const& vde : contextOther) {
-            double* ptr = reference->getStableDoublePointer(vde->getKey());
+            double* ptr = reference.getStableDoublePointer(vde->getKey());
             newIt->second.orderedValues.push_back(ptr);
         }
     }
     return &newIt->second.orderedValues;
 }
 
-odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, Nebulite::Data::JSON* reference, std::vector<std::string_view> const& keys) {
+odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, Nebulite::Data::JSON& reference, std::vector<std::string_view> const& keys) {
     // Quick-cache path protected by mtxCache
     if (uniqueId < Data::MappedOrderedDoublePointers::quickCacheSize) {
         {
@@ -63,7 +63,7 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, N
         if (quickCache[uniqueId].orderedValues.empty()) {
             Data::OrderedDoublePointers newCacheList(keys.size());
             for (auto const& key : keys) {
-                double* ptr = reference->getStableDoublePointer(key);
+                double* ptr = reference.getStableDoublePointer(key);
                 newCacheList.orderedValues.push_back(ptr);
             }
             quickCache[uniqueId] = std::move(newCacheList);
@@ -85,7 +85,7 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, N
     auto [newIt, inserted] = map.try_emplace(uniqueId, Data::OrderedDoublePointers(keys.size()));
     if (inserted) {
         for (auto const& key : keys) {
-            double* ptr = reference->getStableDoublePointer(key);
+            double* ptr = reference.getStableDoublePointer(key);
             newIt->second.orderedValues.push_back(ptr);
         }
     }

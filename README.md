@@ -181,7 +181,7 @@ void Physics::gravity(ContextBase const& context) {
     double const coefficient = *globalVal.G * baseVal(slf, Key::physics_mass) * baseVal(otr, Key::physics_mass) / denominator;
 
     // Apply gravitational force to other entity
-    auto otrLock = context.other.getDoc()->lock();
+    auto otrLock = context.other.getDoc().lock();
     baseVal(otr, Key::physics_FX) += distanceX * coefficient;
     baseVal(otr, Key::physics_FY) += distanceY * coefficient;
 }

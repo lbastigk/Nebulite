@@ -21,9 +21,9 @@ NEBULITE_DOMAIN(Texture) {
 public:
     /**
      * @brief Constructs a new Texture domain.
-     * @param documentPtr Pointer to the JSON document for this domain.
+     * @param documentReference Reference to the JSON document for this domain.
      */
-    explicit Texture(Data::JSON* documentPtr);
+    explicit Texture(Data::JSON& documentReference);
 
     /**
      * @brief Destroys the Texture and frees resources.

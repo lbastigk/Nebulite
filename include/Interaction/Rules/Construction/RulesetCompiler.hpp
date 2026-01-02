@@ -106,7 +106,7 @@ private:
      * @param self The JSON document of context self.
      * @return True if the expressions were successfully extracted, false otherwise.
      */
-    static bool getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JSON* entry, Data::JSON* self);
+    static bool getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JSON& entry, Data::JSON& self);
 
     /**
      * @brief Extracts a logical argument from a JSON entry document.
@@ -147,7 +147,7 @@ private:
      * @param entry The Ruleset object to optimize.
      * @param self The Domain instance associated with the entries.
      */
-    static void optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JSON* self);
+    static void optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JSON& self);
 
     /**
      * @brief Sets metadata in the object itself and in each Ruleset entry, including IDs, indices, and estimated computational cost.

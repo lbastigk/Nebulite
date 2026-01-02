@@ -264,9 +264,8 @@ private:
     std::vector<SDL_Event>* events = nullptr;
 
     //------------------------------------------
-    // References
+    // Renderer Pointer
     SDL_Renderer* renderer = nullptr;
-    Data::JSON* globalDoc = nullptr;
 
     //------------------------------------------
     // Text input handling

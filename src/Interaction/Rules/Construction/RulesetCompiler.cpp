@@ -107,11 +107,11 @@ bool RulesetCompiler::getExpression(Logic::Assignment& assignmentExpr, Data::JSO
     return true;
 }
 
-bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JSON* entry, Data::JSON* self) {
-    if (entry->memberType(Constants::KeyNames::Invoke::exprVector) == Data::JSON::KeyType::array) {
-        size_t const exprSize = entry->memberSize(Constants::KeyNames::Invoke::exprVector);
+bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JSON& entry, Data::JSON& self) {
+    if (entry.memberType(Constants::KeyNames::Invoke::exprVector) == Data::JSON::KeyType::array) {
+        size_t const exprSize = entry.memberSize(Constants::KeyNames::Invoke::exprVector);
         for (size_t j = 0; j < exprSize; ++j) {
-            if (Logic::Assignment assignmentExpr; getExpression(assignmentExpr, *entry, j)) {
+            if (Logic::Assignment assignmentExpr; getExpression(assignmentExpr, entry, j)) {
                 // Successfully parsed expression
 
                 // Remove whitespaces at start and end of key and value
@@ -179,7 +179,7 @@ void RulesetCompiler::setMetaData(
     std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsGlobal
     ) {
     // Set IDs
-    auto const id = self.getDoc()->get<uint32_t>(Nebulite::Constants::KeyNames::RenderObject::id, 0);
+    auto const id = self.getDoc().get<uint32_t>(Nebulite::Constants::KeyNames::RenderObject::id, 0);
     for (auto const& entry : rulesetsLocal) {
         entry->id = id;
     }
@@ -201,15 +201,13 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
     rulesetsGlobal.clear();
     rulesetsLocal.clear();
 
-    Data::JSON* doc = self.getDoc();
-
     // Check if doc is valid
-    if (doc->memberType(Constants::KeyNames::RenderObject::invokes) != Data::JSON::KeyType::array) {
+    if (self.getDoc().memberType(Constants::KeyNames::RenderObject::invokes) != Data::JSON::KeyType::array) {
         return;
     }
 
     // Get size of entries
-    size_t const size = doc->memberSize(Constants::KeyNames::RenderObject::invokes);
+    size_t const size = self.getDoc().memberSize(Constants::KeyNames::RenderObject::invokes);
     if (size == 0) {
         // Object has no rulesets
         return;
@@ -219,7 +217,7 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
     for (size_t idx = 0; idx < size; ++idx) {
         // Parse entry into separate JSON object
         std::string const key = std::string(Constants::KeyNames::RenderObject::invokes) + "[" + std::to_string(idx) + "]";
-        auto Ruleset = getRuleset(*doc, key, self);
+        auto Ruleset = getRuleset(self.getDoc(), key, self);
 
         if (std::holds_alternative<std::monostate>(Ruleset)) {
             // Skip invalid entry
@@ -256,7 +254,7 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
     setMetaData(self, rulesetsGlobal, rulesetsLocal);
 }
 
-void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JSON* self) {
+void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JSON& self) {
     // List of operations that are considered numeric and thus eligible for direct pointer assignment.
     // Any new numeric operation must be added here to benefit from optimization techniques in the Invoke class.
     std::array<Logic::Assignment::Operation,3> const numeric_operations = {
@@ -269,7 +267,7 @@ void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Data::
         if (assignment.onType == Logic::Assignment::Type::Self) {
             if (std::ranges::find(numeric_operations, assignment.operation) != std::ranges::end(numeric_operations)) {
                 // Numeric operation on self, try to get a direct pointer
-                if (double* ptr = self->getStableDoublePointer(assignment.key.eval(self)); ptr != nullptr) {
+                if (double* ptr = self.getStableDoublePointer(assignment.key.eval(self)); ptr != nullptr) {
                     assignment.targetValuePtr = ptr;
                 }
             }
@@ -277,7 +275,7 @@ void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Data::
         if (assignment.onType == Logic::Assignment::Type::Global) {
             if (std::ranges::find(numeric_operations, assignment.operation) != std::ranges::end(numeric_operations)) {
                 // Numeric operation on global, try to get a direct pointer
-                if (double* ptr = Nebulite::global().getDoc()->getStableDoublePointer(assignment.key.eval(self)); ptr != nullptr) {
+                if (double* ptr = Nebulite::global().getDoc().getStableDoublePointer(assignment.key.eval(self)); ptr != nullptr) {
                     assignment.targetValuePtr = ptr;
                 }
             }
@@ -324,7 +322,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JSON& doc, std::st
     Ruleset->logicalArg.parse(str, self.getDoc());
 
     // Get and parse all assignments
-    getExpressions(Ruleset, &entry, self.getDoc());
+    getExpressions(Ruleset, entry, self.getDoc());
     for (auto& assignment : Ruleset->assignments) {
         assignment.expression.parse(assignment.value, self.getDoc());
     }

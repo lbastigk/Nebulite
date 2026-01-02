@@ -94,7 +94,7 @@ private:
         uint64_t interval_ms; // Trigger interval in milliseconds
         double* globalReference; // Pointer to the global document entry
 
-        ClockEntry(uint64_t const& interval, Data::JSON* doc, uint64_t const& current_time);
+        ClockEntry(uint64_t const& interval, Data::JSON& doc, uint64_t const& current_time);
 
         /**
          * @brief Updates the clock entry, setting the global reference based on the timer.

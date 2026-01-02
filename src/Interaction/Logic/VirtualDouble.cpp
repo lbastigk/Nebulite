@@ -19,12 +19,8 @@ void VirtualDouble::setUpInternalCache(Data::JSON* json) {
     }
 }
 
-void VirtualDouble::setUpExternalCache(Data::JSON* json) {
-    if (json != nullptr) {
-        reference = json->getStableDoublePointer(key);
-    } else {
-        reference = Nebulite::global().getDocCache().getStableDoublePointer(key);
-    }
+void VirtualDouble::setUpExternalCache(Data::JSON& json) {
+    reference = json.getStableDoublePointer(key);
 }
 
 } // namespace Nebulite::Interaction::Logic

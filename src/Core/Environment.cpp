@@ -39,8 +39,8 @@ make_roc_array() {
 
 namespace Nebulite::Core {
 
-Environment::Environment(Nebulite::Data::JSON* documentPtr)
-    : Domain<Nebulite::Core::Environment>("Environment", *this, documentPtr),
+Environment::Environment(Nebulite::Data::JSON& documentReference)
+    : Domain<Nebulite::Core::Environment>("Environment", *this, documentReference),
       roc(make_roc_array<LayerCount>()) {
 }
 

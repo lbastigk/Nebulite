@@ -14,9 +14,9 @@ Physics::Physics() : RulesetModule(moduleName) {
     BIND_STATIC_ASSERT(RulesetType::Local, &Physics::drag, dragName, dragDesc);
 
     // Global Variables
-    globalVal.G = Nebulite::global().getDoc()->getStableDoublePointer("physics.G"); // Gravitational constant
-    globalVal.dt = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::time_dt); // Simulation delta time
-    globalVal.t = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::time_t); // Simulation time
+    globalVal.G = Nebulite::global().getDoc().getStableDoublePointer("physics.G"); // Gravitational constant
+    globalVal.dt = Nebulite::global().getDoc().getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::time_dt); // Simulation delta time
+    globalVal.t = Nebulite::global().getDoc().getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::time_t); // Simulation time
 }
 
 // Global rulesets
@@ -94,10 +94,10 @@ void Physics::elasticCollision(ContextBase const& context) {
             double const dF2X = m2 * (v2newX - v2X) / dt;
 
             // Get last collision time pointer
-            double* lastColX = context.other.getDoc()->getStableDoublePointer(lastCollisionX);
+            double* lastColX = context.other.getDoc().getStableDoublePointer(lastCollisionX);
 
             // Lock and write
-            auto slfLock = context.self.getDoc()->lock();
+            auto slfLock = context.self.getDoc().lock();
             if (*lastColX < *globalVal.t) {
                 baseVal(otr, Key::physics_FX) += dF2X;
                 *lastColX = *globalVal.t;
@@ -116,10 +116,10 @@ void Physics::elasticCollision(ContextBase const& context) {
             double const dF2Y = m2 * (v2newY - v2Y) / dt;
 
             // Get last collision time pointer
-            double* lastColY = context.other.getDoc()->getStableDoublePointer(lastCollisionY);
+            double* lastColY = context.other.getDoc().getStableDoublePointer(lastCollisionY);
 
             // Lock and write
-            auto slfLock = context.self.getDoc()->lock();
+            auto slfLock = context.self.getDoc().lock();
             if (*lastColY < *globalVal.t) {
                 baseVal(otr, Key::physics_FY) += dF2Y;
                 *lastColY = *globalVal.t;
@@ -142,7 +142,7 @@ void Physics::gravity(ContextBase const& context) {
     double const coefficient = *globalVal.G * baseVal(slf, Key::physics_mass) * baseVal(otr, Key::physics_mass) / denominator;
 
     // Apply gravitational force to other entity
-    auto otrLock = context.other.getDoc()->lock();
+    auto otrLock = context.other.getDoc().lock();
     baseVal(otr, Key::physics_FX) += distanceX * coefficient;
     baseVal(otr, Key::physics_FY) += distanceY * coefficient;
 }
@@ -162,7 +162,7 @@ void Physics::applyForce(ContextBase const& context) {
     double const dvY = aY * dt;
 
     // Lock and apply all physics calculations
-    auto slfLock = context.self.getDoc()->lock();
+    auto slfLock = context.self.getDoc().lock();
 
     // Acceleration is based on F
     baseVal(slf, Key::physics_aX) = aX;
@@ -193,7 +193,7 @@ void Physics::drag(ContextBase const& context) {
     double const dragForceY = -dragCoefficient * vY;
 
     // Lock and apply drag forces
-    auto slfLock = context.self.getDoc()->lock();
+    auto slfLock = context.self.getDoc().lock();
     baseVal(slf, Key::physics_FX) += dragForceX;
     baseVal(slf, Key::physics_FY) += dragForceY;
 }

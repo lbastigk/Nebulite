@@ -66,7 +66,7 @@ Constants::Error Console::update() {
     events = domain.getEventHandles();
 
     // Toggling console mode
-    if (domain.getDoc()->get<int>(toggleKey, 0) == 1) {
+    if (domain.getDoc().get<int>(toggleKey, 0) == 1) {
         consoleMode = !consoleMode;
         if (consoleMode) {
             SDL_StartTextInput();
@@ -96,12 +96,12 @@ bool Console::ensureConsoleTexture() {
     // Prerequisites
 
     // Derive consoleRect size from display size
-    double const consoleHeight = static_cast<double>(globalDoc->get<size_t>(Constants::KeyNames::Renderer::dispResY, 360)) * consoleLayout.heightRatio;
+    double const consoleHeight = static_cast<double>(domain.getDoc().get<size_t>(Constants::KeyNames::Renderer::dispResY, 360)) * consoleLayout.heightRatio;
     static SDL_Rect currentConsolePosition;
     currentConsolePosition.x = 0;
-    currentConsolePosition.y = static_cast<int>(globalDoc->get<double>(Constants::KeyNames::Renderer::dispResY, 360) - consoleHeight);
-    currentConsolePosition.w = globalDoc->get<int>(Constants::KeyNames::Renderer::dispResX, 360);
-    currentConsolePosition.h = globalDoc->get<int>(Constants::KeyNames::Renderer::dispResY, 360) - currentConsolePosition.y;
+    currentConsolePosition.y = static_cast<int>(domain.getDoc().get<double>(Constants::KeyNames::Renderer::dispResY, 360) - consoleHeight);
+    currentConsolePosition.w = domain.getDoc().get<int>(Constants::KeyNames::Renderer::dispResX, 360);
+    currentConsolePosition.h = domain.getDoc().get<int>(Constants::KeyNames::Renderer::dispResY, 360) - currentConsolePosition.y;
 
     //------------------------------------------
     // Texture Setup
@@ -332,7 +332,6 @@ void Console::init() {
     //--------------------------------------------------
     // References
     renderer = domain.getSdlRenderer();
-    globalDoc = domain.getDoc();
 
     // Use a monospaced font for better alignment
     consoleFont = TTF_OpenFont(consoleFontPath.c_str(), static_cast<int>(consoleLayout.FONT_MAX_SIZE * Nebulite::global().getRenderer().getWindowScale()));

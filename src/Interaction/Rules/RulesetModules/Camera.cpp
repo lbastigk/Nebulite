@@ -13,10 +13,10 @@ Camera::Camera() : RulesetModule(moduleName) {
     BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignRight, alignRightName, alignRightDesc);
 
     // References
-    globalVal.camPosX = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::positionX);
-    globalVal.camPosY = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::positionY);
-    globalVal.dispResX = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::dispResX);
-    globalVal.dispResY = Nebulite::global().getDoc()->getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::dispResY);
+    globalVal.camPosX = Nebulite::global().getDoc().getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::positionX);
+    globalVal.camPosY = Nebulite::global().getDoc().getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::positionY);
+    globalVal.dispResX = Nebulite::global().getDoc().getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::dispResX);
+    globalVal.dispResY = Nebulite::global().getDoc().getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::dispResY);
 }
 
 // TODO: Add another namespace for camera following rulesets using a PT1 controller for smooth movement

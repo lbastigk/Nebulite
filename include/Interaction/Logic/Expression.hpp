@@ -64,7 +64,7 @@ public:
      * @param expr The expression string to parse.
      * @param self The JSON object representing the "self" context.
      */
-    void parse(std::string const& expr, Data::JSON* self);
+    void parse(std::string const& expr, Data::JSON& self);
 
     /**
      * @brief Checks if the expression can be returned as a double.
@@ -92,7 +92,7 @@ public:
      * @param current_other The JSON object `other` to evaluate against.
      * @return The evaluated double value.
      */
-    double evalAsDouble(Data::JSON* current_other);
+    double evalAsDouble(Data::JSON& current_other);
 
     /**
      * @brief Evaluates the expression as a string.
@@ -100,7 +100,7 @@ public:
      * @param max_recursion_depth The maximum recursion depth to prevent infinite loops in nested evaluations.
      * @return The evaluated string value.
      */
-    std::string eval(Data::JSON* current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth);
+    std::string eval(Data::JSON& current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth);
 
     /**
      * @brief Gets the full expression string that was parsed.
@@ -201,7 +201,7 @@ private:
     // The reference for context self stays the same throughout the expression's lifetime
     // This allows us to cache variables from self directly, not reloading needed.
     struct References {
-        Data::JSON* self = nullptr;
+        Data::JSON* self;
     } references;
 
     /**
@@ -607,7 +607,7 @@ private:
     /**
      * @brief Updates caches
      */
-    void updateCaches(Data::JSON* reference);
+    void updateCaches(Data::JSON& reference);
 
     /**
      * @brief Handles the evaluation of a variable component.
@@ -617,7 +617,7 @@ private:
      * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
      * @return True if the evaluation was successful, false otherwise.
      */
-    bool handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Data::JSON* current_other, uint16_t const& maximumRecursionDepth) const;
+    bool handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Data::JSON& current_other, uint16_t const& maximumRecursionDepth) const;
 
     /**
      * @brief Handles the evaluation of an eval component.

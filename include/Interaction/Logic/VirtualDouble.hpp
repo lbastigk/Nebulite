@@ -85,8 +85,9 @@ public:
      * @details Links the VirtualDouble to an external double pointer of a JSON document,
      *          instead of using its internal cache.
      *          Allowing it to access and modify the value directly.
+     * @param json The JSON document to retrieve the stable double pointer from.
      */
-    void setUpExternalCache(Data::JSON* json);
+    void setUpExternalCache(Data::JSON& json);
 
     /**
      * @brief Set the value of the VirtualDouble directly.

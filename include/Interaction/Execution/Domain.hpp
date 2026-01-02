@@ -42,8 +42,8 @@ namespace Nebulite::Interaction::Execution {
  */
 class DomainBase {
 public:
-    DomainBase(std::string const& name, Data::JSON* documentPtr)
-        : domainName(name), document(documentPtr),
+    DomainBase(std::string const& name, Data::JSON& documentReference)
+        : domainName(name), document(documentReference),
           funcTree(std::make_shared<FuncTree<Constants::Error>>(
               name,
               Constants::ErrorTable::NONE(),
@@ -129,13 +129,13 @@ public:
     // Access to private members
 
     /**
-     * @brief Gets a pointer to the internal JSON document of the domain.
+     * @brief Gets a reference to the internal JSON document of the domain.
      *        Each domain uses a JSON document to store its data.
      *        For the JSON domain, this is a reference to itself.
      *        For others, it's a reference to their JSON document.
-     * @return A pointer to the internal JSON document.
+     * @return A reference to the internal JSON document.
      */
-    [[nodiscard]] Data::JSON* getDoc() const { return document; }
+    [[nodiscard]] Data::JSON& getDoc() const { return document; }
 
     /**
      * @brief Gets the name of the domain.
@@ -164,7 +164,7 @@ private:
      *        We use a pointer here, as the JSON class itself is a domain.
      *        Meaning the internal JSON doc references to itself.
      */
-    Data::JSON* const document;
+    Data::JSON& document;
 
     /**
      * @brief Parsing interface for domain-specific commands.
@@ -203,8 +203,8 @@ private:
     DomainType& domain;
 
 public:
-    Domain(std::string const& name, DomainType& domainTypeReference, Data::JSON* documentPtr)
-        : DomainBase(name, documentPtr), domain(domainTypeReference) {
+    Domain(std::string const& name, DomainType& domainTypeReference, Data::JSON& documentReference)
+        : DomainBase(name, documentReference), domain(domainTypeReference) {
     }
 
     //------------------------------------------

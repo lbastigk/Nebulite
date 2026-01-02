@@ -52,7 +52,7 @@ void setStandardValues(Data::JSON& document) {
 }
 } // namespace
 
-RenderObject::RenderObject() : Domain("RenderObject", *this, &document), baseTexture(&document) {
+RenderObject::RenderObject() : Domain("RenderObject", *this, document), baseTexture(document) {
     //------------------------------------------
     // Set standard values
     setStandardValues(document);

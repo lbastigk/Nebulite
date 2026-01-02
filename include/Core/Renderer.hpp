@@ -35,12 +35,12 @@ NEBULITE_DOMAIN(Renderer) {
 public:
     /**
      * @brief Initializes a Renderer with given dimensions and settings.
-     * @param docRef Pointer to the JSON document
+     * @param documentReference Reference to the JSON document
      * @param flag_headless Reference to the Boolean flag for headless mode.
      * @param X Width of the rendering area.
      * @param Y Height of the rendering area.
      */
-    Renderer(Data::JSON* docRef, bool* flag_headless, unsigned int const& X = 1080, unsigned int const& Y = 1080);
+    Renderer(Data::JSON& documentReference, bool* flag_headless, unsigned int const& X = 1080, unsigned int const& Y = 1080);
 
     //------------------------------------------
     // Disallow copying and moving
@@ -68,8 +68,8 @@ public:
     void deserialize(std::string const& serialOrLink) noexcept {
         env.deserialize(
             serialOrLink,
-            getDoc()->get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
-            getDoc()->get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0)
+            getDoc().get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
+            getDoc().get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0)
             );
     }
 
@@ -291,13 +291,13 @@ public:
      * @brief Gets the current resolution in the X direction.
      * @return The current resolution in the X direction.
      */
-    [[nodiscard]] int getResX() const { return getDoc()->get<int>(Constants::KeyNames::Renderer::dispResX, 0); }
+    [[nodiscard]] int getResX() const { return getDoc().get<int>(Constants::KeyNames::Renderer::dispResX, 0); }
 
     /**
      * @brief Gets the current resolution in the Y direction.
      * @return The current resolution in the Y direction.
      */
-    [[nodiscard]] int getResY() const { return getDoc()->get<int>(Constants::KeyNames::Renderer::dispResY, 0); }
+    [[nodiscard]] int getResY() const { return getDoc().get<int>(Constants::KeyNames::Renderer::dispResY, 0); }
 
     /**
      * @brief Gets the current FPS.
@@ -310,14 +310,14 @@ public:
      *        The position is considered to be the top left corner of the screen.
      * @return The current position of the camera in the X direction.
      */
-    [[nodiscard]] int getPosX() const { return getDoc()->get<int>(Constants::KeyNames::Renderer::positionX, 0); }
+    [[nodiscard]] int getPosX() const { return getDoc().get<int>(Constants::KeyNames::Renderer::positionX, 0); }
 
     /**
      * @brief Gets the current position of the camera in the Y direction.
      *        The position is considered to be the top left corner of the screen.
      * @return The current position of the camera in the Y direction.
      */
-    [[nodiscard]] int getPosY() const { return getDoc()->get<int>(Constants::KeyNames::Renderer::positionY, 0); }
+    [[nodiscard]] int getPosY() const { return getDoc().get<int>(Constants::KeyNames::Renderer::positionY, 0); }
 
     /**
      * @brief Gets the current tile position of the camera in the X direction.

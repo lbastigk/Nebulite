@@ -9,9 +9,9 @@
 namespace Nebulite::Core {
 
 GlobalSpace::GlobalSpace(std::string const& name)
-    : Domain("Nebulite", *this, &document),
+    : Domain("Nebulite", *this, document),
       document("GlobalSpace Document"), // JSON
-      renderer(&document, &cmdVars.headless) // Renderer with reference to GlobalSpace and headless mode boolean
+      renderer(document, &cmdVars.headless) // Renderer with reference to GlobalSpace and headless mode boolean
 {
     //------------------------------------------
     // There should only be one GlobalSpace
@@ -57,7 +57,7 @@ Constants::Error GlobalSpace::updateInnerDomains() const {
     // For now, just update the JSON domain
     // Later on the logic here might be more complex
     // As more inner domains are added
-    Constants::Error const result = getDoc()->update();
+    Constants::Error const result = getDoc().update();
     // Renderer is not updated here, as it is updated in GlobalSpace::update()
     // TODO: See if we can generalize this so that we can safely call renderer.update() here as well
     return result;

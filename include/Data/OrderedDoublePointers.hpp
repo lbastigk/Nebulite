@@ -137,7 +137,7 @@ public:
      */
     odpvec* ensureOrderedCacheList(
         uint64_t uniqueId,
-        Nebulite::Data::JSON* reference,
+        Nebulite::Data::JSON& reference,
         std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther
         );
 
@@ -151,7 +151,7 @@ public:
      */
     odpvec* ensureOrderedCacheList(
         uint64_t uniqueId,
-        Nebulite::Data::JSON* reference,
+        Nebulite::Data::JSON& reference,
         std::vector<std::string_view> const& keys
         );
 

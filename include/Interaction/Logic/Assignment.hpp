@@ -58,7 +58,7 @@ public:
     /**
      * @brief Applies the assignment to the given target document.
      */
-    void apply(Data::JSON* self, Data::JSON* other);
+    void apply(Data::JSON& self, Data::JSON& other);
 
     /**
      * @brief Get the unevaluated expression as string
@@ -68,8 +68,8 @@ public:
     }
 
 private:
-    void setValueOfKey(std::string const& keyStr, std::string const& value, Data::JSON* target) const ;
-    void setValueOfKey(std::string const& keyStr, double const& value, Data::JSON* target) const ;
+    void setValueOfKey(std::string const& keyStr, std::string const& value, Data::JSON& target) const ;
+    void setValueOfKey(std::string const& keyStr, double const& value, Data::JSON& target) const ;
     void setValueOfKey(double const& value, double* target) const ;
 
     /**

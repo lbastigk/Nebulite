@@ -48,18 +48,15 @@ bool JsonRuleset::evaluateCondition(Interaction::Execution::DomainBase const* ot
 }
 
 void JsonRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
-    auto selfDoc = selfPtr->getDoc();
-    auto otherDoc = contextOther->getDoc();
-
     // 1.) Assignments
     for (auto& assignment : assignments) {
-        assignment.apply(selfDoc, otherDoc);
+        assignment.apply(selfPtr->getDoc(), contextOther->getDoc());
     }
 
     // 2.) Function calls
     for (auto& entry : functioncalls_global) {
         // replace vars
-        std::string call = entry.eval(otherDoc);
+        std::string call = entry.eval(contextOther->getDoc());
 
         // attach to task queue
         Nebulite::global().getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
@@ -67,12 +64,12 @@ void JsonRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
     }
     for (auto& entry : functioncalls_self) {
         // replace vars
-        std::string const call = __FUNCTION__ + entry.eval(otherDoc);
+        std::string const call = __FUNCTION__ + entry.eval(contextOther->getDoc());
         (void)selfPtr->parseStr(call);
     }
     for (auto& entry : functioncalls_other) {
         // replace vars
-        std::string const call = __FUNCTION__ + entry.eval(otherDoc);
+        std::string const call = __FUNCTION__ + entry.eval(contextOther->getDoc());
         (void)contextOther->parseStr(call);
     }
 }

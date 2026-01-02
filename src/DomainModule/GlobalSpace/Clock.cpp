@@ -7,7 +7,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
 
 Constants::Error Clock::update() {
     // Update current time from document
-    current_time_ms = domain.getDoc()->get<uint64_t>(Time::Key::time_t_ms);
+    current_time_ms = domain.getDoc().get<uint64_t>(Time::Key::time_t_ms);
 
     // Check all Timers against their desired time
     for (auto& clockEntry : std::views::values(clockEntries)) {
@@ -21,21 +21,21 @@ void Clock::readClocksFromDocument() {
     clockEntries.clear();
 
     // Read all clocks from the document
-    if (domain.getDoc()->memberType(Key::arr_active_clocks) != Data::JSON::KeyType::array) {
+    if (domain.getDoc().memberType(Key::arr_active_clocks) != Data::JSON::KeyType::array) {
         // No clocks found, nothing to do
         return;
     }
 
-    uint64_t const size = domain.getDoc()->memberSize(Key::arr_active_clocks);
+    uint64_t const size = domain.getDoc().memberSize(Key::arr_active_clocks);
 
     for (uint64_t i = 0; i < size; i++) {
         std::string key = std::string(Key::arr_active_clocks) + "[" + std::to_string(i) + "]";
-        if (auto const interval_type = domain.getDoc()->memberType(key); interval_type != Data::JSON::KeyType::value) {
+        if (auto const interval_type = domain.getDoc().memberType(key); interval_type != Data::JSON::KeyType::value) {
             // Invalid entry, skip
             continue;
         }
 
-        auto interval_ms = domain.getDoc()->get<uint64_t>(key);
+        auto interval_ms = domain.getDoc().get<uint64_t>(key);
         if (interval_ms < 1) {
             // Invalid interval, skip
             continue;
@@ -75,8 +75,8 @@ Constants::Error Clock::addClock(int const argc, char** argv) {
     }
 
     // Add to document
-    std::string const key = std::string(Key::arr_active_clocks) + "[" + std::to_string(domain.getDoc()->memberSize(Key::arr_active_clocks)) + "]";
-    domain.getDoc()->set(key, interval_ms);
+    std::string const key = std::string(Key::arr_active_clocks) + "[" + std::to_string(domain.getDoc().memberSize(Key::arr_active_clocks)) + "]";
+    domain.getDoc().set(key, interval_ms);
 
     // Create new ClockEntry
     clockEntries.emplace(interval_ms, ClockEntry(interval_ms, domain.getDoc(), current_time_ms));
@@ -87,13 +87,13 @@ Constants::Error Clock::addClock(int const argc, char** argv) {
 //------------------------------------------
 // ClockEntry
 
-Clock::ClockEntry::ClockEntry(uint64_t const& interval, Data::JSON* doc, uint64_t const& current_time) :
+Clock::ClockEntry::ClockEntry(uint64_t const& interval, Data::JSON& doc, uint64_t const& current_time) :
     last_trigger_ms(current_time),
     interval_ms(interval) {
     // Extract reference to global document entry
     std::string const key = std::string(Key::doc_status_clocks) + "." + intervalToKey(interval_ms);
-    doc->set(key, 0.0); // Initialize to 0.0
-    this->globalReference = doc->getStableDoublePointer(key);
+    doc.set(key, 0.0); // Initialize to 0.0
+    this->globalReference = doc.getStableDoublePointer(key);
 }
 
 void Clock::ClockEntry::update(uint64_t const& current_time) {

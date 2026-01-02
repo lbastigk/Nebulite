@@ -8,20 +8,20 @@
 
 namespace Nebulite::Interaction::Logic {
 
-void Assignment::setValueOfKey(std::string const& keyEvaluated, std::string const& val, Data::JSON* target) const {
+void Assignment::setValueOfKey(std::string const& keyEvaluated, std::string const& val, Data::JSON& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Logic::Assignment::Operation::set:
-        target->set<std::string>(keyEvaluated, val);
+        target.set<std::string>(keyEvaluated, val);
         break;
     case Logic::Assignment::Operation::add:
-        target->set_add(keyEvaluated, std::stod(val));
+        target.set_add(keyEvaluated, std::stod(val));
         break;
     case Logic::Assignment::Operation::multiply:
-        target->set_multiply(keyEvaluated, std::stod(val));
+        target.set_multiply(keyEvaluated, std::stod(val));
         break;
     case Logic::Assignment::Operation::concat:
-        target->set_concat(keyEvaluated, val);
+        target.set_concat(keyEvaluated, val);
         break;
     case Logic::Assignment::Operation::null:
         Nebulite::cerr() << "Could not determine context from key, skipping assignment" << Nebulite::endl;
@@ -32,20 +32,20 @@ void Assignment::setValueOfKey(std::string const& keyEvaluated, std::string cons
     }
 }
 
-void Assignment::setValueOfKey(std::string const& keyEvaluated, double const& val, Data::JSON* target) const {
+void Assignment::setValueOfKey(std::string const& keyEvaluated, double const& val, Data::JSON& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Logic::Assignment::Operation::set:
-        target->set<double>(keyEvaluated, val);
+        target.set<double>(keyEvaluated, val);
         break;
     case Logic::Assignment::Operation::add:
-        target->set_add(keyEvaluated, val);
+        target.set_add(keyEvaluated, val);
         break;
     case Logic::Assignment::Operation::multiply:
-        target->set_multiply(keyEvaluated, val);
+        target.set_multiply(keyEvaluated, val);
         break;
     case Logic::Assignment::Operation::concat:
-        target->set_concat(keyEvaluated, std::to_string(val));
+        target.set_concat(keyEvaluated, std::to_string(val));
         break;
     case Logic::Assignment::Operation::null:
         Nebulite::cerr() << "Could not determine context from key, skipping assignment" << Nebulite::endl;
@@ -80,20 +80,20 @@ void Assignment::setValueOfKey(double const& val, double* target) const {
     }
 }
 
-void Assignment::apply(Data::JSON* self, Data::JSON* other) {
+void Assignment::apply(Data::JSON& self, Data::JSON& other) {
     //------------------------------------------
     // Check what the target document to apply the ruleset to is
 
     Data::JSON* targetDocument;
     switch (onType) {
     case Logic::Assignment::Type::Self:
-        targetDocument = self;
+        targetDocument = &self;
         break;
     case Logic::Assignment::Type::Other:
-        targetDocument = other;
+        targetDocument = &other;
         break;
     case Logic::Assignment::Type::Global:
-        targetDocument = Nebulite::global().getDoc();
+        targetDocument = &Nebulite::global().getDoc();
         break;
     case Logic::Assignment::Type::null:
         // TODO: determine context from expression!
@@ -128,14 +128,14 @@ void Assignment::apply(Data::JSON* self, Data::JSON* other) {
                 // Still not possible, fallback to using JSON's internal methods
                 // This is slower, but should work in all cases
                 // No lock needed here, as we use JSON's threadsafe methods
-                setValueOfKey(key.eval(other), resolved, targetDocument);
+                setValueOfKey(key.eval(other), resolved, *targetDocument);
             }
         }
     }
     // If not, we resolve as string and update that way
     else {
         std::string const resolved = expression.eval(other);
-        setValueOfKey(key.eval(other), resolved, targetDocument);
+        setValueOfKey(key.eval(other), resolved, *targetDocument);
     }
 }
 } // namespace Nebulite::Interaction::Logic
