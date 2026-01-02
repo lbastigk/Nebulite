@@ -6,6 +6,7 @@ all
 always
 always-clear
 assert
+assertNonEmpty
 at
 beep
 broadcast
@@ -22,6 +23,7 @@ deload
 draft
 echo
 ensure-array
+ensureArray
 env
 error
 errorlog
@@ -30,6 +32,7 @@ exit
 feature-test
 fetch
 fill
+first
 for
 functree
 get
@@ -41,6 +44,7 @@ input-wait
 json
 key
 keyDelete
+last
 length
 listen
 load
@@ -52,6 +56,7 @@ mirror
 mod
 move
 mul
+nebs
 nop
 off
 on
@@ -87,6 +92,9 @@ state
 task
 texture-status
 time
+toBool
+toBoolString
+toDouble
 toInt
 toString
 typeAsNumber
