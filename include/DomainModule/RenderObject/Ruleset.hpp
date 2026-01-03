@@ -70,7 +70,7 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Ruleset) {
         // Bind functions
-        bindCategory(ruleset_name, ruleset_desc);
+        (void)bindCategory(ruleset_name, ruleset_desc);
         bindFunction(&Ruleset::reload, reload_name, reload_desc);
         bindFunction(&Ruleset::once, once_name, once_desc);
     }

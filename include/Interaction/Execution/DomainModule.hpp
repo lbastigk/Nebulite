@@ -114,7 +114,7 @@ public:
      * @return true if the category was created successfully, false if a category with the same name already exists
      * @todo Mark as [[nodiscard]] and refactor usage accordingly
      */
-    bool bindCategory(std::string_view const& name, std::string_view const& helpDescription) const {
+    [[nodiscard]] bool bindCategory(std::string_view const& name, std::string_view const& helpDescription) const {
         return funcTree->bindCategory(name, helpDescription);
     }
 
