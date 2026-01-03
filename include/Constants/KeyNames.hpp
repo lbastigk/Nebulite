@@ -23,39 +23,39 @@
 
 namespace Nebulite::Constants {
 
-// TODO: Use scopedKey instead of string_view for better scope safety
+// TODO: Use Data::ScopedKey::create<scope> instead of string_view for better scope safety
 // TODO: Remove unused keys and refactor used ones
-
-// Example usage:
-static constexpr Data::ScopedKey testKey{"renderer.", "time.t"}; // Only JsonScopes with scopePrefix "renderer." can use this key
-
 struct KeyNames {
     struct Renderer {
-        static constexpr Data::ScopedKey dispResX{"renderer.","resolution.X"};
-        static constexpr Data::ScopedKey dispResY{"renderer.","resolution.Y"};
-        static constexpr Data::ScopedKey positionX{"renderer.","position.X"};
-        static constexpr Data::ScopedKey positionY{"renderer.","position.Y"};
+        static constexpr char scope[] = "renderer.";
+        static constexpr auto dispResX = Data::ScopedKey::create<scope>("resolution.X");
+        static constexpr auto dispResY = Data::ScopedKey::create<scope>("resolution.Y");
+        static constexpr auto positionX = Data::ScopedKey::create<scope>("position.X");
+        static constexpr auto positionY = Data::ScopedKey::create<scope>("position.Y");
     };
 
     struct GlobalSpace {
+        static constexpr char scope[] = "";
+
         // TODO: Unify with DomainModule::GlobalSpace::Time
         //       Currently duplicated keys here and in that module
-        static constexpr Data::ScopedKey time_t{"","time.t"};
-        static constexpr Data::ScopedKey time_t_ms{"","time.t_ms"};
-        static constexpr Data::ScopedKey time_dt{"","time.dt"};
-        static constexpr Data::ScopedKey time_dt_ms{"","time.dt_ms"};
+        static constexpr auto time_t = Data::ScopedKey::create<scope>("time.t");
+        static constexpr auto time_t_ms = Data::ScopedKey::create<scope>("time.t_ms");
+        static constexpr auto time_dt = Data::ScopedKey::create<scope>("time.dt");
+        static constexpr auto time_dt_ms = Data::ScopedKey::create<scope>("time.dt_ms");
 
         // Keys for RNG
         // Due to the need of a pre-parse function in GlobalSpace (to modify RNGs before any command is parsed, making them deterministic),
         // these keys are defined here instead of in a DomainModule,
         // And the RNG implementation is directly in GlobalSpace as well
         struct RNG {
-            static constexpr Data::ScopedKey A{"random.","A"};
-            static constexpr Data::ScopedKey B{"random.","B"};
-            static constexpr Data::ScopedKey C{"random.","C"};
-            static constexpr Data::ScopedKey D{"random.","D"};
-            static constexpr Data::ScopedKey min{"random.","min"};
-            static constexpr Data::ScopedKey max{"random.","max"};
+            static constexpr char scope[] = "random.";
+            static constexpr auto A = Data::ScopedKey::create<scope>("A");
+            static constexpr auto B = Data::ScopedKey::create<scope>("B");
+            static constexpr auto C = Data::ScopedKey::create<scope>("C");
+            static constexpr auto D = Data::ScopedKey::create<scope>("D");
+            static constexpr auto min = Data::ScopedKey::create<scope>("min");
+            static constexpr auto max = Data::ScopedKey::create<scope>("max");
         };
 
         // Keys for Physics
@@ -63,7 +63,8 @@ struct KeyNames {
         //       Perhaps even in a DomainModule for GlobalSpace,
         //       Then we can move these keys there
         struct Physics {
-            static constexpr Data::ScopedKey G{"physics.","G"}; // Gravitational constant
+            static constexpr char scope[] = "physics.";
+            static constexpr auto G = Data::ScopedKey::create<scope>("G");
         };
     };
 

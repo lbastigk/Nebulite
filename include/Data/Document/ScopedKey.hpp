@@ -117,7 +117,6 @@ class ScopedKey {
      */
     std::string_view key;
 
-    // private non-constexpr constructor used by OwnedScopedKey
     // Any key shared publicly should be constructed with a required scope to avoid accidental misuse
     constexpr ScopedKey(std::optional<std::string_view> const& requiredScope, std::string_view const& keyInScope) noexcept
         : givenScope(requiredScope), key(keyInScope) {}
@@ -142,6 +141,28 @@ public:
 
     // Add Operator for appending suffixes that produces an OwnedScopedKey
     [[nodiscard]] OwnedScopedKey operator+(std::string_view const& suffix) const ;
+
+    // Compile-time check if the provided scope is either empty or ends with a dot.
+    static constexpr bool isValidScope(std::string_view const& scope) noexcept {
+        return scope.empty() || scope.back() == '.';
+    }
+
+    template <auto &RequiredScope, typename T>
+    static consteval ScopedKey create(T const& keyInScope) noexcept {
+        constexpr const char *s = RequiredScope;
+        // compute length at compile time
+        constexpr std::size_t len = [] (const char *p) constexpr {
+            std::size_t i = 0;
+            while (p[i] != '\0') ++i;
+            return i;
+        }(s);
+
+        static_assert(len == 0 || s[len - 1] == '.',
+                      "ScopedKey: The provided scope must be empty or end with a dot ('.')");
+
+        return ScopedKey(std::optional<std::string_view>(std::string_view(s, len)),
+                         std::string_view(keyInScope));
+    }
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_SCOPED_KEY_HPP
