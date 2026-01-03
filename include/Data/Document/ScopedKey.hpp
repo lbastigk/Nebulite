@@ -30,6 +30,10 @@
 //------------------------------------------
 // Forward declarations
 
+namespace Nebulite::Core {
+class JsonScope;
+} // namespace Nebulite::Core
+
 namespace Nebulite::Data {
 class ScopedKey;
 class OwnedScopedKey;
@@ -123,7 +127,7 @@ class ScopedKey {
 
 public:
     friend class JsonScopeBase;
-    friend class JsonScope;
+    friend class Core::JsonScope;
 
     // No scope given, expected at root of JsonScopeBase
     template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
@@ -140,6 +144,4 @@ public:
     [[nodiscard]] OwnedScopedKey operator+(std::string_view const& suffix) const ;
 };
 } // namespace Nebulite::Data
-
-
 #endif // NEBULITE_DATA_DOCUMENT_SCOPED_KEY_HPP

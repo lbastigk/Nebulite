@@ -13,8 +13,8 @@
 #include <thread>
 
 // Nebulite
+#include "Core/JsonScope.hpp"
 #include "Core/RenderObject.hpp"
-#include "Data/Document/JsonScope.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

@@ -22,7 +22,7 @@ Constants::Error General::eval(int argc, char** argv) {
     std::string const args = Utility::StringHandler::recombineArgs(argc, argv);
 
     // Evaluate expression
-    Data::JsonScope emptyDoc;
+    Core::JsonScope emptyDoc;
     Interaction::ContextBase context{emptyDoc,emptyDoc,Nebulite::global()};
     std::string const argsEvaluated = Interaction::Logic::Expression::eval(args,context);
 

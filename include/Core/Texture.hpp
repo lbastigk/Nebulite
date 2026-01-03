@@ -23,7 +23,7 @@ public:
      * @brief Constructs a new Texture domain.
      * @param documentReference Reference to the JSON document for this domain.
      */
-    explicit Texture(Data::JsonScope& documentReference);
+    explicit Texture(Core::JsonScope& documentReference);
 
     /**
      * @brief Destroys the Texture and frees resources.

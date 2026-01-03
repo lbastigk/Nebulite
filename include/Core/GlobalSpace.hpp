@@ -73,7 +73,7 @@ public:
     //------------------------------------------
     // Overwrite getDoc so its publicly accessible
 
-    Data::JsonScope& getDoc() const override {
+    Core::JsonScope& getDoc() const override {
         return documentScope;
     }
 
@@ -94,6 +94,7 @@ public:
      * @param tq The task queue to resolve.
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
+     * @todo Remove this function head and all mentions of it
      */
     Data::TaskQueueResult resolveTaskQueue(Data::TaskQueue& tq, uint64_t const* waitCounter) const;
 
@@ -236,7 +237,7 @@ private:
     // creating a JsonScope in the Constructor
     // And then using getDoc() to access it,
     // but this is more difficult due to lifetime issues it seems.
-    Data::JsonScope globalDoc = Data::JsonScope("GlobalSpace Document");
+    Core::JsonScope globalDoc = Core::JsonScope("GlobalSpace Document");
 
     // DocumentCache for read-only documents
     Data::DocumentCache docCache;

@@ -78,7 +78,7 @@ private:
      * @param self The Domain instance associated with the entry.
      */
     static void getFunctionCalls(
-        Data::JsonScope& entryDoc,
+        Core::JsonScope& entryDoc,
         JsonRuleset& Ruleset,
         Interaction::Execution::DomainBase const& self
         );
@@ -92,7 +92,7 @@ private:
      */
     static bool getExpression(
         Logic::Assignment& assignmentExpr,
-        Data::JsonScope& entry,
+        Core::JsonScope& entry,
         size_t const& index
         );
 
@@ -103,14 +103,14 @@ private:
      * @param self The JSON document of context self.
      * @return True if the expressions were successfully extracted, false otherwise.
      */
-    static bool getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JsonScope& entry, Data::JsonScope& self);
+    static bool getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Core::JsonScope& entry, Core::JsonScope& self);
 
     /**
      * @brief Extracts a logical argument from a JSON entry document.
      * @param entry The JSON entry document to extract the argument from.
      * @return The extracted logical argument as a string.
      */
-    static std::string getLogicalArg(Data::JsonScope& entry);
+    static std::string getLogicalArg(Core::JsonScope& entry);
 
     /**
      * @brief Extracts a Ruleset object from a JSON entry document.
@@ -120,8 +120,8 @@ private:
      * @return True if the Ruleset was successfully extracted, false otherwise.
      */
     static bool getJsonRuleset(
-        Data::JsonScope& doc,
-        Data::JsonScope& entry,
+        Core::JsonScope& doc,
+        Core::JsonScope& entry,
         std::string const& key
         );
 
@@ -133,7 +133,7 @@ private:
      * @return An optional shared pointer to the parsed Ruleset object, or std::monostate if parsing failed.
      */
     static AnyRuleset getRuleset(
-        Data::JsonScope& doc,
+        Core::JsonScope& doc,
         std::string const& key,
         Interaction::Execution::DomainBase& self
         );
@@ -144,7 +144,7 @@ private:
      * @param entry The Ruleset object to optimize.
      * @param self The Domain instance associated with the entries.
      */
-    static void optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JsonScope& self);
+    static void optimize(std::shared_ptr<JsonRuleset> const& entry, Core::JsonScope& self);
 
     /**
      * @brief Sets metadata in the object itself and in each Ruleset entry, including IDs, indices, and estimated computational cost.

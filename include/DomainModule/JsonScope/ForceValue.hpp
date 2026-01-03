@@ -15,7 +15,8 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Data {
+
+namespace Nebulite::Core {
 class JsonScope;
 } // namespace Nebulite::Data
 
@@ -29,7 +30,7 @@ namespace Nebulite::DomainModule::JsonScope {
  *          to have specified values, overriding any existing values. It is useful for
  *          testing or overriding configuration values.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Data::JsonScope, ForceValue) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::JsonScope, ForceValue) {
 public:
     Constants::Error update() override;
     void reinit() override {}
@@ -61,7 +62,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JsonScope, ForceValue){
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::JsonScope, ForceValue){
         // Binding
         (void)bindCategory(force_name, force_desc);
         BINDFUNCTION(&ForceValue::force_set, force_set_name, force_set_desc);

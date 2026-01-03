@@ -23,7 +23,7 @@
 //------------------------------------------
 namespace Nebulite::Core {
 
-Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, unsigned int const& X, unsigned int const& Y)
+Renderer::Renderer(Core::JsonScope& documentReference, bool* flag_headless, unsigned int const& X, unsigned int const& Y)
     : Domain("Renderer", *this, documentReference),
       env(documentReference){
 

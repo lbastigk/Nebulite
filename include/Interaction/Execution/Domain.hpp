@@ -28,14 +28,11 @@
 namespace Nebulite::Core {
 class Environment;
 class GlobalSpace;
+class JsonScope;
 class Renderer;
 class RenderObject;
 class Texture;
 } // namespace Nebulite::Core
-
-namespace Nebulite::Data {
-class JsonScope;    // TODO: Move to Nebulite::Core for consistency with other domains!
-} // namespace Nebulite::Data
 
 //------------------------------------------
 // Forward declarations: Other classes
@@ -70,7 +67,7 @@ template<typename> class Domain;
 
 class DocumentAccessor {
 public:
-    explicit DocumentAccessor(Data::JsonScope& d) : documentScope(d) {}
+    explicit DocumentAccessor(Core::JsonScope& d) : documentScope(d) {}
 
     virtual ~DocumentAccessor();
 
@@ -110,12 +107,12 @@ private:
      *          For others, it's a reference to their JSON document.
      * @return A reference to the internal JSON document.
      */
-    virtual Data::JsonScope& getDoc() const ;
+    virtual Core::JsonScope& getDoc() const ;
 
     /**
      * @brief Each domain uses a JSON document to store its data.
      */
-    Data::JsonScope& documentScope;
+    Core::JsonScope& documentScope;
 };
 }
 
@@ -132,7 +129,7 @@ namespace Nebulite::Interaction::Execution {
  */
 class DomainBase : public DocumentAccessor {
 public:
-    DomainBase(std::string const& name, Data::JsonScope& documentReference)
+    DomainBase(std::string const& name, Core::JsonScope& documentReference)
         : DocumentAccessor(documentReference), domainName(name){
         funcTree = std::make_shared<FuncTree<Constants::Error>>(
             name,
@@ -328,7 +325,7 @@ private:
     DomainType& domain;
 
 public:
-    Domain(std::string const& name, DomainType& domainTypeReference, Data::JsonScope& documentReference)
+    Domain(std::string const& name, DomainType& domainTypeReference, Core::JsonScope& documentReference)
         : DomainBase(name, documentReference), domainName(name), domain(domainTypeReference) {
     }
 

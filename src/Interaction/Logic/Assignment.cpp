@@ -8,7 +8,7 @@
 
 namespace Nebulite::Interaction::Logic {
 
-void Assignment::setValueOfKey(std::string const& keyEvaluated, std::string const& val, Data::JsonScope& target) const {
+void Assignment::setValueOfKey(std::string const& keyEvaluated, std::string const& val, Core::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Logic::Assignment::Operation::set:
@@ -32,7 +32,7 @@ void Assignment::setValueOfKey(std::string const& keyEvaluated, std::string cons
     }
 }
 
-void Assignment::setValueOfKey(std::string const& keyEvaluated, double const& val, Data::JsonScope& target) const {
+void Assignment::setValueOfKey(std::string const& keyEvaluated, double const& val, Core::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Logic::Assignment::Operation::set:
@@ -80,11 +80,11 @@ void Assignment::setValueOfKey(double const& val, double* target) const {
     }
 }
 
-void Assignment::apply(Data::JsonScope& self, Data::JsonScope& other) {
+void Assignment::apply(Core::JsonScope& self, Core::JsonScope& other) {
     //------------------------------------------
     // Check what the target document to apply the ruleset to is
 
-    Data::JsonScope* targetDocument;
+    Core::JsonScope* targetDocument;
     switch (onType) {
     case Logic::Assignment::Type::Self:
         targetDocument = &self;

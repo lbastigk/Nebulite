@@ -15,7 +15,7 @@
 
 // Nebulite
 #include "Core/Texture.hpp"
-#include "Data/Document/JsonScope.hpp"
+#include "JsonScope.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
@@ -229,7 +229,7 @@ public:
 
 private:
     // Each RenderObject has its own JSON document
-    Data::JsonScope document;
+    Core::JsonScope document;
 
     //------------------------------------------
     // Initialization

@@ -1,15 +1,15 @@
 #include "Nebulite.hpp"
+#include "Core/JsonScope.hpp"
 #include "Data/Document/JSON.hpp"
-#include "Data/Document/JsonScope.hpp"
 #include "DomainModule/Initializer.hpp"
 
 // JsonScope methods
-namespace Nebulite::Data {
+namespace Nebulite::Core {
 
 //------------------------------------------
 // Constructors for JsonScope
 
-JsonScope::JsonScope(JSON& doc, std::string const& prefix, std::string const& name)
+JsonScope::JsonScope(Data::JSON& doc, std::string const& prefix, std::string const& name)
     : Domain(name, *this, *this),
       JsonScopeBase(doc, prefix)
 {
@@ -51,7 +51,7 @@ void JsonScope::deserialize(std::string const& serialOrLinkWithCommands) {
         }
         else {
             // Deserialize into a temporary JSON, then set as sub-document
-            JSON tmp;
+            Data::JSON tmp;
             tmp.deserialize(serialOrLink);
             auto scopePrefixWithoutDot = getScopePrefix();
             if (!scopePrefixWithoutDot.empty() && scopePrefixWithoutDot.ends_with(".")) {
@@ -70,8 +70,8 @@ void JsonScope::deserialize(std::string const& serialOrLinkWithCommands) {
 }
 
 // Proper scope sharing with nested unscoped key generation
-JsonScope& JsonScope::shareScope(ScopedKey const& key) const {
+JsonScope& JsonScope::shareScope(Data::ScopedKey const& key) const {
     return baseDocument->shareManagedScope(key.full(*this));
 }
 
-} // namespace Nebulite::Data
+} // namespace Nebulite::Core

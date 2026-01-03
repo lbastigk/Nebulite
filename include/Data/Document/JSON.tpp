@@ -1,5 +1,7 @@
+#ifndef NEBULITE_DATA_DOCUMENT_JSON_TPP
+#define NEBULITE_DATA_DOCUMENT_JSON_TPP
+
 #include "Data/Document/JSON.hpp"
-#include "Data/Document/JsonScope.hpp"
 
 namespace Nebulite::Data {
 
@@ -16,16 +18,14 @@ T JSON::get(std::string const& key, T const& defaultValue){
 
     // Check if a transformation is present
     if (key.contains('|')){
-        auto optionalVal = getWithTransformations<T>(key);
-        if (optionalVal.has_value()){
+        if (auto optionalVal = getWithTransformations<T>(key); optionalVal.has_value()){
             return optionalVal.value();
         }
         return defaultValue;
     }
 
     // Get variant and convert to requested type
-    auto var = getVariant(key);
-    if(var.has_value()){
+    if(auto const var = getVariant(key); var.has_value()){
         return convertVariant<T>(var.value(), defaultValue);
     }
     return defaultValue;
@@ -201,10 +201,10 @@ namespace ConverterHelper {
     }
 } // namespace ConverterHelper
 
-namespace {
+namespace breakBuild {
 template <typename From, typename To>
 struct unsupported_conversion;
-}
+} // anonymous namespace
 
 template<typename newType>
 newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue){
@@ -214,7 +214,7 @@ newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType con
         using StoredT = std::decay_t<decltype(stored)>;
 
         // [DOUBLE] -> [BOOL]
-        // First, as static_cast doesnt work well for this conversion
+        // First, as static_cast doesn't work well for this conversion
         if constexpr (std::is_same_v<StoredT, double> && std::is_same_v<newType, bool>){
             return std::fabs(stored) > std::numeric_limits<double>::epsilon();
         }
@@ -272,7 +272,8 @@ newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType con
         //------------------------------------------
         // [ERROR] Unsupported conversion
         else {
-            unsupported_conversion<StoredT, newType> error;
+            breakBuild::unsupported_conversion<StoredT, newType> error;
+            (void)error; // to avoid unused variable warning
             return defaultValue; // unreachable, but keeps the compiler happy
 
             // Old runtime error message
@@ -285,3 +286,4 @@ newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType con
     var);
 }
 }   // namespace Nebulite::Utility
+#endif // NEBULITE_DATA_DOCUMENT_JSON_TPP

@@ -15,13 +15,14 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Data {
+
+namespace Nebulite::Core {
 class JsonScope;
 } // namespace Nebulite::Data
 
 //------------------------------------------
 namespace Nebulite::DomainModule::JsonScope {
-NEBULITE_DOMAINMODULE(Nebulite::Data::JsonScope, Debug) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::JsonScope, Debug) {
 public:
     Constants::Error update() override;
     void reinit() override {}
@@ -42,7 +43,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JsonScope, Debug) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::JsonScope, Debug) {
         // Binding
         BINDFUNCTION(&Debug::print, print_name, print_desc);
     }

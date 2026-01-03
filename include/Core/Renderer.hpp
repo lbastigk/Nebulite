@@ -39,7 +39,7 @@ public:
      * @param X Width of the rendering area.
      * @param Y Height of the rendering area.
      */
-    Renderer(Data::JsonScope& documentReference, bool* flag_headless, unsigned int const& X = 1080, unsigned int const& Y = 1080);
+    Renderer(Core::JsonScope& documentReference, bool* flag_headless, unsigned int const& X = 1080, unsigned int const& Y = 1080);
 
     //------------------------------------------
     // Disallow copying and moving

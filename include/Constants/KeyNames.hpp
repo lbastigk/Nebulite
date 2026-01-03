@@ -19,7 +19,7 @@
 #define NEBULITE_CONSTANTS_KEYNAMES_HPP
 
 #include <string_view>
-#include "Data/Document/JsonScope.hpp"
+#include "Core/JsonScope.hpp"
 
 namespace Nebulite::Constants {
 

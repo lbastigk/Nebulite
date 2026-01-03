@@ -1,5 +1,5 @@
 #include "Nebulite.hpp"
-#include "Data/Document/JsonScope.hpp"
+#include "Core/JsonScope.hpp"
 #include "DomainModule/JsonScope/SimpleData.hpp"
 
 namespace Nebulite::DomainModule::JsonScope {

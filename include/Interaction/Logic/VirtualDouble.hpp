@@ -78,7 +78,7 @@ public:
      *          If the key is not found within the associated document, the double value will default to 0.
      * @param json The JSON document to retrieve the value from.
      */
-    void setUpInternalCache(Data::JsonScope& json);
+    void setUpInternalCache(Core::JsonScope& json);
 
     /**
      * @brief Update the cache value from the global DocumentCache.
@@ -96,7 +96,7 @@ public:
      *          Allowing it to access and modify the value directly.
      * @param json The JSON document to retrieve the stable double pointer from.
      */
-    void setUpExternalCache(Data::JsonScope& json);
+    void setUpExternalCache(Core::JsonScope& json);
 
     /**
      * @brief Set the value of the VirtualDouble directly.

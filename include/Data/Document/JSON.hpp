@@ -24,8 +24,12 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Data {
+
+namespace Nebulite::Core {
 class JsonScope;
+} // namespace Nebulite::Core
+
+namespace Nebulite::Data {
 class JsonScopeBase;
 } // namespace Nebulite::Data
 
@@ -139,7 +143,7 @@ private:
      * @brief Lazy-initialized full JsonScope representing the entire document.
      * @return Reference to the full JsonScope.
      */
-    JsonScope& fullScope();
+    Core::JsonScope& fullScope();
 
     /**
      * @brief Helper function to convert any type from cache into another type.
@@ -191,7 +195,7 @@ private:
     /**
      * @brief Managed scopes for shareManagedScope.
      */
-    std::vector<std::unique_ptr<JsonScope>> managedScopes;
+    std::vector<std::unique_ptr<Core::JsonScope>> managedScopes;
 
     /**
      * @brief Managed scopeBases for shareManagedScopeBase.
@@ -225,7 +229,7 @@ public:
      * @param prefix The prefix representing the part of the JSON document to share.
      * @return A JsonScope representing a part of the JSON document.
      */
-    JsonScope shareScope(std::string const& prefix = "");
+    Core::JsonScope shareScope(std::string const& prefix = "");
 
     /**
      * @brief Shares part JSON document as a JsonScop that is managed internally.
@@ -235,7 +239,7 @@ public:
      *               If empty, shares the entire document.
      * @return A JsonScope reference representing a part of the JSON document.
      */
-    JsonScope& shareManagedScope(std::string const& prefix = "");
+    Core::JsonScope& shareManagedScope(std::string const& prefix = "");
 
     /**
      * @brief Shares part JSON document as a JsonScopeBase that is managed internally.

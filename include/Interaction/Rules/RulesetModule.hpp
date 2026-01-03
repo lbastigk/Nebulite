@@ -17,7 +17,7 @@
 // External
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
+#include "../../Core/JsonScope.hpp"
 #include "Data/OrderedDoublePointers.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 
@@ -129,7 +129,7 @@ private:
      * @param keys The array of keys to retrieve values for
      * @return An array of values corresponding to the provided keys
      */
-    Data::odpvec* ensureOrderedCacheList(Data::JsonScope& doc, std::vector<std::string_view> const& keys) const {
+    Data::odpvec* ensureOrderedCacheList(Core::JsonScope& doc, std::vector<std::string_view> const& keys) const {
         return doc.getOrderedCacheListMap()->ensureOrderedCacheList(id, keys);
     }
 

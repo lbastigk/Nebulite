@@ -1,8 +1,9 @@
 #include "DomainModule/Texture/General.hpp"
 
 #include "Constants/KeyNames.hpp"
+#include "Core/JsonScope.hpp"
 #include "Core/Texture.hpp"
-#include "Data/Document/JsonScope.hpp"
+
 
 namespace Nebulite::DomainModule::Texture {
 

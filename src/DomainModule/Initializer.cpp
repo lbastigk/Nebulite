@@ -3,10 +3,10 @@
 //------------------------------------------
 // Domain includes
 #include "Core/GlobalSpace.hpp"
+#include "Core/JsonScope.hpp"
 #include "Core/Renderer.hpp"
 #include "Core/Texture.hpp"
 #include "Core/RenderObject.hpp"
-#include "Data/Document/JSON.hpp"
 
 //------------------------------------------
 // DomainModules
@@ -78,7 +78,7 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     target->bindVariable(&target->cmdVars.recover, "recover", "Enable recoverable error mode");
 }
 
-void Initializer::initJsonScope(Data::JsonScope* target) {
+void Initializer::initJsonScope(Core::JsonScope* target) {
     // Initialize DomainModules
     using namespace Nebulite::DomainModule::JsonScope;
     target->initModule<SimpleData>("JSON Simple Data Functions", &target->shareScopeBase(""));

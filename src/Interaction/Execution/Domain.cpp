@@ -1,13 +1,13 @@
 #include "Nebulite.hpp"
 #include "Interaction/Execution/Domain.hpp"
-#include "Data/Document/JsonScope.hpp"
+#include "../../../include/Core/JsonScope.hpp"
 
 // Document Accessor
 namespace Nebulite::Interaction::Execution {
 
 DocumentAccessor::~DocumentAccessor() = default;
 
-Data::JsonScope& DocumentAccessor::getDoc() const {
+Core::JsonScope& DocumentAccessor::getDoc() const {
     return documentScope;
 }
 

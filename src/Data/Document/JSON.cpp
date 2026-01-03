@@ -2,7 +2,7 @@
 
 #include "Nebulite.hpp"
 #include "Data/Document/JSON.hpp"
-#include "Data/Document/JsonScope.hpp"
+#include "Core/JsonScope.hpp"
 
 namespace Nebulite::Data {
 
@@ -37,14 +37,14 @@ JSON::JSON(JSON&& other) noexcept {
 //------------------------------------------
 // Scope sharing
 
-JsonScope JSON::shareScope(std::string const& prefix) {
+Core::JsonScope JSON::shareScope(std::string const& prefix) {
     std::scoped_lock const lockGuard(mtx);
-    return JsonScope(*this, prefix, "Externally Managed JSON Scope");
+    return Core::JsonScope(*this, prefix, "Externally Managed JSON Scope");
 }
 
-JsonScope& JSON::shareManagedScope(std::string const& prefix) {
+Core::JsonScope& JSON::shareManagedScope(std::string const& prefix) {
     std::scoped_lock const lockGuard(mtx);
-    auto newScope = std::make_unique<JsonScope>(*this, prefix, "Managed Shared JSON Scope");
+    auto newScope = std::make_unique<Core::JsonScope>(*this, prefix, "Managed Shared JSON Scope");
     managedScopes.push_back(std::move(newScope));
     return *managedScopes.back();
 }
@@ -59,8 +59,8 @@ JsonScopeBase& JSON::shareManagedScopeBase(std::string const& prefix) {
 //------------------------------------------
 // Private methods
 
-JsonScope& JSON::fullScope() {
-    static JsonScope fullScopeInstance(*this, "");
+Core::JsonScope& JSON::fullScope() {
+    static Core::JsonScope fullScopeInstance(*this, "");
     return fullScopeInstance;
 }
 
