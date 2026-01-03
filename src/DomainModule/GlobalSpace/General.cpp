@@ -225,7 +225,7 @@ Constants::Error General::inScope(std::span<std::string const> const& args) {
     std::string const scope = args[1];
 
     auto const& s = domain.getDoc().shareScope(scope);
-    std::string const& cmd = Utility::StringHandler::recombineArgs(args.subspan(2));
+    std::string const& cmd = std::string(__FUNCTION__) + std::string(" ") + Utility::StringHandler::recombineArgs(args.subspan(2));
     return s.parseStr(cmd);
 }
 
