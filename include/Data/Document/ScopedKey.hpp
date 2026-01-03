@@ -116,12 +116,16 @@ class ScopedKey {
      *          that matches or is a sub-scope of this prefix.
      *          If not set, the key is assumed to be at the root scope.
      */
+    // NOLINTNEXTLINE
     std::optional<std::string_view> givenScope = std::nullopt;
+    // Ignored due to warnings with the compile-time construction: Usage of non-initialized class field 'givenScope' when called from function 'create<RequiredScope, T>'
 
     /**
      * @brief The key string within the scope.
      */
+    // NOLINTNEXTLINE
     std::string_view key;
+    // Ignored due to warnings with the compile-time construction: Usage of non-initialized class field 'key' when called from function 'create<RequiredScope, T>'
 
     // Any key shared publicly should be constructed with a required scope to avoid accidental misuse
     constexpr ScopedKey(std::optional<std::string_view> const& requiredScope, std::string_view const& keyInScope) noexcept
@@ -130,10 +134,6 @@ class ScopedKey {
     // allow the owning type to construct views pointing into its buffer
     friend class OwnedScopedKey;
 
-    // Compile-time check if the provided scope is either empty or ends with a dot.
-    static constexpr bool isValidScope(std::string_view const& scope) noexcept {
-        return scope.empty() || scope.back() == '.';
-    }
 public:
     friend class JsonScopeBase;
     friend class Core::JsonScope;
@@ -147,11 +147,18 @@ public:
     constexpr ScopedKey(T const& keyInScope) noexcept
         : key(std::string_view(keyInScope)) {}
 
-    // Create a ScopedKey with a required scope, checked at compile time
+    /**
+     * @brief Create a ScopedKey with a required scope at compile time.
+     * @details Performs a static assert to ensure the scope is valid: Either empty or ends with a dot ('.').
+     * @tparam RequiredScope The required scope prefix for this key. Use a static constexpr char
+     * @tparam T The type of the key string (must be convertible to std::string_view).
+     * @param keyInScope The key string within the required scope.
+     * @return A ScopedKey instance with the specified required scope and key.
+     */
     template <auto &RequiredScope, typename T>
     static consteval ScopedKey create(T const& keyInScope) noexcept {
-        constexpr const char *s = RequiredScope;
         // compute length at compile time
+        constexpr const char *s = RequiredScope;
         constexpr std::size_t len = [] (const char *p) constexpr {
             std::size_t i = 0;
             while (p[i] != '\0') ++i;

@@ -78,8 +78,8 @@ namespace RenderObject {
  * @namespace Nebulite::DomainModule::JsonScope
  * @brief Contains all classes, functions, types and variables related to the JSON DomainModules.
  */
-namespace JSON {
-} // namespace JSON
+namespace JsonScope {
+} // namespace JsonScope
 } // namespace DomainModule
 
 /**
@@ -165,7 +165,7 @@ Nebulite::Utility::CaptureStream& cerr();
  * @brief End line string for capturing output
  *        At the moment, this is just a placeholder for `"\n"`.
  */
-inline constexpr const char* endl = "\n";
+inline constexpr auto endl = "\n";
 
 } // namespace Nebulite
 
