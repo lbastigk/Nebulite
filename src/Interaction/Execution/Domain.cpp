@@ -1,3 +1,4 @@
+#include "Nebulite.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Data/Document/JsonScope.hpp"
 
@@ -56,6 +57,63 @@ Data::MappedOrderedDoublePointers* DomainBase::getDocumentCacheMap() const {
 
 std::scoped_lock<std::recursive_mutex> DomainBase::lockDocument() const {
     return documentScope.lock();
+}
+
+std::vector<std::string> DomainBase::stringToDeserializeTokens(std::string const& serialOrLinkWithCommands) const {
+    //------------------------------------------
+    // Split the input into tokens
+    std::vector<std::string> tokens;
+    if (Data::JSON::isJsonOrJsonc(serialOrLinkWithCommands)) {
+        // Direct JSON string, no splitting
+        tokens.push_back(serialOrLinkWithCommands);
+    } else {
+        // Split based on transformations, indicated by '|'
+        tokens = Utility::StringHandler::split(serialOrLinkWithCommands, '|');
+    }
+    return tokens;
+}
+
+void DomainBase::baseDeserialization(std::string const& serialOrLinkWithCommands) const {
+    //------------------------------------------
+    // Split the input into tokens
+    auto tokens = stringToDeserializeTokens(serialOrLinkWithCommands);
+    if (tokens.empty()) {
+        return;
+    }
+
+    //------------------------------------------
+    // Load the JSON file
+
+    // Pass only the serial/link part to deserialize
+    // Argument parsing happens at the higher level
+    std::string const serialOrLink = tokens[0];
+    getDoc().deserialize(serialOrLink);
+
+    //------------------------------------------
+    // Now apply modifications
+    tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
+    for (auto const& token : tokens) {
+        if (token.empty())
+            continue; // Skip empty tokens
+
+        // Legacy: Handle key=value pairs
+        if (auto const pos = token.find('='); pos != std::string::npos) {
+            // Handle transformation (key=value)
+            std::string keyAndValue = token;
+            if (pos != std::string::npos)
+                keyAndValue[pos] = ' ';
+
+            // New implementation through functioncall
+            if (std::string const callStr = std::string(__FUNCTION__) + " set " + keyAndValue; parseStr(callStr) != Constants::ErrorTable::NONE()) {
+                Nebulite::cerr() << "Failed to apply deserialize transformation: " << callStr << Nebulite::endl;
+            }
+        } else {
+            // Forward to FunctionTree for resolution
+            if (std::string const callStr = std::string(__FUNCTION__) + " " + token; parseStr(callStr) != Constants::ErrorTable::NONE()) {
+                Nebulite::cerr() << "Failed to apply deserialize transformation: " << callStr << Nebulite::endl;
+            }
+        }
+    }
 }
 
 } // namespace Nebulite::Interaction::Execution

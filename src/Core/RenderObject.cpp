@@ -114,61 +114,7 @@ std::string RenderObject::serialize() {
 }
 
 void RenderObject::deserialize(std::string const& serialOrLink) {
-    // Check if argv1 provided is an object
-    if (Data::JSON::isJsonOrJsonc(serialOrLink)) {
-        document.deserialize(serialOrLink);
-    } else {
-        //------------------------------------------
-        // TODO: This logic of tokenization and parsing
-        //       should be moved as a feature into domain, if possible
-
-        //------------------------------------------
-        // Split the input into tokens
-        std::vector<std::string> tokens = Utility::StringHandler::split(serialOrLink, '|');
-
-        //------------------------------------------
-        // Validity check
-        if (tokens.empty()) {
-            return; // or handle error properly
-        }
-
-        //------------------------------------------
-        // Load the JSON file
-        // First token is the path or serialized JSON
-        document.deserialize(tokens[0]);
-
-        //------------------------------------------
-        // Now apply modifications
-        tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
-        for (auto const& token : tokens) {
-            if (token.empty())
-                continue; // Skip empty tokens
-
-            // Legacy: Handle key=value pairs
-            if (token.find('=') != std::string::npos) {
-                // Handle modifier (key=value)
-                auto const pos = token.find('=');
-                std::string key = token.substr(0, pos);
-                std::string value = token.substr(pos + 1);
-                std::string call = __FUNCTION__;
-                call.append(" " + std::string(DomainModule::JsonScope::SimpleData::set_name));
-                call.append(" " + key);
-                call.append(" " + value);
-                if (auto const err = parseStr(call); err != Constants::ErrorTable::NONE()) {
-                    Nebulite::cerr() << "Warning: Failed to parse modifier '" << token << "' during RenderObject deserialization." << Nebulite::endl;
-                    Nebulite::cerr() << "Error Code: " << err.getDescription() << Nebulite::endl;
-                }
-            }
-            // Handle function call
-            else {
-                // Forward to FunctionTree for resolution
-                if (auto const err = parseStr(__FUNCTION__ + std::string(" ") + token); err != Constants::ErrorTable::NONE()) {
-                    Nebulite::cerr() << "Warning: Failed to parse function call '" << token << "' during RenderObject deserialization." << Nebulite::endl;
-                    Nebulite::cerr() << "Error Code: " << err.getDescription() << Nebulite::endl;
-                }
-            }
-        }
-    }
+    baseDeserialization(serialOrLink);
 
     // Re-Establish frequent references
     linkFrequentRefs();
@@ -177,6 +123,8 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
     flag.reloadInvokes = true;
     flag.calculateText = true;
 
+    //------------------------------------------
+    // Reinitialize everything
     reinitModules();
 
     //------------------------------------------

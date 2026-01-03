@@ -67,7 +67,7 @@ public:
     //------------------------------------------
     // Overwrite deserialization to add token parsing
 
-    void deserialize(std::string const& serialOrLink) override ;
+    void deserialize(std::string const& serialOrLinkWithCommands) override ;
 };
 
 } // namespace Nebulite::Data

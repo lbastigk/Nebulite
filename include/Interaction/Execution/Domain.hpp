@@ -263,6 +263,23 @@ protected:
         return funcTree;
     }
 
+    /**
+     * @brief Helper function to split a serialization or link with commands into tokens.
+     * @param serialOrLinkWithCommands The serialization string or link with commands to split.
+     * @return A vector of tokens. First token is the serialization or link, subsequent tokens are commands.
+     */
+    std::vector<std::string> stringToDeserializeTokens(std::string const& serialOrLinkWithCommands) const ;
+
+    /**
+     * @brief Base deserialization function to be called by derived classes in their own deserialization.
+     *        This ensures that the common deserialization logic is executed.
+     *        Turns the serial or link with commands into the document, parses all commands.
+     *        Using this in any deserialization implementation ensures that command parsing happens at the highest level.
+     *        Re-initializes all DomainModules in the json scope after deserialization.
+     * @param serialOrLinkWithCommands The serialization string or link with commands to deserialize.
+     */
+    void baseDeserialization(std::string const& serialOrLinkWithCommands) const ;
+
 private:
     /**
      * @brief The name of the domain.
