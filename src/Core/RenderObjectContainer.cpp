@@ -61,17 +61,9 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_
 
 namespace {
 std::pair<int16_t, int16_t> getTilePos(RenderObject* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
-    SDL_Rect const* dst = toAppend->getDstRect();
-
-    // Calculate correspondingTilePositionX using positionX
-    auto const positionX = dst->x;
-    auto correspondingTilePositionX = static_cast<int16_t>(positionX / static_cast<double>(displayResolutionX));
-
-    // Calculate correspondingTilePositionY using positionY
-    auto const positionY = dst->y;
-    auto correspondingTilePositionY = static_cast<int16_t>(positionY / static_cast<double>(displayResolutionY));
-
-    // Form pair and return
+    auto pos = toAppend->getPosition();
+    auto correspondingTilePositionX = static_cast<int16_t>(pos.x / static_cast<double>(displayResolutionX));
+    auto correspondingTilePositionY = static_cast<int16_t>(pos.y / static_cast<double>(displayResolutionY));
     return std::make_pair(correspondingTilePositionX, correspondingTilePositionY);
 }
 } // anonymous namespace

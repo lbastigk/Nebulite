@@ -101,6 +101,18 @@ public:
     [[nodiscard]] SDL_Texture* getTextTexture() const;
 
     //------------------------------------------
+    // Get position
+
+    struct Position {
+        int32_t x;
+        int32_t y;
+    };
+
+    Position getPosition() const {
+        return {static_cast<int32_t>(std::lround(*refs.posX)), static_cast<int32_t>(std::lround(*refs.posY))};
+    }
+
+    //------------------------------------------
     // Update-Oriented functions
 
     /**
