@@ -101,6 +101,12 @@ namespace Nebulite::Data {
  *          they are always used in the correct scope.
  */
 class ScopedKey {
+    /**
+     * @brief Produce the full key string including scope prefix.
+     * @param scope The current scope of the JsonScopeBase.
+     * @return The full key string with scope prefix.
+     * @throws std::invalid_argument if the key is used outside its required scope.
+     */
     [[nodiscard]] std::string full(JsonScopeBase const& scope) const;
 
     /**
@@ -124,29 +130,24 @@ class ScopedKey {
     // allow the owning type to construct views pointing into its buffer
     friend class OwnedScopedKey;
 
-public:
-    friend class JsonScopeBase;
-    friend class Core::JsonScope;
-
-    // No scope given, expected at root of JsonScopeBase
-    template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
-    constexpr ScopedKey(T const& keyInScope) noexcept
-        : key(std::string_view(keyInScope)) {}
-
-    // Scope given, is checked at usage time
-    template<typename T, typename U>
-    requires std::convertible_to<T, std::string_view> && std::convertible_to<U, std::string_view>
-    constexpr ScopedKey(U const& requiredScope, T const& keyInScope) noexcept
-        : givenScope(std::string_view(requiredScope)), key(std::string_view(keyInScope)) {}
-
-    // Add Operator for appending suffixes that produces an OwnedScopedKey
-    [[nodiscard]] OwnedScopedKey operator+(std::string_view const& suffix) const ;
-
     // Compile-time check if the provided scope is either empty or ends with a dot.
     static constexpr bool isValidScope(std::string_view const& scope) noexcept {
         return scope.empty() || scope.back() == '.';
     }
+public:
+    friend class JsonScopeBase;
+    friend class Core::JsonScope;
 
+    // Adding suffix to produce a new OwnedScopedKey
+    [[nodiscard]] OwnedScopedKey operator+(std::string_view const& suffix) const ;
+
+    // No scope given, expected at root of JsonScopeBase
+    // TODO: Make explicit later on
+    template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
+    constexpr ScopedKey(T const& keyInScope) noexcept
+        : key(std::string_view(keyInScope)) {}
+
+    // Create a ScopedKey with a required scope, checked at compile time
     template <auto &RequiredScope, typename T>
     static consteval ScopedKey create(T const& keyInScope) noexcept {
         constexpr const char *s = RequiredScope;
@@ -156,10 +157,10 @@ public:
             while (p[i] != '\0') ++i;
             return i;
         }(s);
-
+        // static assert to ensure scope is valid
         static_assert(len == 0 || s[len - 1] == '.',
                       "ScopedKey: The provided scope must be empty or end with a dot ('.')");
-
+        // Create the ScopedKey with the given scope and key
         return ScopedKey(std::optional<std::string_view>(std::string_view(s, len)),
                          std::string_view(keyInScope));
     }
