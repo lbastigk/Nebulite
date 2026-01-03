@@ -39,7 +39,7 @@ JSON::JSON(JSON&& other) noexcept {
 
 JsonScope JSON::shareScope(std::string const& prefix) {
     std::scoped_lock const lockGuard(mtx);
-    return JsonScope(*this, prefix, "Managed Shared JSON Scope");
+    return JsonScope(*this, prefix, "Externally Managed JSON Scope");
 }
 
 JsonScope& JSON::shareManagedScope(std::string const& prefix) {
