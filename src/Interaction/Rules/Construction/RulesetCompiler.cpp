@@ -203,12 +203,12 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
     rulesetsLocal.clear();
 
     // Check if doc is valid
-    if (self.getDoc().memberType(Constants::KeyNames::RenderObject::invokes) != Data::KeyType::array) {
+    if (self.getDoc().memberType(Constants::KeyNames::Ruleset::invokes) != Data::KeyType::array) {
         return;
     }
 
     // Get size of entries
-    size_t const size = self.getDoc().memberSize(Constants::KeyNames::RenderObject::invokes);
+    size_t const size = self.getDoc().memberSize(Constants::KeyNames::Ruleset::invokes);
     if (size == 0) {
         // Object has no rulesets
         return;
@@ -217,7 +217,7 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
     // Iterate through all entries
     for (size_t idx = 0; idx < size; ++idx) {
         // Parse entry into separate JSON object
-        std::string const key = std::string(Constants::KeyNames::RenderObject::invokes) + "[" + std::to_string(idx) + "]";
+        std::string const key = std::string(Constants::KeyNames::Ruleset::invokes) + "[" + std::to_string(idx) + "]";
         auto Ruleset = getRuleset(self.getDoc(), key, self);
 
         if (std::holds_alternative<std::monostate>(Ruleset)) {

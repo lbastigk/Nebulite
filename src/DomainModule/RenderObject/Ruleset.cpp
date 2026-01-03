@@ -37,7 +37,7 @@ Constants::Error Ruleset::update() {
 
         // Listen to broadcasts from subscribed topics
         for (size_t idx = 0; idx < subscription_size; idx++) {
-            std::string key = std::string(Constants::KeyNames::RenderObject::invokeSubscriptions) + "[" + std::to_string(idx) + "]";
+            std::string key = std::string(Constants::KeyNames::Ruleset::invokeSubscriptions) + "[" + std::to_string(idx) + "]";
             auto const subscription = getDoc().get<std::string>(key, "");
             Nebulite::global().listen(domain, subscription, id);
         }

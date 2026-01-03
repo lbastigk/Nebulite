@@ -26,10 +26,10 @@ struct Context;
 namespace Nebulite::Interaction::Rules::RulesetModules {
 /**
  * @brief The Physics ruleset module, containing static rulesets related to physics.
- *        All rulesets here should be force-based physics simulations.
- *        Meaning each ruleset modifies the contexts force variables.
- *        After that, the local module ::physics::applyForce needs to be called to apply the accumulated forces.
- *        Make sure to call them each frame, otherwise the forces will accumulate indefinitely!
+ * @details All rulesets here should be force-based physics simulations.
+ *          Meaning each ruleset modifies the contexts force variables.
+ *          After that, the local module ::physics::applyForce needs to be called to apply the accumulated forces.
+ *          Make sure to call them each frame, otherwise the forces will accumulate indefinitely!
  */
 class Physics : public RulesetModule {
 public:
@@ -69,13 +69,14 @@ private:
     // 1.) To retrieve from self and other using the ensureOrderedCacheList function
 
     /**
-     * @brief List of keys for physics-related base values in the ordered cache list.
+     * @brief List of keys for per-object physics-related base values in the ordered cache list.
      */
     const std::vector<std::string_view> keys = {
-        Nebulite::Constants::KeyNames::RenderObject::positionX,
-        Nebulite::Constants::KeyNames::RenderObject::positionY,
-        Nebulite::Constants::KeyNames::RenderObject::pixelSizeX,
-        Nebulite::Constants::KeyNames::RenderObject::pixelSizeY,
+        Constants::KeyNames::RenderObject::positionX,
+        Constants::KeyNames::RenderObject::positionY,
+        Constants::KeyNames::RenderObject::pixelSizeX,
+        Constants::KeyNames::RenderObject::pixelSizeY,
+        // TODO: Add to a DomainModule:
         "physics.aX",
         "physics.aY",
         "physics.vX",

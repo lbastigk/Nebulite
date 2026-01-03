@@ -30,7 +30,7 @@ public:
     Constants::Error update() override;
     void reinit() override {
         reloadRulesets = true;
-        subscription_size = getDoc().memberSize(Constants::KeyNames::RenderObject::invokeSubscriptions);
+        subscription_size = getDoc().memberSize(Constants::KeyNames::Ruleset::invokeSubscriptions);
         id = getDoc().get<uint32_t>(Constants::KeyNames::RenderObject::id,0);
     }
 

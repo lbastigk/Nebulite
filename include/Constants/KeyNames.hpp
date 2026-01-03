@@ -46,6 +46,9 @@ struct KeyNames {
         static constexpr Data::ScopedKey time_dt_ms{"","time.dt_ms"};
 
         // Keys for RNG
+        // Due to the need of a pre-parse function in GlobalSpace (to modify RNGs before any command is parsed, making them deterministic),
+        // these keys are defined here instead of in a DomainModule,
+        // And the RNG implementation is directly in GlobalSpace as well
         struct RNG {
             static constexpr Data::ScopedKey A{"random.","A"};
             static constexpr Data::ScopedKey B{"random.","B"};
@@ -54,17 +57,14 @@ struct KeyNames {
             static constexpr Data::ScopedKey min{"random.","min"};
             static constexpr Data::ScopedKey max{"random.","max"};
         };
-    };
 
-    // TODO: Part of GlobalSpace?
-    struct RNGs {
-        // TODO: Use "random." as scope, and modify keys to be relative to that scope
-        //static constexpr std::string_view A = "random.A";
-        //static constexpr std::string_view B = "random.B";
-        //static constexpr std::string_view C = "random.C";
-        //static constexpr std::string_view D = "random.D";
-        //static constexpr std::string_view min = "random.min";
-        //static constexpr std::string_view max = "random.max";
+        // Keys for Physics
+        // TODO: Set all to specific values in GlobalSpace
+        //       Perhaps even in a DomainModule for GlobalSpace,
+        //       Then we can move these keys there
+        struct Physics {
+            static constexpr Data::ScopedKey G{"physics.","G"}; // Gravitational constant
+        };
     };
 
     struct RenderObject {
@@ -92,12 +92,9 @@ struct KeyNames {
         static constexpr std::string_view textColorA = "text.color.A";
         static constexpr std::string_view textDx = "text.dx";
         static constexpr std::string_view textDy = "text.dy";
-
-        // TODO: Are these still used?
-        static constexpr std::string_view invokes = "invokes";
-        static constexpr std::string_view invokeSubscriptions = "invokeSubscriptions";
     };
 
+    // TODO: Integrate into RenderObject Ruleset DomainModule, remove unused keys
     struct Invoke {
         // TODO: Are these still used?
         static constexpr std::string_view self = "invoke";
@@ -113,8 +110,13 @@ struct KeyNames {
         static constexpr std::string_view functioncalls_other = "functioncalls.other";
     };
 
-    // TODO: Move to DomainModule for RenderObject Ruleset handling
+    // TODO: Integrate into RenderObject Ruleset DomainModule, remove unused keys
     struct Ruleset {
+        // TODO: Are these still used?
+        static constexpr std::string_view invokes = "invokes";
+        static constexpr std::string_view invokeSubscriptions = "invokeSubscriptions";
+
+        // TODO: Use these ones later on:
         static constexpr std::string_view self = "ruleset";
         static constexpr std::string_view topic = "topic";
         static constexpr std::string_view condition = "condition";
