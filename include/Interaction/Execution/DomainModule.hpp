@@ -149,13 +149,13 @@ protected:
      */
     std::shared_ptr<FuncTree<Constants::Error>> funcTree;
 
+private:
     /**
-     * @brief Shared pointer to the JsonScopeBase document.
+     * @brief Pointer to the JsonScopeBase document.
      * @details This allows derived DomainModules to access and manipulate
      *          the JSON document as needed.
-     * @todo Move to private?
      */
-    std::unique_ptr<Data::JsonScopeBase> docPtr;
+    Data::JsonScopeBase* docPtr;
 };
 
 /**

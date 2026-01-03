@@ -104,10 +104,17 @@ public:
     //------------------------------------------
     // Special member functions
 
-    JsonScopeBase(JsonScopeBase const& other);
-    JsonScopeBase(JsonScopeBase&& other) noexcept;
-    JsonScopeBase& operator=(JsonScopeBase const& other);
-    JsonScopeBase& operator=(JsonScopeBase&& other) noexcept;
+    // Disabled copy/move to avoid issues with Domain ownership and infinite recursion
+
+    // Copy/move should be fine here, only used in DomainModuleBase constructor.
+    // Deleting them would be nicer though...
+    // TODO: Find a way to rewrite DomainModuleBase to avoid copies/moves of JsonScopeBase!
+    //       Since a DomainModuleBase is owned by a Domain, it should be fine to use raw pointers there...
+
+    JsonScopeBase(JsonScopeBase const& other) = delete;
+    JsonScopeBase(JsonScopeBase&& other) noexcept = delete;
+    JsonScopeBase& operator=(JsonScopeBase const& other) = delete;
+    JsonScopeBase& operator=(JsonScopeBase&& other) noexcept = delete;
 
     virtual ~JsonScopeBase();
 

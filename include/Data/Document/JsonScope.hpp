@@ -41,7 +41,8 @@ public:
     //------------------------------------------
     // Special member functions
 
-    // TODO: No copy or move? Current design causes infinite recursion in some cases!!!
+    // Disabled copy/move to avoid issues with Domain ownership and infinite recursion
+
     JsonScope(JsonScope const& other) = delete;
     JsonScope(JsonScope&& other) noexcept = delete;
     JsonScope& operator=(JsonScope const& other) = delete;

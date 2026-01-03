@@ -27,6 +27,8 @@ JsonScopeBase::JsonScopeBase()
       expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS>(*this))
 {}
 
+/*
+
 // --- Copy constructor
 JsonScopeBase::JsonScopeBase(JsonScopeBase const& other)
     : baseDocument(other.baseDocument),
@@ -62,6 +64,8 @@ void JsonScopeBase::swap(JsonScopeBase& o) noexcept {
     std::swap(baseDocument, o.baseDocument);
     std::swap(scopePrefix, o.scopePrefix);
 }
+
+*/
 
 JsonScopeBase::~JsonScopeBase() = default;
 
