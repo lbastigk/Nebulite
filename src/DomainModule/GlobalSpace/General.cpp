@@ -215,6 +215,18 @@ Constants::Error General::nop() {
     return Constants::ErrorTable::NONE();
 }
 
+Constants::Error General::inScope(std::span<std::string const> const& args) {
+    if (args.size() < 3) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    }
 
+    // A bit whacky, as we use the global scope for this instead of what is shared with this DomainModule
+    // But this is the only way to get a full JsonScope with domain functionality
+    std::string const scope = args[1];
+
+    auto const& s = domain.getDoc().shareScope(scope);
+    std::string const& cmd = Utility::StringHandler::recombineArgs(args.subspan(2));
+    return s.parseStr(cmd);
+}
 
 } // namespace Nebulite::DomainModule::GlobalSpace

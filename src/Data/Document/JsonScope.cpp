@@ -32,6 +32,8 @@ JsonScope::JsonScope(std::string const& name)
 //------------------------------------------
 // Special member functions for JsonScope
 
+/*
+
 // --- Copy constructor
 JsonScope::JsonScope(JsonScope const& other)
     : Domain(this->getName(), *this, *this),
@@ -63,6 +65,8 @@ JsonScope& JsonScope::operator=(JsonScope&& other) noexcept {
     std::swap(*this, tmp);
     return *this;
 }
+
+*/
 
 void JsonScope::deserialize(std::string const& serialOrLink) {
     //------------------------------------------

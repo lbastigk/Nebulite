@@ -41,10 +41,11 @@ public:
     //------------------------------------------
     // Special member functions
 
-    JsonScope(JsonScope const& other);
-    JsonScope(JsonScope&& other) noexcept;
-    JsonScope& operator=(JsonScope const& other);
-    JsonScope& operator=(JsonScope&& other) noexcept;
+    // TODO: No copy or move? Current design causes infinite recursion in some cases!!!
+    JsonScope(JsonScope const& other) = delete;
+    JsonScope(JsonScope&& other) noexcept = delete;
+    JsonScope& operator=(JsonScope const& other) = delete;
+    JsonScope& operator=(JsonScope&& other) noexcept = delete;
 
     ~JsonScope() override = default;
 

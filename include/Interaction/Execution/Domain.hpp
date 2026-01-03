@@ -23,9 +23,8 @@
 #include "Interaction/Execution/FuncTree.hpp"
 
 //------------------------------------------
-// Forward declarations
+// Forward declarations: Domains
 
-// Domains
 namespace Nebulite::Core {
 class Environment;
 class GlobalSpace;
@@ -35,9 +34,19 @@ class Texture;
 } // namespace Nebulite::Core
 
 namespace Nebulite::Data {
-class JsonScope;
+class JsonScope;    // TODO: Move to Nebulite::Core for consistency with other domains!
+} // namespace Nebulite::Data
+
+//------------------------------------------
+// Forward declarations: Other classes
+
+namespace Nebulite::Data {
 class MappedOrderedDoublePointers;
 } // namespace Nebulite::Data
+
+namespace Nebulite::DomainModule {
+class Initializer;
+} // namespace Nebulite::DomainModule
 
 namespace Nebulite::Interaction::Logic {
 class Expression;
@@ -50,8 +59,7 @@ class StaticRuleset;
 
 namespace Construction {
 class RulesetCompiler;
-}
-
+} // namespace Construction
 } // namespace Nebulite::Interaction::Rules
 
 //------------------------------------------
@@ -61,10 +69,10 @@ namespace Nebulite::Interaction::Execution {
 template<typename> class Domain;
 
 class DocumentAccessor {
-private:
+public:
     explicit DocumentAccessor(Data::JsonScope& d) : documentScope(d) {}
 
-    ~DocumentAccessor();
+    virtual ~DocumentAccessor();
 
     template<typename> friend class Domain;
 
@@ -84,18 +92,23 @@ private:
     friend class Rules::StaticRuleset;
     friend class Rules::Construction::RulesetCompiler;
 
+    // Initializer needs access to share scopes
+    friend class ::Nebulite::DomainModule::Initializer;
 
-    // To make private later on:
-//public:
+private:
+    /**
+     * @brief Shares a scope from the domain's document.
+     * @param prefix The prefix of the scope to share.
+     * @return A reference to the shared JsonScope.
+     */
+    [[nodiscard]] Data::JsonScopeBase& shareDocumentScopeBase(std::string const& prefix) const ;
+
     /**
      * @brief Gets a reference to the internal JSON document of the domain.
-     *        Each domain uses a JSON document to store its data.
-     *        For the JSON domain, this is a reference to itself.
-     *        For others, it's a reference to their JSON document.
+     * @details Each domain uses a JSON document to store its data.
+     *          For the JSON domain, this is a reference to itself.
+     *          For others, it's a reference to their JSON document.
      * @return A reference to the internal JSON document.
-     * @todo Find a way to disallow getDoc() and instead share a per-domainmodule JsonScope reference.
-     *       IDEA: Make it part of protected, which will allow only domains to access it.
-     *       Best idea would probably be to store a domain wrapper in each DomainModule that deletes getDoc()
      */
     virtual Data::JsonScope& getDoc() const ;
 
@@ -131,7 +144,7 @@ public:
         funcTree->setPreParse([this] { return preParse(); });
     }
 
-    virtual ~DomainBase();
+    virtual ~DomainBase() override;
 
     //------------------------------------------
     // Disallow copying and moving
@@ -234,14 +247,6 @@ public:
      * @return Pointer to the ordered cache list map.
      */
     [[nodiscard]] virtual Data::MappedOrderedDoublePointers* getDocumentCacheMap() const ;
-
-    /**
-     * @brief Shares a scope from the domain's document.
-     * @param prefix The prefix of the scope to share.
-     * @return A reference to the shared JsonScope.
-     * @todo Move to DocumentAccessor! Allow only the Initializer access to this function.
-     */
-    [[nodiscard]] Data::JsonScopeBase& shareDocumentScopeBase(std::string const& prefix) const ;
 
     /**
      * @brief Locks the domain's document for thread-safe access.

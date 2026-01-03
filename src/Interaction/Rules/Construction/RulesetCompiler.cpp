@@ -155,7 +155,8 @@ std::string RulesetCompiler::getLogicalArg(Data::JsonScope& entry) {
 
 bool RulesetCompiler::getJsonRuleset(Data::JsonScope& doc, Data::JsonScope& entry, std::string const& key) {
     if (doc.memberType(key) == Data::KeyType::object) {
-        entry = doc.shareScope(key);
+        std::string const& serial = doc.shareScope(key).serialize();
+        entry.deserialize(serial);
     } else {
         // Is perhaps link to document
         auto const potentialLink = doc.get<std::string>(key, "");
