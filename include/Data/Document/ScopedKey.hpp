@@ -75,7 +75,8 @@ class ScopedKey {
     std::string_view key;
 
     // private non-constexpr constructor used by OwnedScopedKey
-    constexpr ScopedKey(std::optional<std::string_view> const& requiredScope, std::string_view keyInScope) noexcept
+    // Any key shared publicly should be constructed with a required scope to avoid accidental misuse
+    constexpr ScopedKey(std::optional<std::string_view> const& requiredScope, std::string_view const& keyInScope) noexcept
         : givenScope(requiredScope), key(keyInScope) {}
 
     // allow the owning type to construct views pointing into its buffer
