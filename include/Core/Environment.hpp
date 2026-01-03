@@ -13,11 +13,8 @@
 #include <string>
 #include <vector>
 
-// External
-#include <absl/container/flat_hash_map.h>
-
 // Nebulite
-#include "Core/RenderObjectContainer.hpp"
+#include "Data/RenderObjectContainer.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -144,7 +141,7 @@ public:
      * @param layer The layer index.
      * @return A reference to the RenderObjectContainer at the specified position and layer: A vector of batched RenderObjects.
      */
-    std::vector<RenderObjectContainer::Batch>& getContainerAt(int16_t x, int16_t y, Layer layer);
+    std::vector<Data::RenderObjectContainer::Batch>& getContainerAt(int16_t x, int16_t y, Layer layer);
 
     /**
      * @brief Checks if the specified position and layer are valid, meaning they are within the bounds of the environment.
@@ -171,7 +168,7 @@ private:
     std::vector<Layer> allLayers = {Layer::background, Layer::general, Layer::foreground, Layer::effects, Layer::UI};
 
     // Inner RenderObject container layers
-    std::array<RenderObjectContainer, LayerCount> roc;
+    std::array<Data::RenderObjectContainer, LayerCount> roc;
 };
 } // namespace Nebulite::Core
 

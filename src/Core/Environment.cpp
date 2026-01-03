@@ -11,7 +11,7 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Core/Environment.hpp"
-#include "Core/RenderObjectContainer.hpp"
+#include "Data/RenderObjectContainer.hpp"
 #include "Data/Document/JSON.hpp"
 
 //------------------------------------------
@@ -27,11 +27,11 @@ namespace {
  * @return An array of RenderObjectContainer instances.
  */
 template <std::size_t LayerCount>
-std::array<Nebulite::Core::RenderObjectContainer, LayerCount>
+std::array<Nebulite::Data::RenderObjectContainer, LayerCount>
 make_roc_array() {
     return []<std::size_t... Is>(std::index_sequence<Is...>) {
-        return std::array<Nebulite::Core::RenderObjectContainer, sizeof...(Is)>{
-            {(static_cast<void>(Is), Nebulite::Core::RenderObjectContainer{})...}
+        return std::array<Nebulite::Data::RenderObjectContainer, sizeof...(Is)>{
+            {(static_cast<void>(Is), Nebulite::Data::RenderObjectContainer{})...}
         };
     }(std::make_index_sequence<LayerCount>{});
 }
@@ -122,7 +122,7 @@ RenderObject* Environment::getObjectFromId(uint32_t const& id) {
 //------------------------------------------
 // Container Management
 
-std::vector<RenderObjectContainer::Batch>& Environment::getContainerAt(int16_t x, int16_t y, Layer layer) {
+std::vector<Data::RenderObjectContainer::Batch>& Environment::getContainerAt(int16_t x, int16_t y, Layer layer) {
     auto const pos = std::make_pair(x, y);
     if (static_cast<uint8_t>(layer) < LayerCount) {
         return roc[static_cast<uint8_t>(layer)].getContainerAt(pos);
@@ -148,10 +148,10 @@ void Environment::purgeObjects() {
 size_t Environment::getObjectCount() const {
     return std::accumulate(
         roc.begin(), roc.end(), 0u,
-        [](size_t const acc, RenderObjectContainer const& container) {
+        [](size_t const acc, Data::RenderObjectContainer const& container) {
             return acc + container.getObjectCount();
         }
-        );
+    );
 }
 
 } // namespace Nebulite::Core

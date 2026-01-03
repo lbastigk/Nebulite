@@ -1,10 +1,10 @@
 /**
  * @file RenderObjectContainer.hpp
- * @brief Contains the Nebulite::Core::RenderObjectContainer class.
+ * @brief Contains the Nebulite::Data::RenderObjectContainer class.
  */
 
-#ifndef NEBULITE_CORE_RENDER_OBJECT_CONTAINER_HPP
-#define NEBULITE_CORE_RENDER_OBJECT_CONTAINER_HPP
+#ifndef NEBULITE_DATA_RENDER_OBJECT_CONTAINER_HPP
+#define NEBULITE_DATA_RENDER_OBJECT_CONTAINER_HPP
 
 //------------------------------------------
 // Includes
@@ -17,15 +17,15 @@
 #include "Data/Document/JsonScope.hpp"
 
 //------------------------------------------
-namespace Nebulite::Core {
+namespace Nebulite::Data {
 /**
- * @class Nebulite::Core::RenderObjectContainer
+ * @class Nebulite::Data::RenderObjectContainer
  * @brief Manages a collection of RenderObject instances in a tile-based container.
  */
 class RenderObjectContainer {
 public:
     /**
-     * @struct Nebulite::Core::RenderObjectContainer::Batch
+     * @struct Nebulite::Data::RenderObjectContainer::Batch
      * @brief Represents a batch of RenderObject instances in a given tile.
      *        `Batch -> vector<RenderObject*>`
      *        Used for threading and parallel processing of render objects.
@@ -33,7 +33,7 @@ public:
      */
     struct Batch {
         // Collection of RenderObjects
-        std::vector<RenderObject*> objects;
+        std::vector<Core::RenderObject*> objects;
 
         // Full estimated cost of the batch
         uint64_t estimatedCost = 0;
@@ -42,20 +42,20 @@ public:
          * @brief Pops the last RenderObject from the batch.
          * @return Pointer to the popped RenderObject, or nullptr if batch is already empty.
          */
-        RenderObject* pop();
+        Core::RenderObject* pop();
 
         /**
          * @brief Pushes a RenderObject into the batch.
          * @param obj Pointer to the RenderObject to push.
          */
-        void push(RenderObject* obj);
+        void push(Core::RenderObject* obj);
 
         /**
          * @brief Removes a RenderObject from the batch.
          * @param obj Pointer to the RenderObject to remove.
          * @return True if the object was removed, false otherwise.
          */
-        bool removeObject(RenderObject* obj);
+        bool removeObject(Core::RenderObject* obj);
     };
 
     //------------------------------------------
@@ -93,7 +93,7 @@ public:
      * @param dispResX Display resolution width for tile placement.
      * @param dispResY Display resolution height for tile placement.
      */
-    void append(RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY);
+    void append(Core::RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY);
 
     /**
      * @brief Reinserts all objects into the container.
@@ -154,7 +154,7 @@ public:
      * @param id The unique ID of the RenderObject to retrieve.
      * @return Pointer to the RenderObject if found, nullptr otherwise.
      */
-    RenderObject* getObjectFromId(uint32_t const& id) {
+    Core::RenderObject* getObjectFromId(uint32_t const& id) {
         // Go through all batches
         for (auto& batches : std::views::values(ObjectContainer)) {
             for (auto& [objects, _] : batches) {
@@ -191,7 +191,7 @@ private:
     std::thread createBatchWorker(Batch& work, std::pair<int16_t, int16_t> pos, uint16_t dispResX, uint16_t dispResY);
 
     /**
-     * @struct Nebulite::Core::RenderObjectContainer::ReinsertionProcess
+     * @struct Nebulite::Data::RenderObjectContainer::ReinsertionProcess
      * @brief Holds all objects that are awaiting re-insertion into the container.
      *        The reinsertion process is a 3-step pipeline that ensures objects are properly
      *        re-evaluated and placed back into the correct tile and batch:
@@ -200,7 +200,7 @@ private:
      *        - Reinsert into the correct tile and batch
      */
     struct ReinsertionProcess {
-        std::vector<RenderObject*> queue;
+        std::vector<Core::RenderObject*> queue;
         std::mutex reinsertMutex;
     } reinsertionProcess;
 
@@ -221,10 +221,10 @@ private:
      */
     struct DeletionProcess {
         //std::vector<Nebulite::Core::RenderObject*> to_delete;
-        std::vector<RenderObject*> trash; // Moving objects, marking for deletion
-        std::vector<RenderObject*> purgatory; // Deleted each frame
+        std::vector<Core::RenderObject*> trash; // Moving objects, marking for deletion
+        std::vector<Core::RenderObject*> purgatory; // Deleted each frame
         std::mutex deleteMutex; // Threadsafe insertion into trash
     } deletionProcess;
 };
 } // namespace Nebulite::Core
-#endif // NEBULITE_CORE_RENDER_OBJECT_CONTAINER_HPP
+#endif // NEBULITE_DATA_RENDER_OBJECT_CONTAINER_HPP

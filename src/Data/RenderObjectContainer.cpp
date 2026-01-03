@@ -1,7 +1,7 @@
-#include "Core/RenderObjectContainer.hpp"
+#include "Data/RenderObjectContainer.hpp"
 #include "Data/Document/JSON.hpp"
 
-namespace Nebulite::Core {
+namespace Nebulite::Data {
 
 //------------------------------------------
 //Marshalling
@@ -10,7 +10,7 @@ std::string RenderObjectContainer::serialize() {
     // Setup
 
     // Initialize RapidJSON document
-    Data::JSON doc;
+    JSON doc;
 
     //------------------------------------------
     // Get all objects in container
@@ -18,7 +18,7 @@ std::string RenderObjectContainer::serialize() {
     for (auto& currentBatch : std::views::values(ObjectContainer)) {
         for (auto& [objects, _] : currentBatch) {
             for (auto const& obj : objects) {
-                Data::JSON obj_serial;
+                JSON obj_serial;
                 obj_serial.deserialize(obj->serialize());
 
                 // insert into doc
@@ -35,7 +35,7 @@ std::string RenderObjectContainer::serialize() {
 }
 
 void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY) {
-    Data::JSON layer;
+    JSON layer;
     layer.deserialize(serialOrLink);
     if (layer.memberType("objects") == Data::KeyType::array) {
         for (uint32_t i = 0; i < layer.memberSize("objects"); i++) {
@@ -49,7 +49,7 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_
                 ro_serial = tmp.serialize();
             }
 
-            auto* ro = new RenderObject;
+            auto* ro = new Core::RenderObject;
             ro->deserialize(ro_serial);
             append(ro, dispResX, dispResY);
         }
@@ -60,7 +60,7 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_
 // Pipeline
 
 namespace {
-std::pair<int16_t, int16_t> getTilePos(RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
+std::pair<int16_t, int16_t> getTilePos(Core::RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
     auto [x, y] = toAppend->getPosition();
     auto correspondingTilePositionX = static_cast<int16_t>(x / static_cast<double>(displayResolutionX));
     auto correspondingTilePositionY = static_cast<int16_t>(y / static_cast<double>(displayResolutionY));
@@ -68,7 +68,7 @@ std::pair<int16_t, int16_t> getTilePos(RenderObject const* toAppend, uint16_t co
 }
 } // anonymous namespace
 
-void RenderObjectContainer::append(RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY) {
+void RenderObjectContainer::append(Core::RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY) {
     std::pair<int16_t, int16_t> const pos = getTilePos(toAppend, dispResX, dispResY);
 
     // Try to insert into an existing batch
@@ -89,8 +89,8 @@ void RenderObjectContainer::append(RenderObject* toAppend, uint16_t const& dispR
 std::thread RenderObjectContainer::createBatchWorker(Batch& work, std::pair<int16_t, int16_t> pos, uint16_t dispResX, uint16_t dispResY) {
     return std::thread([&work, pos, this, dispResX, dispResY] {
         // Every batch worker has potential objects to move or delete
-        std::vector<RenderObject*> to_move_local;
-        std::vector<RenderObject*> to_delete_local;
+        std::vector<Core::RenderObject*> to_move_local;
+        std::vector<Core::RenderObject*> to_delete_local;
 
         // We update each object and check if it needs to be moved or deleted
         for (auto obj : work.objects) {
@@ -194,7 +194,7 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
 
 void RenderObjectContainer::reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY) {
     // Collect all objects
-    std::vector<RenderObject*> toReinsert;
+    std::vector<Core::RenderObject*> toReinsert;
     for (auto& batches : std::views::values(ObjectContainer)) {
         for (auto& [objects, _] : batches) {
             // Collect all objects from the batch
@@ -240,23 +240,23 @@ size_t RenderObjectContainer::getObjectCount() const {
 //------------------------------------------
 // Batch
 
-RenderObject* RenderObjectContainer::Batch::pop() {
+Core::RenderObject* RenderObjectContainer::Batch::pop() {
     if (objects.empty())
         return nullptr;
 
-    RenderObject* obj = objects.back(); // Get last element
+    Core::RenderObject* obj = objects.back(); // Get last element
     estimatedCost -= obj->estimateComputationalCost(); // Adjust cost
     objects.pop_back(); // Remove from vector
 
     return obj;
 }
 
-void RenderObjectContainer::Batch::push(RenderObject* obj) {
+void RenderObjectContainer::Batch::push(Core::RenderObject* obj) {
     estimatedCost += obj->estimateComputationalCost();
     objects.push_back(obj);
 }
 
-bool RenderObjectContainer::Batch::removeObject(RenderObject* obj) {
+bool RenderObjectContainer::Batch::removeObject(Core::RenderObject* obj) {
     if (auto const it = std::ranges::find(objects.begin(), objects.end(), obj); it != objects.end()) {
         estimatedCost -= obj->estimateComputationalCost();
         objects.erase(it);
