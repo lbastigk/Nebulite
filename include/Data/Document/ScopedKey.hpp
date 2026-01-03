@@ -1,3 +1,20 @@
+/**
+ * @file ScopedKey.hpp
+ * @brief Defines the ScopedKey and OwnedScopedKey classes for managing scoped keys within JSON documents.
+ * @details The purpose is to ensure subclasses only access keys within their intended scopes.
+ *          Furthermore, it allows for root-scoped keys that are always taken at given scope root.
+ *          This allows us to have structured JSON documents representing Multiple Domain Classes:
+ *          RenderObject with its subclass Texture, where Texture keys are always under "texture." scope.
+ *          We can then, in both classes, use a root-scoped key for "name"
+ *          that either refers to "name" at root (RenderObject) or "texture.name" (Texture), depending on the current scope.
+ *          We can also have scoped keys that fail if used outside their intended scope, e.g. a key
+ *          defined with scope "renderer." cannot be used in a JsonScope with scope "physics.",
+ *          as that would be an accidental misuse of the key.
+ *          The checks happen at runtime when the key is used to access the JsonScopeBase,
+ *          throwing an exception if the scopes do not match.
+ *          This allows for greater separation of concerns and reduces accidental key misusage.
+ */
+
 #ifndef NEBULITE_DATA_DOCUMENT_SCOPED_KEY_HPP
 #define NEBULITE_DATA_DOCUMENT_SCOPED_KEY_HPP
 
@@ -30,8 +47,19 @@ namespace Nebulite::Data {
  *          for the lifetime of the OwnedScopedKey instance.
  */
 class OwnedScopedKey {
+    /**
+     * @brief Optional scope prefix for this key.
+     * @details The required scope prefix that this key must be used within.
+     *          If set, any JsonScopeBase using this key must have a scope
+     *          that matches or is a sub-scope of this prefix.
+     *          If not set, the key is assumed to be at the root scope.
+     */
+    std::optional<std::string_view> givenScope = std::nullopt;
+
+    /**
+     * @brief The owned string buffer containing the full key.
+     */
     std::string owned;
-    std::optional<std::string_view> givenScope;
 
 public:
     OwnedScopedKey() = default;
@@ -71,7 +99,18 @@ namespace Nebulite::Data {
 class ScopedKey {
     [[nodiscard]] std::string full(JsonScopeBase const& scope) const;
 
+    /**
+     * @brief Optional scope prefix for this key.
+     * @details The required scope prefix that this key must be used within.
+     *          If set, any JsonScopeBase using this key must have a scope
+     *          that matches or is a sub-scope of this prefix.
+     *          If not set, the key is assumed to be at the root scope.
+     */
     std::optional<std::string_view> givenScope = std::nullopt;
+
+    /**
+     * @brief The key string within the scope.
+     */
     std::string_view key;
 
     // private non-constexpr constructor used by OwnedScopedKey
