@@ -53,7 +53,7 @@ public:
     // Proper scope sharing
 
     // Proper scope sharing with nested unscoped key generation
-    [[nodiscard]] JsonScope& shareScope(scopedKey const& key) const ;
+    [[nodiscard]] JsonScope& shareScope(ScopedKey const& key) const ;
 
     //------------------------------------------
     // Domain related stuff

@@ -15,7 +15,7 @@ namespace Nebulite::Constants {
 // TODO: Remove unused keys and refactor used ones
 
 // Example usage:
-static constexpr Data::JsonScope::scopedKey testKey{"renderer.", "time.t"}; // Only JsonScopes with scopePrefix "renderer." can use this key
+static constexpr Data::ScopedKey testKey{"renderer.", "time.t"}; // Only JsonScopes with scopePrefix "renderer." can use this key
 
 struct KeyNames {
     struct Renderer {

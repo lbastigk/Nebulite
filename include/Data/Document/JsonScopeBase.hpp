@@ -23,6 +23,7 @@
 // Forward declarations
 namespace Nebulite::Data {
 class JSON;
+class ScopedKey;
 } // namespace Nebulite::Data
 
 //------------------------------------------
@@ -85,9 +86,7 @@ private:
     void swap(JsonScopeBase& o) noexcept ;
 
     // Necessary helper for shareScope
-    [[nodiscard]] JsonScopeBase& shareManagedScopeBase(std::string const& prefix) const {
-        return shareScopeBase(scopedKey(prefix));
-    }
+    [[nodiscard]] JsonScopeBase& shareManagedScopeBase(std::string const& prefix) const ;
 
 public:
     //------------------------------------------
@@ -125,100 +124,44 @@ public:
     }
 
     //------------------------------------------
-    // Helper struct for scoped keys
-
-    /**
-     * @brief A helper struct to represent keys within the JsonScopeBase.
-     * @details This struct allows for easy conversion of string literals
-     *          into fully scoped keys within the JsonScopeBase.
-     *          This reduces accidental key misusage, as conversion to a usable type
-     *          std::string requires an explicit action.
-     *          It also provides safety checks to ensure that keys are used within their intended scopes.
-     *          We can use this to generate static scoped keys in DomainModules, ensuring that
-     *          they are always used in the correct scope.
-     */
-    class scopedKey {
-        /**
-         * @brief Generates the full scoped key using the provided JsonScope
-         * @details Checks if the optional given scope from the key matches the allowed scope
-         *          from the provided JsonScope. If they do not match, an exception is thrown.
-         *          If no given scope is set, the JsonScopes scopePrefix is used directly.
-         * @param scope The JsonScopeBase to use for generating the full key and checking scope validity.
-         * @return The fully scoped key as a std::string.
-         */
-        [[nodiscard]] std::string full(JsonScopeBase const& scope) const ;
-
-        // The actual key within the scope
-        std::string_view key;
-
-        // Optional given scope. The JsonScopeBase must have access to this scope when using the key.
-        std::optional<std::string_view> givenScope = std::nullopt;
-
-    public:
-        // JsonScopeBase should be the only class able to convert scopedKey to full key
-        friend class JsonScopeBase;
-        friend class JsonScope;
-
-        // Accept any T that is constructible into std::string
-        // We disable linting as the implicit conversion is intended here
-        // TODO: Activate later on once the key usage is fully integrated
-        //       Provide methods to add strings together to form full keys
-        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
-        // NOLINTNEXTLINE
-        scopedKey(T const& keyInScope)
-            : key(std::string_view(keyInScope)) {}
-
-        // To be used when we want to ensure that the key is used in a specific scope
-        template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
-        scopedKey(JsonScopeBase const& scope, T const& keyInScope)
-            : key(std::string_view(keyInScope)), givenScope(scope.getScopePrefix()) {}
-
-        // To be used for constexpr
-        template<typename T, typename U>
-        requires std::convertible_to<T, std::string_view> && std::convertible_to<U, std::string_view>
-        constexpr scopedKey(U const& scope, T const& keyInScope) noexcept
-            : key(std::string_view(keyInScope)), givenScope(std::string_view(scope)) {}
-    };
-
-    //------------------------------------------
     // Sharing a scope
 
-    [[nodiscard]] JsonScopeBase& shareScopeBase(scopedKey const& key) const ;
+    [[nodiscard]] JsonScopeBase& shareScopeBase(ScopedKey const& key) const ;
 
     //------------------------------------------
     // Getter
 
     template<typename T>
-    T get(scopedKey const& key, T const& defaultValue = T()) const ;
+    T get(ScopedKey const& key, T const& defaultValue = T()) const ;
 
-    [[nodiscard]] std::optional<RjDirectAccess::simpleValue> getVariant(scopedKey const& key) const ;
+    [[nodiscard]] std::optional<RjDirectAccess::simpleValue> getVariant(ScopedKey const& key) const ;
 
-    [[nodiscard]] JSON getSubDoc(scopedKey const& key) const ;
+    [[nodiscard]] JSON getSubDoc(ScopedKey const& key) const ;
 
-    [[nodiscard]] double* getStableDoublePointer(scopedKey const& key) const ;
+    [[nodiscard]] double* getStableDoublePointer(ScopedKey const& key) const ;
 
     //------------------------------------------
     // Setter
 
     template<typename T>
-    void set(scopedKey const& key, T const& value);
+    void set(ScopedKey const& key, T const& value);
 
-    void setVariant(scopedKey const& key, RjDirectAccess::simpleValue const& value) const ;
+    void setVariant(ScopedKey const& key, RjDirectAccess::simpleValue const& value) const ;
 
-    void setSubDoc(scopedKey const& key, JSON& subDoc) const ;
+    void setSubDoc(ScopedKey const& key, JSON& subDoc) const ;
 
-    void setSubDoc(scopedKey const& key, JsonScopeBase const& subDoc) const ;
+    void setSubDoc(ScopedKey const& key, JsonScopeBase const& subDoc) const ;
 
-    void setEmptyArray(scopedKey const& key) const ;
+    void setEmptyArray(ScopedKey const& key) const ;
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
 
-    void set_add(scopedKey const& key, double const& val) const ;
+    void set_add(ScopedKey const& key, double const& val) const ;
 
-    void set_multiply(scopedKey const& key, double const& val) const ;
+    void set_multiply(ScopedKey const& key, double const& val) const ;
 
-    void set_concat(scopedKey const& key, std::string const& valStr) const ;
+    void set_concat(ScopedKey const& key, std::string const& valStr) const ;
 
     //------------------------------------------
     // Locking
@@ -241,16 +184,18 @@ public:
     //------------------------------------------
     // Key Types, Sizes
 
-    [[nodiscard]] KeyType memberType(scopedKey const& key) const ;
+    [[nodiscard]] KeyType memberType(ScopedKey const& key) const ;
 
-    [[nodiscard]] size_t memberSize(scopedKey const& key) const ;
+    [[nodiscard]] size_t memberSize(ScopedKey const& key) const ;
 
-    void removeKey(scopedKey const& key) const ;
+    void removeKey(ScopedKey const& key) const ;
 
     //------------------------------------------
     // Serialize/Deserialize
 
-    [[nodiscard]] std::string serialize(scopedKey const& key = scopedKey("")) const ;
+    [[nodiscard]] std::string serialize() const ;
+
+    [[nodiscard]] std::string serialize(ScopedKey const& key) const ;
 
     virtual void deserialize(std::string const& serialOrLink);
 };
