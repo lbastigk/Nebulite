@@ -34,7 +34,9 @@ namespace Constants {
 
 /**
  * @namespace Nebulite::Core
- * @brief Contains all core classes, functions, types and variables related to the Nebulite framework.
+ * @brief Contains all core classes (called Domains) related to the Nebulite framework.
+ *        These form the backbone of the Nebulite system.
+ *        They provide essential services such as scoped data management, command parsing, serialization, etc.
  */
 namespace Core {
 } // namespace Core
