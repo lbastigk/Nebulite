@@ -14,7 +14,6 @@
 #include <SDL_ttf.h>    // Same for ttf
 
 // Nebulite
-#include "Constants/KeyNames.hpp"
 #include "Core/Texture.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Interaction/Execution/Domain.hpp"
@@ -65,7 +64,7 @@ public:
      * @brief Serializes the RenderObject to a JSON string.
      * @return A string representation of the RenderObject's JSON document.
      */
-    std::string serialize();
+    std::string serialize() const ;
 
     /**
      * @brief Deserializes the RenderObject from a JSON string.

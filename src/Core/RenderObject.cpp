@@ -3,8 +3,8 @@
 
 // Nebulite
 #include "Nebulite.hpp"
+#include "Constants/KeyNames.hpp"
 #include "Core/RenderObject.hpp"
-#include "Data/Document/JSON.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "DomainModule/JsonScope/SimpleData.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
@@ -109,7 +109,7 @@ RenderObject::~RenderObject() {
 //------------------------------------------
 // Marshalling
 
-std::string RenderObject::serialize() {
+std::string RenderObject::serialize() const {
     return document.serialize();
 }
 

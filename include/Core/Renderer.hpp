@@ -19,6 +19,7 @@
 
 // Nebulite
 #include "Core/Environment.hpp"
+#include "Constants/KeyNames.hpp"
 #include "Utility/TimeKeeper.hpp"
 #include "Interaction/Invoke.hpp"
 
@@ -55,21 +56,13 @@ public:
      * @brief Serializes the current state of the Renderer.
      * @return A JSON string representing the Renderer state.
      */
-    std::string serialize() {
-        return env.serialize();
-    }
+    std::string serialize();
 
     /**
      * @brief Deserializes the Renderer state from a JSON string or link.
      * @param serialOrLink The JSON string or link to deserialize.
      */
-    void deserialize(std::string const& serialOrLink) noexcept {
-        env.deserialize(
-            serialOrLink,
-            getDoc().get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
-            getDoc().get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0)
-            );
-    }
+    void deserialize(std::string const& serialOrLink) noexcept ;
 
     //------------------------------------------
     // Pipeline
@@ -420,6 +413,16 @@ private:
     bool* headless = nullptr;
 
     //------------------------------------------
+    // Display
+
+    /**
+     * @brief Sets up display values in the JSON document.
+     * @param X The width of the display.
+     * @param Y The height of the display.
+     */
+    void setupDisplayValues(unsigned int const& X, unsigned int const& Y) const ;
+
+    //------------------------------------------
     // Audio
 
     struct Audio {
@@ -439,7 +442,7 @@ private:
     } basicAudioWaveforms;
 
     //------------------------------------------
-    //General Variables
+    // General Variables
 
     /**
      * @brief Base directory for resource loading.

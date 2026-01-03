@@ -29,45 +29,6 @@ JsonScope::JsonScope(std::string const& name)
     DomainModule::Initializer::initJsonScope(this);
 }
 
-//------------------------------------------
-// Special member functions for JsonScope
-
-/*
-
-// --- Copy constructor
-JsonScope::JsonScope(JsonScope const& other)
-    : Domain(this->getName(), *this, *this),
-      JsonScopeBase(other)
-{
-    // If you need to re-register modules / reinit state after copy, do it here:
-    reinitModules();
-}
-
-// --- Move constructor
-JsonScope::JsonScope(JsonScope&& other) noexcept
-    : Domain(this->getName(), *this, *this),
-      JsonScopeBase(std::move(other))
-{}
-
-// --- Copy assignment (copy-and-swap)
-JsonScope& JsonScope::operator=(JsonScope const& other) {
-    if (this == &other) return *this;
-    JsonScope tmp(other);
-    std::swap(*this, tmp);
-    reinitModules();
-    return *this;
-}
-
-// --- Move assignment (copy-and-swap with moved temporary)
-JsonScope& JsonScope::operator=(JsonScope&& other) noexcept {
-    if (this == &other) return *this;
-    JsonScope tmp(std::move(other));
-    std::swap(*this, tmp);
-    return *this;
-}
-
-*/
-
 void JsonScope::deserialize(std::string const& serialOrLinkWithCommands) {
     // Two options: If serialOrLinkWithCommands has commands, we forward it to baseDeserialization
     // If not, we reached the lowest level and just deserialize normally

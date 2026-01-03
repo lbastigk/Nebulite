@@ -12,6 +12,7 @@
 
 // Nebulite
 #include "Nebulite.hpp"
+#include "Constants/KeyNames.hpp"
 #include "Core/Environment.hpp"
 #include "Core/Renderer.hpp"
 #include "DomainModule/Initializer.hpp"
@@ -79,11 +80,7 @@ Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, unsi
 
     //------------------------------------------
     // Set basic values inside global doc
-    getDoc().set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X);
-    getDoc().set<unsigned int>(Constants::KeyNames::Renderer::dispResY, Y);
-
-    getDoc().set<unsigned int>(Constants::KeyNames::Renderer::positionX, 0);
-    getDoc().set<unsigned int>(Constants::KeyNames::Renderer::positionY, 0);
+    setupDisplayValues(X, Y);
 
     //------------------------------------------
     // Start timers
@@ -93,6 +90,13 @@ Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, unsi
     //------------------------------------------
     // Domain Modules
     DomainModule::Initializer::initRenderer(this);
+}
+
+void Renderer::setupDisplayValues(unsigned int const& X, unsigned int const& Y) const {
+    getDoc().set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X);
+    getDoc().set<unsigned int>(Constants::KeyNames::Renderer::dispResY, Y);
+    getDoc().set<unsigned int>(Constants::KeyNames::Renderer::positionX, 0);
+    getDoc().set<unsigned int>(Constants::KeyNames::Renderer::positionY, 0);
 }
 
 Constants::Error Renderer::preParse() {
@@ -197,6 +201,21 @@ void Renderer::loadFonts() {
         // Handle font loading error
         Nebulite::cerr() << TTF_GetError() << " | " << fontPath << "\n";
     }
+}
+
+//------------------------------------------
+// Serialization / Deserialization
+
+std::string Renderer::serialize() {
+    return env.serialize();
+}
+
+void Renderer::deserialize(std::string const& serialOrLink) noexcept {
+    env.deserialize(
+        serialOrLink,
+        getDoc().get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
+        getDoc().get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0)
+    );
 }
 
 //------------------------------------------
