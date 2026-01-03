@@ -46,7 +46,8 @@ class Initializer;
 } // namespace Nebulite::DomainModule
 
 namespace Nebulite::Interaction::Logic {
-class Expression;
+class Assignment;   // Requires access to set target documents
+class Expression;   // Requires access to get unscoped values from global scope
 } // namespace Nebulite::Interaction::Logic
 
 namespace Nebulite::Interaction::Rules {
@@ -83,6 +84,7 @@ public:
     friend class Core::Texture;
 
     // Allow the Ruleset/Expression system access documents as well.
+    friend class Logic::Assignment;
     friend class Logic::Expression;
     friend class Rules::Ruleset;
     friend class Rules::JsonRuleset;

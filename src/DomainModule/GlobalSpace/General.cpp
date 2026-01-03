@@ -223,8 +223,7 @@ Constants::Error General::inScope(std::span<std::string const> const& args) {
     // A bit whacky, as we use the global scope for this instead of what is shared with this DomainModule
     // But this is the only way to get a full JsonScope with domain functionality
     std::string const scope = args[1];
-
-    auto const& s = domain.getDoc().shareScope(scope);
+    auto const& s = Nebulite::global().shareScope(*this);
     std::string const& cmd = std::string(__FUNCTION__) + std::string(" ") + Utility::StringHandler::recombineArgs(args.subspan(2));
     return s.parseStr(cmd);
 }

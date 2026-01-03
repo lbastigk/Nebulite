@@ -12,7 +12,7 @@ namespace Nebulite::DomainModule::RenderObject {
 Constants::Error Mirror::update() {
     if (mirrorEnabled || mirrorOnceEnabled) {
         // Mirror to GlobalSpace
-        Nebulite::global().getDoc().setSubDoc(mirrorKey.c_str(), getDoc());
+        Nebulite::global().shareScope(*this).setSubDoc(mirrorKey.c_str(), getDoc());
 
         // Reset once-flag
         mirrorOnceEnabled = false;
@@ -43,15 +43,15 @@ Constants::Error Mirror::mirror_off() {
 }
 
 Constants::Error Mirror::mirror_delete() {
-    Nebulite::global().getDoc().removeKey(mirrorKey.c_str());
+    Nebulite::global().shareScope(*this).removeKey(mirrorKey.c_str());
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error Mirror::mirror_fetch() {
-    if (Nebulite::global().getDoc().memberType(mirrorKey) != Data::KeyType::object) {
+    if (Nebulite::global().shareScope(*this).memberType(mirrorKey) != Data::KeyType::object) {
         return Constants::ErrorTable::addError("Mirror fetch failed: Key '" + mirrorKey + "' not of type document", Constants::Error::NON_CRITICAL);
     }
-    domain.deserialize(Nebulite::global().getDoc().serialize(mirrorKey));
+    domain.deserialize(Nebulite::global().shareScope(*this).serialize(mirrorKey));
     return Constants::ErrorTable::NONE();
 }
 

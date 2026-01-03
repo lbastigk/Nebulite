@@ -23,6 +23,8 @@
 #include "Data/TaskQueue.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Interaction/Rules/Ruleset.hpp"
+#include "Interaction/Rules/RulesetModule.hpp"
 #include "Utility/RNG.hpp"
 
 //------------------------------------------
@@ -32,7 +34,6 @@ namespace Nebulite::Interaction::Execution {
 
 template <typename DomainType>
 class DomainModule;
-
 } // namespace Nebulite::Interaction::Execution
 
 
@@ -71,10 +72,30 @@ public:
     GlobalSpace& operator=(GlobalSpace&&) = delete;
 
     //------------------------------------------
-    // Overwrite getDoc so its publicly accessible
+    // Provide scopes for DomainModules and RulesetModules, depending on their type
 
-    Core::JsonScope& getDoc() const override {
-        return documentScope;
+    // GlobalSpace DomainModules root is at "", then we add their own prefix
+    JsonScope& shareScope(Interaction::Execution::DomainModule<GlobalSpace> const& dm) const {
+        return documentScope.shareScope(dm.getDoc().getScopePrefix());
+    }
+
+    // Provide a custom scope for DomainModules from RenderObjects
+    // We add a prefix to signal what part these domainModules can access
+    JsonScope& shareScope(Interaction::Execution::DomainModule<RenderObject> const& dm) const {
+        return documentScope.shareScope("providedScope.domainModule.renderObject." + dm.getDoc().getScopePrefix());
+    }
+
+    // Provide a custom scope for DomainModules from JsonScope
+    // We add a prefix to signal what part these domainModules can access
+    JsonScope& shareScope(Interaction::Execution::DomainModule<JsonScope> const& dm) const {
+        return documentScope.shareScope("providedScope.domainModule.jsonScope." + dm.getDoc().getScopePrefix());
+    }
+
+    // Provide full scope to RulesetModules
+    JsonScope& shareScope(Interaction::Rules::RulesetModule const& rm) const {
+        (void)rm; // unused, we provide full scope for now
+        // TODO: add a getScopePrefix() to RulesetModule later on if needed
+        return documentScope.shareScope("");
     }
 
     //------------------------------------------
