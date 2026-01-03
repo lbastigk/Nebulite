@@ -39,7 +39,7 @@ JSON::JSON(JSON&& other) noexcept {
 
 JsonScope JSON::shareScope(std::string const& prefix) {
     std::scoped_lock const lockGuard(mtx);
-    return JsonScope(*this, prefix, "Shared JSON Scope");
+    return JsonScope(*this, prefix, "Managed Shared JSON Scope");
 }
 
 JsonScope& JSON::shareManagedScope(std::string const& prefix) {
@@ -47,6 +47,13 @@ JsonScope& JSON::shareManagedScope(std::string const& prefix) {
     auto newScope = std::make_unique<JsonScope>(*this, prefix, "Managed Shared JSON Scope");
     managedScopes.push_back(std::move(newScope));
     return *managedScopes.back();
+}
+
+JsonScopeBase& JSON::shareManagedScopeBase(std::string const& prefix) {
+    std::scoped_lock const lockGuard(mtx);
+    auto newScope = std::make_unique<JsonScopeBase>(*this, prefix);
+    managedScopeBases.push_back(std::move(newScope));
+    return *managedScopeBases.back();
 }
 
 //------------------------------------------

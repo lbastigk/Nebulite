@@ -176,6 +176,8 @@ public:
     // Proper scope sharing with nested unscoped key generation
     [[nodiscard]] JsonScope& shareScope(scopedKey const& key) const ;
 
+    [[nodiscard]] JsonScopeBase& shareScopeBase(scopedKey const& key) const ;
+
     //------------------------------------------
     // Getter
 

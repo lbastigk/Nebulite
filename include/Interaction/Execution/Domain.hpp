@@ -247,10 +247,11 @@ public:
      * @brief Factory method for creating DomainModule instances with proper linkage
      * @tparam DomainModuleType The type of module to initialize
      * @param moduleName The name of the module
+     * @param scope Pointer to the JsonScope for the module
      */
     template <typename DomainModuleType>
-    void initModule(std::string moduleName) {
-        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, getFuncTree());
+    void initModule(std::string moduleName, Data::JsonScopeBase* scope) {
+        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, getFuncTree(), scope);
         DomainModule->reinit();
         modules.push_back(std::move(DomainModule));
     }

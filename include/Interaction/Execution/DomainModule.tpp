@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <utility>
 #include "Interaction/Execution/DomainModule.hpp"
+//#include "Data/Document/JsonScope.hpp"
 
 // Small utilities
 
@@ -16,8 +17,10 @@ template <typename DomainType>
 DomainModule<DomainType>::DomainModule(
     std::string name,
     DomainType& domainReference,
-    std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr
-) : DomainModuleBase(std::move(funcTreePtr)), moduleName(std::move(name)), domain(domainReference) {}
+    std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr,
+    Data::JsonScopeBase* scope
+) : DomainModuleBase(std::move(funcTreePtr), scope), moduleName(std::move(name)), domain(domainReference) {
+}
 
 template <typename DomainType>
 DomainModule<DomainType>::~DomainModule() = default;

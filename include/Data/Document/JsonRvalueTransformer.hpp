@@ -19,7 +19,6 @@
 
 // Nebulite
 #include "Interaction/Execution/FuncTree.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -236,26 +235,6 @@ public:
      * @details Uses an empty string as key, so the entire JSON document is the value used.
      */
     static std::string_view constexpr valueKey = "";
-
-    /**
-     * @brief Binding helper using std::variant and std::
-     * @param functionPtr The function to bind
-     * @param name The name of the function
-     * @param desc The description of the function
-     */
-    template <typename Func>
-    void bindTransformationFunction(
-        Func functionPtr,
-        std::string_view const& name,
-        std::string_view const& desc
-    ) {
-        Interaction::Execution::DomainModuleBase::bindFunctionStatic(
-            transformationFuncTree.get(),
-            functionPtr,
-            name,
-            desc
-        );
-    }
 
     /**
      * @brief Parses and applies JSON transformations from the given arguments.

@@ -26,6 +26,7 @@
 // Forward declarations
 namespace Nebulite::Data {
 class JsonScope;
+class JsonScopeBase;
 } // namespace Nebulite::Data
 
 //------------------------------------------
@@ -192,6 +193,11 @@ private:
      */
     std::vector<std::unique_ptr<JsonScope>> managedScopes;
 
+    /**
+     * @brief Managed scopeBases for shareManagedScopeBase.
+     */
+    std::vector<std::unique_ptr<JsonScopeBase>> managedScopeBases;
+
 public:
     //------------------------------------------
     // Constructor/Destructor
@@ -215,20 +221,31 @@ public:
     // Scope sharing
 
     /**
-     * @brief Shares part JSON document as a JsonScope.
+     * @brief Shares part JSON document as a JsonScope, externally managed.
      * @param prefix The prefix representing the part of the JSON document to share.
-     *               If empty, shares the entire document.
      * @return A JsonScope representing a part of the JSON document.
      */
     JsonScope shareScope(std::string const& prefix = "");
 
     /**
      * @brief Shares part JSON document as a JsonScop that is managed internally.
+     * @details As this is a full JsonScope, it will initialize a full domain for interaction system usage.
+     *          If your program segfaults due to infinite recursion, use shareManagedScopeBase instead.
      * @param prefix The prefix representing the part of the JSON document to share.
      *               If empty, shares the entire document.
      * @return A JsonScope reference representing a part of the JSON document.
      */
     JsonScope& shareManagedScope(std::string const& prefix = "");
+
+    /**
+     * @brief Shares part JSON document as a JsonScopeBase that is managed internally.
+     * @details Sometimes we cannot use full JsonScopes due circular issues, causing a cascade of Domain initializations.
+     *          In those cases, use JsonScopeBase via this method.
+     * @param prefix The prefix representing the part of the JSON document to share.
+     *               If empty, shares the entire document.
+     * @return A JsonScope reference representing a part of the JSON document.
+     */
+    JsonScopeBase& shareManagedScopeBase(std::string const& prefix = "");
 
     //------------------------------------------
     // Custom copy method

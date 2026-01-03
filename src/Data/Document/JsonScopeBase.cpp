@@ -104,6 +104,10 @@ JsonScope& JsonScopeBase::shareScope(scopedKey const& key) const {
     return baseDocument->shareManagedScope(key.full(*this));
 }
 
+JsonScopeBase& JsonScopeBase::shareScopeBase(scopedKey const& key) const {
+    return baseDocument->shareManagedScopeBase(key.full(*this));
+}
+
 //------------------------------------------
 // Getter
 

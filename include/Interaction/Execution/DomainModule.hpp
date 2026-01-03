@@ -31,8 +31,8 @@ bool constexpr endsWithNewline(std::string_view str) {
     class DomainModuleName final : public Nebulite::Interaction::Execution::DomainModule<DomainName>
 
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
-    explicit DomainModuleName(std::string const& name, DomainName& domainReference, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr) \
-    : DomainModule(name, domainReference, std::move(funcTreePtr))
+    explicit DomainModuleName(std::string const& name, DomainName& domainReference, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Data::JsonScopeBase* scope) \
+    : DomainModule(name, domainReference, std::move(funcTreePtr), scope)
 
 #define BINDFUNCTION(func, name,desc) \
 static_assert(endsWithNewline(desc), "Function description must end with a newline character."); \
@@ -51,10 +51,12 @@ class DomainModuleBase {
 public:
     /**
      * @brief Constructor for the DomainModule base class.
+     * @param funcTreePtr Shared pointer to the FuncTree for binding functions and variables.
+     * @param scope Pointer to a JsonScopeBase document for this module.
      * @details The constructor initializes the DomainModuleBase with
      *          the FuncTree pointer for binding functions and variables.
      */
-    explicit DomainModuleBase(std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr);
+    explicit DomainModuleBase(std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr, Data::JsonScopeBase* scope);
 
     //------------------------------------------
     // Static Binding Functions
@@ -167,9 +169,13 @@ public:
      * @brief Constructor for the DomainModule base class.
      * @details The constructor initializes the DomainModule with a reference to the domain and
      *          the FuncTree.
+     * @param name Name of the DomainModule, useful for debugging and logging.
+     * @param domainReference Reference to the Domain instance this module is associated with.
+     * @param funcTreePtr Shared pointer to the FuncTree for binding functions and variables.
+     * @param scope A string representing the scope prefix for this module's JSON document.
      * @todo TODO: Add argument for custom scope prefix
      */
-    DomainModule(std::string name, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr);
+    DomainModule(std::string name, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr, Data::JsonScopeBase* scope);
 
     /**
      * @brief Virtual destructor for DomainModule.

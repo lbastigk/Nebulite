@@ -4,6 +4,7 @@
 #include "Nebulite.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonRvalueTransformer.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------
