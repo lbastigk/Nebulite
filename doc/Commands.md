@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sat Jan  3 00:35:07 CET 2026
+Generated on: Sat Jan  3 22:57:28 CET 2026
 
 ## Table of Contents
 
@@ -45,6 +45,7 @@ Available Functions
 | `for` | Executes a for-loop with a function call. |
 | `help` | Show available commands and their descriptions |
 | `if` | Executes a block of code if a condition is true. |
+| `in-scope` | Parses a command within a specific scope. |
 | `input-wait` | Waits for user input before continuing. |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
@@ -362,6 +363,18 @@ It is recommended to wrap the condition in quotes to prevent parsing issues.
 
 Example:
 if '$(eq(1+1,2))' echo Condition is true!
+```
+
+#### `in-scope`
+
+```
+Parses a command within a specific scope.
+
+Usage: in-scope <scope> <command>
+
+Example:
+in-scope global echo This is in the global scope!
+This will output: This is in the global scope!
 ```
 
 #### `input-wait`
@@ -1007,6 +1020,7 @@ Available Functions
 | `add` | Adds a numeric value to the current JSON value. |
 | `assertNonEmpty` | Asserts that the current JSON value is non-empty. |
 | `at` | Gets the element at the specified index from the array in the current JSON value. |
+| `deserialize` | Deserializes the current JSON string value. |
 | `echo` | Echoes the provided arguments to the console, with newline. |
 | `ensureArray` | Ensures the current JSON value is an array. |
 | `first` | Gets the first element of the array in the current JSON value. |
@@ -1021,6 +1035,7 @@ Available Functions
 | `pow` | Raises the current JSON value to the power of a numeric value. |
 | `print` | Prints the current JSON value to the console. |
 | `reverse` | Reverses the array in the current JSON value. |
+| `serialize` | Serializes the current JSON value to a string. |
 | `toBool` | Converts the current JSON value to a boolean. |
 | `toBoolString` | Converts the current JSON value to a boolean string. |
 | `toDouble` | Converts the current JSON value to a double. |
@@ -1050,6 +1065,13 @@ Usage: |assertNonEmpty -> {value,<Exception thrown if empty>}
 Gets the element at the specified index from the array in the current JSON value.
 If the index is out of bounds, the transformation fails.
 Usage: |at <index> -> {value}
+```
+
+#### `deserialize`
+
+```
+Deserializes the current JSON string value.
+Usage: |deserialize -> {value}
 ```
 
 #### `echo`
@@ -1146,6 +1168,13 @@ Usage: |print -> {unchanged-json}
 Reverses the array in the current JSON value.
 If the current value is not an array, it is first wrapped into a single-element array.
 Usage: |reverse -> {array}
+```
+
+#### `serialize`
+
+```
+Serializes the current JSON value to a string.
+Usage: |serialize -> {string}
 ```
 
 #### `toBool`

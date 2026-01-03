@@ -20,6 +20,7 @@ critical
 debug
 delete
 deload
+deserialize
 draft
 echo
 ensure-array
@@ -40,6 +41,7 @@ global
 halt-once
 help
 if
+in-scope
 input-wait
 json
 key
@@ -79,6 +81,7 @@ reverse
 rotate
 ruleset
 selected-object
+serialize
 set
 set-background
 set-fixed-dt
