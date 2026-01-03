@@ -60,13 +60,15 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_
 // Pipeline
 
 namespace {
-std::pair<int16_t, int16_t> getTilePos(RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
+std::pair<int16_t, int16_t> getTilePos(RenderObject* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
+    SDL_Rect const* dst = toAppend->getDstRect();
+
     // Calculate correspondingTilePositionX using positionX
-    auto const positionX = toAppend->getDoc().get<double>(Nebulite::Constants::KeyNames::RenderObject::positionX, 0.0);
+    auto const positionX = dst->x;
     auto correspondingTilePositionX = static_cast<int16_t>(positionX / static_cast<double>(displayResolutionX));
 
     // Calculate correspondingTilePositionY using positionY
-    auto const positionY = toAppend->getDoc().get<double>(Nebulite::Constants::KeyNames::RenderObject::positionY, 0.0);
+    auto const positionY = dst->y;
     auto correspondingTilePositionY = static_cast<int16_t>(positionY / static_cast<double>(displayResolutionY));
 
     // Form pair and return

@@ -5,7 +5,7 @@ namespace Nebulite::Interaction::Execution {
 
 DomainBase& DomainBase::operator=(DomainBase const& other) {
     if (this == &other) return *this;
-    if (&document != &other.document) {
+    if (&documentScope != &other.documentScope) {
         throw std::invalid_argument("DomainBase::operator=: cannot assign from object with different document reference");
     }
 
@@ -31,7 +31,15 @@ DomainBase& DomainBase::operator=(DomainBase&& other) noexcept {
 DomainBase::~DomainBase() = default;
 
 std::string const& DomainBase::scopePrefix() const {
-    return document.getScopePrefix();
+    return documentScope.getScopePrefix();
+}
+
+Data::MappedOrderedDoublePointers* DomainBase::getDocumentCacheMap() const {
+    return documentScope.getOrderedCacheListMap();
+}
+
+Data::JsonScopeBase& DomainBase::shareDocumentScopeBase(std::string const& prefix) const {
+    return documentScope.shareScopeBase(prefix);
 }
 
 } // namespace Nebulite::Interaction::Execution

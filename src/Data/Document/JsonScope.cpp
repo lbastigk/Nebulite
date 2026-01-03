@@ -131,4 +131,9 @@ void JsonScope::deserialize(std::string const& serialOrLink) {
     }
 }
 
+// Proper scope sharing with nested unscoped key generation
+JsonScope& JsonScope::shareScope(scopedKey const& key) const {
+    return baseDocument->shareManagedScope(key.full(*this));
+}
+
 } // namespace Nebulite::Data

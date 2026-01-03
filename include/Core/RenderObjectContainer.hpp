@@ -159,7 +159,7 @@ public:
         for (auto& batches : std::views::values(ObjectContainer)) {
             for (auto& [objects, _] : batches) {
                 for (auto const& object : objects) {
-                    if (object->getDoc().get<uint32_t>(Constants::KeyNames::RenderObject::id, 0) == id) {
+                    if (object->getId() == id) {
                         return object;
                     }
                 }

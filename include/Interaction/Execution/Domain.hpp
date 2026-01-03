@@ -27,6 +27,7 @@
 
 namespace Nebulite::Data {
 class JsonScope;
+class MappedOrderedDoublePointers;
 } // namespace Nebulite::Data
 
 //------------------------------------------
@@ -41,7 +42,7 @@ namespace Nebulite::Interaction::Execution {
 class DomainBase {
 public:
     DomainBase(std::string const& name, Data::JsonScope& documentReference)
-        : domainName(name), document(documentReference){
+        : documentScope(documentReference), domainName(name){
         funcTree = std::make_shared<FuncTree<Constants::Error>>(
             name,
             Constants::ErrorTable::NONE(),
@@ -145,25 +146,35 @@ public:
     // Access to private members
 
     /**
+     * @brief Gets the name of the domain.
+     * @return The name of the domain.
+     */
+    [[nodiscard]] std::string const& getName() const { return domainName; }
+
+    /**
+     * @brief Gets the ordered cache list map of the domain's document.
+     * @return Pointer to the ordered cache list map.
+     */
+    [[nodiscard]] virtual Data::MappedOrderedDoublePointers* getDocumentCacheMap() const ;
+
+    /**
+     * @brief Shares a scope from the domain's document.
+     * @param prefix The prefix of the scope to share.
+     * @return A reference to the shared JsonScope.
+     */
+    [[nodiscard]] Data::JsonScopeBase& shareDocumentScopeBase(std::string const& prefix) const ;
+
+    /**
      * @brief Gets a reference to the internal JSON document of the domain.
      *        Each domain uses a JSON document to store its data.
      *        For the JSON domain, this is a reference to itself.
      *        For others, it's a reference to their JSON document.
      * @return A reference to the internal JSON document.
      * @todo Find a way to disallow getDoc() and instead share a per-domainmodule JsonScope reference.
-     *       Idea is to replace domain.getDoc()... with just document... in DomainModules.
-     *       And replace all other usages with safe getters/setters in their implementations.
-     *       E.g.: instead of obj.getDoc().set(posX) --> obj.setPositionX()
-     *       This perhaps bloats the Domain interfaces a bit, but increases safety a lot.
-     * @todo Specifically, we wish to allow getDoc() only outside of DomainModules.
+     *       IDEA: Make it part of protected, which will allow only domains to access it.
+     *       Best idea would probably be to store a domain wrapper in each DomainModule that deletes getDoc()
      */
-    [[nodiscard]] virtual Data::JsonScope& getDoc() const { return document; }
-
-    /**
-     * @brief Gets the name of the domain.
-     * @return The name of the domain.
-     */
-    [[nodiscard]] std::string const& getName() const { return domainName; }
+    [[nodiscard]] virtual Data::JsonScope& getDoc() const { return documentScope; }
 
 protected:
     /**
@@ -175,16 +186,16 @@ protected:
         return funcTree;
     }
 
+    /**
+     * @brief Each domain uses a JSON document to store its data.
+     */
+    Data::JsonScope& documentScope;
+
 private:
     /**
      * @brief The name of the domain.
      */
     std::string domainName;
-
-    /**
-     * @brief Each domain uses a JSON document to store its data.
-     */
-    Data::JsonScope& document;
 
     /**
      * @brief Parsing interface for domain-specific commands.

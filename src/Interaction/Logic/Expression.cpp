@@ -597,7 +597,7 @@ void Expression::updateCaches(Data::JsonScope& reference) {
     // Document other stores a list of ordered double pointers for our expression
     // So we only have one query to get all pointers instead of querying each variable individually
     if (!virtualDoubles.nonRemanent.other.empty()) {
-        auto const* listData = reference.getOrderedCacheListMap()->ensureOrderedCacheList(uniqueId, reference, virtualDoubles.nonRemanent.other)->data();
+        auto const* listData = reference.getOrderedCacheListMap()->ensureOrderedCacheList(uniqueId, virtualDoubles.nonRemanent.other)->data();
         const size_t count = virtualDoubles.nonRemanent.other.size();
         for (size_t i = 0; i < count; ++i) {
             virtualDoubles.nonRemanent.other[i]->setDirect(*listData[i]);

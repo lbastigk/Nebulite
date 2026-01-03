@@ -5,11 +5,13 @@
 // Includes
 
 // Standard library
+#include <array>
 #include <memory>
 #include <string>
 #include <optional>
 #include <mutex>
 #include <thread>
+#include <utility>
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
@@ -25,6 +27,17 @@ class JSON;
 
 //------------------------------------------
 namespace Nebulite::Data {
+
+template<typename T, std::size_t N, typename Arg, std::size_t... I>
+constexpr std::array<T, N> make_array_with_arg_impl(Arg&& arg, std::index_sequence<I...>) {
+    return std::array<T, N>{ { (static_cast<void>(I), T(std::forward<Arg>(arg)))... } };
+}
+
+template<typename T, std::size_t N, typename Arg>
+constexpr std::array<T, N> make_array_with_arg(Arg&& arg) {
+    return make_array_with_arg_impl<T, N>(std::forward<Arg>(arg), std::make_index_sequence<N>{});
+}
+
 /**
  * @class Nebulite::Data::JsonScopeBase
  * @brief The JsonScopeBase class provides a scoped interface for accessing and modifying JSON documents.
@@ -51,12 +64,8 @@ private:
 
     /**
      * @brief Mapped ordered double pointers for expression references.
-     * @todo A proper refactor so that each MappedOrderedDoublePointers has a JsonScopeBase as root!
-     *       This ensures that no accidental wrong key accesses happens.
-     *       Increases complexity of construction a bit, but is worth it.
-     *       -> Basically: for(m : MappedOrderedDoublePointers) m = MappedOrderedDoublePointers(this);
      */
-    MappedOrderedDoublePointers expressionRefs[ORDERED_DOUBLE_POINTERS_MAPS];
+    std::array<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS> expressionRefs;
 
     //------------------------------------------
     // Valid prefix check and generation
@@ -76,8 +85,8 @@ private:
     void swap(JsonScopeBase& o) noexcept ;
 
     // Necessary helper for shareScope
-    [[nodiscard]] JsonScope& shareManagedScope(std::string const& prefix) const {
-        return shareScope(scopedKey(prefix));
+    [[nodiscard]] JsonScopeBase& shareManagedScopeBase(std::string const& prefix) const {
+        return shareScopeBase(scopedKey(prefix));
     }
 
 public:
@@ -148,6 +157,7 @@ public:
     public:
         // JsonScopeBase should be the only class able to convert scopedKey to full key
         friend class JsonScopeBase;
+        friend class JsonScope;
 
         // Accept any T that is constructible into std::string
         // We disable linting as the implicit conversion is intended here
@@ -172,9 +182,6 @@ public:
 
     //------------------------------------------
     // Sharing a scope
-
-    // Proper scope sharing with nested unscoped key generation
-    [[nodiscard]] JsonScope& shareScope(scopedKey const& key) const ;
 
     [[nodiscard]] JsonScopeBase& shareScopeBase(scopedKey const& key) const ;
 

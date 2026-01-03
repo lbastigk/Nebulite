@@ -101,11 +101,6 @@ public:
     [[nodiscard]] SDL_Texture* getTextTexture() const;
 
     //------------------------------------------
-    // State Checkers
-
-
-
-    //------------------------------------------
     // Update-Oriented functions
 
     /**
@@ -147,6 +142,14 @@ public:
      * @return The estimated computational cost.
      */
     uint64_t estimateComputationalCost(bool const& onlyInternal = true);
+
+    //------------------------------------------
+    // Special getters
+
+    [[nodiscard]] uint32_t getId() const {
+        // A double can represent all uint32_t values exactly, so this is safe
+        return static_cast<uint32_t>(static_cast<int64_t>(*refs.id));
+    }
 
     //------------------------------------------
     // Management Flags for Renderer-Interaction

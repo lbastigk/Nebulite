@@ -30,8 +30,8 @@ public:
     Constants::Error update() override;
     void reinit() override {
         reloadRulesets = true;
-        subscription_size = domain.getDoc().memberSize(Constants::KeyNames::RenderObject::invokeSubscriptions);
-        id = domain.getDoc().get<uint32_t>(Constants::KeyNames::RenderObject::id,0);
+        subscription_size = getDoc().memberSize(Constants::KeyNames::RenderObject::invokeSubscriptions);
+        id = getDoc().get<uint32_t>(Constants::KeyNames::RenderObject::id,0);
     }
 
     //------------------------------------------

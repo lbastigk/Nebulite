@@ -145,6 +145,7 @@ protected:
      *          FuncTree, however, is fully defined at this point, so we can use it directly.
      *          Instead of making a mess by untangling the templates, we simply use a pointer
      *          to the non-templated interface.
+     * @todo Move to private?
      */
     std::shared_ptr<FuncTree<Constants::Error>> funcTree;
 
@@ -152,6 +153,7 @@ protected:
      * @brief Shared pointer to the JsonScopeBase document.
      * @details This allows derived DomainModules to access and manipulate
      *          the JSON document as needed.
+     * @todo Move to private?
      */
     std::unique_ptr<Data::JsonScopeBase> docPtr;
 };

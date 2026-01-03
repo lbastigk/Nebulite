@@ -214,7 +214,11 @@ private:
     bool continueLoop = true;
 
     // Global JSON Document
-    Data::JsonScope document = Data::JsonScope("GlobalSpace Document");
+    // Technically better to not have this variable and rely on
+    // creating a JsonScope in the Constructor
+    // And then using getDoc() to access it,
+    // but this is more difficult due to lifetime issues it seems.
+    Data::JsonScope globalDoc = Data::JsonScope("GlobalSpace Document");
 
     // DocumentCache for read-only documents
     Data::DocumentCache docCache;

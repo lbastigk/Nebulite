@@ -9,8 +9,8 @@
 namespace Nebulite::Core {
 
 GlobalSpace::GlobalSpace(std::string const& name)
-    : Domain("Nebulite", *this, document), // Domain with reference to GlobalSpace and its full scope
-      renderer(document, &cmdVars.headless) // Renderer with reference to GlobalSpace and headless mode boolean
+    : Domain("Nebulite", *this, globalDoc), // Domain with reference to GlobalSpace and its full scope
+      renderer(globalDoc, &cmdVars.headless) // Renderer with reference to GlobalSpace and headless mode boolean
 {
     //------------------------------------------
     // There should only be one GlobalSpace
@@ -35,7 +35,7 @@ GlobalSpace::GlobalSpace(std::string const& name)
     // Domain-Related
 
     // Link inherited Domains
-    inherit(&document);
+    inherit(&globalDoc);
     inherit(&renderer);
 
     // Initialize DomainModules
@@ -221,8 +221,8 @@ Constants::Error GlobalSpace::preParse() {
 void GlobalSpace::updateRNGs() {
     // Set Min and Max values for RNGs in document
     // Always set, so overwrites don't stick around
-    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::min, std::numeric_limits<RngVars::rngSize_t>::min());
-    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::max, std::numeric_limits<RngVars::rngSize_t>::max());
+    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::min, std::numeric_limits<RngVars::rngSize_t>::min());
+    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::max, std::numeric_limits<RngVars::rngSize_t>::max());
 
     // Generate seeds in a predictable manner
     // Since updateRNG is called at specific times only, we can simply increment RNG with a new seed
@@ -238,10 +238,10 @@ void GlobalSpace::updateRNGs() {
     rng.D.update(seedD);
 
     // Set RNG values in global document
-    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::A, rng.A.get());
-    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::B, rng.B.get());
-    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::C, rng.C.get());
-    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::D, rng.D.get());
+    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::A, rng.A.get());
+    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::B, rng.B.get());
+    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::C, rng.C.get());
+    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::D, rng.D.get());
 }
 
 } // namespace Nebulite::Core

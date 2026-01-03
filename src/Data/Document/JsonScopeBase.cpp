@@ -2,6 +2,9 @@
 #include "Data/Document/JsonScope.hpp"
 #include "Data/Document/JSON.hpp"
 
+#include <array>
+
+
 // scopedKey methods
 namespace Nebulite::Data {
 
@@ -46,30 +49,35 @@ namespace Nebulite::Data {
 // Constructing a JsonScopeBase from a JSON document and a prefix
 JsonScopeBase::JsonScopeBase(JSON& doc, std::string const& prefix)
     // create a non-owning shared_ptr to the provided JSON (no delete on destruction)
-    : baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){})), scopePrefix(generatePrefix(prefix))
+    : baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){})), scopePrefix(generatePrefix(prefix)),
+      expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS>(*this))
 {}
 
 // Constructing a JsonScopeBase from another JsonScopeBase and a sub-prefix
 JsonScopeBase::JsonScopeBase(JsonScopeBase const& other, std::string const& prefix)
     : baseDocument(other.baseDocument),
-      scopePrefix(scopedKey(generatePrefix(prefix)).full(other))  // Generate full scoped prefix based on the other JsonScopeBase and the new prefix
+      scopePrefix(scopedKey(generatePrefix(prefix)).full(other)), // Generate full scoped prefix based on the other JsonScopeBase and the new prefix
+      expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS>(*this))
 {}
 
 // Default constructor, we create a self-owned empty JSON document
 JsonScopeBase::JsonScopeBase()
-    : baseDocument(std::make_shared<JSON>()), scopePrefix("")
+    : baseDocument(std::make_shared<JSON>()), scopePrefix(""),
+      expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS>(*this))
 {}
 
 // --- Copy constructor
 JsonScopeBase::JsonScopeBase(JsonScopeBase const& other)
     : baseDocument(other.baseDocument),
-      scopePrefix(other.scopePrefix)
+      scopePrefix(other.scopePrefix),
+      expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS>(*this))
 {}
 
 // --- Move constructor
 JsonScopeBase::JsonScopeBase(JsonScopeBase&& other) noexcept
     : baseDocument(std::move(other.baseDocument)),
-      scopePrefix(std::move(other.scopePrefix))
+      scopePrefix(std::move(other.scopePrefix)),
+      expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS>(*this))
 {}
 
 // --- Copy assignment (copy-and-swap)
@@ -99,10 +107,6 @@ JsonScopeBase::~JsonScopeBase() = default;
 //------------------------------------------
 // Sharing a scope
 
-// Proper scope sharing with nested unscoped key generation
-JsonScope& JsonScopeBase::shareScope(scopedKey const& key) const {
-    return baseDocument->shareManagedScope(key.full(*this));
-}
 
 JsonScopeBase& JsonScopeBase::shareScopeBase(scopedKey const& key) const {
     return baseDocument->shareManagedScopeBase(key.full(*this));

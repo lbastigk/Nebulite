@@ -285,9 +285,9 @@ void Renderer::append(RenderObject* toAppend) {
 
 void Renderer::reinsertAllObjects() {
     env.reinsertAllObjects(
-        getDoc().get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
-        getDoc().get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0)
-        );
+    getDoc().get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
+    getDoc().get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0)
+    );
 }
 
 //------------------------------------------

@@ -109,7 +109,7 @@ protected:
      * @return A pointer to an array of double pointers, each pointing to a base value.
      */
     double** getBaseList(Execution::DomainBase const& ctx, std::vector<std::string_view> const& keys) const {
-        return ensureOrderedCacheList(ctx.getDoc(), keys)->data();
+        return ensureOrderedCacheList(ctx, keys)->data();
     }
 
 private:
@@ -130,7 +130,11 @@ private:
      * @return An array of values corresponding to the provided keys
      */
     Data::odpvec* ensureOrderedCacheList(Data::JsonScope& doc, std::vector<std::string_view> const& keys) const {
-        return doc.getOrderedCacheListMap()->ensureOrderedCacheList(id, doc, keys);
+        return doc.getOrderedCacheListMap()->ensureOrderedCacheList(id, keys);
+    }
+
+    Data::odpvec* ensureOrderedCacheList(Execution::DomainBase const& ctx, std::vector<std::string_view> const& keys) const {
+        return ctx.getDocumentCacheMap()->ensureOrderedCacheList(id, keys);
     }
 };
 }

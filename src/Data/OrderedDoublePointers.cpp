@@ -4,7 +4,7 @@
 
 namespace Nebulite::Data {
 
-odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, JsonScope& reference, std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther) {
+odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther) {
     // Quick-cache path protected by mtxCache
     if (uniqueId < Data::MappedOrderedDoublePointers::quickCacheSize) {
         {
@@ -47,7 +47,7 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, J
     return &newIt->second.orderedValues;
 }
 
-odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniqueId, JsonScope& reference, std::vector<std::string_view> const& keys) {
+odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<std::string_view> const& keys) {
     // Quick-cache path protected by mtxCache
     if (uniqueId < Data::MappedOrderedDoublePointers::quickCacheSize) {
         {

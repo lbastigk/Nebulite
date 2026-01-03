@@ -50,18 +50,18 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     //------------------------------------------
     // Initialize DomainModules
     using namespace Nebulite::DomainModule::GlobalSpace;
-    target->initModule<General>("Global General Functions", &target->getDoc().shareScopeBase(""));
-    target->initModule<Debug>("Global Debug Functions", &target->getDoc().shareScopeBase(""));
-    target->initModule<Input>("Global Input Functions", &target->getDoc().shareScopeBase(""));
-    target->initModule<Ruleset>("Global Ruleset Functions", &target->getDoc().shareScopeBase(""));
+    target->initModule<General>("Global General Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<Debug>("Global Debug Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<Input>("Global Input Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<Ruleset>("Global Ruleset Functions", &target->shareDocumentScopeBase(""));
 
     //------------------------------------------
     // Special debugging utilities
-    target->initModule<FunctionCollision>("Global Function Collision Detection utilities", &target->getDoc().shareScopeBase(""));
+    target->initModule<FunctionCollision>("Global Function Collision Detection utilities", &target->shareDocumentScopeBase(""));
 
     //------------------------------------------
     // Feature Test Modules
-    target->initModule<FeatureTest>("Global Feature Test Functions", &target->getDoc().shareScopeBase(""));
+    target->initModule<FeatureTest>("Global Feature Test Functions", &target->shareDocumentScopeBase(""));
 
     //------------------------------------------
     // Time module relies on knowing if anything is locking the time
@@ -69,8 +69,8 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     // Example: Console might want to halt time while open
     //          if we initialize time first, it will update before console
     //          thus ignoring the console's halt request being sent to renderer
-    target->initModule<Time>("Global Time Functions", &target->getDoc().shareScopeBase(""));
-    target->initModule<Clock>("Global Clock Functions", &target->getDoc().shareScopeBase("")); // Clock relies on time, so init after time
+    target->initModule<Time>("Global Time Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<Clock>("Global Clock Functions", &target->shareDocumentScopeBase("")); // Clock relies on time, so init after time
 
     //------------------------------------------
     // Initialize Variable Bindings
@@ -81,35 +81,35 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
 void Initializer::initJsonScope(Data::JsonScope* target) {
     // Initialize DomainModules
     using namespace Nebulite::DomainModule::JsonScope;
-    target->initModule<SimpleData>("JSON Simple Data Functions", &target->getDoc().shareScopeBase(""));
-    target->initModule<ComplexData>("JSON Complex Data Functions", &target->getDoc().shareScopeBase(""));
-    target->initModule<Debug>("JSON Debug Functions", &target->getDoc().shareScopeBase(""));
+    target->initModule<SimpleData>("JSON Simple Data Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<ComplexData>("JSON Complex Data Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<Debug>("JSON Debug Functions", &target->shareDocumentScopeBase(""));
 }
 
 void Initializer::initRenderObject(Core::RenderObject* target) {
     // Initialize DomainModules
     using namespace Nebulite::DomainModule::RenderObject;
-    target->initModule<Debug>("RenderObject Debug Functions", &target->getDoc().shareScopeBase(""));
-    target->initModule<Logging>("RenderObject Logging Functions", &target->getDoc().shareScopeBase(""));
-    target->initModule<Mirror>("RenderObject Mirror Functions", &target->getDoc().shareScopeBase(""));
-    target->initModule<Ruleset>("RenderObject Ruleset Functions", &target->getDoc().shareScopeBase(""));
-    target->initModule<StateUpdate>("RenderObject State Update Functions", &target->getDoc().shareScopeBase(""));
+    target->initModule<Debug>("RenderObject Debug Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<Logging>("RenderObject Logging Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<Mirror>("RenderObject Mirror Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<Ruleset>("RenderObject Ruleset Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<StateUpdate>("RenderObject State Update Functions", &target->shareDocumentScopeBase(""));
 }
 
 void Initializer::initRenderer(Core::Renderer* target) {
     // Initialize DomainModules
     using namespace Nebulite::DomainModule::Renderer;
-    target->initModule<General>("Renderer General Functions", &target->getDoc().shareScopeBase(""));
-    target->initModule<Console>("Renderer Console Functions", &target->getDoc().shareScopeBase(""));
-    target->initModule<RenderObjectDraft>("Renderer RenderObjectDraft Functions", &target->getDoc().shareScopeBase(""));
+    target->initModule<General>("Renderer General Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<Console>("Renderer Console Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<RenderObjectDraft>("Renderer RenderObjectDraft Functions", &target->shareDocumentScopeBase(""));
 }
 
 void Initializer::initTexture(Core::Texture* target) {
     // Initialize DomainModules
     using namespace Nebulite::DomainModule::Texture;
-    target->initModule<General>("Texture General Functions", &target->getDoc().shareScopeBase(""));
-    target->initModule<Rotation>("Texture Rotation Functions", &target->getDoc().shareScopeBase(""));
-    target->initModule<Fill>("Texture Fill Functions", &target->getDoc().shareScopeBase(""));
+    target->initModule<General>("Texture General Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<Rotation>("Texture Rotation Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<Fill>("Texture Fill Functions", &target->shareDocumentScopeBase(""));
 }
 
 } // namespace Nebulite::DomainModule

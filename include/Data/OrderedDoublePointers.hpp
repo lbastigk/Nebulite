@@ -19,7 +19,7 @@
 // Forward declarations
 
 namespace Nebulite::Data {
-class JsonScope;
+class JsonScopeBase;
 } // namespace Nebulite::Data
 
 namespace Nebulite::Interaction::Logic {
@@ -102,7 +102,7 @@ public:
     explicit OrderedDoublePointers(size_t exact_size) : orderedValues(exact_size) {
     }
 
-    DynamicFixedArray orderedValues;
+    DynamicFixedArray orderedValues {};
 };
 
 // Vector alias for easier usage of ordered double pointer vectors
@@ -114,6 +114,10 @@ using odpvec = Nebulite::Data::DynamicFixedArray;
  */
 class MappedOrderedDoublePointers {
 public:
+    explicit MappedOrderedDoublePointers(JsonScopeBase& ownerReference)
+        : reference(ownerReference) {
+    }
+
     /**
      * @brief Size of the quickcache for ordered double pointers.
      *
@@ -129,32 +133,31 @@ public:
      *        corresponding to all variables referenced by this Expression in the "other" context. If the cache entry does not exist,
      *        it is created and populated for fast indexed access during expression evaluation.
      * @param uniqueId The unique ID of the expression.
-     * @param reference The JSON document to reference as context "other" for variable resolution.
      * @param contextOther The vector of virtual doubles in the "other" context to populate the cache with.
      * @return A pointer to the ordered vector of double pointers for the referenced "other" variables.
-     * @todo Wouldn't reference always be the owner of this object? If so, couldn't we set it up on construction?
      */
     odpvec* ensureOrderedCacheList(
         uint64_t uniqueId,
-        JsonScope& reference,
         std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther
         );
 
     /**
      * @brief Ensures the existence of an ordered cache list of double pointers for a set of keys.
      * @param uniqueId The unique ID for the ordered cache list.
-     * @param reference The JSON document to reference for key resolution.
      * @param keys The vector of keys to populate the cache with.
      * @return A pointer to the ordered vector of double pointers for the specified keys.
-     * @todo Wouldn't reference always be the owner of this object? If so, couldn't we set it up on construction?
      */
     odpvec* ensureOrderedCacheList(
         uint64_t const& uniqueId,
-        JsonScope& reference,
         std::vector<std::string_view> const& keys
         );
 
 private:
+    /**
+     * @brief Reference to the JSON document that owns this cache.
+     */
+    JsonScopeBase& reference;
+
     /**
      * @brief Map from unique IDs to OrderedDoublePointers objects.
      */

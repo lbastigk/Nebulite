@@ -12,7 +12,7 @@ namespace Nebulite::DomainModule::RenderObject {
 Constants::Error Mirror::update() {
     if (mirrorEnabled || mirrorOnceEnabled) {
         // Mirror to GlobalSpace
-        Nebulite::global().getDoc().setSubDoc(mirrorKey.c_str(), domain.getDoc());
+        Nebulite::global().getDoc().setSubDoc(mirrorKey.c_str(), getDoc());
 
         // Reset once-flag
         mirrorOnceEnabled = false;
@@ -60,7 +60,7 @@ Constants::Error Mirror::mirror_fetch() {
 
 Constants::Error Mirror::setupMirrorKey() {
     // Only fetch key once we turn on mirroring
-    int const id = domain.getDoc().get<int>(Constants::KeyNames::RenderObject::id, 0);
+    int const id = getDoc().get<int>(Constants::KeyNames::RenderObject::id, 0);
     if (id < 1) {
         return Constants::ErrorTable::addError("Mirror key setup failed: RenderObject has invalid id", Constants::Error::NON_CRITICAL);
     }
