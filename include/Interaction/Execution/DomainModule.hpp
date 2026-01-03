@@ -112,7 +112,6 @@ public:
      * @param helpDescription Description of the category, shown in the help command.
      *                        First line is shown in the general help, full description in detailed help
      * @return true if the category was created successfully, false if a category with the same name already exists
-     * @todo Mark as [[nodiscard]] and refactor usage accordingly
      */
     [[nodiscard]] bool bindCategory(std::string_view const& name, std::string_view const& helpDescription) const {
         return funcTree->bindCategory(name, helpDescription);
@@ -137,7 +136,7 @@ public:
      */
     [[nodiscard]] Data::JsonScopeBase& getDoc() const ;
 
-protected:
+private:
     /**
      * @brief Pointer to the internal FuncTree for binding functions and variables.
      * @details We need a pointer here to avoid circular dependencies that are hard to resolve,
@@ -145,11 +144,9 @@ protected:
      *          FuncTree, however, is fully defined at this point, so we can use it directly.
      *          Instead of making a mess by untangling the templates, we simply use a pointer
      *          to the non-templated interface.
-     * @todo Move to private?
      */
     std::shared_ptr<FuncTree<Constants::Error>> funcTree;
 
-private:
     /**
      * @brief Pointer to the JsonScopeBase document.
      * @details This allows derived DomainModules to access and manipulate
@@ -174,8 +171,7 @@ public:
      * @param name Name of the DomainModule, useful for debugging and logging.
      * @param domainReference Reference to the Domain instance this module is associated with.
      * @param funcTreePtr Shared pointer to the FuncTree for binding functions and variables.
-     * @param scope A string representing the scope prefix for this module's JSON document.
-     * @todo TODO: Add argument for custom scope prefix
+     * @param scope Pointer to a JsonScopeBase document for this module.
      */
     DomainModule(std::string name, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr, Data::JsonScopeBase* scope);
 
