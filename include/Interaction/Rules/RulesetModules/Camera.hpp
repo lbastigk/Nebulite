@@ -107,7 +107,6 @@ private:
     //       e.g.: ::camera::align::right-top would align the camera's right edge to the object's top edge
     void setCameraPosition(const position& pos, Align align) const {
         switch (align) {
-
             case Align::Top:
                 *globalVal.camPosY = pos.y ;
                 break;

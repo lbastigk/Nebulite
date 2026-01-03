@@ -1,5 +1,7 @@
 #include "Nebulite.hpp"
 #include "Interaction/Rules/RulesetModules/Physics.hpp"
+
+#include "Core/GlobalSpace.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 
 namespace Nebulite::Interaction::Rules::RulesetModules {
@@ -15,8 +17,8 @@ Physics::Physics() : RulesetModule(moduleName) {
 
     // Global Variables
     globalVal.G = Nebulite::global().getDoc().getStableDoublePointer("physics.G"); // Gravitational constant
-    globalVal.dt = Nebulite::global().getDoc().getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::time_dt); // Simulation delta time
-    globalVal.t = Nebulite::global().getDoc().getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::time_t); // Simulation time
+    globalVal.dt = Nebulite::global().getDoc().getStableDoublePointer(Nebulite::Constants::KeyNames::GlobalSpace::time_dt); // Simulation delta time
+    globalVal.t = Nebulite::global().getDoc().getStableDoublePointer(Nebulite::Constants::KeyNames::GlobalSpace::time_t); // Simulation time
 }
 
 // Global rulesets

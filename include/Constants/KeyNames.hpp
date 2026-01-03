@@ -31,33 +31,45 @@ static constexpr Data::ScopedKey testKey{"renderer.", "time.t"}; // Only JsonSco
 
 struct KeyNames {
     struct Renderer {
-        // TODO: Use "renderer." as scope, and modify keys to be relative to that scope
-        static constexpr std::string_view self = "renderer";
-        static constexpr std::string_view dispResX = "display.resolution.X";
-        static constexpr std::string_view dispResY = "display.resolution.Y";
-        static constexpr std::string_view positionX = "display.position.X";
-        static constexpr std::string_view positionY = "display.position.Y";
-
-        // TODO: Move to scope "" for global access
-        static constexpr std::string_view time_t = "time.t";
-        static constexpr std::string_view time_t_ms = "time.t_ms";
-        static constexpr std::string_view time_dt = "time.dt";
-        static constexpr std::string_view time_dt_ms = "time.dt_ms";
+        static constexpr Data::ScopedKey dispResX{"renderer.","resolution.X"};
+        static constexpr Data::ScopedKey dispResY{"renderer.","resolution.Y"};
+        static constexpr Data::ScopedKey positionX{"renderer.","position.X"};
+        static constexpr Data::ScopedKey positionY{"renderer.","position.Y"};
     };
 
+    struct GlobalSpace {
+        // TODO: Unify with DomainModule::GlobalSpace::Time
+        //       Currently duplicated keys here and in that module
+        static constexpr Data::ScopedKey time_t{"","time.t"};
+        static constexpr Data::ScopedKey time_t_ms{"","time.t_ms"};
+        static constexpr Data::ScopedKey time_dt{"","time.dt"};
+        static constexpr Data::ScopedKey time_dt_ms{"","time.dt_ms"};
+
+        // Keys for RNG
+        struct RNG {
+            static constexpr Data::ScopedKey A{"random.","A"};
+            static constexpr Data::ScopedKey B{"random.","B"};
+            static constexpr Data::ScopedKey C{"random.","C"};
+            static constexpr Data::ScopedKey D{"random.","D"};
+            static constexpr Data::ScopedKey min{"random.","min"};
+            static constexpr Data::ScopedKey max{"random.","max"};
+        };
+    };
+
+    // TODO: Part of GlobalSpace?
     struct RNGs {
         // TODO: Use "random." as scope, and modify keys to be relative to that scope
-        static constexpr std::string_view A = "random.A";
-        static constexpr std::string_view B = "random.B";
-        static constexpr std::string_view C = "random.C";
-        static constexpr std::string_view D = "random.D";
-        static constexpr std::string_view min = "random.min";
-        static constexpr std::string_view max = "random.max";
+        //static constexpr std::string_view A = "random.A";
+        //static constexpr std::string_view B = "random.B";
+        //static constexpr std::string_view C = "random.C";
+        //static constexpr std::string_view D = "random.D";
+        //static constexpr std::string_view min = "random.min";
+        //static constexpr std::string_view max = "random.max";
     };
 
     struct RenderObject {
         // TODO: Use "" as scope, and modify keys to be relative to that scope
-        static constexpr std::string_view self = "renderObject";
+        //static constexpr std::string_view self = "renderObject";
         static constexpr std::string_view id = "id";
         static constexpr std::string_view positionX = "posX";
         static constexpr std::string_view positionY = "posY";
@@ -101,6 +113,7 @@ struct KeyNames {
         static constexpr std::string_view functioncalls_other = "functioncalls.other";
     };
 
+    // TODO: Move to DomainModule for RenderObject Ruleset handling
     struct Ruleset {
         static constexpr std::string_view self = "ruleset";
         static constexpr std::string_view topic = "topic";
@@ -109,10 +122,6 @@ struct KeyNames {
         static constexpr std::string_view parseOnGlobal = "functioncalls.global";
         static constexpr std::string_view parseOnSelf   = "functioncalls.self";
         static constexpr std::string_view parseOnOther  = "functioncalls.other";
-    };
-
-    struct Environment {
-        static constexpr std::string_view renderObjectContainer = "RenderObjectContainer";
     };
 };
 
