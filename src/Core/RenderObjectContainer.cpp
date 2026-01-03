@@ -60,10 +60,10 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_
 // Pipeline
 
 namespace {
-std::pair<int16_t, int16_t> getTilePos(RenderObject* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
-    auto pos = toAppend->getPosition();
-    auto correspondingTilePositionX = static_cast<int16_t>(pos.x / static_cast<double>(displayResolutionX));
-    auto correspondingTilePositionY = static_cast<int16_t>(pos.y / static_cast<double>(displayResolutionY));
+std::pair<int16_t, int16_t> getTilePos(RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
+    auto [x, y] = toAppend->getPosition();
+    auto correspondingTilePositionX = static_cast<int16_t>(x / static_cast<double>(displayResolutionX));
+    auto correspondingTilePositionY = static_cast<int16_t>(y / static_cast<double>(displayResolutionY));
     return std::make_pair(correspondingTilePositionX, correspondingTilePositionY);
 }
 } // anonymous namespace
