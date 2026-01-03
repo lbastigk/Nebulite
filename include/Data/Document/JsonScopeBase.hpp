@@ -47,7 +47,7 @@ constexpr std::array<T, N> make_array_with_arg(Arg&& arg) {
  *          Holds little data itself, mostly acts as a scoped view over an existing JSON document or another JsonScope.
  * @todo Move to namespace Nebulite::Core where all other Domain-related classes are located.
  * @todo Use scoped keys in DomainModules to reduce accidental key misusage:
- *       JsonScope::scopedKey key = {"subkey_in_scope", domain->getDoc().getScopePrefix()};
+ *       JsonScope::scopedKey key = {"subkey_in_scope", getDoc().getScopePrefix()};
  *       We can then use this key outside of the DomainModule without worrying about scope issues.
  *       This would require changing all DomainModules to use JsonScope::scopedKey instead of std::string_view for hardcoded keys.
  */

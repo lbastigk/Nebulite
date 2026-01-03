@@ -1,28 +1,27 @@
 #include "Nebulite.hpp"
 #include "Constants/KeyNames.hpp"
 #include "Interaction/Rules/RulesetModules/Debug.hpp"
-#include "Interaction/Rules/StaticRulesetMap.hpp"
 
 namespace Nebulite::Interaction::Rules::RulesetModules {
 
 void Debug::message(ContextBase const& context) {
-    auto slf = context.self.getDoc().get<uint32_t>(Nebulite::Constants::KeyNames::RenderObject::id, 0);
+    auto const slf = getBaseList(context.self, keys);
     Nebulite::cout() << "[DEBUG] Static ruleset '::message' invoked! Context ID: "
-                     << std::to_string(slf)
+                     << std::to_string(baseVal(slf, Key::id))
                      << Nebulite::endl;
 }
 
 void Debug::error(ContextBase const& context) {
-    auto slf = context.self.getDoc().get<uint32_t>(Nebulite::Constants::KeyNames::RenderObject::id, 0);
+    auto const slf = getBaseList(context.self, keys);
     Nebulite::cout() << "[DEBUG] Static ruleset '::error' invoked! Context ID: "
-                     << std::to_string(slf)
+                     << std::to_string(baseVal(slf, Key::id))
                      << Nebulite::endl;
 }
 
 void Debug::whoInteracts(ContextBase const& context) {
-    auto slf = context.self.getDoc().get<uint32_t>(Nebulite::Constants::KeyNames::RenderObject::id, 0);
-    auto otr = context.other.getDoc().get<uint32_t>(Nebulite::Constants::KeyNames::RenderObject::id, 0);
-    std::string message = "[DEBUG] Static ruleset '::whoInteracts' invoked! Self ID: " + std::to_string(slf) + ", Other ID: " + std::to_string(otr) + Nebulite::endl;
+    auto const slf = getBaseList(context.self, keys);
+    auto const otr = getBaseList(context.other, keys);
+    std::string const message = "[DEBUG] Static ruleset '::whoInteracts' invoked! Self ID: " + std::to_string(baseVal(slf, Key::id)) + ", Other ID: " + std::to_string(baseVal(otr, Key::id)) + Nebulite::endl;
     Nebulite::cout() << message;
 }
 

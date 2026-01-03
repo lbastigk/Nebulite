@@ -26,6 +26,17 @@
 #include "Utility/RNG.hpp"
 
 //------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction::Execution {
+
+template <typename DomainType>
+class DomainModule;
+
+} // namespace Nebulite::Interaction::Execution
+
+
+//------------------------------------------
 namespace Nebulite::Core {
 
 //------------------------------------------
@@ -58,6 +69,13 @@ public:
     // Prevent moving
     GlobalSpace(GlobalSpace&&) = delete;
     GlobalSpace& operator=(GlobalSpace&&) = delete;
+
+    //------------------------------------------
+    // Overwrite getDoc so its publicly accessible
+
+    Data::JsonScope& getDoc() const override {
+        return documentScope;
+    }
 
     //------------------------------------------
     // Functions

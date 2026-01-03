@@ -56,6 +56,14 @@ public:
     }
 private:
     static constexpr std::string_view moduleName = "::debug";
+
+    const std::vector<std::string_view> keys = {
+        Constants::KeyNames::RenderObject::id
+    };
+
+    enum class Key : size_t {
+        id
+    };
 };
 } // namespace Nebulite::Interaction::Rules::RulesetModules
 #endif // NEBULITE_INTERACTION_RULES_RULESET_MODULES_DEBUG_HPP

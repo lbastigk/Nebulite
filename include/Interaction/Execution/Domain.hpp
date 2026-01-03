@@ -25,12 +25,90 @@
 //------------------------------------------
 // Forward declarations
 
+// Domains
+namespace Nebulite::Core {
+class Environment;
+class GlobalSpace;
+class Renderer;
+class RenderObject;
+class Texture;
+} // namespace Nebulite::Core
+
 namespace Nebulite::Data {
 class JsonScope;
 class MappedOrderedDoublePointers;
 } // namespace Nebulite::Data
 
+namespace Nebulite::Interaction::Logic {
+class Expression;
+} // namespace Nebulite::Interaction::Logic
+
+namespace Nebulite::Interaction::Rules {
+class Ruleset;
+class JsonRuleset;
+class StaticRuleset;
+
+namespace Construction {
+class RulesetCompiler;
+}
+
+} // namespace Nebulite::Interaction::Rules
+
 //------------------------------------------
+// Document Accessor
+
+namespace Nebulite::Interaction::Execution {
+template<typename> class Domain;
+
+class DocumentAccessor {
+private:
+    explicit DocumentAccessor(Data::JsonScope& d) : documentScope(d) {}
+
+    ~DocumentAccessor();
+
+    template<typename> friend class Domain;
+
+    friend class DomainBase;
+
+    // Allow other Domains to access documents from each other.
+    friend class Core::Environment;
+    friend class Core::GlobalSpace;
+    friend class Core::Renderer;
+    friend class Core::RenderObject;
+    friend class Core::Texture;
+
+    // Allow the Ruleset/Expression system access documents as well.
+    friend class Logic::Expression;
+    friend class Rules::Ruleset;
+    friend class Rules::JsonRuleset;
+    friend class Rules::StaticRuleset;
+    friend class Rules::Construction::RulesetCompiler;
+
+
+    // To make private later on:
+//public:
+    /**
+     * @brief Gets a reference to the internal JSON document of the domain.
+     *        Each domain uses a JSON document to store its data.
+     *        For the JSON domain, this is a reference to itself.
+     *        For others, it's a reference to their JSON document.
+     * @return A reference to the internal JSON document.
+     * @todo Find a way to disallow getDoc() and instead share a per-domainmodule JsonScope reference.
+     *       IDEA: Make it part of protected, which will allow only domains to access it.
+     *       Best idea would probably be to store a domain wrapper in each DomainModule that deletes getDoc()
+     */
+    virtual Data::JsonScope& getDoc() const ;
+
+    /**
+     * @brief Each domain uses a JSON document to store its data.
+     */
+    Data::JsonScope& documentScope;
+};
+}
+
+//------------------------------------------
+// Domain Base
+
 namespace Nebulite::Interaction::Execution {
 
 /**
@@ -39,10 +117,10 @@ namespace Nebulite::Interaction::Execution {
  *        Holds all common functionality for domains that do not require template parameters.
  *        This allows for a simplified interface for accessing common domain functionality.
  */
-class DomainBase {
+class DomainBase : public DocumentAccessor {
 public:
     DomainBase(std::string const& name, Data::JsonScope& documentReference)
-        : documentScope(documentReference), domainName(name){
+        : DocumentAccessor(documentReference), domainName(name){
         funcTree = std::make_shared<FuncTree<Constants::Error>>(
             name,
             Constants::ErrorTable::NONE(),
@@ -161,20 +239,14 @@ public:
      * @brief Shares a scope from the domain's document.
      * @param prefix The prefix of the scope to share.
      * @return A reference to the shared JsonScope.
+     * @todo Move to DocumentAccessor! Allow only the Initializer access to this function.
      */
     [[nodiscard]] Data::JsonScopeBase& shareDocumentScopeBase(std::string const& prefix) const ;
 
     /**
-     * @brief Gets a reference to the internal JSON document of the domain.
-     *        Each domain uses a JSON document to store its data.
-     *        For the JSON domain, this is a reference to itself.
-     *        For others, it's a reference to their JSON document.
-     * @return A reference to the internal JSON document.
-     * @todo Find a way to disallow getDoc() and instead share a per-domainmodule JsonScope reference.
-     *       IDEA: Make it part of protected, which will allow only domains to access it.
-     *       Best idea would probably be to store a domain wrapper in each DomainModule that deletes getDoc()
+     * @brief Locks the domain's document for thread-safe access.
      */
-    [[nodiscard]] virtual Data::JsonScope& getDoc() const { return documentScope; }
+    [[nodiscard]] std::scoped_lock<std::recursive_mutex> lockDocument() const ;
 
 protected:
     /**
@@ -185,11 +257,6 @@ protected:
     std::shared_ptr<FuncTree<Constants::Error>> getFuncTree() {
         return funcTree;
     }
-
-    /**
-     * @brief Each domain uses a JSON document to store its data.
-     */
-    Data::JsonScope& documentScope;
 
 private:
     /**

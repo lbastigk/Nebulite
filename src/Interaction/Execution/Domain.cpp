@@ -3,6 +3,12 @@
 
 namespace Nebulite::Interaction::Execution {
 
+DocumentAccessor::~DocumentAccessor() = default;
+
+Data::JsonScope& DocumentAccessor::getDoc() const {
+    return documentScope;
+}
+
 DomainBase& DomainBase::operator=(DomainBase const& other) {
     if (this == &other) return *this;
     if (&documentScope != &other.documentScope) {
@@ -40,6 +46,10 @@ Data::MappedOrderedDoublePointers* DomainBase::getDocumentCacheMap() const {
 
 Data::JsonScopeBase& DomainBase::shareDocumentScopeBase(std::string const& prefix) const {
     return documentScope.shareScopeBase(prefix);
+}
+
+std::scoped_lock<std::recursive_mutex> DomainBase::lockDocument() const {
+    return documentScope.lock();
 }
 
 } // namespace Nebulite::Interaction::Execution

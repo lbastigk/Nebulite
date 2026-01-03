@@ -82,7 +82,9 @@ private:
         "physics.vY",
         "physics.mass", // TODO: rename to physics.m . Renaming all json files keys is necessary.
         "physics.FX",
-        "physics.FY"
+        "physics.FY",
+        "physics.collision.time.lastX",
+        "physics.collision.time.lastY"
     };
 
     /**
@@ -101,7 +103,9 @@ private:
         physics_vY,
         physics_mass,
         physics_FX,
-        physics_FY
+        physics_FY,
+        physics_lastCollisionX,
+        physics_lastCollisionY
     };
 
     // 2.) To retrieve from globalspace

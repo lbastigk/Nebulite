@@ -29,10 +29,6 @@ Physics::Physics() : RulesetModule(moduleName) {
 //       that happens between now and the predicted next frame-time
 // TODO: Add a repositioning step to resolve overlaps
 void Physics::elasticCollision(ContextBase const& context) {
-    // Special keys for this ruleset only
-    static std::string lastCollisionX = "physics.collision.time.lastX";
-    static std::string lastCollisionY = "physics.collision.time.lastY";
-
     // Get ordered cache lists for both entities for base values
     double** slf = getBaseList(context.self, keys);
     double** otr = getBaseList(context.other, keys);
@@ -64,8 +60,8 @@ void Physics::elasticCollision(ContextBase const& context) {
 
     if (baseCondition) {
         // Overlap checks for each axis (?)
-        bool conditionX = baseCondition && !(p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y);
-        bool conditionY = baseCondition && !(p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X);
+        bool conditionX = !(p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y);
+        bool conditionY = !(p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X);
 
         // m1*v1 + m2*v2 = m1*v1new + m2*v2new
         // Split into v1new and v2new equations
@@ -94,13 +90,13 @@ void Physics::elasticCollision(ContextBase const& context) {
             double const dF2X = m2 * (v2newX - v2X) / dt;
 
             // Get last collision time pointer
-            double* lastColX = context.other.getDoc().getStableDoublePointer(lastCollisionX);
+            double lastColX = baseVal(otr, Key::physics_lastCollisionX);
 
             // Lock and write
-            auto slfLock = context.self.getDoc().lock();
-            if (*lastColX < *globalVal.t) {
+            auto slfLock = context.self.lockDocument();
+            if (lastColX < *globalVal.t) {
                 baseVal(otr, Key::physics_FX) += dF2X;
-                *lastColX = *globalVal.t;
+                baseVal(otr, Key::physics_lastCollisionX) = *globalVal.t;
             }
         }
         if (conditionY) {
@@ -116,13 +112,13 @@ void Physics::elasticCollision(ContextBase const& context) {
             double const dF2Y = m2 * (v2newY - v2Y) / dt;
 
             // Get last collision time pointer
-            double* lastColY = context.other.getDoc().getStableDoublePointer(lastCollisionY);
+            double lastColY = baseVal(otr, Key::physics_lastCollisionY);
 
             // Lock and write
-            auto slfLock = context.self.getDoc().lock();
-            if (*lastColY < *globalVal.t) {
+            auto slfLock = context.self.lockDocument();
+            if (lastColY < *globalVal.t) {
                 baseVal(otr, Key::physics_FY) += dF2Y;
-                *lastColY = *globalVal.t;
+                baseVal(otr, Key::physics_lastCollisionY) = *globalVal.t;
             }
         }
     }
@@ -142,7 +138,7 @@ void Physics::gravity(ContextBase const& context) {
     double const coefficient = *globalVal.G * baseVal(slf, Key::physics_mass) * baseVal(otr, Key::physics_mass) / denominator;
 
     // Apply gravitational force to other entity
-    auto otrLock = context.other.getDoc().lock();
+    auto otrLock = context.other.lockDocument();
     baseVal(otr, Key::physics_FX) += distanceX * coefficient;
     baseVal(otr, Key::physics_FY) += distanceY * coefficient;
 }
@@ -162,7 +158,7 @@ void Physics::applyForce(ContextBase const& context) {
     double const dvY = aY * dt;
 
     // Lock and apply all physics calculations
-    auto slfLock = context.self.getDoc().lock();
+    auto slfLock = context.self.lockDocument();
 
     // Acceleration is based on F
     baseVal(slf, Key::physics_aX) = aX;
@@ -193,7 +189,7 @@ void Physics::drag(ContextBase const& context) {
     double const dragForceY = -dragCoefficient * vY;
 
     // Lock and apply drag forces
-    auto slfLock = context.self.getDoc().lock();
+    auto slfLock = context.self.lockDocument();
     baseVal(slf, Key::physics_FX) += dragForceX;
     baseVal(slf, Key::physics_FY) += dragForceY;
 }
