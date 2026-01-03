@@ -267,7 +267,9 @@ std::vector<std::string> StringHandler::parseQuotedArguments(std::string const& 
 
     // Warning for unclosed quotes
     if (state.inAnyQuote()) {
-        Nebulite::cerr() << "Warning: Unclosed quote in command: " << cmd << Nebulite::endl;
+        // Deactivate due to potential false positives in complex commands with nested quotes
+        // TODO: Is there a good reason why this fails with json strings?
+        //Nebulite::cerr() << "Warning: Unclosed quote in command: " << cmd << Nebulite::endl;
     }
 
     return result;

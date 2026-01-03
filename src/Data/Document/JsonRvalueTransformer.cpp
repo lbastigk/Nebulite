@@ -68,6 +68,8 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     // Functions: Type-related
     BIND_TRANSFORMATION(&JsonRvalueTransformer::typeAsNumber, typeAsNumberName, typeAsNumberDesc);
     BIND_TRANSFORMATION(&JsonRvalueTransformer::typeAsString, typeAsStringName, typeAsStringDesc);
+    BIND_TRANSFORMATION(&JsonRvalueTransformer::serialize, serializeName, serializeDesc);
+    BIND_TRANSFORMATION(&JsonRvalueTransformer::deserialize, deserializeName, deserializeDesc);
 }
 
 bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JsonScope* jsonDoc) {
@@ -164,17 +166,19 @@ bool JsonRvalueTransformer::pow(std::span<std::string const> const& args, JsonSc
 //------------------------------------------
 // Functions: Array-related
 
-bool JsonRvalueTransformer::ensureArray(JsonScope* jsonDoc){
-    if (jsonDoc->memberType(valueKey) != KeyType::array) {
-        // Single value, we wrap it into an array
-        JSON tmp = jsonDoc->getSubDoc(valueKey);
-        std::string const key = std::string(valueKey) + "[0]";
-        jsonDoc->setSubDoc(key.c_str(), tmp);
+bool JsonRvalueTransformer::ensureArray(JsonScope* jsonDoc) const {
+    // Cache the original member type to avoid the analyzer thinking the second branch is unreachable
+    if (auto const originalType = jsonDoc->memberType(valueKey); originalType == KeyType::array) {
+        return true;
     }
-    if (jsonDoc->memberType(valueKey) != KeyType::array) {
-        return false;
-    }
-    return true;
+
+    // Single value, wrap into an array
+    JSON tmp = jsonDoc->getSubDoc(valueKey);
+    std::string const key = std::string(valueKey) + "[0]";
+    jsonDoc->setSubDoc(key.c_str(), tmp);
+
+    // Return whether wrapping succeeded
+    return (jsonDoc->memberType(valueKey) == KeyType::array);
 }
 
 bool JsonRvalueTransformer::at(std::span<std::string const> const& args, JsonScope* jsonDoc) {
@@ -283,10 +287,10 @@ bool JsonRvalueTransformer::toBool(JsonScope* jsonDoc) {
 
     auto const currentValueStr = jsonDoc->get<std::string>(valueKey, "");
     std::string valueLower;
-    std::transform(currentValueStr.begin(), currentValueStr.end(), std::back_inserter(valueLower), [](unsigned char c) {
+    std::ranges::transform(currentValueStr, std::back_inserter(valueLower), [](unsigned char c) {
             return std::tolower(c);
     });
-    if (supportedTrueValues.find(valueLower) != supportedTrueValues.end()) {
+    if (supportedTrueValues.contains(valueLower)) {
             jsonDoc->set<bool>(valueKey, true);
             return true;
     }
@@ -456,6 +460,23 @@ bool JsonRvalueTransformer::typeAsString(JsonScope* jsonDoc) {
         jsonDoc->set<std::string>(valueKey, "null");
         break;
     }
+    return true;
+}
+
+bool JsonRvalueTransformer::serialize(JsonScope* jsonDoc) {
+    std::string const serialized = jsonDoc->serialize();
+    jsonDoc->set<std::string>(valueKey, serialized);
+    return true;
+}
+
+bool JsonRvalueTransformer::deserialize(JsonScope* jsonDoc) {
+    std::string const serialized = jsonDoc->get<std::string>(valueKey, "");
+    JSON tempDoc;
+    if (!JSON::isJsonOrJsonc(serialized)) {
+        return false;
+    }
+    tempDoc.deserialize(serialized);
+    jsonDoc->setSubDoc(valueKey, tempDoc);
     return true;
 }
 

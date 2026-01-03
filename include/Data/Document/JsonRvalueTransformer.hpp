@@ -68,7 +68,7 @@ private:
     //------------------------------------------
     // Functions: Array-related
 
-    bool ensureArray(JsonScope* jsonDoc);
+    bool ensureArray(JsonScope* jsonDoc) const ;
     static std::string_view constexpr ensureArrayName = "ensureArray";
     static std::string_view constexpr ensureArrayDesc = "Ensures the current JSON value is an array.\n"
         "If the current value is not an array, it is wrapped into a single-element array.\n"
@@ -226,6 +226,16 @@ private:
         "Usage: |typeAsString -> {value,array,object}\n";
 
     // TODO: exists, isType <name>
+
+    bool serialize(JsonScope* jsonDoc);
+    static std::string_view constexpr serializeName = "serialize";
+    static std::string_view constexpr serializeDesc = "Serializes the current JSON value to a string.\n"
+        "Usage: |serialize -> {string}\n";
+
+    bool deserialize(JsonScope* jsonDoc);
+    static std::string_view constexpr deserializeName = "deserialize";
+    static std::string_view constexpr deserializeDesc = "Deserializes the current JSON string value.\n"
+            "Usage: |deserialize -> {value}\n";
 
 public:
     JsonRvalueTransformer();
