@@ -1,6 +1,7 @@
 #include "Interaction/Execution/Domain.hpp"
 #include "Data/Document/JsonScope.hpp"
 
+// Document Accessor
 namespace Nebulite::Interaction::Execution {
 
 DocumentAccessor::~DocumentAccessor() = default;
@@ -8,6 +9,15 @@ DocumentAccessor::~DocumentAccessor() = default;
 Data::JsonScope& DocumentAccessor::getDoc() const {
     return documentScope;
 }
+
+Data::JsonScopeBase& DocumentAccessor::shareDocumentScopeBase(std::string const& prefix) const {
+    return documentScope.shareScopeBase(prefix);
+}
+
+} // namespace Nebulite::Interaction::Execution
+
+// Domain Base
+namespace Nebulite::Interaction::Execution {
 
 DomainBase& DomainBase::operator=(DomainBase const& other) {
     if (this == &other) return *this;
@@ -42,10 +52,6 @@ std::string const& DomainBase::scopePrefix() const {
 
 Data::MappedOrderedDoublePointers* DomainBase::getDocumentCacheMap() const {
     return documentScope.getOrderedCacheListMap();
-}
-
-Data::JsonScopeBase& DomainBase::shareDocumentScopeBase(std::string const& prefix) const {
-    return documentScope.shareScopeBase(prefix);
 }
 
 std::scoped_lock<std::recursive_mutex> DomainBase::lockDocument() const {

@@ -81,7 +81,7 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
 void Initializer::initJsonScope(Data::JsonScope* target) {
     // Initialize DomainModules
     using namespace Nebulite::DomainModule::JsonScope;
-    target->initModule<SimpleData>("JSON Simple Data Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<SimpleData>("JSON Simple Data Functions", &target->shareScopeBase(""));
     target->initModule<ComplexData>("JSON Complex Data Functions", &target->shareDocumentScopeBase(""));
     target->initModule<Debug>("JSON Debug Functions", &target->shareDocumentScopeBase(""));
 }
