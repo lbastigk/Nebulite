@@ -370,9 +370,11 @@ void RjDirectAccess::removeMember(char const* key, rapidjson::Value& val) {
 }
 
 bool RjDirectAccess::isJsonOrJsonc(std::string const& str) {
-    // So far, we do a simple check based on starting characters
-    bool const check1 = str.starts_with("{") || str.starts_with("//") || str.starts_with("/*") || str.starts_with("\n");
-    return check1;
+    // Complicated check using RapidJSON parsing
+    // Simpler check is just not worth it due to various valid JSON formats
+    rapidjson::Document doc;
+    std::string const cleanJson = stripComments(str);
+    return !doc.Parse(cleanJson.c_str()).HasParseError();
 }
 
 bool RjDirectAccess::isValidKey(std::string const& key) {
