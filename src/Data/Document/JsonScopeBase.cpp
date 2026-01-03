@@ -27,46 +27,6 @@ JsonScopeBase::JsonScopeBase()
       expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS>(*this))
 {}
 
-/*
-
-// --- Copy constructor
-JsonScopeBase::JsonScopeBase(JsonScopeBase const& other)
-    : baseDocument(other.baseDocument),
-      scopePrefix(other.scopePrefix),
-      expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS>(*this))
-{}
-
-// --- Move constructor
-JsonScopeBase::JsonScopeBase(JsonScopeBase&& other) noexcept
-    : baseDocument(std::move(other.baseDocument)),
-      scopePrefix(std::move(other.scopePrefix)),
-      expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS>(*this))
-{}
-
-// --- Copy assignment (copy-and-swap)
-JsonScopeBase& JsonScopeBase::operator=(JsonScopeBase const& other) {
-    if (this == &other) return *this;
-    JsonScopeBase tmp(other);
-    swap(tmp);
-    return *this;
-}
-
-// --- Move assignment (copy-and-swap with moved temporary)
-JsonScopeBase& JsonScopeBase::operator=(JsonScopeBase&& other) noexcept {
-    if (this == &other) return *this;
-    JsonScopeBase tmp(std::move(other));
-    swap(tmp);
-    return *this;
-}
-
-// --- swap helper
-void JsonScopeBase::swap(JsonScopeBase& o) noexcept {
-    std::swap(baseDocument, o.baseDocument);
-    std::swap(scopePrefix, o.scopePrefix);
-}
-
-*/
-
 JsonScopeBase::~JsonScopeBase() = default;
 
 //------------------------------------------
@@ -158,7 +118,7 @@ void JsonScopeBase::removeKey(ScopedKey const& key) const {
 // Deserialize/Serialize
 
 std::string JsonScopeBase::serialize() const {
-    ScopedKey key("");
+    ScopedKey constexpr key("");
     return baseDocument->serialize(key.full(*this));
 }
 

@@ -83,8 +83,6 @@ private:
         return fullPrefix;
     }
 
-    void swap(JsonScopeBase& o) noexcept ;
-
     // Necessary helper for shareScope
     [[nodiscard]] JsonScopeBase& shareManagedScopeBase(std::string const& prefix) const ;
 
