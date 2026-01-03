@@ -4,10 +4,11 @@ Nebulite Script
     filter remove_matches ^\s*#.*
     extension nebs
     3rd_gen_scale 0.5
-JSONC
+JSON/JSONC
     filter remove_matches ^\s*//.*
     filter remove_matches ^\s*/\*.*?\*/\s*$
     extension jsonc
+    extension json
     3rd_gen_scale 0.5
 C++
     filter rm_comments_in_strings " /* */
