@@ -9,10 +9,11 @@
  *          and to ensure consistency across the framework.
  * @note Work in progress, many terribly organized, duplicated, or unused keys exist here.
  *       This file will be refactored over time to improve organization and safety.
- * @todo Sort keys into their respective scopes and Domains
- * @todo Refactor DomainModule keys into DomainModules instead of having them here
- * @todo Turn all into Data::ScopedKey
- * @todo Add scopes where applicable to improve safety
+ * @todo However, with enough forward declarations this might work and we can get rid of this file entirely.
+ * @todo - Sort keys into their respective scopes and Domains
+ *       - Refactor DomainModule keys into DomainModules instead of having them here
+ *       - Turn all into Data::ScopedKey
+ *       - Add scopes where applicable to improve safety
  */
 
 #ifndef NEBULITE_CONSTANTS_KEYNAMES_HPP
@@ -22,15 +23,21 @@
 
 namespace Nebulite::Constants {
 
+// Macro to help declare a scope as private static constexpr member
+#define DECLARE_SCOPE(scopeStr) private: static auto constexpr scope = scopeStr; public:
+
+// Macro to help create a scoped key with the previously declared scope
+#define MAKE_SCOPED(keyStr) ( (void)scope, Data::ScopedKey::create<scope>(keyStr) )
+
 // TODO: Remove unused keys and refactor used ones
 // TODO: move scope to private part of each struct when possible
 struct KeyNames {
     struct Renderer {
-        static auto constexpr scope = "renderer.";
-        static auto constexpr dispResX = Data::ScopedKey::create<scope>("resolution.X");
-        static auto constexpr dispResY = Data::ScopedKey::create<scope>("resolution.Y");
-        static auto constexpr positionX = Data::ScopedKey::create<scope>("position.X");
-        static auto constexpr positionY = Data::ScopedKey::create<scope>("position.Y");
+        DECLARE_SCOPE("renderer.")
+        static auto constexpr dispResX = MAKE_SCOPED("resolution.X");
+        static auto constexpr dispResY = MAKE_SCOPED("resolution.Y");
+        static auto constexpr positionX = MAKE_SCOPED("position.X");
+        static auto constexpr positionY = MAKE_SCOPED("position.Y");
     };
 
     struct GlobalSpace {
@@ -38,17 +45,17 @@ struct KeyNames {
     };
 
     struct RenderObject {
-        // TODO: Use "" as scope, and modify keys to be relative to that scope
-        static auto constexpr id = Data::ScopedKey("id");
-        static auto constexpr positionX = Data::ScopedKey("posX");
-        static auto constexpr positionY = Data::ScopedKey("posY");
-        static auto constexpr layer = Data::ScopedKey("layer");
+        DECLARE_SCOPE("")
+        static auto constexpr id = MAKE_SCOPED("id");
+        static auto constexpr positionX = MAKE_SCOPED("posX");
+        static auto constexpr positionY = MAKE_SCOPED("posY");
+        static auto constexpr layer = MAKE_SCOPED("layer");
 
         // Keys for Ruleset invocations and subscriptions
         struct Ruleset {
-            static auto constexpr scope = "ruleset.";
-            static auto constexpr broadcast = Data::ScopedKey::create<scope>("broadcast");
-            static auto constexpr listen = Data::ScopedKey::create<scope>("listen");
+            DECLARE_SCOPE("ruleset.")
+            static auto constexpr broadcast = MAKE_SCOPED("broadcast");
+            static auto constexpr listen = MAKE_SCOPED("listen");
         };
 
         // TODO: Use "texture." as scope
