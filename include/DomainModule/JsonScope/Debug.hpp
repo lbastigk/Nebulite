@@ -31,8 +31,8 @@ public:
     // Available Functions
 
     Constants::Error print(int argc, char** argv);
-    static std::string_view constexpr print_name = "print";
-    static std::string_view constexpr print_desc = "Prints the JSON document to the console for debugging purposes.\n"
+    static auto constexpr print_name = "print";
+    static auto constexpr print_desc = "Prints the JSON document to the console for debugging purposes.\n"
         "If key is empty, prints the entire document.\n"
         "\n"
         "Usage: print [key]\n";

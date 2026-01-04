@@ -42,8 +42,8 @@ public:
     // Available Functions
 
     Constants::Error draft_parse(int argc, char** argv);
-    static std::string_view constexpr draft_parse_name = "draft parse";
-    static std::string_view constexpr draft_parse_desc = "Parse Renderobject-specific functions on the draft.\n"
+    static auto constexpr draft_parse_name = "draft parse";
+    static auto constexpr draft_parse_desc = "Parse Renderobject-specific functions on the draft.\n"
         "\n"
         "Usage: draft parse <function> [args...]\n"
         "\n"
@@ -55,14 +55,14 @@ public:
         "draft parse set posY 200\n";
 
     Constants::Error draft_spawn();
-    static std::string_view constexpr draft_spawn_name = "draft spawn";
-    static std::string_view constexpr draft_spawn_desc = "Spawn the created draft object.\n"
+    static auto constexpr draft_spawn_name = "draft spawn";
+    static auto constexpr draft_spawn_desc = "Spawn the created draft object.\n"
         "\n"
         "Usage: draft spawn\n";
 
     Constants::Error draft_reset();
-    static std::string_view constexpr draft_reset_name = "draft reset";
-    static std::string_view constexpr draft_reset_desc = "Reset the draft object.\n"
+    static auto constexpr draft_reset_name = "draft reset";
+    static auto constexpr draft_reset_desc = "Reset the draft object.\n"
         "\n"
         "This does not reset any spawned ones!\n"
         "\n"
@@ -71,8 +71,8 @@ public:
     //------------------------------------------
     // Category names
     
-    static std::string_view constexpr draft_name = "draft";
-    static std::string_view constexpr draft_desc = "Functions to manipulate and spawn RenderObjects in draft state";
+    static auto constexpr draft_name = "draft";
+    static auto constexpr draft_desc = "Functions to manipulate and spawn RenderObjects in draft state";
 
     //------------------------------------------
     // Setup

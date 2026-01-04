@@ -36,8 +36,8 @@ public:
     // Available Functions
 
     Constants::Error addClock(int argc, char** argv);
-    static std::string_view constexpr addClock_name = "add-clock";
-    static std::string_view constexpr addClock_desc = "Adds a clock with specified interval (ms) to the global clock system\n"
+    static auto constexpr addClock_name = "add-clock";
+    static auto constexpr addClock_desc = "Adds a clock with specified interval (ms) to the global clock system\n"
         "\n"
         "Usage: add-clock <interval_ms>\n"
         "\n"
@@ -52,14 +52,14 @@ public:
          * @brief Key for accessing the list of active clocks.
          * @details access with `"<key_arr_active_clocks>.ms<interval_padded>"`
          */
-        static std::string_view constexpr arr_active_clocks = "clocks.active";
+        static auto constexpr arr_active_clocks = "clocks.active";
 
         /**
          * @brief Key for accessing the status of each clock.
          * @details Current status of each clock (0 or 1), access with `"<key_doc_status_clocks>.ms<interval_padded>"`
          *          Example: ".ms000100" for the clock with 100ms interval
          */
-        static std::string_view constexpr doc_status_clocks = "clocks.status";
+        static auto constexpr doc_status_clocks = "clocks.status";
     };
 
 

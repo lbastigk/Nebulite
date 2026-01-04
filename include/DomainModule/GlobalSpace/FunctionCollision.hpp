@@ -36,8 +36,8 @@ public:
     // Available Functions
 
     Constants::Error debug_collisionDetect_function(int argc, char const* argv[]);
-    static std::string_view constexpr debug_collisionDetect_function_name = "debug collision-detect function";
-    static std::string_view constexpr debug_collisionDetect_function_desc = "Tests collision detection of function names\n"
+    static auto constexpr debug_collisionDetect_function_name = "debug collision-detect function";
+    static auto constexpr debug_collisionDetect_function_desc = "Tests collision detection of function names\n"
         "\n"
         "Tries to bind a function name to globalspace that is already registered, expecting a collision error.\n"
         "\n"
@@ -46,8 +46,8 @@ public:
         "Defaults to fail\n";
 
     Constants::Error debug_collisionDetect_category(int argc, char const* argv[]);
-    static std::string_view constexpr debug_collisionDetect_category_name = "debug collision-detect category";
-    static std::string_view constexpr debug_collisionDetect_category_desc = "Tests collision detection of category names\n"
+    static auto constexpr debug_collisionDetect_category_name = "debug collision-detect category";
+    static auto constexpr debug_collisionDetect_category_desc = "Tests collision detection of category names\n"
         "\n"
         "Tries to bind a category name to globalspace that is already registered, expecting a collision error.\n"
         "\n"
@@ -56,8 +56,8 @@ public:
         "Defaults to fail\n";
 
     Constants::Error debug_collisionDetect_variable(int argc, char const* argv[]);
-    static std::string_view constexpr debug_collisionDetect_variable_name = "debug collision-detect variable";
-    static std::string_view constexpr debug_collisionDetect_variable_desc = "Tests collision detection of variable names\n"
+    static auto constexpr debug_collisionDetect_variable_name = "debug collision-detect variable";
+    static auto constexpr debug_collisionDetect_variable_desc = "Tests collision detection of variable names\n"
         "\n"
         "Tries to bind a variable name to globalspace that is already registered, expecting a collision error.\n"
         "\n"
@@ -69,11 +69,11 @@ public:
     //------------------------------------------
     // Category names
 
-    static std::string_view constexpr debug_name = "debug";
-    static std::string_view constexpr debug_desc = "DomainModule for special debugging capabilities within the GlobalSpace.";
+    static auto constexpr debug_name = "debug";
+    static auto constexpr debug_desc = "DomainModule for special debugging capabilities within the GlobalSpace.";
 
-    static std::string_view constexpr collisionDetect_name = "debug collision-detect";
-    static std::string_view constexpr collisionDetect_desc = "Utilities for testing collision detection functionalities.";
+    static auto constexpr collisionDetect_name = "debug collision-detect";
+    static auto constexpr collisionDetect_desc = "Utilities for testing collision detection functionalities.";
 
     //------------------------------------------
     // Setup

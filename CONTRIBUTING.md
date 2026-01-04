@@ -172,21 +172,21 @@ public:
     // Available Functions
 
     Constants::Error exampleCommand(std::span<std::string const> const& args);
-    static std::string_view constexpr exampleCommand_name = "example do-something";
-    static std::string_view constexpr exampleCommand_desc = "Performs an example action on the current RenderObject.\n"
+    static auto constexpr exampleCommand_name = "example do-something";
+    static auto constexpr exampleCommand_desc = "Performs an example action on the current RenderObject.\n"
         "\n"
         "Usage: example do-something [args]\n";
 
     Constants::Error anotherCmd(std::span<std::string const> const& args);
-    static std::string_view constexpr anotherCmd_name = "example another-cmd";
-    static std::string_view constexpr anotherCmd_desc = "Another example command demonstrating binding and descriptions.\n"
+    static auto constexpr anotherCmd_name = "example another-cmd";
+    static auto constexpr anotherCmd_desc = "Another example command demonstrating binding and descriptions.\n"
         "\n";
         "Usage: example another-cmd [args]\n";
 
     //------------------------------------------
     // Category names
-    static std::string_view constexpr example_name = "example";
-    static std::string_view constexpr example_desc = "Example functions for RenderObject domain";
+    static auto constexpr example_name = "example";
+    static auto constexpr example_desc = "Example functions for RenderObject domain";
 
     //------------------------------------------
     // Setup

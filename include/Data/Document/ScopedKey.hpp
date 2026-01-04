@@ -168,8 +168,7 @@ public:
         static_assert(len == 0 || s[len - 1] == '.',
                       "ScopedKey: The provided scope must be empty or end with a dot ('.')");
         // Create the ScopedKey with the given scope and key
-        return ScopedKey(std::optional<std::string_view>(std::string_view(s, len)),
-                         std::string_view(keyInScope));
+        return {std::optional<std::string_view>(std::string_view(s, len)), std::string_view(keyInScope)};
     }
 };
 } // namespace Nebulite::Data

@@ -36,8 +36,8 @@ public:
     // Available Functions
 
     Constants::Error rotate(int argc, char** argv);
-    static std::string_view constexpr rotate_name = "rotate";
-    static std::string_view constexpr rotate_desc = "Rotate the texture by a specified angle.\n"
+    static auto constexpr rotate_name = "rotate";
+    static auto constexpr rotate_desc = "Rotate the texture by a specified angle.\n"
         "\n"
         "Usage: rotate <angle>\n"
         "\n"

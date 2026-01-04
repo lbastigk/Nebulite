@@ -58,8 +58,8 @@ public:
      *          As of now, the implementation is fully functional so it's a low priority task.
      */
     Constants::Error spawn(int argc, char** argv);
-    static std::string_view constexpr spawn_name = "spawn";
-    static std::string_view constexpr spawn_desc = "Spawn a RenderObject from a json/jsonc file.\n"
+    static auto constexpr spawn_name = "spawn";
+    static auto constexpr spawn_desc = "Spawn a RenderObject from a json/jsonc file.\n"
         "\n"
         "Usage: spawn <path/to/file.jsonc>\n\n"
         "Supports lookups in standard resource directories:\n"
@@ -73,21 +73,21 @@ public:
         "and spawns the first found object.\n";
 
     Constants::Error envLoad(int argc, char** argv);
-    static std::string_view constexpr envLoad_name = "env load";
-    static std::string_view constexpr envLoad_desc = "Load an environment/level from a json/jsonc file.\n"
+    static auto constexpr envLoad_name = "env load";
+    static auto constexpr envLoad_desc = "Load an environment/level from a json/jsonc file.\n"
         "\n"
         "Usage: env load <path/to/file.jsonc>\n\n"
         "If no argument is provided, an empty environment is loaded.\n";
 
     Constants::Error envDeload();
-    static std::string_view constexpr envDeload_name = "env deload";
-    static std::string_view constexpr envDeload_desc = "Deload entire environment, leaving an empty renderer.\n"
+    static auto constexpr envDeload_name = "env deload";
+    static auto constexpr envDeload_desc = "Deload entire environment, leaving an empty renderer.\n"
         "\n"
         "Usage: env deload\n";
 
     Constants::Error setResolution(int argc, char** argv);
-    static std::string_view constexpr setResolution_name = "set-res";
-    static std::string_view constexpr setResolution_desc = "Set resolution of renderer.\n"
+    static auto constexpr setResolution_name = "set-res";
+    static auto constexpr setResolution_desc = "Set resolution of renderer.\n"
         "\n"
         "Usage: set-res [Width] [Height] [Scale]\n\n"
         "Defaults to 1000  for width if argument count < 1\n"
@@ -95,30 +95,30 @@ public:
         "Defaults to 1     for scale if argument count < 3\n";
 
     Constants::Error setFPS(int argc, char** argv);
-    static std::string_view constexpr setFPS_name = "set-fps";
-    static std::string_view constexpr setFPS_desc = "Set FPS of renderer.\n"
+    static auto constexpr setFPS_name = "set-fps";
+    static auto constexpr setFPS_desc = "Set FPS of renderer.\n"
         "\n"
         "Usage: set-fps [fps]\n\n"
         "Defaults to 60 fps if no argument is provided\n";
 
     Constants::Error showFPS(int argc, char** argv);
-    static std::string_view constexpr showFPS_name = "show-fps";
-    static std::string_view constexpr showFPS_desc = "Show FPS of renderer.\n"
+    static auto constexpr showFPS_name = "show-fps";
+    static auto constexpr showFPS_desc = "Show FPS of renderer.\n"
         "\n"
         "Usage: show-fps [on|off]\n\n"
         "Defaults to on if no argument is provided\n";
 
     Constants::Error cam_move(int argc, char** argv);
-    static std::string_view constexpr cam_move_name = "cam move";
-    static std::string_view constexpr cam_move_desc = "Move camera by a given delta.\n"
+    static auto constexpr cam_move_name = "cam move";
+    static auto constexpr cam_move_desc = "Move camera by a given delta.\n"
         "\n"
         "Usage: cam move <dx> <dy>\n\n"
         "<dx> : Delta x to move camera by\n"
         "<dy> : Delta y to move camera by\n";
 
     Constants::Error cam_set(int argc, char** argv);
-    static std::string_view constexpr cam_set_name = "cam set";
-    static std::string_view constexpr cam_set_desc = "Set camera to concrete position.\n"
+    static auto constexpr cam_set_name = "cam set";
+    static auto constexpr cam_set_desc = "Set camera to concrete position.\n"
         "\n"
         "Usage: cam set <x> <y> [c]\n\n"
         "<x> : X position to set camera to\n"
@@ -126,15 +126,15 @@ public:
         "[c] : Optional. If provided, sets the camera's center to the given position.\n";
 
     Constants::Error snapshot(int argc, char** argv);
-    static std::string_view constexpr snapshot_name = "snapshot";
-    static std::string_view constexpr snapshot_desc = "Create a snapshot of the current renderer state.\n"
+    static auto constexpr snapshot_name = "snapshot";
+    static auto constexpr snapshot_desc = "Create a snapshot of the current renderer state.\n"
         "\n"
         "Usage: snapshot [filename]\n\n"
         "Defaults to \"./Resources/Snapshots/snapshot.png\" if no argument is provided\n";
 
     Constants::Error beep();
-    static std::string_view constexpr beep_name = "beep";
-    static std::string_view constexpr beep_desc = "Make a beep noise.\n"
+    static auto constexpr beep_name = "beep";
+    static auto constexpr beep_desc = "Make a beep noise.\n"
         "\n"
         "Usage: beep\n";
 
@@ -147,14 +147,14 @@ public:
      *       and should thus also be the owner of the selected object reference
      */
     Constants::Error selectedObject_get(int argc, char** argv);
-    static std::string_view constexpr selectedObject_get_name = "selected-object get";
-    static std::string_view constexpr selectedObject_get_desc = "Get a renderobject by its ID.\n"
+    static auto constexpr selectedObject_get_name = "selected-object get";
+    static auto constexpr selectedObject_get_desc = "Get a renderobject by its ID.\n"
         "\n"
         "Usage: selected-object get <id>\n";
 
     Constants::Error selectedObject_Parse(int argc, char** argv);
-    static std::string_view constexpr selectedObject_Parse_name = "selected-object parse";
-    static std::string_view constexpr selectedObject_Parse_desc = "Parse a command on the selected RenderObject.\n"
+    static auto constexpr selectedObject_Parse_name = "selected-object parse";
+    static auto constexpr selectedObject_Parse_desc = "Parse a command on the selected RenderObject.\n"
         "\n"
         "Usage: selected-object parse <command>\n"
         "\n"
@@ -163,14 +163,14 @@ public:
 
     //------------------------------------------
     // Category names
-    static std::string_view constexpr cam_name = "cam";
-    static std::string_view constexpr cam_desc = "Renderer Camera Functions";
+    static auto constexpr cam_name = "cam";
+    static auto constexpr cam_desc = "Renderer Camera Functions";
 
-    static std::string_view constexpr selectedObject_name = "selected-object";
-    static std::string_view constexpr selectedObject_desc = "Functions to select and interact with a selected RenderObject";
+    static auto constexpr selectedObject_name = "selected-object";
+    static auto constexpr selectedObject_desc = "Functions to select and interact with a selected RenderObject";
 
-    static std::string_view constexpr env_name = "env";
-    static std::string_view constexpr env_desc = "Environment management functions";
+    static auto constexpr env_name = "env";
+    static auto constexpr env_desc = "Environment management functions";
 
     //------------------------------------------
     // Setup

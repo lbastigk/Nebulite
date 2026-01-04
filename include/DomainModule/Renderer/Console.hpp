@@ -41,24 +41,24 @@ public:
     // Available Functions
 
     Constants::Error consoleZoom(int argc, char** argv);
-    static std::string_view constexpr consoleZoom_name = "console zoom";
-    static std::string_view constexpr consoleZoom_desc = "Reduces or increases the console font size.\n"
+    static auto constexpr consoleZoom_name = "console zoom";
+    static auto constexpr consoleZoom_desc = "Reduces or increases the console font size.\n"
         "\n"
         "Usage: zoom [in/out/+/-]\n"
         "- in  / + : Zooms in  (increases font size)\n"
         "- out / - : Zooms out (decreases font size)\n";
 
     Constants::Error consoleSetBackground(int argc, char** argv);
-    static std::string_view constexpr consoleSetBackground_name = "console set-background";
-    static std::string_view constexpr consoleSetBackground_desc = "Sets a background image for the console.\n"
+    static auto constexpr consoleSetBackground_name = "console set-background";
+    static auto constexpr consoleSetBackground_desc = "Sets a background image for the console.\n"
         "\n"
         "Usage: set-background <image_path>\n";
 
     //------------------------------------------
     // Category strings
 
-    static std::string_view constexpr console_name = "console";
-    static std::string_view constexpr console_desc = "Console commands and settings.\n"
+    static auto constexpr console_name = "console";
+    static auto constexpr console_desc = "Console commands and settings.\n"
         "\n"
         "Contains commands to manipulate the in-application console.\n";
 

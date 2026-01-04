@@ -291,11 +291,11 @@ private:
     //------------------------------------------
     // Descriptions for built-in functions
 
-    static std::string_view constexpr helpName = "help";
-    static std::string_view constexpr helpDesc = R"(Show available commands and their descriptions)";
+    static auto constexpr helpName = "help";
+    static auto constexpr helpDesc = R"(Show available commands and their descriptions)";
 
-    static std::string_view constexpr completeName = "__complete__";
-    static std::string_view constexpr completeDesc = R"(Provide command completion suggestions based on the current arguments)";
+    static auto constexpr completeName = "__complete__";
+    static auto constexpr completeDesc = R"(Provide command completion suggestions based on the current arguments)";
 
     //------------------------------------------
     // Helper functions for better readability

@@ -36,16 +36,16 @@ public:
     // Available Functions
 
     Constants::Error deleteObject();
-    static std::string_view constexpr deleteObject_name = "delete";
-    static std::string_view constexpr deleteObject_desc = "Marks object for deletion\n"
+    static auto constexpr deleteObject_name = "delete";
+    static auto constexpr deleteObject_desc = "Marks object for deletion\n"
         "\n"
         "Usage: delete\n"
         "\n"
         "Marks the object for deletion on the next update cycle.\n";
 
     Constants::Error updateText();
-    static std::string_view constexpr updateText_name = "update-text";
-    static std::string_view constexpr updateText_desc = "Calculate text texture\n"
+    static auto constexpr updateText_name = "update-text";
+    static auto constexpr updateText_desc = "Calculate text texture\n"
         "\n"
         "Usage: update-text\n"
         "\n"

@@ -39,21 +39,21 @@ public:
     // Available Functions
 
     Constants::Error force_set(int argc, char** argv);
-    static std::string_view constexpr force_set_name = "force set";
-    static std::string_view constexpr force_set_desc = "Force a variable to a value.\n"
+    static auto constexpr force_set_name = "force set";
+    static auto constexpr force_set_desc = "Force a variable to a value.\n"
         "\n"
         "Usage: force set <key> <value>\n";
 
     Constants::Error force_clear();
-    static std::string_view constexpr force_clear_name = "force clear";
-    static std::string_view constexpr force_clear_desc = "Clear all forced variables.\n"
+    static auto constexpr force_clear_name = "force clear";
+    static auto constexpr force_clear_desc = "Clear all forced variables.\n"
         "\n"
         "Usage: force clear\n";
 
     //------------------------------------------
     // Category names
-    static std::string_view constexpr force_name = "force";
-    static std::string_view constexpr force_desc = "Category for forcing variables to specific values.\n"
+    static auto constexpr force_name = "force";
+    static auto constexpr force_desc = "Category for forcing variables to specific values.\n"
         "This is useful for testing or overriding configuration values.\n";
 
     //------------------------------------------

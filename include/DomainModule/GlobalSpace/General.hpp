@@ -34,8 +34,8 @@ public:
     // Available Functions
 
     Constants::Error eval(int argc, char** argv);
-    static std::string_view constexpr eval_name = "eval";
-    static std::string_view constexpr eval_desc = "Evaluates an expression string and executes it.\n"
+    static auto constexpr eval_name = "eval";
+    static auto constexpr eval_desc = "Evaluates an expression string and executes it.\n"
         "Every argument after eval is concatenated with a whitespace to form the expression to be evaluated and then reparsed.\n"
         "\n"
         "Usage: eval <expression>\n"
@@ -53,8 +53,8 @@ public:
         "where NAME is the current value of the global variable ToSpawn\n";
 
     Constants::Error exit();
-    static std::string_view constexpr exit_name = "exit";
-    static std::string_view constexpr exit_desc = "Exits the entire program.\n"
+    static auto constexpr exit_name = "exit";
+    static auto constexpr exit_desc = "Exits the entire program.\n"
         "\n"
         "Usage: exit\n"
         "\n"
@@ -62,8 +62,8 @@ public:
         "Any queued tasks will be discarded.\n";
 
     Constants::Error wait(int argc, char** argv);
-    static std::string_view constexpr wait_name = "wait";
-    static std::string_view constexpr wait_desc = "Sets the waitCounter to the given value to halt all script tasks for a given amount of frames.\n"
+    static auto constexpr wait_name = "wait";
+    static auto constexpr wait_desc = "Sets the waitCounter to the given value to halt all script tasks for a given amount of frames.\n"
         "\n"
         "Usage: wait <frames>\n"
         "\n"
@@ -76,8 +76,8 @@ public:
         "- Tool assisted speedruns (TAS)\n";
 
     Constants::Error task(int argc, char** argv);
-    static std::string_view constexpr task_name = "task";
-    static std::string_view constexpr task_desc = "Loads tasks from a file into the taskQueue.\n"
+    static auto constexpr task_name = "task";
+    static auto constexpr task_desc = "Loads tasks from a file into the taskQueue.\n"
         "\n"
         "Usage: task <filename>\n"
         "\n"
@@ -98,8 +98,8 @@ public:
         "    mainCommand4\n";
 
     Constants::Error func_for(int argc, char** argv);
-    static std::string_view constexpr func_for_name = "for";
-    static std::string_view constexpr func_for_desc = "Executes a for-loop with a function call.\n"
+    static auto constexpr func_for_name = "for";
+    static auto constexpr func_for_desc = "Executes a for-loop with a function call.\n"
         "\n"
         "Usage: for <var> <start> <end> <functioncall>\n"
         "\n"
@@ -118,8 +118,8 @@ public:
         "- Creating complex control flows in scripts.\n";
 
     Constants::Error func_if(int argc, char** argv);
-    static std::string_view constexpr func_if_name = "if";
-    static std::string_view constexpr func_if_desc = "Executes a block of code if a condition is true.\n"
+    static auto constexpr func_if_name = "if";
+    static auto constexpr func_if_desc = "Executes a block of code if a condition is true.\n"
         "\n"
         "Usage: if <condition> <functioncall>\n"
         "\n"
@@ -129,8 +129,8 @@ public:
         "if '$(eq(1+1,2))' echo Condition is true!\n";
 
     Constants::Error func_return(int argc, char** argv);
-    static std::string_view constexpr func_return_name = "return";
-    static std::string_view constexpr func_return_desc = "Returns a custom value as a Critical Error.\n"
+    static auto constexpr func_return_name = "return";
+    static auto constexpr func_return_desc = "Returns a custom value as a Critical Error.\n"
         "\n"
         "Usage: return <string>\n"
         "\n"
@@ -144,8 +144,8 @@ public:
         "Critical Error: We did not anticipate this happening, weird.\n";
 
     Constants::Error echo(int argc, char** argv);
-    static std::string_view constexpr echo_name = "echo";
-    static std::string_view constexpr echo_desc = "Echoes all arguments as string to the standard output.\n"
+    static auto constexpr echo_name = "echo";
+    static auto constexpr echo_desc = "Echoes all arguments as string to the standard output.\n"
         "\n"
         "Usage: echo <string>\n"
         "\n"
@@ -156,8 +156,8 @@ public:
         "Hello World!\n";
 
     Constants::Error func_assert(int argc, char** argv);
-    static std::string_view constexpr assert_name = "assert";
-    static std::string_view constexpr assert_desc = "Asserts a condition and throws a custom error if false.\n"
+    static auto constexpr assert_name = "assert";
+    static auto constexpr assert_desc = "Asserts a condition and throws a custom error if false.\n"
         "\n"
         "Usage: assert <condition>\n"
         "\n"
@@ -169,8 +169,8 @@ public:
         "Assertion failed: $(eq(1+1,3)) is not true.\n";
 
     Constants::Error always(int argc, char** argv);
-    static std::string_view constexpr always_name = "always";
-    static std::string_view constexpr always_desc = "Attach a command to the always-taskqueue that is executed on each tick.\n"
+    static auto constexpr always_name = "always";
+    static auto constexpr always_desc = "Attach a command to the always-taskqueue that is executed on each tick.\n"
         "\n"
         "Usage: always <command>\n"
         "\n"
@@ -179,8 +179,8 @@ public:
         "This will output \"This command runs every frame!\" on every frame.\n";
 
     Constants::Error alwaysClear();
-    static std::string_view constexpr alwaysClear_name = "always-clear";
-    static std::string_view constexpr alwaysClear_desc = "Clears the entire always-taskqueue.\n"
+    static auto constexpr alwaysClear_name = "always-clear";
+    static auto constexpr alwaysClear_desc = "Clears the entire always-taskqueue.\n"
         "\n"
         "Usage: always-clear\n"
         "\n"
@@ -189,8 +189,8 @@ public:
         "This will remove all commands from the always-taskqueue.\n";
 
     Constants::Error nop();
-    static std::string_view constexpr nop_name = "nop";
-    static std::string_view constexpr nop_desc = "No operation. Does nothing.\n"
+    static auto constexpr nop_name = "nop";
+    static auto constexpr nop_desc = "No operation. Does nothing.\n"
         "\n"
         "Usage: nop <blind arguments>\n"
         "\n"
@@ -198,8 +198,8 @@ public:
         "but a command is syntactically necessary.\n";
 
     Constants::Error inScope(std::span<std::string const> const& args);
-    static std::string_view constexpr inScope_name = "in-scope";
-    static std::string_view constexpr inScope_desc = "Parses a command within a specific scope.\n"
+    static auto constexpr inScope_name = "in-scope";
+    static auto constexpr inScope_desc = "Parses a command within a specific scope.\n"
         "\n"
         "Usage: in-scope <scope> <command>\n"
         "\n"

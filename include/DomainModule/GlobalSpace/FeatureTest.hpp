@@ -34,15 +34,15 @@ public:
     // Available Functions
 
     Constants::Error testFuncTree();
-    static std::string_view constexpr testFuncTree_name = "feature-test functree";
-    static std::string_view constexpr testFuncTree_desc = "Builds a funcTree with extra arguments and tests it\n"
+    static auto constexpr testFuncTree_name = "feature-test functree";
+    static auto constexpr testFuncTree_desc = "Builds a funcTree with extra arguments and tests it\n"
         "Usage: feature-test functree\n";
 
     //------------------------------------------
     // Category names and descriptions
 
-    static std::string_view constexpr category_feature_test_name = "feature-test";
-    static std::string_view constexpr category_feature_test_desc = "Functions for testing features in the GlobalSpace\n"
+    static auto constexpr category_feature_test_name = "feature-test";
+    static auto constexpr category_feature_test_desc = "Functions for testing features in the GlobalSpace\n"
         "Usage: feature-test <function>\n";
 
     //------------------------------------------

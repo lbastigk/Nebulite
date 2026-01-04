@@ -39,8 +39,8 @@ public:
     // Available Functions
 
     Constants::Error once(std::span<std::string const> const& args);
-    static std::string_view constexpr once_name = "ruleset once";
-    static std::string_view constexpr once_desc = "Applies all rulesets once on the next update\n"
+    static auto constexpr once_name = "ruleset once";
+    static auto constexpr once_desc = "Applies all rulesets once on the next update\n"
         "\n"
         "Usage: ruleset once\n"
         "\n"
@@ -51,8 +51,8 @@ public:
     //       any push/pop could be done via json manipulation directly
 
     Constants::Error reload();
-    static std::string_view constexpr reload_name = "ruleset reload";
-    static std::string_view constexpr reload_desc = "Reloads all rulesets for this RenderObject on the next update.\n"
+    static auto constexpr reload_name = "ruleset reload";
+    static auto constexpr reload_desc = "Reloads all rulesets for this RenderObject on the next update.\n"
         "\n"
         "Usage: ruleset reload\n"
         "\n"
@@ -60,8 +60,8 @@ public:
 
     //------------------------------------------
     // Category names
-    static std::string_view constexpr ruleset_name = "ruleset";
-    static std::string_view constexpr ruleset_desc = "Ruleset management functions for the RenderObject domain.";
+    static auto constexpr ruleset_name = "ruleset";
+    static auto constexpr ruleset_desc = "Ruleset management functions for the RenderObject domain.";
 
     //------------------------------------------
     // Setup
