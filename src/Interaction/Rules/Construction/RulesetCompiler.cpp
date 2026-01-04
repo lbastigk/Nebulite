@@ -129,12 +129,12 @@ bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset
     return true;
 }
 
-std::string RulesetCompiler::getLogicalArg(Core::JsonScope& entry) {
+std::string RulesetCompiler::getCondition(Core::JsonScope& entry) {
     std::string logicalArg;
-    if (entry.memberType("logicalArg") == Data::KeyType::array) {
-        size_t const logicalArgSize = entry.memberSize("logicalArg");
+    if (entry.memberType(Constants::KeyNames::Ruleset::condition) == Data::KeyType::array) {
+        size_t const logicalArgSize = entry.memberSize(Constants::KeyNames::Ruleset::condition);
         for (size_t j = 0; j < logicalArgSize; ++j) {
-            std::string logicalArgKey = "logicalArg[" + std::to_string(j) + "]";
+            auto logicalArgKey = Constants::KeyNames::Ruleset::condition + "[" + std::to_string(j) + "]";
             logicalArg += "(" + entry.get<std::string>(logicalArgKey, "0") + ")";
             if (j < logicalArgSize - 1) {
                 logicalArg += "*"; // Arguments in vector need to be all true: &-logic -> Multiplication
@@ -142,7 +142,7 @@ std::string RulesetCompiler::getLogicalArg(Core::JsonScope& entry) {
         }
     } else {
         // Assume simple value, string:
-        logicalArg = entry.get<std::string>("logicalArg", "0");
+        logicalArg = entry.get<std::string>(Constants::KeyNames::Ruleset::condition, "0");
     }
 
     // Add $()
@@ -308,7 +308,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope& doc, Da
     auto Ruleset = std::make_shared<Interaction::Rules::JsonRuleset>();
     Ruleset->topic = entry.get<std::string>(Constants::KeyNames::Invoke::topic, "all");
     Ruleset->_isGlobal = (!Ruleset->topic.empty()); // If topic is empty, it is a local invoke
-    Ruleset->logicalArg.parse(getLogicalArg(entry), self.getDoc());
+    Ruleset->logicalArg.parse(getCondition(entry), self.getDoc());
 
     // Remove whitespaces at start and end from topic and logicalArg:
     Ruleset->topic = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(Ruleset->topic));

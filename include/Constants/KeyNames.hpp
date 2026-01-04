@@ -111,7 +111,7 @@ struct KeyNames {
         static constexpr std::string_view typeGlobal = "global";
 
         static constexpr std::string_view topic = "topic";
-        static constexpr std::string_view logicalArg = "condition";
+        //static constexpr std::string_view logicalArg = "condition";
 
         static constexpr std::string_view exprVector = "action.assign";
         static constexpr std::string_view functioncalls_global = "action.functioncall.global";

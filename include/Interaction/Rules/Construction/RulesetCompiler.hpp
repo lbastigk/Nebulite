@@ -110,7 +110,7 @@ private:
      * @param entry The JSON entry document to extract the argument from.
      * @return The extracted logical argument as a string.
      */
-    static std::string getLogicalArg(Core::JsonScope& entry);
+    static std::string getCondition(Core::JsonScope& entry);
 
     /**
      * @brief Extracts a Ruleset object from a JSON entry document.
