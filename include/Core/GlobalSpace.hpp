@@ -75,26 +75,29 @@ public:
     // Provide scopes for DomainModules and RulesetModules, depending on their type
 
     // GlobalSpace DomainModules root is at "", then we add their own prefix
-    JsonScope& shareScope(Interaction::Execution::DomainModule<GlobalSpace> const& dm) const {
+    [[nodiscard]] JsonScope& shareScope(Interaction::Execution::DomainModule<GlobalSpace> const& dm) const {
         return documentScope.shareScope(dm.getDoc().getScopePrefix());
     }
 
     // Provide a custom scope for DomainModules from RenderObjects
     // We add a prefix to signal what part these domainModules can access
-    JsonScope& shareScope(Interaction::Execution::DomainModule<RenderObject> const& dm) const {
+    [[nodiscard]] JsonScope& shareScope(Interaction::Execution::DomainModule<RenderObject> const& dm) const {
         return documentScope.shareScope("providedScope.domainModule.renderObject." + dm.getDoc().getScopePrefix());
     }
 
     // Provide a custom scope for DomainModules from JsonScope
     // We add a prefix to signal what part these domainModules can access
-    JsonScope& shareScope(Interaction::Execution::DomainModule<JsonScope> const& dm) const {
+    [[nodiscard]] JsonScope& shareScope(Interaction::Execution::DomainModule<JsonScope> const& dm) const {
         return documentScope.shareScope("providedScope.domainModule.jsonScope." + dm.getDoc().getScopePrefix());
     }
 
-    // Provide full scope to RulesetModules
-    JsonScope& shareScope(Interaction::Rules::RulesetModule const& rm) const {
+    // Provide scope to RulesetModules
+    [[nodiscard]] JsonScope& shareScope(Interaction::Rules::RulesetModule const& rm) const {
         (void)rm; // unused, we provide full scope for now
         // TODO: add a getScopePrefix() to RulesetModule later on if needed
+        //       e.g. Physics RulesetModule might only need access to physics-related variables.
+        //       For this to work properly, we may have to add the ability to share multiple scopes.
+        //       -> physics and time for example
         return documentScope.shareScope("");
     }
 
@@ -218,9 +221,9 @@ public:
      * @brief Clears all task queues.
      */
     void clearAllTaskQueues() {
-        for (auto& t : tasks) {
-            t.second->clear();
-        }
+        std::ranges::for_each(tasks | std::views::values, [](auto &tq) {
+            if (tq) tq->clear();
+        });
     }
 
     /**
@@ -229,8 +232,7 @@ public:
      * @return Pointer to the TaskQueue instance, or nullptr if not found.
      */
     std::shared_ptr<Data::TaskQueue> getTaskQueue(std::string const& name) {
-        auto it = tasks.find(name);
-        if (it != tasks.end()) {
+        if (auto const it = tasks.find(name); it != tasks.end()) {
             return it->second;
         }
         return nullptr;
