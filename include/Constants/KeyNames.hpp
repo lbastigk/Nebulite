@@ -102,23 +102,6 @@ struct KeyNames {
         static constexpr std::string_view textDy = "text.dy";
     };
 
-    // TODO: Integrate into RenderObject Ruleset DomainModule, remove unused keys
-    struct Invoke {
-        // TODO: Are these still used?
-        static constexpr std::string_view self = "invoke";
-        static constexpr std::string_view typeSelf = "self";
-        static constexpr std::string_view typeOther = "other";
-        static constexpr std::string_view typeGlobal = "global";
-
-        static constexpr std::string_view topic = "topic";
-        //static constexpr std::string_view logicalArg = "condition";
-
-        static constexpr std::string_view exprVector = "action.assign";
-        static constexpr std::string_view functioncalls_global = "action.functioncall.global";
-        static constexpr std::string_view functioncalls_self = "action.functioncall.self";
-        static constexpr std::string_view functioncalls_other = "action.functioncall.other";
-    };
-
     // Keys within any Ruleset json object
     // No scope! They are at the root of any ruleset object within ruleset.broadcast[i]
     struct Ruleset {
