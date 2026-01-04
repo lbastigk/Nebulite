@@ -12,6 +12,8 @@ GlobalSpace::GlobalSpace(std::string const& name)
     : Domain("Nebulite", *this, globalDoc), // Domain with reference to GlobalSpace and its full scope
       renderer(globalDoc.shareScope("renderer"), &cmdVars.headless) // Share only the renderer portion of the global document
 {
+    floatingDM.rng = NEBULITE_FLOATING_DOMAINMODULE(Nebulite::DomainModule::GlobalSpace::RNG,"RNG", documentScope, "random");
+
     //------------------------------------------
     // There should only be one GlobalSpace
     static bool globalSpaceExists = false;
@@ -206,42 +208,8 @@ Constants::Error GlobalSpace::preParse() {
     // NOTE: This function is only called once there is a parse-command
     // Meaning its timing is consistent and not dependent on framerate, frame time variations, etc.
     // Meaning everything we do here is, timing wise, deterministic!
-
-    // Update RNGs
-    // Disabled if renderer skipped update last frame, active otherwise
-    bool RNG_update_enabled = renderer.isSdlInitialized() && renderer.hasSkippedUpdate() == false;
-    RNG_update_enabled |= !renderer.isSdlInitialized(); // If renderer is not initialized, we always update RNGs
-    if (RNG_update_enabled) {
-        updateRNGs();
-    }
-
+    (void)floatingDM.rng->update();
     return Constants::ErrorTable::NONE();
-}
-
-void GlobalSpace::updateRNGs() {
-    // Set Min and Max values for RNGs in document
-    // Always set, so overwrites don't stick around
-    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::GlobalSpace::RNG::min, std::numeric_limits<RngVars::rngSize_t>::min());
-    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::GlobalSpace::RNG::max, std::numeric_limits<RngVars::rngSize_t>::max());
-
-    // Generate seeds in a predictable manner
-    // Since updateRNG is called at specific times only, we can simply increment RNG with a new seed
-    std::string const seedA = "A" + std::to_string(rng.A.get());
-    std::string const seedB = "B" + std::to_string(rng.B.get());
-    std::string const seedC = "C" + std::to_string(rng.C.get());
-    std::string const seedD = "D" + std::to_string(rng.D.get());
-
-    // Hash seeds
-    rng.A.update(seedA);
-    rng.B.update(seedB);
-    rng.C.update(seedC);
-    rng.D.update(seedD);
-
-    // Set RNG values in global document
-    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::GlobalSpace::RNG::A, rng.A.get());
-    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::GlobalSpace::RNG::B, rng.B.get());
-    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::GlobalSpace::RNG::C, rng.C.get());
-    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::GlobalSpace::RNG::D, rng.D.get());
 }
 
 } // namespace Nebulite::Core

@@ -25,17 +25,8 @@
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Interaction/Rules/RulesetModule.hpp"
-#include "Utility/RNG.hpp"
 
-//------------------------------------------
-// Forward declarations
-
-namespace Nebulite::Interaction::Execution {
-
-template <typename DomainType>
-class DomainModule;
-} // namespace Nebulite::Interaction::Execution
-
+#include "DomainModule/GlobalSpace/Floating/RNG.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -194,20 +185,6 @@ public:
     } cmdVars;
 
     /**
-     * @brief Rolls back all RNGs to their previous state.
-     *        Can be called by any domainModule function
-     *        if you don't want this functioncall to modify RNG state.
-     *        Example: calling a script should not modify RNG, so that we can
-     *                 always load scripts for TAS without RNG state changes.
-     */
-    void rngRollback() {
-        rng.A.rollback();
-        rng.B.rollback();
-        rng.C.rollback();
-        rng.D.rollback();
-    }
-
-    /**
      * @brief Checks if the main loop should continue running.
      * @return True if the main loop should continue, false otherwise.
      */
@@ -247,6 +224,15 @@ public:
         inline static constexpr const char* internal = "tasks::internal";
         inline static constexpr const char* script = "tasks::script";
     };
+
+    //------------------------------------------
+    // Special Functions
+
+    void rngRollback() const {
+        if (floatingDM.rng) {
+            floatingDM.rng->rngRollback();
+        }
+    }
 
 private:
     //------------------------------------------
@@ -293,27 +279,13 @@ private:
         std::string binary; // Name of the binary, used for parsing arguments
     } names;
 
-    /**
-     * @struct RngVars
-     * @brief Contains RNG instances used in the global space.
-     * @todo Consider a hashmap of RNGs for more versatility in the future.
-     *       std::string -> Utility::RNG<rngSize_t>
-     *       Simplifies the rng rollback and update functions as well.
-     * @note Having the RNG-Generation in a DomainModule would be better,
-     *       but then we would have to somehow ensure that its updated before command parsing,
-     *       which is currently only possible in GlobalSpace::preParse.
-     * @todo Another option would be to have a free-floating DomainModule that is not inserted via initializer.hpp
-     *       but just another object created in GlobalSpace constructor.
-     *       Then we can safely call its update function in preParse.
-     *       This allows us to limit the scope of RNG to just "random." in the document.
-     */
-    struct RngVars {
-        using rngSize_t = uint16_t; // Modify this to change the size of the RNGs
-        Utility::RNG<rngSize_t> A; // RNG with key random.A
-        Utility::RNG<rngSize_t> B; // RNG with key random.B
-        Utility::RNG<rngSize_t> C; // RNG with key random.C
-        Utility::RNG<rngSize_t> D; // RNG with key random.D
-    } rng;
+
+    //------------------------------------------
+    // Floating DomainModules
+
+    struct FloatingDomainModules {
+        std::unique_ptr<DomainModule::GlobalSpace::RNG> rng;
+    } floatingDM;
 
     //------------------------------------------
     // Methods
@@ -325,11 +297,6 @@ private:
      *         an error code otherwise.
      */
     Constants::Error preParse() override;
-
-    /**
-     * @brief Updates all RNGs
-     */
-    void updateRNGs();
 
     /**
      * @brief Updates all inner domains.

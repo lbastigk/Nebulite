@@ -34,6 +34,16 @@ bool constexpr endsWithNewline(std::string_view str) {
     explicit DomainModuleName(std::string const& name, DomainName& domainReference, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Data::JsonScopeBase* scope) \
     : DomainModule(name, domainReference, std::move(funcTreePtr), scope)
 
+// Common macro to create a floating DomainModule with proper linkage
+// Floating DomainModules are handled separately from regular DomainModules
+// They are not updated automatically via the domains updateModules function.
+// However, they offer the same "separation of concerns" as regular DomainModules
+// without the additional overhead if we were to turn them into full Domains.
+// Useful for small "runners" with neatly separated functionality, that need the ability to be called
+// separately.
+#define NEBULITE_FLOATING_DOMAINMODULE(DomainModule, DomainModuleName, Document, Scope) \
+    std::make_unique<DomainModule>(#DomainModuleName, *this, getFuncTree(), &Document.shareDocumentScopeBase(Scope))
+
 #define BINDFUNCTION(func, name,desc) \
 static_assert(endsWithNewline(desc), "Function description must end with a newline character."); \
     bindFunction(func, name, desc)
