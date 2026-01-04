@@ -45,7 +45,7 @@ std::string ScopedKey::full(JsonScopeBase const& scope) const {
             std::string const msg =
                 "ScopedKey scope mismatch: key '" + std::string(key) +
                 "' was created with the given scope prefix '" + given +
-                "' but was used in JsonScopeBase with prefix '" + allowedScope;
+                "' but was used in JsonScopeBase with prefix '" + allowedScope + "'.";
             throw std::invalid_argument(msg);
         }
 

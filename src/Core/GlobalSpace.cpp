@@ -10,7 +10,7 @@ namespace Nebulite::Core {
 
 GlobalSpace::GlobalSpace(std::string const& name)
     : Domain("Nebulite", *this, globalDoc), // Domain with reference to GlobalSpace and its full scope
-      renderer(globalDoc, &cmdVars.headless) // Renderer with reference to GlobalSpace and headless mode boolean
+      renderer(globalDoc.shareScope("renderer"), &cmdVars.headless) // Share only the renderer portion of the global document
 {
     //------------------------------------------
     // There should only be one GlobalSpace
