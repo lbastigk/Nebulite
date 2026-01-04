@@ -3,8 +3,8 @@
     "condition": "1",
     "action": {
         "assign": [
-            "self.posX = $( ({global.input.keyboard.current.d} - {global.input.keyboard.current.a}) * 40 * {global.time.dt} )",
-            "self.posY = $( ({global.input.keyboard.current.s} - {global.input.keyboard.current.w}) * 40 * {global.time.dt} )"
+            "self.posX = $( ({global.renderer.input.keyboard.current.d} - {global.renderer.input.keyboard.current.a}) * 40 * {global.time.dt} )",
+            "self.posY = $( ({global.renderer.input.keyboard.current.s} - {global.renderer.input.keyboard.current.w}) * 40 * {global.time.dt} )"
         ],
         "functioncall": {
             "global": [],

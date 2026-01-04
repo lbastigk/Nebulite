@@ -3,8 +3,8 @@
     "condition": "1",
     "action": {
         "assign": [
-            "self.go_down = $( {global.input.keyboard.current.down} * leq( {self.posY}, {global.renderer.resolution.Y} - {self.sprite.sizeY} - 32 ) )",
-            "self.go_up = $( {global.input.keyboard.current.up} * geq({self.posY},32))",
+            "self.go_down = $( {global.renderer.input.keyboard.current.down} * leq( {self.posY}, {global.renderer.resolution.Y} - {self.sprite.sizeY} - 32 ) )",
+            "self.go_up = $( {global.renderer.input.keyboard.current.up} * geq({self.posY},32))",
             "self.physics.vY = $( ( {self.go_down} - {self.go_up} ) * {self.physics.vNorm} )"
         ],
         "functioncall": {

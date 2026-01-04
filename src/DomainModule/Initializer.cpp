@@ -17,7 +17,6 @@
 #include "DomainModule/GlobalSpace/FunctionCollision.hpp"   // Special debugging utilities for domain collision detection
 #include "DomainModule/GlobalSpace/FeatureTest.hpp"         // Feature testing module
 #include "DomainModule/GlobalSpace/General.hpp"             // General functions like eval, exit, wait, etc.
-#include "DomainModule/GlobalSpace/Input.hpp"               // Input handling
 #include "DomainModule/GlobalSpace/Ruleset.hpp"             // Ruleset management
 #include "DomainModule/GlobalSpace/Time.hpp"                // Basic Time management functions
 
@@ -34,8 +33,9 @@
 #include "DomainModule/RenderObject/StateUpdate.hpp"
 
 // Renderer
-#include "DomainModule/Renderer/General.hpp"
 #include "DomainModule/Renderer/Console.hpp"
+#include "DomainModule/Renderer/General.hpp"
+#include "DomainModule/Renderer/Input.hpp"
 #include "DomainModule/Renderer/RenderObjectDraft.hpp"
 
 // Texture
@@ -52,7 +52,6 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     using namespace Nebulite::DomainModule::GlobalSpace;
     target->initModule<General>("Global General Functions", &target->shareDocumentScopeBase(""));
     target->initModule<Debug>("Global Debug Functions", &target->shareDocumentScopeBase(""));
-    target->initModule<Input>("Global Input Functions", &target->shareDocumentScopeBase(""));
     target->initModule<Ruleset>("Global Ruleset Functions", &target->shareDocumentScopeBase(""));
 
     //------------------------------------------
@@ -101,6 +100,7 @@ void Initializer::initRenderer(Core::Renderer* target) {
     using namespace Nebulite::DomainModule::Renderer;
     target->initModule<General>("Renderer General Functions", &target->shareDocumentScopeBase(""));
     target->initModule<Console>("Renderer Console Functions", &target->shareDocumentScopeBase(""));
+    target->initModule<Input>("Renderer Input Functions", &target->shareDocumentScopeBase(""));
     target->initModule<RenderObjectDraft>("Renderer RenderObjectDraft Functions", &target->shareDocumentScopeBase(""));
 }
 

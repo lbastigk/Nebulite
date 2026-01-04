@@ -1,13 +1,12 @@
-#include "DomainModule/GlobalSpace/Input.hpp"
-
+#include "DomainModule/Renderer/Input.hpp"
 #include "Nebulite.hpp"
 
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::DomainModule::Renderer {
 
 Constants::Error Input::update() {
     //------------------------------------------
     // Only update if SDL is initialized
-    if (domain.getRenderer().isSdlInitialized()) {
+    if (domain.isSdlInitialized()) {
         if (!timerInitialized) {
             // Starting Polling timer
             RendererPollTime = std::make_shared<Utility::TimeKeeper>();

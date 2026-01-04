@@ -3,7 +3,7 @@
     "condition": "1",
     "action": {
         "assign": [
-            "self.animation.xRolling.active = $( {self.sprite.spritesheet.offsetX} + {self.animation.attack} + {global.input.keyboard.current.w} + {global.input.keyboard.current.a} + {global.input.keyboard.current.s} + {global.input.keyboard.current.d})"
+            "self.animation.xRolling.active = $( {self.sprite.spritesheet.offsetX} + {self.animation.attack} + {global.renderer.input.keyboard.current.w} + {global.renderer.input.keyboard.current.a} + {global.renderer.input.keyboard.current.s} + {global.renderer.input.keyboard.current.d})"
         ],
         "functioncall": {
             "global": [],
