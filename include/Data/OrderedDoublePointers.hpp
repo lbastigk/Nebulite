@@ -15,6 +15,9 @@
 // External
 #include <absl/container/flat_hash_map.h>
 
+// Nebulite
+#include "Data/Document/ScopedKey.hpp"
+
 //------------------------------------------
 // Forward declarations
 
@@ -149,7 +152,7 @@ public:
      */
     odpvec* ensureOrderedCacheList(
         uint64_t const& uniqueId,
-        std::vector<std::string_view> const& keys
+        std::vector<Data::ScopedKey> const& keys
         );
 
 private:

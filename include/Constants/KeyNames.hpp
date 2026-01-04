@@ -18,44 +18,43 @@
 #ifndef NEBULITE_CONSTANTS_KEYNAMES_HPP
 #define NEBULITE_CONSTANTS_KEYNAMES_HPP
 
-#include <string_view>
 #include "Core/JsonScope.hpp"
 
 namespace Nebulite::Constants {
 
-// TODO: Use Data::ScopedKey::create<scope> instead of string_view for better scope safety
 // TODO: Remove unused keys and refactor used ones
+// TODO: move scope to private part of each struct when possible
 struct KeyNames {
     struct Renderer {
-        static constexpr char scope[] = "renderer.";
-        static constexpr auto dispResX = Data::ScopedKey::create<scope>("resolution.X");
-        static constexpr auto dispResY = Data::ScopedKey::create<scope>("resolution.Y");
-        static constexpr auto positionX = Data::ScopedKey::create<scope>("position.X");
-        static constexpr auto positionY = Data::ScopedKey::create<scope>("position.Y");
+        static auto constexpr scope = "renderer.";
+        static auto constexpr dispResX = Data::ScopedKey::create<scope>("resolution.X");
+        static auto constexpr dispResY = Data::ScopedKey::create<scope>("resolution.Y");
+        static auto constexpr positionX = Data::ScopedKey::create<scope>("position.X");
+        static auto constexpr positionY = Data::ScopedKey::create<scope>("position.Y");
     };
 
     struct GlobalSpace {
-        static constexpr char scope[] = "";
+        static auto constexpr scope = "";
 
         // TODO: Unify with DomainModule::GlobalSpace::Time
         //       Currently duplicated keys here and in that module
-        static constexpr auto time_t = Data::ScopedKey::create<scope>("time.t");
-        static constexpr auto time_t_ms = Data::ScopedKey::create<scope>("time.t_ms");
-        static constexpr auto time_dt = Data::ScopedKey::create<scope>("time.dt");
-        static constexpr auto time_dt_ms = Data::ScopedKey::create<scope>("time.dt_ms");
+        static auto constexpr time_t = Data::ScopedKey::create<scope>("time.t");
+        static auto constexpr time_t_ms = Data::ScopedKey::create<scope>("time.t_ms");
+        static auto constexpr time_dt = Data::ScopedKey::create<scope>("time.dt");
+        static auto constexpr time_dt_ms = Data::ScopedKey::create<scope>("time.dt_ms");
 
-        // Keys for RNG
-        // Due to the need of a pre-parse function in GlobalSpace (to modify RNGs before any command is parsed, making them deterministic),
-        // these keys are defined here instead of in a DomainModule,
-        // And the RNG implementation is directly in GlobalSpace as well
+        /**
+         * @brief Keys for RNG (Random Number Generator) settings in GlobalSpace.
+         * @todo Move to DomainModule::GlobalSpace::RNG, public so that other DomainModules can use it
+         */
         struct RNG {
-            static constexpr char scope[] = "random.";
-            static constexpr auto A = Data::ScopedKey::create<scope>("A");
-            static constexpr auto B = Data::ScopedKey::create<scope>("B");
-            static constexpr auto C = Data::ScopedKey::create<scope>("C");
-            static constexpr auto D = Data::ScopedKey::create<scope>("D");
-            static constexpr auto min = Data::ScopedKey::create<scope>("min");
-            static constexpr auto max = Data::ScopedKey::create<scope>("max");
+            static auto constexpr scope = "random.";
+            static auto constexpr A = Data::ScopedKey::create<scope>("A");
+            static auto constexpr B = Data::ScopedKey::create<scope>("B");
+            static auto constexpr C = Data::ScopedKey::create<scope>("C");
+            static auto constexpr D = Data::ScopedKey::create<scope>("D");
+            static auto constexpr min = Data::ScopedKey::create<scope>("min");
+            static auto constexpr max = Data::ScopedKey::create<scope>("max");
         };
 
         // Keys for Physics
@@ -63,57 +62,56 @@ struct KeyNames {
         //       Perhaps even in a DomainModule for GlobalSpace,
         //       Then we can move these keys there
         struct Physics {
-            static constexpr char scope[] = "physics.";
-            static constexpr auto G = Data::ScopedKey::create<scope>("G");
+            static auto constexpr scope = "physics.";
+            static auto constexpr G = Data::ScopedKey::create<scope>("G");
         };
     };
 
     struct RenderObject {
         // TODO: Use "" as scope, and modify keys to be relative to that scope
-        //static constexpr std::string_view self = "renderObject";
-        static constexpr std::string_view id = "id";
-        static constexpr std::string_view positionX = "posX";
-        static constexpr std::string_view positionY = "posY";
-        static constexpr std::string_view layer = "layer";
+        static auto constexpr id = Data::ScopedKey("id");
+        static auto constexpr positionX = Data::ScopedKey("posX");
+        static auto constexpr positionY = Data::ScopedKey("posY");
+        static auto constexpr layer = Data::ScopedKey("layer");
 
         // Keys for Ruleset invocations and subscriptions
         struct Ruleset {
-            static constexpr char scope[] = "ruleset.";
-            static constexpr auto broadcast = Data::ScopedKey::create<scope>("broadcast");
-            static constexpr auto listen = Data::ScopedKey::create<scope>("listen");
+            static auto constexpr scope = "ruleset.";
+            static auto constexpr broadcast = Data::ScopedKey::create<scope>("broadcast");
+            static auto constexpr listen = Data::ScopedKey::create<scope>("listen");
         };
 
         // TODO: Use "texture." as scope
-        static constexpr std::string_view pixelSizeX = "sprite.sizeX";
-        static constexpr std::string_view pixelSizeY = "sprite.sizeY";
-        static constexpr std::string_view imageLocation = "sprite.link";
-        static constexpr std::string_view isSpritesheet = "sprite.spritesheet.isSpritesheet";
-        static constexpr std::string_view spritesheetSizeX = "sprite.spritesheet.sizeX";
-        static constexpr std::string_view spritesheetSizeY = "sprite.spritesheet.sizeY";
-        static constexpr std::string_view spritesheetOffsetX = "sprite.spritesheet.offsetX";
-        static constexpr std::string_view spritesheetOffsetY = "sprite.spritesheet.offsetY";
-        static constexpr std::string_view textFontsize = "text.fontSize";
-        static constexpr std::string_view textStr = "text.str";
-        static constexpr std::string_view textColorR = "text.color.R";
-        static constexpr std::string_view textColorG = "text.color.G";
-        static constexpr std::string_view textColorB = "text.color.B";
-        static constexpr std::string_view textColorA = "text.color.A";
-        static constexpr std::string_view textDx = "text.dx";
-        static constexpr std::string_view textDy = "text.dy";
+        static auto constexpr pixelSizeX = Data::ScopedKey("sprite.sizeX");
+        static auto constexpr pixelSizeY = Data::ScopedKey("sprite.sizeY");
+        static auto constexpr imageLocation = Data::ScopedKey("sprite.link");
+        static auto constexpr isSpritesheet = Data::ScopedKey("sprite.spritesheet.isSpritesheet");
+        static auto constexpr spritesheetSizeX = Data::ScopedKey("sprite.spritesheet.sizeX");
+        static auto constexpr spritesheetSizeY = Data::ScopedKey("sprite.spritesheet.sizeY");
+        static auto constexpr spritesheetOffsetX = Data::ScopedKey("sprite.spritesheet.offsetX");
+        static auto constexpr spritesheetOffsetY = Data::ScopedKey("sprite.spritesheet.offsetY");
+        static auto constexpr textFontsize = Data::ScopedKey("text.fontSize");
+        static auto constexpr textStr = Data::ScopedKey("text.str");
+        static auto constexpr textColorR = Data::ScopedKey("text.color.R");
+        static auto constexpr textColorG = Data::ScopedKey("text.color.G");
+        static auto constexpr textColorB = Data::ScopedKey("text.color.B");
+        static auto constexpr textColorA = Data::ScopedKey("text.color.A");
+        static auto constexpr textDx = Data::ScopedKey("text.dx");
+        static auto constexpr textDy = Data::ScopedKey("text.dy");
     };
 
-    // Keys within any Ruleset json object
+    // Keys within any Ruleset JSON object
     // No scope! They are at the root of any ruleset object within ruleset.broadcast[i]
     struct Ruleset {
         // TODO: Use these ones later on:
         //       Make sure to refactor any usage in json files
-        static constexpr auto topic = Data::ScopedKey("topic");
-        static constexpr auto condition = Data::ScopedKey("condition");
+        static auto constexpr topic = Data::ScopedKey("topic");
+        static auto constexpr condition = Data::ScopedKey("condition");
         // If both are met, do:
-        static constexpr auto assignments = Data::ScopedKey("action.assign");
-        static constexpr auto parseOnGlobal = Data::ScopedKey("action.functioncall.global");
-        static constexpr auto parseOnSelf   = Data::ScopedKey("action.functioncall.self");
-        static constexpr auto parseOnOther  = Data::ScopedKey("action.functioncall.other");
+        static auto constexpr assignments = Data::ScopedKey("action.assign");
+        static auto constexpr parseOnGlobal = Data::ScopedKey("action.functioncall.global");
+        static auto constexpr parseOnSelf   = Data::ScopedKey("action.functioncall.self");
+        static auto constexpr parseOnOther  = Data::ScopedKey("action.functioncall.other");
     };
 };
 

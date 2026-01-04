@@ -62,7 +62,7 @@ private:
     //------------------------------------------
     // Base value caching for camera alignment
 
-    const std::vector<std::string_view> keys = {
+    const std::vector<Data::ScopedKey> keys = {
         Nebulite::Constants::KeyNames::RenderObject::positionX,
         Nebulite::Constants::KeyNames::RenderObject::positionY,
         Nebulite::Constants::KeyNames::RenderObject::pixelSizeX,

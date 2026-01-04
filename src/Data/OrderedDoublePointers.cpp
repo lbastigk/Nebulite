@@ -47,7 +47,7 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, s
     return &newIt->second.orderedValues;
 }
 
-odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<std::string_view> const& keys) {
+odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<Data::ScopedKey> const& keys) {
     // Quick-cache path protected by mtxCache
     if (uniqueId < Data::MappedOrderedDoublePointers::quickCacheSize) {
         {
