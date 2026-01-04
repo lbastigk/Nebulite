@@ -1,15 +1,5 @@
 {
     "id": 0,
-    "invokeSubscriptions": [
-        "all",
-        "::physics::elasticCollision"
-    ],
-    "invokes": [
-        "./Resources/Invokes/Physics/falling.jsonc",
-        "::physics::elasticCollision",
-        "::physics::drag",
-        "::physics::applyForce"
-    ],
     "layer": 0,
     "physics": {
         "mass": 10.0,
@@ -37,5 +27,17 @@
         "dy": 0.0,
         "fontSize": 0,
         "str": ""
+    },
+    "ruleset": {
+        "broadcast": [
+            "./Resources/Invokes/Physics/falling.jsonc",
+            "::physics::elasticCollision",
+            "::physics::drag",
+            "::physics::applyForce"
+        ],
+        "listen": [
+            "all",
+            "::physics::elasticCollision"
+        ]
     }
 }

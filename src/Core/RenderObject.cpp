@@ -36,9 +36,9 @@ void setStandardValues(Core::JsonScope& document) {
     document.set(Constants::KeyNames::RenderObject::pixelSizeY, 32);
 
     // Invokes
-    document.setEmptyArray(Constants::KeyNames::Ruleset::invokes);
-    document.setEmptyArray(Constants::KeyNames::Ruleset::invokeSubscriptions);
-    document.set(std::string(Constants::KeyNames::Ruleset::invokeSubscriptions) + "[0]", std::string("all"));
+    document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::broadcast);
+    document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::listen);
+    document.set(Constants::KeyNames::RenderObject::Ruleset::listen + "[0]", std::string("all"));
 
     // Text
     document.set(Constants::KeyNames::RenderObject::textStr, std::string(""));

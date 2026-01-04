@@ -1,14 +1,5 @@
 {
     "id": 0,
-    "invokeSubscriptions": [
-        "all",
-        "::physics::gravity",
-        "gravity"
-    ],
-    "invokes": [
-        "Resources/Invokes/Physics/gravity.jsonc",
-        "Resources/Invokes/Physics/applyForce.jsonc"
-    ],
     "layer": 0,
     "physics": {
         "mass": 50.0,
@@ -42,5 +33,16 @@
         "dy": -30.0,
         "fontSize": 16,
         "str": "OBJ2"
+    },
+    "ruleset": {
+        "broadcast": [
+            "Resources/Invokes/Physics/gravity.jsonc",
+            "Resources/Invokes/Physics/applyForce.jsonc"
+        ],
+        "listen": [
+            "all",
+            "::physics::gravity",
+            "gravity"
+        ]
     }
 }

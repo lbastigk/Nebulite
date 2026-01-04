@@ -1,16 +1,5 @@
 {
     "id": 0,
-    "invokeSubscriptions": [
-        "all",
-        "collision"
-    ],
-    "invokes": [
-        "./Resources/Invokes/Physics/falling.jsonc",
-        "./Resources/Invokes/Physics/applyForce.jsonc",
-        "./Resources/Invokes/Pong/ensureVelocityX.jsonc",
-        "./Resources/Invokes/Pong/respawnBallLeft.jsonc",
-        "./Resources/Invokes/Pong/respawnBallRight.jsonc"
-    ],
     "layer": 0,
     "physics": {
         "mass": 10.0,
@@ -38,5 +27,18 @@
         "dy": 0.0,
         "fontSize": 0,
         "str": ""
+    },
+    "ruleset": {
+        "broadcast": [
+            "./Resources/Invokes/Physics/falling.jsonc",
+            "./Resources/Invokes/Physics/applyForce.jsonc",
+            "./Resources/Invokes/Pong/ensureVelocityX.jsonc",
+            "./Resources/Invokes/Pong/respawnBallLeft.jsonc",
+            "./Resources/Invokes/Pong/respawnBallRight.jsonc"
+        ],
+        "listen": [
+            "all",
+            "collision"
+        ]
     }
 }

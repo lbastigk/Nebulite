@@ -1,35 +1,5 @@
 {
     "id": 0,
-    "invokeSubscriptions": [
-        "all"
-    ],
-    "invokes": [
-        {
-            "topic": "",
-            "logicalArg": [
-                "entry1",
-                "entry2",
-                "entry3",
-                "entry4"
-            ],
-            "exprs": [],
-            "functioncalls_global": [],
-            "functioncalls_self": [
-                "delete"
-            ],
-            "functioncalls_other": []
-        },
-        {
-            "topic": "",
-            "logicalArg": "1",
-            "exprs": [],
-            "functioncalls_global": [
-                "echo Works!"
-            ],
-            "functioncalls_self": [],
-            "functioncalls_other": []
-        }
-    ],
     "layer": 0,
     "posX": 0,
     "posY": 0,
@@ -56,5 +26,37 @@
         "dy": 0.0,
         "fontSize": 0,
         "str": ""
+    },
+    "ruleset": {
+        "broadcast": [
+            {
+                "topic": "",
+                "logicalArg": [
+                    "entry1",
+                    "entry2",
+                    "entry3",
+                    "entry4"
+                ],
+                "exprs": [],
+                "functioncalls_global": [],
+                "functioncalls_self": [
+                    "delete"
+                ],
+                "functioncalls_other": []
+            },
+            {
+                "topic": "",
+                "logicalArg": "1",
+                "exprs": [],
+                "functioncalls_global": [
+                    "echo Works!"
+                ],
+                "functioncalls_self": [],
+                "functioncalls_other": []
+            }
+        ],
+        "listen": [
+            "all"
+        ]
     }
 }

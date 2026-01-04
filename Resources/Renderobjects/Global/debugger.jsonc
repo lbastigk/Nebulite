@@ -1,8 +1,5 @@
 {
     "id": 0,
-    "invokes": [
-        "./Resources/Invokes/Debug/print_global.jsonc"
-    ],
     "layer": 0,
     "posX": 0,
     "posY": 0,
@@ -23,5 +20,10 @@
         "dy": 0.0,
         "fontSize": 0,
         "str": ""
+    },
+    "ruleset": {
+        "broadcast": [
+            "./Resources/Invokes/Debug/print_global.jsonc"
+        ]
     }
 }

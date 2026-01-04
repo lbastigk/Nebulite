@@ -37,7 +37,7 @@ Constants::Error Ruleset::update() {
 
         // Listen to broadcasts from subscribed topics
         for (size_t idx = 0; idx < subscription_size; idx++) {
-            std::string key = std::string(Constants::KeyNames::Ruleset::invokeSubscriptions) + "[" + std::to_string(idx) + "]";
+            auto const key = Constants::KeyNames::RenderObject::Ruleset::listen + "[" + std::to_string(idx) + "]";
             auto const subscription = getDoc().get<std::string>(key, "");
             Nebulite::global().listen(domain, subscription, id);
         }
@@ -58,9 +58,8 @@ Constants::Error Ruleset::update() {
 
 Constants::Error Ruleset::once(std::span<std::string const> const& args) {
     if (args.size() > 1) {
-        std::string arg = Utility::StringHandler::recombineArgs(args.subspan(1));
-        auto rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(args[0], domain);
-        if (rs.has_value()) {
+        std::string const arg = Utility::StringHandler::recombineArgs(args.subspan(1));
+        if (auto const rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(arg, domain); rs.has_value()) {
             if (rs.value()->isGlobal()) {
                 Nebulite::global().broadcast(rs.value());
             }

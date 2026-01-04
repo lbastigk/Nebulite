@@ -1,30 +1,5 @@
 {
     "id": 0,
-    "invokeSubscriptions": [
-        "all"
-    ],
-    "invokes": [
-        {
-            "topic": "",
-            "logicalArg": "gt( {global.time.t}, 10)",
-            "exprs": [],
-            "functioncalls_global": [],
-            "functioncalls_self": [
-                "delete"
-            ],
-            "functioncalls_other": []
-        },
-        {
-            "topic": "",
-            "logicalArg": "1",
-            "exprs": [],
-            "functioncalls_global": [
-                "eval echo The time is {global.time.t} s and I am still alive!"
-            ],
-            "functioncalls_self": [],
-            "functioncalls_other": []
-        }
-    ],
     "layer": 0,
     "posX": 0,
     "posY": 0,
@@ -51,5 +26,32 @@
         "dy": 0.0,
         "fontSize": 0,
         "str": ""
+    },
+    "ruleset": {
+        "broadcast": [
+            {
+                "topic": "",
+                "logicalArg": "gt( {global.time.t}, 10)",
+                "exprs": [],
+                "functioncalls_global": [],
+                "functioncalls_self": [
+                    "delete"
+                ],
+                "functioncalls_other": []
+            },
+            {
+                "topic": "",
+                "logicalArg": "1",
+                "exprs": [],
+                "functioncalls_global": [
+                    "eval echo The time is {global.time.t} s and I am still alive!"
+                ],
+                "functioncalls_self": [],
+                "functioncalls_other": []
+            }
+        ],
+        "listen": [
+            "all"
+        ]
     }
 }

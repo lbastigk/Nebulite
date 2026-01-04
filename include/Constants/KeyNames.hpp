@@ -76,6 +76,13 @@ struct KeyNames {
         static constexpr std::string_view positionY = "posY";
         static constexpr std::string_view layer = "layer";
 
+        // Keys for Ruleset invocations and subscriptions
+        struct Ruleset {
+            static constexpr char scope[] = "ruleset.";
+            static constexpr auto broadcast = Data::ScopedKey::create<scope>("broadcast");
+            static constexpr auto listen = Data::ScopedKey::create<scope>("listen");
+        };
+
         // TODO: Use "texture." as scope
         static constexpr std::string_view pixelSizeX = "sprite.sizeX";
         static constexpr std::string_view pixelSizeY = "sprite.sizeY";
@@ -113,11 +120,12 @@ struct KeyNames {
 
     // TODO: Integrate into RenderObject Ruleset DomainModule, remove unused keys
     struct Ruleset {
-        // TODO: Are these still used?
-        static constexpr std::string_view invokes = "invokes";
-        static constexpr std::string_view invokeSubscriptions = "invokeSubscriptions";
+        // TODO: Move to RenderObject
+        //static constexpr std::string_view invokes = "ruleset.broadcast";
+        //static constexpr std::string_view invokeSubscriptions = "ruleset.listen";
 
         // TODO: Use these ones later on:
+        //       Use no scope! They are at the root of any ruleset object within ruleset.broadcast[i]
         static constexpr std::string_view self = "ruleset";
         static constexpr std::string_view topic = "topic";
         static constexpr std::string_view condition = "condition";

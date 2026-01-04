@@ -153,7 +153,7 @@ std::string RulesetCompiler::getLogicalArg(Core::JsonScope& entry) {
     return logicalArg;
 }
 
-bool RulesetCompiler::getJsonRuleset(Core::JsonScope& doc, Core::JsonScope& entry, std::string const& key) {
+bool RulesetCompiler::getJsonRuleset(Core::JsonScope& doc, Core::JsonScope& entry, Data::ScopedKey const& key) {
     if (doc.memberType(key) == Data::KeyType::object) {
         std::string const& serial = doc.shareScope(key).serialize();
         entry.deserialize(serial);
@@ -203,12 +203,12 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
     rulesetsLocal.clear();
 
     // Check if doc is valid
-    if (self.getDoc().memberType(Constants::KeyNames::Ruleset::invokes) != Data::KeyType::array) {
+    if (self.getDoc().memberType(Constants::KeyNames::RenderObject::Ruleset::broadcast) != Data::KeyType::array) {
         return;
     }
 
     // Get size of entries
-    size_t const size = self.getDoc().memberSize(Constants::KeyNames::Ruleset::invokes);
+    size_t const size = self.getDoc().memberSize(Constants::KeyNames::RenderObject::Ruleset::broadcast);
     if (size == 0) {
         // Object has no rulesets
         return;
@@ -217,7 +217,7 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
     // Iterate through all entries
     for (size_t idx = 0; idx < size; ++idx) {
         // Parse entry into separate JSON object
-        std::string const key = std::string(Constants::KeyNames::Ruleset::invokes) + "[" + std::to_string(idx) + "]";
+        auto const key = Constants::KeyNames::RenderObject::Ruleset::broadcast + "[" + std::to_string(idx) + "]";
         auto Ruleset = getRuleset(self.getDoc(), key, self);
 
         if (std::holds_alternative<std::monostate>(Ruleset)) {
@@ -284,7 +284,7 @@ void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Core::
     }
 }
 
-RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope& doc, std::string const& key, Interaction::Execution::DomainBase& self) {
+RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope& doc, Data::ScopedKey const& key, Execution::DomainBase& self) {
     Core::JsonScope entry;
     if (!getJsonRuleset(doc, entry, key)) {
         // See if it's a static ruleset
