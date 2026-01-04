@@ -14,6 +14,7 @@
 // External
 
 // Nebulite
+#include "DomainModule/GlobalSpace/Physics.hpp"
 #include "Interaction/Rules/RulesetModule.hpp"
 
 //------------------------------------------
@@ -63,6 +64,8 @@ public:
 private:
     static constexpr std::string_view moduleName = "::physics";
 
+
+
     //------------------------------------------
     // Base values for physics framework
 
@@ -71,21 +74,20 @@ private:
     /**
      * @brief List of keys for per-object physics-related base values in the ordered cache list.
      */
-    const std::vector<Data::ScopedKey> keys = {
+    const std::vector<Data::ScopedKey> baseKeys = {
         Constants::KeyNames::RenderObject::positionX,
         Constants::KeyNames::RenderObject::positionY,
         Constants::KeyNames::RenderObject::pixelSizeX,
         Constants::KeyNames::RenderObject::pixelSizeY,
-        // TODO: Add to a DomainModule:
-        "physics.aX",
-        "physics.aY",
-        "physics.vX",
-        "physics.vY",
-        "physics.mass", // TODO: rename to physics.m . Renaming all json files keys is necessary.
-        "physics.FX",
-        "physics.FY",
-        "physics.collision.time.lastX",
-        "physics.collision.time.lastY"
+        DomainModule::GlobalSpace::Physics::Key::Local::aX,
+        DomainModule::GlobalSpace::Physics::Key::Local::aY,
+        DomainModule::GlobalSpace::Physics::Key::Local::vX,
+        DomainModule::GlobalSpace::Physics::Key::Local::vY,
+        DomainModule::GlobalSpace::Physics::Key::Local::m,
+        DomainModule::GlobalSpace::Physics::Key::Local::FX,
+        DomainModule::GlobalSpace::Physics::Key::Local::FY,
+        DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeX,
+        DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeY
     };
 
     /**

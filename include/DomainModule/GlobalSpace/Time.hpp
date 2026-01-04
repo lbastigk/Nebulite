@@ -13,6 +13,7 @@
 #include <unordered_set>
 
 // Nebulite
+#include "Data/Document/ScopedKey.hpp"
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Utility/TimeKeeper.hpp"
@@ -85,17 +86,16 @@ public:
     //------------------------------------------
     // Variables
     struct Key {
-        static std::string_view constexpr runtime_t = "runtime.t";
-        static std::string_view constexpr runtime_t_ms = "runtime.t_ms";
-        static std::string_view constexpr runtime_dt = "runtime.dt";
-        static std::string_view constexpr runtime_dt_ms = "runtime.dt_ms";
-
-        static std::string_view constexpr time_t = "time.t";
-        static std::string_view constexpr time_t_ms = "time.t_ms";
-        static std::string_view constexpr time_dt = "time.dt";
-        static std::string_view constexpr time_dt_ms = "time.dt_ms";
-
-        static std::string_view constexpr frameCount = "frameCount";
+        static auto constexpr scope = ""; // Allow any scope to access these keys
+        static auto constexpr time_t = Data::ScopedKey::create<scope>("time.t");
+        static auto constexpr time_t_ms = Data::ScopedKey::create<scope>("time.t_ms");
+        static auto constexpr time_dt = Data::ScopedKey::create<scope>("time.dt");
+        static auto constexpr time_dt_ms = Data::ScopedKey::create<scope>("time.dt_ms");
+        static auto constexpr runtime_t = Data::ScopedKey::create<scope>("runtime.t");
+        static auto constexpr runtime_t_ms = Data::ScopedKey::create<scope>("runtime.t_ms");
+        static auto constexpr runtime_dt = Data::ScopedKey::create<scope>("runtime.dt");
+        static auto constexpr runtime_dt_ms = Data::ScopedKey::create<scope>("runtime.dt_ms");
+        static auto constexpr frameCount = Data::ScopedKey::create<scope>("frameCount");
     };
 
 

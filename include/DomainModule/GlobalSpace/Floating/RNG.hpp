@@ -10,6 +10,7 @@
 // Includes
 
 // Nebulite
+#include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Utility/RNG.hpp"
 
@@ -35,16 +36,8 @@ public:
 
     // None for now
 
-
     //------------------------------------------
-    // Setup
-
-    /**
-     * @brief Initializes the module, binding functions and variables.
-     */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, RNG) {
-        updateRNGs();
-    }
+    // Other public functions
 
     /**
      * @brief Rolls back all RNGs to their previous state.
@@ -59,6 +52,29 @@ public:
         rng.C.rollback();
         rng.D.rollback();
     }
+
+    //------------------------------------------
+    // Setup
+
+    /**
+     * @brief Initializes the module, binding functions and variables.
+     */
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, RNG) {
+        updateRNGs();
+    }
+
+    //------------------------------------------
+    // Scoped Keys
+
+    struct Key {
+        static auto constexpr scope = "random.";
+        static auto constexpr A = Data::ScopedKey::create<scope>("A");
+        static auto constexpr B = Data::ScopedKey::create<scope>("B");
+        static auto constexpr C = Data::ScopedKey::create<scope>("C");
+        static auto constexpr D = Data::ScopedKey::create<scope>("D");
+        static auto constexpr min = Data::ScopedKey::create<scope>("min");
+        static auto constexpr max = Data::ScopedKey::create<scope>("max");
+    };
 
 private:
     /**

@@ -57,7 +57,7 @@ public:
 private:
     static constexpr std::string_view moduleName = "::debug";
 
-    const std::vector<Data::ScopedKey> keys = {
+    const std::vector<Data::ScopedKey> baseKeys = {
         Constants::KeyNames::RenderObject::id
     };
 

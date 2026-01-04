@@ -13,36 +13,36 @@ Camera::Camera() : RulesetModule(moduleName) {
     BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignRight, alignRightName, alignRightDesc);
 
     // References
-    globalVal.camPosX = Nebulite::global().shareScope(*this).getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::positionX);
-    globalVal.camPosY = Nebulite::global().shareScope(*this).getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::positionY);
-    globalVal.dispResX = Nebulite::global().shareScope(*this).getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::dispResX);
-    globalVal.dispResY = Nebulite::global().shareScope(*this).getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::dispResY);
+    globalVal.camPosX = global().shareScope(*this).getStableDoublePointer(Constants::KeyNames::Renderer::positionX);
+    globalVal.camPosY = global().shareScope(*this).getStableDoublePointer(Constants::KeyNames::Renderer::positionY);
+    globalVal.dispResX = global().shareScope(*this).getStableDoublePointer(Constants::KeyNames::Renderer::dispResX);
+    globalVal.dispResY = global().shareScope(*this).getStableDoublePointer(Constants::KeyNames::Renderer::dispResY);
 }
 
 // TODO: Add another namespace for camera following rulesets using a PT1 controller for smooth movement
 
 void Camera::alignCenter(ContextBase const& context) {
-    double** slf = getBaseList(context.self, keys);
+    double** slf = getBaseList(context.self, baseKeys);
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Center);
 }
 
 void Camera::alignTop(ContextBase const& context) {
-    double** slf = getBaseList(context.self, keys);
+    double** slf = getBaseList(context.self, baseKeys);
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Top);
 }
 
 void Camera::alignBottom(ContextBase const& context) {
-    double** slf = getBaseList(context.self, keys);
+    double** slf = getBaseList(context.self, baseKeys);
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Bottom);
 }
 
 void Camera::alignLeft(ContextBase const& context) {
-    double** slf = getBaseList(context.self, keys);
+    double** slf = getBaseList(context.self, baseKeys);
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Left);
 }
 
 void Camera::alignRight(ContextBase const& context) {
-    double** slf = getBaseList(context.self, keys);
+    double** slf = getBaseList(context.self, baseKeys);
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Right);
 }
 

@@ -4,6 +4,8 @@
 #include "Core/GlobalSpace.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 
+#include "DomainModule/GlobalSpace/Time.hpp"
+
 namespace Nebulite::Interaction::Rules::RulesetModules {
 
 Physics::Physics() : RulesetModule(moduleName) {
@@ -16,9 +18,9 @@ Physics::Physics() : RulesetModule(moduleName) {
     BIND_STATIC_ASSERT(RulesetType::Local, &Physics::drag, dragName, dragDesc);
 
     // Global Variables
-    globalVal.G = Nebulite::global().shareScope(*this).getStableDoublePointer(Constants::KeyNames::GlobalSpace::Physics::G); // Gravitational constant
-    globalVal.dt = Nebulite::global().shareScope(*this).getStableDoublePointer(Constants::KeyNames::GlobalSpace::time_dt); // Simulation delta time
-    globalVal.t = Nebulite::global().shareScope(*this).getStableDoublePointer(Constants::KeyNames::GlobalSpace::time_t); // Simulation time
+    globalVal.G = Nebulite::global().shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Physics::Key::Global::G); // Gravitational constant
+    globalVal.dt = Nebulite::global().shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_dt); // Simulation delta time
+    globalVal.t = Nebulite::global().shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_t); // Simulation time
 }
 
 // Global rulesets
@@ -32,8 +34,8 @@ Physics::Physics() : RulesetModule(moduleName) {
 // TODO: Add a repositioning step to resolve overlaps
 void Physics::elasticCollision(ContextBase const& context) {
     // Get ordered cache lists for both entities for base values
-    double** slf = getBaseList(context.self, keys);
-    double** otr = getBaseList(context.other, keys);
+    double** slf = getBaseList(context.self, baseKeys);
+    double** otr = getBaseList(context.other, baseKeys);
 
     //------------------------------------------
     // Base condition check
@@ -128,8 +130,8 @@ void Physics::elasticCollision(ContextBase const& context) {
 
 void Physics::gravity(ContextBase const& context) {
     // Get ordered cache lists for both entities for base values
-    double** slf = getBaseList(context.self, keys);
-    double** otr = getBaseList(context.other, keys);
+    double** slf = getBaseList(context.self, baseKeys);
+    double** otr = getBaseList(context.other, baseKeys);
 
     // Calculate distance components
     double const distanceX = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
@@ -149,7 +151,7 @@ void Physics::gravity(ContextBase const& context) {
 
 void Physics::applyForce(ContextBase const& context) {
     // Get ordered cache list for self entity for base values
-    double** slf = getBaseList(context.self, keys);
+    double** slf = getBaseList(context.self, baseKeys);
 
     // Pre-calculate values before locking
     double const dt = *globalVal.dt;
@@ -179,7 +181,7 @@ void Physics::applyForce(ContextBase const& context) {
 
 void Physics::drag(ContextBase const& context) {
     // Get ordered cache list for self entity for base values
-    double** slf = getBaseList(context.self, keys);
+    double** slf = getBaseList(context.self, baseKeys);
 
     // Drag coefficient (tunable parameter)
     static constexpr double dragCoefficient = 0.1;

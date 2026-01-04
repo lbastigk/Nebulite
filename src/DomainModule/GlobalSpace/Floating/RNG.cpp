@@ -16,8 +16,8 @@ Constants::Error RNG::update() {
 void RNG::updateRNGs() {
     // Set Min and Max values for RNGs in document
     // Always set, so overwrites don't stick around
-    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::GlobalSpace::RNG::min, std::numeric_limits<RngVars::rngSize_t>::min());
-    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::GlobalSpace::RNG::max, std::numeric_limits<RngVars::rngSize_t>::max());
+    getDoc().set<RngVars::rngSize_t>(Key::min, std::numeric_limits<RngVars::rngSize_t>::min());
+    getDoc().set<RngVars::rngSize_t>(Key::max, std::numeric_limits<RngVars::rngSize_t>::max());
 
     // Generate seeds in a predictable manner
     // Since updateRNG is called at specific times only, we can simply increment RNG with a new seed
@@ -33,10 +33,10 @@ void RNG::updateRNGs() {
     rng.D.update(seedD);
 
     // Set RNG values in global document
-    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::GlobalSpace::RNG::A, rng.A.get());
-    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::GlobalSpace::RNG::B, rng.B.get());
-    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::GlobalSpace::RNG::C, rng.C.get());
-    getDoc().set<RngVars::rngSize_t>(Constants::KeyNames::GlobalSpace::RNG::D, rng.D.get());
+    getDoc().set<RngVars::rngSize_t>(Key::A, rng.A.get());
+    getDoc().set<RngVars::rngSize_t>(Key::B, rng.B.get());
+    getDoc().set<RngVars::rngSize_t>(Key::C, rng.C.get());
+    getDoc().set<RngVars::rngSize_t>(Key::D, rng.D.get());
 }
 
 } // namespace Nebulite::DomainModule::GlobalSpace
