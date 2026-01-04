@@ -302,6 +302,10 @@ private:
      * @note Having the RNG-Generation in a DomainModule would be better,
      *       but then we would have to somehow ensure that its updated before command parsing,
      *       which is currently only possible in GlobalSpace::preParse.
+     * @todo Another option would be to have a free-floating DomainModule that is not inserted via initializer.hpp
+     *       but just another object created in GlobalSpace constructor.
+     *       Then we can safely call its update function in preParse.
+     *       This allows us to limit the scope of RNG to just "random." in the document.
      */
     struct RngVars {
         using rngSize_t = uint16_t; // Modify this to change the size of the RNGs
