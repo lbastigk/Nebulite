@@ -29,16 +29,7 @@
     },
     "ruleset": {
         "broadcast": [
-            {
-                "topic": "",
-                "logicalArg": "1",
-                "exprs": [],
-                "functioncalls_global": [],
-                "functioncalls_self": [
-                    "delete"
-                ],
-                "functioncalls_other": []
-            }
+            "./Resources/Invokes/Debug/delete_instantly.json"
         ],
         "listen": [
             "all"

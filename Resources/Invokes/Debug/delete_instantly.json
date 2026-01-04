@@ -1,0 +1,10 @@
+{
+    "topic": "",
+    "logicalArg": "1",
+    "exprs": [],
+    "functioncalls_global": [],
+    "functioncalls_self": [
+        "delete"
+    ],
+    "functioncalls_other": []
+}

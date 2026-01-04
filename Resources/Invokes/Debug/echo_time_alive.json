@@ -1,0 +1,10 @@
+{
+    "topic": "",
+    "logicalArg": "1",
+    "exprs": [],
+    "functioncalls_global": [
+        "eval echo The time is {global.time.t} s and I am still alive!"
+    ],
+    "functioncalls_self": [],
+    "functioncalls_other": []
+}
