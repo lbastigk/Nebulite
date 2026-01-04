@@ -1,12 +1,14 @@
 {
     "topic": "",
-    "logicalArg": "1",
-    "exprs": [],
-    "functioncalls": {
-        "global": [
-            "echo TEST"
-        ],
-        "self": [],
-        "other": []
+    "condition": "1",
+    "action": {
+        "assign": [],
+        "functioncall": {
+            "global": [
+                "echo TEST"
+            ],
+            "self": [],
+            "other": []
+        }
     }
 }

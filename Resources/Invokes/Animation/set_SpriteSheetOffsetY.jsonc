@@ -1,12 +1,14 @@
 {
     "topic": "",
-    "logicalArg": "1",
-    "exprs": [
-        "self.sprite.spritesheet.offsetY = $( {self.anmimation.Direction} + {self.animation.attack} * 16 * 4 )"
-    ],
-    "functioncalls": {
-        "global": [],
-        "self": [],
-        "other": []
+    "condition": "1",
+    "action": {
+        "assign": [
+            "self.sprite.spritesheet.offsetY = $( {self.anmimation.Direction} + {self.animation.attack} * 16 * 4 )"
+        ],
+        "functioncall": {
+            "global": [],
+            "self": [],
+            "other": []
+        }
     }
 }

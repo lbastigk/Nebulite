@@ -1,10 +1,12 @@
 {
     "topic": "",
-    "logicalArg": "gt( {global.time.t}, 10)",
-    "exprs": [],
     "functioncalls_global": [],
     "functioncalls_self": [
         "delete"
     ],
-    "functioncalls_other": []
+    "functioncalls_other": [],
+    "condition": "gt( {global.time.t}, 10)",
+    "action": {
+        "assign": []
+    }
 }

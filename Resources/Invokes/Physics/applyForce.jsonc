@@ -1,19 +1,21 @@
 {
     "topic": "",
-    "logicalArg": "1",
-    "exprs": [
-        "self.physics.aX = $({self.physics.FX} / {self.physics.mass})",
-        "self.physics.aY = $({self.physics.FY} / {self.physics.mass})",
-        "self.physics.vX += $({self.physics.aX} * {global.time.dt})",
-        "self.physics.vY += $({self.physics.aY} * {global.time.dt})",
-        "self.posX += $({self.physics.vX} * {global.time.dt})",
-        "self.posY += $({self.physics.vY} * {global.time.dt})",
-        "self.physics.FX = $(0)",
-        "self.physics.FY = $(0)"
-    ],
-    "functioncalls": {
-        "global": [],
-        "self": [],
-        "other": []
+    "condition": "1",
+    "action": {
+        "assign": [
+            "self.physics.aX = $({self.physics.FX} / {self.physics.mass})",
+            "self.physics.aY = $({self.physics.FY} / {self.physics.mass})",
+            "self.physics.vX += $({self.physics.aX} * {global.time.dt})",
+            "self.physics.vY += $({self.physics.aY} * {global.time.dt})",
+            "self.posX += $({self.physics.vX} * {global.time.dt})",
+            "self.posY += $({self.physics.vY} * {global.time.dt})",
+            "self.physics.FX = $(0)",
+            "self.physics.FY = $(0)"
+        ],
+        "functioncall": {
+            "global": [],
+            "self": [],
+            "other": []
+        }
     }
 }

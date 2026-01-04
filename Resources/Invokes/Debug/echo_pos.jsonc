@@ -1,12 +1,14 @@
 {
     "topic": "",
-    "logicalArg": "1",
-    "exprs": [],
-    "functioncalls": {
-        "global": [
-            "eval echo ( {self.posX} , {self.posY} )"
-        ],
-        "self": [],
-        "other": []
+    "condition": "1",
+    "action": {
+        "assign": [],
+        "functioncall": {
+            "global": [
+                "eval echo ( {self.posX} , {self.posY} )"
+            ],
+            "self": [],
+            "other": []
+        }
     }
 }

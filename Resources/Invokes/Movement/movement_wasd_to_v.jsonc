@@ -1,13 +1,15 @@
 {
     "topic": "",
-    "logicalArg": "1",
-    "exprs": [
-        "self.physics.vX = $( {global.input.keyboard.current.d} - {global.input.keyboard.current.a} )",
-        "self.physics.vY = $( {global.input.keyboard.current.s} - {global.input.keyboard.current.w} )"
-    ],
-    "functioncalls": {
-        "global": [],
-        "self": [],
-        "other": []
+    "condition": "1",
+    "action": {
+        "assign": [
+            "self.physics.vX = $( {global.input.keyboard.current.d} - {global.input.keyboard.current.a} )",
+            "self.physics.vY = $( {global.input.keyboard.current.s} - {global.input.keyboard.current.w} )"
+        ],
+        "functioncall": {
+            "global": [],
+            "self": [],
+            "other": []
+        }
     }
 }

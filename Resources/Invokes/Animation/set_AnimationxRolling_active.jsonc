@@ -1,12 +1,14 @@
 {
     "topic": "",
-    "logicalArg": "1",
-    "exprs": [
-        "self.animation.xRolling.active = $( {self.sprite.spritesheet.offsetX} + {self.animation.attack} + {global.input.keyboard.current.w} + {global.input.keyboard.current.a} + {global.input.keyboard.current.s} + {global.input.keyboard.current.d})"
-    ],
-    "functioncalls": {
-        "global": [],
-        "self": [],
-        "other": []
+    "condition": "1",
+    "action": {
+        "assign": [
+            "self.animation.xRolling.active = $( {self.sprite.spritesheet.offsetX} + {self.animation.attack} + {global.input.keyboard.current.w} + {global.input.keyboard.current.a} + {global.input.keyboard.current.s} + {global.input.keyboard.current.d})"
+        ],
+        "functioncall": {
+            "global": [],
+            "self": [],
+            "other": []
+        }
     }
 }

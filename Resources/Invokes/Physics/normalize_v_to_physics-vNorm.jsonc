@@ -1,14 +1,16 @@
 {
     "topic": "",
-    "logicalArg": "$(neq({self.physics.vX},0) + neq({self.physics.vY},0))",
-    "exprs": [
-        "self.physics.v = $( sqrt( {self.physics.vX}^2 + {self.physics.vY}^2 ) )",
-        "self.physics.vX = $( {self.physics.vNorm} * {self.physics.vX} /  {self.physics.v} )",
-        "self.physics.vY = $( {self.physics.vNorm} * {self.physics.vY} /  {self.physics.v} )"
-    ],
-    "functioncalls": {
-        "global": [],
-        "self": [],
-        "other": []
+    "condition": "$(neq({self.physics.vX},0) + neq({self.physics.vY},0))",
+    "action": {
+        "assign": [
+            "self.physics.v = $( sqrt( {self.physics.vX}^2 + {self.physics.vY}^2 ) )",
+            "self.physics.vX = $( {self.physics.vNorm} * {self.physics.vX} /  {self.physics.v} )",
+            "self.physics.vY = $( {self.physics.vNorm} * {self.physics.vY} /  {self.physics.v} )"
+        ],
+        "functioncall": {
+            "global": [],
+            "self": [],
+            "other": []
+        }
     }
 }

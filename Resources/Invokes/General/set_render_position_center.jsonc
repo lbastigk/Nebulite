@@ -1,13 +1,15 @@
 {
     "topic": "",
-    "logicalArg": "1",
-    "exprs": [
-        "global.renderer.position.X = $( floor({self.posX} - {global.renderer.resolution.X}/2) )",
-        "global.renderer.position.Y = $( floor({self.posY} - {global.renderer.resolution.Y}/2) )"
-    ],
-    "functioncalls": {
-        "global": [],
-        "self": [],
-        "other": []
+    "condition": "1",
+    "action": {
+        "assign": [
+            "global.renderer.position.X = $( floor({self.posX} - {global.renderer.resolution.X}/2) )",
+            "global.renderer.position.Y = $( floor({self.posY} - {global.renderer.resolution.Y}/2) )"
+        ],
+        "functioncall": {
+            "global": [],
+            "self": [],
+            "other": []
+        }
     }
 }

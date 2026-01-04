@@ -110,12 +110,13 @@ struct KeyNames {
         static constexpr std::string_view typeOther = "other";
         static constexpr std::string_view typeGlobal = "global";
 
-        static constexpr std::string_view logicalArg = "logicalArg";
         static constexpr std::string_view topic = "topic";
-        static constexpr std::string_view exprVector = "exprs";
-        static constexpr std::string_view functioncalls_global = "functioncalls.global";
-        static constexpr std::string_view functioncalls_self = "functioncalls.self";
-        static constexpr std::string_view functioncalls_other = "functioncalls.other";
+        static constexpr std::string_view logicalArg = "condition";
+
+        static constexpr std::string_view exprVector = "action.assign";
+        static constexpr std::string_view functioncalls_global = "action.functioncall.global";
+        static constexpr std::string_view functioncalls_self = "action.functioncall.self";
+        static constexpr std::string_view functioncalls_other = "action.functioncall.other";
     };
 
     // Keys within any Ruleset json object

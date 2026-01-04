@@ -1,13 +1,15 @@
 {
     "topic": "",
-    "logicalArg": "1",
-    "exprs": [
-        "self.posX = $( ({global.input.keyboard.current.d} - {global.input.keyboard.current.a}) * 40 * {global.time.dt} )",
-        "self.posY = $( ({global.input.keyboard.current.s} - {global.input.keyboard.current.w}) * 40 * {global.time.dt} )"
-    ],
-    "functioncalls": {
-        "global": [],
-        "self": [],
-        "other": []
+    "condition": "1",
+    "action": {
+        "assign": [
+            "self.posX = $( ({global.input.keyboard.current.d} - {global.input.keyboard.current.a}) * 40 * {global.time.dt} )",
+            "self.posY = $( ({global.input.keyboard.current.s} - {global.input.keyboard.current.w}) * 40 * {global.time.dt} )"
+        ],
+        "functioncall": {
+            "global": [],
+            "self": [],
+            "other": []
+        }
     }
 }

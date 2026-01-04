@@ -1,12 +1,14 @@
 {
     "topic": "",
-    "logicalArg": "$( {global.input.keyboard.current.w} + {global.input.keyboard.current.a} + {global.input.keyboard.current.s} + {global.input.keyboard.current.d} )",
-    "exprs": [
-        "self.anmimation.Direction = $( {global.input.keyboard.current.w} * 16 + {global.input.keyboard.current.d} * 32 * not({global.input.keyboard.current.w}) + {global.input.keyboard.current.a} * 48 * not({global.input.keyboard.current.w}) *not({global.input.keyboard.current.d}) )"
-    ],
-    "functioncalls": {
-        "global": [],
-        "self": [],
-        "other": []
+    "condition": "$( {global.input.keyboard.current.w} + {global.input.keyboard.current.a} + {global.input.keyboard.current.s} + {global.input.keyboard.current.d} )",
+    "action": {
+        "assign": [
+            "self.anmimation.Direction = $( {global.input.keyboard.current.w} * 16 + {global.input.keyboard.current.d} * 32 * not({global.input.keyboard.current.w}) + {global.input.keyboard.current.a} * 48 * not({global.input.keyboard.current.w}) *not({global.input.keyboard.current.d}) )"
+        ],
+        "functioncall": {
+            "global": [],
+            "self": [],
+            "other": []
+        }
     }
 }

@@ -1,13 +1,15 @@
 {
     "topic": "",
-    "logicalArg": "1",
-    "exprs": [
-        "self.sprite.spritesheet.offsetX = $( {self.sprite.spritesheet.offsetX} * not( not({self.animation.attack}) * {global.input.keyboard.current.space} ) )",
-        "self.animation.attack = $( neq( {global.input.keyboard.current.space} + {self.animation.attack} * {self.sprite.spritesheet.offsetX} ,0) )"
-    ],
-    "functioncalls": {
-        "global": [],
-        "self": [],
-        "other": []
+    "condition": "1",
+    "action": {
+        "assign": [
+            "self.sprite.spritesheet.offsetX = $( {self.sprite.spritesheet.offsetX} * not( not({self.animation.attack}) * {global.input.keyboard.current.space} ) )",
+            "self.animation.attack = $( neq( {global.input.keyboard.current.space} + {self.animation.attack} * {self.sprite.spritesheet.offsetX} ,0) )"
+        ],
+        "functioncall": {
+            "global": [],
+            "self": [],
+            "other": []
+        }
     }
 }

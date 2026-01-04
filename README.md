@@ -201,15 +201,17 @@ Define object interactions via JSON rulesets:
 ```jsonc
 {
     "topic": "gravity",     // Broadcast channel (empty = local only)
-    "logicalArg": "1",      // Condition to execute
-    "exprs": [              // Modify values
-        "other.physics.FX += $({global.physics.G} * {self.physics.mass} * {other.physics.mass} * ( {self.posX} - {other.posX}  ) / ( 1 + (({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2)^(1.5)) )",
-        "other.physics.FY += $({global.physics.G} * {self.physics.mass} * {other.physics.mass} * ( {self.posY} - {other.posY}  ) / ( 1 + (({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2)^(1.5)) )"
-    ],
-    "functioncalls": {  // Commands to parse ...
-        "global": [],   // ...on domain GlobalSpace
-        "self": [],     // ...on domain RenderObject, self
-        "other": []     // ...on domain RenderObject, other
+    "condition": "1",       // Condition to execute
+    "action": {             // What to do
+        "assign": [         // Modify values
+            "other.physics.FX += $({global.physics.G} * {self.physics.mass} * {other.physics.mass} * ( {self.posX} - {other.posX}  ) / ( 1 + (({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2)^(1.5)) )",
+            "other.physics.FY += $({global.physics.G} * {self.physics.mass} * {other.physics.mass} * ( {self.posY} - {other.posY}  ) / ( 1 + (({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2)^(1.5)) )"
+        ],
+        "functioncall": {   // Commands to parse ...
+            "global": [],   // ...on domain GlobalSpace
+            "self": [],     // ...on domain RenderObject, self
+            "other": []     // ...on domain RenderObject, other
+        }
     }
 }
 ```

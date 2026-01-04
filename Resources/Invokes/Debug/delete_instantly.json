@@ -1,10 +1,12 @@
 {
     "topic": "",
-    "logicalArg": "1",
-    "exprs": [],
     "functioncalls_global": [],
     "functioncalls_self": [
         "delete"
     ],
-    "functioncalls_other": []
+    "functioncalls_other": [],
+    "condition": "1",
+    "action": {
+        "assign": []
+    }
 }
