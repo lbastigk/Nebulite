@@ -118,21 +118,18 @@ struct KeyNames {
         static constexpr std::string_view functioncalls_other = "functioncalls.other";
     };
 
-    // TODO: Integrate into RenderObject Ruleset DomainModule, remove unused keys
+    // Keys within any Ruleset json object
+    // No scope! They are at the root of any ruleset object within ruleset.broadcast[i]
     struct Ruleset {
-        // TODO: Move to RenderObject
-        //static constexpr std::string_view invokes = "ruleset.broadcast";
-        //static constexpr std::string_view invokeSubscriptions = "ruleset.listen";
-
         // TODO: Use these ones later on:
-        //       Use no scope! They are at the root of any ruleset object within ruleset.broadcast[i]
-        static constexpr std::string_view self = "ruleset";
-        static constexpr std::string_view topic = "topic";
-        static constexpr std::string_view condition = "condition";
-        static constexpr std::string_view assignments = "assignments";
-        static constexpr std::string_view parseOnGlobal = "functioncalls.global";
-        static constexpr std::string_view parseOnSelf   = "functioncalls.self";
-        static constexpr std::string_view parseOnOther  = "functioncalls.other";
+        //       Make sure to refactor any usage in json files
+        static constexpr auto topic = Data::ScopedKey("topic");
+        static constexpr auto condition = Data::ScopedKey("condition");
+        // If both are met, do:
+        static constexpr auto assignments = Data::ScopedKey("action.assign");
+        static constexpr auto parseOnGlobal = Data::ScopedKey("action.functioncall.global");
+        static constexpr auto parseOnSelf   = Data::ScopedKey("action.functioncall.self");
+        static constexpr auto parseOnOther  = Data::ScopedKey("action.functioncall.other");
     };
 };
 
