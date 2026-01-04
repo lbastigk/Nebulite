@@ -1,8 +1,8 @@
 /**
  * @file Nebulite.hpp
- *
  * @brief Central file for Nebulite namespace documentation and public singleton accessors.
- *        Offers access to core Nebulite functionality for instances such as DomainModules
+ * @details Offers access to core Nebulite functionality for instances such as DomainModules,
+ *          as well as namespace documentation.
  */
 
 #ifndef NEBULITE_HPP
@@ -10,8 +10,6 @@
 
 //------------------------------------------
 // Includes
-
-// Standard library
 
 // Nebulite
 #include "Core/GlobalSpace.hpp"
@@ -35,51 +33,51 @@ namespace Constants {
 /**
  * @namespace Nebulite::Core
  * @brief Contains all core classes (called Domains) related to the Nebulite framework.
- *        These form the backbone of the Nebulite system.
- *        They provide essential services such as scoped data management, command parsing, serialization, etc.
+ * @detauils These form the backbone of the Nebulite system.
+ *           They provide essential services such as scoped data management, command parsing, serialization, etc.
  */
 namespace Core {
 } // namespace Core
 
 /**
  * @namespace Nebulite::Data
- * @brief Contains all classes, functions, types and variables related to the Nebulite data system.
+ * @brief Contains all fundamental containers used throughout the Nebulite framework.
  */
 namespace Data {
 } // namespace Data
 
 /**
  * @namespace Nebulite::DomainModule
- * @brief Contains all classes, functions, types and variables related to the Nebulite DomainModule system.
+ * @brief Contains all DomainModules used throughout the Nebulite framework.
  */
 namespace DomainModule {
 /**
  * @namespace Nebulite::DomainModule::GlobalSpace
- * @brief Contains all classes, functions, types and variables related to the GlobalSpace DomainModules.
+ * @brief Contains all GlobalSpace DomainModules.
  */
 namespace GlobalSpace {
 } // namespace GlobalSpace
 
 /**
+ * @namespace Nebulite::DomainModule::JsonScope
+ * @brief Contains all JsonScope DomainModules.
+ */
+namespace JsonScope {
+} // namespace JsonScope
+
+/**
  * @namespace Nebulite::DomainModule::Renderer
- * @brief Contains all classes, functions, types and variables related to the Renderer DomainModules.
+ * @brief Contains all Renderer DomainModules.
  */
 namespace Renderer {
 } // namespace Renderer
 
 /**
  * @namespace Nebulite::DomainModule::RenderObject
- * @brief Contains all classes, functions, types and variables related to the RenderObject DomainModules.
+ * @brief Contains all RenderObject DomainModules.
  */
 namespace RenderObject {
 } // namespace RenderObject
-
-/**
- * @namespace Nebulite::DomainModule::JsonScope
- * @brief Contains all classes, functions, types and variables related to the JSON DomainModules.
- */
-namespace JsonScope {
-} // namespace JsonScope
 } // namespace DomainModule
 
 /**
@@ -96,20 +94,21 @@ namespace Execution {
 
 /**
  * @namespace Nebulite::Interaction::Logic
- * @brief Contains all classes, functions, types and variables related to mathematical logic in Nebulites Invoke system.
+ * @brief Contains all classes, functions, types and variables related to mathematical logic.
  */
 namespace Logic {
 } // namespace Logic
 
 /**
  * @namespace Nebulite::Interaction::Rules
- * @brief Contains all classes, functions, types and variables related to the rule-based manipulation system in Nebulites Invoke system.
+ * @brief Contains all classes, functions, types and variables related to the
+ *        rule-based domain manipulation system in Nebulites Invoke system.
  */
 namespace Rules {
 /**
  * @namespace Nebulite::Interaction::Rules::Construction
- * @brief Contains all classes, functions, types and variables related to the construction and initialization
- *        of Rulesets/RulesetModules.
+ * @brief Contains all classes, functions, types and variables related to the
+ *        construction and initialization of Rulesets/RulesetModules.
  */
 namespace Construction {
 } // namespace Construction
@@ -150,7 +149,7 @@ Core::GlobalSpace& global();
  *       -> Nebulite::Log::println(args...);
  *          use recursive variadic templates for that, so that we can have multiple args
  */
-Nebulite::Utility::CaptureStream& cout();
+Utility::CaptureStream& cout();
 
 /**
  * @brief Singleton accessor for the cerr capture object
@@ -159,7 +158,7 @@ Nebulite::Utility::CaptureStream& cout();
  *       -> Nebulite::Error::println(args...);
  *          use recursive variadic templates for that, so that we can have multiple args
  */
-Nebulite::Utility::CaptureStream& cerr();
+Utility::CaptureStream& cerr();
 
 /**
  * @brief End line string for capturing output
