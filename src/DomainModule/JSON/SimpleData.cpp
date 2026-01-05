@@ -27,7 +27,7 @@ Constants::Error SimpleData::set(int argc, char** argv) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
-    std::string const key = argv[1];
+    auto const key = getDoc().getRootScope() + argv[1];
     std::string value = argv[2];
     for (int i = 3; i < argc; ++i) {
         value += " " + std::string(argv[i]);
@@ -43,35 +43,35 @@ Constants::Error SimpleData::move(int argc, char** argv) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
-    std::string const sourceKey = argv[1];
-    std::string const targetKey = argv[2];
+    auto const sourceKey = getDoc().getRootScope() + argv[1];
+    auto const targetKey = getDoc().getRootScope() + argv[2];
 
     if (domain.memberType(sourceKey) == Data::KeyType::null) {
-        Nebulite::cerr() << "Error: Source key '" << sourceKey << "' does not exist." << Nebulite::endl;
+        Nebulite::cerr() << "Error: Source key '" << argv[1] << "' does not exist." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
     if (domain.memberType(sourceKey) == Data::KeyType::object) {
         Data::JSON subDoc = domain.getSubDoc(sourceKey);
-        domain.removeKey(targetKey.c_str());
-        domain.setSubDoc(targetKey.c_str(), subDoc);
-        domain.removeKey(sourceKey.c_str());
+        domain.removeKey(targetKey);
+        domain.setSubDoc(targetKey, subDoc);
+        domain.removeKey(sourceKey);
     } else if (domain.memberType(sourceKey) == Data::KeyType::array) {
         // Careful handling required:
-        domain.removeKey(targetKey.c_str());
+        domain.removeKey(targetKey);
 
         size_t const size = domain.memberSize(sourceKey);
         for (size_t i = 0; i < size; ++i) {
-            std::string itemKey = sourceKey + "[" + std::to_string(i) + "]";
-            auto itemValue = domain.get<std::string>(itemKey);
-            std::string targetItemKey = targetKey + "[" + std::to_string(i) + "]";
+            auto itemKey = sourceKey + "[" + std::to_string(i) + "]";
+            auto itemValue = domain.get<std::string>(itemKey.view());
+            auto targetItemKey = targetKey + "[" + std::to_string(i) + "]";
             domain.set(targetItemKey, itemValue);
         }
     } else {
         // Move the value from sourceKey to targetKey
         auto const value = domain.get<std::string>(sourceKey);
-        domain.removeKey(targetKey.c_str());
+        domain.removeKey(targetKey);
         domain.set(targetKey, value);
-        domain.removeKey(sourceKey.c_str());
+        domain.removeKey(sourceKey);
     }
     return Constants::ErrorTable::NONE();
 }
@@ -83,32 +83,32 @@ Constants::Error SimpleData::copy(int argc, char** argv) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
-    std::string const sourceKey = argv[1];
-    std::string const targetKey = argv[2];
+    auto const sourceKey = getDoc().getRootScope() + argv[1];
+    auto const targetKey = getDoc().getRootScope() + argv[2];
 
     if (domain.memberType(sourceKey) == Data::KeyType::null) {
-        Nebulite::cerr() << "Error: Source key '" << sourceKey << "' does not exist." << Nebulite::endl;
+        Nebulite::cerr() << "Error: Source key '" << std::string(argv[1]) << "' does not exist." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
     if (domain.memberType(sourceKey) == Data::KeyType::object) {
         Data::JSON subDoc = domain.getSubDoc(sourceKey);
-        domain.removeKey(targetKey.c_str());
-        domain.setSubDoc(targetKey.c_str(), subDoc);
+        domain.removeKey(targetKey);
+        domain.setSubDoc(targetKey, subDoc);
     } else if (domain.memberType(sourceKey) == Data::KeyType::array) {
         // Careful handling required:
-        domain.removeKey(targetKey.c_str());
+        domain.removeKey(targetKey);
 
         size_t const size = domain.memberSize(sourceKey);
         for (size_t i = 0; i < size; ++i) {
-            std::string itemKey = sourceKey + "[" + std::to_string(i) + "]";
+            auto itemKey = sourceKey + "[" + std::to_string(i) + "]";
             auto itemValue = domain.get<std::string>(itemKey);
-            std::string targetItemKey = targetKey + "[" + std::to_string(i) + "]";
+            auto targetItemKey = targetKey + "[" + std::to_string(i) + "]";
             domain.set(targetItemKey, itemValue);
         }
     } else {
         // Move the value from sourceKey to targetKey
         auto const value = domain.get<std::string>(sourceKey);
-        domain.removeKey(targetKey.c_str());
+        domain.removeKey(targetKey);
         domain.set(targetKey, value);
     }
     return Constants::ErrorTable::NONE();
@@ -120,8 +120,8 @@ Constants::Error SimpleData::keyDelete(int argc, char** argv) {
         Nebulite::cerr() << "Error: Too few arguments for delete command." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    std::string const key = argv[1];
-    domain.removeKey(key.c_str());
+    auto const key = getDoc().getRootScope() + argv[1];
+    domain.removeKey(key);
     return Constants::ErrorTable::NONE();
 }
 
@@ -139,7 +139,7 @@ Constants::Error SimpleData::ensureArray(int argc, char** argv) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
-    std::string const key = argv[1];
+    auto const key = getDoc().getRootScope() + argv[1];
 
     Data::KeyType keyType = domain.memberType(key);
 
@@ -151,17 +151,17 @@ Constants::Error SimpleData::ensureArray(int argc, char** argv) {
     if (keyType == Data::KeyType::value) {
         // pop out value
         auto const existingValue = domain.get<std::string>(key);
-        domain.removeKey(key.c_str());
+        domain.removeKey(key);
 
         // Set as new value
-        std::string const arrayKey = key + "[0]";
+        auto const arrayKey = key + "[0]";
         domain.set(arrayKey, existingValue);
 
         // All done
         return Constants::ErrorTable::NONE();
     }
 
-    Nebulite::cerr() << "Error: Key '" << key << "' is unsupported type " << static_cast<int>(keyType) << ", cannot convert to array." << Nebulite::endl;
+    Nebulite::cerr() << "Error: Key '" << argv[1] << "' is unsupported type " << static_cast<int>(keyType) << ", cannot convert to array." << Nebulite::endl;
     return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 
@@ -171,7 +171,7 @@ Constants::Error SimpleData::push_back(int argc, char** argv) {
         Nebulite::cerr() << "Error: Too many arguments for push_front command." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    std::string const key = argv[1];
+    auto const key = getDoc().getRootScope() + argv[1];
     std::string value;
     if (argc < 3) {
         // Trying to push an empty value
@@ -184,15 +184,15 @@ Constants::Error SimpleData::push_back(int argc, char** argv) {
     if (domain.memberType(key) != Data::KeyType::array) {
         std::string command = __FUNCTION__;
         command += " " + std::string(ensureArray_name);
-        command += " " + key;
+        command += " " + std::string(argv[1]);
         if (Constants::Error const result = domain.parseStr(command); result != Constants::ErrorTable::NONE()) {
-            Nebulite::cerr() << "Error: Failed to ensure array for key '" << key << "'." << Nebulite::endl;
+            Nebulite::cerr() << "Error: Failed to ensure array for key '" << std::string(argv[1]) << "'." << Nebulite::endl;
             return result;
         }
     }
 
     size_t const size = domain.memberSize(key);
-    std::string const itemKey = key + "[" + std::to_string(size) + "]";
+    auto const itemKey = key + "[" + std::to_string(size) + "]";
     domain.set(itemKey, value);
     return Constants::ErrorTable::NONE();
 }
@@ -207,14 +207,14 @@ Constants::Error SimpleData::pop_back(int argc, char** argv) {
         Nebulite::cerr() << "Error: Too many arguments for push_back command." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    std::string const key = argv[1];
+    auto const key = getDoc().getRootScope() + argv[1];
 
     if (domain.memberType(key) != Data::KeyType::array) {
         std::string command = __FUNCTION__;
         command += " " + std::string(ensureArray_name);
-        command += " " + key;
+        command += " " + std::string(argv[1]);
         if (Constants::Error const result = domain.parseStr(command); result != Constants::ErrorTable::NONE()) {
-            Nebulite::cerr() << "Error: Failed to ensure array for key '" << key << "'." << Nebulite::endl;
+            Nebulite::cerr() << "Error: Failed to ensure array for key '" << std::string(argv[1]) << "'." << Nebulite::endl;
             return result;
         }
     }
@@ -225,8 +225,8 @@ Constants::Error SimpleData::pop_back(int argc, char** argv) {
         return Constants::ErrorTable::NONE();
     }
 
-    std::string const itemKey = key + "[" + std::to_string(size - 1) + "]";
-    domain.removeKey(itemKey.c_str());
+    auto const itemKey = key + "[" + std::to_string(size - 1) + "]";
+    domain.removeKey(itemKey);
     return Constants::ErrorTable::NONE();
 }
 
@@ -236,7 +236,7 @@ Constants::Error SimpleData::push_front(int argc, char** argv) {
         Nebulite::cerr() << "Error: Too many arguments for push_front command." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    std::string const key = argv[1];
+    auto const key = getDoc().getRootScope() + argv[1];
     std::string value;
     if (argc < 3) {
         // Trying to push an empty value
@@ -249,9 +249,9 @@ Constants::Error SimpleData::push_front(int argc, char** argv) {
     if (domain.memberType(key) != Data::KeyType::array) {
         std::string command = __FUNCTION__;
         command += " " + std::string(ensureArray_name);
-        command += " " + key;
+        command += " " + std::string(argv[1]);
         if (Constants::Error const result = domain.parseStr(command); result != Constants::ErrorTable::NONE()) {
-            Nebulite::cerr() << "Error: Failed to ensure array for key '" << key << "'." << Nebulite::endl;
+            Nebulite::cerr() << "Error: Failed to ensure array for key '" << std::string(argv[1]) << "'." << Nebulite::endl;
             return result;
         }
     }
@@ -263,7 +263,7 @@ Constants::Error SimpleData::push_front(int argc, char** argv) {
     // if any array item is a document, throw error
     // This feature is yet to be implemented!
     for (size_t i = 0; i < size; ++i) {
-        std::string itemKey = key + "[" + std::to_string(i) + "]";
+        auto itemKey = key + "[" + std::to_string(i) + "]";
         if (Data::KeyType const itemType = domain.memberType(itemKey); itemType == Data::KeyType::object) {
             Nebulite::cerr() << "Error: Cannot push_front into an array containing documents." << Nebulite::endl;
             return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
@@ -273,12 +273,12 @@ Constants::Error SimpleData::push_front(int argc, char** argv) {
     //------------------------------------------
     // Move all existing items one step forward
     for (size_t i = size; i > 0; --i) {
-        std::string itemKey = key + "[" + std::to_string(i - 1) + "]";
+        auto itemKey = key + "[" + std::to_string(i - 1) + "]";
         auto itemValue = domain.get<std::string>(itemKey);
-        std::string newItemKey = key + "[" + std::to_string(i) + "]";
+        auto newItemKey = key + "[" + std::to_string(i) + "]";
         domain.set(newItemKey, itemValue);
     }
-    std::string const itemKey = key + "[0]";
+    auto const itemKey = key + "[0]";
     domain.set(itemKey, value);
     return Constants::ErrorTable::NONE();
 }
@@ -293,14 +293,14 @@ Constants::Error SimpleData::pop_front(int argc, char** argv) {
         Nebulite::cerr() << "Error: Too many arguments for pop_front command." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    std::string const key = argv[1];
+    auto const key = getDoc().getRootScope() + argv[1];
 
     if (domain.memberType(key) != Data::KeyType::array) {
         std::string command = __FUNCTION__;
         command += " " + std::string(ensureArray_name);
-        command += " " + key;
+        command += " " + std::string(argv[1]);
         if (Constants::Error const result = domain.parseStr(command); result != Constants::ErrorTable::NONE()) {
-            Nebulite::cerr() << "Error: Failed to ensure array for key '" << key << "'." << Nebulite::endl;
+            Nebulite::cerr() << "Error: Failed to ensure array for key '" << std::string(argv[1]) << "'." << Nebulite::endl;
             return result;
         }
     }
@@ -321,14 +321,14 @@ Constants::Error SimpleData::pop_front(int argc, char** argv) {
     //------------------------------------------
     // Move all existing items one step back
     for (size_t i = 1; i < size; i++) {
-        std::string itemKey = key + "[" + std::to_string(i) + "]";
+        auto itemKey = key + "[" + std::to_string(i) + "]";
         auto itemValue = domain.get<std::string>(itemKey);
-        std::string newItemKey = key + "[" + std::to_string(i - 1) + "]";
+        auto newItemKey = key + "[" + std::to_string(i - 1) + "]";
         domain.set(newItemKey, itemValue);
     }
     // Remove the last item
-    std::string const lastItemKey = key + "[" + std::to_string(size - 1) + "]";
-    domain.removeKey(lastItemKey.c_str());
+    auto const lastItemKey = key + "[" + std::to_string(size - 1) + "]";
+    domain.removeKey(lastItemKey);
 
     return Constants::ErrorTable::NONE();
 }

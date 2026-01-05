@@ -123,6 +123,10 @@ public:
         return scopePrefix;
     }
 
+    [[nodiscard]] Data::ScopedKey getRootScope() const {
+        return Data::ScopedKey{getScopePrefix(), ""};
+    }
+
     //------------------------------------------
     // Sharing a scope
 

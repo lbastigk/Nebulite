@@ -12,7 +12,7 @@ Core::JsonScope& DocumentAccessor::getDoc() const {
 }
 
 Data::JsonScopeBase& DocumentAccessor::shareDocumentScopeBase(std::string const& prefix) const {
-    return documentScope.shareScopeBase(prefix);
+    return documentScope.shareScopeBase(Data::ScopedKey(prefix));
 }
 
 } // namespace Nebulite::Interaction::Execution

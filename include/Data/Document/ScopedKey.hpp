@@ -25,7 +25,6 @@
 #include <string>
 #include <string_view>
 #include <optional>
-#include <type_traits>
 
 //------------------------------------------
 // Forward declarations
@@ -142,10 +141,15 @@ public:
     [[nodiscard]] OwnedScopedKey operator+(std::string_view const& suffix) const ;
 
     // No scope given, expected at root of JsonScopeBase
-    // TODO: Make explicit later on
-    template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
-    constexpr ScopedKey(T const& keyInScope) noexcept
-        : key(std::string_view(keyInScope)) {}
+    // Making this explicit would help avoid accidental misuse of keys,
+    // But this would require a lot of code changes in existing codebases.
+    // Instead, we assume every string literal used is assumed to be without given scope.
+    //template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
+    //constexpr ScopedKey(T const& keyInScope) noexcept
+    //    : key(std::string_view(keyInScope)) {}
+
+    explicit constexpr ScopedKey(std::string_view const& keyInScope)
+        : key(keyInScope) {}
 
     /**
      * @brief Create a ScopedKey with a required scope at compile time.

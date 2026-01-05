@@ -5,7 +5,7 @@
 
 namespace Nebulite::Interaction::Logic {
 
-void Assignment::setValueOfKey(std::string const& keyEvaluated, std::string const& val, Core::JsonScope& target) const {
+void Assignment::setValueOfKey(Data::ScopedKey const& keyEvaluated, std::string const& val, Core::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Logic::Assignment::Operation::set:
@@ -29,7 +29,7 @@ void Assignment::setValueOfKey(std::string const& keyEvaluated, std::string cons
     }
 }
 
-void Assignment::setValueOfKey(std::string const& keyEvaluated, double const& val, Core::JsonScope& target) const {
+void Assignment::setValueOfKey(Data::ScopedKey const& keyEvaluated, double const& val, Core::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Logic::Assignment::Operation::set:
@@ -115,9 +115,7 @@ void Assignment::apply(Core::JsonScope& self, Core::JsonScope& other) {
             // Likely because the target is in document other
 
             // Try to get a stable double pointer from the target document
-            double* target = targetDocument->getStableDoublePointer(key.eval(other));
-
-            if (target != nullptr) {
+            if (double* target = targetDocument->getStableDoublePointer(Data::ScopedKey(key.eval(other))); target != nullptr) {
                 // Lock is needed here, otherwise we have race conditions, and the engine is no longer deterministic!
                 std::scoped_lock lock(targetDocument->lock());
                 setValueOfKey(resolved, target);
@@ -125,14 +123,14 @@ void Assignment::apply(Core::JsonScope& self, Core::JsonScope& other) {
                 // Still not possible, fallback to using JSON's internal methods
                 // This is slower, but should work in all cases
                 // No lock needed here, as we use JSON's threadsafe methods
-                setValueOfKey(key.eval(other), resolved, *targetDocument);
+                setValueOfKey(Data::ScopedKey(key.eval(other)), resolved, *targetDocument);
             }
         }
     }
     // If not, we resolve as string and update that way
     else {
         std::string const resolved = expression.eval(other);
-        setValueOfKey(key.eval(other), resolved, *targetDocument);
+        setValueOfKey(Data::ScopedKey(key.eval(other)), resolved, *targetDocument);
     }
 }
 } // namespace Nebulite::Interaction::Logic

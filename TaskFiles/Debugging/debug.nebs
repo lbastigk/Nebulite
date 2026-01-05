@@ -22,4 +22,13 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+task TaskFiles/Tests/Short/mirror.nebs
+exit
+
+set arr[0] 1
+set arr[1] 2
+print arr
+eval echo $({global.arr|length|toInt})
+exit
+
 task TaskFiles/Simulations/bouncing.nebs

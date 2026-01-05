@@ -100,8 +100,8 @@ Constants::Error Debug::update() {
         double virtualMemMB = 0.0;
         double residentMemMB = 0.0;
         getMemoryUsageMB(virtualMemMB, residentMemMB);
-        getDoc().set<double>("debug.memory.virtualMB", virtualMemMB);
-        getDoc().set<double>("debug.memory.residentMB", residentMemMB);
+        getDoc().set<double>(Data::ScopedKey("debug.memory.virtualMB"), virtualMemMB);
+        getDoc().set<double>(Data::ScopedKey("debug.memory.residentMB"), residentMemMB);
     }
     if (!memoryUsagePoller.is_running()) {
         memoryUsagePoller.start();
@@ -309,22 +309,22 @@ Constants::Error Debug::waitForInput(int argc, char** argv) {
 
 void Debug::setupPlatformInfo() {
 #ifdef _WIN32
-    getDoc().set<std::string>("platform", "windows");
+    getDoc().set<std::string>(Data::ScopedKey("platform", "windows");
 #elif __linux__
-    getDoc().set<std::string>("platform", "linux");
+    getDoc().set<std::string>(Data::ScopedKey("platform"), "linux");
 #elif __APPLE__
-    getDoc().set<std::string>("platform", "macos");
+    getDoc().set<std::string>(Data::ScopedKey("platform"), "macos");
 #elif __FreeBSD__
-    getDoc().set<std::string>("platform", "freebsd");
+    getDoc().set<std::string>(Data::ScopedKey("platform"), "freebsd");
 #elif __unix__
-    getDoc().set<std::string>("platform", "unix");
+    getDoc().set<std::string>(Data::ScopedKey("platform"), "unix");
 #elif __ANDROID__
-    getDoc().set<std::string>("platform", "android");
+    getDoc().set<std::string>(Data::ScopedKey("platform"), "android");
 #elif __TEMPLEOS__
     printf("Glory be to TempleOS!\n");
     getDoc().set<std::string>("platform", "templeos");
 #else
-    getDoc().set<std::string>("platform", "unknown");
+    getDoc().set<std::string>(Data::ScopedKey("platform"), "unknown");
 #endif
 }
 

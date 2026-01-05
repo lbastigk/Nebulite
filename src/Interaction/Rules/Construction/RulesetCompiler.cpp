@@ -268,7 +268,7 @@ void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Core::
         if (assignment.onType == Logic::Assignment::Type::Self) {
             if (std::ranges::find(numeric_operations, assignment.operation) != std::ranges::end(numeric_operations)) {
                 // Numeric operation on self, try to get a direct pointer
-                if (double* ptr = self.getStableDoublePointer(assignment.key.eval(self)); ptr != nullptr) {
+                if (double* ptr = self.getStableDoublePointer(Data::ScopedKey(assignment.key.eval(self))); ptr != nullptr) {
                     assignment.targetValuePtr = ptr;
                 }
             }
@@ -276,7 +276,7 @@ void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Core::
         if (assignment.onType == Logic::Assignment::Type::Global) {
             if (std::ranges::find(numeric_operations, assignment.operation) != std::ranges::end(numeric_operations)) {
                 // Numeric operation on global, try to get a direct pointer
-                if (double* ptr = Nebulite::global().getDoc().getStableDoublePointer(assignment.key.eval(self)); ptr != nullptr) {
+                if (double* ptr = Nebulite::global().getDoc().getStableDoublePointer(Data::ScopedKey(assignment.key.eval(self))); ptr != nullptr) {
                     assignment.targetValuePtr = ptr;
                 }
             }
@@ -338,8 +338,9 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope& doc, Da
 
 std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string const& identifier, Interaction::Execution::DomainBase& self) {
     Core::JsonScope tempDoc;
-    tempDoc.set("", identifier);
-    auto rs = getRuleset(tempDoc, "", self);
+    auto const root = Data::ScopedKey("");
+    tempDoc.set(root, identifier);
+    auto rs = getRuleset(tempDoc, root, self);
     if (std::holds_alternative<std::shared_ptr<StaticRuleset>>(rs)) {
         return std::get<std::shared_ptr<StaticRuleset>>(rs);
     }

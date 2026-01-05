@@ -18,6 +18,7 @@
 #include <vector>
 
 // Nebulite
+#include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 
 //------------------------------------------
@@ -244,11 +245,15 @@ private:
 public:
     JsonRvalueTransformer();
 
+    static auto constexpr valueKeyStr = "";
+
     /**
      * @brief The key used to store and retrieve the value being modified.
      * @details Uses an empty string as key, so the entire JSON document is the value used.
+     * @note DO NOT CHANGE THIS KEY!
      */
-    static auto constexpr valueKey = "";
+    static auto constexpr valueKey = Data::ScopedKey(valueKeyStr);
+
 
     /**
      * @brief Parses and applies JSON transformations from the given arguments.

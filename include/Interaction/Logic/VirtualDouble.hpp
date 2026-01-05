@@ -14,6 +14,7 @@
 
 // Nebulite
 #include "Data/Document/DocumentCache.hpp"
+#include "Data/Document/ScopedKey.hpp"
 #include "Data/Document/JSON.hpp"
 
 //------------------------------------------
@@ -32,6 +33,9 @@ namespace Nebulite::Interaction::Logic {
 class VirtualDouble {
     // Key associated with this VirtualDouble
     std::string key;
+
+    // Key as scopedkey with no prefix
+    Data::ScopedKey scopedKey = Data::ScopedKey("");
 
     /**
      * @brief Internal cache for non-remanent documents.
@@ -70,6 +74,10 @@ public:
         return key;
     }
 
+    [[nodiscard]] Data::ScopedKey const& getScopedKey() const noexcept {
+        return scopedKey;
+    }
+
     /**
      * @brief Update the cache value from the JSON document or DocumentCache.
      * @details Retrieves the double value associated with the key from the provided JSON document
@@ -78,7 +86,7 @@ public:
      *          If the key is not found within the associated document, the double value will default to 0.
      * @param json The JSON document to retrieve the value from.
      */
-    void setUpInternalCache(Core::JsonScope& json);
+    void setUpInternalCache(Core::JsonScope const& json);
 
     /**
      * @brief Update the cache value from the global DocumentCache.
@@ -96,7 +104,7 @@ public:
      *          Allowing it to access and modify the value directly.
      * @param json The JSON document to retrieve the stable double pointer from.
      */
-    void setUpExternalCache(Core::JsonScope& json);
+    void setUpExternalCache(Core::JsonScope const& json);
 
     /**
      * @brief Set the value of the VirtualDouble directly.

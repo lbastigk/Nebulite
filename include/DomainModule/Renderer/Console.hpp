@@ -81,7 +81,7 @@ private:
     // Basic Configuration
 
     // Key to toggle console
-    std::string toggleKey = "input.keyboard.delta.tab";
+    static auto constexpr toggleKey = Data::ScopedKey("input.keyboard.delta.tab");
 
     // Font to use
     std::string consoleFontPath = "Resources/Fonts/JetBrainsMono-Medium.ttf";

@@ -19,7 +19,7 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, s
         if (quickCache[uniqueId].orderedValues.empty()) {
             Data::OrderedDoublePointers newCacheList(contextOther.size());
             for (auto const& vde : contextOther) {
-                double* ptr = reference.getStableDoublePointer(vde->getKey());
+                double* ptr = reference.getStableDoublePointer(vde->getScopedKey());
                 newCacheList.orderedValues.push_back(ptr);
             }
             quickCache[uniqueId] = std::move(newCacheList);
@@ -40,7 +40,7 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t uniqueId, s
     auto [newIt, inserted] = map.try_emplace(uniqueId, Data::OrderedDoublePointers(contextOther.size()));
     if (inserted) {
         for (auto const& vde : contextOther) {
-            double* ptr = reference.getStableDoublePointer(vde->getKey());
+            double* ptr = reference.getStableDoublePointer(vde->getScopedKey());
             newIt->second.orderedValues.push_back(ptr);
         }
     }

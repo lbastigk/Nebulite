@@ -42,11 +42,11 @@ Constants::Error ComplexData::jsonSet(int argc, char** argv) {
         Data::JSON subDoc = Nebulite::global().getDocCache().getSubDoc(docKey);
 
         // Set the sub-document in the current JSON tree
-        domain.setSubDoc(myKey.c_str(), subDoc);
+        domain.setSubDoc(getDoc().getRootScope() + myKey, subDoc);
     }
     // === VALUE ===
     else if (type == Data::KeyType::value) {
-        domain.set(myKey, Nebulite::global().getDocCache().get<std::string>(docKey));
+        domain.set(getDoc().getRootScope() + myKey, Nebulite::global().getDocCache().get<std::string>(docKey));
     }
     // === ARRAY ===
     else if (type == Data::KeyType::array) {
@@ -55,7 +55,7 @@ Constants::Error ComplexData::jsonSet(int argc, char** argv) {
             std::string itemKey = docKey + "[" + std::to_string(i) + "]";
             auto itemValue = Nebulite::global().getDocCache().get<std::string>(itemKey);
             std::string newItemKey = myKey + "[" + std::to_string(i) + "]";
-            domain.set(newItemKey, itemValue);
+            domain.set(getDoc().getRootScope() + newItemKey, itemValue);
         }
     }
     return Constants::ErrorTable::NONE();

@@ -469,13 +469,13 @@ bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr
             Nebulite::cerr() << "Error: Null self reference in expression: " << strippedKey << Nebulite::endl;
             return false;
         }
-        token = references.self->get<std::string>(strippedKey, "null");
+        token = references.self->get<std::string>(Data::ScopedKey(strippedKey), "null");
         break;
     case Component::From::other:
-        token = current_other.get<std::string>(strippedKey, "null");
+        token = current_other.get<std::string>(Data::ScopedKey(strippedKey), "null");
         break;
     case Component::From::global:
-        token = Nebulite::global().getDoc().get<std::string>(strippedKey, "null");
+        token = Nebulite::global().getDoc().get<std::string>(Data::ScopedKey(strippedKey), "null");
         break;
     case Component::From::resource:
         token = Nebulite::global().getDocCache().get<std::string>(strippedKey, "null");
@@ -588,7 +588,7 @@ void Expression::updateCaches(Core::JsonScope& reference) {
         // One-time handle of multi-resolve and transformations
         Expression tempExpr;
         tempExpr.parse(vde->getKey(), *references.self);
-        std::string const evalResult = tempExpr.eval(reference);
+        auto const evalResult = Data::OwnedScopedKey(tempExpr.eval(reference));
         vde->setDirect(reference.get<double>(evalResult, 0.0));
     }
 
@@ -609,7 +609,7 @@ void Expression::updateCaches(Core::JsonScope& reference) {
         // One-time handle of multi-resolve and transformations
         Expression tempExpr;
         tempExpr.parse(vde->getKey(), *references.self);
-        std::string const evalResult = tempExpr.eval(reference);
+        auto const evalResult = Data::OwnedScopedKey(tempExpr.eval(reference));
         vde->setDirect(reference.get<double>(evalResult, 0.0));
     }
 
@@ -618,7 +618,7 @@ void Expression::updateCaches(Core::JsonScope& reference) {
         // One-time handle of multi-resolve and transformations
         Expression tempExpr;
         tempExpr.parse(vde->getKey(), *+references.self);
-        std::string const evalResult = tempExpr.eval(reference);
+        auto const evalResult = Data::OwnedScopedKey(tempExpr.eval(reference));
         auto const val = Nebulite::global().getDoc().get<double>(evalResult, 0.0);
         vde->setDirect(val);
     }

@@ -174,8 +174,8 @@ bool JsonRvalueTransformer::ensureArray(Core::JsonScope* jsonDoc) const {
 
     // Single value, wrap into an array
     JSON tmp = jsonDoc->getSubDoc(valueKey);
-    std::string const key = std::string(valueKey) + "[0]";
-    jsonDoc->setSubDoc(key.c_str(), tmp);
+    auto const key = valueKey + "[0]";
+    jsonDoc->setSubDoc(key, tmp);
 
     // Return whether wrapping succeeded
     return (jsonDoc->memberType(valueKey) == KeyType::array);
@@ -194,7 +194,7 @@ bool JsonRvalueTransformer::at(std::span<std::string const> const& args, Core::J
         if (index >= arraySize) {
             return false; // Index out of bounds
         }
-        JSON temp = jsonDoc->getSubDoc(std::string(valueKey) + "[" + std::to_string(index) + "]");
+        JSON temp = jsonDoc->getSubDoc(valueKey + "[" + std::to_string(index) + "]");
         jsonDoc->setSubDoc(valueKey, temp);
         return true;
     } catch (...) {
@@ -218,9 +218,9 @@ bool JsonRvalueTransformer::reverse(Core::JsonScope* jsonDoc) {
     size_t arraySize = jsonDoc->memberSize(valueKey);
     JSON tmp = jsonDoc->getSubDoc(valueKey);
     for (size_t i = 0; i < arraySize; ++i) {
-        std::string const key = std::string(valueKey) + "[" + std::to_string(i) + "]";
+        auto const key = valueKey + "[" + std::to_string(i) + "]";
         JSON element = tmp.getSubDoc("[" + std::to_string(arraySize - 1 - i) + "]");
-        jsonDoc->setSubDoc(key.c_str(), element);
+        jsonDoc->setSubDoc(key, element);
     }
     return true;
 }
@@ -233,7 +233,7 @@ bool JsonRvalueTransformer::first(Core::JsonScope* jsonDoc) {
     if (arraySize == 0) {
         return false; // Empty array
     }
-    JSON firstElement = jsonDoc->getSubDoc(std::string(valueKey) + "[0]");
+    JSON firstElement = jsonDoc->getSubDoc(valueKey + "[0]");
     jsonDoc->setSubDoc(valueKey, firstElement);
     return true;
 }
@@ -246,7 +246,7 @@ bool JsonRvalueTransformer::last(Core::JsonScope* jsonDoc) {
     if (arraySize == 0) {
         return false; // Empty array
     }
-    JSON lastElement = jsonDoc->getSubDoc(std::string(valueKey) + "[" + std::to_string(arraySize - 1) + "]");
+    JSON lastElement = jsonDoc->getSubDoc(valueKey + "[" + std::to_string(arraySize - 1) + "]");
     jsonDoc->setSubDoc(valueKey, lastElement);
     return true;
 }
@@ -324,8 +324,8 @@ bool JsonRvalueTransformer::map(std::span<std::string const> const& args, Core::
     if (jsonDoc->memberType(valueKey) == KeyType::value) {
         // Single value, we wrap it into an array
         JSON tmp = jsonDoc->getSubDoc(valueKey);
-        std::string const key = std::string(valueKey) + "[0]";
-        jsonDoc->setSubDoc(key.c_str(), tmp);
+        auto const key = valueKey + "[0]";
+        jsonDoc->setSubDoc(key, tmp);
     }
     // Now we expect an array
     if (jsonDoc->memberType(valueKey) != KeyType::array) {
@@ -341,7 +341,7 @@ bool JsonRvalueTransformer::map(std::span<std::string const> const& args, Core::
     size_t arraySize = jsonDoc->memberSize(valueKey);
     for (uint32_t idx = 0; idx < arraySize; ++idx) {
         // Set temp document with current element
-        std::string const elementKey = std::string(valueKey) + "[" + std::to_string(idx) + "]";
+        auto const elementKey = valueKey + "[" + std::to_string(idx) + "]";
         JSON element = jsonDoc->getSubDoc(elementKey);
         Core::JsonScope tempDoc;
         tempDoc.setSubDoc(valueKey, element);
@@ -360,8 +360,8 @@ bool JsonRvalueTransformer::get(std::span<std::string const> const& args, Core::
     if (args.size() != 2) {
         return false;
     }
-    std::string const& key = args[1];
-    JSON subDoc = jsonDoc->getSubDoc(key.c_str());
+    auto const& key = valueKey + args[1];
+    JSON subDoc = jsonDoc->getSubDoc(key);
     jsonDoc->setSubDoc(valueKey, subDoc);
     return true;
 }
@@ -373,14 +373,14 @@ bool JsonRvalueTransformer::getMultiple(std::span<std::string const> const& args
     std::vector<std::unique_ptr<JSON>> values;
     for (auto const& key : args.subspan(1)) {
         values.push_back(std::make_unique<JSON>());
-        auto subDoc = jsonDoc->getSubDoc(key.c_str());
+        auto subDoc = jsonDoc->getSubDoc(valueKey + key);
         values.back()->copyFrom(subDoc);
     }
 
     // Create result array
     for (size_t i = 0; i < values.size(); ++i) {
-        std::string const arrayKey = std::string(valueKey) + "[" + std::to_string(i) + "]";
-        jsonDoc->setSubDoc(arrayKey.c_str(), *values[i]);
+        auto const arrayKey = valueKey + "[" + std::to_string(i) + "]";
+        jsonDoc->setSubDoc(arrayKey, *values[i]);
     }
     return true;
 }
@@ -403,7 +403,7 @@ bool JsonRvalueTransformer::echo(std::span<std::string const> const& args) {
 bool JsonRvalueTransformer::print(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     // Print to cout, no modifications
     if (args.size() > 1) {
-        Nebulite::Utility::Capture::cout() << jsonDoc->serialize(args[1]) << Nebulite::Utility::Capture::endl;
+        Nebulite::Utility::Capture::cout() << jsonDoc->serialize(valueKey + args[1]) << Nebulite::Utility::Capture::endl;
     } else {
         Nebulite::Utility::Capture::cout() << jsonDoc->serialize() << Nebulite::Utility::Capture::endl;
     }

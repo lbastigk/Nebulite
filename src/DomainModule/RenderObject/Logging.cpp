@@ -41,12 +41,12 @@ Constants::Error Logging::log_key(int argc, char** argv) {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    std::string const key = argv[1];
+    auto const key = getDoc().getRootScope() + argv[1];
     std::string file = "RenderObject_id" + std::to_string(getDoc().get(Constants::KeyNames::RenderObject::id, 0)) + ".log.jsonc";
     if (argc > 2) {
         file = argv[2];
     }
-    auto const value = getDoc().get<std::string>(key, "Key not found");
+    auto const value = getDoc().get<std::string>(key.view(), "Key not found");
     Utility::FileManagement::WriteFile(file, value);
     return Constants::ErrorTable::NONE();
 }

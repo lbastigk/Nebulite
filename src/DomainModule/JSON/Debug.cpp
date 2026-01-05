@@ -21,17 +21,18 @@ Constants::Error Debug::print(int argc, char** argv) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     if (argc == 2) {
-        auto const memberType = getDoc().memberType(argv[1]);
+        auto const scopedKey = Data::ScopedKey(argv[1]);
+        auto const memberType = getDoc().memberType(scopedKey);
         if (memberType == Data::KeyType::null) {
             Nebulite::cout() << "{}" << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
-        if (memberType == Data::KeyType::object) {
-            Nebulite::cout() << getDoc().serialize(argv[1]) << Nebulite::endl;
+        if (memberType == Data::KeyType::object || memberType == Data::KeyType::array) {
+            Nebulite::cout() << getDoc().serialize(scopedKey) << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
         if (memberType == Data::KeyType::value) {
-            Nebulite::cout() << getDoc().get<std::string>(argv[1], "") << Nebulite::endl;
+            Nebulite::cout() << getDoc().get<std::string>(scopedKey, "") << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
     }

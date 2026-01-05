@@ -12,7 +12,8 @@ namespace Nebulite::DomainModule::RenderObject {
 Constants::Error Mirror::update() {
     if (mirrorEnabled || mirrorOnceEnabled) {
         // Mirror to GlobalSpace
-        Nebulite::global().shareScope(*this).setSubDoc(mirrorKey.c_str(), getDoc());
+        auto const globalScope = Nebulite::global().shareScope(*this).getRootScope();
+        Nebulite::global().shareScope(*this).setSubDoc(globalScope + mirrorKey, getDoc());
 
         // Reset once-flag
         mirrorOnceEnabled = false;
@@ -43,15 +44,17 @@ Constants::Error Mirror::mirror_off() {
 }
 
 Constants::Error Mirror::mirror_delete() {
-    Nebulite::global().shareScope(*this).removeKey(mirrorKey.c_str());
+    auto const globalScope = Nebulite::global().shareScope(*this).getRootScope();
+    Nebulite::global().shareScope(*this).removeKey(globalScope + mirrorKey);
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error Mirror::mirror_fetch() {
-    if (Nebulite::global().shareScope(*this).memberType(mirrorKey) != Data::KeyType::object) {
+    auto const globalScope = Nebulite::global().shareScope(*this).getRootScope();
+    if (Nebulite::global().shareScope(*this).memberType(globalScope + mirrorKey) != Data::KeyType::object) {
         return Constants::ErrorTable::addError("Mirror fetch failed: Key '" + mirrorKey + "' not of type document", Constants::Error::NON_CRITICAL);
     }
-    domain.deserialize(Nebulite::global().shareScope(*this).serialize(mirrorKey));
+    domain.deserialize(Nebulite::global().shareScope(*this).serialize(globalScope + mirrorKey));
     return Constants::ErrorTable::NONE();
 }
 
