@@ -363,6 +363,10 @@ def print_test_summary(process_information: Dict[str, Any]):
     if(process_information['failed_tests'] > 0):
         sys.exit(1)
 
+    if(process_information['total_tests'] == 0):
+        print("Warning: No tests were executed!")
+        sys.exit(1)
+
 def process_binaries(binaries, tests: List[Dict[str, Any]], timeout: int, ignore_lines: Dict[str, List[str]], stop_on_fail: bool, verbose: bool) -> Dict[str, Any]:
     total_tests = 0
     passed_tests = 0
