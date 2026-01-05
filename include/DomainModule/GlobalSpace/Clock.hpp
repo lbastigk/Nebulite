@@ -49,7 +49,7 @@ public:
     // Keys in the global document
 
     struct Key {
-        static auto constexpr scope = "clocks.";
+        static auto constexpr scope = "time.clocks.";
 
         /**
          * @brief Key for accessing the list of active clocks.

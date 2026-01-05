@@ -15,7 +15,7 @@ Constants::Error Ruleset::update() {
     // An id of zero means the RenderObject is outside the Renderer/RenderObjectContainer scope
     // and should not be updated
     if (id == 0) {
-        id = getDoc().get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
+        id = domain.getId();
     }
 
     //------------------------------------------

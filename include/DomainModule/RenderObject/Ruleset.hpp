@@ -32,7 +32,7 @@ public:
     void reinit() override {
         reloadRulesets = true;
         subscription_size = getDoc().memberSize(Constants::KeyNames::RenderObject::Ruleset::listen);
-        id = getDoc().get<uint32_t>(Constants::KeyNames::RenderObject::id,0);
+        id = domain.getId();
     }
 
     //------------------------------------------

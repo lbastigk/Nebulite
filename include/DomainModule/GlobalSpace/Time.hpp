@@ -86,11 +86,16 @@ public:
     //------------------------------------------
     // Variables
     struct Key {
-        static auto constexpr scope = ""; // Allow any scope to access these keys
-        static auto constexpr time_t = Data::ScopedKey::create<scope>("time.t");
-        static auto constexpr time_t_ms = Data::ScopedKey::create<scope>("time.t_ms");
-        static auto constexpr time_dt = Data::ScopedKey::create<scope>("time.dt");
-        static auto constexpr time_dt_ms = Data::ScopedKey::create<scope>("time.dt_ms");
+        static auto constexpr scope = "time.";
+
+        // Keys for simulation time
+        // May be unequal to actual time, if a custom dt is set
+        static auto constexpr time_t = Data::ScopedKey::create<scope>("t");
+        static auto constexpr time_t_ms = Data::ScopedKey::create<scope>("t_ms");
+        static auto constexpr time_dt = Data::ScopedKey::create<scope>("dt");
+        static auto constexpr time_dt_ms = Data::ScopedKey::create<scope>("dt_ms");
+
+        // More specific keys for actual runtime
         static auto constexpr runtime_t = Data::ScopedKey::create<scope>("runtime.t");
         static auto constexpr runtime_t_ms = Data::ScopedKey::create<scope>("runtime.t_ms");
         static auto constexpr runtime_dt = Data::ScopedKey::create<scope>("runtime.dt");

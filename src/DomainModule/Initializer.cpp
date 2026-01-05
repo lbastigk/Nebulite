@@ -77,7 +77,7 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     //          if we initialize time first, it will update before console
     //          thus ignoring the console's halt request being sent to renderer
     target->initModule<Time>("Global Time Functions", &target->shareDocumentScopeBase("time."));
-    target->initModule<Clock>("Global Clock Functions", &target->shareDocumentScopeBase("clock.")); // Clock relies on time, so init after time
+    target->initModule<Clock>("Global Clock Functions", &target->shareDocumentScopeBase("time.")); // Clock relies on time, so init after time
 
     //------------------------------------------
     // Initialize Variable Bindings

@@ -271,7 +271,7 @@ eval wait {global.waitTime}
 echo All objects spawned. Rendering 1000 more frames...
 
 wait 1000
-eval echo Benchmark took {global.runtime.t} Seconds
+eval echo Benchmark took {global.time.runtime.t} Seconds
 eval echo Full frame count: {global.frameCount}
 eval echo Memory Usage: {global.debug.memory.residentMB} MiB Resident, {global.debug.memory.virtualMB} MiB Virtual
 exit
