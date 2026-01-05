@@ -41,7 +41,7 @@ public:
         "\n"
         "Examples:\n\n"
         "eval echo $(1+1)    outputs:    2.000000\n"
-        "eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json\n";
+        "eval echo {self.id} outputs this objects id\n";
 
     Constants::Error printSrcRect();
     static auto constexpr printSrcRect_name = "debug print-src-rect";

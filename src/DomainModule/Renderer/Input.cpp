@@ -71,8 +71,8 @@ void Input::map_key_names() {
                 keyNames[scancode] = keyName;
 
                 // Paths
-                auto currentPath = getDoc().getRootScope() + "input.keyboard.current." + keyNames[scancode];
-                auto deltaPath = getDoc().getRootScope() + "input.keyboard.delta." + keyNames[scancode];
+                auto currentPath = getDoc().getRootScope() + "keyboard.current." + keyNames[scancode];
+                auto deltaPath = getDoc().getRootScope() + "keyboard.delta." + keyNames[scancode];
                 deltaKey[scancode] = getDoc().getStableDoublePointer(deltaPath);
                 currentKey[scancode] = getDoc().getStableDoublePointer(currentPath);
             }
@@ -99,14 +99,14 @@ void Input::writeCurrentAndDeltaInputs() {
     mouse.state = SDL_GetMouseState(&mouse.posX, &mouse.posY);
 
     // Cursor Position and state
-    getDoc().set(getDoc().getRootScope() + "input.mouse.current.X", mouse.posX);
-    getDoc().set(getDoc().getRootScope() + "input.mouse.current.Y", mouse.posY);
-    getDoc().set(getDoc().getRootScope() + "input.mouse.delta.X", mouse.posX - mouse.lastPosX);
-    getDoc().set(getDoc().getRootScope() + "input.mouse.delta.Y", mouse.posY - mouse.lastPosY);
-    getDoc().set(getDoc().getRootScope() + "input.mouse.current.left", calcMouseState(SDL_BUTTON(SDL_BUTTON_LEFT), mouse.state));
-    getDoc().set(getDoc().getRootScope() + "input.mouse.current.right", calcMouseState(SDL_BUTTON(SDL_BUTTON_RIGHT), mouse.state));
-    getDoc().set(getDoc().getRootScope() + "input.mouse.delta.left", calcMouseDelta(SDL_BUTTON(SDL_BUTTON_LEFT), mouse.state, mouse.lastState));
-    getDoc().set(getDoc().getRootScope() + "input.mouse.delta.right", calcMouseDelta(SDL_BUTTON(SDL_BUTTON_RIGHT), mouse.state, mouse.lastState));
+    getDoc().set(getDoc().getRootScope() + "mouse.current.X", mouse.posX);
+    getDoc().set(getDoc().getRootScope() + "mouse.current.Y", mouse.posY);
+    getDoc().set(getDoc().getRootScope() + "mouse.delta.X", mouse.posX - mouse.lastPosX);
+    getDoc().set(getDoc().getRootScope() + "mouse.delta.Y", mouse.posY - mouse.lastPosY);
+    getDoc().set(getDoc().getRootScope() + "mouse.current.left", calcMouseState(SDL_BUTTON(SDL_BUTTON_LEFT), mouse.state));
+    getDoc().set(getDoc().getRootScope() + "mouse.current.right", calcMouseState(SDL_BUTTON(SDL_BUTTON_RIGHT), mouse.state));
+    getDoc().set(getDoc().getRootScope() + "mouse.delta.left", calcMouseDelta(SDL_BUTTON(SDL_BUTTON_LEFT), mouse.state, mouse.lastState));
+    getDoc().set(getDoc().getRootScope() + "mouse.delta.right", calcMouseDelta(SDL_BUTTON(SDL_BUTTON_RIGHT), mouse.state, mouse.lastState));
 
     //------------------------------------------
     // Keyboard
@@ -141,17 +141,17 @@ void Input::writeCurrentAndDeltaInputs() {
 
 void Input::resetDeltaValues() const {
     // 1.) Mouse
-    getDoc().set(getDoc().getRootScope() + "input.mouse.delta.X", 0);
-    getDoc().set(getDoc().getRootScope() + "input.mouse.delta.Y", 0);
-    getDoc().set(getDoc().getRootScope() + "input.mouse.delta.left", 0);
-    getDoc().set(getDoc().getRootScope() + "input.mouse.delta.right", 0);
+    getDoc().set(getDoc().getRootScope() + "mouse.delta.X", 0);
+    getDoc().set(getDoc().getRootScope() + "mouse.delta.Y", 0);
+    getDoc().set(getDoc().getRootScope() + "mouse.delta.left", 0);
+    getDoc().set(getDoc().getRootScope() + "mouse.delta.right", 0);
 
     // 2.) Keyboard
     for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++
          scancode) {
         if (!keyNames[scancode].empty()) {
             std::string deltaPath =
-                "input.keyboard.delta." + keyNames[scancode];
+                "keyboard.delta." + keyNames[scancode];
             getDoc().set<int>(getDoc().getRootScope() + deltaPath, 0);
         }
     }

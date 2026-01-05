@@ -57,10 +57,10 @@ for i {global.loop.start} {global.loop.end} for j {global.loop.start} {global.lo
 # Store Snapshots, info
 wait 1
 set framename 0
-always if $(not({global.frameCount}%10)) eval echo Frame {global.frameCount} rendered! Frame average: $( {global.time.runtime.t} / {global.frameCount} ) seconds. Full runtime: {global.time.runtime.t} seconds.
-always if $(not({global.frameCount}%10)) eval set framename $i(1 + {global.framename})
-always if $(not({global.frameCount}%10)) eval snapshot ./Resources/Snapshots/ToGif/$05i({global.framename}).png
-always if $(not({global.frameCount}%10)) eval echo stored snapshot: ./Resources/Snapshots/ToGif/$05i({global.framename}).png
+always if $(not({global.time.frameCount}%10)) eval echo Frame {global.time.frameCount} rendered! Frame average: $( {global.time.runtime.t} / {global.time.frameCount} ) seconds. Full runtime: {global.time.runtime.t} seconds.
+always if $(not({global.time.frameCount}%10)) eval set framename $i(1 + {global.framename})
+always if $(not({global.time.frameCount}%10)) eval snapshot ./Resources/Snapshots/ToGif/$05i({global.framename}).png
+always if $(not({global.time.frameCount}%10)) eval echo stored snapshot: ./Resources/Snapshots/ToGif/$05i({global.framename}).png
 
 ###############################################
 # Spawn extra object later on and wait some more

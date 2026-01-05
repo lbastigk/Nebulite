@@ -60,7 +60,7 @@ wait 2500
 
 ###############################################
 # Inform on runtime
-eval echo Simulation done! Total runtime: {global.time.runtime.t} Seconds. Frame average: $06.2f( 1000 * {global.time.runtime.t} / {global.frameCount} ) ms.
+eval echo Simulation done! Total runtime: {global.time.runtime.t} Seconds. Frame average: $06.2f( 1000 * {global.time.runtime.t} / {global.time.frameCount} ) ms.
 
 ###############################################
 # Exit
