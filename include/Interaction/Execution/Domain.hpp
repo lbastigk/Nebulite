@@ -217,13 +217,12 @@ public:
      *          The errors are not printed to stderr by default to allow the caller to handle them as needed.
      * @param str The string to parse.
      * @return Potential errors that occurred on command execution
-     * @node Currently, this method is accessible to all domainmodules.
+     * @todo Currently, this method is accessible to all domainmodules.
      *       This is a security risk, as domainmodules can execute commands outside of their scope.
      *       For this to be resolved, we need some restricted parsing mode that only allows commands to execute with data in its own scope.
      *       But requires careful design, perhaps with the scope itself as argument.
      *       Idea: parseStr(str, scope) -> foo(args, scope)
-     *       No more scope in domainmodules, is passed around as argument.
-     * @todo Once all domainmodule functions are modernized with std::span<std::string const> args, implement a restricted parseStr version
+     *       Once all domainmodule functions are modernized with std::span<std::string const> args, implement a restricted parseStr version
      *       as described above, by passing around the scope as reference.
      *       Update the base Domain functree to take the scope as additional argument.
      *       Most getDoc() calls are then replaced with the passed scope.
