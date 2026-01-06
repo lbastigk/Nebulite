@@ -52,17 +52,17 @@ public:
      * @param doc_key The link and key of the sub-document to retrieve.
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
      */
-    Nebulite::Data::JSON getSubDoc(std::string const& doc_key) {
+    JSON getSubDoc(std::string const& doc_key) {
         auto [doc, key] = splitDocKey(doc_key);
-        Nebulite::Data::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+        ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr) {
-            return Nebulite::Data::JSON{}; // Return empty JSON if document loading fails
+            return JSON{}; // Return empty JSON if document loading fails
         }
 
         // Retrieve the sub-document from the document
-        Nebulite::Data::JSON data = docPtr->document.getSubDoc(key);
+        JSON data = docPtr->document.getSubDoc(key);
 
         // Update the cache (unload old documents)
         update();
@@ -90,7 +90,7 @@ public:
     KeyType memberType(std::string const& doc_key) {
         auto [doc, key] = splitDocKey(doc_key);
 
-        ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+        ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr) {
@@ -117,7 +117,7 @@ public:
     size_t memberSize(std::string const& doc_key) {
         auto [doc, key] = splitDocKey(doc_key);
 
-        Nebulite::Data::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+        ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr) {
@@ -142,7 +142,7 @@ public:
     std::string serialize(std::string const& doc_key) {
         auto [doc, key] = splitDocKey(doc_key);
 
-        Nebulite::Data::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+        ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr) {
@@ -156,7 +156,7 @@ public:
         }
         else {
             // Retrieve the sub-document from the document
-            Nebulite::Data::JSON subDoc = docPtr->document.getSubDoc(key);
+            JSON const subDoc = docPtr->document.getSubDoc(key);
             data = subDoc.serialize();
         }
         update();
@@ -169,11 +169,11 @@ public:
      * @return The serialized JSON string of the entire document.
      */
     std::string getDocString(std::string const& link) {
-        Nebulite::Data::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(link);
+        ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(link);
 
         // Check if the document exists in the cache
         if (docPtr == nullptr) {
-            return Nebulite::Data::JSON().serialize(); // Return empty JSON if document loading fails
+            return JSON().serialize(); // Return empty JSON if document loading fails
         }
 
         // Return string of document:
@@ -189,7 +189,7 @@ private:
     /**
      * @brief Read-only document cache.
      */
-    Nebulite::Data::ReadOnlyDocs readOnlyDocs;
+    ReadOnlyDocs readOnlyDocs;
 
     // Default value for double pointers, if the document or key is not found
     /**
@@ -221,16 +221,16 @@ private:
      */
     void update();
 };
-} // namespace Nebulite::Data
+
 
 //------------------------------------------
 // Definitions of template functions
 
 template <typename T>
-T Nebulite::Data::DocumentCache::get(std::string const& doc_key, T const& defaultValue) {
+T DocumentCache::get(std::string const& doc_key, T const& defaultValue) {
     auto [doc, key] = splitDocKey(doc_key);
 
-    Nebulite::Data::ReadOnlyDoc* docPtr = readOnlyDocs.getDocument(doc);
+    ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
 
     // Check if the document exists in the cache
     if (docPtr == nullptr) {
@@ -246,5 +246,7 @@ T Nebulite::Data::DocumentCache::get(std::string const& doc_key, T const& defaul
     // Return key:
     return data; // Use the JSON get method to retrieve the value
 }
+
+} // namespace Nebulite::Data
 
 #endif // NEBULITE_DATA_DOCUMENTCACHE_HPP

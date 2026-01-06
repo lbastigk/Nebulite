@@ -10,7 +10,6 @@
 
 // Standard library
 #include <random>
-#include <stdexcept>
 
 // Nebulite
 #include "Data/Document/JSON.hpp"
@@ -72,10 +71,9 @@ public:
         thread_local std::mt19937_64 rng{std::random_device{}()};
         std::uniform_int_distribution<std::size_t> dist(0, docs.size() - 1);
         std::advance(it, dist(rng));
-        ReadOnlyDoc* docPtr = &it->second;
 
         // If the document has not been used recently, unload it
-        if (docPtr->lastUsed.projected_dt() > unloadTime){
+        if (ReadOnlyDoc* docPtr = &it->second; docPtr->lastUsed.projected_dt() > unloadTime){
             docs.erase(it);
         }
     }
@@ -92,7 +90,6 @@ public:
         if (doc.empty()){
             return nullptr;
         }
-        
         // Check if the document exists in the cache
         auto it = docs.find(doc);
         if (it == docs.end()){
@@ -101,14 +98,14 @@ public:
             if (serial.empty()){
                 return nullptr; // Return nullptr if document loading fails
             }
-            auto result = docs.emplace(doc, ReadOnlyDoc());
-            if (!result.second){
+            auto [newIt, result] = docs.emplace(doc, ReadOnlyDoc());
+            if (!result){
                 // Emplace failed for some reason
                 return nullptr;
             }
-            result.first->second.document.deserialize(serial);
-            result.first->second.serial = serial;
-            it = result.first;
+            newIt->second.document.deserialize(serial);
+            newIt->second.serial = serial;
+            it = newIt;
         }
         ReadOnlyDoc* docPtr = &it->second;
         docPtr->lastUsed.update();

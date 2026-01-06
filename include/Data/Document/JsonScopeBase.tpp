@@ -4,9 +4,6 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <utility>
-
 // Nebulite
 #include "Data/Document/JsonScopeBase.hpp"
 #include "Data/Document/JSON.hpp"

@@ -324,7 +324,7 @@ public:
      */
     void setEmptyArray(char const* key);
     void setEmptyArray(std::string const& key) { setEmptyArray(key.c_str()); }
-    void setEmptyArray(std::string_view key) { setEmptyArray(std::string(key).c_str()); }
+    void setEmptyArray(std::string_view const& key) { setEmptyArray(std::string(key).c_str()); }
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
