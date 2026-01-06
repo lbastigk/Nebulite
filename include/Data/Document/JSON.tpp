@@ -13,7 +13,7 @@ void JSON::set(std::string const& key, T const& val){
 }
 
 template<typename T>
-T JSON::get(std::string const& key, T const& defaultValue){
+T JSON::get(std::string const& key, T const& defaultValue) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check if a transformation is present
@@ -33,7 +33,7 @@ T JSON::get(std::string const& key, T const& defaultValue){
 
 // TODO: same for getSubDocWithTransformations!
 template<typename T>
-std::optional<T> JSON::getWithTransformations(std::string const& key) {
+std::optional<T> JSON::getWithTransformations(std::string const& key) const {
     auto args = Utility::StringHandler::split(key, '|');
     std::string const baseKey = args[0];
     args.erase(args.begin());
@@ -51,7 +51,7 @@ std::optional<T> JSON::getWithTransformations(std::string const& key) {
 }
 
 template<typename T>
-T JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue){
+T JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue) const {
     // Create a new cache entry
     auto new_entry = std::make_unique<CacheEntry>();
 

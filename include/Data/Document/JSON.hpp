@@ -109,13 +109,33 @@ private:
     };
 
     /**
+     * @brief The Caching system used for fast access to frequently used values.
+     * @details Is mutable, as caching itself is used in get-calls, which are const.
+     */
+    mutable absl::flat_hash_map<std::string, std::unique_ptr<CacheEntry>> cache;
+
+    /**
+     * @brief A helper variable that is modified to signal certain functions as non-const.
+     */
+    int64_t helperNonConstVar = 0;
+
+    /**
+     * @brief The underlying RapidJSON document.
+     * @details Is mutable, as we regularly need to flush contents into it from const get-calls.
+     */
+    mutable rapidjson::Document doc;
+
+    // Mutex for thread safety
+    mutable std::recursive_mutex mtx;
+
+    /**
      * @brief Inserts a rapidjson value into the cache, converting it to the appropriate C++ type.
      * @param key The key of the value to cache.
      * @param val The rapidjson value to cache.
      * @param defaultValue The default value to use if conversion fails.
      */
     template <typename T>
-    T jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue);
+    T jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue) const ;
 
     /**
      * @brief Invalidate all child keys of a given parent key.
@@ -123,21 +143,7 @@ private:
      *        "config.option1", "config.option2.suboption", etc.
      *        as well as "config[0]", "config[1].suboption", etc.
      */
-    void invalidate_child_keys(std::string const& parent_key);
-
-    /**
-     * @brief The Caching system used for fast access to frequently used values.
-     */
-    absl::flat_hash_map<std::string, std::unique_ptr<CacheEntry>> cache;
-
-    // Callback type for cache invalidation notifications
-    using InvalidationCallback = std::function<void(std::string const& key, double* old_ptr, double* new_ptr)>;
-
-    // Actual RapidJSON document
-    rapidjson::Document doc;
-
-    // Mutex for thread safety
-    std::recursive_mutex mtx;
+    void invalidate_child_keys(std::string const& parent_key) const ;
 
     /**
      * @brief Lazy-initialized full JsonScope representing the entire document.
@@ -157,14 +163,14 @@ private:
      *       Even a redundant static_cast to the return didn't help.
      */
     template <typename newType>
-    newType convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue = newType{});
+    static newType convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue = newType{});
 
     /**
      * @brief Flush all DIRTY entries in the cache back to the RapidJSON document.
      *        This ensures that the RapidJSON document is always structurally valid
      *        and up-to-date with the cached values.
      */
-    void flush();
+    void flush() const ;
 
     //------------------------------------------
     // Return Value Transformation system
@@ -172,7 +178,7 @@ private:
     /**
      * @brief Instance for applying transformations on get operations.
      */
-    JsonRvalueTransformer transformer;
+    mutable JsonRvalueTransformer transformer;
 
     /**
      * @brief Apply transformations found in the key string and retrieve the modified value.
@@ -181,7 +187,7 @@ private:
      * @return The modified value of type T, or none on failure.
      */
     template <typename T>
-    std::optional<T> getWithTransformations(std::string const& key);
+    std::optional<T> getWithTransformations(std::string const& key) const ;
 
     /**
      * @brief Apply transformations found in the key string and retrieve the modified document.
@@ -190,7 +196,7 @@ private:
      * @return True on success, false on failure.
      * @note We use an external outDoc to avoid copying the entire document on return/on optional::getValue().
      */
-    bool getSubDocWithTransformations(std::string const& key, JSON& outDoc);
+    bool getSubDocWithTransformations(std::string const& key, JSON& outDoc) const ;
 
     /**
      * @brief Managed scopes for shareManagedScope.
@@ -258,7 +264,7 @@ public:
      * @brief Copies the entire content from another JSON document into this one.
      * @param other The other JSON document to copy from.
      */
-    void copyFrom(JSON& other) {
+    void copyFrom(JSON const& other) {
         setSubDoc("", other);
     }
 
@@ -275,7 +281,7 @@ public:
      * @todo Proper API documentation for JSON key naming rules.
      *       Including a 'why' for each character.
      */
-    const static std::string reservedCharacters;
+    static auto constexpr reservedCharacters = "[]{}.|\":";
 
     //------------------------------------------
     // Validity check
@@ -321,9 +327,9 @@ public:
      * @param key The key of the sub-document to set.
      * @param child The sub-document to set.
      */
-    void setSubDoc(char const* key, JSON& child);
-    void setSubDoc(std::string const& key, JSON& child) { setSubDoc(key.c_str(), child); }
-    void setSubDoc(std::string_view key, JSON& child) { setSubDoc(std::string(key).c_str(), child); }
+    void setSubDoc(char const* key, JSON const& child);
+    void setSubDoc(std::string const& key, JSON const& child) { setSubDoc(key.c_str(), child); }
+    void setSubDoc(std::string_view const& key, JSON const& child) { setSubDoc(std::string(key).c_str(), child); }
 
     /**
      * @brief Sets an empty array in the JSON document.
@@ -367,9 +373,9 @@ public:
      * @return The value associated with the key, or the default value if the key does not exist.
      */
     template <typename T>
-    T get(std::string const& key, T const& defaultValue = T());
-    template <typename T> T get(std::string_view const& key, T const& defaultValue = T()) { return get<T>(std::string(key), defaultValue); }
-    template <typename T> T get(char const* key, T const& defaultValue = T()) { return get<T>(std::string(key), defaultValue); }
+    T get(std::string const& key, T const& defaultValue = T()) const;
+    template <typename T> T get(std::string_view const& key, T const& defaultValue = T()) const { return get<T>(std::string(key), defaultValue); }
+    template <typename T> T get(char const* key, T const& defaultValue = T()) const { return get<T>(std::string(key), defaultValue); }
 
     /**
      * @brief Gets a variant value from the JSON document.
@@ -378,9 +384,9 @@ public:
      * @param key The key of the value to retrieve.
      * @return The variant value associated with the key, or void if the key does not exist.
      */
-    std::optional<RjDirectAccess::simpleValue> getVariant(std::string const& key);
-    std::optional<RjDirectAccess::simpleValue> getVariant(std::string_view const& key) { return getVariant(std::string(key)); }
-    std::optional<RjDirectAccess::simpleValue> getVariant(char const* key) { return getVariant(std::string(key)); }
+    std::optional<RjDirectAccess::simpleValue> getVariant(std::string const& key) const ;
+    std::optional<RjDirectAccess::simpleValue> getVariant(std::string_view const& key) const { return getVariant(std::string(key)); }
+    std::optional<RjDirectAccess::simpleValue> getVariant(char const* key) const { return getVariant(std::string(key)); }
 
     /**
      * @brief Gets a sub-document from the JSON document.
@@ -392,23 +398,23 @@ public:
      * @param key The key of the sub-document to retrieve.
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
      */
-    JSON getSubDoc(std::string const& key);
-    JSON getSubDoc(std::string_view const& key) { return getSubDoc(std::string(key)); }
-    JSON getSubDoc(char const* key) { return getSubDoc(std::string(key)); }
+    JSON getSubDoc(std::string const& key) const ;
+    JSON getSubDoc(std::string_view const& key) const { return getSubDoc(std::string(key)); }
+    JSON getSubDoc(char const* key) const { return getSubDoc(std::string(key)); }
 
     /**
      * @brief Gets a pointer to a double value pointer in the JSON document.
      * @return A pointer to the double value associated with the key.
      */
-    double* getStableDoublePointer(std::string const& key);
-    double* getStableDoublePointer(std::string_view const& key) { return getStableDoublePointer(std::string(key)); }
-    double* getStableDoublePointer(char const* key) { return getStableDoublePointer(std::string(key)); }
+    double* getStableDoublePointer(std::string const& key) const;
+    double* getStableDoublePointer(std::string_view const& key) const { return getStableDoublePointer(std::string(key)); }
+    double* getStableDoublePointer(char const* key) const { return getStableDoublePointer(std::string(key)); }
 
     /**
      * @brief Provides access to the internal mutex for thread-safe operations.
      *        Allowing modules to lock the JSON document.
      */
-    std::scoped_lock<std::recursive_mutex> lock() { return std::scoped_lock(mtx); }
+    std::scoped_lock<std::recursive_mutex> lock() const { return std::scoped_lock(mtx); }
 
     //------------------------------------------
     // Key Types, Sizes
@@ -420,9 +426,9 @@ public:
      * @param key The key to check.
      * @return The type of the key.
      */
-    KeyType memberType(std::string const& key);
-    KeyType memberType(std::string_view const& key) { return memberType(std::string(key)); }
-    KeyType memberType(char const* key) { return memberType(std::string(key)); }
+    KeyType memberType(std::string const& key) const ;
+    KeyType memberType(std::string_view const& key) const { return memberType(std::string(key)); }
+    KeyType memberType(char const* key) const { return memberType(std::string(key)); }
 
     /**
      * @brief Checks the size of a key in the JSON document.
@@ -431,9 +437,9 @@ public:
      * @param key The key to check.
      * @return The size of the key.
      */
-    size_t memberSize(std::string const& key);
-    size_t memberSize(std::string_view const& key) { return memberSize(std::string(key)); }
-    size_t memberSize(char const* key) { return memberSize(std::string(key)); }
+    size_t memberSize(std::string const& key) const ;
+    size_t memberSize(std::string_view const& key) const { return memberSize(std::string(key)); }
+    size_t memberSize(char const* key) const { return memberSize(std::string(key)); }
 
     /**
      * @brief Removes a key from the JSON document.
@@ -453,7 +459,7 @@ public:
      * @param key The key to serialize. (Optional: leave empty to serialize entire document)
      * @return The serialized JSON string.
      */
-    std::string serialize(std::string const& key = "");
+    std::string serialize(std::string const& key = "") const ;
 
     /**
      * @brief Deserializes a JSON string or loads from a file, with optional modifications.

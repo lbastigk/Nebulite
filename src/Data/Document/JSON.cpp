@@ -6,8 +6,6 @@
 
 namespace Nebulite::Data {
 
-std::string const JSON::reservedCharacters = "[]{}.|\":";
-
 JSON::JSON(){}
 
 JSON::~JSON() {
@@ -66,7 +64,7 @@ Core::JsonScope& JSON::fullScope() {
 
 // Mark all child keys as virtual
 // e.g.: "parent.child1", "parent.child2.subchild", "parent[0]", etc.
-void JSON::invalidate_child_keys(std::string const& parent_key) {
+void JSON::invalidate_child_keys(std::string const& parent_key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Find all child keys and invalidate them
@@ -80,7 +78,7 @@ void JSON::invalidate_child_keys(std::string const& parent_key) {
     }
 }
 
-void JSON::flush() {
+void JSON::flush() const {
     std::scoped_lock const lockGuard(mtx);
     for (auto& [key, entry] : cache) {
         // Skip malformed entries
@@ -106,7 +104,7 @@ void JSON::flush() {
 //------------------------------------------
 // Get methods
 
-std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& key) {
+std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check for transformations
@@ -172,7 +170,7 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
     return {};
 }
 
-JSON JSON::getSubDoc(std::string const& key) {
+JSON JSON::getSubDoc(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Handle integrity via flushing
@@ -197,7 +195,7 @@ JSON JSON::getSubDoc(std::string const& key) {
     return JSON{};
 }
 
-bool JSON::getSubDocWithTransformations(std::string const& key, JSON& outDoc) {
+bool JSON::getSubDocWithTransformations(std::string const& key, JSON& outDoc) const {
     auto args = Utility::StringHandler::split(key, '|');
     std::string const baseKey = args[0];
     args.erase(args.begin());
@@ -213,7 +211,7 @@ bool JSON::getSubDocWithTransformations(std::string const& key, JSON& outDoc) {
     return true;
 }
 
-double* JSON::getStableDoublePointer(std::string const& key) {
+double* JSON::getStableDoublePointer(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check for transformations
@@ -243,7 +241,7 @@ double* JSON::getStableDoublePointer(std::string const& key) {
 
     // Try loading from document into cache
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key.c_str(), doc); val != nullptr) {
-        jsonValueToCache<double>(key, val, 0.0);
+        (void)jsonValueToCache<double>(key, val, 0.0);
     }
 
     // Check cache again
@@ -265,8 +263,10 @@ double* JSON::getStableDoublePointer(std::string const& key) {
 //------------------------------------------
 // Set methods
 
+// NOLINTBEGIN(readability-convert-member-functions-to-static)
 void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const& val) {
     std::scoped_lock const lockGuard(mtx);
+    helperNonConstVar++; // Signal non-const operation
 
     // Check if key is valid
     if (!RjDirectAccess::isValidKey(key)) {
@@ -316,7 +316,7 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
     }
 }
 
-void JSON::setSubDoc(char const* key, JSON& child) {
+void JSON::setSubDoc(char const* key, JSON const& child) {
     std::scoped_lock const lockGuard(mtx);
 
     // Flush own contents
@@ -337,15 +337,18 @@ void JSON::setSubDoc(char const* key, JSON& child) {
 
 void JSON::setEmptyArray(char const* key) {
     std::scoped_lock const lockGuard(mtx);
+    helperNonConstVar++; // Signal non-const operation
     flush();
     rapidjson::Value* val = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
     val->SetArray();
 }
 
+// NOLINTEND(readability-convert-member-functions-to-static)
+
 //------------------------------------------
 // Serialize/Deserialize
 
-std::string JSON::serialize(std::string const& key) {
+std::string JSON::serialize(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
     flush(); // Ensure all changes are reflected in the document
     if (key.empty()) {
@@ -358,6 +361,7 @@ std::string JSON::serialize(std::string const& key) {
 
 void JSON::deserialize(std::string const& serialOrLink) {
     std::scoped_lock const lockGuard(mtx);
+    helperNonConstVar++; // Signal non-const operation
 
     // Reset document and cache
     flush();
@@ -388,7 +392,7 @@ void JSON::deserialize(std::string const& serialOrLink) {
 //------------------------------------------
 // Key Types, Sizes
 
-KeyType JSON::memberType(std::string const& key) {
+KeyType JSON::memberType(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // See if transformations are present
@@ -426,7 +430,7 @@ KeyType JSON::memberType(std::string const& key) {
     return KeyType::null;
 }
 
-size_t JSON::memberSize(std::string const& key) {
+size_t JSON::memberSize(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // See if transformations are present
@@ -453,6 +457,7 @@ size_t JSON::memberSize(std::string const& key) {
 
 void JSON::removeKey(char const* key) {
     std::scoped_lock const lockGuard(mtx);
+    helperNonConstVar++; // Signal non-const operation
 
     // Ensure cache is flushed before removing key
     flush();
