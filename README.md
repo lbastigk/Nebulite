@@ -122,7 +122,7 @@ This way, we may parse commands in a parent Domain that are actually implemented
 Child domains can have access to their parent's full Document Scope or only to a sub-scope, depending on the use case.
 
 Users may define custom scopes for key access restrictions and modular data management.
-This allows us to share keys inbetween classes and throw exceptions if access is attempted outside the intended scope.
+This allows key sharing inbetween classes and throw exceptions if access is attempted outside the intended scope.
 
 Example for restricted key access:
 ```cpp

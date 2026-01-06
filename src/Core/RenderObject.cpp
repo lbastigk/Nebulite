@@ -74,20 +74,16 @@ RenderObject::RenderObject() : Domain("RenderObject", *this, document), baseText
 }
 
 void RenderObject::init() {
-    //------------------------------------------
-    // Link inherited Domains
+    // Inherit functions from child objects
     inherit(&document);
     inherit(&baseTexture);
 
-    //------------------------------------------
     // Link frequently used values
     linkFrequentRefs();
 
-    //------------------------------------------
     // Initialize Domain Modules
     DomainModule::Initializer::initRenderObject(this);
 
-    //------------------------------------------
     // Update once to initialize
     update();
     calculateSrcRect();

@@ -12,6 +12,9 @@ GlobalSpace::GlobalSpace(std::string const& name)
     : Domain("Nebulite", *this, globalDoc), // Domain with reference to GlobalSpace and its full scope
       renderer(globalDoc.shareScope("renderer"), &cmdVars.headless) // Share only the renderer portion of the global document
 {
+    //------------------------------------------
+    // Initialize floating DomainModules
+
     floatingDM.rng = NEBULITE_FLOATING_DOMAINMODULE(Nebulite::DomainModule::GlobalSpace::RNG,"RNG", documentScope, "random");
 
     //------------------------------------------
@@ -36,7 +39,7 @@ GlobalSpace::GlobalSpace(std::string const& name)
     //------------------------------------------
     // Domain-Related
 
-    // Link inherited Domains
+    // Inherit functions from child objects
     inherit(&globalDoc);
     inherit(&renderer);
 
