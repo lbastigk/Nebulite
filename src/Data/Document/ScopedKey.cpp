@@ -57,13 +57,13 @@ std::string ScopedKeyView::full(JsonScopeBase const& scope) const {
         // Special cases:
         if (key.empty()) {
             // empty key, remove trailing dot
-            if (!fullKey.empty() && fullKey.back() == '.' ) {
+            if (!fullKey.empty() && fullKey.back() == '.') {
                 fullKey.pop_back();
             }
         }
         else {
             // key starts with [, remove trailing dot from scope
-            if (key.front() == '[' && fullKey.back() == '.' ) {
+            if (fullKey.back() == '.' && key.front() == '[') {
                 fullKey.pop_back();
             }
         }
