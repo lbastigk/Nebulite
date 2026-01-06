@@ -36,7 +36,7 @@ rapidjson::Value* RjDirectAccess::traversePath(char const* key, rapidjson::Value
 
     while (!keyView.empty()) {
         // Extract current key part (object key)
-        std::string keyPart = extractKeyPart(&keyView);
+        std::string keyPart = extractKeyPart(keyView);
 
         // Handle object key part if non-empty
         if (!keyPart.empty()) {
@@ -97,7 +97,7 @@ rapidjson::Value* RjDirectAccess::ensurePath(char const* key, rapidjson::Value& 
 
     while (!keyView.empty()) {
         // Extract current key part (object key)
-        std::string keyPart = extractKeyPart(&keyView);
+        std::string keyPart = extractKeyPart(keyView);
 
         // Handle object key part if non-empty
         if (!keyPart.empty()) {
@@ -394,7 +394,7 @@ bool RjDirectAccess::isValidKey(std::string const& key) {
     while (!keyView.empty()) {
         // Extract current key part (object key)
         // Validate object key part if non-empty
-        if (std::string keyPart = extractKeyPart(&keyView); !keyPart.empty()) {
+        if (std::string keyPart = extractKeyPart(keyView); !keyPart.empty()) {
             // Check for invalid characters in keyPart
             if (keyPart.find_first_of("[]") != std::string_view::npos) {
                 return false; // Invalid character found
@@ -431,16 +431,14 @@ bool RjDirectAccess::isValidKey(std::string const& key) {
 // Static Private Helper Functions
 
 // Helper for key traversal: extracts next key part and advances the view
-std::string RjDirectAccess::extractKeyPart(std::string_view* keyView) {
-    if (!keyView)
-        return std::string{};
+std::string RjDirectAccess::extractKeyPart(std::string_view& keyView) {
     // Find '.' or '[' as next separators
-    size_t const dotPos = keyView->find('.');
-    size_t const bracketPos = keyView->find('[');
+    size_t const dotPos = keyView.find('.');
+    size_t const bracketPos = keyView.find('[');
 
     size_t nextSep;
     if (dotPos == std::string_view::npos && bracketPos == std::string_view::npos) {
-        nextSep = keyView->size(); // No separator - last key
+        nextSep = keyView.size(); // No separator - last key
     } else if (dotPos == std::string_view::npos) {
         nextSep = bracketPos;
     } else if (bracketPos == std::string_view::npos) {
@@ -450,8 +448,8 @@ std::string RjDirectAccess::extractKeyPart(std::string_view* keyView) {
     }
 
     // Build the result string from the current data/length before modifying the input view.
-    std::string const result(keyView->data(), nextSep);
-    keyView->remove_prefix(nextSep);
+    std::string const result(keyView.data(), nextSep);
+    keyView.remove_prefix(nextSep);
     return result;
 }
 } // namespace Nebulite::Data
