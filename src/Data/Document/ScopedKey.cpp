@@ -40,25 +40,40 @@ std::string ScopedKeyView::full(JsonScopeBase const& scope) const {
         // Ensure that the given scope lies within the allowed scope
         // E.g. givenScope = "module1.submodule." allowedScope = "module1." -> valid
         //      givenScope = "module2."           allowedScope = "module1." -> invalid, we are only allowed to use module1.*
-        std::string const& given = std::string(*givenScope);
+        auto const& given = std::string(*givenScope);
         if (!given.starts_with(allowedScope)) {
             std::string const msg =
-                "ScopedKey scope mismatch: key '" + std::string(key) +
-                "' was created with the given scope prefix '" + given +
-                "' but was used in JsonScopeBase with prefix '" + allowedScope + "'.";
+                "ScopedKey scope mismatch:" +
+                ( key.empty() ? " an empty key" : " key '" + std::string(key) + "'" ) +
+                " was created with the given scope prefix '" + given + "'" +
+                " but was used in JsonScopeBase with prefix '" + allowedScope + "'.";
             throw std::invalid_argument(msg);
         }
-
         // Now we can safely use the given scope, as it lies within the allowed scope
+        // Reserve space
         fullKey.reserve(given.size() + key.size());
-        fullKey = given;
-        fullKey.append(key);
-        return fullKey;
+        fullKey = given; // start with the given scope
+
+        // Special cases:
+        if (key.empty()) {
+            // empty key, remove trailing dot
+            if (!fullKey.empty() && fullKey.back() == '.' ) {
+                fullKey.pop_back();
+            }
+        }
+        else {
+            // key starts with [, remove trailing dot from scope
+            if (key.front() == '[' && fullKey.back() == '.' ) {
+                fullKey.pop_back();
+            }
+        }
+        // Combine and return
+        // We assume there is no issue with key itself regarding trailing/leading dots etc.
+        return fullKey.append(key);
     }
     fullKey.reserve(allowedScope.size() + key.size());
     fullKey = scope.getScopePrefix();
-    fullKey.append(key);
-    return fullKey;
+    return fullKey.append(key);
 }
 
 ScopedKey ScopedKeyView::operator+(std::string_view const& suffix) const {
