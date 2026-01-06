@@ -56,9 +56,11 @@ T JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T 
     auto new_entry = std::make_unique<CacheEntry>();
 
     // Get supported types
-    if(!RjDirectAccess::getSimpleValue(&new_entry->value, val)){
+    auto const& v = RjDirectAccess::getSimpleValue(val);
+    if(!v.has_value()) {
         return defaultValue;
     }
+    new_entry->value = v.value();
 
     // Mark as clean
     new_entry->state = CacheEntry::EntryState::CLEAN;

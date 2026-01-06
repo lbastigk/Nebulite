@@ -153,17 +153,18 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
 
         if (it != cache.end()) {
             // Modify existing entry
-            if (!RjDirectAccess::getSimpleValue(&it->second->value, val)) {
-                return {};
+            auto const& v = RjDirectAccess::getSimpleValue(val);
+            if (v.has_value()) {
+                it->second->value = v.value();
+
+                // Mark as clean
+                it->second->state = CacheEntry::EntryState::CLEAN;
+
+                // Set stable double pointer
+                *it->second->stable_double_ptr = convertVariant<double>(it->second->value, 0.0);
+                it->second->last_double_value = *it->second->stable_double_ptr;
             }
-
-            // Mark as clean
-            it->second->state = CacheEntry::EntryState::CLEAN;
-
-            // Set stable double pointer
-            *it->second->stable_double_ptr = convertVariant<double>(it->second->value, 0.0);
-            it->second->last_double_value = *it->second->stable_double_ptr;
-            return it->second->value;
+            return v;
         }
     }
 

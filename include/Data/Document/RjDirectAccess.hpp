@@ -29,48 +29,31 @@ public:
      * @brief Definition of a simple value variant type.
      *        All of these types are supported for direct access.
      */
-    using simpleValue = std::variant<int32_t, int64_t, uint32_t, uint64_t, double, std::string, bool>;
+    using simpleValue = std::variant<
+        int32_t,
+        int64_t,
+        uint32_t,
+        uint64_t,
+        double,
+        std::string,
+        bool
+    >;
 
     /**
      * @brief Getting a simple value from a rapidjson value, using the right type stored in the document.
-     * @param value Pointer to the variant to store the value.
      * @param val Pointer to the rapidjson value to get the value from.
-     * @return true if a supported type was found and value was set, false otherwise (e.g. Object, Array, Null)
+     * @return An optional simpleValue containing the value if successful, or std::nullopt if the type is unsupported.
      */
-    static bool getSimpleValue(simpleValue* value, rapidjson::Value const* val) {
-        // Get supported types
-
+    static std::optional<simpleValue> getSimpleValue(rapidjson::Value const* val) {
         // Integers
-        if (val->IsInt()) {
-            *value = val->GetInt();
-            return true;
-        } else if (val->IsInt64()) {
-            *value = val->GetInt64();
-            return true;
-        } else if (val->IsUint()) {
-            *value = val->GetUint();
-            return true;
-        } else if (val->IsUint64()) {
-            *value = val->GetUint64();
-            return true;
-        }
-        // Floating point
-        else if (val->IsDouble()) {
-            *value = val->GetDouble();
-            return true;
-        }
-        // String
-        else if (val->IsString()) {
-            *value = std::string(val->GetString(), val->GetStringLength());
-            return true;
-        }
-        // Boolean
-        else if (val->IsBool()) {
-            *value = val->GetBool();
-            return true;
-        }
-        // Unsupported type (e.g., Object, Array, Null)
-        return false;
+        if (val->IsInt())    return val->GetInt();
+        if (val->IsInt64())  return val->GetInt64();
+        if (val->IsUint())   return val->GetUint();
+        if (val->IsUint64()) return val->GetUint64();
+        if (val->IsDouble()) return val->GetDouble();
+        if (val->IsString()) return std::string(val->GetString(), val->GetStringLength());
+        if (val->IsBool())   return val->GetBool();
+        return {};
     }
 
     //------------------------------------------
