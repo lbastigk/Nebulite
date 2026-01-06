@@ -18,6 +18,18 @@ namespace Nebulite::Data {
 //------------------------------------------
 // Static Public Helper Functions
 
+std::optional<RjDirectAccess::simpleValue> RjDirectAccess::getSimpleValue(rapidjson::Value const* val) {
+    // Integers
+    if (val->IsInt())    return val->GetInt();
+    if (val->IsInt64())  return val->GetInt64();
+    if (val->IsUint())   return val->GetUint();
+    if (val->IsUint64()) return val->GetUint64();
+    if (val->IsDouble()) return val->GetDouble();
+    if (val->IsString()) return std::string(val->GetString(), val->GetStringLength());
+    if (val->IsBool())   return val->GetBool();
+    return {};
+}
+
 rapidjson::Value* RjDirectAccess::traversePath(char const* key, rapidjson::Value const& val) {
     rapidjson::Value const* current = &val;
     std::string_view keyView(key);

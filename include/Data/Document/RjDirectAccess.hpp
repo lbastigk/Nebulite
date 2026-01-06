@@ -44,17 +44,7 @@ public:
      * @param val Pointer to the rapidjson value to get the value from.
      * @return An optional simpleValue containing the value if successful, or std::nullopt if the type is unsupported.
      */
-    static std::optional<simpleValue> getSimpleValue(rapidjson::Value const* val) {
-        // Integers
-        if (val->IsInt())    return val->GetInt();
-        if (val->IsInt64())  return val->GetInt64();
-        if (val->IsUint())   return val->GetUint();
-        if (val->IsUint64()) return val->GetUint64();
-        if (val->IsDouble()) return val->GetDouble();
-        if (val->IsString()) return std::string(val->GetString(), val->GetStringLength());
-        if (val->IsBool())   return val->GetBool();
-        return {};
-    }
+    static std::optional<simpleValue> getSimpleValue(rapidjson::Value const* val);
 
     //------------------------------------------
     // Templated Getter, Setter
