@@ -11,15 +11,11 @@
 // Includes
 
 // Standard library
-#include <sstream>
 #include <string>
 #include <variant>
 
 // External
 #include <rapidjson/document.h>
-
-// Nebulite
-#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -102,11 +98,6 @@ public:
      */
     template <typename T>
     static bool set(char const* key, T const& value, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
-
-    //------------------------------------------
-    // Getter for variant
-
-    static std::optional<simpleValue> getVariant(char const* key, rapidjson::Value& val);
 
     //------------------------------------------
     // Conversion

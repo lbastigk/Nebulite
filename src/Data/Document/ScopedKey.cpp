@@ -54,8 +54,9 @@ std::string ScopedKeyView::full(JsonScopeBase const& scope) const {
         fullKey.reserve(given.size() + key.size());
         fullKey = given; // start with the given scope
 
-        // Special cases:
+        // Special cases to consider if our scope ends with a dot
         if (!fullKey.empty() && fullKey.back() == '.') {
+            // NOLINTNEXTLINE
             if (key.empty()) {
                 // empty key, remove trailing dot
                 fullKey.pop_back();
@@ -76,7 +77,7 @@ std::string ScopedKeyView::full(JsonScopeBase const& scope) const {
 }
 
 ScopedKey ScopedKeyView::operator+(std::string_view const& suffix) const {
-    return ScopedKey(*this, suffix);
+    return {*this, suffix};
 }
 
 } // namespace Nebulite::Data
