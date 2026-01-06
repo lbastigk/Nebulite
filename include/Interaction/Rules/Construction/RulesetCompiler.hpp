@@ -10,7 +10,6 @@
 // Includes
 
 // Nebulite
-#include "Interaction/Logic/Assignment.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 
 //------------------------------------------
@@ -92,7 +91,7 @@ private:
      */
     static bool getExpression(
         Logic::Assignment& assignmentExpr,
-        Core::JsonScope& entry,
+        Core::JsonScope const& entry,
         size_t const& index
         );
 
@@ -103,14 +102,14 @@ private:
      * @param self The JSON document of context self.
      * @return True if the expressions were successfully extracted, false otherwise.
      */
-    static bool getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Core::JsonScope& entry, Core::JsonScope& self);
+    static bool getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Core::JsonScope const& entry, Core::JsonScope& self);
 
     /**
      * @brief Extracts a logical argument from a JSON entry document.
      * @param entry The JSON entry document to extract the argument from.
      * @return The extracted logical argument as a string.
      */
-    static std::string getCondition(Core::JsonScope& entry);
+    static std::string getCondition(Core::JsonScope const& entry);
 
     /**
      * @brief Extracts a Ruleset object from a JSON entry document.
@@ -120,7 +119,7 @@ private:
      * @return True if the Ruleset was successfully extracted, false otherwise.
      */
     static bool getJsonRuleset(
-        Core::JsonScope& doc,
+        Core::JsonScope const& doc,
         Core::JsonScope& entry,
         Data::ScopedKeyView const& key
         );
@@ -133,7 +132,7 @@ private:
      * @return An optional shared pointer to the parsed Ruleset object, or std::monostate if parsing failed.
      */
     static AnyRuleset getRuleset(
-        Core::JsonScope& doc,
+        Core::JsonScope const& doc,
         Data::ScopedKeyView const& key,
         Execution::DomainBase& self
         );
@@ -153,9 +152,9 @@ private:
      * @param rulesetsGlobal The global Ruleset objects.
      */
     static void setMetaData(
-        Interaction::Execution::DomainBase& self,
-        std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsLocal,
-        std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsGlobal
+        Execution::DomainBase const& self,
+        std::vector<std::shared_ptr<Ruleset>> const& rulesetsLocal,
+        std::vector<std::shared_ptr<Ruleset>> const& rulesetsGlobal
         );
 };
 } // namespace Nebulite::Interaction::Rules::Construction

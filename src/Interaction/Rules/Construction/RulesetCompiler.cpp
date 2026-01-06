@@ -57,7 +57,7 @@ void RulesetCompiler::getFunctionCalls(Core::JsonScope& entryDoc, JsonRuleset& R
     }
 }
 
-bool RulesetCompiler::getExpression(Logic::Assignment& assignmentExpr, Core::JsonScope& entry, size_t const& index) {
+bool RulesetCompiler::getExpression(Logic::Assignment& assignmentExpr, Core::JsonScope const& entry, size_t const& index) {
     static std::string constexpr startSelf = "self.";
     static std::string constexpr startOther = "other.";
     static std::string constexpr startGlobal = "global.";
@@ -107,7 +107,7 @@ bool RulesetCompiler::getExpression(Logic::Assignment& assignmentExpr, Core::Jso
     return true;
 }
 
-bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Core::JsonScope& entry, Core::JsonScope& self) {
+bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Core::JsonScope const& entry, Core::JsonScope& self) {
     if (entry.memberType(Constants::KeyNames::Ruleset::assignments) == Data::KeyType::array) {
         size_t const exprSize = entry.memberSize(Constants::KeyNames::Ruleset::assignments);
         for (size_t j = 0; j < exprSize; ++j) {
@@ -129,7 +129,7 @@ bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset
     return true;
 }
 
-std::string RulesetCompiler::getCondition(Core::JsonScope& entry) {
+std::string RulesetCompiler::getCondition(Core::JsonScope const& entry) {
     std::string logicalArg;
     if (entry.memberType(Constants::KeyNames::Ruleset::condition) == Data::KeyType::array) {
         size_t const logicalArgSize = entry.memberSize(Constants::KeyNames::Ruleset::condition);
@@ -153,7 +153,7 @@ std::string RulesetCompiler::getCondition(Core::JsonScope& entry) {
     return logicalArg;
 }
 
-bool RulesetCompiler::getJsonRuleset(Core::JsonScope& doc, Core::JsonScope& entry, Data::ScopedKeyView const& key) {
+bool RulesetCompiler::getJsonRuleset(Core::JsonScope const& doc, Core::JsonScope& entry, Data::ScopedKeyView const& key) {
     if (doc.memberType(key) == Data::KeyType::object) {
         std::string const& serial = doc.shareScope(key).serialize();
         entry.deserialize(serial);
@@ -175,12 +175,12 @@ bool RulesetCompiler::getJsonRuleset(Core::JsonScope& doc, Core::JsonScope& entr
 }
 
 void RulesetCompiler::setMetaData(
-    Nebulite::Interaction::Execution::DomainBase& self,
-    std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsLocal,
-    std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsGlobal
+    Execution::DomainBase const& self,
+    std::vector<std::shared_ptr<Ruleset>> const& rulesetsLocal,
+    std::vector<std::shared_ptr<Ruleset>> const& rulesetsGlobal
     ) {
     // Set IDs
-    auto const id = self.getDoc().get<uint32_t>(Nebulite::Constants::KeyNames::RenderObject::id, 0);
+    auto const id = self.getDoc().get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
     for (auto const& entry : rulesetsLocal) {
         entry->id = id;
     }
@@ -218,7 +218,7 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
     for (size_t idx = 0; idx < size; ++idx) {
         // Parse entry into separate JSON object
         auto const key = Constants::KeyNames::RenderObject::Ruleset::broadcast + "[" + std::to_string(idx) + "]";
-        auto Ruleset = getRuleset(self.getDoc(), key, self);
+        auto Ruleset = getRuleset(self.getDoc(), key.view(), self);
 
         if (std::holds_alternative<std::monostate>(Ruleset)) {
             // Skip invalid entry
@@ -258,7 +258,7 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
 void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Core::JsonScope& self) {
     // List of operations that are considered numeric and thus eligible for direct pointer assignment.
     // Any new numeric operation must be added here to benefit from optimization techniques in the Invoke class.
-    std::array<Logic::Assignment::Operation,3> const numeric_operations = {
+    std::array<Logic::Assignment::Operation,3> constexpr numeric_operations = {
         Logic::Assignment::Operation::set,
         Logic::Assignment::Operation::add,
         Logic::Assignment::Operation::multiply
@@ -284,13 +284,16 @@ void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Core::
     }
 }
 
-RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope& doc, Data::ScopedKeyView const& key, Execution::DomainBase& self) {
+RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope const& doc, Data::ScopedKeyView const& key, Execution::DomainBase& self) {
     Core::JsonScope entry;
     if (!getJsonRuleset(doc, entry, key)) {
         // See if it's a static ruleset
-        auto staticFunctionName = doc.get<std::string>(key, "");
-        auto staticRulesetEntry = StaticRulesetMap::getInstance().getStaticRulesetByName(staticFunctionName);
-        if (staticRulesetEntry.type != StaticRulesetMap::StaticRuleSetWithMetaData::Type::invalid) {
+        auto const staticFunctionName = doc.get<std::string>(key, "");
+
+        if (
+            auto const staticRulesetEntry = StaticRulesetMap::getInstance().getStaticRulesetByName(staticFunctionName);
+            staticRulesetEntry.type != StaticRulesetMap::StaticRuleSetWithMetaData::Type::invalid
+        ) {
             // Is a valid static ruleset
             auto Ruleset = std::make_shared<Interaction::Rules::StaticRuleset>();
             Ruleset->topic = staticRulesetEntry.topic;
@@ -340,7 +343,7 @@ std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string
     Core::JsonScope tempDoc;
     auto const root = Data::ScopedKey("");
     tempDoc.set(root, identifier);
-    auto rs = getRuleset(tempDoc, root, self);
+    auto rs = getRuleset(tempDoc, root.view(), self);
     if (std::holds_alternative<std::shared_ptr<StaticRuleset>>(rs)) {
         return std::get<std::shared_ptr<StaticRuleset>>(rs);
     }

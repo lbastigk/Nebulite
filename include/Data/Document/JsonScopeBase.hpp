@@ -123,49 +123,60 @@ public:
         return scopePrefix;
     }
 
-    [[nodiscard]] Data::ScopedKeyView getRootScope() const {
-        return Data::ScopedKeyView{getScopePrefix(), ""};
+    [[nodiscard]] ScopedKeyView getRootScope() const {
+        return ScopedKeyView{getScopePrefix(), ""};
     }
 
     //------------------------------------------
     // Sharing a scope
 
     [[nodiscard]] JsonScopeBase& shareScopeBase(ScopedKeyView const& key) const ;
+    [[nodiscard]] JsonScopeBase& shareScopeBase(ScopedKey const& prefix) const {return shareScopeBase(prefix.view());}
 
     //------------------------------------------
     // Getter
 
-    template<typename T>
-    T get(ScopedKeyView const& key, T const& defaultValue = T()) const ;
+    template<typename T> T get(ScopedKeyView const& key, T const& defaultValue = T()) const ;
+    template<typename T> T get(ScopedKey const& key, T const& defaultValue = T()) const {return get<T>(key.view(), defaultValue);}
 
     [[nodiscard]] std::optional<RjDirectAccess::simpleValue> getVariant(ScopedKeyView const& key) const ;
+    [[nodiscard]] std::optional<RjDirectAccess::simpleValue> getVariant(ScopedKey const& key) const {return getVariant(key.view());}
 
     [[nodiscard]] JSON getSubDoc(ScopedKeyView const& key) const ;
+    [[nodiscard]] JSON getSubDoc(ScopedKey const& key) const ;
 
     [[nodiscard]] double* getStableDoublePointer(ScopedKeyView const& key) const ;
+    [[nodiscard]] double* getStableDoublePointer(ScopedKey const& key) const {return getStableDoublePointer(key.view());}
 
     //------------------------------------------
     // Setter
 
-    template<typename T>
-    void set(ScopedKeyView const& key, T const& value);
+    template<typename T> void set(ScopedKeyView const& key, T const& value);
+    template<typename T> void set(ScopedKey const& key, T const& value){set(key.view(), value);}
 
     void setVariant(ScopedKeyView const& key, RjDirectAccess::simpleValue const& value) const ;
+    void setVariant(ScopedKey const& key, RjDirectAccess::simpleValue const& value) const {setVariant(key.view(), value);}
 
-    void setSubDoc(ScopedKeyView const& key, JSON& subDoc) const ;
+    void setSubDoc(ScopedKeyView const& key, JSON const& subDoc) const ;
+    void setSubDoc(ScopedKey const& key, JSON const& subDoc) const {setSubDoc(key.view(), subDoc);}
 
     void setSubDoc(ScopedKeyView const& key, JsonScopeBase const& subDoc) const ;
+    void setSubDoc(ScopedKey const& key, JsonScopeBase const& subDoc) const {setSubDoc(key.view(), subDoc);}
 
     void setEmptyArray(ScopedKeyView const& key) const ;
+    void setEmptyArray(ScopedKey const& key) const {setEmptyArray(key.view());}
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
 
     void set_add(ScopedKeyView const& key, double const& val) const ;
+    void set_add(ScopedKey const& key, double const& val) const {set_add(key.view(), val);}
 
     void set_multiply(ScopedKeyView const& key, double const& val) const ;
+    void set_multiply(ScopedKey const& key, double const& val) const {set_multiply(key.view(), val);}
 
     void set_concat(ScopedKeyView const& key, std::string const& valStr) const ;
+    void set_concat(ScopedKey const& key, std::string const& valStr) const {set_concat(key.view(), valStr);}
 
     //------------------------------------------
     // Locking
@@ -189,10 +200,13 @@ public:
     // Key Types, Sizes
 
     [[nodiscard]] KeyType memberType(ScopedKeyView const& key) const ;
+    [[nodiscard]] KeyType memberType(ScopedKey const& key) const {return memberType(key.view());}
 
     [[nodiscard]] size_t memberSize(ScopedKeyView const& key) const ;
+    [[nodiscard]] size_t memberSize(ScopedKey const& key) const {return memberSize(key.view());}
 
     void removeKey(ScopedKeyView const& key) const ;
+    void removeKey(ScopedKey const& key) const {removeKey(key.view());}
 
     //------------------------------------------
     // Serialize/Deserialize
@@ -200,6 +214,7 @@ public:
     [[nodiscard]] std::string serialize() const ;
 
     [[nodiscard]] std::string serialize(ScopedKeyView const& key) const ;
+    [[nodiscard]] std::string serialize(ScopedKey const& key) const {return serialize(key.view());}
 
     virtual void deserialize(std::string const& serialOrLink);
 };

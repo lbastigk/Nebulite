@@ -69,7 +69,7 @@ public:
     ScopedKey() = default;
 
     // construct from a view + suffix (runtime)
-    ScopedKey(ScopedKeyView const& base, std::string_view suffix);
+    ScopedKey(ScopedKeyView const& base, std::string_view const& suffix);
 
     // direct construction
     ScopedKey(std::string s, std::optional<std::string_view> const& scope = std::nullopt);
@@ -79,7 +79,7 @@ public:
     [[nodiscard]] ScopedKeyView view() const & noexcept ;
 
     // convenience: implicit conversion to scopedKey view (only valid while *this is alive)
-    operator ScopedKeyView() const & noexcept ;
+    //operator ScopedKeyView() const & noexcept ;
 
     // Add operator for appending suffixes
     [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;

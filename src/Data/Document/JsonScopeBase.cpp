@@ -50,6 +50,9 @@ JsonScopeBase& JsonScopeBase::shareScopeBase(ScopedKeyView const& key) const {
 [[nodiscard]] JSON JsonScopeBase::getSubDoc(ScopedKeyView const& key) const {
     return baseDocument->getSubDoc(key.full(*this));
 }
+[[nodiscard]] JSON JsonScopeBase::getSubDoc(ScopedKey const& key) const {
+    return getSubDoc(key.view());
+}
 
 [[nodiscard]] double* JsonScopeBase::getStableDoublePointer(ScopedKeyView const& key) const {
     return baseDocument->getStableDoublePointer(key.full(*this));
@@ -62,14 +65,14 @@ void JsonScopeBase::setVariant(ScopedKeyView const& key, RjDirectAccess::simpleV
     baseDocument->setVariant(key.full(*this), value);
 }
 
-void JsonScopeBase::setSubDoc(ScopedKeyView const& key, JSON& subDoc) const {
+void JsonScopeBase::setSubDoc(ScopedKeyView const& key, JSON const& subDoc) const {
     baseDocument->setSubDoc(key.full(*this), subDoc);
 }
 
 void JsonScopeBase::setSubDoc(ScopedKeyView const& key, JsonScopeBase const& subDoc) const {
     // Slightly more complicated: If we wish to set the sub-document from another JsonScopeBase,
     // we need to extract the underlying JSON document from it in the correct scope.
-    JSON subDocScope = subDoc.getSubDoc(ScopedKey(""));
+    JSON const subDocScope = subDoc.getSubDoc(ScopedKey(""));
     baseDocument->setSubDoc(key.full(*this), subDocScope);
 }
 

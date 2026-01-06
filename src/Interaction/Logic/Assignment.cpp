@@ -123,14 +123,16 @@ void Assignment::apply(Core::JsonScope& self, Core::JsonScope& other) {
                 // Still not possible, fallback to using JSON's internal methods
                 // This is slower, but should work in all cases
                 // No lock needed here, as we use JSON's threadsafe methods
-                setValueOfKey(Data::ScopedKey(key.eval(other)), resolved, *targetDocument);
+                auto const k = Data::ScopedKey(key.eval(other));
+                setValueOfKey(k.view(), resolved, *targetDocument);
             }
         }
     }
     // If not, we resolve as string and update that way
     else {
         std::string const resolved = expression.eval(other);
-        setValueOfKey(Data::ScopedKey(key.eval(other)), resolved, *targetDocument);
+        auto const k = Data::ScopedKey(key.eval(other));
+        setValueOfKey(k.view(), resolved, *targetDocument);
     }
 }
 } // namespace Nebulite::Interaction::Logic

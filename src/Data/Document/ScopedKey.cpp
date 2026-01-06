@@ -5,7 +5,7 @@
 namespace Nebulite::Data {
 
 // construct from a view + suffix (runtime)
-ScopedKey::ScopedKey(ScopedKeyView const& base, std::string_view suffix)
+ScopedKey::ScopedKey(ScopedKeyView const& base, std::string_view const& suffix)
     : givenScope(base.givenScope), owned(base.key)
 {
     owned.append(suffix);
@@ -17,8 +17,6 @@ ScopedKey::ScopedKey(std::string s, std::optional<std::string_view> const& scope
 ScopedKeyView ScopedKey::view() const & noexcept {
     return {givenScope, std::string_view(owned)};
 }
-
-ScopedKey::operator ScopedKeyView() const & noexcept { return view(); }
 
 ScopedKey ScopedKey::operator+(std::string_view const& suffix) const {
     return {owned + std::string(suffix), givenScope};
