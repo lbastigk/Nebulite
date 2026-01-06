@@ -72,7 +72,7 @@ public:
     ScopedKey(ScopedKeyView const& base, std::string_view const& suffix);
 
     // direct construction
-    ScopedKey(std::string s, std::optional<std::string_view> const& scope = std::nullopt);
+    explicit ScopedKey(std::string s, std::optional<std::string_view> const& scope = std::nullopt);
 
     // produce a scopedKey view that points into this owned buffer.
     // caller must keep the ScopedKeyView alive while using the returned view.

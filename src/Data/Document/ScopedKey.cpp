@@ -19,7 +19,7 @@ ScopedKeyView ScopedKey::view() const & noexcept {
 }
 
 ScopedKey ScopedKey::operator+(std::string_view const& suffix) const {
-    return {owned + std::string(suffix), givenScope};
+    return ScopedKey{owned + std::string(suffix), givenScope};
 }
 
 } // namespace Nebulite::Data
