@@ -588,7 +588,7 @@ void Expression::updateCaches(Core::JsonScope& reference) {
         // One-time handle of multi-resolve and transformations
         Expression tempExpr;
         tempExpr.parse(vde->getKey(), *references.self);
-        auto const evalResult = Data::OwnedScopedKey(tempExpr.eval(reference));
+        auto const evalResult = Data::ScopedKey(tempExpr.eval(reference));
         vde->setDirect(reference.get<double>(evalResult, 0.0));
     }
 
@@ -609,7 +609,7 @@ void Expression::updateCaches(Core::JsonScope& reference) {
         // One-time handle of multi-resolve and transformations
         Expression tempExpr;
         tempExpr.parse(vde->getKey(), *references.self);
-        auto const evalResult = Data::OwnedScopedKey(tempExpr.eval(reference));
+        auto const evalResult = Data::ScopedKey(tempExpr.eval(reference));
         vde->setDirect(reference.get<double>(evalResult, 0.0));
     }
 
@@ -618,7 +618,7 @@ void Expression::updateCaches(Core::JsonScope& reference) {
         // One-time handle of multi-resolve and transformations
         Expression tempExpr;
         tempExpr.parse(vde->getKey(), *+references.self);
-        auto const evalResult = Data::OwnedScopedKey(tempExpr.eval(reference));
+        auto const evalResult = Data::ScopedKey(tempExpr.eval(reference));
         auto const val = Nebulite::global().getDoc().get<double>(evalResult, 0.0);
         vde->setDirect(val);
     }

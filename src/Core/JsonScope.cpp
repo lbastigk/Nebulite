@@ -70,12 +70,12 @@ void JsonScope::deserialize(std::string const& serialOrLinkWithCommands) {
 }
 
 // Proper scope sharing with nested unscoped key generation
-JsonScope& JsonScope::shareScope(Data::ScopedKey const& key) const {
+JsonScope& JsonScope::shareScope(Data::ScopedKeyView const& key) const {
     return baseDocument->shareManagedScope(key.full(*this));
 }
 
 JsonScope& JsonScope::shareScope(std::string const& key) const {
-    auto const scopedKey = Data::ScopedKey(getScopePrefix(), key);
+    auto const scopedKey = Data::ScopedKeyView(getScopePrefix(), key);
     return baseDocument->shareManagedScope(scopedKey.full(*this));
 }
 

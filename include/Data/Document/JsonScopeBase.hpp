@@ -123,49 +123,49 @@ public:
         return scopePrefix;
     }
 
-    [[nodiscard]] Data::ScopedKey getRootScope() const {
-        return Data::ScopedKey{getScopePrefix(), ""};
+    [[nodiscard]] Data::ScopedKeyView getRootScope() const {
+        return Data::ScopedKeyView{getScopePrefix(), ""};
     }
 
     //------------------------------------------
     // Sharing a scope
 
-    [[nodiscard]] JsonScopeBase& shareScopeBase(ScopedKey const& key) const ;
+    [[nodiscard]] JsonScopeBase& shareScopeBase(ScopedKeyView const& key) const ;
 
     //------------------------------------------
     // Getter
 
     template<typename T>
-    T get(ScopedKey const& key, T const& defaultValue = T()) const ;
+    T get(ScopedKeyView const& key, T const& defaultValue = T()) const ;
 
-    [[nodiscard]] std::optional<RjDirectAccess::simpleValue> getVariant(ScopedKey const& key) const ;
+    [[nodiscard]] std::optional<RjDirectAccess::simpleValue> getVariant(ScopedKeyView const& key) const ;
 
-    [[nodiscard]] JSON getSubDoc(ScopedKey const& key) const ;
+    [[nodiscard]] JSON getSubDoc(ScopedKeyView const& key) const ;
 
-    [[nodiscard]] double* getStableDoublePointer(ScopedKey const& key) const ;
+    [[nodiscard]] double* getStableDoublePointer(ScopedKeyView const& key) const ;
 
     //------------------------------------------
     // Setter
 
     template<typename T>
-    void set(ScopedKey const& key, T const& value);
+    void set(ScopedKeyView const& key, T const& value);
 
-    void setVariant(ScopedKey const& key, RjDirectAccess::simpleValue const& value) const ;
+    void setVariant(ScopedKeyView const& key, RjDirectAccess::simpleValue const& value) const ;
 
-    void setSubDoc(ScopedKey const& key, JSON& subDoc) const ;
+    void setSubDoc(ScopedKeyView const& key, JSON& subDoc) const ;
 
-    void setSubDoc(ScopedKey const& key, JsonScopeBase const& subDoc) const ;
+    void setSubDoc(ScopedKeyView const& key, JsonScopeBase const& subDoc) const ;
 
-    void setEmptyArray(ScopedKey const& key) const ;
+    void setEmptyArray(ScopedKeyView const& key) const ;
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
 
-    void set_add(ScopedKey const& key, double const& val) const ;
+    void set_add(ScopedKeyView const& key, double const& val) const ;
 
-    void set_multiply(ScopedKey const& key, double const& val) const ;
+    void set_multiply(ScopedKeyView const& key, double const& val) const ;
 
-    void set_concat(ScopedKey const& key, std::string const& valStr) const ;
+    void set_concat(ScopedKeyView const& key, std::string const& valStr) const ;
 
     //------------------------------------------
     // Locking
@@ -188,18 +188,18 @@ public:
     //------------------------------------------
     // Key Types, Sizes
 
-    [[nodiscard]] KeyType memberType(ScopedKey const& key) const ;
+    [[nodiscard]] KeyType memberType(ScopedKeyView const& key) const ;
 
-    [[nodiscard]] size_t memberSize(ScopedKey const& key) const ;
+    [[nodiscard]] size_t memberSize(ScopedKeyView const& key) const ;
 
-    void removeKey(ScopedKey const& key) const ;
+    void removeKey(ScopedKeyView const& key) const ;
 
     //------------------------------------------
     // Serialize/Deserialize
 
     [[nodiscard]] std::string serialize() const ;
 
-    [[nodiscard]] std::string serialize(ScopedKey const& key) const ;
+    [[nodiscard]] std::string serialize(ScopedKeyView const& key) const ;
 
     virtual void deserialize(std::string const& serialOrLink);
 };

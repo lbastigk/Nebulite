@@ -55,14 +55,14 @@ public:
          * @brief Key for accessing the list of active clocks.
          * @details access with `"<key_arr_active_clocks>.ms<interval_padded>"`
          */
-        static auto constexpr arr_active_clocks = Data::ScopedKey::create<scope>("active");
+        static auto constexpr arr_active_clocks = Data::ScopedKeyView::create<scope>("active");
 
         /**
          * @brief Key for accessing the status of each clock.
          * @details Current status of each clock (0 or 1), access with `"<key_doc_status_clocks>.ms<interval_padded>"`
          *          Example: ".ms000100" for the clock with 100ms interval
          */
-        static auto constexpr doc_status_clocks = Data::ScopedKey::create<scope>("status");
+        static auto constexpr doc_status_clocks = Data::ScopedKeyView::create<scope>("status");
     };
 
 

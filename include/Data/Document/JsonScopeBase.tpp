@@ -18,7 +18,7 @@ namespace Nebulite::Data {
 // Getter
 
 template<typename T>
-T JsonScopeBase::get(ScopedKey const& key, T const& defaultValue) const {
+T JsonScopeBase::get(ScopedKeyView const& key, T const& defaultValue) const {
     return baseDocument->get<T>(key.full(*this), defaultValue);
 }
 
@@ -26,7 +26,7 @@ T JsonScopeBase::get(ScopedKey const& key, T const& defaultValue) const {
 // Setter
 
 template<typename T>
-void JsonScopeBase::set(ScopedKey const& key, T const& value) {
+void JsonScopeBase::set(ScopedKeyView const& key, T const& value) {
     baseDocument->set<T>(key.full(*this), value);
 }
 

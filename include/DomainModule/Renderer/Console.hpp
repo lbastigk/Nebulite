@@ -15,7 +15,6 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
-#include "Data/Document/JSON.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Utility/TextInput.hpp"
 
@@ -81,7 +80,7 @@ private:
     // Basic Configuration
 
     // Key to toggle console
-    static auto constexpr toggleKey = Data::ScopedKey("input.keyboard.delta.tab");
+    static auto constexpr toggleKey = Data::ScopedKeyView("input.keyboard.delta.tab");
 
     // Font to use
     std::string consoleFontPath = "Resources/Fonts/JetBrainsMono-Medium.ttf";

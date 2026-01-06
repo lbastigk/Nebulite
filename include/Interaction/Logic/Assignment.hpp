@@ -68,8 +68,8 @@ public:
     }
 
 private:
-    void setValueOfKey(Data::ScopedKey const& keyStr, std::string const& value, Core::JsonScope& target) const ;
-    void setValueOfKey(Data::ScopedKey const& keyStr, double const& value, Core::JsonScope& target) const ;
+    void setValueOfKey(Data::ScopedKeyView const& keyStr, std::string const& value, Core::JsonScope& target) const ;
+    void setValueOfKey(Data::ScopedKeyView const& keyStr, double const& value, Core::JsonScope& target) const ;
     void setValueOfKey(double const& value, double* target) const ;
 
     /**

@@ -1,35 +1,35 @@
 #include "Data/Document/ScopedKey.hpp"
 #include "Data/Document/JsonScopeBase.hpp"
 
-// OwnedScopedKey methods
+// ScopedKey methods
 namespace Nebulite::Data {
 
 // construct from a view + suffix (runtime)
-OwnedScopedKey::OwnedScopedKey(ScopedKey const& base, std::string_view suffix)
+ScopedKey::ScopedKey(ScopedKeyView const& base, std::string_view suffix)
     : givenScope(base.givenScope), owned(base.key)
 {
     owned.append(suffix);
 }
 
-OwnedScopedKey::OwnedScopedKey(std::string s, std::optional<std::string_view> const& scope)
+ScopedKey::ScopedKey(std::string s, std::optional<std::string_view> const& scope)
     : givenScope(scope), owned(std::move(s)) {}
 
-ScopedKey OwnedScopedKey::view() const & noexcept {
+ScopedKeyView ScopedKey::view() const & noexcept {
     return {givenScope, std::string_view(owned)};
 }
 
-OwnedScopedKey::operator ScopedKey() const & noexcept { return view(); }
+ScopedKey::operator ScopedKeyView() const & noexcept { return view(); }
 
-OwnedScopedKey OwnedScopedKey::operator+(std::string_view const& suffix) const {
+ScopedKey ScopedKey::operator+(std::string_view const& suffix) const {
     return {owned + std::string(suffix), givenScope};
 }
 
 } // namespace Nebulite::Data
 
-// ScopedKey methods
+// ScopedKeyView methods
 namespace Nebulite::Data {
 
-std::string ScopedKey::full(JsonScopeBase const& scope) const {
+std::string ScopedKeyView::full(JsonScopeBase const& scope) const {
     // The scope that this JsonScopeBase is allowed to use
     std::string const& allowedScope = scope.getScopePrefix();
 
@@ -61,8 +61,8 @@ std::string ScopedKey::full(JsonScopeBase const& scope) const {
     return fullKey;
 }
 
-OwnedScopedKey ScopedKey::operator+(std::string_view const& suffix) const {
-    return OwnedScopedKey(*this, suffix);
+ScopedKey ScopedKeyView::operator+(std::string_view const& suffix) const {
+    return ScopedKey(*this, suffix);
 }
 
 } // namespace Nebulite::Data

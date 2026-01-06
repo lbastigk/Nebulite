@@ -27,7 +27,7 @@ namespace Nebulite::Constants {
 #define DECLARE_SCOPE(scopeStr) private: static auto constexpr scope = scopeStr; public:
 
 // Macro to help create a scoped key with the previously declared scope
-#define MAKE_SCOPED(keyStr) ( (void)scope, Data::ScopedKey::create<scope>(keyStr) )
+#define MAKE_SCOPED(keyStr) ( (void)scope, Data::ScopedKeyView::create<scope>(keyStr) )
 
 // TODO: Remove unused keys and refactor used ones
 // TODO: move scope to private part of each struct when possible
@@ -59,22 +59,22 @@ struct KeyNames {
         };
 
         // TODO: Use "texture." as scope
-        static auto constexpr pixelSizeX = Data::ScopedKey("sprite.sizeX");
-        static auto constexpr pixelSizeY = Data::ScopedKey("sprite.sizeY");
-        static auto constexpr imageLocation = Data::ScopedKey("sprite.link");
-        static auto constexpr isSpritesheet = Data::ScopedKey("sprite.spritesheet.isSpritesheet");
-        static auto constexpr spritesheetSizeX = Data::ScopedKey("sprite.spritesheet.sizeX");
-        static auto constexpr spritesheetSizeY = Data::ScopedKey("sprite.spritesheet.sizeY");
-        static auto constexpr spritesheetOffsetX = Data::ScopedKey("sprite.spritesheet.offsetX");
-        static auto constexpr spritesheetOffsetY = Data::ScopedKey("sprite.spritesheet.offsetY");
-        static auto constexpr textFontsize = Data::ScopedKey("text.fontSize");
-        static auto constexpr textStr = Data::ScopedKey("text.str");
-        static auto constexpr textColorR = Data::ScopedKey("text.color.R");
-        static auto constexpr textColorG = Data::ScopedKey("text.color.G");
-        static auto constexpr textColorB = Data::ScopedKey("text.color.B");
-        static auto constexpr textColorA = Data::ScopedKey("text.color.A");
-        static auto constexpr textDx = Data::ScopedKey("text.dx");
-        static auto constexpr textDy = Data::ScopedKey("text.dy");
+        static auto constexpr pixelSizeX = Data::ScopedKeyView("sprite.sizeX");
+        static auto constexpr pixelSizeY = Data::ScopedKeyView("sprite.sizeY");
+        static auto constexpr imageLocation = Data::ScopedKeyView("sprite.link");
+        static auto constexpr isSpritesheet = Data::ScopedKeyView("sprite.spritesheet.isSpritesheet");
+        static auto constexpr spritesheetSizeX = Data::ScopedKeyView("sprite.spritesheet.sizeX");
+        static auto constexpr spritesheetSizeY = Data::ScopedKeyView("sprite.spritesheet.sizeY");
+        static auto constexpr spritesheetOffsetX = Data::ScopedKeyView("sprite.spritesheet.offsetX");
+        static auto constexpr spritesheetOffsetY = Data::ScopedKeyView("sprite.spritesheet.offsetY");
+        static auto constexpr textFontsize = Data::ScopedKeyView("text.fontSize");
+        static auto constexpr textStr = Data::ScopedKeyView("text.str");
+        static auto constexpr textColorR = Data::ScopedKeyView("text.color.R");
+        static auto constexpr textColorG = Data::ScopedKeyView("text.color.G");
+        static auto constexpr textColorB = Data::ScopedKeyView("text.color.B");
+        static auto constexpr textColorA = Data::ScopedKeyView("text.color.A");
+        static auto constexpr textDx = Data::ScopedKeyView("text.dx");
+        static auto constexpr textDy = Data::ScopedKeyView("text.dy");
     };
 
     // Keys within any Ruleset JSON object
@@ -82,13 +82,13 @@ struct KeyNames {
     struct Ruleset {
         // TODO: Use these ones later on:
         //       Make sure to refactor any usage in json files
-        static auto constexpr topic = Data::ScopedKey("topic");
-        static auto constexpr condition = Data::ScopedKey("condition");
+        static auto constexpr topic = Data::ScopedKeyView("topic");
+        static auto constexpr condition = Data::ScopedKeyView("condition");
         // If both are met, do:
-        static auto constexpr assignments = Data::ScopedKey("action.assign");
-        static auto constexpr parseOnGlobal = Data::ScopedKey("action.functioncall.global");
-        static auto constexpr parseOnSelf   = Data::ScopedKey("action.functioncall.self");
-        static auto constexpr parseOnOther  = Data::ScopedKey("action.functioncall.other");
+        static auto constexpr assignments = Data::ScopedKeyView("action.assign");
+        static auto constexpr parseOnGlobal = Data::ScopedKeyView("action.functioncall.global");
+        static auto constexpr parseOnSelf   = Data::ScopedKeyView("action.functioncall.self");
+        static auto constexpr parseOnOther  = Data::ScopedKeyView("action.functioncall.other");
     };
 };
 

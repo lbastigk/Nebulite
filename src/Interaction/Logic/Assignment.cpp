@@ -5,7 +5,7 @@
 
 namespace Nebulite::Interaction::Logic {
 
-void Assignment::setValueOfKey(Data::ScopedKey const& keyEvaluated, std::string const& val, Core::JsonScope& target) const {
+void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Core::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Logic::Assignment::Operation::set:
@@ -29,7 +29,7 @@ void Assignment::setValueOfKey(Data::ScopedKey const& keyEvaluated, std::string 
     }
 }
 
-void Assignment::setValueOfKey(Data::ScopedKey const& keyEvaluated, double const& val, Core::JsonScope& target) const {
+void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& val, Core::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Logic::Assignment::Operation::set:

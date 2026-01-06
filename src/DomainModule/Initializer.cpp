@@ -56,6 +56,14 @@ namespace Nebulite::DomainModule {
 void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
 
     //------------------------------------------
+    // TODO: Add settings domainModule:
+    //       - initialized first with scope "settings."
+    //       - modify every DomainModule constructor to accept a settings scope
+    //       - provide a reference to the settings scope in every DomainModule
+    //       - perhaps we can even scope this? Instead of passing all settings to every DomainModule,
+    //         we can only pass the relevant settings.
+
+    //------------------------------------------
     // Initialize DomainModules
     using namespace Nebulite::DomainModule::GlobalSpace;
     target->initModule<General>(
@@ -164,9 +172,10 @@ void Initializer::initRenderer(Core::Renderer* target) {
     );
     target->initModule<RenderObjectDraft>(
         "Renderer RenderObjectDraft Functions",
-        &target->shareDocumentScopeBase("") // TODO: We could modify the RenderObject constructor to accept an optional scope.
-                                                    //       This way, we can directly store the draft data in the renderer scope.
-                                                    //       Then, we can modify the scope to "draft."
+        // TODO: We could modify the RenderObject constructor to accept an optional scope.
+        //       This way, we can directly store the draft data in the renderer scope.
+        //       Then, we can modify the scope to "draft." and have the entire renderObject live in that scope at root level.
+        &target->shareDocumentScopeBase("")
     );
 }
 

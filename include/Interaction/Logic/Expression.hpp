@@ -201,7 +201,7 @@ private:
     // The reference for context self stays the same throughout the expression's lifetime
     // This allows us to cache variables from self directly, not reloading needed.
     struct References {
-        Core::JsonScope* self;
+        Core::JsonScope* self;  // TODO: Turn to reference, set at construction time
     } references;
 
     /**

@@ -1,6 +1,6 @@
 /**
  * @file ScopedKey.hpp
- * @brief Defines the ScopedKey and OwnedScopedKey classes for managing scoped keys within JSON documents.
+ * @brief Defines the ScopedKey and ScopedKeyView classes for managing scoped keys within JSON documents.
  * @details The purpose is to ensure subclasses only access keys within their intended scopes.
  *          Furthermore, it allows for root-scoped keys that are always taken at given scope root.
  *          This allows us to have structured JSON documents representing Multiple Domain Classes:
@@ -35,7 +35,7 @@ class JsonScope;
 
 namespace Nebulite::Data {
 class ScopedKey;
-class OwnedScopedKey;
+class ScopedKeyView;
 class JsonScopeBase;
 } // namespace Nebulite::Data
 
@@ -43,13 +43,14 @@ class JsonScopeBase;
 // Self-owning scoped key
 namespace Nebulite::Data {
 /**
- * @brief An owning version of scopedKey that holds its own string buffer.
+ * @class ScopedKey
+ * @brief An owning version of ScopedKeyView that holds its own string buffer.
  * @details This class is useful for constructing scoped keys at runtime,
  *          where the key string needs to be built dynamically.
  *          It owns the string buffer, ensuring that the data remains valid
- *          for the lifetime of the OwnedScopedKey instance.
+ *          for the lifetime of the ScopedKey instance.
  */
-class OwnedScopedKey {
+class ScopedKey {
     /**
      * @brief Optional scope prefix for this key.
      * @details The required scope prefix that this key must be used within.
@@ -65,23 +66,23 @@ class OwnedScopedKey {
     std::string owned;
 
 public:
-    OwnedScopedKey() = default;
+    ScopedKey() = default;
 
     // construct from a view + suffix (runtime)
-    OwnedScopedKey(ScopedKey const& base, std::string_view suffix);
+    ScopedKey(ScopedKeyView const& base, std::string_view suffix);
 
     // direct construction
-    OwnedScopedKey(std::string s, std::optional<std::string_view> const& scope = std::nullopt);
+    ScopedKey(std::string s, std::optional<std::string_view> const& scope = std::nullopt);
 
     // produce a scopedKey view that points into this owned buffer.
-    // caller must keep the OwnedScopedKey alive while using the returned view.
-    [[nodiscard]] ScopedKey view() const & noexcept ;
+    // caller must keep the ScopedKeyView alive while using the returned view.
+    [[nodiscard]] ScopedKeyView view() const & noexcept ;
 
     // convenience: implicit conversion to scopedKey view (only valid while *this is alive)
-    operator ScopedKey() const & noexcept ;
+    operator ScopedKeyView() const & noexcept ;
 
     // Add operator for appending suffixes
-    [[nodiscard]] OwnedScopedKey operator+(std::string_view const& suffix) const ;
+    [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;
 };
 } // namespace Nebulite::Data
 
@@ -90,7 +91,8 @@ public:
 // Compile-time friendly scoped key
 namespace Nebulite::Data {
 /**
- * @brief String wrapper to represent keys within a JsonScopeBase.
+ * @class ScopedKeyView
+ * @brief Non-Owning String wrapper to represent keys within a JsonScopeBase.
  * @details This class allows for easy conversion of string literals
  *          into fully scoped keys within the JsonScopeBase.
  *          This reduces accidental key misusage, as conversion to a usable type
@@ -99,7 +101,7 @@ namespace Nebulite::Data {
  *          We can use this to generate static scoped keys in DomainModules, ensuring that
  *          they are always used in the correct scope.
  */
-class ScopedKey {
+class ScopedKeyView {
     /**
      * @brief Produce the full key string including scope prefix.
      * @param scope The current scope of the JsonScopeBase.
@@ -127,32 +129,32 @@ class ScopedKey {
     // Ignored due to warnings with the compile-time construction: Usage of non-initialized class field 'key' when called from function 'create<RequiredScope, T>'
 
     // Any key shared publicly should be constructed with a required scope to avoid accidental misuse
-    constexpr ScopedKey(std::optional<std::string_view> const& requiredScope, std::string_view const& keyInScope) noexcept
+    constexpr ScopedKeyView(std::optional<std::string_view> const& requiredScope, std::string_view const& keyInScope) noexcept
         : givenScope(requiredScope), key(keyInScope) {}
 
     // allow the owning type to construct views pointing into its buffer
-    friend class OwnedScopedKey;
+    friend class ScopedKey;
 
 public:
     friend class JsonScopeBase;
     friend class Core::JsonScope;
 
-    // Adding suffix to produce a new OwnedScopedKey
-    [[nodiscard]] OwnedScopedKey operator+(std::string_view const& suffix) const ;
+    // Adding suffix to produce a new ScopedKeyView
+    [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;
 
     // No scope given, expected at root of JsonScopeBase
     // Making this explicit would help avoid accidental misuse of keys,
     // But this would require a lot of code changes in existing codebases.
     // Instead, we assume every string literal used is assumed to be without given scope.
     //template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
-    //constexpr ScopedKey(T const& keyInScope) noexcept
+    //constexpr ScopedKeyView(T const& keyInScope) noexcept
     //    : key(std::string_view(keyInScope)) {}
 
-    explicit constexpr ScopedKey(std::string_view const& keyInScope)
+    explicit constexpr ScopedKeyView(std::string_view const& keyInScope)
         : key(keyInScope) {}
 
     /**
-     * @brief Create a ScopedKey with a required scope at compile time.
+     * @brief Create a ScopedKeyView with a required scope at compile time.
      * @details Performs a static assert to ensure the scope is valid: Either empty or ends with a dot ('.').
      * @tparam RequiredScope The required scope prefix for this key. Use a static constexpr char
      * @tparam T The type of the key string (must be convertible to std::string_view).
@@ -160,7 +162,7 @@ public:
      * @return A ScopedKey instance with the specified required scope and key.
      */
     template <auto &RequiredScope, typename T>
-    static consteval ScopedKey create(T const& keyInScope) noexcept {
+    static consteval ScopedKeyView create(T const& keyInScope) noexcept {
         // compute length at compile time
         constexpr const char *s = RequiredScope;
         constexpr std::size_t len = [] (const char *p) constexpr {

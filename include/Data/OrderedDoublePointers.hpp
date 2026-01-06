@@ -83,11 +83,11 @@ public:
         }
     }
 
-    double*& at(size_t index) const noexcept { return data_[index]; }
+    [[nodiscard]] double*& at(size_t index) const noexcept { return data_[index]; }
 
     [[nodiscard]] bool empty() const noexcept { return size_ == 0; }
 
-    double** data() const noexcept { return data_; }
+    [[nodiscard]] double** data() const noexcept { return data_; }
 
 private:
     double** data_;
@@ -152,7 +152,7 @@ public:
      */
     odpvec* ensureOrderedCacheList(
         uint64_t const& uniqueId,
-        std::vector<Data::ScopedKey> const& keys
+        std::vector<Data::ScopedKeyView> const& keys
         );
 
 private:

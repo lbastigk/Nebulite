@@ -68,12 +68,12 @@ public:
 
     struct Key {
         static auto constexpr scope = "random.";
-        static auto constexpr A = Data::ScopedKey::create<scope>("A");
-        static auto constexpr B = Data::ScopedKey::create<scope>("B");
-        static auto constexpr C = Data::ScopedKey::create<scope>("C");
-        static auto constexpr D = Data::ScopedKey::create<scope>("D");
-        static auto constexpr min = Data::ScopedKey::create<scope>("min");
-        static auto constexpr max = Data::ScopedKey::create<scope>("max");
+        static auto constexpr A = Data::ScopedKeyView::create<scope>("A");
+        static auto constexpr B = Data::ScopedKeyView::create<scope>("B");
+        static auto constexpr C = Data::ScopedKeyView::create<scope>("C");
+        static auto constexpr D = Data::ScopedKeyView::create<scope>("D");
+        static auto constexpr min = Data::ScopedKeyView::create<scope>("min");
+        static auto constexpr max = Data::ScopedKeyView::create<scope>("max");
     };
 
 private:

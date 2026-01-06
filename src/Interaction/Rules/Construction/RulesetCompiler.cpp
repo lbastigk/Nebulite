@@ -153,7 +153,7 @@ std::string RulesetCompiler::getCondition(Core::JsonScope& entry) {
     return logicalArg;
 }
 
-bool RulesetCompiler::getJsonRuleset(Core::JsonScope& doc, Core::JsonScope& entry, Data::ScopedKey const& key) {
+bool RulesetCompiler::getJsonRuleset(Core::JsonScope& doc, Core::JsonScope& entry, Data::ScopedKeyView const& key) {
     if (doc.memberType(key) == Data::KeyType::object) {
         std::string const& serial = doc.shareScope(key).serialize();
         entry.deserialize(serial);
@@ -284,7 +284,7 @@ void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Core::
     }
 }
 
-RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope& doc, Data::ScopedKey const& key, Execution::DomainBase& self) {
+RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope& doc, Data::ScopedKeyView const& key, Execution::DomainBase& self) {
     Core::JsonScope entry;
     if (!getJsonRuleset(doc, entry, key)) {
         // See if it's a static ruleset

@@ -74,7 +74,7 @@ private:
     /**
      * @brief List of keys for per-object physics-related base values in the ordered cache list.
      */
-    const std::vector<Data::ScopedKey> baseKeys = {
+    const std::vector<Data::ScopedKeyView> baseKeys = {
         Constants::KeyNames::RenderObject::positionX,
         Constants::KeyNames::RenderObject::positionY,
         Constants::KeyNames::RenderObject::pixelSizeX,

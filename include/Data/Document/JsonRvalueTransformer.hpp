@@ -245,6 +245,11 @@ private:
 public:
     JsonRvalueTransformer();
 
+    /**
+     * @brief The key string used to store and retrieve the value being modified.
+     * @details Uses an empty string as key, so the entire JSON document is the value used.
+     * @note DO NOT CHANGE THIS KEY!
+     */
     static auto constexpr valueKeyStr = "";
 
     /**
@@ -252,7 +257,7 @@ public:
      * @details Uses an empty string as key, so the entire JSON document is the value used.
      * @note DO NOT CHANGE THIS KEY!
      */
-    static auto constexpr valueKey = Data::ScopedKey(valueKeyStr);
+    static auto constexpr valueKey = Data::ScopedKeyView(valueKeyStr);
 
 
     /**

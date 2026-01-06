@@ -108,7 +108,7 @@ protected:
      * @param keys The array of keys to retrieve values for.
      * @return A pointer to an array of double pointers, each pointing to a base value.
      */
-    double** getBaseList(Execution::DomainBase const& ctx, std::vector<Data::ScopedKey> const& keys) const {
+    double** getBaseList(Execution::DomainBase const& ctx, std::vector<Data::ScopedKeyView> const& keys) const {
         return ensureOrderedCacheList(ctx, keys)->data();
     }
 
@@ -129,11 +129,11 @@ private:
      * @param keys The array of keys to retrieve values for
      * @return An array of values corresponding to the provided keys
      */
-    Data::odpvec* ensureOrderedCacheList(Core::JsonScope& doc, std::vector<Data::ScopedKey> const& keys) const {
+    Data::odpvec* ensureOrderedCacheList(Core::JsonScope& doc, std::vector<Data::ScopedKeyView> const& keys) const {
         return doc.getOrderedCacheListMap()->ensureOrderedCacheList(id, keys);
     }
 
-    Data::odpvec* ensureOrderedCacheList(Execution::DomainBase const& ctx, std::vector<Data::ScopedKey> const& keys) const {
+    Data::odpvec* ensureOrderedCacheList(Execution::DomainBase const& ctx, std::vector<Data::ScopedKeyView> const& keys) const {
         return ctx.getDocumentCacheMap()->ensureOrderedCacheList(id, keys);
     }
 };

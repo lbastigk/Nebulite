@@ -122,7 +122,7 @@ private:
     static bool getJsonRuleset(
         Core::JsonScope& doc,
         Core::JsonScope& entry,
-        Data::ScopedKey const& key
+        Data::ScopedKeyView const& key
         );
 
     /**
@@ -134,7 +134,7 @@ private:
      */
     static AnyRuleset getRuleset(
         Core::JsonScope& doc,
-        Data::ScopedKey const& key,
+        Data::ScopedKeyView const& key,
         Execution::DomainBase& self
         );
 
