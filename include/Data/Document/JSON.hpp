@@ -53,14 +53,24 @@ namespace Nebulite::Data {
 class JSON {
 public:
     //------------------------------------------
-    // Unique id Cache size
-    // Declared above as public for easy access
-    // and so that inner data structures can use it as well.
+    // Basic public constants
 
     /**
      * @brief Size of the unique ID quick cache for double pointers.
      */
     static constexpr size_t uidQuickCacheSize = 30;
+
+    /**
+     * @brief A list of reserved characters that cannot be used in key names.
+     *        - '[]' : Used for array indexing.
+     *        - '.'  : Used for nested object traversal.
+     *        - '|'  : Used for piping transformations.
+     *        - '"'  : Used for string encapsulation.
+     *        - ':'  : Used for Read-Only docs to separate link and key.
+     * @todo Proper API documentation for JSON key naming rules.
+     *       Including a 'why' for each character.
+     */
+    static auto constexpr reservedCharacters = "[]{}.|\":";
 
 private:
     /**
@@ -269,21 +279,6 @@ public:
     }
 
     //------------------------------------------
-    // Static members
-
-    /**
-     * @brief A list of reserved characters that cannot be used in key names.
-     *        - '[]' : Used for array indexing.
-     *        - '.'  : Used for nested object traversal.
-     *        - '|'  : Used for piping transformations.
-     *        - '"'  : Used for string encapsulation.
-     *        - ':'  : Used for Read-Only docs to separate link and key.
-     * @todo Proper API documentation for JSON key naming rules.
-     *       Including a 'why' for each character.
-     */
-    static auto constexpr reservedCharacters = "[]{}.|\":";
-
-    //------------------------------------------
     // Validity check
 
     /**
@@ -372,8 +367,7 @@ public:
      * @param defaultValue The default value to return if the key does not exist.
      * @return The value associated with the key, or the default value if the key does not exist.
      */
-    template <typename T>
-    T get(std::string const& key, T const& defaultValue = T()) const;
+    template <typename T> T get(std::string const& key, T const& defaultValue = T()) const;
     template <typename T> T get(std::string_view const& key, T const& defaultValue = T()) const { return get<T>(std::string(key), defaultValue); }
     template <typename T> T get(char const* key, T const& defaultValue = T()) const { return get<T>(std::string(key), defaultValue); }
 
