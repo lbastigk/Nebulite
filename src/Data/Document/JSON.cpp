@@ -55,6 +55,29 @@ JsonScopeBase& JSON::shareManagedScopeBase(std::string const& prefix) {
 }
 
 //------------------------------------------
+// Custom copy method
+
+/**
+ * @brief Copies the entire content from another JSON document into this one.
+ * @param other The other JSON document to copy from.
+ */
+void JSON::copyFrom(JSON const& other) {
+    setSubDoc("", other);
+}
+
+//------------------------------------------
+// Validity check
+
+/**
+ * @brief Checks if a string is in JSON or JSONC format.
+ * @param str The string to check.
+ * @return true if the string is JSON or JSONC, false otherwise.
+ */
+bool JSON::isJsonOrJsonc(std::string const& str) {
+    return RjDirectAccess::isJsonOrJsonc(str);
+}
+
+//------------------------------------------
 // Private methods
 
 Core::JsonScope& JSON::fullScope() {
@@ -260,10 +283,14 @@ double* JSON::getStableDoublePointer(std::string const& key) const {
     return cache[key]->stable_double_ptr;
 }
 
+std::scoped_lock<std::recursive_mutex> JSON::lock() const {
+    return std::scoped_lock(mtx);
+}
+
+
 //------------------------------------------
 // Set methods
 
-// NOLINTBEGIN(readability-convert-member-functions-to-static)
 void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const& val) {
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++; // Signal non-const operation
@@ -342,8 +369,6 @@ void JSON::setEmptyArray(char const* key) {
     rapidjson::Value* val = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
     val->SetArray();
 }
-
-// NOLINTEND(readability-convert-member-functions-to-static)
 
 //------------------------------------------
 // Serialize/Deserialize

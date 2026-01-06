@@ -38,17 +38,16 @@ namespace Nebulite::Data {
 /**
  * @class JSON
  * @brief A wrapper around rapidjson to simplify JSON manipulation in Nebulite.
- *        Features:
- *        - caching for fast access to frequently used values,
- *        - stable double pointers for even faster access in math-heavy scenarios
- *        - easy to use set/get methods with type conversion
- *        - serialize/deserialize methods for easy saving/loading
- *        - member type and size checking
- *        - usage of parsing commands to modify JSON on load
- *        - usage of return value transformations on get (length, type checks, arithmetic operations, etc.)
- *        - thread-safe access with mutex locking
- *        - optimized for performance using ordered double pointers and quick cache for unique IDs,
- *          allowing fast access to numeric values in a sorted manner.
+ * @details Features:
+ *          - caching for fast access to frequently used values,
+ *          - stable double pointers for even faster access in math-heavy scenarios
+ *          - easy to use set/get methods with type conversion
+ *          - serialize/deserialize methods for easy saving/loading
+ *          - member type and size checking
+ *          - usage of return value transformations on get (length, type checks, arithmetic operations, etc.)
+ *          - thread-safe access with mutex locking
+ *          - optimized for performance using ordered double pointers and quick cache for unique IDs,
+ *            allowing fast access to numeric values in a sorted manner.
  */
 class JSON {
 public:
@@ -56,17 +55,12 @@ public:
     // Basic public constants
 
     /**
-     * @brief Size of the unique ID quick cache for double pointers.
-     */
-    static constexpr size_t uidQuickCacheSize = 30;
-
-    /**
      * @brief A list of reserved characters that cannot be used in key names.
-     *        - '[]' : Used for array indexing.
-     *        - '.'  : Used for nested object traversal.
-     *        - '|'  : Used for piping transformations.
-     *        - '"'  : Used for string encapsulation.
-     *        - ':'  : Used for Read-Only docs to separate link and key.
+     * @details - '[]' : Used for array indexing.
+     *          - '.'  : Used for nested object traversal.
+     *          - '|'  : Used for piping transformations.
+     *          - '"'  : Used for string encapsulation.
+     *          - ':'  : Used for Read-Only docs to separate link and key.
      * @todo Proper API documentation for JSON key naming rules.
      *       Including a 'why' for each character.
      */
@@ -149,9 +143,9 @@ private:
 
     /**
      * @brief Invalidate all child keys of a given parent key.
-     *        For example, if parent_key is "config", it will invalidate
-     *        "config.option1", "config.option2.suboption", etc.
-     *        as well as "config[0]", "config[1].suboption", etc.
+     * @details For example, if parent_key is "config", it will invalidate
+     *          "config.option1", "config.option2.suboption", etc.
+     *          as well as "config[0]", "config[1].suboption", etc.
      */
     void invalidate_child_keys(std::string const& parent_key) const ;
 
@@ -177,8 +171,8 @@ private:
 
     /**
      * @brief Flush all DIRTY entries in the cache back to the RapidJSON document.
-     *        This ensures that the RapidJSON document is always structurally valid
-     *        and up-to-date with the cached values.
+     * @details This ensures that the RapidJSON document is always structurally valid
+     *          and up-to-date with the cached values.
      */
     void flush() const ;
 
@@ -196,8 +190,7 @@ private:
      * @param key The key string containing transformations.
      * @return The modified value of type T, or none on failure.
      */
-    template <typename T>
-    std::optional<T> getWithTransformations(std::string const& key) const ;
+    template <typename T> std::optional<T> getWithTransformations(std::string const& key) const ;
 
     /**
      * @brief Apply transformations found in the key string and retrieve the modified document.
@@ -274,9 +267,7 @@ public:
      * @brief Copies the entire content from another JSON document into this one.
      * @param other The other JSON document to copy from.
      */
-    void copyFrom(JSON const& other) {
-        setSubDoc("", other);
-    }
+    void copyFrom(JSON const& other);
 
     //------------------------------------------
     // Validity check
@@ -286,17 +277,15 @@ public:
      * @param str The string to check.
      * @return true if the string is JSON or JSONC, false otherwise.
      */
-    static bool isJsonOrJsonc(std::string const& str) {
-        return RjDirectAccess::isJsonOrJsonc(str);
-    }
+    static bool isJsonOrJsonc(std::string const& str);
 
     //------------------------------------------
     // Set methods
 
     /**
      * @brief Sets a value of the specified type in the JSON document.
-     *        If the key already exists, the value and its stable double pointer
-     *        is updated. Child keys are invalidated.
+     * @details If the key already exists, the value and its stable double pointer
+     *          is updated. Child keys are invalidated.
      * @tparam T The type of the value to set.
      * @param key The key of the value to set.
      * @param val The value to set.
@@ -317,8 +306,8 @@ public:
 
     /**
      * @brief Sets a sub-document in the JSON document.
-     *        If the key already exists, the sub-document is updated.
-     *        Note that both the child and parent documents' caches are flushed before setting.
+     * @details If the key already exists, the sub-document is updated.
+     *          Note that both the child and parent documents' caches are flushed before setting.
      * @param key The key of the sub-document to set.
      * @param child The sub-document to set.
      */
@@ -328,9 +317,9 @@ public:
 
     /**
      * @brief Sets an empty array in the JSON document.
-     *        This function sets an empty array in the JSON document.
-     *        If the key already exists, the array is updated.
-     *        Note that the document is flushed before setting.
+     * @details This function sets an empty array in the JSON document.
+     *          If the key already exists, the array is updated.
+     *          Note that the document is flushed before setting.
      * @param key The key of the array to set.
      */
     void setEmptyArray(char const* key);
@@ -360,8 +349,8 @@ public:
 
     /**
      * @brief Gets a value from the JSON document.
-     *        This function retrieves a value of the specified type from the JSON document.
-     *        If the key does not exist, the default value is returned.
+     * @details This function retrieves a value of the specified type from the JSON document.
+     *          If the key does not exist, the default value is returned.
      * @tparam T The type of the value to retrieve.
      * @param key The key of the value to retrieve.
      * @param defaultValue The default value to return if the key does not exist.
@@ -373,8 +362,8 @@ public:
 
     /**
      * @brief Gets a variant value from the JSON document.
-     *        This function retrieves a variant value from the JSON document.
-     *        If the key does not exist, void is returned.
+     * @details This function retrieves a variant value from the JSON document.
+     *          If the key does not exist, void is returned.
      * @param key The key of the value to retrieve.
      * @return The variant value associated with the key, or void if the key does not exist.
      */
@@ -384,11 +373,11 @@ public:
 
     /**
      * @brief Gets a sub-document from the JSON document.
-     *        If the key does not exist, an empty JSON object is returned.
-     *        Note that the cache is flushed into the document.
-     *        If the key is a basic type, its value is returned.
-     *        You may use `memberType("")` to check the type stored in the JSON.
-     *        You may use `get<T>("",T())` on the returned sub-document to get the simple value.
+     * @details If the key does not exist, an empty JSON object is returned.
+     *          Note that the cache is flushed into the document.
+     *          If the key is a basic type, its value is returned.
+     *          You may use `memberType("")` to check the type stored in the JSON.
+     *          You may use `get<T>("",T())` on the returned sub-document to get the simple value.
      * @param key The key of the sub-document to retrieve.
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
      */
@@ -406,17 +395,16 @@ public:
 
     /**
      * @brief Provides access to the internal mutex for thread-safe operations.
-     *        Allowing modules to lock the JSON document.
      */
-    std::scoped_lock<std::recursive_mutex> lock() const { return std::scoped_lock(mtx); }
+    std::scoped_lock<std::recursive_mutex> lock() const ;
 
     //------------------------------------------
     // Key Types, Sizes
 
     /**
      * @brief Checks the type stored of a key in the JSON document.
-     *        This function checks the type stored of a key in the JSON document.
-     *        If the key does not exist, the type is considered null.
+     * @details This function checks the type stored of a key in the JSON document.
+     *          If the key does not exist, the type is considered null.
      * @param key The key to check.
      * @return The type of the key.
      */
@@ -426,8 +414,8 @@ public:
 
     /**
      * @brief Checks the size of a key in the JSON document.
-     *        If the key does not exist, the size is considered 0.
-     *        If the key represents a document, the size is considered 1.
+     * @details If the key does not exist, the size is considered 0.
+     *          If the key represents a document, the size is considered 1.
      * @param key The key to check.
      * @return The size of the key.
      */
@@ -437,8 +425,8 @@ public:
 
     /**
      * @brief Removes a key from the JSON document.
-     *        If the key does not exist, no action is taken.
-     *        Note that the document is flushed before removing the key.
+     * @details If the key does not exist, no action is taken.
+     *          Note that the document is flushed before removing the key.
      * @param key The key to remove.
      */
     void removeKey(char const* key);
