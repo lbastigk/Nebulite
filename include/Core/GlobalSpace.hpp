@@ -67,19 +67,19 @@ public:
 
     // GlobalSpace DomainModules root is at "", then we add their own prefix
     [[nodiscard]] JsonScope& shareScope(Interaction::Execution::DomainModule<GlobalSpace> const& dm) const {
-        return documentScope.shareScope(dm.getDoc().getScopePrefix());
+        return domainScope.shareScope(dm.getDoc().getScopePrefix());
     }
 
     // Provide a custom scope for DomainModules from RenderObjects
     // We add a prefix to signal what part these domainModules can access
     [[nodiscard]] JsonScope& shareScope(Interaction::Execution::DomainModule<RenderObject> const& dm) const {
-        return documentScope.shareScope("providedScope.domainModule.renderObject." + dm.getDoc().getScopePrefix());
+        return domainScope.shareScope("providedScope.domainModule.renderObject." + dm.getDoc().getScopePrefix());
     }
 
     // Provide a custom scope for DomainModules from JsonScope
     // We add a prefix to signal what part these domainModules can access
     [[nodiscard]] JsonScope& shareScope(Interaction::Execution::DomainModule<JsonScope> const& dm) const {
-        return documentScope.shareScope("providedScope.domainModule.jsonScope." + dm.getDoc().getScopePrefix());
+        return domainScope.shareScope("providedScope.domainModule.jsonScope." + dm.getDoc().getScopePrefix());
     }
 
     // Provide scope to RulesetModules
@@ -89,7 +89,7 @@ public:
         //       e.g. Physics RulesetModule might only need access to physics-related variables.
         //       For this to work properly, we may have to add the ability to share multiple scopes.
         //       -> physics and time for example
-        return documentScope.shareScope("");
+        return domainScope.shareScope("");
     }
 
     //------------------------------------------

@@ -8,11 +8,11 @@ namespace Nebulite::Interaction::Execution {
 DocumentAccessor::~DocumentAccessor() = default;
 
 Core::JsonScope& DocumentAccessor::getDoc() const {
-    return documentScope;
+    return domainScope;
 }
 
 Data::JsonScopeBase& DocumentAccessor::shareDocumentScopeBase(std::string const& prefix) const {
-    return documentScope.shareScopeBase(Data::ScopedKey(prefix));
+    return domainScope.shareScopeBase(Data::ScopedKey(prefix));
 }
 
 } // namespace Nebulite::Interaction::Execution
@@ -22,7 +22,7 @@ namespace Nebulite::Interaction::Execution {
 
 DomainBase& DomainBase::operator=(DomainBase const& other) {
     if (this == &other) return *this;
-    if (&documentScope != &other.documentScope) {
+    if (&domainScope != &other.domainScope) {
         throw std::invalid_argument("DomainBase::operator=: cannot assign from object with different document reference");
     }
 
@@ -48,18 +48,18 @@ DomainBase& DomainBase::operator=(DomainBase&& other) noexcept {
 DomainBase::~DomainBase() = default;
 
 std::string const& DomainBase::scopePrefix() const {
-    return documentScope.getScopePrefix();
+    return domainScope.getScopePrefix();
 }
 
 Data::MappedOrderedDoublePointers* DomainBase::getDocumentCacheMap() const {
-    return documentScope.getOrderedCacheListMap();
+    return domainScope.getOrderedCacheListMap();
 }
 
 std::scoped_lock<std::recursive_mutex> DomainBase::lockDocument() const {
-    return documentScope.lock();
+    return domainScope.lock();
 }
 
-std::vector<std::string> DomainBase::stringToDeserializeTokens(std::string const& serialOrLinkWithCommands) const {
+std::vector<std::string> DomainBase::stringToDeserializeTokens(std::string const& serialOrLinkWithCommands) {
     //------------------------------------------
     // Split the input into tokens
     std::vector<std::string> tokens;

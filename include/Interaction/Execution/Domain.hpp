@@ -80,7 +80,7 @@ template<typename> class Domain;
  */
 class DocumentAccessor {
 public:
-    explicit DocumentAccessor(Core::JsonScope& d) : documentScope(d) {}
+    explicit DocumentAccessor(Core::JsonScope& d) : domainScope(d) {}
 
     virtual ~DocumentAccessor();
 
@@ -134,7 +134,7 @@ private:
     /**
      * @brief Each domain uses a JSON document to store its data.
      */
-    Core::JsonScope& documentScope;
+    Core::JsonScope& domainScope;
 };
 } // namespace Nebulite::Interaction::Execution
 
@@ -256,6 +256,12 @@ public:
      *       - The scope passed to functions for command execution
      *       For example, the simpledata domainmodule needs to use the passed scope to modify data at the correct scope,
      *       but the time domainmodule needs to use its own workspace to store the time variable.
+     *       The following scopes are then relevant:
+     *       - domainScope: The overall document of the domain (already named as such, now get rid of getDoc())
+     *       - moduleScope: The workspace of the domainmodule (already named as such, now get rid of getDoc())
+     *       - callerScope: The scope passed to functions for command execution
+     *       Neat! every variable even has the same length now!
+     *       Then we get rid of getDoc() in DocumentAccessor and DomainModule
      */
     [[nodiscard]] Constants::Error parseStr(std::string const& str) const {
         return funcTree->parseStr(str);
@@ -306,7 +312,7 @@ protected:
      * @param serialOrLinkWithCommands The serialization string or link with commands to split.
      * @return A vector of tokens. First token is the serialization or link, subsequent tokens are commands.
      */
-    [[nodiscard]] std::vector<std::string> stringToDeserializeTokens(std::string const& serialOrLinkWithCommands) const ;
+    [[nodiscard]] static std::vector<std::string> stringToDeserializeTokens(std::string const& serialOrLinkWithCommands);
 
     /**
      * @brief Base deserialization function to be called by derived classes in their own deserialization.
@@ -374,7 +380,7 @@ public:
      * @param scope Pointer to the JsonScope for the module
      */
     template <typename DomainModuleType>
-    void initModule(std::string moduleName, Data::JsonScopeBase* scope) {
+    void initModule(std::string moduleName, Data::JsonScopeBase& scope) {
         auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, getFuncTree(), scope);
         DomainModule->reinit();
         modules.push_back(std::move(DomainModule));

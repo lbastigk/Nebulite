@@ -13,17 +13,12 @@
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
-
-//------------------------------------------
-// Forward declarations
-namespace Nebulite::Data {
-class JsonScopeBase;
-} // namespace Nebulite::Data
+#include "Data/Document/JsonScopeBase.hpp"
 
 //------------------------------------------
 // Macro for DomainModule definition
 
-bool constexpr endsWithNewline(std::string_view str) {
+bool constexpr endsWithNewline(std::string_view const& str) {
     return !str.empty() && str.back() == '\n';
 }
 
@@ -31,7 +26,7 @@ bool constexpr endsWithNewline(std::string_view str) {
     class DomainModuleName final : public Nebulite::Interaction::Execution::DomainModule<DomainName>
 
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
-    explicit DomainModuleName(std::string const& name, DomainName& domainReference, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Data::JsonScopeBase* scope) \
+    explicit DomainModuleName(std::string const& name, DomainName& domainReference, std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, Data::JsonScopeBase& scope) \
     : DomainModule(name, domainReference, std::move(funcTreePtr), scope)
 
 // Common macro to create a floating DomainModule with proper linkage
@@ -42,7 +37,7 @@ bool constexpr endsWithNewline(std::string_view str) {
 // Useful for small "runners" with neatly separated functionality, that need the ability to be called
 // separately.
 #define NEBULITE_FLOATING_DOMAINMODULE(DomainModule, DomainModuleName, Document, Scope) \
-    std::make_unique<DomainModule>(#DomainModuleName, *this, getFuncTree(), &Document.shareDocumentScopeBase(Scope))
+    std::make_unique<DomainModule>(#DomainModuleName, *this, getFuncTree(), Document.shareDocumentScopeBase(Scope))
 
 #define BINDFUNCTION(func, name,desc) \
 static_assert(endsWithNewline(desc), "Function description must end with a newline character."); \
@@ -66,7 +61,7 @@ public:
      * @details The constructor initializes the DomainModuleBase with
      *          the FuncTree pointer for binding functions and variables.
      */
-    explicit DomainModuleBase(std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr, Data::JsonScopeBase* scope);
+    explicit DomainModuleBase(std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr, Data::JsonScopeBase& scope);
 
     //------------------------------------------
     // Static Binding Functions
@@ -158,11 +153,11 @@ private:
     std::shared_ptr<FuncTree<Constants::Error>> funcTree;
 
     /**
-     * @brief Pointer to the JsonScopeBase document.
+     * @brief Reference to the JsonScopeBase document.
      * @details This allows derived DomainModules to access and manipulate
      *          the JSON document as needed.
      */
-    Data::JsonScopeBase* docPtr;
+    Data::JsonScopeBase& ModuleScope;
 };
 
 /**
@@ -183,7 +178,7 @@ public:
      * @param funcTreePtr Shared pointer to the FuncTree for binding functions and variables.
      * @param scope Pointer to a JsonScopeBase document for this module.
      */
-    DomainModule(std::string name, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr, Data::JsonScopeBase* scope);
+    DomainModule(std::string name, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr, Data::JsonScopeBase& scope);
 
     /**
      * @brief Virtual destructor for DomainModule.
