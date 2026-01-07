@@ -45,6 +45,10 @@ namespace Nebulite::DomainModule {
 class Initializer;
 } // namespace Nebulite::DomainModule
 
+namespace Nebulite::Interaction {
+class ContextBase; // Requires access to demote to ContextScope
+} // namespace Nebulite::Interaction
+
 namespace Nebulite::Interaction::Logic {
 class Assignment;   // Requires access to set target documents
 class Expression;   // Requires access to get unscoped values from global scope
@@ -91,6 +95,9 @@ public:
     friend class Core::RenderObject;
     friend class Core::Texture;
 
+    // Allow ContextBase to demote to ContextScope
+    friend class Nebulite::Interaction::ContextBase;
+
     // Assignments and Expressions need access to set/get document values
     friend class Logic::Assignment;
     friend class Logic::Expression;
@@ -122,7 +129,7 @@ private:
      *          For others, it's a reference to their JSON document.
      * @return A reference to the internal JSON document.
      */
-    virtual Core::JsonScope& getDoc() const ;
+    [[nodiscard]] virtual Core::JsonScope& getDoc() const ;
 
     /**
      * @brief Each domain uses a JSON document to store its data.
@@ -169,7 +176,7 @@ public:
         funcTree->setPreParse([this] { return preParse(); });
     }
 
-    virtual ~DomainBase() override;
+    ~DomainBase() override;
 
     //------------------------------------------
     // Disallow copying and moving
@@ -232,8 +239,8 @@ public:
      *          The errors are not printed to stderr by default to allow the caller to handle them as needed.
      * @param str The string to parse.
      * @return Potential errors that occurred on command execution
-     * @todo Currently, this method is accessible to all domainmodules.
-     *       This is a security risk, as domainmodules can execute commands outside of their scope.
+     * @todo Currently, this method is accessible to all DomainModules.
+     *       This is a security risk, as DomainModules can execute commands outside of their scope.
      *       For this to be resolved, we need some restricted parsing mode that only allows commands
      *       to execute with data in its own scope.
      *       But requires careful design, perhaps with the scope itself as argument.
@@ -299,14 +306,14 @@ protected:
      * @param serialOrLinkWithCommands The serialization string or link with commands to split.
      * @return A vector of tokens. First token is the serialization or link, subsequent tokens are commands.
      */
-    std::vector<std::string> stringToDeserializeTokens(std::string const& serialOrLinkWithCommands) const ;
+    [[nodiscard]] std::vector<std::string> stringToDeserializeTokens(std::string const& serialOrLinkWithCommands) const ;
 
     /**
      * @brief Base deserialization function to be called by derived classes in their own deserialization.
      *        This ensures that the common deserialization logic is executed.
      *        Turns the serial or link with commands into the document, parses all commands.
      *        Using this in any deserialization implementation ensures that command parsing happens at the highest level.
-     *        Re-initializes all DomainModules in the json scope after deserialization.
+     *        Re-initializes all DomainModules in the JSON scope after deserialization.
      * @param serialOrLinkWithCommands The serialization string or link with commands to deserialize.
      */
     void baseDeserialization(std::string const& serialOrLinkWithCommands) const ;
