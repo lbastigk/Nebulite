@@ -83,11 +83,11 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     // Special debugging / testing utilities
     target->initModule<FunctionCollision>(
         "Global Function Collision Detection utilities",
-        target->domainScope.shareScopeBase("__tmp__.function_collision.")
+        target->domainScope.shareDummyScopeBase()
     );
     target->initModule<FeatureTest>(
         "Global Feature Test Functions",
-        target->domainScope.shareScopeBase("__tmp__.feature_test.")
+        target->domainScope.shareDummyScopeBase()
     );
 
     //------------------------------------------
@@ -151,7 +151,7 @@ void Initializer::initRenderObject(Core::RenderObject* target) {
     );
     target->initModule<StateUpdate>(
         "RenderObject State Update Functions",
-        target->domainScope.shareScopeBase("__tmp__.state_update.") // Shouldn't need document access
+        target->domainScope.shareDummyScopeBase()
     );
 }
 

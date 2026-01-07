@@ -38,6 +38,15 @@ JsonScopeBase& JsonScopeBase::shareScopeBase(std::string const& key) const {
     );
 }
 
+JsonScopeBase& JsonScopeBase::shareDummyScopeBase() const {
+    // Technically, key name does not matter.
+    // But if the access control ever fails, at least we only access a known dummy scope,
+    // instead of the entire scope.
+    auto& scope = shareScopeBase("__dummy__");
+    scope.isDummy = true;
+    return scope;
+}
+
 //------------------------------------------
 // Getter
 

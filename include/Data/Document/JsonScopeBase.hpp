@@ -52,6 +52,12 @@ protected:
     std::shared_ptr<JSON> baseDocument;
 
 private:
+    /**
+     * @brief Indicates if this JsonScopeBase is a dummy (no access allowed).
+     * @details Dummy scopes do not allow any access to the underlying JSON document.
+     *          The retrieval of the scope prefix of a dummy scope will fail.
+     */
+    bool isDummy = false;
 
     std::string scopePrefix;
 
@@ -110,8 +116,12 @@ public:
      * @brief Gets the scope prefix with trailing dot.
      * @details If the prefix is empty, returns an empty string.
      * @return The scope prefix as a const reference to std::string.
+     * @throws std::runtime_error if this is a dummy scope.
      */
-    [[nodiscard]] std::string const& getScopePrefix() const noexcept {
+    [[nodiscard]] std::string const& getScopePrefix() const {
+        if (isDummy) {
+            throw std::runtime_error("JsonScopeBase: Access not granted. Attempted to get scope prefix of a dummy scope.");
+        }
         return scopePrefix;
     }
 
@@ -126,6 +136,8 @@ public:
     // So we can pass a key as string and generate the full key internally based on our scopePrefix
 
     [[nodiscard]] JsonScopeBase& shareScopeBase(std::string const& key) const ;
+
+    [[nodiscard]] JsonScopeBase& shareDummyScopeBase() const ;
 
     //------------------------------------------
     // Getter
