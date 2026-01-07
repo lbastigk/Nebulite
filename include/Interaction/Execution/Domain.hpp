@@ -66,6 +66,14 @@ class RulesetCompiler;
 namespace Nebulite::Interaction::Execution {
 template<typename> class Domain;
 
+/**
+ * @brief DocumentAccessor provides controlled access to a domain's JSON document.
+ * @details This class is designed to be a friend of various domain-related classes,
+ *          allowing them to access and manipulate the domain's JSON document safely.
+ *          This ensures per-class access control while maintaining encapsulation.
+ *          For example, DomainModules should not have direct access to the domain's document,
+ *          due to the encapsulation they provide. Instead, we pass a scope to them.
+ */
 class DocumentAccessor {
 public:
     explicit DocumentAccessor(Core::JsonScope& d) : documentScope(d) {}
@@ -83,9 +91,14 @@ public:
     friend class Core::RenderObject;
     friend class Core::Texture;
 
-    // Allow the Ruleset/Expression system access documents as well.
+    // Assignments and Expressions need access to set/get document values
     friend class Logic::Assignment;
     friend class Logic::Expression;
+
+    // The entire Ruleset system needs access as well
+    // TODO: If we replace the Context system with ContextScope,
+    //       Meaning we pass scopes instead of DomainBases,
+    //       we may get rid of these friends here.
     friend class Rules::Ruleset;
     friend class Rules::JsonRuleset;
     friend class Rules::StaticRuleset;
@@ -116,7 +129,7 @@ private:
      */
     Core::JsonScope& documentScope;
 };
-}
+} // namespace Nebulite::Interaction::Execution
 
 //------------------------------------------
 // Domain Base
@@ -130,6 +143,19 @@ namespace Nebulite::Interaction::Execution {
  *        This allows for a simplified interface for accessing common domain functionality.
  */
 class DomainBase : public DocumentAccessor {
+private:
+    /**
+     * @brief The name of the domain.
+     */
+    std::string domainName;
+
+    /**
+     * @brief Parsing interface for domain-specific commands.
+     * @details We use a pointer here so we can
+     *          easily create the object with an inherited FuncTree inside the constructor.
+     *          The Tree is then shared with the DomainModules for modification.
+     */
+    std::shared_ptr<FuncTree<Constants::Error>> funcTree;
 public:
     DomainBase(std::string const& name, Core::JsonScope& documentReference)
         : DocumentAccessor(documentReference), domainName(name){
@@ -157,17 +183,6 @@ public:
     // Get Document prefix
 
     [[nodiscard]] std::string const& scopePrefix() const ;
-
-    //------------------------------------------
-    // Share scope
-
-    // TODO: Generating a new JsonScope from this Domain's document is not possible here,
-    //       as it would create a recursion: constantly generating new DomainBase -> JsonScope -> DomainBase -> ...
-    //       We need a way to create a JsonScope without creating a new DomainBase.
-    //       Or be happy with sharing the full scope with every DomainModule.
-    //       Another option would be a lightweight jsonscope without domain functionality.
-    //       Data::JsonScopeBase or something.
-    //       This one would only be used for document-related operations without the ability to parse commands.
 
 
     //------------------------------------------
@@ -219,11 +234,14 @@ public:
      * @return Potential errors that occurred on command execution
      * @todo Currently, this method is accessible to all domainmodules.
      *       This is a security risk, as domainmodules can execute commands outside of their scope.
-     *       For this to be resolved, we need some restricted parsing mode that only allows commands to execute with data in its own scope.
+     *       For this to be resolved, we need some restricted parsing mode that only allows commands
+     *       to execute with data in its own scope.
      *       But requires careful design, perhaps with the scope itself as argument.
      *       Idea: parseStr(str, scope) -> foo(args, scope)
-     *       Once all domainmodule functions are modernized with std::span<std::string const> args, implement a restricted parseStr version
-     *       as described above, by passing around the scope as reference.
+     *       Once all domainmodule functions are modernized with std::span<std::string const> args,
+     *       implement a restricted parseStr version as described above,
+     *       by passing around the scope as reference.
+     *       Note that only modern arguments support passing additional arguments like scope!
      *       Update the base Domain functree to take the scope as additional argument.
      *       Most getDoc() calls are then replaced with the passed scope.
      *       This, however, complicates things as we need to distinguish between:
@@ -292,31 +310,17 @@ protected:
      * @param serialOrLinkWithCommands The serialization string or link with commands to deserialize.
      */
     void baseDeserialization(std::string const& serialOrLinkWithCommands) const ;
-
-private:
-    /**
-     * @brief The name of the domain.
-     */
-    std::string domainName;
-
-    /**
-     * @brief Parsing interface for domain-specific commands.
-     *        We use a pointer here so we can
-     *        easily create the object with an inherited FuncTree inside the constructor.
-     *        The Tree is then shared with the DomainModules for modification.
-     */
-    std::shared_ptr<FuncTree<Constants::Error>> funcTree;
 };
 
 /**
  * @class Domain
  * @brief The Domain class serves as a base class for creating a Nebulite domain.
- *        Each domain has the following features:
- *        - Setting and getting values in its internal JSON document.
- *        - Returning a pointer to its internal JSON document.
- *        - Parsing strings into Nebulite commands.
- *        - Binding additional features via DomainModules.
- *        - Updating the domain through its DomainModules.
+ * @details Each domain has the following features:
+ *          - Setting and getting values in its internal JSON document.
+ *          - Returning a pointer to its internal JSON document.
+ *          - Parsing strings into Nebulite commands.
+ *          - Binding additional features via DomainModules.
+ *          - Updating the domain through its DomainModules.
  */
 template <typename DomainType>
 class Domain : public DomainBase {

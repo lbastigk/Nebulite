@@ -8,10 +8,10 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Core {
-class RenderObject;
-class GlobalSpace;
-} // namespace Nebulite::Core
+
+namespace Nebulite::Data {
+class JsonScopeBase;
+} // namespace Nebulite::Data
 
 namespace Nebulite::Interaction::Execution {
 class DomainBase;
@@ -32,19 +32,16 @@ struct ContextBase {
 };
 
 /**
- * @brief Struct Context
- * @brief Specialized context structure with concrete RenderObject and GlobalSpace types.
- *        Should only be used if the ContextBase is not sufficient. For now, commented out
- *        to discourage its use.
+ * @struct ContextScope
+ * @brief Reduced context structure using JsonScopeBase references.
+ *        Useful for functions that only need access to the JSON scopes of the domains.
  */
-/*
-struct Context {
-    Nebulite::Core::RenderObject& self;
-    Nebulite::Core::RenderObject& other;
-    Nebulite::Core::GlobalSpace& global;
+struct ContextScope {
+    Data::JsonScopeBase& self;
+    Data::JsonScopeBase& other;
+    Data::JsonScopeBase& global;
     // TODO: Parent context?
 };
-*/
 
 } // namespace Nebulite::Interaction
 #endif // NEBULITE_INTERACTION_CONTEXT_HPP
