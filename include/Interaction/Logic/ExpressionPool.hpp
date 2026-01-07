@@ -45,7 +45,9 @@ namespace Nebulite::Interaction::Logic {
  */
 class ExpressionPool {
 public:
-    ExpressionPool() = default;
+    ExpressionPool(std::string const& expr, Core::JsonScope& self) {
+        parse(expr, self);
+    }
 
     ~ExpressionPool() = default;
 
@@ -61,6 +63,7 @@ public:
         // This is safe since mutexes should only be moved when not in use
     }
 
+    /*
     ExpressionPool& operator=(ExpressionPool&& other) noexcept {
         if (this != &other){
             pool = std::move(other.pool);
@@ -69,35 +72,11 @@ public:
         }
         return *this;
     }
+    */
+    ExpressionPool& operator=(ExpressionPool&& other) = delete;
 
     //------------------------------------------
     // Public Functions
-
-    /**
-     * @brief Parses the given expression and populates the pool with pre-parsed instances.
-     *        Matches Nebulite::Interaction::Logic::Expression::parse, but allows for concurrent evaluation across multiple threads.
-     * @param expr The expression to parse.
-     * @param self The JSON object representing the "self" context.
-     */
-    void parse(std::string const& expr, Core::JsonScope& self){
-        static_assert(EXPRESSION_POOL_SIZE > 0, "INVOKE_EXPR_POOL_SIZE must be greater than 0");
-
-        fullExpression = expr;
-
-        // Parse each entry in the pool
-        for (size_t i = 0; i < EXPRESSION_POOL_SIZE; ++i){
-            pool[i].parse(expr, self);
-        }
-
-        // Calculate metadata and unique ID from first entry
-        #if EXPRESSION_POOL_SIZE > 1
-            _isReturnableAsDouble = pool[0].recalculateIsReturnableAsDouble();
-            _isAlwaysTrue = pool[0].recalculateIsAlwaysTrue();
-        #else
-            _isReturnableAsDouble = pool[0].isReturnableAsDouble();
-            _isAlwaysTrue = pool[0].isAlwaysTrue();
-        #endif
-    }
 
     /**
      * @brief Evaluates the expression in the context of the given JSON object acting as "other".
@@ -108,7 +87,7 @@ public:
     std::string eval(Core::JsonScope& current_other){
         thread_local size_t const idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % EXPRESSION_POOL_SIZE;
         std::scoped_lock const guard(locks[idx]);
-        return pool[idx].eval(current_other);
+        return pool[idx]->eval(current_other);
     }
 
     /**
@@ -120,7 +99,7 @@ public:
     double evalAsDouble(Core::JsonScope& current_other){
         thread_local size_t const idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % EXPRESSION_POOL_SIZE;
         std::scoped_lock const guard(locks[idx]);
-        return pool[idx].evalAsDouble(current_other);
+        return pool[idx]->evalAsDouble(current_other);
     }
 
     /**
@@ -155,8 +134,29 @@ public:
     }
 
 private:
+    /**
+     * @brief Parses the given expression and populates the pool with pre-parsed instances.
+     *        Matches Nebulite::Interaction::Logic::Expression::parse, but allows for concurrent evaluation across multiple threads.
+     * @param expr The expression to parse.
+     * @param self The JSON object representing the "self" context.
+     */
+    void parse(std::string const& expr, Core::JsonScope& self){
+        static_assert(EXPRESSION_POOL_SIZE > 0, "INVOKE_EXPR_POOL_SIZE must be greater than 0");
+
+        fullExpression = expr;
+
+        // Parse each entry in the pool
+        for (size_t i = 0; i < EXPRESSION_POOL_SIZE; ++i){
+            pool[i] = std::make_unique<Expression>(expr, self);
+        }
+
+        // Calculate metadata and unique ID from first entry
+        _isReturnableAsDouble = pool[0]->recalculateIsReturnableAsDouble();
+        _isAlwaysTrue = pool[0]->recalculateIsAlwaysTrue();
+    }
+
     // Pool of expressions
-    std::array<Expression, EXPRESSION_POOL_SIZE> pool;
+    std::array<std::unique_ptr<Expression>, EXPRESSION_POOL_SIZE> pool;
 
     // Locks for thread safety
     std::array<std::mutex, EXPRESSION_POOL_SIZE> locks;

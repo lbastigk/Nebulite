@@ -47,7 +47,7 @@ public:
 
     // enable moving
     Assignment(Assignment&&) noexcept = default;
-    Assignment& operator=(Assignment&&) noexcept = default;
+    Assignment& operator=(Assignment&&) noexcept = delete;
 
     //------------------------------------------
     // Allow ruleset compiler to access private members
@@ -68,8 +68,8 @@ public:
     }
 
 private:
-    void setValueOfKey(Data::ScopedKeyView const& keyStr, std::string const& value, Core::JsonScope& target) const ;
-    void setValueOfKey(Data::ScopedKeyView const& keyStr, double const& value, Core::JsonScope& target) const ;
+    void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& value, Core::JsonScope& target) const ;
+    void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& value, Core::JsonScope& target) const ;
     void setValueOfKey(double const& value, double* target) const ;
 
     /**
@@ -99,7 +99,7 @@ private:
     /**
      * @brief Parsed expression representing the key
      */
-    Expression key;
+    std::unique_ptr<Expression> key;
 
     /**
      * @brief Represents the full assignment as string
@@ -115,12 +115,10 @@ private:
     /**
      * @brief The parsed expression in a thread-friendly Pool-Configuration
      */
-    ExpressionPool expression;
+    std::unique_ptr<ExpressionPool> expression;
 #else
-    /**
-     * @brief The parsed expression
-     */
-    Expression expression;
+    // Throw error
+    #error "EXPRESSION_POOL_SIZE must be greater than 1 to use Assignment expression pools."
 #endif
 
     /**

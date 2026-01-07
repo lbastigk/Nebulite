@@ -55,8 +55,8 @@ public:
     static void parse(
         std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal,
         std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal,
-        Interaction::Execution::DomainBase& self
-        );
+        Execution::DomainBase& self
+    );
 
     /**
      * @brief Parses a single Ruleset from a JSON key inside a Domain or a static ruleset identifier.
@@ -66,8 +66,8 @@ public:
      */
     static std::optional<std::shared_ptr<Ruleset>> parseSingle(
         std::string const& identifier,
-        Interaction::Execution::DomainBase& self
-        );
+        Execution::DomainBase& self
+    );
 
 private:
     /**
@@ -79,21 +79,19 @@ private:
     static void getFunctionCalls(
         Core::JsonScope& entryDoc,
         JsonRuleset& Ruleset,
-        Interaction::Execution::DomainBase const& self
-        );
+        Execution::DomainBase const& self
+    );
 
     /**
      * @brief Extract a single expression from a JSON entry document
-     * @param assignmentExpr The assignment expression to populate.
      * @param entry The JSON entry document to extract the expression from.
      * @param index The index of the expression in the entry document.
-     * @return True if the expression was successfully extracted, false otherwise.
+     * @return The extracted expression as a Logic::Assignment object, or std::nullopt if extraction failed.
      */
-    static bool getExpression(
-        Logic::Assignment& assignmentExpr,
+    static std::optional<Logic::Assignment> getExpression(
         Core::JsonScope const& entry,
         size_t const& index
-        );
+    );
 
     /**
      * @brief Extracts all expressions from a JSON entry document.
@@ -122,7 +120,7 @@ private:
         Core::JsonScope const& doc,
         Core::JsonScope& entry,
         Data::ScopedKeyView const& key
-        );
+    );
 
     /**
      * @brief Extracts a Ruleset from a JSON document or static ruleset identifier.
@@ -135,7 +133,7 @@ private:
         Core::JsonScope const& doc,
         Data::ScopedKeyView const& key,
         Execution::DomainBase& self
-        );
+    );
 
     /**
      * @brief Optimizes a Ruleset by linking direct target pointers.
@@ -155,7 +153,7 @@ private:
         Execution::DomainBase const& self,
         std::vector<std::shared_ptr<Ruleset>> const& rulesetsLocal,
         std::vector<std::shared_ptr<Ruleset>> const& rulesetsGlobal
-        );
+    );
 };
 } // namespace Nebulite::Interaction::Rules::Construction
 #endif // NEBULITE_RULESET_COMPILER_HPP

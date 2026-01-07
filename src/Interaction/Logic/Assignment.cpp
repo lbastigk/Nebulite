@@ -106,8 +106,8 @@ void Assignment::apply(Core::JsonScope& self, Core::JsonScope& other) {
     // Update
 
     // If the expression is returnable as double, we can optimize numeric operations
-    if (expression.isReturnableAsDouble()) {
-        double const resolved = expression.evalAsDouble(other);
+    if (expression->isReturnableAsDouble()) {
+        double const resolved = expression->evalAsDouble(other);
         if (targetValuePtr != nullptr) {
             setValueOfKey(resolved, targetValuePtr);
         } else {
@@ -115,7 +115,7 @@ void Assignment::apply(Core::JsonScope& self, Core::JsonScope& other) {
             // Likely because the target is in document other
 
             // Try to get a stable double pointer from the target document
-            if (double* target = targetDocument->getStableDoublePointer(Data::ScopedKey(key.eval(other))); target != nullptr) {
+            if (double* target = targetDocument->getStableDoublePointer(Data::ScopedKey(key->eval(other))); target != nullptr) {
                 // Lock is needed here, otherwise we have race conditions, and the engine is no longer deterministic!
                 std::scoped_lock lock(targetDocument->lock());
                 setValueOfKey(resolved, target);
@@ -123,15 +123,15 @@ void Assignment::apply(Core::JsonScope& self, Core::JsonScope& other) {
                 // Still not possible, fallback to using JSON's internal methods
                 // This is slower, but should work in all cases
                 // No lock needed here, as we use JSON's threadsafe methods
-                auto const k = Data::ScopedKey(key.eval(other));
+                auto const k = Data::ScopedKey(key->eval(other));
                 setValueOfKey(k.view(), resolved, *targetDocument);
             }
         }
     }
     // If not, we resolve as string and update that way
     else {
-        std::string const resolved = expression.eval(other);
-        auto const k = Data::ScopedKey(key.eval(other));
+        std::string const resolved = expression->eval(other);
+        auto const k = Data::ScopedKey(key->eval(other));
         setValueOfKey(k.view(), resolved, *targetDocument);
     }
 }
