@@ -1,8 +1,7 @@
 /**
  * @file Assignment.hpp
- * 
- * This file contains the Assignment struct, used to represent 
- * variable assignments in the Nebulite scripting language.
+ * @brief This file contains the Assignment struct, used to represent
+ *        string-defined variable assignments.
  */
 
 #ifndef NEBULITE_INTERACTION_LOGIC_ASSIGNMENT_HPP
@@ -29,12 +28,19 @@ namespace Nebulite::Interaction::Logic {
 /**
  * @struct Nebulite::Interaction::Logic::Assignment
  * @brief Representing a variable assignment in the Nebulite scripting language.
- * @details [target] [operation] [value]
+ * @details [target] [operation] [value-to-evaluate]
+ *          e.g.:
+ *          - self.posX = 0
+ *          - other.health += $(self.damage * 2)
+ *          - global.name |= " the Great"
  */
 class Assignment{
 public:
     //------------------------------------------
     // Standard constructor/destructor
+
+    // TODO: Refactor assignment parsing into the class itself instead of RulesetCompiler
+    //       This would require a non-default constructor taking the full assignment string.
     Assignment() = default;
     ~Assignment() = default;
 
@@ -51,7 +57,7 @@ public:
 
     //------------------------------------------
     // Allow ruleset compiler to access private members
-    friend class Nebulite::Interaction::Rules::Construction::RulesetCompiler;
+    friend class Rules::Construction::RulesetCompiler;
 
     //------------------------------------------
 
@@ -91,8 +97,7 @@ private:
 
     /**
      * @brief Key of the variable being assigned
-     *
-     * e.g.: "posX"
+     * @details e.g.: "posX"
      */
     std::string keyStr;
 
@@ -118,16 +123,16 @@ private:
     std::unique_ptr<ExpressionPool> expression;
 #else
     // Throw error
+    // Enable later on perhaps, where we branch between make_unique<Expression> and make_unique<ExpressionPool> in the constructor
     #error "EXPRESSION_POOL_SIZE must be greater than 1 to use Assignment expression pools."
 #endif
 
     /**
      * @brief Expression assignment target as double pointer
-     *
-     * Is only unequal to nullptr if:
-     * - onType is Self
-     * - operation is numeric (add, multiply)
-     * - expression is returnable as double
+     * @details Is only unequal to nullptr if:
+     *          - onType is Self
+     *          - operation is numeric (add, multiply)
+     *          - expression is returnable as double
      */
     double* targetValuePtr = nullptr;
 
@@ -135,20 +140,18 @@ private:
      * @brief Type of operation used
      */
     enum class Operation : uint8_t {
-        null,
-        set,
-        add,
-        multiply,
-        concat
+        null,       // No operation
+        set,        // '='
+        add,        // '+='
+        multiply,   // '*='
+        concat      // '|='
     };
 
     /**
      * @brief Type of operation used.
-     *
-     * Depending on operation, the proper JSON operation helper will be called.
-     * This ensures quick and threadsafe assignment.
-     *
-     * Initialized as null, which means the assignment is ignored.
+     * @details Depending on operation, the proper JSON operation helper will be called.
+     *          This ensures quick and threadsafe assignment.
+     *          Initialized as null, which means the assignment is ignored.
      */
     Operation operation = Operation::null;
 };
