@@ -25,8 +25,6 @@ Expression::~Expression() {
 }
 
 void Expression::reset() {
-    references.self = nullptr;
-
     // Clear existing data
     components.clear();
     te_variables.clear();
@@ -155,10 +153,10 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
         switch (context) {
         case Component::From::self:
             if (isAvailableAsDoublePtr(key)) {
-                vd->setUpExternalCache(*references.self);
+                vd->setUpExternalCache(references.self);
                 virtualDoubles.remanent.self.push_back(vd);
             } else {
-                vd->setUpExternalCache(*references.self);
+                vd->setUpExternalCache(references.self);
                 virtualDoubles.nonRemanent.self.push_back(vd);
             }
             break;
@@ -327,7 +325,7 @@ void Expression::parseTokenTypeEval(std::string const& token) {
     // And build equivalent expression using new variable names
     for (auto const& subToken : Utility::StringHandler::splitOnSameDepth(expression, '{')) {
         if (subToken.starts_with('{')) {
-            std::string te_name = varNameGen.getUniqueName(subToken);
+            std::string const te_name = varNameGen.getUniqueName(subToken);
             std::string key = subToken.substr(1, subToken.length() - 2);
             Component::From context = getContext(key);
             key = stripContext(key);
@@ -414,16 +412,18 @@ void Expression::printCompileError(std::shared_ptr<Component> const& component, 
 //------------------------------------------
 // Public:
 
-Expression::Expression() {
+Expression::Expression(std::string const& expr, Core::JsonScope& self)
+    : references{self}
+{
     _isReturnableAsDouble = false;
     _isAlwaysTrue = false;
     uniqueId = 0;
     reset();
+    parse(expr);
 }
 
-void Expression::parse(std::string const& expr, Core::JsonScope& self) {
+void Expression::parse(std::string const& expr) {
     reset();
-    references.self = &self;
     fullExpression = expr;
     //uniqueId = global().getUniqueId(fullExpression, Core::GlobalSpace::UniqueIdType::expression);
     uniqueId = generateUniqueId(fullExpression);
@@ -431,13 +431,6 @@ void Expression::parse(std::string const& expr, Core::JsonScope& self) {
     for (auto& component : components) {
         compileIfExpression(component);
     }
-
-    // Calculate optimization flags in-expression only if pools are not used
-#if EXPRESSION_POOL_SIZE == 1
-    _isReturnableAsDouble = recalculateIsReturnableAsDouble();
-    _isAlwaysTrue = recalculateIsAlwaysTrue();
-#endif
-
     // Reset variable name generator, data is only needed during parsing
     varNameGen.clear();
 }
@@ -453,8 +446,7 @@ bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr
             return false;
         }
         // Create a temporary expression to evaluate the inner expression
-        Expression tempExpr;
-        tempExpr.parse(component->str, *references.self);
+        Expression const tempExpr(component->str, references.self);
         strippedKey = tempExpr.eval(current_other, maximumRecursionDepth - 1);
 
         // Redetermine context and strip it from key
@@ -465,11 +457,7 @@ bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr
     // Now, use the key to get the value from the correct document
     switch (context) {
     case Component::From::self:
-        if (references.self == nullptr) {
-            Nebulite::cerr() << "Error: Null self reference in expression: " << strippedKey << Nebulite::endl;
-            return false;
-        }
-        token = references.self->get<std::string>(Data::ScopedKey(strippedKey), "null");
+        token = references.self.get<std::string>(Data::ScopedKey(strippedKey), "null");
         break;
     case Component::From::other:
         token = current_other.get<std::string>(Data::ScopedKey(strippedKey), "null");
@@ -540,7 +528,7 @@ void Expression::handleComponentTypeEval(std::string& token, std::shared_ptr<Com
     }
 }
 
-std::string Expression::eval(Core::JsonScope& current_other, uint16_t const& max_recursion_depth) {
+std::string Expression::eval(Core::JsonScope& current_other, uint16_t const& max_recursion_depth) const {
     //------------------------------------------
     // Update caches so that tinyexpr has the correct references
     updateCaches(current_other);
@@ -577,17 +565,16 @@ std::string Expression::eval(Core::JsonScope& current_other, uint16_t const& max
     return result;
 }
 
-double Expression::evalAsDouble(Core::JsonScope& current_other) {
+double Expression::evalAsDouble(Core::JsonScope& current_other) const {
     updateCaches(current_other);
     return te_eval(components[0]->expression);
 }
 
-void Expression::updateCaches(Core::JsonScope& reference) {
+void Expression::updateCaches(Core::JsonScope& reference) const {
     // Update self references that are non-remanent
     for (auto const& vde : virtualDoubles.nonRemanent.self) {
         // One-time handle of multi-resolve and transformations
-        Expression tempExpr;
-        tempExpr.parse(vde->getKey(), *references.self);
+        Expression const tempExpr(vde->getKey(), references.self);
         auto const evalResult = Data::ScopedKey(tempExpr.eval(reference));
         vde->setDirect(reference.get<double>(evalResult, 0.0));
     }
@@ -607,8 +594,7 @@ void Expression::updateCaches(Core::JsonScope& reference) {
     // Updating context other: Values without stable double pointers
     for (auto const& vde : virtualDoubles.nonRemanent.otherUnStable) {
         // One-time handle of multi-resolve and transformations
-        Expression tempExpr;
-        tempExpr.parse(vde->getKey(), *references.self);
+        Expression tempExpr(vde->getKey(), references.self);
         auto const evalResult = Data::ScopedKey(tempExpr.eval(reference));
         vde->setDirect(reference.get<double>(evalResult, 0.0));
     }
@@ -616,8 +602,7 @@ void Expression::updateCaches(Core::JsonScope& reference) {
     // Update global references that are non-remanent
     for (auto const& vde : virtualDoubles.nonRemanent.global) {
         // One-time handle of multi-resolve and transformations
-        Expression tempExpr;
-        tempExpr.parse(vde->getKey(), *+references.self);
+        Expression tempExpr(vde->getKey(), references.self);
         auto const evalResult = Data::ScopedKey(tempExpr.eval(reference));
         auto const val = Nebulite::global().getDoc().get<double>(evalResult, 0.0);
         vde->setDirect(val);
@@ -629,8 +614,7 @@ void Expression::updateCaches(Core::JsonScope& reference) {
             vde->setUpInternalCache();
         } else {
             // One-time handle of multi-resolve and transformations
-            Expression tempExpr;
-            tempExpr.parse(vde->getKey(), *references.self);
+            Expression tempExpr(vde->getKey(), references.self);
             std::string const evalResult = tempExpr.eval(reference);
             vde->setDirect(Nebulite::global().getDocCache().get<double>(evalResult, 0.0));
         }
@@ -643,14 +627,12 @@ void Expression::updateCaches(Core::JsonScope& reference) {
 // With context
 
 std::string Expression::eval(std::string const& input, Interaction::ContextBase const& context) {
-    Expression expr;
-    expr.parse(input, context.self.getDoc());
+    Expression const expr(input, context.self.getDoc());
     return expr.eval(context.other.getDoc());
 }
 
 double Expression::evalAsDouble(std::string const& input, Interaction::ContextBase const& context) {
-    Expression expr;
-    expr.parse(input, context.self.getDoc());
+    Expression const expr(input, context.self.getDoc());
     return expr.evalAsDouble(context.other.getDoc());
 }
 
@@ -663,19 +645,19 @@ bool Expression::evalAsBool(std::string const& input, Interaction::ContextBase c
 
 std::string Expression::eval(std::string const& input) {
     Core::JsonScope emptyDoc;
-    Interaction::ContextBase context{emptyDoc, emptyDoc, Nebulite::global()};
+    Interaction::ContextBase const context{emptyDoc, emptyDoc, Nebulite::global()};
     return eval(input, context);
 }
 
 double Expression::evalAsDouble(std::string const& input) {
     Core::JsonScope emptyDoc;
-    Interaction::ContextBase context{emptyDoc, emptyDoc, Nebulite::global()};
+    Interaction::ContextBase const context{emptyDoc, emptyDoc, Nebulite::global()};
     return evalAsDouble(input, context);
 }
 
 bool Expression::evalAsBool(std::string const& input) {
     Core::JsonScope emptyDoc;
-    Interaction::ContextBase context{emptyDoc, emptyDoc, Nebulite::global()};
+    Interaction::ContextBase const context{emptyDoc, emptyDoc, Nebulite::global()};
     return evalAsBool(input, context);
 }
 

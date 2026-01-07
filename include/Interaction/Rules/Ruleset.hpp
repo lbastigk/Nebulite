@@ -90,7 +90,7 @@ public:
     virtual bool evaluateCondition(Interaction::Execution::DomainBase const* other);
 
     /**
-     * @brief Checks if the ruleset is true in the context of its own Domain as other.
+     * @brief Checks if the ruleset is true with its own Domain as context other.
      * @return True if the ruleset is true in the context of its own Domain, false otherwise.
      */
     virtual bool evaluateCondition();
@@ -150,7 +150,7 @@ protected:
  * @class Nebulite::Interaction::Rules::StaticRuleset
  * @brief Represents a single ruleset entry for static rulesets.
  */
-class StaticRuleset : public Ruleset {
+class StaticRuleset final : public Ruleset {
 public:
     //------------------------------------------
     // Make Entry non-copyable and non-movable
@@ -180,7 +180,7 @@ public:
     bool evaluateCondition(Interaction::Execution::DomainBase const* other) override { (void)other ; return true; }
 
     /**
-     * @brief Checks if the ruleset is true in the context of its own Domain as other.
+     * @brief Checks if the ruleset is true with its own Domain as context other.
      * @details For StaticRuleset, this always returns true.
      * @return True if the ruleset is true in the context of its own Domain, false otherwise.
      */
@@ -205,7 +205,7 @@ private:
  * @class Nebulite::Interaction::Rules::JsonRuleset
  * @brief Represents a single ruleset entry for json-defined rulesets.
  */
-class JsonRuleset : public Ruleset {
+class JsonRuleset final : public Ruleset {
 public:
     //------------------------------------------
     // Make Entry non-copyable and non-movable
@@ -259,7 +259,7 @@ private:
      * @details Logical Arguments are evaluated inside the Invoke class with access to `self`, `other`, and `global` variables.
      *          e.g. "{self.posX} > {other.posY}"
      */
-    Logic::ExpressionPool logicalArg;
+    std::unique_ptr<Logic::ExpressionPool> logicalArg;
 
     /**
      * @brief The function calls that to be executed on global domain.
@@ -290,7 +290,7 @@ private:
      */
     void estimateComputationalCost() {
         // Count number of $ and { in logicalArg
-        std::string const* expr = logicalArg.getFullExpression();
+        std::string const* expr = logicalArg->getFullExpression();
         estimatedCost += static_cast<size_t>(std::ranges::count(expr->begin(), expr->end(), '$'));
 
         // Count number of $ and { in exprs

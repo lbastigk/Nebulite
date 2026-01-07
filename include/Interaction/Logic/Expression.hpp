@@ -42,7 +42,12 @@ namespace Nebulite::Interaction::Logic {
  */
 class Expression {
 public:
-    Expression();
+    /**
+     * @brief Constructs and parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
+     * @param expr The expression string to parse.
+     * @param self The JSON object representing the "self" context.
+     */
+    explicit Expression(std::string const& expr, Core::JsonScope& self);
 
     ~Expression();
 
@@ -52,19 +57,12 @@ public:
 
     // enable moving
     Expression(Expression&&) noexcept = default;
-    Expression& operator=(Expression&&) noexcept = default;
+    //Expression& operator=(Expression&&) noexcept = default;
 
     /**
      * @brief Standard maximum recursion depth for nested expression evaluations.
      */
     static constexpr uint16_t standardMaximumRecursionDepth = 10;
-
-    /**
-     * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
-     * @param expr The expression string to parse.
-     * @param self The JSON object representing the "self" context.
-     */
-    void parse(std::string const& expr, Core::JsonScope& self);
 
     /**
      * @brief Checks if the expression can be returned as a double.
@@ -92,7 +90,7 @@ public:
      * @param current_other The JSON object `other` to evaluate against.
      * @return The evaluated double value.
      */
-    double evalAsDouble(Core::JsonScope& current_other);
+    double evalAsDouble(Core::JsonScope& current_other) const ;
 
     /**
      * @brief Evaluates the expression as a string.
@@ -100,7 +98,7 @@ public:
      * @param max_recursion_depth The maximum recursion depth to prevent infinite loops in nested evaluations.
      * @return The evaluated string value.
      */
-    std::string eval(Core::JsonScope& current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth);
+    std::string eval(Core::JsonScope& current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
 
     /**
      * @brief Gets the full expression string that was parsed.
@@ -198,10 +196,16 @@ public:
     }
 
 private:
+    /**
+     * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
+     * @param expr The expression string to parse.
+     */
+    void parse(std::string const& expr);
+
     // The reference for context self stays the same throughout the expression's lifetime
     // This allows us to cache variables from self directly, not reloading needed.
     struct References {
-        Core::JsonScope* self;  // TODO: Turn to reference, set at construction time
+        Core::JsonScope& self;
     } references;
 
     /**
@@ -607,7 +611,7 @@ private:
     /**
      * @brief Updates caches
      */
-    void updateCaches(Core::JsonScope& reference);
+    void updateCaches(Core::JsonScope& reference) const ;
 
     /**
      * @brief Handles the evaluation of a variable component.

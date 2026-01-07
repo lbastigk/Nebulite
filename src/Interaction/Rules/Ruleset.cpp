@@ -26,7 +26,7 @@ void Ruleset::apply() {
 // Derived Class Methods: StaticRuleset
 
 void StaticRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
-    Nebulite::Interaction::ContextBase contextBase{*selfPtr, *contextOther, Nebulite::global()};
+    Nebulite::Interaction::ContextBase const contextBase{*selfPtr, *contextOther, Nebulite::global()};
     staticFunction(contextBase);
 }
 
@@ -35,10 +35,10 @@ void StaticRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
 
 bool JsonRuleset::evaluateCondition(Interaction::Execution::DomainBase const* otherObj) {
     // Check if logical arg is as simple as just "1", meaning true
-    if (logicalArg.isAlwaysTrue())
+    if (logicalArg->isAlwaysTrue())
         return true;
 
-    double const result = logicalArg.evalAsDouble(otherObj->getDoc());
+    double const result = logicalArg->evalAsDouble(otherObj->getDoc());
     if (std::isnan(result)) {
         // We consider NaN as false
         return false;
