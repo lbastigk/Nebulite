@@ -7,13 +7,6 @@ namespace Nebulite::Interaction::Execution {
 
 DocumentAccessor::~DocumentAccessor() = default;
 
-Core::JsonScope& DocumentAccessor::getDoc() const {
-    return domainScope;
-}
-
-Data::JsonScopeBase& DocumentAccessor::shareDocumentScopeBase(std::string const& prefix) const {
-    return domainScope.shareScopeBase(Data::ScopedKey(prefix));
-}
 
 } // namespace Nebulite::Interaction::Execution
 
@@ -87,7 +80,7 @@ void DomainBase::baseDeserialization(std::string const& serialOrLinkWithCommands
     // Pass only the serial/link part to deserialize
     // Argument parsing happens at the higher level
     std::string const serialOrLink = tokens[0];
-    getDoc().deserialize(serialOrLink);
+    domainScope.deserialize(serialOrLink);
 
     //------------------------------------------
     // Now apply modifications

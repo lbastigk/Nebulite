@@ -56,11 +56,11 @@ GlobalSpace::GlobalSpace(std::string const& name)
     // If we ever need a full update beforehand, we should manually call update after full initialization
 }
 
-Constants::Error GlobalSpace::updateInnerDomains() const {
+Constants::Error GlobalSpace::updateInnerDomains() {
     // For now, just update the JSON domain
     // Later on the logic here might be more complex
     // As more inner domains are added
-    Constants::Error const result = getDoc().update();
+    Constants::Error const result = globalDoc.update();
     // Renderer is not updated here, as it is updated in GlobalSpace::update()
     // TODO: See if we can generalize this so that we can safely call renderer.update() here as well
     return result;

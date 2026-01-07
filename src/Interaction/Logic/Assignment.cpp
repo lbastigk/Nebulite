@@ -90,7 +90,7 @@ void Assignment::apply(Core::JsonScope& self, Core::JsonScope& other) {
         targetDocument = &other;
         break;
     case Logic::Assignment::Type::Global:
-        targetDocument = &Nebulite::global().getDoc();
+        targetDocument = &Nebulite::global().domainScope;
         break;
     case Logic::Assignment::Type::null:
         // TODO: determine context from expression!

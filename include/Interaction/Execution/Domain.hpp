@@ -116,22 +116,6 @@ public:
 
 private:
     /**
-     * @brief Shares a scope from the domain's document.
-     * @param prefix The prefix of the scope to share.
-     * @return A reference to the shared JsonScope.
-     */
-    [[nodiscard]] Data::JsonScopeBase& shareDocumentScopeBase(std::string const& prefix) const ;
-
-    /**
-     * @brief Gets a reference to the internal JSON document of the domain.
-     * @details Each domain uses a JSON document to store its data.
-     *          For the JSON domain, this is a reference to itself.
-     *          For others, it's a reference to their JSON document.
-     * @return A reference to the internal JSON document.
-     */
-    [[nodiscard]] virtual Core::JsonScope& getDoc() const ;
-
-    /**
      * @brief Each domain uses a JSON document to store its data.
      */
     Core::JsonScope& domainScope;

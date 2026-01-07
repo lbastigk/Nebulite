@@ -37,7 +37,7 @@ bool constexpr endsWithNewline(std::string_view const& str) {
 // Useful for small "runners" with neatly separated functionality, that need the ability to be called
 // separately.
 #define NEBULITE_FLOATING_DOMAINMODULE(DomainModule, DomainModuleName, Document, Scope) \
-    std::make_unique<DomainModule>(#DomainModuleName, *this, getFuncTree(), Document.shareDocumentScopeBase(Scope))
+    std::make_unique<DomainModule>(#DomainModuleName, *this, getFuncTree(), Document.domainScope.shareScopeBase(Scope))
 
 #define BINDFUNCTION(func, name,desc) \
 static_assert(endsWithNewline(desc), "Function description must end with a newline character."); \

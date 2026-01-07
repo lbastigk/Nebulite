@@ -38,7 +38,7 @@ bool JsonRuleset::evaluateCondition(Interaction::Execution::DomainBase const* ot
     if (logicalArg->isAlwaysTrue())
         return true;
 
-    double const result = logicalArg->evalAsDouble(otherObj->getDoc());
+    double const result = logicalArg->evalAsDouble(otherObj->domainScope);
     if (std::isnan(result)) {
         // We consider NaN as false
         return false;
@@ -50,13 +50,13 @@ bool JsonRuleset::evaluateCondition(Interaction::Execution::DomainBase const* ot
 void JsonRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
     // 1.) Assignments
     for (auto& assignment : assignments) {
-        assignment.apply(selfPtr->getDoc(), contextOther->getDoc());
+        assignment.apply(selfPtr->domainScope, contextOther->domainScope);
     }
 
     // 2.) Function calls
     for (auto& entry : functioncalls_global) {
         // replace vars
-        std::string call = entry.eval(contextOther->getDoc());
+        std::string call = entry.eval(contextOther->domainScope);
 
         // attach to task queue
         Nebulite::global().getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
@@ -64,12 +64,12 @@ void JsonRuleset::apply(Interaction::Execution::DomainBase* contextOther) {
     }
     for (auto& entry : functioncalls_self) {
         // replace vars
-        std::string const call = __FUNCTION__ + entry.eval(contextOther->getDoc());
+        std::string const call = __FUNCTION__ + entry.eval(contextOther->domainScope);
         (void)selfPtr->parseStr(call);
     }
     for (auto& entry : functioncalls_other) {
         // replace vars
-        std::string const call = __FUNCTION__ + entry.eval(contextOther->getDoc());
+        std::string const call = __FUNCTION__ + entry.eval(contextOther->domainScope);
         (void)contextOther->parseStr(call);
     }
 }

@@ -78,9 +78,6 @@ private:
         return fullPrefix;
     }
 
-    // Necessary helper for shareScope
-    [[nodiscard]] JsonScopeBase& shareManagedScopeBase(std::string const& prefix) const ;
-
 public:
     //------------------------------------------
     // Constructors
@@ -123,10 +120,12 @@ public:
     }
 
     //------------------------------------------
-    // Sharing a scope
+    // Sharing a scope (Base only, no Domain Functionality)
 
-    [[nodiscard]] JsonScopeBase& shareScopeBase(ScopedKeyView const& key) const ;
-    [[nodiscard]] JsonScopeBase& shareScopeBase(ScopedKey const& prefix) const {return shareScopeBase(prefix.view());}
+    // When requesting a scope to share, we always assume its relative to our current scope
+    // So we can pass a key as string and generate the full key internally based on our scopePrefix
+
+    [[nodiscard]] JsonScopeBase& shareScopeBase(std::string const& key) const ;
 
     //------------------------------------------
     // Getter

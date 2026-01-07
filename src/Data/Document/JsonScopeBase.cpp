@@ -32,12 +32,10 @@ JsonScopeBase::~JsonScopeBase() = default;
 //------------------------------------------
 // Sharing a scope
 
-JsonScopeBase& JsonScopeBase::shareManagedScopeBase(std::string const& prefix) const {
-    return shareScopeBase(ScopedKey(prefix));
-}
-
-JsonScopeBase& JsonScopeBase::shareScopeBase(ScopedKeyView const& key) const {
-    return baseDocument->shareManagedScopeBase(key.full(*this));
+JsonScopeBase& JsonScopeBase::shareScopeBase(std::string const& key) const {
+    return baseDocument->shareManagedScopeBase(
+        ScopedKey(key).view().full(*this)
+    );
 }
 
 //------------------------------------------

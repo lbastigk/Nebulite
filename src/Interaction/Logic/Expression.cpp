@@ -173,7 +173,7 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
             break;
         case Component::From::global:
             if (isAvailableAsDoublePtr(key)) {
-                vd->setUpExternalCache(Nebulite::global().getDoc());
+                vd->setUpExternalCache(Nebulite::global().domainScope);
                 virtualDoubles.remanent.global.push_back(vd);
             } else {
                 virtualDoubles.nonRemanent.global.push_back(vd);
@@ -463,7 +463,7 @@ bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr
         token = current_other.get<std::string>(Data::ScopedKey(strippedKey), "null");
         break;
     case Component::From::global:
-        token = Nebulite::global().getDoc().get<std::string>(Data::ScopedKey(strippedKey), "null");
+        token = Nebulite::global().domainScope.get<std::string>(Data::ScopedKey(strippedKey), "null");
         break;
     case Component::From::resource:
         token = Nebulite::global().getDocCache().get<std::string>(strippedKey, "null");
@@ -604,7 +604,7 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
         // One-time handle of multi-resolve and transformations
         Expression tempExpr(vde->getKey(), references.self);
         auto const evalResult = Data::ScopedKey(tempExpr.eval(reference));
-        auto const val = Nebulite::global().getDoc().get<double>(evalResult, 0.0);
+        auto const val = Nebulite::global().domainScope.get<double>(evalResult, 0.0);
         vde->setDirect(val);
     }
 
@@ -627,13 +627,13 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
 // With context
 
 std::string Expression::eval(std::string const& input, Interaction::ContextBase const& context) {
-    Expression const expr(input, context.self.getDoc());
-    return expr.eval(context.other.getDoc());
+    Expression const expr(input, context.self.domainScope);
+    return expr.eval(context.other.domainScope);
 }
 
 double Expression::evalAsDouble(std::string const& input, Interaction::ContextBase const& context) {
-    Expression const expr(input, context.self.getDoc());
-    return expr.evalAsDouble(context.other.getDoc());
+    Expression const expr(input, context.self.domainScope);
+    return expr.evalAsDouble(context.other.domainScope);
 }
 
 bool Expression::evalAsBool(std::string const& input, Interaction::ContextBase const& context) {
