@@ -46,12 +46,8 @@
 //------------------------------------------
 namespace Nebulite::DomainModule {
 
-// We use the scope __tmp__.<name> to indicate modules with restricted access,
-// that don't require any document.
-// If we ever see __tmp__ being used, we know that we wrote to the document even though the DomainModule is designed to not do so.
-// This doesn't break anything, but is a useful indicator that:
-// - we wrote to the document when it was designed to not do so
-// - we may want to rename the scope to something more appropriate
+// TODO: Once CallerScope is implemented, we can restrict scope access to every DomainModule
+//       no Module should have full access!
 
 void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
 
@@ -68,7 +64,7 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     using namespace Nebulite::DomainModule::GlobalSpace;
     target->initModule<General>(
         "Global General Functions",
-        target->domainScope.shareScopeBase("") // General functions should have full access
+        target->domainScope.shareScopeBase("") // See above, later on we can restrict this
     );
     target->initModule<Debug>(
         "Global Debug Functions",
@@ -122,15 +118,15 @@ void Initializer::initJsonScope(Core::JsonScope* target) {
     using namespace Nebulite::DomainModule::JsonScope;
     target->initModule<SimpleData>(
         "JSON Simple Data Functions",
-        target->domainScope.shareScopeBase("")
+        target->domainScope.shareScopeBase("")  // See above, later on we can restrict this
     );
     target->initModule<ComplexData>(
         "JSON Complex Data Functions",
-        target->domainScope.shareScopeBase("")
+        target->domainScope.shareScopeBase("")  // See above, later on we can restrict this
     );
     target->initModule<Debug>(
         "JSON Debug Functions",
-        target->domainScope.shareScopeBase("") // Requires full access to be able to print JSON data
+        target->domainScope.shareScopeBase("") // See above, later on we can restrict this
     );
 }
 
@@ -138,13 +134,13 @@ void Initializer::initRenderObject(Core::RenderObject* target) {
     // Initialize DomainModules
     using namespace Nebulite::DomainModule::RenderObject;
     target->initModule<Debug>(  // TODO: Move eval function to a General DomainModule, so we can restruct this modules access
-        "RenderObject Debug Functions", target->domainScope.shareScopeBase("")
+        "RenderObject Debug Functions", target->domainScope.shareScopeBase("")  // See above, later on we can restrict this
     );
     target->initModule<Logging>(
-        "RenderObject Logging Functions", target->domainScope.shareScopeBase("") // Requires full access to properly log
+        "RenderObject Logging Functions", target->domainScope.shareScopeBase("") // See above, later on we can restrict this
     );
     target->initModule<Mirror>(
-        "RenderObject Mirror Functions", target->domainScope.shareScopeBase("") // Requires full access to properly mirror
+        "RenderObject Mirror Functions", target->domainScope.shareScopeBase("") // See above, later on we can restrict this
     );
     target->initModule<Ruleset>(
         "RenderObject Ruleset Functions", target->domainScope.shareScopeBase("ruleset.")
@@ -160,11 +156,13 @@ void Initializer::initRenderer(Core::Renderer* target) {
     using namespace Nebulite::DomainModule::Renderer;
     target->initModule<General>(
         "Renderer General Functions",
-        target->domainScope.shareScopeBase("") // General functions should have full access
+        target->domainScope.shareScopeBase("") // See above, later on we can restrict this
     );
     target->initModule<Console>(
         "Renderer Console Functions",
-        target->domainScope.shareScopeBase("") // Could be restricted to resolution, but this causes confusion as any of its writes happen in key "resolution".
+        // Could be restricted to resolution,
+        // but this causes confusion as any console-related writes happen in key "resolution".
+        target->domainScope.shareScopeBase("")
     );
     target->initModule<Input>(
         "Renderer Input Functions",
