@@ -181,6 +181,8 @@ private:
      * @brief Reference to the settings JsonScopeBase document.
      * @details This allows derived DomainModules to access and manipulate
      *          the settings JSON document as needed.
+     * @todo Consider modifying the GlobalSpace constructor to not initialize Modules, then we can store a scope reference here directly.
+     *       -> no infinite recursion of GlobalSpace access -> DomainModule init -> GlobalSpace access -> ...
      */
     std::string const& settingsPrefix;
 };

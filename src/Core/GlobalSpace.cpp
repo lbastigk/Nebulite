@@ -35,7 +35,9 @@ GlobalSpace::GlobalSpace(std::string const& name)
     // General Variables
     names.binary = name;
     names.state = "";
+}
 
+void GlobalSpace::initialize() {
     //------------------------------------------
     // Domain-Related
 

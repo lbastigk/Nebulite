@@ -49,6 +49,15 @@ public:
 
     explicit GlobalSpace(std::string const& name = "Unnamed GlobalSpace");
 
+    /**
+     * @brief In order to avoid infinite recursion, we initialize GlobalSpace after construction.
+     * @details The issue is that some DomainModules may need to access GlobalSpace during their construction,
+     *          leading to infinite recursion if GlobalSpace is not fully constructed yet.
+     *          By separating initialization from construction, we ensure that GlobalSpace is fully constructed
+     *          before any DomainModule attempts to access it.
+     */
+    void initialize();
+
     ~GlobalSpace() override = default;
 
     // Globalspace is wrapped in a singleton pattern
