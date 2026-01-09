@@ -1,6 +1,7 @@
 //------------------------------------------
 // Includes
 
+#include "Nebulite.hpp"
 #include "Core/GlobalSpace.hpp"
 #include "DomainModule/Initializer.hpp"
 
@@ -14,7 +15,7 @@ GlobalSpace::GlobalSpace(std::string const& name)
     //------------------------------------------
     // Initialize floating DomainModules
 
-    floatingDM.rng = NEBULITE_FLOATING_DOMAINMODULE(Nebulite::DomainModule::GlobalSpace::RNG,"RNG", domainScope, "random");
+    floatingDM.rng = NEBULITE_FLOATING_DOMAINMODULE(Nebulite::DomainModule::GlobalSpace::RNG,"RNG", domainScope, "random", "");
 
     //------------------------------------------
     // There should only be one GlobalSpace

@@ -10,16 +10,14 @@
 
 namespace Nebulite::Interaction::Execution {
 
-// TODO: Add argument for custom scope prefix
-//       Sharing scopes is difficult, as creating a scope involves creating a new domain instance
-//       -> infinite recursion!
 template <typename DomainType>
 DomainModule<DomainType>::DomainModule(
     std::string name,
     DomainType& domainReference,
     std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr,
-    Data::JsonScopeBase& scope
-) : DomainModuleBase(std::move(funcTreePtr), scope), moduleName(std::move(name)), domain(domainReference) {
+    Data::JsonScopeBase& scope,
+    std::string const& settings
+) : DomainModuleBase(std::move(funcTreePtr), scope, settings), moduleName(std::move(name)), domain(domainReference) {
 }
 
 template <typename DomainType>

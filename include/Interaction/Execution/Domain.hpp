@@ -241,11 +241,10 @@ public:
      *       For example, the simpledata domainmodule needs to use the passed scope to modify data at the correct scope,
      *       but the time domainmodule needs to use its own workspace to store the time variable.
      *       The following scopes are then relevant:
-     *       - domainScope: The overall document of the domain (already named as such, now get rid of getDoc())
-     *       - moduleScope: The workspace of the domainmodule (already named as such, now get rid of getDoc())
+     *       - domainScope: The overall document of the domain
+     *       - moduleScope: The workspace of the domainmodule
      *       - callerScope: The scope passed to functions for command execution
-     *       Neat! every variable even has the same length now!
-     *       Then we get rid of getDoc() in DocumentAccessor and DomainModule
+     *       - settingsScope: The settings scope of the domainmodule
      */
     [[nodiscard]] Constants::Error parseStr(std::string const& str) const {
         return funcTree->parseStr(str);
@@ -361,11 +360,12 @@ public:
      * @brief Factory method for creating DomainModule instances with proper linkage
      * @tparam DomainModuleType The type of module to initialize
      * @param moduleName The name of the module
-     * @param scope Pointer to the JsonScope for the module
+     * @param scope The workspace JsonScope for the module
+     * @param settings The prefix for the settings scope of the module
      */
     template <typename DomainModuleType>
-    void initModule(std::string moduleName, Data::JsonScopeBase& scope) {
-        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, getFuncTree(), scope);
+    void initModule(std::string moduleName, Data::JsonScopeBase& scope, std::string const& settings) {
+        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, getFuncTree(), scope, settings);
         DomainModule->reinit();
         modules.push_back(std::move(DomainModule));
     }

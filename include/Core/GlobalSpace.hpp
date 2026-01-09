@@ -63,6 +63,13 @@ public:
     GlobalSpace& operator=(GlobalSpace&&) = delete;
 
     //------------------------------------------
+    // Share a read-only setting scope
+
+    [[nodiscard]] JsonScope const& shareSettingsScope(std::string const& prefix) const {
+        return domainScope.shareScope("settings." + prefix);
+    }
+
+    //------------------------------------------
     // Provide scopes for DomainModules and RulesetModules, depending on their type
 
     // GlobalSpace DomainModules root is at "", then we add their own prefix
