@@ -29,10 +29,9 @@ bool constexpr endsWithNewline(std::string_view const& str) {
     explicit DomainModuleName( \
         std::string const& name, DomainName& domainReference, \
         std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, \
-        Data::JsonScopeBase& w, \
-        std::string const& s \
+        Data::JsonScopeBase& w \
     ) \
-    : DomainModule(name, domainReference, std::move(funcTreePtr), w, s)
+    : DomainModule(name, domainReference, std::move(funcTreePtr), w)
 
 // Common macro to create a floating DomainModule with proper linkage
 // Floating DomainModules are handled separately from regular DomainModules
@@ -41,13 +40,12 @@ bool constexpr endsWithNewline(std::string_view const& str) {
 // without the additional overhead if we were to turn them into full Domains.
 // Useful for small "runners" with neatly separated functionality, that need the ability to be called
 // separately.
-#define NEBULITE_FLOATING_DOMAINMODULE(DomainModule, DomainModuleName, Document, Workspace, Settings) \
+#define NEBULITE_FLOATING_DOMAINMODULE(DomainModule, DomainModuleName, Document, Workspace) \
     std::make_unique<DomainModule>( \
         #DomainModuleName, \
         *this, \
         getFuncTree(), \
-        Document.domainScope.shareScopeBase(Workspace), \
-        Settings \
+        Document.domainScope.shareScopeBase(Workspace) \
     )
 
 #define BINDFUNCTION(func, name,desc) \
@@ -69,11 +67,10 @@ public:
      * @brief Constructor for the DomainModule base class.
      * @param funcTreePtr Shared pointer to the FuncTree for binding functions and variables.
      * @param w Reference to a JsonScopeBase document for this module to use as workspace.
-     * @param s String prefix for this module to use as settings.
      * @details The constructor initializes the DomainModuleBase with
      *          the FuncTree pointer for binding functions and variables.
      */
-    explicit DomainModuleBase(std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr, Data::JsonScopeBase& w, std::string const& s);
+    explicit DomainModuleBase(std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr, Data::JsonScopeBase& w);
 
     //------------------------------------------
     // Static Binding Functions
@@ -153,16 +150,6 @@ public:
      */
     [[nodiscard]] Data::JsonScopeBase& getDoc() const ;
 
-    /**
-     * @brief Retrieves the settings scope based on what was shared with the DomainModule.
-     * @details Due to infinite recursion issues when trying to pass the settings scope directly,
-     *          we retrieve it from the global settings scope using the stored prefix.
-     * @todo If we ensure that each Domain has an initialize() function after construction,
-     *       we can pass the settings scope directly during that phase, avoiding this workaround.
-     * @return Reference to the settings scope.
-     */
-    [[nodiscard]] Data::JsonScopeBase const& settings() const ;
-
 private:
     /**
      * @brief Pointer to the internal FuncTree for binding functions and variables.
@@ -180,13 +167,6 @@ private:
      *          the JSON document as needed.
      */
     Data::JsonScopeBase& moduleScope;
-
-    /**
-     * @brief Reference to the settings JsonScopeBase document.
-     * @details This allows derived DomainModules to access and manipulate
-     *          the settings JSON document as needed.
-     */
-    std::string const& settingsPrefix;
 };
 
 /**
@@ -206,14 +186,12 @@ public:
      * @param domainReference Reference to the Domain instance this module is associated with.
      * @param funcTreePtr Shared pointer to the FuncTree for binding functions and variables.
      * @param scope JsonScopeBase reference for this module to use as workspace.
-     * @param settings Prefix for this module to use as settings. Already scoped within "settings." in globalspace.
      */
     DomainModule(
         std::string name,
         DomainType& domainReference,
         std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr,
-        Data::JsonScopeBase& scope,
-        std::string const& settings
+        Data::JsonScopeBase& scope
     );
 
     /**

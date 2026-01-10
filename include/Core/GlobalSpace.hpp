@@ -74,8 +74,9 @@ public:
     //------------------------------------------
     // Share a read-only setting scope
 
-    [[nodiscard]] JsonScope const& shareSettingsScope(std::string const& prefix) const {
-        return domainScope.shareScope("settings." + prefix);
+    [[nodiscard]] JsonScope const& settings() const {
+        static JsonScope const& settingsScopeConst = domainScope.shareScope("settings.");
+        return settingsScopeConst;
     }
 
     //------------------------------------------

@@ -361,11 +361,10 @@ public:
      * @tparam DomainModuleType The type of module to initialize
      * @param moduleName The name of the module
      * @param scope The workspace JsonScope for the module
-     * @param settings The prefix for the settings scope of the module
      */
     template <typename DomainModuleType>
-    void initModule(std::string moduleName, Data::JsonScopeBase& scope, std::string const& settings) {
-        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, getFuncTree(), scope, settings);
+    void initModule(std::string moduleName, Data::JsonScopeBase& scope) {
+        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, getFuncTree(), scope);
         DomainModule->reinit();
         modules.push_back(std::move(DomainModule));
     }
