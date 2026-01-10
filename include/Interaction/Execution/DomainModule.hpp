@@ -155,6 +155,10 @@ public:
 
     /**
      * @brief Retrieves the settings scope based on what was shared with the DomainModule.
+     * @details Due to infinite recursion issues when trying to pass the settings scope directly,
+     *          we retrieve it from the global settings scope using the stored prefix.
+     * @todo If we ensure that each Domain has an initialize() function after construction,
+     *       we can pass the settings scope directly during that phase, avoiding this workaround.
      * @return Reference to the settings scope.
      */
     [[nodiscard]] Data::JsonScopeBase const& settings() const ;
@@ -181,8 +185,6 @@ private:
      * @brief Reference to the settings JsonScopeBase document.
      * @details This allows derived DomainModules to access and manipulate
      *          the settings JSON document as needed.
-     * @todo Consider modifying the GlobalSpace constructor to not initialize Modules, then we can store a scope reference here directly.
-     *       -> no infinite recursion of GlobalSpace access -> DomainModule init -> GlobalSpace access -> ...
      */
     std::string const& settingsPrefix;
 };

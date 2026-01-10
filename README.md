@@ -105,13 +105,23 @@ Domains are modular engine components encapsulating specific functionality such 
 - Global engine state (`GlobalSpace` Domain)
 - The rendering system (`Renderer` Domain)
 
-Each Domain can have multiple DomainModules, which further break down functionality into manageable pieces,
+Each Domain can initialize DomainModules, which further break down functionality into manageable pieces,
 providing update routines and functions for users to call:
 - Time management for `GlobalSpace` Domain
 - Basic setting and array manipulation for `JsonScope` DomainModule
 - Console functionality for `Renderer` DomainModule
 
 Each Domain is able to parse string commands in its own context, that call the respective DomainModules' functions.
+These commands may be called by other Domains, the interactive console, or Task Files:
+```bash
+# Example commands
+set myVar 5
+set-fps 60
+always eval echo {myVar}
+always eval set myVar $({myVar} + 1)
+wait 100
+exit
+```
 
 Domains may be arranged in a hierarchy, where parent Domains can contain child Domains.
 This allows for shared functionality and data between related Domains.
