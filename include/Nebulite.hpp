@@ -131,6 +131,68 @@ namespace Utility {
 } // namespace Nebulite
 
 //------------------------------------------
+// Global Document accessor wrapper
+
+namespace Nebulite {
+
+/**
+ * @class Nebulite::GlobalDocAccessor
+ * @brief Provides access to various scopes within the global document.
+ *        Allows access to the document without initializing the entire GlobalSpace.
+ */
+class GlobalDocAccessor {
+public:
+    //------------------------------------------
+    // Share a read-only setting scope
+
+    [[nodiscard]] Core::JsonScope const& settings() {
+        static Core::JsonScope const& settingsScopeConst = globalDoc.shareManagedScope("settings.");
+        return settingsScopeConst;
+    }
+
+    //------------------------------------------
+    // Provide full scope for GlobalSpace Domain
+
+    [[nodiscard]] Core::JsonScope& shareScope(Core::GlobalSpace const& gs, std::string const& prefix) {
+        (void)gs; // only used for access control
+        return globalDoc.shareManagedScope(prefix);
+    }
+
+    //------------------------------------------
+    // Provide scopes for DomainModules and RulesetModules, depending on their type
+
+    // GlobalSpace DomainModules root is at "", then we add their own prefix
+    [[nodiscard]] Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm) {
+        return globalDoc.shareManagedScope(dm.getDoc().getScopePrefix());
+    }
+
+    // Provide a custom scope for DomainModules from RenderObjects
+    // We add a prefix to signal what part these domainModules can access
+    [[nodiscard]] Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::RenderObject> const& dm) {
+        return globalDoc.shareManagedScope("providedScope.domainModule.renderObject." + dm.getDoc().getScopePrefix());
+    }
+
+    // Provide a custom scope for DomainModules from JsonScope
+    // We add a prefix to signal what part these domainModules can access
+    [[nodiscard]] Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::JsonScope> const& dm) {
+        return globalDoc.shareManagedScope("providedScope.domainModule.jsonScope." + dm.getDoc().getScopePrefix());
+    }
+
+    // Provide scope to RulesetModules
+    [[nodiscard]] Core::JsonScope& shareScope(Interaction::Rules::RulesetModule const& rm) {
+        (void)rm; // unused, we provide full scope for now
+        // TODO: add a getScopePrefix() to RulesetModule later on if needed
+        //       e.g. Physics RulesetModule might only need access to physics-related variables.
+        //       For this to work properly, we may have to add the ability to share multiple scopes.
+        //       -> physics and time for example
+        return globalDoc.shareManagedScope("");
+    }
+private:
+    Data::JSON globalDoc;
+};
+} // namespace Nebulite
+
+//------------------------------------------
 // Singleton accessors
 
 /**
@@ -139,8 +201,16 @@ namespace Utility {
 namespace Nebulite {
 /**
  * @brief Singleton accessor for the global GlobalSpace object.
+ * @details Do not call this in DomainModule constructors, as it may lead to infinite recursion!
+ * @return Reference to the global Core::GlobalSpace instance.
  */
 Core::GlobalSpace& global();
+
+/**
+ * @brief Singleton accessor for the global document.
+ * @return Reference to accessor for various scopes within the global document.
+ */
+GlobalDocAccessor& globalDoc();
 
 /**
  * @brief Singleton accessor for the cout capture object

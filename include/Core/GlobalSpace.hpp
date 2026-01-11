@@ -72,44 +72,6 @@ public:
     GlobalSpace& operator=(GlobalSpace&&) = delete;
 
     //------------------------------------------
-    // Share a read-only setting scope
-
-    [[nodiscard]] JsonScope const& settings() const {
-        static JsonScope const& settingsScopeConst = domainScope.shareScope("settings.");
-        return settingsScopeConst;
-    }
-
-    //------------------------------------------
-    // Provide scopes for DomainModules and RulesetModules, depending on their type
-
-    // GlobalSpace DomainModules root is at "", then we add their own prefix
-    [[nodiscard]] JsonScope& shareScope(Interaction::Execution::DomainModule<GlobalSpace> const& dm) const {
-        return domainScope.shareScope(dm.getDoc().getScopePrefix());
-    }
-
-    // Provide a custom scope for DomainModules from RenderObjects
-    // We add a prefix to signal what part these domainModules can access
-    [[nodiscard]] JsonScope& shareScope(Interaction::Execution::DomainModule<RenderObject> const& dm) const {
-        return domainScope.shareScope("providedScope.domainModule.renderObject." + dm.getDoc().getScopePrefix());
-    }
-
-    // Provide a custom scope for DomainModules from JsonScope
-    // We add a prefix to signal what part these domainModules can access
-    [[nodiscard]] JsonScope& shareScope(Interaction::Execution::DomainModule<JsonScope> const& dm) const {
-        return domainScope.shareScope("providedScope.domainModule.jsonScope." + dm.getDoc().getScopePrefix());
-    }
-
-    // Provide scope to RulesetModules
-    [[nodiscard]] JsonScope& shareScope(Interaction::Rules::RulesetModule const& rm) const {
-        (void)rm; // unused, we provide full scope for now
-        // TODO: add a getScopePrefix() to RulesetModule later on if needed
-        //       e.g. Physics RulesetModule might only need access to physics-related variables.
-        //       For this to work properly, we may have to add the ability to share multiple scopes.
-        //       -> physics and time for example
-        return domainScope.shareScope("");
-    }
-
-    //------------------------------------------
     // Functions
 
     /**
@@ -257,13 +219,6 @@ private:
 
     // Check if main loop should continue
     bool continueLoop = true;
-
-    // Global JSON Document
-    // Technically better to not have this variable and rely on
-    // creating a JsonScope in the Constructor
-    // And then using getDoc() to access it,
-    // but this is more difficult due to lifetime issues it seems.
-    Core::JsonScope globalDoc = Core::JsonScope("GlobalSpace Document");
 
     // DocumentCache for read-only documents
     Data::DocumentCache docCache;

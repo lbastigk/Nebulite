@@ -13,10 +13,10 @@ Camera::Camera() : RulesetModule(moduleName) {
     BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignRight, alignRightName, alignRightDesc);
 
     // References
-    globalVal.camPosX = global().shareScope(*this).getStableDoublePointer(Constants::KeyNames::Renderer::positionX);
-    globalVal.camPosY = global().shareScope(*this).getStableDoublePointer(Constants::KeyNames::Renderer::positionY);
-    globalVal.dispResX = global().shareScope(*this).getStableDoublePointer(Constants::KeyNames::Renderer::dispResX);
-    globalVal.dispResY = global().shareScope(*this).getStableDoublePointer(Constants::KeyNames::Renderer::dispResY);
+    globalVal.camPosX = globalDoc().shareScope(*this).getStableDoublePointer(Constants::KeyNames::Renderer::positionX);
+    globalVal.camPosY = globalDoc().shareScope(*this).getStableDoublePointer(Constants::KeyNames::Renderer::positionY);
+    globalVal.dispResX = globalDoc().shareScope(*this).getStableDoublePointer(Constants::KeyNames::Renderer::dispResX);
+    globalVal.dispResY = globalDoc().shareScope(*this).getStableDoublePointer(Constants::KeyNames::Renderer::dispResY);
 }
 
 // TODO: Add another namespace for camera following rulesets using a PT1 controller for smooth movement

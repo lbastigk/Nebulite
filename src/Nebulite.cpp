@@ -9,6 +9,11 @@ Core::GlobalSpace& global() {
     return globalSpaceInstance;
 }
 
+GlobalDocAccessor& globalDoc() {
+    static GlobalDocAccessor globalDocAccessorInstance;
+    return globalDocAccessorInstance;
+}
+
 Nebulite::Utility::CaptureStream& cout() {
     return Nebulite::Utility::Capture::cout();
 }

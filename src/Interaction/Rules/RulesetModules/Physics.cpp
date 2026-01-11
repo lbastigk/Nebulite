@@ -18,9 +18,9 @@ Physics::Physics() : RulesetModule(moduleName) {
     BIND_STATIC_ASSERT(RulesetType::Local, &Physics::drag, dragName, dragDesc);
 
     // Global Variables
-    globalVal.G = Nebulite::global().shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Physics::Key::Global::G); // Gravitational constant
-    globalVal.dt = Nebulite::global().shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_dt); // Simulation delta time
-    globalVal.t = Nebulite::global().shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_t); // Simulation time
+    globalVal.G = Nebulite::globalDoc().shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Physics::Key::Global::G); // Gravitational constant
+    globalVal.dt = Nebulite::globalDoc().shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_dt); // Simulation delta time
+    globalVal.t = Nebulite::globalDoc().shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_t); // Simulation time
 }
 
 // Global rulesets
@@ -53,19 +53,19 @@ void Physics::elasticCollision(ContextBase const& context) {
     double const m2 = baseVal(otr, Key::physics_mass);
 
     // Base overlap condition
-    bool baseCondition = m1 > 0.0 && m2 > 0.0
-                         && p1X < p2X + size2X // right side overlap
-                         && p1Y < p2Y + size2Y // bottom side overlap
-                         && p2X < p1X + size1X // left side overlap
-                         && p2Y < p1Y + size1Y; // top side overlap
+    bool const baseCondition = m1 > 0.0 && m2 > 0.0
+        && p1X < p2X + size2X // right side overlap
+        && p1Y < p2Y + size2Y // bottom side overlap
+        && p2X < p1X + size1X // left side overlap
+        && p2Y < p1Y + size1Y; // top side overlap
 
     //------------------------------------------
     // Potential collision response
 
     if (baseCondition) {
         // Overlap checks for each axis (?)
-        bool conditionX = !(p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y);
-        bool conditionY = !(p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X);
+        bool const conditionX = !(p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y);
+        bool const conditionY = !(p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X);
 
         // m1*v1 + m2*v2 = m1*v1new + m2*v2new
         // Split into v1new and v2new equations
@@ -94,7 +94,7 @@ void Physics::elasticCollision(ContextBase const& context) {
             double const dF2X = m2 * (v2newX - v2X) / dt;
 
             // Get last collision time pointer
-            double lastColX = baseVal(otr, Key::physics_lastCollisionX);
+            double const lastColX = baseVal(otr, Key::physics_lastCollisionX);
 
             // Lock and write
             auto slfLock = context.self.lockDocument();
@@ -116,7 +116,7 @@ void Physics::elasticCollision(ContextBase const& context) {
             double const dF2Y = m2 * (v2newY - v2Y) / dt;
 
             // Get last collision time pointer
-            double lastColY = baseVal(otr, Key::physics_lastCollisionY);
+            double const lastColY = baseVal(otr, Key::physics_lastCollisionY);
 
             // Lock and write
             auto slfLock = context.self.lockDocument();
