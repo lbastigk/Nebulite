@@ -39,6 +39,7 @@ class Texture;
 
 namespace Nebulite::Data {
 class MappedOrderedDoublePointers;
+class TaskQueue;
 } // namespace Nebulite::Data
 
 namespace Nebulite::DomainModule {
@@ -95,6 +96,9 @@ public:
     friend class Core::RenderObject;
     friend class Core::Texture;
 
+    // Allow TaskQueue access to set caller scope
+    friend class Data::TaskQueue;
+
     // Allow ContextBase to demote to ContextScope
     friend class Nebulite::Interaction::ContextBase;
 
@@ -146,11 +150,11 @@ private:
      *          easily create the object with an inherited FuncTree inside the constructor.
      *          The Tree is then shared with the DomainModules for modification.
      */
-    std::shared_ptr<FuncTree<Constants::Error>> funcTree;
+    std::shared_ptr<FuncTree<Constants::Error, DomainBase&, Data::JsonScopeBase&>> funcTree;
 public:
     DomainBase(std::string const& name, Core::JsonScope& documentReference)
         : DocumentAccessor(documentReference), domainName(name){
-        funcTree = std::make_shared<FuncTree<Constants::Error>>(
+        funcTree = std::make_shared<FuncTree<Constants::Error, DomainBase&, Data::JsonScopeBase&>>(
             name,
             Constants::ErrorTable::NONE(),
             Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
@@ -223,32 +227,8 @@ public:
      *          The errors are not printed to stderr by default to allow the caller to handle them as needed.
      * @param str The string to parse.
      * @return Potential errors that occurred on command execution
-     * @todo Currently, this method is accessible to all DomainModules.
-     *       This is a security risk, as DomainModules can execute commands outside of their scope.
-     *       For this to be resolved, we need some restricted parsing mode that only allows commands
-     *       to execute with data in its own scope.
-     *       But requires careful design, perhaps with the scope itself as argument.
-     *       Idea: parseStr(str, scope) -> foo(args, scope)
-     *       Once all domainmodule functions are modernized with std::span<std::string const> args,
-     *       implement a restricted parseStr version as described above,
-     *       by passing around the scope as reference.
-     *       Note that only modern arguments support passing additional arguments like scope!
-     *       Update the base Domain functree to take the scope as additional argument.
-     *       Most getDoc() calls are then replaced with the passed scope.
-     *       This, however, complicates things as we need to distinguish between:
-     *       - The general workspace of the domainmodule for its update routine or variable storage
-     *       - The scope passed to functions for command execution
-     *       For example, the simpledata domainmodule needs to use the passed scope to modify data at the correct scope,
-     *       but the time domainmodule needs to use its own workspace to store the time variable.
-     *       The following scopes are then relevant:
-     *       - domainScope: The overall document of the domain
-     *       - moduleScope: The workspace of the domainmodule
-     *       - callerScope: The scope passed to functions for command execution
-     *       - settingsScope: The settings scope of the domainmodule
      */
-    [[nodiscard]] Constants::Error parseStr(std::string const& str) const {
-        return funcTree->parseStr(str);
-    }
+    [[nodiscard]] Constants::Error parseStr(std::string const& str);
 
     /**
      * @brief Necessary operations before parsing commands.
@@ -286,7 +266,7 @@ protected:
      *        Marked as protected, as it's only used to initialize DomainModules.
      * @return A shared pointer to the internal FuncTree.
      */
-    std::shared_ptr<FuncTree<Constants::Error>> getFuncTree() {
+    std::shared_ptr<FuncTree<Constants::Error, DomainBase&, Data::JsonScopeBase&>> getFuncTree() {
         return funcTree;
     }
 
@@ -305,7 +285,7 @@ protected:
      *        Re-initializes all DomainModules in the JSON scope after deserialization.
      * @param serialOrLinkWithCommands The serialization string or link with commands to deserialize.
      */
-    void baseDeserialization(std::string const& serialOrLinkWithCommands) const ;
+    void baseDeserialization(std::string const& serialOrLinkWithCommands);
 };
 
 /**

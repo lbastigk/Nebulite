@@ -17,7 +17,11 @@
 // Forward declarations
 namespace Nebulite::Core {
 class RenderObject;
-}
+} // namespace Nebulite::Core
+
+namespace Nebulite::Interaction::Execution {
+class DomainBase;
+} // namespace Nebulite::Interaction::Execution
 
 //------------------------------------------
 namespace Nebulite::DomainModule::RenderObject {
@@ -34,7 +38,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error eval(int argc, char** argv);
+    Constants::Error eval(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr eval_name = "eval";
     static auto constexpr eval_desc = "Evaluate an expression and execute the result.\n"
         "Example: eval echo $(1+1)\n"

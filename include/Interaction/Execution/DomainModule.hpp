@@ -16,6 +16,12 @@
 #include "Data/Document/JsonScopeBase.hpp"
 
 //------------------------------------------
+// Forward declarations
+namespace Nebulite::Interaction::Execution {
+class DomainBase;
+} // namespace Nebulite::Interaction::Execution
+
+//------------------------------------------
 // Macro for DomainModule definition
 
 bool constexpr endsWithNewline(std::string_view const& str) {
@@ -28,7 +34,7 @@ bool constexpr endsWithNewline(std::string_view const& str) {
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
     explicit DomainModuleName( \
         std::string const& name, DomainName& domainReference, \
-        std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, \
+        std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error, Nebulite::Interaction::Execution::DomainBase&, Nebulite::Data::JsonScopeBase&>> funcTreePtr, \
         Data::JsonScopeBase& w, \
         Data::JsonScopeBase const& s \
     ) \
@@ -73,7 +79,11 @@ public:
      * @details The constructor initializes the DomainModuleBase with
      *          the FuncTree pointer for binding functions and variables.
      */
-    explicit DomainModuleBase(std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr, Data::JsonScopeBase& w, Data::JsonScopeBase const& s);
+    explicit DomainModuleBase(
+        std::shared_ptr<FuncTree<Constants::Error, DomainBase&, Data::JsonScopeBase&>> funcTreePtr,
+        Data::JsonScopeBase& w,
+        Data::JsonScopeBase const& s
+    );
 
     //------------------------------------------
     // Static Binding Functions
@@ -169,8 +179,7 @@ private:
      *          Instead of making a mess by untangling the templates, we simply use a pointer
      *          to the non-templated interface.
      */
-    std::shared_ptr<FuncTree<Constants::Error>> funcTree;
-
+    std::shared_ptr<FuncTree<Constants::Error, DomainBase&, Data::JsonScopeBase&>> funcTree;
 };
 
 /**
@@ -195,7 +204,7 @@ public:
     DomainModule(
         std::string name,
         DomainType& domainReference,
-        std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr,
+        std::shared_ptr<FuncTree<Constants::Error, DomainBase&, Data::JsonScopeBase&>> funcTreePtr,
         Data::JsonScopeBase& scope,
         Data::JsonScopeBase const& settings
     );

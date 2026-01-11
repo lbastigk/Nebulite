@@ -152,7 +152,7 @@ public:
         "\n"
         "Usage: selected-object get <id>\n";
 
-    Constants::Error selectedObject_Parse(int argc, char** argv);
+    Constants::Error selectedObject_Parse(std::span<std::string const> const& args);
     static auto constexpr selectedObject_Parse_name = "selected-object parse";
     static auto constexpr selectedObject_Parse_desc = "Parse a command on the selected RenderObject.\n"
         "\n"

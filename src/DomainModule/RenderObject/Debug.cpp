@@ -17,11 +17,12 @@ Constants::Error Debug::update() {
 //------------------------------------------
 // Available Functions
 
-Constants::Error Debug::eval(int argc, char** argv) {
-    std::string const args = Utility::StringHandler::recombineArgs(argc, argv);
+Constants::Error Debug::eval(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
+    std::string const argstr = Utility::StringHandler::recombineArgs(args);
     Interaction::ContextBase context{domain, domain, Nebulite::global()};    // Both self and other are this RenderObject?
-    std::string const argsEvaluated = Interaction::Logic::Expression::eval(args, context);
-    return domain.parseStr(argsEvaluated);
+    std::string const argsEvaluated = Interaction::Logic::Expression::eval(argstr, context);
+    (void)callerScope; // Unused
+    return caller.parseStr(argsEvaluated);
 }
 
 Constants::Error Debug::printSrcRect() {

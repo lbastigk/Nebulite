@@ -102,7 +102,7 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(FunctionPtr const& f
             targetTree = (*currentCategoryMap)[currentCategoryName].tree.get();
             currentCategoryMap = &targetTree->bindingContainer.categories;
         }
-        std::string functionName = pathStructure.back();
+        std::string const functionName = pathStructure.back();
         targetTree->bindFunction(func, functionName, helpDescription);
         return;
     }
@@ -177,7 +177,7 @@ void FuncTree<returnValue, additionalArgs...>::bindVariable(bool* varPtr, std::s
     bindingContainer.variables.emplace(name, VariableInfo{varPtr, helpDescription});
 
     // Use the variable pointer once to silence "can be made const" warnings
-    bool val = *varPtr;
+    bool const val = *varPtr;
     *varPtr = false;
     *varPtr = val;
 }
@@ -443,7 +443,7 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Func functionPtr) {
 // Member-binding helper: obj + member function pointer -> FunctionPtr
 template <typename returnValue, typename... additionalArgs>
 template <typename Obj, typename MemFunc>
-typename FuncTree<returnValue, additionalArgs...>::FunctionPtr
+FuncTree<returnValue, additionalArgs...>::FunctionPtr
 FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFunc memberFunctionPtr) {
     using FunctionPtrT = FunctionPtr;
     static_assert(std::is_member_function_pointer_v<MemFunc>, "makeFunctionPtr(Obj, MemFunc) requires a member function pointer");
@@ -500,11 +500,22 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
         });
     }
     else if constexpr (shape == FunctionShape::Member_NoArgs) {
-        return FunctionPtrT(
-            std::in_place_type<typename SupportedFunctions::Modern::NoArgs>,
-            [objectPtr, memberFunctionPtr]() {
-                return std::invoke(memberFunctionPtr, objectPtr);
-        });
+        if constexpr (sizeof...(additionalArgs) == 0) {
+            // No extra args in FuncTree -> store as NoArgs
+            return FunctionPtrT(
+                std::in_place_type<typename SupportedFunctions::Modern::NoArgs>,
+                [objectPtr, memberFunctionPtr]() {
+                    return std::invoke(memberFunctionPtr, objectPtr);
+            });
+        } else {
+            // FuncTree expects additionalArgs...: wrap the no-arg member into a callable that accepts (and ignores) those args
+            return FunctionPtrT(
+                std::in_place_type<typename SupportedFunctions::Modern::NoCmdArgs>,
+                [objectPtr, memberFunctionPtr](additionalArgs... rest) {
+                    (void)sizeof...(rest); // silence unused-warning pattern (optional)
+                    return std::invoke(memberFunctionPtr, objectPtr);
+            });
+        }
     }
     else {
         static_assert(always_false<MemFunc>, "makeFunctionPtr(Obj, MemFunc) received an unsupported member function pointer type");

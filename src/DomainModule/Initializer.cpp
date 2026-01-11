@@ -184,8 +184,7 @@ void Initializer::initRenderer(Core::Renderer* target) {
     );
     target->initModule<Console>(
         "Renderer Console Functions",
-        // Could be restricted to resolution,
-        // but this causes confusion as any console-related writes happen in key "resolution".
+        // Needs full access to redirect console commands to full global scope
         target->domainScope.shareScopeBase(""),
         Nebulite::globalDoc().settings()
     );

@@ -44,6 +44,10 @@ std::string const& DomainBase::scopePrefix() const {
     return domainScope.getScopePrefix();
 }
 
+Constants::Error DomainBase::parseStr(std::string const& str) {
+    return funcTree->parseStr(str, *this, domainScope);
+}
+
 Data::MappedOrderedDoublePointers* DomainBase::getDocumentCacheMap() const {
     return domainScope.getOrderedCacheListMap();
 }
@@ -66,7 +70,7 @@ std::vector<std::string> DomainBase::stringToDeserializeTokens(std::string const
     return tokens;
 }
 
-void DomainBase::baseDeserialization(std::string const& serialOrLinkWithCommands) const {
+void DomainBase::baseDeserialization(std::string const& serialOrLinkWithCommands) {
     //------------------------------------------
     // Split the input into tokens
     auto tokens = stringToDeserializeTokens(serialOrLinkWithCommands);

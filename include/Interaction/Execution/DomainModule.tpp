@@ -13,7 +13,7 @@ template <typename DomainType>
 DomainModule<DomainType>::DomainModule(
     std::string name,
     DomainType& domainReference,
-    std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr,
+    std::shared_ptr<FuncTree<Constants::Error, DomainBase&, Data::JsonScopeBase&>> funcTreePtr,
     Data::JsonScopeBase& scope,
     Data::JsonScopeBase const& settings
 ) : DomainModuleBase(

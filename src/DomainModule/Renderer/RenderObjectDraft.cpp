@@ -10,11 +10,11 @@ Constants::Error RenderObjectDraft::update() {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error RenderObjectDraft::draft_parse(int argc, char** argv) {
-    if (argc < 2) {
+Constants::Error RenderObjectDraft::draft_parse(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
+    if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    std::string const command = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
+    std::string const command = Utility::StringHandler::recombineArgs(args.subspan(1));
     return draft.get()->parseStr(__FUNCTION__ + std::string(" ") + command);
 }
 
@@ -29,7 +29,7 @@ Constants::Error RenderObjectDraft::draft_spawn() {
 }
 
 Constants::Error RenderObjectDraft::draft_reset() {
-    Core::RenderObject newDraft;
+    Core::RenderObject const newDraft;
     draft.get()->deserialize(newDraft.serialize());
     return Constants::ErrorTable::NONE();
 }

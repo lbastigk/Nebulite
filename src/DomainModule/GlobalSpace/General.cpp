@@ -17,17 +17,18 @@ Constants::Error General::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Error General::eval(int argc, char** argv) {
+Constants::Error General::eval(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     // argc/argv to string for evaluation
-    std::string const args = Utility::StringHandler::recombineArgs(argc, argv);
+    std::string const argstr = Utility::StringHandler::recombineArgs(args);
 
     // Evaluate expression
     Core::JsonScope emptyDoc;
-    Interaction::ContextBase context{emptyDoc,emptyDoc,Nebulite::global()};
-    std::string const argsEvaluated = Interaction::Logic::Expression::eval(args,context);
+    Interaction::ContextBase const context{emptyDoc,emptyDoc,Nebulite::global()};
+    std::string const argsEvaluated = Interaction::Logic::Expression::eval(argstr,context);
 
     // reparse
-    return domain.parseStr(argsEvaluated);
+    (void)callerScope; // Unused parameter
+    return caller.parseStr(argsEvaluated);
 }
 
 Constants::Error General::exit() {
@@ -107,20 +108,21 @@ Constants::Error General::echo(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::func_if(int argc, char** argv) {
-    if (argc < 3) {
+Constants::Error General::func_if(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
+    if (args.size() < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
-    if (!Interaction::Logic::Expression::evalAsBool(argv[1])) {
+    if (!Interaction::Logic::Expression::evalAsBool(args[1])) {
         // If the condition is false/nan, skip the following commands
         return Constants::ErrorTable::NONE();
     }
 
     // Build the command string from rest
-    std::string commands = Utility::StringHandler::recombineArgs(argc - 2, argv + 2);
+    std::string commands = Utility::StringHandler::recombineArgs(args.subspan(2));
     commands = __FUNCTION__ + std::string(" ") + commands;
-    return domain.parseStr(commands);
+    (void)callerScope; // Unused parameter
+    return caller.parseStr(commands);
 }
 
 Constants::Error General::func_assert(int argc, char** argv) {
@@ -183,24 +185,19 @@ Constants::Error General::alwaysClear() {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::func_for(int argc, char** argv) {
-    if (argc > 4) {
-        std::string const varName = argv[1];
+Constants::Error General::func_for(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
+    if (args.size() > 4) {
+        std::string const varName = args[1];
 
-        int const iStart = std::stoi(Interaction::Logic::Expression::eval(argv[2]));
-        int const iEnd = std::stoi(Interaction::Logic::Expression::eval(argv[3]));
+        int const iStart = std::stoi(Interaction::Logic::Expression::eval(args[2]));
+        int const iEnd = std::stoi(Interaction::Logic::Expression::eval(args[3]));
 
-        std::string args;
-        for (int i = 4; i < argc; ++i) {
-            args += argv[i];
-            if (i < argc - 1) {
-                args += " ";
-            }
-        }
+        std::string const argstr = Utility::StringHandler::recombineArgs(args.subspan(4));
         for (int i = iStart; i <= iEnd; i++) {
             // for + args
-            std::string args_replaced = std::string(argv[0]) + " " + Utility::StringHandler::replaceAll(args, '{' + varName + '}', std::to_string(i));
-            if (auto const err = domain.parseStr(args_replaced); err.isCritical()) {
+            std::string args_replaced = std::string(args[0]) + " " + Utility::StringHandler::replaceAll(argstr, '{' + varName + '}', std::to_string(i));
+            (void)callerScope; // Unused parameter
+            if (auto const err = caller.parseStr(args_replaced); err.isCritical()) {
                 return err;
             } else if (err.isError()) {
                 Nebulite::cout() << err.getDescription() << Nebulite::endl;
@@ -223,7 +220,7 @@ Constants::Error General::inScope(std::span<std::string const> const& args) {
     // A bit whacky, as we use the global scope for this instead of what is shared with this DomainModule
     // But this is the only way to get a full JsonScope with domain functionality
     std::string const scope = args[1];
-    auto const& s = Nebulite::globalDoc().shareScope(*this);
+    auto& s = Nebulite::globalDoc().shareScope(*this).shareScope(scope);
     std::string const& cmd = std::string(__FUNCTION__) + std::string(" ") + Utility::StringHandler::recombineArgs(args.subspan(2));
     return s.parseStr(cmd);
 }

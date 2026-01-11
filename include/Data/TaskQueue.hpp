@@ -14,8 +14,6 @@
 #include <string>
 #include <vector>
 #include <mutex>
-#include <cstdint>
-#include <cstddef>
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
@@ -59,6 +57,7 @@ public:
      * @brief Resolves the task queue by parsing and executing each task in the context of the provided domain.
      * @details skips tasks if the internal wait counter is greater than zero.
      * @param context The domain context in which to resolve the tasks.
+     * @param recover If true, continues processing tasks even after encountering a critical error.
      * @return The result of the task queue resolution.
      */
     TaskQueueResult resolve(Interaction::Execution::DomainBase& context, bool const& recover);

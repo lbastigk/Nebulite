@@ -41,7 +41,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error draft_parse(int argc, char** argv);
+    Constants::Error draft_parse(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr draft_parse_name = "draft parse";
     static auto constexpr draft_parse_desc = "Parse Renderobject-specific functions on the draft.\n"
         "\n"

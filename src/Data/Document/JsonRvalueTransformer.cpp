@@ -414,7 +414,7 @@ bool JsonRvalueTransformer::print(std::span<std::string const> const& args, Core
 // Functions: Domain
 
 bool JsonRvalueTransformer::nebs(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    std::string cmd = Utility::StringHandler::recombineArgs(args);
+    std::string const cmd = Utility::StringHandler::recombineArgs(args);
     if (jsonDoc->parseStr(cmd) != Constants::ErrorTable::NONE()) {
         return false;
     }

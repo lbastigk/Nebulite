@@ -208,11 +208,11 @@ Constants::Error General::selectedObject_get(int argc, char** argv) {
     return Constants::ErrorTable::addError("No RenderObject with the specified ID found.", Constants::Error::NON_CRITICAL);
 }
 
-Constants::Error General::selectedObject_Parse(int argc, char** argv) {
-    if (argc < 2) {
+Constants::Error General::selectedObject_Parse(std::span<std::string const> const& args) {
+    if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    std::string const command = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
+    std::string const command = Utility::StringHandler::recombineArgs(args.subspan(1));
     if (selectedRenderObject == nullptr) {
         return Constants::ErrorTable::addError("No RenderObject selected! Use selectedObject_get <id> to select a valid object.", Constants::Error::NON_CRITICAL);
     }
