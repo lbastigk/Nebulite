@@ -31,7 +31,7 @@ Constants::Error Logging::log_all(int argc, char** argv) {
             Utility::FileManagement::WriteFile(argv[i], serialized);
         }
     } else {
-        std::string const id = std::to_string(getDoc().get(Constants::KeyNames::RenderObject::id, 0));
+        std::string const id = std::to_string(moduleScope.get(Constants::KeyNames::RenderObject::id, 0));
         Utility::FileManagement::WriteFile("RenderObject_id" + id + ".log.jsonc", serialized);
     }
     return Constants::ErrorTable::NONE();
@@ -41,12 +41,12 @@ Constants::Error Logging::log_key(int argc, char** argv) {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    auto const key = getDoc().getRootScope() + argv[1];
-    std::string file = "RenderObject_id" + std::to_string(getDoc().get(Constants::KeyNames::RenderObject::id, 0)) + ".log.jsonc";
+    auto const key = moduleScope.getRootScope() + argv[1];
+    std::string file = "RenderObject_id" + std::to_string(moduleScope.get(Constants::KeyNames::RenderObject::id, 0)) + ".log.jsonc";
     if (argc > 2) {
         file = argv[2];
     }
-    auto const value = getDoc().get<std::string>(key.view(), "Key not found");
+    auto const value = moduleScope.get<std::string>(key.view(), "Key not found");
     Utility::FileManagement::WriteFile(file, value);
     return Constants::ErrorTable::NONE();
 }

@@ -14,7 +14,7 @@ Constants::Error General::update() {
 
 Constants::Error General::reloadTexture() const {
     // Load new texture from the document
-    auto const path = getDoc().get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "");
+    auto const path = moduleScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "");
     if (path.empty()) {
         return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE(); // No valid path in document
     }

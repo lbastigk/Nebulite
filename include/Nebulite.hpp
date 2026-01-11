@@ -164,19 +164,19 @@ public:
 
     // GlobalSpace DomainModules root is at "", then we add their own prefix
     [[nodiscard]] Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm) {
-        return globalDoc.shareManagedScope(dm.getDoc().getScopePrefix());
+        return globalDoc.shareManagedScope(dm.moduleScope.getScopePrefix());
     }
 
     // Provide a custom scope for DomainModules from RenderObjects
     // We add a prefix to signal what part these domainModules can access
     [[nodiscard]] Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::RenderObject> const& dm) {
-        return globalDoc.shareManagedScope("providedScope.domainModule.renderObject." + dm.getDoc().getScopePrefix());
+        return globalDoc.shareManagedScope("providedScope.domainModule.renderObject." + dm.moduleScope.getScopePrefix());
     }
 
     // Provide a custom scope for DomainModules from JsonScope
     // We add a prefix to signal what part these domainModules can access
     [[nodiscard]] Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::JsonScope> const& dm) {
-        return globalDoc.shareManagedScope("providedScope.domainModule.jsonScope." + dm.getDoc().getScopePrefix());
+        return globalDoc.shareManagedScope("providedScope.domainModule.jsonScope." + dm.moduleScope.getScopePrefix());
     }
 
     // Provide scope to RulesetModules

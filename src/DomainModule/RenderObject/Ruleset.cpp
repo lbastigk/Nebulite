@@ -23,7 +23,7 @@ Constants::Error Ruleset::update() {
     if (id != 0) {
         // Reload rulesets if needed
         if (reloadRulesets) {
-            auto mtx = getDoc().lock();
+            auto mtx = moduleScope.lock();
             Interaction::Rules::Construction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, domain);
             reloadRulesets = false;
         }
@@ -38,7 +38,7 @@ Constants::Error Ruleset::update() {
         // Listen to broadcasts from subscribed topics
         for (size_t idx = 0; idx < subscription_size; idx++) {
             auto const key = Constants::KeyNames::RenderObject::Ruleset::listen + "[" + std::to_string(idx) + "]";
-            auto const subscription = getDoc().get<std::string>(key, "");
+            auto const subscription = moduleScope.get<std::string>(key, "");
             Nebulite::global().listen(domain, subscription, id);
         }
 

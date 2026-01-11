@@ -31,7 +31,7 @@ public:
     Constants::Error update() override;
     void reinit() override {
         reloadRulesets = true;
-        subscription_size = getDoc().memberSize(Constants::KeyNames::RenderObject::Ruleset::listen);
+        subscription_size = moduleScope.memberSize(Constants::KeyNames::RenderObject::Ruleset::listen);
         id = domain.getId();
     }
 

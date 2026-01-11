@@ -13,7 +13,7 @@ Constants::Error Mirror::update() {
     if (mirrorEnabled || mirrorOnceEnabled) {
         // Mirror to GlobalSpace
         auto const globalScope = Nebulite::globalDoc().shareScope(*this).getRootScope();
-        Nebulite::globalDoc().shareScope(*this).setSubDoc(globalScope + mirrorKey, getDoc());
+        Nebulite::globalDoc().shareScope(*this).setSubDoc(globalScope + mirrorKey, moduleScope);
 
         // Reset once-flag
         mirrorOnceEnabled = false;
@@ -63,7 +63,7 @@ Constants::Error Mirror::mirror_fetch() {
 
 Constants::Error Mirror::setupMirrorKey() {
     // Only fetch key once we turn on mirroring
-    int const id = getDoc().get<int>(Constants::KeyNames::RenderObject::id, 0);
+    int const id = moduleScope.get<int>(Constants::KeyNames::RenderObject::id, 0);
     if (id < 1) {
         return Constants::ErrorTable::addError("Mirror key setup failed: RenderObject has invalid id", Constants::Error::NON_CRITICAL);
     }

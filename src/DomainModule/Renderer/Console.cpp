@@ -66,7 +66,7 @@ Constants::Error Console::update() {
     events = domain.getEventHandles();
 
     // Toggling console mode
-    if (getDoc().get<int>(toggleKey, 0) == 1) {
+    if (moduleScope.get<int>(toggleKey, 0) == 1) {
         consoleMode = !consoleMode;
         if (consoleMode) {
             SDL_StartTextInput();
@@ -96,12 +96,12 @@ bool Console::ensureConsoleTexture() {
     // Prerequisites
 
     // Derive consoleRect size from display size
-    double const consoleHeight = static_cast<double>(getDoc().get<size_t>(Constants::KeyNames::Renderer::dispResY, 360)) * consoleLayout.heightRatio;
+    double const consoleHeight = static_cast<double>(moduleScope.get<size_t>(Constants::KeyNames::Renderer::dispResY, 360)) * consoleLayout.heightRatio;
     static SDL_Rect currentConsolePosition;
     currentConsolePosition.x = 0;
-    currentConsolePosition.y = static_cast<int>(getDoc().get<double>(Constants::KeyNames::Renderer::dispResY, 360) - consoleHeight);
-    currentConsolePosition.w = getDoc().get<int>(Constants::KeyNames::Renderer::dispResX, 360);
-    currentConsolePosition.h = getDoc().get<int>(Constants::KeyNames::Renderer::dispResY, 360) - currentConsolePosition.y;
+    currentConsolePosition.y = static_cast<int>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResY, 360) - consoleHeight);
+    currentConsolePosition.w = moduleScope.get<int>(Constants::KeyNames::Renderer::dispResX, 360);
+    currentConsolePosition.h = moduleScope.get<int>(Constants::KeyNames::Renderer::dispResY, 360) - currentConsolePosition.y;
 
     //------------------------------------------
     // Texture Setup

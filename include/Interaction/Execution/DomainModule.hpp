@@ -148,10 +148,17 @@ public:
     }
 
     /**
-     * @brief Retrieves the JsonScopeBase document based on what was shared with the DomainModule.
-     * @return Reference to the JsonScopeBase document.
+     * @brief Reference to the JsonScopeBase document.
+     * @details This allows derived DomainModules to access and manipulate
+     *          the JSON document as needed.
      */
-    [[nodiscard]] Data::JsonScopeBase& getDoc() const ;
+    Data::JsonScopeBase& moduleScope;
+
+    /**
+     * @brief Reference to the JsonScopeBase document for settings.
+     * @details This allows derived DomainModules to access settings for initial configuration.
+     */
+    Data::JsonScopeBase const& settingsScope;
 
 private:
     /**
@@ -164,18 +171,6 @@ private:
      */
     std::shared_ptr<FuncTree<Constants::Error>> funcTree;
 
-    /**
-     * @brief Reference to the JsonScopeBase document.
-     * @details This allows derived DomainModules to access and manipulate
-     *          the JSON document as needed.
-     */
-    Data::JsonScopeBase& moduleScope;
-
-    /**
-     * @brief Reference to the JsonScopeBase document for settings.
-     * @details This allows derived DomainModules to access settings for initial configuration.
-     */
-     Data::JsonScopeBase const& settingsScope;
 };
 
 /**

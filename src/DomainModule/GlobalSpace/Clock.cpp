@@ -7,7 +7,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
 
 Constants::Error Clock::update() {
     // Update current time from document
-    current_time_ms = getDoc().get<uint64_t>(Time::Key::time_t_ms);
+    current_time_ms = moduleScope.get<uint64_t>(Time::Key::time_t_ms);
 
     // Check all Timers against their desired time
     for (auto& clockEntry : std::views::values(clockEntries)) {
@@ -21,28 +21,28 @@ void Clock::readClocksFromDocument() {
     clockEntries.clear();
 
     // Read all clocks from the document
-    if (getDoc().memberType(Key::arr_active_clocks) != Data::KeyType::array) {
+    if (moduleScope.memberType(Key::arr_active_clocks) != Data::KeyType::array) {
         // No clocks found, nothing to do
         return;
     }
 
-    uint64_t const size = getDoc().memberSize(Key::arr_active_clocks);
+    uint64_t const size = moduleScope.memberSize(Key::arr_active_clocks);
 
     for (uint64_t i = 0; i < size; i++) {
         auto key = Key::arr_active_clocks + "[" + std::to_string(i) + "]";
-        if (auto const interval_type = getDoc().memberType(key); interval_type != Data::KeyType::value) {
+        if (auto const interval_type = moduleScope.memberType(key); interval_type != Data::KeyType::value) {
             // Invalid entry, skip
             continue;
         }
 
-        auto interval_ms = getDoc().get<uint64_t>(key);
+        auto interval_ms = moduleScope.get<uint64_t>(key);
         if (interval_ms < 1) {
             // Invalid interval, skip
             continue;
         }
 
         // Create new ClockEntry
-        clockEntries.emplace(interval_ms, ClockEntry(interval_ms, getDoc(), current_time_ms));
+        clockEntries.emplace(interval_ms, ClockEntry(interval_ms, moduleScope, current_time_ms));
     }
 }
 
@@ -75,11 +75,11 @@ Constants::Error Clock::addClock(int const argc, char** argv) {
     }
 
     // Add to document
-    auto const key = Key::arr_active_clocks + "[" + std::to_string(getDoc().memberSize(Key::arr_active_clocks)) + "]";
-    getDoc().set(key, interval_ms);
+    auto const key = Key::arr_active_clocks + "[" + std::to_string(moduleScope.memberSize(Key::arr_active_clocks)) + "]";
+    moduleScope.set(key, interval_ms);
 
     // Create new ClockEntry
-    clockEntries.emplace(interval_ms, ClockEntry(interval_ms, getDoc(), current_time_ms));
+    clockEntries.emplace(interval_ms, ClockEntry(interval_ms, moduleScope, current_time_ms));
 
     return Constants::ErrorTable::NONE();
 }

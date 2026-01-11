@@ -22,21 +22,21 @@ Constants::Error Debug::print(int argc, char** argv) {
     }
     if (argc == 2) {
         auto const scopedKey = Data::ScopedKey(argv[1]);
-        auto const memberType = getDoc().memberType(scopedKey);
+        auto const memberType = moduleScope.memberType(scopedKey);
         if (memberType == Data::KeyType::null) {
             Nebulite::cout() << "{}" << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
         if (memberType == Data::KeyType::object || memberType == Data::KeyType::array) {
-            Nebulite::cout() << getDoc().serialize(scopedKey) << Nebulite::endl;
+            Nebulite::cout() << moduleScope.serialize(scopedKey) << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
         if (memberType == Data::KeyType::value) {
-            Nebulite::cout() << getDoc().get<std::string>(scopedKey, "") << Nebulite::endl;
+            Nebulite::cout() << moduleScope.get<std::string>(scopedKey, "") << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
     }
-    Nebulite::cout() << getDoc().serialize() << Nebulite::endl;
+    Nebulite::cout() << moduleScope.serialize() << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
 

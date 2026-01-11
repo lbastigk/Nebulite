@@ -27,7 +27,7 @@ Constants::Error SimpleData::set(int argc, char** argv) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
-    auto const key = getDoc().getRootScope() + argv[1];
+    auto const key = moduleScope.getRootScope() + argv[1];
     std::string value = argv[2];
     for (int i = 3; i < argc; ++i) {
         value += " " + std::string(argv[i]);
@@ -43,8 +43,8 @@ Constants::Error SimpleData::move(int argc, char** argv) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
-    auto const sourceKey = getDoc().getRootScope() + argv[1];
-    auto const targetKey = getDoc().getRootScope() + argv[2];
+    auto const sourceKey = moduleScope.getRootScope() + argv[1];
+    auto const targetKey = moduleScope.getRootScope() + argv[2];
 
     if (domain.memberType(sourceKey) == Data::KeyType::null) {
         Nebulite::cerr() << "Error: Source key '" << argv[1] << "' does not exist." << Nebulite::endl;
@@ -83,8 +83,8 @@ Constants::Error SimpleData::copy(int argc, char** argv) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
-    auto const sourceKey = getDoc().getRootScope() + argv[1];
-    auto const targetKey = getDoc().getRootScope() + argv[2];
+    auto const sourceKey = moduleScope.getRootScope() + argv[1];
+    auto const targetKey = moduleScope.getRootScope() + argv[2];
 
     if (domain.memberType(sourceKey) == Data::KeyType::null) {
         Nebulite::cerr() << "Error: Source key '" << std::string(argv[1]) << "' does not exist." << Nebulite::endl;
@@ -120,7 +120,7 @@ Constants::Error SimpleData::keyDelete(int argc, char** argv) {
         Nebulite::cerr() << "Error: Too few arguments for delete command." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    auto const key = getDoc().getRootScope() + argv[1];
+    auto const key = moduleScope.getRootScope() + argv[1];
     domain.removeKey(key);
     return Constants::ErrorTable::NONE();
 }
@@ -139,7 +139,7 @@ Constants::Error SimpleData::ensureArray(int argc, char** argv) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
-    auto const key = getDoc().getRootScope() + argv[1];
+    auto const key = moduleScope.getRootScope() + argv[1];
 
     Data::KeyType keyType = domain.memberType(key);
 
@@ -171,7 +171,7 @@ Constants::Error SimpleData::push_back(int argc, char** argv) {
         Nebulite::cerr() << "Error: Too many arguments for push_front command." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    auto const key = getDoc().getRootScope() + argv[1];
+    auto const key = moduleScope.getRootScope() + argv[1];
     std::string value;
     if (argc < 3) {
         // Trying to push an empty value
@@ -207,7 +207,7 @@ Constants::Error SimpleData::pop_back(int argc, char** argv) {
         Nebulite::cerr() << "Error: Too many arguments for push_back command." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    auto const key = getDoc().getRootScope() + argv[1];
+    auto const key = moduleScope.getRootScope() + argv[1];
 
     if (domain.memberType(key) != Data::KeyType::array) {
         std::string command = __FUNCTION__;
@@ -236,7 +236,7 @@ Constants::Error SimpleData::push_front(int argc, char** argv) {
         Nebulite::cerr() << "Error: Too many arguments for push_front command." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    auto const key = getDoc().getRootScope() + argv[1];
+    auto const key = moduleScope.getRootScope() + argv[1];
     std::string value;
     if (argc < 3) {
         // Trying to push an empty value
@@ -293,7 +293,7 @@ Constants::Error SimpleData::pop_front(int argc, char** argv) {
         Nebulite::cerr() << "Error: Too many arguments for pop_front command." << Nebulite::endl;
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    auto const key = getDoc().getRootScope() + argv[1];
+    auto const key = moduleScope.getRootScope() + argv[1];
 
     if (domain.memberType(key) != Data::KeyType::array) {
         std::string command = __FUNCTION__;

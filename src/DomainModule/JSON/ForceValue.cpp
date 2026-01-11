@@ -7,7 +7,7 @@ namespace Nebulite::DomainModule::JsonScope {
 Constants::Error ForceValue::update() {
     // On each update, re-apply forced values
     for (auto const& [key, value] : forced_global_values) {
-        auto const scopedKey = getDoc().getRootScope() + key;
+        auto const scopedKey = moduleScope.getRootScope() + key;
         domain.set(scopedKey, value);
     }
     return Constants::ErrorTable::NONE();

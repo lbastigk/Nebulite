@@ -39,14 +39,14 @@ Constants::Error ComplexData::jsonSet(int argc, char** argv) {
     // === DOCUMENT ===
     if (Data::KeyType const type = Nebulite::global().getDocCache().memberType(docKey); type == Data::KeyType::object) {
         // Retrieve the sub-document
-        Data::JSON subDoc = Nebulite::global().getDocCache().getSubDoc(docKey);
+        Data::JSON const subDoc = Nebulite::global().getDocCache().getSubDoc(docKey);
 
         // Set the sub-document in the current JSON tree
-        domain.setSubDoc(getDoc().getRootScope() + myKey, subDoc);
+        domain.setSubDoc(moduleScope.getRootScope() + myKey, subDoc);
     }
     // === VALUE ===
     else if (type == Data::KeyType::value) {
-        domain.set(getDoc().getRootScope() + myKey, Nebulite::global().getDocCache().get<std::string>(docKey));
+        domain.set(moduleScope.getRootScope() + myKey, Nebulite::global().getDocCache().get<std::string>(docKey));
     }
     // === ARRAY ===
     else if (type == Data::KeyType::array) {
@@ -55,7 +55,7 @@ Constants::Error ComplexData::jsonSet(int argc, char** argv) {
             std::string itemKey = docKey + "[" + std::to_string(i) + "]";
             auto itemValue = Nebulite::global().getDocCache().get<std::string>(itemKey);
             std::string newItemKey = myKey + "[" + std::to_string(i) + "]";
-            domain.set(getDoc().getRootScope() + newItemKey, itemValue);
+            domain.set(moduleScope.getRootScope() + newItemKey, itemValue);
         }
     }
     return Constants::ErrorTable::NONE();
