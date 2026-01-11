@@ -33,7 +33,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error testFuncTree();
+    Constants::Error testFuncTree() const ;
     static auto constexpr testFuncTree_name = "feature-test functree";
     static auto constexpr testFuncTree_desc = "Builds a funcTree with extra arguments and tests it\n"
         "Usage: feature-test functree\n";

@@ -4,15 +4,7 @@
 
 namespace Nebulite::DomainModule::JsonScope {
 
-//------------------------------------------
-// Update
-Constants::Error SimpleData::update() {
-    std::scoped_lock<std::recursive_mutex> mtx = domain.lock(); // Lock the domain for thread-safe access
-    // Add Domain-specific updates here!
-    // General rule:
-    // This is used to update all variables/states that are INTERNAL ONLY
-    return Constants::ErrorTable::NONE();
-}
+Constants::Error SimpleData::update() {return Constants::ErrorTable::NONE();} // No periodic update needed, SimpleData is stateless
 
 //------------------------------------------
 // Domain-Bound Functions

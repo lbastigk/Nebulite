@@ -29,11 +29,17 @@ namespace Nebulite::DomainModule::JsonScope {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::JsonScope, SimpleData) {
 public:
-    Constants::Error update() override;
-    void reinit() override {}
+    Constants::Error update() override ;
+    void reinit() override {} // No reinitialization needed, SimpleData is stateless
 
     //------------------------------------------
     // Available Functions
+
+    // TODO: Use modern signature with:
+    //       std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope
+    //       Refactor all functions to use caller and callerScope where necessary
+    //       DO NOT use moduleScope anywhere!
+    //       Then, we modify the moduleScope to be a dummy scope so we don't accidentally use it
 
     Constants::Error set(int argc, char** argv);
     static auto constexpr set_name = "set";

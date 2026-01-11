@@ -18,7 +18,7 @@ Constants::Error General::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Error General::envLoad(int argc, char** argv) {
+Constants::Error General::envLoad(int argc, char** argv) const {
     if (argc > 1) {
         domain.deserialize(argv[1]);
         return Constants::ErrorTable::NONE();
@@ -28,13 +28,13 @@ Constants::Error General::envLoad(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::envDeload() {
+Constants::Error General::envDeload() const {
     domain.purgeObjects();
     domain.purgeTextures();
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::spawn(int argc, char** argv) {
+Constants::Error General::spawn(int argc, char** argv) const {
     if (argc > 1) {
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun
@@ -78,7 +78,7 @@ Constants::Error General::spawn(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::setResolution(int argc, char** argv) {
+Constants::Error General::setResolution(int argc, char** argv) const {
     int w = 1000;
     int h = 1000;
     uint16_t scalar = 1;
@@ -99,7 +99,7 @@ Constants::Error General::setResolution(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::setFPS(int argc, char** argv) {
+Constants::Error General::setFPS(int argc, char** argv) const {
     // Standard value for no argument
     uint16_t fps = 60;
     if (argc == 2) {
@@ -116,7 +116,7 @@ Constants::Error General::setFPS(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::showFPS(int argc, char** argv) {
+Constants::Error General::showFPS(int argc, char** argv) const {
     if (argc < 2) {
         domain.toggleFps(true);
     } else {
@@ -132,7 +132,7 @@ Constants::Error General::showFPS(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::cam_move(int argc, char** argv) {
+Constants::Error General::cam_move(int argc, char** argv) const {
     if (argc < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -146,7 +146,7 @@ Constants::Error General::cam_move(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::cam_set(int argc, char** argv) {
+Constants::Error General::cam_set(int argc, char** argv) const {
     if (argc == 3) {
         int const x = std::stoi(argv[1]);
         int const y = std::stoi(argv[2]);
@@ -169,7 +169,7 @@ Constants::Error General::cam_set(int argc, char** argv) {
     return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
 }
 
-Constants::Error General::snapshot(int argc, char** argv) {
+Constants::Error General::snapshot(int argc, char** argv) const {
     if (argc == 1) {
         // No link provided, use default
         if (!domain.snapshot("./Resources/Snapshots/snapshot.png")) {
@@ -187,13 +187,13 @@ Constants::Error General::snapshot(int argc, char** argv) {
     return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
 }
 
-Constants::Error General::beep() {
+Constants::Error General::beep() const {
     // Beep function for debugging, from SDL
     domain.beep();
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::selectedObject_get(int argc, char** argv) {
+Constants::Error General::selectedObject_get(int argc, char** argv){
     if (argc != 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -208,7 +208,7 @@ Constants::Error General::selectedObject_get(int argc, char** argv) {
     return Constants::ErrorTable::addError("No RenderObject with the specified ID found.", Constants::Error::NON_CRITICAL);
 }
 
-Constants::Error General::selectedObject_Parse(std::span<std::string const> const& args) {
+Constants::Error General::selectedObject_Parse(std::span<std::string const> const& args) const {
     if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

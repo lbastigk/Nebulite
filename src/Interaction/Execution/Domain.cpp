@@ -45,6 +45,12 @@ std::string const& DomainBase::scopePrefix() const {
 }
 
 Constants::Error DomainBase::parseStr(std::string const& str) {
+    // NOTE: This may fail, as domainScope is from the domain itself, potentially larger than scopes from inner domains
+    //       e.g. we may call parseStr from RenderObject, but the function exists in Texture domain with prefix "texture."
+    //       In that case, we accidentally pass the RenderObject scope instead of the Texture scope...
+    //       Is this okay? For now, we assume it is. Meaning we should not use callerScope in inner Domains with a prefix.
+    //       CallerScope is, however, a nice addition for DomainModules that have no workspace like JsonScope SimpleData.
+    //       This ensures that any calls only touch intended parts of the document.
     return funcTree->parseStr(str, *this, domainScope);
 }
 

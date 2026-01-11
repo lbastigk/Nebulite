@@ -120,7 +120,7 @@ public:
      */
     [[nodiscard]] std::string const& getScopePrefix() const {
         if (isDummy) {
-            throw std::runtime_error("JsonScopeBase: Access not granted. Attempted to get scope prefix of a dummy scope.");
+            throw std::runtime_error("JsonScopeBase: Access not granted. Attempted to get scope prefix of a dummy scope. Did you mean to use the caller's scope?");
         }
         return scopePrefix;
     }

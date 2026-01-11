@@ -35,7 +35,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error rotate(int argc, char** argv);
+    Constants::Error rotate(int argc, char** argv) const ;
     static auto constexpr rotate_name = "rotate";
     static auto constexpr rotate_desc = "Rotate the texture by a specified angle.\n"
         "\n"

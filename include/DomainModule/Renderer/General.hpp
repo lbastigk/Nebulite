@@ -57,7 +57,7 @@ public:
      *          - RenderObject deletion mechanism in Renderer::update()
      *          As of now, the implementation is fully functional so it's a low priority task.
      */
-    Constants::Error spawn(int argc, char** argv);
+    Constants::Error spawn(int argc, char** argv) const ;
     static auto constexpr spawn_name = "spawn";
     static auto constexpr spawn_desc = "Spawn a RenderObject from a json/jsonc file.\n"
         "\n"
@@ -72,20 +72,20 @@ public:
         "- './Resources/Renderobjects/Planets/sun.jsonc'\n"
         "and spawns the first found object.\n";
 
-    Constants::Error envLoad(int argc, char** argv);
+    Constants::Error envLoad(int argc, char** argv) const ;
     static auto constexpr envLoad_name = "env load";
     static auto constexpr envLoad_desc = "Load an environment/level from a json/jsonc file.\n"
         "\n"
         "Usage: env load <path/to/file.jsonc>\n\n"
         "If no argument is provided, an empty environment is loaded.\n";
 
-    Constants::Error envDeload();
+    Constants::Error envDeload() const ;
     static auto constexpr envDeload_name = "env deload";
     static auto constexpr envDeload_desc = "Deload entire environment, leaving an empty renderer.\n"
         "\n"
         "Usage: env deload\n";
 
-    Constants::Error setResolution(int argc, char** argv);
+    Constants::Error setResolution(int argc, char** argv) const ;
     static auto constexpr setResolution_name = "set-res";
     static auto constexpr setResolution_desc = "Set resolution of renderer.\n"
         "\n"
@@ -94,21 +94,21 @@ public:
         "Defaults to 1000  for height if argument count < 2\n"
         "Defaults to 1     for scale if argument count < 3\n";
 
-    Constants::Error setFPS(int argc, char** argv);
+    Constants::Error setFPS(int argc, char** argv) const ;
     static auto constexpr setFPS_name = "set-fps";
     static auto constexpr setFPS_desc = "Set FPS of renderer.\n"
         "\n"
         "Usage: set-fps [fps]\n\n"
         "Defaults to 60 fps if no argument is provided\n";
 
-    Constants::Error showFPS(int argc, char** argv);
+    Constants::Error showFPS(int argc, char** argv) const ;
     static auto constexpr showFPS_name = "show-fps";
     static auto constexpr showFPS_desc = "Show FPS of renderer.\n"
         "\n"
         "Usage: show-fps [on|off]\n\n"
         "Defaults to on if no argument is provided\n";
 
-    Constants::Error cam_move(int argc, char** argv);
+    Constants::Error cam_move(int argc, char** argv) const ;
     static auto constexpr cam_move_name = "cam move";
     static auto constexpr cam_move_desc = "Move camera by a given delta.\n"
         "\n"
@@ -116,7 +116,7 @@ public:
         "<dx> : Delta x to move camera by\n"
         "<dy> : Delta y to move camera by\n";
 
-    Constants::Error cam_set(int argc, char** argv);
+    Constants::Error cam_set(int argc, char** argv) const ;
     static auto constexpr cam_set_name = "cam set";
     static auto constexpr cam_set_desc = "Set camera to concrete position.\n"
         "\n"
@@ -125,14 +125,14 @@ public:
         "<y> : Y position to set camera to\n"
         "[c] : Optional. If provided, sets the camera's center to the given position.\n";
 
-    Constants::Error snapshot(int argc, char** argv);
+    Constants::Error snapshot(int argc, char** argv) const ;
     static auto constexpr snapshot_name = "snapshot";
     static auto constexpr snapshot_desc = "Create a snapshot of the current renderer state.\n"
         "\n"
         "Usage: snapshot [filename]\n\n"
         "Defaults to \"./Resources/Snapshots/snapshot.png\" if no argument is provided\n";
 
-    Constants::Error beep();
+    Constants::Error beep() const ;
     static auto constexpr beep_name = "beep";
     static auto constexpr beep_desc = "Make a beep noise.\n"
         "\n"
@@ -152,7 +152,7 @@ public:
         "\n"
         "Usage: selected-object get <id>\n";
 
-    Constants::Error selectedObject_Parse(std::span<std::string const> const& args);
+    Constants::Error selectedObject_Parse(std::span<std::string const> const& args) const ;
     static auto constexpr selectedObject_Parse_name = "selected-object parse";
     static auto constexpr selectedObject_Parse_desc = "Parse a command on the selected RenderObject.\n"
         "\n"
@@ -207,6 +207,10 @@ public:
 private:
     /**
      * @brief Pointer to the currently selected RenderObject
+     * @details Marked mutable to allow modification in const functions
+     *          We consider the act of selecting a RenderObject
+     *          as a non-logical change to the state of the DomainModule,
+     *          to signal that it not act on the moduleScope's data itself.
      */
     Core::RenderObject* selectedRenderObject = nullptr;
 };
