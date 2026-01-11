@@ -14,6 +14,7 @@
 // Nebulite
 #include "Core/GlobalSpace.hpp"
 #include "Utility/Capture.hpp"
+#include "Data/Document/JsonScopeBase.hpp"
 
 //------------------------------------------
 // Namespace documentation
@@ -145,8 +146,8 @@ public:
     //------------------------------------------
     // Share a read-only setting scope
 
-    [[nodiscard]] Core::JsonScope const& settings() {
-        static Core::JsonScope const& settingsScopeConst = globalDoc.shareManagedScope("settings.");
+    [[nodiscard]] Data::JsonScopeBase const& settings() {
+        static auto const& settingsScopeConst = globalDoc.shareManagedScopeBase("settings.");
         return settingsScopeConst;
     }
 

@@ -29,9 +29,10 @@ bool constexpr endsWithNewline(std::string_view const& str) {
     explicit DomainModuleName( \
         std::string const& name, DomainName& domainReference, \
         std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error>> funcTreePtr, \
-        Data::JsonScopeBase& w \
+        Data::JsonScopeBase& w, \
+        Data::JsonScopeBase const& s \
     ) \
-    : DomainModule(name, domainReference, std::move(funcTreePtr), w)
+    : DomainModule(name, domainReference, std::move(funcTreePtr), w, s)
 
 // Common macro to create a floating DomainModule with proper linkage
 // Floating DomainModules are handled separately from regular DomainModules
@@ -40,12 +41,13 @@ bool constexpr endsWithNewline(std::string_view const& str) {
 // without the additional overhead if we were to turn them into full Domains.
 // Useful for small "runners" with neatly separated functionality, that need the ability to be called
 // separately.
-#define NEBULITE_FLOATING_DOMAINMODULE(DomainModule, DomainModuleName, Document, Workspace) \
+#define NEBULITE_FLOATING_DOMAINMODULE(DomainModule, DomainModuleName, Document, Workspace, Settings) \
     std::make_unique<DomainModule>( \
-        #DomainModuleName, \
+        DomainModuleName, \
         *this, \
         getFuncTree(), \
-        Document.domainScope.shareScopeBase(Workspace) \
+        Document.domainScope.shareScopeBase(Workspace), \
+        Settings \
     )
 
 #define BINDFUNCTION(func, name,desc) \
@@ -67,10 +69,11 @@ public:
      * @brief Constructor for the DomainModule base class.
      * @param funcTreePtr Shared pointer to the FuncTree for binding functions and variables.
      * @param w Reference to a JsonScopeBase document for this module to use as workspace.
+     * @param s Reference to a JsonScopeBase document for settings.
      * @details The constructor initializes the DomainModuleBase with
      *          the FuncTree pointer for binding functions and variables.
      */
-    explicit DomainModuleBase(std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr, Data::JsonScopeBase& w);
+    explicit DomainModuleBase(std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr, Data::JsonScopeBase& w, Data::JsonScopeBase const& s);
 
     //------------------------------------------
     // Static Binding Functions
@@ -167,6 +170,12 @@ private:
      *          the JSON document as needed.
      */
     Data::JsonScopeBase& moduleScope;
+
+    /**
+     * @brief Reference to the JsonScopeBase document for settings.
+     * @details This allows derived DomainModules to access settings for initial configuration.
+     */
+     Data::JsonScopeBase const& settingsScope;
 };
 
 /**
@@ -186,12 +195,14 @@ public:
      * @param domainReference Reference to the Domain instance this module is associated with.
      * @param funcTreePtr Shared pointer to the FuncTree for binding functions and variables.
      * @param scope JsonScopeBase reference for this module to use as workspace.
+     * @param settings Const JsonScopeBase reference for settings.
      */
     DomainModule(
         std::string name,
         DomainType& domainReference,
         std::shared_ptr<FuncTree<Constants::Error>> funcTreePtr,
-        Data::JsonScopeBase& scope
+        Data::JsonScopeBase& scope,
+        Data::JsonScopeBase const& settings
     );
 
     /**
