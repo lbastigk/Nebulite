@@ -32,18 +32,30 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Settings) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Error update() override;
     void reinit() override {}
 
 
     //------------------------------------------
     // Available Functions
 
-    Constants::Error saveSettings();
+    [[nodiscard]] Constants::Error saveSettings();
     static auto constexpr saveSettings_name = "settings save";
     static auto constexpr saveSettings_desc = "Saves the current global settings to the default filename.\n"
         "\n"
         "Usage: settings save\n";
+
+    [[nodiscard]] Constants::Error setSettingStr(std::span<std::string const> const& args) const ;
+    static auto constexpr setSetting_name = "settings set-string";
+    static auto constexpr setSetting_desc = "Sets a global setting to a specified value.\n"
+        "\n"
+        "Usage: settings set-string <key> <value>\n";
+
+    [[nodiscard]] Constants::Error setSettingInt(std::span<std::string const> const& args) const ;
+    static auto constexpr setSettingInt_name = "settings set-integer";
+    static auto constexpr setSettingInt_desc = "Sets a global setting to a specified integer value.\n"
+        "\n"
+        "Usage: settings set-integer <key> <value>\n";
 
     //------------------------------------------
     // Category names
@@ -63,13 +75,14 @@ public:
         static auto constexpr unscoped_resolutionX = "renderer.resolutionX";
         static auto constexpr unscoped_resolutionY = "renderer.resolutionY";
         static auto constexpr unscoped_resolutionScaling = "renderer.resolutionScaling";
+        static auto constexpr unscoped_targetFPS = "renderer.targetFPS";
     public:
         // Use scoped keys to set and access from GlobalSpace
         static auto constexpr scope = "settings.";
         static auto constexpr resolutionX = Data::ScopedKeyView::create<scope>(unscoped_resolutionX);
         static auto constexpr resolutionY = Data::ScopedKeyView::create<scope>(unscoped_resolutionY);
         static auto constexpr resolutionScaling = Data::ScopedKeyView::create<scope>(unscoped_resolutionScaling);
-
+        static auto constexpr targetFPS = Data::ScopedKeyView::create<scope>(unscoped_targetFPS);
     };
 
     //------------------------------------------
@@ -83,6 +96,8 @@ public:
 
         (void)bindCategory(settings_name, "Functions for managing global settings.");
         BINDFUNCTION(&Settings::saveSettings, saveSettings_name, saveSettings_desc);
+        BINDFUNCTION(&Settings::setSettingStr, setSetting_name, setSetting_desc);
+        BINDFUNCTION(&Settings::setSettingInt, setSettingInt_name, setSettingInt_desc);
     }
 
 private:

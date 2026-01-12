@@ -42,6 +42,20 @@ Renderer::Renderer(Core::JsonScope& documentReference, bool* flag_headless)
     // Base directory
     baseDirectory = Utility::FileManagement::currentDir();
 
+    // Audio
+    initWaveforms();
+
+    //------------------------------------------
+    // Start timers
+    fps.controlTimer.start();
+    fps.renderTimer.start();
+
+    //------------------------------------------
+    // Domain Modules
+    DomainModule::Initializer::initRenderer(this);
+}
+
+void Renderer::initWaveforms() {
     // Waveform buffers: Sine wave buffer
     basicAudioWaveforms.sineBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
     for (size_t i = 0; i < basicAudioWaveforms.samples; i++) {
@@ -78,34 +92,24 @@ Renderer::Renderer(Core::JsonScope& documentReference, bool* flag_headless)
 
         (*basicAudioWaveforms.triangleBuffer)[i] = static_cast<int16_t>(32767 * 0.3 * triangleValue);
     }
-
-    //------------------------------------------
-    // Start timers
-    fps.controlTimer.start();
-    fps.renderTimer.start();
-
-    //------------------------------------------
-    // Domain Modules
-    DomainModule::Initializer::initRenderer(this);
 }
 
+// TODO: Move all settings to workspace!
 void Renderer::setupDisplayValues() {
     // Load from settings
-    uint16_t X = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 0);
-    uint16_t Y = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 0);
-    WindowScale = Nebulite::globalDoc().settings().get<uint8_t>(DomainModule::GlobalSpace::Settings::Key::resolutionScaling, 0);
-
-    // X and Y sanity check
-    if (X == 0 || Y == 0 || WindowScale == 0) {
-        Nebulite::cerr() << "Warning: Invalid resolution settings detected. Falling back to default 1000x1000." << Nebulite::endl;
-        X = 1000;
-        Y = 1000;
-        WindowScale = 1;
-    }
+    // Default values should never be used, as settings should always exist
+    // Still, just in case, we set them to 1000x1000 @ 1x scaling and 60 FPS
+    auto const X = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
+    auto const Y = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
+    WindowScale = Nebulite::globalDoc().settings().get<uint8_t>(DomainModule::GlobalSpace::Settings::Key::resolutionScaling, 1);
+    fps.target = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::targetFPS, 60);
 
     // Set in workspace
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X);
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResY, Y);
+
+    // Start position at 0|0
+    // TODO: Move to environment?
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::positionX, 0);
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::positionY, 0);
 }
@@ -159,7 +163,7 @@ void Renderer::initSDL() {
         renderer,
         w,
         h
-        );
+    );
 
     //------------------------------------------
     // Fonts
@@ -436,6 +440,7 @@ void Renderer::destroy() {
 //------------------------------------------
 // Manipulation
 
+// This does not change the settings file, only the current session
 void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scalar) {
     WindowScale = scalar;
     if (w < 240 || w > 16384) {

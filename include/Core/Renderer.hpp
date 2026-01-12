@@ -437,6 +437,11 @@ private:
         std::vector<int16_t>* triangleBuffer = nullptr;
     } basicAudioWaveforms;
 
+    /**
+     * @brief Initializes basic audio waveforms.
+     */
+    void initWaveforms();
+
     //------------------------------------------
     // General Variables
 
@@ -506,7 +511,7 @@ private:
     int renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
 
     //------------------------------------------
-    //For FPS Count and Control
+    // For FPS Count and Control
     struct FpsControl {
         Utility::TimeKeeper controlTimer;
         Utility::TimeKeeper renderTimer;
