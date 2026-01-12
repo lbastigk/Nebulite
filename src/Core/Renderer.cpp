@@ -16,6 +16,7 @@
 #include "Core/Environment.hpp"
 #include "Core/Renderer.hpp"
 #include "DomainModule/Initializer.hpp"
+#include "DomainModule/GlobalSpace/Settings.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Utility/Capture.hpp"
 #include "Utility/TimeKeeper.hpp"
@@ -23,7 +24,7 @@
 //------------------------------------------
 namespace Nebulite::Core {
 
-Renderer::Renderer(Core::JsonScope& documentReference, bool* flag_headless, unsigned int const& X, unsigned int const& Y)
+Renderer::Renderer(Core::JsonScope& documentReference, bool* flag_headless)
     : Domain("Renderer", *this, documentReference),
       env(documentReference){
 
@@ -41,6 +42,20 @@ Renderer::Renderer(Core::JsonScope& documentReference, bool* flag_headless, unsi
     // Base directory
     baseDirectory = Utility::FileManagement::currentDir();
 
+    // Audio
+    initWaveforms();
+
+    //------------------------------------------
+    // Start timers
+    fps.controlTimer.start();
+    fps.renderTimer.start();
+
+    //------------------------------------------
+    // Domain Modules
+    DomainModule::Initializer::initRenderer(this);
+}
+
+void Renderer::initWaveforms() {
     // Waveform buffers: Sine wave buffer
     basicAudioWaveforms.sineBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
     for (size_t i = 0; i < basicAudioWaveforms.samples; i++) {
@@ -77,24 +92,24 @@ Renderer::Renderer(Core::JsonScope& documentReference, bool* flag_headless, unsi
 
         (*basicAudioWaveforms.triangleBuffer)[i] = static_cast<int16_t>(32767 * 0.3 * triangleValue);
     }
-
-    //------------------------------------------
-    // Set basic values inside global doc
-    setupDisplayValues(X, Y);
-
-    //------------------------------------------
-    // Start timers
-    fps.controlTimer.start();
-    fps.renderTimer.start();
-
-    //------------------------------------------
-    // Domain Modules
-    DomainModule::Initializer::initRenderer(this);
 }
 
-void Renderer::setupDisplayValues(unsigned int const& X, unsigned int const& Y) const {
+// TODO: Move all settings to workspace!
+void Renderer::setupDisplayValues() {
+    // Load from settings
+    // Default values should never be used, as settings should always exist
+    // Still, just in case, we set them to 1000x1000 @ 1x scaling and 60 FPS
+    auto const X = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
+    auto const Y = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
+    WindowScale = Nebulite::globalDoc().settings().get<uint8_t>(DomainModule::GlobalSpace::Settings::Key::resolutionScaling, 1);
+    fps.target = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::targetFPS, 60);
+
+    // Set in workspace
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X);
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResY, Y);
+
+    // Start position at 0|0
+    // TODO: Move to environment?
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::positionX, 0);
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::positionY, 0);
 }
@@ -111,6 +126,7 @@ void Renderer::initSDL() {
 
     //------------------------------------------
     // Window
+    setupDisplayValues();
 
     //Create SDL window
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -147,7 +163,7 @@ void Renderer::initSDL() {
         renderer,
         w,
         h
-        );
+    );
 
     //------------------------------------------
     // Fonts
@@ -424,7 +440,8 @@ void Renderer::destroy() {
 //------------------------------------------
 // Manipulation
 
-void Renderer::changeWindowSize(int const& w, int const& h, uint16_t const& scalar) {
+// This does not change the settings file, only the current session
+void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scalar) {
     WindowScale = scalar;
     if (w < 240 || w > 16384) {
         Nebulite::cerr() << "Selected resolution is not supported:" << w << "x" << h << "x" << Nebulite::endl;

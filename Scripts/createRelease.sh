@@ -51,10 +51,19 @@ make clean-build-and-test-native
 # Compile binaries
 make all
 
-# Generate documentation, commit and push
+# Check for unstaged tracked changes before building docs
+git diff --quiet || {
+    echo -e "\033[0;33mWarning: There are unstaged changes after before documentation.\033[0m"
+    git status
+    exit 1
+}
+
+# Generate documentation + standards, commit and push
 make docs
+make standards
 git add doc/
 git add Languages/
+git add Resources/
 
 # Check for unstaged tracked changes
 git diff --quiet || {

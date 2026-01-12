@@ -22,6 +22,7 @@
 #include "DomainModule/GlobalSpace/FeatureTest.hpp"         // Feature testing module
 #include "DomainModule/GlobalSpace/General.hpp"             // General functions like eval, exit, wait, etc.
 #include "DomainModule/GlobalSpace/Ruleset.hpp"             // Ruleset management
+#include "DomainModule/GlobalSpace/Settings.hpp"            // Settings management
 #include "DomainModule/GlobalSpace/Time.hpp"                // Basic Time management functions
 
 // JSON
@@ -50,22 +51,27 @@
 //------------------------------------------
 namespace Nebulite::DomainModule {
 
-// TODO: Once CallerScope is implemented, we can restrict scope access to every DomainModule
-//       no Module should have full access!
+void Initializer::initEnvironment(Core::Environment* target) {
+    // Currently, no DomainModules for Environment
+    (void)target;
+}
 
 void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
-
-    //------------------------------------------
-    // TODO: Add settings domainModule:
-    //       - initialized first with scope "settings."
-    //       - modify every DomainModule constructor to accept a settings scope
-    //       - provide a reference to the settings scope in every DomainModule
-    //       - perhaps we can even scope this? Instead of passing all settings to every DomainModule,
-    //         we can only pass the relevant settings.
+    using namespace Nebulite::DomainModule::GlobalSpace;
 
     //------------------------------------------
     // Initialize DomainModules
-    using namespace Nebulite::DomainModule::GlobalSpace;
+
+    //------------------------------------------
+    // Settings module should be initialized first to load settings for other modules
+    target->initModule<Settings>(
+        "Global Settings Functions",
+        target->domainScope.shareScopeBase("settings."),
+        Nebulite::globalDoc().settings()
+    );
+
+    //------------------------------------------
+    // Core modules
     target->initModule<General>(
         "Global General Functions",
         target->domainScope.shareDummyScopeBase(), // No workspace required.

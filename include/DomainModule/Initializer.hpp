@@ -44,7 +44,7 @@ public:
      * @brief Initializes DomainModules for the Environment Domain.
      * @param target Pointer to the Environment domain to initialize.
      */
-    static void initEnvironment(Core::GlobalSpace* target);
+    static void initEnvironment(Core::Environment* target);
 
     /**
      * @brief Initializes DomainModules for the GlobalSpace Domain.

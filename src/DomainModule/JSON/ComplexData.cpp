@@ -16,11 +16,13 @@ Constants::Error ComplexData::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
+// NOLINTNEXTLINE
 Constants::Error ComplexData::querySet() {
     std::scoped_lock<std::recursive_mutex> mtx = domain.lock(); // Lock the domain for thread-safe access
     return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 
+// NOLINTNEXTLINE
 Constants::Error ComplexData::jsonSet(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     // Since we have no access to the global space, we cant use the JSON doc cache

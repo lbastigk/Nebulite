@@ -36,10 +36,8 @@ public:
      * @brief Initializes a Renderer with given dimensions and settings.
      * @param documentReference Reference to the JSON document
      * @param flag_headless Reference to the Boolean flag for headless mode.
-     * @param X Width of the rendering area.
-     * @param Y Height of the rendering area.
      */
-    Renderer(Core::JsonScope& documentReference, bool* flag_headless, unsigned int const& X = 1080, unsigned int const& Y = 1080);
+    Renderer(Core::JsonScope& documentReference, bool* flag_headless);
 
     //------------------------------------------
     // Disallow copying and moving
@@ -253,7 +251,7 @@ public:
      * @param h The new pixel height of the window.
      * @param scalar The scaling factor to apply.
      */
-    void changeWindowSize(int const& w, int const& h, uint16_t const& scalar);
+    void changeWindowSize(int const& w, int const& h, uint8_t const& scalar);
 
     /**
      * @brief Moves the camera by a certain amount.
@@ -416,11 +414,9 @@ private:
     // Display
 
     /**
-     * @brief Sets up display values in the JSON document.
-     * @param X The width of the display.
-     * @param Y The height of the display.
+     * @brief Sets up display values in the workspace.
      */
-    void setupDisplayValues(unsigned int const& X, unsigned int const& Y) const ;
+    void setupDisplayValues() ;
 
     //------------------------------------------
     // Audio
@@ -440,6 +436,11 @@ private:
         std::vector<int16_t>* squareBuffer = nullptr;
         std::vector<int16_t>* triangleBuffer = nullptr;
     } basicAudioWaveforms;
+
+    /**
+     * @brief Initializes basic audio waveforms.
+     */
+    void initWaveforms();
 
     //------------------------------------------
     // General Variables
@@ -464,7 +465,7 @@ private:
     Environment env;
 
     // Rendering
-    uint16_t WindowScale = 1;
+    uint8_t WindowScale = 1;
     SDL_Window* window{};
     SDL_Renderer* renderer{};
 
@@ -510,7 +511,7 @@ private:
     int renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
 
     //------------------------------------------
-    //For FPS Count and Control
+    // For FPS Count and Control
     struct FpsControl {
         Utility::TimeKeeper controlTimer;
         Utility::TimeKeeper renderTimer;
