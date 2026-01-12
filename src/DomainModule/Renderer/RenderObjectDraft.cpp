@@ -10,7 +10,7 @@ Constants::Error RenderObjectDraft::update() {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error RenderObjectDraft::draft_parse(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error RenderObjectDraft::draft_parse(std::span<std::string const> const& args) {
     if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

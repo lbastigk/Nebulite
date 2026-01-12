@@ -51,6 +51,11 @@ class JsonScopeBase {
 protected:
     std::shared_ptr<JSON> baseDocument;
 
+    /**
+     * @brief A helper variable that is modified to signal certain functions as non-const.
+     */
+    int64_t helperNonConstVar = 0;
+
 private:
     /**
      * @brief Indicates if this JsonScopeBase is a dummy (no access allowed).
@@ -160,29 +165,29 @@ public:
     template<typename T> void set(ScopedKeyView const& key, T const& value);
     template<typename T> void set(ScopedKey const& key, T const& value){set(key.view(), value);}
 
-    void setVariant(ScopedKeyView const& key, RjDirectAccess::simpleValue const& value) const ;
-    void setVariant(ScopedKey const& key, RjDirectAccess::simpleValue const& value) const {setVariant(key.view(), value);}
+    void setVariant(ScopedKeyView const& key, RjDirectAccess::simpleValue const& value);
+    void setVariant(ScopedKey const& key, RjDirectAccess::simpleValue const& value){setVariant(key.view(), value);}
 
-    void setSubDoc(ScopedKeyView const& key, JSON const& subDoc) const ;
-    void setSubDoc(ScopedKey const& key, JSON const& subDoc) const {setSubDoc(key.view(), subDoc);}
+    void setSubDoc(ScopedKeyView const& key, JSON const& subDoc);
+    void setSubDoc(ScopedKey const& key, JSON const& subDoc){setSubDoc(key.view(), subDoc);}
 
-    void setSubDoc(ScopedKeyView const& key, JsonScopeBase const& subDoc) const ;
-    void setSubDoc(ScopedKey const& key, JsonScopeBase const& subDoc) const {setSubDoc(key.view(), subDoc);}
+    void setSubDoc(ScopedKeyView const& key, JsonScopeBase const& subDoc);
+    void setSubDoc(ScopedKey const& key, JsonScopeBase const& subDoc){setSubDoc(key.view(), subDoc);}
 
-    void setEmptyArray(ScopedKeyView const& key) const ;
-    void setEmptyArray(ScopedKey const& key) const {setEmptyArray(key.view());}
+    void setEmptyArray(ScopedKeyView const& key);
+    void setEmptyArray(ScopedKey const& key){setEmptyArray(key.view());}
 
     //------------------------------------------
     // Special sets for threadsafe maths operations
 
-    void set_add(ScopedKeyView const& key, double const& val) const ;
-    void set_add(ScopedKey const& key, double const& val) const {set_add(key.view(), val);}
+    void set_add(ScopedKeyView const& key, double const& val);
+    void set_add(ScopedKey const& key, double const& val) {set_add(key.view(), val);}
 
-    void set_multiply(ScopedKeyView const& key, double const& val) const ;
-    void set_multiply(ScopedKey const& key, double const& val) const {set_multiply(key.view(), val);}
+    void set_multiply(ScopedKeyView const& key, double const& val);
+    void set_multiply(ScopedKey const& key, double const& val) {set_multiply(key.view(), val);}
 
-    void set_concat(ScopedKeyView const& key, std::string const& valStr) const ;
-    void set_concat(ScopedKey const& key, std::string const& valStr) const {set_concat(key.view(), valStr);}
+    void set_concat(ScopedKeyView const& key, std::string const& valStr);
+    void set_concat(ScopedKey const& key, std::string const& valStr) {set_concat(key.view(), valStr);}
 
     //------------------------------------------
     // Locking
@@ -211,8 +216,8 @@ public:
     [[nodiscard]] size_t memberSize(ScopedKeyView const& key) const ;
     [[nodiscard]] size_t memberSize(ScopedKey const& key) const {return memberSize(key.view());}
 
-    void removeKey(ScopedKeyView const& key) const ;
-    void removeKey(ScopedKey const& key) const {removeKey(key.view());}
+    void removeKey(ScopedKeyView const& key);
+    void removeKey(ScopedKey const& key) {removeKey(key.view());}
 
     //------------------------------------------
     // Serialize/Deserialize

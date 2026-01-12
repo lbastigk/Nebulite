@@ -68,37 +68,44 @@ JsonScopeBase& JsonScopeBase::shareDummyScopeBase() const {
 //------------------------------------------
 // Setter
 
-void JsonScopeBase::setVariant(ScopedKeyView const& key, RjDirectAccess::simpleValue const& value) const {
+void JsonScopeBase::setVariant(ScopedKeyView const& key, RjDirectAccess::simpleValue const& value){
+    helperNonConstVar++; // Mark as non-const operation
     baseDocument->setVariant(key.full(*this), value);
 }
 
-void JsonScopeBase::setSubDoc(ScopedKeyView const& key, JSON const& subDoc) const {
+void JsonScopeBase::setSubDoc(ScopedKeyView const& key, JSON const& subDoc){
+    helperNonConstVar++; // Mark as non-const operation
     baseDocument->setSubDoc(key.full(*this), subDoc);
 }
 
-void JsonScopeBase::setSubDoc(ScopedKeyView const& key, JsonScopeBase const& subDoc) const {
+void JsonScopeBase::setSubDoc(ScopedKeyView const& key, JsonScopeBase const& subDoc){
+    helperNonConstVar++; // Mark as non-const operation
     // Slightly more complicated: If we wish to set the sub-document from another JsonScopeBase,
     // we need to extract the underlying JSON document from it in the correct scope.
     JSON const subDocScope = subDoc.getSubDoc(ScopedKey(""));
     baseDocument->setSubDoc(key.full(*this), subDocScope);
 }
 
-void JsonScopeBase::setEmptyArray(ScopedKeyView const& key) const {
+void JsonScopeBase::setEmptyArray(ScopedKeyView const& key){
+    helperNonConstVar++; // Mark as non-const operation
     baseDocument->setEmptyArray(key.full(*this));
 }
 
 //------------------------------------------
 // Special sets for threadsafe maths operations
 
-void JsonScopeBase::set_add(ScopedKeyView const& key, double const& val) const {
+void JsonScopeBase::set_add(ScopedKeyView const& key, double const& val){
+    helperNonConstVar++; // Mark as non-const operation
     baseDocument->set_add(key.full(*this), val);
 }
 
-void JsonScopeBase::set_multiply(ScopedKeyView const& key, double const& val) const {
+void JsonScopeBase::set_multiply(ScopedKeyView const& key, double const& val){
+    helperNonConstVar++; // Mark as non-const operation
     baseDocument->set_multiply(key.full(*this), val);
 }
 
-void JsonScopeBase::set_concat(ScopedKeyView const& key, std::string const& valStr) const {
+void JsonScopeBase::set_concat(ScopedKeyView const& key, std::string const& valStr){
+    helperNonConstVar++; // Mark as non-const operation
     baseDocument->set_concat(key.full(*this), valStr);
 }
 
@@ -120,7 +127,8 @@ void JsonScopeBase::set_concat(ScopedKeyView const& key, std::string const& valS
     return baseDocument->memberSize(key.full(*this));
 }
 
-void JsonScopeBase::removeKey(ScopedKeyView const& key) const {
+void JsonScopeBase::removeKey(ScopedKeyView const& key){
+    helperNonConstVar++; // Mark as non-const operation
     baseDocument->removeKey(key.full(*this));
 }
 

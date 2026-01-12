@@ -11,6 +11,7 @@ Constants::Error SimpleData::update() {return Constants::ErrorTable::NONE();} //
 //------------------------------------------
 // General set/get/remove functions
 
+// NOLINTNEXTLINE
 Constants::Error SimpleData::set(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
@@ -28,6 +29,7 @@ Constants::Error SimpleData::set(std::span<std::string const> const& args, Inter
     return Constants::ErrorTable::NONE();
 }
 
+// NOLINTNEXTLINE
 Constants::Error SimpleData::move(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() != 3) {
@@ -69,6 +71,7 @@ Constants::Error SimpleData::move(std::span<std::string const> const& args, Inte
     return Constants::ErrorTable::NONE();
 }
 
+// NOLINTNEXTLINE
 Constants::Error SimpleData::copy(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() != 3) {
@@ -108,6 +111,7 @@ Constants::Error SimpleData::copy(std::span<std::string const> const& args, Inte
     return Constants::ErrorTable::NONE();
 }
 
+// NOLINTNEXTLINE
 Constants::Error SimpleData::keyDelete(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() != 2) {
@@ -123,6 +127,7 @@ Constants::Error SimpleData::keyDelete(std::span<std::string const> const& args,
 //------------------------------------------
 // Array manipulation functions
 
+// NOLINTNEXTLINE
 Constants::Error SimpleData::ensureArray(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
