@@ -36,10 +36,10 @@
             "description": "Release build for Linux with optimizations",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_CXX_FLAGS": "-O3 -DNDEBUG",
+                "CMAKE_CXX_FLAGS": "-O3 -DNDEBUG -march=native -fno-semantic-interposition -fomit-frame-pointer",
                 "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON",
-                "CMAKE_C_COMPILER": "/usr/bin/clang",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++"
             }
         },
         {
