@@ -22,6 +22,8 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+task TaskFiles/Benchmarks/gravity_XL.nebs
+exit
 
 #task TaskFiles/Tests/Short/snapshot.nebs
 

@@ -25,27 +25,26 @@ public:
 
     // Operator overload for []
     V& operator[](K const& key) {
-        std::shared_lock<std::shared_mutex> slock(mtxMap);
-        if (hotKeyEntry.active && hotKeyEntry.key == key) {
-            return *(hotKeyEntry.value);
-        }
-        // If not in hotkey, proceed to normal lookup
-        auto const it = map.find(key);
-        if (it != map.end()) {
-            // Update hotkey entry
-            {
-                std::unique_lock<std::shared_mutex> ulock(mtxMap);
-                hotKeyEntry.active = true;
-                hotKeyEntry.key = key;
-                hotKeyEntry.value = &(it->second);
+        // Fast path and lookup under shared lock
+        {
+            std::shared_lock<std::shared_mutex> slock(mtxMap);
+            if (hotKeyEntry.active && hotKeyEntry.key == key) {
+                return *(hotKeyEntry.value);
             }
-            return it->second;
         }
-        // Entry not found, create standard entry
-        slock.unlock();
+
+        // Acquire exclusive lock and re-check/create safely
         std::unique_lock<std::shared_mutex> ulock(mtxMap);
+        auto it2 = map.find(key);
+        if (it2 != map.end()) {
+            hotKeyEntry.active = true;
+            hotKeyEntry.key = key;
+            hotKeyEntry.value = &(it2->second);
+            return it2->second;
+        }
+
+        // Create new entry
         auto& valueRef = map[key];
-        // Update hotkey entry
         hotKeyEntry.active = true;
         hotKeyEntry.key = key;
         hotKeyEntry.value = &valueRef;

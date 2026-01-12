@@ -156,11 +156,17 @@ public:
     std::unique_lock<std::shared_mutex> lock() const {return std::unique_lock<std::shared_mutex>(mutex);}
 
 private:
-    Data::HotStringKeyMap<
+    struct idToMap {
         absl::node_hash_map<
             uint32_t,           // The ID of self.
             OnTopicFromId       // The struct containing active flag and rulesets
-        >
+        > map;
+        mutable std::shared_mutex mutex; // Mutex for thread-safe access
+    };
+
+    HotStringKeyMap<
+        // std::string, // topic, uncomment if HotKeyMap is used.
+        idToMap
     > data;
     mutable std::shared_mutex mutex; // Mutex for thread-safe access
 };
