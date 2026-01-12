@@ -100,8 +100,8 @@ Constants::Error Debug::update() {
         double virtualMemMB = 0.0;
         double residentMemMB = 0.0;
         getMemoryUsageMB(virtualMemMB, residentMemMB);
-        moduleScope.set<double>(Data::ScopedKey("debug.memory.virtualMB"), virtualMemMB);
-        moduleScope.set<double>(Data::ScopedKey("debug.memory.residentMB"), residentMemMB);
+        moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.virtualMB"), virtualMemMB);
+        moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.residentMB"), residentMemMB);
     }
     if (!memoryUsagePoller.is_running()) {
         memoryUsagePoller.start();
