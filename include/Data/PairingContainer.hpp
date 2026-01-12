@@ -164,10 +164,8 @@ private:
         mutable std::shared_mutex mutex; // Mutex for thread-safe access
     };
 
-    HotStringKeyMap<
-        // std::string, // topic, uncomment if HotKeyMap is used.
-        idToMap
-    > data;
+    // HotStringKeyMap seems to be minimally faster than a standard hash map for multiple topics
+    HotStringKeyMap<idToMap> data;
     mutable std::shared_mutex mutex; // Mutex for thread-safe access
 };
 } // namespace Nebulite::Data

@@ -52,9 +52,10 @@ void PairingContainer::insertListener(Interaction::Execution::DomainBase& listen
 
 void PairingContainer::process() {
     for (const auto& map : data.getMaps()) {
-        for (auto& map_other : std::views::values(map)) {
-            auto const& lock = std::shared_lock<std::shared_mutex>(map_other.mutex);
-            for (auto& [isActive, rulesets] : std::views::values(map_other.map)) {
+        for (auto& [tmap, mtx] : std::views::values(map)) {
+            // NOLINTNEXTLINE
+            auto const& lock = std::shared_lock<std::shared_mutex>(mtx);
+            for (auto& [isActive, rulesets] : std::views::values(tmap)) {
                 if (!isActive)
                     continue;
                 for (auto& listenersOnRuleset : std::ranges::views::values(rulesets)) {
