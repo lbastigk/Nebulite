@@ -22,6 +22,13 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+set-fps 60
+json set zzz ./Resources/Renderobjects/standard.jsonc:text.color.A
+echo Printing value retrieved from: ./Resources/Renderobjects/standard.jsonc:text.color.A
+echo Expected value: 255
+eval echo {global.zzz}
+exit
+
 task TaskFiles/Tests/Short/snapshot.nebs
 
 task TaskFiles/Simulations/bouncing.nebs

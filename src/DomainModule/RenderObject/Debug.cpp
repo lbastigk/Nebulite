@@ -17,15 +17,16 @@ Constants::Error Debug::update() {
 //------------------------------------------
 // Available Functions
 
+// NOLINTNEXTLINE
 Constants::Error Debug::eval(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
-    std::string const argstr = Utility::StringHandler::recombineArgs(args);
-    Interaction::ContextBase context{domain, domain, Nebulite::global()};    // Both self and other are this RenderObject?
-    std::string const argsEvaluated = Interaction::Logic::Expression::eval(argstr, context);
+    std::string const argStr = Utility::StringHandler::recombineArgs(args);
+    Interaction::ContextBase const context{caller, caller, Nebulite::global()};    // Both self and other are this RenderObject?
+    std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr, context);
     (void)callerScope; // Unused
     return caller.parseStr(argsEvaluated);
 }
 
-Constants::Error Debug::printSrcRect() {
+Constants::Error Debug::printSrcRect() const {
     if (SDL_Rect const* srcRect = domain.getSrcRect(); srcRect) {
         std::string message;
         message += "Source Rectangle:";
@@ -42,7 +43,7 @@ Constants::Error Debug::printSrcRect() {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Debug::printDstRect() {
+Constants::Error Debug::printDstRect() const {
     if (SDL_Rect const* dstRect = domain.getDstRect(); dstRect) {
         std::string message;
         message += "Destination Rectangle:";
@@ -110,13 +111,14 @@ std::string getTextureInfoString(SDL_Texture* texture) {
 }
 } // unnamed namespace
 
-Constants::Error Debug::textureStatus() {
+// NOLINTNEXTLINE
+Constants::Error Debug::textureStatus(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) const {
     //------------------------------------------
     // Print Texture Status
     Nebulite::cout() << "Texture Status:" << Nebulite::endl;
 
     // Nebulite info
-    Nebulite::cout() << std::string(" - Texture Key   : ") + moduleScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "None") << Nebulite::endl;
+    Nebulite::cout() << std::string(" - Texture Key   : ") + callerScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "None") << Nebulite::endl;
     Nebulite::cout() << std::string(" - Valid Texture : ") + (domain.getTexture()->isTextureValid() ? "Yes" : "No") << Nebulite::endl;
     Nebulite::cout() << std::string(" - Local Texture : ") + (domain.getTexture()->isTextureStoredLocally() ? "Yes" : "No") << Nebulite::endl;
 

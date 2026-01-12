@@ -64,7 +64,7 @@ public:
         "\n"
         "Mirrors are stored in the GlobalSpace document under key \"mirror.renderObject.id<id>\"\n";
 
-    Constants::Error mirror_delete();
+    Constants::Error mirror_delete() const ;
     static auto constexpr mirror_delete_name = "mirror delete";
     static auto constexpr mirror_delete_desc = "Deletes the GlobalSpace document entry for this RenderObject\n"
         "\n"
@@ -72,7 +72,7 @@ public:
         "\n"
         "Mirrors are removed from the GlobalSpace document under key \"mirror.renderObject.id<id>\"\n";
 
-    Constants::Error mirror_fetch();
+    Constants::Error mirror_fetch() const ;
     static auto constexpr mirror_fetch_name = "mirror fetch";
     static auto constexpr mirror_fetch_desc = "Deserializes the RenderObject from the GlobalSpace document entry\n"
         "\n"

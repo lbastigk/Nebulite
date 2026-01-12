@@ -30,7 +30,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error print(int argc, char** argv);
+    static Constants::Error print(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr print_name = "print";
     static auto constexpr print_desc = "Prints the JSON document to the console for debugging purposes.\n"
         "If key is empty, prints the entire document.\n"

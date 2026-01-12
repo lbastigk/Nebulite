@@ -38,7 +38,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error eval(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
+    static Constants::Error eval(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr eval_name = "eval";
     static auto constexpr eval_desc = "Evaluate an expression and execute the result.\n"
         "Example: eval echo $(1+1)\n"
@@ -47,7 +47,7 @@ public:
         "eval echo $(1+1)    outputs:    2.000000\n"
         "eval echo {self.id} outputs this objects id\n";
 
-    Constants::Error printSrcRect();
+    Constants::Error printSrcRect() const ;
     static auto constexpr printSrcRect_name = "debug print-src-rect";
     static auto constexpr printSrcRect_desc = "Prints debug information about the source rectangle to console\n"
         "\n"
@@ -58,7 +58,7 @@ public:
         "If the RenderObject is not a spritesheet, indicates that instead:\n"
         "This RenderObject is not a spritesheet.\n";
 
-    Constants::Error printDstRect();
+    Constants::Error printDstRect() const ;
     static auto constexpr printDstRect_name = "debug print-dst-rect";
     static auto constexpr printDstRect_desc = "Prints debug information about the destination rectangle to console\n"
         "\n"
@@ -69,7 +69,7 @@ public:
         "If the RenderObject is not a spritesheet, indicates that instead:\n"
         "Destination rectangle is not set.\n";
 
-    Constants::Error textureStatus();
+    Constants::Error textureStatus(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) const ;
     static auto constexpr textureStatus_name = "debug texture-status";
     static auto constexpr textureStatus_desc = "Prints debug information about the texture to console\n"
         "\n"

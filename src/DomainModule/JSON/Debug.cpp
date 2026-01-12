@@ -1,5 +1,4 @@
 #include "Nebulite.hpp"
-#include "Core/JsonScope.hpp"
 #include "DomainModule/JsonScope/Debug.hpp"
 
 namespace Nebulite::DomainModule::JsonScope {
@@ -16,27 +15,28 @@ Constants::Error Debug::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Error Debug::print(int argc, char** argv) {
-    if (argc > 2) {
+// NOLINTNEXTLINE
+Constants::Error Debug::print(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
+    if (args.size() > 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    if (argc == 2) {
-        auto const scopedKey = Data::ScopedKey(argv[1]);
-        auto const memberType = moduleScope.memberType(scopedKey);
+    if (args.size() == 2) {
+        auto const scopedKey = Data::ScopedKey(args[1]);
+        auto const memberType = callerScope.memberType(scopedKey);
         if (memberType == Data::KeyType::null) {
             Nebulite::cout() << "{}" << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
         if (memberType == Data::KeyType::object || memberType == Data::KeyType::array) {
-            Nebulite::cout() << moduleScope.serialize(scopedKey) << Nebulite::endl;
+            Nebulite::cout() << callerScope.serialize(scopedKey) << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
         if (memberType == Data::KeyType::value) {
-            Nebulite::cout() << moduleScope.get<std::string>(scopedKey, "") << Nebulite::endl;
+            Nebulite::cout() << callerScope.get<std::string>(scopedKey, "") << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
     }
-    Nebulite::cout() << moduleScope.serialize() << Nebulite::endl;
+    Nebulite::cout() << callerScope.serialize() << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
 

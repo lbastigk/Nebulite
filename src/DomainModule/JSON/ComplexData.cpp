@@ -21,18 +21,18 @@ Constants::Error ComplexData::querySet() {
     return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 
-Constants::Error ComplexData::jsonSet(int argc, char** argv) {
-    std::scoped_lock<std::recursive_mutex> mtx = domain.lock(); // Lock the domain for thread-safe access
+Constants::Error ComplexData::jsonSet(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
+    std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     // Since we have no access to the global space, we cant use the JSON doc cache
     // Instead, we manually load the document to retrieve the key
-    if (argc < 3) {
+    if (args.size() < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    if (argc > 3) {
+    if (args.size() > 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    std::string const myKey = argv[1];
-    std::string const docKey = argv[2];
+    std::string const myKey = args[1];
+    std::string const docKey = args[2];
 
     // Depending on the type of docKey, we retrieve the value
 
@@ -42,11 +42,11 @@ Constants::Error ComplexData::jsonSet(int argc, char** argv) {
         Data::JSON const subDoc = Nebulite::global().getDocCache().getSubDoc(docKey);
 
         // Set the sub-document in the current JSON tree
-        domain.setSubDoc(moduleScope.getRootScope() + myKey, subDoc);
+        callerScope.setSubDoc(callerScope.getRootScope() + myKey, subDoc);
     }
     // === VALUE ===
     else if (type == Data::KeyType::value) {
-        domain.set(moduleScope.getRootScope() + myKey, Nebulite::global().getDocCache().get<std::string>(docKey));
+        callerScope.set(callerScope.getRootScope() + myKey, Nebulite::global().getDocCache().get<std::string>(docKey));
     }
     // === ARRAY ===
     else if (type == Data::KeyType::array) {
@@ -55,7 +55,7 @@ Constants::Error ComplexData::jsonSet(int argc, char** argv) {
             std::string itemKey = docKey + "[" + std::to_string(i) + "]";
             auto itemValue = Nebulite::global().getDocCache().get<std::string>(itemKey);
             std::string newItemKey = myKey + "[" + std::to_string(i) + "]";
-            domain.set(moduleScope.getRootScope() + newItemKey, itemValue);
+            callerScope.set(callerScope.getRootScope() + newItemKey, itemValue);
         }
     }
     return Constants::ErrorTable::NONE();

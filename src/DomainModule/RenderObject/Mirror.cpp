@@ -43,13 +43,13 @@ Constants::Error Mirror::mirror_off() {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Mirror::mirror_delete() {
+Constants::Error Mirror::mirror_delete() const {
     auto const globalScope = Nebulite::globalDoc().shareScope(*this).getRootScope();
     Nebulite::globalDoc().shareScope(*this).removeKey(globalScope + mirrorKey);
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Mirror::mirror_fetch() {
+Constants::Error Mirror::mirror_fetch() const {
     auto const globalScope = Nebulite::globalDoc().shareScope(*this).getRootScope();
     if (Nebulite::globalDoc().shareScope(*this).memberType(globalScope + mirrorKey) != Data::KeyType::object) {
         return Constants::ErrorTable::addError("Mirror fetch failed: Key '" + mirrorKey + "' not of type document", Constants::Error::NON_CRITICAL);
