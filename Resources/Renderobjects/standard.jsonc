@@ -3,6 +3,12 @@
     "layer": 0,
     "posX": 0,
     "posY": 0,
+    "ruleset": {
+        "broadcast": [],
+        "listen": [
+            "all"
+        ]
+    },
     "sprite": {
         "link": "Resources/Sprites/TEST001P/001.bmp",
         "sizeX": 32,
@@ -26,11 +32,5 @@
         "dy": 0.0,
         "fontSize": 0,
         "str": ""
-    },
-    "ruleset": {
-        "broadcast": [],
-        "listen": [
-            "all"
-        ]
     }
 }

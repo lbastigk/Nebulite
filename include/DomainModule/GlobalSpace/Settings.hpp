@@ -45,6 +45,12 @@ public:
         "\n"
         "Usage: settings save\n";
 
+    [[nodiscard]] Constants::Error overWriteSettingsFile();
+    static auto constexpr overWriteSettingsFile_name = "settings save-standards";
+    static auto constexpr overWriteSettingsFile_desc = "Overwrites the settings file with default settings.\n"
+        "\n"
+        "Usage: settings save-standards\n";
+
     [[nodiscard]] Constants::Error setSettingStr(std::span<std::string const> const& args) const ;
     static auto constexpr setSetting_name = "settings set-string";
     static auto constexpr setSetting_desc = "Sets a global setting to a specified value.\n"
@@ -96,6 +102,7 @@ public:
 
         (void)bindCategory(settings_name, "Functions for managing global settings.");
         BINDFUNCTION(&Settings::saveSettings, saveSettings_name, saveSettings_desc);
+        BINDFUNCTION(&Settings::overWriteSettingsFile, overWriteSettingsFile_name, overWriteSettingsFile_desc);
         BINDFUNCTION(&Settings::setSettingStr, setSetting_name, setSetting_desc);
         BINDFUNCTION(&Settings::setSettingInt, setSettingInt_name, setSettingInt_desc);
     }

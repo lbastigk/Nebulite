@@ -20,6 +20,15 @@ Constants::Error Settings::saveSettings() {
     return Constants::ErrorTable::NONE();
 }
 
+Constants::Error Settings::overWriteSettingsFile() {
+    // Overwrite settings file with default settings
+    loadSettings(defaultSettingsFile);
+    if (saveSettings() != Constants::ErrorTable::NONE()) {
+        return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
+    }
+    return Constants::ErrorTable::NONE();
+}
+
 Constants::Error Settings::setSettingStr(std::span<std::string const> const& args) const {
     if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();

@@ -137,6 +137,9 @@ docs:
 	@python Scripts/MakeCommandDocumentation.py
 	@python Languages/nebs/nebulite-script-vscode/scripts/extract_keywords.py
 
+standards:
+	@echo "Generating standard files..."
+	@./Scripts/MakeStandards.sh
 
 ############################################
 # Full testing pipelines
