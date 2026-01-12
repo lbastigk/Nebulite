@@ -89,10 +89,19 @@ Renderer::Renderer(Core::JsonScope& documentReference, bool* flag_headless)
     DomainModule::Initializer::initRenderer(this);
 }
 
-void Renderer::setupDisplayValues() const {
+void Renderer::setupDisplayValues() {
     // Load from settings
-    uint16_t const X = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 800);
-    uint16_t const Y = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 600);
+    uint16_t X = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 0);
+    uint16_t Y = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 0);
+    WindowScale = Nebulite::globalDoc().settings().get<uint8_t>(DomainModule::GlobalSpace::Settings::Key::resolutionScaling, 0);
+
+    // X and Y sanity check
+    if (X == 0 || Y == 0 || WindowScale == 0) {
+        Nebulite::cerr() << "Warning: Invalid resolution settings detected. Falling back to default 1000x1000." << Nebulite::endl;
+        X = 1000;
+        Y = 1000;
+        WindowScale = 1;
+    }
 
     // Set in workspace
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X);
@@ -427,7 +436,7 @@ void Renderer::destroy() {
 //------------------------------------------
 // Manipulation
 
-void Renderer::changeWindowSize(int const& w, int const& h, uint16_t const& scalar) {
+void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scalar) {
     WindowScale = scalar;
     if (w < 240 || w > 16384) {
         Nebulite::cerr() << "Selected resolution is not supported:" << w << "x" << h << "x" << Nebulite::endl;

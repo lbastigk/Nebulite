@@ -81,7 +81,7 @@ Constants::Error General::spawn(int argc, char** argv) const {
 Constants::Error General::setResolution(int argc, char** argv) const {
     int w = 1000;
     int h = 1000;
-    uint16_t scalar = 1;
+    uint8_t scalar = 1;
     if (argc > 1) {
         w = std::stoi(argv[1]);
     }
@@ -90,7 +90,7 @@ Constants::Error General::setResolution(int argc, char** argv) const {
     }
     if (argc > 3) {
         if (int const signedScalar = std::stoi(argv[3]); signedScalar > 0) {
-            scalar = static_cast<uint16_t>(signedScalar);
+            scalar = static_cast<uint8_t>(signedScalar);
         } else {
             scalar = 1;
         }

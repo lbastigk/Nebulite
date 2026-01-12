@@ -62,11 +62,13 @@ public:
         // Use unscoped keys to load from file
         static auto constexpr unscoped_resolutionX = "renderer.resolutionX";
         static auto constexpr unscoped_resolutionY = "renderer.resolutionY";
+        static auto constexpr unscoped_resolutionScaling = "renderer.resolutionScaling";
     public:
         // Use scoped keys to set and access from GlobalSpace
         static auto constexpr scope = "settings.";
         static auto constexpr resolutionX = Data::ScopedKeyView::create<scope>(unscoped_resolutionX);
         static auto constexpr resolutionY = Data::ScopedKeyView::create<scope>(unscoped_resolutionY);
+        static auto constexpr resolutionScaling = Data::ScopedKeyView::create<scope>(unscoped_resolutionScaling);
 
     };
 

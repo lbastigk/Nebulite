@@ -1,5 +1,6 @@
 {
     "renderer": {
+        "resolutionScaling": 1,
         "resolutionX": 1000,
         "resolutionY": 1000
     }

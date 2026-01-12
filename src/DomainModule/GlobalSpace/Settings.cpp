@@ -34,6 +34,7 @@ void Settings::loadSettings(std::string const& filename) {
     // Later on, we may want to save all and ensure all known settings are present
     moduleScope.set<uint16_t>(Key::resolutionX, settings.get<uint16_t>(Key::unscoped_resolutionX, 1000));
     moduleScope.set<uint16_t>(Key::resolutionY, settings.get<uint16_t>(Key::unscoped_resolutionY, 1000));
+    moduleScope.set<uint8_t>(Key::resolutionScaling, settings.get<uint8_t>(Key::unscoped_resolutionScaling, 1));
     /**
      * @todo: Add more settings:
      *        - FPS limit

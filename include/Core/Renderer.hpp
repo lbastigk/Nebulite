@@ -251,7 +251,7 @@ public:
      * @param h The new pixel height of the window.
      * @param scalar The scaling factor to apply.
      */
-    void changeWindowSize(int const& w, int const& h, uint16_t const& scalar);
+    void changeWindowSize(int const& w, int const& h, uint8_t const& scalar);
 
     /**
      * @brief Moves the camera by a certain amount.
@@ -416,7 +416,7 @@ private:
     /**
      * @brief Sets up display values in the workspace.
      */
-    void setupDisplayValues() const ;
+    void setupDisplayValues() ;
 
     //------------------------------------------
     // Audio
@@ -460,7 +460,7 @@ private:
     Environment env;
 
     // Rendering
-    uint16_t WindowScale = 1;
+    uint8_t WindowScale = 1;
     SDL_Window* window{};
     SDL_Renderer* renderer{};
 
