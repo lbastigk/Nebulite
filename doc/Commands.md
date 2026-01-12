@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sat Jan  3 22:57:28 CET 2026
+Generated on: Mon Jan 12 23:14:02 CET 2026
 
 ## Table of Contents
 
@@ -45,7 +45,7 @@ Available Functions
 | `for` | Executes a for-loop with a function call. |
 | `help` | Show available commands and their descriptions |
 | `if` | Executes a block of code if a condition is true. |
-| `in-scope` | Parses a command within a specific scope. |
+| `in-scope` | Parses a command within a specific scope of the Global Space. |
 | `input-wait` | Waits for user input before continuing. |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
@@ -64,6 +64,7 @@ Available Functions
 | `set` | Set a key to a value in the JSON document. |
 | `set-fps` | Set FPS of renderer. |
 | `set-res` | Set resolution of renderer. |
+| `settings` | Functions for managing global settings. |
 | `show-fps` | Show FPS of renderer. |
 | `snapshot` | Create a snapshot of the current renderer state. |
 | `spawn` | Spawn a RenderObject from a json/jsonc file. |
@@ -368,7 +369,7 @@ if '$(eq(1+1,2))' echo Condition is true!
 #### `in-scope`
 
 ```
-Parses a command within a specific scope.
+Parses a command within a specific scope of the Global Space.
 
 Usage: in-scope <scope> <command>
 
@@ -582,6 +583,26 @@ Defaults to 1000  for width if argument count < 1
 Defaults to 1000  for height if argument count < 2
 Defaults to 1     for scale if argument count < 3
 ```
+
+#### `settings`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `save` | Saves the current global settings to the default filename. |
+| `save-standards` | Overwrites the settings file with default settings. |
+| `set-integer` | Sets a global setting to a specified integer value. |
+| `set-string` | Sets a global setting to a specified value. |
+
+##### `settings save`
+
+##### `settings save-standards`
+
+##### `settings set-integer`
+
+##### `settings set-string`
 
 #### `show-fps`
 
@@ -799,7 +820,7 @@ Example: eval echo $(1+1)
 Examples:
 
 eval echo $(1+1)    outputs:    2.000000
-eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
+eval echo {self.id} outputs this objects id
 ```
 
 #### `fill`
