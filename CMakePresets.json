@@ -25,7 +25,6 @@
             "description": "Debug build for Linux",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_CXX_FLAGS": "-mno-avx512f -mno-avx512bw -mno-avx512vl -mno-avx512dq -mno-avx512ifma -mno-avx512vbmi -mno-avx512bf16",
                 "CMAKE_C_COMPILER": "/usr/bin/clang",
                 "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
             }
