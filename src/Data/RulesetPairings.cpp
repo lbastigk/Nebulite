@@ -1,19 +1,17 @@
 #include "Data/RulesetPairings.hpp"
 
 #include "Nebulite.hpp"
-#include "Core/RenderObject.hpp"
-#include "Interaction/Execution/Domain.hpp"
 
 namespace Nebulite::Data {
 
 //------------------------------------------
 // Container Methods
 
-void BroadCastListenPairs::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+void BroadCastListenPairs::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) const {
     nextFrame->insertBroadcaster(entry);
 }
 
-void BroadCastListenPairs::listen(Interaction::Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId) {
+void BroadCastListenPairs::listen(Interaction::Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId) const {
     thisFrame->insertListener(listener, topic, listenerId);
 }
 

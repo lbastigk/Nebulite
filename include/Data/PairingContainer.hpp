@@ -20,6 +20,7 @@
 
 // Nebulite
 #include "Data/ByteTree.hpp"
+#include "Data/HotStringKeyMap.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 
@@ -111,7 +112,7 @@ public:
         if (cleanup_dist(cleanup_rng) == 0) {
             for (auto it = listeners.begin(); it != listeners.end();) {
                 if (!it->second.active) {
-                    auto itToErase = it++;
+                    auto const itToErase = it++;
                     listeners.erase(itToErase); // erase returns void in Abseil
                 } else {
                     ++it;
@@ -122,8 +123,8 @@ public:
 
     void apply() {
         std::shared_lock<std::shared_mutex> slock(mutex);
-        for (auto & it : listeners) {
-            it.second.apply();
+        for (auto& pair : std::views::values(listeners)) {
+            pair.apply();
         }
     }
 
@@ -147,12 +148,15 @@ public:
     void insertBroadcaster(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
     void insertListener(Interaction::Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId);
     void process(); // Worker thread processing function
-    std::unique_lock<std::shared_mutex> lock() {return std::unique_lock<std::shared_mutex>(mutex);}
+
+    /**
+     * @brief Required for processing to start working
+     * @return A unique lock on the internal mutex
+     */
+    std::unique_lock<std::shared_mutex> lock() const {return std::unique_lock<std::shared_mutex>(mutex);}
 
 private:
-    // Using a node hash map to keep iterators stable during insertions
-    absl::node_hash_map<
-        std::string,            // The topic of the broadcasted entry. TODO: Consider a rolling id system so we can simplify this key
+    Data::HotStringKeyMap<
         absl::node_hash_map<
             uint32_t,           // The ID of self.
             OnTopicFromId       // The struct containing active flag and rulesets
