@@ -60,6 +60,7 @@ Constants::Error ComplexData::jsonSet(std::span<std::string const> const& args, 
             callerScope.set(callerScope.getRootScope() + newItemKey, itemValue);
         }
     }
+    (void)caller; // Unused parameter
     return Constants::ErrorTable::NONE();
 }
 } // namespace Nebulite::DomainModule::JsonScope

@@ -222,7 +222,7 @@ bool FuncTree<returnValue, additionalArgs...>::conflictCheck(std::string_view co
 //------------------------------------------
 // Binding helper
 
-namespace {
+namespace ShapeClassifier {
     template<typename...> inline constexpr bool always_false = false;
 
     constexpr bool breakBuild = false;
@@ -358,7 +358,7 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Func functionPtr) {
 
     // Helpful compile-time error for pointer-to-member functions passed without an object
     if constexpr (std::is_member_function_pointer_v<DecayF>) {
-        static_assert(always_false<Func>,
+        static_assert(ShapeClassifier::always_false<Func>,
                       "makeFunctionPtr(func) received a pointer-to-member-function. "
                       "Pass an object + member pointer using makeFunctionPtr(objPtr, &Class::mem) "
                       "or provide a free/static function or callable (lambda/std::function).");
@@ -371,41 +371,40 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Func functionPtr) {
 
     // If raw function pointer (free/static)
     if constexpr (std::is_pointer_v<DecayF> && std::is_function_v<std::remove_pointer_t<DecayF>>) {
-        constexpr FunctionShape shape = classifyFunction<DecayF, returnValue, additionalArgs...>();
-        if constexpr (shape == FunctionShape::Free_Legacy_IntChar) {
+        if constexpr (constexpr ShapeClassifier::FunctionShape shape = ShapeClassifier::classifyFunction<DecayF, returnValue, additionalArgs...>(); shape == ShapeClassifier::FunctionShape::Free_Legacy_IntChar) {
             return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Legacy::IntChar>,
                                 std::function<returnValue(int, char**)>(functionPtr));
         }
-        else if constexpr (shape == FunctionShape::Free_Legacy_IntConstChar) {
+        else if constexpr (shape == ShapeClassifier::FunctionShape::Free_Legacy_IntConstChar) {
             return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Legacy::IntConstChar>,
                                 std::function<returnValue(int, char const**)>(functionPtr));
         }
-        else if constexpr (shape == FunctionShape::Free_Modern_NoAddArgs) {
+        else if constexpr (shape == ShapeClassifier::FunctionShape::Free_Modern_NoAddArgs) {
             return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoAddArgs>,
                                 std::function<returnValue(typename This::CmdArgs::Span)>(functionPtr));
         }
-        else if constexpr (shape == FunctionShape::Free_Modern_NoAddArgsConstRef) {
+        else if constexpr (shape == ShapeClassifier::FunctionShape::Free_Modern_NoAddArgsConstRef) {
             return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoAddArgsConstRef>,
                                 std::function<returnValue(typename This::CmdArgs::SpanConstRef)>(functionPtr));
         }
-        else if constexpr (shape == FunctionShape::Free_Modern_Full) {
+        else if constexpr (shape == ShapeClassifier::FunctionShape::Free_Modern_Full) {
             return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::Full>,
                                 std::function<returnValue(typename This::CmdArgs::Span, additionalArgs...)>(functionPtr));
         }
-        else if constexpr (shape == FunctionShape::Free_Modern_FullConstRef) {
+        else if constexpr (shape == ShapeClassifier::FunctionShape::Free_Modern_FullConstRef) {
             return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::FullConstRef>,
                                 std::function<returnValue(typename This::CmdArgs::SpanConstRef, additionalArgs...)>(functionPtr));
         }
-        else if constexpr (shape == FunctionShape::Free_NoArgs) {
+        else if constexpr (shape == ShapeClassifier::FunctionShape::Free_NoArgs) {
             return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoArgs>,
                                 std::function<returnValue()>(functionPtr));
         }
-        else if constexpr (shape == FunctionShape::Free_NoCmdArgs) {
+        else if constexpr (shape == ShapeClassifier::FunctionShape::Free_NoCmdArgs) {
             return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoCmdArgs>,
                                 std::function<returnValue(additionalArgs...)>(functionPtr));
         }
         else {
-            static_assert(always_false<Func>, "makeFunctionPtr(func) received an unknown free/static function pointer type");
+            static_assert(ShapeClassifier::always_false<Func>, "makeFunctionPtr(func) received an unknown free/static function pointer type");
         }
     }
 
@@ -435,7 +434,7 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Func functionPtr) {
                             std::function<returnValue(additionalArgs...)>(functionPtr));
     }
     else {
-        static_assert(always_false<Func>, "makeFunctionPtr(func) could not deduce a supported function shape");
+        static_assert(ShapeClassifier::always_false<Func>, "makeFunctionPtr(func) could not deduce a supported function shape");
         std::abort();
     }
 }
@@ -450,56 +449,56 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
     using MemDecay = std::decay_t<MemFunc>;
 
     // Choose appropriate variant and wrap with a lambda that invokes member on objectPtr
-    if constexpr (constexpr FunctionShape shape = classifyFunction<MemDecay, returnValue, additionalArgs...>(); shape == FunctionShape::Member_Legacy_IntChar) {
+    if constexpr (constexpr ShapeClassifier::FunctionShape shape = ShapeClassifier::classifyFunction<MemDecay, returnValue, additionalArgs...>(); shape == ShapeClassifier::FunctionShape::Member_Legacy_IntChar) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Legacy::IntChar>,
             [objectPtr, memberFunctionPtr](int argc, char** argv) {
                 return std::invoke(memberFunctionPtr, objectPtr, argc, argv);
         });
     }
-    else if constexpr (shape == FunctionShape::Member_Legacy_IntConstChar) {
+    else if constexpr (shape == ShapeClassifier::FunctionShape::Member_Legacy_IntConstChar) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Legacy::IntConstChar>,
             [objectPtr, memberFunctionPtr](int argc, char const** argv) {
                 return std::invoke(memberFunctionPtr, objectPtr, argc, argv);
         });
     }
-    else if constexpr (shape == FunctionShape::Member_Modern_NoAddArgs) {
+    else if constexpr (shape == ShapeClassifier::FunctionShape::Member_Modern_NoAddArgs) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::NoAddArgs>,
             [objectPtr, memberFunctionPtr](typename CmdArgs::Span args) {
                 return std::invoke(memberFunctionPtr, objectPtr, args);
         });
     }
-    else if constexpr (shape == FunctionShape::Member_Modern_NoAddArgsConstRef) {
+    else if constexpr (shape == ShapeClassifier::FunctionShape::Member_Modern_NoAddArgsConstRef) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::NoAddArgsConstRef>,
             [objectPtr, memberFunctionPtr](typename CmdArgs::SpanConstRef args) {
                 return std::invoke(memberFunctionPtr, objectPtr, args);
         });
     }
-    else if constexpr (shape == FunctionShape::Member_Modern_Full) {
+    else if constexpr (shape == ShapeClassifier::FunctionShape::Member_Modern_Full) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::Full>,
             [objectPtr, memberFunctionPtr](typename CmdArgs::Span args, additionalArgs... rest) {
                 return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<additionalArgs>(rest)...);
         });
     }
-    else if constexpr (shape == FunctionShape::Member_Modern_FullConstRef) {
+    else if constexpr (shape == ShapeClassifier::FunctionShape::Member_Modern_FullConstRef) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::FullConstRef>,
             [objectPtr, memberFunctionPtr](typename CmdArgs::SpanConstRef args, additionalArgs... rest) {
                 return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<additionalArgs>(rest)...);
         });
     }
-    else if constexpr (shape == FunctionShape::Member_NoCmdArgs) {
+    else if constexpr (shape == ShapeClassifier::FunctionShape::Member_NoCmdArgs) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::NoCmdArgs>,
             [objectPtr, memberFunctionPtr](additionalArgs... rest) {
                 return std::invoke(memberFunctionPtr, objectPtr, std::forward<additionalArgs>(rest)...);
         });
     }
-    else if constexpr (shape == FunctionShape::Member_NoArgs) {
+    else if constexpr (shape == ShapeClassifier::FunctionShape::Member_NoArgs) {
         if constexpr (sizeof...(additionalArgs) == 0) {
             // No extra args in FuncTree -> store as NoArgs
             return FunctionPtrT(
@@ -518,7 +517,7 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
         }
     }
     else {
-        static_assert(always_false<MemFunc>, "makeFunctionPtr(Obj, MemFunc) received an unsupported member function pointer type");
+        static_assert(ShapeClassifier::always_false<MemFunc>, "makeFunctionPtr(Obj, MemFunc) received an unsupported member function pointer type");
         return FunctionPtrT{}; // Unreachable
     }
 }
@@ -575,6 +574,11 @@ std::vector<std::pair<std::string, std::string_view>> FuncTree<returnValue, addi
 
 template <typename returnValue, typename... additionalArgs>
 returnValue FuncTree<returnValue, additionalArgs...>::parseStr(std::string const& cmd, additionalArgs... addArgs) {
+    // Early exit on empty command
+    if (cmd.empty()) {
+        return standardReturn.valDefault;
+    }
+
     // Quote-aware tokenization
     std::vector<std::string> tokens = Utility::StringHandler::parseQuotedArguments(cmd);
 
@@ -676,7 +680,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
             }
             // Unknown function type
             else {
-                static_assert(always_false<T>, "Unknown function signature in FuncTree::executeFunction");
+                static_assert(ShapeClassifier::always_false<T>, "Unknown function signature in FuncTree::executeFunction");
             }
         }, functionPtr);
     }

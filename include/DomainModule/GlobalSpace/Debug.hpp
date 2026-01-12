@@ -53,7 +53,7 @@ public:
         "- off: Deactivates error logging, reverting to standard error output.\n"
         "Note: Ensure you have write permissions in the working directory when activating error logging.\n";
 
-    Constants::Error clearConsole();
+    static Constants::Error clearConsole(std::span<std::string const> const& args);
     static auto constexpr clearConsole_name = "clear";
     static auto constexpr clearConsole_desc = "Clears the console screen.\n"
         "Usage: clear\n"
@@ -61,7 +61,7 @@ public:
         "Note: This function attempts to clear the console screen using system-specific commands.\n"
         "      It may not work in all environments or IDEs.\n";
 
-    Constants::Error log_global(int argc, char** argv);
+    Constants::Error log_global(int argc, char** argv) const ;
     static auto constexpr log_global_name = "log global";
     static auto constexpr log_global_desc = "Logs the global document to a file.\n"
         "Usage: log global [<filenames>...]\n"
@@ -69,7 +69,7 @@ public:
         "- <filenames>: Optional. One or more filenames to log the global document to.\n"
         "               If no filenames are provided, defaults to 'global.log.jsonc'.\n";
 
-    Constants::Error log_state(int argc, char** argv);
+    Constants::Error log_state(int argc, char** argv) const ;
     static auto constexpr log_state_name = "log state";
     static auto constexpr log_state_desc = "Logs the current state of the renderer to a file.\n"
         "Usage: log state [<filenames>...]\n"
@@ -77,7 +77,7 @@ public:
         "- <filenames>: Optional. One or more filenames to log the renderer state to.\n"
         "               If no filenames are provided, defaults to 'state.log.jsonc'.\n";
 
-    Constants::Error crash(int argc, char** argv);
+    static Constants::Error crash(std::span<std::string const> const& args);
     static auto constexpr crash_name = "crash";
     static auto constexpr crash_desc = "Crashes the program, useful for checking if the testing suite can catch crashes.\n"
         "Usage: crash [<type>]\n"
@@ -88,35 +88,35 @@ public:
         "    - terminate  : Calls std::terminate()\n"
         "    - throw      : Throws an uncaught exception\n";
 
-    Constants::Error error(int argc, char** argv);
+    static Constants::Error error(std::span<std::string const> const& args);
     static auto constexpr error_name = "error";
     static auto constexpr error_desc = "Echoes all arguments as string to the standard error.\n"
         "Usage: error <string...>\n"
         "\n"
         "- <string...>: One or more strings to echo to the standard error.\n";
 
-    Constants::Error warn(int argc, char** argv);
+    static Constants::Error warn(std::span<std::string const> const& args);
     static auto constexpr warn_name = "warn";
     static auto constexpr warn_desc = "Returns a warning: a custom, noncritical error.\n"
         "Usage: warn <string>\n"
         "\n"
         "- <string>: The warning message.\n";
 
-    Constants::Error critical(int argc, char** argv);
+    static Constants::Error critical(std::span<std::string const> const& args);
     static auto constexpr critical_name = "critical";
     static auto constexpr critical_desc = "Returns a critical error.\n"
         "Usage: critical <string>\n"
         "\n"
         "- <string>: The critical error message.\n";
 
-    Constants::Error waitForInput(int argc, char** argv);
+    static Constants::Error waitForInput(std::span<std::string const> const& args);
     static auto constexpr waitForInput_name = "input-wait";
     static auto constexpr waitForInput_desc = "Waits for user input before continuing.\n"
         "Usage: input-wait [prompt]\n"
         "\n"
         "Note: This function pauses execution until the user presses Enter\n";
 
-    Constants::Error standardfileRenderobject();
+    static Constants::Error standardfileRenderobject(std::span<std::string const> const& args);
     static auto constexpr standardfileRenderobject_name = "standardfile renderobject";
     static auto constexpr standardfileRenderobject_desc = "Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.\n"
         "Usage: standardfile renderobject\n"

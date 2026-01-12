@@ -604,7 +604,7 @@ void Console::processMode() {
 //------------------------------------------
 // Available Functions
 
-Constants::Error Console::consoleZoom(int argc, char** argv) {
+Constants::Error Console::consoleZoom(int const argc, char** argv) {
     //------------------------------------------
     // Prerequisites
 
@@ -638,7 +638,7 @@ Constants::Error Console::consoleZoom(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Console::consoleSetBackground(int argc, char** argv) {
+Constants::Error Console::consoleSetBackground(int const argc, char** argv) {
     //------------------------------------------
     // Prerequisites
 

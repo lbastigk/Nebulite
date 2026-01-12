@@ -21,27 +21,27 @@ Camera::Camera() : RulesetModule(moduleName) {
 
 // TODO: Add another namespace for camera following rulesets using a PT1 controller for smooth movement
 
-void Camera::alignCenter(ContextBase const& context) {
+void Camera::alignCenter(ContextBase const& context) const {
     double** slf = getBaseList(context.self, baseKeys);
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Center);
 }
 
-void Camera::alignTop(ContextBase const& context) {
+void Camera::alignTop(ContextBase const& context) const {
     double** slf = getBaseList(context.self, baseKeys);
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Top);
 }
 
-void Camera::alignBottom(ContextBase const& context) {
+void Camera::alignBottom(ContextBase const& context) const {
     double** slf = getBaseList(context.self, baseKeys);
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Bottom);
 }
 
-void Camera::alignLeft(ContextBase const& context) {
+void Camera::alignLeft(ContextBase const& context) const {
     double** slf = getBaseList(context.self, baseKeys);
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Left);
 }
 
-void Camera::alignRight(ContextBase const& context) {
+void Camera::alignRight(ContextBase const& context) const {
     double** slf = getBaseList(context.self, baseKeys);
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Right);
 }

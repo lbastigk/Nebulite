@@ -70,7 +70,7 @@ Constants::Error Time::time_haltOnce() {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Time::time_lock(int argc, char** argv) {
+Constants::Error Time::time_lock(int const argc, char** argv) {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -79,7 +79,7 @@ Constants::Error Time::time_lock(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Time::time_unlock(int argc, char** argv) {
+Constants::Error Time::time_unlock(int const argc, char** argv) {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -97,7 +97,7 @@ Constants::Error Time::time_masterUnlock() {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Time::time_setFixedDeltaTime(int argc, char** argv) {
+Constants::Error Time::time_setFixedDeltaTime(int const argc, char** argv) {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

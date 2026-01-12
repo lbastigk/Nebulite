@@ -1,9 +1,6 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <cmath>
-
 // Nebulite
 #include "Nebulite.hpp"
 #include "DomainModule/GlobalSpace/FeatureTest.hpp"
@@ -18,7 +15,7 @@ Constants::Error FeatureTest::update() {
 
 class MathModifier {
 public:
-    static double add(std::span<std::string const> const& args, double input) {
+    static double add(std::span<std::string const> const& args, double const input) {
         double sum = input;
         // Add all arguments but the first (which is the function name)
         for (auto const& arg : args.subspan(1)) {
@@ -33,12 +30,12 @@ public:
     }
 };
 
-Constants::Error FeatureTest::testFuncTree() const {
+Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& /*args*/) {
     // Build a FuncTree with extra argument JSON&
     Interaction::Execution::FuncTree<double, double> testTree("TestFuncTree", 0.0, std::numeric_limits<double>::quiet_NaN());
 
-    std::string const addName = "add";
-    std::string const addDesc = "Adds all provided numbers to the input number.\nUsage: <name> add num1 num2 ... numN";
+    std::string_view constexpr addName = "add";
+    std::string_view constexpr addDesc = "Adds all provided numbers to the input number.\nUsage: <name> add num1 num2 ... numN";
 
     // Using the DomainModule bindFunctionStatic to bind the add method, otherwise we would need to do some complex template/visit gymnastics here
     DomainModule::bindFunctionStatic(&testTree, &MathModifier::add, addName, addDesc);

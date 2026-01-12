@@ -53,7 +53,7 @@ namespace Nebulite::DomainModule {
 
 void Initializer::initEnvironment(Core::Environment* target) {
     // Currently, no DomainModules for Environment
-    (void)target;
+    (void)target->parseStr(""); // Silence "can be made pointer to const" warning
 }
 
 void Initializer::initGlobalSpace(Core::GlobalSpace* target) {

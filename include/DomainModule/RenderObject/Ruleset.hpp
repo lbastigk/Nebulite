@@ -38,7 +38,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error once(std::span<std::string const> const& args);
+    Constants::Error once(std::span<std::string const> const& args) const ;
     static auto constexpr once_name = "ruleset once";
     static auto constexpr once_desc = "Applies all rulesets once on the next update\n"
         "\n"

@@ -11,14 +11,11 @@
 // Includes 
 
 // Standard library
-#include <deque>
 #include <string>
-#include <thread>
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Data/RulesetPairings.hpp"
-#include "Interaction/Logic/ExpressionPool.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -77,7 +74,7 @@ public:
      *          that are listening for the entry's topic.
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
-    void broadcast(std::shared_ptr<Rules::Ruleset> const& entry);
+    void broadcast(std::shared_ptr<Rules::Ruleset> const& entry) const ;
 
     /**
      * @brief Listens for rulesets on a specific topic.

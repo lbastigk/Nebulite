@@ -3,7 +3,6 @@
 
 // Standard library
 #include <filesystem>
-#include <cstring>
 #include <iostream>
 #include <fstream>
 

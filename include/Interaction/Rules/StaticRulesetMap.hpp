@@ -1,5 +1,5 @@
 /**
- * @file StaticRulesets.hpp
+ * @file StaticRulesetMap.hpp
  * @brief This file contains predefined static rulesets for common interactions in the Nebulite engine.
  *        Compared to json-defined rulesets, static rulesets are hardcoded for performance and reliability.
  */

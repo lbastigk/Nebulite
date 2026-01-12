@@ -114,7 +114,7 @@ Constants::Error Debug::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Error Debug::log_global(int argc, char** argv) {
+Constants::Error Debug::log_global(int const argc, char** argv) const {
     std::string const serialized = moduleScope.serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
@@ -126,7 +126,7 @@ Constants::Error Debug::log_global(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Debug::log_state(int argc, char** argv) {
+Constants::Error Debug::log_state(int const argc, char** argv) const {
     std::string const serialized = domain.getRenderer().serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
@@ -138,13 +138,13 @@ Constants::Error Debug::log_state(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Debug::standardfileRenderobject() {
+Constants::Error Debug::standardfileRenderobject(std::span<std::string const> const& /*args*/){
     Core::RenderObject const ro;
     Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize());
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Debug::errorlog(int argc, char** argv) {
+Constants::Error Debug::errorlog(int const argc, char** argv) {
     // Initialize the error logging buffer
     if (!originalCerrBuf) {
         originalCerrBuf = std::cerr.rdbuf();
@@ -227,16 +227,16 @@ inline void clear_screen() {
 #endif
 }
 
-Constants::Error Debug::clearConsole() {
+Constants::Error Debug::clearConsole(std::span<std::string const> const& /*args*/) {
     clear_screen();
     Utility::Capture::clear();
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Debug::crash(int argc, char** argv) {
+Constants::Error Debug::crash(std::span<std::string const> const& args) {
     // If an argument is provided, use it to select crash type
-    if (argc > 1 && argv[1]) {
-        if (std::string const crashType = argv[1]; crashType == "segfault") {
+    if (args.size() > 1) {
+        if (std::string const crashType = args[1]; crashType == "segfault") {
             // Cause a segmentation fault
             raise(SIGSEGV);
         } else if (crashType == "abort") {
@@ -260,44 +260,37 @@ Constants::Error Debug::crash(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Debug::error(int argc, char** argv) {
-    for (int i = 1; i < argc; ++i) {
-        Nebulite::cerr() << argv[i];
-        if (i < argc - 1) {
-            Nebulite::cerr() << " ";
-        }
-    }
-    Nebulite::cerr() << Nebulite::endl;
-
-    // No further error to return
+Constants::Error Debug::error(std::span<std::string const> const& args) {
+    auto const& argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    Nebulite::cerr() << argStr << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Debug::warn(int argc, char** argv) {
-    if (argc < 2) {
+Constants::Error Debug::warn(std::span<std::string const> const& args) {
+    if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    std::string const args = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
-    return Constants::ErrorTable::addError(args, Constants::Error::NON_CRITICAL);
+    std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    return Constants::ErrorTable::addError(argStr, Constants::Error::NON_CRITICAL);
 }
 
-Constants::Error Debug::critical(int argc, char** argv) {
-    if (argc < 2) {
+Constants::Error Debug::critical(std::span<std::string const> const& args) {
+    if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
-    std::string const args = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
-    return Constants::ErrorTable::addError(args, Constants::Error::CRITICAL);
+    std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    return Constants::ErrorTable::addError(argStr, Constants::Error::CRITICAL);
 }
 
-Constants::Error Debug::waitForInput(int argc, char** argv) {
-    if (argc > 2) {
+Constants::Error Debug::waitForInput(std::span<std::string const> const& args) {
+    if (args.size() > 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     std::string message = "Press Enter to continue...";
-    if (argc == 2) {
+    if (args.size() == 2) {
         // Use the provided prompt as message
-        message = argv[1];
+        message = args[1];
     }
     Nebulite::cout() << message << Nebulite::endl;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');

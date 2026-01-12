@@ -33,7 +33,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error testFuncTree() const ;
+    static Constants::Error testFuncTree(std::span<std::string const> const& args);
     static auto constexpr testFuncTree_name = "feature-test functree";
     static auto constexpr testFuncTree_desc = "Builds a funcTree with extra arguments and tests it\n"
         "Usage: feature-test functree\n";

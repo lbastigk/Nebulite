@@ -37,6 +37,7 @@ Constants::Error Debug::print(std::span<std::string const> const& args, Interact
         }
     }
     Nebulite::cout() << callerScope.serialize() << Nebulite::endl;
+    (void)caller; // Unused parameter
     return Constants::ErrorTable::NONE();
 }
 

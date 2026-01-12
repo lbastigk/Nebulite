@@ -13,22 +13,22 @@ Constants::Error Ruleset::update() {
 //------------------------------------------
 // Available Functions
 
-Constants::Error Ruleset::broadcast(std::span<std::string const> const& args) {
+Constants::Error Ruleset::broadcast(std::span<std::string const> const& args) const {
     if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (args.size() > 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    auto rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(args[1], domain);
-    if (rs.has_value()) {
+
+    if (auto const rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(args[1], domain); rs.has_value()) {
         domain.broadcast(rs.value());
         return Constants::ErrorTable::NONE();
     }
     return Constants::ErrorTable::RULESET::CRITICAL_RULESET_PARSING_FAILED();
 }
 
-Constants::Error Ruleset::listen(std::span<std::string const> const& args) {
+Constants::Error Ruleset::listen(std::span<std::string const> const& args) const {
     if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

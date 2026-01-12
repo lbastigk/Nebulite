@@ -125,6 +125,8 @@ Constants::Error Debug::textureStatus(std::span<std::string const> const& args, 
     // SDL info
     Nebulite::cout() << "SDL Texture Info:" << Nebulite::endl;
     Nebulite::cout() << getTextureInfoString(domain.getTexture()->getSDLTexture()) << Nebulite::endl;
+    (void)args;      // Unused
+    (void)caller;   // Unused
     return Constants::ErrorTable::NONE();
 }
 

@@ -1,5 +1,4 @@
 #include "Interaction/Rules/Construction/Initializer.hpp"
-#include "Interaction/Rules/StaticRulesetMap.hpp"
 
 //------------------------------------------
 // Modules

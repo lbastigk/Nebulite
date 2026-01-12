@@ -56,7 +56,7 @@ Constants::Error Ruleset::update() {
 //------------------------------------------
 // Available Functions
 
-Constants::Error Ruleset::once(std::span<std::string const> const& args) {
+Constants::Error Ruleset::once(std::span<std::string const> const& args) const {
     if (args.size() > 1) {
         std::string const arg = Utility::StringHandler::recombineArgs(args.subspan(1));
         if (auto const rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(arg, domain); rs.has_value()) {

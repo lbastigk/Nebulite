@@ -32,23 +32,23 @@ public:
 
     // Align camera
 
-    void alignCenter(ContextBase const& context);
+    void alignCenter(ContextBase const& context) const ;
     static constexpr std::string_view alignCenterName = "::camera::align::center";
     static constexpr std::string_view alignCenterDesc = "Aligns the camera view center to the center of the render object.";
 
-    void alignTop(ContextBase const& context);
+    void alignTop(ContextBase const& context) const ;
     static constexpr std::string_view alignTopName = "::camera::align::top";
     static constexpr std::string_view alignTopDesc = "Aligns the camera view top edge to the center of the render object.";
 
-    void alignBottom(ContextBase const& context);
+    void alignBottom(ContextBase const& context) const ;
     static constexpr std::string_view alignBottomName = "::camera::align::bottom";
     static constexpr std::string_view alignBottomDesc = "Aligns the camera view bottom edge to the center of the render object.";
 
-    void alignLeft(ContextBase const& context);
+    void alignLeft(ContextBase const& context) const ;
     static constexpr std::string_view alignLeftName = "::camera::align::left";
     static constexpr std::string_view alignLeftDesc = "Aligns the camera view left edge to the center of the render object.";
 
-    void alignRight(ContextBase const& context);
+    void alignRight(ContextBase const& context) const ;
     static constexpr std::string_view alignRightName = "::camera::align::right";
     static constexpr std::string_view alignRightDesc = "Aligns the camera view right edge to the center of the render object.";
 
@@ -105,7 +105,7 @@ private:
     // TODO: Second align parameter for object edge alignment
     //       Each camera align needs to know what part of the object to align to what part of the camera view
     //       e.g.: ::camera::align::right-top would align the camera's right edge to the object's top edge
-    void setCameraPosition(const position& pos, Align align) const {
+    void setCameraPosition(const position& pos, Align const& align) const {
         switch (align) {
             case Align::Top:
                 *globalVal.camPosY = pos.y ;
@@ -127,7 +127,7 @@ private:
         }
     }
 
-    static position getAdjustedObjectPosition(double** baseValues, Align align) {
+    static position getAdjustedObjectPosition(double** baseValues, Align const& align) {
         // Adjust based on object size
         position pos;
         switch (align) {

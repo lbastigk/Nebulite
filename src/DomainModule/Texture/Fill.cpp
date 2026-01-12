@@ -10,7 +10,7 @@ Constants::Error Fill::update() {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Fill::fill(int argc, char** argv) const {
+Constants::Error Fill::fill(int const argc, char** argv) const {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

@@ -17,21 +17,22 @@ Constants::Error General::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Error General::eval(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
+// NOLINTNEXTLINE
+Constants::Error General::eval(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope){
     // argc/argv to string for evaluation
-    std::string const argstr = Utility::StringHandler::recombineArgs(args);
+    std::string const argStr = Utility::StringHandler::recombineArgs(args);
 
     // Evaluate expression
     Core::JsonScope emptyDoc;
     Interaction::ContextBase const context{emptyDoc,emptyDoc,Nebulite::global()};
-    std::string const argsEvaluated = Interaction::Logic::Expression::eval(argstr,context);
+    std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr,context);
 
     // reparse
     (void)callerScope; // Unused parameter
     return caller.parseStr(argsEvaluated);
 }
 
-Constants::Error General::exit() {
+Constants::Error General::exit() const {
     // Clear all task queues to prevent further execution
     domain.clearAllTaskQueues();
 
@@ -40,7 +41,7 @@ Constants::Error General::exit() {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::wait(int argc, char** argv) {
+Constants::Error General::wait(int const argc, char** argv) const {
     if (argc == 2) {
         // Standard wait acts on taskQueue "script"
         domain.getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::script)->incrementWaitCounter(std::stoull(argv[1]));
@@ -52,7 +53,7 @@ Constants::Error General::wait(int argc, char** argv) {
     return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
 }
 
-Constants::Error General::task(int argc, char** argv) {
+Constants::Error General::task(int const argc, char** argv) const {
     std::string const message = "Loading task list from file: " + (argc > 1 ? std::string(argv[1]) : "none");
     Nebulite::cout() << message << Nebulite::endl;
 
@@ -102,12 +103,13 @@ Constants::Error General::task(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::echo(int argc, char** argv) {
-    std::string const args = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
-    Nebulite::cout() << args << Nebulite::endl;
+Constants::Error General::echo(std::span<std::string const> const& args) {
+    std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    Nebulite::cout() << argStr << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
 
+// NOLINTNEXTLINE
 Constants::Error General::func_if(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     if (args.size() < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -125,16 +127,16 @@ Constants::Error General::func_if(std::span<std::string const> const& args, Inte
     return caller.parseStr(commands);
 }
 
-Constants::Error General::func_assert(int argc, char** argv) {
-    if (argc < 2) {
+Constants::Error General::func_assert(std::span<std::string const> const& args) {
+    if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
-    if (argc > 2) {
+    if (args.size() > 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
-    std::string const condition = argv[1];
+    std::string const condition = args[1];
 
     // condition must start with $( and end with )
     if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
@@ -150,11 +152,11 @@ Constants::Error General::func_assert(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::func_return(int argc, char** argv) {
-    return Constants::ErrorTable::addError(Utility::StringHandler::recombineArgs(argc - 1, argv + 1), Constants::Error::CRITICAL);
+Constants::Error General::func_return(std::span<std::string const> const& args) {
+    return Constants::ErrorTable::addError(Utility::StringHandler::recombineArgs(args.subspan(1)), Constants::Error::CRITICAL);
 }
 
-Constants::Error General::always(int argc, char** argv) {
+Constants::Error General::always(int argc, char** argv) const {
     if (argc > 1) {
         std::ostringstream oss;
         for (int i = 1; i < argc; ++i) {
@@ -180,11 +182,12 @@ Constants::Error General::always(int argc, char** argv) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::alwaysClear() {
+Constants::Error General::alwaysClear() const {
     domain.getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::always)->clear();
     return Constants::ErrorTable::NONE();
 }
 
+// NOLINTNEXTLINE
 Constants::Error General::func_for(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     if (args.size() > 4) {
         std::string const varName = args[1];
@@ -192,10 +195,10 @@ Constants::Error General::func_for(std::span<std::string const> const& args, Int
         int const iStart = std::stoi(Interaction::Logic::Expression::eval(args[2]));
         int const iEnd = std::stoi(Interaction::Logic::Expression::eval(args[3]));
 
-        std::string const argstr = Utility::StringHandler::recombineArgs(args.subspan(4));
+        std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(4));
         for (int i = iStart; i <= iEnd; i++) {
             // for + args
-            std::string args_replaced = std::string(args[0]) + " " + Utility::StringHandler::replaceAll(argstr, '{' + varName + '}', std::to_string(i));
+            std::string args_replaced = std::string(args[0]) + " " + Utility::StringHandler::replaceAll(argStr, '{' + varName + '}', std::to_string(i));
             (void)callerScope; // Unused parameter
             if (auto const err = caller.parseStr(args_replaced); err.isCritical()) {
                 return err;
@@ -207,12 +210,12 @@ Constants::Error General::func_for(std::span<std::string const> const& args, Int
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::nop() {
+Constants::Error General::nop(std::span<std::string const> const& /*args*/) {
     // Do nothing
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::inScope(std::span<std::string const> const& args) {
+Constants::Error General::inScope(std::span<std::string const> const& args) const {
     if (args.size() < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

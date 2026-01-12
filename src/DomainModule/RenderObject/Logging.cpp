@@ -36,6 +36,7 @@ Constants::Error Logging::log_all(std::span<std::string const> const& args, Inte
         std::string const id = std::to_string(callerScope.get(Constants::KeyNames::RenderObject::id, 0));
         Utility::FileManagement::WriteFile("RenderObject_id" + id + ".log.jsonc", serialized);
     }
+    (void)caller;      // Unused
     return Constants::ErrorTable::NONE();
 }
 
@@ -51,6 +52,7 @@ Constants::Error Logging::log_key(std::span<std::string const> const& args, Inte
     }
     auto const value = callerScope.get<std::string>(key.view(), "Key not found");
     Utility::FileManagement::WriteFile(file, value);
+    (void)caller;      // Unused
     return Constants::ErrorTable::NONE();
 }
 

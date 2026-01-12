@@ -32,7 +32,7 @@ Physics::Physics() : RulesetModule(moduleName) {
 //       then, use that info here to properly interpolate position
 //       that happens between now and the predicted next frame-time
 // TODO: Add a repositioning step to resolve overlaps
-void Physics::elasticCollision(ContextBase const& context) {
+void Physics::elasticCollision(ContextBase const& context) const {
     // Get ordered cache lists for both entities for base values
     double** slf = getBaseList(context.self, baseKeys);
     double** otr = getBaseList(context.other, baseKeys);
@@ -128,7 +128,7 @@ void Physics::elasticCollision(ContextBase const& context) {
     }
 }
 
-void Physics::gravity(ContextBase const& context) {
+void Physics::gravity(ContextBase const& context) const {
     // Get ordered cache lists for both entities for base values
     double** slf = getBaseList(context.self, baseKeys);
     double** otr = getBaseList(context.other, baseKeys);
@@ -149,7 +149,7 @@ void Physics::gravity(ContextBase const& context) {
 
 // Local rulesets
 
-void Physics::applyForce(ContextBase const& context) {
+void Physics::applyForce(ContextBase const& context) const {
     // Get ordered cache list for self entity for base values
     double** slf = getBaseList(context.self, baseKeys);
 
@@ -179,7 +179,7 @@ void Physics::applyForce(ContextBase const& context) {
     baseVal(slf, Key::physics_FY) = 0.0;
 }
 
-void Physics::drag(ContextBase const& context) {
+void Physics::drag(ContextBase const& context) const {
     // Get ordered cache list for self entity for base values
     double** slf = getBaseList(context.self, baseKeys);
 
