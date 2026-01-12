@@ -77,8 +77,6 @@ void Settings::loadSettings(std::string const& filename) {
     moduleScope.set<uint16_t>(Key::targetFPS, settings.get<uint16_t>(Key::unscoped_targetFPS, 60));
     /**
      * @todo: Add more settings:
-     *        - FPS limit
-     *        - Renderer zoom level
      *        - Console settings (like font size, colors, etc.)
      *        - Key bindings
      *        - Language/locale
