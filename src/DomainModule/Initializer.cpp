@@ -51,8 +51,10 @@
 //------------------------------------------
 namespace Nebulite::DomainModule {
 
-// TODO: Once CallerScope is implemented, we can restrict scope access to every DomainModule
-//       no Module should have full access!
+void Initializer::initEnvironment(Core::Environment* target) {
+    // Currently, no DomainModules for Environment
+    (void)target;
+}
 
 void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     using namespace Nebulite::DomainModule::GlobalSpace;

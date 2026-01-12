@@ -13,6 +13,7 @@
 #include "Core/Environment.hpp"
 #include "Data/RenderObjectContainer.hpp"
 #include "Data/Document/JSON.hpp"
+#include "DomainModule/Initializer.hpp"
 
 //------------------------------------------
 
@@ -42,6 +43,7 @@ namespace Nebulite::Core {
 Environment::Environment(Core::JsonScope& documentReference)
     : Domain("Environment", *this, documentReference),
       roc(make_roc_array<LayerCount>()) {
+    DomainModule::Initializer::initEnvironment(this);
 }
 
 Environment::~Environment() = default;
