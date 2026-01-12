@@ -26,7 +26,7 @@ namespace Nebulite::Data{
  */
 class BroadCastListenPairs {
 public:
-    BroadCastListenPairs(std::atomic<bool>& stopFlag) : threadState{ .stopFlag = stopFlag }{
+    explicit BroadCastListenPairs(std::atomic<bool>& stopFlag) : threadState{ .stopFlag = stopFlag }{
         // Initialize frame containers
         thisFrame = new Data::PairingContainer();
         nextFrame = new Data::PairingContainer();
@@ -53,7 +53,7 @@ public:
      * @brief Broadcasts a ruleset to all listeners on its topic.
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
-    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
+    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) const ;
 
     /**
      * @brief Listens for rulesets on a specific topic.
@@ -61,7 +61,7 @@ public:
      * @param topic The topic to listen for.
      * @param listenerId The unique ID of the listener render object.
      */
-    void listen(Interaction::Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId);
+    void listen(Interaction::Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId) const ;
 
     //------------------------------------------
     // Worker Thread Methods
