@@ -41,7 +41,7 @@ public:
     //       DO NOT use moduleScope anywhere!
     //       Then, we modify the moduleScope to be a dummy scope so we don't accidentally use it
 
-    Constants::Error set(int argc, char** argv);
+    static Constants::Error set(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr set_name = "set";
     static auto constexpr set_desc = "Set a key to a value in the JSON document.\n"
         "\n"
@@ -49,49 +49,49 @@ public:
         "\n"
         "Note: All values are stored as strings.\n";
 
-    Constants::Error move(int argc, char** argv);
+    static Constants::Error move(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr move_name = "move";
     static auto constexpr move_desc = "Move data from one key to another.\n"
         "\n"
         "Usage: move <source_key> <destination_key>\n";
 
-    Constants::Error copy(int argc, char** argv);
+    static Constants::Error copy(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr copy_name = "copy";
     static auto constexpr copy_desc = "Copy data from one key to another.\n"
         "\n"
         "Usage: copy <source_key> <destination_key>\n";
 
-    Constants::Error keyDelete(int argc, char** argv);
+    static Constants::Error keyDelete(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr keyDelete_name = "keyDelete";
     static auto constexpr keyDelete_desc = "Delete a key from the JSON document.\n"
         "\n"
         "Usage: keyDelete <key>\n";
 
-    Constants::Error ensureArray(int argc, char** argv);
+    static Constants::Error ensureArray(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr ensureArray_name = "ensure-array";
     static auto constexpr ensureArray_desc = "Ensure that a key is an array, converting a value to an array if necessary.\n"
         "\n"
         "Usage: ensure-array <key>\n";
 
-    Constants::Error push_back(int argc, char** argv);
+    static Constants::Error push_back(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr push_back_name = "push-back";
     static auto constexpr push_back_desc = "Push a value to the back of an array.\n"
         "\n"
         "Usage: push-back <key> <value>\n";
 
-    Constants::Error pop_back(int argc, char** argv);
+    static Constants::Error pop_back(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr pop_back_name = "pop-back";
     static auto constexpr pop_back_desc = "Pop a value from the back of an array.\n"
         "\n"
         "Usage: pop-back <key>\n";
 
-    Constants::Error push_front(int argc, char** argv);
+    static Constants::Error push_front(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr push_front_name = "push-front";
     static auto constexpr push_front_desc = "Push a value to the front of an array.\n"
         "\n"
         "Usage: push-front <key> <value>\n";
 
-    Constants::Error pop_front(int argc, char** argv);
+    static Constants::Error pop_front(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr pop_front_name = "pop-front";
     static auto constexpr pop_front_desc = "Pop a value from the front of an array.\n"
         "\n"
