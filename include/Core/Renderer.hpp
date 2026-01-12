@@ -11,8 +11,6 @@
 // Includes
 
 // Standard library
-#include <random>
-#include <cstdint>
 
 // External
 #include <SDL.h>
@@ -21,6 +19,7 @@
 
 // Nebulite
 #include "Core/Environment.hpp"
+#include "Constants/KeyNames.hpp"
 #include "Utility/TimeKeeper.hpp"
 #include "Interaction/Invoke.hpp"
 
@@ -40,7 +39,7 @@ public:
      * @param X Width of the rendering area.
      * @param Y Height of the rendering area.
      */
-    Renderer(Data::JSON& documentReference, bool* flag_headless, unsigned int const& X = 1080, unsigned int const& Y = 1080);
+    Renderer(Core::JsonScope& documentReference, bool* flag_headless, unsigned int const& X = 1080, unsigned int const& Y = 1080);
 
     //------------------------------------------
     // Disallow copying and moving
@@ -57,21 +56,13 @@ public:
      * @brief Serializes the current state of the Renderer.
      * @return A JSON string representing the Renderer state.
      */
-    std::string serialize() {
-        return env.serialize();
-    }
+    std::string serialize();
 
     /**
      * @brief Deserializes the Renderer state from a JSON string or link.
      * @param serialOrLink The JSON string or link to deserialize.
      */
-    void deserialize(std::string const& serialOrLink) noexcept {
-        env.deserialize(
-            serialOrLink,
-            getDoc().get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
-            getDoc().get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0)
-            );
-    }
+    void deserialize(std::string const& serialOrLink) noexcept ;
 
     //------------------------------------------
     // Pipeline
@@ -291,13 +282,13 @@ public:
      * @brief Gets the current resolution in the X direction.
      * @return The current resolution in the X direction.
      */
-    [[nodiscard]] int getResX() const { return getDoc().get<int>(Constants::KeyNames::Renderer::dispResX, 0); }
+    [[nodiscard]] int getResX() const { return domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0); }
 
     /**
      * @brief Gets the current resolution in the Y direction.
      * @return The current resolution in the Y direction.
      */
-    [[nodiscard]] int getResY() const { return getDoc().get<int>(Constants::KeyNames::Renderer::dispResY, 0); }
+    [[nodiscard]] int getResY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 0); }
 
     /**
      * @brief Gets the current FPS.
@@ -310,14 +301,14 @@ public:
      *        The position is considered to be the top left corner of the screen.
      * @return The current position of the camera in the X direction.
      */
-    [[nodiscard]] int getPosX() const { return getDoc().get<int>(Constants::KeyNames::Renderer::positionX, 0); }
+    [[nodiscard]] int getPosX() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionX, 0); }
 
     /**
      * @brief Gets the current position of the camera in the Y direction.
      *        The position is considered to be the top left corner of the screen.
      * @return The current position of the camera in the Y direction.
      */
-    [[nodiscard]] int getPosY() const { return getDoc().get<int>(Constants::KeyNames::Renderer::positionY, 0); }
+    [[nodiscard]] int getPosY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionY, 0); }
 
     /**
      * @brief Gets the current tile position of the camera in the X direction.
@@ -422,6 +413,16 @@ private:
     bool* headless = nullptr;
 
     //------------------------------------------
+    // Display
+
+    /**
+     * @brief Sets up display values in the JSON document.
+     * @param X The width of the display.
+     * @param Y The height of the display.
+     */
+    void setupDisplayValues(unsigned int const& X, unsigned int const& Y) const ;
+
+    //------------------------------------------
     // Audio
 
     struct Audio {
@@ -441,7 +442,7 @@ private:
     } basicAudioWaveforms;
 
     //------------------------------------------
-    //General Variables
+    // General Variables
 
     /**
      * @brief Base directory for resource loading.

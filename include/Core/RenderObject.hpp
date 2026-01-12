@@ -10,13 +10,12 @@
 // Includes
 
 // External
-#include <SDL.h>	// SDL Renderer is used for some methods to calculate text
-#include <SDL_ttf.h>	// Same for ttf
+#include <SDL.h>        // SDL Renderer is used for some methods to calculate text
+#include <SDL_ttf.h>    // Same for ttf
 
 // Nebulite
-#include "Constants/KeyNames.hpp"
 #include "Core/Texture.hpp"
-#include "Data/Document/JSON.hpp"
+#include "JsonScope.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
@@ -65,7 +64,7 @@ public:
      * @brief Serializes the RenderObject to a JSON string.
      * @return A string representation of the RenderObject's JSON document.
      */
-    std::string serialize();
+    std::string serialize() const ;
 
     /**
      * @brief Deserializes the RenderObject from a JSON string.
@@ -101,9 +100,16 @@ public:
     [[nodiscard]] SDL_Texture* getTextTexture() const;
 
     //------------------------------------------
-    // State Checkers
+    // Get position
 
+    struct Position {
+        int32_t x;
+        int32_t y;
+    };
 
+    Position getPosition() const {
+        return {static_cast<int32_t>(std::lround(*refs.posX)), static_cast<int32_t>(std::lround(*refs.posY))};
+    }
 
     //------------------------------------------
     // Update-Oriented functions
@@ -147,6 +153,14 @@ public:
      * @return The estimated computational cost.
      */
     uint64_t estimateComputationalCost(bool const& onlyInternal = true);
+
+    //------------------------------------------
+    // Special getters
+
+    [[nodiscard]] uint32_t getId() const {
+        // A double can represent all uint32_t values exactly, so this is safe
+        return static_cast<uint32_t>(static_cast<int64_t>(*refs.id));
+    }
 
     //------------------------------------------
     // Management Flags for Renderer-Interaction
@@ -215,7 +229,7 @@ public:
 
 private:
     // Each RenderObject has its own JSON document
-    Data::JSON document;
+    Core::JsonScope document;
 
     //------------------------------------------
     // Initialization

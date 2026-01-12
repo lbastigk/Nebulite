@@ -1,8 +1,8 @@
 /**
  * @file Nebulite.hpp
- *
  * @brief Central file for Nebulite namespace documentation and public singleton accessors.
- *        Offers access to core Nebulite functionality for instances such as DomainModules
+ * @details Offers access to core Nebulite functionality for instances such as DomainModules,
+ *          as well as namespace documentation.
  */
 
 #ifndef NEBULITE_HPP
@@ -11,11 +11,10 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-
 // Nebulite
 #include "Core/GlobalSpace.hpp"
 #include "Utility/Capture.hpp"
+#include "Data/Document/JsonScopeBase.hpp"
 
 //------------------------------------------
 // Namespace documentation
@@ -34,50 +33,52 @@ namespace Constants {
 
 /**
  * @namespace Nebulite::Core
- * @brief Contains all core classes, functions, types and variables related to the Nebulite framework.
+ * @brief Contains all core classes (called Domains) related to the Nebulite framework.
+ * @detauils These form the backbone of the Nebulite system.
+ *           They provide essential services such as scoped data management, command parsing, serialization, etc.
  */
 namespace Core {
 } // namespace Core
 
 /**
  * @namespace Nebulite::Data
- * @brief Contains all classes, functions, types and variables related to the Nebulite data system.
+ * @brief Contains all fundamental containers used throughout the Nebulite framework.
  */
 namespace Data {
 } // namespace Data
 
 /**
  * @namespace Nebulite::DomainModule
- * @brief Contains all classes, functions, types and variables related to the Nebulite DomainModule system.
+ * @brief Contains all DomainModules used throughout the Nebulite framework.
  */
 namespace DomainModule {
 /**
  * @namespace Nebulite::DomainModule::GlobalSpace
- * @brief Contains all classes, functions, types and variables related to the GlobalSpace DomainModules.
+ * @brief Contains all GlobalSpace DomainModules.
  */
 namespace GlobalSpace {
 } // namespace GlobalSpace
 
 /**
+ * @namespace Nebulite::DomainModule::JsonScope
+ * @brief Contains all JsonScope DomainModules.
+ */
+namespace JsonScope {
+} // namespace JsonScope
+
+/**
  * @namespace Nebulite::DomainModule::Renderer
- * @brief Contains all classes, functions, types and variables related to the Renderer DomainModules.
+ * @brief Contains all Renderer DomainModules.
  */
 namespace Renderer {
 } // namespace Renderer
 
 /**
  * @namespace Nebulite::DomainModule::RenderObject
- * @brief Contains all classes, functions, types and variables related to the RenderObject DomainModules.
+ * @brief Contains all RenderObject DomainModules.
  */
 namespace RenderObject {
 } // namespace RenderObject
-
-/**
- * @namespace Nebulite::DomainModule::JSON
- * @brief Contains all classes, functions, types and variables related to the JSON DomainModules.
- */
-namespace JSON {
-} // namespace JSON
 } // namespace DomainModule
 
 /**
@@ -94,20 +95,21 @@ namespace Execution {
 
 /**
  * @namespace Nebulite::Interaction::Logic
- * @brief Contains all classes, functions, types and variables related to mathematical logic in Nebulites Invoke system.
+ * @brief Contains all classes, functions, types and variables related to mathematical logic.
  */
 namespace Logic {
 } // namespace Logic
 
 /**
  * @namespace Nebulite::Interaction::Rules
- * @brief Contains all classes, functions, types and variables related to the rule-based manipulation system in Nebulites Invoke system.
+ * @brief Contains all classes, functions, types and variables related to the
+ *        rule-based domain manipulation system in Nebulites Invoke system.
  */
 namespace Rules {
 /**
  * @namespace Nebulite::Interaction::Rules::Construction
- * @brief Contains all classes, functions, types and variables related to the construction and initialization
- *        of Rulesets/RulesetModules.
+ * @brief Contains all classes, functions, types and variables related to the
+ *        construction and initialization of Rulesets/RulesetModules.
  */
 namespace Construction {
 } // namespace Construction
@@ -130,6 +132,68 @@ namespace Utility {
 } // namespace Nebulite
 
 //------------------------------------------
+// Global Document accessor wrapper
+
+namespace Nebulite {
+
+/**
+ * @class Nebulite::GlobalDocAccessor
+ * @brief Provides access to various scopes within the global document.
+ *        Allows access to the document without initializing the entire GlobalSpace.
+ */
+class GlobalDocAccessor {
+public:
+    //------------------------------------------
+    // Share a read-only setting scope
+
+    [[nodiscard]] Data::JsonScopeBase const& settings() {
+        static auto const& settingsScopeConst = globalDoc.shareManagedScopeBase("settings.");
+        return settingsScopeConst;
+    }
+
+    //------------------------------------------
+    // Provide full scope for GlobalSpace Domain
+
+    [[nodiscard]] Core::JsonScope& shareScope(Core::GlobalSpace const& gs, std::string const& prefix) {
+        (void)gs; // only used for access control
+        return globalDoc.shareManagedScope(prefix);
+    }
+
+    //------------------------------------------
+    // Provide scopes for DomainModules and RulesetModules, depending on their type
+
+    // GlobalSpace DomainModules root is at "", then we add their own prefix
+    [[nodiscard]] Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm) {
+        return globalDoc.shareManagedScope(dm.moduleScope.getScopePrefix());
+    }
+
+    // Provide a custom scope for DomainModules from RenderObjects
+    // We add a prefix to signal what part these domainModules can access
+    [[nodiscard]] Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::RenderObject> const& dm) {
+        return globalDoc.shareManagedScope("providedScope.domainModule.renderObject." + dm.moduleScope.getScopePrefix());
+    }
+
+    // Provide a custom scope for DomainModules from JsonScope
+    // We add a prefix to signal what part these domainModules can access
+    [[nodiscard]] Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::JsonScope> const& dm) {
+        return globalDoc.shareManagedScope("providedScope.domainModule.jsonScope." + dm.moduleScope.getScopePrefix());
+    }
+
+    // Provide scope to RulesetModules
+    [[nodiscard]] Core::JsonScope& shareScope(Interaction::Rules::RulesetModule const& rm) {
+        (void)rm; // unused, we provide full scope for now
+        // TODO: add a getScopePrefix() to RulesetModule later on if needed
+        //       e.g. Physics RulesetModule might only need access to physics-related variables.
+        //       For this to work properly, we may have to add the ability to share multiple scopes.
+        //       -> physics and time for example
+        return globalDoc.shareManagedScope("");
+    }
+private:
+    Data::JSON globalDoc;
+};
+} // namespace Nebulite
+
+//------------------------------------------
 // Singleton accessors
 
 /**
@@ -138,8 +202,16 @@ namespace Utility {
 namespace Nebulite {
 /**
  * @brief Singleton accessor for the global GlobalSpace object.
+ * @details Do not call this in DomainModule constructors, as it may lead to infinite recursion!
+ * @return Reference to the global Core::GlobalSpace instance.
  */
 Core::GlobalSpace& global();
+
+/**
+ * @brief Singleton accessor for the global document.
+ * @return Reference to accessor for various scopes within the global document.
+ */
+GlobalDocAccessor& globalDoc();
 
 /**
  * @brief Singleton accessor for the cout capture object
@@ -148,7 +220,7 @@ Core::GlobalSpace& global();
  *       -> Nebulite::Log::println(args...);
  *          use recursive variadic templates for that, so that we can have multiple args
  */
-Nebulite::Utility::CaptureStream& cout();
+Utility::CaptureStream& cout();
 
 /**
  * @brief Singleton accessor for the cerr capture object
@@ -157,13 +229,13 @@ Nebulite::Utility::CaptureStream& cout();
  *       -> Nebulite::Error::println(args...);
  *          use recursive variadic templates for that, so that we can have multiple args
  */
-Nebulite::Utility::CaptureStream& cerr();
+Utility::CaptureStream& cerr();
 
 /**
  * @brief End line string for capturing output
  *        At the moment, this is just a placeholder for `"\n"`.
  */
-inline constexpr const char* endl = "\n";
+inline auto constexpr endl = "\n";
 
 } // namespace Nebulite
 

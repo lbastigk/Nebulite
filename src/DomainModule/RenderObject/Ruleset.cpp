@@ -15,7 +15,7 @@ Constants::Error Ruleset::update() {
     // An id of zero means the RenderObject is outside the Renderer/RenderObjectContainer scope
     // and should not be updated
     if (id == 0) {
-        id = domain.getDoc().get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
+        id = domain.getId();
     }
 
     //------------------------------------------
@@ -23,7 +23,7 @@ Constants::Error Ruleset::update() {
     if (id != 0) {
         // Reload rulesets if needed
         if (reloadRulesets) {
-            auto mtx = domain.getDoc().lock();
+            auto mtx = moduleScope.lock();
             Interaction::Rules::Construction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, domain);
             reloadRulesets = false;
         }
@@ -37,8 +37,8 @@ Constants::Error Ruleset::update() {
 
         // Listen to broadcasts from subscribed topics
         for (size_t idx = 0; idx < subscription_size; idx++) {
-            std::string key = std::string(Constants::KeyNames::RenderObject::invokeSubscriptions) + "[" + std::to_string(idx) + "]";
-            auto const subscription = domain.getDoc().get<std::string>(key, "");
+            auto const key = Constants::KeyNames::RenderObject::Ruleset::listen + "[" + std::to_string(idx) + "]";
+            auto const subscription = moduleScope.get<std::string>(key, "");
             Nebulite::global().listen(domain, subscription, id);
         }
 
@@ -58,9 +58,8 @@ Constants::Error Ruleset::update() {
 
 Constants::Error Ruleset::once(std::span<std::string const> const& args) {
     if (args.size() > 1) {
-        std::string arg = Utility::StringHandler::recombineArgs(args.subspan(1));
-        auto rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(args[0], domain);
-        if (rs.has_value()) {
+        std::string const arg = Utility::StringHandler::recombineArgs(args.subspan(1));
+        if (auto const rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(arg, domain); rs.has_value()) {
             if (rs.value()->isGlobal()) {
                 Nebulite::global().broadcast(rs.value());
             }

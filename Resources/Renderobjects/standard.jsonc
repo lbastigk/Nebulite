@@ -1,9 +1,5 @@
 {
     "id": 0,
-    "invokeSubscriptions": [
-        "all"
-    ],
-    "invokes": [],
     "layer": 0,
     "posX": 0,
     "posY": 0,
@@ -30,5 +26,11 @@
         "dy": 0.0,
         "fontSize": 0,
         "str": ""
+    },
+    "ruleset": {
+        "broadcast": [],
+        "listen": [
+            "all"
+        ]
     }
 }

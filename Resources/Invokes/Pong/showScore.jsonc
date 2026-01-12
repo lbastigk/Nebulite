@@ -1,14 +1,16 @@
 {
     "topic": "",
-    "logicalArg": "1",
-    "exprs": [
-        "self.text.str = '     $06i({global.score.left})        |        $06i({global.score.right})     '"
-    ],
-    "functioncalls": {
-        "global": [],
-        "self": [
-            "update-text"
+    "condition": "1",
+    "action": {
+        "assign": [
+            "self.text.str = '     $06i({global.score.left})        |        $06i({global.score.right})     '"
         ],
-        "other": []
+        "functioncall": {
+            "global": [],
+            "self": [
+                "update-text"
+            ],
+            "other": []
+        }
     }
 }

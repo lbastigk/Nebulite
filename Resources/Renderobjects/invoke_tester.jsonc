@@ -1,9 +1,5 @@
 {
     "id": 0,
-    "invokes": [
-        "./Resources/Invokes/Movement/movement_wasd.jsonc",
-        "./Resources/Invokes/General/set_render_position_center.jsonc"
-    ],
     "layer": 3,
     "posX": 100,
     "posY": 100,
@@ -24,5 +20,11 @@
         "dy": 0.0,
         "fontSize": 0,
         "str": ""
+    },
+    "ruleset": {
+        "broadcast": [
+            "./Resources/Invokes/Movement/movement_wasd.jsonc",
+            "./Resources/Invokes/General/set_render_position_center.jsonc"
+        ]
     }
 }

@@ -12,7 +12,8 @@ namespace Nebulite::DomainModule::RenderObject {
 Constants::Error Mirror::update() {
     if (mirrorEnabled || mirrorOnceEnabled) {
         // Mirror to GlobalSpace
-        Nebulite::global().getDoc().setSubDoc(mirrorKey.c_str(), domain.getDoc());
+        auto const globalScope = Nebulite::globalDoc().shareScope(*this).getRootScope();
+        Nebulite::globalDoc().shareScope(*this).setSubDoc(globalScope + mirrorKey, moduleScope);
 
         // Reset once-flag
         mirrorOnceEnabled = false;
@@ -43,15 +44,17 @@ Constants::Error Mirror::mirror_off() {
 }
 
 Constants::Error Mirror::mirror_delete() {
-    Nebulite::global().getDoc().removeKey(mirrorKey.c_str());
+    auto const globalScope = Nebulite::globalDoc().shareScope(*this).getRootScope();
+    Nebulite::globalDoc().shareScope(*this).removeKey(globalScope + mirrorKey);
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error Mirror::mirror_fetch() {
-    if (Nebulite::global().getDoc().memberType(mirrorKey) != Data::JSON::KeyType::object) {
+    auto const globalScope = Nebulite::globalDoc().shareScope(*this).getRootScope();
+    if (Nebulite::globalDoc().shareScope(*this).memberType(globalScope + mirrorKey) != Data::KeyType::object) {
         return Constants::ErrorTable::addError("Mirror fetch failed: Key '" + mirrorKey + "' not of type document", Constants::Error::NON_CRITICAL);
     }
-    domain.deserialize(Nebulite::global().getDoc().serialize(mirrorKey));
+    domain.deserialize(Nebulite::globalDoc().shareScope(*this).serialize(globalScope + mirrorKey));
     return Constants::ErrorTable::NONE();
 }
 
@@ -60,7 +63,7 @@ Constants::Error Mirror::mirror_fetch() {
 
 Constants::Error Mirror::setupMirrorKey() {
     // Only fetch key once we turn on mirroring
-    int const id = domain.getDoc().get<int>(Constants::KeyNames::RenderObject::id, 0);
+    int const id = moduleScope.get<int>(Constants::KeyNames::RenderObject::id, 0);
     if (id < 1) {
         return Constants::ErrorTable::addError("Mirror key setup failed: RenderObject has invalid id", Constants::Error::NON_CRITICAL);
     }

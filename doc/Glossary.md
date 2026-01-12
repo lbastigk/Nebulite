@@ -63,12 +63,16 @@ See also: [JSON](#j)
 **Domain** - A class on which a FuncTree acts upon. Supported domains are: 
 - `Environment`
 - `GlobalSpace`
-- `JSON`
+- `JsonScope`
 - `Renderer`
 - `RenderObject`
 - `Texture`
 
-See also: [DomainModule](#d) [FuncTree](#f), [GlobalSpace](#g), [JSON](#j)
+Any domain may have multiple `DomainModules` attached to it, providing additional functionality.
+All domains provide access to an internal `JSON` document for variable storage and retrieval.
+All domains support string parsing through `parseStr` from other domains and supported classes.
+
+See also: [DomainModule](#d) [FuncTree](#f), [GlobalSpace](#g), [JsonScope](#j)
 
 -----------------
 **DomainModule** - Special Class that contains a list of functions and variables that are bound 
@@ -119,8 +123,8 @@ This allows for executable logic such as `set-fps 60`, `set posX 100` or  `spawn
 ## G
 
 -----------------
-**GlobalSpace** - The core engine controller class that serves as the central coordination point 
-for all engine operations. Accessible to all subcomponents.
+**GlobalSpace** - Nebulite Domain. The core engine controller class that serves as the central coordination point 
+for all engine operations. Singleton access granted via `Nebulite::global()`.
 
 -----------------
 ## H
@@ -139,8 +143,11 @@ See also: [Ruleset](#p)
 ## J
 
 -----------------
-**JSON** - In Nebulites context, a custom wrapper around `rapidjson` for faster variable access. 
+**JSON** - A custom wrapper around `rapidjson` for faster variable access. 
 Used for arbitrary variable storing and retrieval in Nebulite `Domains`.
+
+-----------------
+**JsonScope** - Nebulite Domain. Part of a `JSON` document. Any data access is performed with a key prefix.
 
 -----------------
 ## K
@@ -177,9 +184,10 @@ Either through a `TaskFile` or an `Invoke`
 ## R
 
 -----------------
-**RenderObject** - Represents a renderable entity in the Nebulite engine. Stores all properties in an internal JSON document, 
-supports dynamic property access, manages SDL rendering (sprites/text), handles invoke commands for interactions, 
-and serves as a `Domain` for function binding. Core building block for visual game objects. 
+**RenderObject** - Nebulite Domain. Represents a renderable entity in the Nebulite engine. 
+Stores all properties in an internal JSON document, supports dynamic property access, 
+manages SDL rendering (sprites/text), handles invoke commands for interactions. 
+Core building block for visual game objects. 
 
 See also: [Domain](#d), [JSON](#j), [Invoke](#i)
 
@@ -191,12 +199,16 @@ See also: [Invoke](#i)
 -----------------
 ## S
 
+**ScopedKey** - A key with an attached scope. If any JsonScope attempts to access a variable with a ScopedKey,
+it is first checked whether the scope matches. If not, the access fails and the program exits.
+
+See also: [JsonScope](#j)
 
 -----------------
 ## T
 
 -----------------
-**Texture** - Wrapper Domain for an SDL-Texture. 
+**Texture** - Nebulite Domain. Wrapper Domain for an SDL-Texture. 
 
 See also: [Domain](#d)
 

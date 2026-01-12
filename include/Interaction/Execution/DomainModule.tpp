@@ -1,15 +1,31 @@
 #ifndef NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_TPP
 #define NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_TPP
 
+#include <type_traits>
+#include <utility>
 #include "Interaction/Execution/DomainModule.hpp"
 
 // Small utilities
-#include <type_traits>
-#include <tuple>
-#include <functional>
-#include <variant>
 
 namespace Nebulite::Interaction::Execution {
+
+template <typename DomainType>
+DomainModule<DomainType>::DomainModule(
+    std::string name,
+    DomainType& domainReference,
+    std::shared_ptr<FuncTree<Constants::Error, DomainBase&, Data::JsonScopeBase&>> funcTreePtr,
+    Data::JsonScopeBase& scope,
+    Data::JsonScopeBase const& settings
+) : DomainModuleBase(
+        std::move(funcTreePtr),
+        scope,
+        settings
+    ),
+    moduleName(std::move(name)),
+    domain(domainReference) {}
+
+template <typename DomainType>
+DomainModule<DomainType>::~DomainModule() = default;
 
 // Implementation: free/static/function-object overload
 template <typename Func, typename FuncTreeType>

@@ -1,11 +1,10 @@
 /**
  * @file Input.hpp
  * @brief Input handling for the NEBULITE engine.
- * @todo Move to Renderer Domain, since it relies on SDL events!
  */
 
-#ifndef NEBULITE_GSDM_INPUT_HPP
-#define NEBULITE_GSDM_INPUT_HPP
+#ifndef NEBULITE_RRDM_INPUT_HPP
+#define NEBULITE_RRDM_INPUT_HPP
 
 //------------------------------------------
 // Includes
@@ -21,16 +20,16 @@
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Core {
-class GlobalSpace; // Forward declaration of domain class GlobalSpace
-}
+class Renderer;
+} // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::DomainModule::Renderer {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::Input
+ * @class Nebulite::DomainModule::Renderer::Input
  * @brief DomainModule for handling input events and states.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Input) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Input) {
 public:
     Constants::Error update() override;
     void reinit() override {}
@@ -46,7 +45,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Input) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Input) {
         // Mapping key names
         map_key_names();
     }
@@ -133,4 +132,4 @@ private:
     double* currentKey[SDL_NUM_SCANCODES] = {nullptr}; // Pointers to current key states in global doc
 };
 } // namespace Nebulite::DomainModule::GlobalSpace
-#endif // NEBULITE_GSDM_INPUT_HPP
+#endif // NEBULITE_RRDM_INPUT_HPP

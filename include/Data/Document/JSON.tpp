@@ -1,3 +1,6 @@
+#ifndef NEBULITE_DATA_DOCUMENT_JSON_TPP
+#define NEBULITE_DATA_DOCUMENT_JSON_TPP
+
 #include "Data/Document/JSON.hpp"
 
 namespace Nebulite::Data {
@@ -10,21 +13,19 @@ void JSON::set(std::string const& key, T const& val){
 }
 
 template<typename T>
-T JSON::get(std::string const& key, T const& defaultValue){
+T JSON::get(std::string const& key, T const& defaultValue) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check if a transformation is present
     if (key.contains('|')){
-        auto optionalVal = getWithTransformations<T>(key);
-        if (optionalVal.has_value()){
+        if (auto optionalVal = getWithTransformations<T>(key); optionalVal.has_value()){
             return optionalVal.value();
         }
         return defaultValue;
     }
 
     // Get variant and convert to requested type
-    auto var = getVariant(key);
-    if(var.has_value()){
+    if(auto const var = getVariant(key); var.has_value()){
         return convertVariant<T>(var.value(), defaultValue);
     }
     return defaultValue;
@@ -32,32 +33,34 @@ T JSON::get(std::string const& key, T const& defaultValue){
 
 // TODO: same for getSubDocWithTransformations!
 template<typename T>
-std::optional<T> JSON::getWithTransformations(std::string const& key) {
+std::optional<T> JSON::getWithTransformations(std::string const& key) const {
     auto args = Utility::StringHandler::split(key, '|');
     std::string const baseKey = args[0];
     args.erase(args.begin());
 
     // Using getSubDoc to properly populate the tempDoc with the rapidjson::Value
     // Slower than a manual copy that handles types, but more secure and less error-prone
-    JSON tempDoc = getSubDoc(baseKey);
+    auto tempDoc = getSubDoc(baseKey);
 
     // Apply each transformation in sequence
     if (!transformer.parse(args, &tempDoc)) {
         return {};    // if any transformation fails, return default value
     }
     // This should not fail, so we use T() as default value
-    return tempDoc.get<T>(JsonRvalueTransformer::valueKey, T());
+    return tempDoc.get<T>(JsonRvalueTransformer::valueKeyStr, T());
 }
 
 template<typename T>
-T JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue){
+T JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue) const {
     // Create a new cache entry
     auto new_entry = std::make_unique<CacheEntry>();
 
     // Get supported types
-    if(!RjDirectAccess::getSimpleValue(&new_entry->value, val)){
+    auto const& v = RjDirectAccess::getSimpleValue(val);
+    if(!v.has_value()) {
         return defaultValue;
     }
+    new_entry->value = v.value();
 
     // Mark as clean
     new_entry->state = CacheEntry::EntryState::CLEAN;
@@ -200,10 +203,10 @@ namespace ConverterHelper {
     }
 } // namespace ConverterHelper
 
-namespace {
+namespace breakBuild {
 template <typename From, typename To>
 struct unsupported_conversion;
-}
+} // anonymous namespace
 
 template<typename newType>
 newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue){
@@ -213,7 +216,7 @@ newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType con
         using StoredT = std::decay_t<decltype(stored)>;
 
         // [DOUBLE] -> [BOOL]
-        // First, as static_cast doesnt work well for this conversion
+        // First, as static_cast doesn't work well for this conversion
         if constexpr (std::is_same_v<StoredT, double> && std::is_same_v<newType, bool>){
             return std::fabs(stored) > std::numeric_limits<double>::epsilon();
         }
@@ -271,7 +274,8 @@ newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType con
         //------------------------------------------
         // [ERROR] Unsupported conversion
         else {
-            unsupported_conversion<StoredT, newType> error;
+            breakBuild::unsupported_conversion<StoredT, newType> error;
+            (void)error; // to avoid unused variable warning
             return defaultValue; // unreachable, but keeps the compiler happy
 
             // Old runtime error message
@@ -284,3 +288,4 @@ newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType con
     var);
 }
 }   // namespace Nebulite::Utility
+#endif // NEBULITE_DATA_DOCUMENT_JSON_TPP

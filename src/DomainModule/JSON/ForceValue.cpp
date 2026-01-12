@@ -1,12 +1,14 @@
-#include "DomainModule/JSON/ForceValue.hpp"
-#include "Data/Document/JSON.hpp"
+#include "Core/JsonScope.hpp"
+#include "DomainModule/JsonScope/ForceValue.hpp"
 
-namespace Nebulite::DomainModule::JSON {
+
+namespace Nebulite::DomainModule::JsonScope {
 
 Constants::Error ForceValue::update() {
     // On each update, re-apply forced values
     for (auto const& [key, value] : forced_global_values) {
-        domain.set(key, value);
+        auto const scopedKey = moduleScope.getRootScope() + key;
+        domain.set(scopedKey, value);
     }
     return Constants::ErrorTable::NONE();
 }
@@ -31,4 +33,4 @@ Constants::Error ForceValue::force_clear() {
     forced_global_values.clear();
     return Constants::ErrorTable::NONE();
 }
-} // namespace Nebulite::DomainModule::JSON
+} // namespace Nebulite::DomainModule::JsonScope

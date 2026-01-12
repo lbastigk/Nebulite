@@ -15,16 +15,19 @@
 // External
 #include <absl/container/flat_hash_map.h>
 
+// Nebulite
+#include "Data/Document/ScopedKey.hpp"
+
 //------------------------------------------
 // Forward declarations
 
 namespace Nebulite::Data {
-class JSON;
-}
+class JsonScopeBase;
+} // namespace Nebulite::Data
 
 namespace Nebulite::Interaction::Logic {
 class VirtualDouble;
-}
+} // namespace Nebulite::Interaction::Logic
 
 //------------------------------------------
 
@@ -32,12 +35,11 @@ namespace Nebulite::Data {
 /**
  * @class Nebulite::Data::DynamicFixedArray
  * @brief Dynamic fixed-size array for double pointers.
- * Size is set once at construction and never changes.
+ * @details Size is set once at construction and never changes.
  */
 class DynamicFixedArray {
 public:
-    DynamicFixedArray() : data_(nullptr), size_(0), capacity_(0) {
-    }
+    DynamicFixedArray() : data_(nullptr), size_(0), capacity_(0) {}
 
     explicit DynamicFixedArray(size_t fixed_size)
         : data_(fixed_size > 0 ? new double*[fixed_size] : nullptr),
@@ -81,11 +83,11 @@ public:
         }
     }
 
-    double*& at(size_t index) noexcept { return data_[index]; }
+    [[nodiscard]] double*& at(size_t index) const noexcept { return data_[index]; }
 
     [[nodiscard]] bool empty() const noexcept { return size_ == 0; }
 
-    double** data() noexcept { return data_; }
+    [[nodiscard]] double** data() const noexcept { return data_; }
 
 private:
     double** data_;
@@ -103,7 +105,7 @@ public:
     explicit OrderedDoublePointers(size_t exact_size) : orderedValues(exact_size) {
     }
 
-    DynamicFixedArray orderedValues;
+    DynamicFixedArray orderedValues {};
 };
 
 // Vector alias for easier usage of ordered double pointer vectors
@@ -115,6 +117,10 @@ using odpvec = Nebulite::Data::DynamicFixedArray;
  */
 class MappedOrderedDoublePointers {
 public:
+    explicit MappedOrderedDoublePointers(JsonScopeBase& ownerReference)
+        : reference(ownerReference) {
+    }
+
     /**
      * @brief Size of the quickcache for ordered double pointers.
      *
@@ -130,32 +136,31 @@ public:
      *        corresponding to all variables referenced by this Expression in the "other" context. If the cache entry does not exist,
      *        it is created and populated for fast indexed access during expression evaluation.
      * @param uniqueId The unique ID of the expression.
-     * @param reference The JSON document to reference as context "other" for variable resolution.
      * @param contextOther The vector of virtual doubles in the "other" context to populate the cache with.
      * @return A pointer to the ordered vector of double pointers for the referenced "other" variables.
-     * @todo Wouldn't reference always be the owner of this object? If so, couldn't we set it up on construction?
      */
     odpvec* ensureOrderedCacheList(
         uint64_t uniqueId,
-        Nebulite::Data::JSON& reference,
         std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther
         );
 
     /**
      * @brief Ensures the existence of an ordered cache list of double pointers for a set of keys.
      * @param uniqueId The unique ID for the ordered cache list.
-     * @param reference The JSON document to reference for key resolution.
      * @param keys The vector of keys to populate the cache with.
      * @return A pointer to the ordered vector of double pointers for the specified keys.
-     * @todo Wouldn't reference always be the owner of this object? If so, couldn't we set it up on construction?
      */
     odpvec* ensureOrderedCacheList(
-        uint64_t uniqueId,
-        Nebulite::Data::JSON& reference,
-        std::vector<std::string_view> const& keys
+        uint64_t const& uniqueId,
+        std::vector<Data::ScopedKeyView> const& keys
         );
 
 private:
+    /**
+     * @brief Reference to the JSON document that owns this cache.
+     */
+    JsonScopeBase& reference;
+
     /**
      * @brief Map from unique IDs to OrderedDoublePointers objects.
      */

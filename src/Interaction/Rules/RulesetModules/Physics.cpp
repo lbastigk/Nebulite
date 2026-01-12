@@ -1,6 +1,10 @@
 #include "Nebulite.hpp"
 #include "Interaction/Rules/RulesetModules/Physics.hpp"
+
+#include "Core/GlobalSpace.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
+
+#include "DomainModule/GlobalSpace/Time.hpp"
 
 namespace Nebulite::Interaction::Rules::RulesetModules {
 
@@ -14,9 +18,9 @@ Physics::Physics() : RulesetModule(moduleName) {
     BIND_STATIC_ASSERT(RulesetType::Local, &Physics::drag, dragName, dragDesc);
 
     // Global Variables
-    globalVal.G = Nebulite::global().getDoc().getStableDoublePointer("physics.G"); // Gravitational constant
-    globalVal.dt = Nebulite::global().getDoc().getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::time_dt); // Simulation delta time
-    globalVal.t = Nebulite::global().getDoc().getStableDoublePointer(Nebulite::Constants::KeyNames::Renderer::time_t); // Simulation time
+    globalVal.G = Nebulite::globalDoc().shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Physics::Key::Global::G); // Gravitational constant
+    globalVal.dt = Nebulite::globalDoc().shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_dt); // Simulation delta time
+    globalVal.t = Nebulite::globalDoc().shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_t); // Simulation time
 }
 
 // Global rulesets
@@ -29,13 +33,9 @@ Physics::Physics() : RulesetModule(moduleName) {
 //       that happens between now and the predicted next frame-time
 // TODO: Add a repositioning step to resolve overlaps
 void Physics::elasticCollision(ContextBase const& context) {
-    // Special keys for this ruleset only
-    static std::string lastCollisionX = "physics.collision.time.lastX";
-    static std::string lastCollisionY = "physics.collision.time.lastY";
-
     // Get ordered cache lists for both entities for base values
-    double** slf = getBaseList(context.self, keys);
-    double** otr = getBaseList(context.other, keys);
+    double** slf = getBaseList(context.self, baseKeys);
+    double** otr = getBaseList(context.other, baseKeys);
 
     //------------------------------------------
     // Base condition check
@@ -53,19 +53,19 @@ void Physics::elasticCollision(ContextBase const& context) {
     double const m2 = baseVal(otr, Key::physics_mass);
 
     // Base overlap condition
-    bool baseCondition = m1 > 0.0 && m2 > 0.0
-                         && p1X < p2X + size2X // right side overlap
-                         && p1Y < p2Y + size2Y // bottom side overlap
-                         && p2X < p1X + size1X // left side overlap
-                         && p2Y < p1Y + size1Y; // top side overlap
+    bool const baseCondition = m1 > 0.0 && m2 > 0.0
+        && p1X < p2X + size2X // right side overlap
+        && p1Y < p2Y + size2Y // bottom side overlap
+        && p2X < p1X + size1X // left side overlap
+        && p2Y < p1Y + size1Y; // top side overlap
 
     //------------------------------------------
     // Potential collision response
 
     if (baseCondition) {
         // Overlap checks for each axis (?)
-        bool conditionX = baseCondition && !(p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y);
-        bool conditionY = baseCondition && !(p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X);
+        bool const conditionX = !(p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y);
+        bool const conditionY = !(p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X);
 
         // m1*v1 + m2*v2 = m1*v1new + m2*v2new
         // Split into v1new and v2new equations
@@ -94,13 +94,13 @@ void Physics::elasticCollision(ContextBase const& context) {
             double const dF2X = m2 * (v2newX - v2X) / dt;
 
             // Get last collision time pointer
-            double* lastColX = context.other.getDoc().getStableDoublePointer(lastCollisionX);
+            double const lastColX = baseVal(otr, Key::physics_lastCollisionX);
 
             // Lock and write
-            auto slfLock = context.self.getDoc().lock();
-            if (*lastColX < *globalVal.t) {
+            auto slfLock = context.self.lockDocument();
+            if (lastColX < *globalVal.t) {
                 baseVal(otr, Key::physics_FX) += dF2X;
-                *lastColX = *globalVal.t;
+                baseVal(otr, Key::physics_lastCollisionX) = *globalVal.t;
             }
         }
         if (conditionY) {
@@ -116,13 +116,13 @@ void Physics::elasticCollision(ContextBase const& context) {
             double const dF2Y = m2 * (v2newY - v2Y) / dt;
 
             // Get last collision time pointer
-            double* lastColY = context.other.getDoc().getStableDoublePointer(lastCollisionY);
+            double const lastColY = baseVal(otr, Key::physics_lastCollisionY);
 
             // Lock and write
-            auto slfLock = context.self.getDoc().lock();
-            if (*lastColY < *globalVal.t) {
+            auto slfLock = context.self.lockDocument();
+            if (lastColY < *globalVal.t) {
                 baseVal(otr, Key::physics_FY) += dF2Y;
-                *lastColY = *globalVal.t;
+                baseVal(otr, Key::physics_lastCollisionY) = *globalVal.t;
             }
         }
     }
@@ -130,8 +130,8 @@ void Physics::elasticCollision(ContextBase const& context) {
 
 void Physics::gravity(ContextBase const& context) {
     // Get ordered cache lists for both entities for base values
-    double** slf = getBaseList(context.self, keys);
-    double** otr = getBaseList(context.other, keys);
+    double** slf = getBaseList(context.self, baseKeys);
+    double** otr = getBaseList(context.other, baseKeys);
 
     // Calculate distance components
     double const distanceX = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
@@ -142,7 +142,7 @@ void Physics::gravity(ContextBase const& context) {
     double const coefficient = *globalVal.G * baseVal(slf, Key::physics_mass) * baseVal(otr, Key::physics_mass) / denominator;
 
     // Apply gravitational force to other entity
-    auto otrLock = context.other.getDoc().lock();
+    auto otrLock = context.other.lockDocument();
     baseVal(otr, Key::physics_FX) += distanceX * coefficient;
     baseVal(otr, Key::physics_FY) += distanceY * coefficient;
 }
@@ -151,7 +151,7 @@ void Physics::gravity(ContextBase const& context) {
 
 void Physics::applyForce(ContextBase const& context) {
     // Get ordered cache list for self entity for base values
-    double** slf = getBaseList(context.self, keys);
+    double** slf = getBaseList(context.self, baseKeys);
 
     // Pre-calculate values before locking
     double const dt = *globalVal.dt;
@@ -162,7 +162,7 @@ void Physics::applyForce(ContextBase const& context) {
     double const dvY = aY * dt;
 
     // Lock and apply all physics calculations
-    auto slfLock = context.self.getDoc().lock();
+    auto slfLock = context.self.lockDocument();
 
     // Acceleration is based on F
     baseVal(slf, Key::physics_aX) = aX;
@@ -181,7 +181,7 @@ void Physics::applyForce(ContextBase const& context) {
 
 void Physics::drag(ContextBase const& context) {
     // Get ordered cache list for self entity for base values
-    double** slf = getBaseList(context.self, keys);
+    double** slf = getBaseList(context.self, baseKeys);
 
     // Drag coefficient (tunable parameter)
     static constexpr double dragCoefficient = 0.1;
@@ -193,7 +193,7 @@ void Physics::drag(ContextBase const& context) {
     double const dragForceY = -dragCoefficient * vY;
 
     // Lock and apply drag forces
-    auto slfLock = context.self.getDoc().lock();
+    auto slfLock = context.self.lockDocument();
     baseVal(slf, Key::physics_FX) += dragForceX;
     baseVal(slf, Key::physics_FY) += dragForceY;
 }

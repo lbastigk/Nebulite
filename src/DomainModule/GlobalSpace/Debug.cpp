@@ -100,8 +100,8 @@ Constants::Error Debug::update() {
         double virtualMemMB = 0.0;
         double residentMemMB = 0.0;
         getMemoryUsageMB(virtualMemMB, residentMemMB);
-        domain.getDoc().set<double>("debug.memory.virtualMB", virtualMemMB);
-        domain.getDoc().set<double>("debug.memory.residentMB", residentMemMB);
+        moduleScope.set<double>(Data::ScopedKey("debug.memory.virtualMB"), virtualMemMB);
+        moduleScope.set<double>(Data::ScopedKey("debug.memory.residentMB"), residentMemMB);
     }
     if (!memoryUsagePoller.is_running()) {
         memoryUsagePoller.start();
@@ -115,7 +115,7 @@ Constants::Error Debug::update() {
 // Domain-Bound Functions
 
 Constants::Error Debug::log_global(int argc, char** argv) {
-    std::string const serialized = domain.getDoc().serialize();
+    std::string const serialized = moduleScope.serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
             Utility::FileManagement::WriteFile(argv[i], serialized);
@@ -139,7 +139,7 @@ Constants::Error Debug::log_state(int argc, char** argv) {
 }
 
 Constants::Error Debug::standardfileRenderobject() {
-    Core::RenderObject ro;
+    Core::RenderObject const ro;
     Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize());
     return Constants::ErrorTable::NONE();
 }
@@ -309,22 +309,22 @@ Constants::Error Debug::waitForInput(int argc, char** argv) {
 
 void Debug::setupPlatformInfo() {
 #ifdef _WIN32
-    domain.getDoc().set<std::string>("platform", "windows");
+    moduleScope.set<std::string>(Data::ScopedKey("platform", "windows");
 #elif __linux__
-    domain.getDoc().set<std::string>("platform", "linux");
+    moduleScope.set<std::string>(Data::ScopedKey("platform"), "linux");
 #elif __APPLE__
-    domain.getDoc().set<std::string>("platform", "macos");
+    moduleScope.set<std::string>(Data::ScopedKey("platform"), "macos");
 #elif __FreeBSD__
-    domain.getDoc().set<std::string>("platform", "freebsd");
+    moduleScope.set<std::string>(Data::ScopedKey("platform"), "freebsd");
 #elif __unix__
-    domain.getDoc().set<std::string>("platform", "unix");
+    moduleScope.set<std::string>(Data::ScopedKey("platform"), "unix");
 #elif __ANDROID__
-    domain.getDoc().set<std::string>("platform", "android");
+    moduleScope.set<std::string>(Data::ScopedKey("platform"), "android");
 #elif __TEMPLEOS__
     printf("Glory be to TempleOS!\n");
-    domain.getDoc().set<std::string>("platform", "templeos");
+    moduleScope.set<std::string>("platform", "templeos");
 #else
-    domain.getDoc().set<std::string>("platform", "unknown");
+    moduleScope.set<std::string>(Data::ScopedKey("platform"), "unknown");
 #endif
 }
 

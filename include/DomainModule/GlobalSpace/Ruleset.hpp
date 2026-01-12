@@ -35,15 +35,15 @@ public:
     // Available Functions
 
     Constants::Error broadcast(std::span<std::string const> const& args);
-    static std::string_view constexpr broadcast_name = "ruleset broadcast";
-    static std::string_view constexpr broadcast_desc = "Broadcasts a ruleset to its specified topic.\n"
+    static auto constexpr broadcast_name = "ruleset broadcast";
+    static auto constexpr broadcast_desc = "Broadcasts a ruleset to its specified topic.\n"
         "Usage: broadcast <ruleset>\n"
         "\n"
         "- ruleset: The ruleset content to be broadcasted.";
 
     Constants::Error listen(std::span<std::string const> const& args);
-    static std::string_view constexpr listen_name = "ruleset listen";
-    static std::string_view constexpr listen_desc = "Listens for rulesets on a specified topic.\n"
+    static auto constexpr listen_name = "ruleset listen";
+    static auto constexpr listen_desc = "Listens for rulesets on a specified topic.\n"
         "Usage: listen <topic>\n"
         "\n"
         "- topic: The topic to listen for incoming rulesets.";
@@ -51,8 +51,8 @@ public:
     //------------------------------------------
     // Category names
 
-    static std::string_view constexpr ruleset_name = "ruleset";
-    static std::string_view constexpr ruleset_desc = "Functions for managing rulesets in the GlobalSpace.";
+    static auto constexpr ruleset_name = "ruleset";
+    static auto constexpr ruleset_desc = "Functions for managing rulesets in the GlobalSpace.";
 
     //------------------------------------------
     // Setup

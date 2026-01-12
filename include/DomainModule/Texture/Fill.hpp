@@ -35,9 +35,9 @@ public:
     //------------------------------------------
     // Available Functions
     
-    Constants::Error fill(int argc, char** argv);
-    static std::string_view constexpr fill_name = "fill";
-    static std::string_view constexpr fill_desc = "Fills the texture with a specified color.\n"
+    Constants::Error fill(int argc, char** argv) const ;
+    static auto constexpr fill_name = "fill";
+    static auto constexpr fill_desc = "Fills the texture with a specified color.\n"
         "Usage:\n"
         "  fill <color>\n"
         "  fill <r> <g> <b>\n"

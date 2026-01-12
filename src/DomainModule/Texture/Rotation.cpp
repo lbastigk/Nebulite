@@ -9,7 +9,7 @@ Constants::Error Rotation::update() {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Rotation::rotate(int argc, char** argv) {
+Constants::Error Rotation::rotate(int argc, char** argv) const {
     if (argc < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

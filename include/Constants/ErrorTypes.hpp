@@ -42,7 +42,6 @@
 #include <vector>
 #include <deque>
 #include <algorithm>
-#include <cstdint>
 
 // External
 #include <absl/container/flat_hash_map.h>

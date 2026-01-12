@@ -1,12 +1,16 @@
 #include "DomainModule/Initializer.hpp"
 
 //------------------------------------------
+// Include Nebulite main header for settings access
+#include "Nebulite.hpp"
+
+//------------------------------------------
 // Domain includes
 #include "Core/GlobalSpace.hpp"
+#include "Core/JsonScope.hpp"
 #include "Core/Renderer.hpp"
 #include "Core/Texture.hpp"
 #include "Core/RenderObject.hpp"
-#include "Data/Document/JSON.hpp"
 
 //------------------------------------------
 // DomainModules
@@ -17,14 +21,13 @@
 #include "DomainModule/GlobalSpace/FunctionCollision.hpp"   // Special debugging utilities for domain collision detection
 #include "DomainModule/GlobalSpace/FeatureTest.hpp"         // Feature testing module
 #include "DomainModule/GlobalSpace/General.hpp"             // General functions like eval, exit, wait, etc.
-#include "DomainModule/GlobalSpace/Input.hpp"               // Input handling
 #include "DomainModule/GlobalSpace/Ruleset.hpp"             // Ruleset management
 #include "DomainModule/GlobalSpace/Time.hpp"                // Basic Time management functions
 
 // JSON
-#include "DomainModule/JSON/SimpleData.hpp"
-#include "DomainModule/JSON/ComplexData.hpp"
-#include "DomainModule/JSON/Debug.hpp"
+#include "DomainModule/JsonScope/SimpleData.hpp"
+#include "DomainModule/JsonScope/ComplexData.hpp"
+#include "DomainModule/JsonScope/Debug.hpp"
 
 // RenderObject
 #include "DomainModule/RenderObject/Debug.hpp"
@@ -34,8 +37,9 @@
 #include "DomainModule/RenderObject/StateUpdate.hpp"
 
 // Renderer
-#include "DomainModule/Renderer/General.hpp"
 #include "DomainModule/Renderer/Console.hpp"
+#include "DomainModule/Renderer/General.hpp"
+#include "DomainModule/Renderer/Input.hpp"
 #include "DomainModule/Renderer/RenderObjectDraft.hpp"
 
 // Texture
@@ -46,70 +50,177 @@
 //------------------------------------------
 namespace Nebulite::DomainModule {
 
+// TODO: Once CallerScope is implemented, we can restrict scope access to every DomainModule
+//       no Module should have full access!
+
 void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
+
+    //------------------------------------------
+    // TODO: Add settings domainModule:
+    //       - initialized first with scope "settings."
+    //       - modify every DomainModule constructor to accept a settings scope
+    //       - provide a reference to the settings scope in every DomainModule
+    //       - perhaps we can even scope this? Instead of passing all settings to every DomainModule,
+    //         we can only pass the relevant settings.
+
     //------------------------------------------
     // Initialize DomainModules
     using namespace Nebulite::DomainModule::GlobalSpace;
-    target->initModule<General>("Global General Functions");
-    target->initModule<Debug>("Global Debug Functions");
-    target->initModule<Input>("Global Input Functions");
-    target->initModule<Ruleset>("Global Ruleset Functions");
+    target->initModule<General>(
+        "Global General Functions",
+        target->domainScope.shareScopeBase(""), // Refactor functions to use callerScope instead of moduleScope, then restrict this to dummy scope and make all functions const
+        Nebulite::globalDoc().settings()
+    );
+    target->initModule<Debug>(
+        "Global Debug Functions",
+        target->domainScope.shareScopeBase("debug."),
+        Nebulite::globalDoc().settings()
+    );
+    target->initModule<Ruleset>(
+        "Global Ruleset Functions",
+        target->domainScope.shareScopeBase("ruleset."),
+        Nebulite::globalDoc().settings()
+    );
 
     //------------------------------------------
-    // Special debugging utilities
-    target->initModule<FunctionCollision>("Global Function Collision Detection utilities");
-
-    //------------------------------------------
-    // Feature Test Modules
-    target->initModule<FeatureTest>("Global Feature Test Functions");
+    // Special debugging / testing utilities
+    target->initModule<FunctionCollision>(
+        "Global Function Collision Detection utilities",
+        target->domainScope.shareDummyScopeBase(), // No workspace required.
+        Nebulite::globalDoc().settings()
+    );
+    target->initModule<FeatureTest>(
+        "Global Feature Test Functions",
+        target->domainScope.shareDummyScopeBase(), // No workspace required.
+        Nebulite::globalDoc().settings()
+    );
 
     //------------------------------------------
     // Time module relies on knowing if anything is locking the time
-    // So we need to initialize it last
-    // Example: Console might want to halt time while open
-    //          if we initialize time first, it will update before console
-    //          thus ignoring the console's halt request being sent to renderer
-    target->initModule<Time>("Global Time Functions");
-    target->initModule<Clock>("Global Clock Functions"); // Clock relies on time, so init after time
+    // Since domainModules are updates in the order they are initialized,
+    // we need to init time after most other modules.
+    target->initModule<Time>(
+        "Global Time Functions",
+        target->domainScope.shareScopeBase("time."),
+        Nebulite::globalDoc().settings()
+    );
+    target->initModule<Clock>( // Clock relies on time, so init after time
+        "Global Clock Functions",
+        target->domainScope.shareScopeBase("time."),
+        Nebulite::globalDoc().settings()
+    );
 
     //------------------------------------------
     // Initialize Variable Bindings
-    target->bindVariable(&target->cmdVars.headless, "headless", "Set headless mode (no renderer)");
-    target->bindVariable(&target->cmdVars.recover, "recover", "Enable recoverable error mode");
+    target->bindVariable(
+        &target->cmdVars.headless,
+        "headless",
+        "Set headless mode (no renderer)"
+    );
+    target->bindVariable(
+        &target->cmdVars.recover,
+        "recover",
+        "Enable recoverable error mode"
+    );
 }
 
-void Initializer::initJSON(Data::JSON* target) {
+void Initializer::initJsonScope(Core::JsonScope* target) {
     // Initialize DomainModules
-    using namespace Nebulite::DomainModule::JSON;
-    target->initModule<SimpleData>("JSON Simple Data Functions");
-    target->initModule<ComplexData>("JSON Complex Data Functions");
-    target->initModule<Debug>("JSON Debug Functions");
+    using namespace Nebulite::DomainModule::JsonScope;
+    target->initModule<SimpleData>(
+        "JSON Simple Data Functions",
+        target->domainScope.shareScopeBase(""),  // Refactor functions to use callerScope instead of moduleScope, then restrict this to dummy scope and make all functions const
+        Nebulite::globalDoc().settings()
+    );
+    target->initModule<ComplexData>(
+        "JSON Complex Data Functions",
+        target->domainScope.shareScopeBase(""),  // Refactor functions to use callerScope instead of moduleScope, then restrict this to dummy scope and make all functions const
+        Nebulite::globalDoc().settings()
+    );
+    target->initModule<Debug>(
+        "JSON Debug Functions",
+        target->domainScope.shareScopeBase(""), // Refactor functions to use callerScope instead of moduleScope, then restrict this to dummy scope and make all functions const
+        Nebulite::globalDoc().settings()
+    );
 }
 
 void Initializer::initRenderObject(Core::RenderObject* target) {
     // Initialize DomainModules
     using namespace Nebulite::DomainModule::RenderObject;
-    target->initModule<Debug>("RenderObject Debug Functions");
-    target->initModule<Logging>("RenderObject Logging Functions");
-    target->initModule<Mirror>("RenderObject Mirror Functions");
-    target->initModule<Ruleset>("RenderObject Ruleset Functions");
-    target->initModule<StateUpdate>("RenderObject State Update Functions");
+    target->initModule<Debug>(
+        "RenderObject Debug Functions",
+        target->domainScope.shareScopeBase(""),  // Refactor functions to use callerScope instead of moduleScope, then restrict this to dummy scope and make all functions const
+        Nebulite::globalDoc().settings()
+    );
+    target->initModule<Logging>(
+        "RenderObject Logging Functions",
+        target->domainScope.shareScopeBase(""), // Refactor functions to use callerScope instead of moduleScope, then restrict this to dummy scope and make all functions const
+        Nebulite::globalDoc().settings()
+    );
+    target->initModule<Mirror>(
+        "RenderObject Mirror Functions",
+        target->domainScope.shareScopeBase(""), // Refactor functions to use callerScope instead of moduleScope, then restrict this to dummy scope and make all functions const
+        Nebulite::globalDoc().settings()
+    );
+    target->initModule<Ruleset>(
+        "RenderObject Ruleset Functions",
+        target->domainScope.shareScopeBase("ruleset."),
+        Nebulite::globalDoc().settings()
+    );
+    target->initModule<StateUpdate>(
+        "RenderObject State Update Functions",
+        target->domainScope.shareDummyScopeBase(),  // No workspace required.
+        Nebulite::globalDoc().settings()
+    );
 }
 
 void Initializer::initRenderer(Core::Renderer* target) {
     // Initialize DomainModules
     using namespace Nebulite::DomainModule::Renderer;
-    target->initModule<General>("Renderer General Functions");
-    target->initModule<Console>("Renderer Console Functions");
-    target->initModule<RenderObjectDraft>("Renderer RenderObjectDraft Functions");
+    target->initModule<General>(
+        "Renderer General Functions",
+        target->domainScope.shareDummyScopeBase(),
+        Nebulite::globalDoc().settings()
+    );
+    target->initModule<Console>(
+        "Renderer Console Functions",
+        // Needs full access to redirect console commands to full global scope
+        target->domainScope.shareScopeBase(""),
+        Nebulite::globalDoc().settings()
+    );
+    target->initModule<Input>(
+        "Renderer Input Functions",
+        target->domainScope.shareScopeBase("input."),
+        Nebulite::globalDoc().settings()
+    );
+    target->initModule<RenderObjectDraft>(
+        "Renderer RenderObjectDraft Functions",
+        // TODO: We could modify the RenderObject constructor to accept an optional scope.
+        //       This way, we can directly store the draft data in the renderer scope.
+        //       Then, we can modify the scope to "draft." and have the entire renderObject live in that scope at root level.
+        target->domainScope.shareScopeBase(""),
+        Nebulite::globalDoc().settings()
+    );
 }
 
 void Initializer::initTexture(Core::Texture* target) {
     // Initialize DomainModules
     using namespace Nebulite::DomainModule::Texture;
-    target->initModule<General>("Texture General Functions");
-    target->initModule<Rotation>("Texture Rotation Functions");
-    target->initModule<Fill>("Texture Fill Functions");
+    target->initModule<General>(
+        "Texture General Functions",
+        target->domainScope.shareDummyScopeBase(), // No workspace required.
+        Nebulite::globalDoc().settings()
+    );
+    target->initModule<Rotation>(
+        "Texture Rotation Functions",
+        target->domainScope.shareDummyScopeBase(), // No workspace required.
+        Nebulite::globalDoc().settings()
+    );
+    target->initModule<Fill>(
+        "Texture Fill Functions",
+        target->domainScope.shareDummyScopeBase(), // No workspace required.
+        Nebulite::globalDoc().settings()
+    );
 }
 
 } // namespace Nebulite::DomainModule

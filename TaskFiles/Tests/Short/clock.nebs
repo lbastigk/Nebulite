@@ -4,15 +4,15 @@ add-clock 10
 wait 99
 
 # One frame before first clock tick
-print clocks.status.ms000010
+print time.clocks.status.ms000010
 print time.t_ms
 wait 1
 # First clock tick
-print clocks.status.ms000010
+print time.clocks.status.ms000010
 print time.t_ms
 wait 1
 # One frame after first clock tick
-print clocks.status.ms000010
+print time.clocks.status.ms000010
 print time.t_ms
 
 # Expected output:

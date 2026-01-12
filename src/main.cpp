@@ -59,6 +59,7 @@ int main(int const argc, char* argv[]) {
     //------------------------------------------
     // Initialize the global space, parse command line arguments
     auto const binaryName = std::string(argv[0]);
+    Nebulite::global().initialize();
     Nebulite::global().parseCommandLineArguments(argc, const_cast<char const**>(argv));
 
     //------------------------------------------

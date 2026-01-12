@@ -28,14 +28,15 @@
 - [Overview](#overview)
 - [Quick Start](#quick-start)
 - [Core Concepts](#core-concepts)
-  * [Expression System](#expression-system)
-  * [Ruleset System](#ruleset-system)
-  * [Runtime Modes](#runtime-modes)
+    * [Domains & DomainModules](#domains-domainmodules)
+    * [Expression System](#expression-system)
+    * [Ruleset System](#ruleset-system)
+    * [Runtime Modes](#runtime-modes)
 - [Platform Support & Dependencies](#platform-support-dependencies)
 - [Testing](#testing)
 - [Languages](#languages)
-  * [Nebulite Script](#nebulite-script)
-  * [Nebulite Logic](#nebulite-logic)
+    * [Nebulite Script](#nebulite-script)
+    * [Nebulite Logic](#nebulite-logic)
 - [Contributing](#contributing)
 - [Learn More](#learn-more)
 - [License](#license)
@@ -96,6 +97,64 @@ It focuses on:
 <!-- TOC --><a name="core-concepts"></a>
 ## Core Concepts
 
+<!-- TOC --><a name="domains-domainmodules"></a>
+### Domains & DomainModules
+
+Domains are modular engine components encapsulating specific functionality such as:
+- A renderable entity (`RenderObject` Domain)
+- Global engine state (`GlobalSpace` Domain)
+- The rendering system (`Renderer` Domain)
+
+Each Domain can initialize DomainModules, which further break down functionality into manageable pieces,
+providing update routines and functions for users to call:
+- Time management for `GlobalSpace` Domain
+- Basic setting and array manipulation for `JsonScope` DomainModule
+- Console functionality for `Renderer` DomainModule
+
+Each Domain is able to parse string commands in its own context, that call the respective DomainModules' functions.
+These commands may be called by other Domains, the interactive console, or Task Files:
+```bash
+# Example commands
+set myVar 5
+set-fps 60
+always eval echo {myVar}
+always eval set myVar $({myVar} + 1)
+wait 100
+exit
+```
+
+Domains may be arranged in a hierarchy, where parent Domains can contain child Domains.
+This allows for shared functionality and data between related Domains.
+
+Child Domains share their functions with their parent Domains, allowing for seamless integration and interaction between different parts of the engine.
+This way, we may parse commands in a parent Domain that are actually implemented in a child Domain.
+
+Child domains can have access to their parent's full Document Scope or only to a sub-scope, depending on the use case.
+
+Users may define custom scopes for key access restrictions and modular data management.
+This allows key sharing inbetween classes and throw exceptions if access is attempted outside the intended scope.
+
+Example for restricted key access:
+```cpp
+// Our Data document
+Data::JSON doc;
+
+// Creating a Domain of type JsonScope
+// that acts on the "physics." sub-scope
+Core::JsonScope physicsScope(doc, "physics.");
+
+// We can parse user commands in this scope
+if(physicsScope.parseCommand("set velocity 5.0") != Nebulite::Constants::ErrorTable::NONE()) {
+    // handle error
+}
+
+// Using ScopedKey to access data safely
+Data::ScopedKey velocityKey("physics.", "velocity");
+Data::ScopedKey timeInMsKey("time.","t_ms");
+double velocity = physicsScope.get(velocityKey, 0.0); // Success
+double timeInMs = physicsScope.get(timeInMsKey, 0.0); // Throws exception
+```
+
 <!-- TOC --><a name="expression-system"></a>
 ### Expression System
 Access and manipulate data using variables `{...}` inside and outside mathematical expressions `$(...)`:
@@ -132,8 +191,8 @@ They do not modify the stored value, only the returned one.
 - `{self.arr|map <function>}` - apply function to each array element
 - `{self.val|add 5}` - add 5 to value on retrieval
 - `{self.val|typeAsString}` - returns the type of the value as string (value, array, object, null)
-- `{self.arr|print|at 1}` - Useful for debugging: prints the array to console (no modification of its value) 
-and returns the element at index 1
+- `{self.arr|print|at 1}` - Useful for debugging: prints the array to console (no modification of its value)
+  and returns the element at index 1
 
 **Examples**
 
@@ -152,15 +211,17 @@ Define object interactions via JSON rulesets:
 ```jsonc
 {
     "topic": "gravity",     // Broadcast channel (empty = local only)
-    "logicalArg": "1",      // Condition to execute
-    "exprs": [              // Modify values
-        "other.physics.FX += $({global.physics.G} * {self.physics.mass} * {other.physics.mass} * ( {self.posX} - {other.posX}  ) / ( 1 + (({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2)^(1.5)) )",
-        "other.physics.FY += $({global.physics.G} * {self.physics.mass} * {other.physics.mass} * ( {self.posY} - {other.posY}  ) / ( 1 + (({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2)^(1.5)) )"
-    ],
-    "functioncalls": {  // Commands to parse ...
-        "global": [],   // ...on domain GlobalSpace
-        "self": [],     // ...on domain RenderObject, self
-        "other": []     // ...on domain RenderObject, other
+    "condition": "1",       // Condition to execute
+    "action": {             // What to do
+        "assign": [         // Modify values
+            "other.physics.FX += $({global.physics.G} * {self.physics.mass} * {other.physics.mass} * ( {self.posX} - {other.posX}  ) / ( 1 + (({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2)^(1.5)) )",
+            "other.physics.FY += $({global.physics.G} * {self.physics.mass} * {other.physics.mass} * ( {self.posY} - {other.posY}  ) / ( 1 + (({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2)^(1.5)) )"
+        ],
+        "functioncall": {   // Commands to parse ...
+            "global": [],   // ...on domain GlobalSpace
+            "self": [],     // ...on domain RenderObject, self
+            "other": []     // ...on domain RenderObject, other
+        }
     }
 }
 ```
@@ -197,7 +258,7 @@ and inner-object logic handling for
 - applying forces
 - state changes
 - animations
-  
+
 Global rulesets are executed first, followed by local rulesets.
 
 The expressions given are evaluated in the context of

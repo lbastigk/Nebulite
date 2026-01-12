@@ -33,7 +33,7 @@ public:
     }
 };
 
-Constants::Error FeatureTest::testFuncTree() {
+Constants::Error FeatureTest::testFuncTree() const {
     // Build a FuncTree with extra argument JSON&
     Interaction::Execution::FuncTree<double, double> testTree("TestFuncTree", 0.0, std::numeric_limits<double>::quiet_NaN());
 

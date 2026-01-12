@@ -2,13 +2,10 @@
 
 #include "Nebulite.hpp"
 #include "Core/GlobalSpace.hpp"
-#include "Core/RenderObject.hpp"
-#include "Data/Document/JSON.hpp"
-
 
 namespace Nebulite::Interaction::Logic {
 
-void Assignment::setValueOfKey(std::string const& keyEvaluated, std::string const& val, Data::JSON& target) const {
+void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Core::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Logic::Assignment::Operation::set:
@@ -32,7 +29,7 @@ void Assignment::setValueOfKey(std::string const& keyEvaluated, std::string cons
     }
 }
 
-void Assignment::setValueOfKey(std::string const& keyEvaluated, double const& val, Data::JSON& target) const {
+void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& val, Core::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Logic::Assignment::Operation::set:
@@ -80,11 +77,11 @@ void Assignment::setValueOfKey(double const& val, double* target) const {
     }
 }
 
-void Assignment::apply(Data::JSON& self, Data::JSON& other) {
+void Assignment::apply(Core::JsonScope& self, Core::JsonScope& other) {
     //------------------------------------------
     // Check what the target document to apply the ruleset to is
 
-    Data::JSON* targetDocument;
+    Core::JsonScope* targetDocument;
     switch (onType) {
     case Logic::Assignment::Type::Self:
         targetDocument = &self;
@@ -93,7 +90,7 @@ void Assignment::apply(Data::JSON& self, Data::JSON& other) {
         targetDocument = &other;
         break;
     case Logic::Assignment::Type::Global:
-        targetDocument = &Nebulite::global().getDoc();
+        targetDocument = &Nebulite::global().domainScope;
         break;
     case Logic::Assignment::Type::null:
         // TODO: determine context from expression!
@@ -109,8 +106,8 @@ void Assignment::apply(Data::JSON& self, Data::JSON& other) {
     // Update
 
     // If the expression is returnable as double, we can optimize numeric operations
-    if (expression.isReturnableAsDouble()) {
-        double const resolved = expression.evalAsDouble(other);
+    if (expression->isReturnableAsDouble()) {
+        double const resolved = expression->evalAsDouble(other);
         if (targetValuePtr != nullptr) {
             setValueOfKey(resolved, targetValuePtr);
         } else {
@@ -118,9 +115,7 @@ void Assignment::apply(Data::JSON& self, Data::JSON& other) {
             // Likely because the target is in document other
 
             // Try to get a stable double pointer from the target document
-            double* target = targetDocument->getStableDoublePointer(key.eval(other));
-
-            if (target != nullptr) {
+            if (double* target = targetDocument->getStableDoublePointer(Data::ScopedKey(key->eval(other))); target != nullptr) {
                 // Lock is needed here, otherwise we have race conditions, and the engine is no longer deterministic!
                 std::scoped_lock lock(targetDocument->lock());
                 setValueOfKey(resolved, target);
@@ -128,14 +123,16 @@ void Assignment::apply(Data::JSON& self, Data::JSON& other) {
                 // Still not possible, fallback to using JSON's internal methods
                 // This is slower, but should work in all cases
                 // No lock needed here, as we use JSON's threadsafe methods
-                setValueOfKey(key.eval(other), resolved, *targetDocument);
+                auto const k = Data::ScopedKey(key->eval(other));
+                setValueOfKey(k.view(), resolved, *targetDocument);
             }
         }
     }
     // If not, we resolve as string and update that way
     else {
-        std::string const resolved = expression.eval(other);
-        setValueOfKey(key.eval(other), resolved, *targetDocument);
+        std::string const resolved = expression->eval(other);
+        auto const k = Data::ScopedKey(key->eval(other));
+        setValueOfKey(k.view(), resolved, *targetDocument);
     }
 }
 } // namespace Nebulite::Interaction::Logic

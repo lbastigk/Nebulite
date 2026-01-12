@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Mon Dec 29 09:48:26 CET 2025
+Generated on: Sat Jan  3 22:57:28 CET 2026
 
 ## Table of Contents
 
@@ -45,6 +45,7 @@ Available Functions
 | `for` | Executes a for-loop with a function call. |
 | `help` | Show available commands and their descriptions |
 | `if` | Executes a block of code if a condition is true. |
+| `in-scope` | Parses a command within a specific scope. |
 | `input-wait` | Waits for user input before continuing. |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
@@ -83,6 +84,11 @@ Available Variables
 
 ```
 Adds a clock with specified interval (ms) to the global clock system
+
+Usage: add-clock <interval_ms>
+
+Example:
+add-clock 100
 ```
 
 #### `always`
@@ -309,7 +315,7 @@ Exits the entire program.
 
 Usage: exit
 
-Closes the program with exit code 0 (no error)
+Closes the program
 Any queued tasks will be discarded.
 ```
 
@@ -357,6 +363,18 @@ It is recommended to wrap the condition in quotes to prevent parsing issues.
 
 Example:
 if '$(eq(1+1,2))' echo Condition is true!
+```
+
+#### `in-scope`
+
+```
+Parses a command within a specific scope.
+
+Usage: in-scope <scope> <command>
+
+Example:
+in-scope global echo This is in the global scope!
+This will output: This is in the global scope!
 ```
 
 #### `input-wait`
@@ -1000,16 +1018,27 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `add` | Adds a numeric value to the current JSON value. |
+| `assertNonEmpty` | Asserts that the current JSON value is non-empty. |
 | `at` | Gets the element at the specified index from the array in the current JSON value. |
+| `deserialize` | Deserializes the current JSON string value. |
 | `echo` | Echoes the provided arguments to the console, with newline. |
+| `ensureArray` | Ensures the current JSON value is an array. |
+| `first` | Gets the first element of the array in the current JSON value. |
+| `get` | Gets the value at the specified key from the current JSON object. |
 | `help` | Show available commands and their descriptions |
+| `last` | Gets the last element of the array in the current JSON value. |
 | `length` | Gets the length of the array in the current JSON value. |
 | `map` | Applies a mapping function to each element in the array of the current JSON value. |
 | `mod` | Calculates the modulo of the current JSON value by a numeric value. |
 | `mul` | Multiplies the current JSON value by a numeric value. |
+| `nebs` | Parses a Nebulite Script command on the JSON |
 | `pow` | Raises the current JSON value to the power of a numeric value. |
 | `print` | Prints the current JSON value to the console. |
 | `reverse` | Reverses the array in the current JSON value. |
+| `serialize` | Serializes the current JSON value to a string. |
+| `toBool` | Converts the current JSON value to a boolean. |
+| `toBoolString` | Converts the current JSON value to a boolean string. |
+| `toDouble` | Converts the current JSON value to a double. |
 | `toInt` | Converts the current JSON value to an integer. |
 | `toString` | Converts the current JSON value to a string. |
 | `typeAsNumber` | Converts the current JSON type value to a number. |
@@ -1022,6 +1051,14 @@ Adds a numeric value to the current JSON value.
 Usage: |add <number1> <number2> ... -> {number}
 ```
 
+#### `assertNonEmpty`
+
+```
+Asserts that the current JSON value is non-empty.
+If the value is empty, the transformation fails and the program exits
+Usage: |assertNonEmpty -> {value,<Exception thrown if empty>}
+```
+
 #### `at`
 
 ```
@@ -1030,11 +1067,49 @@ If the index is out of bounds, the transformation fails.
 Usage: |at <index> -> {value}
 ```
 
+#### `deserialize`
+
+```
+Deserializes the current JSON string value.
+Usage: |deserialize -> {value}
+```
+
 #### `echo`
 
 ```
 Echoes the provided arguments to the console, with newline.
-Usage: |echo <arg1> <arg2> ...
+Usage: |echo <arg1> <arg2> -> {unchanged-json}
+```
+
+#### `ensureArray`
+
+```
+Ensures the current JSON value is an array.
+If the current value is not an array, it is wrapped into a single-element array.
+Usage: |ensureArray -> {array}
+```
+
+#### `first`
+
+```
+Gets the first element of the array in the current JSON value.
+If the current value is not an array, it is first wrapped into a single-element array.
+Usage: |first -> {value}
+```
+
+#### `get`
+
+```
+Gets the value at the specified key from the current JSON object.
+Usage: |get <key> -> {value}
+```
+
+#### `last`
+
+```
+Gets the last element of the array in the current JSON value.
+If the current value is not an array, it is first wrapped into a single-element array.
+Usage: |last -> {value}
 ```
 
 #### `length`
@@ -1066,6 +1141,13 @@ Multiplies the current JSON value by a numeric value.
 Usage: |multiply <number1> <number2> ...
 ```
 
+#### `nebs`
+
+```
+Parses a Nebulite Script command on the JSON
+Usage: |nebs <command> -> {value}
+```
+
 #### `pow`
 
 ```
@@ -1077,7 +1159,7 @@ Usage: |pow <exponent> -> {number}
 
 ```
 Prints the current JSON value to the console.
-Usage: |print
+Usage: |print -> {unchanged-json}
 ```
 
 #### `reverse`
@@ -1086,6 +1168,39 @@ Usage: |print
 Reverses the array in the current JSON value.
 If the current value is not an array, it is first wrapped into a single-element array.
 Usage: |reverse -> {array}
+```
+
+#### `serialize`
+
+```
+Serializes the current JSON value to a string.
+Usage: |serialize -> {string}
+```
+
+#### `toBool`
+
+```
+Converts the current JSON value to a boolean.
+Usage: |toBool -> {bool}
+'true' values: true, 1, '1', 'true', 'yes', 'on' (case-insensitive)
+'false' values: false, 0, '0', 'false', 'no', 'off' (case-insensitive)
+Any other value defaults to false.
+```
+
+#### `toBoolString`
+
+```
+Converts the current JSON value to a boolean string.
+Usage: |toBoolString -> {string}
+Either 'true' or 'false'
+```
+
+#### `toDouble`
+
+```
+Converts the current JSON value to a double.
+Usage: |toDouble -> {number}
+Non-numeric values default to 0.0.
 ```
 
 #### `toInt`
@@ -1108,7 +1223,7 @@ Usage: |toString -> {string}
 
 ```
 Converts the current JSON type value to a number.
-Usage: |typeAsNumber -> {number}, where the number reflects the enum value JSON::KeyType.
+Usage: |typeAsNumber -> {number}where the number reflects the enum value KeyType.
 ```
 
 #### `typeAsString`

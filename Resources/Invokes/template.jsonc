@@ -1,14 +1,16 @@
 {
     "topic": "",
-    "logicalArg": "1",
-    "exprs": [
-        "self.key1 = $(0)",
-        "other.key2 *= $(2)",
-        "global.key3 = abc"
-    ],
-    "functioncalls": {
-        "global": [],
-        "self": [],
-        "other": []
+    "condition": "1",
+    "action": {
+        "assign": [
+            "self.key1 = $(0)",
+            "other.key2 *= $(2)",
+            "global.key3 = abc"
+        ],
+        "functioncall": {
+            "global": [],
+            "self": [],
+            "other": []
+        }
     }
 }

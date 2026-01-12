@@ -1,13 +1,12 @@
-#include "DomainModule/GlobalSpace/Input.hpp"
-
+#include "DomainModule/Renderer/Input.hpp"
 #include "Nebulite.hpp"
 
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::DomainModule::Renderer {
 
 Constants::Error Input::update() {
     //------------------------------------------
     // Only update if SDL is initialized
-    if (domain.getRenderer().isSdlInitialized()) {
+    if (domain.isSdlInitialized()) {
         if (!timerInitialized) {
             // Starting Polling timer
             RendererPollTime = std::make_shared<Utility::TimeKeeper>();
@@ -72,14 +71,10 @@ void Input::map_key_names() {
                 keyNames[scancode] = keyName;
 
                 // Paths
-                std::string currentPath =
-                    "input.keyboard.current." + keyNames[scancode];
-                std::string deltaPath =
-                    "input.keyboard.delta." + keyNames[scancode];
-                deltaKey[scancode] = domain.getDoc().getStableDoublePointer(
-                    deltaPath);
-                currentKey[scancode] = domain.getDoc().getStableDoublePointer(
-                    currentPath);
+                auto currentPath = moduleScope.getRootScope() + "keyboard.current." + keyNames[scancode];
+                auto deltaPath = moduleScope.getRootScope() + "keyboard.delta." + keyNames[scancode];
+                deltaKey[scancode] = moduleScope.getStableDoublePointer(deltaPath);
+                currentKey[scancode] = moduleScope.getStableDoublePointer(currentPath);
             }
         }
     }
@@ -104,14 +99,14 @@ void Input::writeCurrentAndDeltaInputs() {
     mouse.state = SDL_GetMouseState(&mouse.posX, &mouse.posY);
 
     // Cursor Position and state
-    domain.getDoc().set("input.mouse.current.X", mouse.posX);
-    domain.getDoc().set("input.mouse.current.Y", mouse.posY);
-    domain.getDoc().set("input.mouse.delta.X", mouse.posX - mouse.lastPosX);
-    domain.getDoc().set("input.mouse.delta.Y", mouse.posY - mouse.lastPosY);
-    domain.getDoc().set("input.mouse.current.left", calcMouseState(SDL_BUTTON(SDL_BUTTON_LEFT), mouse.state));
-    domain.getDoc().set("input.mouse.current.right", calcMouseState(SDL_BUTTON(SDL_BUTTON_RIGHT), mouse.state));
-    domain.getDoc().set("input.mouse.delta.left", calcMouseDelta(SDL_BUTTON(SDL_BUTTON_LEFT), mouse.state, mouse.lastState));
-    domain.getDoc().set("input.mouse.delta.right", calcMouseDelta(SDL_BUTTON(SDL_BUTTON_RIGHT), mouse.state, mouse.lastState));
+    moduleScope.set(moduleScope.getRootScope() + "mouse.current.X", mouse.posX);
+    moduleScope.set(moduleScope.getRootScope() + "mouse.current.Y", mouse.posY);
+    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.X", mouse.posX - mouse.lastPosX);
+    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.Y", mouse.posY - mouse.lastPosY);
+    moduleScope.set(moduleScope.getRootScope() + "mouse.current.left", calcMouseState(SDL_BUTTON(SDL_BUTTON_LEFT), mouse.state));
+    moduleScope.set(moduleScope.getRootScope() + "mouse.current.right", calcMouseState(SDL_BUTTON(SDL_BUTTON_RIGHT), mouse.state));
+    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.left", calcMouseDelta(SDL_BUTTON(SDL_BUTTON_LEFT), mouse.state, mouse.lastState));
+    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.right", calcMouseDelta(SDL_BUTTON(SDL_BUTTON_RIGHT), mouse.state, mouse.lastState));
 
     //------------------------------------------
     // Keyboard
@@ -146,18 +141,18 @@ void Input::writeCurrentAndDeltaInputs() {
 
 void Input::resetDeltaValues() const {
     // 1.) Mouse
-    domain.getDoc().set("input.mouse.delta.X", 0);
-    domain.getDoc().set("input.mouse.delta.Y", 0);
-    domain.getDoc().set("input.mouse.delta.left", 0);
-    domain.getDoc().set("input.mouse.delta.right", 0);
+    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.X", 0);
+    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.Y", 0);
+    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.left", 0);
+    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.right", 0);
 
     // 2.) Keyboard
     for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++
          scancode) {
         if (!keyNames[scancode].empty()) {
             std::string deltaPath =
-                "input.keyboard.delta." + keyNames[scancode];
-            domain.getDoc().set<int>(deltaPath, 0);
+                "keyboard.delta." + keyNames[scancode];
+            moduleScope.set<int>(moduleScope.getRootScope() + deltaPath, 0);
         }
     }
 }

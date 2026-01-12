@@ -10,7 +10,7 @@ Constants::Error FunctionCollision::update() {
 //------------------------------------------
 // Available Functions
 
-Constants::Error FunctionCollision::debug_collisionDetect_function(int argc, char const* argv[]) {
+Constants::Error FunctionCollision::debug_collisionDetect_function(int argc, char const** argv){
     bool fail = true;
     if (argc >= 2) {
         if (std::string const mode = argv[1]; mode == "succeed") {
@@ -32,7 +32,7 @@ Constants::Error FunctionCollision::debug_collisionDetect_function(int argc, cha
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error FunctionCollision::debug_collisionDetect_category(int argc, char const* argv[]) {
+Constants::Error FunctionCollision::debug_collisionDetect_category(int argc, char const** argv) const {
     bool fail = true;
     if (argc >= 2) {
         if (std::string const mode = argv[1]; mode == "succeed") {
@@ -66,7 +66,7 @@ Constants::Error FunctionCollision::debug_collisionDetect_category(int argc, cha
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error FunctionCollision::debug_collisionDetect_variable(int argc, char const* argv[]) {
+Constants::Error FunctionCollision::debug_collisionDetect_variable(int argc, char const** argv) const {
     bool fail = true;
     if (argc >= 2) {
         if (std::string const mode = argv[1]; mode == "succeed") {

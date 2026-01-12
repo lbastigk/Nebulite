@@ -1,11 +1,5 @@
 {
     "id": 0,
-    "invokeSubscriptions": [
-        "all"
-    ],
-    "invokes": [
-        "./Resources/Invokes/Pong/showScore.jsonc"
-    ],
     "layer": 3,
     "posX": 320,
     "posY": 128,
@@ -34,5 +28,13 @@
         "dy": -3.0,
         "fontSize": 16,
         "str": ""
+    },
+    "ruleset": {
+        "broadcast": [
+            "./Resources/Invokes/Pong/showScore.jsonc"
+        ],
+        "listen": [
+            "all"
+        ]
     }
 }

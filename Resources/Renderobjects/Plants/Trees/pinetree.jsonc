@@ -1,6 +1,5 @@
 {
     "id": 0,
-    "invokes": [],
     "layer": 1,
     "posX": 0,
     "posY": 0,
@@ -21,5 +20,8 @@
         "dy": 0.0,
         "fontSize": 0,
         "str": ""
+    },
+    "ruleset": {
+        "broadcast": []
     }
 }

@@ -13,6 +13,7 @@
 #include <unordered_set>
 
 // Nebulite
+#include "Data/Document/ScopedKey.hpp"
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Utility/TimeKeeper.hpp"
@@ -38,15 +39,15 @@ public:
     // Available Functions
 
     Constants::Error time_haltOnce();
-    static std::string_view constexpr time_haltOnce_name = "time halt-once";
-    static std::string_view constexpr time_haltOnce_desc = "Halts time for one frame\n"
+    static auto constexpr time_haltOnce_name = "time halt-once";
+    static auto constexpr time_haltOnce_desc = "Halts time for one frame\n"
         "Meaning you can halt time by continuously calling this function.\n"
         "\n"
         "Usage: time halt-once\n";
 
     Constants::Error time_lock(int argc, char** argv);
-    static std::string_view constexpr time_lock_name = "time lock";
-    static std::string_view constexpr time_lock_desc = "Locks time with lock provided,\n"
+    static auto constexpr time_lock_name = "time lock";
+    static auto constexpr time_lock_desc = "Locks time with lock provided,\n"
         "Time can only progress if no locks are present.\n"
         "\n"
         "Usage: time lock <lock_name>\n"
@@ -54,8 +55,8 @@ public:
         "<lock_name> : Name of the lock to add. Any string without whitespace is valid.\n";
 
     Constants::Error time_unlock(int argc, char** argv);
-    static std::string_view constexpr time_unlock_name = "time unlock";
-    static std::string_view constexpr time_unlock_desc = "Removes a time lock.\n"
+    static auto constexpr time_unlock_name = "time unlock";
+    static auto constexpr time_unlock_desc = "Removes a time lock.\n"
         "Time can only progress if no locks are present.\n"
         "\n"
         "Usage: time unlock <lock_name>\n"
@@ -63,15 +64,15 @@ public:
         "<lock_name> : Name of the lock to remove. Must match an existing lock.\n";
 
     Constants::Error time_masterUnlock();
-    static std::string_view constexpr time_masterUnlock_name = "time master-unlock";
-    static std::string_view constexpr time_masterUnlock_desc = "Removes all time locks.\n"
+    static auto constexpr time_masterUnlock_name = "time master-unlock";
+    static auto constexpr time_masterUnlock_desc = "Removes all time locks.\n"
         "Time can only progress if no locks are present.\n"
         "\n"
         "Usage: time master-unlock\n";
 
     Constants::Error time_setFixedDeltaTime(int argc, char** argv);
-    static std::string_view constexpr time_setFixedDeltaTime_name = "time set-fixed-dt";
-    static std::string_view constexpr time_setFixedDeltaTime_desc = "Sets a fixed delta time in milliseconds for the simulation time.\n"
+    static auto constexpr time_setFixedDeltaTime_name = "time set-fixed-dt";
+    static auto constexpr time_setFixedDeltaTime_desc = "Sets a fixed delta time in milliseconds for the simulation time.\n"
         "\n"
         "Usage: time set-fixed-dt <dt_ms>\n"
         "\n"
@@ -79,23 +80,27 @@ public:
 
     //------------------------------------------
     // Category names
-    static std::string_view constexpr time_name = "time";
-    static std::string_view constexpr time_desc = R"(Commands for time management)";
+    static auto constexpr time_name = "time";
+    static auto constexpr time_desc = R"(Commands for time management)";
 
     //------------------------------------------
     // Variables
     struct Key {
-        static std::string_view constexpr runtime_t = "runtime.t";
-        static std::string_view constexpr runtime_t_ms = "runtime.t_ms";
-        static std::string_view constexpr runtime_dt = "runtime.dt";
-        static std::string_view constexpr runtime_dt_ms = "runtime.dt_ms";
+        static auto constexpr scope = "time.";
 
-        static std::string_view constexpr time_t = "time.t";
-        static std::string_view constexpr time_t_ms = "time.t_ms";
-        static std::string_view constexpr time_dt = "time.dt";
-        static std::string_view constexpr time_dt_ms = "time.dt_ms";
+        // Keys for simulation time
+        // May be unequal to actual time, if a custom dt is set
+        static auto constexpr time_t = Data::ScopedKeyView::create<scope>("t");
+        static auto constexpr time_t_ms = Data::ScopedKeyView::create<scope>("t_ms");
+        static auto constexpr time_dt = Data::ScopedKeyView::create<scope>("dt");
+        static auto constexpr time_dt_ms = Data::ScopedKeyView::create<scope>("dt_ms");
 
-        static std::string_view constexpr frameCount = "frameCount";
+        // More specific keys for actual runtime
+        static auto constexpr runtime_t = Data::ScopedKeyView::create<scope>("runtime.t");
+        static auto constexpr runtime_t_ms = Data::ScopedKeyView::create<scope>("runtime.t_ms");
+        static auto constexpr runtime_dt = Data::ScopedKeyView::create<scope>("runtime.dt");
+        static auto constexpr runtime_dt_ms = Data::ScopedKeyView::create<scope>("runtime.dt_ms");
+        static auto constexpr frameCount = Data::ScopedKeyView::create<scope>("frameCount");
     };
 
 

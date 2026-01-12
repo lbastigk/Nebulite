@@ -1,12 +1,14 @@
 {
     "topic": "",
-    "logicalArg": "0",
-    "exprs": [],
-    "functioncalls": {
-        "global": [
-            "error This should not be called!"
-        ],
-        "self": [],
-        "other": []
+    "condition": "0",
+    "action": {
+        "assign": [],
+        "functioncall": {
+            "global": [
+                "error This should not be called!"
+            ],
+            "self": [],
+            "other": []
+        }
     }
 }

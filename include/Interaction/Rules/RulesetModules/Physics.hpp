@@ -14,6 +14,7 @@
 // External
 
 // Nebulite
+#include "DomainModule/GlobalSpace/Physics.hpp"
 #include "Interaction/Rules/RulesetModule.hpp"
 
 //------------------------------------------
@@ -26,10 +27,10 @@ struct Context;
 namespace Nebulite::Interaction::Rules::RulesetModules {
 /**
  * @brief The Physics ruleset module, containing static rulesets related to physics.
- *        All rulesets here should be force-based physics simulations.
- *        Meaning each ruleset modifies the contexts force variables.
- *        After that, the local module ::physics::applyForce needs to be called to apply the accumulated forces.
- *        Make sure to call them each frame, otherwise the forces will accumulate indefinitely!
+ * @details All rulesets here should be force-based physics simulations.
+ *          Meaning each ruleset modifies the contexts force variables.
+ *          After that, the local module ::physics::applyForce needs to be called to apply the accumulated forces.
+ *          Make sure to call them each frame, otherwise the forces will accumulate indefinitely!
  */
 class Physics : public RulesetModule {
 public:
@@ -63,26 +64,30 @@ public:
 private:
     static constexpr std::string_view moduleName = "::physics";
 
+
+
     //------------------------------------------
     // Base values for physics framework
 
     // 1.) To retrieve from self and other using the ensureOrderedCacheList function
 
     /**
-     * @brief List of keys for physics-related base values in the ordered cache list.
+     * @brief List of keys for per-object physics-related base values in the ordered cache list.
      */
-    const std::vector<std::string_view> keys = {
-        Nebulite::Constants::KeyNames::RenderObject::positionX,
-        Nebulite::Constants::KeyNames::RenderObject::positionY,
-        Nebulite::Constants::KeyNames::RenderObject::pixelSizeX,
-        Nebulite::Constants::KeyNames::RenderObject::pixelSizeY,
-        "physics.aX",
-        "physics.aY",
-        "physics.vX",
-        "physics.vY",
-        "physics.mass", // TODO: rename to physics.m . Renaming all json files keys is necessary.
-        "physics.FX",
-        "physics.FY"
+    const std::vector<Data::ScopedKeyView> baseKeys = {
+        Constants::KeyNames::RenderObject::positionX,
+        Constants::KeyNames::RenderObject::positionY,
+        Constants::KeyNames::RenderObject::pixelSizeX,
+        Constants::KeyNames::RenderObject::pixelSizeY,
+        DomainModule::GlobalSpace::Physics::Key::Local::aX,
+        DomainModule::GlobalSpace::Physics::Key::Local::aY,
+        DomainModule::GlobalSpace::Physics::Key::Local::vX,
+        DomainModule::GlobalSpace::Physics::Key::Local::vY,
+        DomainModule::GlobalSpace::Physics::Key::Local::m,
+        DomainModule::GlobalSpace::Physics::Key::Local::FX,
+        DomainModule::GlobalSpace::Physics::Key::Local::FY,
+        DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeX,
+        DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeY
     };
 
     /**
@@ -101,7 +106,9 @@ private:
         physics_vY,
         physics_mass,
         physics_FX,
-        physics_FY
+        physics_FY,
+        physics_lastCollisionX,
+        physics_lastCollisionY
     };
 
     // 2.) To retrieve from globalspace

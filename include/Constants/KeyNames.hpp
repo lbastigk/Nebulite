@@ -1,92 +1,94 @@
 /**
  * @file KeyNames.hpp
  * @brief Defines constant key names used throughout the Nebulite framework.
+ * @details While for DomainModules we can write scoped keys directly within their classes,
+ *          this is not feasible for Domain-Related keys due to their hierarchical nature.
+ *          Specifically, DomainModules are never dependent on other DomainModules besides their key names.
+ *          But Domains can own other Domains, requiring knowledge of their key names.
+ *          Therefore, we centralize these key names here to avoid circular dependencies
+ *          and to ensure consistency across the framework.
+ * @note Work in progress, many terribly organized, duplicated, or unused keys exist here.
+ *       This file will be refactored over time to improve organization and safety.
+ * @todo However, with enough forward declarations this might work and we can get rid of this file entirely.
+ * @todo - Sort keys into their respective scopes and Domains
+ *       - Refactor DomainModule keys into DomainModules instead of having them here
+ *       - Turn all into Data::ScopedKey
+ *       - Add scopes where applicable to improve safety
  */
 
 #ifndef NEBULITE_CONSTANTS_KEYNAMES_HPP
 #define NEBULITE_CONSTANTS_KEYNAMES_HPP
 
-#include <string_view>
+#include "Core/JsonScope.hpp"
 
 namespace Nebulite::Constants {
 
+// Macro to help declare a scope as private static constexpr member
+#define DECLARE_SCOPE(scopeStr) private: static auto constexpr scope = scopeStr; public:
+
+// Macro to help create a scoped key with the previously declared scope
+#define MAKE_SCOPED(keyStr) ( (void)scope, Data::ScopedKeyView::create<scope>(keyStr) )
+
+// TODO: Remove unused keys and refactor used ones
+// TODO: move scope to private part of each struct when possible
 struct KeyNames {
     struct Renderer {
-        inline static constexpr std::string_view self = "renderer";
-        inline static constexpr std::string_view dispResX = "display.resolution.X";
-        inline static constexpr std::string_view dispResY = "display.resolution.Y";
-        inline static constexpr std::string_view positionX = "display.position.X";
-        inline static constexpr std::string_view positionY = "display.position.Y";
-        inline static constexpr std::string_view time_t = "time.t";
-        inline static constexpr std::string_view time_t_ms = "time.t_ms";
-        inline static constexpr std::string_view time_dt = "time.dt";
-        inline static constexpr std::string_view time_dt_ms = "time.dt_ms";
+        DECLARE_SCOPE("renderer.")
+        static auto constexpr dispResX = MAKE_SCOPED("resolution.X");
+        static auto constexpr dispResY = MAKE_SCOPED("resolution.Y");
+        static auto constexpr positionX = MAKE_SCOPED("position.X");
+        static auto constexpr positionY = MAKE_SCOPED("position.Y");
     };
 
-    struct RNGs {
-        inline static constexpr std::string_view A = "random.A";
-        inline static constexpr std::string_view B = "random.B";
-        inline static constexpr std::string_view C = "random.C";
-        inline static constexpr std::string_view D = "random.D";
-        inline static constexpr std::string_view min = "random.min";
-        inline static constexpr std::string_view max = "random.max";
+    struct GlobalSpace {
+        // No keys for now
     };
 
     struct RenderObject {
-        inline static constexpr std::string_view self = "renderObject";
-        inline static constexpr std::string_view id = "id";
-        inline static constexpr std::string_view positionX = "posX";
-        inline static constexpr std::string_view positionY = "posY";
-        inline static constexpr std::string_view layer = "layer";
+        DECLARE_SCOPE("")
+        static auto constexpr id = MAKE_SCOPED("id");
+        static auto constexpr positionX = MAKE_SCOPED("posX");
+        static auto constexpr positionY = MAKE_SCOPED("posY");
+        static auto constexpr layer = MAKE_SCOPED("layer");
 
-        inline static constexpr std::string_view pixelSizeX = "sprite.sizeX";
-        inline static constexpr std::string_view pixelSizeY = "sprite.sizeY";
-        inline static constexpr std::string_view imageLocation = "sprite.link";
-        inline static constexpr std::string_view isSpritesheet = "sprite.spritesheet.isSpritesheet";
-        inline static constexpr std::string_view spritesheetSizeX = "sprite.spritesheet.sizeX";
-        inline static constexpr std::string_view spritesheetSizeY = "sprite.spritesheet.sizeY";
-        inline static constexpr std::string_view spritesheetOffsetX = "sprite.spritesheet.offsetX";
-        inline static constexpr std::string_view spritesheetOffsetY = "sprite.spritesheet.offsetY";
+        // Keys for Ruleset invocations and subscriptions
+        struct Ruleset {
+            DECLARE_SCOPE("ruleset.")
+            static auto constexpr broadcast = MAKE_SCOPED("broadcast");
+            static auto constexpr listen = MAKE_SCOPED("listen");
+        };
 
-        inline static constexpr std::string_view invokes = "invokes";
-        inline static constexpr std::string_view invokeSubscriptions = "invokeSubscriptions";
-
-        inline static constexpr std::string_view textFontsize = "text.fontSize";
-        inline static constexpr std::string_view textStr = "text.str";
-        inline static constexpr std::string_view textColorR = "text.color.R";
-        inline static constexpr std::string_view textColorG = "text.color.G";
-        inline static constexpr std::string_view textColorB = "text.color.B";
-        inline static constexpr std::string_view textColorA = "text.color.A";
-        inline static constexpr std::string_view textDx = "text.dx";
-        inline static constexpr std::string_view textDy = "text.dy";
+        // TODO: Use "texture." as scope
+        static auto constexpr pixelSizeX = Data::ScopedKeyView("sprite.sizeX");
+        static auto constexpr pixelSizeY = Data::ScopedKeyView("sprite.sizeY");
+        static auto constexpr imageLocation = Data::ScopedKeyView("sprite.link");
+        static auto constexpr isSpritesheet = Data::ScopedKeyView("sprite.spritesheet.isSpritesheet");
+        static auto constexpr spritesheetSizeX = Data::ScopedKeyView("sprite.spritesheet.sizeX");
+        static auto constexpr spritesheetSizeY = Data::ScopedKeyView("sprite.spritesheet.sizeY");
+        static auto constexpr spritesheetOffsetX = Data::ScopedKeyView("sprite.spritesheet.offsetX");
+        static auto constexpr spritesheetOffsetY = Data::ScopedKeyView("sprite.spritesheet.offsetY");
+        static auto constexpr textFontsize = Data::ScopedKeyView("text.fontSize");
+        static auto constexpr textStr = Data::ScopedKeyView("text.str");
+        static auto constexpr textColorR = Data::ScopedKeyView("text.color.R");
+        static auto constexpr textColorG = Data::ScopedKeyView("text.color.G");
+        static auto constexpr textColorB = Data::ScopedKeyView("text.color.B");
+        static auto constexpr textColorA = Data::ScopedKeyView("text.color.A");
+        static auto constexpr textDx = Data::ScopedKeyView("text.dx");
+        static auto constexpr textDy = Data::ScopedKeyView("text.dy");
     };
 
-    struct Invoke {
-        inline static constexpr std::string_view self = "invoke";
-        inline static constexpr std::string_view typeSelf = "self";
-        inline static constexpr std::string_view typeOther = "other";
-        inline static constexpr std::string_view typeGlobal = "global";
-
-        inline static constexpr std::string_view logicalArg = "logicalArg";
-        inline static constexpr std::string_view topic = "topic";
-        inline static constexpr std::string_view exprVector = "exprs";
-        inline static constexpr std::string_view functioncalls_global = "functioncalls.global";
-        inline static constexpr std::string_view functioncalls_self = "functioncalls.self";
-        inline static constexpr std::string_view functioncalls_other = "functioncalls.other";
-    };
-
+    // Keys within any Ruleset JSON object
+    // No scope! They are at the root of any ruleset object within ruleset.broadcast[i]
     struct Ruleset {
-        inline static constexpr std::string_view self = "ruleset";
-        inline static constexpr std::string_view topic = "topic";
-        inline static constexpr std::string_view condition = "condition";
-        inline static constexpr std::string_view assignments = "assignments";
-        inline static constexpr std::string_view parseOnGlobal = "functioncalls.global";
-        inline static constexpr std::string_view parseOnSelf   = "functioncalls.self";
-        inline static constexpr std::string_view parseOnOther  = "functioncalls.other";
-    };
-
-    struct Environment {
-        inline static constexpr std::string_view renderObjectContainer = "RenderObjectContainer";
+        // TODO: Use these ones later on:
+        //       Make sure to refactor any usage in json files
+        static auto constexpr topic = Data::ScopedKeyView("topic");
+        static auto constexpr condition = Data::ScopedKeyView("condition");
+        // If both are met, do:
+        static auto constexpr assignments = Data::ScopedKeyView("action.assign");
+        static auto constexpr parseOnGlobal = Data::ScopedKeyView("action.functioncall.global");
+        static auto constexpr parseOnSelf   = Data::ScopedKeyView("action.functioncall.self");
+        static auto constexpr parseOnOther  = Data::ScopedKeyView("action.functioncall.other");
     };
 };
 

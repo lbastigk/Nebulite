@@ -10,11 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Data/Document/DocumentCache.hpp"
-#include "Data/Document/JSON.hpp"
-#include "Interaction/Logic/Assignment.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
-#include "Interaction/Rules/StaticRulesetMap.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules::Construction {
@@ -59,8 +55,8 @@ public:
     static void parse(
         std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal,
         std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal,
-        Interaction::Execution::DomainBase& self
-        );
+        Execution::DomainBase& self
+    );
 
     /**
      * @brief Parses a single Ruleset from a JSON key inside a Domain or a static ruleset identifier.
@@ -70,8 +66,8 @@ public:
      */
     static std::optional<std::shared_ptr<Ruleset>> parseSingle(
         std::string const& identifier,
-        Interaction::Execution::DomainBase& self
-        );
+        Execution::DomainBase& self
+    );
 
 private:
     /**
@@ -81,23 +77,21 @@ private:
      * @param self The Domain instance associated with the entry.
      */
     static void getFunctionCalls(
-        Data::JSON& entryDoc,
+        Core::JsonScope& entryDoc,
         JsonRuleset& Ruleset,
-        Interaction::Execution::DomainBase const& self
-        );
+        Execution::DomainBase const& self
+    );
 
     /**
      * @brief Extract a single expression from a JSON entry document
-     * @param assignmentExpr The assignment expression to populate.
      * @param entry The JSON entry document to extract the expression from.
      * @param index The index of the expression in the entry document.
-     * @return True if the expression was successfully extracted, false otherwise.
+     * @return The extracted expression as a Logic::Assignment object, or std::nullopt if extraction failed.
      */
-    static bool getExpression(
-        Logic::Assignment& assignmentExpr,
-        Data::JSON& entry,
+    static std::optional<Logic::Assignment> getExpression(
+        Core::JsonScope const& entry,
         size_t const& index
-        );
+    );
 
     /**
      * @brief Extracts all expressions from a JSON entry document.
@@ -106,14 +100,14 @@ private:
      * @param self The JSON document of context self.
      * @return True if the expressions were successfully extracted, false otherwise.
      */
-    static bool getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JSON& entry, Data::JSON& self);
+    static bool getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Core::JsonScope const& entry, Core::JsonScope& self);
 
     /**
      * @brief Extracts a logical argument from a JSON entry document.
      * @param entry The JSON entry document to extract the argument from.
      * @return The extracted logical argument as a string.
      */
-    static std::string getLogicalArg(Data::JSON& entry);
+    static std::string getCondition(Core::JsonScope const& entry);
 
     /**
      * @brief Extracts a Ruleset object from a JSON entry document.
@@ -123,10 +117,10 @@ private:
      * @return True if the Ruleset was successfully extracted, false otherwise.
      */
     static bool getJsonRuleset(
-        Data::JSON& doc,
-        Data::JSON& entry,
-        std::string const& key
-        );
+        Core::JsonScope const& doc,
+        Core::JsonScope& entry,
+        Data::ScopedKeyView const& key
+    );
 
     /**
      * @brief Extracts a Ruleset from a JSON document or static ruleset identifier.
@@ -136,10 +130,10 @@ private:
      * @return An optional shared pointer to the parsed Ruleset object, or std::monostate if parsing failed.
      */
     static AnyRuleset getRuleset(
-        Data::JSON& doc,
-        std::string const& key,
-        Interaction::Execution::DomainBase& self
-        );
+        Core::JsonScope const& doc,
+        Data::ScopedKeyView const& key,
+        Execution::DomainBase& self
+    );
 
     /**
      * @brief Optimizes a Ruleset by linking direct target pointers.
@@ -147,7 +141,7 @@ private:
      * @param entry The Ruleset object to optimize.
      * @param self The Domain instance associated with the entries.
      */
-    static void optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JSON& self);
+    static void optimize(std::shared_ptr<JsonRuleset> const& entry, Core::JsonScope& self);
 
     /**
      * @brief Sets metadata in the object itself and in each Ruleset entry, including IDs, indices, and estimated computational cost.
@@ -156,10 +150,10 @@ private:
      * @param rulesetsGlobal The global Ruleset objects.
      */
     static void setMetaData(
-        Interaction::Execution::DomainBase& self,
-        std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsLocal,
-        std::vector<std::shared_ptr<Nebulite::Interaction::Rules::Ruleset>> const& rulesetsGlobal
-        );
+        Execution::DomainBase const& self,
+        std::vector<std::shared_ptr<Ruleset>> const& rulesetsLocal,
+        std::vector<std::shared_ptr<Ruleset>> const& rulesetsGlobal
+    );
 };
 } // namespace Nebulite::Interaction::Rules::Construction
 #endif // NEBULITE_RULESET_COMPILER_HPP

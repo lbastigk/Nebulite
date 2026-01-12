@@ -1,8 +1,9 @@
 #include "DomainModule/Texture/General.hpp"
 
 #include "Constants/KeyNames.hpp"
+#include "Core/JsonScope.hpp"
 #include "Core/Texture.hpp"
-#include "Data/Document/JSON.hpp"
+
 
 namespace Nebulite::DomainModule::Texture {
 
@@ -11,9 +12,9 @@ Constants::Error General::update() {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error General::reloadTexture() {
+Constants::Error General::reloadTexture() const {
     // Load new texture from the document
-    auto const path = domain.getDoc().get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "");
+    auto const path = moduleScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "");
     if (path.empty()) {
         return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE(); // No valid path in document
     }

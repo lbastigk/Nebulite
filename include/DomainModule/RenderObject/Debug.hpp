@@ -17,7 +17,11 @@
 // Forward declarations
 namespace Nebulite::Core {
 class RenderObject;
-}
+} // namespace Nebulite::Core
+
+namespace Nebulite::Interaction::Execution {
+class DomainBase;
+} // namespace Nebulite::Interaction::Execution
 
 //------------------------------------------
 namespace Nebulite::DomainModule::RenderObject {
@@ -34,18 +38,18 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error eval(int argc, char** argv);
-    static std::string_view constexpr eval_name = "eval";
-    static std::string_view constexpr eval_desc = "Evaluate an expression and execute the result.\n"
+    Constants::Error eval(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
+    static auto constexpr eval_name = "eval";
+    static auto constexpr eval_desc = "Evaluate an expression and execute the result.\n"
         "Example: eval echo $(1+1)\n"
         "\n"
         "Examples:\n\n"
         "eval echo $(1+1)    outputs:    2.000000\n"
-        "eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json\n";
+        "eval echo {self.id} outputs this objects id\n";
 
     Constants::Error printSrcRect();
-    static std::string_view constexpr printSrcRect_name = "debug print-src-rect";
-    static std::string_view constexpr printSrcRect_desc = "Prints debug information about the source rectangle to console\n"
+    static auto constexpr printSrcRect_name = "debug print-src-rect";
+    static auto constexpr printSrcRect_desc = "Prints debug information about the source rectangle to console\n"
         "\n"
         "Usage: debug print-src-rect\n"
         "\n"
@@ -55,8 +59,8 @@ public:
         "This RenderObject is not a spritesheet.\n";
 
     Constants::Error printDstRect();
-    static std::string_view constexpr printDstRect_name = "debug print-dst-rect";
-    static std::string_view constexpr printDstRect_desc = "Prints debug information about the destination rectangle to console\n"
+    static auto constexpr printDstRect_name = "debug print-dst-rect";
+    static auto constexpr printDstRect_desc = "Prints debug information about the destination rectangle to console\n"
         "\n"
         "Usage: debug print-dst-rect\n"
         "\n"
@@ -66,8 +70,8 @@ public:
         "Destination rectangle is not set.\n";
 
     Constants::Error textureStatus();
-    static std::string_view constexpr textureStatus_name = "debug texture-status";
-    static std::string_view constexpr textureStatus_desc = "Prints debug information about the texture to console\n"
+    static auto constexpr textureStatus_name = "debug texture-status";
+    static auto constexpr textureStatus_desc = "Prints debug information about the texture to console\n"
         "\n"
         "Usage: debug texture-status\n"
         "\n"
@@ -79,8 +83,8 @@ public:
 
     //------------------------------------------
     // Category names
-    static std::string_view constexpr debug_name = "debug";
-    static std::string_view constexpr debug_desc = "Debugging functions for RenderObject domains";
+    static auto constexpr debug_name = "debug";
+    static auto constexpr debug_desc = "Debugging functions for RenderObject domains";
 
     //------------------------------------------
     // Setup

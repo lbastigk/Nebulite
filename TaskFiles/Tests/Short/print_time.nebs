@@ -3,5 +3,5 @@ echo
 set-fps 60
 set-res 320 320 3
 wait 31
-eval echo Framecount is: {global.frameCount}
+eval echo Framecount is: {global.time.frameCount}
 exit

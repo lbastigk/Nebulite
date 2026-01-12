@@ -62,7 +62,7 @@ private:
     //------------------------------------------
     // Base value caching for camera alignment
 
-    const std::vector<std::string_view> keys = {
+    const std::vector<Data::ScopedKeyView> baseKeys = {
         Nebulite::Constants::KeyNames::RenderObject::positionX,
         Nebulite::Constants::KeyNames::RenderObject::positionY,
         Nebulite::Constants::KeyNames::RenderObject::pixelSizeX,
@@ -107,7 +107,6 @@ private:
     //       e.g.: ::camera::align::right-top would align the camera's right edge to the object's top edge
     void setCameraPosition(const position& pos, Align align) const {
         switch (align) {
-
             case Align::Top:
                 *globalVal.camPosY = pos.y ;
                 break;

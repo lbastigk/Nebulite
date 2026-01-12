@@ -6,6 +6,7 @@ all
 always
 always-clear
 assert
+assertNonEmpty
 at
 beep
 broadcast
@@ -19,9 +20,11 @@ critical
 debug
 delete
 deload
+deserialize
 draft
 echo
 ensure-array
+ensureArray
 env
 error
 errorlog
@@ -30,6 +33,7 @@ exit
 feature-test
 fetch
 fill
+first
 for
 functree
 get
@@ -37,10 +41,12 @@ global
 halt-once
 help
 if
+in-scope
 input-wait
 json
 key
 keyDelete
+last
 length
 listen
 load
@@ -52,6 +58,7 @@ mirror
 mod
 move
 mul
+nebs
 nop
 off
 on
@@ -74,6 +81,7 @@ reverse
 rotate
 ruleset
 selected-object
+serialize
 set
 set-background
 set-fixed-dt
@@ -87,6 +95,9 @@ state
 task
 texture-status
 time
+toBool
+toBoolString
+toDouble
 toInt
 toString
 typeAsNumber

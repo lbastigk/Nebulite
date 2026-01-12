@@ -1,13 +1,15 @@
 {
     "topic": "",
-    "logicalArg": "1",
-    "exprs": [
-        "self.next.posX = $({self.posX} + {self.physics.vX} * {global.time.dt})",
-        "self.next.posY = $({self.posY} + {self.physics.vY} * {global.time.dt})"
-    ],
-    "functioncalls": {
-        "global": [],
-        "self": [],
-        "other": []
+    "condition": "1",
+    "action": {
+        "assign": [
+            "self.next.posX = $({self.posX} + {self.physics.vX} * {global.time.dt})",
+            "self.next.posY = $({self.posY} + {self.physics.vY} * {global.time.dt})"
+        ],
+        "functioncall": {
+            "global": [],
+            "self": [],
+            "other": []
+        }
     }
 }

@@ -1,9 +1,8 @@
-#include "DomainModule/JSON/Debug.hpp"
-#include "Data/Document/JSON.hpp"
-
 #include "Nebulite.hpp"
+#include "Core/JsonScope.hpp"
+#include "DomainModule/JsonScope/Debug.hpp"
 
-namespace Nebulite::DomainModule::JSON {
+namespace Nebulite::DomainModule::JsonScope {
 
 //------------------------------------------
 // Update
@@ -22,22 +21,23 @@ Constants::Error Debug::print(int argc, char** argv) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     if (argc == 2) {
-        auto const memberType = domain.getDoc().memberType(argv[1]);
-        if (memberType == Data::JSON::KeyType::null) {
+        auto const scopedKey = Data::ScopedKey(argv[1]);
+        auto const memberType = moduleScope.memberType(scopedKey);
+        if (memberType == Data::KeyType::null) {
             Nebulite::cout() << "{}" << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
-        if (memberType == Data::JSON::KeyType::object) {
-            Nebulite::cout() << domain.getDoc().serialize(argv[1]) << Nebulite::endl;
+        if (memberType == Data::KeyType::object || memberType == Data::KeyType::array) {
+            Nebulite::cout() << moduleScope.serialize(scopedKey) << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
-        if (memberType == Data::JSON::KeyType::value) {
-            Nebulite::cout() << domain.getDoc().get<std::string>(argv[1], "") << Nebulite::endl;
+        if (memberType == Data::KeyType::value) {
+            Nebulite::cout() << moduleScope.get<std::string>(scopedKey, "") << Nebulite::endl;
             return Constants::ErrorTable::NONE();
         }
     }
-    Nebulite::cout() << domain.getDoc().serialize() << Nebulite::endl;
+    Nebulite::cout() << moduleScope.serialize() << Nebulite::endl;
     return Constants::ErrorTable::NONE();
 }
 
-} // namespace Nebulite::DomainModule::JSON
+} // namespace Nebulite::DomainModule::JsonScope

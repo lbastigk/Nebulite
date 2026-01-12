@@ -1,18 +1,28 @@
 //------------------------------------------
 // Includes
 
+#include "Nebulite.hpp"
 #include "Core/GlobalSpace.hpp"
-#include "Constants/KeyNames.hpp"
 #include "DomainModule/Initializer.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
 
 GlobalSpace::GlobalSpace(std::string const& name)
-    : Domain("Nebulite", *this, document),
-      document("GlobalSpace Document"), // JSON
-      renderer(document, &cmdVars.headless) // Renderer with reference to GlobalSpace and headless mode boolean
+    : Domain("Nebulite", *this, Nebulite::globalDoc().shareScope(*this, "")), // Domain with reference to GlobalSpace and its full scope
+      renderer(globalDoc().shareScope(*this, "renderer"), &cmdVars.headless) // Share only the renderer portion of the global document
 {
+    //------------------------------------------
+    // Initialize floating DomainModules
+
+    floatingDM.rng = NEBULITE_FLOATING_DOMAINMODULE(
+        Nebulite::DomainModule::GlobalSpace::RNG,
+        "RNG",
+        domainScope,
+        "random",
+        Nebulite::globalDoc().settings()
+    );
+
     //------------------------------------------
     // There should only be one GlobalSpace
     static bool globalSpaceExists = false;
@@ -31,12 +41,14 @@ GlobalSpace::GlobalSpace(std::string const& name)
     // General Variables
     names.binary = name;
     names.state = "";
+}
 
+void GlobalSpace::initialize() {
     //------------------------------------------
     // Domain-Related
 
-    // Link inherited Domains
-    inherit(&document);
+    // Inherit functions from child objects
+    inherit(&globalDoc().shareScope(*this, ""));
     inherit(&renderer);
 
     // Initialize DomainModules
@@ -53,11 +65,12 @@ GlobalSpace::GlobalSpace(std::string const& name)
     // If we ever need a full update beforehand, we should manually call update after full initialization
 }
 
-Constants::Error GlobalSpace::updateInnerDomains() const {
+Constants::Error GlobalSpace::updateInnerDomains() {
     // For now, just update the JSON domain
     // Later on the logic here might be more complex
     // As more inner domains are added
-    Constants::Error const result = getDoc().update();
+    static auto& fullScope = globalDoc().shareScope(*this, "");
+    Constants::Error const result = fullScope.update();
     // Renderer is not updated here, as it is updated in GlobalSpace::update()
     // TODO: See if we can generalize this so that we can safely call renderer.update() here as well
     return result;
@@ -207,42 +220,8 @@ Constants::Error GlobalSpace::preParse() {
     // NOTE: This function is only called once there is a parse-command
     // Meaning its timing is consistent and not dependent on framerate, frame time variations, etc.
     // Meaning everything we do here is, timing wise, deterministic!
-
-    // Update RNGs
-    // Disabled if renderer skipped update last frame, active otherwise
-    bool RNG_update_enabled = renderer.isSdlInitialized() && renderer.hasSkippedUpdate() == false;
-    RNG_update_enabled |= !renderer.isSdlInitialized(); // If renderer is not initialized, we always update RNGs
-    if (RNG_update_enabled) {
-        updateRNGs();
-    }
-
+    (void)floatingDM.rng->update();
     return Constants::ErrorTable::NONE();
-}
-
-void GlobalSpace::updateRNGs() {
-    // Set Min and Max values for RNGs in document
-    // Always set, so overwrites don't stick around
-    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::min, std::numeric_limits<RngVars::rngSize_t>::min());
-    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::max, std::numeric_limits<RngVars::rngSize_t>::max());
-
-    // Generate seeds in a predictable manner
-    // Since updateRNG is called at specific times only, we can simply increment RNG with a new seed
-    std::string const seedA = "A" + std::to_string(rng.A.get());
-    std::string const seedB = "B" + std::to_string(rng.B.get());
-    std::string const seedC = "C" + std::to_string(rng.C.get());
-    std::string const seedD = "D" + std::to_string(rng.D.get());
-
-    // Hash seeds
-    rng.A.update(seedA);
-    rng.B.update(seedB);
-    rng.C.update(seedC);
-    rng.D.update(seedD);
-
-    // Set RNG values in global document
-    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::A, rng.A.get());
-    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::B, rng.B.get());
-    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::C, rng.C.get());
-    document.set<RngVars::rngSize_t>(Constants::KeyNames::RNGs::D, rng.D.get());
 }
 
 } // namespace Nebulite::Core

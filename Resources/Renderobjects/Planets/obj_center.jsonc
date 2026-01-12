@@ -1,14 +1,5 @@
 {
     "id": 0,
-    "invokeSubscriptions": [
-        "all",
-        "::physics::gravity",
-        "gravity"
-    ],
-    "invokes": [
-        "::physics::gravity",
-        "::physics::applyForce"
-    ],
     "layer": 0,
     "physics": {
         "mass": 50.0,
@@ -42,5 +33,16 @@
         "dy": -30.0,
         "fontSize": 16,
         "str": "OBJ_CENTER"
+    },
+    "ruleset": {
+        "broadcast": [
+            "::physics::gravity",
+            "::physics::applyForce"
+        ],
+        "listen": [
+            "all",
+            "::physics::gravity",
+            "gravity"
+        ]
     }
 }

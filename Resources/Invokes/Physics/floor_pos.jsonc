@@ -1,13 +1,15 @@
 {
     "topic": "",
-    "logicalArg": "1",
-    "exprs": [
-        "self.posX = $(floor({self.posX}))",
-        "self.posY = $(floor({self.posY}))"
-    ],
-    "functioncalls": {
-        "global": [],
-        "self": [],
-        "other": []
+    "condition": "1",
+    "action": {
+        "assign": [
+            "self.posX = $(floor({self.posX}))",
+            "self.posY = $(floor({self.posY}))"
+        ],
+        "functioncall": {
+            "global": [],
+            "self": [],
+            "other": []
+        }
     }
 }

@@ -13,22 +13,20 @@
 // Includes
 
 // Standard library
-#include <deque>
 #include <string>
 #include <vector>
-#include <mutex>
-#include <cstdint>
-#include <cstddef>
 
 // Nebulite
 #include "Core/Renderer.hpp"
 #include "Constants/ErrorTypes.hpp"
 #include "Data/Document/DocumentCache.hpp"
 #include "Data/TaskQueue.hpp"
-#include "Interaction/Context.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Execution/Domain.hpp"
-#include "Utility/RNG.hpp"
+#include "Interaction/Rules/Ruleset.hpp"
+#include "Interaction/Rules/RulesetModule.hpp"
+
+#include "DomainModule/GlobalSpace/Floating/RNG.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -40,6 +38,12 @@ namespace Nebulite::Core {
  * @class Nebulite::Core::GlobalSpace
  * @brief Declares the core types, global objects, and functions for the Nebulite Engine.
  *        Used as a global workspace for functionality such as Rendering, Time, RNGs, etc.
+ * @details In order to avoid infinite recursion, GlobalSpace itself does not own its Document.
+ *          Instead, it accesses the global document via Nebulite::globalDoc().
+ *          This prevents issues where DomainModules might try to access GlobalSpace during their construction
+ *          in order to access the global document, leading to infinite recursion.
+ *          By separating the GlobalSpace and the Global Document, we ensure that the construction of both is independent.
+ *          This allows DomainModules to safely access the global document without causing recursion problems.
  */
 NEBULITE_DOMAIN(GlobalSpace) {
 public:
@@ -50,6 +54,15 @@ public:
     // and throws an error in that case
 
     explicit GlobalSpace(std::string const& name = "Unnamed GlobalSpace");
+
+    /**
+     * @brief In order to avoid infinite recursion, we initialize GlobalSpace after construction.
+     * @details The issue is that some DomainModules may need to access GlobalSpace during their construction,
+     *          leading to infinite recursion if GlobalSpace is not fully constructed yet.
+     *          By separating initialization from construction, we ensure that GlobalSpace is fully constructed
+     *          before any DomainModule attempts to access it.
+     */
+    void initialize();
 
     ~GlobalSpace() override = default;
 
@@ -81,6 +94,7 @@ public:
      * @param tq The task queue to resolve.
      * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
      * @return The result of the task queue resolution.
+     * @todo Remove this function head and all mentions of it
      */
     Data::TaskQueueResult resolveTaskQueue(Data::TaskQueue& tq, uint64_t const* waitCounter) const;
 
@@ -156,20 +170,6 @@ public:
     } cmdVars;
 
     /**
-     * @brief Rolls back all RNGs to their previous state.
-     *        Can be called by any domainModule function
-     *        if you don't want this functioncall to modify RNG state.
-     *        Example: calling a script should not modify RNG, so that we can
-     *                 always load scripts for TAS without RNG state changes.
-     */
-    void rngRollback() {
-        rng.A.rollback();
-        rng.B.rollback();
-        rng.C.rollback();
-        rng.D.rollback();
-    }
-
-    /**
      * @brief Checks if the main loop should continue running.
      * @return True if the main loop should continue, false otherwise.
      */
@@ -183,9 +183,9 @@ public:
      * @brief Clears all task queues.
      */
     void clearAllTaskQueues() {
-        for (auto& t : tasks) {
-            t.second->clear();
-        }
+        std::ranges::for_each(tasks | std::views::values, [](auto &tq) {
+            if (tq) tq->clear();
+        });
     }
 
     /**
@@ -194,8 +194,7 @@ public:
      * @return Pointer to the TaskQueue instance, or nullptr if not found.
      */
     std::shared_ptr<Data::TaskQueue> getTaskQueue(std::string const& name) {
-        auto it = tasks.find(name);
-        if (it != tasks.end()) {
+        if (auto const it = tasks.find(name); it != tasks.end()) {
             return it->second;
         }
         return nullptr;
@@ -211,15 +210,21 @@ public:
         inline static constexpr const char* script = "tasks::script";
     };
 
+    //------------------------------------------
+    // Special Functions
+
+    void rngRollback() const {
+        if (floatingDM.rng) {
+            floatingDM.rng->rngRollback();
+        }
+    }
+
 private:
     //------------------------------------------
     // General Variables
 
     // Check if main loop should continue
     bool continueLoop = true;
-
-    // Global JSON Document
-    Data::JSON document;
 
     // DocumentCache for read-only documents
     Data::DocumentCache docCache;
@@ -252,23 +257,13 @@ private:
         std::string binary; // Name of the binary, used for parsing arguments
     } names;
 
-    /**
-     * @struct RngVars
-     * @brief Contains RNG instances used in the global space.
-     * @todo Consider a hashmap of RNGs for more versatility in the future.
-     *       std::string -> Utility::RNG<rngSize_t>
-     *       Simplifies the rng rollback and update functions as well.
-     * @note Having the RNG-Generation in a DomainModule would be better,
-     *       but then we would have to somehow ensure that its updated before command parsing,
-     *       which is currently only possible in GlobalSpace::preParse.
-     */
-    struct RngVars {
-        using rngSize_t = uint16_t; // Modify this to change the size of the RNGs
-        Utility::RNG<rngSize_t> A; // RNG with key random.A
-        Utility::RNG<rngSize_t> B; // RNG with key random.B
-        Utility::RNG<rngSize_t> C; // RNG with key random.C
-        Utility::RNG<rngSize_t> D; // RNG with key random.D
-    } rng;
+
+    //------------------------------------------
+    // Floating DomainModules
+
+    struct FloatingDomainModules {
+        std::unique_ptr<DomainModule::GlobalSpace::RNG> rng;
+    } floatingDM;
 
     //------------------------------------------
     // Methods
@@ -282,15 +277,10 @@ private:
     Constants::Error preParse() override;
 
     /**
-     * @brief Updates all RNGs
-     */
-    void updateRNGs();
-
-    /**
      * @brief Updates all inner domains.
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    [[nodiscard]] Constants::Error updateInnerDomains() const;
+    [[nodiscard]] Constants::Error updateInnerDomains();
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_CORE_GLOBALSPACE_HPP

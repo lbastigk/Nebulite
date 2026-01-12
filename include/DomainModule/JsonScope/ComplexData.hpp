@@ -15,17 +15,18 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Data {
-class JSON;
+
+namespace Nebulite::Core {
+class JsonScope;
 } // namespace Nebulite::Data
 
 //------------------------------------------
-namespace Nebulite::DomainModule::JSON {
+namespace Nebulite::DomainModule::JsonScope {
 /**
- * @class Nebulite::DomainModule::JSON::ComplexData
+ * @class Nebulite::DomainModule::JsonScope::ComplexData
  * @brief DomainModule for complex data operations on domain class Nebulite::Data::JSON
  */
-NEBULITE_DOMAINMODULE(Nebulite::Data::JSON, ComplexData) {
+NEBULITE_DOMAINMODULE(Nebulite::Core::JsonScope, ComplexData) {
 public:
     Constants::Error update() override;
     void reinit() override {}
@@ -37,13 +38,13 @@ public:
      * @todo Not implemented yet
      */
     Constants::Error querySet();
-    static std::string_view constexpr querySet_name = "query set";
-    static std::string_view constexpr querySet_desc = "Sets a key from a SQL query result.\n"
+    static auto constexpr querySet_name = "query set";
+    static auto constexpr querySet_desc = "Sets a key from a SQL query result.\n"
         "Not implemented yet.\n";
 
     Constants::Error jsonSet(int argc, char** argv);
-    static std::string_view constexpr jsonSet_name = "json set";
-    static std::string_view constexpr jsonSet_desc = "Sets a key from a read-only JSON document.\n"
+    static auto constexpr jsonSet_name = "json set";
+    static auto constexpr jsonSet_desc = "Sets a key from a read-only JSON document.\n"
         "Usage: json set <key> <link:key>\n"
         "\n"
         "Where <link:key> is a link to a JSON document.\n"
@@ -52,11 +53,11 @@ public:
     //------------------------------------------
     // Category names
 
-    static std::string_view constexpr query_name = "query";
-    static std::string_view constexpr query_desc = "Functions to manipulate JSON data via SQL query results";
+    static auto constexpr query_name = "query";
+    static auto constexpr query_desc = "Functions to manipulate JSON data via SQL query results";
 
-    static std::string_view constexpr json_name = "json";
-    static std::string_view constexpr json_desc = "Functions to manipulate JSON data via read-only JSON documents";
+    static auto constexpr json_name = "json";
+    static auto constexpr json_desc = "Functions to manipulate JSON data via read-only JSON documents";
 
     //------------------------------------------
     // Setup
@@ -64,7 +65,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JSON, ComplexData) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::JsonScope, ComplexData) {
         // Bind functions specific to complex data handling
 
         // SQL Queries

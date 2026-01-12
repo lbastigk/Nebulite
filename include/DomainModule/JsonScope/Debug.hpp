@@ -15,13 +15,14 @@
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Data {
-class JSON;
+
+namespace Nebulite::Core {
+class JsonScope;
 } // namespace Nebulite::Data
 
 //------------------------------------------
-namespace Nebulite::DomainModule::JSON {
-NEBULITE_DOMAINMODULE(Nebulite::Data::JSON, Debug) {
+namespace Nebulite::DomainModule::JsonScope {
+NEBULITE_DOMAINMODULE(Nebulite::Core::JsonScope, Debug) {
 public:
     Constants::Error update() override;
     void reinit() override {}
@@ -30,8 +31,8 @@ public:
     // Available Functions
 
     Constants::Error print(int argc, char** argv);
-    static std::string_view constexpr print_name = "print";
-    static std::string_view constexpr print_desc = "Prints the JSON document to the console for debugging purposes.\n"
+    static auto constexpr print_name = "print";
+    static auto constexpr print_desc = "Prints the JSON document to the console for debugging purposes.\n"
         "If key is empty, prints the entire document.\n"
         "\n"
         "Usage: print [key]\n";
@@ -42,7 +43,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Data::JSON, Debug) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::JsonScope, Debug) {
         // Binding
         BINDFUNCTION(&Debug::print, print_name, print_desc);
     }
@@ -50,5 +51,5 @@ public:
 private:
     absl::flat_hash_map<std::string, std::string> forced_global_values; // Key-Value pairs to set in global JSON
 };
-} // namespace Nebulite::DomainModule::JSON
+} // namespace Nebulite::DomainModule::JsonScope
 #endif // NEBULITE_JSDM_DEBUG_HPP

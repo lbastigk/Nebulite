@@ -36,8 +36,8 @@ public:
     // Available Functions
 
     Constants::Error mirror_once();
-    static std::string_view constexpr mirror_once_name = "mirror once";
-    static std::string_view constexpr mirror_once_desc = "Mirrors the object to the GlobalSpace document once on next update\n"
+    static auto constexpr mirror_once_name = "mirror once";
+    static auto constexpr mirror_once_desc = "Mirrors the object to the GlobalSpace document once on next update\n"
         "\n"
         "Usage: mirror once\n"
         "\n"
@@ -45,8 +45,8 @@ public:
         "Mirrors are stored in the GlobalSpace document under key \"mirror.renderObject.id<id>\"\n";
 
     Constants::Error mirror_on();
-    static std::string_view constexpr mirror_on_name = "mirror on";
-    static std::string_view constexpr mirror_on_desc = "Enables mirroring to the GlobalSpace document\n"
+    static auto constexpr mirror_on_name = "mirror on";
+    static auto constexpr mirror_on_desc = "Enables mirroring to the GlobalSpace document\n"
         "\n"
         "Usage: mirror on\n"
         "\n"
@@ -55,8 +55,8 @@ public:
         "Mirrors are stored in the GlobalSpace document under key \"mirror.renderObject.id<id>\"\n";
 
     Constants::Error mirror_off();
-    static std::string_view constexpr mirror_off_name = "mirror off";
-    static std::string_view constexpr mirror_off_desc = "Disables mirroring to the GlobalSpace document\n"
+    static auto constexpr mirror_off_name = "mirror off";
+    static auto constexpr mirror_off_desc = "Disables mirroring to the GlobalSpace document\n"
         "\n"
         "Usage: mirror off\n"
         "\n"
@@ -65,16 +65,16 @@ public:
         "Mirrors are stored in the GlobalSpace document under key \"mirror.renderObject.id<id>\"\n";
 
     Constants::Error mirror_delete();
-    static std::string_view constexpr mirror_delete_name = "mirror delete";
-    static std::string_view constexpr mirror_delete_desc = "Deletes the GlobalSpace document entry for this RenderObject\n"
+    static auto constexpr mirror_delete_name = "mirror delete";
+    static auto constexpr mirror_delete_desc = "Deletes the GlobalSpace document entry for this RenderObject\n"
         "\n"
         "Usage: mirror delete\n"
         "\n"
         "Mirrors are removed from the GlobalSpace document under key \"mirror.renderObject.id<id>\"\n";
 
     Constants::Error mirror_fetch();
-    static std::string_view constexpr mirror_fetch_name = "mirror fetch";
-    static std::string_view constexpr mirror_fetch_desc = "Deserializes the RenderObject from the GlobalSpace document entry\n"
+    static auto constexpr mirror_fetch_name = "mirror fetch";
+    static auto constexpr mirror_fetch_desc = "Deserializes the RenderObject from the GlobalSpace document entry\n"
         "\n"
         "Usage: mirror fetch\n"
         "\n"
@@ -82,8 +82,8 @@ public:
 
     //------------------------------------------
     // Category name
-    static std::string_view constexpr mirror_name = "mirror";
-    static std::string_view constexpr mirror_desc = "Mirror utilities for RenderObject to GlobalSpace synchronization";
+    static auto constexpr mirror_name = "mirror";
+    static auto constexpr mirror_desc = "Mirror utilities for RenderObject to GlobalSpace synchronization";
 
     //------------------------------------------
     // Setup

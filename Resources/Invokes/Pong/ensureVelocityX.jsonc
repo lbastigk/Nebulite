@@ -1,12 +1,14 @@
 {
     "topic": "",
-    "logicalArg": "$( lt( abs({self.physics.vX}) ,10) )",
-    "exprs": [
-        "self.physics.vX *= $(sgn({self.physics.vX}) + 10)"
-    ],
-    "functioncalls": {
-        "global": [],
-        "self": [],
-        "other": []
+    "condition": "$( lt( abs({self.physics.vX}) ,10) )",
+    "action": {
+        "assign": [
+            "self.physics.vX *= $(sgn({self.physics.vX}) + 10)"
+        ],
+        "functioncall": {
+            "global": [],
+            "self": [],
+            "other": []
+        }
     }
 }

@@ -22,4 +22,6 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+task TaskFiles/Tests/Short/snapshot.nebs
+
 task TaskFiles/Simulations/bouncing.nebs

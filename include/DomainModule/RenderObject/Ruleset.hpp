@@ -11,6 +11,7 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
+#include "Constants/KeyNames.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -30,16 +31,16 @@ public:
     Constants::Error update() override;
     void reinit() override {
         reloadRulesets = true;
-        subscription_size = domain.getDoc().memberSize(Constants::KeyNames::RenderObject::invokeSubscriptions);
-        id = domain.getDoc().get<uint32_t>(Constants::KeyNames::RenderObject::id,0);
+        subscription_size = moduleScope.memberSize(Constants::KeyNames::RenderObject::Ruleset::listen);
+        id = domain.getId();
     }
 
     //------------------------------------------
     // Available Functions
 
     Constants::Error once(std::span<std::string const> const& args);
-    static std::string_view constexpr once_name = "ruleset once";
-    static std::string_view constexpr once_desc = "Applies all rulesets once on the next update\n"
+    static auto constexpr once_name = "ruleset once";
+    static auto constexpr once_desc = "Applies all rulesets once on the next update\n"
         "\n"
         "Usage: ruleset once\n"
         "\n"
@@ -50,8 +51,8 @@ public:
     //       any push/pop could be done via json manipulation directly
 
     Constants::Error reload();
-    static std::string_view constexpr reload_name = "ruleset reload";
-    static std::string_view constexpr reload_desc = "Reloads all rulesets for this RenderObject on the next update.\n"
+    static auto constexpr reload_name = "ruleset reload";
+    static auto constexpr reload_desc = "Reloads all rulesets for this RenderObject on the next update.\n"
         "\n"
         "Usage: ruleset reload\n"
         "\n"
@@ -59,8 +60,8 @@ public:
 
     //------------------------------------------
     // Category names
-    static std::string_view constexpr ruleset_name = "ruleset";
-    static std::string_view constexpr ruleset_desc = "Ruleset management functions for the RenderObject domain.";
+    static auto constexpr ruleset_name = "ruleset";
+    static auto constexpr ruleset_desc = "Ruleset management functions for the RenderObject domain.";
 
     //------------------------------------------
     // Setup
@@ -70,7 +71,7 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Ruleset) {
         // Bind functions
-        bindCategory(ruleset_name, ruleset_desc);
+        (void)bindCategory(ruleset_name, ruleset_desc);
         bindFunction(&Ruleset::reload, reload_name, reload_desc);
         bindFunction(&Ruleset::once, once_name, once_desc);
     }

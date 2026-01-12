@@ -3,10 +3,10 @@
 
 // Nebulite
 #include "Nebulite.hpp"
+#include "Constants/KeyNames.hpp"
 #include "Core/RenderObject.hpp"
-#include "Data/Document/JSON.hpp"
 #include "DomainModule/Initializer.hpp"
-#include "DomainModule/JSON/SimpleData.hpp"
+#include "DomainModule/JsonScope/SimpleData.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 
@@ -18,7 +18,7 @@ namespace Nebulite::Core {
 
 namespace {
 // Helper function to initialize RenderObject in constructor
-void setStandardValues(Data::JSON& document) {
+void setStandardValues(Core::JsonScope& document) {
     // General
     document.set(Constants::KeyNames::RenderObject::id, 0);    // Initialize to 0, Renderer itself sets proper id, which starts at 1
     document.set(Constants::KeyNames::RenderObject::positionX, 0);
@@ -36,9 +36,9 @@ void setStandardValues(Data::JSON& document) {
     document.set(Constants::KeyNames::RenderObject::pixelSizeY, 32);
 
     // Invokes
-    document.setEmptyArray(Constants::KeyNames::RenderObject::invokes);
-    document.setEmptyArray(Constants::KeyNames::RenderObject::invokeSubscriptions);
-    document.set(std::string(Constants::KeyNames::RenderObject::invokeSubscriptions) + "[0]", std::string("all"));
+    document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::broadcast);
+    document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::listen);
+    document.set(Constants::KeyNames::RenderObject::Ruleset::listen + "[0]", std::string("all"));
 
     // Text
     document.set(Constants::KeyNames::RenderObject::textStr, std::string(""));
@@ -74,20 +74,16 @@ RenderObject::RenderObject() : Domain("RenderObject", *this, document), baseText
 }
 
 void RenderObject::init() {
-    //------------------------------------------
-    // Link inherited Domains
+    // Inherit functions from child objects
     inherit(&document);
     inherit(&baseTexture);
 
-    //------------------------------------------
     // Link frequently used values
     linkFrequentRefs();
 
-    //------------------------------------------
     // Initialize Domain Modules
     DomainModule::Initializer::initRenderObject(this);
 
-    //------------------------------------------
     // Update once to initialize
     update();
     calculateSrcRect();
@@ -109,66 +105,12 @@ RenderObject::~RenderObject() {
 //------------------------------------------
 // Marshalling
 
-std::string RenderObject::serialize() {
+std::string RenderObject::serialize() const {
     return document.serialize();
 }
 
 void RenderObject::deserialize(std::string const& serialOrLink) {
-    // Check if argv1 provided is an object
-    if (Data::JSON::isJsonOrJsonc(serialOrLink)) {
-        document.deserialize(serialOrLink);
-    } else {
-        //------------------------------------------
-        // TODO: This logic of tokenization and parsing
-        //       should be moved as a feature into domain, if possible
-
-        //------------------------------------------
-        // Split the input into tokens
-        std::vector<std::string> tokens = Utility::StringHandler::split(serialOrLink, '|');
-
-        //------------------------------------------
-        // Validity check
-        if (tokens.empty()) {
-            return; // or handle error properly
-        }
-
-        //------------------------------------------
-        // Load the JSON file
-        // First token is the path or serialized JSON
-        document.deserialize(tokens[0]);
-
-        //------------------------------------------
-        // Now apply modifications
-        tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
-        for (auto const& token : tokens) {
-            if (token.empty())
-                continue; // Skip empty tokens
-
-            // Legacy: Handle key=value pairs
-            if (token.find('=') != std::string::npos) {
-                // Handle modifier (key=value)
-                auto const pos = token.find('=');
-                std::string key = token.substr(0, pos);
-                std::string value = token.substr(pos + 1);
-                std::string call = __FUNCTION__;
-                call.append(" " + std::string(DomainModule::JSON::SimpleData::set_name));
-                call.append(" " + key);
-                call.append(" " + value);
-                if (auto const err = parseStr(call); err != Constants::ErrorTable::NONE()) {
-                    Nebulite::cerr() << "Warning: Failed to parse modifier '" << token << "' during RenderObject deserialization." << Nebulite::endl;
-                    Nebulite::cerr() << "Error Code: " << err.getDescription() << Nebulite::endl;
-                }
-            }
-            // Handle function call
-            else {
-                // Forward to FunctionTree for resolution
-                if (auto const err = parseStr(__FUNCTION__ + std::string(" ") + token); err != Constants::ErrorTable::NONE()) {
-                    Nebulite::cerr() << "Warning: Failed to parse function call '" << token << "' during RenderObject deserialization." << Nebulite::endl;
-                    Nebulite::cerr() << "Error Code: " << err.getDescription() << Nebulite::endl;
-                }
-            }
-        }
-    }
+    baseDeserialization(serialOrLink);
 
     // Re-Establish frequent references
     linkFrequentRefs();
@@ -177,6 +119,8 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
     flag.reloadInvokes = true;
     flag.calculateText = true;
 
+    //------------------------------------------
+    // Reinitialize everything
     reinitModules();
 
     //------------------------------------------

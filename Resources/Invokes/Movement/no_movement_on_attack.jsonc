@@ -1,13 +1,15 @@
 {
     "topic": "",
-    "logicalArg": "$({self.animation.attack})",
-    "exprs": [
-        "self.physics.vX = $(0)",
-        "self.physics.vY = $(0)"
-    ],
-    "functioncalls": {
-        "global": [],
-        "self": [],
-        "other": []
+    "condition": "$({self.animation.attack})",
+    "action": {
+        "assign": [
+            "self.physics.vX = $(0)",
+            "self.physics.vY = $(0)"
+        ],
+        "functioncall": {
+            "global": [],
+            "self": [],
+            "other": []
+        }
     }
 }

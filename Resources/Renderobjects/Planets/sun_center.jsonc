@@ -1,16 +1,5 @@
 {
     "id": 0,
-    "invokeSubscriptions": [
-        "all",
-        "::physics::gravity",
-        "gravity"
-    ],
-    "invokes": [
-        "./Resources/Invokes/Movement/movement_wasd.jsonc",
-        "./Resources/Invokes/General/set_render_position_center.jsonc",
-        "::physics::gravity",
-        "::physics::applyForce"
-    ],
     "layer": 0,
     "physics": {
         "mass": 200000.0,
@@ -44,5 +33,18 @@
         "dy": -30.0,
         "fontSize": 16,
         "str": "SUN"
+    },
+    "ruleset": {
+        "broadcast": [
+            "./Resources/Invokes/Movement/movement_wasd.jsonc",
+            "./Resources/Invokes/General/set_render_position_center.jsonc",
+            "::physics::gravity",
+            "::physics::applyForce"
+        ],
+        "listen": [
+            "all",
+            "::physics::gravity",
+            "gravity"
+        ]
     }
 }

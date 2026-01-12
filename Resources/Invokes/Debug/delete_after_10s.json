@@ -1,0 +1,12 @@
+{
+    "topic": "",
+    "functioncalls_global": [],
+    "functioncalls_self": [
+        "delete"
+    ],
+    "functioncalls_other": [],
+    "condition": "gt( {global.time.t}, 10)",
+    "action": {
+        "assign": []
+    }
+}

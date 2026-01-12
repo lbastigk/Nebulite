@@ -12,6 +12,7 @@
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Data/Document/JSON.hpp"
+#include "Data/Document/JsonScopeBase.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -36,8 +37,8 @@ public:
     // Available Functions
 
     Constants::Error addClock(int argc, char** argv);
-    static std::string_view constexpr addClock_name = "add-clock";
-    static std::string_view constexpr addClock_desc = "Adds a clock with specified interval (ms) to the global clock system\n"
+    static auto constexpr addClock_name = "add-clock";
+    static auto constexpr addClock_desc = "Adds a clock with specified interval (ms) to the global clock system\n"
         "\n"
         "Usage: add-clock <interval_ms>\n"
         "\n"
@@ -48,18 +49,20 @@ public:
     // Keys in the global document
 
     struct Key {
+        static auto constexpr scope = "time.clocks.";
+
         /**
          * @brief Key for accessing the list of active clocks.
          * @details access with `"<key_arr_active_clocks>.ms<interval_padded>"`
          */
-        static std::string_view constexpr arr_active_clocks = "clocks.active";
+        static auto constexpr arr_active_clocks = Data::ScopedKeyView::create<scope>("active");
 
         /**
          * @brief Key for accessing the status of each clock.
          * @details Current status of each clock (0 or 1), access with `"<key_doc_status_clocks>.ms<interval_padded>"`
          *          Example: ".ms000100" for the clock with 100ms interval
          */
-        static std::string_view constexpr doc_status_clocks = "clocks.status";
+        static auto constexpr doc_status_clocks = Data::ScopedKeyView::create<scope>("status");
     };
 
 
@@ -94,7 +97,7 @@ private:
         uint64_t interval_ms; // Trigger interval in milliseconds
         double* globalReference; // Pointer to the global document entry
 
-        ClockEntry(uint64_t const& interval, Data::JSON& doc, uint64_t const& current_time);
+        ClockEntry(uint64_t const& interval, Data::JsonScopeBase& doc, uint64_t const& current_time);
 
         /**
          * @brief Updates the clock entry, setting the global reference based on the timer.
