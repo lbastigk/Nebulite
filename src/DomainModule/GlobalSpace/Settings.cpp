@@ -34,6 +34,15 @@ void Settings::loadSettings(std::string const& filename) {
     // Later on, we may want to save all and ensure all known settings are present
     moduleScope.set<uint16_t>(Key::resolutionX, settings.get<uint16_t>(Key::unscoped_resolutionX, 1000));
     moduleScope.set<uint16_t>(Key::resolutionY, settings.get<uint16_t>(Key::unscoped_resolutionY, 1000));
+    /**
+     * @todo: Add more settings:
+     *        - FPS limit
+     *        - Renderer zoom level
+     *        - Console settings (like font size, colors, etc.)
+     *        - Key bindings
+     *        - Language/locale
+     *        - etc...
+     */
 
     if (settings.memberType("") != Nebulite::Data::KeyType::object) {
         // Settings file does not exist!
