@@ -16,6 +16,7 @@
 #include "Core/Environment.hpp"
 #include "Core/Renderer.hpp"
 #include "DomainModule/Initializer.hpp"
+#include "DomainModule/GlobalSpace/Settings.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Utility/Capture.hpp"
 #include "Utility/TimeKeeper.hpp"
@@ -23,7 +24,7 @@
 //------------------------------------------
 namespace Nebulite::Core {
 
-Renderer::Renderer(Core::JsonScope& documentReference, bool* flag_headless, unsigned int const& X, unsigned int const& Y)
+Renderer::Renderer(Core::JsonScope& documentReference, bool* flag_headless)
     : Domain("Renderer", *this, documentReference),
       env(documentReference){
 
@@ -79,10 +80,6 @@ Renderer::Renderer(Core::JsonScope& documentReference, bool* flag_headless, unsi
     }
 
     //------------------------------------------
-    // Set basic values inside global doc
-    setupDisplayValues(X, Y);
-
-    //------------------------------------------
     // Start timers
     fps.controlTimer.start();
     fps.renderTimer.start();
@@ -92,7 +89,12 @@ Renderer::Renderer(Core::JsonScope& documentReference, bool* flag_headless, unsi
     DomainModule::Initializer::initRenderer(this);
 }
 
-void Renderer::setupDisplayValues(unsigned int const& X, unsigned int const& Y) const {
+void Renderer::setupDisplayValues() const {
+    // Load from settings
+    uint16_t const X = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 800);
+    uint16_t const Y = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 600);
+
+    // Set in workspace
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X);
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResY, Y);
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::positionX, 0);
@@ -111,6 +113,7 @@ void Renderer::initSDL() {
 
     //------------------------------------------
     // Window
+    setupDisplayValues();
 
     //Create SDL window
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {

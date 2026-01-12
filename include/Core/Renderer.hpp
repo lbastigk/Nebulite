@@ -36,10 +36,8 @@ public:
      * @brief Initializes a Renderer with given dimensions and settings.
      * @param documentReference Reference to the JSON document
      * @param flag_headless Reference to the Boolean flag for headless mode.
-     * @param X Width of the rendering area.
-     * @param Y Height of the rendering area.
      */
-    Renderer(Core::JsonScope& documentReference, bool* flag_headless, unsigned int const& X = 1080, unsigned int const& Y = 1080);
+    Renderer(Core::JsonScope& documentReference, bool* flag_headless);
 
     //------------------------------------------
     // Disallow copying and moving
@@ -416,11 +414,9 @@ private:
     // Display
 
     /**
-     * @brief Sets up display values in the JSON document.
-     * @param X The width of the display.
-     * @param Y The height of the display.
+     * @brief Sets up display values in the workspace.
      */
-    void setupDisplayValues(unsigned int const& X, unsigned int const& Y) const ;
+    void setupDisplayValues() const ;
 
     //------------------------------------------
     // Audio
