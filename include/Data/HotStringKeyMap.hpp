@@ -33,16 +33,7 @@ private:
 
     // Array of HotKeyMaps, one per possible first-character value.
     std::array<MapType, BucketCount> map;
-
-    // (Optional) sanity check
     static_assert(BucketCount == 256, "Expected 256 buckets for HotStringKeyMap");
-
-    // Deduce iterator types from MapType::begin()
-    using iterator_type = decltype(std::declval<MapType&>().begin());
-    // If MapType has no const begin(), reuse the non-const iterator type for const_iterator.
-    using const_iterator_type = iterator_type;
-    using value_type = std::remove_reference_t<decltype(*std::declval<iterator_type>())>;
-
 public:
     /**
      * @brief Get underlying maps.
@@ -71,11 +62,6 @@ public:
             auto const it = map[0].find(key);
             return iterator{it, it != map[0].end()};
         }
-        /**
-         * @note We use the last character for better distribution in case of common prefixes.
-         *       E.g.: As this class is used for Rulesets. static ones always start with "::"
-         *       Meaning the first character is often the same.
-         */
         auto const lastChar = static_cast<unsigned char>(key.back());
         auto const it = map[lastChar].find(key);
         return iterator{it, it != map[lastChar].end()};
