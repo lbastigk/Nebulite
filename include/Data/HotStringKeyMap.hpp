@@ -18,6 +18,11 @@
 namespace Nebulite::Data {
 
 template<typename V>
+/**
+ * @note We use the last character for better distribution in case of common prefixes.
+ *       E.g.: As this class is used for Rulesets. static ones always start with "::"
+ *       Meaning the first character is often the same.
+ */
 class HotStringKeyMap {
 public:
     static constexpr std::size_t BucketCount =
@@ -39,39 +44,54 @@ private:
     using value_type = std::remove_reference_t<decltype(*std::declval<iterator_type>())>;
 
 public:
+    /**
+     * @brief Get underlying maps.
+     * @return Reference to the array of underlying HotKeyMaps.
+     */
     auto& getMaps() {
         return map;
     }
 
+    /**
+     * @brief The iterator structure for HotStringKeyMap.
+     * @details Contains the underlying map iterator and a validity flag.
+     */
     struct iterator {
         decltype(map[0].begin()) mapIterator;
         bool isValid;
     };
 
+    /**
+     * @brief Find an element by key.
+     * @param key The string key to search for.
+     * @return An iterator to the found element, or an invalid iterator if not found.
+     */
     iterator find(std::string const& key) {
         if (key.empty()) {
             auto const it = map[0].find(key);
             return iterator{it, it != map[0].end()};
         }
-        auto const firstChar = static_cast<unsigned char>(key[0]);
-        auto const it = map[firstChar].find(key);
-        return iterator{it, it != map[firstChar].end()};
+        /**
+         * @note We use the last character for better distribution in case of common prefixes.
+         *       E.g.: As this class is used for Rulesets. static ones always start with "::"
+         *       Meaning the first character is often the same.
+         */
+        auto const lastChar = static_cast<unsigned char>(key.back());
+        auto const it = map[lastChar].find(key);
+        return iterator{it, it != map[lastChar].end()};
     }
 
+    /**
+     * @brief Access or insert an element by key.
+     * @param key The string key to access.
+     * @return Reference to the value associated with the key.
+     */
     V& operator[](std::string const& key) {
         if (key.empty()) {
             return map[0][key];
         }
-        auto const firstChar = static_cast<unsigned char>(key[0]);
-        return map[firstChar][key];
-    }
-
-    bool hasKey(std::string const& key) {
-        if (key.empty()) {
-            return map[0].find(key) != map[0].end();
-        }
-        auto const firstChar = static_cast<unsigned char>(key[0]);
-        return map[firstChar].find(key) != map[firstChar].end();
+        auto const lastChar = static_cast<unsigned char>(key.back());
+        return map[lastChar][key];
     }
 };
 

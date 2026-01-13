@@ -236,7 +236,7 @@ Constants::Error Debug::clearConsole(std::span<std::string const> const& /*args*
 Constants::Error Debug::crash(std::span<std::string const> const& args) {
     // If an argument is provided, use it to select crash type
     if (args.size() > 1) {
-        if (std::string const crashType = args[1]; crashType == "segfault") {
+        if (std::string const& crashType = args[1]; crashType == "segfault") {
             // Cause a segmentation fault
             raise(SIGSEGV);
         } else if (crashType == "abort") {

@@ -51,6 +51,11 @@ public:
         return valueRef;
     }
 
+    /**
+     * @brief Find an entry by key, utilizing hotkey optimization.
+     * @param key The key to search for.
+     * @return Iterator to the found entry or map.end() if not found.
+     */
     auto find(K const& key) {
         std::shared_lock<std::shared_mutex> slock(mtxMap);
         if (hotKeyEntry.active && hotKeyEntry.key == key) {
@@ -59,20 +64,36 @@ public:
         return map.find(key);
     }
 
+    /**
+     * @brief Begin iterator for the map.
+     * @return Iterator to the beginning of the map.
+     */
     auto begin() {
         std::shared_lock<std::shared_mutex> slock(mtxMap);
         return map.begin();
     }
 
+    /**
+     * @brief End iterator for the map.
+     * @return Iterator to the end of the map.
+     */
     auto end() {
         std::shared_lock<std::shared_mutex> slock(mtxMap);
         return map.end();
     }
 
+    /*
+     * @brief Begin iterator for const map.
+     * @return Const iterator to the beginning of the map.
+     */
     auto begin() const {
         return const_cast<HotKeyMap*>(this)->begin();
     }
 
+    /**
+     * @brief End iterator for const map.
+     * @return Const iterator to the end of the map.
+     */
     auto end() const {
         return const_cast<HotKeyMap*>(this)->end();
     }
@@ -81,6 +102,9 @@ private:
     absl::node_hash_map<K, V> map;
     mutable std::shared_mutex mtxMap;
 
+    /**
+     * @brief Holds the last accessed key-value pair for hotkey optimization.
+     */
     struct HotKeyEntry {
         bool active = false;
         K key;
