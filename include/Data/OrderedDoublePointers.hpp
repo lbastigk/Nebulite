@@ -41,7 +41,7 @@ class DynamicFixedArray {
 public:
     DynamicFixedArray() : data_(nullptr), size_(0), capacity_(0) {}
 
-    explicit DynamicFixedArray(size_t fixed_size)
+    explicit DynamicFixedArray(size_t const& fixed_size)
         : data_(fixed_size > 0 ? new double*[fixed_size] : nullptr),
           size_(0),
           capacity_(fixed_size) {
@@ -83,7 +83,7 @@ public:
         }
     }
 
-    [[nodiscard]] double*& at(size_t index) const noexcept { return data_[index]; }
+    [[nodiscard]] double*& at(size_t const& index) const noexcept { return data_[index]; }
 
     [[nodiscard]] bool empty() const noexcept { return size_ == 0; }
 
@@ -102,8 +102,7 @@ class OrderedDoublePointers {
 public:
     OrderedDoublePointers() = default;
 
-    explicit OrderedDoublePointers(size_t exact_size) : orderedValues(exact_size) {
-    }
+    explicit OrderedDoublePointers(size_t const& exact_size) : orderedValues(exact_size) {}
 
     DynamicFixedArray orderedValues {};
 };
@@ -140,7 +139,7 @@ public:
      * @return A pointer to the ordered vector of double pointers for the referenced "other" variables.
      */
     odpvec* ensureOrderedCacheList(
-        uint64_t uniqueId,
+        uint64_t const& uniqueId,
         std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther
         );
 

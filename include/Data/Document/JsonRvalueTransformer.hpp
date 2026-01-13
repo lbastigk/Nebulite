@@ -50,22 +50,22 @@ private:
     // Functions: Arithmetic
     // TODO: For all arithmetic functions: using multiple numbers should output array?
 
-    bool add(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool add(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr addName = "add";
     static auto constexpr addDesc = "Adds a numeric value to the current JSON value.\n"
         "Usage: |add <number1> <number2> ... -> {number}\n";
 
-    bool mod(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool mod(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr modName = "mod";
     static auto constexpr modDesc = "Calculates the modulo of the current JSON value by a numeric value.\n"
         "Usage: |mod <number> -> {number}\n";
 
-    bool multiply(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool multiply(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr multiplyName = "mul";
     static auto constexpr multiplyDesc = "Multiplies the current JSON value by a numeric value.\n"
         "Usage: |multiply <number1> <number2> ...\n";
 
-    bool pow(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool pow(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr powName = "pow";
     static auto constexpr powDesc = "Raises the current JSON value to the power of a numeric value.\n"
         "Usage: |pow <exponent> -> {number}\n";
@@ -73,36 +73,36 @@ private:
     //------------------------------------------
     // Functions: Array-related
 
-    bool ensureArray(Core::JsonScope* jsonDoc) const ;
+    static bool ensureArray(Core::JsonScope* jsonDoc);
     static auto constexpr ensureArrayName = "ensureArray";
     static auto constexpr ensureArrayDesc = "Ensures the current JSON value is an array.\n"
         "If the current value is not an array, it is wrapped into a single-element array.\n"
         "Usage: |ensureArray -> {array}\n";
 
-    bool at(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool at(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr atName = "at";
     static auto constexpr atDesc = "Gets the element at the specified index from the array in the current JSON value.\n"
         "If the index is out of bounds, the transformation fails.\n"
         "Usage: |at <index> -> {value}\n";
 
-    bool length(Core::JsonScope* jsonDoc);
+    static bool length(Core::JsonScope* jsonDoc);
     static auto constexpr lengthName = "length";
     static auto constexpr lengthDesc = "Gets the length of the array in the current JSON value.\n"
         "Usage: |length -> {number}\n";
 
-    bool reverse(Core::JsonScope* jsonDoc);
+    static bool reverse(Core::JsonScope* jsonDoc);
     static auto constexpr reverseName = "reverse";
     static auto constexpr reverseDesc = "Reverses the array in the current JSON value.\n"
         "If the current value is not an array, it is first wrapped into a single-element array.\n"
         "Usage: |reverse -> {array}\n";
 
-    bool first(Core::JsonScope* jsonDoc);
+    static bool first(Core::JsonScope* jsonDoc);
     static auto constexpr firstName = "first";
     static auto constexpr firstDesc = "Gets the first element of the array in the current JSON value.\n"
         "If the current value is not an array, it is first wrapped into a single-element array.\n"
         "Usage: |first -> {value}\n";
 
-    bool last(Core::JsonScope* jsonDoc);
+    static bool last(Core::JsonScope* jsonDoc);
     static auto constexpr lastName = "last";
     static auto constexpr lastDesc = "Gets the last element of the array in the current JSON value.\n"
         "If the current value is not an array, it is first wrapped into a single-element array.\n"
@@ -116,7 +116,7 @@ private:
     //------------------------------------------
     // Functions: Assertions
 
-    bool assertNonEmpty(Core::JsonScope* jsonDoc);
+    static bool assertNonEmpty(Core::JsonScope* jsonDoc);
     static auto constexpr assertNonEmptyName = "assertNonEmpty";
     static auto constexpr assertNonEmptyDesc = "Asserts that the current JSON value is non-empty.\n"
         "If the value is empty, the transformation fails and the program exits\n"
@@ -125,20 +125,20 @@ private:
     //------------------------------------------
     // Functions: Casting
 
-    bool toInt(Core::JsonScope* jsonDoc);
+    static bool toInt(Core::JsonScope* jsonDoc);
     static auto constexpr toIntName = "toInt";
     static auto constexpr toIntDesc = "Converts the current JSON value to an integer.\n"
         "Never fails, defaults to 0 if the provided value is non-numeric.\n"
         "Usage: |toInt -> {number}\n";
 
     // TODO: complicated casting for string to anything via serialization
-    bool toString(Core::JsonScope* jsonDoc);
+    static bool toString(Core::JsonScope* jsonDoc);
     static auto constexpr toStringName = "toString";
     static auto constexpr toStringDesc = "Converts the current JSON value to a string.\n"
         "Never fails, defaults to an empty string if no conversion is possible.\n"
         "Usage: |toString -> {string}\n";
 
-    bool toBool(Core::JsonScope* jsonDoc);
+    static bool toBool(Core::JsonScope* jsonDoc);
     static auto constexpr toBoolName = "toBool";
     static auto constexpr toBoolDesc = "Converts the current JSON value to a boolean.\n"
         "Usage: |toBool -> {bool}\n"
@@ -146,13 +146,13 @@ private:
         "'false' values: false, 0, '0', 'false', 'no', 'off' (case-insensitive)\n"
         "Any other value defaults to false.\n";
 
-    bool toDouble(Core::JsonScope* jsonDoc);
+    static bool toDouble(Core::JsonScope* jsonDoc);
     static auto constexpr toDoubleName = "toDouble";
     static auto constexpr toDoubleDesc = "Converts the current JSON value to a double.\n"
         "Usage: |toDouble -> {number}\n"
         "Non-numeric values default to 0.0.\n";
 
-    bool toBoolString(Core::JsonScope* jsonDoc);
+    static bool toBoolString(Core::JsonScope* jsonDoc);
     static auto constexpr toBoolStringName = "toBoolString";
     static auto constexpr toBoolStringDesc = "Converts the current JSON value to a boolean string.\n"
         "Usage: |toBoolString -> {string}\n"
@@ -168,18 +168,18 @@ private:
     //static auto constexpr filterName;
     //static auto constexpr filterDesc;
 
-    bool map(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    bool map(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) const ;
     static auto constexpr mapName = "map";
     static auto constexpr mapDesc = "Applies a mapping function to each element in the array of the current JSON value.\n"
         "If the current value is not an array, it is first wrapped into a single-element array.\n"
         "Usage: |map <function> -> {array}\n";
 
-    bool get(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool get(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr getName = "get";
     static auto constexpr getDesc = "Gets the value at the specified key from the current JSON object.\n"
         "Usage: |get <key> -> {value}\n";
 
-    bool getMultiple(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool getMultiple(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr getMultipleName = "getMultiple";
     static auto constexpr getMultipleDesc = "Gets multiple values at the specified keys from the current JSON object.\n"
         "Usage: |getMultiple <key1> <key2> ... -> {array of values}\n";
@@ -187,12 +187,12 @@ private:
     //------------------------------------------
     // Functions: Debugging
 
-    bool echo(std::span<std::string const> const& args);
+    static bool echo(std::span<std::string const> const& args);
     static auto constexpr echoName = "echo";
     static auto constexpr echoDesc = "Echoes the provided arguments to the console, with newline.\n"
         "Usage: |echo <arg1> <arg2> -> {unchanged-json}\n";
 
-    bool print(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool print(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr printName = "print";
     static auto constexpr printDesc = "Prints the current JSON value to the console.\n"
         "Usage: |print -> {unchanged-json}\n";
@@ -200,7 +200,7 @@ private:
     //------------------------------------------
     // Functions: Domain
 
-    bool nebs(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool nebs(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr nebsName = "nebs";
     static auto constexpr nebsDesc = "Parses a Nebulite Script command on the JSON\n"
         "Usage: |nebs <command> -> {value}\n";
@@ -219,25 +219,25 @@ private:
     //------------------------------------------
     // Functions: Type-related
 
-    bool typeAsNumber(Core::JsonScope* jsonDoc);
+    static bool typeAsNumber(Core::JsonScope* jsonDoc);
     static auto constexpr typeAsNumberName = "typeAsNumber";
     static auto constexpr typeAsNumberDesc = "Converts the current JSON type value to a number.\n"
         "Usage: |typeAsNumber -> {number}"
         "where the number reflects the enum value KeyType.\n";
 
-    bool typeAsString(Core::JsonScope* jsonDoc);
+    static bool typeAsString(Core::JsonScope* jsonDoc);
     static auto constexpr typeAsStringName = "typeAsString";
     static auto constexpr typeAsStringDesc = "Converts the current JSON type value to a string.\n"
         "Usage: |typeAsString -> {value,array,object}\n";
 
     // TODO: exists, isType <name>
 
-    bool serialize(Core::JsonScope* jsonDoc);
+    static bool serialize(Core::JsonScope* jsonDoc);
     static auto constexpr serializeName = "serialize";
     static auto constexpr serializeDesc = "Serializes the current JSON value to a string.\n"
         "Usage: |serialize -> {string}\n";
 
-    bool deserialize(Core::JsonScope* jsonDoc);
+    static bool deserialize(Core::JsonScope* jsonDoc);
     static auto constexpr deserializeName = "deserialize";
     static auto constexpr deserializeDesc = "Deserializes the current JSON string value.\n"
             "Usage: |deserialize -> {value}\n";
@@ -271,8 +271,8 @@ public:
      *                in a specified key. On success, the modified value will be stored back in the same key.
      * @return true if the transformations were successfully applied, false otherwise.
      */
-    bool parse(std::vector<std::string> const& args, Core::JsonScope* jsonDoc);
-    bool parse(std::vector<std::string> const& args, JSON* jsonDoc);
+    bool parse(std::vector<std::string> const& args, Core::JsonScope* jsonDoc) const ;
+    bool parse(std::vector<std::string> const& args, JSON* jsonDoc) const ;
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_JSON_RVALUE_TRANSFORMER_HPP

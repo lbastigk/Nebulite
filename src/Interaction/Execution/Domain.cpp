@@ -108,12 +108,12 @@ void DomainBase::baseDeserialization(std::string const& serialOrLinkWithCommands
 
             // New implementation through functioncall
             if (std::string const callStr = std::string(__FUNCTION__) + " set " + keyAndValue; parseStr(callStr) != Constants::ErrorTable::NONE()) {
-                Nebulite::cerr() << "Failed to apply deserialize transformation: " << callStr << Nebulite::endl;
+                Nebulite::error::println("Failed to apply deserialize transformation: ", callStr);
             }
         } else {
             // Forward to FunctionTree for resolution
             if (std::string const callStr = std::string(__FUNCTION__) + " " + token; parseStr(callStr) != Constants::ErrorTable::NONE()) {
-                Nebulite::cerr() << "Failed to apply deserialize transformation: " << callStr << Nebulite::endl;
+                Nebulite::error::println("Failed to apply deserialize transformation: ", callStr);
             }
         }
     }

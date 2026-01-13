@@ -10,9 +10,15 @@
 //------------------------------------------
 // Binding helper macro
 
-#define BIND_TRANSFORMATION(foo, name, desc) \
+// Bind non-static member function
+#define BIND_TRANSFORMATION_MEMBER(foo, name, desc) \
     static_assert(endsWithNewline(desc), "Description must end with a newline character"); \
     Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, foo, name, desc)
+
+// Bind static/free function
+#define BIND_TRANSFORMATION_STATIC(foo, name, desc) \
+    static_assert(endsWithNewline(desc), "Description must end with a newline character"); \
+    Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), foo, name, desc)
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -24,40 +30,40 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     // Bind transformation functions
 
     // Functions: Arithmetic
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::add, addName, addDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::mod, modName, modDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::multiply, multiplyName, multiplyDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::pow, powName, powDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::add, addName, addDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::mod, modName, modDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::multiply, multiplyName, multiplyDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::pow, powName, powDesc);
 
     // Functions: Array-related
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::ensureArray, ensureArrayName, ensureArrayDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::at, atName, atDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::length, lengthName, lengthDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::reverse, reverseName, reverseDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::first, firstName, firstDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::last, lastName, lastDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::ensureArray, ensureArrayName, ensureArrayDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::at, atName, atDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::length, lengthName, lengthDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::reverse, reverseName, reverseDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::first, firstName, firstDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::last, lastName, lastDesc);
 
     // Functions: Assertions
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::assertNonEmpty, assertNonEmptyName, assertNonEmptyDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::assertNonEmpty, assertNonEmptyName, assertNonEmptyDesc);
 
     // Functions: Casting
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::toInt, toIntName, toIntDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::toString, toStringName, toStringDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::toBool, toBoolName, toBoolDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::toDouble, toDoubleName, toDoubleDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::toBoolString, toBoolStringName, toBoolStringDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::toInt, toIntName, toIntDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::toString, toStringName, toStringDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::toBool, toBoolName, toBoolDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::toDouble, toDoubleName, toDoubleDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::toBoolString, toBoolStringName, toBoolStringDesc);
 
     // Functions: Collection
-    // BIND_TRANSFORMATION(&JsonRvalueTransformer::filter, filterName, &filterDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::map, mapName, mapDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::get, getName, getDesc);
+    // BIND_TRANSFORMATION_MEMBER(&JsonRvalueTransformer::filter, filterName, &filterDesc);
+    BIND_TRANSFORMATION_MEMBER(&JsonRvalueTransformer::map, mapName, mapDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::get, getName, getDesc);
 
     // Functions: Debugging
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::echo, echoName, echoDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::print, printName, printDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::echo, echoName, echoDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::print, printName, printDesc);
 
     // Functions: Domain
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::nebs, nebsName, nebsDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::nebs, nebsName, nebsDesc);
 
     // Functions: Statistics
     // ...
@@ -66,13 +72,13 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     // ...
 
     // Functions: Type-related
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::typeAsNumber, typeAsNumberName, typeAsNumberDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::typeAsString, typeAsStringName, typeAsStringDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::serialize, serializeName, serializeDesc);
-    BIND_TRANSFORMATION(&JsonRvalueTransformer::deserialize, deserializeName, deserializeDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::typeAsNumber, typeAsNumberName, typeAsNumberDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::typeAsString, typeAsStringName, typeAsStringDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::serialize, serializeName, serializeDesc);
+    BIND_TRANSFORMATION_STATIC(&JsonRvalueTransformer::deserialize, deserializeName, deserializeDesc);
 }
 
-bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, Core::JsonScope* jsonDoc) {
+bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, Core::JsonScope* jsonDoc) const {
     static std::string const funcName = __FUNCTION__;
     if (args.empty()) {
         return false;
@@ -83,7 +89,7 @@ bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, Core::Js
     });
 }
 
-bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JSON* jsonDoc) {
+bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JSON* jsonDoc) const {
     auto scope = jsonDoc->shareScope();
     static std::string const funcName = __FUNCTION__;
     if (args.empty()) {
@@ -102,8 +108,7 @@ bool JsonRvalueTransformer::add(std::span<std::string const> const& args, Core::
     if (args.size() < 2) {
         return false;
     }
-    auto numbers = args.subspan(1); // First argument is the transformation name
-    for (auto const& numStr : numbers) {
+    for (auto const& numStr : args.subspan(1)) {
         try {
             double num = std::stod(numStr);
             jsonDoc->set_add(valueKey, num);
@@ -118,8 +123,7 @@ bool JsonRvalueTransformer::multiply(std::span<std::string const> const& args, C
     if (args.size() < 2) {
         return false;
     }
-    auto numbers = args.subspan(1); // First argument is the transformation name
-    for (auto const& numStr : numbers) {
+    for (auto const numbers = args.subspan(1); auto const& numStr : numbers) {
         try {
             double num = std::stod(numStr);
             jsonDoc->set_multiply(valueKey, num);
@@ -135,12 +139,12 @@ bool JsonRvalueTransformer::mod(std::span<std::string const> const& args, Core::
         return false;
     }
     try {
-        double modValue = std::stod(args[1]);
-        auto currentValue = jsonDoc->get<double>(valueKey, 0.0);
+        double const modValue = std::stod(args[1]);
+        auto const currentValue = jsonDoc->get<double>(valueKey, 0.0);
         if (std::fabs(modValue) < std::numeric_limits<double>::epsilon()) {
             return false; // Modulo by zero is undefined
         }
-        double result = std::fmod(currentValue, modValue);
+        double const result = std::fmod(currentValue, modValue);
         jsonDoc->set<double>(valueKey, result);
         return true;
     } catch (...) {
@@ -153,9 +157,9 @@ bool JsonRvalueTransformer::pow(std::span<std::string const> const& args, Core::
         return false;
     }
     try {
-        double exponent = std::stod(args[1]);
-        auto currentValue = jsonDoc->get<double>(valueKey, 0.0);
-        double result = std::pow(currentValue, exponent);
+        double const exponent = std::stod(args[1]);
+        auto const currentValue = jsonDoc->get<double>(valueKey, 0.0);
+        double const result = std::pow(currentValue, exponent);
         jsonDoc->set<double>(valueKey, result);
         return true;
     } catch (...) {
@@ -166,14 +170,18 @@ bool JsonRvalueTransformer::pow(std::span<std::string const> const& args, Core::
 //------------------------------------------
 // Functions: Array-related
 
-bool JsonRvalueTransformer::ensureArray(Core::JsonScope* jsonDoc) const {
+// Clang marks this function as having an unreachable branch,
+// because it thinks the first branch always returns true?
+// Disable the warning for this function.
+// NOLINTNEXTLINE
+bool JsonRvalueTransformer::ensureArray(Core::JsonScope* jsonDoc) {
     // Cache the original member type to avoid the analyzer thinking the second branch is unreachable
-    if (auto const originalType = jsonDoc->memberType(valueKey); originalType == KeyType::array) {
+    if (jsonDoc->memberType(valueKey) == KeyType::array) {
         return true;
     }
 
     // Single value, wrap into an array
-    JSON tmp = jsonDoc->getSubDoc(valueKey);
+    JSON const tmp = jsonDoc->getSubDoc(valueKey);
     auto const key = valueKey + "[0]";
     jsonDoc->setSubDoc(key, tmp);
 
@@ -189,12 +197,11 @@ bool JsonRvalueTransformer::at(std::span<std::string const> const& args, Core::J
         if (!ensureArray(jsonDoc)) {
             return false;
         }
-        auto index = static_cast<size_t>(std::stoul(args[1]));
-        size_t arraySize = jsonDoc->memberSize(valueKey);
-        if (index >= arraySize) {
+        auto const index = static_cast<size_t>(std::stoul(args[1]));
+        if (index >= jsonDoc->memberSize(valueKey)) {
             return false; // Index out of bounds
         }
-        JSON temp = jsonDoc->getSubDoc(valueKey + "[" + std::to_string(index) + "]");
+        JSON const temp = jsonDoc->getSubDoc(valueKey + "[" + std::to_string(index) + "]");
         jsonDoc->setSubDoc(valueKey, temp);
         return true;
     } catch (...) {
@@ -206,7 +213,7 @@ bool JsonRvalueTransformer::length(Core::JsonScope* jsonDoc) {
     if (!ensureArray(jsonDoc)) {
         return false;
     }
-    size_t len = jsonDoc->memberSize(valueKey);
+    size_t const len = jsonDoc->memberSize(valueKey);
     jsonDoc->set(valueKey, static_cast<double>(len));
     return true;
 }
@@ -215,8 +222,8 @@ bool JsonRvalueTransformer::reverse(Core::JsonScope* jsonDoc) {
     if (!ensureArray(jsonDoc)) {
         return false;
     }
-    size_t arraySize = jsonDoc->memberSize(valueKey);
-    JSON tmp = jsonDoc->getSubDoc(valueKey);
+    size_t const arraySize = jsonDoc->memberSize(valueKey);
+    JSON const tmp = jsonDoc->getSubDoc(valueKey);
     for (size_t i = 0; i < arraySize; ++i) {
         auto const key = valueKey + "[" + std::to_string(i) + "]";
         JSON element = tmp.getSubDoc("[" + std::to_string(arraySize - 1 - i) + "]");
@@ -229,11 +236,10 @@ bool JsonRvalueTransformer::first(Core::JsonScope* jsonDoc) {
     if (!ensureArray(jsonDoc)) {
         return false;
     }
-    size_t arraySize = jsonDoc->memberSize(valueKey);
-    if (arraySize == 0) {
+    if (jsonDoc->memberSize(valueKey) == 0) {
         return false; // Empty array
     }
-    JSON firstElement = jsonDoc->getSubDoc(valueKey + "[0]");
+    JSON const firstElement = jsonDoc->getSubDoc(valueKey + "[0]");
     jsonDoc->setSubDoc(valueKey, firstElement);
     return true;
 }
@@ -242,11 +248,11 @@ bool JsonRvalueTransformer::last(Core::JsonScope* jsonDoc) {
     if (!ensureArray(jsonDoc)) {
         return false;
     }
-    size_t arraySize = jsonDoc->memberSize(valueKey);
+    size_t const arraySize = jsonDoc->memberSize(valueKey);
     if (arraySize == 0) {
         return false; // Empty array
     }
-    JSON lastElement = jsonDoc->getSubDoc(valueKey + "[" + std::to_string(arraySize - 1) + "]");
+    JSON const lastElement = jsonDoc->getSubDoc(valueKey + "[" + std::to_string(arraySize - 1) + "]");
     jsonDoc->setSubDoc(valueKey, lastElement);
     return true;
 }
@@ -254,6 +260,7 @@ bool JsonRvalueTransformer::last(Core::JsonScope* jsonDoc) {
 //------------------------------------------
 // Functions: Assertions
 
+// NOLINTNEXTLINE
 bool JsonRvalueTransformer::assertNonEmpty(Core::JsonScope* jsonDoc) {
     static std::string errorMessage = std::string(__FUNCTION__) + " JSON value is null";
 
@@ -268,8 +275,8 @@ bool JsonRvalueTransformer::assertNonEmpty(Core::JsonScope* jsonDoc) {
 // Functions: Casting
 
 bool JsonRvalueTransformer::toInt(Core::JsonScope* jsonDoc) {
-    auto currentValue = jsonDoc->get<double>(valueKey, 0.0);
-    auto valueAsInt = static_cast<int>(currentValue);
+    auto const currentValue = jsonDoc->get<double>(valueKey, 0.0);
+    auto const valueAsInt = static_cast<int>(currentValue);
     jsonDoc->set<int>(valueKey, valueAsInt);
     return true;
 }
@@ -287,32 +294,32 @@ bool JsonRvalueTransformer::toBool(Core::JsonScope* jsonDoc) {
 
     auto const currentValueStr = jsonDoc->get<std::string>(valueKey, "");
     std::string valueLower;
-    std::ranges::transform(currentValueStr, std::back_inserter(valueLower), [](unsigned char c) {
+    std::ranges::transform(currentValueStr, std::back_inserter(valueLower), [](unsigned char const c) {
             return std::tolower(c);
     });
     if (supportedTrueValues.contains(valueLower)) {
-            jsonDoc->set<bool>(valueKey, true);
-            return true;
+        jsonDoc->set<bool>(valueKey, true);
+        return true;
     }
-    if (supportedFalseValues.find(valueLower) != supportedFalseValues.end()) {
-            jsonDoc->set<bool>(valueKey, false);
-            return true;
+    if (supportedFalseValues.contains(valueLower)) {
+        jsonDoc->set<bool>(valueKey, false);
+        return true;
     }
 
     // Fallback: get as bool directly
-    bool boolValue = jsonDoc->get<bool>(valueKey, false);
+    bool const boolValue = jsonDoc->get<bool>(valueKey, false);
     jsonDoc->set<bool>(valueKey, boolValue);
     return true;
 }
 
 bool JsonRvalueTransformer::toDouble(Core::JsonScope* jsonDoc) {
-    auto currentValue = jsonDoc->get<double>(valueKey, 0.0);
+    auto const currentValue = jsonDoc->get<double>(valueKey, 0.0);
     jsonDoc->set<double>(valueKey, currentValue);
     return true;
 }
 
 bool JsonRvalueTransformer::toBoolString(Core::JsonScope* jsonDoc) {
-    bool boolValue = jsonDoc->get<bool>(valueKey, false);
+    bool const boolValue = jsonDoc->get<bool>(valueKey, false);
     jsonDoc->set<std::string>(valueKey, boolValue ? "true" : "false");
     return true;
 }
@@ -320,10 +327,10 @@ bool JsonRvalueTransformer::toBoolString(Core::JsonScope* jsonDoc) {
 //------------------------------------------
 // Functions: Collection
 
-bool JsonRvalueTransformer::map(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool JsonRvalueTransformer::map(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) const {
     if (jsonDoc->memberType(valueKey) == KeyType::value) {
         // Single value, we wrap it into an array
-        JSON tmp = jsonDoc->getSubDoc(valueKey);
+        JSON const tmp = jsonDoc->getSubDoc(valueKey);
         auto const key = valueKey + "[0]";
         jsonDoc->setSubDoc(key, tmp);
     }
@@ -338,7 +345,7 @@ bool JsonRvalueTransformer::map(std::span<std::string const> const& args, Core::
         cmd += arg;
     }
 
-    size_t arraySize = jsonDoc->memberSize(valueKey);
+    size_t const arraySize = jsonDoc->memberSize(valueKey);
     for (uint32_t idx = 0; idx < arraySize; ++idx) {
         // Set temp document with current element
         auto const elementKey = valueKey + "[" + std::to_string(idx) + "]";
@@ -361,7 +368,7 @@ bool JsonRvalueTransformer::get(std::span<std::string const> const& args, Core::
         return false;
     }
     auto const& key = valueKey + args[1];
-    JSON subDoc = jsonDoc->getSubDoc(key);
+    JSON const subDoc = jsonDoc->getSubDoc(key);
     jsonDoc->setSubDoc(valueKey, subDoc);
     return true;
 }
@@ -400,6 +407,7 @@ bool JsonRvalueTransformer::echo(std::span<std::string const> const& args) {
     return true;
 }
 
+// NOLINTNEXTLINE
 bool JsonRvalueTransformer::print(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     // Print to cout, no modifications
     if (args.size() > 1) {
@@ -414,8 +422,7 @@ bool JsonRvalueTransformer::print(std::span<std::string const> const& args, Core
 // Functions: Domain
 
 bool JsonRvalueTransformer::nebs(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    std::string const cmd = Utility::StringHandler::recombineArgs(args);
-    if (jsonDoc->parseStr(cmd) != Constants::ErrorTable::NONE()) {
+    if (jsonDoc->parseStr(Utility::StringHandler::recombineArgs(args)) != Constants::ErrorTable::NONE()) {
         return false;
     }
     return true;
