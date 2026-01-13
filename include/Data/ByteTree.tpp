@@ -1,3 +1,6 @@
+#ifndef NEBULITE_DATA_BYTETREE_TPP
+#define NEBULITE_DATA_BYTETREE_TPP
+
 #include <Data/ByteTree.hpp>
 
 namespace Nebulite::Data {
@@ -36,3 +39,4 @@ size_t ByteTree<StoreType>::Layer4::idToIndex(uint32_t const& id) const {
 }
 
 } // namespace Nebulite::Data
+#endif // NEBULITE_DATA_BYTETREE_TPP

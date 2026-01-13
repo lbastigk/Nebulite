@@ -47,13 +47,8 @@ private:
     // Bits: [31-24] [23-16] [15-8] [7-0]
     //       Layer4  Layer3  Layer2  Layer1
 
-    // TODO: For some reason we never reach Layer1 on apply calls...
-    //       Say we have id 235, we Should emplace back:
-    //       Layer4[0] -> Layer3[0] -> Layer2[0] -> Layer1[235] -> StoreType
-    //       But Layer1 is never reached...
-
     // Lowest layer, directly storing StoreType
-    class Layer1 : public Branch<StoreType, uint32_t, 8> {
+    class Layer1 final : public Branch<StoreType, uint32_t, 8> {
     public:
         Layer1() = default;
 
@@ -67,7 +62,7 @@ private:
     };
 
     // Second layer, storing Layer1
-    class Layer2 : public Branch<Layer1, uint32_t, 8> {
+    class Layer2 final : public Branch<Layer1, uint32_t, 8> {
     public:
         Layer2() = default;
 
@@ -81,7 +76,7 @@ private:
     };
 
     // Third layer, storing Layer2
-    class Layer3 : public Branch<Layer2, uint32_t, 8> {
+    class Layer3 final : public Branch<Layer2, uint32_t, 8> {
     public:
         Layer3() = default;
 
@@ -95,7 +90,7 @@ private:
     };
 
     // Top layer, storing Layer3
-    class Layer4 : public Branch<Layer3, uint32_t, 8> {
+    class Layer4 final : public Branch<Layer3, uint32_t, 8> {
     public:
         Layer4() = default;
 

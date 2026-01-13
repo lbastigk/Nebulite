@@ -11,15 +11,12 @@
 // Includes
 
 // Standard library
-#include <concepts>
+
 #include <cstddef>
 #include <mutex>
-#include <new> // for placement new
 #include <random>
 #include <shared_mutex>
-#include <stdexcept>
 #include <type_traits>
-#include <vector>
 
 // External
 #include "absl/container/inlined_vector.h"
@@ -64,7 +61,8 @@ public:
 
     // Copy constructor: create a new mutex, copy protected by locking source
     Branch(Branch const& other) {
-        std::scoped_lock lock(other.storageMutex);
+        // NOLINTNEXTLINE
+        std::scoped_lock const lock(other.storageMutex);
         storage = other.storage;
         randNum = other.randNum;
         for (size_t i = 0; i < trackerSize; ++i) {
@@ -74,7 +72,8 @@ public:
 
     // Move constructor: create a new mutex, move-protect by locking source
     Branch(Branch&& other) noexcept {
-        std::scoped_lock lock(other.storageMutex);
+        // NOLINTNEXTLINE
+        std::scoped_lock const lock(other.storageMutex);
         storage = std::move(other.storage);
         randNum = other.randNum;
         for (size_t i = 0; i < trackerSize; ++i) {
@@ -85,7 +84,8 @@ public:
     // Copy assignment: lock both (scoped_lock uses std::lock internally), keep this->mutex intact
     Branch& operator=(Branch const& other) {
         if (this == &other) return *this;
-        std::scoped_lock lock(storageMutex, other.storageMutex);
+        // NOLINTNEXTLINE
+        std::scoped_lock const lock(storageMutex, other.storageMutex);
         storage = other.storage;
         randNum = other.randNum;
         for (size_t i = 0; i < trackerSize; ++i) {
@@ -97,7 +97,8 @@ public:
     // Move assignment: lock both, move storage, keep this->mutex intact
     Branch& operator=(Branch&& other) noexcept {
         if (this == &other) return *this;
-        std::scoped_lock lock(storageMutex, other.storageMutex);
+        // NOLINTNEXTLINE
+        std::scoped_lock const lock(storageMutex, other.storageMutex);
         storage = std::move(other.storage);
         randNum = other.randNum;
         for (size_t i = 0; i < trackerSize; ++i) {
@@ -136,7 +137,7 @@ protected:
     [[nodiscard]] virtual size_t idToIndex(idType const& id) const = 0;
 
 private:
-    static constexpr std::size_t MaxSize = std::size_t(1) << MaxBits;
+    static auto constexpr MaxSize = static_cast<size_t>(1) << MaxBits;
 
     //------------------------------------------
     // Storage
@@ -157,17 +158,17 @@ private:
     static constexpr std::size_t trackerSize = (MaxSize + 63) / 64;
     std::array<std::atomic<uint64_t>, trackerSize> tracker{0};
 
-    void markAccessed(std::size_t index) {
+    void markAccessed(std::size_t const index) {
         std::size_t arrayIndex = index / 64;
-        std::size_t bitPosition = index % 64;
-        uint64_t mask = uint64_t(1) << bitPosition;
+        std::size_t const bitPosition = index % 64;
+        auto const mask = static_cast<uint64_t>(1) << bitPosition;
         tracker[arrayIndex].fetch_or(mask, std::memory_order_relaxed);
     }
 
-    bool wasAccessed(std::size_t index) const {
+    bool wasAccessed(std::size_t const index) const {
         std::size_t arrayIndex = index / 64;
-        std::size_t bitPosition = index % 64;
-        uint64_t mask = uint64_t(1) << bitPosition;
+        std::size_t const bitPosition = index % 64;
+        auto const mask = static_cast<uint64_t>(1) << bitPosition;
         return (tracker[arrayIndex].load(std::memory_order_relaxed) & mask) != 0;
     }
 

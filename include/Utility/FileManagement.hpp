@@ -3,8 +3,8 @@
  * @brief This file contains the FileManagement class for managing file operations.
  */
 
-#ifndef NEBULITE_UTILITY_FILEMANAGEMENT_HPP
-#define NEBULITE_UTILITY_FILEMANAGEMENT_HPP
+#ifndef NEBULITE_UTILITY_FILE_MANAGEMENT_HPP
+#define NEBULITE_UTILITY_FILE_MANAGEMENT_HPP
 
 //------------------------------------------
 // Includes
@@ -87,4 +87,4 @@ public:
     static bool fileExists(std::string const& path);
 };
 } // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_FILEMANAGEMENT_HPP
+#endif // NEBULITE_UTILITY_FILE_MANAGEMENT_HPP

@@ -25,18 +25,12 @@ namespace Nebulite::Utility {
 /**
  * @class Nebulite::Utility::TextInput
  * @brief Helper class to handle text input.
- * 
- * Includes:
- * 
- * - Current input buffer
- * 
- * - Command history browsing
- * 
- * - Cursor movement
- * 
- * - Output log
- * 
- * - Submit handling
+ * @details Includes:
+ *          - Current input buffer
+ *          - Command history browsing
+ *          - Cursor movement
+ *          - Output log
+ *          - Submit handling
  */
 class TextInput{
 public:
@@ -143,10 +137,9 @@ private:
 
     /**
      * @brief Buffer for the command at index 0 in the history.
-     * This is the command that is being written as unfinished input.
-     * 
-     * If selectedCommandIndex is 0, consoleInputBuffer points to this string.
-     * If selectedCommandIndex is > 0, consoleInputBuffer points to an entry in commandHistory.
+     * @details This is the command that is being written as unfinished input.
+     *          If selectedCommandIndex is 0, consoleInputBuffer points to this string.
+     *          If selectedCommandIndex is > 0, consoleInputBuffer points to an entry in commandHistory.
      */
     std::string commandIndexZeroBuffer;
 
@@ -157,25 +150,23 @@ private:
 
     /**
      * @brief History of past commands.
-     * 
-     * If the user presses UP/DOWN, they can cycle through this history.
-     * If we write while browsing history, we modify that entry!
-     * While the output still shows the original command,
-     * the input buffer is modified to show the new command.
-     * 
-     * Example:
-     * - User types "set var1 10" and presses Enter
-     * - User presses UP, input buffer shows "set var1 10"
-     * - User modifies it to "set var1 20"
-     * - User presses Enter, command "set var1 20" is executed and added
-     * - The output shows both commands, but the commandHistory shows "set var1 20" twice, as
-     * we modified the first entry while browsing history.
+     * @details If the user presses UP/DOWN, they can cycle through this history.
+     *          If we write while browsing history, we modify that entry!
+     *          While the output still shows the original command,
+     *          the input buffer is modified to show the new command.
+     *          Example:
+     *          - User types "set var1 10" and presses Enter
+     *          - User presses UP, input buffer shows "set var1 10"
+     *          - User modifies it to "set var1 20"
+     *          - User presses Enter, command "set var1 20" is executed and added
+     *          - The output shows both commands, but the commandHistory shows "set var1 20" twice, as
+     *          we modified the first entry while browsing history.
      */
     std::vector<std::string> commandHistory;    // Dynamic, is modified
 
     /**
      * @brief Index of the currently selected command in history.
-     * 0 means no selection, latest input.
+     * @details 0 means no selection, latest input.
      */
     size_t selectedCommandIndex = 0;
 

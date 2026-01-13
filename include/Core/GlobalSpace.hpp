@@ -90,15 +90,6 @@ public:
     void parseCommandLineArguments(int const& argc, char const** argv);
 
     /**
-     * @brief Resolves a task queue by parsing each task and executing it.
-     * @param tq The task queue to resolve.
-     * @param waitCounter A counter for checking if the task execution should wait a certain amount of frames.
-     * @return The result of the task queue resolution.
-     * @todo Remove this function head and all mentions of it
-     */
-    Data::TaskQueueResult resolveTaskQueue(Data::TaskQueue& tq, uint64_t const* waitCounter) const;
-
-    /**
      * @brief Parses the task queue for execution.
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         the last critical error code otherwise.
@@ -125,7 +116,7 @@ public:
      * @brief Broadcasts a ruleset to other domains.
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
-    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) const {
         invoke.broadcast(entry);
     }
 

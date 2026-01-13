@@ -3,8 +3,8 @@
  * @brief Utility functions for string manipulation and parsing.
  */
 
-#ifndef NEBULITE_UTILITY_STRINGHANDLER_HPP
-#define NEBULITE_UTILITY_STRINGHANDLER_HPP
+#ifndef NEBULITE_UTILITY_STRING_HANDLER_HPP
+#define NEBULITE_UTILITY_STRING_HANDLER_HPP
 
 //------------------------------------------
 // Includes
@@ -137,4 +137,4 @@ public:
     static std::string recombineArgs(std::span<std::string const> const& args);
 };
 }   // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_STRINGHANDLER_HPP
+#endif // NEBULITE_UTILITY_STRING_HANDLER_HPP

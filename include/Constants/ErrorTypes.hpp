@@ -6,7 +6,7 @@
  * Functions bound via the FuncTree system utilize a `Nebulite::Constants::Error foo(int argc,  char** argv)` signature.
  *
  * Usage:
- *   - Functions such as Nebulite::resolveTaskQueue executes main tree functions
+ *   - Classes such as taskQueues executes main tree functions
  *     which return an Error value to indicate the result of execution.
  *   - Critical errors (negative values) signal unrecoverable states and are used
  *     in main.cpp to determine if the engine should halt execution (see
@@ -14,19 +14,6 @@
  *   - Non-critical errors (positive values) represent recoverable or minor issues,
  *     such as argument mismatches or unimplemented features.
  *   - The NONE value (0) indicates successful execution with no errors.
- *
- * Example:
- * ```cpp
- *   Nebulite::Constants::Error result = Nebulite::resolveTaskQueue(...);
- *   if (result.isCritical()){
- *       // Handle critical error
- *   }
- * ```
- * 
- * Predefined errors are accessed within the ErrorTable struct, e.g.,
- * ```cpp
- * Nebulite::Constants::Error lastCriticalResult = Nebulite::Constants::ErrorTable::NONE;
- * ```
  *
  * See main.cpp for detailed usage in the main engine loop and error handling.
  */

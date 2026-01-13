@@ -1,5 +1,7 @@
-#include "Data/Branch.hpp"
+#ifndef NEBULITE_DATA_BRANCH_TPP
+#define NEBULITE_DATA_BRANCH_TPP
 
+#include "Data/Branch.hpp"
 #include <memory>
 
 namespace Nebulite::Data {
@@ -13,8 +15,7 @@ std::shared_ptr<StoreType> Branch<StoreType, idType, MaxBits>::at(idType const& 
         std::shared_lock<std::shared_mutex> slock(storageMutex);
 
         if (index < storage.size()) {
-            auto ptr = storage[index];
-            if (ptr) {
+            if (auto ptr = storage[index]; ptr) {
                 markAccessed(index);
                 return ptr;
             }
@@ -60,7 +61,7 @@ void Branch<StoreType, idType, MaxBits>::apply() {
     std::scoped_lock lock(storageMutex);
     size_t const n = storage.size();
     for (size_t i = 0; i < n; ++i) {
-        if (wasAccessed(i)) {   // Storage validity is guarenteed through ::at()
+        if (wasAccessed(i)) {   // Storage validity is guaranteed through ::at()
             storage[i]->apply();
         }
     }
@@ -70,3 +71,4 @@ void Branch<StoreType, idType, MaxBits>::apply() {
 }
 
 } // namespace Nebulite::Data
+#endif // NEBULITE_DATA_BRANCH_TPP

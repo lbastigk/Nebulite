@@ -35,7 +35,7 @@ public:
      * @details Calculates the delta time since the last update and updates the timers full runtime.
      * @param fixed_dt_ms If greater than 0, this value will be used as the delta time instead of the calculated value.
      */
-    void update(uint64_t fixed_dt_ms = 0) noexcept {
+    void update(uint64_t const& fixed_dt_ms = 0) noexcept {
         //------------------------------------------
         // 1.) Gathering timing information, even if the timer is not running
         //     The whole timer works on dt integration, so we always need to know the current dt
