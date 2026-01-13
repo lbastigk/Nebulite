@@ -1,7 +1,7 @@
 #ifndef NEBULITE_DATA_BYTETREE_TPP
 #define NEBULITE_DATA_BYTETREE_TPP
 
-#include <Data/ByteTree.hpp>
+#include "Data/Tree/ByteTree.hpp"
 
 namespace Nebulite::Data {
 

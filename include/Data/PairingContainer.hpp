@@ -19,8 +19,8 @@
 #include "absl/container/node_hash_map.h"
 
 // Nebulite
-#include "Data/ByteTree.hpp"
-#include "Data/HotStringKeyMap.hpp"
+#include "Data/Tree/ByteTree.hpp"
+#include "Data/Map/HotStringKeyMap.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 

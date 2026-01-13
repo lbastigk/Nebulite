@@ -1,7 +1,7 @@
 #ifndef NEBULITE_DATA_BRANCH_TPP
 #define NEBULITE_DATA_BRANCH_TPP
 
-#include "Data/Branch.hpp"
+#include "Data/Tree/Branch.hpp"
 #include <memory>
 
 namespace Nebulite::Data {

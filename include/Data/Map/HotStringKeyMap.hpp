@@ -13,7 +13,7 @@
 #include <utility>
 
 // Nebulite
-#include "Data/HotKeyMap.hpp"
+#include "HotKeyMap.hpp"
 
 namespace Nebulite::Data {
 

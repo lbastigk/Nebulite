@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Data/Branch.hpp"
+#include "Branch.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -106,5 +106,5 @@ private:
     Layer4 rootLayer;
 };
 } // namespace Nebulite::Data
-#include "Data/ByteTree.tpp"
+#include "ByteTree.tpp"
 #endif // NEBULITE_DATA_BYTE_TREE_HPP

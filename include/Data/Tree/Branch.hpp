@@ -180,5 +180,5 @@ private:
 };
 
 } // namespace Nebulite::Data
-#include "Data/Branch.tpp"
+#include "Data/Tree/Branch.tpp"
 #endif // NEBULITE_DATA_BRANCH_HPP
