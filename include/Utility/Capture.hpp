@@ -46,7 +46,7 @@ class CaptureStream{
     Capture *parent;                                    // Parent reference so we can lock its mutex, so cout/cerr don't interfere
     std::reference_wrapper<std::ostream> baseStream;    // ostream outlives CaptureStream, so reference is safe
     OutputLine::Type type;
-    explicit CaptureStream(Capture* p, std::ostream& s, OutputLine::Type t) : parent(p), baseStream(s), type(t){}
+    explicit CaptureStream(Capture* p, std::ostream& s, OutputLine::Type const& t) : parent(p), baseStream(s), type(t){}
 public:
     friend class Capture;
 
@@ -57,6 +57,14 @@ public:
         // Cast to std::string, then call templated operator
         return (*this) << std::string(data);
     }
+
+    //------------------------------------------
+    // Printing helpers
+    template<typename... Args>
+    void print(Args&&... args);
+
+    template<typename... Args>
+    void println(Args&&... args);
 };
 
 /**
@@ -130,7 +138,7 @@ CaptureStream& CaptureStream::operator<<(T const& data){
         lastLine = "";
 
         // Split buffer by newlines
-        std::string buf = workingBuffer.str();
+        std::string const buf = workingBuffer.str();
         std::vector<std::string> lines = Nebulite::Utility::StringHandler::split(buf, '\n');
 
         // If last character is not newline, keep it in workingBuffer
@@ -146,6 +154,23 @@ CaptureStream& CaptureStream::operator<<(T const& data){
         }
     }
     return *this;
+}
+
+template<typename... Args>
+void CaptureStream::print(Args&&... args){
+    // Turn into string, pass to operator<<
+    std::ostringstream workingBuffer;
+    (workingBuffer << ... << args);
+    (*this) << workingBuffer.str();
+}
+
+template<typename... Args>
+void CaptureStream::println(Args&&... args) {
+    // Turn into string, pass to operator<< with newline at end
+    std::ostringstream workingBuffer;
+    (workingBuffer << ... << args);
+    workingBuffer << '\n';
+    (*this) << workingBuffer.str();
 }
 
 } // namespace Nebulite::Utility

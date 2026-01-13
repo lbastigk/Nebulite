@@ -216,20 +216,42 @@ GlobalDocAccessor& globalDoc();
 /**
  * @brief Singleton accessor for the cout capture object
  * @return CaptureStream object for capturing cout output
- * @todo This is an outdated usage, move to std::print based wrapper later on
- *       -> Nebulite::Log::println(args...);
- *          use recursive variadic templates for that, so that we can have multiple args
+ * @todo Remove once all usages are gone
  */
-Utility::CaptureStream& cout();
+[[deprecated("Use Nebulite::log::print/println instead")]] Utility::CaptureStream& cout();
 
 /**
  * @brief Singleton accessor for the cerr capture object
  * @return CaptureStream object for capturing cerr output
- * @todo This is an outdated usage, move to std::print based wrapper later on
- *       -> Nebulite::Error::println(args...);
- *          use recursive variadic templates for that, so that we can have multiple args
+ * @todo Remove once all usages are gone
  */
-Utility::CaptureStream& cerr();
+[[deprecated("Use Nebulite::error::print/println instead")]] Utility::CaptureStream& cerr();
+
+class log {
+public:
+    template<typename... Args>
+    static void print(Args&&... args) {
+        Nebulite::Utility::Capture::cout().print(std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    static void println(Args&&... args) {
+        Nebulite::Utility::Capture::cout().println(std::forward<Args>(args)...);
+    }
+};
+
+class error {
+public:
+    template<typename... Args>
+    static void print(Args&&... args) {
+        Nebulite::Utility::Capture::cerr().print(std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    static void println(Args&&... args) {
+        Nebulite::Utility::Capture::cerr().println(std::forward<Args>(args)...);
+    }
+};
 
 /**
  * @brief End line string for capturing output
