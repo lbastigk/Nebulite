@@ -15,8 +15,8 @@
 #include "Constants/KeyNames.hpp"
 #include "Core/Environment.hpp"
 #include "Core/Renderer.hpp"
-#include "DomainModule/Initializer.hpp"
 #include "DomainModule/GlobalSpace/Settings.hpp"
+#include "DomainModule/Initializer.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Utility/Capture.hpp"
 #include "Utility/TimeKeeper.hpp"
@@ -166,6 +166,14 @@ void Renderer::initSDL() {
     );
 
     //------------------------------------------
+    // Check for errors in SDL
+
+    if (SDL_GetError()[0] != '\0') {
+        Nebulite::cerr() << "SDL Error during initialization: " << SDL_GetError() << Nebulite::endl;
+        SDL_ClearError(); // Clear error after reporting
+    }
+
+    //------------------------------------------
     // Fonts
 
     // Initialize SDL_ttf
@@ -247,6 +255,13 @@ Constants::Error Renderer::update() {
     if (showFPS)
         renderFPS();
     showFrame();
+
+    //------------------------------------------
+    // Check for SDL errors
+    if (SDL_GetError()[0] != '\0') {
+        Nebulite::cerr() << "SDL Error during rendering: " << SDL_GetError() << Nebulite::endl;
+        SDL_ClearError(); // Clear error after reporting
+    }
 
     //------------------------------------------
     // SDL Polling at the end of the frame

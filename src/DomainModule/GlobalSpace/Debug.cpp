@@ -302,7 +302,7 @@ Constants::Error Debug::waitForInput(std::span<std::string const> const& args) {
 
 void Debug::setupPlatformInfo() {
 #ifdef _WIN32
-    moduleScope.set<std::string>(Data::ScopedKey("platform", "windows");
+    moduleScope.set<std::string>(Data::ScopedKey("platform"), "windows");
 #elif __linux__
     moduleScope.set<std::string>(Data::ScopedKey("platform"), "linux");
 #elif __APPLE__
@@ -315,7 +315,7 @@ void Debug::setupPlatformInfo() {
     moduleScope.set<std::string>(Data::ScopedKey("platform"), "android");
 #elif __TEMPLEOS__
     printf("Glory be to TempleOS!\n");
-    moduleScope.set<std::string>("platform", "templeos");
+    moduleScope.set<std::string>(Data::ScopedKey("platform"), "templeos");
 #else
     moduleScope.set<std::string>(Data::ScopedKey("platform"), "unknown");
 #endif

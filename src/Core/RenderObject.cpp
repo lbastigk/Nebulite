@@ -155,7 +155,7 @@ void RenderObject::calculateDstRect() {
 }
 
 SDL_Rect* RenderObject::getSrcRect() {
-    if (*refs.isSpritesheet > DBL_EPSILON) {
+    if (std::fabs(*refs.isSpritesheet) > std::numeric_limits<double>::epsilon()) {
         // isSpritesheet is true
         return &srcRect;
     }
@@ -164,7 +164,7 @@ SDL_Rect* RenderObject::getSrcRect() {
 
 void RenderObject::calculateSrcRect() {
     // Check if the object is a sprite
-    if (*refs.isSpritesheet > DBL_EPSILON) {
+    if (std::fabs(*refs.isSpritesheet) > std::numeric_limits<double>::epsilon()) {
         // isSpritesheet is true
         // Calculate the source rectangle for the sprite (which portion of the sprite sheet to render)
         srcRect = {
