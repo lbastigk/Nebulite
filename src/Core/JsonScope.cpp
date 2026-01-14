@@ -42,7 +42,7 @@ void JsonScope::deserialize(std::string const& serialOrLinkWithCommands) {
 
     //------------------------------------------
     // Load the JSON file
-    std::string const serialOrLink = tokens[0];
+    std::string const& serialOrLink = tokens[0];
     if (tokens.size() == 1) {
         // No commands left, just deserialize normally
         if (getScopePrefix().empty()) {
