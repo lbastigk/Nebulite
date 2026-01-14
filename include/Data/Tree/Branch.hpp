@@ -11,15 +11,16 @@
 // Includes
 
 // Standard library
-
 #include <cstddef>
 #include <mutex>
 #include <random>
-#include <shared_mutex>
 #include <type_traits>
 
 // External
 #include "absl/container/inlined_vector.h"
+
+// Nebulite
+#include "Utility/SharedMutex.hpp"
 
 //------------------------------------------
 
@@ -147,7 +148,7 @@ private:
     arr<std::shared_ptr<StoreType>> storage;
 
     // Mutex for thread-safe access
-    mutable std::shared_mutex storageMutex;
+    mutable Nebulite::Utility::SharedMutex storageMutex;
 
     // RNG generator for cleanup
     std::mt19937 randNum{std::random_device{}()};

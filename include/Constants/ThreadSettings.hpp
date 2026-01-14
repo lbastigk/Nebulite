@@ -14,7 +14,7 @@
  * @details If set to 1, all threads share the same map.
  *          Optimized to not use any special indexing, but simple access to [0] if set to 1.
  */
-#define ORDERED_DOUBLE_POINTERS_MAPS 5
+#define ORDERED_DOUBLE_POINTERS_MAPS 8
 
 /**
  * @def INVOKE_EXPR_POOL_SIZE
@@ -23,13 +23,13 @@
  *       A pool size of 1 (no pool) is minimally faster.
  *       Perhaps a small overhaul is needed to actually make use of the pool?
  */
-#define EXPRESSION_POOL_SIZE 5
+#define EXPRESSION_POOL_SIZE 8
 
 /**
  * @def THREADRUNNER_COUNT
  * @brief Number of thread runners for processing broadcast-listen pairs.
  */
-#define THREADRUNNER_COUNT 5
+#define THREADRUNNER_COUNT 8
 
 
 /**

@@ -12,9 +12,6 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <mutex>
-
 // External
 #include "absl/container/node_hash_map.h"
 
@@ -23,6 +20,7 @@
 #include "Data/Map/HotStringKeyMap.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
+#include "Utility/SharedMutex.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -80,7 +78,7 @@ public:
 
 #else
 private:
-    mutable std::shared_mutex mutex;
+    mutable Nebulite::Utility::SharedMutex mutex;
 
     absl::node_hash_map<uint32_t, BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
 
@@ -89,16 +87,29 @@ public:
     ~ListenersOnRuleset() = default;
 
     ListenersOnRuleset(ListenersOnRuleset const& other) {
-        std::shared_lock<std::shared_mutex> slock(other.mutex);
+        Nebulite::Utility::ReadLock slock(other.mutex); // lock other for reading
         listeners = other.listeners;
         entry = other.entry;
     }
 
     ListenersOnRuleset& operator=(ListenersOnRuleset const& other) {
         if (this == &other) return *this;
-        std::scoped_lock lock(mutex, other.mutex);
-        listeners = other.listeners;
-        entry = other.entry;
+        if (&mutex < &other.mutex) {
+            Nebulite::Utility::WriteLock writeLock(mutex);
+            Nebulite::Utility::ReadLock readLock(other.mutex);
+            listeners = other.listeners;
+            entry = other.entry;
+        } else if (&mutex > &other.mutex) {
+            Nebulite::Utility::ReadLock readLock(other.mutex);
+            Nebulite::Utility::WriteLock writeLock(mutex);
+            listeners = other.listeners;
+            entry = other.entry;
+        } else {
+            // fallback (shouldn't happen unless aliases point to same underlying mutex)
+            Nebulite::Utility::WriteLock writeLock(mutex);
+            listeners = other.listeners;
+            entry = other.entry;
+        }
         return *this;
     }
 
@@ -108,7 +119,7 @@ public:
         // Thread-local random generator for probabilistic cleanup
         thread_local std::mt19937 cleanup_rng(std::random_device{}());
         thread_local std::uniform_int_distribution<int> cleanup_dist(0, 99); // uniform, avoids modulo bias
-        std::unique_lock<std::shared_mutex> ulock(mutex);
+        Nebulite::Utility::WriteLock writeLock(mutex);
         if (cleanup_dist(cleanup_rng) == 0) {
             for (auto it = listeners.begin(); it != listeners.end();) {
                 if (!it->second.active) {
@@ -122,14 +133,14 @@ public:
     }
 
     void apply() {
-        std::shared_lock<std::shared_mutex> slock(mutex);
+        Nebulite::Utility::ReadLock readLock(mutex);
         for (auto& pair : std::views::values(listeners)) {
             pair.apply();
         }
     }
 
     void insert(uint32_t const& id, BroadCastListenPair const& pair) {
-        std::unique_lock<std::shared_mutex> ulock(mutex);
+        Nebulite::Utility::WriteLock writeLock(mutex);
         listeners[id] = pair;
     }
 #endif // USE_BYTETREE_CONTAINER
@@ -153,7 +164,9 @@ public:
      * @brief Required for processing to start working
      * @return A unique lock on the internal mutex
      */
-    std::unique_lock<std::shared_mutex> lock() const {return std::unique_lock<std::shared_mutex>(mutex);}
+    Nebulite::Utility::SharedLock lock() const {
+        return Nebulite::Utility::SharedLock(mutex);
+    }
 
 private:
     struct idToMap {
@@ -161,12 +174,14 @@ private:
             uint32_t,           // The ID of self.
             OnTopicFromId       // The struct containing active flag and rulesets
         > map;
-        mutable std::shared_mutex mutex; // Mutex for thread-safe access
+        mutable Nebulite::Utility::SharedMutex mutex; // Mutex for thread-safe access
     };
 
     // HotStringKeyMap seems to be minimally faster than a standard hash map for multiple topics
     HotStringKeyMap<idToMap> data;
-    mutable std::shared_mutex mutex; // Mutex for thread-safe access
+
+    // Mutex for thread-safe access
+    mutable Nebulite::Utility::SharedMutex mutex;
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_PAIRING_CONTAINER_HPP

@@ -328,7 +328,11 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope const& d
     // Get and parse all assignments
     getExpressions(Ruleset, entry, self.domainScope);
     for (auto& assignment : Ruleset->assignments) {
+#if EXPRESSION_POOL_SIZE > 1
         assignment.expression = std::make_unique<Logic::ExpressionPool>(assignment.value, self.domainScope);
+#else
+        assignment.expression = std::make_unique<Logic::Expression>(assignment.value, self.domainScope);
+#endif
     }
 
     // Parse all function calls

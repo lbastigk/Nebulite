@@ -9,11 +9,11 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <shared_mutex>
-
 // External
 #include <absl/container/node_hash_map.h>
+
+// Nebulite
+#include <Utility/SharedMutex.hpp>
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -27,14 +27,14 @@ public:
     V& operator[](K const& key) {
         // Fast path and lookup under shared lock
         {
-            std::shared_lock<std::shared_mutex> slock(mtxMap);
+            Nebulite::Utility::ReadLock slock(mtxMap);
             if (hotKeyEntry.active && hotKeyEntry.key == key) {
                 return *(hotKeyEntry.value);
             }
         }
 
         // Acquire exclusive lock and re-check/create safely
-        std::unique_lock<std::shared_mutex> ulock(mtxMap);
+        Nebulite::Utility::WriteLock ulock(mtxMap);
         auto it2 = map.find(key);
         if (it2 != map.end()) {
             hotKeyEntry.active = true;
@@ -57,7 +57,7 @@ public:
      * @return Iterator to the found entry or map.end() if not found.
      */
     auto find(K const& key) {
-        std::shared_lock<std::shared_mutex> slock(mtxMap);
+        Nebulite::Utility::ReadLock slock(mtxMap);
         if (hotKeyEntry.active && hotKeyEntry.key == key) {
             return map.find(hotKeyEntry.key); // Return iterator to hotkey entry
         }
@@ -69,7 +69,7 @@ public:
      * @return Iterator to the beginning of the map.
      */
     auto begin() {
-        std::shared_lock<std::shared_mutex> slock(mtxMap);
+        Nebulite::Utility::ReadLock slock(mtxMap);
         return map.begin();
     }
 
@@ -78,7 +78,7 @@ public:
      * @return Iterator to the end of the map.
      */
     auto end() {
-        std::shared_lock<std::shared_mutex> slock(mtxMap);
+        Nebulite::Utility::ReadLock slock(mtxMap);
         return map.end();
     }
 
@@ -100,7 +100,7 @@ public:
 
 private:
     absl::node_hash_map<K, V> map;
-    mutable std::shared_mutex mtxMap;
+    mutable Nebulite::Utility::SharedMutex mtxMap;
 
     /**
      * @brief Holds the last accessed key-value pair for hotkey optimization.

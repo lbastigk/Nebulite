@@ -75,6 +75,12 @@ if(WIN32)
     
     # Configure SDL2 for Windows
     configure_windows_sdl2(Nebulite)
+
+    # Prefer Win32 threads (avoid forcing pthread/winpthreads)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mthreads")
+    set(CMAKE_THREAD_PREFER_PTHREAD FALSE)
+    set(THREADS_PREFER_PTHREAD_FLAG FALSE)
+    find_package(Threads REQUIRED)
 ##################
 # APPLE          #
 ##################

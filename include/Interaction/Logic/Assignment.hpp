@@ -124,7 +124,8 @@ private:
 #else
     // Throw error
     // Enable later on perhaps, where we branch between make_unique<Expression> and make_unique<ExpressionPool> in the constructor
-    #error "EXPRESSION_POOL_SIZE must be greater than 1 to use Assignment expression pools."
+    //#error "EXPRESSION_POOL_SIZE must be greater than 1 to use Assignment expression pools."
+    std::unique_ptr<Expression> expression;
 #endif
 
     /**

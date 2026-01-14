@@ -9,14 +9,12 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <shared_mutex>
-
 // External
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
+#include "Utility/SharedMutex.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -168,12 +166,12 @@ private:
     /**
      * @brief Mutex for thread-safe access to the cache.
      */
-    std::shared_mutex mtxCache;
+    Nebulite::Utility::SharedMutex mtxCache;
 
     /**
      * @brief Mutex for thread-safe access to the map.
      */
-    std::shared_mutex mtxMap;
+    Nebulite::Utility::SharedMutex mtxMap;
 
     /**
      * @brief Quick cache for the first few OrderedDoublePointers entries.
