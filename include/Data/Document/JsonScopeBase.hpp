@@ -58,13 +58,11 @@ protected:
 
 private:
     /**
-     * @brief Indicates if this JsonScopeBase is a dummy (no access allowed).
+     * @brief The Prefix of the scope. A nullopt indicates that this JsonScopeBase is a dummy (no access allowed).
      * @details Dummy scopes do not allow any access to the underlying JSON document.
-     *          The retrieval of the scope prefix of a dummy scope will fail.
+     *          The retrieval of the scope prefix of a dummy scope will fail, exiting the program.
      */
-    bool isDummy = false;
-
-    std::string scopePrefix;
+    std::optional<std::string> scopePrefix;
 
     //------------------------------------------
     // Ordered double pointers system
@@ -124,10 +122,10 @@ public:
      * @throws std::runtime_error if this is a dummy scope.
      */
     [[nodiscard]] std::string const& getScopePrefix() const {
-        if (isDummy) {
+        if (!scopePrefix.has_value()) {
             throw std::runtime_error("JsonScopeBase: Access not granted. Attempted to get scope prefix of a dummy scope. Did you mean to use the caller's scope?");
         }
-        return scopePrefix;
+        return scopePrefix.value();
     }
 
     [[nodiscard]] ScopedKeyView getRootScope() const {

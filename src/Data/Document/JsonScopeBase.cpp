@@ -10,7 +10,8 @@ namespace Nebulite::Data {
 // Constructing a JsonScopeBase from a JSON document and a prefix
 JsonScopeBase::JsonScopeBase(JSON& doc, std::string const& prefix)
     // create a non-owning shared_ptr to the provided JSON (no delete on destruction)
-    : baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){})), scopePrefix(generatePrefix(prefix)),
+    : baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){})),
+      scopePrefix(generatePrefix(prefix)),
       expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS>(*this))
 {}
 
@@ -24,7 +25,9 @@ JsonScopeBase::JsonScopeBase(JsonScopeBase const& other, std::string const& pref
 // Default constructor, we create a self-owned empty JSON document
 JsonScopeBase::JsonScopeBase()
     : baseDocument(std::make_shared<JSON>()),
+      scopePrefix(""),
       expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS>(*this))
+
 {}
 
 JsonScopeBase::~JsonScopeBase() = default;
@@ -43,7 +46,7 @@ JsonScopeBase& JsonScopeBase::shareDummyScopeBase() const {
     // But if the access control ever fails, at least we only access a known dummy scope,
     // instead of the entire scope.
     auto& scope = shareScopeBase("__dummy__");
-    scope.isDummy = true;
+    scope.scopePrefix = std::nullopt; // Mark as dummy scope
     return scope;
 }
 
