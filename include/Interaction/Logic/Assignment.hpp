@@ -121,12 +121,10 @@ private:
      * @brief The parsed expression in a thread-friendly Pool-Configuration
      */
     std::unique_ptr<ExpressionPool> expression;
-#else
-    // Throw error
-    // Enable later on perhaps, where we branch between make_unique<Expression> and make_unique<ExpressionPool> in the constructor
-    //#error "EXPRESSION_POOL_SIZE must be greater than 1 to use Assignment expression pools."
+#else // EXPRESSION_POOL_SIZE > 1
+    static_assert(EXPRESSION_POOL_SIZE == 1, "EXPRESSION_POOL_SIZE must be at least 1");
     std::unique_ptr<Expression> expression;
-#endif
+#endif // EXPRESSION_POOL_SIZE > 1
 
     /**
      * @brief Expression assignment target as double pointer

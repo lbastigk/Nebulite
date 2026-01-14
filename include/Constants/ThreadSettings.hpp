@@ -31,7 +31,6 @@
  */
 #define THREADRUNNER_COUNT 8
 
-
 /**
  * @def BATCH_COST_GOAL
  * @details Target cost of each Render::update thread batch.

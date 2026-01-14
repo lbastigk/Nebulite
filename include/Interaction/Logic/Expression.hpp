@@ -30,15 +30,12 @@ namespace Nebulite::Interaction::Logic {
 /**
  * @class Nebulite::Interaction::Logic::Expression
  * @brief The Expression class is responsible for parsing and evaluating expressions.
- *
- *        It supports variable registration, expression compilation, and evaluation.
- * 
- *        Expressions can be parsed from a string format and evaluated against JSON documents.
- *        Expressions are a mix of evaluations, variables and text:
- * 
- *        e.g.:
- *        "This script took {global.time.t} Seconds"
- *        "The rounded value is: $03.2f( {global.value} )"
+ * @details It supports variable registration, expression compilation, and evaluation.
+ *          Expressions can be parsed from a string format and evaluated against JSON documents.
+ *          Expressions are a mix of evaluations, variables and text:
+ *          e.g.:
+ *          "This script took {global.time.t} Seconds"
+ *          "The rounded value is: $03.2f( {global.value} )"
  */
 class Expression {
 public:
