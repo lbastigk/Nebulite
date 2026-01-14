@@ -2,90 +2,104 @@
 # bash
 set -euo pipefail
 
-# simple safety checks
-git rev-parse --is-inside-work-tree >/dev/null 2>&1 || { echo "Error: not a git repository"; exit 1; }
-CUR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-echo "Current branch: $CUR_BRANCH"
-
-# backup
-TS=$(date +%s)
-cp -v .gitmodules ".gitmodules.bak.${TS}" 2>/dev/null || true
-cp -v .git/config ".git/config.bak.${TS}" 2>/dev/null || true
-
-# list of old SDL2 submodule paths to remove
-OLD_PATHS=(
-  "external/SDL2"
-  "external/SDL2_image"
-  "external/SDL2_ttf"
+# Configurable values
+SDL3_URL="https://github.com/libsdl-org/SDL.git"
+SDL3_PATH="external/SDL3"
+SDL3_BRANCH="main"
+EXTRA_SUBMODULES=(
+  "external/SDL3_image:https://github.com/libsdl-org/SDL_image.git"
+  "external/SDL3_ttf:https://github.com/libsdl-org/SDL_ttf.git"
 )
 
-echo "Removing old SDL2 submodules (if present)..."
-for p in "${OLD_PATHS[@]}"; do
-  if git config -f .gitmodules --get "submodule.$p.url" >/dev/null 2>&1 || [ -d "$p" ] || git submodule status -- "$p" >/dev/null 2>&1; then
-    echo " - Removing submodule $p"
-    git submodule deinit -f -- "$p" 2>/dev/null || true
-    git rm -f "$p" 2>/dev/null || rm -rf "$p"
-    rm -rf ".git/modules/$p"
-    git config -f .gitmodules --remove-section "submodule.$p" 2>/dev/null || true
-    git config --remove-section "submodule.$p" 2>/dev/null || true
+# Ensure we are in a git repo
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "Not a git repository" >&2
+  exit 1
+fi
+
+echo "Backing up .gitmodules to .gitmodules.bak"
+cp -f .gitmodules .gitmodules.bak || true
+
+# Find submodule sections and remove any that mention SDL2 in name/path/url
+echo "Removing SDL2 submodules (if any)..."
+mapfile -t SUBMODULE_SECTIONS < <(git config -f .gitmodules --name-only --get-regexp '^submodule\.' 2>/dev/null || true)
+for entry in "${SUBMODULE_SECTIONS[@]}"; do
+  # entry looks like "submodule.\"external/xyz\".path" or "submodule.external/xyz.path"
+  # Normalize to extract the submodule key between first dot and the final dot
+  # Use parameter expansion to strip prefix and suffix
+  section="${entry#submodule.}"
+  section="${section%%.*}"
+  # Remove surrounding quotes if present
+  section="${section#\"}"
+  section="${section%\"}"
+  path="$(git config -f .gitmodules --get "submodule.${section}.path" || true)"
+  url="$(git config -f .gitmodules --get "submodule.${section}.url" || true)"
+  # Check for SDL2 mention
+  if [[ "${section}" == *SDL2* || "${path}" == *SDL2* || "${url}" == *SDL2* ]]; then
+    echo "Cleaning submodule section '${section}' (path='${path}', url='${url}')"
+    # Deinit from the git metadata (safe-guard)
+    if [[ -n "$path" ]]; then
+      git submodule deinit -f -- "$path" 2>/dev/null || true
+      git rm -f --cached "$path" 2>/dev/null || true
+      rm -rf "$path"
+    fi
+    # Remove from .gitmodules and local git config
+    git config -f .gitmodules --remove-section "submodule.${section}" 2>/dev/null || true
+    git config --remove-section "submodule.${section}" 2>/dev/null || true
+  fi
+done
+
+# Commit removal if .gitmodules changed
+if ! git diff --quiet -- .gitmodules 2>/dev/null; then
+  git add .gitmodules
+  git commit -m "Remove SDL2 submodule entries" || true
+fi
+
+# Ensure working tree doesn't contain leftover SDL3 directory interfering with add
+if [[ -d "${SDL3_PATH}" ]]; then
+  echo "Removing existing directory ${SDL3_PATH} to re-add as submodule"
+  rm -rf "${SDL3_PATH}"
+fi
+
+# Add SDL3 submodule (if not present in .gitmodules)
+if ! git config -f .gitmodules --get "submodule.${SDL3_PATH}.path" >/dev/null 2>&1; then
+  echo "Adding SDL3 submodule at ${SDL3_PATH} -> ${SDL3_URL}"
+  git submodule add "${SDL3_URL}" "${SDL3_PATH}"
+else
+  echo "SDL3 submodule already present in .gitmodules; ensuring correct url"
+  git config -f .gitmodules "submodule.${SDL3_PATH}.url" "${SDL3_URL}"
+  git add .gitmodules
+fi
+
+# Ensure branch setting is sane (avoid 'origin/SDL3' mistakes)
+git config -f .gitmodules "submodule.${SDL3_PATH}.branch" "${SDL3_BRANCH}"
+git add .gitmodules
+
+# Add/ensure extra SDL3_* submodules
+for spec in "${EXTRA_SUBMODULES[@]}"; do
+  IFS=":" read -r path url <<< "$spec"
+  if ! git config -f .gitmodules --get "submodule.${path}.path" >/dev/null 2>&1; then
+    echo "Adding submodule ${path} -> ${url}"
+    git submodule add "${url}" "${path}"
   else
-    echo " - Skipping $p (not present)"
+    echo "Submodule ${path} already present; ensuring correct url"
+    git config -f .gitmodules "submodule.${path}.url" "${url}"
+    git add .gitmodules
   fi
 done
 
-# stage .gitmodules changes if any
-git add .gitmodules 2>/dev/null || true
-if ! git diff --cached --quiet -- .gitmodules 2>/dev/null; then
-  git commit -m "Remove SDL2 submodules" || true
-fi
-
-# new SDL3 submodules to add: array of "url path branch"
-NEW_SUBS=(
-  "https://github.com/libsdl-org/SDL.git external/SDL3 SDL3"
-  "https://github.com/libsdl-org/SDL_image.git external/SDL3_image SDL3"
-  "https://github.com/libsdl-org/SDL_ttf.git external/SDL3_ttf SDL3"
-)
-
-echo "Adding SDL3 submodules..."
-for spec in "${NEW_SUBS[@]}"; do
-  read -r url path branch <<<"$spec"
-  if [ -d "$path" ] || git config -f .gitmodules --get "submodule.$path.url" >/dev/null 2>&1; then
-    echo " - $path already present, attempting to set branch $branch"
-    if [ -d "$path/.git" ]; then
-      git -C "$path" fetch --all --tags || true
-      if git -C "$path" ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
-        git -C "$path" checkout -B "$branch" "origin/$branch" || git -C "$path" checkout "$branch" || true
-        git -C "$path" branch --set-upstream-to="origin/$branch" "$branch" >/dev/null 2>&1 || true
-      else
-        echo "   - remote does not have branch $branch; leaving submodule on default branch"
-      fi
-    fi
-    continue
-  fi
-
-  echo " - Adding $path from $url (will try to checkout branch: $branch)"
-  git submodule add "$url" "$path"
-
-  # make sure the submodule has fetched remote refs and switch to branch if available
-  if [ -d "$path/.git" ]; then
-    git -C "$path" fetch --all --tags || true
-    if git -C "$path" ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
-      git -C "$path" checkout -B "$branch" "origin/$branch" || true
-      git -C "$path" branch --set-upstream-to="origin/$branch" "$branch" >/dev/null 2>&1 || true
-      echo "   - checked out $branch in $path"
-    else
-      echo "   - origin/$branch not found for $path; kept default branch"
-    fi
-  fi
-done
-
-# finalize
-git add .gitmodules 2>/dev/null || true
-if ! git diff --cached --quiet -- .gitmodules 2>/dev/null; then
-  git commit -m "Add SDL3 submodules" || true
-fi
-
+# Initialize and update new submodules
+echo "Initializing and updating submodules..."
 git submodule sync --recursive
 git submodule update --init --recursive
 
-echo "Done. Backups: .gitmodules.bak.${TS}, .git/config.bak.${TS}"
+# Commit final .gitmodules and index changes
+git add .gitmodules
+git add -A
+if git diff --cached --quiet; then
+  echo "No changes to commit."
+else
+  git commit -m "Replace SDL2 submodules with SDL3 and ensure SDL3_image/SDL3_ttf"
+fi
+
+echo "Done. If you still see checkout errors, run: git submodule update --init --recursive"
