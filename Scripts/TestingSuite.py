@@ -7,6 +7,7 @@ import subprocess
 import sys
 import os
 import fnmatch
+import shlex
 import glob
 import shutil
 from typing import List, Dict, Any, Union
@@ -367,6 +368,50 @@ def print_test_summary(process_information: Dict[str, Any]):
         print("Warning: No tests were executed!")
         sys.exit(1)
 
+def find_executable_in_command(cmd: str) -> Optional[str]:
+    """Return the first token that resolves to an existing file or is found in PATH.
+    If a wrapper (like 'wine') is used and the next token is a path-like executable,
+    ensure that path exists; otherwise return None (treat as not found)."""
+    parts = shlex.split(cmd)
+    # Skip leading env assignments like FOO=bar
+    i = 0
+    while i < len(parts) and '=' in parts[i] and not parts[i].startswith('-'):
+        i += 1
+
+    if i >= len(parts):
+        return None
+
+    for idx, part in enumerate(parts[i:], start=i):
+        # Direct filesystem path (absolute or relative)
+        if os.path.exists(part):
+            return part
+
+        # If token looks like a path (contains / or starts with .), treat it as candidate
+        if '/' in part or part.startswith('.'):
+            candidate = os.path.abspath(part)
+            if os.path.exists(candidate):
+                return part
+            # Missing explicit path -> treat as not found (do not fall back to wrapper)
+            return None
+
+        # Otherwise try resolving from PATH
+        resolved = shutil.which(part)
+        if resolved:
+            # If the resolved token is a wrapper, check the next token:
+            next_idx = idx + 1
+            if next_idx < len(parts):
+                next_part = parts[next_idx]
+                # If next token looks like a path-like executable, ensure it exists or is resolvable
+                if '/' in next_part or next_part.startswith('.'):
+                    if os.path.exists(next_part) or os.path.exists(os.path.abspath(next_part)) or shutil.which(next_part):
+                        return resolved
+                    # Wrapped executable missing -> treat as not found
+                    return None
+            # No path-like next token, or it's not required -> resolved command is fine
+            return resolved
+
+    return None
+
 def process_binaries(binaries, tests: List[Dict[str, Any]], timeout: int, ignore_lines: Dict[str, List[str]], stop_on_fail: bool, verbose: bool) -> Dict[str, Any]:
     total_tests = 0
     passed_tests = 0
@@ -378,14 +423,16 @@ def process_binaries(binaries, tests: List[Dict[str, Any]], timeout: int, ignore
             print(f"==============================\n")
 
             # See if binary exists, if not, skip tests
-            if not os.path.exists(binary.split()[0]):
-                print(f"Error: Binary '{binary}' not found. Skipping tests for this binary.")
+            exe_path = find_executable_in_command(binary)
+            if not exe_path:
+                print(f"Error: Binary `{binary}` not found. Skipping tests for this binary.")
                 continue
 
             # Check if binary runs at all by running help command
             help_check = run_command(f"{binary} help", timeout)
             if help_check['exit_code'] != 0:
-                print(f"Error: Binary '{binary}' failed to run!")
+                print(f"Error: Binary '{exe_path}' failed to run!")
+                print(f"Full command: {binary} help")
                 sys.exit(1)
 
             # Run each test
