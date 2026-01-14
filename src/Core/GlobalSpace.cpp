@@ -65,7 +65,7 @@ void GlobalSpace::initialize() {
     // If we ever need a full update beforehand, we should manually call update after full initialization
 }
 
-Constants::Error GlobalSpace::updateInnerDomains() {
+Constants::Error GlobalSpace::updateInnerDomains() const {
     // For now, just update the JSON domain
     // Later on the logic here might be more complex
     // As more inner domains are added
@@ -119,8 +119,8 @@ Constants::Error GlobalSpace::update() {
         renderer.update();
 
         if (!renderer.hasSkippedUpdate()) {
-            for (auto const& t : tasks) {
-                t.second->decrementWaitCounter();
+            for (auto const& tq : std::views::values(tasks)) {
+                tq->decrementWaitCounter();
             }
         }
 
@@ -207,10 +207,10 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
 
 Constants::Error GlobalSpace::parseQueue() {
     queueResult.clear();
-    for (auto const& t : tasks) {
-        queueResult[t.first] = t.second->resolve(*this, cmdVars.recover);
-        if (queueResult[t.first].encounteredCriticalResult && !cmdVars.recover) {
-            return queueResult[t.first].errors.back();
+    for (auto const& [name, queue] : tasks) {
+        queueResult[name] = queue->resolve(*this, cmdVars.recover);
+        if (queueResult[name].encounteredCriticalResult && !cmdVars.recover) {
+            return queueResult[name].errors.back();
         }
     }
     return Constants::ErrorTable::NONE();
