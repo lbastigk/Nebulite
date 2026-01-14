@@ -30,8 +30,8 @@ Constants::Error Rotation::rotate(int const argc, char** argv) const {
     }
 
     // Get the texture's width and height
-    int width, height;
-    if (SDL_QueryTexture(texture, nullptr, nullptr, &width, &height) != 0) {
+    float width, height;
+    if (SDL_GetTextureSize(texture, &width, &height) != 0) {
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_QUERY_FAILED();
     }
 
@@ -53,15 +53,14 @@ Constants::Error Rotation::rotate(int const argc, char** argv) const {
 
     // Rotate the texture and render it to the new texture
     double const angle = std::stod(argv[1]);
-    SDL_Point const center = {width / 2, height / 2}; // Rotate around the center
-    SDL_RendererFlip constexpr flip = SDL_FLIP_NONE;
-    SDL_RenderCopyEx(renderer, texture, nullptr, nullptr, angle, &center, flip);
+    SDL_FPoint const centerFloat = {width / 2.0f, height / 2.0f};
+    SDL_FlipMode constexpr flip = SDL_FLIP_NONE;
+    SDL_RenderTextureRotated(renderer, texture, nullptr, nullptr, angle, &centerFloat, flip);
     SDL_SetRenderTarget(renderer, nullptr);
 
     // Replace the original texture with the rotated texture
     domain.setInternalTexture(rotatedTexture);
-
-    Nebulite::cout() << "Texture rotated by " << angle << " degrees." << Nebulite::endl;
+    Nebulite::log::println("Texture rotated by ", angle, " degrees.");
     return Constants::ErrorTable::NONE();
 }
 

@@ -13,7 +13,7 @@ message(STATUS "Loading Windows build configuration...")
 add_compile_definitions(WIN32_LEAN_AND_MEAN)
 add_compile_definitions(NOMINMAX)
 
-# Windows-specific SDL2 configuration using SDL2 submodules (same as Linux)
+# Windows-specific SDL3 configuration using SDL3 submodules (same as Linux)
 function(configure_windows_sdl2 target_name)
     message(STATUS "Configuring ${target_name} for Windows, build type: ${CMAKE_BUILD_TYPE}")
     
@@ -59,7 +59,7 @@ function(configure_windows_sdl2 target_name)
         -lws2_32
     )
     
-    message(STATUS "SDL2 configured for Windows")
+    message(STATUS "SDL3 configured for Windows")
 endfunction()
 
 message(STATUS "Windows build configuration loaded successfully")

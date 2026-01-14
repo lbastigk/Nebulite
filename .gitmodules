@@ -17,4 +17,3 @@
 [submodule "external/SDL3_ttf"]
 	path = external/SDL3_ttf
 	url = https://github.com/libsdl-org/SDL_ttf.git
-

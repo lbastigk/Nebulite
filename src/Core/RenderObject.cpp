@@ -92,7 +92,7 @@ void RenderObject::init() {
 
 RenderObject::~RenderObject() {
     if (textSurface) {
-        SDL_FreeSurface(textSurface);
+        SDL_DestroySurface(textSurface);
         textSurface = nullptr;
     }
 
@@ -137,24 +137,24 @@ SDL_Texture* RenderObject::getTextTexture() const {
     return textTexture;
 }
 
-SDL_Rect* RenderObject::getTextRect() {
+SDL_FRect* RenderObject::getTextRect() {
     return &textRect;
 }
 
-SDL_Rect* RenderObject::getDstRect() {
+SDL_FRect* RenderObject::getDstRect() {
     return &dstRect;
 }
 
 void RenderObject::calculateDstRect() {
     dstRect = {
-        static_cast<int>(floor(*refs.posX)),
-        static_cast<int>(floor(*refs.posY)),
-        static_cast<int>(floor(*refs.pixelSizeX)), // Set the desired width
-        static_cast<int>(floor(*refs.pixelSizeY)), // Set the desired height
+        static_cast<float>(*refs.posX),
+        static_cast<float>(*refs.posY),
+        static_cast<float>(*refs.pixelSizeX), // Set the desired width
+        static_cast<float>(*refs.pixelSizeY), // Set the desired height
     };
 }
 
-SDL_Rect* RenderObject::getSrcRect() {
+SDL_FRect* RenderObject::getSrcRect() {
     if (std::fabs(*refs.isSpritesheet) > std::numeric_limits<double>::epsilon()) {
         // isSpritesheet is true
         return &srcRect;
@@ -168,10 +168,10 @@ void RenderObject::calculateSrcRect() {
         // isSpritesheet is true
         // Calculate the source rectangle for the sprite (which portion of the sprite sheet to render)
         srcRect = {
-            static_cast<int>(*refs.spritesheetOffsetX), // Start X from the sprite sheet offset
-            static_cast<int>(*refs.spritesheetOffsetY), // Start Y from the sprite sheet offset
-            static_cast<int>(*refs.spritesheetSizeX), // The width of the sprite frame
-            static_cast<int>(*refs.spritesheetSizeY) // The height of the sprite frame
+            static_cast<float>(*refs.spritesheetOffsetX), // Start X from the sprite sheet offset
+            static_cast<float>(*refs.spritesheetOffsetY), // Start Y from the sprite sheet offset
+            static_cast<float>(*refs.spritesheetSizeX), // The width of the sprite frame
+            static_cast<float>(*refs.spritesheetSizeY) // The height of the sprite frame
         };
     }
 }
@@ -250,10 +250,10 @@ uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
 //------------------------------------------
 // Outside communication with Renderer for text calculation
 
-void RenderObject::calculateText(SDL_Renderer* renderer, TTF_Font* font, int const& renderPositionX, int const& renderPositionY) {
+void RenderObject::calculateText(SDL_Renderer* renderer, TTF_Font* font, float const& renderPositionX, float const& renderPositionY) {
     // Set font size if changed
-    textRect.x = static_cast<int>(*refs.posX + *refs.textDx - static_cast<double>(renderPositionX));
-    textRect.y = static_cast<int>(*refs.posY + *refs.textDy - static_cast<double>(renderPositionY));
+    textRect.x = static_cast<float>(*refs.posX + *refs.textDx - static_cast<double>(renderPositionX));
+    textRect.y = static_cast<float>(*refs.posY + *refs.textDy - static_cast<double>(renderPositionY));
 
     // Recreate texture if recalculate was triggered by user. This is needed for:
     // - new text
@@ -269,8 +269,8 @@ void RenderObject::calculateText(SDL_Renderer* renderer, TTF_Font* font, int con
         // Settings influenced by a new text
         double constexpr scalar = 1.0; // Perhaps needed later on for scaling
         auto const text = document.get<std::string>(Constants::KeyNames::RenderObject::textStr);
-        textRect.w = static_cast<int>(*refs.fontSize * static_cast<double>(text.length()) * scalar);
-        textRect.h = static_cast<int>(*refs.fontSize * 1.5 * scalar);
+        textRect.w = static_cast<float>(*refs.fontSize * static_cast<double>(text.length()) * scalar);
+        textRect.h = static_cast<float>(*refs.fontSize * 1.5 * scalar);
 
         // Create text
         SDL_Color const textColor = {
@@ -282,10 +282,10 @@ void RenderObject::calculateText(SDL_Renderer* renderer, TTF_Font* font, int con
 
         // Create texture
         if (!text.empty() && font && renderer) {
-            textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
+            textSurface = TTF_RenderText_Solid(font, text.c_str(), 0, textColor);
             if (textSurface) {
                 textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-                SDL_FreeSurface(textSurface); // Free surface after creating texture
+                SDL_DestroySurface(textSurface); // Free surface after creating texture
                 textSurface = nullptr;
             }
         }

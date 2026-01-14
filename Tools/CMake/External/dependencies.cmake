@@ -1,6 +1,60 @@
 # Dependencies configuration
 # This file handles external dependency paths and subdirectory inclusion
 
+function(_detect_sdl3_targets)
+    # local accumulators
+    set(_found_core OFF)
+    set(_found_ttf OFF)
+    set(_found_image OFF)
+    set(_link_libs)
+
+    # Prefer well-known imported targets
+    if(TARGET SDL3::SDL3)
+        set(_found_core ON)
+        list(APPEND _link_libs SDL3::SDL3)
+    elseif(DEFINED SDL3_FOUND AND SDL3_FOUND)
+        set(_found_core ON)
+        if(DEFINED SDL3_LIBRARIES)
+            list(APPEND _link_libs ${SDL3_LIBRARIES})
+        endif()
+    endif()
+
+    if(TARGET SDL3_ttf::SDL3_ttf)
+        set(_found_ttf ON)
+        list(APPEND _link_libs SDL3_ttf::SDL3_ttf)
+    elseif(DEFINED SDL3_TTF_FOUND AND SDL3_TTF_FOUND)
+        set(_found_ttf ON)
+        if(DEFINED SDL3_TTF_LIBRARIES)
+            list(APPEND _link_libs ${SDL3_TTF_LIBRARIES})
+        endif()
+    endif()
+
+    if(TARGET SDL3_image::SDL3_image)
+        set(_found_image ON)
+        list(APPEND _link_libs SDL3_image::SDL3_image)
+    elseif(DEFINED SDL3_IMAGE_FOUND AND SDL3_IMAGE_FOUND)
+        set(_found_image ON)
+        if(DEFINED SDL3_IMAGE_LIBRARIES)
+            list(APPEND _link_libs ${SDL3_IMAGE_LIBRARIES})
+        endif()
+    endif()
+
+    # Export results to caller scope
+    set(_SDL3_CORE_TARGET ${_found_core} PARENT_SCOPE)
+    set(_SDL3_TTF_TARGET ${_found_ttf} PARENT_SCOPE)
+    set(_SDL3_IMAGE_TARGET ${_found_image} PARENT_SCOPE)
+
+    # Provide SDL3_LINK_LIBS for linking (empty if nothing found)
+    if(_link_libs)
+        # join list into a proper CMake list and export
+        set(SDL3_LINK_LIBS ${_link_libs} PARENT_SCOPE)
+    else()
+        set(SDL3_LINK_LIBS "" PARENT_SCOPE)
+    endif()
+
+    message(STATUS "SDL3 detection: core=${_found_core} ttf=${_found_ttf} image=${_found_image}")
+endfunction()
+
 message(STATUS "Loading dependencies configuration...")
 
 ############################################################
@@ -9,22 +63,41 @@ set(RAPIDJSON_PATH      "${CMAKE_SOURCE_DIR}/external/rapidjson")
 set(TINYEXPR_PATH       "${CMAKE_SOURCE_DIR}/external/tinyexpr")
 set(ABSEIL_PATH         "${CMAKE_SOURCE_DIR}/external/abseil")
 
-# SDL2 official repositories
-set(SDL2_PATH           "${CMAKE_SOURCE_DIR}/external/SDL2")
-set(SDL2_TTF_PATH       "${CMAKE_SOURCE_DIR}/external/SDL2_ttf")
-set(SDL2_IMAGE_PATH     "${CMAKE_SOURCE_DIR}/external/SDL2_image")
+# SDL3 official repositories
+set(SDL3_PATH           "${CMAKE_SOURCE_DIR}/external/SDL3")
+set(SDL3_TTF_PATH       "${CMAKE_SOURCE_DIR}/external/SDL3_ttf")
+set(SDL3_IMAGE_PATH     "${CMAKE_SOURCE_DIR}/external/SDL3_image")
 
 ############################################################
-# Linked libraries from all external dependencies
+# SDL3 detection
 
-# SDL2 related libraries
-set(SDL2_LINK_LIBS
-        SDL2::SDL2main
-        SDL2::SDL2-static
-        SDL2_ttf
-        SDL2_image
-)
+find_package(SDL3 CONFIG QUIET)
+_detect_sdl3_targets()
 
+# If not found, try to add the bundled SDL3 subdirectory (if present)
+if(NOT _SDL3_CORE_TARGET)
+    if(EXISTS "${SDL3_PATH}/CMakeLists.txt")
+        message(STATUS "SDL3 not found via find_package; adding bundled SDL3 from ${SDL3_PATH}")
+        add_subdirectory(${SDL3_PATH})
+        _detect_sdl3_targets()
+    endif()
+endif()
+
+# Also try bundled extensions (ttf/image) if core still not found or if they provide targets
+if(NOT _SDL3_TTF_TARGET AND EXISTS "${SDL3_TTF_PATH}/CMakeLists.txt")
+    add_subdirectory(${SDL3_TTF_PATH})
+    _detect_sdl3_targets()
+endif()
+if(NOT _SDL3_IMAGE_TARGET AND EXISTS "${SDL3_IMAGE_PATH}/CMakeLists.txt")
+    add_subdirectory(${SDL3_IMAGE_PATH})
+    _detect_sdl3_targets()
+endif()
+
+if(NOT _SDL3_CORE_TARGET)
+    message(FATAL_ERROR "SDL3 core target not found. Inspect external/SDL3 CMakeLists or install SDL3 or use find_package(SDL3 CONFIG REQUIRED).")
+endif()
+
+############################################################
 # Abseil libraries
 set(ABSL_LINK_LIBS
         absl::flat_hash_map
@@ -48,52 +121,23 @@ function(configure_common_dependencies target_name)
             ${RAPIDJSON_PATH}/include
             ${TINYEXPR_PATH}
             ${ABSEIL_PATH}
+            ${SDL3_PATH}/include
+            ${SDL3_TTF_PATH}/include
+            ${SDL3_IMAGE_PATH}/include
     )
+
+    # Show SDL3 paths and halt for debugging
+    message(STATUS "SDL3 include path: ${SDL3_PATH}/include")
+    message(STATUS "SDL3_ttf include path: ${SDL3_TTF_PATH}/include")
+    message(STATUS "SDL3_image include path: ${SDL3_IMAGE_PATH}/include")
+    # Debug halt (uncomment if needed)
+    #message(FATAL_ERROR "Debug halt after SDL3 include paths")
 
     # Link libraries
     target_link_libraries(${target_name} PRIVATE
-            ${SDL2_LINK_LIBS}
+            ${SDL3_LINK_LIBS}
             ${ABSL_LINK_LIBS}
     )
-
-    ##########################################################
-    # Evil workaround to suppress warnings from third-party headers
-    # Feel free to improve this section and send a PR.
-    # Please, I beg you.
-
-    # If linked external targets export include directories, re-add them as SYSTEM
-    # for this target so compiler warnings from third-party headers are suppressed.
-    # We iterate the known link lists and, if a target exists, consume its
-    # INTERFACE_INCLUDE_DIRECTORIES as SYSTEM PRIVATE for our target.
-    #foreach(_lib ${SDL2_LINK_LIBS})
-    #    if(TARGET ${_lib})
-    #        target_include_directories(${target_name} SYSTEM PRIVATE
-    #                $<TARGET_PROPERTY:${_lib},INTERFACE_INCLUDE_DIRECTORIES>
-    #        )
-    #    endif()
-    #endforeach()
-    #foreach(_lib ${ABSL_LINK_LIBS})
-    #    if(TARGET ${_lib})
-    #        target_include_directories(${target_name} SYSTEM PRIVATE
-    #                $<TARGET_PROPERTY:${_lib},INTERFACE_INCLUDE_DIRECTORIES>
-    #        )
-    #    endif()
-    #endforeach()
-
-    # Some bundled C sources (e.g. tinyexpr) are compiled as part of this target
-    # and can trigger project-wide warnings. Silence targeted warnings for
-    # known third-party C sources by setting per-source compile flags.
-    #if(EXISTS "${TINYEXPR_PATH}/tinyexpr.c")
-    #    message(STATUS "Applying per-source warning suppression for tinyexpr.c")
-    #    # Disable all warnings for this bundled C source in a portable way.
-    #    # - For GCC/Clang we pass -w
-    #    # - For MSVC we pass /W0
-    #    # Use COMPILE_OPTIONS with generator expressions so the flags apply only
-    #    # when compiling this C source and are evaluated for the active C compiler.
-    #    set_source_files_properties("${TINYEXPR_PATH}/tinyexpr.c" PROPERTIES
-    #            COMPILE_OPTIONS "$<$<OR:$<COMPILE_LANG_AND_ID:C,Clang>,$<COMPILE_LANG_AND_ID:C,GNU>>:-w>;$<$<COMPILE_LANG_AND_ID:C,MSVC>:/W0>"
-    #    )
-    #endif()
 
     message(STATUS "Common dependencies configured for ${target_name}")
 endfunction()
@@ -103,16 +147,24 @@ endfunction()
 function(setup_external_subdirectories)
     message(STATUS "Setting up external subdirectories...")
 
-    # Add Abseil subdirectory
-    add_subdirectory(${ABSEIL_PATH})
+    # Add Abseil subdirectory if present and target not already available
+    if(NOT TARGET absl::flat_hash_map AND EXISTS "${ABSEIL_PATH}/CMakeLists.txt")
+        add_subdirectory(${ABSEIL_PATH})
+    endif()
 
-    # Include shared SDL2/SDL2_image/SDL2_ttf build settings
+    # Include shared SDL3/SDL3_image/SDL3_ttf build settings
     sdl_setup()
 
-    # Add SDL2 subdirectories in correct order (SDL2 first, then extensions)
-    add_subdirectory(${SDL2_PATH})
-    add_subdirectory(${SDL2_TTF_PATH})
-    add_subdirectory(${SDL2_IMAGE_PATH})
+    # Add SDL3 subdirectories only if targets are not already defined
+    if(NOT TARGET SDL3::SDL3 AND EXISTS "${SDL3_PATH}/CMakeLists.txt")
+        add_subdirectory(${SDL3_PATH})
+    endif()
+    if(NOT TARGET SDL3_ttf::SDL3_ttf AND EXISTS "${SDL3_TTF_PATH}/CMakeLists.txt")
+        add_subdirectory(${SDL3_TTF_PATH})
+    endif()
+    if(NOT TARGET SDL3_image::SDL3_image AND EXISTS "${SDL3_IMAGE_PATH}/CMakeLists.txt")
+        add_subdirectory(${SDL3_IMAGE_PATH})
+    endif()
 
     message(STATUS "External subdirectories setup complete")
 endfunction()

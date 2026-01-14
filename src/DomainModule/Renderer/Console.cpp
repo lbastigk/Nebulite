@@ -5,9 +5,7 @@
 #include <cstdint>
 
 // External
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
+#include <SDL3_image/SDL_image.h>
 
 // Nebulite
 #include "Nebulite.hpp"
@@ -69,7 +67,7 @@ Constants::Error Console::update() {
     if (moduleScope.get<int>(toggleKey, 0) == 1) {
         consoleMode = !consoleMode;
         if (consoleMode) {
-            SDL_StartTextInput();
+            SDL_StartTextInput(domain.getSdlWindow());
             SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT); // Flush all pending events
         } else {
             SDL_StopTextInput();
@@ -129,7 +127,7 @@ bool Console::ensureConsoleTexture() {
 void Console::drawBackground() const {
     //------------------------------------------
     // Draw everything as before, but coordinates relative to (0,0)
-    SDL_Rect const localRect = {0, 0, consoleTexture.rect.w, consoleTexture.rect.h};
+    SDL_FRect const localRect = {0, 0, consoleTexture.rect.w, consoleTexture.rect.h};
 
     // If we have a background image, draw it instead
     if (backgroundImageTexture != nullptr) {
@@ -164,7 +162,7 @@ void Console::drawInput(uint16_t const& lineHeight) {
 
         // Render the text
         SDL_RenderCopy(renderer, textTexture, nullptr, &textInputRect);
-        SDL_FreeSurface(textSurface);
+        SDL_DestroySurface(textSurface);
         SDL_DestroyTexture(textTexture);
 
         // If we have a text: ABCDEF, we highlight all text to the right of the cursor
@@ -178,7 +176,7 @@ void Console::drawInput(uint16_t const& lineHeight) {
             textInputHighlightRect.w = highlightSurface->w;
             textInputHighlightRect.h = highlightSurface->h;
             SDL_RenderCopy(renderer, highlightTexture, nullptr, &textInputHighlightRect);
-            SDL_FreeSurface(highlightSurface);
+            SDL_DestroySurface(highlightSurface);
             SDL_DestroyTexture(highlightTexture);
         }
     }
@@ -273,7 +271,7 @@ void Console::drawOutput(uint16_t const& maxLineLength) {
         textOutputRect.h = static_cast<int>(static_cast<double>(textSurface->h) / static_cast<double>(WindowScale));
 
         SDL_RenderCopy(renderer, textTexture, nullptr, &textOutputRect);
-        SDL_FreeSurface(textSurface);
+        SDL_DestroySurface(textSurface);
         SDL_DestroyTexture(textTexture);
 
         // Next line
@@ -311,10 +309,10 @@ void Console::renderConsole() {
             SDL_Surface* testSurface = TTF_RenderText_Blended(consoleFont, testString.c_str(), color.coutStream);
             if (static_cast<double>(testSurface->w) / WindowScale > consoleTexture.rect.w - 20) {
                 // 20 for padding
-                SDL_FreeSurface(testSurface);
+                SDL_DestroySurface(testSurface);
                 break;
             }
-            SDL_FreeSurface(testSurface);
+            SDL_DestroySurface(testSurface);
             maxLineLength++;
         }
     }
@@ -672,7 +670,7 @@ Constants::Error Console::consoleSetBackground(int const argc, char** argv) {
 
     // Create texture from surface
     SDL_Texture* backgroundTexture = SDL_CreateTextureFromSurface(renderer, imageSurface);
-    SDL_FreeSurface(imageSurface);
+    SDL_DestroySurface(imageSurface);
     if (!backgroundTexture) {
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_INVALID();
     }

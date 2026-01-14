@@ -13,8 +13,8 @@
 // Standard library
 
 // External
-#include <SDL.h>
-#include <SDL_ttf.h>
+#include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
@@ -154,10 +154,10 @@ public:
      * @param aboveThisLayer The layer above which to attach the texture.
      * @param name The name of the texture.
      * @param texture The SDL_Texture to attach.
-     * @param rect Optional SDL_Rect defining the area to render the texture.
+     * @param rect Optional SDL_FRect defining the area to render the texture.
      * @return True if the texture was successfully attached, false otherwise.
      */
-    bool attachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name, SDL_Texture* texture, SDL_Rect* rect = nullptr) {
+    bool attachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name, SDL_Texture* texture, SDL_FRect* rect = nullptr) {
         if (texture == nullptr) {
             return false; // Cannot attach a null texture
         }
@@ -328,6 +328,13 @@ public:
      * @return The SDL_Renderer instance.
      */
     [[nodiscard]] SDL_Renderer* getSdlRenderer() const { return renderer; }
+
+    /**
+     * @brief Gets the SDL_Window instance.
+     * @details Allows for access to the underlying SDL window for custom operations.
+     * @return The SDL_Window instance.
+     */
+    [[nodiscard]] SDL_Window* getSdlWindow() const { return window; }
 
     /**
      * @brief Gets the RenderObject from its ID.
@@ -508,7 +515,7 @@ private:
      * @param dispPosY The Y position on the screen to render the object.
      * @return SDL_Error code from SDL_RenderCopy, 0 if successful.
      */
-    int renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
+    int renderObjectToScreen(RenderObject* obj, float const& dispPosX, float const& dispPosY);
 
     //------------------------------------------
     // For FPS Count and Control
@@ -545,7 +552,7 @@ private:
         Environment::Layer,
         absl::flat_hash_map<
             std::string,
-            std::pair<SDL_Texture*, SDL_Rect*> // Pair of texture and its rectangle
+            std::pair<SDL_Texture*, SDL_FRect*> // Pair of texture and its rectangle
         >
     > BetweenLayerTextures;
 

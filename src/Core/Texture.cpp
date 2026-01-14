@@ -2,7 +2,7 @@
 // Includes
 
 // External
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 // Nebulite
 #include "Nebulite.hpp"

@@ -73,7 +73,7 @@ if(WIN32)
     # Include Windows-specific configuration
     include(${CMAKE_SOURCE_DIR}/Tools/CMake/Platforms/windbuild.cmake)
     
-    # Configure SDL2 for Windows
+    # Configure SDL3 for Windows
     configure_windows_sdl2(Nebulite)
 
     # Prefer Win32 threads (avoid forcing pthread/winpthreads)
@@ -90,7 +90,7 @@ elseif(APPLE)
     # Include macOS-specific configuration
     include(${CMAKE_SOURCE_DIR}/Tools/CMake/Platforms/macbuild.cmake)
     
-    # Configure SDL2 for macOS
+    # Configure SDL3 for macOS
     configure_macos(Nebulite)
 ##################
 # LINUX          #
@@ -101,7 +101,7 @@ elseif(UNIX)
     # Include Linux-specific configuration
     include(${CMAKE_SOURCE_DIR}/Tools/CMake/Platforms/linuxbuild.cmake)
     
-    # Configure SDL2 for Linux
+    # Configure SDL3 for Linux
     configure_linux(Nebulite)
 ##################
 # UNKNOWN        #

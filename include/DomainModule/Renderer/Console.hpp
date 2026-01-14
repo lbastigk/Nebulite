@@ -10,8 +10,8 @@
 // Includes
 
 // External
-#include <SDL.h>
-#include <SDL_ttf.h>
+#include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
@@ -139,7 +139,7 @@ private:
     /**
      * @brief Rectangle defining the input text area.
      */
-    SDL_Rect textInputRect = {0, 0, 0, 0};
+    SDL_FRect textInputRect = {0, 0, 0, 0};
 
     /**
      * @brief Texture for the background image.
@@ -149,16 +149,16 @@ private:
     /**
      * @brief Rectangle defining the highlighted text area.
      */
-    SDL_Rect textInputHighlightRect = {0, 0, 0, 0};
+    SDL_FRect textInputHighlightRect = {0, 0, 0, 0};
 
     /**
      * @brief Rectangle used for each output line.
      */
-    SDL_Rect textOutputRect = {0, 0, 0, 0};
+    SDL_FRect textOutputRect = {0, 0, 0, 0};
 
     // Texture for console rendering
     struct SDL_Texture_Wrapper {
-        SDL_Rect rect = {0, 0, 0, 0};
+        SDL_FRect rect = {0, 0, 0, 0};
         SDL_Texture* texture_ptr = nullptr;
     } consoleTexture;
 

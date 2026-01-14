@@ -9,9 +9,12 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cfloat>
+
 // External
-#include <SDL.h>        // SDL Renderer is used for some methods to calculate text
-#include <SDL_ttf.h>    // Same for ttf
+#include <SDL3/SDL.h>           // SDL Renderer is used for some methods to calculate text
+#include <SDL3_ttf/SDL_ttf.h>   // Same for ttf
 
 // Nebulite
 #include "Core/Texture.hpp"
@@ -64,7 +67,7 @@ public:
      * @brief Serializes the RenderObject to a JSON string.
      * @return A string representation of the RenderObject's JSON document.
      */
-    std::string serialize() const ;
+    [[nodiscard]] std::string serialize() const ;
 
     /**
      * @brief Deserializes the RenderObject from a JSON string.
@@ -79,19 +82,19 @@ public:
      * @brief Gets a pointer to the SDL_Rect describing the destination of the sprite.
      * @return A pointer to the SDL_Rect describing the destination of the sprite.
      */
-    SDL_Rect* getDstRect();
+    SDL_FRect* getDstRect();
 
     /**
      * @brief Gets a pointer to the SDL_Rect describing the source of the sprite.
      * @return A pointer to the SDL_Rect describing the source of the sprite.
      */
-    SDL_Rect* getSrcRect();
+    SDL_FRect* getSrcRect();
 
     /**
      * @brief Gets a pointer to the SDL_Rect describing the destination of the text.
      * @return A pointer to the SDL_Rect describing the destination of the text.
      */
-    SDL_Rect* getTextRect();
+    SDL_FRect* getTextRect();
 
     /**
      * @brief Gets the texture of the text.
@@ -107,7 +110,7 @@ public:
         int32_t y;
     };
 
-    Position getPosition() const {
+    [[nodiscard]] Position getPosition() const {
         return {static_cast<int32_t>(std::lround(*refs.posX)), static_cast<int32_t>(std::lround(*refs.posY))};
     }
 
@@ -133,7 +136,7 @@ public:
      * @param renderPositionX The X position of the renderer used for text offset.
      * @param renderPositionY The Y position of the renderer used for text offset.
      */
-    void calculateText(SDL_Renderer* renderer, TTF_Font* font, int const& renderPositionX, int const& renderPositionY);
+    void calculateText(SDL_Renderer* renderer, TTF_Font* font, float const& renderPositionX, float const& renderPositionY);
 
     /**
      * @brief Calculates the destination rectangle for the sprite.
@@ -292,9 +295,9 @@ private:
     // === TO REWORK ===
 
     // for caching of SDL Positions
-    SDL_Rect dstRect = {0, 0, 0, 0}; // destination of sprite
-    SDL_Rect srcRect = {0, 0, 0, 0}; // source of sprite from spritesheet
-    SDL_Rect textRect = {0, 0, 0, 0}; // destination of text texture
+    SDL_FRect dstRect = {0, 0, 0, 0}; // destination of sprite
+    SDL_FRect srcRect = {0, 0, 0, 0}; // source of sprite from spritesheet
+    SDL_FRect textRect = {0, 0, 0, 0}; // destination of text texture
 
     // Surface and Texture of Text
     SDL_Surface* textSurface; // Surface for the text

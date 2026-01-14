@@ -22,7 +22,7 @@ function(configure_linux target_name)
         pthread     # Threading
     )
     
-    message(STATUS "SDL2 configured for Linux")
+    message(STATUS "SDL3 configured for Linux")
 endfunction()
 
 message(STATUS "Linux build configuration loaded successfully")

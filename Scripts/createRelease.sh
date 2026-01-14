@@ -136,7 +136,7 @@ Nebulite Third-Party Library Licenses
 
 This software includes the following third-party libraries:
 
-SDL2 - Simple DirectMedia Layer (zlib License)
+SDL3 - Simple DirectMedia Layer (zlib License)
 -----------------------------------------------
 Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
   

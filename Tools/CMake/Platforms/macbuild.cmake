@@ -11,14 +11,14 @@ message(STATUS "Loading macOS build configuration...")
 # macOS-specific compile definitions (if any)
 # add_compile_definitions(MACOS_SPECIFIC_FLAG)
 
-# macOS-specific SDL2 configuration
+# macOS-specific SDL3 configuration
 function(configure_macos target_name)
     message(STATUS "Configuring ${target_name} for macOS, build type: ${CMAKE_BUILD_TYPE}")
     
-    # Use the same SDL2 submodules as Linux/Windows
-    message(STATUS "Using SDL2 submodules for macOS cross-compilation")
+    # Use the same SDL3 submodules as Linux/Windows
+    message(STATUS "Using SDL3 submodules for macOS cross-compilation")
 
-    # Frameworks needed for SDL2 on macOS
+    # Frameworks needed for SDL3 on macOS
     target_link_libraries(${target_name} PRIVATE
         "-framework Cocoa"
         "-framework IOKit"
@@ -29,7 +29,7 @@ function(configure_macos target_name)
         "-framework ForceFeedback"
     )
     
-    message(STATUS "SDL2 configured for macOS")
+    message(STATUS "SDL3 configured for macOS")
 endfunction()
 
 message(STATUS "macOS build configuration loaded successfully")

@@ -14,7 +14,7 @@
             },
             "cacheVariables": {
                 "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-                "SDL2TTF_VENDORED": "ON",
+                "SDL3TTF_VENDORED": "ON",
                 "CMAKE_SUPPRESS_DEVELOPER_WARNINGS": "TRUE"
             }
         },
