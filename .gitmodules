@@ -1,15 +1,15 @@
-[submodule "external/SDL2"]
-	path = external/SDL2
+[submodule "external/SDL3"]
+	path = external/SDL3
 	url = https://github.com/libsdl-org/SDL.git
-	branch = SDL2
-[submodule "external/SDL2_ttf"]
-	path = external/SDL2_ttf
+	branch = SDL3
+[submodule "external/SDL3_ttf"]
+	path = external/SDL3_ttf
 	url = https://github.com/libsdl-org/SDL_ttf.git
-	branch = SDL2
-[submodule "external/SDL2_image"]
-	path = external/SDL2_image
+	branch = SDL3
+[submodule "external/SDL3_image"]
+	path = external/SDL3_image
 	url = https://github.com/libsdl-org/SDL_image.git
-	branch = SDL2
+	branch = SDL3
 [submodule "external/rapidjson"]
 	path = external/rapidjson
 	url = https://github.com/Tencent/rapidjson.git
