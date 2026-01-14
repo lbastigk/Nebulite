@@ -477,7 +477,7 @@ bool JsonRvalueTransformer::serialize(Core::JsonScope* jsonDoc) {
 }
 
 bool JsonRvalueTransformer::deserialize(Core::JsonScope* jsonDoc) {
-    std::string const serialized = jsonDoc->get<std::string>(valueKey, "");
+    auto const serialized = jsonDoc->get<std::string>(valueKey, "");
     JSON tempDoc;
     if (!JSON::isJsonOrJsonc(serialized)) {
         return false;

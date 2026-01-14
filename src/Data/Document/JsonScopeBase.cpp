@@ -23,7 +23,7 @@ JsonScopeBase::JsonScopeBase(JsonScopeBase const& other, std::string const& pref
 
 // Default constructor, we create a self-owned empty JSON document
 JsonScopeBase::JsonScopeBase()
-    : baseDocument(std::make_shared<JSON>()), scopePrefix(""),
+    : baseDocument(std::make_shared<JSON>()),
       expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS>(*this))
 {}
 

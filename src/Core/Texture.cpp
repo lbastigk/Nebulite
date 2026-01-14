@@ -45,26 +45,26 @@ bool Texture::copyTexture() {
     Uint32 format;
     int textureAccess;
     if (SDL_QueryTexture(texture, &format, &textureAccess, &w, &h) != 0) {
-        Nebulite::cerr() << "Failed to query texture: " << SDL_GetError() << Nebulite::endl;
+        Nebulite::error::println("Failed to query texture: ", SDL_GetError());
         return false;
     }
 
     // Create a new texture with streaming access for modifications
     SDL_Texture* newTexture = SDL_CreateTexture(Nebulite::global().getSdlRenderer(), format, SDL_TEXTUREACCESS_STREAMING, w, h);
     if (!newTexture) {
-        Nebulite::cerr() << "Failed to create new texture: " << SDL_GetError() << Nebulite::endl;
+        Nebulite::error::println("Failed to create new texture: ", SDL_GetError());
         return false;
     }
 
     // Copy the content from the old texture to the new one
     if (SDL_SetRenderTarget(Nebulite::global().getSdlRenderer(), newTexture) != 0) {
-        Nebulite::cerr() << "Failed to set render target: " << SDL_GetError() << Nebulite::endl;
+        Nebulite::error::println("Failed to set render target: ", SDL_GetError());
         SDL_DestroyTexture(newTexture);
         return false;
     }
 
     if (SDL_RenderCopy(Nebulite::global().getSdlRenderer(), texture, nullptr, nullptr) != 0) {
-        Nebulite::cerr() << "Failed to copy texture: " << SDL_GetError() << Nebulite::endl;
+        Nebulite::error::println("Failed to copy texture: ", SDL_GetError());
         SDL_SetRenderTarget(Nebulite::global().getSdlRenderer(), nullptr);
         SDL_DestroyTexture(newTexture);
         return false;
@@ -89,7 +89,7 @@ void Texture::loadTextureFromFile(std::string const& filePath) {
         texture = newTexture;
         textureStoredLocally = false; // New texture is not yet modified
     } else {
-        Nebulite::cerr() << "Failed to load texture from file: " << filePath << Nebulite::endl;
+        Nebulite::error::println("Failed to load texture from file: ", filePath);
     }
 }
 

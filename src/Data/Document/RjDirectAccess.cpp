@@ -224,8 +224,8 @@ void RjDirectAccess::deserialize(rapidjson::Document& doc, std::string const& se
     // Strip JSONC comments before parsing
     std::string const cleanJson = stripComments(jsonString);
     if (rapidjson::ParseResult const res = doc.Parse(cleanJson.c_str()); !res) {
-        Nebulite::cerr() << "JSON Parse Error at offset " << res.Offset() << Nebulite::endl;
-        Nebulite::cerr() << "String is:\n" << cleanJson << Nebulite::endl;
+        Nebulite::error::println("JSON Parse Error at offset ", res.Offset(), ". String is:");
+        Nebulite::error::println(cleanJson);
     }
 }
 

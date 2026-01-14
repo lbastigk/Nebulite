@@ -6,7 +6,7 @@
 
 namespace Nebulite::Data {
 
-JSON::JSON(){}
+JSON::JSON() = default;
 
 JSON::~JSON() {
     std::scoped_lock const lockGuard(mtx);
@@ -37,7 +37,7 @@ JSON::JSON(JSON&& other) noexcept {
 
 Core::JsonScope JSON::shareScope(std::string const& prefix) {
     std::scoped_lock const lockGuard(mtx);
-    return Core::JsonScope(*this, prefix, "Externally Managed JSON Scope");
+    return {*this, prefix, "Externally Managed JSON Scope"};
 }
 
 Core::JsonScope& JSON::shareManagedScope(std::string const& prefix) {
@@ -143,8 +143,8 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
 
     // Checking for malformed shouldn't be necessary, but just in case
     if (it != cache.end() && it->second->state == CacheEntry::EntryState::MALFORMED) {
-        Nebulite::cerr() << "Warning: Attempted to access malformed key in getVariant(): " << key << Nebulite::endl;
-        Nebulite::cerr() << "This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!" << Nebulite::endl;
+        Nebulite::error::println("Warning: Attempted to access malformed key in getVariant(): ", key);
+        Nebulite::error::println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
         return {};
     }
 
@@ -358,7 +358,7 @@ void JSON::setSubDoc(char const* key, JSON const& child) {
         // Since we inserted an entire document, we need to invalidate its child keys:
         invalidate_child_keys(key);
     } else {
-        Nebulite::cerr() << "Failed to create or access path: " << key << Nebulite::endl;
+        Nebulite::error::println("Failed to create or access path: ", key);
     }
 }
 
@@ -380,7 +380,7 @@ std::string JSON::serialize(std::string const& key) const {
         // Serialize entire doc
         return RjDirectAccess::serialize(doc);
     }
-    JSON sub = getSubDoc(key);
+    JSON const sub = getSubDoc(key);
     return sub.serialize();
 }
 
