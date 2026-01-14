@@ -163,6 +163,15 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
     // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
     // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
     // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
+    //
+    // NOTE:
+    // Later on it may be better to use a fixed tile size and load enough to cover the screen, + maybe 1-2 tiles extra on each side.
+    // Or, perhaps even better, use a fixed tile size + a fixed loading radius around the player position.
+    // This, however, requires the renderer to determine a maximum resolution beforehand based on the radius.
+    // Meaning it has to discard any requested resolution that is too high for the radius.
+    // Note that we cannot directly use the maximum tile radius, as for some positions it may be smaller!
+    // So we should subtract at least one tile, perhaps even two to be safe.
+    // Or we go the actual good way and do the math to determine hMax/wMax based on the radius and tile size.
     for (int16_t const dX : tileOffsetsX) {
         auto const currentTilePosX = static_cast<int16_t>(tilePosX - dX);
         for (int16_t const dY : tileOffsetsY) {
