@@ -4,11 +4,14 @@
 namespace Nebulite::Data {
 
 void PairingContainer::insertBroadcaster(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+    // Used to traverse to the correct location
     auto& topic = entry->getTopic();
     auto& id = entry->getId();
     auto& index = entry->getIndex();
+
+    // Insert into the data structure
     auto& [map, mtx] = data[topic]; // creates map if missing
-    auto const lock = std::unique_lock<std::shared_mutex>(mtx);
+    auto const lock = std::unique_lock<std::shared_mutex>(mtx); // Second map requires manual locking
     auto& [isActive, rulesets] = map[id]; // creates maps/entries if missing
     rulesets[index].entry = entry;
     isActive = true;
