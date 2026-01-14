@@ -27,7 +27,7 @@ Constants::Error Debug::eval(std::span<std::string const> const& args, Interacti
 }
 
 Constants::Error Debug::printSrcRect() const {
-    if (SDL_FRect const* srcRect = domain.getSrcRect(); srcRect) {
+    if (SDL_Rect const* srcRect = domain.getSrcRect(); srcRect) {
         std::string message;
         message += "Source Rectangle:";
         message += "{ x: " + std::to_string(srcRect->x);
@@ -44,7 +44,7 @@ Constants::Error Debug::printSrcRect() const {
 }
 
 Constants::Error Debug::printDstRect() const {
-    if (SDL_FRect const* dstRect = domain.getDstRect(); dstRect) {
+    if (SDL_Rect const* dstRect = domain.getDstRect(); dstRect) {
         std::string message;
         message += "Destination Rectangle:";
         message += "{ x: " + std::to_string(dstRect->x);

@@ -154,10 +154,10 @@ public:
      * @param aboveThisLayer The layer above which to attach the texture.
      * @param name The name of the texture.
      * @param texture The SDL_Texture to attach.
-     * @param rect Optional SDL_FRect defining the area to render the texture.
+     * @param rect Optional SDL_Rect defining the area to render the texture.
      * @return True if the texture was successfully attached, false otherwise.
      */
-    bool attachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name, SDL_Texture* texture, SDL_FRect* rect = nullptr) {
+    bool attachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name, SDL_Texture* texture, SDL_Rect* rect = nullptr) {
         if (texture == nullptr) {
             return false; // Cannot attach a null texture
         }
@@ -510,12 +510,12 @@ private:
 
     /**
      * @brief Renders a single object to the screen.
+     * @details Prints error messages if the object cannot be rendered.
      * @param obj Pointer to the RenderObject to render.
      * @param dispPosX The X position on the screen to render the object.
      * @param dispPosY The Y position on the screen to render the object.
-     * @return SDL_Error code from SDL_RenderCopy, 0 if successful.
      */
-    int renderObjectToScreen(RenderObject* obj, float const& dispPosX, float const& dispPosY);
+    void renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
 
     //------------------------------------------
     // For FPS Count and Control
@@ -552,7 +552,7 @@ private:
         Environment::Layer,
         absl::flat_hash_map<
             std::string,
-            std::pair<SDL_Texture*, SDL_FRect*> // Pair of texture and its rectangle
+            std::pair<SDL_Texture*, SDL_Rect*> // Pair of texture and its rectangle
         >
     > BetweenLayerTextures;
 

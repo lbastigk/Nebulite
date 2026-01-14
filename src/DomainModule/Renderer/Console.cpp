@@ -68,9 +68,9 @@ Constants::Error Console::update() {
         consoleMode = !consoleMode;
         if (consoleMode) {
             SDL_StartTextInput(domain.getSdlWindow());
-            SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT); // Flush all pending events
+            SDL_FlushEvents(SDL_EVENT_FIRST, SDL_EVENT_LAST); // Flush all pending events
         } else {
-            SDL_StopTextInput();
+            SDL_StopTextInput(domain.getSdlWindow());
         }
     }
 
@@ -97,9 +97,9 @@ bool Console::ensureConsoleTexture() {
     double const consoleHeight = static_cast<double>(moduleScope.get<size_t>(Constants::KeyNames::Renderer::dispResY, 360)) * consoleLayout.heightRatio;
     static SDL_Rect currentConsolePosition;
     currentConsolePosition.x = 0;
-    currentConsolePosition.y = static_cast<int>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResY, 360) - consoleHeight);
-    currentConsolePosition.w = moduleScope.get<int>(Constants::KeyNames::Renderer::dispResX, 360);
-    currentConsolePosition.h = moduleScope.get<int>(Constants::KeyNames::Renderer::dispResY, 360) - currentConsolePosition.y;
+    currentConsolePosition.y = static_cast<float>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResY, 360) - consoleHeight);
+    currentConsolePosition.w = static_cast<float>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResX, 360));
+    currentConsolePosition.h = static_cast<float>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResY, 360) - static_cast<double>(currentConsolePosition.y));
 
     //------------------------------------------
     // Texture Setup
@@ -127,31 +127,37 @@ bool Console::ensureConsoleTexture() {
 void Console::drawBackground() const {
     //------------------------------------------
     // Draw everything as before, but coordinates relative to (0,0)
-    SDL_FRect const localRect = {0, 0, consoleTexture.rect.w, consoleTexture.rect.h};
+    SDL_FRect const localFRect = {
+        0.0f,
+        0.0f,
+        static_cast<float>(consoleTexture.rect.w),
+        static_cast<float>(consoleTexture.rect.h)
+    };
 
     // If we have a background image, draw it instead
     if (backgroundImageTexture != nullptr) {
-        SDL_RenderCopy(renderer, backgroundImageTexture, nullptr, &localRect);
+
+        SDL_RenderTexture(renderer, backgroundImageTexture, nullptr, &localFRect);
     } else {
         SDL_SetRenderDrawColor(renderer, color.background.r, color.background.g, color.background.b, color.background.a);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_RenderFillRect(renderer, &localRect);
+        SDL_RenderFillRect(renderer, &localFRect);
     }
 }
 
 void Console::drawInput(uint16_t const& lineHeight) {
     // Add a darker background for the input line
-    double const posY = consoleTexture.rect.h - lineHeight - 1.5 * consoleLayout.LINE_PADDING;
-    SDL_Rect const inputBackgroundRect = {0, static_cast<int>(posY), consoleTexture.rect.w, lineHeight + consoleLayout.LINE_PADDING};
+    double const posY = static_cast<double>(consoleTexture.rect.h) - lineHeight - 1.5 * consoleLayout.LINE_PADDING;
+    SDL_FRect const inputBackgroundFRect = {0, static_cast<float>(posY), static_cast<float>(consoleTexture.rect.w), static_cast<float>(lineHeight + consoleLayout.LINE_PADDING)};
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
-    SDL_RenderFillRect(renderer, &inputBackgroundRect);
+    SDL_RenderFillRect(renderer, &inputBackgroundFRect);
 
     // Render input text
     if (!textInput.getInputBuffer()->empty()) {
         std::string const inputText = *textInput.getInputBuffer();
 
         // Create surface and texture
-        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, inputText.c_str(), color.input);
+        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, inputText.c_str(), 0, color.input);
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
         // Define destination rectangle
@@ -161,7 +167,13 @@ void Console::drawInput(uint16_t const& lineHeight) {
         textInputRect.h = static_cast<int>(static_cast<double>(textSurface->h) / static_cast<double>(WindowScale));
 
         // Render the text
-        SDL_RenderCopy(renderer, textTexture, nullptr, &textInputRect);
+        SDL_FRect const textInputFRect = {
+            static_cast<float>(textInputRect.x),
+            static_cast<float>(textInputRect.y),
+            static_cast<float>(textInputRect.w),
+            static_cast<float>(textInputRect.h)
+        };
+        SDL_RenderTexture(renderer, textTexture, nullptr, &textInputFRect);
         SDL_DestroySurface(textSurface);
         SDL_DestroyTexture(textTexture);
 
@@ -169,13 +181,19 @@ void Console::drawInput(uint16_t const& lineHeight) {
         // With a semi-transparent overlay
         if (uint16_t const cursorOffsetFromEnd = textInput.getCursorOffset(); cursorOffsetFromEnd > 0) {
             std::string const highlightText = textInput.getInputBuffer()->substr(textInput.getInputBuffer()->size() - cursorOffsetFromEnd, cursorOffsetFromEnd);
-            SDL_Surface* highlightSurface = TTF_RenderText_Blended(consoleFont, highlightText.c_str(), color.highlight);
+            SDL_Surface* highlightSurface = TTF_RenderText_Blended(consoleFont, highlightText.c_str(), 0, color.highlight);
             SDL_Texture* highlightTexture = SDL_CreateTextureFromSurface(renderer, highlightSurface);
             textInputHighlightRect.x = textInputRect.x + textInputRect.w - highlightSurface->w;
             textInputHighlightRect.y = textInputRect.y;
             textInputHighlightRect.w = highlightSurface->w;
             textInputHighlightRect.h = highlightSurface->h;
-            SDL_RenderCopy(renderer, highlightTexture, nullptr, &textInputHighlightRect);
+            SDL_FRect const TextInputHighlightFRect = {
+                static_cast<float>(textInputHighlightRect.x),
+                static_cast<float>(textInputHighlightRect.y),
+                static_cast<float>(textInputHighlightRect.w),
+                static_cast<float>(textInputHighlightRect.h)
+            };
+            SDL_RenderTexture(renderer, highlightTexture, nullptr, &TextInputHighlightFRect);
             SDL_DestroySurface(highlightSurface);
             SDL_DestroyTexture(highlightTexture);
         }
@@ -263,14 +281,19 @@ void Console::drawOutput(uint16_t const& maxLineLength) {
         }
 
         // Render line
-        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, content.c_str(), textColor);
+        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, content.c_str(), 0, textColor);
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
         textOutputRect.x = 10;
         textOutputRect.y = line_y_position;
         textOutputRect.w = static_cast<int>(static_cast<double>(textSurface->w) / static_cast<double>(WindowScale));
         textOutputRect.h = static_cast<int>(static_cast<double>(textSurface->h) / static_cast<double>(WindowScale));
-
-        SDL_RenderCopy(renderer, textTexture, nullptr, &textOutputRect);
+        SDL_FRect const textOutputFRect = {
+            static_cast<float>(textOutputRect.x),
+            static_cast<float>(textOutputRect.y),
+            static_cast<float>(textOutputRect.w),
+            static_cast<float>(textOutputRect.h)
+        };
+        SDL_RenderTexture(renderer, textTexture, nullptr, &textOutputFRect);
         SDL_DestroySurface(textSurface);
         SDL_DestroyTexture(textTexture);
 
@@ -306,7 +329,7 @@ void Console::renderConsole() {
             // Use 'W' as it's typically the widest character, even though we use a monospaced font
             // This is a nice fallback in case we ever use a non-monospaced font
             testString += "W";
-            SDL_Surface* testSurface = TTF_RenderText_Blended(consoleFont, testString.c_str(), color.coutStream);
+            SDL_Surface* testSurface = TTF_RenderText_Blended(consoleFont, testString.c_str(), 0, color.coutStream);
             if (static_cast<double>(testSurface->w) / WindowScale > consoleTexture.rect.w - 20) {
                 // 20 for padding
                 SDL_DestroySurface(testSurface);
@@ -334,7 +357,7 @@ void Console::init() {
     // Use a monospaced font for better alignment
     consoleFont = TTF_OpenFont(consoleFontPath.c_str(), static_cast<int>(consoleLayout.FONT_MAX_SIZE * Nebulite::global().getRenderer().getWindowScale()));
     if (!consoleFont) {
-        Nebulite::cerr() << "TTF_OpenFont failed: " << TTF_GetError() << Nebulite::endl;
+        Nebulite::error::println("TTF_OpenFont failed for font: ", consoleFontPath);
         return;
     }
 
@@ -430,7 +453,7 @@ void Console::keyTriggerScrollDown() {
 
 void Console::keyTriggerZoomIn(SDL_KeyboardEvent const& key) const {
     // Make sure that ctrl is held
-    if (!(key.keysym.mod & KMOD_CTRL))
+    if (!(key.mod & SDL_KMOD_CTRL))
         return;
     if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " in"); err != Constants::ErrorTable::NONE()) {
         Nebulite::cerr() << "Error: Failed to zoom into console: " << err.getDescription() << Nebulite::endl;
@@ -439,7 +462,7 @@ void Console::keyTriggerZoomIn(SDL_KeyboardEvent const& key) const {
 
 void Console::keyTriggerZoomOut(SDL_KeyboardEvent const& key) const {
     // Make sure that ctrl is held
-    if (!(key.keysym.mod & KMOD_CTRL))
+    if (!(key.mod & SDL_KMOD_CTRL))
         return;
     if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " out"); err != Constants::ErrorTable::NONE()) {
         Nebulite::cerr() << "Error: Failed to zoom out console: " << err.getDescription() << Nebulite::endl;
@@ -447,101 +470,101 @@ void Console::keyTriggerZoomOut(SDL_KeyboardEvent const& key) const {
 }
 
 void Console::processKeyDownEvent(SDL_KeyboardEvent const& key) {
-    switch (key.keysym.sym) {
-    //------------------------------------------
-    // Text input manipulation
+    switch (key.key) {
+        //------------------------------------------
+        // Text input manipulation
 
-    // Remove last character on backspace
-    case SDLK_BACKSPACE:
-        textInput.backspace();
-        break;
+        // Remove last character on backspace
+        case SDLK_BACKSPACE:
+            textInput.backspace();
+            break;
 
-    // Submit command on Enter
-    case SDLK_RETURN:
-    case SDLK_KP_ENTER:
-        keyTriggerSubmit();
-        break;
+        // Submit command on Enter
+        case SDLK_RETURN:
+        case SDLK_KP_ENTER:
+            keyTriggerSubmit();
+            break;
 
-    // Cursor movement
-    case SDLK_LEFT:
-        textInput.moveCursorLeft();
-        break;
-    case SDLK_RIGHT:
-        textInput.moveCursorRight();
-        break;
+        // Cursor movement
+        case SDLK_LEFT:
+            textInput.moveCursorLeft();
+            break;
+        case SDLK_RIGHT:
+            textInput.moveCursorRight();
+            break;
 
-    /**
-     * @todo: Implement copy/paste functionality with CTRL + C/V
-     * perhaps integrate a clipboard manager into Renderer class?
-     * Then, it could be used for both the console and other TextInput instances.
-     *
-     * For this to work properly, we should consider text handling to be only registered by one instance at a time.
-     * Perhaps we can move every keytrigger event to Renderer, and have it forward events to the active TextInput instance.
-     *
-     * Then we may have functions to move focus to objects:
-     *
-     * for Domain RenderObject:
-     * textfocus self
-     *
-     * which itself sends a "textfocus id" to the "bus" that triggers on the scope of the Renderer by using:
-     *
-     * textfocus id <renderer_object_id>
-     *
-     * Then, we could have more textfocus additions like:
-     * textfocus gui <gui_element_id>
-     * textfocus console force on/off
-     * etc.
-     *
-     * Then, we could have Renderer::setActiveTextInput(shared<TextInput>) which overwrites the current active text input, if its not forced.
-     * And on Renderer::update(), we forward all text input and key events to that active TextInput instance.
-     * Meaning this entire function would be moved to TextInput class, and Console would just set itself as active when in console mode.
-     *
-     * If a textfocus is active, we may wish to disable normal key processing from Input DomainModule.
-     *
-     * For this to work, we need to modify TextInput into two modes:
-     * - On submit, store text in vector (for console)
-     * - On submit, lose focus           (for single-line text inputs)
-     *
-     * This requires a big rework of TextInput class, we may wish to extract the core functionality of single-line text input with cursor to a separate class.
-     * - TextInput for core functionality
-     * - Use Capture class directly for console readout
-     * Since the current TextInput class has a lot logic that is the same as Capture's output log.
-     * Only thing left is to add a Capture type for commands entered.
-     */
+        /**
+         * @todo: Implement copy/paste functionality with CTRL + C/V
+         * perhaps integrate a clipboard manager into Renderer class?
+         * Then, it could be used for both the console and other TextInput instances.
+         *
+         * For this to work properly, we should consider text handling to be only registered by one instance at a time.
+         * Perhaps we can move every keytrigger event to Renderer, and have it forward events to the active TextInput instance.
+         *
+         * Then we may have functions to move focus to objects:
+         *
+         * for Domain RenderObject:
+         * textfocus self
+         *
+         * which itself sends a "textfocus id" to the "bus" that triggers on the scope of the Renderer by using:
+         *
+         * textfocus id <renderer_object_id>
+         *
+         * Then, we could have more textfocus additions like:
+         * textfocus gui <gui_element_id>
+         * textfocus console force on/off
+         * etc.
+         *
+         * Then, we could have Renderer::setActiveTextInput(shared<TextInput>) which overwrites the current active text input, if its not forced.
+         * And on Renderer::update(), we forward all text input and key events to that active TextInput instance.
+         * Meaning this entire function would be moved to TextInput class, and Console would just set itself as active when in console mode.
+         *
+         * If a textfocus is active, we may wish to disable normal key processing from Input DomainModule.
+         *
+         * For this to work, we need to modify TextInput into two modes:
+         * - On submit, store text in vector (for console)
+         * - On submit, lose focus           (for single-line text inputs)
+         *
+         * This requires a big rework of TextInput class, we may wish to extract the core functionality of single-line text input with cursor to a separate class.
+         * - TextInput for core functionality
+         * - Use Capture class directly for console readout
+         * Since the current TextInput class has a lot logic that is the same as Capture's output log.
+         * Only thing left is to add a Capture type for commands entered.
+         */
 
-    //------------------------------------------
-    // UP/DOWN to cycle through past commands
-    case SDLK_UP:
-        textInput.history_up();
-        break;
-    case SDLK_DOWN:
-        textInput.history_down();
-        break;
+        //------------------------------------------
+        // UP/DOWN to cycle through past commands
+        case SDLK_UP:
+            textInput.history_up();
+            break;
+        case SDLK_DOWN:
+            textInput.history_down();
+            break;
 
-    //------------------------------------------
-    // Scroll through output with PAGE UP/DOWN
-    case SDLK_PAGEUP:
-        keyTriggerScrollUp();
-        break;
-    case SDLK_PAGEDOWN:
-        keyTriggerScrollDown();
-        break;
+        //------------------------------------------
+        // Scroll through output with PAGE UP/DOWN
+        case SDLK_PAGEUP:
+            keyTriggerScrollUp();
+            break;
+        case SDLK_PAGEDOWN:
+            keyTriggerScrollDown();
+            break;
 
-    //------------------------------------------
-    // Zoom in/out with +/- keys
-    case SDLK_PLUS:
-    case SDLK_KP_PLUS:
-        keyTriggerZoomIn(key);
-        break;
+        //------------------------------------------
+        // Zoom in/out with +/- keys
+        case SDLK_PLUS:
+        case SDLK_KP_PLUS:
+            keyTriggerZoomIn(key);
+            break;
 
-    case SDLK_MINUS:
-    case SDLK_KP_MINUS:
-        keyTriggerZoomOut(key);
-        break;
+        case SDLK_MINUS:
+        case SDLK_KP_MINUS:
+            keyTriggerZoomOut(key);
+            break;
 
-    //------------------------------------------
-    default:
-        break;
+        //------------------------------------------
+        default:
+            break;
 
     }
 }
@@ -549,14 +572,14 @@ void Console::processKeyDownEvent(SDL_KeyboardEvent const& key) {
 void Console::processEvents() {
     for (auto const& event : *events) {
         switch (event.type) {
-        case SDL_TEXTINPUT:
+        case SDL_EVENT_TEXT_INPUT:
             // Do not append if ctrl is held (to allow copy/paste and other shortcuts)
-            if (event.key.keysym.mod & KMOD_CTRL) {
+            if (event.key.mod & SDL_KMOD_CTRL) {
                 break;
             }
             textInput.append(event.text.text);
             break;
-        case SDL_KEYDOWN:
+        case SDL_EVENT_KEY_DOWN:
             processKeyDownEvent(event.key);
             break;
         default:

@@ -1,5 +1,5 @@
 echo Vertical Slice test for Nebulite
-set-res 320 240 6
+set-res 320 240 3
 set-fps 6000
 echo
 echo Nebulite vertical slice test

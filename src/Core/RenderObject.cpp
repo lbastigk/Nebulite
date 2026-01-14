@@ -137,24 +137,24 @@ SDL_Texture* RenderObject::getTextTexture() const {
     return textTexture;
 }
 
-SDL_FRect* RenderObject::getTextRect() {
+SDL_Rect* RenderObject::getTextRect() {
     return &textRect;
 }
 
-SDL_FRect* RenderObject::getDstRect() {
+SDL_Rect* RenderObject::getDstRect() {
     return &dstRect;
 }
 
 void RenderObject::calculateDstRect() {
     dstRect = {
-        static_cast<float>(*refs.posX),
-        static_cast<float>(*refs.posY),
-        static_cast<float>(*refs.pixelSizeX), // Set the desired width
-        static_cast<float>(*refs.pixelSizeY), // Set the desired height
+        static_cast<int>(*refs.posX),
+        static_cast<int>(*refs.posY),
+        static_cast<int>(*refs.pixelSizeX), // Set the desired width
+        static_cast<int>(*refs.pixelSizeY) // Set the desired height
     };
 }
 
-SDL_FRect* RenderObject::getSrcRect() {
+SDL_Rect* RenderObject::getSrcRect() {
     if (std::fabs(*refs.isSpritesheet) > std::numeric_limits<double>::epsilon()) {
         // isSpritesheet is true
         return &srcRect;
@@ -168,10 +168,10 @@ void RenderObject::calculateSrcRect() {
         // isSpritesheet is true
         // Calculate the source rectangle for the sprite (which portion of the sprite sheet to render)
         srcRect = {
-            static_cast<float>(*refs.spritesheetOffsetX), // Start X from the sprite sheet offset
-            static_cast<float>(*refs.spritesheetOffsetY), // Start Y from the sprite sheet offset
-            static_cast<float>(*refs.spritesheetSizeX), // The width of the sprite frame
-            static_cast<float>(*refs.spritesheetSizeY) // The height of the sprite frame
+            static_cast<int>(*refs.spritesheetOffsetX), // Start X from the sprite sheet offset
+            static_cast<int>(*refs.spritesheetOffsetY), // Start Y from the sprite sheet offset
+            static_cast<int>(*refs.spritesheetSizeX), // The width of the sprite frame
+            static_cast<int>(*refs.spritesheetSizeY) // The height of the sprite frame
         };
     }
 }
@@ -252,8 +252,8 @@ uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
 
 void RenderObject::calculateText(SDL_Renderer* renderer, TTF_Font* font, float const& renderPositionX, float const& renderPositionY) {
     // Set font size if changed
-    textRect.x = static_cast<float>(*refs.posX + *refs.textDx - static_cast<double>(renderPositionX));
-    textRect.y = static_cast<float>(*refs.posY + *refs.textDy - static_cast<double>(renderPositionY));
+    textRect.x = static_cast<int>(*refs.posX + *refs.textDx - static_cast<double>(renderPositionX));
+    textRect.y = static_cast<int>(*refs.posY + *refs.textDy - static_cast<double>(renderPositionY));
 
     // Recreate texture if recalculate was triggered by user. This is needed for:
     // - new text
@@ -269,8 +269,8 @@ void RenderObject::calculateText(SDL_Renderer* renderer, TTF_Font* font, float c
         // Settings influenced by a new text
         double constexpr scalar = 1.0; // Perhaps needed later on for scaling
         auto const text = document.get<std::string>(Constants::KeyNames::RenderObject::textStr);
-        textRect.w = static_cast<float>(*refs.fontSize * static_cast<double>(text.length()) * scalar);
-        textRect.h = static_cast<float>(*refs.fontSize * 1.5 * scalar);
+        textRect.w = static_cast<int>(*refs.fontSize * static_cast<double>(text.length()) * scalar);
+        textRect.h = static_cast<int>(*refs.fontSize * 1.5 * scalar);
 
         // Create text
         SDL_Color const textColor = {

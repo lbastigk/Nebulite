@@ -16,7 +16,8 @@ Constants::Error Fill::fill(int const argc, char** argv) const {
     }
 
     // Get the SDL_Renderer
-    if (Nebulite::global().getSdlRenderer() == nullptr) {
+    SDL_Renderer* renderer = Nebulite::global().getSdlRenderer();
+    if (renderer == nullptr) {
         return Constants::ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED();
     }
 
@@ -46,33 +47,34 @@ Constants::Error Fill::fill(int const argc, char** argv) const {
         return Constants::ErrorTable::FUNCTIONAL::CRITICAL_INVALID_ARGC_ARGV_PARSING();
     }
 
-    // Lock the texture for pixel manipulation
-    void* pixels;
-    int pitch;
-    if (SDL_LockTexture(texture, nullptr, &pixels, &pitch) != 0) {
-        Nebulite::cerr() << "Failed to lock texture: " << SDL_GetError() << Nebulite::endl;
+    // Bind texture as render target, fill with draw color, restore previous target.
+    SDL_Texture* prevTarget = SDL_GetRenderTarget(renderer); // may be nullptr
+    if (SDL_SetRenderTarget(renderer, texture) != 0) {
+        Nebulite::cerr() << "Failed to set render target: " << SDL_GetError() << Nebulite::endl;
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_LOCK_FAILED();
     }
 
-    // Fill the texture with the specified color
-    auto* pixelData = static_cast<Uint32*>(pixels);
-    int width, height;
-    SDL_QueryTexture(texture, nullptr, nullptr, &width, &height);
-    Uint32 const color = SDL_MapRGB(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), r, g, b);
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            pixelData[y * (pitch / 4) + x] = color;
-        }
+    if (SDL_SetRenderDrawColor(renderer, r, g, b, 255) != 0) {
+        Nebulite::cerr() << "Failed to set draw color: " << SDL_GetError() << Nebulite::endl;
+        SDL_SetRenderTarget(renderer, prevTarget);
+        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_LOCK_FAILED();
     }
 
-    // Unlock the texture
-    SDL_UnlockTexture(texture);
+    if (SDL_RenderClear(renderer) != 0) {
+        Nebulite::cerr() << "Failed to clear (fill) texture: " << SDL_GetError() << Nebulite::endl;
+        SDL_SetRenderTarget(renderer, prevTarget);
+        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_LOCK_FAILED();
+    }
 
-    Nebulite::cout() << "Texture filled with color: "
+    // restore previous render target
+    SDL_SetRenderTarget(renderer, prevTarget);
+
+    Nebulite::cout() << "Texture filled with color:"
         << " R=" << static_cast<int>(r)
         << " G=" << static_cast<int>(g)
         << " B=" << static_cast<int>(b)
         << Nebulite::endl;
+
     return Constants::ErrorTable::NONE();
 }
 

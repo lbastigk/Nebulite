@@ -126,7 +126,7 @@ void Renderer::initSDL() {
     setupDisplayValues();
 
     //Create SDL window
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+    if (!SDL_Init(SDL_INIT_VIDEO) && SDL_GetError()[0] != '\0') {
         // SDL initialization failed
         Nebulite::error::println("SDL_Init Error: ", SDL_GetError());
     }
@@ -135,7 +135,6 @@ void Renderer::initSDL() {
     int const h = domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 0);
 
     uint32_t flags = *headless ? SDL_WINDOW_HIDDEN : 0; //SDL_WINDOW_SHOWN;
-    //flags = flags | SDL_WINDOW_RESIZABLE; // Disabled for now, as it causes issues with the logical size rendering
     flags = flags | SDL_WINDOW_OPENGL;
     window = SDL_CreateWindow("Nebulite", w, h, flags);
     if (!window) {
@@ -148,7 +147,7 @@ void Renderer::initSDL() {
     // Renderer
 
     // Create a renderer
-    renderer = SDL_CreateRenderer(window, "Base Renderer");
+    renderer = SDL_CreateRenderer(window, nullptr);
     if (!renderer) {
         Nebulite::error::println("Renderer creation failed: ", SDL_GetError());
     }
@@ -184,7 +183,7 @@ void Renderer::initSDL() {
     // Audio
 
     // Init
-    if (!SDL_Init(SDL_INIT_AUDIO)) {
+    if (!SDL_Init(SDL_INIT_AUDIO) && SDL_GetError()[0] != '\0') {
         Nebulite::error::println("SDL_Init Error: ", SDL_GetError());
     } else {
         audio.desired.freq = 44100;
@@ -472,24 +471,18 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResX, w);
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResY, h);
 
-    // Update the window size
-    SDL_SetWindowSize(
-        window,
-        domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 360) * WindowScale,
-        domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 360) * WindowScale
-        );
-    SDL_SetRenderLogicalPresentation(
-        renderer,
-        domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 360),
-        domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 360),
-        SDL_LOGICAL_PRESENTATION_INTEGER_SCALE
-        );
+    // Set the physical window size to the logical resolution (do not multiply by WindowScale).
+    // SDL will present the logical resolution scaled to the physical display according to the
+    // logical presentation mode below.
+    SDL_SetWindowSize(window, w*WindowScale, h*WindowScale);
 
-    // Turn off console mode
-    // Not needed anymore, console should dynamically adapt to new window size
-    // consoleMode = false;
+    // Use integer logical presentation so scaling is done in integer steps (crisp pixels).
+    SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_STRETCH);
 
-    // Reinsert objects, due to new tile size
+    // Prefer nearest-neighbor scaling to avoid linear blur when textures are scaled.
+    //SDL_SetHint(SDL_HINT_RENDER_, "nearest");
+
+    // Reinsert objects due to new tile / logical size
     reinsertAllObjects();
 }
 
@@ -562,7 +555,6 @@ void Renderer::renderFrame() {
     //------------------------------------------
     // Rendering
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
-    int error = 0;
 
     //Render Objects
     //For all layers, starting at 0
@@ -583,10 +575,7 @@ void Renderer::renderFrame() {
             for (auto const& [objectsInThisBatch, _] : env.getContainerAt(tileX, tileY, layer)) {
                 // For all objects in batch
                 for (auto const& obj : objectsInThisBatch) {
-                    error = renderObjectToScreen(obj, dispPosX, dispPosY);
-                    if (error != 0) {
-                        Nebulite::error::println("Error rendering object ID ", obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0), ": ", error);
-                    }
+                    renderObjectToScreen(obj, dispPosX, dispPosY);
                 }
             }
         }
@@ -596,12 +585,18 @@ void Renderer::renderFrame() {
             if (!texture) {
                 continue; // Skip if texture is null
             }
-            SDL_RenderTexture(renderer, texture, nullptr, rect);
+            SDL_FRect const rectF = {
+                static_cast<float>(rect->x),
+                static_cast<float>(rect->y),
+                static_cast<float>(rect->w),
+                static_cast<float>(rect->h)
+            };
+            SDL_RenderTexture(renderer, texture, nullptr, &rectF);
         }
     }
 }
 
-int Renderer::renderObjectToScreen(RenderObject* obj, float const& dispPosX, float const& dispPosY) {
+void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY) {
     //------------------------------------------
     // Texture Loading
 
@@ -640,17 +635,32 @@ int Renderer::renderObjectToScreen(RenderObject* obj, float const& dispPosX, flo
             " texture with path '",
             innerDirectory,
             "' not found");
-        return -1;
     }
 
     //------------------------------------------
     // Rendering
 
     // Render the texture
-    int const error_sprite = SDL_RenderTexture(renderer, obj->getSDLTexture(), obj->getSrcRect(), obj->getDstRect());
+    SDL_Rect const* src = obj->getSrcRect();
+    SDL_FRect srcF = {};
+    SDL_FRect const* srcFP = nullptr;
+    if (src) {
+        srcF = {static_cast<float>(src->x), static_cast<float>(src->y), static_cast<float>(src->w), static_cast<float>(src->h)};
+        srcFP = &srcF;
+    }
+    SDL_Rect const* dst = obj->getDstRect();
+    SDL_FRect dstF = {};
+    SDL_FRect const* dstFP = nullptr;
+    if (dst) {
+        dstF = {static_cast<float>(dst->x), static_cast<float>(dst->y), static_cast<float>(dst->w), static_cast<float>(dst->h)};
+        dstFP = &dstF;
+    }
+    if (!SDL_RenderTexture(renderer, obj->getSDLTexture(), srcFP, dstFP) != 0) {
+        auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
+        Nebulite::error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
+    }
 
     // Render the text
-    int error_text = 0;
     if (obj->isTextRenderingEnabled()) {
         obj->calculateText(
             renderer,
@@ -659,16 +669,20 @@ int Renderer::renderObjectToScreen(RenderObject* obj, float const& dispPosX, flo
             dispPosY
             );
         if (obj->getTextTexture() && obj->getTextRect()) {
-            error_text = SDL_RenderTexture(renderer, obj->getTextTexture(), nullptr, obj->getTextRect());
+            SDL_FRect const textRectF = SDL_FRect{
+                static_cast<float>(obj->getTextRect()->x),
+                static_cast<float>(obj->getTextRect()->y),
+                static_cast<float>(obj->getTextRect()->w),
+                static_cast<float>(obj->getTextRect()->h)
+            };
+            if (!SDL_RenderTexture(renderer, obj->getTextTexture(), nullptr, &textRectF) != 0) {;
+                Nebulite::error::println("Error rendering text for RenderObject ID ",
+                    obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0),
+                    ": ",
+                    SDL_GetError());
+            }
         }
     }
-
-    //------------------------------------------
-    // Return
-    if (error_sprite != 0) {
-        return error_sprite;
-    }
-    return error_text;
 }
 
 void Renderer::renderFPS() const {

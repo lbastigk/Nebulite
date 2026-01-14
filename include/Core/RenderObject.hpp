@@ -82,19 +82,19 @@ public:
      * @brief Gets a pointer to the SDL_Rect describing the destination of the sprite.
      * @return A pointer to the SDL_Rect describing the destination of the sprite.
      */
-    SDL_FRect* getDstRect();
+    SDL_Rect* getDstRect();
 
     /**
      * @brief Gets a pointer to the SDL_Rect describing the source of the sprite.
      * @return A pointer to the SDL_Rect describing the source of the sprite.
      */
-    SDL_FRect* getSrcRect();
+    SDL_Rect* getSrcRect();
 
     /**
      * @brief Gets a pointer to the SDL_Rect describing the destination of the text.
      * @return A pointer to the SDL_Rect describing the destination of the text.
      */
-    SDL_FRect* getTextRect();
+    SDL_Rect* getTextRect();
 
     /**
      * @brief Gets the texture of the text.
@@ -295,9 +295,9 @@ private:
     // === TO REWORK ===
 
     // for caching of SDL Positions
-    SDL_FRect dstRect = {0, 0, 0, 0}; // destination of sprite
-    SDL_FRect srcRect = {0, 0, 0, 0}; // source of sprite from spritesheet
-    SDL_FRect textRect = {0, 0, 0, 0}; // destination of text texture
+    SDL_Rect dstRect = {0, 0, 0, 0}; // destination of sprite
+    SDL_Rect srcRect = {0, 0, 0, 0}; // source of sprite from spritesheet
+    SDL_Rect textRect = {0, 0, 0, 0}; // destination of text texture
 
     // Surface and Texture of Text
     SDL_Surface* textSurface; // Surface for the text

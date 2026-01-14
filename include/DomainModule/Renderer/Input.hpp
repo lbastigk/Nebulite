@@ -98,8 +98,8 @@ private:
      * @brief Stores current and last Position/State of the mouse.
      */
     struct Mouse {
-        int posX = 0;
-        int posY = 0;
+        float posX = 0;
+        float posY = 0;
         int lastPosX = 0;
         int lastPosY = 0;
         Uint32 lastState = 0;
