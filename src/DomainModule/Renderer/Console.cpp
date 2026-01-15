@@ -47,7 +47,7 @@ Constants::Error Console::update() {
             type = Utility::TextInput::LineEntry::LineType::CERR;
             break;
         default:
-            Nebulite::cerr() << "[ERROR] Unknown OutputLine type encountered in " << std::string(__FUNCTION__) << ". Please fix!" << Nebulite::endl;
+            Nebulite::error::println("Unknown OutputLine type encountered in ", std::string(__FUNCTION__), ". Please fix!");
             type = Utility::TextInput::LineEntry::LineType::CERR;
             break;
         }
@@ -93,31 +93,64 @@ bool Console::ensureConsoleTexture() {
     //------------------------------------------
     // Prerequisites
 
-    // Derive consoleRect size from display size
+    // Derive logical consoleRect size from display size
     double const consoleHeight = static_cast<double>(moduleScope.get<size_t>(Constants::KeyNames::Renderer::dispResY, 360)) * consoleLayout.heightRatio;
     static SDL_Rect currentConsolePosition;
     currentConsolePosition.x = 0;
-    currentConsolePosition.y = static_cast<float>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResY, 360) - consoleHeight);
-    currentConsolePosition.w = static_cast<float>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResX, 360));
-    currentConsolePosition.h = static_cast<float>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResY, 360) - static_cast<double>(currentConsolePosition.y));
+    currentConsolePosition.y = static_cast<int>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResY, 360) - consoleHeight);
+    currentConsolePosition.w = static_cast<int>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResX, 360));
+    currentConsolePosition.h = static_cast<int>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResY, 360) - static_cast<double>(currentConsolePosition.y));
+
+    //------------------------------------------
+    // Recompute WindowScale from actual physical window / renderer output size
+    int physWindowW = 0, physWindowH = 0;
+    // Prefer window size if available
+    if (domain.getSdlWindow()) {
+        SDL_GetWindowSize(domain.getSdlWindow(), &physWindowW, &physWindowH);
+    } else {
+        SDL_GetCurrentRenderOutputSize(renderer, &physWindowW, &physWindowH);
+    }
+
+    // Avoid divide-by-zero; fall back to 1 if logical size is invalid
+    int logicalW = currentConsolePosition.w > 0 ? currentConsolePosition.w : 1;
+    int logicalH = currentConsolePosition.h > 0 ? currentConsolePosition.h : 1;
+
+    unsigned int computedScale = 1;
+    if (logicalW > 0 && logicalH > 0 && physWindowW > 0 && physWindowH > 0) {
+        unsigned int sx = static_cast<unsigned int>(physWindowW / logicalW);
+        unsigned int sy = static_cast<unsigned int>(physWindowH / logicalH);
+        // Choose the minimum integer scale that fits both axes (keeps aspect and integer scaling)
+        computedScale = std::max<unsigned int>(1u, std::min(sx, sy));
+    }
+
+    // Update member WindowScale immediately so all subsequent calculations use the correct value
+    WindowScale = computedScale;
 
     //------------------------------------------
     // Texture Setup
 
-    // Status
     bool recreateTexture = !consoleTexture.texture_ptr; // No texture yet
-    recreateTexture = recreateTexture || consoleTexture.rect.w != currentConsolePosition.w; // Width changed
-    recreateTexture = recreateTexture || consoleTexture.rect.h != currentConsolePosition.h; // Height changed
+    recreateTexture = recreateTexture || consoleTexture.rect.w != currentConsolePosition.w; // Width changed (logical)
+    recreateTexture = recreateTexture || consoleTexture.rect.h != currentConsolePosition.h; // Height changed (logical)
 
-    // Update rectangle if needed
+    // Update rectangle and recreate texture if needed
     if (recreateTexture) {
         if (consoleTexture.texture_ptr) {
             SDL_DestroyTexture(consoleTexture.texture_ptr);
+            consoleTexture.texture_ptr = nullptr;
         }
-        consoleTexture = {
-            currentConsolePosition,
-            SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, currentConsolePosition.w, currentConsolePosition.h)
-        };
+
+        // create texture wrapper rect (logical rect)
+        consoleTexture.rect = currentConsolePosition;
+
+        // Create a physical-size texture (logical * WindowScale) so we can render at full resolution
+        int const tex_phys_w = static_cast<int>(consoleTexture.rect.w * WindowScale);
+        int const tex_phys_h = static_cast<int>(consoleTexture.rect.h * WindowScale);
+
+        consoleTexture.texture_ptr = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tex_phys_w, tex_phys_h);
+        if (consoleTexture.texture_ptr) {
+            SDL_SetTextureScaleMode(consoleTexture.texture_ptr, SDL_SCALEMODE_NEAREST);
+        }
     }
 
     // Validate texture
@@ -127,16 +160,18 @@ bool Console::ensureConsoleTexture() {
 void Console::drawBackground() const {
     //------------------------------------------
     // Draw everything as before, but coordinates relative to (0,0)
+    // Use physical size when rendering into the physical-size render target
+    const float phys_w = static_cast<float>(consoleTexture.rect.w) * static_cast<float>(WindowScale);
+    const float phys_h = static_cast<float>(consoleTexture.rect.h) * static_cast<float>(WindowScale);
     SDL_FRect const localFRect = {
         0.0f,
         0.0f,
-        static_cast<float>(consoleTexture.rect.w),
-        static_cast<float>(consoleTexture.rect.h)
+        phys_w,
+        phys_h
     };
 
     // If we have a background image, draw it instead
     if (backgroundImageTexture != nullptr) {
-
         SDL_RenderTexture(renderer, backgroundImageTexture, nullptr, &localFRect);
     } else {
         SDL_SetRenderDrawColor(renderer, color.background.r, color.background.g, color.background.b, color.background.a);
@@ -146,9 +181,14 @@ void Console::drawBackground() const {
 }
 
 void Console::drawInput(uint16_t const& lineHeight) {
-    // Add a darker background for the input line
+    // Add a darker background for the input line (use physical coordinates)
     double const posY = static_cast<double>(consoleTexture.rect.h) - lineHeight - 1.5 * consoleLayout.LINE_PADDING;
-    SDL_FRect const inputBackgroundFRect = {0, static_cast<float>(posY), static_cast<float>(consoleTexture.rect.w), static_cast<float>(lineHeight + consoleLayout.LINE_PADDING)};
+    SDL_FRect const inputBackgroundFRect = {
+        0.0f,
+        static_cast<float>(posY * WindowScale),
+        static_cast<float>(consoleTexture.rect.w * WindowScale),
+        static_cast<float>((lineHeight + consoleLayout.LINE_PADDING) * WindowScale)
+    };
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
     SDL_RenderFillRect(renderer, &inputBackgroundFRect);
 
@@ -156,17 +196,19 @@ void Console::drawInput(uint16_t const& lineHeight) {
     if (!textInput.getInputBuffer()->empty()) {
         std::string const inputText = *textInput.getInputBuffer();
 
-        // Create surface and texture
+        // Create surface and texture (surface already at scaled font size)
         SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, inputText.c_str(), 0, color.input);
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        if (textTexture) {
+            SDL_SetTextureScaleMode(textTexture, SDL_SCALEMODE_NEAREST);
+        }
 
-        // Define destination rectangle
-        textInputRect.x = 10;
-        textInputRect.y = consoleTexture.rect.h - consoleLayout.LINE_PADDING - lineHeight;
-        textInputRect.w = static_cast<int>(static_cast<double>(textSurface->w) / static_cast<double>(WindowScale));
-        textInputRect.h = static_cast<int>(static_cast<double>(textSurface->h) / static_cast<double>(WindowScale));
+        // Define destination rectangle in physical pixels (do NOT divide by WindowScale)
+        textInputRect.x = static_cast<int>(10 * WindowScale);
+        textInputRect.y = static_cast<int>((consoleTexture.rect.h - consoleLayout.LINE_PADDING - lineHeight) * WindowScale);
+        textInputRect.w = textSurface->w;
+        textInputRect.h = textSurface->h;
 
-        // Render the text
         SDL_FRect const textInputFRect = {
             static_cast<float>(textInputRect.x),
             static_cast<float>(textInputRect.y),
@@ -177,12 +219,15 @@ void Console::drawInput(uint16_t const& lineHeight) {
         SDL_DestroySurface(textSurface);
         SDL_DestroyTexture(textTexture);
 
-        // If we have a text: ABCDEF, we highlight all text to the right of the cursor
-        // With a semi-transparent overlay
+        // Highlight to the right of the cursor (also in physical pixels)
         if (uint16_t const cursorOffsetFromEnd = textInput.getCursorOffset(); cursorOffsetFromEnd > 0) {
             std::string const highlightText = textInput.getInputBuffer()->substr(textInput.getInputBuffer()->size() - cursorOffsetFromEnd, cursorOffsetFromEnd);
             SDL_Surface* highlightSurface = TTF_RenderText_Blended(consoleFont, highlightText.c_str(), 0, color.highlight);
             SDL_Texture* highlightTexture = SDL_CreateTextureFromSurface(renderer, highlightSurface);
+            if (highlightTexture) {
+                SDL_SetTextureScaleMode(highlightTexture, SDL_SCALEMODE_NEAREST);
+            }
+
             textInputHighlightRect.x = textInputRect.x + textInputRect.w - highlightSurface->w;
             textInputHighlightRect.y = textInputRect.y;
             textInputHighlightRect.w = highlightSurface->w;
@@ -280,13 +325,17 @@ void Console::drawOutput(uint16_t const& maxLineLength) {
             lineContentRest.clear();
         }
 
-        // Render line
+        // Render line (surfaces are created at the scaled font size; use physical coordinates)
         SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, content.c_str(), 0, textColor);
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-        textOutputRect.x = 10;
-        textOutputRect.y = line_y_position;
-        textOutputRect.w = static_cast<int>(static_cast<double>(textSurface->w) / static_cast<double>(WindowScale));
-        textOutputRect.h = static_cast<int>(static_cast<double>(textSurface->h) / static_cast<double>(WindowScale));
+        if (textTexture) {
+            SDL_SetTextureScaleMode(textTexture, SDL_SCALEMODE_NEAREST);
+        }
+
+        textOutputRect.x = static_cast<int>(10 * WindowScale);
+        textOutputRect.y = static_cast<int>(line_y_position * WindowScale);
+        textOutputRect.w = textSurface->w;
+        textOutputRect.h = textSurface->h;
         SDL_FRect const textOutputFRect = {
             static_cast<float>(textOutputRect.x),
             static_cast<float>(textOutputRect.y),
@@ -308,7 +357,7 @@ void Console::renderConsole() {
 
     // Ensure console texture is valid
     if (!ensureConsoleTexture()) {
-        Nebulite::cerr() << "SDL_CreateTexture failed: " << SDL_GetError() << Nebulite::endl;
+        Nebulite::error::println("SDL_CreateTexture failed: ", SDL_GetError());
         return;
     }
 
@@ -347,6 +396,24 @@ void Console::renderConsole() {
     drawInput(lineHeight);
     drawOutput(maxLineLength);
     SDL_SetRenderTarget(renderer, nullptr);
+
+    // Present the console render-target to the main renderer:
+    if (consoleTexture.texture_ptr) {
+        // Source: physical pixels stored in the texture
+        const float phys_w = static_cast<float>(consoleTexture.rect.w * WindowScale);
+        const float phys_h = static_cast<float>(consoleTexture.rect.h * WindowScale);
+        SDL_FRect const srcF = { 0.0f, 0.0f, phys_w, phys_h };
+
+        // Destination: logical rectangle (keeps correct on-screen size)
+        SDL_FRect const dstF = {
+            static_cast<float>(consoleTexture.rect.x),
+            static_cast<float>(consoleTexture.rect.y),
+            static_cast<float>(consoleTexture.rect.w),
+            static_cast<float>(consoleTexture.rect.h)
+        };
+
+        SDL_RenderTexture(renderer, consoleTexture.texture_ptr, &srcF, &dstF);
+    }
 }
 
 void Console::init() {
@@ -355,7 +422,7 @@ void Console::init() {
     renderer = domain.getSdlRenderer();
 
     // Use a monospaced font for better alignment
-    consoleFont = TTF_OpenFont(consoleFontPath.c_str(), static_cast<int>(consoleLayout.FONT_MAX_SIZE * Nebulite::global().getRenderer().getWindowScale()));
+    consoleFont = TTF_OpenFont(consoleFontPath.c_str(), static_cast<float>(consoleLayout.FONT_MAX_SIZE));
     if (!consoleFont) {
         Nebulite::error::println("TTF_OpenFont failed for font: ", consoleFontPath);
         return;
@@ -374,6 +441,8 @@ void Console::init() {
     initialized = true;
 }
 
+// TODO: LINE_HEIGHT barely changes with different FONT_MAX_SIZE values, investigate why
+//       Likely issue: Forgot to apply WindowScale somewhere?
 uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
     // Populating the rect:
     /*
@@ -399,10 +468,15 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
     // Constraints:
     // LINE_HEIGHT <= FONT_MAX_SIZE
     // MINIMUM_LINES <= N
+    WindowScale = Nebulite::global().getRenderer().getWindowScale();
     uint16_t LINE_HEIGHT = consoleLayout.FONT_MAX_SIZE;
 
-    // See where we land for N with the maximum font size
-    auto N = static_cast<uint16_t>(std::floor(static_cast<double>(rect_height - 3 * consoleLayout.LINE_PADDING) / static_cast<double>(LINE_HEIGHT + consoleLayout.LINE_PADDING)));
+    // See where we land for N, the amount of lines, with the maximum font size
+    auto N = static_cast<uint16_t>(
+        std::floor(
+            static_cast<double>(rect_height - 3 * consoleLayout.LINE_PADDING) / static_cast<double>(LINE_HEIGHT + consoleLayout.LINE_PADDING)
+        )
+    );
 
     // Reduce line height if we have less than minimum lines
     if (N < consoleLayout.MINIMUM_LINES) {
@@ -419,9 +493,7 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
     }
 
     // Set correct font size for SDL_ttf
-    WindowScale = Nebulite::global().getRenderer().getWindowScale();
-    TTF_SetFontSize(consoleFont, static_cast<int>(LINE_HEIGHT * WindowScale));
-
+    TTF_SetFontSize(consoleFont, static_cast<float>(LINE_HEIGHT * WindowScale));
     return LINE_HEIGHT;
 }
 
@@ -433,7 +505,7 @@ void Console::keyTriggerSubmit() {
         // Parse command on global level for full access to all functions
         if (auto const err = Nebulite::global().parseStr(std::string(__FUNCTION__) + " " + command); err != Constants::ErrorTable::NONE()) {
             // Cannot escalate error further, print to cerr
-            Nebulite::cerr() << err.getDescription() << Nebulite::endl;
+            Nebulite::error::println(err.getDescription());
         }
     }
     outputScrollingOffset = 0; // Reset scrolling to bottom on new input
@@ -453,24 +525,24 @@ void Console::keyTriggerScrollDown() {
 
 void Console::keyTriggerZoomIn(SDL_KeyboardEvent const& key) const {
     // Make sure that ctrl is held
-    if (!(key.mod & SDL_KMOD_CTRL))
+    if (!(SDL_GetModState() & SDL_KMOD_CTRL))
         return;
     if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " in"); err != Constants::ErrorTable::NONE()) {
-        Nebulite::cerr() << "Error: Failed to zoom into console: " << err.getDescription() << Nebulite::endl;
+        Nebulite::error::println("Error: Failed to zoom into console: ", err.getDescription());
     }
 }
 
 void Console::keyTriggerZoomOut(SDL_KeyboardEvent const& key) const {
     // Make sure that ctrl is held
-    if (!(key.mod & SDL_KMOD_CTRL))
+    if (!(SDL_GetModState() & SDL_KMOD_CTRL))
         return;
     if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " out"); err != Constants::ErrorTable::NONE()) {
-        Nebulite::cerr() << "Error: Failed to zoom out console: " << err.getDescription() << Nebulite::endl;
+        Nebulite::error::println("Error: Failed to zoom out console: ", err.getDescription());
     }
 }
 
 void Console::processKeyDownEvent(SDL_KeyboardEvent const& key) {
-    switch (key.key) {
+switch (key.key) {
         //------------------------------------------
         // Text input manipulation
 
@@ -574,7 +646,7 @@ void Console::processEvents() {
         switch (event.type) {
         case SDL_EVENT_TEXT_INPUT:
             // Do not append if ctrl is held (to allow copy/paste and other shortcuts)
-            if (event.key.mod & SDL_KMOD_CTRL) {
+            if (SDL_GetModState() & SDL_KMOD_CTRL) {
                 break;
             }
             textInput.append(event.text.text);
@@ -595,7 +667,7 @@ void Console::processMode() {
 
         // Check if texture is valid
         if (!consoleTexture.texture_ptr) {
-            Nebulite::cerr() << "Could not attach Console: Console texture is null!" << Nebulite::endl;
+            Nebulite::error::println("Could not attach Console: Console texture is null!");
             return;
         }
 
@@ -697,6 +769,7 @@ Constants::Error Console::consoleSetBackground(int const argc, char** argv) {
     if (!backgroundTexture) {
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_INVALID();
     }
+    SDL_SetTextureScaleMode(backgroundTexture, SDL_SCALEMODE_NEAREST);
 
     // Set as console background
     backgroundImageTexture = backgroundTexture;
