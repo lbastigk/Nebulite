@@ -14,6 +14,11 @@ if(ASM_EXECUTABLE)
 endif()
 enable_language(ASM)
 
+# Compatibility settings + test disabling
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "Compatibility for older externals" FORCE)
+set(BUILD_TESTING OFF CACHE BOOL "Disable building tests" FORCE)
+set(ABSL_BUILD_TESTING OFF CACHE BOOL "Disable Abseil tests" FORCE)
+
 # Build artifacts go to ./tmp/build_<preset>/ via CMake presets,
 # Final binaries are placed in ./bin/ with appropriate naming
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
