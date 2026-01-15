@@ -182,12 +182,12 @@ void Console::drawBackground() const {
 
 void Console::drawInput(uint16_t const& lineHeight) {
     // Add a darker background for the input line (use physical coordinates)
-    double const posY = static_cast<double>(consoleTexture.rect.h) - lineHeight - 1.5 * consoleLayout.LINE_PADDING;
+    double const posY = static_cast<double>(consoleTexture.rect.h) - lineHeight - 1.5 * consoleLayout.paddingRatio * lineHeight;
     SDL_FRect const inputBackgroundFRect = {
         0.0f,
         static_cast<float>(posY * WindowScale),
         static_cast<float>(consoleTexture.rect.w * WindowScale),
-        static_cast<float>((lineHeight + consoleLayout.LINE_PADDING) * WindowScale)
+        static_cast<float>((lineHeight + consoleLayout.paddingRatio * lineHeight) * WindowScale)
     };
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
     SDL_RenderFillRect(renderer, &inputBackgroundFRect);
@@ -205,7 +205,7 @@ void Console::drawInput(uint16_t const& lineHeight) {
 
         // Define destination rectangle in physical pixels (do NOT divide by WindowScale)
         textInputRect.x = static_cast<int>(10 * WindowScale);
-        textInputRect.y = static_cast<int>((consoleTexture.rect.h - consoleLayout.LINE_PADDING - lineHeight) * WindowScale);
+        textInputRect.y = static_cast<int>((consoleTexture.rect.h - consoleLayout.paddingRatio * lineHeight - lineHeight) * WindowScale);
         textInputRect.w = textSurface->w;
         textInputRect.h = textSurface->h;
 
@@ -441,9 +441,7 @@ void Console::init() {
     initialized = true;
 }
 
-// TODO: LINE_HEIGHT calculation is sloppy, somehow gets smaller when reaching the highest zoom
-//       Idea: Change LINE_PADDING to be a percentage of LINE_HEIGHT?
-//       Makes calculation easier too
+// TODO: While the calculation is correct, it could use proper usage of floating point math so every +- operation makes a difference
 uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
     // Populating the rect:
     /*
@@ -463,26 +461,39 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
 
     // Formula:
     // rect_height = (N+3)*LINE_PADDING + (N+1)*LINE_HEIGHT
+    //             = (N+3)*LINE_HEIGHT*PADDING_RATIO + (N+1)*LINE_HEIGHT
+    //             = LINE_HEIGHT * ( (N+3)*PADDING_RATIO + (N+1) )
     // LINE_HEIGHT = (rect_height - (N+3)*LINE_PADDING) / (N+1)
+    //             = rect_height / ( (N+3)*PADDING_RATIO + (N+1) )
+
+    // LINE_HEIGHT = rect_height / ( (N+3)*PADDING_RATIO + (N+1) )
+    // LINE_HEIGHT * ( (N+3)*PADDING_RATIO + (N+1) ) = rect_height
+    // LINE_HEIGHT * (N+3)*PADDING_RATIO + LINE_HEIGHT * (N+1) = rect_height
+    // LINE_HEIGHT * N * PADDING_RATIO + 3*LINE_HEIGHT*PADDING_RATIO + LINE_HEIGHT * N + LINE_HEIGHT = rect_height
+    // N * (LINE_HEIGHT * PADDING_RATIO + LINE_HEIGHT) +  3*LINE_HEIGHT*PADDING_RATIO + LINE_HEIGHT = rect_height
+    // N * (LINE_HEIGHT * (PADDING_RATIO + 1)) = rect_height - 3*LINE_HEIGHT*PADDING_RATIO - LINE_HEIGHT
+
     // N           = (rect_height - 3*LINE_PADDING) / (LINE_HEIGHT + LINE_PADDING)
+    //             = (rect_height - 3*LINE_HEIGHT*PADDING_RATIO - LINE_HEIGHT) / (LINE_HEIGHT * (PADDING_RATIO + 1))
 
     // Constraints:
     // LINE_HEIGHT <= FONT_MAX_SIZE
     // MINIMUM_LINES <= N
     WindowScale = Nebulite::global().getRenderer().getWindowScale();
     auto LINE_HEIGHT = static_cast<uint16_t>(std::floor(static_cast<float>(consoleLayout.FONT_MAX_SIZE) / static_cast<float>(WindowScale)));
+    auto const PADDING_RATIO = consoleLayout.paddingRatio;
 
     // See where we land for N, the amount of lines, with the maximum font size
     auto N = static_cast<uint16_t>(
         std::floor(
-            static_cast<double>(rect_height - 3 * consoleLayout.LINE_PADDING) / static_cast<double>(LINE_HEIGHT + consoleLayout.LINE_PADDING)
+            (rect_height - 3*LINE_HEIGHT*PADDING_RATIO - LINE_HEIGHT) / (LINE_HEIGHT * (PADDING_RATIO + 1))
         )
     );
 
     // Reduce line height if we have less than minimum lines
     if (N < consoleLayout.MINIMUM_LINES) {
         N = consoleLayout.MINIMUM_LINES;
-        LINE_HEIGHT = (rect_height - (N + 3) * consoleLayout.LINE_PADDING) / (N + 1);
+        LINE_HEIGHT = rect_height / ( (N+3)*PADDING_RATIO + (N+1) );
     }
 
     // Now, line height and N are final
@@ -490,7 +501,7 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
     line_y_positions.clear();
     for (int i = 1; i < N; i++) {
         // i=0 is reserved for input line
-        line_y_positions.push_back(rect_height - consoleLayout.LINE_PADDING - 2 * LINE_HEIGHT - i * (LINE_HEIGHT + consoleLayout.LINE_PADDING));
+        line_y_positions.push_back(rect_height - LINE_HEIGHT * PADDING_RATIO - 2 * LINE_HEIGHT - i * (LINE_HEIGHT + LINE_HEIGHT * PADDING_RATIO));
     }
 
     // Set correct font size for SDL_ttf

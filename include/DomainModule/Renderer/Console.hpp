@@ -87,7 +87,7 @@ private:
 
     struct ConsoleLayout {
         uint16_t MINIMUM_LINES = 8; // Minimum number of lines to show, including input line
-        uint16_t LINE_PADDING = 10; // Padding between lines in pixels
+        double paddingRatio = 0.2; // Padding between lines as a ratio of font size
         uint16_t FONT_MAX_SIZE = 24; // Maximum font size
         double heightRatio = 0.75; // Console takes 75% of the screen height
     } consoleLayout;
