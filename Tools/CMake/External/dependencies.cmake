@@ -69,6 +69,42 @@ set(SDL3_TTF_PATH       "${CMAKE_SOURCE_DIR}/external/SDL3_ttf")
 set(SDL3_IMAGE_PATH     "${CMAKE_SOURCE_DIR}/external/SDL3_image")
 
 ############################################################
+# Required external dependencies for SDL3, prefer over system-installed
+function(setup_bundled_externals_for BASE_PATH)
+    set(EXTERNAL_DIR "${BASE_PATH}/external")
+
+    if(NOT EXISTS "${EXTERNAL_DIR}")
+        return()
+    endif()
+
+    # Collect children deterministically
+    file(GLOB _children RELATIVE "${EXTERNAL_DIR}" "${EXTERNAL_DIR}/*")
+    list(SORT _children)
+
+    # Prefer freetype first (common ordering requirement)
+    if(EXISTS "${EXTERNAL_DIR}/freetype/CMakeLists.txt")
+        message(STATUS "Adding bundled external: ${EXTERNAL_DIR}/freetype")
+        add_subdirectory("${EXTERNAL_DIR}/freetype" EXCLUDE_FROM_ALL)
+    endif()
+
+    foreach(_child IN LISTS _children)
+        set(_subdir "${EXTERNAL_DIR}/${_child}")
+        if(IS_DIRECTORY "${_subdir}" AND EXISTS "${_subdir}/CMakeLists.txt")
+            if(_child STREQUAL "freetype")
+                continue()
+            endif()
+            message(STATUS "Adding bundled external: ${_subdir}")
+            add_subdirectory("${_subdir}" EXCLUDE_FROM_ALL)
+        endif()
+    endforeach()
+endfunction()
+
+# Replace the previous explicit adds with calls:
+setup_bundled_externals_for(${SDL3_PATH})
+setup_bundled_externals_for(${SDL3_TTF_PATH})
+setup_bundled_externals_for(${SDL3_IMAGE_PATH})
+
+############################################################
 # SDL3 detection
 
 find_package(SDL3 CONFIG QUIET)

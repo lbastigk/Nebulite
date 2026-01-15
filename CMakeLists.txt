@@ -1,11 +1,18 @@
 ############################################################
 ## General
 cmake_minimum_required(VERSION 3.16)
-project(Nebulite)
+project(Nebulite LANGUAGES C CXX ASM_NASM)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Setup assembler
+find_program(ASM_EXECUTABLE as)
+if(ASM_EXECUTABLE)
+    set(CMAKE_ASM_COMPILER ${ASM_EXECUTABLE} CACHE FILEPATH "System assembler")
+endif()
+enable_language(ASM)
 
 # Build artifacts go to ./tmp/build_<preset>/ via CMake presets,
 # Final binaries are placed in ./bin/ with appropriate naming

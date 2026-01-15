@@ -33,7 +33,8 @@ APT_PACKAGES="build-essential git make \
               libaudio-dev libfribidi-dev libjack-dev libsndio-dev libx11-dev libxext-dev \
               libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
               libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
-              libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev"
+              libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev libthai-dev\
+              yasm nasm"
 DNF_PACKAGES="gcc git-core make cmake \
               alsa-lib-devel fribidi-devel pulseaudio-libs-devel pipewire-devel \
               libX11-devel libXext-devel libXrandr-devel libXcursor-devel libXfixes-devel \
@@ -41,7 +42,8 @@ DNF_PACKAGES="gcc git-core make cmake \
               systemd-devel mesa-libGL-devel libxkbcommon-devel mesa-libGLES-devel \
               mesa-libEGL-devel vulkan-devel wayland-devel wayland-protocols-devel \
               libdrm-devel mesa-libgbm-devel libusb1-devel libdecor-devel \
-              pipewire-jack-audio-connection-kit-devel libthai-devel zlib-ng-compat-static"
+              pipewire-jack-audio-connection-kit-devel libthai-devel zlib-ng-compat-static\
+              yasm nasm"
 YUM_PACKAGES="make cmake ninja-build automake autoconf libtool m4 perl python3 python3-pip python3-numpy @development-tools mingw64-gcc mingw64-gcc-c++ alsa-lib-devel pulseaudio-libs-devel cloc libXcursor-devel libX11-devel libXext-devel libXrandr-devel libXi-devel libXinerama-devel libXxf86vm-devel libXss-devel libXrender-devel libxkbcommon-devel libxkbcommon-x11-devel"
 BRW_PACKAGES="cmake ninja automake autoconf libtool python3 numpy mingw-w64 cloc libxcursor libx11 libxrandr libxi libxinerama libxxf86vm libxss libxrender libxkbcommon"
 
