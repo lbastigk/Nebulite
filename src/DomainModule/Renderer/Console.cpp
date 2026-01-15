@@ -112,13 +112,13 @@ bool Console::ensureConsoleTexture() {
     }
 
     // Avoid divide-by-zero; fall back to 1 if logical size is invalid
-    int logicalW = currentConsolePosition.w > 0 ? currentConsolePosition.w : 1;
-    int logicalH = currentConsolePosition.h > 0 ? currentConsolePosition.h : 1;
+    int const logicalW = currentConsolePosition.w > 0 ? currentConsolePosition.w : 1;
+    int const logicalH = currentConsolePosition.h > 0 ? currentConsolePosition.h : 1;
 
     unsigned int computedScale = 1;
     if (logicalW > 0 && logicalH > 0 && physWindowW > 0 && physWindowH > 0) {
-        unsigned int sx = static_cast<unsigned int>(physWindowW / logicalW);
-        unsigned int sy = static_cast<unsigned int>(physWindowH / logicalH);
+        auto const sx = static_cast<unsigned int>(physWindowW / logicalW);
+        auto const sy = static_cast<unsigned int>(physWindowH / logicalH);
         // Choose the minimum integer scale that fits both axes (keeps aspect and integer scaling)
         computedScale = std::max<unsigned int>(1u, std::min(sx, sy));
     }
@@ -144,8 +144,8 @@ bool Console::ensureConsoleTexture() {
         consoleTexture.rect = currentConsolePosition;
 
         // Create a physical-size texture (logical * WindowScale) so we can render at full resolution
-        int const tex_phys_w = static_cast<int>(consoleTexture.rect.w * WindowScale);
-        int const tex_phys_h = static_cast<int>(consoleTexture.rect.h * WindowScale);
+        int const tex_phys_w = static_cast<int>(consoleTexture.rect.w) * static_cast<int>(WindowScale);
+        int const tex_phys_h = static_cast<int>(consoleTexture.rect.h) * static_cast<int>(WindowScale);
 
         consoleTexture.texture_ptr = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tex_phys_w, tex_phys_h);
         if (consoleTexture.texture_ptr) {
@@ -186,7 +186,7 @@ void Console::drawInput(uint16_t const& lineHeight) {
     SDL_FRect const inputBackgroundFRect = {
         0.0f,
         static_cast<float>(posY * WindowScale),
-        static_cast<float>(consoleTexture.rect.w * WindowScale),
+        static_cast<float>(consoleTexture.rect.w) * static_cast<float>(WindowScale),
         static_cast<float>((lineHeight + consoleLayout.paddingRatio * lineHeight) * WindowScale)
     };
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
@@ -333,7 +333,7 @@ void Console::drawOutput(uint16_t const& maxLineLength) {
         }
 
         textOutputRect.x = static_cast<int>(10 * WindowScale);
-        textOutputRect.y = static_cast<int>(line_y_position * WindowScale);
+        textOutputRect.y = static_cast<int>(line_y_position) * static_cast<int>(WindowScale);
         textOutputRect.w = textSurface->w;
         textOutputRect.h = textSurface->h;
         SDL_FRect const textOutputFRect = {
@@ -400,8 +400,8 @@ void Console::renderConsole() {
     // Present the console render-target to the main renderer:
     if (consoleTexture.texture_ptr) {
         // Source: physical pixels stored in the texture
-        const float phys_w = static_cast<float>(consoleTexture.rect.w * WindowScale);
-        const float phys_h = static_cast<float>(consoleTexture.rect.h * WindowScale);
+        const float phys_w = static_cast<float>(consoleTexture.rect.w) * static_cast<float>(WindowScale);
+        const float phys_h = static_cast<float>(consoleTexture.rect.h) * static_cast<float>(WindowScale);
         SDL_FRect const srcF = { 0.0f, 0.0f, phys_w, phys_h };
 
         // Destination: logical rectangle (keeps correct on-screen size)
@@ -493,15 +493,21 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
     // Reduce line height if we have less than minimum lines
     if (N < consoleLayout.MINIMUM_LINES) {
         N = consoleLayout.MINIMUM_LINES;
-        LINE_HEIGHT = rect_height / ( (N+3)*PADDING_RATIO + (N+1) );
+        LINE_HEIGHT = static_cast<uint16_t>(
+            std::floor(
+                static_cast<float>(rect_height) / static_cast<float>( (N+3)*PADDING_RATIO + (N+1) )
+            )
+        );
     }
 
     // Now, line height and N are final
     // Populate y positions
     line_y_positions.clear();
+    double const startPos = rect_height - LINE_HEIGHT * PADDING_RATIO - 2 * LINE_HEIGHT;
+    double const diff = LINE_HEIGHT + LINE_HEIGHT * PADDING_RATIO;
     for (int i = 1; i < N; i++) {
         // i=0 is reserved for input line
-        line_y_positions.push_back(rect_height - LINE_HEIGHT * PADDING_RATIO - 2 * LINE_HEIGHT - i * (LINE_HEIGHT + LINE_HEIGHT * PADDING_RATIO));
+        line_y_positions.push_back( static_cast<int32_t>(startPos - i * diff));
     }
 
     // Set correct font size for SDL_ttf
@@ -535,7 +541,7 @@ void Console::keyTriggerScrollDown() {
     }
 }
 
-void Console::keyTriggerZoomIn(SDL_KeyboardEvent const& key) const {
+void Console::keyTriggerZoomIn() const {
     // Make sure that ctrl is held
     if (!(SDL_GetModState() & SDL_KMOD_CTRL))
         return;
@@ -544,7 +550,7 @@ void Console::keyTriggerZoomIn(SDL_KeyboardEvent const& key) const {
     }
 }
 
-void Console::keyTriggerZoomOut(SDL_KeyboardEvent const& key) const {
+void Console::keyTriggerZoomOut() const {
     // Make sure that ctrl is held
     if (!(SDL_GetModState() & SDL_KMOD_CTRL))
         return;
@@ -638,12 +644,12 @@ switch (key.key) {
         // Zoom in/out with +/- keys
         case SDLK_PLUS:
         case SDLK_KP_PLUS:
-            keyTriggerZoomIn(key);
+            keyTriggerZoomIn();
             break;
 
         case SDLK_MINUS:
         case SDLK_KP_MINUS:
-            keyTriggerZoomOut(key);
+            keyTriggerZoomOut();
             break;
 
         //------------------------------------------

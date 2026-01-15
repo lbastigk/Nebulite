@@ -87,7 +87,7 @@ private:
 
     struct ConsoleLayout {
         uint16_t MINIMUM_LINES = 8; // Minimum number of lines to show, including input line
-        double paddingRatio = 0.2; // Padding between lines as a ratio of font size
+        double paddingRatio = 0.25; // Padding between lines as a ratio of font size
         uint16_t FONT_MAX_SIZE = 24; // Maximum font size
         double heightRatio = 0.75; // Console takes 75% of the screen height
     } consoleLayout;
@@ -218,12 +218,12 @@ private:
     /**
      * @brief Zooms the console in, if ctrl is held.
      */
-    void keyTriggerZoomIn(SDL_KeyboardEvent const& key) const;
+    void keyTriggerZoomIn() const;
 
     /**
      * @brief Zooms the console out, if ctrl is held.
      */
-    void keyTriggerZoomOut(SDL_KeyboardEvent const& key) const;
+    void keyTriggerZoomOut() const;
 
     //------------------------------------------
     // RenderConsole helpers
