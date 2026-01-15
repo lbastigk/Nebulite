@@ -477,7 +477,9 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
     SDL_SetWindowSize(window, w*WindowScale, h*WindowScale);
 
     // Use integer logical presentation so scaling is done in integer steps (crisp pixels).
-    SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_STRETCH);
+    SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
+
+
 
     // Prefer nearest-neighbor scaling to avoid linear blur when textures are scaled.
     //SDL_SetHint(SDL_HINT_RENDER_, "nearest");
@@ -655,7 +657,7 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
         dstF = {static_cast<float>(dst->x), static_cast<float>(dst->y), static_cast<float>(dst->w), static_cast<float>(dst->h)};
         dstFP = &dstF;
     }
-    if (!SDL_RenderTexture(renderer, obj->getSDLTexture(), srcFP, dstFP) != 0) {
+    if (SDL_RenderTexture(renderer, obj->getSDLTexture(), srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
         auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
         Nebulite::error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
     }
@@ -675,11 +677,9 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
                 static_cast<float>(obj->getTextRect()->w),
                 static_cast<float>(obj->getTextRect()->h)
             };
-            if (!SDL_RenderTexture(renderer, obj->getTextTexture(), nullptr, &textRectF) != 0) {;
-                Nebulite::error::println("Error rendering text for RenderObject ID ",
-                    obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0),
-                    ": ",
-                    SDL_GetError());
+            if (SDL_RenderTexture(renderer, obj->getTextTexture(), nullptr, &textRectF) != 0 && SDL_GetError()[0] != '\0') {
+                auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
+                Nebulite::error::println("Error rendering text for RenderObject ID ", id, ": ", SDL_GetError());
             }
         }
     }
@@ -726,7 +726,7 @@ void Renderer::showFrame() const {
 // Texture-Related
 
 void Renderer::loadTexture(std::string const& link) {
-    if (SDL_Texture* texture = loadTextureToMemory(link)) {
+    if (SDL_Texture* texture = loadTextureToMemory(link) ; texture != nullptr) {
         TextureContainer[link] = texture;
     }
 }
@@ -773,7 +773,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
         return nullptr;
     }
 
-    // Store texture in container
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
     return texture;
 }
 

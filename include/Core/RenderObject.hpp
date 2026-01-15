@@ -136,7 +136,7 @@ public:
      * @param renderPositionX The X position of the renderer used for text offset.
      * @param renderPositionY The Y position of the renderer used for text offset.
      */
-    void calculateText(SDL_Renderer* renderer, TTF_Font* font, float const& renderPositionX, float const& renderPositionY);
+    void calculateText(SDL_Renderer* renderer, TTF_Font* font, int const& renderPositionX, int const& renderPositionY);
 
     /**
      * @brief Calculates the destination rectangle for the sprite.

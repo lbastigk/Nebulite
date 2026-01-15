@@ -250,7 +250,7 @@ uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
 //------------------------------------------
 // Outside communication with Renderer for text calculation
 
-void RenderObject::calculateText(SDL_Renderer* renderer, TTF_Font* font, float const& renderPositionX, float const& renderPositionY) {
+void RenderObject::calculateText(SDL_Renderer* renderer, TTF_Font* font, int const& renderPositionX, int const& renderPositionY) {
     // Set font size if changed
     textRect.x = static_cast<int>(*refs.posX + *refs.textDx - static_cast<double>(renderPositionX));
     textRect.y = static_cast<int>(*refs.posY + *refs.textDy - static_cast<double>(renderPositionY));
