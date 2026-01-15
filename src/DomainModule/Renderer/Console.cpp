@@ -441,8 +441,9 @@ void Console::init() {
     initialized = true;
 }
 
-// TODO: LINE_HEIGHT barely changes with different FONT_MAX_SIZE values, investigate why
-//       Likely issue: Forgot to apply WindowScale somewhere?
+// TODO: LINE_HEIGHT calculation is sloppy, somehow gets smaller when reaching the highest zoom
+//       Idea: Change LINE_PADDING to be a percentage of LINE_HEIGHT?
+//       Makes calculation easier too
 uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
     // Populating the rect:
     /*
@@ -469,7 +470,7 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
     // LINE_HEIGHT <= FONT_MAX_SIZE
     // MINIMUM_LINES <= N
     WindowScale = Nebulite::global().getRenderer().getWindowScale();
-    uint16_t LINE_HEIGHT = consoleLayout.FONT_MAX_SIZE;
+    auto LINE_HEIGHT = static_cast<uint16_t>(std::floor(static_cast<float>(consoleLayout.FONT_MAX_SIZE) / static_cast<float>(WindowScale)));
 
     // See where we land for N, the amount of lines, with the maximum font size
     auto N = static_cast<uint16_t>(
