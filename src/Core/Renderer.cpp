@@ -409,15 +409,13 @@ bool Renderer::snapshot(std::string link) const {
     }
 
     // Save surface as PNG
-    int const result = IMG_SavePNG(surface, link.c_str());
-
-    // Cleanup
-    SDL_DestroySurface(surface);
-
-    if (result != 0) {
+    if (int const result = IMG_SavePNG(surface, link.c_str()); result != 0 && SDL_GetError()[0] != '\0') {
         Nebulite::error::println("Failed to save snapshot!");
         return false;
     }
+
+    // Cleanup
+    SDL_DestroySurface(surface);
     return true;
 }
 
@@ -468,21 +466,15 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
         return;
     }
 
+    // Set the new resolution in the workspace
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResX, w);
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResY, h);
 
-    // Set the physical window size to the logical resolution (do not multiply by WindowScale).
-    // SDL will present the logical resolution scaled to the physical display according to the
-    // logical presentation mode below.
+    // Set the physical window size
     SDL_SetWindowSize(window, w*WindowScale, h*WindowScale);
 
     // Use integer logical presentation so scaling is done in integer steps (crisp pixels).
     SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
-
-
-
-    // Prefer nearest-neighbor scaling to avoid linear blur when textures are scaled.
-    //SDL_SetHint(SDL_HINT_RENDER_, "nearest");
 
     // Reinsert objects due to new tile / logical size
     reinsertAllObjects();
@@ -500,15 +492,14 @@ void Renderer::moveCam(int const& dX, int const& dY) const {
 }
 
 void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle) const {
+    int newPosX = X;
+    int newPosY = Y;
     if (isMiddle) {
-        int const newPosX = X - domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0) / 2;
-        int const newPosY = Y - domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 0) / 2;
-        domainScope.set<int>(Constants::KeyNames::Renderer::positionX, newPosX);
-        domainScope.set<int>(Constants::KeyNames::Renderer::positionY, newPosY);
-    } else {
-        domainScope.set<int>(Constants::KeyNames::Renderer::positionX, X);
-        domainScope.set<int>(Constants::KeyNames::Renderer::positionY, Y);
+        newPosX -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0) / 2;
+        newPosY -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 0) / 2;
     }
+    domainScope.set<int>(Constants::KeyNames::Renderer::positionX, newPosX);
+    domainScope.set<int>(Constants::KeyNames::Renderer::positionY, newPosY);
 }
 
 //------------------------------------------
