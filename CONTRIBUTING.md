@@ -55,10 +55,10 @@ However, it is recommended to write the taskfiles inside the test json file itse
 
 After adding your test cases in `Tools/Tests/*.json`, add the file to `Tools/tests.jsonc` like so:
 ```jsonc
-{
+"tests": [
     // ... existing test files
     "Tools/Tests/MyNewTestFile.json"
-}
+]
 ```
 
 <!-- TOC --><a name="quick-expression-testing"></a>
