@@ -19,11 +19,27 @@
 #include <tinyexpr.h>
 
 // Nebulite
-#include "Data/Document/DocumentCache.hpp"
-#include "Data/RollingId.hpp"
-#include "Interaction/Context.hpp"
 #include "Interaction/Logic/VariableNameGenerator.hpp"
-#include "Interaction/Logic/VirtualDouble.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Core {
+class JsonScope;
+} // namespace Nebulite::Core
+
+namespace Nebulite::Data {
+class ScopedKey;
+class ScopedKeyView;
+} // namespace Nebulite::Data
+
+namespace Nebulite::Interaction {
+class ContextBase;
+} // namespace Nebulite::Interaction
+
+namespace Nebulite::Interaction::Logic {
+class VirtualDouble;
+} // namespace Nebulite::Interaction::Logic
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -187,10 +203,7 @@ public:
      * @param expression The expression string to generate an ID for.
      * @return The generated unique ID.
      */
-    static uint64_t generateUniqueId(std::string const& expression) {
-        static Data::RollingId idGenerator;
-        return idGenerator.getId(expression);
-    }
+    static uint64_t generateUniqueId(std::string const& expression);
 
 private:
     /**

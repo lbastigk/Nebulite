@@ -1,10 +1,18 @@
-#include "Interaction/Logic/Expression.hpp"
+//------------------------------------------
+// Includes
 
+// Standard library
 #include <cmath>
 
+// Nebulite
 #include "Nebulite.hpp"
+#include "Data/RollingId.hpp"
+#include "Interaction/Logic/Expression.hpp"
+#include "Interaction/Logic/VirtualDouble.hpp"
 
+//------------------------------------------
 namespace Nebulite::Interaction::Logic {
+
 //------------------------------------------
 // Private:
 
@@ -187,7 +195,7 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
         case Component::From::None:
         default:
             // Should not happen
-            Nebulite::cerr() << __FUNCTION__ << ": Tried to register variable with no known context!" << Nebulite::endl;
+            Nebulite::error::println(__FUNCTION__, ": Tried to register variable with no known context!");
             break;
         }
 
@@ -405,8 +413,8 @@ void Expression::printCompileError(std::shared_ptr<Component> const& component, 
     ss << Nebulite::endl;
     ss << Nebulite::endl;
 
-    // Send whole message to cerr
-    Nebulite::cerr() << ss.str();
+    // Send whole message to cerr at once, to avoid interleaving with other messages
+    Nebulite::error::println(ss.str());
 }
 
 //------------------------------------------
@@ -442,7 +450,7 @@ bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr
     // See if the variable contains an inner expression
     if (component->str.find('$') != std::string::npos || component->str.find('{') != std::string::npos) {
         if (maximumRecursionDepth == 0) {
-            Nebulite::cerr() << "Error: Maximum recursion depth reached when evaluating variable: " << component->key << Nebulite::endl;
+            Nebulite::error::println("Error: Maximum recursion depth reached when evaluating variable: ", component->key);
             return false;
         }
         // Create a temporary expression to evaluate the inner expression
@@ -470,7 +478,7 @@ bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr
         break;
     case Component::From::None:
     default:
-        Nebulite::cerr() << "Error: Unknown context in expression: " << strippedKey << Nebulite::endl;
+        Nebulite::error::println("Error: Unknown context in expression: ", strippedKey);
         token = "null";
         break;
     }
@@ -659,6 +667,14 @@ bool Expression::evalAsBool(std::string const& input) {
     Core::JsonScope emptyDoc;
     Interaction::ContextBase const context{emptyDoc, emptyDoc, Nebulite::global()};
     return evalAsBool(input, context);
+}
+
+//------------------------------------------
+// Other Static helpers
+
+uint64_t Expression::generateUniqueId(std::string const& expression) {
+    static Data::RollingId idGenerator;
+    return idGenerator.getId(expression);
 }
 
 //------------------------------------------
