@@ -301,7 +301,7 @@ The function calls are parsed and executed in their respective domains after exp
 - Python 3.8+ (for testing and mock asset creation)
 
 **Dependencies**
-- `SDL2`, `SDL_ttf`, `SDL_image` - rendering and input
+- `SDL3`, `SDL3_ttf`, `SDL3_image` - rendering and input
 - `rapidJSON` - JSON parsing
 - `abseil` - fast hash maps
 - `tinyexpr` - expression evaluation
