@@ -24,8 +24,8 @@ namespace Nebulite::Data {
  * @brief Represents a read-only document with its associated metadata.
  */
 struct ReadOnlyDoc {
-    Nebulite::Data::JSON document;          // The actual JSON document
-    Nebulite::Utility::TimeKeeper lastUsed; // TimeKeeper to track last access time
+    JSON document;          // The actual JSON document
+    Utility::TimeKeeper lastUsed; // TimeKeeper to track last access time
     std::string serial;
     ReadOnlyDoc() = default;
 };
@@ -44,7 +44,7 @@ private:
      * 
      * Unload documents after 5 minutes of inactivity
      */
-    static constexpr uint64_t unloadTime = 5U * Nebulite::Utility::Time::Conversion::millisecondsPerMinute;
+    static constexpr uint64_t unloadTime = 5U * Utility::Time::Conversion::millisecondsPerMinute;
 
     /**
      * @brief Contains the cached documents mapped by their file paths.
@@ -94,7 +94,7 @@ public:
         auto it = docs.find(doc);
         if (it == docs.end()){
             // Load the document if it doesn't exist
-            std::string const serial = Nebulite::Utility::FileManagement::LoadFile(doc);
+            std::string const serial = Utility::FileManagement::LoadFile(doc);
             if (serial.empty()){
                 return nullptr; // Return nullptr if document loading fails
             }

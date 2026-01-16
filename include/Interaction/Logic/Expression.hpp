@@ -157,7 +157,7 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated string value.
      */
-    static std::string eval(std::string const& input, Interaction::ContextBase const& context);
+    static std::string eval(std::string const& input, ContextBase const& context);
 
     /**
      * @brief Evaluates a given expression string as a double with a constant reference to the context.
@@ -165,7 +165,7 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated double value.
      */
-    static double evalAsDouble(std::string const& input, Interaction::ContextBase const& context);
+    static double evalAsDouble(std::string const& input, ContextBase const& context);
 
     /**
      * @brief Evaluates a given expression string as a boolean with a constant reference to the context.
@@ -173,7 +173,7 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated boolean value.
      */
-    static bool evalAsBool(std::string const& input, Interaction::ContextBase const& context);
+    static bool evalAsBool(std::string const& input, ContextBase const& context);
 
     // Global-only evaluation (both self and other context are empty documents)
 

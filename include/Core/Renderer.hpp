@@ -37,7 +37,7 @@ public:
      * @param documentReference Reference to the JSON document
      * @param flag_headless Reference to the Boolean flag for headless mode.
      */
-    Renderer(Core::JsonScope& documentReference, bool* flag_headless);
+    Renderer(JsonScope& documentReference, bool* flag_headless);
 
     //------------------------------------------
     // Disallow copying and moving

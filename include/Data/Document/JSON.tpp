@@ -164,7 +164,7 @@ namespace ConverterHelper {
         //if (stored == "true") return 1;
         //if (stored == "false") return 0;
         try {
-            return static_cast<uint64_t>(std::stoull(stored));
+            return std::stoull(stored);
         } catch (...){
             return defaultValue;
         }
@@ -174,7 +174,7 @@ namespace ConverterHelper {
         //if (stored == "true") return 1;
         //if (stored == "false") return 0;
         try {
-            return static_cast<int64_t>(std::stoll(stored));
+            return std::stoll(stored);
         } catch (...){
             return defaultValue;
         }
@@ -198,7 +198,7 @@ namespace ConverterHelper {
                     + "Fallback conversion from String to any Integral type was disabled due to potential lossy data conversion.\n"
                     + "Rather, it is recommended to add one explicit conversion path per datatype.\n"
                     + "Returning default value.";
-        Nebulite::Utility::Capture::cerr() << message << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << message << Utility::Capture::endl;
         // Exiting the program would be nice, but since this is likely run in a threaded environment, we just display the error.
     }
 } // namespace ConverterHelper

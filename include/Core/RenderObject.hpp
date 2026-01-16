@@ -187,7 +187,7 @@ public:
      * @return true if texture rendering is enabled, false otherwise.
      */
     [[nodiscard]] bool isTextRenderingEnabled() const {
-        return (std::fabs(*refs.fontSize) > DBL_EPSILON);
+        return std::fabs(*refs.fontSize) > DBL_EPSILON;
     }
 
     /**
@@ -232,7 +232,7 @@ public:
 
 private:
     // Each RenderObject has its own JSON document
-    Core::JsonScope document;
+    JsonScope document;
 
     //------------------------------------------
     // Initialization
