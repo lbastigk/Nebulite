@@ -34,13 +34,13 @@ namespace Nebulite::Data {
  *          of the branch can have its own logic for mapping IDs to indices.
  * @tparam StoreType The type of elements to be stored in the branch.
  * @tparam idType The type of the ID used to access elements.
- * @tparam MaxBits The maximum number of bits for the branch (default is 8).
+ * @tparam MaxBits The maximum number of bits for the branch.
  */
-template<typename StoreType, typename idType, std::size_t MaxBits = 8>
+template<typename StoreType, typename idType, std::size_t MaxBits>
 class Branch {
 public:
     // Check MaxBits validity
-    static_assert(MaxBits > 0 && MaxBits < (sizeof(std::size_t) * 8),
+    static_assert(MaxBits > 0 && MaxBits < sizeof(std::size_t)*8,
                   "MaxBits must be > 0 and fit in size_t");
 
     // Ensure StoreType
@@ -148,7 +148,7 @@ private:
     arr<std::shared_ptr<StoreType>> storage;
 
     // Mutex for thread-safe access
-    mutable Nebulite::Utility::SharedMutex storageMutex;
+    mutable Utility::SharedMutex storageMutex;
 
     // RNG generator for cleanup
     std::mt19937 randNum{std::random_device{}()};
