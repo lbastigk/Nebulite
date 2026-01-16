@@ -7,14 +7,17 @@
 #ifndef DATA_HOT_STRING_KEY_MAP_HPP
 #define DATA_HOT_STRING_KEY_MAP_HPP
 
+//------------------------------------------
+// Includes
+
+// Standard library
 #include <cstddef>
 #include <memory>
-#include <type_traits>
-#include <utility>
 
 // Nebulite
 #include "HotKeyMap.hpp"
 
+//------------------------------------------
 namespace Nebulite::Data {
 
 template<typename V>
