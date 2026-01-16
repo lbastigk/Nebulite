@@ -139,7 +139,7 @@ CaptureStream& CaptureStream::operator<<(T const& data){
 
         // Split buffer by newlines
         std::string const buf = workingBuffer.str();
-        std::vector<std::string> lines = Nebulite::Utility::StringHandler::split(buf, '\n');
+        std::vector<std::string> lines = StringHandler::split(buf, '\n');
 
         // If last character is not newline, keep it in workingBuffer
         // And do not push it to outputLog yet
