@@ -136,23 +136,37 @@ This allows key sharing inbetween classes and throw exceptions if access is atte
 
 Example for restricted key access:
 ```cpp
-// Our Data document
-Data::JSON doc;
+#include "Nebulite.hpp"
+#include "Core/JsonScope.hpp"
 
-// Creating a Domain of type JsonScope
-// that acts on the "physics." sub-scope
-Core::JsonScope physicsScope(doc, "physics.");
+inline void exampleUsage() {
+    // Our Data document
+    Nebulite::Data::JSON doc;
 
-// We can parse user commands in this scope
-if(physicsScope.parseCommand("set velocity 5.0") != Nebulite::Constants::ErrorTable::NONE()) {
-    // handle error
+    // Creating a Domain of type JsonScope
+    // that acts on the "physics." sub-scope
+    Nebulite::Core::JsonScope physicsScope(doc, "physics.");
+
+    // Using ScopedKey to access data safely
+    Nebulite::Data::ScopedKey const velocityKey("physics.", "velocity");
+    Nebulite::Data::ScopedKey const timeInMsKey("time.","t_ms");
+
+    // We can parse user commands in this scope...
+    if(physicsScope.parseStr("set velocity 5.0") != Nebulite::Constants::ErrorTable::NONE()) {
+        // handle error
+        Nebulite::error::println("Failed to set velocity");
+
+        // ...Or set values directly
+        physicsScope.set<int>(velocityKey, 5.0);
+    }
+    
+    // Now we can get values using ScopedKey
+    double const velocity = physicsScope.get(velocityKey, 0.0); // Success
+    double const timeInMs = physicsScope.get(timeInMsKey, 0.0); // Throws exception
+
+    Nebulite::log::println("Velocity: ", velocity);
+    Nebulite::log::println("Time in ms: ", timeInMs);
 }
-
-// Using ScopedKey to access data safely
-Data::ScopedKey velocityKey("physics.", "velocity");
-Data::ScopedKey timeInMsKey("time.","t_ms");
-double velocity = physicsScope.get(velocityKey, 0.0); // Success
-double timeInMs = physicsScope.get(timeInMsKey, 0.0); // Throws exception
 ```
 
 <!-- TOC --><a name="expression-system"></a>
