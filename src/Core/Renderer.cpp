@@ -13,6 +13,7 @@
 #include "Constants/KeyNames.hpp"
 #include "Core/Environment.hpp"
 #include "Core/Renderer.hpp"
+#include "Core/RenderObject.hpp"
 #include "DomainModule/GlobalSpace/Settings.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "Interaction/Invoke.hpp"
@@ -21,7 +22,7 @@
 //------------------------------------------
 namespace Nebulite::Core {
 
-Renderer::Renderer(Core::JsonScope& documentReference, bool* flag_headless)
+Renderer::Renderer(JsonScope& documentReference, bool* flag_headless)
     : Domain("Renderer", *this, documentReference),
       env(documentReference){
 
@@ -96,10 +97,10 @@ void Renderer::setupDisplayValues() {
     // Load from settings
     // Default values should never be used, as settings should always exist
     // Still, just in case, we set them to 1000x1000 @ 1x scaling and 60 FPS
-    auto const X = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
-    auto const Y = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
-    WindowScale = Nebulite::globalDoc().settings().get<uint8_t>(DomainModule::GlobalSpace::Settings::Key::resolutionScaling, 1);
-    fps.target = Nebulite::globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::targetFPS, 60);
+    auto const X = globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
+    auto const Y = globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
+    WindowScale = globalDoc().settings().get<uint8_t>(DomainModule::GlobalSpace::Settings::Key::resolutionScaling, 1);
+    fps.target = globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::targetFPS, 60);
 
     // Set in workspace
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X);
@@ -128,7 +129,7 @@ void Renderer::initSDL() {
     //Create SDL window
     if (!SDL_Init(SDL_INIT_VIDEO) && SDL_GetError()[0] != '\0') {
         // SDL initialization failed
-        Nebulite::error::println("SDL_Init Error: ", SDL_GetError());
+        error::println("SDL_Init Error: ", SDL_GetError());
     }
     // Define window via x|y|w|h
     int const w = domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0);
@@ -139,7 +140,7 @@ void Renderer::initSDL() {
     window = SDL_CreateWindow("Nebulite", w, h, flags);
     if (!window) {
         // Window creation failed
-        Nebulite::error::println("SDL_CreateWindow Error: ", SDL_GetError());
+        error::println("SDL_CreateWindow Error: ", SDL_GetError());
         SDL_Quit();
     }
 
@@ -149,7 +150,7 @@ void Renderer::initSDL() {
     // Create a renderer
     renderer = SDL_CreateRenderer(window, nullptr);
     if (!renderer) {
-        Nebulite::error::println("Renderer creation failed: ", SDL_GetError());
+        error::println("Renderer creation failed: ", SDL_GetError());
     }
 
     // Set virtual rendering size
@@ -164,7 +165,7 @@ void Renderer::initSDL() {
     // Check for errors in SDL
 
     if (SDL_GetError()[0] != '\0') {
-        Nebulite::error::println("SDL Error during initialization: ", SDL_GetError());
+        error::println("SDL Error during initialization: ", SDL_GetError());
         SDL_ClearError(); // Clear error after reporting
     }
 
@@ -174,7 +175,7 @@ void Renderer::initSDL() {
     // Initialize SDL_ttf
     if (!TTF_Init()) {
         // Handle SDL_ttf initialization error
-        Nebulite::error::println("TTF_Init Error!");
+        error::println("TTF_Init Error!");
         SDL_Quit(); // Clean up SDL
     }
     loadFonts();
@@ -184,7 +185,7 @@ void Renderer::initSDL() {
 
     // Init
     if (!SDL_Init(SDL_INIT_AUDIO) && SDL_GetError()[0] != '\0') {
-        Nebulite::error::println("SDL_Init Error: ", SDL_GetError());
+        error::println("SDL_Init Error: ", SDL_GetError());
     } else {
         audio.desired.freq = 44100;
         audio.desired.format = SDL_AUDIO_S16;
@@ -194,7 +195,7 @@ void Renderer::initSDL() {
 
         audio.device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audio.desired);
         if (audio.device == 0) {
-            Nebulite::error::println("Failed to open audio device: ", SDL_GetError());
+            error::println("Failed to open audio device: ", SDL_GetError());
         } else {
             audioInitialized = true;
         }
@@ -219,9 +220,20 @@ void Renderer::loadFonts() {
     font = TTF_OpenFont(fontPath.c_str(), FontSizeGeneral); // Adjust size as needed
     if (font == nullptr) {
         // Handle font loading error
-        Nebulite::error::println("Failed to load font: ", fontPath);
+        error::println("Failed to load font: ", fontPath);
     }
 }
+
+//------------------------------------------
+// Getting
+
+int Renderer::getResX() const { return domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0); }
+
+int Renderer::getResY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 0); }
+
+int Renderer::getPosX() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionX, 0); }
+
+int Renderer::getPosY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionY, 0); }
 
 //------------------------------------------
 // Serialization / Deserialization
@@ -255,7 +267,7 @@ Constants::Error Renderer::update() {
     //------------------------------------------
     // Check for SDL errors
     if (SDL_GetError()[0] != '\0') {
-        Nebulite::error::println("SDL Error during rendering: ", SDL_GetError());
+        error::println("SDL Error during rendering: ", SDL_GetError());
         SDL_ClearError(); // Clear error after reporting
     }
 
@@ -302,7 +314,7 @@ bool Renderer::timeToRender() {
     // Example: target = 16.67 ms
     // set target to 16, remainder = 0.67
     // so do 16 for 67% of the time, and 17 for 33% of the time
-    static std::uniform_real_distribution<double> distribution(0.0, 1.0);
+    static std::uniform_real_distribution distribution(0.0, 1.0);
     static std::hash<std::string> hashString;
     static std::mt19937 randNum(hashString("RNG for FPS control"));
 
@@ -350,13 +362,13 @@ void Renderer::beep() const {
     if (!s_beepStream) {
         s_beepStream = SDL_CreateAudioStream(&audio.desired, &audio.desired);
         if (!s_beepStream) {
-            Nebulite::error::println("Failed to create audio stream: ", SDL_GetError());
+            error::println("Failed to create audio stream: ", SDL_GetError());
             return;
         }
     }
 
     if (SDL_PutAudioStreamData(s_beepStream, basicAudioWaveforms.squareBuffer->data(), audioLength) != 0) {
-        Nebulite::error::println("Failed to push audio to stream: ", SDL_GetError());
+        error::println("Failed to push audio to stream: ", SDL_GetError());
         return;
     }
 
@@ -366,7 +378,7 @@ void Renderer::beep() const {
 
 bool Renderer::snapshot(std::string link) const {
     if (!renderer) {
-        Nebulite::error::println("Cannot take snapshot: renderer not initialized");
+        error::println("Cannot take snapshot: renderer not initialized");
         return false;
     }
 
@@ -384,7 +396,7 @@ bool Renderer::snapshot(std::string link) const {
     SDL_Rect const fullScreenRect = {0, 0, width, height};
     auto const surface = SDL_RenderReadPixels(renderer, &fullScreenRect);
     if (!surface) {
-        Nebulite::error::println("Failed to read pixels for snapshot: ", SDL_GetError());
+        error::println("Failed to read pixels for snapshot: ", SDL_GetError());
         SDL_DestroySurface(surface);
         return false;
     }
@@ -403,14 +415,14 @@ bool Renderer::snapshot(std::string link) const {
         try {
             std::filesystem::create_directories(directory);
         } catch (std::exception const& e) {
-            Nebulite::error::println("Warning: Could not create directory ", directory, ": ", e.what());
+            error::println("Warning: Could not create directory ", directory, ": ", e.what());
             // Continue anyway - maybe directory already exists
         }
     }
 
     // Save surface as PNG
     if (int const result = IMG_SavePNG(surface, link.c_str()); result != 0 && SDL_GetError()[0] != '\0') {
-        Nebulite::error::println("Failed to save snapshot!");
+        error::println("Failed to save snapshot!");
         return false;
     }
 
@@ -458,11 +470,11 @@ void Renderer::destroy() {
 void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scalar) {
     WindowScale = scalar;
     if (w < 240 || w > 16384) {
-        Nebulite::error::println("Selected resolution is not supported:", w, "x", h);
+        error::println("Selected resolution is not supported:", w, "x", h);
         return;
     }
     if (h < 240 || h > 16384) {
-        Nebulite::error::println("Selected resolution is not supported:", w, "x", h);
+        error::println("Selected resolution is not supported:", w, "x", h);
         return;
     }
 
@@ -623,7 +635,7 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
     //------------------------------------------
     // Error Checking
     if (!obj->getSDLTexture()) {
-        Nebulite::error::println("Error: RenderObject ID ",
+        error::println("Error: RenderObject ID ",
             obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0),
             " texture with path '",
             innerDirectory,
@@ -650,7 +662,7 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
     }
     if (SDL_RenderTexture(renderer, obj->getSDLTexture(), srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
         auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-        Nebulite::error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
+        error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
     }
 
     // Render the text
@@ -662,7 +674,7 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
             dispPosY
             );
         if (obj->getTextTexture() && obj->getTextRect()) {
-            SDL_FRect const textRectF = SDL_FRect{
+            auto const textRectF = SDL_FRect{
                 static_cast<float>(obj->getTextRect()->x),
                 static_cast<float>(obj->getTextRect()->y),
                 static_cast<float>(obj->getTextRect()->w),
@@ -670,7 +682,7 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
             };
             if (SDL_RenderTexture(renderer, obj->getTextTexture(), nullptr, &textRectF) != 0 && SDL_GetError()[0] != '\0') {
                 auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-                Nebulite::error::println("Error rendering text for RenderObject ID ", id, ": ", SDL_GetError());
+                error::println("Error rendering text for RenderObject ID ", id, ": ", SDL_GetError());
             }
         }
     }
@@ -733,7 +745,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
     if (size_t const dotPos = path.find_last_of('.'); dotPos != std::string::npos) {
         extension = path.substr(dotPos + 1);
     } else {
-        Nebulite::error::println("Failed to load image '", path, "': No file extension found.");
+        error::println("Failed to load image '", path, "': No file extension found.");
         return nullptr;
     }
 
@@ -750,7 +762,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
 
     // Unknown format or other issues with surface
     if (surface == nullptr) {
-        Nebulite::error::println("Failed to load image '", path, "': ", SDL_GetError());
+        error::println("Failed to load image '", path, "': ", SDL_GetError());
         return nullptr;
     }
 
@@ -760,7 +772,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
 
     // Check for texture issues
     if (!texture) {
-        Nebulite::error::println("Failed to create texture from image '", path, "': ", SDL_GetError());
+        error::println("Failed to create texture from image '", path, "': ", SDL_GetError());
         return nullptr;
     }
 

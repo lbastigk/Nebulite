@@ -23,7 +23,6 @@
 namespace {
 /**
  * @brief Creates an array of RenderObjectContainer instances.
- *
  * @tparam LayerCount The number of layers (size of the array).
  * @return An array of RenderObjectContainer instances.
  */
@@ -40,7 +39,7 @@ make_roc_array() {
 
 namespace Nebulite::Core {
 
-Environment::Environment(Core::JsonScope& documentReference)
+Environment::Environment(JsonScope& documentReference)
     : Domain("Environment", *this, documentReference),
       roc(make_roc_array<LayerCount>()) {
     DomainModule::Initializer::initEnvironment(this);

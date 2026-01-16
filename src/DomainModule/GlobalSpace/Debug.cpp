@@ -1,9 +1,15 @@
-#include "DomainModule/GlobalSpace/Debug.hpp"
+//------------------------------------------
+// Includes
 
+// Standard library
 #include <csignal>
 
+// Nebulite
 #include "Nebulite.hpp"
+#include "Core/RenderObject.hpp"
+#include "DomainModule/GlobalSpace/Debug.hpp"
 
+//------------------------------------------
 #if defined(_WIN32)
 #include <windows.h>
 #include <psapi.h>
@@ -14,6 +20,7 @@
 #include <memory>
 #include <fstream>
 
+//------------------------------------------
 // Platform-specific functions
 namespace {
 /**

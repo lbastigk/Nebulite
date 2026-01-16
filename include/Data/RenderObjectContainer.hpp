@@ -12,9 +12,11 @@
 // Standard library
 #include <thread>
 
-// Nebulite
-#include "Core/JsonScope.hpp"
-#include "Core/RenderObject.hpp"
+//------------------------------------------
+// Forward declarations
+namespace Nebulite::Core {
+class RenderObject;
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -154,19 +156,7 @@ public:
      * @param id The unique ID of the RenderObject to retrieve.
      * @return Pointer to the RenderObject if found, nullptr otherwise.
      */
-    Core::RenderObject* getObjectFromId(uint32_t const& id) {
-        // Go through all batches
-        for (auto& batches : std::views::values(ObjectContainer)) {
-            for (auto& [objects, _] : batches) {
-                for (auto const& object : objects) {
-                    if (object->getId() == id) {
-                        return object;
-                    }
-                }
-            }
-        }
-        return nullptr; // Not found
-    }
+    Core::RenderObject* getObjectFromId(uint32_t const& id);
 
 private:
     /**

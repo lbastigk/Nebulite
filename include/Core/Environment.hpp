@@ -14,6 +14,7 @@
 #include <vector>
 
 // Nebulite
+#include "Interaction/Execution/Domain.hpp"
 #include "Data/RenderObjectContainer.hpp"
 
 //------------------------------------------
