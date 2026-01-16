@@ -1,21 +1,18 @@
-# Windows-specific build configuration
-# This file contains Windows-specific CMake configuration that can be included
-# in the main CMakeLists.txt file
-
 if(NOT WIN32)
     message(WARNING "windbuild.cmake is intended for Windows builds only")
     return()
 endif()
 
+######################################################
 message(STATUS "Loading Windows build configuration...")
 
-# Windows-specific compile definitions
-add_compile_definitions(WIN32_LEAN_AND_MEAN)
-add_compile_definitions(NOMINMAX)
-
-# Windows-specific SDL2 configuration using SDL2 submodules (same as Linux)
-function(configure_windows_sdl2 target_name)
+# Windows-specific configuration
+function(configure_windows target_name)
     message(STATUS "Configuring ${target_name} for Windows, build type: ${CMAKE_BUILD_TYPE}")
+
+    # Windows-specific compile definitions
+    add_compile_definitions(WIN32_LEAN_AND_MEAN)
+    add_compile_definitions(NOMINMAX)
     
     # Windows system libraries needed for static linking
     target_link_libraries(${target_name} PRIVATE
@@ -58,8 +55,6 @@ function(configure_windows_sdl2 target_name)
         -lwinmm
         -lws2_32
     )
-    
-    message(STATUS "SDL2 configured for Windows")
 endfunction()
 
 message(STATUS "Windows build configuration loaded successfully")

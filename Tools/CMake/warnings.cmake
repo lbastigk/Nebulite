@@ -86,8 +86,8 @@ function(configure_warnings target_name)
                 -Wno-reserved-identifier # False positives with struct _SDL_Haptic
                 -Wno-covered-switch-default # False positives with enums used as flags where default is used to catch new enum values
                 # TODO: Make sure no SDL-Errors are caught, then re-enable:
-                -Wno-documentation-unknown-command # False positives with SDL2 \threadsafety tag
-                -Wno-old-style-cast # Many false positives with SDL2
+                -Wno-documentation-unknown-command # False positives with SDL3 \threadsafety tag
+                -Wno-old-style-cast # Many false positives with SDL3
         )
 
         # Suppress unsafe-buffer-usage warnings coming from some external headers (clang)

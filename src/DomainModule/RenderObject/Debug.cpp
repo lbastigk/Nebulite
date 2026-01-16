@@ -35,9 +35,9 @@ Constants::Error Debug::printSrcRect() const {
         message += ", w: " + std::to_string(srcRect->w);
         message += ", h: " + std::to_string(srcRect->h);
         message += " }";
-        Nebulite::cout() << message << Nebulite::endl;
+        Nebulite::log::println(message);
     } else {
-        Nebulite::cout() << "This RenderObject is not a spritesheet." << Nebulite::endl;
+        Nebulite::log::println("This RenderObject is not a spritesheet.");
     }
 
     return Constants::ErrorTable::NONE();
@@ -52,9 +52,9 @@ Constants::Error Debug::printDstRect() const {
         message += ", w: " + std::to_string(dstRect->w);
         message += ", h: " + std::to_string(dstRect->h);
         message += " }";
-        Nebulite::cout() << message << Nebulite::endl;
+        Nebulite::log::println(message);
     } else {
-        Nebulite::cout() << "Destination rectangle is not set." << Nebulite::endl;
+        Nebulite::log::println("Destination rectangle is not set.");
     }
 
     return Constants::ErrorTable::NONE();
@@ -62,25 +62,6 @@ Constants::Error Debug::printDstRect() const {
 
 // Texture debugging helper
 namespace {
-
-/**
- * @brief Converts SDL texture access enum to human-readable string.
- * @param accessType The SDL texture access enum value.
- * @return A string representing the access type.
- */
-std::string getTextureAccessString(int const& accessType) {
-    return accessType == SDL_TEXTUREACCESS_STATIC ? "Static" : accessType == SDL_TEXTUREACCESS_STREAMING ? "Streaming" : accessType == SDL_TEXTUREACCESS_TARGET ? "Target" : "Other";
-}
-
-/**
- * @brief Converts SDL pixel format enum to human-readable string.
- * @param format The SDL pixel format enum value.
- * @return A string representing the pixel format.
- */
-std::string getTextureFormatString(Uint32 const& format) {
-    return format == SDL_PIXELFORMAT_RGBA8888 ? "RGBA8888" : format == SDL_PIXELFORMAT_ARGB8888 ? "ARGB8888" : format == SDL_PIXELFORMAT_RGB888 ? "RGB888" : format == SDL_PIXELFORMAT_BGR888 ? "BGR888" : format == SDL_PIXELFORMAT_RGB565 ? "RGB565" : format == SDL_PIXELFORMAT_RGB555 ? "RGB555" : format == SDL_PIXELFORMAT_ARGB1555 ? "ARGB1555" : format == SDL_PIXELFORMAT_ABGR8888 ? "ABGR8888" : format == SDL_PIXELFORMAT_BGRA8888 ? "BGRA8888" : "Other";
-}
-
 /**
  * @brief Prints detailed information about an SDL_Texture.
  *
@@ -89,18 +70,11 @@ std::string getTextureFormatString(Uint32 const& format) {
 std::string getTextureInfoString(SDL_Texture* texture) {
     std::string info;
     if (texture) {
-        Uint32 format;
-        int accessType, w, h;
-        if (SDL_QueryTexture(texture, &format, &accessType, &w, &h) == 0) {
-            // Decode format and access to human-readable strings
-            std::string const accessStr = getTextureAccessString(accessType);
-            std::string const formatStr = getTextureFormatString(format);
-
+        float w, h;
+        if (SDL_GetTextureSize(texture, &w, &h) == 0) {
             // Print texture details
             info += " - Width  : " + std::to_string(w) + "\n";
             info += " - Height : " + std::to_string(h) + "\n";
-            info += " - Access : " + accessStr + "\n";
-            info += " - Format : " + formatStr + "\n";
         } else {
             info += "Failed to query texture: " + std::string(SDL_GetError());
         }
@@ -112,21 +86,19 @@ std::string getTextureInfoString(SDL_Texture* texture) {
 } // unnamed namespace
 
 // NOLINTNEXTLINE
-Constants::Error Debug::textureStatus(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) const {
+Constants::Error Debug::textureStatus(std::span<std::string const> const& /*args*/, Interaction::Execution::DomainBase& /*caller*/, Data::JsonScopeBase& callerScope) const {
     //------------------------------------------
     // Print Texture Status
-    Nebulite::cout() << "Texture Status:" << Nebulite::endl;
+    Nebulite::log::println("Texture Status:");
 
     // Nebulite info
-    Nebulite::cout() << std::string(" - Texture Key   : ") + callerScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "None") << Nebulite::endl;
-    Nebulite::cout() << std::string(" - Valid Texture : ") + (domain.getTexture()->isTextureValid() ? "Yes" : "No") << Nebulite::endl;
-    Nebulite::cout() << std::string(" - Local Texture : ") + (domain.getTexture()->isTextureStoredLocally() ? "Yes" : "No") << Nebulite::endl;
+    Nebulite::log::println(" - Texture Key   : " + callerScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "None"));
+    Nebulite::log::println(" - Valid Texture : " + std::string(domain.getTexture()->isTextureValid() ? "Yes" : "No"));
+    Nebulite::log::println(" - Local Texture : " + std::string(domain.getTexture()->isTextureStoredLocally() ? "Yes" : "No"));
 
     // SDL info
-    Nebulite::cout() << "SDL Texture Info:" << Nebulite::endl;
-    Nebulite::cout() << getTextureInfoString(domain.getTexture()->getSDLTexture()) << Nebulite::endl;
-    (void)args;      // Unused
-    (void)caller;   // Unused
+    Nebulite::log::println("SDL Texture Info:");
+    Nebulite::log::println(getTextureInfoString(domain.getTexture()->getSDLTexture()));
     return Constants::ErrorTable::NONE();
 }
 

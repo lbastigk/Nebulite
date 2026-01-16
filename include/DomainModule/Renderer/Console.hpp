@@ -10,8 +10,8 @@
 // Includes
 
 // External
-#include <SDL.h>
-#include <SDL_ttf.h>
+#include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
@@ -87,7 +87,7 @@ private:
 
     struct ConsoleLayout {
         uint16_t MINIMUM_LINES = 8; // Minimum number of lines to show, including input line
-        uint16_t LINE_PADDING = 10; // Padding between lines in pixels
+        double paddingRatio = 0.25; // Padding between lines as a ratio of font size
         uint16_t FONT_MAX_SIZE = 24; // Maximum font size
         double heightRatio = 0.75; // Console takes 75% of the screen height
     } consoleLayout;
@@ -218,12 +218,12 @@ private:
     /**
      * @brief Zooms the console in, if ctrl is held.
      */
-    void keyTriggerZoomIn(SDL_KeyboardEvent const& key) const;
+    void keyTriggerZoomIn() const;
 
     /**
      * @brief Zooms the console out, if ctrl is held.
      */
-    void keyTriggerZoomOut(SDL_KeyboardEvent const& key) const;
+    void keyTriggerZoomOut() const;
 
     //------------------------------------------
     // RenderConsole helpers

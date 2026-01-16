@@ -9,9 +9,12 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cfloat>
+
 // External
-#include <SDL.h>        // SDL Renderer is used for some methods to calculate text
-#include <SDL_ttf.h>    // Same for ttf
+#include <SDL3/SDL.h>           // SDL Renderer is used for some methods to calculate text
+#include <SDL3_ttf/SDL_ttf.h>   // Same for ttf
 
 // Nebulite
 #include "Core/Texture.hpp"
@@ -64,7 +67,7 @@ public:
      * @brief Serializes the RenderObject to a JSON string.
      * @return A string representation of the RenderObject's JSON document.
      */
-    std::string serialize() const ;
+    [[nodiscard]] std::string serialize() const ;
 
     /**
      * @brief Deserializes the RenderObject from a JSON string.
@@ -107,7 +110,7 @@ public:
         int32_t y;
     };
 
-    Position getPosition() const {
+    [[nodiscard]] Position getPosition() const {
         return {static_cast<int32_t>(std::lround(*refs.posX)), static_cast<int32_t>(std::lround(*refs.posY))};
     }
 

@@ -2,7 +2,7 @@
 // Includes
 
 // External
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 // Nebulite
 #include "Nebulite.hpp"
@@ -39,37 +39,37 @@ bool Texture::copyTexture() {
             return false; // No texture to copy
         }
     }
-
-    // Get texture info
-    int w, h;
-    Uint32 format;
-    int textureAccess;
-    if (SDL_QueryTexture(texture, &format, &textureAccess, &w, &h) != 0) {
+    // SDL3: query size, access and format using the new helpers
+    float fw = 0.0f, fh = 0.0f;
+    if (SDL_GetTextureSize(texture, &fw, &fh) != 0) {
         Nebulite::error::println("Failed to query texture: ", SDL_GetError());
         return false;
     }
+    int const w = static_cast<int>(fw);
+    int const h = static_cast<int>(fh);
 
-    // Create a new texture with streaming access for modifications
-    SDL_Texture* newTexture = SDL_CreateTexture(Nebulite::global().getSdlRenderer(), format, SDL_TEXTUREACCESS_STREAMING, w, h);
+    // Create a new streaming texture (preserve format)
+    SDL_Texture* newTexture = SDL_CreateTexture(Nebulite::global().getSdlRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, w, h);
     if (!newTexture) {
         Nebulite::error::println("Failed to create new texture: ", SDL_GetError());
         return false;
     }
 
-    // Copy the content from the old texture to the new one
+    // Bind the new texture as the render target and copy
     if (SDL_SetRenderTarget(Nebulite::global().getSdlRenderer(), newTexture) != 0) {
-        Nebulite::error::println("Failed to set render target: ", SDL_GetError());
+        Nebulite::error::println("Failed to set render texture: ", SDL_GetError());
         SDL_DestroyTexture(newTexture);
         return false;
     }
 
-    if (SDL_RenderCopy(Nebulite::global().getSdlRenderer(), texture, nullptr, nullptr) != 0) {
+    if (SDL_RenderTexture(Nebulite::global().getSdlRenderer(), texture, nullptr, nullptr) != 0) {
         Nebulite::error::println("Failed to copy texture: ", SDL_GetError());
         SDL_SetRenderTarget(Nebulite::global().getSdlRenderer(), nullptr);
         SDL_DestroyTexture(newTexture);
         return false;
     }
 
+    // Unbind
     SDL_SetRenderTarget(Nebulite::global().getSdlRenderer(), nullptr);
 
     // Replace the old texture with the new one

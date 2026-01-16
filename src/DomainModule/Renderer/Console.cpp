@@ -5,9 +5,7 @@
 #include <cstdint>
 
 // External
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
+#include <SDL3_image/SDL_image.h>
 
 // Nebulite
 #include "Nebulite.hpp"
@@ -49,7 +47,7 @@ Constants::Error Console::update() {
             type = Utility::TextInput::LineEntry::LineType::CERR;
             break;
         default:
-            Nebulite::cerr() << "[ERROR] Unknown OutputLine type encountered in " << std::string(__FUNCTION__) << ". Please fix!" << Nebulite::endl;
+            Nebulite::error::println("Unknown OutputLine type encountered in ", std::string(__FUNCTION__), ". Please fix!");
             type = Utility::TextInput::LineEntry::LineType::CERR;
             break;
         }
@@ -69,10 +67,10 @@ Constants::Error Console::update() {
     if (moduleScope.get<int>(toggleKey, 0) == 1) {
         consoleMode = !consoleMode;
         if (consoleMode) {
-            SDL_StartTextInput();
-            SDL_FlushEvents(SDL_FIRSTEVENT, SDL_LASTEVENT); // Flush all pending events
+            SDL_StartTextInput(domain.getSdlWindow());
+            SDL_FlushEvents(SDL_EVENT_FIRST, SDL_EVENT_LAST); // Flush all pending events
         } else {
-            SDL_StopTextInput();
+            SDL_StopTextInput(domain.getSdlWindow());
         }
     }
 
@@ -95,31 +93,64 @@ bool Console::ensureConsoleTexture() {
     //------------------------------------------
     // Prerequisites
 
-    // Derive consoleRect size from display size
+    // Derive logical consoleRect size from display size
     double const consoleHeight = static_cast<double>(moduleScope.get<size_t>(Constants::KeyNames::Renderer::dispResY, 360)) * consoleLayout.heightRatio;
     static SDL_Rect currentConsolePosition;
     currentConsolePosition.x = 0;
     currentConsolePosition.y = static_cast<int>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResY, 360) - consoleHeight);
-    currentConsolePosition.w = moduleScope.get<int>(Constants::KeyNames::Renderer::dispResX, 360);
-    currentConsolePosition.h = moduleScope.get<int>(Constants::KeyNames::Renderer::dispResY, 360) - currentConsolePosition.y;
+    currentConsolePosition.w = static_cast<int>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResX, 360));
+    currentConsolePosition.h = static_cast<int>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResY, 360) - static_cast<double>(currentConsolePosition.y));
+
+    //------------------------------------------
+    // Recompute WindowScale from actual physical window / renderer output size
+    int physWindowW = 0, physWindowH = 0;
+    // Prefer window size if available
+    if (domain.getSdlWindow()) {
+        SDL_GetWindowSize(domain.getSdlWindow(), &physWindowW, &physWindowH);
+    } else {
+        SDL_GetCurrentRenderOutputSize(renderer, &physWindowW, &physWindowH);
+    }
+
+    // Avoid divide-by-zero; fall back to 1 if logical size is invalid
+    int const logicalW = currentConsolePosition.w > 0 ? currentConsolePosition.w : 1;
+    int const logicalH = currentConsolePosition.h > 0 ? currentConsolePosition.h : 1;
+
+    unsigned int computedScale = 1;
+    if (logicalW > 0 && logicalH > 0 && physWindowW > 0 && physWindowH > 0) {
+        auto const sx = static_cast<unsigned int>(physWindowW / logicalW);
+        auto const sy = static_cast<unsigned int>(physWindowH / logicalH);
+        // Choose the minimum integer scale that fits both axes (keeps aspect and integer scaling)
+        computedScale = std::max<unsigned int>(1u, std::min(sx, sy));
+    }
+
+    // Update member WindowScale immediately so all subsequent calculations use the correct value
+    WindowScale = computedScale;
 
     //------------------------------------------
     // Texture Setup
 
-    // Status
     bool recreateTexture = !consoleTexture.texture_ptr; // No texture yet
-    recreateTexture = recreateTexture || consoleTexture.rect.w != currentConsolePosition.w; // Width changed
-    recreateTexture = recreateTexture || consoleTexture.rect.h != currentConsolePosition.h; // Height changed
+    recreateTexture = recreateTexture || consoleTexture.rect.w != currentConsolePosition.w; // Width changed (logical)
+    recreateTexture = recreateTexture || consoleTexture.rect.h != currentConsolePosition.h; // Height changed (logical)
 
-    // Update rectangle if needed
+    // Update rectangle and recreate texture if needed
     if (recreateTexture) {
         if (consoleTexture.texture_ptr) {
             SDL_DestroyTexture(consoleTexture.texture_ptr);
+            consoleTexture.texture_ptr = nullptr;
         }
-        consoleTexture = {
-            currentConsolePosition,
-            SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, currentConsolePosition.w, currentConsolePosition.h)
-        };
+
+        // create texture wrapper rect (logical rect)
+        consoleTexture.rect = currentConsolePosition;
+
+        // Create a physical-size texture (logical * WindowScale) so we can render at full resolution
+        int const tex_phys_w = static_cast<int>(consoleTexture.rect.w) * static_cast<int>(WindowScale);
+        int const tex_phys_h = static_cast<int>(consoleTexture.rect.h) * static_cast<int>(WindowScale);
+
+        consoleTexture.texture_ptr = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tex_phys_w, tex_phys_h);
+        if (consoleTexture.texture_ptr) {
+            SDL_SetTextureScaleMode(consoleTexture.texture_ptr, SDL_SCALEMODE_NEAREST);
+        }
     }
 
     // Validate texture
@@ -129,56 +160,86 @@ bool Console::ensureConsoleTexture() {
 void Console::drawBackground() const {
     //------------------------------------------
     // Draw everything as before, but coordinates relative to (0,0)
-    SDL_Rect const localRect = {0, 0, consoleTexture.rect.w, consoleTexture.rect.h};
+    // Use physical size when rendering into the physical-size render target
+    const float phys_w = static_cast<float>(consoleTexture.rect.w) * static_cast<float>(WindowScale);
+    const float phys_h = static_cast<float>(consoleTexture.rect.h) * static_cast<float>(WindowScale);
+    SDL_FRect const localFRect = {
+        0.0f,
+        0.0f,
+        phys_w,
+        phys_h
+    };
 
     // If we have a background image, draw it instead
     if (backgroundImageTexture != nullptr) {
-        SDL_RenderCopy(renderer, backgroundImageTexture, nullptr, &localRect);
+        SDL_RenderTexture(renderer, backgroundImageTexture, nullptr, &localFRect);
     } else {
         SDL_SetRenderDrawColor(renderer, color.background.r, color.background.g, color.background.b, color.background.a);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_RenderFillRect(renderer, &localRect);
+        SDL_RenderFillRect(renderer, &localFRect);
     }
 }
 
 void Console::drawInput(uint16_t const& lineHeight) {
-    // Add a darker background for the input line
-    double const posY = consoleTexture.rect.h - lineHeight - 1.5 * consoleLayout.LINE_PADDING;
-    SDL_Rect const inputBackgroundRect = {0, static_cast<int>(posY), consoleTexture.rect.w, lineHeight + consoleLayout.LINE_PADDING};
+    // Add a darker background for the input line (use physical coordinates)
+    double const posY = static_cast<double>(consoleTexture.rect.h) - lineHeight - 1.5 * consoleLayout.paddingRatio * lineHeight;
+    SDL_FRect const inputBackgroundFRect = {
+        0.0f,
+        static_cast<float>(posY * WindowScale),
+        static_cast<float>(consoleTexture.rect.w) * static_cast<float>(WindowScale),
+        static_cast<float>((lineHeight + consoleLayout.paddingRatio * lineHeight) * WindowScale)
+    };
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
-    SDL_RenderFillRect(renderer, &inputBackgroundRect);
+    SDL_RenderFillRect(renderer, &inputBackgroundFRect);
 
     // Render input text
     if (!textInput.getInputBuffer()->empty()) {
         std::string const inputText = *textInput.getInputBuffer();
 
-        // Create surface and texture
-        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, inputText.c_str(), color.input);
+        // Create surface and texture (surface already at scaled font size)
+        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, inputText.c_str(), 0, color.input);
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+        if (textTexture) {
+            SDL_SetTextureScaleMode(textTexture, SDL_SCALEMODE_NEAREST);
+        }
 
-        // Define destination rectangle
-        textInputRect.x = 10;
-        textInputRect.y = consoleTexture.rect.h - consoleLayout.LINE_PADDING - lineHeight;
-        textInputRect.w = static_cast<int>(static_cast<double>(textSurface->w) / static_cast<double>(WindowScale));
-        textInputRect.h = static_cast<int>(static_cast<double>(textSurface->h) / static_cast<double>(WindowScale));
+        // Define destination rectangle in physical pixels (do NOT divide by WindowScale)
+        textInputRect.x = static_cast<int>(10 * WindowScale);
+        textInputRect.y = static_cast<int>((consoleTexture.rect.h - consoleLayout.paddingRatio * lineHeight - lineHeight) * WindowScale);
+        textInputRect.w = textSurface->w;
+        textInputRect.h = textSurface->h;
 
-        // Render the text
-        SDL_RenderCopy(renderer, textTexture, nullptr, &textInputRect);
-        SDL_FreeSurface(textSurface);
+        SDL_FRect const textInputFRect = {
+            static_cast<float>(textInputRect.x),
+            static_cast<float>(textInputRect.y),
+            static_cast<float>(textInputRect.w),
+            static_cast<float>(textInputRect.h)
+        };
+        SDL_RenderTexture(renderer, textTexture, nullptr, &textInputFRect);
+        SDL_DestroySurface(textSurface);
         SDL_DestroyTexture(textTexture);
 
-        // If we have a text: ABCDEF, we highlight all text to the right of the cursor
-        // With a semi-transparent overlay
+        // Highlight to the right of the cursor (also in physical pixels)
         if (uint16_t const cursorOffsetFromEnd = textInput.getCursorOffset(); cursorOffsetFromEnd > 0) {
             std::string const highlightText = textInput.getInputBuffer()->substr(textInput.getInputBuffer()->size() - cursorOffsetFromEnd, cursorOffsetFromEnd);
-            SDL_Surface* highlightSurface = TTF_RenderText_Blended(consoleFont, highlightText.c_str(), color.highlight);
+            SDL_Surface* highlightSurface = TTF_RenderText_Blended(consoleFont, highlightText.c_str(), 0, color.highlight);
             SDL_Texture* highlightTexture = SDL_CreateTextureFromSurface(renderer, highlightSurface);
+            if (highlightTexture) {
+                SDL_SetTextureScaleMode(highlightTexture, SDL_SCALEMODE_NEAREST);
+            }
+
             textInputHighlightRect.x = textInputRect.x + textInputRect.w - highlightSurface->w;
             textInputHighlightRect.y = textInputRect.y;
             textInputHighlightRect.w = highlightSurface->w;
             textInputHighlightRect.h = highlightSurface->h;
-            SDL_RenderCopy(renderer, highlightTexture, nullptr, &textInputHighlightRect);
-            SDL_FreeSurface(highlightSurface);
+            SDL_FRect const TextInputHighlightFRect = {
+                static_cast<float>(textInputHighlightRect.x),
+                static_cast<float>(textInputHighlightRect.y),
+                static_cast<float>(textInputHighlightRect.w),
+                static_cast<float>(textInputHighlightRect.h)
+            };
+            SDL_RenderTexture(renderer, highlightTexture, nullptr, &TextInputHighlightFRect);
+            SDL_DestroySurface(highlightSurface);
             SDL_DestroyTexture(highlightTexture);
         }
     }
@@ -264,16 +325,25 @@ void Console::drawOutput(uint16_t const& maxLineLength) {
             lineContentRest.clear();
         }
 
-        // Render line
-        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, content.c_str(), textColor);
+        // Render line (surfaces are created at the scaled font size; use physical coordinates)
+        SDL_Surface* textSurface = TTF_RenderText_Blended(consoleFont, content.c_str(), 0, textColor);
         SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-        textOutputRect.x = 10;
-        textOutputRect.y = line_y_position;
-        textOutputRect.w = static_cast<int>(static_cast<double>(textSurface->w) / static_cast<double>(WindowScale));
-        textOutputRect.h = static_cast<int>(static_cast<double>(textSurface->h) / static_cast<double>(WindowScale));
+        if (textTexture) {
+            SDL_SetTextureScaleMode(textTexture, SDL_SCALEMODE_NEAREST);
+        }
 
-        SDL_RenderCopy(renderer, textTexture, nullptr, &textOutputRect);
-        SDL_FreeSurface(textSurface);
+        textOutputRect.x = static_cast<int>(10 * WindowScale);
+        textOutputRect.y = static_cast<int>(line_y_position) * static_cast<int>(WindowScale);
+        textOutputRect.w = textSurface->w;
+        textOutputRect.h = textSurface->h;
+        SDL_FRect const textOutputFRect = {
+            static_cast<float>(textOutputRect.x),
+            static_cast<float>(textOutputRect.y),
+            static_cast<float>(textOutputRect.w),
+            static_cast<float>(textOutputRect.h)
+        };
+        SDL_RenderTexture(renderer, textTexture, nullptr, &textOutputFRect);
+        SDL_DestroySurface(textSurface);
         SDL_DestroyTexture(textTexture);
 
         // Next line
@@ -287,7 +357,7 @@ void Console::renderConsole() {
 
     // Ensure console texture is valid
     if (!ensureConsoleTexture()) {
-        Nebulite::cerr() << "SDL_CreateTexture failed: " << SDL_GetError() << Nebulite::endl;
+        Nebulite::error::println("SDL_CreateTexture failed: ", SDL_GetError());
         return;
     }
 
@@ -308,13 +378,13 @@ void Console::renderConsole() {
             // Use 'W' as it's typically the widest character, even though we use a monospaced font
             // This is a nice fallback in case we ever use a non-monospaced font
             testString += "W";
-            SDL_Surface* testSurface = TTF_RenderText_Blended(consoleFont, testString.c_str(), color.coutStream);
+            SDL_Surface* testSurface = TTF_RenderText_Blended(consoleFont, testString.c_str(), 0, color.coutStream);
             if (static_cast<double>(testSurface->w) / WindowScale > consoleTexture.rect.w - 20) {
                 // 20 for padding
-                SDL_FreeSurface(testSurface);
+                SDL_DestroySurface(testSurface);
                 break;
             }
-            SDL_FreeSurface(testSurface);
+            SDL_DestroySurface(testSurface);
             maxLineLength++;
         }
     }
@@ -326,6 +396,24 @@ void Console::renderConsole() {
     drawInput(lineHeight);
     drawOutput(maxLineLength);
     SDL_SetRenderTarget(renderer, nullptr);
+
+    // Present the console render-target to the main renderer:
+    if (consoleTexture.texture_ptr) {
+        // Source: physical pixels stored in the texture
+        const float phys_w = static_cast<float>(consoleTexture.rect.w) * static_cast<float>(WindowScale);
+        const float phys_h = static_cast<float>(consoleTexture.rect.h) * static_cast<float>(WindowScale);
+        SDL_FRect const srcF = { 0.0f, 0.0f, phys_w, phys_h };
+
+        // Destination: logical rectangle (keeps correct on-screen size)
+        SDL_FRect const dstF = {
+            static_cast<float>(consoleTexture.rect.x),
+            static_cast<float>(consoleTexture.rect.y),
+            static_cast<float>(consoleTexture.rect.w),
+            static_cast<float>(consoleTexture.rect.h)
+        };
+
+        SDL_RenderTexture(renderer, consoleTexture.texture_ptr, &srcF, &dstF);
+    }
 }
 
 void Console::init() {
@@ -334,9 +422,9 @@ void Console::init() {
     renderer = domain.getSdlRenderer();
 
     // Use a monospaced font for better alignment
-    consoleFont = TTF_OpenFont(consoleFontPath.c_str(), static_cast<int>(consoleLayout.FONT_MAX_SIZE * Nebulite::global().getRenderer().getWindowScale()));
+    consoleFont = TTF_OpenFont(consoleFontPath.c_str(), static_cast<float>(consoleLayout.FONT_MAX_SIZE));
     if (!consoleFont) {
-        Nebulite::cerr() << "TTF_OpenFont failed: " << TTF_GetError() << Nebulite::endl;
+        Nebulite::error::println("TTF_OpenFont failed for font: ", consoleFontPath);
         return;
     }
 
@@ -353,6 +441,7 @@ void Console::init() {
     initialized = true;
 }
 
+// TODO: While the calculation is correct, it could use proper usage of floating point math so every +- operation makes a difference
 uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
     // Populating the rect:
     /*
@@ -372,35 +461,57 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
 
     // Formula:
     // rect_height = (N+3)*LINE_PADDING + (N+1)*LINE_HEIGHT
+    //             = (N+3)*LINE_HEIGHT*PADDING_RATIO + (N+1)*LINE_HEIGHT
+    //             = LINE_HEIGHT * ( (N+3)*PADDING_RATIO + (N+1) )
     // LINE_HEIGHT = (rect_height - (N+3)*LINE_PADDING) / (N+1)
+    //             = rect_height / ( (N+3)*PADDING_RATIO + (N+1) )
+
+    // LINE_HEIGHT = rect_height / ( (N+3)*PADDING_RATIO + (N+1) )
+    // LINE_HEIGHT * ( (N+3)*PADDING_RATIO + (N+1) ) = rect_height
+    // LINE_HEIGHT * (N+3)*PADDING_RATIO + LINE_HEIGHT * (N+1) = rect_height
+    // LINE_HEIGHT * N * PADDING_RATIO + 3*LINE_HEIGHT*PADDING_RATIO + LINE_HEIGHT * N + LINE_HEIGHT = rect_height
+    // N * (LINE_HEIGHT * PADDING_RATIO + LINE_HEIGHT) +  3*LINE_HEIGHT*PADDING_RATIO + LINE_HEIGHT = rect_height
+    // N * (LINE_HEIGHT * (PADDING_RATIO + 1)) = rect_height - 3*LINE_HEIGHT*PADDING_RATIO - LINE_HEIGHT
+
     // N           = (rect_height - 3*LINE_PADDING) / (LINE_HEIGHT + LINE_PADDING)
+    //             = (rect_height - 3*LINE_HEIGHT*PADDING_RATIO - LINE_HEIGHT) / (LINE_HEIGHT * (PADDING_RATIO + 1))
 
     // Constraints:
     // LINE_HEIGHT <= FONT_MAX_SIZE
     // MINIMUM_LINES <= N
-    uint16_t LINE_HEIGHT = consoleLayout.FONT_MAX_SIZE;
+    WindowScale = Nebulite::global().getRenderer().getWindowScale();
+    auto LINE_HEIGHT = static_cast<uint16_t>(std::floor(static_cast<float>(consoleLayout.FONT_MAX_SIZE) / static_cast<float>(WindowScale)));
+    auto const PADDING_RATIO = consoleLayout.paddingRatio;
 
-    // See where we land for N with the maximum font size
-    auto N = static_cast<uint16_t>(std::floor(static_cast<double>(rect_height - 3 * consoleLayout.LINE_PADDING) / static_cast<double>(LINE_HEIGHT + consoleLayout.LINE_PADDING)));
+    // See where we land for N, the amount of lines, with the maximum font size
+    auto N = static_cast<uint16_t>(
+        std::floor(
+            (rect_height - 3*LINE_HEIGHT*PADDING_RATIO - LINE_HEIGHT) / (LINE_HEIGHT * (PADDING_RATIO + 1))
+        )
+    );
 
     // Reduce line height if we have less than minimum lines
     if (N < consoleLayout.MINIMUM_LINES) {
         N = consoleLayout.MINIMUM_LINES;
-        LINE_HEIGHT = (rect_height - (N + 3) * consoleLayout.LINE_PADDING) / (N + 1);
+        LINE_HEIGHT = static_cast<uint16_t>(
+            std::floor(
+                static_cast<float>(rect_height) / static_cast<float>( (N+3)*PADDING_RATIO + (N+1) )
+            )
+        );
     }
 
     // Now, line height and N are final
     // Populate y positions
     line_y_positions.clear();
+    double const startPos = rect_height - LINE_HEIGHT * PADDING_RATIO - 2 * LINE_HEIGHT;
+    double const diff = LINE_HEIGHT + LINE_HEIGHT * PADDING_RATIO;
     for (int i = 1; i < N; i++) {
         // i=0 is reserved for input line
-        line_y_positions.push_back(rect_height - consoleLayout.LINE_PADDING - 2 * LINE_HEIGHT - i * (LINE_HEIGHT + consoleLayout.LINE_PADDING));
+        line_y_positions.push_back( static_cast<int32_t>(startPos - i * diff));
     }
 
     // Set correct font size for SDL_ttf
-    WindowScale = Nebulite::global().getRenderer().getWindowScale();
-    TTF_SetFontSize(consoleFont, static_cast<int>(LINE_HEIGHT * WindowScale));
-
+    TTF_SetFontSize(consoleFont, static_cast<float>(LINE_HEIGHT * WindowScale));
     return LINE_HEIGHT;
 }
 
@@ -412,7 +523,7 @@ void Console::keyTriggerSubmit() {
         // Parse command on global level for full access to all functions
         if (auto const err = Nebulite::global().parseStr(std::string(__FUNCTION__) + " " + command); err != Constants::ErrorTable::NONE()) {
             // Cannot escalate error further, print to cerr
-            Nebulite::cerr() << err.getDescription() << Nebulite::endl;
+            Nebulite::error::println(err.getDescription());
         }
     }
     outputScrollingOffset = 0; // Reset scrolling to bottom on new input
@@ -430,120 +541,120 @@ void Console::keyTriggerScrollDown() {
     }
 }
 
-void Console::keyTriggerZoomIn(SDL_KeyboardEvent const& key) const {
+void Console::keyTriggerZoomIn() const {
     // Make sure that ctrl is held
-    if (!(key.keysym.mod & KMOD_CTRL))
+    if (!(SDL_GetModState() & SDL_KMOD_CTRL))
         return;
     if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " in"); err != Constants::ErrorTable::NONE()) {
-        Nebulite::cerr() << "Error: Failed to zoom into console: " << err.getDescription() << Nebulite::endl;
+        Nebulite::error::println("Error: Failed to zoom into console: ", err.getDescription());
     }
 }
 
-void Console::keyTriggerZoomOut(SDL_KeyboardEvent const& key) const {
+void Console::keyTriggerZoomOut() const {
     // Make sure that ctrl is held
-    if (!(key.keysym.mod & KMOD_CTRL))
+    if (!(SDL_GetModState() & SDL_KMOD_CTRL))
         return;
     if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " out"); err != Constants::ErrorTable::NONE()) {
-        Nebulite::cerr() << "Error: Failed to zoom out console: " << err.getDescription() << Nebulite::endl;
+        Nebulite::error::println("Error: Failed to zoom out console: ", err.getDescription());
     }
 }
 
 void Console::processKeyDownEvent(SDL_KeyboardEvent const& key) {
-    switch (key.keysym.sym) {
-    //------------------------------------------
-    // Text input manipulation
+switch (key.key) {
+        //------------------------------------------
+        // Text input manipulation
 
-    // Remove last character on backspace
-    case SDLK_BACKSPACE:
-        textInput.backspace();
-        break;
+        // Remove last character on backspace
+        case SDLK_BACKSPACE:
+            textInput.backspace();
+            break;
 
-    // Submit command on Enter
-    case SDLK_RETURN:
-    case SDLK_KP_ENTER:
-        keyTriggerSubmit();
-        break;
+        // Submit command on Enter
+        case SDLK_RETURN:
+        case SDLK_KP_ENTER:
+            keyTriggerSubmit();
+            break;
 
-    // Cursor movement
-    case SDLK_LEFT:
-        textInput.moveCursorLeft();
-        break;
-    case SDLK_RIGHT:
-        textInput.moveCursorRight();
-        break;
+        // Cursor movement
+        case SDLK_LEFT:
+            textInput.moveCursorLeft();
+            break;
+        case SDLK_RIGHT:
+            textInput.moveCursorRight();
+            break;
 
-    /**
-     * @todo: Implement copy/paste functionality with CTRL + C/V
-     * perhaps integrate a clipboard manager into Renderer class?
-     * Then, it could be used for both the console and other TextInput instances.
-     *
-     * For this to work properly, we should consider text handling to be only registered by one instance at a time.
-     * Perhaps we can move every keytrigger event to Renderer, and have it forward events to the active TextInput instance.
-     *
-     * Then we may have functions to move focus to objects:
-     *
-     * for Domain RenderObject:
-     * textfocus self
-     *
-     * which itself sends a "textfocus id" to the "bus" that triggers on the scope of the Renderer by using:
-     *
-     * textfocus id <renderer_object_id>
-     *
-     * Then, we could have more textfocus additions like:
-     * textfocus gui <gui_element_id>
-     * textfocus console force on/off
-     * etc.
-     *
-     * Then, we could have Renderer::setActiveTextInput(shared<TextInput>) which overwrites the current active text input, if its not forced.
-     * And on Renderer::update(), we forward all text input and key events to that active TextInput instance.
-     * Meaning this entire function would be moved to TextInput class, and Console would just set itself as active when in console mode.
-     *
-     * If a textfocus is active, we may wish to disable normal key processing from Input DomainModule.
-     *
-     * For this to work, we need to modify TextInput into two modes:
-     * - On submit, store text in vector (for console)
-     * - On submit, lose focus           (for single-line text inputs)
-     *
-     * This requires a big rework of TextInput class, we may wish to extract the core functionality of single-line text input with cursor to a separate class.
-     * - TextInput for core functionality
-     * - Use Capture class directly for console readout
-     * Since the current TextInput class has a lot logic that is the same as Capture's output log.
-     * Only thing left is to add a Capture type for commands entered.
-     */
+        /**
+         * @todo: Implement copy/paste functionality with CTRL + C/V
+         * perhaps integrate a clipboard manager into Renderer class?
+         * Then, it could be used for both the console and other TextInput instances.
+         *
+         * For this to work properly, we should consider text handling to be only registered by one instance at a time.
+         * Perhaps we can move every keytrigger event to Renderer, and have it forward events to the active TextInput instance.
+         *
+         * Then we may have functions to move focus to objects:
+         *
+         * for Domain RenderObject:
+         * textfocus self
+         *
+         * which itself sends a "textfocus id" to the "bus" that triggers on the scope of the Renderer by using:
+         *
+         * textfocus id <renderer_object_id>
+         *
+         * Then, we could have more textfocus additions like:
+         * textfocus gui <gui_element_id>
+         * textfocus console force on/off
+         * etc.
+         *
+         * Then, we could have Renderer::setActiveTextInput(shared<TextInput>) which overwrites the current active text input, if its not forced.
+         * And on Renderer::update(), we forward all text input and key events to that active TextInput instance.
+         * Meaning this entire function would be moved to TextInput class, and Console would just set itself as active when in console mode.
+         *
+         * If a textfocus is active, we may wish to disable normal key processing from Input DomainModule.
+         *
+         * For this to work, we need to modify TextInput into two modes:
+         * - On submit, store text in vector (for console)
+         * - On submit, lose focus           (for single-line text inputs)
+         *
+         * This requires a big rework of TextInput class, we may wish to extract the core functionality of single-line text input with cursor to a separate class.
+         * - TextInput for core functionality
+         * - Use Capture class directly for console readout
+         * Since the current TextInput class has a lot logic that is the same as Capture's output log.
+         * Only thing left is to add a Capture type for commands entered.
+         */
 
-    //------------------------------------------
-    // UP/DOWN to cycle through past commands
-    case SDLK_UP:
-        textInput.history_up();
-        break;
-    case SDLK_DOWN:
-        textInput.history_down();
-        break;
+        //------------------------------------------
+        // UP/DOWN to cycle through past commands
+        case SDLK_UP:
+            textInput.history_up();
+            break;
+        case SDLK_DOWN:
+            textInput.history_down();
+            break;
 
-    //------------------------------------------
-    // Scroll through output with PAGE UP/DOWN
-    case SDLK_PAGEUP:
-        keyTriggerScrollUp();
-        break;
-    case SDLK_PAGEDOWN:
-        keyTriggerScrollDown();
-        break;
+        //------------------------------------------
+        // Scroll through output with PAGE UP/DOWN
+        case SDLK_PAGEUP:
+            keyTriggerScrollUp();
+            break;
+        case SDLK_PAGEDOWN:
+            keyTriggerScrollDown();
+            break;
 
-    //------------------------------------------
-    // Zoom in/out with +/- keys
-    case SDLK_PLUS:
-    case SDLK_KP_PLUS:
-        keyTriggerZoomIn(key);
-        break;
+        //------------------------------------------
+        // Zoom in/out with +/- keys
+        case SDLK_PLUS:
+        case SDLK_KP_PLUS:
+            keyTriggerZoomIn();
+            break;
 
-    case SDLK_MINUS:
-    case SDLK_KP_MINUS:
-        keyTriggerZoomOut(key);
-        break;
+        case SDLK_MINUS:
+        case SDLK_KP_MINUS:
+            keyTriggerZoomOut();
+            break;
 
-    //------------------------------------------
-    default:
-        break;
+        //------------------------------------------
+        default:
+            break;
 
     }
 }
@@ -551,14 +662,14 @@ void Console::processKeyDownEvent(SDL_KeyboardEvent const& key) {
 void Console::processEvents() {
     for (auto const& event : *events) {
         switch (event.type) {
-        case SDL_TEXTINPUT:
+        case SDL_EVENT_TEXT_INPUT:
             // Do not append if ctrl is held (to allow copy/paste and other shortcuts)
-            if (event.key.keysym.mod & KMOD_CTRL) {
+            if (SDL_GetModState() & SDL_KMOD_CTRL) {
                 break;
             }
             textInput.append(event.text.text);
             break;
-        case SDL_KEYDOWN:
+        case SDL_EVENT_KEY_DOWN:
             processKeyDownEvent(event.key);
             break;
         default:
@@ -574,7 +685,7 @@ void Console::processMode() {
 
         // Check if texture is valid
         if (!consoleTexture.texture_ptr) {
-            Nebulite::cerr() << "Could not attach Console: Console texture is null!" << Nebulite::endl;
+            Nebulite::error::println("Could not attach Console: Console texture is null!");
             return;
         }
 
@@ -672,10 +783,11 @@ Constants::Error Console::consoleSetBackground(int const argc, char** argv) {
 
     // Create texture from surface
     SDL_Texture* backgroundTexture = SDL_CreateTextureFromSurface(renderer, imageSurface);
-    SDL_FreeSurface(imageSurface);
+    SDL_DestroySurface(imageSurface);
     if (!backgroundTexture) {
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_INVALID();
     }
+    SDL_SetTextureScaleMode(backgroundTexture, SDL_SCALEMODE_NEAREST);
 
     // Set as console background
     backgroundImageTexture = backgroundTexture;

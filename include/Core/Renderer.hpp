@@ -13,8 +13,8 @@
 // Standard library
 
 // External
-#include <SDL.h>
-#include <SDL_ttf.h>
+#include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
@@ -330,6 +330,13 @@ public:
     [[nodiscard]] SDL_Renderer* getSdlRenderer() const { return renderer; }
 
     /**
+     * @brief Gets the SDL_Window instance.
+     * @details Allows for access to the underlying SDL window for custom operations.
+     * @return The SDL_Window instance.
+     */
+    [[nodiscard]] SDL_Window* getSdlWindow() const { return window; }
+
+    /**
      * @brief Gets the RenderObject from its ID.
      * @param id The ID of the RenderObject to retrieve.
      * @return A pointer to the RenderObject, or nullptr if not found.
@@ -503,12 +510,12 @@ private:
 
     /**
      * @brief Renders a single object to the screen.
+     * @details Prints error messages if the object cannot be rendered.
      * @param obj Pointer to the RenderObject to render.
      * @param dispPosX The X position on the screen to render the object.
      * @param dispPosY The Y position on the screen to render the object.
-     * @return SDL_Error code from SDL_RenderCopy, 0 if successful.
      */
-    int renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
+    void renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
 
     //------------------------------------------
     // For FPS Count and Control

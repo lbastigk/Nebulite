@@ -49,7 +49,7 @@ Constants::Error Input::update() {
 // Private Functions
 
 void Input::map_key_names() {
-    for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++
+    for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++
          scancode) {
         char const* nameRaw = SDL_GetScancodeName(
             static_cast<SDL_Scancode>(scancode));
@@ -103,37 +103,28 @@ void Input::writeCurrentAndDeltaInputs() {
     moduleScope.set(moduleScope.getRootScope() + "mouse.current.Y", mouse.posY);
     moduleScope.set(moduleScope.getRootScope() + "mouse.delta.X", mouse.posX - mouse.lastPosX);
     moduleScope.set(moduleScope.getRootScope() + "mouse.delta.Y", mouse.posY - mouse.lastPosY);
-    moduleScope.set(moduleScope.getRootScope() + "mouse.current.left", calcMouseState(SDL_BUTTON(SDL_BUTTON_LEFT), mouse.state));
-    moduleScope.set(moduleScope.getRootScope() + "mouse.current.right", calcMouseState(SDL_BUTTON(SDL_BUTTON_RIGHT), mouse.state));
-    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.left", calcMouseDelta(SDL_BUTTON(SDL_BUTTON_LEFT), mouse.state, mouse.lastState));
-    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.right", calcMouseDelta(SDL_BUTTON(SDL_BUTTON_RIGHT), mouse.state, mouse.lastState));
+    moduleScope.set(moduleScope.getRootScope() + "mouse.current.left", calcMouseState(SDL_BUTTON_MASK(SDL_BUTTON_LEFT), mouse.state));
+    moduleScope.set(moduleScope.getRootScope() + "mouse.current.right", calcMouseState(SDL_BUTTON_MASK(SDL_BUTTON_RIGHT), mouse.state));
+    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.left", calcMouseDelta(SDL_BUTTON_MASK(SDL_BUTTON_LEFT), mouse.state, mouse.lastState));
+    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.right", calcMouseDelta(SDL_BUTTON_MASK(SDL_BUTTON_RIGHT), mouse.state, mouse.lastState));
 
     //------------------------------------------
     // Keyboard
-    uint8_t const* keyState = SDL_GetKeyboardState(nullptr);
-    for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++
-         scancode) {
+    auto const* keyState = SDL_GetKeyboardState(nullptr);
+    for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++scancode) {
         if (!keyNames[scancode].empty()) {
             // Retrieve state, store previous state
-            // If key is currently pressed
-            bool const currentPressed = keyState[scancode] != 0;
+            bool const currentPressed = static_cast<bool>(keyState[scancode]);
             bool const prevPressed = prevKey[scancode];
             prevKey[scancode] = currentPressed;
 
-            // Compute delta:
-            // ->  1 = pressed now but not before
-            // -> -1 = released now but was pressed before,
-            // ->  0 = no change
             int delta = 0;
             if (currentPressed && !prevPressed)
                 delta = 1;
             else if (!currentPressed && prevPressed)
                 delta = -1;
 
-            // Set current state (true/false as int)
             *currentKey[scancode] = static_cast<double>(currentPressed);
-
-            // Set delta
             *deltaKey[scancode] = static_cast<double>(delta);
         }
     }
@@ -147,7 +138,7 @@ void Input::resetDeltaValues() const {
     moduleScope.set(moduleScope.getRootScope() + "mouse.delta.right", 0);
 
     // 2.) Keyboard
-    for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_NUM_SCANCODES; ++
+    for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++
          scancode) {
         if (!keyNames[scancode].empty()) {
             std::string deltaPath =

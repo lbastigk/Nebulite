@@ -10,7 +10,7 @@
 // Includes
 
 // External
-#include <SDL.h>    // Needed to access SDL input events
+#include <SDL3/SDL.h>    // Needed to access SDL input events
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
@@ -98,8 +98,8 @@ private:
      * @brief Stores current and last Position/State of the mouse.
      */
     struct Mouse {
-        int posX = 0;
-        int posY = 0;
+        float posX = 0;
+        float posY = 0;
         int lastPosX = 0;
         int lastPosY = 0;
         Uint32 lastState = 0;
@@ -109,7 +109,7 @@ private:
     /**
      * @brief Array to store key names corresponding to SDL scancodes.
      */
-    std::string keyNames[SDL_NUM_SCANCODES] = {""};
+    std::string keyNames[SDL_SCANCODE_COUNT] = {""};
 
     /**
      * @brief Array to store previous key states.
@@ -117,19 +117,19 @@ private:
      * We do not need to store current key states,
      * as SDL does that for us.
      */
-    bool prevKey[SDL_NUM_SCANCODES] = {false}; // Previous key states
+    bool prevKey[SDL_SCANCODE_COUNT] = {false}; // Previous key states
 
     /**
      * @brief Array to store pointers to double values representing the delta states of keys.
      * Represents their values inside the global document.
      */
-    double* deltaKey[SDL_NUM_SCANCODES] = {nullptr}; // Pointers to delta key states in global doc
+    double* deltaKey[SDL_SCANCODE_COUNT] = {nullptr}; // Pointers to delta key states in global doc
 
     /**
      * @brief Array to store pointers to double values representing the current states of keys.
      * Represents their values inside the global document.
      */
-    double* currentKey[SDL_NUM_SCANCODES] = {nullptr}; // Pointers to current key states in global doc
+    double* currentKey[SDL_SCANCODE_COUNT] = {nullptr}; // Pointers to current key states in global doc
 };
 } // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_RRDM_INPUT_HPP

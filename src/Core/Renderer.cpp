@@ -5,9 +5,7 @@
 #include <random>
 
 // External
-#include <SDL.h>
-#include <SDL_ttf.h>
-#include <SDL_image.h>
+#include <SDL3_image/SDL_image.h>
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
@@ -128,20 +126,17 @@ void Renderer::initSDL() {
     setupDisplayValues();
 
     //Create SDL window
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+    if (!SDL_Init(SDL_INIT_VIDEO) && SDL_GetError()[0] != '\0') {
         // SDL initialization failed
         Nebulite::error::println("SDL_Init Error: ", SDL_GetError());
     }
     // Define window via x|y|w|h
-    int constexpr x = SDL_WINDOWPOS_CENTERED;
-    int constexpr y = SDL_WINDOWPOS_CENTERED;
     int const w = domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0);
     int const h = domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 0);
 
-    uint32_t flags = *headless ? SDL_WINDOW_HIDDEN : SDL_WINDOW_SHOWN;
-    //flags = flags | SDL_WINDOW_RESIZABLE; // Disabled for now, as it causes issues with the logical size rendering
+    uint32_t flags = *headless ? SDL_WINDOW_HIDDEN : 0; //SDL_WINDOW_SHOWN;
     flags = flags | SDL_WINDOW_OPENGL;
-    window = SDL_CreateWindow("Nebulite", x, y, w, h, flags);
+    window = SDL_CreateWindow("Nebulite", w, h, flags);
     if (!window) {
         // Window creation failed
         Nebulite::error::println("SDL_CreateWindow Error: ", SDL_GetError());
@@ -152,16 +147,17 @@ void Renderer::initSDL() {
     // Renderer
 
     // Create a renderer
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    renderer = SDL_CreateRenderer(window, nullptr);
     if (!renderer) {
         Nebulite::error::println("Renderer creation failed: ", SDL_GetError());
     }
 
     // Set virtual rendering size
-    SDL_RenderSetLogicalSize(
+    SDL_SetRenderLogicalPresentation(
         renderer,
         w,
-        h
+        h,
+        SDL_LOGICAL_PRESENTATION_INTEGER_SCALE
     );
 
     //------------------------------------------
@@ -176,8 +172,9 @@ void Renderer::initSDL() {
     // Fonts
 
     // Initialize SDL_ttf
-    if (TTF_Init() < 0) {
+    if (!TTF_Init()) {
         // Handle SDL_ttf initialization error
+        Nebulite::error::println("TTF_Init Error!");
         SDL_Quit(); // Clean up SDL
     }
     loadFonts();
@@ -186,16 +183,16 @@ void Renderer::initSDL() {
     // Audio
 
     // Init
-    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+    if (!SDL_Init(SDL_INIT_AUDIO) && SDL_GetError()[0] != '\0') {
         Nebulite::error::println("SDL_Init Error: ", SDL_GetError());
     } else {
         audio.desired.freq = 44100;
-        audio.desired.format = AUDIO_S16SYS;
+        audio.desired.format = SDL_AUDIO_S16;
         audio.desired.channels = 1;
-        audio.desired.samples = 1024;
-        audio.desired.callback = nullptr;
+        //audio.desired.samples = 1024;
+        //audio.desired.callback = nullptr;
 
-        audio.device = SDL_OpenAudioDevice(nullptr, 0, &audio.desired, &audio.obtained, 0);
+        audio.device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audio.desired);
         if (audio.device == 0) {
             Nebulite::error::println("Failed to open audio device: ", SDL_GetError());
         } else {
@@ -222,7 +219,7 @@ void Renderer::loadFonts() {
     font = TTF_OpenFont(fontPath.c_str(), FontSizeGeneral); // Adjust size as needed
     if (font == nullptr) {
         // Handle font loading error
-        Nebulite::error::println(TTF_GetError(), " | ", fontPath);
+        Nebulite::error::println("Failed to load font: ", fontPath);
     }
 }
 
@@ -271,7 +268,7 @@ Constants::Error Renderer::update() {
         events.push_back(event);
 
         // Handle quit event
-        if (event.type == SDL_QUIT) { quit = true; }
+        if (event.type == SDL_EVENT_QUIT) { quit = true; }
     }
 
     //------------------------------------------
@@ -343,12 +340,28 @@ void Renderer::reinsertAllObjects() {
 // Special Functions
 
 void Renderer::beep() const {
-    // Beep sound effect
-    if (audioInitialized) {
-        auto const audioLength = static_cast<uint32_t>(basicAudioWaveforms.samples * sizeof(int16_t));
-        SDL_QueueAudio(audio.device, basicAudioWaveforms.squareBuffer->data(), audioLength);
-        SDL_PauseAudioDevice(audio.device, 0); // Start playing
+    if (!audioInitialized)
+        return;
+
+    // SDL3: use an SDL_AudioStream to enqueue PCM data (lazy-initialized)
+    static SDL_AudioStream* s_beepStream = nullptr;
+    int const audioLength = static_cast<int>(basicAudioWaveforms.samples * sizeof(int16_t));
+
+    if (!s_beepStream) {
+        s_beepStream = SDL_CreateAudioStream(&audio.desired, &audio.desired);
+        if (!s_beepStream) {
+            Nebulite::error::println("Failed to create audio stream: ", SDL_GetError());
+            return;
+        }
     }
+
+    if (SDL_PutAudioStreamData(s_beepStream, basicAudioWaveforms.squareBuffer->data(), audioLength) != 0) {
+        Nebulite::error::println("Failed to push audio to stream: ", SDL_GetError());
+        return;
+    }
+
+    // Ensure the device is running; SDL3's pause API uses a single-argument form
+    SDL_PauseAudioDevice(audio.device);
 }
 
 bool Renderer::snapshot(std::string link) const {
@@ -364,25 +377,15 @@ bool Renderer::snapshot(std::string link) const {
         SDL_GetWindowSize(window, &width, &height);
     } else {
         // Headless mode - get renderer output size
-        SDL_GetRendererOutputSize(renderer, &width, &height);
+        SDL_GetCurrentRenderOutputSize(renderer, &width, &height);
     }
 
     // Create surface to capture pixels
-    SDL_Surface* surface = SDL_CreateRGBSurface(0, width, height, 32,
-                                                0x00ff0000, // Red mask
-                                                0x0000ff00, // Green mask
-                                                0x000000ff, // Blue mask
-                                                0xff000000); // Alpha mask
-
+    SDL_Rect const fullScreenRect = {0, 0, width, height};
+    auto const surface = SDL_RenderReadPixels(renderer, &fullScreenRect);
     if (!surface) {
-        Nebulite::error::println("Failed to create surface for snapshot: ", SDL_GetError());
-        return false;
-    }
-
-    // Read pixels from renderer
-    if (SDL_RenderReadPixels(renderer, nullptr, SDL_PIXELFORMAT_ARGB8888, surface->pixels, surface->pitch) != 0) {
         Nebulite::error::println("Failed to read pixels for snapshot: ", SDL_GetError());
-        SDL_FreeSurface(surface);
+        SDL_DestroySurface(surface);
         return false;
     }
 
@@ -406,15 +409,13 @@ bool Renderer::snapshot(std::string link) const {
     }
 
     // Save surface as PNG
-    int const result = IMG_SavePNG(surface, link.c_str());
-
-    // Cleanup
-    SDL_FreeSurface(surface);
-
-    if (result != 0) {
-        Nebulite::error::println("Failed to save snapshot: ", IMG_GetError());
+    if (int const result = IMG_SavePNG(surface, link.c_str()); result != 0 && SDL_GetError()[0] != '\0') {
+        Nebulite::error::println("Failed to save snapshot!");
         return false;
     }
+
+    // Cleanup
+    SDL_DestroySurface(surface);
     return true;
 }
 
@@ -465,26 +466,17 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
         return;
     }
 
+    // Set the new resolution in the workspace
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResX, w);
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResY, h);
 
-    // Update the window size
-    SDL_SetWindowSize(
-        window,
-        domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 360) * WindowScale,
-        domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 360) * WindowScale
-        );
-    SDL_RenderSetLogicalSize(
-        renderer,
-        domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 360),
-        domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 360)
-        );
+    // Set the physical window size
+    SDL_SetWindowSize(window, w*WindowScale, h*WindowScale);
 
-    // Turn off console mode
-    // Not needed anymore, console should dynamically adapt to new window size
-    // consoleMode = false;
+    // Use integer logical presentation so scaling is done in integer steps (crisp pixels).
+    SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
 
-    // Reinsert objects, due to new tile size
+    // Reinsert objects due to new tile / logical size
     reinsertAllObjects();
 }
 
@@ -500,15 +492,14 @@ void Renderer::moveCam(int const& dX, int const& dY) const {
 }
 
 void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle) const {
+    int newPosX = X;
+    int newPosY = Y;
     if (isMiddle) {
-        int const newPosX = X - domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0) / 2;
-        int const newPosY = Y - domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 0) / 2;
-        domainScope.set<int>(Constants::KeyNames::Renderer::positionX, newPosX);
-        domainScope.set<int>(Constants::KeyNames::Renderer::positionY, newPosY);
-    } else {
-        domainScope.set<int>(Constants::KeyNames::Renderer::positionX, X);
-        domainScope.set<int>(Constants::KeyNames::Renderer::positionY, Y);
+        newPosX -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0) / 2;
+        newPosY -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 0) / 2;
     }
+    domainScope.set<int>(Constants::KeyNames::Renderer::positionX, newPosX);
+    domainScope.set<int>(Constants::KeyNames::Renderer::positionY, newPosY);
 }
 
 //------------------------------------------
@@ -557,7 +548,6 @@ void Renderer::renderFrame() {
     //------------------------------------------
     // Rendering
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
-    int error = 0;
 
     //Render Objects
     //For all layers, starting at 0
@@ -578,10 +568,7 @@ void Renderer::renderFrame() {
             for (auto const& [objectsInThisBatch, _] : env.getContainerAt(tileX, tileY, layer)) {
                 // For all objects in batch
                 for (auto const& obj : objectsInThisBatch) {
-                    error = renderObjectToScreen(obj, dispPosX, dispPosY);
-                    if (error != 0) {
-                        Nebulite::error::println("Error rendering object ID ", obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0), ": ", error);
-                    }
+                    renderObjectToScreen(obj, dispPosX, dispPosY);
                 }
             }
         }
@@ -591,12 +578,18 @@ void Renderer::renderFrame() {
             if (!texture) {
                 continue; // Skip if texture is null
             }
-            SDL_RenderCopy(renderer, texture, nullptr, rect);
+            SDL_FRect const rectF = {
+                static_cast<float>(rect->x),
+                static_cast<float>(rect->y),
+                static_cast<float>(rect->w),
+                static_cast<float>(rect->h)
+            };
+            SDL_RenderTexture(renderer, texture, nullptr, &rectF);
         }
     }
 }
 
-int Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY) {
+void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY) {
     //------------------------------------------
     // Texture Loading
 
@@ -635,17 +628,32 @@ int Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int c
             " texture with path '",
             innerDirectory,
             "' not found");
-        return -1;
     }
 
     //------------------------------------------
     // Rendering
 
     // Render the texture
-    int const error_sprite = SDL_RenderCopy(renderer, obj->getSDLTexture(), obj->getSrcRect(), obj->getDstRect());
+    SDL_Rect const* src = obj->getSrcRect();
+    SDL_FRect srcF = {};
+    SDL_FRect const* srcFP = nullptr;
+    if (src) {
+        srcF = {static_cast<float>(src->x), static_cast<float>(src->y), static_cast<float>(src->w), static_cast<float>(src->h)};
+        srcFP = &srcF;
+    }
+    SDL_Rect const* dst = obj->getDstRect();
+    SDL_FRect dstF = {};
+    SDL_FRect const* dstFP = nullptr;
+    if (dst) {
+        dstF = {static_cast<float>(dst->x), static_cast<float>(dst->y), static_cast<float>(dst->w), static_cast<float>(dst->h)};
+        dstFP = &dstF;
+    }
+    if (SDL_RenderTexture(renderer, obj->getSDLTexture(), srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
+        auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
+        Nebulite::error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
+    }
 
     // Render the text
-    int error_text = 0;
     if (obj->isTextRenderingEnabled()) {
         obj->calculateText(
             renderer,
@@ -654,16 +662,18 @@ int Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int c
             dispPosY
             );
         if (obj->getTextTexture() && obj->getTextRect()) {
-            error_text = SDL_RenderCopy(renderer, obj->getTextTexture(), nullptr, obj->getTextRect());
+            SDL_FRect const textRectF = SDL_FRect{
+                static_cast<float>(obj->getTextRect()->x),
+                static_cast<float>(obj->getTextRect()->y),
+                static_cast<float>(obj->getTextRect()->w),
+                static_cast<float>(obj->getTextRect()->h)
+            };
+            if (SDL_RenderTexture(renderer, obj->getTextTexture(), nullptr, &textRectF) != 0 && SDL_GetError()[0] != '\0') {
+                auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
+                Nebulite::error::println("Error rendering text for RenderObject ID ", id, ": ", SDL_GetError());
+            }
         }
     }
-
-    //------------------------------------------
-    // Return
-    if (error_sprite != 0) {
-        return error_sprite;
-    }
-    return error_text;
 }
 
 void Renderer::renderFPS() const {
@@ -674,11 +684,11 @@ void Renderer::renderFPS() const {
     std::string const fpsText = "FPS: " + std::to_string(fps.real);
 
     // Define the destination rectangle for rendering the text
-    SDL_Rect const textRect = {
-        10,
-        10,
-        static_cast<int>(fontSize * static_cast<int>(fpsText.length())),
-        static_cast<int>(fontSize * 1.5)
+    SDL_FRect const textRect = {
+        static_cast<float>(10.0) / static_cast<float>(WindowScale),
+        static_cast<float>(10.0) / static_cast<float>(WindowScale),
+        static_cast<float>(fontSize * static_cast<double>(fpsText.length())) / WindowScale,
+        static_cast<float>(fontSize * 1.5) / WindowScale
     }; // Adjust position as needed
 
     // Clear the area where the FPS text will be rendered
@@ -686,16 +696,16 @@ void Renderer::renderFPS() const {
     SDL_RenderFillRect(renderer, &textRect);
 
     // Create a surface with the text
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, fpsText.c_str(), textColor);
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, fpsText.c_str(), 0, textColor);
 
     // Create a texture from the text surface
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
 
     // Render the text texture
-    SDL_RenderCopy(renderer, textTexture, nullptr, &textRect);
+    SDL_RenderTexture(renderer, textTexture, nullptr, &textRect);
 
     // Free the text surface and texture
-    SDL_FreeSurface(textSurface);
+    SDL_DestroySurface(textSurface);
     SDL_DestroyTexture(textTexture);
 }
 
@@ -707,7 +717,7 @@ void Renderer::showFrame() const {
 // Texture-Related
 
 void Renderer::loadTexture(std::string const& link) {
-    if (SDL_Texture* texture = loadTextureToMemory(link)) {
+    if (SDL_Texture* texture = loadTextureToMemory(link) ; texture != nullptr) {
         TextureContainer[link] = texture;
     }
 }
@@ -746,7 +756,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
 
     // Create texture from surface
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface); // Free the surface after creating texture
+    SDL_DestroySurface(surface); // Free the surface after creating texture
 
     // Check for texture issues
     if (!texture) {
@@ -754,7 +764,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
         return nullptr;
     }
 
-    // Store texture in container
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
     return texture;
 }
 

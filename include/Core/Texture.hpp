@@ -10,7 +10,7 @@
 // Includes
 
 // External
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 // Nebulite
 #include "Interaction/Execution/Domain.hpp"

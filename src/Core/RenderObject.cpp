@@ -92,7 +92,7 @@ void RenderObject::init() {
 
 RenderObject::~RenderObject() {
     if (textSurface) {
-        SDL_FreeSurface(textSurface);
+        SDL_DestroySurface(textSurface);
         textSurface = nullptr;
     }
 
@@ -147,10 +147,10 @@ SDL_Rect* RenderObject::getDstRect() {
 
 void RenderObject::calculateDstRect() {
     dstRect = {
-        static_cast<int>(floor(*refs.posX)),
-        static_cast<int>(floor(*refs.posY)),
-        static_cast<int>(floor(*refs.pixelSizeX)), // Set the desired width
-        static_cast<int>(floor(*refs.pixelSizeY)), // Set the desired height
+        static_cast<int>(*refs.posX),
+        static_cast<int>(*refs.posY),
+        static_cast<int>(*refs.pixelSizeX), // Set the desired width
+        static_cast<int>(*refs.pixelSizeY) // Set the desired height
     };
 }
 
@@ -282,10 +282,10 @@ void RenderObject::calculateText(SDL_Renderer* renderer, TTF_Font* font, int con
 
         // Create texture
         if (!text.empty() && font && renderer) {
-            textSurface = TTF_RenderText_Solid(font, text.c_str(), textColor);
+            textSurface = TTF_RenderText_Solid(font, text.c_str(), 0, textColor);
             if (textSurface) {
                 textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-                SDL_FreeSurface(textSurface); // Free surface after creating texture
+                SDL_DestroySurface(textSurface); // Free surface after creating texture
                 textSurface = nullptr;
             }
         }
