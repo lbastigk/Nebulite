@@ -1,4 +1,13 @@
 ############################################################
+## Include CMake files
+include(${CMAKE_SOURCE_DIR}/Tools/CMake/External/dependencies.cmake)
+include(${CMAKE_SOURCE_DIR}/Tools/CMake/External/initmodules.cmake)
+include(${CMAKE_SOURCE_DIR}/Tools/CMake/External/sdlsettings.cmake)
+include(${CMAKE_SOURCE_DIR}/Tools/CMake/warnings.cmake)
+include(${CMAKE_SOURCE_DIR}/Tools/CMake/binarysettings.cmake)
+include(${CMAKE_SOURCE_DIR}/Tools/CMake/commonsources.cmake)
+
+############################################################
 ## General
 cmake_minimum_required(VERSION 3.16)
 project(Nebulite LANGUAGES C CXX ASM_NASM)
@@ -14,6 +23,9 @@ if(ASM_EXECUTABLE)
 endif()
 enable_language(ASM)
 
+# Setup SDL settings
+sdl_setup()
+
 # Compatibility settings + test disabling
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "Compatibility for older externals" FORCE)
 set(BUILD_TESTING OFF CACHE BOOL "Disable building tests" FORCE)
@@ -28,15 +40,6 @@ message(STATUS "Starting configuration for project Nebulite")
 message(STATUS "System: ${CMAKE_SYSTEM_NAME}")
 message(STATUS "Source dir: ${CMAKE_SOURCE_DIR}")
 message(STATUS "Binary dir: ${CMAKE_BINARY_DIR}")
-
-############################################################
-## Include CMake files
-include(${CMAKE_SOURCE_DIR}/Tools/CMake/External/dependencies.cmake)
-include(${CMAKE_SOURCE_DIR}/Tools/CMake/External/initmodules.cmake)
-include(${CMAKE_SOURCE_DIR}/Tools/CMake/External/sdlsettings.cmake)
-include(${CMAKE_SOURCE_DIR}/Tools/CMake/warnings.cmake)
-include(${CMAKE_SOURCE_DIR}/Tools/CMake/binarysettings.cmake)
-include(${CMAKE_SOURCE_DIR}/Tools/CMake/commonsources.cmake)
 
 ############################################################
 ## Git submodule initialization and update
