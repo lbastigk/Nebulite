@@ -1,15 +1,10 @@
-# Linux-specific build configuration
-# This file contains Linux-specific CMake configuration
-
 if(NOT UNIX OR APPLE)
     message(WARNING "linuxbuild.cmake is intended for Linux builds only")
     return()
 endif()
 
+######################################################
 message(STATUS "Loading Linux build configuration...")
-
-# Linux-specific compile definitions (if any)
-# add_compile_definitions(LINUX_SPECIFIC_FLAG)
 
 # Linux-specific configuration
 function(configure_linux target_name)
@@ -22,7 +17,7 @@ function(configure_linux target_name)
         pthread     # Threading
     )
     
-    message(STATUS "SDL3 configured for Linux")
+    message(STATUS "${target_name} configured for Linux")
 endfunction()
 
 message(STATUS "Linux build configuration loaded successfully")
