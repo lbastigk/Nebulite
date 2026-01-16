@@ -1,27 +1,21 @@
 # Spawn a bunch of object
 echo Use massif to track memory usage
 echo Expected result: Memory usage goes up, then down once objects are deleted.
-set-res 1000 1000
+set-res 500 500
 set-fps 1000
-time set-fixed-dt 20
+time set-fixed-dt 150
 
 spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc
-wait 10
-spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc
-wait 10
-spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc
-wait 10
-spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc
-wait 10
-spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc
-wait 10
-spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc
-wait 10
-spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc
-wait 10
+always eval echo Frame: $04i({global.time.frameCount}), Memory: $07.1f({global.debug.memory.residentMB})MB, Runtime dt: $04i({global.time.runtime.dt_ms})ms
 
+# Check for high dt values indicating a memory leak, stop the test if it gets too high
+# Making sure at least some are rendered first
+always if $(gt({global.time.runtime.dt},2)*gt({global.time.frameCount},100)) echo "WARNING: High dt detected! Memory leak is likely occurring."
+always if $(gt({global.time.runtime.dt},9)*gt({global.time.frameCount},100)) echo "Stopping test due to excessive dt."
+always if $(gt({global.time.runtime.dt},9)*gt({global.time.frameCount},100)) env deload
 
-wait 500
+# Let it run for a while
+wait 1040
 env deload
 wait 100
 exit
