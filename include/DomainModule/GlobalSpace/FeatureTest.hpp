@@ -55,7 +55,7 @@ public:
         //------------------------------------------
         // Binding functions to the FuncTree
         (void)bindCategory(category_feature_test_name, category_feature_test_desc);
-        BINDFUNCTION(&FeatureTest::testFuncTree, testFuncTree_name, testFuncTree_desc);
+        BIND_FUNCTION(&FeatureTest::testFuncTree, testFuncTree_name, testFuncTree_desc);
     }
 };
 } // namespace Nebulite::DomainModule::GlobalSpace

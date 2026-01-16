@@ -28,8 +28,8 @@ class BroadCastListenPairs {
 public:
     explicit BroadCastListenPairs(std::atomic<bool>& stopFlag) : threadState{ .stopFlag = stopFlag }{
         // Initialize frame containers
-        thisFrame = new Data::PairingContainer();
-        nextFrame = new Data::PairingContainer();
+        thisFrame = new PairingContainer();
+        nextFrame = new PairingContainer();
 
         // Start worker thread
         workerThread = std::thread([this] {
@@ -82,8 +82,8 @@ public:
     void waitForWorkFinished() const ;
 
 private:
-    Data::PairingContainer* thisFrame = nullptr;
-    Data::PairingContainer* nextFrame = nullptr;
+    PairingContainer* thisFrame = nullptr;
+    PairingContainer* nextFrame = nullptr;
 
     // Threading variables
     struct ThreadState {

@@ -100,7 +100,8 @@ public:
     friend class Data::TaskQueue;
 
     // Allow ContextBase to demote to ContextScope
-    friend class Nebulite::Interaction::ContextBase;
+    // NOLINTNEXTLINE
+    friend class Interaction::ContextBase; // clangd marks the 'Interaction::' part as redundant, but it's needed
 
     // Assignments and Expressions need access to set/get document values
     friend class Logic::Assignment;
@@ -116,7 +117,7 @@ public:
     friend class Rules::Construction::RulesetCompiler;
 
     // Initializer needs access to share scopes
-    friend class ::Nebulite::DomainModule::Initializer;
+    friend class Nebulite::DomainModule::Initializer;
 
 private:
     /**
@@ -138,7 +139,6 @@ namespace Nebulite::Interaction::Execution {
  *        This allows for a simplified interface for accessing common domain functionality.
  */
 class DomainBase : public DocumentAccessor {
-private:
     /**
      * @brief The name of the domain.
      */
@@ -300,7 +300,6 @@ protected:
  */
 template <typename DomainType>
 class Domain : public DomainBase {
-private:
     /**
      * @brief Stores all available modules
      */

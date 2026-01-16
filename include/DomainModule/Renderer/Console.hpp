@@ -71,8 +71,8 @@ public:
         // we cannot do much here, since renderer might not be initialized yet
         // so we do the actual initialization in update() when needed
         (void)bindCategory(console_name, console_desc);
-        BINDFUNCTION(&Console::consoleZoom, consoleZoom_name, consoleZoom_desc);
-        BINDFUNCTION(&Console::consoleSetBackground, consoleSetBackground_name, consoleSetBackground_desc);
+        BIND_FUNCTION(&Console::consoleZoom, consoleZoom_name, consoleZoom_desc);
+        BIND_FUNCTION(&Console::consoleSetBackground, consoleSetBackground_name, consoleSetBackground_desc);
     }
 
 private:

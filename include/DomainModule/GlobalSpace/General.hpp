@@ -220,19 +220,19 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, General) {
-        BINDFUNCTION(&General::eval, eval_name, eval_desc);
-        BINDFUNCTION(&General::exit, exit_name, exit_desc);
-        BINDFUNCTION(&General::wait, wait_name, wait_desc);
-        BINDFUNCTION(&General::task, task_name, task_desc);
-        BINDFUNCTION(&General::func_for, func_for_name, func_for_desc);
-        BINDFUNCTION(&General::func_if, func_if_name, func_if_desc);
-        BINDFUNCTION(&General::func_return, func_return_name, func_return_desc);
-        BINDFUNCTION(&General::echo, echo_name, echo_desc);
-        BINDFUNCTION(&General::func_assert, assert_name, assert_desc);
-        BINDFUNCTION(&General::always, always_name, always_desc);
-        BINDFUNCTION(&General::alwaysClear, alwaysClear_name, alwaysClear_desc);
-        BINDFUNCTION(&General::nop, nop_name, nop_desc);
-        BINDFUNCTION(&General::inScope, inScope_name, inScope_desc);
+        BIND_FUNCTION(&General::eval, eval_name, eval_desc);
+        BIND_FUNCTION(&General::exit, exit_name, exit_desc);
+        BIND_FUNCTION(&General::wait, wait_name, wait_desc);
+        BIND_FUNCTION(&General::task, task_name, task_desc);
+        BIND_FUNCTION(&General::func_for, func_for_name, func_for_desc);
+        BIND_FUNCTION(&General::func_if, func_if_name, func_if_desc);
+        BIND_FUNCTION(&General::func_return, func_return_name, func_return_desc);
+        BIND_FUNCTION(&General::echo, echo_name, echo_desc);
+        BIND_FUNCTION(&General::func_assert, assert_name, assert_desc);
+        BIND_FUNCTION(&General::always, always_name, always_desc);
+        BIND_FUNCTION(&General::alwaysClear, alwaysClear_name, alwaysClear_desc);
+        BIND_FUNCTION(&General::nop, nop_name, nop_desc);
+        BIND_FUNCTION(&General::inScope, inScope_name, inScope_desc);
     }
 };
 } // namespace Nebulite::DomainModule::GlobalSpace

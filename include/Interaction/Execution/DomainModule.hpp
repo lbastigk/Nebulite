@@ -56,7 +56,7 @@ bool constexpr endsWithNewline(std::string_view const& str) {
         Settings \
     )
 
-#define BINDFUNCTION(func, name,desc) \
+#define BIND_FUNCTION(func, name,desc) \
 static_assert(endsWithNewline(desc), "Function description must end with a newline character."); \
     bindFunction(func, name, desc)
 

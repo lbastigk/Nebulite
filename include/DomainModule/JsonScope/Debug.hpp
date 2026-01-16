@@ -45,7 +45,7 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::JsonScope, Debug) {
         // Binding
-        BINDFUNCTION(&Debug::print, print_name, print_desc);
+        BIND_FUNCTION(&Debug::print, print_name, print_desc);
     }
 
 private:

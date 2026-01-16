@@ -1,3 +1,7 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
 #include "DomainModule/RenderObject/Ruleset.hpp"
@@ -5,6 +9,7 @@
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Utility/StringHandler.hpp"
 
+//------------------------------------------
 namespace Nebulite::DomainModule::RenderObject {
 
 //------------------------------------------

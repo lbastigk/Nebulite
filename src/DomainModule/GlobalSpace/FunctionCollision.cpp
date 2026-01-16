@@ -24,10 +24,10 @@ Constants::Error FunctionCollision::debug_collisionDetect_function(int const arg
 
     if (fail) {
         // This will fail, as the function name is already registered in GlobalSpace
-        BINDFUNCTION(&FunctionCollision::debug_collisionDetect_function, debug_collisionDetect_function_name, debug_collisionDetect_function_desc);
+        BIND_FUNCTION(&FunctionCollision::debug_collisionDetect_function, debug_collisionDetect_function_name, debug_collisionDetect_function_desc);
     } else {
         // Try to bind a new function with a unique name
-        BINDFUNCTION(&FunctionCollision::debug_collisionDetect_function, "123456", debug_collisionDetect_function_desc);
+        BIND_FUNCTION(&FunctionCollision::debug_collisionDetect_function, "123456", debug_collisionDetect_function_desc);
     }
     return Constants::ErrorTable::NONE();
 }

@@ -87,9 +87,9 @@ public:
         (void)bindCategory(collisionDetect_name,  collisionDetect_desc);
 
         // Function bindings
-        BINDFUNCTION(&FunctionCollision::debug_collisionDetect_function, debug_collisionDetect_function_name, debug_collisionDetect_function_desc);
-        BINDFUNCTION(&FunctionCollision::debug_collisionDetect_category, debug_collisionDetect_category_name, debug_collisionDetect_category_desc);
-        BINDFUNCTION(&FunctionCollision::debug_collisionDetect_variable, debug_collisionDetect_variable_name, debug_collisionDetect_variable_desc);
+        BIND_FUNCTION(&FunctionCollision::debug_collisionDetect_function, debug_collisionDetect_function_name, debug_collisionDetect_function_desc);
+        BIND_FUNCTION(&FunctionCollision::debug_collisionDetect_category, debug_collisionDetect_category_name, debug_collisionDetect_category_desc);
+        BIND_FUNCTION(&FunctionCollision::debug_collisionDetect_variable, debug_collisionDetect_variable_name, debug_collisionDetect_variable_desc);
     }
 };
 } // namespace Nebulite::DomainModule::GlobalSpace
