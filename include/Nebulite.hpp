@@ -216,20 +216,6 @@ Core::GlobalSpace& global();
  */
 GlobalDocAccessor& globalDoc();
 
-/**
- * @brief Singleton accessor for the cout capture object
- * @return CaptureStream object for capturing cout output
- * @todo Remove once all usages are gone
- */
-[[deprecated("Use Log::print/println instead")]] Utility::CaptureStream& cout();
-
-/**
- * @brief Singleton accessor for the cerr capture object
- * @return CaptureStream object for capturing cerr output
- * @todo Remove once all usages are gone
- */
-[[deprecated("Use Nebulite::Error::print/println instead")]] Utility::CaptureStream& cerr();
-
 class Log {
 public:
     template<typename... Args>

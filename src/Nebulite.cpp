@@ -14,12 +14,4 @@ GlobalDocAccessor& globalDoc() {
     return globalDocAccessorInstance;
 }
 
-Utility::CaptureStream& cout() {
-    return Utility::Capture::cout();
-}
-
-Utility::CaptureStream& cerr() {
-    return Utility::Capture::cerr();
-}
-
 } // namespace Nebulite
