@@ -172,7 +172,7 @@ private:
     /**
      * @brief Sets up platform information in the global document.
      */
-    void setupPlatformInfo();
+    void setupPlatformInfo() const ;
 };
 } // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_GSDM_DEBUG_HPP

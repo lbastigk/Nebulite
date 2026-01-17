@@ -24,7 +24,7 @@ Constants::Error General::eval(std::span<std::string const> const& args, Interac
 
     // Evaluate expression
     Core::JsonScope emptyDoc;
-    Interaction::ContextBase const context{emptyDoc,emptyDoc,Nebulite::global()};
+    Interaction::ContextBase const context{emptyDoc,emptyDoc,global()};
     std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr,context);
 
     // reparse
@@ -44,7 +44,7 @@ Constants::Error General::exit() const {
 Constants::Error General::wait(int const argc, char** argv) const {
     if (argc == 2) {
         // Standard wait acts on taskQueue "script"
-        domain.getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::script)->incrementWaitCounter(std::stoull(argv[1]));
+        domain.getTaskQueue(Core::GlobalSpace::StandardTasks::script)->incrementWaitCounter(std::stoull(argv[1]));
         return Constants::ErrorTable::NONE();
     }
     if (argc < 2) {
@@ -54,8 +54,7 @@ Constants::Error General::wait(int const argc, char** argv) const {
 }
 
 Constants::Error General::task(int const argc, char** argv) const {
-    std::string const message = "Loading task list from file: " + (argc > 1 ? std::string(argv[1]) : "none");
-    Nebulite::cout() << message << Nebulite::endl;
+    log::println("Loading task list from file: ", argc > 1 ? std::string(argv[1]) : "none");
 
     // Rollback RNG, loading a task file should not change the RNG state
     domain.rngRollback();
@@ -70,13 +69,13 @@ Constants::Error General::task(int const argc, char** argv) const {
     // Warn if file ending is not .nebs
     std::string const filename = argv[1];
     if (filename.length() < 6 || !filename.ends_with(".nebs")) {
-        Nebulite::cerr() << "Warning: unexpected file ending for task file '" << filename << "'. Expected '.nebs'. Trying to load anyway." << Nebulite::endl;
+        error::println("Warning: unexpected file ending for task file '", filename, "'. Expected '.nebs'. Trying to load anyway.");
     }
 
     // Using FileManagement to load the .nebs file
     std::string const file = Utility::FileManagement::LoadFile(filename);
     if (file.empty()) {
-        Nebulite::cerr() << "Error: " << argv[0] << " Could not open file '" << filename << "'" << Nebulite::endl;
+        error::println("Error: ", argv[0], " Could not open file '", filename, "'.");
         return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
 
@@ -98,14 +97,13 @@ Constants::Error General::task(int const argc, char** argv) const {
 
     // Now insert all lines into the task queue
     for (auto const& taskLine : lines) {
-        domain.getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::script)->pushFront(taskLine);
+        domain.getTaskQueue(Core::GlobalSpace::StandardTasks::script)->pushFront(taskLine);
     }
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error General::echo(std::span<std::string const> const& args) {
-    std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    Nebulite::cout() << argStr << Nebulite::endl;
+    log::println(Utility::StringHandler::recombineArgs(args.subspan(1)));
     return Constants::ErrorTable::NONE();
 }
 
@@ -136,7 +134,7 @@ Constants::Error General::func_assert(std::span<std::string const> const& args) 
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
-    std::string const condition = args[1];
+    std::string const& condition = args[1];
 
     // condition must start with $( and end with )
     if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
@@ -175,7 +173,7 @@ Constants::Error General::always(int argc, char** argv) const {
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                domain.getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::always)->pushBack(command);
+                domain.getTaskQueue(Core::GlobalSpace::StandardTasks::always)->pushBack(command);
             }
         }
     }
@@ -183,14 +181,14 @@ Constants::Error General::always(int argc, char** argv) const {
 }
 
 Constants::Error General::alwaysClear() const {
-    domain.getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::always)->clear();
+    domain.getTaskQueue(Core::GlobalSpace::StandardTasks::always)->clear();
     return Constants::ErrorTable::NONE();
 }
 
 // NOLINTNEXTLINE
 Constants::Error General::func_for(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     if (args.size() > 4) {
-        std::string const varName = args[1];
+        std::string const& varName = args[1];
 
         int const iStart = std::stoi(Interaction::Logic::Expression::eval(args[2]));
         int const iEnd = std::stoi(Interaction::Logic::Expression::eval(args[3]));
@@ -203,7 +201,7 @@ Constants::Error General::func_for(std::span<std::string const> const& args, Int
             if (auto const err = caller.parseStr(args_replaced); err.isCritical()) {
                 return err;
             } else if (err.isError()) {
-                Nebulite::cout() << err.getDescription() << Nebulite::endl;
+                error::println(err.getDescription());
             }
         }
     }
@@ -222,8 +220,8 @@ Constants::Error General::inScope(std::span<std::string const> const& args) cons
 
     // A bit whacky, as we use the global scope for this instead of what is shared with this DomainModule
     // But this is the only way to get a full JsonScope with domain functionality
-    std::string const scope = args[1];
-    auto& s = Nebulite::globalDoc().shareScope(*this).shareScope(scope);
+    std::string const& scope = args[1];
+    auto& s = globalDoc().shareScope(*this).shareScope(scope);
     std::string const& cmd = std::string(__FUNCTION__) + std::string(" ") + Utility::StringHandler::recombineArgs(args.subspan(2));
     return s.parseStr(cmd);
 }

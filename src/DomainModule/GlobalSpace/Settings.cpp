@@ -15,8 +15,8 @@ Constants::Error Settings::update() {
 // NOLINTNEXTLINE
 Constants::Error Settings::saveSettings() {
     // Create JSON document with current settings
-    std::string const settings = Nebulite::globalDoc().settings().serialize();
-    Nebulite::Utility::FileManagement::WriteFile(defaultSettingsFile, settings);
+    std::string const settings = globalDoc().settings().serialize();
+    Utility::FileManagement::WriteFile(defaultSettingsFile, settings);
     return Constants::ErrorTable::NONE();
 }
 
@@ -36,8 +36,8 @@ Constants::Error Settings::setSettingStr(std::span<std::string const> const& arg
     if (args.size() > 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    std::string const key = args[0];
-    std::string const value = args[1];
+    std::string const& key = args[0];
+    std::string const& value = args[1];
 
     // Set string setting in global settings
     moduleScope.set<std::string>(moduleScope.getRootScope() + key, value);
@@ -51,7 +51,7 @@ Constants::Error Settings::setSettingInt(std::span<std::string const> const& arg
     if (args.size() > 2) {
             return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    std::string const key = args[0];
+    std::string const& key = args[0];
     int const value = std::stoi(args[1]);
 
     // Set integer setting in global settings
@@ -64,7 +64,7 @@ Constants::Error Settings::setSettingInt(std::span<std::string const> const& arg
 
 void Settings::loadSettings(std::string const& filename) {
     // Load settings file and only set known settings
-    Nebulite::Data::JSON settings;
+    Data::JSON settings;
     settings.deserialize(filename);
 
     // Cherry-Pick values to set in global settings
@@ -83,11 +83,11 @@ void Settings::loadSettings(std::string const& filename) {
      *        - etc...
      */
 
-    if (settings.memberType("") != Nebulite::Data::KeyType::object) {
+    if (settings.memberType("") != Data::KeyType::object) {
         // Settings file does not exist!
         // Write default settings to file
         if (saveSettings() != Constants::ErrorTable::NONE()) {
-            Nebulite::cerr() << "Settings: Failed to write default settings to file: " + filename + Nebulite::endl;
+            error::println("Settings: Failed to write default settings to file: ", filename);
         }
     }
 }
