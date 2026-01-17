@@ -11,6 +11,7 @@
 //------------------------------------------
 // Macro to define a new Nebulite Domain class
 
+// NOLINTNEXTLINE
 #define NEBULITE_DOMAIN(DomainName) \
     class DomainName : public Nebulite::Interaction::Execution::Domain<DomainName>
 

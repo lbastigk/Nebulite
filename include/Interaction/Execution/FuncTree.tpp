@@ -702,4 +702,5 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
 }
 
 } // namespace Nebulite::Interaction::Execution
+#include "Interaction/Execution/FuncTreeArgumentCompletion.tpp"
 #endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREE_TPP

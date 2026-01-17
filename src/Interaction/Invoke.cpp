@@ -1,12 +1,8 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include "Interaction/Logic/ExpressionPool.hpp"
-
 // Nebulite
 #include "Nebulite.hpp"
-#include "Data/Document/JSON.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 

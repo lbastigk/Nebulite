@@ -432,7 +432,4 @@ private:
 
 // Template implementations
 #include "Interaction/Execution/FuncTree.tpp"
-#include "Interaction/Execution/FuncTreeArgumentCompletion.tpp"
-
 #endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
-
