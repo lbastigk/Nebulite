@@ -52,7 +52,7 @@ public:
         "This evaluates to 'spawn ./Resources/RenderObjects/NAME.json',\n"
         "where NAME is the current value of the global variable ToSpawn\n";
 
-    Constants::Error exit() const ;
+    [[nodiscard]] Constants::Error exit() const ;
     static auto constexpr exit_name = "exit";
     static auto constexpr exit_desc = "Exits the entire program.\n"
         "\n"
@@ -178,7 +178,7 @@ public:
         "always echo This command runs every frame!\n"
         "This will output \"This command runs every frame!\" on every frame.\n";
 
-    Constants::Error alwaysClear() const ;
+    [[nodiscard]] Constants::Error alwaysClear() const ;
     static auto constexpr alwaysClear_name = "always-clear";
     static auto constexpr alwaysClear_desc = "Clears the entire always-taskqueue.\n"
         "\n"
@@ -197,7 +197,7 @@ public:
         "Useful for testing or as a placeholder in scripts where no action is required,\n"
         "but a command is syntactically necessary.\n";
 
-    Constants::Error inScope(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Error inScope(std::span<std::string const> const& args) const ;
     static auto constexpr inScope_name = "in-scope";
     static auto constexpr inScope_desc = "Parses a command within a specific scope of the Global Space.\n"
         "\n"
