@@ -39,7 +39,7 @@ void Invoke::broadcast(std::shared_ptr<Rules::Ruleset> const& entry) const {
 
 void Invoke::listen(Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId) {
     // Listening happens on all threads
-    for (auto const & w : std::span(worker, THREADRUNNER_COUNT)) {
+    for (auto const& w : std::span(worker, THREADRUNNER_COUNT)) {
         w->listen(listener, topic, listenerId);
     }
 }
