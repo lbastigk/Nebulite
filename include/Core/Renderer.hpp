@@ -455,7 +455,7 @@ private:
 
     /**
      * @brief Base directory for resource loading.
-     * @todo Route all resource loading through Nebulite::global() for consistent path management.
+     * @todo Route all resource loading through global() for consistent path management.
      */
     std::string baseDirectory;
 

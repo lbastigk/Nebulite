@@ -24,19 +24,19 @@ Constants::Error Debug::print(std::span<std::string const> const& args, Interact
         auto const scopedKey = Data::ScopedKey(args[1]);
         auto const memberType = callerScope.memberType(scopedKey);
         if (memberType == Data::KeyType::null) {
-            Nebulite::cout() << "{}" << Nebulite::endl;
+            log::println("{}");
             return Constants::ErrorTable::NONE();
         }
         if (memberType == Data::KeyType::object || memberType == Data::KeyType::array) {
-            Nebulite::cout() << callerScope.serialize(scopedKey) << Nebulite::endl;
+            log::println(callerScope.serialize(scopedKey));
             return Constants::ErrorTable::NONE();
         }
         if (memberType == Data::KeyType::value) {
-            Nebulite::cout() << callerScope.get<std::string>(scopedKey, "") << Nebulite::endl;
+            log::println(callerScope.get<std::string>(scopedKey, ""));
             return Constants::ErrorTable::NONE();
         }
     }
-    Nebulite::cout() << callerScope.serialize() << Nebulite::endl;
+    log::println(callerScope.serialize());
     (void)caller; // Unused parameter
     return Constants::ErrorTable::NONE();
 }

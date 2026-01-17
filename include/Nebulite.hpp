@@ -219,7 +219,7 @@ GlobalDocAccessor& globalDoc();
  * @return CaptureStream object for capturing cout output
  * @todo Remove once all usages are gone
  */
-[[deprecated("Use Nebulite::log::print/println instead")]] Utility::CaptureStream& cout();
+[[deprecated("Use log::print/println instead")]] Utility::CaptureStream& cout();
 
 /**
  * @brief Singleton accessor for the cerr capture object

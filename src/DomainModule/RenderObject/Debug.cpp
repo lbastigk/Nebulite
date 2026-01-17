@@ -20,7 +20,7 @@ Constants::Error Debug::update() {
 // NOLINTNEXTLINE
 Constants::Error Debug::eval(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     std::string const argStr = Utility::StringHandler::recombineArgs(args);
-    Interaction::ContextBase const context{caller, caller, Nebulite::global()};    // Both self and other are this RenderObject?
+    Interaction::ContextBase const context{caller, caller, global()};    // Both self and other are this RenderObject?
     std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr, context);
     (void)callerScope; // Unused
     return caller.parseStr(argsEvaluated);
@@ -35,9 +35,9 @@ Constants::Error Debug::printSrcRect() const {
         message += ", w: " + std::to_string(srcRect->w);
         message += ", h: " + std::to_string(srcRect->h);
         message += " }";
-        Nebulite::log::println(message);
+        log::println(message);
     } else {
-        Nebulite::log::println("This RenderObject is not a spritesheet.");
+        log::println("This RenderObject is not a spritesheet.");
     }
 
     return Constants::ErrorTable::NONE();
@@ -52,9 +52,9 @@ Constants::Error Debug::printDstRect() const {
         message += ", w: " + std::to_string(dstRect->w);
         message += ", h: " + std::to_string(dstRect->h);
         message += " }";
-        Nebulite::log::println(message);
+        log::println(message);
     } else {
-        Nebulite::log::println("Destination rectangle is not set.");
+        log::println("Destination rectangle is not set.");
     }
 
     return Constants::ErrorTable::NONE();
@@ -89,16 +89,16 @@ std::string getTextureInfoString(SDL_Texture* texture) {
 Constants::Error Debug::textureStatus(std::span<std::string const> const& /*args*/, Interaction::Execution::DomainBase& /*caller*/, Data::JsonScopeBase& callerScope) const {
     //------------------------------------------
     // Print Texture Status
-    Nebulite::log::println("Texture Status:");
+    log::println("Texture Status:");
 
     // Nebulite info
-    Nebulite::log::println(" - Texture Key   : " + callerScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "None"));
-    Nebulite::log::println(" - Valid Texture : " + std::string(domain.getTexture()->isTextureValid() ? "Yes" : "No"));
-    Nebulite::log::println(" - Local Texture : " + std::string(domain.getTexture()->isTextureStoredLocally() ? "Yes" : "No"));
+    log::println(" - Texture Key   : " + callerScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "None"));
+    log::println(" - Valid Texture : " + std::string(domain.getTexture()->isTextureValid() ? "Yes" : "No"));
+    log::println(" - Local Texture : " + std::string(domain.getTexture()->isTextureStoredLocally() ? "Yes" : "No"));
 
     // SDL info
-    Nebulite::log::println("SDL Texture Info:");
-    Nebulite::log::println(getTextureInfoString(domain.getTexture()->getSDLTexture()));
+    log::println("SDL Texture Info:");
+    log::println(getTextureInfoString(domain.getTexture()->getSDLTexture()));
     return Constants::ErrorTable::NONE();
 }
 

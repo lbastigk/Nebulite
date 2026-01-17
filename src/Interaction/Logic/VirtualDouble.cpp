@@ -23,7 +23,7 @@ void VirtualDouble::setUpInternalCache(Core::JsonScope const& json) {
 }
 
 void VirtualDouble::setUpInternalCache() {
-    copied_value = *Nebulite::global().getDocCache().getStableDoublePointer(key);
+    copied_value = *global().getDocCache().getStableDoublePointer(key);
     reference = &copied_value;
 }
 

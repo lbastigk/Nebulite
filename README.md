@@ -164,8 +164,8 @@ inline void exampleUsage() {
     double const velocity = physicsScope.get(velocityKey, 0.0); // Success
     double const timeInMs = physicsScope.get(timeInMsKey, 0.0); // Throws exception
 
-    Nebulite::log::println("Velocity: ", velocity);
-    Nebulite::log::println("Time in ms: ", timeInMs);
+    log::println("Velocity: ", velocity);
+    log::println("Time in ms: ", timeInMs);
 }
 ```
 

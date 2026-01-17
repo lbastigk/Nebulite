@@ -59,7 +59,7 @@ void JsonRuleset::apply(Execution::DomainBase* contextOther) {
         std::string call = entry.eval(contextOther->domainScope);
 
         // attach to task queue
-        Nebulite::global().getTaskQueue(Nebulite::Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
+        global().getTaskQueue(Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
 
     }
     for (auto& entry : functioncalls_self) {

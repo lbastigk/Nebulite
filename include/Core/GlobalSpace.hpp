@@ -38,7 +38,7 @@ namespace Nebulite::Core {
  * @brief Declares the core types, global objects, and functions for the Nebulite Engine.
  *        Used as a global workspace for functionality such as Rendering, Time, RNGs, etc.
  * @details In order to avoid infinite recursion, GlobalSpace itself does not own its Document.
- *          Instead, it accesses the global document via Nebulite::globalDoc().
+ *          Instead, it accesses the global document via globalDoc().
  *          This prevents issues where DomainModules might try to access GlobalSpace during their construction
  *          in order to access the global document, leading to infinite recursion.
  *          By separating the GlobalSpace and the Global Document, we ensure that the construction of both is independent.

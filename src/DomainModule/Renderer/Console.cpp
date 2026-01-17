@@ -479,7 +479,7 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
     // Constraints:
     // LINE_HEIGHT <= FONT_MAX_SIZE
     // MINIMUM_LINES <= N
-    WindowScale = Nebulite::global().getRenderer().getWindowScale();
+    WindowScale = global().getRenderer().getWindowScale();
     auto LINE_HEIGHT = static_cast<uint16_t>(std::floor(static_cast<float>(consoleLayout.FONT_MAX_SIZE) / static_cast<float>(WindowScale)));
     auto const PADDING_RATIO = consoleLayout.paddingRatio;
 
@@ -521,7 +521,7 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
 void Console::keyTriggerSubmit() {
     if (std::string const command = textInput.submit(); !command.empty()) {
         // Parse command on global level for full access to all functions
-        if (auto const err = Nebulite::global().parseStr(std::string(__FUNCTION__) + " " + command); err != Constants::ErrorTable::NONE()) {
+        if (auto const err = global().parseStr(std::string(__FUNCTION__) + " " + command); err != Constants::ErrorTable::NONE()) {
             // Cannot escalate error further, print to cerr
             Nebulite::error::println(err.getDescription());
         }

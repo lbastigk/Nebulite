@@ -3,7 +3,7 @@
 
 namespace Nebulite::Interaction::Rules {
 RulesetModule::RulesetModule(std::string_view const& moduleName)
-    : id(Nebulite::Interaction::Logic::Expression::generateUniqueId(std::string(moduleName)))
+    : id(Logic::Expression::generateUniqueId(std::string(moduleName)))
 {}
 
 } // namespace Nebulite::Interaction::Rules

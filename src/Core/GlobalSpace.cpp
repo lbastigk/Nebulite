@@ -20,7 +20,7 @@ GlobalSpace::GlobalSpace(std::string const& name)
         "RNG",
         domainScope,
         "random",
-        Nebulite::globalDoc().settings()
+        globalDoc().settings()
     );
 
     //------------------------------------------

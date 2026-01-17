@@ -114,7 +114,7 @@ void Input::writeCurrentAndDeltaInputs() {
     for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++scancode) {
         if (!keyNames[scancode].empty()) {
             // Retrieve state, store previous state
-            bool const currentPressed = static_cast<bool>(keyState[scancode]);
+            bool const currentPressed = keyState[scancode];
             bool const prevPressed = prevKey[scancode];
             prevKey[scancode] = currentPressed;
 

@@ -21,7 +21,7 @@ Constants::Error Logging::update() {
 // NOLINTNEXTLINE
 Constants::Error Logging::echo(std::span<std::string const> const& args) {
     std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    Nebulite::cout() << argStr << Nebulite::endl;
+    cout() << argStr << endl;
     return Constants::ErrorTable::NONE();
 }
 
