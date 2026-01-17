@@ -70,8 +70,7 @@ public:
     };
 
     // Function pointer type
-    using FunctionPtr = std::conditional_t<
-        (sizeof...(additionalArgs) == 0),
+    using FunctionPtr = std::conditional_t<sizeof...(additionalArgs) == 0,
         // no additional args -> avoid duplicates (keep only no-add variants)
         std::variant<
             typename SupportedFunctions::Legacy::IntChar,
@@ -354,7 +353,7 @@ private:
                         *varInfo.pointer = true;
                     }
                 } else {
-                    Nebulite::Utility::Capture::cerr() << "Warning: Unknown variable '--" << name << "'\n";
+                    Utility::Capture::cerr() << "Warning: Unknown variable '--" << name << "'\n";
                 }
 
                 // Remove from argument list
@@ -422,7 +421,7 @@ private:
      * @param ftree Pointer to the current FuncTree
      * @return Pointer to the FuncTree of the category, or nullptr if not found.
      */
-    FuncTree<returnValue, additionalArgs...>* traverseIntoCategory(std::string const& categoryName, FuncTree* ftree);
+    FuncTree* traverseIntoCategory(std::string const& categoryName, FuncTree* ftree);
 
     //------------------------------------------
     // Comparison helper
