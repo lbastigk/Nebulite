@@ -195,7 +195,7 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
         case Component::From::None:
         default:
             // Should not happen
-            error::println(__FUNCTION__, ": Tried to register variable with no known context!");
+            Error::println(__FUNCTION__, ": Tried to register variable with no known context!");
             break;
         }
 
@@ -393,28 +393,28 @@ void Expression::printCompileError(std::shared_ptr<Component> const& component, 
         offendingChar = std::string(1, component->str[static_cast<size_t>(error) - 1]);
     }
     std::stringstream ss;
-    ss << "-----------------------------------------------------------------" << endl;
-    ss << "Error compiling expression: '" << component->str << "' At position: " << std::to_string(error) << ", offending character: " << offendingChar << endl;
-    ss << "You might see this message multiple times due to expression parallelization." << endl;
-    ss << endl;
-    ss << "If you only see the start of your expression, make sure to encompass your expression in quotes" << endl;
-    ss << "Some functions assume that the expression is inside, e.g. argv[1]." << endl;
-    ss << "Example: " << endl;
-    ss << "if $(1+1)     echo here! # works" << endl;
-    ss << "if $(1 + 1)   echo here! # doesnt work!" << endl;
-    ss << "if '$(1 + 1)' echo here! # works" << endl;
-    ss << endl;
+    ss << "-----------------------------------------------------------------" << "\n";
+    ss << "Error compiling expression: '" << component->str << "' At position: " << std::to_string(error) << ", offending character: " << offendingChar << "\n";
+    ss << "You might see this message multiple times due to expression parallelization." << "\n";
+    ss << "\n";
+    ss << "If you only see the start of your expression, make sure to encompass your expression in quotes" << "\n";
+    ss << "Some functions assume that the expression is inside, e.g. argv[1]." << "\n";
+    ss << "Example: " << "\n";
+    ss << "if $(1+1)     echo here! # works" << "\n";
+    ss << "if $(1 + 1)   echo here! # doesnt work!" << "\n";
+    ss << "if '$(1 + 1)' echo here! # works" << "\n";
+    ss << "\n";
     ss << "Registered functions and variables:\n";
     for (auto const& var : te_variables) {
         ss << "\t'" << var.name << "'\n";
     }
-    ss << endl;
-    ss << "Resetting expression to always yield 'nan'" << endl;
-    ss << endl;
-    ss << endl;
+    ss << "\n";
+    ss << "Resetting expression to always yield 'nan'" << "\n";
+    ss << "\n";
+    ss << "\n";
 
     // Send whole message to cerr at once, to avoid interleaving with other messages
-    error::println(ss.str());
+    Error::println(ss.str());
 }
 
 //------------------------------------------
@@ -450,7 +450,7 @@ bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr
     // See if the variable contains an inner expression
     if (component->str.find('$') != std::string::npos || component->str.find('{') != std::string::npos) {
         if (maximumRecursionDepth == 0) {
-            error::println("Error: Maximum recursion depth reached when evaluating variable: ", component->key);
+            Error::println("Error: Maximum recursion depth reached when evaluating variable: ", component->key);
             return false;
         }
         // Create a temporary expression to evaluate the inner expression
@@ -478,7 +478,7 @@ bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr
         break;
     case Component::From::None:
     default:
-        error::println("Error: Unknown context in expression: ", strippedKey);
+        Error::println("Error: Unknown context in expression: ", strippedKey);
         token = "null";
         break;
     }

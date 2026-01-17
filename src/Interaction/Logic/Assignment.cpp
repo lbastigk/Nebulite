@@ -21,10 +21,10 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::str
         target.set_concat(keyEvaluated, val);
         break;
     case Operation::null:
-        error::println("Could not determine context from key, skipping assignment");
+        Error::println("Could not determine context from key, skipping assignment");
         break;
     default:
-        error::println("Unknown operation type! Enum value:", static_cast<int>(operation));
+        Error::println("Unknown operation type! Enum value:", static_cast<int>(operation));
         break;
     }
 }
@@ -45,10 +45,10 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double c
         target.set_concat(keyEvaluated, std::to_string(val));
         break;
     case Operation::null:
-        error::println("Could not determine context from key, skipping assignment");
+        Error::println("Could not determine context from key, skipping assignment");
         break;
     default:
-        error::println("Unknown operation type! Enum value:", static_cast<int>(operation));
+        Error::println("Unknown operation type! Enum value:", static_cast<int>(operation));
         break;
     }
 }
@@ -66,13 +66,13 @@ void Assignment::setValueOfKey(double const& val, double* target) const {
         *target *= val;
         break;
     case Operation::concat:
-        error::println("Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of an Invoke!");
+        Error::println("Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of an Invoke!");
         break;
     case Operation::null:
-        error::println("Could not determine context from key, skipping assignment");
+        Error::println("Could not determine context from key, skipping assignment");
         break;
     default:
-        error::println("Unknown operation type! Enum value:", static_cast<int>(operation));
+        Error::println("Unknown operation type! Enum value:", static_cast<int>(operation));
         break;
     }
 }
@@ -95,10 +95,10 @@ void Assignment::apply(Core::JsonScope& self, Core::JsonScope& other) {
     case Type::null:
         // TODO: determine context from expression!
         // If still null, skip assignment
-        error::println("Assignment expression has null type - skipping");
+        Error::println("Assignment expression has null type - skipping");
         return; // Skip this expression
     default:
-        error::println("Unknown assignment type: ", static_cast<int>(onType), " - skipping");
+        Error::println("Unknown assignment type: ", static_cast<int>(onType), " - skipping");
         return; // Exit if unknown type
     }
 

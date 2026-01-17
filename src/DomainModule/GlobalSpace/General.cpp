@@ -54,7 +54,7 @@ Constants::Error General::wait(int const argc, char** argv) const {
 }
 
 Constants::Error General::task(int const argc, char** argv) const {
-    log::println("Loading task list from file: ", argc > 1 ? std::string(argv[1]) : "none");
+    Log::println("Loading task list from file: ", argc > 1 ? std::string(argv[1]) : "none");
 
     // Rollback RNG, loading a task file should not change the RNG state
     domain.rngRollback();
@@ -69,13 +69,13 @@ Constants::Error General::task(int const argc, char** argv) const {
     // Warn if file ending is not .nebs
     std::string const filename = argv[1];
     if (filename.length() < 6 || !filename.ends_with(".nebs")) {
-        error::println("Warning: unexpected file ending for task file '", filename, "'. Expected '.nebs'. Trying to load anyway.");
+        Error::println("Warning: unexpected file ending for task file '", filename, "'. Expected '.nebs'. Trying to load anyway.");
     }
 
     // Using FileManagement to load the .nebs file
     std::string const file = Utility::FileManagement::LoadFile(filename);
     if (file.empty()) {
-        error::println("Error: ", argv[0], " Could not open file '", filename, "'.");
+        Error::println("Error: ", argv[0], " Could not open file '", filename, "'.");
         return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
 
@@ -103,7 +103,7 @@ Constants::Error General::task(int const argc, char** argv) const {
 }
 
 Constants::Error General::echo(std::span<std::string const> const& args) {
-    log::println(Utility::StringHandler::recombineArgs(args.subspan(1)));
+    Log::println(Utility::StringHandler::recombineArgs(args.subspan(1)));
     return Constants::ErrorTable::NONE();
 }
 
@@ -201,7 +201,7 @@ Constants::Error General::func_for(std::span<std::string const> const& args, Int
             if (auto const err = caller.parseStr(args_replaced); err.isCritical()) {
                 return err;
             } else if (err.isError()) {
-                error::println(err.getDescription());
+                Error::println(err.getDescription());
             }
         }
     }

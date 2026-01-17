@@ -42,7 +42,7 @@ Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& /
     // Call the function
     std::string const funcCall = "<name> add 1.5 2.5 3.0";
     double const result = testTree.parseStr(funcCall, 0.0);
-    log::println("FuncTree result for call '", funcCall, "': ", result);
+    Log::println("FuncTree result for call '", funcCall, "': ", result);
     return Constants::ErrorTable::NONE();
 }
 

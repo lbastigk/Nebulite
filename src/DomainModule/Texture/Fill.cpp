@@ -50,18 +50,18 @@ Constants::Error Fill::fill(int const argc, char** argv) const {
     // Bind texture as render target, fill with draw color, restore previous target.
     SDL_Texture* prevTarget = SDL_GetRenderTarget(renderer); // may be nullptr
     if (SDL_SetRenderTarget(renderer, texture) != 0) {
-        error::println("Failed to set render target: ", SDL_GetError());
+        Error::println("Failed to set render target: ", SDL_GetError());
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_LOCK_FAILED();
     }
 
     if (SDL_SetRenderDrawColor(renderer, r, g, b, 255) != 0) {
-        error::println("Failed to set draw color: ", SDL_GetError());
+        Error::println("Failed to set draw color: ", SDL_GetError());
         SDL_SetRenderTarget(renderer, prevTarget);
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_LOCK_FAILED();
     }
 
     if (SDL_RenderClear(renderer) != 0) {
-        error::println("Failed to clear (fill) texture: ", SDL_GetError());
+        Error::println("Failed to clear (fill) texture: ", SDL_GetError());
         SDL_SetRenderTarget(renderer, prevTarget);
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_LOCK_FAILED();
     }
@@ -70,7 +70,7 @@ Constants::Error Fill::fill(int const argc, char** argv) const {
     SDL_SetRenderTarget(renderer, prevTarget);
 
     // Finish
-    log::println("Texture filled with color:"
+    Log::println("Texture filled with color:"
         , " R=", static_cast<int>(r)
         , " G=", static_cast<int>(g)
         , " B=", static_cast<int>(b));

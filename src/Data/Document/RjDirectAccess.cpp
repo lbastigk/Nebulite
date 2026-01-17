@@ -224,8 +224,8 @@ void RjDirectAccess::deserialize(rapidjson::Document& doc, std::string const& se
     // Strip JSONC comments before parsing
     std::string const cleanJson = stripComments(jsonString);
     if (rapidjson::ParseResult const res = doc.Parse(cleanJson.c_str()); !res) {
-        error::println("JSON Parse Error at offset ", res.Offset(), ". String is:");
-        error::println(cleanJson);
+        Error::println("JSON Parse Error at offset ", res.Offset(), ". String is:");
+        Error::println(cleanJson);
     }
 }
 

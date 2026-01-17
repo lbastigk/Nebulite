@@ -143,8 +143,8 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
 
     // Checking for malformed shouldn't be necessary, but just in case
     if (it != cache.end() && it->second->state == CacheEntry::EntryState::MALFORMED) {
-        error::println("Warning: Attempted to access malformed key in getVariant(): ", key);
-        error::println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
+        Error::println("Warning: Attempted to access malformed key in getVariant(): ", key);
+        Error::println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
         return {};
     }
 
@@ -358,7 +358,7 @@ void JSON::setSubDoc(char const* key, JSON const& child) {
         // Since we inserted an entire document, we need to invalidate its child keys:
         invalidate_child_keys(key);
     } else {
-        error::println("Failed to create or access path: ", key);
+        Error::println("Failed to create or access path: ", key);
     }
 }
 

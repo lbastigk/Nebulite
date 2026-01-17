@@ -205,12 +205,14 @@ namespace Nebulite {
  * @brief Singleton accessor for the global GlobalSpace object.
  * @details Do not call this in DomainModule constructors, as it may lead to infinite recursion!
  * @return Reference to the global Core::GlobalSpace instance.
+ * @todo Change to Global::instance()
  */
 Core::GlobalSpace& global();
 
 /**
  * @brief Singleton accessor for the global document.
  * @return Reference to accessor for various scopes within the global document.
+ * @todo Change to Global::doc()
  */
 GlobalDocAccessor& globalDoc();
 
@@ -219,16 +221,16 @@ GlobalDocAccessor& globalDoc();
  * @return CaptureStream object for capturing cout output
  * @todo Remove once all usages are gone
  */
-[[deprecated("Use log::print/println instead")]] Utility::CaptureStream& cout();
+[[deprecated("Use Log::print/println instead")]] Utility::CaptureStream& cout();
 
 /**
  * @brief Singleton accessor for the cerr capture object
  * @return CaptureStream object for capturing cerr output
  * @todo Remove once all usages are gone
  */
-[[deprecated("Use Nebulite::error::print/println instead")]] Utility::CaptureStream& cerr();
+[[deprecated("Use Nebulite::Error::print/println instead")]] Utility::CaptureStream& cerr();
 
-class log {
+class Log {
 public:
     template<typename... Args>
     static void print(Args&&... args) {
@@ -241,7 +243,7 @@ public:
     }
 };
 
-class error {
+class Error {
 public:
     template<typename... Args>
     static void print(Args&&... args) {

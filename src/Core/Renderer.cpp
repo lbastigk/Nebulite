@@ -129,7 +129,7 @@ void Renderer::initSDL() {
     //Create SDL window
     if (!SDL_Init(SDL_INIT_VIDEO) && SDL_GetError()[0] != '\0') {
         // SDL initialization failed
-        error::println("SDL_Init Error: ", SDL_GetError());
+        Error::println("SDL_Init Error: ", SDL_GetError());
     }
     // Define window via x|y|w|h
     int const w = domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0);
@@ -140,7 +140,7 @@ void Renderer::initSDL() {
     window = SDL_CreateWindow("Nebulite", w, h, flags);
     if (!window) {
         // Window creation failed
-        error::println("SDL_CreateWindow Error: ", SDL_GetError());
+        Error::println("SDL_CreateWindow Error: ", SDL_GetError());
         SDL_Quit();
     }
 
@@ -150,7 +150,7 @@ void Renderer::initSDL() {
     // Create a renderer
     renderer = SDL_CreateRenderer(window, nullptr);
     if (!renderer) {
-        error::println("Renderer creation failed: ", SDL_GetError());
+        Error::println("Renderer creation failed: ", SDL_GetError());
     }
 
     // Set virtual rendering size
@@ -165,7 +165,7 @@ void Renderer::initSDL() {
     // Check for errors in SDL
 
     if (SDL_GetError()[0] != '\0') {
-        error::println("SDL Error during initialization: ", SDL_GetError());
+        Error::println("SDL Error during initialization: ", SDL_GetError());
         SDL_ClearError(); // Clear error after reporting
     }
 
@@ -175,7 +175,7 @@ void Renderer::initSDL() {
     // Initialize SDL_ttf
     if (!TTF_Init()) {
         // Handle SDL_ttf initialization error
-        error::println("TTF_Init Error!");
+        Error::println("TTF_Init Error!");
         SDL_Quit(); // Clean up SDL
     }
     loadFonts();
@@ -185,7 +185,7 @@ void Renderer::initSDL() {
 
     // Init
     if (!SDL_Init(SDL_INIT_AUDIO) && SDL_GetError()[0] != '\0') {
-        error::println("SDL_Init Error: ", SDL_GetError());
+        Error::println("SDL_Init Error: ", SDL_GetError());
     } else {
         audio.desired.freq = 44100;
         audio.desired.format = SDL_AUDIO_S16;
@@ -195,7 +195,7 @@ void Renderer::initSDL() {
 
         audio.device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audio.desired);
         if (audio.device == 0) {
-            error::println("Failed to open audio device: ", SDL_GetError());
+            Error::println("Failed to open audio device: ", SDL_GetError());
         } else {
             audioInitialized = true;
         }
@@ -220,7 +220,7 @@ void Renderer::loadFonts() {
     font = TTF_OpenFont(fontPath.c_str(), FontSizeGeneral); // Adjust size as needed
     if (font == nullptr) {
         // Handle font loading error
-        error::println("Failed to load font: ", fontPath);
+        Error::println("Failed to load font: ", fontPath);
     }
 }
 
@@ -267,7 +267,7 @@ Constants::Error Renderer::update() {
     //------------------------------------------
     // Check for SDL errors
     if (SDL_GetError()[0] != '\0') {
-        error::println("SDL Error during rendering: ", SDL_GetError());
+        Error::println("SDL Error during rendering: ", SDL_GetError());
         SDL_ClearError(); // Clear error after reporting
     }
 
@@ -362,13 +362,13 @@ void Renderer::beep() const {
     if (!s_beepStream) {
         s_beepStream = SDL_CreateAudioStream(&audio.desired, &audio.desired);
         if (!s_beepStream) {
-            error::println("Failed to create audio stream: ", SDL_GetError());
+            Error::println("Failed to create audio stream: ", SDL_GetError());
             return;
         }
     }
 
     if (SDL_PutAudioStreamData(s_beepStream, basicAudioWaveforms.squareBuffer->data(), audioLength) != 0) {
-        error::println("Failed to push audio to stream: ", SDL_GetError());
+        Error::println("Failed to push audio to stream: ", SDL_GetError());
         return;
     }
 
@@ -378,7 +378,7 @@ void Renderer::beep() const {
 
 bool Renderer::snapshot(std::string link) const {
     if (!renderer) {
-        error::println("Cannot take snapshot: renderer not initialized");
+        Error::println("Cannot take snapshot: renderer not initialized");
         return false;
     }
 
@@ -396,7 +396,7 @@ bool Renderer::snapshot(std::string link) const {
     SDL_Rect const fullScreenRect = {0, 0, width, height};
     auto const surface = SDL_RenderReadPixels(renderer, &fullScreenRect);
     if (!surface) {
-        error::println("Failed to read pixels for snapshot: ", SDL_GetError());
+        Error::println("Failed to read pixels for snapshot: ", SDL_GetError());
         SDL_DestroySurface(surface);
         return false;
     }
@@ -415,14 +415,14 @@ bool Renderer::snapshot(std::string link) const {
         try {
             std::filesystem::create_directories(directory);
         } catch (std::exception const& e) {
-            error::println("Warning: Could not create directory ", directory, ": ", e.what());
+            Error::println("Warning: Could not create directory ", directory, ": ", e.what());
             // Continue anyway - maybe directory already exists
         }
     }
 
     // Save surface as PNG
     if (int const result = IMG_SavePNG(surface, link.c_str()); result != 0 && SDL_GetError()[0] != '\0') {
-        error::println("Failed to save snapshot!");
+        Error::println("Failed to save snapshot!");
         return false;
     }
 
@@ -470,11 +470,11 @@ void Renderer::destroy() {
 void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scalar) {
     WindowScale = scalar;
     if (w < 240 || w > 16384) {
-        error::println("Selected resolution is not supported:", w, "x", h);
+        Error::println("Selected resolution is not supported:", w, "x", h);
         return;
     }
     if (h < 240 || h > 16384) {
-        error::println("Selected resolution is not supported:", w, "x", h);
+        Error::println("Selected resolution is not supported:", w, "x", h);
         return;
     }
 
@@ -635,7 +635,7 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
     //------------------------------------------
     // Error Checking
     if (!obj->getSDLTexture()) {
-        error::println("Error: RenderObject ID ",
+        Error::println("Error: RenderObject ID ",
             obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0),
             " texture with path '",
             innerDirectory,
@@ -662,7 +662,7 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
     }
     if (SDL_RenderTexture(renderer, obj->getSDLTexture(), srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
         auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-        error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
+        Error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
     }
 
     // Render the text
@@ -682,7 +682,7 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
             };
             if (SDL_RenderTexture(renderer, obj->getTextTexture(), nullptr, &textRectF) != 0 && SDL_GetError()[0] != '\0') {
                 auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-                error::println("Error rendering text for RenderObject ID ", id, ": ", SDL_GetError());
+                Error::println("Error rendering text for RenderObject ID ", id, ": ", SDL_GetError());
             }
         }
     }
@@ -745,7 +745,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
     if (size_t const dotPos = path.find_last_of('.'); dotPos != std::string::npos) {
         extension = path.substr(dotPos + 1);
     } else {
-        error::println("Failed to load image '", path, "': No file extension found.");
+        Error::println("Failed to load image '", path, "': No file extension found.");
         return nullptr;
     }
 
@@ -762,7 +762,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
 
     // Unknown format or other issues with surface
     if (surface == nullptr) {
-        error::println("Failed to load image '", path, "': ", SDL_GetError());
+        Error::println("Failed to load image '", path, "': ", SDL_GetError());
         return nullptr;
     }
 
@@ -772,7 +772,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
 
     // Check for texture issues
     if (!texture) {
-        error::println("Failed to create texture from image '", path, "': ", SDL_GetError());
+        Error::println("Failed to create texture from image '", path, "': ", SDL_GetError());
         return nullptr;
     }
 

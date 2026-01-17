@@ -87,7 +87,7 @@ void Settings::loadSettings(std::string const& filename) {
         // Settings file does not exist!
         // Write default settings to file
         if (saveSettings() != Constants::ErrorTable::NONE()) {
-            error::println("Settings: Failed to write default settings to file: ", filename);
+            Error::println("Settings: Failed to write default settings to file: ", filename);
         }
     }
 }
