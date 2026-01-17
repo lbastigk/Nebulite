@@ -76,9 +76,17 @@ T JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T 
     return convertVariant<T>(cache[key]->value, defaultValue);
 }
 
+// Having this flag active used to cause issues on macOS.
+// Since then the arguments were renamed, which likely caused compilation errors.
+#define ALLOW_STRING_TO_INTEGRAL_CONVERSIONS 1
+
 // Converter helper functions for convertVariant
 namespace ConverterHelper {
     inline bool stringToBool(std::string const& stored, bool const& defaultValue){
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return true;
+        if (stored == "false") return false;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         // Handle numeric strings and "true"
         if(Utility::StringHandler::isNumber(stored)){
             try {
@@ -91,8 +99,10 @@ namespace ConverterHelper {
     }
 
     inline int stringToInt(std::string const& stored, int const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return std::stoi(stored);
         } catch (...){
@@ -101,8 +111,10 @@ namespace ConverterHelper {
     }
 
     inline uint8_t stringToUInt8(std::string const& stored, uint8_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return static_cast<uint8_t>(std::stoul(stored));
         } catch (...){
@@ -111,8 +123,10 @@ namespace ConverterHelper {
     }
 
     inline int8_t stringToInt8(std::string const& stored, int8_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return static_cast<int8_t>(std::stol(stored));
         } catch (...){
@@ -121,8 +135,10 @@ namespace ConverterHelper {
     }
 
     inline uint16_t stringToUInt16(std::string const& stored, uint16_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return static_cast<uint16_t>(std::stoul(stored));
         } catch (...){
@@ -131,8 +147,10 @@ namespace ConverterHelper {
     }
 
     inline int16_t stringToInt16(std::string const& stored, int16_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return static_cast<int16_t>(std::stol(stored));
         } catch (...){
@@ -141,8 +159,10 @@ namespace ConverterHelper {
     }
 
     inline uint32_t stringToUInt32(std::string const& stored, uint32_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return static_cast<uint32_t>(std::stoul(stored));
         } catch (...){
@@ -151,8 +171,10 @@ namespace ConverterHelper {
     }
 
     inline int32_t stringToInt32(std::string const& stored, int32_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return static_cast<int32_t>(std::stol(stored));
         } catch (...){
@@ -161,8 +183,10 @@ namespace ConverterHelper {
     }
 
     inline uint64_t stringToUInt64(std::string const& stored, uint64_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return std::stoull(stored);
         } catch (...){
@@ -171,8 +195,10 @@ namespace ConverterHelper {
     }
 
     inline int64_t stringToInt64(std::string const& stored, int64_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return std::stoll(stored);
         } catch (...){
@@ -181,25 +207,15 @@ namespace ConverterHelper {
     }
 
     inline double stringToDouble(std::string const& stored, double const& defaultValue){
-        //if (stored == "true") return 1.0;
-        //if (stored == "false") return 0.0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1.0;
+        if (stored == "false") return 0.0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return std::stod(stored);
         } catch (...){
             return defaultValue;
         }
-    }
-
-    inline void convertVariantErrorMessage(std::string const& oldType, std::string const& newType){
-        std::string const message = "[ERROR] JSON::convert_variant - Unsupported conversion from "
-                    + oldType
-                    + " to " + newType + ".\n"
-                    + "Please add the required conversion.\n"
-                    + "Fallback conversion from String to any Integral type was disabled due to potential lossy data conversion.\n"
-                    + "Rather, it is recommended to add one explicit conversion path per datatype.\n"
-                    + "Returning default value.";
-        Utility::Capture::cerr() << message << Utility::Capture::endl;
-        // Exiting the program would be nice, but since this is likely run in a threaded environment, we just display the error.
     }
 } // namespace ConverterHelper
 
@@ -277,12 +293,6 @@ newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType con
             breakBuild::unsupported_conversion<ValueT, newType> error;
             (void)error; // to avoid unused variable warning
             return defaultValue; // unreachable, but keeps the compiler happy
-
-            // Old runtime error message
-            //std::string constexpr oldTypeName = abi::__cxa_demangle(typeid(value).name(), nullptr, nullptr, nullptr);
-            //std::string constexpr newTypeName = abi::__cxa_demangle(typeid(newType).name(), nullptr, nullptr, nullptr);
-            //ConverterHelper::convertVariantErrorMessage(oldTypeName, newTypeName);
-            //return defaultValue;
         }
     },
     var);
