@@ -108,7 +108,7 @@ private:
     struct HotKeyEntry {
         bool active = false;
         K key;
-        V* value;
+        V* value = nullptr;
     }hotKeyEntry;
 };
 } // namespace Nebulite::Data
