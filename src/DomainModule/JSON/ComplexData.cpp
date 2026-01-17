@@ -39,23 +39,23 @@ Constants::Error ComplexData::jsonSet(std::span<std::string const> const& args, 
     // Depending on the type of docKey, we retrieve the value
 
     // === DOCUMENT ===
-    if (Data::KeyType const type = global().getDocCache().memberType(docKey); type == Data::KeyType::object) {
+    if (Data::KeyType const type = Global::instance().getDocCache().memberType(docKey); type == Data::KeyType::object) {
         // Retrieve the sub-document
-        Data::JSON const subDoc = global().getDocCache().getSubDoc(docKey);
+        Data::JSON const subDoc = Global::instance().getDocCache().getSubDoc(docKey);
 
         // Set the sub-document in the current JSON tree
         callerScope.setSubDoc(callerScope.getRootScope() + myKey, subDoc);
     }
     // === VALUE ===
     else if (type == Data::KeyType::value) {
-        callerScope.set(callerScope.getRootScope() + myKey, global().getDocCache().get<std::string>(docKey));
+        callerScope.set(callerScope.getRootScope() + myKey, Global::instance().getDocCache().get<std::string>(docKey));
     }
     // === ARRAY ===
     else if (type == Data::KeyType::array) {
-        size_t const size = global().getDocCache().memberSize(docKey);
+        size_t const size = Global::instance().getDocCache().memberSize(docKey);
         for (size_t i = 0; i < size; ++i) {
             std::string itemKey = docKey + "[" + std::to_string(i) + "]";
-            auto itemValue = global().getDocCache().get<std::string>(itemKey);
+            auto itemValue = Global::instance().getDocCache().get<std::string>(itemKey);
             std::string newItemKey = myKey + "[" + std::to_string(i) + "]";
             callerScope.set(callerScope.getRootScope() + newItemKey, itemValue);
         }

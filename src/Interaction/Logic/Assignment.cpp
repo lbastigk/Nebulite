@@ -90,7 +90,7 @@ void Assignment::apply(Core::JsonScope& self, Core::JsonScope& other) {
         targetDocument = &other;
         break;
     case Type::Global:
-        targetDocument = &global().domainScope;
+        targetDocument = &Global::instance().domainScope;
         break;
     case Type::null:
         // TODO: determine context from expression!

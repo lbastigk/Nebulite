@@ -181,7 +181,7 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
             break;
         case Component::From::global:
             if (isAvailableAsDoublePtr(key)) {
-                vd->setUpExternalCache(global().domainScope);
+                vd->setUpExternalCache(Global::instance().domainScope);
                 virtualDoubles.remanent.global.push_back(vd);
             } else {
                 virtualDoubles.nonRemanent.global.push_back(vd);
@@ -433,7 +433,7 @@ Expression::Expression(std::string const& expr, Core::JsonScope& self)
 void Expression::parse(std::string const& expr) {
     reset();
     fullExpression = expr;
-    //uniqueId = global().getUniqueId(fullExpression, Core::GlobalSpace::UniqueIdType::expression);
+    //uniqueId = Global::instance().getUniqueId(fullExpression, Core::GlobalSpace::UniqueIdType::expression);
     uniqueId = generateUniqueId(fullExpression);
     parseIntoComponents(expr);
     for (auto& component : components) {
@@ -471,10 +471,10 @@ bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr
         token = current_other.get<std::string>(Data::ScopedKey(strippedKey), "null");
         break;
     case Component::From::global:
-        token = global().domainScope.get<std::string>(Data::ScopedKey(strippedKey), "null");
+        token = Global::instance().domainScope.get<std::string>(Data::ScopedKey(strippedKey), "null");
         break;
     case Component::From::resource:
-        token = global().getDocCache().get<std::string>(strippedKey, "null");
+        token = Global::instance().getDocCache().get<std::string>(strippedKey, "null");
         break;
     case Component::From::None:
     default:
@@ -612,7 +612,7 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
         // One-time handle of multi-resolve and transformations
         Expression tempExpr(vde->getKey(), references.self);
         auto const evalResult = Data::ScopedKey(tempExpr.eval(reference));
-        auto const val = global().domainScope.get<double>(evalResult, 0.0);
+        auto const val = Global::instance().domainScope.get<double>(evalResult, 0.0);
         vde->setDirect(val);
     }
 
@@ -624,7 +624,7 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
             // One-time handle of multi-resolve and transformations
             Expression tempExpr(vde->getKey(), references.self);
             std::string const evalResult = tempExpr.eval(reference);
-            vde->setDirect(global().getDocCache().get<double>(evalResult, 0.0));
+            vde->setDirect(Global::instance().getDocCache().get<double>(evalResult, 0.0));
         }
     }
 }
@@ -653,19 +653,19 @@ bool Expression::evalAsBool(std::string const& input, ContextBase const& context
 
 std::string Expression::eval(std::string const& input) {
     Core::JsonScope emptyDoc;
-    ContextBase const context{emptyDoc, emptyDoc, global()};
+    ContextBase const context{emptyDoc, emptyDoc, Global::instance()};
     return eval(input, context);
 }
 
 double Expression::evalAsDouble(std::string const& input) {
     Core::JsonScope emptyDoc;
-    ContextBase const context{emptyDoc, emptyDoc, global()};
+    ContextBase const context{emptyDoc, emptyDoc, Global::instance()};
     return evalAsDouble(input, context);
 }
 
 bool Expression::evalAsBool(std::string const& input) {
     Core::JsonScope emptyDoc;
-    ContextBase const context{emptyDoc, emptyDoc, global()};
+    ContextBase const context{emptyDoc, emptyDoc, Global::instance()};
     return evalAsBool(input, context);
 }
 

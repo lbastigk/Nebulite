@@ -33,7 +33,7 @@ bool Texture::copyTexture() {
     // If no texture is linked, try to load from the document
     if (texture == nullptr) {
         std::string const& imageLink = domainScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "");
-        texture = global().getRenderer().loadTextureToMemory(imageLink);
+        texture = Global::instance().getRenderer().loadTextureToMemory(imageLink);
 
         if (texture == nullptr) {
             return false; // No texture to copy
@@ -49,28 +49,28 @@ bool Texture::copyTexture() {
     int const h = static_cast<int>(fh);
 
     // Create a new streaming texture (preserve format)
-    SDL_Texture* newTexture = SDL_CreateTexture(global().getSdlRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, w, h);
+    SDL_Texture* newTexture = SDL_CreateTexture(Global::instance().getSdlRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, w, h);
     if (!newTexture) {
         Error::println("Failed to create new texture: ", SDL_GetError());
         return false;
     }
 
     // Bind the new texture as the render target and copy
-    if (SDL_SetRenderTarget(global().getSdlRenderer(), newTexture) != 0) {
+    if (SDL_SetRenderTarget(Global::instance().getSdlRenderer(), newTexture) != 0) {
         Error::println("Failed to set render texture: ", SDL_GetError());
         SDL_DestroyTexture(newTexture);
         return false;
     }
 
-    if (SDL_RenderTexture(global().getSdlRenderer(), texture, nullptr, nullptr) != 0) {
+    if (SDL_RenderTexture(Global::instance().getSdlRenderer(), texture, nullptr, nullptr) != 0) {
         Error::println("Failed to copy texture: ", SDL_GetError());
-        SDL_SetRenderTarget(global().getSdlRenderer(), nullptr);
+        SDL_SetRenderTarget(Global::instance().getSdlRenderer(), nullptr);
         SDL_DestroyTexture(newTexture);
         return false;
     }
 
     // Unbind
-    SDL_SetRenderTarget(global().getSdlRenderer(), nullptr);
+    SDL_SetRenderTarget(Global::instance().getSdlRenderer(), nullptr);
 
     // Replace the old texture with the new one
     // We do not destroy the old texture, as it might be managed externally
@@ -81,7 +81,7 @@ bool Texture::copyTexture() {
 
 void Texture::loadTextureFromFile(std::string const& filePath) {
     // Load the texture using the global renderer
-    if (SDL_Texture* newTexture = global().getRenderer().loadTextureToMemory(filePath); newTexture) {
+    if (SDL_Texture* newTexture = Global::instance().getRenderer().loadTextureToMemory(filePath); newTexture) {
         // If a texture already exists and is stored locally, destroy it
         if (textureStoredLocally && texture) {
             SDL_DestroyTexture(texture);

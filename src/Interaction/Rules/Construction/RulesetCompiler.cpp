@@ -166,7 +166,7 @@ bool RulesetCompiler::getJsonRuleset(Core::JsonScope const& doc, Core::JsonScope
             // Is a static ruleset, return false
             return false;
         }
-        std::string const file = global().getDocCache().getDocString(potentialLink);
+        std::string const file = Global::instance().getDocCache().getDocString(potentialLink);
 
         if (file.empty()) {
             return false;
@@ -278,7 +278,7 @@ void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Core::
         if (assignment.onType == Logic::Assignment::Type::Global) {
             if (std::ranges::find(numeric_operations, assignment.operation) != std::ranges::end(numeric_operations)) {
                 // Numeric operation on global, try to get a direct pointer
-                if (double* ptr = global().domainScope.getStableDoublePointer(Data::ScopedKey(assignment.key->eval(self))); ptr != nullptr) {
+                if (double* ptr = Global::instance().domainScope.getStableDoublePointer(Data::ScopedKey(assignment.key->eval(self))); ptr != nullptr) {
                     assignment.targetValuePtr = ptr;
                 }
             }

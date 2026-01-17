@@ -24,7 +24,7 @@ Constants::Error General::eval(std::span<std::string const> const& args, Interac
 
     // Evaluate expression
     Core::JsonScope emptyDoc;
-    Interaction::ContextBase const context{emptyDoc,emptyDoc,global()};
+    Interaction::ContextBase const context{emptyDoc,emptyDoc,Global::instance()};
     std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr,context);
 
     // reparse
@@ -221,7 +221,7 @@ Constants::Error General::inScope(std::span<std::string const> const& args) cons
     // A bit whacky, as we use the global scope for this instead of what is shared with this DomainModule
     // But this is the only way to get a full JsonScope with domain functionality
     std::string const& scope = args[1];
-    auto& s = globalDoc().shareScope(*this).shareScope(scope);
+    auto& s = Global::shareScope(*this).shareScope(scope);
     std::string const& cmd = std::string(__FUNCTION__) + std::string(" ") + Utility::StringHandler::recombineArgs(args.subspan(2));
     return s.parseStr(cmd);
 }

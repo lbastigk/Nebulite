@@ -97,10 +97,10 @@ void Renderer::setupDisplayValues() {
     // Load from settings
     // Default values should never be used, as settings should always exist
     // Still, just in case, we set them to 1000x1000 @ 1x scaling and 60 FPS
-    auto const X = globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
-    auto const Y = globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
-    WindowScale = globalDoc().settings().get<uint8_t>(DomainModule::GlobalSpace::Settings::Key::resolutionScaling, 1);
-    fps.target = globalDoc().settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::targetFPS, 60);
+    auto const X = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
+    auto const Y = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
+    WindowScale = Global::settings().get<uint8_t>(DomainModule::GlobalSpace::Settings::Key::resolutionScaling, 1);
+    fps.target = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::targetFPS, 60);
 
     // Set in workspace
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X);

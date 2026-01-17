@@ -45,13 +45,13 @@ Constants::Error Ruleset::update() {
         for (size_t idx = 0; idx < subscription_size; idx++) {
             auto const key = Constants::KeyNames::RenderObject::Ruleset::listen + "[" + std::to_string(idx) + "]";
             auto const subscription = moduleScope.get<std::string>(key, "");
-            global().listen(domain, subscription, id);
+            Global::instance().listen(domain, subscription, id);
         }
 
         // Broadcast global rulesets
         for (auto const& entry : rulesetsGlobal) {
             // add pointer to invoke command to global
-            global().broadcast(entry);
+            Global::instance().broadcast(entry);
         }
     } else {
         return Constants::ErrorTable::RENDERER::CRITICAL_INVOKE_NULLPTR();
@@ -73,7 +73,7 @@ Constants::Error Ruleset::once(std::span<std::string const> const& args) const {
         std::string const arg = Utility::StringHandler::recombineArgs(args.subspan(1));
         if (auto const rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(arg, domain); rs.has_value()) {
             if (rs.value()->isGlobal()) {
-                global().broadcast(rs.value());
+                Global::instance().broadcast(rs.value());
             }
             else {
                 rs.value()->apply();

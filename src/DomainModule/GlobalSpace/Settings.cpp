@@ -15,7 +15,7 @@ Constants::Error Settings::update() {
 // NOLINTNEXTLINE
 Constants::Error Settings::saveSettings() {
     // Create JSON document with current settings
-    std::string const settings = globalDoc().settings().serialize();
+    std::string const settings = Global::settings().serialize();
     Utility::FileManagement::WriteFile(defaultSettingsFile, settings);
     return Constants::ErrorTable::NONE();
 }

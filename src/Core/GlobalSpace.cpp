@@ -9,8 +9,8 @@
 namespace Nebulite::Core {
 
 GlobalSpace::GlobalSpace(std::string const& name)
-    : Domain("Nebulite", *this, globalDoc().shareScope(*this, "")), // Domain with reference to GlobalSpace and its full scope
-      renderer(globalDoc().shareScope(*this, "renderer"), &cmdVars.headless) // Share only the renderer portion of the global document
+    : Domain("Nebulite", *this, Global::shareScope(*this, "")), // Domain with reference to GlobalSpace and its full scope
+      renderer(Global::shareScope(*this, "renderer"), &cmdVars.headless) // Share only the renderer portion of the global document
 {
     //------------------------------------------
     // Initialize floating DomainModules
@@ -20,7 +20,7 @@ GlobalSpace::GlobalSpace(std::string const& name)
         "RNG",
         domainScope,
         "random",
-        globalDoc().settings()
+        Global::settings()
     );
 
     //------------------------------------------
@@ -48,7 +48,7 @@ void GlobalSpace::initialize() {
     // Domain-Related
 
     // Inherit functions from child objects
-    inherit(&globalDoc().shareScope(*this, ""));
+    inherit(&Global::shareScope(*this, ""));
     inherit(&renderer);
 
     // Initialize DomainModules
@@ -69,7 +69,7 @@ Constants::Error GlobalSpace::updateInnerDomains() const {
     // For now, just update the JSON domain
     // Later on the logic here might be more complex
     // As more inner domains are added
-    static auto& fullScope = globalDoc().shareScope(*this, "");
+    static auto& fullScope = Global::shareScope(*this, "");
     Constants::Error const result = fullScope.update();
     // Renderer is not updated here, as it is updated in GlobalSpace::update()
     // TODO: See if we can generalize this so that we can safely call renderer.update() here as well

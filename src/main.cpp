@@ -59,16 +59,16 @@ int main(int const argc, char* argv[]) {
     //------------------------------------------
     // Initialize the global space, parse command line arguments
     auto const binaryName = std::string(argv[0]);
-    Nebulite::global().initialize();
-    Nebulite::global().parseCommandLineArguments(argc, const_cast<char const**>(argv));
+    Nebulite::Global::instance().initialize();
+    Nebulite::Global::instance().parseCommandLineArguments(argc, const_cast<char const**>(argv));
 
     //------------------------------------------
     // Render loop
     Nebulite::Constants::Error lastCriticalResult; // Last critical error result
     do {
         // At least one loop, to handle command line arguments
-        lastCriticalResult = Nebulite::global().update();
-    } while (Nebulite::global().shouldContinueLoop());
+        lastCriticalResult = Nebulite::Global::instance().update();
+    } while (Nebulite::Global::instance().shouldContinueLoop());
 
     //------------------------------------------
     // Exit
@@ -77,7 +77,7 @@ int main(int const argc, char* argv[]) {
     const bool criticalStop = lastCriticalResult.isCritical();
 
     // Destroy renderer
-    Nebulite::global().getRenderer().destroy();
+    Nebulite::Global::instance().getRenderer().destroy();
 
     // Inform user about any errors and return error code
     if (criticalStop) {
@@ -87,7 +87,7 @@ int main(int const argc, char* argv[]) {
     // Parser handles if error files need to be closed
     using namespace Nebulite::Constants;
     try {
-        if (Error const result = Nebulite::global().parseStr(binaryName + " " + std::string(Nebulite::DomainModule::GlobalSpace::Debug::errorlog_name) + " off"); result.isCritical()) {
+        if (Error const result = Nebulite::Global::instance().parseStr(binaryName + " " + std::string(Nebulite::DomainModule::GlobalSpace::Debug::errorlog_name) + " off"); result.isCritical()) {
             Nebulite::Error::println("Error disabling error log: ", result.getDescription());
             return MainReturnValues::logCloseError; // Closing log failed without exceptions
         }

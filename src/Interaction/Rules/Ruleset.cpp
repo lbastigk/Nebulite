@@ -26,7 +26,7 @@ void Ruleset::apply() {
 // Derived Class Methods: StaticRuleset
 
 void StaticRuleset::apply(Execution::DomainBase* contextOther) {
-    ContextBase const contextBase{*selfPtr, *contextOther, global()};
+    ContextBase const contextBase{*selfPtr, *contextOther, Global::instance()};
     staticFunction(contextBase);
 }
 
@@ -59,7 +59,7 @@ void JsonRuleset::apply(Execution::DomainBase* contextOther) {
         std::string call = entry.eval(contextOther->domainScope);
 
         // attach to task queue
-        global().getTaskQueue(Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
+        Global::instance().getTaskQueue(Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
 
     }
     for (auto& entry : functioncalls_self) {

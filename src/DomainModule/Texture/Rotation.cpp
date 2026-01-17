@@ -18,7 +18,7 @@ Constants::Error Rotation::rotate(int const argc, char** argv) const {
     }
 
     // Get the SDL_Renderer
-    SDL_Renderer* renderer = global().getSdlRenderer();
+    SDL_Renderer* renderer = Global::instance().getSdlRenderer();
     if (renderer == nullptr) {
         return Constants::ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED();
     }
