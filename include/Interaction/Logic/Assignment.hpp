@@ -30,9 +30,9 @@ namespace Nebulite::Interaction::Logic {
  * @brief Representing a variable assignment in the Nebulite scripting language.
  * @details [target] [operation] [value-to-evaluate]
  *          e.g.:
- *          - self.posX = 0
- *          - other.health += $(self.damage * 2)
- *          - global.name |= " the Great"
+ *          - `self.posX = 0`
+ *          - `other.health += $(self.damage * 2)`
+ *          - `global.name |= " the Great"`
  */
 class Assignment{
 public:

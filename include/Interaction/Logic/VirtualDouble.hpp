@@ -34,7 +34,7 @@ class VirtualDouble {
     // Key associated with this VirtualDouble
     std::string key;
 
-    // Key as scopedkey with no prefix
+    // Key as ScopedKey with no prefix
     Data::ScopedKey scopedKey = Data::ScopedKey("");
 
     /**
@@ -56,7 +56,7 @@ class VirtualDouble {
         static constexpr std::string_view other  = "other.";
         static constexpr std::string_view global = "global.";
     };
-    
+
 public:
     /**
      * @brief Construct a new VirtualDouble object.
