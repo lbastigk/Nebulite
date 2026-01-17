@@ -34,7 +34,7 @@ public:
 
     //------------------------------------------
     // Available Functions
-    
+
     Constants::Error fill(int argc, char** argv) const ;
     static auto constexpr fill_name = "fill";
     static auto constexpr fill_desc = "Fills the texture with a specified color.\n"

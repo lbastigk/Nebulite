@@ -33,7 +33,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error reloadTexture() const;
+    [[nodiscard]] Constants::Error reloadTexture() const;
     static auto constexpr reloadTexture_name = "reload-texture";
     static auto constexpr reloadTexture_desc = "Reload the texture from the document.\n"
         "\n"
