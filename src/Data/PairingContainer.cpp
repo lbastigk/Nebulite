@@ -11,7 +11,7 @@ void PairingContainer::insertBroadcaster(std::shared_ptr<Interaction::Rules::Rul
 
     // Insert into the data structure
     auto& [map, mtx] = data[topic]; // creates map if missing
-    auto const lock = Nebulite::Utility::SharedLock(mtx); // Second map requires manual locking
+    auto const lock = Utility::SharedLock(mtx); // Second map requires manual locking
     auto& [isActive, rulesets] = map[id]; // creates maps/entries if missing
     rulesets[index].entry = entry;
     isActive = true;
@@ -24,7 +24,7 @@ void PairingContainer::insertListener(Interaction::Execution::DomainBase& listen
         return; // No entries for this topic in this thread
     }
 
-    auto const lock = Nebulite::Utility::SharedLock(it->second.mutex);
+    auto const lock = Utility::SharedLock(it->second.mutex);
     for (auto& [id_self, onTopicFromId] : it->second.map) {
         // Skip if broadcaster and listener are the same object, or if the broadcaster is inactive
         if (id_self == listenerId || !onTopicFromId.active)

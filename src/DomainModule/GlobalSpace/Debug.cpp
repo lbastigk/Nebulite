@@ -161,7 +161,7 @@ Constants::Error Debug::errorlog(int const argc, char** argv) {
         if (!strcmp(argv[1], "on")) {
             if (!errorLogStatus) {
                 if (!safe_open_log(errorFile)) {
-                    Nebulite::cerr() << "Refusing to open log file: '" << logFilename << "' is a symlink or could not be opened." << Nebulite::endl;
+                    cerr() << "Refusing to open log file: '" << logFilename << "' is a symlink or could not be opened." << endl;
                     return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
                 }
                 originalCerrBuf = std::cerr.rdbuf();
@@ -256,8 +256,8 @@ Constants::Error Debug::crash(std::span<std::string const> const& args) {
             // Throw an uncaught exception
             throw std::runtime_error("Intentional crash: uncaught exception");
         } else {
-            Nebulite::cerr() << "Unknown crash type requested: " << crashType << Nebulite::endl;
-            Nebulite::cerr() << "Defaulting to segmentation fault" << Nebulite::endl;
+            cerr() << "Unknown crash type requested: " << crashType << endl;
+            cerr() << "Defaulting to segmentation fault" << endl;
         }
     } else {
         // Default: segmentation fault
@@ -269,7 +269,7 @@ Constants::Error Debug::crash(std::span<std::string const> const& args) {
 
 Constants::Error Debug::error(std::span<std::string const> const& args) {
     auto const& argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    Nebulite::cerr() << argStr << Nebulite::endl;
+    cerr() << argStr << endl;
     return Constants::ErrorTable::NONE();
 }
 
@@ -299,7 +299,7 @@ Constants::Error Debug::waitForInput(std::span<std::string const> const& args) {
         // Use the provided prompt as message
         message = args[1];
     }
-    Nebulite::cout() << message << Nebulite::endl;
+    cout() << message << endl;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return Constants::ErrorTable::NONE();
 }
@@ -307,7 +307,7 @@ Constants::Error Debug::waitForInput(std::span<std::string const> const& args) {
 //------------------------------------------
 // Private Methods
 
-void Debug::setupPlatformInfo() {
+void Debug::setupPlatformInfo() const {
 #ifdef _WIN32
     moduleScope.set<std::string>(Data::ScopedKey("platform"), "windows");
 #elif __linux__

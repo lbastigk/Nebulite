@@ -13,7 +13,7 @@
 
 namespace Nebulite::Core {
 
-Texture::Texture(Core::JsonScope& documentReference)
+Texture::Texture(JsonScope& documentReference)
     : Domain("Texture", *this, documentReference) {
     // Start with no texture
     texture = nullptr;
@@ -33,7 +33,7 @@ bool Texture::copyTexture() {
     // If no texture is linked, try to load from the document
     if (texture == nullptr) {
         std::string const& imageLink = domainScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "");
-        texture = Nebulite::global().getRenderer().loadTextureToMemory(imageLink);
+        texture = global().getRenderer().loadTextureToMemory(imageLink);
 
         if (texture == nullptr) {
             return false; // No texture to copy
@@ -42,35 +42,35 @@ bool Texture::copyTexture() {
     // SDL3: query size, access and format using the new helpers
     float fw = 0.0f, fh = 0.0f;
     if (SDL_GetTextureSize(texture, &fw, &fh) != 0) {
-        Nebulite::error::println("Failed to query texture: ", SDL_GetError());
+        error::println("Failed to query texture: ", SDL_GetError());
         return false;
     }
     int const w = static_cast<int>(fw);
     int const h = static_cast<int>(fh);
 
     // Create a new streaming texture (preserve format)
-    SDL_Texture* newTexture = SDL_CreateTexture(Nebulite::global().getSdlRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, w, h);
+    SDL_Texture* newTexture = SDL_CreateTexture(global().getSdlRenderer(), SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, w, h);
     if (!newTexture) {
-        Nebulite::error::println("Failed to create new texture: ", SDL_GetError());
+        error::println("Failed to create new texture: ", SDL_GetError());
         return false;
     }
 
     // Bind the new texture as the render target and copy
-    if (SDL_SetRenderTarget(Nebulite::global().getSdlRenderer(), newTexture) != 0) {
-        Nebulite::error::println("Failed to set render texture: ", SDL_GetError());
+    if (SDL_SetRenderTarget(global().getSdlRenderer(), newTexture) != 0) {
+        error::println("Failed to set render texture: ", SDL_GetError());
         SDL_DestroyTexture(newTexture);
         return false;
     }
 
-    if (SDL_RenderTexture(Nebulite::global().getSdlRenderer(), texture, nullptr, nullptr) != 0) {
-        Nebulite::error::println("Failed to copy texture: ", SDL_GetError());
-        SDL_SetRenderTarget(Nebulite::global().getSdlRenderer(), nullptr);
+    if (SDL_RenderTexture(global().getSdlRenderer(), texture, nullptr, nullptr) != 0) {
+        error::println("Failed to copy texture: ", SDL_GetError());
+        SDL_SetRenderTarget(global().getSdlRenderer(), nullptr);
         SDL_DestroyTexture(newTexture);
         return false;
     }
 
     // Unbind
-    SDL_SetRenderTarget(Nebulite::global().getSdlRenderer(), nullptr);
+    SDL_SetRenderTarget(global().getSdlRenderer(), nullptr);
 
     // Replace the old texture with the new one
     // We do not destroy the old texture, as it might be managed externally
@@ -81,7 +81,7 @@ bool Texture::copyTexture() {
 
 void Texture::loadTextureFromFile(std::string const& filePath) {
     // Load the texture using the global renderer
-    if (SDL_Texture* newTexture = Nebulite::global().getRenderer().loadTextureToMemory(filePath); newTexture) {
+    if (SDL_Texture* newTexture = global().getRenderer().loadTextureToMemory(filePath); newTexture) {
         // If a texture already exists and is stored locally, destroy it
         if (textureStoredLocally && texture) {
             SDL_DestroyTexture(texture);
@@ -89,7 +89,7 @@ void Texture::loadTextureFromFile(std::string const& filePath) {
         texture = newTexture;
         textureStoredLocally = false; // New texture is not yet modified
     } else {
-        Nebulite::error::println("Failed to load texture from file: ", filePath);
+        error::println("Failed to load texture from file: ", filePath);
     }
 }
 

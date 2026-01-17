@@ -4,7 +4,6 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "DomainModule/GlobalSpace/FeatureTest.hpp"
-#include "Data/Document/JSON.hpp"
 
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {
@@ -38,12 +37,12 @@ Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& /
     std::string_view constexpr addDesc = "Adds all provided numbers to the input number.\nUsage: <name> add num1 num2 ... numN";
 
     // Using the DomainModule bindFunctionStatic to bind the add method, otherwise we would need to do some complex template/visit gymnastics here
-    DomainModule::bindFunctionStatic(&testTree, &MathModifier::add, addName, addDesc);
+    bindFunctionStatic(&testTree, &MathModifier::add, addName, addDesc);
 
     // Call the function
     std::string const funcCall = "<name> add 1.5 2.5 3.0";
     double const result = testTree.parseStr(funcCall, 0.0);
-    Nebulite::cout() << "FuncTree result for call '" << funcCall << "': " << result << Nebulite::endl;
+    log::println("FuncTree result for call '", funcCall, "': ", result);
     return Constants::ErrorTable::NONE();
 }
 
