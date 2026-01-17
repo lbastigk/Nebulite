@@ -145,14 +145,14 @@ public:
     //------------------------------------------
     // Provide access to the global GlobalSpace singleton
     static Core::GlobalSpace& instance() {
-        return globalSpaceInstance;
+        return globalSpaceInstance();
     }
 
     //------------------------------------------
     // Share a read-only setting scope
 
     [[nodiscard]] static Data::JsonScopeBase const& settings() {
-        static auto const& settingsScopeConst = globalDoc.shareManagedScopeBase("settings.");
+        static auto const& settingsScopeConst = globalDoc().shareManagedScopeBase("settings.");
         return settingsScopeConst;
     }
 
@@ -161,7 +161,7 @@ public:
 
     [[nodiscard]] static Core::JsonScope& shareScope(Core::GlobalSpace const& gs, std::string const& prefix) {
         (void)gs; // only used for access control
-        return globalDoc.shareManagedScope(prefix);
+        return globalDoc().shareManagedScope(prefix);
     }
 
     //------------------------------------------
@@ -169,19 +169,19 @@ public:
 
     // GlobalSpace DomainModules root is at "", then we add their own prefix
     [[nodiscard]] static Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm) {
-        return globalDoc.shareManagedScope(dm.moduleScope.getScopePrefix());
+        return globalDoc().shareManagedScope(dm.moduleScope.getScopePrefix());
     }
 
     // Provide a custom scope for DomainModules from RenderObjects
     // We add a prefix to signal what part these domainModules can access
     [[nodiscard]] static Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::RenderObject> const& dm) {
-        return globalDoc.shareManagedScope("providedScope.domainModule.renderObject." + dm.moduleScope.getScopePrefix());
+        return globalDoc().shareManagedScope("providedScope.domainModule.renderObject." + dm.moduleScope.getScopePrefix());
     }
 
     // Provide a custom scope for DomainModules from JsonScope
     // We add a prefix to signal what part these domainModules can access
     [[nodiscard]] static Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::JsonScope> const& dm) {
-        return globalDoc.shareManagedScope("providedScope.domainModule.jsonScope." + dm.moduleScope.getScopePrefix());
+        return globalDoc().shareManagedScope("providedScope.domainModule.jsonScope." + dm.moduleScope.getScopePrefix());
     }
 
     // Provide scope to RulesetModules
@@ -191,11 +191,19 @@ public:
         //       e.g. Physics RulesetModule might only need access to physics-related variables.
         //       For this to work properly, we may have to add the ability to share multiple scopes.
         //       -> physics and time for example
-        return globalDoc.shareManagedScope("");
+        return globalDoc().shareManagedScope("");
     }
 private:
-    static Data::JSON globalDoc;
-    static Core::GlobalSpace globalSpaceInstance;
+    // construct-on-first-use singletons to avoid global constructors/destructors
+    static Data::JSON& globalDoc() {
+        static Data::JSON instance;
+        return instance;
+    }
+
+    static Core::GlobalSpace& globalSpaceInstance() {
+        static Core::GlobalSpace instance{"Nebulite"};
+        return instance;
+    }
 };
 
 class Log {
