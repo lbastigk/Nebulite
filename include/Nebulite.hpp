@@ -135,9 +135,6 @@ namespace Utility {
 //------------------------------------------
 // Singleton accessors
 
-/**
- * @todo: add ErrorTable for access via single header file.
- */
 namespace Nebulite {
 
 /**
