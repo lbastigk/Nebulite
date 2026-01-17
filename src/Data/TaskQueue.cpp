@@ -5,7 +5,7 @@ namespace Nebulite::Data {
 
 TaskQueueResult TaskQueue::resolve(Interaction::Execution::DomainBase& context, bool const& recover) {
     Constants::Error currentResult;
-    Data::TaskQueueResult fullResult;
+    TaskQueueResult fullResult;
 
     // 1.) Process and pop tasks
     if (settings.clearAfterResolving) {
@@ -66,12 +66,12 @@ TaskQueueResult TaskQueue::resolve(Interaction::Execution::DomainBase& context, 
 }
 
 void TaskQueue::pushBack(std::string const& task) {
-    std::lock_guard<std::mutex> lock(tasks.mutex);
+    std::lock_guard lock(tasks.mutex);
     tasks.list.push_back(task);
 }
 
 void TaskQueue::pushFront(std::string const& task) {
-    std::lock_guard<std::mutex> lock(tasks.mutex);
+    std::lock_guard lock(tasks.mutex);
     tasks.list.push_front(task);
 }
 

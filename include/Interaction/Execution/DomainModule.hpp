@@ -28,9 +28,11 @@ bool constexpr endsWithNewline(std::string_view const& str) {
     return !str.empty() && str.back() == '\n';
 }
 
+// NOLINTNEXTLINE
 #define NEBULITE_DOMAINMODULE(DomainName,DomainModuleName) \
     class DomainModuleName final : public Nebulite::Interaction::Execution::DomainModule<DomainName>
 
+// NOLINTNEXTLINE
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
     explicit DomainModuleName( \
         std::string const& name, DomainName& domainReference, \
@@ -47,6 +49,7 @@ bool constexpr endsWithNewline(std::string_view const& str) {
 // without the additional overhead if we were to turn them into full Domains.
 // Useful for small "runners" with neatly separated functionality, that need the ability to be called
 // separately.
+// NOLINTNEXTLINE
 #define NEBULITE_FLOATING_DOMAINMODULE(DomainModule, DomainModuleName, Document, Workspace, Settings) \
     std::make_unique<DomainModule>( \
         DomainModuleName, \
@@ -56,7 +59,7 @@ bool constexpr endsWithNewline(std::string_view const& str) {
         Settings \
     )
 
-#define BINDFUNCTION(func, name,desc) \
+#define BIND_FUNCTION(func, name,desc) \
 static_assert(endsWithNewline(desc), "Function description must end with a newline character."); \
     bindFunction(func, name, desc)
 

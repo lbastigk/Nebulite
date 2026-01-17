@@ -38,6 +38,7 @@ struct BroadCastListenPair {
         entry->apply(contextOther);
     }
 #else
+    // TODO: Possible to use std::future<bool> here to check only if needed?
     bool active = false; // If false, this pair is skipped during update
 
     // Apply function: Hash map version needs to check active flag
@@ -77,8 +78,7 @@ public:
     }
 
 #else
-private:
-    mutable Nebulite::Utility::SharedMutex mutex;
+    mutable Utility::SharedMutex mutex;
 
     absl::node_hash_map<uint32_t, BroadCastListenPair> listeners; // id_other -> BroadCastListenPair
 
@@ -87,7 +87,7 @@ public:
     ~ListenersOnRuleset() = default;
 
     ListenersOnRuleset(ListenersOnRuleset const& other) {
-        Nebulite::Utility::ReadLock slock(other.mutex); // lock other for reading
+        Utility::ReadLock slock(other.mutex); // lock other for reading
         listeners = other.listeners;
         entry = other.entry;
     }
@@ -95,18 +95,18 @@ public:
     ListenersOnRuleset& operator=(ListenersOnRuleset const& other) {
         if (this == &other) return *this;
         if (&mutex < &other.mutex) {
-            Nebulite::Utility::WriteLock writeLock(mutex);
-            Nebulite::Utility::ReadLock readLock(other.mutex);
+            Utility::WriteLock writeLock(mutex);
+            Utility::ReadLock readLock(other.mutex);
             listeners = other.listeners;
             entry = other.entry;
         } else if (&mutex > &other.mutex) {
-            Nebulite::Utility::ReadLock readLock(other.mutex);
-            Nebulite::Utility::WriteLock writeLock(mutex);
+            Utility::ReadLock readLock(other.mutex);
+            Utility::WriteLock writeLock(mutex);
             listeners = other.listeners;
             entry = other.entry;
         } else {
             // fallback (shouldn't happen unless aliases point to same underlying mutex)
-            Nebulite::Utility::WriteLock writeLock(mutex);
+            Utility::WriteLock writeLock(mutex);
             listeners = other.listeners;
             entry = other.entry;
         }
@@ -118,8 +118,8 @@ public:
     void cleanup() {
         // Thread-local random generator for probabilistic cleanup
         thread_local std::mt19937 cleanup_rng(std::random_device{}());
-        thread_local std::uniform_int_distribution<int> cleanup_dist(0, 99); // uniform, avoids modulo bias
-        Nebulite::Utility::WriteLock writeLock(mutex);
+        thread_local std::uniform_int_distribution cleanup_dist(0, 99); // uniform, avoids modulo bias
+        Utility::WriteLock writeLock(mutex);
         if (cleanup_dist(cleanup_rng) == 0) {
             for (auto it = listeners.begin(); it != listeners.end();) {
                 if (!it->second.active) {
@@ -133,14 +133,14 @@ public:
     }
 
     void apply() {
-        Nebulite::Utility::ReadLock readLock(mutex);
+        Utility::ReadLock readLock(mutex);
         for (auto& pair : std::views::values(listeners)) {
             pair.apply();
         }
     }
 
     void insert(uint32_t const& id, BroadCastListenPair const& pair) {
-        Nebulite::Utility::WriteLock writeLock(mutex);
+        Utility::WriteLock writeLock(mutex);
         listeners[id] = pair;
     }
 #endif // USE_BYTETREE_CONTAINER
@@ -164,8 +164,8 @@ public:
      * @brief Required for processing to start working
      * @return A unique lock on the internal mutex
      */
-    Nebulite::Utility::SharedLock lock() const {
-        return Nebulite::Utility::SharedLock(mutex);
+    Utility::SharedLock lock() const {
+        return Utility::SharedLock(mutex);
     }
 
 private:
@@ -174,14 +174,14 @@ private:
             uint32_t,           // The ID of self.
             OnTopicFromId       // The struct containing active flag and rulesets
         > map;
-        mutable Nebulite::Utility::SharedMutex mutex; // Mutex for thread-safe access
+        mutable Utility::SharedMutex mutex; // Mutex for thread-safe access
     };
 
     // HotStringKeyMap seems to be minimally faster than a standard hash map for multiple topics
     HotStringKeyMap<idToMap> data;
 
     // Mutex for thread-safe access
-    mutable Nebulite::Utility::SharedMutex mutex;
+    mutable Utility::SharedMutex mutex;
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_PAIRING_CONTAINER_HPP

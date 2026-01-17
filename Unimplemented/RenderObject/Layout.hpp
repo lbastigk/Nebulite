@@ -68,8 +68,8 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Layout) {
-        BINDFUNCTION(&Layout::alignText, "align-text", "Aligns text to object dimensions");
-        BINDFUNCTION(&Layout::makeBox, "make-box", "Creates a box based on text dimensions");
+        BIND_FUNCTION(&Layout::alignText, "align-text", "Aligns text to object dimensions");
+        BIND_FUNCTION(&Layout::makeBox, "make-box", "Creates a box based on text dimensions");
     }
 };
 }   // namespace DomainModule

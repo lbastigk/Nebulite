@@ -105,21 +105,21 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::JsonScope, SimpleData) {
         // Bind functions specific to complex data handling
-        BINDFUNCTION(&SimpleData::set, set_name, set_desc);
+        BIND_FUNCTION(&SimpleData::set, set_name, set_desc);
 
         // Internal move/copy
-        BINDFUNCTION(&SimpleData::move, move_name, move_desc);
-        BINDFUNCTION(&SimpleData::copy, copy_name, copy_desc);
+        BIND_FUNCTION(&SimpleData::move, move_name, move_desc);
+        BIND_FUNCTION(&SimpleData::copy, copy_name, copy_desc);
 
         // Internal key deletion
-        BINDFUNCTION(&SimpleData::keyDelete, keyDelete_name, keyDelete_desc);
+        BIND_FUNCTION(&SimpleData::keyDelete, keyDelete_name, keyDelete_desc);
 
         // Array manipulation
-        BINDFUNCTION(&SimpleData::push_back, push_back_name, push_back_desc);
-        BINDFUNCTION(&SimpleData::pop_back, pop_back_name, pop_back_desc);
-        BINDFUNCTION(&SimpleData::push_front, push_front_name, push_front_desc);
-        BINDFUNCTION(&SimpleData::pop_front, pop_front_name, pop_front_desc);
-        BINDFUNCTION(&SimpleData::ensureArray, ensureArray_name, ensureArray_desc);
+        BIND_FUNCTION(&SimpleData::push_back, push_back_name, push_back_desc);
+        BIND_FUNCTION(&SimpleData::pop_back, pop_back_name, pop_back_desc);
+        BIND_FUNCTION(&SimpleData::push_front, push_front_name, push_front_desc);
+        BIND_FUNCTION(&SimpleData::pop_front, pop_front_name, pop_front_desc);
+        BIND_FUNCTION(&SimpleData::ensureArray, ensureArray_name, ensureArray_desc);
     }
 };
 } // namespace Nebulite::DomainModule::JsonScope

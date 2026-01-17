@@ -1,10 +1,18 @@
-#include "Interaction/Logic/Expression.hpp"
+//------------------------------------------
+// Includes
 
+// Standard library
 #include <cmath>
 
+// Nebulite
 #include "Nebulite.hpp"
+#include "Data/RollingId.hpp"
+#include "Interaction/Logic/Expression.hpp"
+#include "Interaction/Logic/VirtualDouble.hpp"
 
+//------------------------------------------
 namespace Nebulite::Interaction::Logic {
+
 //------------------------------------------
 // Private:
 
@@ -173,7 +181,7 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
             break;
         case Component::From::global:
             if (isAvailableAsDoublePtr(key)) {
-                vd->setUpExternalCache(Nebulite::global().domainScope);
+                vd->setUpExternalCache(Global::instance().domainScope);
                 virtualDoubles.remanent.global.push_back(vd);
             } else {
                 virtualDoubles.nonRemanent.global.push_back(vd);
@@ -187,7 +195,7 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
         case Component::From::None:
         default:
             // Should not happen
-            Nebulite::cerr() << __FUNCTION__ << ": Tried to register variable with no known context!" << Nebulite::endl;
+            Error::println(__FUNCTION__, ": Tried to register variable with no known context!");
             break;
         }
 
@@ -385,28 +393,28 @@ void Expression::printCompileError(std::shared_ptr<Component> const& component, 
         offendingChar = std::string(1, component->str[static_cast<size_t>(error) - 1]);
     }
     std::stringstream ss;
-    ss << "-----------------------------------------------------------------" << Nebulite::endl;
-    ss << "Error compiling expression: '" << component->str << "' At position: " << std::to_string(error) << ", offending character: " << offendingChar << Nebulite::endl;
-    ss << "You might see this message multiple times due to expression parallelization." << Nebulite::endl;
-    ss << Nebulite::endl;
-    ss << "If you only see the start of your expression, make sure to encompass your expression in quotes" << Nebulite::endl;
-    ss << "Some functions assume that the expression is inside, e.g. argv[1]." << Nebulite::endl;
-    ss << "Example: " << Nebulite::endl;
-    ss << "if $(1+1)     echo here! # works" << Nebulite::endl;
-    ss << "if $(1 + 1)   echo here! # doesnt work!" << Nebulite::endl;
-    ss << "if '$(1 + 1)' echo here! # works" << Nebulite::endl;
-    ss << Nebulite::endl;
+    ss << "-----------------------------------------------------------------" << "\n";
+    ss << "Error compiling expression: '" << component->str << "' At position: " << std::to_string(error) << ", offending character: " << offendingChar << "\n";
+    ss << "You might see this message multiple times due to expression parallelization." << "\n";
+    ss << "\n";
+    ss << "If you only see the start of your expression, make sure to encompass your expression in quotes" << "\n";
+    ss << "Some functions assume that the expression is inside, e.g. argv[1]." << "\n";
+    ss << "Example: " << "\n";
+    ss << "if $(1+1)     echo here! # works" << "\n";
+    ss << "if $(1 + 1)   echo here! # doesnt work!" << "\n";
+    ss << "if '$(1 + 1)' echo here! # works" << "\n";
+    ss << "\n";
     ss << "Registered functions and variables:\n";
     for (auto const& var : te_variables) {
         ss << "\t'" << var.name << "'\n";
     }
-    ss << Nebulite::endl;
-    ss << "Resetting expression to always yield 'nan'" << Nebulite::endl;
-    ss << Nebulite::endl;
-    ss << Nebulite::endl;
+    ss << "\n";
+    ss << "Resetting expression to always yield 'nan'" << "\n";
+    ss << "\n";
+    ss << "\n";
 
-    // Send whole message to cerr
-    Nebulite::cerr() << ss.str();
+    // Send whole message to cerr at once, to avoid interleaving with other messages
+    Error::println(ss.str());
 }
 
 //------------------------------------------
@@ -425,7 +433,7 @@ Expression::Expression(std::string const& expr, Core::JsonScope& self)
 void Expression::parse(std::string const& expr) {
     reset();
     fullExpression = expr;
-    //uniqueId = global().getUniqueId(fullExpression, Core::GlobalSpace::UniqueIdType::expression);
+    //uniqueId = Global::instance().getUniqueId(fullExpression, Core::GlobalSpace::UniqueIdType::expression);
     uniqueId = generateUniqueId(fullExpression);
     parseIntoComponents(expr);
     for (auto& component : components) {
@@ -442,7 +450,7 @@ bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr
     // See if the variable contains an inner expression
     if (component->str.find('$') != std::string::npos || component->str.find('{') != std::string::npos) {
         if (maximumRecursionDepth == 0) {
-            Nebulite::cerr() << "Error: Maximum recursion depth reached when evaluating variable: " << component->key << Nebulite::endl;
+            Error::println("Error: Maximum recursion depth reached when evaluating variable: ", component->key);
             return false;
         }
         // Create a temporary expression to evaluate the inner expression
@@ -463,14 +471,14 @@ bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr
         token = current_other.get<std::string>(Data::ScopedKey(strippedKey), "null");
         break;
     case Component::From::global:
-        token = Nebulite::global().domainScope.get<std::string>(Data::ScopedKey(strippedKey), "null");
+        token = Global::instance().domainScope.get<std::string>(Data::ScopedKey(strippedKey), "null");
         break;
     case Component::From::resource:
-        token = Nebulite::global().getDocCache().get<std::string>(strippedKey, "null");
+        token = Global::instance().getDocCache().get<std::string>(strippedKey, "null");
         break;
     case Component::From::None:
     default:
-        Nebulite::cerr() << "Error: Unknown context in expression: " << strippedKey << Nebulite::endl;
+        Error::println("Error: Unknown context in expression: ", strippedKey);
         token = "null";
         break;
     }
@@ -604,7 +612,7 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
         // One-time handle of multi-resolve and transformations
         Expression tempExpr(vde->getKey(), references.self);
         auto const evalResult = Data::ScopedKey(tempExpr.eval(reference));
-        auto const val = Nebulite::global().domainScope.get<double>(evalResult, 0.0);
+        auto const val = Global::instance().domainScope.get<double>(evalResult, 0.0);
         vde->setDirect(val);
     }
 
@@ -616,7 +624,7 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
             // One-time handle of multi-resolve and transformations
             Expression tempExpr(vde->getKey(), references.self);
             std::string const evalResult = tempExpr.eval(reference);
-            vde->setDirect(Nebulite::global().getDocCache().get<double>(evalResult, 0.0));
+            vde->setDirect(Global::instance().getDocCache().get<double>(evalResult, 0.0));
         }
     }
 }
@@ -626,17 +634,17 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
 
 // With context
 
-std::string Expression::eval(std::string const& input, Interaction::ContextBase const& context) {
+std::string Expression::eval(std::string const& input, ContextBase const& context) {
     Expression const expr(input, context.self.domainScope);
     return expr.eval(context.other.domainScope);
 }
 
-double Expression::evalAsDouble(std::string const& input, Interaction::ContextBase const& context) {
+double Expression::evalAsDouble(std::string const& input, ContextBase const& context) {
     Expression const expr(input, context.self.domainScope);
     return expr.evalAsDouble(context.other.domainScope);
 }
 
-bool Expression::evalAsBool(std::string const& input, Interaction::ContextBase const& context) {
+bool Expression::evalAsBool(std::string const& input, ContextBase const& context) {
     double const result = evalAsDouble(input, context);
     return std::fabs(result) > DBL_EPSILON;
 }
@@ -645,20 +653,28 @@ bool Expression::evalAsBool(std::string const& input, Interaction::ContextBase c
 
 std::string Expression::eval(std::string const& input) {
     Core::JsonScope emptyDoc;
-    Interaction::ContextBase const context{emptyDoc, emptyDoc, Nebulite::global()};
+    ContextBase const context{emptyDoc, emptyDoc, Global::instance()};
     return eval(input, context);
 }
 
 double Expression::evalAsDouble(std::string const& input) {
     Core::JsonScope emptyDoc;
-    Interaction::ContextBase const context{emptyDoc, emptyDoc, Nebulite::global()};
+    ContextBase const context{emptyDoc, emptyDoc, Global::instance()};
     return evalAsDouble(input, context);
 }
 
 bool Expression::evalAsBool(std::string const& input) {
     Core::JsonScope emptyDoc;
-    Interaction::ContextBase const context{emptyDoc, emptyDoc, Nebulite::global()};
+    ContextBase const context{emptyDoc, emptyDoc, Global::instance()};
     return evalAsBool(input, context);
+}
+
+//------------------------------------------
+// Other Static helpers
+
+uint64_t Expression::generateUniqueId(std::string const& expression) {
+    static Data::RollingId idGenerator;
+    return idGenerator.getId(expression);
 }
 
 //------------------------------------------

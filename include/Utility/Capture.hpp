@@ -55,7 +55,7 @@ public:
 
     CaptureStream& operator<<(char const* data){
         // Cast to std::string, then call templated operator
-        return (*this) << std::string(data);
+        return *this << std::string(data);
     }
 
     //------------------------------------------
@@ -113,11 +113,11 @@ public:
         instance().outputLog.clear();
     }
 
-    static constexpr char const* endl = "\n";
+    static auto constexpr* endl = "\n";
 
 private:
     // Make constructor private for singleton
-    Capture() : coutStream(this, std::cout, OutputLine::Type::COUT), cerrStream(this, std::cerr, OutputLine::Type::CERR){}
+    Capture() = default;
 
     CaptureStream coutStream{this, std::cout, OutputLine::Type::COUT};
     CaptureStream cerrStream{this, std::cerr, OutputLine::Type::CERR};
@@ -130,7 +130,7 @@ template<typename T>
 CaptureStream& CaptureStream::operator<<(T const& data){
     baseStream.get() << data;
     {
-        std::scoped_lock<std::mutex> const lock(parent->outputLogMutex);
+        std::scoped_lock const lock(parent->outputLogMutex);
 
         // Combine lastLine with new data
         std::ostringstream workingBuffer;
@@ -139,7 +139,7 @@ CaptureStream& CaptureStream::operator<<(T const& data){
 
         // Split buffer by newlines
         std::string const buf = workingBuffer.str();
-        std::vector<std::string> lines = Nebulite::Utility::StringHandler::split(buf, '\n');
+        std::vector<std::string> lines = StringHandler::split(buf, '\n');
 
         // If last character is not newline, keep it in workingBuffer
         // And do not push it to outputLog yet
@@ -161,7 +161,7 @@ void CaptureStream::print(Args&&... args){
     // Turn into string, pass to operator<<
     std::ostringstream workingBuffer;
     (workingBuffer << ... << args);
-    (*this) << workingBuffer.str();
+    *this << workingBuffer.str();
 }
 
 template<typename... Args>
@@ -170,7 +170,7 @@ void CaptureStream::println(Args&&... args) {
     std::ostringstream workingBuffer;
     (workingBuffer << ... << args);
     workingBuffer << '\n';
-    (*this) << workingBuffer.str();
+    *this << workingBuffer.str();
 }
 
 } // namespace Nebulite::Utility

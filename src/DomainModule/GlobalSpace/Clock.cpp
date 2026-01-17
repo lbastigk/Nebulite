@@ -99,7 +99,7 @@ Clock::ClockEntry::ClockEntry(uint64_t const& interval, Data::JsonScopeBase& doc
 void Clock::ClockEntry::update(uint64_t const& current_time) {
     // Check projected dt of timer
     if (current_time - last_trigger_ms >= interval_ms) {
-        // Instead of setting last_trigger_ms to current_time, 
+        // Instead of setting last_trigger_ms to current_time,
         // we set it forward by as much interval_ms as possible to avoid drift
         // in case of delays
         uint64_t const dt = current_time - last_trigger_ms;

@@ -89,7 +89,7 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(FunctionPtr const& f
     if (name.find(' ') != std::string::npos) {
         std::vector<std::string> const pathStructure = Utility::StringHandler::split(name, ' ');
         if (pathStructure.size() < 2) {
-            Nebulite::Utility::Capture::cerr() << "Error: Invalid function name '" << name << "'." << Nebulite::Utility::Capture::endl;
+            Utility::Capture::cerr() << "Error: Invalid function name '" << name << "'." << Utility::Capture::endl;
             return;
         }
         absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
@@ -102,7 +102,7 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(FunctionPtr const& f
             targetTree = (*currentCategoryMap)[currentCategoryName].tree.get();
             currentCategoryMap = &targetTree->bindingContainer.categories;
         }
-        std::string const functionName = pathStructure.back();
+        std::string const& functionName = pathStructure.back();
         targetTree->bindFunction(func, functionName, helpDescription);
         return;
     }
@@ -163,13 +163,13 @@ template <typename returnValue, typename... additionalArgs>
 void FuncTree<returnValue, additionalArgs...>::bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription) {
     // Make sure there are no whitespaces in the variable name
     if (name.find(' ') != std::string::npos) {
-        Nebulite::Utility::Capture::cerr() << "Error: Variable name '" << name << "' cannot contain whitespaces." << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "Error: Variable name '" << name << "' cannot contain whitespaces." << Utility::Capture::endl;
         exit(EXIT_FAILURE);
     }
 
     // Make sure the variable isn't bound yet
     if (bindingContainer.variables.find(name) != bindingContainer.variables.end()) {
-        Nebulite::Utility::Capture::cerr() << "Error: Variable '" << name << "' is already bound." << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "Error: Variable '" << name << "' is already bound." << Utility::Capture::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -207,7 +207,7 @@ bool FuncTree<returnValue, additionalArgs...>::conflictCheck(std::string_view co
         }
         );
     if (conflictIt != inheritedTrees.end()) {
-        auto conflictTree = *conflictIt;
+        auto const& conflictTree = *conflictIt;
         bindErrorMessage::FunctionExistsInInheritedTree(TreeName, conflictTree->TreeName, name);
         return false;
     }
@@ -352,7 +352,6 @@ template <typename returnValue, typename... additionalArgs>
 template <typename Func>
 FuncTree<returnValue, additionalArgs...>::FunctionPtr
 FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Func functionPtr) {
-    using This = FuncTree;
     using FunctionPtrT = FunctionPtr;
     using DecayF = std::decay_t<Func>;
 
@@ -372,35 +371,35 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Func functionPtr) {
     // If raw function pointer (free/static)
     if constexpr (std::is_pointer_v<DecayF> && std::is_function_v<std::remove_pointer_t<DecayF>>) {
         if constexpr (constexpr ShapeClassifier::FunctionShape shape = ShapeClassifier::classifyFunction<DecayF, returnValue, additionalArgs...>(); shape == ShapeClassifier::FunctionShape::Free_Legacy_IntChar) {
-            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Legacy::IntChar>,
+            return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Legacy::IntChar>,
                                 std::function<returnValue(int, char**)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::Free_Legacy_IntConstChar) {
-            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Legacy::IntConstChar>,
+            return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Legacy::IntConstChar>,
                                 std::function<returnValue(int, char const**)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::Free_Modern_NoAddArgs) {
-            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoAddArgs>,
-                                std::function<returnValue(typename This::CmdArgs::Span)>(functionPtr));
+            return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgs>,
+                                std::function<returnValue(typename CmdArgs::Span)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::Free_Modern_NoAddArgsConstRef) {
-            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoAddArgsConstRef>,
-                                std::function<returnValue(typename This::CmdArgs::SpanConstRef)>(functionPtr));
+            return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgsConstRef>,
+                                std::function<returnValue(typename CmdArgs::SpanConstRef)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::Free_Modern_Full) {
-            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::Full>,
-                                std::function<returnValue(typename This::CmdArgs::Span, additionalArgs...)>(functionPtr));
+            return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::Full>,
+                                std::function<returnValue(typename CmdArgs::Span, additionalArgs...)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::Free_Modern_FullConstRef) {
-            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::FullConstRef>,
-                                std::function<returnValue(typename This::CmdArgs::SpanConstRef, additionalArgs...)>(functionPtr));
+            return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::FullConstRef>,
+                                std::function<returnValue(typename CmdArgs::SpanConstRef, additionalArgs...)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::Free_NoArgs) {
-            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoArgs>,
+            return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoArgs>,
                                 std::function<returnValue()>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::Free_NoCmdArgs) {
-            return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoCmdArgs>,
+            return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoCmdArgs>,
                                 std::function<returnValue(additionalArgs...)>(functionPtr));
         }
         else {
@@ -409,28 +408,28 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Func functionPtr) {
     }
 
     // If it's a callable object (lambda/std::function), try to pick a sensible alternative
-    if constexpr (std::is_invocable_v<Func, typename This::CmdArgs::Span, additionalArgs...>) {
-        return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::Full>,
-                            std::function<returnValue(typename This::CmdArgs::Span, additionalArgs...)>(functionPtr));
+    if constexpr (std::is_invocable_v<Func, typename CmdArgs::Span, additionalArgs...>) {
+        return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::Full>,
+                            std::function<returnValue(typename CmdArgs::Span, additionalArgs...)>(functionPtr));
     }
-    else if constexpr (std::is_invocable_v<Func, typename This::CmdArgs::SpanConstRef, additionalArgs...>) {
-        return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::FullConstRef>,
-                            std::function<returnValue(typename This::CmdArgs::SpanConstRef, additionalArgs...)>(functionPtr));
+    else if constexpr (std::is_invocable_v<Func, typename CmdArgs::SpanConstRef, additionalArgs...>) {
+        return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::FullConstRef>,
+                            std::function<returnValue(typename CmdArgs::SpanConstRef, additionalArgs...)>(functionPtr));
     }
-    else if constexpr (std::is_invocable_v<Func, typename This::CmdArgs::Span>) {
-        return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoAddArgs>,
-                            std::function<returnValue(typename This::CmdArgs::Span)>(functionPtr));
+    else if constexpr (std::is_invocable_v<Func, typename CmdArgs::Span>) {
+        return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgs>,
+                            std::function<returnValue(typename CmdArgs::Span)>(functionPtr));
     }
-    else if constexpr (std::is_invocable_v<Func, typename This::CmdArgs::SpanConstRef>) {
-        return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoAddArgsConstRef>,
-                            std::function<returnValue(typename This::CmdArgs::SpanConstRef)>(functionPtr));
+    else if constexpr (std::is_invocable_v<Func, typename CmdArgs::SpanConstRef>) {
+        return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgsConstRef>,
+                            std::function<returnValue(typename CmdArgs::SpanConstRef)>(functionPtr));
     }
     else if constexpr (std::is_invocable_v<Func>) {
-        return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoArgs>,
+        return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoArgs>,
                             std::function<returnValue()>(functionPtr));
     }
     else if constexpr (std::is_invocable_v<Func, additionalArgs...>) {
-        return FunctionPtrT(std::in_place_type<typename This::SupportedFunctions::Modern::NoCmdArgs>,
+        return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoCmdArgs>,
                             std::function<returnValue(additionalArgs...)>(functionPtr));
     }
     else {
@@ -503,7 +502,7 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
             // No extra args in FuncTree -> store as NoArgs
             return FunctionPtrT(
                 std::in_place_type<typename SupportedFunctions::Modern::NoArgs>,
-                [objectPtr, memberFunctionPtr]() {
+                [objectPtr, memberFunctionPtr] {
                     return std::invoke(memberFunctionPtr, objectPtr);
             });
         } else {
@@ -692,15 +691,16 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
         }
         return bindingContainer.categories[function].tree->parseStr(cmd, addArgs...);
     }
-    Nebulite::Utility::Capture::cerr() << "Function '" << function << "' not found in FuncTree " << TreeName << ", its inherited FuncTrees or their categories!\n";
-    Nebulite::Utility::Capture::cerr() << "Arguments are:" << Nebulite::Utility::Capture::endl;
+    Utility::Capture::cerr() << "Function '" << function << "' not found in FuncTree " << TreeName << ", its inherited FuncTrees or their categories!\n";
+    Utility::Capture::cerr() << "Arguments are:" << Utility::Capture::endl;
     for (int i = 0; i < argc; i++) {
-        Nebulite::Utility::Capture::cerr() << "argv[" << i << "] = '" << argv[i] << "'\n";
+        Utility::Capture::cerr() << "argv[" << i << "] = '" << argv[i] << "'\n";
     }
-    Nebulite::Utility::Capture::cerr() << "Available functions:  " << bindingContainer.functions.size() << Nebulite::Utility::Capture::endl;
-    Nebulite::Utility::Capture::cerr() << "Available categories: " << bindingContainer.categories.size() << Nebulite::Utility::Capture::endl;
+    Utility::Capture::cerr() << "Available functions:  " << bindingContainer.functions.size() << Utility::Capture::endl;
+    Utility::Capture::cerr() << "Available categories: " << bindingContainer.categories.size() << Utility::Capture::endl;
     return standardReturn.valFunctionNotFound; // Return error if function not found
 }
 
 } // namespace Nebulite::Interaction::Execution
+#include "Interaction/Execution/FuncTreeArgumentCompletion.tpp"
 #endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREE_TPP

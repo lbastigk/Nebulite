@@ -27,19 +27,19 @@ public:
     V& operator[](K const& key) {
         // Fast path and lookup under shared lock
         {
-            Nebulite::Utility::ReadLock slock(mtxMap);
+            Utility::ReadLock slock(mtxMap);
             if (hotKeyEntry.active && hotKeyEntry.key == key) {
-                return *(hotKeyEntry.value);
+                return *hotKeyEntry.value;
             }
         }
 
         // Acquire exclusive lock and re-check/create safely
-        Nebulite::Utility::WriteLock ulock(mtxMap);
+        Utility::WriteLock ulock(mtxMap);
         auto it2 = map.find(key);
         if (it2 != map.end()) {
             hotKeyEntry.active = true;
             hotKeyEntry.key = key;
-            hotKeyEntry.value = &(it2->second);
+            hotKeyEntry.value = &it2->second;
             return it2->second;
         }
 
@@ -57,7 +57,7 @@ public:
      * @return Iterator to the found entry or map.end() if not found.
      */
     auto find(K const& key) {
-        Nebulite::Utility::ReadLock slock(mtxMap);
+        Utility::ReadLock slock(mtxMap);
         if (hotKeyEntry.active && hotKeyEntry.key == key) {
             return map.find(hotKeyEntry.key); // Return iterator to hotkey entry
         }
@@ -69,7 +69,7 @@ public:
      * @return Iterator to the beginning of the map.
      */
     auto begin() {
-        Nebulite::Utility::ReadLock slock(mtxMap);
+        Utility::ReadLock slock(mtxMap);
         return map.begin();
     }
 
@@ -78,7 +78,7 @@ public:
      * @return Iterator to the end of the map.
      */
     auto end() {
-        Nebulite::Utility::ReadLock slock(mtxMap);
+        Utility::ReadLock slock(mtxMap);
         return map.end();
     }
 
@@ -100,7 +100,7 @@ public:
 
 private:
     absl::node_hash_map<K, V> map;
-    mutable Nebulite::Utility::SharedMutex mtxMap;
+    mutable Utility::SharedMutex mtxMap;
 
     /**
      * @brief Holds the last accessed key-value pair for hotkey optimization.
@@ -108,7 +108,7 @@ private:
     struct HotKeyEntry {
         bool active = false;
         K key;
-        V* value;
+        V* value = nullptr;
     }hotKeyEntry;
 };
 } // namespace Nebulite::Data

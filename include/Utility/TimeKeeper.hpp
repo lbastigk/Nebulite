@@ -41,7 +41,7 @@ public:
         //     The whole timer works on dt integration, so we always need to know the current dt
         onUpdate.last_t_ms = onUpdate.t_ms;
         onUpdate.t_ms      = Time::getTime() - t_start;
-        
+
         //------------------------------------------
         // 2.) Derive dt from status
         if(running){

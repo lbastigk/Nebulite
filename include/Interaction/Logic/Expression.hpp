@@ -19,11 +19,27 @@
 #include <tinyexpr.h>
 
 // Nebulite
-#include "Data/Document/DocumentCache.hpp"
-#include "Data/RollingId.hpp"
-#include "Interaction/Context.hpp"
 #include "Interaction/Logic/VariableNameGenerator.hpp"
-#include "Interaction/Logic/VirtualDouble.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Core {
+class JsonScope;
+} // namespace Nebulite::Core
+
+namespace Nebulite::Data {
+class ScopedKey;
+class ScopedKeyView;
+} // namespace Nebulite::Data
+
+namespace Nebulite::Interaction {
+class ContextBase;
+} // namespace Nebulite::Interaction
+
+namespace Nebulite::Interaction::Logic {
+class VirtualDouble;
+} // namespace Nebulite::Interaction::Logic
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -141,7 +157,7 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated string value.
      */
-    static std::string eval(std::string const& input, Interaction::ContextBase const& context);
+    static std::string eval(std::string const& input, ContextBase const& context);
 
     /**
      * @brief Evaluates a given expression string as a double with a constant reference to the context.
@@ -149,7 +165,7 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated double value.
      */
-    static double evalAsDouble(std::string const& input, Interaction::ContextBase const& context);
+    static double evalAsDouble(std::string const& input, ContextBase const& context);
 
     /**
      * @brief Evaluates a given expression string as a boolean with a constant reference to the context.
@@ -157,7 +173,7 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated boolean value.
      */
-    static bool evalAsBool(std::string const& input, Interaction::ContextBase const& context);
+    static bool evalAsBool(std::string const& input, ContextBase const& context);
 
     // Global-only evaluation (both self and other context are empty documents)
 
@@ -187,10 +203,7 @@ public:
      * @param expression The expression string to generate an ID for.
      * @return The generated unique ID.
      */
-    static uint64_t generateUniqueId(std::string const& expression) {
-        static Data::RollingId idGenerator;
-        return idGenerator.getId(expression);
-    }
+    static uint64_t generateUniqueId(std::string const& expression);
 
 private:
     /**

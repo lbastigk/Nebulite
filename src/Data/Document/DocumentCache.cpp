@@ -1,11 +1,11 @@
 #include "Data/Document/DocumentCache.hpp"
 
 namespace Nebulite::Data {
-void Nebulite::Data::DocumentCache::update() {
+void DocumentCache::update() {
     readOnlyDocs.update();
 }
 
-double* Nebulite::Data::DocumentCache::getStableDoublePointer(std::string const& doc_key) {
+double* DocumentCache::getStableDoublePointer(std::string const& doc_key) {
     auto [doc, key] = splitDocKey(doc_key);
 
     ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);

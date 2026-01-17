@@ -154,7 +154,7 @@ inline void exampleUsage() {
     // We can parse user commands in this scope...
     if(physicsScope.parseStr("set velocity 5.0") != Nebulite::Constants::ErrorTable::NONE()) {
         // handle error
-        Nebulite::error::println("Failed to set velocity");
+        Nebulite::Error::println("Failed to set velocity");
 
         // ...Or set values directly
         physicsScope.set<int>(velocityKey, 5.0);
@@ -164,8 +164,8 @@ inline void exampleUsage() {
     double const velocity = physicsScope.get(velocityKey, 0.0); // Success
     double const timeInMs = physicsScope.get(timeInMsKey, 0.0); // Throws exception
 
-    Nebulite::log::println("Velocity: ", velocity);
-    Nebulite::log::println("Time in ms: ", timeInMs);
+    Log::println("Velocity: ", velocity);
+    Log::println("Time in ms: ", timeInMs);
 }
 ```
 

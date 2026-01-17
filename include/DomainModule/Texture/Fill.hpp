@@ -34,7 +34,7 @@ public:
 
     //------------------------------------------
     // Available Functions
-    
+
     Constants::Error fill(int argc, char** argv) const ;
     static auto constexpr fill_name = "fill";
     static auto constexpr fill_desc = "Fills the texture with a specified color.\n"
@@ -51,7 +51,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Fill) {
-        BINDFUNCTION(&Fill::fill, fill_name, fill_desc);
+        BIND_FUNCTION(&Fill::fill, fill_name, fill_desc);
     }
 };
 } // namespace Nebulite::DomainModule::Texture

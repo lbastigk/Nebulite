@@ -131,4 +131,25 @@ void TextInput::append(char const* c) const {
     *consoleInputBuffer = newBuffer;
 }
 
+// Getters
+
+/**
+     * @brief Gets the current input buffer.
+     * @return The current input buffer as a string pointer.
+     */
+[[nodiscard]] std::string* TextInput::getInputBuffer() const {
+    return consoleInputBuffer;
+}
+
+/**
+ * @brief Gets the queue of output lines.
+ */
+std::deque<TextInput::LineEntry>* TextInput::getOutput(){
+    return &consoleOutput;
+}
+
+uint16_t TextInput::getCursorOffset() const {
+    return cursorOffset;
+}
+
 } // namespace Nebulite::Utility

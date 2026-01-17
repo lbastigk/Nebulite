@@ -30,9 +30,9 @@ namespace Nebulite::Interaction::Logic {
  * @brief Representing a variable assignment in the Nebulite scripting language.
  * @details [target] [operation] [value-to-evaluate]
  *          e.g.:
- *          - self.posX = 0
- *          - other.health += $(self.damage * 2)
- *          - global.name |= " the Great"
+ *          - `self.posX = 0`
+ *          - `other.health += $(self.damage * 2)`
+ *          - `global.name |= " the Great"`
  */
 class Assignment{
 public:
@@ -74,9 +74,9 @@ public:
     }
 
 private:
-    void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& value, Core::JsonScope& target) const ;
-    void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& value, Core::JsonScope& target) const ;
-    void setValueOfKey(double const& value, double* target) const ;
+    void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Core::JsonScope& target) const ;
+    void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& val, Core::JsonScope& target) const ;
+    void setValueOfKey(double const& val, double* target) const ;
 
     /**
      * @brief Target document type (Self, Other, Global)

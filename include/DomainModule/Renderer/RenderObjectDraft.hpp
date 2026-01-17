@@ -70,7 +70,7 @@ public:
 
     //------------------------------------------
     // Category names
-    
+
     static auto constexpr draft_name = "draft";
     static auto constexpr draft_desc = "Functions to manipulate and spawn RenderObjects in draft state";
 
@@ -83,9 +83,9 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RenderObjectDraft) {
         // Bind functions
         (void)bindCategory(draft_name, draft_desc);
-        BINDFUNCTION(&RenderObjectDraft::draft_parse, draft_parse_name, draft_parse_desc);
-        BINDFUNCTION(&RenderObjectDraft::draft_spawn, draft_spawn_name, draft_spawn_desc);
-        BINDFUNCTION(&RenderObjectDraft::draft_reset, draft_reset_name, draft_reset_desc);
+        BIND_FUNCTION(&RenderObjectDraft::draft_parse, draft_parse_name, draft_parse_desc);
+        BIND_FUNCTION(&RenderObjectDraft::draft_spawn, draft_spawn_name, draft_spawn_desc);
+        BIND_FUNCTION(&RenderObjectDraft::draft_reset, draft_reset_name, draft_reset_desc);
     }
 
 private:
@@ -95,7 +95,6 @@ private:
      * @details Ensuring the draft is only initialized when accessed through lazy-init
      */
     class DraftHolder {
-    private:
         std::unique_ptr<Core::RenderObject> ptr;
 
     public:

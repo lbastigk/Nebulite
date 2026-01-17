@@ -51,7 +51,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Rotation) {
-        BINDFUNCTION(&Rotation::rotate, rotate_name, rotate_desc);
+        BIND_FUNCTION(&Rotation::rotate, rotate_name, rotate_desc);
     }
 };
 } // namespace Nebulite::DomainModule::Texture

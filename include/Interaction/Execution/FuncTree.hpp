@@ -70,8 +70,7 @@ public:
     };
 
     // Function pointer type
-    using FunctionPtr = std::conditional_t<
-        (sizeof...(additionalArgs) == 0),
+    using FunctionPtr = std::conditional_t<sizeof...(additionalArgs) == 0,
         // no additional args -> avoid duplicates (keep only no-add variants)
         std::variant<
             typename SupportedFunctions::Legacy::IntChar,
@@ -121,10 +120,9 @@ public:
 
     /**
      * @brief Inherits functions from another Tree.
-     * 
      * @param toInherit FuncTree pointer to inherit functions from.
      */
-    void inherit(std::shared_ptr<FuncTree> toInherit) {
+    void inherit(std::shared_ptr<FuncTree> const& toInherit) {
         inheritedTrees.push_back(toInherit);
     }
 
@@ -136,7 +134,7 @@ public:
      * @param func Function to call before parsing
      */
     void setPreParse(std::function<returnValue()> func) {
-        preParse = func;
+        preParse = std::move(func);
     }
 
     /**
@@ -354,7 +352,7 @@ private:
                         *varInfo.pointer = true;
                     }
                 } else {
-                    Nebulite::Utility::Capture::cerr() << "Warning: Unknown variable '--" << name << "'\n";
+                    Utility::Capture::cerr() << "Warning: Unknown variable '--" << name << "'\n";
                 }
 
                 // Remove from argument list
@@ -422,7 +420,7 @@ private:
      * @param ftree Pointer to the current FuncTree
      * @return Pointer to the FuncTree of the category, or nullptr if not found.
      */
-    FuncTree<returnValue, additionalArgs...>* traverseIntoCategory(std::string const& categoryName, FuncTree* ftree);
+    FuncTree* traverseIntoCategory(std::string const& categoryName, FuncTree* ftree);
 
     //------------------------------------------
     // Comparison helper
@@ -434,7 +432,4 @@ private:
 
 // Template implementations
 #include "Interaction/Execution/FuncTree.tpp"
-#include "Interaction/Execution/FuncTreeArgumentCompletion.tpp"
-
 #endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
-

@@ -21,12 +21,11 @@
 #include "Constants/ErrorTypes.hpp"
 #include "Data/Document/DocumentCache.hpp"
 #include "Data/TaskQueue.hpp"
+#include "DomainModule/GlobalSpace/Floating/RNG.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
-#include "Interaction/Rules/RulesetModule.hpp"
 
-#include "DomainModule/GlobalSpace/Floating/RNG.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -39,7 +38,7 @@ namespace Nebulite::Core {
  * @brief Declares the core types, global objects, and functions for the Nebulite Engine.
  *        Used as a global workspace for functionality such as Rendering, Time, RNGs, etc.
  * @details In order to avoid infinite recursion, GlobalSpace itself does not own its Document.
- *          Instead, it accesses the global document via Nebulite::globalDoc().
+ *          Instead, it accesses the global document via Global::
  *          This prevents issues where DomainModules might try to access GlobalSpace during their construction
  *          in order to access the global document, leading to infinite recursion.
  *          By separating the GlobalSpace and the Global Document, we ensure that the construction of both is independent.
@@ -126,7 +125,7 @@ public:
      * @param topic The topic to listen for.
      * @param listenerId The unique ID of the listener domain.
      */
-    void listen(Interaction::Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId) {
+    void listen(DomainBase& listener, std::string const& topic, uint32_t const& listenerId) {
         invoke.listen(listener, topic, listenerId);
     }
 
@@ -196,9 +195,9 @@ public:
      * @brief Contains standard task queue names used in the GlobalSpace.
      */
     struct StandardTasks {
-        inline static constexpr const char* always = "tasks::always";
-        inline static constexpr const char* internal = "tasks::internal";
-        inline static constexpr const char* script = "tasks::script";
+        static auto constexpr always = "tasks::always";
+        static auto constexpr internal = "tasks::internal";
+        static auto constexpr script = "tasks::script";
     };
 
     //------------------------------------------

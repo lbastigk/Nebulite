@@ -33,7 +33,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error reloadTexture() const;
+    [[nodiscard]] Constants::Error reloadTexture() const;
     static auto constexpr reloadTexture_name = "reload-texture";
     static auto constexpr reloadTexture_desc = "Reload the texture from the document.\n"
         "\n"
@@ -46,7 +46,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, General) {
-        BINDFUNCTION(&General::reloadTexture, reloadTexture_name, reloadTexture_desc);
+        BIND_FUNCTION(&General::reloadTexture, reloadTexture_name, reloadTexture_desc);
     }
 };
 } // namespace Nebulite::DomainModule::Texture

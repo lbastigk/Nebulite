@@ -75,7 +75,7 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Clock) {
         //------------------------------------------
         // Binding functions to the FuncTree
-        BINDFUNCTION(&Clock::addClock, addClock_name, addClock_desc);
+        BIND_FUNCTION(&Clock::addClock, addClock_name, addClock_desc);
 
         // Read clock list from document
         readClocksFromDocument();

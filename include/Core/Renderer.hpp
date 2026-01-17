@@ -22,6 +22,7 @@
 #include "Constants/KeyNames.hpp"
 #include "Utility/TimeKeeper.hpp"
 #include "Interaction/Invoke.hpp"
+#include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -37,7 +38,7 @@ public:
      * @param documentReference Reference to the JSON document
      * @param flag_headless Reference to the Boolean flag for headless mode.
      */
-    Renderer(Core::JsonScope& documentReference, bool* flag_headless);
+    Renderer(JsonScope& documentReference, bool* flag_headless);
 
     //------------------------------------------
     // Disallow copying and moving
@@ -280,13 +281,13 @@ public:
      * @brief Gets the current resolution in the X direction.
      * @return The current resolution in the X direction.
      */
-    [[nodiscard]] int getResX() const { return domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0); }
+    [[nodiscard]] int getResX() const ;
 
     /**
      * @brief Gets the current resolution in the Y direction.
      * @return The current resolution in the Y direction.
      */
-    [[nodiscard]] int getResY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 0); }
+    [[nodiscard]] int getResY() const ;
 
     /**
      * @brief Gets the current FPS.
@@ -299,14 +300,14 @@ public:
      *        The position is considered to be the top left corner of the screen.
      * @return The current position of the camera in the X direction.
      */
-    [[nodiscard]] int getPosX() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionX, 0); }
+    [[nodiscard]] int getPosX() const ;
 
     /**
      * @brief Gets the current position of the camera in the Y direction.
      *        The position is considered to be the top left corner of the screen.
      * @return The current position of the camera in the Y direction.
      */
-    [[nodiscard]] int getPosY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionY, 0); }
+    [[nodiscard]] int getPosY() const ;
 
     /**
      * @brief Gets the current tile position of the camera in the X direction.
@@ -454,7 +455,7 @@ private:
 
     /**
      * @brief Base directory for resource loading.
-     * @todo Route all resource loading through Nebulite::global() for consistent path management.
+     * @todo Route all resource loading through Global::instance() for consistent path management.
      */
     std::string baseDirectory;
 

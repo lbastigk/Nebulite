@@ -106,7 +106,7 @@ public:
 };
 
 // Vector alias for easier usage of ordered double pointer vectors
-using odpvec = Nebulite::Data::DynamicFixedArray;
+using odpvec = DynamicFixedArray;
 
 /**
  * @class MappedOrderedDoublePointers
@@ -149,7 +149,7 @@ public:
      */
     odpvec* ensureOrderedCacheList(
         uint64_t const& uniqueId,
-        std::vector<Data::ScopedKeyView> const& keys
+        std::vector<ScopedKeyView> const& keys
         );
 
 private:
@@ -166,12 +166,12 @@ private:
     /**
      * @brief Mutex for thread-safe access to the cache.
      */
-    Nebulite::Utility::SharedMutex mtxCache;
+    Utility::SharedMutex mtxCache;
 
     /**
      * @brief Mutex for thread-safe access to the map.
      */
-    Nebulite::Utility::SharedMutex mtxMap;
+    Utility::SharedMutex mtxMap;
 
     /**
      * @brief Quick cache for the first few OrderedDoublePointers entries.

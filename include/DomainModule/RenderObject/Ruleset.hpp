@@ -11,7 +11,6 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
-#include "Constants/KeyNames.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -29,16 +28,12 @@ namespace Nebulite::DomainModule::RenderObject {
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Ruleset) {
 public:
     Constants::Error update() override;
-    void reinit() override {
-        reloadRulesets = true;
-        subscription_size = moduleScope.memberSize(Constants::KeyNames::RenderObject::Ruleset::listen);
-        id = domain.getId();
-    }
+    void reinit() override ;
 
     //------------------------------------------
     // Available Functions
 
-    Constants::Error once(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Error once(std::span<std::string const> const& args) const ;
     static auto constexpr once_name = "ruleset once";
     static auto constexpr once_desc = "Applies all rulesets once on the next update\n"
         "\n"

@@ -72,7 +72,7 @@ Constants::Error General::spawn(int const argc, char** argv) const {
         // Renderer manages the RenderObjects lifetime
         domain.append(ro);
     } else {
-        Nebulite::cerr() << "No renderobject name provided!" << Nebulite::endl;
+        Error::println("No renderobject name provided!");
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     return Constants::ErrorTable::NONE();

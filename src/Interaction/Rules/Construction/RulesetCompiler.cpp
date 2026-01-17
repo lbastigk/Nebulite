@@ -166,7 +166,7 @@ bool RulesetCompiler::getJsonRuleset(Core::JsonScope const& doc, Core::JsonScope
             // Is a static ruleset, return false
             return false;
         }
-        std::string const file = Nebulite::global().getDocCache().getDocString(potentialLink);
+        std::string const file = Global::instance().getDocCache().getDocString(potentialLink);
 
         if (file.empty()) {
             return false;
@@ -199,7 +199,7 @@ void RulesetCompiler::setMetaData(
     }
 }
 
-void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal, std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal, Interaction::Execution::DomainBase& self) {
+void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal, std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal, Execution::DomainBase& self) {
     // Clean up existing entries - shared pointers will automatically handle cleanup
     rulesetsGlobal.clear();
     rulesetsLocal.clear();
@@ -260,7 +260,7 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
 void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Core::JsonScope& self) {
     // List of operations that are considered numeric and thus eligible for direct pointer assignment.
     // Any new numeric operation must be added here to benefit from optimization techniques in the Invoke class.
-    std::array<Logic::Assignment::Operation,3> constexpr numeric_operations = {
+    std::array constexpr numeric_operations = {
         Logic::Assignment::Operation::set,
         Logic::Assignment::Operation::add,
         Logic::Assignment::Operation::multiply
@@ -278,7 +278,7 @@ void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Core::
         if (assignment.onType == Logic::Assignment::Type::Global) {
             if (std::ranges::find(numeric_operations, assignment.operation) != std::ranges::end(numeric_operations)) {
                 // Numeric operation on global, try to get a direct pointer
-                if (double* ptr = Nebulite::global().domainScope.getStableDoublePointer(Data::ScopedKey(assignment.key->eval(self))); ptr != nullptr) {
+                if (double* ptr = Global::instance().domainScope.getStableDoublePointer(Data::ScopedKey(assignment.key->eval(self))); ptr != nullptr) {
                     assignment.targetValuePtr = ptr;
                 }
             }
@@ -297,22 +297,22 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope const& d
             staticRulesetEntry.type != StaticRulesetMap::StaticRuleSetWithMetaData::Type::invalid
         ) {
             // Is a valid static ruleset
-            auto Ruleset = std::make_shared<Interaction::Rules::StaticRuleset>();
+            auto Ruleset = std::make_shared<StaticRuleset>();
             Ruleset->topic = staticRulesetEntry.topic;
-            Ruleset->_isGlobal = (staticRulesetEntry.type == StaticRulesetMap::StaticRuleSetWithMetaData::Type::Global);
+            Ruleset->_isGlobal = staticRulesetEntry.type == StaticRulesetMap::StaticRuleSetWithMetaData::Type::Global;
             Ruleset->staticFunction = staticRulesetEntry.function;
             Ruleset->selfPtr = &self; // Set self pointer, might be helpful even for static rulesets
             return Ruleset;
         }
         // Skip this entry if it cannot be parsed
         // Warn user of invalid entry
-        Nebulite::error::println("Warning: could not parse Ruleset entry with string '", staticFunctionName, "'. Skipping entry.");
+        Error::println("Warning: could not parse Ruleset entry with string '", staticFunctionName, "'. Skipping entry.");
         return std::monostate{};
     }
     // Is a valid JSON-defined ruleset
-    auto Ruleset = std::make_shared<Interaction::Rules::JsonRuleset>();
+    auto Ruleset = std::make_shared<JsonRuleset>();
     Ruleset->topic = entry.get<std::string>(Constants::KeyNames::Ruleset::topic, "all");
-    Ruleset->_isGlobal = (!Ruleset->topic.empty()); // If topic is empty, it is a local invoke
+    Ruleset->_isGlobal = !Ruleset->topic.empty(); // If topic is empty, it is a local invoke
     std::string logicalArgStr = getCondition(entry);
     logicalArgStr = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(logicalArgStr));
     Ruleset->logicalArg = std::make_unique<Logic::ExpressionPool>(logicalArgStr, self.domainScope);
@@ -343,7 +343,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope const& d
     return Ruleset;
 }
 
-std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string const& identifier, Interaction::Execution::DomainBase& self) {
+std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string const& identifier, Execution::DomainBase& self) {
     Core::JsonScope tempDoc;
     auto const root = Data::ScopedKey("");
     tempDoc.set(root, identifier);

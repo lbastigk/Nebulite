@@ -160,11 +160,6 @@ private:
      * @param var The variant value stored in the cache.
      * @param defaultValue The default value to return if conversion fails.
      * @return The converted value of type newType, or defaultValue on failure.
-     * @todo The if-branches for string "true"/"false" to int/double conversions are currently commented out,
-     *       as they cause issues when compiling on macOS. Reason unknown, says it can't convert to the respective type,
-     *       even though it is explicitly the correct type. Needs further investigation.
-     *       Most likely reason is that the compiler doesn't like the nested if-branch inside the constexpr if?
-     *       Even a redundant static_cast to the return didn't help.
      */
     template <typename newType>
     static newType convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue = newType{});

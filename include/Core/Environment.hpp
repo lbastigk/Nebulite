@@ -14,6 +14,7 @@
 #include <vector>
 
 // Nebulite
+#include "Interaction/Execution/Domain.hpp"
 #include "Data/RenderObjectContainer.hpp"
 
 //------------------------------------------
@@ -65,7 +66,7 @@ public:
     //------------------------------------------
     // Special Members
 
-    explicit Environment(Core::JsonScope& documentReference);
+    explicit Environment(JsonScope& documentReference);
 
     ~Environment() override ;
 

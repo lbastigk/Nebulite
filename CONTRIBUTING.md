@@ -205,8 +205,8 @@ public:
 
         // Bind functions using the name/description constants above
         // Using a macro to ensure consistency
-        BINDFUNCTION(&MyModule::exampleCommand, exampleCommand_name, exampleCommand_desc);
-        BINDFUNCTION(&MyModule::anotherCmd, anotherCmd_name, anotherCmd_desc);
+        BIND_FUNCTION(&MyModule::exampleCommand, exampleCommand_name, exampleCommand_desc);
+        BIND_FUNCTION(&MyModule::anotherCmd, anotherCmd_name, anotherCmd_desc);
     }
 };
 } // namespace Nebulite::DomainModule::RenderObject

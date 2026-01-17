@@ -39,11 +39,10 @@ public:
             throw std::overflow_error("RollingId counter has exceeded maximum limit.");
         }
         std::scoped_lock lock(mutex);
-        auto const& it = idMap.find(key);
-        if (it != idMap.end()) {
+        if (auto const& it = idMap.find(key); it != idMap.end()) {
             return it->second;
         }
-        uint32_t id = counter++;
+        uint32_t const id = counter++;
         idMap[key] = id;
         return id;
     }

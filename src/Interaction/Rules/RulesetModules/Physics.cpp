@@ -18,9 +18,9 @@ Physics::Physics() : RulesetModule(moduleName) {
     BIND_STATIC_ASSERT(RulesetType::Local, &Physics::drag, dragName, dragDesc);
 
     // Global Variables
-    globalVal.G = Nebulite::globalDoc().shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Physics::Key::Global::G); // Gravitational constant
-    globalVal.dt = Nebulite::globalDoc().shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_dt); // Simulation delta time
-    globalVal.t = Nebulite::globalDoc().shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_t); // Simulation time
+    globalVal.G = Global::shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Physics::Key::Global::G); // Gravitational constant
+    globalVal.dt = Global::shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_dt); // Simulation delta time
+    globalVal.t = Global::shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_t); // Simulation time
 }
 
 // Global rulesets
@@ -138,7 +138,7 @@ void Physics::gravity(ContextBase const& context) const {
     double const distanceY = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
 
     // Avoid division by zero by adding a small epsilon
-    double const denominator = std::pow((distanceX * distanceX + distanceY * distanceY), 1.5) + 1; // +1 to avoid singularity
+    double const denominator = std::pow(distanceX * distanceX + distanceY * distanceY, 1.5) + 1; // +1 to avoid singularity
     double const coefficient = *globalVal.G * baseVal(slf, Key::physics_mass) * baseVal(otr, Key::physics_mass) / denominator;
 
     // Apply gravitational force to other entity

@@ -1,9 +1,15 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Nebulite.hpp"
+#include "Core/RenderObject.hpp"
 #include "DomainModule/RenderObject/Ruleset.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Utility/StringHandler.hpp"
 
+//------------------------------------------
 namespace Nebulite::DomainModule::RenderObject {
 
 //------------------------------------------
@@ -39,18 +45,24 @@ Constants::Error Ruleset::update() {
         for (size_t idx = 0; idx < subscription_size; idx++) {
             auto const key = Constants::KeyNames::RenderObject::Ruleset::listen + "[" + std::to_string(idx) + "]";
             auto const subscription = moduleScope.get<std::string>(key, "");
-            Nebulite::global().listen(domain, subscription, id);
+            Global::instance().listen(domain, subscription, id);
         }
 
         // Broadcast global rulesets
         for (auto const& entry : rulesetsGlobal) {
             // add pointer to invoke command to global
-            Nebulite::global().broadcast(entry);
+            Global::instance().broadcast(entry);
         }
     } else {
         return Constants::ErrorTable::RENDERER::CRITICAL_INVOKE_NULLPTR();
     }
     return Constants::ErrorTable::NONE();
+}
+
+void Ruleset::reinit() {
+    reloadRulesets = true;
+    subscription_size = moduleScope.memberSize(Constants::KeyNames::RenderObject::Ruleset::listen);
+    id = domain.getId();
 }
 
 //------------------------------------------
@@ -61,7 +73,7 @@ Constants::Error Ruleset::once(std::span<std::string const> const& args) const {
         std::string const arg = Utility::StringHandler::recombineArgs(args.subspan(1));
         if (auto const rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(arg, domain); rs.has_value()) {
             if (rs.value()->isGlobal()) {
-                Nebulite::global().broadcast(rs.value());
+                Global::instance().broadcast(rs.value());
             }
             else {
                 rs.value()->apply();

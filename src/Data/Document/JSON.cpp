@@ -143,8 +143,8 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
 
     // Checking for malformed shouldn't be necessary, but just in case
     if (it != cache.end() && it->second->state == CacheEntry::EntryState::MALFORMED) {
-        Nebulite::error::println("Warning: Attempted to access malformed key in getVariant(): ", key);
-        Nebulite::error::println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
+        Error::println("Warning: Attempted to access malformed key in getVariant(): ", key);
+        Error::println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
         return {};
     }
 
@@ -239,8 +239,8 @@ double* JSON::getStableDoublePointer(std::string const& key) const {
 
     // Check for transformations
     if (key.find('|') != std::string::npos) {
-        Nebulite::Utility::Capture::cerr() << "Transformations are not supported in getStableDoublePointer(): " << key << Nebulite::Utility::Capture::endl;
-        Nebulite::Utility::Capture::cerr() << "For integrity, we will create a cache entry with the malformed key" << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "Transformations are not supported in getStableDoublePointer(): " << key << Utility::Capture::endl;
+        Utility::Capture::cerr() << "For integrity, we will create a cache entry with the malformed key" << Utility::Capture::endl;
         auto new_entry = std::make_unique<CacheEntry>();
         new_entry->value = 0.0;
         *new_entry->stable_double_ptr = 0.0;
@@ -297,13 +297,13 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
 
     // Check if key is valid
     if (!RjDirectAccess::isValidKey(key)) {
-        Nebulite::Utility::Capture::cerr() << "Invalid key: " << key << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "Invalid key: " << key << Utility::Capture::endl;
         return;
     }
 
     // Check if key contains transformations
     if (key.find('|') != std::string::npos) {
-        Nebulite::Utility::Capture::cerr() << "Transformations are not supported in set(): " << key << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cerr() << "Transformations are not supported in set(): " << key << Utility::Capture::endl;
         return;
     }
 
@@ -358,7 +358,7 @@ void JSON::setSubDoc(char const* key, JSON const& child) {
         // Since we inserted an entire document, we need to invalidate its child keys:
         invalidate_child_keys(key);
     } else {
-        Nebulite::error::println("Failed to create or access path: ", key);
+        Error::println("Failed to create or access path: ", key);
     }
 }
 
@@ -555,4 +555,4 @@ void JSON::set_concat(std::string_view const& key, std::string const& valStr) {
     }
 }
 
-} // namespace Nebulite::Utility
+} // namespace Utility

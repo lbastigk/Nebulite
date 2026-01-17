@@ -134,7 +134,6 @@ private:
  *       Then, if we have more than UINT16_MAX errors, we can just exit with a message.
  */
 class ErrorTable {
-private:
     /**
      * @todo It might be better to not use a local description container, and instead rely on them being stored in the
      * error object itself. Then, when we get pre-declared errors, we use a special constructor that references
@@ -210,9 +209,6 @@ public:
      */
     static ErrorTable& getInstance();
 
-
-
-public:
     //------------------------------------------
     // Specific errors
 

@@ -70,11 +70,11 @@ public:
 
         // SQL Queries
         (void)bindCategory(query_name, query_desc);
-        BINDFUNCTION(&ComplexData::querySet, querySet_name, querySet_desc);
+        BIND_FUNCTION(&ComplexData::querySet, querySet_name, querySet_desc);
 
         // Set from read only JSON documents
         (void)bindCategory(json_name, json_desc);
-        BINDFUNCTION(&ComplexData::jsonSet, jsonSet_name, jsonSet_desc);
+        BIND_FUNCTION(&ComplexData::jsonSet, jsonSet_name, jsonSet_desc);
     }
 };
 } // namespace Nebulite::JSON::DomainModule

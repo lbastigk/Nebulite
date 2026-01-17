@@ -101,10 +101,10 @@ public:
         loadSettings(defaultSettingsFile);
 
         (void)bindCategory(settings_name, "Functions for managing global settings.");
-        BINDFUNCTION(&Settings::saveSettings, saveSettings_name, saveSettings_desc);
-        BINDFUNCTION(&Settings::overWriteSettingsFile, overWriteSettingsFile_name, overWriteSettingsFile_desc);
-        BINDFUNCTION(&Settings::setSettingStr, setSetting_name, setSetting_desc);
-        BINDFUNCTION(&Settings::setSettingInt, setSettingInt_name, setSettingInt_desc);
+        BIND_FUNCTION(&Settings::saveSettings, saveSettings_name, saveSettings_desc);
+        BIND_FUNCTION(&Settings::overWriteSettingsFile, overWriteSettingsFile_name, overWriteSettingsFile_desc);
+        BIND_FUNCTION(&Settings::setSettingStr, setSetting_name, setSetting_desc);
+        BIND_FUNCTION(&Settings::setSettingInt, setSettingInt_name, setSettingInt_desc);
     }
 
 private:

@@ -35,7 +35,6 @@ class JSON;
 //------------------------------------------
 namespace Nebulite::Data {
 class JsonRvalueTransformer {
-private:
     /**
      * @brief The transformation tree is used to apply modifications to JSON values during getting
      * @details if the key includes the pipe '|' character, we apply the transformations in sequence.
@@ -257,8 +256,7 @@ public:
      * @details Uses an empty string as key, so the entire JSON document is the value used.
      * @note DO NOT CHANGE THIS KEY!
      */
-    static auto constexpr valueKey = Data::ScopedKeyView(valueKeyStr);
-
+    static auto constexpr valueKey = ScopedKeyView(valueKeyStr);
 
     /**
      * @brief Parses and applies JSON transformations from the given arguments.

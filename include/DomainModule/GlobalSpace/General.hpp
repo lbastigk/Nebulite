@@ -52,7 +52,7 @@ public:
         "This evaluates to 'spawn ./Resources/RenderObjects/NAME.json',\n"
         "where NAME is the current value of the global variable ToSpawn\n";
 
-    Constants::Error exit() const ;
+    [[nodiscard]] Constants::Error exit() const ;
     static auto constexpr exit_name = "exit";
     static auto constexpr exit_desc = "Exits the entire program.\n"
         "\n"
@@ -178,7 +178,7 @@ public:
         "always echo This command runs every frame!\n"
         "This will output \"This command runs every frame!\" on every frame.\n";
 
-    Constants::Error alwaysClear() const ;
+    [[nodiscard]] Constants::Error alwaysClear() const ;
     static auto constexpr alwaysClear_name = "always-clear";
     static auto constexpr alwaysClear_desc = "Clears the entire always-taskqueue.\n"
         "\n"
@@ -197,7 +197,7 @@ public:
         "Useful for testing or as a placeholder in scripts where no action is required,\n"
         "but a command is syntactically necessary.\n";
 
-    Constants::Error inScope(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Error inScope(std::span<std::string const> const& args) const ;
     static auto constexpr inScope_name = "in-scope";
     static auto constexpr inScope_desc = "Parses a command within a specific scope of the Global Space.\n"
         "\n"
@@ -220,19 +220,19 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, General) {
-        BINDFUNCTION(&General::eval, eval_name, eval_desc);
-        BINDFUNCTION(&General::exit, exit_name, exit_desc);
-        BINDFUNCTION(&General::wait, wait_name, wait_desc);
-        BINDFUNCTION(&General::task, task_name, task_desc);
-        BINDFUNCTION(&General::func_for, func_for_name, func_for_desc);
-        BINDFUNCTION(&General::func_if, func_if_name, func_if_desc);
-        BINDFUNCTION(&General::func_return, func_return_name, func_return_desc);
-        BINDFUNCTION(&General::echo, echo_name, echo_desc);
-        BINDFUNCTION(&General::func_assert, assert_name, assert_desc);
-        BINDFUNCTION(&General::always, always_name, always_desc);
-        BINDFUNCTION(&General::alwaysClear, alwaysClear_name, alwaysClear_desc);
-        BINDFUNCTION(&General::nop, nop_name, nop_desc);
-        BINDFUNCTION(&General::inScope, inScope_name, inScope_desc);
+        BIND_FUNCTION(&General::eval, eval_name, eval_desc);
+        BIND_FUNCTION(&General::exit, exit_name, exit_desc);
+        BIND_FUNCTION(&General::wait, wait_name, wait_desc);
+        BIND_FUNCTION(&General::task, task_name, task_desc);
+        BIND_FUNCTION(&General::func_for, func_for_name, func_for_desc);
+        BIND_FUNCTION(&General::func_if, func_if_name, func_if_desc);
+        BIND_FUNCTION(&General::func_return, func_return_name, func_return_desc);
+        BIND_FUNCTION(&General::echo, echo_name, echo_desc);
+        BIND_FUNCTION(&General::func_assert, assert_name, assert_desc);
+        BIND_FUNCTION(&General::always, always_name, always_desc);
+        BIND_FUNCTION(&General::alwaysClear, alwaysClear_name, alwaysClear_desc);
+        BIND_FUNCTION(&General::nop, nop_name, nop_desc);
+        BIND_FUNCTION(&General::inScope, inScope_name, inScope_desc);
     }
 };
 } // namespace Nebulite::DomainModule::GlobalSpace

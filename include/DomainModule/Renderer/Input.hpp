@@ -100,8 +100,8 @@ private:
     struct Mouse {
         float posX = 0;
         float posY = 0;
-        int lastPosX = 0;
-        int lastPosY = 0;
+        float lastPosX = 0;
+        float lastPosY = 0;
         Uint32 lastState = 0;
         Uint32 state = 0;
     } mouse;

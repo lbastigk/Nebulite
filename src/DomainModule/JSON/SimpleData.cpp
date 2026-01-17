@@ -15,7 +15,7 @@ Constants::Error SimpleData::update() {return Constants::ErrorTable::NONE();} //
 Constants::Error SimpleData::set(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
-        Nebulite::cerr() << "Error: Too few arguments for set command." << Nebulite::endl;
+        Error::println("Error: Too few arguments for set command.");
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
@@ -33,7 +33,7 @@ Constants::Error SimpleData::set(std::span<std::string const> const& args, Inter
 Constants::Error SimpleData::move(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() != 3) {
-        Nebulite::cerr() << "Error: Too few arguments for move command." << Nebulite::endl;
+        Error::println("Error: Too few arguments for move command.");
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
@@ -41,7 +41,7 @@ Constants::Error SimpleData::move(std::span<std::string const> const& args, Inte
     auto const targetKey = callerScope.getRootScope() + args[2];
 
     if (callerScope.memberType(sourceKey) == Data::KeyType::null) {
-        Nebulite::cerr() << "Error: Source key '" << args[1] << "' does not exist." << Nebulite::endl;
+        Error::println("Error: Source key '", args[1], "' does not exist.");
         return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
     if (callerScope.memberType(sourceKey) == Data::KeyType::object) {
@@ -75,7 +75,7 @@ Constants::Error SimpleData::move(std::span<std::string const> const& args, Inte
 Constants::Error SimpleData::copy(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() != 3) {
-        Nebulite::cerr() << "Error: Too few arguments for copy command." << Nebulite::endl;
+        Error::println("Error: Too few arguments for copy command.");
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
@@ -83,7 +83,7 @@ Constants::Error SimpleData::copy(std::span<std::string const> const& args, Inte
     auto const targetKey = callerScope.getRootScope() + args[2];
 
     if (callerScope.memberType(sourceKey) == Data::KeyType::null) {
-        Nebulite::cerr() << "Error: Source key '" << std::string(args[1]) << "' does not exist." << Nebulite::endl;
+        Error::println("Error: Source key '", std::string(args[1]), "' does not exist.");
         return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
     if (callerScope.memberType(sourceKey) == Data::KeyType::object) {
@@ -115,7 +115,7 @@ Constants::Error SimpleData::copy(std::span<std::string const> const& args, Inte
 Constants::Error SimpleData::keyDelete(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() != 2) {
-        Nebulite::cerr() << "Error: Too few arguments for delete command." << Nebulite::endl;
+        Error::println("Error: Too few arguments for delete command.");
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     auto const key = callerScope.getRootScope() + args[1];
@@ -131,11 +131,11 @@ Constants::Error SimpleData::keyDelete(std::span<std::string const> const& args,
 Constants::Error SimpleData::ensureArray(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
-        Nebulite::cerr() << "Error: Too few arguments for ensureArray command." << Nebulite::endl;
+        Error::println("Error: Too few arguments for ensureArray command.");
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (args.size() > 2) {
-        Nebulite::cerr() << "Error: Too many arguments for ensureArray command." << Nebulite::endl;
+        Error::println("Error: Too many arguments for ensureArray command.");
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
@@ -162,14 +162,14 @@ Constants::Error SimpleData::ensureArray(std::span<std::string const> const& arg
         return Constants::ErrorTable::NONE();
     }
 
-    Nebulite::cerr() << "Error: Key '" << args[1] << "' is unsupported type " << static_cast<int>(keyType) << ", cannot convert to array." << Nebulite::endl;
+    Error::println("Error: Key '", args[1], "' is unsupported type ", static_cast<int>(keyType), ", cannot convert to array.");
     return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 
 Constants::Error SimpleData::push_back(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope){
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
-        Nebulite::cerr() << "Error: Too many arguments for push_front command." << Nebulite::endl;
+        Error::println("Error: Too many arguments for push_front command.");
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     auto const key = callerScope.getRootScope() + args[1];
@@ -187,7 +187,7 @@ Constants::Error SimpleData::push_back(std::span<std::string const> const& args,
         command += " " + std::string(ensureArray_name);
         command += " " + std::string(args[1]);
         if (Constants::Error const result = caller.parseStr(command); result != Constants::ErrorTable::NONE()) {
-            Nebulite::cerr() << "Error: Failed to ensure array for key '" << std::string(args[1]) << "'." << Nebulite::endl;
+            Error::println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }
     }
@@ -202,11 +202,11 @@ Constants::Error SimpleData::push_back(std::span<std::string const> const& args,
 Constants::Error SimpleData::pop_back(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
-        Nebulite::cerr() << "Error: Too few arguments for push_back command." << Nebulite::endl;
+        Error::println("Error: Too few arguments for push_back command.");
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (args.size() > 2) {
-        Nebulite::cerr() << "Error: Too many arguments for push_back command." << Nebulite::endl;
+        Error::println("Error: Too many arguments for push_back command.");
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     auto const key = callerScope.getRootScope() + args[1];
@@ -216,7 +216,7 @@ Constants::Error SimpleData::pop_back(std::span<std::string const> const& args, 
         command += " " + std::string(ensureArray_name);
         command += " " + std::string(args[1]);
         if (Constants::Error const result = caller.parseStr(command); result != Constants::ErrorTable::NONE()) {
-            Nebulite::cerr() << "Error: Failed to ensure array for key '" << std::string(args[1]) << "'." << Nebulite::endl;
+            Error::println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }
     }
@@ -236,7 +236,7 @@ Constants::Error SimpleData::pop_back(std::span<std::string const> const& args, 
 Constants::Error SimpleData::push_front(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
-        Nebulite::cerr() << "Error: Too many arguments for push_front command." << Nebulite::endl;
+        Error::println("Error: Too many arguments for push_front command.");
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     auto const key = callerScope.getRootScope() + args[1];
@@ -254,7 +254,7 @@ Constants::Error SimpleData::push_front(std::span<std::string const> const& args
         command += " " + std::string(ensureArray_name);
         command += " " + std::string(args[1]);
         if (Constants::Error const result = caller.parseStr(command); result != Constants::ErrorTable::NONE()) {
-            Nebulite::cerr() << "Error: Failed to ensure array for key '" << std::string(args[1]) << "'." << Nebulite::endl;
+            Error::println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }
     }
@@ -268,7 +268,7 @@ Constants::Error SimpleData::push_front(std::span<std::string const> const& args
     for (size_t i = 0; i < size; ++i) {
         auto itemKey = key + "[" + std::to_string(i) + "]";
         if (Data::KeyType const itemType = callerScope.memberType(itemKey); itemType == Data::KeyType::object) {
-            Nebulite::cerr() << "Error: Cannot push_front into an array containing documents." << Nebulite::endl;
+            Error::println("Error: Cannot push_front into an array containing documents.");
             return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
         }
     }
@@ -290,11 +290,11 @@ Constants::Error SimpleData::push_front(std::span<std::string const> const& args
 Constants::Error SimpleData::pop_front(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
-        Nebulite::cerr() << "Error: Too few arguments for pop_front command." << Nebulite::endl;
+        Error::println("Error: Too few arguments for pop_front command.");
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (args.size() > 2) {
-        Nebulite::cerr() << "Error: Too many arguments for pop_front command." << Nebulite::endl;
+        Error::println("Error: Too many arguments for pop_front command.");
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
     auto const key = callerScope.getRootScope() + args[1];
@@ -304,7 +304,7 @@ Constants::Error SimpleData::pop_front(std::span<std::string const> const& args,
         command += " " + std::string(ensureArray_name);
         command += " " + std::string(args[1]);
         if (Constants::Error const result = caller.parseStr(command); result != Constants::ErrorTable::NONE()) {
-            Nebulite::cerr() << "Error: Failed to ensure array for key '" << std::string(args[1]) << "'." << Nebulite::endl;
+            Error::println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }
     }
@@ -317,7 +317,7 @@ Constants::Error SimpleData::pop_front(std::span<std::string const> const& args,
     // This feature is yet to be implemented!
     for (size_t i = 0; i < size; ++i) {
         if (callerScope.memberType(key + "[" + std::to_string(i) + "]") == Data::KeyType::object) {
-            Nebulite::cerr() << "Error: Cannot push_front into an array containing documents." << Nebulite::endl;
+            Error::println("Error: Cannot push_front into an array containing documents.");
             return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
         }
     }

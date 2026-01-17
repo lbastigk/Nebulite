@@ -58,7 +58,7 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, GUI){
         bindCategory("gui", "Functions to create GUI elements");
-        BINDFUNCTION(&GUI::example, "gui example", "An example function to demonstrate GUI-Elements\n");
+        BIND_FUNCTION(&GUI::example, "gui example", "An example function to demonstrate GUI-Elements\n");
     }
 
 private:

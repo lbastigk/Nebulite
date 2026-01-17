@@ -64,7 +64,7 @@ public:
         "\n"
         "Mirrors are stored in the GlobalSpace document under key \"mirror.renderObject.id<id>\"\n";
 
-    Constants::Error mirror_delete() const ;
+    [[nodiscard]] Constants::Error mirror_delete() const ;
     static auto constexpr mirror_delete_name = "mirror delete";
     static auto constexpr mirror_delete_desc = "Deletes the GlobalSpace document entry for this RenderObject\n"
         "\n"
@@ -72,7 +72,7 @@ public:
         "\n"
         "Mirrors are removed from the GlobalSpace document under key \"mirror.renderObject.id<id>\"\n";
 
-    Constants::Error mirror_fetch() const ;
+    [[nodiscard]] Constants::Error mirror_fetch() const ;
     static auto constexpr mirror_fetch_name = "mirror fetch";
     static auto constexpr mirror_fetch_desc = "Deserializes the RenderObject from the GlobalSpace document entry\n"
         "\n"
@@ -93,11 +93,11 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Mirror) {
         (void)bindCategory(mirror_name, mirror_desc);
-        BINDFUNCTION(&Mirror::mirror_once, mirror_once_name, mirror_once_desc);
-        BINDFUNCTION(&Mirror::mirror_on, mirror_on_name, mirror_on_desc);
-        BINDFUNCTION(&Mirror::mirror_off, mirror_off_name, mirror_off_desc);
-        BINDFUNCTION(&Mirror::mirror_delete, mirror_delete_name, mirror_delete_desc);
-        BINDFUNCTION(&Mirror::mirror_fetch, mirror_fetch_name, mirror_fetch_desc);
+        BIND_FUNCTION(&Mirror::mirror_once, mirror_once_name, mirror_once_desc);
+        BIND_FUNCTION(&Mirror::mirror_on, mirror_on_name, mirror_on_desc);
+        BIND_FUNCTION(&Mirror::mirror_off, mirror_off_name, mirror_off_desc);
+        BIND_FUNCTION(&Mirror::mirror_delete, mirror_delete_name, mirror_delete_desc);
+        BIND_FUNCTION(&Mirror::mirror_fetch, mirror_fetch_name, mirror_fetch_desc);
     }
 
 private:

@@ -12,7 +12,7 @@ std::shared_ptr<StoreType> Branch<StoreType, idType, MaxBits>::at(idType const& 
 
     // -------- Fast path: shared read --------
     {
-        Nebulite::Utility::ReadLock slock(storageMutex);
+        Utility::ReadLock slock(storageMutex);
 
         if (index < storage.size()) {
             if (auto ptr = storage[index]; ptr) {
@@ -28,7 +28,7 @@ std::shared_ptr<StoreType> Branch<StoreType, idType, MaxBits>::at(idType const& 
     auto newObj = std::make_shared<StoreType>();
 
     {
-        Nebulite::Utility::WriteLock ulock(storageMutex);
+        Utility::WriteLock ulock(storageMutex);
 
         // Ensure storage is large enough
         if (storage.size() <= index) {

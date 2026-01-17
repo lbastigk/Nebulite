@@ -65,8 +65,8 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, StateManagement){
         bindSubtree("state", "State management functions");
-        BINDFUNCTION(&StateManagement::stateSave,       "state save",    "Save the current game state: state-save <name>");
-        BINDFUNCTION(&StateManagement::stateLoad,       "state load",    "Load a saved game state: state-load <name>");
+        BIND_FUNCTION(&StateManagement::stateSave,       "state save",    "Save the current game state: state-save <name>");
+        BIND_FUNCTION(&StateManagement::stateLoad,       "state load",    "Load a saved game state: state-load <name>");
     }
 };
 } // namespace GlobalSpace

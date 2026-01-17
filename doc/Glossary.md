@@ -124,7 +124,7 @@ This allows for executable logic such as `set-fps 60`, `set posX 100` or  `spawn
 
 -----------------
 **GlobalSpace** - Nebulite Domain. The core engine controller class that serves as the central coordination point 
-for all engine operations. Singleton access granted via `Nebulite::global()`.
+for all engine operations. Singleton access granted via `Global::instance()`.
 
 -----------------
 ## H

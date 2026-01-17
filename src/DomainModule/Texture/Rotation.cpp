@@ -18,7 +18,7 @@ Constants::Error Rotation::rotate(int const argc, char** argv) const {
     }
 
     // Get the SDL_Renderer
-    SDL_Renderer* renderer = Nebulite::global().getSdlRenderer();
+    SDL_Renderer* renderer = Global::instance().getSdlRenderer();
     if (renderer == nullptr) {
         return Constants::ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED();
     }
@@ -36,7 +36,7 @@ Constants::Error Rotation::rotate(int const argc, char** argv) const {
     }
 
     // Create a new texture to hold the rotated result
-    SDL_Texture* rotatedTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
+    SDL_Texture* rotatedTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, static_cast<int>(width), static_cast<int>(height));
     if (rotatedTexture == nullptr) {
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_MODIFICATION_FAILED();
     }
@@ -60,7 +60,7 @@ Constants::Error Rotation::rotate(int const argc, char** argv) const {
 
     // Replace the original texture with the rotated texture
     domain.setInternalTexture(rotatedTexture);
-    Nebulite::log::println("Texture rotated by ", angle, " degrees.");
+    Log::println("Texture rotated by ", angle, " degrees.");
     return Constants::ErrorTable::NONE();
 }
 

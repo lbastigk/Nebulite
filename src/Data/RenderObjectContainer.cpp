@@ -1,10 +1,17 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
+#include "Core/JsonScope.hpp"
+#include "Core/RenderObject.hpp"
 #include "Data/RenderObjectContainer.hpp"
 #include "Data/Document/JSON.hpp"
 
+//------------------------------------------
 namespace Nebulite::Data {
 
 //------------------------------------------
-//Marshalling
+// Marshalling
 std::string RenderObjectContainer::serialize() {
     //------------------------------------------
     // Setup
@@ -37,14 +44,14 @@ std::string RenderObjectContainer::serialize() {
 void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY) {
     JSON layer;
     layer.deserialize(serialOrLink);
-    if (layer.memberType("objects") == Data::KeyType::array) {
+    if (layer.memberType("objects") == KeyType::array) {
         for (uint32_t i = 0; i < layer.memberSize("objects"); i++) {
             std::string key = "objects[" + std::to_string(i) + "]";
 
             // Check if serial or not:
             auto ro_serial = layer.get<std::string>(key);
             if (ro_serial == "{Object}") {
-                Data::JSON tmp;
+                JSON tmp;
                 tmp = layer.getSubDoc(key);
                 ro_serial = tmp.serialize();
             }
@@ -199,6 +206,20 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
         append(obj_ptr, dispResX, dispResY);
     }
     reinsertionProcess.queue.clear();
+}
+
+Core::RenderObject* RenderObjectContainer::getObjectFromId(uint32_t const& id) {
+    // Go through all batches
+    for (auto& batches : std::views::values(ObjectContainer)) {
+        for (auto& [objects, _] : batches) {
+            for (auto const& object : objects) {
+                if (object->getId() == id) {
+                    return object;
+                }
+            }
+        }
+    }
+    return nullptr; // Not found
 }
 
 void RenderObjectContainer::reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY) {

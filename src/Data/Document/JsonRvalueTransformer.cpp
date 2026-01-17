@@ -186,7 +186,7 @@ bool JsonRvalueTransformer::ensureArray(Core::JsonScope* jsonDoc) {
     jsonDoc->setSubDoc(key, tmp);
 
     // Return whether wrapping succeeded
-    return (jsonDoc->memberType(valueKey) == KeyType::array);
+    return jsonDoc->memberType(valueKey) == KeyType::array;
 }
 
 bool JsonRvalueTransformer::at(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
@@ -197,7 +197,7 @@ bool JsonRvalueTransformer::at(std::span<std::string const> const& args, Core::J
         if (!ensureArray(jsonDoc)) {
             return false;
         }
-        auto const index = static_cast<size_t>(std::stoul(args[1]));
+        auto const index = std::stoul(args[1]);
         if (index >= jsonDoc->memberSize(valueKey)) {
             return false; // Index out of bounds
         }
@@ -398,12 +398,12 @@ bool JsonRvalueTransformer::getMultiple(std::span<std::string const> const& args
 bool JsonRvalueTransformer::echo(std::span<std::string const> const& args) {
     // Echo args to cout
     for (size_t i = 1; i < args.size(); ++i) {
-        Nebulite::Utility::Capture::cout() << args[i];
+        Utility::Capture::cout() << args[i];
         if (i < args.size() - 1) {
-            Nebulite::Utility::Capture::cout() << " ";
+            Utility::Capture::cout() << " ";
         }
     }
-    Nebulite::Utility::Capture::cout() << Nebulite::Utility::Capture::endl;
+    Utility::Capture::cout() << Utility::Capture::endl;
     return true;
 }
 
@@ -411,9 +411,9 @@ bool JsonRvalueTransformer::echo(std::span<std::string const> const& args) {
 bool JsonRvalueTransformer::print(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     // Print to cout, no modifications
     if (args.size() > 1) {
-        Nebulite::Utility::Capture::cout() << jsonDoc->serialize(valueKey + args[1]) << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cout() << jsonDoc->serialize(valueKey + args[1]) << Utility::Capture::endl;
     } else {
-        Nebulite::Utility::Capture::cout() << jsonDoc->serialize() << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cout() << jsonDoc->serialize() << Utility::Capture::endl;
     }
     return true;
 }

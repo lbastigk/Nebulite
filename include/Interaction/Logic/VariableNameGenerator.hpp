@@ -7,9 +7,9 @@
 // Standard library
 
 #include <string>
-#include <cstdint>
 #include <absl/container/flat_hash_map.h>
 
+//------------------------------------------
 namespace Nebulite::Interaction::Logic {
 
 /**
@@ -19,7 +19,6 @@ namespace Nebulite::Interaction::Logic {
  *       For now, after the expression is parsed, the mapping is discarded.
  */
 class VariableNameGenerator {
-private:
     absl::flat_hash_map<std::string, std::string> variableNameToIdMap;
 
     // Converts a number to a string
@@ -30,7 +29,7 @@ private:
     static std::string numberToString(uint16_t number) {
         std::string result;
         do {
-            char ch = static_cast<char>('a' + (number % 26));
+            char const ch = static_cast<char>('a' + number % 26);
             result = ch + result;
             number /= 26;
             if (number > 0) {
@@ -45,12 +44,11 @@ public:
         // Check if the base name already exists in the map
         if (variableNameToIdMap.find(baseName) != variableNameToIdMap.end()) {
             return variableNameToIdMap[baseName];
-        } else {
-            // Generate a new unique name
-            std::string uniqueName = numberToString(static_cast<uint16_t>(variableNameToIdMap.size()));
-            variableNameToIdMap[baseName] = uniqueName;
-            return uniqueName;
         }
+        // Generate a new unique name
+        std::string uniqueName = numberToString(static_cast<uint16_t>(variableNameToIdMap.size()));
+        variableNameToIdMap[baseName] = uniqueName;
+        return uniqueName;
     }
 
     void clear() {

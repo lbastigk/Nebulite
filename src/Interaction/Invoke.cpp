@@ -1,12 +1,8 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include "Interaction/Logic/ExpressionPool.hpp"
-
 // Nebulite
 #include "Nebulite.hpp"
-#include "Data/Document/JSON.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 
@@ -41,9 +37,9 @@ void Invoke::broadcast(std::shared_ptr<Rules::Ruleset> const& entry) const {
     worker[threadIndex]->broadcast(entry);
 }
 
-void Invoke::listen(Interaction::Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId) {
+void Invoke::listen(Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId) {
     // Listening happens on all threads
-    for (auto const & w : std::span(worker, THREADRUNNER_COUNT)) {
+    for (auto const& w : std::span(worker, THREADRUNNER_COUNT)) {
         w->listen(listener, topic, listenerId);
     }
 }

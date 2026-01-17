@@ -110,24 +110,24 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Audio){
         // Basic playback
-        BINDFUNCTION(&Audio::playSound,         "play-sound",           "Play sound effect");
-        BINDFUNCTION(&Audio::playMusic,         "play-music",           "Play background music");
-        BINDFUNCTION(&Audio::stopSound,         "stop-sound",           "Stop specific sound");
-        BINDFUNCTION(&Audio::stopMusic,         "stop-music",           "Stop music");
-        BINDFUNCTION(&Audio::stopAll,           "stop-all",             "Stop all audio");
+        BIND_FUNCTION(&Audio::playSound,         "play-sound",           "Play sound effect");
+        BIND_FUNCTION(&Audio::playMusic,         "play-music",           "Play background music");
+        BIND_FUNCTION(&Audio::stopSound,         "stop-sound",           "Stop specific sound");
+        BIND_FUNCTION(&Audio::stopMusic,         "stop-music",           "Stop music");
+        BIND_FUNCTION(&Audio::stopAll,           "stop-all",             "Stop all audio");
 
         // Volume controls
-        BINDFUNCTION(&Audio::setMasterVolume,   "set-master-volume",    "Set master volume");
-        BINDFUNCTION(&Audio::setSfxVolume,      "set-sfx-volume",       "Set sound effects volume");
-        BINDFUNCTION(&Audio::setMusicVolume,    "set-music-volume",     "Set music volume");
-        BINDFUNCTION(&Audio::fadeIn,            "fade-in",              "Fade in audio");
-        BINDFUNCTION(&Audio::fadeOut,           "fade-out",             "Fade out audio");
+        BIND_FUNCTION(&Audio::setMasterVolume,   "set-master-volume",    "Set master volume");
+        BIND_FUNCTION(&Audio::setSfxVolume,      "set-sfx-volume",       "Set sound effects volume");
+        BIND_FUNCTION(&Audio::setMusicVolume,    "set-music-volume",     "Set music volume");
+        BIND_FUNCTION(&Audio::fadeIn,            "fade-in",              "Fade in audio");
+        BIND_FUNCTION(&Audio::fadeOut,           "fade-out",             "Fade out audio");
 
         // Advanced features
-        BINDFUNCTION(&Audio::setPan,            "set-pan",              "Set stereo panning");
-        BINDFUNCTION(&Audio::setPitch,          "set-pitch",            "Set playback pitch");
-        BINDFUNCTION(&Audio::setPosition3D,     "set-position-3d",      "Set 3D audio position");
-        BINDFUNCTION(&Audio::setListener3D,     "set-listener-3d",      "Set 3D listener position");
+        BIND_FUNCTION(&Audio::setPan,            "set-pan",              "Set stereo panning");
+        BIND_FUNCTION(&Audio::setPitch,          "set-pitch",            "Set playback pitch");
+        BIND_FUNCTION(&Audio::setPosition3D,     "set-position-3d",      "Set 3D audio position");
+        BIND_FUNCTION(&Audio::setListener3D,     "set-listener-3d",      "Set 3D listener position");
 
         // Procedural generation
         bindFunction(&Audio::generateTone,      "generate-tone",        "Generate tone");

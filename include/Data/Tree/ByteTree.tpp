@@ -20,22 +20,22 @@ void ByteTree<StoreType>::cleanup() {
 
 template<typename StoreType>
 size_t ByteTree<StoreType>::Layer1::idToIndex(uint32_t const& id) const {
-    return static_cast<size_t>(id & 0xFF);
+    return id & 0xFF;
 }
 
 template<typename StoreType>
 size_t ByteTree<StoreType>::Layer2::idToIndex(uint32_t const& id) const {
-    return static_cast<size_t>((id >> 8) & 0xFF);
+    return id >> 8 & 0xFF;
 }
 
 template<typename StoreType>
 size_t ByteTree<StoreType>::Layer3::idToIndex(uint32_t const& id) const {
-    return static_cast<size_t>((id >> 16) & 0xFF);
+    return id >> 16 & 0xFF;
 }
 
 template<typename StoreType>
 size_t ByteTree<StoreType>::Layer4::idToIndex(uint32_t const& id) const {
-    return static_cast<size_t>((id >> 24) & 0xFF);
+    return id >> 24 & 0xFF;
 }
 
 } // namespace Nebulite::Data

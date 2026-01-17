@@ -47,7 +47,7 @@ public:
         "eval echo $(1+1)    outputs:    2.000000\n"
         "eval echo {self.id} outputs this objects id\n";
 
-    Constants::Error printSrcRect() const ;
+    [[nodiscard]] Constants::Error printSrcRect() const ;
     static auto constexpr printSrcRect_name = "debug print-src-rect";
     static auto constexpr printSrcRect_desc = "Prints debug information about the source rectangle to console\n"
         "\n"
@@ -58,7 +58,7 @@ public:
         "If the RenderObject is not a spritesheet, indicates that instead:\n"
         "This RenderObject is not a spritesheet.\n";
 
-    Constants::Error printDstRect() const ;
+    [[nodiscard]] Constants::Error printDstRect() const ;
     static auto constexpr printDstRect_name = "debug print-dst-rect";
     static auto constexpr printDstRect_desc = "Prints debug information about the destination rectangle to console\n"
         "\n"
@@ -94,12 +94,12 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Debug) {
         // Some functions like selected-object need eval to resolve variables
-        BINDFUNCTION(&Debug::eval, eval_name, eval_desc);
+        BIND_FUNCTION(&Debug::eval, eval_name, eval_desc);
 
         (void)bindCategory(debug_name, debug_desc);
-        BINDFUNCTION(&Debug::printSrcRect, printSrcRect_name, printSrcRect_desc);
-        BINDFUNCTION(&Debug::printDstRect, printDstRect_name, printDstRect_desc);
-        BINDFUNCTION(&Debug::textureStatus, textureStatus_name, textureStatus_desc);
+        BIND_FUNCTION(&Debug::printSrcRect, printSrcRect_name, printSrcRect_desc);
+        BIND_FUNCTION(&Debug::printDstRect, printDstRect_name, printDstRect_desc);
+        BIND_FUNCTION(&Debug::textureStatus, textureStatus_name, textureStatus_desc);
     }
 };
 } // namespace Nebulite::DomainModule::RenderObject

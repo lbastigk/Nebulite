@@ -14,14 +14,12 @@
 // Includes
 
 // Standard library
-#include <cxxabi.h>
 #include <memory>
-#include <cstdlib>
-#include <typeinfo>
 #include <string>
 
 // Nebulite
-#include "Interaction/Execution/FuncTree.hpp"
+// NOLINTNEXTLINE
+#include "Interaction/Execution/FuncTree.hpp" // Why does clang-tidy complain about this include being unnecessary?
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
@@ -103,8 +101,8 @@ void FuncTree<returnValue, additionalArgs...>::specificHelp(std::string const& f
         // 1.) Function
         if (searchResult.function) {
             // Found function, display detailed help
-            Nebulite::Utility::Capture::cout() << "\nHelp for function '" << funcName << "':\n" << Nebulite::Utility::Capture::endl;
-            Nebulite::Utility::Capture::cout() << searchResult.funIt->second.description << "\n";
+            Utility::Capture::cout() << "\nHelp for function '" << funcName << "':\n" << Utility::Capture::endl;
+            Utility::Capture::cout() << searchResult.funIt->second.description << "\n";
         }
         // 2.) Category
         else if (searchResult.category) {
@@ -114,11 +112,11 @@ void FuncTree<returnValue, additionalArgs...>::specificHelp(std::string const& f
         // 3.) Variable
         else if (searchResult.variable) {
             // Found variable, display detailed help
-            Nebulite::Utility::Capture::cout() << "\nHelp for variable '--" << funcName << "':\n" << Nebulite::Utility::Capture::endl;
-            Nebulite::Utility::Capture::cout() << searchResult.varIt->second.description << "\n";
+            Utility::Capture::cout() << "\nHelp for variable '--" << funcName << "':\n" << Utility::Capture::endl;
+            Utility::Capture::cout() << searchResult.varIt->second.description << "\n";
         }
     } else {
-        Nebulite::Utility::Capture::cerr() << "Function or Category '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
+        Utility::Capture::cerr() << "Function or Category '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
     }
 }
 
@@ -131,13 +129,13 @@ void FuncTree<returnValue, additionalArgs...>::generalHelp() {
     // Define a lambda to process each member
     auto displayMember = [](std::string const& name, std::string_view const& description) -> void {
         // Only show the first line of the description
-        std::string descriptionFirstLine = std::string(description);
+        auto descriptionFirstLine = std::string(description);
         if (size_t const newlinePos = description.find('\n'); newlinePos != std::string::npos) {
             descriptionFirstLine = description.substr(0, newlinePos);
         }
         std::string paddedName = name;
         paddedName.resize(namePaddingSize, ' ');
-        Nebulite::Utility::Capture::cout() << "  " << paddedName << " - " << descriptionFirstLine << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cout() << "  " << paddedName << " - " << descriptionFirstLine << Utility::Capture::endl;
     };
 
     // All info: [name, description]
@@ -149,15 +147,15 @@ void FuncTree<returnValue, additionalArgs...>::generalHelp() {
     std::ranges::sort(allVariables, SortFunctions::caseInsensitiveLess);
 
     // Display:
-    Nebulite::Utility::Capture::cout() << "\nHelp for " << TreeName << "\nAdd the entries name to the command for more details: " << TreeName << " help <foo>\n";
-    Nebulite::Utility::Capture::cout() << "Available functions:\n";
+    Utility::Capture::cout() << "\nHelp for " << TreeName << "\nAdd the entries name to the command for more details: " << TreeName << " help <foo>\n";
+    Utility::Capture::cout() << "Available functions:\n";
 
     // Use lambda with for_each on all functions and variables
     // TODO: using structured bindings here would be nice, but that won't compile for some reason
     std::ranges::for_each(allFunctions, [&](auto const& pair) {
         displayMember(pair.first, pair.second);
     });
-    Nebulite::Utility::Capture::cout() << "Available variables:\n";
+    Utility::Capture::cout() << "Available variables:\n";
     std::ranges::for_each(allVariables, [&](auto const& pair) {
         displayMember(pair.first, pair.second);
     });
@@ -212,18 +210,16 @@ FuncTree<returnValue, additionalArgs...>::find(std::string const& name) {
 template <typename returnValue, typename ... additionalArgs>
 returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::string const> const& args){
     auto argsSpan = args.subspan(1); // Skip binary name or last function name
-    FuncTree<returnValue, additionalArgs...>* ftree = this;
+    FuncTree* ftree = this;
     while (argsSpan.size() > 1) {
         // Traverse functree categories
         std::string const& categoryName = argsSpan.front();
         ftree = traverseIntoCategory(categoryName, ftree);
         if (ftree != nullptr) {
             argsSpan = argsSpan.subspan(1); // Remove processed category
-            continue; // Successfully traversed into category
         } else {
             break;
         }
-
     }
 
     // Return if traversal failed
@@ -244,8 +240,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::st
     auto completions = ftree->findCompletions(pattern);
 
     // If there is only one completion, it might be a category, so we traverse into it
-    bool lastWordIsLikelyCategory = completions.size() == 1 && completions.front() == pattern;
-    if (lastWordIsLikelyCategory) {
+    if (bool const lastWordIsLikelyCategory = completions.size() == 1 && completions.front() == pattern; lastWordIsLikelyCategory) {
         if (traverseIntoCategory(pattern, ftree)) {
             completions = ftree->findCompletions("");
         }
@@ -261,7 +256,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::st
 
     // Output completions
     for (auto const& completion : completions) {
-        Nebulite::Utility::Capture::cout() << completion << Nebulite::Utility::Capture::endl;
+        Utility::Capture::cout() << completion << Utility::Capture::endl;
     }
     return standardReturn.valDefault;
 }
@@ -312,8 +307,7 @@ std::vector<std::string> FuncTree<returnValue, additionalArgs...>::findCompletio
         }
     }
     for (auto const& [name, _] : bindingContainer.variables) {
-        std::string const fullVarName = "--" + name;
-        if (fullVarName.starts_with(pattern)) {
+        if (std::string const fullVarName = "--" + name; fullVarName.starts_with(pattern)) {
             // Found a completion, store it
             completions.push_back(fullVarName);
         }

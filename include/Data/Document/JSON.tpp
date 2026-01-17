@@ -76,9 +76,17 @@ T JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T 
     return convertVariant<T>(cache[key]->value, defaultValue);
 }
 
+// Having this flag active used to cause issues on macOS.
+// Since then the arguments were renamed, which likely caused compilation errors.
+#define ALLOW_STRING_TO_INTEGRAL_CONVERSIONS 1
+
 // Converter helper functions for convertVariant
 namespace ConverterHelper {
     inline bool stringToBool(std::string const& stored, bool const& defaultValue){
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return true;
+        if (stored == "false") return false;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         // Handle numeric strings and "true"
         if(Utility::StringHandler::isNumber(stored)){
             try {
@@ -91,8 +99,10 @@ namespace ConverterHelper {
     }
 
     inline int stringToInt(std::string const& stored, int const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return std::stoi(stored);
         } catch (...){
@@ -101,8 +111,10 @@ namespace ConverterHelper {
     }
 
     inline uint8_t stringToUInt8(std::string const& stored, uint8_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return static_cast<uint8_t>(std::stoul(stored));
         } catch (...){
@@ -111,8 +123,10 @@ namespace ConverterHelper {
     }
 
     inline int8_t stringToInt8(std::string const& stored, int8_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return static_cast<int8_t>(std::stol(stored));
         } catch (...){
@@ -121,8 +135,10 @@ namespace ConverterHelper {
     }
 
     inline uint16_t stringToUInt16(std::string const& stored, uint16_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return static_cast<uint16_t>(std::stoul(stored));
         } catch (...){
@@ -131,8 +147,10 @@ namespace ConverterHelper {
     }
 
     inline int16_t stringToInt16(std::string const& stored, int16_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return static_cast<int16_t>(std::stol(stored));
         } catch (...){
@@ -141,8 +159,10 @@ namespace ConverterHelper {
     }
 
     inline uint32_t stringToUInt32(std::string const& stored, uint32_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return static_cast<uint32_t>(std::stoul(stored));
         } catch (...){
@@ -151,8 +171,10 @@ namespace ConverterHelper {
     }
 
     inline int32_t stringToInt32(std::string const& stored, int32_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return static_cast<int32_t>(std::stol(stored));
         } catch (...){
@@ -161,45 +183,39 @@ namespace ConverterHelper {
     }
 
     inline uint64_t stringToUInt64(std::string const& stored, uint64_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
-            return static_cast<uint64_t>(std::stoull(stored));
+            return std::stoull(stored);
         } catch (...){
             return defaultValue;
         }
     }
 
     inline int64_t stringToInt64(std::string const& stored, int64_t const& defaultValue){
-        //if (stored == "true") return 1;
-        //if (stored == "false") return 0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1;
+        if (stored == "false") return 0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
-            return static_cast<int64_t>(std::stoll(stored));
+            return std::stoll(stored);
         } catch (...){
             return defaultValue;
         }
     }
 
     inline double stringToDouble(std::string const& stored, double const& defaultValue){
-        //if (stored == "true") return 1.0;
-        //if (stored == "false") return 0.0;
+#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
+        if (stored == "true") return 1.0;
+        if (stored == "false") return 0.0;
+#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         try {
             return std::stod(stored);
         } catch (...){
             return defaultValue;
         }
-    }
-
-    inline void convertVariantErrorMessage(std::string const& oldType, std::string const& newType){
-        std::string const message = "[ERROR] JSON::convert_variant - Unsupported conversion from "
-                    + oldType
-                    + " to " + newType + ".\n"
-                    + "Please add the required conversion.\n"
-                    + "Fallback conversion from String to any Integral type was disabled due to potential lossy data conversion.\n"
-                    + "Rather, it is recommended to add one explicit conversion path per datatype.\n"
-                    + "Returning default value.";
-        Nebulite::Utility::Capture::cerr() << message << Nebulite::Utility::Capture::endl;
-        // Exiting the program would be nice, but since this is likely run in a threaded environment, we just display the error.
     }
 } // namespace ConverterHelper
 
@@ -210,79 +226,73 @@ struct unsupported_conversion;
 
 template<typename newType>
 newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue){
-    return std::visit([&]<typename T>(T const& stored)
+    return std::visit([&]<typename T>(T const& value)
     {
         // Removing all qualifiers (const, volatile, references, etc.)
-        using StoredT = std::decay_t<decltype(stored)>;
+        using ValueT = std::decay_t<decltype(value)>;
 
         // [DOUBLE] -> [BOOL]
         // First, as static_cast doesn't work well for this conversion
-        if constexpr (std::is_same_v<StoredT, double> && std::is_same_v<newType, bool>){
-            return std::fabs(stored) > std::numeric_limits<double>::epsilon();
+        if constexpr (std::is_same_v<ValueT, double> && std::is_same_v<newType, bool>){
+            return std::fabs(value) > std::numeric_limits<double>::epsilon();
         }
 
         // Basic direct conversions
-        else if constexpr (std::is_convertible_v<StoredT, newType>){
-            return static_cast<newType>(stored);
+        else if constexpr (std::is_convertible_v<ValueT, newType>){
+            return static_cast<newType>(value);
         }
 
         // [STRING] -> [BOOL]
         // Handle string to bool
-        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, bool>){
-            return ConverterHelper::stringToBool(stored, defaultValue);
+        else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, bool>){
+            return ConverterHelper::stringToBool(value, defaultValue);
         }
 
         // [STRING] -> [INT]
-        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int>){
-            return ConverterHelper::stringToInt(stored, defaultValue);
+        else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, int>){
+            return ConverterHelper::stringToInt(value, defaultValue);
         }
-        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, uint8_t>){
-            return ConverterHelper::stringToUInt8(stored, defaultValue);
+        else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, uint8_t>){
+            return ConverterHelper::stringToUInt8(value, defaultValue);
         }
-        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int8_t>){
-            return ConverterHelper::stringToInt8(stored, defaultValue);
+        else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, int8_t>){
+            return ConverterHelper::stringToInt8(value, defaultValue);
         }
-        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, uint16_t>){
-            return ConverterHelper::stringToUInt16(stored, defaultValue);
+        else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, uint16_t>){
+            return ConverterHelper::stringToUInt16(value, defaultValue);
         }
-        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int16_t>){
-            return ConverterHelper::stringToInt16(stored, defaultValue);
+        else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, int16_t>){
+            return ConverterHelper::stringToInt16(value, defaultValue);
         }
-        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, uint32_t>){
-            return ConverterHelper::stringToUInt32(stored, defaultValue);
+        else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, uint32_t>){
+            return ConverterHelper::stringToUInt32(value, defaultValue);
         }
-        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int32_t>){
-            return ConverterHelper::stringToInt32(stored, defaultValue);
+        else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, int32_t>){
+            return ConverterHelper::stringToInt32(value, defaultValue);
         }
-        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, uint64_t>){
-            return ConverterHelper::stringToUInt64(stored, defaultValue);
+        else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, uint64_t>){
+            return ConverterHelper::stringToUInt64(value, defaultValue);
         }
-        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, int64_t>){
-            return ConverterHelper::stringToInt64(stored, defaultValue);
+        else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, int64_t>){
+            return ConverterHelper::stringToInt64(value, defaultValue);
         }
 
         // [STRING] -> [DOUBLE]
-        else if constexpr (std::is_same_v<StoredT, std::string> && std::is_same_v<newType, double>){
-            return ConverterHelper::stringToDouble(stored, defaultValue);
+        else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, double>){
+            return ConverterHelper::stringToDouble(value, defaultValue);
         }
 
         // [ARITHMETIC] -> [STRING]
-        else if constexpr (std::is_arithmetic_v<StoredT> && std::is_same_v<newType, std::string>){
-            return std::to_string(stored);
+        else if constexpr (std::is_arithmetic_v<ValueT> && std::is_same_v<newType, std::string>){
+            return std::to_string(value);
         }
 
         //------------------------------------------
         // [ERROR] Unsupported conversion
         else {
-            breakBuild::unsupported_conversion<StoredT, newType> error;
+            breakBuild::unsupported_conversion<ValueT, newType> error;
             (void)error; // to avoid unused variable warning
             return defaultValue; // unreachable, but keeps the compiler happy
-
-            // Old runtime error message
-            //std::string constexpr oldTypeName = abi::__cxa_demangle(typeid(stored).name(), nullptr, nullptr, nullptr);
-            //std::string constexpr newTypeName = abi::__cxa_demangle(typeid(newType).name(), nullptr, nullptr, nullptr);
-            //ConverterHelper::convertVariantErrorMessage(oldTypeName, newTypeName);
-            //return defaultValue;
         }
     },
     var);

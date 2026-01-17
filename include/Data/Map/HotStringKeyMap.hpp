@@ -7,14 +7,17 @@
 #ifndef DATA_HOT_STRING_KEY_MAP_HPP
 #define DATA_HOT_STRING_KEY_MAP_HPP
 
+//------------------------------------------
+// Includes
+
+// Standard library
 #include <cstddef>
 #include <memory>
-#include <type_traits>
-#include <utility>
 
 // Nebulite
 #include "HotKeyMap.hpp"
 
+//------------------------------------------
 namespace Nebulite::Data {
 
 template<typename V>
@@ -25,11 +28,10 @@ template<typename V>
  */
 class HotStringKeyMap {
 public:
-    static constexpr std::size_t BucketCount =
-        static_cast<std::size_t>(std::numeric_limits<unsigned char>::max()) + 1;
+    static auto constexpr BucketCount = static_cast<std::size_t>(std::numeric_limits<unsigned char>::max()) + 1;
 private:
     // Use 256 buckets for first-byte partitioning
-    using MapType = Data::HotKeyMap<std::string, V>;
+    using MapType = HotKeyMap<std::string, V>;
 
     // Array of HotKeyMaps, one per possible first-character value.
     std::array<MapType, BucketCount> map;

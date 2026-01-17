@@ -16,7 +16,7 @@ Constants::Error Fill::fill(int const argc, char** argv) const {
     }
 
     // Get the SDL_Renderer
-    SDL_Renderer* renderer = Nebulite::global().getSdlRenderer();
+    SDL_Renderer* renderer = Global::instance().getSdlRenderer();
     if (renderer == nullptr) {
         return Constants::ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED();
     }
@@ -50,18 +50,18 @@ Constants::Error Fill::fill(int const argc, char** argv) const {
     // Bind texture as render target, fill with draw color, restore previous target.
     SDL_Texture* prevTarget = SDL_GetRenderTarget(renderer); // may be nullptr
     if (SDL_SetRenderTarget(renderer, texture) != 0) {
-        Nebulite::cerr() << "Failed to set render target: " << SDL_GetError() << Nebulite::endl;
+        Error::println("Failed to set render target: ", SDL_GetError());
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_LOCK_FAILED();
     }
 
     if (SDL_SetRenderDrawColor(renderer, r, g, b, 255) != 0) {
-        Nebulite::cerr() << "Failed to set draw color: " << SDL_GetError() << Nebulite::endl;
+        Error::println("Failed to set draw color: ", SDL_GetError());
         SDL_SetRenderTarget(renderer, prevTarget);
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_LOCK_FAILED();
     }
 
     if (SDL_RenderClear(renderer) != 0) {
-        Nebulite::cerr() << "Failed to clear (fill) texture: " << SDL_GetError() << Nebulite::endl;
+        Error::println("Failed to clear (fill) texture: ", SDL_GetError());
         SDL_SetRenderTarget(renderer, prevTarget);
         return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_LOCK_FAILED();
     }
@@ -69,12 +69,11 @@ Constants::Error Fill::fill(int const argc, char** argv) const {
     // restore previous render target
     SDL_SetRenderTarget(renderer, prevTarget);
 
-    Nebulite::cout() << "Texture filled with color:"
-        << " R=" << static_cast<int>(r)
-        << " G=" << static_cast<int>(g)
-        << " B=" << static_cast<int>(b)
-        << Nebulite::endl;
-
+    // Finish
+    Log::println("Texture filled with color:"
+        , " R=", static_cast<int>(r)
+        , " G=", static_cast<int>(g)
+        , " B=", static_cast<int>(b));
     return Constants::ErrorTable::NONE();
 }
 

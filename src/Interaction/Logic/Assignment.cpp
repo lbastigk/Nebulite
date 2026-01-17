@@ -8,23 +8,23 @@ namespace Nebulite::Interaction::Logic {
 void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Core::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
-    case Logic::Assignment::Operation::set:
+    case Operation::set:
         target.set<std::string>(keyEvaluated, val);
         break;
-    case Logic::Assignment::Operation::add:
+    case Operation::add:
         target.set_add(keyEvaluated, std::stod(val));
         break;
-    case Logic::Assignment::Operation::multiply:
+    case Operation::multiply:
         target.set_multiply(keyEvaluated, std::stod(val));
         break;
-    case Logic::Assignment::Operation::concat:
+    case Operation::concat:
         target.set_concat(keyEvaluated, val);
         break;
-    case Logic::Assignment::Operation::null:
-        Nebulite::cerr() << "Could not determine context from key, skipping assignment" << Nebulite::endl;
+    case Operation::null:
+        Error::println("Could not determine context from key, skipping assignment");
         break;
     default:
-        Nebulite::cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << Nebulite::endl;
+        Error::println("Unknown operation type! Enum value:", static_cast<int>(operation));
         break;
     }
 }
@@ -32,23 +32,23 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::str
 void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& val, Core::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
-    case Logic::Assignment::Operation::set:
+    case Operation::set:
         target.set<double>(keyEvaluated, val);
         break;
-    case Logic::Assignment::Operation::add:
+    case Operation::add:
         target.set_add(keyEvaluated, val);
         break;
-    case Logic::Assignment::Operation::multiply:
+    case Operation::multiply:
         target.set_multiply(keyEvaluated, val);
         break;
-    case Logic::Assignment::Operation::concat:
+    case Operation::concat:
         target.set_concat(keyEvaluated, std::to_string(val));
         break;
-    case Logic::Assignment::Operation::null:
-        Nebulite::cerr() << "Could not determine context from key, skipping assignment" << Nebulite::endl;
+    case Operation::null:
+        Error::println("Could not determine context from key, skipping assignment");
         break;
     default:
-        Nebulite::cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << Nebulite::endl;
+        Error::println("Unknown operation type! Enum value:", static_cast<int>(operation));
         break;
     }
 }
@@ -56,23 +56,23 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double c
 void Assignment::setValueOfKey(double const& val, double* target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
-    case Logic::Assignment::Operation::set:
+    case Operation::set:
         *target = val;
         break;
-    case Logic::Assignment::Operation::add:
+    case Operation::add:
         *target += val;
         break;
-    case Logic::Assignment::Operation::multiply:
+    case Operation::multiply:
         *target *= val;
         break;
-    case Logic::Assignment::Operation::concat:
-        Nebulite::cerr() << "Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of an Invoke!" << Nebulite::endl;
+    case Operation::concat:
+        Error::println("Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of an Invoke!");
         break;
-    case Logic::Assignment::Operation::null:
-        Nebulite::cerr() << "Could not determine context from key, skipping assignment" << Nebulite::endl;
+    case Operation::null:
+        Error::println("Could not determine context from key, skipping assignment");
         break;
     default:
-        Nebulite::cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << Nebulite::endl;
+        Error::println("Unknown operation type! Enum value:", static_cast<int>(operation));
         break;
     }
 }
@@ -83,22 +83,22 @@ void Assignment::apply(Core::JsonScope& self, Core::JsonScope& other) {
 
     Core::JsonScope* targetDocument;
     switch (onType) {
-    case Logic::Assignment::Type::Self:
+    case Type::Self:
         targetDocument = &self;
         break;
-    case Logic::Assignment::Type::Other:
+    case Type::Other:
         targetDocument = &other;
         break;
-    case Logic::Assignment::Type::Global:
-        targetDocument = &Nebulite::global().domainScope;
+    case Type::Global:
+        targetDocument = &Global::instance().domainScope;
         break;
-    case Logic::Assignment::Type::null:
+    case Type::null:
         // TODO: determine context from expression!
         // If still null, skip assignment
-        Nebulite::cerr() << "Assignment expression has null type - skipping" << Nebulite::endl;
+        Error::println("Assignment expression has null type - skipping");
         return; // Skip this expression
     default:
-        Nebulite::cerr() << "Unknown assignment type: " << static_cast<int>(onType) << Nebulite::endl;
+        Error::println("Unknown assignment type: ", static_cast<int>(onType), " - skipping");
         return; // Exit if unknown type
     }
 

@@ -6,18 +6,18 @@ namespace Nebulite::Data {
 
 odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther) {
     // Quick-cache path protected by mtxCache
-    if (uniqueId < Data::MappedOrderedDoublePointers::quickCacheSize) {
+    if (uniqueId < quickCacheSize) {
         {
-            Nebulite::Utility::ReadLock read_quick(mtxCache);
+            Utility::ReadLock read_quick(mtxCache);
             if (!quickCache[uniqueId].orderedValues.empty()) {
                 return &quickCache[uniqueId].orderedValues;
             }
         }
 
         // upgrade to exclusive to initialize
-        Nebulite::Utility::WriteLock write_quick(mtxCache);
+        Utility::WriteLock write_quick(mtxCache);
         if (quickCache[uniqueId].orderedValues.empty()) {
-            Data::OrderedDoublePointers newCacheList(contextOther.size());
+            OrderedDoublePointers newCacheList(contextOther.size());
             for (auto const& vde : contextOther) {
                 double* ptr = reference.getStableDoublePointer(vde->getScopedKey());
                 newCacheList.orderedValues.push_back(ptr);
@@ -29,15 +29,15 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniq
 
     // Map path protected by mtxMap
     {
-        Nebulite::Utility::ReadLock read_map(mtxMap);
+        Utility::ReadLock read_map(mtxMap);
         if (auto const it = map.find(uniqueId); it != map.end()) {
             return &it->second.orderedValues;
         }
     }
 
     // upgrade to exclusive to insert into map
-    Nebulite::Utility::WriteLock write_map(mtxMap);
-    auto [newIt, inserted] = map.try_emplace(uniqueId, Data::OrderedDoublePointers(contextOther.size()));
+    Utility::WriteLock write_map(mtxMap);
+    auto [newIt, inserted] = map.try_emplace(uniqueId, OrderedDoublePointers(contextOther.size()));
     if (inserted) {
         for (auto const& vde : contextOther) {
             double* ptr = reference.getStableDoublePointer(vde->getScopedKey());
@@ -47,20 +47,20 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniq
     return &newIt->second.orderedValues;
 }
 
-odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<Data::ScopedKeyView> const& keys) {
+odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
     // Quick-cache path protected by mtxCache
-    if (uniqueId < Data::MappedOrderedDoublePointers::quickCacheSize) {
+    if (uniqueId < quickCacheSize) {
         {
-            Nebulite::Utility::ReadLock read_quick(mtxCache);
+            Utility::ReadLock read_quick(mtxCache);
             if (!quickCache[uniqueId].orderedValues.empty()) {
                 return &quickCache[uniqueId].orderedValues;
             }
         }
 
         // upgrade to exclusive to initialize
-        Nebulite::Utility::WriteLock write_quick(mtxCache);
+        Utility::WriteLock write_quick(mtxCache);
         if (quickCache[uniqueId].orderedValues.empty()) {
-            Data::OrderedDoublePointers newCacheList(keys.size());
+            OrderedDoublePointers newCacheList(keys.size());
             for (auto const& key : keys) {
                 double* ptr = reference.getStableDoublePointer(key);
                 newCacheList.orderedValues.push_back(ptr);
@@ -72,14 +72,14 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniq
 
     // Map path protected by mtxMap
     {
-        Nebulite::Utility::ReadLock read_map(mtxMap);
+        Utility::ReadLock read_map(mtxMap);
         if (auto const it = map.find(uniqueId); it != map.end()) {
             return &it->second.orderedValues;
         }
     }
 
     // upgrade to exclusive to insert into map
-    Nebulite::Utility::WriteLock write_map(mtxMap);
+    Utility::WriteLock write_map(mtxMap);
     auto [newIt, inserted] = map.try_emplace(uniqueId, OrderedDoublePointers(keys.size()));
     if (inserted) {
         for (auto const& key : keys) {

@@ -144,20 +144,20 @@ public:
 
         //------------------------------------------
         // Binding functions to the FuncTree
-        BINDFUNCTION(&Debug::errorlog, errorlog_name, errorlog_desc);
-        BINDFUNCTION(&Debug::clearConsole, clearConsole_name, clearConsole_desc);
-        BINDFUNCTION(&Debug::error, error_name, error_desc);
-        BINDFUNCTION(&Debug::crash, crash_name, crash_desc);
-        BINDFUNCTION(&Debug::warn, warn_name, warn_desc);
-        BINDFUNCTION(&Debug::critical, critical_name, critical_desc);
-        BINDFUNCTION(&Debug::waitForInput, waitForInput_name, waitForInput_desc);
+        BIND_FUNCTION(&Debug::errorlog, errorlog_name, errorlog_desc);
+        BIND_FUNCTION(&Debug::clearConsole, clearConsole_name, clearConsole_desc);
+        BIND_FUNCTION(&Debug::error, error_name, error_desc);
+        BIND_FUNCTION(&Debug::crash, crash_name, crash_desc);
+        BIND_FUNCTION(&Debug::warn, warn_name, warn_desc);
+        BIND_FUNCTION(&Debug::critical, critical_name, critical_desc);
+        BIND_FUNCTION(&Debug::waitForInput, waitForInput_name, waitForInput_desc);
 
         (void)bindCategory(log_name, log_desc);
-        BINDFUNCTION(&Debug::log_global, log_global_name, log_global_desc);
-        BINDFUNCTION(&Debug::log_state, log_state_name, log_state_desc);
+        BIND_FUNCTION(&Debug::log_global, log_global_name, log_global_desc);
+        BIND_FUNCTION(&Debug::log_state, log_state_name, log_state_desc);
 
         (void)bindCategory(standardfile_name, standardfile_desc);
-        BINDFUNCTION(&Debug::standardfileRenderobject, standardfileRenderobject_name, standardfileRenderobject_desc);
+        BIND_FUNCTION(&Debug::standardfileRenderobject, standardfileRenderobject_name, standardfileRenderobject_desc);
     }
 
 private:
@@ -172,7 +172,7 @@ private:
     /**
      * @brief Sets up platform information in the global document.
      */
-    void setupPlatformInfo();
+    void setupPlatformInfo() const ;
 };
 } // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_GSDM_DEBUG_HPP
