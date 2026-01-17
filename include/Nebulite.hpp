@@ -242,12 +242,6 @@ public:
     }
 };
 
-/**
- * @brief End line string for capturing output
- *        At the moment, this is just a placeholder for `"\n"`.
- */
-inline auto constexpr endl = "\n";
-
 } // namespace Nebulite
 
 //------------------------------------------
