@@ -18,9 +18,9 @@
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite::Execution {
+namespace Nebulite::Interaction::Execution {
 class DomainBase;
-} // namespace Nebulite::Execution
+} // namespace Nebulite::Interaction::Execution
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {

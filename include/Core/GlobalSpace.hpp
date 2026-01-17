@@ -21,12 +21,11 @@
 #include "Constants/ErrorTypes.hpp"
 #include "Data/Document/DocumentCache.hpp"
 #include "Data/TaskQueue.hpp"
+#include "DomainModule/GlobalSpace/Floating/RNG.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
-#include "Interaction/Rules/RulesetModule.hpp"
 
-#include "DomainModule/GlobalSpace/Floating/RNG.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {

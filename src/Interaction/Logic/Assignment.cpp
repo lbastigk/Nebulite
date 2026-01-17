@@ -5,26 +5,26 @@
 
 namespace Nebulite::Interaction::Logic {
 
-void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& value, Core::JsonScope& target) const {
+void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Core::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Operation::set:
-        target.set<std::string>(keyEvaluated, value);
+        target.set<std::string>(keyEvaluated, val);
         break;
     case Operation::add:
-        target.set_add(keyEvaluated, std::stod(value));
+        target.set_add(keyEvaluated, std::stod(val));
         break;
     case Operation::multiply:
-        target.set_multiply(keyEvaluated, std::stod(value);
+        target.set_multiply(keyEvaluated, std::stod(val));
         break;
     case Operation::concat:
-        target.set_concat(keyEvaluated, value);
+        target.set_concat(keyEvaluated, val);
         break;
     case Operation::null:
-        Nebulite::cerr() << "Could not determine context from key, skipping assignment" << Nebulite::endl;
+        cerr() << "Could not determine context from key, skipping assignment" << endl;
         break;
     default:
-        Nebulite::cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << Nebulite::endl;
+        cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << endl;
         break;
     }
 }
@@ -45,10 +45,10 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double c
         target.set_concat(keyEvaluated, std::to_string(val));
         break;
     case Operation::null:
-        Nebulite::cerr() << "Could not determine context from key, skipping assignment" << Nebulite::endl;
+        cerr() << "Could not determine context from key, skipping assignment" << endl;
         break;
     default:
-        Nebulite::cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << Nebulite::endl;
+        cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << endl;
         break;
     }
 }
@@ -66,13 +66,13 @@ void Assignment::setValueOfKey(double const& val, double* target) const {
         *target *= val;
         break;
     case Operation::concat:
-        Nebulite::cerr() << "Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of an Invoke!" << Nebulite::endl;
+        cerr() << "Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of an Invoke!" << endl;
         break;
     case Operation::null:
-        Nebulite::cerr() << "Could not determine context from key, skipping assignment" << Nebulite::endl;
+        cerr() << "Could not determine context from key, skipping assignment" << endl;
         break;
     default:
-        Nebulite::cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << Nebulite::endl;
+        cerr() << "Unknown operation type! Enum value:" << static_cast<int>(operation) << endl;
         break;
     }
 }
@@ -83,22 +83,22 @@ void Assignment::apply(Core::JsonScope& self, Core::JsonScope& other) {
 
     Core::JsonScope* targetDocument;
     switch (onType) {
-    case Logic::Assignment::Type::Self:
+    case Type::Self:
         targetDocument = &self;
         break;
-    case Logic::Assignment::Type::Other:
+    case Type::Other:
         targetDocument = &other;
         break;
-    case Logic::Assignment::Type::Global:
-        targetDocument = &Nebulite::global().domainScope;
+    case Type::Global:
+        targetDocument = &global().domainScope;
         break;
-    case Logic::Assignment::Type::null:
+    case Type::null:
         // TODO: determine context from expression!
         // If still null, skip assignment
-        Nebulite::cerr() << "Assignment expression has null type - skipping" << Nebulite::endl;
+        cerr() << "Assignment expression has null type - skipping" << endl;
         return; // Skip this expression
     default:
-        Nebulite::cerr() << "Unknown assignment type: " << static_cast<int>(onType) << Nebulite::endl;
+        cerr() << "Unknown assignment type: " << static_cast<int>(onType) << endl;
         return; // Exit if unknown type
     }
 
