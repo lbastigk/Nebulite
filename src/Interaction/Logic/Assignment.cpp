@@ -5,22 +5,22 @@
 
 namespace Nebulite::Interaction::Logic {
 
-void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Core::JsonScope& target) const {
+void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& value, Core::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
-    case Logic::Assignment::Operation::set:
-        target.set<std::string>(keyEvaluated, val);
+    case Operation::set:
+        target.set<std::string>(keyEvaluated, value);
         break;
-    case Logic::Assignment::Operation::add:
-        target.set_add(keyEvaluated, std::stod(val));
+    case Operation::add:
+        target.set_add(keyEvaluated, std::stod(value));
         break;
-    case Logic::Assignment::Operation::multiply:
-        target.set_multiply(keyEvaluated, std::stod(val));
+    case Operation::multiply:
+        target.set_multiply(keyEvaluated, std::stod(value);
         break;
-    case Logic::Assignment::Operation::concat:
-        target.set_concat(keyEvaluated, val);
+    case Operation::concat:
+        target.set_concat(keyEvaluated, value);
         break;
-    case Logic::Assignment::Operation::null:
+    case Operation::null:
         Nebulite::cerr() << "Could not determine context from key, skipping assignment" << Nebulite::endl;
         break;
     default:
@@ -32,19 +32,19 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::str
 void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& val, Core::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
-    case Logic::Assignment::Operation::set:
+    case Operation::set:
         target.set<double>(keyEvaluated, val);
         break;
-    case Logic::Assignment::Operation::add:
+    case Operation::add:
         target.set_add(keyEvaluated, val);
         break;
-    case Logic::Assignment::Operation::multiply:
+    case Operation::multiply:
         target.set_multiply(keyEvaluated, val);
         break;
-    case Logic::Assignment::Operation::concat:
+    case Operation::concat:
         target.set_concat(keyEvaluated, std::to_string(val));
         break;
-    case Logic::Assignment::Operation::null:
+    case Operation::null:
         Nebulite::cerr() << "Could not determine context from key, skipping assignment" << Nebulite::endl;
         break;
     default:
@@ -56,19 +56,19 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double c
 void Assignment::setValueOfKey(double const& val, double* target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
-    case Logic::Assignment::Operation::set:
+    case Operation::set:
         *target = val;
         break;
-    case Logic::Assignment::Operation::add:
+    case Operation::add:
         *target += val;
         break;
-    case Logic::Assignment::Operation::multiply:
+    case Operation::multiply:
         *target *= val;
         break;
-    case Logic::Assignment::Operation::concat:
+    case Operation::concat:
         Nebulite::cerr() << "Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of an Invoke!" << Nebulite::endl;
         break;
-    case Logic::Assignment::Operation::null:
+    case Operation::null:
         Nebulite::cerr() << "Could not determine context from key, skipping assignment" << Nebulite::endl;
         break;
     default:

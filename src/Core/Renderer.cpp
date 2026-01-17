@@ -699,8 +699,8 @@ void Renderer::renderFPS() const {
     SDL_FRect const textRect = {
         static_cast<float>(10.0) / static_cast<float>(WindowScale),
         static_cast<float>(10.0) / static_cast<float>(WindowScale),
-        static_cast<float>(fontSize * static_cast<double>(fpsText.length())) / WindowScale,
-        static_cast<float>(fontSize * 1.5) / WindowScale
+        static_cast<float>(fontSize * static_cast<double>(fpsText.length()) / static_cast<double>(WindowScale)) ,
+        static_cast<float>(fontSize * 1.5 / static_cast<double>(WindowScale))
     }; // Adjust position as needed
 
     // Clear the area where the FPS text will be rendered

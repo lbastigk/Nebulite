@@ -109,24 +109,18 @@ public:
      * @brief Gets the current input buffer.
      * @return The current input buffer as a string pointer.
      */
-    [[nodiscard]] std::string* getInputBuffer() const {
-        return consoleInputBuffer;
-    }
+    [[nodiscard]] std::string* getInputBuffer() const ;
 
     /**
      * @brief Gets the queue of output lines.
      */
-    std::deque<LineEntry>* getOutput(){
-        return &consoleOutput;
-    }
+    std::deque<LineEntry>* getOutput();
 
     /**
      * @brief Gets the cursor offset in the input buffer.
      * @return The cursor offset as an unsigned 16-bit integer.
      */
-    [[nodiscard]] uint16_t getCursorOffset() const {
-        return cursorOffset;
-    }
+    [[nodiscard]] uint16_t getCursorOffset() const ;
 
 private:
     /**

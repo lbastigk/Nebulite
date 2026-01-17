@@ -260,7 +260,7 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
 void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Core::JsonScope& self) {
     // List of operations that are considered numeric and thus eligible for direct pointer assignment.
     // Any new numeric operation must be added here to benefit from optimization techniques in the Invoke class.
-    std::array<Logic::Assignment::Operation,3> constexpr numeric_operations = {
+    std::array constexpr numeric_operations = {
         Logic::Assignment::Operation::set,
         Logic::Assignment::Operation::add,
         Logic::Assignment::Operation::multiply

@@ -120,10 +120,9 @@ public:
 
     /**
      * @brief Inherits functions from another Tree.
-     * 
      * @param toInherit FuncTree pointer to inherit functions from.
      */
-    void inherit(std::shared_ptr<FuncTree> toInherit) {
+    void inherit(std::shared_ptr<FuncTree> const& toInherit) {
         inheritedTrees.push_back(toInherit);
     }
 
@@ -135,7 +134,7 @@ public:
      * @param func Function to call before parsing
      */
     void setPreParse(std::function<returnValue()> func) {
-        preParse = func;
+        preParse = std::move(func);
     }
 
     /**

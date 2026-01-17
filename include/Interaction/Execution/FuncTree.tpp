@@ -207,7 +207,7 @@ bool FuncTree<returnValue, additionalArgs...>::conflictCheck(std::string_view co
         }
         );
     if (conflictIt != inheritedTrees.end()) {
-        auto conflictTree = *conflictIt;
+        auto const& conflictTree = *conflictIt;
         bindErrorMessage::FunctionExistsInInheritedTree(TreeName, conflictTree->TreeName, name);
         return false;
     }
