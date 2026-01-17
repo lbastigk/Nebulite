@@ -38,6 +38,7 @@ struct BroadCastListenPair {
         entry->apply(contextOther);
     }
 #else
+    // TODO: Possible to use std::future<bool> here to check only if needed?
     bool active = false; // If false, this pair is skipped during update
 
     // Apply function: Hash map version needs to check active flag
