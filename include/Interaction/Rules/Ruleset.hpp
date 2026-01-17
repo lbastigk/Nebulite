@@ -18,9 +18,9 @@
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite::Interaction::Execution {
+namespace Nebulite::Execution {
 class DomainBase;
-} // namespace Nebulite::Interaction::Execution
+} // namespace Nebulite::Execution
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {
@@ -87,7 +87,7 @@ public:
      * @param other The other domain to use as context 'other'.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    virtual bool evaluateCondition(Interaction::Execution::DomainBase const* other);
+    virtual bool evaluateCondition(Execution::DomainBase const* other);
 
     /**
      * @brief Checks if the ruleset is true with its own Domain as context other.
@@ -99,7 +99,7 @@ public:
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
      */
-    virtual void apply(Interaction::Execution::DomainBase* contextOther);
+    virtual void apply(Execution::DomainBase* contextOther);
 
     /**
      * @brief Applies the ruleset to its own Domain as context other.
@@ -126,7 +126,7 @@ protected:
     /**
      * @brief Pointer to the Domain that owns this ruleset; the `self` domain.
      */
-    Interaction::Execution::DomainBase* selfPtr = nullptr;
+    Execution::DomainBase* selfPtr = nullptr;
 
     /**
      * @brief Cost of this entry, estimated during parsing.
@@ -177,7 +177,7 @@ public:
      * @param other The other render object to compare against.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    bool evaluateCondition(Interaction::Execution::DomainBase const* other) override { (void)other ; return true; }
+    bool evaluateCondition(Execution::DomainBase const* other) override { (void)other ; return true; }
 
     /**
      * @brief Checks if the ruleset is true with its own Domain as context other.
@@ -190,7 +190,7 @@ public:
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
      */
-    void apply(Interaction::Execution::DomainBase* contextOther) override ;
+    void apply(Execution::DomainBase* contextOther) override ;
 
     /**
      * @brief Applies the ruleset to its own Domain as context other.
@@ -231,7 +231,7 @@ public:
      * @param other The other render object to compare against.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    bool evaluateCondition(Interaction::Execution::DomainBase const* other) override;
+    bool evaluateCondition(Execution::DomainBase const* other) override;
 
     /**
      * @brief Checks if the ruleset is true in the context of its own Domain as otherObj.
@@ -243,7 +243,7 @@ public:
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
      */
-    void apply(Interaction::Execution::DomainBase* contextOther) override;
+    void apply(Execution::DomainBase* contextOther) override;
 
     /**
      * @brief Applies the ruleset to its own Domain as contextOther.

@@ -110,7 +110,7 @@ protected:
      * @tparam keyEnum An enumeration type representing the keys for base values.
      */
     template<typename keyEnum>
-    inline static double& baseVal(double** v, keyEnum k) noexcept {
+    static double& baseVal(double** v, keyEnum k) noexcept {
         return *v[static_cast<std::size_t>(k)];
     }
 

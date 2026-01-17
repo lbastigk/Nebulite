@@ -231,12 +231,12 @@ class log {
 public:
     template<typename... Args>
     static void print(Args&&... args) {
-        Nebulite::Utility::Capture::cout().print(std::forward<Args>(args)...);
+        Utility::Capture::cout().print(std::forward<Args>(args)...);
     }
 
     template<typename... Args>
     static void println(Args&&... args) {
-        Nebulite::Utility::Capture::cout().println(std::forward<Args>(args)...);
+        Utility::Capture::cout().println(std::forward<Args>(args)...);
     }
 };
 
@@ -244,12 +244,12 @@ class error {
 public:
     template<typename... Args>
     static void print(Args&&... args) {
-        Nebulite::Utility::Capture::cerr().print(std::forward<Args>(args)...);
+        Utility::Capture::cerr().print(std::forward<Args>(args)...);
     }
 
     template<typename... Args>
     static void println(Args&&... args) {
-        Nebulite::Utility::Capture::cerr().println(std::forward<Args>(args)...);
+        Utility::Capture::cerr().println(std::forward<Args>(args)...);
     }
 };
 

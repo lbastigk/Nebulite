@@ -60,7 +60,7 @@ public:
         std::string timestamp;
 
         LineEntry(std::string cont, LineType const& t)
-            : type(t), 
+            : type(t),
               content(std::move(cont)),
               timestamp(Time::TimeIso8601(Time::ISO8601Format::YYYY_MM_DD_HH_MM_SS, true))
               {}
@@ -88,7 +88,7 @@ public:
      * @brief Navigates down the command history.
      */
     void history_down();
-    
+
     /**
      * @brief Moves the input cursor to the left
      */
@@ -174,7 +174,6 @@ private:
      * @brief Offset of the cursor in the input buffer.
      */
     uint16_t cursorOffset = 0;
-
 };
-} // namespace Nebulite::Utility 
+} // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_TEXTINPUT_HPP

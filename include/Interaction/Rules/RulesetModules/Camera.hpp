@@ -63,10 +63,10 @@ private:
     // Base value caching for camera alignment
 
     const std::vector<Data::ScopedKeyView> baseKeys = {
-        Nebulite::Constants::KeyNames::RenderObject::positionX,
-        Nebulite::Constants::KeyNames::RenderObject::positionY,
-        Nebulite::Constants::KeyNames::RenderObject::pixelSizeX,
-        Nebulite::Constants::KeyNames::RenderObject::pixelSizeY
+        Constants::KeyNames::RenderObject::positionX,
+        Constants::KeyNames::RenderObject::positionY,
+        Constants::KeyNames::RenderObject::pixelSizeX,
+        Constants::KeyNames::RenderObject::pixelSizeY
     };
 
     enum class Key : std::size_t {
@@ -111,18 +111,18 @@ private:
                 *globalVal.camPosY = pos.y ;
                 break;
             case Align::Bottom:
-                *globalVal.camPosY = pos.y - (*globalVal.dispResY);
+                *globalVal.camPosY = pos.y - *globalVal.dispResY;
                 break;
             case Align::Left:
                 *globalVal.camPosX = pos.x;
                 break;
             case Align::Right:
-                *globalVal.camPosX = pos.x - (*globalVal.dispResX);
+                *globalVal.camPosX = pos.x - *globalVal.dispResX;
                 break;
             case Align::Center:
             default: // Fallback to center
-                *globalVal.camPosX = pos.x - (*globalVal.dispResX / 2.0);
-                *globalVal.camPosY = pos.y - (*globalVal.dispResY / 2.0);
+                *globalVal.camPosX = pos.x - *globalVal.dispResX / 2.0;
+                *globalVal.camPosY = pos.y - *globalVal.dispResY / 2.0;
                 break;
         }
     }
@@ -132,25 +132,25 @@ private:
         position pos;
         switch (align) {
             case Align::Top:
-                pos.x = baseVal(baseValues, Key::posX) + (baseVal(baseValues, Key::spriteSizeX) / 2.0);
+                pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX) / 2.0;
                 pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY);
                 break;
             case Align::Bottom:
-                pos.x = baseVal(baseValues, Key::posX) + (baseVal(baseValues, Key::spriteSizeX) / 2.0);
+                pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX) / 2.0;
                 pos.y = baseVal(baseValues, Key::posY);
                 break;
             case Align::Left:
                 pos.x = baseVal(baseValues, Key::posX);
-                pos.y = baseVal(baseValues, Key::posY) + (baseVal(baseValues, Key::spriteSizeY) / 2.0);
+                pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY) / 2.0;
                 break;
             case Align::Right:
                 pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX);
-                pos.y = baseVal(baseValues, Key::posY) + (baseVal(baseValues, Key::spriteSizeY) / 2.0);
+                pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY) / 2.0;
                 break;
             case Align::Center:
             default: // Fallback to center
-                pos.x = baseVal(baseValues, Key::posX) + (baseVal(baseValues, Key::spriteSizeX) / 2.0);
-                pos.y = baseVal(baseValues, Key::posY) + (baseVal(baseValues, Key::spriteSizeY) / 2.0);
+                pos.x = baseVal(baseValues, Key::posX) + baseVal(baseValues, Key::spriteSizeX) / 2.0;
+                pos.y = baseVal(baseValues, Key::posY) + baseVal(baseValues, Key::spriteSizeY) / 2.0;
                 break;
         }
         return pos;
