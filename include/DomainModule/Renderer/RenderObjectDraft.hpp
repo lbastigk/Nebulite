@@ -70,7 +70,7 @@ public:
 
     //------------------------------------------
     // Category names
-    
+
     static auto constexpr draft_name = "draft";
     static auto constexpr draft_desc = "Functions to manipulate and spawn RenderObjects in draft state";
 
@@ -95,7 +95,6 @@ private:
      * @details Ensuring the draft is only initialized when accessed through lazy-init
      */
     class DraftHolder {
-    private:
         std::unique_ptr<Core::RenderObject> ptr;
 
     public:

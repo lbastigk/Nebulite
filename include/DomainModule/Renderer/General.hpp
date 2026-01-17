@@ -79,7 +79,7 @@ public:
         "Usage: env load <path/to/file.jsonc>\n\n"
         "If no argument is provided, an empty environment is loaded.\n";
 
-    Constants::Error envDeload() const ;
+    [[nodiscard]] Constants::Error envDeload() const ;
     static auto constexpr envDeload_name = "env deload";
     static auto constexpr envDeload_desc = "Deload entire environment, leaving an empty renderer.\n"
         "\n"
@@ -132,7 +132,7 @@ public:
         "Usage: snapshot [filename]\n\n"
         "Defaults to \"./Resources/Snapshots/snapshot.png\" if no argument is provided\n";
 
-    Constants::Error beep() const ;
+    [[nodiscard]] Constants::Error beep() const ;
     static auto constexpr beep_name = "beep";
     static auto constexpr beep_desc = "Make a beep noise.\n"
         "\n"
@@ -152,7 +152,7 @@ public:
         "\n"
         "Usage: selected-object get <id>\n";
 
-    Constants::Error selectedObject_Parse(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Error selectedObject_Parse(std::span<std::string const> const& args) const ;
     static auto constexpr selectedObject_Parse_name = "selected-object parse";
     static auto constexpr selectedObject_Parse_desc = "Parse a command on the selected RenderObject.\n"
         "\n"
