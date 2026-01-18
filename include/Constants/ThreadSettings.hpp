@@ -7,14 +7,7 @@
 #define NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP
 
 //------------------------------------------
-
-/**
- * @def ORDERED_DOUBLE_POINTERS_MAPS
- * @brief Number of ordered double pointer maps for expression evaluations.
- * @details If set to 1, all threads share the same map.
- *          Optimized to not use any special indexing, but simple access to [0] if set to 1.
- */
-#define ORDERED_DOUBLE_POINTERS_MAPS 8
+// Runtime expression evaluation settings
 
 /**
  * @def INVOKE_EXPR_POOL_SIZE
@@ -25,11 +18,22 @@
  */
 #define EXPRESSION_POOL_SIZE 8
 
+//------------------------------------------
+// General threading settings
+
+/**
+ * @def ORDERED_DOUBLE_POINTERS_MAPS
+ * @brief Number of ordered double pointer maps for expression evaluations.
+ * @details If set to 1, all threads share the same map.
+ *          Optimized to not use any special indexing, but simple access to [0] if set to 1.
+ */
+#define ORDERED_DOUBLE_POINTERS_MAPS 32
+
 /**
  * @def THREADRUNNER_COUNT
  * @brief Number of thread runners for processing broadcast-listen pairs.
  */
-#define THREADRUNNER_COUNT 8
+#define THREADRUNNER_COUNT 32
 
 /**
  * @def BATCH_COST_GOAL

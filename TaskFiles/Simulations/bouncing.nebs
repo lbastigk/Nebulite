@@ -1,5 +1,5 @@
 set-fps 1000
-time set-fixed-dt 10
+time set-fixed-dt 1 # Low fixed time step, otherwise fast objects may tunnel
 set physics.g 9.81  # Earth gravity
 set-res 640 360 3
 echo
@@ -22,11 +22,13 @@ for i 01 30 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|p
 
 #########################################
 echo Spawning bouncing block
+set bounceCount 1
 spawn ./Resources/Renderobjects/Boxes/bounce.jsonc|posX=100|posY=100|physics.vX=100|physics.vY=-100
 
 #########################################
 # Spawn on mouse click
 
 wait 100
-always if $(eq({global.renderer.input.mouse.delta.left},1)) eval echo Spawning at: ({global.renderer.input.mouse.current.scaledX},{global.renderer.input.mouse.current.scaledY})
+always if $(eq({global.renderer.input.mouse.delta.left},1)) eval set bounceCount $({global.bounceCount}+1)
+always if $(eq({global.renderer.input.mouse.delta.left},1)) eval echo Spawning at: ($06.2f({global.renderer.input.mouse.current.scaledX}),$06.2f({global.renderer.input.mouse.current.scaledY})) | Count: {global.bounceCount}
 always if $(eq({global.renderer.input.mouse.delta.left},1)) eval spawn ./Resources/Renderobjects/Boxes/bounce.jsonc|posX={global.renderer.input.mouse.current.scaledX}|posY={global.renderer.input.mouse.current.scaledY}|physics.vX={global.renderer.input.mouse.delta.scaledX}|physics.vY={global.renderer.input.mouse.delta.scaledY}
