@@ -159,7 +159,7 @@ EOF
 
 # Function to create THIRD_PARTY_LICENSES.txt content
 create_third_party_licenses_txt(){
-    cat << 'EOF'
+    cat << EOF
 Nebulite Third-Party Library Licenses
 =====================================
 
@@ -172,6 +172,14 @@ ${LIC_IMGUI}
 SDL3 - Simple DirectMedia Layer (zlib License)
 -----------------------
 ${LIC_SDL}
+
+SDL3_image (zlib License)
+-----------------------
+${LIC_SDL_IMAGE}
+
+SDL3_ttf (zlib License)
+-----------------------
+${LIC_SDL_TTF}
 
 RapidJSON (MIT License)
 -----------------------
