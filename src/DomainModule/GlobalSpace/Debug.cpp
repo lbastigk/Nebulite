@@ -100,16 +100,17 @@ Constants::Error Debug::update() {
     //------------------------------------------
     // Memory usage
 
-    // store memory usage in global document
 
-    // Call every second
-    static std::function<void()> setMemoryUsageInfo = [this]() {
-        // Call the setMemoryUsageInfo function
-        this->setMemoryUsageInfo();
-    };
     static Utility::TimedRoutine memoryUsageUpdater(
-        setMemoryUsageInfo,
-        1000,
+        [this] {
+            // store memory usage in global document
+            double virtualMemMB = 0.0;
+            double residentMemMB = 0.0;
+            getMemoryUsageMB(virtualMemMB, residentMemMB);
+            moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.virtualMB"), virtualMemMB);
+            moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.residentMB"), residentMemMB);
+        },
+        1000 /*ms*/, // Call every second
         Utility::TimedRoutine::ConstructionMode::START_IMMEDIATELY
     );
     memoryUsageUpdater.update();
@@ -326,14 +327,6 @@ void Debug::setupPlatformInfo() const {
 #else
     moduleScope.set<std::string>(Data::ScopedKey("platform"), "unknown");
 #endif
-}
-
-void Debug::setMemoryUsageInfo() const{
-    double virtualMemMB = 0.0;
-    double residentMemMB = 0.0;
-    getMemoryUsageMB(virtualMemMB, residentMemMB);
-    moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.virtualMB"), virtualMemMB);
-    moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.residentMB"), residentMemMB);
 }
 
 } // namespace Nebulite::DomainModule::GlobalSpace
