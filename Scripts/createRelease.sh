@@ -9,6 +9,10 @@
 # Abort on errors
 set -e
 
+# TODO: Remove this check once IMGUI license info is added
+echo -e "Please add IMGUI license info to THIRD_PARTY_LICENSES before creating a release!"
+exit 1
+
 #############################################
 # Prerequisites:
 
