@@ -15,7 +15,6 @@
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
-#include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
 // Forward declarations

@@ -23,3 +23,10 @@ for i 01 30 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|p
 #########################################
 echo Spawning bouncing block
 spawn ./Resources/Renderobjects/Boxes/bounce.jsonc|posX=100|posY=100|physics.vX=100|physics.vY=-100
+
+#########################################
+# Spawn on mouse click
+
+wait 100
+always if $(eq({global.renderer.input.mouse.delta.left},1)) eval echo Spawning at: ({global.renderer.input.mouse.current.scaledX},{global.renderer.input.mouse.current.scaledY})
+always if $(eq({global.renderer.input.mouse.delta.left},1)) eval spawn ./Resources/Renderobjects/Boxes/bounce.jsonc|posX={global.renderer.input.mouse.current.scaledX}|posY={global.renderer.input.mouse.current.scaledY}|physics.vX={global.renderer.input.mouse.delta.scaledX}|physics.vY={global.renderer.input.mouse.delta.scaledY}

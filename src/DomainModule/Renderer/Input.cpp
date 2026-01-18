@@ -81,14 +81,20 @@ void Input::writeCurrentAndDeltaInputs() {
     mouse.state = SDL_GetMouseState(&mouse.posX, &mouse.posY);
 
     // Cursor Position and state
-    moduleScope.set(moduleScope.getRootScope() + "mouse.current.X", mouse.posX);
-    moduleScope.set(moduleScope.getRootScope() + "mouse.current.Y", mouse.posY);
-    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.X", mouse.posX - mouse.lastPosX);
-    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.Y", mouse.posY - mouse.lastPosY);
+    moduleScope.set(moduleScope.getRootScope() + "mouse.current.X", static_cast<double>(mouse.posX));
+    moduleScope.set(moduleScope.getRootScope() + "mouse.current.Y", static_cast<double>(mouse.posY));
+    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.X", static_cast<double>(mouse.posX - mouse.lastPosX));
+    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.Y", static_cast<double>(mouse.posY - mouse.lastPosY));
     moduleScope.set(moduleScope.getRootScope() + "mouse.current.left", calcMouseState(SDL_BUTTON_MASK(SDL_BUTTON_LEFT), mouse.state));
     moduleScope.set(moduleScope.getRootScope() + "mouse.current.right", calcMouseState(SDL_BUTTON_MASK(SDL_BUTTON_RIGHT), mouse.state));
     moduleScope.set(moduleScope.getRootScope() + "mouse.delta.left", calcMouseDelta(SDL_BUTTON_MASK(SDL_BUTTON_LEFT), mouse.state, mouse.lastState));
     moduleScope.set(moduleScope.getRootScope() + "mouse.delta.right", calcMouseDelta(SDL_BUTTON_MASK(SDL_BUTTON_RIGHT), mouse.state, mouse.lastState));
+
+    // Scaled positions
+    moduleScope.set(moduleScope.getRootScope() + "mouse.current.scaledX", static_cast<double>(mouse.posX)/static_cast<double>(domain.getWindowScale()));
+    moduleScope.set(moduleScope.getRootScope() + "mouse.current.scaledY", static_cast<double>(mouse.posY)/static_cast<double>(domain.getWindowScale()));
+    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.scaledX", static_cast<double>(mouse.posX - mouse.lastPosX)/static_cast<double>(domain.getWindowScale()));
+    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.scaledY", static_cast<double>(mouse.posY - mouse.lastPosY)/static_cast<double>(domain.getWindowScale()));
 
     //------------------------------------------
     // Keyboard
