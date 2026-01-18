@@ -10,6 +10,7 @@ Resources/Snapshots/**
 *.bmp
 *.jpeg
 *.zip
+*.tar.gz
 *.ttf
 
 ############################################
