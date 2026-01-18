@@ -24,8 +24,17 @@ namespace Nebulite::Utility {
  */
 class TimedRoutine {
 public:
-    TimedRoutine(std::function<void()> const& routine, uint64_t const& intervalMillis)
-        : routine(routine), interval(intervalMillis) {}
+    enum class ConstructionMode {
+        START_IMMEDIATELY,
+        WAIT_FOR_START
+    };
+
+    TimedRoutine(std::function<void()> const& routine, uint64_t const& intervalMillis, ConstructionMode const& mode = ConstructionMode::WAIT_FOR_START)
+        : foo(routine), interval(intervalMillis) {
+        if (mode == ConstructionMode::START_IMMEDIATELY) {
+            timer.start();
+        }
+    }
 
     void start() {
         timer.start();
@@ -34,12 +43,12 @@ public:
     void update() {
         if (timer.projected_dt() >= interval) {
             timer.update(); // Update timer to reset dt
-            routine(); // Execute the scheduled routine
+            foo(); // Execute the scheduled routine
         }
     }
 
 private:
-    std::function<void()> routine;
+    std::function<void()> foo;
     TimeKeeper timer;
     uint64_t interval;
 };

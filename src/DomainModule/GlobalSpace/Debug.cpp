@@ -8,6 +8,7 @@
 #include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
 #include "DomainModule/GlobalSpace/Debug.hpp"
+#include "Utility/TimedRoutine.hpp"
 
 //------------------------------------------
 #if defined(_WIN32)
@@ -102,17 +103,16 @@ Constants::Error Debug::update() {
     // store memory usage in global document
 
     // Call every second
-    static Utility::TimeKeeper memoryUsagePoller;
-    if (memoryUsagePoller.projected_dt() > 1000 || !memoryUsagePoller.is_running()) {
-        double virtualMemMB = 0.0;
-        double residentMemMB = 0.0;
-        getMemoryUsageMB(virtualMemMB, residentMemMB);
-        moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.virtualMB"), virtualMemMB);
-        moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.residentMB"), residentMemMB);
-    }
-    if (!memoryUsagePoller.is_running()) {
-        memoryUsagePoller.start();
-    }
+    static std::function<void()> setMemoryUsageInfo = [this]() {
+        // Call the setMemoryUsageInfo function
+        this->setMemoryUsageInfo();
+    };
+    static Utility::TimedRoutine memoryUsageUpdater(
+        setMemoryUsageInfo,
+        1000,
+        Utility::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+    );
+    memoryUsageUpdater.update();
 
     //------------------------------------------
     return Constants::ErrorTable::NONE();
@@ -326,6 +326,14 @@ void Debug::setupPlatformInfo() const {
 #else
     moduleScope.set<std::string>(Data::ScopedKey("platform"), "unknown");
 #endif
+}
+
+void Debug::setMemoryUsageInfo() const{
+    double virtualMemMB = 0.0;
+    double residentMemMB = 0.0;
+    getMemoryUsageMB(virtualMemMB, residentMemMB);
+    moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.virtualMB"), virtualMemMB);
+    moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.residentMB"), residentMemMB);
 }
 
 } // namespace Nebulite::DomainModule::GlobalSpace
