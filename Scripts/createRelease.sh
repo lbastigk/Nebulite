@@ -194,11 +194,6 @@ Nebulite ${VERSION} - Game Engine
 
 Thank you for downloading Nebulite ${VERSION}!
 
-What's Included:
-- Nebulite: Release executable optimized for performance
-- Nebulite_Debug: Debug executable with additional logging and validation
-- Required runtime libraries (Windows version only)
-
 Quick Start:
 1. Extract this archive to your desired location
 2. Extract additional resources from the 'Resources' folder in the main repository if needed
@@ -225,17 +220,13 @@ check_binaries(){
         missing=1
     fi
     
-    if [ ! -f "bin/Nebulite_Debug" ]; then
-        echo -e "${RED}Error: bin/Nebulite_Debug not found. Please build the project first.${NC}"
+    if [ ! -f "bin/Nebulite.exe" ]; then
+        echo -e "${RED}Warning: bin/Nebulite.exe not found!${NC}"
         missing=1
     fi
     
-    if [ ! -f "bin/Nebulite.exe" ]; then
-        echo -e "${YELLOW}Warning: bin/Nebulite.exe not found. Windows archive will be skipped.${NC}"
-    fi
-    
     if [ $missing -eq 1 ]; then
-        echo -e "${RED}Please run './build.sh' to build the binaries first.${NC}"
+        echo -e "${RED}Please build the binaries first.${NC}"
         exit 1
     fi
 }
@@ -249,7 +240,7 @@ prepare_build_dir(){
 
 # Create Windows archive
 create_windows_archive(){
-    if [ ! -f "bin/Nebulite.exe" ] || [ ! -f "bin/Nebulite_Debug.exe" ]; then
+    if [ ! -f "bin/Nebulite.exe" ]; then
         echo -e "${YELLOW}Skipping Windows archive - Windows binaries not found${NC}"
         return
     fi
@@ -259,13 +250,9 @@ create_windows_archive(){
     local win_dir="$BUILD_DIR/windows"
     mkdir -p "$win_dir"
     
-    # Copy Windows binaries
+    # Copy Windows binary
     cp bin/Nebulite.exe "$win_dir/"
-    cp bin/Nebulite_Debug.exe "$win_dir/"
-    
-    # Copy Windows DLLs
-    cp bin/*.dll "$win_dir/" 2>/dev/null || echo -e "${YELLOW}Warning: No DLL files found${NC}"
-    
+
     # Create license files
     create_license_txt > "$win_dir/LICENSE.txt"
     create_third_party_licenses_txt > "$win_dir/THIRD_PARTY_LICENSES.txt"
@@ -286,13 +273,11 @@ create_linux_archive(){
     local linux_dir="$BUILD_DIR/linux"
     mkdir -p "$linux_dir"
     
-    # Copy Linux binaries
+    # Copy Linux binary
     cp bin/Nebulite "$linux_dir/"
-    cp bin/Nebulite_Debug "$linux_dir/"
     
-    # Make binaries executable
+    # Make binary executable
     chmod +x "$linux_dir/Nebulite"
-    chmod +x "$linux_dir/Nebulite_Debug"
     
     # Create license files
     create_license_txt > "$linux_dir/LICENSE.txt"
