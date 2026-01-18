@@ -9,9 +9,32 @@
 # Abort on errors
 set -e
 
-# TODO: Remove this check once IMGUI license info is added
-echo -e "Please add IMGUI license info to THIRD_PARTY_LICENSES before creating a release!"
-exit 1
+#############################################
+# Get licenses from LICENSE files
+LIC_ABSEIL=$(cat ./external/abseil/LICENSE)
+LIC_IMGUI=$(cat ./external/imgui/LICENSE.txt)
+LIC_RAPIDJSON=$(cat ./external/rapidjson/LICENSE.txt)
+LIC_SDL=$(cat ./external/SDL3/LICENSE.txt)
+LIC_SDL_IMAGE=$(cat ./external/SDL_image/LICENSE.txt)
+LIC_SDL_TTF=$(cat ./external/SDL_ttf/LICENSE.txt)
+
+# Generate array of licenses
+LICENSES=(
+  "$LIC_ABSEIL"
+  "$LIC_IMGUI"
+  "$LIC_RAPIDJSON"
+  "$LIC_SDL"
+  "$LIC_SDL_IMAGE"
+  "$LIC_SDL_TTF"
+)
+
+# Check if any are empty
+for lic in "${LICENSES[@]}"; do
+    if [ -z "$lic" ]; then
+        echo -e "\033[0;31mError: One or more license files are empty. Please check the LICENSE files in the external libraries.\033[0m"
+        exit 1
+    fi
+done
 
 #############################################
 # Prerequisites:
@@ -140,125 +163,26 @@ Nebulite Third-Party Library Licenses
 
 This software includes the following third-party libraries:
 
+Dear ImGui (MIT License)
+----------------------
+${LIC_IMGUI}
+
 SDL3 - Simple DirectMedia Layer (zlib License)
------------------------------------------------
-Copyright (C) 1997-2025 Sam Lantinga <slouken@libsdl.org>
-  
-This software is provided 'as-is', without any express or implied
-warranty.  In no event will the authors be held liable for any damages
-arising from the use of this software.
-
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it
-freely, subject to the following restrictions:
-  
-1. The origin of this software must not be misrepresented; you must not
-   claim that you wrote the original software. If you use this software
-   in a product, an acknowledgment in the product documentation would be
-   appreciated but is not required. 
-2. Altered source versions must be plainly marked as such, and must not be
-   misrepresented as being the original software.
-3. This notice may not be removed or altered from any source distribution.
-
-FreeType - Font Rendering Library (FreeType License)
-----------------------------------------------------
-Copyright (C) 1996-2024 David Turner, Robert Wilhelm, and Werner Lemberg.
-
-The FreeType Project LICENSE (FreeType License)
-This license applies to all files found in such packages, and
-which do not fall under their own explicit license.
-
-Full license: https://www.freetype.org/license.html
-
-HarfBuzz - Text Shaping Library ("OLD MIT" License)
-----------------------------------------------
-Copyright © 2010-2022  Google, Inc.
-Copyright © 2015-2020  Ebrahim Byagowi
-Copyright © 2019,2020  Facebook, Inc.
-Copyright © 2012,2015  Mozilla Foundation
-Copyright © 2011  Codethink Limited
-Copyright © 2008,2010  Nokia Corporation and/or its subsidiary(-ies)
-Copyright © 2009  Keith Stribley
-Copyright © 2011  Martin Hosken and SIL International
-Copyright © 2007  Chris Wilson
-Copyright © 2005,2006,2020,2021,2022,2023  Behdad Esfahbod
-Copyright © 2004,2007,2008,2009,2010,2013,2021,2022,2023  Red Hat, Inc.
-Copyright © 1998-2005  David Turner and Werner Lemberg
-Copyright © 2016  Igalia S.L.
-Copyright © 2022  Matthias Clasen
-Copyright © 2018,2021  Khaled Hosny
-Copyright © 2018,2019,2020  Adobe, Inc
-Copyright © 2013-2015  Alexei Podtelezhnikov
-
-For full copyright notices consult the individual files in the package.
-
-
-Permission is hereby granted, without written agreement and without
-license or royalty fees, to use, copy, modify, and distribute this
-software and its documentation for any purpose, provided that the
-above copyright notice and the following two paragraphs appear in
-all copies of this software.
-
-IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE TO ANY PARTY FOR
-DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
-ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN
-IF THE COPYRIGHT HOLDER HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
-DAMAGE.
-
-THE COPYRIGHT HOLDER SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING,
-BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
-ON AN "AS IS" BASIS, AND THE COPYRIGHT HOLDER HAS NO OBLIGATION TO
-PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
-
-MinGW-w64 Runtime (Various Permissive Licenses)
------------------------------------------------
-MinGW-w64 runtime libraries are distributed under various permissive licenses
-including public domain and MIT-style licenses.
-
-Full details: https://www.mingw-w64.org/
+-----------------------
+${LIC_SDL}
 
 RapidJSON (MIT License)
 -----------------------
-Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+${LIC_RAPIDJSON}
 
 TinyExpr (zlib License)
 -----------------------
-Copyright (C) 2015, 2016 Lewis Van Winkle
-
-This software is provided 'as-is', without any express or implied
-warranty. In no event will the authors be held liable for any damages
-arising from the use of this software.
-
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it
-freely, subject to the following restrictions:
+${LIC_TINYEXPR}
 
 Abseil (Apache License 2.0)
 ----------------------------
-Copyright 2017 The Abseil Authors.
+${LIC_ABSEIL}
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
 EOF
 }
 
