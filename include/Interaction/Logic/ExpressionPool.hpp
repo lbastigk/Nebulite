@@ -85,7 +85,7 @@ public:
      * @return The result of the evaluation as a string.
      */
     std::string eval(Core::JsonScope& current_other) const {
-        return pool[Utility::Threading::threadIdToUniformDistribution(ORDERED_DOUBLE_POINTERS_MAPS)]->eval(current_other);
+        return pool[Utility::Threading::atomicThreadRoll(EXPRESSION_POOL_SIZE)]->eval(current_other);
     }
 
     /**
@@ -95,7 +95,7 @@ public:
      * @return The result of the evaluation as a double.
      */
     double evalAsDouble(Core::JsonScope& current_other) const {
-        return pool[Utility::Threading::threadIdToUniformDistribution(ORDERED_DOUBLE_POINTERS_MAPS)]->evalAsDouble(current_other);
+        return pool[Utility::Threading::atomicThreadRoll(EXPRESSION_POOL_SIZE)]->evalAsDouble(current_other);
     }
 
     /**
