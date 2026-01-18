@@ -76,7 +76,9 @@ fi
 make clean-build-and-test-native
 
 # Compile binaries
-make all
+make delete-binaries
+make linux-release
+make windows-release
 
 # Check for unstaged tracked changes before building docs
 git diff --quiet || {
