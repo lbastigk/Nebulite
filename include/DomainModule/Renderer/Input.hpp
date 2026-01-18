@@ -76,18 +76,6 @@ private:
     // Variables
 
     /**
-     * @brief Timer for input handling.
-     * 
-     * If last update is over a threshold, we poll for input again.
-     */
-    std::shared_ptr<Utility::TimeKeeper> RendererPollTime;
-
-    /**
-     * @brief If the timer was initialized.
-     */
-    bool timerInitialized = false;
-
-    /**
      * @brief Flag to reset delta values on the next update.
      */
     bool resetDeltaOnNextUpdate = false;
