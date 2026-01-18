@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sun Jan 18 11:21:47 CET 2026
+Generated on: Sun Jan 18 11:35:57 CET 2026
 
 ## Table of Contents
 
