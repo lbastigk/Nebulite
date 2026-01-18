@@ -111,43 +111,42 @@ Constants::Error GlobalSpace::update() {
             lastCriticalResult = result;
         }
 
-        // Update renderer and draw frame
-        if (!renderer.isSkippingUpdate()) {
-            invoke.update();
+        // Update renderer if nothing is stopping us
+        if (!renderer.isSkippingUpdate()) { // e.g. Console mode might flag renderer to skip update
+            invoke.update();        // Invoke broadcasted-listen-updates
             renderer.updateState();
         }
         renderer.update();
 
+        // If it hasn't skipped the update, we can decrement wait counters
         if (!renderer.hasSkippedUpdate()) {
             for (auto const& tq : std::views::values(tasks)) {
                 tq->decrementWaitCounter();
             }
         }
 
-        // Frame was rendered, meaning we potentially have new tasks to process
+        // Frame was rendered, meaning we potentially have new tasks to process next frame
         queueParsed = false;
     }
 
     //------------------------------------------
     // Check if we need to continue the loop
     continueLoop = !criticalStop && renderer.isSdlInitialized() && !renderer.shouldQuit();
-
-    // Overwrite: If there is a wait operation and no renderer exists,
-    // we need to continue the loop and decrease scriptWaitCounter
-    /**
-     * @note It might be tempting to add the condition that all tasks are done,
-     *       but this could cause issues if the user wishes to quit while a task is still running.
-     */
     if (tasks[StandardTasks::script]->isWaiting() && !renderer.isSdlInitialized()) {
+        /**
+         * @brief Overwrite: If there is a wait operation and no renderer exists,
+         *        we need to continue the loop and decrease scriptWaitCounter
+         * @note It might be tempting to add the condition that all tasks are done,
+         *       but this could cause issues if the user wishes to quit while a task is still running.
+         */
         continueLoop = true;
         tasks[StandardTasks::script]->decrementWaitCounter();
-
-        // Parse new tasks on next loop
         queueParsed = false;
     }
 
     //------------------------------------------
     // Return last critical result if there was a critical stop
+    // main then evaluates this and decides what to do
     return lastCriticalResult;
 }
 
