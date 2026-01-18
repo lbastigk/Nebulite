@@ -17,6 +17,7 @@ LIC_RAPIDJSON=$(cat ./external/rapidjson/license.txt)
 LIC_SDL=$(cat ./external/SDL3/LICENSE.txt)
 LIC_SDL_IMAGE=$(cat ./external/SDL3_image/LICENSE.txt)
 LIC_SDL_TTF=$(cat ./external/SDL3_ttf/LICENSE.txt)
+LIC_TINYEXPR=$(cat ./external/tinyexpr/LICENSE)
 
 # Generate array of licenses
 LICENSES=(
@@ -26,6 +27,7 @@ LICENSES=(
   "$LIC_SDL"
   "$LIC_SDL_IMAGE"
   "$LIC_SDL_TTF"
+  "$LIC_TINYEXPR"
 )
 
 # Check if any are empty
@@ -165,9 +167,17 @@ Nebulite Third-Party Library Licenses
 
 This software includes the following third-party libraries:
 
-Dear ImGui (MIT License)
+Abseil (Apache License 2.0)
+----------------------------
+${LIC_ABSEIL}
+
+ImGui (MIT License)
 ----------------------
 ${LIC_IMGUI}
+
+RapidJSON (MIT License)
+-----------------------
+${LIC_RAPIDJSON}
 
 SDL3 - Simple DirectMedia Layer (zlib License)
 -----------------------
@@ -181,17 +191,9 @@ SDL3_ttf (zlib License)
 -----------------------
 ${LIC_SDL_TTF}
 
-RapidJSON (MIT License)
------------------------
-${LIC_RAPIDJSON}
-
 TinyExpr (zlib License)
 -----------------------
 ${LIC_TINYEXPR}
-
-Abseil (Apache License 2.0)
-----------------------------
-${LIC_ABSEIL}
 
 EOF
 }
