@@ -18,6 +18,7 @@
 #include "Data/Document/RjDirectAccess.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Data/OrderedDoublePointers.hpp"
+#include "Utility/Threading.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -199,9 +200,9 @@ public:
 #if ORDERED_DOUBLE_POINTERS_MAPS == 1
         return &expressionRefs[0];
 #else
-        // Each thread gets a unique starting position based on thread ID
-        thread_local const size_t idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % ORDERED_DOUBLE_POINTERS_MAPS;
-        return &expressionRefs[idx];
+        // Both versions are about equally performant according to benchmarks
+        return &expressionRefs[Utility::Threading::threadIdToUniformDistribution(ORDERED_DOUBLE_POINTERS_MAPS)];
+        //return &expressionRefs[Utility::Threading::atomicThreadRoll(ORDERED_DOUBLE_POINTERS_MAPS)];
 #endif
     }
 

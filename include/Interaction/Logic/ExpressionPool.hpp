@@ -13,11 +13,11 @@
 #include <array>
 #include <mutex>
 #include <string>
-#include <thread>
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"       // pool size is defined here
 #include "Interaction/Logic/Expression.hpp"
+#include "Utility/Threading.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -84,10 +84,8 @@ public:
      * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a string.
      */
-    std::string eval(Core::JsonScope& current_other){
-        thread_local size_t const idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % EXPRESSION_POOL_SIZE;
-        std::scoped_lock const guard(locks[idx]);
-        return pool[idx]->eval(current_other);
+    std::string eval(Core::JsonScope& current_other) const {
+        return pool[Utility::Threading::threadIdToUniformDistribution(ORDERED_DOUBLE_POINTERS_MAPS)]->eval(current_other);
     }
 
     /**
@@ -96,10 +94,8 @@ public:
      * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a double.
      */
-    double evalAsDouble(Core::JsonScope& current_other){
-        thread_local size_t const idx = std::hash<std::thread::id>{}(std::this_thread::get_id()) % EXPRESSION_POOL_SIZE;
-        std::scoped_lock const guard(locks[idx]);
-        return pool[idx]->evalAsDouble(current_other);
+    double evalAsDouble(Core::JsonScope& current_other) const {
+        return pool[Utility::Threading::threadIdToUniformDistribution(ORDERED_DOUBLE_POINTERS_MAPS)]->evalAsDouble(current_other);
     }
 
     /**
