@@ -226,6 +226,19 @@ public:
     [[nodiscard]] std::string serialize(ScopedKey const& key) const {return serialize(key.view());}
 
     virtual void deserialize(std::string const& serialOrLink);
+
+    //------------------------------------------
+    // Access test
+
+    /**
+     * @brief Asserts access to the given key within this scope.
+     * @details If access is not granted, this function will throw a runtime error.
+     *          This may be used in any class constructors or functions that require guaranteed access to certain keys,
+     *          to catch access violations early.
+     * @param key The scoped key to check access for.
+     */
+    void assertAccess(ScopedKeyView const& key) const ;
+    void assertAccess(ScopedKey const& key) const { assertAccess(key.view()); }
 };
 } // namespace Nebulite::Data
 #include "Data/Document/JsonScopeBase.tpp"

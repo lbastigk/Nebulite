@@ -152,4 +152,11 @@ void JsonScopeBase::deserialize(std::string const& serialOrLink) {
     baseDocument->deserialize(serialOrLink);
 }
 
+//------------------------------------------
+// Access test
+
+void JsonScopeBase::assertAccess(ScopedKeyView const& key) const{
+    (void)key.full(*this); // Just generate full key to test access
+}
+
 } // namespace Nebulite::Data
