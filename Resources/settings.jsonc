@@ -1,4 +1,12 @@
 {
+    "parse": {
+        "ifNoArgs": [
+            "echo Nebulite opened with no arguments provided. Starting empty renderer.",
+            "echo Open the interactive console with <tab> key and type 'help' for available commands.",
+            "set-fps 60"
+        ],
+        "onStartup": []
+    },
     "renderer": {
         "resolutionScaling": 1,
         "resolutionX": 1000,

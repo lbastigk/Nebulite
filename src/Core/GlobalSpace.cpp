@@ -4,6 +4,7 @@
 #include "Nebulite.hpp"
 #include "Core/GlobalSpace.hpp"
 #include "DomainModule/Initializer.hpp"
+#include "DomainModule/GlobalSpace/Settings.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -175,32 +176,17 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
             }
         }
     } else {
-        /**
-         * @note For now, an empty Renderer is initiated via set-fps 60 if no arguments are provided
-         * @todo Later on it might be helpful to insert a task like:
-         *       `env-load ./Resources/Levels/main.jsonc`
-         *       Which represents the menue screen of the game.
-         *       Or, for a more scripted task:
-         *       `task TaskFiles/main.nebs`.
-         *       Making sure that any state currently loaded is cleared.
-         *       Having main be a state itself is also an idea,
-         *       but this might become challenging as the user could accidentally overwrite the main state.
-         *       Best solution is therefore an env-load, with the environment architecture yet to be defined
-         *       best solution is probably:
-         *       - a field with the container
-         *       - a vector which contains tasks to be executed on environment load
-         *       - potentially an extra task vector for tasks that are executed BEFORE the env is loaded
-         *       - potentially an extra task vector for tasks that are executed BEFORE the env is de-loaded
-         *       Keys like: after-load, after-deload, before-load, before-deload
-         *       For easier usage, hardcoding the env-load task is not a good idea,
-         *       instead call some function like "entrypoint" or "main" which is defined in a GlobalSpace DomainModule
-         *       This is important, as it's now clear what the entrypoint is, without knowing exactly what main file is loaded
-         *       If a user ever defines addition arguments via, e.g. Steam when launching the game, this might become a problem
-         *       as any additional argument would make the entrypoint not be called.
-         *       So later on, we might consider always calling entrypoint as first task AFTER the command line arguments are parsed
-         *       This is necessary, as the user might define important configurations like --headless, which would not be set if the renderer is initialized before them.
-         */
-        tasks[StandardTasks::script]->pushBack("set-fps 60");
+        // Load standard commands from settings, type 'parseIfNoArgs', if no args provided
+        auto const cmdCount = Global::settings().memberSize(DomainModule::GlobalSpace::Settings::Key::parseIfNoArgs);
+        for (std::size_t i = 0; i < cmdCount; ++i) {
+            std::string const cmd = Global::settings().get<std::string>(
+                DomainModule::GlobalSpace::Settings::Key::parseIfNoArgs + "[" + std::to_string(i) + "]",
+                ""
+            );
+            if (!cmd.empty()) {
+                tasks[StandardTasks::script]->pushBack(cmd);
+            }
+        }
     }
 }
 

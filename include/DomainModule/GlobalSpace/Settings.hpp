@@ -82,6 +82,10 @@ public:
         static auto constexpr unscoped_resolutionY = "renderer.resolutionY";
         static auto constexpr unscoped_resolutionScaling = "renderer.resolutionScaling";
         static auto constexpr unscoped_targetFPS = "renderer.targetFPS";
+
+        // What to parse on different scenarios
+        static auto constexpr unscoped_parseOnStartup = "parse.onStartup"; // What to always parse on startup
+        static auto constexpr unscoped_parseIfNoArgs = "parse.ifNoArgs"; // What to parse on startup if no command line args provided
     public:
         // Use scoped keys to set and access from GlobalSpace
         static auto constexpr scope = "settings.";
@@ -89,6 +93,8 @@ public:
         static auto constexpr resolutionY = Data::ScopedKeyView::create<scope>(unscoped_resolutionY);
         static auto constexpr resolutionScaling = Data::ScopedKeyView::create<scope>(unscoped_resolutionScaling);
         static auto constexpr targetFPS = Data::ScopedKeyView::create<scope>(unscoped_targetFPS);
+        static auto constexpr parseOnStartup = Data::ScopedKeyView::create<scope>(unscoped_parseOnStartup);
+        static auto constexpr parseIfNoArgs = Data::ScopedKeyView::create<scope>(unscoped_parseIfNoArgs);
     };
 
     //------------------------------------------
