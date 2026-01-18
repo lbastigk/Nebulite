@@ -126,7 +126,7 @@ void Renderer::initSDL() {
     // Window
     setupDisplayValues();
 
-    //Create SDL window
+    // Create SDL window
     if (!SDL_Init(SDL_INIT_VIDEO) && SDL_GetError()[0] != '\0') {
         // SDL initialization failed
         Error::println("SDL_Init Error: ", SDL_GetError());
@@ -142,6 +142,22 @@ void Renderer::initSDL() {
         // Window creation failed
         Error::println("SDL_CreateWindow Error: ", SDL_GetError());
         SDL_Quit();
+    }
+
+    //------------------------------------------
+    // Cursor
+
+    // See if cursor file exists
+    if (Utility::FileManagement::fileExists("./Resources/Cursor/Drakensang.png")) {
+        // Load pixel data
+        if (SDL_Surface* cursorSurface = IMG_Load("./Resources/Cursor/Drakensang.png"); cursorSurface) {
+            // Create cursor
+            if (SDL_Cursor* cursor = SDL_CreateColorCursor(cursorSurface, 0, 0); cursor) {
+                SDL_SetCursor(cursor);
+            } else {
+                Error::println("Failed to create cursor: ", SDL_GetError());
+            }
+        }
     }
 
     //------------------------------------------
