@@ -13,10 +13,10 @@ set -e
 # Get licenses from LICENSE files
 LIC_ABSEIL=$(cat ./external/abseil/LICENSE)
 LIC_IMGUI=$(cat ./external/imgui/LICENSE.txt)
-LIC_RAPIDJSON=$(cat ./external/rapidjson/LICENSE.txt)
+LIC_RAPIDJSON=$(cat ./external/rapidjson/license.txt)
 LIC_SDL=$(cat ./external/SDL3/LICENSE.txt)
-LIC_SDL_IMAGE=$(cat ./external/SDL_image/LICENSE.txt)
-LIC_SDL_TTF=$(cat ./external/SDL_ttf/LICENSE.txt)
+LIC_SDL_IMAGE=$(cat ./external/SDL3_image/LICENSE.txt)
+LIC_SDL_TTF=$(cat ./external/SDL3_ttf/LICENSE.txt)
 
 # Generate array of licenses
 LICENSES=(
