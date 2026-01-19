@@ -11,6 +11,7 @@
 
 // External
 #include "imgui.h"
+#include "imgui_impl_sdl3.h"
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"

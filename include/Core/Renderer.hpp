@@ -328,7 +328,7 @@ public:
      *        Allows for access to the underlying SDL renderer for custom rendering operations.
      * @return The SDL_Renderer instance.
      */
-    [[nodiscard]] SDL_Renderer* getSdlRenderer() const { return renderer; }
+    [[nodiscard]] SDL_Renderer* getSdlRenderer() const { return software.renderer; }
 
     /**
      * @brief Gets the SDL_Window instance.
@@ -475,7 +475,24 @@ private:
     // Rendering
     uint8_t WindowScale = 1;
     SDL_Window* window{};
-    SDL_Renderer* renderer{};
+
+
+    struct Software {
+        SDL_Renderer* renderer{};
+
+        struct Framebuffer {
+            uint32_t* pixels;   // RGBA8
+            size_t width;
+            size_t height;
+            size_t pitch;
+        }framebuffer;
+    }software;
+
+    struct GPU {
+        SDL_GPUDevice* device{};
+        SDL_GPUCommandBuffer* commandBuffer {};
+        SDL_GPURenderPass* renderPass{};
+    }gpu;
 
     //------------------------------------------
     // Event Handling

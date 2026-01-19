@@ -7,6 +7,8 @@
 // External
 #include <SDL3_image/SDL_image.h>
 #include <absl/container/flat_hash_map.h>
+#include <imgui_impl_sdlgpu3.h>
+#include <imgui_impl_sdl3.h>
 
 // Nebulite
 #include "Nebulite.hpp"
@@ -127,22 +129,91 @@ void Renderer::initSDL() {
     setupDisplayValues();
 
     // Create SDL window
-    if (!SDL_Init(SDL_INIT_VIDEO) && SDL_GetError()[0] != '\0') {
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
         // SDL initialization failed
         Error::println("SDL_Init Error: ", SDL_GetError());
+        std::abort();
     }
     // Define window via x|y|w|h
     int const w = domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0);
     int const h = domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 0);
 
-    uint32_t flags = *headless ? SDL_WINDOW_HIDDEN : 0; //SDL_WINDOW_SHOWN;
-    flags = flags | SDL_WINDOW_OPENGL;
+    //float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay()); // TODO: Use this to adjust w*h
+    uint32_t const flags = *headless ? SDL_WINDOW_HIDDEN : 0
+        | SDL_WINDOW_HIGH_PIXEL_DENSITY;
     window = SDL_CreateWindow("Nebulite", w, h, flags);
     if (!window) {
         // Window creation failed
         Error::println("SDL_CreateWindow Error: ", SDL_GetError());
-        SDL_Quit();
+        std::abort();
     }
+    SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+    SDL_ShowWindow(window);
+
+    //------------------------------------------
+    // GPU Device
+
+    // Safe GPU initialization: try GPU path, but fall back on failure
+    gpu.device = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV
+        | SDL_GPU_SHADERFORMAT_DXIL
+        | SDL_GPU_SHADERFORMAT_MSL
+        | SDL_GPU_SHADERFORMAT_METALLIB
+        , false, nullptr);
+
+    if (!gpu.device) {
+        Error::println("SDL_CreateGPUDevice Error: ", SDL_GetError());
+        // don't quit; fall back to non-GPU renderer
+    } else {
+        // Claim window for GPU Device
+        if (!SDL_ClaimWindowForGPUDevice(gpu.device, window)) {
+            Error::println("SDL_GPU_ClaimWindow Error: ", SDL_GetError());
+            SDL_DestroyGPUDevice(gpu.device);
+            gpu.device = nullptr; // fall back
+        }
+    }
+
+    // Only set swapchain parameters if we actually have a valid GPU device
+    if (gpu.device) {
+        if (!SDL_SetGPUSwapchainParameters(gpu.device, window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, SDL_GPU_PRESENTMODE_VSYNC)) {
+            Error::println("SDL_SetGPUSwapchainParameters Error: ", SDL_GetError());
+            Error::println("Falling back to software rendering.");
+            SDL_DestroyGPUDevice(gpu.device);
+            gpu.device = nullptr; // fall back
+        }
+    }
+
+    //------------------------------------------
+    // IMGUI initialization
+    if (gpu.device) {
+        float constexpr mainScale = 1.0; // TODO: Needs to be set properly later on
+
+        // Setup Dear ImGui context
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+        // Setup Dear ImGui style
+        ImGui::StyleColorsDark();
+        //ImGui::StyleColorsLight();
+
+        // Setup scaling
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.ScaleAllSizes(mainScale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
+        style.FontScaleDpi = mainScale;        // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this unnecessary. We leave both here for documentation purpose)
+
+        // Setup Platform/Renderer backends
+        ImGui_ImplSDL3_InitForSDLGPU(window);
+        ImGui_ImplSDLGPU3_InitInfo init_info = {};
+        init_info.Device = gpu.device;
+        init_info.ColorTargetFormat = SDL_GetGPUSwapchainTextureFormat(gpu.device, window);
+        init_info.MSAASamples = SDL_GPU_SAMPLECOUNT_1;                      // Only used in multi-viewports mode.
+        init_info.SwapchainComposition = SDL_GPU_SWAPCHAINCOMPOSITION_SDR;  // Only used in multi-viewports mode.
+        init_info.PresentMode = SDL_GPU_PRESENTMODE_VSYNC;
+        ImGui_ImplSDLGPU3_Init(&init_info);
+    }
+
 
     //------------------------------------------
     // Cursor
@@ -156,6 +227,7 @@ void Renderer::initSDL() {
                 SDL_SetCursor(cursor);
             } else {
                 Error::println("Failed to create cursor: ", SDL_GetError());
+                // No quit, just use default cursor
             }
         }
     }
@@ -163,26 +235,36 @@ void Renderer::initSDL() {
     //------------------------------------------
     // Renderer
 
-    // Create a renderer
-    renderer = SDL_CreateRenderer(window, nullptr);
-    if (!renderer) {
-        Error::println("Renderer creation failed: ", SDL_GetError());
-    }
+    if (!gpu.device) {
+        // Create a software renderer
+        software.renderer = SDL_CreateRenderer(window, nullptr);
+        if (!software.renderer) {
+            Error::println("Software Renderer creation failed: ", SDL_GetError());
+            std::abort();
+        }
 
-    // Set virtual rendering size
-    SDL_SetRenderLogicalPresentation(
-        renderer,
-        w,
-        h,
-        SDL_LOGICAL_PRESENTATION_INTEGER_SCALE
-    );
+        // Set virtual rendering size
+        SDL_SetRenderLogicalPresentation(
+            software.renderer,
+            w,
+            h,
+            SDL_LOGICAL_PRESENTATION_INTEGER_SCALE
+        );
+    }
+    else {
+        // Use a manual framebuffer
+        software.framebuffer.width = static_cast<size_t>(w);
+        software.framebuffer.height = static_cast<size_t>(h);
+        software.framebuffer.pitch = static_cast<size_t>(w) * sizeof(uint32_t);
+        software.framebuffer.pixels = new uint32_t[static_cast<size_t>(w) * static_cast<size_t>(h)];
+    }
 
     //------------------------------------------
     // Check for errors in SDL
 
     if (SDL_GetError()[0] != '\0') {
         Error::println("SDL Error during initialization: ", SDL_GetError());
-        SDL_ClearError(); // Clear error after reporting
+        std::abort();
     }
 
     //------------------------------------------
@@ -192,7 +274,7 @@ void Renderer::initSDL() {
     if (!TTF_Init()) {
         // Handle SDL_ttf initialization error
         Error::println("TTF_Init Error!");
-        SDL_Quit(); // Clean up SDL
+        std::abort();
     }
     loadFonts();
 
@@ -200,23 +282,24 @@ void Renderer::initSDL() {
     // Audio
 
     // Init
-    if (!SDL_Init(SDL_INIT_AUDIO) && SDL_GetError()[0] != '\0') {
+    if (!SDL_Init(SDL_INIT_AUDIO)) {
         Error::println("SDL_Init Error: ", SDL_GetError());
-    } else {
-        audio.desired.freq = 44100;
-        audio.desired.format = SDL_AUDIO_S16;
-        audio.desired.channels = 1;
-        //audio.desired.samples = 1024;
-        //audio.desired.callback = nullptr;
-
-        audio.device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audio.desired);
-        if (audio.device == 0) {
-            Error::println("Failed to open audio device: ", SDL_GetError());
-        } else {
-            audioInitialized = true;
-        }
+        std::abort();
     }
+    audio.desired.freq = 44100;
+    audio.desired.format = SDL_AUDIO_S16;
+    audio.desired.channels = 1;
+    //audio.desired.samples = 1024;
+    //audio.desired.callback = nullptr;
 
+    audio.device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audio.desired);
+    if (audio.device == 0) {
+        Error::println("Failed to open audio device: ", SDL_GetError());
+        std::abort();
+    }
+    audioInitialized = true;
+
+    // All done
     SDL_initialized = true;
 }
 
@@ -237,6 +320,7 @@ void Renderer::loadFonts() {
     if (font == nullptr) {
         // Handle font loading error
         Error::println("Failed to load font: ", fontPath);
+        std::abort();
     }
 }
 
@@ -270,22 +354,46 @@ void Renderer::deserialize(std::string const& serialOrLink) noexcept {
 // Pipeline
 
 // For quick and dirty debugging, in case the rendering pipeline breaks somewhere
-//# define debug_on_each_step 1
 Constants::Error Renderer::update() {
+    SDL_GPUTexture* swapchainTexture = nullptr;
+    if (gpu.device) {
+        ImGui_ImplSDLGPU3_NewFrame();
+        ImGui_ImplSDL3_NewFrame();
+        ImGui::NewFrame();
+        ImGui::Render();
+        ImDrawData* draw_data = ImGui::GetDrawData();
+
+        gpu.commandBuffer = SDL_AcquireGPUCommandBuffer(gpu.device); // Acquire a GPU command buffer
+        if (!SDL_WaitAndAcquireGPUSwapchainTexture(gpu.commandBuffer, window, &swapchainTexture, nullptr, nullptr)) {
+            Error::println("Failed to acquire swapchain texture: ", SDL_GetError());
+            std::abort();
+        }
+        if (!swapchainTexture) {
+            Error::println("Swapchain texture is null");
+            std::abort();
+        }
+        ImGui_ImplSDLGPU3_PrepareDrawData(draw_data, gpu.commandBuffer);
+
+        // Setup and start a render pass
+        static auto clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+        SDL_GPUColorTargetInfo target_info = {};
+        target_info.texture = swapchainTexture;
+        target_info.clear_color = SDL_FColor { clear_color.x, clear_color.y, clear_color.z, clear_color.w };
+        target_info.load_op = SDL_GPU_LOADOP_CLEAR;
+        target_info.store_op = SDL_GPU_STOREOP_STORE;
+        target_info.mip_level = 0;
+        target_info.layer_or_depth_plane = 0;
+        target_info.cycle = false;
+        gpu.renderPass = SDL_BeginGPURenderPass(gpu.commandBuffer, &target_info, 1, nullptr);
+    }
+
     //------------------------------------------
-    // Do all the steps of the rendering pipeline
+    // Existing CPU pipeline
     clear();
     renderFrame();
     if (showFPS)
         renderFPS();
     showFrame();
-
-    //------------------------------------------
-    // Check for SDL errors
-    if (SDL_GetError()[0] != '\0') {
-        Error::println("SDL Error during rendering: ", SDL_GetError());
-        SDL_ClearError(); // Clear error after reporting
-    }
 
     //------------------------------------------
     // SDL Polling at the end of the frame
@@ -307,6 +415,20 @@ Constants::Error Renderer::update() {
     //------------------------------------------
     // Update modules
     updateModules();
+
+    //------------------------------------------
+    // Finalize GPU render pass
+    if (gpu.device) {
+        SDL_EndGPURenderPass(gpu.renderPass);
+        SDL_SubmitGPUCommandBuffer(gpu.commandBuffer);
+    }
+
+    //------------------------------------------
+    // Check for SDL errors
+    if (SDL_GetError()[0] != '\0') {
+        Error::println("SDL Error during rendering: ", SDL_GetError());
+        SDL_ClearError(); // Clear error after reporting
+    }
 
     // Always return no critical error
     return Constants::ErrorTable::NONE();
@@ -393,8 +515,9 @@ void Renderer::beep() const {
 }
 
 bool Renderer::snapshot(std::string link) const {
-    if (!renderer) {
-        Error::println("Cannot take snapshot: renderer not initialized");
+    if (gpu.device) {
+        // TODO: Implement GPU snapshot
+        Error::println("Cannot take snapshot in GPU mode! Please fix this.");
         return false;
     }
 
@@ -405,12 +528,12 @@ bool Renderer::snapshot(std::string link) const {
         SDL_GetWindowSize(window, &width, &height);
     } else {
         // Headless mode - get renderer output size
-        SDL_GetCurrentRenderOutputSize(renderer, &width, &height);
+        SDL_GetCurrentRenderOutputSize(software.renderer, &width, &height);
     }
 
     // Create surface to capture pixels
     SDL_Rect const fullScreenRect = {0, 0, width, height};
-    auto const surface = SDL_RenderReadPixels(renderer, &fullScreenRect);
+    auto const surface = SDL_RenderReadPixels(software.renderer, &fullScreenRect);
     if (!surface) {
         Error::println("Failed to read pixels for snapshot: ", SDL_GetError());
         SDL_DestroySurface(surface);
@@ -469,9 +592,13 @@ void Renderer::destroy() {
         SDL_DestroyWindow(window);
         window = nullptr;
     }
-    if (renderer) {
-        SDL_DestroyRenderer(renderer);
-        renderer = nullptr;
+    if (software.renderer) {
+        SDL_DestroyRenderer(software.renderer);
+        software.renderer = nullptr;
+    }
+    if (gpu.device) {
+        SDL_DestroyGPUDevice(gpu.device);
+        gpu.device = nullptr;
     }
     if (font) {
         TTF_CloseFont(font);
@@ -484,6 +611,12 @@ void Renderer::destroy() {
 
 // This does not change the settings file, only the current session
 void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scalar) {
+    if (gpu.device) {
+        // TODO: Implement GPU resizing
+        Error::println("Cannot change window size when using GPU rendering.");
+        return;
+    }
+
     WindowScale = scalar;
     if (w < 240 || w > 16384) {
         Error::println("Selected resolution is not supported:", w, "x", h);
@@ -502,7 +635,7 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
     SDL_SetWindowSize(window, w*WindowScale, h*WindowScale);
 
     // Use integer logical presentation so scaling is done in integer steps (crisp pixels).
-    SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
+    SDL_SetRenderLogicalPresentation(software.renderer, w, h, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
 
     // Reinsert objects due to new tile / logical size
     reinsertAllObjects();
@@ -541,8 +674,12 @@ void Renderer::setTargetFPS(uint16_t const& targetFps) {
 // Renderer::tick Functions
 
 void Renderer::clear() const {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
-    SDL_RenderClear(renderer);
+    if (gpu.device) {
+        // Clear is handled in the render pass setup
+        return;
+    }
+    SDL_SetRenderDrawColor(software.renderer, 0, 0, 0, 255); // RGB values (black)
+    SDL_RenderClear(software.renderer);
 }
 
 
@@ -575,7 +712,10 @@ void Renderer::renderFrame() {
 
     //------------------------------------------
     // Rendering
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
+    if (software.renderer) {
+        SDL_SetRenderDrawColor(software.renderer, 0, 0, 0, 255); // Black background
+    }
+
 
     //Render Objects
     //For all layers, starting at 0
@@ -612,7 +752,17 @@ void Renderer::renderFrame() {
                 static_cast<float>(rect->w),
                 static_cast<float>(rect->h)
             };
-            SDL_RenderTexture(renderer, texture, nullptr, &rectF);
+
+            if (software.renderer) {
+                SDL_RenderTexture(software.renderer, texture, nullptr, &rectF);
+            }
+            else if (gpu.device) {
+                // TODO: Render to software framebuffer first, then upload to GPU texture
+                Error::println("Rendering between-layer textures in GPU mode is not yet implemented!");
+            }
+            else {
+                Error::println("No valid renderer available for between-layer textures!");
+            }
         }
     }
 }
@@ -676,15 +826,26 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
         dstF = {static_cast<float>(dst->x), static_cast<float>(dst->y), static_cast<float>(dst->w), static_cast<float>(dst->h)};
         dstFP = &dstF;
     }
-    if (SDL_RenderTexture(renderer, obj->getSDLTexture(), srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
-        auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-        Error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
+
+    // Render to screen
+    if (software.renderer) {
+        if (SDL_RenderTexture(software.renderer, obj->getSDLTexture(), srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
+            auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
+            Error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
+        }
+    }
+    else if (gpu.device) {
+        // TODO: Render to software framebuffer first, then upload to GPU texture
+        Error::println("Rendering between-layer textures in GPU mode is not yet implemented!");
+    }
+    else {
+        Error::println("No valid renderer available for between-layer textures!");
     }
 
     // Render the text
     if (obj->isTextRenderingEnabled()) {
         obj->calculateText(
-            renderer,
+            software.renderer,
             font,
             dispPosX,
             dispPosY
@@ -696,10 +857,22 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
                 static_cast<float>(obj->getTextRect()->w),
                 static_cast<float>(obj->getTextRect()->h)
             };
-            if (SDL_RenderTexture(renderer, obj->getTextTexture(), nullptr, &textRectF) != 0 && SDL_GetError()[0] != '\0') {
-                auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-                Error::println("Error rendering text for RenderObject ID ", id, ": ", SDL_GetError());
+
+            if (software.renderer) {
+                if (SDL_RenderTexture(software.renderer, obj->getTextTexture(), nullptr, &textRectF) != 0 && SDL_GetError()[0] != '\0') {
+                    auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
+                    Error::println("Error rendering text for RenderObject ID ", id, ": ", SDL_GetError());
+                }
             }
+            else if (gpu.device) {
+                // TODO: Render to software framebuffer first, then upload to GPU texture
+                Error::println("Rendering between-layer textures in GPU mode is not yet implemented!");
+            }
+            else {
+                Error::println("No valid renderer available for between-layer textures!");
+            }
+
+
         }
     }
 }
@@ -720,17 +893,17 @@ void Renderer::renderFPS() const {
     }; // Adjust position as needed
 
     // Clear the area where the FPS text will be rendered
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Set background color (black)
-    SDL_RenderFillRect(renderer, &textRect);
+    SDL_SetRenderDrawColor(software.renderer, 0, 0, 0, 255); // Set background color (black)
+    SDL_RenderFillRect(software.renderer, &textRect);
 
     // Create a surface with the text
     SDL_Surface* textSurface = TTF_RenderText_Solid(font, fpsText.c_str(), 0, textColor);
 
     // Create a texture from the text surface
-    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(software.renderer, textSurface);
 
     // Render the text texture
-    SDL_RenderTexture(renderer, textTexture, nullptr, &textRect);
+    SDL_RenderTexture(software.renderer, textTexture, nullptr, &textRect);
 
     // Free the text surface and texture
     SDL_DestroySurface(textSurface);
@@ -738,7 +911,7 @@ void Renderer::renderFPS() const {
 }
 
 void Renderer::showFrame() const {
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent(software.renderer);
 }
 
 //------------------------------------------
@@ -783,7 +956,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
     }
 
     // Create texture from surface
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(software.renderer, surface);
     SDL_DestroySurface(surface); // Free the surface after creating texture
 
     // Check for texture issues

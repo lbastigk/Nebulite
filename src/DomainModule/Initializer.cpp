@@ -40,6 +40,7 @@
 // Renderer
 #include "DomainModule/Renderer/Console.hpp"
 #include "DomainModule/Renderer/General.hpp"
+#include "DomainModule/Renderer/GUI_test.hpp"
 #include "DomainModule/Renderer/Input.hpp"
 #include "DomainModule/Renderer/RenderObjectDraft.hpp"
 
@@ -205,6 +206,11 @@ void Initializer::initRenderer(Core::Renderer* target) {
         //       This way, we can directly store the draft data in the renderer scope.
         //       Then, we can modify the scope to "draft." and have the entire renderObject live in that scope at root level.
         target->domainScope.shareScopeBase(""),
+        Global::settings()
+    );
+    target->initModule<GUI_test>(
+        "Renderer GUI Test Functions",
+        target->domainScope.shareDummyScopeBase(), // No workspace required.
         Global::settings()
     );
 }
