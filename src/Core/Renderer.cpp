@@ -148,7 +148,6 @@ void Renderer::initSDL() {
         std::abort();
     }
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-    SDL_ShowWindow(window);
 
     //------------------------------------------
     // GPU Device
