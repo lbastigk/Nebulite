@@ -1,8 +1,12 @@
 #include "DomainModule/RenderObject/Debug.hpp"
 
+#include "Core/Renderer.hpp"
 #include "Core/RenderObject.hpp"
 
 #include "Nebulite.hpp"
+
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_gpu.h>
 
 namespace Nebulite::DomainModule::RenderObject {
 
@@ -62,27 +66,31 @@ Constants::Error Debug::printDstRect() const {
 
 // Texture debugging helper
 namespace {
-/**
- * @brief Prints detailed information about an SDL_Texture.
- *
- * @param texture Pointer to the SDL_Texture to query.
- */
-std::string getTextureInfoString(SDL_Texture* texture) {
+
+std::string getTextureInfoString(Core::Renderer::TextureVariant const& textureVariant) {
     std::string info;
-    if (texture) {
-        float w, h;
-        if (SDL_GetTextureSize(texture, &w, &h) == 0) {
-            // Print texture details
-            info += " - Width  : " + std::to_string(w) + "\n";
-            info += " - Height : " + std::to_string(h) + "\n";
+
+    if (std::holds_alternative<SDL_Texture*>(textureVariant)) {
+        if (auto const texture = std::get<SDL_Texture*>(textureVariant); texture) {
+            float w, h;
+            if (SDL_GetTextureSize(texture, &w, &h) == 0) {
+                // Print texture details
+                info += " - Width  : " + std::to_string(w) + "\n";
+                info += " - Height : " + std::to_string(h) + "\n";
+            } else {
+                info += "Failed to query texture: " + std::string(SDL_GetError());
+            }
         } else {
-            info += "Failed to query texture: " + std::string(SDL_GetError());
+            info += "No texture is associated with this RenderObject.";
         }
-    } else {
-        info += "No texture is associated with this RenderObject.";
+    }
+    if (std::holds_alternative<SDL_GPUTexture*>(textureVariant)) {
+        info += "Unable to retrieve GPU texture information.";
     }
     return info;
 }
+
+
 } // unnamed namespace
 
 // NOLINTNEXTLINE

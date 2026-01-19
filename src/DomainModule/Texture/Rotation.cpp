@@ -18,50 +18,7 @@ Constants::Error Rotation::rotate(int const argc, char** argv) const {
     }
 
     // Get the SDL_Renderer
-    SDL_Renderer* renderer = Global::instance().getSdlRenderer();
-    if (renderer == nullptr) {
-        return Constants::ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED();
-    }
-
-    // Get the texture to rotate
-    SDL_Texture* texture = domain.getSDLTexture();
-    if (texture == nullptr) {
-        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_NOT_FOUND();
-    }
-
-    // Get the texture's width and height
-    float width, height;
-    if (SDL_GetTextureSize(texture, &width, &height) != 0) {
-        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_QUERY_FAILED();
-    }
-
-    // Create a new texture to hold the rotated result
-    SDL_Texture* rotatedTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, static_cast<int>(width), static_cast<int>(height));
-    if (rotatedTexture == nullptr) {
-        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_MODIFICATION_FAILED();
-    }
-
-    // Set the new texture as the render target
-    if (SDL_SetRenderTarget(renderer, rotatedTexture) != 0) {
-        SDL_DestroyTexture(rotatedTexture);
-        return Constants::ErrorTable::SDL::CRITICAL_SDL_RENDERER_TARGET_FAILED();
-    }
-
-    // Clear the render target
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0); // Transparent background
-    SDL_RenderClear(renderer);
-
-    // Rotate the texture and render it to the new texture
-    double const angle = std::stod(argv[1]);
-    SDL_FPoint const centerFloat = {width / 2.0f, height / 2.0f};
-    SDL_FlipMode constexpr flip = SDL_FLIP_NONE;
-    SDL_RenderTextureRotated(renderer, texture, nullptr, nullptr, angle, &centerFloat, flip);
-    SDL_SetRenderTarget(renderer, nullptr);
-
-    // Replace the original texture with the rotated texture
-    domain.setInternalTexture(rotatedTexture);
-    Log::println("Texture rotated by ", angle, " degrees.");
-    return Constants::ErrorTable::NONE();
+    return Constants::ErrorTable::FUNCTIONAL::FEATURE_NOT_IMPLEMENTED();
 }
 
 } // namespace Nebulite::DomainModule::Texture

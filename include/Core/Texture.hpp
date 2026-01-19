@@ -13,6 +13,7 @@
 #include <SDL3/SDL.h>
 
 // Nebulite
+#include "Core/Renderer.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
@@ -28,13 +29,7 @@ public:
     /**
      * @brief Destroys the Texture and frees resources.
      */
-    ~Texture() override {
-        // Only destroy the texture if it was modified
-        // And thus a local copy exists
-        if (texture != nullptr && textureStoredLocally) {
-            SDL_DestroyTexture(texture);
-        }
-    }
+    ~Texture() override ;
 
     /**
      * @brief Updates the texture.
@@ -53,7 +48,7 @@ public:
      * @brief Links an external SDL_Texture to this domain.
      * @param externalTexture Pointer to the external SDL_Texture.
      */
-    void linkExternalTexture(SDL_Texture* externalTexture) {
+    void linkExternalTexture(Renderer::TextureVariant const& externalTexture) {
         texture = externalTexture;
         textureStoredLocally = false; // Reset modification flag
     }
@@ -62,14 +57,7 @@ public:
      * @brief Sets a new internal SDL_Texture, marking it as modified.
      * @param newTexture Pointer to the new SDL_Texture.
      */
-    void setInternalTexture(SDL_Texture* newTexture) {
-        // Destroy any old internal texture if it was modified
-        if (texture != nullptr && textureStoredLocally) {
-            SDL_DestroyTexture(texture);
-        }
-        texture = newTexture;
-        textureStoredLocally = true; // Mark as modified since it's a new internal texture
-    }
+    void setInternalTexture(Renderer::TextureVariant const& newTexture);
 
     /**
      * @brief Checks if the texture has been modified.
@@ -84,14 +72,14 @@ public:
      * @return true if the texture is valid, false otherwise.
      */
     [[nodiscard]] bool isTextureValid() const noexcept {
-        return texture != nullptr;
+        return Renderer::isTextureValid(texture);
     }
 
     /**
      * @brief Gets the current SDL_Texture.
      * @return Pointer to the current SDL_Texture.
      */
-    [[nodiscard]] SDL_Texture* getSDLTexture() const noexcept {
+    [[nodiscard]] Renderer::TextureVariant getSDLTexture() const noexcept {
         return texture;
     }
 
@@ -103,18 +91,12 @@ private:
      *        If the texture is unmodified, this will reference the renderer's texture.
      *        If modified, it will be a separate texture.
      */
-    SDL_Texture* texture;
+    Renderer::TextureVariant texture;
 
     /**
      * @brief Flag indicating if the texture is stored locally (modified).
      */
     bool textureStoredLocally = false;
-
-    /**
-     * @brief Makes a copy of the texture currently managed by this class.
-     * @return true if the copy was successful, false otherwise.
-     */
-    bool copyTexture();
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_CORE_TEXTURE_HPP

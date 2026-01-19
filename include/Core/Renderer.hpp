@@ -331,6 +331,10 @@ public:
      */
     [[nodiscard]] SDL_Renderer* getSdlRenderer() const { return renderer; }
 
+    [[nodiscard]] SDL_GPUDevice* getGpuDevice() const { return gpu.device; }
+
+
+
     /**
      * @brief Gets the SDL_Window instance.
      * @details Allows for access to the underlying SDL window for custom operations.
@@ -373,6 +377,8 @@ public:
     //------------------------------------------
     // Texture-Related
 
+    using TextureVariant = std::variant<SDL_Texture*, SDL_GPUTexture*>;
+
     /**
      * @brief Loads a texture from a file into memory without adding it to the TextureContainer.
      * @details Creates the necessary surface and texture object from a given file path,
@@ -381,7 +387,20 @@ public:
      * @param link The file path to load the texture from.
      * @return A pointer to the loaded SDL_Texture, or nullptr if loading failed.
      */
-    [[nodiscard]] SDL_Texture* loadTextureToMemory(std::string const& link) const;
+    [[nodiscard]] std::optional<TextureVariant> loadTextureToMemory(std::string const& link) const;
+
+    void destroyTexture(TextureVariant const texture) const {
+        if (std::holds_alternative<SDL_Texture*>(texture)) {
+            auto const t = std::get<SDL_Texture*>(texture);
+            SDL_DestroyTexture(t);
+        }
+        if (std::holds_alternative<SDL_GPUTexture*>(texture)) {
+            auto const t = std::get<SDL_GPUTexture*>(texture);
+            SDL_ReleaseGPUTexture(gpu.device, t);
+        }
+    }
+
+    static bool isTextureValid(TextureVariant const texture) noexcept ;
 
     //------------------------------------------
     // Status
@@ -497,32 +516,22 @@ private:
 
     void pollEvents();
 
-    /**
-     * @brief Renders the current frame.
-     * @details Takes all RenderObjects potentially visible in the current frame and renders them.
-     *          See the Environment and RenderObjectContainer class for more details on how objects
-     *          are managed in the tile-based-container
-     */
-    void renderFrame();
+    void swRenderFrame();
 
-    /**
-     * @brief Renders the current FPS on screen
-     */
     void renderFPS() const;
 
-    /**
-     * @brief Renders a single object to the screen.
-     * @details Prints error messages if the object cannot be rendered.
-     * @param obj Pointer to the RenderObject to render.
-     * @param dispPosX The X position on the screen to render the object.
-     * @param dispPosY The Y position on the screen to render the object.
-     */
-    void renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
+    void swRenderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
 
     //------------------------------------------
     // Pipeline: Hardware
 
     void hwRenderInit();
+
+    void hwRenderFPS() const;
+
+    void hwRenderFrame();
+
+    void hwRenderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
 
 
     //------------------------------------------
@@ -556,7 +565,7 @@ private:
      * @details Holds all loaded textures from RenderObject sprites for the renderer, allowing for easy access and management.
      *          `TextureContainer[link] -> Texture*`
      */
-    absl::flat_hash_map<std::string, SDL_Texture*> TextureContainer;
+    absl::flat_hash_map<std::string, TextureVariant> TextureContainer;
 
     /**
      * @brief Contains textures the renderer needs to render between layers

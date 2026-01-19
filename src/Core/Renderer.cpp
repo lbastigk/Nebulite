@@ -152,6 +152,11 @@ void Renderer::initSDL() {
     //------------------------------------------
     // GPU Device
 
+    // Fallback to software rendering if headless
+    if (*headless) {
+        rendererType = RendererType::Software;
+    }
+
     if (rendererType == RendererType::GPU) {
         // Safe GPU initialization: try GPU path, but fall back on failure
         gpu.device = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV
@@ -362,8 +367,6 @@ void Renderer::hwRenderInit() {
     ImGui_ImplSDLGPU3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
-    ImGui::Render();
-    ImDrawData* draw_data = ImGui::GetDrawData();
 
     gpu.commandBuffer = SDL_AcquireGPUCommandBuffer(gpu.device); // Acquire a GPU command buffer
     if (!SDL_WaitAndAcquireGPUSwapchainTexture(gpu.commandBuffer, window, &swapchainTexture, nullptr, nullptr)) {
@@ -374,7 +377,6 @@ void Renderer::hwRenderInit() {
         Error::println("Swapchain texture is null");
         std::abort();
     }
-    ImGui_ImplSDLGPU3_PrepareDrawData(draw_data, gpu.commandBuffer);
 
     // Setup and start a render pass
     static auto clear_color = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
@@ -387,6 +389,23 @@ void Renderer::hwRenderInit() {
     target_info.layer_or_depth_plane = 0;
     target_info.cycle = false;
     gpu.renderPass = SDL_BeginGPURenderPass(gpu.commandBuffer, &target_info, 1, nullptr);
+}
+
+void Renderer::hwRenderFPS() const {
+    ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowBgAlpha(0.35f);
+
+    ImGui::Begin(
+        "FPS Overlay",
+        nullptr,
+        ImGuiWindowFlags_NoDecoration |
+        ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoFocusOnAppearing |
+        ImGuiWindowFlags_NoNav
+    );
+
+    ImGui::Text("FPS: %d", fps.real);
+    ImGui::End();
 }
 
 void Renderer::pollEvents() {
@@ -408,13 +427,20 @@ Constants::Error Renderer::update() {
     //==============================
     if (rendererType == RendererType::GPU) {
         hwRenderInit();
-        // TODO: - render frame with gpu draw calls here
+        hwRenderFrame();
         pollEvents();
         skippedUpdateLastFrame = skipUpdate;
         skipUpdate = false;
         updateModules();
+
+        // Imgui Rendering
+        if (showFPS) hwRenderFPS();
+        ImGui::Render();
+        ImDrawData* draw_data = ImGui::GetDrawData();
+        ImGui_ImplSDLGPU3_PrepareDrawData(draw_data, gpu.commandBuffer);
         ImGui_ImplSDLGPU3_RenderDrawData(ImGui::GetDrawData(), gpu.commandBuffer, gpu.renderPass, nullptr);
-        // TODO: render FPS in GPU mode
+
+        // Show the rendered frame
         SDL_SubmitGPUCommandBuffer(gpu.commandBuffer);
     }
     //==============================
@@ -422,7 +448,7 @@ Constants::Error Renderer::update() {
     //==============================
     if (rendererType == RendererType::Software) {
         swRenderInit();
-        renderFrame();
+        swRenderFrame();
         pollEvents();
         skippedUpdateLastFrame = skipUpdate;
         skipUpdate = false;
@@ -588,7 +614,7 @@ void Renderer::purgeObjects() {
 void Renderer::purgeTextures() {
     // Release resources for TextureContainer
     for (auto const& texture : std::views::values(TextureContainer)) {
-        SDL_DestroyTexture(texture);
+        destroyTexture(texture);
     }
     TextureContainer.clear(); // Clear the map to release resources
 }
@@ -696,7 +722,7 @@ void Renderer::swRenderInit() const {
     SDL_RenderClear(renderer);
 }
 
-void Renderer::renderFrame() {
+void Renderer::swRenderFrame() {
     //------------------------------------------
     // Store for faster access
 
@@ -748,7 +774,82 @@ void Renderer::renderFrame() {
             for (auto const& [objectsInThisBatch, _] : env.getContainerAt(tileX, tileY, layer)) {
                 // For all objects in batch
                 for (auto const& obj : objectsInThisBatch) {
-                    renderObjectToScreen(obj, dispPosX, dispPosY);
+                    swRenderObjectToScreen(obj, dispPosX, dispPosY);
+                }
+            }
+        }
+
+        // Render all textures that were attached from outside processes
+        for (auto const& [texture, rect] : std::views::values(BetweenLayerTextures[layer])) {
+            if (!texture) {
+                continue; // Skip if texture is null
+            }
+            SDL_FRect const rectF = {
+                static_cast<float>(rect->x),
+                static_cast<float>(rect->y),
+                static_cast<float>(rect->w),
+                static_cast<float>(rect->h)
+            };
+            if (!SDL_RenderTexture(renderer, texture, nullptr, &rectF)) {
+                Error::println("Failed to render between-layer texture: ", SDL_GetError());
+            }
+        }
+    }
+}
+
+void Renderer::hwRenderFrame() {
+    //------------------------------------------
+    // Store for faster access
+
+    // Get camera position
+    auto const dispPosX = domainScope.get<int16_t>(Constants::KeyNames::Renderer::positionX, 0);
+    auto const dispPosY = domainScope.get<int16_t>(Constants::KeyNames::Renderer::positionY, 0);
+
+    // Depending on position, set tiles to render
+    tilePositionX = static_cast<int16_t>(dispPosX / domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResX, 0));
+    tilePositionY = static_cast<int16_t>(dispPosY / domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResY, 0));
+
+    //------------------------------------------
+    // FPS Count and Control
+
+    //Calculate fps every second
+    fps.realCounter++;
+    if (fps.renderTimer.projected_dt() >= 1000) {
+        fps.real = fps.realCounter;
+        fps.realCounter = 0;
+        fps.renderTimer.update();
+    }
+
+    // Control framerate
+    fps.controlTimer.update();
+
+    //------------------------------------------
+    // Rendering
+    if (renderer) {
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
+    }
+
+
+    //Render Objects
+    //For all layers, starting at 0
+    for (auto layer : *env.getAllLayers()) {
+        // Get all tile positions to render
+        std::vector<std::pair<int16_t, int16_t>> tilesToRender;
+        for (int dX = tilePositionX == 0 ? 0 : -1; dX <= 1; dX++) {
+            for (int dY = tilePositionY == 0 ? 0 : -1; dY <= 1; dY++) {
+                if (env.isValidPosition(tilePositionX + dX, tilePositionY + dY, layer)) {
+                    tilesToRender.emplace_back(tilePositionX + dX, tilePositionY + dY);
+                }
+            }
+        }
+
+        // For all tiles to render
+        for (auto const& [tileX, tileY] : tilesToRender) {
+            // For all batches inside
+            for (auto const& [objectsInThisBatch, _] : env.getContainerAt(tileX, tileY, layer)) {
+                // For all objects in batch
+                for (auto const& obj : objectsInThisBatch) {
+                    hwRenderObjectToScreen(obj, dispPosX, dispPosY);
                 }
             }
         }
@@ -765,21 +866,23 @@ void Renderer::renderFrame() {
                 static_cast<float>(rect->h)
             };
 
-            if (renderer) {
-                SDL_RenderTexture(renderer, texture, nullptr, &rectF);
-            }
-            else if (gpu.device) {
-                // TODO: Render to software framebuffer first, then upload to GPU texture
-                Error::println("Rendering between-layer textures in GPU mode is not yet implemented!");
-            }
-            else {
-                Error::println("No valid renderer available for between-layer textures!");
-            }
+            // TODO: SDL_RenderTexture(renderer, texture, nullptr, &rectF);
         }
     }
 }
 
-void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY) {
+bool Renderer::isTextureValid(TextureVariant const texture) noexcept {
+    if (std::holds_alternative<SDL_Texture*>(texture)) {
+        return std::get<SDL_Texture*>(texture) != nullptr;
+    }
+    if (std::holds_alternative<SDL_GPUTexture*>(texture)) {
+        return std::get<SDL_GPUTexture*>(texture) != nullptr;
+    }
+    Error::println("Unknown texture variant type!");
+    return false;
+}
+
+void Renderer::swRenderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY) {
     //------------------------------------------
     // Texture Loading
 
@@ -796,7 +899,7 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
 
     // Link texture if not yet linked
     if (!obj->isTextureValid()) {
-        if (auto const t = TextureContainer[innerDirectory]; t) {
+        if (auto const t = TextureContainer[innerDirectory]; isTextureValid(t)) {
             obj->linkExternalTexture(t);
         }
     }
@@ -814,7 +917,7 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
 
     //------------------------------------------
     // Error Checking
-    if (!obj->getSDLTexture()) {
+    if (!obj->isTextureValid()) {
         Error::println("Error: RenderObject ID ",
             obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0),
             " texture with path '",
@@ -843,15 +946,19 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
 
     // Render to screen
     if (rendererType == RendererType::Software && renderer) {
-        if (SDL_RenderTexture(renderer, obj->getSDLTexture(), srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
-            auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-            Error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
+        if (auto const t = obj->getSDLTexture(); std::holds_alternative<SDL_Texture*>(t)) {
+            if (SDL_RenderTexture(renderer, std::get<SDL_Texture*>(t), srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
+                auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
+                Error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
+            }
         }
+
     }
     else if (rendererType == RendererType::GPU && renderer && gpu.device) {
-        if (SDL_RenderTexture(renderer, obj->getSDLTexture(), srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
-            auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-            Error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
+        if (auto const t = obj->getSDLTexture(); std::holds_alternative<SDL_GPUTexture*>(t)) {
+            // What to do here?
+            // TODO: See https://github.com/TheSpydog/SDL_gpu_examples/blob/main/Examples/TexturedQuad.c
+            //       We probably have to modify the variant to hold more info about the GPU texture!
         }
     }
     else {
@@ -896,6 +1003,10 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
     }
 }
 
+void Renderer::hwRenderObjectToScreen(RenderObject* /*obj*/, int const& /*dispPosX*/, int const& /*dispPosY*/) {
+    // TODO...
+}
+
 void Renderer::renderFPS() const {
     // Size of the font
     double constexpr fontSize = 16;
@@ -933,10 +1044,13 @@ void Renderer::renderFPS() const {
 // Texture-Related
 
 void Renderer::loadTexture(std::string const& link) {
-    if (auto const t = loadTextureToMemory(link); t) TextureContainer[link] = t;
+    if (auto const t = loadTextureToMemory(link); t.has_value()) TextureContainer[link] = t.value();
 }
 
-SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
+std::optional<Renderer::TextureVariant> Renderer::loadTextureToMemory(std::string const& link) const {
+    // TODO: Make it a variant for CPU/GPU mode, example:
+    //       https://github.com/TheSpydog/SDL_gpu_examples/blob/main/Examples/TexturedQuad.c
+
     std::string const path = Utility::FileManagement::CombinePaths(baseDirectory, link);
 
     // Get file extension, based on last dot
@@ -945,7 +1059,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
         extension = path.substr(dotPos + 1);
     } else {
         Error::println("Failed to load image '", path, "': No file extension found.");
-        return nullptr;
+        return std::nullopt;
     }
 
     // turn to lowercase
@@ -962,20 +1076,43 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
     // Unknown format or other issues with surface
     if (surface == nullptr) {
         Error::println("Failed to load image '", path, "': ", SDL_GetError());
-        return nullptr;
+        return std::nullopt;
     }
 
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_DestroySurface(surface); // Free the surface after creating texture
-
-    // Check for texture issues
-    if (!texture) {
-        Error::println("Failed to create texture from image '", path, "': ", SDL_GetError());
-        return nullptr;
+    if (rendererType == RendererType::GPU) {
+        auto const info = SDL_GPUTextureCreateInfo({
+            .type = SDL_GPU_TEXTURETYPE_2D,
+            .format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,
+            .usage = SDL_GPU_TEXTUREUSAGE_SAMPLER,
+            .width = static_cast<uint32_t>(surface->w),
+            .height = static_cast<uint32_t>(surface->h),
+            .layer_count_or_depth = 1,
+            .num_levels = 1,
+            .sample_count = SDL_GPU_SAMPLECOUNT_1,
+            .props{}
+        });
+        auto const texture = SDL_CreateGPUTexture(gpu.device, &info);
+        SDL_SetGPUTextureName(
+                gpu.device,
+                texture,
+                link.c_str()
+        );
+        return texture;
     }
+    if (rendererType == RendererType::Software) {
+        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_DestroySurface(surface); // Free the surface after creating texture
 
-    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
-    return texture;
+        // Check for texture issues
+        if (!texture) {
+            Error::println("Failed to create texture from image '", path, "': ", SDL_GetError());
+            return std::nullopt;
+        }
+
+        SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+        return texture;
+    }
+    return std::nullopt;
 }
 
 } // namespace Nebulite::Core

@@ -22,4 +22,5 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+#set-fps 60
 task TaskFiles/VerticalSlice/levelDescription.nebs
