@@ -6,6 +6,9 @@ set(SDL3_PATH           "${CMAKE_SOURCE_DIR}/external/SDL3")
 set(SDL3_TTF_PATH       "${CMAKE_SOURCE_DIR}/external/SDL3_ttf")
 set(SDL3_IMAGE_PATH     "${CMAKE_SOURCE_DIR}/external/SDL3_image")
 
+# GUI libraries
+set(IMGUI_PATH          "${CMAKE_SOURCE_DIR}/external/imgui")
+
 # Other external libraries
 set(RAPIDJSON_PATH      "${CMAKE_SOURCE_DIR}/external/rapidjson")
 set(TINYEXPR_PATH       "${CMAKE_SOURCE_DIR}/external/tinyexpr")
@@ -43,6 +46,7 @@ function(configure_common_dependencies target_name)
             ${SDL3_PATH}/include/
             ${SDL3_TTF_PATH}/include
             ${SDL3_IMAGE_PATH}/include
+            ${IMGUI_PATH}
     )
 
     # Link libraries
