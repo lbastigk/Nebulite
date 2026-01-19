@@ -270,5 +270,5 @@ private:
     // Text input handling
     Utility::TextInput textInput;
 };
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::DomainModule::Renderer
 #endif // NEBULITE_RRDM_CONSOLE_HPP
