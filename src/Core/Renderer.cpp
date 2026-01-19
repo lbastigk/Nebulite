@@ -350,50 +350,46 @@ void Renderer::deserialize(std::string const& serialOrLink) noexcept {
 //------------------------------------------
 // Pipeline
 
-// For quick and dirty debugging, in case the rendering pipeline breaks somewhere
-Constants::Error Renderer::update() {
+void Renderer::hwRenderInit() {
     SDL_GPUTexture* swapchainTexture = nullptr;
-    if (gpu.device) {
-        ImGui_ImplSDLGPU3_NewFrame();
-        ImGui_ImplSDL3_NewFrame();
-        ImGui::NewFrame();
-        ImGui::Render();
-        ImDrawData* draw_data = ImGui::GetDrawData();
 
-        gpu.commandBuffer = SDL_AcquireGPUCommandBuffer(gpu.device); // Acquire a GPU command buffer
-        if (!SDL_WaitAndAcquireGPUSwapchainTexture(gpu.commandBuffer, window, &swapchainTexture, nullptr, nullptr)) {
-            Error::println("Failed to acquire swapchain texture: ", SDL_GetError());
-            std::abort();
-        }
-        if (!swapchainTexture) {
-            Error::println("Swapchain texture is null");
-            std::abort();
-        }
-        ImGui_ImplSDLGPU3_PrepareDrawData(draw_data, gpu.commandBuffer);
-
-        // Setup and start a render pass
-        static auto clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-        SDL_GPUColorTargetInfo target_info = {};
-        target_info.texture = swapchainTexture;
-        target_info.clear_color = SDL_FColor { clear_color.x, clear_color.y, clear_color.z, clear_color.w };
-        target_info.load_op = SDL_GPU_LOADOP_CLEAR;
-        target_info.store_op = SDL_GPU_STOREOP_STORE;
-        target_info.mip_level = 0;
-        target_info.layer_or_depth_plane = 0;
-        target_info.cycle = false;
-        gpu.renderPass = SDL_BeginGPURenderPass(gpu.commandBuffer, &target_info, 1, nullptr);
+    // End render pass if we began one
+    if (gpu.renderPass) {
+        SDL_EndGPURenderPass(gpu.renderPass);
+        gpu.renderPass = nullptr;
     }
 
-    //------------------------------------------
-    // Existing CPU pipeline
-    clear();
-    renderFrame();
-    if (showFPS)
-        renderFPS();
-    showFrame();
+    ImGui_ImplSDLGPU3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
+    ImGui::NewFrame();
+    ImGui::Render();
+    ImDrawData* draw_data = ImGui::GetDrawData();
 
-    //------------------------------------------
-    // SDL Polling at the end of the frame
+    gpu.commandBuffer = SDL_AcquireGPUCommandBuffer(gpu.device); // Acquire a GPU command buffer
+    if (!SDL_WaitAndAcquireGPUSwapchainTexture(gpu.commandBuffer, window, &swapchainTexture, nullptr, nullptr)) {
+        Error::println("Failed to acquire swapchain texture: ", SDL_GetError());
+        std::abort();
+    }
+    if (!swapchainTexture) {
+        Error::println("Swapchain texture is null");
+        std::abort();
+    }
+    ImGui_ImplSDLGPU3_PrepareDrawData(draw_data, gpu.commandBuffer);
+
+    // Setup and start a render pass
+    static auto clear_color = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+    SDL_GPUColorTargetInfo target_info = {};
+    target_info.texture = swapchainTexture;
+    target_info.clear_color = SDL_FColor { clear_color.x, clear_color.y, clear_color.z, clear_color.w };
+    target_info.load_op = SDL_GPU_LOADOP_CLEAR;
+    target_info.store_op = SDL_GPU_STOREOP_STORE;
+    target_info.mip_level = 0;
+    target_info.layer_or_depth_plane = 0;
+    target_info.cycle = false;
+    gpu.renderPass = SDL_BeginGPURenderPass(gpu.commandBuffer, &target_info, 1, nullptr);
+}
+
+void Renderer::pollEvents() {
     SDL_Event event{};
     events.clear();
     while (SDL_PollEvent(&event)) {
@@ -403,21 +399,36 @@ Constants::Error Renderer::update() {
         // Handle quit event
         if (event.type == SDL_EVENT_QUIT) { quit = true; }
     }
+}
 
-    //------------------------------------------
-    // Manage frame skipping
-    skippedUpdateLastFrame = skipUpdate;
-    skipUpdate = false;
-
-    //------------------------------------------
-    // Update modules
-    updateModules();
-
-    //------------------------------------------
-    // Finalize GPU render pass
-    if (gpu.device) {
-        SDL_EndGPURenderPass(gpu.renderPass);
+// For quick and dirty debugging, in case the rendering pipeline breaks somewhere
+Constants::Error Renderer::update() {
+    //==============================
+    // [GPU PIPELINE]
+    //==============================
+    if (rendererType == RendererType::GPU) {
+        hwRenderInit();
+        // TODO: - render frame with gpu draw calls here
+        pollEvents();
+        skippedUpdateLastFrame = skipUpdate;
+        skipUpdate = false;
+        updateModules();
+        ImGui_ImplSDLGPU3_RenderDrawData(ImGui::GetDrawData(), gpu.commandBuffer, gpu.renderPass, nullptr);
+        // TODO: render FPS in GPU mode
         SDL_SubmitGPUCommandBuffer(gpu.commandBuffer);
+    }
+    //==============================
+    // [CPU PIPELINE]
+    //==============================
+    if (rendererType == RendererType::Software) {
+        swRenderInit();
+        renderFrame();
+        pollEvents();
+        skippedUpdateLastFrame = skipUpdate;
+        skipUpdate = false;
+        updateModules();
+        if (showFPS) renderFPS();
+        SDL_RenderPresent(renderer);
     }
 
     //------------------------------------------
@@ -680,11 +691,7 @@ void Renderer::setTargetFPS(uint16_t const& targetFps) {
 //------------------------------------------
 // Renderer::tick Functions
 
-void Renderer::clear() const {
-    if (gpu.device) {
-        // Clear is handled in the render pass setup
-        return;
-    }
+void Renderer::swRenderInit() const {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
     SDL_RenderClear(renderer);
 }
@@ -920,10 +927,6 @@ void Renderer::renderFPS() const {
     // Free the text surface and texture
     SDL_DestroySurface(textSurface);
     SDL_DestroyTexture(textTexture);
-}
-
-void Renderer::showFrame() const {
-    SDL_RenderPresent(renderer);
 }
 
 //------------------------------------------

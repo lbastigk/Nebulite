@@ -480,7 +480,7 @@ private:
     enum class RendererType {
         Software,
         GPU
-    }rendererType = RendererType::GPU; // WIP: Software works, but GPU doesn't yet
+    }rendererType = RendererType::Software; // WIP: Software works, but GPU doesn't yet
 
     SDL_Renderer* renderer{};
 
@@ -491,18 +491,11 @@ private:
     }gpu;
 
     //------------------------------------------
-    // Event Handling
+    // Pipeline: Software / General
 
-    std::vector<SDL_Event> events;
+    void swRenderInit() const;
 
-    //------------------------------------------
-    // Renderer::tick related Functions
-
-    /**
-     * @brief Clears the Renderer screen
-     *        This function clears renderer to an all black screen.
-     */
-    void clear() const;
+    void pollEvents();
 
     /**
      * @brief Renders the current frame.
@@ -518,11 +511,6 @@ private:
     void renderFPS() const;
 
     /**
-     * @brief Presents the rendered frame to the screen.
-     */
-    void showFrame() const;
-
-    /**
      * @brief Renders a single object to the screen.
      * @details Prints error messages if the object cannot be rendered.
      * @param obj Pointer to the RenderObject to render.
@@ -530,6 +518,18 @@ private:
      * @param dispPosY The Y position on the screen to render the object.
      */
     void renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
+
+    //------------------------------------------
+    // Pipeline: Hardware
+
+    void hwRenderInit();
+
+
+    //------------------------------------------
+    // Event Handling
+
+    std::vector<SDL_Event> events;
+
 
     //------------------------------------------
     // For FPS Count and Control
