@@ -14,6 +14,7 @@
 
 // External
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_gpu.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <absl/container/flat_hash_map.h>
 
@@ -328,7 +329,7 @@ public:
      *        Allows for access to the underlying SDL renderer for custom rendering operations.
      * @return The SDL_Renderer instance.
      */
-    [[nodiscard]] SDL_Renderer* getSdlRenderer() const { return software.renderer; }
+    [[nodiscard]] SDL_Renderer* getSdlRenderer() const { return renderer; }
 
     /**
      * @brief Gets the SDL_Window instance.
@@ -476,17 +477,12 @@ private:
     uint8_t WindowScale = 1;
     SDL_Window* window{};
 
+    enum class RendererType {
+        Software,
+        GPU
+    }rendererType = RendererType::Software; // WIP: Software works, but GPU doesn't yet
 
-    struct Software {
-        SDL_Renderer* renderer{};
-
-        struct Framebuffer {
-            uint32_t* pixels;   // RGBA8
-            size_t width;
-            size_t height;
-            size_t pitch;
-        }framebuffer;
-    }software;
+    SDL_Renderer* renderer{};
 
     struct GPU {
         SDL_GPUDevice* device{};
@@ -558,7 +554,7 @@ private:
     /**
      * @brief Texture container for the Renderer
      * @details Holds all loaded textures from RenderObject sprites for the renderer, allowing for easy access and management.
-     *          `TextureContainer[link] -> SDL_Texture*`
+     *          `TextureContainer[link] -> Texture*`
      */
     absl::flat_hash_map<std::string, SDL_Texture*> TextureContainer;
 
