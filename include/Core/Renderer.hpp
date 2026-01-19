@@ -480,7 +480,7 @@ private:
     enum class RendererType {
         Software,
         GPU
-    }rendererType = RendererType::Software; // WIP: Software works, but GPU doesn't yet
+    }rendererType = RendererType::GPU; // WIP: Software works, but GPU doesn't yet
 
     SDL_Renderer* renderer{};
 

@@ -162,12 +162,14 @@ void Renderer::initSDL() {
 
         if (gpu.device) {
             // Claim window for GPU Device
-            if (!SDL_ClaimWindowForGPUDevice(gpu.device, window)) {
-                Error::println("SDL_GPU_ClaimWindow Error: ", SDL_GetError());
-                SDL_DestroyGPUDevice(gpu.device);
+            renderer = SDL_CreateGPURenderer(gpu.device, window);
+            if (!renderer) {
+                Error::println("GPU Renderer creation failed: ", SDL_GetError());
                 gpu.device = nullptr; // fall back
+                renderer = nullptr;
                 rendererType = RendererType::Software;
             }
+
             // Set swapchain parameters
             if (!SDL_SetGPUSwapchainParameters(gpu.device, window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, SDL_GPU_PRESENTMODE_VSYNC)) {
                 Error::println("SDL_SetGPUSwapchainParameters Error: ", SDL_GetError());
@@ -214,29 +216,11 @@ void Renderer::initSDL() {
         }
     }
 
-
-    //------------------------------------------
-    // Cursor
-
-    // See if cursor file exists
-    if (Utility::FileManagement::fileExists("./Resources/Cursor/Drakensang.png")) {
-        // Load pixel data
-        if (SDL_Surface* cursorSurface = IMG_Load("./Resources/Cursor/Drakensang.png"); cursorSurface) {
-            // Create cursor
-            if (SDL_Cursor* cursor = SDL_CreateColorCursor(cursorSurface, 0, 0); cursor) {
-                SDL_SetCursor(cursor);
-            } else {
-                Error::println("Failed to create cursor: ", SDL_GetError());
-                // No quit, just use default cursor
-            }
-        }
-    }
-
     //------------------------------------------
     // Renderer
 
     if (rendererType == RendererType::GPU) {
-        renderer = SDL_CreateGPURenderer(gpu.device, window);
+        // Already created GPU device above
     }
     else if (rendererType == RendererType::Software) {
         // Create a software renderer
@@ -256,11 +240,20 @@ void Renderer::initSDL() {
     }
 
     //------------------------------------------
-    // Check for errors in SDL
+    // Cursor
 
-    if (SDL_GetError()[0] != '\0') {
-        Error::println("SDL Error during initialization: ", SDL_GetError());
-        std::abort();
+    // See if cursor file exists
+    if (Utility::FileManagement::fileExists("./Resources/Cursor/Drakensang.png")) {
+        // Load pixel data
+        if (SDL_Surface* cursorSurface = IMG_Load("./Resources/Cursor/Drakensang.png"); cursorSurface) {
+            // Create cursor
+            if (SDL_Cursor* cursor = SDL_CreateColorCursor(cursorSurface, 0, 0); cursor) {
+                SDL_SetCursor(cursor);
+            } else {
+                Error::println("Failed to create cursor: ", SDL_GetError());
+                // No quit, just use default cursor
+            }
+        }
     }
 
     //------------------------------------------
@@ -294,6 +287,14 @@ void Renderer::initSDL() {
         std::abort();
     }
     audioInitialized = true;
+
+    //------------------------------------------
+    // Check for remaining errors in SDL
+
+    if (SDL_GetError()[0] != '\0') {
+        Error::println("SDL Error during initialization: ", SDL_GetError());
+        std::abort();
+    }
 
     // All done
     SDL_initialized = true;
@@ -607,12 +608,6 @@ void Renderer::destroy() {
 
 // This does not change the settings file, only the current session
 void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scalar) {
-    if (gpu.device) {
-        // TODO: Implement GPU resizing
-        Error::println("Cannot change window size when using GPU rendering.");
-        return;
-    }
-
     WindowScale = scalar;
     if (w < 240 || w > 16384) {
         Error::println("Selected resolution is not supported:", w, "x", h);
@@ -627,14 +622,30 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResX, w);
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResY, h);
 
-    // Set the physical window size
-    SDL_SetWindowSize(window, w*WindowScale, h*WindowScale);
+    // Depending on renderer type, change window size
+    if (rendererType == RendererType::GPU) {
+        // TODO: Implement proper GPU-mode window resizing
+        //       For now we try the software method and see what happens
 
-    // Use integer logical presentation so scaling is done in integer steps (crisp pixels).
-    SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
+        // Set the physical window size
+        SDL_SetWindowSize(window, w*WindowScale, h*WindowScale);
 
-    // Reinsert objects due to new tile / logical size
-    reinsertAllObjects();
+        // Use integer logical presentation so scaling is done in integer steps (crisp pixels).
+        SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
+
+        // Reinsert objects due to new tile / logical size
+        reinsertAllObjects();
+    }
+    else if (rendererType == RendererType::Software) {
+        // Set the physical window size
+        SDL_SetWindowSize(window, w*WindowScale, h*WindowScale);
+
+        // Use integer logical presentation so scaling is done in integer steps (crisp pixels).
+        SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
+
+        // Reinsert objects due to new tile / logical size
+        reinsertAllObjects();
+    }
 }
 
 void Renderer::moveCam(int const& dX, int const& dY) const {
