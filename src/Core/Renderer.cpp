@@ -165,18 +165,15 @@ void Renderer::initSDL() {
     ImGui::CreateContext();
 
     ImGuiIO &io = ImGui::GetIO();
-    (void)io;
-    io.ConfigFlags |=
-        ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-    io.ConfigFlags |=
-        ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
 
     // Setup scaling
     float const main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     ImGuiStyle &style = ImGui::GetStyle();
     style.ScaleAllSizes(main_scale * WindowScale);
     style.FontScaleDpi = main_scale * WindowScale;
-    style.FontSizeBase = 20.f;
+    style.FontSizeBase = 40.f;
     io.Fonts->AddFontDefault();
 
     ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
@@ -299,12 +296,6 @@ void Renderer::renderInit() const {
     ImGui_ImplSDLRenderer3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
-
-    // Per-frame font scaling only. Do NOT call ScaleAllSizes here
-    // because that would compound every frame and eventually zero-out style values.
-    float const main_scale = 1.0f / static_cast<float>(WindowScale);
-    ImGuiIO &io = ImGui::GetIO();
-    //io.FontGlobalScale = main_scale;
 }
 
 void Renderer::renderFPS() const {
@@ -557,10 +548,7 @@ void Renderer::destroy() {
 
 // This does not change the settings file, only the current session
 void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scalar) {
-    // Preserve previous scale so we can apply a relative style scale (no cumulative effects).
-    uint8_t const prevScale = WindowScale == 0 ? 1 : WindowScale;
-
-    // Validate resolution
+    // Validate resolution and scalar
     if (w < 240 || w > 16384) {
         Error::println("Selected resolution is not supported:", w, "x", h);
         return;
@@ -569,19 +557,20 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
         Error::println("Selected resolution is not supported:", w, "x", h);
         return;
     }
+    if ( scalar < 1 || scalar > 8) {
+        Error::println("Selected window scaling is not supported:", static_cast<int>(scalar), "x");
+        return;
+    }
+
+    // Store previous scale
+    uint8_t const prevScale = WindowScale == 0 ? 1 : WindowScale;
+    WindowScale = scalar;
 
     // If scalar changed, apply relative style scaling once
     if (scalar != prevScale) {
-        // Update WindowScale after capturing prevScale
-        WindowScale = scalar;
-        // Guard against division by zero (prevScale was clamped to 1 above)
-        float relativeStyleScale = static_cast<float>(WindowScale) / static_cast<float>(prevScale);
-        if (relativeStyleScale != 1.0f) {
-            ImGui::GetStyle().ScaleAllSizes(relativeStyleScale);
-        }
-    } else {
-        // No change to scaling
-        WindowScale = scalar;
+        float const relativeStyleScale = static_cast<float>(WindowScale) / static_cast<float>(prevScale);
+        ImGui::GetStyle().ScaleAllSizes(1.0f / relativeStyleScale);
+        ImGui::GetStyle().FontScaleDpi /= relativeStyleScale;
     }
 
     // Set the new resolution in the workspace
