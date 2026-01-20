@@ -14,7 +14,6 @@
 
 // External
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_gpu.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <absl/container/flat_hash_map.h>
 
@@ -331,10 +330,6 @@ public:
      */
     [[nodiscard]] SDL_Renderer* getSdlRenderer() const { return renderer; }
 
-    [[nodiscard]] SDL_GPUDevice* getGpuDevice() const { return gpu.device; }
-
-
-
     /**
      * @brief Gets the SDL_Window instance.
      * @details Allows for access to the underlying SDL window for custom operations.
@@ -377,8 +372,6 @@ public:
     //------------------------------------------
     // Texture-Related
 
-    using TextureVariant = std::variant<SDL_Texture*, SDL_GPUTexture*>;
-
     /**
      * @brief Loads a texture from a file into memory without adding it to the TextureContainer.
      * @details Creates the necessary surface and texture object from a given file path,
@@ -387,20 +380,13 @@ public:
      * @param link The file path to load the texture from.
      * @return A pointer to the loaded SDL_Texture, or nullptr if loading failed.
      */
-    [[nodiscard]] std::optional<TextureVariant> loadTextureToMemory(std::string const& link) const;
+    [[nodiscard]] SDL_Texture* loadTextureToMemory(std::string const& link) const;
 
-    void destroyTexture(TextureVariant const texture) const {
-        if (std::holds_alternative<SDL_Texture*>(texture)) {
-            auto const t = std::get<SDL_Texture*>(texture);
-            SDL_DestroyTexture(t);
-        }
-        if (std::holds_alternative<SDL_GPUTexture*>(texture)) {
-            auto const t = std::get<SDL_GPUTexture*>(texture);
-            SDL_ReleaseGPUTexture(gpu.device, t);
-        }
+    static void destroyTexture(SDL_Texture* t) {
+        SDL_DestroyTexture(t);
     }
 
-    static bool isTextureValid(TextureVariant const texture) noexcept ;
+    static bool isTextureValid(SDL_Texture const* t) noexcept {return t != nullptr; }
 
     //------------------------------------------
     // Status
@@ -496,42 +482,20 @@ private:
     uint8_t WindowScale = 1;
     SDL_Window* window{};
 
-    enum class RendererType {
-        Software,
-        GPU
-    }rendererType = RendererType::Software; // WIP: Software works, but GPU doesn't yet
-
     SDL_Renderer* renderer{};
-
-    struct GPU {
-        SDL_GPUDevice* device{};
-        SDL_GPUCommandBuffer* commandBuffer {};
-        SDL_GPURenderPass* renderPass{};
-    }gpu;
 
     //------------------------------------------
     // Pipeline: Software / General
 
-    void swRenderInit() const;
+    void renderInit() const;
 
     void pollEvents();
 
-    void swRenderFrame();
+    void renderFrame();
 
     void renderFPS() const;
 
-    void swRenderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
-
-    //------------------------------------------
-    // Pipeline: Hardware
-
-    void hwRenderInit();
-
-    void hwRenderFPS() const;
-
-    void hwRenderFrame();
-
-    void hwRenderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
+    void renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
 
 
     //------------------------------------------
@@ -565,7 +529,7 @@ private:
      * @details Holds all loaded textures from RenderObject sprites for the renderer, allowing for easy access and management.
      *          `TextureContainer[link] -> Texture*`
      */
-    absl::flat_hash_map<std::string, TextureVariant> TextureContainer;
+    absl::flat_hash_map<std::string, SDL_Texture*> TextureContainer;
 
     /**
      * @brief Contains textures the renderer needs to render between layers

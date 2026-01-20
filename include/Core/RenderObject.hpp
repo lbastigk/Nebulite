@@ -194,7 +194,7 @@ public:
      * @brief Links an external SDL_Texture to this domain.
      * @param externalTexture Pointer to the external SDL_Texture.
      */
-    void linkExternalTexture(Renderer::TextureVariant const& externalTexture) {
+    void linkExternalTexture(SDL_Texture* externalTexture) {
         baseTexture.linkExternalTexture(externalTexture);
     }
 
@@ -218,7 +218,7 @@ public:
      * @brief Gets the current SDL_Texture.
      * @return Pointer to the current SDL_Texture.
      */
-    [[nodiscard]] Renderer::TextureVariant getSDLTexture() const {
+    [[nodiscard]] SDL_Texture* getSDLTexture() const {
         return baseTexture.getSDLTexture();
     }
 

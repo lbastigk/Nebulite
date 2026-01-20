@@ -15,17 +15,11 @@ namespace Nebulite::Core {
 
 Texture::Texture(JsonScope& documentReference)
     : Domain("Texture", *this, documentReference) {
+    // Start with no texture
+    texture = nullptr;
 
     // Initialize all DomainModules
     DomainModule::Initializer::initTexture(this);
-}
-
-Texture::~Texture() {
-    // Only destroy the texture if it was modified
-    // And thus a local copy exists
-    if (textureStoredLocally) {
-        Global::instance().getRenderer().destroyTexture(texture);
-    }
 }
 
 Constants::Error Texture::update() {
@@ -35,7 +29,6 @@ Constants::Error Texture::update() {
     return Constants::ErrorTable::NONE();
 }
 
-/*
 bool Texture::copyTexture() {
     // If no texture is linked, try to load from the document
     if (texture == nullptr) {
@@ -85,25 +78,15 @@ bool Texture::copyTexture() {
     textureStoredLocally = true;
     return true; // Successfully copied
 }
-*/
-
-void Texture::setInternalTexture(Renderer::TextureVariant const& newTexture) {
-    // Destroy any old internal texture if it was modified
-    if (textureStoredLocally) {
-        Global::instance().getRenderer().destroyTexture(texture);
-    }
-    texture = newTexture;
-    textureStoredLocally = true; // Mark as modified since it's a new internal texture
-}
 
 void Texture::loadTextureFromFile(std::string const& filePath) {
     // Load the texture using the global renderer
-    if (auto const newTexture = Global::instance().getRenderer().loadTextureToMemory(filePath); newTexture.has_value()) {
+    if (SDL_Texture* newTexture = Global::instance().getRenderer().loadTextureToMemory(filePath); newTexture) {
         // If a texture already exists and is stored locally, destroy it
-        if (textureStoredLocally) {
-            Global::instance().getRenderer().destroyTexture(texture);
+        if (textureStoredLocally && texture) {
+            SDL_DestroyTexture(texture);
         }
-        texture = newTexture.value();
+        texture = newTexture;
         textureStoredLocally = false; // New texture is not yet modified
     } else {
         Error::println("Failed to load texture from file: ", filePath);
@@ -111,9 +94,16 @@ void Texture::loadTextureFromFile(std::string const& filePath) {
 }
 
 Constants::Error Texture::preParse() {
-    // TODO: Copy texture to local, as needed for modifications
-    // Failed to copy texture, cannot proceed with modifications
-    return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_COPY_FAILED();
+    if (!textureStoredLocally) {
+        // Make a local copy if we modify the texture
+        textureStoredLocally = copyTexture();
+    }
+
+    if (!textureStoredLocally) {
+        // Failed to copy texture, cannot proceed with modifications
+        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_COPY_FAILED();
+    }
+    return Constants::ErrorTable::NONE();
 }
 
 } // namespace Nebulite::Core

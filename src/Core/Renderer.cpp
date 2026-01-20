@@ -7,8 +7,8 @@
 // External
 #include <SDL3_image/SDL_image.h>
 #include <absl/container/flat_hash_map.h>
-#include <imgui_impl_sdlgpu3.h>
 #include <imgui_impl_sdl3.h>
+#include "imgui_impl_sdlrenderer3.h"
 
 // Nebulite
 #include "Nebulite.hpp"
@@ -138,111 +138,49 @@ void Renderer::initSDL() {
     int const w = domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0);
     int const h = domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 0);
 
-    //float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay()); // TODO: Use this to adjust w*h
+    //------------------------------------------
+    // Window and renderer
+
     uint32_t const flags = *headless ? SDL_WINDOW_HIDDEN : 0
         | SDL_WINDOW_HIGH_PIXEL_DENSITY;
-    window = SDL_CreateWindow("Nebulite", w, h, flags);
-    if (!window) {
-        // Window creation failed
-        Error::println("SDL_CreateWindow Error: ", SDL_GetError());
+
+    if (!SDL_CreateWindowAndRenderer("Nebulite", w, h, flags, &window, &renderer)) {
+        Error::println("SDL_CreateWindowAndRenderer Error: ", SDL_GetError());
         std::abort();
     }
+
+    // Set virtual rendering size
+    SDL_SetRenderLogicalPresentation(
+        renderer,
+        w,
+        h,
+        SDL_LOGICAL_PRESENTATION_INTEGER_SCALE
+    );
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
     //------------------------------------------
-    // GPU Device
+    // IMGUI
 
-    // Fallback to software rendering if headless
-    if (*headless) {
-        rendererType = RendererType::Software;
-    }
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
 
-    if (rendererType == RendererType::GPU) {
-        // Safe GPU initialization: try GPU path, but fall back on failure
-        gpu.device = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV
-            | SDL_GPU_SHADERFORMAT_DXIL
-            | SDL_GPU_SHADERFORMAT_MSL
-            | SDL_GPU_SHADERFORMAT_METALLIB
-            , false, nullptr);
+    ImGuiIO &io = ImGui::GetIO();
+    (void)io;
+    io.ConfigFlags |=
+        ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |=
+        ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
 
-        if (gpu.device) {
-            // Claim window for GPU Device
-            renderer = SDL_CreateGPURenderer(gpu.device, window);
-            if (!renderer) {
-                Error::println("GPU Renderer creation failed: ", SDL_GetError());
-                gpu.device = nullptr; // fall back
-                renderer = nullptr;
-                rendererType = RendererType::Software;
-            }
+    // Setup scaling
+    float const main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
+    ImGuiStyle &style = ImGui::GetStyle();
+    style.ScaleAllSizes(main_scale * WindowScale);
+    style.FontScaleDpi = main_scale * WindowScale;
+    style.FontSizeBase = 20.f;
+    io.Fonts->AddFontDefault();
 
-            // Set swapchain parameters
-            if (!SDL_SetGPUSwapchainParameters(gpu.device, window, SDL_GPU_SWAPCHAINCOMPOSITION_SDR, SDL_GPU_PRESENTMODE_VSYNC)) {
-                Error::println("SDL_SetGPUSwapchainParameters Error: ", SDL_GetError());
-                Error::println("Falling back to software rendering.");
-                SDL_DestroyGPUDevice(gpu.device);
-                gpu.device = nullptr; // fall back
-                rendererType = RendererType::Software;
-            }
-
-            // If rendererType is still GPU here, initialize imgui for GPU
-            if (rendererType == RendererType::GPU) {
-                float constexpr mainScale = 1.0; // TODO: Needs to be set properly later on
-
-                // Setup Dear ImGui context
-                IMGUI_CHECKVERSION();
-                ImGui::CreateContext();
-                ImGuiIO& io = ImGui::GetIO(); (void)io;
-                io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-                io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-                // Setup Dear ImGui style
-                ImGui::StyleColorsDark();
-                //ImGui::StyleColorsLight();
-
-                // Setup scaling
-                ImGuiStyle& style = ImGui::GetStyle();
-                style.ScaleAllSizes(mainScale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
-                style.FontScaleDpi = mainScale;        // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this unnecessary. We leave both here for documentation purpose)
-
-                // Setup Platform/Renderer backends
-                ImGui_ImplSDL3_InitForSDLGPU(window);
-                ImGui_ImplSDLGPU3_InitInfo init_info = {};
-                init_info.Device = gpu.device;
-                init_info.ColorTargetFormat = SDL_GetGPUSwapchainTextureFormat(gpu.device, window);
-                init_info.MSAASamples = SDL_GPU_SAMPLECOUNT_1;                      // Only used in multi-viewports mode.
-                init_info.SwapchainComposition = SDL_GPU_SWAPCHAINCOMPOSITION_SDR;  // Only used in multi-viewports mode.
-                init_info.PresentMode = SDL_GPU_PRESENTMODE_VSYNC;
-                ImGui_ImplSDLGPU3_Init(&init_info);
-            }
-        } else {
-            Error::println("SDL_CreateGPUDevice Error: ", SDL_GetError());
-            // don't quit; fall back to non-GPU renderer
-            rendererType = RendererType::Software;
-        }
-    }
-
-    //------------------------------------------
-    // Renderer
-
-    if (rendererType == RendererType::GPU) {
-        // Already created GPU device above
-    }
-    else if (rendererType == RendererType::Software) {
-        // Create a software renderer
-        renderer = SDL_CreateRenderer(window, nullptr);
-        if (!renderer) {
-            Error::println("Software Renderer creation failed: ", SDL_GetError());
-            std::abort();
-        }
-
-        // Set virtual rendering size
-        SDL_SetRenderLogicalPresentation(
-            renderer,
-            w,
-            h,
-            SDL_LOGICAL_PRESENTATION_INTEGER_SCALE
-        );
-    }
+    ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
+    ImGui_ImplSDLRenderer3_Init(renderer);
 
     //------------------------------------------
     // Cursor
@@ -355,45 +293,30 @@ void Renderer::deserialize(std::string const& serialOrLink) noexcept {
 //------------------------------------------
 // Pipeline
 
-void Renderer::hwRenderInit() {
-    SDL_GPUTexture* swapchainTexture = nullptr;
-
-    // End render pass if we began one
-    if (gpu.renderPass) {
-        SDL_EndGPURenderPass(gpu.renderPass);
-        gpu.renderPass = nullptr;
-    }
-
-    ImGui_ImplSDLGPU3_NewFrame();
+void Renderer::renderInit() const {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
+    SDL_RenderClear(renderer);
+    ImGui_ImplSDLRenderer3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
 
-    gpu.commandBuffer = SDL_AcquireGPUCommandBuffer(gpu.device); // Acquire a GPU command buffer
-    if (!SDL_WaitAndAcquireGPUSwapchainTexture(gpu.commandBuffer, window, &swapchainTexture, nullptr, nullptr)) {
-        Error::println("Failed to acquire swapchain texture: ", SDL_GetError());
-        std::abort();
-    }
-    if (!swapchainTexture) {
-        Error::println("Swapchain texture is null");
-        std::abort();
-    }
-
-    // Setup and start a render pass
-    static auto clear_color = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-    SDL_GPUColorTargetInfo target_info = {};
-    target_info.texture = swapchainTexture;
-    target_info.clear_color = SDL_FColor { clear_color.x, clear_color.y, clear_color.z, clear_color.w };
-    target_info.load_op = SDL_GPU_LOADOP_CLEAR;
-    target_info.store_op = SDL_GPU_STOREOP_STORE;
-    target_info.mip_level = 0;
-    target_info.layer_or_depth_plane = 0;
-    target_info.cycle = false;
-    gpu.renderPass = SDL_BeginGPURenderPass(gpu.commandBuffer, &target_info, 1, nullptr);
+    // Per-frame font scaling only. Do NOT call ScaleAllSizes here
+    // because that would compound every frame and eventually zero-out style values.
+    float const main_scale = 1.0f / static_cast<float>(WindowScale);
+    ImGuiIO &io = ImGui::GetIO();
+    //io.FontGlobalScale = main_scale;
 }
 
-void Renderer::hwRenderFPS() const {
-    ImGui::SetNextWindowPos(ImVec2(10.0f, 10.0f), ImGuiCond_Always);
+void Renderer::renderFPS() const {
+    ImGui::SetNextWindowPos(ImVec2(5.0f, 5.0f), ImGuiCond_Always);
     ImGui::SetNextWindowBgAlpha(0.35f);
+
+    // Make the window tighter: small padding and item spacing
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6.0f, 2.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4.0f, 2.0f));
+
+    // Optional: constrain maximum size (min 0, max 150x50)
+    ImGui::SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(150.0f, 50.0f));
 
     ImGui::Begin(
         "FPS Overlay",
@@ -406,6 +329,7 @@ void Renderer::hwRenderFPS() const {
 
     ImGui::Text("FPS: %d", fps.real);
     ImGui::End();
+    ImGui::PopStyleVar(2); // pop ItemSpacing and WindowPadding
 }
 
 void Renderer::pollEvents() {
@@ -422,39 +346,37 @@ void Renderer::pollEvents() {
 
 // For quick and dirty debugging, in case the rendering pipeline breaks somewhere
 Constants::Error Renderer::update() {
-    //==============================
-    // [GPU PIPELINE]
-    //==============================
-    if (rendererType == RendererType::GPU) {
-        hwRenderInit();
-        hwRenderFrame();
-        pollEvents();
-        skippedUpdateLastFrame = skipUpdate;
-        skipUpdate = false;
-        updateModules();
+    renderInit();
+    renderFrame();
+    pollEvents();
+    skippedUpdateLastFrame = skipUpdate;
+    skipUpdate = false;
+    updateModules();
 
-        // Imgui Rendering
-        if (showFPS) hwRenderFPS();
-        ImGui::Render();
-        ImDrawData* draw_data = ImGui::GetDrawData();
-        ImGui_ImplSDLGPU3_PrepareDrawData(draw_data, gpu.commandBuffer);
-        ImGui_ImplSDLGPU3_RenderDrawData(ImGui::GetDrawData(), gpu.commandBuffer, gpu.renderPass, nullptr);
+    // DEBUG: IMGUI test window
+    ImGui::ShowDemoWindow();
 
-        // Show the rendered frame
-        SDL_SubmitGPUCommandBuffer(gpu.commandBuffer);
-    }
-    //==============================
-    // [CPU PIPELINE]
-    //==============================
-    if (rendererType == RendererType::Software) {
-        swRenderInit();
-        swRenderFrame();
-        pollEvents();
-        skippedUpdateLastFrame = skipUpdate;
-        skipUpdate = false;
-        updateModules();
-        if (showFPS) renderFPS();
-        SDL_RenderPresent(renderer);
+    // Imgui Rendering
+    if (showFPS) renderFPS();
+    ImGui::Render();
+    ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+    SDL_RenderPresent(renderer);
+
+    // Process all events
+    for (auto const& event : events) {
+        // Modify the event if it's a mouse position event
+        if (event.type == SDL_EVENT_MOUSE_MOTION) {
+            // Scale the motion event according to window scale
+            SDL_Event modifiedEvent = event;
+            modifiedEvent.motion.x = static_cast<float>(event.motion.x) / static_cast<float>(WindowScale);
+            modifiedEvent.motion.y = static_cast<float>(event.motion.y) / static_cast<float>(WindowScale);
+            modifiedEvent.motion.xrel = static_cast<float>(event.motion.xrel) / static_cast<float>(WindowScale);
+            modifiedEvent.motion.yrel = static_cast<float>(event.motion.yrel) / static_cast<float>(WindowScale);
+            ImGui_ImplSDL3_ProcessEvent(&modifiedEvent);
+        }
+        else {
+            ImGui_ImplSDL3_ProcessEvent(&event);
+        }
     }
 
     //------------------------------------------
@@ -549,12 +471,6 @@ void Renderer::beep() const {
 }
 
 bool Renderer::snapshot(std::string link) const {
-    if (gpu.device) {
-        // TODO: Implement GPU snapshot
-        Error::println("Cannot take snapshot in GPU mode! Please fix this.");
-        return false;
-    }
-
     // Get current window/render target size
     int width, height;
     if (window) {
@@ -630,10 +546,6 @@ void Renderer::destroy() {
         SDL_DestroyRenderer(renderer);
         renderer = nullptr;
     }
-    if (gpu.device) {
-        SDL_DestroyGPUDevice(gpu.device);
-        gpu.device = nullptr;
-    }
     if (font) {
         TTF_CloseFont(font);
         font = nullptr;
@@ -645,7 +557,10 @@ void Renderer::destroy() {
 
 // This does not change the settings file, only the current session
 void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scalar) {
-    WindowScale = scalar;
+    // Preserve previous scale so we can apply a relative style scale (no cumulative effects).
+    uint8_t const prevScale = WindowScale == 0 ? 1 : WindowScale;
+
+    // Validate resolution
     if (w < 240 || w > 16384) {
         Error::println("Selected resolution is not supported:", w, "x", h);
         return;
@@ -655,34 +570,32 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
         return;
     }
 
+    // If scalar changed, apply relative style scaling once
+    if (scalar != prevScale) {
+        // Update WindowScale after capturing prevScale
+        WindowScale = scalar;
+        // Guard against division by zero (prevScale was clamped to 1 above)
+        float relativeStyleScale = static_cast<float>(WindowScale) / static_cast<float>(prevScale);
+        if (relativeStyleScale != 1.0f) {
+            ImGui::GetStyle().ScaleAllSizes(relativeStyleScale);
+        }
+    } else {
+        // No change to scaling
+        WindowScale = scalar;
+    }
+
     // Set the new resolution in the workspace
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResX, w);
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResY, h);
 
-    // Depending on renderer type, change window size
-    if (rendererType == RendererType::GPU) {
-        // TODO: Implement proper GPU-mode window resizing
-        //       For now we try the software method and see what happens
+    // Set the physical window size
+    SDL_SetWindowSize(window, w * WindowScale, h * WindowScale);
 
-        // Set the physical window size
-        SDL_SetWindowSize(window, w*WindowScale, h*WindowScale);
+    // Use integer logical presentation so scaling is done in integer steps (crisp pixels).
+    SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
 
-        // Use integer logical presentation so scaling is done in integer steps (crisp pixels).
-        SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
-
-        // Reinsert objects due to new tile / logical size
-        reinsertAllObjects();
-    }
-    else if (rendererType == RendererType::Software) {
-        // Set the physical window size
-        SDL_SetWindowSize(window, w*WindowScale, h*WindowScale);
-
-        // Use integer logical presentation so scaling is done in integer steps (crisp pixels).
-        SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
-
-        // Reinsert objects due to new tile / logical size
-        reinsertAllObjects();
-    }
+    // Reinsert objects due to new tile / logical size
+    reinsertAllObjects();
 }
 
 void Renderer::moveCam(int const& dX, int const& dY) const {
@@ -717,12 +630,7 @@ void Renderer::setTargetFPS(uint16_t const& targetFps) {
 //------------------------------------------
 // Renderer::tick Functions
 
-void Renderer::swRenderInit() const {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
-    SDL_RenderClear(renderer);
-}
-
-void Renderer::swRenderFrame() {
+void Renderer::renderFrame() {
     //------------------------------------------
     // Store for faster access
 
@@ -774,7 +682,7 @@ void Renderer::swRenderFrame() {
             for (auto const& [objectsInThisBatch, _] : env.getContainerAt(tileX, tileY, layer)) {
                 // For all objects in batch
                 for (auto const& obj : objectsInThisBatch) {
-                    swRenderObjectToScreen(obj, dispPosX, dispPosY);
+                    renderObjectToScreen(obj, dispPosX, dispPosY);
                 }
             }
         }
@@ -797,92 +705,7 @@ void Renderer::swRenderFrame() {
     }
 }
 
-void Renderer::hwRenderFrame() {
-    //------------------------------------------
-    // Store for faster access
-
-    // Get camera position
-    auto const dispPosX = domainScope.get<int16_t>(Constants::KeyNames::Renderer::positionX, 0);
-    auto const dispPosY = domainScope.get<int16_t>(Constants::KeyNames::Renderer::positionY, 0);
-
-    // Depending on position, set tiles to render
-    tilePositionX = static_cast<int16_t>(dispPosX / domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResX, 0));
-    tilePositionY = static_cast<int16_t>(dispPosY / domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResY, 0));
-
-    //------------------------------------------
-    // FPS Count and Control
-
-    //Calculate fps every second
-    fps.realCounter++;
-    if (fps.renderTimer.projected_dt() >= 1000) {
-        fps.real = fps.realCounter;
-        fps.realCounter = 0;
-        fps.renderTimer.update();
-    }
-
-    // Control framerate
-    fps.controlTimer.update();
-
-    //------------------------------------------
-    // Rendering
-    if (renderer) {
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
-    }
-
-
-    //Render Objects
-    //For all layers, starting at 0
-    for (auto layer : *env.getAllLayers()) {
-        // Get all tile positions to render
-        std::vector<std::pair<int16_t, int16_t>> tilesToRender;
-        for (int dX = tilePositionX == 0 ? 0 : -1; dX <= 1; dX++) {
-            for (int dY = tilePositionY == 0 ? 0 : -1; dY <= 1; dY++) {
-                if (env.isValidPosition(tilePositionX + dX, tilePositionY + dY, layer)) {
-                    tilesToRender.emplace_back(tilePositionX + dX, tilePositionY + dY);
-                }
-            }
-        }
-
-        // For all tiles to render
-        for (auto const& [tileX, tileY] : tilesToRender) {
-            // For all batches inside
-            for (auto const& [objectsInThisBatch, _] : env.getContainerAt(tileX, tileY, layer)) {
-                // For all objects in batch
-                for (auto const& obj : objectsInThisBatch) {
-                    hwRenderObjectToScreen(obj, dispPosX, dispPosY);
-                }
-            }
-        }
-
-        // Render all textures that were attached from outside processes
-        for (auto const& [texture, rect] : std::views::values(BetweenLayerTextures[layer])) {
-            if (!texture) {
-                continue; // Skip if texture is null
-            }
-            SDL_FRect const rectF = {
-                static_cast<float>(rect->x),
-                static_cast<float>(rect->y),
-                static_cast<float>(rect->w),
-                static_cast<float>(rect->h)
-            };
-
-            // TODO: SDL_RenderTexture(renderer, texture, nullptr, &rectF);
-        }
-    }
-}
-
-bool Renderer::isTextureValid(TextureVariant const texture) noexcept {
-    if (std::holds_alternative<SDL_Texture*>(texture)) {
-        return std::get<SDL_Texture*>(texture) != nullptr;
-    }
-    if (std::holds_alternative<SDL_GPUTexture*>(texture)) {
-        return std::get<SDL_GPUTexture*>(texture) != nullptr;
-    }
-    Error::println("Unknown texture variant type!");
-    return false;
-}
-
-void Renderer::swRenderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY) {
+void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY) {
     //------------------------------------------
     // Texture Loading
 
@@ -945,24 +768,11 @@ void Renderer::swRenderObjectToScreen(RenderObject* obj, int const& dispPosX, in
     }
 
     // Render to screen
-    if (rendererType == RendererType::Software && renderer) {
-        if (auto const t = obj->getSDLTexture(); std::holds_alternative<SDL_Texture*>(t)) {
-            if (SDL_RenderTexture(renderer, std::get<SDL_Texture*>(t), srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
-                auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-                Error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
-            }
+    if (auto const t = obj->getSDLTexture(); t != nullptr) {
+        if (SDL_RenderTexture(renderer, t, srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
+            auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
+            Error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
         }
-
-    }
-    else if (rendererType == RendererType::GPU && renderer && gpu.device) {
-        if (auto const t = obj->getSDLTexture(); std::holds_alternative<SDL_GPUTexture*>(t)) {
-            // What to do here?
-            // TODO: See https://github.com/TheSpydog/SDL_gpu_examples/blob/main/Examples/TexturedQuad.c
-            //       We probably have to modify the variant to hold more info about the GPU texture!
-        }
-    }
-    else {
-        Error::println("No valid renderer available for RenderObject textures!");
     }
 
     // Render the text
@@ -981,32 +791,15 @@ void Renderer::swRenderObjectToScreen(RenderObject* obj, int const& dispPosX, in
                 static_cast<float>(obj->getTextRect()->h)
             };
 
-            if (rendererType == RendererType::Software && renderer) {
-                if (SDL_RenderTexture(renderer, obj->getTextTexture(), nullptr, &textRectF) != 0 && SDL_GetError()[0] != '\0') {
-                    auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-                    Error::println("Error rendering text for RenderObject ID ", id, ": ", SDL_GetError());
-                }
+            if (SDL_RenderTexture(renderer, obj->getTextTexture(), nullptr, &textRectF) != 0 && SDL_GetError()[0] != '\0') {
+                auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
+                Error::println("Error rendering text for RenderObject ID ", id, ": ", SDL_GetError());
             }
-            else if (rendererType == RendererType::GPU && renderer && gpu.device) {
-                // Try to render as well
-                if (SDL_RenderTexture(renderer, obj->getTextTexture(), nullptr, &textRectF) != 0 && SDL_GetError()[0] != '\0') {
-                    auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-                    Error::println("Error rendering text for RenderObject ID ", id, ": ", SDL_GetError());
-                }
-            }
-            else {
-                Error::println("No valid renderer available for text textures!");
-            }
-
-
         }
     }
 }
 
-void Renderer::hwRenderObjectToScreen(RenderObject* /*obj*/, int const& /*dispPosX*/, int const& /*dispPosY*/) {
-    // TODO...
-}
-
+/*
 void Renderer::renderFPS() const {
     // Size of the font
     double constexpr fontSize = 16;
@@ -1039,15 +832,17 @@ void Renderer::renderFPS() const {
     SDL_DestroySurface(textSurface);
     SDL_DestroyTexture(textTexture);
 }
+*/
 
 //------------------------------------------
 // Texture-Related
 
 void Renderer::loadTexture(std::string const& link) {
-    if (auto const t = loadTextureToMemory(link); t.has_value()) TextureContainer[link] = t.value();
+    if (auto const t = loadTextureToMemory(link); t != nullptr) TextureContainer[link] = t;
 }
 
-std::optional<Renderer::TextureVariant> Renderer::loadTextureToMemory(std::string const& link) const {
+
+SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
     // TODO: Make it a variant for CPU/GPU mode, example:
     //       https://github.com/TheSpydog/SDL_gpu_examples/blob/main/Examples/TexturedQuad.c
 
@@ -1059,7 +854,7 @@ std::optional<Renderer::TextureVariant> Renderer::loadTextureToMemory(std::strin
         extension = path.substr(dotPos + 1);
     } else {
         Error::println("Failed to load image '", path, "': No file extension found.");
-        return std::nullopt;
+        return nullptr;
     }
 
     // turn to lowercase
@@ -1076,43 +871,20 @@ std::optional<Renderer::TextureVariant> Renderer::loadTextureToMemory(std::strin
     // Unknown format or other issues with surface
     if (surface == nullptr) {
         Error::println("Failed to load image '", path, "': ", SDL_GetError());
-        return std::nullopt;
+        return nullptr;
     }
 
-    if (rendererType == RendererType::GPU) {
-        auto const info = SDL_GPUTextureCreateInfo({
-            .type = SDL_GPU_TEXTURETYPE_2D,
-            .format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM,
-            .usage = SDL_GPU_TEXTUREUSAGE_SAMPLER,
-            .width = static_cast<uint32_t>(surface->w),
-            .height = static_cast<uint32_t>(surface->h),
-            .layer_count_or_depth = 1,
-            .num_levels = 1,
-            .sample_count = SDL_GPU_SAMPLECOUNT_1,
-            .props{}
-        });
-        auto const texture = SDL_CreateGPUTexture(gpu.device, &info);
-        SDL_SetGPUTextureName(
-                gpu.device,
-                texture,
-                link.c_str()
-        );
-        return texture;
-    }
-    if (rendererType == RendererType::Software) {
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_DestroySurface(surface); // Free the surface after creating texture
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_DestroySurface(surface); // Free the surface after creating texture
 
-        // Check for texture issues
-        if (!texture) {
-            Error::println("Failed to create texture from image '", path, "': ", SDL_GetError());
-            return std::nullopt;
-        }
-
-        SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
-        return texture;
+    // Check for texture issues
+    if (!texture) {
+        Error::println("Failed to create texture from image '", path, "': ", SDL_GetError());
+        return nullptr;
     }
-    return std::nullopt;
+
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+    return texture;
 }
 
 } // namespace Nebulite::Core
