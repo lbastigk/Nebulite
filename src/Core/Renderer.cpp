@@ -181,11 +181,12 @@ void Renderer::initSDL() {
 
     //------------------------------------------
     // Cursor
+    static auto const cursorPath = "./Resources/Cursor/Drakensang.png";
 
     // See if cursor file exists
-    if (Utility::FileManagement::fileExists("./Resources/Cursor/Drakensang.png")) {
+    if (Utility::FileManagement::fileExists(cursorPath)) {
         // Load pixel data
-        if (SDL_Surface* cursorSurface = IMG_Load("./Resources/Cursor/Drakensang.png"); cursorSurface) {
+        if (SDL_Surface* cursorSurface = IMG_Load(cursorPath); cursorSurface) {
             // Create cursor
             if (SDL_Cursor* cursor = SDL_CreateColorCursor(cursorSurface, 0, 0); cursor) {
                 SDL_SetCursor(cursor);
@@ -699,9 +700,22 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
     // Texture Loading
 
     // Check for texture
-    // TODO: Find some way to remove the get-call. Perhaps it's better to store the path inside the RenderObject directly?
-    //       Then we can add a function reloadTexture() to the RenderObject that forces reloading from disk.
-    //       As well as fetching the path only once during initialization.
+    // TODO:
+    /**
+    * @todo Find some way to remove the get-call. Perhaps it's better to store the path inside the RenderObject directly?
+    *       Then we can add a function reloadTexture() to the RenderObject that forces reloading from disk.
+    *       As well as fetching the path only once during initialization.
+    *       Since the actual image does not change often and does not modify any state, we could use a runner function
+    *       that asynchronously reloads the texture from disk if needed:
+    *       RenderObject::getImageLocation() {
+    *           // Return a reference to an atomic string that stores the path
+    *       }
+    *       RenderObject::checkImageLocation(){
+    *           // Ran asynchronously every X seconds by a runner, called from the Renderer owning the Runner
+    *           // 1.) Get actual location form document scope
+    *           // 2.) if different from stored path, set stored path to new path
+    *       }
+     */
     auto const innerDirectory = obj->domainScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation);
 
     // Load texture if not yet loaded
@@ -832,9 +846,6 @@ void Renderer::loadTexture(std::string const& link) {
 
 
 SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
-    // TODO: Make it a variant for CPU/GPU mode, example:
-    //       https://github.com/TheSpydog/SDL_gpu_examples/blob/main/Examples/TexturedQuad.c
-
     std::string const path = Utility::FileManagement::CombinePaths(baseDirectory, link);
 
     // Get file extension, based on last dot
