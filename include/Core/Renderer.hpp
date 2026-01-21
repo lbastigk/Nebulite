@@ -72,6 +72,11 @@ public:
     void initSDL();
 
     /**
+     * @brief Initializes ImGui for the Renderer. Called within `initSDL()`.
+     */
+    void initImgui() const;
+
+    /**
      * @brief Called before parsing any commands.
      */
     Constants::Error preParse() override;
@@ -494,6 +499,8 @@ private:
     void renderFrame();
 
     void renderFPS() const;
+
+    void renderGlobalSpace() const ;
 
     void renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
 

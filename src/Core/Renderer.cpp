@@ -120,6 +120,101 @@ Constants::Error Renderer::preParse() {
     return Constants::ErrorTable::NONE();
 }
 
+void Renderer::initImgui() const {
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    // Pixel-friendly ImGui style for retro RPGs
+    float const fullScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay()) * WindowScale * 0.6f; // adjust to taste
+
+    ImGuiStyle &style = ImGui::GetStyle();
+
+    // Rounding
+    style.WindowRounding = 0.0f;
+    style.ChildRounding = 0.0f;
+    style.FrameRounding = 0.0f;
+    style.PopupRounding = 0.0f;
+    style.ScrollbarRounding = 0.0f;
+    style.GrabRounding = 0.0f;
+
+
+    // Borders
+    style.WindowBorderSize = 1.0f;
+    style.FrameBorderSize  = 1.0f;
+    style.TabBorderSize    = 1.0f;
+
+    // Spacing and padding: compact, consistent with retro UI
+    style.WindowPadding = ImVec2(6.0f, 6.0f);
+    style.FramePadding  = ImVec2(6.0f, 2.0f);
+    style.ItemSpacing   = ImVec2(6.0f, 4.0f);
+    style.ItemInnerSpacing = ImVec2(4.0f, 4.0f);
+    style.CellPadding = ImVec2(4.0f, 4.0f);
+    style.GrabMinSize = 8.0f;
+
+    // Disable anti-aliasing for pixel-perfect rendering
+    style.AntiAliasedLines = false;
+    style.AntiAliasedFill  = false;
+
+    // Scaling
+    style.FontScaleDpi = fullScale;
+    //style.ScaleAllSizes(fullScale);
+
+
+    // Color palette: dark backgrounds, warm accent for UI (tweak hex to taste)
+    auto constexpr bg      = ImVec4(0.05f, 0.07f, 0.10f, 1.00f); // deep navy
+    auto constexpr panel   = ImVec4(0.10f, 0.13f, 0.16f, 1.00f); // slightly lighter
+    auto constexpr accent  = ImVec4(0.92f, 0.70f, 0.16f, 1.00f); // golden accent
+    auto constexpr accent2 = ImVec4(0.48f, 0.86f, 1.00f, 1.00f); // cyan for highlights
+    auto constexpr textCol = ImVec4(0.92f, 0.92f, 0.92f, 1.00f); // bright text
+
+    ImVec4* colors = style.Colors;
+    colors[ImGuiCol_Text]                  = textCol;
+    colors[ImGuiCol_WindowBg]              = bg;
+    colors[ImGuiCol_ChildBg]               = panel;
+    colors[ImGuiCol_PopupBg]               = panel;
+    colors[ImGuiCol_Border]                = ImVec4(0.18f, 0.20f, 0.22f, 1.00f);
+    colors[ImGuiCol_FrameBg]               = ImVec4(0.08f, 0.10f, 0.13f, 1.00f);
+    colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.16f, 0.18f, 0.20f, 1.00f);
+    colors[ImGuiCol_FrameBgActive]         = ImVec4(0.22f, 0.24f, 0.26f, 1.00f);
+    colors[ImGuiCol_Button]                = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
+    colors[ImGuiCol_ButtonHovered]         = accent2;
+    colors[ImGuiCol_ButtonActive]          = accent;
+    colors[ImGuiCol_Header]                = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
+    colors[ImGuiCol_HeaderHovered]         = accent2;
+    colors[ImGuiCol_HeaderActive]          = accent;
+    colors[ImGuiCol_Separator]             = ImVec4(0.14f, 0.16f, 0.18f, 1.00f);
+    colors[ImGuiCol_ResizeGrip]            = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
+    colors[ImGuiCol_Tab]                   = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
+    colors[ImGuiCol_TabHovered]            = accent2;
+    colors[ImGuiCol_TabActive]             = accent;
+    colors[ImGuiCol_TitleBg]               = panel;
+    colors[ImGuiCol_TitleBgActive]         = panel;
+
+    // IO config
+    ImGuiIO &io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+    // Load a pixel font if available; fallback to default
+    // Use a font config that disables oversampling and enables pixel snapping
+    ImFontConfig font_cfg;
+    font_cfg.OversampleH = 1;
+    font_cfg.OversampleV = 1;
+    font_cfg.PixelSnapH  = true;
+
+    // Adjust the base font size to match pixel aesthetics (choose your font file & size)
+    std::string const pixelFontPath = "./Resources/Fonts/Arimo-Bold.ttf"; // TODO: Use a pixel font
+    if (Utility::FileManagement::fileExists(pixelFontPath)) {
+        if (ImFont* f = io.Fonts->AddFontFromFileTTF(pixelFontPath.c_str(), 40.0f * fullScale, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) io.FontDefault = f;
+        else io.Fonts->AddFontDefault();
+    } else {
+        io.Fonts->AddFontDefault();
+    }
+
+    ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
+    ImGui_ImplSDLRenderer3_Init(renderer);
+}
+
 void Renderer::initSDL() {
     if (SDL_initialized)
         return;
@@ -159,25 +254,9 @@ void Renderer::initSDL() {
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
     //------------------------------------------
-    // IMGUI
+    // ImGui
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-
-    ImGuiIO &io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
-
-    // Setup scaling
-    float const main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
-    ImGuiStyle &style = ImGui::GetStyle();
-    style.ScaleAllSizes(main_scale * WindowScale);
-    style.FontScaleDpi = main_scale * WindowScale;
-    style.FontSizeBase = 40.f;
-    io.Fonts->AddFontDefault();
-
-    ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
-    ImGui_ImplSDLRenderer3_Init(renderer);
+    initImgui();
 
     //------------------------------------------
     // Cursor
@@ -308,7 +387,7 @@ void Renderer::renderFPS() const {
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4.0f, 2.0f));
 
     // Optional: constrain maximum size (min 0, max 150x50)
-    ImGui::SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(150.0f, 50.0f));
+    //ImGui::SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(150.0f, 50.0f));
 
     ImGui::Begin(
         "FPS Overlay",
@@ -322,6 +401,13 @@ void Renderer::renderFPS() const {
     ImGui::Text("FPS: %d", fps.real);
     ImGui::End();
     ImGui::PopStyleVar(2); // pop ItemSpacing and WindowPadding
+}
+
+void Renderer::renderGlobalSpace() const {
+    // TODO: Implement a json viewer
+    //       requires Nebulite::Data::JSON to have a getMemberNames() function
+    //       Then we can use ImGui::TreeNode to display the structure
+    (void) domainScope;
 }
 
 void Renderer::pollEvents() {
