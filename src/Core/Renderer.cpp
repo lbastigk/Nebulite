@@ -801,41 +801,6 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
     }
 }
 
-/*
-void Renderer::renderFPS() const {
-    // Size of the font
-    double constexpr fontSize = 16;
-
-    // Create a string with the FPS value
-    std::string const fpsText = "FPS: " + std::to_string(fps.real);
-
-    // Define the destination rectangle for rendering the text
-    SDL_FRect const textRect = {
-        static_cast<float>(10.0) / static_cast<float>(WindowScale),
-        static_cast<float>(10.0) / static_cast<float>(WindowScale),
-        static_cast<float>(fontSize * static_cast<double>(fpsText.length()) / static_cast<double>(WindowScale)) ,
-        static_cast<float>(fontSize * 1.5 / static_cast<double>(WindowScale))
-    }; // Adjust position as needed
-
-    // Clear the area where the FPS text will be rendered
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Set background color (black)
-    SDL_RenderFillRect(renderer, &textRect);
-
-    // Create a surface with the text
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, fpsText.c_str(), 0, textColor);
-
-    // Create a texture from the text surface
-    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    // Render the text texture
-    SDL_RenderTexture(renderer, textTexture, nullptr, &textRect);
-
-    // Free the text surface and texture
-    SDL_DestroySurface(textSurface);
-    SDL_DestroyTexture(textTexture);
-}
-*/
-
 //------------------------------------------
 // Texture-Related
 

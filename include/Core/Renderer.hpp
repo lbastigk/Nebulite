@@ -546,9 +546,6 @@ private:
     //------------------------------------------
     // Font-Related
 
-    // Define font properties
-    SDL_Color textColor = {255, 255, 255, 255}; // White color
-
     // General font
     TTF_Font* font{};
 
