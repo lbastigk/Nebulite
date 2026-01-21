@@ -700,21 +700,20 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
     // Texture Loading
 
     // Check for texture
-    // TODO:
     /**
-    * @todo Find some way to remove the get-call. Perhaps it's better to store the path inside the RenderObject directly?
-    *       Then we can add a function reloadTexture() to the RenderObject that forces reloading from disk.
-    *       As well as fetching the path only once during initialization.
+    * @todo Find some way to remove the get-call.
     *       Since the actual image does not change often and does not modify any state, we could use a runner function
-    *       that asynchronously reloads the texture from disk if needed:
-    *       RenderObject::getImageLocation() {
+    *       that asynchronously reloads the texture path if needed:
+    *       std::atomic<std::string>& RenderObject::getImageLocation() {
     *           // Return a reference to an atomic string that stores the path
     *       }
-    *       RenderObject::checkImageLocation(){
+    *       std::atomic<std::string>& RenderObject::checkImageLocation(){
     *           // Ran asynchronously every X seconds by a runner, called from the Renderer owning the Runner
     *           // 1.) Get actual location form document scope
     *           // 2.) if different from stored path, set stored path to new path
     *       }
+    *       We could also update the texture container in the runner, but then we would have to lock the container during rendering.
+    *       Since we have to map string to texture anyway, we can just do it here.
      */
     auto const innerDirectory = obj->domainScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation);
 
