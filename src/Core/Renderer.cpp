@@ -667,6 +667,12 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
     // Set the physical window size
     SDL_SetWindowSize(window, w * WindowScale, h * WindowScale);
 
+    // TODO: We should always use the window size, and scale everything ourselves.
+    //       Reason: Imgui has problems with proper scaling when using SDL's logical presentation scaling. Everything becomes blurry.
+    //       - Any SDL draw call should be scaled by WindowScale
+    //       - Mouse input positions should be available both scaled and unscaled
+    //       - Renderer size should be available both scaled (for logic positioning) and unscaled (for SDL rendering)
+    //           -> Objects still use unscaled coordinates for their local positions, but any GUI elements need to know the actual size of the renderer!
     // Use integer logical presentation so scaling is done in integer steps (crisp pixels).
     SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
 
