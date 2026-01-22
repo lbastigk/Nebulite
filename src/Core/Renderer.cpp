@@ -157,8 +157,6 @@ void Renderer::initImgui() const {
 
     // Scaling
     style.FontScaleDpi = fullScale;
-    //style.ScaleAllSizes(fullScale);
-
 
     // Color palette: dark backgrounds, warm accent for UI (tweak hex to taste)
     auto constexpr bg      = ImVec4(0.05f, 0.07f, 0.10f, 1.00f); // deep navy
@@ -398,7 +396,7 @@ void Renderer::renderFPS() const {
         ImGuiWindowFlags_NoNav
     );
 
-    ImGui::Text("FPS: %d", fps.real);
+    ImGui::Text("FPS: %04d", fps.real);
     ImGui::End();
     ImGui::PopStyleVar(2); // pop ItemSpacing and WindowPadding
 }
@@ -422,20 +420,22 @@ void Renderer::pollEvents() {
     }
 }
 
-// For quick and dirty debugging, in case the rendering pipeline breaks somewhere
 Constants::Error Renderer::update() {
+    // Core rendering pipeline
     renderInit();
     renderFrame();
     pollEvents();
     skippedUpdateLastFrame = skipUpdate;
     skipUpdate = false;
-    updateModules();
+    updateModules(); // Update domain modules, potentially adding ImGui elements
 
     // DEBUG: IMGUI test window
     ImGui::ShowDemoWindow();
 
-    // Imgui Rendering
+    // Fps
     if (showFPS) renderFPS();
+
+    // Render all ImGui elements
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
     SDL_RenderPresent(renderer);
@@ -678,11 +678,11 @@ void Renderer::moveCam(int const& dX, int const& dY) const {
     domainScope.set<int>(
         Constants::KeyNames::Renderer::positionX,
         domainScope.get<int>(Constants::KeyNames::Renderer::positionX, 0) + dX
-        );
+    );
     domainScope.set<int>(
         Constants::KeyNames::Renderer::positionY,
         domainScope.get<int>(Constants::KeyNames::Renderer::positionY, 0) + dY
-        );
+    );
 }
 
 void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle) const {
@@ -737,7 +737,6 @@ void Renderer::renderFrame() {
     if (renderer) {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
     }
-
 
     //Render Objects
     //For all layers, starting at 0
