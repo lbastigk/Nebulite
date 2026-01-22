@@ -36,7 +36,7 @@
             "description": "Release build for Linux with optimizations",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_CXX_FLAGS": "-O3 -DNDEBUG -march=native -fno-semantic-interposition -fomit-frame-pointer",
+                "CMAKE_CXX_FLAGS": "-O3 -DNDEBUG -march=native -mtune=native -flto=auto -fno-semantic-interposition -fomit-frame-pointer -fuse-linker-plugin -fvisibility=hidden -fvisibility-inlines-hidden -finline-functions -finline-limit=1000 -fpredictive-commoning",
                 "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"

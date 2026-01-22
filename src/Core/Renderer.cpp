@@ -430,7 +430,7 @@ Constants::Error Renderer::update() {
     updateModules(); // Update domain modules, potentially adding ImGui elements
 
     // DEBUG: IMGUI test window
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
 
     // Fps
     if (showFPS) renderFPS();
