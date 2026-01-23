@@ -135,8 +135,18 @@ void JsonScopeBase::removeKey(ScopedKeyView const& key){
     baseDocument->removeKey(key.full(*this));
 }
 
-std::vector<std::string> JsonScopeBase::listAvailableKeys(ScopedKeyView const& key) const {
-    return baseDocument->listAvailableKeys(key.full(*this));
+std::vector<ScopedKey> JsonScopeBase::listAvailableKeys(ScopedKeyView const& key) const {
+    std::vector<std::string> const keys = baseDocument->listAvailableKeys(key.full(*this));
+    std::vector<ScopedKey> scopedKeys;
+    scopedKeys.reserve(keys.size());
+    for (auto const& k : keys) {
+        if (key.toString().ends_with('.')) {
+            scopedKeys.emplace_back(key + k);
+        } else {
+            scopedKeys.emplace_back(key + "." + k);
+        }
+    }
+    return scopedKeys;
 }
 
 //------------------------------------------

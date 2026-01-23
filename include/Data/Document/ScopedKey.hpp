@@ -180,6 +180,13 @@ public:
     static consteval ScopedKeyView createUnscoped(std::string_view const& keyInScope) noexcept {
         return {std::nullopt, keyInScope};
     }
+
+    std::string toString() const {
+        if (givenScope.has_value()) {
+            return std::string(givenScope.value()) + std::string(key);
+        }
+        return std::string(key);
+    }
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_SCOPED_KEY_HPP

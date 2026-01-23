@@ -428,9 +428,11 @@ bool RjDirectAccess::isValidKey(std::string const& key) {
 
 std::vector<std::string> RjDirectAccess::listAvailableKeys(rapidjson::Value const& val){
     std::vector<std::string> keys;
-    if (!val.IsArray()) {
+    if (val.IsArray()) {
         // Generate a list of array keys: [0], [1], ...
-        for (rapidjson::SizeType i = 0; i < val.Size(); ++i) {
+        size_t const arrSize = val.Size();
+        keys.reserve(arrSize);
+        for (size_t i = 0; i < arrSize; ++i) {
             keys.emplace_back("[" + std::to_string(i) + "]");
         }
     }

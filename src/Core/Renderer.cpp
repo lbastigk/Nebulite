@@ -395,10 +395,73 @@ void Renderer::renderFPS() const {
 }
 
 void Renderer::renderGlobalSpace() const {
-    // TODO: Implement a json viewer
-    //       requires Nebulite::Data::JSON to have a getMemberNames() function
-    //       Then we can use ImGui::TreeNode to display the structure
-    (void) domainScope;
+    ImGui::Begin("Global Space");
+
+    // Unique counter for ImGui IDs to avoid collisions
+    size_t idCounter = 0;
+
+    // Recursive traversal function: root = scoped view, path = display path for readability
+    std::function<void(Data::ScopedKey const&, std::string const&)> traverseObject;
+    traverseObject = [this, &traverseObject, &idCounter](Data::ScopedKey const& root, std::string const& path) {
+        for (auto const& key : domainScope.listAvailableKeys(root)) {
+            // Compose a short display label. Replace or extend this with a real key-name API if available.
+            const std::string nodeLabel = path + "/" + std::to_string(idCounter);
+            const int myId = static_cast<int>(idCounter++);
+
+            std::string const rootPath = root.view().toString();
+            std::string keyPath = key.view().toString();
+
+            if (rootPath != keyPath) {
+                keyPath = keyPath.substr(rootPath.length());
+            }
+
+
+
+            switch (Data::KeyType const type = domainScope.memberType(key); type) {
+            case Data::KeyType::object:
+                ImGui::PushID(myId);
+                if (ImGui::TreeNode(nodeLabel.c_str(), "%s", keyPath.c_str())) {
+                    // Recurse into object
+                    traverseObject(key, nodeLabel);
+                    ImGui::TreePop();
+                }
+                ImGui::PopID();
+                break;
+
+            case Data::KeyType::array:
+                ImGui::PushID(myId);
+                if (ImGui::TreeNode(nodeLabel.c_str(), "%s", keyPath.c_str())) {
+                    // Recurse into array
+                    traverseObject(key, nodeLabel);
+                    ImGui::TreePop();
+                }
+                ImGui::PopID();
+                break;
+
+            case Data::KeyType::value:
+                {
+                    // Safely get the value as a string and display it
+                    std::string const valueStr = domainScope.get<std::string>(key, "<unavailable>");
+                    ImGui::PushID(myId);
+                    ImGui::Text("%s : %s", keyPath.c_str(), valueStr.c_str());
+                    ImGui::PopID();
+                }
+                break;
+            case Data::KeyType::null:
+            default:
+                ImGui::PushID(myId);
+                ImGui::TextDisabled("%s : null", keyPath.c_str());
+                ImGui::PopID();
+                break;
+            }
+
+        }
+    };
+
+    // Start recursion at root. Root path shown as "/" for readability.
+    traverseObject(domainScope.getRootScope() + "", "/");
+
+    ImGui::End();
 }
 
 void Renderer::pollEvents() {
@@ -424,6 +487,9 @@ Constants::Error Renderer::update() {
 
     // DEBUG: IMGUI test window
     //ImGui::ShowDemoWindow();
+
+    // DEBUG: Render global space
+    renderGlobalSpace();
 
     // Fps
     if (showFPS) renderFPS();
@@ -835,8 +901,8 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
         dstF.x -= static_cast<float>(dispPosX) * windowScale; // Subtract X camera position
         dstF.y -= static_cast<float>(dispPosY) * windowScale; // Subtract Y camera position
 
-        dstF.x -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResX));
-        dstF.y -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResY));
+        //dstF.x -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResX));
+        //dstF.y -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResY));
 
         dstFP = &dstF;
     }
