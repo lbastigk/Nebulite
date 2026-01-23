@@ -27,6 +27,7 @@
 // Nebulite
 #include "Core/Texture.hpp"
 #include "Core/JsonScope.hpp"
+#include "Utility/TimedRoutine.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics {
@@ -38,29 +39,21 @@ class Drawcall {
 public:
     // Any Drawcall is based on a scopes data
     explicit Drawcall(Core::JsonScope& workspace) : drawcallScope(workspace), texture(workspace) {
-        if (auto const typeOnConstruction = drawcallScope.get<std::string>(Key::type, "sprite"); typeOnConstruction == "sprite") {
-            type = SPRITE;
-        }
-        else if (typeOnConstruction == "text") {
-            type = TEXT;
-        }
+        updateDrawcallData();
     }
 
     ~Drawcall() = default;
 
-    // Current idea: Depending on the type of drawcall, we have different draw implementations
-    // Since there are different types of drawcalls, it might be better to have separate derived classes for each type
-    // But it would be more complex, as any change in the workspace structure could potentially require the class to change.
-    // Basically: static auto tr = timedRoutine(checkType()); tr.update(); time switch(type) { case SPRITE: drawSprite(); break; case TEXT: drawText(); break; };
     void draw() const ;
 
     // Parse a string onto the texture
-    Constants::Error parseStr(std::string str);
+    Constants::Error parseStr(std::string const& str);
+
 protected:
     struct Key {
         static auto constexpr type = Data::ScopedKeyView("type");
 
-        // TODO: Use these in the Drawcall implementations:
+        // TODO: Use these in the Drawcall implementations, then remove them from Constants::KeyNames
 
         struct Sprite {
             static auto constexpr pixelSizeX = Data::ScopedKeyView("sizeX");
@@ -86,7 +79,7 @@ protected:
         };
     };
 
-    enum Type { // TODO: We could determine the type on each draw call, or use some timing mechanism
+    enum Type {
         SPRITE,
         TEXT
     }type;
@@ -94,6 +87,16 @@ protected:
     Core::JsonScope& drawcallScope;
     Core::Texture texture; // Holds the data for the texture to draw
     SDL_Rect destRect{}; // Destination rectangle for drawing
+
+    void updateDrawcallData();
+
+    // Allows periodic updating of drawcall data to reflect current state
+    mutable Utility::TimedRoutine updaterRoutine{
+        [this] {
+            updateDrawcallData();
+        },
+        1000
+    }; // Routine to update the drawcall data periodically
 };
 
 // Idea for how the JsonScope may look like:
