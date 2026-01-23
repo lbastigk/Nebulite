@@ -63,7 +63,8 @@ struct KeyNames {
 
         static auto constexpr draw = Data::ScopedKeyView("draw");
 
-        // TODO: Use "texture." as scope
+        // TODO: remove these as they are now in Drawcall::Key
+        //       still requires some refactoring
         static auto constexpr pixelSizeX = Data::ScopedKeyView("sprite.sizeX");
         static auto constexpr pixelSizeY = Data::ScopedKeyView("sprite.sizeY");
         static auto constexpr imageLocation = Data::ScopedKeyView("sprite.link");

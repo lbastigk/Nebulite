@@ -164,8 +164,8 @@ public:
 private:
     // NOTE: Keys are unscoped because the struct is private to the module
     struct Key {
-        static auto constexpr platform = Data::ScopedKeyView::createUnscoped("platform");
-        static auto constexpr buildType = Data::ScopedKeyView::createUnscoped("buildType");
+        static auto constexpr platform = Data::ScopedKeyView("platform");
+        static auto constexpr buildType = Data::ScopedKeyView("buildType");
     };
 
     std::streambuf* originalCerrBuf = nullptr;

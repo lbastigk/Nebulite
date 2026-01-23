@@ -58,7 +58,32 @@ public:
     Constants::Error parseStr(std::string str);
 protected:
     struct Key {
-        static auto constexpr type = Data::ScopedKeyView::createUnscoped("type");
+        static auto constexpr type = Data::ScopedKeyView("type");
+
+        // TODO: Use these in the Drawcall implementations:
+
+        struct Sprite {
+            static auto constexpr pixelSizeX = Data::ScopedKeyView("sizeX");
+            static auto constexpr pixelSizeY = Data::ScopedKeyView("sizeY");
+            static auto constexpr imageLocation = Data::ScopedKeyView("link");
+            static auto constexpr isSpritesheet = Data::ScopedKeyView("spritesheet.isSpritesheet");
+            static auto constexpr spritesheetSizeX = Data::ScopedKeyView("spritesheet.sizeX");
+            static auto constexpr spritesheetSizeY = Data::ScopedKeyView("spritesheet.sizeY");
+            static auto constexpr spritesheetOffsetX = Data::ScopedKeyView("spritesheet.offsetX");
+            static auto constexpr spritesheetOffsetY = Data::ScopedKeyView("spritesheet.offsetY");
+
+        };
+
+        struct Text {
+            static auto constexpr fontsize = Data::ScopedKeyView("fontSize");
+            static auto constexpr str = Data::ScopedKeyView("str");
+            static auto constexpr colorR = Data::ScopedKeyView("color.R");
+            static auto constexpr colorG = Data::ScopedKeyView("color.G");
+            static auto constexpr colorB = Data::ScopedKeyView("color.B");
+            static auto constexpr colorA = Data::ScopedKeyView("color.A");
+            static auto constexpr dx = Data::ScopedKeyView("dx");
+            static auto constexpr dy = Data::ScopedKeyView("dy");
+        };
     };
 
     enum Type { // TODO: We could determine the type on each draw call, or use some timing mechanism

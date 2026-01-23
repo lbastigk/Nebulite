@@ -177,10 +177,6 @@ public:
         return {std::optional(std::string_view(s, len)), std::string_view(keyInScope)};
     }
 
-    static consteval ScopedKeyView createUnscoped(std::string_view const& keyInScope) noexcept {
-        return {std::nullopt, keyInScope};
-    }
-
     std::string toString() const {
         if (givenScope.has_value()) {
             return std::string(givenScope.value()) + std::string(key);
