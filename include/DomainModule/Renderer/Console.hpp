@@ -162,9 +162,6 @@ private:
         SDL_Texture* texture_ptr = nullptr;
     } consoleTexture;
 
-    // Scale of the window
-    unsigned int WindowScale = 1;
-
     //------------------------------------------
     // Methods
 

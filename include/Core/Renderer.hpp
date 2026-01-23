@@ -266,6 +266,14 @@ public:
      */
     void moveCam(int const& dX, int const& dY) const;
 
+    SDL_FRect scaleRectFromLogicalSize(SDL_FRect const& logicalRect) const {
+        return SDL_FRect{
+            logicalRect.x * static_cast<float>(windowScale),
+            logicalRect.y * static_cast<float>(windowScale),
+            logicalRect.w * static_cast<float>(windowScale),
+            logicalRect.h * static_cast<float>(windowScale)
+        };
+    }
 
     //------------------------------------------
     // Getting
@@ -372,7 +380,7 @@ public:
     /**
      * @brief Gets the current window scale factor.
      */
-    [[nodiscard]] unsigned int getWindowScale() const noexcept { return WindowScale; }
+    [[nodiscard]] unsigned int getWindowScale() const noexcept { return windowScale; }
 
     //------------------------------------------
     // Texture-Related
@@ -484,7 +492,7 @@ private:
     Environment env;
 
     // Rendering
-    uint8_t WindowScale = 1;
+    uint8_t windowScale = 1;
     SDL_Window* window{};
 
     SDL_Renderer* renderer{};
