@@ -495,6 +495,19 @@ void JSON::removeKey(char const* key) {
     RjDirectAccess::removeMember(key, doc);
 }
 
+std::vector<std::string> JSON::listAvailableKeys(std::string const& key) const {
+    std::scoped_lock const lockGuard(mtx);
+
+    // Flush cache before accessing document
+    flush();
+
+    // Traverse to the specified key
+    if (rapidjson::Value const* val = RjDirectAccess::traversePath(key.c_str(), doc); val != nullptr) {
+        return RjDirectAccess::listAvailableKeys(*val);
+    }
+    return {};
+}
+
 //------------------------------------------
 // Threadsafe sets
 

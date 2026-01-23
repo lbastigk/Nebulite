@@ -13,6 +13,7 @@
 // Standard library
 #include <string>
 #include <variant>
+#include <vector>
 
 // External
 #include <rapidjson/document.h>
@@ -194,6 +195,15 @@ public:
      */
     static bool isValidKey(std::string const& key);
 
+    /**
+     * @brief Lists all available keys in a rapidjson object.
+     * @param val The rapidjson object to list keys from.
+     * @return A vector of strings containing all available keys.
+     *         - For objects, returns member names.
+     *         - For arrays, returns indices in bracket notation (e.g., "[0]", "[1]", ...).
+     *         - For any other type, returns an empty vector.
+     */
+    static std::vector<std::string> listAvailableKeys(rapidjson::Value const& val);
 private:
     /**
      * @brief Extracts the next part of a key from a dot/bracket notation key string.

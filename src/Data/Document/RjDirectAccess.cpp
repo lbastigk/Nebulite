@@ -426,6 +426,24 @@ bool RjDirectAccess::isValidKey(std::string const& key) {
     return true;
 }
 
+std::vector<std::string> RjDirectAccess::listAvailableKeys(rapidjson::Value const& val){
+    std::vector<std::string> keys;
+    if (!val.IsArray()) {
+        // Generate a list of array keys: [0], [1], ...
+        for (rapidjson::SizeType i = 0; i < val.Size(); ++i) {
+            keys.emplace_back("[" + std::to_string(i) + "]");
+        }
+    }
+    else if (val.IsObject()) {
+        // Generate a list of object member keys
+        for (auto itr = val.MemberBegin(); itr != val.MemberEnd(); ++itr) {
+            keys.emplace_back(itr->name.GetString());
+        }
+    }
+    // For any other type, we return an empty list
+    return keys;
+}
+
 
 //------------------------------------------
 // Static Private Helper Functions

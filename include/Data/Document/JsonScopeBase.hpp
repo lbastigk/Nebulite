@@ -218,6 +218,9 @@ public:
     void removeKey(ScopedKeyView const& key);
     void removeKey(ScopedKey const& key) {removeKey(key.view());}
 
+    std::vector<std::string> listAvailableKeys(ScopedKeyView const& key) const ;
+    std::vector<std::string> listAvailableKeys(ScopedKey const& key) const {return listAvailableKeys(key.view());}
+
     //------------------------------------------
     // Serialize/Deserialize
 
