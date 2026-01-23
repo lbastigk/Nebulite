@@ -193,6 +193,19 @@ public:
         //       -> physics and time for example
         return globalDoc().shareManagedScope("");
     }
+
+    //------------------------------------------
+    // In some contexts, full access is needed
+    // This breaks the encapsulation, so use with care!
+
+    /**
+     * @brief DANGER: Provides full access to the global JSON document scope.
+     *        Only use this if absolutely necessary!
+     * @return Reference to the full global JSON document
+     */
+    [[nodiscard]] static Core::JsonScope& __DANGER_AHEAD_shareFullScope() {
+        return globalDoc().shareManagedScope("");
+    }
 private:
     // construct-on-first-use singletons to avoid global constructors/destructors
     static Data::JSON& globalDoc() {

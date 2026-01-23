@@ -140,7 +140,7 @@ std::vector<ScopedKey> JsonScopeBase::listAvailableKeys(ScopedKeyView const& key
     std::vector<ScopedKey> scopedKeys;
     scopedKeys.reserve(keys.size());
     for (auto const& k : keys) {
-        if (key.toString().ends_with('.')) {
+        if (key.toString().ends_with('.') || key.toString().empty()) {
             scopedKeys.emplace_back(key + k);
         } else {
             scopedKeys.emplace_back(key + "." + k);

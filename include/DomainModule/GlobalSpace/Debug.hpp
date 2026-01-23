@@ -139,8 +139,9 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug) {
         //------------------------------------------
-        // Show platform info
+        // Setup key information in the global document
         setupPlatformInfo();
+        setupDebugInfo();
 
         //------------------------------------------
         // Binding functions to the FuncTree
@@ -161,6 +162,12 @@ public:
     }
 
 private:
+    // NOTE: Keys are unscoped because the struct is private to the module
+    struct Key {
+        static auto constexpr platform = Data::ScopedKeyView::createUnscoped("platform");
+        static auto constexpr buildType = Data::ScopedKeyView::createUnscoped("buildType");
+    };
+
     std::streambuf* originalCerrBuf = nullptr;
     std::unique_ptr<std::ofstream> errorFile;
 
@@ -173,6 +180,11 @@ private:
      * @brief Sets up platform information in the global document.
      */
     void setupPlatformInfo() const ;
+
+    /**
+     * @brief Sets up debug information in the global document.
+     */
+    void setupDebugInfo() const ;
 };
 } // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_GSDM_DEBUG_HPP

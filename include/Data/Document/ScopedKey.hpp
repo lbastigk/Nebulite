@@ -187,6 +187,13 @@ public:
         }
         return std::string(key);
     }
+
+    ScopedKey toScopedKey() const {
+        if (givenScope.has_value()) {
+            return ScopedKey(std::string(givenScope.value()) + std::string(key), givenScope);
+        }
+        return ScopedKey(std::string(key), std::nullopt);
+    }
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_SCOPED_KEY_HPP

@@ -275,6 +275,10 @@ public:
         };
     }
 
+    void showDebugWindow(bool const& show) noexcept {
+        showDebugWindowFlag = show;
+    }
+
     //------------------------------------------
     // Getting
 
@@ -433,6 +437,7 @@ private:
     bool skippedUpdateLastFrame = false;
     bool SDL_initialized = false;
     bool quit = false; // Set to true when SDL_QUIT event is received or outside wants to quit
+    bool showDebugWindowFlag = false;
 
     // External Flags
     bool* headless = nullptr;
@@ -508,7 +513,7 @@ private:
 
     void renderFPS() const;
 
-    void renderGlobalSpace() const ;
+    static void renderGlobalSpace();
 
     void renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
 

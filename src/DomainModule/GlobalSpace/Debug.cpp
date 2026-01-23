@@ -93,7 +93,6 @@ void getMemoryUsageMB(double& virtualMemMB, double& residentMemMB) {
 } // anonymous namespace
 
 namespace Nebulite::DomainModule::GlobalSpace {
-
 //------------------------------------------
 // Update
 Constants::Error Debug::update() {
@@ -310,23 +309,43 @@ Constants::Error Debug::waitForInput(std::span<std::string const> const& args) {
 
 void Debug::setupPlatformInfo() const {
 #ifdef _WIN32
-    moduleScope.set<std::string>(Data::ScopedKey("platform"), "windows");
+    moduleScope.set<std::string>(Key::platform, "windows");
 #elif __linux__
-    moduleScope.set<std::string>(Data::ScopedKey("platform"), "linux");
+    moduleScope.set<std::string>(Key::platform, "linux");
 #elif __APPLE__
-    moduleScope.set<std::string>(Data::ScopedKey("platform"), "macos");
+    moduleScope.set<std::string>(Key::platform, "macos");
 #elif __FreeBSD__
-    moduleScope.set<std::string>(Data::ScopedKey("platform"), "freebsd");
+    moduleScope.set<std::string>(Key::platform, "freebsd");
 #elif __unix__
-    moduleScope.set<std::string>(Data::ScopedKey("platform"), "unix");
+    moduleScope.set<std::string>(Key::platform, "unix");
 #elif __ANDROID__
-    moduleScope.set<std::string>(Data::ScopedKey("platform"), "android");
+    moduleScope.set<std::string>(Key::platform, "android");
 #elif __TEMPLEOS__
     printf("Glory be to TempleOS!\n");
-    moduleScope.set<std::string>(Data::ScopedKey("platform"), "templeos");
+    moduleScope.set<std::string>(Key::platform, "templeos");
 #else
-    moduleScope.set<std::string>(Data::ScopedKey("platform"), "unknown");
+    moduleScope.set<std::string>(Key::platform, "unknown");
 #endif
+}
+
+void Debug::setupDebugInfo() const {
+    std::string buildType = "Unknown";
+
+#if defined(COVERAGE) || defined(ENABLE_COVERAGE)
+    buildType = "Coverage";
+#elif defined(_GLIBCXX_DEBUG) || defined(_ITERATOR_DEBUG_LEVEL) || !defined(NDEBUG)
+    // libstdc++ debug mode or iterator debug (MSVC) or NDEBUG not defined -> Debug
+    buildType = "debug";
+#else
+    buildType = "release";
+#endif
+
+    moduleScope.set<std::string>(Key::buildType, buildType);
+
+    // Show debug window if in debug build
+    if (moduleScope.get<std::string>(Key::buildType, "") == "debug") {
+        domain.getRenderer().showDebugWindow(true);
+    }
 }
 
 } // namespace Nebulite::DomainModule::GlobalSpace

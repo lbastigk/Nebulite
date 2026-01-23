@@ -394,73 +394,35 @@ void Renderer::renderFPS() const {
     ImGui::PopStyleVar(2); // pop ItemSpacing and WindowPadding
 }
 
-void Renderer::renderGlobalSpace() const {
+void Renderer::renderGlobalSpace() {
     ImGui::Begin("Global Space");
 
-    // Unique counter for ImGui IDs to avoid collisions
-    size_t idCounter = 0;
-
-    // Recursive traversal function: root = scoped view, path = display path for readability
-    std::function<void(Data::ScopedKey const&, std::string const&)> traverseObject;
-    traverseObject = [this, &traverseObject, &idCounter](Data::ScopedKey const& root, std::string const& path) {
-        for (auto const& key : domainScope.listAvailableKeys(root)) {
-            // Compose a short display label. Replace or extend this with a real key-name API if available.
-            const std::string nodeLabel = path + "/" + std::to_string(idCounter);
-            const int myId = static_cast<int>(idCounter++);
-
+    std::function<void(JsonScope const&, Data::ScopedKey const&)> traverseObject;
+    traverseObject = [&traverseObject](JsonScope const& scope, Data::ScopedKey const& root) {
+        for (auto const& key : scope.listAvailableKeys(root)) {
             std::string const rootPath = root.view().toString();
-            std::string keyPath = key.view().toString();
-
-            if (rootPath != keyPath) {
-                keyPath = keyPath.substr(rootPath.length());
-            }
-
-
-
-            switch (Data::KeyType const type = domainScope.memberType(key); type) {
-            case Data::KeyType::object:
-                ImGui::PushID(myId);
-                if (ImGui::TreeNode(nodeLabel.c_str(), "%s", keyPath.c_str())) {
-                    // Recurse into object
-                    traverseObject(key, nodeLabel);
+            std::string const fullPath = key.view().toString();            // stable ID
+            std::string keyPath = fullPath;                                // visible label
+            if (rootPath != fullPath) keyPath = fullPath.substr(rootPath.length());
+            if (!keyPath.empty() && keyPath.front() == '.') keyPath.erase(0, 1);
+            if (auto const type = scope.memberType(key); type == Data::KeyType::object || type == Data::KeyType::array) {
+                // use fullPath as the ID (first arg) and keyPath as the visible text (format)
+                if (ImGui::TreeNode(fullPath.c_str(), "%s", keyPath.c_str())) {
+                    traverseObject(scope, key);
                     ImGui::TreePop();
                 }
-                ImGui::PopID();
-                break;
-
-            case Data::KeyType::array:
-                ImGui::PushID(myId);
-                if (ImGui::TreeNode(nodeLabel.c_str(), "%s", keyPath.c_str())) {
-                    // Recurse into array
-                    traverseObject(key, nodeLabel);
-                    ImGui::TreePop();
-                }
-                ImGui::PopID();
-                break;
-
-            case Data::KeyType::value:
-                {
-                    // Safely get the value as a string and display it
-                    std::string const valueStr = domainScope.get<std::string>(key, "<unavailable>");
-                    ImGui::PushID(myId);
-                    ImGui::Text("%s : %s", keyPath.c_str(), valueStr.c_str());
-                    ImGui::PopID();
-                }
-                break;
-            case Data::KeyType::null:
-            default:
-                ImGui::PushID(myId);
+            } else if (type == Data::KeyType::value) {
+                // fetch value every frame and display
+                std::string const valueStr = scope.get<std::string>(key, "<unavailable>");
+                ImGui::Text("%s : %s", keyPath.c_str(), valueStr.c_str());
+            } else {
                 ImGui::TextDisabled("%s : null", keyPath.c_str());
-                ImGui::PopID();
-                break;
             }
-
         }
     };
 
-    // Start recursion at root. Root path shown as "/" for readability.
-    traverseObject(domainScope.getRootScope() + "", "/");
-
+    static JsonScope const& full = Global::__DANGER_AHEAD_shareFullScope();
+    traverseObject(full, full.getRootScope().toScopedKey());
     ImGui::End();
 }
 
@@ -489,7 +451,7 @@ Constants::Error Renderer::update() {
     //ImGui::ShowDemoWindow();
 
     // DEBUG: Render global space
-    renderGlobalSpace();
+    if (showDebugWindowFlag) renderGlobalSpace();
 
     // Fps
     if (showFPS) renderFPS();

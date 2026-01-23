@@ -442,6 +442,10 @@ std::vector<std::string> RjDirectAccess::listAvailableKeys(rapidjson::Value cons
             keys.emplace_back(itr->name.GetString());
         }
     }
+
+    // Sort keys alphabetically
+    std::ranges::sort(keys);
+
     // For any other type, we return an empty list
     return keys;
 }
