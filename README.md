@@ -319,7 +319,7 @@ The function calls are parsed and executed in their respective domains after exp
 - `rapidJSON` - JSON parsing
 - `abseil` - fast hash maps
 - `tinyexpr` - expression evaluation
-- `imgui` - GUI (work in progress)
+- `imgui` - GUI
 
 <!-- TOC --><a name="testing"></a>
 ## Testing
