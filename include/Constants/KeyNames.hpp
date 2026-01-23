@@ -36,8 +36,11 @@ struct KeyNames {
         DECLARE_SCOPE("renderer.")
         static auto constexpr dispResX = MAKE_SCOPED("resolution.X");
         static auto constexpr dispResY = MAKE_SCOPED("resolution.Y");
+        static auto constexpr dispResXLogical = MAKE_SCOPED("resolution.logical.X");
+        static auto constexpr dispResYLogical = MAKE_SCOPED("resolution.logical.Y");
         static auto constexpr positionX = MAKE_SCOPED("position.X");
         static auto constexpr positionY = MAKE_SCOPED("position.Y");
+        static auto constexpr windowScale = MAKE_SCOPED("resolution.scalar");
     };
 
     struct GlobalSpace {

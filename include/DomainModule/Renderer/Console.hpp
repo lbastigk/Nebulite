@@ -162,9 +162,6 @@ private:
         SDL_Texture* texture_ptr = nullptr;
     } consoleTexture;
 
-    // Scale of the window
-    unsigned int WindowScale = 1;
-
     //------------------------------------------
     // Methods
 
@@ -270,5 +267,5 @@ private:
     // Text input handling
     Utility::TextInput textInput;
 };
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::DomainModule::Renderer
 #endif // NEBULITE_RRDM_CONSOLE_HPP

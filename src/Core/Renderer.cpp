@@ -7,6 +7,8 @@
 // External
 #include <SDL3_image/SDL_image.h>
 #include <absl/container/flat_hash_map.h>
+#include <imgui_impl_sdl3.h>
+#include "imgui_impl_sdlrenderer3.h"
 
 // Nebulite
 #include "Nebulite.hpp"
@@ -30,7 +32,7 @@ Renderer::Renderer(JsonScope& documentReference, bool* flag_headless)
     // Initialize internal variables
 
     // Window
-    WindowScale = 1;
+    windowScale = 1;
     headless = flag_headless;
 
     // Position
@@ -99,7 +101,7 @@ void Renderer::setupDisplayValues() {
     // Still, just in case, we set them to 1000x1000 @ 1x scaling and 60 FPS
     auto const X = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
     auto const Y = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
-    WindowScale = Global::settings().get<uint8_t>(DomainModule::GlobalSpace::Settings::Key::resolutionScaling, 1);
+    windowScale = Global::settings().get<uint8_t>(DomainModule::GlobalSpace::Settings::Key::resolutionScaling, 1);
     fps.target = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::targetFPS, 60);
 
     // Set in workspace
@@ -118,6 +120,99 @@ Constants::Error Renderer::preParse() {
     return Constants::ErrorTable::NONE();
 }
 
+void Renderer::initImgui() const {
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    // Pixel-friendly ImGui style for retro RPGs
+    float const fullScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay()) * windowScale * 0.6f; // adjust to taste
+
+    ImGuiStyle &style = ImGui::GetStyle();
+
+    // Rounding
+    style.WindowRounding = 0.0f;
+    style.ChildRounding = 0.0f;
+    style.FrameRounding = 0.0f;
+    style.PopupRounding = 0.0f;
+    style.ScrollbarRounding = 0.0f;
+    style.GrabRounding = 0.0f;
+
+
+    // Borders
+    style.WindowBorderSize = 1.0f;
+    style.FrameBorderSize  = 1.0f;
+    style.TabBorderSize    = 1.0f;
+
+    // Spacing and padding: compact, consistent with retro UI
+    style.WindowPadding = ImVec2(6.0f, 6.0f);
+    style.FramePadding  = ImVec2(6.0f, 2.0f);
+    style.ItemSpacing   = ImVec2(6.0f, 4.0f);
+    style.ItemInnerSpacing = ImVec2(4.0f, 4.0f);
+    style.CellPadding = ImVec2(4.0f, 4.0f);
+    style.GrabMinSize = 8.0f;
+
+    // Disable antialiasing for pixel-perfect rendering
+    style.AntiAliasedLines = false;
+    style.AntiAliasedFill  = false;
+
+    // Scaling
+    style.FontScaleDpi = fullScale;
+
+    // Color palette: dark backgrounds, warm accent for UI (tweak hex to taste)
+    auto constexpr bg      = ImVec4(0.05f, 0.07f, 0.10f, 1.00f); // deep navy
+    auto constexpr panel   = ImVec4(0.10f, 0.13f, 0.16f, 1.00f); // slightly lighter
+    auto constexpr accent  = ImVec4(0.92f, 0.70f, 0.16f, 1.00f); // golden accent
+    auto constexpr accent2 = ImVec4(0.48f, 0.86f, 1.00f, 1.00f); // cyan for highlights
+    auto constexpr textCol = ImVec4(0.92f, 0.92f, 0.92f, 1.00f); // bright text
+
+    ImVec4* colors = style.Colors;
+    colors[ImGuiCol_Text]                  = textCol;
+    colors[ImGuiCol_WindowBg]              = bg;
+    colors[ImGuiCol_ChildBg]               = panel;
+    colors[ImGuiCol_PopupBg]               = panel;
+    colors[ImGuiCol_Border]                = ImVec4(0.18f, 0.20f, 0.22f, 1.00f);
+    colors[ImGuiCol_FrameBg]               = ImVec4(0.08f, 0.10f, 0.13f, 1.00f);
+    colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.16f, 0.18f, 0.20f, 1.00f);
+    colors[ImGuiCol_FrameBgActive]         = ImVec4(0.22f, 0.24f, 0.26f, 1.00f);
+    colors[ImGuiCol_Button]                = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
+    colors[ImGuiCol_ButtonHovered]         = accent2;
+    colors[ImGuiCol_ButtonActive]          = accent;
+    colors[ImGuiCol_Header]                = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
+    colors[ImGuiCol_HeaderHovered]         = accent2;
+    colors[ImGuiCol_HeaderActive]          = accent;
+    colors[ImGuiCol_Separator]             = ImVec4(0.14f, 0.16f, 0.18f, 1.00f);
+    colors[ImGuiCol_ResizeGrip]            = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
+    colors[ImGuiCol_Tab]                   = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
+    colors[ImGuiCol_TabHovered]            = accent2;
+    colors[ImGuiCol_TabActive]             = accent;
+    colors[ImGuiCol_TitleBg]               = panel;
+    colors[ImGuiCol_TitleBgActive]         = panel;
+
+    // IO config
+    ImGuiIO &io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+
+    // Load a pixel font if available; fallback to default
+    // Use a font config that disables oversampling and enables pixel snapping
+    ImFontConfig font_cfg;
+    font_cfg.OversampleH = 1;
+    font_cfg.OversampleV = 1;
+    font_cfg.PixelSnapH  = true;
+
+    // Adjust the base font size to match pixel aesthetics (choose your font file & size)
+    std::string const pixelFontPath = "./Resources/Fonts/Arimo-Bold.ttf"; // TODO: Use a pixel font
+    if (Utility::FileManagement::fileExists(pixelFontPath)) {
+        if (ImFont* f = io.Fonts->AddFontFromFileTTF(pixelFontPath.c_str(), 40.0f * fullScale, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) io.FontDefault = f;
+        else io.Fonts->AddFontDefault();
+    } else {
+        io.Fonts->AddFontDefault();
+    }
+
+    ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
+    ImGui_ImplSDLRenderer3_Init(renderer);
+}
+
 void Renderer::initSDL() {
     if (SDL_initialized)
         return;
@@ -127,62 +222,49 @@ void Renderer::initSDL() {
     setupDisplayValues();
 
     // Create SDL window
-    if (!SDL_Init(SDL_INIT_VIDEO) && SDL_GetError()[0] != '\0') {
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
         // SDL initialization failed
         Error::println("SDL_Init Error: ", SDL_GetError());
+        std::abort();
     }
     // Define window via x|y|w|h
     int const w = domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0);
     int const h = domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 0);
 
-    uint32_t flags = *headless ? SDL_WINDOW_HIDDEN : 0; //SDL_WINDOW_SHOWN;
-    flags = flags | SDL_WINDOW_OPENGL;
-    window = SDL_CreateWindow("Nebulite", w, h, flags);
-    if (!window) {
-        // Window creation failed
-        Error::println("SDL_CreateWindow Error: ", SDL_GetError());
-        SDL_Quit();
+    //------------------------------------------
+    // Window and renderer
+
+    uint32_t const flags = *headless ? SDL_WINDOW_HIDDEN : 0
+        | SDL_WINDOW_HIGH_PIXEL_DENSITY
+    ;
+
+    if (!SDL_CreateWindowAndRenderer("Nebulite", w*windowScale, h*windowScale, flags, &window, &renderer)) {
+        Error::println("SDL_CreateWindowAndRenderer Error: ", SDL_GetError());
+        std::abort();
     }
+    SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+
+    //------------------------------------------
+    // ImGui
+
+    initImgui();
 
     //------------------------------------------
     // Cursor
+    static auto const cursorPath = "./Resources/Cursor/Drakensang.png";
 
     // See if cursor file exists
-    if (Utility::FileManagement::fileExists("./Resources/Cursor/Drakensang.png")) {
+    if (Utility::FileManagement::fileExists(cursorPath)) {
         // Load pixel data
-        if (SDL_Surface* cursorSurface = IMG_Load("./Resources/Cursor/Drakensang.png"); cursorSurface) {
+        if (SDL_Surface* cursorSurface = IMG_Load(cursorPath); cursorSurface) {
             // Create cursor
             if (SDL_Cursor* cursor = SDL_CreateColorCursor(cursorSurface, 0, 0); cursor) {
                 SDL_SetCursor(cursor);
             } else {
                 Error::println("Failed to create cursor: ", SDL_GetError());
+                // No quit, just use default cursor
             }
         }
-    }
-
-    //------------------------------------------
-    // Renderer
-
-    // Create a renderer
-    renderer = SDL_CreateRenderer(window, nullptr);
-    if (!renderer) {
-        Error::println("Renderer creation failed: ", SDL_GetError());
-    }
-
-    // Set virtual rendering size
-    SDL_SetRenderLogicalPresentation(
-        renderer,
-        w,
-        h,
-        SDL_LOGICAL_PRESENTATION_INTEGER_SCALE
-    );
-
-    //------------------------------------------
-    // Check for errors in SDL
-
-    if (SDL_GetError()[0] != '\0') {
-        Error::println("SDL Error during initialization: ", SDL_GetError());
-        SDL_ClearError(); // Clear error after reporting
     }
 
     //------------------------------------------
@@ -192,7 +274,7 @@ void Renderer::initSDL() {
     if (!TTF_Init()) {
         // Handle SDL_ttf initialization error
         Error::println("TTF_Init Error!");
-        SDL_Quit(); // Clean up SDL
+        std::abort();
     }
     loadFonts();
 
@@ -200,23 +282,32 @@ void Renderer::initSDL() {
     // Audio
 
     // Init
-    if (!SDL_Init(SDL_INIT_AUDIO) && SDL_GetError()[0] != '\0') {
+    if (!SDL_Init(SDL_INIT_AUDIO)) {
         Error::println("SDL_Init Error: ", SDL_GetError());
-    } else {
-        audio.desired.freq = 44100;
-        audio.desired.format = SDL_AUDIO_S16;
-        audio.desired.channels = 1;
-        //audio.desired.samples = 1024;
-        //audio.desired.callback = nullptr;
+        std::abort();
+    }
+    audio.desired.freq = 44100;
+    audio.desired.format = SDL_AUDIO_S16;
+    audio.desired.channels = 1;
+    //audio.desired.samples = 1024;
+    //audio.desired.callback = nullptr;
 
-        audio.device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audio.desired);
-        if (audio.device == 0) {
-            Error::println("Failed to open audio device: ", SDL_GetError());
-        } else {
-            audioInitialized = true;
-        }
+    audio.device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audio.desired);
+    if (audio.device == 0) {
+        Error::println("Failed to open audio device: ", SDL_GetError());
+        std::abort();
+    }
+    audioInitialized = true;
+
+    //------------------------------------------
+    // Check for remaining errors in SDL
+
+    if (SDL_GetError()[0] != '\0') {
+        Error::println("SDL Error during initialization: ", SDL_GetError());
+        std::abort();
     }
 
+    // All done
     SDL_initialized = true;
 }
 
@@ -237,6 +328,7 @@ void Renderer::loadFonts() {
     if (font == nullptr) {
         // Handle font loading error
         Error::println("Failed to load font: ", fontPath);
+        std::abort();
     }
 }
 
@@ -269,26 +361,47 @@ void Renderer::deserialize(std::string const& serialOrLink) noexcept {
 //------------------------------------------
 // Pipeline
 
-// For quick and dirty debugging, in case the rendering pipeline breaks somewhere
-//# define debug_on_each_step 1
-Constants::Error Renderer::update() {
-    //------------------------------------------
-    // Do all the steps of the rendering pipeline
-    clear();
-    renderFrame();
-    if (showFPS)
-        renderFPS();
-    showFrame();
+void Renderer::renderInit() const {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
+    SDL_RenderClear(renderer);
+    ImGui_ImplSDLRenderer3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
+    ImGui::NewFrame();
+}
 
-    //------------------------------------------
-    // Check for SDL errors
-    if (SDL_GetError()[0] != '\0') {
-        Error::println("SDL Error during rendering: ", SDL_GetError());
-        SDL_ClearError(); // Clear error after reporting
-    }
+void Renderer::renderFPS() const {
+    ImGui::SetNextWindowPos(ImVec2(5.0f, 5.0f), ImGuiCond_Always);
+    ImGui::SetNextWindowBgAlpha(0.35f);
 
-    //------------------------------------------
-    // SDL Polling at the end of the frame
+    // Make the window tighter: small padding and item spacing
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6.0f, 2.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4.0f, 2.0f));
+
+    // Optional: constrain maximum size (min 0, max 150x50)
+    //ImGui::SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(150.0f, 50.0f));
+
+    ImGui::Begin(
+        "FPS Overlay",
+        nullptr,
+        ImGuiWindowFlags_NoDecoration |
+        ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoFocusOnAppearing |
+        ImGuiWindowFlags_NoNav
+    );
+
+    ImGui::Text("FPS: %04d", fps.real);
+    ImGui::End();
+    ImGui::PopStyleVar(2); // pop ItemSpacing and WindowPadding
+}
+
+void Renderer::renderGlobalSpace() const {
+    // TODO: Implement a json viewer
+    //       requires Nebulite::Data::JSON to have a getMemberNames() function
+    //       Then we can use ImGui::TreeNode to display the structure
+    (void) domainScope;
+}
+
+void Renderer::pollEvents() {
     SDL_Event event{};
     events.clear();
     while (SDL_PollEvent(&event)) {
@@ -298,15 +411,39 @@ Constants::Error Renderer::update() {
         // Handle quit event
         if (event.type == SDL_EVENT_QUIT) { quit = true; }
     }
+}
 
-    //------------------------------------------
-    // Manage frame skipping
+Constants::Error Renderer::update() {
+    // Core rendering pipeline
+    renderInit();
+    renderFrame();
+    pollEvents();
     skippedUpdateLastFrame = skipUpdate;
     skipUpdate = false;
+    updateModules(); // Update domain modules, potentially adding ImGui elements
+
+    // DEBUG: IMGUI test window
+    //ImGui::ShowDemoWindow();
+
+    // Fps
+    if (showFPS) renderFPS();
+
+    // Render all ImGui elements
+    ImGui::Render();
+    ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+    SDL_RenderPresent(renderer);
+
+    // Process all events
+    for (auto const& event : events) {
+        ImGui_ImplSDL3_ProcessEvent(&event);
+    }
 
     //------------------------------------------
-    // Update modules
-    updateModules();
+    // Check for SDL errors
+    if (SDL_GetError()[0] != '\0') {
+        Error::println("SDL Error during rendering: ", SDL_GetError());
+        SDL_ClearError(); // Clear error after reporting
+    }
 
     // Always return no critical error
     return Constants::ErrorTable::NONE();
@@ -317,9 +454,12 @@ void Renderer::updateState() {
     // Skip update if flagged
     if (!skipUpdate) {
         // Update environment
-        auto const dispResX = domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0);
-        auto const dispResY = domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0);
-        env.updateObjects(tilePositionX, tilePositionY, dispResX, dispResY);
+        env.updateObjects(
+            tilePositionX,
+            tilePositionY,
+            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
+            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0)
+        );
     }
 }
 
@@ -393,11 +533,6 @@ void Renderer::beep() const {
 }
 
 bool Renderer::snapshot(std::string link) const {
-    if (!renderer) {
-        Error::println("Cannot take snapshot: renderer not initialized");
-        return false;
-    }
-
     // Get current window/render target size
     int width, height;
     if (window) {
@@ -457,7 +592,7 @@ void Renderer::purgeObjects() {
 void Renderer::purgeTextures() {
     // Release resources for TextureContainer
     for (auto const& texture : std::views::values(TextureContainer)) {
-        SDL_DestroyTexture(texture);
+        destroyTexture(texture);
     }
     TextureContainer.clear(); // Clear the map to release resources
 }
@@ -484,7 +619,7 @@ void Renderer::destroy() {
 
 // This does not change the settings file, only the current session
 void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scalar) {
-    WindowScale = scalar;
+    // Validate resolution and scalar
     if (w < 240 || w > 16384) {
         Error::println("Selected resolution is not supported:", w, "x", h);
         return;
@@ -493,18 +628,26 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
         Error::println("Selected resolution is not supported:", w, "x", h);
         return;
     }
+    if ( scalar < 1 || scalar > 8) {
+        Error::println("Selected window scaling is not supported:", static_cast<int>(scalar), "x");
+        return;
+    }
+
+    // Set new scalar
+    windowScale = scalar;
 
     // Set the new resolution in the workspace
-    domainScope.set<int>(Constants::KeyNames::Renderer::dispResX, w);
-    domainScope.set<int>(Constants::KeyNames::Renderer::dispResY, h);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResX, w * windowScale);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResY, h * windowScale);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResXLogical, w);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResYLogical, h);
+    domainScope.set<uint8_t>(Constants::KeyNames::Renderer::windowScale, windowScale);
 
     // Set the physical window size
-    SDL_SetWindowSize(window, w*WindowScale, h*WindowScale);
+    SDL_SetWindowSize(window, w * windowScale, h * windowScale);
 
-    // Use integer logical presentation so scaling is done in integer steps (crisp pixels).
-    SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
-
-    // Reinsert objects due to new tile / logical size
+    // Reinsert objects
+    // TODO: Once fixed tiles are implemented, this isn't needed anymore
     reinsertAllObjects();
 }
 
@@ -512,11 +655,11 @@ void Renderer::moveCam(int const& dX, int const& dY) const {
     domainScope.set<int>(
         Constants::KeyNames::Renderer::positionX,
         domainScope.get<int>(Constants::KeyNames::Renderer::positionX, 0) + dX
-        );
+    );
     domainScope.set<int>(
         Constants::KeyNames::Renderer::positionY,
         domainScope.get<int>(Constants::KeyNames::Renderer::positionY, 0) + dY
-        );
+    );
 }
 
 void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle) const {
@@ -539,13 +682,6 @@ void Renderer::setTargetFPS(uint16_t const& targetFps) {
 
 //------------------------------------------
 // Renderer::tick Functions
-
-void Renderer::clear() const {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
-    SDL_RenderClear(renderer);
-}
-
-
 
 void Renderer::renderFrame() {
     //------------------------------------------
@@ -575,7 +711,9 @@ void Renderer::renderFrame() {
 
     //------------------------------------------
     // Rendering
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
+    if (renderer) {
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
+    }
 
     //Render Objects
     //For all layers, starting at 0
@@ -606,13 +744,16 @@ void Renderer::renderFrame() {
             if (!texture) {
                 continue; // Skip if texture is null
             }
+            // We assume the rect was already scaled correctly when added
             SDL_FRect const rectF = {
                 static_cast<float>(rect->x),
                 static_cast<float>(rect->y),
                 static_cast<float>(rect->w),
                 static_cast<float>(rect->h)
             };
-            SDL_RenderTexture(renderer, texture, nullptr, &rectF);
+            if (!SDL_RenderTexture(renderer, texture, nullptr, &rectF)) {
+                Error::println("Failed to render between-layer texture: ", SDL_GetError());
+            }
         }
     }
 }
@@ -622,9 +763,21 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
     // Texture Loading
 
     // Check for texture
-    // TODO: Find some way to remove the get-call. Perhaps it's better to store the path inside the RenderObject directly?
-    //       Then we can add a function reloadTexture() to the RenderObject that forces reloading from disk.
-    //       As well as fetching the path only once during initialization.
+    /**
+    * @todo Find some way to remove the get-call.
+    *       Since the actual image does not change often and does not modify any state, we could use a runner function
+    *       that asynchronously reloads the texture path if needed:
+    *       std::atomic<std::string>& RenderObject::getImageLocation() {
+    *           // Return a reference to an atomic string that stores the path
+    *       }
+    *       std::atomic<std::string>& RenderObject::checkImageLocation(){
+    *           // Ran asynchronously every X seconds by a runner, called from the Renderer owning the Runner
+    *           // 1.) Get actual location form document scope
+    *           // 2.) if different from stored path, set stored path to new path
+    *       }
+    *       We could also update the texture container in the runner, but then we would have to lock the container during rendering.
+    *       Since we have to map string to texture anyway, we can just do it here.
+     */
     auto const innerDirectory = obj->domainScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation);
 
     // Load texture if not yet loaded
@@ -633,8 +786,10 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
     }
 
     // Link texture if not yet linked
-    if (obj->isTextureValid() == false) {
-        obj->linkExternalTexture(TextureContainer[innerDirectory]);
+    if (!obj->isTextureValid()) {
+        if (auto const t = TextureContainer[innerDirectory]; isTextureValid(t)) {
+            obj->linkExternalTexture(t);
+        }
     }
 
     //------------------------------------------
@@ -645,12 +800,10 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
 
     // Calculate position rect
     obj->calculateDstRect();
-    obj->getDstRect()->x -= dispPosX; // Subtract X camera position
-    obj->getDstRect()->y -= dispPosY; // Subtract Y camera position
 
     //------------------------------------------
     // Error Checking
-    if (!obj->getSDLTexture()) {
+    if (!obj->isTextureValid()) {
         Error::println("Error: RenderObject ID ",
             obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0),
             " texture with path '",
@@ -673,12 +826,27 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
     SDL_FRect dstF = {};
     SDL_FRect const* dstFP = nullptr;
     if (dst) {
-        dstF = {static_cast<float>(dst->x), static_cast<float>(dst->y), static_cast<float>(dst->w), static_cast<float>(dst->h)};
+        dstF = scaleRectFromLogicalSize({
+            static_cast<float>(dst->x),
+            static_cast<float>(dst->y),
+            static_cast<float>(dst->w),
+            static_cast<float>(dst->h)
+        });
+        dstF.x -= static_cast<float>(dispPosX) * windowScale; // Subtract X camera position
+        dstF.y -= static_cast<float>(dispPosY) * windowScale; // Subtract Y camera position
+
+        dstF.x -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResX));
+        dstF.y -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResY));
+
         dstFP = &dstF;
     }
-    if (SDL_RenderTexture(renderer, obj->getSDLTexture(), srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
-        auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-        Error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
+
+    // Render to screen
+    if (auto const t = obj->getSDLTexture(); t != nullptr) {
+        if (SDL_RenderTexture(renderer, t, srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
+            auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
+            Error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
+        }
     }
 
     // Render the text
@@ -690,12 +858,12 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
             dispPosY
             );
         if (obj->getTextTexture() && obj->getTextRect()) {
-            auto const textRectF = SDL_FRect{
+            auto const textRectF = scaleRectFromLogicalSize({
                 static_cast<float>(obj->getTextRect()->x),
                 static_cast<float>(obj->getTextRect()->y),
                 static_cast<float>(obj->getTextRect()->w),
                 static_cast<float>(obj->getTextRect()->h)
-            };
+            });
             if (SDL_RenderTexture(renderer, obj->getTextTexture(), nullptr, &textRectF) != 0 && SDL_GetError()[0] != '\0') {
                 auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
                 Error::println("Error rendering text for RenderObject ID ", id, ": ", SDL_GetError());
@@ -704,55 +872,14 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
     }
 }
 
-void Renderer::renderFPS() const {
-    // Size of the font
-    double constexpr fontSize = 16;
-
-    // Create a string with the FPS value
-    std::string const fpsText = "FPS: " + std::to_string(fps.real);
-
-    // Define the destination rectangle for rendering the text
-    SDL_FRect const textRect = {
-        static_cast<float>(10.0) / static_cast<float>(WindowScale),
-        static_cast<float>(10.0) / static_cast<float>(WindowScale),
-        static_cast<float>(fontSize * static_cast<double>(fpsText.length()) / static_cast<double>(WindowScale)) ,
-        static_cast<float>(fontSize * 1.5 / static_cast<double>(WindowScale))
-    }; // Adjust position as needed
-
-    // Clear the area where the FPS text will be rendered
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Set background color (black)
-    SDL_RenderFillRect(renderer, &textRect);
-
-    // Create a surface with the text
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, fpsText.c_str(), 0, textColor);
-
-    // Create a texture from the text surface
-    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-
-    // Render the text texture
-    SDL_RenderTexture(renderer, textTexture, nullptr, &textRect);
-
-    // Free the text surface and texture
-    SDL_DestroySurface(textSurface);
-    SDL_DestroyTexture(textTexture);
-}
-
-void Renderer::showFrame() const {
-    SDL_RenderPresent(renderer);
-}
-
 //------------------------------------------
 // Texture-Related
 
 void Renderer::loadTexture(std::string const& link) {
-    if (SDL_Texture* texture = loadTextureToMemory(link) ; texture != nullptr) {
-        TextureContainer[link] = texture;
-    }
+    if (auto const t = loadTextureToMemory(link); t != nullptr) TextureContainer[link] = t;
 }
 
-/**
- * @todo Texture not created with SDL_TEXTUREACCESS_TARGET, so cannot be used with SDL_SetRenderTarget
- */
+
 SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
     std::string const path = Utility::FileManagement::CombinePaths(baseDirectory, link);
 
@@ -782,7 +909,6 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
         return nullptr;
     }
 
-    // Create texture from surface
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_DestroySurface(surface); // Free the surface after creating texture
 

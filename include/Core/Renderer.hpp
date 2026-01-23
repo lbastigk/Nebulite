@@ -72,6 +72,11 @@ public:
     void initSDL();
 
     /**
+     * @brief Initializes ImGui for the Renderer. Called within `initSDL()`.
+     */
+    void initImgui() const;
+
+    /**
      * @brief Called before parsing any commands.
      */
     Constants::Error preParse() override;
@@ -261,6 +266,14 @@ public:
      */
     void moveCam(int const& dX, int const& dY) const;
 
+    SDL_FRect scaleRectFromLogicalSize(SDL_FRect const& logicalRect) const {
+        return SDL_FRect{
+            logicalRect.x * static_cast<float>(windowScale),
+            logicalRect.y * static_cast<float>(windowScale),
+            logicalRect.w * static_cast<float>(windowScale),
+            logicalRect.h * static_cast<float>(windowScale)
+        };
+    }
 
     //------------------------------------------
     // Getting
@@ -367,7 +380,7 @@ public:
     /**
      * @brief Gets the current window scale factor.
      */
-    [[nodiscard]] unsigned int getWindowScale() const noexcept { return WindowScale; }
+    [[nodiscard]] unsigned int getWindowScale() const noexcept { return windowScale; }
 
     //------------------------------------------
     // Texture-Related
@@ -381,6 +394,12 @@ public:
      * @return A pointer to the loaded SDL_Texture, or nullptr if loading failed.
      */
     [[nodiscard]] SDL_Texture* loadTextureToMemory(std::string const& link) const;
+
+    static void destroyTexture(SDL_Texture* t) {
+        SDL_DestroyTexture(t);
+    }
+
+    static bool isTextureValid(SDL_Texture const* t) noexcept {return t != nullptr; }
 
     //------------------------------------------
     // Status
@@ -473,50 +492,32 @@ private:
     Environment env;
 
     // Rendering
-    uint8_t WindowScale = 1;
+    uint8_t windowScale = 1;
     SDL_Window* window{};
+
     SDL_Renderer* renderer{};
+
+    //------------------------------------------
+    // Pipeline: Software / General
+
+    void renderInit() const;
+
+    void pollEvents();
+
+    void renderFrame();
+
+    void renderFPS() const;
+
+    void renderGlobalSpace() const ;
+
+    void renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
+
 
     //------------------------------------------
     // Event Handling
 
     std::vector<SDL_Event> events;
 
-    //------------------------------------------
-    // Renderer::tick related Functions
-
-    /**
-     * @brief Clears the Renderer screen
-     *        This function clears renderer to an all black screen.
-     */
-    void clear() const;
-
-    /**
-     * @brief Renders the current frame.
-     * @details Takes all RenderObjects potentially visible in the current frame and renders them.
-     *          See the Environment and RenderObjectContainer class for more details on how objects
-     *          are managed in the tile-based-container
-     */
-    void renderFrame();
-
-    /**
-     * @brief Renders the current FPS on screen
-     */
-    void renderFPS() const;
-
-    /**
-     * @brief Presents the rendered frame to the screen.
-     */
-    void showFrame() const;
-
-    /**
-     * @brief Renders a single object to the screen.
-     * @details Prints error messages if the object cannot be rendered.
-     * @param obj Pointer to the RenderObject to render.
-     * @param dispPosX The X position on the screen to render the object.
-     * @param dispPosY The Y position on the screen to render the object.
-     */
-    void renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
 
     //------------------------------------------
     // For FPS Count and Control
@@ -541,7 +542,7 @@ private:
     /**
      * @brief Texture container for the Renderer
      * @details Holds all loaded textures from RenderObject sprites for the renderer, allowing for easy access and management.
-     *          `TextureContainer[link] -> SDL_Texture*`
+     *          `TextureContainer[link] -> Texture*`
      */
     absl::flat_hash_map<std::string, SDL_Texture*> TextureContainer;
 
@@ -559,9 +560,6 @@ private:
 
     //------------------------------------------
     // Font-Related
-
-    // Define font properties
-    SDL_Color textColor = {255, 255, 255, 255}; // White color
 
     // General font
     TTF_Font* font{};

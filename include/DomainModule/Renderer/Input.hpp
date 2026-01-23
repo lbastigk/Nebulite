@@ -118,5 +118,5 @@ private:
      */
     double* currentKey[SDL_SCANCODE_COUNT] = {nullptr}; // Pointers to current key states in global doc
 };
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::DomainModule::Renderer
 #endif // NEBULITE_RRDM_INPUT_HPP

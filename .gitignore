@@ -49,6 +49,10 @@ tmp/
 *.log.json
 
 ############################################
+# imgui
+imgui.ini
+
+############################################
 # Un-ignore
 
 # Do not ignore any files in ./doc/

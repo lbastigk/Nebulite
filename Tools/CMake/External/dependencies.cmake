@@ -6,6 +6,9 @@ set(SDL3_PATH           "${CMAKE_SOURCE_DIR}/external/SDL3")
 set(SDL3_TTF_PATH       "${CMAKE_SOURCE_DIR}/external/SDL3_ttf")
 set(SDL3_IMAGE_PATH     "${CMAKE_SOURCE_DIR}/external/SDL3_image")
 
+# GUI libraries
+set(IMGUI_PATH          "${CMAKE_SOURCE_DIR}/external/imgui")
+
 # Other external libraries
 set(RAPIDJSON_PATH      "${CMAKE_SOURCE_DIR}/external/rapidjson")
 set(TINYEXPR_PATH       "${CMAKE_SOURCE_DIR}/external/tinyexpr")
@@ -43,6 +46,25 @@ function(configure_common_dependencies target_name)
             ${SDL3_PATH}/include/
             ${SDL3_TTF_PATH}/include
             ${SDL3_IMAGE_PATH}/include
+            ${IMGUI_PATH}
+            ${IMGUI_PATH}/backends
+    )
+
+    # Setup imgui library
+    add_library(imgui STATIC
+            ${IMGUI_PATH}/imgui.cpp
+            ${IMGUI_PATH}/imgui_draw.cpp
+            ${IMGUI_PATH}/imgui_tables.cpp
+            ${IMGUI_PATH}/imgui_widgets.cpp
+            ${IMGUI_PATH}/imgui_demo.cpp     # optional
+            ${IMGUI_PATH}/backends/imgui_impl_sdl3.cpp
+            ${IMGUI_PATH}/backends/imgui_impl_sdlrenderer3.cpp
+    )
+    target_include_directories(imgui
+            PUBLIC
+            ${IMGUI_PATH}
+            ${IMGUI_PATH}/backends
+            ${SDL3_PATH}/include/
     )
 
     # Link libraries
@@ -50,6 +72,7 @@ function(configure_common_dependencies target_name)
             SDL3::SDL3
             SDL3_ttf::SDL3_ttf
             SDL3_image::SDL3_image
+            imgui
             absl::flat_hash_map
     )
 

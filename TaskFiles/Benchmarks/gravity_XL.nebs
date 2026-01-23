@@ -18,7 +18,7 @@ set loop.n 20
 # It is not recommended to change these!
 time set-fixed-dt 1
 set physics.G 10
-set-res 640 640 2
+set-res 640 640 1
 set-fps 10000
 show-fps on
 
