@@ -176,6 +176,10 @@ public:
         // Create the ScopedKey with the given scope and key
         return {std::optional(std::string_view(s, len)), std::string_view(keyInScope)};
     }
+
+    static consteval ScopedKeyView createUnscoped(std::string_view const& keyInScope) noexcept {
+        return {std::nullopt, keyInScope};
+    }
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_SCOPED_KEY_HPP
