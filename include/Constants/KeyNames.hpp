@@ -61,6 +61,8 @@ struct KeyNames {
             static auto constexpr listen = MAKE_SCOPED("listen");
         };
 
+        static auto constexpr draw = Data::ScopedKeyView("draw");
+
         // TODO: Use "texture." as scope
         static auto constexpr pixelSizeX = Data::ScopedKeyView("sprite.sizeX");
         static auto constexpr pixelSizeY = Data::ScopedKeyView("sprite.sizeY");

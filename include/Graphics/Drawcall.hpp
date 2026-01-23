@@ -8,10 +8,8 @@
  *       But should each drawcall hold its Texture?
  *       It makes sense in a way, as any drawcall needs its own texture data.
  *       This way, a drawcall would seemingly be just a wrapper around a texture to better integrate with the rendering pipeline.
- *       For this to work properly, we would need a way to easily register all available drawcalls within a RenderObject.
- *       ==================================================================================
- *       -> We need a way to list all available keys in a JsonScope! This now has priority.
- *       ==================================================================================
+ *       It may be better to integrate this into each Texture, and have a Texture::draw() method instead.
+ *       For now we implement a rudimentary Drawcall class to see how it works out.
  */
 
 #ifndef NEBULITE_GRAPHICS_DRAWCALL_HPP
@@ -54,7 +52,7 @@ public:
     // Since there are different types of drawcalls, it might be better to have separate derived classes for each type
     // But it would be more complex, as any change in the workspace structure could potentially require the class to change.
     // Basically: static auto tr = timedRoutine(checkType()); tr.update(); time switch(type) { case SPRITE: drawSprite(); break; case TEXT: drawText(); break; };
-    void draw();
+    void draw() const ;
 
     // Parse a string onto the texture
     Constants::Error parseStr(std::string str);

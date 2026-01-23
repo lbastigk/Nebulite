@@ -18,7 +18,8 @@
 
 // Nebulite
 #include "Core/Texture.hpp"
-#include "JsonScope.hpp"
+#include "Core/JsonScope.hpp"
+#include "Graphics/Drawcall.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
@@ -230,6 +231,15 @@ public:
         return &baseTexture;
     }
 
+    //------------------------------------------
+    // Draw
+
+    void draw() {
+        for (auto const& drawcall : std::views::values(drawcalls)) {
+            drawcall->draw();
+        }
+    }
+
 private:
     // Each RenderObject has its own JSON document
     JsonScope document;
@@ -242,6 +252,20 @@ private:
      *        In order for this one to make more sense, it initializes the inherited domains and DomainModules as well.
      */
     void init();
+
+    //------------------------------------------
+    // Draw calls
+
+    absl::flat_hash_map<std::string, std::unique_ptr<Graphics::Drawcall>> drawcalls;
+
+    // Re-initialize all drawcalls from document
+    void reinitDrawcalls();
+
+    // Initialize only unknown drawcalls from document
+    void initDrawcalls();
+
+    // Reinitialize a specific drawcall from document
+    void reInitDrawcall(std::string const& drawcallName);
 
     //------------------------------------------
     // References to JSON

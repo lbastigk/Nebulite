@@ -35,6 +35,9 @@ void setStandardValues(JsonScope& document) {
     document.set(Constants::KeyNames::RenderObject::pixelSizeX, 32);
     document.set(Constants::KeyNames::RenderObject::pixelSizeY, 32);
 
+    // Create a basic drawcall
+    document.set(Constants::KeyNames::RenderObject::draw + "default.type", std::string("sprite"));
+
     // Invokes
     document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::broadcast);
     document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::listen);
@@ -100,6 +103,36 @@ RenderObject::~RenderObject() {
         SDL_DestroyTexture(textTexture);
         textTexture = nullptr;
     }
+}
+
+//------------------------------------------
+// Draw
+
+void RenderObject::reinitDrawcalls() {
+    // Clear existing drawcalls
+    drawcalls.clear();
+
+    // Get list of drawcalls from document
+    for (auto const& [member, key] : document.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
+        // Initialize drawcall with its own scope
+        drawcalls[member] = std::make_unique<Graphics::Drawcall>(document.shareScope(key.view()));
+    }
+}
+
+void RenderObject::initDrawcalls() {
+    // Get list of drawcalls from document
+    for (auto const& [member, key] : document.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
+        // Initialize drawcall with its own scope
+        if (drawcalls.find(member) == drawcalls.end()) {
+            drawcalls[member] = std::make_unique<Graphics::Drawcall>(document.shareScope(key.view()));
+        }
+    }
+}
+
+void RenderObject::reInitDrawcall(std::string const& drawcallName) {
+    // Reinitialize a specific drawcall from document
+    auto const key = Constants::KeyNames::RenderObject::draw + drawcallName;
+    drawcalls[drawcallName] = std::make_unique<Graphics::Drawcall>(document.shareScope(key.view()));
 }
 
 //------------------------------------------
