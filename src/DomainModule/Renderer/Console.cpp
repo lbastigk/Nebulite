@@ -102,31 +102,6 @@ bool Console::ensureConsoleTexture() {
     currentConsolePosition.h = static_cast<int>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResY, 360) - static_cast<double>(currentConsolePosition.y));
 
     //------------------------------------------
-    // Recompute WindowScale from actual physical window / renderer output size
-    int physWindowW = 0, physWindowH = 0;
-    // Prefer window size if available
-    if (domain.getSdlWindow()) {
-        SDL_GetWindowSize(domain.getSdlWindow(), &physWindowW, &physWindowH);
-    } else {
-        SDL_GetCurrentRenderOutputSize(renderer, &physWindowW, &physWindowH);
-    }
-
-    // Avoid divide-by-zero; fall back to 1 if logical size is invalid
-    int const logicalW = currentConsolePosition.w > 0 ? currentConsolePosition.w : 1;
-    int const logicalH = currentConsolePosition.h > 0 ? currentConsolePosition.h : 1;
-
-    unsigned int computedScale = 1;
-    if (logicalW > 0 && logicalH > 0 && physWindowW > 0 && physWindowH > 0) {
-        auto const sx = static_cast<unsigned int>(physWindowW / logicalW);
-        auto const sy = static_cast<unsigned int>(physWindowH / logicalH);
-        // Choose the minimum integer scale that fits both axes (keeps aspect and integer scaling)
-        computedScale = std::max<unsigned int>(1u, std::min(sx, sy));
-    }
-
-    // Update member WindowScale immediately so all subsequent calculations use the correct value
-    WindowScale = computedScale;
-
-    //------------------------------------------
     // Texture Setup
 
     bool recreateTexture = !consoleTexture.texture_ptr; // No texture yet
@@ -143,11 +118,13 @@ bool Console::ensureConsoleTexture() {
         // create texture wrapper rect (logical rect)
         consoleTexture.rect = currentConsolePosition;
 
-        // Create a physical-size texture (logical * WindowScale) so we can render at full resolution
-        int const tex_phys_w = consoleTexture.rect.w * static_cast<int>(WindowScale);
-        int const tex_phys_h = consoleTexture.rect.h * static_cast<int>(WindowScale);
-
-        consoleTexture.texture_ptr = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tex_phys_w, tex_phys_h);
+        consoleTexture.texture_ptr = SDL_CreateTexture(
+            renderer,
+            SDL_PIXELFORMAT_RGBA8888,
+            SDL_TEXTUREACCESS_TARGET,
+            consoleTexture.rect.w,
+            consoleTexture.rect.h
+        );
         if (consoleTexture.texture_ptr) {
             SDL_SetTextureScaleMode(consoleTexture.texture_ptr, SDL_SCALEMODE_NEAREST);
         }
@@ -161,8 +138,8 @@ void Console::drawBackground() const {
     //------------------------------------------
     // Draw everything as before, but coordinates relative to (0,0)
     // Use physical size when rendering into the physical-size render target
-    const float phys_w = static_cast<float>(consoleTexture.rect.w) * static_cast<float>(WindowScale);
-    const float phys_h = static_cast<float>(consoleTexture.rect.h) * static_cast<float>(WindowScale);
+    const float phys_w = static_cast<float>(consoleTexture.rect.w);
+    const float phys_h = static_cast<float>(consoleTexture.rect.h);
     SDL_FRect const localFRect = {
         0.0f,
         0.0f,
@@ -185,9 +162,9 @@ void Console::drawInput(uint16_t const& lineHeight) {
     double const posY = static_cast<double>(consoleTexture.rect.h) - lineHeight - 1.5 * consoleLayout.paddingRatio * lineHeight;
     SDL_FRect const inputBackgroundFRect = {
         0.0f,
-        static_cast<float>(posY * WindowScale),
-        static_cast<float>(consoleTexture.rect.w) * static_cast<float>(WindowScale),
-        static_cast<float>((lineHeight + consoleLayout.paddingRatio * lineHeight) * WindowScale)
+        static_cast<float>(posY),
+        static_cast<float>(consoleTexture.rect.w),
+        static_cast<float>(lineHeight + consoleLayout.paddingRatio * lineHeight)
     };
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
     SDL_RenderFillRect(renderer, &inputBackgroundFRect);
@@ -203,9 +180,9 @@ void Console::drawInput(uint16_t const& lineHeight) {
             SDL_SetTextureScaleMode(textTexture, SDL_SCALEMODE_NEAREST);
         }
 
-        // Define destination rectangle in physical pixels (do NOT divide by WindowScale)
-        textInputRect.x = static_cast<int>(10 * WindowScale);
-        textInputRect.y = static_cast<int>((consoleTexture.rect.h - consoleLayout.paddingRatio * lineHeight - lineHeight) * WindowScale);
+        // Define destination rectangle in physical pixels
+        textInputRect.x = 10;
+        textInputRect.y = static_cast<int>(consoleTexture.rect.h - consoleLayout.paddingRatio * lineHeight - lineHeight);
         textInputRect.w = textSurface->w;
         textInputRect.h = textSurface->h;
 
@@ -332,8 +309,8 @@ void Console::drawOutput(uint16_t const& maxLineLength) {
             SDL_SetTextureScaleMode(textTexture, SDL_SCALEMODE_NEAREST);
         }
 
-        textOutputRect.x = static_cast<int>(10 * WindowScale);
-        textOutputRect.y = static_cast<int>(line_y_position) * static_cast<int>(WindowScale);
+        textOutputRect.x = 10;
+        textOutputRect.y = static_cast<int>(line_y_position);
         textOutputRect.w = textSurface->w;
         textOutputRect.h = textSurface->h;
         SDL_FRect const textOutputFRect = {
@@ -379,7 +356,7 @@ void Console::renderConsole() {
             // This is a nice fallback in case we ever use a non-monospaced font
             testString += "W";
             SDL_Surface* testSurface = TTF_RenderText_Blended(consoleFont, testString.c_str(), 0, color.coutStream);
-            if (static_cast<double>(testSurface->w) / WindowScale > consoleTexture.rect.w - 20) {
+            if (static_cast<double>(testSurface->w) > consoleTexture.rect.w - 20) {
                 // 20 for padding
                 SDL_DestroySurface(testSurface);
                 break;
@@ -400,8 +377,8 @@ void Console::renderConsole() {
     // Present the console render-target to the main renderer:
     if (consoleTexture.texture_ptr) {
         // Source: physical pixels stored in the texture
-        const float phys_w = static_cast<float>(consoleTexture.rect.w) * static_cast<float>(WindowScale);
-        const float phys_h = static_cast<float>(consoleTexture.rect.h) * static_cast<float>(WindowScale);
+        const float phys_w = static_cast<float>(consoleTexture.rect.w);
+        const float phys_h = static_cast<float>(consoleTexture.rect.h);
         SDL_FRect const srcF = { 0.0f, 0.0f, phys_w, phys_h };
 
         // Destination: logical rectangle (keeps correct on-screen size)
@@ -479,8 +456,7 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
     // Constraints:
     // LINE_HEIGHT <= FONT_MAX_SIZE
     // MINIMUM_LINES <= N
-    WindowScale = Global::instance().getRenderer().getWindowScale();
-    auto LINE_HEIGHT = static_cast<uint16_t>(std::floor(static_cast<float>(consoleLayout.FONT_MAX_SIZE) / static_cast<float>(WindowScale)));
+    auto LINE_HEIGHT = consoleLayout.FONT_MAX_SIZE;
     auto const PADDING_RATIO = consoleLayout.paddingRatio;
 
     // See where we land for N, the amount of lines, with the maximum font size
@@ -511,7 +487,7 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
     }
 
     // Set correct font size for SDL_ttf
-    TTF_SetFontSize(consoleFont, static_cast<float>(LINE_HEIGHT * WindowScale));
+    TTF_SetFontSize(consoleFont, LINE_HEIGHT);
     return LINE_HEIGHT;
 }
 

@@ -32,7 +32,7 @@ Renderer::Renderer(JsonScope& documentReference, bool* flag_headless)
     // Initialize internal variables
 
     // Window
-    WindowScale = 1;
+    windowScale = 1;
     headless = flag_headless;
 
     // Position
@@ -101,7 +101,7 @@ void Renderer::setupDisplayValues() {
     // Still, just in case, we set them to 1000x1000 @ 1x scaling and 60 FPS
     auto const X = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
     auto const Y = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
-    WindowScale = Global::settings().get<uint8_t>(DomainModule::GlobalSpace::Settings::Key::resolutionScaling, 1);
+    windowScale = Global::settings().get<uint8_t>(DomainModule::GlobalSpace::Settings::Key::resolutionScaling, 1);
     fps.target = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::targetFPS, 60);
 
     // Set in workspace
@@ -125,7 +125,7 @@ void Renderer::initImgui() const {
     ImGui::CreateContext();
 
     // Pixel-friendly ImGui style for retro RPGs
-    float const fullScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay()) * WindowScale * 0.6f; // adjust to taste
+    float const fullScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay()) * windowScale * 0.6f; // adjust to taste
 
     ImGuiStyle &style = ImGui::GetStyle();
 
@@ -151,7 +151,7 @@ void Renderer::initImgui() const {
     style.CellPadding = ImVec2(4.0f, 4.0f);
     style.GrabMinSize = 8.0f;
 
-    // Disable anti-aliasing for pixel-perfect rendering
+    // Disable antialiasing for pixel-perfect rendering
     style.AntiAliasedLines = false;
     style.AntiAliasedFill  = false;
 
@@ -235,20 +235,13 @@ void Renderer::initSDL() {
     // Window and renderer
 
     uint32_t const flags = *headless ? SDL_WINDOW_HIDDEN : 0
-        | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+        | SDL_WINDOW_HIGH_PIXEL_DENSITY
+    ;
 
-    if (!SDL_CreateWindowAndRenderer("Nebulite", w, h, flags, &window, &renderer)) {
+    if (!SDL_CreateWindowAndRenderer("Nebulite", w*windowScale, h*windowScale, flags, &window, &renderer)) {
         Error::println("SDL_CreateWindowAndRenderer Error: ", SDL_GetError());
         std::abort();
     }
-
-    // Set virtual rendering size
-    SDL_SetRenderLogicalPresentation(
-        renderer,
-        w,
-        h,
-        SDL_LOGICAL_PRESENTATION_INTEGER_SCALE
-    );
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
     //------------------------------------------
@@ -442,19 +435,7 @@ Constants::Error Renderer::update() {
 
     // Process all events
     for (auto const& event : events) {
-        // Modify the event if it's a mouse position event
-        if (event.type == SDL_EVENT_MOUSE_MOTION) {
-            // Scale the motion event according to window scale
-            SDL_Event modifiedEvent = event;
-            modifiedEvent.motion.x = static_cast<float>(event.motion.x) / static_cast<float>(WindowScale);
-            modifiedEvent.motion.y = static_cast<float>(event.motion.y) / static_cast<float>(WindowScale);
-            modifiedEvent.motion.xrel = static_cast<float>(event.motion.xrel) / static_cast<float>(WindowScale);
-            modifiedEvent.motion.yrel = static_cast<float>(event.motion.yrel) / static_cast<float>(WindowScale);
-            ImGui_ImplSDL3_ProcessEvent(&modifiedEvent);
-        }
-        else {
-            ImGui_ImplSDL3_ProcessEvent(&event);
-        }
+        ImGui_ImplSDL3_ProcessEvent(&event);
     }
 
     //------------------------------------------
@@ -473,9 +454,12 @@ void Renderer::updateState() {
     // Skip update if flagged
     if (!skipUpdate) {
         // Update environment
-        auto const dispResX = domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0);
-        auto const dispResY = domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0);
-        env.updateObjects(tilePositionX, tilePositionY, dispResX, dispResY);
+        env.updateObjects(
+            tilePositionX,
+            tilePositionY,
+            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
+            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0)
+        );
     }
 }
 
@@ -649,34 +633,21 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
         return;
     }
 
-    // Store previous scale
-    uint8_t const prevScale = WindowScale == 0 ? 1 : WindowScale;
-    WindowScale = scalar;
-
-    // If scalar changed, apply relative style scaling once
-    if (scalar != prevScale) {
-        float const relativeStyleScale = static_cast<float>(WindowScale) / static_cast<float>(prevScale);
-        ImGui::GetStyle().ScaleAllSizes(1.0f / relativeStyleScale);
-        ImGui::GetStyle().FontScaleDpi /= relativeStyleScale;
-    }
+    // Set new scalar
+    windowScale = scalar;
 
     // Set the new resolution in the workspace
-    domainScope.set<int>(Constants::KeyNames::Renderer::dispResX, w);
-    domainScope.set<int>(Constants::KeyNames::Renderer::dispResY, h);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResX, w * windowScale);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResY, h * windowScale);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResXLogical, w);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResYLogical, h);
+    domainScope.set<uint8_t>(Constants::KeyNames::Renderer::windowScale, windowScale);
 
     // Set the physical window size
-    SDL_SetWindowSize(window, w * WindowScale, h * WindowScale);
+    SDL_SetWindowSize(window, w * windowScale, h * windowScale);
 
-    // TODO: We should always use the window size, and scale everything ourselves.
-    //       Reason: Imgui has problems with proper scaling when using SDL's logical presentation scaling. Everything becomes blurry.
-    //       - Any SDL draw call should be scaled by WindowScale
-    //       - Mouse input positions should be available both scaled and unscaled
-    //       - Renderer size should be available both scaled (for logic positioning) and unscaled (for SDL rendering)
-    //           -> Objects still use unscaled coordinates for their local positions, but any GUI elements need to know the actual size of the renderer!
-    // Use integer logical presentation so scaling is done in integer steps (crisp pixels).
-    SDL_SetRenderLogicalPresentation(renderer, w, h, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
-
-    // Reinsert objects due to new tile / logical size
+    // Reinsert objects
+    // TODO: Once fixed tiles are implemented, this isn't needed anymore
     reinsertAllObjects();
 }
 
@@ -773,6 +744,7 @@ void Renderer::renderFrame() {
             if (!texture) {
                 continue; // Skip if texture is null
             }
+            // We assume the rect was already scaled correctly when added
             SDL_FRect const rectF = {
                 static_cast<float>(rect->x),
                 static_cast<float>(rect->y),
@@ -828,8 +800,6 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
 
     // Calculate position rect
     obj->calculateDstRect();
-    obj->getDstRect()->x -= dispPosX; // Subtract X camera position
-    obj->getDstRect()->y -= dispPosY; // Subtract Y camera position
 
     //------------------------------------------
     // Error Checking
@@ -856,7 +826,18 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
     SDL_FRect dstF = {};
     SDL_FRect const* dstFP = nullptr;
     if (dst) {
-        dstF = {static_cast<float>(dst->x), static_cast<float>(dst->y), static_cast<float>(dst->w), static_cast<float>(dst->h)};
+        dstF = scaleRectFromLogicalSize({
+            static_cast<float>(dst->x),
+            static_cast<float>(dst->y),
+            static_cast<float>(dst->w),
+            static_cast<float>(dst->h)
+        });
+        dstF.x -= static_cast<float>(dispPosX) * windowScale; // Subtract X camera position
+        dstF.y -= static_cast<float>(dispPosY) * windowScale; // Subtract Y camera position
+
+        dstF.x -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResX));
+        dstF.y -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResY));
+
         dstFP = &dstF;
     }
 
@@ -877,13 +858,12 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
             dispPosY
             );
         if (obj->getTextTexture() && obj->getTextRect()) {
-            auto const textRectF = SDL_FRect{
+            auto const textRectF = scaleRectFromLogicalSize({
                 static_cast<float>(obj->getTextRect()->x),
                 static_cast<float>(obj->getTextRect()->y),
                 static_cast<float>(obj->getTextRect()->w),
                 static_cast<float>(obj->getTextRect()->h)
-            };
-
+            });
             if (SDL_RenderTexture(renderer, obj->getTextTexture(), nullptr, &textRectF) != 0 && SDL_GetError()[0] != '\0') {
                 auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
                 Error::println("Error rendering text for RenderObject ID ", id, ": ", SDL_GetError());
