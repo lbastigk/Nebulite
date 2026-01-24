@@ -56,45 +56,37 @@ public:
 
 protected:
     struct Key {
-        static auto constexpr type = Data::ScopedKeyView("drawType");
+        static auto constexpr type = Data::ScopedKeyView("drawType"); // "sprite", "text", "geometry", etc.
+
+        static auto constexpr textureData = Data::ScopedKeyView("textureData"); // Texture data object
 
         struct Rect {
+            static auto constexpr src = Data::ScopedKeyView("rect.src");
             static auto constexpr srcX = Data::ScopedKeyView("rect.src.x");
             static auto constexpr srcY = Data::ScopedKeyView("rect.src.y");
             static auto constexpr srcW = Data::ScopedKeyView("rect.src.w");
             static auto constexpr srcH = Data::ScopedKeyView("rect.src.h");
 
+            static auto constexpr dst = Data::ScopedKeyView("rect.dst");
             static auto constexpr dstX = Data::ScopedKeyView("rect.dst.x");
             static auto constexpr dstY = Data::ScopedKeyView("rect.dst.y");
             static auto constexpr dstW = Data::ScopedKeyView("rect.dst.w");
             static auto constexpr dstH = Data::ScopedKeyView("rect.dst.h");
         };
 
-
-
         // TODO: Use these in the Drawcall implementations, then remove them from Constants::KeyNames
 
-        struct Sprite {
-            static auto constexpr pixelSizeX = Data::ScopedKeyView("sprite.sizeX");
-            static auto constexpr pixelSizeY = Data::ScopedKeyView("sprite.sizeY");
-            static auto constexpr imageLocation = Data::ScopedKeyView("sprite.link");
-            static auto constexpr isSpritesheet = Data::ScopedKeyView("sprite.spritesheet.isSpritesheet");
-            static auto constexpr spritesheetSizeX = Data::ScopedKeyView("sprite.spritesheet.sizeX");
-            static auto constexpr spritesheetSizeY = Data::ScopedKeyView("sprite.spritesheet.sizeY");
-            static auto constexpr spritesheetOffsetX = Data::ScopedKeyView("sprite.spritesheet.offsetX");
-            static auto constexpr spritesheetOffsetY = Data::ScopedKeyView("sprite.spritesheet.offsetY");
-
+        struct SpriteSpecific {
+            static auto constexpr imageLocation = Data::ScopedKeyView("textureData.link");
         };
 
-        struct Text {
-            static auto constexpr fontsize = Data::ScopedKeyView("text.fontSize");
-            static auto constexpr str = Data::ScopedKeyView("text.str");
-            static auto constexpr colorR = Data::ScopedKeyView("text.color.R");
-            static auto constexpr colorG = Data::ScopedKeyView("text.color.G");
-            static auto constexpr colorB = Data::ScopedKeyView("text.color.B");
-            static auto constexpr colorA = Data::ScopedKeyView("text.color.A");
-            static auto constexpr dx = Data::ScopedKeyView("text.dx");
-            static auto constexpr dy = Data::ScopedKeyView("text.dy");
+        struct TextSpecific {
+            static auto constexpr fontsize = Data::ScopedKeyView("textureData.fontSize");
+            static auto constexpr str = Data::ScopedKeyView("textureData.str");
+            static auto constexpr colorR = Data::ScopedKeyView("textureData.color.R");
+            static auto constexpr colorG = Data::ScopedKeyView("textureData.color.G");
+            static auto constexpr colorB = Data::ScopedKeyView("textureData.color.B");
+            static auto constexpr colorA = Data::ScopedKeyView("textureData.color.A");
         };
     };
 
@@ -110,8 +102,6 @@ protected:
         double* rectDstW = nullptr;
         double* rectDstH = nullptr;
 
-        double* textDx = nullptr;
-        double* textDy = nullptr;
         double* textColorR = nullptr;
         double* textColorG = nullptr;
         double* textColorB = nullptr;
