@@ -93,9 +93,6 @@ void Drawcall::initializeText() {
         }
     }
 
-    // Create text
-    auto const text = drawcallScope.get<std::string>(Key::TextSpecific::str);
-
     // Coloring
     SDL_Color const textColor = {
         static_cast<Uint8>(*refs.textColorR),
@@ -106,6 +103,7 @@ void Drawcall::initializeText() {
 
     // Create new texture
     SDL_Texture* sdlTexture = nullptr;
+    auto const text = drawcallScope.get<std::string>(Key::TextSpecific::str);
     if (!text.empty()) {
         TTF_Font* font = Global::instance().getRenderer().getStandardFont();
         if (SDL_Renderer* renderer = Global::instance().getSdlRenderer(); font && renderer) {

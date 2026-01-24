@@ -79,6 +79,8 @@ public:
     //------------------------------------------
     // Getters for Rectangles and Textures
 
+    // TODO: remove all following functions, now part of drawcalls
+
     /**
      * @brief Gets a pointer to the SDL_Rect describing the destination of the sprite.
      * @return A pointer to the SDL_Rect describing the destination of the sprite.
@@ -103,33 +105,6 @@ public:
      */
     [[nodiscard]] SDL_Texture* getTextTexture() const;
 
-    //------------------------------------------
-    // Get position
-
-    struct Position {
-        int32_t x;
-        int32_t y;
-    };
-
-    [[nodiscard]] Position getPosition() const {
-        return {static_cast<int32_t>(std::lround(*refs.posX)), static_cast<int32_t>(std::lround(*refs.posY))};
-    }
-
-    //------------------------------------------
-    // Update-Oriented functions
-
-    /**
-     * @brief Updates the RenderObject.
-     *        - updates the domain
-     *        - reloads rulesets if needed
-     *        - updates local rulesets
-     *        - listens to global rulesets
-     *        - broadcasts its own global rulesets
-     *        - calculates source and destination rects
-     * @return Constants::Error indicating success or failure.
-     */
-    Constants::Error update() override;
-
     /**
      * @brief Calculates the text texture for the RenderObject.
      * @param renderer The SDL_Renderer to use for rendering.
@@ -149,6 +124,40 @@ public:
      * @brief Calculates the source rectangle for the sprite.
      */
     void calculateSrcRect();
+
+    //------------------------------------------
+    // Get position
+
+    struct Position {
+        int32_t x;
+        int32_t y;
+    };
+
+    /**
+     * @brief Gets the position of the RenderObject.
+     * @return The position of the RenderObject as a Position struct.
+     */
+    [[nodiscard]] Position getPosition() const {
+        return {
+            static_cast<int32_t>(std::lround(*refs.posX)),
+            static_cast<int32_t>(std::lround(*refs.posY))
+        };
+    }
+
+    //------------------------------------------
+    // Update-Oriented functions
+
+    /**
+     * @brief Updates the RenderObject.
+     *        - updates the domain
+     *        - reloads rulesets if needed
+     *        - updates local rulesets
+     *        - listens to global rulesets
+     *        - broadcasts its own global rulesets
+     *        - calculates source and destination rects
+     * @return Constants::Error indicating success or failure.
+     */
+    Constants::Error update() override;
 
     /**
      * @brief Estimates the computational cost of updating the RenderObject.
@@ -175,8 +184,7 @@ public:
      */
     struct flag {
         bool deleteFromScene = false; // If true, delete this object from scene on next update
-        bool calculateText = false; // If true, calculate text texture on next update
-        bool reloadInvokes = false; // If true, reload invokes on next update
+        bool calculateText = false; // TODO: Remove, now part of Drawcall
     } flag;
 
     //------------------------------------------
@@ -234,10 +242,12 @@ public:
     //------------------------------------------
     // Draw
 
-    void draw() {
+    void draw(float const& offsetX, float const& offsetY) {
         for (auto const& drawcall : std::views::values(drawcalls)) {
-            // TODO: Set correct offsets!
-            drawcall->draw(0,0);
+            drawcall->draw(
+                static_cast<float>(*refs.posX) + offsetX,
+                static_cast<float>(*refs.posY) + offsetY
+            );
         }
     }
 
@@ -288,6 +298,9 @@ private:
         // Position and Size
         double* posX = nullptr;
         double* posY = nullptr;
+
+        // TODO: Remove all following refs, not needed anymore after drawcall implementation
+
         double* pixelSizeX = nullptr;
         double* pixelSizeY = nullptr;
 
@@ -315,6 +328,8 @@ private:
 
     //------------------------------------------
     // Texture related
+
+    // TODO: Remove all texture related code, now part of drawcalls
 
     // Base Texture
     Texture baseTexture;

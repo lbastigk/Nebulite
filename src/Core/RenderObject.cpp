@@ -69,7 +69,6 @@ RenderObject::RenderObject() : Domain("RenderObject", *this, document), baseText
     // Flags
     flag.deleteFromScene = false;
     flag.calculateText = true; // In order to calculate text texture on first update
-    flag.reloadInvokes = true; // In order to reload invokes on first update
 
     //------------------------------------------
     // Initialize Linkages, References and DomainModules and object itself
@@ -86,6 +85,9 @@ void RenderObject::init() {
 
     // Initialize Domain Modules
     DomainModule::Initializer::initRenderObject(this);
+
+    // Initialize Drawcalls
+    initDrawcalls();
 
     // Update once to initialize
     update();
@@ -155,7 +157,6 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
     linkFrequentRefs();
 
     // Prerequisites
-    flag.reloadInvokes = true;
     flag.calculateText = true;
 
     //------------------------------------------
@@ -289,6 +290,8 @@ uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
 
 //------------------------------------------
 // Outside communication with Renderer for text calculation
+
+// TODO: Remove these. Now part of Drawcall
 
 void RenderObject::calculateText(SDL_Renderer* renderer, TTF_Font* font, int const& renderPositionX, int const& renderPositionY) {
     // Set font size if changed
