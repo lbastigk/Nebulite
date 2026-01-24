@@ -1,4 +1,39 @@
 {
+    "draw": {
+        "exampleSprite": {
+            "drawType": "sprite",
+            "rect": {
+                "dst": {
+                    "h": 32.0,
+                    "w": 32.0,
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "src": {
+                    "h": 32.0,
+                    "w": 32.0,
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            },
+            "textureData": {
+                "link": "Resources/Sprites/TEST001P/001.bmp"
+            }
+        },
+        "exampleText": {
+            "drawType": "text",
+            "textureData": {
+                "color": {
+                    "A": 255.0,
+                    "B": 255.0,
+                    "G": 255.0,
+                    "R": 255.0
+                },
+                "fontSize": 24.0,
+                "str": "Hello, Nebulite!"
+            }
+        }
+    },
     "id": 0,
     "layer": 0,
     "posX": 0,

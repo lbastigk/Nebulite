@@ -790,6 +790,15 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
     //------------------------------------------
     // Texture Loading
 
+    // NEW IMPLEMENTATION:
+
+    obj->draw(
+        static_cast<float>(dispPosX),
+        static_cast<float>(dispPosY)
+    );
+
+    // OLD IMPLEMENTATION:
+
     // Check for texture
     /**
     * @todo Find some way to remove the get-call.
@@ -843,34 +852,33 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
     // Rendering
 
     // Render the texture
-    SDL_Rect const* src = obj->getSrcRect();
-    SDL_FRect srcF = {};
-    SDL_FRect const* srcFP = nullptr;
-    if (src) {
-        srcF = {static_cast<float>(src->x), static_cast<float>(src->y), static_cast<float>(src->w), static_cast<float>(src->h)};
-        srcFP = &srcF;
-    }
-    SDL_Rect const* dst = obj->getDstRect();
-    SDL_FRect dstF = {};
-    SDL_FRect const* dstFP = nullptr;
-    if (dst) {
-        dstF = scaleRectFromLogicalSize({
-            static_cast<float>(dst->x),
-            static_cast<float>(dst->y),
-            static_cast<float>(dst->w),
-            static_cast<float>(dst->h)
-        });
-        dstF.x -= static_cast<float>(dispPosX) * windowScale; // Subtract X camera position
-        dstF.y -= static_cast<float>(dispPosY) * windowScale; // Subtract Y camera position
-
-        //dstF.x -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResX));
-        //dstF.y -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResY));
-
-        dstFP = &dstF;
-    }
-
-    // Render to screen
     if (auto const t = obj->getSDLTexture(); t != nullptr) {
+        SDL_Rect const* src = obj->getSrcRect();
+        SDL_FRect srcF = {};
+        SDL_FRect const* srcFP = nullptr;
+        if (src) {
+            srcF = {static_cast<float>(src->x), static_cast<float>(src->y), static_cast<float>(src->w), static_cast<float>(src->h)};
+            srcFP = &srcF;
+        }
+        SDL_Rect const* dst = obj->getDstRect();
+        SDL_FRect dstF = {};
+        SDL_FRect const* dstFP = nullptr;
+        if (dst) {
+            dstF = scaleRectFromLogicalSize({
+                static_cast<float>(dst->x),
+                static_cast<float>(dst->y),
+                static_cast<float>(dst->w),
+                static_cast<float>(dst->h)
+            });
+            dstF.x -= static_cast<float>(dispPosX) * windowScale; // Subtract X camera position
+            dstF.y -= static_cast<float>(dispPosY) * windowScale; // Subtract Y camera position
+
+            //dstF.x -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResX));
+            //dstF.y -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResY));
+
+            dstFP = &dstF;
+        }
+
         if (SDL_RenderTexture(renderer, t, srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
             auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
             Error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());

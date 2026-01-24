@@ -17,30 +17,48 @@ void Drawcall::Refs::initialize(Core::JsonScope const& scope){
     rectDstH = scope.getStableDoublePointer(Key::Rect::dstH);
 
     // Text-related
-    textColorR = scope.getStableDoublePointer(Constants::KeyNames::RenderObject::textColorR);
-    textColorG = scope.getStableDoublePointer(Constants::KeyNames::RenderObject::textColorG);
-    textColorB = scope.getStableDoublePointer(Constants::KeyNames::RenderObject::textColorB);
-    textColorA = scope.getStableDoublePointer(Constants::KeyNames::RenderObject::textColorA);
-    textFontsize = scope.getStableDoublePointer(Constants::KeyNames::RenderObject::textFontsize);
+    textColorR = scope.getStableDoublePointer(Key::TextSpecific::colorR);
+    textColorG = scope.getStableDoublePointer(Key::TextSpecific::colorG);
+    textColorB = scope.getStableDoublePointer(Key::TextSpecific::colorB);
+    textColorA = scope.getStableDoublePointer(Key::TextSpecific::colorA);
+    textFontsize = scope.getStableDoublePointer(Key::TextSpecific::fontsize);
 }
 
 void Drawcall::draw(float const& offsetX, float const& offsetY) const {
     switch (type) {
         case SPRITE:
-        case TEXT:
             {
                 if (SDL_Texture* sdlTexture = texture.getSDLTexture(); sdlTexture) {
+                    SDL_FRect const srcRect = {
+                        static_cast<float>(*refs.rectSrcX),
+                        static_cast<float>(*refs.rectSrcY),
+                        static_cast<float>(*refs.rectSrcW),
+                        static_cast<float>(*refs.rectSrcH)
+                    };
                     SDL_FRect const dstRect = {
                         static_cast<float>(*refs.rectDstX) + offsetX,
                         static_cast<float>(*refs.rectDstY) + offsetY,
                         static_cast<float>(*refs.rectDstW),
                         static_cast<float>(*refs.rectDstH)
                     };
+                    SDL_RenderTexture(Global::instance().getSdlRenderer(), sdlTexture, &srcRect, &dstRect);
+                }
+            }
+            break;
+        case TEXT:
+            {
+                if (SDL_Texture* sdlTexture = texture.getSDLTexture(); sdlTexture) {
                     SDL_FRect const srcRect = {
                         static_cast<float>(*refs.rectSrcX),
                         static_cast<float>(*refs.rectSrcY),
                         static_cast<float>(*refs.rectSrcW),
                         static_cast<float>(*refs.rectSrcH)
+                    };
+                    SDL_FRect const dstRect = {
+                        static_cast<float>(*refs.rectDstX) + offsetX,
+                        static_cast<float>(*refs.rectDstY) + offsetY,
+                        static_cast<float>(*refs.rectDstW),
+                        static_cast<float>(*refs.rectDstH)
                     };
                     SDL_RenderTexture(Global::instance().getSdlRenderer(), sdlTexture, &srcRect, &dstRect);
                 }
@@ -105,7 +123,7 @@ void Drawcall::initializeSprite() {
     if (!Global::instance().getRenderer().isSdlInitialized()) {
         return;
     }
-    
+
     // Delete old texture if stored locally
     if (texture.isTextureStoredLocally()) {
         if (SDL_Texture* old = texture.getSDLTexture(); old) {
@@ -115,8 +133,12 @@ void Drawcall::initializeSprite() {
 
     // Get Texture from container via link
     std::string const link = drawcallScope.get<std::string>(Key::SpriteSpecific::imageLocation);
+    if (link.empty()) {
+        return;
+    }
     auto const sdlTexture = Global::instance().getRenderer().loadTextureToMemory(link);
     texture.linkExternalTexture(sdlTexture);
+    status.initialized = true;
 }
 
 void Drawcall::initializeText() {
@@ -155,10 +177,10 @@ void Drawcall::initializeText() {
 
     // Setup destination rect, if it does not exist yet
     if (drawcallScope.memberType(Key::Rect::dst) != Data::KeyType::object) {
-        drawcallScope.set<double>(Key::Rect::dstX,0.0);
-        drawcallScope.set<double>(Key::Rect::dstY, 0.0);
-        drawcallScope.set<double>(Key::Rect::dstW,*refs.textFontsize * static_cast<double>(text.length()));
-        drawcallScope.set<double>(Key::Rect::dstH,*refs.textFontsize * 1.5);
+        *refs.rectDstX = 0.0;
+        *refs.rectDstY = 0.0;
+        *refs.rectDstW = *refs.textFontsize * static_cast<double>(text.length());
+        *refs.rectDstH = *refs.textFontsize * 1.5;
     }
 
     // Setup source rect, if it does not exist yet
@@ -166,21 +188,27 @@ void Drawcall::initializeText() {
         if (sdlTexture) {
             float w, h;
             SDL_GetTextureSize(sdlTexture, &w, & h);
-            drawcallScope.set<double>(Key::Rect::srcX, 0.0);
-            drawcallScope.set<double>(Key::Rect::srcY, 0.0);
-            drawcallScope.set<double>(Key::Rect::srcW, static_cast<double>(w));
-            drawcallScope.set<double>(Key::Rect::srcH, static_cast<double>(h));
+
+            if (drawcallScope.memberType(Key::Rect::src) != Data::KeyType::object) {
+                *refs.rectSrcX = 0.0;
+                *refs.rectSrcY = 0.0;
+                *refs.rectSrcW = static_cast<double>(w);
+                *refs.rectSrcH = static_cast<double>(h);
+            }
+
+            // Link texture, mark as initialized
+            texture.linkExternalTexture(sdlTexture);
+            //status.initialized = true; // TODO
         }
         else {
-            drawcallScope.set<double>(Key::Rect::srcX, 0.0);
-            drawcallScope.set<double>(Key::Rect::srcY, 0.0);
-            drawcallScope.set<double>(Key::Rect::srcW, 0.0);
-            drawcallScope.set<double>(Key::Rect::srcH, 0.0);
+            if (drawcallScope.memberType(Key::Rect::src) != Data::KeyType::object) {
+                *refs.rectSrcX = 0.0;
+                *refs.rectSrcY = 0.0;
+                *refs.rectSrcW = 0.0;
+                *refs.rectSrcH = 0.0;
+            }
         }
     }
-
-    // Link texture
-    texture.linkExternalTexture(sdlTexture);
 }
 
 } // namespace Nebulite::Graphics

@@ -247,7 +247,6 @@ public:
      * @param offsetY The camera offset in the Y direction.
      */
     void draw(float const& offsetX, float const& offsetY) {
-        // TODO: Perhaps we need to negate the total offset here?
         for (auto const& drawcall : std::views::values(drawcalls)) {
             drawcall->draw(
                 static_cast<float>(*refs.posX) + offsetX,

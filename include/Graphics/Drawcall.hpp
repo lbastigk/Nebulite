@@ -48,7 +48,10 @@ public:
     // TODO: Missing scale parameter!
     void draw(float const& offsetX, float const& offsetY) const ;
 
-    void update() { // TODO: Call in RenderObject update
+    void update() {
+        if (!status.initialized) {
+            updateDrawcallData(); // No me
+        }
         updaterRoutine.update();
     }
 
@@ -123,6 +126,10 @@ protected:
 
         void initialize(Core::JsonScope const& scope);
     } refs;
+
+    struct Status {
+        bool initialized = false; // Checks if the first initialization has been done
+    }status;
 
     enum Type {
         SPRITE,
