@@ -26,7 +26,8 @@ void setStandardValues(JsonScope& document) {
     document.set(Constants::KeyNames::RenderObject::layer, 0);
 
     // Create a basic drawcall
-    Graphics::Drawcall::setDefaultTypeSprite(document.shareScope(Constants::KeyNames::RenderObject::draw + ".core"));
+    Graphics::Drawcall::setDefaultTypeSprite(document.shareScope(Constants::KeyNames::RenderObject::draw + ".exampleSprite"));
+    Graphics::Drawcall::setDefaultTypeText(document.shareScope(Constants::KeyNames::RenderObject::draw + ".exampleText"));
 
     // Ruleset
     document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::broadcast);

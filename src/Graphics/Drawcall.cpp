@@ -84,6 +84,19 @@ void Drawcall::setDefaultTypeSprite(Core::JsonScope& scope) {
     scope.set<double>(Key::Rect::dstH, 32.0);
 }
 
+void Drawcall::setDefaultTypeText(Core::JsonScope& scope) {
+    // Default type
+    scope.set<std::string>(Key::type, "text");
+    scope.set<std::string>(Key::TextSpecific::str, "Hello, Nebulite!");
+    scope.set<double>(Key::TextSpecific::fontsize, 24.0);
+    scope.set<double>(Key::TextSpecific::colorR, 255.0);
+    scope.set<double>(Key::TextSpecific::colorG, 255.0);
+    scope.set<double>(Key::TextSpecific::colorB, 255.0);
+    scope.set<double>(Key::TextSpecific::colorA, 255.0);
+
+    // Default Rects will be set during initialization based on text size
+}
+
 //------------------------------------------
 // Specific initializers
 

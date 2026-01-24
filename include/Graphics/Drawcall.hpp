@@ -39,12 +39,13 @@ class Drawcall {
 public:
     // Any Drawcall is based on a scopes data
     explicit Drawcall(Core::JsonScope& workspace) : drawcallScope(workspace), texture(workspace) {
-        updateDrawcallData();
         refs.initialize(workspace);
+        updateDrawcallData();
     }
 
     ~Drawcall() = default;
 
+    // TODO: Missing scale parameter!
     void draw(float const& offsetX, float const& offsetY) const ;
 
     void update() { // TODO: Call in RenderObject update
@@ -55,10 +56,16 @@ public:
     Constants::Error parseStr(std::string const& str);
 
     /**
-     * @brief Sets a default drawcall configuration.
+     * @brief Sets a default drawcall configuration for a sprite.
      * @param scope The JSON scope to set defaults in.
      */
     static void setDefaultTypeSprite(Core::JsonScope& scope);
+
+    /**
+     * @brief Sets a default drawcall configuration for text.
+     * @param scope The JSON scope to set defaults in.
+     */
+    static void setDefaultTypeText(Core::JsonScope& scope);
 
 protected:
     struct Key {
