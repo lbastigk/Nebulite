@@ -68,6 +68,22 @@ Constants::Error Drawcall::parseStr(std::string const& str) {
     return texture.parseStr(str);
 }
 
+void Drawcall::setDefaultTypeSprite(Core::JsonScope& scope) {
+    // Default type
+    scope.set<std::string>(Key::type, "sprite");
+    scope.set<std::string>(Key::SpriteSpecific::imageLocation, "Resources/Sprites/TEST001P/001.bmp");
+
+    // Default Rects
+    scope.set<double>(Key::Rect::srcX, 0.0);
+    scope.set<double>(Key::Rect::srcY, 0.0);
+    scope.set<double>(Key::Rect::srcW, 32.0);
+    scope.set<double>(Key::Rect::srcH, 32.0);
+    scope.set<double>(Key::Rect::dstX, 0.0);
+    scope.set<double>(Key::Rect::dstY, 0.0);
+    scope.set<double>(Key::Rect::dstW, 32.0);
+    scope.set<double>(Key::Rect::dstH, 32.0);
+}
+
 //------------------------------------------
 // Specific initializers
 

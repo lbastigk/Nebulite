@@ -77,9 +77,9 @@ public:
     void deserialize(std::string const& serialOrLink);
 
     //------------------------------------------
-    // Getters for Rectangles and Textures
-
     // TODO: remove all following functions, now part of drawcalls
+
+    // Getters for Rectangles and Textures
 
     /**
      * @brief Gets a pointer to the SDL_Rect describing the destination of the sprite.
@@ -119,11 +119,62 @@ public:
      */
     void calculateDstRect();
 
-    // Calculate sprite source
     /**
      * @brief Calculates the source rectangle for the sprite.
      */
     void calculateSrcRect();
+
+    /**
+     * @brief Checks if text rendering is enabled for this RenderObject.
+     * @details This checks if the font size is not zero.
+     * @return true if texture rendering is enabled, false otherwise.
+     */
+    [[nodiscard]] bool isTextRenderingEnabled() const {
+        return std::fabs(*refs.fontSize) > DBL_EPSILON;
+    }
+
+    /**
+     * @brief Links an external SDL_Texture to this domain.
+     * @param externalTexture Pointer to the external SDL_Texture.
+     */
+    void linkExternalTexture(SDL_Texture* externalTexture) {
+        baseTexture.linkExternalTexture(externalTexture);
+    }
+
+    /**
+     * @brief Checks if the texture has been modified.
+     * @return true if the texture has been modified, false otherwise.
+     */
+    [[nodiscard]] bool isTextureStoredLocally() const {
+        return baseTexture.isTextureStoredLocally();
+    }
+
+    /**
+     * @brief Checks if the texture is valid (not null).
+     * @return true if the texture is valid, false otherwise.
+     */
+    [[nodiscard]] bool isTextureValid() const {
+        return baseTexture.isTextureValid();
+    }
+
+    /**
+     * @brief Gets the current SDL_Texture.
+     * @return Pointer to the current SDL_Texture.
+     */
+    [[nodiscard]] SDL_Texture* getSDLTexture() const {
+        return baseTexture.getSDLTexture();
+    }
+
+    /**
+     * @brief Gets the Texture object.
+     * @return Pointer to the Texture object.
+     */
+    Texture* getTexture() {
+        return &baseTexture;
+    }
+
+    // == END OF FUNCTIONS TO REMOVE ==
+    //------------------------------------------
 
     //------------------------------------------
     // Get position
@@ -188,61 +239,15 @@ public:
     } flag;
 
     //------------------------------------------
-    // Texture/Font related
-
-    /**
-     * @brief Checks if text rendering is enabled for this RenderObject.
-     * @details This checks if the font size is not zero.
-     * @return true if texture rendering is enabled, false otherwise.
-     */
-    [[nodiscard]] bool isTextRenderingEnabled() const {
-        return std::fabs(*refs.fontSize) > DBL_EPSILON;
-    }
-
-    /**
-     * @brief Links an external SDL_Texture to this domain.
-     * @param externalTexture Pointer to the external SDL_Texture.
-     */
-    void linkExternalTexture(SDL_Texture* externalTexture) {
-        baseTexture.linkExternalTexture(externalTexture);
-    }
-
-    /**
-     * @brief Checks if the texture has been modified.
-     * @return true if the texture has been modified, false otherwise.
-     */
-    [[nodiscard]] bool isTextureStoredLocally() const {
-        return baseTexture.isTextureStoredLocally();
-    }
-
-    /**
-     * @brief Checks if the texture is valid (not null).
-     * @return true if the texture is valid, false otherwise.
-     */
-    [[nodiscard]] bool isTextureValid() const {
-        return baseTexture.isTextureValid();
-    }
-
-    /**
-     * @brief Gets the current SDL_Texture.
-     * @return Pointer to the current SDL_Texture.
-     */
-    [[nodiscard]] SDL_Texture* getSDLTexture() const {
-        return baseTexture.getSDLTexture();
-    }
-
-    /**
-     * @brief Gets the Texture object.
-     * @return Pointer to the Texture object.
-     */
-    Texture* getTexture() {
-        return &baseTexture;
-    }
-
-    //------------------------------------------
     // Draw
 
+    /**
+     * @brief Draws the RenderObject at the specified offset.
+     * @param offsetX The camera offset in the X direction.
+     * @param offsetY The camera offset in the Y direction.
+     */
     void draw(float const& offsetX, float const& offsetY) {
+        // TODO: Perhaps we need to negate the total offset here?
         for (auto const& drawcall : std::views::values(drawcalls)) {
             drawcall->draw(
                 static_cast<float>(*refs.posX) + offsetX,
@@ -267,6 +272,9 @@ private:
     //------------------------------------------
     // Draw calls
 
+    // TODO: expose drawcall init/reinit for a domainmodule to use
+    //       This way, we may add new drawcalls at runtime via scripts
+
     absl::flat_hash_map<std::string, std::unique_ptr<Graphics::Drawcall>> drawcalls;
 
     // Re-initialize all drawcalls from document
@@ -278,6 +286,7 @@ private:
     // Reinitialize a specific drawcall from document
     void reInitDrawcall(std::string const& drawcallName);
 
+    // Update all drawcalls
     void updateDrawcalls();
 
     //------------------------------------------

@@ -54,6 +54,12 @@ public:
     // Parse a string onto the texture
     Constants::Error parseStr(std::string const& str);
 
+    /**
+     * @brief Sets a default drawcall configuration.
+     * @param scope The JSON scope to set defaults in.
+     */
+    static void setDefaultTypeSprite(Core::JsonScope& scope);
+
 protected:
     struct Key {
         static auto constexpr type = Data::ScopedKeyView("drawType"); // "sprite", "text", "geometry", etc.

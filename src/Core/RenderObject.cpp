@@ -23,10 +23,19 @@ void setStandardValues(JsonScope& document) {
     document.set(Constants::KeyNames::RenderObject::id, 0);    // Initialize to 0, Renderer itself sets proper id, which starts at 1
     document.set(Constants::KeyNames::RenderObject::positionX, 0);
     document.set(Constants::KeyNames::RenderObject::positionY, 0);
-    document.set(Constants::KeyNames::RenderObject::imageLocation, std::string("Resources/Sprites/TEST001P/001.bmp"));
     document.set(Constants::KeyNames::RenderObject::layer, 0);
 
+    // Create a basic drawcall
+    Graphics::Drawcall::setDefaultTypeSprite(document.shareScope(Constants::KeyNames::RenderObject::draw + "core"));
+
+    // Ruleset
+    document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::broadcast);
+    document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::listen);
+    document.set(Constants::KeyNames::RenderObject::Ruleset::listen + "[0]", std::string("all"));
+
+    // TODO: Remove all following sets
     //for sprite
+    document.set(Constants::KeyNames::RenderObject::imageLocation, std::string("Resources/Sprites/TEST001P/001.bmp"));
     document.set(Constants::KeyNames::RenderObject::isSpritesheet, false);
     document.set(Constants::KeyNames::RenderObject::spritesheetOffsetX, 0);
     document.set(Constants::KeyNames::RenderObject::spritesheetOffsetY, 0);
@@ -34,15 +43,6 @@ void setStandardValues(JsonScope& document) {
     document.set(Constants::KeyNames::RenderObject::spritesheetSizeY, 0);
     document.set(Constants::KeyNames::RenderObject::pixelSizeX, 32);
     document.set(Constants::KeyNames::RenderObject::pixelSizeY, 32);
-
-    // Create a basic drawcall
-    document.set(Constants::KeyNames::RenderObject::draw + "default.type", std::string("sprite"));
-
-    // Invokes
-    document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::broadcast);
-    document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::listen);
-    document.set(Constants::KeyNames::RenderObject::Ruleset::listen + "[0]", std::string("all"));
-
     // Text
     document.set(Constants::KeyNames::RenderObject::textStr, std::string(""));
     document.set(Constants::KeyNames::RenderObject::textFontsize, 0);
