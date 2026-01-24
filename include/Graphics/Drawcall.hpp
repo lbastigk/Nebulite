@@ -114,6 +114,9 @@ protected:
     enum Type {
         SPRITE,
         TEXT
+        // More ideas:
+        // - GEOMETRY
+        // - tiledSprite (set fixed size of each tile, or a min/max size, and tile the texture accordingly) Helpful for GUI elements
     }type;
 
     Core::JsonScope& drawcallScope;
