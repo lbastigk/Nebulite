@@ -30,32 +30,32 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) const {
     switch (type) {
         case SPRITE:
             {
-                SDL_FRect const dstRect = {
-                    static_cast<float>(*refs.rectDstX) + offsetX,
-                    static_cast<float>(*refs.rectDstY) + offsetY,
-                    static_cast<float>(*refs.rectDstW),
-                    static_cast<float>(*refs.rectDstH)
-                };
-                SDL_FRect const srcRect = {
-                    static_cast<float>(*refs.rectSrcX),
-                    static_cast<float>(*refs.rectSrcY),
-                    static_cast<float>(*refs.rectSrcW),
-                    static_cast<float>(*refs.rectSrcH)
-                    };
                 if (SDL_Texture* sdlTexture = texture.getSDLTexture(); sdlTexture) {
+                    SDL_FRect const dstRect = {
+                        static_cast<float>(*refs.rectDstX) + offsetX,
+                        static_cast<float>(*refs.rectDstY) + offsetY,
+                        static_cast<float>(*refs.rectDstW),
+                        static_cast<float>(*refs.rectDstH)
+                    };
+                    SDL_FRect const srcRect = {
+                        static_cast<float>(*refs.rectSrcX),
+                        static_cast<float>(*refs.rectSrcY),
+                        static_cast<float>(*refs.rectSrcW),
+                        static_cast<float>(*refs.rectSrcH)
+                    };
                     SDL_RenderTexture(Global::instance().getSdlRenderer(), sdlTexture, &srcRect, &dstRect);
                 }
             }
             break;
         case TEXT:
             {
-                SDL_FRect const dstRect = {
-                    static_cast<float>(*refs.rectDstX) + offsetX,
-                    static_cast<float>(*refs.rectDstY) + offsetY,
-                    static_cast<float>(*refs.rectDstW),
-                    static_cast<float>(*refs.rectDstH)
-                };
                 if (SDL_Texture* sdlTexture = texture.getSDLTexture(); sdlTexture) {
+                    SDL_FRect const dstRect = {
+                        static_cast<float>(*refs.rectDstX) + offsetX,
+                        static_cast<float>(*refs.rectDstY) + offsetY,
+                        static_cast<float>(*refs.rectDstW),
+                        static_cast<float>(*refs.rectDstH)
+                    };
                     SDL_RenderTexture(Global::instance().getSdlRenderer(), sdlTexture, nullptr, &dstRect);
                 }
             }
