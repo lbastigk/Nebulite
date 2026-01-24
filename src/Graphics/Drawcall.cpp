@@ -101,6 +101,11 @@ void Drawcall::setDefaultTypeText(Core::JsonScope& scope) {
 // Specific initializers
 
 void Drawcall::initializeSprite() {
+    // Skip if renderer is not initialized
+    if (!Global::instance().getRenderer().isSdlInitialized()) {
+        return;
+    }
+    
     // Delete old texture if stored locally
     if (texture.isTextureStoredLocally()) {
         if (SDL_Texture* old = texture.getSDLTexture(); old) {
@@ -115,6 +120,11 @@ void Drawcall::initializeSprite() {
 }
 
 void Drawcall::initializeText() {
+    // Skip if renderer is not initialized
+    if (!Global::instance().getRenderer().isSdlInitialized()) {
+        return;
+    }
+
     // Delete old texture if stored locally
     if (texture.isTextureStoredLocally()) {
         if (SDL_Texture* old = texture.getSDLTexture(); old) {
