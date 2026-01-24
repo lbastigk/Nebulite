@@ -135,6 +135,12 @@ void RenderObject::reInitDrawcall(std::string const& drawcallName) {
     drawcalls[drawcallName] = std::make_unique<Graphics::Drawcall>(document.shareScope(key.view()));
 }
 
+void RenderObject::updateDrawcalls() {
+    for (auto const& drawcall : std::views::values(drawcalls)) {
+        drawcall->update();
+    }
+}
+
 //------------------------------------------
 // Marshalling
 
@@ -243,6 +249,7 @@ Constants::Error RenderObject::update() {
     //------------------------------------------
     // Update modules and all inner domains
     updateModules();
+    updateDrawcalls();
     document.update();
     baseTexture.update();
     return Constants::ErrorTable::NONE();
@@ -265,7 +272,7 @@ uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
         [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
             return acc + entry->getEstimatedCost();
         }
-        );
+    );
 
     // Global entries
     if (!onlyInternal) {
@@ -274,7 +281,7 @@ uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
             [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
                 return acc + entry->getEstimatedCost();
             }
-            );
+        );
     }
 
     return cost;

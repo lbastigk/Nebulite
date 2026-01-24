@@ -236,7 +236,8 @@ public:
 
     void draw() {
         for (auto const& drawcall : std::views::values(drawcalls)) {
-            drawcall->draw();
+            // TODO: Set correct offsets!
+            drawcall->draw(0,0);
         }
     }
 
@@ -266,6 +267,8 @@ private:
 
     // Reinitialize a specific drawcall from document
     void reInitDrawcall(std::string const& drawcallName);
+
+    void updateDrawcalls();
 
     //------------------------------------------
     // References to JSON

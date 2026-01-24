@@ -40,44 +40,86 @@ public:
     // Any Drawcall is based on a scopes data
     explicit Drawcall(Core::JsonScope& workspace) : drawcallScope(workspace), texture(workspace) {
         updateDrawcallData();
+        refs.initialize(workspace);
     }
 
     ~Drawcall() = default;
 
-    void draw() const ;
+    void draw(float const& offsetX, float const& offsetY) const ;
+
+    void update() { // TODO: Call in RenderObject update
+        updaterRoutine.update();
+    }
 
     // Parse a string onto the texture
     Constants::Error parseStr(std::string const& str);
 
 protected:
     struct Key {
-        static auto constexpr type = Data::ScopedKeyView("type");
+        static auto constexpr type = Data::ScopedKeyView("drawType");
+
+        struct Rect {
+            static auto constexpr srcX = Data::ScopedKeyView("rect.src.x");
+            static auto constexpr srcY = Data::ScopedKeyView("rect.src.y");
+            static auto constexpr srcW = Data::ScopedKeyView("rect.src.w");
+            static auto constexpr srcH = Data::ScopedKeyView("rect.src.h");
+
+            static auto constexpr dstX = Data::ScopedKeyView("rect.dst.x");
+            static auto constexpr dstY = Data::ScopedKeyView("rect.dst.y");
+            static auto constexpr dstW = Data::ScopedKeyView("rect.dst.w");
+            static auto constexpr dstH = Data::ScopedKeyView("rect.dst.h");
+        };
+
+
 
         // TODO: Use these in the Drawcall implementations, then remove them from Constants::KeyNames
 
         struct Sprite {
-            static auto constexpr pixelSizeX = Data::ScopedKeyView("sizeX");
-            static auto constexpr pixelSizeY = Data::ScopedKeyView("sizeY");
-            static auto constexpr imageLocation = Data::ScopedKeyView("link");
-            static auto constexpr isSpritesheet = Data::ScopedKeyView("spritesheet.isSpritesheet");
-            static auto constexpr spritesheetSizeX = Data::ScopedKeyView("spritesheet.sizeX");
-            static auto constexpr spritesheetSizeY = Data::ScopedKeyView("spritesheet.sizeY");
-            static auto constexpr spritesheetOffsetX = Data::ScopedKeyView("spritesheet.offsetX");
-            static auto constexpr spritesheetOffsetY = Data::ScopedKeyView("spritesheet.offsetY");
+            static auto constexpr pixelSizeX = Data::ScopedKeyView("sprite.sizeX");
+            static auto constexpr pixelSizeY = Data::ScopedKeyView("sprite.sizeY");
+            static auto constexpr imageLocation = Data::ScopedKeyView("sprite.link");
+            static auto constexpr isSpritesheet = Data::ScopedKeyView("sprite.spritesheet.isSpritesheet");
+            static auto constexpr spritesheetSizeX = Data::ScopedKeyView("sprite.spritesheet.sizeX");
+            static auto constexpr spritesheetSizeY = Data::ScopedKeyView("sprite.spritesheet.sizeY");
+            static auto constexpr spritesheetOffsetX = Data::ScopedKeyView("sprite.spritesheet.offsetX");
+            static auto constexpr spritesheetOffsetY = Data::ScopedKeyView("sprite.spritesheet.offsetY");
 
         };
 
         struct Text {
-            static auto constexpr fontsize = Data::ScopedKeyView("fontSize");
-            static auto constexpr str = Data::ScopedKeyView("str");
-            static auto constexpr colorR = Data::ScopedKeyView("color.R");
-            static auto constexpr colorG = Data::ScopedKeyView("color.G");
-            static auto constexpr colorB = Data::ScopedKeyView("color.B");
-            static auto constexpr colorA = Data::ScopedKeyView("color.A");
-            static auto constexpr dx = Data::ScopedKeyView("dx");
-            static auto constexpr dy = Data::ScopedKeyView("dy");
+            static auto constexpr fontsize = Data::ScopedKeyView("text.fontSize");
+            static auto constexpr str = Data::ScopedKeyView("text.str");
+            static auto constexpr colorR = Data::ScopedKeyView("text.color.R");
+            static auto constexpr colorG = Data::ScopedKeyView("text.color.G");
+            static auto constexpr colorB = Data::ScopedKeyView("text.color.B");
+            static auto constexpr colorA = Data::ScopedKeyView("text.color.A");
+            static auto constexpr dx = Data::ScopedKeyView("text.dx");
+            static auto constexpr dy = Data::ScopedKeyView("text.dy");
         };
     };
+
+    struct Refs {
+        // TODO: Add frequently used references here for faster access
+        double* rectSrcX = nullptr;
+        double* rectSrcY = nullptr;
+        double* rectSrcW = nullptr;
+        double* rectSrcH = nullptr;
+
+        double* rectDstX = nullptr;
+        double* rectDstY = nullptr;
+        double* rectDstW = nullptr;
+        double* rectDstH = nullptr;
+
+        double* textDx = nullptr;
+        double* textDy = nullptr;
+        double* textColorR = nullptr;
+        double* textColorG = nullptr;
+        double* textColorB = nullptr;
+        double* textColorA = nullptr;
+        double* textFontsize = nullptr;
+
+        void initialize(Core::JsonScope const& scope);
+    } refs;
 
     enum Type {
         SPRITE,
@@ -91,12 +133,19 @@ protected:
     void updateDrawcallData();
 
     // Allows periodic updating of drawcall data to reflect current state
-    mutable Utility::TimedRoutine updaterRoutine{
+    Utility::TimedRoutine updaterRoutine{
         [this] {
             updateDrawcallData();
         },
         1000
     }; // Routine to update the drawcall data periodically
+
+    //------------------------------------------
+    // Specific initializers
+
+    void initializeSprite();
+
+    void initializeText();
 };
 
 // Idea for how the JsonScope may look like:
