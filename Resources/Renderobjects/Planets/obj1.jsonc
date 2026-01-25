@@ -16,6 +16,12 @@
         },
         "exampleText": {
             "drawType": "text",
+            "rect": {
+                "dst": {
+                    "x": -10.0,
+                    "y": -10.0
+                }
+            },
             "textureData": {
                 "color": {
                     "A": 255.0,

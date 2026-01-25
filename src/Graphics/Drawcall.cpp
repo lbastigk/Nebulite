@@ -28,7 +28,7 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) const {
     switch (type) {
         case SPRITE:
             {
-                if (SDL_Texture* sdlTexture = texture.getSDLTexture(); sdlTexture) {
+                if (texture.isTextureValid()) {
                     SDL_FRect const srcRect = {
                         static_cast<float>(*refs.rectSrcX),
                         static_cast<float>(*refs.rectSrcY),
@@ -41,13 +41,13 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) const {
                         static_cast<float>(*refs.rectDstW),
                         static_cast<float>(*refs.rectDstH)
                     };
-                    SDL_RenderTexture(Global::instance().getSdlRenderer(), sdlTexture, &srcRect, &dstRect);
+                    SDL_RenderTexture(Global::instance().getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect);
                 }
             }
             break;
         case TEXT:
             {
-                if (SDL_Texture* sdlTexture = texture.getSDLTexture(); sdlTexture) {
+                if (texture.isTextureValid()) {
                     SDL_FRect const srcRect = {
                         static_cast<float>(*refs.rectSrcX),
                         static_cast<float>(*refs.rectSrcY),
@@ -61,7 +61,7 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) const {
                         static_cast<float>(*refs.rectDstH)
                     };
                     // TODO: Draws black texture instead of text!
-                    SDL_RenderTexture(Global::instance().getSdlRenderer(), sdlTexture, &srcRect, &dstRect);
+                    SDL_RenderTexture(Global::instance().getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect);
                 }
             }
             break;
@@ -125,13 +125,6 @@ void Drawcall::initializeSprite() {
         return;
     }
 
-    // Delete old texture if stored locally
-    if (texture.isTextureStoredLocally()) {
-        if (SDL_Texture* old = texture.getSDLTexture(); old) {
-            SDL_DestroyTexture(old);
-        }
-    }
-
     // Get Texture from container via link
     std::string const link = drawcallScope.get<std::string>(Key::SpriteSpecific::imageLocation);
     if (link.empty()) {
@@ -157,6 +150,7 @@ void Drawcall::initializeSprite() {
             drawcallScope.set<double>(Key::Rect::srcH, static_cast<double>(h));
         }
 
+        // Linked externally, as it's managed by the texture container
         texture.linkExternalTexture(sdlTexture);
         status.initialized = true;
     }
@@ -168,50 +162,31 @@ void Drawcall::initializeText() {
         return;
     }
 
-    // Delete old texture if stored locally
-    if (texture.isTextureStoredLocally()) {
-        if (SDL_Texture* old = texture.getSDLTexture(); old) {
-            SDL_DestroyTexture(old);
-        }
-    }
-
-    // Coloring
-
-
     // Create new texture
     SDL_Texture* sdlTexture = nullptr;
     auto const text = drawcallScope.get<std::string>(Key::TextSpecific::str);
-    if (!text.empty()) {
-        TTF_Font* font = Global::instance().getRenderer().getStandardFont();
-        if (SDL_Renderer* renderer = Global::instance().getSdlRenderer(); font && renderer) {
-            SDL_Color const textColor = {
-                static_cast<Uint8>(*refs.textColorR),
-                static_cast<Uint8>(*refs.textColorG),
-                static_cast<Uint8>(*refs.textColorB),
-                static_cast<Uint8>(*refs.textColorA)
-            };
-            if (SDL_Surface* textSurface = TTF_RenderText_Solid(font, text.c_str(), 0, textColor); textSurface) {
-                sdlTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-                SDL_DestroySurface(textSurface); // Free surface after creating texture
-            }
+    if (text.empty()) {
+        return;
+    }
+    static TTF_Font* font = Global::instance().getRenderer().getStandardFont();
+    static SDL_Renderer* renderer = Global::instance().getSdlRenderer();
+    if (font && renderer) {
+        SDL_Color const textColor = {
+            static_cast<Uint8>(*refs.textColorR),
+            static_cast<Uint8>(*refs.textColorG),
+            static_cast<Uint8>(*refs.textColorB),
+            static_cast<Uint8>(*refs.textColorA)
+        };
+        if (SDL_Surface* textSurface = TTF_RenderText_Solid(font, text.c_str(), 0, textColor); textSurface) {
+            sdlTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+            SDL_DestroySurface(textSurface); // Free surface after creating texture
         }
     }
-
-    // Setup dst values unless they are already defined
-    if (drawcallScope.memberType(Key::Rect::dstX) != Data::KeyType::value) {
-        drawcallScope.set<double>(Key::Rect::dstX, 0.0);
-    }
-    if (drawcallScope.memberType(Key::Rect::dstY) != Data::KeyType::value) {
-        drawcallScope.set<double>(Key::Rect::dstY, 0.0);
-    }
-    if (drawcallScope.memberType(Key::Rect::dstW) != Data::KeyType::value) {
-        drawcallScope.set<double>(Key::Rect::dstW, *refs.textFontsize * static_cast<double>(text.length()));
-    }
-    if (drawcallScope.memberType(Key::Rect::dstH) != Data::KeyType::value) {
-        drawcallScope.set<double>(Key::Rect::dstH, *refs.textFontsize * 1.5);
+    else {
+        Error::println("Font or Renderer not initialized for text drawcall.");
     }
 
-    // Setup source rect, if it does not exist yet
+    // Link texture and initialize rects
     if (sdlTexture) {
         float w, h;
         SDL_GetTextureSize(sdlTexture, &w, & h);
@@ -230,9 +205,26 @@ void Drawcall::initializeText() {
             drawcallScope.set<double>(Key::Rect::srcH, static_cast<double>(h));
         }
 
+        // Setup dst values unless they are already defined
+        if (drawcallScope.memberType(Key::Rect::dstX) != Data::KeyType::value) {
+            drawcallScope.set<double>(Key::Rect::dstX, 0.0);
+        }
+        if (drawcallScope.memberType(Key::Rect::dstY) != Data::KeyType::value) {
+            drawcallScope.set<double>(Key::Rect::dstY, 0.0);
+        }
+        if (drawcallScope.memberType(Key::Rect::dstW) != Data::KeyType::value) {
+            drawcallScope.set<double>(Key::Rect::dstW, *refs.textFontsize * static_cast<double>(text.length()));
+        }
+        if (drawcallScope.memberType(Key::Rect::dstH) != Data::KeyType::value) {
+            drawcallScope.set<double>(Key::Rect::dstH, *refs.textFontsize * 1.5);
+        }
+
         // Link texture, mark as initialized
-        texture.linkExternalTexture(sdlTexture);
+        texture.setInternalTexture(sdlTexture);
         status.initialized = true;
+    }
+    else {
+        Error::println("Failed to create text texture for drawcall text: ", text);
     }
 }
 
