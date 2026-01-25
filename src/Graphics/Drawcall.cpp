@@ -25,6 +25,7 @@ void Drawcall::Refs::initialize(Core::JsonScope const& scope){
 }
 
 void Drawcall::draw(float const& offsetX, float const& offsetY) const {
+    auto const& renderer = Global::instance().getRenderer();
     switch (type) {
         case SPRITE:
             {
@@ -35,13 +36,13 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) const {
                         static_cast<float>(*refs.rectSrcW),
                         static_cast<float>(*refs.rectSrcH)
                     };
-                    SDL_FRect const dstRect = {
+                    SDL_FRect const dstRect = renderer.scaleRectFromLogicalSize({
                         static_cast<float>(*refs.rectDstX) + offsetX,
                         static_cast<float>(*refs.rectDstY) + offsetY,
                         static_cast<float>(*refs.rectDstW),
                         static_cast<float>(*refs.rectDstH)
-                    };
-                    SDL_RenderTexture(Global::instance().getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect);
+                    });
+                    SDL_RenderTexture(renderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect);
                 }
             }
             break;
@@ -54,14 +55,14 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) const {
                         static_cast<float>(*refs.rectSrcW),
                         static_cast<float>(*refs.rectSrcH)
                     };
-                    SDL_FRect const dstRect = {
+                    SDL_FRect const dstRect = renderer.scaleRectFromLogicalSize({
                         static_cast<float>(*refs.rectDstX) + offsetX,
                         static_cast<float>(*refs.rectDstY) + offsetY,
                         static_cast<float>(*refs.rectDstW),
                         static_cast<float>(*refs.rectDstH)
-                    };
+                    });
                     // TODO: Draws black texture instead of text!
-                    SDL_RenderTexture(Global::instance().getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect);
+                    SDL_RenderTexture(renderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect);
                 }
             }
             break;
