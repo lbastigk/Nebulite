@@ -165,7 +165,8 @@ private:
         [this] {
             updateDrawcallData();
         },
-        updateDrawcallDataIntervalMs
+        updateDrawcallDataIntervalMs,
+        Utility::TimedRoutine::ConstructionMode::START_IMMEDIATELY
     }; // Routine to update the drawcall data periodically
 
     //------------------------------------------

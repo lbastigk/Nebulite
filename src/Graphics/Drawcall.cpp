@@ -60,6 +60,7 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) const {
                         static_cast<float>(*refs.rectDstW),
                         static_cast<float>(*refs.rectDstH)
                     };
+                    // TODO: Draws black texture instead of text!
                     SDL_RenderTexture(Global::instance().getSdlRenderer(), sdlTexture, &srcRect, &dstRect);
                 }
             }
@@ -71,7 +72,7 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) const {
 }
 
 void Drawcall::updateDrawcallData() {
-    // TODO: Add more complicated update logic if needed
+    // TODO: Add more complicated diff-based update logic if needed
     if (auto const t = drawcallScope.get<std::string>(Key::type, "sprite"); t == "sprite") {
         type = SPRITE;
         initializeSprite();
@@ -136,9 +137,29 @@ void Drawcall::initializeSprite() {
     if (link.empty()) {
         return;
     }
-    auto const sdlTexture = Global::instance().getRenderer().loadTextureToMemory(link);
-    texture.linkExternalTexture(sdlTexture);
-    status.initialized = true;
+
+    // Set Source Rect, if it does not exist yet
+    if (auto const sdlTexture = Global::instance().getRenderer().getTexture(link); sdlTexture) {
+        float w, h;
+        SDL_GetTextureSize(sdlTexture, &w, & h);
+
+        // Setup src values unless they are already defined
+        if (drawcallScope.memberType(Key::Rect::srcX) != Data::KeyType::value) {
+            drawcallScope.set<double>(Key::Rect::srcX, 0.0);
+        }
+        if (drawcallScope.memberType(Key::Rect::srcY) != Data::KeyType::value) {
+            drawcallScope.set<double>(Key::Rect::srcY, 0.0);
+        }
+        if (drawcallScope.memberType(Key::Rect::srcW) != Data::KeyType::value) {
+            drawcallScope.set<double>(Key::Rect::srcW, static_cast<double>(w));
+        }
+        if (drawcallScope.memberType(Key::Rect::srcH) != Data::KeyType::value) {
+            drawcallScope.set<double>(Key::Rect::srcH, static_cast<double>(h));
+        }
+
+        texture.linkExternalTexture(sdlTexture);
+        status.initialized = true;
+    }
 }
 
 void Drawcall::initializeText() {
@@ -155,12 +176,7 @@ void Drawcall::initializeText() {
     }
 
     // Coloring
-    SDL_Color const textColor = {
-        static_cast<Uint8>(*refs.textColorR),
-        static_cast<Uint8>(*refs.textColorG),
-        static_cast<Uint8>(*refs.textColorB),
-        static_cast<Uint8>(*refs.textColorA)
-    };
+
 
     // Create new texture
     SDL_Texture* sdlTexture = nullptr;
@@ -168,6 +184,12 @@ void Drawcall::initializeText() {
     if (!text.empty()) {
         TTF_Font* font = Global::instance().getRenderer().getStandardFont();
         if (SDL_Renderer* renderer = Global::instance().getSdlRenderer(); font && renderer) {
+            SDL_Color const textColor = {
+                static_cast<Uint8>(*refs.textColorR),
+                static_cast<Uint8>(*refs.textColorG),
+                static_cast<Uint8>(*refs.textColorB),
+                static_cast<Uint8>(*refs.textColorA)
+            };
             if (SDL_Surface* textSurface = TTF_RenderText_Solid(font, text.c_str(), 0, textColor); textSurface) {
                 sdlTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
                 SDL_DestroySurface(textSurface); // Free surface after creating texture
@@ -175,39 +197,42 @@ void Drawcall::initializeText() {
         }
     }
 
-    // Setup destination rect, if it does not exist yet
-    if (drawcallScope.memberType(Key::Rect::dst) != Data::KeyType::object) {
-        *refs.rectDstX = 0.0;
-        *refs.rectDstY = 0.0;
-        *refs.rectDstW = *refs.textFontsize * static_cast<double>(text.length());
-        *refs.rectDstH = *refs.textFontsize * 1.5;
+    // Setup dst values unless they are already defined
+    if (drawcallScope.memberType(Key::Rect::dstX) != Data::KeyType::value) {
+        drawcallScope.set<double>(Key::Rect::dstX, 0.0);
+    }
+    if (drawcallScope.memberType(Key::Rect::dstY) != Data::KeyType::value) {
+        drawcallScope.set<double>(Key::Rect::dstY, 0.0);
+    }
+    if (drawcallScope.memberType(Key::Rect::dstW) != Data::KeyType::value) {
+        drawcallScope.set<double>(Key::Rect::dstW, *refs.textFontsize * static_cast<double>(text.length()));
+    }
+    if (drawcallScope.memberType(Key::Rect::dstH) != Data::KeyType::value) {
+        drawcallScope.set<double>(Key::Rect::dstH, *refs.textFontsize * 1.5);
     }
 
     // Setup source rect, if it does not exist yet
-    if (drawcallScope.memberType(Key::Rect::src) != Data::KeyType::object) {
-        if (sdlTexture) {
-            float w, h;
-            SDL_GetTextureSize(sdlTexture, &w, & h);
+    if (sdlTexture) {
+        float w, h;
+        SDL_GetTextureSize(sdlTexture, &w, & h);
 
-            if (drawcallScope.memberType(Key::Rect::src) != Data::KeyType::object) {
-                *refs.rectSrcX = 0.0;
-                *refs.rectSrcY = 0.0;
-                *refs.rectSrcW = static_cast<double>(w);
-                *refs.rectSrcH = static_cast<double>(h);
-            }
+        // Setup src values unless they are already defined
+        if (drawcallScope.memberType(Key::Rect::srcX) != Data::KeyType::value) {
+            drawcallScope.set<double>(Key::Rect::srcX, 0.0);
+        }
+        if (drawcallScope.memberType(Key::Rect::srcY) != Data::KeyType::value) {
+            drawcallScope.set<double>(Key::Rect::srcY, 0.0);
+        }
+        if (drawcallScope.memberType(Key::Rect::srcW) != Data::KeyType::value) {
+            drawcallScope.set<double>(Key::Rect::srcW, static_cast<double>(w));
+        }
+        if (drawcallScope.memberType(Key::Rect::srcH) != Data::KeyType::value) {
+            drawcallScope.set<double>(Key::Rect::srcH, static_cast<double>(h));
+        }
 
-            // Link texture, mark as initialized
-            texture.linkExternalTexture(sdlTexture);
-            //status.initialized = true; // TODO
-        }
-        else {
-            if (drawcallScope.memberType(Key::Rect::src) != Data::KeyType::object) {
-                *refs.rectSrcX = 0.0;
-                *refs.rectSrcY = 0.0;
-                *refs.rectSrcW = 0.0;
-                *refs.rectSrcH = 0.0;
-            }
-        }
+        // Link texture, mark as initialized
+        texture.linkExternalTexture(sdlTexture);
+        status.initialized = true;
     }
 }
 

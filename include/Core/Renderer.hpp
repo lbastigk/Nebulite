@@ -399,6 +399,14 @@ public:
      */
     [[nodiscard]] SDL_Texture* loadTextureToMemory(std::string const& link) const;
 
+    /**
+     * @brief Retrieves a texture from the TextureContainer.
+     * @details If the texture is not already loaded, it attempts to load it from the specified file path.
+     * @param link The file path of the texture to retrieve.
+     * @return A pointer to the SDL_Texture, or nullptr if loading failed.
+     */
+    [[nodiscard]] SDL_Texture* getTexture(std::string const& link);
+
     static void destroyTexture(SDL_Texture* t) {
         SDL_DestroyTexture(t);
     }

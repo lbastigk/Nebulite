@@ -793,10 +793,23 @@ void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int 
 //------------------------------------------
 // Texture-Related
 
+SDL_Texture* Renderer::getTexture(std::string const& link) {
+    // Check if texture is already loaded
+    if (auto const it = TextureContainer.find(link); it != TextureContainer.end()) {
+        return it->second;
+    }
+
+    // Load texture if not found
+    SDL_Texture* texture = loadTextureToMemory(link);
+    if (texture != nullptr) {
+        TextureContainer[link] = texture;
+    }
+    return texture;
+}
+
 void Renderer::loadTexture(std::string const& link) {
     if (auto const t = loadTextureToMemory(link); t != nullptr) TextureContainer[link] = t;
 }
-
 
 SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
     std::string const path = Utility::FileManagement::CombinePaths(baseDirectory, link);

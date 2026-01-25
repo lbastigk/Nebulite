@@ -430,9 +430,13 @@ KeyType JSON::memberType(std::string const& key) const {
     }
 
     // Check cache first
-    if (cache.find(key) != cache.end()) {
+    if (auto const it = cache.find(key); it != cache.end()) {
         // Key is cached, return its type
-        return KeyType::value;
+        // Only consider CLEAN entries as valid
+        // For all other entries, we must flush and check the document
+        if (it->second->state == CacheEntry::EntryState::CLEAN) {
+            return KeyType::value;
+        }
     }
 
     // Not directly in cache, flush before accessing the document

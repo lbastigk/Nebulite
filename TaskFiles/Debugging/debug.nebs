@@ -22,4 +22,16 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/VerticalSlice/levelDescription.nebs
+time set-fixed-dt 1
+set-fps 60
+wait 1
+spawn Resources/Renderobjects/Planets/obj1.jsonc
+selected-object get 1
+wait 1
+selected-object parse print draw
+
+wait 100 # Should be enough for the update routine to kick in
+selected-object parse print draw
+exit
+
+#task TaskFiles/VerticalSlice/levelDescription.nebs

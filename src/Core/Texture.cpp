@@ -33,7 +33,7 @@ bool Texture::copyTexture() {
     // If no texture is linked, try to load from the document
     if (texture == nullptr) {
         std::string const& imageLink = domainScope.get<std::string>(Graphics::Drawcall::Key::SpriteSpecific::imageLocation, "");
-        texture = Global::instance().getRenderer().loadTextureToMemory(imageLink);
+        texture = Global::instance().getRenderer().getTexture(imageLink);
 
         if (texture == nullptr) {
             return false; // No texture to copy
