@@ -42,7 +42,9 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) const {
                         static_cast<float>(*refs.rectDstW),
                         static_cast<float>(*refs.rectDstH)
                     });
-                    SDL_RenderTexture(renderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect);
+                    if (!SDL_RenderTexture(renderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect)) {
+                        Error::println("Failed to render sprite texture in drawcall: ", SDL_GetError());
+                    }
                 }
             }
             break;
@@ -62,7 +64,9 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) const {
                         static_cast<float>(*refs.rectDstH)
                     });
                     // TODO: Draws black texture instead of text!
-                    SDL_RenderTexture(renderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect);
+                    if (!SDL_RenderTexture(renderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect)) {
+                        Error::println("Failed to render text texture in drawcall: ", SDL_GetError());
+                    }
                 }
             }
             break;
