@@ -13,10 +13,10 @@ GlobalSpace::GlobalSpace(std::string const& name) :
     Domain(
         "Nebulite",
         *this,
-        Global::shareScope(Global::ScopeAccessor::GlobalSpaceAccessToken(), "")
+        Global::shareScope(Global::ScopeAccessor::Full(), "")
     ), // Domain with reference to GlobalSpace and its full scope
     renderer(
-        Global::shareScope(Global::ScopeAccessor::GlobalSpaceAccessToken(), "renderer"),
+        Global::shareScope(Global::ScopeAccessor::Full(), "renderer"),
         &cmdVars.headless
     ) // Share only the renderer portion of the global document
 {
@@ -56,7 +56,7 @@ void GlobalSpace::initialize() {
     // Domain-Related
 
     // Inherit functions from child objects
-    inherit(&Global::shareScope(Global::ScopeAccessor::GlobalSpaceAccessToken(), ""));
+    inherit(&Global::shareScope(Global::ScopeAccessor::Full(), ""));
     inherit(&renderer);
 
     // Initialize DomainModules
@@ -77,7 +77,7 @@ Constants::Error GlobalSpace::updateInnerDomains() const {
     // For now, just update the JSON domain
     // Later on the logic here might be more complex
     // As more inner domains are added
-    static auto& fullScope = Global::shareScope(Global::ScopeAccessor::GlobalSpaceAccessToken(), "");
+    static auto& fullScope = Global::shareScope(Global::ScopeAccessor::Full(), "");
     Constants::Error const result = fullScope.update();
     // Renderer is not updated here, as it is updated in GlobalSpace::update()
     // TODO: See if we can generalize this so that we can safely call renderer.update() here as well

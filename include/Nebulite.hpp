@@ -175,58 +175,92 @@ public:
     /**
      * @brief Class to provide access tokens for various Domain types.
      * @details The access tokens can only be constructed by their respective classes.
-     * @todo Use this instead just of passing class references for access control in shareScope functions.
-     *       Meaning we pass both the object (potentially to derive scope) and its access token.
+     * @todo Use this instead of the deprecated shareScope overloads below.
      */
     class ScopeAccessor {
     public:
-        class GlobalSpaceAccessToken {
-            GlobalSpaceAccessToken() = default;
+        class BaseAccessToken {
+        protected:
+            BaseAccessToken() = default;
+            ~BaseAccessToken() = default;
+            std::string prefix = "";
+        public:
+            std::string getPrefix() const {return prefix; }
+        };
+
+        class Full final : public BaseAccessToken {
+            Full() {
+                prefix = "";
+            }
+            ~Full() = default;
+
+            // Allowed accessors:
             friend class Core::GlobalSpace;
+            // TODO: add a helper class in renderer that does the rendering of globalspace using imgui,
+            //       then make that class a friend here to allow it access to full scope
         };
 
-        class GlobalSpaceDomainModuleAccessToken {
-            GlobalSpaceDomainModuleAccessToken() = default;
-            friend class Interaction::Execution::DomainModule<Core::GlobalSpace>;
+        // TODO: Build full prefix here for each DomainModule type by using arguments for the constructor
+        //       e.g. "providedScope.domainModule.renderObject." + dm.moduleScope.getScopePrefix()
+        //       Then we only require one shareScope function that takes the access token and derives the full prefix from it.
+
+        // Provide GlobalSpace access to DomainModules
+        class DomainModuleProvider {
+            class GlobalSpace final : public BaseAccessToken {
+                explicit GlobalSpace(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm) {
+                    prefix = "" + dm.moduleScope.getScopePrefix();
+                }
+                ~GlobalSpace() = default;
+
+                // Allowed accessors:
+                friend class Interaction::Execution::DomainModule<Core::GlobalSpace>;
+            };
+
+            class RenderObject final : public BaseAccessToken {
+                explicit RenderObject(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm) {
+                    prefix = "providedScope.domainModule.renderObject."  + dm.moduleScope.getScopePrefix();
+                }
+                ~RenderObject() = default;
+
+                // Allowed accessors:
+                friend class Interaction::Execution::DomainModule<Core::RenderObject>;
+            };
+
+            class JsonScope final : public BaseAccessToken {
+                explicit JsonScope(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm) {
+                    prefix = "providedScope.domainModule.jsonScope." + dm.moduleScope.getScopePrefix();
+                }
+                ~JsonScope() = default;
+
+                // Allowed accessors:
+                friend class Interaction::Execution::DomainModule<Core::JsonScope>;
+            };
         };
 
-        class RenderObjectAccessToken {
-            RenderObjectAccessToken() = default;
-            friend class Core::RenderObject;
-        };
+        class RulesetModuleProvider {
+            class RulesetModule final : public BaseAccessToken {
+                explicit RulesetModule(Interaction::Rules::RulesetModule const& rm) {
+                    (void)rm; // TODO: add getScopePrefix() to RulesetModule later on
+                    prefix = ""; // RulesetModules get full access for now
+                }
+                ~RulesetModule() = default;
 
-        class RenderObjectDomainModuleAccessToken {
-            RenderObjectDomainModuleAccessToken() = default;
-            friend class Interaction::Execution::DomainModule<Core::RenderObject>;
+                // Allowed accessors:
+                friend class Interaction::Rules::RulesetModule;
+            };
         };
-
-        class JsonScopeAccessToken {
-            JsonScopeAccessToken() = default;
-            friend class Core::JsonScope;
-        };
-
-        class JsonScopeDomainModuleAccessToken {
-            JsonScopeDomainModuleAccessToken() = default;
-            friend class Interaction::Execution::DomainModule<Core::JsonScope>;
-        };
-
-        class RulesetModuleAccessToken {
-            RulesetModuleAccessToken() = default;
-            friend class Interaction::Rules::RulesetModule;
-        };
-
-        // TODO: Add an access token for full access, restricted to only Imgui GlobalSpace renderer helper class
     };
 
     //------------------------------------------
-    // Provide full scope for GlobalSpace Domain
+    // Provide access based on access token and its prefix
 
-    [[nodiscard]] static Core::JsonScope& shareScope(ScopeAccessor::GlobalSpaceAccessToken const& gs, std::string const& prefix) {
-        (void)gs; // only used for access control
-        return globalDoc().shareManagedScope(prefix);
+    [[nodiscard]] static Core::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix) {
+        return globalDoc().shareManagedScope(at.getPrefix() + prefix);
     }
 
     //------------------------------------------
+    // TODO: The following shareScope overloads are deprecated.
+
     // Provide scopes for DomainModules and RulesetModules, depending on their type
 
     // GlobalSpace DomainModules root is at "", then we add their own prefix
