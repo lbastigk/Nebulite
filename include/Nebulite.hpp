@@ -170,9 +170,58 @@ public:
     }
 
     //------------------------------------------
+    // Define accessor for various scopes
+
+    /**
+     * @brief Class to provide access tokens for various Domain types.
+     * @details The access tokens can only be constructed by their respective classes.
+     * @todo Use this instead just of passing class references for access control in shareScope functions.
+     *       Meaning we pass both the object (potentially to derive scope) and its access token.
+     */
+    class ScopeAccessor {
+    public:
+        class GlobalSpaceAccessToken {
+            GlobalSpaceAccessToken() = default;
+            friend class Core::GlobalSpace;
+        };
+
+        class GlobalSpaceDomainModuleAccessToken {
+            GlobalSpaceDomainModuleAccessToken() = default;
+            friend class Interaction::Execution::DomainModule<Core::GlobalSpace>;
+        };
+
+        class RenderObjectAccessToken {
+            RenderObjectAccessToken() = default;
+            friend class Core::RenderObject;
+        };
+
+        class RenderObjectDomainModuleAccessToken {
+            RenderObjectDomainModuleAccessToken() = default;
+            friend class Interaction::Execution::DomainModule<Core::RenderObject>;
+        };
+
+        class JsonScopeAccessToken {
+            JsonScopeAccessToken() = default;
+            friend class Core::JsonScope;
+        };
+
+        class JsonScopeDomainModuleAccessToken {
+            JsonScopeDomainModuleAccessToken() = default;
+            friend class Interaction::Execution::DomainModule<Core::JsonScope>;
+        };
+
+        class RulesetModuleAccessToken {
+            RulesetModuleAccessToken() = default;
+            friend class Interaction::Rules::RulesetModule;
+        };
+
+        // TODO: Add an access token for full access, restricted to only Imgui GlobalSpace renderer helper class
+    };
+
+    //------------------------------------------
     // Provide full scope for GlobalSpace Domain
 
-    [[nodiscard]] static Core::JsonScope& shareScope(Core::GlobalSpace const& gs, std::string const& prefix) {
+    [[nodiscard]] static Core::JsonScope& shareScope(ScopeAccessor::GlobalSpaceAccessToken const& gs, std::string const& prefix) {
         (void)gs; // only used for access control
         return globalDoc().shareManagedScope(prefix);
     }
@@ -214,11 +263,14 @@ public:
     /**
      * @brief DANGER: Provides full access to the global JSON document scope.
      *        Only use this if absolutely necessary!
-     * @return Reference to the full global JSON document
+     * @return Reference to the full global JSON document. Marked as const to prevent accidental modifications.
+     * @todo Implement a Helper class in renderer that does the rendering of globalspace using imgui,
+     *       then modify this function to require this class as argument, to limit its usage even further.
      */
-    [[nodiscard]] static Core::JsonScope& __DANGER_AHEAD_shareFullScope() {
+    [[nodiscard]] static Core::JsonScope const& __DANGER_AHEAD_shareFullScope() {
         return globalDoc().shareManagedScope("");
     }
+
 private:
     // construct-on-first-use singletons to avoid global constructors/destructors
     static Data::JSON& globalDoc() {

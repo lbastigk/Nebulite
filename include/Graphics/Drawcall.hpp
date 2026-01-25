@@ -152,7 +152,6 @@ private:
 
     Core::JsonScope& drawcallScope;
     Core::Texture texture; // Holds the data for the texture to draw
-    SDL_Rect destRect{}; // Destination rectangle for drawing
 
     //------------------------------------------
     // Updater
