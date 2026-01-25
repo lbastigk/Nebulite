@@ -519,10 +519,7 @@ void Renderer::append(RenderObject* toAppend) {
         domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
         domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0),
         toAppend->domainScope.get<uint8_t>(Constants::KeyNames::RenderObject::layer, 0)
-        );
-
-    //Load texture
-    loadTexture(toAppend->domainScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation));
+    );
 }
 
 void Renderer::reinsertAllObjects() {
@@ -787,125 +784,10 @@ void Renderer::renderFrame() {
 }
 
 void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY) {
-    //------------------------------------------
-    // Texture Loading
-
-    // NEW IMPLEMENTATION:
-
     obj->draw(
         static_cast<float>(dispPosX),
         static_cast<float>(dispPosY)
     );
-
-    // OLD IMPLEMENTATION:
-
-    // Check for texture
-    /**
-    * @todo Find some way to remove the get-call.
-    *       Since the actual image does not change often and does not modify any state, we could use a runner function
-    *       that asynchronously reloads the texture path if needed:
-    *       std::atomic<std::string>& RenderObject::getImageLocation() {
-    *           // Return a reference to an atomic string that stores the path
-    *       }
-    *       std::atomic<std::string>& RenderObject::checkImageLocation(){
-    *           // Ran asynchronously every X seconds by a runner, called from the Renderer owning the Runner
-    *           // 1.) Get actual location form document scope
-    *           // 2.) if different from stored path, set stored path to new path
-    *       }
-    *       We could also update the texture container in the runner, but then we would have to lock the container during rendering.
-    *       Since we have to map string to texture anyway, we can just do it here.
-     */
-    auto const innerDirectory = obj->domainScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation);
-
-    // Load texture if not yet loaded
-    if (TextureContainer.find(innerDirectory) == TextureContainer.end()) {
-        loadTexture(innerDirectory);
-    }
-
-    // Link texture if not yet linked
-    if (!obj->isTextureValid()) {
-        if (auto const t = TextureContainer[innerDirectory]; isTextureValid(t)) {
-            obj->linkExternalTexture(t);
-        }
-    }
-
-    //------------------------------------------
-    // Source and Destination Rectangles
-
-    // Calculate source rect
-    obj->calculateSrcRect();
-
-    // Calculate position rect
-    obj->calculateDstRect();
-
-    //------------------------------------------
-    // Error Checking
-    if (!obj->isTextureValid()) {
-        Error::println("Error: RenderObject ID ",
-            obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0),
-            " texture with path '",
-            innerDirectory,
-            "' not found");
-    }
-
-    //------------------------------------------
-    // Rendering
-
-    // Render the texture
-    if (auto const t = obj->getSDLTexture(); t != nullptr) {
-        SDL_Rect const* src = obj->getSrcRect();
-        SDL_FRect srcF = {};
-        SDL_FRect const* srcFP = nullptr;
-        if (src) {
-            srcF = {static_cast<float>(src->x), static_cast<float>(src->y), static_cast<float>(src->w), static_cast<float>(src->h)};
-            srcFP = &srcF;
-        }
-        SDL_Rect const* dst = obj->getDstRect();
-        SDL_FRect dstF = {};
-        SDL_FRect const* dstFP = nullptr;
-        if (dst) {
-            dstF = scaleRectFromLogicalSize({
-                static_cast<float>(dst->x),
-                static_cast<float>(dst->y),
-                static_cast<float>(dst->w),
-                static_cast<float>(dst->h)
-            });
-            dstF.x -= static_cast<float>(dispPosX) * windowScale; // Subtract X camera position
-            dstF.y -= static_cast<float>(dispPosY) * windowScale; // Subtract Y camera position
-
-            //dstF.x -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResX));
-            //dstF.y -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResY));
-
-            dstFP = &dstF;
-        }
-
-        if (SDL_RenderTexture(renderer, t, srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
-            auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-            Error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
-        }
-    }
-
-    // Render the text
-    if (obj->isTextRenderingEnabled()) {
-        obj->calculateText(
-            renderer,
-            font,
-            dispPosX,
-            dispPosY
-            );
-        if (obj->getTextTexture() && obj->getTextRect()) {
-            auto const textRectF = scaleRectFromLogicalSize({
-                static_cast<float>(obj->getTextRect()->x),
-                static_cast<float>(obj->getTextRect()->y),
-                static_cast<float>(obj->getTextRect()->w),
-                static_cast<float>(obj->getTextRect()->h)
-            });
-            if (SDL_RenderTexture(renderer, obj->getTextTexture(), nullptr, &textRectF) != 0 && SDL_GetError()[0] != '\0') {
-                auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-                Error::println("Error rendering text for RenderObject ID ", id, ": ", SDL_GetError());
-            }
-        }
-    }
 }
 
 //------------------------------------------

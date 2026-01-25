@@ -515,8 +515,7 @@ private:
 
     static void renderGlobalSpace();
 
-    void renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
-
+    static void renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
 
     //------------------------------------------
     // Event Handling

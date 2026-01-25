@@ -6,8 +6,8 @@
 
 // Nebulite
 #include "Nebulite.hpp"
-#include "Constants/KeyNames.hpp"
 #include "Core/Texture.hpp"
+#include "Graphics/Drawcall.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
@@ -32,7 +32,7 @@ Constants::Error Texture::update() {
 bool Texture::copyTexture() {
     // If no texture is linked, try to load from the document
     if (texture == nullptr) {
-        std::string const& imageLink = domainScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation, "");
+        std::string const& imageLink = domainScope.get<std::string>(Graphics::Drawcall::Key::SpriteSpecific::imageLocation, "");
         texture = Global::instance().getRenderer().loadTextureToMemory(imageLink);
 
         if (texture == nullptr) {

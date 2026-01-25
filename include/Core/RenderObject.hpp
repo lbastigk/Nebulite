@@ -9,15 +9,7 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <cfloat>
-
-// External
-#include <SDL3/SDL.h>           // SDL Renderer is used for some methods to calculate text
-#include <SDL3_ttf/SDL_ttf.h>   // Same for ttf
-
 // Nebulite
-#include "Core/Texture.hpp"
 #include "Core/JsonScope.hpp"
 #include "Graphics/Drawcall.hpp"
 #include "Interaction/Execution/Domain.hpp"
@@ -75,106 +67,6 @@ public:
      * @param serialOrLink The JSON string to deserialize.
      */
     void deserialize(std::string const& serialOrLink);
-
-    //------------------------------------------
-    // TODO: remove all following functions, now part of drawcalls
-
-    // Getters for Rectangles and Textures
-
-    /**
-     * @brief Gets a pointer to the SDL_Rect describing the destination of the sprite.
-     * @return A pointer to the SDL_Rect describing the destination of the sprite.
-     */
-    SDL_Rect* getDstRect();
-
-    /**
-     * @brief Gets a pointer to the SDL_Rect describing the source of the sprite.
-     * @return A pointer to the SDL_Rect describing the source of the sprite.
-     */
-    SDL_Rect* getSrcRect();
-
-    /**
-     * @brief Gets a pointer to the SDL_Rect describing the destination of the text.
-     * @return A pointer to the SDL_Rect describing the destination of the text.
-     */
-    SDL_Rect* getTextRect();
-
-    /**
-     * @brief Gets the texture of the text.
-     * @return A pointer to the SDL_Texture representing the text.
-     */
-    [[nodiscard]] SDL_Texture* getTextTexture() const;
-
-    /**
-     * @brief Calculates the text texture for the RenderObject.
-     * @param renderer The SDL_Renderer to use for rendering.
-     * @param font The TTF_Font to use for rendering the text.
-     * @param renderPositionX The X position of the renderer used for text offset.
-     * @param renderPositionY The Y position of the renderer used for text offset.
-     */
-    void calculateText(SDL_Renderer* renderer, TTF_Font* font, int const& renderPositionX, int const& renderPositionY);
-
-    /**
-     * @brief Calculates the destination rectangle for the sprite.
-     */
-    void calculateDstRect();
-
-    /**
-     * @brief Calculates the source rectangle for the sprite.
-     */
-    void calculateSrcRect();
-
-    /**
-     * @brief Checks if text rendering is enabled for this RenderObject.
-     * @details This checks if the font size is not zero.
-     * @return true if texture rendering is enabled, false otherwise.
-     */
-    [[nodiscard]] bool isTextRenderingEnabled() const {
-        return std::fabs(*refs.fontSize) > DBL_EPSILON;
-    }
-
-    /**
-     * @brief Links an external SDL_Texture to this domain.
-     * @param externalTexture Pointer to the external SDL_Texture.
-     */
-    void linkExternalTexture(SDL_Texture* externalTexture) {
-        baseTexture.linkExternalTexture(externalTexture);
-    }
-
-    /**
-     * @brief Checks if the texture has been modified.
-     * @return true if the texture has been modified, false otherwise.
-     */
-    [[nodiscard]] bool isTextureStoredLocally() const {
-        return baseTexture.isTextureStoredLocally();
-    }
-
-    /**
-     * @brief Checks if the texture is valid (not null).
-     * @return true if the texture is valid, false otherwise.
-     */
-    [[nodiscard]] bool isTextureValid() const {
-        return baseTexture.isTextureValid();
-    }
-
-    /**
-     * @brief Gets the current SDL_Texture.
-     * @return Pointer to the current SDL_Texture.
-     */
-    [[nodiscard]] SDL_Texture* getSDLTexture() const {
-        return baseTexture.getSDLTexture();
-    }
-
-    /**
-     * @brief Gets the Texture object.
-     * @return Pointer to the Texture object.
-     */
-    Texture* getTexture() {
-        return &baseTexture;
-    }
-
-    // == END OF FUNCTIONS TO REMOVE ==
-    //------------------------------------------
 
     //------------------------------------------
     // Get position
@@ -306,52 +198,12 @@ private:
         // Position and Size
         double* posX = nullptr;
         double* posY = nullptr;
-
-        // TODO: Remove all following refs, not needed anymore after drawcall implementation
-
-        double* pixelSizeX = nullptr;
-        double* pixelSizeY = nullptr;
-
-        // Spritesheet
-        double* isSpritesheet = nullptr;
-        double* spritesheetOffsetX = nullptr;
-        double* spritesheetOffsetY = nullptr;
-        double* spritesheetSizeX = nullptr;
-        double* spritesheetSizeY = nullptr;
-
-        // Text
-        double* fontSize = nullptr;
-        double* textDx = nullptr;
-        double* textDy = nullptr;
-        double* textColorR = nullptr;
-        double* textColorG = nullptr;
-        double* textColorB = nullptr;
-        double* textColorA = nullptr;
     } refs = {};
 
     /**
      * @brief Links frequently used references from the JSON document for quick access.
      */
     void linkFrequentRefs();
-
-    //------------------------------------------
-    // Texture related
-
-    // TODO: Remove all texture related code, now part of drawcalls
-
-    // Base Texture
-    Texture baseTexture;
-
-    // === TO REWORK ===
-
-    // for caching of SDL Positions
-    SDL_Rect dstRect = {0, 0, 0, 0}; // destination of sprite
-    SDL_Rect srcRect = {0, 0, 0, 0}; // source of sprite from spritesheet
-    SDL_Rect textRect = {0, 0, 0, 0}; // destination of text texture
-
-    // Surface and Texture of Text
-    SDL_Surface* textSurface; // Surface for the text
-    SDL_Texture* textTexture; // Texture for the text
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_CORE_RENDEROBJECT_HPP

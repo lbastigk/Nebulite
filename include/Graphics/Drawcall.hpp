@@ -1,15 +1,6 @@
 /**
  * @file Drawcall.hpp
  * @brief This file contains the declaration of the Nebulite::Graphics::Drawcall base class.
- * @todo The big question currently is how to best implement the structure into a RenderObject.
- *       RenderObjects should be able to hold multiple Drawcalls, with a hashmap where the hashmap key is also the key in the JsonScope.
- *       This way, we can easily access and modify specific drawcalls within a RenderObject.
- *       E.g.: on-drawcall parse <args>
- *       But should each drawcall hold its Texture?
- *       It makes sense in a way, as any drawcall needs its own texture data.
- *       This way, a drawcall would seemingly be just a wrapper around a texture to better integrate with the rendering pipeline.
- *       It may be better to integrate this into each Texture, and have a Texture::draw() method instead.
- *       For now we implement a rudimentary Drawcall class to see how it works out.
  */
 
 #ifndef NEBULITE_GRAPHICS_DRAWCALL_HPP
@@ -34,6 +25,13 @@ namespace Nebulite::Graphics {
 /**
  * @class Nebulite::Graphics::Drawcall
  * @brief Base class for all draw calls in the rendering pipeline.
+ * @details Drawcalls hold their own configuration data in a JsonScope,
+ *          that is shared with a texture domain that it owns.
+ *          Each drawcall is able to forward arguments to the texture it owns,
+ *          allowing for dynamic texture updates based on user-defined strings.
+ *          Drawcalls properly manage texture metadata updates such as source/destination rectangles.
+ * @todo Legacy drawcall system has been removed, but the data still exists inside all json documents.
+ *       We need to merge that data into the new system for all existing tests to actually show something.
  */
 class Drawcall {
 public:
@@ -52,6 +50,7 @@ public:
         if (!status.initialized) {
             updateDrawcallData(); // No me
         }
+        texture.update();
         updaterRoutine.update();
     }
 
@@ -70,7 +69,15 @@ public:
      */
     static void setDefaultTypeText(Core::JsonScope& scope);
 
-protected:
+    /**
+     * @struct Key
+     * @brief Holds the keys used in the drawcall JsonScope.
+     * @details All keys are unscoped, as they are relative to the drawcall's own scope.
+     *          Since the drawcall's scope isn't fixed within the RenderObject's document,
+     *          we cannot use fully scoped keys here.
+     *          Use these keys with caution, ensuring the scope you use them with is indeed
+     *          the drawcall's / texture's scope!
+     */
     struct Key {
         static auto constexpr type = Data::ScopedKeyView("drawType"); // "sprite", "text", "geometry", etc.
 
@@ -106,8 +113,12 @@ protected:
         };
     };
 
+private:
+    /**
+     * @struct Refs
+     * @brief Holds frequently used references for quick access.
+     */
     struct Refs {
-        // TODO: Add frequently used references here for faster access
         double* rectSrcX = nullptr;
         double* rectSrcY = nullptr;
         double* rectSrcW = nullptr;
@@ -143,6 +154,11 @@ protected:
     Core::Texture texture; // Holds the data for the texture to draw
     SDL_Rect destRect{}; // Destination rectangle for drawing
 
+    //------------------------------------------
+    // Updater
+
+    static auto constexpr updateDrawcallDataIntervalMs = 1000; // Update every second
+
     void updateDrawcallData();
 
     // Allows periodic updating of drawcall data to reflect current state
@@ -150,7 +166,7 @@ protected:
         [this] {
             updateDrawcallData();
         },
-        1000
+        updateDrawcallDataIntervalMs
     }; // Routine to update the drawcall data periodically
 
     //------------------------------------------

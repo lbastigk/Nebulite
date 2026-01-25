@@ -63,24 +63,8 @@ struct KeyNames {
 
         static auto constexpr draw = Data::ScopedKeyView("draw");
 
-        // TODO: remove these as they are now in Drawcall::Key
-        //       still requires some refactoring
-        static auto constexpr pixelSizeX = Data::ScopedKeyView("sprite.sizeX");
-        static auto constexpr pixelSizeY = Data::ScopedKeyView("sprite.sizeY");
-        static auto constexpr imageLocation = Data::ScopedKeyView("sprite.link");
-        static auto constexpr isSpritesheet = Data::ScopedKeyView("sprite.spritesheet.isSpritesheet");
-        static auto constexpr spritesheetSizeX = Data::ScopedKeyView("sprite.spritesheet.sizeX");
-        static auto constexpr spritesheetSizeY = Data::ScopedKeyView("sprite.spritesheet.sizeY");
-        static auto constexpr spritesheetOffsetX = Data::ScopedKeyView("sprite.spritesheet.offsetX");
-        static auto constexpr spritesheetOffsetY = Data::ScopedKeyView("sprite.spritesheet.offsetY");
-        static auto constexpr textFontsize = Data::ScopedKeyView("text.fontSize");
-        static auto constexpr textStr = Data::ScopedKeyView("text.str");
-        static auto constexpr textColorR = Data::ScopedKeyView("text.color.R");
-        static auto constexpr textColorG = Data::ScopedKeyView("text.color.G");
-        static auto constexpr textColorB = Data::ScopedKeyView("text.color.B");
-        static auto constexpr textColorA = Data::ScopedKeyView("text.color.A");
-        static auto constexpr textDx = Data::ScopedKeyView("text.dx");
-        static auto constexpr textDy = Data::ScopedKeyView("text.dy");
+        static auto constexpr pixelSizeX = Data::ScopedKeyView("size.X");
+        static auto constexpr pixelSizeY = Data::ScopedKeyView("size.Y");
     };
 
     // Keys within any Ruleset JSON object
