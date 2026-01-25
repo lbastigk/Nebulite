@@ -27,7 +27,7 @@
 namespace Nebulite {
 /**
  * @namespace Nebulite::Constants
- * @brief Contains all constant values used throughout the Nebulite framework.
+ * @brief Contains all constant values/tables used throughout the Nebulite framework.
  */
 namespace Constants {
 } // namespace Constants
@@ -35,8 +35,9 @@ namespace Constants {
 /**
  * @namespace Nebulite::Core
  * @brief Contains all core classes (called Domains) related to the Nebulite framework.
- * @detauils These form the backbone of the Nebulite system.
- *           They provide essential services such as scoped data management, command parsing, serialization, etc.
+ * @details These form the backbone of the Nebulite system.
+ *          They provide essential services such as scoped data management, command parsing, serialization, etc.
+ * @note Contains the Texture class, even if it is graphics-related, as it is a core class simply by being a Domain.
  */
 namespace Core {
 } // namespace Core
@@ -51,6 +52,7 @@ namespace Data {
 /**
  * @namespace Nebulite::DomainModule
  * @brief Contains all DomainModules used throughout the Nebulite framework.
+ * @details Further sorted by their associated Domain type.
  */
 namespace DomainModule {
 /**
@@ -83,13 +85,21 @@ namespace RenderObject {
 } // namespace DomainModule
 
 /**
+ * @namespace Nebulite::Graphics
+ * @brief Contains mainly helper classes to assist with rendering-related tasks.
+ */
+namespace Graphics {
+} // namespace Graphics
+
+/**
  * @namespace Nebulite::Interaction
  * @brief Contains all classes, functions, types and variables related to the Nebulite interaction system.
  */
 namespace Interaction {
 /**
  * @namespace Nebulite::Interaction::Execution
- * @brief Contains all classes, functions, types and variables related to domain-specific command-processing.
+ * @brief Contains all classes, functions, types and variables related to domain-specific command-processing,
+ *        as well as the modulization system through DomainModules.
  */
 namespace Execution {
 } // namespace Execution
@@ -97,6 +107,7 @@ namespace Execution {
 /**
  * @namespace Nebulite::Interaction::Logic
  * @brief Contains all classes, functions, types and variables related to mathematical logic.
+ * @details All classes assist in evaluating user-defined runtime logical expressions within the Nebulite framework.
  */
 namespace Logic {
 } // namespace Logic
@@ -104,7 +115,7 @@ namespace Logic {
 /**
  * @namespace Nebulite::Interaction::Rules
  * @brief Contains all classes, functions, types and variables related to the
- *        rule-based domain manipulation system in Nebulites Invoke system.
+ *        rule-based domain manipulation system. Both local and global rulesets are handled here.
  */
 namespace Rules {
 /**
@@ -118,6 +129,8 @@ namespace Construction {
 /**
  * @namespace Nebulite::Interaction::Rules::RulesetModules
  * @brief Contains all classes, functions, types and variables related to specific static Rulesets.
+ * @details Compared to json-defined Rulesets, these RulesetModules provide optimized implementations for common use-cases.
+ *          They are hardcoded and compiled into the Nebulite framework.
  */
 namespace RulesetModules {
 } // namespace RulesetModules
