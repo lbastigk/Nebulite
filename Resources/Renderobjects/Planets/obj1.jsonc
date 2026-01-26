@@ -1,6 +1,6 @@
 {
     "draw": {
-        "exampleSprite": {
+        "core": {
             "drawType": "sprite",
             "rect": {
                 "dst": {
@@ -14,12 +14,12 @@
                 "link": "Resources/Sprites/TEST001P/001.bmp"
             }
         },
-        "exampleText": {
+        "text": {
             "drawType": "text",
             "rect": {
                 "dst": {
-                    "x": -10.0,
-                    "y": -10.0
+                    "x": -0.0,
+                    "y": -15.0
                 }
             },
             "textureData": {
@@ -29,7 +29,7 @@
                     "G": 255.0,
                     "R": 255.0
                 },
-                "fontSize": 16.0,
+                "fontSize": 8.0,
                 "str": "OBJ1"
             }
         }

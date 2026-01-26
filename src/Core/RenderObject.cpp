@@ -126,6 +126,7 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
     //------------------------------------------
     // Reinitialize everything
     reinitModules();
+    reinitDrawcalls();
 
     //------------------------------------------
     // Update once to initialize

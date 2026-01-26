@@ -3,6 +3,11 @@
 
 namespace Nebulite::Graphics {
 
+Drawcall::Drawcall(Core::JsonScope& workspace) : drawcallScope(workspace), texture(workspace) {
+    refs.initialize(workspace);
+    updateDrawcallData();
+}
+
 void Drawcall::Refs::initialize(Core::JsonScope const& scope){
     // Source Rect
     rectSrcX = scope.getStableDoublePointer(Key::Rect::srcX);
@@ -28,6 +33,7 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) const {
     auto const& renderer = Global::instance().getRenderer();
     switch (type) {
         case SPRITE:
+        case TEXT:
             {
                 if (texture.isTextureValid()) {
                     SDL_FRect const srcRect = {
@@ -44,28 +50,6 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) const {
                     });
                     if (!SDL_RenderTexture(renderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect)) {
                         Error::println("Failed to render sprite texture in drawcall: ", SDL_GetError());
-                    }
-                }
-            }
-            break;
-        case TEXT:
-            {
-                if (texture.isTextureValid()) {
-                    SDL_FRect const srcRect = {
-                        static_cast<float>(*refs.rectSrcX),
-                        static_cast<float>(*refs.rectSrcY),
-                        static_cast<float>(*refs.rectSrcW),
-                        static_cast<float>(*refs.rectSrcH)
-                    };
-                    SDL_FRect const dstRect = renderer.scaleRectFromLogicalSize({
-                        static_cast<float>(*refs.rectDstX) + offsetX,
-                        static_cast<float>(*refs.rectDstY) + offsetY,
-                        static_cast<float>(*refs.rectDstW),
-                        static_cast<float>(*refs.rectDstH)
-                    });
-                    // TODO: Draws black texture instead of text!
-                    if (!SDL_RenderTexture(renderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect)) {
-                        Error::println("Failed to render text texture in drawcall: ", SDL_GetError());
                     }
                 }
             }
@@ -162,75 +146,71 @@ void Drawcall::initializeSprite() {
 }
 
 void Drawcall::initializeText() {
-    // Skip if renderer is not initialized
-    if (!Global::instance().getRenderer().isSdlInitialized()) {
+    if (!Global::instance().getRenderer().isSdlInitialized()) return;
+
+    SDL_Renderer* sdl = Global::instance().getRenderer().getSdlRenderer();
+    if (!sdl) {
+        Error::println("Renderer not available for text drawcall.");
         return;
     }
 
-    // Create new texture
-    SDL_Texture* sdlTexture = nullptr;
     auto const text = drawcallScope.get<std::string>(Key::TextSpecific::str);
-    if (text.empty()) {
+    if (text.empty()) return;
+
+    TTF_Font* font = Global::instance().getRenderer().getStandardFont();
+    if (!font) {
+        Error::println("Font not available for text drawcall.");
         return;
     }
-    static TTF_Font* font = Global::instance().getRenderer().getStandardFont();
-    static SDL_Renderer* renderer = Global::instance().getSdlRenderer();
-    if (font && renderer) {
-        SDL_Color const textColor = {
-            static_cast<Uint8>(*refs.textColorR),
-            static_cast<Uint8>(*refs.textColorG),
-            static_cast<Uint8>(*refs.textColorB),
-            static_cast<Uint8>(*refs.textColorA)
-        };
-        if (SDL_Surface* textSurface = TTF_RenderText_Solid(font, text.c_str(), 0, textColor); textSurface) {
-            sdlTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-            SDL_DestroySurface(textSurface); // Free surface after creating texture
-        }
-    }
-    else {
-        Error::println("Font or Renderer not initialized for text drawcall.");
+
+    SDL_Color const textColor = {
+        static_cast<Uint8>(*refs.textColorR),
+        static_cast<Uint8>(*refs.textColorG),
+        static_cast<Uint8>(*refs.textColorB),
+        static_cast<Uint8>(*refs.textColorA)
+    };
+
+    // Use blended rendering to get proper alpha
+    SDL_Surface* surf = TTF_RenderText_Blended(font, text.c_str(), 0, textColor);
+    if (!surf) {
+        Error::println("TTF_RenderText_Blended failed: ", SDL_GetError());
+        return;
     }
 
-    // Link texture and initialize rects
-    if (sdlTexture) {
-        float w, h;
-        SDL_GetTextureSize(sdlTexture, &w, & h);
-
-        // Setup src values unless they are already defined
-        if (drawcallScope.memberType(Key::Rect::srcX) != Data::KeyType::value) {
-            drawcallScope.set<double>(Key::Rect::srcX, 0.0);
-        }
-        if (drawcallScope.memberType(Key::Rect::srcY) != Data::KeyType::value) {
-            drawcallScope.set<double>(Key::Rect::srcY, 0.0);
-        }
-        if (drawcallScope.memberType(Key::Rect::srcW) != Data::KeyType::value) {
-            drawcallScope.set<double>(Key::Rect::srcW, static_cast<double>(w));
-        }
-        if (drawcallScope.memberType(Key::Rect::srcH) != Data::KeyType::value) {
-            drawcallScope.set<double>(Key::Rect::srcH, static_cast<double>(h));
-        }
-
-        // Setup dst values unless they are already defined
-        if (drawcallScope.memberType(Key::Rect::dstX) != Data::KeyType::value) {
-            drawcallScope.set<double>(Key::Rect::dstX, 0.0);
-        }
-        if (drawcallScope.memberType(Key::Rect::dstY) != Data::KeyType::value) {
-            drawcallScope.set<double>(Key::Rect::dstY, 0.0);
-        }
-        if (drawcallScope.memberType(Key::Rect::dstW) != Data::KeyType::value) {
-            drawcallScope.set<double>(Key::Rect::dstW, *refs.textFontsize * static_cast<double>(text.length()));
-        }
-        if (drawcallScope.memberType(Key::Rect::dstH) != Data::KeyType::value) {
-            drawcallScope.set<double>(Key::Rect::dstH, *refs.textFontsize * 1.5);
-        }
-
-        // Link texture, mark as initialized
-        texture.setInternalTexture(sdlTexture);
-        status.initialized = true;
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(sdl, surf);
+    SDL_DestroySurface(surf);
+    if (!tex) {
+        Error::println("SDL_CreateTextureFromSurface failed: ", SDL_GetError());
+        return;
     }
-    else {
-        Error::println("Failed to create text texture for drawcall text: ", text);
+
+    SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+
+    float w = 0, h = 0;
+    if (!SDL_GetTextureSize(tex, &w, &h)) {
+        Error::println("SDL_GetTextureSize failed: ", SDL_GetError());
+        SDL_DestroyTexture(tex);
+        return;
     }
+
+    // Cast to double
+    double const dw = static_cast<double>(w);
+    double const dh = static_cast<double>(h);
+
+    // Setup src values unless they are already defined
+    if (drawcallScope.memberType(Key::Rect::srcX) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcX, 0.0);
+    if (drawcallScope.memberType(Key::Rect::srcY) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcY, 0.0);
+    if (drawcallScope.memberType(Key::Rect::srcW) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcW, dw);
+    if (drawcallScope.memberType(Key::Rect::srcH) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcH, dh);
+
+    // Prefer measured pixel size for dst unless the caller explicitly set different values
+    if (drawcallScope.memberType(Key::Rect::dstX) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstX, 0.0);
+    if (drawcallScope.memberType(Key::Rect::dstY) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstY, 0.0);
+    if (drawcallScope.memberType(Key::Rect::dstW) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstW, *refs.textFontsize * static_cast<double>(text.length()));
+    if (drawcallScope.memberType(Key::Rect::dstH) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstH, *refs.textFontsize * 1.5);
+
+    texture.setInternalTexture(tex);
+    status.initialized = true;
 }
 
 } // namespace Nebulite::Graphics

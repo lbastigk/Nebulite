@@ -36,14 +36,10 @@ namespace Nebulite::Graphics {
 class Drawcall {
 public:
     // Any Drawcall is based on a scopes data
-    explicit Drawcall(Core::JsonScope& workspace) : drawcallScope(workspace), texture(workspace) {
-        refs.initialize(workspace);
-        updateDrawcallData();
-    }
+    explicit Drawcall(Core::JsonScope& workspace);
 
     ~Drawcall() = default;
 
-    // TODO: Missing scale parameter!
     void draw(float const& offsetX, float const& offsetY) const ;
 
     void update() {
@@ -163,7 +159,7 @@ private:
     // Allows periodic updating of drawcall data to reflect current state
     Utility::TimedRoutine updaterRoutine{
         [this] {
-            updateDrawcallData();
+            //updateDrawcallData(); // TODO: Activate later on
         },
         updateDrawcallDataIntervalMs,
         Utility::TimedRoutine::ConstructionMode::START_IMMEDIATELY
@@ -175,22 +171,6 @@ private:
     void initializeSprite();
 
     void initializeText();
-};
-
-// Idea for how the JsonScope may look like:
-struct ExampleDrawCallData {
-    std::string type; // e.g., "sprite", "text"
-    // -> if we use a number, we could switch-case on it for faster processing
-    // but that makes abstraction harder, so we may wish to keep it as a string for now
-
-    // Specific to sprite
-    std::string link;
-    SDL_Rect srcRect;
-
-    // Specific to text
-    std::string text;
-    int fontSize;
-    SDL_Color color;
 };
 
 } // namespace Nebulite::Graphics
