@@ -495,6 +495,33 @@ private:
 
         // NOLINTNEXTLINE
         static double sgn(double a) { return std::copysign(1.0, a); }
+
+        //----------------------------------
+        // Pseudo-random functions
+
+        // Idea: offer various RNG functions here, useful for pseudo-random logic:
+        // RNG2ARG(a,b) -> returns a random number, seeded from a and b
+        // RNG3ARG(a,b,c) -> returns a random number, seeded from a, b and c
+        // etc.
+        // We could use this to determine tileset usage based on position?
+
+        // NOLINTNEXTLINE
+        static double rng2arg(double a, double b) {
+            uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663);
+            seed = (seed ^ seed >> 30) * 0xbf58476d1ce4e5b9;
+            seed = (seed ^ seed >> 27) * 0x94d049bb133111eb;
+            seed = seed ^ seed >> 31;
+            return static_cast<double>(seed % 10000) / 10000.0; // Return a value between 0 and 1
+        }
+
+        // NOLINTNEXTLINE
+        static double rng3arg(double a, double b, double c) {
+            uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663) ^ static_cast<uint64_t>(c * 83492791);
+            seed = (seed ^ seed >> 30) * 0xbf58476d1ce4e5b9;
+            seed = (seed ^ seed >> 27) * 0x94d049bb133111eb;
+            seed = seed ^ seed >> 31;
+            return static_cast<double>(seed % 10000) / 10000.0; // Return a value between 0 and 1
+        }
     };
 
     /**

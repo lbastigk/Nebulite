@@ -87,6 +87,10 @@ void Expression::reset() {
 
     // More mathematical functions
     te_variables.push_back({"sgn", reinterpret_cast<void*>(expr_custom::sgn), TE_FUNCTION1, nullptr});
+
+    // RNG functions
+    te_variables.push_back({"rng2arg", reinterpret_cast<void*>(expr_custom::rng2arg), TE_FUNCTION2, nullptr});
+    te_variables.push_back({"rng3arg", reinterpret_cast<void*>(expr_custom::rng3arg), TE_FUNCTION3, nullptr});
 }
 
 std::string Expression::stripContext(std::string const& key) {
