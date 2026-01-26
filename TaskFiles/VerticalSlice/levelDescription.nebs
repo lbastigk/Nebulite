@@ -14,7 +14,9 @@ spawn ./Resources/Renderobjects/Creatures/player.jsonc|posX=160|posY=160
 ###########################
 # Part 2: Background
 echo Adding background
-for i 0 39 for j 0 29 eval spawn ./Resources/Renderobjects/Plants/Grass/grass.jsonc|posX=$({i}*16)|posY=$({j}*16)
+
+#   [X]        [Y]               [Source RenderObject]                              [Set posX]    [Set posY]     [Modify tile for variation]
+for i 0 39 for j 0 29 eval spawn ./Resources/Renderobjects/Plants/Grass/grass.jsonc|posX=$({i}*16)|posY=$({j}*16)|set draw.core.rect.src.x $(16*(rng2argInt16({i}*16,{j}*16)%3))
 
 ###########################
 # Part 3: some trees
