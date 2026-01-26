@@ -151,7 +151,18 @@ private:
         CIRCLE,
         POLYGON
         // More ideas:
+        // - FilledPolygon (similar to polygon, but filled)
         // - tiledSprite (set fixed size of each tile, or a min/max size, and tile the texture accordingly) Helpful for GUI elements
+        //   > dstRect determines the overall area to fill
+        //   > srcRect determines what part of the texture to tile
+        //   > scalar (how much to scale each tile by)
+        //   > tileType (what to do with partial tiles: cut-off, align-nearest-down, align-nearest-up, align-nearest)
+        //     > cutoff: simply cut off any partial tiles at the edges
+        //     > align-nearest: every tile is scaled so that only full tiles fit in the dstRect
+        //       > e.g. if tile is 8x8 and dstRect is 20x20:
+        //         scale tiles to 6.66x6.66 so that 3x3 tiles fit perfectly
+        //         scale tiles to 10x10 so that 2x2 tiles fit perfectly
+        //   > perhaps we should determine if we create a new texture for this or render directly from the original texture?
     }type;
 
     Core::JsonScope& drawcallScope;
