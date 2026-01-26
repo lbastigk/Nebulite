@@ -117,6 +117,7 @@ void Drawcall::initializeSprite() {
     // Get Texture from container via link
     std::string const link = drawcallScope.get<std::string>(Key::SpriteSpecific::imageLocation);
     if (link.empty()) {
+        Error::println("Sprite drawcall has empty texture link.");
         return;
     }
 
@@ -145,6 +146,11 @@ void Drawcall::initializeSprite() {
     }
 }
 
+// TODO: Re-initialization still does not work properly
+//       after 1s (timer), the new text is not shown
+//       IDEA: Perhaps, instead of the internal re-initialization,
+//             we could have a full reinit inside the renderObject
+//             If that timer runs out, we reinit a random drawcall inside the renderObject
 void Drawcall::initializeText() {
     if (!Global::instance().getRenderer().isSdlInitialized()) return;
 
@@ -154,13 +160,16 @@ void Drawcall::initializeText() {
         return;
     }
 
-    // TODO: Proper width wrapping based on fontsize and max width
-    auto const text = drawcallScope.get<std::string>(Key::TextSpecific::str);
-
     TTF_Font* font = Global::instance().getRenderer().getStandardFont();
     if (!font) {
         Error::println("Font not available for text drawcall.");
         return;
+    }
+
+    // TODO: Proper width wrapping based on fontsize and max width
+    auto text = drawcallScope.get<std::string>(Key::TextSpecific::str);
+    if (text.empty()) {
+        text = " "; // Render at least a space to get height
     }
 
     SDL_Color const textColor = {
@@ -170,8 +179,7 @@ void Drawcall::initializeText() {
         static_cast<Uint8>(*refs.textColorA)
     };
 
-    // Use blended rendering to get proper alpha
-    SDL_Surface* surf = TTF_RenderText_Solid_Wrapped(font, text.c_str(), 0, textColor, 0);
+    SDL_Surface* surf = TTF_RenderText_Blended_Wrapped(font, text.c_str(), 0, textColor, 0);
     if (!surf) {
         Error::println("TTF_RenderText_Blended failed: ", SDL_GetError());
         return;
