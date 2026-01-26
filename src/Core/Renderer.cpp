@@ -105,8 +105,10 @@ void Renderer::setupDisplayValues() {
     fps.target = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::targetFPS, 60);
 
     // Set in workspace
-    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X);
-    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResY, Y);
+    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X*windowScale);
+    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResY, Y*windowScale);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResXLogical, X);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResYLogical, Y);
 
     // Start position at 0|0
     // TODO: Move to environment?

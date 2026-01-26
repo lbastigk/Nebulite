@@ -1,4 +1,20 @@
 {
+    "draw": {
+        "core": {
+            "drawType": "sprite",
+            "rect": {
+                "dst": {
+                    "h": 16.0,
+                    "w": 16.0,
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            },
+            "textureData": {
+                "link": "./Resources/Sprites/TEST100P/001.bmp"
+            }
+        }
+    },
     "id": 0,
     "layer": 0,
     "physics": {
@@ -10,24 +26,6 @@
     },
     "posX": 350,
     "posY": 500,
-    "sprite": {
-        "link": "./Resources/Sprites/TEST100P/001.bmp",
-        "sizeX": 10,
-        "sizeY": 10,
-        "spritesheet": {
-            "isSpritesheet": false,
-            "offsetX": 0,
-            "offsetY": 0,
-            "sizeX": 0,
-            "sizeY": 0
-        }
-    },
-    "text": {
-        "dx": 0.0,
-        "dy": 0.0,
-        "fontSize": 0,
-        "str": ""
-    },
     "ruleset": {
         "listen": [
             "all",
@@ -39,5 +37,9 @@
             "::physics::drag",
             "::physics::applyForce"
         ]
+    },
+    "size": {
+        "x": 16,
+        "y": 16
     }
 }
