@@ -112,6 +112,7 @@ public:
 
         struct PolygonSpecific {
             static auto constexpr points = Data::ScopedKeyView("textureData.points"); // Array of point objects {x, y}
+            static auto constexpr filled = Data::ScopedKeyView("textureData.filled"); // bool
         };
     };
 
@@ -140,6 +141,8 @@ private:
 
         double* circleRadius = nullptr;
 
+        double* polygonFilled = nullptr;
+
         void initialize(Core::JsonScope const& scope);
     } refs;
 
@@ -151,7 +154,6 @@ private:
         CIRCLE,
         POLYGON
         // More ideas:
-        // - FilledPolygon (similar to polygon, but filled)
         // - tiledSprite (set fixed size of each tile, or a min/max size, and tile the texture accordingly) Helpful for GUI elements
         //   > dstRect determines the overall area to fill
         //   > srcRect determines what part of the texture to tile

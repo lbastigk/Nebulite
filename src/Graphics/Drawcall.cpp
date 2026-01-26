@@ -7,6 +7,7 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Graphics/Drawcall.hpp"
+#include "Graphics/SdlPrimitive.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics {
@@ -51,6 +52,9 @@ void Drawcall::Refs::initialize(Core::JsonScope const& scope){
 
     // Circle-specific
     circleRadius = scope.getStableDoublePointer(Key::CircleSpecific::radius);
+
+    // Polygon-specific
+    polygonFilled = scope.getStableDoublePointer(Key::PolygonSpecific::filled);
 }
 
 void Drawcall::draw(float const& offsetX, float const& offsetY) {
@@ -297,25 +301,6 @@ void Drawcall::initializeText() {
     texture.setInternalTexture(tex);
 }
 
-// TODO: Move to Graphics/SdlPrimitives.hpp/cpp
-namespace {
-void drawFilledCircle(
-    SDL_Renderer *renderer,
-    int const cx,
-    int const cy,
-    int const radius
-) {
-    for (int dy = -radius; dy <= radius; dy++) {
-        int const dx = static_cast<int>(sqrt(radius * radius - dy * dy));
-        SDL_RenderLine(
-            renderer,
-            static_cast<float>(cx - dx), static_cast<float>(cy + dy),
-            static_cast<float>(cx + dx), static_cast<float>(cy + dy)
-        );
-    }
-}
-} // anonymous namespace
-
 void Drawcall::initializeCircle() {
     // Set renderer to draw the circle
     SDL_Renderer* sdlRenderer = Global::instance().getRenderer().getSdlRenderer();
@@ -328,11 +313,6 @@ void Drawcall::initializeCircle() {
     int const radius = static_cast<int>(*refs.circleRadius);
     SDL_Texture* circleTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, radius * 2, radius * 2);
 
-    // Set the texture as the rendering target
-    SDL_SetRenderTarget(sdlRenderer, circleTexture);
-    SDL_SetRenderDrawColor(sdlRenderer, 0, 0, 0, 0); // Transparent background
-    SDL_RenderClear(sdlRenderer);
-
     // Draw the circle
     SDL_Color const circleColor = {
         static_cast<Uint8>(*refs.colorR),
@@ -341,14 +321,7 @@ void Drawcall::initializeCircle() {
         static_cast<Uint8>(*refs.colorA)
     };
     SDL_SetRenderDrawColor(sdlRenderer, circleColor.r, circleColor.g, circleColor.b, circleColor.a);
-    drawFilledCircle(sdlRenderer, radius, radius, radius);
-
-    // DEBUG: Fill every pixel
-    //SDL_FRect const rect = { 0, 0, 2.0f*radius, 2.0f*radius };
-    //SDL_RenderRect(sdlRenderer, &rect);
-
-    // Reset to default render target
-    SDL_SetRenderTarget(sdlRenderer, nullptr);
+    SdlPrimitive::drawFilledCircle(sdlRenderer, circleTexture, circleColor, radius);
 
     // Setup src values unless they are already defined
     if (drawcallScope.memberType(Key::Rect::srcX) != Data::KeyType::value) {
@@ -424,20 +397,15 @@ void Drawcall::initializePolygon() {
         static_cast<Uint8>(*refs.colorB),
         static_cast<Uint8>(*refs.colorA)
     };
-    SDL_SetRenderTarget(sdlRenderer, polyTexture);
-    SDL_SetRenderDrawColor(sdlRenderer, 0, 0, 0, 0); // Transparent background
-    SDL_RenderClear(sdlRenderer);
-    SDL_SetRenderDrawColor(sdlRenderer, polyColor.r, polyColor.g, polyColor.b, polyColor.a);
-    for (size_t i = 0; i < points.size() - 1; ++i) { // TODO: Implement an sdl helper function for filled polygons!
-        SDL_RenderLine(
-            sdlRenderer,
-            points[i].x, points[i].y,
-            points[(i + 1)].x, points[(i + 1)].y
-        );
-    }
 
-    // Reset to default render target
-    SDL_SetRenderTarget(sdlRenderer, nullptr);
+    if (std::fabs(*refs.polygonFilled) > DBL_EPSILON) {
+        // Filled polygon
+        SdlPrimitive::drawFilledPolygon(sdlRenderer, polyTexture, polyColor, points);
+    }
+    else {
+        // Empty polygon
+        SdlPrimitive::drawEmptyPolygon(sdlRenderer, polyTexture, polyColor, points);
+    }
 
     // Check for errors
     if (!polyTexture) {
