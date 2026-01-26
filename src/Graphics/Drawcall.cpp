@@ -148,9 +148,7 @@ void Drawcall::initializeSprite() {
 
 // TODO: Re-initialization still does not work properly
 //       after 1s (timer), the new text is not shown
-//       IDEA: Perhaps, instead of the internal re-initialization,
-//             we could have a full reinit inside the renderObject
-//             If that timer runs out, we reinit a random drawcall inside the renderObject
+//       Even if we full reinit the entire object, the new text is blank!
 void Drawcall::initializeText() {
     if (!Global::instance().getRenderer().isSdlInitialized()) return;
 
