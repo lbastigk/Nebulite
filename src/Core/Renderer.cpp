@@ -105,8 +105,10 @@ void Renderer::setupDisplayValues() {
     fps.target = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::targetFPS, 60);
 
     // Set in workspace
-    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X);
-    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResY, Y);
+    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X*windowScale);
+    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResY, Y*windowScale);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResXLogical, X);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResYLogical, Y);
 
     // Start position at 0|0
     // TODO: Move to environment?
@@ -394,11 +396,36 @@ void Renderer::renderFPS() const {
     ImGui::PopStyleVar(2); // pop ItemSpacing and WindowPadding
 }
 
-void Renderer::renderGlobalSpace() const {
-    // TODO: Implement a json viewer
-    //       requires Nebulite::Data::JSON to have a getMemberNames() function
-    //       Then we can use ImGui::TreeNode to display the structure
-    (void) domainScope;
+void Renderer::renderGlobalSpace() {
+    ImGui::Begin("Global Space");
+
+    std::function<void(JsonScope const&, Data::ScopedKey const&)> traverseObject;
+    traverseObject = [&traverseObject](JsonScope const& scope, Data::ScopedKey const& root) {
+        for (auto const& key : scope.listAvailableKeys(root)) {
+            std::string const rootPath = root.view().toString();
+            std::string const fullPath = key.view().toString();            // stable ID
+            std::string keyPath = fullPath;                                // visible label
+            if (rootPath != fullPath) keyPath = fullPath.substr(rootPath.length());
+            if (!keyPath.empty() && keyPath.front() == '.') keyPath.erase(0, 1);
+            if (auto const type = scope.memberType(key); type == Data::KeyType::object || type == Data::KeyType::array) {
+                // use fullPath as the ID (first arg) and keyPath as the visible text (format)
+                if (ImGui::TreeNode(fullPath.c_str(), "%s", keyPath.c_str())) {
+                    traverseObject(scope, key);
+                    ImGui::TreePop();
+                }
+            } else if (type == Data::KeyType::value) {
+                // fetch value every frame and display
+                std::string const valueStr = scope.get<std::string>(key, "<unavailable>");
+                ImGui::Text("%s : %s", keyPath.c_str(), valueStr.c_str());
+            } else {
+                ImGui::TextDisabled("%s : null", keyPath.c_str());
+            }
+        }
+    };
+
+    static JsonScope const& full = Global::__DANGER_AHEAD_shareFullScope();
+    traverseObject(full, full.getRootScope().toScopedKey());
+    ImGui::End();
 }
 
 void Renderer::pollEvents() {
@@ -424,6 +451,9 @@ Constants::Error Renderer::update() {
 
     // DEBUG: IMGUI test window
     //ImGui::ShowDemoWindow();
+
+    // DEBUG: Render global space
+    if (showDebugWindowFlag) renderGlobalSpace();
 
     // Fps
     if (showFPS) renderFPS();
@@ -491,10 +521,7 @@ void Renderer::append(RenderObject* toAppend) {
         domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
         domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0),
         toAppend->domainScope.get<uint8_t>(Constants::KeyNames::RenderObject::layer, 0)
-        );
-
-    //Load texture
-    loadTexture(toAppend->domainScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation));
+    );
 }
 
 void Renderer::reinsertAllObjects() {
@@ -759,126 +786,32 @@ void Renderer::renderFrame() {
 }
 
 void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY) {
-    //------------------------------------------
-    // Texture Loading
-
-    // Check for texture
-    /**
-    * @todo Find some way to remove the get-call.
-    *       Since the actual image does not change often and does not modify any state, we could use a runner function
-    *       that asynchronously reloads the texture path if needed:
-    *       std::atomic<std::string>& RenderObject::getImageLocation() {
-    *           // Return a reference to an atomic string that stores the path
-    *       }
-    *       std::atomic<std::string>& RenderObject::checkImageLocation(){
-    *           // Ran asynchronously every X seconds by a runner, called from the Renderer owning the Runner
-    *           // 1.) Get actual location form document scope
-    *           // 2.) if different from stored path, set stored path to new path
-    *       }
-    *       We could also update the texture container in the runner, but then we would have to lock the container during rendering.
-    *       Since we have to map string to texture anyway, we can just do it here.
-     */
-    auto const innerDirectory = obj->domainScope.get<std::string>(Constants::KeyNames::RenderObject::imageLocation);
-
-    // Load texture if not yet loaded
-    if (TextureContainer.find(innerDirectory) == TextureContainer.end()) {
-        loadTexture(innerDirectory);
-    }
-
-    // Link texture if not yet linked
-    if (!obj->isTextureValid()) {
-        if (auto const t = TextureContainer[innerDirectory]; isTextureValid(t)) {
-            obj->linkExternalTexture(t);
-        }
-    }
-
-    //------------------------------------------
-    // Source and Destination Rectangles
-
-    // Calculate source rect
-    obj->calculateSrcRect();
-
-    // Calculate position rect
-    obj->calculateDstRect();
-
-    //------------------------------------------
-    // Error Checking
-    if (!obj->isTextureValid()) {
-        Error::println("Error: RenderObject ID ",
-            obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0),
-            " texture with path '",
-            innerDirectory,
-            "' not found");
-    }
-
-    //------------------------------------------
-    // Rendering
-
-    // Render the texture
-    SDL_Rect const* src = obj->getSrcRect();
-    SDL_FRect srcF = {};
-    SDL_FRect const* srcFP = nullptr;
-    if (src) {
-        srcF = {static_cast<float>(src->x), static_cast<float>(src->y), static_cast<float>(src->w), static_cast<float>(src->h)};
-        srcFP = &srcF;
-    }
-    SDL_Rect const* dst = obj->getDstRect();
-    SDL_FRect dstF = {};
-    SDL_FRect const* dstFP = nullptr;
-    if (dst) {
-        dstF = scaleRectFromLogicalSize({
-            static_cast<float>(dst->x),
-            static_cast<float>(dst->y),
-            static_cast<float>(dst->w),
-            static_cast<float>(dst->h)
-        });
-        dstF.x -= static_cast<float>(dispPosX) * windowScale; // Subtract X camera position
-        dstF.y -= static_cast<float>(dispPosY) * windowScale; // Subtract Y camera position
-
-        dstF.x -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResX));
-        dstF.y -= static_cast<float>(domainScope.get<double>(Constants::KeyNames::Renderer::dispResY));
-
-        dstFP = &dstF;
-    }
-
-    // Render to screen
-    if (auto const t = obj->getSDLTexture(); t != nullptr) {
-        if (SDL_RenderTexture(renderer, t, srcFP, dstFP) != 0 && SDL_GetError()[0] != '\0') {
-            auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-            Error::println("Error rendering RenderObject ID ", id, ": ", SDL_GetError());
-        }
-    }
-
-    // Render the text
-    if (obj->isTextRenderingEnabled()) {
-        obj->calculateText(
-            renderer,
-            font,
-            dispPosX,
-            dispPosY
-            );
-        if (obj->getTextTexture() && obj->getTextRect()) {
-            auto const textRectF = scaleRectFromLogicalSize({
-                static_cast<float>(obj->getTextRect()->x),
-                static_cast<float>(obj->getTextRect()->y),
-                static_cast<float>(obj->getTextRect()->w),
-                static_cast<float>(obj->getTextRect()->h)
-            });
-            if (SDL_RenderTexture(renderer, obj->getTextTexture(), nullptr, &textRectF) != 0 && SDL_GetError()[0] != '\0') {
-                auto const id = obj->domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
-                Error::println("Error rendering text for RenderObject ID ", id, ": ", SDL_GetError());
-            }
-        }
-    }
+    obj->draw(
+        static_cast<float>(dispPosX),
+        static_cast<float>(dispPosY)
+    );
 }
 
 //------------------------------------------
 // Texture-Related
 
+SDL_Texture* Renderer::getTexture(std::string const& link) {
+    // Check if texture is already loaded
+    if (auto const it = TextureContainer.find(link); it != TextureContainer.end()) {
+        return it->second;
+    }
+
+    // Load texture if not found
+    SDL_Texture* texture = loadTextureToMemory(link);
+    if (texture != nullptr) {
+        TextureContainer[link] = texture;
+    }
+    return texture;
+}
+
 void Renderer::loadTexture(std::string const& link) {
     if (auto const t = loadTextureToMemory(link); t != nullptr) TextureContainer[link] = t;
 }
-
 
 SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
     std::string const path = Utility::FileManagement::CombinePaths(baseDirectory, link);

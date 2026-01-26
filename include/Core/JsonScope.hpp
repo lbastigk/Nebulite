@@ -55,7 +55,7 @@ public:
 
     // Proper scope sharing with nested unscoped key generation
     [[nodiscard]] JsonScope& shareScope(Data::ScopedKeyView const& key) const ;
-
+    [[nodiscard]] JsonScope& shareScope(Data::ScopedKey const& key) const { return shareScope(key.view()); }
     [[nodiscard]] JsonScope& shareScope(std::string const& key) const ;
 
     //------------------------------------------

@@ -1,4 +1,20 @@
 {
+    "draw": {
+        "core": {
+            "drawType": "sprite",
+            "rect": {
+                "dst": {
+                    "h": 128.0,
+                    "w": 32.0,
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            },
+            "textureData": {
+                "link": "Resources/Sprites/TEST001P/066.bmp"
+            }
+        }
+    },
     "id": 0,
     "layer": 0,
     "posX": 0,
@@ -11,33 +27,18 @@
         "vY": 0.0,
         "vNorm": 300.0
     },
-    "sprite": {
-        "link": "Resources/Sprites/TEST001P/066.bmp",
-        "sizeX": 32,
-        "sizeY": 128,
-        "spritesheet": {
-            "isSpritesheet": false,
-            "offsetX": 0,
-            "offsetY": 0,
-            "sizeX": 0,
-            "sizeY": 0
-        }
-    },
-    "text": {
-        "dx": 0.0,
-        "dy": 0.0,
-        "fontSize": 0,
-        "str": ""
-    },
     "ruleset": {
-        "broadcast": [
-            "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
-            "./Resources/Invokes/Physics/elastic_collision_Y.jsonc",
-            "./Resources/Invokes/Pong/movementPlayerRight.jsonc",
-            "./Resources/Invokes/Physics/applyForce.jsonc"
-        ],
         "listen": [
             "all"
+        ],
+        "list": [
+            "::physics::elasticCollision",
+            "./Resources/Invokes/Pong/movementPlayerRight.jsonc",
+            "./Resources/Invokes/Physics/applyForce.jsonc"
         ]
+    },
+    "size": {
+        "x": 32,
+        "y": 128
     }
 }

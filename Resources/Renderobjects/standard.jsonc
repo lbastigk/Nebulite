@@ -1,36 +1,51 @@
 {
+    "draw": {
+        "exampleSprite": {
+            "drawType": "sprite",
+            "rect": {
+                "dst": {
+                    "h": 32.0,
+                    "w": 32.0,
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "src": {
+                    "h": 32.0,
+                    "w": 32.0,
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            },
+            "textureData": {
+                "link": "Resources/Sprites/TEST001P/001.bmp"
+            }
+        },
+        "exampleText": {
+            "drawType": "text",
+            "textureData": {
+                "color": {
+                    "A": 255.0,
+                    "B": 255.0,
+                    "G": 255.0,
+                    "R": 255.0
+                },
+                "fontSize": 24.0,
+                "str": "Hello, Nebulite!"
+            }
+        }
+    },
     "id": 0,
     "layer": 0,
     "posX": 0,
     "posY": 0,
     "ruleset": {
-        "broadcast": [],
         "listen": [
             "all"
-        ]
+        ],
+        "list": []
     },
-    "sprite": {
-        "link": "Resources/Sprites/TEST001P/001.bmp",
-        "sizeX": 32,
-        "sizeY": 32,
-        "spritesheet": {
-            "isSpritesheet": false,
-            "offsetX": 0,
-            "offsetY": 0,
-            "sizeX": 0,
-            "sizeY": 0
-        }
-    },
-    "text": {
-        "color": {
-            "A": 255,
-            "B": 255,
-            "G": 255,
-            "R": 255
-        },
-        "dx": 0.0,
-        "dy": 0.0,
-        "fontSize": 0,
-        "str": ""
+    "size": {
+        "X": 32,
+        "Y": 32
     }
 }

@@ -1,27 +1,35 @@
 {
-    "id": 0,
-    "layer": 1,
-    "posX": 0,
-    "posY": 0,
-    "sprite": {
-        "link": "./Resources/Sprites/MiniWorldSprites/Nature/PineTrees.png",
-        "sizeX": 16,
-        "sizeY": 16,
-        "spritesheet": {
-            "isSpritesheet": true,
-            "offsetX": 16,
-            "offsetY": 0,
-            "sizeX": 16,
-            "sizeY": 16
+    "draw": {
+        "core": {
+            "drawType": "sprite",
+            "rect": {
+                "src": {
+                    "h": 16.0,
+                    "w": 16.0,
+                    "x": 16.0,
+                    "y": 0.0
+                },
+                "dst": {
+                    "h": 16.0,
+                    "w": 16.0,
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            },
+            "textureData": {
+                "link": "./Resources/Sprites/MiniWorldSprites/Nature/PineTrees.png"
+            }
         }
     },
-    "text": {
-        "dx": 0.0,
-        "dy": 0.0,
-        "fontSize": 0,
-        "str": ""
-    },
+    "id": 0,
+    "layer": 0,
+    "posX": 0,
+    "posY": 0,
     "ruleset": {
-        "broadcast": []
+        "list": []
+    },
+    "size": {
+        "x": 16,
+        "y": 16
     }
 }

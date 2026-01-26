@@ -72,6 +72,9 @@ int calcMouseDelta(uint32_t const& key, uint32_t const& currentState, uint32_t c
 }
 }
 
+// TODO: Use stable double pointers instead of the expensive set() calls!!!
+//       double* vals[SDL_SCANCODE_COUNT], with initialization in constructor
+//       Same for mouse
 void Input::writeCurrentAndDeltaInputs() {
     //------------------------------------------
     // Mouse
@@ -118,6 +121,9 @@ void Input::writeCurrentAndDeltaInputs() {
     }
 }
 
+// TODO: Use stable double pointers instead of the expensive set() calls!!!
+//       double* deltas[SDL_SCANCODE_COUNT], with initialization in constructor
+//       Same for mouse
 void Input::resetDeltaValues() const {
     // 1.) Mouse
     moduleScope.set(moduleScope.getRootScope() + "mouse.delta.X", 0);

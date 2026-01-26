@@ -64,7 +64,7 @@ public:
      */
     void setInternalTexture(SDL_Texture* newTexture) {
         // Destroy any old internal texture if it was modified
-        if (texture != nullptr && textureStoredLocally) {
+        if (texture != nullptr && textureStoredLocally && texture != newTexture) {
             SDL_DestroyTexture(texture);
         }
         texture = newTexture;

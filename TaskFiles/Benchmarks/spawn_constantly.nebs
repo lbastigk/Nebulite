@@ -6,6 +6,7 @@ set waitTime 100
 set physics.G 10 # Gravity constant, high value for testing
 
 # Setup Renderer
+set-res 1000 1000
 set-fps 10000 # no limit
 
 # Set a fixed dt so physics is consistent

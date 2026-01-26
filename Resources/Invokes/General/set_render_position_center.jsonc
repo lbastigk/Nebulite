@@ -3,8 +3,8 @@
     "condition": "1",
     "action": {
         "assign": [
-            "global.renderer.position.X = $( floor({self.posX} - {global.renderer.resolution.X}/2) )",
-            "global.renderer.position.Y = $( floor({self.posY} - {global.renderer.resolution.Y}/2) )"
+            "global.renderer.position.X = $( floor({self.posX} - {global.renderer.resolution.logical.X}/2) )",
+            "global.renderer.position.Y = $( floor({self.posY} - {global.renderer.resolution.logical.Y}/2) )"
         ],
         "functioncall": {
             "global": [],

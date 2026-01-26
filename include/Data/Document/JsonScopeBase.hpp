@@ -218,6 +218,20 @@ public:
     void removeKey(ScopedKeyView const& key);
     void removeKey(ScopedKey const& key) {removeKey(key.view());}
 
+    std::vector<ScopedKey> listAvailableKeys(ScopedKeyView const& key) const ;
+    std::vector<ScopedKey> listAvailableKeys(ScopedKey const& key) const {return listAvailableKeys(key.view());}
+
+    // Helper struct for holding a member as well as its full key
+    struct MemberAndKey {
+        std::string member;
+        ScopedKey key;
+
+        MemberAndKey(std::string const& member_, ScopedKey const& key_) : member(member_), key(key_) {}
+    };
+
+    std::vector<MemberAndKey> listAvailableMembersAndKeys(ScopedKeyView const& key) const ;
+    std::vector<MemberAndKey> listAvailableMembersAndKeys(ScopedKey const& key) const {return listAvailableMembersAndKeys(key.view());}
+
     //------------------------------------------
     // Serialize/Deserialize
 

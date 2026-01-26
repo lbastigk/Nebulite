@@ -32,6 +32,13 @@ Physics::Physics() : RulesetModule(moduleName) {
 //       then, use that info here to properly interpolate position
 //       that happens between now and the predicted next frame-time
 // TODO: Add a repositioning step to resolve overlaps
+// TODO: Needs to use new size system: (size.X, size.Y) or size.r
+//       Idea: Multiple rulesets:
+//       ::physics::elasticCollision::box::box,
+//       ::physics::elasticCollision::circle::circle,
+//       ::physics::elasticCollision::box::circle     // other is circle, self is box
+//       ::physics::elasticCollision::circle::box     // self is circle, other is box
+//       Or we prioritize radius if available?
 void Physics::elasticCollision(ContextBase const& context) const {
     // Get ordered cache lists for both entities for base values
     double** slf = getBaseList(context.self, baseKeys);
@@ -41,88 +48,103 @@ void Physics::elasticCollision(ContextBase const& context) const {
     // Base condition check
 
     // Required values
+    double const radius1 = baseVal(slf, Key::sizeR);
+    double const radius2 = baseVal(otr, Key::sizeR);
     double const p1X = baseVal(slf, Key::posX);
     double const p1Y = baseVal(slf, Key::posY);
     double const p2X = baseVal(otr, Key::posX);
     double const p2Y = baseVal(otr, Key::posY);
-    double const size1X = baseVal(slf, Key::spriteSizeX);
-    double const size1Y = baseVal(slf, Key::spriteSizeY);
-    double const size2X = baseVal(otr, Key::spriteSizeX);
-    double const size2Y = baseVal(otr, Key::spriteSizeY);
+    double const size1X = baseVal(slf, Key::sizeX);
+    double const size1Y = baseVal(slf, Key::sizeY);
+    double const size2X = baseVal(otr, Key::sizeX);
+    double const size2Y = baseVal(otr, Key::sizeY);
     double const m1 = baseVal(slf, Key::physics_mass);
     double const m2 = baseVal(otr, Key::physics_mass);
 
-    // Base overlap condition
-    bool const baseCondition = m1 > 0.0 && m2 > 0.0
-        && p1X < p2X + size2X // right side overlap
-        && p1Y < p2Y + size2Y // bottom side overlap
-        && p2X < p1X + size1X // left side overlap
-        && p2Y < p1Y + size1Y; // top side overlap
+    // Priorize circle collision if radius is set (> 0)
+    if (radius1 > 0.0 && radius2 > 0.0) {
+        // TODO: Circle-circle collision detection and response
+        Error::println("Circle-circle elastic collision not yet implemented.");
+    }
+    else if (radius1 > 0.0) {
+        Error::println("Circle-box elastic collision not yet implemented.");
+    }
+    else if (radius2 > 0.0) {
+        Error::println("Box-circle elastic collision not yet implemented.");
+    }
+    else {
+        // Base overlap condition
+        bool const baseCondition = m1 > 0.0 && m2 > 0.0
+            && p1X < p2X + size2X // right side overlap
+            && p1Y < p2Y + size2Y // bottom side overlap
+            && p2X < p1X + size1X // left side overlap
+            && p2Y < p1Y + size1Y; // top side overlap
 
-    //------------------------------------------
-    // Potential collision response
+        //------------------------------------------
+        // Potential collision response
 
-    if (baseCondition) {
-        // Overlap checks for each axis (?)
-        bool const conditionX = !(p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y);
-        bool const conditionY = !(p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X);
+        if (baseCondition) {
+            // Overlap checks for each axis (?)
+            bool const conditionX = !(p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y);
+            bool const conditionY = !(p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X);
 
-        // m1*v1 + m2*v2 = m1*v1new + m2*v2new
-        // Split into v1new and v2new equations
-        // v1new = ( (m1 - m2)*v1 + 2*m2*v2 ) / m
-        // v2new = ( (m2 - m1)*v2 + 2*m1*v1 ) / m
-        // Work backwards to get Forces:
-        // F = m * dv / dt
-        // F1 = m1 * (v1new - v1) / dt
-        // F2 = m2 * (v2new - v2) / dt
+            // m1*v1 + m2*v2 = m1*v1new + m2*v2new
+            // Split into v1new and v2new equations
+            // v1new = ( (m1 - m2)*v1 + 2*m2*v2 ) / m
+            // v2new = ( (m2 - m1)*v2 + 2*m1*v1 ) / m
+            // Work backwards to get Forces:
+            // F = m * dv / dt
+            // F1 = m1 * (v1new - v1) / dt
+            // F2 = m2 * (v2new - v2) / dt
 
-        // Lock and write forces to other entity
-        // For self to be affected, other needs to broadcast this ruleset as well
-        // Under normal circumstances, only one condition should be true at a time
-        // Meaning we don't have to optimize in a way to avoid locking twice
-        // We can only check collision time after locking, otherwise it may be overwritten by another thread
-        if (conditionX) {
-            // Start Velocities
-            double const v1X = baseVal(slf, Key::physics_vX);
-            double const v2X = baseVal(otr, Key::physics_vX);
+            // Lock and write forces to other entity
+            // For self to be affected, other needs to broadcast this ruleset as well
+            // Under normal circumstances, only one condition should be true at a time
+            // Meaning we don't have to optimize in a way to avoid locking twice
+            // We can only check collision time after locking, otherwise it may be overwritten by another thread
+            if (conditionX) {
+                // Start Velocities
+                double const v1X = baseVal(slf, Key::physics_vX);
+                double const v2X = baseVal(otr, Key::physics_vX);
 
-            // Calculate new velocities after collision
-            double const v2newX = ((m2 - m1) * v2X + 2 * m1 * v1X) / (m1 + m2);
+                // Calculate new velocities after collision
+                double const v2newX = ((m2 - m1) * v2X + 2 * m1 * v1X) / (m1 + m2);
 
-            // Translate velocity change to forces
-            double const dt = *globalVal.dt;
-            double const dF2X = m2 * (v2newX - v2X) / dt;
+                // Translate velocity change to forces
+                double const dt = *globalVal.dt;
+                double const dF2X = m2 * (v2newX - v2X) / dt;
 
-            // Get last collision time pointer
-            double const lastColX = baseVal(otr, Key::physics_lastCollisionX);
+                // Get last collision time pointer
+                double const lastColX = baseVal(otr, Key::physics_lastCollisionX);
 
-            // Lock and write
-            auto slfLock = context.self.lockDocument();
-            if (lastColX < *globalVal.t) {
-                baseVal(otr, Key::physics_FX) += dF2X;
-                baseVal(otr, Key::physics_lastCollisionX) = *globalVal.t;
+                // Lock and write
+                auto slfLock = context.self.lockDocument();
+                if (lastColX < *globalVal.t) {
+                    baseVal(otr, Key::physics_FX) += dF2X;
+                    baseVal(otr, Key::physics_lastCollisionX) = *globalVal.t;
+                }
             }
-        }
-        if (conditionY) {
-            // Start Velocities
-            double const v1Y = baseVal(slf, Key::physics_vY);
-            double const v2Y = baseVal(otr, Key::physics_vY);
+            if (conditionY) {
+                // Start Velocities
+                double const v1Y = baseVal(slf, Key::physics_vY);
+                double const v2Y = baseVal(otr, Key::physics_vY);
 
-            // Calculate new velocity after collision
-            double const v2newY = ((m2 - m1) * v2Y + 2 * m1 * v1Y) / (m1 + m2);
+                // Calculate new velocity after collision
+                double const v2newY = ((m2 - m1) * v2Y + 2 * m1 * v1Y) / (m1 + m2);
 
-            // Translate velocity change to forces
-            double const dt = *globalVal.dt;
-            double const dF2Y = m2 * (v2newY - v2Y) / dt;
+                // Translate velocity change to forces
+                double const dt = *globalVal.dt;
+                double const dF2Y = m2 * (v2newY - v2Y) / dt;
 
-            // Get last collision time pointer
-            double const lastColY = baseVal(otr, Key::physics_lastCollisionY);
+                // Get last collision time pointer
+                double const lastColY = baseVal(otr, Key::physics_lastCollisionY);
 
-            // Lock and write
-            auto slfLock = context.self.lockDocument();
-            if (lastColY < *globalVal.t) {
-                baseVal(otr, Key::physics_FY) += dF2Y;
-                baseVal(otr, Key::physics_lastCollisionY) = *globalVal.t;
+                // Lock and write
+                auto slfLock = context.self.lockDocument();
+                if (lastColY < *globalVal.t) {
+                    baseVal(otr, Key::physics_FY) += dF2Y;
+                    baseVal(otr, Key::physics_lastCollisionY) = *globalVal.t;
+                }
             }
         }
     }

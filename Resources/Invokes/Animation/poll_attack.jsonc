@@ -3,8 +3,8 @@
     "condition": "1",
     "action": {
         "assign": [
-            "self.sprite.spritesheet.offsetX = $( {self.sprite.spritesheet.offsetX} * not( not({self.animation.attack}) * {global.renderer.input.keyboard.current.space} ) )",
-            "self.animation.attack = $( neq( {global.renderer.input.keyboard.current.space} + {self.animation.attack} * {self.sprite.spritesheet.offsetX} ,0) )"
+            "self.draw.core.rect.src.x = $( {self.draw.core.rect.src.x} * not( not({self.animation.attack}) * {global.renderer.input.keyboard.current.space} ) )",
+            "self.animation.attack = $( neq( {global.renderer.input.keyboard.current.space} + {self.animation.attack} * {self.draw.core.rect.src.x} ,0) )"
         ],
         "functioncall": {
             "global": [],

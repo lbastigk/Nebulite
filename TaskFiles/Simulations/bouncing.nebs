@@ -1,7 +1,7 @@
 set-fps 1000
 time set-fixed-dt 1 # Low fixed time step, otherwise fast objects may tunnel
 set physics.g 9.81  # Earth gravity
-set-res 640 360 3
+eval set-res $i(640*1.6) $i(360*1.6)
 echo
 echo Bouncing test
 echo
@@ -12,13 +12,13 @@ echo
 
 #########################################
 echo Spawning boundary
-for i 01 60 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=$(10*{i})|posY=330
-for i 01 60 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=$(10*{i})|posY=40
-for i 05 09 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=$(10*{i})|posY=130
-for i 01 30 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posY=$(10*{i} + 30)|posX=10
-for i 05 12 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posY=$(10*{i} + 30)|posX=160
-for i 10 20 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posY=$(10*{i} + 30)|posX=300
-for i 01 30 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posY=$(10*{i} + 30)|posX=600
+for i 01 60 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=$(16*{i})|posY=$(33*16)
+for i 01 60 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=$(16*{i})|posY=$(4*16)
+for i 05 09 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=$(16*{i})|posY=$(13*16)
+for i 01 30 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posY=$(16*{i} + 48)|posX=$(1*16)
+for i 05 12 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posY=$(16*{i} + 48)|posX=$(16*16)
+for i 10 20 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posY=$(16*{i} + 48)|posX=$(30*16)
+for i 01 30 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posY=$(16*{i} + 48)|posX=$(60*16)
 
 #########################################
 echo Spawning bouncing block

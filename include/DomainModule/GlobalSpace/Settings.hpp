@@ -78,8 +78,8 @@ public:
         friend class Settings;
 
         // Use unscoped keys to load from file
-        static auto constexpr unscoped_resolutionX = "renderer.resolutionX";
-        static auto constexpr unscoped_resolutionY = "renderer.resolutionY";
+        static auto constexpr unscoped_resolutionX = "renderer.resolutionX"; // TODO: change to resolution.w
+        static auto constexpr unscoped_resolutionY = "renderer.resolutionY"; // TODO: change to resolution.h
         static auto constexpr unscoped_resolutionScaling = "renderer.resolutionScaling";
         static auto constexpr unscoped_targetFPS = "renderer.targetFPS";
 

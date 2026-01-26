@@ -428,6 +428,16 @@ public:
     void removeKey(std::string const& key) { removeKey(key.c_str()); }
     void removeKey(std::string_view const& key) { removeKey(std::string(key).c_str()); }
 
+    /**
+     * @brief Lists all available keys in a rapidjson object.
+     * @param key The key to list keys from. (Optional: leave empty to list from root)
+     * @return A vector of strings containing all available keys.
+     *         - For objects, returns member names.
+     *         - For arrays, returns indices in bracket notation (e.g., "[0]", "[1]", ...).
+     *         - For any other type, returns an empty vector.
+     */
+    std::vector<std::string> listAvailableKeys(std::string const& key = "") const ;
+
     //------------------------------------------
     // Serialize/Deserialize
 

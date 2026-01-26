@@ -1,42 +1,37 @@
 {
     "draw": {
         "core": {
-            "drawType": "circle",
+            "drawType": "sprite",
             "rect": {
                 "dst": {
-                    "h": 64.0,
-                    "w": 64.0,
-                    "x": 0.0,
-                    "y": 0.0
+                    "h": 16.0,
+                    "w": 16.0,
+                    "x": -8.0,
+                    "y": -8.0
                 }
             },
             "textureData": {
-                "color": {
-                    "a": 255.0,
-                    "b": 0.0,
-                    "g": 255.0,
-                    "r": 255.0
-                },
-                "radius": 128.0
+                "link": "Resources/Sprites/TEST001P/017.bmp"
             }
         }
     },
     "id": 0,
     "layer": 0,
     "physics": {
-        "mass": 200000.0,
+        "mass": 50.0,
         "aX": 0.0,
         "aY": 0.0,
-        "vX": 0.0,
-        "vY": 0.0
+        "vX": -30.0,
+        "vY": 120.0
     },
-    "posX": 500,
+    "posX": 650,
     "posY": 500,
     "ruleset": {
         "listen": [
             "all",
             "::physics::gravity",
-            "gravity"
+            "gravity",
+            "::physics::elasticCollision"
         ],
         "list": [
             "::physics::gravity",
@@ -44,6 +39,7 @@
         ]
     },
     "size": {
-        "r": 32
+        "x": 16.0,
+        "y": 16.0
     }
 }

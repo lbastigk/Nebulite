@@ -1,4 +1,20 @@
 {
+    "draw": {
+        "core": {
+            "drawType": "sprite",
+            "rect": {
+                "dst": {
+                    "h": 16.0,
+                    "w": 16.0,
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            },
+            "textureData": {
+                "link": "./Resources/Editor/Selection.png"
+            }
+        }
+    },
     "id": 0,
     "layer": 0,
     "physics": {
@@ -10,32 +26,18 @@
     },
     "posX": 350,
     "posY": 500,
-    "sprite": {
-        "link": "./Resources/Editor/Selection.png",
-        "sizeX": 10,
-        "sizeY": 10,
-        "spritesheet": {
-            "isSpritesheet": false,
-            "offsetX": 0,
-            "offsetY": 0,
-            "sizeX": 0,
-            "sizeY": 0
-        }
-    },
-    "text": {
-        "dx": 0.0,
-        "dy": 0.0,
-        "fontSize": 0,
-        "str": ""
-    },
     "ruleset": {
-        "broadcast": [
-            "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
-            "./Resources/Invokes/Physics/elastic_collision_Y.jsonc"
-        ],
         "listen": [
             "all",
             "collision"
+        ],
+        "list": [
+            "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
+            "./Resources/Invokes/Physics/elastic_collision_Y.jsonc"
         ]
+    },
+    "size": {
+        "x": 16,
+        "y": 16
     }
 }

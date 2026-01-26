@@ -9,16 +9,9 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <cfloat>
-
-// External
-#include <SDL3/SDL.h>           // SDL Renderer is used for some methods to calculate text
-#include <SDL3_ttf/SDL_ttf.h>   // Same for ttf
-
 // Nebulite
-#include "Core/Texture.hpp"
-#include "JsonScope.hpp"
+#include "Core/JsonScope.hpp"
+#include "Graphics/Drawcall.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
@@ -76,33 +69,6 @@ public:
     void deserialize(std::string const& serialOrLink);
 
     //------------------------------------------
-    // Getters for Rectangles and Textures
-
-    /**
-     * @brief Gets a pointer to the SDL_Rect describing the destination of the sprite.
-     * @return A pointer to the SDL_Rect describing the destination of the sprite.
-     */
-    SDL_Rect* getDstRect();
-
-    /**
-     * @brief Gets a pointer to the SDL_Rect describing the source of the sprite.
-     * @return A pointer to the SDL_Rect describing the source of the sprite.
-     */
-    SDL_Rect* getSrcRect();
-
-    /**
-     * @brief Gets a pointer to the SDL_Rect describing the destination of the text.
-     * @return A pointer to the SDL_Rect describing the destination of the text.
-     */
-    SDL_Rect* getTextRect();
-
-    /**
-     * @brief Gets the texture of the text.
-     * @return A pointer to the SDL_Texture representing the text.
-     */
-    [[nodiscard]] SDL_Texture* getTextTexture() const;
-
-    //------------------------------------------
     // Get position
 
     struct Position {
@@ -110,8 +76,15 @@ public:
         int32_t y;
     };
 
+    /**
+     * @brief Gets the position of the RenderObject.
+     * @return The position of the RenderObject as a Position struct.
+     */
     [[nodiscard]] Position getPosition() const {
-        return {static_cast<int32_t>(std::lround(*refs.posX)), static_cast<int32_t>(std::lround(*refs.posY))};
+        return {
+            static_cast<int32_t>(std::lround(*refs.posX)),
+            static_cast<int32_t>(std::lround(*refs.posY))
+        };
     }
 
     //------------------------------------------
@@ -128,26 +101,6 @@ public:
      * @return Constants::Error indicating success or failure.
      */
     Constants::Error update() override;
-
-    /**
-     * @brief Calculates the text texture for the RenderObject.
-     * @param renderer The SDL_Renderer to use for rendering.
-     * @param font The TTF_Font to use for rendering the text.
-     * @param renderPositionX The X position of the renderer used for text offset.
-     * @param renderPositionY The Y position of the renderer used for text offset.
-     */
-    void calculateText(SDL_Renderer* renderer, TTF_Font* font, int const& renderPositionX, int const& renderPositionY);
-
-    /**
-     * @brief Calculates the destination rectangle for the sprite.
-     */
-    void calculateDstRect();
-
-    // Calculate sprite source
-    /**
-     * @brief Calculates the source rectangle for the sprite.
-     */
-    void calculateSrcRect();
 
     /**
      * @brief Estimates the computational cost of updating the RenderObject.
@@ -174,60 +127,23 @@ public:
      */
     struct flag {
         bool deleteFromScene = false; // If true, delete this object from scene on next update
-        bool calculateText = false; // If true, calculate text texture on next update
-        bool reloadInvokes = false; // If true, reload invokes on next update
     } flag;
 
     //------------------------------------------
-    // Texture/Font related
+    // Draw
 
     /**
-     * @brief Checks if text rendering is enabled for this RenderObject.
-     * @details This checks if the font size is not zero.
-     * @return true if texture rendering is enabled, false otherwise.
+     * @brief Draws the RenderObject at the specified offset.
+     * @param offsetX The camera offset in the X direction.
+     * @param offsetY The camera offset in the Y direction.
      */
-    [[nodiscard]] bool isTextRenderingEnabled() const {
-        return std::fabs(*refs.fontSize) > DBL_EPSILON;
-    }
-
-    /**
-     * @brief Links an external SDL_Texture to this domain.
-     * @param externalTexture Pointer to the external SDL_Texture.
-     */
-    void linkExternalTexture(SDL_Texture* externalTexture) {
-        baseTexture.linkExternalTexture(externalTexture);
-    }
-
-    /**
-     * @brief Checks if the texture has been modified.
-     * @return true if the texture has been modified, false otherwise.
-     */
-    [[nodiscard]] bool isTextureStoredLocally() const {
-        return baseTexture.isTextureStoredLocally();
-    }
-
-    /**
-     * @brief Checks if the texture is valid (not null).
-     * @return true if the texture is valid, false otherwise.
-     */
-    [[nodiscard]] bool isTextureValid() const {
-        return baseTexture.isTextureValid();
-    }
-
-    /**
-     * @brief Gets the current SDL_Texture.
-     * @return Pointer to the current SDL_Texture.
-     */
-    [[nodiscard]] SDL_Texture* getSDLTexture() const {
-        return baseTexture.getSDLTexture();
-    }
-
-    /**
-     * @brief Gets the Texture object.
-     * @return Pointer to the Texture object.
-     */
-    Texture* getTexture() {
-        return &baseTexture;
+    void draw(float const& offsetX, float const& offsetY) {
+        for (auto const& member : drawcallOrder) {
+            drawcalls[member]->draw(
+                static_cast<float>(*refs.posX) - offsetX,
+                static_cast<float>(*refs.posY) - offsetY
+            );
+        }
     }
 
 private:
@@ -242,6 +158,31 @@ private:
      *        In order for this one to make more sense, it initializes the inherited domains and DomainModules as well.
      */
     void init();
+
+    //------------------------------------------
+    // Draw calls
+
+    // TODO: expose drawcall init/reinit for a domainmodule to use
+    //       This way, we may add new drawcalls at runtime via scripts
+
+    absl::flat_hash_map<std::string, std::shared_ptr<Graphics::Drawcall>> drawcalls;
+
+    // Reference to members in hashmap sorted by their draw order
+    std::vector<std::string> drawcallOrder;
+
+    void sortDrawcalls();
+
+    // Re-initialize all drawcalls from document
+    void reinitDrawcalls();
+
+    // Initialize only unknown drawcalls from document
+    void initDrawcalls();
+
+    // Reinitialize a specific drawcall from document
+    void reInitDrawcall(std::string const& drawcallName);
+
+    // Update all drawcalls
+    void updateDrawcalls();
 
     //------------------------------------------
     // References to JSON
@@ -261,47 +202,12 @@ private:
         // Position and Size
         double* posX = nullptr;
         double* posY = nullptr;
-        double* pixelSizeX = nullptr;
-        double* pixelSizeY = nullptr;
-
-        // Spritesheet
-        double* isSpritesheet = nullptr;
-        double* spritesheetOffsetX = nullptr;
-        double* spritesheetOffsetY = nullptr;
-        double* spritesheetSizeX = nullptr;
-        double* spritesheetSizeY = nullptr;
-
-        // Text
-        double* fontSize = nullptr;
-        double* textDx = nullptr;
-        double* textDy = nullptr;
-        double* textColorR = nullptr;
-        double* textColorG = nullptr;
-        double* textColorB = nullptr;
-        double* textColorA = nullptr;
     } refs = {};
 
     /**
      * @brief Links frequently used references from the JSON document for quick access.
      */
     void linkFrequentRefs();
-
-    //------------------------------------------
-    // Texture related
-
-    // Base Texture
-    Texture baseTexture;
-
-    // === TO REWORK ===
-
-    // for caching of SDL Positions
-    SDL_Rect dstRect = {0, 0, 0, 0}; // destination of sprite
-    SDL_Rect srcRect = {0, 0, 0, 0}; // source of sprite from spritesheet
-    SDL_Rect textRect = {0, 0, 0, 0}; // destination of text texture
-
-    // Surface and Texture of Text
-    SDL_Surface* textSurface; // Surface for the text
-    SDL_Texture* textTexture; // Texture for the text
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_CORE_RENDEROBJECT_HPP

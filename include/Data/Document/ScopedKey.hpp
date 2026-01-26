@@ -170,11 +170,26 @@ public:
             while (p[i] != '\0') ++i;
             return i;
         }(s);
+
         // static assert to ensure scope is valid
-        static_assert(len == 0 || s[len - 1] == '.',
-                      "ScopedKey: The provided scope must be empty or end with a dot ('.')");
+        static_assert(len == 0 || s[len - 1] == '.', "ScopedKey: The provided scope must be empty or end with a dot ('.')");
+
         // Create the ScopedKey with the given scope and key
         return {std::optional(std::string_view(s, len)), std::string_view(keyInScope)};
+    }
+
+    std::string toString() const {
+        if (givenScope.has_value()) {
+            return std::string(givenScope.value()) + std::string(key);
+        }
+        return std::string(key);
+    }
+
+    ScopedKey toScopedKey() const {
+        if (givenScope.has_value()) {
+            return ScopedKey(std::string(givenScope.value()) + std::string(key), givenScope);
+        }
+        return ScopedKey(std::string(key), std::nullopt);
     }
 };
 } // namespace Nebulite::Data

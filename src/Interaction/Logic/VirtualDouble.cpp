@@ -17,7 +17,7 @@ VirtualDouble::VirtualDouble(std::string k) noexcept : key(std::move(k)) {
     scopedKey = Data::ScopedKey(key);
 }
 
-void VirtualDouble::setUpInternalCache(Core::JsonScope const& json) {
+void VirtualDouble::setUpInternalCache(Data::JsonScopeBase const& json) {
     copied_value = *json.getStableDoublePointer(scopedKey);
     reference = &copied_value;
 }
@@ -27,7 +27,7 @@ void VirtualDouble::setUpInternalCache() {
     reference = &copied_value;
 }
 
-void VirtualDouble::setUpExternalCache(Core::JsonScope const& json) {
+void VirtualDouble::setUpExternalCache(Data::JsonScopeBase const& json) {
     reference = json.getStableDoublePointer(scopedKey);
 }
 

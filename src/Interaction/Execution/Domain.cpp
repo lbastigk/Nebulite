@@ -100,6 +100,7 @@ void DomainBase::baseDeserialization(std::string const& serialOrLinkWithCommands
             continue; // Skip empty tokens
 
         // Legacy: Handle key=value pairs
+        std::string callStr;
         if (auto const pos = token.find('='); pos != std::string::npos) {
             // Handle transformation (key=value)
             std::string keyAndValue = token;
@@ -107,14 +108,13 @@ void DomainBase::baseDeserialization(std::string const& serialOrLinkWithCommands
                 keyAndValue[pos] = ' ';
 
             // New implementation through functioncall
-            if (std::string const callStr = std::string(__FUNCTION__) + " set " + keyAndValue; parseStr(callStr) != Constants::ErrorTable::NONE()) {
-                Error::println("Failed to apply deserialize transformation: ", callStr);
-            }
+            callStr = std::string(__FUNCTION__) + " set " + keyAndValue;
         } else {
-            // Forward to FunctionTree for resolution
-            if (std::string const callStr = std::string(__FUNCTION__) + " " + token; parseStr(callStr) != Constants::ErrorTable::NONE()) {
-                Error::println("Failed to apply deserialize transformation: ", callStr);
-            }
+            callStr = std::string(__FUNCTION__) + " " + token;
+        }
+        // Forward to FunctionTree for resolution
+        if (parseStr(callStr) != Constants::ErrorTable::NONE()) {
+            Error::println("Failed to apply deserialize transformation: ", callStr);
         }
     }
 }

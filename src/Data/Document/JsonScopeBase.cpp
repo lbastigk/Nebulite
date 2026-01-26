@@ -135,6 +135,34 @@ void JsonScopeBase::removeKey(ScopedKeyView const& key){
     baseDocument->removeKey(key.full(*this));
 }
 
+std::vector<ScopedKey> JsonScopeBase::listAvailableKeys(ScopedKeyView const& key) const {
+    std::vector<std::string> const keys = baseDocument->listAvailableKeys(key.full(*this));
+    std::vector<ScopedKey> scopedKeys;
+    scopedKeys.reserve(keys.size());
+    for (auto const& k : keys) {
+        if (key.toString().ends_with('.') || key.toString().empty()) {
+            scopedKeys.emplace_back(key + k);
+        } else {
+            scopedKeys.emplace_back(key + "." + k);
+        }
+    }
+    return scopedKeys;
+}
+
+std::vector<JsonScopeBase::MemberAndKey> JsonScopeBase::listAvailableMembersAndKeys(ScopedKeyView const& key) const {
+    std::vector<std::string> const keys = baseDocument->listAvailableKeys(key.full(*this));
+    std::vector<MemberAndKey> scopedKeys;
+    scopedKeys.reserve(keys.size());
+    for (auto const& k : keys) {
+        if (key.toString().ends_with('.') || key.toString().empty()) {
+            scopedKeys.emplace_back(MemberAndKey{k, key + k});
+        } else {
+            scopedKeys.emplace_back(MemberAndKey{k, key + "." + k});
+        }
+    }
+    return scopedKeys;
+}
+
 //------------------------------------------
 // Deserialize/Serialize
 

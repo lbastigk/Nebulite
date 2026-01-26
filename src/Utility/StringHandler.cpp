@@ -35,9 +35,10 @@ bool StringHandler::isNumber(std::string const& str) {
 std::string StringHandler::replaceAll(std::string target, std::string const& toReplace, std::string const& replacer) {
     if (toReplace.empty())
         return target;
-    return target | std::views::split(toReplace)
-           | std::views::join_with(replacer)
-           | std::ranges::to<std::string>();
+    return target
+        | std::views::split(toReplace)
+        | std::views::join_with(replacer)
+        | std::ranges::to<std::string>();
 }
 
 std::string StringHandler::untilSpecialChar(std::string const& input, char const& specialChar) {

@@ -27,7 +27,7 @@
 namespace Nebulite {
 /**
  * @namespace Nebulite::Constants
- * @brief Contains all constant values used throughout the Nebulite framework.
+ * @brief Contains all constant values/tables used throughout the Nebulite framework.
  */
 namespace Constants {
 } // namespace Constants
@@ -35,8 +35,9 @@ namespace Constants {
 /**
  * @namespace Nebulite::Core
  * @brief Contains all core classes (called Domains) related to the Nebulite framework.
- * @detauils These form the backbone of the Nebulite system.
- *           They provide essential services such as scoped data management, command parsing, serialization, etc.
+ * @details These form the backbone of the Nebulite system.
+ *          They provide essential services such as scoped data management, command parsing, serialization, etc.
+ * @note Contains the Texture class, even if it is graphics-related, as it is a core class simply by being a Domain.
  */
 namespace Core {
 } // namespace Core
@@ -51,6 +52,7 @@ namespace Data {
 /**
  * @namespace Nebulite::DomainModule
  * @brief Contains all DomainModules used throughout the Nebulite framework.
+ * @details Further sorted by their associated Domain type.
  */
 namespace DomainModule {
 /**
@@ -83,13 +85,21 @@ namespace RenderObject {
 } // namespace DomainModule
 
 /**
+ * @namespace Nebulite::Graphics
+ * @brief Contains mainly helper classes to assist with rendering-related tasks.
+ */
+namespace Graphics {
+} // namespace Graphics
+
+/**
  * @namespace Nebulite::Interaction
  * @brief Contains all classes, functions, types and variables related to the Nebulite interaction system.
  */
 namespace Interaction {
 /**
  * @namespace Nebulite::Interaction::Execution
- * @brief Contains all classes, functions, types and variables related to domain-specific command-processing.
+ * @brief Contains all classes, functions, types and variables related to domain-specific command-processing,
+ *        as well as the modulization system through DomainModules.
  */
 namespace Execution {
 } // namespace Execution
@@ -97,6 +107,7 @@ namespace Execution {
 /**
  * @namespace Nebulite::Interaction::Logic
  * @brief Contains all classes, functions, types and variables related to mathematical logic.
+ * @details All classes assist in evaluating user-defined runtime logical expressions within the Nebulite framework.
  */
 namespace Logic {
 } // namespace Logic
@@ -104,7 +115,7 @@ namespace Logic {
 /**
  * @namespace Nebulite::Interaction::Rules
  * @brief Contains all classes, functions, types and variables related to the
- *        rule-based domain manipulation system in Nebulites Invoke system.
+ *        rule-based domain manipulation system. Both local and global rulesets are handled here.
  */
 namespace Rules {
 /**
@@ -118,6 +129,8 @@ namespace Construction {
 /**
  * @namespace Nebulite::Interaction::Rules::RulesetModules
  * @brief Contains all classes, functions, types and variables related to specific static Rulesets.
+ * @details Compared to json-defined Rulesets, these RulesetModules provide optimized implementations for common use-cases.
+ *          They are hardcoded and compiled into the Nebulite framework.
  */
 namespace RulesetModules {
 } // namespace RulesetModules
@@ -157,14 +170,97 @@ public:
     }
 
     //------------------------------------------
-    // Provide full scope for GlobalSpace Domain
+    // Define accessor for various scopes
 
-    [[nodiscard]] static Core::JsonScope& shareScope(Core::GlobalSpace const& gs, std::string const& prefix) {
-        (void)gs; // only used for access control
-        return globalDoc().shareManagedScope(prefix);
+    /**
+     * @brief Class to provide access tokens for various Domain types.
+     * @details The access tokens can only be constructed by their respective classes.
+     * @todo Use this instead of the deprecated shareScope overloads below.
+     */
+    class ScopeAccessor {
+    public:
+        class BaseAccessToken {
+        protected:
+            BaseAccessToken() = default;
+            ~BaseAccessToken() = default;
+            std::string prefix = "";
+        public:
+            std::string getPrefix() const {return prefix; }
+        };
+
+        class Full final : public BaseAccessToken {
+            Full() {
+                prefix = "";
+            }
+            ~Full() = default;
+
+            // Allowed accessors:
+            friend class Core::GlobalSpace;
+            // TODO: add a helper class in renderer that does the rendering of globalspace using imgui,
+            //       then make that class a friend here to allow it access to full scope
+        };
+
+        // TODO: Build full prefix here for each DomainModule type by using arguments for the constructor
+        //       e.g. "providedScope.domainModule.renderObject." + dm.moduleScope.getScopePrefix()
+        //       Then we only require one shareScope function that takes the access token and derives the full prefix from it.
+
+        // Provide GlobalSpace access to DomainModules
+        class DomainModuleProvider {
+            class GlobalSpace final : public BaseAccessToken {
+                explicit GlobalSpace(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm) {
+                    prefix = "" + dm.moduleScope.getScopePrefix();
+                }
+                ~GlobalSpace() = default;
+
+                // Allowed accessors:
+                friend class Interaction::Execution::DomainModule<Core::GlobalSpace>;
+            };
+
+            class RenderObject final : public BaseAccessToken {
+                explicit RenderObject(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm) {
+                    prefix = "providedScope.domainModule.renderObject."  + dm.moduleScope.getScopePrefix();
+                }
+                ~RenderObject() = default;
+
+                // Allowed accessors:
+                friend class Interaction::Execution::DomainModule<Core::RenderObject>;
+            };
+
+            class JsonScope final : public BaseAccessToken {
+                explicit JsonScope(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm) {
+                    prefix = "providedScope.domainModule.jsonScope." + dm.moduleScope.getScopePrefix();
+                }
+                ~JsonScope() = default;
+
+                // Allowed accessors:
+                friend class Interaction::Execution::DomainModule<Core::JsonScope>;
+            };
+        };
+
+        class RulesetModuleProvider {
+            class RulesetModule final : public BaseAccessToken {
+                explicit RulesetModule(Interaction::Rules::RulesetModule const& rm) {
+                    (void)rm; // TODO: add getScopePrefix() to RulesetModule later on
+                    prefix = ""; // RulesetModules get full access for now
+                }
+                ~RulesetModule() = default;
+
+                // Allowed accessors:
+                friend class Interaction::Rules::RulesetModule;
+            };
+        };
+    };
+
+    //------------------------------------------
+    // Provide access based on access token and its prefix
+
+    [[nodiscard]] static Core::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix) {
+        return globalDoc().shareManagedScope(at.getPrefix() + prefix);
     }
 
     //------------------------------------------
+    // TODO: The following shareScope overloads are deprecated.
+
     // Provide scopes for DomainModules and RulesetModules, depending on their type
 
     // GlobalSpace DomainModules root is at "", then we add their own prefix
@@ -193,6 +289,22 @@ public:
         //       -> physics and time for example
         return globalDoc().shareManagedScope("");
     }
+
+    //------------------------------------------
+    // In some contexts, full access is needed
+    // This breaks the encapsulation, so use with care!
+
+    /**
+     * @brief DANGER: Provides full access to the global JSON document scope.
+     *        Only use this if absolutely necessary!
+     * @return Reference to the full global JSON document. Marked as const to prevent accidental modifications.
+     * @todo Implement a Helper class in renderer that does the rendering of globalspace using imgui,
+     *       then modify this function to require this class as argument, to limit its usage even further.
+     */
+    [[nodiscard]] static Core::JsonScope const& __DANGER_AHEAD_shareFullScope() {
+        return globalDoc().shareManagedScope("");
+    }
+
 private:
     // construct-on-first-use singletons to avoid global constructors/destructors
     static Data::JSON& globalDoc() {

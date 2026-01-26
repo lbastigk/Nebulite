@@ -43,14 +43,6 @@ public:
         "\n"
         "Marks the object for deletion on the next update cycle.\n";
 
-    [[nodiscard]] Constants::Error updateText() const ;
-    static auto constexpr updateText_name = "update-text";
-    static auto constexpr updateText_desc = "Calculate text texture\n"
-        "\n"
-        "Usage: update-text\n"
-        "\n"
-        "Triggers a recalculation of the text texture.\n";
-
     //------------------------------------------
     // Setup
 
@@ -59,7 +51,6 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, StateUpdate) {
         BIND_FUNCTION(&StateUpdate::deleteObject, deleteObject_name, deleteObject_desc);
-        BIND_FUNCTION(&StateUpdate::updateText, updateText_name, updateText_desc);
     }
 };
 } // namespace Nebulite::DomainModule::RenderObject

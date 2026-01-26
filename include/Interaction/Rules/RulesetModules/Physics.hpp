@@ -64,8 +64,6 @@ public:
 private:
     static constexpr std::string_view moduleName = "::physics";
 
-
-
     //------------------------------------------
     // Base values for physics framework
 
@@ -77,8 +75,9 @@ private:
     const std::vector<Data::ScopedKeyView> baseKeys = {
         Constants::KeyNames::RenderObject::positionX,
         Constants::KeyNames::RenderObject::positionY,
-        Constants::KeyNames::RenderObject::pixelSizeX,
-        Constants::KeyNames::RenderObject::pixelSizeY,
+        Constants::KeyNames::RenderObject::sizeX,
+        Constants::KeyNames::RenderObject::sizeY,
+        Constants::KeyNames::RenderObject::sizeR,
         DomainModule::GlobalSpace::Physics::Key::Local::aX,
         DomainModule::GlobalSpace::Physics::Key::Local::aY,
         DomainModule::GlobalSpace::Physics::Key::Local::vX,
@@ -98,8 +97,9 @@ private:
     enum class Key : std::size_t {
         posX,
         posY,
-        spriteSizeX,
-        spriteSizeY,
+        sizeX,
+        sizeY,
+        sizeR,
         physics_aX,
         physics_aY,
         physics_vX,

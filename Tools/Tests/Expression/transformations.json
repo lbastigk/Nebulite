@@ -22,11 +22,11 @@
     {
         "command": [
             "echo Transforming a json value from read-only document.",
-            "eval echo $({./Resources/Renderobjects/standard.jsonc:text.color.A|add 1})"
+            "eval echo $({./Resources/Renderobjects/standard.jsonc:size.X|add 1})"
         ],
         "expected": { "cout": [
             "Transforming a json value from read-only document.",
-            "256"
+            "33"
         ], "cerr": [] }
     }
 ]

@@ -1,40 +1,35 @@
 {
-    "id": 0,
-    "layer": 3,
-    "posX": 320,
-    "posY": 128,
-    "physics": {
-        "mass": 0.0,
-        "aX": 0.0,
-        "aY": 0.0,
-        "vX": 0.0,
-        "vY": 0.0,
-        "vNorm": 1.0
-    },
-    "sprite": {
-        "link": "Resources/Sprites/TEST001P/001.bmp",
-        "sizeX": 0,
-        "sizeY": 0,
-        "spritesheet": {
-            "isSpritesheet": false,
-            "offsetX": 0,
-            "offsetY": 0,
-            "sizeX": 0,
-            "sizeY": 0
+    "draw": {
+        "scoreText": {
+            "drawType": "text",
+            "rect": {
+                "dst": {
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            },
+            "textureData": {
+                "color": {
+                    "a": 255.0,
+                    "b": 255.0,
+                    "g": 255.0,
+                    "r": 255.0
+                },
+                "fontSize": 28,
+                "str": ""
+            }
         }
     },
-    "text": {
-        "dx": -25.0,
-        "dy": -3.0,
-        "fontSize": 16,
-        "str": ""
-    },
+    "id": 0,
+    "layer": 3,
+    "posX": 0,
+    "posY": 0,
     "ruleset": {
-        "broadcast": [
-            "./Resources/Invokes/Pong/showScore.jsonc"
-        ],
         "listen": [
             "all"
+        ],
+        "list": [
+            "./Resources/Invokes/Pong/showScore.jsonc"
         ]
     }
 }

@@ -47,45 +47,6 @@ public:
         "eval echo $(1+1)    outputs:    2.000000\n"
         "eval echo {self.id} outputs this objects id\n";
 
-    [[nodiscard]] Constants::Error printSrcRect() const ;
-    static auto constexpr printSrcRect_name = "debug print-src-rect";
-    static auto constexpr printSrcRect_desc = "Prints debug information about the source rectangle to console\n"
-        "\n"
-        "Usage: debug print-src-rect\n"
-        "\n"
-        "Outputs:\n"
-        "Source Rectangle: { x: ..., y: ..., w: ..., h: ... }\n"
-        "If the RenderObject is not a spritesheet, indicates that instead:\n"
-        "This RenderObject is not a spritesheet.\n";
-
-    [[nodiscard]] Constants::Error printDstRect() const ;
-    static auto constexpr printDstRect_name = "debug print-dst-rect";
-    static auto constexpr printDstRect_desc = "Prints debug information about the destination rectangle to console\n"
-        "\n"
-        "Usage: debug print-dst-rect\n"
-        "\n"
-        "Outputs:\n"
-        "Destination Rectangle: { x: ..., y: ..., w: ..., h: ... }\n"
-        "If the RenderObject is not a spritesheet, indicates that instead:\n"
-        "Destination rectangle is not set.\n";
-
-    Constants::Error textureStatus(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) const ;
-    static auto constexpr textureStatus_name = "debug texture-status";
-    static auto constexpr textureStatus_desc = "Prints debug information about the texture to console\n"
-        "\n"
-        "Usage: debug texture-status\n"
-        "\n"
-        "Outputs various details about the texture, including:\n"
-        " - Texture Key\n"
-        " - Valid Texture\n"
-        " - Local Texture\n"
-        " - SDL Texture Info (Width, Height, Access, Format)\n";
-
-    //------------------------------------------
-    // Category names
-    static auto constexpr debug_name = "debug";
-    static auto constexpr debug_desc = "Debugging functions for RenderObject domains";
-
     //------------------------------------------
     // Setup
 
@@ -96,10 +57,11 @@ public:
         // Some functions like selected-object need eval to resolve variables
         BIND_FUNCTION(&Debug::eval, eval_name, eval_desc);
 
-        (void)bindCategory(debug_name, debug_desc);
-        BIND_FUNCTION(&Debug::printSrcRect, printSrcRect_name, printSrcRect_desc);
-        BIND_FUNCTION(&Debug::printDstRect, printDstRect_name, printDstRect_desc);
-        BIND_FUNCTION(&Debug::textureStatus, textureStatus_name, textureStatus_desc);
+        // TODO: Since texture/src/dst debugging is no longer relevant here, we should add other debug functions later on
+        //       - initialized drawcall count
+        //       - uninitialized drawcall count
+        //       - drawcall metadata
+        //       - etc.
     }
 };
 } // namespace Nebulite::DomainModule::RenderObject

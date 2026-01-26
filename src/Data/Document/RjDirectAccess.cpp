@@ -206,6 +206,19 @@ std::string RjDirectAccess::serialize(rapidjson::Document const& doc) {
     return buffer.GetString();
 }
 
+std::string RjDirectAccess::serialize(rapidjson::Value const& val) {
+    rapidjson::Document tempDoc;
+    tempDoc.SetObject(); // Required before Swap or adding values
+
+    rapidjson::Value sortedVal = sortRecursive(val, tempDoc.GetAllocator());
+    tempDoc.Swap(sortedVal); // Efficiently replace contents
+
+    rapidjson::StringBuffer buffer;
+    rapidjson::PrettyWriter writer(buffer);
+    tempDoc.Accept(writer);
+    return buffer.GetString();
+}
+
 void RjDirectAccess::deserialize(rapidjson::Document& doc, std::string const& serialOrLink) {
     std::string jsonString;
 
@@ -424,6 +437,30 @@ bool RjDirectAccess::isValidKey(std::string const& key) {
         }
     }
     return true;
+}
+
+std::vector<std::string> RjDirectAccess::listAvailableKeys(rapidjson::Value const& val){
+    std::vector<std::string> keys;
+    if (val.IsArray()) {
+        // Generate a list of array keys: [0], [1], ...
+        size_t const arrSize = val.Size();
+        keys.reserve(arrSize);
+        for (size_t i = 0; i < arrSize; ++i) {
+            keys.emplace_back("[" + std::to_string(i) + "]");
+        }
+    }
+    else if (val.IsObject()) {
+        // Generate a list of object member keys
+        for (auto itr = val.MemberBegin(); itr != val.MemberEnd(); ++itr) {
+            keys.emplace_back(itr->name.GetString());
+        }
+    }
+
+    // Sort keys alphabetically
+    std::ranges::sort(keys);
+
+    // For any other type, we return an empty list
+    return keys;
 }
 
 

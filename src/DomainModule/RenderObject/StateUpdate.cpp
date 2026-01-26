@@ -20,9 +20,4 @@ Constants::Error StateUpdate::deleteObject() const {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error StateUpdate::updateText() const {
-    domain.flag.calculateText = true;
-    return Constants::ErrorTable::NONE();
-}
-
 } // namespace Nebulite::DomainModule::RenderObject

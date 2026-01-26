@@ -1,4 +1,26 @@
 {
+    "draw": {
+        "core": {
+            "drawType": "circle",
+            "rect": {
+                "dst": {
+                    "h": 16.0,
+                    "w": 16.0,
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            },
+            "textureData": {
+                "color": {
+                    "a": 255.0,
+                    "b": 0.0,
+                    "g": 0.0,
+                    "r": 128.0
+                },
+                "radius": 32.0
+            }
+        }
+    },
     "id": 0,
     "layer": 0,
     "physics": {
@@ -6,43 +28,23 @@
         "aX": 0.0,
         "aY": 0.0,
         "vX": -30.0,
-        "vY": 120.0
+        "vY": 120.0,
+        "vNorm": 0.1
     },
     "posX": 650,
     "posY": 500,
-    "sprite": {
-        "link": "Resources/Sprites/TEST001P/017.bmp",
-        "sizeX": 10,
-        "sizeY": 10,
-        "spritesheet": {
-            "isSpritesheet": false,
-            "offsetX": 0,
-            "offsetY": 0,
-            "sizeX": 0,
-            "sizeY": 0
-        }
-    },
-    "text": {
-        "color": {
-            "A": 255,
-            "B": 128,
-            "G": 128,
-            "R": 255
-        },
-        "dx": 0.0,
-        "dy": -30.0,
-        "fontSize": 16,
-        "str": "OBJ2"
-    },
     "ruleset": {
-        "broadcast": [
-            "Resources/Invokes/Physics/gravity.jsonc",
-            "Resources/Invokes/Physics/applyForce.jsonc"
-        ],
         "listen": [
             "all",
             "::physics::gravity",
             "gravity"
+        ],
+        "list": [
+            "Resources/Invokes/Physics/gravity.jsonc",
+            "Resources/Invokes/Physics/applyForce.jsonc"
         ]
+    },
+    "size": {
+        "r": 8
     }
 }
