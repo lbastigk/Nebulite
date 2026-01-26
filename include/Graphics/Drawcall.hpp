@@ -42,13 +42,7 @@ public:
 
     void draw(float const& offsetX, float const& offsetY) const ;
 
-    void update() {
-        if (!status.initialized) {
-            updateDrawcallData(); // Do first initialization
-        }
-        texture.update();
-        updaterRoutine.update();
-    }
+    void update();
 
     // Parse a string onto the texture
     Constants::Error parseStr(std::string const& str);
@@ -157,16 +151,10 @@ private:
     void updateDrawcallData();
 
     // Allows periodic updating of drawcall data to reflect current state
-    Utility::TimedRoutine updaterRoutine{
-        [this] {
-            updateDrawcallData();
-        },
-        updateDrawcallDataIntervalMs,
-        Utility::TimedRoutine::ConstructionMode::START_IMMEDIATELY
-    }; // Routine to update the drawcall data periodically
+    Utility::TimedRoutine updaterRoutine;
 
     //------------------------------------------
-    // Specific initializers
+    // Specific initializers for each type
 
     void initializeSprite();
 

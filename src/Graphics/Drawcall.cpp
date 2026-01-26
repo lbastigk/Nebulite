@@ -3,7 +3,17 @@
 
 namespace Nebulite::Graphics {
 
-Drawcall::Drawcall(Core::JsonScope& workspace) : drawcallScope(workspace), texture(workspace) {
+Drawcall::Drawcall(Core::JsonScope& workspace) :
+    drawcallScope(workspace),
+    texture(workspace),
+    updaterRoutine{
+        [this] {
+            updateDrawcallData();
+        },
+        updateDrawcallDataIntervalMs,
+        Utility::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+    }
+{
     refs.initialize(workspace);
     updateDrawcallData();
 }
@@ -52,12 +62,24 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) const {
                         Error::println("Failed to render sprite texture in drawcall: ", SDL_GetError());
                     }
                 }
+                else {
+                    Error::println("Attempted to draw uninitialized texture in drawcall.");
+                }
             }
             break;
+        // Later on, add more drawcall types here (geometry, etc.)
         default:
             // Unknown type
             std::unreachable();
     }
+}
+
+void Drawcall::update() {
+    if (!status.initialized) {
+        updateDrawcallData(); // Do first initialization
+    }
+    texture.update();
+    updaterRoutine.update();
 }
 
 void Drawcall::updateDrawcallData() {
@@ -69,6 +91,11 @@ void Drawcall::updateDrawcallData() {
     else if (t == "text") {
         type = TEXT;
         initializeText();
+    }
+    else {
+        Error::println("Unknown drawcall type: ", t, ". Defaulting to sprite.");
+        type = SPRITE;
+        initializeSprite();
     }
 }
 
@@ -149,6 +176,7 @@ void Drawcall::initializeSprite() {
 // TODO: Re-initialization still does not work properly
 //       after 1s (timer), the new text is not shown
 //       Even if we full reinit the entire object, the new text is blank!
+//       Even with a self-owned texture, this occurs...
 void Drawcall::initializeText() {
     if (!Global::instance().getRenderer().isSdlInitialized()) return;
 
