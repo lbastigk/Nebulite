@@ -2,10 +2,40 @@ set-res 1000 1000
 set-fps 100
 time set-fixed-dt 10
 set physics.G 10
-spawn ./Resources/Renderobjects/Planets/sun.jsonc|posX=250|posY=500|physics.vX=020|physics.vY=055|sprite.sizeX=10|sprite.sizeY=10|physics.mass=1500000
-spawn ./Resources/Renderobjects/Planets/sun.jsonc|posX=750|posY=500|physics.vX=-20|physics.vY=-55|sprite.sizeX=10|sprite.sizeY=10|physics.mass=1500000
-spawn ./Resources/Renderobjects/Planets/obj1.jsonc|sprite.sizeX=3|sprite.sizeY=3|physics.vX=020|physics.vY=-120
-spawn ./Resources/Renderobjects/Planets/obj2.jsonc|sprite.sizeX=3|sprite.sizeY=3|physics.vX=-20|physics.vY=0120
-wait 100
-print-state
-print all
+set planetSize 3
+
+spawn ./Resources/Renderobjects/Planets/sun.jsonc \
+    |posX=250|posY=500|physics.vX=020|physics.vY=055 \
+    |size.x=10 \
+    |size.y=10 \
+    |draw.core.rect.dst.h=10 \
+    |draw.core.rect.dst.w=10 \
+    |physics.mass=1500000
+spawn ./Resources/Renderobjects/Planets/sun.jsonc \
+    |posX=750|posY=500|physics.vX=-20|physics.vY=-55 \
+    |size.x=10 \
+    |size.y=10 \
+    |draw.core.rect.dst.h=10 \
+    |draw.core.rect.dst.w=10 \
+    |physics.mass=1500000
+
+always spawn ./Resources/Renderobjects/Planets/obj1.jsonc \
+    |physics.vX=020|physics.vY=-120 \
+    |posX=250|posY=250 \
+    |eval set size.x {global.planetSize} \
+    |eval set size.y {global.planetSize} \
+    |eval set draw.core.rect.dst.h {global.planetSize} \
+    |eval set draw.core.rect.dst.w {global.planetSize}
+
+always spawn ./Resources/Renderobjects/Planets/obj2.jsonc \
+    |physics.vX=-20|physics.vY=0120 \
+    |posX=750|posY=750 \
+    |eval set size.x {global.planetSize} \
+    |eval set size.y {global.planetSize} \
+    |eval set draw.core.rect.dst.h {global.planetSize} \
+    |eval set draw.core.rect.dst.w {global.planetSize} \
+
+wait 1000
+always-clear
+wait 3000
+exit

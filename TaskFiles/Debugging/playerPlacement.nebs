@@ -1,5 +1,5 @@
 echo Debugging spritesheet rendering
-set-res 320 240 6
+set-res 320 240 3
 set-fps 60
 
 ###########################

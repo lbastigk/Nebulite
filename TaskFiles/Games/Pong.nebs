@@ -23,5 +23,3 @@ eval spawn ./Resources/Renderobjects/Pong/ball.jsonc \
 spawn ./Resources/Renderobjects/Pong/scoreboard.jsonc \
     |posY=450 \
     |posX=-3
-
-print physics
