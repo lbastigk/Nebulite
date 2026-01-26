@@ -39,7 +39,8 @@ void Drawcall::Refs::initialize(Core::JsonScope const& scope){
     textFontsize = scope.getStableDoublePointer(Key::TextSpecific::fontsize);
 }
 
-void Drawcall::draw(float const& offsetX, float const& offsetY) const {
+void Drawcall::draw(float const& offsetX, float const& offsetY) {
+    updateDrawcallData(); // TODO: Why is this needed???
     auto const& renderer = Global::instance().getRenderer();
     switch (type) {
         case SPRITE:
@@ -78,8 +79,8 @@ void Drawcall::update() {
     if (!status.initialized) {
         updateDrawcallData(); // Do first initialization
     }
-    texture.update();
     updaterRoutine.update();
+    texture.update();
 }
 
 void Drawcall::updateDrawcallData() {

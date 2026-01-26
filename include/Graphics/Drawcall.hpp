@@ -40,7 +40,7 @@ public:
 
     ~Drawcall() = default;
 
-    void draw(float const& offsetX, float const& offsetY) const ;
+    void draw(float const& offsetX, float const& offsetY);
 
     void update();
 

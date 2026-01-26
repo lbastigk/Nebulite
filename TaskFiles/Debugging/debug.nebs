@@ -30,7 +30,7 @@ selected-object get 1
 wait 1
 selected-object parse print draw
 
-wait 100 # Should be enough for the update routine to kick in
+wait 1000 # Should be enough for the update routine to kick in
 selected-object parse print draw
 exit
 
