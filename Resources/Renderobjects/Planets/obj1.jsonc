@@ -19,61 +19,6 @@
                 },
                 "radius": 32.0
             }
-        },
-        "planetAxis": {
-            "drawType": "polygon",
-            "rect": {
-                "src": {
-                    "h": 32.0,
-                    "w": 32.0,
-                    "x": 0.0,
-                    "y": 0.0
-                },
-                "dst": {
-                    "h": 32.0,
-                    "w": 32.0,
-                    "x": -16.0,
-                    "y": -16.0
-                }
-            },
-            "textureData": {
-                "color": {
-                    "a": 255.0,
-                    "b": 128.0,
-                    "g": 128.0,
-                    "r": 128.0
-                },
-                "filled": true,
-                "points": [
-                    {
-                        "x": 0.48,
-                        "y": 0.2
-                    },
-                    {
-                        "x": 0.48,
-                        "y": 0.8
-                    },
-                    {
-                        "x": 0.52,
-                        "y": 0.8
-                    },
-                    {
-                        "x": 0.52,
-                        "y": 0.2
-                    },
-                    {
-                        "x": 0.48,
-                        "y": 0.8
-                    }
-                ],
-                "rotation": {
-                    "angle": 90,
-                    "center": {
-                        "x": 0.5,
-                        "y": 0.5
-                    }
-                }
-            }
         }
     },
     "id": 0,
@@ -96,16 +41,7 @@
         ],
         "list": [
             "::physics::gravity",
-            "::physics::applyForce",
-            {
-                "topic": "",
-                "condition": "1",
-                "action": {
-                    "assign": [
-                        "self.draw.planetAxis.textureData.rotation.angle += $(360 * {global.time.dt})"
-                    ]
-                }
-            }
+            "::physics::applyForce"
         ]
     },
     "size": {
