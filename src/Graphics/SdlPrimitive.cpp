@@ -60,9 +60,9 @@ void SdlPrimitive::drawFilledPolygon(SDL_Renderer* renderer, SDL_Texture* textur
     // Find Y bounds
     float minY = points[0].y;
     float maxY = points[0].y;
-    for (const auto& p : points) {
-        minY = std::min(minY, p.y);
-        maxY = std::max(maxY, p.y);
+    for (const auto& [_, py] : points) {
+        minY = std::min(minY, py);
+        maxY = std::max(maxY, py);
     }
 
     // Scanline loop
@@ -71,21 +71,25 @@ void SdlPrimitive::drawFilledPolygon(SDL_Renderer* renderer, SDL_Texture* textur
 
         // Walk polygon edges
         for (size_t i = 0; i < points.size(); ++i) {
-            const SDL_FPoint& p1 = points[i];
-            const SDL_FPoint& p2 = points[(i + 1) % points.size()];
+            auto const& [p1x, p1y] = points[i];
+            auto const& [p2x, p2y] = points[(i + 1) % points.size()];
 
             // Skip horizontal edges
-            if (std::fabs(p1.y - p2.y) < FLT_EPSILON) {
+            if (std::fabs(p1y - p2y) < FLT_EPSILON) {
                 continue;
             }
 
-            float yMin = std::min(p1.y, p2.y);
-            float yMax = std::max(p1.y, p2.y);
+            float const yMin = std::min(p1y, p2y);
+            float const yMax = std::max(p1y, p2y);
+
+            if (yMin - yMax > FLT_EPSILON) {
+                continue; // Degenerate edge
+            }
 
             // Check if scanline intersects edge
             if (y >= yMin && y < yMax) {
-                float t = (y - p1.y) / (p2.y - p1.y);
-                float x = p1.x + t * (p2.x - p1.x);
+                float const t = (y - p1y) / (p2y - p1y);
+                float const x = p1x + t * (p2x - p1x);
                 intersections.push_back(x);
             }
         }
@@ -95,8 +99,8 @@ void SdlPrimitive::drawFilledPolygon(SDL_Renderer* renderer, SDL_Texture* textur
 
         // Fill between pairs
         for (size_t i = 0; i + 1 < intersections.size(); i += 2) {
-            int x1 = static_cast<int>(std::ceil(intersections[i]));
-            int x2 = static_cast<int>(std::floor(intersections[i + 1]));
+            int const x1 = static_cast<int>(std::ceil(intersections[i]));
+            int const x2 = static_cast<int>(std::floor(intersections[i + 1]));
             SDL_RenderLine(renderer, x1, y, x2, y);
         }
     }
