@@ -73,20 +73,34 @@ Constants::Error General::task(int const argc, char** argv) const {
     }
 
     // Using FileManagement to load the .nebs file
-    std::string const file = Utility::FileManagement::LoadFile(filename);
+    std::string file = Utility::FileManagement::LoadFile(filename);
     if (file.empty()) {
         Error::println("Error: ", argv[0], " Could not open file '", filename, "'.");
         return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
 
-    std::vector<std::string> lines;
+    // Replace all "\n " with "\n" to allow for multi-line commands with leading spaces
+    while (file.find("\n ") != std::string::npos) {
+        file = Utility::StringHandler::replaceAll(file, "\n ", "\n");
+    }
+
+    // Replace all " \\\n" with "\\\n" to allow for multi-line commands with trailing spaces
+    while (file.find(" \\\n") != std::string::npos) {
+        file = Utility::StringHandler::replaceAll(file, " \\\n", "\\\n");
+    }
+
+    // Replace all "\\n" with an empty string to allow for multi-line commands in a single line
+    auto constexpr toReplace = "\\\n";
+    file = Utility::StringHandler::replaceAll(file, toReplace, "");
 
     // Split std::string file into lines and remove comments
+    std::vector<std::string> lines;
     std::istringstream stream(file);
     std::string line;
     while (std::getline(stream, line)) {
         line = Utility::StringHandler::untilSpecialChar(line, '#'); // Remove comments.
         line = Utility::StringHandler::lStrip(line, ' '); // Remove whitespaces at start
+        line = Utility::StringHandler::rStrip(line, ' '); // Remove whitespaces at end
         if (line.empty()) {
             // line is empty
             continue;
