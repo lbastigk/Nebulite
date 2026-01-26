@@ -1,4 +1,26 @@
 {
+    "draw": {
+        "core": {
+            "drawType": "circle",
+            "rect": {
+                "dst": {
+                    "h": 16.0,
+                    "w": 16.0,
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            },
+            "textureData": {
+                "color": {
+                    "a": 255.0,
+                    "b": 255.0,
+                    "g": 0.0,
+                    "r": 0.0
+                },
+                "radius": 32.0
+            }
+        }
+    },
     "id": 0,
     "layer": 0,
     "physics": {
@@ -47,5 +69,9 @@
             "gravity",
             "collision"
         ]
+    },
+    "size": {
+        "X": 32,
+        "Y": 32
     }
 }

@@ -1,4 +1,39 @@
 {
+    "draw": {
+        "core": {
+            "drawType": "sprite",
+            "rect": {
+                "dst": {
+                    "h": 64.0,
+                    "w": 64.0,
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            },
+            "textureData": {
+                "link": "Resources/Sprites/TEST001P/014.bmp"
+            }
+        },
+        "text": {
+            "drawType": "text",
+            "rect": {
+                "dst": {
+                    "x": -0.0,
+                    "y": -15.0
+                }
+            },
+            "textureData": {
+                "color": {
+                    "A": 255.0,
+                    "B": 255.0,
+                    "G": 255.0,
+                    "R": 255.0
+                },
+                "fontSize": 14.0,
+                "str": "SUN"
+            }
+        }
+    },
     "id": 0,
     "layer": 0,
     "physics": {
@@ -10,30 +45,6 @@
     },
     "posX": 500,
     "posY": 500,
-    "sprite": {
-        "link": "Resources/Sprites/TEST001P/014.bmp",
-        "sizeX": 50,
-        "sizeY": 50,
-        "spritesheet": {
-            "isSpritesheet": false,
-            "offsetX": 0,
-            "offsetY": 0,
-            "sizeX": 0,
-            "sizeY": 0
-        }
-    },
-    "text": {
-        "color": {
-            "A": 255,
-            "B": 255,
-            "G": 255,
-            "R": 255
-        },
-        "dx": 0.0,
-        "dy": -30.0,
-        "fontSize": 16,
-        "str": "SUN"
-    },
     "ruleset": {
         "broadcast": [
             "./Resources/Invokes/Movement/movement_wasd.jsonc",
@@ -46,5 +57,9 @@
             "::physics::gravity",
             "gravity"
         ]
+    },
+    "size": {
+        "X": 64,
+        "Y": 64
     }
 }
