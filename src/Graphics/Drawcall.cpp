@@ -18,7 +18,7 @@ Drawcall::Drawcall(Core::JsonScope& workspace) :
         [this] {
             updateDrawcallData();
         },
-        updateDrawcallDataIntervalMs + std::rand() % updateDrawcallDataIntervalJitterMs,
+        updateDrawcallDataIntervalMs + static_cast<uint64_t>(std::rand()) % updateDrawcallDataIntervalJitterMs,
         Utility::TimedRoutine::ConstructionMode::START_IMMEDIATELY
     }
 {
@@ -100,11 +100,16 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
             break;
         // Later on, add more drawcall types here (geometry, etc.)
         case CIRCLE:
-            if (reInitializeRequested) {
-                initializeCircle();
-                reInitializeRequested = false;
+            {
+                if (reInitializeRequested) {
+                    initializeCircle();
+                    reInitializeRequested = false;
+                }
+                // Make sure the circle is centered
+                auto const additionalOffsetX = static_cast<float>(*refs.rectDstW / 2.0);
+                auto const additionalOffsetY = static_cast<float>(*refs.rectDstH / 2.0);
+                renderTexture(renderer, offsetX - additionalOffsetX, offsetY - additionalOffsetY);
             }
-            renderTexture(renderer, offsetX, offsetY);
             break;
         default:
             // Unknown type

@@ -32,6 +32,7 @@ Physics::Physics() : RulesetModule(moduleName) {
 //       then, use that info here to properly interpolate position
 //       that happens between now and the predicted next frame-time
 // TODO: Add a repositioning step to resolve overlaps
+// TODO: Needs to use new size system: (size.X, size.Y) or size.r
 void Physics::elasticCollision(ContextBase const& context) const {
     // Get ordered cache lists for both entities for base values
     double** slf = getBaseList(context.self, baseKeys);
