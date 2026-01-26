@@ -64,8 +64,6 @@ public:
 private:
     static constexpr std::string_view moduleName = "::physics";
 
-
-
     //------------------------------------------
     // Base values for physics framework
 
@@ -79,6 +77,7 @@ private:
         Constants::KeyNames::RenderObject::positionY,
         Constants::KeyNames::RenderObject::sizeX,
         Constants::KeyNames::RenderObject::sizeY,
+        Constants::KeyNames::RenderObject::sizeR,
         DomainModule::GlobalSpace::Physics::Key::Local::aX,
         DomainModule::GlobalSpace::Physics::Key::Local::aY,
         DomainModule::GlobalSpace::Physics::Key::Local::vX,
@@ -100,6 +99,7 @@ private:
         posY,
         sizeX,
         sizeY,
+        sizeR,
         physics_aX,
         physics_aY,
         physics_vX,
