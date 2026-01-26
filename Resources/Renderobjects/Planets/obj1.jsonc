@@ -84,8 +84,8 @@
         ],
         "listen": [
             "all",
-            "::physics::gravity",
-            "gravity"
+            "::physics::gravity", // modern, code-defined ruleset
+            "gravity" // backward compatibility for json-defined rulesets
         ]
     },
     "size": {

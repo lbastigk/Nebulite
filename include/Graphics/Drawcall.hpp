@@ -148,6 +148,8 @@ private:
 
     bool reInitializeRequested = false;
 
+    // TODO: requestOverride, allowing us to redraw the texture every frame if needed
+
     enum Type {
         SPRITE,
         TEXT,
