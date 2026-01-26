@@ -142,6 +142,8 @@ public:
      */
     static std::string serialize(rapidjson::Document const& doc);
 
+    static std::string serialize(rapidjson::Value const& val);
+
     /**
      * @brief Deserializes a JSON string into a rapidjson document.
      * @param doc The rapidjson document to populate.

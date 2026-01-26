@@ -89,8 +89,14 @@ void Expression::reset() {
     te_variables.push_back({"sgn", reinterpret_cast<void*>(expr_custom::sgn), TE_FUNCTION1, nullptr});
 
     // RNG functions
+
+    // Range 0 to 1
     te_variables.push_back({"rng2arg", reinterpret_cast<void*>(expr_custom::rng2arg), TE_FUNCTION2, nullptr});
     te_variables.push_back({"rng3arg", reinterpret_cast<void*>(expr_custom::rng3arg), TE_FUNCTION3, nullptr});
+
+    // Range 0 to 32767
+    te_variables.push_back({"rng2argInt16", reinterpret_cast<void*>(expr_custom::rng2argInt16), TE_FUNCTION2, nullptr});
+    te_variables.push_back({"rng3argInt16", reinterpret_cast<void*>(expr_custom::rng3argInt16), TE_FUNCTION3, nullptr});
 }
 
 std::string Expression::stripContext(std::string const& key) {
@@ -424,7 +430,7 @@ void Expression::printCompileError(std::shared_ptr<Component> const& component, 
 //------------------------------------------
 // Public:
 
-Expression::Expression(std::string const& expr, Core::JsonScope& self)
+Expression::Expression(std::string const& expr, Data::JsonScopeBase& self)
     : references{self}
 {
     _isReturnableAsDouble = false;
@@ -467,15 +473,16 @@ bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr
     }
 
     // Now, use the key to get the value from the correct document
+    auto const key = Data::ScopedKey(strippedKey);
     switch (context) {
     case Component::From::self:
-        token = references.self.get<std::string>(Data::ScopedKey(strippedKey), "null");
+        token = references.self.get<std::string>(key.view(), "null");
         break;
     case Component::From::other:
-        token = current_other.get<std::string>(Data::ScopedKey(strippedKey), "null");
+        token = current_other.get<std::string>(key.view(), "null");
         break;
     case Component::From::global:
-        token = Global::instance().domainScope.get<std::string>(Data::ScopedKey(strippedKey), "null");
+        token = Global::instance().domainScope.get<std::string>(key.view(), "null");
         break;
     case Component::From::resource:
         token = Global::instance().getDocCache().get<std::string>(strippedKey, "null");

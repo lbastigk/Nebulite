@@ -206,6 +206,19 @@ std::string RjDirectAccess::serialize(rapidjson::Document const& doc) {
     return buffer.GetString();
 }
 
+std::string RjDirectAccess::serialize(rapidjson::Value const& val) {
+    rapidjson::Document tempDoc;
+    tempDoc.SetObject(); // Required before Swap or adding values
+
+    rapidjson::Value sortedVal = sortRecursive(val, tempDoc.GetAllocator());
+    tempDoc.Swap(sortedVal); // Efficiently replace contents
+
+    rapidjson::StringBuffer buffer;
+    rapidjson::PrettyWriter writer(buffer);
+    tempDoc.Accept(writer);
+    return buffer.GetString();
+}
+
 void RjDirectAccess::deserialize(rapidjson::Document& doc, std::string const& serialOrLink) {
     std::string jsonString;
 

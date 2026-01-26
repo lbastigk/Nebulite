@@ -45,7 +45,7 @@ namespace Nebulite::Interaction::Logic {
  */
 class ExpressionPool {
 public:
-    ExpressionPool(std::string const& expr, Core::JsonScope& self) {
+    ExpressionPool(std::string const& expr, Data::JsonScopeBase& self) {
         parse(expr, self);
     }
 
@@ -136,7 +136,7 @@ private:
      * @param expr The expression to parse.
      * @param self The JSON object representing the "self" context.
      */
-    void parse(std::string const& expr, Core::JsonScope& self){
+    void parse(std::string const& expr, Data::JsonScopeBase& self){
         static_assert(EXPRESSION_POOL_SIZE > 0, "INVOKE_EXPR_POOL_SIZE must be greater than 0");
 
         fullExpression = expr;
