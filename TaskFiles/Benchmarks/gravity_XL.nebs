@@ -1,24 +1,27 @@
 ###############################################
 # Gravity + Elastic collision Benchmark
 # Spawns n*n objects with a total mass of 50000
-# + a sun object
-# 
-# Due to the inherent n^2 complexity of gravity, this benchmark is very resource intensive
+# + a sun object after 5000 frames
+#
+# Due to the inherent n^2 complexity of gravity, this benchmark is very ressource intensive
+# it is recommended to start this benchmark headless!
 ###############################################
 
 ###############################################
 # [SETTINGS]
-set loop.n 20
+set loop.n 80  # Number of objects per row/column (total objects = n*n)
 
-# Frame average for 20x20 objects: 010.77 ms.
-# Frame average for 40x40 objects: 117.88 ms.
+# Frame average for loop.n=40:
+# 0.745 seconds, 2025-09
+# 0.200 seconds, 2025-10 (new Broadcast-Listen-Model and more efficient threading)
+# 0.075 seconds, 2026-01 (many micro-optimizations)
 
 ###############################################
 # [BASICS]
 # It is not recommended to change these!
 time set-fixed-dt 1
 set physics.G 10
-set-res 640 640 1
+set-res 640 640 2
 set-fps 10000
 show-fps on
 
@@ -26,16 +29,40 @@ show-fps on
 # [INFO]
 echo
 eval echo Benchmark with $i( {global.loop.n} * {global.loop.n} ) Objects...
-eval echo Rendering with a fixed dt of 2 ms
+eval echo Rendering with a fixed dt of 1 ms
 echo
 
 
 ###############################################
 # Spawn barriers
-eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=0|posY=0|sprite.sizeX=640|sprite.sizeY=32
-eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=0|posY=$(640-32)|sprite.sizeX=640|sprite.sizeY=32
-eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=0|posY=32|sprite.sizeX=32|sprite.sizeY=$(640-64)
-eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posX=$(640-32)|posY=32|sprite.sizeX=32|sprite.sizeY=$(640-64)
+eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc \
+    |posX=0 \
+    |posY=0 \
+    |size.x=640 \
+    |size.y=32 \
+    |draw.core.rect.dst.w=640 \
+    |draw.core.rect.dst.h=32
+eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc \
+    |posX=0 \
+    |posY=$(640-32) \
+    |size.x=640 \
+    |size.y=32 \
+    |draw.core.rect.dst.w=640 \
+    |draw.core.rect.dst.h=32
+eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc \
+    |posX=0 \
+    |posY=32 \
+    |size.x=32 \
+    |size.y=$(640-64) \
+    |draw.core.rect.dst.w=32 \
+    |draw.core.rect.dst.h=$(640-64)
+eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc \
+    |posX=$(640-32) \
+    |posY=32 \
+    |size.x=32 \
+    |size.y=$(640-64) \
+    |draw.core.rect.dst.w=32 \
+    |draw.core.rect.dst.h=$(640-64)
 
 ###############################################
 # Calculations
@@ -46,21 +73,43 @@ eval set spriteSize $({global.loop.delta})
 
 ###############################################
 # Spawn Objects
-for i {global.loop.start} {global.loop.end} for j {global.loop.start} {global.loop.end} eval spawn ./Resources/Renderobjects/Planets/obj_elastic_to_wall.jsonc|posX=$({global.loop.delta}*{i})|posY=$({global.loop.delta}*{j})|physics.vX=0|physics.vY=0|physics.mass=$( 50000 / ({global.loop.n} * {global.loop.n}))|sprite.sizeX={global.spriteSize}|sprite.sizeY={global.spriteSize}
+for i {global.loop.start} {global.loop.end} for j {global.loop.start} {global.loop.end} spawn ./Resources/Renderobjects/Boxes/obj_elastic_to_wall.jsonc \
+    |eval set posX $({global.loop.delta}*{i}) \
+    |eval set posY $({global.loop.delta}*{j}) \
+    |eval set physics.vX 0 \
+    |eval set physics.vY 0 \
+    |eval set physics.mass $( 50000 / ({global.loop.n} * {global.loop.n})) \
+    |eval set size.x $({global.spriteSize}) \
+    |eval set size.y $({global.spriteSize}) \
+    |eval set draw.core.rect.dst.h $({global.spriteSize}) \
+    |eval set draw.core.rect.dst.w $({global.spriteSize}) \
+    |eval set draw.core.rect.dst.x 0 \
+    |eval set draw.core.rect.dst.y 0
+    # Objects aren't centered for now (dst.x/y = 0), otherwise the box-box collision detection isn't accurate
 
 ###############################################
 # Constant Info
 
 ###############################################
-# Spawn a heavy object
-spawn ./Resources/Renderobjects/Planets/sun.jsonc|posX=500|posY=500 # Heavy object
+# Store Snapshots, info
+wait 1
+set framename 0
+set storeSnapshots 0
+always if $(not({global.time.frameCount}%10)*{global.storeSnapshots}) eval echo Frame {global.time.frameCount} rendered! Frame average: $( {global.time.runtime.t} / {global.time.frameCount} ) seconds. Full runtime: {global.time.runtime.t} seconds.
+always if $(not({global.time.frameCount}%10)*{global.storeSnapshots}) eval set framename $i(1 + {global.framename})
+always if $(not({global.time.frameCount}%10)*{global.storeSnapshots}) eval snapshot ./Resources/Snapshots/ToGif/$05i({global.framename}).png
+always if $(not({global.time.frameCount}%10)*{global.storeSnapshots}) eval echo stored snapshot: ./Resources/Snapshots/ToGif/$05i({global.framename}).png
 
-# Wait some time
-wait 2500
+###############################################
+# Spawn extra object later on and wait some more
+wait 5000
+spawn ./Resources/Renderobjects/Planets/sun.jsonc|posX=500|posY=500 # Heavy object
+wait 5000
 
 ###############################################
 # Inform on runtime
-eval echo Simulation done! Total runtime: {global.time.runtime.t} Seconds. Frame average: $06.2f( 1000 * {global.time.runtime.t} / {global.time.frameCount} ) ms.
+eval echo Simulation done! Total runtime: {global.time.runtime.t} Seconds.
+eval echo Average frame time: $( {global.time.runtime.t} / {global.time.frameCount} ) seconds.
 
 ###############################################
 # Exit

@@ -1,23 +1,17 @@
 {
     "draw": {
         "core": {
-            "drawType": "circle",
+            "drawType": "sprite",
             "rect": {
                 "dst": {
                     "h": 16.0,
                     "w": 16.0,
-                    "x": 0.0,
-                    "y": 0.0
+                    "x": -8.0,
+                    "y": -8.0
                 }
             },
             "textureData": {
-                "color": {
-                    "a": 255.0,
-                    "b": 255.0,
-                    "g": 0.0,
-                    "r": 0.0
-                },
-                "radius": 32.0
+                "link": "Resources/Sprites/TEST001P/017.bmp"
             }
         }
     },
@@ -45,6 +39,7 @@
         ]
     },
     "size": {
-        "r": 8
+        "x": 16.0,
+        "y": 16.0
     }
 }
