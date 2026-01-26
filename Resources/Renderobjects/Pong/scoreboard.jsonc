@@ -30,11 +30,11 @@
         "str": ""
     },
     "ruleset": {
-        "broadcast": [
-            "./Resources/Invokes/Pong/showScore.jsonc"
-        ],
         "listen": [
             "all"
+        ],
+        "list": [
+            "./Resources/Invokes/Pong/showScore.jsonc"
         ]
     }
 }

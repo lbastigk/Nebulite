@@ -46,16 +46,16 @@
     "posX": 500,
     "posY": 500,
     "ruleset": {
-        "broadcast": [
-            "./Resources/Invokes/Movement/movement_wasd.jsonc",
-            "./Resources/Invokes/General/set_render_position_center.jsonc",
-            "::physics::gravity",
-            "::physics::applyForce"
-        ],
         "listen": [
             "all",
             "::physics::gravity",
             "gravity"
+        ],
+        "list": [
+            "./Resources/Invokes/Movement/movement_wasd.jsonc",
+            "./Resources/Invokes/General/set_render_position_center.jsonc",
+            "::physics::gravity",
+            "::physics::applyForce"
         ]
     },
     "size": {

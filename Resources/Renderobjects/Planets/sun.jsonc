@@ -33,14 +33,14 @@
     "posX": 500,
     "posY": 500,
     "ruleset": {
-        "broadcast": [
-            "::physics::gravity",
-            "::physics::applyForce"
-        ],
         "listen": [
             "all",
             "::physics::gravity",
             "gravity"
+        ],
+        "list": [
+            "::physics::gravity",
+            "::physics::applyForce"
         ]
     },
     "size": {

@@ -34,14 +34,14 @@
     "posX": 650,
     "posY": 500,
     "ruleset": {
-        "broadcast": [
-            "Resources/Invokes/Physics/gravity.jsonc",
-            "Resources/Invokes/Physics/applyForce.jsonc"
-        ],
         "listen": [
             "all",
             "::physics::gravity",
             "gravity"
+        ],
+        "list": [
+            "Resources/Invokes/Physics/gravity.jsonc",
+            "Resources/Invokes/Physics/applyForce.jsonc"
         ]
     },
     "size": {

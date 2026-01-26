@@ -29,13 +29,13 @@
         "str": ""
     },
     "ruleset": {
-        "broadcast": [
-            "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
-            "./Resources/Invokes/Physics/elastic_collision_Y.jsonc"
-        ],
         "listen": [
             "all",
             "collision"
+        ],
+        "list": [
+            "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
+            "./Resources/Invokes/Physics/elastic_collision_Y.jsonc"
         ]
     }
 }

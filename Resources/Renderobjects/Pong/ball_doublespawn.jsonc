@@ -30,15 +30,15 @@
         "str": ""
     },
     "ruleset": {
-        "broadcast": [
+        "listen": [
+            "all",
+            "collision"
+        ],
+        "list": [
             "./Resources/Invokes/Physics/falling.jsonc",
             "./Resources/Invokes/Physics/applyForce.jsonc",
             "./Resources/Invokes/Pong/respawnBallLeftTwice.jsonc",
             "./Resources/Invokes/Pong/respawnBallRightTwice.jsonc"
-        ],
-        "listen": [
-            "all",
-            "collision"
         ]
     }
 }

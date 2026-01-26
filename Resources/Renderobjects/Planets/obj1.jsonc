@@ -78,14 +78,14 @@
     "posX": 350,
     "posY": 500,
     "ruleset": {
-        "broadcast": [
-            "::physics::gravity",
-            "::physics::applyForce"
-        ],
         "listen": [
             "all",
-            "::physics::gravity", // modern, code-defined ruleset
-            "gravity" // backward compatibility for json-defined rulesets
+            "::physics::gravity",
+            "gravity"
+        ],
+        "list": [
+            "::physics::gravity",
+            "::physics::applyForce"
         ]
     },
     "size": {

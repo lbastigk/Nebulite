@@ -34,15 +34,15 @@
     "posX": 350,
     "posY": 500,
     "ruleset": {
-        "broadcast": [
-            "::physics::gravity",
-            "::physics::applyForce",
-            "::camera::align::center"
-        ],
         "listen": [
             "all",
             "::physics::gravity",
             "gravity"
+        ],
+        "list": [
+            "::physics::gravity",
+            "::physics::applyForce",
+            "::camera::align::center"
         ]
     },
     "size": {

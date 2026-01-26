@@ -28,12 +28,12 @@
         "str": ""
     },
     "ruleset": {
-        "broadcast": [
-            "./Resources/Invokes/Debug/delete_after_10s.json",
-            "./Resources/Invokes/Debug/echo_time_alive.json"
-        ],
         "listen": [
             "all"
+        ],
+        "list": [
+            "./Resources/Invokes/Debug/delete_after_10s.json",
+            "./Resources/Invokes/Debug/echo_time_alive.json"
         ]
     }
 }

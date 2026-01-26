@@ -37,7 +37,7 @@
         "str": ""
     },
     "ruleset": {
-        "broadcast": [
+        "list": [
             "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
             "./Resources/Invokes/Physics/elastic_collision_Y.jsonc",
             "./Resources/Invokes/Animation/poll_attack.jsonc",

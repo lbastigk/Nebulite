@@ -34,7 +34,7 @@ void setStandardValues(JsonScope& document) {
     document.set(Constants::KeyNames::RenderObject::pixelSizeY, 32);
 
     // Ruleset
-    document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::broadcast);
+    document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::list);
     document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::listen);
     document.set(Constants::KeyNames::RenderObject::Ruleset::listen + "[0]", std::string("all"));
 }

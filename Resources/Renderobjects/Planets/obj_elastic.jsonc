@@ -57,17 +57,17 @@
         "str": ""
     },
     "ruleset": {
-        "broadcast": [
-            "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
-            "./Resources/Invokes/Physics/elastic_collision_Y.jsonc",
-            "::physics::gravity",
-            "::physics::applyForce"
-        ],
         "listen": [
             "all",
             "::physics::gravity",
             "gravity",
             "collision"
+        ],
+        "list": [
+            "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
+            "./Resources/Invokes/Physics/elastic_collision_Y.jsonc",
+            "::physics::gravity",
+            "::physics::applyForce"
         ]
     },
     "size": {

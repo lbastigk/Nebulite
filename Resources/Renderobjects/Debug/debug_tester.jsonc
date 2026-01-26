@@ -28,11 +28,11 @@
         "str": ""
     },
     "ruleset": {
-        "broadcast": [
-            "::camera::align::center"
-        ],
         "listen": [
             "all"
+        ],
+        "list": [
+            "::camera::align::center"
         ]
     }
 }

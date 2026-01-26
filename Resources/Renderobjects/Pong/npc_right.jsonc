@@ -30,14 +30,14 @@
         "str": ""
     },
     "ruleset": {
-        "broadcast": [
+        "listen": [
+            "all"
+        ],
+        "list": [
             "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
             "./Resources/Invokes/Physics/elastic_collision_Y.jsonc",
             "./Resources/Invokes/Pong/movementNpc.jsonc",
             "./Resources/Invokes/Physics/applyForce.jsonc"
-        ],
-        "listen": [
-            "all"
         ]
     }
 }

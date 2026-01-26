@@ -205,12 +205,12 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
     rulesetsLocal.clear();
 
     // Check if doc is valid
-    if (self.domainScope.memberType(Constants::KeyNames::RenderObject::Ruleset::broadcast) != Data::KeyType::array) {
+    if (self.domainScope.memberType(Constants::KeyNames::RenderObject::Ruleset::list) != Data::KeyType::array) {
         return;
     }
 
     // Get size of entries
-    size_t const size = self.domainScope.memberSize(Constants::KeyNames::RenderObject::Ruleset::broadcast);
+    size_t const size = self.domainScope.memberSize(Constants::KeyNames::RenderObject::Ruleset::list);
     if (size == 0) {
         // Object has no rulesets
         return;
@@ -219,7 +219,7 @@ void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGloba
     // Iterate through all entries
     for (size_t idx = 0; idx < size; ++idx) {
         // Parse entry into separate JSON object
-        auto const key = Constants::KeyNames::RenderObject::Ruleset::broadcast + "[" + std::to_string(idx) + "]";
+        auto const key = Constants::KeyNames::RenderObject::Ruleset::list + "[" + std::to_string(idx) + "]";
         auto Ruleset = getRuleset(self.domainScope, key.view(), self);
 
         if (std::holds_alternative<std::monostate>(Ruleset)) {

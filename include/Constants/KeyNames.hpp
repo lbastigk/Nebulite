@@ -57,7 +57,7 @@ struct KeyNames {
         // Keys for Ruleset invocations and subscriptions
         struct Ruleset {
             DECLARE_SCOPE("ruleset.")
-            static auto constexpr broadcast = MAKE_SCOPED("broadcast");
+            static auto constexpr list = MAKE_SCOPED("list");
             static auto constexpr listen = MAKE_SCOPED("listen");
         };
 

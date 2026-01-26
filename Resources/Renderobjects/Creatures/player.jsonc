@@ -37,7 +37,7 @@
         "str": ""
     },
     "ruleset": {
-        "broadcast": [
+        "list": [
             "./Resources/Invokes/Animation/poll_attack.jsonc",
             "./Resources/Invokes/Animation/set_AnimationxRolling_active.jsonc",
             "./Resources/Invokes/Animation/set_AnimationxRolling_mod.jsonc",

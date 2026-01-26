@@ -29,15 +29,15 @@
         "str": ""
     },
     "ruleset": {
-        "broadcast": [
+        "listen": [
+            "all",
+            "::physics::elasticCollision"
+        ],
+        "list": [
             "./Resources/Invokes/Physics/falling.jsonc",
             "::physics::elasticCollision",
             "::physics::drag",
             "::physics::applyForce"
-        ],
-        "listen": [
-            "all",
-            "::physics::elasticCollision"
         ]
     }
 }

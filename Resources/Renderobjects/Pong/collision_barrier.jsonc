@@ -30,7 +30,7 @@
         "str": ""
     },
     "ruleset": {
-        "broadcast": [
+        "list": [
             "::physics::elasticCollision"
         ]
     }

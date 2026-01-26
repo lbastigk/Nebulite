@@ -39,10 +39,10 @@
     "posX": 0,
     "posY": 0,
     "ruleset": {
-        "broadcast": [],
         "listen": [
             "all"
-        ]
+        ],
+        "list": []
     },
     "size": {
         "X": 32,

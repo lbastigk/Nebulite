@@ -28,11 +28,11 @@
         "str": ""
     },
     "ruleset": {
-        "broadcast": [
-            "::message"
-        ],
         "listen": [
             "all"
+        ],
+        "list": [
+            "::message"
         ]
     }
 }

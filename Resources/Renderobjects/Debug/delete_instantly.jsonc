@@ -28,11 +28,11 @@
         "str": ""
     },
     "ruleset": {
-        "broadcast": [
-            "./Resources/Invokes/Debug/delete_instantly.json"
-        ],
         "listen": [
             "all"
+        ],
+        "list": [
+            "./Resources/Invokes/Debug/delete_instantly.json"
         ]
     }
 }
