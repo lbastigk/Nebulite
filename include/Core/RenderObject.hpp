@@ -141,8 +141,8 @@ public:
     void draw(float const& offsetX, float const& offsetY) {
         for (auto const& member : drawcallOrder) {
             drawcalls[member]->draw(
-                static_cast<float>(*refs.posX) + offsetX,
-                static_cast<float>(*refs.posY) + offsetY
+                static_cast<float>(*refs.posX) - offsetX,
+                static_cast<float>(*refs.posY) - offsetY
             );
         }
     }

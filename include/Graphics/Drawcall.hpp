@@ -73,6 +73,10 @@ public:
 
         static auto constexpr textureData = Data::ScopedKeyView("textureData"); // Texture data object
 
+        static auto constexpr rotationDegrees = Data::ScopedKeyView("textureData.rotation.angle"); // Rotation in degrees
+        static auto constexpr rotationCenterX = Data::ScopedKeyView("textureData.rotation.center.x"); // Rotation center X
+        static auto constexpr rotationCenterY = Data::ScopedKeyView("textureData.rotation.center.y"); // Rotation center Y
+
         struct Rect {
             static auto constexpr src = Data::ScopedKeyView("rect.src");
             static auto constexpr srcX = Data::ScopedKeyView("rect.src.x");
@@ -132,6 +136,10 @@ private:
         double* rectDstW = nullptr;
         double* rectDstH = nullptr;
 
+        double* rotationDegrees = nullptr;
+        double* rotationCenterX = nullptr;
+        double* rotationCenterY = nullptr;
+
         double* colorR = nullptr;
         double* colorG = nullptr;
         double* colorB = nullptr;
@@ -147,6 +155,8 @@ private:
     } refs;
 
     bool reInitializeRequested = false;
+
+    SDL_FPoint rotationCenter{0.0f, 0.0f};
 
     // TODO: requestOverride, allowing us to redraw the texture every frame if needed
 

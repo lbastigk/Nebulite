@@ -41,6 +41,11 @@ void Drawcall::Refs::initialize(Core::JsonScope const& scope){
     rectDstW = scope.getStableDoublePointer(Key::Rect::dstW);
     rectDstH = scope.getStableDoublePointer(Key::Rect::dstH);
 
+    // Rotation
+    rotationDegrees = scope.getStableDoublePointer(Key::rotationDegrees);
+    rotationCenterX = scope.getStableDoublePointer(Key::rotationCenterX);
+    rotationCenterY = scope.getStableDoublePointer(Key::rotationCenterY);
+
     // Color
     colorR = scope.getStableDoublePointer(Key::Color::R);
     colorG = scope.getStableDoublePointer(Key::Color::G);
@@ -73,9 +78,17 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
                 std::floor(static_cast<float>(*refs.rectDstW)),
                 std::floor(static_cast<float>(*refs.rectDstH))
             });
-            if (!SDL_RenderTexture(nebuliteRenderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect)) {
-                Error::println("Failed to render sprite texture in drawcall: ", SDL_GetError());
+            if (std::fabs(*refs.rotationDegrees) > DBL_EPSILON) {
+                if (!SDL_RenderTextureRotated(nebuliteRenderer.getSdlRenderer(),texture.getSDLTexture(),&srcRect,&dstRect, *refs.rotationDegrees, &rotationCenter,SDL_FLIP_NONE)) {
+                    Error::println("Failed to render rotated sprite texture in drawcall: ", SDL_GetError());
+                }
             }
+            else {
+                if (!SDL_RenderTexture(nebuliteRenderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect)) {
+                    Error::println("Failed to render sprite texture in drawcall: ", SDL_GetError());
+                }
+            }
+
         }
         else {
             Error::println("Attempted to draw uninitialized texture in drawcall.");
@@ -83,6 +96,8 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
     };
 
     auto const& renderer = Global::instance().getRenderer();
+
+
     switch (type) {
         // Sprite and text draw calls simply render their texture
         case TEXT:
@@ -156,7 +171,25 @@ void Drawcall::updateDrawcallData() {
         Error::println("Unknown drawcall type: ", t, ". Defaulting to sprite.");
         type = SPRITE;
     }
-    reInitializeRequested = true; // Force re-initialization on next draw
+
+    // Setup rotation center
+    if (drawcallScope.memberType(Key::rotationCenterX) == Data::KeyType::value) {
+        rotationCenter.x = static_cast<float>(*refs.rectDstW * *refs.rotationCenterX);
+    }
+    else {
+        // Default to center of dst rect
+        rotationCenter.x = static_cast<float>(*refs.rectDstW / 2.0);
+    }
+    if (drawcallScope.memberType(Key::rotationCenterY) == Data::KeyType::value) {
+        rotationCenter.y = static_cast<float>(*refs.rectDstH * *refs.rotationCenterY);
+    }
+    else {
+        // Default to center of dst rect
+        rotationCenter.y = static_cast<float>(*refs.rectDstH / 2.0);
+    }
+
+    // Force re-initialization on next draw
+    reInitializeRequested = true;
 }
 
 Constants::Error Drawcall::parseStr(std::string const& str) {
