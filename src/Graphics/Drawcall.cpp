@@ -111,6 +111,15 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
                 renderTexture(renderer, offsetX - additionalOffsetX, offsetY - additionalOffsetY);
             }
             break;
+        case POLYGON:
+            {
+                if (reInitializeRequested) {
+                    initializePolygon();
+                    reInitializeRequested = false;
+                }
+                renderTexture(renderer, offsetX, offsetY);
+            }
+            break;
         default:
             // Unknown type
             std::unreachable();
@@ -205,10 +214,10 @@ void Drawcall::initializeSprite() {
             drawcallScope.set<double>(Key::Rect::srcY, 0.0);
         }
         if (drawcallScope.memberType(Key::Rect::srcW) != Data::KeyType::value) {
-            drawcallScope.set<double>(Key::Rect::srcW, static_cast<double>(w));
+            drawcallScope.set<double>(Key::Rect::srcW, static_cast<double>(w) * 1.0);
         }
         if (drawcallScope.memberType(Key::Rect::srcH) != Data::KeyType::value) {
-            drawcallScope.set<double>(Key::Rect::srcH, static_cast<double>(h));
+            drawcallScope.set<double>(Key::Rect::srcH, static_cast<double>(h) * 1.0);
         }
 
         // Linked externally, as it's managed by the texture container
@@ -265,8 +274,8 @@ void Drawcall::initializeText() {
     }
 
     // Cast to double
-    double const srcW = static_cast<double>(w);
-    double const srcH = static_cast<double>(h);
+    double const srcW = static_cast<double>(w) * 1.0;
+    double const srcH = static_cast<double>(h) * 1.0;
     double const dstW = srcW * *refs.textFontsize / static_cast<double>(TTF_GetFontSize(font));
     double const dstH = srcH * *refs.textFontsize / static_cast<double>(TTF_GetFontSize(font));
 
@@ -352,6 +361,86 @@ void Drawcall::initializeCircle() {
         drawcallScope.set<double>(Key::Rect::srcH, 2*radius);
     }
     texture.setInternalTexture(circleTexture);
+}
+
+void Drawcall::initializePolygon() {
+    // Set renderer to draw the polygon
+    SDL_Renderer* sdlRenderer = Global::instance().getRenderer().getSdlRenderer();
+    if (!sdlRenderer) {
+        Error::println("Renderer not available for circle drawcall.");
+        return;
+    }
+
+    // Determine polygon size
+    double const w = *refs.rectSrcW;
+    double const h = *refs.rectSrcH;
+    if (w < DBL_EPSILON || h < DBL_EPSILON) {
+        Error::println("Polygon drawcall has invalid src rect size. w and h must be > 0.");
+        return;
+    }
+
+    // Setup destination rect if not already defined
+    if (drawcallScope.memberType(Key::Rect::dstX) != Data::KeyType::value) {
+        drawcallScope.set<double>(Key::Rect::dstX, 0.0);
+    }
+    if (drawcallScope.memberType(Key::Rect::dstY) != Data::KeyType::value) {
+        drawcallScope.set<double>(Key::Rect::dstY, 0.0);
+    }
+    if (drawcallScope.memberType(Key::Rect::dstW) != Data::KeyType::value) {
+        drawcallScope.set<double>(Key::Rect::dstW, w);
+    }
+    if (drawcallScope.memberType(Key::Rect::dstH) != Data::KeyType::value) {
+        drawcallScope.set<double>(Key::Rect::dstH, h);
+    }
+
+    // Get polygon points
+    std::vector<SDL_FPoint> points;
+    size_t const pointCount = drawcallScope.memberSize(Key::PolygonSpecific::points);
+    if (pointCount < 3) {
+        Error::println("Polygon drawcall requires at least 3 points.");
+        return;
+    }
+    points.reserve(pointCount);
+    for (size_t i = 0; i < pointCount; ++i) {
+        auto const pointX = w * drawcallScope.get<double>(Key::PolygonSpecific::points + "[" + std::to_string(i) + "][0]");
+        auto const pointY = h * drawcallScope.get<double>(Key::PolygonSpecific::points + "[" + std::to_string(i) + "][1]");
+        points.push_back({ static_cast<float>(pointX), static_cast<float>(pointY) });
+    }
+
+
+
+    // Create a texture for the polygon
+    SDL_Texture* polyTexture = SDL_CreateTexture(
+        sdlRenderer,
+        SDL_PIXELFORMAT_RGBA8888,
+        SDL_TEXTUREACCESS_TARGET,
+        w,
+        h
+    );
+    SDL_Color const polyColor = {
+        static_cast<Uint8>(*refs.colorR),
+        static_cast<Uint8>(*refs.colorG),
+        static_cast<Uint8>(*refs.colorB),
+        static_cast<Uint8>(*refs.colorA)
+    };
+    SDL_SetRenderTarget(sdlRenderer, polyTexture);
+    SDL_SetRenderDrawColor(sdlRenderer, 0, 0, 0, 0); // Transparent background
+    SDL_RenderClear(sdlRenderer);
+    SDL_SetRenderDrawColor(sdlRenderer, polyColor.r, polyColor.g, polyColor.b, polyColor.a);
+    for (size_t i = 0; i < points.size() - 1; ++i) { // TODO: Implement an sdl helper function for filled polygons!
+        SDL_RenderLine(
+            sdlRenderer,
+            points[i].x, points[i].y,
+            points[(i + 1) % points.size()].x, points[(i + 1) % points.size()].y
+        );
+    }
+
+    // Check for errors
+    if (!polyTexture) {
+        Error::println("Failed to create polygon texture: ", SDL_GetError());
+        return;
+    }
+    texture.linkExternalTexture(polyTexture);
 }
 
 } // namespace Nebulite::Graphics

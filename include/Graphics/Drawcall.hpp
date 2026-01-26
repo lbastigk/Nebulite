@@ -109,6 +109,10 @@ public:
         struct CircleSpecific {
             static auto constexpr radius = Data::ScopedKeyView("textureData.radius");
         };
+
+        struct PolygonSpecific {
+            static auto constexpr points = Data::ScopedKeyView("textureData.points"); // Array of point objects {x, y}
+        };
     };
 
 private:
@@ -144,9 +148,9 @@ private:
     enum Type {
         SPRITE,
         TEXT,
-        CIRCLE
+        CIRCLE,
+        POLYGON
         // More ideas:
-        // - GEOMETRY
         // - tiledSprite (set fixed size of each tile, or a min/max size, and tile the texture accordingly) Helpful for GUI elements
     }type;
 
@@ -184,6 +188,12 @@ private:
      * @note Only called during the draw call, otherwise the thread safety would be compromised.
      */
     void initializeCircle();
+
+    /**
+     * @brief Initializes the drawcall as a polygon.
+     * @note Only called during the draw call, otherwise the thread safety would be compromised.
+     */
+    void initializePolygon();
 };
 
 } // namespace Nebulite::Graphics
