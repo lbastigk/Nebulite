@@ -145,6 +145,9 @@ void Drawcall::updateDrawcallData() {
     else if (t == "circle") {
         type = CIRCLE;
     }
+    else if (t == "polygon") {
+        type = POLYGON;
+    }
     else {
         Error::println("Unknown drawcall type: ", t, ". Defaulting to sprite.");
         type = SPRITE;
