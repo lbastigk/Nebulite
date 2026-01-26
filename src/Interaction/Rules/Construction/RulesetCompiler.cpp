@@ -27,7 +27,7 @@ void RulesetCompiler::getFunctionCalls(Core::JsonScope& entryDoc, JsonRuleset& R
             // Global functions explicitly place the Binary name on the front in the global space
             // Here, we just reference "self" as the first argument
             if (!funcCall.starts_with("self ")) {
-                funcCall.insert(0, "self");
+                funcCall.insert(0, "self ");
             }
 
             // Create a new Expression, parse the function call
@@ -45,7 +45,7 @@ void RulesetCompiler::getFunctionCalls(Core::JsonScope& entryDoc, JsonRuleset& R
             // Global functions explicitly place the Binary name on the front in the global space
             // Here, we just reference "other" as the first argument
             if (!funcCall.starts_with("other ")) {
-                funcCall.insert(0, "other");
+                funcCall.insert(0, "other ");
             }
             // Create a new Expression, parse the function call
             Logic::ExpressionPool invokeExpr(funcCall, self.domainScope);

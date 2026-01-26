@@ -34,10 +34,13 @@
             "all"
         ],
         "list": [
-            "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
-            "./Resources/Invokes/Physics/elastic_collision_Y.jsonc",
+            "::physics::elasticCollision",
             "./Resources/Invokes/Pong/movementNpc.jsonc",
             "./Resources/Invokes/Physics/applyForce.jsonc"
         ]
+    },
+    "size": {
+        "x": 32,
+        "y": 128
     }
 }

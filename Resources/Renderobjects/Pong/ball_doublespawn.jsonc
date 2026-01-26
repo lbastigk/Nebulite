@@ -1,4 +1,20 @@
 {
+    "draw": {
+        "core": {
+            "drawType": "sprite",
+            "rect": {
+                "dst": {
+                    "h": 10.0,
+                    "w": 10.0,
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            },
+            "textureData": {
+                "link": "./Resources/Sprites/TEST100P/037.bmp"
+            }
+        }
+    },
     "id": 0,
     "layer": 0,
     "physics": {
@@ -11,24 +27,6 @@
     },
     "posX": 350,
     "posY": 500,
-    "sprite": {
-        "link": "./Resources/Sprites/TEST100P/037.bmp",
-        "sizeX": 10,
-        "sizeY": 10,
-        "spritesheet": {
-            "isSpritesheet": false,
-            "offsetX": 0,
-            "offsetY": 0,
-            "sizeX": 0,
-            "sizeY": 0
-        }
-    },
-    "text": {
-        "dx": 0.0,
-        "dy": 0.0,
-        "fontSize": 0,
-        "str": ""
-    },
     "ruleset": {
         "listen": [
             "all",
@@ -40,5 +38,9 @@
             "./Resources/Invokes/Pong/respawnBallLeftTwice.jsonc",
             "./Resources/Invokes/Pong/respawnBallRightTwice.jsonc"
         ]
+    },
+    "size": {
+        "x": 10,
+        "y": 10
     }
 }

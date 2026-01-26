@@ -64,12 +64,12 @@ void JsonRuleset::apply(Execution::DomainBase* contextOther) {
     }
     for (auto& entry : functioncalls_self) {
         // replace vars
-        std::string const call = __FUNCTION__ + entry.eval(contextOther->domainScope);
+        std::string const call = entry.eval(contextOther->domainScope);
         (void)selfPtr->parseStr(call);
     }
     for (auto& entry : functioncalls_other) {
         // replace vars
-        std::string const call = __FUNCTION__ + entry.eval(contextOther->domainScope);
+        std::string const call = entry.eval(contextOther->domainScope);
         (void)contextOther->parseStr(call);
     }
 }

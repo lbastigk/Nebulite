@@ -127,7 +127,6 @@ public:
      */
     struct flag {
         bool deleteFromScene = false; // If true, delete this object from scene on next update
-        bool calculateText = false; // TODO: Remove, now part of Drawcall
     } flag;
 
     //------------------------------------------

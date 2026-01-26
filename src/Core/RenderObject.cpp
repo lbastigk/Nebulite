@@ -48,7 +48,6 @@ RenderObject::RenderObject() : Domain("RenderObject", *this, document) {
     //------------------------------------------
     // Flags
     flag.deleteFromScene = false;
-    flag.calculateText = true; // In order to calculate text texture on first update
 
     //------------------------------------------
     // Initialize Linkages, References and DomainModules and object itself
