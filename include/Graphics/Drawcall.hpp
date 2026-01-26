@@ -44,7 +44,7 @@ public:
 
     void update() {
         if (!status.initialized) {
-            updateDrawcallData(); // No me
+            updateDrawcallData(); // Do first initialization
         }
         texture.update();
         updaterRoutine.update();
@@ -159,7 +159,7 @@ private:
     // Allows periodic updating of drawcall data to reflect current state
     Utility::TimedRoutine updaterRoutine{
         [this] {
-            //updateDrawcallData(); // TODO: Activate later on
+            updateDrawcallData();
         },
         updateDrawcallDataIntervalMs,
         Utility::TimedRoutine::ConstructionMode::START_IMMEDIATELY

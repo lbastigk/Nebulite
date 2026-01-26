@@ -154,8 +154,8 @@ void Drawcall::initializeText() {
         return;
     }
 
+    // TODO: Proper width wrapping based on fontsize and max width
     auto const text = drawcallScope.get<std::string>(Key::TextSpecific::str);
-    if (text.empty()) return;
 
     TTF_Font* font = Global::instance().getRenderer().getStandardFont();
     if (!font) {
@@ -171,7 +171,7 @@ void Drawcall::initializeText() {
     };
 
     // Use blended rendering to get proper alpha
-    SDL_Surface* surf = TTF_RenderText_Blended(font, text.c_str(), 0, textColor);
+    SDL_Surface* surf = TTF_RenderText_Solid_Wrapped(font, text.c_str(), 0, textColor, 0);
     if (!surf) {
         Error::println("TTF_RenderText_Blended failed: ", SDL_GetError());
         return;
@@ -183,8 +183,6 @@ void Drawcall::initializeText() {
         Error::println("SDL_CreateTextureFromSurface failed: ", SDL_GetError());
         return;
     }
-
-    SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
 
     float w = 0, h = 0;
     if (!SDL_GetTextureSize(tex, &w, &h)) {
@@ -204,10 +202,12 @@ void Drawcall::initializeText() {
     if (drawcallScope.memberType(Key::Rect::srcH) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcH, dh);
 
     // Prefer measured pixel size for dst unless the caller explicitly set different values
+    double const dstW = dw * *refs.textFontsize / static_cast<double>(TTF_GetFontSize(font));
+    double const dstH = dh * *refs.textFontsize / static_cast<double>(TTF_GetFontSize(font));
     if (drawcallScope.memberType(Key::Rect::dstX) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstX, 0.0);
     if (drawcallScope.memberType(Key::Rect::dstY) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstY, 0.0);
-    if (drawcallScope.memberType(Key::Rect::dstW) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstW, *refs.textFontsize * static_cast<double>(text.length()));
-    if (drawcallScope.memberType(Key::Rect::dstH) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstH, *refs.textFontsize * 1.5);
+    if (drawcallScope.memberType(Key::Rect::dstW) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstW, dstW);
+    if (drawcallScope.memberType(Key::Rect::dstH) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstH, dstH);
 
     texture.setInternalTexture(tex);
     status.initialized = true;
