@@ -40,9 +40,19 @@ void Drawcall::Refs::initialize(Core::JsonScope const& scope){
 }
 
 void Drawcall::draw(float const& offsetX, float const& offsetY) {
-    updateDrawcallData(); // TODO: Why is this needed???
+    if (!status.initialized) {
+        Error::println("Attempted to draw uninitialized drawcall.");
+        return;
+    }
+
+    // TODO: Why is this needed???
+    //       After the first TimedRoutine trigger, the text drawcalls
+    //       do not render properly unless we call updateDrawcallData again here...
+    updateDrawcallData();
+
     auto const& renderer = Global::instance().getRenderer();
     switch (type) {
+        // Sprite and text draw calls simply render their texture
         case SPRITE:
         case TEXT:
             {
@@ -77,14 +87,17 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
 
 void Drawcall::update() {
     if (!status.initialized) {
-        updateDrawcallData(); // Do first initialization
+        // Do first initialization, even if the timer hasn't elapsed yet
+        updaterRoutine.forceExecute();
+    }else {
+        updaterRoutine.update();
     }
-    updaterRoutine.update();
     texture.update();
 }
 
 void Drawcall::updateDrawcallData() {
     // TODO: Add more complicated diff-based update logic if needed
+    //       Otherwise the current implementation re-initializes the texture with every routine trigger
     if (auto const t = drawcallScope.get<std::string>(Key::type, "sprite"); t == "sprite") {
         type = SPRITE;
         initializeSprite();
@@ -174,10 +187,6 @@ void Drawcall::initializeSprite() {
     }
 }
 
-// TODO: Re-initialization still does not work properly
-//       after 1s (timer), the new text is not shown
-//       Even if we full reinit the entire object, the new text is blank!
-//       Even with a self-owned texture, this occurs...
 void Drawcall::initializeText() {
     if (!Global::instance().getRenderer().isSdlInitialized()) return;
 
@@ -208,7 +217,7 @@ void Drawcall::initializeText() {
 
     SDL_Surface* surf = TTF_RenderText_Blended_Wrapped(font, text.c_str(), 0, textColor, 0);
     if (!surf) {
-        Error::println("TTF_RenderText_Blended failed: ", SDL_GetError());
+        Error::println("TTF_RenderText_Blended_Wrapped failed: ", SDL_GetError());
         return;
     }
 

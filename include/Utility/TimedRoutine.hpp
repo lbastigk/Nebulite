@@ -51,6 +51,11 @@ public:
         }
     }
 
+    // Force execute the routine without checking the timer or updating the timer
+    void forceExecute() const {
+        foo();
+    }
+
 private:
     std::function<void()> foo;
     TimeKeeper timer;
