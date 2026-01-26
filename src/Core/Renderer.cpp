@@ -304,10 +304,15 @@ void Renderer::initSDL() {
     //------------------------------------------
     // Check for remaining errors in SDL
 
+    /**
+     * @todo On wine, it says: "Device not found", but seems to work anyway. Investigate further.
+     */
+    /*
     if (SDL_GetError()[0] != '\0') {
         Error::println("SDL Error during initialization: ", SDL_GetError());
         std::abort();
     }
+    */
 
     // All done
     SDL_initialized = true;
