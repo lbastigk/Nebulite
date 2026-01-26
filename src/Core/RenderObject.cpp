@@ -26,8 +26,8 @@ void setStandardValues(JsonScope& document) {
     document.set(Constants::KeyNames::RenderObject::layer, 0);
 
     // Create a basic drawcall
-    Graphics::Drawcall::setDefaultTypeSprite(document.shareScope(Constants::KeyNames::RenderObject::draw + ".exampleSprite"));
-    Graphics::Drawcall::setDefaultTypeText(document.shareScope(Constants::KeyNames::RenderObject::draw + ".exampleText"));
+    Graphics::Drawcall::ApplyDefault::Sprite(document.shareScope(Constants::KeyNames::RenderObject::draw + ".exampleSprite"));
+    Graphics::Drawcall::ApplyDefault::Text(document.shareScope(Constants::KeyNames::RenderObject::draw + ".exampleText"));
 
     // Set default size
     document.set(Constants::KeyNames::RenderObject::pixelSizeX, 32);
@@ -77,6 +77,15 @@ RenderObject::~RenderObject() = default;
 //------------------------------------------
 // Draw
 
+void RenderObject::sortDrawcalls() {
+    // re-generate drawcall order (alphabetical for now)
+    drawcallOrder.clear();
+    for (auto const& [member, _] : document.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
+        drawcallOrder.push_back(member);
+    }
+    std::ranges::sort(drawcallOrder.begin(), drawcallOrder.end());
+}
+
 void RenderObject::reinitDrawcalls() {
     // Clear existing drawcalls
     drawcalls.clear();
@@ -86,6 +95,7 @@ void RenderObject::reinitDrawcalls() {
         // Initialize drawcall with its own scope
         drawcalls[member] = std::make_unique<Graphics::Drawcall>(document.shareScope(key.view()));
     }
+    sortDrawcalls();
 }
 
 void RenderObject::initDrawcalls() {
@@ -96,6 +106,7 @@ void RenderObject::initDrawcalls() {
             drawcalls[member] = std::make_unique<Graphics::Drawcall>(document.shareScope(key.view()));
         }
     }
+    sortDrawcalls();
 }
 
 void RenderObject::reInitDrawcall(std::string const& drawcallName) {
@@ -105,8 +116,8 @@ void RenderObject::reInitDrawcall(std::string const& drawcallName) {
 }
 
 void RenderObject::updateDrawcalls() {
-    for (auto const& drawcall : std::views::values(drawcalls)) {
-        drawcall->update();
+    for (auto const& member : drawcallOrder) {
+        drawcalls[member]->update();
     }
 }
 

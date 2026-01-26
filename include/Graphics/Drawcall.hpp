@@ -12,9 +12,6 @@
 // Standard library
 #include <string>
 
-// External
-#include <SDL3/SDL.h>
-
 // Nebulite
 #include "Core/Texture.hpp"
 #include "Core/JsonScope.hpp"
@@ -47,17 +44,20 @@ public:
     // Parse a string onto the texture
     Constants::Error parseStr(std::string const& str);
 
-    /**
-     * @brief Sets a default drawcall configuration for a sprite.
-     * @param scope The JSON scope to set defaults in.
-     */
-    static void setDefaultTypeSprite(Core::JsonScope& scope);
+    class ApplyDefault {
+    public:
+        /**
+         * @brief Sets a default drawcall configuration for a sprite.
+         * @param scope The JSON scope to set defaults in.
+         */
+        static void Sprite(Core::JsonScope& scope);
 
-    /**
-     * @brief Sets a default drawcall configuration for text.
-     * @param scope The JSON scope to set defaults in.
-     */
-    static void setDefaultTypeText(Core::JsonScope& scope);
+        /**
+         * @brief Sets a default drawcall configuration for text.
+         * @param scope The JSON scope to set defaults in.
+         */
+        static void Text(Core::JsonScope& scope);
+    };
 
     /**
      * @struct Key
@@ -93,13 +93,21 @@ public:
             static auto constexpr imageLocation = Data::ScopedKeyView("textureData.link");
         };
 
+        struct Color {
+            static auto constexpr R = Data::ScopedKeyView("textureData.color.r");
+            static auto constexpr G = Data::ScopedKeyView("textureData.color.g");
+            static auto constexpr B = Data::ScopedKeyView("textureData.color.b");
+            static auto constexpr A = Data::ScopedKeyView("textureData.color.a");
+        };
+
         struct TextSpecific {
             static auto constexpr fontsize = Data::ScopedKeyView("textureData.fontSize");
             static auto constexpr str = Data::ScopedKeyView("textureData.str");
-            static auto constexpr colorR = Data::ScopedKeyView("textureData.color.R");
-            static auto constexpr colorG = Data::ScopedKeyView("textureData.color.G");
-            static auto constexpr colorB = Data::ScopedKeyView("textureData.color.B");
-            static auto constexpr colorA = Data::ScopedKeyView("textureData.color.A");
+
+        };
+
+        struct CircleSpecific {
+            static auto constexpr radius = Data::ScopedKeyView("textureData.radius");
         };
     };
 
@@ -119,22 +127,24 @@ private:
         double* rectDstW = nullptr;
         double* rectDstH = nullptr;
 
-        double* textColorR = nullptr;
-        double* textColorG = nullptr;
-        double* textColorB = nullptr;
-        double* textColorA = nullptr;
+        double* colorR = nullptr;
+        double* colorG = nullptr;
+        double* colorB = nullptr;
+        double* colorA = nullptr;
+
         double* textFontsize = nullptr;
+
+        double* circleRadius = nullptr;
 
         void initialize(Core::JsonScope const& scope);
     } refs;
 
-    struct Status {
-        bool initialized = false; // Checks if the first initialization has been done
-    }status;
+    bool reInitializeRequested = false;
 
     enum Type {
         SPRITE,
-        TEXT
+        TEXT,
+        CIRCLE
         // More ideas:
         // - GEOMETRY
         // - tiledSprite (set fixed size of each tile, or a min/max size, and tile the texture accordingly) Helpful for GUI elements
@@ -146,7 +156,8 @@ private:
     //------------------------------------------
     // Updater
 
-    static auto constexpr updateDrawcallDataIntervalMs = 1000; // Update every second
+    static auto constexpr updateDrawcallDataIntervalMs = 1000u; // Update every second
+    static auto constexpr updateDrawcallDataIntervalJitterMs = static_cast<uint64_t>(0.2*updateDrawcallDataIntervalMs); // Add some jitter to avoid sync with other routines
 
     void updateDrawcallData();
 
@@ -156,9 +167,23 @@ private:
     //------------------------------------------
     // Specific initializers for each type
 
+    /**
+     * @brief Initializes the drawcall as a sprite.
+     * @note Only called during the draw call, otherwise the thread safety would be compromised.
+     */
     void initializeSprite();
 
+    /**
+     * @brief Initializes the drawcall as a text.
+     * @note Only called during the draw call, otherwise the thread safety would be compromised.
+     */
     void initializeText();
+
+    /**
+     * @brief Initializes the drawcall as a circle.
+     * @note Only called during the draw call, otherwise the thread safety would be compromised.
+     */
+    void initializeCircle();
 };
 
 } // namespace Nebulite::Graphics

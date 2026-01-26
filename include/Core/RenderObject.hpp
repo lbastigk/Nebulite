@@ -139,8 +139,8 @@ public:
      * @param offsetY The camera offset in the Y direction.
      */
     void draw(float const& offsetX, float const& offsetY) {
-        for (auto const& drawcall : std::views::values(drawcalls)) {
-            drawcall->draw(
+        for (auto const& member : drawcallOrder) {
+            drawcalls[member]->draw(
                 static_cast<float>(*refs.posX) + offsetX,
                 static_cast<float>(*refs.posY) + offsetY
             );
@@ -166,7 +166,12 @@ private:
     // TODO: expose drawcall init/reinit for a domainmodule to use
     //       This way, we may add new drawcalls at runtime via scripts
 
-    absl::flat_hash_map<std::string, std::unique_ptr<Graphics::Drawcall>> drawcalls;
+    absl::flat_hash_map<std::string, std::shared_ptr<Graphics::Drawcall>> drawcalls;
+
+    // Reference to members in hashmap sorted by their draw order
+    std::vector<std::string> drawcallOrder;
+
+    void sortDrawcalls();
 
     // Re-initialize all drawcalls from document
     void reinitDrawcalls();
