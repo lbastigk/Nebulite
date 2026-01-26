@@ -344,8 +344,8 @@ void Drawcall::initializeCircle() {
     drawFilledCircle(sdlRenderer, radius, radius, radius);
 
     // DEBUG: Fill every pixel
-    SDL_FRect const rect = { 0, 0, 2.0f*radius, 2.0f*radius };
-    SDL_RenderRect(sdlRenderer, &rect);
+    //SDL_FRect const rect = { 0, 0, 2.0f*radius, 2.0f*radius };
+    //SDL_RenderRect(sdlRenderer, &rect);
 
     // Reset to default render target
     SDL_SetRenderTarget(sdlRenderer, nullptr);
@@ -399,26 +399,24 @@ void Drawcall::initializePolygon() {
     // Get polygon points
     std::vector<SDL_FPoint> points;
     size_t const pointCount = drawcallScope.memberSize(Key::PolygonSpecific::points);
-    if (pointCount < 3) {
-        Error::println("Polygon drawcall requires at least 3 points.");
+    if (pointCount < 2) { // Bump to 3 later on for filled polygons
+        Error::println("Polygon drawcall requires at least 2 points.");
         return;
     }
     points.reserve(pointCount);
     for (size_t i = 0; i < pointCount; ++i) {
-        auto const pointX = w * drawcallScope.get<double>(Key::PolygonSpecific::points + "[" + std::to_string(i) + "][0]");
-        auto const pointY = h * drawcallScope.get<double>(Key::PolygonSpecific::points + "[" + std::to_string(i) + "][1]");
+        auto const pointX = w * drawcallScope.get<double>(Key::PolygonSpecific::points + "[" + std::to_string(i) + "].x");
+        auto const pointY = h * drawcallScope.get<double>(Key::PolygonSpecific::points + "[" + std::to_string(i) + "].y");
         points.push_back({ static_cast<float>(pointX), static_cast<float>(pointY) });
     }
-
-
 
     // Create a texture for the polygon
     SDL_Texture* polyTexture = SDL_CreateTexture(
         sdlRenderer,
         SDL_PIXELFORMAT_RGBA8888,
         SDL_TEXTUREACCESS_TARGET,
-        w,
-        h
+        static_cast<int>(w),
+        static_cast<int>(h)
     );
     SDL_Color const polyColor = {
         static_cast<Uint8>(*refs.colorR),
@@ -434,9 +432,12 @@ void Drawcall::initializePolygon() {
         SDL_RenderLine(
             sdlRenderer,
             points[i].x, points[i].y,
-            points[(i + 1) % points.size()].x, points[(i + 1) % points.size()].y
+            points[(i + 1)].x, points[(i + 1)].y
         );
     }
+
+    // Reset to default render target
+    SDL_SetRenderTarget(sdlRenderer, nullptr);
 
     // Check for errors
     if (!polyTexture) {
