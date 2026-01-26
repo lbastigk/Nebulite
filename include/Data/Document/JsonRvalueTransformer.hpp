@@ -215,6 +215,8 @@ class JsonRvalueTransformer {
 
     // TODO: trim, upper, lower, substring, replace, etc.
 
+    // TODO: Add comparison functions like strequals, strcontains, strstartswith, strendswith, strcountappearance
+
     //------------------------------------------
     // Functions: Type-related
 
