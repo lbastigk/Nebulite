@@ -30,8 +30,8 @@ void setStandardValues(JsonScope& document) {
     Graphics::Drawcall::ApplyDefault::Text(document.shareScope(Constants::KeyNames::RenderObject::draw + ".exampleText"));
 
     // Set default size
-    document.set(Constants::KeyNames::RenderObject::pixelSizeX, 32);
-    document.set(Constants::KeyNames::RenderObject::pixelSizeY, 32);
+    document.set(Constants::KeyNames::RenderObject::sizeX, 32);
+    document.set(Constants::KeyNames::RenderObject::sizeX, 32);
 
     // Ruleset
     document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::list);

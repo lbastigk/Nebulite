@@ -63,8 +63,9 @@ struct KeyNames {
 
         static auto constexpr draw = Data::ScopedKeyView("draw");
 
-        static auto constexpr pixelSizeX = Data::ScopedKeyView("size.X");
-        static auto constexpr pixelSizeY = Data::ScopedKeyView("size.Y");
+        static auto constexpr sizeX = Data::ScopedKeyView("size.x");
+        static auto constexpr sizeY = Data::ScopedKeyView("size.y");
+        static auto constexpr sizeR = Data::ScopedKeyView("size.r"); // TODO: Make sure any collision modules are able to use (X,Y) and radius
     };
 
     // Keys within any Ruleset JSON object

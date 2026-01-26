@@ -33,6 +33,12 @@ Physics::Physics() : RulesetModule(moduleName) {
 //       that happens between now and the predicted next frame-time
 // TODO: Add a repositioning step to resolve overlaps
 // TODO: Needs to use new size system: (size.X, size.Y) or size.r
+//       Idea: Multiple rulesets:
+//       ::physics::elasticCollision::box::box,
+//       ::physics::elasticCollision::circle::circle,
+//       ::physics::elasticCollision::box::circle     // other is circle, self is box
+//       ::physics::elasticCollision::circle::box     // self is circle, other is box
+//       Or we prioritize radius if available?
 void Physics::elasticCollision(ContextBase const& context) const {
     // Get ordered cache lists for both entities for base values
     double** slf = getBaseList(context.self, baseKeys);
@@ -46,10 +52,10 @@ void Physics::elasticCollision(ContextBase const& context) const {
     double const p1Y = baseVal(slf, Key::posY);
     double const p2X = baseVal(otr, Key::posX);
     double const p2Y = baseVal(otr, Key::posY);
-    double const size1X = baseVal(slf, Key::spriteSizeX);
-    double const size1Y = baseVal(slf, Key::spriteSizeY);
-    double const size2X = baseVal(otr, Key::spriteSizeX);
-    double const size2Y = baseVal(otr, Key::spriteSizeY);
+    double const size1X = baseVal(slf, Key::sizeX);
+    double const size1Y = baseVal(slf, Key::sizeY);
+    double const size2X = baseVal(otr, Key::sizeX);
+    double const size2Y = baseVal(otr, Key::sizeY);
     double const m1 = baseVal(slf, Key::physics_mass);
     double const m2 = baseVal(otr, Key::physics_mass);
 

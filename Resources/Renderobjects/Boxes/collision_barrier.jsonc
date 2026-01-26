@@ -31,5 +31,9 @@
         "list": [
             "::physics::elasticCollision"
         ]
+    },
+    "size": {
+        "x": 16.0,
+        "y": 16.0
     }
 }

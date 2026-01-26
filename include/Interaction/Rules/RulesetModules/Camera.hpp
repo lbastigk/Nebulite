@@ -65,8 +65,8 @@ private:
     const std::vector<Data::ScopedKeyView> baseKeys = {
         Constants::KeyNames::RenderObject::positionX,
         Constants::KeyNames::RenderObject::positionY,
-        Constants::KeyNames::RenderObject::pixelSizeX,
-        Constants::KeyNames::RenderObject::pixelSizeY
+        Constants::KeyNames::RenderObject::sizeX,
+        Constants::KeyNames::RenderObject::sizeX
     };
 
     enum class Key : std::size_t {
