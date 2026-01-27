@@ -10,8 +10,6 @@
 // Includes
 
 // Standard library
-#include <cfloat>
-#include <cmath>
 #include <memory>
 #include <string>
 
@@ -230,7 +228,8 @@ private:
      *        Holds information about a specific part of the expression,
      *        including its type, source, and any associated metadata.
      */
-    struct Component {
+    class Component {
+    public:
         /**
          * @enum Nebulite::Interaction::Logic::Expression::Component::Type
          * @brief Each component can be of type variable, eval or text that differ in how they are evaluated.
@@ -322,27 +321,28 @@ private:
         Component& operator=(Component const&) = delete;
 
         // enable moving
-        Component(Component&& other) noexcept
-            : type(other.type), contextType(other.contextType), cast(other.cast),
-              formatter(other.formatter), str(std::move(other.str)), key(std::move(other.key)),
-              expression(other.expression) {
-            other.expression = nullptr;
-        }
+        Component(Component&& other) noexcept ;
 
-        Component& operator=(Component&& other) noexcept {
-            if (this != &other) {
-                te_free(expression);
-                type = other.type;
-                contextType = other.contextType;
-                cast = other.cast;
-                formatter = other.formatter;
-                str = std::move(other.str);
-                key = std::move(other.key);
-                expression = other.expression;
-                other.expression = nullptr;
-            }
-            return *this;
-        }
+        Component& operator=(Component&& other) noexcept ;
+
+        //------------------------------------------
+        // Component handling methods
+
+        /**
+         * @brief Handles the evaluation of a variable component.
+         * @param token The string to populate with the evaluated value.
+         * @param self The JSON object `self` to evaluate against.
+         * @param other The JSON object `other` to evaluate against.
+         * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
+         * @return True if the evaluation was successful, false otherwise.
+         */
+        bool handleComponentTypeVariable(std::string& token, Data::JsonScopeBase& self, Core::JsonScope& other, uint16_t const& maximumRecursionDepth) const ;
+
+        /**
+         * @brief Handles the evaluation of an eval component.
+         * @param token The string to populate with the evaluated value.
+         */
+        void handleComponentTypeEval(std::string& token) const ;
     };
 
     /**
@@ -374,174 +374,6 @@ private:
             vd_list none; // Variables with no context
         } nonRemanent;
     } virtualDoubles;
-
-    /**
-     * @brief A collection of custom functions for TinyExpr
-     *        Make sure to register all functions with TinyExpr in Nebulite::Interaction::Logic::Expression::reset
-     * @note Marking the parameters as `const&` does not work with TinyExpr function pointers,
-     *       so they are passed by value instead.
-     */
-    class expr_custom {
-    public:
-        //----------------------------------
-        // Logical comparison functions
-
-        // NOLINTNEXTLINE
-        static double gt(double a, double b) { return a > b; }
-
-        // NOLINTNEXTLINE
-        static double lt(double a, double b) { return a < b; }
-
-        // NOLINTNEXTLINE
-        static double geq(double a, double b) { return a >= b; }
-
-        // NOLINTNEXTLINE
-        static double leq(double a, double b) { return a <= b; }
-
-        // NOLINTNEXTLINE
-        static double eq(double a, double b) {
-            return std::fabs(a - b) < DBL_EPSILON;
-        }
-
-        // NOLINTNEXTLINE
-        static double neq(double a, double b) {
-            return std::fabs(a - b) > DBL_EPSILON;
-        }
-
-        //----------------------------------
-        // Logical gate functions
-
-        // NOLINTNEXTLINE
-        static double logical_not(double a) {
-            return !(std::fabs(a) > DBL_EPSILON);
-        }
-
-        // NOLINTNEXTLINE
-        static double logical_and(double a, double b) {
-            bool const aLogical = std::fabs(a) > DBL_EPSILON;
-            bool const bLogical = std::fabs(b) > DBL_EPSILON;
-            return aLogical && bLogical;
-        }
-
-        // NOLINTNEXTLINE
-        static double logical_or(double a, double b) {
-            bool const aLogical = std::fabs(a) > DBL_EPSILON;
-            bool const bLogical = std::fabs(b) > DBL_EPSILON;
-            return aLogical || bLogical;
-        }
-
-        // NOLINTNEXTLINE
-        static double logical_xor(double a, double b) {
-            bool const aLogical = std::fabs(a) > DBL_EPSILON;
-            bool const bLogical = std::fabs(b) > DBL_EPSILON;
-            return aLogical != bLogical;
-        }
-
-        // NOLINTNEXTLINE
-        static double logical_nand(double a, double b) {
-            bool const aLogical = std::fabs(a) > DBL_EPSILON;
-            bool const bLogical = std::fabs(b) > DBL_EPSILON;
-            return !(aLogical && bLogical);
-        }
-
-        // NOLINTNEXTLINE
-        static double logical_nor(double a, double b) {
-            bool const aLogical = std::fabs(a) > DBL_EPSILON;
-            bool const bLogical = std::fabs(b) > DBL_EPSILON;
-            return !(aLogical || bLogical);
-        }
-
-        // NOLINTNEXTLINE
-        static double logical_xnor(double a, double b) {
-            bool const aLogical = std::fabs(a) > DBL_EPSILON;
-            bool const bLogical = std::fabs(b) > DBL_EPSILON;
-            return aLogical == bLogical;
-        }
-
-        // Other logical functions
-
-        // NOLINTNEXTLINE
-        static double to_bipolar(double a) {
-            return std::fabs(a) > DBL_EPSILON ? 1 : -1;
-        }
-
-        //----------------------------------
-        // Mapping functions
-
-        // NOLINTNEXTLINE
-        static double map(double value, double in_min, double in_max, double out_min, double out_max) {
-            if (std::fabs(in_max - in_min) < DBL_EPSILON) { return out_min; } // Prevent division by zero
-            if (value < in_min) { return out_min; }
-            if (value > in_max) { return out_max; }
-            return (value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-        }
-
-        // NOLINTNEXTLINE
-        static double constrain(double value, double min, double max) {
-            if (value < min) { return min; }
-            if (value > max) { return max; }
-            return value;
-        }
-
-        //----------------------------------
-        // Maximum and Minimum functions
-
-        // NOLINTNEXTLINE
-        static double max(double a, double b) { return (a > b) ? a : b; }
-
-        // NOLINTNEXTLINE
-        static double min(double a, double b) { return (a < b) ? a : b; }
-
-        //----------------------------------
-        // More mathematical functions
-
-        // NOLINTNEXTLINE
-        static double sgn(double a) { return std::copysign(1.0, a); }
-
-        //----------------------------------
-        // Pseudo-random functions
-
-        // Idea: offer various RNG functions here, useful for pseudo-random logic:
-        // RNG2ARG(a,b) -> returns a random number, seeded from a and b
-        // RNG3ARG(a,b,c) -> returns a random number, seeded from a, b and c
-        // etc.
-        // We could use this to determine tileset usage based on position?
-
-        // NOLINTNEXTLINE
-        static double rng2arg(double a, double b) {
-            uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663);
-            seed = (seed ^ seed >> 30) * 0xbf58476d1ce4e5b9;
-            seed = (seed ^ seed >> 27) * 0x94d049bb133111eb;
-            seed = seed ^ seed >> 31;
-            return static_cast<double>(seed % 10000) / 10000.0; // Return a value between 0 and 1
-        }
-
-        // NOLINTNEXTLINE
-        static double rng3arg(double a, double b, double c) {
-            uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663) ^ static_cast<uint64_t>(c * 83492791);
-            seed = (seed ^ seed >> 30) * 0xbf58476d1ce4e5b9;
-            seed = (seed ^ seed >> 27) * 0x94d049bb133111eb;
-            seed = seed ^ seed >> 31;
-            return static_cast<double>(seed % 10000) / 10000.0; // Return a value between 0 and 1
-        }
-
-        // NOLINTNEXTLINE
-        static double rng2argInt16(double a, double b) {
-            uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663);
-            seed = (seed ^ seed >> 30) * 0xbf58476d1ce4e5b9;
-            seed = (seed ^ seed >> 27) * 0x94d049bb133111eb;
-            seed = seed ^ seed >> 31;
-            return static_cast<double>(seed % 32768); // Return a value between 0 and 32767
-        }
-
-        static double rng3argInt16(double a, double b, double c) {
-            uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663) ^ static_cast<uint64_t>(c * 83492791);
-            seed = (seed ^ seed >> 30) * 0xbf58476d1ce4e5b9;
-            seed = (seed ^ seed >> 27) * 0x94d049bb133111eb;
-            seed = seed ^ seed >> 31;
-            return static_cast<double>(seed % 32768); // Return a value between 0 and 32767
-        }
-    };
 
     /**
      * @brief Storing info about the expression's returnability
@@ -668,21 +500,6 @@ private:
      * @brief Updates caches
      */
     void updateCaches(Core::JsonScope& reference) const ;
-
-    /**
-     * @brief Handles the evaluation of a variable component.
-     * @param token The string to populate with the evaluated value.
-     * @param component The component to evaluate.
-     * @param current_other The JSON object `other` to evaluate against.
-     * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
-     * @return True if the evaluation was successful, false otherwise.
-     */
-    bool handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Core::JsonScope& current_other, uint16_t const& maximumRecursionDepth) const;
-
-    /**
-     * @brief Handles the evaluation of an eval component.
-     */
-    static void handleComponentTypeEval(std::string& token, std::shared_ptr<Component> const& component);
 };
 
 } // namespace Nebulite::Interaction::Logic

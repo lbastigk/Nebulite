@@ -1,6 +1,11 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cmath>
+#include <cstdlib>
+#include <cfloat>
+
 // External
 #include <SDL3/SDL.h>
 

@@ -8,6 +8,7 @@
 #include "Nebulite.hpp"
 #include "Data/RollingId.hpp"
 #include "Interaction/Logic/Expression.hpp"
+#include "Interaction/Logic/ExpressionPrimitives.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
 
 //------------------------------------------
@@ -52,51 +53,7 @@ void Expression::reset() {
 
     //------------------------------------------
     // Register built-in functions
-
-    //====================================================================================================================
-    // Category             Name           Pointer                                               Type           Context
-    //====================================================================================================================
-
-    // Logical comparison functions
-    te_variables.push_back({"gt", reinterpret_cast<void*>(expr_custom::gt), TE_FUNCTION2, nullptr});
-    te_variables.push_back({"lt", reinterpret_cast<void*>(expr_custom::lt), TE_FUNCTION2, nullptr});
-    te_variables.push_back({"geq", reinterpret_cast<void*>(expr_custom::geq), TE_FUNCTION2, nullptr});
-    te_variables.push_back({"leq", reinterpret_cast<void*>(expr_custom::leq), TE_FUNCTION2, nullptr});
-    te_variables.push_back({"eq", reinterpret_cast<void*>(expr_custom::eq), TE_FUNCTION2, nullptr});
-    te_variables.push_back({"neq", reinterpret_cast<void*>(expr_custom::neq), TE_FUNCTION2, nullptr});
-
-    // Logical gate functions
-    te_variables.push_back({"not", reinterpret_cast<void*>(expr_custom::logical_not), TE_FUNCTION1, nullptr});
-    te_variables.push_back({"and", reinterpret_cast<void*>(expr_custom::logical_and), TE_FUNCTION2, nullptr});
-    te_variables.push_back({"or", reinterpret_cast<void*>(expr_custom::logical_or), TE_FUNCTION2, nullptr});
-    te_variables.push_back({"xor", reinterpret_cast<void*>(expr_custom::logical_xor), TE_FUNCTION2, nullptr});
-    te_variables.push_back({"nand", reinterpret_cast<void*>(expr_custom::logical_nand), TE_FUNCTION2, nullptr});
-    te_variables.push_back({"nor", reinterpret_cast<void*>(expr_custom::logical_nor), TE_FUNCTION2, nullptr});
-    te_variables.push_back({"xnor", reinterpret_cast<void*>(expr_custom::logical_xnor), TE_FUNCTION2, nullptr});
-
-    // Other logical functions
-    te_variables.push_back({"to_bipolar", reinterpret_cast<void*>(expr_custom::to_bipolar), TE_FUNCTION1, nullptr});
-
-    // Mapping functions
-    te_variables.push_back({"map", reinterpret_cast<void*>(expr_custom::map), TE_FUNCTION5, nullptr});
-    te_variables.push_back({"constrain", reinterpret_cast<void*>(expr_custom::constrain), TE_FUNCTION3, nullptr});
-
-    // Maximum and Minimum functions
-    te_variables.push_back({"max", reinterpret_cast<void*>(expr_custom::max), TE_FUNCTION2, nullptr});
-    te_variables.push_back({"min", reinterpret_cast<void*>(expr_custom::min), TE_FUNCTION2, nullptr});
-
-    // More mathematical functions
-    te_variables.push_back({"sgn", reinterpret_cast<void*>(expr_custom::sgn), TE_FUNCTION1, nullptr});
-
-    // RNG functions
-
-    // Range 0 to 1
-    te_variables.push_back({"rng2arg", reinterpret_cast<void*>(expr_custom::rng2arg), TE_FUNCTION2, nullptr});
-    te_variables.push_back({"rng3arg", reinterpret_cast<void*>(expr_custom::rng3arg), TE_FUNCTION3, nullptr});
-
-    // Range 0 to 32767
-    te_variables.push_back({"rng2argInt16", reinterpret_cast<void*>(expr_custom::rng2argInt16), TE_FUNCTION2, nullptr});
-    te_variables.push_back({"rng3argInt16", reinterpret_cast<void*>(expr_custom::rng3argInt16), TE_FUNCTION3, nullptr});
+    ExpressionPrimitives::registerExpressions(te_variables);
 }
 
 std::string Expression::stripContext(std::string const& key) {
@@ -459,105 +416,6 @@ void Expression::parse(std::string const& expr) {
     varNameGen.clear();
 }
 
-bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Core::JsonScope& current_other, uint16_t const& maximumRecursionDepth) const {
-    std::string strippedKey = component->key;
-    Component::ContextType context = component->contextType;
-
-    // See if the variable contains an inner expression
-    if (component->str.find('$') != std::string::npos || component->str.find('{') != std::string::npos) {
-        if (maximumRecursionDepth == 0) {
-            Error::println("Error: Maximum recursion depth reached when evaluating variable: ", component->key);
-            return false;
-        }
-        // Create a temporary expression to evaluate the inner expression
-        Expression const tempExpr(component->str, references.self);
-        strippedKey = tempExpr.eval(current_other, maximumRecursionDepth - 1);
-
-        // Redetermine context and strip it from key
-        context = getContext(strippedKey);
-        strippedKey = stripContext(strippedKey);
-    }
-
-    // Now, use the key to get the value from the correct document
-    auto const key = Data::ScopedKey(strippedKey);
-    switch (context) {
-    case Component::ContextType::self: // {self.<key><transformations>}
-        token = references.self.get<std::string>(key.view(), "null");
-        break;
-    case Component::ContextType::other: // {other.<key><transformations>}
-        token = current_other.get<std::string>(key.view(), "null");
-        break;
-    case Component::ContextType::global: // {global.<key><transformations>}
-        token = Global::instance().domainScope.get<std::string>(key.view(), "null");
-        break;
-    case Component::ContextType::resource: // {<link><resource_key_or_transformations>}
-        token = Global::instance().getDocCache().get<std::string>(strippedKey, "null");
-        break;
-    case Component::ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
-        {
-            // This requires an empty document that acts as a parsing mechanism for the transformations
-            thread_local Core::JsonScope emptyDoc;
-            token = emptyDoc.get<std::string>(key.view(), "null");
-        }
-        break;
-    default:
-        Error::println("Error: Unknown context in expression: ", strippedKey);
-        std::unreachable();
-    }
-    return true;
-}
-
-void Expression::handleComponentTypeEval(std::string& token, std::shared_ptr<Component> const& component) {
-    //------------------------------------------
-    // Handle casting and precision together
-    if (component->cast == Component::CastType::to_int) {
-        token = std::to_string(static_cast<int>(te_eval(component->expression)));
-    } else {
-        // to_double or none, both use double directly
-        double value = te_eval(component->expression);
-
-        // Apply rounding if precision is specified
-        if (component->formatter.precision != -1) {
-            double const multiplier = std::pow(10.0, component->formatter.precision);
-            value = std::round(value * multiplier) / multiplier;
-        }
-
-        token = std::to_string(value);
-    }
-
-    // Precision formatting (after rounding)
-    if (component->formatter.precision != -1) {
-        if (size_t const dotPos = token.find('.'); dotPos != std::string::npos) {
-            if (size_t const currentPrecision = token.size() - dotPos - 1; currentPrecision < static_cast<size_t>(component->formatter.precision)) {
-                // Add zeros to match the required precision
-                token.append(static_cast<size_t>(component->formatter.precision) - currentPrecision, '0');
-            } else if (currentPrecision > static_cast<size_t>(component->formatter.precision)) {
-                // Truncate to the required precision (should be minimal after rounding)
-                token.resize(dotPos + static_cast<size_t>(component->formatter.precision) + 1);
-            }
-        } else {
-            // No decimal point, add one and pad with zeros
-            token += '.';
-            token.append(static_cast<size_t>(component->formatter.precision), '0');
-        }
-    }
-
-    // Adding padding
-    if (component->formatter.alignment > 0 && token.size() < static_cast<size_t>(component->formatter.alignment)) {
-        // Cast to int, as alignment may be negative (-1 signals no alignment)
-        int const size = static_cast<int>(token.size());
-        std::string padding;
-        for (int i = 0; i < component->formatter.alignment - size; i++) {
-            if (component->formatter.leadingZero) {
-                padding += "0";
-            } else {
-                padding += " ";
-            }
-        }
-        token.insert(0, padding);
-    }
-}
-
 std::string Expression::eval(Core::JsonScope& current_other, uint16_t const& max_recursion_depth) const {
     //------------------------------------------
     // Update caches so that tinyexpr has the correct references
@@ -574,13 +432,13 @@ std::string Expression::eval(Core::JsonScope& current_other, uint16_t const& max
         switch (component->type) {
             //------------------------------------------
         case Component::Type::variable:
-            if (!handleComponentTypeVariable(token, component, current_other, max_recursion_depth)) {
+            if (!component->handleComponentTypeVariable(token, references.self, current_other, max_recursion_depth)) {
                 token = "null";
             }
             break;
             //------------------------------------------
         case Component::Type::eval:
-            handleComponentTypeEval(token, component);
+            component->handleComponentTypeEval(token);
             break;
             //------------------------------------------
         case Component::Type::text:
