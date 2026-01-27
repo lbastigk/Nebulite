@@ -9,7 +9,7 @@
 
 ###############################################
 # [SETTINGS]
-set loop.n 80  # Number of objects per row/column (total objects = n*n)
+set loop.n 40  # Number of objects per row/column (total objects = n*n)
 
 # Frame average for loop.n=40:
 # 0.745 seconds, 2025-09
@@ -30,6 +30,14 @@ show-fps on
 echo
 eval echo Benchmark with $i( {global.loop.n} * {global.loop.n} ) Objects...
 eval echo Rendering with a fixed dt of 1 ms
+echo
+
+# Total count of interactions per frame:
+# Gravity,  Apply force, Collision
+# (n*n)^2   + n*n        + 4*n*n
+eval set interactionCountPerFrame $( ({global.loop.n} * {global.loop.n})^2 + ({global.loop.n} * {global.loop.n}) + 4*({global.loop.n} * {global.loop.n}) )
+echo
+eval echo Total ruleset invocations per frame (without sun): $({global.interactionCountPerFrame} / 1000000) million
 echo
 
 
