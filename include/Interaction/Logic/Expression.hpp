@@ -97,6 +97,14 @@ public:
     }
 
     /**
+     * @brief Evaluates the expression as a JSON object.
+     * @param current_other The JSON object `other` to evaluate against.
+     * @param max_recursion_depth The maximum recursion depth to prevent infinite loops in nested evaluations.
+     * @return The evaluated JSON object.
+     */
+    Data::JSON evalAsJson(Core::JsonScope& current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
+
+    /**
      * @brief Evaluates the expression as a double.
      * @param current_other The JSON object `other` to evaluate against.
      * @return The evaluated double value.
@@ -172,6 +180,14 @@ public:
      * @return The evaluated boolean value.
      */
     static bool evalAsBool(std::string const& input, ContextBase const& context);
+
+    /**
+     * @brief Evaluates a given expression string as a JSON object with a constant reference to the context.
+     * @param input The expression string to evaluate.
+     * @param context The context containing the self, other, and global JSON objects.
+     * @return The evaluated JSON object.
+     */
+    static Data::JSON evalAsJson(std::string const& input, ContextBase const& context);
 
     // Global-only evaluation (both self and other context are empty documents)
 
@@ -322,6 +338,16 @@ private:
          * @return True if the evaluation was successful, false otherwise.
          */
         bool handleComponentTypeVariable(std::string& token, Data::JsonScopeBase& selfScope, Core::JsonScope& otherScope, uint16_t const& maximumRecursionDepth) const ;
+
+        /**
+         * @brief Handles the evaluation of a variable component.
+         * @param token The JSON object to populate with the evaluated value.
+         * @param selfScope The scope `self` to evaluate against.
+         * @param otherScope The scope `other` to evaluate against.
+         * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
+         * @return True if the evaluation was successful, false otherwise.
+         */
+        bool handleComponentTypeVariable(Data::JSON& token, Data::JsonScopeBase& selfScope, Core::JsonScope& otherScope, uint16_t const& maximumRecursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of an eval component.

@@ -280,10 +280,15 @@ protected:
 
     /**
      * @brief Base deserialization function to be called by derived classes in their own deserialization.
-     *        This ensures that the common deserialization logic is executed.
-     *        Turns the serial or link with commands into the document, parses all commands.
-     *        Using this in any deserialization implementation ensures that command parsing happens at the highest level.
-     *        Re-initializes all DomainModules in the JSON scope after deserialization.
+     * @details This ensures that the common deserialization logic is executed.
+     *          Turns the serial or link with commands into the document, parses all commands.
+     *          Using this in any deserialization implementation ensures that command parsing happens at the highest level.
+     *          Re-initializes all DomainModules in the JSON scope after deserialization.
+     *          Supported formats:
+     *          - {object} (direct JSON)
+     *          - link|c1|c2|... (additional commands after link)
+     *          - {variable|t1|t2|...}|c1|c2|... (additional commands after serialization)
+     *          Where t is a transformation and c is a command to execute after deserialization.
      * @param serialOrLinkWithCommands The serialization string or link with commands to deserialize.
      */
     void baseDeserialization(std::string const& serialOrLinkWithCommands);

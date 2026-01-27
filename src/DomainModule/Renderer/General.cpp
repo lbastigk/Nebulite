@@ -38,31 +38,7 @@ Constants::Error General::spawn(int const argc, char** argv) const {
     if (argc > 1) {
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun
-        std::string linkOrObject = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
-
-        // Check if the file exists
-        if (std::string const link = Utility::StringHandler::untilSpecialChar(linkOrObject, '|'); !Utility::FileManagement::fileExists(link)) {
-            // Check in standard directories
-            static std::vector<std::string> standardDirectories = {
-                "./Resources/Renderobjects/",
-                "./Resources/RenderObjects/"
-            };
-
-            // Check all standard directories for the file
-            bool found = false;
-            for (auto const& prefix : standardDirectories) {
-                if (std::string const testLink = prefix + link; Utility::FileManagement::fileExists(testLink)) {
-                    linkOrObject.insert(0, prefix);
-                    found = true;
-                    break;
-                }
-            }
-
-            // Not found in standard directories either
-            if (!found) {
-                return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
-            }
-        }
+        std::string const linkOrObject = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
 
         // Create object with link to globalspace
         auto* ro = new Core::RenderObject;

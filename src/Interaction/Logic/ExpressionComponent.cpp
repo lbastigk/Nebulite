@@ -73,6 +73,54 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Data
     return true;
 }
 
+bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Data::JsonScopeBase& selfScope, Core::JsonScope& otherScope, uint16_t const& maximumRecursionDepth) const {
+    std::string strippedKey = key;
+    ContextType context = contextType;
+
+    // See if the variable contains an inner expression
+    if (str.find('$') != std::string::npos || str.find('{') != std::string::npos) {
+        if (maximumRecursionDepth == 0) {
+            Error::println("Error: Maximum recursion depth reached when evaluating variable: ", key);
+            return false;
+        }
+        // Create a temporary expression to evaluate the inner expression
+        Expression const tempExpr(str, selfScope);
+        strippedKey = tempExpr.eval(otherScope, maximumRecursionDepth - 1);
+
+        // Redetermine context and strip it from key
+        context = getContext(strippedKey);
+        strippedKey = stripContext(strippedKey);
+    }
+
+    // Now, use the key to get the value from the correct document
+    auto const scopedKey = Data::ScopedKey(strippedKey);
+    switch (context) {
+    case ContextType::self: // {self.<key><transformations>}
+        token = selfScope.getSubDoc(scopedKey.view());
+        break;
+    case ContextType::other: // {other.<key><transformations>}
+        token = otherScope.getSubDoc(scopedKey.view());
+        break;
+    case ContextType::global: // {global.<key><transformations>}
+        token = Global::instance().domainScope.getSubDoc(scopedKey.view());
+        break;
+    case ContextType::resource: // {<link><resource_key_or_transformations>}
+        token = Global::instance().getDocCache().getSubDoc(strippedKey);
+        break;
+    case ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
+        {
+            // This requires an empty document that acts as a parsing mechanism for the transformations
+            thread_local Core::JsonScope emptyDoc;
+            token = emptyDoc.getSubDoc(scopedKey.view());
+        }
+        break;
+    default:
+        Error::println("Error: Unknown context in expression: ", strippedKey);
+        std::unreachable();
+    }
+    return true;
+}
+
 void Expression::Component::handleComponentTypeEval(std::string& token) const {
     //------------------------------------------
     // Handle casting and precision together

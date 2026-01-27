@@ -1,6 +1,8 @@
 #include "Nebulite.hpp"
 #include "Interaction/Execution/Domain.hpp"
-#include "../../../include/Core/JsonScope.hpp"
+#include "Core/JsonScope.hpp"
+
+#include <vector>
 
 // Document Accessor
 namespace Nebulite::Interaction::Execution {
@@ -77,24 +79,56 @@ std::vector<std::string> DomainBase::stringToDeserializeTokens(std::string const
 }
 
 void DomainBase::baseDeserialization(std::string const& serialOrLinkWithCommands) {
+    std::vector<std::string> tokens;
+
     //------------------------------------------
-    // Split the input into tokens
-    auto tokens = stringToDeserializeTokens(serialOrLinkWithCommands);
-    if (tokens.empty()) {
-        return;
+    // Check if the input is of type {variable|t1|t2|...}|c1|c2|...
+
+    // Meaning the first char is '{', but the string is not a valid JSON object
+    if (!serialOrLinkWithCommands.empty() && serialOrLinkWithCommands.front() == '{' && !Data::JSON::isJsonOrJsonc(serialOrLinkWithCommands)) {
+        // Split on same depth of '{' and '}' to isolate the variable part
+        auto parts = Utility::StringHandler::splitOnSameDepth(serialOrLinkWithCommands, '{');
+
+        // First part is the variable with transformations
+        std::string const& variableWithTransformations = parts[0];
+
+        // Setup context for parsing
+        ContextBase const ctx{domainScope, domainScope, Global::instance().domainScope};
+
+        // Parse into expression
+        Data::JSON const result = Logic::Expression::evalAsJson(variableWithTransformations, ctx);
+
+        // Deserialize the resulting JSON into the domain scope
+        domainScope.deserialize(result.serialize());
+
+        // Recombine the parts after the first part into commands
+        if (!parts.empty()) {
+            parts.erase(parts.begin()); // Remove the first part
+        }
+
+        // Split the rest into tokens based on '|'
+        tokens = stringToDeserializeTokens(std::accumulate(parts.begin(), parts.end(), std::string{}));
+    }
+    else {
+        //------------------------------------------
+        // Split the input into tokens
+        tokens = stringToDeserializeTokens(serialOrLinkWithCommands);
+        if (tokens.empty()) {
+            return;
+        }
+
+        //------------------------------------------
+        // Load the JSON file
+
+        // Pass only the serial/link part to deserialize
+        // Argument parsing happens at the higher level
+        std::string const serialOrLink = tokens[0];
+        domainScope.deserialize(serialOrLink);
+        tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
     }
 
     //------------------------------------------
-    // Load the JSON file
-
-    // Pass only the serial/link part to deserialize
-    // Argument parsing happens at the higher level
-    std::string const serialOrLink = tokens[0];
-    domainScope.deserialize(serialOrLink);
-
-    //------------------------------------------
     // Now apply modifications
-    tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
     for (auto const& token : tokens) {
         if (token.empty())
             continue; // Skip empty tokens

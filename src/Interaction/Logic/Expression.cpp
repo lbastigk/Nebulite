@@ -416,6 +416,24 @@ void Expression::parse(std::string const& expr) {
     varNameGen.clear();
 }
 
+Data::JSON Expression::evalAsJson(Core::JsonScope& current_other, uint16_t const& max_recursion_depth) const {
+    if (components.size() == 1 && components[0]->type != Component::Type::text) {
+        if (components[0]->type == Component::Type::eval) {
+            Data::JSON jsonResult;
+            jsonResult.set<double>("", evalAsDouble(current_other));
+            return jsonResult;
+        }
+        if (components[0]->type == Component::Type::variable) {
+            Data::JSON jsonResult;
+            components[0]->handleComponentTypeVariable(jsonResult, self, current_other, max_recursion_depth);
+            return jsonResult;
+        }
+    }
+    Data::JSON jsonResult;
+    jsonResult.set<std::string>("", eval(current_other, max_recursion_depth));
+    return jsonResult;
+}
+
 std::string Expression::eval(Core::JsonScope& current_other, uint16_t const& max_recursion_depth) const {
     //------------------------------------------
     // Update caches so that tinyexpr has the correct references
@@ -537,6 +555,11 @@ double Expression::evalAsDouble(std::string const& input, ContextBase const& con
 bool Expression::evalAsBool(std::string const& input, ContextBase const& context) {
     double const result = evalAsDouble(input, context);
     return std::fabs(result) > DBL_EPSILON;
+}
+
+Data::JSON Expression::evalAsJson(std::string const& input, ContextBase const& context) {
+    Expression const expr(input, context.self.domainScope);
+    return expr.evalAsJson(context.other.domainScope);
 }
 
 // Global-only as context
