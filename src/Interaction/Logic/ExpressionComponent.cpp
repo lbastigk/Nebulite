@@ -25,7 +25,7 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
     return *this;
 }
 
-bool Expression::Component::handleComponentTypeVariable(std::string& token, Data::JsonScopeBase& self, Core::JsonScope& other, uint16_t const& maximumRecursionDepth) const {
+bool Expression::Component::handleComponentTypeVariable(std::string& token, Data::JsonScopeBase& selfScope, Core::JsonScope& otherScope, uint16_t const& maximumRecursionDepth) const {
     std::string strippedKey = key;
     ContextType context = contextType;
 
@@ -36,8 +36,8 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Data
             return false;
         }
         // Create a temporary expression to evaluate the inner expression
-        Expression const tempExpr(str, self);
-        strippedKey = tempExpr.eval(other, maximumRecursionDepth - 1);
+        Expression const tempExpr(str, selfScope);
+        strippedKey = tempExpr.eval(otherScope, maximumRecursionDepth - 1);
 
         // Redetermine context and strip it from key
         context = getContext(strippedKey);
@@ -48,10 +48,10 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Data
     auto const scopedKey = Data::ScopedKey(strippedKey);
     switch (context) {
     case ContextType::self: // {self.<key><transformations>}
-        token = self.get<std::string>(scopedKey.view(), "null");
+        token = selfScope.get<std::string>(scopedKey.view(), "null");
         break;
     case ContextType::other: // {other.<key><transformations>}
-        token = other.get<std::string>(scopedKey.view(), "null");
+        token = otherScope.get<std::string>(scopedKey.view(), "null");
         break;
     case ContextType::global: // {global.<key><transformations>}
         token = Global::instance().domainScope.get<std::string>(scopedKey.view(), "null");

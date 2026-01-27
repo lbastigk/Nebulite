@@ -316,8 +316,8 @@ private:
         /**
          * @brief Handles the evaluation of a variable component.
          * @param token The string to populate with the evaluated value.
-         * @param self The JSON object `self` to evaluate against.
-         * @param other The JSON object `other` to evaluate against.
+         * @param selfScope The scope `self` to evaluate against.
+         * @param otherScope The scope `other` to evaluate against.
          * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
