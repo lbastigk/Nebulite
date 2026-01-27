@@ -37,6 +37,23 @@ private:
     std::array<MapType, BucketCount> map;
     static_assert(BucketCount == 256, "Expected 256 buckets for HotStringKeyMap");
 public:
+    HotStringKeyMap() = default;
+
+    HotStringKeyMap(HotStringKeyMap&& other) noexcept {
+        for (std::size_t i = 0; i < BucketCount; ++i) {
+            map[i] = std::move(other.map[i]);
+        }
+    }
+
+    HotStringKeyMap& operator=(HotStringKeyMap&& other) noexcept {
+        if (this != &other) {
+            for (std::size_t i = 0; i < BucketCount; ++i) {
+                map[i] = std::move(other.map[i]);
+            }
+        }
+        return *this;
+    }
+
     /**
      * @brief Get underlying maps.
      * @return Reference to the array of underlying HotKeyMaps.
@@ -80,6 +97,15 @@ public:
         }
         auto const lastChar = static_cast<unsigned char>(key.back());
         return map[lastChar][key];
+    }
+
+    /**
+     * @brief Clear all entries in the HotStringKeyMap.
+     */
+    void clear() {
+        for (auto& bucket : map) {
+            bucket.clear();
+        }
     }
 };
 
