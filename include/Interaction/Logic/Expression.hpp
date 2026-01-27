@@ -242,16 +242,16 @@ private:
         } type = Type::text;
 
         /**
-         * @enum Nebulite::Interaction::Logic::Expression::Component::From
+         * @enum Nebulite::Interaction::Logic::Expression::Component::ContextType
          * @brief Represents the source of a variable reference.
          */
-        enum class From : uint8_t {
+        enum class ContextType : uint8_t {
             self, // Using the "self" document for expression evaluation
             other, // Using the "other" document for expression evaluation
             global, // Using the "global" document for expression evaluation
             resource, // Using a document from the document cache for expression evaluation
             None // No context given for evaluation
-        } from = From::None; // Default to None
+        } contextType = ContextType::None; // Default to None
 
         /**
          * @enum Nebulite::Interaction::Logic::Expression::Component::CastType
@@ -323,7 +323,7 @@ private:
 
         // enable moving
         Component(Component&& other) noexcept
-            : type(other.type), from(other.from), cast(other.cast),
+            : type(other.type), contextType(other.contextType), cast(other.cast),
               formatter(other.formatter), str(std::move(other.str)), key(std::move(other.key)),
               expression(other.expression) {
             other.expression = nullptr;
@@ -333,7 +333,7 @@ private:
             if (this != &other) {
                 te_free(expression);
                 type = other.type;
-                from = other.from;
+                contextType = other.contextType;
                 cast = other.cast;
                 formatter = other.formatter;
                 str = std::move(other.str);
@@ -371,6 +371,7 @@ private:
             vd_list otherUnStable; // Variables from context other that are unstable (with transformations or multi-resolve)
             vd_list global; // All variables from context global
             vd_list resource; // All variables from context resource
+            vd_list none; // Variables with no context
         } nonRemanent;
     } virtualDoubles;
 
@@ -603,7 +604,7 @@ private:
      * @param key The key in the JSON document that the variable refers to.
      * @param context The context from which the variable is being registered.
      */
-    void registerVariable(std::string te_name, std::string const& key, Component::From const& context);
+    void registerVariable(std::string te_name, std::string const& key, Component::ContextType const& context);
 
     /**
      * @brief used to strip any context prefix from a key
@@ -624,7 +625,7 @@ private:
      * @param key The key to get the context from.
      * @return The context of the key.
      */
-    static Component::From getContext(std::string const& key);
+    static Component::ContextType getContext(std::string const& key);
 
     /**
      * @brief Parses the given expression into a series of components.

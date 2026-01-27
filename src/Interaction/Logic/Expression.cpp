@@ -110,17 +110,20 @@ std::string Expression::stripContext(std::string const& key) {
     return key;
 }
 
-Expression::Component::From Expression::getContext(std::string const& key) {
+Expression::Component::ContextType Expression::getContext(std::string const& key) {
+    if (key.empty() || key.starts_with("|")) {
+        return Component::ContextType::None;
+    }
     if (key.starts_with("self.")) {
-        return Component::From::self;
+        return Component::ContextType::self;
     }
     if (key.starts_with("other.")) {
-        return Component::From::other;
+        return Component::ContextType::other;
     }
     if (key.starts_with("global.")) {
-        return Component::From::global;
+        return Component::ContextType::global;
     }
-    return Component::From::resource;
+    return Component::ContextType::resource;
 }
 
 void Expression::compileIfExpression(std::shared_ptr<Component> const& component) const {
@@ -154,7 +157,7 @@ bool isAvailableAsDoublePtr(std::string const& key) {
 }
 } // anonymous namespace
 
-void Expression::registerVariable(std::string te_name, std::string const& key, Component::From const& context) {
+void Expression::registerVariable(std::string te_name, std::string const& key, Component::ContextType const& context) {
     // Check if variable exists in variables vector:
     bool const found = std::ranges::any_of(te_variables, [&](auto const& te_var) {
         if (te_var.name == te_name) {
@@ -169,7 +172,7 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
 
         // Register cache based on context
         switch (context) {
-        case Component::From::self:
+        case Component::ContextType::self:
             if (isAvailableAsDoublePtr(key)) {
                 vd->setUpExternalCache(references.self);
                 virtualDoubles.remanent.self.push_back(vd);
@@ -178,7 +181,7 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
                 virtualDoubles.nonRemanent.self.push_back(vd);
             }
             break;
-        case Component::From::other:
+        case Component::ContextType::other:
             // Type other is always non-remanent, as other document reference can change
             // However, we need to distinguish between stable and unstable double pointers
             // Meaning the ones we can get from an ordered list, and the ones we need to resolve each time
@@ -189,7 +192,7 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
                 virtualDoubles.nonRemanent.otherUnStable.push_back(vd);
             }
             break;
-        case Component::From::global:
+        case Component::ContextType::global:
             if (isAvailableAsDoublePtr(key)) {
                 vd->setUpExternalCache(Global::instance().domainScope);
                 virtualDoubles.remanent.global.push_back(vd);
@@ -197,16 +200,19 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
                 virtualDoubles.nonRemanent.global.push_back(vd);
             }
             break;
-        case Component::From::resource:
+        case Component::ContextType::resource:
             // Type resource is always non-remanent, as document cache can change (?)
             // TODO: double check if remanent resource variables are possible
             virtualDoubles.nonRemanent.resource.push_back(vd);
             break;
-        case Component::From::None:
+        case Component::ContextType::None:
+            // Use an empty document
+            virtualDoubles.nonRemanent.none.push_back(vd);
+            break;
         default:
             // Should not happen
             Error::println(__FUNCTION__, ": Tried to register variable with no known context!");
-            break;
+            std::unreachable();
         }
 
         // Store variable name for tinyexpr
@@ -345,7 +351,7 @@ void Expression::parseTokenTypeEval(std::string const& token) {
         if (subToken.starts_with('{')) {
             std::string const te_name = varNameGen.getUniqueName(subToken);
             std::string key = subToken.substr(1, subToken.length() - 2);
-            Component::From context = getContext(key);
+            Component::ContextType context = getContext(key);
             key = stripContext(key);
             registerVariable(te_name, key, context);
             currentComponent->str += te_name;
@@ -356,7 +362,7 @@ void Expression::parseTokenTypeEval(std::string const& token) {
 
     // Write component data
     currentComponent->type = Component::Type::eval;
-    currentComponent->from = Component::From::None; // None, since this is an eval expression
+    currentComponent->contextType = Component::ContextType::None; // None, since this is an eval expression
     currentComponent->key = ""; // No key for eval expressions
 
     // Add to components
@@ -379,7 +385,7 @@ void Expression::parseTokenTypeText(std::string const& token) {
             // 2.) determine context
             currentComponent->type = Component::Type::variable;
             currentComponent->str = inner;
-            currentComponent->from = getContext(inner);
+            currentComponent->contextType = getContext(inner);
             currentComponent->key = stripContext(inner);
         }
         // Token is type text
@@ -387,7 +393,7 @@ void Expression::parseTokenTypeText(std::string const& token) {
             // Determine context
             currentComponent->type = Component::Type::text;
             currentComponent->str = subToken;
-            currentComponent->from = Component::From::None;
+            currentComponent->contextType = Component::ContextType::None;
             currentComponent->key = ""; // No key for text expressions
         }
         // Add to components
@@ -455,7 +461,7 @@ void Expression::parse(std::string const& expr) {
 
 bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr<Component> const& component, Core::JsonScope& current_other, uint16_t const& maximumRecursionDepth) const {
     std::string strippedKey = component->key;
-    Component::From context = component->from;
+    Component::ContextType context = component->contextType;
 
     // See if the variable contains an inner expression
     if (component->str.find('$') != std::string::npos || component->str.find('{') != std::string::npos) {
@@ -475,23 +481,28 @@ bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr
     // Now, use the key to get the value from the correct document
     auto const key = Data::ScopedKey(strippedKey);
     switch (context) {
-    case Component::From::self:
+    case Component::ContextType::self:
         token = references.self.get<std::string>(key.view(), "null");
         break;
-    case Component::From::other:
+    case Component::ContextType::other:
         token = current_other.get<std::string>(key.view(), "null");
         break;
-    case Component::From::global:
+    case Component::ContextType::global:
         token = Global::instance().domainScope.get<std::string>(key.view(), "null");
         break;
-    case Component::From::resource:
+    case Component::ContextType::resource:
         token = Global::instance().getDocCache().get<std::string>(strippedKey, "null");
         break;
-    case Component::From::None:
+    case Component::ContextType::None:
+        {
+            // This requires an empty document that acts as a parsing mechanism for the transformations
+            thread_local Core::JsonScope emptyDoc;
+            token = emptyDoc.get<std::string>(key.view(), "null");
+        }
+        break;
     default:
         Error::println("Error: Unknown context in expression: ", strippedKey);
-        token = "null";
-        break;
+        std::unreachable();
     }
     return true;
 }
