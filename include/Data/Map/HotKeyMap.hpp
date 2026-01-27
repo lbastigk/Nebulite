@@ -23,6 +23,78 @@ class HotKeyMap {
 public:
     HotKeyMap() = default;
 
+    // Copy ctor: snapshot other under its read-lock, rebuild pointer into the new map
+    HotKeyMap(HotKeyMap const& other) {
+        Utility::ReadLock rlock(other.mtxMap);
+        map = other.map;
+        hotKeyEntry.active = other.hotKeyEntry.active;
+        hotKeyEntry.key = other.hotKeyEntry.key;
+        if (hotKeyEntry.active) {
+            auto it = map.find(hotKeyEntry.key);
+            hotKeyEntry.value = it != map.end() ? &it->second : nullptr;
+        } else {
+            hotKeyEntry.value = nullptr;
+        }
+    }
+
+    // Copy assign: copy-and-swap
+    HotKeyMap& operator=(HotKeyMap const& other) {
+        if (this == &other) return *this;
+        HotKeyMap tmp(other);
+        swap(tmp);
+        return *this;
+    }
+
+    // Move ctor: take other's map under its write-lock and fix pointers
+    HotKeyMap(HotKeyMap&& other) noexcept(std::is_nothrow_move_constructible_v<absl::node_hash_map<K, V>>) {
+        Utility::WriteLock wlock(other.mtxMap);
+        map = std::move(other.map);
+        hotKeyEntry.active = other.hotKeyEntry.active;
+        hotKeyEntry.key = std::move(other.hotKeyEntry.key);
+        if (hotKeyEntry.active) {
+            auto it = map.find(hotKeyEntry.key);
+            hotKeyEntry.value = it != map.end() ? &it->second : nullptr;
+        } else {
+            hotKeyEntry.value = nullptr;
+        }
+        // leave other in a valid empty state
+        other.hotKeyEntry.active = false;
+        other.hotKeyEntry.value = nullptr;
+    }
+
+    // Move assign: move-and-swap
+    HotKeyMap& operator=(HotKeyMap&& other) noexcept(std::is_nothrow_move_assignable_v<absl::node_hash_map<K, V>>) {
+        if (this == &other) return *this;
+        HotKeyMap tmp(std::move(other));
+        swap(tmp);
+        return *this;
+    }
+
+    // swap helper: locks both mutexes (std::scoped_lock uses deadlock-free std::lock)
+    void swap(HotKeyMap& other) noexcept {
+        if (this == &other) return;
+        // NOLINTNEXTLINE
+        std::scoped_lock lock(mtxMap, other.mtxMap);
+        using std::swap;
+        swap(map, other.map);
+        swap(hotKeyEntry.active, other.hotKeyEntry.active);
+        swap(hotKeyEntry.key, other.hotKeyEntry.key);
+
+        if (hotKeyEntry.active) {
+            auto it = map.find(hotKeyEntry.key);
+            hotKeyEntry.value = it != map.end() ? &it->second : nullptr;
+        } else {
+            hotKeyEntry.value = nullptr;
+        }
+
+        if (other.hotKeyEntry.active) {
+            auto it2 = other.map.find(other.hotKeyEntry.key);
+            other.hotKeyEntry.value = it2 != other.map.end() ? &it2->second : nullptr;
+        } else {
+            other.hotKeyEntry.value = nullptr;
+        }
+    }
+
     // Operator overload for []
     V& operator[](K const& key) {
         // Fast path and lookup under shared lock
@@ -96,6 +168,22 @@ public:
      */
     auto end() const {
         return const_cast<HotKeyMap*>(this)->end();
+    }
+
+    void clear() {
+        Utility::WriteLock ulock(mtxMap);
+        map.clear();
+        hotKeyEntry.active = false;
+        hotKeyEntry.value = nullptr;
+    }
+
+    void erase(K const& key) {
+        Utility::WriteLock ulock(mtxMap);
+        map.erase(key);
+        if (hotKeyEntry.active && hotKeyEntry.key == key) {
+            hotKeyEntry.active = false;
+            hotKeyEntry.value = nullptr;
+        }
     }
 
 private:

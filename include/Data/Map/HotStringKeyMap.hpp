@@ -11,8 +11,13 @@
 // Includes
 
 // Standard library
+#include <array>
 #include <cstddef>
-#include <memory>
+#include <limits>
+#include <new>
+#include <string>
+#include <utility>
+#include <functional>
 
 // Nebulite
 #include "HotKeyMap.hpp"
@@ -39,20 +44,27 @@ private:
 public:
     HotStringKeyMap() = default;
 
+    // Move ctor: move-construct each bucket from other (use placement-new so we don't require assignment)
     HotStringKeyMap(HotStringKeyMap&& other) noexcept {
         for (std::size_t i = 0; i < BucketCount; ++i) {
-            map[i] = std::move(other.map[i]);
+            map[i].~MapType();
+            new (&map[i]) MapType(std::move(other.map[i]));
         }
     }
 
+    // Move assign: destroy current buckets and move-construct from other into them
     HotStringKeyMap& operator=(HotStringKeyMap&& other) noexcept {
         if (this != &other) {
             for (std::size_t i = 0; i < BucketCount; ++i) {
-                map[i] = std::move(other.map[i]);
+                map[i].~MapType();
+                new (&map[i]) MapType(std::move(other.map[i]));
             }
         }
         return *this;
     }
+
+    HotStringKeyMap(HotStringKeyMap const&) = delete;
+    HotStringKeyMap& operator=(HotStringKeyMap const&) = delete;
 
     /**
      * @brief Get underlying maps.
@@ -69,6 +81,23 @@ public:
     struct iterator {
         decltype(map[0].begin()) mapIterator;
         bool isValid;
+
+        // Return the wrapped iterator's pointer-like value so `it->second` works
+        decltype(mapIterator.operator->()) operator->() const noexcept {
+            return mapIterator.operator->();
+        }
+
+        // Dereference to the underlying value_type so `*it` works
+        decltype(auto) operator*() const noexcept {
+            return *mapIterator;
+        }
+
+        bool operator!=(iterator const& other) const {
+            return isValid != other.isValid || mapIterator != other.mapIterator;
+        }
+        bool operator==(iterator const& other) const {
+            return !(*this != other);
+        }
     };
 
     /**
@@ -84,6 +113,14 @@ public:
         auto const lastChar = static_cast<unsigned char>(key.back());
         auto const it = map[lastChar].find(key);
         return iterator{it, it != map[lastChar].end()};
+    }
+
+    iterator find(std::string_view const& key) {
+        return find(std::string{key});
+    }
+
+    iterator end() {
+        return iterator{ {}, false };
     }
 
     /**
@@ -105,6 +142,30 @@ public:
     void clear() {
         for (auto& bucket : map) {
             bucket.clear();
+        }
+    }
+
+    void erase(std::string const& key) {
+        if (key.empty()) {
+            map[0].erase(key);
+            return;
+        }
+        auto const lastChar = static_cast<unsigned char>(key.back());
+        map[lastChar].erase(key);
+    }
+
+    void forall(std::function<void(V&)> func) {
+        for (auto& bucket : map) {
+            for (auto& [_, value] : bucket) {
+                func(value);
+            }
+        }
+    }
+    void forall(std::function<void(std::string const&, V&)> func) {
+        for (auto& bucket : map) {
+            for (auto& [key, value] : bucket) {
+                func(key, value);
+            }
         }
     }
 };
