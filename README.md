@@ -207,6 +207,8 @@ They do not modify the stored value, only the returned one.
 - `{self.val|typeAsString}` - returns the type of the value as string (value, array, object, null)
 - `{self.arr|print|at 1}` - Useful for debugging: prints the array to console (no modification of its value)
   and returns the element at index 1
+- `{self.str|transform1|transform2|...}` - chain multiple transformations
+- `{|transform1|transform2|...}` - start with empty value and apply transformations
 
 **Examples**
 
