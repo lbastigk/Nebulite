@@ -521,8 +521,6 @@ private:
 
     void renderFPS() const;
 
-    static void renderGlobalSpace();
-
     static void renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
 
     //------------------------------------------

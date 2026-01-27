@@ -401,38 +401,6 @@ void Renderer::renderFPS() const {
     ImGui::PopStyleVar(2); // pop ItemSpacing and WindowPadding
 }
 
-void Renderer::renderGlobalSpace() {
-    ImGui::Begin("Global Space");
-
-    std::function<void(JsonScope const&, Data::ScopedKey const&)> traverseObject;
-    traverseObject = [&traverseObject](JsonScope const& scope, Data::ScopedKey const& root) {
-        for (auto const& key : scope.listAvailableKeys(root)) {
-            std::string const rootPath = root.view().toString();
-            std::string const fullPath = key.view().toString();            // stable ID
-            std::string keyPath = fullPath;                                // visible label
-            if (rootPath != fullPath) keyPath = fullPath.substr(rootPath.length());
-            if (!keyPath.empty() && keyPath.front() == '.') keyPath.erase(0, 1);
-            if (auto const type = scope.memberType(key); type == Data::KeyType::object || type == Data::KeyType::array) {
-                // use fullPath as the ID (first arg) and keyPath as the visible text (format)
-                if (ImGui::TreeNode(fullPath.c_str(), "%s", keyPath.c_str())) {
-                    traverseObject(scope, key);
-                    ImGui::TreePop();
-                }
-            } else if (type == Data::KeyType::value) {
-                // fetch value every frame and display
-                std::string const valueStr = scope.get<std::string>(key, "<unavailable>");
-                ImGui::Text("%s : %s", keyPath.c_str(), valueStr.c_str());
-            } else {
-                ImGui::TextDisabled("%s : null", keyPath.c_str());
-            }
-        }
-    };
-
-    static JsonScope const& full = Global::__DANGER_AHEAD_shareFullScope();
-    traverseObject(full, full.getRootScope().toScopedKey());
-    ImGui::End();
-}
-
 void Renderer::pollEvents() {
     SDL_Event event{};
     events.clear();
@@ -458,7 +426,7 @@ Constants::Error Renderer::update() {
     //ImGui::ShowDemoWindow();
 
     // DEBUG: Render global space
-    if (showDebugWindowFlag) renderGlobalSpace();
+    if (showDebugWindowFlag) Global::renderImguiGlobalSettingsWindow();
 
     // Fps
     if (showFPS) renderFPS();

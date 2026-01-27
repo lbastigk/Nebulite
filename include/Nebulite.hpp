@@ -297,19 +297,9 @@ public:
     }
 
     //------------------------------------------
-    // In some contexts, full access is needed
-    // This breaks the encapsulation, so use with care!
+    // Imgui rendering
 
-    /**
-     * @brief DANGER: Provides full access to the global JSON document scope.
-     *        Only use this if absolutely necessary!
-     * @return Reference to the full global JSON document. Marked as const to prevent accidental modifications.
-     * @todo Implement a Helper class in renderer that does the rendering of globalspace using imgui,
-     *       then modify this function to require this class as argument, to limit its usage even further.
-     */
-    [[nodiscard]] static Core::JsonScope const& __DANGER_AHEAD_shareFullScope() {
-        return globalDoc().shareManagedScope("");
-    }
+    static void renderImguiGlobalSettingsWindow();
 
 private:
     // construct-on-first-use singletons to avoid global constructors/destructors
