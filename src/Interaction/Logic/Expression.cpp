@@ -481,19 +481,19 @@ bool Expression::handleComponentTypeVariable(std::string& token, std::shared_ptr
     // Now, use the key to get the value from the correct document
     auto const key = Data::ScopedKey(strippedKey);
     switch (context) {
-    case Component::ContextType::self:
+    case Component::ContextType::self: // {self.<key><transformations>}
         token = references.self.get<std::string>(key.view(), "null");
         break;
-    case Component::ContextType::other:
+    case Component::ContextType::other: // {other.<key><transformations>}
         token = current_other.get<std::string>(key.view(), "null");
         break;
-    case Component::ContextType::global:
+    case Component::ContextType::global: // {global.<key><transformations>}
         token = Global::instance().domainScope.get<std::string>(key.view(), "null");
         break;
-    case Component::ContextType::resource:
+    case Component::ContextType::resource: // {<link><resource_key_or_transformations>}
         token = Global::instance().getDocCache().get<std::string>(strippedKey, "null");
         break;
-    case Component::ContextType::None:
+    case Component::ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
         {
             // This requires an empty document that acts as a parsing mechanism for the transformations
             thread_local Core::JsonScope emptyDoc;
@@ -648,6 +648,16 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
             std::string const evalResult = tempExpr.eval(reference);
             vde->setDirect(Global::instance().getDocCache().get<double>(evalResult, 0.0));
         }
+    }
+
+    // Update none-context references
+    for (auto const& vde : virtualDoubles.nonRemanent.none) {
+        // One-time handle of multi-resolve and transformations
+        Expression tempExpr(vde->getKey(), references.self);
+        std::string const evalResult = tempExpr.eval(reference);
+        // This requires an empty document that acts as a parsing mechanism for the transformations
+        thread_local Core::JsonScope emptyDoc;
+        vde->setDirect(emptyDoc.get<double>(Data::ScopedKey(evalResult).view(), 0.0));
     }
 }
 
