@@ -57,9 +57,9 @@ public:
     /**
      * @brief Constructs and parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
      * @param expr The expression string to parse.
-     * @param self The JSON object representing the "self" context.
+     * @param selfScope The JSON object representing the "self" context.
      */
-    explicit Expression(std::string const& expr, Data::JsonScopeBase& self);
+    explicit Expression(std::string const& expr, Data::JsonScopeBase& selfScope);
 
     ~Expression();
 
@@ -69,7 +69,6 @@ public:
 
     // enable moving
     Expression(Expression&&) noexcept = default;
-    //Expression& operator=(Expression&&) noexcept = default;
 
     /**
      * @brief Standard maximum recursion depth for nested expression evaluations.
@@ -78,11 +77,11 @@ public:
 
     /**
      * @brief Checks if the expression can be returned as a double.
-     *        e.g.:
-     *        "1 + 1"   is not returnable as double, as its just text
-     *        "$(1+1)"  is returnable as double, as it evaluates to 2
-     *        "$i(1+1)" is not returnable as double, due to the casting
-     *        An expression needs to consist of a single eval component with no cast to be returnable as double.
+     * @details e.g.:
+     *          "1 + 1"   is not returnable as double, as its just text
+     *          "$(1+1)"  is returnable as double, as it evaluates to 2
+     *          "$i(1+1)" is not returnable as double, due to the casting
+     *          An expression needs to consist of a single eval component with no cast to be returnable as double.
      * @return True if the expression can be returned as a double, false otherwise.
      */
     [[nodiscard]] bool isReturnableAsDouble() const noexcept {
@@ -121,8 +120,8 @@ public:
 
     /**
      * @brief Forcefully sets the unique ID for the expression.
-     *        Be careful when using this, as it might lead to issues with virtualDouble tracking!
-     *        This is only used when the id was calculated externally, e.g. in ExpressionPool.
+     * @details Be careful when using this, as it might lead to issues with virtualDouble tracking!
+     *          This is only used when the id was calculated externally, e.g. in ExpressionPool.
      * @param id The unique ID to set.
      */
     void setUniqueId(uint64_t const id) {
@@ -211,11 +210,11 @@ private:
      */
     void parse(std::string const& expr);
 
-    // The reference for context self stays the same throughout the expression's lifetime
-    // This allows us to cache variables from self directly, not reloading needed.
-    struct References {
-        Data::JsonScopeBase& self;
-    } references;
+    /**
+     * @brief The reference for context self stays the same throughout the expression's lifetime.
+     * @details This allows us to cache variables from self directly, not reloading needed
+     */
+    Data::JsonScopeBase& self;
 
     /**
      * @brief Generates short variable names for tinyexpr variables.
@@ -225,8 +224,8 @@ private:
     /**
      * @struct Nebulite::Interaction::Logic::Expression::Component
      * @brief Represents a single component in an expression, such as a variable, evaluation, or text.
-     *        Holds information about a specific part of the expression,
-     *        including its type, source, and any associated metadata.
+     * @details Holds information about a specific part of the expression,
+     *          including its type, source, and any associated metadata.
      */
     class Component {
     public:
@@ -267,22 +266,9 @@ private:
          * @brief Represents formatting options for the component.
          */
         struct Formatter {
-            /**
-             * @brief Whether to pad with leading zeros.
-             */
-            bool leadingZero = false;
-
-            /**
-             * @brief The alignment width of the component.
-             *        -1 means no formatting.
-             */
-            int alignment = -1;
-
-            /**
-             * @brief The precision of the component.
-             *        -1 means no formatting.
-             */
-            int precision = -1;
+            bool leadingZero = false; // If true, pad with leading zeros
+            int alignment = -1; // The alignment width of the component. -1 means no formatting.
+            int precision = -1; // The precision of the component. -1 means no formatting.
         } formatter;
 
         /**
@@ -322,7 +308,6 @@ private:
 
         // enable moving
         Component(Component&& other) noexcept ;
-
         Component& operator=(Component&& other) noexcept ;
 
         //------------------------------------------
@@ -336,7 +321,7 @@ private:
          * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(std::string& token, Data::JsonScopeBase& self, Core::JsonScope& other, uint16_t const& maximumRecursionDepth) const ;
+        bool handleComponentTypeVariable(std::string& token, Data::JsonScopeBase& selfScope, Core::JsonScope& otherScope, uint16_t const& maximumRecursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of an eval component.
@@ -424,7 +409,6 @@ private:
 
     /**
      * @brief Compiles a component, if its of type Expression
-     *
      * @param component The component to potentially compile
      */
     void compileIfExpression(std::shared_ptr<Component> const& component) const;
@@ -440,12 +424,12 @@ private:
 
     /**
      * @brief used to strip any context prefix from a key
-     *        Removes the beginning, if applicable:
-     *        - `self.`
-     *        - `other.`
-     *        - `global.`
-     *        Does not remove the beginning context for resource variables,
-     *        as the beginning is needed for the link.
+     * @details Removes the beginning, if applicable:
+     *          - `self.`
+     *          - `other.`
+     *          - `global.`
+     *          Does not remove the beginning context for resource variables,
+     *          as the beginning is needed for the link.
      * @param key The key to strip the context from.
      * @return The key without its context prefix.
      */
@@ -453,7 +437,7 @@ private:
 
     /**
      * @brief Gets the context from a key before it's stripped
-     *        If the key doesn't start with `self.`, `other.`, or `global.`, it is considered a resource variable.
+     * @details If the key doesn't start with `self.`, `other.`, or `global.`, it is considered a resource variable.
      * @param key The key to get the context from.
      * @return The context of the key.
      */
@@ -474,25 +458,26 @@ private:
 
     /**
      * @brief Used to parse a string token of type "eval" into a component.
-     *        - Parses the token on the assumption that it is of type "eval".
-     *        - Populates the current component with the parsed information.
-     *        - Pushes the current component onto the components vector.
+     * @details Tasks:
+     *          - Parses the token on the assumption that it is of type "eval".
+     *          - Populates the current component with the parsed information.
+     *          - Pushes the current component onto the components vector.
      * @param token The token to parse.
      */
     void parseTokenTypeEval(std::string const& token);
 
     /**
      * @brief Used to parse a string token of type "text" into a component.
-     *        - Parses the token on the assumption that it is of type "text".
-     *        - Populates the current component with the parsed information.
-     *        - Pushes the current component onto the components vector.
+     * @details Tasks:
+     *          - Parses the token on the assumption that it is of type "text".
+     *          - Populates the current component with the parsed information.
+     *          - Pushes the current component onto the components vector.
      * @param token The token to parse.
      */
     void parseTokenTypeText(std::string const& token);
 
     /**
-     * @brief Prints a compilation error message to cerr
-     *        Includes tips for fixing the error.
+     * @brief Prints a compilation error message to cerr, includes tips for fixing the error.
      */
     void printCompileError(std::shared_ptr<Component> const& component, int const& error) const;
 

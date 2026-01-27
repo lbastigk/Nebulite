@@ -131,10 +131,10 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
         switch (context) {
         case Component::ContextType::self:
             if (isAvailableAsDoublePtr(key)) {
-                vd->setUpExternalCache(references.self);
+                vd->setUpExternalCache(self);
                 virtualDoubles.remanent.self.push_back(vd);
             } else {
-                vd->setUpExternalCache(references.self);
+                vd->setUpExternalCache(self);
                 virtualDoubles.nonRemanent.self.push_back(vd);
             }
             break;
@@ -393,8 +393,8 @@ void Expression::printCompileError(std::shared_ptr<Component> const& component, 
 //------------------------------------------
 // Public:
 
-Expression::Expression(std::string const& expr, Data::JsonScopeBase& self)
-    : references{self}
+Expression::Expression(std::string const& expr, Data::JsonScopeBase& selfScope)
+    : self(selfScope)
 {
     _isReturnableAsDouble = false;
     _isAlwaysTrue = false;
@@ -432,7 +432,7 @@ std::string Expression::eval(Core::JsonScope& current_other, uint16_t const& max
         switch (component->type) {
             //------------------------------------------
         case Component::Type::variable:
-            if (!component->handleComponentTypeVariable(token, references.self, current_other, max_recursion_depth)) {
+            if (!component->handleComponentTypeVariable(token, self, current_other, max_recursion_depth)) {
                 token = "null";
             }
             break;
@@ -462,7 +462,7 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
     // Update self references that are non-remanent
     for (auto const& vde : virtualDoubles.nonRemanent.self) {
         // One-time handle of multi-resolve and transformations
-        Expression const tempExpr(vde->getKey(), references.self);
+        Expression const tempExpr(vde->getKey(), self);
         auto const evalResult = Data::ScopedKey(tempExpr.eval(reference));
         vde->setDirect(reference.get<double>(evalResult, 0.0));
     }
@@ -482,7 +482,7 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
     // Updating context other: Values without stable double pointers
     for (auto const& vde : virtualDoubles.nonRemanent.otherUnStable) {
         // One-time handle of multi-resolve and transformations
-        Expression tempExpr(vde->getKey(), references.self);
+        Expression tempExpr(vde->getKey(), self);
         auto const evalResult = Data::ScopedKey(tempExpr.eval(reference));
         vde->setDirect(reference.get<double>(evalResult, 0.0));
     }
@@ -490,7 +490,7 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
     // Update global references that are non-remanent
     for (auto const& vde : virtualDoubles.nonRemanent.global) {
         // One-time handle of multi-resolve and transformations
-        Expression tempExpr(vde->getKey(), references.self);
+        Expression tempExpr(vde->getKey(), self);
         auto const evalResult = Data::ScopedKey(tempExpr.eval(reference));
         auto const val = Global::instance().domainScope.get<double>(evalResult, 0.0);
         vde->setDirect(val);
@@ -502,7 +502,7 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
             vde->setUpInternalCache();
         } else {
             // One-time handle of multi-resolve and transformations
-            Expression tempExpr(vde->getKey(), references.self);
+            Expression tempExpr(vde->getKey(), self);
             std::string const evalResult = tempExpr.eval(reference);
             vde->setDirect(Global::instance().getDocCache().get<double>(evalResult, 0.0));
         }
@@ -511,7 +511,7 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
     // Update none-context references
     for (auto const& vde : virtualDoubles.nonRemanent.none) {
         // One-time handle of multi-resolve and transformations
-        Expression tempExpr(vde->getKey(), references.self);
+        Expression tempExpr(vde->getKey(), self);
         std::string const evalResult = tempExpr.eval(reference);
         // This requires an empty document that acts as a parsing mechanism for the transformations
         thread_local Core::JsonScope emptyDoc;
