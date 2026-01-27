@@ -27,14 +27,16 @@ Constants::Error Console::update() {
     //------------------------------------------
     // Insert new lines from capture streams
     static size_t last_size = 0;
-    size_t const current_size = Utility::Capture::instance().getOutputLogPtr().size();
+    size_t const current_size = Utility::Capture::instance().getOutputLog().size();
     if (current_size < last_size) {
         // Log was cleared, reset
         last_size = 0;
+        flag_recalculateTextAlignment = true;
+        textInput.getOutput().clear();
     }
     for (size_t i = last_size; i < current_size; i++) {
         // Split input line by newlines
-        auto const& [lineContent, lineType] = Utility::Capture::instance().getOutputLogPtr().at(i);
+        auto const& [lineContent, lineType] = Utility::Capture::instance().getOutputLog().at(i);
         auto const& lines = Utility::StringHandler::split(lineContent, '\n');
 
         // Insert into text input
@@ -225,7 +227,7 @@ void Console::drawInput(uint16_t const& lineHeight) {
 void Console::drawOutput(uint16_t const& maxLineLength) {
     int32_t lineIndex = 0;
     std::string lineContentRest; // Rest of line after linebreak
-    auto const outputSize = static_cast<int32_t>(textInput.getOutput()->size());
+    auto const outputSize = static_cast<int32_t>(textInput.getOutput().size());
 
     // Since we start from the bottom, we need to invert the scrolling offset
     // is increased in-loop due to linebreaks
@@ -235,7 +237,12 @@ void Console::drawOutput(uint16_t const& maxLineLength) {
     // We need to offset to align at the top
     int32_t y_start = line_y_positions[0];
     if (auto const availableLines = static_cast<int32_t>(line_y_positions.size()); outputSize < availableLines) {
-        y_start = line_y_positions[static_cast<size_t>(availableLines - outputSize)];
+        if (outputSize == 0) {
+            y_start = line_y_positions[0];
+        }
+        else {
+            y_start = line_y_positions[static_cast<size_t>(availableLines - outputSize)];
+        }
     }
 
     // Render lines from bottom to top
@@ -259,7 +266,7 @@ void Console::drawOutput(uint16_t const& maxLineLength) {
         }
 
         // Get line info
-        auto lineInfo = textInput.getOutput()->at(static_cast<size_t>(currentIndex));
+        auto lineInfo = textInput.getOutput().at(static_cast<size_t>(currentIndex));
         SDL_Color textColor = color.input;
         std::string content;
 

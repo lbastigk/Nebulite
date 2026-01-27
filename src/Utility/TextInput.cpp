@@ -144,8 +144,8 @@ void TextInput::append(char const* c) const {
 /**
  * @brief Gets the queue of output lines.
  */
-std::deque<TextInput::LineEntry>* TextInput::getOutput(){
-    return &consoleOutput;
+std::deque<TextInput::LineEntry>& TextInput::getOutput(){
+    return consoleOutput;
 }
 
 uint16_t TextInput::getCursorOffset() const {

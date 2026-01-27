@@ -114,7 +114,7 @@ public:
     /**
      * @brief Gets the queue of output lines.
      */
-    std::deque<LineEntry>* getOutput();
+    std::deque<LineEntry>& getOutput();
 
     /**
      * @brief Gets the cursor offset in the input buffer.
