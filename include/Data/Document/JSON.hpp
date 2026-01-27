@@ -68,6 +68,23 @@ public:
 
 private:
     /**
+     * @brief The amount of pre-cached double values per Document.
+     */
+    static auto constexpr CACHELINE_SIZE = 1024;
+
+    /**
+     * @brief Pre-allocated cacheline for fast double value access.
+     * @details Instead of always allocating new double values, we use a pre-allocated cacheline.
+     *          This reduces memory fragmentation and improves cache locality.
+     */
+    mutable std::array<double, CACHELINE_SIZE> CACHELINE = {0.0};
+
+    /**
+     * @brief Current index in the cacheline for the next double value.
+     */
+    mutable size_t cacheline_index = 0;
+
+    /**
      * @struct CacheEntry
      * @brief Represents a cached entry in the JSON document, including its value, state, and stable pointer for double values.
      */
@@ -91,10 +108,6 @@ private:
             MALFORMED // A key that is known to be malformed due to transformations. Used in getStableDoublePointer for integrity.
         };
 
-        CacheEntry() = default;
-
-        ~CacheEntry() {delete stable_double_ptr;}
-
         //------------------------------------------
         // No copying or moving
 
@@ -108,8 +121,28 @@ private:
 
         RjDirectAccess::simpleValue value = 0.0; // Default virtual entries to 0
         double last_double_value = 0.0; // For change detection
-        double* stable_double_ptr = new double(0.0); // Stable pointer to double value
+        double* stable_double_ptr = nullptr; // Stable pointer to double value
         EntryState state = EntryState::DIRTY; // Default to dirty: each new entry needs flushing
+        bool managedInternalDouble = false; // Whether the stable double pointer is managed internally or externally (from cacheline)
+
+        CacheEntry(std::array<double, CACHELINE_SIZE>& cacheLine, size_t& index) {
+            if (index > CACHELINE_SIZE) {
+                stable_double_ptr = new double(0.0);
+                managedInternalDouble = true;
+            }
+            else {
+                // Assign stable double pointer from cacheline
+                stable_double_ptr = &cacheLine[index++];
+                *stable_double_ptr = 0.0;
+                managedInternalDouble = false;
+            }
+        }
+
+        ~CacheEntry() {
+            if (managedInternalDouble) {
+                delete stable_double_ptr;
+            }
+        }
     };
 
     /**

@@ -724,8 +724,15 @@ void Renderer::renderFrame() {
     auto const dispPosY = domainScope.get<int16_t>(Constants::KeyNames::Renderer::positionY, 0);
 
     // Depending on position, set tiles to render
-    tilePositionX = static_cast<int16_t>(dispPosX / domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResX, 0));
-    tilePositionY = static_cast<int16_t>(dispPosY / domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResY, 0));
+    auto const dispResX = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResX, 0);
+    auto const dispResY = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResY, 0);
+    if (dispResX == 0 || dispResY == 0) {
+        // Avoid division by zero
+        Error::println("Display resolution is zero, cannot render frame.");
+        std::abort();
+    }
+    tilePositionX = static_cast<int16_t>(dispPosX / dispResX);
+    tilePositionY = static_cast<int16_t>(dispPosY / dispResY);
 
     //------------------------------------------
     // FPS Count and Control

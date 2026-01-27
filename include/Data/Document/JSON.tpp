@@ -53,7 +53,7 @@ std::optional<T> JSON::getWithTransformations(std::string const& key) const {
 template<typename T>
 T JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue) const {
     // Create a new cache entry
-    auto new_entry = std::make_unique<CacheEntry>();
+    auto new_entry = std::make_unique<CacheEntry>(CACHELINE, cacheline_index);
 
     // Get supported types
     auto const& v = RjDirectAccess::getSimpleValue(val);

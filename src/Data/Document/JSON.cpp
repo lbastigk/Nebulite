@@ -167,7 +167,7 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key.c_str(), doc); val != nullptr) {
         if (it == cache.end()) {
             // Create new cache entry and insert into cache
-            auto new_entry = std::make_unique<CacheEntry>();
+            auto new_entry = std::make_unique<CacheEntry>(CACHELINE, cacheline_index);
             cache[key] = std::move(new_entry);
             it = cache.find(key);
         }
@@ -241,7 +241,7 @@ double* JSON::getStableDoublePointer(std::string const& key) const {
     if (key.find('|') != std::string::npos) {
         Utility::Capture::cerr() << "Transformations are not supported in getStableDoublePointer(): " << key << Utility::Capture::endl;
         Utility::Capture::cerr() << "For integrity, we will create a cache entry with the malformed key" << Utility::Capture::endl;
-        auto new_entry = std::make_unique<CacheEntry>();
+        auto new_entry = std::make_unique<CacheEntry>(CACHELINE, cacheline_index);
         new_entry->value = 0.0;
         *new_entry->stable_double_ptr = 0.0;
         new_entry->last_double_value = 0.0;
@@ -274,7 +274,7 @@ double* JSON::getStableDoublePointer(std::string const& key) const {
     }
 
     // If loading from document failed, create a new derived entry
-    auto new_entry = std::make_unique<CacheEntry>();
+    auto new_entry = std::make_unique<CacheEntry>(CACHELINE, cacheline_index);
     new_entry->value = 0.0;
     *new_entry->stable_double_ptr = 0.0;
     new_entry->last_double_value = 0.0;
@@ -326,7 +326,7 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
         invalidate_child_keys(key);
 
         // Create new entry directly in DIRTY state
-        auto new_entry = std::make_unique<CacheEntry>();
+        auto new_entry = std::make_unique<CacheEntry>(CACHELINE, cacheline_index);
 
         // Set entry values
         new_entry->value = val;
