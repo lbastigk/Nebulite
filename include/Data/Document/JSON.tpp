@@ -2,6 +2,7 @@
 #define NEBULITE_DATA_DOCUMENT_JSON_TPP
 
 #include "Data/Document/JSON.hpp"
+#include "Data/Document/TransformationModule.hpp"
 
 namespace Nebulite::Data {
 
@@ -47,7 +48,7 @@ std::optional<T> JSON::getWithTransformations(std::string const& key) const {
         return {};    // if any transformation fails, return default value
     }
     // This should not fail, so we use T() as default value
-    return tempDoc.get<T>(JsonRvalueTransformer::valueKeyStr, T());
+    return tempDoc.get<T>(TransformationModule::valueKeyStr, T());
 }
 
 template<typename T>
