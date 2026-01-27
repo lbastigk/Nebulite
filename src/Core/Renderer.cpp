@@ -421,34 +421,19 @@ Constants::Error Renderer::update() {
     skippedUpdateLastFrame = skipUpdate;
     skipUpdate = false;
     updateModules(); // Update domain modules, potentially adding ImGui elements
-
-    // DEBUG: IMGUI test window
-    //ImGui::ShowDemoWindow();
-
-    // DEBUG: Render global space
     if (showDebugWindowFlag) Global::renderImguiGlobalSpaceWindow();
-
-    // Fps
     if (showFPS) renderFPS();
-
-    // Render all ImGui elements
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
     SDL_RenderPresent(renderer);
-
-    // Process all events
     for (auto const& event : events) {
         ImGui_ImplSDL3_ProcessEvent(&event);
     }
-
-    //------------------------------------------
-    // Check for SDL errors
     if (SDL_GetError()[0] != '\0') {
         Error::println("SDL Error during rendering: ", SDL_GetError());
         SDL_ClearError(); // Clear error after reporting
+        return Constants::ErrorTable::SDL::GENERIC_SDL_ERROR();
     }
-
-    // Always return no critical error
     return Constants::ErrorTable::NONE();
 }
 

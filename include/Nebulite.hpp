@@ -302,7 +302,7 @@ public:
 
     /**
      * @brief Renders the Imgui window showing the global space.
-     * @details Make sure Imgui is initialized before calling this function.
+     * @details Make sure imgui is initialized and a frame is started before calling this function.
      */
     static void renderImguiGlobalSpaceWindow();
 

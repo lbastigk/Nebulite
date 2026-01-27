@@ -226,6 +226,11 @@ public:
             static Error error = addError("Critical Error: SDL Renderer target could not be set.", Error::CRITICAL);
             return error;
         }
+
+        static Error GENERIC_SDL_ERROR() {
+            static Error error = addError("SDL Error occurred.", Error::NON_CRITICAL);
+            return error;
+        }
     };
 
     /**
