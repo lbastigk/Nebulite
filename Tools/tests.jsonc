@@ -23,6 +23,7 @@
         "Tools/Tests/JSON/Array.json",
         "Tools/Tests/JSON/Retrieval.json",
         "Tools/Tests/JSON/RvalueTransformer.json",
+        "Tools/Tests/Domain/deserialization.json",
         "Tools/Tests/scenes.json",
         "Tools/Tests/mirror_draft_selection.json",
         "Tools/Tests/StaticRulesets/DebugUtils.json"

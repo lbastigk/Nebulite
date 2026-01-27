@@ -23,7 +23,7 @@ echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
 # Classic deserialization:
-#spawn ./Resources/Renderobjects/standard.jsonc|set posX 100|set posY 100
+spawn ./Resources/Renderobjects/standard.jsonc|set posX 100|set posY 100
 
 # New style deserialization:
 spawn {./Resources/Renderobjects/standard.jsonc}|set posX 300|set posY 100

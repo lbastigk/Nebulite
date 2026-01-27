@@ -1,0 +1,12 @@
+[
+    {
+        "command": "task TaskFiles/Tests/Short/Deserialization/transformationsAndCommands.nebs",
+        "expected": { "cout": [
+            "TEST",
+            "100",
+            "100",
+            "300",
+            "100"
+        ], "cerr": [] }
+    }
+]
