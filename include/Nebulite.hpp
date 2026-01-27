@@ -210,7 +210,7 @@ public:
         //       e.g. "providedScope.domainModule.renderObject." + dm.moduleScope.getScopePrefix()
         //       Then we only require one shareScope function that takes the access token and derives the full prefix from it.
 
-        // Provide GlobalSpace access to DomainModules
+        // Provide scoped GlobalSpace access to DomainModules
         class DomainModuleProvider {
             class GlobalSpace final : public BaseAccessToken {
                 explicit GlobalSpace(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm) {
@@ -243,6 +243,7 @@ public:
             };
         };
 
+        // Provide scoped GlobalSpace access to RulesetModules
         class RulesetModuleProvider {
             class RulesetModule final : public BaseAccessToken {
                 explicit RulesetModule(Interaction::Rules::RulesetModule const& rm) {
@@ -299,7 +300,11 @@ public:
     //------------------------------------------
     // Imgui rendering
 
-    static void renderImguiGlobalSettingsWindow();
+    /**
+     * @brief Renders the Imgui window showing the global space.
+     * @details Make sure Imgui is initialized before calling this function.
+     */
+    static void renderImguiGlobalSpaceWindow();
 
 private:
     // construct-on-first-use singletons to avoid global constructors/destructors

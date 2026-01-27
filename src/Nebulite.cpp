@@ -3,7 +3,7 @@
 
 namespace Nebulite {
 
-void Global::renderImguiGlobalSettingsWindow(){
+void Global::renderImguiGlobalSpaceWindow(){
     static auto& fullScope = globalDoc().shareManagedScopeBase("");
     Graphics::ImguiHelper::renderJsonScope(fullScope, "GlobalSpace");
 }

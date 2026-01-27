@@ -426,7 +426,7 @@ Constants::Error Renderer::update() {
     //ImGui::ShowDemoWindow();
 
     // DEBUG: Render global space
-    if (showDebugWindowFlag) Global::renderImguiGlobalSettingsWindow();
+    if (showDebugWindowFlag) Global::renderImguiGlobalSpaceWindow();
 
     // Fps
     if (showFPS) renderFPS();
