@@ -9,7 +9,11 @@
 
 ###############################################
 # [SETTINGS]
-set loop.n 40  # Number of objects per row/column (total objects = n*n)
+
+# Number of objects per row/column (total objects = n*n)
+# only set if the value hasn't been defined yet
+if $(gt({global.loop.n},0)) echo Predefined object count detected.
+if $(leq({global.loop.n},0)) set loop.n 40
 
 # Frame average for loop.n=40:
 # 0.745 seconds, 2025-09
