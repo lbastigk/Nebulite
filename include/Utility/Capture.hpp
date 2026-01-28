@@ -160,7 +160,7 @@ template<typename... Args>
 void CaptureStream::print(Args&&... args){
     // Turn into string, pass to operator<<
     std::ostringstream workingBuffer;
-    (workingBuffer << ... << args);
+    if constexpr (sizeof...(args) != 0) (workingBuffer << ... << args);
     *this << workingBuffer.str();
 }
 
@@ -168,7 +168,7 @@ template<typename... Args>
 void CaptureStream::println(Args&&... args) {
     // Turn into string, pass to operator<< with newline at end
     std::ostringstream workingBuffer;
-    (workingBuffer << ... << args);
+    if constexpr (sizeof...(args) != 0) (workingBuffer << ... << args);
     workingBuffer << '\n';
     *this << workingBuffer.str();
 }

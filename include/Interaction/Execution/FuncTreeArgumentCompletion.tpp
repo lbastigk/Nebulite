@@ -24,35 +24,15 @@
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
 
-namespace SortFunctions {
-// Case-insensitive comparison function
-inline auto caseInsensitiveLess = [](auto const& a, auto const& b) {
-    return std::ranges::lexicographical_compare(
-        a.first, b.first,
-        [](char const lhs, char const rhs) {
-            return std::tolower(static_cast<unsigned char>(lhs)) <
-                   std::tolower(static_cast<unsigned char>(rhs));
-        }
-        );
-};
-} // namespace SortFunctions
-
 template <typename returnValue, typename... additionalArgs>
 bool FuncTree<returnValue, additionalArgs...>::hasFunction(std::string_view const& nameOrCommand) {
     // Make sure only the command name is used
     std::vector<std::string> tokens = Utility::StringHandler::split(nameOrCommand, ' ');
 
-    // Remove all tokens starting with "--"
-    tokens.erase(std::remove_if(tokens.begin(), tokens.end(),
-                                [](std::string const& token) {
-                                    return token.starts_with("--");
-                                }), tokens.end());
-
-    // Remove all empty tokens
-    tokens.erase(std::remove_if(tokens.begin(), tokens.end(),
-                                [](std::string const& token) {
-                                    return token.empty();
-                                }), tokens.end());
+    // Remove all tokens starting with "--" or empty tokens
+    std::erase_if(tokens, [](std::string const& token) {
+        return token.empty() || token.starts_with("--");
+    });
 
     if (tokens.empty()) {
         return false; // No command provided
@@ -101,8 +81,10 @@ void FuncTree<returnValue, additionalArgs...>::specificHelp(std::string const& f
         // 1.) Function
         if (searchResult.function) {
             // Found function, display detailed help
-            Utility::Capture::cout() << "\nHelp for function '" << funcName << "':\n" << Utility::Capture::endl;
-            Utility::Capture::cout() << searchResult.funIt->second.description << "\n";
+            Utility::Capture::cout().println();
+            Utility::Capture::cout().println("Help for function '", funcName, "':");
+            Utility::Capture::cout().println();
+            Utility::Capture::cout().println(searchResult.funIt->second.description);
         }
         // 2.) Category
         else if (searchResult.category) {
@@ -112,11 +94,13 @@ void FuncTree<returnValue, additionalArgs...>::specificHelp(std::string const& f
         // 3.) Variable
         else if (searchResult.variable) {
             // Found variable, display detailed help
-            Utility::Capture::cout() << "\nHelp for variable '--" << funcName << "':\n" << Utility::Capture::endl;
-            Utility::Capture::cout() << searchResult.varIt->second.description << "\n";
+            Utility::Capture::cout().println();
+            Utility::Capture::cout().println("Help for variable '--", funcName, "':");
+            Utility::Capture::cout().println();
+            Utility::Capture::cout().println(searchResult.varIt->second.description);
         }
     } else {
-        Utility::Capture::cerr() << "Function or Category '" << funcName << "' not found in FuncTree '" << TreeName << "'.\n";
+        Utility::Capture::cerr().println("Function or Category '", funcName, "' not found in FuncTree '", TreeName, "'.");
     }
 }
 
@@ -135,29 +119,26 @@ void FuncTree<returnValue, additionalArgs...>::generalHelp() {
         }
         std::string paddedName = name;
         paddedName.resize(namePaddingSize, ' ');
-        Utility::Capture::cout() << "  " << paddedName << " - " << descriptionFirstLine << Utility::Capture::endl;
+        Utility::Capture::cout().println("  ", paddedName, " - ", descriptionFirstLine);
     };
 
     // All info: [name, description]
     auto allFunctions = getAllFunctions(); // includes categories
     auto allVariables = getAllVariables();
 
-    // Sort by name
-    std::ranges::sort(allFunctions, SortFunctions::caseInsensitiveLess);
-    std::ranges::sort(allVariables, SortFunctions::caseInsensitiveLess);
-
     // Display:
-    Utility::Capture::cout() << "\nHelp for " << TreeName << "\nAdd the entries name to the command for more details: " << TreeName << " help <foo>\n";
-    Utility::Capture::cout() << "Available functions:\n";
-
-    // Use lambda with for_each on all functions and variables
-    // TODO: using structured bindings here would be nice, but that won't compile for some reason
-    std::ranges::for_each(allFunctions, [&](auto const& pair) {
-        displayMember(pair.first, pair.second);
+    Utility::Capture::cout().println();
+    Utility::Capture::cout().println("Help for ", TreeName);
+    Utility::Capture::cout().println("Add the entries name to the command for more details: ", TreeName, " help <foo>");
+    Utility::Capture::cout().println("Available functions:");
+    std::ranges::for_each(allFunctions, [&](auto const& funcInfo) {
+        auto const& [name, description] = funcInfo;
+        displayMember(name, description);
     });
-    Utility::Capture::cout() << "Available variables:\n";
-    std::ranges::for_each(allVariables, [&](auto const& pair) {
-        displayMember(pair.first, pair.second);
+    Utility::Capture::cout().println("Available variables:");
+    std::ranges::for_each(allVariables, [&](auto const& varInfo) {
+        auto const& [name, description] = varInfo;
+        displayMember(name, description);
     });
 }
 
