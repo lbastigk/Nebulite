@@ -16,7 +16,7 @@
 #include <string>
 
 // Nebulite
-#include "Utility/StringHandler.hpp"  // Using StringHandler for easy argument splitting
+#include "Utility/StringHandler.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Interaction/Execution/FuncTreeErrorMessages.hpp"
 
@@ -89,15 +89,14 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(FunctionPtr const& f
     if (name.find(' ') != std::string::npos) {
         std::vector<std::string> const pathStructure = Utility::StringHandler::split(name, ' ');
         if (pathStructure.size() < 2) {
-            Utility::Capture::cerr() << "Error: Invalid function name '" << name << "'." << Utility::Capture::endl;
-            return;
+            BindErrorMessage::invalidFunctionName(name);
         }
         absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
         FuncTree* targetTree = this;
         for (size_t idx = 0; idx < pathStructure.size() - 1; idx++) {
             std::string const& currentCategoryName = pathStructure[idx];
             if (currentCategoryMap->find(currentCategoryName) == currentCategoryMap->end()) {
-                bindErrorMessage::MissingCategory(TreeName, currentCategoryName, std::string(name));
+                BindErrorMessage::missingCategory(TreeName, currentCategoryName, std::string(name));
             }
             targetTree = (*currentCategoryMap)[currentCategoryName].tree.get();
             currentCategoryMap = &targetTree->bindingContainer.categories;
@@ -141,13 +140,13 @@ void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
                 currentCategoryMap = &(*currentCategoryMap)[currentCategoryName].tree->bindingContainer.categories;
             } else {
                 // Category does not exist, throw error
-                bindErrorMessage::ParentCategoryDoesNotExist(std::string(name), currentCategoryName);
+                BindErrorMessage::parentCategoryDoesNotExist(std::string(name), currentCategoryName);
             }
         } else {
             // Last category, create it, if it doesn't exist yet
             if (currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()) {
                 // Final category we wish to create already exists
-                bindErrorMessage::CategoryExists(std::string(name));
+                BindErrorMessage::categoryExists(std::string(name));
             }
             // Create category
             (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree>(currentCategoryName, standardReturn.valDefault, standardReturn.valFunctionNotFound), helpDescription};
@@ -159,14 +158,12 @@ template <typename returnValue, typename... additionalArgs>
 void FuncTree<returnValue, additionalArgs...>::bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription) {
     // Make sure there are no whitespaces in the variable name
     if (name.find(' ') != std::string::npos) {
-        Utility::Capture::cerr().println("Error: Variable name '", name, "' cannot contain whitespaces.");
-        throw std::runtime_error("Failed to bind variable due to invalid name.");
+        BindErrorMessage::variableHasWhitespace(TreeName, name);
     }
 
     // Make sure the variable isn't bound yet
     if (bindingContainer.variables.find(name) != bindingContainer.variables.end()) {
-        Utility::Capture::cerr().println("Error: Variable '", name, "' is already bound.");
-        throw std::runtime_error("Failed to bind variable due to name conflict.");
+        BindErrorMessage::variableExists(TreeName, name);
     }
 
     // Bind the variable
@@ -185,7 +182,7 @@ template <typename returnValue, typename... additionalArgs>
 bool FuncTree<returnValue, additionalArgs...>::conflictCheck(std::string_view const& name) {
     for (auto const& [categoryName, _] : bindingContainer.categories) {
         if (categoryName == name) {
-            bindErrorMessage::FunctionShadowsCategory(name);
+            BindErrorMessage::functionShadowsCategory(name);
         }
     }
 
@@ -204,11 +201,11 @@ bool FuncTree<returnValue, additionalArgs...>::conflictCheck(std::string_view co
         );
     if (conflictIt != inheritedTrees.end()) {
         auto const& conflictTree = *conflictIt;
-        bindErrorMessage::FunctionExistsInInheritedTree(TreeName, conflictTree->TreeName, name);
+        BindErrorMessage::functionExistsInInheritedTree(TreeName, conflictTree->TreeName, name);
         return false;
     }
     if (hasFunction(name)) {
-        bindErrorMessage::FunctionExists(TreeName, name);
+        BindErrorMessage::functionExists(TreeName, name);
         return false;
     }
     return true;
@@ -704,14 +701,14 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
         }
         return bindingContainer.categories[function].tree->parseStr(cmd, addArgs...);
     }
-    Utility::Capture::cerr() << "Function '" << function << "' not found in FuncTree " << TreeName << ", its inherited FuncTrees or their categories!\n";
-    Utility::Capture::cerr() << "Arguments are:" << Utility::Capture::endl;
+
+    // Return error if function not found
+    std::string arguments;
     for (int i = 0; i < argc; i++) {
-        Utility::Capture::cerr() << "argv[" << i << "] = '" << argv[i] << "'\n";
+        arguments += std::string("argv[") + std::to_string(i) + "] = '" + argv[i] + "'\n";
     }
-    Utility::Capture::cerr() << "Available functions:  " << bindingContainer.functions.size() << Utility::Capture::endl;
-    Utility::Capture::cerr() << "Available categories: " << bindingContainer.categories.size() << Utility::Capture::endl;
-    return standardReturn.valFunctionNotFound; // Return error if function not found
+    ExecutionErrorMessage::functionNotFound(TreeName, arguments, function);
+    return standardReturn.valFunctionNotFound;
 }
 
 } // namespace Nebulite::Interaction::Execution

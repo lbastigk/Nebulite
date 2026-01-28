@@ -20,6 +20,7 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
+#include "Interaction/Execution/FuncTreeErrorMessages.hpp"
 #include "Utility/Capture.hpp"  // Due to circular dependencies, we use Capture for logging instead of Nebulite.hpp
 
 //------------------------------------------
@@ -351,7 +352,7 @@ private:
                         *varInfo.pointer = true;
                     }
                 } else {
-                    Utility::Capture::cerr() << "Warning: Unknown variable '--" << name << "'\n";
+                    ExecutionErrorMessage::unknownVariable(TreeName, name);
                 }
 
                 // Remove from argument list

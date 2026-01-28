@@ -5,7 +5,7 @@
             "cout": [], 
             "cerr": [
                 "---------------------------------------------------------------",
-                "Nebulite FuncTree initialization failed!",
+                "A Nebulite FuncTree binding failed!",
                 "Error: A bound Function already exists in this tree.",
                 "Function overwrite is heavily discouraged and thus not allowed.",
                 "Please choose a different name or remove the existing function.",
@@ -20,7 +20,7 @@
             "cout": [], 
             "cerr": [
                 "---------------------------------------------------------------",
-                "A Nebulite FuncTree initialization failed!",
+                "A Nebulite FuncTree binding failed!",
                 "Error: Cannot create category 'debug collision-detect' because it already exists."
             ]
         }
@@ -30,7 +30,10 @@
         "expected": { 
             "cout": [], 
             "cerr": [
-                "Error: Variable 'headless' is already bound."
+                "---------------------------------------------------------------",
+                "A Nebulite FuncTree binding failed!",
+                "Error: Variable 'headless' is already bound.",
+                "This Tree: Nebulite"
             ]
         }
     },
