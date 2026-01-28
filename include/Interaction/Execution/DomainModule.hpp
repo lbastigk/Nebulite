@@ -11,6 +11,7 @@
 // Includes
 
 // Nebulite
+#include "ScopeAccessor.hpp"
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Data/Document/JsonScopeBase.hpp"
@@ -119,6 +120,23 @@ protected:
      * @brief Workspace of the DomainModule
      */
     DomainType& domain;
+
+    //------------------------------------------
+    // Access token for Global Space access
+
+    static ScopeAccessor::BaseAccessToken getDomainModuleAccessToken(DomainModule const& derivedModule) {
+        // Depending on the DomainType, return the appropriate access token
+        if constexpr (std::is_same_v<DomainType, Core::GlobalSpace>) {
+            return ScopeAccessor::DomainModuleToken::GlobalSpace(derivedModule);
+        } else if constexpr (std::is_same_v<DomainType, Core::RenderObject>) {
+            return ScopeAccessor::DomainModuleToken::RenderObject(derivedModule);
+        } else if constexpr (std::is_same_v<DomainType, Core::JsonScope>) {
+            return ScopeAccessor::DomainModuleToken::JsonScope(derivedModule);
+        } else {
+            static_assert(always_false<DomainType>, "getDomainModuleAccessToken(): Unsupported DomainType for DomainModule");
+            std::unreachable();
+        }
+    }
 };
 } // namespace Nebulite::Interaction::Execution
 #include "Interaction/Execution/DomainModule.tpp"

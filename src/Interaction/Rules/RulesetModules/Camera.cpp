@@ -13,7 +13,7 @@ Camera::Camera() : RulesetModule(moduleName) {
     BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignRight, alignRightName, alignRightDesc);
 
     // References
-    auto const& token = getRulesetModuleAccessToken(*this);
+    auto const token = getRulesetModuleAccessToken(*this);
     globalVal.camPosX = Global::shareScopeBase(token).getStableDoublePointer(Constants::KeyNames::Renderer::positionX);
     globalVal.camPosY = Global::shareScopeBase(token).getStableDoublePointer(Constants::KeyNames::Renderer::positionY);
     globalVal.dispResX = Global::shareScopeBase(token).getStableDoublePointer(Constants::KeyNames::Renderer::dispResX);

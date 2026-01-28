@@ -206,15 +206,9 @@ public:
 
     // Provide a custom scope for DomainModules from RenderObjects
     // We add a prefix to signal what part these domainModules can access
-    [[nodiscard]] static Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::RenderObject> const& dm) {
-        return globalDoc().shareManagedScope("providedScope.domainModule.renderObject." + dm.moduleScope.getScopePrefix());
-    }
-
-    // Provide a custom scope for DomainModules from JsonScope
-    // We add a prefix to signal what part these domainModules can access
-    [[nodiscard]] static Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::JsonScope> const& dm) {
-        return globalDoc().shareManagedScope("providedScope.domainModule.jsonScope." + dm.moduleScope.getScopePrefix());
-    }
+    //[[nodiscard]] static Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::RenderObject> const& dm) {
+    //    return globalDoc().shareManagedScope("providedScope.domainModule.renderObject." + dm.moduleScope.getScopePrefix());
+    //}
 
     //------------------------------------------
     // Imgui rendering

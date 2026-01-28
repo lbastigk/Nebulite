@@ -45,7 +45,6 @@ public:
     class BaseAccessToken {
     protected:
         BaseAccessToken() = default;
-        ~BaseAccessToken() = default;
         std::string prefix = "";
     public:
         std::string getPrefix() const {return prefix; }
@@ -55,12 +54,13 @@ public:
         Full() {
             prefix = "";
         }
-        ~Full() = default;
 
         // Allowed accessors:
         friend class Core::GlobalSpace;
         // TODO: add a helper class in renderer that does the rendering of globalspace using imgui,
         //       then make that class a friend here to allow it access to full scope
+    public:
+        ~Full() = default;
     };
 
     // TODO: Build full prefix here for each DomainModule type by using arguments for the constructor
@@ -72,7 +72,7 @@ public:
     public:
         class GlobalSpace final : public BaseAccessToken {
             explicit GlobalSpace(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm);
-            ~GlobalSpace() = default;
+
 
             // Allowed accessors:
             friend class Interaction::Execution::DomainModule<Core::GlobalSpace>;
@@ -80,7 +80,7 @@ public:
 
         class RenderObject final : public BaseAccessToken {
             explicit RenderObject(Interaction::Execution::DomainModule<Core::RenderObject> const& dm);
-            ~RenderObject() = default;
+
 
             // Allowed accessors:
             friend class Interaction::Execution::DomainModule<Core::RenderObject>;
@@ -88,7 +88,7 @@ public:
 
         class JsonScope final : public BaseAccessToken {
             explicit JsonScope(Interaction::Execution::DomainModule<Core::JsonScope> const& dm);
-            ~JsonScope() = default;
+
 
             // Allowed accessors:
             friend class Interaction::Execution::DomainModule<Core::JsonScope>;
@@ -100,7 +100,6 @@ public:
     public:
         class RulesetModule final : public BaseAccessToken {
             explicit RulesetModule(Interaction::Rules::RulesetModule const& rm);
-            ~RulesetModule() = default;
 
             // Allowed accessors:
             friend class Interaction::Rules::RulesetModule;

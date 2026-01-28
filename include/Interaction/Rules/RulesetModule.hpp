@@ -56,9 +56,8 @@ public:
 
 protected:
     // TODO: Add a scope prefix system for RulesetModules later on, that we pass into the access token with derivedModule
-    static ScopeAccessor::RulesetToken::RulesetModule& getRulesetModuleAccessToken(RulesetModule const& derivedModule){
-        static auto token = ScopeAccessor::RulesetToken::RulesetModule(derivedModule);
-        return token;
+    static ScopeAccessor::RulesetToken::RulesetModule getRulesetModuleAccessToken(RulesetModule const& derivedModule){
+        return ScopeAccessor::RulesetToken::RulesetModule(derivedModule);
     }
 
     /**

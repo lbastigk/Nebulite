@@ -19,7 +19,7 @@ Physics::Physics() : RulesetModule(moduleName) {
     BIND_STATIC_ASSERT(RulesetType::Local, &Physics::drag, dragName, dragDesc);
 
     // Global Variables
-    auto const& token = getRulesetModuleAccessToken(*this);
+    auto const token = getRulesetModuleAccessToken(*this);
     globalVal.G = Global::shareScopeBase(token).getStableDoublePointer(DomainModule::GlobalSpace::Physics::Key::Global::G); // Gravitational constant
     globalVal.dt = Global::shareScopeBase(token).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_dt); // Simulation delta time
     globalVal.t = Global::shareScopeBase(token).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_t); // Simulation time
