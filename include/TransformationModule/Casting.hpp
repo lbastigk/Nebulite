@@ -26,7 +26,6 @@ public:
         "Never fails, defaults to 0 if the provided value is non-numeric.\n"
         "Usage: |toInt -> {number}\n";
 
-    // TODO: complicated casting for string to anything via serialization
     static bool toString(Core::JsonScope* jsonDoc);
     static auto constexpr toStringName = "toString";
     static auto constexpr toStringDesc = "Converts the current JSON value to a string.\n"
@@ -52,6 +51,9 @@ public:
     static auto constexpr toBoolStringDesc = "Converts the current JSON value to a boolean string.\n"
         "Usage: |toBoolString -> {string}\n"
         "Either 'true' or 'false'\n";
+
+    // TODO: complicated casting for string to anything via serialization
+    //       perhaps named toStringFormat or serialize
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_CASTING_HPP

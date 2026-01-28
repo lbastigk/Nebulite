@@ -25,6 +25,8 @@ public:
     static auto constexpr assertNonEmptyDesc = "Asserts that the current JSON value is non-empty.\n"
         "If the value is empty, the transformation fails and the program exits\n"
         "Usage: |assertNonEmpty -> {value,<Exception thrown if empty>}\n";
+
+    // TODO: assertType, assertRange, assertRegex, etc.
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_ASSERTIONS_HPP

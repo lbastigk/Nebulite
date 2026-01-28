@@ -54,6 +54,11 @@ public:
     static auto constexpr lastDesc = "Gets the last element of the array in the current JSON value.\n"
         "If the current value is not an array, it is first wrapped into a single-element array.\n"
         "Usage: |last -> {value}\n";
+
+    // TODO: push, pop, insert, remove, clear, etc.
+    //       but first, add these functionalities to JSON class
+
+    // TODO: dedupe, subarray, sort, sortby, pick, omit
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_ARRAY_HPP

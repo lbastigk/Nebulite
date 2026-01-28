@@ -29,6 +29,8 @@ public:
     static auto constexpr printName = "print";
     static auto constexpr printDesc = "Prints the current JSON value to the console.\n"
         "Usage: |print -> {unchanged-json}\n";
+
+    // TODO: log (to file), error (to stderr)
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_DEBUG_HPP

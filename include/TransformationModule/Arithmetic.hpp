@@ -42,10 +42,7 @@ public:
     static auto constexpr powDesc = "Raises the current JSON value to the power of a numeric value.\n"
         "Usage: |pow <exponent> -> {number}\n";
 
-    // TODO: push, pop, insert, remove, clear, etc.
-    //       but first, add these functionalities to JSON class
-
-    // TODO: dedupe, subarray, sort, sortby, pick, omit
+    // TODO: subtract, divide, sqrt, root, etc.
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_ARITHMETIC_HPP
