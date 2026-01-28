@@ -161,19 +161,17 @@ namespace Nebulite {
  */
 class Global {
 public:
-    //------------------------------------------
-    // Provide access to the global GlobalSpace singleton
-    static Core::GlobalSpace& instance() {
-        return globalSpaceInstance();
-    }
+    /**
+     * @brief Provides access to the global GlobalSpace singleton.
+     * @return Reference to the global GlobalSpace instance.
+     */
+    static Core::GlobalSpace& instance();
 
-    //------------------------------------------
-    // Share a read-only setting scope
-
-    [[nodiscard]] static Data::JsonScopeBase const& settings() {
-        static auto const& settingsScopeConst = globalDoc().shareManagedScopeBase("settings.");
-        return settingsScopeConst;
-    }
+    /**
+     * @brief Provides access to the global settings scope in the global JSON document.
+     * @return Constant reference to the settings JsonScopeBase.
+     */
+    [[nodiscard]] static Data::JsonScopeBase const& settings();
 
     //------------------------------------------
     // Define accessor for various scopes
@@ -261,12 +259,17 @@ public:
     //------------------------------------------
     // Provide access based on access token and its prefix
 
-    [[nodiscard]] static Core::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix) {
-        return globalDoc().shareManagedScope(at.getPrefix() + prefix);
-    }
+    /**
+     * @brief Provides access to a shared JsonScope based on the provided access token and prefix.
+     * @param at Access token providing the necessary permissions.
+     * @param prefix Prefix to append to the access token's prefix for scope retrieval.
+     * @return Reference to the shared JsonScope.
+     */
+    [[nodiscard]] static Core::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix);
 
     //------------------------------------------
     // TODO: The following shareScope overloads are deprecated.
+    //       remove one by one, simply using the new shareScope with access tokens instead should work!
 
     // Provide scopes for DomainModules and RulesetModules, depending on their type
 
@@ -307,18 +310,16 @@ public:
     static void renderImguiGlobalSpaceWindow();
 
 private:
-    // construct-on-first-use singletons to avoid global constructors/destructors
-    static Data::JSON& globalDoc() {
-        static Data::JSON instance;
-        return instance;
-    }
-
-    static Core::GlobalSpace& globalSpaceInstance() {
-        static Core::GlobalSpace instance{"Nebulite"};
-        return instance;
-    }
+    /**
+     * @brief Provides access to the global JSON document.
+     * @return Reference to the global JSON document.
+     */
+    static Data::JSON& globalDoc();
 };
 
+/**
+ * @brief Static class for logging messages to the console (stdout).
+ */
 class Log {
 public:
     template<typename... Args>
@@ -332,6 +333,9 @@ public:
     }
 };
 
+/**
+ * @brief Static class for logging error messages to the console (stderr).
+ */
 class Error {
 public:
     template<typename... Args>
