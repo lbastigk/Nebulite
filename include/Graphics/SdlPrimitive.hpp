@@ -3,14 +3,13 @@
  * @brief This file contains SDL primitive drawing functions.
  */
 
-#ifndef NEBULITE_GRAPHICS_SDLPRIMITIVES_HPP
-#define NEBULITE_GRAPHICS_SDLPRIMITIVES_HPP
+#ifndef NEBULITE_GRAPHICS_SDL_PRIMITIVE_HPP
+#define NEBULITE_GRAPHICS_SDL_PRIMITIVE_HPP
 
 //------------------------------------------
 // Includes
 
 // Standard library
-#include <cmath>
 #include <vector>
 
 // External
@@ -58,4 +57,4 @@ public:
     static void drawFilledPolygon(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Color const& color, std::vector<SDL_FPoint> const& points);
 };
 } // namespace Nebulite::Graphics
-#endif // NEBULITE_GRAPHICS_SDLPRIMITIVES_HPP
+#endif // NEBULITE_GRAPHICS_SDL_PRIMITIVE_HPP

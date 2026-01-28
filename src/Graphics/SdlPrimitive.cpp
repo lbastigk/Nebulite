@@ -87,8 +87,8 @@ void SdlPrimitive::drawFilledPolygon(SDL_Renderer* renderer, SDL_Texture* textur
             }
 
             // Check if scanline intersects edge
-            if (y >= yMin && y < yMax) {
-                float const t = (y - p1y) / (p2y - p1y);
+            if (static_cast<float>(y) >= yMin && static_cast<float>(y) < yMax) {
+                float const t = (static_cast<float>(y) - p1y) / (p2y - p1y);
                 float const x = p1x + t * (p2x - p1x);
                 intersections.push_back(x);
             }
@@ -101,7 +101,13 @@ void SdlPrimitive::drawFilledPolygon(SDL_Renderer* renderer, SDL_Texture* textur
         for (size_t i = 0; i + 1 < intersections.size(); i += 2) {
             int const x1 = static_cast<int>(std::ceil(intersections[i]));
             int const x2 = static_cast<int>(std::floor(intersections[i + 1]));
-            SDL_RenderLine(renderer, x1, y, x2, y);
+            SDL_RenderLine(
+                renderer,
+                static_cast<float>(x1),
+                static_cast<float>(y),
+                static_cast<float>(x2),
+                static_cast<float>(y)
+            );
         }
     }
 

@@ -370,6 +370,9 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Func functionPtr) {
 
     // If raw function pointer (free/static)
     if constexpr (std::is_pointer_v<DecayF> && std::is_function_v<std::remove_pointer_t<DecayF>>) {
+
+        // TODO: Allow for AddArgs with const classification
+
         if constexpr (constexpr ShapeClassifier::FunctionShape shape = ShapeClassifier::classifyFunction<DecayF, returnValue, additionalArgs...>(); shape == ShapeClassifier::FunctionShape::Free_Legacy_IntChar) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Legacy::IntChar>,
                                 std::function<returnValue(int, char**)>(functionPtr));

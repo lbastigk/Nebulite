@@ -7,6 +7,7 @@ void Assertions::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Assertions::assertNonEmpty, assertNonEmptyName, assertNonEmptyDesc);
 }
 
+// NOLINTNEXTLINE
 bool Assertions::assertNonEmpty(Core::JsonScope* jsonDoc) {
     static std::string errorMessage = std::string(__FUNCTION__) + " JSON value is null";
 

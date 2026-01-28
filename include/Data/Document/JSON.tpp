@@ -83,7 +83,7 @@ T JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T 
 
 // Converter helper functions for convertVariant
 namespace ConverterHelper {
-    inline bool stringToBool(std::string const& stored, bool const& defaultValue){
+    inline bool stringToBool(std::string const& stored, bool const& fallback){
 #if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         if (stored == "true") return true;
         if (stored == "false") return false;
@@ -93,13 +93,13 @@ namespace ConverterHelper {
             try {
                 return std::stoi(stored) != 0;
             } catch (...){
-                return defaultValue;
+                return fallback;
             }
         }
         return stored == "true";
     }
 
-    inline int stringToInt(std::string const& stored, int const& defaultValue){
+    inline int stringToInt(std::string const& stored, int const& fallback){
 #if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         if (stored == "true") return 1;
         if (stored == "false") return 0;
@@ -107,11 +107,11 @@ namespace ConverterHelper {
         try {
             return std::stoi(stored);
         } catch (...){
-            return defaultValue;
+            return fallback;
         }
     }
 
-    inline uint8_t stringToUInt8(std::string const& stored, uint8_t const& defaultValue){
+    inline uint8_t stringToUInt8(std::string const& stored, uint8_t const& fallback){
 #if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         if (stored == "true") return 1;
         if (stored == "false") return 0;
@@ -119,11 +119,11 @@ namespace ConverterHelper {
         try {
             return static_cast<uint8_t>(std::stoul(stored));
         } catch (...){
-            return defaultValue;
+            return fallback;
         }
     }
 
-    inline int8_t stringToInt8(std::string const& stored, int8_t const& defaultValue){
+    inline int8_t stringToInt8(std::string const& stored, int8_t const& fallback){
 #if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         if (stored == "true") return 1;
         if (stored == "false") return 0;
@@ -131,11 +131,11 @@ namespace ConverterHelper {
         try {
             return static_cast<int8_t>(std::stol(stored));
         } catch (...){
-            return defaultValue;
+            return fallback;
         }
     }
 
-    inline uint16_t stringToUInt16(std::string const& stored, uint16_t const& defaultValue){
+    inline uint16_t stringToUInt16(std::string const& stored, uint16_t const& fallback){
 #if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         if (stored == "true") return 1;
         if (stored == "false") return 0;
@@ -143,11 +143,11 @@ namespace ConverterHelper {
         try {
             return static_cast<uint16_t>(std::stoul(stored));
         } catch (...){
-            return defaultValue;
+            return fallback;
         }
     }
 
-    inline int16_t stringToInt16(std::string const& stored, int16_t const& defaultValue){
+    inline int16_t stringToInt16(std::string const& stored, int16_t const& fallback){
 #if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         if (stored == "true") return 1;
         if (stored == "false") return 0;
@@ -155,11 +155,11 @@ namespace ConverterHelper {
         try {
             return static_cast<int16_t>(std::stol(stored));
         } catch (...){
-            return defaultValue;
+            return fallback;
         }
     }
 
-    inline uint32_t stringToUInt32(std::string const& stored, uint32_t const& defaultValue){
+    inline uint32_t stringToUInt32(std::string const& stored, uint32_t const& fallback){
 #if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         if (stored == "true") return 1;
         if (stored == "false") return 0;
@@ -167,11 +167,11 @@ namespace ConverterHelper {
         try {
             return static_cast<uint32_t>(std::stoul(stored));
         } catch (...){
-            return defaultValue;
+            return fallback;
         }
     }
 
-    inline int32_t stringToInt32(std::string const& stored, int32_t const& defaultValue){
+    inline int32_t stringToInt32(std::string const& stored, int32_t const& fallback){
 #if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         if (stored == "true") return 1;
         if (stored == "false") return 0;
@@ -179,11 +179,11 @@ namespace ConverterHelper {
         try {
             return static_cast<int32_t>(std::stol(stored));
         } catch (...){
-            return defaultValue;
+            return fallback;
         }
     }
 
-    inline uint64_t stringToUInt64(std::string const& stored, uint64_t const& defaultValue){
+    inline uint64_t stringToUInt64(std::string const& stored, uint64_t const& fallback){
 #if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         if (stored == "true") return 1;
         if (stored == "false") return 0;
@@ -191,11 +191,11 @@ namespace ConverterHelper {
         try {
             return std::stoull(stored);
         } catch (...){
-            return defaultValue;
+            return fallback;
         }
     }
 
-    inline int64_t stringToInt64(std::string const& stored, int64_t const& defaultValue){
+    inline int64_t stringToInt64(std::string const& stored, int64_t const& fallback){
 #if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         if (stored == "true") return 1;
         if (stored == "false") return 0;
@@ -203,11 +203,11 @@ namespace ConverterHelper {
         try {
             return std::stoll(stored);
         } catch (...){
-            return defaultValue;
+            return fallback;
         }
     }
 
-    inline double stringToDouble(std::string const& stored, double const& defaultValue){
+    inline double stringToDouble(std::string const& stored, double const& fallback){
 #if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
         if (stored == "true") return 1.0;
         if (stored == "false") return 0.0;
@@ -215,7 +215,7 @@ namespace ConverterHelper {
         try {
             return std::stod(stored);
         } catch (...){
-            return defaultValue;
+            return fallback;
         }
     }
 } // namespace ConverterHelper
