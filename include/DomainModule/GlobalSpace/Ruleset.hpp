@@ -63,7 +63,7 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Ruleset) {
         //------------------------------------------
         // Binding functions to the FuncTree
-        (void)bindCategory(ruleset_name, ruleset_desc);
+        bindCategory(ruleset_name, ruleset_desc);
         bindFunction(&Ruleset::broadcast, broadcast_name, broadcast_desc);
         bindFunction(&Ruleset::listen, listen_name, listen_desc);
     }

@@ -347,7 +347,12 @@ public:
         }
 
         static Error BINDING_COLLISION() {
-            static Error error = addError("Binding Collision: Attempted to bind a function or category with a name that is already in use.", Error::NON_CRITICAL);
+            static Error error = addError("Binding Collision: Failed to bind a function, category or variable.", Error::NON_CRITICAL);
+            return error;
+        }
+
+        static Error BINDING_COLLISION_EXPECTED() {
+            static Error error = addError("Binding Collision Expected: No collision occurred when one was expected.", Error::NON_CRITICAL);
             return error;
         }
     };

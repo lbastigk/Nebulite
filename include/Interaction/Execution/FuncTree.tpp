@@ -118,17 +118,14 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(FunctionPtr const& f
     }
 }
 
+// TODO: An "assert_category_exists" function could be useful, which would allow us to create dependent domainModules more easily:
+//       - DomainModule 'debug' creates category 'debug'
+//       - DomainModule 'debug_network' creates category 'debug network', but first asserts that 'debug' exists
+//       - if 'debug' does not exist, the program exits with an error message: "Please initialize the 'debug' module before 'debug_network'"
+//       Perhaps the error message from just bindCategory is sufficient already?
+
 template <typename returnValue, typename... additionalArgs>
-bool FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view const& name, std::string_view const& helpDescription) {
-    if (bindingContainer.categories.find(std::string(name)) != bindingContainer.categories.end()) {
-        // Category already exists
-        /**
-         * @note Warning is suppressed here,
-         * as with different modules we might need to call this in each module,
-         * just to make sure the category exists
-         */
-        return false;
-    }
+void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view const& name, std::string_view const& helpDescription) {
     // Split based on whitespaces
     std::vector<std::string> const categoryStructure = Utility::StringHandler::split(name, ' ');
     size_t const depth = categoryStructure.size();
@@ -149,28 +146,27 @@ bool FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
         } else {
             // Last category, create it, if it doesn't exist yet
             if (currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()) {
-                // Category exists, throw error
+                // Final category we wish to create already exists
                 bindErrorMessage::CategoryExists(std::string(name));
             }
             // Create category
             (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree>(currentCategoryName, standardReturn.valDefault, standardReturn.valFunctionNotFound), helpDescription};
         }
     }
-    return true;
 }
 
 template <typename returnValue, typename... additionalArgs>
 void FuncTree<returnValue, additionalArgs...>::bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription) {
     // Make sure there are no whitespaces in the variable name
     if (name.find(' ') != std::string::npos) {
-        Utility::Capture::cerr() << "Error: Variable name '" << name << "' cannot contain whitespaces." << Utility::Capture::endl;
-        exit(EXIT_FAILURE);
+        Utility::Capture::cerr().println("Error: Variable name '", name, "' cannot contain whitespaces.");
+        throw std::runtime_error("Failed to bind variable due to invalid name.");
     }
 
     // Make sure the variable isn't bound yet
     if (bindingContainer.variables.find(name) != bindingContainer.variables.end()) {
-        Utility::Capture::cerr() << "Error: Variable '" << name << "' is already bound." << Utility::Capture::endl;
-        exit(EXIT_FAILURE);
+        Utility::Capture::cerr().println("Error: Variable '", name, "' is already bound.");
+        throw std::runtime_error("Failed to bind variable due to name conflict.");
     }
 
     // Bind the variable

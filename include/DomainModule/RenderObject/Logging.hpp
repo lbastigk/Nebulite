@@ -72,7 +72,7 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Logging) {
         BIND_FUNCTION(&Logging::echo, echo_name, echo_desc);
 
-        (void)bindCategory(log_name, log_desc);
+        bindCategory(log_name, log_desc);
         BIND_FUNCTION(&Logging::log_all, log_all_name, log_all_desc);
         BIND_FUNCTION(&Logging::log_key, log_key_name, log_key_desc);
     }

@@ -153,11 +153,11 @@ public:
         BIND_FUNCTION(&Debug::critical, critical_name, critical_desc);
         BIND_FUNCTION(&Debug::waitForInput, waitForInput_name, waitForInput_desc);
 
-        (void)bindCategory(log_name, log_desc);
+        bindCategory(log_name, log_desc);
         BIND_FUNCTION(&Debug::log_global, log_global_name, log_global_desc);
         BIND_FUNCTION(&Debug::log_state, log_state_name, log_state_desc);
 
-        (void)bindCategory(standardfile_name, standardfile_desc);
+        bindCategory(standardfile_name, standardfile_desc);
         BIND_FUNCTION(&Debug::standardfileRenderobject, standardfileRenderobject_name, standardfileRenderobject_desc);
     }
 

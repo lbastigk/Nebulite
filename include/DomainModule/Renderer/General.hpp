@@ -191,15 +191,15 @@ public:
         BIND_FUNCTION(&General::snapshot, snapshot_name, snapshot_desc);
         BIND_FUNCTION(&General::beep, beep_name, beep_desc);
 
-        (void)bindCategory(cam_name, cam_desc);
+        bindCategory(cam_name, cam_desc);
         BIND_FUNCTION(&General::cam_move, cam_move_name, cam_move_desc);
         BIND_FUNCTION(&General::cam_set, cam_set_name, cam_set_desc);
 
-        (void)bindCategory(selectedObject_name, selectedObject_desc);
+        bindCategory(selectedObject_name, selectedObject_desc);
         BIND_FUNCTION(&General::selectedObject_get, selectedObject_get_name, selectedObject_get_desc);
         BIND_FUNCTION(&General::selectedObject_Parse, selectedObject_Parse_name, selectedObject_Parse_desc);
 
-        (void)bindCategory(env_name, env_desc);
+        bindCategory(env_name, env_desc);
         BIND_FUNCTION(&General::envLoad, envLoad_name, envLoad_desc);
         BIND_FUNCTION(&General::envDeload, envDeload_name, envDeload_desc);
     }

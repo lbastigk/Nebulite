@@ -64,7 +64,7 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::JsonScope, ForceValue){
         // Binding
-        (void)bindCategory(force_name, force_desc);
+        bindCategory(force_name, force_desc);
         BIND_FUNCTION(&ForceValue::force_set, force_set_name, force_set_desc);
         BIND_FUNCTION(&ForceValue::force_clear, force_clear_name, force_clear_desc);
     }

@@ -54,7 +54,7 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, FeatureTest) {
         //------------------------------------------
         // Binding functions to the FuncTree
-        (void)bindCategory(category_feature_test_name, category_feature_test_desc);
+        bindCategory(category_feature_test_name, category_feature_test_desc);
         BIND_FUNCTION(&FeatureTest::testFuncTree, testFuncTree_name, testFuncTree_desc);
     }
 };

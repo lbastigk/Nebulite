@@ -72,8 +72,8 @@ public:
     static auto constexpr debug_name = "debug";
     static auto constexpr debug_desc = "DomainModule for special debugging capabilities within the GlobalSpace.";
 
-    static auto constexpr collisionDetect_name = "debug collision-detect";
-    static auto constexpr collisionDetect_desc = "Utilities for testing collision detection functionalities.";
+    static auto constexpr debug_collisionDetect_name = "debug collision-detect";
+    static auto constexpr debug_collisionDetect_desc = "Utilities for testing collision detection functionalities.";
 
     static auto constexpr debug_categoryTest1_name = "debug categoryLevel1";
     static auto constexpr debug_categoryTest1_desc = "Test category for debugging purposes.";
@@ -88,15 +88,12 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, FunctionCollision) {
-        // Bind the categories for the functions
-        (void)bindCategory(debug_name,  debug_desc);
-        (void)bindCategory(collisionDetect_name,  collisionDetect_desc);
-
         //------------------------------------------
         // Test categories for nested category binding
-        (void)bindCategory(debug_name, debug_desc);
-        (void)bindCategory(debug_categoryTest1_name, debug_categoryTest1_desc);
-        (void)bindCategory(debug_categoryTest2_name, debug_categoryTest2_desc);
+        bindCategory(debug_name, debug_desc);
+        bindCategory(debug_collisionDetect_name,  debug_collisionDetect_desc);
+        bindCategory(debug_categoryTest1_name, debug_categoryTest1_desc);
+        bindCategory(debug_categoryTest2_name, debug_categoryTest2_desc);
 
         //------------------------------------------
         // Function bindings

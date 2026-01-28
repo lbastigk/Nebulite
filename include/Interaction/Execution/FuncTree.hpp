@@ -158,10 +158,9 @@ public:
      *        A category acts a "function bundler" to the main tree.
      * @param name Name of the category
      * @param helpDescription Description of the category, shown in the help command. First line is shown in the general help, full description in detailed help
-     * @return true if the category was created successfully, 
-     * false if a category with the same name already exists.
+     * @throws std::runtime_error if the category already exists or if category hierarchy is invalid.
      */
-    bool bindCategory(std::string_view const& name, std::string_view const& helpDescription);
+    void bindCategory(std::string_view const& name, std::string_view const& helpDescription);
 
     /**
      * @brief Binds a function to the command tree.

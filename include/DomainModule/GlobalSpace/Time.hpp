@@ -118,7 +118,7 @@ public:
 
         //------------------------------------------
         // Bind functions
-        (void)bindCategory(time_name, time_desc);
+        bindCategory(time_name, time_desc);
         BIND_FUNCTION(&Time::time_haltOnce, time_haltOnce_name, time_haltOnce_desc);
         BIND_FUNCTION(&Time::time_lock, time_lock_name, time_lock_desc);
         BIND_FUNCTION(&Time::time_unlock, time_unlock_name, time_unlock_desc);

@@ -201,7 +201,7 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, MyModule) {
         // Ensure category exists before binding functions that include it
-        (void)bindCategory(example_name, example_desc);
+        bindCategory(example_name, example_desc);
 
         // Bind functions using the name/description constants above
         // Using a macro to ensure consistency

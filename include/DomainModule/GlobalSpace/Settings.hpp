@@ -106,7 +106,7 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Settings) {
         loadSettings(defaultSettingsFile);
 
-        (void)bindCategory(settings_name, "Functions for managing global settings.");
+        bindCategory(settings_name, "Functions for managing global settings.");
         BIND_FUNCTION(&Settings::saveSettings, saveSettings_name, saveSettings_desc);
         BIND_FUNCTION(&Settings::overWriteSettingsFile, overWriteSettingsFile_name, overWriteSettingsFile_desc);
         BIND_FUNCTION(&Settings::setSettingStr, setSetting_name, setSetting_desc);

@@ -69,11 +69,11 @@ public:
         // Bind functions specific to complex data handling
 
         // SQL Queries
-        (void)bindCategory(query_name, query_desc);
+        bindCategory(query_name, query_desc);
         BIND_FUNCTION(&ComplexData::querySet, querySet_name, querySet_desc);
 
         // Set from read only JSON documents
-        (void)bindCategory(json_name, json_desc);
+        bindCategory(json_name, json_desc);
         BIND_FUNCTION(&ComplexData::jsonSet, jsonSet_name, jsonSet_desc);
     }
 };

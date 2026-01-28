@@ -92,10 +92,10 @@ public:
      * @param name Name of the category
      * @param helpDescription Description of the category, shown in the help command.
      *                        First line is shown in the general help, full description in detailed help
-     * @return true if the category was created successfully, false if a category with the same name already exists
+     * @throws std::runtime_error if the category already exists.
      */
-    [[nodiscard]] bool bindCategory(std::string_view const& name, std::string_view const& helpDescription) const {
-        return funcTree->bindCategory(name, helpDescription);
+    void bindCategory(std::string_view const& name, std::string_view const& helpDescription) const {
+        funcTree->bindCategory(name, helpDescription);
     }
 
     /**
