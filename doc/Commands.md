@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sun Jan 18 11:35:57 CET 2026
+Generated on: Wed Jan 28 13:24:19 CET 2026
 
 ## Table of Contents
 
@@ -736,12 +736,10 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `copy` | Copy data from one key to another. |
-| `debug` | Debugging functions for RenderObject domains |
 | `delete` | Marks object for deletion |
 | `echo` | Echoes all arguments as string to the standard output. |
 | `ensure-array` | Ensure that a key is an array, converting a value to an array if necessary. |
 | `eval` | Evaluate an expression and execute the result. |
-| `fill` | Fills the texture with a specified color. |
 | `help` | Show available commands and their descriptions |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
@@ -754,11 +752,8 @@ Available Functions
 | `push-back` | Push a value to the back of an array. |
 | `push-front` | Push a value to the front of an array. |
 | `query` | Functions to manipulate JSON data via SQL query results |
-| `reload-texture` | Reload the texture from the document. |
-| `rotate` | Rotate the texture by a specified angle. |
 | `ruleset` | Ruleset management functions for the RenderObject domain. |
 | `set` | Set a key to a value in the JSON document. |
-| `update-text` | Calculate text texture |
 
 #### `copy`
 
@@ -767,23 +762,6 @@ Copy data from one key to another.
 
 Usage: copy <source_key> <destination_key>
 ```
-
-#### `debug`
-
-Available Functions
-
-| Function | Description |
-|----------|-------------|
-| `help` | Show available commands and their descriptions |
-| `print-dst-rect` | Prints debug information about the destination rectangle to console |
-| `print-src-rect` | Prints debug information about the source rectangle to console |
-| `texture-status` | Prints debug information about the texture to console |
-
-##### `debug print-dst-rect`
-
-##### `debug print-src-rect`
-
-##### `debug texture-status`
 
 #### `delete`
 
@@ -821,17 +799,6 @@ Examples:
 
 eval echo $(1+1)    outputs:    2.000000
 eval echo {self.id} outputs this objects id
-```
-
-#### `fill`
-
-```
-Fills the texture with a specified color.
-Usage:
-  fill <color>
-  fill <r> <g> <b>
-Where <color> can be 'red', 'green', or 'blue',
-and <r>, <g>, <b> are integer values (0-255) for red, green, and blue components.
 ```
 
 #### `json`
@@ -974,25 +941,6 @@ Usage: set <key> <value>
 Note: All values are stored as strings.
 ```
 
-#### `reload-texture`
-
-```
-Reload the texture from the document.
-
-Usage: reload-texture
-```
-
-#### `rotate`
-
-```
-Rotate the texture by a specified angle.
-
-Usage: rotate <angle>
-
-Arguments:
-  angle   The angle in degrees to rotate the texture.
-```
-
 #### `ruleset`
 
 Available Functions
@@ -1017,16 +965,6 @@ Usage: set <key> <value>
 Note: All values are stored as strings.
 ```
 
-#### `update-text`
-
-```
-Calculate text texture
-
-Usage: update-text
-
-Triggers a recalculation of the text texture.
-```
-
 ## JSON Transformations Commands
 
 These commands are available during JSON value retrieval with the transformation operator '|'.
@@ -1046,6 +984,7 @@ Available Functions
 | `ensureArray` | Ensures the current JSON value is an array. |
 | `first` | Gets the first element of the array in the current JSON value. |
 | `get` | Gets the value at the specified key from the current JSON object. |
+| `getMultiple` | Gets multiple values at the specified keys from the current JSON object. |
 | `help` | Show available commands and their descriptions |
 | `last` | Gets the last element of the array in the current JSON value. |
 | `length` | Gets the length of the array in the current JSON value. |
@@ -1123,6 +1062,13 @@ Usage: |first -> {value}
 ```
 Gets the value at the specified key from the current JSON object.
 Usage: |get <key> -> {value}
+```
+
+#### `getMultiple`
+
+```
+Gets multiple values at the specified keys from the current JSON object.
+Usage: |getMultiple <key1> <key2> ... -> {array of values}
 ```
 
 #### `last`

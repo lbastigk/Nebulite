@@ -32,11 +32,11 @@ eval
 exit
 feature-test
 fetch
-fill
 first
 for
 functree
 get
+getMultiple
 global
 halt-once
 help
@@ -68,17 +68,13 @@ pop-back
 pop-front
 pow
 print
-print-dst-rect
-print-src-rect
 push-back
 push-front
 query
 reload
-reload-texture
 renderobject
 return
 reverse
-rotate
 ruleset
 save
 save-standards
@@ -98,7 +94,6 @@ spawn
 standardfile
 state
 task
-texture-status
 time
 toBool
 toBoolString
@@ -108,7 +103,6 @@ toString
 typeAsNumber
 typeAsString
 unlock
-update-text
 wait
 warn
 zoom
