@@ -210,7 +210,7 @@ FuncTree<returnValue, additionalArgs...>::find(std::string const& name) {
 template <typename returnValue, typename ... additionalArgs>
 returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::string const> const& args){
     // Traverse into categories based on args, get pattern to complete
-    auto [pattern, ftree] = [&]() -> std::pair<std::string, FuncTree*> {
+    auto const [pattern, ftree] = [&]() -> std::pair<std::string, FuncTree*> {
         auto argsSpan = args.subspan(1); // Skip binary name or last function name
         if (argsSpan.empty()) {
             // No pattern provided
