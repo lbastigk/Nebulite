@@ -209,26 +209,27 @@ FuncTree<returnValue, additionalArgs...>::find(std::string const& name) {
 
 template <typename returnValue, typename ... additionalArgs>
 returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::string const> const& args){
-    auto argsSpan = args.subspan(1); // Skip binary name or last function name
-    FuncTree* ftree = this;
-    std::string pattern;
-    if (argsSpan.empty()) {
-        // No pattern provided
-        pattern = "";
-    }
-    else {
-        pattern = argsSpan.back();
+    // Traverse into categories based on args, get pattern to complete
+    auto [pattern, ftree] = [&]() -> std::pair<std::string, FuncTree*> {
+        auto argsSpan = args.subspan(1); // Skip binary name or last function name
+        if (argsSpan.empty()) {
+            // No pattern provided
+            return {"", this};
+        }
+        FuncTree* innerTree = this;
+        std::string const lastArg = argsSpan.back();
         argsSpan = argsSpan.subspan(0, argsSpan.size() - 1); // Remove pattern from argsSpan
 
         // Traverse into categories
         std::ranges::for_each(argsSpan, [&](std::string const& arg) {
-            if (ftree) ftree = traverseIntoCategory(arg, ftree);
+            if (innerTree) innerTree = traverseIntoCategory(arg, innerTree);
         });
+        return {lastArg, innerTree}; // innerTree is potentially nullptr
+    }();
 
-        // Return if traversal failed -> no completions
-        if (ftree == nullptr) {
-            return standardReturn.valDefault;
-        }
+    // Return if traversal failed -> no completions
+    if (ftree == nullptr) {
+        return standardReturn.valDefault;
     }
 
     // Find completions for the pattern in the current FuncTree
@@ -258,7 +259,6 @@ returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::st
     std::ranges::for_each(completions, [](std::string const& completion){
         Utility::Capture::cout().println(completion);
     });
-
     return standardReturn.valDefault;
 }
 
