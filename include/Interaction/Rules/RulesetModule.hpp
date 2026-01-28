@@ -17,7 +17,8 @@
 // External
 
 // Nebulite
-#include "../../Core/JsonScope.hpp"
+#include "ScopeAccessor.hpp"
+#include "Core/JsonScope.hpp"
 #include "Data/OrderedDoublePointers.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 
@@ -54,6 +55,12 @@ public:
     }
 
 protected:
+    // TODO: Add a scope prefix system for RulesetModules later on, that we pass into the access token with derivedModule
+    static ScopeAccessor::RulesetToken::RulesetModule& getRulesetModuleAccessToken(RulesetModule const& derivedModule){
+        static auto token = ScopeAccessor::RulesetToken::RulesetModule(derivedModule);
+        return token;
+    }
+
     /**
      * @brief Helper consteval function to determine if a string_view starts with '::'
      * @param str The string_view to check

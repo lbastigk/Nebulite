@@ -1,6 +1,7 @@
 #include "Nebulite.hpp"
 #include "Interaction/Rules/RulesetModules/Physics.hpp"
 
+#include "ScopeAccessor.hpp"
 #include "Core/GlobalSpace.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 
@@ -18,9 +19,10 @@ Physics::Physics() : RulesetModule(moduleName) {
     BIND_STATIC_ASSERT(RulesetType::Local, &Physics::drag, dragName, dragDesc);
 
     // Global Variables
-    globalVal.G = Global::shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Physics::Key::Global::G); // Gravitational constant
-    globalVal.dt = Global::shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_dt); // Simulation delta time
-    globalVal.t = Global::shareScope(*this).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_t); // Simulation time
+    auto const& token = getRulesetModuleAccessToken(*this);
+    globalVal.G = Global::shareScopeBase(token).getStableDoublePointer(DomainModule::GlobalSpace::Physics::Key::Global::G); // Gravitational constant
+    globalVal.dt = Global::shareScopeBase(token).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_dt); // Simulation delta time
+    globalVal.t = Global::shareScopeBase(token).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_t); // Simulation time
 }
 
 // Global rulesets
@@ -61,7 +63,7 @@ void Physics::elasticCollision(ContextBase const& context) const {
     double const m1 = baseVal(slf, Key::physics_mass);
     double const m2 = baseVal(otr, Key::physics_mass);
 
-    // Priorize circle collision if radius is set (> 0)
+    // Prioritize circle collision if radius is set (> 0)
     if (radius1 > 0.0 && radius2 > 0.0) {
         // TODO: Circle-circle collision detection and response
         Error::println("Circle-circle elastic collision not yet implemented.");

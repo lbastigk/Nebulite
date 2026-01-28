@@ -17,6 +17,10 @@ Core::JsonScope& Global::shareScope(ScopeAccessor::BaseAccessToken const& at, st
     return globalDoc().shareManagedScope(at.getPrefix() + prefix);
 }
 
+Data::JsonScopeBase& Global::shareScopeBase(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix) {
+    return globalDoc().shareManagedScopeBase(at.getPrefix() + prefix);
+}
+
 void Global::renderImguiGlobalSpaceWindow(){
     static auto& fullScope = globalDoc().shareManagedScopeBase("");
     Graphics::ImguiHelper::renderJsonScope(fullScope, "GlobalSpace");

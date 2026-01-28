@@ -12,6 +12,7 @@
 // Includes
 
 // Nebulite
+#include "ScopeAccessor.hpp"
 #include "Core/GlobalSpace.hpp"
 #include "Utility/Capture.hpp"
 #include "Data/Document/JsonScopeBase.hpp"
@@ -174,89 +175,6 @@ public:
     [[nodiscard]] static Data::JsonScopeBase const& settings();
 
     //------------------------------------------
-    // Define accessor for various scopes
-
-    /**
-     * @brief Class to provide access tokens for various Domain types.
-     * @details The access tokens can only be constructed by their respective classes.
-     * @todo Use this instead of the deprecated shareScope overloads below.
-     */
-    class ScopeAccessor {
-    public:
-        class BaseAccessToken {
-        protected:
-            BaseAccessToken() = default;
-            ~BaseAccessToken() = default;
-            std::string prefix = "";
-        public:
-            std::string getPrefix() const {return prefix; }
-        };
-
-        class Full final : public BaseAccessToken {
-            Full() {
-                prefix = "";
-            }
-            ~Full() = default;
-
-            // Allowed accessors:
-            friend class Core::GlobalSpace;
-            // TODO: add a helper class in renderer that does the rendering of globalspace using imgui,
-            //       then make that class a friend here to allow it access to full scope
-        };
-
-        // TODO: Build full prefix here for each DomainModule type by using arguments for the constructor
-        //       e.g. "providedScope.domainModule.renderObject." + dm.moduleScope.getScopePrefix()
-        //       Then we only require one shareScope function that takes the access token and derives the full prefix from it.
-
-        // Provide scoped GlobalSpace access to DomainModules
-        class DomainModuleProvider {
-            class GlobalSpace final : public BaseAccessToken {
-                explicit GlobalSpace(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm) {
-                    prefix = "" + dm.moduleScope.getScopePrefix();
-                }
-                ~GlobalSpace() = default;
-
-                // Allowed accessors:
-                friend class Interaction::Execution::DomainModule<Core::GlobalSpace>;
-            };
-
-            class RenderObject final : public BaseAccessToken {
-                explicit RenderObject(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm) {
-                    prefix = "providedScope.domainModule.renderObject."  + dm.moduleScope.getScopePrefix();
-                }
-                ~RenderObject() = default;
-
-                // Allowed accessors:
-                friend class Interaction::Execution::DomainModule<Core::RenderObject>;
-            };
-
-            class JsonScope final : public BaseAccessToken {
-                explicit JsonScope(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm) {
-                    prefix = "providedScope.domainModule.jsonScope." + dm.moduleScope.getScopePrefix();
-                }
-                ~JsonScope() = default;
-
-                // Allowed accessors:
-                friend class Interaction::Execution::DomainModule<Core::JsonScope>;
-            };
-        };
-
-        // Provide scoped GlobalSpace access to RulesetModules
-        class RulesetModuleProvider {
-            class RulesetModule final : public BaseAccessToken {
-                explicit RulesetModule(Interaction::Rules::RulesetModule const& rm) {
-                    (void)rm; // TODO: add getScopePrefix() to RulesetModule later on
-                    prefix = ""; // RulesetModules get full access for now
-                }
-                ~RulesetModule() = default;
-
-                // Allowed accessors:
-                friend class Interaction::Rules::RulesetModule;
-            };
-        };
-    };
-
-    //------------------------------------------
     // Provide access based on access token and its prefix
 
     /**
@@ -265,7 +183,15 @@ public:
      * @param prefix Prefix to append to the access token's prefix for scope retrieval.
      * @return Reference to the shared JsonScope.
      */
-    [[nodiscard]] static Core::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix);
+    [[nodiscard]] static Core::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix = "");
+
+    /**
+     * @brief Provides access to a shared JsonScopeBase based on the provided access token and prefix.
+     * @param at Access token providing the necessary permissions.
+     * @param prefix Prefix to append to the access token's prefix for scope retrieval.
+     * @return Reference to the shared JsonScopeBase.
+     */
+    [[nodiscard]] static Data::JsonScopeBase& shareScopeBase(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix = "");
 
     //------------------------------------------
     // TODO: The following shareScope overloads are deprecated.
@@ -288,16 +214,6 @@ public:
     // We add a prefix to signal what part these domainModules can access
     [[nodiscard]] static Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::JsonScope> const& dm) {
         return globalDoc().shareManagedScope("providedScope.domainModule.jsonScope." + dm.moduleScope.getScopePrefix());
-    }
-
-    // Provide scope to RulesetModules
-    [[nodiscard]] static Core::JsonScope& shareScope(Interaction::Rules::RulesetModule const& rm) {
-        (void)rm; // unused, we provide full scope for now
-        // TODO: add a getScopePrefix() to RulesetModule later on if needed
-        //       e.g. Physics RulesetModule might only need access to physics-related variables.
-        //       For this to work properly, we may have to add the ability to share multiple scopes.
-        //       -> physics and time for example
-        return globalDoc().shareManagedScope("");
     }
 
     //------------------------------------------
