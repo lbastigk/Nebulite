@@ -3,14 +3,14 @@
  * @brief Class for debug transformation modules.
  */
 
-#ifndef NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_DEBUG_HPP
-#define NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_DEBUG_HPP
+#ifndef NEBULITE_TRANSFORMATION_MODULE_DEBUG_HPP
+#define NEBULITE_TRANSFORMATION_MODULE_DEBUG_HPP
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
-class Debug final : public TransformationModule {
+class Debug final : public Data::TransformationModule {
 public:
     explicit Debug(std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}
@@ -30,5 +30,5 @@ public:
     static auto constexpr printDesc = "Prints the current JSON value to the console.\n"
         "Usage: |print -> {unchanged-json}\n";
 };
-} // namespace Nebulite::Data::TransformationModules
-#endif // NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_DEBUG_HPP
+} // namespace Nebulite::TransformationModule
+#endif // NEBULITE_TRANSFORMATION_MODULE_DEBUG_HPP

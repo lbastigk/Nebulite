@@ -1,7 +1,7 @@
-#include "Data/Document/TransformationModules/Array.hpp"
+#include "TransformationModule/Array.hpp"
 #include "Core/JsonScope.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
 void Array::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Array::ensureArray, ensureArrayName, ensureArrayDesc);
@@ -24,7 +24,7 @@ bool Array::at(std::span<std::string const> const& args, Core::JsonScope* jsonDo
         if (index >= jsonDoc->memberSize(valueKey)) {
             return false; // Index out of bounds
         }
-        JSON const temp = jsonDoc->getSubDoc(valueKey + "[" + std::to_string(index) + "]");
+        Data::JSON const temp = jsonDoc->getSubDoc(valueKey + "[" + std::to_string(index) + "]");
         jsonDoc->setSubDoc(valueKey, temp);
         return true;
     } catch (...) {
@@ -46,10 +46,10 @@ bool Array::reverse(Core::JsonScope* jsonDoc) {
         return false;
     }
     size_t const arraySize = jsonDoc->memberSize(valueKey);
-    JSON const tmp = jsonDoc->getSubDoc(valueKey);
+    Data::JSON const tmp = jsonDoc->getSubDoc(valueKey);
     for (size_t i = 0; i < arraySize; ++i) {
         auto const key = valueKey + "[" + std::to_string(i) + "]";
-        JSON element = tmp.getSubDoc("[" + std::to_string(arraySize - 1 - i) + "]");
+        Data::JSON element = tmp.getSubDoc("[" + std::to_string(arraySize - 1 - i) + "]");
         jsonDoc->setSubDoc(key, element);
     }
     return true;
@@ -62,7 +62,7 @@ bool Array::first(Core::JsonScope* jsonDoc) {
     if (jsonDoc->memberSize(valueKey) == 0) {
         return false; // Empty array
     }
-    JSON const firstElement = jsonDoc->getSubDoc(valueKey + "[0]");
+    Data::JSON const firstElement = jsonDoc->getSubDoc(valueKey + "[0]");
     jsonDoc->setSubDoc(valueKey, firstElement);
     return true;
 }
@@ -75,7 +75,7 @@ bool Array::last(Core::JsonScope* jsonDoc) {
     if (arraySize == 0) {
         return false; // Empty array
     }
-    JSON const lastElement = jsonDoc->getSubDoc(valueKey + "[" + std::to_string(arraySize - 1) + "]");
+    Data::JSON const lastElement = jsonDoc->getSubDoc(valueKey + "[" + std::to_string(arraySize - 1) + "]");
     jsonDoc->setSubDoc(valueKey, lastElement);
     return true;
 }
@@ -86,17 +86,17 @@ bool Array::last(Core::JsonScope* jsonDoc) {
 // NOLINTNEXTLINE
 bool Array::ensureArray(Core::JsonScope* jsonDoc) {
     // Cache the original member type to avoid the analyzer thinking the second branch is unreachable
-    if (jsonDoc->memberType(valueKey) == KeyType::array) {
+    if (jsonDoc->memberType(valueKey) == Data::KeyType::array) {
         return true;
     }
 
     // Single value, wrap into an array
-    JSON const tmp = jsonDoc->getSubDoc(valueKey);
+    Data::JSON const tmp = jsonDoc->getSubDoc(valueKey);
     auto const key = valueKey + "[0]";
     jsonDoc->setSubDoc(key, tmp);
 
     // Return whether wrapping succeeded
-    return jsonDoc->memberType(valueKey) == KeyType::array;
+    return jsonDoc->memberType(valueKey) == Data::KeyType::array;
 }
 
-} // namespace Nebulite::Data::TransformationModules
+} // namespace Nebulite::TransformationModule

@@ -1,8 +1,8 @@
 #include "Nebulite.hpp"
-#include "Data/Document/TransformationModules/Debug.hpp"
+#include "TransformationModule/Debug.hpp"
 #include "Core/JsonScope.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
 void Debug::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Debug::echo, echoName, echoDesc);
@@ -32,4 +32,4 @@ bool Debug::print(std::span<std::string const> const& args, Core::JsonScope* jso
     return true;
 }
 
-} // namespace Nebulite::Data::TransformationModules
+} // namespace Nebulite::TransformationModule

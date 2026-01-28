@@ -1,7 +1,7 @@
-#include "Data/Document/TransformationModules/Collection.hpp"
+#include "TransformationModule/Collection.hpp"
 #include "Core/JsonScope.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
 void Collection::bindTransformations() {
     // BIND_TRANSFORMATION_MEMBER(&Collection::filter, filterName, &filterDesc);
@@ -11,14 +11,14 @@ void Collection::bindTransformations() {
 }
 
 bool Collection::map(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) const {
-    if (jsonDoc->memberType(valueKey) == KeyType::value) {
+    if (jsonDoc->memberType(valueKey) == Data::KeyType::value) {
         // Single value, we wrap it into an array
-        JSON const tmp = jsonDoc->getSubDoc(valueKey);
+        Data::JSON const tmp = jsonDoc->getSubDoc(valueKey);
         auto const key = valueKey + "[0]";
         jsonDoc->setSubDoc(key, tmp);
     }
     // Now we expect an array
-    if (jsonDoc->memberType(valueKey) != KeyType::array) {
+    if (jsonDoc->memberType(valueKey) != Data::KeyType::array) {
         return false; // Not an array
     }
     // Re-join args into a single transformation command
@@ -32,7 +32,7 @@ bool Collection::map(std::span<std::string const> const& args, Core::JsonScope* 
     for (uint32_t idx = 0; idx < arraySize; ++idx) {
         // Set temp document with current element
         auto const elementKey = valueKey + "[" + std::to_string(idx) + "]";
-        JSON element = jsonDoc->getSubDoc(elementKey);
+        Data::JSON element = jsonDoc->getSubDoc(elementKey);
         Core::JsonScope tempDoc;
         tempDoc.setSubDoc(valueKey, element);
 
@@ -40,7 +40,7 @@ bool Collection::map(std::span<std::string const> const& args, Core::JsonScope* 
         if (!transformationFuncTree->parseStr(cmd, &tempDoc)) {
             tempDoc.removeKey(valueKey);
         }
-        JSON transformedElement = tempDoc.getSubDoc(valueKey);
+        Data::JSON transformedElement = tempDoc.getSubDoc(valueKey);
         jsonDoc->setSubDoc(elementKey, transformedElement);
     }
     return true;
@@ -51,7 +51,7 @@ bool Collection::get(std::span<std::string const> const& args, Core::JsonScope* 
         return false;
     }
     auto const& key = valueKey + args[1];
-    JSON const subDoc = jsonDoc->getSubDoc(key);
+    Data::JSON const subDoc = jsonDoc->getSubDoc(key);
     jsonDoc->setSubDoc(valueKey, subDoc);
     return true;
 }
@@ -60,9 +60,9 @@ bool Collection::getMultiple(std::span<std::string const> const& args, Core::Jso
     if (args.size() != 2) {
         return false;
     }
-    std::vector<std::unique_ptr<JSON>> values;
+    std::vector<std::unique_ptr<Data::JSON>> values;
     for (auto const& key : args.subspan(1)) {
-        values.push_back(std::make_unique<JSON>());
+        values.push_back(std::make_unique<Data::JSON>());
         auto subDoc = jsonDoc->getSubDoc(valueKey + key);
         values.back()->copyFrom(subDoc);
     }
@@ -75,4 +75,4 @@ bool Collection::getMultiple(std::span<std::string const> const& args, Core::Jso
     return true;
 }
 
-} // namespace Nebulite::Data::TransformationModules
+} // namespace Nebulite::TransformationModule

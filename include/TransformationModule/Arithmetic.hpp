@@ -3,14 +3,14 @@
  * @brief Class for arithmetic transformation modules.
  */
 
-#ifndef NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_ARITHMETIC_HPP
-#define NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_ARITHMETIC_HPP
+#ifndef NEBULITE_TRANSFORMATION_MODULE_ARITHMETIC_HPP
+#define NEBULITE_TRANSFORMATION_MODULE_ARITHMETIC_HPP
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
-class Arithmetic final : public TransformationModule {
+class Arithmetic final : public Data::TransformationModule {
 public:
     explicit Arithmetic(std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}
@@ -47,5 +47,5 @@ public:
 
     // TODO: dedupe, subarray, sort, sortby, pick, omit
 };
-} // namespace Nebulite::Data::TransformationModules
-#endif // NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_ARITHMETIC_HPP
+} // namespace Nebulite::TransformationModule
+#endif // NEBULITE_TRANSFORMATION_MODULE_ARITHMETIC_HPP

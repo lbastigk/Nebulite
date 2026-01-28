@@ -1,7 +1,7 @@
-#include "Data/Document/TransformationModules/Domain.hpp"
+#include "TransformationModule/Domain.hpp"
 #include "Core/JsonScope.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
 void Domain::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Domain::nebs, nebsName, nebsDesc);
@@ -14,4 +14,4 @@ bool Domain::nebs(std::span<std::string const> const& args, Core::JsonScope* jso
     return true;
 }
 
-} // namespace Nebulite::Data::TransformationModules
+} // namespace Nebulite::TransformationModule

@@ -1,7 +1,7 @@
-#include "Data/Document/TransformationModules/Types.hpp"
+#include "TransformationModule/Types.hpp"
 #include "Core/JsonScope.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
 void Types::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Types::typeAsNumber, typeAsNumberName, typeAsNumberDesc);
@@ -29,19 +29,19 @@ bool Types::typeAsString(Core::JsonScope* jsonDoc) {
     //       e.g.: "value:int:32" or "value:string:10"
     //       Perhaps with additional arg to control the format?
     switch (jsonDoc->memberType(valueKey)) {
-    case KeyType::value: {
+    case Data::KeyType::value: {
         // General type is "value", but we can be more specific by using getVariant or even better:
         // TODO: see above comment
         jsonDoc->set<std::string>(valueKey, "value");
     }
         break;
-    case KeyType::array:
+    case Data::KeyType::array:
         jsonDoc->set<std::string>(valueKey, "array");
         break;
-    case KeyType::object:
+    case Data::KeyType::object:
         jsonDoc->set<std::string>(valueKey, "object");
         break;
-    case KeyType::null:
+    case Data::KeyType::null:
     default:
         jsonDoc->set<std::string>(valueKey, "null");
         break;
@@ -57,8 +57,8 @@ bool Types::serialize(Core::JsonScope* jsonDoc) {
 
 bool Types::deserialize(Core::JsonScope* jsonDoc) {
     auto const serialized = jsonDoc->get<std::string>(valueKey, "");
-    JSON tempDoc;
-    if (!JSON::isJsonOrJsonc(serialized)) {
+    Data::JSON tempDoc;
+    if (!Data::JSON::isJsonOrJsonc(serialized)) {
         return false;
     }
     tempDoc.deserialize(serialized);
@@ -66,4 +66,4 @@ bool Types::deserialize(Core::JsonScope* jsonDoc) {
     return true;
 }
 
-} // namespace Nebulite::Data::TransformationModules
+} // namespace Nebulite::TransformationModule

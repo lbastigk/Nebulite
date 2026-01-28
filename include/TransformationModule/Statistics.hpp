@@ -3,14 +3,14 @@
  * @brief Class for statistics transformation modules.
  */
 
-#ifndef NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_STATISTICS_HPP
-#define NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_STATISTICS_HPP
+#ifndef NEBULITE_TRANSFORMATION_MODULE_STATISTICS_HPP
+#define NEBULITE_TRANSFORMATION_MODULE_STATISTICS_HPP
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
-class Statistics final : public TransformationModule {
+class Statistics final : public Data::TransformationModule {
 public:
     explicit Statistics(std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}
@@ -23,5 +23,5 @@ public:
     // TODO: total, median, average, stddev, min, max, etc.
     //       Make sure to allow for non-numeric values if appropriate
 };
-} // namespace Nebulite::Data::TransformationModules
-#endif // NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_STATISTICS_HPP
+} // namespace Nebulite::TransformationModule
+#endif // NEBULITE_TRANSFORMATION_MODULE_STATISTICS_HPP

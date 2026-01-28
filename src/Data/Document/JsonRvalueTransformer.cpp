@@ -8,16 +8,16 @@
 
 //------------------------------------------
 // Modules
-#include "Data/Document/TransformationModules/Arithmetic.hpp"
-#include "Data/Document/TransformationModules/Array.hpp"
-#include "Data/Document/TransformationModules/Assertions.hpp"
-#include "Data/Document/TransformationModules/Casting.hpp"
-#include "Data/Document/TransformationModules/Collection.hpp"
-#include "Data/Document/TransformationModules/Debug.hpp"
-#include "Data/Document/TransformationModules/Domain.hpp"
-#include "Data/Document/TransformationModules/Statistics.hpp"
-#include "Data/Document/TransformationModules/String.hpp"
-#include "Data/Document/TransformationModules/Types.hpp"
+#include "TransformationModule/Arithmetic.hpp"
+#include "TransformationModule/Array.hpp"
+#include "TransformationModule/Assertions.hpp"
+#include "TransformationModule/Casting.hpp"
+#include "TransformationModule/Collection.hpp"
+#include "TransformationModule/Debug.hpp"
+#include "TransformationModule/Domain.hpp"
+#include "TransformationModule/Statistics.hpp"
+#include "TransformationModule/String.hpp"
+#include "TransformationModule/Types.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -27,16 +27,16 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
 
     //------------------------------------------
     // Initialize modules
-    initModule<TransformationModules::Arithmetic>();
-    initModule<TransformationModules::Array>();
-    initModule<TransformationModules::Assertions>();
-    initModule<TransformationModules::Casting>();
-    initModule<TransformationModules::Collection>();
-    initModule<TransformationModules::Debug>();
-    initModule<TransformationModules::Domain>();
-    initModule<TransformationModules::Statistics>();
-    initModule<TransformationModules::String>();
-    initModule<TransformationModules::Types>();
+    initModule<Nebulite::TransformationModule::Arithmetic>();
+    initModule<Nebulite::TransformationModule::Array>();
+    initModule<Nebulite::TransformationModule::Assertions>();
+    initModule<Nebulite::TransformationModule::Casting>();
+    initModule<Nebulite::TransformationModule::Collection>();
+    initModule<Nebulite::TransformationModule::Debug>();
+    initModule<Nebulite::TransformationModule::Domain>();
+    initModule<Nebulite::TransformationModule::Statistics>();
+    initModule<Nebulite::TransformationModule::String>();
+    initModule<Nebulite::TransformationModule::Types>();
 
     //------------------------------------------
     // Bind all transformations

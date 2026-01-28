@@ -47,12 +47,6 @@ namespace Core {
  * @brief Contains all fundamental containers used throughout the Nebulite framework.
  */
 namespace Data {
-/**
- * @namespace Nebulite::Data::TransformationModules
- * @brief Contains all TransformationModules used for modifying JSON values during retrieval.
- */
-namespace TransformationModules {
-} // namespace TransformationModules
 } // namespace Data
 
 /**
@@ -142,6 +136,13 @@ namespace RulesetModules {
 } // namespace RulesetModules
 } // namespace Rules
 } // namespace Interaction
+
+/**
+ * @namespace Nebulite::TransformationModule
+ * @brief Contains all TransformationModule used for modifying JSON values during retrieval.
+ */
+namespace TransformationModule {
+} // namespace TransformationModule
 
 /**
  * @namespace Nebulite::Utility

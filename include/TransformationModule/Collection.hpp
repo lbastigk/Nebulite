@@ -3,14 +3,14 @@
  * @brief Class for collection transformation modules.
  */
 
-#ifndef NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_COLLECTION_HPP
-#define NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_COLLECTION_HPP
+#ifndef NEBULITE_TRANSFORMATION_MODULE_COLLECTION_HPP
+#define NEBULITE_TRANSFORMATION_MODULE_COLLECTION_HPP
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
-class Collection final : public TransformationModule {
+class Collection final : public Data::TransformationModule {
 public:
     explicit Collection(std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}
@@ -43,5 +43,5 @@ public:
     static auto constexpr getMultipleDesc = "Gets multiple values at the specified keys from the current JSON object.\n"
         "Usage: |getMultiple <key1> <key2> ... -> {array of values}\n";
 };
-} // namespace Nebulite::Data::TransformationModules
-#endif // NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_COLLECTION_HPP
+} // namespace Nebulite::TransformationModule
+#endif // NEBULITE_TRANSFORMATION_MODULE_COLLECTION_HPP

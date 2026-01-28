@@ -3,14 +3,14 @@
  * @brief Class for string transformation modules.
  */
 
-#ifndef NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_STRING_HPP
-#define NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_STRING_HPP
+#ifndef NEBULITE_TRANSFORMATION_MODULE_STRING_HPP
+#define NEBULITE_TRANSFORMATION_MODULE_STRING_HPP
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
-class String final : public TransformationModule {
+class String final : public Data::TransformationModule {
 public:
     explicit String(std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}
@@ -41,5 +41,5 @@ public:
 
     // TODO: Add comparison functions like strequals, strcontains, strstartswith, strendswith, strcountappearance
 };
-} // namespace Nebulite::Data::TransformationModules
-#endif // NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_STRING_HPP
+} // namespace Nebulite::TransformationModule
+#endif // NEBULITE_TRANSFORMATION_MODULE_STRING_HPP

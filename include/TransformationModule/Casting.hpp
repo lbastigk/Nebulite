@@ -3,14 +3,14 @@
  * @brief Class for casting transformation modules.
  */
 
-#ifndef NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_CASTING_HPP
-#define NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_CASTING_HPP
+#ifndef NEBULITE_TRANSFORMATION_MODULE_CASTING_HPP
+#define NEBULITE_TRANSFORMATION_MODULE_CASTING_HPP
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
-class Casting final : public TransformationModule {
+class Casting final : public Data::TransformationModule {
 public:
     explicit Casting(std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}
@@ -53,5 +53,5 @@ public:
         "Usage: |toBoolString -> {string}\n"
         "Either 'true' or 'false'\n";
 };
-} // namespace Nebulite::Data::TransformationModules
-#endif // NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_CASTING_HPP
+} // namespace Nebulite::TransformationModule
+#endif // NEBULITE_TRANSFORMATION_MODULE_CASTING_HPP

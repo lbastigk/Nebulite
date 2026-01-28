@@ -1,7 +1,7 @@
-#include "Data/Document/TransformationModules/Arithmetic.hpp"
+#include "TransformationModule/Arithmetic.hpp"
 #include "Core/JsonScope.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
 void Arithmetic::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Arithmetic::add, addName, addDesc);
@@ -73,4 +73,4 @@ bool Arithmetic::pow(std::span<std::string const> const& args, Core::JsonScope* 
     }
 }
 
-} // namespace Nebulite::Data::TransformationModules
+} // namespace Nebulite::TransformationModule

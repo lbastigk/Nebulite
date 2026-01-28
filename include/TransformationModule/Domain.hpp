@@ -3,14 +3,14 @@
  * @brief Class for domain transformation modules.
  */
 
-#ifndef NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_DOMAIN_HPP
-#define NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_DOMAIN_HPP
+#ifndef NEBULITE_TRANSFORMATION_MODULE_DOMAIN_HPP
+#define NEBULITE_TRANSFORMATION_MODULE_DOMAIN_HPP
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
-class Domain final : public TransformationModule {
+class Domain final : public Data::TransformationModule {
 public:
     explicit Domain(std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}
@@ -25,5 +25,5 @@ public:
     static auto constexpr nebsDesc = "Parses a Nebulite Script command on the JSON\n"
         "Usage: |nebs <command> -> {value}\n";
 };
-} // namespace Nebulite::Data::TransformationModules
-#endif // NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_DOMAIN_HPP
+} // namespace Nebulite::TransformationModule
+#endif // NEBULITE_TRANSFORMATION_MODULE_DOMAIN_HPP

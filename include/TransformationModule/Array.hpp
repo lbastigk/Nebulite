@@ -3,14 +3,14 @@
  * @brief Class for array transformation modules.
  */
 
-#ifndef NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_ARRAY_HPP
-#define NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_ARRAY_HPP
+#ifndef NEBULITE_TRANSFORMATION_MODULE_ARRAY_HPP
+#define NEBULITE_TRANSFORMATION_MODULE_ARRAY_HPP
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
-class Array final : public TransformationModule {
+class Array final : public Data::TransformationModule {
 public:
     explicit Array(std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}
@@ -55,5 +55,5 @@ public:
         "If the current value is not an array, it is first wrapped into a single-element array.\n"
         "Usage: |last -> {value}\n";
 };
-} // namespace Nebulite::Data::TransformationModules
-#endif // NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_ARRAY_HPP
+} // namespace Nebulite::TransformationModule
+#endif // NEBULITE_TRANSFORMATION_MODULE_ARRAY_HPP

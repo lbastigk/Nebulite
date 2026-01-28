@@ -3,14 +3,14 @@
  * @brief Class for assertion transformation modules.
  */
 
-#ifndef NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_ASSERTIONS_HPP
-#define NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_ASSERTIONS_HPP
+#ifndef NEBULITE_TRANSFORMATION_MODULE_ASSERTIONS_HPP
+#define NEBULITE_TRANSFORMATION_MODULE_ASSERTIONS_HPP
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
-class Assertions final : public TransformationModule {
+class Assertions final : public Data::TransformationModule {
 public:
     explicit Assertions(std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}
@@ -26,5 +26,5 @@ public:
         "If the value is empty, the transformation fails and the program exits\n"
         "Usage: |assertNonEmpty -> {value,<Exception thrown if empty>}\n";
 };
-} // namespace Nebulite::Data::TransformationModules
-#endif // NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_ASSERTIONS_HPP
+} // namespace Nebulite::TransformationModule
+#endif // NEBULITE_TRANSFORMATION_MODULE_ASSERTIONS_HPP

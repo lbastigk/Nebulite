@@ -3,14 +3,14 @@
  * @brief Class for types transformation modules.
  */
 
-#ifndef NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_TYPES_HPP
-#define NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_TYPES_HPP
+#ifndef NEBULITE_TRANSFORMATION_MODULE_TYPES_HPP
+#define NEBULITE_TRANSFORMATION_MODULE_TYPES_HPP
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
-class Types final : public TransformationModule {
+class Types final : public Data::TransformationModule {
 public:
     explicit Types(std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}
@@ -43,5 +43,5 @@ public:
     static auto constexpr deserializeDesc = "Deserializes the current JSON string value.\n"
             "Usage: |deserialize -> {value}\n";
 };
-} // namespace Nebulite::Data::TransformationModules
-#endif // NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULES_TYPES_HPP
+} // namespace Nebulite::TransformationModule
+#endif // NEBULITE_TRANSFORMATION_MODULE_TYPES_HPP

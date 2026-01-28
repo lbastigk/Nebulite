@@ -1,7 +1,7 @@
-#include "Data/Document/TransformationModules/Casting.hpp"
+#include "TransformationModule/Casting.hpp"
 #include "Core/JsonScope.hpp"
 
-namespace Nebulite::Data::TransformationModules {
+namespace Nebulite::TransformationModule {
 
 void Casting::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Casting::toInt, toIntName, toIntDesc);
@@ -13,7 +13,7 @@ void Casting::bindTransformations() {
 
 bool Casting::toInt(Core::JsonScope* jsonDoc) {
     // Check if it has any value
-    if (jsonDoc->memberType(valueKey) == KeyType::null) {
+    if (jsonDoc->memberType(valueKey) == Data::KeyType::null) {
         return false;
     }
 
@@ -26,7 +26,7 @@ bool Casting::toInt(Core::JsonScope* jsonDoc) {
 
 bool Casting::toString(Core::JsonScope* jsonDoc) {
     // Check if it has any value
-    if (jsonDoc->memberType(valueKey) == KeyType::null) {
+    if (jsonDoc->memberType(valueKey) == Data::KeyType::null) {
         return false;
     }
 
@@ -37,7 +37,7 @@ bool Casting::toString(Core::JsonScope* jsonDoc) {
 
 bool Casting::toBool(Core::JsonScope* jsonDoc) {
     // Check if it has any value
-    if (jsonDoc->memberType(valueKey) == KeyType::null) {
+    if (jsonDoc->memberType(valueKey) == Data::KeyType::null) {
         return false;
     }
 
@@ -67,7 +67,7 @@ bool Casting::toBool(Core::JsonScope* jsonDoc) {
 
 bool Casting::toDouble(Core::JsonScope* jsonDoc) {
     // Check if it has any value
-    if (jsonDoc->memberType(valueKey) == KeyType::null) {
+    if (jsonDoc->memberType(valueKey) == Data::KeyType::null) {
         return false;
     }
 
@@ -79,7 +79,7 @@ bool Casting::toDouble(Core::JsonScope* jsonDoc) {
 
 bool Casting::toBoolString(Core::JsonScope* jsonDoc) {
     // Check if it has any value
-    if (jsonDoc->memberType(valueKey) == KeyType::null) {
+    if (jsonDoc->memberType(valueKey) == Data::KeyType::null) {
         return false;
     }
 
@@ -89,4 +89,4 @@ bool Casting::toBoolString(Core::JsonScope* jsonDoc) {
     return true;
 }
 
-} // namespace Nebulite::Data::TransformationModules
+} // namespace Nebulite::TransformationModule
