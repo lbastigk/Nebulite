@@ -16,7 +16,7 @@ ScopeAccessor::DomainModuleToken<DomainType>::DomainModuleToken(Interaction::Exe
     } else if constexpr (std::is_same_v<DomainType, Core::JsonScope>) {
         prefix = "providedScope.domainModule.jsonScope." + dm.moduleScope.getScopePrefix();
     } else {
-        static_assert(always_false<DomainType>, "ScopeAccessor::DomainModuleToken: Unsupported DomainType for DomainModuleToken");
+        static_assert(Constants::Assert::always_false<DomainType>, "ScopeAccessor::DomainModuleToken: Unsupported DomainType for DomainModuleToken");
         std::unreachable();
     }
 }

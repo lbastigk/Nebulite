@@ -14,6 +14,7 @@
 #include <utility>
 
 // Nebulite
+#include "Constants/Alignment.hpp"
 #include "Constants/ThreadSettings.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
 #include "Data/Document/KeyType.hpp"
@@ -71,7 +72,7 @@ private:
     /**
      * @brief Mapped ordered double pointers for expression references.
      */
-    std::array<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS> expressionRefs;
+    alignas(Constants::Alignment::SIMD_ALIGN) std::array<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS> expressionRefs;
 
     //------------------------------------------
     // Valid prefix check and generation

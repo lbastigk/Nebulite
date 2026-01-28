@@ -40,7 +40,6 @@ function(configure_warnings target_name)
             -Wall
             -Wextra
             -Wpedantic
-            -Wno-unused-parameter
             -Wcast-align
             -Wmissing-field-initializers
             -Wformat=2
@@ -49,6 +48,8 @@ function(configure_warnings target_name)
             -Wdouble-promotion
             -Wfloat-equal
             -Wshadow
+            # Disable some warnings
+            -Wno-interference-size
         )
 
         # Append external include flags if any

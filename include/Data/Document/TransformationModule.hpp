@@ -34,12 +34,12 @@ class JSON;
 
 // Bind non-static member function
 #define BIND_TRANSFORMATION_MEMBER(foo, name, desc) \
-static_assert(endsWithNewline(desc), "Description must end with a newline character"); \
+static_assert(::Nebulite::Constants::Assert::endsWithNewline(desc), "Description must end with a newline character"); \
 Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, foo, name, desc)
 
 // Bind static/free function
 #define BIND_TRANSFORMATION_STATIC(foo, name, desc) \
-static_assert(endsWithNewline(desc), "Description must end with a newline character"); \
+static_assert(::Nebulite::Constants::Assert::endsWithNewline(desc), "Description must end with a newline character"); \
 Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), foo, name, desc)
 
 //------------------------------------------

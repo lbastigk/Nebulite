@@ -18,6 +18,7 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
+#include "Constants/Alignment.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Data/Document/JsonRvalueTransformer.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
@@ -70,14 +71,14 @@ private:
     /**
      * @brief The amount of pre-cached double values per Document.
      */
-    static auto constexpr CACHELINE_SIZE = 128;
+    static auto constexpr CACHELINE_SIZE = 1024 / sizeof(double);
 
     /**
      * @brief Pre-allocated cacheline for fast double value access.
      * @details Instead of always allocating new double values, we use a pre-allocated cacheline.
      *          This reduces memory fragmentation and improves cache locality.
      */
-    mutable std::array<double, CACHELINE_SIZE> CACHELINE = {0.0};
+    alignas(Constants::Alignment::SIMD_ALIGN) mutable std::array<double, CACHELINE_SIZE> CACHELINE = {0.0};
 
     /**
      * @brief Current index in the cacheline for the next double value.
@@ -240,6 +241,12 @@ private:
     std::vector<std::unique_ptr<JsonScopeBase>> managedScopeBases;
 
 public:
+    //------------------------------------------
+    // Assertions
+
+    // Make sure cache size is a power of two for optimal performance
+    static_assert(Constants::Assert::isPowerOfTwo(CACHELINE_SIZE), "CACHELINE_SIZE must be a power of two for optimal performance.");
+
     //------------------------------------------
     // Constructor/Destructor
 
