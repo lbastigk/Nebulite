@@ -1,0 +1,22 @@
+[
+    {
+        "command": "__complete__ set",
+        "expected": {
+            "cout": [
+                "set-fps",
+                "set-res",
+                "settings"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": "__complete__ debug categoryLevel1 c",
+        "expected": {
+            "cout": [
+                "categoryLevel2"
+            ],
+            "cerr": []
+        }
+    }
+]

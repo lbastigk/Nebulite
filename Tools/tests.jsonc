@@ -20,6 +20,7 @@
         "Tools/Tests/Expression/math.json",
         "Tools/Tests/Expression/transformations.json",
         "Tools/Tests/Functional/bindingCollisionDetection.json",
+        "Tools/Tests/Functional/completion.json",
         "Tools/Tests/JSON/Array.json",
         "Tools/Tests/JSON/Retrieval.json",
         "Tools/Tests/JSON/RvalueTransformer.json",
