@@ -254,10 +254,16 @@ returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::st
     completions.erase(std::unique(completions.begin(), completions.end()), completions.end());
     completions.erase(std::remove(completions.begin(), completions.end(), "__complete__"), completions.end());
 
+    // Remove any argument that is exactly equal to the pattern provided
+    std::erase_if(completions, [&](std::string const& completion){
+        return completion == pattern;
+    });
+
     // Output completions
-    for (auto const& completion : completions) {
+    std::ranges::for_each(completions, [](std::string const& completion){
         Utility::Capture::cout() << completion << Utility::Capture::endl;
-    }
+    });
+
     return standardReturn.valDefault;
 }
 
