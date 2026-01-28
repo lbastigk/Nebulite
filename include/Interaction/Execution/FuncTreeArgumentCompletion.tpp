@@ -211,32 +211,27 @@ template <typename returnValue, typename ... additionalArgs>
 returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::string const> const& args){
     auto argsSpan = args.subspan(1); // Skip binary name or last function name
     FuncTree* ftree = this;
-    while (argsSpan.size() > 1) {
-        // Traverse functree categories
-        std::string const& categoryName = argsSpan.front();
-        ftree = traverseIntoCategory(categoryName, ftree);
-        if (ftree != nullptr) {
-            argsSpan = argsSpan.subspan(1); // Remove processed category
-        } else {
-            break;
-        }
-    }
-
-    // Return if traversal failed
-    if (ftree == nullptr) {
-        return standardReturn.valDefault;
-    }
-
-    // Now we check the ftree for completions
     std::string pattern;
     if (argsSpan.empty()) {
         // No pattern provided
         pattern = "";
     }
     else {
-        pattern = argsSpan.front();
+        pattern = argsSpan.back();
+        argsSpan = argsSpan.subspan(0, argsSpan.size() - 1); // Remove pattern from argsSpan
+
+        // Traverse into categories
+        std::ranges::for_each(argsSpan, [&](std::string const& arg) {
+            if (ftree) ftree = traverseIntoCategory(arg, ftree);
+        });
+
+        // Return if traversal failed -> no completions
+        if (ftree == nullptr) {
+            return standardReturn.valDefault;
+        }
     }
 
+    // Find completions for the pattern in the current FuncTree
     auto completions = ftree->findCompletions(pattern);
 
     // If there is only one completion, it might be a category, so we traverse into it
@@ -259,9 +254,9 @@ returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::st
         return completion == pattern;
     });
 
-    // Output completions
+    // Output completions to stdout
     std::ranges::for_each(completions, [](std::string const& completion){
-        Utility::Capture::cout() << completion << Utility::Capture::endl;
+        Utility::Capture::cout().println(completion);
     });
 
     return standardReturn.valDefault;
