@@ -225,6 +225,7 @@ template <typename From, typename To>
 struct unsupported_conversion;
 } // anonymous namespace
 
+// Using NOLINTNEXTLINE to silence "Arguments passed in possible wrong order" warnings
 template<typename newType>
 newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue){
     return std::visit([&]<typename T>(T const& value)
@@ -246,40 +247,51 @@ newType JSON::convertVariant(RjDirectAccess::simpleValue const& var, newType con
         // [STRING] -> [BOOL]
         // Handle string to bool
         else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, bool>){
+            // NOLINTNEXTLINE
             return ConverterHelper::stringToBool(value, defaultValue);
         }
 
         // [STRING] -> [INT]
         else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, int>){
+            // NOLINTNEXTLINE
             return ConverterHelper::stringToInt(value, defaultValue);
         }
         else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, uint8_t>){
+            // NOLINTNEXTLINE
             return ConverterHelper::stringToUInt8(value, defaultValue);
         }
         else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, int8_t>){
+            // NOLINTNEXTLINE
             return ConverterHelper::stringToInt8(value, defaultValue);
         }
         else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, uint16_t>){
+            // NOLINTNEXTLINE
             return ConverterHelper::stringToUInt16(value, defaultValue);
         }
         else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, int16_t>){
+            // NOLINTNEXTLINE
             return ConverterHelper::stringToInt16(value, defaultValue);
         }
         else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, uint32_t>){
+            // NOLINTNEXTLINE
             return ConverterHelper::stringToUInt32(value, defaultValue);
         }
         else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, int32_t>){
+            // NOLINTNEXTLINE
             return ConverterHelper::stringToInt32(value, defaultValue);
         }
         else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, uint64_t>){
+            // NOLINTNEXTLINE
             return ConverterHelper::stringToUInt64(value, defaultValue);
         }
         else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, int64_t>){
+            // NOLINTNEXTLINE
             return ConverterHelper::stringToInt64(value, defaultValue);
         }
 
         // [STRING] -> [DOUBLE]
         else if constexpr (std::is_same_v<ValueT, std::string> && std::is_same_v<newType, double>){
+            // NOLINTNEXTLINE
             return ConverterHelper::stringToDouble(value, defaultValue);
         }
 
