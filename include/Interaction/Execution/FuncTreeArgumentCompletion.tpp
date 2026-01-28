@@ -269,65 +269,43 @@ returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::st
 
 template <typename returnValue, typename ... additionalArgs>
 FuncTree<returnValue, additionalArgs...>* FuncTree<returnValue, additionalArgs...>::traverseIntoCategory(std::string const& categoryName, FuncTree const* ftree) {
-    bool foundDirect = false;
-    bool foundInherited = false;
-
-    FuncTree* newTree = nullptr;
-
     // Check direct categories first
     if (auto catIt = ftree->bindingContainer.categories.find(categoryName); catIt != ftree->bindingContainer.categories.end()) {
-        foundDirect = true;
-        newTree = catIt->second.tree.get();
-    } else {
-        // Category not found, check inherited trees
-        for (auto const& inheritedTree : ftree->inheritedTrees) {
-            if (inheritedTree) {
-                auto inheritedCatIt = inheritedTree->bindingContainer.categories.find(categoryName);
-                if (inheritedCatIt != inheritedTree->bindingContainer.categories.end()) {
-                    foundInherited = true;
-                    newTree = inheritedCatIt->second.tree.get();
-                    break; // Stop searching after first found
-                }
-            }
-        }
+        return catIt->second.tree.get();
     }
 
-    // Break if category not found
-    if (!foundDirect && !foundInherited) {
-        return nullptr;
+    // Category not found, check inherited trees
+    auto it = std::ranges::find_if(ftree->inheritedTrees, [&](auto const& inheritedTree) {
+        return inheritedTree && inheritedTree->bindingContainer.categories.contains(categoryName);
+    });
+    if (it != ftree->inheritedTrees.end()) {
+        return (*it)->bindingContainer.categories.find(categoryName)->second.tree.get();
     }
-    return newTree;
+
+    // No category found
+    return nullptr;
 }
 
 template <typename returnValue, typename ... additionalArgs>
 std::vector<std::string> FuncTree<returnValue, additionalArgs...>::findCompletions(std::string const& pattern) {
     std::vector<std::string> completions;
-    for (auto const& [name, _] : bindingContainer.functions) {
-        if (name.starts_with(pattern)) {
-            // Found a completion, store it
-            completions.push_back(name);
+    auto collect = [&](auto const& map, std::string_view const prefix = "") {
+        for (auto const& [name, _] : map) {
+            if (std::string const full = std::string(prefix) + name; full.starts_with(pattern)) {
+                completions.push_back(std::move(full));
+            }
         }
-    }
-    for (auto const& [name, _] : bindingContainer.categories) {
-        if (name.starts_with(pattern)) {
-            // Found a completion, store it
-            completions.push_back(name);
-        }
-    }
-    for (auto const& [name, _] : bindingContainer.variables) {
-        if (std::string const fullVarName = "--" + name; fullVarName.starts_with(pattern)) {
-            // Found a completion, store it
-            completions.push_back(fullVarName);
-        }
-    }
+    };
 
-    // Check in inherited trees
-    for (auto const& inheritedTree : inheritedTrees) {
+    collect(bindingContainer.functions);
+    collect(bindingContainer.categories);
+    collect(bindingContainer.variables, "--");
+    std::ranges::for_each(inheritedTrees, [&](auto const& inheritedTree){
         if (inheritedTree) {
             auto inheritedCompletions = inheritedTree->findCompletions(pattern);
-            completions.insert(completions.end(), inheritedCompletions.begin(), inheritedCompletions.end());
+            std::ranges::move(inheritedCompletions, std::back_inserter(completions));
         }
-    }
+    });
     return completions;
 }
 
