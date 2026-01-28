@@ -3,17 +3,14 @@
  * @brief This file defines the Physics ruleset module, containing static rulesets related to physics.
  */
 
-#ifndef NEBULITE_INTERACTION_RULES_RULESET_MODULES_PHYSICS_HPP
-#define NEBULITE_INTERACTION_RULES_RULESET_MODULES_PHYSICS_HPP
+#ifndef NEBULITE_RULESET_MODULE_PHYSICS_HPP
+#define NEBULITE_RULESET_MODULE_PHYSICS_HPP
 
 //------------------------------------------
 // Includes
 
-// Standard library
-
-// External
-
 // Nebulite
+#include "Constants/KeyNames.hpp"
 #include "DomainModule/GlobalSpace/Physics.hpp"
 #include "Interaction/Rules/RulesetModule.hpp"
 
@@ -24,7 +21,7 @@ struct Context;
 } // namespace Interaction::Rules
 
 //------------------------------------------
-namespace Nebulite::Interaction::Rules::RulesetModules {
+namespace Nebulite::RulesetModule {
 /**
  * @brief The Physics ruleset module, containing static rulesets related to physics.
  * @details All rulesets here should be force-based physics simulations.
@@ -32,28 +29,28 @@ namespace Nebulite::Interaction::Rules::RulesetModules {
  *          After that, the local module ::physics::applyForce needs to be called to apply the accumulated forces.
  *          Make sure to call them each frame, otherwise the forces will accumulate indefinitely!
  */
-class Physics : public RulesetModule {
+class Physics : public Interaction::Rules::RulesetModule {
 public:
     //------------------------------------------
     // Functions
 
     // Global rulesets
 
-    void elasticCollision(ContextBase const& context) const;
+    void elasticCollision(Interaction::ContextBase const& context) const;
     static constexpr std::string_view elasticCollisionName = "::physics::elasticCollision";
     static constexpr std::string_view elasticCollisionDesc = "Applies elastic collision forces between two render objects based on their masses and velocities.";
 
-    void gravity(ContextBase const& context) const ;
+    void gravity(Interaction::ContextBase const& context) const ;
     static constexpr std::string_view gravityName = "::physics::gravity";
     static constexpr std::string_view gravityDesc = "Applies gravitational force between two render objects based on their masses and the gravitational constant.";
 
     // Local rulesets
 
-    void applyForce(ContextBase const& context) const ;
+    void applyForce(Interaction::ContextBase const& context) const ;
     static constexpr std::string_view applyForceName = "::physics::applyForce";
     static constexpr std::string_view applyForceDesc = "Applies accumulated forces to the render object's acceleration, velocity, and position based on its mass and the simulation delta time.";
 
-    void drag(ContextBase const& context) const ;
+    void drag(Interaction::ContextBase const& context) const ;
     static constexpr std::string_view dragName = "::physics::drag";
     static constexpr std::string_view dragDesc = "Applies drag force to the render object, simulating air resistance based on its velocity and a drag coefficient.";
 
@@ -123,5 +120,5 @@ private:
         /* Add more global variables here as needed */
     } globalVal = {};
 };
-} // namespace Nebulite::Interaction::Rules::RulesetModules
-#endif // NEBULITE_INTERACTION_RULES_RULESET_MODULES_PHYSICS_HPP
+} // namespace Nebulite::RulesetModule
+#endif // NEBULITE_RULESET_MODULE_PHYSICS_HPP

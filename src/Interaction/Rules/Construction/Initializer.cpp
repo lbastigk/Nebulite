@@ -2,14 +2,14 @@
 
 //------------------------------------------
 // Modules
-#include "Interaction/Rules/RulesetModules/Camera.hpp"
-#include "Interaction/Rules/RulesetModules/Debug.hpp"
-#include "Interaction/Rules/RulesetModules/Physics.hpp"
+#include "RulesetModule/Camera.hpp"
+#include "RulesetModule/Debug.hpp"
+#include "RulesetModule/Physics.hpp"
 
 
 //------------------------------------------
 // Shortcut
-#define Module Nebulite::Interaction::Rules::RulesetModules
+#define Module Nebulite::RulesetModule
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules::Construction {

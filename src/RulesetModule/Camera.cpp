@@ -1,8 +1,8 @@
 #include "Nebulite.hpp"
-#include "Interaction/Rules/RulesetModules/Camera.hpp"
+#include "RulesetModule/Camera.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 
-namespace Nebulite::Interaction::Rules::RulesetModules {
+namespace Nebulite::RulesetModule {
 
 Camera::Camera() : RulesetModule(moduleName) {
     // Bind Camera-related static rulesets here
@@ -22,30 +22,30 @@ Camera::Camera() : RulesetModule(moduleName) {
 
 // TODO: Add another namespace for camera following rulesets using a PT1 controller for smooth movement
 
-void Camera::alignCenter(ContextBase const& context) const {
+void Camera::alignCenter(Interaction::ContextBase const& context) const {
     double** slf = getBaseList(context.self, baseKeys);
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Center);
 }
 
-void Camera::alignTop(ContextBase const& context) const {
+void Camera::alignTop(Interaction::ContextBase const& context) const {
     double** slf = getBaseList(context.self, baseKeys);
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Top);
 }
 
-void Camera::alignBottom(ContextBase const& context) const {
+void Camera::alignBottom(Interaction::ContextBase const& context) const {
     double** slf = getBaseList(context.self, baseKeys);
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Bottom);
 }
 
-void Camera::alignLeft(ContextBase const& context) const {
+void Camera::alignLeft(Interaction::ContextBase const& context) const {
     double** slf = getBaseList(context.self, baseKeys);
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Left);
 }
 
-void Camera::alignRight(ContextBase const& context) const {
+void Camera::alignRight(Interaction::ContextBase const& context) const {
     double** slf = getBaseList(context.self, baseKeys);
     setCameraPosition(getAdjustedObjectPosition(slf, Align::Center), Align::Right);
 }
 
 
-} // namespace Nebulite::Interaction::Rules::RulesetModules
+} // namespace Nebulite::RulesetModule

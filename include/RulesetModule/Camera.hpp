@@ -3,8 +3,8 @@
  * @brief This file defines the Align ruleset module, containing static rulesets related to camera alignment.
  */
 
-#ifndef NEBULITE_INTERACTION_RULES_RULESET_MODULES_CAMERA_HPP
-#define NEBULITE_INTERACTION_RULES_RULESET_MODULES_CAMERA_HPP
+#ifndef NEBULITE_RULESET_MODULE_CAMERA_HPP
+#define NEBULITE_RULESET_MODULE_CAMERA_HPP
 
 //------------------------------------------
 // Includes
@@ -24,31 +24,31 @@ struct Context;
 } // namespace Interaction::Rules
 
 //------------------------------------------
-namespace Nebulite::Interaction::Rules::RulesetModules {
-class Camera : public RulesetModule {
+namespace Nebulite::RulesetModule {
+class Camera : public Interaction::Rules::RulesetModule {
 public:
     //------------------------------------------
     // Functions
 
     // Align camera
 
-    void alignCenter(ContextBase const& context) const ;
+    void alignCenter(Interaction::ContextBase const& context) const ;
     static constexpr std::string_view alignCenterName = "::camera::align::center";
     static constexpr std::string_view alignCenterDesc = "Aligns the camera view center to the center of the render object.";
 
-    void alignTop(ContextBase const& context) const ;
+    void alignTop(Interaction::ContextBase const& context) const ;
     static constexpr std::string_view alignTopName = "::camera::align::top";
     static constexpr std::string_view alignTopDesc = "Aligns the camera view top edge to the center of the render object.";
 
-    void alignBottom(ContextBase const& context) const ;
+    void alignBottom(Interaction::ContextBase const& context) const ;
     static constexpr std::string_view alignBottomName = "::camera::align::bottom";
     static constexpr std::string_view alignBottomDesc = "Aligns the camera view bottom edge to the center of the render object.";
 
-    void alignLeft(ContextBase const& context) const ;
+    void alignLeft(Interaction::ContextBase const& context) const ;
     static constexpr std::string_view alignLeftName = "::camera::align::left";
     static constexpr std::string_view alignLeftDesc = "Aligns the camera view left edge to the center of the render object.";
 
-    void alignRight(ContextBase const& context) const ;
+    void alignRight(Interaction::ContextBase const& context) const ;
     static constexpr std::string_view alignRightName = "::camera::align::right";
     static constexpr std::string_view alignRightDesc = "Aligns the camera view right edge to the center of the render object.";
 
@@ -156,5 +156,5 @@ private:
         return pos;
     }
 };
-} // namespace Nebulite::Interaction::Rules::RulesetModules
-#endif // NEBULITE_INTERACTION_RULES_RULESET_MODULES_CAMERA_HPP
+} // namespace Nebulite::RulesetModule
+#endif // NEBULITE_RULESET_MODULE_CAMERA_HPP

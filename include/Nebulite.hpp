@@ -125,17 +125,17 @@ namespace Rules {
  */
 namespace Construction {
 } // namespace Construction
+} // namespace Rules
+} // namespace Interaction
 
 /**
- * @namespace Nebulite::Interaction::Rules::RulesetModules
+ * @namespace Nebulite::RulesetModule
  * @brief Contains all classes, functions, types and variables related to specific static Rulesets.
  * @details Compared to json-defined Rulesets, these RulesetModules provide optimized implementations for common use-cases.
  *          They are hardcoded and compiled into the Nebulite framework.
  */
-namespace RulesetModules {
-} // namespace RulesetModules
-} // namespace Rules
-} // namespace Interaction
+namespace RulesetModule {
+} // namespace RulesetModule
 
 /**
  * @namespace Nebulite::TransformationModule

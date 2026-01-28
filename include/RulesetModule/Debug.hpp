@@ -3,8 +3,8 @@
  * @brief Debugging ruleset module for Nebulite interaction system.
  */
 
-#ifndef NEBULITE_INTERACTION_RULES_RULESET_MODULES_DEBUG_HPP
-#define NEBULITE_INTERACTION_RULES_RULESET_MODULES_DEBUG_HPP
+#ifndef NEBULITE_RULESET_MODULE_DEBUG_HPP
+#define NEBULITE_RULESET_MODULE_DEBUG_HPP
 
 //------------------------------------------
 // Includes
@@ -14,6 +14,7 @@
 // External
 
 // Nebulite
+#include "Constants/KeyNames.hpp"
 #include "Interaction/Rules/RulesetModule.hpp"
 
 //------------------------------------------
@@ -23,24 +24,24 @@ struct Context;
 } // namespace Interaction::Rules
 
 //------------------------------------------
-namespace Nebulite::Interaction::Rules::RulesetModules {
-class Debug : public RulesetModule {
+namespace Nebulite::RulesetModule {
+class Debug : public Interaction::Rules::RulesetModule {
 public:
     //------------------------------------------
     // Functions
 
     // Provides a simple debug message to cout
-    void message(ContextBase const& context) const ;
+    void message(Interaction::ContextBase const& context) const ;
     static constexpr std::string_view messageName = "::message";
     static constexpr std::string_view messageDesc = "Outputs a debug message to the standard output (cout).";
 
     // Provides a simple debug message to cerr
-    void error(ContextBase const& context) const ;
+    void error(Interaction::ContextBase const& context) const ;
     static constexpr std::string_view errorName = "::error";
     static constexpr std::string_view errorDesc = "Outputs a debug error message to the standard error output (cerr).";
 
     // Prints the ids of both contexts
-    void whoInteracts(ContextBase const& context) const ;
+    void whoInteracts(Interaction::ContextBase const& context) const ;
     static constexpr std::string_view whoInteractsName = "::whoInteracts";
     static constexpr std::string_view whoInteractsDesc = "Prints a message with the unique IDs of the self and other render object contexts.";
 
@@ -65,5 +66,5 @@ private:
         id
     };
 };
-} // namespace Nebulite::Interaction::Rules::RulesetModules
-#endif // NEBULITE_INTERACTION_RULES_RULESET_MODULES_DEBUG_HPP
+} // namespace Nebulite::RulesetModule
+#endif // NEBULITE_RULESET_MODULE_DEBUG_HPP
