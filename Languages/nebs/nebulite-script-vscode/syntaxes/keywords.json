@@ -12,6 +12,7 @@
   "beep",
   "broadcast",
   "cam",
+  "category",
   "clear",
   "collision-detect",
   "console",
@@ -35,6 +36,7 @@
   "fetch",
   "first",
   "for",
+  "function",
   "functree",
   "get",
   "getMultiple",
@@ -104,6 +106,7 @@
   "typeAsNumber",
   "typeAsString",
   "unlock",
+  "variable",
   "wait",
   "warn",
   "zoom"

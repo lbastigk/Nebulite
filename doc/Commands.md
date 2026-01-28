@@ -2,14 +2,13 @@
 
 This documentation is automatically generated.
 
-Generated on: Wed Jan 28 13:24:19 CET 2026
+Generated on: Wed Jan 28 14:14:18 CET 2026
 
 ## Table of Contents
 
 - [GlobalSpace Commands](#globalspace-commands)
 - [RenderObject Commands](#renderobject-commands)
-
-- [JSON Transformations Commands](#json-transformations-commands)
+- [JSON Transformations](#json-transformations)
 
 ## GlobalSpace Commands
 
@@ -152,19 +151,24 @@ Available Functions
 ##### `cam move`
 
 ```
-Move data from one key to another.
+Move camera by a given delta.
 
-Usage: move <source_key> <destination_key>
+Usage: cam move <dx> <dy>
+
+<dx> : Delta x to move camera by
+<dy> : Delta y to move camera by
 ```
 
 ##### `cam set`
 
 ```
-Set a key to a value in the JSON document.
+Set camera to concrete position.
 
-Usage: set <key> <value>
+Usage: cam set <x> <y> [c]
 
-Note: All values are stored as strings.
+<x> : X position to set camera to
+<y> : Y position to set camera to
+[c] : Optional. If provided, sets the camera's center to the given position.
 ```
 
 #### `clear`
@@ -189,7 +193,21 @@ Available Functions
 
 ##### `console set-background`
 
+```
+Sets a background image for the console.
+
+Usage: set-background <image_path>
+```
+
 ##### `console zoom`
+
+```
+Reduces or increases the console font size.
+
+Usage: zoom [in/out/+/-]
+- in  / + : Zooms in  (increases font size)
+- out / - : Zooms out (decreases font size)
+```
 
 #### `copy`
 
@@ -232,6 +250,51 @@ Available Functions
 
 ##### `debug collision-detect`
 
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `category` | Tests collision detection of category names |
+| `function` | Tests collision detection of function names |
+| `help` | Show available commands and their descriptions |
+| `variable` | Tests collision detection of variable names |
+
+###### `debug collision-detect category`
+
+```
+Tests collision detection of category names
+
+Tries to bind a category name to globalspace that is already registered, expecting a collision error.
+
+Usage: debug collision-detect category [fail/succeed]
+
+Defaults to fail
+```
+
+###### `debug collision-detect function`
+
+```
+Tests collision detection of function names
+
+Tries to bind a function name to globalspace that is already registered, expecting a collision error.
+
+Usage: debug collision-detect function [fail/succeed]
+
+Defaults to fail
+```
+
+###### `debug collision-detect variable`
+
+```
+Tests collision detection of variable names
+
+Tries to bind a variable name to globalspace that is already registered, expecting a collision error.
+
+Usage: debug collision-detect variable [fail/succeed]
+
+Defaults to fail
+```
+
 #### `echo`
 
 ```
@@ -266,7 +329,21 @@ Available Functions
 
 ##### `env deload`
 
+```
+Deload entire environment, leaving an empty renderer.
+
+Usage: env deload
+```
+
 ##### `env load`
+
+```
+Load an environment/level from a json/jsonc file.
+
+Usage: env load <path/to/file.jsonc>
+
+If no argument is provided, an empty environment is loaded.
+```
 
 #### `error`
 
@@ -330,6 +407,11 @@ Available Functions
 | `help` | Show available commands and their descriptions |
 
 ##### `feature-test functree`
+
+```
+Builds a funcTree with extra arguments and tests it
+Usage: feature-test functree
+```
 
 #### `for`
 
@@ -399,11 +481,11 @@ Available Functions
 ##### `json set`
 
 ```
-Set a key to a value in the JSON document.
+Sets a key from a read-only JSON document.
+Usage: json set <key> <link:key>
 
-Usage: set <key> <value>
-
-Note: All values are stored as strings.
+Where <link:key> is a link to a JSON document.
+The document is dynamically loaded and cached for future use.
 ```
 
 #### `keyDelete`
@@ -426,7 +508,23 @@ Available Functions
 
 ##### `log global`
 
+```
+Logs the global document to a file.
+Usage: log global [<filenames>...]
+
+- <filenames>: Optional. One or more filenames to log the global document to.
+               If no filenames are provided, defaults to 'global.log.jsonc'.
+```
+
 ##### `log state`
+
+```
+Logs the current state of the renderer to a file.
+Usage: log state [<filenames>...]
+
+- <filenames>: Optional. One or more filenames to log the renderer state to.
+               If no filenames are provided, defaults to 'state.log.jsonc'.
+```
 
 #### `move`
 
@@ -500,11 +598,8 @@ Available Functions
 ##### `query set`
 
 ```
-Set a key to a value in the JSON document.
-
-Usage: set <key> <value>
-
-Note: All values are stored as strings.
+Sets a key from a SQL query result.
+Not implemented yet.
 ```
 
 #### `return`
@@ -536,7 +631,21 @@ Available Functions
 
 ##### `ruleset broadcast`
 
+```
+Broadcasts a ruleset to its specified topic.
+Usage: broadcast <ruleset>
+
+- ruleset: The ruleset content to be broadcasted.
+```
+
 ##### `ruleset listen`
+
+```
+Listens for rulesets on a specified topic.
+Usage: listen <topic>
+
+- topic: The topic to listen for incoming rulesets.
+```
 
 #### `selected-object`
 
@@ -550,7 +659,22 @@ Available Functions
 
 ##### `selected-object get`
 
+```
+Get a renderobject by its ID.
+
+Usage: selected-object get <id>
+```
+
 ##### `selected-object parse`
+
+```
+Parse a command on the selected RenderObject.
+
+Usage: selected-object parse <command>
+
+Use 'selected-object get <id>' to select a RenderObject first.
+Use 'selected-object parse help' to see available commands for the selected object.
+```
 
 #### `set`
 
@@ -598,11 +722,35 @@ Available Functions
 
 ##### `settings save`
 
+```
+Saves the current global settings to the default filename.
+
+Usage: settings save
+```
+
 ##### `settings save-standards`
+
+```
+Overwrites the settings file with default settings.
+
+Usage: settings save-standards
+```
 
 ##### `settings set-integer`
 
+```
+Sets a global setting to a specified integer value.
+
+Usage: settings set-integer <key> <value>
+```
+
 ##### `settings set-string`
+
+```
+Sets a global setting to a specified value.
+
+Usage: settings set-string <key> <value>
+```
 
 #### `show-fps`
 
@@ -654,6 +802,13 @@ Available Functions
 
 ##### `standardfile renderobject`
 
+```
+Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
+Usage: standardfile renderobject
+
+Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.
+```
+
 #### `task`
 
 ```
@@ -693,13 +848,53 @@ Available Functions
 
 ##### `time halt-once`
 
+```
+Halts time for one frame
+Meaning you can halt time by continuously calling this function.
+
+Usage: time halt-once
+```
+
 ##### `time lock`
+
+```
+Locks time with lock provided,
+Time can only progress if no locks are present.
+
+Usage: time lock <lock_name>
+
+<lock_name> : Name of the lock to add. Any string without whitespace is valid.
+```
 
 ##### `time master-unlock`
 
+```
+Removes all time locks.
+Time can only progress if no locks are present.
+
+Usage: time master-unlock
+```
+
 ##### `time set-fixed-dt`
 
+```
+Sets a fixed delta time in milliseconds for the simulation time.
+
+Usage: time set-fixed-dt <dt_ms>
+
+<dt_ms> : Fixed delta time in milliseconds. Use 0 to reset to real delta time.
+```
+
 ##### `time unlock`
+
+```
+Removes a time lock.
+Time can only progress if no locks are present.
+
+Usage: time unlock <lock_name>
+
+<lock_name> : Name of the lock to remove. Must match an existing lock.
+```
 
 #### `wait`
 
@@ -813,11 +1008,11 @@ Available Functions
 ##### `json set`
 
 ```
-Set a key to a value in the JSON document.
+Sets a key from a read-only JSON document.
+Usage: json set <key> <link:key>
 
-Usage: set <key> <value>
-
-Note: All values are stored as strings.
+Where <link:key> is a link to a JSON document.
+The document is dynamically loaded and cached for future use.
 ```
 
 #### `keyDelete`
@@ -840,7 +1035,23 @@ Available Functions
 
 ##### `log all`
 
+```
+Logs the entire RenderObject to a file.
+
+Usage: log [filename]
+
+Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
+```
+
 ##### `log key`
+
+```
+Logs a specific key's value to a file.
+
+Usage: log key <key> [filename]
+
+Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
+```
 
 #### `mirror`
 
@@ -858,20 +1069,57 @@ Available Functions
 ##### `mirror delete`
 
 ```
-Marks object for deletion
+Deletes the GlobalSpace document entry for this RenderObject
 
-Usage: delete
+Usage: mirror delete
 
-Marks the object for deletion on the next update cycle.
+Mirrors are removed from the GlobalSpace document under key "mirror.renderObject.id<id>"
 ```
 
 ##### `mirror fetch`
 
+```
+Deserializes the RenderObject from the GlobalSpace document entry
+
+Usage: mirror fetch
+
+Mirrors are fetched from the GlobalSpace document under key "mirror.renderObject.id<id>"
+```
+
 ##### `mirror off`
+
+```
+Disables mirroring to the GlobalSpace document
+
+Usage: mirror off
+
+Constant mirroring is inactive until turned on again with 'mirror on'
+
+Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id<id>"
+```
 
 ##### `mirror on`
 
+```
+Enables mirroring to the GlobalSpace document
+
+Usage: mirror on
+
+Constant mirroring is active until turned off with 'mirror off'
+
+Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id<id>"
+```
+
 ##### `mirror once`
+
+```
+Mirrors the object to the GlobalSpace document once on next update
+
+Usage: mirror once
+
+Mirroring is only done for one frame.
+Mirrors are stored in the GlobalSpace document under key "mirror.renderObject.id<id>"
+```
 
 #### `move`
 
@@ -934,11 +1182,8 @@ Available Functions
 ##### `query set`
 
 ```
-Set a key to a value in the JSON document.
-
-Usage: set <key> <value>
-
-Note: All values are stored as strings.
+Sets a key from a SQL query result.
+Not implemented yet.
 ```
 
 #### `ruleset`
@@ -953,7 +1198,23 @@ Available Functions
 
 ##### `ruleset once`
 
+```
+Applies all rulesets once on the next update
+
+Usage: ruleset once
+
+All rulesets are applied once on the next update cycle.
+```
+
 ##### `ruleset reload`
+
+```
+Reloads all rulesets for this RenderObject on the next update.
+
+Usage: ruleset reload
+
+All rulesets are re-evaluated and reloaded on the next update cycle.
+```
 
 #### `set`
 
@@ -965,7 +1226,7 @@ Usage: set <key> <value>
 Note: All values are stored as strings.
 ```
 
-## JSON Transformations Commands
+## JSON Transformations
 
 These commands are available during JSON value retrieval with the transformation operator '|'.
 Example: `{global.var|length}`

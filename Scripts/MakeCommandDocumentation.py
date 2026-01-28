@@ -53,7 +53,8 @@ class MarkdownFormatter:
 
     def get_description(self, help_text: str) -> str:
         if not help_text:
-            return ""
+            print("Warning: No help text provided for description extraction")
+            sys.exit(1)
         lines = help_text.split('\n')
         description_started = False
         description_lines = []
@@ -148,8 +149,6 @@ def run_command_with_timeout(command: str, timeout: int = TIMEOUT_SECONDS) -> Op
     except Exception as e:
         print(f"Error executing command '{command}': {e}")
         return None
-
-
 def parse_command_list(help_output: str) -> Tuple[List[str], List[str]]:
     """
     Parse help output to extract function names and variable names.
@@ -191,19 +190,14 @@ def parse_command_list(help_output: str) -> Tuple[List[str], List[str]]:
     return functions, variables
 
 
-def get_command_help(base_command: str, command_name: str = "") -> Optional[str]:
+def get_command_help(base_command: str, command_name: str = ""):
     """
     Get detailed help for a specific command.
     """
-    if command_name:
-        full_command = f"{base_command} help {command_name}"
-    else:
-        full_command = f"{base_command} help"
-    
-    # Add exit command to ensure clean termination for all commands
+    full_command = f"{base_command} help"
     full_command += " '; exit'"
-    
-    return run_command_with_timeout(full_command)
+    result = run_command_with_timeout(full_command)
+    return result, full_command
 
 
 def has_subcommands(help_output: str) -> bool:
@@ -213,8 +207,7 @@ def has_subcommands(help_output: str) -> bool:
     return bool(help_output and "Add the entries name to the command for more details:" in help_output)
 
 
-def process_command_recursively(base_command: str, command_name: str = "",
-                                prefix: str = "", visited: Optional[set] = None) -> Dict:
+def process_command_recursively(base_command: str, command_name: str = "", prefix: str = "", visited: Optional[set] = None) -> Dict:
     """
     Recursively process a command and its subcommands.
     Supports replacing the template token `<arg>` in `base_command` with:
@@ -239,27 +232,40 @@ def process_command_recursively(base_command: str, command_name: str = "",
         'help': None,
         'functions': [],
         'variables': [],
-        'subcommands': {}
+        'subcommands': {},
+        'full_command': ""
     }
 
     # Build and run help command, substituting '<arg>' if present
     help_output = None
     try:
-        insert = "help" if not command_name else f"help {command_name}"
+        if prefix == "":
+            insert = "help" if not command_name else f"help {command_name}"
+
+        else:
+            insert = "help" if not command_name else f"{prefix} help {command_name}"
         if "<arg>" in base_command:
             help_cmd = base_command.replace("<arg>", insert)
             # Ensure termination for interactive commands
             if not help_cmd.strip().endswith("'; exit'"):
                 help_cmd = help_cmd + " '; exit'"
             help_output = run_command_with_timeout(help_cmd)
+            result['full_command'] = help_cmd
         else:
-            help_output = get_command_help(base_command, command_name)
+            #sys.exit(1)
+            help_output, full_command = get_command_help(base_command, command_name)
+            result['full_command'] = full_command
     except Exception as e:
         print(f"Error building help command: {e}")
-        help_output = None
+        sys.exit(1)
 
-    if not help_output:
-        return result
+    if help_output == "" or help_output is None or not help_output:
+        # Throw an error and exit
+        print(f"Error: Help output for command '{full_name}' is empty. Command used: {result['full_command']}")
+        print(f"base_command: {base_command}")
+        print(f"command_name: {command_name}")
+        print(f"prefix      : {prefix}")
+        sys.exit(1)
 
     result['help'] = help_output
 
@@ -279,6 +285,8 @@ def process_command_recursively(base_command: str, command_name: str = "",
             if "__complete__" in func:
                 continue
 
+            #print(f"Processing subcommand: {full_name} {func}")
+
             # For GlobalSpace, avoid exploring "draft parse" subcommands
             if not command_name and func == 'draft' and base_command == ROOT_GLOBALSPACE:
                 continue
@@ -294,8 +302,11 @@ def process_command_recursively(base_command: str, command_name: str = "",
             subcommand_result = process_command_recursively(
                 new_base, func, new_prefix, visited
             )
+
             if subcommand_result:
                 result['subcommands'][func] = subcommand_result
+            else:
+                print(f"Warning: No data retrieved for subcommand '{full_name} {func}'")
 
     return result
 
@@ -313,6 +324,11 @@ def format_markdown_section(command_data: Dict, level: int = 1) -> str:
     functions = command_data.get('functions', [])
     variables = command_data.get('variables', [])
     subcommands = command_data.get('subcommands', {})
+    full_command = command_data.get('full_command', '')
+
+    if not help_text:
+        print(f"Warning: No help text for command '{full_command}'")
+        sys.exit(1)
 
     markdown = ""
     if name == 'root' or not name:
@@ -340,8 +356,9 @@ def generate_documentation(date: str) -> str:
     # Insert a simple manual Table of Contents for the two main sections
     markdown += "## Table of Contents\n\n"
     markdown += "- [GlobalSpace Commands](#globalspace-commands)\n"
-    markdown += "- [RenderObject Commands](#renderobject-commands)\n\n"
-    markdown += "- [JSON Transformations Commands](#json-transformations-commands)\n\n"
+    markdown += "- [RenderObject Commands](#renderobject-commands)\n"
+    markdown += "- [JSON Transformations](#json-transformations)\n"
+    markdown += "\n"
 
     # Process GlobalSpace commands
     print("Processing GlobalSpace commands...")
@@ -369,9 +386,9 @@ def generate_documentation(date: str) -> str:
         markdown += "Failed to retrieve RenderObject commands.\n\n"
         print("No render data retrieved")
 
-    # Process JSON Transformations commands
-    print("Processing JSON Transformations commands...")
-    markdown += "## JSON Transformations Commands\n\n"
+    # Process JSON Transformations
+    print("Processing JSON Transformations...")
+    markdown += "## JSON Transformations\n\n"
     markdown += "These commands are available during JSON value retrieval with the transformation operator '|'.\n"
     markdown += "Example: `{global.var|length}`\n\n"
 
