@@ -1,9 +1,12 @@
-#include "Core/JsonScope.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Core/Texture.hpp"
 #include "DomainModule/Texture/General.hpp"
 #include "Graphics/Drawcall.hpp"
 
-
+//------------------------------------------
 namespace Nebulite::DomainModule::Texture {
 
 Constants::Error General::update() {

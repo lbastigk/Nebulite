@@ -73,7 +73,7 @@ void GlobalSpace::initialize() {
     // If we ever need a full update beforehand, we should manually call update after full initialization
 }
 
-Constants::Error GlobalSpace::updateInnerDomains() const {
+Constants::Error GlobalSpace::updateInnerDomains() {
     // For now, just update the JSON domain
     // Later on the logic here might be more complex
     // As more inner domains are added

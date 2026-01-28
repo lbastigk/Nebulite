@@ -210,9 +210,9 @@ private:
         size_t const barPos = doc_key.find('|');
 
         // Choose the first occurring separator
-        size_t const pos = (colonPos == std::string::npos) ? barPos
-                            : (barPos == std::string::npos) ? colonPos
-                            : std::min(colonPos, barPos);
+        size_t const pos = colonPos == std::string::npos ? barPos
+                           : barPos == std::string::npos ? colonPos
+                           : std::min(colonPos, barPos);
 
         if (pos == std::string::npos) {
             // No colon found, meaning the entire string is document name/link

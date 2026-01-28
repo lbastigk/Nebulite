@@ -4,9 +4,6 @@
 //------------------------------------------
 // Includes
 
-// External
-#include "imgui.h"
-
 // Nebulite
 #include "Data/Document/JsonScopeBase.hpp"
 

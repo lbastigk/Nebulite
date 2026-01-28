@@ -14,7 +14,6 @@
 
 // Nebulite
 #include "Core/Texture.hpp"
-#include "Core/JsonScope.hpp"
 #include "Utility/TimedRoutine.hpp"
 
 //------------------------------------------
