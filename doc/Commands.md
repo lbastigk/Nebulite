@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Wed Jan 28 14:14:18 CET 2026
+Generated on: Wed Jan 28 16:31:08 CET 2026
 
 ## Table of Contents
 
@@ -245,7 +245,25 @@ Available Functions
 
 | Function | Description |
 |----------|-------------|
+| `categoryLevel1` | Test category for debugging purposes. |
 | `collision-detect` | Utilities for testing collision detection functionalities. |
+| `help` | Show available commands and their descriptions |
+
+##### `debug categoryLevel1`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `categoryLevel2` | Nested test category for debugging purposes. |
+| `help` | Show available commands and their descriptions |
+
+###### `debug categoryLevel1 categoryLevel2`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
 | `help` | Show available commands and their descriptions |
 
 ##### `debug collision-detect`

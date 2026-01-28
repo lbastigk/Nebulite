@@ -13,6 +13,8 @@
   "broadcast",
   "cam",
   "category",
+  "categoryLevel1",
+  "categoryLevel2",
   "clear",
   "collision-detect",
   "console",

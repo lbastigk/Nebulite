@@ -75,6 +75,12 @@ public:
     static auto constexpr collisionDetect_name = "debug collision-detect";
     static auto constexpr collisionDetect_desc = "Utilities for testing collision detection functionalities.";
 
+    static auto constexpr debug_categoryTest1_name = "debug categoryLevel1";
+    static auto constexpr debug_categoryTest1_desc = "Test category for debugging purposes.";
+
+    static auto constexpr debug_categoryTest2_name = "debug categoryLevel1 categoryLevel2";
+    static auto constexpr debug_categoryTest2_desc = "Nested test category for debugging purposes.";
+
     //------------------------------------------
     // Setup
 
@@ -86,6 +92,13 @@ public:
         (void)bindCategory(debug_name,  debug_desc);
         (void)bindCategory(collisionDetect_name,  collisionDetect_desc);
 
+        //------------------------------------------
+        // Test categories for nested category binding
+        (void)bindCategory(debug_name, debug_desc);
+        (void)bindCategory(debug_categoryTest1_name, debug_categoryTest1_desc);
+        (void)bindCategory(debug_categoryTest2_name, debug_categoryTest2_desc);
+
+        //------------------------------------------
         // Function bindings
         BIND_FUNCTION(&FunctionCollision::debug_collisionDetect_function, debug_collisionDetect_function_name, debug_collisionDetect_function_desc);
         BIND_FUNCTION(&FunctionCollision::debug_collisionDetect_category, debug_collisionDetect_category_name, debug_collisionDetect_category_desc);

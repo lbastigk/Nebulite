@@ -131,15 +131,6 @@ public:
     static auto constexpr standardfile_name = "standardfile";
     static auto constexpr standardfile_desc = "Functions for generating standard files for common resources.";
 
-    static auto constexpr debug_name = "debug";
-    static auto constexpr debug_desc = "General purpose debugging functions and utilities.";
-
-    static auto constexpr debug_categoryTest1_name = "debug categoryLevel1";
-    static auto constexpr debug_categoryTest1_desc = "Test category for debugging purposes.";
-
-    static auto constexpr debug_categoryTest2_name = "debug categoryLevel1 categoryLevel2";
-    static auto constexpr debug_categoryTest2_desc = "Nested test category for debugging purposes.";
-
     //------------------------------------------
     // Setup
 
@@ -151,12 +142,6 @@ public:
         // Setup key information in the global document
         setupPlatformInfo();
         setupDebugInfo();
-
-        //------------------------------------------
-        // Test categories for nested category binding
-        (void)bindCategory(debug_name, debug_desc);
-        (void)bindCategory(debug_categoryTest1_name, debug_categoryTest1_desc);
-        (void)bindCategory(debug_categoryTest2_name, debug_categoryTest2_desc);
 
         //------------------------------------------
         // Binding functions to the FuncTree
