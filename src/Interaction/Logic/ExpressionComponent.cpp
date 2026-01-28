@@ -1,4 +1,5 @@
 #include "Nebulite.hpp"
+#include "Core/JsonScope.hpp"
 #include "Interaction/Logic/Expression.hpp"
 
 namespace Nebulite::Interaction::Logic {

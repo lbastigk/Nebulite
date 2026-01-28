@@ -1,5 +1,6 @@
 #include "DomainModule/GlobalSpace/General.hpp"
 #include "Core/GlobalSpace.hpp"
+#include "Core/JsonScope.hpp"
 
 #include "Nebulite.hpp"
 

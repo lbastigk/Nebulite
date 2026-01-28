@@ -11,6 +11,7 @@
 
 // Nebulite
 #include "Nebulite.hpp"
+#include "Core/JsonScope.hpp"
 #include "Graphics/Drawcall.hpp"
 #include "Graphics/SdlPrimitive.hpp"
 

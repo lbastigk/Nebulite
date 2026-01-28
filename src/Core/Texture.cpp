@@ -6,6 +6,7 @@
 
 // Nebulite
 #include "Nebulite.hpp"
+#include "Core/JsonScope.hpp"
 #include "Core/Texture.hpp"
 #include "Graphics/Drawcall.hpp"
 #include "DomainModule/Initializer.hpp"

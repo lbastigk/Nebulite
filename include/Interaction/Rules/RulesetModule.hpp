@@ -55,9 +55,13 @@ public:
     }
 
 protected:
-    // TODO: Add a scope prefix system for RulesetModules later on, that we pass into the access token with derivedModule
-    static ScopeAccessor::RulesetToken::RulesetModule getRulesetModuleAccessToken(RulesetModule const& derivedModule){
-        return ScopeAccessor::RulesetToken::RulesetModule(derivedModule);
+    /**
+     * @brief Helper function to get a RulesetModuleToken for a derived module
+     * @param derivedModule The derived RulesetModule instance, used for the prefix
+     * @return A RulesetModuleToken for the derived module
+     */
+    static ScopeAccessor::RulesetModuleToken getRulesetModuleAccessToken(RulesetModule const& derivedModule){
+        return ScopeAccessor::RulesetModuleToken(derivedModule);
     }
 
     /**
@@ -72,6 +76,7 @@ protected:
     /**
      * @brief helper function to add a static ruleset to this module
      *        Use the BIND_STATIC_ASSERT macro instead to both check and bind in one line
+     * @tparam T The derived RulesetModule type
      * @param type The type of the ruleset (Local/Global)
      * @param func The function implementing the ruleset
      * @param topic The topic/name of the ruleset
@@ -91,6 +96,15 @@ protected:
         });
     }
 
+    /**
+     * @brief helper function to add a static ruleset to this module (const version)
+     *        Use the BIND_STATIC_ASSERT macro instead to both check and bind in one line
+     * @tparam T The derived RulesetModule type
+     * @param type The type of the ruleset (Local/Global)
+     * @param func The function implementing the ruleset
+     * @param topic The topic/name of the ruleset
+     * @param description A brief description of the ruleset's purpose and its used variables
+     */
     template<typename T>
     void bind(RulesetType const& type, void (T::*func)(ContextBase const&) const, std::string_view const& topic, std::string_view const& description){
         static_assert(std::is_base_of_v<RulesetModule, T>, "bind(): T must derive from RulesetModule");
@@ -153,6 +167,16 @@ private:
         return doc.getOrderedCacheListMap()->ensureOrderedCacheList(id, keys);
     }
 
+    /**
+     * @brief Helper function to retrieve an ordered list of stable double pointers
+     *        arrays of keys to arrays of values
+     *        with a unique identifier for each array of values
+     *        Use the function name itself "::<function>" as the unique identifier
+     *        hash in globalspace to avoid collisions.
+     * @param ctx The context from which to retrieve the values
+     * @param keys The array of keys to retrieve values for
+     * @return An array of values corresponding to the provided keys
+     */
     [[nodiscard]] Data::odpvec* ensureOrderedCacheList(Execution::DomainBase const& ctx, std::vector<Data::ScopedKeyView> const& keys) const {
         return ctx.getDocumentCacheMap()->ensureOrderedCacheList(id, keys);
     }

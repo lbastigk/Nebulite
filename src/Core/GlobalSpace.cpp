@@ -3,6 +3,7 @@
 
 #include "Nebulite.hpp"
 #include "Core/GlobalSpace.hpp"
+#include "Core/JsonScope.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "DomainModule/GlobalSpace/Settings.hpp"
 

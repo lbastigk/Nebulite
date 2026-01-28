@@ -68,44 +68,23 @@ public:
     //       Then we only require one shareScope function that takes the access token and derives the full prefix from it.
 
     // Provide scoped GlobalSpace access to DomainModules
-    class DomainModuleToken {
-    public:
-        class GlobalSpace final : public BaseAccessToken {
-            explicit GlobalSpace(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm);
+    template<typename DomainType>
+    class DomainModuleToken final : public BaseAccessToken {
+        explicit DomainModuleToken(Interaction::Execution::DomainModule<DomainType> const& dm);
 
-
-            // Allowed accessors:
-            friend class Interaction::Execution::DomainModule<Core::GlobalSpace>;
-        };
-
-        class RenderObject final : public BaseAccessToken {
-            explicit RenderObject(Interaction::Execution::DomainModule<Core::RenderObject> const& dm);
-
-
-            // Allowed accessors:
-            friend class Interaction::Execution::DomainModule<Core::RenderObject>;
-        };
-
-        class JsonScope final : public BaseAccessToken {
-            explicit JsonScope(Interaction::Execution::DomainModule<Core::JsonScope> const& dm);
-
-
-            // Allowed accessors:
-            friend class Interaction::Execution::DomainModule<Core::JsonScope>;
-        };
+        // Allowed accessors:
+        friend class Interaction::Execution::DomainModule<DomainType>;
     };
 
     // Provide scoped GlobalSpace access to Ruleset-related classes
-    class RulesetToken {
-    public:
-        class RulesetModule final : public BaseAccessToken {
-            explicit RulesetModule(Interaction::Rules::RulesetModule const& rm);
+    class RulesetModuleToken final : public BaseAccessToken {
+        explicit RulesetModuleToken(Interaction::Rules::RulesetModule const& rm);
 
-            // Allowed accessors:
-            friend class Interaction::Rules::RulesetModule;
-        };
+        // Allowed accessors:
+        friend class Interaction::Rules::RulesetModule;
     };
 };
 
 } // namespace Nebulite
+#include "ScopeAccessor.tpp"
 #endif // NEBULITE_SCOPE_ACCESSOR_HPP

@@ -6,10 +6,13 @@
 
 // Nebulite
 #include "Nebulite.hpp"
+#include "Core/JsonScope.hpp"
 #include "Data/RollingId.hpp"
-#include "Interaction/Logic/Expression.hpp"
 #include "Interaction/Logic/ExpressionPrimitives.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
+#include "Interaction/Logic/Expression.hpp"
+
+
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -151,7 +154,7 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
             break;
         case Component::ContextType::global:
             if (isAvailableAsDoublePtr(key)) {
-                vd->setUpExternalCache(Global::instance().domainScope);
+                vd->setUpExternalCache(Global::instance().domainScope.shareScopeBase(""));
                 virtualDoubles.remanent.global.push_back(vd);
             } else {
                 virtualDoubles.nonRemanent.global.push_back(vd);

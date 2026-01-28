@@ -16,7 +16,6 @@
 #include "Core/GlobalSpace.hpp"
 #include "Utility/Capture.hpp"
 #include "Data/Document/JsonScopeBase.hpp"
-#include "Interaction/Rules/RulesetModule.hpp"
 
 //------------------------------------------
 // Namespace documentation

@@ -2,6 +2,7 @@
 // Includes
 
 #include "Nebulite.hpp"
+#include "Core/JsonScope.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonRvalueTransformer.hpp"
 
