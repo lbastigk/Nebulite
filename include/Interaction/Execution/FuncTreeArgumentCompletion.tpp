@@ -241,8 +241,8 @@ returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::st
 
     // If there is only one completion, it might be a category, so we traverse into it
     if (bool const lastWordIsLikelyCategory = completions.size() == 1 && completions.front() == pattern; lastWordIsLikelyCategory) {
-        if (traverseIntoCategory(pattern, ftree)) {
-            completions = ftree->findCompletions("");
+        if (auto newTree = traverseIntoCategory(pattern, ftree); newTree) {
+            completions = newTree->findCompletions("");
         }
         else{
             completions.clear(); // No completions found
@@ -262,14 +262,16 @@ returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::st
 }
 
 template <typename returnValue, typename ... additionalArgs>
-FuncTree<returnValue, additionalArgs...>* FuncTree<returnValue, additionalArgs...>::traverseIntoCategory(std::string const& categoryName, FuncTree* ftree) {
+FuncTree<returnValue, additionalArgs...>* FuncTree<returnValue, additionalArgs...>::traverseIntoCategory(std::string const& categoryName, FuncTree const* ftree) {
     bool foundDirect = false;
     bool foundInherited = false;
+
+    FuncTree* newTree = nullptr;
 
     // Check direct categories first
     if (auto catIt = ftree->bindingContainer.categories.find(categoryName); catIt != ftree->bindingContainer.categories.end()) {
         foundDirect = true;
-        ftree = catIt->second.tree.get();
+        newTree = catIt->second.tree.get();
     } else {
         // Category not found, check inherited trees
         for (auto const& inheritedTree : ftree->inheritedTrees) {
@@ -277,7 +279,7 @@ FuncTree<returnValue, additionalArgs...>* FuncTree<returnValue, additionalArgs..
                 auto inheritedCatIt = inheritedTree->bindingContainer.categories.find(categoryName);
                 if (inheritedCatIt != inheritedTree->bindingContainer.categories.end()) {
                     foundInherited = true;
-                    ftree = inheritedCatIt->second.tree.get();
+                    newTree = inheritedCatIt->second.tree.get();
                     break; // Stop searching after first found
                 }
             }
@@ -288,7 +290,7 @@ FuncTree<returnValue, additionalArgs...>* FuncTree<returnValue, additionalArgs..
     if (!foundDirect && !foundInherited) {
         return nullptr;
     }
-    return ftree;
+    return newTree;
 }
 
 template <typename returnValue, typename ... additionalArgs>

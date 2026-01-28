@@ -420,7 +420,7 @@ private:
      * @param ftree Pointer to the current FuncTree
      * @return Pointer to the FuncTree of the category, or nullptr if not found.
      */
-    FuncTree* traverseIntoCategory(std::string const& categoryName, FuncTree* ftree);
+    FuncTree* traverseIntoCategory(std::string const& categoryName, FuncTree const* ftree);
 
     //------------------------------------------
     // Comparison helper
