@@ -100,9 +100,7 @@ public:
         static auto constexpr runtime_t_ms = Data::ScopedKeyView::create<scope>("runtime.t_ms");
         static auto constexpr runtime_dt = Data::ScopedKeyView::create<scope>("runtime.dt");
         static auto constexpr runtime_dt_ms = Data::ScopedKeyView::create<scope>("runtime.dt_ms");
-        static auto constexpr frameCount = Data::ScopedKeyView::create<scope>("frameCount");
     };
-
 
     //------------------------------------------
     // Setup
