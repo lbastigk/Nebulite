@@ -56,6 +56,7 @@ bool Collection::get(std::span<std::string const> const& args, Core::JsonScope* 
     return true;
 }
 
+// TODO: doesnt work...
 bool Collection::getMultiple(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     if (args.size() != 2) {
         return false;
