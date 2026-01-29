@@ -25,9 +25,19 @@ bool Debug::echo(std::span<std::string const> const& args) {
 bool Debug::print(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     // Print to cout, no modifications
     if (args.size() > 1) {
-        Log::println(jsonDoc->serialize(valueKey + args[1]));
+        for (auto const& arg : args | std::views::drop(1)) {
+            if (std::string const value = jsonDoc->serialize(valueKey + arg); value.ends_with('\n')) {
+                Log::print(value);
+            } else {
+                Log::println(value);
+            }
+        }
     } else {
-        Log::println(jsonDoc->serialize());
+        if (std::string const value = jsonDoc->serialize(); value.ends_with('\n')) {
+            Log::print(value);
+        } else {
+            Log::println(value);
+        }
     }
     return true;
 }
