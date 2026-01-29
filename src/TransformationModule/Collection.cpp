@@ -13,6 +13,7 @@ void Collection::bindTransformations() {
 bool Collection::map(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) const {
     if (jsonDoc->memberType(valueKey) == Data::KeyType::value) {
         // Single value, we wrap it into an array
+        // TODO: optimize by using moveMember, once available
         Data::JSON const tmp = jsonDoc->getSubDoc(valueKey);
         auto const key = valueKey + "[0]";
         jsonDoc->setSubDoc(key, tmp);
@@ -32,16 +33,12 @@ bool Collection::map(std::span<std::string const> const& args, Core::JsonScope* 
     for (uint32_t idx = 0; idx < arraySize; ++idx) {
         // Set temp document with current element
         auto const elementKey = valueKey + "[" + std::to_string(idx) + "]";
-        Data::JSON element = jsonDoc->getSubDoc(elementKey);
-        Core::JsonScope tempDoc;
-        tempDoc.setSubDoc(valueKey, element);
 
         // Parse transformation command
-        if (!transformationFuncTree->parseStr(cmd, &tempDoc)) {
-            tempDoc.removeKey(valueKey);
+        auto& scope = jsonDoc->shareScope(elementKey);
+        if (!transformationFuncTree->parseStr(cmd, &scope)) {
+            jsonDoc->removeKey(elementKey);
         }
-        Data::JSON transformedElement = tempDoc.getSubDoc(valueKey);
-        jsonDoc->setSubDoc(elementKey, transformedElement);
     }
     return true;
 }
