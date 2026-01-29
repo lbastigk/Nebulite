@@ -1,0 +1,16 @@
+# -----------------------------------------------------------------------------
+# profiling.nebs
+#
+# Short description:
+#   Minimal task script intended for profiling performance of specific scenes
+#
+# Usage:
+#   make profiling
+#
+# Notes:
+#   - You may modify this file to suit your profiling needs
+# -----------------------------------------------------------------------------
+echo "Starting profiling.nebs"
+# -----------------------------------------------------------------------------
+
+task TaskFiles/Benchmarks/transformation.nebs
