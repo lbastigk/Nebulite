@@ -27,6 +27,9 @@ public:
         "Usage: |assertNonEmpty -> {value,<Exception thrown if empty>}\n";
 
     // TODO: assertType, assertRange, assertRegex, etc.
+
+    // TODO: Another class for silent assertions that do not exit the program, but return false on failure
+    //       e.g., requiresNonEmpty, requiresType, requiresRange, requiresRegex, etc.
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_ASSERTIONS_HPP
