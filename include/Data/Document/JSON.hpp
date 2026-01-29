@@ -463,10 +463,19 @@ public:
      * @details If the key does not exist, no action is taken.
      *          Note that the document is flushed before removing the key.
      * @param key The key to remove.
+     * @todo Rename to removeMember
      */
     void removeKey(char const* key);
     void removeKey(std::string const& key) { removeKey(key.c_str()); }
     void removeKey(std::string_view const& key) { removeKey(std::string(key).c_str()); }
+
+    // TODO: offer a moveMember function, without additional json creation!
+    //       the current usage for moving members is quite inefficient!
+    //       e.g. we create a tmp doc, copy the member, remove the old one, set the new one.
+    //       The constructor for JSON is expensive, we need a better internal move!
+    //       Idea: list members, copy all members to a rapidjson::Value, remove old members, set new members from rapidjson::Value
+    //       Or we directly copy rapidjson Value from one key to another!
+    // void moveMember(std::string const& fromKey, std::string const& toKey);
 
     /**
      * @brief Lists all available keys in a rapidjson object.
