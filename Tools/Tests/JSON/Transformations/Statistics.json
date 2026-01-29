@@ -1,0 +1,19 @@
+[
+    {
+        "command": [
+            "# Testing non-numeric values in arithmetic transformations",
+            "set-fps 60",
+            "wait 1",
+            "set test.val 3",
+            "wait 1",
+            "",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                ""
+            ],
+            "cerr": []
+        }
+    }
+]

@@ -1,0 +1,85 @@
+[
+    {
+        "command": [
+            "# Testing non-numeric values in arithmetic transformations",
+            "set-fps 60",
+            "wait 1",
+            "set test.val 3",
+            "wait 1",
+            "eval echo {global.test.val|add 2}",
+            "eval echo {global.test.val|add a}",
+            "eval echo {global.test.val|mod 2}",
+            "eval echo {global.test.val|mod a}",
+            "eval echo {global.test.val|mul 2}",
+            "eval echo {global.test.val|mul a}",
+            "eval echo {global.test.val|pow 2}",
+            "eval echo {global.test.val|pow a}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "5",
+                "null",
+                "1",
+                "null",
+                "6",
+                "null",
+                "9",
+                "null"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Testing invalid numeric values in arithmetic transformations",
+            "set-fps 60",
+            "wait 1",
+            "set test.val 3",
+            "wait 1",
+            "eval echo {global.test.val|mod 0}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "null"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Testing no values in arithmetic transformations",
+            "set-fps 60",
+            "wait 1",
+            "set test.val 3",
+            "wait 1",
+            "eval echo {global.test.val|add}",
+            "eval echo {global.test.val|mul}",
+            "eval echo {global.test.val|mod}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "null",
+                "null",
+                "null"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Wrong argument count for transformation",
+            "set var 10",
+            "eval echo {global.var|pow 2 3}# pow expects exactly one argument, providing two should result in null",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "null"
+            ],
+            "cerr": []
+        }
+    }
+]

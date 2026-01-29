@@ -23,7 +23,16 @@
         "Tools/Tests/Functional/completion.json",
         "Tools/Tests/JSON/Array.json",
         "Tools/Tests/JSON/Retrieval.json",
-        "Tools/Tests/JSON/RvalueTransformer.json",
+        "Tools/Tests/JSON/Transformations/Arithmetic.json",
+        "Tools/Tests/JSON/Transformations/Array.json",
+        "Tools/Tests/JSON/Transformations/Assertions.json",
+        "Tools/Tests/JSON/Transformations/Casting.json",
+        "Tools/Tests/JSON/Transformations/Collection.json",
+        "Tools/Tests/JSON/Transformations/Debug.json",
+        //"Tools/Tests/JSON/Transformations/Domain.json",       // TODO: add some parsestr tests
+        //"Tools/Tests/JSON/Transformations/Statistics.json",   // TODO: once statistics are implemented, add tests
+        //"Tools/Tests/JSON/Transformations/String.json",       // TODO: once string transformations are implemented, add tests
+        "Tools/Tests/JSON/Transformations/Types.json",
         "Tools/Tests/Domain/deserialization.json",
         "Tools/Tests/scenes.json",
         "Tools/Tests/mirror_draft_selection.json",
