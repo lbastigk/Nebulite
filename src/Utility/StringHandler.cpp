@@ -65,6 +65,10 @@ std::string StringHandler::rStrip(std::string const& input, char const& specialC
     return end == std::string::npos ? "" : input.substr(0, end + 1);
 }
 
+std::string StringHandler::strip(std::string const& input, char const& specialChar) {
+    return rStrip(lStrip(input, specialChar), specialChar);
+}
+
 std::vector<std::string> StringHandler::split(std::string_view const& input, char const& delimiter, bool const& keepDelimiter) {
     std::vector<std::string> tokens;
 

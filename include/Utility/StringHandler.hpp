@@ -87,6 +87,14 @@ public:
     static std::string rStrip(std::string const& input, char const& specialChar = ' ');
 
     /**
+     * @brief Left and right strips a string of a special character.
+     * @param input The original string.
+     * @param specialChar The special character to remove.
+     * @return The left and right stripped string.
+     */
+    static std::string strip(std::string const& input, char const& specialChar = ' ');
+
+    /**
      * @brief Splits a string into tokens based on a delimiter.
      * 
      * @param input The original string.

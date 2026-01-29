@@ -20,7 +20,6 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    /*
     static bool toUpper(Core::JsonScope* jsonDoc);
     static auto constexpr toUpperName = "toUpper";
     static auto constexpr toUpperDesc = "Converts the current JSON string value to uppercase.\n"
@@ -31,13 +30,24 @@ public:
     static auto constexpr toLowerDesc = "Converts the current JSON string value to lowercase.\n"
         "Usage: |toLower -> {string}\n";
 
-    static bool trim(Core::JsonScope* jsonDoc);
-    static auto constexpr trimName = "trim";
-    static auto constexpr trimDesc = "Trims whitespace from both ends of the current JSON string value.\n"
+    static bool strip(Core::JsonScope* jsonDoc);
+    static auto constexpr trimName = "strip";
+    static auto constexpr trimDesc = "Strips whitespace from both ends of the current JSON string value.\n"
         "Usage: |trim -> {string}\n";
-    */
 
-    // TODO: trim, upper, lower, substring, replace, etc.
+    static bool substring(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr substringName = "substring";
+    static auto constexpr substringDesc = "Extracts a substring from the current JSON string value.\n"
+        "Usage: |substring {start} {length} -> {string}\n"
+        "{start}: Starting index (0-based)\n"
+        "{length}: Length of the substring\n";
+
+    static bool replace(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr replaceName = "replace";
+    static auto constexpr replaceDesc = "Replaces all occurrences of a target substring with a replacement substring in the current JSON string value.\n"
+        "Usage: |replace {target} {replacement} -> {string}\n"
+        "{target}: Substring to be replaced\n"
+        "{replacement}: Substring to replace with\n";
 
     // TODO: Add comparison functions like strequals, strcontains, strstartswith, strendswith, strcountappearance
 };
