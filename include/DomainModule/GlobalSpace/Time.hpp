@@ -150,11 +150,6 @@ private:
     Utility::TimeKeeper RealTime;
 
     /**
-     * @brief Amount of frames rendered
-     */
-    uint64_t frameCount = 0;
-
-    /**
      * @brief Fixed delta time for the simulation time. If 0, uses real delta time.
      */
     uint64_t fixedDeltaTime = 0;
