@@ -1,6 +1,6 @@
 /**
  * @file Casting.hpp
- * @brief Class for casting transformation modules.
+ * @brief Class for casting transformation functions.
  */
 
 #ifndef NEBULITE_TRANSFORMATION_MODULE_CASTING_HPP

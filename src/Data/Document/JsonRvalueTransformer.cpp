@@ -11,6 +11,7 @@
 #include "TransformationModule/Arithmetic.hpp"
 #include "TransformationModule/Array.hpp"
 #include "TransformationModule/Assertions.hpp"
+#include "TransformationModule/Boolean.hpp"
 #include "TransformationModule/Casting.hpp"
 #include "TransformationModule/Collection.hpp"
 #include "TransformationModule/Debug.hpp"
@@ -30,6 +31,7 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     initModule<Nebulite::TransformationModule::Arithmetic>();
     initModule<Nebulite::TransformationModule::Array>();
     initModule<Nebulite::TransformationModule::Assertions>();
+    initModule<Nebulite::TransformationModule::Boolean>();
     initModule<Nebulite::TransformationModule::Casting>();
     initModule<Nebulite::TransformationModule::Collection>();
     initModule<Nebulite::TransformationModule::Debug>();

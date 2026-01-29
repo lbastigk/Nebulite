@@ -1,6 +1,6 @@
 /**
  * @file String.hpp
- * @brief Class for string transformation modules.
+ * @brief Class for string transformation functions.
  */
 
 #ifndef NEBULITE_TRANSFORMATION_MODULE_STRING_HPP

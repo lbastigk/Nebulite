@@ -1,6 +1,6 @@
 /**
  * @file Types.hpp
- * @brief Class for types transformation modules.
+ * @brief Class for types transformation functions.
  */
 
 #ifndef NEBULITE_TRANSFORMATION_MODULE_TYPES_HPP
@@ -31,8 +31,6 @@ public:
     static auto constexpr typeAsStringDesc = "Converts the current JSON type value to a string.\n"
         "Usage: |typeAsString -> {value,array,object}\n";
 
-    // TODO: exists, isType <name>
-
     static bool serialize(Core::JsonScope* jsonDoc);
     static auto constexpr serializeName = "serialize";
     static auto constexpr serializeDesc = "Serializes the current JSON value to a string.\n"
@@ -42,6 +40,12 @@ public:
     static auto constexpr deserializeName = "deserialize";
     static auto constexpr deserializeDesc = "Deserializes the current JSON string value.\n"
             "Usage: |deserialize -> {value}\n";
+
+    static bool exists(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr existsName = "exists";
+    static auto constexpr existsDesc = "Checks if a specified key exists in the current JSON object.\n"
+        "If no key is provided, checks if the current JSON value is not null.\n"
+        "Usage: |exists  [key] -> {bool}\n";
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_TYPES_HPP

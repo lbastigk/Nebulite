@@ -1,6 +1,6 @@
 /**
  * @file Array.hpp
- * @brief Class for array transformation modules.
+ * @brief Class for array transformation functions.
  */
 
 #ifndef NEBULITE_TRANSFORMATION_MODULE_ARRAY_HPP

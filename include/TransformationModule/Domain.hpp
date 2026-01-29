@@ -1,6 +1,6 @@
 /**
  * @file Domain.hpp
- * @brief Class for domain transformation modules.
+ * @brief Class for domain transformation functions.
  */
 
 #ifndef NEBULITE_TRANSFORMATION_MODULE_DOMAIN_HPP

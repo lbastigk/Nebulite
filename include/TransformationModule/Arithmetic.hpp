@@ -1,6 +1,6 @@
 /**
  * @file Arithmetic.hpp
- * @brief Class for arithmetic transformation modules.
+ * @brief Class for arithmetic transformation functions.
  */
 
 #ifndef NEBULITE_TRANSFORMATION_MODULE_ARITHMETIC_HPP

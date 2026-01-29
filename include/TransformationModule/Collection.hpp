@@ -1,6 +1,6 @@
 /**
  * @file Collection.hpp
- * @brief Class for collection transformation modules.
+ * @brief Class for collection transformation functions.
  */
 
 #ifndef NEBULITE_TRANSFORMATION_MODULE_COLLECTION_HPP

@@ -1,6 +1,6 @@
 /**
  * @file Assertions.hpp
- * @brief Class for assertion transformation modules.
+ * @brief Class for assertion transformation functions.
  */
 
 #ifndef NEBULITE_TRANSFORMATION_MODULE_ASSERTIONS_HPP

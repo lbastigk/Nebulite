@@ -66,4 +66,18 @@ bool Types::deserialize(Core::JsonScope* jsonDoc) {
     return true;
 }
 
+bool Types::exists(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+    if (args.size() > 2) {
+        return false;
+    }
+    std::string const key = args.size() == 2 ? args[1] : "";
+    if (jsonDoc->memberType(valueKey + key) == Data::KeyType::null) {
+        jsonDoc->set<bool>(valueKey, false);
+    }
+    else {
+        jsonDoc->set<bool>(valueKey, true);
+    }
+    return true;
+}
+
 } // namespace Nebulite::TransformationModule

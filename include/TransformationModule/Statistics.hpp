@@ -1,6 +1,6 @@
 /**
  * @file Statistics.hpp
- * @brief Class for statistics transformation modules.
+ * @brief Class for statistics transformation functions.
  */
 
 #ifndef NEBULITE_TRANSFORMATION_MODULE_STATISTICS_HPP

@@ -1,6 +1,6 @@
 /**
  * @file Debug.hpp
- * @brief Class for debug transformation modules.
+ * @brief Class for debug transformation functions.
  */
 
 #ifndef NEBULITE_TRANSFORMATION_MODULE_DEBUG_HPP
