@@ -122,5 +122,61 @@
             ],
             "cerr": []
         }
+    },
+    {
+        "command": [
+            "# Push elements into array",
+            "set arr[0] 1",
+            "set arr[1] 2",
+            "set arr[2] 3",
+            "eval nop {global.arr|push text|at 3|print}",
+            "eval nop {global.arr|push 1234|at 3|print}",
+            "eval nop {global.arr|pushNumber 1234|at 3|print}",
+            "eval nop {global.arr|pushNumber 1234|at 3|toInt|print}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "\"text\"",
+                "\"1234\"",
+                "1234.0",
+                "1234"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Subspan of array",
+            "set arr[0] zero",
+            "set arr[1] 1",
+            "set arr[2] two",
+            "set arr[3] 3",
+            "set arr[4] four",
+            "eval nop {global.arr|subspan 1 1|print} # Subspan in range",
+            "eval nop {global.arr|subspan 2 3|print} # Subspan in range",
+            "eval nop {global.arr|subspan 2 4|print} # Subspan exceeding range, gets shortened (same output as previous)",
+            "eval nop {global.arr|subspan 8 2|print} # Subspan starting out of range, results empty array",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "[",
+                "    \"1\"",
+                "]",
+                "[",
+                "    \"two\",",
+                "    \"3\",",
+                "    \"four\"",
+                "]",
+                "[",
+                "    \"two\",",
+                "    \"3\",",
+                "    \"four\"",
+                "]",
+                "[]"
+            ],
+            "cerr": []
+        }
     }
 ]
