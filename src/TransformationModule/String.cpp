@@ -6,7 +6,13 @@
 
 namespace Nebulite::TransformationModule {
 
-void String::bindTransformations() {}
+void String::bindTransformations() {
+    BIND_TRANSFORMATION_STATIC(&toUpper, toUpperName, toUpperDesc);
+    BIND_TRANSFORMATION_STATIC(&toLower, toLowerName, toLowerDesc);
+    BIND_TRANSFORMATION_STATIC(&strip, trimName, trimDesc);
+    BIND_TRANSFORMATION_STATIC(&substring, substringName, substringDesc);
+    BIND_TRANSFORMATION_STATIC(&replace, replaceName, replaceDesc);
+}
 
 // NOLINTNEXTLINE
 bool String::toUpper(Core::JsonScope* jsonDoc) {

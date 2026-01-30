@@ -1,17 +1,66 @@
 [
     {
         "command": [
-            "# Testing non-numeric values in arithmetic transformations",
-            "set-fps 60",
-            "wait 1",
-            "set test.val 3",
-            "wait 1",
-            "",
+            "# Upper and Lower Case Transformation Test",
+            "set test.string HelloWorld",
+            "eval echo {global.test.string|toUpper}",
+            "eval echo {global.test.string|toLower}",
             "exit"
         ],
         "expected": {
             "cout": [
-                ""
+                "HELLOWORLD",
+                "helloworld"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Substring Extraction Test",
+            "set test.string HelloWorld",
+            "eval echo {global.test.string|substring 0 5}",
+            "eval echo {global.test.string|substring 5 5}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "Hello",
+                "World"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# String Replacement Test",
+            "set test.string HelloWorld",
+            "eval echo {global.test.string|replace World Universe}",
+            "eval echo {global.test.string|replace Hello Hi}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "HelloUniverse",
+                "HiWorld"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# String strip test",
+            "# Currently, set auto-rstrips strings, so we cannot test it directly.",
+            "# we just test lstrip here.",
+            "set test.string ''  HelloWorld''",
+            "eval echo {global.test.string}",
+            "eval echo {global.test.string|strip}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "  HelloWorld",
+                "HelloWorld"
             ],
             "cerr": []
         }
