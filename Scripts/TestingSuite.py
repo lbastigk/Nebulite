@@ -320,14 +320,32 @@ def validate_test_result(output: Dict[str, Union[List[str], int]], expected: Dic
     
     return passed
 
+def check_for_whitespace_ending(line_or_array: str):
+    """
+    Check if a line ends with whitespace. If it does, throw an error.
+    this is because whitespaces may cause issues with argument parsing in some cases.
+    """
+    # Ensure to check for trailing whitespace, even ones inside quotes
+    # basically, if line.exclude("\"'").endswith(" ") -> error
+    if isinstance(line_or_array, list):
+        for line in line_or_array:
+            check_for_whitespace_ending(line)
+        return
+    line = line_or_array
+    if line.replace("\"", "").replace("'", "").endswith(" "):
+        raise ValueError("Line ends with whitespace which may cause issues with argument parsing.")
+
 def run_single_test(binary: str, test: Dict[str, Any], timeout: int, ignore_lines: Dict[str, List[str]], verbose: bool = False) -> Dict[str, Any]:
     """Run a single test and return the result."""
     cmd = f"{binary} {test['command']}"
 
+    # Check for whitespace endings in command
+    check_for_whitespace_ending(test['command'])
+
     # If command is type Array, join with ';' inbetween
     if isinstance(test['command'], list):
         # Strip everything after a '#' in each command part (comments)
-        cmd = "; ".join(part.split('#')[0].strip() for part in test['command'])
+        cmd = "; ".join(part.split('#')[0] for part in test['command'])
         # remove "; " from front
         cmd = cmd.lstrip("; ")
         # Add binary in front
