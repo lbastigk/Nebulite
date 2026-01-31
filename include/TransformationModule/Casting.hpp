@@ -54,6 +54,8 @@ public:
 
     // TODO: complicated casting for string to anything via serialization
     //       perhaps named toStringFormat or serialize
+
+    // TODO: roundUp, roundDown, round (nearest)
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_CASTING_HPP

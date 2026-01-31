@@ -14,6 +14,13 @@
             "eval echo {global.test.val|mul a}",
             "eval echo {global.test.val|pow 2}",
             "eval echo {global.test.val|pow a}",
+            "eval echo {global.test.val|sub 2}",
+            "eval echo {global.test.val|sub a}",
+            "eval echo {global.test.val|div 2}",
+            "eval echo {global.test.val|div a}",
+            "eval echo {global.test.val|root 3|mul 10000|toInt}",
+            "eval echo {global.test.val|root a}",
+            "eval echo {global.test.val|sqrt|mul 10000|toInt}",
             "exit"
         ],
         "expected": {
@@ -25,7 +32,14 @@
                 "6",
                 "null",
                 "9",
-                "null"
+                "null",
+                "1",
+                "null",
+                "1.5",
+                "null",
+                "14422",
+                "null",
+                "17320"
             ],
             "cerr": []
         }
