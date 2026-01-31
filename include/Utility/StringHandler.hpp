@@ -122,7 +122,6 @@ public:
 
     /**
      * @brief Parses a command string into individual arguments, taking quotes into account.
-     * 
      * @param cmd The command string to parse.
      */
     static std::vector<std::string> parseQuotedArguments(std::string const& cmd);

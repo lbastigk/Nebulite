@@ -1,0 +1,4 @@
+set test.string "  HelloWorld  "
+eval echo {global.test.string}
+eval echo {global.test.string|strip}
+exit

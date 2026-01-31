@@ -49,17 +49,13 @@
     },
     {
         "command": [
-            "# String strip test",
-            "# Currently, set auto-rstrips strings, so we cannot test it directly.",
-            "# we just test lstrip here.",
-            "set test.string ''  HelloWorld''",
-            "eval echo {global.test.string}",
-            "eval echo {global.test.string|strip}",
-            "exit"
+            "# Trailing whitespaces are difficult to handle in command line arguments",
+            "# Instead, we test the strip transformation in a dedicated .nebs file",
+            "task TaskFiles/Tests/Short/Transformations/strip.nebs"
         ],
         "expected": {
             "cout": [
-                "  HelloWorld",
+                "  HelloWorld  ",
                 "HelloWorld"
             ],
             "cerr": []

@@ -248,7 +248,7 @@ void handleQuotedToken(std::string const& token, QuoteParseState& state, std::ve
         }
     }
 }
-}
+} // namespace
 
 std::vector<std::string> StringHandler::parseQuotedArguments(std::string const& cmd) {
     std::vector<std::string> const tokens = split(cmd, ' ');

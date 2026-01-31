@@ -35,6 +35,8 @@ public:
     static auto constexpr trimDesc = "Strips whitespace from both ends of the current JSON string value.\n"
         "Usage: |trim -> {string}\n";
 
+    // TODO: lstrip, rstrip
+
     static bool substring(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr substringName = "substring";
     static auto constexpr substringDesc = "Extracts a substring from the current JSON string value.\n"
