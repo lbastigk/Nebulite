@@ -91,6 +91,7 @@ bool Collection::filterGlob(std::span<std::string const> const& args, Core::Json
     return true;
 }
 
+// NOLINTNEXTLINE
 bool Collection::filterNulls(Core::JsonScope* jsonDoc) {
     auto const type = jsonDoc->memberType(rootKey);
 
@@ -114,9 +115,9 @@ bool Collection::filterNulls(Core::JsonScope* jsonDoc) {
         filterNulls(&memberScope);
 
         // If the member has no more members, we also remove it
+        // This allows us to remove empty objects/arrays: {} and []
         auto const memberType = jsonDoc->memberType(key);
-        auto const memberKeys = jsonDoc->listAvailableKeys(key);
-        if (memberType != Data::KeyType::value && memberKeys.empty()) {
+        if (memberType != Data::KeyType::value && jsonDoc->listAvailableKeys(key).empty()) {
             continue;
         }
 
