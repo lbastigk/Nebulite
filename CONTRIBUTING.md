@@ -7,8 +7,6 @@ in separate files and barely touching existing ones.
 
 - [Development Setup](#development-setup)
    * [Prerequisites](#prerequisites)
-   * [Recommended Environment](#recommended-environment)
-   * [Building](#building)
 - [Testing](#testing)
    * [Quick Expression Testing](#quick-expression-testing)
 - [Adding Features](#adding-features)
@@ -16,7 +14,6 @@ in separate files and barely touching existing ones.
    * [Example: Adding a New GlobalSpace Feature](#example-adding-a-new-globalspace-feature)
       + [Step-by-Step Process](#step-by-step-process)
       + [Complete Code Example](#complete-code-example)
-   * [Feature Management](#feature-management)
    * [Implementation Guidelines](#implementation-guidelines)
 - [Preview Editing (Work in Progress)](#preview-editing-work-in-progress)
 - [Submitting Changes](#submitting-changes)
