@@ -21,5 +21,53 @@
             ],
             "cerr": []
         }
+    },
+    {
+        "command": [
+            "# Get function",
+            "set arr[0] 1",
+            "set arr[1] 2",
+            "set arr[2] 3",
+            "set obj.key1 value1",
+            "set obj.key2 value2",
+            "set obj.key3 value3",
+            "eval echo {global.arr|get [1]|toInt}",
+            "eval echo {global.obj|get key2}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "2",
+                "value2"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Get function",
+            "set arr[0] 1",
+            "set arr[1] 2",
+            "set arr[2] 3",
+            "set obj.key1 value1",
+            "set obj.key2 value2",
+            "set obj.key3 value3",
+            "eval nop {global.arr|getMultiple [0] [1]|print}",
+            "eval nop {global.obj|getMultiple key1 key2|print}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "[",
+                "    \"1\",",
+                "    \"2\"",
+                "]",
+                "[",
+                "    \"value1\",",
+                "    \"value2\"",
+                "]"
+            ],
+            "cerr": []
+        }
     }
 ]

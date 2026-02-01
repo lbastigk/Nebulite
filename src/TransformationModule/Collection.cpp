@@ -53,23 +53,19 @@ bool Collection::get(std::span<std::string const> const& args, Core::JsonScope* 
     return true;
 }
 
-// TODO: doesnt work...
 bool Collection::getMultiple(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (args.size() != 2) {
+    if (args.size() < 2) {
         return false;
     }
-    std::vector<std::unique_ptr<Data::JSON>> values;
+    Data::JSON tmp;
+    size_t i = 0;
     for (auto const& key : args.subspan(1)) {
-        values.push_back(std::make_unique<Data::JSON>());
-        auto subDoc = jsonDoc->getSubDoc(valueKey + key);
-        values.back()->copyFrom(subDoc);
+        tmp.setSubDoc("[" + std::to_string(i) + "]", jsonDoc->getSubDoc(valueKey + key));
+        ++i;
     }
 
     // Create result array
-    for (size_t i = 0; i < values.size(); ++i) {
-        auto const arrayKey = valueKey + "[" + std::to_string(i) + "]";
-        jsonDoc->setSubDoc(arrayKey, *values[i]);
-    }
+    jsonDoc->setSubDoc(valueKey, tmp);
     return true;
 }
 
