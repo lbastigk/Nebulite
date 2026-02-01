@@ -48,7 +48,7 @@ std::optional<T> JSON::getWithTransformations(std::string const& key) const {
         return {};    // if any transformation fails, return default value
     }
     // This should not fail, so we use T() as default value
-    return tempDoc.get<T>(TransformationModule::valueKeyStr, T());
+    return tempDoc.get<T>(TransformationModule::rootKeyStr, T());
 }
 
 template<typename T>

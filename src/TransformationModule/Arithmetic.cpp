@@ -20,7 +20,7 @@ bool Arithmetic::add(std::span<std::string const> const& args, Core::JsonScope* 
     }
     try {
         double const num = std::stod(args[1]);
-        jsonDoc->set_add(valueKey, num);
+        jsonDoc->set_add(rootKey, num);
     } catch (...) {
         return false;
     }
@@ -33,7 +33,7 @@ bool Arithmetic::multiply(std::span<std::string const> const& args, Core::JsonSc
     }
     try {
         double const num = std::stod(args[1]);
-        jsonDoc->set_multiply(valueKey, num);
+        jsonDoc->set_multiply(rootKey, num);
     } catch (...) {
         return false;
     }
@@ -46,12 +46,12 @@ bool Arithmetic::mod(std::span<std::string const> const& args, Core::JsonScope* 
     }
     try {
         double const modValue = std::stod(args[1]);
-        auto const currentValue = jsonDoc->get<double>(valueKey, 0.0);
+        auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
         if (std::fabs(modValue) < std::numeric_limits<double>::epsilon()) {
             return false; // Modulo by zero is undefined
         }
         double const result = std::fmod(currentValue, modValue);
-        jsonDoc->set<double>(valueKey, result);
+        jsonDoc->set<double>(rootKey, result);
         return true;
     } catch (...) {
         return false;
@@ -63,10 +63,10 @@ bool Arithmetic::pow(std::span<std::string const> const& args, Core::JsonScope* 
         return false;
     }
     try {
-        auto const currentValue = jsonDoc->get<double>(valueKey, 0.0);
+        auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
         auto const exponent = std::stod(args[1]);
         double const result = std::pow(currentValue, exponent);
-        jsonDoc->set<double>(valueKey, result);
+        jsonDoc->set<double>(rootKey, result);
         return true;
     } catch (...) {
         return false;
@@ -79,7 +79,7 @@ bool Arithmetic::subtract(std::span<std::string const> const& args, Core::JsonSc
     }
     try {
         double const num = - std::stod(args[1]);
-        jsonDoc->set_add(valueKey, num);
+        jsonDoc->set_add(rootKey, num);
     } catch (...) {
         return false;
     }
@@ -92,7 +92,7 @@ bool Arithmetic::divide(std::span<std::string const> const& args, Core::JsonScop
     }
     try {
         double const num = 1.0 / std::stod(args[1]);
-        jsonDoc->set_multiply(valueKey, num);
+        jsonDoc->set_multiply(rootKey, num);
     } catch (...) {
         return false;
     }
@@ -104,12 +104,12 @@ bool Arithmetic::sqrt(std::span<std::string const> const& args, Core::JsonScope*
         return false;
     }
     try {
-        auto const currentValue = jsonDoc->get<double>(valueKey, 0.0);
+        auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
         if (currentValue < 0.0) {
             return false; // Square root of negative number is undefined
         }
         double const result = std::sqrt(currentValue);
-        jsonDoc->set<double>(valueKey, result);
+        jsonDoc->set<double>(rootKey, result);
         return true;
     } catch (...) {
         return false;
@@ -125,12 +125,12 @@ bool Arithmetic::root(std::span<std::string const> const& args, Core::JsonScope*
         if (std::fabs(n) < std::numeric_limits<double>::epsilon()) {
             return false; // Root of order zero is undefined
         }
-        auto const currentValue = jsonDoc->get<double>(valueKey, 0.0);
+        auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
         if (currentValue < 0.0 && std::fabs(std::fmod(n, 2.0)) < std::numeric_limits<double>::epsilon()) {
             return false; // Even root of negative number is undefined
         }
         double const result = std::pow(currentValue, 1.0 / n);
-        jsonDoc->set<double>(valueKey, result);
+        jsonDoc->set<double>(rootKey, result);
         return true;
     } catch (...) {
         return false;

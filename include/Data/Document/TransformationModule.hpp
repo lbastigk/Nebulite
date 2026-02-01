@@ -59,16 +59,16 @@ public:
     /**
      * @brief The key string used to store and retrieve the value being modified.
      * @details Uses an empty string as key, so the entire JSON document is the value used.
-     * @note DO NOT CHANGE THIS KEY!
+     * @note DO NOT CHANGE THIS KEY! Needs to stay empty for correct operation.
      */
-    static auto constexpr valueKeyStr = "";
+    static auto constexpr rootKeyStr = "";
 
     /**
      * @brief The key used to store and retrieve the value being modified.
      * @details Uses an empty string as key, so the entire JSON document is the value used.
      * @note DO NOT CHANGE THIS KEY!
      */
-    static auto constexpr valueKey = ScopedKeyView(valueKeyStr);
+    static auto constexpr rootKey = ScopedKeyView(rootKeyStr);
 
 protected:
     std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> transformationFuncTree;

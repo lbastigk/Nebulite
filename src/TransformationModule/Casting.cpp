@@ -13,31 +13,31 @@ void Casting::bindTransformations() {
 
 bool Casting::toInt(Core::JsonScope* jsonDoc) {
     // Check if it has any value
-    if (jsonDoc->memberType(valueKey) == Data::KeyType::null) {
+    if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         return false;
     }
 
     // Get current value as double and cast to int
-    auto const currentValue = jsonDoc->get<double>(valueKey, 0.0);
+    auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
     auto const valueAsInt = static_cast<int>(currentValue);
-    jsonDoc->set<int>(valueKey, valueAsInt);
+    jsonDoc->set<int>(rootKey, valueAsInt);
     return true;
 }
 
 bool Casting::toString(Core::JsonScope* jsonDoc) {
     // Check if it has any value
-    if (jsonDoc->memberType(valueKey) == Data::KeyType::null) {
+    if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         return false;
     }
 
-    auto const valAsString = jsonDoc->get<std::string>(valueKey, "");
-    jsonDoc->set<std::string>(valueKey, valAsString);
+    auto const valAsString = jsonDoc->get<std::string>(rootKey, "");
+    jsonDoc->set<std::string>(rootKey, valAsString);
     return true;
 }
 
 bool Casting::toBool(Core::JsonScope* jsonDoc) {
     // Check if it has any value
-    if (jsonDoc->memberType(valueKey) == Data::KeyType::null) {
+    if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         return false;
     }
 
@@ -45,47 +45,47 @@ bool Casting::toBool(Core::JsonScope* jsonDoc) {
     static auto supportedTrueValues = std::set<std::string>{"true", "1", "yes", "on"};
     static auto supportedFalseValues = std::set<std::string>{"false", "0", "no", "off"};
 
-    auto const currentValueStr = jsonDoc->get<std::string>(valueKey, "");
+    auto const currentValueStr = jsonDoc->get<std::string>(rootKey, "");
     std::string valueLower;
     std::ranges::transform(currentValueStr, std::back_inserter(valueLower), [](unsigned char const c) {
             return std::tolower(c);
     });
     if (supportedTrueValues.contains(valueLower)) {
-        jsonDoc->set<bool>(valueKey, true);
+        jsonDoc->set<bool>(rootKey, true);
         return true;
     }
     if (supportedFalseValues.contains(valueLower)) {
-        jsonDoc->set<bool>(valueKey, false);
+        jsonDoc->set<bool>(rootKey, false);
         return true;
     }
 
     // Fallback: get as bool directly
-    bool const boolValue = jsonDoc->get<bool>(valueKey, false);
-    jsonDoc->set<bool>(valueKey, boolValue);
+    bool const boolValue = jsonDoc->get<bool>(rootKey, false);
+    jsonDoc->set<bool>(rootKey, boolValue);
     return true;
 }
 
 bool Casting::toDouble(Core::JsonScope* jsonDoc) {
     // Check if it has any value
-    if (jsonDoc->memberType(valueKey) == Data::KeyType::null) {
+    if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         return false;
     }
 
     // Get current value as double
-    auto const currentValue = jsonDoc->get<double>(valueKey, 0.0);
-    jsonDoc->set<double>(valueKey, currentValue);
+    auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
+    jsonDoc->set<double>(rootKey, currentValue);
     return true;
 }
 
 bool Casting::toBoolString(Core::JsonScope* jsonDoc) {
     // Check if it has any value
-    if (jsonDoc->memberType(valueKey) == Data::KeyType::null) {
+    if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         return false;
     }
 
     // Get current value as bool
-    bool const boolValue = jsonDoc->get<bool>(valueKey, false);
-    jsonDoc->set<std::string>(valueKey, boolValue ? "true" : "false");
+    bool const boolValue = jsonDoc->get<bool>(rootKey, false);
+    jsonDoc->set<std::string>(rootKey, boolValue ? "true" : "false");
     return true;
 }
 

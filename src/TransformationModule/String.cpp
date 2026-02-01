@@ -16,7 +16,7 @@ void String::bindTransformations() {
 
 // NOLINTNEXTLINE
 bool String::toUpper(Core::JsonScope* jsonDoc) {
-    auto str = jsonDoc->get<std::string>(valueKey);
+    auto str = jsonDoc->get<std::string>(rootKey);
     std::ranges::transform(
         str,
         str.begin(),
@@ -24,13 +24,13 @@ bool String::toUpper(Core::JsonScope* jsonDoc) {
             return static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
         }
     );
-    jsonDoc->set(valueKey, str);
+    jsonDoc->set(rootKey, str);
     return true;
 }
 
 // NOLINTNEXTLINE
 bool String::toLower(Core::JsonScope* jsonDoc) {
-    auto str = jsonDoc->get<std::string>(valueKey);
+    auto str = jsonDoc->get<std::string>(rootKey);
     std::ranges::transform(
         str,
         str.begin(),
@@ -38,14 +38,14 @@ bool String::toLower(Core::JsonScope* jsonDoc) {
             return static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
         }
     );
-    jsonDoc->set(valueKey, str);
+    jsonDoc->set(rootKey, str);
     return true;
 }
 
 // NOLINTNEXTLINE
 bool String::strip(Core::JsonScope* jsonDoc) {
-    auto const str = Utility::StringHandler::strip(jsonDoc->get<std::string>(valueKey));
-    jsonDoc->set(valueKey, str);
+    auto const str = Utility::StringHandler::strip(jsonDoc->get<std::string>(rootKey));
+    jsonDoc->set(rootKey, str);
     return true;
 }
 
@@ -56,13 +56,13 @@ bool String::substring(std::span<std::string const> const& args, Core::JsonScope
     }
     auto const start = std::stoul(args[1]);
     size_t const length = std::stoul(args[2]);
-    auto const str = jsonDoc->get<std::string>(valueKey);
+    auto const str = jsonDoc->get<std::string>(rootKey);
     if (start >= str.size()) {
-        jsonDoc->set(valueKey, "");
+        jsonDoc->set(rootKey, "");
         return true;
     }
     auto const substr = str.substr(start, length);
-    jsonDoc->set(valueKey, substr);
+    jsonDoc->set(rootKey, substr);
     return true;
 }
 
@@ -73,9 +73,9 @@ bool String::replace(std::span<std::string const> const& args, Core::JsonScope* 
     }
     auto const target = args[1];
     auto const replacement = args[2];
-    auto const str = jsonDoc->get<std::string>(valueKey);
+    auto const str = jsonDoc->get<std::string>(rootKey);
     auto const replacedStr = Utility::StringHandler::replaceAll(str, target, replacement);
-    jsonDoc->set(valueKey, replacedStr);
+    jsonDoc->set(rootKey, replacedStr);
     return true;
 }
 

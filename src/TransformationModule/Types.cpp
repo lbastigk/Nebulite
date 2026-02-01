@@ -11,7 +11,7 @@ void Types::bindTransformations() {
 }
 
 bool Types::typeAsNumber(Core::JsonScope* jsonDoc) {
-    jsonDoc->set<int>(valueKey, static_cast<int>(jsonDoc->memberType(valueKey)));
+    jsonDoc->set<int>(rootKey, static_cast<int>(jsonDoc->memberType(rootKey)));
     return true;
 }
 
@@ -28,22 +28,22 @@ bool Types::typeAsString(Core::JsonScope* jsonDoc) {
     //       <baseType>:<subType>:<sizeInfo>
     //       e.g.: "value:int:32" or "value:string:10"
     //       Perhaps with additional arg to control the format?
-    switch (jsonDoc->memberType(valueKey)) {
+    switch (jsonDoc->memberType(rootKey)) {
     case Data::KeyType::value: {
         // General type is "value", but we can be more specific by using getVariant or even better:
         // TODO: see above comment
-        jsonDoc->set<std::string>(valueKey, "value");
+        jsonDoc->set<std::string>(rootKey, "value");
     }
         break;
     case Data::KeyType::array:
-        jsonDoc->set<std::string>(valueKey, "array");
+        jsonDoc->set<std::string>(rootKey, "array");
         break;
     case Data::KeyType::object:
-        jsonDoc->set<std::string>(valueKey, "object");
+        jsonDoc->set<std::string>(rootKey, "object");
         break;
     case Data::KeyType::null:
     default:
-        jsonDoc->set<std::string>(valueKey, "null");
+        jsonDoc->set<std::string>(rootKey, "null");
         break;
     }
     return true;
@@ -51,18 +51,18 @@ bool Types::typeAsString(Core::JsonScope* jsonDoc) {
 
 bool Types::serialize(Core::JsonScope* jsonDoc) {
     std::string const serialized = jsonDoc->serialize();
-    jsonDoc->set<std::string>(valueKey, serialized);
+    jsonDoc->set<std::string>(rootKey, serialized);
     return true;
 }
 
 bool Types::deserialize(Core::JsonScope* jsonDoc) {
-    auto const serialized = jsonDoc->get<std::string>(valueKey, "");
+    auto const serialized = jsonDoc->get<std::string>(rootKey, "");
     Data::JSON tempDoc;
     if (!Data::JSON::isJsonOrJsonc(serialized)) {
         return false;
     }
     tempDoc.deserialize(serialized);
-    jsonDoc->setSubDoc(valueKey, tempDoc);
+    jsonDoc->setSubDoc(rootKey, tempDoc);
     return true;
 }
 
@@ -71,11 +71,11 @@ bool Types::exists(std::span<std::string const> const& args, Core::JsonScope* js
         return false;
     }
     std::string const key = args.size() == 2 ? args[1] : "";
-    if (jsonDoc->memberType(valueKey + key) == Data::KeyType::null) {
-        jsonDoc->set<bool>(valueKey, false);
+    if (jsonDoc->memberType(rootKey + key) == Data::KeyType::null) {
+        jsonDoc->set<bool>(rootKey, false);
     }
     else {
-        jsonDoc->set<bool>(valueKey, true);
+        jsonDoc->set<bool>(rootKey, true);
     }
     return true;
 }

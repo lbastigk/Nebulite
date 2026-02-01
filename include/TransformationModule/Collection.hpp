@@ -37,6 +37,16 @@ public:
         "Usage: |getMultiple <key1> <key2> ... -> {array of values}\n";
 
     // TODO: filter-glob, filter-regex, filter-contains, etc.
+
+    static bool filterGlob(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr filterGlobName = "filterGlob";
+    static auto constexpr filterGlobDesc = "Filters elements in the current JSON array/object based on a glob pattern.\n"
+            "Usage: |filterGlob <pattern> -> {filtered array}\n";
+
+    static bool filterNulls(Core::JsonScope* jsonDoc);
+    static auto constexpr filterOutNullsName = "filterNulls";
+    static auto constexpr filterOutNullsDesc = "Filters out null values from the current JSON array/object\n"
+            "Usage: |filterNulls -> {filtered array}\n";
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_COLLECTION_HPP

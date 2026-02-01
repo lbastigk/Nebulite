@@ -69,5 +69,38 @@
             ],
             "cerr": []
         }
+    },
+    {
+        "command": [
+            "# Glob and null filtering function",
+            "task TaskFiles/Tests/Short/Transformations/glob.nebs"
+        ],
+        "expected": {
+            "cout": [
+                "[",
+                "    {},",
+                "    \"2\",",
+                "    {},",
+                "    {},",
+                "    {},",
+                "    {},",
+                "    {},",
+                "    {},",
+                "    {},",
+                "    {},",
+                "    {},",
+                "    \"12\"",
+                "]",
+                "[",
+                "    \"2\",",
+                "    \"12\"",
+                "]",
+                "{",
+                "    \"keybarbaz\": \"barbaz\",",
+                "    \"keybarfoo\": \"barfoo\"",
+                "}"
+            ],
+            "cerr": []
+        }
     }
 ]

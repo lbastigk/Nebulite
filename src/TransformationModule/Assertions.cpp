@@ -11,7 +11,7 @@ void Assertions::bindTransformations() {
 
 // NOLINTNEXTLINE
 bool Assertions::assertNonEmpty(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (jsonDoc->memberType(valueKey) == Data::KeyType::null) {
+    if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         printUserDefinedMessage(args);
         static std::string errorMessage = std::string(__FUNCTION__) + " JSON value is null";
         throw std::runtime_error(errorMessage);
@@ -21,7 +21,7 @@ bool Assertions::assertNonEmpty(std::span<std::string const> const& args, Core::
 
 // NOLINTNEXTLINE
 bool Assertions::assertTypeObject(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (jsonDoc->memberType(valueKey) != Data::KeyType::object) {
+    if (jsonDoc->memberType(rootKey) != Data::KeyType::object) {
         printUserDefinedMessage(args);
         static std::string errorMessage = std::string(__FUNCTION__) + " JSON value is not an object";
         throw std::runtime_error(errorMessage);
@@ -31,7 +31,7 @@ bool Assertions::assertTypeObject(std::span<std::string const> const& args, Core
 
 // NOLINTNEXTLINE
 bool Assertions::assertTypeArray(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (jsonDoc->memberType(valueKey) != Data::KeyType::array) {
+    if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
         printUserDefinedMessage(args);
         static std::string errorMessage = std::string(__FUNCTION__) + " JSON value is not an array";
         throw std::runtime_error(errorMessage);
@@ -41,7 +41,7 @@ bool Assertions::assertTypeArray(std::span<std::string const> const& args, Core:
 
 // NOLINTNEXTLINE
 bool Assertions::assertTypeBasicValue(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (jsonDoc->memberType(valueKey) != Data::KeyType::value) {
+    if (jsonDoc->memberType(rootKey) != Data::KeyType::value) {
         printUserDefinedMessage(args);
         static std::string errorMessage = std::string(__FUNCTION__) + " JSON value is not a basic value";
         throw std::runtime_error(errorMessage);

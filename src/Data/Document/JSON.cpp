@@ -133,7 +133,7 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
     // Check for transformations
     if (key.contains('|')) {
         if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
-            return tmp.getVariant(TransformationModule::valueKeyStr);
+            return tmp.getVariant(TransformationModule::rootKeyStr);
         }
         return {};
     }
