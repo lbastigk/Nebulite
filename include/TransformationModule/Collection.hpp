@@ -36,7 +36,7 @@ public:
     static auto constexpr getMultipleDesc = "Gets multiple values at the specified keys from the current JSON object.\n"
         "Usage: |getMultiple <key1> <key2> ... -> {array of values}\n";
 
-    // TODO: filter-regex, filter-contains, etc.
+    // TODO: filter-regex
 
     static bool filterGlob(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr filterGlobName = "filterGlob";
@@ -47,6 +47,13 @@ public:
     static auto constexpr filterOutNullsName = "filterNulls";
     static auto constexpr filterOutNullsDesc = "Filters out null values, empty objects, and empty arrays from the current JSON\n"
             "Usage: |filterNulls -> {filtered json}\n";
+
+    // TODO: listKeys
+
+    // TODO: setFromResult: setFromResult <key> <transformation>
+    //       allows us to do transformations while keeping the original document structure:
+    //       e.g.: {global.obj|setFromResult __tmp__ complexFilteringTransformation|someTransformationBasedOnTmpValue}
+    //       NOTE: shouldn't be part of Collection, perhaps a module such as helper or core?
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_COLLECTION_HPP
