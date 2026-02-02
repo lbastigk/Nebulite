@@ -48,7 +48,7 @@ bool Collection::map(std::span<std::string const> const& args, Core::JsonScope* 
         // Parse transformation command
         auto& scope = jsonDoc->shareScope(elementKey);
         if (!transformationFuncTree->parseStr(cmd, &scope)) {
-            jsonDoc->removeKey(elementKey);
+            jsonDoc->removeMember(elementKey);
         }
     }
     return true;
@@ -103,7 +103,7 @@ bool Collection::filterNulls(Core::JsonScope* jsonDoc) {
     auto const type = jsonDoc->memberType(rootKey);
 
     if (type == Data::KeyType::null) {
-        jsonDoc->removeKey(rootKey);
+        jsonDoc->removeMember(rootKey);
         return true;
     }
 
@@ -146,7 +146,7 @@ bool Collection::filterNulls(Core::JsonScope* jsonDoc) {
 
 bool Collection::listMembers(Core::JsonScope* jsonDoc){
     auto const membersAndKeys = jsonDoc->listAvailableMembersAndKeys(rootKey);
-    jsonDoc->removeKey(rootKey);
+    jsonDoc->removeMember(rootKey);
     std::ranges::for_each(
     std::views::zip(std::views::iota(std::size_t{0}), membersAndKeys),
         [&](auto const& enumeratedMemberAndKey) {

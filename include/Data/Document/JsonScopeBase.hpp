@@ -216,8 +216,8 @@ public:
     [[nodiscard]] size_t memberSize(ScopedKeyView const& key) const ;
     [[nodiscard]] size_t memberSize(ScopedKey const& key) const {return memberSize(key.view());}
 
-    void removeKey(ScopedKeyView const& key);
-    void removeKey(ScopedKey const& key) {removeKey(key.view());}
+    void removeMember(ScopedKeyView const& key);
+    void removeMember(ScopedKey const& key) {removeMember(key.view());}
 
     std::vector<ScopedKey> listAvailableKeys(ScopedKeyView const& key) const ;
     std::vector<ScopedKey> listAvailableKeys(ScopedKey const& key) const {return listAvailableKeys(key.view());}
@@ -237,7 +237,6 @@ public:
     // Serialize/Deserialize
 
     [[nodiscard]] std::string serialize() const ;
-
     [[nodiscard]] std::string serialize(ScopedKeyView const& key) const ;
     [[nodiscard]] std::string serialize(ScopedKey const& key) const {return serialize(key.view());}
 

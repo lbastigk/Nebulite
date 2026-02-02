@@ -465,9 +465,9 @@ public:
      * @param key The key to remove.
      * @todo Rename to removeMember
      */
-    void removeKey(char const* key);
-    void removeKey(std::string const& key) { removeKey(key.c_str()); }
-    void removeKey(std::string_view const& key) { removeKey(std::string(key).c_str()); }
+    void removeMember(char const* key);
+    void removeMember(std::string const& key) { removeMember(key.c_str()); }
+    void removeMember(std::string_view const& key) { removeMember(std::string(key).c_str()); }
 
     // TODO: offer a moveMember function, without additional json creation!
     //       the current usage for moving members is quite inefficient!

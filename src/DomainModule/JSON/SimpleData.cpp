@@ -46,12 +46,12 @@ Constants::Error SimpleData::move(std::span<std::string const> const& args, Inte
     }
     if (callerScope.memberType(sourceKey) == Data::KeyType::object) {
         Data::JSON const subDoc = callerScope.getSubDoc(sourceKey);
-        callerScope.removeKey(targetKey);
+        callerScope.removeMember(targetKey);
         callerScope.setSubDoc(targetKey, subDoc);
-        callerScope.removeKey(sourceKey);
+        callerScope.removeMember(sourceKey);
     } else if (callerScope.memberType(sourceKey) == Data::KeyType::array) {
         // Careful handling required:
-        callerScope.removeKey(targetKey);
+        callerScope.removeMember(targetKey);
 
         size_t const size = callerScope.memberSize(sourceKey);
         for (size_t i = 0; i < size; ++i) {
@@ -63,9 +63,9 @@ Constants::Error SimpleData::move(std::span<std::string const> const& args, Inte
     } else {
         // Move the value from sourceKey to targetKey
         auto const value = callerScope.get<std::string>(sourceKey);
-        callerScope.removeKey(targetKey);
+        callerScope.removeMember(targetKey);
         callerScope.set(targetKey, value);
-        callerScope.removeKey(sourceKey);
+        callerScope.removeMember(sourceKey);
     }
     (void)caller;
     return Constants::ErrorTable::NONE();
@@ -88,11 +88,11 @@ Constants::Error SimpleData::copy(std::span<std::string const> const& args, Inte
     }
     if (callerScope.memberType(sourceKey) == Data::KeyType::object) {
         Data::JSON const subDoc = callerScope.getSubDoc(sourceKey);
-        callerScope.removeKey(targetKey);
+        callerScope.removeMember(targetKey);
         callerScope.setSubDoc(targetKey, subDoc);
     } else if (callerScope.memberType(sourceKey) == Data::KeyType::array) {
         // Careful handling required:
-        callerScope.removeKey(targetKey);
+        callerScope.removeMember(targetKey);
 
         size_t const size = callerScope.memberSize(sourceKey);
         for (size_t i = 0; i < size; ++i) {
@@ -104,7 +104,7 @@ Constants::Error SimpleData::copy(std::span<std::string const> const& args, Inte
     } else {
         // Move the value from sourceKey to targetKey
         auto const value = callerScope.get<std::string>(sourceKey);
-        callerScope.removeKey(targetKey);
+        callerScope.removeMember(targetKey);
         callerScope.set(targetKey, value);
     }
     (void)caller;
@@ -120,7 +120,7 @@ Constants::Error SimpleData::keyDelete(std::span<std::string const> const& args,
     }
     auto const key = callerScope.getRootScope() + args[1];
     (void)caller;
-    callerScope.removeKey(key);
+    callerScope.removeMember(key);
     return Constants::ErrorTable::NONE();
 }
 
@@ -151,7 +151,7 @@ Constants::Error SimpleData::ensureArray(std::span<std::string const> const& arg
     if (keyType == Data::KeyType::value) {
         // pop out value
         auto const existingValue = callerScope.get<std::string>(key);
-        callerScope.removeKey(key);
+        callerScope.removeMember(key);
 
         // Set as new value
         auto const arrayKey = key + "[0]";
@@ -229,7 +229,7 @@ Constants::Error SimpleData::pop_back(std::span<std::string const> const& args, 
 
     auto const itemKey = key + "[" + std::to_string(size - 1) + "]";
     (void)caller;
-    callerScope.removeKey(itemKey);
+    callerScope.removeMember(itemKey);
     return Constants::ErrorTable::NONE();
 }
 
@@ -333,7 +333,7 @@ Constants::Error SimpleData::pop_front(std::span<std::string const> const& args,
     // Remove the last item
     auto const lastItemKey = key + "[" + std::to_string(size - 1) + "]";
     (void)caller;
-    callerScope.removeKey(lastItemKey);
+    callerScope.removeMember(lastItemKey);
     return Constants::ErrorTable::NONE();
 }
 

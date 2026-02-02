@@ -484,7 +484,7 @@ size_t JSON::memberSize(std::string const& key) const {
     return val->Size();
 }
 
-void JSON::removeKey(char const* key) {
+void JSON::removeMember(char const* key) {
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++; // Signal non-const operation
 

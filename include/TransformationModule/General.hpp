@@ -20,17 +20,44 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    // TODO: setString: setString <key> <value>
-    // TODO: setInt: setInt <key> <value>
-    // TODO: setDouble: setDouble <key> <value>
-    // TODO: setBool: setBool <key> <value>
-    // TODO: setNull: setNull <key>
+    static bool setString(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr setStringName = "setString";
+    static auto constexpr setStringDesc = "Sets a string value at the specified key in the JSON document.\n"
+        "Expects two arguments: <key> and <value>.\n"
+        "Usage: |setString <key> <value> -> {json}\n";
 
-    // TODO: removeKey: removeKey <key>
+    static bool setInt(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr setIntName = "setInt";
+    static auto constexpr setIntDesc = "Sets an integer value at the specified key in the JSON document.\n"
+        "Expects two arguments: <key> and <value>.\n"
+        "Usage: |setInt <key> <value> -> {json}\n";
+
+    static bool setDouble(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr setDoubleName = "setDouble";
+    static auto constexpr setDoubleDesc = "Sets a double value at the specified key in the JSON document.\n"
+        "Expects two arguments: <key> and <value>.\n"
+        "Usage: |setDouble <key> <value> -> {json}\n";
+
+    static bool setBool(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr setBoolName = "setBool";
+    static auto constexpr setBoolDesc = "Sets a boolean value at the specified key in the JSON document.\n"
+        "Expects two arguments: <key> and <value> (true/false).\n"
+        "Any other value will be considered false.\n"
+        "Usage: |setBool <key> <value> -> {json}\n";
+
+    static bool removeMember(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr removeMemberName = "removeMember";
+    static auto constexpr removeMemberDesc = "Removes the member at the specified key from the JSON document.\n"
+            "Usage: |removeMember <key1> <key2> ... -> {json}\n";
 
     // TODO: setFromResult: setFromResult <key> <transformation>
     //       allows us to do transformations while keeping the original document structure:
     //       e.g.: {global.obj|setFromResult __tmp__ complexFilteringTransformation|someTransformationBasedOnTmpValue}
+
+    bool setFromResult(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) const ;
+    static auto constexpr setFromResultName = "setFromResult";
+    static auto constexpr setFromResultDesc = "Sets the value at the specified key in the JSON document from the result of a transformation.\n"
+        "Usage: |setFromResult <key> <transformation> -> {json}\n";
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_CORE_HPP
