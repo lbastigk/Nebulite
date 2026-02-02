@@ -360,6 +360,13 @@ rapidjson::Value* RjDirectAccess::traverseToParent(char const* fullKey, rapidjso
 }
 
 void RjDirectAccess::removeMember(char const* key, rapidjson::Value& val) {
+    // Edge case: empty key
+    if (key == nullptr || key[0] == '\0') {
+        // Remove entire document content
+        val.SetNull();
+        return;
+    }
+
     // Handle simple case: direct member of root document
     if (std::string const keyStr(key); keyStr.find('.') == std::string::npos && keyStr.find('[') == std::string::npos) {
         if (val.HasMember(key)) {
