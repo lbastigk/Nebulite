@@ -1,8 +1,14 @@
+//------------------------------------------
+// Includes
+
+// Standard library
 #include <fnmatch.h>
 
-#include "TransformationModule/Collection.hpp"
+// Nebulite
 #include "Core/JsonScope.hpp"
+#include "TransformationModule/Collection.hpp"
 
+//------------------------------------------
 namespace Nebulite::TransformationModule {
 
 void Collection::bindTransformations() {
@@ -12,6 +18,7 @@ void Collection::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Collection::getMultiple, getMultipleName, getMultipleDesc);
     BIND_TRANSFORMATION_STATIC(&Collection::filterGlob, filterGlobName, filterGlobDesc);
     BIND_TRANSFORMATION_STATIC(&Collection::filterNulls, filterOutNullsName, filterOutNullsDesc);
+    BIND_TRANSFORMATION_STATIC(&Collection::listMembers, listKeysName, listKeysDesc);
 }
 
 bool Collection::map(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) const {
@@ -134,6 +141,24 @@ bool Collection::filterNulls(Core::JsonScope* jsonDoc) {
     }
     jsonDoc->setSubDoc(rootKey, filteredObject);
 
+    return true;
+}
+
+bool Collection::listMembers(Core::JsonScope* jsonDoc){
+    auto const membersAndKeys = jsonDoc->listAvailableMembersAndKeys(rootKey);
+    jsonDoc->removeKey(rootKey);
+    std::ranges::for_each(
+    std::views::zip(std::views::iota(std::size_t{0}), membersAndKeys),
+        [&](auto const& enumeratedMemberAndKey) {
+            auto const& [i, memberAndKey] = enumeratedMemberAndKey;
+            auto const& [member, _] = memberAndKey;
+
+            jsonDoc->set<std::string>(
+                rootKey + "[" + std::to_string(i) + "]",
+                member
+            );
+        }
+    );
     return true;
 }
 

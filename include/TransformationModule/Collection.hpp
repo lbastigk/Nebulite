@@ -50,6 +50,12 @@ public:
 
     // TODO: listKeys
 
+    static bool listMembers(Core::JsonScope* jsonDoc);
+    static auto constexpr listKeysName = "listMembers";
+    static auto constexpr listKeysDesc = "Lists all members of the current JSON object as an array.\n"
+            "If the current value is an array, it lists the indices as strings.\n"
+            "Usage: |listKeys -> {array of keys}\n";
+
     // TODO: setFromResult: setFromResult <key> <transformation>
     //       allows us to do transformations while keeping the original document structure:
     //       e.g.: {global.obj|setFromResult __tmp__ complexFilteringTransformation|someTransformationBasedOnTmpValue}

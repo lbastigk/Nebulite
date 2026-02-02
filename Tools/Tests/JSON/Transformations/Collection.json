@@ -107,5 +107,34 @@
             ],
             "cerr": []
         }
+    },
+    {
+        "command": [
+            "# List Members function",
+            "set arr[0] 1",
+            "set arr[1] 2",
+            "set arr[2] 3",
+            "set obj.key1 value1",
+            "set obj.key2 value2",
+            "set obj.key3 value3",
+            "eval nop {global.arr|listMembers|print}",
+            "eval nop {global.obj|listMembers|print}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "[",
+                "    \"[0]\",",
+                "    \"[1]\",",
+                "    \"[2]\"",
+                "]",
+                "[",
+                "    \"key1\",",
+                "    \"key2\",",
+                "    \"key3\"",
+                "]"
+            ],
+            "cerr": []
+        }
     }
 ]
