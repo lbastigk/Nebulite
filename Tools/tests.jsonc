@@ -30,6 +30,7 @@
         "Tools/Tests/JSON/Transformations/Collection.json",
         "Tools/Tests/JSON/Transformations/Debug.json",
         //"Tools/Tests/JSON/Transformations/Domain.json",       // TODO: add some parsestr tests
+        //"Tools/Tests/JSON/Transformations/General.json",      // TODO: once general functions are implemented, add some tests
         //"Tools/Tests/JSON/Transformations/Statistics.json",   // TODO: once statistics are implemented, add tests
         "Tools/Tests/JSON/Transformations/String.json",
         "Tools/Tests/JSON/Transformations/Types.json",

@@ -54,11 +54,6 @@ public:
     static auto constexpr listKeysDesc = "Lists all members of the current JSON object as an array.\n"
         "If the current value is an array, it lists the indices as strings.\n"
         "Usage: |listKeys -> {array of keys}\n";
-
-    // TODO: setFromResult: setFromResult <key> <transformation>
-    //       allows us to do transformations while keeping the original document structure:
-    //       e.g.: {global.obj|setFromResult __tmp__ complexFilteringTransformation|someTransformationBasedOnTmpValue}
-    //       NOTE: shouldn't be part of Collection, perhaps a module such as helper or core?
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_COLLECTION_HPP
