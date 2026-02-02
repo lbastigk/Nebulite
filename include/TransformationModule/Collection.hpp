@@ -40,21 +40,20 @@ public:
 
     static bool filterGlob(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr filterGlobName = "filterGlob";
-    static auto constexpr filterGlobDesc = "Filters elements in the current JSON array/object based on a glob pattern.\n"
-            "Usage: |filterGlob <pattern> -> {filtered array}\n";
+    static auto constexpr filterGlobDesc = "Filters members in the current JSON array/object based on a glob pattern.\n"
+        "For arrays, the member names are the indices as strings: [0], [1], [2], ...\n"
+        "Usage: |filterGlob <pattern> -> {filtered array}\n";
 
     static bool filterNulls(Core::JsonScope* jsonDoc);
     static auto constexpr filterOutNullsName = "filterNulls";
     static auto constexpr filterOutNullsDesc = "Filters out null values, empty objects, and empty arrays from the current JSON\n"
-            "Usage: |filterNulls -> {filtered json}\n";
-
-    // TODO: listKeys
+        "Usage: |filterNulls -> {filtered json}\n";
 
     static bool listMembers(Core::JsonScope* jsonDoc);
     static auto constexpr listKeysName = "listMembers";
     static auto constexpr listKeysDesc = "Lists all members of the current JSON object as an array.\n"
-            "If the current value is an array, it lists the indices as strings.\n"
-            "Usage: |listKeys -> {array of keys}\n";
+        "If the current value is an array, it lists the indices as strings.\n"
+        "Usage: |listKeys -> {array of keys}\n";
 
     // TODO: setFromResult: setFromResult <key> <transformation>
     //       allows us to do transformations while keeping the original document structure:
