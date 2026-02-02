@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Wed Jan 28 16:31:08 CET 2026
+Generated on: Mon Feb  2 19:55:20 CET 2026
 
 ## Table of Contents
 
@@ -1259,27 +1259,48 @@ Available Functions
 | `assertNonEmpty` | Asserts that the current JSON value is non-empty. |
 | `at` | Gets the element at the specified index from the array in the current JSON value. |
 | `deserialize` | Deserializes the current JSON string value. |
+| `div` | Divides the current JSON value by a numeric value. |
 | `echo` | Echoes the provided arguments to the console, with newline. |
 | `ensureArray` | Ensures the current JSON value is an array. |
+| `filterGlob` | Filters members in the current JSON array/object based on a glob pattern. |
+| `filterNulls` | Filters out null values, empty objects, and empty arrays from the current JSON |
 | `first` | Gets the first element of the array in the current JSON value. |
 | `get` | Gets the value at the specified key from the current JSON object. |
 | `getMultiple` | Gets multiple values at the specified keys from the current JSON object. |
 | `help` | Show available commands and their descriptions |
 | `last` | Gets the last element of the array in the current JSON value. |
 | `length` | Gets the length of the array in the current JSON value. |
+| `listMembers` | Lists all members of the current JSON object as an array. |
 | `map` | Applies a mapping function to each element in the array of the current JSON value. |
 | `mod` | Calculates the modulo of the current JSON value by a numeric value. |
 | `mul` | Multiplies the current JSON value by a numeric value. |
 | `nebs` | Parses a Nebulite Script command on the JSON |
 | `pow` | Raises the current JSON value to the power of a numeric value. |
 | `print` | Prints the current JSON value to the console. |
+| `push` | Pushes a string value to the end of the array in the current JSON value. |
+| `pushNumber` | Pushes a numeric value to the end of the array in the current JSON value. |
+| `removeMember` | Removes the member at the specified key from the JSON document. |
+| `replace` | Replaces all occurrences of a target substring with a replacement substring in the current JSON string value. |
 | `reverse` | Reverses the array in the current JSON value. |
+| `root` | Calculates the n-th root of the current JSON value. |
 | `serialize` | Serializes the current JSON value to a string. |
+| `setBool` | Sets a boolean value at the specified key in the JSON document. |
+| `setDouble` | Sets a double value at the specified key in the JSON document. |
+| `setFromResult` | Sets the value at the specified key in the JSON document from the result of a transformation. |
+| `setInt` | Sets an integer value at the specified key in the JSON document. |
+| `setString` | Sets a string value at the specified key in the JSON document. |
+| `sqrt` | Calculates the square root of the current JSON value. |
+| `strip` | Strips whitespace from both ends of the current JSON string value. |
+| `sub` | Subtracts a numeric value from the current JSON value. |
+| `subspan` | Gets a subarray from the array in the current JSON value. |
+| `substring` | Extracts a substring from the current JSON string value. |
 | `toBool` | Converts the current JSON value to a boolean. |
 | `toBoolString` | Converts the current JSON value to a boolean string. |
 | `toDouble` | Converts the current JSON value to a double. |
 | `toInt` | Converts the current JSON value to an integer. |
+| `toLower` | Converts the current JSON string value to lowercase. |
 | `toString` | Converts the current JSON value to a string. |
+| `toUpper` | Converts the current JSON string value to uppercase. |
 | `typeAsNumber` | Converts the current JSON type value to a number. |
 | `typeAsString` | Converts the current JSON type value to a string. |
 
@@ -1295,6 +1316,7 @@ Usage: |add <number1> <number2> ... -> {number}
 ```
 Asserts that the current JSON value is non-empty.
 If the value is empty, the transformation fails and the program exits
+Accepts an optional user-defined error message as additional arguments.
 Usage: |assertNonEmpty -> {value,<Exception thrown if empty>}
 ```
 
@@ -1313,6 +1335,13 @@ Deserializes the current JSON string value.
 Usage: |deserialize -> {value}
 ```
 
+#### `div`
+
+```
+Divides the current JSON value by a numeric value.
+Usage: |div <number1> <number2> ... -> {number}
+```
+
 #### `echo`
 
 ```
@@ -1326,6 +1355,21 @@ Usage: |echo <arg1> <arg2> -> {unchanged-json}
 Ensures the current JSON value is an array.
 If the current value is not an array, it is wrapped into a single-element array.
 Usage: |ensureArray -> {array}
+```
+
+#### `filterGlob`
+
+```
+Filters members in the current JSON array/object based on a glob pattern.
+For arrays, the member names are the indices as strings: [0], [1], [2], ...
+Usage: |filterGlob <pattern> -> {filtered array}
+```
+
+#### `filterNulls`
+
+```
+Filters out null values, empty objects, and empty arrays from the current JSON
+Usage: |filterNulls -> {filtered json}
 ```
 
 #### `first`
@@ -1363,6 +1407,14 @@ Usage: |last -> {value}
 ```
 Gets the length of the array in the current JSON value.
 Usage: |length -> {number}
+```
+
+#### `listMembers`
+
+```
+Lists all members of the current JSON object as an array.
+If the current value is an array, it lists the indices as strings.
+Usage: |listKeys -> {array of keys}
 ```
 
 #### `map`
@@ -1408,6 +1460,38 @@ Prints the current JSON value to the console.
 Usage: |print -> {unchanged-json}
 ```
 
+#### `push`
+
+```
+Pushes a string value to the end of the array in the current JSON value.
+If the current value is not an array, it is first wrapped into a single-element array.
+Usage: |push <value> -> {array}
+```
+
+#### `pushNumber`
+
+```
+Pushes a numeric value to the end of the array in the current JSON value.
+If the current value is not an array, it is first wrapped into a single-element array.
+Usage: |pushNumber <value> -> {array}
+```
+
+#### `removeMember`
+
+```
+Removes the member at the specified key from the JSON document.
+Usage: |removeMember <key1> <key2> ... -> {json}
+```
+
+#### `replace`
+
+```
+Replaces all occurrences of a target substring with a replacement substring in the current JSON string value.
+Usage: |replace {target} {replacement} -> {string}
+{target}: Substring to be replaced
+{replacement}: Substring to replace with
+```
+
 #### `reverse`
 
 ```
@@ -1416,11 +1500,95 @@ If the current value is not an array, it is first wrapped into a single-element 
 Usage: |reverse -> {array}
 ```
 
+#### `root`
+
+```
+Calculates the n-th root of the current JSON value.
+Usage: |root <n> -> {number}
+```
+
 #### `serialize`
 
 ```
 Serializes the current JSON value to a string.
 Usage: |serialize -> {string}
+```
+
+#### `setBool`
+
+```
+Sets a boolean value at the specified key in the JSON document.
+Expects two arguments: <key> and <value> (true/false).
+Any other value will be considered false.
+Usage: |setBool <key> <value> -> {json}
+```
+
+#### `setDouble`
+
+```
+Sets a double value at the specified key in the JSON document.
+Expects two arguments: <key> and <value>.
+Usage: |setDouble <key> <value> -> {json}
+```
+
+#### `setFromResult`
+
+```
+Sets the value at the specified key in the JSON document from the result of a transformation.
+Usage: |setFromResult <key> <transformation> -> {json}
+```
+
+#### `setInt`
+
+```
+Sets an integer value at the specified key in the JSON document.
+Expects two arguments: <key> and <value>.
+Usage: |setInt <key> <value> -> {json}
+```
+
+#### `setString`
+
+```
+Sets a string value at the specified key in the JSON document.
+Expects two arguments: <key> and <value>.
+Usage: |setString <key> <value> -> {json}
+```
+
+#### `sqrt`
+
+```
+Calculates the square root of the current JSON value.
+Usage: |sqrt -> {number}
+```
+
+#### `strip`
+
+```
+Strips whitespace from both ends of the current JSON string value.
+Usage: |trim -> {string}
+```
+
+#### `sub`
+
+```
+Subtracts a numeric value from the current JSON value.
+Usage: |sub <number1> <number2> ... -> {number}
+```
+
+#### `subspan`
+
+```
+Gets a subarray from the array in the current JSON value.
+Usage: |subspan <start> [<length>] -> {array}
+```
+
+#### `substring`
+
+```
+Extracts a substring from the current JSON string value.
+Usage: |substring {start} {length} -> {string}
+{start}: Starting index (0-based)
+{length}: Length of the substring
 ```
 
 #### `toBool`
@@ -1457,12 +1625,26 @@ Never fails, defaults to 0 if the provided value is non-numeric.
 Usage: |toInt -> {number}
 ```
 
+#### `toLower`
+
+```
+Converts the current JSON string value to lowercase.
+Usage: |toLower -> {string}
+```
+
 #### `toString`
 
 ```
 Converts the current JSON value to a string.
 Never fails, defaults to an empty string if no conversion is possible.
 Usage: |toString -> {string}
+```
+
+#### `toUpper`
+
+```
+Converts the current JSON string value to uppercase.
+Usage: |toUpper -> {string}
 ```
 
 #### `typeAsNumber`

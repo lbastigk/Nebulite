@@ -56,12 +56,12 @@ public:
     static bool sqrt(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr sqrtName = "sqrt";
     static auto constexpr sqrtDesc = "Calculates the square root of the current JSON value.\n"
-                "Usage: |sqrt -> {number}\n";
+        "Usage: |sqrt -> {number}\n";
 
     static bool root(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr rootName = "root";
     static auto constexpr rootDesc = "Calculates the n-th root of the current JSON value.\n"
-                        "Usage: |root <n> -> {number}\n";
+        "Usage: |root <n> -> {number}\n";
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_ARITHMETIC_HPP
