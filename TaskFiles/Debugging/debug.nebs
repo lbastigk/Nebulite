@@ -22,6 +22,11 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+eval nop {|setString . text|print}
+exit
+
+task TaskFiles/Tests/Short/Transformations/setFromResult.nebs
+
 task TaskFiles/Simulations/bouncing.nebs
 
 #task TaskFiles/VerticalSlice/levelDescription.nebs

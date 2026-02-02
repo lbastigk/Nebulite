@@ -336,7 +336,8 @@ void Expression::parseTokenTypeText(std::string const& token) {
         auto currentComponent = std::make_shared<Component>();
 
         // Token is type variable
-        if (subToken.starts_with('{')) {
+        // All variables starting with "{!" are considered text
+        if (subToken.starts_with('{') && !subToken.starts_with("{!")) {
             // 1.) remove {}
             // We keep all other potential {} inside the variable name for later MultiResolve
             std::string inner;

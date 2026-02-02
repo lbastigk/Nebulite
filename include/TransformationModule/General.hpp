@@ -52,8 +52,11 @@ public:
 
     bool setFromResult(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) const ;
     static auto constexpr setFromResultName = "setFromResult";
-    static auto constexpr setFromResultDesc = "Sets the value at the specified key in the JSON document from the result of a transformation.\n"
-        "Usage: |setFromResult <key> <transformation> -> {json}\n";
+    static auto constexpr setFromResultDesc = "Sets the value at the specified key in the JSON document from the result of another transformation.\n"
+        "Usage: |setFromResult <key> {!transformation} -> {json}\n"
+        "The '!' is required, otherwise the nested variable is evaluated before the transformation is applied!\n";
+
+    // TODO: setFromExpression?
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_CORE_HPP

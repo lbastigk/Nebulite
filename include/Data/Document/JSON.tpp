@@ -32,10 +32,10 @@ T JSON::get(std::string const& key, T const& defaultValue) const {
     return defaultValue;
 }
 
-// TODO: same for getSubDocWithTransformations!
 template<typename T>
 std::optional<T> JSON::getWithTransformations(std::string const& key) const {
-    auto args = Utility::StringHandler::split(key, '|');
+    auto args = splitKeyWithTransformations(key);
+
     std::string const baseKey = args[0];
     args.erase(args.begin());
 

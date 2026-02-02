@@ -18,18 +18,18 @@ void General::bindTransformations() {
 }
 
 bool General::setString(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (args.size() != 2) return false;
-    auto const key = rootKey + std::string(args[0]);
-    auto const value = std::string(args[1]);
+    if (args.size() != 3) return false;
+    auto const key = rootKey + std::string(args[1]);
+    auto const value = std::string(args[2]);
     jsonDoc->set<std::string>(key, value);
     return true;
 }
 
 bool General::setInt(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (args.size() != 2) return false;
-    auto const key = rootKey + std::string(args[0]);
+    if (args.size() != 3) return false;
+    auto const key = rootKey + std::string(args[1]);
     try {
-        int const value = std::stoi(args[1]);
+        int const value = std::stoi(args[2]);
         jsonDoc->set<int>(key, value);
         return true;
     } catch (...) {
@@ -38,10 +38,10 @@ bool General::setInt(std::span<std::string const> const& args, Core::JsonScope* 
 }
 
 bool General::setDouble(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (args.size() != 2) return false;
-    auto const key = rootKey + std::string(args[0]);
+    if (args.size() != 3) return false;
+    auto const key = rootKey + std::string(args[1]);
     try {
-        double const value = std::stod(args[1]);
+        double const value = std::stod(args[2]);
         jsonDoc->set<double>(key, value);
         return true;
     } catch (...) {
@@ -50,17 +50,18 @@ bool General::setDouble(std::span<std::string const> const& args, Core::JsonScop
 }
 
 bool General::setBool(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (args.size() != 2) return false;
-    auto const key = rootKey + std::string(args[0]);
-    std::string const valStr = args[1];
+    if (args.size() != 3) return false;
+    auto const key = rootKey + std::string(args[1]);
+    std::string const valStr = args[2];
     bool const value = valStr == "true";
     jsonDoc->set<bool>(key, value);
     return true;
 }
 
+// TODO: add test for removeMember
 bool General::removeMember(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (args.empty()) return false;
-    for (auto const& arg : args) {
+    if (args.size() < 2) return false;
+    for (auto const& arg : args.subspan(1)) {
         auto const key = rootKey + std::string(arg);
         jsonDoc->removeMember(key);
     }
@@ -69,12 +70,28 @@ bool General::removeMember(std::span<std::string const> const& args, Core::JsonS
 
 bool General::setFromResult(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) const {
     if (args.size() < 2) return false;
-    auto const key = rootKey + std::string(args[0]);
-    auto const transformation = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const key = rootKey + std::string(args[1]);
+    auto transformation = Utility::StringHandler::recombineArgs(args.subspan(2));
 
-    Data::JSON transformationResult; // Placeholder for the result of the transformation execution.
+    if (transformation.length() > 2 && transformation.starts_with("{!") && transformation.ends_with("}")) {
+        transformation = transformation.substr(2, transformation.length() - 3);
+    }
+
+    auto targs = Data::JSON::splitKeyWithTransformations(transformation);
+    if (targs.empty()) {
+        return false;
+    }
+    std::string const scopeKey = targs.front();
+    targs.erase(targs.begin());
+
+    Data::JSON transformationResult = jsonDoc->getSubDoc(rootKey + scopeKey);
     auto& scope = transformationResult.shareManagedScope("");
-    transformationFuncTree->parseStr(transformation, &scope);
+    static std::string const funcName = __FUNCTION__;
+    for (auto const& targ : targs) {
+        if (!transformationFuncTree->parseStr(funcName + " " + targ, &scope)) {
+            return false; // Transformation failed
+        }
+    }
     jsonDoc->setSubDoc(key, transformationResult);
     return true;
 }

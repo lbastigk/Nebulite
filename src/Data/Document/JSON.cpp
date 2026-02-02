@@ -78,6 +78,37 @@ bool JSON::isJsonOrJsonc(std::string const& str) {
 }
 
 //------------------------------------------
+// Argument splitting for transformations
+
+std::vector<std::string> JSON::splitKeyWithTransformations(std::string const& key) {
+    // Split based on transformation pipe character, but respecting inner braces
+    auto const braceArgs = Utility::StringHandler::splitOnSameDepth(key, '{');
+    std::vector<std::string> args;
+
+    if (!key.empty() && key.starts_with('|')) {
+        // No key provided, assume root and push back an empty string
+        args.push_back("");
+    }
+
+    for (auto const& arg : braceArgs) {
+        if (arg.starts_with('{')) {
+            // Add to last argument
+            if (!args.empty()) {
+                args.back() += arg;
+            }
+            else {
+                args.push_back(arg); // Should not happen, but just in case
+            }
+        } else {
+            // Split further on '|'
+            auto splitArgs = Utility::StringHandler::split(arg, '|');
+            args.insert(args.end(), splitArgs.begin(), splitArgs.end());
+        }
+    }
+    return args;
+}
+
+//------------------------------------------
 // Private methods
 
 Core::JsonScope& JSON::fullScope() {
@@ -219,7 +250,7 @@ JSON JSON::getSubDoc(std::string const& key) const {
 }
 
 bool JSON::getSubDocWithTransformations(std::string const& key, JSON& outDoc) const {
-    auto args = Utility::StringHandler::split(key, '|');
+    auto args = splitKeyWithTransformations(key);
     std::string const baseKey = args[0];
     args.erase(args.begin());
 

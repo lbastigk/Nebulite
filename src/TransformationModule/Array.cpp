@@ -59,7 +59,7 @@ bool Array::length(Core::JsonScope* jsonDoc) {
         return false;
     }
     size_t const len = jsonDoc->memberSize(rootKey);
-    jsonDoc->set(rootKey, static_cast<double>(len));
+    jsonDoc->set(rootKey, static_cast<uint64_t>(len));
     return true;
 }
 

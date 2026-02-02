@@ -315,6 +315,11 @@ public:
     static bool isJsonOrJsonc(std::string const& str);
 
     //------------------------------------------
+    // Argument splitting for transformations
+
+    static std::vector<std::string> splitKeyWithTransformations(std::string const& key);
+
+    //------------------------------------------
     // Set methods
 
     /**

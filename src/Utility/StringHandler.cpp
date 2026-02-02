@@ -83,6 +83,10 @@ std::vector<std::string> StringHandler::split(std::string_view const& input, cha
         if (start < input.length()) {
             tokens.emplace_back(input.substr(start));
         }
+
+        if (!input.empty() && input.starts_with(delimiter) && !tokens.empty()) {
+            tokens.erase(tokens.begin());
+        }
     } else {
         // New behavior - split and keep delimiter at start of tokens
         size_t pos = 0;

@@ -1,3 +1,45 @@
 [
-
+    {
+        "command": [
+            "# Set various types",
+            "eval nop {|setString . text|print}",
+            "eval nop {|setInt integer 30|print}",
+            "eval nop {|setDouble pi 3.141|print}",
+            "eval nop {|setBool boolTrue true|print}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "\"text\"",
+                "{",
+                "    \"integer\": 30",
+                "}",
+                "{",
+                "    \"pi\": 3.141",
+                "}",
+                "{",
+                "    \"boolTrue\": true",
+                "}"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "task TaskFiles/Tests/Short/Transformations/setFromResult.nebs"
+        ],
+        "expected": {
+            "cout": [
+                "{",
+                "    \"arr\": [",
+                "        \"1\",",
+                "        \"2\",",
+                "        \"3\"",
+                "    ],",
+                "    \"arraySize\": 3",
+                "}"
+            ],
+            "cerr": []
+        }
+    }
 ]
