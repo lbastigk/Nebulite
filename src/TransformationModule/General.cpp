@@ -58,7 +58,6 @@ bool General::setBool(std::span<std::string const> const& args, Core::JsonScope*
     return true;
 }
 
-// TODO: add test for removeMember
 bool General::removeMember(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     if (args.size() < 2) return false;
     for (auto const& arg : args.subspan(1)) {

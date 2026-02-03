@@ -26,6 +26,33 @@
     },
     {
         "command": [
+            "# Testing member removal",
+            "set obj.arr[0] 1",
+            "set obj.arr[1] 2",
+            "set obj.arr[2] 3",
+            "set obj.val 42",
+            "eval nop {global.obj|removeMember arr|print}",
+            "eval nop {global.obj|removeMember val|print}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "{",
+                "    \"val\": \"42\"",
+                "}",
+                "{",
+                "    \"arr\": [",
+                "        \"1\",",
+                "        \"2\",",
+                "        \"3\"",
+                "    ]",
+                "}"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
             "task TaskFiles/Tests/Short/Transformations/setFromResult.nebs"
         ],
         "expected": {
