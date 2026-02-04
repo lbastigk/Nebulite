@@ -9,6 +9,9 @@ void Casting::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Casting::toBool, toBoolName, toBoolDesc);
     BIND_TRANSFORMATION_STATIC(&Casting::toDouble, toDoubleName, toDoubleDesc);
     BIND_TRANSFORMATION_STATIC(&Casting::toBoolString, toBoolStringName, toBoolStringDesc);
+    BIND_TRANSFORMATION_STATIC(&Casting::roundUp, roundUpName, roundUpDesc);
+    BIND_TRANSFORMATION_STATIC(&Casting::roundDown, roundDownName, roundDownDesc);
+    BIND_TRANSFORMATION_STATIC(&Casting::round, roundName, roundDesc);
 }
 
 bool Casting::toInt(Core::JsonScope* jsonDoc) {
@@ -86,6 +89,47 @@ bool Casting::toBoolString(Core::JsonScope* jsonDoc) {
     // Get current value as bool
     bool const boolValue = jsonDoc->get<bool>(rootKey, false);
     jsonDoc->set<std::string>(rootKey, boolValue ? "true" : "false");
+    return true;
+}
+
+//------------------------------------------
+
+bool Casting::roundUp(Core::JsonScope* jsonDoc) {
+    // Check if it has any value
+    if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
+        return false;
+    }
+
+    // Get current value as double and round up
+    auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
+    auto const roundedValue = static_cast<int>(std::ceil(currentValue));
+    jsonDoc->set<int>(rootKey, roundedValue);
+    return true;
+}
+
+bool Casting::roundDown(Core::JsonScope* jsonDoc) {
+    // Check if it has any value
+    if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
+        return false;
+    }
+
+    // Get current value as double and round down
+    auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
+    auto const roundedValue = static_cast<int>(std::floor(currentValue));
+    jsonDoc->set<int>(rootKey, roundedValue);
+    return true;
+}
+
+bool Casting::round(Core::JsonScope* jsonDoc) {
+    // Check if it has any value
+    if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
+        return false;
+    }
+
+    // Get current value as double and round
+    auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
+    auto const roundedValue = static_cast<int>(std::round(currentValue));
+    jsonDoc->set<int>(rootKey, roundedValue);
     return true;
 }
 

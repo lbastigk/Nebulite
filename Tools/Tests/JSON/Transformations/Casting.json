@@ -63,5 +63,34 @@
             ],
             "cerr": []
         }
+    },
+    {
+        "command": [
+            "# Testing floating point to int casting/rounding",
+            "set test.val1 3.99",
+            "set test.val2 -2.01",
+            "eval echo {global.test.val1|toInt}",
+            "eval echo {global.test.val2|toInt}",
+            "eval echo {global.test.val1|roundUp}",
+            "eval echo {global.test.val2|roundUp}",
+            "eval echo {global.test.val1|roundDown}",
+            "eval echo {global.test.val2|roundDown}",
+            "eval echo {global.test.val1|round}",
+            "eval echo {global.test.val2|round}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "3",
+                "-2",
+                "4",
+                "-2",
+                "3",
+                "-3",
+                "4",
+                "-2"
+            ],
+            "cerr": []
+        }
     }
 ]
