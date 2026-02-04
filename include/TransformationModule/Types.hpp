@@ -38,7 +38,7 @@ public:
 
     static bool deserialize(Core::JsonScope* jsonDoc);
     static auto constexpr deserializeName = "deserialize";
-    static auto constexpr deserializeDesc = "Deserializes the current JSON string value.\n"
+    static auto constexpr deserializeDesc = "Deserializes the current JSON string value stored in root.\n"
             "Usage: |deserialize -> {value}\n";
 
     static bool exists(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
