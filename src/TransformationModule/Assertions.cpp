@@ -25,7 +25,7 @@ void Assertions::printUserDefinedMessage(std::span<std::string const> const& arg
 bool Assertions::assertNonEmpty(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         printUserDefinedMessage(args);
-        static std::string errorMessage = std::string(__FUNCTION__) + " JSON value is null";
+        static std::string errorMessage = std::string(assertNonEmptyName) + ": JSON value is null";
         throw std::runtime_error(errorMessage);
     }
     return true;
@@ -35,7 +35,7 @@ bool Assertions::assertNonEmpty(std::span<std::string const> const& args, Core::
 bool Assertions::assertTypeObject(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::object) {
         printUserDefinedMessage(args);
-        static std::string errorMessage = std::string(__FUNCTION__) + " JSON value is not an object";
+        static std::string errorMessage = std::string(assertTypeObjectName) + ": JSON value is not an object";
         throw std::runtime_error(errorMessage);
     }
     return true;
@@ -45,7 +45,7 @@ bool Assertions::assertTypeObject(std::span<std::string const> const& args, Core
 bool Assertions::assertTypeArray(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
         printUserDefinedMessage(args);
-        static std::string errorMessage = std::string(__FUNCTION__) + " JSON value is not an array";
+        static std::string errorMessage = std::string(assertTypeArrayName) + ": JSON value is not an array";
         throw std::runtime_error(errorMessage);
     }
     return true;
@@ -55,7 +55,7 @@ bool Assertions::assertTypeArray(std::span<std::string const> const& args, Core:
 bool Assertions::assertTypeBasicValue(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::value) {
         printUserDefinedMessage(args);
-        static std::string errorMessage = std::string(__FUNCTION__) + " JSON value is not a basic value";
+        static std::string errorMessage = std::string(assertTypeBasicValueName) + ": JSON value is not a basic value";
         throw std::runtime_error(errorMessage);
     }
     return true;
