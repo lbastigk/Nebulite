@@ -54,7 +54,7 @@ public:
     static auto constexpr setFromResultName = "setFromResult";
     static auto constexpr setFromResultDesc = "Sets the value at the specified key in the JSON document from the result of another transformation.\n"
         "Usage: |setFromResult <key> {!transformation} -> {json}\n"
-        "The '!' is required, otherwise the nested variable is evaluated before the transformation is applied!\n";
+        "The '!' is required, otherwise the nested variable is evaluated by the expression class before the transformation is applied!\n";
 
     // TODO: setFromExpression?
 };
