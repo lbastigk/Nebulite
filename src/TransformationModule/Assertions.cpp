@@ -6,6 +6,8 @@
 namespace Nebulite::TransformationModule {
 
 void Assertions::bindTransformations() {
+    transformationFuncTree->bindCategory(assertName, assertDesc);
+    transformationFuncTree->bindCategory(assertTypeName, assertTypeDesc);
     BIND_TRANSFORMATION_STATIC(&Assertions::assertNonEmpty, assertNonEmptyName, assertNonEmptyDesc);
     BIND_TRANSFORMATION_STATIC(&Assertions::assertTypeObject, assertTypeObjectName, assertTypeObjectDesc);
     BIND_TRANSFORMATION_STATIC(&Assertions::assertTypeArray, assertTypeArrayName, assertTypeArrayDesc);

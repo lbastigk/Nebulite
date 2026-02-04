@@ -3,7 +3,7 @@
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
             "set test.val 3",
-            "eval echo {global.test.val|assertNonEmpty}",
+            "eval echo {global.test.val|assert nonEmpty}",
             "exit"
         ],
         "expected": {
@@ -16,7 +16,7 @@
     {
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
-            "eval echo {global.test.var|assertNonEmpty}",
+            "eval echo {global.test.var|assert nonEmpty}",
             "exit"
         ],
         "expected": {
