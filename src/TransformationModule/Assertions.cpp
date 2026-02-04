@@ -7,6 +7,16 @@ namespace Nebulite::TransformationModule {
 
 void Assertions::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Assertions::assertNonEmpty, assertNonEmptyName, assertNonEmptyDesc);
+    BIND_TRANSFORMATION_STATIC(&Assertions::assertTypeObject, assertTypeObjectName, assertTypeObjectDesc);
+    BIND_TRANSFORMATION_STATIC(&Assertions::assertTypeArray, assertTypeArrayName, assertTypeArrayDesc);
+    BIND_TRANSFORMATION_STATIC(&Assertions::assertTypeBasicValue, assertTypeBasicValueName, assertTypeBasicValueDesc);
+}
+
+void Assertions::printUserDefinedMessage(std::span<std::string const> const& args){
+    if (args.size() < 2) {
+        return; // No message provided
+    }
+    Error::println(Utility::StringHandler::recombineArgs(args.subspan(1)));
 }
 
 // NOLINTNEXTLINE
@@ -47,13 +57,6 @@ bool Assertions::assertTypeBasicValue(std::span<std::string const> const& args, 
         throw std::runtime_error(errorMessage);
     }
     return true;
-}
-
-void Assertions::printUserDefinedMessage(std::span<std::string const> const& args){
-    if (args.size() < 2) {
-        return; // No message provided
-    }
-    Error::println(Utility::StringHandler::recombineArgs(args.subspan(1)));
 }
 
 } // namespace Nebulite::TransformationModule

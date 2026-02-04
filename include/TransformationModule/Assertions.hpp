@@ -46,8 +46,8 @@ public:
         "Usage: |assertTypeArray -> {value,<Exception thrown if not array>}\n";
 
     static bool assertTypeBasicValue(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
-    static auto constexpr assertTypeValueName = "assertTypeBasicValue";
-    static auto constexpr assertTypeValueDesc = "Asserts that the current JSON value is a basic value (not object or array or null).\n"
+    static auto constexpr assertTypeBasicValueName = "assertTypeBasicValue";
+    static auto constexpr assertTypeBasicValueDesc = "Asserts that the current JSON value is a basic value (not object or array or null).\n"
         "If the value is not a basic value, the transformation fails and the program exits\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |assertTypeValue -> {value,<Exception thrown if not value>}\n";
