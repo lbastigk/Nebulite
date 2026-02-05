@@ -21,7 +21,7 @@ public:
     // Categories
 
     static auto constexpr requireName = "require";
-    static auto constexpr requireDesc = "Requirement transformations that validate JSON values and return false on failure (fallback to default value in get-call).";
+    static auto constexpr requireDesc = "Requirement transformations that validate JSON values and return false on failure (fallback to default value in get-call, usually 'null' or 0.0).";
 
     static auto constexpr requireTypeName = "require type";
     static auto constexpr requireTypeDesc = "Requirement transformations that validate JSON value types";
