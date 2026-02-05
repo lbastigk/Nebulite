@@ -343,11 +343,13 @@ public:
     // Module Initialization and Updating
 
     /**
-     * @brief Factory method for creating DomainModule instances with proper linkage
+     * @brief Initializes DomainModules based on the template parameter with proper linkage
      * @tparam DomainModuleType The type of module to initialize
      * @param moduleName The name of the module
      * @param scope The workspace JsonScope for the module
      * @param settings The settings JsonScope for the module
+     * @todo Later on we should check if the module already exists and reject initialization if it does.
+     *       Either always looping through modules to check or using a second set of names for fast lookup.
      */
     template <typename DomainModuleType>
     void initModule(std::string moduleName, Data::JsonScopeBase& scope, Data::JsonScopeBase const& settings) {
@@ -383,8 +385,5 @@ public:
     }
 };
 
-
 } // namespace Nebulite::Interaction::Execution
-
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
-
