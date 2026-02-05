@@ -17,6 +17,7 @@
 #include "TransformationModule/Debug.hpp"
 #include "TransformationModule/Domain.hpp"
 #include "TransformationModule/General.hpp"
+#include "TransformationModule/Requirements.hpp"
 #include "TransformationModule/Statistics.hpp"
 #include "TransformationModule/String.hpp"
 #include "TransformationModule/Types.hpp"
@@ -38,6 +39,7 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     initModule<Nebulite::TransformationModule::Debug>();
     initModule<Nebulite::TransformationModule::Domain>();
     initModule<Nebulite::TransformationModule::General>();
+    initModule<Nebulite::TransformationModule::Requirements>();
     initModule<Nebulite::TransformationModule::Statistics>();
     initModule<Nebulite::TransformationModule::String>();
     initModule<Nebulite::TransformationModule::Types>();
