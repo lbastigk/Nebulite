@@ -61,9 +61,6 @@ public:
 
     // TODO: assertRegex perhaps?
 
-    // TODO: Another class for silent assertions that do not exit the program, but return false on failure
-    //       e.g., requiresNonEmpty, requiresType, requiresRange, requiresRegex, etc.
-
 private:
     /**
      * @brief Prints the message inside its arguments.

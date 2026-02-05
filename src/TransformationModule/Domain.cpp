@@ -4,10 +4,10 @@
 namespace Nebulite::TransformationModule {
 
 void Domain::bindTransformations() {
-    BIND_TRANSFORMATION_STATIC(&Domain::nebs, nebsName, nebsDesc);
+    BIND_TRANSFORMATION_STATIC(&Domain::parse, parseName, parseDesc);
 }
 
-bool Domain::nebs(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool Domain::parse(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     if (jsonDoc->parseStr(Utility::StringHandler::recombineArgs(args)) != Constants::ErrorTable::NONE()) {
         return false;
     }

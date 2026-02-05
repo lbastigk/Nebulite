@@ -17,7 +17,6 @@
 #include <vector>
 
 // Nebulite
-#include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 
 //------------------------------------------

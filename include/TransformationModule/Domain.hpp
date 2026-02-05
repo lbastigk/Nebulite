@@ -19,12 +19,11 @@ public:
 
     //------------------------------------------
     // Available Transformations
-
-    // TODO: rename "parse"
-    static bool nebs(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
-    static auto constexpr nebsName = "nebs";
-    static auto constexpr nebsDesc = "Parses a Nebulite Script command on the JSON\n"
-        "Usage: |nebs <command> -> {value}\n";
+    
+    static bool parse(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr parseName = "parse";
+    static auto constexpr parseDesc = "Parses a Nebulite Script command on the JSON\n"
+        "Usage: |parse <command> -> {value}\n";
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_DOMAIN_HPP
