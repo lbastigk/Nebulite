@@ -51,6 +51,10 @@ namespace Nebulite::Interaction {
 class ContextBase; // Requires access to demote to ContextScope
 } // namespace Nebulite::Interaction
 
+namespace Nebulite::Interaction::Execution {
+template<typename> class Domain;
+} // namespace Nebulite::Interaction::Execution
+
 namespace Nebulite::Interaction::Logic {
 class Assignment;   // Requires access to set target documents
 class Expression;   // Requires access to get unscoped values from global scope
@@ -60,18 +64,16 @@ namespace Nebulite::Interaction::Rules {
 class Ruleset;
 class JsonRuleset;
 class StaticRuleset;
-
-namespace Construction {
-class RulesetCompiler;
-} // namespace Construction
 } // namespace Nebulite::Interaction::Rules
+
+namespace Nebulite::Interaction::Rules::Construction {
+class RulesetCompiler;
+} // namespace Nebulite::Interaction::Rules::Construction
 
 //------------------------------------------
 // Document Accessor
 
 namespace Nebulite::Interaction::Execution {
-template<typename> class Domain;
-
 /**
  * @brief DocumentAccessor provides controlled access to a domain's JSON document.
  * @details This class is designed to be a friend of various domain-related classes,
@@ -132,7 +134,6 @@ private:
 // Domain Base
 
 namespace Nebulite::Interaction::Execution {
-
 /**
  * @class DomainBase
  * @brief Non-templated base class for all Nebulite domains.
@@ -375,15 +376,6 @@ public:
             module->reinit();
         }
     }
-
-    /**
-     * @brief Gets the name of the domain.
-     * @return The name of the domain.
-     */
-    [[nodiscard]] std::string const& getDomainName() const {
-        return domainName;
-    }
 };
-
 } // namespace Nebulite::Interaction::Execution
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
