@@ -303,6 +303,7 @@ protected:
  *          - Parsing strings into Nebulite commands.
  *          - Binding additional features via DomainModules.
  *          - Updating the domain through its DomainModules.
+ * @todo Instead of storing Domain reference, pass to initModules. This allows us to merge DomainBase and Domain, no more templates needed.
  */
 template <typename DomainType>
 class Domain : public DomainBase {
