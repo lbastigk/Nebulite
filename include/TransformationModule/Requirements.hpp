@@ -29,8 +29,6 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    // TODO: implement tests for type requirements
-
     static bool requireNonEmpty(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr requireNonEmptyName = "require nonEmpty";
     static auto constexpr requireNonEmptyDesc = "Requires that the current JSON value is non-empty.\n"

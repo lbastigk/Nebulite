@@ -29,8 +29,6 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    // TODO: implement tests for type assertions
-
     static bool assertNonEmpty(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr assertNonEmptyName = "assert nonEmpty";
     static auto constexpr assertNonEmptyDesc = "Asserts that the current JSON value is non-empty.\n"
