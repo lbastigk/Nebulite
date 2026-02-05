@@ -56,7 +56,9 @@
         "expected": {
             "cout": [
                 "  HelloWorld  ",
-                "HelloWorld"
+                "HelloWorld",
+                "HelloWorld  ",
+                "  HelloWorld"
             ],
             "cerr": []
         }

@@ -10,6 +10,8 @@ void String::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&toUpper, toUpperName, toUpperDesc);
     BIND_TRANSFORMATION_STATIC(&toLower, toLowerName, toLowerDesc);
     BIND_TRANSFORMATION_STATIC(&strip, trimName, trimDesc);
+    BIND_TRANSFORMATION_STATIC(&lStrip, lStripName, lStripDesc);
+    BIND_TRANSFORMATION_STATIC(&rStrip, rStripName, rStripDesc);
     BIND_TRANSFORMATION_STATIC(&substring, substringName, substringDesc);
     BIND_TRANSFORMATION_STATIC(&replace, replaceName, replaceDesc);
 }
@@ -45,6 +47,20 @@ bool String::toLower(Core::JsonScope* jsonDoc) {
 // NOLINTNEXTLINE
 bool String::strip(Core::JsonScope* jsonDoc) {
     auto const str = Utility::StringHandler::strip(jsonDoc->get<std::string>(rootKey));
+    jsonDoc->set(rootKey, str);
+    return true;
+}
+
+// NOLINTNEXTLINE
+bool String::lStrip(Core::JsonScope* jsonDoc) {
+    auto const str = Utility::StringHandler::lStrip(jsonDoc->get<std::string>(rootKey));
+    jsonDoc->set(rootKey, str);
+    return true;
+}
+
+// NOLINTNEXTLINE
+bool String::rStrip(Core::JsonScope* jsonDoc) {
+    auto const str = Utility::StringHandler::rStrip(jsonDoc->get<std::string>(rootKey));
     jsonDoc->set(rootKey, str);
     return true;
 }

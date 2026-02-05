@@ -35,7 +35,15 @@ public:
     static auto constexpr trimDesc = "Strips whitespace from both ends of the current JSON string value.\n"
         "Usage: |trim -> {string}\n";
 
-    // TODO: lstrip, rstrip
+    static bool lStrip(Core::JsonScope* jsonDoc);
+    static auto constexpr lStripName = "lStrip";
+    static auto constexpr lStripDesc = "Strips whitespace from the left end of the current JSON string value.\n"
+        "Usage: |lStrip -> {string}\n";
+
+    static bool rStrip(Core::JsonScope* jsonDoc);
+    static auto constexpr rStripName = "rStrip";
+    static auto constexpr rStripDesc = "Strips whitespace from the right end of the current JSON string value.\n"
+            "Usage: |rStrip -> {string}\n";
 
     static bool substring(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr substringName = "substring";
