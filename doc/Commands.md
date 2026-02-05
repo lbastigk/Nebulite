@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Mon Feb  2 19:55:20 CET 2026
+Generated on: Thu Feb  5 10:46:43 CET 2026
 
 ## Table of Contents
 
@@ -1256,9 +1256,9 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `add` | Adds a numeric value to the current JSON value. |
-| `assertNonEmpty` | Asserts that the current JSON value is non-empty. |
+| `assert` | Assertion transformations that validate JSON values and throw exceptions on failure. |
 | `at` | Gets the element at the specified index from the array in the current JSON value. |
-| `deserialize` | Deserializes the current JSON string value. |
+| `deserialize` | Deserializes the current JSON string value stored in root. |
 | `div` | Divides the current JSON value by a numeric value. |
 | `echo` | Echoes the provided arguments to the console, with newline. |
 | `ensureArray` | Ensures the current JSON value is an array. |
@@ -1274,19 +1274,23 @@ Available Functions
 | `map` | Applies a mapping function to each element in the array of the current JSON value. |
 | `mod` | Calculates the modulo of the current JSON value by a numeric value. |
 | `mul` | Multiplies the current JSON value by a numeric value. |
-| `nebs` | Parses a Nebulite Script command on the JSON |
+| `parse` | Parses a Nebulite Script command on the JSON |
 | `pow` | Raises the current JSON value to the power of a numeric value. |
 | `print` | Prints the current JSON value to the console. |
 | `push` | Pushes a string value to the end of the array in the current JSON value. |
 | `pushNumber` | Pushes a numeric value to the end of the array in the current JSON value. |
 | `removeMember` | Removes the member at the specified key from the JSON document. |
 | `replace` | Replaces all occurrences of a target substring with a replacement substring in the current JSON string value. |
+| `require` | Requirement transformations that validate JSON values and return false on failure (fallback to default value in get-call). |
 | `reverse` | Reverses the array in the current JSON value. |
 | `root` | Calculates the n-th root of the current JSON value. |
+| `round` | Rounds the current JSON numeric value to the nearest integer. |
+| `roundDown` | Rounds the current JSON numeric value down to the nearest integer. |
+| `roundUp` | Rounds the current JSON numeric value up to the nearest integer. |
 | `serialize` | Serializes the current JSON value to a string. |
 | `setBool` | Sets a boolean value at the specified key in the JSON document. |
 | `setDouble` | Sets a double value at the specified key in the JSON document. |
-| `setFromResult` | Sets the value at the specified key in the JSON document from the result of a transformation. |
+| `setFromResult` | Sets the value at the specified key in the JSON document from the result of another transformation. |
 | `setInt` | Sets an integer value at the specified key in the JSON document. |
 | `setString` | Sets a string value at the specified key in the JSON document. |
 | `sqrt` | Calculates the square root of the current JSON value. |
@@ -1297,7 +1301,7 @@ Available Functions
 | `toBool` | Converts the current JSON value to a boolean. |
 | `toBoolString` | Converts the current JSON value to a boolean string. |
 | `toDouble` | Converts the current JSON value to a double. |
-| `toInt` | Converts the current JSON value to an integer. |
+| `toInt` | Casts the current JSON value to an integer. |
 | `toLower` | Converts the current JSON string value to lowercase. |
 | `toString` | Converts the current JSON value to a string. |
 | `toUpper` | Converts the current JSON string value to uppercase. |
@@ -1311,13 +1315,61 @@ Adds a numeric value to the current JSON value.
 Usage: |add <number1> <number2> ... -> {number}
 ```
 
-#### `assertNonEmpty`
+#### `assert`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `nonEmpty` | Asserts that the current JSON value is non-empty. |
+| `type` | Assertion transformations that validate JSON value types and throw exceptions on failure. |
+
+##### `assert nonEmpty`
 
 ```
 Asserts that the current JSON value is non-empty.
 If the value is empty, the transformation fails and the program exits
 Accepts an optional user-defined error message as additional arguments.
 Usage: |assertNonEmpty -> {value,<Exception thrown if empty>}
+```
+
+##### `assert type`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `array` | Asserts that the current JSON value is of type array. |
+| `basicValue` | Asserts that the current JSON value is a basic value (not object or array or null). |
+| `help` | Show available commands and their descriptions |
+| `object` | Asserts that the current JSON value is of type object. |
+
+###### `assert type array`
+
+```
+Asserts that the current JSON value is of type array.
+If the value is not an array, the transformation fails and the program exits
+Accepts an optional user-defined error message as additional arguments.
+Usage: |assertTypeArray -> {value,<Exception thrown if not array>}
+```
+
+###### `assert type basicValue`
+
+```
+Asserts that the current JSON value is a basic value (not object or array or null).
+If the value is not a basic value, the transformation fails and the program exits
+Accepts an optional user-defined error message as additional arguments.
+Usage: |assertTypeValue -> {value,<Exception thrown if not value>}
+```
+
+###### `assert type object`
+
+```
+Asserts that the current JSON value is of type object.
+If the value is not an object, the transformation fails and the program exits
+Accepts an optional user-defined error message as additional arguments.
+Usage: |assertTypeObject -> {value,<Exception thrown if not object>}
 ```
 
 #### `at`
@@ -1331,7 +1383,7 @@ Usage: |at <index> -> {value}
 #### `deserialize`
 
 ```
-Deserializes the current JSON string value.
+Deserializes the current JSON string value stored in root.
 Usage: |deserialize -> {value}
 ```
 
@@ -1439,11 +1491,11 @@ Multiplies the current JSON value by a numeric value.
 Usage: |multiply <number1> <number2> ...
 ```
 
-#### `nebs`
+#### `parse`
 
 ```
 Parses a Nebulite Script command on the JSON
-Usage: |nebs <command> -> {value}
+Usage: |parse <command> -> {value}
 ```
 
 #### `pow`
@@ -1492,6 +1544,63 @@ Usage: |replace {target} {replacement} -> {string}
 {replacement}: Substring to replace with
 ```
 
+#### `require`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `nonEmpty` | Requires that the current JSON value is non-empty. |
+| `type` | Requirement transformations that validate JSON value types |
+
+##### `require nonEmpty`
+
+```
+Requires that the current JSON value is non-empty.
+If the value is empty, the transformation fails
+Accepts an optional user-defined error message as additional arguments.
+Usage: |requireNonEmpty -> {value,<Returns false if empty>}
+```
+
+##### `require type`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `array` | Requires that the current JSON value is of type array. |
+| `basicValue` | Requires that the current JSON value is a basic value (not object or array or null). |
+| `help` | Show available commands and their descriptions |
+| `object` | Requires that the current JSON value is of type object. |
+
+###### `require type array`
+
+```
+Requires that the current JSON value is of type array.
+If the value is not an array, the transformation fails
+Accepts an optional user-defined error message as additional arguments.
+Usage: |requireTypeArray -> {value,<Returns false if not array>}
+```
+
+###### `require type basicValue`
+
+```
+Requires that the current JSON value is a basic value (not object or array or null).
+If the value is not a basic value, the transformation fails
+Accepts an optional user-defined error message as additional arguments.
+Usage: |requireTypeValue -> {value,<Returns false if not value>}
+```
+
+###### `require type object`
+
+```
+Requires that the current JSON value is of type object.
+If the value is not an object, the transformation fails
+Accepts an optional user-defined error message as additional arguments.
+Usage: |requireTypeObject -> {value,<Returns false if not object>}
+```
+
 #### `reverse`
 
 ```
@@ -1505,6 +1614,30 @@ Usage: |reverse -> {array}
 ```
 Calculates the n-th root of the current JSON value.
 Usage: |root <n> -> {number}
+```
+
+#### `round`
+
+```
+Rounds the current JSON numeric value to the nearest integer.
+Usage: |round -> {value:int}
+Non-numeric values default to 0. Fails if the value is null.
+```
+
+#### `roundDown`
+
+```
+Rounds the current JSON numeric value down to the nearest integer.
+Usage: |roundDown -> {value:int}
+Non-numeric values default to 0. Fails if the value is null.
+```
+
+#### `roundUp`
+
+```
+Rounds the current JSON numeric value up to the nearest integer.
+Usage: |roundUp -> {value:int}
+Non-numeric values default to 0.
 ```
 
 #### `serialize`
@@ -1534,8 +1667,9 @@ Usage: |setDouble <key> <value> -> {json}
 #### `setFromResult`
 
 ```
-Sets the value at the specified key in the JSON document from the result of a transformation.
-Usage: |setFromResult <key> <transformation> -> {json}
+Sets the value at the specified key in the JSON document from the result of another transformation.
+Usage: |setFromResult <key> {!transformation} -> {json}
+The '!' is required, otherwise the nested variable is evaluated by the expression class before the transformation is applied!
 ```
 
 #### `setInt`
@@ -1595,17 +1729,17 @@ Usage: |substring {start} {length} -> {string}
 
 ```
 Converts the current JSON value to a boolean.
-Usage: |toBool -> {bool}
+Usage: |toBool -> {value:bool}
 'true' values: true, 1, '1', 'true', 'yes', 'on' (case-insensitive)
 'false' values: false, 0, '0', 'false', 'no', 'off' (case-insensitive)
-Any other value defaults to false.
+Any other value defaults to false, but fails if the value is null.
 ```
 
 #### `toBoolString`
 
 ```
 Converts the current JSON value to a boolean string.
-Usage: |toBoolString -> {string}
+Usage: |toBoolString -> {value:string}
 Either 'true' or 'false'
 ```
 
@@ -1613,16 +1747,16 @@ Either 'true' or 'false'
 
 ```
 Converts the current JSON value to a double.
-Usage: |toDouble -> {number}
-Non-numeric values default to 0.0.
+Usage: |toDouble -> {value:double}
+Non-numeric values default to 0.0, but fails if the value is null.
 ```
 
 #### `toInt`
 
 ```
-Converts the current JSON value to an integer.
-Never fails, defaults to 0 if the provided value is non-numeric.
-Usage: |toInt -> {number}
+Casts the current JSON value to an integer.
+Usage: |toInt -> {value:int}
+Non-numeric values default to 0, but fails if the value is null.
 ```
 
 #### `toLower`
@@ -1636,8 +1770,8 @@ Usage: |toLower -> {string}
 
 ```
 Converts the current JSON value to a string.
-Never fails, defaults to an empty string if no conversion is possible.
-Usage: |toString -> {string}
+Defaults to an empty string if no conversion is possible, but fails if the value is null.
+Usage: |toString -> {value:string}
 ```
 
 #### `toUpper`

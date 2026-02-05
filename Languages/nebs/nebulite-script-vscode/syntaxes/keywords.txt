@@ -5,9 +5,10 @@ add-clock
 all
 always
 always-clear
+array
 assert
-assertNonEmpty
 at
+basicValue
 beep
 broadcast
 cam
@@ -66,8 +67,9 @@ mirror
 mod
 move
 mul
-nebs
+nonEmpty
 nop
+object
 off
 on
 once
@@ -85,9 +87,13 @@ reload
 removeMember
 renderobject
 replace
+require
 return
 reverse
 root
+round
+roundDown
+roundUp
 ruleset
 save
 save-standards
@@ -125,6 +131,7 @@ toInt
 toLower
 toString
 toUpper
+type
 typeAsNumber
 typeAsString
 unlock
