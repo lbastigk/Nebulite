@@ -33,6 +33,10 @@ class JSON;
 // Binding helper macro
 
 // Bind non-static member function
+// Technically dangerous as we do not want any transformationModule to have member variables
+// Better solution would be to pass the FuncTree as argument to any function call, that way we can reparse for functions such as "map",
+// without any risk of having member variables.
+// TODO: Refactor all transformationModule functions so that addionalArgs is both Core::JsonScope* and FuncTree*
 #define BIND_TRANSFORMATION_MEMBER(foo, name, desc) \
 static_assert(::Nebulite::Constants::Assert::endsWithNewline(desc), "Description must end with a newline character"); \
 Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, foo, name, desc)
@@ -74,6 +78,12 @@ protected:
     std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> transformationFuncTree;
 
     // Example functions for binding
+
+    /**
+     * @brief Extracts the string from the remaining arguments, handling the case where the string is wrapped in {!...}.
+     * @return The extracted string, or an empty string if the arguments are invalid.
+     */
+    static std::string extractPotentiallyWrappedString(std::span<std::string const> const& args);
 
 private:
     // NOLINTNEXTLINE

@@ -82,24 +82,13 @@ bool Collection::getMultiple(std::span<std::string const> const& args, Core::Jso
     return true;
 }
 
-std::string Collection::getPattern(std::span<std::string const> const& args) {
-    if (args.empty()) {
-        return "";
-    }
-    if (args.front().starts_with("{!") && args.back().ends_with('}')) {
-        auto const full = Utility::StringHandler::recombineArgs(args);
-        return std::string(full.data() + 2, full.size() - 3);
-    }
-    return Utility::StringHandler::recombineArgs(args);
-}
-
 bool Collection::filterRegex(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
     std::regex regexPattern;
     try {
-        regexPattern = std::regex(getPattern(args.subspan(1)));
+        regexPattern = std::regex(extractPotentiallyWrappedString(args.subspan(1)));
     } catch (const std::regex_error&) {
         return false; // Invalid regex pattern
     }
@@ -120,7 +109,7 @@ bool Collection::filterGlob(std::span<std::string const> const& args, Core::Json
     if (args.size() != 2) {
         return false;
     }
-    std::string const pattern = getPattern(args.subspan(1));
+    std::string const pattern = extractPotentiallyWrappedString(args.subspan(1));
 
     auto const memberKeyPairs = jsonDoc->listAvailableMembersAndKeys(rootKey);
     Data::JSON filtered;

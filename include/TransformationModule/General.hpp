@@ -57,6 +57,9 @@ public:
         "The '!' is required, otherwise the nested variable is evaluated by the expression class before the transformation is applied!\n";
 
     // TODO: setFromExpression?
+
+    // TODO: Even though copy/move is implemented in DomainModule:JsonScope:SimpleData, having these as transformations as well could be useful
+    //       instead of writing |parse copy <source> <destination>, we can simply write |copy <source> <destination>
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_CORE_HPP
