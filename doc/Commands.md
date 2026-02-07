@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Thu Feb  5 10:46:43 CET 2026
+Generated on: Sat Feb  7 18:38:56 CET 2026
 
 ## Table of Contents
 
@@ -1258,12 +1258,14 @@ Available Functions
 | `add` | Adds a numeric value to the current JSON value. |
 | `assert` | Assertion transformations that validate JSON values and throw exceptions on failure. |
 | `at` | Gets the element at the specified index from the array in the current JSON value. |
+| `average` | Calculates the average of the elements of the array in the current JSON value. |
 | `deserialize` | Deserializes the current JSON string value stored in root. |
 | `div` | Divides the current JSON value by a numeric value. |
 | `echo` | Echoes the provided arguments to the console, with newline. |
 | `ensureArray` | Ensures the current JSON value is an array. |
 | `filterGlob` | Filters members in the current JSON array/object based on a glob pattern. |
 | `filterNulls` | Filters out null values, empty objects, and empty arrays from the current JSON |
+| `filterRegex` | Filters members in the current JSON array/object based on a regular expression pattern. |
 | `first` | Gets the first element of the array in the current JSON value. |
 | `get` | Gets the value at the specified key from the current JSON object. |
 | `getMultiple` | Gets multiple values at the specified keys from the current JSON object. |
@@ -1271,22 +1273,28 @@ Available Functions
 | `last` | Gets the last element of the array in the current JSON value. |
 | `length` | Gets the length of the array in the current JSON value. |
 | `listMembers` | Lists all members of the current JSON object as an array. |
+| `lStrip` | Strips whitespace from the left end of the current JSON string value. |
 | `map` | Applies a mapping function to each element in the array of the current JSON value. |
+| `max` | Finds the maximum value among the elements of the array in the current JSON value. |
+| `median` | Calculates the median of the elements of the array in the current JSON value. |
+| `min` | Finds the minimum value among the elements of the array in the current JSON value. |
 | `mod` | Calculates the modulo of the current JSON value by a numeric value. |
 | `mul` | Multiplies the current JSON value by a numeric value. |
 | `parse` | Parses a Nebulite Script command on the JSON |
 | `pow` | Raises the current JSON value to the power of a numeric value. |
 | `print` | Prints the current JSON value to the console. |
+| `product` | Multiplies the elements of the array in the current JSON value. |
 | `push` | Pushes a string value to the end of the array in the current JSON value. |
 | `pushNumber` | Pushes a numeric value to the end of the array in the current JSON value. |
 | `removeMember` | Removes the member at the specified key from the JSON document. |
 | `replace` | Replaces all occurrences of a target substring with a replacement substring in the current JSON string value. |
-| `require` | Requirement transformations that validate JSON values and return false on failure (fallback to default value in get-call). |
+| `require` | Requirement transformations that validate JSON values and return false on failure (fallback to default value in get-call, usually 'null' or 0.0). |
 | `reverse` | Reverses the array in the current JSON value. |
 | `root` | Calculates the n-th root of the current JSON value. |
 | `round` | Rounds the current JSON numeric value to the nearest integer. |
 | `roundDown` | Rounds the current JSON numeric value down to the nearest integer. |
 | `roundUp` | Rounds the current JSON numeric value up to the nearest integer. |
+| `rStrip` | Strips whitespace from the right end of the current JSON string value. |
 | `serialize` | Serializes the current JSON value to a string. |
 | `setBool` | Sets a boolean value at the specified key in the JSON document. |
 | `setDouble` | Sets a double value at the specified key in the JSON document. |
@@ -1294,10 +1302,14 @@ Available Functions
 | `setInt` | Sets an integer value at the specified key in the JSON document. |
 | `setString` | Sets a string value at the specified key in the JSON document. |
 | `sqrt` | Calculates the square root of the current JSON value. |
+| `stddev` | Calculates the standard deviation of the elements of the array in the current JSON value. |
+| `strCompare` | Functions for comparing string values. |
+| `strCountAppearance` | Counts the number of occurrences of a specified substring in the current JSON string value. |
 | `strip` | Strips whitespace from both ends of the current JSON string value. |
 | `sub` | Subtracts a numeric value from the current JSON value. |
 | `subspan` | Gets a subarray from the array in the current JSON value. |
 | `substring` | Extracts a substring from the current JSON string value. |
+| `sum` | Sums the elements of the array in the current JSON value. |
 | `toBool` | Converts the current JSON value to a boolean. |
 | `toBoolString` | Converts the current JSON value to a boolean string. |
 | `toDouble` | Converts the current JSON value to a double. |
@@ -1380,6 +1392,14 @@ If the index is out of bounds, the transformation fails.
 Usage: |at <index> -> {value}
 ```
 
+#### `average`
+
+```
+Calculates the average of the elements of the array in the current JSON value.
+Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.
+Usage: |average -> {number}
+```
+
 #### `deserialize`
 
 ```
@@ -1422,6 +1442,15 @@ Usage: |filterGlob <pattern> -> {filtered array}
 ```
 Filters out null values, empty objects, and empty arrays from the current JSON
 Usage: |filterNulls -> {filtered json}
+```
+
+#### `filterRegex`
+
+```
+Filters members in the current JSON array/object based on a regular expression pattern.
+For arrays, the member names are the indices as strings: [0], [1], [2], ...
+Wrap the pattern inside {!...} to avoid conflicts with piping characterUsage: |filterRegex {!<pattern>} -> {filtered array}
+       |filterRegex <pattern>    -> {filtered array}
 ```
 
 #### `first`
@@ -1469,12 +1498,43 @@ If the current value is an array, it lists the indices as strings.
 Usage: |listKeys -> {array of keys}
 ```
 
+#### `lStrip`
+
+```
+Strips whitespace from the left end of the current JSON string value.
+Usage: |lStrip -> {string}
+```
+
 #### `map`
 
 ```
 Applies a mapping function to each element in the array of the current JSON value.
 If the current value is not an array, it is first wrapped into a single-element array.
 Usage: |map <function> -> {array}
+```
+
+#### `max`
+
+```
+Finds the maximum value among the elements of the array in the current JSON value.
+Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.
+Usage: |max -> {number}
+```
+
+#### `median`
+
+```
+Calculates the median of the elements of the array in the current JSON value.
+Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.
+Usage: |median -> {number}
+```
+
+#### `min`
+
+```
+Finds the minimum value among the elements of the array in the current JSON value.
+Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.
+Usage: |min -> {number}
 ```
 
 #### `mod`
@@ -1510,6 +1570,14 @@ Usage: |pow <exponent> -> {number}
 ```
 Prints the current JSON value to the console.
 Usage: |print -> {unchanged-json}
+```
+
+#### `product`
+
+```
+Multiplies the elements of the array in the current JSON value.
+Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.
+Usage: |product -> {number}
 ```
 
 #### `push`
@@ -1640,6 +1708,13 @@ Usage: |roundUp -> {value:int}
 Non-numeric values default to 0.
 ```
 
+#### `rStrip`
+
+```
+Strips whitespace from the right end of the current JSON string value.
+Usage: |rStrip -> {string}
+```
+
 #### `serialize`
 
 ```
@@ -1695,6 +1770,66 @@ Calculates the square root of the current JSON value.
 Usage: |sqrt -> {number}
 ```
 
+#### `stddev`
+
+```
+Calculates the standard deviation of the elements of the array in the current JSON value.
+Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.
+Usage: |stddev -> {number}
+```
+
+#### `strCompare`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `contains` | Checks if the current JSON string value contains a specified substring. |
+| `endsWith` | Checks if the current JSON string value ends with a specified substring. |
+| `equals` | Compares the current JSON string value with a specified string for equality. |
+| `help` | Show available commands and their descriptions |
+| `startsWith` | Checks if the current JSON string value starts with a specified substring. |
+
+##### `strCompare contains`
+
+```
+Checks if the current JSON string value contains a specified substring.
+Usage: |strCompare contains {string} -> {bool}
+{string}: Substring to check for
+```
+
+##### `strCompare endsWith`
+
+```
+Checks if the current JSON string value ends with a specified substring.
+Usage: |strCompare endsWith {string} -> {bool}
+{string}: Substring to check for
+```
+
+##### `strCompare equals`
+
+```
+Compares the current JSON string value with a specified string for equality.
+Usage: |strCompare equals {string} -> {bool}
+{string}: String to compare with
+```
+
+##### `strCompare startsWith`
+
+```
+Checks if the current JSON string value starts with a specified substring.
+Usage: |strCompare startsWith {string} -> {bool}
+{string}: Substring to check for
+```
+
+#### `strCountAppearance`
+
+```
+Counts the number of occurrences of a specified substring in the current JSON string value.
+Usage: |strCountAppearance {substring} -> {number}
+{substring}: Substring to count
+```
+
 #### `strip`
 
 ```
@@ -1723,6 +1858,14 @@ Extracts a substring from the current JSON string value.
 Usage: |substring {start} {length} -> {string}
 {start}: Starting index (0-based)
 {length}: Length of the substring
+```
+
+#### `sum`
+
+```
+Sums the elements of the array in the current JSON value.
+Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.
+Usage: |sum -> {number}
 ```
 
 #### `toBool`

@@ -8,6 +8,7 @@ always-clear
 array
 assert
 at
+average
 basicValue
 beep
 broadcast
@@ -18,6 +19,7 @@ categoryLevel2
 clear
 collision-detect
 console
+contains
 copy
 crash
 critical
@@ -28,9 +30,11 @@ deserialize
 div
 draft
 echo
+endsWith
 ensure-array
 ensureArray
 env
+equals
 error
 errorlog
 eval
@@ -39,6 +43,7 @@ feature-test
 fetch
 filterGlob
 filterNulls
+filterRegex
 first
 for
 function
@@ -54,6 +59,7 @@ input-wait
 json
 key
 keyDelete
+lStrip
 last
 length
 listMembers
@@ -63,6 +69,9 @@ lock
 log
 map
 master-unlock
+max
+median
+min
 mirror
 mod
 move
@@ -78,11 +87,13 @@ pop-back
 pop-front
 pow
 print
+product
 push
 push-back
 push-front
 pushNumber
 query
+rStrip
 reload
 removeMember
 renderobject
@@ -117,11 +128,16 @@ snapshot
 spawn
 sqrt
 standardfile
+startsWith
 state
+stddev
+strCompare
+strCountAppearance
 strip
 sub
 subspan
 substring
+sum
 task
 time
 toBool
