@@ -166,7 +166,7 @@ public:
         funcTree->setPreParse([this] { return preParse(); });
     }
 
-    ~DomainBase() override;
+    ~DomainBase() override ;
 
     //------------------------------------------
     // Disallow copying and moving
@@ -321,6 +321,8 @@ public:
         : DomainBase(name, documentReference), domainName(name) {
     }
 
+    ~Domain() override ;
+
     //------------------------------------------
     // Disallow copying and moving
 
@@ -352,8 +354,8 @@ public:
     /**
      * @brief Updates all DomainModules.
      */
-    void updateModules() {
-        for (auto& module : modules) {
+    void updateModules() const {
+        for (auto const& module : modules) {
             module->update();
         }
     }
@@ -361,8 +363,8 @@ public:
     /**
      * @brief Re-initializes all DomainModules.
      */
-    void reinitModules() {
-        for (auto& module : modules) {
+    void reinitModules() const {
+        for (auto const& module : modules) {
             module->reinit();
         }
     }

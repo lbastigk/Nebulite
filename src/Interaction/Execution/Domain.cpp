@@ -153,4 +153,8 @@ void DomainBase::baseDeserialization(std::string const& serialOrLinkWithCommands
     }
 }
 
+//------------------------------------------
+
+Domain::~Domain() = default;
+
 } // namespace Nebulite::Interaction::Execution
