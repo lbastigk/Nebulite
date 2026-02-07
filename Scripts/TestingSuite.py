@@ -488,7 +488,7 @@ def run_testsuite(config: Dict[str, Any], stop_on_fail: bool = False, verbose: b
 
     # Replace binaries with singular coverage-enabled binary if coverage is enabled
     if enable_coverage:
-        binaries = [ "./bin/Nebulite_Coverage --headless" ]
+        binaries = [ "./bin/Nebulite_Coverage" ] # No headless rendering for coverage
 
     # Run tests
     if len(binaries) == 0:

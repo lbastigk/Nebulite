@@ -3,7 +3,7 @@
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
             "set test.val 3",
-            "eval echo {global.test.val|assert nonEmpty}",
+            "eval echo {global.test.val|assert nonEmpty Value is expected to be non-empty}",
             "exit"
         ],
         "expected": {
@@ -16,12 +16,13 @@
     {
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
-            "eval echo {global.test.val|assert nonEmpty}",
+            "eval echo {global.test.val|assert nonEmpty Value is expected to be non-empty}",
             "exit"
         ],
         "expected": {
             "cout": [],
             "cerr": [
+                "Value is expected to be non-empty",
                 "terminate called after throwing an instance of 'std::runtime_error'",
                 "  what():  assert nonEmpty: JSON value is null"
             ],
@@ -32,7 +33,7 @@
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
             "set test.val[0] 3",
-            "eval echo {global.test.val|assert type array|at 0}",
+            "eval echo {global.test.val|assert type array Value is expected to be an array|at 0}",
             "exit"
         ],
         "expected": {
@@ -46,12 +47,13 @@
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
             "set test.val 3",
-            "eval echo {global.test.val|assert type array}",
+            "eval echo {global.test.val|assert type array Value is expected to be an array}",
             "exit"
         ],
         "expected": {
             "cout": [],
             "cerr": [
+                "Value is expected to be an array",
                 "terminate called after throwing an instance of 'std::runtime_error'",
                 "  what():  assert type array: JSON value is not an array"
             ],
@@ -62,7 +64,7 @@
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
             "set test.obj.val 3",
-            "eval echo {global.test.obj|assert type object|get val}",
+            "eval echo {global.test.obj|assert type object Value is expected to be an object|get val}",
             "exit"
         ],
         "expected": {
@@ -76,12 +78,13 @@
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
             "set test.val 3",
-            "eval echo {global.test.val|assert type object}",
+            "eval echo {global.test.val|assert type object Value is expected to be an object}",
             "exit"
         ],
         "expected": {
             "cout": [],
             "cerr": [
+                "Value is expected to be an object",
                 "terminate called after throwing an instance of 'std::runtime_error'",
                 "  what():  assert type object: JSON value is not an object"
             ],
@@ -92,7 +95,7 @@
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
             "set test.obj.val 3",
-            "eval echo {global.test.obj.val|assert type basicValue}",
+            "eval echo {global.test.obj.val|assert type basicValue Value is expected to be a basic value}",
             "exit"
         ],
         "expected": {
@@ -106,12 +109,13 @@
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
             "set test.obj.val 3",
-            "eval echo {global.test.obj|assert type basicValue}",
+            "eval echo {global.test.obj|assert type basicValue Value is expected to be a basic value}",
             "exit"
         ],
         "expected": {
             "cout": [],
             "cerr": [
+                "Value is expected to be a basic value",
                 "terminate called after throwing an instance of 'std::runtime_error'",
                 "  what():  assert type basicValue: JSON value is not a basic value"
             ],
