@@ -42,16 +42,22 @@ Core::JsonScope JSON::shareScope(std::string const& prefix) {
 
 Core::JsonScope& JSON::shareManagedScope(std::string const& prefix) {
     std::scoped_lock const lockGuard(mtx);
-    auto newScope = std::make_unique<Core::JsonScope>(*this, prefix, "Managed Shared JSON Scope");
-    managedScopes.push_back(std::move(newScope));
-    return *managedScopes.back();
+
+    if (auto const it = managedScopes.find(prefix); it != managedScopes.end()) {
+        return *it->second;
+    }
+    managedScopes[prefix] = std::make_unique<Core::JsonScope>(*this, prefix, "Managed Shared JSON Scope");
+    return *managedScopes[prefix];
 }
 
 JsonScopeBase& JSON::shareManagedScopeBase(std::string const& prefix) {
     std::scoped_lock const lockGuard(mtx);
-    auto newScope = std::make_unique<JsonScopeBase>(*this, prefix);
-    managedScopeBases.push_back(std::move(newScope));
-    return *managedScopeBases.back();
+
+    if (auto const it = managedScopeBases.find(prefix); it != managedScopeBases.end()) {
+        return *it->second;
+    }
+    managedScopeBases[prefix] = std::make_unique<JsonScopeBase>(*this, prefix);
+    return *managedScopeBases[prefix];
 }
 
 //------------------------------------------
@@ -374,17 +380,24 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
     }
 }
 
-void JSON::setSubDoc(char const* key, JSON const& child) {
+void JSON::setSubDoc(char const* key, JSON const& child, char const* childKey) {
     std::scoped_lock const lockGuard(mtx);
 
     // Flush own contents
     flush();
+    helperNonConstVar++; // Signal non-const operation
 
     // Ensure key path exists
     // Insert child document
     if (rapidjson::Value* keyVal = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator()); keyVal != nullptr) {
         child.flush();
-        RjDirectAccess::ConvertToJSONValue<rapidjson::Document>(child.doc, *keyVal, doc.GetAllocator());
+        if (auto const childVal = RjDirectAccess::traversePath(childKey, child.doc); childVal == nullptr) {
+            RjDirectAccess::removeMember(key, doc);
+        }
+        else {
+            // Copy childVal into keyVal
+            keyVal->CopyFrom(*childVal, doc.GetAllocator());
+        }
 
         // Since we inserted an entire document, we need to invalidate its child keys:
         invalidate_child_keys(key);
