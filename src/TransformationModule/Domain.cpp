@@ -8,7 +8,7 @@ void Domain::bindTransformations() {
 }
 
 bool Domain::parse(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (jsonDoc->parseStr(Utility::StringHandler::recombineArgs(args)) != Constants::ErrorTable::NONE()) {
+    if (jsonDoc->parseStr(__FUNCTION__ + std::string(" ") + extractPotentiallyWrappedString(args.subspan(1))) != Constants::ErrorTable::NONE()) {
         return false;
     }
     return true;
