@@ -19,21 +19,21 @@ Constants::Error General::update() {
 // Domain-Bound Functions
 
 // NOLINTNEXTLINE
-Constants::Error General::eval(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope){
+Constants::Error General::eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope){
     // TODO: An idea would be to only eval until the next "eval" keyword, allowing for nested evals within for-loops, ifs, etc.:
     //       Example:
     //       eval for i 1 {global.loopCount} eval process-state {global.currentState} {i}
     //       This way, the first eval will not vanish the information within the for-loop,
     //       allowing us to properly retrieve the current state for each iteration.
     //       Do the same for the RenderObject eval function. Perhaps we should combine them?
-    //       std::string eval(std::span<std::string const> const& args, Interaction::ContextBase const& context);
+    //       std::string eval(std::span<std::string const> const& args, Interaction::Context const& context);
 
     // argc/argv to string for evaluation
     std::string const argStr = Utility::StringHandler::recombineArgs(args);
 
     // Evaluate expression
     Core::JsonScope emptyDoc;
-    Interaction::ContextBase const context{emptyDoc,emptyDoc,Global::instance()};
+    Interaction::Context const context{emptyDoc,emptyDoc,Global::instance()};
     std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr,context);
 
     // reparse
@@ -131,7 +131,7 @@ Constants::Error General::echo(std::span<std::string const> const& args) {
 }
 
 // NOLINTNEXTLINE
-Constants::Error General::func_if(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error General::func_if(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
     if (args.size() < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -209,7 +209,7 @@ Constants::Error General::alwaysClear() const {
 }
 
 // NOLINTNEXTLINE
-Constants::Error General::func_for(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error General::func_for(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
     if (args.size() > 4) {
         std::string const& varName = args[1];
 

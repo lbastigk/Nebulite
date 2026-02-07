@@ -546,22 +546,22 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
 
 // With context
 
-std::string Expression::eval(std::string const& input, ContextBase const& context) {
+std::string Expression::eval(std::string const& input, Context const& context) {
     Expression const expr(input, context.self.domainScope);
     return expr.eval(context.other.domainScope);
 }
 
-double Expression::evalAsDouble(std::string const& input, ContextBase const& context) {
+double Expression::evalAsDouble(std::string const& input, Context const& context) {
     Expression const expr(input, context.self.domainScope);
     return expr.evalAsDouble(context.other.domainScope);
 }
 
-bool Expression::evalAsBool(std::string const& input, ContextBase const& context) {
+bool Expression::evalAsBool(std::string const& input, Context const& context) {
     double const result = evalAsDouble(input, context);
     return std::fabs(result) > DBL_EPSILON;
 }
 
-Data::JSON Expression::evalAsJson(std::string const& input, ContextBase const& context) {
+Data::JSON Expression::evalAsJson(std::string const& input, Context const& context) {
     Expression const expr(input, context.self.domainScope);
     return expr.evalAsJson(context.other.domainScope);
 }
@@ -570,19 +570,19 @@ Data::JSON Expression::evalAsJson(std::string const& input, ContextBase const& c
 
 std::string Expression::eval(std::string const& input) {
     Core::JsonScope emptyDoc;
-    ContextBase const context{emptyDoc, emptyDoc, Global::instance()};
+    Context const context{emptyDoc, emptyDoc, Global::instance()};
     return eval(input, context);
 }
 
 double Expression::evalAsDouble(std::string const& input) {
     Core::JsonScope emptyDoc;
-    ContextBase const context{emptyDoc, emptyDoc, Global::instance()};
+    Context const context{emptyDoc, emptyDoc, Global::instance()};
     return evalAsDouble(input, context);
 }
 
 bool Expression::evalAsBool(std::string const& input) {
     Core::JsonScope emptyDoc;
-    ContextBase const context{emptyDoc, emptyDoc, Global::instance()};
+    Context const context{emptyDoc, emptyDoc, Global::instance()};
     return evalAsBool(input, context);
 }
 

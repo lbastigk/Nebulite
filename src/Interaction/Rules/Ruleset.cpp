@@ -6,7 +6,7 @@ namespace Nebulite::Interaction::Rules {
 //------------------------------------------
 // Base Class Virtual Methods
 
-bool Ruleset::evaluateCondition(Execution::DomainBase const* /*other*/) {
+bool Ruleset::evaluateCondition(Execution::Domain const* /*other*/) {
     return false;
 }
 
@@ -14,7 +14,7 @@ bool Ruleset::evaluateCondition() {
     return evaluateCondition(selfPtr);
 }
 
-void Ruleset::apply(Execution::DomainBase* /*contextOther*/) {
+void Ruleset::apply(Execution::Domain* /*contextOther*/) {
     // default no-op
 }
 
@@ -25,15 +25,15 @@ void Ruleset::apply() {
 //------------------------------------------
 // Derived Class Methods: StaticRuleset
 
-void StaticRuleset::apply(Execution::DomainBase* contextOther) {
-    ContextBase const contextBase{*selfPtr, *contextOther, Global::instance()};
+void StaticRuleset::apply(Execution::Domain* contextOther) {
+    Context const contextBase{*selfPtr, *contextOther, Global::instance()};
     staticFunction(contextBase);
 }
 
 //------------------------------------------
 // Derived Class Methods: JsonRuleset
 
-bool JsonRuleset::evaluateCondition(Execution::DomainBase const* other) {
+bool JsonRuleset::evaluateCondition(Execution::Domain const* other) {
     // Check if logical arg is as simple as just "1", meaning true
     if (logicalArg->isAlwaysTrue())
         return true;
@@ -47,7 +47,7 @@ bool JsonRuleset::evaluateCondition(Execution::DomainBase const* other) {
     return std::abs(result) > std::numeric_limits<double>::epsilon();
 }
 
-void JsonRuleset::apply(Execution::DomainBase* contextOther) {
+void JsonRuleset::apply(Execution::Domain* contextOther) {
     // 1.) Assignments
     for (auto& assignment : assignments) {
         assignment.apply(selfPtr->domainScope, contextOther->domainScope);

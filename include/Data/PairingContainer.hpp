@@ -31,7 +31,7 @@ namespace Nebulite::Data {
  */
 struct BroadCastListenPair {
     std::shared_ptr<Interaction::Rules::Ruleset> entry; // The Ruleset that was broadcasted
-    Interaction::Execution::DomainBase* contextOther = nullptr; // The domain that listened to the Broadcast
+    Interaction::Execution::Domain* contextOther = nullptr; // The domain that listened to the Broadcast
 #if USE_BYTETREE_CONTAINER
     // Apply function: ByteTree keeps track of active entries internally
     void apply() {
@@ -157,7 +157,7 @@ public:
     ~PairingContainer() = default;
 
     void insertBroadcaster(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
-    void insertListener(Interaction::Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId);
+    void insertListener(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId);
     void process(); // Worker thread processing function
 
     /**

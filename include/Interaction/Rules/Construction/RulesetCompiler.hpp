@@ -17,7 +17,7 @@ namespace Nebulite::Interaction::Rules::Construction {
 /**
  * @class RulesetCompiler
  * @brief Responsible for parsing compatible JSON documents into `Ruleset` structs.
- * @details A `Interaction::Execution::DomainBase` instance is required for context during parsing.
+ * @details A `Interaction::Execution::Domain` instance is required for context during parsing.
  *          It's field `invokes` holds the relevant invoke information.
  * @todo Idea for Invoke ruleset overwrites:
  *       In addition, add the field "overwrites" to the JSON doc.
@@ -55,7 +55,7 @@ public:
     static void parse(
         std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal,
         std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal,
-        Execution::DomainBase& self
+        Execution::Domain& self
     );
 
     /**
@@ -66,7 +66,7 @@ public:
      */
     static std::optional<std::shared_ptr<Ruleset>> parseSingle(
         std::string const& identifier,
-        Execution::DomainBase& self
+        Execution::Domain& self
     );
 
 private:
@@ -79,7 +79,7 @@ private:
     static void getFunctionCalls(
         Core::JsonScope& entryDoc,
         JsonRuleset& Ruleset,
-        Execution::DomainBase const& self
+        Execution::Domain const& self
     );
 
     /**
@@ -132,7 +132,7 @@ private:
     static AnyRuleset getRuleset(
         Core::JsonScope const& doc,
         Data::ScopedKeyView const& key,
-        Execution::DomainBase& self
+        Execution::Domain& self
     );
 
     /**
@@ -150,7 +150,7 @@ private:
      * @param rulesetsGlobal The global Ruleset objects.
      */
     static void setMetaData(
-        Execution::DomainBase const& self,
+        Execution::Domain const& self,
         std::vector<std::shared_ptr<Ruleset>> const& rulesetsLocal,
         std::vector<std::shared_ptr<Ruleset>> const& rulesetsGlobal
     );

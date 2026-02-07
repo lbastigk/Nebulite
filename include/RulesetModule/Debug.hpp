@@ -31,17 +31,17 @@ public:
     // Functions
 
     // Provides a simple debug message to cout
-    void message(Interaction::ContextBase const& context) const ;
+    void message(Interaction::Context const& context) const ;
     static constexpr std::string_view messageName = "::message";
     static constexpr std::string_view messageDesc = "Outputs a debug message to the standard output (cout).";
 
     // Provides a simple debug message to cerr
-    void error(Interaction::ContextBase const& context) const ;
+    void error(Interaction::Context const& context) const ;
     static constexpr std::string_view errorName = "::error";
     static constexpr std::string_view errorDesc = "Outputs a debug error message to the standard error output (cerr).";
 
     // Prints the ids of both contexts
-    void whoInteracts(Interaction::ContextBase const& context) const ;
+    void whoInteracts(Interaction::Context const& context) const ;
     static constexpr std::string_view whoInteractsName = "::whoInteracts";
     static constexpr std::string_view whoInteractsDesc = "Prints a message with the unique IDs of the self and other render object contexts.";
 

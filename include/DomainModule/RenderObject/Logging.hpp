@@ -42,7 +42,7 @@ public:
         "\n"
         "Usage: echo <string>\n";
 
-    static Constants::Error log_all(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
+    static Constants::Error log_all(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr log_all_name = "log all";
     static auto constexpr log_all_desc = "Logs the entire RenderObject to a file.\n"
         "\n"
@@ -50,7 +50,7 @@ public:
         "\n"
         "Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.\n";
 
-    static Constants::Error log_key(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
+    static Constants::Error log_key(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr log_key_name = "log key";
     static auto constexpr log_key_desc = "Logs a specific key's value to a file.\n"
         "\n"

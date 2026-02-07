@@ -11,7 +11,7 @@ void BroadCastListenPairs::broadcast(std::shared_ptr<Interaction::Rules::Ruleset
     nextFrame->insertBroadcaster(entry);
 }
 
-void BroadCastListenPairs::listen(Interaction::Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId) const {
+void BroadCastListenPairs::listen(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) const {
     thisFrame->insertListener(listener, topic, listenerId);
 }
 

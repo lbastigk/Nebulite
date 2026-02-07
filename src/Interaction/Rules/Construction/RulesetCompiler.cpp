@@ -5,7 +5,7 @@
 
 namespace Nebulite::Interaction::Rules::Construction {
 
-void RulesetCompiler::getFunctionCalls(Core::JsonScope& entryDoc, JsonRuleset& Ruleset, Execution::DomainBase const& self) {
+void RulesetCompiler::getFunctionCalls(Core::JsonScope& entryDoc, JsonRuleset& Ruleset, Execution::Domain const& self) {
     // Get function calls: GLOBAL, SELF, OTHER
     if (entryDoc.memberType(Constants::KeyNames::Ruleset::parseOnGlobal) == Data::KeyType::array) {
         size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnGlobal);
@@ -178,7 +178,7 @@ bool RulesetCompiler::getJsonRuleset(Core::JsonScope const& doc, Core::JsonScope
 }
 
 void RulesetCompiler::setMetaData(
-    Execution::DomainBase const& self,
+    Execution::Domain const& self,
     std::vector<std::shared_ptr<Ruleset>> const& rulesetsLocal,
     std::vector<std::shared_ptr<Ruleset>> const& rulesetsGlobal
     ) {
@@ -200,7 +200,7 @@ void RulesetCompiler::setMetaData(
     }
 }
 
-void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal, std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal, Execution::DomainBase& self) {
+void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal, std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal, Execution::Domain& self) {
     // Clean up existing entries - shared pointers will automatically handle cleanup
     rulesetsGlobal.clear();
     rulesetsLocal.clear();
@@ -287,7 +287,7 @@ void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Core::
     }
 }
 
-RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope const& doc, Data::ScopedKeyView const& key, Execution::DomainBase& self) {
+RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope const& doc, Data::ScopedKeyView const& key, Execution::Domain& self) {
     Core::JsonScope entry;
     if (!getJsonRuleset(doc, entry, key)) {
         // See if it's a static ruleset
@@ -344,7 +344,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope const& d
     return Ruleset;
 }
 
-std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string const& identifier, Execution::DomainBase& self) {
+std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string const& identifier, Execution::Domain& self) {
     Core::JsonScope tempDoc;
     auto const root = Data::ScopedKey("");
     tempDoc.set(root, identifier);

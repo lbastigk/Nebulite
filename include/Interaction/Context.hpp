@@ -14,7 +14,6 @@ class JsonScopeBase;
 } // namespace Nebulite::Data
 
 namespace Nebulite::Interaction::Execution {
-class DomainBase;
 class Domain;
 } // namespace Nebulite::Interaction::Execution
 
@@ -22,11 +21,7 @@ namespace Nebulite::Interaction {
 
 // ContextScopeBase -> JSON scope access with JsonScopeBase references
 //                     Access to the scoped data only
-// ContextBase      -> Base domain access with DomainBase references
-//                     Additional Access to parsing, functree inheriting, update routines.
-// ContextFull      -> Full domain access with specific domain types
-//                     Additional Access to class of the domain,
-//                     module initialization and updating.
+// Context          -> Full domain access
 
 /**
  * @struct ContextScopeBase
@@ -43,16 +38,16 @@ public:
 };
 
 /**
- * @struct ContextBase
+ * @struct Context
  * @brief Context structure passed to static ruleset functions and other interaction functions.
  *        Contains references to the 'self', 'other', and 'global' domains, with base domain types.
  * @details Second layer of abstraction, only base domain functionality available.
  */
-class ContextBase {
+class Context {
 public:
-    Execution::DomainBase& self;
-    Execution::DomainBase& other;
-    Execution::DomainBase& global;
+    Execution::Domain& self;
+    Execution::Domain& other;
+    Execution::Domain& global;
     // TODO: Parent context?
 private:
     [[nodiscard]] ContextScopeBase demote() const ;

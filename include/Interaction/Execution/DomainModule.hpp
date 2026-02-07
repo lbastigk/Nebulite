@@ -27,7 +27,7 @@
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
     explicit DomainModuleName( \
         std::string const& name, DomainName& domainReference, \
-        std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error, Nebulite::Interaction::Execution::DomainBase&, Nebulite::Data::JsonScopeBase&>> funcTreePtr, \
+        std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error, Nebulite::Interaction::Execution::Domain&, Nebulite::Data::JsonScopeBase&>> funcTreePtr, \
         Data::JsonScopeBase& w, \
         Data::JsonScopeBase const& s \
     ) \
@@ -78,15 +78,12 @@ public:
     DomainModule(
         std::string name,
         DomainType& domainReference,
-        std::shared_ptr<FuncTree<Constants::Error, DomainBase&, Data::JsonScopeBase&>> funcTreePtr,
+        std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> funcTreePtr,
         Data::JsonScopeBase& scope,
         Data::JsonScopeBase const& settings
     );
 
-    /**
-     * @brief Virtual destructor for DomainModule.
-     */
-    virtual ~DomainModule();
+    ~DomainModule() override ;
 
     // Prevent copying
     DomainModule(DomainModule const&) = delete;

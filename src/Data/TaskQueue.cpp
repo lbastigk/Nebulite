@@ -3,7 +3,7 @@
 
 namespace Nebulite::Data {
 
-TaskQueueResult TaskQueue::resolve(Interaction::Execution::DomainBase& context, bool const& recover) {
+TaskQueueResult TaskQueue::resolve(Interaction::Execution::Domain& context, bool const& recover) {
     Constants::Error currentResult;
     TaskQueueResult fullResult;
 

@@ -60,7 +60,7 @@ public:
      * @param recover If true, continues processing tasks even after encountering a critical error.
      * @return The result of the task queue resolution.
      */
-    TaskQueueResult resolve(Interaction::Execution::DomainBase& context, bool const& recover);
+    TaskQueueResult resolve(Interaction::Execution::Domain& context, bool const& recover);
 
     /**
      * @brief Appends a task to the task queue.

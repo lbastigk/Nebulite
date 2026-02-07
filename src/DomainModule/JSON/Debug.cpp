@@ -16,7 +16,7 @@ Constants::Error Debug::update() {
 // Domain-Bound Functions
 
 // NOLINTNEXTLINE
-Constants::Error Debug::print(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error Debug::print(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
     if (args.size() > 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }

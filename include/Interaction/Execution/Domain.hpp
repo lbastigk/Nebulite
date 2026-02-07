@@ -1,8 +1,8 @@
 /**
  * @file Domain.hpp
  * @brief This file defines the Domain class, which serves as a base class for creating a Nebulite domain.
- *        The Domain class is split into a templated Domain class and a non-templated DomainBase class.
- *        The non-templated DomainBase class holds all common functionality for domains that do not require template parameters.
+ *        The Domain class is split into a templated Domain class and a non-templated Domain class.
+ *        The non-templated Domain class holds all common functionality for domains that do not require template parameters.
  */
 
 #ifndef NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
@@ -48,7 +48,7 @@ class Initializer;
 } // namespace Nebulite::DomainModule
 
 namespace Nebulite::Interaction {
-class ContextBase; // Requires access to demote to ContextScope
+class Context; // Requires access to demote to ContextScope
 } // namespace Nebulite::Interaction
 
 namespace Nebulite::Interaction::Execution {
@@ -90,8 +90,6 @@ public:
 
     friend class Domain;
 
-    friend class DomainBase;
-
     // Allow other Domains to access documents from each other.
     friend class Core::Environment;
     friend class Core::GlobalSpace;
@@ -102,9 +100,9 @@ public:
     // Allow TaskQueue access to set caller scope
     friend class Data::TaskQueue;
 
-    // Allow ContextBase to demote to ContextScope
+    // Allow Context to demote to ContextScope
     // NOLINTNEXTLINE
-    friend class Interaction::ContextBase; // clangd marks the 'Interaction::' part as redundant, but it's needed
+    friend class Interaction::Context; // Clang says the Interaction namespace is not needed, but without it, the Context demotion fails.
 
     // Assignments and Expressions need access to set/get document values
     friend class Logic::Assignment;
@@ -112,7 +110,7 @@ public:
 
     // The entire Ruleset system needs access as well
     // TODO: If we replace the Context system with ContextScope,
-    //       Meaning we pass scopes instead of DomainBases,
+    //       Meaning we pass scopes instead of Domains,
     //       we may get rid of these friends here.
     friend class Rules::Ruleset;
     friend class Rules::JsonRuleset;
@@ -135,12 +133,16 @@ private:
 
 namespace Nebulite::Interaction::Execution {
 /**
- * @class DomainBase
- * @brief Non-templated base class for all Nebulite domains.
- *        Holds all common functionality for domains that do not require template parameters.
- *        This allows for a simplified interface for accessing common domain functionality.
+ * @class Domain
+ * @brief The Domain class serves as a base class for creating a Nebulite domain.
+ * @details Each domain has the following features:
+ *          - Setting and getting values in its internal JSON document.
+ *          - Returning a pointer to its internal JSON document.
+ *          - Parsing strings into Nebulite commands.
+ *          - Binding additional features via DomainModules.
+ *          - Updating the domain through its DomainModules.
  */
-class DomainBase : public DocumentAccessor {
+class Domain : public DocumentAccessor {
     /**
      * @brief The name of the domain.
      */
@@ -152,29 +154,34 @@ class DomainBase : public DocumentAccessor {
      *          easily create the object with an inherited FuncTree inside the constructor.
      *          The Tree is then shared with the DomainModules for modification.
      */
-    std::shared_ptr<FuncTree<Constants::Error, DomainBase&, Data::JsonScopeBase&>> funcTree;
+    std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> funcTree;
+
+    /**
+     * @brief Stores all available modules
+     */
+    std::vector<std::unique_ptr<DomainModuleBase>> modules;
 public:
-    DomainBase(std::string const& name, Core::JsonScope& documentReference)
+    Domain(std::string const& name, Core::JsonScope& documentReference)
         : DocumentAccessor(documentReference), domainName(name){
-        funcTree = std::make_shared<FuncTree<Constants::Error, DomainBase&, Data::JsonScopeBase&>>(
+        funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>>(
             name,
             Constants::ErrorTable::NONE(),
             Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
         );
 
-        // Set default preParse to DomainBase::preParse
+        // Set default preParse to Domain::preParse
         funcTree->setPreParse([this] { return preParse(); });
     }
 
-    ~DomainBase() override ;
+    ~Domain() override ;
 
     //------------------------------------------
     // Disallow copying and moving
 
-    DomainBase(DomainBase const&) = default;
-    DomainBase& operator=(DomainBase const& other);
-    DomainBase(DomainBase&&) = default;
-    DomainBase& operator=(DomainBase&& other) noexcept;
+    Domain(Domain const&) = default;
+    Domain& operator=(Domain const& other);
+    Domain(Domain&&) = default;
+    Domain& operator=(Domain&& other) noexcept;
 
     //------------------------------------------
     // Get Document prefix
@@ -195,7 +202,7 @@ public:
     /**
      * @brief Binds all functions from an inherited FuncTree to the main FuncTree for parsing.
      */
-    void inherit(DomainBase const* toInheritFrom) const {
+    void inherit(Domain const* toInheritFrom) const {
         if (toInheritFrom != nullptr) {
             funcTree->inherit(toInheritFrom->funcTree);
         }
@@ -209,6 +216,44 @@ public:
      *        On overwriting, make sure to update all subdomains and DomainModules as well.
      */
     virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
+
+    //------------------------------------------
+    // Module Initialization and Updating
+
+    /**
+     * @brief Initializes DomainModules based on the template parameter with proper linkage
+     * @tparam DomainModuleType The type of module to initialize
+     * @param moduleName The name of the module
+     * @param scope The workspace JsonScope for the module
+     * @param settings The settings JsonScope for the module
+     * @param domainReference Reference to the domain to link the module to
+     * @todo Later on we should check if the module already exists and reject initialization if it does.
+     *       Either always looping through modules to check or using a second set of names for fast lookup.
+     */
+    template <typename DomainType, typename DomainModuleType>
+    void initModule(std::string moduleName, Data::JsonScopeBase& scope, Data::JsonScopeBase const& settings, DomainType& domainReference) {
+        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
+        DomainModule->reinit();
+        modules.push_back(std::move(DomainModule));
+    }
+
+    /**
+     * @brief Updates all DomainModules.
+     */
+    void updateModules() const {
+        for (auto const& module : modules) {
+            module->update();
+        }
+    }
+
+    /**
+     * @brief Re-initializes all DomainModules.
+     */
+    void reinitModules() const {
+        for (auto const& module : modules) {
+            module->reinit();
+        }
+    }
 
     //------------------------------------------
     // Command parsing
@@ -268,7 +313,7 @@ protected:
      *        Marked as protected, as it's only used to initialize DomainModules.
      * @return A shared pointer to the internal FuncTree.
      */
-    std::shared_ptr<FuncTree<Constants::Error, DomainBase&, Data::JsonScopeBase&>> getFuncTree() {
+    std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> getFuncTree() {
         return funcTree;
     }
 
@@ -293,81 +338,6 @@ protected:
      * @param serialOrLinkWithCommands The serialization string or link with commands to deserialize.
      */
     void baseDeserialization(std::string const& serialOrLinkWithCommands);
-};
-
-/**
- * @class Domain
- * @brief The Domain class serves as a base class for creating a Nebulite domain.
- * @details Each domain has the following features:
- *          - Setting and getting values in its internal JSON document.
- *          - Returning a pointer to its internal JSON document.
- *          - Parsing strings into Nebulite commands.
- *          - Binding additional features via DomainModules.
- *          - Updating the domain through its DomainModules.
- */
-class Domain : public DomainBase {
-    /**
-     * @brief Stores all available modules
-     */
-    std::vector<std::unique_ptr<DomainModuleBase>> modules;
-
-    /**
-     * @brief Name of the domain type
-     */
-    std::string domainName;
-
-public:
-    Domain(std::string const& name, Core::JsonScope& documentReference)
-        : DomainBase(name, documentReference), domainName(name) {
-    }
-
-    ~Domain() override ;
-
-    //------------------------------------------
-    // Disallow copying and moving
-
-    Domain(Domain const&) = default;
-    Domain& operator=(Domain const&) = default;
-    Domain(Domain&&) = default;
-    Domain& operator=(Domain&&) = default;
-
-    //------------------------------------------
-    // Module Initialization and Updating
-
-    /**
-     * @brief Initializes DomainModules based on the template parameter with proper linkage
-     * @tparam DomainModuleType The type of module to initialize
-     * @param moduleName The name of the module
-     * @param scope The workspace JsonScope for the module
-     * @param settings The settings JsonScope for the module
-     * @param domainReference Reference to the domain to link the module to
-     * @todo Later on we should check if the module already exists and reject initialization if it does.
-     *       Either always looping through modules to check or using a second set of names for fast lookup.
-     */
-    template <typename DomainType, typename DomainModuleType>
-    void initModule(std::string moduleName, Data::JsonScopeBase& scope, Data::JsonScopeBase const& settings, DomainType& domainReference) {
-        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
-        DomainModule->reinit();
-        modules.push_back(std::move(DomainModule));
-    }
-
-    /**
-     * @brief Updates all DomainModules.
-     */
-    void updateModules() const {
-        for (auto const& module : modules) {
-            module->update();
-        }
-    }
-
-    /**
-     * @brief Re-initializes all DomainModules.
-     */
-    void reinitModules() const {
-        for (auto const& module : modules) {
-            module->reinit();
-        }
-    }
 };
 } // namespace Nebulite::Interaction::Execution
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP

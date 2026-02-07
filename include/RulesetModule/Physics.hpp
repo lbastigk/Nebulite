@@ -36,21 +36,21 @@ public:
 
     // Global rulesets
 
-    void elasticCollision(Interaction::ContextBase const& context) const;
+    void elasticCollision(Interaction::Context const& context) const;
     static constexpr std::string_view elasticCollisionName = "::physics::elasticCollision";
     static constexpr std::string_view elasticCollisionDesc = "Applies elastic collision forces between two render objects based on their masses and velocities.";
 
-    void gravity(Interaction::ContextBase const& context) const ;
+    void gravity(Interaction::Context const& context) const ;
     static constexpr std::string_view gravityName = "::physics::gravity";
     static constexpr std::string_view gravityDesc = "Applies gravitational force between two render objects based on their masses and the gravitational constant.";
 
     // Local rulesets
 
-    void applyForce(Interaction::ContextBase const& context) const ;
+    void applyForce(Interaction::Context const& context) const ;
     static constexpr std::string_view applyForceName = "::physics::applyForce";
     static constexpr std::string_view applyForceDesc = "Applies accumulated forces to the render object's acceleration, velocity, and position based on its mass and the simulation delta time.";
 
-    void drag(Interaction::ContextBase const& context) const ;
+    void drag(Interaction::Context const& context) const ;
     static constexpr std::string_view dragName = "::physics::drag";
     static constexpr std::string_view dragDesc = "Applies drag force to the render object, simulating air resistance based on its velocity and a drag coefficient.";
 

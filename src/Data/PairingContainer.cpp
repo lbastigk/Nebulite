@@ -16,7 +16,7 @@ void PairingContainer::insertBroadcaster(std::shared_ptr<Interaction::Rules::Rul
     isActive = true;
 }
 
-void PairingContainer::insertListener(Interaction::Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId) {
+void PairingContainer::insertListener(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) {
     // Check if any object has broadcasted on this topic
     auto const [it, isValid] = data.find(topic);
     if (!isValid) {

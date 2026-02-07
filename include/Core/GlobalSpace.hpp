@@ -125,7 +125,7 @@ public:
      * @param topic The topic to listen for.
      * @param listenerId The unique ID of the listener domain.
      */
-    void listen(DomainBase& listener, std::string const& topic, uint32_t const& listenerId) {
+    void listen(Domain& listener, std::string const& topic, uint32_t const& listenerId) {
         invoke.listen(listener, topic, listenerId);
     }
 

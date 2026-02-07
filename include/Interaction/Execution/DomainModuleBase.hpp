@@ -11,7 +11,7 @@
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Interaction::Execution {
-class DomainBase;
+class Domain;
 } // namespace Nebulite::Interaction::Execution
 
 //------------------------------------------
@@ -34,10 +34,12 @@ public:
      *          the FuncTree pointer for binding functions and variables.
      */
     explicit DomainModuleBase(
-        std::shared_ptr<FuncTree<Constants::Error, DomainBase&, Data::JsonScopeBase&>> funcTreePtr,
+        std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> funcTreePtr,
         Data::JsonScopeBase& w,
         Data::JsonScopeBase const& s
     );
+
+    virtual ~DomainModuleBase();
 
     //------------------------------------------
     // Virtual functions for derived classes to implement
@@ -45,12 +47,12 @@ public:
     /**
      * @brief Virtual update function to be Overwritten by derived classes.
      */
-    virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
+    virtual Constants::Error update();
 
     /**
      * @brief Virtual re-initialization function to be Overwritten by derived classes.
      */
-    virtual void reinit() {}
+    virtual void reinit();
 
     //------------------------------------------
     // Static Binding Functions
@@ -146,7 +148,7 @@ private:
      *          Instead of making a mess by untangling the templates, we simply use a pointer
      *          to the non-templated interface.
      */
-    std::shared_ptr<FuncTree<Constants::Error, DomainBase&, Data::JsonScopeBase&>> funcTree;
+    std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> funcTree;
 };
 } // namespace Nebulite::Interaction::Execution
 #include "Interaction/Execution/DomainModuleBase.tpp"
