@@ -22,7 +22,11 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/Tests/Short/Transformations/regex.nebs
+set workspace.arr[0] 1
+set workspace.arr[1] 2
+set workspace.arr[2] 3
+eval nop {global.workspace|setFromResult arraySize {arr|length|toInt}|print}
+eval nop {global.workspace|setFromResult arraySize {!arr|length|toInt}|print}
 exit
 
 task TaskFiles/Tests/Short/Transformations/setFromResult.nebs

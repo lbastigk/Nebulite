@@ -51,7 +51,7 @@ namespace Nebulite::Interaction::Logic {
  *          e.g.:
  *          "This script took {global.time.t} Seconds"
  *          "The rounded value is: $03.2f( {global.value} )"
- *          Supports anti-injection formatting with {! ... }:
+ *          Supports anti-evaluation formatting with {! ... }:
  *          Any variable wrapped in {!...} instead of {...} will be treated as pure text and will not be evaluated
  * @todo Add support for marrying contexts into a single data structure for transformations
  *       Example: If we have a matrix transformation module, multiplying matrices
