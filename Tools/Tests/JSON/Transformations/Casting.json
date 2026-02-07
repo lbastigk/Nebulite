@@ -1,0 +1,96 @@
+[
+    {
+        "command": [
+            "# Testing basic castings",
+            "set test.MyKey 3",
+            "eval echo {global.test.MyKey|add 2|toInt|print}",
+            "eval echo {global.test.MyKey|mul 2|toString|print}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "5",
+                "5",
+                "\"6\"",
+                "6"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Testing bool castings",
+            "set test.MyKey 3",
+            "# Is stored as bool, but the expression will retrieve it as 0 or 1:",
+            "eval echo Pseudo-Bool: {global.test.MyKey|add -3|toBool}",
+            "eval echo Pseudo-Bool: {global.test.MyKey|add -2|toBool}",
+            "eval echo Pseudo-Bool: {global.test.MyKey|add -1|toBool}",
+            "# Just to show that is is stored as bool:",
+            "eval nop Pseudo-Bool: {global.test.MyKey|add -3|toBool|print}",
+            "eval nop Pseudo-Bool: {global.test.MyKey|add -2|toBool|print}",
+            "eval nop Pseudo-Bool: {global.test.MyKey|add -1|toBool|print}",
+            "# How to properly retrieve a bool value as true/false strings:",
+            "eval echo Bool: {global.test.MyKey|add -3|toBoolString}",
+            "eval echo Bool: {global.test.MyKey|add -2|toBoolString}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "Pseudo-Bool: 0",
+                "Pseudo-Bool: 1",
+                "Pseudo-Bool: 1",
+                "false",
+                "true",
+                "true",
+                "Bool: false",
+                "Bool: true"],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Testing invalid numeric casting",
+            "set-fps 60",
+            "wait 1",
+            "set test.val nonNumericValue",
+            "wait 1",
+            "eval echo {global.test.val|toInt}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "0"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Testing floating point to int casting/rounding",
+            "set test.val1 3.99",
+            "set test.val2 -2.01",
+            "eval echo {global.test.val1|toInt}",
+            "eval echo {global.test.val2|toInt}",
+            "eval echo {global.test.val1|roundUp}",
+            "eval echo {global.test.val2|roundUp}",
+            "eval echo {global.test.val1|roundDown}",
+            "eval echo {global.test.val2|roundDown}",
+            "eval echo {global.test.val1|round}",
+            "eval echo {global.test.val2|round}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "3",
+                "-2",
+                "4",
+                "-2",
+                "3",
+                "-3",
+                "4",
+                "-2"
+            ],
+            "cerr": []
+        }
+    }
+]

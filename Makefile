@@ -171,6 +171,10 @@ cli-lint:
 	@./Scripts/Validation/runClangTidy.sh
 	@echo "CLI linting completed."
 
+profiling:
+	@echo "Running profiling.nebs"
+	@sudo -S sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Debugging/profiling.nebs ; hotspot perf.data
+
 profiling-small:
 	@echo "Running small profiling suite..."
 	@sudo -S sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/spawn_constantly.nebs ; hotspot perf.data

@@ -1,0 +1,182 @@
+[
+    {
+        "command": [
+            "# Testing ensureArray works correctly",
+            "set test.val 3",
+            "# Testing:",
+            "eval echo {global.test.val|ensureArray|print|at 0}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "[",
+                "    \"3\"",
+                "]",
+                "3"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Testing array element getting",
+            "set test.arr[0] zero",
+            "set test.arr[1] 1",
+            "# Testing:",
+            "eval echo {global.test.arr|at 0}",
+            "eval echo {global.test.arr|at 1}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "zero",
+                "1"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Testing array length",
+            "set test.arr[5] 5",
+            "# Testing:",
+            "eval echo {global.test.arr|length}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "6"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Testing array first and last elements + reversing",
+            "set test.arr[0] zero",
+            "set test.arr[1] 1",
+            "set test.arr[2] two",
+            "set test.arr[3] 3",
+            "set test.arr[4] four",
+            "set test.arr[5] 5",
+            "# Testing:",
+            "eval echo {global.test.arr|first}",
+            "eval echo {global.test.arr|last}",
+            "eval echo {global.test.arr|reverse|first}",
+            "eval echo {global.test.arr|reverse|last}",
+            "eval echo {global.test.arr|at 2}",
+            "eval echo {global.test.arr|reverse|at 2}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "zero",
+                "5",
+                "5",
+                "zero",
+                "two",
+                "3"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Testing array handling",
+            "set-fps 60",
+            "wait 1",
+            "set test.arr[0] 10",
+            "set test.arr[1] 20",
+            "set test.arr[2] 30",
+            "wait 1",
+            "eval echo {global.test.arr|length|toInt}",
+            "eval echo {global.test.arr|at 1|toInt}",
+            "eval echo {global.test.arr|at 5}",
+            "eval echo {global.test.arr|at malformedIndex}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "3",
+                "20",
+                "null",
+                "null"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Wrong argument count for transformation",
+            "set arr[0] 1",
+            "set arr[1] 2",
+            "set arr[2] 3",
+            "eval echo {global.arr|at}# at expects exactly one argument, providing none should result in null",
+            "eval echo {global.arr|at 2 3}# at expects exactly one argument, providing two should result in null",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "null",
+                "null"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Push elements into array",
+            "set arr[0] 1",
+            "set arr[1] 2",
+            "set arr[2] 3",
+            "eval nop {global.arr|push text|at 3|print}",
+            "eval nop {global.arr|push 1234|at 3|print}",
+            "eval nop {global.arr|pushNumber 1234|at 3|print}",
+            "eval nop {global.arr|pushNumber 1234|at 3|toInt|print}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "\"text\"",
+                "\"1234\"",
+                "1234.0",
+                "1234"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Subspan of array",
+            "set arr[0] zero",
+            "set arr[1] 1",
+            "set arr[2] two",
+            "set arr[3] 3",
+            "set arr[4] four",
+            "eval nop {global.arr|subspan 1 1|print} # Subspan in range",
+            "eval nop {global.arr|subspan 2 3|print} # Subspan in range",
+            "eval nop {global.arr|subspan 2 4|print} # Subspan exceeding range, gets shortened (same output as previous)",
+            "eval nop {global.arr|subspan 8 2|print} # Subspan starting out of range, results empty array",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "[",
+                "    \"1\"",
+                "]",
+                "[",
+                "    \"two\",",
+                "    \"3\",",
+                "    \"four\"",
+                "]",
+                "[",
+                "    \"two\",",
+                "    \"3\",",
+                "    \"four\"",
+                "]",
+                "[]"
+            ],
+            "cerr": []
+        }
+    }
+]

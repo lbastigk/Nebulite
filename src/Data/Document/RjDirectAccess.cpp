@@ -360,6 +360,13 @@ rapidjson::Value* RjDirectAccess::traverseToParent(char const* fullKey, rapidjso
 }
 
 void RjDirectAccess::removeMember(char const* key, rapidjson::Value& val) {
+    // Edge case: empty key
+    if (key == nullptr || key[0] == '\0') {
+        // Remove entire document content
+        val.SetNull();
+        return;
+    }
+
     // Handle simple case: direct member of root document
     if (std::string const keyStr(key); keyStr.find('.') == std::string::npos && keyStr.find('[') == std::string::npos) {
         if (val.HasMember(key)) {
@@ -448,16 +455,18 @@ std::vector<std::string> RjDirectAccess::listAvailableKeys(rapidjson::Value cons
         for (size_t i = 0; i < arrSize; ++i) {
             keys.emplace_back("[" + std::to_string(i) + "]");
         }
+        // Note: array keys are inherently ordered by index, no need to sort
+        //       If we were to sort, this would cause issues as "[10]" would come before "[2]"
     }
     else if (val.IsObject()) {
         // Generate a list of object member keys
         for (auto itr = val.MemberBegin(); itr != val.MemberEnd(); ++itr) {
             keys.emplace_back(itr->name.GetString());
         }
-    }
 
-    // Sort keys alphabetically
-    std::ranges::sort(keys);
+        // Sort keys alphabetically
+        std::ranges::sort(keys);
+    }
 
     // For any other type, we return an empty list
     return keys;

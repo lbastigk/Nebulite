@@ -126,13 +126,17 @@ void JsonScopeBase::set_concat(ScopedKeyView const& key, std::string const& valS
     return baseDocument->memberType(key.full(*this));
 }
 
+[[nodiscard]] std::string JsonScopeBase::memberTypeString(ScopedKeyView const& key) const {
+    return baseDocument->memberTypeString(key.full(*this));
+}
+
 [[nodiscard]] size_t JsonScopeBase::memberSize(ScopedKeyView const& key) const {
     return baseDocument->memberSize(key.full(*this));
 }
 
-void JsonScopeBase::removeKey(ScopedKeyView const& key){
+void JsonScopeBase::removeMember(ScopedKeyView const& key){
     helperNonConstVar++; // Mark as non-const operation
-    baseDocument->removeKey(key.full(*this));
+    baseDocument->removeMember(key.full(*this));
 }
 
 std::vector<ScopedKey> JsonScopeBase::listAvailableKeys(ScopedKeyView const& key) const {

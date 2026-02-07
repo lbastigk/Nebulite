@@ -1,0 +1,162 @@
+[
+    {
+        "command": [
+            "# Mapping function",
+            "set val 10",
+            "set arr[0] 1",
+            "set arr[1] 2",
+            "set arr[2] 3",
+            "eval echo {global.val|map add 10|at 0|toInt}",
+            "eval echo {global.arr|map add 10|at 0|toInt}",
+            "eval echo {global.arr|map add 10|at 1|toInt}",
+            "eval echo {global.arr|map add 10|at 2|toInt}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "20",
+                "11",
+                "12",
+                "13"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Get function",
+            "set arr[0] 1",
+            "set arr[1] 2",
+            "set arr[2] 3",
+            "set obj.key1 value1",
+            "set obj.key2 value2",
+            "set obj.key3 value3",
+            "eval echo {global.arr|get [1]|toInt}",
+            "eval echo {global.obj|get key2}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "2",
+                "value2"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Get function",
+            "set arr[0] 1",
+            "set arr[1] 2",
+            "set arr[2] 3",
+            "set obj.key1 value1",
+            "set obj.key2 value2",
+            "set obj.key3 value3",
+            "eval nop {global.arr|getMultiple [0] [1]|print}",
+            "eval nop {global.obj|getMultiple key1 key2|print}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "[",
+                "    \"1\",",
+                "    \"2\"",
+                "]",
+                "[",
+                "    \"value1\",",
+                "    \"value2\"",
+                "]"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Glob and null filtering function",
+            "task TaskFiles/Tests/Short/Transformations/regex.nebs"
+        ],
+        "expected": {
+            "cout": [
+                "[",
+                "    \"2\",",
+                "    {",
+                "        \"var\": \"11\"",
+                "    },",
+                "    \"12\"",
+                "]",
+                "{",
+                "    \"keybarbaz\": \"barbaz\",",
+                "    \"keybarfoo\": \"barfoo\"",
+                "}"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Glob and null filtering function",
+            "task TaskFiles/Tests/Short/Transformations/glob.nebs"
+        ],
+        "expected": {
+            "cout": [
+                "[",
+                "    {},",
+                "    \"2\",",
+                "    {},",
+                "    {},",
+                "    {},",
+                "    {},",
+                "    {},",
+                "    {},",
+                "    {},",
+                "    {},",
+                "    {",
+                "        \"var\": \"11\"",
+                "    },",
+                "    \"12\"",
+                "]",
+                "[",
+                "    \"2\",",
+                "    {",
+                "        \"var\": \"11\"",
+                "    },",
+                "    \"12\"",
+                "]",
+                "{",
+                "    \"keybarbaz\": \"barbaz\",",
+                "    \"keybarfoo\": \"barfoo\"",
+                "}"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# List Members function",
+            "set arr[0] 1",
+            "set arr[1] 2",
+            "set arr[2] 3",
+            "set obj.key1 value1",
+            "set obj.key2 value2",
+            "set obj.key3 value3",
+            "eval nop {global.arr|listMembers|print}",
+            "eval nop {global.obj|listMembers|print}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "[",
+                "    \"[0]\",",
+                "    \"[1]\",",
+                "    \"[2]\"",
+                "]",
+                "[",
+                "    \"key1\",",
+                "    \"key2\",",
+                "    \"key3\"",
+                "]"
+            ],
+            "cerr": []
+        }
+    }
+]

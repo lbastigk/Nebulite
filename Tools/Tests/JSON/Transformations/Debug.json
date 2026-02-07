@@ -1,0 +1,57 @@
+[
+    {
+        "command": [
+            "# Testing debug pseudo-transformations",
+            "set-fps 60",
+            "wait 1",
+            "set test.val 42",
+            "wait 1",
+            "eval echo {global.test.val|print}# Should print the value first with quotes from print, then without quotes from echo",
+            "eval echo {global.test.val|echo Hello, World!}# Should print 'Hello, World!', then 42 from echo",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "\"42\"",
+                "42",
+                "Hello, World!",
+                "42"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Testing an empty transformation chain",
+            "set-fps 60",
+            "wait 1",
+            "set test.val 42",
+            "wait 1",
+            "eval echo {global.test.val|}# Should return null, as we have an invalid empty transformation",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "null"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Printing a subvalue",
+            "set arr[0] 1",
+            "set arr[1] 2",
+            "set arr[2] 3",
+            "eval echo {global.arr|print [1]|at 2}# Should print the second element of the array with quotes, then the third element",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "\"2\"",
+                "3"
+            ],
+            "cerr": []
+        }
+    }
+]

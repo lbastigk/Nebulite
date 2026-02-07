@@ -78,6 +78,37 @@ bool JSON::isJsonOrJsonc(std::string const& str) {
 }
 
 //------------------------------------------
+// Argument splitting for transformations
+
+std::vector<std::string> JSON::splitKeyWithTransformations(std::string const& key) {
+    // Split based on transformation pipe character, but respecting inner braces
+    auto const braceArgs = Utility::StringHandler::splitOnSameDepth(key, '{');
+    std::vector<std::string> args;
+
+    if (!key.empty() && key.starts_with('|')) {
+        // No key provided, assume root and push back an empty string
+        args.push_back("");
+    }
+
+    for (auto const& arg : braceArgs) {
+        if (arg.starts_with('{')) {
+            // Add to last argument
+            if (!args.empty()) {
+                args.back() += arg;
+            }
+            else {
+                args.push_back(arg); // Should not happen, but just in case
+            }
+        } else {
+            // Split further on '|'
+            auto splitArgs = Utility::StringHandler::split(arg, '|');
+            args.insert(args.end(), splitArgs.begin(), splitArgs.end());
+        }
+    }
+    return args;
+}
+
+//------------------------------------------
 // Private methods
 
 Core::JsonScope& JSON::fullScope() {
@@ -133,7 +164,7 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
     // Check for transformations
     if (key.contains('|')) {
         if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
-            return tmp.getVariant(TransformationModule::valueKeyStr);
+            return tmp.getVariant(TransformationModule::rootKeyStr);
         }
         return {};
     }
@@ -219,7 +250,7 @@ JSON JSON::getSubDoc(std::string const& key) const {
 }
 
 bool JSON::getSubDocWithTransformations(std::string const& key, JSON& outDoc) const {
-    auto args = Utility::StringHandler::split(key, '|');
+    auto args = splitKeyWithTransformations(key);
     std::string const baseKey = args[0];
     args.erase(args.begin());
 
@@ -459,6 +490,68 @@ KeyType JSON::memberType(std::string const& key) const {
     return KeyType::null;
 }
 
+std::string JSON::memberTypeString(std::string const& key) const {
+    std::scoped_lock const lockGuard(mtx);
+
+    // See if transformations are present
+    if (key.contains('|')) {
+        // Apply transformations to a temp document
+        if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
+            return tmp.memberTypeString("");
+        }
+        return "null";
+    }
+
+    // Flush before accessing the document to ensure integrity
+    flush();
+
+    // If not cached, check rapidjson doc
+    auto const val = RjDirectAccess::traversePath(key.c_str(), doc);
+    if (val == nullptr || val->IsNull()) {
+        return "null";
+    }
+    if (val->IsArray()) {
+        return "array:" + std::to_string(val->Size());
+    }
+    if (val->IsObject()) {
+        return "object:" + std::to_string(val->MemberCount());
+    }
+    if (val->IsNumber()) {
+        if (val->IsInt64()) {
+            return "value:int:64";
+        }
+        if (val->IsInt()) {
+            return "value:int:32";
+        }
+        if (val->IsDouble()) {
+            return "value:float:64";
+        }
+        if (val->IsFloat()) {
+            return "value:float:32";
+        }
+        if (val->IsUint64()) {
+            return "value:uint:64";
+        }
+        if (val->IsUint()) {
+            return "value:uint:32";
+        }
+    }
+    if (val->IsString()) {
+        std::string const str = val->GetString();
+        return "value:string:" + std::to_string(str.size());
+    }
+    if (val->IsBool()) {
+        return "value:bool";
+    }
+
+    // Throw error for unsupported type
+    Error::println("Unsupported type for key: '", key, "'");
+    Error::println("Please add support for this type in memberTypeStr() and report to the developers if this is unexpected!");
+    Error::println("Document is:");
+    Error::println(RjDirectAccess::serialize(doc));
+    std::abort();
+}
+
 size_t JSON::memberSize(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
@@ -484,7 +577,7 @@ size_t JSON::memberSize(std::string const& key) const {
     return val->Size();
 }
 
-void JSON::removeKey(char const* key) {
+void JSON::removeMember(char const* key) {
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++; // Signal non-const operation
 

@@ -85,15 +85,13 @@ public:
      * @brief Updates the renderer for the next frame.
      * @details Tasks performed:
      *          - clears the screen
-     *          - calls the state update function
      *          - renders frame
      *          - renders fps, if enabled
      *          - presents the frame
      *          - manages SDL events
      *          - manages state for next frame
-     * @return Currently, always returns `Constants::ErrorTable::NONE()`.
      */
-    Constants::Error update() override;
+    void render();
 
     /**
      * @brief Updates the Renderer state.
@@ -105,7 +103,7 @@ public:
      *          - updates the invoke instance
      *          - updates the environment
      */
-    void updateState();
+    Constants::Error update() override;
 
     /**
      * @brief Checks if it's time to render the next frame based on the target FPS.

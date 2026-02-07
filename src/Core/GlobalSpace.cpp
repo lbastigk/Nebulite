@@ -111,6 +111,13 @@ Constants::Error GlobalSpace::update() {
     //------------------------------------------
     // Update and render, only if initialized
     if (!criticalStop && renderer.isSdlInitialized() && renderer.timeToRender()) {
+
+        //========================================================
+
+        // This part is a bit annoying, since we require a renderer for GlobalSpace module updates
+        // But without this, the time domainmodule and all DomainModules depending on it
+        // are inconsistent...
+
         // Update modules first
         updateModules();
 
@@ -120,19 +127,25 @@ Constants::Error GlobalSpace::update() {
             lastCriticalResult = result;
         }
 
+        //========================================================
+
         // Update renderer if nothing is stopping us
         if (!renderer.isSkippingUpdate()) { // e.g. Console mode might flag renderer to skip update
-            invoke.update();        // Invoke broadcasted-listen-updates
-            renderer.updateState();
-        }
-        renderer.update();
-
-        // If it hasn't skipped the update, we can decrement wait counters
-        if (!renderer.hasSkippedUpdate()) {
             for (auto const& tq : std::views::values(tasks)) {
                 tq->decrementWaitCounter();
             }
+            invoke.update();        // Invoke broadcasted-listen-updates
+            renderer.update();
+
+            // Increment frame count
+            static size_t frameCount = 0;
+            static auto constexpr frameCountKey = Data::ScopedKeyView("time.frameCount");
+            domainScope.set<uint64_t>(frameCountKey, frameCount); // Starts at 0
+            frameCount++;
         }
+
+        // Render frame
+        renderer.render();
 
         // Frame was rendered, meaning we potentially have new tasks to process next frame
         queueParsed = false;

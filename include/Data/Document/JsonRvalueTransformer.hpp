@@ -17,7 +17,6 @@
 #include <vector>
 
 // Nebulite
-#include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 
 //------------------------------------------
@@ -34,6 +33,14 @@ class TransformationModule;
 
 //------------------------------------------
 namespace Nebulite::Data {
+/**
+ * @brief The JsonRvalueTransformer class is responsible for applying transformations to JSON values during retrieval.
+ * @details It uses a transformation function tree to apply modifications in sequence based on the provided arguments.
+ *          Why is this not part of the JsonScope class as DomainModule? Because JSON-Transformations, for the most part, are very destructive as they modify the value of the key in-place.
+ *          This is not ideal for a DomainModule, as these destructive transformations are then part of every Domain that inherits from the JSON domain.
+ *          We do not want to allow destructive commands such as "length" to be directly available, otherwise users may accidentally overwrite all data from RenderObjects, Textures etc.
+ *          Instead, JsonScope DomainModules focus on simple set/move/copy operations, debug utilities and interfaces to better encapsulate destructive actions such as JSON transformations.
+ */
 class JsonRvalueTransformer {
     /**
      * @brief The transformation tree is used to apply modifications to JSON values during getting

@@ -38,7 +38,7 @@ TIMEOUT_SECONDS = 3  # Timeout for commands that might open renderer windows
 # Markdown formatting helpers
 class MarkdownFormatter:
     def get_header(self, name: str, level: int) -> str:
-        if name == 'root' or not name:
+        if name == '__root__' or not name:
             return ""
         header_prefix = "#" * min(level, 6)
         return f"{header_prefix} `{name}`\n\n"
@@ -227,7 +227,7 @@ def process_command_recursively(base_command: str, command_name: str = "", prefi
     visited.add(full_name)
 
     result = {
-        'name': command_name or 'root',
+        'name': command_name or '__root__',
         'full_name': full_name,
         'help': None,
         'functions': [],
@@ -331,7 +331,7 @@ def format_markdown_section(command_data: Dict, level: int = 1) -> str:
         sys.exit(1)
 
     markdown = ""
-    if name == 'root' or not name:
+    if name == '__root__' or not name:
         markdown += formatter.get_intro(help_text)
     else:
         markdown += formatter.get_header(name, level)

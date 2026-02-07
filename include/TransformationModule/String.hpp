@@ -1,6 +1,6 @@
 /**
  * @file String.hpp
- * @brief Class for string transformation modules.
+ * @brief Class for string transformation functions.
  */
 
 #ifndef NEBULITE_TRANSFORMATION_MODULE_STRING_HPP
@@ -20,7 +20,6 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    /*
     static bool toUpper(Core::JsonScope* jsonDoc);
     static auto constexpr toUpperName = "toUpper";
     static auto constexpr toUpperDesc = "Converts the current JSON string value to uppercase.\n"
@@ -31,15 +30,70 @@ public:
     static auto constexpr toLowerDesc = "Converts the current JSON string value to lowercase.\n"
         "Usage: |toLower -> {string}\n";
 
-    static bool trim(Core::JsonScope* jsonDoc);
-    static auto constexpr trimName = "trim";
-    static auto constexpr trimDesc = "Trims whitespace from both ends of the current JSON string value.\n"
+    static bool strip(Core::JsonScope* jsonDoc);
+    static auto constexpr trimName = "strip";
+    static auto constexpr trimDesc = "Strips whitespace from both ends of the current JSON string value.\n"
         "Usage: |trim -> {string}\n";
-    */
 
-    // TODO: trim, upper, lower, substring, replace, etc.
+    static bool lStrip(Core::JsonScope* jsonDoc);
+    static auto constexpr lStripName = "lStrip";
+    static auto constexpr lStripDesc = "Strips whitespace from the left end of the current JSON string value.\n"
+        "Usage: |lStrip -> {string}\n";
 
-    // TODO: Add comparison functions like strequals, strcontains, strstartswith, strendswith, strcountappearance
+    static bool rStrip(Core::JsonScope* jsonDoc);
+    static auto constexpr rStripName = "rStrip";
+    static auto constexpr rStripDesc = "Strips whitespace from the right end of the current JSON string value.\n"
+            "Usage: |rStrip -> {string}\n";
+
+    static bool substring(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr substringName = "substring";
+    static auto constexpr substringDesc = "Extracts a substring from the current JSON string value.\n"
+        "Usage: |substring {start} {length} -> {string}\n"
+        "{start}: Starting index (0-based)\n"
+        "{length}: Length of the substring\n";
+
+    static bool replace(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr replaceName = "replace";
+    static auto constexpr replaceDesc = "Replaces all occurrences of a target substring with a replacement substring in the current JSON string value.\n"
+        "Usage: |replace {target} {replacement} -> {string}\n"
+        "{target}: Substring to be replaced\n"
+        "{replacement}: Substring to replace with\n";
+
+    static bool strCountAppearance(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr strCountAppearanceName = "strCountAppearance";
+    static auto constexpr strCountAppearanceDesc = "Counts the number of occurrences of a specified substring in the current JSON string value.\n"
+        "Usage: |strCountAppearance {substring} -> {number}\n"
+        "{substring}: Substring to count\n";
+
+    static auto constexpr strcompareName = "strCompare";
+    static auto constexpr strcompareDesc = "Functions for comparing string values.\n"
+        "Usage: |strCompare {comparisonType} {string} -> {bool}\n"
+        "{comparisonType}: Type of comparison\n"
+        "{string}: String to compare with\n";
+
+    static bool strcompareEquals(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr strcompareEqualsName = "strCompare equals";
+    static auto constexpr strcompareEqualsDesc = "Compares the current JSON string value with a specified string for equality.\n"
+        "Usage: |strCompare equals {string} -> {bool}\n"
+        "{string}: String to compare with\n";
+
+    static bool strcompareContains(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr strcompareContainsName = "strCompare contains";
+    static auto constexpr strcompareContainsDesc = "Checks if the current JSON string value contains a specified substring.\n"
+        "Usage: |strCompare contains {string} -> {bool}\n"
+        "{string}: Substring to check for\n";
+
+    static bool strcompareStartsWith(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr strcompareStartsWithName = "strCompare startsWith";
+    static auto constexpr strcompareStartsWithDesc = "Checks if the current JSON string value starts with a specified substring.\n"
+        "Usage: |strCompare startsWith {string} -> {bool}\n"
+        "{string}: Substring to check for\n";
+
+    static bool strcompareEndsWith(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr strcompareEndsWithName = "strCompare endsWith";
+    static auto constexpr strcompareEndsWithDesc = "Checks if the current JSON string value ends with a specified substring.\n"
+        "Usage: |strCompare endsWith {string} -> {bool}\n"
+        "{string}: Substring to check for\n";
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_STRING_HPP

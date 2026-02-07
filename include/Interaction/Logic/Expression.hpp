@@ -51,6 +51,15 @@ namespace Nebulite::Interaction::Logic {
  *          e.g.:
  *          "This script took {global.time.t} Seconds"
  *          "The rounded value is: $03.2f( {global.value} )"
+ *          Supports anti-evaluation formatting with {! ... }:
+ *          Any variable wrapped in {!...} instead of {...} will be treated as pure text and will not be evaluated
+ * @todo Add support for marrying contexts into a single data structure for transformations
+ *       Example: If we have a matrix transformation module, multiplying matrices
+ *       from different contexts can be difficult, as we need to somehow copy them into one context first.
+ *       With context marrying, we could have a single context that encompasses all variables from self, other and global, with some sort of prefix to differentiate them.
+ *       {all.|matMultiply self.matrix other.matrix} could then be evaluated directly without needing to copy variables into a new context first.
+ *       Unless we also implement scope marrying, we will have to copy a lot of data here. Perhaps a selfother combined context is helpful for faster evaluation:
+ *       {so.|matMultiply self.matrix other.matrix} could then be evaluated directly without needing to copy global variables, which is typically the largest portion of variables, into a new context first.
  */
 class Expression {
 public:

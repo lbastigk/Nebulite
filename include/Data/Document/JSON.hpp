@@ -315,6 +315,11 @@ public:
     static bool isJsonOrJsonc(std::string const& str);
 
     //------------------------------------------
+    // Argument splitting for transformations
+
+    static std::vector<std::string> splitKeyWithTransformations(std::string const& key);
+
+    //------------------------------------------
     // Set methods
 
     /**
@@ -448,6 +453,28 @@ public:
     KeyType memberType(char const* key) const { return memberType(std::string(key)); }
 
     /**
+     * @brief Checks the type of a key in the JSON document and returns it as a string.
+     * @details This function checks the type of a key in the JSON document and returns it as a string.
+     *          If the key does not exist, the type is considered "null".
+     *          Returned type strings:
+     *          - "null" : Key does not exist or is null.
+     *          - "value:<type>:<size>" : Key exists and is a simple value (number, string)
+     *          - "value:<type>" : If no size is applicable (e.g. for bool), or if we want to omit size info for simplicity.
+     *          - "array:<size>" : Key exists and is an array.
+     *          - "object:<size>" : Key exists and is an object. Size is the number of members in the object.
+     *          Examples:
+     *          - "value:int:32" : A 32-bit integer value.
+     *          - "value:float:64" : A 64-bit double value.
+     *          - "value:string:10" : A string value with length 10.
+     *          - "object:5" : An object with 5 members.
+     * @param key The key to check.
+     * @return The type of the key as a string.
+     */
+    std::string memberTypeString(std::string const& key) const ;
+    std::string memberTypeString(std::string_view const& key) const { return memberTypeString(std::string(key)); }
+    std::string memberTypeString(char const* key) const { return memberTypeString(std::string(key)); }
+
+    /**
      * @brief Checks the size of a key in the JSON document.
      * @details If the key does not exist, the size is considered 0.
      *          If the key represents a document, the size is considered 1.
@@ -463,10 +490,19 @@ public:
      * @details If the key does not exist, no action is taken.
      *          Note that the document is flushed before removing the key.
      * @param key The key to remove.
+     * @todo Rename to removeMember
      */
-    void removeKey(char const* key);
-    void removeKey(std::string const& key) { removeKey(key.c_str()); }
-    void removeKey(std::string_view const& key) { removeKey(std::string(key).c_str()); }
+    void removeMember(char const* key);
+    void removeMember(std::string const& key) { removeMember(key.c_str()); }
+    void removeMember(std::string_view const& key) { removeMember(std::string(key).c_str()); }
+
+    // TODO: offer a moveMember function, without additional json creation!
+    //       the current usage for moving members is quite inefficient!
+    //       e.g. we create a tmp doc, copy the member, remove the old one, set the new one.
+    //       The constructor for JSON is expensive, we need a better internal move!
+    //       Idea: list members, copy all members to a rapidjson::Value, remove old members, set new members from rapidjson::Value
+    //       Or we directly copy rapidjson Value from one key to another!
+    // void moveMember(std::string const& fromKey, std::string const& toKey);
 
     /**
      * @brief Lists all available keys in a rapidjson object.

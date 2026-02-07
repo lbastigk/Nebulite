@@ -20,6 +20,14 @@ Constants::Error General::update() {
 
 // NOLINTNEXTLINE
 Constants::Error General::eval(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope){
+    // TODO: An idea would be to only eval until the next "eval" keyword, allowing for nested evals within for-loops, ifs, etc.:
+    //       Example:
+    //       eval for i 1 {global.loopCount} eval process-state {global.currentState} {i}
+    //       This way, the first eval will not vanish the information within the for-loop,
+    //       allowing us to properly retrieve the current state for each iteration.
+    //       Do the same for the RenderObject eval function. Perhaps we should combine them?
+    //       std::string eval(std::span<std::string const> const& args, Interaction::ContextBase const& context);
+
     // argc/argv to string for evaluation
     std::string const argStr = Utility::StringHandler::recombineArgs(args);
 

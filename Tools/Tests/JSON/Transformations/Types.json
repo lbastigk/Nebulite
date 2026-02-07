@@ -1,0 +1,37 @@
+[
+    {
+        "command": [
+            "# Type to String transformation + Type to int transformation",
+            "set arr[0] 1",
+            "set arr[1] 2",
+            "set arr[2] 3",
+            "set var 42",
+            "set obj.val 100",
+            "# Complex type retrieval as string",
+            "eval echo {global.dne|typeAsString}",
+            "eval echo {global.var|typeAsString}",
+            "eval echo {global.arr|typeAsString}",
+            "eval echo {global.obj|typeAsString}",
+            "# Simplified type retrieval as enum",
+            "# Order is: null=0, value=1, array=2, object=3",
+            "eval echo {global.dne|typeAsNumber}",
+            "eval echo {global.var|typeAsNumber}",
+            "eval echo {global.arr|typeAsNumber}",
+            "eval echo {global.obj|typeAsNumber}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "null",
+                "value:string:2",
+                "array:3",
+                "object:1",
+                "0",
+                "1",
+                "2",
+                "3"
+            ],
+            "cerr": []
+        }
+    }
+]

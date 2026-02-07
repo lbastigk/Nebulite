@@ -11,10 +11,13 @@
 #include "TransformationModule/Arithmetic.hpp"
 #include "TransformationModule/Array.hpp"
 #include "TransformationModule/Assertions.hpp"
+#include "TransformationModule/Boolean.hpp"
 #include "TransformationModule/Casting.hpp"
 #include "TransformationModule/Collection.hpp"
 #include "TransformationModule/Debug.hpp"
 #include "TransformationModule/Domain.hpp"
+#include "TransformationModule/General.hpp"
+#include "TransformationModule/Requirements.hpp"
 #include "TransformationModule/Statistics.hpp"
 #include "TransformationModule/String.hpp"
 #include "TransformationModule/Types.hpp"
@@ -30,10 +33,13 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     initModule<Nebulite::TransformationModule::Arithmetic>();
     initModule<Nebulite::TransformationModule::Array>();
     initModule<Nebulite::TransformationModule::Assertions>();
+    initModule<Nebulite::TransformationModule::Boolean>();
     initModule<Nebulite::TransformationModule::Casting>();
     initModule<Nebulite::TransformationModule::Collection>();
     initModule<Nebulite::TransformationModule::Debug>();
     initModule<Nebulite::TransformationModule::Domain>();
+    initModule<Nebulite::TransformationModule::General>();
+    initModule<Nebulite::TransformationModule::Requirements>();
     initModule<Nebulite::TransformationModule::Statistics>();
     initModule<Nebulite::TransformationModule::String>();
     initModule<Nebulite::TransformationModule::Types>();

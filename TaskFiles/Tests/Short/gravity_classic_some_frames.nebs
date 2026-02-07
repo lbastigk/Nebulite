@@ -1,8 +1,8 @@
 echo Classic Gravity test with 1 Sun and 2 Planets
-set framesToRender 3000
+set framesToRender 500
 eval echo Rendering {global.framesToRender} Frames
 
-set-fps 10000
+set-fps 1000
 set physics.G 10
 spawn ./Resources/Renderobjects/Planets/sun.jsonc
 spawn ./Resources/Renderobjects/Planets/obj1.jsonc

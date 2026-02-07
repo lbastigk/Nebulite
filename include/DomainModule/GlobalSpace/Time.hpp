@@ -100,9 +100,7 @@ public:
         static auto constexpr runtime_t_ms = Data::ScopedKeyView::create<scope>("runtime.t_ms");
         static auto constexpr runtime_dt = Data::ScopedKeyView::create<scope>("runtime.dt");
         static auto constexpr runtime_dt_ms = Data::ScopedKeyView::create<scope>("runtime.dt_ms");
-        static auto constexpr frameCount = Data::ScopedKeyView::create<scope>("frameCount");
     };
-
 
     //------------------------------------------
     // Setup
@@ -150,11 +148,6 @@ private:
      * @brief Full application runtime
      */
     Utility::TimeKeeper RealTime;
-
-    /**
-     * @brief Amount of frames rendered
-     */
-    uint64_t frameCount = 0;
 
     /**
      * @brief Fixed delta time for the simulation time. If 0, uses real delta time.

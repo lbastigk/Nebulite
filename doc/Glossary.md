@@ -37,6 +37,25 @@ Rather, it reflects commonly used names within its documentation and shall be us
 ## A
 
 -----------------
+### Anti-evaluation
+Allows for expression evaluation to forward any variable access to future functions
+in the same expression.
+Example:
+```
+set workspace.arr[0] 1
+set workspace.arr[1] 2
+set workspace.arr[2] 3
+eval nop {global.workspace|setFromResult arraySize {arr|length|toInt}|print}
+eval nop {global.workspace|setFromResult arraySize {!arr|length|toInt}|print}
+exit
+```
+The first eval fails, because the expression evaluation tries to evaluate `{arr|length|toInt}` 
+before the `setFromResult` function is executed, leading to the setFromResult function to get the arguments:
+`arraySize` and `null` instead of `arraySize` and `{arr|length|toInt}`.
+
+See also: [Expression](#expression), [FuncTree](#functree), [Transformation](#transformation)
+
+-----------------
 ## B
 
 -----------------
@@ -48,7 +67,14 @@ In Nebulite, each Expression/Ruleset has access to 3 domains defined by keywords
 - self - RenderObject broadcasting the logic
 - other - RenderObject listening
 - global - GlobalSpace
-- as well as read-only resources.
+
+as well as read-only resources for Expressions defined through a link.
+
+Examples for access in Expressions:
+- `{self.posX}` would access the posX variable of the context self
+- `{other.posX}` would access the posX variable of the context other
+- `{global.someVar}` would access the someVar variable of the context global
+- `{./link/to/file.json:key}` would access a read-only document
 
 See also: [Expression](#expression), [Domain](#domain), [GlobalSpace](#globalspace), [RenderObject](#renderobject)
 
@@ -78,9 +104,16 @@ All domains support string parsing through `parseStr` from other domains and sup
 See also: [DomainModule](#domainmodule), [FuncTree](#functree), [GlobalSpace](#globalspace), [JsonScope](#jsonscope)
 
 -----------------
+### Domain-Serialization-Piping
+
+A feature that allows for Functioncalls to be piped into a domain directly after deserialization. 
+Example: `spawn Planets/sun.jsonc|set posX 500|set posY 100` would serialize the file `Planets/sun.jsonc` into a RenderObject, 
+then execute the Functioncalls `set posX 500` and `set posY 100` on it.
+
+-----------------
 ### DomainModule
-Special class that contains a list of functions and variables that are bound 
-to a specific Domain as well as an update-routine. 
+Special class that contains a list of functions and variables as well as an update-routine that are bound 
+to a specific Domain. 
 DomainModules allow for easy separation of functionality. 
 Example: one class for audio, another for inputs etc. 
 
@@ -184,9 +217,9 @@ if `{self.id}` = `1`. Then, `{global.mirror.id1.posX}` is evaluated.
 ### nebs
 Nebulite Script. Used for FuncTree parsing. 
 All attached functions from DomainModules may be used. 
-Either through a TaskFile or an Invoke 
+Either through a TaskFile or a Ruleset.
 
-See also: [DomainModule](#domainmodule), [FuncTree](#functree), [Invoke](#invoke)
+See also: [DomainModule](#domainmodule), [FuncTree](#functree), [Invoke](#invoke), [Ruleset](#ruleset)
 
 -----------------
 ## O
@@ -237,11 +270,12 @@ See also: [Domain](#domain)
 
 -----------------
 ### Transformation
-During JSON variable access, Transformations may be applied to the retrieved value. 
+During JSON variable access, Transformations may be applied to the retrieved value.
+Transformations are supported for any JSON variable access.
 Example: `{self.var|add 5}` would retrieve `{self.var}` and apply the add transformation to it before returning it. 
 Transformations are applied after all variable resolving is done, including Multiresolve. 
 
-See also: [Multiresolve](#multiresolve)
+See also: [Anti-evaluation](#anti-evaluation) [JSON](#json), [Multiresolve](#multiresolve)
 
 -----------------
 ## U

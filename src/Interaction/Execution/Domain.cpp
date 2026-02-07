@@ -128,7 +128,7 @@ void DomainBase::baseDeserialization(std::string const& serialOrLinkWithCommands
     }
 
     //------------------------------------------
-    // Now apply modifications
+    // Domain-Serialization-Piping
     for (auto const& token : tokens) {
         if (token.empty())
             continue; // Skip empty tokens

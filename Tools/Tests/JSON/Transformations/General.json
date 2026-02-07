@@ -1,0 +1,72 @@
+[
+    {
+        "command": [
+            "# Set various types",
+            "eval nop {|setString . text|print}",
+            "eval nop {|setInt integer 30|print}",
+            "eval nop {|setDouble pi 3.141|print}",
+            "eval nop {|setBool boolTrue true|print}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "\"text\"",
+                "{",
+                "    \"integer\": 30",
+                "}",
+                "{",
+                "    \"pi\": 3.141",
+                "}",
+                "{",
+                "    \"boolTrue\": true",
+                "}"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Testing member removal",
+            "set obj.arr[0] 1",
+            "set obj.arr[1] 2",
+            "set obj.arr[2] 3",
+            "set obj.val 42",
+            "eval nop {global.obj|removeMember arr|print}",
+            "eval nop {global.obj|removeMember val|print}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "{",
+                "    \"val\": \"42\"",
+                "}",
+                "{",
+                "    \"arr\": [",
+                "        \"1\",",
+                "        \"2\",",
+                "        \"3\"",
+                "    ]",
+                "}"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "task TaskFiles/Tests/Short/Transformations/setFromResult.nebs"
+        ],
+        "expected": {
+            "cout": [
+                "{",
+                "    \"arr\": [",
+                "        \"1\",",
+                "        \"2\",",
+                "        \"3\"",
+                "    ],",
+                "    \"arraySize\": 3",
+                "}"
+            ],
+            "cerr": []
+        }
+    }
+]

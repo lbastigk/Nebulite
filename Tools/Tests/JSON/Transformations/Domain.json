@@ -1,0 +1,17 @@
+[
+    {
+        "command": [
+            "# Testing domain functioncalls",
+            "set test.val 3",
+            "eval echo {global.test|parse json set val ./Resources/Renderobjects/standard.jsonc:size.X|get val|toInt}",
+            "",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "32"
+            ],
+            "cerr": []
+        }
+    }
+]

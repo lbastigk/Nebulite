@@ -1,6 +1,6 @@
 /**
  * @file Arithmetic.hpp
- * @brief Class for arithmetic transformation modules.
+ * @brief Class for arithmetic transformation functions.
  */
 
 #ifndef NEBULITE_TRANSFORMATION_MODULE_ARITHMETIC_HPP
@@ -21,6 +21,7 @@ public:
     // Available Transformations
 
     // TODO: For all arithmetic functions: using multiple numbers should output array?
+    //       For array inputs, we may use map
 
     static bool add(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr addName = "add";
@@ -42,7 +43,25 @@ public:
     static auto constexpr powDesc = "Raises the current JSON value to the power of a numeric value.\n"
         "Usage: |pow <exponent> -> {number}\n";
 
-    // TODO: subtract, divide, sqrt, root, etc.
+    static bool subtract(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr subtractName = "sub";
+    static auto constexpr subtractDesc = "Subtracts a numeric value from the current JSON value.\n"
+        "Usage: |sub <number1> <number2> ... -> {number}\n";
+
+    static bool divide(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr divideName = "div";
+    static auto constexpr divideDesc = "Divides the current JSON value by a numeric value.\n"
+        "Usage: |div <number1> <number2> ... -> {number}\n";
+
+    static bool sqrt(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr sqrtName = "sqrt";
+    static auto constexpr sqrtDesc = "Calculates the square root of the current JSON value.\n"
+        "Usage: |sqrt -> {number}\n";
+
+    static bool root(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr rootName = "root";
+    static auto constexpr rootDesc = "Calculates the n-th root of the current JSON value.\n"
+        "Usage: |root <n> -> {number}\n";
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_ARITHMETIC_HPP

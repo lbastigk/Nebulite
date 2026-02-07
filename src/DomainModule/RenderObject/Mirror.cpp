@@ -47,7 +47,7 @@ Constants::Error Mirror::mirror_off() {
 Constants::Error Mirror::mirror_delete() const {
     auto const token = getDomainModuleAccessToken(*this);
     auto const baseKey = Global::shareScopeBase(token).getRootScope();
-    Global::shareScopeBase(token).removeKey(baseKey + mirrorKey);
+    Global::shareScopeBase(token).removeMember(baseKey + mirrorKey);
     return Constants::ErrorTable::NONE();
 }
 

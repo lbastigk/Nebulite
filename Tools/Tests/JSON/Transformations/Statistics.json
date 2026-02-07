@@ -1,0 +1,50 @@
+[
+    {
+        "command": [
+            "# Testing non-numeric values in arithmetic transformations",
+            "set arr[0] 1",
+            "set arr[1] 1",
+            "set arr[2] 2",
+            "set arr[3] 3",
+            "set arr[4] 4",
+            "set arr[5] 1",
+            "eval echo {global.arr|sum}",
+            "eval echo {global.arr|average}",
+            "eval echo {global.arr|product}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "12",
+                "2",
+                "24"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Testing non-numeric values in arithmetic transformations",
+            "set arr[0] 1",
+            "set arr[1] 1",
+            "set arr[2] 2",
+            "set arr[3] 3",
+            "set arr[4] 4",
+            "set arr[5] 1",
+            "eval echo {global.arr|min}",
+            "eval echo {global.arr|max}",
+            "eval echo {global.arr|median}",
+            "eval echo $6.4f({global.arr|stddev})",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "1",
+                "4",
+                "1.5",
+                "1.1547"
+            ],
+            "cerr": []
+        }
+    }
+]

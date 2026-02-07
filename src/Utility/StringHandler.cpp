@@ -65,6 +65,10 @@ std::string StringHandler::rStrip(std::string const& input, char const& specialC
     return end == std::string::npos ? "" : input.substr(0, end + 1);
 }
 
+std::string StringHandler::strip(std::string const& input, char const& specialChar) {
+    return rStrip(lStrip(input, specialChar), specialChar);
+}
+
 std::vector<std::string> StringHandler::split(std::string_view const& input, char const& delimiter, bool const& keepDelimiter) {
     std::vector<std::string> tokens;
 
@@ -78,6 +82,10 @@ std::vector<std::string> StringHandler::split(std::string_view const& input, cha
         }
         if (start < input.length()) {
             tokens.emplace_back(input.substr(start));
+        }
+
+        if (!input.empty() && input.starts_with(delimiter) && !tokens.empty()) {
+            tokens.erase(tokens.begin());
         }
     } else {
         // New behavior - split and keep delimiter at start of tokens
@@ -244,7 +252,7 @@ void handleQuotedToken(std::string const& token, QuoteParseState& state, std::ve
         }
     }
 }
-}
+} // namespace
 
 std::vector<std::string> StringHandler::parseQuotedArguments(std::string const& cmd) {
     std::vector<std::string> const tokens = split(cmd, ' ');

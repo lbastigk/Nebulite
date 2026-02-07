@@ -14,17 +14,39 @@
         ]
     },
     "tests": [
+        //---------------------------------------
+        // Basic tests
         "Tools/Tests/basics.json",
         "Tools/Tests/time.json",
+        //---------------------------------------
+        // Expression tests
         "Tools/Tests/Expression/basics.json",
         "Tools/Tests/Expression/math.json",
-        "Tools/Tests/Expression/transformations.json",
+        //---------------------------------------
+        // Functioncall tests
         "Tools/Tests/Functional/bindingCollisionDetection.json",
         "Tools/Tests/Functional/completion.json",
+        //---------------------------------------
+        // JSON tests
         "Tools/Tests/JSON/Array.json",
         "Tools/Tests/JSON/Retrieval.json",
-        "Tools/Tests/JSON/RvalueTransformer.json",
+        "Tools/Tests/JSON/Transformations/Arithmetic.json",
+        "Tools/Tests/JSON/Transformations/Array.json",
+        "Tools/Tests/JSON/Transformations/Assertions.json",
+        "Tools/Tests/JSON/Transformations/Casting.json",
+        "Tools/Tests/JSON/Transformations/Collection.json",
+        "Tools/Tests/JSON/Transformations/Debug.json",
+        "Tools/Tests/JSON/Transformations/Domain.json",       // TODO: add some parsestr tests
+        "Tools/Tests/JSON/Transformations/General.json",
+        "Tools/Tests/JSON/Transformations/Requirements.json",
+        "Tools/Tests/JSON/Transformations/Statistics.json",
+        "Tools/Tests/JSON/Transformations/String.json",
+        "Tools/Tests/JSON/Transformations/Types.json",
+        //---------------------------------------
+        // Domain tests
         "Tools/Tests/Domain/deserialization.json",
+        //---------------------------------------
+        // Misc tests, sort, expand and diversify later
         "Tools/Tests/scenes.json",
         "Tools/Tests/mirror_draft_selection.json",
         "Tools/Tests/StaticRulesets/DebugUtils.json"

@@ -413,7 +413,7 @@ void Renderer::pollEvents() {
     }
 }
 
-Constants::Error Renderer::update() {
+void Renderer::render() {
     // Core rendering pipeline
     renderInit();
     renderFrame();
@@ -426,18 +426,12 @@ Constants::Error Renderer::update() {
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
     SDL_RenderPresent(renderer);
-    for (auto const& event : events) {
+    for (auto const& event : events) { // TODO: Move to update perhaps?
         ImGui_ImplSDL3_ProcessEvent(&event);
     }
-    if (SDL_GetError()[0] != '\0') {
-        Error::println("SDL Error during rendering: ", SDL_GetError());
-        SDL_ClearError(); // Clear error after reporting
-        return Constants::ErrorTable::SDL::GENERIC_SDL_ERROR();
-    }
-    return Constants::ErrorTable::NONE();
 }
 
-void Renderer::updateState() {
+Constants::Error Renderer::update() {
     //------------------------------------------
     // Skip update if flagged
     if (!skipUpdate) {
@@ -449,6 +443,12 @@ void Renderer::updateState() {
             domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0)
         );
     }
+    if (SDL_GetError()[0] != '\0') {
+        Error::println("SDL Error during rendering: ", SDL_GetError());
+        SDL_ClearError(); // Clear error after reporting
+        return Constants::ErrorTable::SDL::GENERIC_SDL_ERROR();
+    }
+    return Constants::ErrorTable::NONE();
 }
 
 bool Renderer::timeToRender() {

@@ -51,6 +51,10 @@ namespace Nebulite::Interaction {
 class ContextBase; // Requires access to demote to ContextScope
 } // namespace Nebulite::Interaction
 
+namespace Nebulite::Interaction::Execution {
+template<typename> class Domain;
+} // namespace Nebulite::Interaction::Execution
+
 namespace Nebulite::Interaction::Logic {
 class Assignment;   // Requires access to set target documents
 class Expression;   // Requires access to get unscoped values from global scope
@@ -60,18 +64,16 @@ namespace Nebulite::Interaction::Rules {
 class Ruleset;
 class JsonRuleset;
 class StaticRuleset;
-
-namespace Construction {
-class RulesetCompiler;
-} // namespace Construction
 } // namespace Nebulite::Interaction::Rules
+
+namespace Nebulite::Interaction::Rules::Construction {
+class RulesetCompiler;
+} // namespace Nebulite::Interaction::Rules::Construction
 
 //------------------------------------------
 // Document Accessor
 
 namespace Nebulite::Interaction::Execution {
-template<typename> class Domain;
-
 /**
  * @brief DocumentAccessor provides controlled access to a domain's JSON document.
  * @details This class is designed to be a friend of various domain-related classes,
@@ -132,7 +134,6 @@ private:
 // Domain Base
 
 namespace Nebulite::Interaction::Execution {
-
 /**
  * @class DomainBase
  * @brief Non-templated base class for all Nebulite domains.
@@ -286,8 +287,8 @@ protected:
      *          Re-initializes all DomainModules in the JSON scope after deserialization.
      *          Supported formats:
      *          - {object} (direct JSON)
-     *          - link|c1|c2|... (additional commands after link)
-     *          - {variable|t1|t2|...}|c1|c2|... (additional commands after serialization)
+     *          - link|c1|c2|... (additional commands after link; Domain-Serialization-Piping)
+     *          - {variable|t1|t2|...}|c1|c2|... (additional commands after serialization; Domain-Serialization-Piping)
      *          Where t is a transformation and c is a command to execute after deserialization.
      * @param serialOrLinkWithCommands The serialization string or link with commands to deserialize.
      */
@@ -303,6 +304,7 @@ protected:
  *          - Parsing strings into Nebulite commands.
  *          - Binding additional features via DomainModules.
  *          - Updating the domain through its DomainModules.
+ * @todo Instead of storing Domain reference, pass to initModules. This allows us to merge DomainBase and Domain, no more templates needed.
  */
 template <typename DomainType>
 class Domain : public DomainBase {
@@ -342,11 +344,13 @@ public:
     // Module Initialization and Updating
 
     /**
-     * @brief Factory method for creating DomainModule instances with proper linkage
+     * @brief Initializes DomainModules based on the template parameter with proper linkage
      * @tparam DomainModuleType The type of module to initialize
      * @param moduleName The name of the module
      * @param scope The workspace JsonScope for the module
      * @param settings The settings JsonScope for the module
+     * @todo Later on we should check if the module already exists and reject initialization if it does.
+     *       Either always looping through modules to check or using a second set of names for fast lookup.
      */
     template <typename DomainModuleType>
     void initModule(std::string moduleName, Data::JsonScopeBase& scope, Data::JsonScopeBase const& settings) {
@@ -372,18 +376,6 @@ public:
             module->reinit();
         }
     }
-
-    /**
-     * @brief Gets the name of the domain.
-     * @return The name of the domain.
-     */
-    [[nodiscard]] std::string const& getDomainName() const {
-        return domainName;
-    }
 };
-
-
 } // namespace Nebulite::Interaction::Execution
-
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
-
