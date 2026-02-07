@@ -62,5 +62,75 @@
             ],
             "cerr": []
         }
+    },
+    {
+        "command": [
+            "# String count appearance",
+            "set test.string HelloWorldHello",
+            "eval echo {global.test.string|strCountAppearance Hello}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "2"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# String equality",
+            "set test.string HelloWorld",
+            "eval nop {global.test.string|strCompare equals HelloWorld|print}",
+            "eval nop {global.test.string|strCompare equals Hello|print}",
+            "eval nop {global.test.string|strCompare equals helloworld|print}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "true",
+                "false",
+                "false"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# String contains",
+            "set test.string HelloWorld",
+            "eval nop {global.test.string|strCompare contains Hello|print}",
+            "eval nop {global.test.string|strCompare contains World|print}",
+            "eval nop {global.test.string|strCompare contains Hi|print}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "true",
+                "true",
+                "false"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# String starts with and ends with",
+            "set test.string HelloWorld",
+            "eval nop {global.test.string|strCompare startsWith Hello|print}",
+            "eval nop {global.test.string|strCompare startsWith World|print}",
+            "eval nop {global.test.string|strCompare endsWith World|print}",
+            "eval nop {global.test.string|strCompare endsWith Hello|print}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "true",
+                "false",
+                "true",
+                "false"
+            ],
+            "cerr": []
+        }
     }
 ]
