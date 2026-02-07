@@ -490,6 +490,68 @@ KeyType JSON::memberType(std::string const& key) const {
     return KeyType::null;
 }
 
+std::string JSON::memberTypeString(std::string const& key) const {
+    std::scoped_lock const lockGuard(mtx);
+
+    // See if transformations are present
+    if (key.contains('|')) {
+        // Apply transformations to a temp document
+        if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
+            return tmp.memberTypeString("");
+        }
+        return "null";
+    }
+
+    // Flush before accessing the document to ensure integrity
+    flush();
+
+    // If not cached, check rapidjson doc
+    auto const val = RjDirectAccess::traversePath(key.c_str(), doc);
+    if (val == nullptr || val->IsNull()) {
+        return "null";
+    }
+    if (val->IsArray()) {
+        return "array:" + std::to_string(val->Size());
+    }
+    if (val->IsObject()) {
+        return "object:" + std::to_string(val->MemberCount());
+    }
+    if (val->IsNumber()) {
+        if (val->IsInt64()) {
+            return "value:int:64";
+        }
+        if (val->IsInt()) {
+            return "value:int:32";
+        }
+        if (val->IsDouble()) {
+            return "value:float:64";
+        }
+        if (val->IsFloat()) {
+            return "value:float:32";
+        }
+        if (val->IsUint64()) {
+            return "value:uint:64";
+        }
+        if (val->IsUint()) {
+            return "value:uint:32";
+        }
+    }
+    if (val->IsString()) {
+        std::string const str = val->GetString();
+        return "value:string:" + std::to_string(str.size());
+    }
+    if (val->IsBool()) {
+        return "value:bool";
+    }
+
+    // Throw error for unsupported type
+    Error::println("Unsupported type for key: '", key, "'");
+    Error::println("Please add support for this type in memberTypeStr() and report to the developers if this is unexpected!");
+    Error::println("Document is:");
+    Error::println(RjDirectAccess::serialize(doc));
+    std::abort();
+}
+
 size_t JSON::memberSize(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
 

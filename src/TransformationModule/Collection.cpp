@@ -82,14 +82,15 @@ bool Collection::getMultiple(std::span<std::string const> const& args, Core::Jso
     return true;
 }
 
-std::string Collection::getPattern(std::span<std::string const> const& args){
-    std::string const full = Utility::StringHandler::recombineArgs(args);
-    if (full.starts_with("{!") && full.ends_with("}")) {
-        // Unwrap pattern from {!...}
-        return full.substr(2, full.size() - 3);
+std::string Collection::getPattern(std::span<std::string const> const& args) {
+    if (args.empty()) {
+        return "";
     }
-    // NOLINTNEXTLINE
-    return full;
+    if (args.front().starts_with("{!") && args.back().ends_with('}')) {
+        auto const full = Utility::StringHandler::recombineArgs(args);
+        return std::string(full.data() + 2, full.size() - 3);
+    }
+    return Utility::StringHandler::recombineArgs(args);
 }
 
 bool Collection::filterRegex(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {

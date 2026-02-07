@@ -126,6 +126,10 @@ void JsonScopeBase::set_concat(ScopedKeyView const& key, std::string const& valS
     return baseDocument->memberType(key.full(*this));
 }
 
+[[nodiscard]] std::string JsonScopeBase::memberTypeString(ScopedKeyView const& key) const {
+    return baseDocument->memberTypeString(key.full(*this));
+}
+
 [[nodiscard]] size_t JsonScopeBase::memberSize(ScopedKeyView const& key) const {
     return baseDocument->memberSize(key.full(*this));
 }

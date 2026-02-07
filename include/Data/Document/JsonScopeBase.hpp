@@ -213,6 +213,9 @@ public:
     [[nodiscard]] KeyType memberType(ScopedKeyView const& key) const ;
     [[nodiscard]] KeyType memberType(ScopedKey const& key) const {return memberType(key.view());}
 
+    [[nodiscard]] std::string memberTypeString(ScopedKeyView const& key) const ;
+    [[nodiscard]] std::string memberTypeString(ScopedKey const& key) const {return memberTypeString(key.view());}
+
     [[nodiscard]] size_t memberSize(ScopedKeyView const& key) const ;
     [[nodiscard]] size_t memberSize(ScopedKey const& key) const {return memberSize(key.view());}
 
