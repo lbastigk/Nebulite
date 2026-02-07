@@ -15,7 +15,7 @@ class JsonScopeBase;
 
 namespace Nebulite::Interaction::Execution {
 class DomainBase;
-template <typename DomainType> class Domain;
+class Domain;
 } // namespace Nebulite::Interaction::Execution
 
 namespace Nebulite::Interaction {
@@ -56,32 +56,6 @@ public:
     // TODO: Parent context?
 private:
     [[nodiscard]] ContextScopeBase demote() const ;
-};
-
-/**
- * @class ContextFull
- * @tparam SelfDomainType The domain type for context 'self'.
- * @tparam OtherDomainType The domain type for context 'other'.
- * @tparam GlobalDomainType The domain type for context 'global'.
- * @brief Full context structure containing references to the 'self', 'other', and 'global' domains,
- *        with their specific domain types.
- * @details First layer of abstraction, full domain with all functionality available.
- */
-template <typename SelfDomainType, typename OtherDomainType, typename GlobalDomainType>
-class ContextFull {
-public:
-    Execution::Domain<SelfDomainType>& self;
-    Execution::Domain<OtherDomainType>& other;
-    Execution::Domain<GlobalDomainType>& global;
-    // TODO: Parent context?
-private:
-    [[nodiscard]] ContextBase demote() const {
-        return ContextBase{
-            static_cast<Execution::DomainBase&>(self),
-            static_cast<Execution::DomainBase&>(other),
-            static_cast<Execution::DomainBase&>(global)
-        };
-    }
 };
 
 } // namespace Nebulite::Interaction

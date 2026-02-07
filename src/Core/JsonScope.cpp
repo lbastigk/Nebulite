@@ -10,21 +10,21 @@ namespace Nebulite::Core {
 // Constructors for JsonScope
 
 JsonScope::JsonScope(Data::JSON& doc, std::string const& prefix, std::string const& name)
-    : Domain(name, *this, *this),
+    : Domain(name, *this),
       JsonScopeBase(doc, prefix)
 {
     DomainModule::Initializer::initJsonScope(this);
 }
 
 JsonScope::JsonScope(JsonScope const& other, std::string const& prefix, std::string const& name)
-    : Domain(name, *this, *this),
+    : Domain(name, *this),
       JsonScopeBase(other, prefix)
 {
     DomainModule::Initializer::initJsonScope(this);
 }
 
 JsonScope::JsonScope(std::string const& name)
-    : Domain(name, *this, *this)
+    : Domain(name, *this)
 {
     DomainModule::Initializer::initJsonScope(this);
 }

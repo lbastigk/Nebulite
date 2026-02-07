@@ -40,7 +40,7 @@ void setStandardValues(JsonScope& document) {
 }
 } // namespace
 
-RenderObject::RenderObject() : Domain("RenderObject", *this, document) {
+RenderObject::RenderObject() : Domain("RenderObject", document) {
     //------------------------------------------
     // Set standard values
     setStandardValues(document);

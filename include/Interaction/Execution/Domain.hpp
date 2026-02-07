@@ -13,7 +13,7 @@
 
 // NOLINTNEXTLINE
 #define NEBULITE_DOMAIN(DomainName) \
-    class DomainName : public Nebulite::Interaction::Execution::Domain<DomainName>
+    class DomainName : public Nebulite::Interaction::Execution::Domain
 
 //------------------------------------------
 // Includes
@@ -52,7 +52,7 @@ class ContextBase; // Requires access to demote to ContextScope
 } // namespace Nebulite::Interaction
 
 namespace Nebulite::Interaction::Execution {
-template<typename> class Domain;
+class Domain;
 } // namespace Nebulite::Interaction::Execution
 
 namespace Nebulite::Interaction::Logic {
@@ -88,7 +88,7 @@ public:
 
     virtual ~DocumentAccessor();
 
-    template<typename> friend class Domain;
+    friend class Domain;
 
     friend class DomainBase;
 
@@ -298,9 +298,6 @@ protected:
 /**
  * @class Domain
  * @brief The Domain class serves as a base class for creating a Nebulite domain.
- * @tparam DomainType The type of the domain, used for proper linkage in DomainModules.
- *                    It would be nice to get rid of this template parameter, but this would require a big refactor
- * @todo See if the above is possible!
  * @details Each domain has the following features:
  *          - Setting and getting values in its internal JSON document.
  *          - Returning a pointer to its internal JSON document.
@@ -308,7 +305,6 @@ protected:
  *          - Binding additional features via DomainModules.
  *          - Updating the domain through its DomainModules.
  */
-template <typename DomainType>
 class Domain : public DomainBase {
     /**
      * @brief Stores all available modules
@@ -320,18 +316,9 @@ class Domain : public DomainBase {
      */
     std::string domainName;
 
-    //------------------------------------------
-    // Inner references
-
-    /**
-     * @brief Reference to the domain itself
-     *        Used to initialize DomainModules with a reference to the domain
-     */
-    DomainType& domain;
-
 public:
-    Domain(std::string const& name, DomainType& domainTypeReference, Core::JsonScope& documentReference)
-        : DomainBase(name, documentReference), domainName(name), domain(domainTypeReference) {
+    Domain(std::string const& name, Core::JsonScope& documentReference)
+        : DomainBase(name, documentReference), domainName(name) {
     }
 
     //------------------------------------------
@@ -351,12 +338,13 @@ public:
      * @param moduleName The name of the module
      * @param scope The workspace JsonScope for the module
      * @param settings The settings JsonScope for the module
+     * @param domainReference Reference to the domain to link the module to
      * @todo Later on we should check if the module already exists and reject initialization if it does.
      *       Either always looping through modules to check or using a second set of names for fast lookup.
      */
-    template <typename DomainModuleType>
-    void initModule(std::string moduleName, Data::JsonScopeBase& scope, Data::JsonScopeBase const& settings) {
-        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domain, getFuncTree(), scope, settings);
+    template <typename DomainType, typename DomainModuleType>
+    void initModule(std::string moduleName, Data::JsonScopeBase& scope, Data::JsonScopeBase const& settings, DomainType& domainReference) {
+        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
         DomainModule->reinit();
         modules.push_back(std::move(DomainModule));
     }
