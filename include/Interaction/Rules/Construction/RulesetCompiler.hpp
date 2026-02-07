@@ -100,7 +100,7 @@ private:
      * @param self The JSON document of context self.
      * @return True if the expressions were successfully extracted, false otherwise.
      */
-    static bool getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Core::JsonScope const& entry, Core::JsonScope& self);
+    static bool getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Core::JsonScope const& entry, Core::JsonScope const& self);
 
     /**
      * @brief Extracts a logical argument from a JSON entry document.

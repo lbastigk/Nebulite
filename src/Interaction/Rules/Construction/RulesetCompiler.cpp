@@ -14,7 +14,7 @@ void RulesetCompiler::getFunctionCalls(Core::JsonScope& entryDoc, JsonRuleset& R
             auto funcCall = entryDoc.get<std::string>(funcKey, "");
 
             // Create a new Expression, parse the function call
-            Logic::ExpressionPool invokeExpr(funcCall, self.domainScope);
+            Logic::ExpressionPool invokeExpr(funcCall, self);
             Ruleset.functioncalls_global.emplace_back(std::move(invokeExpr));
         }
     }
@@ -32,7 +32,7 @@ void RulesetCompiler::getFunctionCalls(Core::JsonScope& entryDoc, JsonRuleset& R
             }
 
             // Create a new Expression, parse the function call
-            Logic::ExpressionPool invokeExpr(funcCall, self.domainScope);
+            Logic::ExpressionPool invokeExpr(funcCall, self);
             Ruleset.functioncalls_self.emplace_back(std::move(invokeExpr));
         }
     }
@@ -49,7 +49,7 @@ void RulesetCompiler::getFunctionCalls(Core::JsonScope& entryDoc, JsonRuleset& R
                 funcCall.insert(0, "other ");
             }
             // Create a new Expression, parse the function call
-            Logic::ExpressionPool invokeExpr(funcCall, self.domainScope);
+            Logic::ExpressionPool invokeExpr(funcCall, self);
             Ruleset.functioncalls_other.emplace_back(std::move(invokeExpr));
         }
     }
@@ -107,7 +107,7 @@ std::optional<Logic::Assignment> RulesetCompiler::getExpression(Core::JsonScope 
     return assignment;
 }
 
-bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Core::JsonScope const& entry, Core::JsonScope& self) {
+bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Core::JsonScope const& entry, Core::JsonScope const& self) {
     if (entry.memberType(Constants::KeyNames::Ruleset::assignments) == Data::KeyType::array) {
         size_t const exprSize = entry.memberSize(Constants::KeyNames::Ruleset::assignments);
         for (size_t j = 0; j < exprSize; ++j) {
@@ -117,7 +117,7 @@ bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset
                 // Remove whitespaces at start and end of key and value
                 v->key = std::make_unique<Logic::Expression>(
                     Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(v->keyStr)),
-                    self
+                    self.domainScopeBase()
                 );
                 v->value = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(v->value));
 
@@ -316,7 +316,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope const& d
     Ruleset->_isGlobal = !Ruleset->topic.empty(); // If topic is empty, it is a local invoke
     std::string logicalArgStr = getCondition(entry);
     logicalArgStr = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(logicalArgStr));
-    Ruleset->logicalArg = std::make_unique<Logic::ExpressionPool>(logicalArgStr, self.domainScope);
+    Ruleset->logicalArg = std::make_unique<Logic::ExpressionPool>(logicalArgStr, self);
 
     // Remove whitespaces at start and end from topic and logicalArg:
     Ruleset->topic = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(Ruleset->topic));
@@ -330,7 +330,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Core::JsonScope const& d
     getExpressions(Ruleset, entry, self.domainScope);
     for (auto& assignment : Ruleset->assignments) {
 #if EXPRESSION_POOL_SIZE > 1
-        assignment.expression = std::make_unique<Logic::ExpressionPool>(assignment.value, self.domainScope);
+        assignment.expression = std::make_unique<Logic::ExpressionPool>(assignment.value, self);
 #else
         assignment.expression = std::make_unique<Logic::Expression>(assignment.value, self.domainScope);
 #endif

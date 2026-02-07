@@ -407,10 +407,19 @@ Expression::Expression(std::string const& expr, Data::JsonScopeBase& selfScope)
     parse(expr);
 }
 
+Expression::Expression(std::string const& expr, Execution::Domain const& selfDomain)
+    : self(selfDomain.domainScopeBase())
+{
+    _isReturnableAsDouble = false;
+    _isAlwaysTrue = false;
+    uniqueId = 0;
+    reset();
+    parse(expr);
+}
+
 void Expression::parse(std::string const& expr) {
     reset();
     fullExpression = expr;
-    //uniqueId = Global::instance().getUniqueId(fullExpression, Core::GlobalSpace::UniqueIdType::expression);
     uniqueId = generateUniqueId(fullExpression);
     parseIntoComponents(expr);
     for (auto& component : components) {
@@ -420,7 +429,7 @@ void Expression::parse(std::string const& expr) {
     varNameGen.clear();
 }
 
-Data::JSON Expression::evalAsJson(Core::JsonScope& current_other, uint16_t const& max_recursion_depth) const {
+Data::JSON Expression::evalAsJson(Data::JsonScopeBase& current_other, uint16_t const& max_recursion_depth) const {
     if (components.size() == 1 && components[0]->type != Component::Type::text) {
         if (components[0]->type == Component::Type::eval) {
             Data::JSON jsonResult;
@@ -438,7 +447,7 @@ Data::JSON Expression::evalAsJson(Core::JsonScope& current_other, uint16_t const
     return jsonResult;
 }
 
-std::string Expression::eval(Core::JsonScope& current_other, uint16_t const& max_recursion_depth) const {
+std::string Expression::eval(Data::JsonScopeBase& current_other, uint16_t const& max_recursion_depth) const {
     //------------------------------------------
     // Update caches so that tinyexpr has the correct references
     updateCaches(current_other);
@@ -475,12 +484,12 @@ std::string Expression::eval(Core::JsonScope& current_other, uint16_t const& max
     return result;
 }
 
-double Expression::evalAsDouble(Core::JsonScope& current_other) const {
+double Expression::evalAsDouble(Data::JsonScopeBase& current_other) const {
     updateCaches(current_other);
     return te_eval(components[0]->expression);
 }
 
-void Expression::updateCaches(Core::JsonScope& reference) const {
+void Expression::updateCaches(Data::JsonScopeBase& reference) const {
     // Update self references that are non-remanent
     for (auto const& vde : virtualDoubles.nonRemanent.self) {
         // One-time handle of multi-resolve and transformations
@@ -536,7 +545,7 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
         Expression tempExpr(vde->getKey(), self);
         std::string const evalResult = tempExpr.eval(reference);
         // This requires an empty document that acts as a parsing mechanism for the transformations
-        thread_local Core::JsonScope emptyDoc;
+        thread_local Data::JsonScopeBase emptyDoc;
         vde->setDirect(emptyDoc.get<double>(Data::ScopedKey(evalResult).view(), 0.0));
     }
 }
@@ -547,12 +556,12 @@ void Expression::updateCaches(Core::JsonScope& reference) const {
 // With context
 
 std::string Expression::eval(std::string const& input, Context const& context) {
-    Expression const expr(input, context.self.domainScope);
+    Expression const expr(input, context.self.domainScopeBase());
     return expr.eval(context.other.domainScope);
 }
 
 double Expression::evalAsDouble(std::string const& input, Context const& context) {
-    Expression const expr(input, context.self.domainScope);
+    Expression const expr(input, context.self.domainScopeBase());
     return expr.evalAsDouble(context.other.domainScope);
 }
 
@@ -562,26 +571,26 @@ bool Expression::evalAsBool(std::string const& input, Context const& context) {
 }
 
 Data::JSON Expression::evalAsJson(std::string const& input, Context const& context) {
-    Expression const expr(input, context.self.domainScope);
+    Expression const expr(input, context.self.domainScopeBase());
     return expr.evalAsJson(context.other.domainScope);
 }
 
 // Global-only as context
 
 std::string Expression::eval(std::string const& input) {
-    Core::JsonScope emptyDoc;
+    thread_local Core::JsonScope emptyDoc;
     Context const context{emptyDoc, emptyDoc, Global::instance()};
     return eval(input, context);
 }
 
 double Expression::evalAsDouble(std::string const& input) {
-    Core::JsonScope emptyDoc;
+    thread_local Core::JsonScope emptyDoc;
     Context const context{emptyDoc, emptyDoc, Global::instance()};
     return evalAsDouble(input, context);
 }
 
 bool Expression::evalAsBool(std::string const& input) {
-    Core::JsonScope emptyDoc;
+    thread_local Core::JsonScope emptyDoc;
     Context const context{emptyDoc, emptyDoc, Global::instance()};
     return evalAsBool(input, context);
 }

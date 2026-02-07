@@ -70,6 +70,8 @@ public:
      */
     explicit Expression(std::string const& expr, Data::JsonScopeBase& selfScope);
 
+    explicit Expression(std::string const& expr, Execution::Domain const& selfDomain);
+
     ~Expression();
 
     // disable copying
@@ -111,14 +113,14 @@ public:
      * @param max_recursion_depth The maximum recursion depth to prevent infinite loops in nested evaluations.
      * @return The evaluated JSON object.
      */
-    Data::JSON evalAsJson(Core::JsonScope& current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
+    Data::JSON evalAsJson(Data::JsonScopeBase& current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
 
     /**
      * @brief Evaluates the expression as a double.
      * @param current_other The JSON object `other` to evaluate against.
      * @return The evaluated double value.
      */
-    double evalAsDouble(Core::JsonScope& current_other) const ;
+    double evalAsDouble(Data::JsonScopeBase& current_other) const ;
 
     /**
      * @brief Evaluates the expression as a string.
@@ -126,7 +128,7 @@ public:
      * @param max_recursion_depth The maximum recursion depth to prevent infinite loops in nested evaluations.
      * @return The evaluated string value.
      */
-    std::string eval(Core::JsonScope& current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
+    std::string eval(Data::JsonScopeBase& current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
 
     /**
      * @brief Gets the full expression string that was parsed.
@@ -163,6 +165,8 @@ public:
 
     //------------------------------------------
     // Static one-time evaluation
+
+    // TODO: Reduce from Context to ContextScopeBase
 
     // With context evaluation
 
@@ -346,7 +350,7 @@ private:
          * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(std::string& token, Data::JsonScopeBase& selfScope, Core::JsonScope& otherScope, uint16_t const& maximumRecursionDepth) const ;
+        bool handleComponentTypeVariable(std::string& token, Data::JsonScopeBase& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of a variable component.
@@ -356,7 +360,7 @@ private:
          * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(Data::JSON& token, Data::JsonScopeBase& selfScope, Core::JsonScope& otherScope, uint16_t const& maximumRecursionDepth) const ;
+        bool handleComponentTypeVariable(Data::JSON& token, Data::JsonScopeBase& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of an eval component.
@@ -519,7 +523,7 @@ private:
     /**
      * @brief Updates caches
      */
-    void updateCaches(Core::JsonScope& reference) const ;
+    void updateCaches(Data::JsonScopeBase& reference) const ;
 };
 
 } // namespace Nebulite::Interaction::Logic

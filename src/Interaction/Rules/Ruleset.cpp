@@ -38,7 +38,7 @@ bool JsonRuleset::evaluateCondition(Execution::Domain const* other) {
     if (logicalArg->isAlwaysTrue())
         return true;
 
-    double const result = logicalArg->evalAsDouble(other->domainScope);
+    double const result = logicalArg->evalAsDouble(other->domainScopeBase());
     if (std::isnan(result)) {
         // We consider NaN as false
         return false;
@@ -56,7 +56,7 @@ void JsonRuleset::apply(Execution::Domain* contextOther) {
     // 2.) Function calls
     for (auto& entry : functioncalls_global) {
         // replace vars
-        std::string call = entry.eval(contextOther->domainScope);
+        std::string call = entry.eval(contextOther->domainScopeBase());
 
         // attach to task queue
         Global::instance().getTaskQueue(Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
@@ -64,12 +64,12 @@ void JsonRuleset::apply(Execution::Domain* contextOther) {
     }
     for (auto& entry : functioncalls_self) {
         // replace vars
-        std::string const call = entry.eval(contextOther->domainScope);
+        std::string const call = entry.eval(contextOther->domainScopeBase());
         (void)selfPtr->parseStr(call);
     }
     for (auto& entry : functioncalls_other) {
         // replace vars
-        std::string const call = entry.eval(contextOther->domainScope);
+        std::string const call = entry.eval(contextOther->domainScopeBase());
         (void)contextOther->parseStr(call);
     }
 }

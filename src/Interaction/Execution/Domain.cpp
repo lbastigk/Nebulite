@@ -1,5 +1,6 @@
 #include "Nebulite.hpp"
 #include "Core/JsonScope.hpp"
+#include "Data/Document/JsonScopeBase.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Context.hpp"
 
@@ -8,8 +9,14 @@
 // Document Accessor
 namespace Nebulite::Interaction::Execution {
 
+DocumentAccessor::DocumentAccessor(Core::JsonScope& d) : domainScope(d) {}
+
 DocumentAccessor::~DocumentAccessor() = default;
 
+Data::JsonScopeBase& DocumentAccessor::domainScopeBase() const {
+    static auto& scopeBase = domainScope.shareScopeBase("");
+    return scopeBase;
+}
 
 } // namespace Nebulite::Interaction::Execution
 

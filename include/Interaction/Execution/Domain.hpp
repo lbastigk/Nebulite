@@ -84,7 +84,7 @@ namespace Nebulite::Interaction::Execution {
  */
 class DocumentAccessor {
 public:
-    explicit DocumentAccessor(Core::JsonScope& d) : domainScope(d) {}
+    explicit DocumentAccessor(Core::JsonScope& d);
 
     virtual ~DocumentAccessor();
 
@@ -108,23 +108,22 @@ public:
     friend class Logic::Assignment;
     friend class Logic::Expression;
 
-    // The entire Ruleset system needs access as well
-    // TODO: If we replace the Context system with ContextScope,
-    //       Meaning we pass scopes instead of Domains,
-    //       we may get rid of these friends here.
-    friend class Rules::Ruleset;
+    // The entire Ruleset system needs access as well, mostly to pass a scope to Expressions
+    // TODO: Perhaps possible to reduce by adding another eval function to Expression that takes a Domain instead
     friend class Rules::JsonRuleset;
-    friend class Rules::StaticRuleset;
     friend class Rules::Construction::RulesetCompiler;
 
     // Initializer needs access to share scopes
     friend class Nebulite::DomainModule::Initializer;
 
 private:
+
     /**
      * @brief Each domain uses a JSON document to store its data.
      */
     Core::JsonScope& domainScope;
+
+    Data::JsonScopeBase& domainScopeBase() const ;
 };
 } // namespace Nebulite::Interaction::Execution
 
