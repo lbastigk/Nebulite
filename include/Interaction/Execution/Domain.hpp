@@ -298,20 +298,22 @@ protected:
 /**
  * @class Domain
  * @brief The Domain class serves as a base class for creating a Nebulite domain.
+ * @tparam DomainType The type of the domain, used for proper linkage in DomainModules.
+ *                    It would be nice to get rid of this template parameter, but this would require a big refactor
+ * @todo See if the above is possible!
  * @details Each domain has the following features:
  *          - Setting and getting values in its internal JSON document.
  *          - Returning a pointer to its internal JSON document.
  *          - Parsing strings into Nebulite commands.
  *          - Binding additional features via DomainModules.
  *          - Updating the domain through its DomainModules.
- * @todo Instead of storing Domain reference, pass to initModules. This allows us to merge DomainBase and Domain, no more templates needed.
  */
 template <typename DomainType>
 class Domain : public DomainBase {
     /**
      * @brief Stores all available modules
      */
-    std::vector<std::unique_ptr<DomainModule<DomainType>>> modules;
+    std::vector<std::unique_ptr<DomainModuleBase>> modules;
 
     /**
      * @brief Name of the domain type

@@ -40,6 +40,19 @@ public:
     );
 
     //------------------------------------------
+    // Virtual functions for derived classes to implement
+
+    /**
+     * @brief Virtual update function to be Overwritten by derived classes.
+     */
+    virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
+
+    /**
+     * @brief Virtual re-initialization function to be Overwritten by derived classes.
+     */
+    virtual void reinit() {}
+
+    //------------------------------------------
     // Static Binding Functions
 
     template <typename Func,typename FuncTreeType>

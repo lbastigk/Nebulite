@@ -88,16 +88,6 @@ public:
      */
     virtual ~DomainModule();
 
-    /**
-     * @brief Virtual update function to be Overwritten by derived classes.
-     */
-    virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
-
-    /**
-     * @brief Virtual re-initialization function to be Overwritten by derived classes.
-     */
-    virtual void reinit() {}
-
     // Prevent copying
     DomainModule(DomainModule const&) = delete;
 
