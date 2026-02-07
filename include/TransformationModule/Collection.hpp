@@ -36,7 +36,13 @@ public:
     static auto constexpr getMultipleDesc = "Gets multiple values at the specified keys from the current JSON object.\n"
         "Usage: |getMultiple <key1> <key2> ... -> {array of values}\n";
 
-    // TODO: filter-regex
+    static bool filterRegex(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static auto constexpr filterRegexName = "filterRegex";
+    static auto constexpr filterRegexDesc = "Filters members in the current JSON array/object based on a regular expression pattern.\n"
+        "For arrays, the member names are the indices as strings: [0], [1], [2], ...\n"
+        "Wrap the pattern inside {!...} to avoid conflicts with piping character"
+        "Usage: |filterRegex {!<pattern>} -> {filtered array}\n"
+        "       |filterRegex <pattern>    -> {filtered array}\n";
 
     static bool filterGlob(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr filterGlobName = "filterGlob";

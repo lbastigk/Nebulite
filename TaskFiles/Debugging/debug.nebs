@@ -22,7 +22,7 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-eval nop {|setString . text|print}
+task TaskFiles/Tests/Short/Transformations/regex.nebs
 exit
 
 task TaskFiles/Tests/Short/Transformations/setFromResult.nebs

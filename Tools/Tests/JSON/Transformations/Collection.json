@@ -73,6 +73,28 @@
     {
         "command": [
             "# Glob and null filtering function",
+            "task TaskFiles/Tests/Short/Transformations/regex.nebs"
+        ],
+        "expected": {
+            "cout": [
+                "[",
+                "    \"2\",",
+                "    {",
+                "        \"var\": \"11\"",
+                "    },",
+                "    \"12\"",
+                "]",
+                "{",
+                "    \"keybarbaz\": \"barbaz\",",
+                "    \"keybarfoo\": \"barfoo\"",
+                "}"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Glob and null filtering function",
             "task TaskFiles/Tests/Short/Transformations/glob.nebs"
         ],
         "expected": {

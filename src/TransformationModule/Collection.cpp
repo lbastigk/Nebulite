@@ -3,6 +3,7 @@
 
 // Standard library
 #include <fnmatch.h>
+#include <regex>
 
 // Nebulite
 #include "Core/JsonScope.hpp"
@@ -16,6 +17,7 @@ void Collection::bindTransformations() {
     BIND_TRANSFORMATION_MEMBER(&Collection::map, mapName, mapDesc);
     BIND_TRANSFORMATION_STATIC(&Collection::get, getName, getDesc);
     BIND_TRANSFORMATION_STATIC(&Collection::getMultiple, getMultipleName, getMultipleDesc);
+    BIND_TRANSFORMATION_STATIC(&Collection::filterRegex, filterRegexName, filterRegexDesc);
     BIND_TRANSFORMATION_STATIC(&Collection::filterGlob, filterGlobName, filterGlobDesc);
     BIND_TRANSFORMATION_STATIC(&Collection::filterNulls, filterOutNullsName, filterOutNullsDesc);
     BIND_TRANSFORMATION_STATIC(&Collection::listMembers, listKeysName, listKeysDesc);
@@ -77,6 +79,36 @@ bool Collection::getMultiple(std::span<std::string const> const& args, Core::Jso
 
     // Create result array
     jsonDoc->setSubDoc(rootKey, tmp);
+    return true;
+}
+
+bool Collection::filterRegex(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+    if (args.size() != 2) {
+        return false;
+    }
+    std::regex regexPattern;
+    try {
+        if (args[1].starts_with("{!") && args[1].ends_with("}")) {
+            // Unwrap pattern from {!...}
+            std::string const unwrappedPattern = args[1].substr(2, args[1].size() - 3);
+            regexPattern = std::regex(unwrappedPattern);
+        }
+        else {
+            regexPattern = std::regex(args[1]);
+        }
+    } catch (const std::regex_error&) {
+        return false; // Invalid regex pattern
+    }
+
+    auto const memberKeyPairs = jsonDoc->listAvailableMembersAndKeys(rootKey);
+    Data::JSON filtered;
+    for (const auto& [member, key] : memberKeyPairs) {
+        if (std::regex_match(member, regexPattern)) {
+            filtered.setSubDoc(member, jsonDoc->getSubDoc(key));
+        }
+    }
+
+    jsonDoc->setSubDoc(rootKey, filtered);
     return true;
 }
 
