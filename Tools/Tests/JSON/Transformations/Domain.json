@@ -1,17 +1,15 @@
 [
     {
         "command": [
-            "# Testing non-numeric values in arithmetic transformations",
-            "set-fps 60",
-            "wait 1",
+            "# Testing domain functioncalls",
             "set test.val 3",
-            "wait 1",
+            "eval echo {global.test|parse json set val ./Resources/Renderobjects/standard.jsonc:size.X|get val|toInt}",
             "",
             "exit"
         ],
         "expected": {
             "cout": [
-                ""
+                "32"
             ],
             "cerr": []
         }

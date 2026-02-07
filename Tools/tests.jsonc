@@ -36,7 +36,7 @@
         "Tools/Tests/JSON/Transformations/Casting.json",
         "Tools/Tests/JSON/Transformations/Collection.json",
         "Tools/Tests/JSON/Transformations/Debug.json",
-        //"Tools/Tests/JSON/Transformations/Domain.json",       // TODO: add some parsestr tests
+        "Tools/Tests/JSON/Transformations/Domain.json",       // TODO: add some parsestr tests
         "Tools/Tests/JSON/Transformations/General.json",
         "Tools/Tests/JSON/Transformations/Requirements.json",
         "Tools/Tests/JSON/Transformations/Statistics.json",
