@@ -108,8 +108,7 @@ public:
     friend class Logic::Assignment;
     friend class Logic::Expression;
 
-    // The entire Ruleset system needs access as well, mostly to pass a scope to Expressions
-    // TODO: Perhaps possible to reduce by adding another eval function to Expression that takes a Domain instead
+    // Some parts of the JSON ruleset need access to the domain document for parsing and execution
     friend class Rules::JsonRuleset;
     friend class Rules::Construction::RulesetCompiler;
 
@@ -117,13 +116,16 @@ public:
     friend class Nebulite::DomainModule::Initializer;
 
 private:
-
     /**
      * @brief Each domain uses a JSON document to store its data.
      */
     Core::JsonScope& domainScope;
 
-    Data::JsonScopeBase& domainScopeBase() const ;
+    /**
+     * @brief Provides access to the domain's scoped JSON document.
+     * @return Reference to the domain's JSON document.
+     */
+    [[nodiscard]] Data::JsonScopeBase& domainScopeBase() const ;
 };
 } // namespace Nebulite::Interaction::Execution
 
@@ -159,6 +161,7 @@ class Domain : public DocumentAccessor {
      * @brief Stores all available modules
      */
     std::vector<std::unique_ptr<DomainModuleBase>> modules;
+
 public:
     Domain(std::string const& name, Core::JsonScope& documentReference)
         : DocumentAccessor(documentReference), domainName(name){
