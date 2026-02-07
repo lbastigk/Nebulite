@@ -67,7 +67,14 @@ In Nebulite, each Expression/Ruleset has access to 3 domains defined by keywords
 - self - RenderObject broadcasting the logic
 - other - RenderObject listening
 - global - GlobalSpace
-- as well as read-only resources.
+
+as well as read-only resources for Expressions defined through a link.
+
+Examples for access in Expressions:
+- `{self.posX}` would access the posX variable of the context self
+- `{other.posX}` would access the posX variable of the context other
+- `{global.someVar}` would access the someVar variable of the context global
+- `{./link/to/file.json:key}` would access a read-only document
 
 See also: [Expression](#expression), [Domain](#domain), [GlobalSpace](#globalspace), [RenderObject](#renderobject)
 
@@ -97,9 +104,16 @@ All domains support string parsing through `parseStr` from other domains and sup
 See also: [DomainModule](#domainmodule), [FuncTree](#functree), [GlobalSpace](#globalspace), [JsonScope](#jsonscope)
 
 -----------------
+### Domain-Serialization-Piping
+
+A feature that allows for Functioncalls to be piped into a domain directly after deserialization. 
+Example: `spawn Planets/sun.jsonc|set posX 500|set posY 100` would serialize the file `Planets/sun.jsonc` into a RenderObject, 
+then execute the Functioncalls `set posX 500` and `set posY 100` on it.
+
+-----------------
 ### DomainModule
-Special class that contains a list of functions and variables that are bound 
-to a specific Domain as well as an update-routine. 
+Special class that contains a list of functions and variables as well as an update-routine that are bound 
+to a specific Domain. 
 DomainModules allow for easy separation of functionality. 
 Example: one class for audio, another for inputs etc. 
 

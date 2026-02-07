@@ -287,8 +287,8 @@ protected:
      *          Re-initializes all DomainModules in the JSON scope after deserialization.
      *          Supported formats:
      *          - {object} (direct JSON)
-     *          - link|c1|c2|... (additional commands after link)
-     *          - {variable|t1|t2|...}|c1|c2|... (additional commands after serialization)
+     *          - link|c1|c2|... (additional commands after link; Domain-Serialization-Piping)
+     *          - {variable|t1|t2|...}|c1|c2|... (additional commands after serialization; Domain-Serialization-Piping)
      *          Where t is a transformation and c is a command to execute after deserialization.
      * @param serialOrLinkWithCommands The serialization string or link with commands to deserialize.
      */
