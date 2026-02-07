@@ -77,7 +77,7 @@ private:
      * @param self The Domain instance associated with the entry.
      */
     static void getFunctionCalls(
-        Core::JsonScope& entryDoc,
+        Data::JsonScopeBase& entryDoc,
         JsonRuleset& Ruleset,
         Execution::Domain const& self
     );
@@ -89,7 +89,7 @@ private:
      * @return The extracted expression as a Logic::Assignment object, or std::nullopt if extraction failed.
      */
     static std::optional<Logic::Assignment> getExpression(
-        Core::JsonScope const& entry,
+        Data::JsonScopeBase const& entry,
         size_t const& index
     );
 
@@ -100,14 +100,14 @@ private:
      * @param self The JSON document of context self.
      * @return True if the expressions were successfully extracted, false otherwise.
      */
-    static bool getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Core::JsonScope const& entry, Core::JsonScope const& self);
+    static bool getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JsonScopeBase const& entry, Data::JsonScopeBase const& self);
 
     /**
      * @brief Extracts a logical argument from a JSON entry document.
      * @param entry The JSON entry document to extract the argument from.
      * @return The extracted logical argument as a string.
      */
-    static std::string getCondition(Core::JsonScope const& entry);
+    static std::string getCondition(Data::JsonScopeBase const& entry);
 
     /**
      * @brief Extracts a Ruleset object from a JSON entry document.
@@ -117,8 +117,8 @@ private:
      * @return True if the Ruleset was successfully extracted, false otherwise.
      */
     static bool getJsonRuleset(
-        Core::JsonScope const& doc,
-        Core::JsonScope& entry,
+        Data::JsonScopeBase const& doc,
+        Data::JsonScopeBase& entry,
         Data::ScopedKeyView const& key
     );
 
@@ -130,7 +130,7 @@ private:
      * @return An optional shared pointer to the parsed Ruleset object, or std::monostate if parsing failed.
      */
     static AnyRuleset getRuleset(
-        Core::JsonScope const& doc,
+        Data::JsonScopeBase const& doc,
         Data::ScopedKeyView const& key,
         Execution::Domain& self
     );
@@ -141,7 +141,7 @@ private:
      * @param entry The Ruleset object to optimize.
      * @param self The Domain instance associated with the entries.
      */
-    static void optimize(std::shared_ptr<JsonRuleset> const& entry, Core::JsonScope& self);
+    static void optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JsonScopeBase& self);
 
     /**
      * @brief Sets metadata in the object itself and in each Ruleset entry, including IDs, indices, and estimated computational cost.

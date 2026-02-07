@@ -68,7 +68,7 @@ public:
      * @param expr The expression string to parse.
      * @param selfScope The JSON object representing the "self" context.
      */
-    explicit Expression(std::string const& expr, Data::JsonScopeBase& selfScope);
+    explicit Expression(std::string const& expr, Data::JsonScopeBase const& selfScope);
 
     explicit Expression(std::string const& expr, Execution::Domain const& selfDomain);
 
@@ -243,7 +243,7 @@ private:
      * @brief The reference for context self stays the same throughout the expression's lifetime.
      * @details This allows us to cache variables from self directly, not reloading needed
      */
-    Data::JsonScopeBase& self;
+    Data::JsonScopeBase const& self;
 
     /**
      * @brief Generates short variable names for tinyexpr variables.
@@ -350,7 +350,7 @@ private:
          * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(std::string& token, Data::JsonScopeBase& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const ;
+        bool handleComponentTypeVariable(std::string& token, Data::JsonScopeBase const& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of a variable component.
@@ -360,7 +360,7 @@ private:
          * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(Data::JSON& token, Data::JsonScopeBase& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const ;
+        bool handleComponentTypeVariable(Data::JSON& token, Data::JsonScopeBase const& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of an eval component.

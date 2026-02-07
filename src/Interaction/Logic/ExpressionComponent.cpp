@@ -26,7 +26,7 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
     return *this;
 }
 
-bool Expression::Component::handleComponentTypeVariable(std::string& token, Data::JsonScopeBase& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const {
+bool Expression::Component::handleComponentTypeVariable(std::string& token, Data::JsonScopeBase const& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const {
     std::string strippedKey = key;
     ContextType context = contextType;
 
@@ -74,7 +74,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Data
     return true;
 }
 
-bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Data::JsonScopeBase& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const {
+bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Data::JsonScopeBase const& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const {
     std::string strippedKey = key;
     ContextType context = contextType;
 

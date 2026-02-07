@@ -397,7 +397,7 @@ void Expression::printCompileError(std::shared_ptr<Component> const& component, 
 //------------------------------------------
 // Public:
 
-Expression::Expression(std::string const& expr, Data::JsonScopeBase& selfScope)
+Expression::Expression(std::string const& expr, Data::JsonScopeBase const& selfScope)
     : self(selfScope)
 {
     _isReturnableAsDouble = false;
