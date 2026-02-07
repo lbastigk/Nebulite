@@ -23,6 +23,7 @@ public:
     static bool parse(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
     static auto constexpr parseName = "parse";
     static auto constexpr parseDesc = "Parses a Nebulite Script command on the JSON\n"
+        "Supports argument wrapped in {! ... } for safety with Expression evaluation\n"
         "Usage: |parse <command> -> {value}\n";
 };
 } // namespace Nebulite::TransformationModule
