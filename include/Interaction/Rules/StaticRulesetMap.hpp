@@ -28,7 +28,7 @@ class GlobalSpace;
 }   // namespace Nebulite::Core
 
 namespace Nebulite::Interaction::Execution {
-class DomainBase;
+class Domain;
 }   // namespace Nebulite::Interaction::Execution
 
 //------------------------------------------
@@ -37,7 +37,7 @@ namespace Nebulite::Interaction::Rules {
 //------------------------------------------
 // Defining what a ruleset function looks like
 
-using StaticRulesetFunction = std::function<void(const ContextBase&)>;
+using StaticRulesetFunction = std::function<void(const Context&)>;
 
 //------------------------------------------
 // Defining a Ruleset Map where static rulesets can be looked up by name

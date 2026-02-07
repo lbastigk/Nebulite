@@ -42,7 +42,7 @@ public:
     static auto constexpr querySet_desc = "Sets a key from a SQL query result.\n"
         "Not implemented yet.\n";
 
-    static Constants::Error jsonSet(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
+    static Constants::Error jsonSet(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr jsonSet_name = "json set";
     static auto constexpr jsonSet_desc = "Sets a key from a read-only JSON document.\n"
         "Usage: json set <key> <link:key>\n"

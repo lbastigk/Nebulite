@@ -26,7 +26,7 @@ Constants::Error Logging::echo(std::span<std::string const> const& args) {
 }
 
 // NOLINTNEXTLINE
-Constants::Error Logging::log_all(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error Logging::log_all(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
     std::string const serialized = callerScope.serialize();
     if (args.size() > 1) {
         for (auto const& arg : args.subspan(1)) {
@@ -41,7 +41,7 @@ Constants::Error Logging::log_all(std::span<std::string const> const& args, Inte
 }
 
 // NOLINTNEXTLINE
-Constants::Error Logging::log_key(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error Logging::log_key(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
     if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

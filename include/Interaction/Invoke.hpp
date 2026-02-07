@@ -85,7 +85,7 @@ public:
      * @param topic The topic to listen for.
      * @param listenerId The unique ID of the listener domain.
      */
-    void listen(Execution::DomainBase& listener, std::string const& topic, uint32_t const& listenerId);
+    void listen(Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId);
 
     //------------------------------------------
     // Updating

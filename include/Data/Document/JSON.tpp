@@ -39,9 +39,17 @@ std::optional<T> JSON::getWithTransformations(std::string const& key) const {
     std::string const baseKey = args[0];
     args.erase(args.begin());
 
-    // Using getSubDoc to properly populate the tempDoc with the rapidjson::Value
-    // Slower than a manual copy that handles types, but more secure and less error-prone
-    auto tempDoc = getSubDoc(baseKey);
+
+    // In order to minimize the re-initialization overhead of an entire JSON document,
+    // we use a thread-local temporary JSON document for applying transformations.
+    // Then, on each call, we clear the entire document and re-initialize it with the base key's sub-document,
+    // which we use as the starting point for transformations.
+    // This approach ensures a temporary document with the same value as this JSON object,
+    // but without the overhead of creating and destroying a new JSON object on each call.
+    thread_local JSON tempDoc;
+    tempDoc.cache.clear();
+    tempDoc.doc.SetObject();
+    tempDoc.setSubDoc("", *this, baseKey.c_str());
 
     // Apply each transformation in sequence
     if (!transformer.parse(args, &tempDoc)) {

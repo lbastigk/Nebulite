@@ -26,7 +26,7 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
     return *this;
 }
 
-bool Expression::Component::handleComponentTypeVariable(std::string& token, Data::JsonScopeBase& selfScope, Core::JsonScope& otherScope, uint16_t const& maximumRecursionDepth) const {
+bool Expression::Component::handleComponentTypeVariable(std::string& token, Data::JsonScopeBase const& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const {
     std::string strippedKey = key;
     ContextType context = contextType;
 
@@ -63,7 +63,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Data
     case ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
         {
             // This requires an empty document that acts as a parsing mechanism for the transformations
-            thread_local Core::JsonScope emptyDoc;
+            thread_local Data::JsonScopeBase emptyDoc;
             token = emptyDoc.get<std::string>(scopedKey.view(), "null");
         }
         break;
@@ -74,7 +74,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Data
     return true;
 }
 
-bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Data::JsonScopeBase& selfScope, Core::JsonScope& otherScope, uint16_t const& maximumRecursionDepth) const {
+bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Data::JsonScopeBase const& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const {
     std::string strippedKey = key;
     ContextType context = contextType;
 
@@ -111,7 +111,7 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Data:
     case ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
         {
             // This requires an empty document that acts as a parsing mechanism for the transformations
-            thread_local Core::JsonScope emptyDoc;
+            thread_local Data::JsonScopeBase emptyDoc;
             token = emptyDoc.getSubDoc(scopedKey.view());
         }
         break;

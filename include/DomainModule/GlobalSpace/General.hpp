@@ -33,7 +33,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    static Constants::Error eval(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
+    static Constants::Error eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr eval_name = "eval";
     static auto constexpr eval_desc = "Evaluates an expression string and executes it.\n"
         "Every argument after eval is concatenated with a whitespace to form the expression to be evaluated and then reparsed.\n"
@@ -97,7 +97,7 @@ public:
         "        subCommand2\n"
         "    mainCommand4\n";
 
-    static Constants::Error func_for(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
+    static Constants::Error func_for(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr func_for_name = "for";
     static auto constexpr func_for_desc = "Executes a for-loop with a function call.\n"
         "\n"
@@ -117,7 +117,7 @@ public:
         "- Iterating over a range of values.\n"
         "- Creating complex control flows in scripts.\n";
 
-    static Constants::Error func_if(std::span<std::string const> const& args, Interaction::Execution::DomainBase& caller, Data::JsonScopeBase& callerScope);
+    static Constants::Error func_if(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr func_if_name = "if";
     static auto constexpr func_if_desc = "Executes a block of code if a condition is true.\n"
         "\n"

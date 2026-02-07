@@ -33,7 +33,7 @@ class ScopedKeyView;
 } // namespace Nebulite::Data
 
 namespace Nebulite::Interaction {
-class ContextBase;
+class Context;
 } // namespace Nebulite::Interaction
 
 namespace Nebulite::Interaction::Logic {
@@ -68,7 +68,9 @@ public:
      * @param expr The expression string to parse.
      * @param selfScope The JSON object representing the "self" context.
      */
-    explicit Expression(std::string const& expr, Data::JsonScopeBase& selfScope);
+    explicit Expression(std::string const& expr, Data::JsonScopeBase const& selfScope);
+
+    explicit Expression(std::string const& expr, Execution::Domain const& selfDomain);
 
     ~Expression();
 
@@ -111,14 +113,14 @@ public:
      * @param max_recursion_depth The maximum recursion depth to prevent infinite loops in nested evaluations.
      * @return The evaluated JSON object.
      */
-    Data::JSON evalAsJson(Core::JsonScope& current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
+    Data::JSON evalAsJson(Data::JsonScopeBase& current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
 
     /**
      * @brief Evaluates the expression as a double.
      * @param current_other The JSON object `other` to evaluate against.
      * @return The evaluated double value.
      */
-    double evalAsDouble(Core::JsonScope& current_other) const ;
+    double evalAsDouble(Data::JsonScopeBase& current_other) const ;
 
     /**
      * @brief Evaluates the expression as a string.
@@ -126,7 +128,7 @@ public:
      * @param max_recursion_depth The maximum recursion depth to prevent infinite loops in nested evaluations.
      * @return The evaluated string value.
      */
-    std::string eval(Core::JsonScope& current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
+    std::string eval(Data::JsonScopeBase& current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
 
     /**
      * @brief Gets the full expression string that was parsed.
@@ -164,6 +166,8 @@ public:
     //------------------------------------------
     // Static one-time evaluation
 
+    // TODO: Reduce from Context to ContextScopeBase
+
     // With context evaluation
 
     /**
@@ -172,7 +176,7 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated string value.
      */
-    static std::string eval(std::string const& input, ContextBase const& context);
+    static std::string eval(std::string const& input, Context const& context);
 
     /**
      * @brief Evaluates a given expression string as a double with a constant reference to the context.
@@ -180,7 +184,7 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated double value.
      */
-    static double evalAsDouble(std::string const& input, ContextBase const& context);
+    static double evalAsDouble(std::string const& input, Context const& context);
 
     /**
      * @brief Evaluates a given expression string as a boolean with a constant reference to the context.
@@ -188,7 +192,7 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated boolean value.
      */
-    static bool evalAsBool(std::string const& input, ContextBase const& context);
+    static bool evalAsBool(std::string const& input, Context const& context);
 
     /**
      * @brief Evaluates a given expression string as a JSON object with a constant reference to the context.
@@ -196,7 +200,7 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated JSON object.
      */
-    static Data::JSON evalAsJson(std::string const& input, ContextBase const& context);
+    static Data::JSON evalAsJson(std::string const& input, Context const& context);
 
     // Global-only evaluation (both self and other context are empty documents)
 
@@ -239,7 +243,7 @@ private:
      * @brief The reference for context self stays the same throughout the expression's lifetime.
      * @details This allows us to cache variables from self directly, not reloading needed
      */
-    Data::JsonScopeBase& self;
+    Data::JsonScopeBase const& self;
 
     /**
      * @brief Generates short variable names for tinyexpr variables.
@@ -346,7 +350,7 @@ private:
          * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(std::string& token, Data::JsonScopeBase& selfScope, Core::JsonScope& otherScope, uint16_t const& maximumRecursionDepth) const ;
+        bool handleComponentTypeVariable(std::string& token, Data::JsonScopeBase const& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of a variable component.
@@ -356,7 +360,7 @@ private:
          * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(Data::JSON& token, Data::JsonScopeBase& selfScope, Core::JsonScope& otherScope, uint16_t const& maximumRecursionDepth) const ;
+        bool handleComponentTypeVariable(Data::JSON& token, Data::JsonScopeBase const& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of an eval component.
@@ -519,7 +523,7 @@ private:
     /**
      * @brief Updates caches
      */
-    void updateCaches(Core::JsonScope& reference) const ;
+    void updateCaches(Data::JsonScopeBase& reference) const ;
 };
 
 } // namespace Nebulite::Interaction::Logic

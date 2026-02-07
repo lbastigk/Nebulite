@@ -41,7 +41,7 @@ Physics::Physics() : RulesetModule(moduleName) {
 //       ::physics::elasticCollision::box::circle     // other is circle, self is box
 //       ::physics::elasticCollision::circle::box     // self is circle, other is box
 //       Or we prioritize radius if available?
-void Physics::elasticCollision(Interaction::ContextBase const& context) const {
+void Physics::elasticCollision(Interaction::Context const& context) const {
     // Get ordered cache lists for both entities for base values
     double** slf = getBaseList(context.self, baseKeys);
     double** otr = getBaseList(context.other, baseKeys);
@@ -152,7 +152,7 @@ void Physics::elasticCollision(Interaction::ContextBase const& context) const {
     }
 }
 
-void Physics::gravity(Interaction::ContextBase const& context) const {
+void Physics::gravity(Interaction::Context const& context) const {
     // Get ordered cache lists for both entities for base values
     double** slf = getBaseList(context.self, baseKeys);
     double** otr = getBaseList(context.other, baseKeys);
@@ -173,7 +173,7 @@ void Physics::gravity(Interaction::ContextBase const& context) const {
 
 // Local rulesets
 
-void Physics::applyForce(Interaction::ContextBase const& context) const {
+void Physics::applyForce(Interaction::Context const& context) const {
     // Get ordered cache list for self entity for base values
     double** slf = getBaseList(context.self, baseKeys);
 
@@ -203,7 +203,7 @@ void Physics::applyForce(Interaction::ContextBase const& context) const {
     baseVal(slf, Key::physics_FY) = 0.0;
 }
 
-void Physics::drag(Interaction::ContextBase const& context) const {
+void Physics::drag(Interaction::Context const& context) const {
     // Get ordered cache list for self entity for base values
     double** slf = getBaseList(context.self, baseKeys);
 

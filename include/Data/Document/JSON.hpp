@@ -184,12 +184,6 @@ private:
     void invalidate_child_keys(std::string const& parent_key) const ;
 
     /**
-     * @brief Lazy-initialized full JsonScope representing the entire document.
-     * @return Reference to the full JsonScope.
-     */
-    Core::JsonScope& fullScope();
-
-    /**
      * @brief Helper function to convert any type from cache into another type.
      * @param var The variant value stored in the cache.
      * @param defaultValue The default value to return if conversion fails.
@@ -202,6 +196,7 @@ private:
      * @brief Flush all DIRTY entries in the cache back to the RapidJSON document.
      * @details This ensures that the RapidJSON document is always structurally valid
      *          and up-to-date with the cached values.
+     * @todo Consider adding an optional prefix parameter to only flush a subset of the cache.
      */
     void flush() const ;
 
@@ -230,16 +225,17 @@ private:
      */
     bool getSubDocWithTransformations(std::string const& key, JSON& outDoc) const ;
 
-    /**
-     * @brief Managed scopes for shareManagedScope.
-     */
-    std::vector<std::unique_ptr<Core::JsonScope>> managedScopes;
+    //------------------------------------------
+    // Scope sharing system
 
     /**
-     * @brief Managed scopeBases for shareManagedScopeBase.
+     * @brief Lazy-initialized full JsonScope representing the entire document.
+     * @return Reference to the full JsonScope.
      */
-    std::vector<std::unique_ptr<JsonScopeBase>> managedScopeBases;
+    Core::JsonScope& fullScope();
 
+    absl::flat_hash_map<std::string, std::unique_ptr<Core::JsonScope>> managedScopes;
+    absl::flat_hash_map<std::string, std::unique_ptr<JsonScopeBase>> managedScopeBases;
 public:
     //------------------------------------------
     // Assertions
@@ -350,10 +346,11 @@ public:
      *          Note that both the child and parent documents' caches are flushed before setting.
      * @param key The key of the sub-document to set.
      * @param child The sub-document to set.
+     * @param childKey The key in the child document to set as the root of the sub-document. If empty, the entire child document is used.
      */
-    void setSubDoc(char const* key, JSON const& child);
-    void setSubDoc(std::string const& key, JSON const& child) { setSubDoc(key.c_str(), child); }
-    void setSubDoc(std::string_view const& key, JSON const& child) { setSubDoc(std::string(key).c_str(), child); }
+    void setSubDoc(char const* key, JSON const& child, char const* childKey = "") ;
+    void setSubDoc(std::string const& key, JSON const& child, char const* childKey = "") { setSubDoc(key.c_str(), child, childKey); }
+    void setSubDoc(std::string_view const& key, JSON const& child, char const* childKey = "") { setSubDoc(std::string(key).c_str(), child, childKey); }
 
     /**
      * @brief Sets an empty array in the JSON document.

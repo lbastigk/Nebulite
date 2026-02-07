@@ -1,24 +1,32 @@
 #include "Nebulite.hpp"
-#include "Interaction/Execution/Domain.hpp"
 #include "Core/JsonScope.hpp"
+#include "Data/Document/JsonScopeBase.hpp"
+#include "Interaction/Execution/Domain.hpp"
+#include "Interaction/Context.hpp"
 
 #include <vector>
 
 // Document Accessor
 namespace Nebulite::Interaction::Execution {
 
+DocumentAccessor::DocumentAccessor(Core::JsonScope& d) : domainScope(d) {}
+
 DocumentAccessor::~DocumentAccessor() = default;
 
+Data::JsonScopeBase& DocumentAccessor::domainScopeBase() const {
+    static auto& scopeBase = domainScope.shareScopeBase("");
+    return scopeBase;
+}
 
 } // namespace Nebulite::Interaction::Execution
 
 // Domain Base
 namespace Nebulite::Interaction::Execution {
 
-DomainBase& DomainBase::operator=(DomainBase const& other) {
+Domain& Domain::operator=(Domain const& other) {
     if (this == &other) return *this;
     if (&domainScope != &other.domainScope) {
-        throw std::invalid_argument("DomainBase::operator=: cannot assign from object with different document reference");
+        throw std::invalid_argument("Domain::operator=: cannot assign from object with different document reference");
     }
 
     domainName = other.domainName;
@@ -30,7 +38,7 @@ DomainBase& DomainBase::operator=(DomainBase const& other) {
     return *this;
 }
 
-DomainBase& DomainBase::operator=(DomainBase&& other) noexcept {
+Domain& Domain::operator=(Domain&& other) noexcept {
     if (this == &other) return *this;
     domainName = std::move(other.domainName);
     funcTree = std::move(other.funcTree);
@@ -40,13 +48,13 @@ DomainBase& DomainBase::operator=(DomainBase&& other) noexcept {
     return *this;
 }
 
-DomainBase::~DomainBase() = default;
+Domain::~Domain() = default;
 
-std::string const& DomainBase::scopePrefix() const {
+std::string const& Domain::scopePrefix() const {
     return domainScope.getScopePrefix();
 }
 
-Constants::Error DomainBase::parseStr(std::string const& str) {
+Constants::Error Domain::parseStr(std::string const& str) {
     // NOTE: This may fail, as domainScope is from the domain itself, potentially larger than scopes from inner domains
     //       e.g. we may call parseStr from RenderObject, but the function exists in Texture domain with prefix "texture."
     //       In that case, we accidentally pass the RenderObject scope instead of the Texture scope...
@@ -56,15 +64,15 @@ Constants::Error DomainBase::parseStr(std::string const& str) {
     return funcTree->parseStr(str, *this, domainScope);
 }
 
-Data::MappedOrderedDoublePointers* DomainBase::getDocumentCacheMap() const {
+Data::MappedOrderedDoublePointers* Domain::getDocumentCacheMap() const {
     return domainScope.getOrderedCacheListMap();
 }
 
-std::scoped_lock<std::recursive_mutex> DomainBase::lockDocument() const {
+std::scoped_lock<std::recursive_mutex> Domain::lockDocument() const {
     return domainScope.lock();
 }
 
-std::vector<std::string> DomainBase::stringToDeserializeTokens(std::string const& serialOrLinkWithCommands) {
+std::vector<std::string> Domain::stringToDeserializeTokens(std::string const& serialOrLinkWithCommands) {
     //------------------------------------------
     // Split the input into tokens
     std::vector<std::string> tokens;
@@ -78,7 +86,7 @@ std::vector<std::string> DomainBase::stringToDeserializeTokens(std::string const
     return tokens;
 }
 
-void DomainBase::baseDeserialization(std::string const& serialOrLinkWithCommands) {
+void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
     std::vector<std::string> tokens;
 
     //------------------------------------------
@@ -93,7 +101,7 @@ void DomainBase::baseDeserialization(std::string const& serialOrLinkWithCommands
         std::string const& variableWithTransformations = parts[0];
 
         // Setup context for parsing
-        ContextBase const ctx{domainScope, domainScope, Global::instance().domainScope};
+        Context const ctx{domainScope, domainScope, Global::instance().domainScope};
 
         // Parse into expression
         Data::JSON const result = Logic::Expression::evalAsJson(variableWithTransformations, ctx);

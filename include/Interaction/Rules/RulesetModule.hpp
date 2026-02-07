@@ -83,7 +83,7 @@ protected:
      * @param description A brief description of the ruleset's purpose and its used variables
      */
     template<typename T>
-    void bind(RulesetType const& type, void (T::*func)(ContextBase const&), std::string_view const& topic, std::string_view const& description){
+    void bind(RulesetType const& type, void (T::*func)(Context const&), std::string_view const& topic, std::string_view const& description){
         static_assert(std::is_base_of_v<RulesetModule, T>, "bind(): T must derive from RulesetModule");
         if (!topic.starts_with("::")) {
             throw std::invalid_argument("RulesetModule::bind(): topic must start with '::'. Tried to bind: " + std::string(topic));
@@ -92,7 +92,7 @@ protected:
             type,
             topic,
             description,
-            [this, func](ContextBase const& ctx) { (static_cast<T*>(this)->*func)(ctx); }
+            [this, func](Context const& ctx) { (static_cast<T*>(this)->*func)(ctx); }
         });
     }
 
@@ -106,7 +106,7 @@ protected:
      * @param description A brief description of the ruleset's purpose and its used variables
      */
     template<typename T>
-    void bind(RulesetType const& type, void (T::*func)(ContextBase const&) const, std::string_view const& topic, std::string_view const& description){
+    void bind(RulesetType const& type, void (T::*func)(Context const&) const, std::string_view const& topic, std::string_view const& description){
         static_assert(std::is_base_of_v<RulesetModule, T>, "bind(): T must derive from RulesetModule");
         if (!topic.starts_with("::")) {
             throw std::invalid_argument("RulesetModule::bind(): topic must start with '::'. Tried to bind: " + std::string(topic));
@@ -115,7 +115,7 @@ protected:
             type,
             topic,
             description,
-            [this, func](ContextBase const& ctx) { (static_cast<T const*>(this)->*func)(ctx); }
+            [this, func](Context const& ctx) { (static_cast<T const*>(this)->*func)(ctx); }
         });
     }
 
@@ -142,7 +142,7 @@ protected:
      * @param keys The array of keys to retrieve values for.
      * @return A pointer to an array of double pointers, each pointing to a base value.
      */
-    [[nodiscard]] double** getBaseList(Execution::DomainBase const& ctx, std::vector<Data::ScopedKeyView> const& keys) const {
+    [[nodiscard]] double** getBaseList(Execution::Domain const& ctx, std::vector<Data::ScopedKeyView> const& keys) const {
         return ensureOrderedCacheList(ctx, keys)->data();
     }
 
@@ -177,7 +177,7 @@ private:
      * @param keys The array of keys to retrieve values for
      * @return An array of values corresponding to the provided keys
      */
-    [[nodiscard]] Data::odpvec* ensureOrderedCacheList(Execution::DomainBase const& ctx, std::vector<Data::ScopedKeyView> const& keys) const {
+    [[nodiscard]] Data::odpvec* ensureOrderedCacheList(Execution::Domain const& ctx, std::vector<Data::ScopedKeyView> const& keys) const {
         return ctx.getDocumentCacheMap()->ensureOrderedCacheList(id, keys);
     }
 };

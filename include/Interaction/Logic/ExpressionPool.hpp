@@ -49,6 +49,10 @@ public:
         parse(expr, self);
     }
 
+    ExpressionPool(std::string const& expr, Execution::Domain const& self) {
+        parse(expr, self);
+    }
+
     ~ExpressionPool() = default;
 
     // Disable copy constructor and assignment
@@ -84,7 +88,7 @@ public:
      * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a string.
      */
-    std::string eval(Core::JsonScope& current_other) const {
+    std::string eval(Data::JsonScopeBase& current_other) const {
         return pool[Utility::Threading::atomicThreadRoll(EXPRESSION_POOL_SIZE)]->eval(current_other);
     }
 
@@ -94,7 +98,7 @@ public:
      * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a double.
      */
-    double evalAsDouble(Core::JsonScope& current_other) const {
+    double evalAsDouble(Data::JsonScopeBase& current_other) const {
         return pool[Utility::Threading::atomicThreadRoll(EXPRESSION_POOL_SIZE)]->evalAsDouble(current_other);
     }
 
@@ -137,6 +141,21 @@ private:
      * @param self The JSON object representing the "self" context.
      */
     void parse(std::string const& expr, Data::JsonScopeBase& self){
+        static_assert(EXPRESSION_POOL_SIZE > 0, "INVOKE_EXPR_POOL_SIZE must be greater than 0");
+
+        fullExpression = expr;
+
+        // Parse each entry in the pool
+        for (size_t i = 0; i < EXPRESSION_POOL_SIZE; ++i){
+            pool[i] = std::make_unique<Expression>(expr, self);
+        }
+
+        // Calculate metadata and unique ID from first entry
+        _isReturnableAsDouble = pool[0]->recalculateIsReturnableAsDouble();
+        _isAlwaysTrue = pool[0]->recalculateIsAlwaysTrue();
+    }
+
+    void parse(std::string const& expr, Execution::Domain const& self){
         static_assert(EXPRESSION_POOL_SIZE > 0, "INVOKE_EXPR_POOL_SIZE must be greater than 0");
 
         fullExpression = expr;

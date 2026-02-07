@@ -40,7 +40,7 @@ make_roc_array() {
 namespace Nebulite::Core {
 
 Environment::Environment(JsonScope& documentReference)
-    : Domain("Environment", *this, documentReference),
+    : Domain("Environment", documentReference),
       roc(make_roc_array<LayerCount>()) {
     DomainModule::Initializer::initEnvironment(this);
 }
