@@ -60,6 +60,13 @@ public:
     static auto constexpr listKeysDesc = "Lists all members of the current JSON object as an array.\n"
         "If the current value is an array, it lists the indices as strings.\n"
         "Usage: |listKeys -> {array of keys}\n";
+
+private:
+    /**
+     * @brief Extracts the pattern from the remaining arguments, handling the case where the pattern is wrapped in {!...}.
+     * @return The extracted pattern, or an empty string if the arguments are invalid.
+     */
+    static std::string getPattern(std::span<std::string const> const& args);
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_COLLECTION_HPP

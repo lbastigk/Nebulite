@@ -82,20 +82,23 @@ bool Collection::getMultiple(std::span<std::string const> const& args, Core::Jso
     return true;
 }
 
+std::string Collection::getPattern(std::span<std::string const> const& args){
+    std::string const full = Utility::StringHandler::recombineArgs(args);
+    if (full.starts_with("{!") && full.ends_with("}")) {
+        // Unwrap pattern from {!...}
+        return full.substr(2, full.size() - 3);
+    }
+    // NOLINTNEXTLINE
+    return full;
+}
+
 bool Collection::filterRegex(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
     std::regex regexPattern;
     try {
-        if (args[1].starts_with("{!") && args[1].ends_with("}")) {
-            // Unwrap pattern from {!...}
-            std::string const unwrappedPattern = args[1].substr(2, args[1].size() - 3);
-            regexPattern = std::regex(unwrappedPattern);
-        }
-        else {
-            regexPattern = std::regex(args[1]);
-        }
+        regexPattern = std::regex(getPattern(args.subspan(1)));
     } catch (const std::regex_error&) {
         return false; // Invalid regex pattern
     }
@@ -116,7 +119,7 @@ bool Collection::filterGlob(std::span<std::string const> const& args, Core::Json
     if (args.size() != 2) {
         return false;
     }
-    std::string const pattern = args[1];
+    std::string const pattern = getPattern(args.subspan(1));
 
     auto const memberKeyPairs = jsonDoc->listAvailableMembersAndKeys(rootKey);
     Data::JSON filtered;
@@ -125,7 +128,6 @@ bool Collection::filterGlob(std::span<std::string const> const& args, Core::Json
             filtered.setSubDoc(member, jsonDoc->getSubDoc(key));
         }
     }
-
     jsonDoc->setSubDoc(rootKey, filtered);
     return true;
 }
