@@ -605,6 +605,34 @@ void JSON::removeMember(char const* key) {
     RjDirectAccess::removeMember(key, doc);
 }
 
+void JSON::moveMember(char const* fromKey, char const* toKey) {
+    std::scoped_lock const lockGuard(mtx);
+    helperNonConstVar++; // Signal non-const operation
+
+    // Ensure cache is flushed before moving key
+    flush();
+
+    // Edge case: toKey starts with fromKey, we need a temporary key to avoid deleting after moving
+    if (std::string(toKey).starts_with(std::string(fromKey))) {
+        // Edge case 2: if fromKey is empty, no deletion
+        if (std::string(fromKey).empty()) {
+            setSubDoc(toKey, *this, fromKey);
+            return;
+        }
+
+        std::string const tempKey = std::string("__temp_move_") + fromKey; // Unlikely to collide with existing keys
+        setSubDoc(tempKey.c_str(), *this, fromKey);
+        removeMember(fromKey);
+        setSubDoc(toKey, *this, tempKey.c_str());
+        removeMember(tempKey.c_str());
+    }
+    else {
+        // Direct move without temporary key
+        setSubDoc(toKey, *this, fromKey);
+        removeMember(fromKey);
+    }
+}
+
 std::vector<std::string> JSON::listAvailableKeys(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
 

@@ -137,29 +137,36 @@ bool Array::subspan(std::span<std::string const> const& args, Core::JsonScope* j
     if (args.size() > 3) {
         return false;
     }
+    // Move the original array to a temp key, so we can modify the original key to be the subspan without losing data
     size_t const originalSize = jsonDoc->memberSize(rootKey);
-    Data::JSON const copy = jsonDoc->getSubDoc(rootKey);
+    auto const tmpKey = rootKey + "[" + std::to_string(originalSize) + "]";
+    jsonDoc->moveMember(rootKey, tmpKey); // Move original array to a temp key
 
+    // Setup start index and length, with length defaulting to the rest of the array if not provided
     size_t const startIndex = std::stoul(args[1]);
     size_t const length = args.size() > 2 ? std::stoul(args[2]) : originalSize; // Set high enough length if not provided
 
-    // Clear current array
-    jsonDoc->setEmptyArray(rootKey);
-
     // If start index is larger than original size, return empty array
     if (startIndex >= originalSize) {
+        jsonDoc->setEmptyArray(rootKey);
         return true;
     }
 
-    // Starting at startIndex, until length, as long as its smaller than originalSize
+    // Starting at startIndex, until length, as long as it's smaller than originalSize
+    size_t index = 0;
     std::ranges::for_each(
         std::views::iota(startIndex, std::min(startIndex + length, originalSize)),
         [&](size_t const& i) {
-            auto const key = rootKey + "[" + std::to_string(jsonDoc->memberSize(rootKey)) + "]";
-            Data::JSON const element = copy.getSubDoc("[" + std::to_string(i) + "]");
+            auto const key = rootKey + "[" + std::to_string(index++) + "]";
+            Data::JSON const element = jsonDoc->getSubDoc(tmpKey + "[" + std::to_string(i) + "]");
             jsonDoc->setSubDoc(key, element);
         }
     );
+
+    // Remove any remaining elements from the original array that are not in the subspan + the allocated temp key
+    for (size_t i = originalSize; i >= index; i--) {
+        jsonDoc->removeMember(rootKey + "[" + std::to_string(i) + "]");
+    }
     return true;
 }
 

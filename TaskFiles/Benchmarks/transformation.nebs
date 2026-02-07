@@ -7,6 +7,15 @@ echo Starting Transformation Benchmark...
 echo ---------------------------------------------
 
 #############################################
+# INFO
+
+# The setSubDoc bottleneck was removed, resulting in a x3 speedup for the transformation benchmark, but the JSON::flush() bottleneck remains.
+# JSON::flush() is needed to ensure member integrity,
+# but we could optimize to flush only relevant members or finding ways to speed up the cache iteration.
+# Perhaps storing references/pointers to each cache element inside a vector. Since partial deletion is very rare,
+# syncing the vector with the cache should be fast enough.
+
+#############################################
 # Setup
 
 # Values needed for the benchmark
@@ -25,19 +34,19 @@ set arr[9] 9
 
 #############################################
 # Start renderer for time measurement
-set-fps 10000
+set-fps 5000
 wait 1
 
 #############################################
 # Benchmarks
-set benchmark.totalIterationCount 10000 # Manually set total iterations in code below! Do not just change this value!
+set benchmark.totalIterationCount 50000 # Manually set total iterations in code below! Do not just change this value!
 
 echo
 eval echo Running transformation benchmark with {global.benchmark.totalIterationCount} iterations...
 echo
 
 eval set benchmark.startTime {global.time.runtime.t} # Start recording time
-for i 1 10000 eval nop --- Add operations below: \
+for i 1 50000 eval nop --- Add operations below: \
     {global.num|add 1} \
     {global.arr|subspan 2 2} \
     {global.time|get runtime.dt} \
@@ -53,7 +62,7 @@ eval set benchmark.time $({global.time.runtime.t} - {global.benchmark.startTime}
 
 # Iterate without transformations
 eval set benchmark.startTime {global.time.runtime.t} # Start recording time
-for i 1 10000 eval nop {global.var} # Manually set total iterations!
+for i 1 50000 eval nop {global.var} # Manually set total iterations!
 wait 1
 eval set benchmark.baselineTime $({global.time.runtime.t} - {global.benchmark.startTime})
 

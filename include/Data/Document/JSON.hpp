@@ -486,20 +486,23 @@ public:
      * @brief Removes a key from the JSON document.
      * @details If the key does not exist, no action is taken.
      *          Note that the document is flushed before removing the key.
+     *          If an array element is removed, the remaining elements are shifted to fill the gap,
+     *          and their keys are updated accordingly. This is important for loops that rely on array indices!
+     *          If you must remove multiple array elements, consider starting at the end of the array and moving backwards to avoid index shifting issues.
      * @param key The key to remove.
-     * @todo Rename to removeMember
      */
     void removeMember(char const* key);
     void removeMember(std::string const& key) { removeMember(key.c_str()); }
     void removeMember(std::string_view const& key) { removeMember(std::string(key).c_str()); }
 
-    // TODO: offer a moveMember function, without additional json creation!
-    //       the current usage for moving members is quite inefficient!
-    //       e.g. we create a tmp doc, copy the member, remove the old one, set the new one.
-    //       The constructor for JSON is expensive, we need a better internal move!
-    //       Idea: list members, copy all members to a rapidjson::Value, remove old members, set new members from rapidjson::Value
-    //       Or we directly copy rapidjson Value from one key to another!
-    // void moveMember(std::string const& fromKey, std::string const& toKey);
+    /**
+     * @brief Moves a member from one key to another in the JSON document.
+     * @param fromKey The key of the member to move.
+     * @param toKey The key to move the member to.
+     */
+    void moveMember(char const* fromKey, char const* toKey);
+    void moveMember(std::string const& fromKey, std::string const& toKey) { moveMember(fromKey.c_str(), toKey.c_str()); }
+    void moveMember(std::string_view const& fromKey, std::string_view const& toKey) { moveMember(std::string(fromKey).c_str(), std::string(toKey).c_str()); }
 
     /**
      * @brief Lists all available keys in a rapidjson object.
