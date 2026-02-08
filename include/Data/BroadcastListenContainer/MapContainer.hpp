@@ -47,7 +47,7 @@ public:
      * @brief Broadcasts a ruleset to all listeners on its topic.
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
-    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) const override ;
+    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) override ;
 
     /**
      * @brief Listens for rulesets on a specific topic.
@@ -55,7 +55,7 @@ public:
      * @param topic The topic to listen for.
      * @param listenerId The unique ID of the listener render object.
      */
-    void listen(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) const override ;
+    void listen(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) override ;
 
     //------------------------------------------
     // Worker Thread Methods

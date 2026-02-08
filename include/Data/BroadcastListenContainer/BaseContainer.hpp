@@ -35,7 +35,7 @@ public:
      * @brief Broadcasts a ruleset to all listeners on its topic.
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
-    virtual void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) const {
+    virtual void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
         (void)entry;
     }
 
@@ -45,7 +45,7 @@ public:
      * @param topic The topic to listen for.
      * @param listenerId The unique ID of the listener render object.
      */
-    virtual void listen(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) const {
+    virtual void listen(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) {
         (void)listener;
         (void)topic;
         (void)listenerId;

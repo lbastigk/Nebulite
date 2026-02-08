@@ -6,11 +6,11 @@ namespace Nebulite::Data::BroadcastListenContainer {
 //------------------------------------------
 // Container Methods
 
-void TreeContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) const {
+void TreeContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
     nextFrame->insertBroadcaster(entry);
 }
 
-void TreeContainer::listen(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) const {
+void TreeContainer::listen(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) {
     thisFrame->insertListener(listener, topic, listenerId);
 }
 
