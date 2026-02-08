@@ -5,8 +5,8 @@ void FlatContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const
     broadcasters[entry->getTopic()].push_back(entry);
 }
 
-void FlatContainer::listen(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const&) {
-    listeners[topic].push_back(&listener);
+void FlatContainer::listen(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) {
+    listeners[topic].push_back({&listener, listenerId});
 }
 
 void FlatContainer::prepare() {
@@ -26,10 +26,15 @@ void FlatContainer::process() {
         // Process
         {
             listeners.forall([&](std::string const& topic, auto& v) {
-                auto& bv = broadcasters[topic];
-                for (auto* listener : v) {
-                    for (auto& ruleset : bv) {
-                        ruleset->apply(listener);
+                auto const& bv = broadcasters[topic];
+                for (auto& listener : v) {
+                    for (auto const& ruleset : bv) {
+                        if (ruleset->getId() == listener.id) {
+                            continue; // Skip if the ruleset is from the same render object as the listener
+                        }
+                        if (ruleset->evaluateCondition(listener.domain)) {
+                            ruleset->apply(listener.domain);
+                        }
                     }
                 }
 
