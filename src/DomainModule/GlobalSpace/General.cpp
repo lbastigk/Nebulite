@@ -31,10 +31,8 @@ Constants::Error General::eval(std::span<std::string const> const& args, Interac
     // argc/argv to string for evaluation
     std::string const argStr = Utility::StringHandler::recombineArgs(args);
 
-    // Evaluate expression
-    Core::JsonScope emptyDoc;
-    Interaction::Context const context{emptyDoc,emptyDoc,Global::instance()};
-    std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr,context);
+    // Evaluate expression, empty context for self and other
+    std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr);
 
     // reparse
     (void)callerScope; // Unused parameter
