@@ -1,8 +1,8 @@
-#include "Data/PairingContainer.hpp"
+#include "Data/BroadcastListenContainer/MapContainer.hpp"
 
-namespace Nebulite::Data {
+namespace Nebulite::Data::BroadcastListenContainer {
 
-void PairingContainer::insertBroadcaster(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+void MapContainer::MapPairingContainer::insertBroadcaster(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
     // Used to traverse to the correct location
     auto& topic = entry->getTopic();
     auto& id = entry->getId();
@@ -16,7 +16,7 @@ void PairingContainer::insertBroadcaster(std::shared_ptr<Interaction::Rules::Rul
     isActive = true;
 }
 
-void PairingContainer::insertListener(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) {
+void MapContainer::MapPairingContainer::insertListener(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) {
     // Check if any object has broadcasted on this topic
     auto const [it, isValid] = data.find(topic);
     if (!isValid) {
@@ -31,28 +31,17 @@ void PairingContainer::insertListener(Interaction::Execution::Domain& listener, 
 
         // For all rulesets under this broadcaster and topic
         for (auto& listenersOnRuleset : std::ranges::views::values(onTopicFromId.rulesets)) {
-#if USE_BYTETREE_CONTAINER
-            // Insert in this frame
-            if (listenersOnRuleset.entry->evaluateCondition(&listener)) {
-                auto blp = BroadCastListenPair{
-                    listenersOnRuleset.entry,
-                    &listener
-                };
-                listenersOnRuleset.insert(listenerId, blp);
-            }
-#else
             auto blp = BroadCastListenPair{
                 listenersOnRuleset.entry,
                 &listener,
                 listenersOnRuleset.entry->evaluateCondition(&listener)
             };
             listenersOnRuleset.insert(listenerId, blp);
-#endif // USE_BYTETREE_CONTAINER
         }
     }
 }
 
-void PairingContainer::process() {
+void MapContainer::MapPairingContainer::process() {
     for (const auto& map : data.getMaps()) {
         for (auto& [tmap, mtx] : std::views::values(map)) {
             // NOLINTNEXTLINE

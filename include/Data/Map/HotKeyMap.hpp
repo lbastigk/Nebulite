@@ -1,6 +1,7 @@
 /**
  * @file HotKeyMap.hpp
  * @brief Definition of the HotKeyMap class, a wrapper for hashmaps with hotkey functionality.
+ * @todo remove thread-safety
  */
 
 #ifndef DATA_HOTKEY_MAP_HPP

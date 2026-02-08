@@ -1,44 +1,31 @@
-#include "Data/RulesetPairings.hpp"
-
 #include "Nebulite.hpp"
+#include "Data/BroadcastListenContainer/TreeContainer.hpp"
 
-namespace Nebulite::Data {
+namespace Nebulite::Data::BroadcastListenContainer {
 
 //------------------------------------------
 // Container Methods
 
-void BroadCastListenPairs::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) const {
+void TreeContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
     nextFrame->insertBroadcaster(entry);
 }
 
-void BroadCastListenPairs::listen(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) const {
+void TreeContainer::listen(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) {
     thisFrame->insertListener(listener, topic, listenerId);
 }
 
 //------------------------------------------
 // Worker Thread Methods
 
-void BroadCastListenPairs::prepare() {
+void TreeContainer::prepare() {
     // Swap pointers
     std::swap(thisFrame, nextFrame);
-}
-
-void BroadCastListenPairs::startWork() {
-    threadState.workReady = true;
-    threadState.workFinished = false;
-    threadState.condition.notify_one();
-}
-
-void BroadCastListenPairs::waitForWorkFinished() const {
-    while (!threadState.workFinished.load()) {
-        std::this_thread::yield();
-    }
 }
 
 //------------------------------------------
 // Private Methods
 
-void BroadCastListenPairs::process()  {
+void TreeContainer::process()  {
     while (!threadState.stopFlag) {
         // Wait for work to be ready
         {

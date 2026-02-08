@@ -15,7 +15,11 @@
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
-#include "Data/RulesetPairings.hpp"
+
+// Available containers
+#include "Data/BroadcastListenContainer/FlatContainer.hpp"
+#include "Data/BroadcastListenContainer/MapContainer.hpp"
+#include "Data/BroadcastListenContainer/TreeContainer.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -106,7 +110,25 @@ private:
     //------------------------------------------
     // Threading Containers
 
-    std::unique_ptr<Data::BroadCastListenPairs> worker[THREADRUNNER_COUNT];
+    // Test:
+    // Set ContainerType, then run:
+    // Scripts/Benchmark/BroadcastListenContainer.sh
+
+    // Best candidates for small Benchmark: spawn_constantly.nebs, 101 Objects
+    // 1.) FlatContainer : 3.714250 s
+    // 2.) MapContainer  : 4.979500 s
+    // 3.) TreeContainer : 6.762750 s
+
+    // Best candidates for large Benchmark: gravity_XL.nebs, 1601 Objects
+    // 1.) FlatContainer : 0.017535 s / frame
+    // 2.) MapContainer  : 0.075542 s / frame
+    // 3.) TreeContainer : 0.105555 s / frame
+
+    // -> FlatContainer is the best candidate by far, probably pushable even further with some optimizations.
+
+    using ContainerType = Data::BroadcastListenContainer::FlatContainer;
+
+    std::unique_ptr<ContainerType> worker[THREADRUNNER_COUNT];
 
     //------------------------------------------
     // Threading variables

@@ -3,7 +3,7 @@
 # Spawns n*n objects with a total mass of 50000
 # + a sun object after 5000 frames
 #
-# Due to the inherent n^2 complexity of gravity, this benchmark is very ressource intensive
+# Due to the inherent n^2 complexity of gravity, this benchmark is very resource intensive
 # it is recommended to start this benchmark headless!
 ###############################################
 
@@ -19,6 +19,7 @@ if $(leq({global.loop.n},0)) set loop.n 40
 # 0.745 seconds, 2025-09
 # 0.200 seconds, 2025-10 (new Broadcast-Listen-Model and more efficient threading)
 # 0.075 seconds, 2026-01 (many micro-optimizations)
+# 0.021 seconds, 2026-02 (new broadcast-listen container: FlatContainer)
 
 ###############################################
 # [BASICS]

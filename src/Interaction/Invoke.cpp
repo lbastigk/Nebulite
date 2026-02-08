@@ -17,8 +17,10 @@ Invoke::Invoke() {
     stopFlag = false;
 
     // Create and start threads
+    size_t workerIndex = 0;
     for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
-        w = std::make_unique<Data::BroadCastListenPairs>(stopFlag);
+        w = std::make_unique<ContainerType>(stopFlag, workerIndex, THREADRUNNER_COUNT);
+        workerIndex++;
     }
 }
 
