@@ -18,7 +18,7 @@ Invoke::Invoke() {
 
     // Create and start threads
     for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
-        w = std::make_unique<Data::BroadCastListenPairs>(stopFlag);
+        w = std::make_unique<ContainerType>(stopFlag);
     }
 }
 

@@ -15,7 +15,10 @@
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
-#include "Data/RulesetPairings.hpp"
+
+// Available containers
+#include "Data/BroadcastListenContainer/MapContainer.hpp"
+#include "Data/BroadcastListenContainer/TreeContainer.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -106,7 +109,16 @@ private:
     //------------------------------------------
     // Threading Containers
 
-    std::unique_ptr<Data::BroadCastListenPairs> worker[THREADRUNNER_COUNT];
+    // Best candidates:
+    // 1.) MapContainer (about 33% faster than TreeContainer in spawn_constantly benchmark)
+    // 2.) TreeContainer
+    // TODO: FlatContainer: Mostly flat with StringHashmap for topic
+    //       broadcast: map[topic]->vector of broadcasters
+    //       listen:    map[topic]->vector of listeners
+    //       on process, build pairs by iterating through broadcasters and listeners, apply instantly?
+    using ContainerType = Data::BroadcastListenContainer::MapContainer;
+
+    std::unique_ptr<ContainerType> worker[THREADRUNNER_COUNT];
 
     //------------------------------------------
     // Threading variables
