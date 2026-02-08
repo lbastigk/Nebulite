@@ -116,6 +116,12 @@ private:
     //       broadcast: map[topic]->vector of broadcasters
     //       listen:    map[topic]->vector of listeners
     //       on process, build pairs by iterating through broadcasters and listeners, apply instantly?
+    //       Find some way to introduce randomness in order of listeners, as this container is the same for all threads
+    //       meaning we may get some unwanted clinches, where all threads try to access the same listener
+    //       Perhaps some percentual offset in where each thread starts iterating through the vector of listeners?
+    //       offset = workerIndex * (vector.size() / THREADRUNNER_COUNT)
+    //       idx = (i + workerIndex) % vector.size()
+    //       Add workedIndex to BaseContainer class so this is possible
     using ContainerType = Data::BroadcastListenContainer::MapContainer;
 
     std::unique_ptr<ContainerType> worker[THREADRUNNER_COUNT];
