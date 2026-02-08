@@ -497,12 +497,23 @@ public:
 
     /**
      * @brief Moves a member from one key to another in the JSON document.
+     * @details Note that the current implementation is more of a copy+delete! Using just copyMember is faster if you don't need the original deleted.
      * @param fromKey The key of the member to move.
      * @param toKey The key to move the member to.
+     * @todo Optimize to a real move if possible.
      */
     void moveMember(char const* fromKey, char const* toKey);
     void moveMember(std::string const& fromKey, std::string const& toKey) { moveMember(fromKey.c_str(), toKey.c_str()); }
     void moveMember(std::string_view const& fromKey, std::string_view const& toKey) { moveMember(std::string(fromKey).c_str(), std::string(toKey).c_str()); }
+
+    /**
+     * @brief Copies a member from one key to another in the JSON document, without deleting the original.
+     * @param fromKey The key of the member to copy.
+     * @param toKey The key to copy the member to.
+     */
+    void copyMember(char const* fromKey, char const* toKey);
+    void copyMember(std::string const& fromKey, std::string const& toKey) { copyMember(fromKey.c_str(), toKey.c_str()); }
+    void copyMember(std::string_view const& fromKey, std::string_view const& toKey) { copyMember(std::string(fromKey).c_str(), std::string(toKey).c_str()); }
 
     /**
      * @brief Lists all available keys in a rapidjson object.

@@ -614,9 +614,15 @@ void JSON::moveMember(char const* fromKey, char const* toKey) {
 
     // Edge case: toKey starts with fromKey, we need a temporary key to avoid deleting after moving
     if (std::string(toKey).starts_with(std::string(fromKey))) {
-        // Edge case 2: if fromKey is empty, no deletion
+        // Edge case 2: if fromKey is empty
         if (std::string(fromKey).empty()) {
             setSubDoc(toKey, *this, fromKey);
+
+            // Remove all other members except toKey
+            for (auto const keys = listAvailableKeys(); auto const& key : keys) {
+                if (key != toKey) removeMember(key);
+            }
+
             return;
         }
 
@@ -631,6 +637,16 @@ void JSON::moveMember(char const* fromKey, char const* toKey) {
         setSubDoc(toKey, *this, fromKey);
         removeMember(fromKey);
     }
+}
+
+void JSON::copyMember(char const* fromKey, char const* toKey) {
+    std::scoped_lock const lockGuard(mtx);
+    helperNonConstVar++; // Signal non-const operation
+
+    // Ensure cache is flushed before copying key
+    flush();
+
+    setSubDoc(toKey, *this, fromKey);
 }
 
 std::vector<std::string> JSON::listAvailableKeys(std::string const& key) const {

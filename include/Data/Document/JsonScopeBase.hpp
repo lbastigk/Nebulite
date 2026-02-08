@@ -227,6 +227,11 @@ public:
     void moveMember(ScopedKeyView const& fromKey, ScopedKey const& toKey) {moveMember(fromKey, toKey.view());}
     void moveMember(ScopedKey const& fromKey, ScopedKeyView const& toKey) {moveMember(fromKey.view(), toKey);}
 
+    void copyMember(ScopedKeyView const& fromKey, ScopedKeyView const& toKey);
+    void copyMember(ScopedKey const& fromKey, ScopedKey const& toKey) {copyMember(fromKey.view(), toKey.view());}
+    void copyMember(ScopedKeyView const& fromKey, ScopedKey const& toKey) {copyMember(fromKey, toKey.view());}
+    void copyMember(ScopedKey const& fromKey, ScopedKeyView const& toKey) {copyMember(fromKey.view(), toKey);}
+
     std::vector<ScopedKey> listAvailableKeys(ScopedKeyView const& key) const ;
     std::vector<ScopedKey> listAvailableKeys(ScopedKey const& key) const {return listAvailableKeys(key.view());}
 

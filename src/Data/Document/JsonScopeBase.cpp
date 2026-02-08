@@ -144,6 +144,11 @@ void JsonScopeBase::moveMember(ScopedKeyView const& fromKey, ScopedKeyView const
     baseDocument->moveMember(fromKey.full(*this), toKey.full(*this));
 }
 
+void JsonScopeBase::copyMember(ScopedKeyView const& fromKey, ScopedKeyView const& toKey){
+    helperNonConstVar++; // Mark as non-const operation
+    baseDocument->copyMember(fromKey.full(*this), toKey.full(*this));
+}
+
 std::vector<ScopedKey> JsonScopeBase::listAvailableKeys(ScopedKeyView const& key) const {
     std::vector<std::string> const keys = baseDocument->listAvailableKeys(key.full(*this));
     std::vector<ScopedKey> scopedKeys;
