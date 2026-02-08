@@ -2,15 +2,21 @@
 
 namespace Nebulite::Data::BroadcastListenContainer {
 void FlatContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+    // Multiple threads may broadcast on the same topic, so we need to lock the broadcaster map for this topic while modifying it
+    auto lock = broadcasters.lock(entry->getTopic());
     broadcasters[entry->getTopic()].push_back(entry);
 }
 
 void FlatContainer::listen(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) {
-    listeners[topic].push_back({&listener, listenerId});
+    // Listening generally happens on multiple threads, so we need to lock the listener map for this topic while modifying it
+    auto lock = listeners.lock(topic);
+    auto& t = listeners[topic];
+    t.push_back({&listener, listenerId});
 }
 
 void FlatContainer::prepare() {
-    // Nothing to do here
+    // Since we never build any pairs during broadcast/listen, there is no container swapping to be done.
+    // instead, after broadcast/listen, we have a list of broadcasters and listeners for the current frame for each topic, which we can process in the worker thread.
 }
 
 void FlatContainer::process() {

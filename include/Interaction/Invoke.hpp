@@ -110,10 +110,21 @@ private:
     //------------------------------------------
     // Threading Containers
 
-    // Best candidates:
-    // 1.) FlatContainer (about 30% faster than MapContainer in spawn_constantly benchmark)
-    // 2.) MapContainer (about 33% faster than TreeContainer in spawn_constantly benchmark)
-    // 3.) TreeContainer
+    // Test:
+    // make linux-release && ./bin/Nebulite task TaskFiles/Benchmarks/spawn_constantly.nebs  && ./bin/Nebulite task TaskFiles/Benchmarks/gravity_XL.nebs
+
+    // Best candidates for small Benchmark: spawn_constantly.nebs, 101 Objects
+    // 1.) FlatContainer : 3.641s
+    // 2.) MapContainer  : 5.060s
+    // 3.) TreeContainer : 6.585s
+
+    // Best candidates for large Benchmark: gravity_XL.nebs, 1601 Objects
+    // 1.) FlatContainer : 0.0205s / frame
+    // 2.) MapContainer  : 0.0744s / frame
+    // 3.) TreeContainer : 0.1138s / frame
+
+    // -> FlatContainer is the best candidate by far, probably pushable even further with some optimizations.
+
     using ContainerType = Data::BroadcastListenContainer::FlatContainer;
 
     std::unique_ptr<ContainerType> worker[THREADRUNNER_COUNT];
