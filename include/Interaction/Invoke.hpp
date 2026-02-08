@@ -115,12 +115,12 @@ private:
     // Scripts/Benchmark/BroadcastListenContainer.sh
 
     // Best candidates for small Benchmark: spawn_constantly.nebs, 101 Objects
-    // 1.) FlatContainer : 3.717750 s
+    // 1.) FlatContainer : 3.714250 s
     // 2.) MapContainer  : 4.979500 s
     // 3.) TreeContainer : 6.762750 s
 
     // Best candidates for large Benchmark: gravity_XL.nebs, 1601 Objects
-    // 1.) FlatContainer : 0.018801 s / frame
+    // 1.) FlatContainer : 0.017535 s / frame
     // 2.) MapContainer  : 0.075542 s / frame
     // 3.) TreeContainer : 0.105555 s / frame
 

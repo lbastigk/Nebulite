@@ -33,7 +33,13 @@ void FlatContainer::process() {
         {
             listeners.forall([&](std::string const& topic, auto& v) {
                 auto const& bv = broadcasters[topic];
-                for (auto& listener : v) {
+
+                size_t const vSize = v.size();
+                for (size_t i = 0; i < vSize; ++i) {
+                    // Distribute listener access by offsetting the starting index for each worker thread
+                    // This way, workers are less likely to contend for the same listeners when processing the same topic
+                    size_t const idx = (i + workerInfo.index * (vSize / workerInfo.count) ) % vSize;
+                    auto& listener = v.at(idx);
                     for (auto const& ruleset : bv) {
                         if (ruleset->getId() == listener.id) {
                             continue; // Skip if the ruleset is from the same render object as the listener

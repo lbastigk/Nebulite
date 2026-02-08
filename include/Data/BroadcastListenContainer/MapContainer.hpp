@@ -28,8 +28,8 @@ namespace Nebulite::Data::BroadcastListenContainer {
  */
 class MapContainer final : public BaseContainer {
 public:
-    explicit MapContainer(std::atomic<bool>& stopFlag)
-        : BaseContainer(stopFlag),
+    explicit MapContainer(std::atomic<bool>& stopFlag, uint32_t const& workerIndex, uint32_t const& workerCount)
+        : BaseContainer(stopFlag, workerIndex, workerCount),
           thisFrame(std::make_unique<MapPairingContainer>()),
           nextFrame(std::make_unique<MapPairingContainer>())
     {

@@ -43,8 +43,8 @@ struct TreeBroadCastListenPair {
  */
 class TreeContainer final : public BaseContainer {
 public:
-    explicit TreeContainer(std::atomic<bool>& stopFlag)
-        : BaseContainer(stopFlag),
+    explicit TreeContainer(std::atomic<bool>& stopFlag, uint32_t const& workerIndex, uint32_t const& workerCount)
+        : BaseContainer(stopFlag, workerIndex, workerCount),
           thisFrame(std::make_unique<TreePairingContainer>()),
           nextFrame(std::make_unique<TreePairingContainer>())
     {

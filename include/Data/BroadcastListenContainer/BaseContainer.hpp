@@ -28,7 +28,7 @@ public:
     // TODO: Add ContainerThreadId to Constructor and ListenerThreadId to listen method, so we can better separate access based on thread id to avoid contention.
     //       This will be heavily used in the FlatContainer.
 
-    explicit BaseContainer(std::atomic<bool>& stopFlag);
+    explicit BaseContainer(std::atomic<bool>& stopFlag, uint32_t const& workerIndex, uint32_t const& workerCount);
 
     virtual ~BaseContainer() noexcept ;
 
@@ -119,6 +119,11 @@ protected:
             threadState.workFinished = true;
         }
     }
+
+    struct WorkerInfo {
+        uint32_t index; // This worker thread's index (0 to workerCount-1)
+        uint32_t count; // Total number of worker threads
+    } workerInfo;
 
     // Threading variables
     struct ThreadState {

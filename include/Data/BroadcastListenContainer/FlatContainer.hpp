@@ -14,7 +14,7 @@ namespace Nebulite::Data::BroadcastListenContainer {
 
 class FlatContainer final : public BaseContainer {
 public:
-    explicit FlatContainer(std::atomic<bool>& stopFlag) : BaseContainer(stopFlag) {
+    explicit FlatContainer(std::atomic<bool>& stopFlag, uint32_t const& workerIndex, uint32_t const& workerCount) : BaseContainer(stopFlag, workerIndex, workerCount) {
         initializeWorkerThread();
     }
 
@@ -47,13 +47,6 @@ public:
 private:
     // TODO: since listeners is accessed by multiple threads, perhaps an array of map-vector pairs is better?
     //       with access based on worker thread ID?
-
-    // TODO: Find some way to introduce randomness in order of listeners, as this container is the same for all threads
-    //       meaning we may get some unwanted clinches, where all threads try to access the same listener
-    //       Perhaps some percentual offset in where each thread starts iterating through the vector of listeners?
-    //       offset = workerIndex * (vector.size() / THREADRUNNER_COUNT)
-    //       idx = (i + workerIndex) % vector.size()
-    //       Add workedIndex to BaseContainer class so this is possible
 
     struct ListenerEntry {
         Interaction::Execution::Domain* domain;
