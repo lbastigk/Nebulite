@@ -22,8 +22,8 @@ namespace Nebulite::Utility {
 class Threading {
 public:
     static size_t threadIdToUniformDistribution(size_t const& distributionSize) {
-        size_t const h = std::hash<std::thread::id>{}(std::this_thread::get_id());
-        return mix(h) % distributionSize;
+        thread_local const size_t cached = mix(std::hash<std::thread::id>{}(std::this_thread::get_id()));
+        return cached % distributionSize;
     }
 
     static size_t atomicThreadRoll(size_t const& distributionSize) {

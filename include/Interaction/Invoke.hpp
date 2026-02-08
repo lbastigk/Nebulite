@@ -111,17 +111,18 @@ private:
     // Threading Containers
 
     // Test:
-    // make linux-release && ./bin/Nebulite task TaskFiles/Benchmarks/spawn_constantly.nebs  && ./bin/Nebulite task TaskFiles/Benchmarks/gravity_XL.nebs
+    // Set ContainerType, then run:
+    // Scripts/Benchmark/BroadcastListenContainer.sh
 
     // Best candidates for small Benchmark: spawn_constantly.nebs, 101 Objects
-    // 1.) FlatContainer : 3.641s
-    // 2.) MapContainer  : 5.060s
-    // 3.) TreeContainer : 6.585s
+    // 1.) FlatContainer : 3.717750 s
+    // 2.) MapContainer  : 4.979500 s
+    // 3.) TreeContainer : 6.762750 s
 
     // Best candidates for large Benchmark: gravity_XL.nebs, 1601 Objects
-    // 1.) FlatContainer : 0.0205s / frame
-    // 2.) MapContainer  : 0.0744s / frame
-    // 3.) TreeContainer : 0.1138s / frame
+    // 1.) FlatContainer : 0.018801 s / frame
+    // 2.) MapContainer  : 0.075542 s / frame
+    // 3.) TreeContainer : 0.105555 s / frame
 
     // -> FlatContainer is the best candidate by far, probably pushable even further with some optimizations.
 

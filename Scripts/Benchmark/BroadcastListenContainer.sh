@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# Tests the current broadcast-listen-container with small and large benchmarks
+
+BENCHMARK_COUNT=4
+
+BENCHMARK_SMALL_CMD=(./bin/Nebulite task TaskFiles/Benchmarks/spawn_constantly.nebs)
+BENCHMARK_LARGE_CMD=(./bin/Nebulite task TaskFiles/Benchmarks/gravity_XL.nebs)
+
+# Generate binary
+make linux-release
+
+# ensure binary exists
+if [ ! -x "${BENCHMARK_SMALL_CMD[0]}" ]; then
+  echo "Binary not found or not executable: ${BENCHMARK_SMALL_CMD[0]}"
+  exit 1
+fi
+
+TIME_SMALL=0.0
+TIME_LARGE=0.0
+
+for i in $(seq 1 "$BENCHMARK_COUNT"); do
+    echo "Running small benchmark iteration $i..."
+    val_small=$("${BENCHMARK_SMALL_CMD[@]}" | grep 'Benchmark took' | awk '{print $3}')
+    val_small=${val_small:-0}
+    TIME_SMALL=$(echo "$TIME_SMALL + $val_small" | bc -l)
+
+    echo "Total time after iteration $i: $TIME_SMALL s"
+
+    echo "Running large benchmark iteration $i..."
+    val_large=$("${BENCHMARK_LARGE_CMD[@]}" | grep 'Average frame time:' | awk '{print $4}')
+    val_large=${val_large:-0}
+    TIME_LARGE=$(echo "$TIME_LARGE + $val_large" | bc -l)
+
+    echo "Total frame time after iteration $i: $TIME_LARGE s"
+done
+
+avg_small=$(echo "scale=6; $TIME_SMALL / $BENCHMARK_COUNT" | bc -l)
+avg_large=$(echo "scale=6; $TIME_LARGE / $BENCHMARK_COUNT" | bc -l)
+
+printf "Average time for small benchmark:       %.6f s\n" "$avg_small"
+printf "Average frame time for large benchmark: %.6f s\n" "$avg_large"
