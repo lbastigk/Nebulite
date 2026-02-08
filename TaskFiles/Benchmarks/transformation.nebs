@@ -46,24 +46,37 @@ echo
 eval echo Running transformation benchmark with {global.benchmark.totalIterationCount} iterations...
 echo
 
-eval set benchmark.startTime {global.time.runtime.t} # Start recording time
+# Start recording time
+eval set benchmark.startTime {global.time.runtime.t}
+
+# Manually set total iterations!
 for i 1 50000 eval nop --- Add operations below: \
     {global.num|add 1} \
     {global.arr|subspan 2 2} \
     {global.time|get runtime.dt} \
     {global.arr|map add 1} \
     {global.arr|typeAsString} \
-    {global.var|typeAsString} \
+    {global.var|typeAsString}
 
 wait 1
 eval set benchmark.time $({global.time.runtime.t} - {global.benchmark.startTime})
 
 #############################################
 # Baseline for all iterations
-
 # Iterate without transformations
-eval set benchmark.startTime {global.time.runtime.t} # Start recording time
-for i 1 50000 eval nop {global.var} # Manually set total iterations!
+
+# Start recording time
+eval set benchmark.startTime {global.time.runtime.t}
+
+# Manually set total iterations!
+for i 1 50000 eval nop --- ensure the same amount of variables as above: \
+    {global.num} \
+    {global.arr} \
+    {global.time} \
+    {global.arr} \
+    {global.arr} \
+    {global.var}
+
 wait 1
 eval set benchmark.baselineTime $({global.time.runtime.t} - {global.benchmark.startTime})
 
