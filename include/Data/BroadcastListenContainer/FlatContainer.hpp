@@ -55,6 +55,10 @@ private:
      * @brief Processes all broadcast-listen pairs.
      */
     void process() override ;
+
+    mutable Utility::SharedMutex mutex;
+
+
 };
 
 } // namespace Nebulite::Data::BroadcastListenContainer

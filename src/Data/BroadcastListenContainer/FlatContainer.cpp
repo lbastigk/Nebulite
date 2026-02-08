@@ -14,21 +14,38 @@ void FlatContainer::prepare() {
 }
 
 void FlatContainer::process() {
-    listeners.forall([&](std::string const& topic, auto& v) {
-        auto& bv = broadcasters[topic];
-        for (auto* listener : v) {
-            for (auto& ruleset : bv) {
-                ruleset->apply(listener);
-            }
+    while (!threadState.stopFlag) {
+        // Wait for work to be ready
+        {
+            auto lock = Utility::SharedLock(mutex);
+            threadState.condition.wait(lock, [this] {
+                return threadState.workReady.load() || threadState.stopFlag.load();
+            });
         }
 
-        v.clear(); // Clear the listener vector for this topic after processing
-    });
+        // Process
+        {
+            listeners.forall([&](std::string const& topic, auto& v) {
+                auto& bv = broadcasters[topic];
+                for (auto* listener : v) {
+                    for (auto& ruleset : bv) {
+                        ruleset->apply(listener);
+                    }
+                }
 
-    // Cleanup: Clear all broadcaster vectors
-    broadcasters.forall([&](auto& v) {
-        v.clear();
-    });
+                v.clear(); // Clear the listener vector for this topic after processing
+            });
+
+            // Cleanup: Clear all broadcaster vectors
+            broadcasters.forall([&](auto& v) {
+                v.clear();
+            });
+        }
+
+        // Set work flags
+        threadState.workReady = false;
+        threadState.workFinished = true;
+    }
 }
 
 } // namespace Nebulite::Data::BroadcastListenContainer
