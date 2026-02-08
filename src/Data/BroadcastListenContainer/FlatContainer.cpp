@@ -31,16 +31,16 @@ void FlatContainer::process() {
 
         // Process
         {
-            listeners.forall([&](std::string const& topic, auto& v) {
+            listeners.forall([&](std::string const& topic, auto& lv) {
                 auto const& bv = broadcasters[topic];
 
-                size_t const vSize = v.size();
-                for (size_t i = 0; i < vSize; ++i) {
+                size_t const lvSize = lv.size();
+                for (size_t i = 0; i < lvSize; ++i) {
                     // Distribute listener access by offsetting the starting index for each worker thread
                     // This way, workers are less likely to contend for the same listeners when processing the same topic
-                    size_t const idx = (i + workerInfo.index * (vSize / workerInfo.count) ) % vSize;
-                    auto& listener = v.at(idx);
-                    for (auto const& ruleset : bv) {
+                    size_t const idx = (i + workerInfo.index * (lvSize / workerInfo.count) ) % lvSize;
+                    auto& listener = lv.at(idx);
+                    for (auto const& ruleset : bv) { // No offsetting here, since all broadcasters are per-worker thread and thus already distributed. Tests show that offsetting here does not improve performance.
                         if (ruleset->getId() == listener.id) {
                             continue; // Skip if the ruleset is from the same render object as the listener
                         }
@@ -50,12 +50,12 @@ void FlatContainer::process() {
                     }
                 }
 
-                v.clear(); // Clear the listener vector for this topic after processing
+                lv.clear(); // Clear the listener vector for this topic after processing
             });
 
             // Cleanup: Clear all broadcaster vectors
-            broadcasters.forall([&](auto& v) {
-                v.clear();
+            broadcasters.forall([&](auto& bv) {
+                bv.clear();
             });
         }
 
