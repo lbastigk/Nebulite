@@ -111,9 +111,10 @@ private:
     // Threading Containers
 
     // Best candidates:
-    // 1.) MapContainer (about 33% faster than TreeContainer in spawn_constantly benchmark)
-    // 2.) TreeContainer
-    using ContainerType = Data::BroadcastListenContainer::MapContainer;
+    // 1.) FlatContainer (about 30% faster than MapContainer in spawn_constantly benchmark)
+    // 2.) MapContainer (about 33% faster than TreeContainer in spawn_constantly benchmark)
+    // 3.) TreeContainer
+    using ContainerType = Data::BroadcastListenContainer::FlatContainer;
 
     std::unique_ptr<ContainerType> worker[THREADRUNNER_COUNT];
 

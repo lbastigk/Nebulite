@@ -24,6 +24,10 @@ namespace Nebulite::Data::BroadcastListenContainer {
  */
 class BaseContainer {
 public:
+
+    // TODO: Add ContainerThreadId to Constructor and ListenerThreadId to listen method, so we can better separate access based on thread id to avoid contention.
+    //       This will be heavily used in the FlatContainer.
+
     explicit BaseContainer(std::atomic<bool>& stopFlag);
 
     virtual ~BaseContainer() noexcept ;

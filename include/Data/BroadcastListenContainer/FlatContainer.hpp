@@ -55,8 +55,13 @@ private:
     //       idx = (i + workerIndex) % vector.size()
     //       Add workedIndex to BaseContainer class so this is possible
 
+    struct ListenerEntry {
+        Interaction::Execution::Domain* domain;
+        uint32_t id;
+    };
+
     HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>> broadcasters;
-    HotStringKeyMap<std::vector<Interaction::Execution::Domain*>> listeners;
+    HotStringKeyMap<std::vector<ListenerEntry>> listeners;
 
     /**
      * @brief Processes all broadcast-listen pairs.
