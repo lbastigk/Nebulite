@@ -48,6 +48,13 @@ private:
     // TODO: since listeners is accessed by multiple threads, perhaps an array of map-vector pairs is better?
     //       with access based on worker thread ID?
 
+    // TODO: Find some way to introduce randomness in order of listeners, as this container is the same for all threads
+    //       meaning we may get some unwanted clinches, where all threads try to access the same listener
+    //       Perhaps some percentual offset in where each thread starts iterating through the vector of listeners?
+    //       offset = workerIndex * (vector.size() / THREADRUNNER_COUNT)
+    //       idx = (i + workerIndex) % vector.size()
+    //       Add workedIndex to BaseContainer class so this is possible
+
     HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>> broadcasters;
     HotStringKeyMap<std::vector<Interaction::Execution::Domain*>> listeners;
 
