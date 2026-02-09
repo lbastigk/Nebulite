@@ -15,11 +15,8 @@ function print_loc_for_dirs {
     LABEL=$2
 
     CLOC_SETTINGS="--force-lang-def=./Tools/cloc_lang_define.txt $DIRS"
-    echo "Lines of code for $LABEL:"
-    #cloc $CLOC_SETTINGS 2>/dev/null # Unused, too detailed
-    echo ""
-    cloc $CLOC_SETTINGS --csv 2>/dev/null | tail -1 | awk -F',' '{total=$3+$4+$5; print "Total lines (including comments and blanks): " total}' 2>/dev/null
-    echo ""
+    NUM=$(cloc $CLOC_SETTINGS --csv 2>/dev/null | tail -1 | awk -F',' '{total=$3+$4+$5; print total}' 2>/dev/null)
+    printf "Lines of code for %-26s| %05d\n" "$LABEL" "$NUM"
 }
 
 # Custom lang define, counting:
