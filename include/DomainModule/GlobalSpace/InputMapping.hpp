@@ -59,6 +59,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, InputMapping){
+
     }
 
 private:
@@ -74,24 +75,30 @@ private:
             current,
             onPress,
             onRelease
-        } type;
+        } type = type::empty;
     };
 
     /**
      * @brief Represents a mapping entry for input actions.
-     * 
-     * Any input action can be associated with up to three keys.
+     * @details Any input action can be associated with up to three keys.
      */
     struct mapEntry{
-        association slot_1{"", association::type::empty}; // First key associated with the action
-        association slot_2{"", association::type::empty}; // Second key associated with the action
-        association slot_3{"", association::type::empty}; // Third key associated with the action
+        association slotA{"", association::type::empty}; // First key associated with the action
+        association slotB{"", association::type::empty}; // Second key associated with the action
+        association slotC{"", association::type::empty}; // Third key associated with the action
     };
 
     /**
      * @brief Maps input actions to their associated keys.
      */
     absl::flat_hash_map<std::string, mapEntry> mappings;
+
+    /**
+     * @brief Reloads all input mappings from the settings scope.
+     * @todo Not implemented yet, perhaps this could be done in the update function with a timed routine?
+     *       Or a complex trigger when a settings menu is closed?
+     */
+    //void reloadMappings();
 
     /**
      * @todo Implement input mapping association:
@@ -125,6 +132,23 @@ private:
      * }
      *
      * ```
+     */
+
+    /**
+     * JSON structure for input mapping:
+     *
+     * global.settings.inputMapping: <object>:
+     * key is the name of the action, e.g. "jump"
+     * value is an object with:
+     * - slotA: <object>:
+     *   - key: <string>: the key associated with the action, e.g. "space"
+     *   - type: <string>: the type of association, one of "current", "onPress", "onRelease", "empty"
+     * - slotB: <object>:
+     *   - key: <string>: the key associated with the action, e.g. "w"
+     *   - type: <string>: the type of association, one of "current", "onPress", "onRelease", "empty"
+     * - slotC: <object>:
+     *   - key: <string>: the key associated with the action, e.g. "up"
+     *   - type: <string>: the type of association, one of "current", "onPress", "onRelease", "empty"
      */
 
     std::unique_ptr<Utility::TimedRoutine> inputMapperTimer = nullptr;
