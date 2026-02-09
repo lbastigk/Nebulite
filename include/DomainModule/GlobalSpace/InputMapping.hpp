@@ -13,19 +13,16 @@
 
 // General
 #include "Interaction/Execution/DomainModule.hpp"
+#include "Utility/TimedRoutine.hpp"
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite{
-    namespace Core{
-        class GlobalSpace; // Forward declaration of domain class GlobalSpace
-    }
-}
+namespace Nebulite::Core {
+class GlobalSpace;
+} // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite {
-namespace DomainModule {
-namespace GlobalSpace {
+namespace Nebulite::DomainModule::GlobalSpace {
 /**
  * @class Nebulite::DomainModule::GlobalSpace::InputMapping
  * @brief DomainModule for mapping inputs to actions within the GlobalSpace.
@@ -46,51 +43,14 @@ public:
      *
      * Should use a TimeKeeper so it only updates inputs every n milliseconds
      */
-    Nebulite::Constants::Error update() override;
+    Constants::Error update() override;
 
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @brief Reads input mappings from a json file
-     * 
-     * Uses inputs.jsonc if no filename is provided
-     * 
-     * Mapping is of the form: `mappings<action:keyAssociations>`
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: [filename]
-     * @return Potential errors that occurred on command execution
-     * 
-     * @todo Not implemented yet
-     */
-    Nebulite::Constants::Error readMappingsFromFile(int argc, char* argv[]);
-
-    // Useful if we wish to update mappings ingame
-    /**
-     * @brief Update mappings
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: <action> <slot> <key> <type>
-     * @return Potential errors that occurred on command execution
-     * 
-     * @todo Not implemented yet
-     */
-    Nebulite::Constants::Error updateInputMapping(int argc, char* argv[]);
-
-    /**
-     * @brief Writes the current input mappings to a file
-     * 
-     * @param argc The argument count
-     * @param argv The argument vector: [filename]
-     * 
-     * Uses inputs.jsonc if no filename is provided
-     * 
-     * @return Potential errors that occurred on command execution
-     * 
-     * @todo Not implemented yet
-     */
-    Nebulite::Constants::Error writeMappingsToFile(int argc, char* argv[]);
+    // TODO: Modify/reload input mapping at runtime
+    //       store mappings in settings scope!
+    //       This may need to be a separate module: settings-inputMapping, as this module has no write access to the settings scope
 
     //------------------------------------------
     // Setup
@@ -99,13 +59,6 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, InputMapping){
-        // Not implemented yet
-        /*
-        bindSubtree("input-mapping", "Functions to manage input mappings");
-        BIND_FUNCTION(&InputMapping::readMappingsFromFile,   "input-mapping read-from-file",    "Reads Input Mapping from inputs.jsonc file: [filename]");
-        BIND_FUNCTION(&InputMapping::updateInputMapping,     "input-mapping map",               "Maps one input mapping: <action> <slot> <key> <type>");
-        BIND_FUNCTION(&InputMapping::writeMappingsToFile,    "input-mapping write-to-file",     "Writes Input Mapping to inputs.jsonc file: [filename]");
-        */
     }
 
 private:
@@ -173,7 +126,7 @@ private:
      *
      * ```
      */
+
+    std::unique_ptr<Utility::TimedRoutine> inputMapperTimer = nullptr;
 };
-}   // namespace GlobalSpace
-}   // namespace DomainModule
-}   // namespace Nebulite
+}   // namespace Nebulite::DomainModule::GlobalSpace

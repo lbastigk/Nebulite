@@ -21,6 +21,7 @@
 #include "DomainModule/GlobalSpace/FunctionCollision.hpp"   // Special debugging utilities for domain collision detection
 #include "DomainModule/GlobalSpace/FeatureTest.hpp"         // Feature testing module
 #include "DomainModule/GlobalSpace/General.hpp"             // General functions like eval, exit, wait, etc.
+#include "DomainModule/GlobalSpace/InputMapping.hpp"        // Input mapping and processing functions
 #include "DomainModule/GlobalSpace/Ruleset.hpp"             // Ruleset management
 #include "DomainModule/GlobalSpace/Settings.hpp"            // Settings management
 #include "DomainModule/GlobalSpace/Time.hpp"                // Basic Time management functions
@@ -120,6 +121,16 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     target->initModule<Core::GlobalSpace, Clock>( // Clock relies on time, so init after time
         "Global Clock Functions",
         target->domainScope.shareScopeBase("time."),
+        Global::settings(),
+        *target
+    );
+
+    //------------------------------------------
+    // Input mapping
+    // Even though input is initialized in the Renderer module, the input mapping module may be better suited to live in the GlobalSpace
+    target->initModule<Core::GlobalSpace, InputMapping>(
+        "Global Input Mapping Functions",
+        target->domainScope.shareScopeBase("input."),
         Global::settings(),
         *target
     );
