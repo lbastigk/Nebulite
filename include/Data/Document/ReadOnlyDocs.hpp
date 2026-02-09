@@ -61,56 +61,16 @@ public:
      * @brief Updates the cache by checking a random document for its last usage time,
      * and unloading it if it has been unused for too long.
      */
-    void update(){
-        if(docs.empty()){
-            return; // No documents to check
-        }
-
-        // Check the last used time of a random document
-        auto it = docs.begin();
-        thread_local std::mt19937_64 rng{std::random_device{}()};
-        std::uniform_int_distribution<std::size_t> dist(0, docs.size() - 1);
-        std::advance(it, dist(rng));
-
-        // If the document has not been used recently, unload it
-        if (ReadOnlyDoc* docPtr = &it->second; docPtr->lastUsed.projected_dt() > unloadTime){
-            docs.erase(it);
-        }
-    }
+    void update();
 
     /**
      * @brief Proper retrieval of a document, loading it if not already cached.
-     * And updating its metadata.
-     * 
+     *        And updating its metadata.
      * @param doc The link to the document.
      * @return Pointer to the ReadOnlyDoc, or nullptr if loading fails.
+     *         If loading fails, writes an error message to the console.
      */
-    ReadOnlyDoc* getDocument(std::string const& doc){
-        // Validate inputs and state
-        if (doc.empty()){
-            return nullptr;
-        }
-        // Check if the document exists in the cache
-        auto it = docs.find(doc);
-        if (it == docs.end()){
-            // Load the document if it doesn't exist
-            std::string const serial = Utility::FileManagement::LoadFile(doc);
-            if (serial.empty()){
-                return nullptr; // Return nullptr if document loading fails
-            }
-            auto [newIt, result] = docs.emplace(doc, ReadOnlyDoc());
-            if (!result){
-                // Emplace failed for some reason
-                return nullptr;
-            }
-            newIt->second.document.deserialize(serial);
-            newIt->second.serial = serial;
-            it = newIt;
-        }
-        ReadOnlyDoc* docPtr = &it->second;
-        docPtr->lastUsed.update();
-        return docPtr;
-    }
+    ReadOnlyDoc* getDocument(std::string const& doc);
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_READ_ONLY_DOCS_HPP
