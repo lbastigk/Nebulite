@@ -22,8 +22,10 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/Benchmarks/spawn_constantly.nebs
-task TaskFiles/Benchmarks/gravity_XL.nebs
+# Testing domain functioncalls
+set test.val 3
+eval echo {global.test|parse json set val {!./Resources/Renderobjects/standard.jsonc:size.X}|get val|toInt}
+exit
 
 task TaskFiles/Simulations/bouncing.nebs
 

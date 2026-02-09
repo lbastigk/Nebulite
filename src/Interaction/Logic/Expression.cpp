@@ -603,6 +603,20 @@ uint64_t Expression::generateUniqueId(std::string const& expression) {
     return idGenerator.getId(expression);
 }
 
+std::string Expression::removeOuterAntiEvalWrapper(std::string const& expression) {
+    auto expressionParts = Utility::StringHandler::splitOnSameDepth(expression, '{');
+    for (auto& expressionPart : expressionParts) {
+        // Any outer expression part with an anti-evaluation wrapper {! ... } should have it replaced with { ... }
+        // as we want to evaluate the expression inside as normal
+        if (expressionPart.starts_with("{!")) {
+            expressionPart = "{" + expressionPart.substr(2);
+        }
+    }
+
+    // Recombine to form the full expression
+    return std::accumulate(expressionParts.begin(), expressionParts.end(), std::string{});
+}
+
 //------------------------------------------
 // Recalculation helpers:
 

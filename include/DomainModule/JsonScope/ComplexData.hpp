@@ -44,11 +44,14 @@ public:
 
     static Constants::Error jsonSet(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope);
     static auto constexpr jsonSet_name = "json set";
-    static auto constexpr jsonSet_desc = "Sets a key from a read-only JSON document.\n"
-        "Usage: json set <key> <link:key>\n"
+    static auto constexpr jsonSet_desc = "Sets a key from an expression evaluated as JSON, allowing for complex objects to be set.\n"
+        "Usage: json set <key> <expression>\n"
         "\n"
-        "Where <link:key> is a link to a JSON document.\n"
-        "The document is dynamically loaded and cached for future use.\n";
+        "Examples:\n"
+        "json set namesStartingWithF {global.names|filterGlob F*}\n"
+        "json set userInfo {global.users|filterRegex {!^user[0-9]+$}}\n"
+        "json set readOnlyDoc {./Resources/sample.json:key1.key2}\n"
+        "json set sizeCopy {self.size}\n";
 
     //------------------------------------------
     // Category names

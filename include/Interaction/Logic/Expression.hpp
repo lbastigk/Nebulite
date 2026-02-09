@@ -225,12 +225,29 @@ public:
      */
     static bool evalAsBool(std::string const& input);
 
+    //------------------------------------------
+    // Static helpers
+
     /**
      * @brief Generates a unique ID for a given expression string.
      * @param expression The expression string to generate an ID for.
      * @return The generated unique ID.
      */
     static uint64_t generateUniqueId(std::string const& expression);
+
+    /**
+     * @brief Removes outer anti-evaluation wrappers from an expression string
+     * @details Example: "This Expression has two anti-evaluation wrappers: {!self.value} and {!global.value}"
+     *          would be transformed to "This Expression has two anti-evaluation wrappers: {self.value} and {global.value}"
+     *          It's best to use this function at the lowest level possible, right before parsing the expression,
+     *          to preserve as much formatting as possible in the expression string in case it's passed down further.
+     * @param expression The expression string to remove outer anti-evaluation wrappers from.
+     * @return The expression string with outer anti-evaluation wrappers removed.
+     */
+    static std::string removeOuterAntiEvalWrapper(std::string const& expression);
+    static std::string removeOuterAntiEvalWrapper(std::span<std::string const> const& args) {
+        return removeOuterAntiEvalWrapper(Utility::StringHandler::recombineArgs(args));
+    }
 
 private:
     /**

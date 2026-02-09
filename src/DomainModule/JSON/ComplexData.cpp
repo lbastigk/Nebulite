@@ -25,42 +25,18 @@ Constants::Error ComplexData::querySet() {
 // NOLINTNEXTLINE
 Constants::Error ComplexData::jsonSet(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
     std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
-    // Since we have no access to the global space, we cant use the JSON doc cache
-    // Instead, we manually load the document to retrieve the key
     if (args.size() < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    if (args.size() > 3) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
-    }
+
+    // Argument parsing
     std::string const& myKey = args[1];
-    std::string const& docKey = args[2];
+    std::string const expression = Interaction::Logic::Expression::removeOuterAntiEvalWrapper(args.subspan(2));
 
-    // Depending on the type of docKey, we retrieve the value
-
-    // === DOCUMENT ===
-    if (Data::KeyType const type = Global::instance().getDocCache().memberType(docKey); type == Data::KeyType::object) {
-        // Retrieve the sub-document
-        Data::JSON const subDoc = Global::instance().getDocCache().getSubDoc(docKey);
-
-        // Set the sub-document in the current JSON tree
-        callerScope.setSubDoc(callerScope.getRootScope() + myKey, subDoc);
-    }
-    // === VALUE ===
-    else if (type == Data::KeyType::value) {
-        callerScope.set(callerScope.getRootScope() + myKey, Global::instance().getDocCache().get<std::string>(docKey));
-    }
-    // === ARRAY ===
-    else if (type == Data::KeyType::array) {
-        size_t const size = Global::instance().getDocCache().memberSize(docKey);
-        for (size_t i = 0; i < size; ++i) {
-            std::string itemKey = docKey + "[" + std::to_string(i) + "]";
-            auto itemValue = Global::instance().getDocCache().get<std::string>(itemKey);
-            std::string newItemKey = myKey + "[" + std::to_string(i) + "]";
-            callerScope.set(callerScope.getRootScope() + newItemKey, itemValue);
-        }
-    }
-    (void)caller; // Unused parameter
+    // Evaluate
+    Interaction::Context const ctx{caller, caller, Global::instance()};
+    auto const result = Interaction::Logic::Expression::evalAsJson(expression, ctx);
+    callerScope.setSubDoc(callerScope.getRootScope() + myKey, result);
     return Constants::ErrorTable::NONE();
 }
 } // namespace Nebulite::DomainModule::JsonScope
