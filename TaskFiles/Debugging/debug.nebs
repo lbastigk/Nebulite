@@ -22,11 +22,6 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-# Testing domain functioncalls
-set test.val 3
-eval echo {global.test|parse json set val {!./Resources/Renderobjects/standard.jsonc:size.X}|get val|toInt}
-exit
-
 task TaskFiles/Simulations/bouncing.nebs
 
 #task TaskFiles/VerticalSlice/levelDescription.nebs

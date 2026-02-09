@@ -3,6 +3,7 @@
 
 // Nebulite
 #include "Core/JsonScope.hpp"
+#include "Interaction/Logic/Expression.hpp"
 #include "TransformationModule/General.hpp"
 
 //------------------------------------------
@@ -70,7 +71,7 @@ bool General::removeMember(std::span<std::string const> const& args, Core::JsonS
 bool General::setFromResult(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) const {
     if (args.size() < 2) return false;
     auto const key = rootKey + std::string(args[1]);
-    auto const transformation = extractPotentiallyWrappedString(args.subspan(2));
+    auto const transformation = handlePotentiallyWrappedString(args.subspan(2));
 
     auto targs = Data::JSON::splitKeyWithTransformations(transformation);
     if (targs.empty()) {

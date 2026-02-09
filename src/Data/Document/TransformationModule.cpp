@@ -1,21 +1,22 @@
 #include "Data/Document/TransformationModule.hpp"
+#include "Interaction/Logic/Expression.hpp"
 
 namespace Nebulite::Data {
 
 TransformationModule::TransformationModule(std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> funcTree)
     : transformationFuncTree(std::move(funcTree)){}
 
-TransformationModule::~TransformationModule() = default; // out-of-line dtor (key function)
+TransformationModule::~TransformationModule() = default;
 
-std::string TransformationModule::extractPotentiallyWrappedString(std::span<std::string const> const& args){
-    if (args.empty()) {
-        return "";
+std::string TransformationModule::handlePotentiallyWrappedString(std::span<std::string const> const& args){
+    // Remove all outer anti-eval wrappers
+    auto str = Interaction::Logic::Expression::removeOuterAntiEvalWrapper(args);
+
+    // If the resulting string is still wrapped in braces, remove them as well
+    if (str.starts_with("{") && str.ends_with("}")) {
+        str = str.substr(1, str.size() - 2); // Remove outer braces if present
     }
-    if (args.front().starts_with("{!") && args.back().ends_with('}')) {
-        auto const full = Utility::StringHandler::recombineArgs(args);
-        return std::string(full.data() + 2, full.size() - 3);
-    }
-    return Utility::StringHandler::recombineArgs(args);
+    return str;
 }
 
 } // namespace Nebulite::Data
