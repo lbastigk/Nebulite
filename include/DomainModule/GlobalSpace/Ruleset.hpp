@@ -67,6 +67,10 @@ public:
         bindFunction(&Ruleset::broadcast, broadcast_name, broadcast_desc);
         bindFunction(&Ruleset::listen, listen_name, listen_desc);
     }
+
+    struct Key {
+        DECLARE_SCOPE("ruleset.")
+    };
 };
 } // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_GSDM_RULESET_HPP

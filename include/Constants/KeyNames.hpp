@@ -65,21 +65,17 @@ struct KeyNames {
             static auto constexpr listen = MAKE_SCOPED("listen");
         };
 
-        static auto constexpr draw = Data::ScopedKeyView("draw");
-
-        static auto constexpr sizeX = Data::ScopedKeyView("size.x");
-        static auto constexpr sizeY = Data::ScopedKeyView("size.y");
-        static auto constexpr sizeR = Data::ScopedKeyView("size.r"); // TODO: Make sure any collision modules are able to use (X,Y) and radius
+        static auto constexpr draw = MAKE_SCOPED("draw");
+        static auto constexpr sizeX = MAKE_SCOPED("size.x");
+        static auto constexpr sizeY = MAKE_SCOPED("size.y");
+        static auto constexpr sizeR = MAKE_SCOPED("size.r"); // TODO: Make sure any collision modules are able to use (X,Y) and radius
     };
 
     // Keys within any Ruleset JSON object
     // No scope! They are at the root of any ruleset object within ruleset.broadcast[i]
     struct Ruleset {
-        // TODO: Use these ones later on:
-        //       Make sure to refactor any usage in json files
         static auto constexpr topic = Data::ScopedKeyView("topic");
         static auto constexpr condition = Data::ScopedKeyView("condition");
-        // If both are met, do:
         static auto constexpr assignments = Data::ScopedKeyView("action.assign");
         static auto constexpr parseOnGlobal = Data::ScopedKeyView("action.functioncall.global");
         static auto constexpr parseOnSelf   = Data::ScopedKeyView("action.functioncall.self");

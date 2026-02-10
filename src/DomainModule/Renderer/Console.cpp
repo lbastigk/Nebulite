@@ -10,6 +10,7 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "DomainModule/Renderer/Console.hpp"
+#include "DomainModule/Renderer/Input.hpp"
 #include "Core/Renderer.hpp"
 
 //------------------------------------------
@@ -66,6 +67,7 @@ Constants::Error Console::update() {
     events = domain.getEventHandles();
 
     // Toggling console mode
+    static auto const toggleKey = Input::Key::keyboardDelta + "tab";
     if (moduleScope.get<int>(toggleKey, 0) == 1) {
         consoleMode = !consoleMode;
         if (consoleMode) {

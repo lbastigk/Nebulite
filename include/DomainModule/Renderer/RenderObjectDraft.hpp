@@ -15,8 +15,10 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Constants/KeyNames.hpp"
 #include "Core/RenderObject.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
+
 
 //------------------------------------------
 // Forward declarations
@@ -87,6 +89,13 @@ public:
         BIND_FUNCTION(&RenderObjectDraft::draft_spawn, draft_spawn_name, draft_spawn_desc);
         BIND_FUNCTION(&RenderObjectDraft::draft_reset, draft_reset_name, draft_reset_desc);
     }
+
+    struct Key {
+        // TODO: We could modify the RenderObject constructor to accept an optional scope.
+        //       This way, we can directly store the draft data in the renderer scope.
+        //       Then, we can modify the scope to "renderer.draft." and have the entire renderObject live in that scope at root level.
+        DECLARE_SCOPE("renderer.")
+    };
 
 private:
     /**

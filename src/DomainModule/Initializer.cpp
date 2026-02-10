@@ -73,7 +73,6 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     // Settings module should be initialized first to load settings for other modules
     target->initModule<Core::GlobalSpace, Settings>(
         "Global Settings Functions",
-        //target->domainScope.shareScopeBase("settings."),
         Global::settings(),
         *target
     );
@@ -87,13 +86,11 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     );
     target->initModule<Core::GlobalSpace, Debug>(
         "Global Debug Functions",
-        target->domainScope.shareScopeBase("debug."),
         Global::settings(),
         *target
     );
     target->initModule<Core::GlobalSpace, Ruleset>(
         "Global Ruleset Functions",
-        target->domainScope.shareScopeBase("ruleset."),
         Global::settings(),
         *target
     );
@@ -117,7 +114,6 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     // we need to init time after most other modules.
     target->initModule<Core::GlobalSpace, Time>(
         "Global Time Functions",
-        //target->domainScope.shareScopeBase("time."),
         Global::settings(),
         *target
     );
@@ -185,13 +181,11 @@ void Initializer::initRenderObject(Core::RenderObject* target) {
     );
     target->initModule<Core::RenderObject, Mirror>(
         "RenderObject Mirror Functions",
-        target->domainScope.shareScopeBase(""), // Requires full access to mirror entire object in update routine.
         Global::settings(),
         *target
     );
     target->initModule<Core::RenderObject, Ruleset>(
         "RenderObject Ruleset Functions",
-        target->domainScope.shareScopeBase("ruleset."),
         Global::settings(),
         *target
     );
@@ -212,8 +206,6 @@ void Initializer::initRenderer(Core::Renderer* target) {
     );
     target->initModule<Core::Renderer, Console>(
         "Renderer Console Functions",
-        // Needs full access to redirect console commands to full global scope
-        target->domainScope.shareScopeBase(""),
         Global::settings(),
         *target
     );
@@ -224,10 +216,6 @@ void Initializer::initRenderer(Core::Renderer* target) {
     );
     target->initModule<Core::Renderer, RenderObjectDraft>(
         "Renderer RenderObjectDraft Functions",
-        // TODO: We could modify the RenderObject constructor to accept an optional scope.
-        //       This way, we can directly store the draft data in the renderer scope.
-        //       Then, we can modify the scope to "draft." and have the entire renderObject live in that scope at root level.
-        target->domainScope.shareScopeBase(""),
         Global::settings(),
         *target
     );

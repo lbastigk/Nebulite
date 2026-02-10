@@ -71,6 +71,10 @@ public:
         bindFunction(&Ruleset::once, once_name, once_desc);
     }
 
+    struct Key {
+        DECLARE_SCOPE("ruleset.")
+    };
+
 private:
     // Size of subscriptions
     size_t subscription_size = 0;

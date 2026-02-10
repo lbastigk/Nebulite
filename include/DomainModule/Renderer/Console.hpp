@@ -75,12 +75,13 @@ public:
         BIND_FUNCTION(&Console::consoleSetBackground, consoleSetBackground_name, consoleSetBackground_desc);
     }
 
+    struct Key {
+        DECLARE_SCOPE("renderer.")
+    };
+
 private:
     //------------------------------------------
     // Basic Configuration
-
-    // Key to toggle console
-    static auto constexpr toggleKey = Data::ScopedKeyView("input.keyboard.delta.tab");
 
     // Font to use
     std::string consoleFontPath = "Resources/Fonts/JetBrainsMono-Medium.ttf";
