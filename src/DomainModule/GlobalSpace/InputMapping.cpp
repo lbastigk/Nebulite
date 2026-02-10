@@ -1,3 +1,6 @@
+#include <cmath>
+#include <cfloat>
+
 #include "Nebulite.hpp"
 #include "DomainModule/GlobalSpace/InputMapping.hpp"
 #include "DomainModule/Renderer/Input.hpp"
@@ -5,7 +8,7 @@
 namespace Nebulite::DomainModule::GlobalSpace {
 
 Constants::Error InputMapping::update() {
-    if (static_cast<bool>(*sdlPolledInput)) {
+    if (std::fabs(*sdlPolledInput) > DBL_EPSILON) {
         processMappings();
     }
     return Constants::ErrorTable::NONE();
