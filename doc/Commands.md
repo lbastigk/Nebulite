@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sat Feb  7 18:38:56 CET 2026
+Generated on: Tue Feb 10 20:03:14 CET 2026
 
 ## Table of Contents
 
@@ -494,16 +494,19 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `help` | Show available commands and their descriptions |
-| `set` | Sets a key from a read-only JSON document. |
+| `set` | Sets a key from an expression evaluated as JSON, allowing for complex objects to be set. |
 
 ##### `json set`
 
 ```
-Sets a key from a read-only JSON document.
-Usage: json set <key> <link:key>
+Sets a key from an expression evaluated as JSON, allowing for complex objects to be set.
+Usage: json set <key> <expression>
 
-Where <link:key> is a link to a JSON document.
-The document is dynamically loaded and cached for future use.
+Examples:
+json set namesStartingWithF {global.names|filterGlob F*}
+json set userInfo {global.users|filterRegex {!^user[0-9]+$}}
+json set readOnlyDoc {./Resources/sample.json:key1.key2}
+json set sizeCopy {self.size}
 ```
 
 #### `keyDelete`
@@ -1021,16 +1024,19 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `help` | Show available commands and their descriptions |
-| `set` | Sets a key from a read-only JSON document. |
+| `set` | Sets a key from an expression evaluated as JSON, allowing for complex objects to be set. |
 
 ##### `json set`
 
 ```
-Sets a key from a read-only JSON document.
-Usage: json set <key> <link:key>
+Sets a key from an expression evaluated as JSON, allowing for complex objects to be set.
+Usage: json set <key> <expression>
 
-Where <link:key> is a link to a JSON document.
-The document is dynamically loaded and cached for future use.
+Examples:
+json set namesStartingWithF {global.names|filterGlob F*}
+json set userInfo {global.users|filterRegex {!^user[0-9]+$}}
+json set readOnlyDoc {./Resources/sample.json:key1.key2}
+json set sizeCopy {self.size}
 ```
 
 #### `keyDelete`
@@ -1555,6 +1561,7 @@ Usage: |multiply <number1> <number2> ...
 
 ```
 Parses a Nebulite Script command on the JSON
+Supports argument wrapped in {! ... } for safety with Expression evaluation
 Usage: |parse <command> -> {value}
 ```
 

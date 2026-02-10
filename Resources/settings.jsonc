@@ -1,4 +1,7 @@
 {
+    "custom": {
+        "__example__": "This is an example custom setting. You can add any settings you want under the 'custom' key in the settings file, and they will always be loaded into the globalspace."
+    },
     "inputMapping": {
         "down": {
             "slotA": {

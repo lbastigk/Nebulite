@@ -1,6 +1,6 @@
 set-fps 60
-json set zzz {./Resources/Renderobjects/standard.jsonc:size.X}
-echo Printing value retrieved from: ./Resources/Renderobjects/standard.jsonc:size.X
+json set zzz {./Resources/Renderobjects/standard.jsonc:size.x}
+echo Printing value retrieved from: ./Resources/Renderobjects/standard.jsonc:size.x
 echo Expected value: 32
 eval echo {global.zzz}
 exit

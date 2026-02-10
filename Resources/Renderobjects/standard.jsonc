@@ -24,10 +24,10 @@
             "drawType": "text",
             "textureData": {
                 "color": {
-                    "A": 255.0,
-                    "B": 255.0,
-                    "G": 255.0,
-                    "R": 255.0
+                    "a": 255.0,
+                    "b": 255.0,
+                    "g": 255.0,
+                    "r": 255.0
                 },
                 "fontSize": 24.0,
                 "str": "Hello, Nebulite!"
@@ -39,13 +39,12 @@
     "posX": 0,
     "posY": 0,
     "ruleset": {
+        "list": [],
         "listen": [
             "all"
-        ],
-        "list": []
+        ]
     },
     "size": {
-        "X": 32,
-        "Y": 32
+        "x": 32
     }
 }

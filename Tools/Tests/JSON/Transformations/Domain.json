@@ -3,7 +3,7 @@
         "command": [
             "# Testing domain functioncalls",
             "set test.val 3",
-            "eval echo {global.test|parse json set val {!./Resources/Renderobjects/standard.jsonc:size.X}|get val|toInt}",
+            "eval echo {global.test|parse json set val {!./Resources/Renderobjects/standard.jsonc:size.x}|get val|toInt}",
             "",
             "exit"
         ],
