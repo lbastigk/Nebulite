@@ -84,11 +84,15 @@ void Settings::loadSettings(std::string const& filename) {
     moduleScope.set<uint8_t>(Key::resolutionScaling, settingsFile.get<uint8_t>(Key::resolutionScaling, 1));
     moduleScope.set<uint16_t>(Key::targetFPS, settingsFile.get<uint16_t>(Key::targetFPS, 60));
 
-    // What commands to parse on different scenarios
+    // What commands to parse on different scenarios...
+
+    // On startup
     moduleScope.setSubDoc(Key::parseOnStartup, settingsFile.getSubDoc(Key::parseOnStartup));
     if (moduleScope.memberType(Key::parseOnStartup) != Data::KeyType::array) { // Load default if not present
         moduleScope.setEmptyArray(Key::parseOnStartup);
     }
+
+    // Only when opening Nebulite with no arguments, e.g. by double-clicking the executable
     moduleScope.setSubDoc(Key::parseIfNoArgs, settingsFile.getSubDoc(Key::parseIfNoArgs));
     if (moduleScope.memberType(Key::parseIfNoArgs) != Data::KeyType::array) { // Load default if not present
         moduleScope.set<std::string>(Key::parseIfNoArgs + "[0]", "echo Nebulite opened with no arguments provided. Starting empty renderer.");
