@@ -16,24 +16,22 @@ Constants::Error InputMapping::update() {
 
 void InputMapping::processMappings() {
     for (auto const& [action, entry] : mappings) {
-        // Process each mapping
-        int current = 0;
-
-
         static auto const mappingLocation = moduleScope.getRootScope() + "input.";
 
+        // Process each mapping
+        int current = 0;
         for(const auto& [key, type] : {entry.slotA, entry.slotB, entry.slotC}) {
             if (key.empty())
                 continue;
             switch (type) {
-            case association::type::current:
-                    current +=     moduleScope.get<int>(Renderer::Input::Key::keyboardCurrent + key);
+                case association::type::current:
+                    current += moduleScope.get<int>(Renderer::Input::Key::keyboardCurrent + key);
                     break;
-            case association::type::onPress:
+                case association::type::onPress:
                     current += abs(moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key)) == 1;
                     break;
                 case association::type::onRelease:
-                    current +=     moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key) == -1;
+                    current += moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key) == -1;
                     break;
                 case association::type::empty:
                     break;
@@ -43,6 +41,7 @@ void InputMapping::processMappings() {
         }
 
         // Now we write the state into our mapping location
+        // We write the amount of actions triggered, may need to be normalized later on
         moduleScope.set<int>(mappingLocation + action, current);
     }
 }

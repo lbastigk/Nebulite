@@ -51,6 +51,9 @@ public:
     // TODO: Modify/reload input mapping at runtime
     //       store mappings in settings scope!
 
+    // TODO: showMappings <on/off> function that displays an imgui window with the current mappings
+    //       later on, this may be expanded to a full input mapping editor for actual GUI configuration of input
+
     //------------------------------------------
     // Setup
 
