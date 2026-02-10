@@ -1,5 +1,6 @@
-#include "DomainModule/GlobalSpace/Settings.hpp"
 #include "Nebulite.hpp"
+#include "DomainModule/GlobalSpace/InputMapping.hpp"
+#include "DomainModule/GlobalSpace/Settings.hpp"
 #include "Utility/FileManagement.hpp"
 
 namespace Nebulite::DomainModule::GlobalSpace {
@@ -100,10 +101,15 @@ void Settings::loadSettings(std::string const& filename) {
         moduleScope.set<std::string>(Key::parseIfNoArgs + "[2]", "set-fps 60"); // TODO: add an initRenderer command and use that instead of setting fps here
     }
 
+    // Input mappings
+    moduleScope.setSubDoc(Key::inputMapping, settingsFile.getSubDoc(Key::inputMapping));
+    if (moduleScope.memberType(Key::inputMapping) != Data::KeyType::object) { // Load default if not present
+        InputMapping::loadDefaultMappings(moduleScope);
+    }
+
     /**
      * @todo: Add more settings:
      *        - Console settings (like font size, colors, etc.)
-     *        - Key bindings
      *        - Language/locale
      *        - etc...
      */

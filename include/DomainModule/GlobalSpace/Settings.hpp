@@ -88,6 +88,9 @@ public:
         // Startup-related settings
         static auto constexpr parseOnStartup = MAKE_SCOPED("parse.onStartup");
         static auto constexpr parseIfNoArgs = MAKE_SCOPED("parse.ifNoArgs");
+
+        // Input-Mapping
+        static auto constexpr inputMapping = MAKE_SCOPED("inputMapping");
     };
 
     //------------------------------------------

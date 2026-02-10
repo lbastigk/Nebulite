@@ -49,38 +49,12 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, InputMapping){
+        // Setup pointer to polled input key in Renderer::Input module, to sync our updates with it and avoid missing deltas
         auto const sdlPolledInputKey = moduleScope.getRootScope() + "renderer.input.polled";
         sdlPolledInput = moduleScope.getStableDoublePointer(sdlPolledInputKey);
 
-        // Example mappings:
-
-        // TODO: Move these to settings scope (store as json) and implement reloadMappings() to load them
-
-        mappings["jump"] = mapEntry{
-            .slotA = association{"space", association::type::current},
-            .slotB = association{"", association::type::empty},
-            .slotC = association{"", association::type::empty}
-        };
-        mappings["up"] = mapEntry{
-            .slotA = association{"w", association::type::current},
-            .slotB = association{"up", association::type::current},
-            .slotC = association{"", association::type::empty}
-        };
-        mappings["down"] = mapEntry{
-            .slotA = association{"s", association::type::current},
-            .slotB = association{"down", association::type::current},
-            .slotC = association{"", association::type::empty}
-        };
-        mappings["left"] = mapEntry{
-            .slotA = association{"a", association::type::current},
-            .slotB = association{"left", association::type::current},
-            .slotC = association{"", association::type::empty}
-        };
-        mappings["right"] = mapEntry{
-            .slotA = association{"d", association::type::current},
-            .slotB = association{"right", association::type::current},
-            .slotC = association{"", association::type::empty}
-        };
+        // Load initial mappings from settings
+        reloadMappings();
     }
 
     struct Key {
@@ -88,32 +62,72 @@ public:
         static auto constexpr mappingLocation = MAKE_SCOPED("input.");
     };
 
+    //------------------------------------------
+    // Other public functions
+
+    /**
+     * @brief Loads default input mappings into a given scope.
+     */
+    static void loadDefaultMappings(Data::JsonScopeBase& scope);
+
 private:
+    struct InputMappingSlot {
+        // Just strings, as we need to combine them with the inputMapping key to form the full key for each slot of each mapping, e.g. "settings.inputMapping.jump.slotA.key"
+
+        // The SDL_ key associated with the slot, e.g. "space"
+        static auto constexpr associationA = "slotA.association";
+        static auto constexpr associationB = "slotB.association";
+        static auto constexpr associationC = "slotC.association";
+
+        // The type of association, e.g. "current", "onPress", "onRelease"
+        static auto constexpr actionA = "slotA.action";
+        static auto constexpr actionB = "slotB.action";
+        static auto constexpr actionC = "slotC.action";
+    };
+
     double* sdlPolledInput = nullptr; // Key for checking if the Renderer::Input module has polled new input, to sync our updates with it and avoid missing deltas
 
     /**
      * @brief Represents a key association for input mapping.
-     * 
-     * The struct represents the Association between a key and its input type.
+     * @details The struct represents the Association between a key and its input type.
+     *          - key: The name of the SDL key (e.g., "space", "w", "up").
+     *          - type: The type of association, which can be one of the following:
+     *                  - action::current: The current state of the key (pressed or not).
+     *                  - action::onPress: Whether the key was pressed in the current frame.
+     *                  - action::onRelease: Whether the key was released in the current frame.
      */
     struct association{
         std::string key; // e.g. "space"
-        enum class type {
+        enum class action {
             empty,
             current,
             onPress,
             onRelease
-        } type = type::empty;
+            // TODO: onPressOrRelease
+        } type = action::empty;
     };
+
+    static association::action stringToAssociationType(std::string const& typeStr) {
+        if (typeStr == "current") {
+            return association::action::current;
+        }
+        if (typeStr == "onPress") {
+            return association::action::onPress;
+        }
+        if (typeStr == "onRelease") {
+            return association::action::onRelease;
+        }
+        return association::action::empty;
+    }
 
     /**
      * @brief Represents a mapping entry for input actions.
      * @details Any input action can be associated with up to three keys.
      */
     struct mapEntry{
-        association slotA{"", association::type::empty}; // First key associated with the action
-        association slotB{"", association::type::empty}; // Second key associated with the action
-        association slotC{"", association::type::empty}; // Third key associated with the action
+        association slotA{"", association::action::empty}; // First key associated with the action
+        association slotB{"", association::action::empty}; // Second key associated with the action
+        association slotC{"", association::action::empty}; // Third key associated with the action
     };
 
     /**
@@ -132,22 +146,5 @@ private:
      * @brief Processes all input mappings
      */
     void processMappings();
-
-    /**
-     * JSON structure for input mapping:
-     *
-     * global.settings.inputMapping: <object>:
-     * key is the name of the action, e.g. "jump"
-     * value is an object with:
-     * - slotA: <object>:
-     *   - key: <string>: the key associated with the action, e.g. "space"
-     *   - type: <string>: the type of association, one of "current", "onPress", "onRelease", "empty"
-     * - slotB: <object>:
-     *   - key: <string>: the key associated with the action, e.g. "w"
-     *   - type: <string>: the type of association, one of "current", "onPress", "onRelease", "empty"
-     * - slotC: <object>:
-     *   - key: <string>: the key associated with the action, e.g. "up"
-     *   - type: <string>: the type of association, one of "current", "onPress", "onRelease", "empty"
-     */
 };
 }   // namespace Nebulite::DomainModule::GlobalSpace

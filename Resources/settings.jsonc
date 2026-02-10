@@ -1,4 +1,76 @@
 {
+    "inputMapping": {
+        "down": {
+            "slotA": {
+                "action": "current",
+                "association": "s"
+            },
+            "slotB": {
+                "action": "current",
+                "association": "down"
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        },
+        "jump": {
+            "slotA": {
+                "action": "current",
+                "association": "space"
+            },
+            "slotB": {
+                "action": "empty",
+                "association": ""
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        },
+        "left": {
+            "slotA": {
+                "action": "current",
+                "association": "a"
+            },
+            "slotB": {
+                "action": "current",
+                "association": "left"
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        },
+        "right": {
+            "slotA": {
+                "action": "current",
+                "association": "d"
+            },
+            "slotB": {
+                "action": "current",
+                "association": "right"
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        },
+        "up": {
+            "slotA": {
+                "action": "current",
+                "association": "w"
+            },
+            "slotB": {
+                "action": "current",
+                "association": "up"
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        }
+    },
     "parse": {
         "ifNoArgs": [
             "echo Nebulite opened with no arguments provided. Starting empty renderer.",
