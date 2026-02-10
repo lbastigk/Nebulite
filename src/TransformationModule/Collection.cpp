@@ -2,13 +2,13 @@
 // Includes
 
 // Standard library
-#include <fnmatch.h>
 #include <regex>
 
 // Nebulite
 #include "Core/JsonScope.hpp"
 #include "Interaction/Logic/Expression.hpp"
 #include "TransformationModule/Collection.hpp"
+#include "Utility/Glob.hpp"
 
 //------------------------------------------
 namespace Nebulite::TransformationModule {
@@ -115,7 +115,7 @@ bool Collection::filterGlob(std::span<std::string const> const& args, Core::Json
     auto const memberKeyPairs = jsonDoc->listAvailableMembersAndKeys(rootKey);
     Data::JSON filtered;
     for (const auto& [member, key] : memberKeyPairs) {
-        if (fnmatch(pattern.c_str(), member.c_str(), 0) == 0) {
+        if (Nebulite::Utility::globMatch(pattern, member)) {
             filtered.setSubDoc(member, jsonDoc->getSubDoc(key));
         }
     }
