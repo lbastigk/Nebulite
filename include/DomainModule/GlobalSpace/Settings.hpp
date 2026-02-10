@@ -77,6 +77,9 @@ public:
     struct Key {
         DECLARE_SCOPE("settings.")
 
+        // Custom settings
+        static auto constexpr customSettings = MAKE_SCOPED("custom");
+
         // Use scoped keys to set and access from GlobalSpace
 
         // Renderer-related settings

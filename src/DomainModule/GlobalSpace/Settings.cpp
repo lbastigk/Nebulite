@@ -73,11 +73,18 @@ void Settings::loadSettings(std::string const& filename) {
     settings.moveMember("", Key::scope);
     auto const& settingsFile = settings.shareManagedScopeBase(Key::scope);
 
+    // Get custom settings
+    moduleScope.setSubDoc(Key::customSettings, settingsFile.getSubDoc(Key::customSettings));
+    if (moduleScope.memberType(Key::customSettings) != Data::KeyType::object) { // Load default if not present
+        moduleScope.set<std::string>(Key::customSettings + ".__example__", "This is an example custom setting. You can add any settings you want under the 'custom' key in the settings file, and they will always be loaded into the globalspace.");
+    }
+
     //---------------------------------------------------
-    // Cherry-Pick values to set in global settings
+    // Cherry-Pick all other values to set in global settings
     // Fallback to default values if not present
     // Any unknown settings are ignored
-    // Later on, we may want to save all and ensure all known settings are present
+    // This way, we ensure the presence of all expected settings
+    // For freeform custom settings, users may use the prefix from Key::customSettings
 
     // Renderer settings
     moduleScope.set<uint16_t>(Key::resolutionX, settingsFile.get<uint16_t>(Key::resolutionX, 1000));
@@ -85,15 +92,13 @@ void Settings::loadSettings(std::string const& filename) {
     moduleScope.set<uint8_t>(Key::resolutionScaling, settingsFile.get<uint8_t>(Key::resolutionScaling, 1));
     moduleScope.set<uint16_t>(Key::targetFPS, settingsFile.get<uint16_t>(Key::targetFPS, 60));
 
-    // What commands to parse on different scenarios...
-
-    // On startup
+    // Commands: On startup
     moduleScope.setSubDoc(Key::parseOnStartup, settingsFile.getSubDoc(Key::parseOnStartup));
     if (moduleScope.memberType(Key::parseOnStartup) != Data::KeyType::array) { // Load default if not present
         moduleScope.setEmptyArray(Key::parseOnStartup);
     }
 
-    // Only when opening Nebulite with no arguments, e.g. by double-clicking the executable
+    // Commands: When opening Nebulite with no arguments, e.g. by double-clicking the executable
     moduleScope.setSubDoc(Key::parseIfNoArgs, settingsFile.getSubDoc(Key::parseIfNoArgs));
     if (moduleScope.memberType(Key::parseIfNoArgs) != Data::KeyType::array) { // Load default if not present
         moduleScope.set<std::string>(Key::parseIfNoArgs + "[0]", "echo Nebulite opened with no arguments provided. Starting empty renderer.");

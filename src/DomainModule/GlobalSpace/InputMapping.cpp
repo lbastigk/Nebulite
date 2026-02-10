@@ -1,11 +1,17 @@
+//------------------------------------------
+// Includes
+
+// Standard library
 #include <cmath>
 #include <cfloat>
 
+// Nebulite
 #include "Nebulite.hpp"
 #include "DomainModule/GlobalSpace/InputMapping.hpp"
 #include "DomainModule/GlobalSpace/Settings.hpp"
 #include "DomainModule/Renderer/Input.hpp"
 
+//------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {
 
 Constants::Error InputMapping::update() {
