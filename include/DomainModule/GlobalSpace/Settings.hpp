@@ -77,25 +77,17 @@ public:
     struct Key {
         DECLARE_SCOPE("settings.")
 
-        // TODO: no more unscoped keys! Always use MAKE_SCOPED("<key>")
-
-        // Use unscoped keys to load from file
-        static auto constexpr unscoped_resolutionX = "renderer.resolutionX"; // TODO: change to resolution.w
-        static auto constexpr unscoped_resolutionY = "renderer.resolutionY"; // TODO: change to resolution.h
-        static auto constexpr unscoped_resolutionScaling = "renderer.resolutionScaling";
-        static auto constexpr unscoped_targetFPS = "renderer.targetFPS";
-
-        // What to parse on different scenarios
-        static auto constexpr unscoped_parseOnStartup = "parse.onStartup"; // What to always parse on startup
-        static auto constexpr unscoped_parseIfNoArgs = "parse.ifNoArgs"; // What to parse on startup if no command line args provided
-
         // Use scoped keys to set and access from GlobalSpace
-        static auto constexpr resolutionX = MAKE_SCOPED(unscoped_resolutionX);
-        static auto constexpr resolutionY = MAKE_SCOPED(unscoped_resolutionY);
-        static auto constexpr resolutionScaling = MAKE_SCOPED(unscoped_resolutionScaling);
-        static auto constexpr targetFPS = MAKE_SCOPED(unscoped_targetFPS);
-        static auto constexpr parseOnStartup = MAKE_SCOPED(unscoped_parseOnStartup);
-        static auto constexpr parseIfNoArgs = MAKE_SCOPED(unscoped_parseIfNoArgs);
+
+        // Renderer-related settings
+        static auto constexpr resolutionX = MAKE_SCOPED("renderer.resolutionX"); // TODO: change to resolution.w
+        static auto constexpr resolutionY = MAKE_SCOPED("renderer.resolutionY"); // TODO: change to resolution.h
+        static auto constexpr resolutionScaling = MAKE_SCOPED("renderer.resolutionScaling");
+        static auto constexpr targetFPS = MAKE_SCOPED("renderer.targetFPS");
+
+        // Startup-related settings
+        static auto constexpr parseOnStartup = MAKE_SCOPED("parse.onStartup");
+        static auto constexpr parseIfNoArgs = MAKE_SCOPED("parse.ifNoArgs");
     };
 
     //------------------------------------------

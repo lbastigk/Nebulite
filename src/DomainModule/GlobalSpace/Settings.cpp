@@ -67,9 +67,10 @@ void Settings::loadSettings(std::string const& filename) {
     Data::JSON settings;
     settings.deserialize(filename);
 
-    // TODO: We move the settings into a key to match the same structure as in globalSpace
-    //settings.moveMember("", Key::scope);
-    //auto& settingsScope = settings.shareScope(Key::scope);
+    // We move the settings into a key to match the same structure as in globalSpace
+    // This way, we can use the scoped keys to set and access settings in the same way as we do for global settings
+    settings.moveMember("", Key::scope);
+    auto const& settingsFile = settings.shareManagedScopeBase(Key::scope);
 
     //---------------------------------------------------
     // Cherry-Pick values to set in global settings
@@ -78,21 +79,21 @@ void Settings::loadSettings(std::string const& filename) {
     // Later on, we may want to save all and ensure all known settings are present
 
     // Renderer settings
-    moduleScope.set<uint16_t>(Key::resolutionX, settings.get<uint16_t>(Key::unscoped_resolutionX, 1000));
-    moduleScope.set<uint16_t>(Key::resolutionY, settings.get<uint16_t>(Key::unscoped_resolutionY, 1000));
-    moduleScope.set<uint8_t>(Key::resolutionScaling, settings.get<uint8_t>(Key::unscoped_resolutionScaling, 1));
-    moduleScope.set<uint16_t>(Key::targetFPS, settings.get<uint16_t>(Key::unscoped_targetFPS, 60));
+    moduleScope.set<uint16_t>(Key::resolutionX, settingsFile.get<uint16_t>(Key::resolutionX, 1000));
+    moduleScope.set<uint16_t>(Key::resolutionY, settingsFile.get<uint16_t>(Key::resolutionY, 1000));
+    moduleScope.set<uint8_t>(Key::resolutionScaling, settingsFile.get<uint8_t>(Key::resolutionScaling, 1));
+    moduleScope.set<uint16_t>(Key::targetFPS, settingsFile.get<uint16_t>(Key::targetFPS, 60));
 
     // What commands to parse on different scenarios
-    moduleScope.setSubDoc(Key::parseOnStartup, settings.getSubDoc(Key::unscoped_parseOnStartup));
+    moduleScope.setSubDoc(Key::parseOnStartup, settingsFile.getSubDoc(Key::parseOnStartup));
     if (moduleScope.memberType(Key::parseOnStartup) != Data::KeyType::array) { // Load default if not present
         moduleScope.setEmptyArray(Key::parseOnStartup);
     }
-    moduleScope.setSubDoc(Key::parseIfNoArgs, settings.getSubDoc(Key::unscoped_parseIfNoArgs));
+    moduleScope.setSubDoc(Key::parseIfNoArgs, settingsFile.getSubDoc(Key::parseIfNoArgs));
     if (moduleScope.memberType(Key::parseIfNoArgs) != Data::KeyType::array) { // Load default if not present
         moduleScope.set<std::string>(Key::parseIfNoArgs + "[0]", "echo Nebulite opened with no arguments provided. Starting empty renderer.");
         moduleScope.set<std::string>(Key::parseIfNoArgs + "[1]", "echo Open the interactive console with <tab> key and type 'help' for available commands.");
-        moduleScope.set<std::string>(Key::parseIfNoArgs + "[2]", "set-fps 60");
+        moduleScope.set<std::string>(Key::parseIfNoArgs + "[2]", "set-fps 60"); // TODO: add an initRenderer command and use that instead of setting fps here
     }
 
     /**
