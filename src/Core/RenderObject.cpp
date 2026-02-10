@@ -31,7 +31,7 @@ void setStandardValues(JsonScope& document) {
 
     // Set default size
     document.set(Constants::KeyNames::RenderObject::sizeX, 32);
-    document.set(Constants::KeyNames::RenderObject::sizeX, 32);
+    document.set(Constants::KeyNames::RenderObject::sizeY, 32);
 
     // Ruleset
     document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::list);

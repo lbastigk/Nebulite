@@ -14,6 +14,7 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
+#include "Constants/KeyNames.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 
@@ -74,27 +75,25 @@ public:
     //------------------------------------------
     // Settings keys
     struct Key {
-    private:
-        friend class Settings;
+        DECLARE_SCOPE("settings.")
 
-        // Use unscoped keys to load from file
-        static auto constexpr unscoped_resolutionX = "renderer.resolutionX"; // TODO: change to resolution.w
-        static auto constexpr unscoped_resolutionY = "renderer.resolutionY"; // TODO: change to resolution.h
-        static auto constexpr unscoped_resolutionScaling = "renderer.resolutionScaling";
-        static auto constexpr unscoped_targetFPS = "renderer.targetFPS";
+        // Custom settings
+        static auto constexpr customSettings = MAKE_SCOPED("custom");
 
-        // What to parse on different scenarios
-        static auto constexpr unscoped_parseOnStartup = "parse.onStartup"; // What to always parse on startup
-        static auto constexpr unscoped_parseIfNoArgs = "parse.ifNoArgs"; // What to parse on startup if no command line args provided
-    public:
         // Use scoped keys to set and access from GlobalSpace
-        static auto constexpr scope = "settings.";
-        static auto constexpr resolutionX = Data::ScopedKeyView::create<scope>(unscoped_resolutionX);
-        static auto constexpr resolutionY = Data::ScopedKeyView::create<scope>(unscoped_resolutionY);
-        static auto constexpr resolutionScaling = Data::ScopedKeyView::create<scope>(unscoped_resolutionScaling);
-        static auto constexpr targetFPS = Data::ScopedKeyView::create<scope>(unscoped_targetFPS);
-        static auto constexpr parseOnStartup = Data::ScopedKeyView::create<scope>(unscoped_parseOnStartup);
-        static auto constexpr parseIfNoArgs = Data::ScopedKeyView::create<scope>(unscoped_parseIfNoArgs);
+
+        // Renderer-related settings
+        static auto constexpr resolutionX = MAKE_SCOPED("renderer.resolutionX"); // TODO: change to resolution.w
+        static auto constexpr resolutionY = MAKE_SCOPED("renderer.resolutionY"); // TODO: change to resolution.h
+        static auto constexpr resolutionScaling = MAKE_SCOPED("renderer.resolutionScaling");
+        static auto constexpr targetFPS = MAKE_SCOPED("renderer.targetFPS");
+
+        // Startup-related settings
+        static auto constexpr parseOnStartup = MAKE_SCOPED("parse.onStartup");
+        static auto constexpr parseIfNoArgs = MAKE_SCOPED("parse.ifNoArgs");
+
+        // Input-Mapping
+        static auto constexpr inputMapping = MAKE_SCOPED("inputMapping");
     };
 
     //------------------------------------------

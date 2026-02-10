@@ -11,6 +11,7 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
+#include "Constants/KeyNames.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -99,6 +100,10 @@ public:
         BIND_FUNCTION(&Mirror::mirror_delete, mirror_delete_name, mirror_delete_desc);
         BIND_FUNCTION(&Mirror::mirror_fetch, mirror_fetch_name, mirror_fetch_desc);
     }
+
+    struct Key {
+        DECLARE_SCOPE("") // Requires full access to mirror entire object in update routine.
+    };
 
 private:
     /**

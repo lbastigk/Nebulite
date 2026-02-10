@@ -5,10 +5,13 @@
 namespace Nebulite::DomainModule::Renderer {
 
 Constants::Error Input::update() {
+    static auto const keyRoutineActivated = moduleScope.getRootScope() + "polled";
+
     static Utility::TimedRoutine routine(
         [this]() -> void {
             SDL_PumpEvents();
             writeCurrentAndDeltaInputs();
+            moduleScope.set<bool>(keyRoutineActivated, true);
             resetDeltaOnNextUpdate = true; // Mark to reset deltas on next update
         },
         10 /* ms */,
@@ -17,6 +20,7 @@ Constants::Error Input::update() {
 
     //------------------------------------------
     // Only update if SDL is initialized
+    moduleScope.set<bool>(keyRoutineActivated, false);
     if (domain.isSdlInitialized()) {
         if (resetDeltaOnNextUpdate) {
             resetDeltaValues();
@@ -53,8 +57,8 @@ void Input::map_key_names() {
                 keyNames[scancode] = keyName;
 
                 // Paths
-                auto currentPath = moduleScope.getRootScope() + "keyboard.current." + keyNames[scancode];
-                auto deltaPath = moduleScope.getRootScope() + "keyboard.delta." + keyNames[scancode];
+                auto currentPath = Key::keyboardCurrent + keyNames[scancode];
+                auto deltaPath = Key::keyboardDelta + keyNames[scancode];
                 deltaKey[scancode] = moduleScope.getStableDoublePointer(deltaPath);
                 currentKey[scancode] = moduleScope.getStableDoublePointer(currentPath);
             }
@@ -84,20 +88,20 @@ void Input::writeCurrentAndDeltaInputs() {
     mouse.state = SDL_GetMouseState(&mouse.posX, &mouse.posY);
 
     // Cursor Position and state
-    moduleScope.set(moduleScope.getRootScope() + "mouse.current.X", static_cast<double>(mouse.posX));
-    moduleScope.set(moduleScope.getRootScope() + "mouse.current.Y", static_cast<double>(mouse.posY));
-    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.X", static_cast<double>(mouse.posX - mouse.lastPosX));
-    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.Y", static_cast<double>(mouse.posY - mouse.lastPosY));
-    moduleScope.set(moduleScope.getRootScope() + "mouse.current.left", calcMouseState(SDL_BUTTON_MASK(SDL_BUTTON_LEFT), mouse.state));
-    moduleScope.set(moduleScope.getRootScope() + "mouse.current.right", calcMouseState(SDL_BUTTON_MASK(SDL_BUTTON_RIGHT), mouse.state));
-    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.left", calcMouseDelta(SDL_BUTTON_MASK(SDL_BUTTON_LEFT), mouse.state, mouse.lastState));
-    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.right", calcMouseDelta(SDL_BUTTON_MASK(SDL_BUTTON_RIGHT), mouse.state, mouse.lastState));
+    moduleScope.set(Key::mouseCurrent + "X", static_cast<double>(mouse.posX));
+    moduleScope.set(Key::mouseCurrent + "Y", static_cast<double>(mouse.posY));
+    moduleScope.set(Key::mouseDelta + "X", static_cast<double>(mouse.posX - mouse.lastPosX));
+    moduleScope.set(Key::mouseDelta + "Y", static_cast<double>(mouse.posY - mouse.lastPosY));
+    moduleScope.set(Key::mouseCurrent + "left", calcMouseState(SDL_BUTTON_MASK(SDL_BUTTON_LEFT), mouse.state));
+    moduleScope.set(Key::mouseCurrent + "right", calcMouseState(SDL_BUTTON_MASK(SDL_BUTTON_RIGHT), mouse.state));
+    moduleScope.set(Key::mouseDelta + "left", calcMouseDelta(SDL_BUTTON_MASK(SDL_BUTTON_LEFT), mouse.state, mouse.lastState));
+    moduleScope.set(Key::mouseDelta + "right", calcMouseDelta(SDL_BUTTON_MASK(SDL_BUTTON_RIGHT), mouse.state, mouse.lastState));
 
     // Scaled positions
-    moduleScope.set(moduleScope.getRootScope() + "mouse.current.scaledX", static_cast<double>(mouse.posX)/static_cast<double>(domain.getWindowScale()));
-    moduleScope.set(moduleScope.getRootScope() + "mouse.current.scaledY", static_cast<double>(mouse.posY)/static_cast<double>(domain.getWindowScale()));
-    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.scaledX", static_cast<double>(mouse.posX - mouse.lastPosX)/static_cast<double>(domain.getWindowScale()));
-    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.scaledY", static_cast<double>(mouse.posY - mouse.lastPosY)/static_cast<double>(domain.getWindowScale()));
+    moduleScope.set(Key::mouseCurrent + "scaledX", static_cast<double>(mouse.posX)/static_cast<double>(domain.getWindowScale()));
+    moduleScope.set(Key::mouseCurrent + "scaledY", static_cast<double>(mouse.posY)/static_cast<double>(domain.getWindowScale()));
+    moduleScope.set(Key::mouseDelta + "scaledX", static_cast<double>(mouse.posX - mouse.lastPosX)/static_cast<double>(domain.getWindowScale()));
+    moduleScope.set(Key::mouseDelta + "scaledY", static_cast<double>(mouse.posY - mouse.lastPosY)/static_cast<double>(domain.getWindowScale()));
 
     //------------------------------------------
     // Keyboard
@@ -126,18 +130,16 @@ void Input::writeCurrentAndDeltaInputs() {
 //       Same for mouse
 void Input::resetDeltaValues() const {
     // 1.) Mouse
-    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.X", 0);
-    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.Y", 0);
-    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.left", 0);
-    moduleScope.set(moduleScope.getRootScope() + "mouse.delta.right", 0);
+    moduleScope.set(Key::mouseDelta + "X", 0);
+    moduleScope.set(Key::mouseDelta + "Y", 0);
+    moduleScope.set(Key::mouseDelta + "left", 0);
+    moduleScope.set(Key::mouseDelta + "right", 0);
 
     // 2.) Keyboard
     for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++
          scancode) {
         if (!keyNames[scancode].empty()) {
-            std::string deltaPath =
-                "keyboard.delta." + keyNames[scancode];
-            moduleScope.set<int>(moduleScope.getRootScope() + deltaPath, 0);
+            moduleScope.set<int>(Key::keyboardDelta + keyNames[scancode], 0);
         }
     }
 }

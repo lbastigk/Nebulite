@@ -1,5 +1,6 @@
 #include "Nebulite.hpp"
 #include "Data/Document/ReadOnlyDocs.hpp"
+#include "Utility/FileManagement.hpp"
 
 namespace {
 void docLoadingFailedMessage(std::string const& doc) {
@@ -14,9 +15,9 @@ void docLoadingFailedMessage(std::string const& doc) {
     Nebulite::Error::println("Without the anti-evaluation wrapper, eval would try to evaluate a JSON object 'size' as string, which would fail");
     Nebulite::Error::println("Another example that triggers this error:");
     // NOLINTNEXTLINE
-    Nebulite::Error::println("eval nop {global.arr|filterRegex {!\[(1\d*)\]}|filterNulls|print}");
+    Nebulite::Error::println("eval nop {global.arr|filterRegex {!\\[(1\\d*)\\]}|filterNulls|print}");
     Nebulite::Error::println("The anti-evaluation wrapper prevents the regex from being parsed incorrectly due to quotes, brackets etc");
-    Nebulite::Error::println("and makes sure that eval doesn't try to evaluate the regex, which would fail and trigger this error message as no file named '\[(1\d*)\]' exists.");
+    Nebulite::Error::println("and makes sure that eval doesn't try to evaluate the regex, which would fail and trigger this error message as no file named '\\[(1\\d*)\\]' exists.");
 }
 } // anonymous namespace
 

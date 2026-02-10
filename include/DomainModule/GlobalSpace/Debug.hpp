@@ -161,13 +161,13 @@ public:
         BIND_FUNCTION(&Debug::standardfileRenderobject, standardfileRenderobject_name, standardfileRenderobject_desc);
     }
 
-private:
-    // NOTE: Keys are unscoped because the struct is private to the module
     struct Key {
-        static auto constexpr platform = Data::ScopedKeyView("platform");
-        static auto constexpr buildType = Data::ScopedKeyView("buildType");
+        DECLARE_SCOPE("debug.")
+        static auto constexpr platform = MAKE_SCOPED("platform");
+        static auto constexpr buildType = MAKE_SCOPED("buildType");
     };
 
+private:
     std::streambuf* originalCerrBuf = nullptr;
     std::unique_ptr<std::ofstream> errorFile;
 

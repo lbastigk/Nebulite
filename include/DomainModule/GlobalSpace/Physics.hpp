@@ -43,22 +43,22 @@ public:
 
         // Global physics constants
         struct Global {
-            static auto constexpr G = Data::ScopedKeyView::create<scope>("G");
+            static auto constexpr G = MAKE_SCOPED("G");
         };
 
         // Per-object physics properties
         struct Local {
-            static auto constexpr m = Data::ScopedKeyView::create<scope>("mass"); // TODO: rename to physics.m here and in all json files
-            static auto constexpr aX = Data::ScopedKeyView::create<scope>("aX"); // acceleration X
-            static auto constexpr aY = Data::ScopedKeyView::create<scope>("aY"); // acceleration Y
-            static auto constexpr vX = Data::ScopedKeyView::create<scope>("vX"); // velocity X
-            static auto constexpr vY = Data::ScopedKeyView::create<scope>("vY"); // velocity Y
-            static auto constexpr FX = Data::ScopedKeyView::create<scope>("FX"); // force X
-            static auto constexpr FY = Data::ScopedKeyView::create<scope>("FY"); // force Y
+            static auto constexpr m = MAKE_SCOPED("mass"); // TODO: rename to physics.m here and in all json files
+            static auto constexpr aX = MAKE_SCOPED("aX"); // acceleration X
+            static auto constexpr aY = MAKE_SCOPED("aY"); // acceleration Y
+            static auto constexpr vX = MAKE_SCOPED("vX"); // velocity X
+            static auto constexpr vY = MAKE_SCOPED("vY"); // velocity Y
+            static auto constexpr FX = MAKE_SCOPED("FX"); // force X
+            static auto constexpr FY = MAKE_SCOPED("FY"); // force Y
 
             // More specialized, but still useful keys
-            static auto constexpr lastCollisionTimeX = Data::ScopedKeyView::create<scope>("collision.time.lastX");
-            static auto constexpr lastCollisionTimeY = Data::ScopedKeyView::create<scope>("collision.time.lastY");
+            static auto constexpr lastCollisionTimeX = MAKE_SCOPED("collision.time.lastX");
+            static auto constexpr lastCollisionTimeY = MAKE_SCOPED("collision.time.lastY");
         };
     };
 };

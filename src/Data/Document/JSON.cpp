@@ -618,9 +618,15 @@ void JSON::moveMember(char const* fromKey, char const* toKey) {
         if (std::string(fromKey).empty()) {
             setSubDoc(toKey, *this, fromKey);
 
+            // Normalize toKey by removing trailing dot if present
+            auto toKeyStr = std::string(toKey);
+            if (toKeyStr.ends_with('.')) {
+                toKeyStr.pop_back();
+            }
+
             // Remove all other members except toKey
             for (auto const keys = listAvailableKeys(); auto const& key : keys) {
-                if (key != toKey) removeMember(key);
+                if (key != toKeyStr) removeMember(key);
             }
 
             return;

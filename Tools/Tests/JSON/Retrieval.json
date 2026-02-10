@@ -3,7 +3,7 @@
         "command": "task TaskFiles/Tests/Short/json_retrieval.nebs",
         "expected": { 
             "cout": [
-                "Printing value retrieved from: ./Resources/Renderobjects/standard.jsonc:size.X",
+                "Printing value retrieved from: ./Resources/Renderobjects/standard.jsonc:size.x",
                 "Expected value: 32",
                 "32"
             ], 
