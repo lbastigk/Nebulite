@@ -13,7 +13,7 @@
 
 // NOLINTNEXTLINE
 #define NEBULITE_DOMAIN(DomainName) \
-    class DomainName : public Nebulite::Interaction::Execution::Domain
+    class DomainName final : public Nebulite::Interaction::Execution::Domain
 
 //------------------------------------------
 // Includes
