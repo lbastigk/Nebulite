@@ -120,18 +120,17 @@ public:
 
     /**
      * @brief Size of the quickcache for ordered double pointers.
-     *
-     * This defines how many OrderedDoublePointers can be cached for quick access
-     * without needing to look them up in a hashmap.
-     * see MappedOrderedDoublePointers::quickCache for important considerations.
+     * @details This defines how many OrderedDoublePointers can be cached for quick access
+     *          without needing to look them up in a hashmap.
+     *          see MappedOrderedDoublePointers::quickCache for important considerations.
      */
     static constexpr size_t quickCacheSize = 30;
 
     /**
      * @brief Ensures the existence of an ordered cache list of double pointers for "other" context variables.
-     *        Checks if the current "other" reference JSON document contains a cached, ordered list of double pointers
-     *        corresponding to all variables referenced by this Expression in the "other" context. If the cache entry does not exist,
-     *        it is created and populated for fast indexed access during expression evaluation.
+     * @details Checks if the current "other" reference JSON document contains a cached, ordered list of double pointers
+     *          corresponding to all variables referenced by this Expression in the "other" context. If the cache entry does not exist,
+     *          it is created and populated for fast indexed access during expression evaluation.
      * @param uniqueId The unique ID of the expression.
      * @param contextOther The vector of virtual doubles in the "other" context to populate the cache with.
      * @return A pointer to the ordered vector of double pointers for the referenced "other" variables.
@@ -175,9 +174,7 @@ private:
 
     /**
      * @brief Quick cache for the first few OrderedDoublePointers entries.
-     * 
-     * This array allows for fast access to frequently used entries without the overhead of a hashmap lookup.
-     * 
+     * @details This array allows for fast access to frequently used entries without the overhead of a hashmap lookup.
      * @todo In order for this to work in production, we need a global functioncall that generates unique IDs for expressions.
      *       E.g. if we know our engine relies a lot on expression A, but it might not be used first,
      *       its best to then call this function early on to assign it a low unique ID.
