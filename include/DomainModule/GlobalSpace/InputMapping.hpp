@@ -90,6 +90,11 @@ public:
         };
     }
 
+    struct Key {
+        DECLARE_SCOPE("")
+        static auto constexpr mappingLocation = MAKE_SCOPED("input.");
+    };
+
 private:
     double* sdlPolledInput = nullptr; // Key for checking if the Renderer::Input module has polled new input, to sync our updates with it and avoid missing deltas
 

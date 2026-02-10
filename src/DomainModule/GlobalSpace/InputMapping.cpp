@@ -16,7 +16,7 @@ void InputMapping::processMappings() {
         // Process each mapping
         int current = 0;
 
-        static auto const baseLocation = moduleScope.getRootScope() + "renderer.input.keyboard.";
+
         static auto const mappingLocation = moduleScope.getRootScope() + "input.";
 
         for(const auto& [key, type] : {entry.slotA, entry.slotB, entry.slotC}) {
@@ -24,13 +24,13 @@ void InputMapping::processMappings() {
                 continue;
             switch (type) {
             case association::type::current:
-                    current +=     moduleScope.get<int>(baseLocation + "current." + key);
+                    current +=     moduleScope.get<int>(Renderer::Input::Key::keyboardCurrent + key);
                     break;
-                case association::type::onPress:
-                    current += abs(moduleScope.get<int>(baseLocation + "delta." + key)) == 1;
+            case association::type::onPress:
+                    current += abs(moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key)) == 1;
                     break;
                 case association::type::onRelease:
-                    current +=     moduleScope.get<int>(baseLocation + "delta." + key) == -1;
+                    current +=     moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key) == -1;
                     break;
                 case association::type::empty:
                     break;
