@@ -50,6 +50,12 @@
 #include "DomainModule/Texture/Fill.hpp"
 
 //------------------------------------------
+// TODO: Some way to reference the scope of a module as static member,
+//       perhaps by making it part of the module itself, and using it in the initializer class?
+//       This may actually be necessary later on, with dll/so loading of modules
+//       Then we can call module.getPrefix() inside the initModule function
+
+//------------------------------------------
 namespace Nebulite::DomainModule {
 
 void Initializer::initEnvironment(Core::Environment* target) {
@@ -130,7 +136,7 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     // Even though input is initialized in the Renderer module, the input mapping module may be better suited to live in the GlobalSpace
     target->initModule<Core::GlobalSpace, InputMapping>(
         "Global Input Mapping Functions",
-        target->domainScope.shareScopeBase("input."),
+        target->domainScope.shareScopeBase(""), // Requires full access to global scope to read SDL input from renderer.input
         Global::settings(),
         *target
     );

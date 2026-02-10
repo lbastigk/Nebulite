@@ -5,10 +5,13 @@
 namespace Nebulite::DomainModule::Renderer {
 
 Constants::Error Input::update() {
+    static auto const keyRoutineActivated = moduleScope.getRootScope() + "polled";
+
     static Utility::TimedRoutine routine(
         [this]() -> void {
             SDL_PumpEvents();
             writeCurrentAndDeltaInputs();
+            moduleScope.set<bool>(keyRoutineActivated, true);
             resetDeltaOnNextUpdate = true; // Mark to reset deltas on next update
         },
         10 /* ms */,
@@ -17,6 +20,7 @@ Constants::Error Input::update() {
 
     //------------------------------------------
     // Only update if SDL is initialized
+    moduleScope.set<bool>(keyRoutineActivated, false);
     if (domain.isSdlInitialized()) {
         if (resetDeltaOnNextUpdate) {
             resetDeltaValues();

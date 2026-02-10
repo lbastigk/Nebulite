@@ -50,7 +50,6 @@ public:
 
     // TODO: Modify/reload input mapping at runtime
     //       store mappings in settings scope!
-    //       This may need to be a separate module: settings-inputMapping, as this module has no write access to the settings scope
 
     //------------------------------------------
     // Setup
@@ -59,10 +58,41 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, InputMapping){
+        auto const sdlPolledInputKey = moduleScope.getRootScope() + "renderer.input.polled";
+        sdlPolledInput = moduleScope.getStableDoublePointer(sdlPolledInputKey);
 
+        // Example mappings:
+
+        mappings["jump"] = mapEntry{
+            .slotA = association{"space", association::type::current},
+            .slotB = association{"", association::type::empty},
+            .slotC = association{"", association::type::empty}
+        };
+        mappings["up"] = mapEntry{
+            .slotA = association{"w", association::type::current},
+            .slotB = association{"up", association::type::current},
+            .slotC = association{"", association::type::empty}
+        };
+        mappings["down"] = mapEntry{
+            .slotA = association{"s", association::type::current},
+            .slotB = association{"down", association::type::current},
+            .slotC = association{"", association::type::empty}
+        };
+        mappings["left"] = mapEntry{
+            .slotA = association{"a", association::type::current},
+            .slotB = association{"left", association::type::current},
+            .slotC = association{"", association::type::empty}
+        };
+        mappings["right"] = mapEntry{
+            .slotA = association{"d", association::type::current},
+            .slotB = association{"right", association::type::current},
+            .slotC = association{"", association::type::empty}
+        };
     }
 
 private:
+    double* sdlPolledInput = nullptr; // Key for checking if the Renderer::Input module has polled new input, to sync our updates with it and avoid missing deltas
+
     /**
      * @brief Represents a key association for input mapping.
      * 
@@ -101,38 +131,9 @@ private:
     //void reloadMappings();
 
     /**
-     * @todo Implement input mapping association:
-     * 
-     * Example:
-     * 
-     * ```cpp
-     * 
-     *  for (const auto& [action, entry] : mappings) {
-     *      // Process each mapping
-     *      int current = 0;
-     *
-     *      for(const auto& association : {entry.slot_1, entry.slot_2, entry.slot_3}) {
-     *          switch (association.type) {
-     *              case association::type::current:
-     *                  current +=     global.get<int>("<locationForCurrent>." + association.key);
-     *                  break;
-     *              case association::type::onPress:
-     *                  current += abs(global.get<int>("<locationForDelta>." + association.key)) == 1;
-     *                  break;
-     *              case association::type::onRelease:
-     *                  current +=     global.get<int>("<locationForDelta>." + association.key) == -1;
-     *                  break;
-     *              case association::type::empty:
-     *                  break;
-     *          }
-     *      }
-     *
-     *      // Now we write the state into our mapping location
-     *      global.set<int>("<locationForAction>." + action, current);
-     * }
-     *
-     * ```
+     * @brief Processes all input mappings
      */
+    void processMappings();
 
     /**
      * JSON structure for input mapping:
