@@ -67,9 +67,6 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     using namespace Nebulite::DomainModule::GlobalSpace;
 
     //------------------------------------------
-    // Initialize DomainModules
-
-    //------------------------------------------
     // Settings module should be initialized first to load settings for other modules
     target->initModule<Core::GlobalSpace, Settings>(
         "Global Settings Functions",
@@ -147,8 +144,8 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
 }
 
 void Initializer::initJsonScope(Core::JsonScope* target) {
-    // Initialize DomainModules
     using namespace Nebulite::DomainModule::JsonScope;
+
     target->initModule<Core::JsonScope, SimpleData>(
         "JSON Simple Data Functions",
         Global::settings(),
@@ -167,8 +164,8 @@ void Initializer::initJsonScope(Core::JsonScope* target) {
 }
 
 void Initializer::initRenderObject(Core::RenderObject* target) {
-    // Initialize DomainModules
     using namespace Nebulite::DomainModule::RenderObject;
+
     target->initModule<Core::RenderObject, Debug>(
         "RenderObject Debug Functions",
         Global::settings(),
@@ -197,8 +194,8 @@ void Initializer::initRenderObject(Core::RenderObject* target) {
 }
 
 void Initializer::initRenderer(Core::Renderer* target) {
-    // Initialize DomainModules
     using namespace Nebulite::DomainModule::Renderer;
+
     target->initModule<Core::Renderer, General>(
         "Renderer General Functions",
         Global::settings(),
@@ -222,8 +219,8 @@ void Initializer::initRenderer(Core::Renderer* target) {
 }
 
 void Initializer::initTexture(Core::Texture* target) {
-    // Initialize DomainModules
     using namespace Nebulite::DomainModule::Texture;
+
     target->initModule<Core::Texture, General>(
         "Texture General Functions",
         Global::settings(),

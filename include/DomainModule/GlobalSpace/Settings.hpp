@@ -75,8 +75,9 @@ public:
     //------------------------------------------
     // Settings keys
     struct Key {
-        friend class Settings;
         DECLARE_SCOPE("settings.")
+
+        // TODO: no more unscoped keys! Always use MAKE_SCOPED("<key>")
 
         // Use unscoped keys to load from file
         static auto constexpr unscoped_resolutionX = "renderer.resolutionX"; // TODO: change to resolution.w
@@ -87,10 +88,8 @@ public:
         // What to parse on different scenarios
         static auto constexpr unscoped_parseOnStartup = "parse.onStartup"; // What to always parse on startup
         static auto constexpr unscoped_parseIfNoArgs = "parse.ifNoArgs"; // What to parse on startup if no command line args provided
-    public:
+
         // Use scoped keys to set and access from GlobalSpace
-
-
         static auto constexpr resolutionX = MAKE_SCOPED(unscoped_resolutionX);
         static auto constexpr resolutionY = MAKE_SCOPED(unscoped_resolutionY);
         static auto constexpr resolutionScaling = MAKE_SCOPED(unscoped_resolutionScaling);

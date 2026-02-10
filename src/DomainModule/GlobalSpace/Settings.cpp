@@ -67,6 +67,10 @@ void Settings::loadSettings(std::string const& filename) {
     Data::JSON settings;
     settings.deserialize(filename);
 
+    // TODO: We move the settings into a key to match the same structure as in globalSpace
+    //settings.moveMember("", Key::scope);
+    //auto& settingsScope = settings.shareScope(Key::scope);
+
     //---------------------------------------------------
     // Cherry-Pick values to set in global settings
     // Fallback to default values if not present

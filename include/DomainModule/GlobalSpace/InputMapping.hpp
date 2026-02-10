@@ -13,7 +13,6 @@
 
 // General
 #include "Interaction/Execution/DomainModule.hpp"
-#include "Utility/TimedRoutine.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -30,18 +29,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, InputMapping) {
 public:
     /**
-     * @brief Updates the input bindings.
-     *
-     * This function is called to update the state of the input bindings,
-     * processing any new input events and updating the binding states.
-     * 
-     * 1.) Process keyboard input from SDL Renderer
-     * 2.) Turn into cross-platform naming
-     * 3.) Use keymapping to write state into globalspace
-     * 4.) Write deltas into globalspace
-     * 5.) Stores last pressed delta, which might become handy if we need to look up the last input state
-     *
-     * Should use a TimeKeeper so it only updates inputs every n milliseconds
+     * @brief Applies the input mappings, processing any new input events (via the Global Document) and updating the binding states.
      */
     Constants::Error update() override;
 
@@ -65,6 +53,8 @@ public:
         sdlPolledInput = moduleScope.getStableDoublePointer(sdlPolledInputKey);
 
         // Example mappings:
+
+        // TODO: Move these to settings scope (store as json) and implement reloadMappings() to load them
 
         mappings["jump"] = mapEntry{
             .slotA = association{"space", association::type::current},
@@ -136,7 +126,7 @@ private:
      * @todo Not implemented yet, perhaps this could be done in the update function with a timed routine?
      *       Or a complex trigger when a settings menu is closed?
      */
-    //void reloadMappings();
+    void reloadMappings();
 
     /**
      * @brief Processes all input mappings
@@ -159,7 +149,5 @@ private:
      *   - key: <string>: the key associated with the action, e.g. "up"
      *   - type: <string>: the type of association, one of "current", "onPress", "onRelease", "empty"
      */
-
-    std::unique_ptr<Utility::TimedRoutine> inputMapperTimer = nullptr;
 };
 }   // namespace Nebulite::DomainModule::GlobalSpace

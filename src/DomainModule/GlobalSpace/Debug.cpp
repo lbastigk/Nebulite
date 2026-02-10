@@ -8,6 +8,7 @@
 #include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
 #include "DomainModule/GlobalSpace/Debug.hpp"
+#include "Utility/FileManagement.hpp"
 #include "Utility/TimedRoutine.hpp"
 
 //------------------------------------------
@@ -334,7 +335,6 @@ void Debug::setupDebugInfo() const {
 #if defined(COVERAGE) || defined(ENABLE_COVERAGE)
     buildType = "Coverage";
 #elif defined(_GLIBCXX_DEBUG) || defined(_ITERATOR_DEBUG_LEVEL) || !defined(NDEBUG)
-    // libstdc++ debug mode or iterator debug (MSVC) or NDEBUG not defined -> Debug
     buildType = "debug";
 #else
     buildType = "release";

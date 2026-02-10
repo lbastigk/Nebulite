@@ -10,7 +10,8 @@
             "Loading task list from file*"
         ],
         "cerr" : [
-            "*wined3d_swapchain_resize_buffers*"
+            "*wined3d_swapchain_resize_buffers*",
+            "SDL Error during initialization:*"
         ]
     },
     "tests": [

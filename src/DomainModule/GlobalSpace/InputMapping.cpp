@@ -14,6 +14,11 @@ Constants::Error InputMapping::update() {
     return Constants::ErrorTable::NONE();
 }
 
+void InputMapping::reloadMappings() {
+    mappings.clear();
+    // TODO: implement this function to reload mappings from settings scope
+}
+
 void InputMapping::processMappings() {
     for (auto const& [action, entry] : mappings) {
         static auto const mappingLocation = moduleScope.getRootScope() + "input.";

@@ -19,6 +19,7 @@
 #include "DomainModule/GlobalSpace/Settings.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "Interaction/Invoke.hpp"
+#include "Utility/FileManagement.hpp"
 #include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
@@ -226,7 +227,7 @@ void Renderer::initSDL() {
     // Create SDL window
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         // SDL initialization failed
-        Error::println("SDL_Init Error: ", SDL_GetError());
+        Error::println("SDL_Init Video Error: ", SDL_GetError());
         std::abort();
     }
     // Define window via x|y|w|h
@@ -275,7 +276,7 @@ void Renderer::initSDL() {
     // Initialize SDL_ttf
     if (!TTF_Init()) {
         // Handle SDL_ttf initialization error
-        Error::println("TTF_Init Error!");
+        Error::println("TTF_Init Error: ", SDL_GetError());
         std::abort();
     }
     loadFonts();
@@ -285,7 +286,7 @@ void Renderer::initSDL() {
 
     // Init
     if (!SDL_Init(SDL_INIT_AUDIO)) {
-        Error::println("SDL_Init Error: ", SDL_GetError());
+        Error::println("SDL_Init Audio Error: ", SDL_GetError());
         std::abort();
     }
     audio.desired.freq = 44100;
@@ -306,13 +307,12 @@ void Renderer::initSDL() {
 
     /**
      * @todo On wine, it says: "Device not found", but seems to work anyway. Investigate further.
+     *       For now, we just log the error and continue
      */
-    /*
     if (SDL_GetError()[0] != '\0') {
         Error::println("SDL Error during initialization: ", SDL_GetError());
-        std::abort();
+        SDL_ClearError(); // Clear error after reporting
     }
-    */
 
     // All done
     SDL_initialized = true;

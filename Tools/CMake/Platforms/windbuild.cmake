@@ -54,6 +54,7 @@ function(configure_windows target_name)
         -luuid
         -lwinmm
         -lws2_32
+        -lshlwapi  # Required for PathMatchSpecA (used by include/Utility/Glob.hpp)
     )
 endfunction()
 
