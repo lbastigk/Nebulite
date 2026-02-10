@@ -73,7 +73,7 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     // Settings module should be initialized first to load settings for other modules
     target->initModule<Core::GlobalSpace, Settings>(
         "Global Settings Functions",
-        target->domainScope.shareScopeBase("settings."),
+        //target->domainScope.shareScopeBase("settings."),
         Global::settings(),
         *target
     );
@@ -82,7 +82,6 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     // Core modules
     target->initModule<Core::GlobalSpace, General>(
         "Global General Functions",
-        target->domainScope.shareDummyScopeBase(), // No workspace required.
         Global::settings(),
         *target
     );
@@ -103,13 +102,11 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     // Special debugging / testing utilities
     target->initModule<Core::GlobalSpace, FunctionCollision>(
         "Global Function Collision Detection utilities",
-        target->domainScope.shareDummyScopeBase(), // No workspace required.
         Global::settings(),
         *target
     );
     target->initModule<Core::GlobalSpace, FeatureTest>(
         "Global Feature Test Functions",
-        target->domainScope.shareDummyScopeBase(), // No workspace required.
         Global::settings(),
         *target
     );
@@ -120,13 +117,12 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     // we need to init time after most other modules.
     target->initModule<Core::GlobalSpace, Time>(
         "Global Time Functions",
-        target->domainScope.shareScopeBase("time."),
+        //target->domainScope.shareScopeBase("time."),
         Global::settings(),
         *target
     );
     target->initModule<Core::GlobalSpace, Clock>( // Clock relies on time, so init after time
         "Global Clock Functions",
-        target->domainScope.shareScopeBase("time."),
         Global::settings(),
         *target
     );
@@ -136,7 +132,6 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
     // Even though input is initialized in the Renderer module, the input mapping module may be better suited to live in the GlobalSpace
     target->initModule<Core::GlobalSpace, InputMapping>(
         "Global Input Mapping Functions",
-        target->domainScope.shareScopeBase(""), // Requires full access to global scope to read SDL input from renderer.input
         Global::settings(),
         *target
     );
@@ -160,19 +155,16 @@ void Initializer::initJsonScope(Core::JsonScope* target) {
     using namespace Nebulite::DomainModule::JsonScope;
     target->initModule<Core::JsonScope, SimpleData>(
         "JSON Simple Data Functions",
-        target->domainScope.shareDummyScopeBase(), // No workspace required.
         Global::settings(),
         *target
     );
     target->initModule<Core::JsonScope, ComplexData>(
         "JSON Complex Data Functions",
-        target->domainScope.shareDummyScopeBase(), // No workspace required.
         Global::settings(),
         *target
     );
     target->initModule<Core::JsonScope, Debug>(
         "JSON Debug Functions",
-        target->domainScope.shareDummyScopeBase(), // No workspace required.
         Global::settings(),
         *target
     );
@@ -183,13 +175,11 @@ void Initializer::initRenderObject(Core::RenderObject* target) {
     using namespace Nebulite::DomainModule::RenderObject;
     target->initModule<Core::RenderObject, Debug>(
         "RenderObject Debug Functions",
-        target->domainScope.shareDummyScopeBase(),  // No workspace required.
         Global::settings(),
         *target
     );
     target->initModule<Core::RenderObject, Logging>(
         "RenderObject Logging Functions",
-        target->domainScope.shareDummyScopeBase(), // No workspace required.
         Global::settings(),
         *target
     );
@@ -207,7 +197,6 @@ void Initializer::initRenderObject(Core::RenderObject* target) {
     );
     target->initModule<Core::RenderObject, StateUpdate>(
         "RenderObject State Update Functions",
-        target->domainScope.shareDummyScopeBase(),  // No workspace required.
         Global::settings(),
         *target
     );
@@ -218,7 +207,6 @@ void Initializer::initRenderer(Core::Renderer* target) {
     using namespace Nebulite::DomainModule::Renderer;
     target->initModule<Core::Renderer, General>(
         "Renderer General Functions",
-        target->domainScope.shareDummyScopeBase(),
         Global::settings(),
         *target
     );
@@ -231,7 +219,6 @@ void Initializer::initRenderer(Core::Renderer* target) {
     );
     target->initModule<Core::Renderer, Input>(
         "Renderer Input Functions",
-        target->domainScope.shareScopeBase("input."),
         Global::settings(),
         *target
     );
@@ -251,19 +238,16 @@ void Initializer::initTexture(Core::Texture* target) {
     using namespace Nebulite::DomainModule::Texture;
     target->initModule<Core::Texture, General>(
         "Texture General Functions",
-        target->domainScope.shareDummyScopeBase(), // No workspace required.
         Global::settings(),
         *target
     );
     target->initModule<Core::Texture, Rotation>(
         "Texture Rotation Functions",
-        target->domainScope.shareDummyScopeBase(), // No workspace required.
         Global::settings(),
         *target
     );
     target->initModule<Core::Texture, Fill>(
         "Texture Fill Functions",
-        target->domainScope.shareDummyScopeBase(), // No workspace required.
         Global::settings(),
         *target
     );

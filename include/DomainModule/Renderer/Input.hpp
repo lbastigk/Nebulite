@@ -51,7 +51,6 @@ public:
 
     struct Key {
         DECLARE_SCOPE("renderer.input.")
-
         static auto constexpr keyboard = MAKE_SCOPED("keyboard.");
         static auto constexpr keyboardCurrent = MAKE_SCOPED("keyboard.current.");
         static auto constexpr keyboardDelta = MAKE_SCOPED("keyboard.delta.");

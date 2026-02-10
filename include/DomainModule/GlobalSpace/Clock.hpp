@@ -11,6 +11,7 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
+#include "Constants/KeyNames.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonScopeBase.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
@@ -49,20 +50,20 @@ public:
     // Keys in the global document
 
     struct Key {
-        static auto constexpr scope = "time.clocks.";
+        DECLARE_SCOPE("time.")
 
         /**
          * @brief Key for accessing the list of active clocks.
          * @details access with `"<key_arr_active_clocks>.ms<interval_padded>"`
          */
-        static auto constexpr arr_active_clocks = Data::ScopedKeyView::create<scope>("active");
+        static auto constexpr arr_active_clocks = MAKE_SCOPED("clocks.active");
 
         /**
          * @brief Key for accessing the status of each clock.
          * @details Current status of each clock (0 or 1), access with `"<key_doc_status_clocks>.ms<interval_padded>"`
          *          Example: ".ms000100" for the clock with 100ms interval
          */
-        static auto constexpr doc_status_clocks = Data::ScopedKeyView::create<scope>("status");
+        static auto constexpr doc_status_clocks = MAKE_SCOPED("clocks.status");
     };
 
 

@@ -15,6 +15,7 @@
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
 #include "Constants/ErrorTypes.hpp"
+#include "Constants/KeyNames.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Utility/TimeKeeper.hpp"
 
@@ -86,20 +87,20 @@ public:
     //------------------------------------------
     // Variables
     struct Key {
-        static auto constexpr scope = "time.";
+        DECLARE_SCOPE("time.")
 
         // Keys for simulation time
         // May be unequal to actual time, if a custom dt is set
-        static auto constexpr time_t = Data::ScopedKeyView::create<scope>("t");
-        static auto constexpr time_t_ms = Data::ScopedKeyView::create<scope>("t_ms");
-        static auto constexpr time_dt = Data::ScopedKeyView::create<scope>("dt");
-        static auto constexpr time_dt_ms = Data::ScopedKeyView::create<scope>("dt_ms");
+        static auto constexpr time_t = MAKE_SCOPED("t");
+        static auto constexpr time_t_ms = MAKE_SCOPED("t_ms");
+        static auto constexpr time_dt = MAKE_SCOPED("dt");
+        static auto constexpr time_dt_ms = MAKE_SCOPED("dt_ms");
 
         // More specific keys for actual runtime
-        static auto constexpr runtime_t = Data::ScopedKeyView::create<scope>("runtime.t");
-        static auto constexpr runtime_t_ms = Data::ScopedKeyView::create<scope>("runtime.t_ms");
-        static auto constexpr runtime_dt = Data::ScopedKeyView::create<scope>("runtime.dt");
-        static auto constexpr runtime_dt_ms = Data::ScopedKeyView::create<scope>("runtime.dt_ms");
+        static auto constexpr runtime_t = MAKE_SCOPED("runtime.t");
+        static auto constexpr runtime_t_ms = MAKE_SCOPED("runtime.t_ms");
+        static auto constexpr runtime_dt = MAKE_SCOPED("runtime.dt");
+        static auto constexpr runtime_dt_ms = MAKE_SCOPED("runtime.dt_ms");
     };
 
     //------------------------------------------

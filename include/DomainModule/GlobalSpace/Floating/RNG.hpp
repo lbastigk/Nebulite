@@ -10,6 +10,8 @@
 // Includes
 
 // Nebulite
+#include "Constants/ErrorTypes.hpp"
+#include "Constants/KeyNames.hpp"
 #include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Utility/RNG.hpp"
@@ -67,13 +69,13 @@ public:
     // Scoped Keys
 
     struct Key {
-        static auto constexpr scope = "random.";
-        static auto constexpr A = Data::ScopedKeyView::create<scope>("A");
-        static auto constexpr B = Data::ScopedKeyView::create<scope>("B");
-        static auto constexpr C = Data::ScopedKeyView::create<scope>("C");
-        static auto constexpr D = Data::ScopedKeyView::create<scope>("D");
-        static auto constexpr min = Data::ScopedKeyView::create<scope>("min");
-        static auto constexpr max = Data::ScopedKeyView::create<scope>("max");
+        DECLARE_SCOPE("random.")
+        static auto constexpr A = MAKE_SCOPED("A");
+        static auto constexpr B = MAKE_SCOPED("B");
+        static auto constexpr C = MAKE_SCOPED("C");
+        static auto constexpr D = MAKE_SCOPED("D");
+        static auto constexpr min = MAKE_SCOPED("min");
+        static auto constexpr max = MAKE_SCOPED("max");
     };
 
 private:

@@ -14,6 +14,7 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
+#include "Constants/KeyNames.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 
@@ -74,8 +75,8 @@ public:
     //------------------------------------------
     // Settings keys
     struct Key {
-    private:
         friend class Settings;
+        DECLARE_SCOPE("settings.")
 
         // Use unscoped keys to load from file
         static auto constexpr unscoped_resolutionX = "renderer.resolutionX"; // TODO: change to resolution.w
@@ -88,13 +89,14 @@ public:
         static auto constexpr unscoped_parseIfNoArgs = "parse.ifNoArgs"; // What to parse on startup if no command line args provided
     public:
         // Use scoped keys to set and access from GlobalSpace
-        static auto constexpr scope = "settings.";
-        static auto constexpr resolutionX = Data::ScopedKeyView::create<scope>(unscoped_resolutionX);
-        static auto constexpr resolutionY = Data::ScopedKeyView::create<scope>(unscoped_resolutionY);
-        static auto constexpr resolutionScaling = Data::ScopedKeyView::create<scope>(unscoped_resolutionScaling);
-        static auto constexpr targetFPS = Data::ScopedKeyView::create<scope>(unscoped_targetFPS);
-        static auto constexpr parseOnStartup = Data::ScopedKeyView::create<scope>(unscoped_parseOnStartup);
-        static auto constexpr parseIfNoArgs = Data::ScopedKeyView::create<scope>(unscoped_parseIfNoArgs);
+
+
+        static auto constexpr resolutionX = MAKE_SCOPED(unscoped_resolutionX);
+        static auto constexpr resolutionY = MAKE_SCOPED(unscoped_resolutionY);
+        static auto constexpr resolutionScaling = MAKE_SCOPED(unscoped_resolutionScaling);
+        static auto constexpr targetFPS = MAKE_SCOPED(unscoped_targetFPS);
+        static auto constexpr parseOnStartup = MAKE_SCOPED(unscoped_parseOnStartup);
+        static auto constexpr parseIfNoArgs = MAKE_SCOPED(unscoped_parseIfNoArgs);
     };
 
     //------------------------------------------

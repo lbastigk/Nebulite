@@ -21,10 +21,14 @@
 
 #include "Data/Document/ScopedKey.hpp"
 
+namespace Nebulite::DomainModule {
+class Initializer; // Forward declaration of Initializer for friend declaration in DECLARE_SCOPE
+} // namespace Nebulite::DomainModule
+
 namespace Nebulite::Constants {
 
-// Macro to help declare a scope as private static constexpr member
-#define DECLARE_SCOPE(scopeStr) private: static auto constexpr scope = scopeStr; public:
+// Macro to help declare a private scope member. Must be the full scope!
+#define DECLARE_SCOPE(scopeStr) static auto constexpr scope = scopeStr;
 
 // Macro to help create a scoped key with the previously declared scope
 #define MAKE_SCOPED(keyStr) ( (void)scope, Data::ScopedKeyView::create<scope>(keyStr) )

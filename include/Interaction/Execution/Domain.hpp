@@ -22,6 +22,7 @@
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
+#include <string_view>
 
 //------------------------------------------
 // Forward declarations: Domains
@@ -133,6 +134,17 @@ private:
 // Domain Base
 
 namespace Nebulite::Interaction::Execution {
+
+/**
+ * @brief Concept to check if a DomainModuleType has a static member `Key::scope` that defines the scope for the module.
+ * @details This concept is used to ensure that a DomainModuleType has the necessary static member to be initialized with the correct scope in the `initModule` function of the Domain class.
+ */
+template <typename T>
+concept HasKeyScope = requires {
+    typename T::Key;           // nested Key type exists
+    { T::Key::scope };         // Key::scope exists (any type)
+};
+
 /**
  * @class Domain
  * @brief The Domain class serves as a base class for creating a Nebulite domain.
@@ -229,15 +241,59 @@ public:
      * @param scope The workspace JsonScope for the module
      * @param settings The settings JsonScope for the module
      * @param domainReference Reference to the domain to link the module to
-     * @todo Later on we should check if the module already exists and reject initialization if it does.
-     *       Either always looping through modules to check or using a second set of names for fast lookup.
      */
     template <typename DomainType, typename DomainModuleType>
+    requires (!HasKeyScope<DomainModuleType>)
+    [[deprecated("Please add a static member `Key::scope` to your DomainModuleType to allow automatic scope sharing in initModule(moduleName, settings, domainReference).")]]
     void initModule(std::string moduleName, Data::JsonScopeBase& scope, Data::JsonScopeBase const& settings, DomainType& domainReference) {
         auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
         DomainModule->reinit();
         modules.push_back(std::move(DomainModule));
     }
+
+    // Deprecated overload for module types that DO define Key::scope: suggest the automatic scope-sharing overload
+    template <typename DomainType, typename DomainModuleType>
+    requires (HasKeyScope<DomainModuleType>)
+    [[deprecated("DomainModuleType defines Key::scope; prefer initModule(moduleName, settings, domainReference) to automatically share the module scope.")]]
+    void initModule(std::string moduleName, Data::JsonScopeBase& scope, Data::JsonScopeBase const& settings, DomainType& domainReference) {
+        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
+        DomainModule->reinit();
+        modules.push_back(std::move(DomainModule));
+    }
+
+    /**
+     * @brief Initializes DomainModules based on the template parameter with proper linkage, deriving the scope from the module's static scope member.
+     * @details If not member `Key::scope` is defined in the DomainModuleType, a dummy scope will be shared (no workspace)
+     * @tparam DomainType The type of the domain to link the module to, used for sharing the correct scope
+     * @tparam DomainModuleType The type of module to initialize, must have a static member `Key::scope` that defines the scope for the module
+     * @param moduleName The name of the module
+     * @param settings The settings JsonScope for the module
+     * @param domainReference Reference to the domain to link the module to
+     * @todo Later on we should check if the module already exists and reject initialization if it does.
+     *       Either always looping through modules to check or using a second set of names for fast lookup.
+     */
+    template <typename DomainType, typename DomainModuleType>
+    requires (HasKeyScope<DomainModuleType>)
+    void initModule(std::string moduleName, Data::JsonScopeBase const& settings, DomainType& domainReference) {
+        // Determine the key from root level
+        static auto const scopeKey = Data::ScopedKey("", DomainModuleType::Key::scope);
+
+        // Share the scope based on the module's defined scope
+        auto& scope = domainReference.domainScope.shareScopeBase(scopeKey); // Sharing a scope based on the module's defined scope
+        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
+        DomainModule->reinit();
+        modules.push_back(std::move(DomainModule));
+    }
+    template <typename DomainType, typename DomainModuleType>
+    requires (!HasKeyScope<DomainModuleType>)
+    void initModule(std::string moduleName, Data::JsonScopeBase const& settings, DomainType& domainReference) {
+        auto& scope = domainReference.domainScope.shareDummyScopeBase();
+        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
+        DomainModule->reinit();
+        modules.push_back(std::move(DomainModule));
+    }
+
+
 
     /**
      * @brief Updates all DomainModules.
