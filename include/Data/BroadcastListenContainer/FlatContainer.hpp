@@ -6,10 +6,16 @@
 #ifndef NEBULITE_DATA_BROADCAST_LISTEN_CONTAINER_FLAT_CONTAINER_HPP
 #define NEBULITE_DATA_BROADCAST_LISTEN_CONTAINER_FLAT_CONTAINER_HPP
 
+
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/BroadcastListenContainer/BaseContainer.hpp"
 #include "Data/Map/HotStringKeyMap.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 
+//------------------------------------------
 namespace Nebulite::Data::BroadcastListenContainer {
 
 class FlatContainer final : public BaseContainer {
@@ -47,7 +53,7 @@ public:
 private:
     struct ListenerEntry {
         Interaction::Execution::Domain* domain;
-        uint32_t id;
+        uint32_t id; // TODO: If we want all domains to be able to broadcast/listen, the unique id should be part of the Domain class itself, then we may use domain->getId() instead of passing it in here.
     };
 
     HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>> broadcasters;

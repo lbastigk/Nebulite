@@ -36,7 +36,6 @@ public:
     static auto constexpr BucketCount = static_cast<std::size_t>(std::numeric_limits<unsigned char>::max()) + 1;
 private:
     // Use 256 buckets for first-byte partitioning
-    // TODO: Making HotKeyMap lock-free should work, since all usages of HotStringKeyMap use HotStringKeyMap::lock(str)
     using MapType = HotKeyMap<std::string, V>;
 
     // Array of HotKeyMaps, one per possible first-character value.

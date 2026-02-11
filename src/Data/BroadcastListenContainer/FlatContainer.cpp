@@ -1,6 +1,7 @@
 #include "Data/BroadcastListenContainer/FlatContainer.hpp"
 
 namespace Nebulite::Data::BroadcastListenContainer {
+
 void FlatContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
     // Multiple threads may broadcast on the same topic, so we need to lock the broadcaster map for this topic while modifying it
     auto lock = broadcasters.lock(entry->getTopic());

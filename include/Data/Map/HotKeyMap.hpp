@@ -1,7 +1,6 @@
 /**
  * @file HotKeyMap.hpp
  * @brief Definition of the HotKeyMap class, a wrapper for hashmaps with hotkey functionality.
- * @todo remove thread-safety
  */
 
 #ifndef DATA_HOTKEY_MAP_HPP
@@ -13,12 +12,15 @@
 // External
 #include <absl/container/node_hash_map.h>
 
-// Nebulite
-#include <Utility/SharedMutex.hpp>
-
 //------------------------------------------
 namespace Nebulite::Data {
-
+/**
+ * @brief A hashmap wrapper that maintains a "hot key" for optimized access to frequently accessed entries.
+ * @details The hot key is updated on each access and allows for O(1) access if the same key is accessed repeatedly.
+ *          The class is not thread-safe and should be used in contexts where concurrent access is not expected or is externally synchronized.
+ * @tparam K The type of the keys in the map.
+ * @tparam V The type of the values in the map.
+ */
 template<typename K, typename V>
 class HotKeyMap {
 public:
@@ -26,7 +28,6 @@ public:
 
     // Copy ctor: snapshot other under its read-lock, rebuild pointer into the new map
     HotKeyMap(HotKeyMap const& other) {
-        Utility::ReadLock rlock(other.mtxMap);
         map = other.map;
         hotKeyEntry.active = other.hotKeyEntry.active;
         hotKeyEntry.key = other.hotKeyEntry.key;
@@ -48,7 +49,6 @@ public:
 
     // Move ctor: take other's map under its write-lock and fix pointers
     HotKeyMap(HotKeyMap&& other) noexcept(std::is_nothrow_move_constructible_v<absl::node_hash_map<K, V>>) {
-        Utility::WriteLock wlock(other.mtxMap);
         map = std::move(other.map);
         hotKeyEntry.active = other.hotKeyEntry.active;
         hotKeyEntry.key = std::move(other.hotKeyEntry.key);
@@ -71,15 +71,12 @@ public:
         return *this;
     }
 
-    // swap helper: locks both mutexes (std::scoped_lock uses deadlock-free std::lock)
+    // swap helper
     void swap(HotKeyMap& other) noexcept {
         if (this == &other) return;
-        // NOLINTNEXTLINE
-        std::scoped_lock lock(mtxMap, other.mtxMap);
-        using std::swap;
-        swap(map, other.map);
-        swap(hotKeyEntry.active, other.hotKeyEntry.active);
-        swap(hotKeyEntry.key, other.hotKeyEntry.key);
+        std::swap(map, other.map);
+        std::swap(hotKeyEntry.active, other.hotKeyEntry.active);
+        std::swap(hotKeyEntry.key, other.hotKeyEntry.key);
 
         if (hotKeyEntry.active) {
             auto it = map.find(hotKeyEntry.key);
@@ -98,16 +95,11 @@ public:
 
     // Operator overload for []
     V& operator[](K const& key) {
-        // Fast path and lookup under shared lock
-        {
-            Utility::ReadLock slock(mtxMap);
-            if (hotKeyEntry.active && hotKeyEntry.key == key) {
-                return *hotKeyEntry.value;
-            }
+        if (hotKeyEntry.active && hotKeyEntry.key == key) {
+            return *hotKeyEntry.value;
         }
 
-        // Acquire exclusive lock and re-check/create safely
-        Utility::WriteLock ulock(mtxMap);
+        // Else, find or create the entry
         auto it2 = map.find(key);
         if (it2 != map.end()) {
             hotKeyEntry.active = true;
@@ -130,7 +122,6 @@ public:
      * @return Iterator to the found entry or map.end() if not found.
      */
     auto find(K const& key) {
-        Utility::ReadLock slock(mtxMap);
         if (hotKeyEntry.active && hotKeyEntry.key == key) {
             return map.find(hotKeyEntry.key); // Return iterator to hotkey entry
         }
@@ -142,7 +133,6 @@ public:
      * @return Iterator to the beginning of the map.
      */
     auto begin() {
-        Utility::ReadLock slock(mtxMap);
         return map.begin();
     }
 
@@ -151,7 +141,6 @@ public:
      * @return Iterator to the end of the map.
      */
     auto end() {
-        Utility::ReadLock slock(mtxMap);
         return map.end();
     }
 
@@ -172,14 +161,12 @@ public:
     }
 
     void clear() {
-        Utility::WriteLock ulock(mtxMap);
         map.clear();
         hotKeyEntry.active = false;
         hotKeyEntry.value = nullptr;
     }
 
     void erase(K const& key) {
-        Utility::WriteLock ulock(mtxMap);
         map.erase(key);
         if (hotKeyEntry.active && hotKeyEntry.key == key) {
             hotKeyEntry.active = false;
@@ -189,7 +176,6 @@ public:
 
 private:
     absl::node_hash_map<K, V> map;
-    mutable Utility::SharedMutex mtxMap;
 
     /**
      * @brief Holds the last accessed key-value pair for hotkey optimization.
