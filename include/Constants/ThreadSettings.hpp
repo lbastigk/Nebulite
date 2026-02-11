@@ -39,6 +39,6 @@
  * @def BATCH_COST_GOAL
  * @details Target cost of each Render::update thread batch.
  */
-#define BATCH_COST_GOAL 250
+#define BATCH_COST_GOAL 128
 
 #endif // NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP

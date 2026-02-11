@@ -110,22 +110,13 @@ private:
     //------------------------------------------
     // Threading Containers
 
+    // FlatContainer is the best candidate by far, about 3x-5x faster than other containers in large benchmarks.
     // Test:
     // Set ContainerType, then run:
     // Scripts/Benchmark/BroadcastListenContainer.sh
-
-    // Best candidates for small Benchmark: spawn_constantly.nebs, 101 Objects
-    // 1.) FlatContainer : 3.714250 s
-    // 2.) MapContainer  : 4.979500 s
-    // 3.) TreeContainer : 6.762750 s
-
-    // Best candidates for large Benchmark: gravity_XL.nebs, 1601 Objects
-    // 1.) FlatContainer : 0.017535 s / frame
-    // 2.) MapContainer  : 0.075542 s / frame
-    // 3.) TreeContainer : 0.105555 s / frame
-
-    // -> FlatContainer is the best candidate by far, probably pushable even further with some optimizations.
-
+    //
+    // Average time for small benchmark:       3.739500 s
+    // Average frame time for large benchmark: 0.015943 s
     using ContainerType = Data::BroadcastListenContainer::FlatContainer;
 
     std::unique_ptr<ContainerType> worker[THREADRUNNER_COUNT];
