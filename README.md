@@ -13,8 +13,6 @@
 A data‑driven 2D engine + declarative DSL for rapid experimentation with object interactions and emergent mechanics.
 </strong>
 
-<div>
-
 <p align="center">
   <img src="doc/images/globalSpaceViewer.png" alt="Nebulite Overview" width="45%">
   <img src="doc/images/console.png" alt="Nebulite Overview" width="45%">
@@ -326,11 +324,11 @@ The function calls are parsed and executed in their respective domains after exp
 - Python 3.8+ (for testing and mock asset creation)
 
 **Dependencies**
-- `SDL3`, `SDL3_ttf`, `SDL3_image` - rendering and input
-- `rapidJSON` - JSON parsing
-- `abseil` - fast hash maps
-- `tinyexpr` - expression evaluation
-- `imgui` - GUI
+- *SDL3*, *SDL3_ttf*, *SDL3_image* - rendering and input
+- *rapidJSON* - JSON parsing
+- *abseil* - fast hash maps
+- *tinyexpr* - expression evaluation
+- *imgui* - GUI
 
 <!-- TOC --><a name="testing"></a>
 ## Testing
