@@ -45,9 +45,6 @@ public:
     void prepare() override ;
 
 private:
-    // TODO: since listeners is accessed by multiple threads, perhaps an array of map-vector pairs is better?
-    //       with access based on worker thread ID?
-
     struct ListenerEntry {
         Interaction::Execution::Domain* domain;
         uint32_t id;
@@ -62,8 +59,6 @@ private:
     void process() override ;
 
     mutable Utility::SharedMutex mutex;
-
-
 };
 
 } // namespace Nebulite::Data::BroadcastListenContainer

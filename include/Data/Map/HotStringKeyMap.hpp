@@ -36,13 +36,14 @@ public:
     static auto constexpr BucketCount = static_cast<std::size_t>(std::numeric_limits<unsigned char>::max()) + 1;
 private:
     // Use 256 buckets for first-byte partitioning
+    // TODO: Making HotKeyMap lock-free should work, since all usages of HotStringKeyMap use HotStringKeyMap::lock(str)
     using MapType = HotKeyMap<std::string, V>;
 
     // Array of HotKeyMaps, one per possible first-character value.
     std::array<MapType, BucketCount> map;
     static_assert(BucketCount == 256, "Expected 256 buckets for HotStringKeyMap");
 
-    std::array<Utility::SharedMutex, BucketCount> listenerMutex; // Mutexes for each topic to ensure thread-safe access for listeners
+    std::array<Utility::SharedMutex, BucketCount> bucketMutex; // Mutexes for each character bucket
 public:
     HotStringKeyMap() = default;
 
@@ -127,10 +128,10 @@ public:
 
     auto lock(std::string const& key) {
         if (key.empty()) {
-            return Utility::SharedLock(listenerMutex[0]);
+            return Utility::SharedLock(bucketMutex[0]);
         }
         auto const lastChar = static_cast<unsigned char>(key.back());
-        return Utility::SharedLock(listenerMutex[lastChar]);
+        return Utility::SharedLock(bucketMutex[lastChar]);
     }
 
     /**
