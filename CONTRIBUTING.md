@@ -205,6 +205,25 @@ public:
         BIND_FUNCTION(&MyModule::exampleCommand, exampleCommand_name, exampleCommand_desc);
         BIND_FUNCTION(&MyModule::anotherCmd, anotherCmd_name, anotherCmd_desc);
     }
+    
+    // Add the following struct for sharing data between modules
+    struct Key {
+        // Any key created inside this struct can be accessed by other modules with the same scope or a higher scope
+        // If DECLARE_SCOPE is not used, this module will have no workspace (the initmodule function will recognize this and not create a workspace for it)
+        // DECLARE_SCOPE expects a scope from the root of the entire json document
+        // e.g. if the module is part of the Renderer domain, the scope would be "renderer.myModule"
+        //
+        // This functionality is a work in progress for arbitrary scoped domains, such as Textures.
+        // -> the texture scope from a RenderObject would be "draw.<drawcallname>"
+        //    The idea would be to make these keys per-object instead of static, 
+        //    so we can use texture.key.myValue instead of Texture::Key::myValue, which would be shared across all textures.
+        DECLARE_SCOPE("myModule")
+        
+        // Example of a shared variable that can be accessed by other modules with the same or higher scope
+        // using MyModule::Key::myValue
+        // The MAKE_SCOPED macro ensures that the variable is nested within the module's scope
+        static auto constexpr myValue = MAKE_SCOPED("myValue");
+    };
 };
 } // namespace Nebulite::DomainModule::RenderObject
 #endif // NEBULITE_RODM_MYMODULE_HPP
