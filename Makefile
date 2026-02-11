@@ -200,7 +200,7 @@ memory-check-cli:
 # Release Packaging
 ############################################
 
-package-release:
+release:
 	@Scripts/createRelease.sh
 
 

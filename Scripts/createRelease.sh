@@ -75,9 +75,9 @@ fi
 
 # Run tests first for now, as the wine tests may fail due to threading issues
 # Only run native tests
-make clean-build-and-test-native
+make clean-build-and-test-available
 
-# Compile binaries
+# Compile binaries: only build release versions for the packaging
 make delete-binaries
 make linux-release
 make windows-release
