@@ -9,7 +9,16 @@
 [![Status](https://img.shields.io/badge/State-Active%20Dev-orange)]()
 
 
-<strong>A data‑driven 2D engine + declarative DSL for rapid experimentation with object interactions and emergent mechanics.</strong>
+<strong>
+A data‑driven 2D engine + declarative DSL for rapid experimentation with object interactions and emergent mechanics.
+</strong>
+
+<div>
+
+<p align="center">
+  <img src="doc/images/globalSpaceViewer.png" alt="Nebulite Overview" width="45%">
+  <img src="doc/images/console.png" alt="Nebulite Overview" width="45%">
+</p>
 
 <p align="center">
   <img src="doc/images/demo.gif" alt="Conventional gravity test" width="45%">
