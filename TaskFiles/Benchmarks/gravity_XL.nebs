@@ -15,6 +15,9 @@
 if $(gt({global.loop.n},0)) echo Predefined object count detected.
 if $(leq({global.loop.n},0)) set loop.n 40
 
+set storeSnapshots 0
+set snapshotInterval 100
+
 # Frame average for loop.n=40:
 # 0.745 seconds, 2025-09
 # 0.200 seconds, 2025-10 (new Broadcast-Listen-Model and more efficient threading)
@@ -106,12 +109,11 @@ for i {global.loop.start} {global.loop.end} for j {global.loop.start} {global.lo
 ###############################################
 # Store Snapshots, info
 wait 1
-set framename 0
-set storeSnapshots 0
-always if $(not({global.time.frameCount}%10)*{global.storeSnapshots}) eval echo Frame {global.time.frameCount} rendered! Frame average: $( {global.time.runtime.t} / {global.time.frameCount} ) seconds. Full runtime: {global.time.runtime.t} seconds.
-always if $(not({global.time.frameCount}%10)*{global.storeSnapshots}) eval set framename $i(1 + {global.framename})
-always if $(not({global.time.frameCount}%10)*{global.storeSnapshots}) eval snapshot ./Resources/Snapshots/ToGif/$05i({global.framename}).png
-always if $(not({global.time.frameCount}%10)*{global.storeSnapshots}) eval echo stored snapshot: ./Resources/Snapshots/ToGif/$05i({global.framename}).png
+if $({global.storeSnapshots}) set framename 0
+always if $(not({global.time.frameCount}%{global.snapshotInterval})*{global.storeSnapshots}) eval echo Frame {global.time.frameCount} rendered! Frame average: $( {global.time.runtime.t} / {global.time.frameCount} ) seconds. Full runtime: {global.time.runtime.t} seconds.
+always if $(not({global.time.frameCount}%{global.snapshotInterval})*{global.storeSnapshots}) eval set framename $i(1 + {global.framename})
+always if $(not({global.time.frameCount}%{global.snapshotInterval})*{global.storeSnapshots}) eval snapshot ./Resources/Snapshots/ToGif/$05i({global.framename}).png
+always if $(not({global.time.frameCount}%{global.snapshotInterval})*{global.storeSnapshots}) eval echo stored snapshot: ./Resources/Snapshots/ToGif/$05i({global.framename}).png
 
 ###############################################
 # Spawn extra object later on and wait some more
