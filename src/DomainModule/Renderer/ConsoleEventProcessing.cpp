@@ -55,7 +55,7 @@ void Console::keyTriggerZoomOut() const {
 }
 
 void Console::processKeyDownEvent(SDL_KeyboardEvent const& key) {
-switch (key.key) {
+    switch (key.key) {
         //------------------------------------------
         // Text input manipulation
 
@@ -149,8 +149,8 @@ switch (key.key) {
 
         //------------------------------------------
         default:
+            // No action associated with this key, do nothing
             break;
-
     }
 }
 

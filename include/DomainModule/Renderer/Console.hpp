@@ -70,6 +70,8 @@ public:
         "\n"
         "Usage: console set-background <image_path>\n";
 
+    // Autotype functions
+
     Constants::Error consoleAutotypeText(std::span<std::string const> const& args);
     static auto constexpr consoleAutotypeText_name = "console autotype text";
     static auto constexpr consoleAutotypeText_desc = "Adds a text input command into the autotype queue.\n"
@@ -99,6 +101,18 @@ public:
     static auto constexpr consoleAutotypeClose_desc = "Closes the console if the autotype wait counter reaches zero"
         "\n"
         "Usage: console autotype close\n";
+
+    Constants::Error consoleAutotypeHistoryUp();
+    static auto constexpr consoleAutotypeHistoryUp_name = "console autotype up";
+    static auto constexpr consoleAutotypeHistoryUp_desc = "Adds a history up command into the autotype queue.\n"
+        "\n"
+        "Usage: console autotype up\n";
+
+    Constants::Error consoleAutotypeHistoryDown();
+    static auto constexpr consoleAutotypeHistoryDown_name = "console autotype down";
+    static auto constexpr consoleAutotypeHistoryDown_desc = "Adds a history down command into the autotype queue.\n"
+        "\n"
+        "Usage: console autotype down\n";
 
     //------------------------------------------
     // Category strings
@@ -132,6 +146,8 @@ public:
         BIND_FUNCTION(&Console::consoleAutotypeExecute, consoleAutotypeExecute_name, consoleAutotypeExecute_desc);
         BIND_FUNCTION(&Console::consoleAutotypeWait, consoleAutotypeWait_name, consoleAutotypeWait_desc);
         BIND_FUNCTION(&Console::consoleAutotypeClose, consoleAutotypeClose_name, consoleAutotypeClose_desc);
+        BIND_FUNCTION(&Console::consoleAutotypeHistoryUp, consoleAutotypeHistoryUp_name, consoleAutotypeHistoryUp_desc);
+        BIND_FUNCTION(&Console::consoleAutotypeHistoryDown, consoleAutotypeHistoryDown_name, consoleAutotypeHistoryDown_desc);
     }
 
     struct Key {
@@ -335,8 +351,9 @@ private:
             TEXT,
             ENTER,
             CLOSE,
-            WAIT
-            // TODO: History up/down
+            WAIT,
+            HISTORY_UP,
+            HISTORY_DOWN
         } type;
         std::string text; // Additional data for text or wait commands
     };
@@ -345,6 +362,8 @@ private:
     size_t autotypeWaitTimeRemaining = 0; // in frames
 
     Utility::TimeKeeper autotypeWaitTimer;
+
+    void processAutotypeQueue();
 };
 } // namespace Nebulite::DomainModule::Renderer
 #endif // NEBULITE_RRDM_CONSOLE_HPP

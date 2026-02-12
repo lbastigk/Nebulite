@@ -15,7 +15,8 @@ echo ----- TEST2 still in text input box -----
 wait 15
 console open
 console autotype enter
-console autotype execute
+console autotype up
+console autotype enter
 console autotype wait 500
 console autotype close
 console autotype execute

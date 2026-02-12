@@ -143,4 +143,14 @@ Constants::Error Console::consoleAutotypeClose() {
     return Constants::ErrorTable::NONE();
 }
 
+Constants::Error Console::consoleAutotypeHistoryUp() {
+    autotypeQueue.push({AutotypeCommand::Type::HISTORY_UP, ""});
+    return Constants::ErrorTable::NONE();
+}
+
+Constants::Error Console::consoleAutotypeHistoryDown() {
+    autotypeQueue.push({AutotypeCommand::Type::HISTORY_DOWN, ""});
+    return Constants::ErrorTable::NONE();
+}
+
 } // namespace Nebulite::DomainModule::Renderer

@@ -5,6 +5,7 @@
             "cout": [
                 "TEST1",
                 "----- TEST2 still in text input box -----",
+                "TEST2",
                 "TEST2"
             ],
             "cerr": []

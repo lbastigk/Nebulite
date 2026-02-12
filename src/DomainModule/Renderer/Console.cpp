@@ -34,33 +34,7 @@ Constants::Error Console::update() {
             autotypeWaitTimeRemaining -= dt_ms;
         }
     } else {
-        while (!autotypeActiveQueue.empty()) {
-            if (autotypeWaitTimeRemaining > 0) {
-                break; // Wait time set by a command, pause execution of further commands until next update
-            }
-            switch (auto const& [type, text] = autotypeActiveQueue.front(); type) {
-            case AutotypeCommand::Type::TEXT:
-                textInput.getInputBuffer()->append(text);
-                break;
-            case AutotypeCommand::Type::ENTER:
-                keyTriggerSubmit();
-                break;
-            case AutotypeCommand::Type::CLOSE:
-                consoleMode = false;
-                SDL_StopTextInput(domain.getSdlWindow());
-                break;
-            case AutotypeCommand::Type::WAIT:
-                try {
-                    autotypeWaitTimeRemaining = std::stoul(text);
-                } catch (std::exception const&) {
-                    Error::println("Invalid wait time in autotype command: ", text);
-                }
-                break;
-            default:
-                std::unreachable();
-            }
-            autotypeActiveQueue.pop();
-        }
+        processAutotypeQueue();
     }
 
     //------------------------------------------
@@ -539,6 +513,42 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
     // Set correct font size for SDL_ttf
     TTF_SetFontSize(consoleFont, LINE_HEIGHT);
     return LINE_HEIGHT;
+}
+
+void Console::processAutotypeQueue() {
+    while (!autotypeActiveQueue.empty()) {
+        if (autotypeWaitTimeRemaining > 0) {
+            break; // Wait time set by a command, pause execution of further commands until next update
+        }
+        switch (auto const& [type, text] = autotypeActiveQueue.front(); type) {
+        case AutotypeCommand::Type::TEXT:
+            textInput.getInputBuffer()->append(text);
+            break;
+        case AutotypeCommand::Type::ENTER:
+            keyTriggerSubmit();
+            break;
+        case AutotypeCommand::Type::CLOSE:
+            consoleMode = false;
+            SDL_StopTextInput(domain.getSdlWindow());
+            break;
+        case AutotypeCommand::Type::WAIT:
+            try {
+                autotypeWaitTimeRemaining = std::stoul(text);
+            } catch (std::exception const&) {
+                Error::println("Invalid wait time in autotype command: ", text);
+            }
+            break;
+        case AutotypeCommand::Type::HISTORY_UP:
+            textInput.history_up();
+            break;
+        case AutotypeCommand::Type::HISTORY_DOWN:
+            textInput.history_down();
+            break;
+        default:
+            std::unreachable();
+        }
+        autotypeActiveQueue.pop();
+    }
 }
 
 } // namespace Nebulite::DomainModule::GlobalSpace::Console
