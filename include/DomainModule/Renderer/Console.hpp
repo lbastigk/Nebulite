@@ -336,6 +336,7 @@ private:
             ENTER,
             CLOSE,
             WAIT
+            // TODO: History up/down
         } type;
         std::string text; // Additional data for text or wait commands
     };
