@@ -1,5 +1,7 @@
 set-fps 60
 
+# Open console, type some text and press enter
+# Then we type text without entering
 wait 15
 console open
 console autotype text echo TEST1
@@ -10,8 +12,11 @@ console autotype close
 console autotype execute
 wait 15
 
+# Second command should be in the text input box, not executed:
 echo ----- TEST2 still in text input box -----
 
+# We open the console again, press enter to execute the command,
+# then press up to get the previous command and enter to execute it again
 wait 15
 console open
 console autotype enter
@@ -21,5 +26,11 @@ console autotype wait 500
 console autotype close
 console autotype execute
 wait 15
+
+# All done, we should see:
+# TEST1
+# ----- TEST2 still in text input box -----
+# TEST2
+# TEST2
 
 exit
