@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Wed Feb 11 10:43:39 CET 2026
+Generated on: Thu Feb 12 16:30:21 CET 2026
 
 ## Table of Contents
 
@@ -187,16 +187,105 @@ Available Functions
 
 | Function | Description |
 |----------|-------------|
+| `autotype` | Utilities to automate typing in the console |
+| `close` | Closes the console, hiding it and preventing it from receiving input. |
 | `help` | Show available commands and their descriptions |
+| `open` | Opens the console, allowing it to be rendered and receive input. |
 | `set-background` | Sets a background image for the console. |
 | `zoom` | Reduces or increases the console font size. |
+
+##### `console autotype`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `close` | Closes the console if the autotype wait counter reaches zero |
+| `down` | Adds a history down command into the autotype queue. |
+| `enter` | Puts an enter command into the autotype queue. |
+| `execute` | Executes all autotype commands in the queue. |
+| `help` | Show available commands and their descriptions |
+| `text` | Adds a text input command into the autotype queue. |
+| `up` | Adds a history up command into the autotype queue. |
+| `wait` | Waits for a specified amount of ms before executing the next autotype command. |
+
+###### `console autotype close`
+
+```
+Closes the console if the autotype wait counter reaches zero
+Usage: console autotype close
+```
+
+###### `console autotype down`
+
+```
+Adds a history down command into the autotype queue.
+
+Usage: console autotype down
+```
+
+###### `console autotype enter`
+
+```
+Puts an enter command into the autotype queue.
+
+Usage: console autotype enter
+```
+
+###### `console autotype execute`
+
+```
+Executes all autotype commands in the queue.
+
+Usage: console autotype execute
+```
+
+###### `console autotype text`
+
+```
+Adds a text input command into the autotype queue.
+
+Usage: console autotype text <text>
+```
+
+###### `console autotype up`
+
+```
+Adds a history up command into the autotype queue.
+
+Usage: console autotype up
+```
+
+###### `console autotype wait`
+
+```
+Waits for a specified amount of ms before executing the next autotype command.
+
+Usage: console autotype wait <milliseconds>
+```
+
+##### `console close`
+
+```
+Closes the console, hiding it and preventing it from receiving input.
+
+Usage: console close
+```
+
+##### `console open`
+
+```
+Opens the console, allowing it to be rendered and receive input.
+
+Usage: console open
+```
 
 ##### `console set-background`
 
 ```
 Sets a background image for the console.
 
-Usage: set-background <image_path>
+Usage: console set-background <image_path>
 ```
 
 ##### `console zoom`
@@ -204,7 +293,7 @@ Usage: set-background <image_path>
 ```
 Reduces or increases the console font size.
 
-Usage: zoom [in/out/+/-]
+Usage: console zoom [in/out/+/-]
 - in  / + : Zooms in  (increases font size)
 - out / - : Zooms out (decreases font size)
 ```

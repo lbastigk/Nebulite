@@ -8,6 +8,7 @@ always-clear
 array
 assert
 at
+autotype
 average
 basicValue
 beep
@@ -17,6 +18,7 @@ category
 categoryLevel1
 categoryLevel2
 clear
+close
 collision-detect
 console
 contains
@@ -28,16 +30,19 @@ delete
 deload
 deserialize
 div
+down
 draft
 echo
 endsWith
 ensure-array
 ensureArray
+enter
 env
 equals
 error
 errorlog
 eval
+execute
 exit
 feature-test
 fetch
@@ -82,6 +87,7 @@ object
 off
 on
 once
+open
 parse
 pop-back
 pop-front
@@ -139,6 +145,7 @@ subspan
 substring
 sum
 task
+text
 time
 toBool
 toBoolString
@@ -151,6 +158,7 @@ type
 typeAsNumber
 typeAsString
 unlock
+up
 variable
 wait
 warn
