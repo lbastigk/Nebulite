@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Thu Feb 12 16:30:21 CET 2026
+Generated on: Thu Feb 12 18:01:51 CET 2026
 
 ## Table of Contents
 
@@ -200,6 +200,7 @@ Available Functions
 
 | Function | Description |
 |----------|-------------|
+| `clear` | Clears the autotype queue without executing the commands. |
 | `close` | Closes the console if the autotype wait counter reaches zero |
 | `down` | Adds a history down command into the autotype queue. |
 | `enter` | Puts an enter command into the autotype queue. |
@@ -208,6 +209,15 @@ Available Functions
 | `text` | Adds a text input command into the autotype queue. |
 | `up` | Adds a history up command into the autotype queue. |
 | `wait` | Waits for a specified amount of ms before executing the next autotype command. |
+
+###### `console autotype clear`
+
+```
+Clears the autotype queue without executing the commands.
+Clears both the queue pending for execution and the active queue currently being executed.
+
+Usage: console autotype clear
+```
 
 ###### `console autotype close`
 
