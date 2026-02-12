@@ -1,17 +1,14 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <cstdint>
-
 // External
 #include <SDL3_image/SDL_image.h>
 
 // Nebulite
 #include "Nebulite.hpp"
+#include "Core/Renderer.hpp"
 #include "DomainModule/Renderer/Console.hpp"
 #include "DomainModule/Renderer/Input.hpp"
-#include "Core/Renderer.hpp"
 
 //------------------------------------------
 namespace Nebulite::DomainModule::Renderer {
@@ -23,6 +20,47 @@ Constants::Error Console::update() {
     // Initialize font if not done yet
     if (!initialized) {
         init();
+    }
+
+    autotypeWaitTimer.update();
+    auto const dt_ms = autotypeWaitTimer.get_dt_ms();
+
+    //------------------------------------------
+    // Execute autotype commands
+    if (autotypeWaitTimeRemaining > 0) {
+        if (dt_ms >= autotypeWaitTimeRemaining) {
+            autotypeWaitTimeRemaining = 0;
+        } else {
+            autotypeWaitTimeRemaining -= dt_ms;
+        }
+    } else {
+        while (!autotypeActiveQueue.empty()) {
+            if (autotypeWaitTimeRemaining > 0) {
+                break; // Wait time set by a command, pause execution of further commands until next update
+            }
+            switch (auto const& [type, text] = autotypeActiveQueue.front(); type) {
+            case AutotypeCommand::Type::TEXT:
+                textInput.getInputBuffer()->append(text);
+                break;
+            case AutotypeCommand::Type::ENTER:
+                keyTriggerSubmit();
+                break;
+            case AutotypeCommand::Type::CLOSE:
+                consoleMode = false;
+                SDL_StopTextInput(domain.getSdlWindow());
+                break;
+            case AutotypeCommand::Type::WAIT:
+                try {
+                    autotypeWaitTimeRemaining = std::stoul(text);
+                } catch (std::exception const&) {
+                    Error::println("Invalid wait time in autotype command: ", text);
+                }
+                break;
+            default:
+                std::unreachable();
+            }
+            autotypeActiveQueue.pop();
+        }
     }
 
     //------------------------------------------
@@ -293,8 +331,7 @@ void Console::drawOutput(uint16_t const& maxLineLength) {
                 content = "> " + lineInfo.content;
                 break;
             default:
-                textColor = color.cerrStream;
-                content = "[ERROR] Unknown line type! Please fix: " + std::string(__FUNCTION__);
+                std::unreachable();
             }
         }
 
@@ -423,6 +460,10 @@ void Console::init() {
     textInput.insertLine("Console started at: " + Utility::Time::TimeIso8601(Utility::Time::ISO8601Format::YYYY_MM_DD_HH_MM_SS, true));
 
     //--------------------------------------------------
+    // Start autotype timer
+    autotypeWaitTimer.start();
+
+    //--------------------------------------------------
     // Console now fully functional
     initialized = true;
 }
@@ -498,288 +539,6 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
     // Set correct font size for SDL_ttf
     TTF_SetFontSize(consoleFont, LINE_HEIGHT);
     return LINE_HEIGHT;
-}
-
-//--------------------------------------------------
-// Event processing
-
-void Console::keyTriggerSubmit() {
-    if (std::string const command = textInput.submit(); !command.empty()) {
-        // Parse command on global level for full access to all functions
-        if (auto const err = Global::instance().parseStr(std::string(__FUNCTION__) + " " + command); err != Constants::ErrorTable::NONE()) {
-            // Cannot escalate error further, print to cerr
-            Error::println(err.getDescription());
-        }
-    }
-    outputScrollingOffset = 0; // Reset scrolling to bottom on new input
-}
-
-void Console::keyTriggerScrollUp() {
-    if (outputScrollingOffset < UINT16_MAX - 1) {
-        outputScrollingOffset += 1;
-    }
-}
-
-void Console::keyTriggerScrollDown() {
-    if (outputScrollingOffset > 0) {
-        outputScrollingOffset -= 1;
-    }
-}
-
-void Console::keyTriggerZoomIn() const {
-    // Make sure that ctrl is held
-    if (!(SDL_GetModState() & SDL_KMOD_CTRL))
-        return;
-    if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " in"); err != Constants::ErrorTable::NONE()) {
-        Error::println("Error: Failed to zoom into console: ", err.getDescription());
-    }
-}
-
-void Console::keyTriggerZoomOut() const {
-    // Make sure that ctrl is held
-    if (!(SDL_GetModState() & SDL_KMOD_CTRL))
-        return;
-    if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " out"); err != Constants::ErrorTable::NONE()) {
-        Error::println("Error: Failed to zoom out console: ", err.getDescription());
-    }
-}
-
-void Console::processKeyDownEvent(SDL_KeyboardEvent const& key) {
-switch (key.key) {
-        //------------------------------------------
-        // Text input manipulation
-
-        // Remove last character on backspace
-        case SDLK_BACKSPACE:
-            textInput.backspace();
-            break;
-
-        // Submit command on Enter
-        case SDLK_RETURN:
-        case SDLK_KP_ENTER:
-            keyTriggerSubmit();
-            break;
-
-        // Cursor movement
-        case SDLK_LEFT:
-            textInput.moveCursorLeft();
-            break;
-        case SDLK_RIGHT:
-            textInput.moveCursorRight();
-            break;
-
-        /**
-         * @todo: Implement copy/paste functionality with CTRL + C/V
-         * perhaps integrate a clipboard manager into Renderer class?
-         * Then, it could be used for both the console and other TextInput instances.
-         *
-         * For this to work properly, we should consider text handling to be only registered by one instance at a time.
-         * Perhaps we can move every keytrigger event to Renderer, and have it forward events to the active TextInput instance.
-         *
-         * Then we may have functions to move focus to objects:
-         *
-         * for Domain RenderObject:
-         * textfocus self
-         *
-         * which itself sends a "textfocus id" to the "bus" that triggers on the scope of the Renderer by using:
-         *
-         * textfocus id <renderer_object_id>
-         *
-         * Then, we could have more textfocus additions like:
-         * textfocus gui <gui_element_id>
-         * textfocus console force on/off
-         * etc.
-         *
-         * Then, we could have Renderer::setActiveTextInput(shared<TextInput>) which overwrites the current active text input, if its not forced.
-         * And on Renderer::update(), we forward all text input and key events to that active TextInput instance.
-         * Meaning this entire function would be moved to TextInput class, and Console would just set itself as active when in console mode.
-         *
-         * If a textfocus is active, we may wish to disable normal key processing from Input DomainModule.
-         *
-         * For this to work, we need to modify TextInput into two modes:
-         * - On submit, store text in vector (for console)
-         * - On submit, lose focus           (for single-line text inputs)
-         *
-         * This requires a big rework of TextInput class, we may wish to extract the core functionality of single-line text input with cursor to a separate class.
-         * - TextInput for core functionality
-         * - Use Capture class directly for console readout
-         * Since the current TextInput class has a lot logic that is the same as Capture's output log.
-         * Only thing left is to add a Capture type for commands entered.
-         */
-
-        //------------------------------------------
-        // UP/DOWN to cycle through past commands
-        case SDLK_UP:
-            textInput.history_up();
-            break;
-        case SDLK_DOWN:
-            textInput.history_down();
-            break;
-
-        //------------------------------------------
-        // Scroll through output with PAGE UP/DOWN
-        case SDLK_PAGEUP:
-            keyTriggerScrollUp();
-            break;
-        case SDLK_PAGEDOWN:
-            keyTriggerScrollDown();
-            break;
-
-        //------------------------------------------
-        // Zoom in/out with +/- keys
-        case SDLK_PLUS:
-        case SDLK_KP_PLUS:
-            keyTriggerZoomIn();
-            break;
-
-        case SDLK_MINUS:
-        case SDLK_KP_MINUS:
-            keyTriggerZoomOut();
-            break;
-
-        //------------------------------------------
-        default:
-            break;
-
-    }
-}
-
-void Console::processEvents() {
-    for (auto const& event : *events) {
-        switch (event.type) {
-        case SDL_EVENT_TEXT_INPUT:
-            // Do not append if ctrl is held (to allow copy/paste and other shortcuts)
-            if (SDL_GetModState() & SDL_KMOD_CTRL) {
-                break;
-            }
-            textInput.append(event.text.text);
-            break;
-        case SDL_EVENT_KEY_DOWN:
-            processKeyDownEvent(event.key);
-            break;
-        default:
-            break;
-        }
-    }
-}
-
-void Console::processMode() {
-    if (consoleMode) {
-        // Render texture and attach
-        renderConsole();
-
-        // Check if texture is valid
-        if (!consoleTexture.texture_ptr) {
-            Error::println("Could not attach Console: Console texture is null!");
-            return;
-        }
-
-        // Attach texture above UI layer
-        (void)domain.attachTextureAboveLayer(
-            Core::Environment::Layer::UI,
-            "console_overlay",
-            consoleTexture.texture_ptr,
-            &consoleTexture.rect
-            );
-
-        // Skip updating the renderer for this frame, as we are in console mode
-        domain.skipUpdateNextFrame();
-    } else {
-        // Clear texture and detach
-        (void)domain.detachTextureAboveLayer(
-            Core::Environment::Layer::UI,
-            "console_overlay"
-            );
-        if (consoleTexture.texture_ptr) {
-            SDL_DestroyTexture(consoleTexture.texture_ptr);
-            consoleTexture.texture_ptr = nullptr;
-        }
-    }
-}
-
-//------------------------------------------
-// Available Functions
-
-Constants::Error Console::consoleZoom(int const argc, char** argv) {
-    //------------------------------------------
-    // Prerequisites
-
-    // Validate arguments
-    if (argc > 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
-    }
-
-    //------------------------------------------
-    // Determine zoom direction
-
-    if (argc == 2) {
-
-        if (std::string const direction = argv[1]; direction == "in" || direction == "+") {
-            if (consoleLayout.FONT_MAX_SIZE <= 48) {
-                consoleLayout.FONT_MAX_SIZE++;
-                flag_recalculateTextAlignment = true;
-            }
-        } else if (direction == "out" || direction == "-") {
-            if (consoleLayout.FONT_MAX_SIZE >= 8) {
-                consoleLayout.FONT_MAX_SIZE--;
-                flag_recalculateTextAlignment = true;
-            }
-        } else {
-            return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
-        }
-    }
-
-    //------------------------------------------
-    // Return
-    return Constants::ErrorTable::NONE();
-}
-
-Constants::Error Console::consoleSetBackground(int const argc, char** argv) {
-    //------------------------------------------
-    // Prerequisites
-
-    // Validate arguments
-    if (argc < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
-    }
-    if (argc > 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
-    }
-
-    //------------------------------------------
-    // Delete previous background if any
-    if (backgroundImageTexture != nullptr) {
-        SDL_DestroyTexture(backgroundImageTexture);
-        backgroundImageTexture = nullptr;
-    }
-
-    //------------------------------------------
-    // Load image
-
-    std::string const imagePath = argv[1];
-    SDL_Surface* imageSurface = SDL_LoadBMP(imagePath.c_str());
-    if (!imageSurface) {
-        // Try to load as PNG/JPG using SDL_image
-        imageSurface = IMG_Load(imagePath.c_str());
-        if (!imageSurface) {
-            return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
-        }
-    }
-
-    // Create texture from surface
-    SDL_Texture* backgroundTexture = SDL_CreateTextureFromSurface(renderer, imageSurface);
-    SDL_DestroySurface(imageSurface);
-    if (!backgroundTexture) {
-        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_INVALID();
-    }
-    SDL_SetTextureScaleMode(backgroundTexture, SDL_SCALEMODE_NEAREST);
-
-    // Set as console background
-    backgroundImageTexture = backgroundTexture;
-
-    //------------------------------------------
-    // Return
-    return Constants::ErrorTable::NONE();
 }
 
 } // namespace Nebulite::DomainModule::GlobalSpace::Console

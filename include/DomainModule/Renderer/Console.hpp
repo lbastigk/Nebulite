@@ -9,14 +9,19 @@
 //------------------------------------------
 // Includes
 
+// Standard Library
+#include <queue>
+
 // External
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
+#include "Constants/KeyNames.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Utility/TextInput.hpp"
+#include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -39,11 +44,23 @@ public:
     //------------------------------------------
     // Available Functions
 
+    Constants::Error consoleOpen();
+    static auto constexpr consoleOpen_name = "console open";
+    static auto constexpr consoleOpen_desc = "Opens the console, allowing it to be rendered and receive input.\n"
+        "\n"
+        "Usage: console open\n";
+
+    Constants::Error consoleClose();
+    static auto constexpr consoleClose_name = "console close";
+    static auto constexpr consoleClose_desc = "Closes the console, hiding it and preventing it from receiving input.\n"
+        "\n"
+        "Usage: console close\n";
+
     Constants::Error consoleZoom(int argc, char** argv);
     static auto constexpr consoleZoom_name = "console zoom";
     static auto constexpr consoleZoom_desc = "Reduces or increases the console font size.\n"
         "\n"
-        "Usage: zoom [in/out/+/-]\n"
+        "Usage: console zoom [in/out/+/-]\n"
         "- in  / + : Zooms in  (increases font size)\n"
         "- out / - : Zooms out (decreases font size)\n";
 
@@ -51,7 +68,37 @@ public:
     static auto constexpr consoleSetBackground_name = "console set-background";
     static auto constexpr consoleSetBackground_desc = "Sets a background image for the console.\n"
         "\n"
-        "Usage: set-background <image_path>\n";
+        "Usage: console set-background <image_path>\n";
+
+    Constants::Error consoleAutotypeText(std::span<std::string const> const& args);
+    static auto constexpr consoleAutotypeText_name = "console autotype text";
+    static auto constexpr consoleAutotypeText_desc = "Adds a text input command into the autotype queue.\n"
+        "\n"
+        "Usage: console autotype text <text>\n";
+
+    Constants::Error consoleAutotypeEnter();
+    static auto constexpr consoleAutotypeEnter_name = "console autotype enter";
+    static auto constexpr consoleAutotypeEnter_desc = "Puts an enter command into the autotype queue.\n"
+        "\n"
+        "Usage: console autotype enter\n";
+
+    Constants::Error consoleAutotypeExecute();
+    static auto constexpr consoleAutotypeExecute_name = "console autotype execute";
+    static auto constexpr consoleAutotypeExecute_desc = "Executes all autotype commands in the queue.\n"
+        "\n"
+        "Usage: console autotype execute\n";
+
+    Constants::Error consoleAutotypeWait(std::span<std::string const> const& args);
+    static auto constexpr consoleAutotypeWait_name = "console autotype wait";
+    static auto constexpr consoleAutotypeWait_desc = "Waits for a specified amount of ms before executing the next autotype command.\n"
+        "\n"
+        "Usage: console autotype wait <milliseconds>\n";
+
+    Constants::Error consoleAutotypeClose();
+    static auto constexpr consoleAutotypeClose_name = "console autotype close";
+    static auto constexpr consoleAutotypeClose_desc = "Closes the console if the autotype wait counter reaches zero"
+        "\n"
+        "Usage: console autotype close\n";
 
     //------------------------------------------
     // Category strings
@@ -60,6 +107,9 @@ public:
     static auto constexpr console_desc = "Console commands and settings.\n"
         "\n"
         "Contains commands to manipulate the in-application console.\n";
+
+    static auto constexpr consoleAutotype_name = "console autotype";
+    static auto constexpr consoleAutotype_desc = "Utilities to automate typing in the console";
 
     //------------------------------------------
     // Setup
@@ -71,8 +121,17 @@ public:
         // we cannot do much here, since renderer might not be initialized yet
         // so we do the actual initialization in update() when needed
         bindCategory(console_name, console_desc);
+        BIND_FUNCTION(&Console::consoleOpen, consoleOpen_name, consoleOpen_desc);
+        BIND_FUNCTION(&Console::consoleClose, consoleClose_name, consoleClose_desc);
         BIND_FUNCTION(&Console::consoleZoom, consoleZoom_name, consoleZoom_desc);
         BIND_FUNCTION(&Console::consoleSetBackground, consoleSetBackground_name, consoleSetBackground_desc);
+
+        bindCategory(consoleAutotype_name, consoleAutotype_desc);
+        BIND_FUNCTION(&Console::consoleAutotypeText, consoleAutotypeText_name, consoleAutotypeText_desc);
+        BIND_FUNCTION(&Console::consoleAutotypeEnter, consoleAutotypeEnter_name, consoleAutotypeEnter_desc);
+        BIND_FUNCTION(&Console::consoleAutotypeExecute, consoleAutotypeExecute_name, consoleAutotypeExecute_desc);
+        BIND_FUNCTION(&Console::consoleAutotypeWait, consoleAutotypeWait_name, consoleAutotypeWait_desc);
+        BIND_FUNCTION(&Console::consoleAutotypeClose, consoleAutotypeClose_name, consoleAutotypeClose_desc);
     }
 
     struct Key {
@@ -267,6 +326,24 @@ private:
     //------------------------------------------
     // Text input handling
     Utility::TextInput textInput;
+
+    //------------------------------------------
+    // Autotype handling
+
+    struct AutotypeCommand {
+        enum class Type {
+            TEXT,
+            ENTER,
+            CLOSE,
+            WAIT
+        } type;
+        std::string text; // Additional data for text or wait commands
+    };
+    std::queue<AutotypeCommand> autotypeQueue;
+    std::queue<AutotypeCommand> autotypeActiveQueue;
+    size_t autotypeWaitTimeRemaining = 0; // in frames
+
+    Utility::TimeKeeper autotypeWaitTimer;
 };
 } // namespace Nebulite::DomainModule::Renderer
 #endif // NEBULITE_RRDM_CONSOLE_HPP

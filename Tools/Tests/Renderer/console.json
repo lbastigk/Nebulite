@@ -1,0 +1,13 @@
+[
+    {
+        "command": "task TaskFiles/Tests/Short/Console/autotype.nebs",
+        "expected": {
+            "cout": [
+                "TEST1",
+                "----- TEST2 still in text input box -----",
+                "TEST2"
+            ],
+            "cerr": []
+        }
+    }
+]
