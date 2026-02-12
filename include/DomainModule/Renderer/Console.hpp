@@ -114,6 +114,14 @@ public:
         "\n"
         "Usage: console autotype down\n";
 
+    Constants::Error consoleAutotypeClear();
+    static auto constexpr consoleAutotypeClear_name = "console autotype clear";
+    static auto constexpr consoleAutotypeClear_desc = "Clears the autotype queue without executing the commands.\n"
+        "Clears both the queue pending for execution and the active queue currently being executed.\n"
+        "\n"
+        "Usage: console autotype clear\n";
+
+
     //------------------------------------------
     // Category strings
 
@@ -148,6 +156,7 @@ public:
         BIND_FUNCTION(&Console::consoleAutotypeClose, consoleAutotypeClose_name, consoleAutotypeClose_desc);
         BIND_FUNCTION(&Console::consoleAutotypeHistoryUp, consoleAutotypeHistoryUp_name, consoleAutotypeHistoryUp_desc);
         BIND_FUNCTION(&Console::consoleAutotypeHistoryDown, consoleAutotypeHistoryDown_name, consoleAutotypeHistoryDown_desc);
+        BIND_FUNCTION(&Console::consoleAutotypeClear, consoleAutotypeClear_name, consoleAutotypeClear_desc);
     }
 
     struct Key {

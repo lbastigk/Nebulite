@@ -153,4 +153,15 @@ Constants::Error Console::consoleAutotypeHistoryDown() {
     return Constants::ErrorTable::NONE();
 }
 
+Constants::Error Console::consoleAutotypeClear() {
+    // Clear both queues
+    while (!autotypeQueue.empty()) {
+        autotypeQueue.pop();
+    }
+    while (!autotypeActiveQueue.empty()) {
+        autotypeActiveQueue.pop();
+    }
+    return Constants::ErrorTable::NONE();
+}
+
 } // namespace Nebulite::DomainModule::Renderer
