@@ -45,7 +45,7 @@ DNF_PACKAGES="gcc git-core make cmake \
               pipewire-jack-audio-connection-kit-devel libthai-devel zlib-ng-compat-static\
               yasm nasm"
 YUM_PACKAGES="make cmake ninja-build automake autoconf libtool m4 perl python3 python3-pip python3-numpy @development-tools mingw64-gcc mingw64-gcc-c++ alsa-lib-devel pulseaudio-libs-devel cloc libXcursor-devel libX11-devel libXext-devel libXrandr-devel libXi-devel libXinerama-devel libXxf86vm-devel libXss-devel libXrender-devel libxkbcommon-devel libxkbcommon-x11-devel"
-BRW_PACKAGES="cmake ninja automake autoconf libtool python3 numpy mingw-w64 cloc libxcursor libx11 libxrandr libxi libxinerama libxxf86vm libxss libxrender libxkbcommon"
+BRW_PACKAGES="cmake ninja automake autoconf libtool python3 numpy mingw-w64 cloc libxcursor libx11 libxrandr libxi libxinerama libxxf86vm libxss libxrender libxkbcommon yasm nasm"
 
 
 if command -v apt-get >/dev/null; then
