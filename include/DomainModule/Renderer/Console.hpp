@@ -314,7 +314,6 @@ private:
 
     /**
      * @brief Draws the input text.
-     *
      * @param lineHeight The height of each line in pixels.
      */
     void drawInput(uint16_t const& lineHeight);
@@ -346,6 +345,11 @@ private:
     //------------------------------------------
     // Autotype handling
 
+    /**
+     * @struct AutotypeCommand
+     * @brief Represents a command for the autotype system
+     * @details Commands cannot be executed immediately, so we store their representation in a queue instead.
+     */
     struct AutotypeCommand {
         enum class Type {
             TEXT,
@@ -357,12 +361,22 @@ private:
         } type;
         std::string text; // Additional data for text or wait commands
     };
-    std::queue<AutotypeCommand> autotypeQueue;
-    std::queue<AutotypeCommand> autotypeActiveQueue;
-    size_t autotypeWaitTimeRemaining = 0; // in frames
 
+    // Stores all autotype commands before "autotype execute" is called
+    std::queue<AutotypeCommand> autotypeQueue;
+
+    // Stores autotype commands that are currently being executed (after "autotype execute" is called, until all commands are executed)
+    std::queue<AutotypeCommand> autotypeActiveQueue;
+
+    // Remaining wait time in ms before the next autotype command from autotypeActiveQueue can be executed.
+    size_t autotypeWaitTimeRemaining = 0;
+
+    // Timer to track dt for autotype wait commands
     Utility::TimeKeeper autotypeWaitTimer;
 
+    /**
+     * @brief Processes the autotype command queue, executing commands one by one while respecting wait times.
+     */
     void processAutotypeQueue();
 };
 } // namespace Nebulite::DomainModule::Renderer

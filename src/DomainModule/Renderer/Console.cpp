@@ -22,20 +22,9 @@ Constants::Error Console::update() {
         init();
     }
 
-    autotypeWaitTimer.update();
-    auto const dt_ms = autotypeWaitTimer.get_dt_ms();
-
     //------------------------------------------
     // Execute autotype commands
-    if (autotypeWaitTimeRemaining > 0) {
-        if (dt_ms >= autotypeWaitTimeRemaining) {
-            autotypeWaitTimeRemaining = 0;
-        } else {
-            autotypeWaitTimeRemaining -= dt_ms;
-        }
-    } else {
-        processAutotypeQueue();
-    }
+    processAutotypeQueue();
 
     //------------------------------------------
     // Insert new lines from capture streams
@@ -516,38 +505,48 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
 }
 
 void Console::processAutotypeQueue() {
-    while (!autotypeActiveQueue.empty()) {
-        if (autotypeWaitTimeRemaining > 0) {
-            break; // Wait time set by a command, pause execution of further commands until next update
+    autotypeWaitTimer.update();
+    auto const dt_ms = autotypeWaitTimer.get_dt_ms();
+    if (autotypeWaitTimeRemaining > 0) {
+        if (dt_ms >= autotypeWaitTimeRemaining) {
+            autotypeWaitTimeRemaining = 0;
+        } else {
+            autotypeWaitTimeRemaining -= dt_ms;
         }
-        switch (auto const& [type, text] = autotypeActiveQueue.front(); type) {
-        case AutotypeCommand::Type::TEXT:
-            textInput.getInputBuffer()->append(text);
-            break;
-        case AutotypeCommand::Type::ENTER:
-            keyTriggerSubmit();
-            break;
-        case AutotypeCommand::Type::CLOSE:
-            consoleMode = false;
-            SDL_StopTextInput(domain.getSdlWindow());
-            break;
-        case AutotypeCommand::Type::WAIT:
-            try {
-                autotypeWaitTimeRemaining = std::stoul(text);
-            } catch (std::exception const&) {
-                Error::println("Invalid wait time in autotype command: ", text);
+    } else {
+        while (!autotypeActiveQueue.empty()) {
+            if (autotypeWaitTimeRemaining > 0) {
+                break; // Wait time set by a command, pause execution of further commands until next update
             }
-            break;
-        case AutotypeCommand::Type::HISTORY_UP:
-            textInput.history_up();
-            break;
-        case AutotypeCommand::Type::HISTORY_DOWN:
-            textInput.history_down();
-            break;
-        default:
-            std::unreachable();
+            switch (auto const& [type, text] = autotypeActiveQueue.front(); type) {
+            case AutotypeCommand::Type::TEXT:
+                textInput.getInputBuffer()->append(text);
+                break;
+            case AutotypeCommand::Type::ENTER:
+                keyTriggerSubmit();
+                break;
+            case AutotypeCommand::Type::CLOSE:
+                consoleMode = false;
+                SDL_StopTextInput(domain.getSdlWindow());
+                break;
+            case AutotypeCommand::Type::WAIT:
+                try {
+                    autotypeWaitTimeRemaining = std::stoul(text);
+                } catch (std::exception const&) {
+                    Error::println("Invalid wait time in autotype command: ", text);
+                }
+                break;
+            case AutotypeCommand::Type::HISTORY_UP:
+                textInput.history_up();
+                break;
+            case AutotypeCommand::Type::HISTORY_DOWN:
+                textInput.history_down();
+                break;
+            default:
+                std::unreachable();
+            }
+            autotypeActiveQueue.pop();
         }
-        autotypeActiveQueue.pop();
     }
 }
 

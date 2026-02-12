@@ -207,5 +207,4 @@ void Console::processMode() {
     }
 }
 
-
 } // namespace Nebulite::DomainModule::Renderer
