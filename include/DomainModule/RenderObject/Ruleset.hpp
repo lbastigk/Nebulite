@@ -41,10 +41,6 @@ public:
         "\n"
         "All rulesets are applied once on the next update cycle.\n";
 
-    // TODO: Additional ruleset management for push/pop, enable/disable, list, etc.
-    //       perhaps just an option to reload is enough?
-    //       any push/pop could be done via json manipulation directly
-
     Constants::Error reload();
     static auto constexpr reload_name = "ruleset reload";
     static auto constexpr reload_desc = "Reloads all rulesets for this RenderObject on the next update.\n"
