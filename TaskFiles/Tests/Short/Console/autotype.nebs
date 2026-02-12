@@ -1,24 +1,24 @@
 set-fps 60
-wait 30
+
+wait 15
 console open
 console autotype text echo TEST1
 console autotype enter
 console autotype text echo TEST2
-console autotype wait 1000
+console autotype wait 500
 console autotype close
 console autotype execute
-
-wait 30
+wait 15
 
 echo ----- TEST2 still in text input box -----
 
-wait 30
+wait 15
 console open
 console autotype enter
 console autotype execute
-console autotype wait 1000
+console autotype wait 500
 console autotype close
 console autotype execute
-wait 30
+wait 15
 
 exit
