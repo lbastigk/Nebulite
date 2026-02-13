@@ -355,33 +355,38 @@ private:
     // Autotype handling
 
     /**
-     * @struct AutotypeCommand
-     * @brief Represents a command for the autotype system
-     * @details Commands cannot be executed immediately, so we store their representation in a queue instead.
+     * @brief Struct to manage the autotype system, which allows queuing up commands to be executed in the console with optional wait times between them.
      */
-    struct AutotypeCommand {
-        enum class Type {
-            TEXT,
-            ENTER,
-            CLOSE,
-            WAIT,
-            HISTORY_UP,
-            HISTORY_DOWN
-        } type;
-        std::string text; // Additional data for text or wait commands
-    };
+    struct AutoType {
+        /**
+         * @struct Command
+         * @brief Represents a command for the autotype system
+         * @details Commands cannot be executed immediately, so we store their representation in a queue instead.
+         */
+        struct Command {
+            enum class Type {
+                TEXT,
+                ENTER,
+                CLOSE,
+                WAIT,
+                HISTORY_UP,
+                HISTORY_DOWN
+            } type;
+            std::string text; // Additional data for text or wait commands
+        };
 
-    // Stores all autotype commands before "autotype execute" is called
-    std::queue<AutotypeCommand> autotypeQueue;
+        // Stores all autotype commands before "autotype execute" is called
+        std::queue<Command> queue;
 
-    // Stores autotype commands that are currently being executed (after "autotype execute" is called, until all commands are executed)
-    std::queue<AutotypeCommand> autotypeActiveQueue;
+        // Stores autotype commands that are currently being executed (after "autotype execute" is called, until all commands are executed)
+        std::queue<Command> activeQueue;
 
-    // Remaining wait time in ms before the next autotype command from autotypeActiveQueue can be executed.
-    size_t autotypeWaitTimeRemaining = 0;
+        // Remaining wait time in ms before the next autotype command from autotypeActiveQueue can be executed.
+        size_t waitTimeRemaining = 0;
 
-    // Timer to track dt for autotype wait commands
-    Utility::TimeKeeper autotypeWaitTimer;
+        // Timer to track dt for autotype wait commands
+        Utility::TimeKeeper waitTimer;
+    }autoType;
 
     /**
      * @brief Processes the autotype command queue, executing commands one by one while respecting wait times.

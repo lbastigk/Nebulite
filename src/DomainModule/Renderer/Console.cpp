@@ -23,7 +23,7 @@ Constants::Error Console::update() {
     }
 
     //------------------------------------------
-    // Execute autotype commands
+    // Execute autoType commands
     processAutotypeQueue();
 
     //------------------------------------------
@@ -423,8 +423,8 @@ void Console::init() {
     textInput.insertLine("Console started at: " + Utility::Time::TimeIso8601(Utility::Time::ISO8601Format::YYYY_MM_DD_HH_MM_SS, true));
 
     //--------------------------------------------------
-    // Start autotype timer
-    autotypeWaitTimer.start();
+    // Start autoType timer
+    autoType.waitTimer.start();
 
     //--------------------------------------------------
     // Console now fully functional
@@ -505,47 +505,47 @@ uint16_t Console::calculateTextAlignment(uint16_t const& rect_height) {
 }
 
 void Console::processAutotypeQueue() {
-    autotypeWaitTimer.update();
-    auto const dt_ms = autotypeWaitTimer.get_dt_ms();
-    if (autotypeWaitTimeRemaining > 0) {
-        if (dt_ms >= autotypeWaitTimeRemaining) {
-            autotypeWaitTimeRemaining = 0;
+    autoType.waitTimer.update();
+    auto const dt_ms = autoType.waitTimer.get_dt_ms();
+    if (autoType.waitTimeRemaining > 0) {
+        if (dt_ms >= autoType.waitTimeRemaining) {
+            autoType.waitTimeRemaining = 0;
         } else {
-            autotypeWaitTimeRemaining -= dt_ms;
+            autoType.waitTimeRemaining -= dt_ms;
         }
     } else {
-        while (!autotypeActiveQueue.empty()) {
-            if (autotypeWaitTimeRemaining > 0) {
+        while (!autoType.activeQueue.empty()) {
+            if (autoType.waitTimeRemaining > 0) {
                 break; // Wait time set by a command, pause execution of further commands until next update
             }
-            switch (auto const& [type, text] = autotypeActiveQueue.front(); type) {
-            case AutotypeCommand::Type::TEXT:
+            switch (auto const& [type, text] = autoType.activeQueue.front(); type) {
+            case AutoType::Command::Type::TEXT:
                 textInput.getInputBuffer()->append(text);
                 break;
-            case AutotypeCommand::Type::ENTER:
+            case AutoType::Command::Type::ENTER:
                 keyTriggerSubmit();
                 break;
-            case AutotypeCommand::Type::CLOSE:
+            case AutoType::Command::Type::CLOSE:
                 consoleMode = false;
                 SDL_StopTextInput(domain.getSdlWindow());
                 break;
-            case AutotypeCommand::Type::WAIT:
+            case AutoType::Command::Type::WAIT:
                 try {
-                    autotypeWaitTimeRemaining = std::stoul(text);
+                    autoType.waitTimeRemaining = std::stoul(text);
                 } catch (std::exception const&) {
-                    Error::println("Invalid wait time in autotype command: ", text);
+                    Error::println("Invalid wait time in autoType command: ", text);
                 }
                 break;
-            case AutotypeCommand::Type::HISTORY_UP:
+            case AutoType::Command::Type::HISTORY_UP:
                 textInput.history_up();
                 break;
-            case AutotypeCommand::Type::HISTORY_DOWN:
+            case AutoType::Command::Type::HISTORY_DOWN:
                 textInput.history_down();
                 break;
             default:
                 std::unreachable();
             }
-            autotypeActiveQueue.pop();
+            autoType.activeQueue.pop();
         }
     }
 }

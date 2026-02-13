@@ -109,20 +109,20 @@ Constants::Error Console::consoleAutotypeText(std::span<std::string const> const
     if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    autotypeQueue.push(AutotypeCommand{AutotypeCommand::Type::TEXT, Utility::StringHandler::recombineArgs(args.subspan(1))});
+    autoType.queue.push(AutoType::Command{AutoType::Command::Type::TEXT, Utility::StringHandler::recombineArgs(args.subspan(1))});
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error Console::consoleAutotypeEnter() {
-    autotypeQueue.push({AutotypeCommand::Type::ENTER, ""});
+    autoType.queue.push({AutoType::Command::Type::ENTER, ""});
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error Console::consoleAutotypeExecute() {
     // add queue to active queue
-    while (!autotypeQueue.empty()) {
-        autotypeActiveQueue.push(autotypeQueue.front());
-        autotypeQueue.pop();
+    while (!autoType.queue.empty()) {
+        autoType.activeQueue.push(autoType.queue.front());
+        autoType.queue.pop();
     }
     return Constants::ErrorTable::NONE();
 }
@@ -134,32 +134,32 @@ Constants::Error Console::consoleAutotypeWait(std::span<std::string const> const
     if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
-    autotypeQueue.push({AutotypeCommand::Type::WAIT, args[1]});
+    autoType.queue.push({AutoType::Command::Type::WAIT, args[1]});
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error Console::consoleAutotypeClose() {
-    autotypeQueue.push({AutotypeCommand::Type::CLOSE, ""});
+    autoType.queue.push({AutoType::Command::Type::CLOSE, ""});
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error Console::consoleAutotypeHistoryUp() {
-    autotypeQueue.push({AutotypeCommand::Type::HISTORY_UP, ""});
+    autoType.queue.push({AutoType::Command::Type::HISTORY_UP, ""});
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error Console::consoleAutotypeHistoryDown() {
-    autotypeQueue.push({AutotypeCommand::Type::HISTORY_DOWN, ""});
+    autoType.queue.push({AutoType::Command::Type::HISTORY_DOWN, ""});
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error Console::consoleAutotypeClear() {
     // Clear both queues
-    while (!autotypeQueue.empty()) {
-        autotypeQueue.pop();
+    while (!autoType.queue.empty()) {
+        autoType.queue.pop();
     }
-    while (!autotypeActiveQueue.empty()) {
-        autotypeActiveQueue.pop();
+    while (!autoType.activeQueue.empty()) {
+        autoType.activeQueue.pop();
     }
     return Constants::ErrorTable::NONE();
 }
