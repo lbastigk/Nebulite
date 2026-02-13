@@ -55,16 +55,10 @@ public:
         }
 
         // Allowed accessors:
-        friend class Core::GlobalSpace;
-        // TODO: add a helper class in renderer that does the rendering of globalspace using imgui,
-        //       then make that class a friend here to allow it access to full scope
+        friend class Core::GlobalSpace; // Only GlobalSpace itself has full access
     public:
         ~Full() = default;
     };
-
-    // TODO: Build full prefix here for each DomainModule type by using arguments for the constructor
-    //       e.g. "providedScope.domainModule.renderObject." + dm.moduleScope.getScopePrefix()
-    //       Then we only require one shareScope function that takes the access token and derives the full prefix from it.
 
     // Provide scoped GlobalSpace access to DomainModules
     template<typename DomainType>
