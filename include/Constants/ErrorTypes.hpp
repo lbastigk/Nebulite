@@ -68,14 +68,12 @@ public:
      * @brief Construct an Error referencing an existing description string.
      * @details The Error does not own the string; the ErrorTable manages lifetime.
      */
-    Error(std::string const* desc, Type const t) : description(desc), type(t) {
-    }
+    Error(std::string const* desc, Type const t) : description(desc), type(t) {}
 
     /**
      * @brief Empty Constructor for ERROR struct.
      */
-    Error() : description(nullptr), type(NONE) {
-    }
+    Error() : description(nullptr), type(NONE) {}
 
     /**
      * @brief Get the error description.
