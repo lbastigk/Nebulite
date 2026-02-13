@@ -23,12 +23,9 @@ public:
 
     /**
      * @brief A helper function that always evaluates to false.
-     * @tparam T The type to check.
      * @return false
-     * @todo Is T needed here?
      */
-    template<typename T>
-    static bool constexpr always_false(T) {
+    static bool constexpr always_false() {
         return false;
     }
 

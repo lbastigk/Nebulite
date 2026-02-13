@@ -689,7 +689,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
             }
             // Unknown function type
             else {
-                static_assert(ShapeClassifier::always_false<T>, "Unknown function signature in FuncTree::executeFunction");
+                static_assert(Constants::Assert::always_false(), "Unknown function signature in FuncTree::executeFunction");
             }
         }, functionPtr);
     }
