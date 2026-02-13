@@ -1,21 +1,19 @@
 /**
  * @file ErrorTypes.hpp
  * @brief Defines the Nebulite::Constants::Error for standardized error codes
- * and the Nebulite::Constants::ErrorTable class for mapping error codes to their string descriptions.
+ *        and the Nebulite::Constants::ErrorTable class for mapping error codes to their string descriptions.
+ * @details Functions bound via the FuncTree system utilize a `Nebulite::Constants::Error foo(int argc,  char** argv)` signature.
+ *          Usage:
+ *            - Classes such as taskQueues executes main tree functions
+ *              which return an Error value to indicate the result of execution.
+ *            - Critical errors (negative values) signal unrecoverable states and are used
+ *              in main.cpp to determine if the engine should halt execution (see
+ *              lastCriticalResult and critical_stop logic).
+ *            - Non-critical errors (positive values) represent recoverable or minor issues,
+ *              such as argument mismatches or unimplemented features.
+ *            - The NONE value (0) indicates successful execution with no errors.
  *
- * Functions bound via the FuncTree system utilize a `Nebulite::Constants::Error foo(int argc,  char** argv)` signature.
- *
- * Usage:
- *   - Classes such as taskQueues executes main tree functions
- *     which return an Error value to indicate the result of execution.
- *   - Critical errors (negative values) signal unrecoverable states and are used
- *     in main.cpp to determine if the engine should halt execution (see
- *     lastCriticalResult and critical_stop logic).
- *   - Non-critical errors (positive values) represent recoverable or minor issues,
- *     such as argument mismatches or unimplemented features.
- *   - The NONE value (0) indicates successful execution with no errors.
- *
- * See main.cpp for detailed usage in the main engine loop and error handling.
+ *          See main.cpp for detailed usage in the main engine loop and error handling.
  */
 
 #ifndef NEBULITE_CONSTANTS_ERROR_TYPES_HPP
@@ -34,9 +32,7 @@
 #include <absl/container/flat_hash_map.h>
 
 //------------------------------------------
-
 namespace Nebulite::Constants {
-
 /**
  * @class Error
  * @brief Represents an error with a description and type.
@@ -46,15 +42,11 @@ public:
     /**
      * @enum Type
      * @brief Enumeration for error types.
-     *
-     * @todo Condense to bool isCritical if no further distinction is necessary.
      */
     enum Type {
-        // Perhaps some more distinction is necessary here
-        // if not, condense to bool isCritical
-        CRITICAL,
-        NON_CRITICAL,
-        NONE
+        CRITICAL, // Critical error
+        NON_CRITICAL, // Non-critical error
+        NONE // No error
     };
 
     /**
@@ -74,7 +66,7 @@ public:
 
     /**
      * @brief Construct an Error referencing an existing description string.
-     * The Error does not own the string; the ErrorTable manages lifetime.
+     * @details The Error does not own the string; the ErrorTable manages lifetime.
      */
     Error(std::string const* desc, Type const t) : description(desc), type(t) {
     }
@@ -117,32 +109,19 @@ private:
 /**
  * @class ErrorTable
  * @brief Singleton class that manages a table of errors and their descriptions.
- *
- * This class provides a centralized way to manage error codes and their corresponding
- * descriptions. It ensures that each error is unique and provides methods to add and
- * retrieve errors.
- *
- * Usage:
- *
- *   - Add errors using the static method `addError`.
- *
- *   - Retrieve predefined errors using the nested structs (e.g., `ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED()`).
- *
- * @todo Implement short-existing errors that are removed after some time (addError should be private, addShortLivedError public)
- *       However, we need to be careful with dangling pointers in that case.
- *       Perhaps it's best to just keep all errors for the lifetime of the program.
- *       Then, if we have more than UINT16_MAX errors, we can just exit with a message.
+ * @details Provides a centralized way to manage error codes and their corresponding
+ *          descriptions. It ensures that each error is unique and provides methods to add and
+ *          retrieve errors.
+ *          Usage:
+ *          - Add errors using the static method `addError`.
+ *          - Retrieve predefined errors using the nested structs (e.g., `ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED()`).
  */
 class ErrorTable {
     /**
-     * @todo It might be better to not use a local description container, and instead rely on them being stored in the
-     * error object itself. Then, when we get pre-declared errors, we use a special constructor that references
-     * the description of the already existing error.
-     * Or something along those lines. The current implementation is too complex
-     * and probably tried to circumvent an issue that does not exist.
-     *
-     * The idea of the localDescriptions was to reduce the exhaustive copying of strings when retrieving existing errors.
-     * Since technically, each new Error object would have to copy the string into its own storage otherwise.
+     * @brief Implementation of adding an error to the error table.
+     * @param description The error description string.
+     * @param type The type of error (CRITICAL or NON_CRITICAL). Default is NON_CRITICAL.
+     * @return The corresponding Error object.
      */
     Error addErrorImpl(std::string const& description, Error::Type type = Error::NON_CRITICAL);
 
@@ -153,30 +132,20 @@ class ErrorTable {
 
     /**
      * @brief Holds count of errors added.
-     *
-     * There isn't necessarily a need to limit the number of errors,
-     * but this makes sure that we aren't accidentally writing more and more errors without deleting them,
-     * preventing memory leaks.
+     * @details There isn't necessarily a need to limit the number of errors,
+     *          but this makes sure that we aren't accidentally writing more and more errors without deleting them,
+     *          preventing memory leaks.
      */
     uint16_t count;
 
     /**
      * @brief Holds local copies of error description strings.
-     * Uses deque to ensure stable addresses for Error objects.
+     * @details Uses deque to ensure stable addresses for Error objects.
      */
     std::deque<std::string> localDescriptions; // To own the strings
 
 public:
-    ErrorTable() : count(0) {
-    }
-
-    /**
-     * @brief This implementation is not recommended, as users might pass str.c_str()
-     *        which will be a dangling pointer after the function call.
-     */
-    //static Error addError(char const* description, Error::Type type = Error::NON_CRITICAL){
-    //    return addErrorImpl(description, type);
-    //}
+    ErrorTable() : count(0) {}
 
     /**
      * @brief Adds an error to the error table and returns the corresponding Error object.
