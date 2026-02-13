@@ -21,7 +21,7 @@
 # -----------------------------------------------------------------------------
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
-
+task TaskFiles/Tests/Short/Console/autotype.nebs
 task TaskFiles/Simulations/bouncing.nebs
 
 #task TaskFiles/VerticalSlice/levelDescription.nebs
