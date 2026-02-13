@@ -7,13 +7,6 @@
  *          But Domains can own other Domains, requiring knowledge of their key names.
  *          Therefore, we centralize these key names here to avoid circular dependencies
  *          and to ensure consistency across the framework.
- * @note Work in progress, many terribly organized, duplicated, or unused keys exist here.
- *       This file will be refactored over time to improve organization and safety.
- * @todo However, with enough forward declarations this might work and we can get rid of this file entirely.
- * @todo - Sort keys into their respective scopes and Domains
- *       - Refactor DomainModule keys into DomainModules instead of having them here
- *       - Turn all into Data::ScopedKey
- *       - Add scopes where applicable to improve safety
  */
 
 #ifndef NEBULITE_CONSTANTS_KEYNAMES_HPP
