@@ -19,22 +19,36 @@
 #ifndef NEBULITE_CONSTANTS_KEYNAMES_HPP
 #define NEBULITE_CONSTANTS_KEYNAMES_HPP
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/ScopedKey.hpp"
 
-namespace Nebulite::DomainModule {
-class Initializer; // Forward declaration of Initializer for friend declaration in DECLARE_SCOPE
-} // namespace Nebulite::DomainModule
-
-namespace Nebulite::Constants {
+//------------------------------------------
+// Macros
 
 // Macro to help declare a private scope member. Must be the full scope!
 #define DECLARE_SCOPE(scopeStr) static auto constexpr scope = scopeStr;
 
 // Macro to help create a scoped key with the previously declared scope
+// TODO: Allow make_scoped to fallback to unscoped key if scope is not declared?
+//       Better name? MAKE_POTENTIALLY_SCOPED? MAKE_BASED_ON_SCOPE?
+//       Make sure the same reflects that the scope depends on a previously declared scope!
 #define MAKE_SCOPED(keyStr) ( (void)scope, Data::ScopedKeyView::create<scope>(keyStr) )
 
-// TODO: Remove unused keys and refactor used ones
-// TODO: move scope to private part of each struct when possible
+// TODO: Macro to explicitly declare no scope?
+//       something like static auto constexpr scope = Data::ScopedKey::NoScope;
+//       If this is passed into Data::ScopedKeyView::create<scope>, it initializes the key without a scope.
+//       Has the advantage of being more explicit about the intention of having no scope
+
+//------------------------------------------
+namespace Nebulite::Constants {
+
+/**
+ * @struct KeyNames
+ * @brief Centralized struct for constant key names used throughout the Nebulite framework.
+ */
 struct KeyNames {
     struct Renderer {
         DECLARE_SCOPE("renderer.")
@@ -68,7 +82,7 @@ struct KeyNames {
         static auto constexpr draw = MAKE_SCOPED("draw");
         static auto constexpr sizeX = MAKE_SCOPED("size.x");
         static auto constexpr sizeY = MAKE_SCOPED("size.y");
-        static auto constexpr sizeR = MAKE_SCOPED("size.r"); // TODO: Make sure any collision modules are able to use (X,Y) and radius
+        static auto constexpr sizeR = MAKE_SCOPED("size.r");
     };
 
     // Keys within any Ruleset JSON object
