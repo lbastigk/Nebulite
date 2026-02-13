@@ -38,7 +38,6 @@ namespace Nebulite {
 /**
  * @brief Class to provide access tokens for various Domain types.
  * @details The access tokens can only be constructed by their respective classes.
- * @todo Use this instead of the deprecated shareScope overloads below.
  */
 class ScopeAccessor {
 public:

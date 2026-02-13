@@ -194,23 +194,6 @@ public:
     [[nodiscard]] static Data::JsonScopeBase& shareScopeBase(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix = "");
 
     //------------------------------------------
-    // TODO: The following shareScope overloads are deprecated.
-    //       remove one by one, simply using the new shareScope with access tokens instead should work!
-
-    // Provide scopes for DomainModules and RulesetModules, depending on their type
-
-    // GlobalSpace DomainModules root is at "", then we add their own prefix
-    [[nodiscard]] static Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::GlobalSpace> const& dm) {
-        return globalDoc().shareManagedScope(dm.moduleScope.getScopePrefix());
-    }
-
-    // Provide a custom scope for DomainModules from RenderObjects
-    // We add a prefix to signal what part these domainModules can access
-    //[[nodiscard]] static Core::JsonScope& shareScope(Interaction::Execution::DomainModule<Core::RenderObject> const& dm) {
-    //    return globalDoc().shareManagedScope("providedScope.domainModule.renderObject." + dm.moduleScope.getScopePrefix());
-    //}
-
-    //------------------------------------------
     // Imgui rendering
 
     /**
