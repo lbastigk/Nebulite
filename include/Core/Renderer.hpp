@@ -19,7 +19,6 @@
 
 // Nebulite
 #include "Core/Environment.hpp"
-#include "Constants/KeyNames.hpp"
 #include "Utility/TimeKeeper.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Execution/Domain.hpp"
@@ -133,7 +132,7 @@ public:
      * @details This can be useful to avoid rendering a frame when the application is not in focus,
      *          or when the rendering load is too high.
      */
-    void skipUpdateNextFrame() { skipUpdate = true; }
+    void skipUpdateNextFrame() { status.skipUpdate = true; }
 
     /**
      * @brief Checks if the next frame update is being skipped.
@@ -141,14 +140,14 @@ public:
      *          so new blocking processes have to call `skipUpdateNextFrame()` each frame.
      * @return True if the next frame update is being skipped, false otherwise.
      */
-    [[nodiscard]] bool isSkippingUpdate() const noexcept { return skipUpdate; }
+    [[nodiscard]] bool isSkippingUpdate() const noexcept { return status.skipUpdate; }
 
     /**
      * @brief Checks if the last frame update was skipped.
      *        Keeps the value from the last renderer tick.
      * @return True if the last frame update was skipped, false otherwise.
      */
-    [[nodiscard]] bool hasSkippedUpdate() const { return skippedUpdateLastFrame; }
+    [[nodiscard]] bool hasSkippedUpdate() const { return status.skippedUpdateLastFrame; }
 
     //------------------------------------------
     // Texture Management
@@ -232,7 +231,7 @@ public:
     /**
      * @brief Toggles the display of the FPS counter.
      */
-    void toggleFps(bool const& show = true) { showFPS = show; }
+    void toggleFps(bool const& show = true) { status.showFps = show; }
 
     /**
      * @brief Sets the target FPS for the renderer.
@@ -274,7 +273,7 @@ public:
     }
 
     void showDebugWindow(bool const& show) noexcept {
-        showDebugWindowFlag = show;
+        status.showDebugWindow = show;
     }
 
     //------------------------------------------
@@ -418,32 +417,32 @@ public:
      * @brief Checks if the SDL Renderer is initialized
      * @return True if the SDL Renderer is initialized, false otherwise.
      */
-    [[nodiscard]] bool isSdlInitialized() const noexcept { return SDL_initialized; }
+    [[nodiscard]] bool isSdlInitialized() const noexcept { return status.sdlInitialized; }
 
     /**
      * @brief Checks if the Renderer is set to quit
      * @return True if the Renderer is set to quit, false otherwise.
      */
-    [[nodiscard]] bool shouldQuit() const noexcept { return quit; }
+    [[nodiscard]] bool shouldQuit() const noexcept { return status.quit; }
 
     /**
      * @brief Sets the quit flag for the Renderer
      */
-    void setQuit() noexcept { quit = true; }
+    void setQuit() noexcept { status.quit = true; }
 
 private:
     //------------------------------------------
     // Boolean Status Variables
 
-    // TODO: Move to struct Status
-
-    bool audioInitialized = false;
-    bool showFPS = true; // Set default to false later on
-    bool skipUpdate = false;
-    bool skippedUpdateLastFrame = false;
-    bool SDL_initialized = false;
-    bool quit = false; // Set to true when SDL_QUIT event is received or outside wants to quit
-    bool showDebugWindowFlag = false;
+    struct Status {
+        bool audioInitialized = false;
+        bool showFps = true; // Set default to false later on
+        bool skipUpdate = false;
+        bool skippedUpdateLastFrame = false;
+        bool sdlInitialized = false;
+        bool quit = false; // Set to true when an SDL_QUIT event is received or outside wants to quit
+        bool showDebugWindow = false;
+    }status;
 
     // External Flags
     bool* headless = nullptr;

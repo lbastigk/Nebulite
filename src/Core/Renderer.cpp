@@ -217,7 +217,7 @@ void Renderer::initImgui() const {
 }
 
 void Renderer::initSDL() {
-    if (SDL_initialized)
+    if (status.sdlInitialized)
         return;
 
     //------------------------------------------
@@ -300,7 +300,7 @@ void Renderer::initSDL() {
         Error::println("Failed to open audio device: ", SDL_GetError());
         std::abort();
     }
-    audioInitialized = true;
+    status.audioInitialized = true;
 
     //------------------------------------------
     // Check for remaining errors in SDL
@@ -315,7 +315,7 @@ void Renderer::initSDL() {
     }
 
     // All done
-    SDL_initialized = true;
+    status.sdlInitialized = true;
 }
 
 void Renderer::loadFonts() {
@@ -409,7 +409,7 @@ void Renderer::pollEvents() {
         events.push_back(event);
 
         // Handle quit event
-        if (event.type == SDL_EVENT_QUIT) { quit = true; }
+        if (event.type == SDL_EVENT_QUIT) { status.quit = true; }
     }
 }
 
@@ -418,11 +418,11 @@ void Renderer::render() {
     renderInit();
     renderFrame();
     pollEvents();
-    skippedUpdateLastFrame = skipUpdate;
-    skipUpdate = false;
+    status.skippedUpdateLastFrame = status.skipUpdate;
+    status.skipUpdate = false;
     updateModules(); // Update domain modules, potentially adding ImGui elements
-    if (showDebugWindowFlag) Global::renderImguiGlobalSpaceWindow();
-    if (showFPS) renderFPS();
+    if (status.showDebugWindow) Global::renderImguiGlobalSpaceWindow();
+    if (status.showFps) renderFPS();
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
     SDL_RenderPresent(renderer);
@@ -434,7 +434,7 @@ void Renderer::render() {
 Constants::Error Renderer::update() {
     //------------------------------------------
     // Skip update if flagged
-    if (!skipUpdate) {
+    if (!status.skipUpdate) {
         // Update environment
         env.updateObjects(
             tilePositionX,
@@ -493,7 +493,7 @@ void Renderer::reinsertAllObjects() {
 // Special Functions
 
 void Renderer::beep() const {
-    if (!audioInitialized)
+    if (!status.audioInitialized)
         return;
 
     // SDL3: use an SDL_AudioStream to enqueue PCM data (lazy-initialized)
@@ -583,7 +583,7 @@ void Renderer::purgeTextures() {
 }
 
 void Renderer::destroy() {
-    if (!SDL_initialized)
+    if (!status.sdlInitialized)
         return;
     if (window) {
         SDL_DestroyWindow(window);
