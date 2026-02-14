@@ -12,7 +12,7 @@ void FlatContainer::listen(Interaction::Execution::Domain& listener, std::string
     // Listening generally happens on multiple threads, so we need to lock the listener map for this topic while modifying it
     auto lock = listeners.lock(topic);
     auto& t = listeners[topic];
-    t.push_back({&listener, listenerId});
+    t.push_back({listener, listenerId});
 }
 
 void FlatContainer::prepare() {

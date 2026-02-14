@@ -32,7 +32,7 @@ void TreeContainer::TreePairingContainer::insertListener(Interaction::Execution:
         // For all rulesets under this broadcaster and topic
         for (auto& listenersOnRuleset : std::ranges::views::values(onTopicFromId.rulesets)) {
             // Insert in this frame
-            if (listenersOnRuleset.entry->evaluateCondition(&listener)) {
+            if (listenersOnRuleset.entry->evaluateCondition(listener)) {
                 auto blp = TreeBroadCastListenPair{
                     listenersOnRuleset.entry,
                     &listener

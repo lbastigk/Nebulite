@@ -298,11 +298,10 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScopeBase cons
             staticRulesetEntry.type != StaticRulesetMap::StaticRuleSetWithMetaData::Type::invalid
         ) {
             // Is a valid static ruleset
-            auto Ruleset = std::make_shared<StaticRuleset>();
+            auto Ruleset = std::make_shared<StaticRuleset>(self);
             Ruleset->topic = staticRulesetEntry.topic;
             Ruleset->_isGlobal = staticRulesetEntry.type == StaticRulesetMap::StaticRuleSetWithMetaData::Type::Global;
             Ruleset->staticFunction = staticRulesetEntry.function;
-            Ruleset->selfPtr = &self; // Set self pointer, might be helpful even for static rulesets
             return Ruleset;
         }
         // Skip this entry if it cannot be parsed
@@ -311,7 +310,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScopeBase cons
         return std::monostate{};
     }
     // Is a valid JSON-defined ruleset
-    auto Ruleset = std::make_shared<JsonRuleset>();
+    auto Ruleset = std::make_shared<JsonRuleset>(self);
     Ruleset->topic = entry.get<std::string>(Constants::KeyNames::Ruleset::topic, "all");
     Ruleset->_isGlobal = !Ruleset->topic.empty(); // If topic is empty, it is a local invoke
     std::string logicalArgStr = getCondition(entry);
@@ -340,7 +339,6 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScopeBase cons
     getFunctionCalls(entry, *Ruleset, self);
 
     // Push into vector
-    Ruleset->selfPtr = &self; // Set self pointer
     return Ruleset;
 }
 

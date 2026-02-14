@@ -34,7 +34,7 @@ void MapContainer::MapPairingContainer::insertListener(Interaction::Execution::D
             auto blp = BroadCastListenPair{
                 listenersOnRuleset.entry,
                 &listener,
-                listenersOnRuleset.entry->evaluateCondition(&listener)
+                listenersOnRuleset.entry->evaluateCondition(listener)
             };
             listenersOnRuleset.insert(listenerId, blp);
         }

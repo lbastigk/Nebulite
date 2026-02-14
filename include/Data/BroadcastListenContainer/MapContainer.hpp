@@ -75,7 +75,7 @@ private:
         // Apply function: Hash map version needs to check active flag
         void apply() {
             if (active) {
-                entry->apply(contextOther);
+                entry->apply(*contextOther);
                 active = false;
             }
         }

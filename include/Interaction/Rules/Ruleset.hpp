@@ -1,7 +1,6 @@
 /**
  * @file Ruleset.hpp
  * @brief This file contains the Ruleset struct, representing a single invoke entry of a RenderObject for manipulation.
- * @todo Use references instead of pointers where possible.
  */
 
 #ifndef NEBULITE_INTERACTION_RULES_RULESET_HPP
@@ -34,7 +33,7 @@ public:
     // Make Entry non-copyable and non-movable
     // All entries are local to their Domain
 
-    Ruleset() = default;
+    explicit Ruleset(Execution::Domain& contextSelf) : self(contextSelf) {}
     virtual ~Ruleset() = default;
 
     Ruleset(Ruleset const&) = delete;
@@ -87,7 +86,7 @@ public:
      * @param other The other domain to use as context 'other'.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    virtual bool evaluateCondition(Execution::Domain const* other);
+    virtual bool evaluateCondition(Execution::Domain const& other);
 
     /**
      * @brief Checks if the ruleset is true with its own Domain as context other.
@@ -99,7 +98,7 @@ public:
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
      */
-    virtual void apply(Execution::Domain* contextOther);
+    virtual void apply(Execution::Domain& contextOther);
 
     /**
      * @brief Applies the ruleset to its own Domain as context other.
@@ -126,7 +125,7 @@ protected:
     /**
      * @brief Pointer to the Domain that owns this ruleset; the `self` domain.
      */
-    Execution::Domain* selfPtr = nullptr;
+    Execution::Domain& self;
 
     /**
      * @brief Cost of this entry, estimated during parsing.
@@ -156,7 +155,7 @@ public:
     // Make Entry non-copyable and non-movable
     // All entries are local to their Domain
 
-    StaticRuleset() = default;
+    explicit StaticRuleset(Execution::Domain& contextSelf) : Ruleset(contextSelf) {}
     ~StaticRuleset() override = default;
 
     StaticRuleset(StaticRuleset const&) = delete;
@@ -177,25 +176,25 @@ public:
      * @param other The other render object to compare against.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    bool evaluateCondition(Execution::Domain const* other) override { (void)other ; return true; }
+    bool evaluateCondition(Execution::Domain const& other) override { (void)other ; return true; }
 
     /**
      * @brief Checks if the ruleset is true with its own Domain as context other.
      * @details For StaticRuleset, this always returns true.
      * @return True if the ruleset is true in the context of its own Domain, false otherwise.
      */
-    bool evaluateCondition() override { return evaluateCondition(selfPtr); }
+    bool evaluateCondition() override { return evaluateCondition(self); }
 
     /**
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
      */
-    void apply(Execution::Domain* contextOther) override ;
+    void apply(Execution::Domain& contextOther) override ;
 
     /**
      * @brief Applies the ruleset to its own Domain as context other.
      */
-    void apply() override { apply(selfPtr); }
+    void apply() override { apply(self); }
 
 private:
     StaticRulesetFunction staticFunction = nullptr;
@@ -211,7 +210,7 @@ public:
     // Make Entry non-copyable and non-movable
     // All entries are local to their Domain
 
-    JsonRuleset() = default;
+    explicit JsonRuleset(Execution::Domain& contextSelf) : Ruleset(contextSelf) {}
     ~JsonRuleset() override = default;
 
     JsonRuleset(JsonRuleset const&) = delete;
@@ -231,24 +230,24 @@ public:
      * @param other The other render object to compare against.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    bool evaluateCondition(Execution::Domain const* other) override;
+    bool evaluateCondition(Execution::Domain const& other) override;
 
     /**
      * @brief Checks if the ruleset is true in the context of its own Domain as otherObj.
      * @return True if the ruleset is true in the context of its own Domain, false otherwise.
      */
-    bool evaluateCondition() override { return evaluateCondition(selfPtr); }
+    bool evaluateCondition() override { return evaluateCondition(self); }
 
     /**
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
      */
-    void apply(Execution::Domain* contextOther) override;
+    void apply(Execution::Domain& contextOther) override;
 
     /**
      * @brief Applies the ruleset to its own Domain as contextOther.
      */
-    void apply() override { apply(selfPtr); }
+    void apply() override { apply(self); }
 
 private:
     //------------------------------------------

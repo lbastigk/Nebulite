@@ -32,7 +32,7 @@ struct TreeBroadCastListenPair {
     Interaction::Execution::Domain* contextOther = nullptr; // The domain that listened to the Broadcast
     // Apply function: ByteTree keeps track of active entries internally
     void apply() const {
-        entry->apply(contextOther);
+        entry->apply(*contextOther);
     }
 };
 
