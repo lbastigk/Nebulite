@@ -58,7 +58,10 @@ private:
         Constants::KeyNames::RenderObject::sizeY,
         Constants::KeyNames::RenderObject::sizeR,
         DomainModule::GlobalSpace::Physics::Key::Local::vX,
-        DomainModule::GlobalSpace::Physics::Key::Local::vY
+        DomainModule::GlobalSpace::Physics::Key::Local::vY,
+        DomainModule::GlobalSpace::Physics::Key::Local::m,
+        DomainModule::GlobalSpace::Physics::Key::Local::FX,
+        DomainModule::GlobalSpace::Physics::Key::Local::FY
     };
 
     /**
@@ -73,7 +76,10 @@ private:
         sizeY,
         sizeR,
         physics_vX,
-        physics_vY
+        physics_vY,
+        physics_mass,
+        physics_FX,
+        physics_FY,
     };
 
     // 2.) To retrieve from globalspace
@@ -83,6 +89,7 @@ private:
      */
     struct GlobalVal {
         /* Add more global variables here as needed */
+        double* dt = nullptr; // Time step for movement calculations
     } globalVal = {};
 };
 } // namespace Nebulite::RulesetModule

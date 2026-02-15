@@ -25,6 +25,14 @@
     "layer": 0,
     "posX": 0,
     "posY": 0,
+    "physics": {
+        "mass": 1000.0,
+        "aX": 0.0,
+        "aY": 0.0,
+        "vX": 0.0,
+        "vY": 0.0,
+        "vNorm": 0.0
+    },
     "ruleset": {
         "list": [
             "::movement::clip"
