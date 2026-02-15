@@ -153,22 +153,20 @@ void Physics::elasticCollision(Interaction::Context const& context) const {
 }
 
 void Physics::gravity(Interaction::Context const& context) const {
-    // Get ordered cache lists for both entities for base values
     double** slf = getBaseList(context.self, baseKeys);
     double** otr = getBaseList(context.other, baseKeys);
 
-    // Calculate distance components
-    double const distanceX = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
-    double const distanceY = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
+    double const dx = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
+    double const dy = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
 
-    // Avoid division by zero by adding a small epsilon
-    double const denominator = std::pow(distanceX * distanceX + distanceY * distanceY, 1.5) + 1; // +1 to avoid singularity
+    double const r = std::hypot(dx, dy);
+    double const r3 = r * r * r;
+    double const denominator = r3 + 1.0; // Prevent singularity
     double const coefficient = *globalVal.G * baseVal(slf, Key::physics_mass) * baseVal(otr, Key::physics_mass) / denominator;
 
-    // Apply gravitational force to other entity
     auto otrLock = context.other.lockDocument();
-    baseVal(otr, Key::physics_FX) += distanceX * coefficient;
-    baseVal(otr, Key::physics_FY) += distanceY * coefficient;
+    baseVal(otr, Key::physics_FX) += dx * coefficient;
+    baseVal(otr, Key::physics_FY) += dy * coefficient;
 }
 
 // Local rulesets
