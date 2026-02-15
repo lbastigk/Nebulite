@@ -205,7 +205,8 @@ public:
         return &expressionRefs[0];
 #else
         // Both versions are about equally performant according to benchmarks
-        thread_local size_t threadIndex = Utility::Threading::threadIdToUniformDistribution(ORDERED_DOUBLE_POINTERS_MAPS);
+        static auto indexRoller = Utility::Threading::atomicThreadRollGenerator(ORDERED_DOUBLE_POINTERS_MAPS);
+        thread_local size_t threadIndex = indexRoller();
         //thread_local size_t threadIndex = Utility::Threading::atomicThreadRoll(ORDERED_DOUBLE_POINTERS_MAPS);
         return &expressionRefs[threadIndex];
 #endif

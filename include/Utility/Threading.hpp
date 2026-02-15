@@ -21,25 +21,20 @@ namespace Nebulite::Utility {
  */
 class Threading {
 public:
-    static size_t threadIdToUniformDistribution(size_t const& distributionSize) {
-        thread_local const size_t cached = mix(std::hash<std::thread::id>{}(std::this_thread::get_id()));
-        return cached % distributionSize;
-    }
+    /**
+     * @brief A generator function that returns a lambda which generates a uniform distribution of thread IDs.
+     * @param distributionSize The size of the distribution.
+     * @return A lambda function that generates a uniform distribution of thread IDs.
+     */
+    static auto atomicThreadRollGenerator(size_t const& distributionSize) {
+        // Each call gets its own shared counter
+        auto counter = std::make_shared<std::atomic<size_t>>(0);
 
-    static size_t atomicThreadRoll(size_t const& distributionSize) {
-        static std::atomic<size_t> next{0};
-        thread_local const size_t idx = next.fetch_add(1, std::memory_order_relaxed) % distributionSize;
-        return idx;
-    }
-
-private:
-    static size_t mix(size_t x) {
-        x ^= x >> 33;
-        x *= 0xff51afd7ed558ccdULL;
-        x ^= x >> 33;
-        x *= 0xc4ceb9fe1a85ec53ULL;
-        x ^= x >> 33;
-        return x;
+        return [counter, distributionSize] {
+            thread_local size_t idx =
+                counter->fetch_add(1, std::memory_order_relaxed) % distributionSize;
+            return idx;
+        };
     }
 };
 } // namespace Nebulite::Utility

@@ -46,10 +46,12 @@ namespace Nebulite::Interaction::Logic {
 class ExpressionPool {
 public:
     ExpressionPool(std::string const& expr, Data::JsonScopeBase& self) {
+        indexRoller = Utility::Threading::atomicThreadRollGenerator(EXPRESSION_POOL_SIZE);
         parse(expr, self);
     }
 
     ExpressionPool(std::string const& expr, Execution::Domain const& self) {
+        indexRoller = Utility::Threading::atomicThreadRollGenerator(EXPRESSION_POOL_SIZE);
         parse(expr, self);
     }
 
@@ -89,7 +91,7 @@ public:
      * @return The result of the evaluation as a string.
      */
     std::string eval(Data::JsonScopeBase& current_other) const {
-        return pool[Utility::Threading::atomicThreadRoll(EXPRESSION_POOL_SIZE)]->eval(current_other);
+        return pool[indexRoller()]->eval(current_other);
     }
 
     /**
@@ -99,7 +101,7 @@ public:
      * @return The result of the evaluation as a double.
      */
     double evalAsDouble(Data::JsonScopeBase& current_other) const {
-        return pool[Utility::Threading::atomicThreadRoll(EXPRESSION_POOL_SIZE)]->evalAsDouble(current_other);
+        return pool[indexRoller()]->evalAsDouble(current_other);
     }
 
     /**
@@ -172,6 +174,9 @@ private:
 
     // Pool of expressions
     std::array<std::unique_ptr<Expression>, EXPRESSION_POOL_SIZE> pool;
+
+    // Pool index roller
+    std::function<size_t()> indexRoller;
 
     // Locks for thread safety
     std::array<std::mutex, EXPRESSION_POOL_SIZE> locks;
