@@ -149,6 +149,8 @@ wait 100
 exit
 ```
 
+See [Commands.md](./doc/Commands.md) for a full list of available commands for both GlobalSpace and RenderObject domains.
+
 Domains may be arranged in a hierarchy, where parent Domains can contain child Domains.
 This allows for shared functionality and data between related Domains.
 
@@ -235,6 +237,8 @@ They do not modify the stored value, only the returned one. Examples:
   and returns the element at index 1
 - `{self.str|transform1|transform2|...}` - chain multiple transformations
 - `{|transform1|transform2|...}` - start with empty value and apply transformations
+
+See [Commands.md](./doc/Commands.md) for a full list of available transformations.
 
 **Usage Examples**
 
