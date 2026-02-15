@@ -5,6 +5,8 @@
 #include "RulesetModule/Movement.hpp"
 #include "ScopeAccessor.hpp"
 
+#include <cfloat>
+
 namespace Nebulite::RulesetModule {
 
 Movement::Movement() : RulesetModule(moduleName) {
@@ -72,17 +74,18 @@ void Movement::clip(Interaction::Context const& context) const {
         // Potential collision response
 
         if (baseCondition) {
-            // Overlap checks for each axis + otr must be moving towards that axis
-            //                    -> overlap next frame, ...                               but not currently
-            bool const conditionX = !(p1X + size1X < nextP2X || nextP2X + size2X < p1X) && (p1X + size1X < p2X || p2X + size2X < p1X);
-            bool const conditionY = !(p1Y + size1Y < nextP2Y || nextP2Y + size2Y < p1Y) && (p1Y + size1Y < p2Y || p2Y + size2Y < p1Y);
+            // Overlap checks for each axis
+            bool const willCollideX = !(p1X + size1X < nextP2X || nextP2X + size2X < p1X);
+            bool const willCollideY = !(p1Y + size1Y < nextP2Y || nextP2Y + size2Y < p1Y);
+            bool const isCollidingX = !(p1X + size1X < p2X || p2X + size2X < p1X);
+            bool const isCollidingY = !(p1Y + size1Y < p2Y || p2Y + size2Y < p1Y);
 
 
             double drX = 0.0;
             double drY = 0.0;
 
             // Determine drX and drY based on interpolation
-            if (conditionX || conditionY) {
+            if (willCollideX || willCollideY) {
                 // Based on current velocity vector, determine corresponding dr direction that is outside the object
 
                 if (p1X + size1X < nextP2X + drX) {
@@ -99,14 +102,41 @@ void Movement::clip(Interaction::Context const& context) const {
                 }
 
                 // If velocity is zero, don't apply any movement along that axis
-                if (v2X == 0.0) drX = 0.0;
-                if (v2Y == 0.0) drY = 0.0;
+                //if (v2X == 0.0) drX = 0.0;
+                //if (v2Y == 0.0) drY = 0.0;
             }
+
+            // TODO: Sanity check: if still colliding after that correction, manually set dr outside the nearest sides
+
 
             // TODO: Allow for edge sliding:
             //       if otr is close to the edge of slf (maybe 1 pixel), allow for a correction dr along that axis
             //       to allow for sliding along the edge instead of a full stop
             //       This makes movement feel smoother and more natural, especially when moving along walls or other surfaces
+
+            // Edge sliding
+            static double edgeThreshold = 3.0; // Threshold distance to consider for edge sliding
+            bool const slideUp = willCollideY && std::fabs(p2Y + size2Y - p1Y) <= edgeThreshold && std::fabs(v2X) > DBL_EPSILON && std::fabs(v2Y) < DBL_EPSILON;
+            bool const slideDown = willCollideY && std::abs(p2Y - (p1Y + size1Y)) <= edgeThreshold && std::fabs(v2X) > DBL_EPSILON && std::fabs(v2Y) < DBL_EPSILON;
+            bool const slideLeft = willCollideX && std::fabs(p2X + size2X - p1X) <= edgeThreshold && std::fabs(v2Y) > DBL_EPSILON && std::fabs(v2X) < DBL_EPSILON;
+            bool const slideRight = willCollideX && std::fabs(p2X - (p1X + size1X)) <= edgeThreshold && std::fabs(v2Y) > DBL_EPSILON && std::fabs(v2X) < DBL_EPSILON;
+
+            // Allow for sliding along edges if close enough to the edge and moving towards it
+            // Bit too fast, needs tuning
+            if (slideUp && !slideDown) {
+                drY -= 1;
+            }
+            if (slideDown && !slideUp) {
+                drY += 1;
+            }
+            if (slideLeft && !slideRight) {
+                drX -= 1;
+            }
+            if (slideRight && !slideLeft) {
+                drX += 1;
+            }
+
+
 
             // Set new values:
             auto slfLock = context.self.lockDocument();
@@ -128,11 +158,11 @@ void Movement::clip(Interaction::Context const& context) const {
             }
 
             // Stop movement along axes only if the collision is new (i.e. not currently overlapping along that axis)
-            if (conditionX) {
+            if (willCollideX && !isCollidingX) {
                 baseVal(otr, Key::physics_vX) = 0.0;
                 baseVal(otr, Key::physics_FX) = 0.0;
             }
-            if (conditionY) {
+            if (willCollideY && !isCollidingY) {
                 baseVal(otr, Key::physics_vY) = 0.0;
                 baseVal(otr, Key::physics_FY) = 0.0;
             }
