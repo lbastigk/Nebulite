@@ -8,11 +8,6 @@
 [![C++ Standard](https://img.shields.io/badge/C%2B%2B-26-blue)]()
 [![Status](https://img.shields.io/badge/State-Active%20Dev-orange)]()
 
-
-<strong>
-A data‑driven 2D engine + declarative DSL for rapid experimentation with object interactions and emergent mechanics.
-</strong>
-
 <p align="center">
   <img src="doc/images/globalSpaceViewer.png" alt="Nebulite Overview" width="45%">
   <img src="doc/images/console.png" alt="Nebulite Overview" width="45%">
@@ -53,15 +48,39 @@ A data‑driven 2D engine + declarative DSL for rapid experimentation with objec
 <!-- TOC --><a name="overview"></a>
 ## Overview
 
-**Nebulite** is a C++26 2D game engine with a custom Domain-Specific Language (DSL) as well as JSON/JSONC-defined objects
-such as Rulesets, RenderObjects and Environments.
-It focuses on:
-- Declarative composition of rulesets (gravity, AI, triggers) via small JSON fragments
-- Flexible SELF / OTHER / GLOBAL context interaction model with local and broadcasted events
-- Optimized runtime expression evaluation
-- Headless + interactive execution modes
-- Separation of concerns using Domains and DomainModules for encapsulated logic
-- Scriptable commands via Nebulite Script (.nebs) files
+**Nebulite** is a modern C++26 2D game engine built around a flexible, ruleset-driven architecture.
+
+Gameplay logic can be defined in two complementary ways:
+
+- **JSON rulesets** — declarative, data-driven, and ideal for experimentation
+- **Native C++ rulesets** — hardcoded for maximum performance and full control
+
+Both approaches share the same runtime pipeline and context model, 
+allowing you to freely mix data-defined and hardcoded behavior within the same project.
+
+### Core Principles
+
+- **Modular Architecture**
+    - Domains encapsulate engine subsystems (rendering, global state, entities, etc.)
+    - DomainModules provide reusable, isolated functionality (time, console, ruleset management, etc.)
+    - Hierarchical domain composition with shared capabilities (Comparable to C++ class inheritance)
+
+- **Scripting & Automation**
+    - `.nebs` task files for scripted execution
+    - Interactive runtime console
+    - Headless mode for testing and automation
+    - Chainable CLI command execution
+    - easily extendable python testing suite
+
+- **Scoped Data & Access Control**
+    - JSON-backed data model
+    - Custom key scopes for controlled data access
+    - Explicit permission boundaries between subsystems
+
+- **Context-Driven Interaction**
+    - SELF / OTHER / GLOBAL context model
+    - Event broadcasting between objects
+    - Local and global ruleset execution
 
 <!-- TOC --><a name="quick-start"></a>
 ## Quick Start
@@ -182,14 +201,14 @@ Access and manipulate data using variables `{...}` inside and outside mathematic
 
 **Variable Contexts:**
 
-| Variable               | Description                        |
-|------------------------|------------------------------------|
-| `{self.*}`             | the object broadcasting logic      |
-| `{other.*}`            | objects listening to the broadcast |
-| `{global.*}`           | shared engine state                |
-| `{file.json:key.path}` | external read-only JSON files      |
-| `{global.{self.id}}`   | nested resolution (multiresolve).  |
-| `{self.arr\|length}`   | return value transformations       |
+| Variable               | Description                           |
+|------------------------|---------------------------------------|
+| `{self.*}`             | the object broadcasting logic         |
+| `{other.*}`            | the object listening to the broadcast |
+| `{global.*}`           | shared engine state                   |
+| `{file.json:key.path}` | external read-only JSON files         |
+| `{global.{self.id}}`   | nested resolution (multiresolve).     |
+| `{self.arr\|length}`   | return value transformations          |
 
 **Mathematical Expressions:**
 
@@ -207,7 +226,7 @@ If the stored value is non-numerical, it is treated as `0.0`.
 
 **Return Value Transformations:**
 Nebulite offers transformation functions of JSON values on retrieval.
-They do not modify the stored value, only the returned one.
+They do not modify the stored value, only the returned one. Examples:
 - `{self.arr|length}` - get array length instead of the array
 - `{self.arr|map <function>}` - apply function to each array element
 - `{self.val|add 5}` - add 5 to value on retrieval
@@ -217,7 +236,7 @@ They do not modify the stored value, only the returned one.
 - `{self.str|transform1|transform2|...}` - chain multiple transformations
 - `{|transform1|transform2|...}` - start with empty value and apply transformations
 
-**Examples**
+**Usage Examples**
 
 Health percentage:
 `$3i( {self.health} / max(1,{self.maxHealth}) * 100 )%`
