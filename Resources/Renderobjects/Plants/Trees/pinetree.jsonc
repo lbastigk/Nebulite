@@ -26,7 +26,12 @@
     "posX": 0,
     "posY": 0,
     "ruleset": {
-        "list": []
+        "list": [
+            "::movement::clip"
+        ],
+        "listen": [
+            "all"
+        ]
     },
     "size": {
         "x": 16,

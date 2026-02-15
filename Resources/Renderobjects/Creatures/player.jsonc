@@ -31,7 +31,7 @@
     "id": 0,
     "layer": 3,
     "physics": {
-        "mass": 50.0,
+        "mass": 75.0,
         "aX": 0.0,
         "aY": 0.0,
         "vX": 0.0,
@@ -53,6 +53,10 @@
             "./Resources/Invokes/Movement/no_movement_on_attack.jsonc",
             "./Resources/Invokes/Physics/applyForce.jsonc",
             "./Resources/Invokes/General/set_render_position_center.jsonc"
+        ],
+        "listen": [
+            "all",
+            "::movement::clip"
         ]
     },
     "size": {

@@ -4,6 +4,7 @@
 // Modules
 #include "RulesetModule/Camera.hpp"
 #include "RulesetModule/Debug.hpp"
+#include "RulesetModule/Movement.hpp"
 #include "RulesetModule/Physics.hpp"
 
 
@@ -19,6 +20,8 @@ void rulesetMapInit(StaticRulesetMap* srm) {
     cameraModule.registerModule(*srm);
     static Module::Debug debugModule;
     debugModule.registerModule(*srm);
+    static Module::Movement movementModule;
+    movementModule.registerModule(*srm);
     static Module::Physics physicsModule;
     physicsModule.registerModule(*srm);
 }

@@ -36,7 +36,7 @@ public:
 
     // Global rulesets
 
-    void elasticCollision(Interaction::Context const& context) const;
+    void elasticCollision(Interaction::Context const& context) const ;
     static constexpr std::string_view elasticCollisionName = "::physics::elasticCollision";
     static constexpr std::string_view elasticCollisionDesc = "Applies elastic collision forces between two render objects based on their masses and velocities.";
 
