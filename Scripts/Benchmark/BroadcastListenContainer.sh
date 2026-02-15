@@ -2,7 +2,7 @@
 
 # Tests the current broadcast-listen-container with small and large benchmarks
 
-BENCHMARK_COUNT=4
+BENCHMARK_COUNT=10
 
 BENCHMARK_SMALL_CMD=(./bin/Nebulite task TaskFiles/Benchmarks/spawn_constantly.nebs)
 BENCHMARK_LARGE_CMD=(./bin/Nebulite task TaskFiles/Benchmarks/gravity_XL.nebs)

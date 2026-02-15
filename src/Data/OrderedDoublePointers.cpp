@@ -9,7 +9,7 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniq
     if (uniqueId < quickCacheSize) {
         {
             Utility::ReadLock read_quick(mtxCache);
-            if (!quickCache[uniqueId].orderedValues.empty()) {
+            if (!quickCache[uniqueId].orderedValues.empty()) [[likely]] {
                 return &quickCache[uniqueId].orderedValues;
             }
         }
@@ -30,7 +30,7 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniq
     // Map path protected by mtxMap
     {
         Utility::ReadLock read_map(mtxMap);
-        if (auto const it = map.find(uniqueId); it != map.end()) {
+        if (auto const it = map.find(uniqueId); it != map.end()) [[likely]] {
             return &it->second.orderedValues;
         }
     }
@@ -52,7 +52,7 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniq
     if (uniqueId < quickCacheSize) {
         {
             Utility::ReadLock read_quick(mtxCache);
-            if (!quickCache[uniqueId].orderedValues.empty()) {
+            if (!quickCache[uniqueId].orderedValues.empty()) [[likely]] {
                 return &quickCache[uniqueId].orderedValues;
             }
         }
@@ -73,7 +73,7 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniq
     // Map path protected by mtxMap
     {
         Utility::ReadLock read_map(mtxMap);
-        if (auto const it = map.find(uniqueId); it != map.end()) {
+        if (auto const it = map.find(uniqueId); it != map.end()) [[likely]] {
             return &it->second.orderedValues;
         }
     }
