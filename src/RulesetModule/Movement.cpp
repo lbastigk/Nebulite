@@ -7,6 +7,8 @@
 
 #include "DomainModule/GlobalSpace/Time.hpp"
 
+#include <float.h>
+
 namespace Nebulite::RulesetModule {
 
 Movement::Movement() : RulesetModule(moduleName) {
@@ -68,8 +70,8 @@ void Movement::clip(Interaction::Context const& context) const {
 
         if (baseCondition) {
             // Overlap checks for each axis + otr must be moving towards that axis
-            bool const conditionX = !(p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y) && v2X != 0.0;
-            bool const conditionY = !(p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X) && v2Y != 0.0;
+            bool const conditionX = !(p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y) && std::abs(v2X) > DBL_EPSILON;
+            bool const conditionY = !(p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X) && std::abs(v2Y) > DBL_EPSILON;
 
             if (conditionX) {
                 // Reset position outside the other object
