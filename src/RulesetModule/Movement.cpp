@@ -24,6 +24,9 @@ Movement::Movement() : RulesetModule(moduleName) {
 // Global rulesets
 
 // TODO: Causes a one-frame delay in repositioning, we should use position prediction using velocity
+//       - use predicted position based on velocity
+//       - if collision, figure out the maximum force that can be applied to prevent clipping, set force to that value
+//       - requires mass!
 void Movement::clip(Interaction::Context const& context) const {
     // Get ordered cache lists for both entities for base values
     double** slf = getBaseList(context.self, baseKeys);
@@ -70,8 +73,8 @@ void Movement::clip(Interaction::Context const& context) const {
 
         if (baseCondition) {
             // Overlap checks for each axis + otr must be moving towards that axis
-            bool const conditionX = !(p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y) && std::abs(v2X) > DBL_EPSILON;
-            bool const conditionY = !(p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X) && std::abs(v2Y) > DBL_EPSILON;
+            bool const conditionX = !(p1Y + size1Y < p2Y || p2Y + size2Y < p1Y) && std::abs(v2X) > DBL_EPSILON;
+            bool const conditionY = !(p1X + size1X < p2X || p2X + size2X < p1X) && std::abs(v2Y) > DBL_EPSILON;
 
             if (conditionX) {
                 // Reset position outside the other object
