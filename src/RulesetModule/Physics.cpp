@@ -87,8 +87,8 @@ void Physics::elasticCollision(Interaction::Context const& context) const {
 
         if (baseCondition) {
             // Overlap checks for each axis (?)
-            bool const conditionX = !(p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X);
-            bool const conditionY = !(p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y);
+            bool const conditionX = !(p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y);
+            bool const conditionY = !(p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X);
 
             // m1*v1 + m2*v2 = m1*v1new + m2*v2new
             // Split into v1new and v2new equations
