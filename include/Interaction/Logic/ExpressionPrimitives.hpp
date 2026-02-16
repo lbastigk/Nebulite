@@ -297,7 +297,7 @@ private:
      * @brief Returns a reference to a vector containing information about all available functions for registration and help listing.
      * @return A reference to a vector of FunctionInfo structs, each representing a function available in ExpressionPrimitives.
      */
-    static std::vector<FunctionInfo>& availableFunctions();
+    static std::vector<FunctionInfo> const& availableFunctions();
 };
 } // namespace Nebulite::Interaction::Logic
 #endif // NEBULITE_INTERACTION_LOGIC_EXPRESSION_PRIMITIVES_HPP

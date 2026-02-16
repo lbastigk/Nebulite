@@ -70,8 +70,8 @@ void ExpressionPrimitives::help(std::span<std::string const> const& args) {
     tempFuncTree.parseStr(argStr);
 }
 
-std::vector<ExpressionPrimitives::FunctionInfo>& ExpressionPrimitives::availableFunctions() {
-    thread_local std::vector<FunctionInfo> functions = {
+std::vector<ExpressionPrimitives::FunctionInfo> const& ExpressionPrimitives::availableFunctions() {
+    static std::vector<FunctionInfo> const functions = {
         // Logical comparison functions
         {gtName, gtDesc, reinterpret_cast<void*>(gt), TE_FUNCTION2, nullptr},
         {ltName, ltDesc, reinterpret_cast<void*>(lt), TE_FUNCTION2, nullptr},
