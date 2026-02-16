@@ -2,13 +2,14 @@
 
 This documentation is automatically generated.
 
-Generated on: Thu Feb 12 18:01:51 CET 2026
+Generated on: Mon Feb 16 18:22:56 CET 2026
 
 ## Table of Contents
 
 - [GlobalSpace Commands](#globalspace-commands)
 - [RenderObject Commands](#renderobject-commands)
 - [JSON Transformations](#json-transformations)
+- [Expression Functions](#expression-functions)
 
 ## GlobalSpace Commands
 
@@ -40,6 +41,7 @@ Available Functions
 | `errorlog` | Activates or deactivates error logging to a file. |
 | `eval` | Evaluates an expression string and executes it. |
 | `exit` | Exits the entire program. |
+| `expression-help` | Lists all available expression functions with their descriptions. |
 | `feature-test` | Functions for testing features in the GlobalSpace |
 | `for` | Executes a for-loop with a function call. |
 | `help` | Show available commands and their descriptions |
@@ -512,6 +514,15 @@ Usage: exit
 
 Closes the program
 Any queued tasks will be discarded.
+```
+
+#### `expression-help`
+
+```
+Lists all available expression functions with their descriptions.
+Usage: expression-help
+
+Note: This function provides a comprehensive list of all functions that can be used within expressions, along with their usage and descriptions.
 ```
 
 #### `feature-test`
@@ -2042,5 +2053,221 @@ Usage: |typeAsNumber -> {number}where the number reflects the enum value KeyType
 ```
 Converts the current JSON type value to a string.
 Usage: |typeAsString -> {value,array,object}
+```
+
+## Expression Functions
+
+These functions are available in expressions (e.g. in `eval` or `if` conditions).
+
+Help for Nebulite Expressions
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `and` | Returns 1 if both a and b are logically true, otherwise returns 0. |
+| `constrain` | Constrains a value to lie between a minimum and maximum value. |
+| `eq` | Returns 1 if a is equal to b. |
+| `geq` | Returns 1 if a is greater than or equal to b. |
+| `gt` | Returns 1 if a is greater than b. |
+| `help` | Show available commands and their descriptions |
+| `leq` | Returns 1 if a is less than or equal to b. |
+| `lt` | Returns 1 if a is less than b. |
+| `map` | Linearly maps a value from one range to another. |
+| `max` | Returns the greater of a and b. |
+| `min` | Returns the lesser of a and b. |
+| `nand` | Returns 1 if at least one of a or b is logically false (i.e. not both true), otherwise returns 0. |
+| `neq` | Returns 1 if a is not equal to b. |
+| `nor` | Returns 1 if both a and b are logically false, otherwise returns 0. |
+| `not` | Returns 1 if a is logically false (close to zero), otherwise returns 0. |
+| `or` | Returns 1 if either a or b is logically true, otherwise returns 0. |
+| `rng2arg` | Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a and b. |
+| `rng2argInt16` | Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a and b. |
+| `rng3arg` | Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a, b, and c. |
+| `rng3argInt16` | Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a, b, and c. |
+| `sgn` | Returns the sign of a. |
+| `to_bipolar` | Converts a numeric value to bipolar form. |
+| `xnor` | Returns 1 if a and b are both logically true or both logically false, otherwise returns 0. |
+| `xor` | Returns 1 if exactly one of a or b is logically true, otherwise returns 0. |
+
+#### `and`
+
+```
+Returns 1 if both a and b are logically true, otherwise returns 0.
+A value is considered true when its absolute value is greater than DBL_EPSILON.
+Usage: and(a, b)
+```
+
+#### `constrain`
+
+```
+Constrains a value to lie between a minimum and maximum value.
+Usage: constrain(value, min, max)
+```
+
+#### `eq`
+
+```
+Returns 1 if a is equal to b.
+Equality is tested within a small epsilon (DBL_EPSILON) to handle floating point imprecision.
+Usage: eq(a, b)
+```
+
+#### `geq`
+
+```
+Returns 1 if a is greater than or equal to b.
+Otherwise returns 0.
+Usage: geq(a, b)
+```
+
+#### `gt`
+
+```
+Returns 1 if a is greater than b.
+Otherwise returns 0.
+Usage: gt(a, b)
+```
+
+#### `leq`
+
+```
+Returns 1 if a is less than or equal to b.
+Otherwise returns 0.
+Usage: leq(a, b)
+```
+
+#### `lt`
+
+```
+Returns 1 if a is less than b.
+Otherwise returns 0.
+Usage: lt(a, b)
+```
+
+#### `map`
+
+```
+Linearly maps a value from one range to another.
+Usage: map(value, in_min, in_max, out_min, out_max)
+```
+
+#### `max`
+
+```
+Returns the greater of a and b.
+Usage: max(a, b)
+```
+
+#### `min`
+
+```
+Returns the lesser of a and b.
+Usage: min(a, b)
+```
+
+#### `nand`
+
+```
+Returns 1 if at least one of a or b is logically false (i.e. not both true), otherwise returns 0.
+Uses DBL_EPSILON to determine logical truthiness.
+Usage: nand(a, b)
+```
+
+#### `neq`
+
+```
+Returns 1 if a is not equal to b.
+Inequality is determined beyond a small epsilon (DBL_EPSILON).
+Usage: neq(a, b)
+```
+
+#### `nor`
+
+```
+Returns 1 if both a and b are logically false, otherwise returns 0.
+Values with absolute value <= DBL_EPSILON are treated as false.
+Usage: nor(a, b)
+```
+
+#### `not`
+
+```
+Returns 1 if a is logically false (close to zero), otherwise returns 0.
+Values with absolute value <= DBL_EPSILON are treated as false.
+Usage: not(a)
+```
+
+#### `or`
+
+```
+Returns 1 if either a or b is logically true, otherwise returns 0.
+A value is considered true when its absolute value is greater than DBL_EPSILON.
+Usage: or(a, b)
+```
+
+#### `rng2arg`
+
+```
+Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a and b.
+The same input values will always produce the same output, making it suitable for deterministic procedural generation.
+Usage: rng2arg(a, b)
+```
+
+#### `rng2argInt16`
+
+```
+Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a and b.
+The same input values will always produce the same output, making it suitable for deterministic procedural generation.
+Usage: rng2argInt16(a, b)
+```
+
+#### `rng3arg`
+
+```
+Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a, b, and c.
+The same input values will always produce the same output, making it suitable for deterministic procedural generation.
+Usage: rng3arg(a, b, c)
+```
+
+#### `rng3argInt16`
+
+```
+Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a, b, and c.
+The same input values will always produce the same output, making it suitable for deterministic procedural generation.
+Usage: rng3argInt16(a, b, c)
+```
+
+#### `sgn`
+
+```
+Returns the sign of a.
+Returns 1 if a is positive, -1 if a is negative, and 0 if a is zero.
+Usage: sgn(a)
+```
+
+#### `to_bipolar`
+
+```
+Converts a numeric value to bipolar form.
+output is 1 or -1
+Returns 1 if a is logically true (absolute value > DBL_EPSILON), otherwise returns -1.
+Usage: to_bipolar(a)
+```
+
+#### `xnor`
+
+```
+Returns 1 if a and b are both logically true or both logically false, otherwise returns 0.
+Uses DBL_EPSILON threshold to determine logical equality.
+Usage: xnor(a, b)
+```
+
+#### `xor`
+
+```
+Returns 1 if exactly one of a or b is logically true, otherwise returns 0.
+Uses DBL_EPSILON threshold to determine logical truthiness.
+Usage: xor(a, b)
 ```
 

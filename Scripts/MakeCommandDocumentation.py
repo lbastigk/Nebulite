@@ -27,6 +27,7 @@ from typing import List, Dict, Tuple, Optional
 ROOT_GLOBALSPACE = "./bin/Nebulite --headless <arg>"
 ROOT_RENDEROBJECT = "./bin/Nebulite --headless draft parse <arg>"
 ROOT_JSON_TRANSFORMATIONS = "./bin/Nebulite --headless eval nop {global.var|<arg>}"
+ROOT_EXPRESSION_FUNCTIONS = "./bin/Nebulite --headless expression-<arg>"
 
 # Output file for the generated documentation
 OUTPUT_FILE = "./doc/Commands.md"
@@ -149,6 +150,7 @@ def run_command_with_timeout(command: str, timeout: int = TIMEOUT_SECONDS) -> Op
     except Exception as e:
         print(f"Error executing command '{command}': {e}")
         return None
+
 def parse_command_list(help_output: str) -> Tuple[List[str], List[str]]:
     """
     Parse help output to extract function names and variable names.
@@ -189,7 +191,6 @@ def parse_command_list(help_output: str) -> Tuple[List[str], List[str]]:
     
     return functions, variables
 
-
 def get_command_help(base_command: str, command_name: str = ""):
     """
     Get detailed help for a specific command.
@@ -199,13 +200,11 @@ def get_command_help(base_command: str, command_name: str = ""):
     result = run_command_with_timeout(full_command)
     return result, full_command
 
-
 def has_subcommands(help_output: str) -> bool:
     """
     Check if a command has subcommands by looking for "Add the entries name" pattern.
     """
     return bool(help_output and "Add the entries name to the command for more details:" in help_output)
-
 
 def process_command_recursively(base_command: str, command_name: str = "", prefix: str = "", visited: Optional[set] = None) -> Dict:
     """
@@ -310,7 +309,6 @@ def process_command_recursively(base_command: str, command_name: str = "", prefi
 
     return result
 
-
 def format_markdown_section(command_data: Dict, level: int = 1) -> str:
     """
     Format command data into markdown section using MarkdownFormatter helpers.
@@ -341,7 +339,6 @@ def format_markdown_section(command_data: Dict, level: int = 1) -> str:
     markdown += formatter.get_subcommands(subcommands, level, format_markdown_section)
     return markdown
 
-
 def generate_documentation(date: str) -> str:
     """
     Generate complete documentation for both GlobalSpace and RenderObject domains.
@@ -358,6 +355,7 @@ def generate_documentation(date: str) -> str:
     markdown += "- [GlobalSpace Commands](#globalspace-commands)\n"
     markdown += "- [RenderObject Commands](#renderobject-commands)\n"
     markdown += "- [JSON Transformations](#json-transformations)\n"
+    markdown += "- [Expression Functions](#expression-functions)\n"
     markdown += "\n"
 
     # Process GlobalSpace commands
@@ -399,9 +397,21 @@ def generate_documentation(date: str) -> str:
     else:
         markdown += "Failed to retrieve JSON transformation commands.\n\n"
         print("No JSON transformation data retrieved")
+
+    # Process Expression Functions
+    print("Processing Expression Functions...")
+    markdown += "## Expression Functions\n\n"
+    markdown += "These functions are available in expressions (e.g. in `eval` or `if` conditions).\n\n"
+    expression_data = process_command_recursively(ROOT_EXPRESSION_FUNCTIONS)
+    if expression_data and expression_data.get('help'):
+        print(f"Found {len(expression_data.get('functions', []))} expression functions and {len(expression_data.get('variables', []))} variables")
+        markdown += format_markdown_section(expression_data, level=3)
+    else:
+        markdown += "Failed to retrieve expression functions.\n\n"
+        print("No expression function data retrieved")
+
     
     return markdown
-
 
 def main():
     """
