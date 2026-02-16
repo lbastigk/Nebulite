@@ -123,6 +123,13 @@ public:
         "\n"
         "Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.\n";
 
+    static Constants::Error listExpressionFunctions(std::span<std::string const> const& args);
+    static auto constexpr listExpressionFunctions_name = "expression-help";
+    static auto constexpr listExpressionFunctions_desc = "Lists all available expression functions with their descriptions.\n"
+        "Usage: expression-help\n"
+        "\n"
+        "Note: This function provides a comprehensive list of all functions that can be used within expressions, along with their usage and descriptions.\n";
+
     //------------------------------------------
     // Category names
     static auto constexpr log_name = "log";
@@ -152,6 +159,7 @@ public:
         BIND_FUNCTION(&Debug::warn, warn_name, warn_desc);
         BIND_FUNCTION(&Debug::critical, critical_name, critical_desc);
         BIND_FUNCTION(&Debug::waitForInput, waitForInput_name, waitForInput_desc);
+        BIND_FUNCTION(&Debug::listExpressionFunctions, listExpressionFunctions_name, listExpressionFunctions_desc);
 
         bindCategory(log_name, log_desc);
         BIND_FUNCTION(&Debug::log_global, log_global_name, log_global_desc);

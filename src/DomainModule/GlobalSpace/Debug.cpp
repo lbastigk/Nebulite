@@ -8,6 +8,7 @@
 #include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
 #include "DomainModule/GlobalSpace/Debug.hpp"
+#include "Interaction/Logic/ExpressionPrimitives.hpp"
 #include "Utility/FileManagement.hpp"
 #include "Utility/TimedRoutine.hpp"
 
@@ -302,6 +303,12 @@ Constants::Error Debug::waitForInput(std::span<std::string const> const& args) {
     }
     Log::println(message);
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    return Constants::ErrorTable::NONE();
+}
+
+Constants::Error Debug::listExpressionFunctions(std::span<std::string const> const& args) {
+    // Forward to ExpressionPrimitives::help
+    Interaction::Logic::ExpressionPrimitives::help(args);
     return Constants::ErrorTable::NONE();
 }
 

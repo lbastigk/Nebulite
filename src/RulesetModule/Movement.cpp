@@ -108,7 +108,6 @@ void Movement::clip(Interaction::Context const& context) const {
 
             // TODO: Sanity check: if still colliding after that correction, manually set dr outside the nearest sides
 
-
             // TODO: Allow for edge sliding:
             //       if otr is close to the edge of slf (maybe 1 pixel), allow for a correction dr along that axis
             //       to allow for sliding along the edge instead of a full stop
