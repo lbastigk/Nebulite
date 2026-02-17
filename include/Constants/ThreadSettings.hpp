@@ -24,16 +24,17 @@
 /**
  * @def ORDERED_DOUBLE_POINTERS_MAPS
  * @brief Number of ordered double pointer maps for expression evaluations.
+ * @details The size of non-locking ordered maps list depends on this value in an O(n^2) manner, so be cautious when increasing it.
  * @details If set to 1, all threads share the same map.
  *          Optimized to not use any special indexing, but simple access to [0] if set to 1.
  */
-#define ORDERED_DOUBLE_POINTERS_MAPS 32
+#define ORDERED_DOUBLE_POINTERS_MAPS 24
 
 /**
  * @def THREADRUNNER_COUNT
  * @brief Number of thread runners for processing broadcast-listen pairs.
  */
-#define THREADRUNNER_COUNT 32
+#define THREADRUNNER_COUNT 24
 
 /**
  * @def BATCH_COST_GOAL

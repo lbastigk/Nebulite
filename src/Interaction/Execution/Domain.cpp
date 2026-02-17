@@ -68,6 +68,10 @@ Data::MappedOrderedDoublePointers* Domain::getDocumentCacheMap() const {
     return domainScope.getOrderedCacheListMap();
 }
 
+Data::odpvec* Domain::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<Data::ScopedKeyView> const& keys) const {
+    return domainScope.ensureOrderedCacheListMinimalLock(uniqueId, keys);
+}
+
 std::scoped_lock<std::recursive_mutex> Domain::lockDocument() const {
     return domainScope.lock();
 }

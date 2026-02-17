@@ -42,6 +42,7 @@ class Texture;
 namespace Nebulite::Data {
 class MappedOrderedDoublePointers;
 class TaskQueue;
+class ScopedKeyView;
 } // namespace Nebulite::Data
 
 namespace Nebulite::DomainModule {
@@ -358,7 +359,15 @@ public:
      * @brief Gets the ordered cache list map of the domain's document.
      * @return Pointer to the ordered cache list map.
      */
-    [[nodiscard]] virtual Data::MappedOrderedDoublePointers* getDocumentCacheMap() const ;
+    [[nodiscard]] Data::MappedOrderedDoublePointers* getDocumentCacheMap() const ;
+
+    /**
+     * @brief Compared to getDocumentCacheMap, this function retrieves the ordered cache list directly with minimal locking
+     * @param uniqueId The unique ID for the ordered cache list.
+     * @param keys The vector of keys to populate the cache with if it does not exist.
+     * @return A pointer to the ordered vector of double pointers for the specified keys.
+     */
+    [[nodiscard]] Data::odpvec* ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<Data::ScopedKeyView> const& keys) const ;
 
     /**
      * @brief Locks the domain's document for thread-safe access.

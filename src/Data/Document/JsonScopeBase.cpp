@@ -12,21 +12,24 @@ JsonScopeBase::JsonScopeBase(JSON& doc, std::string const& prefix)
     // create a non-owning shared_ptr to the provided JSON (no delete on destruction)
     : baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){})),
       scopePrefix(generatePrefix(prefix)),
-      expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS>(*this))
+      expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, lockArraySize>(*this)),
+      expressionRefsNoLock(make_array_with_arg<MappedOrderedDoublePointers, noLockArraySize>(*this))
 {}
 
 // Constructing a JsonScopeBase from another JsonScopeBase and a sub-prefix
 JsonScopeBase::JsonScopeBase(JsonScopeBase const& other, std::string const& prefix)
     : baseDocument(other.baseDocument),
       scopePrefix(ScopedKeyView(generatePrefix(prefix)).full(other)), // Generate full scoped prefix based on the other JsonScopeBase and the new prefix
-      expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS>(*this))
+      expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, lockArraySize>(*this)),
+      expressionRefsNoLock(make_array_with_arg<MappedOrderedDoublePointers, noLockArraySize>(*this))
 {}
 
 // Default constructor, we create a self-owned empty JSON document
 JsonScopeBase::JsonScopeBase()
     : baseDocument(std::make_shared<JSON>()),
       scopePrefix(""),
-      expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS>(*this))
+      expressionRefs(make_array_with_arg<MappedOrderedDoublePointers, lockArraySize>(*this)),
+      expressionRefsNoLock(make_array_with_arg<MappedOrderedDoublePointers, noLockArraySize>(*this))
 
 {}
 
