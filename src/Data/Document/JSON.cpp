@@ -488,7 +488,7 @@ KeyType JSON::memberType(std::string const& key) const {
 
     // If not cached, check rapidjson doc
     auto const val = RjDirectAccess::traversePath(key.c_str(), doc);
-    if (val == nullptr) {
+    if (val == nullptr || val->IsNull()) {
         return KeyType::null;
     }
     if (val->IsArray()) {
@@ -500,7 +500,7 @@ KeyType JSON::memberType(std::string const& key) const {
     if (val->IsNumber() || val->IsString() || val->IsBool()) {
         return KeyType::value;
     }
-    return KeyType::null;
+    std::unreachable(); // If it's any other type, something went wrong...
 }
 
 std::string JSON::memberTypeString(std::string const& key) const {
