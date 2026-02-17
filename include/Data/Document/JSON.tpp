@@ -47,9 +47,12 @@ std::optional<T> JSON::getWithTransformations(std::string const& key) const {
     // This approach ensures a temporary document with the same value as this JSON object,
     // but without the overhead of creating and destroying a new JSON object on each call.
     thread_local JSON tempDoc;
+
+    // Simply overwriting with setSubDoc isn't enough, as this may leave behind stale entries for stable double pointers, which we don't need here.
+    // So we manually clear the entire cache.
     tempDoc.cache.clear();
     tempDoc.doc.SetObject();
-    tempDoc.setSubDoc("", *this, baseKey.c_str());
+    tempDoc.setSubDoc("", *this, baseKey.c_str()); // Make a copy of the required member to transform
 
     // Apply each transformation in sequence
     if (!transformer.parse(args, &tempDoc)) {
