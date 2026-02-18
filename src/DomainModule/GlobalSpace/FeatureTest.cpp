@@ -46,4 +46,21 @@ Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& /
     return Constants::ErrorTable::NONE();
 }
 
+Constants::Error FeatureTest::selfOtherGlobalEvaluation() const {
+    Data::ScopedKey const key("testKey");
+
+    Data::JsonScopeBase self;
+    self.set(key, 1);
+    Data::JsonScopeBase other;
+    other.set(key, 2);
+
+    auto const token = getDomainModuleAccessToken(*this);
+    auto& globalScope = Global::shareScopeBase(token);
+    globalScope.set(key, 3);
+
+    Interaction::Logic::Expression const expr("{self.testKey} {other.testKey} {global.testKey}",self);
+    Log::println(expr.eval(other));
+    return Constants::ErrorTable::NONE();
+}
+
 } // namespace Nebulite::DomainModule::GlobalSpace

@@ -22,6 +22,9 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+feature-test self-other-global-evaluation
+exit
+
 ##########################################################################
 # TODO: json rulesets are bugged...
 set physics.G 10

@@ -38,6 +38,12 @@ public:
     static auto constexpr testFuncTree_desc = "Builds a funcTree with extra arguments and tests it\n"
         "Usage: feature-test functree\n";
 
+    Constants::Error selfOtherGlobalEvaluation() const ;
+    static auto constexpr selfOtherGlobalEvaluation_name = "feature-test self-other-global-evaluation";
+    static auto constexpr selfOtherGlobalEvaluation_desc = "Tests evaluation of self and other globals in one expression\n"
+        "Usage: feature-test self-other-global-evaluation\n";
+
+
     //------------------------------------------
     // Category names and descriptions
 
@@ -56,7 +62,12 @@ public:
         // Binding functions to the FuncTree
         bindCategory(category_feature_test_name, category_feature_test_desc);
         BIND_FUNCTION(&FeatureTest::testFuncTree, testFuncTree_name, testFuncTree_desc);
+        BIND_FUNCTION(&FeatureTest::selfOtherGlobalEvaluation, selfOtherGlobalEvaluation_name, selfOtherGlobalEvaluation_desc);
     }
+
+    struct Key {
+        DECLARE_SCOPE("")
+    };
 };
 } // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_GSDM_FEATURE_TEST_HPP
