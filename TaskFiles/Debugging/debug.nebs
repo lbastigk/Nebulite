@@ -23,11 +23,16 @@ echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
 # TODO: json rulesets are bugged...
+set rulesetType .jsonc
+
+# Uncomment to use static ruleset objects
+set rulesetType _classic.jsonc
+
 set physics.G 10
 set-fps 10000
 time set-fixed-dt 1
-spawn ./Resources/Renderobjects/Planets/obj1_classic.jsonc|set posX 250|set posY 500|set physics.vX 0|set physics.vY 0
-spawn ./Resources/Renderobjects/Planets/obj2_classic.jsonc|set posX 250|set posY 250|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/sun{global.rulesetType}|set posX 250|set posY 500|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/sun{global.rulesetType}|set posX 250|set posY 250|set physics.vX 0|set physics.vY 0
 
 wait 1
 selected-object get 1
