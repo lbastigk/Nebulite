@@ -69,7 +69,7 @@ private:
     //------------------------------------------
     // Ordered double pointers system
 
-    static auto constexpr noLockArraySize = ORDERED_DOUBLE_POINTERS_MAPS * ORDERED_DOUBLE_POINTERS_MAPS;
+    static auto constexpr noLockArraySize = 2*ORDERED_DOUBLE_POINTERS_MAPS ; // A bit higher to allow for extra threads coming from RenderObjectContainer, in case those are batched
     static auto constexpr lockArraySize = ORDERED_DOUBLE_POINTERS_MAPS;
 
     /**
@@ -216,7 +216,6 @@ public:
         else {
             static auto indexRoller = Utility::Threading::atomicThreadRollGenerator(lockArraySize);
             thread_local size_t threadIndex = indexRoller();
-            //thread_local size_t threadIndex = Utility::Threading::atomicThreadRoll(lockArraySize);
             return &expressionRefs[threadIndex];
         }
     }
@@ -227,16 +226,10 @@ public:
     odpvec* ensureOrderedCacheListMinimalLock(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
         static auto indexCounter = Utility::Threading::atomicThreadIncrementGenerator();
         thread_local size_t threadIndex = indexCounter();
-        // TODO: threadIndex grows way, way higher than expected... why?
-        //       add a debugging variable for highest index and print the new value every time it increases, to see how high it goes
-        //       This version isn't faster at the large benchmark (-20%), probably due to the high noLockArraySize
         if (threadIndex < noLockArraySize) {
             return expressionRefsNoLock[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
         }
-        // else, use the locking version on a secondary array of maps
-        // This is more of a fallback if the thread count exceeds the number of expected threads
-        // Shouldn't happen in practice? This could be std::unreachable, but more tests are necessary to be sure
-        // For now, we use a fallback
+        // spread rest on locking maps
         return expressionRefs[threadIndex % lockArraySize].ensureOrderedCacheList(uniqueId, keys);
     }
 

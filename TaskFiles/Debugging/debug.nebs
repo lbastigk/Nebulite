@@ -22,6 +22,14 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+
+spawn Resources/Renderobjects/Debug/staticRuleset.jsonc
+exit
+
+task TaskFiles/Benchmarks/spawn_constantly_classic.nebs
+
+#task TaskFiles/Benchmarks/gravity_XL.nebs
+
 task TaskFiles/Benchmarks/spawn_constantly.nebs
 
 #task TaskFiles/VerticalSlice/levelDescription.nebs

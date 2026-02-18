@@ -2,7 +2,7 @@
     "topic": "",
     "condition": "1",
     "action": {
-        "assign": [
+        "assign": [ // TODO: ruleset is called (functioncall "here" works), but they assignments don't work!
             "self.physics.aX = $({self.physics.FX} / {self.physics.mass})",
             "self.physics.aY = $({self.physics.FY} / {self.physics.mass})",
             "self.physics.vX += $({self.physics.aX} * {global.time.dt})",

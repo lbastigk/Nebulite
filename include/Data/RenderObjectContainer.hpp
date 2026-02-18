@@ -10,7 +10,8 @@
 // Includes
 
 // Standard library
-#include <thread>
+#include <condition_variable>
+#include "Utility/WorkDispatcher.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -61,12 +62,26 @@ public:
     };
 
     //------------------------------------------
-    //Constructor
+    // Constructor
 
     /**
      * @brief Constructs a new RenderObjectContainer.
      */
     RenderObjectContainer() = default;
+
+    ~RenderObjectContainer() {
+        // 1.) Notify all workers to stop
+        stopFlag = true;
+
+        // 2.) Optionally, start work to wake any waiting threads
+        for (auto const& worker : batchWorkers) {
+            worker->startWork();  // wakes worker so it can check stopFlag
+        }
+
+        // 3.) Now clear the vector, which triggers ~WorkDispatcher() on each
+        batchWorkers.clear();
+        // each destructor sets stopFlag, notifies, and joins the thread safely
+    }
 
     //------------------------------------------
     // Serialization / Deserialization
@@ -166,21 +181,6 @@ private:
     absl::flat_hash_map<std::pair<int16_t, int16_t>, std::vector<Batch>> ObjectContainer;
 
     /**
-     * @brief Holds all batch worker threads.
-     */
-    std::vector<std::thread> batchWorkers;
-
-    /**
-     * @brief Creates a worker thread for processing a batch.
-     * @param work Reference to the batch to process.
-     * @param pos The tile position of the batch: (x, y).
-     * @param dispResX Display resolution width for tile placement.
-     * @param dispResY Display resolution height for tile placement.
-     * @return The created worker thread.
-     */
-    std::thread createBatchWorker(Batch& work, std::pair<int16_t, int16_t> pos, uint16_t dispResX, uint16_t dispResY);
-
-    /**
      * @struct Nebulite::Data::RenderObjectContainer::ReinsertionProcess
      * @brief Holds all objects that are awaiting re-insertion into the container.
      *        The reinsertion process is a 3-step pipeline that ensures objects are properly
@@ -215,6 +215,29 @@ private:
         std::vector<Core::RenderObject*> purgatory; // Deleted each frame
         std::mutex deleteMutex; // Threadsafe insertion into trash
     } deletionProcess;
+
+    /**
+     * @brief Flag to signal threads to stop.
+     */
+    std::atomic<bool> stopFlag;
+
+    struct DispatcherWorkspace {
+        std::vector<Batch>* work;
+        int16_t tilePosX;
+        int16_t tilePosY;
+        uint16_t dispResX;
+        uint16_t dispResY;
+        std::pair<uint16_t, uint16_t> pos;
+        ReinsertionProcess* reinsertionProcess;
+        DeletionProcess* deletionProcess;
+    };
+
+    static void batchWorkerFunc(DispatcherWorkspace const& workspace);
+
+    /**
+     * @brief Holds all batch worker threads.
+     */
+    std::vector<std::unique_ptr<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>> batchWorkers;
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_DATA_RENDER_OBJECT_CONTAINER_HPP

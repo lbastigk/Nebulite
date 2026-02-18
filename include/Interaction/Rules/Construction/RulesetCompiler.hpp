@@ -77,7 +77,7 @@ private:
      * @param self The Domain instance associated with the entry.
      */
     static void getFunctionCalls(
-        Data::JsonScopeBase& entryDoc,
+        Data::JsonScopeBase const& entryDoc,
         JsonRuleset& Ruleset,
         Execution::Domain const& self
     );

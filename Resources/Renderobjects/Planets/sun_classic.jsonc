@@ -1,12 +1,11 @@
-// TODO: gravity ruleset doesn't work...
 {
     "draw": {
         "core": {
             "drawType": "circle",
             "rect": {
                 "dst": {
-                    "h": 16.0,
-                    "w": 16.0,
+                    "h": 64.0,
+                    "w": 64.0,
                     "x": 0.0,
                     "y": 0.0
                 }
@@ -14,25 +13,24 @@
             "textureData": {
                 "color": {
                     "a": 255.0,
-                    "b": 255.0,
-                    "g": 0.0,
-                    "r": 0.0
+                    "b": 0.0,
+                    "g": 255.0,
+                    "r": 255.0
                 },
-                "radius": 32.0
+                "radius": 128.0
             }
         }
     },
     "id": 0,
     "layer": 0,
     "physics": {
-        "mass": 50.0,
+        "mass": 200000.0,
         "aX": 0.0,
         "aY": 0.0,
-        "vX": 30.0,
-        "vY": -120.0,
-        "vNorm": 0.1
+        "vX": 0.0,
+        "vY": 0.0
     },
-    "posX": 350,
+    "posX": 500,
     "posY": 500,
     "ruleset": {
         "listen": [
@@ -41,11 +39,11 @@
             "gravity"
         ],
         "list": [
-            "Resources/Invokes/Physics/gravity.jsonc",
-            "Resources/Invokes/Physics/applyForce.jsonc" // TODO: classic applyForce doesn't work ...
+            "::physics::gravity",
+            "::physics::applyForce"
         ]
     },
     "size": {
-        "r": 8
+        "r": 32
     }
 }

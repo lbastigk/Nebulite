@@ -264,19 +264,19 @@ private:
      * @brief The function calls that to be executed on global domain.
      * @details Vector of function calls, e.g. "echo example"
      */
-    std::vector<Logic::ExpressionPool> functioncalls_global;
+    std::vector<Logic::Expression> functioncalls_global;
 
     /**
      * @brief The function calls that to be executed on self domain.
      * @details Vector of function calls, e.g. "mirror on"
      */
-    std::vector<Logic::ExpressionPool> functioncalls_self;
+    std::vector<Logic::Expression> functioncalls_self;
 
     /**
      * @brief The function calls that to be executed on other domain.
      * @details Vector of function calls, e.g. "mirror on"
      */
-    std::vector<Logic::ExpressionPool> functioncalls_other;
+    std::vector<Logic::Expression> functioncalls_other;
 
     /**
      * @brief The expressions that are evaluated and applied to the corresponding domains.
