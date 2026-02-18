@@ -1,4 +1,3 @@
-// TODO: gravity ruleset doesn't work...
 {
     "draw": {
         "core": {
@@ -42,7 +41,7 @@
         ],
         "list": [
             "Resources/Invokes/Physics/gravity.jsonc",
-            "Resources/Invokes/Physics/applyForce.jsonc" // TODO: classic applyForce doesn't work ...
+            "Resources/Invokes/Physics/applyForce.jsonc"
         ]
     },
     "size": {
