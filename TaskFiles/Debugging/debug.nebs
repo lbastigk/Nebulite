@@ -26,10 +26,10 @@ echo "Starting debug.nebs"
 set rulesetType .jsonc
 
 # Uncomment to use static ruleset objects
-set rulesetType _classic.jsonc
+#set rulesetType _classic.jsonc
 
 set physics.G 10
-set-fps 10000
+set-fps 100
 time set-fixed-dt 1
 eval spawn ./Resources/Renderobjects/Planets/sun{global.rulesetType}|set posX 250|set posY 500|set physics.vX 0|set physics.vY 0
 eval spawn ./Resources/Renderobjects/Planets/sun{global.rulesetType}|set posX 250|set posY 250|set physics.vX 0|set physics.vY 0
@@ -39,6 +39,11 @@ selected-object get 1
 selected-object parse mirror on
 selected-object get 2
 selected-object parse mirror on
+
+wait 100
+print providedScope.domainModule.renderObject.mirror.renderObject.id1.physics.FY
+print providedScope.domainModule.renderObject.mirror.renderObject.id2.physics.FY
+exit
 
 #task TaskFiles/Benchmarks/gravity_XL.nebs
 
