@@ -22,6 +22,7 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+##########################################################################
 # TODO: json rulesets are bugged...
 set rulesetType .jsonc
 
@@ -44,6 +45,7 @@ wait 100
 print providedScope.domainModule.renderObject.mirror.renderObject.id1.physics.FY
 print providedScope.domainModule.renderObject.mirror.renderObject.id2.physics.FY
 exit
+##########################################################################
 
 #task TaskFiles/Benchmarks/gravity_XL.nebs
 
