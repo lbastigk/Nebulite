@@ -32,8 +32,8 @@ set rulesetType .jsonc
 set physics.G 10
 set-fps 100
 time set-fixed-dt 1
-eval spawn ./Resources/Renderobjects/Planets/sun{global.rulesetType}|set posX 250|set posY 500|set physics.vX 0|set physics.vY 0
-eval spawn ./Resources/Renderobjects/Planets/sun{global.rulesetType}|set posX 250|set posY 250|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/obj1{global.rulesetType}|set posX 250|set posY 500|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/obj2{global.rulesetType}|set posX 250|set posY 250|set physics.vX 0|set physics.vY 0
 
 wait 1
 selected-object get 1
