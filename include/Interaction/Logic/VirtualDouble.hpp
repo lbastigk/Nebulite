@@ -40,13 +40,14 @@ class VirtualDouble {
     /**
      * @brief Internal cache for non-remanent documents.
      */
-    double copied_value = 0.0;
+    double copiedValue = 0.0;
 
     /**
-     * @brief Pointer to the actual double value.
-     * @details Initially points to the internal cache for non-remanent documents.
+     * @brief Reference to a value outside
+     * @details Represents the first context that was provided
      */
-    double* reference = &copied_value;
+    double* externalReference = nullptr;
+
 
     /**
      * @brief Key prefixes for different contexts.
@@ -79,53 +80,35 @@ public:
     }
 
     /**
-     * @brief Update the cache value from the JSON document or DocumentCache.
-     * @details Retrieves the double value associated with the key from the provided JSON document
-     *          or the DocumentCache, and updates the internal cache accordingly.
-     *          This is used for non-remanent documents, meaning the associated document changes
-     *          If the key is not found within the associated document, the double value will default to 0.
-     * @param json The JSON document to retrieve the value from.
+     * @brief Links the VirtualDouble to an external cache in a JSON document.
+     * @details Can only be called once
+     * @param json The JSON document to link to.
      */
-    void setUpInternalCache(Data::JsonScopeBase const& json);
+    void linkExternalCache(Data::JsonScopeBase const& json);
 
     /**
-     * @brief Update the cache value from the global DocumentCache.
-     * @details Retrieves the double value associated with the key from the global DocumentCache,
-     *          and updates the internal cache accordingly.
-     *          This is used for non-remanent documents, meaning the associated document changes
-     *          If the key is not found within the DocumentCache, the double value will default to 0.
+     * @brief Copies the value from the linked external cache.
      */
-    void setUpInternalCache();
+    void copyExternalCache();
 
     /**
-     * @brief Register the external cache for this VirtualDouble.
-     * @details Links the VirtualDouble to an external double pointer of a JSON document,
-     *          instead of using its internal cache.
-     *          Allowing it to access and modify the value directly.
-     * @param json The JSON document to retrieve the stable double pointer from.
+     * @brief Copies the value from another JSON document.
+     * @param json The JSON document to copy from.
      */
-    void setUpExternalCache(Data::JsonScopeBase const& json);
+    void copyFromJson(Data::JsonScopeBase const& json);
 
     /**
      * @brief Set the value of the VirtualDouble directly.
-     * @details Updates the internal cache value directly.
-     *          Used for non-remanent documents where we want to set a value without linking to an external source.
-     *          Assumes that the reference already points to the internal cache!
      * @param val The new double value to set.
      */
-    void setDirect(double const& val) noexcept {
-        copied_value = val;
-    }
+    void setDirect(double const& val) noexcept ;
 
     /**
      * @brief Get a pointer to the linked double
-     * @details Depending on type of linkage, this is either:
-     *          - internally for documents changing context
-     *          - externally for remanent documents
      * @return A pointer to the double value.
      */
-    [[nodiscard]] double* ptr() const noexcept {
-        return reference;
+    [[nodiscard]] double* ptr() noexcept {
+        return &copiedValue;
     }
 };
 }   // namespace Nebulite::Interaction::Logic

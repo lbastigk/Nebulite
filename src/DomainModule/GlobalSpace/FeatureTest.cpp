@@ -58,8 +58,8 @@ Constants::Error FeatureTest::selfOtherGlobalEvaluation() const {
         self1.set(key, 1);
         Data::JsonScopeBase other1;
         other1.set(key, 2);
-        Interaction::Logic::Expression const expr("{self.testKey} {other.testKey} {global.testKey}",self1);
-        Log::println(expr.eval(other1));
+        Interaction::Logic::Expression const expr("{self.testKey} {other.testKey} {global.testKey}");
+        Log::println(expr.eval({self1, other1, globalScope}));
     }
 
     // Test 2: share managed scopeBase
@@ -69,8 +69,8 @@ Constants::Error FeatureTest::selfOtherGlobalEvaluation() const {
         auto& other2 = selfAndOther.shareManagedScopeBase("other.");
         self2.set(key, 5);
         other2.set(key, 4);
-        Interaction::Logic::Expression const expr("{self.testKey} {other.testKey} {global.testKey}",self2);
-        Log::println(expr.eval(other2));
+        Interaction::Logic::Expression const expr("{self.testKey} {other.testKey} {global.testKey}");
+        Log::println(expr.eval({self2, other2, globalScope}));
     }
     return Constants::ErrorTable::NONE();
 }

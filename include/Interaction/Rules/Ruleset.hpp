@@ -86,7 +86,7 @@ public:
      * @param other The other domain to use as context 'other'.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    virtual bool evaluateCondition(Execution::Domain const& other);
+    virtual bool evaluateCondition(Execution::Domain& other);
 
     /**
      * @brief Checks if the ruleset is true with its own Domain as context other.
@@ -176,7 +176,7 @@ public:
      * @param other The other render object to compare against.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    bool evaluateCondition(Execution::Domain const& other) override { (void)other ; return true; }
+    bool evaluateCondition(Execution::Domain& other) override { (void)other ; return true; }
 
     /**
      * @brief Checks if the ruleset is true with its own Domain as context other.
@@ -230,7 +230,7 @@ public:
      * @param other The other render object to compare against.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    bool evaluateCondition(Execution::Domain const& other) override;
+    bool evaluateCondition(Execution::Domain& other) override;
 
     /**
      * @brief Checks if the ruleset is true in the context of its own Domain as otherObj.

@@ -9,98 +9,94 @@ namespace Nebulite::Interaction::Logic {
 void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Data::JsonScopeBase& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
-    case Operation::set:
-        target.set<std::string>(keyEvaluated, val);
-        break;
-    case Operation::add:
-        target.set_add(keyEvaluated, std::stod(val));
-        break;
-    case Operation::multiply:
-        target.set_multiply(keyEvaluated, std::stod(val));
-        break;
-    case Operation::concat:
-        target.set_concat(keyEvaluated, val);
-        break;
-    case Operation::null:
-        Error::println("Could not determine context from key, skipping assignment");
-        break;
-    default:
-        Error::println("Unknown operation type! Enum value:", static_cast<int>(operation));
-        break;
+        case Operation::set:
+            target.set<std::string>(keyEvaluated, val);
+            break;
+        case Operation::add:
+            target.set_add(keyEvaluated, std::stod(val));
+            break;
+        case Operation::multiply:
+            target.set_multiply(keyEvaluated, std::stod(val));
+            break;
+        case Operation::concat:
+            target.set_concat(keyEvaluated, val);
+            break;
+        case Operation::null:
+            Error::println("Could not determine context from key, skipping assignment");
+            break;
+        default:
+            std::unreachable();
     }
 }
 
 void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& val, Data::JsonScopeBase& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
-    case Operation::set:
-        target.set<double>(keyEvaluated, val);
-        break;
-    case Operation::add:
-        target.set_add(keyEvaluated, val);
-        break;
-    case Operation::multiply:
-        target.set_multiply(keyEvaluated, val);
-        break;
-    case Operation::concat:
-        target.set_concat(keyEvaluated, std::to_string(val));
-        break;
-    case Operation::null:
-        Error::println("Could not determine context from key, skipping assignment");
-        break;
-    default:
-        Error::println("Unknown operation type! Enum value:", static_cast<int>(operation));
-        break;
+        case Operation::set:
+            target.set<double>(keyEvaluated, val);
+            break;
+        case Operation::add:
+            target.set_add(keyEvaluated, val);
+            break;
+        case Operation::multiply:
+            target.set_multiply(keyEvaluated, val);
+            break;
+        case Operation::concat:
+            target.set_concat(keyEvaluated, std::to_string(val));
+            break;
+        case Operation::null:
+            Error::println("Could not determine context from key, skipping assignment");
+            break;
+        default:
+            std::unreachable();
     }
 }
 
 void Assignment::setValueOfKey(double const& val, double* target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
-    case Operation::set:
-        *target = val;
-        break;
-    case Operation::add:
-        *target += val;
-        break;
-    case Operation::multiply:
-        *target *= val;
-        break;
-    case Operation::concat:
-        Error::println("Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of an Invoke!");
-        break;
-    case Operation::null:
-        Error::println("Could not determine context from key, skipping assignment");
-        break;
-    default:
-        Error::println("Unknown operation type! Enum value:", static_cast<int>(operation));
-        break;
+        case Operation::set:
+            *target = val;
+            break;
+        case Operation::add:
+            *target += val;
+            break;
+        case Operation::multiply:
+            *target *= val;
+            break;
+        case Operation::concat:
+            Error::println("Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of a Ruleset!");
+            break;
+        case Operation::null:
+            Error::println("Could not determine context from key, skipping assignment");
+            break;
+        default:
+            std::unreachable();
     }
 }
 
-void Assignment::apply(Data::JsonScopeBase& self, Data::JsonScopeBase& other) {
+void Assignment::apply(ContextScopeBase const& context) const {
     //------------------------------------------
     // Check what the target document to apply the ruleset to is
 
     Data::JsonScopeBase* targetDocument;
     switch (onType) {
-    case Type::Self:
-        targetDocument = &self;
-        break;
-    case Type::Other:
-        targetDocument = &other;
-        break;
-    case Type::Global:
-        targetDocument = &Global::instance().domainScope;
-        break;
-    case Type::null:
-        // TODO: determine context from expression!
-        // If still null, skip assignment
-        Error::println("Assignment expression has null type - skipping");
-        return; // Skip this expression
-    default:
-        Error::println("Unknown assignment type: ", static_cast<int>(onType), " - skipping");
-        return; // Exit if unknown type
+        case Type::Self:
+            targetDocument = &context.self;
+            break;
+        case Type::Other:
+            targetDocument = &context.other;
+            break;
+        case Type::Global:
+            targetDocument = &context.global;
+            break;
+        case Type::null:
+            // TODO: determine context from expression!
+            // If still null, skip assignment
+            Error::println("Assignment expression has null type - skipping");
+            return; // Skip this expression
+        default:
+            std::unreachable();
     }
 
     //------------------------------------------
@@ -108,7 +104,7 @@ void Assignment::apply(Data::JsonScopeBase& self, Data::JsonScopeBase& other) {
 
     // If the expression is returnable as double, we can optimize numeric operations
     if (expression->isReturnableAsDouble()) {
-        double const resolved = expression->evalAsDouble(other);
+        double const resolved = expression->evalAsDouble(context);
         if (targetValuePtr != nullptr) {
             setValueOfKey(resolved, targetValuePtr);
         } else {
@@ -116,7 +112,7 @@ void Assignment::apply(Data::JsonScopeBase& self, Data::JsonScopeBase& other) {
             // Likely because the target is in document other
 
             // Try to get a stable double pointer from the target document
-            auto const scopedKey = Data::ScopedKey(key->eval(other));
+            auto const scopedKey = Data::ScopedKey(key->eval(context));
             if (double* target = targetDocument->getStableDoublePointer(scopedKey.view()); target != nullptr) {
                 // Lock is needed here, otherwise we have race conditions, and the engine is no longer deterministic!
                 auto lock(targetDocument->lock());
@@ -131,8 +127,8 @@ void Assignment::apply(Data::JsonScopeBase& self, Data::JsonScopeBase& other) {
     }
     // If not, we resolve as string and update that way
     else {
-        std::string const resolved = expression->eval(other);
-        auto const k = Data::ScopedKey(key->eval(other));
+        std::string const resolved = expression->eval(context);
+        auto const k = Data::ScopedKey(key->eval(context));
         setValueOfKey(k.view(), resolved, *targetDocument);
     }
 }

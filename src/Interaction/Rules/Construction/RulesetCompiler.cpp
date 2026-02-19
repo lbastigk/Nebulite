@@ -5,7 +5,7 @@
 
 namespace Nebulite::Interaction::Rules::Construction {
 
-void RulesetCompiler::getFunctionCalls(Data::JsonScopeBase const& entryDoc, JsonRuleset& Ruleset, Execution::Domain const& self) {
+void RulesetCompiler::getFunctionCalls(Data::JsonScopeBase const& entryDoc, JsonRuleset& Ruleset) {
     // Get function calls: GLOBAL, SELF, OTHER
     if (entryDoc.memberType(Constants::KeyNames::Ruleset::parseOnGlobal) == Data::KeyType::array) {
         size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnGlobal);
@@ -14,7 +14,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScopeBase const& entryDoc, Json
             auto funcCall = entryDoc.get<std::string>(funcKey, "");
 
             // Create a new Expression, parse the function call
-            Logic::Expression invokeExpr(funcCall, self);
+            Logic::Expression invokeExpr(funcCall);
             Ruleset.functioncalls_global.emplace_back(std::move(invokeExpr));
         }
     }
@@ -32,7 +32,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScopeBase const& entryDoc, Json
             }
 
             // Create a new Expression, parse the function call
-            Logic::Expression invokeExpr(funcCall, self);
+            Logic::Expression invokeExpr(funcCall);
             Ruleset.functioncalls_self.emplace_back(std::move(invokeExpr));
         }
     }
@@ -49,7 +49,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScopeBase const& entryDoc, Json
                 funcCall.insert(0, "other ");
             }
             // Create a new Expression, parse the function call
-            Logic::Expression invokeExpr(funcCall, self);
+            Logic::Expression invokeExpr(funcCall);
             Ruleset.functioncalls_other.emplace_back(std::move(invokeExpr));
         }
     }
@@ -107,7 +107,7 @@ std::optional<Logic::Assignment> RulesetCompiler::getExpression(Data::JsonScopeB
     return assignment;
 }
 
-bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JsonScopeBase const& entry, Data::JsonScopeBase const& self) {
+bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JsonScopeBase const& entry) {
     if (entry.memberType(Constants::KeyNames::Ruleset::assignments) == Data::KeyType::array) {
         size_t const exprSize = entry.memberSize(Constants::KeyNames::Ruleset::assignments);
         for (size_t j = 0; j < exprSize; ++j) {
@@ -116,8 +116,7 @@ bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset
 
                 // Remove whitespaces at start and end of key and value
                 v->key = std::make_unique<Logic::Expression>(
-                    Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(v->keyStr)),
-                    self
+                    Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(v->keyStr))
                 );
                 v->value = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(v->value));
 
@@ -177,11 +176,7 @@ bool RulesetCompiler::getJsonRuleset(Data::JsonScopeBase const& doc, Data::JsonS
     return true;
 }
 
-void RulesetCompiler::setMetaData(
-    Execution::Domain const& self,
-    std::vector<std::shared_ptr<Ruleset>> const& rulesetsLocal,
-    std::vector<std::shared_ptr<Ruleset>> const& rulesetsGlobal
-    ) {
+void RulesetCompiler::setMetaData(Execution::Domain const& self, RulesetVector const& rulesetsLocal, RulesetVector const& rulesetsGlobal) {
     // Set IDs
     auto const id = self.domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
     for (auto const& entry : rulesetsLocal) {
@@ -200,7 +195,7 @@ void RulesetCompiler::setMetaData(
     }
 }
 
-void RulesetCompiler::parse(std::vector<std::shared_ptr<Ruleset>>& rulesetsGlobal, std::vector<std::shared_ptr<Ruleset>>& rulesetsLocal, Execution::Domain& self) {
+void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulesetsLocal, Execution::Domain& self) {
     // Clean up existing entries - shared pointers will automatically handle cleanup
     rulesetsGlobal.clear();
     rulesetsLocal.clear();
@@ -267,11 +262,12 @@ void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Data::
         Logic::Assignment::Operation::multiply
     };
 
+    ContextScopeBase const context{self, self, Global::instance().domainScope};
     for (auto& assignment : entry->assignments) {
         if (assignment.onType == Logic::Assignment::Type::Self) {
             if (std::ranges::find(numeric_operations, assignment.operation) != std::ranges::end(numeric_operations)) {
                 // Numeric operation on self, try to get a direct pointer
-                if (double* ptr = self.getStableDoublePointer(Data::ScopedKey(assignment.key->eval(self))); ptr != nullptr) {
+                if (double* ptr = self.getStableDoublePointer(Data::ScopedKey(assignment.key->eval(context))); ptr != nullptr) {
                     assignment.targetValuePtr = ptr;
                 }
             }
@@ -279,7 +275,7 @@ void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Data::
         if (assignment.onType == Logic::Assignment::Type::Global) {
             if (std::ranges::find(numeric_operations, assignment.operation) != std::ranges::end(numeric_operations)) {
                 // Numeric operation on global, try to get a direct pointer
-                if (double* ptr = Global::instance().domainScope.getStableDoublePointer(Data::ScopedKey(assignment.key->eval(self))); ptr != nullptr) {
+                if (double* ptr = Global::instance().domainScope.getStableDoublePointer(Data::ScopedKey(assignment.key->eval(context))); ptr != nullptr) {
                     assignment.targetValuePtr = ptr;
                 }
             }
@@ -315,7 +311,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScopeBase cons
     Ruleset->_isGlobal = !Ruleset->topic.empty(); // If topic is empty, it is a local invoke
     std::string logicalArgStr = getCondition(entry);
     logicalArgStr = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(logicalArgStr));
-    Ruleset->logicalArg = std::make_unique<Logic::ExpressionPool>(logicalArgStr, self);
+    Ruleset->logicalArg = std::make_unique<Logic::ExpressionPool>(logicalArgStr);
 
     // Remove whitespaces at start and end from topic and logicalArg:
     Ruleset->topic = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(Ruleset->topic));
@@ -326,17 +322,17 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScopeBase cons
     }
 
     // Get and parse all assignments
-    getExpressions(Ruleset, entry, self.domainScope);
+    getExpressions(Ruleset, entry);
     for (auto& assignment : Ruleset->assignments) {
 #if EXPRESSION_POOL_SIZE > 1
-        assignment.expression = std::make_unique<Logic::ExpressionPool>(assignment.value, self);
+        assignment.expression = std::make_unique<Logic::ExpressionPool>(assignment.value);
 #else
-        assignment.expression = std::make_unique<Logic::Expression>(assignment.value, self);
+        assignment.expression = std::make_unique<Logic::Expression>(assignment.value);
 #endif
     }
 
     // Parse all function calls
-    getFunctionCalls(entry, *Ruleset, self);
+    getFunctionCalls(entry, *Ruleset);
 
     // Push into vector
     return Ruleset;

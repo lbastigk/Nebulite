@@ -1,4 +1,5 @@
 #include "Data/BroadcastListenContainer/FlatContainer.hpp"
+#include "Utility/SharedMutex.hpp"
 
 namespace Nebulite::Data::BroadcastListenContainer {
 

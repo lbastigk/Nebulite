@@ -1,4 +1,5 @@
 #include "Data/BroadcastListenContainer/BaseContainer.hpp"
+#include "Data/Document/JsonScopeBase.hpp"
 
 namespace Nebulite::Data::BroadcastListenContainer {
 

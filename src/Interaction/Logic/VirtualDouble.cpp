@@ -17,18 +17,28 @@ VirtualDouble::VirtualDouble(std::string k) noexcept : key(std::move(k)) {
     scopedKey = Data::ScopedKey(key);
 }
 
-void VirtualDouble::setUpInternalCache(Data::JsonScopeBase const& json) {
-    copied_value = *json.getStableDoublePointer(scopedKey);
-    reference = &copied_value;
+void VirtualDouble::linkExternalCache(Data::JsonScopeBase const& json){
+    if (externalReference != nullptr) {
+        // This function should only be called once, throw error
+        throw std::logic_error("External cache is already linked for key: " + key);
+    }
+    externalReference = json.getStableDoublePointer(scopedKey);
 }
 
-void VirtualDouble::setUpInternalCache() {
-    copied_value = *Global::instance().getDocCache().getStableDoublePointer(key);
-    reference = &copied_value;
+void VirtualDouble::copyExternalCache() {
+    if (externalReference == nullptr) {
+        // This function should only be called after linking, throw error
+        throw std::logic_error("External cache is not linked for key: " + key);
+    }
+    copiedValue = *externalReference;
 }
 
-void VirtualDouble::setUpExternalCache(Data::JsonScopeBase const& json) {
-    reference = json.getStableDoublePointer(scopedKey);
+void VirtualDouble::copyFromJson(Data::JsonScopeBase const& json) {
+    copiedValue = json.get<double>(scopedKey, 0.0);
+}
+
+void VirtualDouble::setDirect(double const& val) noexcept {
+    copiedValue = val;
 }
 
 } // namespace Nebulite::Interaction::Logic

@@ -45,14 +45,9 @@ namespace Nebulite::Interaction::Logic {
  */
 class ExpressionPool {
 public:
-    ExpressionPool(std::string const& expr, Data::JsonScopeBase& self) {
+    explicit ExpressionPool(std::string const& expr) {
         indexRoller = Utility::Threading::atomicThreadRollGenerator(EXPRESSION_POOL_SIZE);
-        parse(expr, self);
-    }
-
-    ExpressionPool(std::string const& expr, Execution::Domain const& self) {
-        indexRoller = Utility::Threading::atomicThreadRollGenerator(EXPRESSION_POOL_SIZE);
-        parse(expr, self);
+        parse(expr);
     }
 
     ~ExpressionPool() = default;
@@ -77,21 +72,19 @@ public:
     /**
      * @brief Evaluates the expression in the context of the given JSON object acting as "other".
      *        Matches `Nebulite::Interaction::Logic::Expression::eval`, but allows for concurrent evaluation across multiple threads.
-     * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a string.
      */
-    std::string eval(Data::JsonScopeBase& current_other) const {
-        return pool[indexRoller()]->eval(current_other);
+    std::string eval(Context const& context) const {
+        return pool[indexRoller()]->eval(context);
     }
 
     /**
      * @brief Evaluates the expression as a double in the context of the given JSON object acting as "other".
      *        Matches `Nebulite::Interaction::Logic::Expression::evalAsDouble`, but allows for concurrent evaluation across multiple threads.
-     * @param current_other The JSON object representing the current context.
      * @return The result of the evaluation as a double.
      */
-    double evalAsDouble(Data::JsonScopeBase& current_other) const {
-        return pool[indexRoller()]->evalAsDouble(current_other);
+    double evalAsDouble(Context const& context) const {
+        return pool[indexRoller()]->evalAsDouble(context);
     }
 
     /**
@@ -130,31 +123,15 @@ private:
      * @brief Parses the given expression and populates the pool with pre-parsed instances.
      *        Matches Nebulite::Interaction::Logic::Expression::parse, but allows for concurrent evaluation across multiple threads.
      * @param expr The expression to parse.
-     * @param self The JSON object representing the "self" context.
      */
-    void parse(std::string const& expr, Data::JsonScopeBase& self){
+    void parse(std::string const& expr){
         static_assert(EXPRESSION_POOL_SIZE > 0, "INVOKE_EXPR_POOL_SIZE must be greater than 0");
 
         fullExpression = expr;
 
         // Parse each entry in the pool
         for (size_t i = 0; i < EXPRESSION_POOL_SIZE; ++i){
-            pool[i] = std::make_unique<Expression>(expr, self);
-        }
-
-        // Calculate metadata and unique ID from first entry
-        _isReturnableAsDouble = pool[0]->recalculateIsReturnableAsDouble();
-        _isAlwaysTrue = pool[0]->recalculateIsAlwaysTrue();
-    }
-
-    void parse(std::string const& expr, Execution::Domain const& self){
-        static_assert(EXPRESSION_POOL_SIZE > 0, "INVOKE_EXPR_POOL_SIZE must be greater than 0");
-
-        fullExpression = expr;
-
-        // Parse each entry in the pool
-        for (size_t i = 0; i < EXPRESSION_POOL_SIZE; ++i){
-            pool[i] = std::make_unique<Expression>(expr, self);
+            pool[i] = std::make_unique<Expression>(expr);
         }
 
         // Calculate metadata and unique ID from first entry
