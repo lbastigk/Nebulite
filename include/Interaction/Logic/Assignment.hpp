@@ -64,7 +64,7 @@ public:
     /**
      * @brief Applies the assignment to the given target document.
      */
-    void apply(Data::JsonScopeBase& self, Data::JsonScopeBase& other);
+    void apply(ContextScopeBase const& context);
 
     /**
      * @brief Get the unevaluated expression as string

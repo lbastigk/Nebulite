@@ -78,20 +78,20 @@ void Assignment::setValueOfKey(double const& val, double* target) const {
     }
 }
 
-void Assignment::apply(Data::JsonScopeBase& self, Data::JsonScopeBase& other) {
+void Assignment::apply(ContextScopeBase const& context) {
     //------------------------------------------
     // Check what the target document to apply the ruleset to is
 
     Data::JsonScopeBase* targetDocument;
     switch (onType) {
     case Type::Self:
-        targetDocument = &self;
+        targetDocument = &context.self;
         break;
     case Type::Other:
-        targetDocument = &other;
+        targetDocument = &context.other;
         break;
     case Type::Global:
-        targetDocument = &Global::instance().domainScope;
+        targetDocument = &context.global;
         break;
     case Type::null:
         // TODO: determine context from expression!
@@ -108,7 +108,7 @@ void Assignment::apply(Data::JsonScopeBase& self, Data::JsonScopeBase& other) {
 
     // If the expression is returnable as double, we can optimize numeric operations
     if (expression->isReturnableAsDouble()) {
-        double const resolved = expression->evalAsDouble(other);
+        double const resolved = expression->evalAsDouble(context);
         if (targetValuePtr != nullptr) {
             setValueOfKey(resolved, targetValuePtr);
         } else {
@@ -116,7 +116,7 @@ void Assignment::apply(Data::JsonScopeBase& self, Data::JsonScopeBase& other) {
             // Likely because the target is in document other
 
             // Try to get a stable double pointer from the target document
-            auto const scopedKey = Data::ScopedKey(key->eval(other));
+            auto const scopedKey = Data::ScopedKey(key->eval(context));
             if (double* target = targetDocument->getStableDoublePointer(scopedKey.view()); target != nullptr) {
                 // Lock is needed here, otherwise we have race conditions, and the engine is no longer deterministic!
                 auto lock(targetDocument->lock());
@@ -131,8 +131,8 @@ void Assignment::apply(Data::JsonScopeBase& self, Data::JsonScopeBase& other) {
     }
     // If not, we resolve as string and update that way
     else {
-        std::string const resolved = expression->eval(other);
-        auto const k = Data::ScopedKey(key->eval(other));
+        std::string const resolved = expression->eval(context);
+        auto const k = Data::ScopedKey(key->eval(context));
         setValueOfKey(k.view(), resolved, *targetDocument);
     }
 }

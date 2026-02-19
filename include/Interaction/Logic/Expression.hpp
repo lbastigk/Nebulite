@@ -70,11 +70,8 @@ public:
     /**
      * @brief Constructs and parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
      * @param expr The expression string to parse.
-     * @param selfScope The JSON object representing the "self" context.
      */
-    explicit Expression(std::string const& expr, Data::JsonScopeBase const& selfScope);
-
-    explicit Expression(std::string const& expr, Execution::Domain const& selfDomain);
+    explicit Expression(std::string const& expr);
 
     ~Expression();
 
@@ -111,28 +108,50 @@ public:
         return _isAlwaysTrue;
     }
 
-    /**
-     * @brief Evaluates the expression as a JSON object.
-     * @param current_other The JSON object `other` to evaluate against.
-     * @param max_recursion_depth The maximum recursion depth to prevent infinite loops in nested evaluations.
-     * @return The evaluated JSON object.
-     */
-    Data::JSON evalAsJson(Data::JsonScopeBase& current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
+    //------------------------------------------
+    // Actual evaluation functions
 
-    /**
-     * @brief Evaluates the expression as a double.
-     * @param current_other The JSON object `other` to evaluate against.
-     * @return The evaluated double value.
-     */
-    double evalAsDouble(Data::JsonScopeBase& current_other) const ;
+    std::string eval(ContextScopeBase const& context, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
+    std::string eval(Context const& context, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const { return eval(context.demote(), max_recursion_depth); }
 
-    /**
-     * @brief Evaluates the expression as a string.
-     * @param current_other The JSON object `other` to evaluate against.
-     * @param max_recursion_depth The maximum recursion depth to prevent infinite loops in nested evaluations.
-     * @return The evaluated string value.
-     */
-    std::string eval(Data::JsonScopeBase& current_other, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
+    double evalAsDouble(ContextScopeBase const& context) const ;
+    double evalAsDouble(Context const& context) const { return evalAsDouble(context.demote()); }
+
+    bool evalAsBool(ContextScopeBase const& context) const ;
+    bool evalAsBool(Context const& context) const { return evalAsBool(context.demote()); }
+
+    Data::JSON evalAsJson(ContextScopeBase const& context, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
+    Data::JSON evalAsJson(Context const& context, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const { return evalAsJson(context.demote(), max_recursion_depth); }
+
+    //------------------------------------------
+    // Static functions for one-time evaluation
+
+    // 1.) Using full context (self, other and global)
+
+    static std::string eval(std::string const& input, ContextScopeBase const& context);
+    static std::string eval(std::string const& input, Context const& context){return eval(input, context.demote());}
+
+    static double evalAsDouble(std::string const& input, ContextScopeBase const& context);
+    static double evalAsDouble(std::string const& input, Context const& context){return evalAsDouble(input, context.demote());}
+
+    static bool evalAsBool(std::string const& input, ContextScopeBase const& context);
+    static bool evalAsBool(std::string const& input, Context const& context){return evalAsBool(input, context.demote());}
+
+    static Data::JSON evalAsJson(std::string const& input, ContextScopeBase const& context);
+    static Data::JSON evalAsJson(std::string const& input, Context const& context){return evalAsJson(input, context.demote());}
+
+    // 2.) Global-only evaluation (both self and other context are empty documents)
+
+    static std::string eval(std::string const& input);
+
+    static double evalAsDouble(std::string const& input);
+
+    static bool evalAsBool(std::string const& input);
+
+    static Data::JSON evalAsJson(std::string const& input);
+
+    //------------------------------------------
+    // Other helpers
 
     /**
      * @brief Gets the full expression string that was parsed.
@@ -140,10 +159,6 @@ public:
      * @return The full expression string.
      */
     [[nodiscard]] std::string const* getFullExpression() const noexcept { return &fullExpression; }
-
-    //------------------------------------------
-    // Helpers for recalculating expression info
-    // helpful for ExpressionPool to reduce the amount of parsing needed
 
     /**
      * @brief Recalculates whether the expression is returnable as a double.
@@ -156,70 +171,6 @@ public:
      * @return True if the expression is always true, false otherwise.
      */
     [[nodiscard]] bool recalculateIsAlwaysTrue() const;
-
-    //------------------------------------------
-    // Static one-time evaluation
-
-    // With context evaluation
-
-    /**
-     * @brief Evaluates a given expression string with a constant reference to the context.
-     * @param input The expression string to evaluate.
-     * @param context The context containing the self, other, and global JSON objects.
-     * @return The evaluated string value.
-     */
-    static std::string eval(std::string const& input, ContextScopeBase const& context);
-    static std::string eval(std::string const& input, Context const& context){return eval(input, context.demote());}
-
-    /**
-     * @brief Evaluates a given expression string as a double with a constant reference to the context.
-     * @param input The expression string to evaluate.
-     * @param context The context containing the self, other, and global JSON objects.
-     * @return The evaluated double value.
-     */
-    static double evalAsDouble(std::string const& input, ContextScopeBase const& context);
-    static double evalAsDouble(std::string const& input, Context const& context){return evalAsDouble(input, context.demote());}
-
-    /**
-     * @brief Evaluates a given expression string as a boolean with a constant reference to the context.
-     * @param input The expression string to evaluate.
-     * @param context The context containing the self, other, and global JSON objects.
-     * @return The evaluated boolean value.
-     */
-    static bool evalAsBool(std::string const& input, ContextScopeBase const& context);
-    static bool evalAsBool(std::string const& input, Context const& context){return evalAsBool(input, context.demote());}
-
-    /**
-     * @brief Evaluates a given expression string as a JSON object with a constant reference to the context.
-     * @param input The expression string to evaluate.
-     * @param context The context containing the self, other, and global JSON objects.
-     * @return The evaluated JSON object.
-     */
-    static Data::JSON evalAsJson(std::string const& input, ContextScopeBase const& context);
-    static Data::JSON evalAsJson(std::string const& input, Context const& context){return evalAsJson(input, context.demote());}
-
-    // Global-only evaluation (both self and other context are empty documents)
-
-    /**
-     * @brief Evaluates a given expression string with global context only.
-     * @param input The expression string to evaluate.
-     * @return The evaluated string value.
-     */
-    static std::string eval(std::string const& input);
-
-    /**
-     * @brief Evaluates a given expression string as a double with global context only.
-     * @param input The expression string to evaluate.
-     * @return The evaluated double value.
-     */
-    static double evalAsDouble(std::string const& input);
-
-    /**
-     * @brief Evaluates a given expression string as a boolean with global context only.
-     * @param input The expression string to evaluate.
-     * @return The evaluated boolean value.
-     */
-    static bool evalAsBool(std::string const& input);
 
     //------------------------------------------
     // Static helpers
@@ -240,16 +191,33 @@ public:
 
 private:
     /**
+     * @brief Provides an empty JSON document that can be used as a context placeholder
+     * @return The empty JSON document reference
+     */
+    static Data::JsonScopeBase& emptyDoc();
+
+    /**
+     * @brief Provides access to the global document for expression evaluation
+     * @return A reference to the global document
+     */
+    static Data::JsonScopeBase& globalDoc();
+
+    /**
      * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
      * @param expr The expression string to parse.
      */
     void parse(std::string const& expr);
 
     /**
-     * @brief The reference for context self stays the same throughout the expression's lifetime.
-     * @details This allows us to cache variables from self directly, not reloading needed
+     * @brief Stores pointers to the first evaluation context's scopes for optimization.
+     *        Cached to optimize for repeated evaluations with the same partial context.
      */
-    Data::JsonScopeBase const& self;
+    struct CachedContext {
+        Data::JsonScopeBase* self = nullptr;
+        Data::JsonScopeBase* other = nullptr;
+        Data::JsonScopeBase* global = nullptr;
+    };
+    mutable CachedContext firstEvaluationContext;
 
     /**
      * @brief Generates short variable names for tinyexpr variables.
@@ -351,22 +319,20 @@ private:
         /**
          * @brief Handles the evaluation of a variable component.
          * @param token The string to populate with the evaluated value.
-         * @param selfScope The scope `self` to evaluate against.
-         * @param otherScope The scope `other` to evaluate against.
+         * @param context The context to evaluate against.
          * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(std::string& token, Data::JsonScopeBase const& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const ;
+        bool handleComponentTypeVariable(std::string& token, ContextScopeBase const& context, uint16_t const& maximumRecursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of a variable component.
          * @param token The JSON object to populate with the evaluated value.
-         * @param selfScope The scope `self` to evaluate against.
-         * @param otherScope The scope `other` to evaluate against.
+         * @param context The context to evaluate against.
          * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(Data::JSON& token, Data::JsonScopeBase const& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const ;
+        bool handleComponentTypeVariable(Data::JSON& token, ContextScopeBase const& context, uint16_t const& maximumRecursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of an eval component.
@@ -378,31 +344,26 @@ private:
     /**
      * @struct Nebulite::Interaction::Logic::Expression::VirtualDoubleLists
      * @brief Holds lists of VirtualDouble entries for different contexts.
+     * @todo No more remanent/non-remanent, just update all so we can swap contexts freely
      */
     struct VirtualDoubleLists {
         using vd_list = std::vector<std::shared_ptr<VirtualDouble>>;
 
-        /**
-         * @brief Contains virtual doubles that are remanent
-         *        Meaning they can be cached directly from the document
-         */
-        struct RemanentContext {
-            vd_list self; // Variables from context self without transformations or multi-resolve
-            vd_list global; // Variables from context global without transformations or multi-resolve
-        } remanent;
+        // Linkable as external cache, no multi-resolve or transformations
+        struct Stable {
+            vd_list self; // Variables from context self
+            vd_list other; // Variables from context other
+            vd_list global; // Variables from context global
+        } stable;
 
-        /**
-         * @brief Contains virtual doubles that are non-remanent
-         *        Meaning they need to be updated on each eval
-         */
-        struct NonRemanentContext {
+        // With multi-resolve or transformations, key needs to be resolved each time
+        struct UnStable {
             vd_list self; // Variables from context self with transformations or multi-resolve
             vd_list other; // Variables from context other with transformations or multi-resolve
-            vd_list otherUnStable; // Variables from context other that are unstable (with transformations or multi-resolve)
-            vd_list global; // All variables from context global
-            vd_list resource; // All variables from context resource
-            vd_list none; // Variables with no context
-        } nonRemanent;
+            vd_list global; // Variables from context global with transformations or multi-resolve
+            vd_list resource; // Variables from context resource with transformations or multi-resolve
+            vd_list none; // Variables with no context with transformations or multi-resolve
+        } unstable;
     } virtualDoubles;
 
     /**
@@ -458,9 +419,9 @@ private:
      *        Makes sure to only register variables that are not already registered.
      * @param te_name The name of the variable as used in TinyExpr.
      * @param key The key in the JSON document that the variable refers to.
-     * @param context The context from which the variable is being registered.
+     * @param contextType The context from which the variable is being registered.
      */
-    void registerVariable(std::string te_name, std::string const& key, Component::ContextType const& context);
+    void registerVariable(std::string te_name, std::string const& key, Component::ContextType const& contextType);
 
     /**
      * @brief used to strip any context prefix from a key
@@ -481,7 +442,7 @@ private:
      * @param key The key to get the context from.
      * @return The context of the key.
      */
-    static Component::ContextType getContext(std::string const& key);
+    static Component::ContextType getContextType(std::string const& key);
 
     /**
      * @brief Parses the given expression into a series of components.
@@ -524,7 +485,7 @@ private:
     /**
      * @brief Updates caches
      */
-    void updateCaches(Data::JsonScopeBase& reference) const ;
+    void updateCaches(ContextScopeBase const& context) const ;
 };
 
 } // namespace Nebulite::Interaction::Logic

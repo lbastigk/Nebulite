@@ -8,7 +8,7 @@ namespace Nebulite::Interaction::Rules {
 //------------------------------------------
 // Base Class Virtual Methods
 
-bool Ruleset::evaluateCondition(Execution::Domain const& /*other*/) {
+bool Ruleset::evaluateCondition(Execution::Domain& /*other*/) {
     return false;
 }
 
@@ -28,19 +28,20 @@ void Ruleset::apply() {
 // Derived Class Methods: StaticRuleset
 
 void StaticRuleset::apply(Execution::Domain& contextOther) {
-    Context const contextBase{self, contextOther, Global::instance()};
-    staticFunction(contextBase);
+    Context const context{self, contextOther, Global::instance()};
+    staticFunction(context);
 }
 
 //------------------------------------------
 // Derived Class Methods: JsonRuleset
 
-bool JsonRuleset::evaluateCondition(Execution::Domain const& other) {
+bool JsonRuleset::evaluateCondition(Execution::Domain& other) {
     // Check if logical arg is as simple as just "1", meaning true
     if (logicalArg->isAlwaysTrue())
         return true;
 
-    double const result = logicalArg->evalAsDouble(other.domainScope);
+    Context const context{self, other, Global::instance()};
+    double const result = logicalArg->evalAsDouble(context);
     if (std::isnan(result)) {
         // We consider NaN as false
         return false;
@@ -50,15 +51,17 @@ bool JsonRuleset::evaluateCondition(Execution::Domain const& other) {
 }
 
 void JsonRuleset::apply(Execution::Domain& contextOther) {
+    ContextScopeBase const context{self.domainScope, contextOther.domainScope, Global::instance().domainScope};
+
     // 1.) Assignments
     for (auto& assignment : assignments) {
-        assignment.apply(self.domainScope, contextOther.domainScope);
+        assignment.apply(context);
     }
 
     // 2.) Function calls
     for (auto& entry : functioncalls_global) {
         // replace vars
-        std::string call = entry.eval(contextOther.domainScope);
+        std::string call = entry.eval(context);
 
         // attach to task queue
         Global::instance().getTaskQueue(Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
@@ -66,12 +69,12 @@ void JsonRuleset::apply(Execution::Domain& contextOther) {
     }
     for (auto& entry : functioncalls_self) {
         // replace vars
-        std::string const call = entry.eval(contextOther.domainScope);
+        std::string const call = entry.eval(context);
         (void)self.parseStr(call);
     }
     for (auto& entry : functioncalls_other) {
         // replace vars
-        std::string const call = entry.eval(contextOther.domainScope);
+        std::string const call = entry.eval(context);
         (void)contextOther.parseStr(call);
     }
 }

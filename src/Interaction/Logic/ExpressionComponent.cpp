@@ -26,9 +26,9 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
     return *this;
 }
 
-bool Expression::Component::handleComponentTypeVariable(std::string& token, Data::JsonScopeBase const& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const {
+bool Expression::Component::handleComponentTypeVariable(std::string& token, ContextScopeBase const& context, uint16_t const& maximumRecursionDepth) const {
     std::string strippedKey = key;
-    ContextType context = contextType;
+    ContextType destination = contextType;
 
     // See if the variable contains an inner expression
     if (str.find('$') != std::string::npos || str.find('{') != std::string::npos) {
@@ -37,25 +37,25 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Data
             return false;
         }
         // Create a temporary expression to evaluate the inner expression
-        Expression const tempExpr(str, selfScope);
-        strippedKey = tempExpr.eval(otherScope, maximumRecursionDepth - 1);
+        Expression const tempExpr(str);
+        strippedKey = tempExpr.eval(context, maximumRecursionDepth - 1);
 
         // Redetermine context and strip it from key
-        context = getContext(strippedKey);
+        destination = getContextType(strippedKey);
         strippedKey = stripContext(strippedKey);
     }
 
     // Now, use the key to get the value from the correct document
     auto const scopedKey = Data::ScopedKey(strippedKey);
-    switch (context) {
+    switch (destination) {
     case ContextType::self: // {self.<key><transformations>}
-        token = selfScope.get<std::string>(scopedKey.view(), "null");
+        token = context.self.get<std::string>(scopedKey.view(), "null");
         break;
     case ContextType::other: // {other.<key><transformations>}
-        token = otherScope.get<std::string>(scopedKey.view(), "null");
+        token = context.other.get<std::string>(scopedKey.view(), "null");
         break;
     case ContextType::global: // {global.<key><transformations>}
-        token = Global::instance().domainScope.get<std::string>(scopedKey.view(), "null");
+        token = context.global.get<std::string>(scopedKey.view(), "null");
         break;
     case ContextType::resource: // {<link><resource_key_or_transformations>}
         token = Global::instance().getDocCache().get<std::string>(strippedKey, "null");
@@ -74,9 +74,9 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Data
     return true;
 }
 
-bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Data::JsonScopeBase const& selfScope, Data::JsonScopeBase& otherScope, uint16_t const& maximumRecursionDepth) const {
+bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, ContextScopeBase const& context, uint16_t const& maximumRecursionDepth) const {
     std::string strippedKey = key;
-    ContextType context = contextType;
+    ContextType destination = contextType;
 
     // See if the variable contains an inner expression
     if (str.find('$') != std::string::npos || str.find('{') != std::string::npos) {
@@ -85,25 +85,25 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Data:
             return false;
         }
         // Create a temporary expression to evaluate the inner expression
-        Expression const tempExpr(str, selfScope);
-        strippedKey = tempExpr.eval(otherScope, maximumRecursionDepth - 1);
+        Expression const tempExpr(str);
+        strippedKey = tempExpr.eval(context, maximumRecursionDepth - 1);
 
         // Redetermine context and strip it from key
-        context = getContext(strippedKey);
+        destination = getContextType(strippedKey);
         strippedKey = stripContext(strippedKey);
     }
 
     // Now, use the key to get the value from the correct document
     auto const scopedKey = Data::ScopedKey(strippedKey);
-    switch (context) {
+    switch (destination) {
     case ContextType::self: // {self.<key><transformations>}
-        token = selfScope.getSubDoc(scopedKey.view());
+        token = context.self.getSubDoc(scopedKey.view());
         break;
     case ContextType::other: // {other.<key><transformations>}
-        token = otherScope.getSubDoc(scopedKey.view());
+        token = context.other.getSubDoc(scopedKey.view());
         break;
     case ContextType::global: // {global.<key><transformations>}
-        token = Global::instance().domainScope.getSubDoc(scopedKey.view());
+        token = context.global.getSubDoc(scopedKey.view());
         break;
     case ContextType::resource: // {<link><resource_key_or_transformations>}
         token = Global::instance().getDocCache().getSubDoc(strippedKey);
