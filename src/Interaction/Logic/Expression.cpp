@@ -402,7 +402,6 @@ Expression::Expression(std::string const& expr, Data::JsonScopeBase const& selfS
 {
     _isReturnableAsDouble = false;
     _isAlwaysTrue = false;
-    uniqueId = 0;
     reset();
     parse(expr);
 }
@@ -412,7 +411,6 @@ Expression::Expression(std::string const& expr, Execution::Domain const& selfDom
 {
     _isReturnableAsDouble = false;
     _isAlwaysTrue = false;
-    uniqueId = 0;
     reset();
     parse(expr);
 }
@@ -420,7 +418,6 @@ Expression::Expression(std::string const& expr, Execution::Domain const& selfDom
 void Expression::parse(std::string const& expr) {
     reset();
     fullExpression = expr;
-    uniqueId = generateUniqueId(fullExpression);
     parseIntoComponents(expr);
     for (auto& component : components) {
         compileIfExpression(component);
@@ -499,14 +496,10 @@ void Expression::updateCaches(Data::JsonScopeBase& reference) const {
     }
 
     // Updating context other: Values with stable double pointers
-    // We can use a cached list of double pointers for this, speeding up access significantly
-    // Document other stores a list of ordered double pointers for our expression
-    // So we only have one query to get all pointers instead of querying each variable individually
+    // Manually setting each entry, using cache list directly isn't working, reason unknown...
     if (!virtualDoubles.nonRemanent.other.empty()) {
-        auto const* listData = reference.getOrderedCacheListMap()->ensureOrderedCacheList(uniqueId, virtualDoubles.nonRemanent.other)->data();
-        const size_t count = virtualDoubles.nonRemanent.other.size();
-        for (size_t i = 0; i < count; ++i) {
-            virtualDoubles.nonRemanent.other[i]->setDirect(*listData[i]);
+        for (auto& vde : virtualDoubles.nonRemanent.other) {
+            vde->setUpExternalCache(reference);
         }
     }
 
@@ -597,11 +590,6 @@ bool Expression::evalAsBool(std::string const& input) {
 
 //------------------------------------------
 // Other Static helpers
-
-uint64_t Expression::generateUniqueId(std::string const& expression) {
-    static Data::RollingId idGenerator;
-    return idGenerator.getId(expression);
-}
 
 std::string Expression::removeOuterAntiEvalWrapper(std::string const& expression) {
     auto expressionParts = Utility::StringHandler::splitOnSameDepth(expression, '{');

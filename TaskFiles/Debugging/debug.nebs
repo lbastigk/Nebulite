@@ -23,7 +23,7 @@ echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
 feature-test self-other-global-evaluation
-exit
+#exit
 
 ##########################################################################
 # TODO: json rulesets are bugged...

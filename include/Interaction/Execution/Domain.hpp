@@ -294,8 +294,6 @@ public:
         modules.push_back(std::move(DomainModule));
     }
 
-
-
     /**
      * @brief Updates all DomainModules.
      */

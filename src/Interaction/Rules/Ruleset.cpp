@@ -50,7 +50,7 @@ bool JsonRuleset::evaluateCondition(Execution::Domain const& other) {
 void JsonRuleset::apply(Execution::Domain& contextOther) {
     // 1.) Assignments
     for (auto& assignment : assignments) {
-        assignment.apply(self.domainScope, contextOther.domainScope);
+        assignment.apply(self.domainScopeBase(), contextOther.domainScopeBase());
     }
 
     // 2.) Function calls

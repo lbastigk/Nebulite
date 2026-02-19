@@ -64,7 +64,7 @@ public:
     /**
      * @brief Applies the assignment to the given target document.
      */
-    void apply(Core::JsonScope& self, Core::JsonScope& other);
+    void apply(Data::JsonScopeBase& self, Data::JsonScopeBase& other);
 
     /**
      * @brief Get the unevaluated expression as string
@@ -74,8 +74,8 @@ public:
     }
 
 private:
-    void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Core::JsonScope& target) const ;
-    void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& val, Core::JsonScope& target) const ;
+    void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Data::JsonScopeBase& target) const ;
+    void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& val, Data::JsonScopeBase& target) const ;
     void setValueOfKey(double const& val, double* target) const ;
 
     /**
