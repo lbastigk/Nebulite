@@ -15,6 +15,9 @@
         ]
     },
     "tests": [
+        // TODO: Some test causes a plasma application crash, but no error is returned...
+        //       Perhaps just an issue with KDE itself, investigate further
+        //       Not as important as the binary itself doesn't crash and returns 0
         //---------------------------------------
         // Basic tests
         "Tools/Tests/basics.json",
