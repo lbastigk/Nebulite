@@ -480,9 +480,14 @@ void Expression::updateCaches(ContextScopeBase const& context) const {
         }
     }
 
-    // Stable values: either copy from first context (fast), or copy from the current context (slow)
+    //===================================================
+    // Stable values:
+    // either copy from first context via pointers (fast),
+    // or copy from the current context via json->get (slow)
+    //===================================================
 
-    if (&context.self != firstEvaluationContext.self) {
+    // self
+    if (&context.self == firstEvaluationContext.self) {
         for (auto const& vde : virtualDoubles.stable.self) {
             vde->copyExternalCache();
         }
@@ -492,7 +497,9 @@ void Expression::updateCaches(ContextScopeBase const& context) const {
             vde->copyFromJson(context.self);
         }
     }
-    if (&context.other != firstEvaluationContext.other) {
+
+    // other
+    if (&context.other == firstEvaluationContext.other) {
         for (auto const& vde : virtualDoubles.stable.other) {
             vde->copyExternalCache();
         }
@@ -502,7 +509,9 @@ void Expression::updateCaches(ContextScopeBase const& context) const {
             vde->copyFromJson(context.other);
         }
     }
-    if (&context.global != firstEvaluationContext.global) {
+
+    // global
+    if (&context.global == firstEvaluationContext.global) {
         for (auto const& vde : virtualDoubles.stable.global) {
             vde->copyExternalCache();
         }
@@ -513,7 +522,10 @@ void Expression::updateCaches(ContextScopeBase const& context) const {
         }
     }
 
-    // Unstable values: evaluate key and fetch value from json
+    //===================================================
+    // Unstable values:
+    // evaluate key and fetch value from json
+    //===================================================
 
     for (auto const& vde : virtualDoubles.unstable.self) {
         auto const key = Data::ScopedKey(eval(vde->getKey(), context));
