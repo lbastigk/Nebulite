@@ -419,6 +419,9 @@ void Expression::parse(std::string const& expr) {
     for (auto& component : components) {
         compileIfExpression(component);
     }
+    _isReturnableAsDouble = recalculateIsReturnableAsDouble();
+    _isAlwaysTrue = recalculateIsAlwaysTrue();
+
     // Reset variable name generator, data is only needed during parsing
     varNameGen.clear();
 }
@@ -496,7 +499,7 @@ void Expression::updateCaches(Data::JsonScopeBase& reference) const {
     // Manually setting each entry, using cache list directly isn't working, reason unknown...
     if (!virtualDoubles.nonRemanent.other.empty()) {
         for (auto& vde : virtualDoubles.nonRemanent.other) {
-            vde->setUpExternalCache(reference);
+            vde->setUpInternalCache(reference);
         }
     }
 
