@@ -20,7 +20,8 @@
 #include <functional>
 
 // Nebulite
-#include "HotKeyMap.hpp"
+#include "Data/Map/HotKeyMap.hpp"
+#include "Utility/SharedMutex.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

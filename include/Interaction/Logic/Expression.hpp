@@ -17,18 +17,15 @@
 #include <tinyexpr.h>
 
 // Nebulite
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JSON.hpp"
 #include "Interaction/Context.hpp"
 #include "Interaction/Logic/VariableNameGenerator.hpp"
 
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite::Core {
-class JsonScope;
-} // namespace Nebulite::Core
-
 namespace Nebulite::Data {
+class JsonScopeBase;
 class ScopedKey;
 class ScopedKeyView;
 } // namespace Nebulite::Data
