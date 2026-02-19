@@ -1,0 +1,49 @@
+{
+    "draw": {
+        "core": {
+            "drawType": "circle",
+            "rect": {
+                "dst": {
+                    "h": 64.0,
+                    "w": 64.0,
+                    "x": 0.0,
+                    "y": 0.0
+                }
+            },
+            "textureData": {
+                "color": {
+                    "a": 255.0,
+                    "b": 0.0,
+                    "g": 255.0,
+                    "r": 255.0
+                },
+                "radius": 128.0
+            }
+        }
+    },
+    "id": 0,
+    "layer": 0,
+    "physics": {
+        "mass": 200000.0,
+        "aX": 0.0,
+        "aY": 0.0,
+        "vX": 0.0,
+        "vY": 0.0
+    },
+    "posX": 500,
+    "posY": 500,
+    "ruleset": {
+        "listen": [
+            "all",
+            "::physics::gravity",
+            "gravity"
+        ],
+        "list": [
+            "Resources/Invokes/Physics/gravity.jsonc",
+            "Resources/Invokes/Physics/applyForce.jsonc"
+        ]
+    },
+    "size": {
+        "r": 32
+    }
+}

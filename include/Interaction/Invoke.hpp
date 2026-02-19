@@ -115,8 +115,8 @@ private:
     // Set ContainerType, then run:
     // Scripts/Benchmark/BroadcastListenContainer.sh
     //
-    // Average time for small benchmark:       2.985100 s
-    // Average frame time for large benchmark: 0.013810 s
+    // Average time for small benchmark:       1.977900 s
+    // Average frame time for large benchmark: 0.013855 s
     // TODO: Since the new container is clearly the winner, remove the other containers and their code to clean up the codebase
     using ContainerType = Data::BroadcastListenContainer::FlatContainer;
 
@@ -124,6 +124,7 @@ private:
 
     //------------------------------------------
     // Threading variables
+
     /**
      * @brief Flag to signal threads to stop.
      */

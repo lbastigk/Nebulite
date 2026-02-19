@@ -6,7 +6,7 @@
 
 namespace Nebulite::Interaction::Logic {
 
-void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Core::JsonScope& target) const {
+void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Data::JsonScopeBase& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Operation::set:
@@ -30,7 +30,7 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::str
     }
 }
 
-void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& val, Core::JsonScope& target) const {
+void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& val, Data::JsonScopeBase& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Operation::set:
@@ -78,11 +78,11 @@ void Assignment::setValueOfKey(double const& val, double* target) const {
     }
 }
 
-void Assignment::apply(Core::JsonScope& self, Core::JsonScope& other) {
+void Assignment::apply(Data::JsonScopeBase& self, Data::JsonScopeBase& other) {
     //------------------------------------------
     // Check what the target document to apply the ruleset to is
 
-    Core::JsonScope* targetDocument;
+    Data::JsonScopeBase* targetDocument;
     switch (onType) {
     case Type::Self:
         targetDocument = &self;
@@ -116,16 +116,16 @@ void Assignment::apply(Core::JsonScope& self, Core::JsonScope& other) {
             // Likely because the target is in document other
 
             // Try to get a stable double pointer from the target document
-            if (double* target = targetDocument->getStableDoublePointer(Data::ScopedKey(key->eval(other))); target != nullptr) {
+            auto const scopedKey = Data::ScopedKey(key->eval(other));
+            if (double* target = targetDocument->getStableDoublePointer(scopedKey.view()); target != nullptr) {
                 // Lock is needed here, otherwise we have race conditions, and the engine is no longer deterministic!
-                std::scoped_lock lock(targetDocument->lock());
+                auto lock(targetDocument->lock());
                 setValueOfKey(resolved, target);
             } else {
                 // Still not possible, fallback to using JSON's internal methods
                 // This is slower, but should work in all cases
                 // No lock needed here, as we use JSON's threadsafe methods
-                auto const k = Data::ScopedKey(key->eval(other));
-                setValueOfKey(k.view(), resolved, *targetDocument);
+                setValueOfKey(scopedKey.view(), resolved, *targetDocument);
             }
         }
     }

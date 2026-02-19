@@ -13,11 +13,6 @@ DocumentAccessor::DocumentAccessor(Core::JsonScope& d) : domainScope(d) {}
 
 DocumentAccessor::~DocumentAccessor() = default;
 
-Data::JsonScopeBase& DocumentAccessor::domainScopeBase() const {
-    static auto& scopeBase = domainScope.shareScopeBase("");
-    return scopeBase;
-}
-
 } // namespace Nebulite::Interaction::Execution
 
 // Domain Base
@@ -68,7 +63,11 @@ Data::MappedOrderedDoublePointers* Domain::getDocumentCacheMap() const {
     return domainScope.getOrderedCacheListMap();
 }
 
-std::scoped_lock<std::recursive_mutex> Domain::lockDocument() const {
+Data::odpvec* Domain::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<Data::ScopedKeyView> const& keys) const {
+    return domainScope.ensureOrderedCacheListMinimalLock(uniqueId, keys);
+}
+
+std::unique_lock<std::recursive_mutex> Domain::lockDocument() const {
     return domainScope.lock();
 }
 
@@ -101,10 +100,10 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
         std::string const& variableWithTransformations = parts[0];
 
         // Setup context for parsing
-        Context const ctx{domainScope, domainScope, Global::instance().domainScope};
+        ContextScopeBase const ctxBase{domainScope, domainScope, Global::instance().domainScope};
 
         // Parse into expression
-        Data::JSON const result = Logic::Expression::evalAsJson(variableWithTransformations, ctx);
+        Data::JSON const result = Logic::Expression::evalAsJson(variableWithTransformations, ctxBase);
 
         // Deserialize the resulting JSON into the domain scope
         domainScope.deserialize(result.serialize());

@@ -4,7 +4,7 @@
 
 namespace Nebulite::Interaction::Rules {
 RulesetModule::RulesetModule(std::string_view const& moduleName)
-    : id(Logic::Expression::generateUniqueId(std::string(moduleName)))
+: id{Data::MappedOrderedDoublePointers::generateUniqueId(moduleName)}
 {}
 
 } // namespace Nebulite::Interaction::Rules

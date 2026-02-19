@@ -69,10 +69,18 @@ private:
     //------------------------------------------
     // Ordered double pointers system
 
+    static auto constexpr noLockArraySize = 2*ORDERED_DOUBLE_POINTERS_MAPS ; // A bit higher to allow for extra threads coming from RenderObjectContainer, in case those are batched
+    static auto constexpr lockArraySize = ORDERED_DOUBLE_POINTERS_MAPS;
+
     /**
      * @brief Mapped ordered double pointers for expression references.
      */
-    alignas(Constants::Alignment::SIMD_ALIGN) std::array<MappedOrderedDoublePointers, ORDERED_DOUBLE_POINTERS_MAPS> expressionRefs;
+    alignas(Constants::Alignment::SIMD_ALIGN) std::array<MappedOrderedDoublePointers, lockArraySize> expressionRefs;
+
+    /**
+     * @brief Secondary mapped ordered double pointers intended for non-locking access
+     */
+    alignas(Constants::Alignment::SIMD_ALIGN) std::array<MappedOrderedDoublePointers, noLockArraySize> expressionRefsNoLock;
 
     //------------------------------------------
     // Valid prefix check and generation
@@ -195,21 +203,34 @@ public:
     //------------------------------------------
     // Locking
 
-    [[nodiscard]] std::scoped_lock<std::recursive_mutex> lock() const ;
+    [[nodiscard]] std::unique_lock<std::recursive_mutex> lock() const ;
 
     //------------------------------------------
     // Getters: Unique id based retrieval
 
     MappedOrderedDoublePointers* getOrderedCacheListMap() {
-#if ORDERED_DOUBLE_POINTERS_MAPS == 1
-        return &expressionRefs[0];
-#else
-        // Both versions are about equally performant according to benchmarks
-        static auto indexRoller = Utility::Threading::atomicThreadRollGenerator(ORDERED_DOUBLE_POINTERS_MAPS);
-        thread_local size_t threadIndex = indexRoller();
-        //thread_local size_t threadIndex = Utility::Threading::atomicThreadRoll(ORDERED_DOUBLE_POINTERS_MAPS);
-        return &expressionRefs[threadIndex];
-#endif
+        if constexpr (lockArraySize == 1) {
+            // NOLINTNEXTLINE
+            return &expressionRefs[0];
+        }
+        else {
+            static auto indexRoller = Utility::Threading::atomicThreadRollGenerator(lockArraySize);
+            thread_local size_t threadIndex = indexRoller();
+            return &expressionRefs[threadIndex];
+        }
+    }
+
+    //------------------------------------------
+    // Extra fast ordered cache list retrieval with minimal locking
+
+    odpvec* ensureOrderedCacheListMinimalLock(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
+        static auto indexCounter = Utility::Threading::atomicThreadIncrementGenerator();
+        thread_local size_t threadIndex = indexCounter();
+        if (threadIndex < noLockArraySize) {
+            return expressionRefsNoLock[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
+        }
+        // spread rest on locking maps
+        return expressionRefs[threadIndex % lockArraySize].ensureOrderedCacheList(uniqueId, keys);
     }
 
     //------------------------------------------

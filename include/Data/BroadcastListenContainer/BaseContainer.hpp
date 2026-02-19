@@ -60,6 +60,7 @@ public:
 
     void initializeWorkerThread() {
         workerThread = std::thread([this] {
+            ensureEarlyThreadId();
             this->process();
         });
     }
@@ -95,6 +96,8 @@ public:
             std::this_thread::yield();
         }
     }
+
+    static void ensureEarlyThreadId();
 
 protected:
 

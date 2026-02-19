@@ -14,7 +14,7 @@ time set-fixed-dt 1 # 1ms
 ##########################################
 # Spawn sun and 100 planets
 
-spawn ./Resources/Renderobjects/Planets/sun.jsonc
+spawn ./Resources/Renderobjects/Planets/sun_classic.jsonc
 
 eval wait {global.waitTime}
 eval set spawnCount $({global.spawnCount} + 1)

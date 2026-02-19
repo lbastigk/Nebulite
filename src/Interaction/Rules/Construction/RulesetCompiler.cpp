@@ -5,7 +5,7 @@
 
 namespace Nebulite::Interaction::Rules::Construction {
 
-void RulesetCompiler::getFunctionCalls(Data::JsonScopeBase& entryDoc, JsonRuleset& Ruleset, Execution::Domain const& self) {
+void RulesetCompiler::getFunctionCalls(Data::JsonScopeBase const& entryDoc, JsonRuleset& Ruleset, Execution::Domain const& self) {
     // Get function calls: GLOBAL, SELF, OTHER
     if (entryDoc.memberType(Constants::KeyNames::Ruleset::parseOnGlobal) == Data::KeyType::array) {
         size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnGlobal);
@@ -14,7 +14,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScopeBase& entryDoc, JsonRulese
             auto funcCall = entryDoc.get<std::string>(funcKey, "");
 
             // Create a new Expression, parse the function call
-            Logic::ExpressionPool invokeExpr(funcCall, self);
+            Logic::Expression invokeExpr(funcCall, self);
             Ruleset.functioncalls_global.emplace_back(std::move(invokeExpr));
         }
     }
@@ -32,7 +32,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScopeBase& entryDoc, JsonRulese
             }
 
             // Create a new Expression, parse the function call
-            Logic::ExpressionPool invokeExpr(funcCall, self);
+            Logic::Expression invokeExpr(funcCall, self);
             Ruleset.functioncalls_self.emplace_back(std::move(invokeExpr));
         }
     }
@@ -49,7 +49,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScopeBase& entryDoc, JsonRulese
                 funcCall.insert(0, "other ");
             }
             // Create a new Expression, parse the function call
-            Logic::ExpressionPool invokeExpr(funcCall, self);
+            Logic::Expression invokeExpr(funcCall, self);
             Ruleset.functioncalls_other.emplace_back(std::move(invokeExpr));
         }
     }
@@ -331,7 +331,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScopeBase cons
 #if EXPRESSION_POOL_SIZE > 1
         assignment.expression = std::make_unique<Logic::ExpressionPool>(assignment.value, self);
 #else
-        assignment.expression = std::make_unique<Logic::Expression>(assignment.value, self.domainScope);
+        assignment.expression = std::make_unique<Logic::Expression>(assignment.value, self);
 #endif
     }
 

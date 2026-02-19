@@ -90,4 +90,65 @@ odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniq
     return &newIt->second.orderedValues;
 }
 
+odpvec* MappedOrderedDoublePointers::ensureOrderedCacheListNoLock(uint64_t const& uniqueId, std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther) {
+    // Quick-cache path protected by mtxCache
+    if (uniqueId < quickCacheSize) {
+        if (!quickCache[uniqueId].orderedValues.empty()) [[likely]] {
+            return &quickCache[uniqueId].orderedValues;
+        }
+        if (quickCache[uniqueId].orderedValues.empty()) {
+            OrderedDoublePointers newCacheList(contextOther.size());
+            for (auto const& vde : contextOther) {
+                double* ptr = reference.getStableDoublePointer(vde->getScopedKey());
+                newCacheList.orderedValues.push_back(ptr);
+            }
+            quickCache[uniqueId] = std::move(newCacheList);
+        }
+        return &quickCache[uniqueId].orderedValues;
+    }
+
+    if (auto const it = map.find(uniqueId); it != map.end()) [[likely]] {
+        return &it->second.orderedValues;
+    }
+    auto [newIt, inserted] = map.try_emplace(uniqueId, OrderedDoublePointers(contextOther.size()));
+    if (inserted) {
+        for (auto const& vde : contextOther) {
+            double* ptr = reference.getStableDoublePointer(vde->getScopedKey());
+            newIt->second.orderedValues.push_back(ptr);
+        }
+    }
+    return &newIt->second.orderedValues;
+}
+
+odpvec* MappedOrderedDoublePointers::ensureOrderedCacheListNoLock(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
+    // Quick-cache path protected by mtxCache
+    if (uniqueId < quickCacheSize) {
+        if (!quickCache[uniqueId].orderedValues.empty()) [[likely]] {
+            return &quickCache[uniqueId].orderedValues;
+        }
+        if (quickCache[uniqueId].orderedValues.empty()) {
+            OrderedDoublePointers newCacheList(keys.size());
+            for (auto const& key : keys) {
+                double* ptr = reference.getStableDoublePointer(key);
+                newCacheList.orderedValues.push_back(ptr);
+            }
+            quickCache[uniqueId] = std::move(newCacheList);
+        }
+        return &quickCache[uniqueId].orderedValues;
+    }
+
+    // Map path protected by mtxMap
+    if (auto const it = map.find(uniqueId); it != map.end()) [[likely]] {
+        return &it->second.orderedValues;
+    }
+    auto [newIt, inserted] = map.try_emplace(uniqueId, OrderedDoublePointers(keys.size()));
+    if (inserted) {
+        for (auto const& key : keys) {
+            double* ptr = reference.getStableDoublePointer(key);
+            newIt->second.orderedValues.push_back(ptr);
+        }
+    }
+    return &newIt->second.orderedValues;
+}
+
 } // namespace Nebulite::Data

@@ -2,10 +2,10 @@
 // Includes
 
 // Nebulite
-#include "Core/JsonScope.hpp"
 #include "Core/RenderObject.hpp"
 #include "Data/RenderObjectContainer.hpp"
 #include "Data/Document/JSON.hpp"
+#include "Utility/WorkDispatcher.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -79,9 +79,20 @@ void RenderObjectContainer::append(Core::RenderObject* toAppend, uint16_t const&
     std::pair<int16_t, int16_t> const pos = getTilePos(toAppend, dispResX, dispResY);
 
     // Try to insert into an existing batch
-    auto const it = std::ranges::find_if(ObjectContainer[pos].begin(), ObjectContainer[pos].end(),
-                                         [](Batch const& b) { return b.estimatedCost <= BATCH_COST_GOAL; }
-        );
+    auto const it = std::ranges::find_if(
+        ObjectContainer[pos].begin(),
+        ObjectContainer[pos].end(),
+        // NOLINTNEXTLINE
+        [](Batch const& b) {
+            if constexpr (batchCostGoal == 0) {
+                return true; // No cost goal, accept all batches
+            }
+            else {
+                // NOLINTNEXTLINE
+                return b.estimatedCost <= batchCostGoal;
+            }
+        }
+    );
     if (it != ObjectContainer[pos].end()) {
         it->push(toAppend);
         return;
@@ -93,18 +104,19 @@ void RenderObjectContainer::append(Core::RenderObject* toAppend, uint16_t const&
     ObjectContainer[pos].push_back(std::move(newBatch));
 }
 
-std::thread RenderObjectContainer::createBatchWorker(Batch& work, std::pair<int16_t, int16_t> pos, uint16_t dispResX, uint16_t dispResY) {
-    return std::thread([&work, pos, this, dispResX, dispResY] {
+void RenderObjectContainer::batchWorkerFunc(DispatcherWorkspace const& workspace) {
+    // Process
+    // We update each object and check if it needs to be moved or deleted
+    for (auto& batch : *workspace.work) {
         // Every batch worker has potential objects to move or delete
         std::vector<Core::RenderObject*> to_move_local;
         std::vector<Core::RenderObject*> to_delete_local;
 
-        // We update each object and check if it needs to be moved or deleted
-        for (auto obj : work.objects) {
+        for (auto obj : batch.objects) {
             obj->update();
 
             if (!obj->flag.deleteFromScene) {
-                if (getTilePos(obj, dispResX, dispResY) != pos) {
+                if (getTilePos(obj, workspace.dispResX, workspace.dispResY) != workspace.pos) {
                     to_move_local.push_back(obj);
                 }
             } else {
@@ -114,18 +126,18 @@ std::thread RenderObjectContainer::createBatchWorker(Batch& work, std::pair<int1
 
         // All objects to move are collected in queue
         for (auto ptr : to_move_local) {
-            work.removeObject(ptr);
-            std::scoped_lock lock(reinsertionProcess.reinsertMutex);
-            reinsertionProcess.queue.push_back(ptr);
+            batch.removeObject(ptr);
+            std::scoped_lock lock(workspace.reinsertionProcess->reinsertMutex);
+            workspace.reinsertionProcess->queue.push_back(ptr);
         }
 
         // All objects to delete are collected in trash
         for (auto ptr : to_delete_local) {
-            work.removeObject(ptr);
-            std::scoped_lock lock(deletionProcess.deleteMutex);
-            deletionProcess.trash.push_back(ptr);
+            batch.removeObject(ptr);
+            std::scoped_lock lock(workspace.deletionProcess->deleteMutex);
+            workspace.deletionProcess->trash.push_back(ptr);
         }
-    });
+    }
 }
 
 void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tilePosY, uint16_t const& dispResX, uint16_t const& dispResY) {
@@ -179,26 +191,45 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
     // Note that we cannot directly use the maximum tile radius, as for some positions it may be smaller!
     // So we should subtract at least one tile, perhaps even two to be safe.
     // Or we go the actual good way and do the math to determine hMax/wMax based on the radius and tile size.
+    size_t workerIndex = 0;
     for (int16_t const dX : tileOffsetsX) {
         auto const currentTilePosX = static_cast<int16_t>(tilePosX - dX);
         for (int16_t const dY : tileOffsetsY) {
             auto const currentTilePosY = static_cast<int16_t>(tilePosY - dY);
             std::pair<int16_t, int16_t> pos = std::make_pair(currentTilePosX, currentTilePosY);
-            auto& tile = ObjectContainer[pos];
 
-            // Create batch workers for each batch in the tile
-            std::ranges::transform(
-                tile.begin(), tile.end(),
-                std::back_inserter(batchWorkers),
-                [&](auto& batch) { return createBatchWorker(batch, pos, dispResX, dispResY); }
-                );
+            // Check if container has tile at position, if not, skip
+            auto const it = ObjectContainer.find(pos);
+            if (it == ObjectContainer.end()) {
+                continue;
+            }
+
+            auto& tile = it->second;
+
+            // Set value for worker
+            if (workerIndex >= batchWorkers.size()) {
+                auto worker = std::make_unique<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>(stopFlag);
+                worker->workspace.reinsertionProcess = &reinsertionProcess;
+                worker->workspace.deletionProcess = &deletionProcess;
+                batchWorkers.push_back(std::move(worker));
+            }
+            batchWorkers[workerIndex]->workspace.work = &tile;
+            batchWorkers[workerIndex]->workspace.pos = pos;
+            batchWorkers[workerIndex]->workspace.dispResX = dispResX;
+            batchWorkers[workerIndex]->workspace.dispResY = dispResY;
+
+            workerIndex++;
         }
     }
 
-    // Wait for threads to be finished
-    for (auto& batchWorker : batchWorkers) {
-        if (batchWorker.joinable())
-            batchWorker.join();
+    // Start all workers
+    for (auto const& w : batchWorkers) {
+        w->startWork();
+    }
+
+    // Wait for all workers to finish
+    for (auto const& w : batchWorkers) {
+        w->waitForWorkFinished();
     }
 
     // Objects to move

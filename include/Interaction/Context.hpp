@@ -17,6 +17,10 @@ namespace Nebulite::Interaction::Execution {
 class Domain;
 } // namespace Nebulite::Interaction::Execution
 
+namespace Nebulite::Interaction::Logic {
+class Expression; // For Context demotion to ContextScope
+} // namespace Nebulite::Interaction::Logic
+
 namespace Nebulite::Interaction {
 
 // ContextScopeBase -> JSON scope access with JsonScopeBase references
@@ -49,6 +53,8 @@ public:
     Execution::Domain& other;
     Execution::Domain& global;
     // TODO: Parent context?
+
+    friend class Logic::Expression; // For context demotion
 private:
     [[nodiscard]] ContextScopeBase demote() const ;
 };

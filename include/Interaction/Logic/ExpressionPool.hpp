@@ -69,16 +69,6 @@ public:
         // This is safe since mutexes should only be moved when not in use
     }
 
-    /*
-    ExpressionPool& operator=(ExpressionPool&& other) noexcept {
-        if (this != &other){
-            pool = std::move(other.pool);
-            fullExpression = std::move(other.fullExpression);
-            // locks array stays as-is (new default-constructed mutexes)
-        }
-        return *this;
-    }
-    */
     ExpressionPool& operator=(ExpressionPool&& other) = delete;
 
     //------------------------------------------

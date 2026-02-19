@@ -18,6 +18,7 @@
 
 // Nebulite
 #include "Data/Document/JsonScopeBase.hpp"
+#include "Interaction/Context.hpp"
 #include "Interaction/Logic/VariableNameGenerator.hpp"
 
 //------------------------------------------
@@ -33,7 +34,7 @@ class ScopedKeyView;
 } // namespace Nebulite::Data
 
 namespace Nebulite::Interaction {
-class Context;
+class ContextScopeBase;
 } // namespace Nebulite::Interaction
 
 namespace Nebulite::Interaction::Logic {
@@ -60,6 +61,9 @@ namespace Nebulite::Interaction::Logic {
  *       {all.|matMultiply self.matrix other.matrix} could then be evaluated directly without needing to copy variables into a new context first.
  *       Unless we also implement scope marrying, we will have to copy a lot of data here. Perhaps a selfother combined context is helpful for faster evaluation:
  *       {so.|matMultiply self.matrix other.matrix} could then be evaluated directly without needing to copy global variables, which is typically the largest portion of variables, into a new context first.
+ * @todo Pass the actual context {self,other,global} as far as possible into the expression evaluation, and build the context as soon as possible.
+ *       Currently, we build a context with {self, other, global}, but the global part is ignored, as in HandleComponentTypeVariable etc, Nebulite::Global is used instead!
+ *       For that, we need various public functions evaluate<as>(...) with different inputs and a method that actually uses contextScopeBase as input to evaluate
  */
 class Expression {
 public:
@@ -137,16 +141,6 @@ public:
      */
     [[nodiscard]] std::string const* getFullExpression() const noexcept { return &fullExpression; }
 
-    /**
-     * @brief Forcefully sets the unique ID for the expression.
-     * @details Be careful when using this, as it might lead to issues with virtualDouble tracking!
-     *          This is only used when the id was calculated externally, e.g. in ExpressionPool.
-     * @param id The unique ID to set.
-     */
-    void setUniqueId(uint64_t const id) {
-        uniqueId = id;
-    }
-
     //------------------------------------------
     // Helpers for recalculating expression info
     // helpful for ExpressionPool to reduce the amount of parsing needed
@@ -166,8 +160,6 @@ public:
     //------------------------------------------
     // Static one-time evaluation
 
-    // TODO: Reduce from Context to ContextScopeBase
-
     // With context evaluation
 
     /**
@@ -176,7 +168,8 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated string value.
      */
-    static std::string eval(std::string const& input, Context const& context);
+    static std::string eval(std::string const& input, ContextScopeBase const& context);
+    static std::string eval(std::string const& input, Context const& context){return eval(input, context.demote());}
 
     /**
      * @brief Evaluates a given expression string as a double with a constant reference to the context.
@@ -184,7 +177,8 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated double value.
      */
-    static double evalAsDouble(std::string const& input, Context const& context);
+    static double evalAsDouble(std::string const& input, ContextScopeBase const& context);
+    static double evalAsDouble(std::string const& input, Context const& context){return evalAsDouble(input, context.demote());}
 
     /**
      * @brief Evaluates a given expression string as a boolean with a constant reference to the context.
@@ -192,7 +186,8 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated boolean value.
      */
-    static bool evalAsBool(std::string const& input, Context const& context);
+    static bool evalAsBool(std::string const& input, ContextScopeBase const& context);
+    static bool evalAsBool(std::string const& input, Context const& context){return evalAsBool(input, context.demote());}
 
     /**
      * @brief Evaluates a given expression string as a JSON object with a constant reference to the context.
@@ -200,7 +195,8 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated JSON object.
      */
-    static Data::JSON evalAsJson(std::string const& input, Context const& context);
+    static Data::JSON evalAsJson(std::string const& input, ContextScopeBase const& context);
+    static Data::JSON evalAsJson(std::string const& input, Context const& context){return evalAsJson(input, context.demote());}
 
     // Global-only evaluation (both self and other context are empty documents)
 
@@ -227,13 +223,6 @@ public:
 
     //------------------------------------------
     // Static helpers
-
-    /**
-     * @brief Generates a unique ID for a given expression string.
-     * @param expression The expression string to generate an ID for.
-     * @return The generated unique ID.
-     */
-    static uint64_t generateUniqueId(std::string const& expression);
 
     /**
      * @brief Removes outer anti-evaluation wrappers from an expression string
@@ -454,11 +443,6 @@ private:
      * @brief Collection of all registered variables and functions
      */
     std::vector<te_variable> te_variables; // Variables for TinyExpr evaluation
-
-    /**
-     * @brief The unique ID from globalspace for this expression string
-     */
-    uint64_t uniqueId;
 
     //------------------------------------------
     // Helper functions

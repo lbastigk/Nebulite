@@ -6,13 +6,10 @@
 
 // Nebulite
 #include "Nebulite.hpp"
-#include "Core/JsonScope.hpp"
-#include "Data/RollingId.hpp"
+#include "Data/Document/JsonScopeBase.hpp"
 #include "Interaction/Logic/ExpressionPrimitives.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
 #include "Interaction/Logic/Expression.hpp"
-
-
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -402,17 +399,15 @@ Expression::Expression(std::string const& expr, Data::JsonScopeBase const& selfS
 {
     _isReturnableAsDouble = false;
     _isAlwaysTrue = false;
-    uniqueId = 0;
     reset();
     parse(expr);
 }
 
 Expression::Expression(std::string const& expr, Execution::Domain const& selfDomain)
-    : self(selfDomain.domainScopeBase())
+    : self(selfDomain.domainScope)
 {
     _isReturnableAsDouble = false;
     _isAlwaysTrue = false;
-    uniqueId = 0;
     reset();
     parse(expr);
 }
@@ -420,11 +415,13 @@ Expression::Expression(std::string const& expr, Execution::Domain const& selfDom
 void Expression::parse(std::string const& expr) {
     reset();
     fullExpression = expr;
-    uniqueId = generateUniqueId(fullExpression);
     parseIntoComponents(expr);
     for (auto& component : components) {
         compileIfExpression(component);
     }
+    _isReturnableAsDouble = recalculateIsReturnableAsDouble();
+    _isAlwaysTrue = recalculateIsAlwaysTrue();
+
     // Reset variable name generator, data is only needed during parsing
     varNameGen.clear();
 }
@@ -499,14 +496,10 @@ void Expression::updateCaches(Data::JsonScopeBase& reference) const {
     }
 
     // Updating context other: Values with stable double pointers
-    // We can use a cached list of double pointers for this, speeding up access significantly
-    // Document other stores a list of ordered double pointers for our expression
-    // So we only have one query to get all pointers instead of querying each variable individually
+    // TODO: go back to using ordered double pointers using the expression string as key, should work...
     if (!virtualDoubles.nonRemanent.other.empty()) {
-        auto const* listData = reference.getOrderedCacheListMap()->ensureOrderedCacheList(uniqueId, virtualDoubles.nonRemanent.other)->data();
-        const size_t count = virtualDoubles.nonRemanent.other.size();
-        for (size_t i = 0; i < count; ++i) {
-            virtualDoubles.nonRemanent.other[i]->setDirect(*listData[i]);
+        for (auto& vde : virtualDoubles.nonRemanent.other) {
+            vde->setUpInternalCache(reference);
         }
     }
 
@@ -555,53 +548,54 @@ void Expression::updateCaches(Data::JsonScopeBase& reference) const {
 
 // With context
 
-std::string Expression::eval(std::string const& input, Context const& context) {
-    Expression const expr(input, context.self.domainScopeBase());
-    return expr.eval(context.other.domainScope);
+std::string Expression::eval(std::string const& input, ContextScopeBase const& context) {
+    Expression const expr(input, context.self);
+    return expr.eval(context.other);
 }
 
-double Expression::evalAsDouble(std::string const& input, Context const& context) {
-    Expression const expr(input, context.self.domainScopeBase());
-    return expr.evalAsDouble(context.other.domainScope);
+double Expression::evalAsDouble(std::string const& input, ContextScopeBase const& context) {
+    Expression const expr(input, context.self);
+    return expr.evalAsDouble(context.other);
 }
 
-bool Expression::evalAsBool(std::string const& input, Context const& context) {
+bool Expression::evalAsBool(std::string const& input, ContextScopeBase const& context) {
     double const result = evalAsDouble(input, context);
     return std::fabs(result) > DBL_EPSILON;
 }
 
-Data::JSON Expression::evalAsJson(std::string const& input, Context const& context) {
-    Expression const expr(input, context.self.domainScopeBase());
-    return expr.evalAsJson(context.other.domainScope);
+Data::JSON Expression::evalAsJson(std::string const& input, ContextScopeBase const& context) {
+    Expression const expr(input, context.self);
+    return expr.evalAsJson(context.other);
 }
 
 // Global-only as context
 
 std::string Expression::eval(std::string const& input) {
-    thread_local Core::JsonScope emptyDoc;
-    Context const context{emptyDoc, emptyDoc, Global::instance()};
+    thread_local Data::JsonScopeBase emptyDoc;
+    static auto accessToken = ScopeAccessor::Full();
+    static auto& globalDoc = Global::shareScopeBase(accessToken, "");
+    ContextScopeBase const context{emptyDoc, emptyDoc, globalDoc};
     return eval(input, context);
 }
 
 double Expression::evalAsDouble(std::string const& input) {
-    thread_local Core::JsonScope emptyDoc;
-    Context const context{emptyDoc, emptyDoc, Global::instance()};
+    thread_local Data::JsonScopeBase emptyDoc;
+    static auto accessToken = ScopeAccessor::Full();
+    static auto& globalDoc = Global::shareScopeBase(accessToken, "");
+    ContextScopeBase const context{emptyDoc, emptyDoc, globalDoc};
     return evalAsDouble(input, context);
 }
 
 bool Expression::evalAsBool(std::string const& input) {
-    thread_local Core::JsonScope emptyDoc;
-    Context const context{emptyDoc, emptyDoc, Global::instance()};
+    thread_local Data::JsonScopeBase emptyDoc;
+    static auto accessToken = ScopeAccessor::Full();
+    static auto& globalDoc = Global::shareScopeBase(accessToken, "");
+    ContextScopeBase const context{emptyDoc, emptyDoc, globalDoc};
     return evalAsBool(input, context);
 }
 
 //------------------------------------------
 // Other Static helpers
-
-uint64_t Expression::generateUniqueId(std::string const& expression) {
-    static Data::RollingId idGenerator;
-    return idGenerator.getId(expression);
-}
 
 std::string Expression::removeOuterAntiEvalWrapper(std::string const& expression) {
     auto expressionParts = Utility::StringHandler::splitOnSameDepth(expression, '{');

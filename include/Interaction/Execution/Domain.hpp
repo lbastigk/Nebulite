@@ -42,6 +42,8 @@ class Texture;
 namespace Nebulite::Data {
 class MappedOrderedDoublePointers;
 class TaskQueue;
+class ScopedKeyView;
+class JsonScopeBase;
 } // namespace Nebulite::Data
 
 namespace Nebulite::DomainModule {
@@ -120,13 +122,7 @@ private:
     /**
      * @brief Each domain uses a JSON document to store its data.
      */
-    Core::JsonScope& domainScope;
-
-    /**
-     * @brief Provides access to the domain's scoped JSON document.
-     * @return Reference to the domain's JSON document.
-     */
-    [[nodiscard]] Data::JsonScopeBase& domainScopeBase() const ;
+    Data::JsonScopeBase& domainScope;
 };
 } // namespace Nebulite::Interaction::Execution
 
@@ -293,8 +289,6 @@ public:
         modules.push_back(std::move(DomainModule));
     }
 
-
-
     /**
      * @brief Updates all DomainModules.
      */
@@ -358,12 +352,20 @@ public:
      * @brief Gets the ordered cache list map of the domain's document.
      * @return Pointer to the ordered cache list map.
      */
-    [[nodiscard]] virtual Data::MappedOrderedDoublePointers* getDocumentCacheMap() const ;
+    [[nodiscard]] Data::MappedOrderedDoublePointers* getDocumentCacheMap() const ;
+
+    /**
+     * @brief Compared to getDocumentCacheMap, this function retrieves the ordered cache list directly with minimal locking
+     * @param uniqueId The unique ID for the ordered cache list.
+     * @param keys The vector of keys to populate the cache with if it does not exist.
+     * @return A pointer to the ordered vector of double pointers for the specified keys.
+     */
+    [[nodiscard]] Data::odpvec* ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<Data::ScopedKeyView> const& keys) const ;
 
     /**
      * @brief Locks the domain's document for thread-safe access.
      */
-    [[nodiscard]] std::scoped_lock<std::recursive_mutex> lockDocument() const ;
+    [[nodiscard]] std::unique_lock<std::recursive_mutex> lockDocument() const ;
 
 protected:
     /**

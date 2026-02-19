@@ -433,7 +433,7 @@ public:
     /**
      * @brief Provides access to the internal mutex for thread-safe operations.
      */
-    std::scoped_lock<std::recursive_mutex> lock() const ;
+    std::unique_lock<std::recursive_mutex> lock() const ;
 
     //------------------------------------------
     // Key Types, Sizes

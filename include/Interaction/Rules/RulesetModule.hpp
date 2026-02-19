@@ -143,7 +143,7 @@ protected:
      * @return A pointer to an array of double pointers, each pointing to a base value.
      */
     [[nodiscard]] double** getBaseList(Execution::Domain const& ctx, std::vector<Data::ScopedKeyView> const& keys) const {
-        return ensureOrderedCacheList(ctx, keys)->data();
+        return ctx.ensureOrderedCacheList(id, keys)->data();
     }
 
 private:
@@ -152,34 +152,6 @@ private:
 
     // Unique identifier for caching
     uint64_t const id;
-
-    /**
-     * @brief Helper function to retrieve an ordered list of stable double pointers
-     *        arrays of keys to arrays of values
-     *        with a unique identifier for each array of values
-     *        Use the function name itself "::<function>" as the unique identifier
-     *        hash in globalspace to avoid collisions.
-     * @param doc The document in which to retrieve the values
-     * @param keys The array of keys to retrieve values for
-     * @return An array of values corresponding to the provided keys
-     */
-    Data::odpvec* ensureOrderedCacheList(Core::JsonScope& doc, std::vector<Data::ScopedKeyView> const& keys) const {
-        return doc.getOrderedCacheListMap()->ensureOrderedCacheList(id, keys);
-    }
-
-    /**
-     * @brief Helper function to retrieve an ordered list of stable double pointers
-     *        arrays of keys to arrays of values
-     *        with a unique identifier for each array of values
-     *        Use the function name itself "::<function>" as the unique identifier
-     *        hash in globalspace to avoid collisions.
-     * @param ctx The context from which to retrieve the values
-     * @param keys The array of keys to retrieve values for
-     * @return An array of values corresponding to the provided keys
-     */
-    [[nodiscard]] Data::odpvec* ensureOrderedCacheList(Execution::Domain const& ctx, std::vector<Data::ScopedKeyView> const& keys) const {
-        return ctx.getDocumentCacheMap()->ensureOrderedCacheList(id, keys);
-    }
 };
 }
 #endif // NEBULITE_INTERACTION_RULES_RULESET_MODULE_HPP

@@ -4,8 +4,8 @@
  *        class to support category-based function bindings.
  */
 
-#ifndef NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_HPP
-#define NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_HPP
+#ifndef NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_HPP
+#define NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_HPP
 
 //------------------------------------------
 // Includes
@@ -46,7 +46,7 @@
         DomainModuleName, \
         *this, \
         getFuncTree(), \
-        Document.domainScope.shareScopeBase(Workspace), \
+        Document.shareScopeBase(Workspace), \
         Settings \
     )
 
@@ -117,4 +117,4 @@ protected:
 };
 } // namespace Nebulite::Interaction::Execution
 #include "Interaction/Execution/DomainModule.tpp"
-#endif // NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_HPP
+#endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_HPP
