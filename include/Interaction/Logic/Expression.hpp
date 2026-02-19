@@ -59,11 +59,8 @@ namespace Nebulite::Interaction::Logic {
  *       from different contexts can be difficult, as we need to somehow copy them into one context first.
  *       With context marrying, we could have a single context that encompasses all variables from self, other and global, with some sort of prefix to differentiate them.
  *       {all.|matMultiply self.matrix other.matrix} could then be evaluated directly without needing to copy variables into a new context first.
- *       Unless we also implement scope marrying, we will have to copy a lot of data here. Perhaps a selfother combined context is helpful for faster evaluation:
+ *       Unless we also implement scope marrying, we will have to copy a lot of data here. Perhaps a selfOther combined context is helpful for faster evaluation:
  *       {so.|matMultiply self.matrix other.matrix} could then be evaluated directly without needing to copy global variables, which is typically the largest portion of variables, into a new context first.
- * @todo Pass the actual context {self,other,global} as far as possible into the expression evaluation, and build the context as soon as possible.
- *       Currently, we build a context with {self, other, global}, but the global part is ignored, as in HandleComponentTypeVariable etc, Nebulite::Global is used instead!
- *       For that, we need various public functions evaluate<as>(...) with different inputs and a method that actually uses contextScopeBase as input to evaluate
  */
 class Expression {
 public:
@@ -344,7 +341,6 @@ private:
     /**
      * @struct Nebulite::Interaction::Logic::Expression::VirtualDoubleLists
      * @brief Holds lists of VirtualDouble entries for different contexts.
-     * @todo No more remanent/non-remanent, just update all so we can swap contexts freely
      */
     struct VirtualDoubleLists {
         using vd_list = std::vector<std::shared_ptr<VirtualDouble>>;
@@ -357,7 +353,7 @@ private:
         } stable;
 
         // With multi-resolve or transformations, key needs to be resolved each time
-        struct UnStable {
+        struct Unstable {
             vd_list self; // Variables from context self with transformations or multi-resolve
             vd_list other; // Variables from context other with transformations or multi-resolve
             vd_list global; // Variables from context global with transformations or multi-resolve
