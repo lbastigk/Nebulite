@@ -364,7 +364,7 @@ public:
     /**
      * @brief Locks the domain's document for thread-safe access.
      */
-    [[nodiscard]] std::scoped_lock<std::recursive_mutex> lockDocument() const ;
+    [[nodiscard]] std::unique_lock<std::recursive_mutex> lockDocument() const ;
 
 protected:
     /**

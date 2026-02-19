@@ -119,7 +119,7 @@ void Assignment::apply(Data::JsonScopeBase& self, Data::JsonScopeBase& other) {
             auto const scopedKey = Data::ScopedKey(key->eval(other));
             if (double* target = targetDocument->getStableDoublePointer(scopedKey.view()); target != nullptr) {
                 // Lock is needed here, otherwise we have race conditions, and the engine is no longer deterministic!
-                std::scoped_lock lock(targetDocument->lock());
+                auto lock(targetDocument->lock());
                 setValueOfKey(resolved, target);
             } else {
                 // Still not possible, fallback to using JSON's internal methods

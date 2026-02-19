@@ -124,7 +124,7 @@ void JsonScopeBase::set_concat(ScopedKeyView const& key, std::string const& valS
 //------------------------------------------
 // Locking
 
-[[nodiscard]] std::scoped_lock<std::recursive_mutex> JsonScopeBase::lock() const {
+[[nodiscard]] std::unique_lock<std::recursive_mutex> JsonScopeBase::lock() const {
     return baseDocument->lock();
 }
 

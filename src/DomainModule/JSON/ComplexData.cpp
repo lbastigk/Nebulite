@@ -18,13 +18,13 @@ Constants::Error ComplexData::update() {
 
 // NOLINTNEXTLINE
 Constants::Error ComplexData::querySet() {
-    std::scoped_lock<std::recursive_mutex> mtx = domain.lock(); // Lock the domain for thread-safe access
+    auto lock = domain.lock(); // Lock the domain for thread-safe access
     return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 
 // NOLINTNEXTLINE
 Constants::Error ComplexData::jsonSet(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
-    std::scoped_lock<std::recursive_mutex> mtx = callerScope.lock(); // Lock the domain for thread-safe access
+    auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }

@@ -67,7 +67,7 @@ Data::odpvec* Domain::ensureOrderedCacheList(uint64_t const& uniqueId, std::vect
     return domainScope.ensureOrderedCacheListMinimalLock(uniqueId, keys);
 }
 
-std::scoped_lock<std::recursive_mutex> Domain::lockDocument() const {
+std::unique_lock<std::recursive_mutex> Domain::lockDocument() const {
     return domainScope.lock();
 }
 

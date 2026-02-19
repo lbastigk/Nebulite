@@ -320,8 +320,8 @@ double* JSON::getStableDoublePointer(std::string const& key) const {
     return cache[key]->stable_double_ptr;
 }
 
-std::scoped_lock<std::recursive_mutex> JSON::lock() const {
-    return std::scoped_lock(mtx);
+std::unique_lock<std::recursive_mutex> JSON::lock() const {
+    return std::unique_lock(mtx);
 }
 
 

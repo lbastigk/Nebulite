@@ -203,7 +203,7 @@ public:
     //------------------------------------------
     // Locking
 
-    [[nodiscard]] std::scoped_lock<std::recursive_mutex> lock() const ;
+    [[nodiscard]] std::unique_lock<std::recursive_mutex> lock() const ;
 
     //------------------------------------------
     // Getters: Unique id based retrieval
