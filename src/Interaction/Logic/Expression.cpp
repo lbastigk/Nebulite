@@ -7,12 +7,9 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Core/JsonScope.hpp"
-#include "Data/RollingId.hpp"
 #include "Interaction/Logic/ExpressionPrimitives.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
 #include "Interaction/Logic/Expression.hpp"
-
-
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -407,7 +404,7 @@ Expression::Expression(std::string const& expr, Data::JsonScopeBase const& selfS
 }
 
 Expression::Expression(std::string const& expr, Execution::Domain const& selfDomain)
-    : self(selfDomain.domainScopeBase())
+    : self(selfDomain.domainScope)
 {
     _isReturnableAsDouble = false;
     _isAlwaysTrue = false;
@@ -549,12 +546,12 @@ void Expression::updateCaches(Data::JsonScopeBase& reference) const {
 // With context
 
 std::string Expression::eval(std::string const& input, Context const& context) {
-    Expression const expr(input, context.self.domainScopeBase());
+    Expression const expr(input, context.self);
     return expr.eval(context.other.domainScope);
 }
 
 double Expression::evalAsDouble(std::string const& input, Context const& context) {
-    Expression const expr(input, context.self.domainScopeBase());
+    Expression const expr(input, context.self);
     return expr.evalAsDouble(context.other.domainScope);
 }
 
@@ -564,7 +561,7 @@ bool Expression::evalAsBool(std::string const& input, Context const& context) {
 }
 
 Data::JSON Expression::evalAsJson(std::string const& input, Context const& context) {
-    Expression const expr(input, context.self.domainScopeBase());
+    Expression const expr(input, context.self);
     return expr.evalAsJson(context.other.domainScope);
 }
 

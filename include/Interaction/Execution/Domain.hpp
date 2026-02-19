@@ -122,12 +122,6 @@ private:
      * @brief Each domain uses a JSON document to store its data.
      */
     Core::JsonScope& domainScope;
-
-    /**
-     * @brief Provides access to the domain's scoped JSON document.
-     * @return Reference to the domain's JSON document.
-     */
-    [[nodiscard]] Data::JsonScopeBase& domainScopeBase() const ;
 };
 } // namespace Nebulite::Interaction::Execution
 

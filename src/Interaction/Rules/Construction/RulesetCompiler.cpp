@@ -331,7 +331,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScopeBase cons
 #if EXPRESSION_POOL_SIZE > 1
         assignment.expression = std::make_unique<Logic::ExpressionPool>(assignment.value, self);
 #else
-        assignment.expression = std::make_unique<Logic::Expression>(assignment.value, self.domainScope);
+        assignment.expression = std::make_unique<Logic::Expression>(assignment.value, self);
 #endif
     }
 
