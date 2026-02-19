@@ -63,6 +63,7 @@ namespace Nebulite::Interaction::Logic {
  *       {so.|matMultiply self.matrix other.matrix} could then be evaluated directly without needing to copy global variables, which is typically the largest portion of variables, into a new context first.
  * @todo Pass the actual context {self,other,global} as far as possible into the expression evaluation, and build the context as soon as possible.
  *       Currently, we build a context with {self, other, global}, but the global part is ignored, as in HandleComponentTypeVariable etc, Nebulite::Global is used instead!
+ *       For that, we need various public functions evaluate<as>(...) with different inputs and a method that actually uses contextScopeBase as input to evaluate
  */
 class Expression {
 public:
