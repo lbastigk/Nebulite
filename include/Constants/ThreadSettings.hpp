@@ -17,7 +17,7 @@
  *       Perhaps a small overhaul is needed to actually make use of the pool?
  *       Or we remove the expression pool entirely...
  */
-#define EXPRESSION_POOL_SIZE 8
+#define EXPRESSION_POOL_SIZE 1
 
 //------------------------------------------
 // General threading settings

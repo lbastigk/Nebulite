@@ -33,7 +33,7 @@ public:
      * @param key The key for which to generate/retrieve the ID.
      * @return A unique rolling ID associated with the key.
      */
-    uint32_t getId(std::string const& key) {
+    uint32_t getId(std::string_view const& key) {
         if (counter > UINT32_MAX - 1) {
             // Throw an error or handle overflow as needed
             throw std::overflow_error("RollingId counter has exceeded maximum limit.");

@@ -46,4 +46,33 @@ Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& /
     return Constants::ErrorTable::NONE();
 }
 
+Constants::Error FeatureTest::selfOtherGlobalEvaluation() const {
+    Data::ScopedKey const key("testKey");
+    auto const token = getDomainModuleAccessToken(*this);
+    auto& globalScope = Global::shareScopeBase(token);
+    globalScope.set(key, 3);
+
+    // Test 1: separate scopeBase
+    {
+        Data::JsonScopeBase self1;
+        self1.set(key, 1);
+        Data::JsonScopeBase other1;
+        other1.set(key, 2);
+        Interaction::Logic::Expression const expr("{self.testKey} {other.testKey} {global.testKey}",self1);
+        Log::println(expr.eval(other1));
+    }
+
+    // Test 2: share managed scopeBase
+    {
+        Data::JSON selfAndOther;
+        auto& self2 = selfAndOther.shareManagedScopeBase("self.");
+        auto& other2 = selfAndOther.shareManagedScopeBase("other.");
+        self2.set(key, 5);
+        other2.set(key, 4);
+        Interaction::Logic::Expression const expr("{self.testKey} {other.testKey} {global.testKey}",self2);
+        Log::println(expr.eval(other2));
+    }
+    return Constants::ErrorTable::NONE();
+}
+
 } // namespace Nebulite::DomainModule::GlobalSpace

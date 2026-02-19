@@ -246,7 +246,10 @@ T DocumentCache::get(std::string const& doc_key, T const& defaultValue) {
 
     // Check if the document exists in the cache
     if (docPtr == nullptr) {
-        return defaultValue; // Return default value if document loading fails
+        // Use get on an empty JSON so we can still apply transformations
+        // This way, important transformation commands like assert aren't overlooked just because the document is missing, which would make debugging very difficult
+        thread_local JSON const emptyJson;
+        return emptyJson.get<T>(key, defaultValue);
     }
 
     // Retrieve the value from the document

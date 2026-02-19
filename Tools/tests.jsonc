@@ -50,10 +50,13 @@
         // Renderer tests
         "Tools/Tests/Renderer/console.json",
         //---------------------------------------
+        // Ruleset tests
+        "Tools/Tests/Rulesets/DebugUtils.json",
+        "Tools/Tests/Rulesets/selfOtherGlobalInteraction.json",
+        //---------------------------------------
         // Misc tests, sort, expand and diversify later
         "Tools/Tests/scenes.json",
-        "Tools/Tests/mirror_draft_selection.json",
-        "Tools/Tests/StaticRulesets/DebugUtils.json"
+        "Tools/Tests/mirror_draft_selection.json"
     ],
     "timeout": 40
 }

@@ -13,11 +13,6 @@ DocumentAccessor::DocumentAccessor(Core::JsonScope& d) : domainScope(d) {}
 
 DocumentAccessor::~DocumentAccessor() = default;
 
-Data::JsonScopeBase& DocumentAccessor::domainScopeBase() const {
-    static auto& scopeBase = domainScope.shareScopeBase("");
-    return scopeBase;
-}
-
 } // namespace Nebulite::Interaction::Execution
 
 // Domain Base

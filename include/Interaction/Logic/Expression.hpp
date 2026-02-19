@@ -137,16 +137,6 @@ public:
      */
     [[nodiscard]] std::string const* getFullExpression() const noexcept { return &fullExpression; }
 
-    /**
-     * @brief Forcefully sets the unique ID for the expression.
-     * @details Be careful when using this, as it might lead to issues with virtualDouble tracking!
-     *          This is only used when the id was calculated externally, e.g. in ExpressionPool.
-     * @param id The unique ID to set.
-     */
-    void setUniqueId(uint64_t const id) {
-        uniqueId = id;
-    }
-
     //------------------------------------------
     // Helpers for recalculating expression info
     // helpful for ExpressionPool to reduce the amount of parsing needed
@@ -227,13 +217,6 @@ public:
 
     //------------------------------------------
     // Static helpers
-
-    /**
-     * @brief Generates a unique ID for a given expression string.
-     * @param expression The expression string to generate an ID for.
-     * @return The generated unique ID.
-     */
-    static uint64_t generateUniqueId(std::string const& expression);
 
     /**
      * @brief Removes outer anti-evaluation wrappers from an expression string
@@ -454,11 +437,6 @@ private:
      * @brief Collection of all registered variables and functions
      */
     std::vector<te_variable> te_variables; // Variables for TinyExpr evaluation
-
-    /**
-     * @brief The unique ID from globalspace for this expression string
-     */
-    uint64_t uniqueId;
 
     //------------------------------------------
     // Helper functions

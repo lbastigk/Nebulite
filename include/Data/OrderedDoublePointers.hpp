@@ -14,6 +14,7 @@
 
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
+#include "Data/RollingId.hpp"
 #include "Utility/SharedMutex.hpp"
 
 //------------------------------------------
@@ -139,6 +140,16 @@ public:
         uint64_t const& uniqueId,
         std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther
         );
+
+    /**
+     * @brief Generates a unique ID for an expression based on its string representation.
+     * @param identifier The string representation of the expression for which to generate a unique ID.
+     * @return A unique ID corresponding to the given expression string. This ID can be used for caching purposes in the MappedOrderedDoublePointers.
+     */
+    static size_t generateUniqueId(std::string_view const& identifier) {
+        static RollingId idGenerator;
+        return idGenerator.getId(identifier);
+    }
 
     /**
      * @brief Ensures the existence of an ordered cache list of double pointers for a set of keys.
