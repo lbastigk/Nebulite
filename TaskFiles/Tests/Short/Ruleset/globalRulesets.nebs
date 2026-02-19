@@ -1,0 +1,63 @@
+# Checks if a global json/static ruleset is applied globally by probing values that should be set
+# If physics.FY is null for any object, the test fails.
+# Concrete values aren't important, we just want to know if the self-other-global interaction model works properly
+#
+# 1.) objA/B:broadcast
+# 2.) objB/B:listen
+# 3.) ruleset:apply
+# 4.) objA/B:physics-set
+# 5.) probe values
+# 6.) Assert non-empty
+
+##########################################################################
+# Preparation
+
+set physics.G 10
+set-fps 100
+time set-fixed-dt 1
+
+##########################################################################
+# Test with static ruleset
+
+eval spawn ./Resources/Renderobjects/Planets/obj1.jsonc|set posX 250|set posY 500|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/obj2.jsonc|set posX 250|set posY 250|set physics.vX 0|set physics.vY 0
+
+wait 1
+selected-object get 1
+selected-object parse mirror on
+selected-object get 2
+selected-object parse mirror on
+
+wait 100
+eval nop {global.providedScope.domainModule.renderObject.mirror.renderObject.id1.physics.FY|assert nonEmpty}
+eval nop {global.providedScope.domainModule.renderObject.mirror.renderObject.id2.physics.FY|assert nonEmpty}
+
+##########################################################################
+# Reset the scene by deleting the objects
+
+selected-object get 1
+selected-object parse delete
+selected-object get 2
+selected-object parse delete
+wait 10
+
+##########################################################################
+# Test with json ruleset
+
+eval spawn ./Resources/Renderobjects/Planets/obj1_classic.jsonc|set posX 250|set posY 500|set physics.vX 0|set physics.vY 0
+eval spawn ./Resources/Renderobjects/Planets/obj2_classic.jsonc|set posX 250|set posY 250|set physics.vX 0|set physics.vY 0
+
+wait 1
+selected-object get 3
+selected-object parse mirror on
+selected-object get 4
+selected-object parse mirror on
+
+wait 100
+eval nop {global.providedScope.domainModule.renderObject.mirror.renderObject.id3.physics.FY|assert nonEmpty}
+eval nop {global.providedScope.domainModule.renderObject.mirror.renderObject.id4.physics.FY|assert nonEmpty}
+
+##########################################################################
+# All done
+
+exit

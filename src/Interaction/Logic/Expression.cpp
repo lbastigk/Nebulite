@@ -496,7 +496,7 @@ void Expression::updateCaches(Data::JsonScopeBase& reference) const {
     }
 
     // Updating context other: Values with stable double pointers
-    // Manually setting each entry, using cache list directly isn't working, reason unknown...
+    // TODO: go back to using ordered double pointers using the expression string as key, should work...
     if (!virtualDoubles.nonRemanent.other.empty()) {
         for (auto& vde : virtualDoubles.nonRemanent.other) {
             vde->setUpInternalCache(reference);

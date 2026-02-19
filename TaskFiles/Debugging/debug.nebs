@@ -22,54 +22,5 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-feature-test self-other-global-evaluation
-#exit
+task TaskFiles/Simulations/bouncing.nebs
 
-##########################################################################
-# TODO: json rulesets are bugged...
-set physics.G 10
-set-fps 100
-time set-fixed-dt 1
-eval spawn ./Resources/Renderobjects/Planets/obj1.jsonc|set posX 250|set posY 500|set physics.vX 0|set physics.vY 0
-eval spawn ./Resources/Renderobjects/Planets/obj2.jsonc|set posX 250|set posY 250|set physics.vX 0|set physics.vY 0
-
-wait 1
-selected-object get 1
-selected-object parse mirror on
-selected-object get 2
-selected-object parse mirror on
-
-wait 100
-print providedScope.domainModule.renderObject.mirror.renderObject.id1.physics.FY
-print providedScope.domainModule.renderObject.mirror.renderObject.id2.physics.FY
-
-selected-object get 1
-selected-object parse delete
-selected-object get 2
-selected-object parse delete
-wait 10
-
-eval spawn ./Resources/Renderobjects/Planets/obj1_classic.jsonc|set posX 250|set posY 500|set physics.vX 0|set physics.vY 0
-eval spawn ./Resources/Renderobjects/Planets/obj2_classic.jsonc|set posX 250|set posY 250|set physics.vX 0|set physics.vY 0
-
-wait 1
-selected-object get 3
-selected-object parse mirror on
-selected-object get 4
-selected-object parse mirror on
-
-wait 100
-print providedScope.domainModule.renderObject.mirror.renderObject.id3.physics.FY
-print providedScope.domainModule.renderObject.mirror.renderObject.id4.physics.FY
-exit
-##########################################################################
-
-#task TaskFiles/Benchmarks/gravity_XL.nebs
-
-#task TaskFiles/Benchmarks/spawn_constantly.nebs
-
-#task TaskFiles/VerticalSlice/levelDescription.nebs
-
-#task TaskFiles/Simulations/bouncing.nebs
-
-#task TaskFiles/VerticalSlice/levelDescription.nebs

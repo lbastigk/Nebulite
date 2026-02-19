@@ -1,0 +1,8 @@
+[
+    {
+        "command": [
+            "task TaskFiles/Tests/Short/Ruleset/globalRulesets.nebs"
+        ],
+        "expected": { "cout": [], "cerr": [] }
+    }
+]
