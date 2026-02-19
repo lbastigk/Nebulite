@@ -43,6 +43,7 @@ namespace Nebulite::Data {
 class MappedOrderedDoublePointers;
 class TaskQueue;
 class ScopedKeyView;
+class JsonScopeBase;
 } // namespace Nebulite::Data
 
 namespace Nebulite::DomainModule {
@@ -121,7 +122,7 @@ private:
     /**
      * @brief Each domain uses a JSON document to store its data.
      */
-    Core::JsonScope& domainScope;
+    Data::JsonScopeBase& domainScope;
 };
 } // namespace Nebulite::Interaction::Execution
 

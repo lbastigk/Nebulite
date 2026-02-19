@@ -18,6 +18,7 @@
 
 // Nebulite
 #include "Data/Document/JsonScopeBase.hpp"
+#include "Interaction/Context.hpp"
 #include "Interaction/Logic/VariableNameGenerator.hpp"
 
 //------------------------------------------
@@ -33,7 +34,7 @@ class ScopedKeyView;
 } // namespace Nebulite::Data
 
 namespace Nebulite::Interaction {
-class Context;
+class ContextScopeBase;
 } // namespace Nebulite::Interaction
 
 namespace Nebulite::Interaction::Logic {
@@ -60,6 +61,8 @@ namespace Nebulite::Interaction::Logic {
  *       {all.|matMultiply self.matrix other.matrix} could then be evaluated directly without needing to copy variables into a new context first.
  *       Unless we also implement scope marrying, we will have to copy a lot of data here. Perhaps a selfother combined context is helpful for faster evaluation:
  *       {so.|matMultiply self.matrix other.matrix} could then be evaluated directly without needing to copy global variables, which is typically the largest portion of variables, into a new context first.
+ * @todo Pass the actual context {self,other,global} as far as possible into the expression evaluation, and build the context as soon as possible.
+ *       Currently, we build a context with {self, other, global}, but the global part is ignored, as in HandleComponentTypeVariable etc, Nebulite::Global is used instead!
  */
 class Expression {
 public:
@@ -156,8 +159,6 @@ public:
     //------------------------------------------
     // Static one-time evaluation
 
-    // TODO: Reduce from Context to ContextScopeBase
-
     // With context evaluation
 
     /**
@@ -166,7 +167,8 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated string value.
      */
-    static std::string eval(std::string const& input, Context const& context);
+    static std::string eval(std::string const& input, ContextScopeBase const& context);
+    static std::string eval(std::string const& input, Context const& context){return eval(input, context.demote());}
 
     /**
      * @brief Evaluates a given expression string as a double with a constant reference to the context.
@@ -174,7 +176,8 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated double value.
      */
-    static double evalAsDouble(std::string const& input, Context const& context);
+    static double evalAsDouble(std::string const& input, ContextScopeBase const& context);
+    static double evalAsDouble(std::string const& input, Context const& context){return evalAsDouble(input, context.demote());}
 
     /**
      * @brief Evaluates a given expression string as a boolean with a constant reference to the context.
@@ -182,7 +185,8 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated boolean value.
      */
-    static bool evalAsBool(std::string const& input, Context const& context);
+    static bool evalAsBool(std::string const& input, ContextScopeBase const& context);
+    static bool evalAsBool(std::string const& input, Context const& context){return evalAsBool(input, context.demote());}
 
     /**
      * @brief Evaluates a given expression string as a JSON object with a constant reference to the context.
@@ -190,7 +194,8 @@ public:
      * @param context The context containing the self, other, and global JSON objects.
      * @return The evaluated JSON object.
      */
-    static Data::JSON evalAsJson(std::string const& input, Context const& context);
+    static Data::JSON evalAsJson(std::string const& input, ContextScopeBase const& context);
+    static Data::JSON evalAsJson(std::string const& input, Context const& context){return evalAsJson(input, context.demote());}
 
     // Global-only evaluation (both self and other context are empty documents)
 

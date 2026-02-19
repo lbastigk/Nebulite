@@ -30,6 +30,10 @@ template<typename DomainType>
 class DomainModule; // Forward declaration of DomainModule
 } // namespace Nebulite::Interaction::Execution
 
+namespace Nebulite::Interaction::Logic {
+class Expression; // Forward declaration of Expression
+} // namespace Nebulite::Interaction::Logic
+
 namespace Nebulite {
 
 //------------------------------------------
@@ -55,7 +59,8 @@ public:
         }
 
         // Allowed accessors:
-        friend class Core::GlobalSpace; // Only GlobalSpace itself has full access
+        friend class Core::GlobalSpace;
+        friend class Interaction::Logic::Expression;
     public:
         ~Full() = default;
     };

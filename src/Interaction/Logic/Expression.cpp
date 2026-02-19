@@ -6,7 +6,7 @@
 
 // Nebulite
 #include "Nebulite.hpp"
-#include "Core/JsonScope.hpp"
+#include "Data/Document/JsonScopeBase.hpp"
 #include "Interaction/Logic/ExpressionPrimitives.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
 #include "Interaction/Logic/Expression.hpp"
@@ -548,43 +548,49 @@ void Expression::updateCaches(Data::JsonScopeBase& reference) const {
 
 // With context
 
-std::string Expression::eval(std::string const& input, Context const& context) {
+std::string Expression::eval(std::string const& input, ContextScopeBase const& context) {
     Expression const expr(input, context.self);
-    return expr.eval(context.other.domainScope);
+    return expr.eval(context.other);
 }
 
-double Expression::evalAsDouble(std::string const& input, Context const& context) {
+double Expression::evalAsDouble(std::string const& input, ContextScopeBase const& context) {
     Expression const expr(input, context.self);
-    return expr.evalAsDouble(context.other.domainScope);
+    return expr.evalAsDouble(context.other);
 }
 
-bool Expression::evalAsBool(std::string const& input, Context const& context) {
+bool Expression::evalAsBool(std::string const& input, ContextScopeBase const& context) {
     double const result = evalAsDouble(input, context);
     return std::fabs(result) > DBL_EPSILON;
 }
 
-Data::JSON Expression::evalAsJson(std::string const& input, Context const& context) {
+Data::JSON Expression::evalAsJson(std::string const& input, ContextScopeBase const& context) {
     Expression const expr(input, context.self);
-    return expr.evalAsJson(context.other.domainScope);
+    return expr.evalAsJson(context.other);
 }
 
 // Global-only as context
 
 std::string Expression::eval(std::string const& input) {
-    thread_local Core::JsonScope emptyDoc;
-    Context const context{emptyDoc, emptyDoc, Global::instance()};
+    thread_local Data::JsonScopeBase emptyDoc;
+    static auto accessToken = ScopeAccessor::Full();
+    static auto& globalDoc = Global::shareScopeBase(accessToken, "");
+    ContextScopeBase const context{emptyDoc, emptyDoc, globalDoc};
     return eval(input, context);
 }
 
 double Expression::evalAsDouble(std::string const& input) {
-    thread_local Core::JsonScope emptyDoc;
-    Context const context{emptyDoc, emptyDoc, Global::instance()};
+    thread_local Data::JsonScopeBase emptyDoc;
+    static auto accessToken = ScopeAccessor::Full();
+    static auto& globalDoc = Global::shareScopeBase(accessToken, "");
+    ContextScopeBase const context{emptyDoc, emptyDoc, globalDoc};
     return evalAsDouble(input, context);
 }
 
 bool Expression::evalAsBool(std::string const& input) {
-    thread_local Core::JsonScope emptyDoc;
-    Context const context{emptyDoc, emptyDoc, Global::instance()};
+    thread_local Data::JsonScopeBase emptyDoc;
+    static auto accessToken = ScopeAccessor::Full();
+    static auto& globalDoc = Global::shareScopeBase(accessToken, "");
+    ContextScopeBase const context{emptyDoc, emptyDoc, globalDoc};
     return evalAsBool(input, context);
 }
 
