@@ -1,6 +1,6 @@
 [
     {
-        "command": "task TaskFiles/Tests/Short/mirror.nebs",
+        "command": "task TaskFiles/Tests/RenderObject/mirror.nebs",
         "expected": {
             "message" : "TODO: Mismatch between Release and Debug outputs... Very small numerical differences though! Perhaps rounding the printed output to fewer decimal places would help?",
             "cout": null,
@@ -8,7 +8,7 @@
         }
     },
     {
-        "command": "task TaskFiles/Tests/Short/select_object.nebs",
+        "command": "task TaskFiles/Tests/Renderer/select_object.nebs",
         "expected": { 
             "cout": [
                 "750",
@@ -18,7 +18,7 @@
         }
     },
     {
-        "command": "task TaskFiles/Tests/Short/draft.nebs",
+        "command": "task TaskFiles/Tests/Renderer/draft.nebs",
         "expected": { 
             "cout": [
                 "666",

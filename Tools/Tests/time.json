@@ -1,6 +1,6 @@
 [
     {
-        "command": "task TaskFiles/Tests/Short/print_time.nebs",
+        "command": "task TaskFiles/Tests/Globalspace/print_time.nebs",
         "expected": { 
             "cout": [
                 "Testing global access", 
@@ -11,7 +11,7 @@
         }
     },
     {
-        "command": "task TaskFiles/Tests/Short/time_init.nebs",
+        "command": "task TaskFiles/Tests/Globalspace/time_init.nebs",
         "expected": { 
             "cout": [
                 "1",
@@ -21,7 +21,7 @@
         }
     },
     {
-        "command": "task TaskFiles/Tests/Short/clock.nebs",
+        "command": "task TaskFiles/Tests/Globalspace/clock.nebs",
         "expected": { 
             "cout": [
                 "0",

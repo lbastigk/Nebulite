@@ -1,6 +1,6 @@
 [
     {
-        "command": "task TaskFiles/Tests/Short/Console/autotype.nebs",
+        "command": "task TaskFiles/Tests/Console/autotype.nebs",
         "expected": {
             "cout": [
                 "TEST1",

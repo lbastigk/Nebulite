@@ -53,7 +53,7 @@
     },
     {
         "command": [
-            "task TaskFiles/Tests/Short/Transformations/setFromResult.nebs"
+            "task TaskFiles/Tests/Transformations/setFromResult.nebs"
         ],
         "expected": {
             "cout": [

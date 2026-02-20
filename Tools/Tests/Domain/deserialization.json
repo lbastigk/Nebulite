@@ -1,6 +1,6 @@
 [
     {
-        "command": "task TaskFiles/Tests/Short/Deserialization/transformationsAndCommands.nebs",
+        "command": "task TaskFiles/Tests/Deserialization/transformationsAndCommands.nebs",
         "expected": { "cout": [
             "TEST",
             "100",

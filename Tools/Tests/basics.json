@@ -26,11 +26,11 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/Short/snapshot.nebs",
+        "command": "task TaskFiles/Tests/Renderer/snapshot.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/Short/echo_global_value.nebs",
+        "command": "task TaskFiles/Tests/Globalspace/echo_time.nebs",
         "expected": { 
             "cout": [
                 "0.001",
@@ -40,11 +40,7 @@
         }
     },
     {
-        "command": "task TaskFiles/Tests/Short/init_print_global.nebs",
-        "expected": { "cout": null, "cerr": [] }
-    },
-    {
-        "command": "task TaskFiles/Tests/Short/NebuliteError.nebs",
+        "command": "task TaskFiles/Tests/Functional/NebuliteError.nebs",
         "expected": { 
             "cout": [], 
             "cerr": [

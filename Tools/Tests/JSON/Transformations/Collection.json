@@ -73,7 +73,7 @@
     {
         "command": [
             "# Glob and null filtering function",
-            "task TaskFiles/Tests/Short/Transformations/regex.nebs"
+            "task TaskFiles/Tests/Transformations/regex.nebs"
         ],
         "expected": {
             "cout": [
@@ -95,7 +95,7 @@
     {
         "command": [
             "# Glob and null filtering function",
-            "task TaskFiles/Tests/Short/Transformations/glob.nebs"
+            "task TaskFiles/Tests/Transformations/glob.nebs"
         ],
         "expected": {
             "cout": [

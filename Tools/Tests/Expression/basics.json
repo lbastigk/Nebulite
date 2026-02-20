@@ -18,7 +18,7 @@
         }
     },
     {
-        "command": "task TaskFiles/Tests/Short/multiresolve.nebs",
+        "command": "task TaskFiles/Tests/Expression/multiresolve.nebs",
         "expected": { 
             "cout": [
                 "Testing multi-resolve in Nebulite expressions",

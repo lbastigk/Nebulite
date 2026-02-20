@@ -1,6 +1,6 @@
 [
     {
-        "command": "task TaskFiles/Tests/Short/push_pop.nebs",
+        "command": "task TaskFiles/Tests/JSON/push_pop.nebs",
         "expected": {
             "cout": null, 
             "cout_actually_fix_pushpop_first": [
@@ -22,7 +22,7 @@
         }
     },
     {
-        "command": "task TaskFiles/Tests/Short/malformed_key.nebs",
+        "command": "task TaskFiles/Tests/JSON/malformed_key.nebs",
         "expected": { 
             "cout": [
                 "Part 1: Basic malformed arrays",
@@ -48,7 +48,7 @@
         }
     },
     {
-        "command": "task TaskFiles/Tests/Short/invalidate_json_value_children.nebs",
+        "command": "task TaskFiles/Tests/JSON/invalidate_json_value_children.nebs",
         "expected": { 
             "cout": [
                 "{",

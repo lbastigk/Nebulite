@@ -1,6 +1,6 @@
 [
     {
-        "command": "task TaskFiles/Tests/Short/JSON/retrieval.nebs",
+        "command": "task TaskFiles/Tests/JSON/retrieval.nebs",
         "expected": { 
             "cout": [
                 "Printing value retrieved from: ./Resources/Renderobjects/standard.jsonc:size.x",
@@ -11,7 +11,7 @@
         }
     },
     {
-        "command": "task TaskFiles/Tests/Short/JSON/evaluateMember.nebs",
+        "command": "task TaskFiles/Tests/JSON/evaluateMember.nebs",
         "expected": {
             "cout": [
                 "{",

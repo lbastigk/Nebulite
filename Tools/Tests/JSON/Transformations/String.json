@@ -51,7 +51,7 @@
         "command": [
             "# Trailing whitespaces are difficult to handle in command line arguments",
             "# Instead, we test the strip transformation in a dedicated .nebs file",
-            "task TaskFiles/Tests/Short/Transformations/strip.nebs"
+            "task TaskFiles/Tests/Transformations/strip.nebs"
         ],
         "expected": {
             "cout": [

@@ -1,0 +1,10 @@
+# This test is used to check if whitespaces/quotations are properly handled
+set-fps 60
+set obj.zzz_myVariable[0] No quotations
+set obj.zzz_myVariable[1] 'With quotations'
+
+# Push back expects 2 arguments: key value
+push-back obj.zzz_myVariable abc
+push-back obj.zzz_myVariable 'abc abc'
+print obj
+exit
