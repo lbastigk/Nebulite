@@ -25,6 +25,7 @@
             "description": "Debug build for Linux",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_FLAGS": "-ftime-trace=${sourceDir}/tmp/trace_${presetName}.json",
                 "CMAKE_C_COMPILER": "/usr/bin/clang",
                 "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
             }
