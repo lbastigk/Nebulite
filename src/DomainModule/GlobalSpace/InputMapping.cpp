@@ -14,6 +14,56 @@
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {
 
+Constants::Error InputMapping::lockOnce(std::span<std::string const> const& args) {
+    if (args.size() > 2) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+    }
+    if (args.size() < 2) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    }
+
+    auto const it = mappings.find(args[1]);
+    if (it == mappings.end()) {
+        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+    }
+    it->second.lockState = mapEntry::LockState::lockOnce;
+    return Constants::ErrorTable::NONE();
+}
+
+Constants::Error InputMapping::lockOn(std::span<std::string const> const& args) {
+    if (args.size() > 2) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+    }
+    if (args.size() < 2) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    }
+
+    auto const it = mappings.find(args[1]);
+    if (it == mappings.end()) {
+        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+    }
+    it->second.lockState = mapEntry::LockState::lockOn;
+    return Constants::ErrorTable::NONE();
+}
+
+Constants::Error InputMapping::unlock(std::span<std::string const> const& args) {
+    if (args.size() > 2) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+    }
+    if (args.size() < 2) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    }
+
+    auto const it = mappings.find(args[1]);
+    if (it == mappings.end()) {
+        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+    }
+    it->second.lockState = mapEntry::LockState::unlocked;
+    return Constants::ErrorTable::NONE();
+}
+
+//------------------------------------------
+
 Constants::Error InputMapping::update() {
     if (std::fabs(*sdlPolledInput) > DBL_EPSILON) {
         processMappings();
@@ -36,23 +86,23 @@ void InputMapping::reloadMappings() {
 }
 
 void InputMapping::processMappings() {
-    for (auto const& [action, entry] : mappings) {
+    for (auto& [action, entry] : mappings) {
         static auto const mappingLocation = moduleScope.getRootScope() + "input.";
 
         // Process each mapping
-        int current = 0;
+        int triggerCount = 0;
         for(const auto& [key, type] : {entry.slotA, entry.slotB, entry.slotC}) {
             if (key.empty())
                 continue;
             switch (type) {
                 case association::action::current:
-                    current += moduleScope.get<int>(Renderer::Input::Key::keyboardCurrent + key);
+                    triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardCurrent + key);
                     break;
                 case association::action::onPress:
-                    current += abs(moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key)) == 1;
+                    triggerCount += abs(moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key)) == 1;
                     break;
                 case association::action::onRelease:
-                    current += moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key) == -1;
+                    triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key) == -1;
                     break;
                 case association::action::empty:
                     break;
@@ -61,9 +111,18 @@ void InputMapping::processMappings() {
             }
         }
 
+        // Process lock state and overwrite current value if necessary
+        if (entry.lockState == mapEntry::LockState::lockOn) {
+            triggerCount = 0;
+        }
+        if (entry.lockState == mapEntry::LockState::lockOnce) {
+            triggerCount = 0;
+            entry.lockState = mapEntry::LockState::unlocked;
+        }
+
         // Now we write the state into our mapping location
         // We write the amount of actions triggered, may need to be normalized later on
-        moduleScope.set<int>(mappingLocation + action, current);
+        moduleScope.set<int>(mappingLocation + action, triggerCount);
     }
 }
 

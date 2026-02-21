@@ -42,6 +42,30 @@ public:
     // TODO: showMappings <on/off> function that displays an imgui window with the current mappings
     //       later on, this may be expanded to a full input mapping editor for actual GUI configuration of input
 
+    Constants::Error lockOnce(std::span<std::string const> const& args);
+    static auto constexpr lockOnceName = "input-mapping lock once";
+    static auto constexpr lockOnceDesc = "Locks an action for the current frame, preventing it from being triggered by any of its associated keys.\n"
+        "Usage: input-mapping lock once <actionName>\n";
+
+    Constants::Error lockOn(std::span<std::string const> const& args);
+    static auto constexpr lockOnName = "input-mapping lock on";
+    static auto constexpr lockOnDesc = "Locks an action until it is unlocked, preventing it from being triggered by any of its associated keys.\n"
+        "Usage: input-mapping lock on <actionName>\n";
+
+    Constants::Error unlock(std::span<std::string const> const& args);
+    static auto constexpr unlockName = "input-mapping lock off";
+    static auto constexpr unlockDesc = "Unlocks an action, allowing it to be triggered by its associated keys again.\n"
+            "Usage: input-mapping unlock <actionName>\n";
+
+    //------------------------------------------
+    // Categories
+
+    static auto constexpr inputMappingName = "input-mapping";
+    static auto constexpr inputMappingDesc = "Functions for mapping inputs to actions within the GlobalSpace.";
+
+    static auto constexpr inputMappingLockName = "input-mapping lock";
+    static auto constexpr inputMappingLockDesc = "Functions for locking and unlocking input actions.";
+
     //------------------------------------------
     // Setup
 
@@ -55,6 +79,13 @@ public:
 
         // Load initial mappings from settings
         reloadMappings();
+
+        // Bind functions
+        bindCategory(inputMappingName, inputMappingDesc);
+        bindCategory(inputMappingLockName, inputMappingLockDesc);
+        BIND_FUNCTION(&InputMapping::lockOnce, lockOnceName, lockOnceDesc);
+        BIND_FUNCTION(&InputMapping::lockOn, lockOnName, lockOnDesc);
+        BIND_FUNCTION(&InputMapping::unlock, unlockName, unlockDesc);
     }
 
     struct Key {
@@ -128,6 +159,12 @@ private:
         association slotA{"", association::action::empty}; // First key associated with the action
         association slotB{"", association::action::empty}; // Second key associated with the action
         association slotC{"", association::action::empty}; // Third key associated with the action
+
+        enum LockState {
+            unlocked,   // The action is not locked and can be triggered by its associated keys.
+            lockOnce,   // The action is locked for the current frame, preventing it from being triggered by any of its associated keys. It will be automatically unlocked in the next frame.
+            lockOn      // The action is locked until it is manually unlocked, preventing it from being triggered by any of its associated keys.
+        } lockState = unlocked; // The current lock state of the action
     };
 
     /**
