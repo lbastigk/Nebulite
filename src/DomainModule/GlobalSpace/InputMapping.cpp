@@ -147,46 +147,24 @@ void InputMapping::processMappings() {
     }
 }
 
+void InputMapping::addMappingToScope(Data::JsonScopeBase& scope, std::string const& action, std::array<std::pair<std::string, std::string>,3> const& slots) {
+    scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::associationA, slots[0].first);
+    scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::actionA, slots[0].second);
+    scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::associationB, slots[1].first);
+    scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::actionB, slots[1].second);
+    scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::associationC, slots[2].first);
+    scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::actionC, slots[2].second);
+}
+
 void InputMapping::loadDefaultMappings(Data::JsonScopeBase& scope) {
-    // Combat: attack
-    scope.set<std::string>(Settings::Key::inputMapping + ".combat::attack." + InputMappingSlot::associationA, "space");
-    scope.set<std::string>(Settings::Key::inputMapping + ".combat::attack." + InputMappingSlot::actionA, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".combat::attack." + InputMappingSlot::associationB, "");
-    scope.set<std::string>(Settings::Key::inputMapping + ".combat::attack." + InputMappingSlot::actionB, "empty");
-    scope.set<std::string>(Settings::Key::inputMapping + ".combat::attack." + InputMappingSlot::associationC, "");
-    scope.set<std::string>(Settings::Key::inputMapping + ".combat::attack." + InputMappingSlot::actionC, "empty");
+    // Combat
+    addMappingToScope(scope, "combat::attack", {{{"space", "current"}, {"", "empty"}, {"", "empty"}}});
 
-    // Movement: up
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::up." + InputMappingSlot::associationA, "w");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::up." + InputMappingSlot::actionA, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::up." + InputMappingSlot::associationB, "up");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::up." + InputMappingSlot::actionB, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::up." + InputMappingSlot::associationC, "");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::up." + InputMappingSlot::actionC, "empty");
-
-    // Movement: down
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::down." + InputMappingSlot::associationA, "s");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::down." + InputMappingSlot::actionA, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::down." + InputMappingSlot::associationB, "down");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::down." + InputMappingSlot::actionB, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::down." + InputMappingSlot::associationC, "");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::down." + InputMappingSlot::actionC, "empty");
-
-    // Movement: left
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::left." + InputMappingSlot::associationA, "a");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::left." + InputMappingSlot::actionA, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::left." + InputMappingSlot::associationB, "left");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::left." + InputMappingSlot::actionB, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::left." + InputMappingSlot::associationC, "");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::left." + InputMappingSlot::actionC, "empty");
-
-    // Movement: right
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::right." + InputMappingSlot::associationA, "d");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::right." + InputMappingSlot::actionA, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::right." + InputMappingSlot::associationB, "right");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::right." + InputMappingSlot::actionB, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::right." + InputMappingSlot::associationC, "");
-    scope.set<std::string>(Settings::Key::inputMapping + ".movement::right." + InputMappingSlot::actionC, "empty");
+    // Movement
+    addMappingToScope(scope, "movement::up", {{{"w", "onPress"}, {"up", "onPress"}, {"", "empty"}}});
+    addMappingToScope(scope, "movement::down", {{{"s", "onPress"}, {"down", "onPress"}, {"", "empty"}}});
+    addMappingToScope(scope, "movement::left", {{{"a", "onPress"}, {"left", "onPress"}, {"", "empty"}}});
+    addMappingToScope(scope, "movement::right", {{{"d", "onPress"}, {"right", "onPress"}, {"", "empty"}}});
 }
 
 } // namespace Nebulite::DomainModule::GlobalSpace

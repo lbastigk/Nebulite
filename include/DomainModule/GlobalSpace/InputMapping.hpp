@@ -189,5 +189,14 @@ private:
      * @brief Processes all input mappings
      */
     void processMappings();
+
+    /**
+     * @brief Helper function to add a mapping to a given scope, used for loading default mappings and potentially for runtime mapping configuration in the future.
+     * @param scope The scope to which the mapping should be added, e.g. settingsScope for default mappings or a temporary scope for runtime configuration.
+     * @param action The name of the action to be mapped, e.g. "jump" or "movement::up".
+     * @param slots An array of pairs representing the key associations for the action, where each pair consists of the SDL key name and the association type
+     *              (e.g. {{"space", "onPress"}, {"w", "current"}, {"", "empty"}} for a jump action that can be triggered by pressing space or holding w).
+     */
+    static void addMappingToScope(Data::JsonScopeBase& scope, std::string const& action, std::array<std::pair<std::string, std::string>,3> const& slots);
 };
 }   // namespace Nebulite::DomainModule::GlobalSpace
