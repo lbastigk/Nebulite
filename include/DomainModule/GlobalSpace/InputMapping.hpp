@@ -12,6 +12,7 @@
 // Includes
 
 // General
+#include "DomainModule/Renderer/Input.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -36,26 +37,29 @@ public:
     //------------------------------------------
     // Available Functions
 
-    // TODO: Modify/reload input mapping at runtime
-    //       store mappings in settings scope!
-
-    // TODO: showMappings <on/off> function that displays an imgui window with the current mappings
-    //       later on, this may be expanded to a full input mapping editor for actual GUI configuration of input
-
     Constants::Error lockOnce(std::span<std::string const> const& args);
     static auto constexpr lockOnceName = "input-mapping lock once";
     static auto constexpr lockOnceDesc = "Locks an action for the current frame, preventing it from being triggered by any of its associated keys.\n"
+        "Allows locking of entire categories of actions by using a structured action name, e.g. 'movement::up' or 'combat::primaryAttack' can be locked with 'movement' or 'combat'.\n"
         "Usage: input-mapping lock once <actionName>\n";
 
     Constants::Error lockOn(std::span<std::string const> const& args);
     static auto constexpr lockOnName = "input-mapping lock on";
     static auto constexpr lockOnDesc = "Locks an action until it is unlocked, preventing it from being triggered by any of its associated keys.\n"
+        "Allows locking of entire categories of actions by using a structured action name, e.g. 'movement::up' or 'combat::primaryAttack' can be locked with 'movement' or 'combat'.\n"
         "Usage: input-mapping lock on <actionName>\n";
 
     Constants::Error unlock(std::span<std::string const> const& args);
     static auto constexpr unlockName = "input-mapping lock off";
     static auto constexpr unlockDesc = "Unlocks an action, allowing it to be triggered by its associated keys again.\n"
-            "Usage: input-mapping unlock <actionName>\n";
+        "Allows locking of entire categories of actions by using a structured action name, e.g. 'movement::up' or 'combat::primaryAttack' can be locked with 'movement' or 'combat'.\n"
+        "Usage: input-mapping unlock <actionName>\n";
+
+    // TODO: Modify/reload input mapping at runtime
+    //       store mappings in settings scope!
+
+    // TODO: showMappings <on/off> function that displays an imgui window with the current mappings
+    //       later on, this may be expanded to a full input mapping editor for actual GUI configuration of input
 
     //------------------------------------------
     // Categories
@@ -74,8 +78,7 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, InputMapping){
         // Setup pointer to polled input key in Renderer::Input module, to sync our updates with it and avoid missing deltas
-        auto const sdlPolledInputKey = moduleScope.getRootScope() + "renderer.input.polled";
-        sdlPolledInput = moduleScope.getStableDoublePointer(sdlPolledInputKey);
+        sdlPolledInput = moduleScope.getStableDoublePointer(Renderer::Input::Key::routineActivated);
 
         // Load initial mappings from settings
         reloadMappings();
@@ -133,8 +136,8 @@ private:
             empty,
             current,
             onPress,
-            onRelease
-            // TODO: onPressOrRelease
+            onRelease,
+            onChange // Any change in state, either press or release
         } type = action::empty;
     };
 
@@ -147,6 +150,9 @@ private:
         }
         if (typeStr == "onRelease") {
             return association::action::onRelease;
+        }
+        if (typeStr == "onChange") {
+            return association::action::onChange;
         }
         return association::action::empty;
     }

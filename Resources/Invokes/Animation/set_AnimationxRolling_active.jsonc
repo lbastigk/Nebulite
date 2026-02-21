@@ -3,7 +3,7 @@
     "condition": "1",
     "action": {
         "assign": [
-            "self.animation.xRolling.active = $( {self.draw.core.rect.src.x} + {self.animation.attack} + {global.input.up} + {global.input.down} + {global.input.left} + {global.input.right})"
+            "self.animation.xRolling.active = $( {self.draw.core.rect.src.x} + {self.animation.attack} + {global.input.movement::up} + {global.input.movement::down} + {global.input.movement::left} + {global.input.movement::right})"
         ],
         "functioncall": {
             "global": [],

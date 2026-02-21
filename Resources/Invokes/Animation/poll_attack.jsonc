@@ -3,8 +3,8 @@
     "condition": "1",
     "action": {
         "assign": [
-            "self.draw.core.rect.src.x = $( {self.draw.core.rect.src.x} * not( not({self.animation.attack}) * {global.input.attack} ) )",
-            "self.animation.attack = $( neq( {global.input.attack} + {self.animation.attack} * {self.draw.core.rect.src.x} ,0) )"
+            "self.draw.core.rect.src.x = $( {self.draw.core.rect.src.x} * not( not({self.animation.attack}) * {global.input.combat::attack} ) )",
+            "self.animation.attack = $( neq( {global.input.combat::attack} + {self.animation.attack} * {self.draw.core.rect.src.x} ,0) )"
         ],
         "functioncall": {
             "global": [],

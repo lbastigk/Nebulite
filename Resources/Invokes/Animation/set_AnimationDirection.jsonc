@@ -1,9 +1,9 @@
 {
     "topic": "",
-    "condition": "$( {global.input.up} + {global.input.down} + {global.input.left} + {global.input.right} )",
+    "condition": "$( {global.input.movement::up} + {global.input.movement::down} + {global.input.movement::left} + {global.input.movement::right} )",
     "action": {
         "assign": [
-            "self.anmimation.Direction = $( {global.input.up} * 16 + {global.input.right} * 32 * not({global.input.up}) + {global.input.left} * 48 * not({global.input.up}) * not({global.input.right}) )"
+            "self.anmimation.Direction = $( {global.input.movement::up} * 16 + {global.input.movement::right} * 32 * not({global.input.movement::up}) + {global.input.movement::left} * 48 * not({global.input.movement::up}) * not({global.input.movement::right}) )"
         ],
         "functioncall": {
             "global": [],

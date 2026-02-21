@@ -3,21 +3,7 @@
         "__example__": "This is an example custom setting. You can add any settings you want under the 'custom' key in the settings file, and they will always be loaded into the globalspace."
     },
     "inputMapping": {
-        "down": {
-            "slotA": {
-                "action": "current",
-                "association": "s"
-            },
-            "slotB": {
-                "action": "current",
-                "association": "down"
-            },
-            "slotC": {
-                "action": "empty",
-                "association": ""
-            }
-        },
-        "attack": {
+        "combat::attack": {
             "slotA": {
                 "action": "current",
                 "association": "space"
@@ -31,7 +17,21 @@
                 "association": ""
             }
         },
-        "left": {
+        "movement::down": {
+            "slotA": {
+                "action": "current",
+                "association": "s"
+            },
+            "slotB": {
+                "action": "current",
+                "association": "down"
+            },
+            "slotC": {
+                "action": "empty",
+                "association": ""
+            }
+        },
+        "movement::left": {
             "slotA": {
                 "action": "current",
                 "association": "a"
@@ -45,7 +45,7 @@
                 "association": ""
             }
         },
-        "right": {
+        "movement::right": {
             "slotA": {
                 "action": "current",
                 "association": "d"
@@ -59,7 +59,7 @@
                 "association": ""
             }
         },
-        "up": {
+        "movement::up": {
             "slotA": {
                 "action": "current",
                 "association": "w"

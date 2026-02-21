@@ -24,7 +24,13 @@ Constants::Error InputMapping::lockOnce(std::span<std::string const> const& args
 
     auto const it = mappings.find(args[1]);
     if (it == mappings.end()) {
-        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+        // Find all actions that start with the given argument + "::"
+        for (auto& [action, entry] : mappings) {
+            if (action.starts_with(args[1] + "::")) {
+                entry.lockState = mapEntry::LockState::lockOnce;
+            }
+        }
+        return Constants::ErrorTable::NONE();
     }
     it->second.lockState = mapEntry::LockState::lockOnce;
     return Constants::ErrorTable::NONE();
@@ -40,7 +46,13 @@ Constants::Error InputMapping::lockOn(std::span<std::string const> const& args) 
 
     auto const it = mappings.find(args[1]);
     if (it == mappings.end()) {
-        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+        // Find all actions that start with the given argument + "::"
+        for (auto& [action, entry] : mappings) {
+            if (action.starts_with(args[1] + "::")) {
+                entry.lockState = mapEntry::LockState::lockOn;
+            }
+        }
+        return Constants::ErrorTable::NONE();
     }
     it->second.lockState = mapEntry::LockState::lockOn;
     return Constants::ErrorTable::NONE();
@@ -56,7 +68,13 @@ Constants::Error InputMapping::unlock(std::span<std::string const> const& args) 
 
     auto const it = mappings.find(args[1]);
     if (it == mappings.end()) {
-        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+        // Find all actions that start with the given argument + "::"
+        for (auto& [action, entry] : mappings) {
+            if (action.starts_with(args[1] + "::")) {
+                entry.lockState = mapEntry::LockState::unlocked;
+            }
+        }
+        return Constants::ErrorTable::NONE();
     }
     it->second.lockState = mapEntry::LockState::unlocked;
     return Constants::ErrorTable::NONE();
@@ -99,10 +117,13 @@ void InputMapping::processMappings() {
                     triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardCurrent + key);
                     break;
                 case association::action::onPress:
-                    triggerCount += abs(moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key)) == 1;
+                    triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key) == 1;
                     break;
                 case association::action::onRelease:
                     triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key) == -1;
+                    break;
+                case association::action::onChange:
+                    triggerCount += abs(moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key)) == 1;
                     break;
                 case association::action::empty:
                     break;
@@ -127,45 +148,45 @@ void InputMapping::processMappings() {
 }
 
 void InputMapping::loadDefaultMappings(Data::JsonScopeBase& scope) {
-    // Jump
-    scope.set<std::string>(Settings::Key::inputMapping + ".jump." + InputMappingSlot::associationA, "space");
-    scope.set<std::string>(Settings::Key::inputMapping + ".jump." + InputMappingSlot::actionA, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".jump." + InputMappingSlot::associationB, "");
-    scope.set<std::string>(Settings::Key::inputMapping + ".jump." + InputMappingSlot::actionB, "empty");
-    scope.set<std::string>(Settings::Key::inputMapping + ".jump." + InputMappingSlot::associationC, "");
-    scope.set<std::string>(Settings::Key::inputMapping + ".jump." + InputMappingSlot::actionC, "empty");
+    // Combat: attack
+    scope.set<std::string>(Settings::Key::inputMapping + ".combat::attack." + InputMappingSlot::associationA, "space");
+    scope.set<std::string>(Settings::Key::inputMapping + ".combat::attack." + InputMappingSlot::actionA, "current");
+    scope.set<std::string>(Settings::Key::inputMapping + ".combat::attack." + InputMappingSlot::associationB, "");
+    scope.set<std::string>(Settings::Key::inputMapping + ".combat::attack." + InputMappingSlot::actionB, "empty");
+    scope.set<std::string>(Settings::Key::inputMapping + ".combat::attack." + InputMappingSlot::associationC, "");
+    scope.set<std::string>(Settings::Key::inputMapping + ".combat::attack." + InputMappingSlot::actionC, "empty");
 
     // Movement: up
-    scope.set<std::string>(Settings::Key::inputMapping + ".up." + InputMappingSlot::associationA, "w");
-    scope.set<std::string>(Settings::Key::inputMapping + ".up." + InputMappingSlot::actionA, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".up." + InputMappingSlot::associationB, "up");
-    scope.set<std::string>(Settings::Key::inputMapping + ".up." + InputMappingSlot::actionB, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".up." + InputMappingSlot::associationC, "");
-    scope.set<std::string>(Settings::Key::inputMapping + ".up." + InputMappingSlot::actionC, "empty");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::up." + InputMappingSlot::associationA, "w");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::up." + InputMappingSlot::actionA, "current");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::up." + InputMappingSlot::associationB, "up");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::up." + InputMappingSlot::actionB, "current");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::up." + InputMappingSlot::associationC, "");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::up." + InputMappingSlot::actionC, "empty");
 
     // Movement: down
-    scope.set<std::string>(Settings::Key::inputMapping + ".down." + InputMappingSlot::associationA, "s");
-    scope.set<std::string>(Settings::Key::inputMapping + ".down." + InputMappingSlot::actionA, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".down." + InputMappingSlot::associationB, "down");
-    scope.set<std::string>(Settings::Key::inputMapping + ".down." + InputMappingSlot::actionB, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".down." + InputMappingSlot::associationC, "");
-    scope.set<std::string>(Settings::Key::inputMapping + ".down." + InputMappingSlot::actionC, "empty");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::down." + InputMappingSlot::associationA, "s");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::down." + InputMappingSlot::actionA, "current");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::down." + InputMappingSlot::associationB, "down");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::down." + InputMappingSlot::actionB, "current");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::down." + InputMappingSlot::associationC, "");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::down." + InputMappingSlot::actionC, "empty");
 
     // Movement: left
-    scope.set<std::string>(Settings::Key::inputMapping + ".left." + InputMappingSlot::associationA, "a");
-    scope.set<std::string>(Settings::Key::inputMapping + ".left." + InputMappingSlot::actionA, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".left." + InputMappingSlot::associationB, "left");
-    scope.set<std::string>(Settings::Key::inputMapping + ".left." + InputMappingSlot::actionB, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".left." + InputMappingSlot::associationC, "");
-    scope.set<std::string>(Settings::Key::inputMapping + ".left." + InputMappingSlot::actionC, "empty");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::left." + InputMappingSlot::associationA, "a");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::left." + InputMappingSlot::actionA, "current");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::left." + InputMappingSlot::associationB, "left");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::left." + InputMappingSlot::actionB, "current");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::left." + InputMappingSlot::associationC, "");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::left." + InputMappingSlot::actionC, "empty");
 
     // Movement: right
-    scope.set<std::string>(Settings::Key::inputMapping + ".right." + InputMappingSlot::associationA, "d");
-    scope.set<std::string>(Settings::Key::inputMapping + ".right." + InputMappingSlot::actionA, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".right." + InputMappingSlot::associationB, "right");
-    scope.set<std::string>(Settings::Key::inputMapping + ".right." + InputMappingSlot::actionB, "current");
-    scope.set<std::string>(Settings::Key::inputMapping + ".right." + InputMappingSlot::associationC, "");
-    scope.set<std::string>(Settings::Key::inputMapping + ".right." + InputMappingSlot::actionC, "empty");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::right." + InputMappingSlot::associationA, "d");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::right." + InputMappingSlot::actionA, "current");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::right." + InputMappingSlot::associationB, "right");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::right." + InputMappingSlot::actionB, "current");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::right." + InputMappingSlot::associationC, "");
+    scope.set<std::string>(Settings::Key::inputMapping + ".movement::right." + InputMappingSlot::actionC, "empty");
 }
 
 } // namespace Nebulite::DomainModule::GlobalSpace
