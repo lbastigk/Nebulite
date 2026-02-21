@@ -1,9 +1,9 @@
 {
     "topic": "",
-    "condition": "$( {global.renderer.input.keyboard.current.w} + {global.renderer.input.keyboard.current.a} + {global.renderer.input.keyboard.current.s} + {global.renderer.input.keyboard.current.d} )",
+    "condition": "$( {global.input.up} + {global.input.down} + {global.input.left} + {global.input.right} )",
     "action": {
         "assign": [
-            "self.anmimation.Direction = $( {global.renderer.input.keyboard.current.w} * 16 + {global.renderer.input.keyboard.current.d} * 32 * not({global.renderer.input.keyboard.current.w}) + {global.renderer.input.keyboard.current.a} * 48 * not({global.renderer.input.keyboard.current.w}) *not({global.renderer.input.keyboard.current.d}) )"
+            "self.anmimation.Direction = $( {global.input.up} * 16 + {global.input.right} * 32 * not({global.input.up}) + {global.input.left} * 48 * not({global.input.up}) * not({global.input.right}) )"
         ],
         "functioncall": {
             "global": [],

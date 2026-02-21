@@ -17,7 +17,7 @@
                 "association": ""
             }
         },
-        "jump": {
+        "attack": {
             "slotA": {
                 "action": "current",
                 "association": "space"
