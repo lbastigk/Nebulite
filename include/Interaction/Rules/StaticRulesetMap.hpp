@@ -37,7 +37,7 @@ namespace Nebulite::Interaction::Rules {
 //------------------------------------------
 // Defining what a ruleset function looks like
 
-using StaticRulesetFunction = std::function<void(const Context&)>;
+using StaticRulesetFunction = std::function<void(const Context&, double**& slf, double**& otr)>;
 
 //------------------------------------------
 // Defining a Ruleset Map where static rulesets can be looked up by name

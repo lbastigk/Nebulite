@@ -41,10 +41,10 @@ Physics::Physics() : RulesetModule(moduleName) {
 //       ::physics::elasticCollision::box::circle     // other is circle, self is box
 //       ::physics::elasticCollision::circle::box     // self is circle, other is box
 //       Or we prioritize radius if available?
-void Physics::elasticCollision(Interaction::Context const& context) const {
+void Physics::elasticCollision(Interaction::Context const& context, double**& slf, double**& otr) const {
     // Get ordered cache lists for both entities for base values
-    double** slf = getBaseList(context.self, baseKeys);
-    double** otr = getBaseList(context.other, baseKeys);
+    ensureBaseList(context.self, baseKeys, slf);
+    ensureBaseList(context.other, baseKeys, otr);
 
     //------------------------------------------
     // Base condition check
@@ -152,9 +152,9 @@ void Physics::elasticCollision(Interaction::Context const& context) const {
     }
 }
 
-void Physics::gravity(Interaction::Context const& context) const {
-    double** slf = getBaseList(context.self, baseKeys);
-    double** otr = getBaseList(context.other, baseKeys);
+void Physics::gravity(Interaction::Context const& context, double**& slf, double**& otr) const {
+    ensureBaseList(context.self, baseKeys, slf);
+    ensureBaseList(context.other, baseKeys, otr);
 
     double const dx = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
     double const dy = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
@@ -171,9 +171,9 @@ void Physics::gravity(Interaction::Context const& context) const {
 
 // Local rulesets
 
-void Physics::applyForce(Interaction::Context const& context) const {
+void Physics::applyForce(Interaction::Context const& context, double**& slf, double**&) const {
     // Get ordered cache list for self entity for base values
-    double** slf = getBaseList(context.self, baseKeys);
+    ensureBaseList(context.self, baseKeys, slf);
 
     // Pre-calculate values before locking
     double const dt = *globalVal.dt;
@@ -201,9 +201,9 @@ void Physics::applyForce(Interaction::Context const& context) const {
     baseVal(slf, Key::physics_FY) = 0.0;
 }
 
-void Physics::drag(Interaction::Context const& context) const {
+void Physics::drag(Interaction::Context const& context, double**& slf, double**&) const {
     // Get ordered cache list for self entity for base values
-    double** slf = getBaseList(context.self, baseKeys);
+    ensureBaseList(context.self, baseKeys, slf);
 
     // Drag coefficient (tunable parameter)
     static constexpr double dragCoefficient = 0.1;

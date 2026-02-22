@@ -27,7 +27,6 @@ Constants::Error General::eval(std::span<std::string const> const& args, Interac
     //       This way, the first eval will not vanish the information within the for-loop,
     //       allowing us to properly retrieve the current state for each iteration.
     //       Do the same for the RenderObject eval function. Perhaps we should combine them?
-    //       std::string eval(std::span<std::string const> const& args, Interaction::Context const& context);
 
     // argc/argv to string for evaluation
     std::string const argStr = Utility::StringHandler::recombineArgs(args);

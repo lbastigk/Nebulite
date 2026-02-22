@@ -31,6 +31,15 @@ Constants::Error Ruleset::update() {
         if (reloadRulesets) {
             auto mtx = moduleScope.lock();
             Interaction::Rules::Construction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, domain);
+
+            listeners.clear();
+            for (size_t idx = 0; idx < subscription_size; idx++) {
+                auto const key = Constants::KeyNames::RenderObject::Ruleset::listen + "[" + std::to_string(idx) + "]";
+                auto const subscription = moduleScope.get<std::string>(key, "");
+                auto listener = std::make_shared<Interaction::Rules::Listener>(domain, subscription, id);
+                listeners.push_back(listener);
+            }
+
             reloadRulesets = false;
         }
 
@@ -42,10 +51,8 @@ Constants::Error Ruleset::update() {
         }
 
         // Listen to broadcasts from subscribed topics
-        for (size_t idx = 0; idx < subscription_size; idx++) {
-            auto const key = Constants::KeyNames::RenderObject::Ruleset::listen + "[" + std::to_string(idx) + "]";
-            auto const subscription = moduleScope.get<std::string>(key, "");
-            Global::instance().listen(domain, subscription, id);
+        for (auto const& listener : listeners) {
+            Global::instance().listen(listener);
         }
 
         // Broadcast global rulesets

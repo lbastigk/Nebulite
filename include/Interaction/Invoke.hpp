@@ -18,8 +18,6 @@
 
 // Available containers
 #include "Data/BroadcastListenContainer/FlatContainer.hpp"
-#include "Data/BroadcastListenContainer/MapContainer.hpp"
-#include "Data/BroadcastListenContainer/TreeContainer.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -85,11 +83,8 @@ public:
      * @details Checks the specified render object against all available
      *          rulesets for the given topic. If an entry's logical condition is
      *          satisfied, it is added to the list of pairs for later evaluation.
-     * @param listener The listening domain
-     * @param topic The topic to listen for.
-     * @param listenerId The unique ID of the listener domain.
      */
-    void listen(Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId);
+    void listen(std::shared_ptr<Rules::Listener> const& listener);
 
     //------------------------------------------
     // Updating
@@ -115,9 +110,8 @@ private:
     // Set ContainerType, then run:
     // Scripts/Benchmark/BroadcastListenContainer.sh
     //
-    // Average time for small benchmark:       1.977900 s
-    // Average frame time for large benchmark: 0.013855 s
-    // TODO: Since the new container is clearly the winner, remove the other containers and their code to clean up the codebase
+    // Average time for small benchmark:       2.034500 s
+    // Average frame time for large benchmark: 0.012373 s
     using ContainerType = Data::BroadcastListenContainer::FlatContainer;
 
     std::unique_ptr<ContainerType> worker[THREADRUNNER_COUNT];

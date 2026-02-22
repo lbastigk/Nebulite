@@ -83,7 +83,7 @@ protected:
      * @param description A brief description of the ruleset's purpose and its used variables
      */
     template<typename T>
-    void bind(RulesetType const& type, void (T::*func)(Context const&), std::string_view const& topic, std::string_view const& description){
+    void bind(RulesetType const& type, void (T::*func)(Context const&, double**&), std::string_view const& topic, std::string_view const& description){
         static_assert(std::is_base_of_v<RulesetModule, T>, "bind(): T must derive from RulesetModule");
         if (!topic.starts_with("::")) {
             throw std::invalid_argument("RulesetModule::bind(): topic must start with '::'. Tried to bind: " + std::string(topic));
@@ -92,7 +92,7 @@ protected:
             type,
             topic,
             description,
-            [this, func](Context const& ctx) { (static_cast<T*>(this)->*func)(ctx); }
+            [this, func](Context const& ctx, double**& slf, double**& otr) { (static_cast<T*>(this)->*func)(ctx, slf, otr); }
         });
     }
 
@@ -106,7 +106,7 @@ protected:
      * @param description A brief description of the ruleset's purpose and its used variables
      */
     template<typename T>
-    void bind(RulesetType const& type, void (T::*func)(Context const&) const, std::string_view const& topic, std::string_view const& description){
+    void bind(RulesetType const& type, void (T::*func)(Context const&, double**&, double**&) const, std::string_view const& topic, std::string_view const& description){
         static_assert(std::is_base_of_v<RulesetModule, T>, "bind(): T must derive from RulesetModule");
         if (!topic.starts_with("::")) {
             throw std::invalid_argument("RulesetModule::bind(): topic must start with '::'. Tried to bind: " + std::string(topic));
@@ -115,7 +115,7 @@ protected:
             type,
             topic,
             description,
-            [this, func](Context const& ctx) { (static_cast<T const*>(this)->*func)(ctx); }
+            [this, func](Context const& ctx, double**& slf, double**& otr) { (static_cast<T const*>(this)->*func)(ctx, slf, otr); }
         });
     }
 
@@ -140,10 +140,14 @@ protected:
      *        This reduces lookup overhead and improves performance when accessing multiple base values.
      * @param ctx The render object context from which to retrieve the base values.
      * @param keys The array of keys to retrieve values for.
-     * @return A pointer to an array of double pointers, each pointing to a base value.
+     * @param arr The output array of ordered cache lists corresponding to the provided keys.
+     *            If arr passed is not null, this function will do nothing.
      */
-    [[nodiscard]] double** getBaseList(Execution::Domain const& ctx, std::vector<Data::ScopedKeyView> const& keys) const {
-        return ctx.ensureOrderedCacheList(id, keys)->data();
+    void ensureBaseList(Execution::Domain const& ctx, std::vector<Data::ScopedKeyView> const& keys, double**& arr) const {
+        if (arr != nullptr) [[likely]] {
+            return; // Already initialized, do nothing
+        }
+        arr = ctx.ensureOrderedCacheList(id, keys)->data();
     }
 
 private:
@@ -153,5 +157,5 @@ private:
     // Unique identifier for caching
     uint64_t const id;
 };
-}
+} // namespace Nebulite::Interaction::Rules
 #endif // NEBULITE_INTERACTION_RULES_RULESET_MODULE_HPP

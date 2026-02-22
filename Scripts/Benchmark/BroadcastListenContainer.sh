@@ -8,6 +8,7 @@ BENCHMARK_SMALL_CMD=(./bin/Nebulite task TaskFiles/Benchmarks/spawn_constantly.n
 BENCHMARK_LARGE_CMD=(./bin/Nebulite task TaskFiles/Benchmarks/gravity_XL.nebs)
 
 # Generate binary
+make delete-binaries
 make linux-release
 
 # ensure binary exists

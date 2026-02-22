@@ -24,6 +24,27 @@ class Domain;
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {
 /**
+ * @struct Listener
+ * @brief Represents a listener for a specific topic
+ * @todo Determine listener ID inside Domain at construction (rolling counter), remove from both Listener and Ruleset and just use getId()
+ */
+struct Listener {
+    explicit Listener(Execution::Domain& d, std::string const& t, uint32_t const& id) : domain(d), topic(t), listenerId(id) {}
+
+    Execution::Domain& domain;
+    std::string topic;
+    uint32_t listenerId;
+    double** otr = nullptr; // Pointer to the ordered cache list of the listener, for performance when evaluating rulesets
+
+    // Listener is owned by a single Domain, no copy or move semantics
+
+    Listener(Listener const&) = delete;
+    Listener& operator=(Listener const&) = delete;
+    Listener(Listener&&) = delete;
+    Listener& operator=(Listener&&) = delete;
+};
+
+/**
  * @class Ruleset
  * @brief Virtual base class for Ruleset types.
  */
@@ -35,6 +56,8 @@ public:
 
     explicit Ruleset(Execution::Domain& contextSelf) : self(contextSelf) {}
     virtual ~Ruleset() = default;
+
+    // Ruleset is owned by a single Domain, no copy or move semantics
 
     Ruleset(Ruleset const&) = delete;
     Ruleset& operator=(Ruleset const&) = delete;
@@ -98,7 +121,7 @@ public:
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
      */
-    virtual void apply(Execution::Domain& contextOther);
+    virtual void apply(std::shared_ptr<Listener> const& contextOther);
 
     /**
      * @brief Applies the ruleset to its own Domain as context other.
@@ -143,6 +166,11 @@ protected:
      *          Due to the large checks needed for `all`, it should only be used when absolutely necessary.
      */
     std::string topic = "all";
+
+    /**
+     * @brief Ordered list of variables for this ruleset to use as self
+     */
+    double** slf = nullptr;
 };
 
 /**
@@ -189,12 +217,12 @@ public:
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
      */
-    void apply(Execution::Domain& contextOther) override ;
+    void apply(std::shared_ptr<Listener> const& contextOther) override;
 
     /**
-     * @brief Applies the ruleset to its own Domain as context other.
+     * @brief Applies the ruleset to its own Domain as contextOther.
      */
-    void apply() override { apply(self); }
+    void apply() override ;
 
 private:
     StaticRulesetFunction staticFunction = nullptr;
@@ -242,12 +270,12 @@ public:
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
      */
-    void apply(Execution::Domain& contextOther) override;
+    void apply(std::shared_ptr<Listener> const& contextOther) override;
 
     /**
      * @brief Applies the ruleset to its own Domain as contextOther.
      */
-    void apply() override { apply(self); }
+    void apply() override ;
 
 private:
     //------------------------------------------

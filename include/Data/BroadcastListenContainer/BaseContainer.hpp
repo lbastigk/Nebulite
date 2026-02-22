@@ -45,14 +45,10 @@ public:
 
     /**
      * @brief Listens for rulesets on a specific topic.
-     * @param listener The listening domain.
-     * @param topic The topic to listen for.
-     * @param listenerId The unique ID of the listener render object.
+     * @param listener The listener to add.
      */
-    virtual void listen(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) {
+    virtual void listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
         (void)listener;
-        (void)topic;
-        (void)listenerId;
     }
 
     //------------------------------------------
