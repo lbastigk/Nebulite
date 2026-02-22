@@ -32,23 +32,23 @@ public:
 
     // Align camera
 
-    void alignCenter(Interaction::Context const& context, double**& slf) const ;
+    void alignCenter(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static constexpr std::string_view alignCenterName = "::camera::align::center";
     static constexpr std::string_view alignCenterDesc = "Aligns the camera view center to the center of the render object.";
 
-    void alignTop(Interaction::Context const& context, double**& slf) const ;
+    void alignTop(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static constexpr std::string_view alignTopName = "::camera::align::top";
     static constexpr std::string_view alignTopDesc = "Aligns the camera view top edge to the center of the render object.";
 
-    void alignBottom(Interaction::Context const& context, double**& slf) const ;
+    void alignBottom(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static constexpr std::string_view alignBottomName = "::camera::align::bottom";
     static constexpr std::string_view alignBottomDesc = "Aligns the camera view bottom edge to the center of the render object.";
 
-    void alignLeft(Interaction::Context const& context, double**& slf) const ;
+    void alignLeft(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static constexpr std::string_view alignLeftName = "::camera::align::left";
     static constexpr std::string_view alignLeftDesc = "Aligns the camera view left edge to the center of the render object.";
 
-    void alignRight(Interaction::Context const& context, double**& slf) const ;
+    void alignRight(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static constexpr std::string_view alignRightName = "::camera::align::right";
     static constexpr std::string_view alignRightDesc = "Aligns the camera view right edge to the center of the render object.";
 

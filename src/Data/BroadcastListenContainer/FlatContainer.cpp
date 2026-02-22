@@ -47,7 +47,7 @@ void FlatContainer::process() {
                             continue; // Skip if the ruleset is from the same render object as the listener
                         }
                         if (ruleset->evaluateCondition(listener->domain)) {
-                            ruleset->apply(listener->domain);
+                            ruleset->apply(listener);
                         }
                     }
                 }

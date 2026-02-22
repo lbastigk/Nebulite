@@ -16,20 +16,25 @@ bool Ruleset::evaluateCondition() {
     return evaluateCondition(self);
 }
 
-void Ruleset::apply(Execution::Domain& /*contextOther*/) {
+void Ruleset::apply(std::shared_ptr<Listener> const& /*contextOther*/) {
     // default no-op
 }
 
 void Ruleset::apply() {
-    apply(self);
+    // default no-op
 }
 
 //------------------------------------------
 // Derived Class Methods: StaticRuleset
 
-void StaticRuleset::apply(Execution::Domain& contextOther) {
-    Context const context{self, contextOther, Global::instance()};
-    staticFunction(context, slf);
+void StaticRuleset::apply(std::shared_ptr<Listener> const& contextOther) {
+    Context const context{self, contextOther->domain, Global::instance()};
+    staticFunction(context, slf, contextOther->otr);
+}
+
+void StaticRuleset::apply() {
+    Context const context{self, self, Global::instance()};
+    staticFunction(context, slf, slf);
 }
 
 //------------------------------------------
@@ -50,8 +55,8 @@ bool JsonRuleset::evaluateCondition(Execution::Domain& other) {
     return std::abs(result) > std::numeric_limits<double>::epsilon();
 }
 
-void JsonRuleset::apply(Execution::Domain& contextOther) {
-    ContextScopeBase const context{self.domainScope, contextOther.domainScope, Global::instance().domainScope};
+void JsonRuleset::apply(std::shared_ptr<Listener> const& contextOther) {
+    ContextScopeBase const context{self.domainScope, contextOther->domain.domainScope, Global::instance().domainScope};
 
     // 1.) Assignments
     for (auto& assignment : assignments) {
@@ -75,7 +80,36 @@ void JsonRuleset::apply(Execution::Domain& contextOther) {
     for (auto& entry : functioncalls_other) {
         // replace vars
         std::string const call = entry.eval(context);
-        (void)contextOther.parseStr(call);
+        (void)contextOther->domain.parseStr(call);
+    }
+}
+
+void JsonRuleset::apply() {
+    ContextScopeBase const context{self.domainScope, self.domainScope, Global::instance().domainScope};
+
+    // 1.) Assignments
+    for (auto& assignment : assignments) {
+        assignment.apply(context);
+    }
+
+    // 2.) Function calls
+    for (auto& entry : functioncalls_global) {
+        // replace vars
+        std::string call = entry.eval(context);
+
+        // attach to task queue
+        Global::instance().getTaskQueue(Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
+
+    }
+    for (auto& entry : functioncalls_self) {
+        // replace vars
+        std::string const call = entry.eval(context);
+        (void)self.parseStr(call);
+    }
+    for (auto& entry : functioncalls_other) {
+        // replace vars
+        std::string const call = entry.eval(context);
+        (void)self.parseStr(call);
     }
 }
 

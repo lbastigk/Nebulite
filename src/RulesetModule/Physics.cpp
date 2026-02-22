@@ -41,10 +41,9 @@ Physics::Physics() : RulesetModule(moduleName) {
 //       ::physics::elasticCollision::box::circle     // other is circle, self is box
 //       ::physics::elasticCollision::circle::box     // self is circle, other is box
 //       Or we prioritize radius if available?
-void Physics::elasticCollision(Interaction::Context const& context, double**& slf) const {
+void Physics::elasticCollision(Interaction::Context const& context, double**& slf, double**& otr) const {
     // Get ordered cache lists for both entities for base values
     ensureBaseList(context.self, baseKeys, slf);
-    double** otr = nullptr;
     ensureBaseList(context.other, baseKeys, otr);
 
     //------------------------------------------
@@ -153,9 +152,8 @@ void Physics::elasticCollision(Interaction::Context const& context, double**& sl
     }
 }
 
-void Physics::gravity(Interaction::Context const& context, double**& slf) const {
+void Physics::gravity(Interaction::Context const& context, double**& slf, double**& otr) const {
     ensureBaseList(context.self, baseKeys, slf);
-    double** otr = nullptr;
     ensureBaseList(context.other, baseKeys, otr);
 
     double const dx = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
@@ -173,7 +171,7 @@ void Physics::gravity(Interaction::Context const& context, double**& slf) const 
 
 // Local rulesets
 
-void Physics::applyForce(Interaction::Context const& context, double**& slf) const {
+void Physics::applyForce(Interaction::Context const& context, double**& slf, double**&) const {
     // Get ordered cache list for self entity for base values
     ensureBaseList(context.self, baseKeys, slf);
 
@@ -203,7 +201,7 @@ void Physics::applyForce(Interaction::Context const& context, double**& slf) con
     baseVal(slf, Key::physics_FY) = 0.0;
 }
 
-void Physics::drag(Interaction::Context const& context, double**& slf) const {
+void Physics::drag(Interaction::Context const& context, double**& slf, double**&) const {
     // Get ordered cache list for self entity for base values
     ensureBaseList(context.self, baseKeys, slf);
 

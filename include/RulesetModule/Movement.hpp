@@ -32,7 +32,7 @@ public:
 
     // Global rulesets
 
-    void clip(Interaction::Context const& context, double**& slf) const ;
+    void clip(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static constexpr std::string_view clipName = "::movement::clip";
     static constexpr std::string_view clipDesc = "Global ruleset to handle collision clipping between entities. The entry listening to this ruleset will be placed accordingly.";
 
