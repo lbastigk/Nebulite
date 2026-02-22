@@ -180,8 +180,6 @@ private:
 
     /**
      * @brief Reloads all input mappings from the settings scope.
-     * @todo Not implemented yet, perhaps this could be done in the update function with a timed routine?
-     *       Or a complex trigger when a settings menu is closed?
      */
     void reloadMappings();
 
