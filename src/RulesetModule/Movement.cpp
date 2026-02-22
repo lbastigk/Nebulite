@@ -23,9 +23,8 @@ Movement::Movement() : RulesetModule(moduleName) {
 // Global rulesets
 
 // TODO: Still rough collision handling, needs improvement...
-void Movement::clip(Interaction::Context const& context) const {
+void Movement::clip(Interaction::Context const& context, double**& slf) const {
     // Get ordered cache lists for both entities for base values
-    double** slf = nullptr;
     ensureBaseList(context.self, baseKeys, slf);
     double** otr = nullptr;
     ensureBaseList(context.other, baseKeys, otr);

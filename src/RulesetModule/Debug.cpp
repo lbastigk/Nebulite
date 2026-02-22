@@ -3,20 +3,17 @@
 
 namespace Nebulite::RulesetModule {
 
-void Debug::message(Interaction::Context const& context) const {
-    double** slf = nullptr;
+void Debug::message(Interaction::Context const& context, double**& slf) const {
     ensureBaseList(context.self, baseKeys, slf);
     Log::println("[DEBUG] Static ruleset '::message' invoked! Context ID: ", baseVal(slf, Key::id));
 }
 
-void Debug::error(Interaction::Context const& context) const {
-    double** slf = nullptr;
+void Debug::error(Interaction::Context const& context, double**& slf) const {
     ensureBaseList(context.self, baseKeys, slf);
     Log::println("[DEBUG] Static ruleset '::error' invoked! Context ID: ", baseVal(slf, Key::id));
 }
 
-void Debug::whoInteracts(Interaction::Context const& context) const {
-    double** slf = nullptr;
+void Debug::whoInteracts(Interaction::Context const& context, double**& slf) const {
     ensureBaseList(context.self, baseKeys, slf);
     double** otr = nullptr;
     ensureBaseList(context.other, baseKeys, otr);

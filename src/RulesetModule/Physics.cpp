@@ -41,9 +41,8 @@ Physics::Physics() : RulesetModule(moduleName) {
 //       ::physics::elasticCollision::box::circle     // other is circle, self is box
 //       ::physics::elasticCollision::circle::box     // self is circle, other is box
 //       Or we prioritize radius if available?
-void Physics::elasticCollision(Interaction::Context const& context) const {
+void Physics::elasticCollision(Interaction::Context const& context, double**& slf) const {
     // Get ordered cache lists for both entities for base values
-    double** slf = nullptr;
     ensureBaseList(context.self, baseKeys, slf);
     double** otr = nullptr;
     ensureBaseList(context.other, baseKeys, otr);
@@ -154,8 +153,7 @@ void Physics::elasticCollision(Interaction::Context const& context) const {
     }
 }
 
-void Physics::gravity(Interaction::Context const& context) const {
-    double** slf = nullptr;
+void Physics::gravity(Interaction::Context const& context, double**& slf) const {
     ensureBaseList(context.self, baseKeys, slf);
     double** otr = nullptr;
     ensureBaseList(context.other, baseKeys, otr);
@@ -175,9 +173,8 @@ void Physics::gravity(Interaction::Context const& context) const {
 
 // Local rulesets
 
-void Physics::applyForce(Interaction::Context const& context) const {
+void Physics::applyForce(Interaction::Context const& context, double**& slf) const {
     // Get ordered cache list for self entity for base values
-    double** slf = nullptr;
     ensureBaseList(context.self, baseKeys, slf);
 
     // Pre-calculate values before locking
@@ -206,9 +203,8 @@ void Physics::applyForce(Interaction::Context const& context) const {
     baseVal(slf, Key::physics_FY) = 0.0;
 }
 
-void Physics::drag(Interaction::Context const& context) const {
+void Physics::drag(Interaction::Context const& context, double**& slf) const {
     // Get ordered cache list for self entity for base values
-    double** slf = nullptr;
     ensureBaseList(context.self, baseKeys, slf);
 
     // Drag coefficient (tunable parameter)

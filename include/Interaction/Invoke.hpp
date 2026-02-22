@@ -88,6 +88,9 @@ public:
      * @param listener The listening domain
      * @param topic The topic to listen for.
      * @param listenerId The unique ID of the listener domain.
+     * @todo Provide a double**& otr to the listen function to directly store and later access the ordered cache list of the listener
+     *       Less locking, as the ordered cache list pointer can be reused
+     *       Probably best to wrap all of this in a listener struct like we do with ruleset
      */
     void listen(Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId);
 

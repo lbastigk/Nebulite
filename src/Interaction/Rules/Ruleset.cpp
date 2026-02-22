@@ -29,7 +29,7 @@ void Ruleset::apply() {
 
 void StaticRuleset::apply(Execution::Domain& contextOther) {
     Context const context{self, contextOther, Global::instance()};
-    staticFunction(context);
+    staticFunction(context, slf);
 }
 
 //------------------------------------------

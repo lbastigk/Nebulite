@@ -39,7 +39,8 @@ namespace Nebulite::Interaction::Rules {
 
 // TODO: add additional parameter double** slf for remanent ordered cache list of self
 //       as rulesets are local to an object, they can have a remanent pointer to the ordered cache list of self for performance
-using StaticRulesetFunction = std::function<void(const Context&)>;
+
+using StaticRulesetFunction = std::function<void(const Context&, double**& slf)>;
 
 //------------------------------------------
 // Defining a Ruleset Map where static rulesets can be looked up by name

@@ -143,6 +143,11 @@ protected:
      *          Due to the large checks needed for `all`, it should only be used when absolutely necessary.
      */
     std::string topic = "all";
+
+    /**
+     * @brief Ordered list of variables for this ruleset to use as self
+     */
+    double** slf = nullptr;
 };
 
 /**
