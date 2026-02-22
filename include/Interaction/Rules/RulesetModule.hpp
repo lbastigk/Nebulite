@@ -140,10 +140,14 @@ protected:
      *        This reduces lookup overhead and improves performance when accessing multiple base values.
      * @param ctx The render object context from which to retrieve the base values.
      * @param keys The array of keys to retrieve values for.
-     * @return A pointer to an array of double pointers, each pointing to a base value.
+     * @param arr The output array of ordered cache lists corresponding to the provided keys.
+     *            If arr passed is not null, this function will do nothing.
      */
-    [[nodiscard]] double** getBaseList(Execution::Domain const& ctx, std::vector<Data::ScopedKeyView> const& keys) const {
-        return ctx.ensureOrderedCacheList(id, keys)->data();
+    void ensureBaseList(Execution::Domain const& ctx, std::vector<Data::ScopedKeyView> const& keys, double**& arr) const {
+        if (arr != nullptr) {
+            return; // Already initialized, do nothing
+        }
+         arr = ctx.ensureOrderedCacheList(id, keys)->data();
     }
 
 private:

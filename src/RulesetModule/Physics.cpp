@@ -43,8 +43,10 @@ Physics::Physics() : RulesetModule(moduleName) {
 //       Or we prioritize radius if available?
 void Physics::elasticCollision(Interaction::Context const& context) const {
     // Get ordered cache lists for both entities for base values
-    double** slf = getBaseList(context.self, baseKeys);
-    double** otr = getBaseList(context.other, baseKeys);
+    double** slf = nullptr;
+    ensureBaseList(context.self, baseKeys, slf);
+    double** otr = nullptr;
+    ensureBaseList(context.other, baseKeys, otr);
 
     //------------------------------------------
     // Base condition check
@@ -153,8 +155,10 @@ void Physics::elasticCollision(Interaction::Context const& context) const {
 }
 
 void Physics::gravity(Interaction::Context const& context) const {
-    double** slf = getBaseList(context.self, baseKeys);
-    double** otr = getBaseList(context.other, baseKeys);
+    double** slf = nullptr;
+    ensureBaseList(context.self, baseKeys, slf);
+    double** otr = nullptr;
+    ensureBaseList(context.other, baseKeys, otr);
 
     double const dx = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
     double const dy = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
@@ -173,7 +177,8 @@ void Physics::gravity(Interaction::Context const& context) const {
 
 void Physics::applyForce(Interaction::Context const& context) const {
     // Get ordered cache list for self entity for base values
-    double** slf = getBaseList(context.self, baseKeys);
+    double** slf = nullptr;
+    ensureBaseList(context.self, baseKeys, slf);
 
     // Pre-calculate values before locking
     double const dt = *globalVal.dt;
@@ -203,7 +208,8 @@ void Physics::applyForce(Interaction::Context const& context) const {
 
 void Physics::drag(Interaction::Context const& context) const {
     // Get ordered cache list for self entity for base values
-    double** slf = getBaseList(context.self, baseKeys);
+    double** slf = nullptr;
+    ensureBaseList(context.self, baseKeys, slf);
 
     // Drag coefficient (tunable parameter)
     static constexpr double dragCoefficient = 0.1;

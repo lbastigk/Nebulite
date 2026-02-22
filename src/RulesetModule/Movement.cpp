@@ -25,8 +25,10 @@ Movement::Movement() : RulesetModule(moduleName) {
 // TODO: Still rough collision handling, needs improvement...
 void Movement::clip(Interaction::Context const& context) const {
     // Get ordered cache lists for both entities for base values
-    double** slf = getBaseList(context.self, baseKeys);
-    double** otr = getBaseList(context.other, baseKeys);
+    double** slf = nullptr;
+    ensureBaseList(context.self, baseKeys, slf);
+    double** otr = nullptr;
+    ensureBaseList(context.other, baseKeys, otr);
 
     //------------------------------------------
     // Base condition check
