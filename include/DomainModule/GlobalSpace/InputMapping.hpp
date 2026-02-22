@@ -12,6 +12,7 @@
 // Includes
 
 // General
+#include "DomainModule/Renderer/Input.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -36,11 +37,38 @@ public:
     //------------------------------------------
     // Available Functions
 
+    Constants::Error lockOnce(std::span<std::string const> const& args);
+    static auto constexpr lockOnceName = "input-mapping lock once";
+    static auto constexpr lockOnceDesc = "Locks an action for the current frame, preventing it from being triggered by any of its associated keys.\n"
+        "Allows locking of entire categories of actions by using a structured action name, e.g. 'movement::up' or 'combat::primaryAttack' can be locked with 'movement' or 'combat'.\n"
+        "Usage: input-mapping lock once <actionName>\n";
+
+    Constants::Error lockOn(std::span<std::string const> const& args);
+    static auto constexpr lockOnName = "input-mapping lock on";
+    static auto constexpr lockOnDesc = "Locks an action until it is unlocked, preventing it from being triggered by any of its associated keys.\n"
+        "Allows locking of entire categories of actions by using a structured action name, e.g. 'movement::up' or 'combat::primaryAttack' can be locked with 'movement' or 'combat'.\n"
+        "Usage: input-mapping lock on <actionName>\n";
+
+    Constants::Error unlock(std::span<std::string const> const& args);
+    static auto constexpr unlockName = "input-mapping lock off";
+    static auto constexpr unlockDesc = "Unlocks an action, allowing it to be triggered by its associated keys again.\n"
+        "Allows locking of entire categories of actions by using a structured action name, e.g. 'movement::up' or 'combat::primaryAttack' can be locked with 'movement' or 'combat'.\n"
+        "Usage: input-mapping unlock <actionName>\n";
+
     // TODO: Modify/reload input mapping at runtime
     //       store mappings in settings scope!
 
     // TODO: showMappings <on/off> function that displays an imgui window with the current mappings
     //       later on, this may be expanded to a full input mapping editor for actual GUI configuration of input
+
+    //------------------------------------------
+    // Categories
+
+    static auto constexpr inputMappingName = "input-mapping";
+    static auto constexpr inputMappingDesc = "Functions for mapping inputs to actions within the GlobalSpace.";
+
+    static auto constexpr inputMappingLockName = "input-mapping lock";
+    static auto constexpr inputMappingLockDesc = "Functions for locking and unlocking input actions.";
 
     //------------------------------------------
     // Setup
@@ -50,11 +78,17 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, InputMapping){
         // Setup pointer to polled input key in Renderer::Input module, to sync our updates with it and avoid missing deltas
-        auto const sdlPolledInputKey = moduleScope.getRootScope() + "renderer.input.polled";
-        sdlPolledInput = moduleScope.getStableDoublePointer(sdlPolledInputKey);
+        sdlPolledInput = moduleScope.getStableDoublePointer(Renderer::Input::Key::routineActivated);
 
         // Load initial mappings from settings
         reloadMappings();
+
+        // Bind functions
+        bindCategory(inputMappingName, inputMappingDesc);
+        bindCategory(inputMappingLockName, inputMappingLockDesc);
+        BIND_FUNCTION(&InputMapping::lockOnce, lockOnceName, lockOnceDesc);
+        BIND_FUNCTION(&InputMapping::lockOn, lockOnName, lockOnDesc);
+        BIND_FUNCTION(&InputMapping::unlock, unlockName, unlockDesc);
     }
 
     struct Key {
@@ -102,8 +136,8 @@ private:
             empty,
             current,
             onPress,
-            onRelease
-            // TODO: onPressOrRelease
+            onRelease,
+            onChange // Any change in state, either press or release
         } type = action::empty;
     };
 
@@ -117,6 +151,9 @@ private:
         if (typeStr == "onRelease") {
             return association::action::onRelease;
         }
+        if (typeStr == "onChange") {
+            return association::action::onChange;
+        }
         return association::action::empty;
     }
 
@@ -128,6 +165,12 @@ private:
         association slotA{"", association::action::empty}; // First key associated with the action
         association slotB{"", association::action::empty}; // Second key associated with the action
         association slotC{"", association::action::empty}; // Third key associated with the action
+
+        enum LockState {
+            unlocked,   // The action is not locked and can be triggered by its associated keys.
+            lockOnce,   // The action is locked for the current frame, preventing it from being triggered by any of its associated keys. It will be automatically unlocked in the next frame.
+            lockOn      // The action is locked until it is manually unlocked, preventing it from being triggered by any of its associated keys.
+        } lockState = unlocked; // The current lock state of the action
     };
 
     /**
@@ -137,8 +180,6 @@ private:
 
     /**
      * @brief Reloads all input mappings from the settings scope.
-     * @todo Not implemented yet, perhaps this could be done in the update function with a timed routine?
-     *       Or a complex trigger when a settings menu is closed?
      */
     void reloadMappings();
 
@@ -146,5 +187,14 @@ private:
      * @brief Processes all input mappings
      */
     void processMappings();
+
+    /**
+     * @brief Helper function to add a mapping to a given scope, used for loading default mappings and potentially for runtime mapping configuration in the future.
+     * @param scope The scope to which the mapping should be added, e.g. settingsScope for default mappings or a temporary scope for runtime configuration.
+     * @param action The name of the action to be mapped, e.g. "jump" or "movement::up".
+     * @param slots An array of pairs representing the key associations for the action, where each pair consists of the SDL key name and the association type
+     *              (e.g. {{"space", "onPress"}, {"w", "current"}, {"", "empty"}} for a jump action that can be triggered by pressing space or holding w).
+     */
+    static void addMappingToScope(Data::JsonScopeBase& scope, std::string const& action, std::array<std::pair<std::string, std::string>,3> const& slots);
 };
 }   // namespace Nebulite::DomainModule::GlobalSpace

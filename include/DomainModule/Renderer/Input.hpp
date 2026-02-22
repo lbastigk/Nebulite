@@ -57,6 +57,8 @@ public:
         static auto constexpr mouse = MAKE_SCOPED("mouse.");
         static auto constexpr mouseCurrent = MAKE_SCOPED("mouse.current.");
         static auto constexpr mouseDelta = MAKE_SCOPED("mouse.delta.");
+
+        static auto constexpr routineActivated = MAKE_SCOPED("polled");
     };
 
 private:
