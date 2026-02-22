@@ -86,6 +86,9 @@ private:
 
     // Internal rulesets, intended for self-global interaction
     std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsLocal;
+
+    // Topic subscriptions
+    std::vector<std::shared_ptr<Interaction::Rules::Listener>> listeners;
 };
 } // namespace Nebulite::DomainModule::RenderObject
 #endif // NEBULITE_RODM_RULESET_HPP

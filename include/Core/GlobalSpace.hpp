@@ -121,12 +121,10 @@ public:
 
     /**
      * @brief Listens for rulesets on a specific topic.
-     * @param listener The listening domain
-     * @param topic The topic to listen for.
-     * @param listenerId The unique ID of the listener domain.
+     * @param listener The listener to add.
      */
-    void listen(Domain& listener, std::string const& topic, uint32_t const& listenerId) {
-        invoke.listen(listener, topic, listenerId);
+    void listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
+        invoke.listen(listener);
     }
 
     //------------------------------------------

@@ -24,6 +24,17 @@ class Domain;
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {
 /**
+ * @struct Listener
+ * @brief Represents a listener for a specific topic
+ */
+struct Listener {
+    Execution::Domain& domain;
+    std::string topic;
+    uint32_t listenerId;
+    double** otr = nullptr; // Pointer to the ordered cache list of the listener, for performance when evaluating rulesets
+};
+
+/**
  * @class Ruleset
  * @brief Virtual base class for Ruleset types.
  */

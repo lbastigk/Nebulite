@@ -9,11 +9,11 @@ void FlatContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const
     broadcasters[entry->getTopic()].push_back(entry);
 }
 
-void FlatContainer::listen(Interaction::Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId) {
+void FlatContainer::listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
     // Listening generally happens on multiple threads, so we need to lock the listener map for this topic while modifying it
-    auto lock = listeners.lock(topic);
-    auto& t = listeners[topic];
-    t.push_back({listener, listenerId});
+    auto lock = listeners.lock(listener->topic);
+    auto& t = listeners[listener->topic];
+    t.push_back({listener});
 }
 
 void FlatContainer::prepare() {
@@ -43,11 +43,11 @@ void FlatContainer::process() {
                     size_t const idx = (i + workerInfo.index * (lvSize / workerInfo.count) ) % lvSize;
                     auto& listener = lv.at(idx);
                     for (auto const& ruleset : bv) { // No offsetting here, since all broadcasters are per-worker thread and thus already distributed. Tests show that offsetting here does not improve performance.
-                        if (ruleset->getId() == listener.id) {
+                        if (ruleset->getId() == listener->listenerId) {
                             continue; // Skip if the ruleset is from the same render object as the listener
                         }
-                        if (ruleset->evaluateCondition(listener.domain)) {
-                            ruleset->apply(listener.domain);
+                        if (ruleset->evaluateCondition(listener->domain)) {
+                            ruleset->apply(listener->domain);
                         }
                     }
                 }

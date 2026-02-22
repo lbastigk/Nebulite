@@ -18,8 +18,6 @@
 
 // Available containers
 #include "Data/BroadcastListenContainer/FlatContainer.hpp"
-#include "Data/BroadcastListenContainer/MapContainer.hpp"
-#include "Data/BroadcastListenContainer/TreeContainer.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -85,14 +83,8 @@ public:
      * @details Checks the specified render object against all available
      *          rulesets for the given topic. If an entry's logical condition is
      *          satisfied, it is added to the list of pairs for later evaluation.
-     * @param listener The listening domain
-     * @param topic The topic to listen for.
-     * @param listenerId The unique ID of the listener domain.
-     * @todo Provide a double**& otr to the listen function to directly store and later access the ordered cache list of the listener
-     *       Less locking, as the ordered cache list pointer can be reused
-     *       Probably best to wrap all of this in a listener struct like we do with ruleset
      */
-    void listen(Execution::Domain& listener, std::string const& topic, uint32_t const& listenerId);
+    void listen(std::shared_ptr<Rules::Listener> const& listener);
 
     //------------------------------------------
     // Updating
