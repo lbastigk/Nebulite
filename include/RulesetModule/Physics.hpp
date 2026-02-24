@@ -38,7 +38,7 @@ public:
 
     void elasticCollision(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static constexpr std::string_view elasticCollisionName = "::physics::elasticCollision";
-    static constexpr std::string_view elasticCollisionDesc = "Applies elastic collision forces between two render objects based on their masses and velocities.";
+    static constexpr std::string_view elasticCollisionDesc = "Applies elastic collision velocity corrections between two RenderObjects based on their masses and velocities.";
 
     void gravity(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static constexpr std::string_view gravityName = "::physics::gravity";
@@ -50,9 +50,9 @@ public:
     static constexpr std::string_view applyForceName = "::physics::applyForce";
     static constexpr std::string_view applyForceDesc = "Applies accumulated forces to the render object's acceleration, velocity, and position based on its mass and the simulation delta time.";
 
-    // TODO: applyCorrection to resolve overlaps, prevent tunneling etc.
-    //       instead of adding forces, elasticCollision can then modify the velocity by applying a correction
-    //       clipping rulesets can also apply a position correction to resolve overlaps instead of directly modifying the value, which can cause thread contention issues
+    void applyCorrection(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    static constexpr std::string_view applyCorrectionName = "::physics::applyCorrection";
+    static constexpr std::string_view applyCorrectionDesc = "Applies position and velocity corrections to resolve overlaps and prevent tunneling.";
 
     void drag(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static constexpr std::string_view dragName = "::physics::drag";
@@ -74,11 +74,13 @@ private:
      * @brief List of keys for per-object physics-related base values in the ordered cache list.
      */
     const std::vector<Data::ScopedKeyView> baseKeys = {
+        // Base values for size
         Constants::KeyNames::RenderObject::positionX,
         Constants::KeyNames::RenderObject::positionY,
         Constants::KeyNames::RenderObject::sizeX,
         Constants::KeyNames::RenderObject::sizeY,
         Constants::KeyNames::RenderObject::sizeR,
+        // Base Physics values
         DomainModule::GlobalSpace::Physics::Key::Local::aX,
         DomainModule::GlobalSpace::Physics::Key::Local::aY,
         DomainModule::GlobalSpace::Physics::Key::Local::vX,
@@ -86,8 +88,15 @@ private:
         DomainModule::GlobalSpace::Physics::Key::Local::m,
         DomainModule::GlobalSpace::Physics::Key::Local::FX,
         DomainModule::GlobalSpace::Physics::Key::Local::FY,
+        // Correction values
+        DomainModule::GlobalSpace::Physics::Key::Local::Correction::X,
+        DomainModule::GlobalSpace::Physics::Key::Local::Correction::Y,
+        DomainModule::GlobalSpace::Physics::Key::Local::Correction::vX,
+        DomainModule::GlobalSpace::Physics::Key::Local::Correction::vY,
+        // More specialized keys
         DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeX,
-        DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeY
+        DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeY,
+
     };
 
     /**
@@ -96,11 +105,13 @@ private:
      *        Used for indexing into the ordered cache list.
      */
     enum class Key : std::size_t {
+        // Base values for size
         posX,
         posY,
         sizeX,
         sizeY,
         sizeR,
+        // Base Physics values
         physics_aX,
         physics_aY,
         physics_vX,
@@ -108,6 +119,12 @@ private:
         physics_mass,
         physics_FX,
         physics_FY,
+        // Correction values
+        physics_correction_X,
+        physics_correction_Y,
+        physics_correction_vX,
+        physics_correction_vY,
+        // More specialized keys
         physics_lastCollisionX,
         physics_lastCollisionY
     };

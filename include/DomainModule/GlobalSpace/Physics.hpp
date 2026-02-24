@@ -56,6 +56,15 @@ public:
             static auto constexpr FX = MAKE_SCOPED("FX"); // force X
             static auto constexpr FY = MAKE_SCOPED("FY"); // force Y
 
+            // Correction values
+            struct Correction {
+                DECLARE_SCOPE("physics.correction.")
+                static auto constexpr X = MAKE_SCOPED("X"); // position correction X to resolve overlaps
+                static auto constexpr Y = MAKE_SCOPED("Y"); // position correction Y to resolve overlaps
+                static auto constexpr vX = MAKE_SCOPED("vX"); // velocity correction X to resolve collisions
+                static auto constexpr vY = MAKE_SCOPED("vY"); // velocity correction Y to resolve collisions
+            };
+
             // More specialized, but still useful keys
             static auto constexpr lastCollisionTimeX = MAKE_SCOPED("collision.time.lastX");
             static auto constexpr lastCollisionTimeY = MAKE_SCOPED("collision.time.lastY");

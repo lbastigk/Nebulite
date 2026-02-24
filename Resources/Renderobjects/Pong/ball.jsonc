@@ -31,6 +31,7 @@
         ],
         "list": [
             "./Resources/Invokes/Physics/falling.jsonc",
+            "::physics::applyCorrection",
             "::physics::applyForce",
             "./Resources/Invokes/Pong/ensureVelocityX.jsonc",
             "./Resources/Invokes/Pong/respawnBallLeft.jsonc",

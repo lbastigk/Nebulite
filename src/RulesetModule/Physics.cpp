@@ -1,11 +1,16 @@
-#include "Nebulite.hpp"
-#include "RulesetModule/Physics.hpp"
+//------------------------------------------
+// Includes
 
+// Standard Library
+#include <cfloat>
+
+// Nebulite
+#include "Nebulite.hpp"
 #include "ScopeAccessor.hpp"
 #include "Core/GlobalSpace.hpp"
-#include "Interaction/Rules/StaticRulesetMap.hpp"
-
 #include "DomainModule/GlobalSpace/Time.hpp"
+#include "Interaction/Rules/StaticRulesetMap.hpp"
+#include "RulesetModule/Physics.hpp"
 
 namespace Nebulite::RulesetModule {
 
@@ -16,6 +21,7 @@ Physics::Physics() : RulesetModule(moduleName) {
 
     // Local rulesets
     BIND_STATIC_ASSERT(RulesetType::Local, &Physics::applyForce, applyForceName, applyForceDesc);
+    BIND_STATIC_ASSERT(RulesetType::Local, &Physics::applyCorrection, applyCorrectionName, applyCorrectionDesc);
     BIND_STATIC_ASSERT(RulesetType::Local, &Physics::drag, dragName, dragDesc);
 
     // Global Variables
@@ -27,20 +33,7 @@ Physics::Physics() : RulesetModule(moduleName) {
 
 // Global rulesets
 
-// TODO: Improve collision detection and response
-//       predictive future collision detection to avoid tunneling
-//       perhaps better to do so in separate ruleset module
-//       first, call physics::predictCollision to see first future collision time
-//       then, use that info here to properly interpolate position
-//       that happens between now and the predicted next frame-time
-// TODO: Add a repositioning step to resolve overlaps
-// TODO: Needs to use new size system: (size.X, size.Y) or size.r
-//       Idea: Multiple rulesets:
-//       ::physics::elasticCollision::box::box,
-//       ::physics::elasticCollision::circle::circle,
-//       ::physics::elasticCollision::box::circle     // other is circle, self is box
-//       ::physics::elasticCollision::circle::box     // self is circle, other is box
-//       Or we prioritize radius if available?
+// TODO: add collision for circle-box and circle-circle
 void Physics::elasticCollision(Interaction::Context const& context, double**& slf, double**& otr) const {
     // Get ordered cache lists for both entities for base values
     ensureBaseList(context.self, baseKeys, slf);
@@ -112,17 +105,10 @@ void Physics::elasticCollision(Interaction::Context const& context, double**& sl
                 // Calculate new velocities after collision
                 double const v2newX = ((m2 - m1) * v2X + 2 * m1 * v1X) / (m1 + m2);
 
-                // Translate velocity change to forces
-                double const dt = *globalVal.dt;
-                double const dF2X = m2 * (v2newX - v2X) / dt;
-
-                // Get last collision time pointer
-
-
                 // Lock and write
                 auto slfLock = context.other.lockDocument();
                 if (baseVal(otr, Key::physics_lastCollisionX) < *globalVal.t) {
-                    baseVal(otr, Key::physics_FX) += dF2X;
+                    baseVal(otr, Key::physics_correction_vX) += v2newX - v2X;
                     baseVal(otr, Key::physics_lastCollisionX) = *globalVal.t;
                 }
             }
@@ -134,14 +120,10 @@ void Physics::elasticCollision(Interaction::Context const& context, double**& sl
                 // Calculate new velocity after collision
                 double const v2newY = ((m2 - m1) * v2Y + 2 * m1 * v1Y) / (m1 + m2);
 
-                // Translate velocity change to forces
-                double const dt = *globalVal.dt;
-                double const dF2Y = m2 * (v2newY - v2Y) / dt;
-
                 // Lock and write
                 auto slfLock = context.other.lockDocument();
                 if (baseVal(otr, Key::physics_lastCollisionY) < *globalVal.t) {
-                    baseVal(otr, Key::physics_FY) += dF2Y;
+                    baseVal(otr, Key::physics_correction_vY) += v2newY - v2Y;
                     baseVal(otr, Key::physics_lastCollisionY) = *globalVal.t;
                 }
             }
@@ -196,6 +178,28 @@ void Physics::applyForce(Interaction::Context const& context, double**& slf, dou
     // Force reset after application
     baseVal(slf, Key::physics_FX) = 0.0;
     baseVal(slf, Key::physics_FY) = 0.0;
+}
+
+void Physics::applyCorrection(Interaction::Context const& context, double**& slf, double**&) const {
+    // Get ordered cache list for self entity for base values
+    ensureBaseList(context.self, baseKeys, slf);
+
+    // Check if any corrections are significant enough to apply (greater than a small epsilon)
+    if (std::abs(baseVal(slf, Key::physics_correction_X))  > DBL_EPSILON || std::abs(baseVal(slf, Key::physics_correction_Y))  > DBL_EPSILON
+     || std::abs(baseVal(slf, Key::physics_correction_vX)) > DBL_EPSILON || std::abs(baseVal(slf, Key::physics_correction_vY)) > DBL_EPSILON) {
+        // Lock and apply corrections
+        auto slfLock = context.self.lockDocument();
+        baseVal(slf, Key::posX) += baseVal(slf, Key::physics_correction_X);
+        baseVal(slf, Key::posY) += baseVal(slf, Key::physics_correction_Y);
+        baseVal(slf, Key::physics_vX) += baseVal(slf, Key::physics_correction_vX);
+        baseVal(slf, Key::physics_vY) += baseVal(slf, Key::physics_correction_vY);
+
+        // Reset corrections after application
+        baseVal(slf, Key::physics_correction_X) = 0.0;
+        baseVal(slf, Key::physics_correction_Y) = 0.0;
+        baseVal(slf, Key::physics_correction_vX) = 0.0;
+        baseVal(slf, Key::physics_correction_vY) = 0.0;
+    }
 }
 
 void Physics::drag(Interaction::Context const& context, double**& slf, double**&) const {
