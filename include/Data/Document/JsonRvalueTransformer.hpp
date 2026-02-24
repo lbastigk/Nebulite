@@ -1,8 +1,8 @@
 /**
  * @file JsonRvalueTransformer.hpp
  * @brief Data class for modifying JSON return value keys.
- *        JSON(key) -> value | transformation on value | transformation on value ... -> new value
- *        This allows for dynamic modification of JSON values during retrieval.
+ * @details JSON(key) -> value | transformation on value | transformation on value ... -> new value
+ *          This allows for dynamic modification of JSON values during retrieval.
  */
 
 #ifndef NEBULITE_DATA_JSON_RVALUE_TRANSFORMER_HPP
@@ -14,6 +14,7 @@
 // Standard library
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 // Nebulite
@@ -47,16 +48,25 @@ class JsonRvalueTransformer {
      * @details if the key includes the pipe '|' character, we apply the transformations in sequence.
      *          Example: get<int>('MyKey.subKey|strLength|add 1')
      *                   will get the length of the string at MyKey.subKey and add 1 to it.
-     *          Takes in a JSON* as argument to modify.
+     *          Takes in a JsonScope pointer as argument to modify.
      *          Returns true on success, false on failure.
      */
     std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> transformationFuncTree;
 
+    /**
+     * @brief List of all initialized transformation modules
+     */
     std::vector<std::unique_ptr<TransformationModule>> modules;
 
+    /**
+     * @brief Initializes a transformation module and adds it to the list of modules.
+     * @tparam ModuleType The type of the transformation module to initialize. Must be a subclass of TransformationModule.
+     */
     template<typename ModuleType> void initModule() {
+        static_assert(std::is_base_of_v<TransformationModule, ModuleType>, "ModuleType must be a subclass of TransformationModule");
         modules.emplace_back(std::make_unique<ModuleType>(transformationFuncTree));
     }
+
 public:
     JsonRvalueTransformer();
 

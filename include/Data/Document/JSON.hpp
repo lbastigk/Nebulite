@@ -228,14 +228,10 @@ private:
     //------------------------------------------
     // Scope sharing system
 
-    /**
-     * @brief Lazy-initialized full JsonScope representing the entire document.
-     * @return Reference to the full JsonScope.
-     */
-    Core::JsonScope& fullScope();
-
     absl::flat_hash_map<std::string, std::unique_ptr<Core::JsonScope>> managedScopes;
     absl::flat_hash_map<std::string, std::unique_ptr<JsonScopeBase>> managedScopeBases;
+
+    std::unique_ptr<Core::JsonScope> fullScopeInstance;
 public:
     //------------------------------------------
     // Assertions
@@ -263,6 +259,12 @@ public:
 
     //------------------------------------------
     // Scope sharing
+
+    /**
+     * @brief Lazy-initialized full JsonScope representing the entire document.
+     * @return Reference to the full JsonScope.
+     */
+    Core::JsonScope& fullScope();
 
     /**
      * @brief Shares part JSON document as a JsonScope, externally managed.

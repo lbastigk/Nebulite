@@ -118,8 +118,11 @@ std::vector<std::string> JSON::splitKeyWithTransformations(std::string const& ke
 // Private methods
 
 Core::JsonScope& JSON::fullScope() {
-    static Core::JsonScope fullScopeInstance(*this, "");
-    return fullScopeInstance;
+    std::scoped_lock const lockGuard(mtx);
+    if (!fullScopeInstance) {
+        fullScopeInstance = std::make_unique<Core::JsonScope>(*this, "", "Full JSON Scope");
+    }
+    return *fullScopeInstance;
 }
 
 // Mark all child keys as virtual

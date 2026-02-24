@@ -53,25 +53,42 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
 
 bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, Core::JsonScope* jsonDoc) const {
     static std::string const funcName = __FUNCTION__;
-    if (args.empty()) {
+    if (args.empty()) [[unlikely]] {
         return false;
     }
+
+    // Pre-allocate string to avoid reallocations in the loop
+    std::string call;
+    call.reserve(funcName.size() + 1 + 128); // funcName + space + typical transformation size
+
     return std::ranges::all_of(args, [&](std::string const& transformation) {
-        std::string const call = funcName + " " + transformation;
+        call.clear();
+        call.append(funcName);
+        call.push_back(' ');
+        call.append(transformation);
         return transformationFuncTree->parseStr(call, jsonDoc);
     });
 }
 
 bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JSON* jsonDoc) const {
-    auto scope = jsonDoc->shareScope();
+    auto& scope = jsonDoc->fullScope();
     static std::string const funcName = __FUNCTION__;
-    if (args.empty()) {
+    if (args.empty()) [[unlikely]] {
         return false;
     }
+
+    // Pre-allocate string to avoid reallocations in the loop
+    std::string call;
+    call.reserve(funcName.size() + 1 + 128); // funcName + space + typical transformation size
+
     return std::ranges::all_of(args, [&](std::string const& transformation) {
-        std::string const call = funcName + " " + transformation;
+        call.clear();
+        call.append(funcName);
+        call.push_back(' ');
+        call.append(transformation);
         return transformationFuncTree->parseStr(call, &scope);
     });
 }
+
 
 } // namespace Nebulite::Data

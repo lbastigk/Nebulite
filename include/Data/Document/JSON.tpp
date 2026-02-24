@@ -39,7 +39,6 @@ std::optional<T> JSON::getWithTransformations(std::string const& key) const {
     std::string const baseKey = args[0];
     args.erase(args.begin());
 
-
     // In order to minimize the re-initialization overhead of an entire JSON document,
     // we use a thread-local temporary JSON document for applying transformations.
     // Then, on each call, we clear the entire document and re-initialize it with the base key's sub-document,
