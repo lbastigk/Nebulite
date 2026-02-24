@@ -50,6 +50,10 @@ public:
     static constexpr std::string_view applyForceName = "::physics::applyForce";
     static constexpr std::string_view applyForceDesc = "Applies accumulated forces to the render object's acceleration, velocity, and position based on its mass and the simulation delta time.";
 
+    // TODO: applyCorrection to resolve overlaps, prevent tunneling etc.
+    //       instead of adding forces, elasticCollision can then modify the velocity by applying a correction
+    //       clipping rulesets can also apply a position correction to resolve overlaps instead of directly modifying the value, which can cause thread contention issues
+
     void drag(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static constexpr std::string_view dragName = "::physics::drag";
     static constexpr std::string_view dragDesc = "Applies drag force to the render object, simulating air resistance based on its velocity and a drag coefficient.";
@@ -108,7 +112,8 @@ private:
         physics_lastCollisionY
     };
 
-    // 2.) To retrieve from globalspace
+    // 2.) To retrieve from GlobalSpace
+
     /**
      * @struct GlobalVal
      * @brief Struct to hold pointers to global variables used in physics calculations.
