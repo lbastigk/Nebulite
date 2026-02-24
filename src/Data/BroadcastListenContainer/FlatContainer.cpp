@@ -5,6 +5,7 @@ namespace Nebulite::Data::BroadcastListenContainer {
 
 void FlatContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
     // Multiple threads may broadcast on the same topic, so we need to lock the broadcaster map for this topic while modifying it
+    // TODO: use an array of broadcasters, thread-local id, only lock if thread-local id is higher than the broadcaster array size
     auto lock = broadcasters.lock(entry->getTopic());
     broadcasters[entry->getTopic()].push_back(entry);
 }
@@ -22,6 +23,11 @@ void FlatContainer::prepare() {
 }
 
 void FlatContainer::process() {
+    // Offset for this worker thread
+    // Distributes listener access by offsetting the starting index for each worker thread
+    // This way, workers are less likely to contend for the same listeners when processing the same topic
+    thread_local double const listenerOffset = static_cast<double>(workerInfo.index) / static_cast<double>(workerInfo.count);
+
     while (!threadState.stopFlag) {
         // Wait for work to be ready
         {
@@ -36,11 +42,13 @@ void FlatContainer::process() {
             listeners.forall([&](std::string const& topic, auto& lv) {
                 auto const& bv = broadcasters[topic];
 
-                size_t const lvSize = lv.size();
+                // Derive size and offset for this worker thread
+                auto const lvSize = lv.size();
+                auto const offset = static_cast<size_t>(listenerOffset*static_cast<double>(lvSize));
+
+                // Process all entries for this topic
                 for (size_t i = 0; i < lvSize; ++i) {
-                    // Distribute listener access by offsetting the starting index for each worker thread
-                    // This way, workers are less likely to contend for the same listeners when processing the same topic
-                    size_t const idx = (i + workerInfo.index * (lvSize / workerInfo.count) ) % lvSize;
+                    size_t const idx = (i + offset) % lvSize;
                     auto& listener = lv.at(idx);
                     for (auto const& ruleset : bv) { // No offsetting here, since all broadcasters are per-worker thread and thus already distributed. Tests show that offsetting here does not improve performance.
                         if (ruleset->getId() == listener->listenerId) {
