@@ -37,10 +37,24 @@
             "description": "Release build for Linux with optimizations",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_CXX_FLAGS": "-O3 -DNDEBUG -march=native -mtune=native -flto=auto -fno-semantic-interposition -fomit-frame-pointer -fuse-linker-plugin -fvisibility=hidden -fvisibility-inlines-hidden -finline-functions -finline-limit=1000 -fpredictive-commoning",
+                "CMAKE_CXX_FLAGS": "-O3 -DNDEBUG -march=native -mtune=native -flto=auto -fno-semantic-interposition -fomit-frame-pointer -fuse-linker-plugin -fvisibility=hidden -fvisibility-inlines-hidden -finline-functions -fpredictive-commoning",
                 "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            }
+        },
+        {
+            "name": "linux-profiling",
+            "inherits": "base",
+            "displayName": "Linux Profile",
+            "description": "Optimized build with debug symbols for profiling",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Profiling",
+                "CMAKE_CXX_FLAGS": "-O3 -g -fno-omit-frame-pointer -march=native",
+                "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "OFF",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+
             }
         },
         {
@@ -122,6 +136,13 @@
             "configurePreset": "linux-coverage",
             "displayName": "Build Linux Coverage",
             "description": "Build Linux coverage binary",
+            "jobs": 0
+        },
+        {
+            "name": "linux-profiling",
+            "configurePreset": "linux-profiling",
+            "displayName": "Build Linux Profiling",
+            "description": "Build Linux profiling binary",
             "jobs": 0
         },
         {

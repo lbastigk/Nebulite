@@ -22,6 +22,11 @@ linux-coverage:
 	@cmake --preset $@
 	@cmake --build --preset $@ -j4
 
+linux-profiling:
+	@echo "Building preset: $@"
+	@cmake --preset $@
+	@cmake --build --preset $@ -j4
+
 windows-release:
 	@echo "Building preset: $@"
 	@cmake --preset $@
@@ -163,27 +168,24 @@ clean-build-and-test-available: clean-build-available test
 
 
 ############################################
-# Profiling, Benchmarking, etc.
+# Profiling
 ############################################
 
-cli-lint:
-	@echo "Running CLI linter..."
-	@./Scripts/Validation/runClangTidy.sh
-	@echo "CLI linting completed."
-
-profiling:
+profiling: linux-profiling
 	@echo "Running profiling.nebs"
-	@sudo -S sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Debugging/profiling.nebs ; hotspot perf.data
+	@sudo -S sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Profiling task TaskFiles/Debugging/profiling.nebs ; hotspot perf.data
 
-profiling-small:
-	@echo "Running small profiling suite..."
-	@sudo -S sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/spawn_constantly.nebs ; hotspot perf.data
-	@echo "Small profiling completed."
+profiling-small: linux-profiling
+	@echo "Running small profiling benchmark: spawn_constantly.nebs"
+	@sudo -S sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Profiling task TaskFiles/Benchmarks/spawn_constantly.nebs ; hotspot perf.data
 
-profiling-large:
-	@echo "Running large profiling suite..."
-	@sudo -S sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Debug task TaskFiles/Benchmarks/gravity_XL.nebs ; hotspot perf.data
-	@echo "Large profiling completed."
+profiling-large: linux-profiling
+	@echo "Running large profiling benchmark: gravity_XL.nebs"
+	@sudo -S sysctl -w kernel.perf_event_paranoid=-1 ; sudo sysctl -w kernel.kptr_restrict=0 && perf record -F 99 -g -- ./bin/Nebulite_Profiling task TaskFiles/Benchmarks/gravity_XL.nebs ; hotspot perf.data
+
+############################################
+# Memory Checking
+############################################
 
 memory-check-gui:
 	@echo "Running memory check with Valgrind..."
@@ -195,6 +197,14 @@ memory-check-cli:
 	@ulimit -n 32768 && valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all ./bin/Nebulite_Debug task TaskFiles/Debugging/memoryleak.nebs
 	@echo "Memory check completed. See valgrind_output.txt for details."
 
+############################################
+# Linting
+############################################
+
+cli-lint:
+	@echo "Running CLI linter..."
+	@./Scripts/Validation/runClangTidy.sh
+	@echo "CLI linting completed."
 
 ############################################
 # Release Packaging
