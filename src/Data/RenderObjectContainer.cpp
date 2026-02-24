@@ -107,36 +107,34 @@ void RenderObjectContainer::append(Core::RenderObject* toAppend, uint16_t const&
 void RenderObjectContainer::batchWorkerFunc(DispatcherWorkspace const& workspace) {
     // Process
     // We update each object and check if it needs to be moved or deleted
-    for (auto& batch : *workspace.work) {
-        // Every batch worker has potential objects to move or delete
-        std::vector<Core::RenderObject*> to_move_local;
-        std::vector<Core::RenderObject*> to_delete_local;
+    // Every batch worker has potential objects to move or delete
+    std::vector<Core::RenderObject*> to_move_local;
+    std::vector<Core::RenderObject*> to_delete_local;
 
-        for (auto obj : batch.objects) {
-            obj->update();
+    for (auto obj : workspace.work->objects) {
+        obj->update();
 
-            if (!obj->flag.deleteFromScene) {
-                if (getTilePos(obj, workspace.dispResX, workspace.dispResY) != workspace.pos) {
-                    to_move_local.push_back(obj);
-                }
-            } else {
-                to_delete_local.push_back(obj);
+        if (!obj->flag.deleteFromScene) {
+            if (getTilePos(obj, workspace.dispResX, workspace.dispResY) != workspace.pos) {
+                to_move_local.push_back(obj);
             }
+        } else {
+            to_delete_local.push_back(obj);
         }
+    }
 
-        // All objects to move are collected in queue
-        for (auto ptr : to_move_local) {
-            batch.removeObject(ptr);
-            std::scoped_lock lock(workspace.reinsertionProcess->reinsertMutex);
-            workspace.reinsertionProcess->queue.push_back(ptr);
-        }
+    // All objects to move are collected in queue
+    for (auto ptr : to_move_local) {
+        workspace.work->removeObject(ptr);
+        std::scoped_lock lock(workspace.reinsertionProcess->reinsertMutex);
+        workspace.reinsertionProcess->queue.push_back(ptr);
+    }
 
-        // All objects to delete are collected in trash
-        for (auto ptr : to_delete_local) {
-            batch.removeObject(ptr);
-            std::scoped_lock lock(workspace.deletionProcess->deleteMutex);
-            workspace.deletionProcess->trash.push_back(ptr);
-        }
+    // All objects to delete are collected in trash
+    for (auto ptr : to_delete_local) {
+        workspace.work->removeObject(ptr);
+        std::scoped_lock lock(workspace.deletionProcess->deleteMutex);
+        workspace.deletionProcess->trash.push_back(ptr);
     }
 }
 
@@ -204,32 +202,37 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
                 continue;
             }
 
-            auto& tile = it->second;
+            // TODO: Combine multiple batches per thread to avoid too many threads
+            //       Match batchCostGoal: the vector of batches total cost per thread should be around batchCostGoal
+            //       Remember to clear the workspace after each workerIndex increment!
+            for (auto& batch : it->second) {
+                // Set value for worker
+                if (workerIndex >= batchWorkers.size()) {
+                    auto worker = std::make_unique<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>(stopFlag);
+                    worker->workspace.reinsertionProcess = &reinsertionProcess;
+                    worker->workspace.deletionProcess = &deletionProcess;
+                    batchWorkers.push_back(std::move(worker));
+                }
+                batchWorkers[workerIndex]->workspace.work = &batch;
+                batchWorkers[workerIndex]->workspace.pos = pos;
+                batchWorkers[workerIndex]->workspace.dispResX = dispResX;
+                batchWorkers[workerIndex]->workspace.dispResY = dispResY;
 
-            // Set value for worker
-            if (workerIndex >= batchWorkers.size()) {
-                auto worker = std::make_unique<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>(stopFlag);
-                worker->workspace.reinsertionProcess = &reinsertionProcess;
-                worker->workspace.deletionProcess = &deletionProcess;
-                batchWorkers.push_back(std::move(worker));
+                workerIndex++;
             }
-            batchWorkers[workerIndex]->workspace.work = &tile;
-            batchWorkers[workerIndex]->workspace.pos = pos;
-            batchWorkers[workerIndex]->workspace.dispResX = dispResX;
-            batchWorkers[workerIndex]->workspace.dispResY = dispResY;
-
-            workerIndex++;
         }
     }
 
+
+
     // Start all workers
-    for (auto const& w : batchWorkers) {
-        w->startWork();
+    for (size_t wIdx = 0; wIdx < workerIndex; wIdx++) {
+        batchWorkers[wIdx]->startWork();
     }
 
     // Wait for all workers to finish
-    for (auto const& w : batchWorkers) {
-        w->waitForWorkFinished();
+    for (size_t wIdx = 0; wIdx < workerIndex; wIdx++) {
+        batchWorkers[wIdx]->waitForWorkFinished();
     }
 
     // Objects to move

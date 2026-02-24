@@ -41,9 +41,9 @@
 /**
  * @def BATCH_COST_GOAL
  * @brief Target cost of each Render::update thread batch.
- * @details Set to 0 to disable dynamic batching and process all pairs in a single batch.
- *          The amount of threads is the sum of batches in all tiles being processed.
+ * @details Set to 0 to disable dynamic batching and process all members per tile in a single batch.
+ *          The amount of threads is the sum of batches in all tiles being processed, times the amount of layers
  */
-static auto constexpr batchCostGoal = 512;
+static auto constexpr batchCostGoal = 2048;
 
 #endif // NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP

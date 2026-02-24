@@ -49,12 +49,8 @@ public:
     void prepare() override ;
 
 private:
-    struct ListenerEntry {
-        Interaction::Execution::Domain& domain;
-        uint32_t id; // TODO: If we want all domains to be able to broadcast/listen, the unique id should be part of the Domain class itself, then we may use domain->getId() instead of passing it in here.
-    };
-
-    HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>> broadcasters;
+    static auto constexpr broadcasterSpreading = 16;
+    std::array<HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>>,broadcasterSpreading> broadcasters;
     HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Listener>>> listeners;
 
     /**
