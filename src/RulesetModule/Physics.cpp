@@ -117,11 +117,11 @@ void Physics::elasticCollision(Interaction::Context const& context, double**& sl
                 double const dF2X = m2 * (v2newX - v2X) / dt;
 
                 // Get last collision time pointer
-                double const lastColX = baseVal(otr, Key::physics_lastCollisionX);
+
 
                 // Lock and write
-                auto slfLock = context.self.lockDocument();
-                if (lastColX < *globalVal.t) {
+                auto slfLock = context.other.lockDocument();
+                if (baseVal(otr, Key::physics_lastCollisionX) < *globalVal.t) {
                     baseVal(otr, Key::physics_FX) += dF2X;
                     baseVal(otr, Key::physics_lastCollisionX) = *globalVal.t;
                 }
@@ -138,12 +138,9 @@ void Physics::elasticCollision(Interaction::Context const& context, double**& sl
                 double const dt = *globalVal.dt;
                 double const dF2Y = m2 * (v2newY - v2Y) / dt;
 
-                // Get last collision time pointer
-                double const lastColY = baseVal(otr, Key::physics_lastCollisionY);
-
                 // Lock and write
-                auto slfLock = context.self.lockDocument();
-                if (lastColY < *globalVal.t) {
+                auto slfLock = context.other.lockDocument();
+                if (baseVal(otr, Key::physics_lastCollisionY) < *globalVal.t) {
                     baseVal(otr, Key::physics_FY) += dF2Y;
                     baseVal(otr, Key::physics_lastCollisionY) = *globalVal.t;
                 }
