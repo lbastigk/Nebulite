@@ -52,16 +52,17 @@ macos-debug:
 # Gather native and available Presets
 ############################################
 
-# Find native build preset for this machine
+# Find native build preset for this machine,
+# not including coverage or profiling builds
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-	NATIVE_PRESET := linux-release linux-debug linux-coverage
+	NATIVE_PRESET := linux-release linux-debug
 else ifeq ($(UNAME_S),Darwin)
 	NATIVE_PRESET := macos-release macos-debug
 else ifeq ($(OS),Windows_NT)
 	NATIVE_PRESET := windows-release windows-debug
 else
-	NATIVE_PRESET := linux-release linux-debug linux-coverage
+	NATIVE_PRESET := linux-release linux-debug
 endif
 
 # Find available presets for this machine based on OS and compilers available
