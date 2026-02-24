@@ -110,8 +110,8 @@ private:
     // Set ContainerType, then run:
     // Scripts/Benchmark/BroadcastListenContainer.sh
     //
-    // Average time for small benchmark:       2.034500 s
-    // Average frame time for large benchmark: 0.012373 s
+    // Average time for small benchmark:       1.552100 s
+    // Average frame time for large benchmark: 0.012169 s
     using ContainerType = Data::BroadcastListenContainer::FlatContainer;
 
     std::unique_ptr<ContainerType> worker[THREADRUNNER_COUNT];

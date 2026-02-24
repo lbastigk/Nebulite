@@ -30,13 +30,13 @@
  * @details If set to 1, all threads share the same map.
  *          Optimized to not use any special indexing, but simple access to [0] if set to 1.
  */
-#define ORDERED_DOUBLE_POINTERS_MAPS 16
+#define ORDERED_DOUBLE_POINTERS_MAPS 8
 
 /**
  * @def THREADRUNNER_COUNT
  * @brief Number of thread runners for processing broadcast-listen pairs.
  */
-#define THREADRUNNER_COUNT 16
+#define THREADRUNNER_COUNT 8
 
 /**
  * @def BATCH_COST_GOAL
@@ -45,10 +45,5 @@
  *          The amount of threads is the sum of batches in all tiles being processed.
  */
 static auto constexpr batchCostGoal = 512;
-/*
- * 0128 : 0.0138809
- * 0256 : 0.0137291
- * 1024 : 0.0137132
- */
 
 #endif // NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP
