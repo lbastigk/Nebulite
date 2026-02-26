@@ -238,20 +238,20 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
                 }
 
                 // Get current worker
-                auto const& currentWorker = batchWorkers.back();
+                auto& currentWorker = batchWorkers.back()->workspace;
 
                 // Initialize new worker by removing any existing work and resetting cost
                 if (initializeNewWorker) {
-                    currentWorker->workspace.work.clear();
-                    currentWorker->workspace.cost = 0;
+                    currentWorker.work.clear();
+                    currentWorker.cost = 0;
                 }
 
                 // Now add the work to the worker
-                currentWorker->workspace.work.push_back(&batch);
-                currentWorker->workspace.pos = pos;
-                currentWorker->workspace.dispResX = dispResX;
-                currentWorker->workspace.dispResY = dispResY;
-                currentWorker->workspace.cost += batch.estimatedCost;
+                currentWorker.work.push_back(&batch);
+                currentWorker.pos = pos;
+                currentWorker.dispResX = dispResX;
+                currentWorker.dispResY = dispResY;
+                currentWorker.cost += batch.estimatedCost;
             }
         }
     }
