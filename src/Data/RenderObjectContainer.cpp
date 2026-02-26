@@ -85,6 +85,7 @@ void RenderObjectContainer::append(Core::RenderObject* toAppend, uint16_t const&
         // NOLINTNEXTLINE
         [](Batch const& b) {
             if constexpr (batchCostGoal == 0) {
+                // NOLINTNEXTLINE
                 return true; // No cost goal, accept all batches
             }
             else {
@@ -108,33 +109,35 @@ void RenderObjectContainer::batchWorkerFunc(DispatcherWorkspace const& workspace
     // Process
     // We update each object and check if it needs to be moved or deleted
     // Every batch worker has potential objects to move or delete
-    std::vector<Core::RenderObject*> to_move_local;
-    std::vector<Core::RenderObject*> to_delete_local;
+    for (auto& batch : workspace.work) {
+        std::vector<Core::RenderObject*> to_move_local;
+        std::vector<Core::RenderObject*> to_delete_local;
 
-    for (auto obj : workspace.work->objects) {
-        obj->update();
+        for (auto obj : batch->objects) {
+            obj->update();
 
-        if (!obj->flag.deleteFromScene) {
-            if (getTilePos(obj, workspace.dispResX, workspace.dispResY) != workspace.pos) {
-                to_move_local.push_back(obj);
+            if (!obj->flag.deleteFromScene) {
+                if (getTilePos(obj, workspace.dispResX, workspace.dispResY) != workspace.pos) {
+                    to_move_local.push_back(obj);
+                }
+            } else {
+                to_delete_local.push_back(obj);
             }
-        } else {
-            to_delete_local.push_back(obj);
         }
-    }
 
-    // All objects to move are collected in queue
-    for (auto ptr : to_move_local) {
-        workspace.work->removeObject(ptr);
-        std::scoped_lock lock(workspace.reinsertionProcess->reinsertMutex);
-        workspace.reinsertionProcess->queue.push_back(ptr);
-    }
+        // All objects to move are collected in queue
+        for (auto ptr : to_move_local) {
+            batch->removeObject(ptr);
+            std::scoped_lock lock(workspace.reinsertionProcess->reinsertMutex);
+            workspace.reinsertionProcess->queue.push_back(ptr);
+        }
 
-    // All objects to delete are collected in trash
-    for (auto ptr : to_delete_local) {
-        workspace.work->removeObject(ptr);
-        std::scoped_lock lock(workspace.deletionProcess->deleteMutex);
-        workspace.deletionProcess->trash.push_back(ptr);
+        // All objects to delete are collected in trash
+        for (auto ptr : to_delete_local) {
+            batch->removeObject(ptr);
+            std::scoped_lock lock(workspace.deletionProcess->deleteMutex);
+            workspace.deletionProcess->trash.push_back(ptr);
+        }
     }
 }
 
@@ -189,7 +192,7 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
     // Note that we cannot directly use the maximum tile radius, as for some positions it may be smaller!
     // So we should subtract at least one tile, perhaps even two to be safe.
     // Or we go the actual good way and do the math to determine hMax/wMax based on the radius and tile size.
-    size_t workerIndex = 0;
+    workerCount = 0;
     for (int16_t const dX : tileOffsetsX) {
         auto const currentTilePosX = static_cast<int16_t>(tilePosX - dX);
         for (int16_t const dY : tileOffsetsY) {
@@ -202,36 +205,64 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
                 continue;
             }
 
-            // TODO: Combine multiple batches per thread to avoid too many threads
-            //       Match batchCostGoal: the vector of batches total cost per thread should be around batchCostGoal
-            //       Remember to clear the workspace after each workerIndex increment!
+            // Create worker threads that try to closely match the batch cost goal
+            // If the current batch added to the worker exceeds the batch cost goal, we start a new worker thread for the next batch
             for (auto& batch : it->second) {
-                // Set value for worker
-                if (workerIndex >= batchWorkers.size()) {
+                bool initializeNewWorker = false;
+                // NOLINTBEGIN
+                if constexpr (batchCostGoal == 0) {
+                    // We only need to create a single thread
+                    if (batchWorkers.size() == 0) {
+                        initializeNewWorker = true;
+                        workerCount++;
+                    }
+                }
+                else {
+                    if (batchWorkers.size() == 0 || batchWorkers.back()->workspace.cost + batch.estimatedCost > batchCostGoal) {
+                        initializeNewWorker = true;
+                        workerCount++;
+                    }
+                }
+                // NOLINTEND
+                if (workerCount == 0) {
+                    initializeNewWorker = true;
+                    workerCount++;
+                }
+                
+                // Add new worker thread to the list
+                if (workerCount > batchWorkers.size()) {
                     auto worker = std::make_unique<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>(stopFlag);
                     worker->workspace.reinsertionProcess = &reinsertionProcess;
                     worker->workspace.deletionProcess = &deletionProcess;
                     batchWorkers.push_back(std::move(worker));
                 }
-                batchWorkers[workerIndex]->workspace.work = &batch;
-                batchWorkers[workerIndex]->workspace.pos = pos;
-                batchWorkers[workerIndex]->workspace.dispResX = dispResX;
-                batchWorkers[workerIndex]->workspace.dispResY = dispResY;
 
-                workerIndex++;
+                // Get current worker
+                auto const& currentWorker = batchWorkers.back();
+
+                // Initialize new worker by removing any existing work and resetting cost
+                if (initializeNewWorker) {
+                    currentWorker->workspace.work.clear();
+                    currentWorker->workspace.cost = 0;
+                }
+
+                // Now add the work to the worker
+                currentWorker->workspace.work.push_back(&batch);
+                currentWorker->workspace.pos = pos;
+                currentWorker->workspace.dispResX = dispResX;
+                currentWorker->workspace.dispResY = dispResY;
+                currentWorker->workspace.cost += batch.estimatedCost;
             }
         }
     }
 
-
-
     // Start all workers
-    for (size_t wIdx = 0; wIdx < workerIndex; wIdx++) {
+    for (size_t wIdx = 0; wIdx < workerCount; wIdx++) {
         batchWorkers[wIdx]->startWork();
     }
 
     // Wait for all workers to finish
-    for (size_t wIdx = 0; wIdx < workerIndex; wIdx++) {
+    for (size_t wIdx = 0; wIdx < workerCount; wIdx++) {
         batchWorkers[wIdx]->waitForWorkFinished();
     }
 
@@ -327,6 +358,14 @@ bool RenderObjectContainer::Batch::removeObject(Core::RenderObject* obj) {
         return true;
     }
     return false;
+}
+
+RenderObjectContainer::ContainerInfo RenderObjectContainer::getContainerInfo() const {
+    ContainerInfo info;
+    info.activeWorkers = workerCount;
+    info.totalWorkers = batchWorkers.size();
+    info.totalTiles = ObjectContainer.size();
+    return info;
 }
 
 } // namespace Nebulite::Core

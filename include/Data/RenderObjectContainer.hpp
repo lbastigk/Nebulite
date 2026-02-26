@@ -173,6 +173,17 @@ public:
      */
     Core::RenderObject* getObjectFromId(uint32_t const& id);
 
+    struct ContainerInfo {
+        size_t activeWorkers;
+        size_t totalWorkers;
+        size_t totalTiles;
+    };
+
+    /**
+     * @brief Returns information about the internal state of the container for debugging purposes.
+     */
+    ContainerInfo getContainerInfo() const;
+
 private:
     /**
      * @brief Holds all objects in the container.
@@ -222,7 +233,7 @@ private:
     std::atomic<bool> stopFlag;
 
     struct DispatcherWorkspace {
-        Batch* work;
+        std::vector<Batch*> work;
         int16_t tilePosX;
         int16_t tilePosY;
         uint16_t dispResX;
@@ -230,6 +241,7 @@ private:
         std::pair<uint16_t, uint16_t> pos;
         ReinsertionProcess* reinsertionProcess;
         DeletionProcess* deletionProcess;
+        uint32_t cost = 0;
     };
 
     static void batchWorkerFunc(DispatcherWorkspace const& workspace);
@@ -238,6 +250,11 @@ private:
      * @brief Holds all batch worker threads.
      */
     std::vector<std::unique_ptr<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>> batchWorkers;
+
+    /**
+     * @brief Actual worker count from last update.
+     */
+    size_t workerCount = 0;
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_DATA_RENDER_OBJECT_CONTAINER_HPP

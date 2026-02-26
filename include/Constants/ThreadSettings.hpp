@@ -30,20 +30,19 @@
  * @details If set to 1, all threads share the same map.
  *          Optimized to not use any special indexing, but simple access to [0] if set to 1.
  */
-#define ORDERED_DOUBLE_POINTERS_MAPS 8
+#define ORDERED_DOUBLE_POINTERS_MAPS 16
 
 /**
  * @def THREADRUNNER_COUNT
  * @brief Number of thread runners for processing broadcast-listen pairs.
  */
-#define THREADRUNNER_COUNT 8
+#define THREADRUNNER_COUNT 16
 
 /**
  * @def BATCH_COST_GOAL
  * @brief Target cost of each Render::update thread batch.
- * @details Set to 0 to disable dynamic batching and process all members per tile in a single batch.
- *          The amount of threads is the sum of batches in all tiles being processed, times the amount of layers
+ * @details Set to 0 to disable dynamic batching and process all members per layer in a single thread
  */
-static auto constexpr batchCostGoal = 2048;
+static auto constexpr batchCostGoal = 512;
 
 #endif // NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP
