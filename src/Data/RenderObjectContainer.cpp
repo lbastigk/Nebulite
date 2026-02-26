@@ -223,6 +223,8 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
                     }
                 }
                 else {
+                    // Go to next worker thread if adding the batch would exceed the batch cost goal
+                    // Or if there are no worker threads yet, we need to initialize the first one
                     if (batchWorkers.size() == 0 || batchWorkers.back()->workspace.cost + batch.estimatedCost > batchCostGoal) {
                         initializeNewWorker = true;
                         workerCount++;
@@ -370,9 +372,24 @@ bool RenderObjectContainer::Batch::removeObject(Core::RenderObject* obj) {
 
 RenderObjectContainer::ContainerInfo RenderObjectContainer::getContainerInfo() const {
     ContainerInfo info;
+
+    // Container stats
+    info.containerTotalTiles = ObjectContainer.size();
+    info.containerTotalCost = 0;
+    for (auto const& batches : std::views::values(ObjectContainer)) {
+        for (auto const& [_, cost] : batches) {
+            info.containerTotalCost += cost;
+        }
+    }
+
+    // Worker stats
     info.activeWorkers = workerCount;
     info.totalWorkers = batchWorkers.size();
-    info.totalTiles = ObjectContainer.size();
+    info.activeWorkersTotalCost = 0;
+    for (size_t wIdx = 0; wIdx < workerCount; wIdx++) {
+        info.activeWorkersTotalCost += batchWorkers[wIdx]->workspace.cost;
+    }
+
     return info;
 }
 

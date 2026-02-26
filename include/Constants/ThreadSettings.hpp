@@ -42,7 +42,8 @@
  * @def BATCH_COST_GOAL
  * @brief Target cost of each Render::update thread batch.
  * @details Set to 0 to disable dynamic batching and process all members per layer in a single thread
+ * @todo Breaks for too many workers... Likely an issue with cache list management? Forgot to lock the map?
  */
-static auto constexpr batchCostGoal = 512;
+static auto constexpr batchCostGoal = 0;
 
 #endif // NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP

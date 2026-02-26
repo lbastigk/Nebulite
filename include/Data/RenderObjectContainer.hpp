@@ -174,9 +174,14 @@ public:
     Core::RenderObject* getObjectFromId(uint32_t const& id);
 
     struct ContainerInfo {
+        // Container stats
+        size_t containerTotalTiles;
+        size_t containerTotalCost;
+
+        // Worker stats
         size_t activeWorkers;
         size_t totalWorkers;
-        size_t totalTiles;
+        size_t activeWorkersTotalCost;
     };
 
     /**

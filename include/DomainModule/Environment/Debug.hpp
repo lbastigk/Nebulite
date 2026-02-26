@@ -42,8 +42,17 @@ public:
 
     struct Key {
         DECLARE_SCOPE("renderer.environment.debug.")
-        static auto constexpr workersActive = MAKE_SCOPED("workers.active");
-        static auto constexpr workersTotal = MAKE_SCOPED("workers.total");
+
+        // Container info
+        static auto constexpr containerTotalTiles = MAKE_SCOPED("container.totalTiles");
+        static auto constexpr containerTotalCost = MAKE_SCOPED("container.totalCost");
+
+        // Worker info: Active
+        static auto constexpr workersActiveCount = MAKE_SCOPED("workers.active.count");
+        static auto constexpr workersActiveTotalCost = MAKE_SCOPED("workers.active.cost");
+
+        // Worker info: Total
+        static auto constexpr workersTotalCount = MAKE_SCOPED("workers.total.count");
     };
 
 
