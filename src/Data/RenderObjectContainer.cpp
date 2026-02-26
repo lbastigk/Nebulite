@@ -192,12 +192,14 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
     // Note that we cannot directly use the maximum tile radius, as for some positions it may be smaller!
     // So we should subtract at least one tile, perhaps even two to be safe.
     // Or we go the actual good way and do the math to determine hMax/wMax based on the radius and tile size.
+
+    // Create worker threads for batches in visible tiles, based on batch cost and other factors
     workerCount = 0;
+    std::pair<int16_t, int16_t> lastPos;
     for (int16_t const dX : tileOffsetsX) {
-        auto const currentTilePosX = static_cast<int16_t>(tilePosX - dX);
         for (int16_t const dY : tileOffsetsY) {
-            auto const currentTilePosY = static_cast<int16_t>(tilePosY - dY);
-            std::pair<int16_t, int16_t> pos = std::make_pair(currentTilePosX, currentTilePosY);
+            // Current tile position we want to update
+            std::pair<int16_t, int16_t> pos = std::make_pair(tilePosX - dX, tilePosY - dY);
 
             // Check if container has tile at position, if not, skip
             auto const it = ObjectContainer.find(pos);
@@ -208,7 +210,10 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
             // Create worker threads that try to closely match the batch cost goal
             // If the current batch added to the worker exceeds the batch cost goal, we start a new worker thread for the next batch
             for (auto& batch : it->second) {
+                // ==================================
+                // See if we need another worker thread based on multiple factors, such as batch cost, current size etc.
                 bool initializeNewWorker = false;
+
                 // NOLINTBEGIN
                 if constexpr (batchCostGoal == 0) {
                     // We only need to create a single thread
@@ -224,12 +229,16 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
                     }
                 }
                 // NOLINTEND
-                if (workerCount == 0) {
+
+                // Initialize new worker if it's the first batch,
+                // or if we moved to a new tile position. (Otherwise we would overwrite position data of the worker)
+                if (workerCount == 0 || pos != lastPos) {
                     initializeNewWorker = true;
                     workerCount++;
                 }
+                // ==================================
                 
-                // Add new worker thread to the list
+                // Add new worker thread to the list, if needed
                 if (workerCount > batchWorkers.size()) {
                     auto worker = std::make_unique<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>(stopFlag);
                     worker->workspace.reinsertionProcess = &reinsertionProcess;
@@ -237,21 +246,20 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
                     batchWorkers.push_back(std::move(worker));
                 }
 
-                // Get current worker
+                // Get current worker, set up workspace and add work to it
                 auto& currentWorker = batchWorkers.back()->workspace;
-
-                // Initialize new worker by removing any existing work and resetting cost
-                if (initializeNewWorker) {
+                if (initializeNewWorker) { // Reset work of a newly initialized worker
                     currentWorker.work.clear();
                     currentWorker.cost = 0;
                 }
-
-                // Now add the work to the worker
                 currentWorker.work.push_back(&batch);
                 currentWorker.pos = pos;
                 currentWorker.dispResX = dispResX;
                 currentWorker.dispResY = dispResY;
                 currentWorker.cost += batch.estimatedCost;
+
+                // Set last position for next iteration
+                lastPos = pos;
             }
         }
     }
@@ -266,7 +274,7 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
         batchWorkers[wIdx]->waitForWorkFinished();
     }
 
-    // Objects to move
+    // Objects to move to new tile positions
     for (auto const obj_ptr : reinsertionProcess.queue) {
         append(obj_ptr, dispResX, dispResY);
     }
