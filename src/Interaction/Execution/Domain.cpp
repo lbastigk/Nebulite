@@ -60,7 +60,7 @@ Constants::Error Domain::parseStr(std::string const& str) {
 }
 
 Data::odpvec* Domain::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<Data::ScopedKeyView> const& keys) const {
-    return domainScope.ensureOrderedCacheListMinimalLock(uniqueId, keys);
+    return domainScope.ensureOrderedCacheList(uniqueId, keys);
 }
 
 std::unique_lock<std::recursive_mutex> Domain::lockDocument() const {

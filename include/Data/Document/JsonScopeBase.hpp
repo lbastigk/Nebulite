@@ -151,9 +151,9 @@ public:
 
     [[nodiscard]] JsonScopeBase& shareScopeBase(ScopedKeyView const& key) const ;
     [[nodiscard]] JsonScopeBase& shareScopeBase(ScopedKey const& key) const {return shareScopeBase(key.view());}
-
     [[nodiscard]] JsonScopeBase& shareScopeBase(std::string const& key) const ;
 
+    // Share a dummy scope, where all access is denied
     [[nodiscard]] JsonScopeBase& shareDummyScopeBase() const ;
 
     //------------------------------------------
@@ -207,21 +207,6 @@ public:
     [[nodiscard]] std::unique_lock<std::recursive_mutex> lock() const ;
 
     //------------------------------------------
-    // Getters: Unique id based retrieval
-
-    MappedOrderedDoublePointers* getOrderedCacheListMap() {
-        if constexpr (lockArraySize == 1) {
-            // NOLINTNEXTLINE
-            return &expressionRefs[0];
-        }
-        else {
-            static auto indexRoller = Utility::Threading::atomicThreadRollGenerator(lockArraySize);
-            thread_local size_t threadIndex = indexRoller();
-            return &expressionRefs[threadIndex];
-        }
-    }
-
-    //------------------------------------------
     // Extra fast ordered cache list retrieval with minimal locking
 
     static size_t assignThreadIndex() {
@@ -230,7 +215,7 @@ public:
         return threadIndex;
     }
 
-    odpvec* ensureOrderedCacheListMinimalLock(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
+    odpvec* ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
         thread_local size_t threadIndex = assignThreadIndex();
         if (threadIndex < noLockArraySize) {
             return expressionRefsNoLock[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
