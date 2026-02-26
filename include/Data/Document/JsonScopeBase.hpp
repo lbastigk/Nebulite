@@ -50,6 +50,10 @@ constexpr std::array<T, N> make_array_with_arg(Arg&& arg) {
  *          Holds little data itself, mostly acts as a scoped view over an existing JSON document or another JsonScope.
  */
 class JsonScopeBase {
+public:
+    static auto constexpr noLockArraySize = ORDERED_DOUBLE_POINTERS_MAPS+1 ; // A bit higher to allow for extra threads coming from RenderObjectContainer
+    static auto constexpr lockArraySize = 1;
+
 protected:
     std::shared_ptr<JSON> baseDocument;
 
@@ -68,9 +72,6 @@ private:
 
     //------------------------------------------
     // Ordered double pointers system
-
-    static auto constexpr noLockArraySize = 2*ORDERED_DOUBLE_POINTERS_MAPS ; // A bit higher to allow for extra threads coming from RenderObjectContainer, in case those are batched
-    static auto constexpr lockArraySize = ORDERED_DOUBLE_POINTERS_MAPS;
 
     /**
      * @brief Mapped ordered double pointers for expression references.
@@ -223,13 +224,19 @@ public:
     //------------------------------------------
     // Extra fast ordered cache list retrieval with minimal locking
 
-    odpvec* ensureOrderedCacheListMinimalLock(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
+    static size_t assignThreadIndex() {
         static auto indexCounter = Utility::Threading::atomicThreadIncrementGenerator();
         thread_local size_t threadIndex = indexCounter();
+        return threadIndex;
+    }
+
+    odpvec* ensureOrderedCacheListMinimalLock(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
+        thread_local size_t threadIndex = assignThreadIndex();
         if (threadIndex < noLockArraySize) {
             return expressionRefsNoLock[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
         }
         // spread rest on locking maps
+        // TODO: Currently not supported, somehow this breaks the thread safety...
         return expressionRefs[threadIndex % lockArraySize].ensureOrderedCacheList(uniqueId, keys);
     }
 

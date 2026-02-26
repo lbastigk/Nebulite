@@ -35,6 +35,7 @@ namespace Nebulite::Data {
  * @class Nebulite::Data::DynamicFixedArray
  * @brief Dynamic fixed-size array for double pointers.
  * @details Size is set once at construction and never changes.
+ * @todo Change to a simple std::vector or inlinedvector later, should be more efficient and simpler.
  */
 class DynamicFixedArray {
 public:
@@ -125,7 +126,7 @@ public:
      *          without needing to look them up in a hashmap.
      *          see MappedOrderedDoublePointers::quickCache for important considerations.
      */
-    static constexpr size_t quickCacheSize = 30;
+    static constexpr size_t quickCacheSize = 32;
 
     /**
      * @brief Generates a unique ID for an expression based on its string representation.
@@ -143,24 +144,7 @@ public:
      * @param keys The vector of keys to populate the cache with.
      * @return A pointer to the ordered vector of double pointers for the specified keys.
      */
-    odpvec* ensureOrderedCacheList(
-        uint64_t const& uniqueId,
-        std::vector<ScopedKeyView> const& keys
-        );
-
-    /**
-     * @brief Ensures the existence of an ordered cache list of double pointers for "other" context variables. Non-locking version.
-     * @details Checks if the current "other" reference JSON document contains a cached, ordered list of double pointers
-     *          corresponding to all variables referenced by this Expression in the "other" context. If the cache entry does not exist,
-     *          it is created and populated for fast indexed access during expression evaluation.
-     * @param uniqueId The unique ID of the expression.
-     * @param contextOther The vector of virtual doubles in the "other" context to populate the cache with.
-     * @return A pointer to the ordered vector of double pointers for the referenced "other" variables.
-     */
-    odpvec* ensureOrderedCacheListNoLock(
-        uint64_t const& uniqueId,
-        std::vector<std::shared_ptr<Interaction::Logic::VirtualDouble>> const& contextOther
-    );
+    odpvec* ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
 
     /**
      * @brief Ensures the existence of an ordered cache list of double pointers for a set of keys. Non-locking version.
@@ -168,10 +152,7 @@ public:
      * @param keys The vector of keys to populate the cache with.
      * @return A pointer to the ordered vector of double pointers for the specified keys.
      */
-    odpvec* ensureOrderedCacheListNoLock(
-        uint64_t const& uniqueId,
-        std::vector<ScopedKeyView> const& keys
-        );
+    odpvec* ensureOrderedCacheListNoLock(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
 
 private:
     /**
@@ -206,6 +187,13 @@ private:
      *       This function should be called right at the start of the program for known expressions to ensure they get low IDs.
      */
     OrderedDoublePointers quickCache[quickCacheSize];
+
+    //------------------------------
+    // Helper functions to retrieve values from map/cache
+
+    odpvec* fromQuickCache(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
+
+    odpvec* fromMap(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
 };
 } // namespace Nebulite::Data
 

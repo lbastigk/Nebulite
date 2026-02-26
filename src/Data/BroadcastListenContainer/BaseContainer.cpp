@@ -16,9 +16,9 @@ BaseContainer::~BaseContainer() noexcept {
 void BaseContainer::ensureEarlyThreadId() {
     thread_local bool threadIdAssigned = false;
     if (threadIdAssigned) return; // Already assigned for this thread
-
-    JsonScopeBase dummy;
-    dummy.ensureOrderedCacheListMinimalLock(UINT64_MAX,{}); // Reserve the max id, triggering a thread id assignment for this thread
+    if (size_t const id = JsonScopeBase::assignThreadIndex(); id >= JsonScopeBase::noLockArraySize) {
+        throw std::runtime_error("Assigned thread ID for BroadcastListenContainer exceeds the non-locking id size. This means another class assigned a thread ID before this container. Ensure that the BroadcastListenContainer is initialized before any other class that assigns thread IDs!");
+    }
     threadIdAssigned = true;
 }
 
