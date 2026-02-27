@@ -21,11 +21,19 @@ void FlatContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const
 }
 
 void FlatContainer::listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
-    // Listening generally happens on multiple threads, so we need to lock the listener map for this topic while modifying it
-    // TODO: distribute listeners across an array of maps using the listeners id
-    auto lock = listeners.lock(listener->topic);
-    auto& t = listeners[listener->topic];
-    t.push_back(listener);
+    static auto threadSpreader = Utility::Threading::atomicThreadIncrementGenerator();
+
+    // First half of listenerSpreading without locking, second half spreads with locking
+    if (thread_local size_t threadId = threadSpreader(); threadId < listenerSpreading / 2) {
+        // 0 to listenerSpreading/2 - 1: No locking, purely thread-local
+        listeners[threadId][listener->topic].push_back(listener);
+    }
+    else {
+        // listenerSpreading/2 to listenerSpreading - 1: With locking, shared among threads
+        auto const sharedId = threadId % (listenerSpreading / 2) + listenerSpreading / 2;
+        listeners[sharedId].lock(listener->topic);
+        listeners[sharedId][listener->topic].push_back(listener);
+    }
 }
 
 void FlatContainer::process() {
@@ -35,7 +43,8 @@ void FlatContainer::process() {
     thread_local double const relativeOffset = static_cast<double>(workerInfo.index) / static_cast<double>(workerInfo.count);
 
     auto const broadcasterOffset = static_cast<size_t>(relativeOffset*static_cast<double>(broadcasterSpreading));
-    listeners.forall([&](std::string const& topic, auto& lv) {
+    for (auto& listenerMap : listeners) {
+        listenerMap.forall([&](std::string const& topic, auto& lv) {
 
         // Derive size and offset for this worker thread
         auto const lvSize = lv.size();
@@ -48,7 +57,9 @@ void FlatContainer::process() {
 
             for (size_t j = 0; j < broadcasterSpreading; ++j) {
                 size_t const broadcasterIdx = (j + broadcasterOffset) % broadcasterSpreading;
-                for (auto& broadcasterMap = broadcasters[broadcasterIdx]; auto const& ruleset : broadcasterMap[topic]) { // No offsetting here, since all broadcasters are per-worker thread and thus already distributed. Tests show that offsetting here does not improve performance.
+                for (auto& broadcasterMap = broadcasters[broadcasterIdx]; auto const& ruleset : broadcasterMap[topic]) {
+                    // No offsetting here, since all broadcasters are per-worker thread and thus already distributed.
+                    // Tests show that offsetting here does not improve performance.
                     if (ruleset->getId() == listener->listenerId) {
                         continue; // Skip if the ruleset is from the same render object as the listener
                     }
@@ -61,6 +72,7 @@ void FlatContainer::process() {
 
         lv.clear(); // Clear the listener vector for this topic after processing
     });
+    }
 
     // Cleanup: Clear all broadcaster vectors
     for (auto& broadcasterMap : broadcasters) {
