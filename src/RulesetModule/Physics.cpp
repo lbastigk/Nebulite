@@ -163,7 +163,8 @@ void Physics::applyForce(Interaction::Context const& context, double**& slf, dou
     double const dvY = aY * dt;
 
     // Lock and apply all physics calculations
-    auto slfLock = context.self.lockDocument();
+    // Local ruleset, no locking needed
+    //auto slfLock = context.self.lockDocument();
 
     // Acceleration is based on F
     baseVal(slf, Key::physics_aX) = aX;
