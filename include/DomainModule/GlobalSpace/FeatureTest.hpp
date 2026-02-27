@@ -39,9 +39,9 @@ public:
         "Usage: feature-test functree\n";
 
     Constants::Error selfOtherGlobalEvaluation() const ;
-    static auto constexpr selfOtherGlobalEvaluation_name = "feature-test self-other-global-evaluation";
+    static auto constexpr selfOtherGlobalEvaluation_name = "evaluation";
     static auto constexpr selfOtherGlobalEvaluation_desc = "Tests evaluation of self and other globals in one expression\n"
-        "Usage: feature-test self-other-global-evaluation\n";
+        "Usage: evaluation\n";
 
 
     //------------------------------------------
