@@ -40,6 +40,33 @@ class JsonScopeBase;
 } // namespace Nebulite::Data
 
 //------------------------------------------
+// Helper struct for compile-time fixed strings as NTTP parameters
+
+template <std::size_t N>
+struct FixedOptionalString {
+    char value[N == 0 ? 1 : N]{};
+
+    // NOLINTNEXTLINE
+    consteval FixedOptionalString(const char (&str)[N == 0 ? 1 : N]) {
+        static_assert(N > 0, "Use the default constructor for empty strings");
+        for (std::size_t i = 0; i < N; ++i) value[i] = str[i];
+    }
+
+    consteval FixedOptionalString() {
+        static_assert(N == 0, "Default constructor can only be used for empty strings");
+    }
+
+    static constexpr bool has_scope = N > 0;
+    constexpr std::string_view view() {
+        if constexpr (N > 0) return {value, N - 1};
+        else return {};
+    }
+};
+
+template <std::size_t N>
+FixedOptionalString(const char (&)[N]) -> FixedOptionalString<N>;
+
+//------------------------------------------
 // Self-owning scoped key
 namespace Nebulite::Data {
 /**
@@ -162,20 +189,47 @@ public:
      * @return A ScopedKey instance with the specified required scope and key.
      */
     template <auto &RequiredScope, typename T>
-    static consteval ScopedKeyView create(T const& keyInScope) noexcept {
-        // compute length at compile time
-        constexpr const char *s = RequiredScope;
-        constexpr std::size_t len = [] (const char *p) constexpr {
-            std::size_t i = 0;
-            while (p[i] != '\0') ++i;
-            return i;
-        }(s);
+    [[deprecated("Use class KeyGroup and its method makeScoped instead.")]] static consteval ScopedKeyView create(T const& keyInScope) noexcept {
+        // Check if RequiredScope is nullopt, return a non-scoped key if so
+        if constexpr (std::is_same_v<std::decay_t<decltype(RequiredScope)>, std::nullopt_t>) {
+            return ScopedKeyView(std::nullopt, std::string_view(keyInScope));
+        }
+        else {
+            // compute length at compile time
+            constexpr const char *s = RequiredScope;
+            constexpr std::size_t len = [] (const char *p) constexpr {
+                std::size_t i = 0;
+                while (p[i] != '\0') ++i;
+                return i;
+            }(s);
 
-        // static assert to ensure scope is valid
-        static_assert(len == 0 || s[len - 1] == '.', "ScopedKey: The provided scope must be empty or end with a dot ('.')");
+            // static assert to ensure scope is valid
+            static_assert(len == 0 || s[len - 1] == '.', "ScopedKey: The provided scope must be empty or end with a dot ('.')");
 
-        // Create the ScopedKey with the given scope and key
-        return {std::optional(std::string_view(s, len)), std::string_view(keyInScope)};
+            // Create the ScopedKey with the given scope and key
+            return {std::optional(std::string_view(s, len)), std::string_view(keyInScope)};
+        }
+    }
+
+    template <FixedOptionalString RequiredScope, typename T>
+    static consteval ScopedKeyView createFromFixedOptionalString(T const& keyInScope) noexcept {
+        if constexpr (!RequiredScope.has_scope) {
+            // no scope provided
+            return {std::nullopt, std::string_view(keyInScope)};
+        } else {
+            // compute length at compile time
+            constexpr const char *s = RequiredScope.value;
+            constexpr std::size_t len = [] (const char *p) constexpr {
+                std::size_t i = 0;
+                while (p[i] != '\0') ++i;
+                return i;
+            }(s);
+
+            // static assert to ensure scope is valid
+            static_assert(len == 0 || s[len - 1] == '.', "ScopedKey: The provided scope must be empty or end with a dot ('.')");
+
+            return {std::optional(std::string_view(s, len)), std::string_view(keyInScope)};
+        }
     }
 
     std::string toString() const {
