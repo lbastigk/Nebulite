@@ -253,6 +253,10 @@ private:
 
     /**
      * @brief Holds all batch worker threads.
+     * @todo VERY IMPORTANT! Turn into struct together with processPool and workspace, ensure that there is only one workerPool per renderer!
+     *       Otherwise we have LAYER_COUNT * BATCH_WORKER_COUNT workers, which is a lot and can cause performance issues with thread id assignment!
+     *       Worker pool should reside in renderer, and passed to the container on update!
+     *       Make sure to modify the deletion and reinsertion process pointers on each update, otherwise objects are inserted into the wronger layer
      */
     std::array<std::unique_ptr<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>, BATCH_WORKER_COUNT> batchWorkerPool; // Pool of pre-initialized workers for reuse
 
