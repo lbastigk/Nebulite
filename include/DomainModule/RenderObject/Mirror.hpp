@@ -101,8 +101,8 @@ public:
         BIND_FUNCTION(&Mirror::mirror_fetch, mirror_fetch_name, mirror_fetch_desc);
     }
 
-    struct Key {
-        DECLARE_SCOPE("") // Requires full access to mirror entire object in update routine.
+    struct Key : KeyGroup<""> { // Requires full access to mirror entire object in update routine.
+        // No keys for now
     };
 
 private:

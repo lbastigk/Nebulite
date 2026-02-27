@@ -74,26 +74,24 @@ public:
 
     //------------------------------------------
     // Settings keys
-    struct Key {
-        DECLARE_SCOPE("settings.")
-
+    struct Key : KeyGroup<"settings."> {
         // Custom settings
-        static auto constexpr customSettings = MAKE_SCOPED("custom");
+        static auto constexpr customSettings = makeScoped("custom");
 
         // Use scoped keys to set and access from GlobalSpace
 
         // Renderer-related settings
-        static auto constexpr resolutionX = MAKE_SCOPED("renderer.resolutionX"); // TODO: change to resolution.w
-        static auto constexpr resolutionY = MAKE_SCOPED("renderer.resolutionY"); // TODO: change to resolution.h
-        static auto constexpr resolutionScaling = MAKE_SCOPED("renderer.resolutionScaling");
-        static auto constexpr targetFPS = MAKE_SCOPED("renderer.targetFPS");
+        static auto constexpr resolutionX = makeScoped("renderer.resolutionX"); // TODO: change to resolution.w
+        static auto constexpr resolutionY = makeScoped("renderer.resolutionY"); // TODO: change to resolution.h
+        static auto constexpr resolutionScaling = makeScoped("renderer.resolutionScaling");
+        static auto constexpr targetFPS = makeScoped("renderer.targetFPS");
 
         // Startup-related settings
-        static auto constexpr parseOnStartup = MAKE_SCOPED("parse.onStartup");
-        static auto constexpr parseIfNoArgs = MAKE_SCOPED("parse.ifNoArgs");
+        static auto constexpr parseOnStartup = makeScoped("parse.onStartup");
+        static auto constexpr parseIfNoArgs = makeScoped("parse.ifNoArgs");
 
         // Input-Mapping
-        static auto constexpr inputMapping = MAKE_SCOPED("inputMapping");
+        static auto constexpr inputMapping = makeScoped("inputMapping");
     };
 
     //------------------------------------------

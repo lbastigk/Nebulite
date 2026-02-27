@@ -272,6 +272,8 @@ public:
      * @return A JsonScope representing a part of the JSON document.
      */
     Core::JsonScope shareScope(std::string const& prefix = "");
+    Core::JsonScope shareScope(std::string_view const& prefix);
+    Core::JsonScope shareScope(char const* prefix);
 
     /**
      * @brief Shares part JSON document as a JsonScop that is managed internally.
@@ -282,6 +284,8 @@ public:
      * @return A JsonScope reference representing a part of the JSON document.
      */
     Core::JsonScope& shareManagedScope(std::string const& prefix = "");
+    Core::JsonScope& shareManagedScope(std::string_view const& prefix) { return shareManagedScope(std::string(prefix)); }
+    Core::JsonScope& shareManagedScope(char const* prefix) { return shareManagedScope(std::string(prefix)); }
 
     /**
      * @brief Shares part JSON document as a JsonScopeBase that is managed internally.
@@ -292,6 +296,8 @@ public:
      * @return A JsonScope reference representing a part of the JSON document.
      */
     JsonScopeBase& shareManagedScopeBase(std::string const& prefix = "");
+    JsonScopeBase& shareManagedScopeBase(std::string_view const& prefix) { return shareManagedScopeBase(std::string(prefix)); }
+    JsonScopeBase& shareManagedScopeBase(char const* prefix) { return shareManagedScopeBase(std::string(prefix)); }
 
     //------------------------------------------
     // Custom copy method

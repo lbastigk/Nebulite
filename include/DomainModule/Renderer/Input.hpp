@@ -49,16 +49,15 @@ public:
         map_key_names();
     }
 
-    struct Key {
-        DECLARE_SCOPE("renderer.input.")
-        static auto constexpr keyboard = MAKE_SCOPED("keyboard.");
-        static auto constexpr keyboardCurrent = MAKE_SCOPED("keyboard.current.");
-        static auto constexpr keyboardDelta = MAKE_SCOPED("keyboard.delta.");
-        static auto constexpr mouse = MAKE_SCOPED("mouse.");
-        static auto constexpr mouseCurrent = MAKE_SCOPED("mouse.current.");
-        static auto constexpr mouseDelta = MAKE_SCOPED("mouse.delta.");
+    struct Key : KeyGroup<"renderer.input."> {
+        static auto constexpr keyboard = makeScoped("keyboard.");
+        static auto constexpr keyboardCurrent = makeScoped("keyboard.current.");
+        static auto constexpr keyboardDelta = makeScoped("keyboard.delta.");
+        static auto constexpr mouse = makeScoped("mouse.");
+        static auto constexpr mouseCurrent = makeScoped("mouse.current.");
+        static auto constexpr mouseDelta = makeScoped("mouse.delta.");
 
-        static auto constexpr routineActivated = MAKE_SCOPED("polled");
+        static auto constexpr routineActivated = makeScoped("polled");
     };
 
 private:

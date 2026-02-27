@@ -67,8 +67,8 @@ public:
         bindFunction(&Ruleset::once, once_name, once_desc);
     }
 
-    struct Key {
-        DECLARE_SCOPE("ruleset.")
+    struct Key : KeyGroup<"ruleset."> {
+        // No keys for now
     };
 
 private:

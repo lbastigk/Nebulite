@@ -65,8 +65,8 @@ public:
         BIND_FUNCTION(&FeatureTest::selfOtherGlobalEvaluation, selfOtherGlobalEvaluation_name, selfOtherGlobalEvaluation_desc);
     }
 
-    struct Key {
-        DECLARE_SCOPE("")
+    struct Key : KeyGroup<""> {
+        // No keys for now
     };
 };
 } // namespace Nebulite::DomainModule::GlobalSpace

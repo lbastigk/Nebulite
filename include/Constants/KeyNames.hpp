@@ -19,30 +19,7 @@
 #include "Data/Document/ScopedKey.hpp"
 
 //------------------------------------------
-// Macros
-
-
-// Macro to help declare the scope of the struct
-#define DECLARE_SCOPE(scopeStr) static auto constexpr scope = scopeStr;
-
-// Macro to declare the scope empty
-#define DECLARE_NO_SCOPE() static auto constexpr scope = std::nullopt;
-
-// Helper function to validate scope and create ScopedKeyView
-// Performs a compile-time check to ensure the scope exists and has the correct type
-template<auto& ScopeRef, typename T>
-consteval auto makeScopedHelper(T const& keyStr) {
-    static_assert(
-        std::is_same_v<std::decay_t<decltype(ScopeRef)>, const char*> ||
-        std::is_same_v<std::decay_t<decltype(ScopeRef)>, std::nullopt_t>,
-        "MAKE_SCOPED requires DECLARE_SCOPE or DECLARE_NO_SCOPE to be called first in this struct");
-    return Nebulite::Data::ScopedKeyView::create<ScopeRef>(keyStr);
-}
-
-// Macro to help create a scoped key with the previously declared scope
-// Requires a call to DECLARE_SCOPE or DECLARE_NO_SCOPE beforehand to declare the scope member
-// This macro performs a compile-time check to ensure 'scope' exists and has the correct type
-#define MAKE_SCOPED(keyStr) makeScopedHelper<scope>(keyStr)
+// Helper Classes
 
 /**
  * @class KeyGroup
@@ -70,6 +47,10 @@ public:
         } else {
             return std::nullopt;
         }
+    }
+
+    static auto constexpr hasScope() {
+        return Prefix.has_scope;
     }
 };
 

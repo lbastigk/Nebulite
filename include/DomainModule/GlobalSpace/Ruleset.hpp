@@ -68,8 +68,8 @@ public:
         bindFunction(&Ruleset::listen, listen_name, listen_desc);
     }
 
-    struct Key {
-        DECLARE_SCOPE("ruleset.")
+    struct Key : KeyGroup<"ruleset."> {
+        // No keys for now
     };
 };
 } // namespace Nebulite::DomainModule::GlobalSpace

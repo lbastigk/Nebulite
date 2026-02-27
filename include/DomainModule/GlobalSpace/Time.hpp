@@ -86,21 +86,19 @@ public:
 
     //------------------------------------------
     // Variables
-    struct Key {
-        DECLARE_SCOPE("time.")
-
+    struct Key : KeyGroup<"time."> {
         // Keys for simulation time
         // May be unequal to actual time, if a custom dt is set
-        static auto constexpr time_t = MAKE_SCOPED("t");
-        static auto constexpr time_t_ms = MAKE_SCOPED("t_ms");
-        static auto constexpr time_dt = MAKE_SCOPED("dt");
-        static auto constexpr time_dt_ms = MAKE_SCOPED("dt_ms");
+        static auto constexpr time_t = makeScoped("t");
+        static auto constexpr time_t_ms = makeScoped("t_ms");
+        static auto constexpr time_dt = makeScoped("dt");
+        static auto constexpr time_dt_ms = makeScoped("dt_ms");
 
         // More specific keys for actual runtime
-        static auto constexpr runtime_t = MAKE_SCOPED("runtime.t");
-        static auto constexpr runtime_t_ms = MAKE_SCOPED("runtime.t_ms");
-        static auto constexpr runtime_dt = MAKE_SCOPED("runtime.dt");
-        static auto constexpr runtime_dt_ms = MAKE_SCOPED("runtime.dt_ms");
+        static auto constexpr runtime_t = makeScoped("runtime.t");
+        static auto constexpr runtime_t_ms = makeScoped("runtime.t_ms");
+        static auto constexpr runtime_dt = makeScoped("runtime.dt");
+        static auto constexpr runtime_dt_ms = makeScoped("runtime.dt_ms");
     };
 
     //------------------------------------------

@@ -70,8 +70,8 @@ void Settings::loadSettings(std::string const& filename) {
 
     // We move the settings into a key to match the same structure as in globalSpace
     // This way, we can use the scoped keys to set and access settings in the same way as we do for global settings
-    settings.moveMember("", Key::scope);
-    auto const& settingsFile = settings.shareManagedScopeBase(Key::scope);
+    settings.moveMember("", Key::getScope());
+    auto const& settingsFile = settings.shareManagedScopeBase(Key::getScope());
 
     // Get custom settings
     moduleScope.setSubDoc(Key::customSettings, settingsFile.getSubDoc(Key::customSettings));

@@ -39,15 +39,13 @@ public:
     //------------------------------------------
     // Keys in the global document
 
-    struct Key {
-        DECLARE_SCOPE("renderer.environment.debug.")
-
+    struct Key : KeyGroup<"renderer.environment.debug."> {
         // Container info
-        static auto constexpr containerTotalTiles = MAKE_SCOPED("container.totalTiles");
-        static auto constexpr containerTotalCost = MAKE_SCOPED("container.totalCost");
+        static auto constexpr containerTotalTiles = makeScoped("container.totalTiles");
+        static auto constexpr containerTotalCost = makeScoped("container.totalCost");
 
         // Worker info
-        static auto constexpr workersTotalCount = MAKE_SCOPED("workers.total.count");
+        static auto constexpr workersTotalCount = makeScoped("workers.total.count");
     };
 
 
