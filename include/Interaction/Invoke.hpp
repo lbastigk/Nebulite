@@ -10,32 +10,17 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <string>
-
 // Nebulite
-#include "Constants/ThreadSettings.hpp"
-
-// Available containers
 #include "Data/BroadcastListenContainer/FlatContainer.hpp"
+#include "Constants/ThreadSettings.hpp"
 
 //------------------------------------------
 // Forward declarations
-namespace Nebulite::Core {
-class RenderObject;
-} // namespace Nebulite::Core
-
-namespace Nebulite::Data {
-class JSON;
-} // namespace Nebulite::Data
 
 namespace Nebulite::Interaction::Rules {
 class Ruleset;
+struct Listener;
 } // namespace Nebulite::Interaction::Rules
-
-namespace Nebulite::Interaction::Logic {
-class Assignment;
-} // namespace Nebulite::Interaction::Logic
 
 //------------------------------------------
 namespace Nebulite::Interaction {
@@ -110,8 +95,12 @@ private:
     // Set ContainerType, then run:
     // Scripts/Benchmark/BroadcastListenContainer.sh
     //
-    // Average time for small benchmark:       2.518400 s
-    // Average frame time for large benchmark: 0.010939 s
+    // Static Rulesets:
+    // Average total time for small benchmark: 2.144400 s
+    // Average frame time for large benchmark: 0.011468 s
+    // JSON Rulesets:
+    // Average total time for small benchmark: 4.816400 s
+    // Average frame time for large benchmark: 0.205520 s
     using ContainerType = Data::BroadcastListenContainer::FlatContainer;
 
     std::unique_ptr<ContainerType> worker[THREADRUNNER_COUNT];

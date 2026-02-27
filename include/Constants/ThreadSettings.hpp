@@ -26,7 +26,7 @@
  * @def THREADRUNNER_COUNT
  * @brief Number of thread runners for processing broadcast-listen pairs.
  */
-#define THREADRUNNER_COUNT 16
+#define THREADRUNNER_COUNT 12
 
 /**
  * @def BATCH_WORKER_COUNT
@@ -39,6 +39,6 @@
  * @brief Target cost of each Render::update thread batch.
  * @details Set to 0 to disable dynamic batching and process all members per layer in a single thread
  */
-static auto constexpr batchCostGoal = 512;
+static auto constexpr batchCostGoal = 256;
 
 #endif // NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP

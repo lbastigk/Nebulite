@@ -14,8 +14,16 @@
 
 // Nebulite
 #include "Data/Document/JsonScopeBase.hpp"
-#include "Interaction/Rules/Ruleset.hpp"
+//#include "Interaction/Rules/Ruleset.hpp"
 #include "Utility/WorkDispatcher.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction::Rules {
+class Ruleset;
+struct Listener;
+} // namespace Nebulite::Interaction::Rules
 
 
 //------------------------------------------
@@ -27,9 +35,6 @@ namespace Nebulite::Data::BroadcastListenContainer {
 template<typename DerivedContainer>
 class BaseContainer {
 public:
-
-    // TODO: Add ContainerThreadId to Constructor and ListenerThreadId to listen method, so we can better separate access based on thread id to avoid contention.
-    //       This will be heavily used in the FlatContainer.
 
     explicit BaseContainer(std::atomic<bool>& stopFlag, uint32_t const& workerIndex, uint32_t const& workerCount, DerivedContainer container)
         : workerInfo{workerIndex, workerCount}
@@ -100,7 +105,7 @@ private:
         threadIdAssigned = true;
     }
 
-    // store WorkDispatcher with **container reference**
+    // store WorkDispatcher with container reference
     Utility::WorkDispatcher<DerivedContainer, &BaseContainer::processImpl, &BaseContainer::initImpl> dispatcher;
 };
 } // namespace Nebulite::Data::BroadcastListenContainer

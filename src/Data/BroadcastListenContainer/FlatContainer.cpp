@@ -1,4 +1,5 @@
 #include "Data/BroadcastListenContainer/FlatContainer.hpp"
+#include "Interaction/Rules/Ruleset.hpp"
 #include "Utility/Threading.hpp"
 
 namespace Nebulite::Data::BroadcastListenContainer {
@@ -21,6 +22,7 @@ void FlatContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const
 
 void FlatContainer::listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
     // Listening generally happens on multiple threads, so we need to lock the listener map for this topic while modifying it
+    // TODO: distribute listeners across an array of maps using the listeners id
     auto lock = listeners.lock(listener->topic);
     auto& t = listeners[listener->topic];
     t.push_back(listener);

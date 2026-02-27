@@ -11,42 +11,36 @@
 
 // Standard library
 #include <array>
-#include <mutex>
 #include <string>
 
 // Nebulite
+#include "Data/Document/JsonScopeBase.hpp"
 #include "Constants/ThreadSettings.hpp"       // pool size is defined here
 #include "Interaction/Logic/Expression.hpp"
-#include "Utility/Threading.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
 /**
  * @class Nebulite::Interaction::Logic::ExpressionPool
  * @brief A thread-safe pool of Expression instances for concurrent evaluation.
- *        Manages a fixed-size array of pre-parsed `Expression` objects.
- *        Each instance in the pool is protected by its own mutex,
- *        allowing multiple threads to evaluate expressions in parallel without interfering with one another.
- *
- *        Usage:
- *         - Call `parse()` once to compile the expression into all pool entries.
- *         - Call `eval()` from multiple threads; each call acquires an available instance.
- *         - If no instance is immediately available, `eval()` will block on a randomly chosen one.
- *
- *        Key Features:
- *         - Fixed pool size defined by `INVOKE_EXPR_POOL_SIZE` macro defined in `ThreadSettings.hpp`
- *         - Per-instance locking to avoid a single global mutex bottleneck.
- *         - Drop-in compatible with Expression public interface (`parse`, `eval`, `getFullExpression`).
- *
- *        Thread Safety:
- *         - Internally synchronized with per-instance `std::mutex` locks.
- *         - Multiple threads may safely call `eval()` concurrently.
- *         - The pool stores the same expression in each entry of the pool
+ * @details Manages a fixed-size array of pre-parsed `Expression` objects.
+ *          Each instance in the pool is protected by its own mutex,
+ *          allowing multiple threads to evaluate expressions in parallel without interfering with one another.
+ *          \n
+ *          \n
+ *          # Usage
+ *          - Call `parse()` once to compile the expression into all pool entries.
+ *          - Call `eval()` from multiple threads; each call acquires an available instance.
+ *          - If no instance is immediately available, `eval()` will block on a randomly chosen one
+ *          .
+ *          # Key Features
+ *          - Fixed pool size defined by `INVOKE_EXPR_POOL_SIZE` macro defined in `ThreadSettings.hpp`
+ *          - Per-instance locking to avoid a single global mutex bottleneck.
+ *          - Drop-in compatible with Expression public interface (`parse`, `eval`, `getFullExpression`).
  */
 class ExpressionPool {
 public:
     explicit ExpressionPool(std::string const& expr) {
-        indexRoller = Utility::Threading::atomicThreadRollGenerator(EXPRESSION_POOL_SIZE);
         parse(expr);
     }
 
@@ -75,16 +69,22 @@ public:
      * @return The result of the evaluation as a string.
      */
     std::string eval(Context const& context) const {
-        return pool[indexRoller()]->eval(context);
+        return pool[threadIndex()]->eval(context);
+    }
+    std::string eval(ContextScopeBase const& context) const {
+        return pool[threadIndex()]->eval(context);
     }
 
     /**
      * @brief Evaluates the expression as a double in the context of the given JSON object acting as "other".
-     *        Matches `Nebulite::Interaction::Logic::Expression::evalAsDouble`, but allows for concurrent evaluation across multiple threads.
+     *        Matches `Nebulite::Interaction::Logic::Expression::evalAsDouble`.
      * @return The result of the evaluation as a double.
      */
     double evalAsDouble(Context const& context) const {
-        return pool[indexRoller()]->evalAsDouble(context);
+        return pool[threadIndex()]->evalAsDouble(context);
+    }
+    double evalAsDouble(ContextScopeBase const& context) const {
+        return pool[threadIndex()]->evalAsDouble(context);
     }
 
     /**
@@ -125,7 +125,7 @@ private:
      * @param expr The expression to parse.
      */
     void parse(std::string const& expr){
-        static_assert(EXPRESSION_POOL_SIZE > 0, "INVOKE_EXPR_POOL_SIZE must be greater than 0");
+        static_assert(EXPRESSION_POOL_SIZE > 0, "EXPRESSION_POOL_SIZE must be greater than 0");
 
         fullExpression = expr;
 
@@ -142,12 +142,6 @@ private:
     // Pool of expressions
     std::array<std::unique_ptr<Expression>, EXPRESSION_POOL_SIZE> pool;
 
-    // Pool index roller
-    std::function<size_t()> indexRoller;
-
-    // Locks for thread safety
-    std::array<std::mutex, EXPRESSION_POOL_SIZE> locks;
-
     //------------------------------------------
     // The following variables are shared across all pool entries
     // But placed here for easy access, without disturbing the pool.
@@ -160,6 +154,15 @@ private:
 
     // If the expression is just "1", meaning always true
     bool _isAlwaysTrue = false;
+
+    /**
+     * @brief Gets the thread index for the current thread, used to access the corresponding pool entry.
+     * @return The thread index for the current thread, in the range [0, EXPRESSION_POOL_SIZE).
+     */
+    static size_t threadIndex() {
+        thread_local size_t threadIndex = Data::JsonScopeBase::assignThreadIndex() % EXPRESSION_POOL_SIZE;
+        return threadIndex;
+    }
 };
 } // namespace Nebulite::Interaction::Logic
 #endif // NEBULITE_INTERACTION_LOGIC_EXPRESSION_POOL_HPP

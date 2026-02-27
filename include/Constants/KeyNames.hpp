@@ -43,6 +43,11 @@ namespace Nebulite::Constants {
  * @brief Centralized struct for constant key names used throughout the Nebulite framework.
  */
 struct KeyNames {
+    // Per-domain variables
+    struct Domain {
+        static auto constexpr id = Data::ScopedKeyView("id"); // TODO: Use this instead of RenderObject id
+    };
+
     struct Renderer {
         DECLARE_SCOPE("renderer.")
         static auto constexpr dispResX = MAKE_SCOPED("resolution.X");
@@ -60,7 +65,7 @@ struct KeyNames {
 
     struct RenderObject {
         DECLARE_SCOPE("")
-        static auto constexpr id = MAKE_SCOPED("id");
+        static auto constexpr id = MAKE_SCOPED("id"); // TODO: Make this part of Domain itself!
         static auto constexpr positionX = MAKE_SCOPED("posX");
         static auto constexpr positionY = MAKE_SCOPED("posY");
         static auto constexpr layer = MAKE_SCOPED("layer");

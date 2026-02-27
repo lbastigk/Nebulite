@@ -13,7 +13,14 @@
 // Nebulite
 #include "Data/BroadcastListenContainer/BaseContainer.hpp"
 #include "Data/Map/HotStringKeyMap.hpp"
-#include "Interaction/Rules/Ruleset.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction::Rules {
+class Ruleset;
+struct Listener;
+} // namespace Nebulite::Interaction::Rules
 
 //------------------------------------------
 namespace Nebulite::Data::BroadcastListenContainer {
