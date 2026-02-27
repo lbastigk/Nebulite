@@ -221,11 +221,10 @@ public:
 
     odpvec* ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
         thread_local size_t threadIndex = assignThreadIndex();
-        if (threadIndex < noLockArraySize) {
+        if (threadIndex < noLockArraySize) { // Reserved for the Invoke thread runners
             return expressionRefsNoLock[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
         }
         // spread rest on locking maps
-        //throw std::runtime_error("JsonScopeBase: Too many threads for no-lock cache lists. Increase noLockArraySize or reduce thread count.");
         return expressionRefs[threadIndex % lockArraySize].ensureOrderedCacheList(uniqueId, keys);
 
     }
