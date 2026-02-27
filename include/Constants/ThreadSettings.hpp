@@ -32,7 +32,7 @@
  * @def BATCH_WORKER_COUNT
  * @brief Number of worker threads for processing RenderObjectContainer batches.
  */
-#define BATCH_WORKER_COUNT THREADRUNNER_COUNT
+#define BATCH_WORKER_COUNT 4
 
 /**
  * @def BATCH_COST_GOAL

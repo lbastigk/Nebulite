@@ -51,10 +51,12 @@ constexpr std::array<T, N> make_array_with_arg(Arg&& arg) {
  */
 class JsonScopeBase {
 public:
-    // A bit higher to allow for extra threads, if they exist.
-    // TODO: Can we reduce this?
-    static auto constexpr noLockArraySize = THREADRUNNER_COUNT + BATCH_WORKER_COUNT + 4; // For both global and local rulesets + some overhead for whatever reason...
-    static auto constexpr lockArraySize = 1; // TODO: We could increase this one for each new thread id
+    // Threadrunners are unique, no locking needed
+    static auto constexpr noLockArraySize = THREADRUNNER_COUNT;
+
+    // Multiple Container layers means multiple workers, locking needed to avoid conflicts
+    // Currently, each layers is updated after each other, but this may change in the future. So we lock just to be safe
+    static auto constexpr lockArraySize = BATCH_WORKER_COUNT;
 
 protected:
     std::shared_ptr<JSON> baseDocument;
@@ -218,12 +220,14 @@ public:
     }
 
     odpvec* ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
-
-        if (thread_local size_t threadIndex = assignThreadIndex(); threadIndex < noLockArraySize) {
+        thread_local size_t threadIndex = assignThreadIndex();
+        if (threadIndex < noLockArraySize) {
             return expressionRefsNoLock[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
         }
         // spread rest on locking maps
-        throw std::runtime_error("JsonScopeBase: Too many threads for no-lock cache lists. Increase noLockArraySize or reduce thread count.");
+        //throw std::runtime_error("JsonScopeBase: Too many threads for no-lock cache lists. Increase noLockArraySize or reduce thread count.");
+        return expressionRefs[threadIndex % lockArraySize].ensureOrderedCacheList(uniqueId, keys);
+
     }
 
     //------------------------------------------

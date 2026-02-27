@@ -68,7 +68,7 @@ public:
      * @brief Constructs a new RenderObjectContainer.
      */
     RenderObjectContainer() {
-        for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
+        for (size_t i = 0; i < BATCH_WORKER_COUNT; i++) {
             batchWorkerPool[i] = std::make_unique<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>(stopFlag);
             batchWorkerPool[i]->workspace.deletionProcess = &deletionProcess;
             batchWorkerPool[i]->workspace.reinsertionProcess = &reinsertionProcess;
