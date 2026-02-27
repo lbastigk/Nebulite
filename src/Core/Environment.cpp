@@ -48,6 +48,14 @@ Environment::Environment(JsonScope& documentReference)
 Environment::~Environment() = default;
 
 //------------------------------------------
+// Domain-related
+
+Constants::Error Environment::update() {
+    updateModules();
+    return Constants::ErrorTable::NONE();
+}
+
+//------------------------------------------
 // Marshalling
 
 std::string Environment::serialize() {

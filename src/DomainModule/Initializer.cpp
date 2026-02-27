@@ -15,16 +15,19 @@
 //------------------------------------------
 // DomainModules
 
+// Environment
+#include "DomainModule/Environment/Debug.hpp"
+
 // GlobalSpace
-#include "DomainModule/GlobalSpace/Clock.hpp"               // Clock management functions
-#include "DomainModule/GlobalSpace/Debug.hpp"               // Debugging and logging functions
+#include "DomainModule/GlobalSpace/Clock.hpp"
+#include "DomainModule/GlobalSpace/Debug.hpp"
 #include "DomainModule/GlobalSpace/FunctionCollision.hpp"   // Special debugging utilities for domain collision detection
 #include "DomainModule/GlobalSpace/FeatureTest.hpp"         // Feature testing module
-#include "DomainModule/GlobalSpace/General.hpp"             // General functions like eval, exit, wait, etc.
-#include "DomainModule/GlobalSpace/InputMapping.hpp"        // Input mapping and processing functions
-#include "DomainModule/GlobalSpace/Ruleset.hpp"             // Ruleset management
-#include "DomainModule/GlobalSpace/Settings.hpp"            // Settings management
-#include "DomainModule/GlobalSpace/Time.hpp"                // Basic Time management functions
+#include "DomainModule/GlobalSpace/General.hpp"
+#include "DomainModule/GlobalSpace/InputMapping.hpp"
+#include "DomainModule/GlobalSpace/Ruleset.hpp"
+#include "DomainModule/GlobalSpace/Settings.hpp"
+#include "DomainModule/GlobalSpace/Time.hpp"
 
 // JSON
 #include "DomainModule/JsonScope/SimpleData.hpp"
@@ -59,8 +62,13 @@
 namespace Nebulite::DomainModule {
 
 void Initializer::initEnvironment(Core::Environment* target) {
-    // Currently, no DomainModules for Environment
-    (void)target->parseStr(""); // Silence "can be made pointer to const" warning
+    using namespace Nebulite::DomainModule::Environment;
+
+    target->initModule<Core::Environment, Debug>(
+        "Environment Debug Functions",
+        Global::settings(),
+        *target
+    );
 }
 
 void Initializer::initGlobalSpace(Core::GlobalSpace* target) {

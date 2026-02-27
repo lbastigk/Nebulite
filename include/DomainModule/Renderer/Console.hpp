@@ -159,8 +159,8 @@ public:
         BIND_FUNCTION(&Console::consoleAutotypeClear, consoleAutotypeClear_name, consoleAutotypeClear_desc);
     }
 
-    struct Key {
-        DECLARE_SCOPE("renderer.")
+    struct Key : KeyGroup<"renderer."> {
+        // No keys for now
     };
 
 private:

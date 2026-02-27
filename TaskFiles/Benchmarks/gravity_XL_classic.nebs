@@ -27,7 +27,7 @@ set snapshotInterval 100
 ###############################################
 # [BASICS]
 # It is not recommended to change these!
-time set-fixed-dt 1
+time set-fixed-dt 5
 set physics.G 10
 set-res 640 640 2
 set-fps 10000
@@ -89,7 +89,7 @@ eval set spriteSize $({global.loop.delta})
 
 ###############################################
 # Spawn Objects
-for i {global.loop.start} {global.loop.end} for j {global.loop.start} {global.loop.end} spawn ./Resources/Renderobjects/Boxes/obj_elastic_to_wall.jsonc \
+for i {global.loop.start} {global.loop.end} for j {global.loop.start} {global.loop.end} spawn ./Resources/Renderobjects/Boxes/obj_elastic_to_wall_classic.jsonc \
     |eval set posX $({global.loop.delta}*{i}) \
     |eval set posY $({global.loop.delta}*{j}) \
     |eval set physics.vX 0 \
@@ -116,9 +116,9 @@ always if $(not({global.time.frameCount}%{global.snapshotInterval})*{global.stor
 always if $(not({global.time.frameCount}%{global.snapshotInterval})*{global.storeSnapshots}) eval echo stored snapshot: ./Resources/Snapshots/ToGif/$05i({global.framename}).png
 
 ###############################################
-# Spawn extra object and wait
+# Spawn extra object
 spawn ./Resources/Renderobjects/Planets/sun.jsonc|posX=500|posY=500 # Heavy object
-wait 2000
+wait 400
 
 ###############################################
 # Inform on runtime

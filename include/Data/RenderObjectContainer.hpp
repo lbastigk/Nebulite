@@ -67,20 +67,22 @@ public:
     /**
      * @brief Constructs a new RenderObjectContainer.
      */
-    RenderObjectContainer() = default;
+    RenderObjectContainer() {
+        for (size_t i = 0; i < BATCH_WORKER_COUNT; i++) {
+            batchWorkerPool[i] = std::make_unique<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>(stopFlag);
+            batchWorkerPool[i]->workspace.deletionProcess = &deletionProcess;
+            batchWorkerPool[i]->workspace.reinsertionProcess = &reinsertionProcess;
+        }
+    }
 
     ~RenderObjectContainer() {
         // 1.) Notify all workers to stop
         stopFlag = true;
 
         // 2.) Optionally, start work to wake any waiting threads
-        for (auto const& worker : batchWorkers) {
+        for (auto const& worker : batchWorkerPool) {
             worker->startWork();  // wakes worker so it can check stopFlag
         }
-
-        // 3.) Now clear the vector, which triggers ~WorkDispatcher() on each
-        batchWorkers.clear();
-        // each destructor sets stopFlag, notifies, and joins the thread safely
     }
 
     //------------------------------------------
@@ -173,6 +175,20 @@ public:
      */
     Core::RenderObject* getObjectFromId(uint32_t const& id);
 
+    struct ContainerInfo {
+        // Container stats
+        size_t containerTotalTiles;
+        size_t containerTotalCost;
+
+        // Worker stats
+        size_t totalWorkers;
+    };
+
+    /**
+     * @brief Returns information about the internal state of the container for debugging purposes.
+     */
+    ContainerInfo getContainerInfo() const;
+
 private:
     /**
      * @brief Holds all objects in the container.
@@ -222,7 +238,7 @@ private:
     std::atomic<bool> stopFlag;
 
     struct DispatcherWorkspace {
-        std::vector<Batch>* work;
+        std::vector<Batch*> work;
         int16_t tilePosX;
         int16_t tilePosY;
         uint16_t dispResX;
@@ -230,6 +246,7 @@ private:
         std::pair<uint16_t, uint16_t> pos;
         ReinsertionProcess* reinsertionProcess;
         DeletionProcess* deletionProcess;
+        uint32_t cost = 0;
     };
 
     static void batchWorkerFunc(DispatcherWorkspace const& workspace);
@@ -237,7 +254,20 @@ private:
     /**
      * @brief Holds all batch worker threads.
      */
-    std::vector<std::unique_ptr<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>> batchWorkers;
+    std::array<std::unique_ptr<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>, BATCH_WORKER_COUNT> batchWorkerPool; // Pool of pre-initialized workers for reuse
+
+    void processPool() const {
+        for (auto const& worker : batchWorkerPool) {
+            worker->startWork();
+        }
+        for (auto const& worker : batchWorkerPool) {
+            worker->waitForWorkFinished();
+        }
+        for (auto const& worker : batchWorkerPool) {
+            worker->workspace.work.clear();
+            worker->workspace.cost = 0;
+        }
+    }
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_DATA_RENDER_OBJECT_CONTAINER_HPP

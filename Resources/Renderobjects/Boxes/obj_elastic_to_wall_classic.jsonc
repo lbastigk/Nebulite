@@ -1,0 +1,46 @@
+{
+    "draw": {
+        "core": {
+            "drawType": "sprite",
+            "rect": {
+                "dst": {
+                    "h": 16.0,
+                    "w": 16.0,
+                    "x": -8.0,
+                    "y": -8.0
+                }
+            },
+            "textureData": {
+                "link": "Resources/Sprites/TEST001P/017.bmp"
+            }
+        }
+    },
+    "id": 0,
+    "layer": 0,
+    "physics": {
+        "mass": 50.0,
+        "aX": 0.0,
+        "aY": 0.0,
+        "vX": -30.0,
+        "vY": 120.0
+    },
+    "posX": 650,
+    "posY": 500,
+    "ruleset": {
+        "listen": [
+            "all",
+            "::physics::gravity",
+            "gravity",
+            "::physics::elasticCollision"
+        ],
+        "list": [
+            "./Resources/Invokes/Physics/gravity.jsonc",
+            "::physics::applyCorrection",
+            "./Resources/Invokes/Physics/applyForce.jsonc"
+        ]
+    },
+    "size": {
+        "x": 16.0,
+        "y": 16.0
+    }
+}

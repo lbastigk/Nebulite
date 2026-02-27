@@ -16,7 +16,13 @@ namespace Nebulite::Utility {
 
 // TODO: Use this dispatcher for the BaseContainer class
 
-template<typename Workspace, auto WorkerFunc>
+/**
+ * @brief A class to manage a worker thread that processes work using a provided function and workspace.
+ * @tparam Workspace The workspace of the worker thread
+ * @tparam WorkerFunc The function to call in the worker thread, must be a template function that takes the workspace as an argument
+ * @tparam InitFunc An optional function to call in the worker thread before the main loop, must be a template function that takes the workspace as an argument
+ */
+template<typename Workspace, auto WorkerFunc, auto InitFunc = nullptr>
 class WorkDispatcher {
 public:
     explicit WorkDispatcher(std::atomic<bool>& stop)
@@ -34,6 +40,9 @@ public:
     }
 
     void initializeWorkerThread() {
+        if constexpr (InitFunc != nullptr) {
+            InitFunc(workspace);
+        }
         workerThread = std::thread([this] {
             this->process();
         });
@@ -47,6 +56,7 @@ public:
     }
 
     void startWork() {
+        std::unique_lock lock(mutex);
         threadState.workReady = true;
         threadState.workFinished = false;
         threadState.condition.notify_one();

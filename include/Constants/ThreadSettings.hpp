@@ -23,27 +23,22 @@
 // General threading settings
 
 /**
- * @def ORDERED_DOUBLE_POINTERS_MAPS
- * @brief Number of ordered double pointer maps for expression evaluations.
- * @details The size is for locking maps, non-locking maps depend on the size as well,
- *          but are a bit higher to allow for extra threads coming from RenderObjectContainer, in case those are batched.
- * @details If set to 1, all threads share the same map.
- *          Optimized to not use any special indexing, but simple access to [0] if set to 1.
- */
-#define ORDERED_DOUBLE_POINTERS_MAPS 8
-
-/**
  * @def THREADRUNNER_COUNT
  * @brief Number of thread runners for processing broadcast-listen pairs.
  */
-#define THREADRUNNER_COUNT 8
+#define THREADRUNNER_COUNT 12
+
+/**
+ * @def BATCH_WORKER_COUNT
+ * @brief Number of worker threads for processing RenderObjectContainer batches.
+ */
+#define BATCH_WORKER_COUNT 4
 
 /**
  * @def BATCH_COST_GOAL
  * @brief Target cost of each Render::update thread batch.
- * @details Set to 0 to disable dynamic batching and process all pairs in a single batch.
- *          The amount of threads is the sum of batches in all tiles being processed.
+ * @details Set to 0 to disable dynamic batching and process all members per layer in a single thread
  */
-static auto constexpr batchCostGoal = 512;
+static auto constexpr batchCostGoal = 256;
 
 #endif // NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP

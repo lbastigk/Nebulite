@@ -59,12 +59,8 @@ Constants::Error Domain::parseStr(std::string const& str) {
     return funcTree->parseStr(str, *this, domainScope);
 }
 
-Data::MappedOrderedDoublePointers* Domain::getDocumentCacheMap() const {
-    return domainScope.getOrderedCacheListMap();
-}
-
 Data::odpvec* Domain::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<Data::ScopedKeyView> const& keys) const {
-    return domainScope.ensureOrderedCacheListMinimalLock(uniqueId, keys);
+    return domainScope.ensureOrderedCacheList(uniqueId, keys);
 }
 
 std::unique_lock<std::recursive_mutex> Domain::lockDocument() const {

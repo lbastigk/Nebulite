@@ -50,6 +50,14 @@ constexpr std::array<T, N> make_array_with_arg(Arg&& arg) {
  *          Holds little data itself, mostly acts as a scoped view over an existing JSON document or another JsonScope.
  */
 class JsonScopeBase {
+public:
+    // Threadrunners are unique, no locking needed
+    static auto constexpr noLockArraySize = THREADRUNNER_COUNT;
+
+    // Multiple Container layers means multiple workers, locking needed to avoid conflicts
+    // Currently, each layers is updated after each other, but this may change in the future. So we lock just to be safe
+    static auto constexpr lockArraySize = BATCH_WORKER_COUNT;
+
 protected:
     std::shared_ptr<JSON> baseDocument;
 
@@ -68,9 +76,6 @@ private:
 
     //------------------------------------------
     // Ordered double pointers system
-
-    static auto constexpr noLockArraySize = 2*ORDERED_DOUBLE_POINTERS_MAPS ; // A bit higher to allow for extra threads coming from RenderObjectContainer, in case those are batched
-    static auto constexpr lockArraySize = ORDERED_DOUBLE_POINTERS_MAPS;
 
     /**
      * @brief Mapped ordered double pointers for expression references.
@@ -150,9 +155,9 @@ public:
 
     [[nodiscard]] JsonScopeBase& shareScopeBase(ScopedKeyView const& key) const ;
     [[nodiscard]] JsonScopeBase& shareScopeBase(ScopedKey const& key) const {return shareScopeBase(key.view());}
-
     [[nodiscard]] JsonScopeBase& shareScopeBase(std::string const& key) const ;
 
+    // Share a dummy scope, where all access is denied
     [[nodiscard]] JsonScopeBase& shareDummyScopeBase() const ;
 
     //------------------------------------------
@@ -206,31 +211,22 @@ public:
     [[nodiscard]] std::unique_lock<std::recursive_mutex> lock() const ;
 
     //------------------------------------------
-    // Getters: Unique id based retrieval
-
-    MappedOrderedDoublePointers* getOrderedCacheListMap() {
-        if constexpr (lockArraySize == 1) {
-            // NOLINTNEXTLINE
-            return &expressionRefs[0];
-        }
-        else {
-            static auto indexRoller = Utility::Threading::atomicThreadRollGenerator(lockArraySize);
-            thread_local size_t threadIndex = indexRoller();
-            return &expressionRefs[threadIndex];
-        }
-    }
-
-    //------------------------------------------
     // Extra fast ordered cache list retrieval with minimal locking
 
-    odpvec* ensureOrderedCacheListMinimalLock(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
+    static size_t assignThreadIndex() {
         static auto indexCounter = Utility::Threading::atomicThreadIncrementGenerator();
         thread_local size_t threadIndex = indexCounter();
-        if (threadIndex < noLockArraySize) {
+        return threadIndex;
+    }
+
+    odpvec* ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
+        thread_local size_t threadIndex = assignThreadIndex();
+        if (threadIndex < noLockArraySize) { // Reserved for the Invoke thread runners
             return expressionRefsNoLock[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
         }
         // spread rest on locking maps
         return expressionRefs[threadIndex % lockArraySize].ensureOrderedCacheList(uniqueId, keys);
+
     }
 
     //------------------------------------------

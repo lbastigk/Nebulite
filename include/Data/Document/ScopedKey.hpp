@@ -40,6 +40,35 @@ class JsonScopeBase;
 } // namespace Nebulite::Data
 
 //------------------------------------------
+// Helper struct for compile-time optional fixed strings as template parameters
+
+template <std::size_t N>
+struct OptionalFixedString {
+    char value[N == 0 ? 1 : N]{};
+
+    // NOLINTNEXTLINE
+    consteval OptionalFixedString(const char (&str)[N == 0 ? 1 : N]) {
+        static_assert(N > 0, "Use the default constructor for empty strings");
+        for (std::size_t i = 0; i < N; ++i) value[i] = str[i];
+    }
+
+    consteval OptionalFixedString() {
+        static_assert(N == 0, "Default constructor can only be used for empty strings");
+    }
+
+    static constexpr bool has_scope = N > 0;
+    constexpr std::string_view view() {
+        if constexpr (N > 0) return {value, N - 1};
+        else return {};
+    }
+};
+
+template <std::size_t N>
+OptionalFixedString(const char (&)[N]) -> OptionalFixedString<N>;
+
+OptionalFixedString() -> OptionalFixedString<0>;
+
+//------------------------------------------
 // Self-owning scoped key
 namespace Nebulite::Data {
 /**
@@ -154,28 +183,32 @@ public:
         : key(keyInScope) {}
 
     /**
-     * @brief Create a ScopedKeyView with a required scope at compile time.
-     * @details Performs a static assert to ensure the scope is valid: Either empty or ends with a dot ('.').
-     * @tparam RequiredScope The required scope prefix for this key. Use a static constexpr char
-     * @tparam T The type of the key string (must be convertible to std::string_view).
-     * @param keyInScope The key string within the required scope.
-     * @return A ScopedKey instance with the specified required scope and key.
+     * @brief Create a ScopedKeyView from a compile-time fixed string with an optional scope prefix.
+     * @tparam RequiredScope A compile-time fixed string representing the required scope prefix for this key.
+     *                       If empty, the keys scope is arbitrary and assumed to be at the root of the JsonScopeBase.
+     * @tparam T A type that can be converted to std::string_view, representing the key string within the scope.
+     * @param keyInScope The key string within the scope, which can be a string literal or any type convertible to std::string_view.
+     * @return A ScopedKeyView instance with the appropriate scope and key string.
      */
-    template <auto &RequiredScope, typename T>
-    static consteval ScopedKeyView create(T const& keyInScope) noexcept {
-        // compute length at compile time
-        constexpr const char *s = RequiredScope;
-        constexpr std::size_t len = [] (const char *p) constexpr {
-            std::size_t i = 0;
-            while (p[i] != '\0') ++i;
-            return i;
-        }(s);
+    template <OptionalFixedString RequiredScope, typename T>
+    static consteval ScopedKeyView createFromOptionalFixedString(T const& keyInScope) noexcept {
+        if constexpr (!RequiredScope.has_scope) {
+            // no scope provided
+            return {std::nullopt, std::string_view(keyInScope)};
+        } else {
+            // compute length at compile time
+            constexpr const char *s = RequiredScope.value;
+            constexpr std::size_t len = [] (const char *p) constexpr {
+                std::size_t i = 0;
+                while (p[i] != '\0') ++i;
+                return i;
+            }(s);
 
-        // static assert to ensure scope is valid
-        static_assert(len == 0 || s[len - 1] == '.', "ScopedKey: The provided scope must be empty or end with a dot ('.')");
+            // static assert to ensure scope is valid
+            static_assert(len == 0 || s[len - 1] == '.', "ScopedKey: The provided scope must be empty or end with a dot ('.')");
 
-        // Create the ScopedKey with the given scope and key
-        return {std::optional(std::string_view(s, len)), std::string_view(keyInScope)};
+            return {std::optional(std::string_view(s, len)), std::string_view(keyInScope)};
+        }
     }
 
     std::string toString() const {

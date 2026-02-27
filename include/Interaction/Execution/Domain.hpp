@@ -18,11 +18,14 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <string_view>
+
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
-#include <string_view>
+
 
 //------------------------------------------
 // Forward declarations: Domains
@@ -136,10 +139,11 @@ namespace Nebulite::Interaction::Execution {
  * @details This concept is used to ensure that a DomainModuleType has the necessary static member to be initialized with the correct scope in the `initModule` function of the Domain class.
  */
 template <typename T>
-concept HasKeyScope = requires {
+concept HasKeyGroup = requires {
     typename T::Key;           // nested Key type exists
-    { T::Key::scope };         // Key::scope exists (any type)
+    { T::Key::getScope() };    // Key::getScope() exists (now it's likely that Key inherits from KeyGroup.
 };
+// Checking directly if Key inherits from KeyGroup would be more complex, so we ignore it for now...
 
 /**
  * @class Domain
@@ -231,35 +235,8 @@ public:
     // Module Initialization and Updating
 
     /**
-     * @brief Initializes DomainModules based on the template parameter with proper linkage
-     * @tparam DomainModuleType The type of module to initialize
-     * @param moduleName The name of the module
-     * @param scope The workspace JsonScope for the module
-     * @param settings The settings JsonScope for the module
-     * @param domainReference Reference to the domain to link the module to
-     */
-    template <typename DomainType, typename DomainModuleType>
-    requires (!HasKeyScope<DomainModuleType>)
-    [[deprecated("Please add a static member `Key::scope` to your DomainModuleType to allow automatic scope sharing in initModule(moduleName, settings, domainReference).")]]
-    void initModule(std::string moduleName, Data::JsonScopeBase& scope, Data::JsonScopeBase const& settings, DomainType& domainReference) {
-        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
-        DomainModule->reinit();
-        modules.push_back(std::move(DomainModule));
-    }
-
-    // Deprecated overload for module types that DO define Key::scope: suggest the automatic scope-sharing overload
-    template <typename DomainType, typename DomainModuleType>
-    requires (HasKeyScope<DomainModuleType>)
-    [[deprecated("DomainModuleType defines Key::scope; prefer initModule(moduleName, settings, domainReference) to automatically share the module scope.")]]
-    void initModule(std::string moduleName, Data::JsonScopeBase& scope, Data::JsonScopeBase const& settings, DomainType& domainReference) {
-        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
-        DomainModule->reinit();
-        modules.push_back(std::move(DomainModule));
-    }
-
-    /**
      * @brief Initializes DomainModules based on the template parameter with proper linkage, deriving the scope from the module's static scope member.
-     * @details If not member `Key::scope` is defined in the DomainModuleType, a dummy scope will be shared (no workspace)
+     * @details If no struct Key inheriting from KeyGroup is defined in the DomainModuleType, a dummy scope will be shared (no workspace)
      * @tparam DomainType The type of the domain to link the module to, used for sharing the correct scope
      * @tparam DomainModuleType The type of module to initialize, must have a static member `Key::scope` that defines the scope for the module
      * @param moduleName The name of the module
@@ -269,24 +246,33 @@ public:
      *       Either always looping through modules to check or using a second set of names for fast lookup.
      */
     template <typename DomainType, typename DomainModuleType>
-    requires (HasKeyScope<DomainModuleType>)
     void initModule(std::string moduleName, Data::JsonScopeBase const& settings, DomainType& domainReference) {
         // Determine the key from root level
-        static auto const scopeKey = Data::ScopedKey("", DomainModuleType::Key::scope);
+        if constexpr (HasKeyGroup<DomainModuleType>) {
+            if (DomainModuleType::Key::hasScope()) {
+                static auto const scopeKey = Data::ScopedKey("", DomainModuleType::Key::getScope());
 
-        // Share the scope based on the module's defined scope
-        auto& scope = domainReference.domainScope.shareScopeBase(scopeKey); // Sharing a scope based on the module's defined scope
-        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
-        DomainModule->reinit();
-        modules.push_back(std::move(DomainModule));
-    }
-    template <typename DomainType, typename DomainModuleType>
-    requires (!HasKeyScope<DomainModuleType>)
-    void initModule(std::string moduleName, Data::JsonScopeBase const& settings, DomainType& domainReference) {
-        auto& scope = domainReference.domainScope.shareDummyScopeBase();
-        auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
-        DomainModule->reinit();
-        modules.push_back(std::move(DomainModule));
+                // Share the scope based on the module's defined scope
+                auto& scope = domainReference.domainScope.shareScopeBase(scopeKey); // Sharing a scope based on the module's defined scope
+                auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
+                DomainModule->reinit();
+                modules.push_back(std::move(DomainModule));
+            }
+            else {
+                // No scope defined, share a dummy scope (no workspace)
+                auto& scope = domainReference.domainScope.shareDummyScopeBase();
+                auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
+                DomainModule->reinit();
+                modules.push_back(std::move(DomainModule));
+            }
+        }
+        else {
+            // No scope defined, share a dummy scope (no workspace)
+            auto& scope = domainReference.domainScope.shareDummyScopeBase();
+            auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
+            DomainModule->reinit();
+            modules.push_back(std::move(DomainModule));
+        }
     }
 
     /**
@@ -349,13 +335,7 @@ public:
     [[nodiscard]] std::string const& getName() const { return domainName; }
 
     /**
-     * @brief Gets the ordered cache list map of the domain's document.
-     * @return Pointer to the ordered cache list map.
-     */
-    [[nodiscard]] Data::MappedOrderedDoublePointers* getDocumentCacheMap() const ;
-
-    /**
-     * @brief Compared to getDocumentCacheMap, this function retrieves the ordered cache list directly with minimal locking
+     * @brief Retrieves the ordered cache list directly with minimal locking
      * @param uniqueId The unique ID for the ordered cache list.
      * @param keys The vector of keys to populate the cache with if it does not exist.
      * @return A pointer to the ordered vector of double pointers for the specified keys.

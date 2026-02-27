@@ -85,6 +85,7 @@ void RenderObjectContainer::append(Core::RenderObject* toAppend, uint16_t const&
         // NOLINTNEXTLINE
         [](Batch const& b) {
             if constexpr (batchCostGoal == 0) {
+                // NOLINTNEXTLINE
                 return true; // No cost goal, accept all batches
             }
             else {
@@ -107,12 +108,12 @@ void RenderObjectContainer::append(Core::RenderObject* toAppend, uint16_t const&
 void RenderObjectContainer::batchWorkerFunc(DispatcherWorkspace const& workspace) {
     // Process
     // We update each object and check if it needs to be moved or deleted
-    for (auto& batch : *workspace.work) {
-        // Every batch worker has potential objects to move or delete
+    // Every batch worker has potential objects to move or delete
+    for (auto& batch : workspace.work) {
         std::vector<Core::RenderObject*> to_move_local;
         std::vector<Core::RenderObject*> to_delete_local;
 
-        for (auto obj : batch.objects) {
+        for (auto obj : batch->objects) {
             obj->update();
 
             if (!obj->flag.deleteFromScene) {
@@ -126,14 +127,14 @@ void RenderObjectContainer::batchWorkerFunc(DispatcherWorkspace const& workspace
 
         // All objects to move are collected in queue
         for (auto ptr : to_move_local) {
-            batch.removeObject(ptr);
+            batch->removeObject(ptr);
             std::scoped_lock lock(workspace.reinsertionProcess->reinsertMutex);
             workspace.reinsertionProcess->queue.push_back(ptr);
         }
 
         // All objects to delete are collected in trash
         for (auto ptr : to_delete_local) {
-            batch.removeObject(ptr);
+            batch->removeObject(ptr);
             std::scoped_lock lock(workspace.deletionProcess->deleteMutex);
             workspace.deletionProcess->trash.push_back(ptr);
         }
@@ -191,12 +192,14 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
     // Note that we cannot directly use the maximum tile radius, as for some positions it may be smaller!
     // So we should subtract at least one tile, perhaps even two to be safe.
     // Or we go the actual good way and do the math to determine hMax/wMax based on the radius and tile size.
-    size_t workerIndex = 0;
+
+    // Create worker threads for batches in visible tiles, based on batch cost and other factors
+    size_t workerIdx = 0;
+    std::pair<int16_t, int16_t> lastPos;
     for (int16_t const dX : tileOffsetsX) {
-        auto const currentTilePosX = static_cast<int16_t>(tilePosX - dX);
         for (int16_t const dY : tileOffsetsY) {
-            auto const currentTilePosY = static_cast<int16_t>(tilePosY - dY);
-            std::pair<int16_t, int16_t> pos = std::make_pair(currentTilePosX, currentTilePosY);
+            // Current tile position we want to update
+            std::pair<int16_t, int16_t> pos = std::make_pair(tilePosX - dX, tilePosY - dY);
 
             // Check if container has tile at position, if not, skip
             auto const it = ObjectContainer.find(pos);
@@ -204,35 +207,36 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
                 continue;
             }
 
-            auto& tile = it->second;
+            // Create worker threads that try to closely match the batch cost goal
+            // If the current batch added to the worker exceeds the batch cost goal, we start a new worker thread for the next batch
+            for (auto& batch : it->second) {
+                if (batchWorkerPool[workerIdx]->workspace.cost + batch.estimatedCost > batchCostGoal || lastPos != pos) {
+                    workerIdx++;
+                }
 
-            // Set value for worker
-            if (workerIndex >= batchWorkers.size()) {
-                auto worker = std::make_unique<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>(stopFlag);
-                worker->workspace.reinsertionProcess = &reinsertionProcess;
-                worker->workspace.deletionProcess = &deletionProcess;
-                batchWorkers.push_back(std::move(worker));
+                if (workerIdx >= BATCH_WORKER_COUNT) {
+                    processPool(); // Process all workers and reset pool
+                    workerIdx = 0; // Reset worker count for new batch of work
+                }
+
+                // Get current worker, set up workspace and add work to it
+                auto& currentWorker = batchWorkerPool[workerIdx]->workspace;
+                currentWorker.work.push_back(&batch);
+                currentWorker.pos = pos;
+                currentWorker.dispResX = dispResX;
+                currentWorker.dispResY = dispResY;
+                currentWorker.cost += batch.estimatedCost;
+
+                // Set last position for next iteration
+                lastPos = pos;
             }
-            batchWorkers[workerIndex]->workspace.work = &tile;
-            batchWorkers[workerIndex]->workspace.pos = pos;
-            batchWorkers[workerIndex]->workspace.dispResX = dispResX;
-            batchWorkers[workerIndex]->workspace.dispResY = dispResY;
-
-            workerIndex++;
         }
     }
 
-    // Start all workers
-    for (auto const& w : batchWorkers) {
-        w->startWork();
-    }
+    // Process rest
+    processPool();
 
-    // Wait for all workers to finish
-    for (auto const& w : batchWorkers) {
-        w->waitForWorkFinished();
-    }
-
-    // Objects to move
+    // Objects to move to new tile positions
     for (auto const obj_ptr : reinsertionProcess.queue) {
         append(obj_ptr, dispResX, dispResY);
     }
@@ -324,6 +328,24 @@ bool RenderObjectContainer::Batch::removeObject(Core::RenderObject* obj) {
         return true;
     }
     return false;
+}
+
+RenderObjectContainer::ContainerInfo RenderObjectContainer::getContainerInfo() const {
+    ContainerInfo info;
+
+    // Container stats
+    info.containerTotalTiles = ObjectContainer.size();
+    info.containerTotalCost = 0;
+    for (auto const& batches : std::views::values(ObjectContainer)) {
+        for (auto const& [_, cost] : batches) {
+            info.containerTotalCost += cost;
+        }
+    }
+
+    // Worker stats
+    info.totalWorkers = THREADRUNNER_COUNT;
+
+    return info;
 }
 
 } // namespace Nebulite::Core

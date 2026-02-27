@@ -68,14 +68,13 @@ public:
     //------------------------------------------
     // Scoped Keys
 
-    struct Key {
-        DECLARE_SCOPE("random.")
-        static auto constexpr A = MAKE_SCOPED("A");
-        static auto constexpr B = MAKE_SCOPED("B");
-        static auto constexpr C = MAKE_SCOPED("C");
-        static auto constexpr D = MAKE_SCOPED("D");
-        static auto constexpr min = MAKE_SCOPED("min");
-        static auto constexpr max = MAKE_SCOPED("max");
+    struct Key : KeyGroup<"random."> {
+        static auto constexpr A = makeScoped("A");
+        static auto constexpr B = makeScoped("B");
+        static auto constexpr C = makeScoped("C");
+        static auto constexpr D = makeScoped("D");
+        static auto constexpr min = makeScoped("min");
+        static auto constexpr max = makeScoped("max");
     };
 
 private:

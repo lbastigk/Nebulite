@@ -40,6 +40,14 @@ Core::JsonScope JSON::shareScope(std::string const& prefix) {
     return {*this, prefix, "Externally Managed JSON Scope"};
 }
 
+Core::JsonScope JSON::shareScope(std::string_view const& prefix) {
+    return shareScope(std::string(prefix));
+}
+
+Core::JsonScope JSON::shareScope(char const* prefix) {
+    return shareScope(std::string(prefix));
+}
+
 Core::JsonScope& JSON::shareManagedScope(std::string const& prefix) {
     std::scoped_lock const lockGuard(mtx);
 

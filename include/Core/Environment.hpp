@@ -54,8 +54,12 @@ public:
      * @brief Retrieves all layers in rendering order.
      * @return the vector of all layers.
      */
-    std::vector<Layer>* getAllLayers() {
-        return &allLayers;
+    std::vector<Layer> const& getAllLayerTypes() {
+        return allLayers;
+    }
+
+    auto const& getAllLayers() {
+        return roc;
     }
 
     /**
@@ -74,6 +78,11 @@ public:
     Environment(Environment&& other) = delete;
     Environment& operator=(Environment&& other) = delete;
     Environment& operator=(Environment const& other) = delete;
+
+    //------------------------------------------
+    // Domain-related
+
+    Constants::Error update() override;
 
     //------------------------------------------
     // Marshalling

@@ -38,36 +38,33 @@ public:
         // TODO: Set Global physics constants
     }
 
-    struct Key {
-        static auto constexpr scope = "physics.";
-
+    struct Key : KeyGroup<"physics."> {
         // Global physics constants
         struct Global {
-            static auto constexpr G = MAKE_SCOPED("G");
+            static auto constexpr G = makeScoped("G");
         };
 
         // Per-object physics properties
         struct Local {
-            static auto constexpr m = MAKE_SCOPED("mass"); // TODO: rename to physics.m here and in all json files
-            static auto constexpr aX = MAKE_SCOPED("aX"); // acceleration X
-            static auto constexpr aY = MAKE_SCOPED("aY"); // acceleration Y
-            static auto constexpr vX = MAKE_SCOPED("vX"); // velocity X
-            static auto constexpr vY = MAKE_SCOPED("vY"); // velocity Y
-            static auto constexpr FX = MAKE_SCOPED("FX"); // force X
-            static auto constexpr FY = MAKE_SCOPED("FY"); // force Y
+            static auto constexpr m = makeScoped("mass"); // TODO: rename to physics.m here and in all json files
+            static auto constexpr aX = makeScoped("aX"); // acceleration X
+            static auto constexpr aY = makeScoped("aY"); // acceleration Y
+            static auto constexpr vX = makeScoped("vX"); // velocity X
+            static auto constexpr vY = makeScoped("vY"); // velocity Y
+            static auto constexpr FX = makeScoped("FX"); // force X
+            static auto constexpr FY = makeScoped("FY"); // force Y
 
             // Correction values
-            struct Correction {
-                DECLARE_SCOPE("physics.correction.")
-                static auto constexpr X = MAKE_SCOPED("X"); // position correction X to resolve overlaps
-                static auto constexpr Y = MAKE_SCOPED("Y"); // position correction Y to resolve overlaps
-                static auto constexpr vX = MAKE_SCOPED("vX"); // velocity correction X to resolve collisions
-                static auto constexpr vY = MAKE_SCOPED("vY"); // velocity correction Y to resolve collisions
+            struct Correction : KeyGroup<"physics.correction."> {
+                static auto constexpr X = makeScoped("X"); // position correction X to resolve overlaps
+                static auto constexpr Y = makeScoped("Y"); // position correction Y to resolve overlaps
+                static auto constexpr vX = makeScoped("vX"); // velocity correction X to resolve collisions
+                static auto constexpr vY = makeScoped("vY"); // velocity correction Y to resolve collisions
             };
 
             // More specialized, but still useful keys
-            static auto constexpr lastCollisionTimeX = MAKE_SCOPED("collision.time.lastX");
-            static auto constexpr lastCollisionTimeY = MAKE_SCOPED("collision.time.lastY");
+            static auto constexpr lastCollisionTimeX = makeScoped("collision.time.lastX");
+            static auto constexpr lastCollisionTimeY = makeScoped("collision.time.lastY");
         };
     };
 };

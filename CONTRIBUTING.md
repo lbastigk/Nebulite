@@ -222,7 +222,7 @@ public:
         // Example of a shared variable that can be accessed by other modules with the same or higher scope
         // using MyModule::Key::myValue
         // The MAKE_SCOPED macro ensures that the variable is nested within the module's scope
-        static auto constexpr myValue = MAKE_SCOPED("myValue");
+        static auto constexpr myValue = makeScoped("myValue");
     };
 };
 } // namespace Nebulite::DomainModule::RenderObject

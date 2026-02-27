@@ -436,6 +436,7 @@ Constants::Error Renderer::update() {
     // Skip update if flagged
     if (!status.skipUpdate) {
         // Update environment
+        env.update();
         env.updateObjects(
             tilePositionX,
             tilePositionY,
@@ -709,7 +710,7 @@ void Renderer::renderFrame() {
 
     //Render Objects
     //For all layers, starting at 0
-    for (auto layer : *env.getAllLayers()) {
+    for (auto const& layer : env.getAllLayerTypes()) {
         // Get all tile positions to render
         std::vector<std::pair<int16_t, int16_t>> tilesToRender;
         for (int dX = tilePositionX == 0 ? 0 : -1; dX <= 1; dX++) {
