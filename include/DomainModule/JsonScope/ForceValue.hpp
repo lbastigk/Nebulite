@@ -3,8 +3,8 @@
  * @brief Implementation of force and clearForce functions for forcing JSON variable values.
  */
 
-#ifndef NEBULITE_JSDM_FORCE_VALUE_HPP
-#define NEBULITE_JSDM_FORCE_VALUE_HPP
+#ifndef NEBULITE_DOMAINMODULE_JSONSCOPE_FORCE_VALUE_HPP
+#define NEBULITE_DOMAINMODULE_JSONSCOPE_FORCE_VALUE_HPP
 
 //------------------------------------------
 // Includes
@@ -73,4 +73,4 @@ private:
     absl::flat_hash_map<std::string, std::string> forced_global_values; // Key-Value pairs to set in global JSON
 };
 } // namespace Nebulite::DomainModule::JsonScope
-#endif // NEBULITE_JSDM_FORCE_VALUE_HPP
+#endif // NEBULITE_DOMAINMODULE_JSONSCOPE_FORCE_VALUE_HPP

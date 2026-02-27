@@ -3,8 +3,8 @@
  * @brief Contains the declaration of the Debug DomainModule for the GlobalSpace domain.
  */
 
-#ifndef NEBULITE_GSDM_DEBUG_HPP
-#define NEBULITE_GSDM_DEBUG_HPP
+#ifndef NEBULITE_DOMAINMODULE_GLOBALSPACE_DEBUG_HPP
+#define NEBULITE_DOMAINMODULE_GLOBALSPACE_DEBUG_HPP
 
 //------------------------------------------
 // Includes
@@ -194,4 +194,4 @@ private:
     void setupDebugInfo() const ;
 };
 } // namespace Nebulite::DomainModule::GlobalSpace
-#endif // NEBULITE_GSDM_DEBUG_HPP
+#endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_DEBUG_HPP

@@ -5,8 +5,8 @@
  *       Later on, the text update function should be moved to the texture domain once that works properly.
  */
 
-#ifndef NEBULITE_RODM_STATE_UPDATE_HPP
-#define NEBULITE_RODM_STATE_UPDATE_HPP
+#ifndef NEBULITE_DOMAINMODULE_RENDEROBJECT_STATE_UPDATE_HPP
+#define NEBULITE_DOMAINMODULE_RENDEROBJECT_STATE_UPDATE_HPP
 
 //------------------------------------------
 // Includes
@@ -54,4 +54,4 @@ public:
     }
 };
 } // namespace Nebulite::DomainModule::RenderObject
-#endif // NEBULITE_RODM_STATE_UPDATE_HPP
+#endif // NEBULITE_DOMAINMODULE_RENDEROBJECT_STATE_UPDATE_HPP

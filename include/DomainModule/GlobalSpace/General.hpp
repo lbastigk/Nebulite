@@ -3,8 +3,8 @@
  * @brief General-purpose DomainModule for the GlobalSpace.
  */
 
-#ifndef NEBULITE_GSDM_GENERAL_HPP
-#define NEBULITE_GSDM_GENERAL_HPP
+#ifndef NEBULITE_DOMAINMODULE_GLOBALSPACE_GENERAL_HPP
+#define NEBULITE_DOMAINMODULE_GLOBALSPACE_GENERAL_HPP
 
 //------------------------------------------
 // Includes
@@ -236,4 +236,4 @@ public:
     }
 };
 } // namespace Nebulite::DomainModule::GlobalSpace
-#endif // NEBULITE_GSDM_GENERAL_HPP
+#endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_GENERAL_HPP

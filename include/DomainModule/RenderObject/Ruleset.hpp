@@ -3,8 +3,8 @@
  * @brief Contains the Ruleset DomainModule for the RenderObject tree.
  */
 
-#ifndef NEBULITE_RODM_RULESET_HPP
-#define NEBULITE_RODM_RULESET_HPP
+#ifndef NEBULITE_DOMAINMODULE_RENDEROBJECT_RULESET_HPP
+#define NEBULITE_DOMAINMODULE_RENDEROBJECT_RULESET_HPP
 
 //------------------------------------------
 // Includes
@@ -91,4 +91,4 @@ private:
     std::vector<std::shared_ptr<Interaction::Rules::Listener>> listeners;
 };
 } // namespace Nebulite::DomainModule::RenderObject
-#endif // NEBULITE_RODM_RULESET_HPP
+#endif // NEBULITE_DOMAINMODULE_RENDEROBJECT_RULESET_HPP

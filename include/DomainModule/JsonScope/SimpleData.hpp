@@ -3,8 +3,8 @@
  * @brief DomainModule for simple data operations on domain class Nebulite::Data::JSON
  */
 
-#ifndef NEBULITE_JSDM_SIMPLEDATA_HPP
-#define NEBULITE_JSDM_SIMPLEDATA_HPP
+#ifndef NEBULITE_DOMAINMODULE_JSONSCOPE_SIMPLEDATA_HPP
+#define NEBULITE_DOMAINMODULE_JSONSCOPE_SIMPLEDATA_HPP
 
 //------------------------------------------
 // Includes
@@ -123,4 +123,4 @@ public:
     }
 };
 } // namespace Nebulite::DomainModule::JsonScope
-#endif // NEBULITE_JSDM_SIMPLEDATA_HPP
+#endif // NEBULITE_DOMAINMODULE_JSONSCOPE_SIMPLEDATA_HPP

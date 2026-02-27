@@ -4,8 +4,8 @@
  *        This file contains a DomainModule for basic rendering-related functioncalls.
  */
 
-#ifndef NEBULITE_RRDM_GENERAL_HPP
-#define NEBULITE_RRDM_GENERAL_HPP
+#ifndef NEBULITE_DOMAINMODULE_RENDERER_GENERAL_HPP
+#define NEBULITE_DOMAINMODULE_RENDERER_GENERAL_HPP
 
 //------------------------------------------
 // Includes
@@ -215,4 +215,4 @@ private:
     Core::RenderObject* selectedRenderObject = nullptr;
 };
 } // namespace Nebulite::DomainModule::Renderer
-#endif // NEBULITE_RRDM_GENERAL_HPP
+#endif // NEBULITE_DOMAINMODULE_RENDERER_GENERAL_HPP
