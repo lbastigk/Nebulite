@@ -12,7 +12,6 @@
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Constants/KeyNames.hpp"
-#include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonScopeBase.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
@@ -47,11 +46,7 @@ public:
         static auto constexpr containerTotalTiles = MAKE_SCOPED("container.totalTiles");
         static auto constexpr containerTotalCost = MAKE_SCOPED("container.totalCost");
 
-        // Worker info: Active
-        static auto constexpr workersActiveCount = MAKE_SCOPED("workers.active.count");
-        static auto constexpr workersActiveTotalCost = MAKE_SCOPED("workers.active.cost");
-
-        // Worker info: Total
+        // Worker info
         static auto constexpr workersTotalCount = MAKE_SCOPED("workers.total.count");
     };
 

@@ -51,8 +51,10 @@ constexpr std::array<T, N> make_array_with_arg(Arg&& arg) {
  */
 class JsonScopeBase {
 public:
-    static auto constexpr noLockArraySize = ORDERED_DOUBLE_POINTERS_MAPS+1 ; // A bit higher to allow for extra threads coming from RenderObjectContainer
-    static auto constexpr lockArraySize = 1;
+    // A bit higher to allow for extra threads, if they exist.
+    // TODO: Can we reduce this?
+    static auto constexpr noLockArraySize = THREADRUNNER_COUNT + BATCH_WORKER_COUNT + 4; // For both global and local rulesets + some overhead for whatever reason...
+    static auto constexpr lockArraySize = 1; // TODO: We could increase this one for each new thread id
 
 protected:
     std::shared_ptr<JSON> baseDocument;
@@ -216,13 +218,12 @@ public:
     }
 
     odpvec* ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
-        thread_local size_t threadIndex = assignThreadIndex();
-        if (threadIndex < noLockArraySize) {
+
+        if (thread_local size_t threadIndex = assignThreadIndex(); threadIndex < noLockArraySize) {
             return expressionRefsNoLock[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
         }
         // spread rest on locking maps
-        // TODO: Currently not supported, somehow this breaks the thread safety...
-        return expressionRefs[threadIndex % lockArraySize].ensureOrderedCacheList(uniqueId, keys);
+        throw std::runtime_error("JsonScopeBase: Too many threads for no-lock cache lists. Increase noLockArraySize or reduce thread count.");
     }
 
     //------------------------------------------

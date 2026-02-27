@@ -23,27 +23,22 @@
 // General threading settings
 
 /**
- * @def ORDERED_DOUBLE_POINTERS_MAPS
- * @brief Number of ordered double pointer maps for expression evaluations.
- * @details The size is for locking maps, non-locking maps depend on the size as well,
- *          but are a bit higher to allow for extra threads coming from RenderObjectContainer, in case those are batched.
- * @details If set to 1, all threads share the same map.
- *          Optimized to not use any special indexing, but simple access to [0] if set to 1.
- */
-#define ORDERED_DOUBLE_POINTERS_MAPS 16
-
-/**
  * @def THREADRUNNER_COUNT
  * @brief Number of thread runners for processing broadcast-listen pairs.
  */
 #define THREADRUNNER_COUNT 16
 
 /**
+ * @def BATCH_WORKER_COUNT
+ * @brief Number of worker threads for processing RenderObjectContainer batches.
+ */
+#define BATCH_WORKER_COUNT THREADRUNNER_COUNT
+
+/**
  * @def BATCH_COST_GOAL
  * @brief Target cost of each Render::update thread batch.
  * @details Set to 0 to disable dynamic batching and process all members per layer in a single thread
- * @todo Breaks for too many workers... Likely an issue with cache list management? Forgot to lock the map?
  */
-static auto constexpr batchCostGoal = 0;
+static auto constexpr batchCostGoal = 512;
 
 #endif // NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP

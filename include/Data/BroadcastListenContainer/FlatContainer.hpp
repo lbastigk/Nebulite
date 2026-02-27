@@ -18,15 +18,13 @@
 //------------------------------------------
 namespace Nebulite::Data::BroadcastListenContainer {
 
-class FlatContainer final : public BaseContainer {
+class FlatContainer final : public BaseContainer<FlatContainer*> {
 public:
-    explicit FlatContainer(std::atomic<bool>& stopFlag, uint32_t const& workerIndex, uint32_t const& workerCount) : BaseContainer(stopFlag, workerIndex, workerCount) {
-        initializeWorkerThread();
+    explicit FlatContainer(std::atomic<bool>& stopFlag, uint32_t const& workerIndex, uint32_t const& workerCount)
+        : BaseContainer(stopFlag, workerIndex, workerCount, this) {
     }
 
-    ~FlatContainer() override {
-        stopWorkerThread();
-    }
+    ~FlatContainer() override = default;
 
     /**
      * @brief Broadcasts a ruleset to all listeners on its topic.
@@ -40,24 +38,14 @@ public:
      */
     void listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) override ;
 
-    //------------------------------------------
-    // Worker Thread Methods
+    void prepare() override {}
 
-    /**
-     * @brief Prepares for the next frame by swapping the current and next frame containers.
-     */
-    void prepare() override ;
-
+    void process() override;
+    void init() override;
 private:
     static auto constexpr broadcasterSpreading = 16;
     std::array<HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>>,broadcasterSpreading> broadcasters;
     HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Listener>>> listeners;
-
-    /**
-     * @brief Processes all broadcast-listen pairs.
-     */
-    void process() override ;
-
     mutable Utility::SharedMutex mutex;
 };
 

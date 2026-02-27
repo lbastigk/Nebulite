@@ -67,20 +67,22 @@ public:
     /**
      * @brief Constructs a new RenderObjectContainer.
      */
-    RenderObjectContainer() = default;
+    RenderObjectContainer() {
+        for (size_t i = 0; i < THREADRUNNER_COUNT; i++) {
+            batchWorkerPool[i] = std::make_unique<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>(stopFlag);
+            batchWorkerPool[i]->workspace.deletionProcess = &deletionProcess;
+            batchWorkerPool[i]->workspace.reinsertionProcess = &reinsertionProcess;
+        }
+    }
 
     ~RenderObjectContainer() {
         // 1.) Notify all workers to stop
         stopFlag = true;
 
         // 2.) Optionally, start work to wake any waiting threads
-        for (auto const& worker : batchWorkers) {
+        for (auto const& worker : batchWorkerPool) {
             worker->startWork();  // wakes worker so it can check stopFlag
         }
-
-        // 3.) Now clear the vector, which triggers ~WorkDispatcher() on each
-        batchWorkers.clear();
-        // each destructor sets stopFlag, notifies, and joins the thread safely
     }
 
     //------------------------------------------
@@ -179,9 +181,7 @@ public:
         size_t containerTotalCost;
 
         // Worker stats
-        size_t activeWorkers;
         size_t totalWorkers;
-        size_t activeWorkersTotalCost;
     };
 
     /**
@@ -254,12 +254,20 @@ private:
     /**
      * @brief Holds all batch worker threads.
      */
-    std::vector<std::unique_ptr<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>> batchWorkers;
+    std::array<std::unique_ptr<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>, BATCH_WORKER_COUNT> batchWorkerPool; // Pool of pre-initialized workers for reuse
 
-    /**
-     * @brief Actual worker count from last update.
-     */
-    size_t workerCount = 0;
+    void processPool() const {
+        for (auto const& worker : batchWorkerPool) {
+            worker->startWork();
+        }
+        for (auto const& worker : batchWorkerPool) {
+            worker->waitForWorkFinished();
+        }
+        for (auto const& worker : batchWorkerPool) {
+            worker->workspace.work.clear();
+            worker->workspace.cost = 0;
+        }
+    }
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_DATA_RENDER_OBJECT_CONTAINER_HPP
