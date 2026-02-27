@@ -234,6 +234,34 @@ public:
     //------------------------------------------
     // Module Initialization and Updating
 
+    template <typename DomainType, typename DomainModuleType>
+    static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScopeBase const& settings, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> funcTree) {
+        // Determine the key from root level
+        if constexpr (HasKeyGroup<DomainModuleType>) {
+            if (DomainModuleType::Key::hasScope()) {
+                static auto const scopeKey = Data::ScopedKey("", DomainModuleType::Key::getScope());
+
+                // Share the scope based on the module's defined scope
+                auto& scope = domainReference.domainScope.shareScopeBase(scopeKey); // Sharing a scope based on the module's defined scope
+                auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, funcTree, scope, settings);
+                DomainModule->reinit();
+                return DomainModule;
+            }
+            // No scope defined, share a dummy scope (no workspace)
+            auto& scope = domainReference.domainScope.shareDummyScopeBase();
+            auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, funcTree, scope, settings);
+            DomainModule->reinit();
+            return DomainModule;
+        }
+        else {
+            // No scope defined, share a dummy scope (no workspace)
+            auto& scope = domainReference.domainScope.shareDummyScopeBase();
+            auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, funcTree, scope, settings);
+            DomainModule->reinit();
+            return DomainModule;
+        }
+    }
+
     /**
      * @brief Initializes DomainModules based on the template parameter with proper linkage, deriving the scope from the module's static scope member.
      * @details If no struct Key inheriting from KeyGroup is defined in the DomainModuleType, a dummy scope will be shared (no workspace)
@@ -246,33 +274,10 @@ public:
      *       Either always looping through modules to check or using a second set of names for fast lookup.
      */
     template <typename DomainType, typename DomainModuleType>
-    void initModule(std::string moduleName, Data::JsonScopeBase const& settings, DomainType& domainReference) {
-        // Determine the key from root level
-        if constexpr (HasKeyGroup<DomainModuleType>) {
-            if (DomainModuleType::Key::hasScope()) {
-                static auto const scopeKey = Data::ScopedKey("", DomainModuleType::Key::getScope());
-
-                // Share the scope based on the module's defined scope
-                auto& scope = domainReference.domainScope.shareScopeBase(scopeKey); // Sharing a scope based on the module's defined scope
-                auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
-                DomainModule->reinit();
-                modules.push_back(std::move(DomainModule));
-            }
-            else {
-                // No scope defined, share a dummy scope (no workspace)
-                auto& scope = domainReference.domainScope.shareDummyScopeBase();
-                auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
-                DomainModule->reinit();
-                modules.push_back(std::move(DomainModule));
-            }
-        }
-        else {
-            // No scope defined, share a dummy scope (no workspace)
-            auto& scope = domainReference.domainScope.shareDummyScopeBase();
-            auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, getFuncTree(), scope, settings);
-            DomainModule->reinit();
-            modules.push_back(std::move(DomainModule));
-        }
+    void initModule(std::string const& moduleName, Data::JsonScopeBase const& settings, DomainType& domainReference) {
+        auto DomainModule = createModule<DomainType, DomainModuleType>(moduleName, settings, domainReference, getFuncTree());
+        DomainModule->reinit();
+        modules.push_back(std::move(DomainModule));
     }
 
     /**

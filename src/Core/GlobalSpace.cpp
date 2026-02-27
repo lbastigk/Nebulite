@@ -20,13 +20,14 @@ GlobalSpace::GlobalSpace(std::string const& name) :
     //------------------------------------------
     // Initialize floating DomainModules
 
-    floatingDM.rng = NEBULITE_FLOATING_DOMAINMODULE(
-        Nebulite::DomainModule::GlobalSpace::RNG,
+    floatingDM.rng = createModule<GlobalSpace, DomainModule::GlobalSpace::RNG>(
         "RNG",
-        domainScope,
-        "random",
-        Global::settings()
+        Global::settings(),
+        *this,
+        getFuncTree()
     );
+
+
 
     //------------------------------------------
     // There should only be one GlobalSpace

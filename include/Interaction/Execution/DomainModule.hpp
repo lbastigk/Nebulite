@@ -19,10 +19,12 @@
 //------------------------------------------
 // Macro for DomainModule definition
 
+// Macro for defining a new DomainModule class with the correct inheritance and template parameters
 // NOLINTNEXTLINE
 #define NEBULITE_DOMAINMODULE(DomainName,DomainModuleName) \
     class DomainModuleName final : public Nebulite::Interaction::Execution::DomainModule<DomainName>
 
+// Macro for easily passing the constructor parameters to the base class constructor in the DomainModule definition
 // NOLINTNEXTLINE
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
     explicit DomainModuleName( \
@@ -33,23 +35,7 @@
     ) \
     : DomainModule(name, domainReference, std::move(funcTreePtr), w, s)
 
-// Common macro to create a floating DomainModule with proper linkage
-// Floating DomainModules are handled separately from regular DomainModules
-// They are not updated automatically via the domains updateModules function.
-// However, they offer the same "separation of concerns" as regular DomainModules
-// without the additional overhead if we were to turn them into full Domains.
-// Useful for small "runners" with neatly separated functionality, that need the ability to be called
-// separately.
-// NOLINTNEXTLINE
-#define NEBULITE_FLOATING_DOMAINMODULE(DomainModule, DomainModuleName, Document, Workspace, Settings) \
-    std::make_unique<DomainModule>( \
-        DomainModuleName, \
-        *this, \
-        getFuncTree(), \
-        Document.shareScopeBase(Workspace), \
-        Settings \
-    )
-
+// Macro for binding a function to the FuncTree with a description that must end with a newline character
 #define BIND_FUNCTION(func, name,desc) \
 static_assert(::Nebulite::Constants::Assert::endsWithNewline(desc), "Function description must end with a newline character."); \
     bindFunction(func, name, desc)
