@@ -22,7 +22,7 @@
 // Helper Classes
 
 /**
- * @struct KeyGroup
+ * @class KeyGroup
  * @brief A template class to group related keys under a common scope.
  * @details This class allows for defining a group of related keys that share a common scope.
  *          The scope is defined as an optional template parameter.
@@ -30,8 +30,9 @@
  *          This is useful for organizing keys related to specific domains or modules within the Nebulite framework.
  * @tparam Prefix An optional fixed string that defines the scope prefix for the keys in this group. If not provided, the keys will be non-scoped.
  */
-template <OptionalFixedString Prefix = OptionalFixedString<0>()>
-struct KeyGroup {
+template <OptionalFixedString Prefix = OptionalFixedString()>
+class KeyGroup {
+public:
     static consteval auto makeScoped(const char* keyStr) {
         return Nebulite::Data::ScopedKeyView::createFromOptionalFixedString<Prefix>(keyStr);
     }

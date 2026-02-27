@@ -66,6 +66,8 @@ struct OptionalFixedString {
 template <std::size_t N>
 OptionalFixedString(const char (&)[N]) -> OptionalFixedString<N>;
 
+OptionalFixedString() -> OptionalFixedString<0>;
+
 //------------------------------------------
 // Self-owning scoped key
 namespace Nebulite::Data {
