@@ -27,50 +27,29 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
 }
 
 bool Expression::Component::handleComponentTypeVariable(std::string& token, ContextScopeBase const& context, uint16_t const& maximumRecursionDepth) const {
-    std::string strippedKey = key;
-    ContextType destination = contextType;
-
-    // See if the variable contains an inner expression
-    if (str.find('$') != std::string::npos || str.find('{') != std::string::npos) {
-        if (maximumRecursionDepth == 0) {
-            Error::println("Error: Maximum recursion depth reached when evaluating variable: ", key);
-            return false;
-        }
-        // Create a temporary expression to evaluate the inner expression
-        Expression const tempExpr(str);
-        strippedKey = tempExpr.eval(context, maximumRecursionDepth - 1);
-
-        // Redetermine context and strip it from key
-        destination = getContextType(strippedKey);
-        strippedKey = stripContext(strippedKey);
+    thread_local Data::JSON tokenDoc;
+    if (!handleComponentTypeVariable(tokenDoc, context, maximumRecursionDepth)) {
+        return false;
     }
 
-    // Now, use the key to get the value from the correct document
-    auto const scopedKey = Data::ScopedKey(strippedKey);
-    switch (destination) {
-    case ContextType::self: // {self.<key><transformations>}
-        token = context.self.get<std::string>(scopedKey.view(), "null");
-        break;
-    case ContextType::other: // {other.<key><transformations>}
-        token = context.other.get<std::string>(scopedKey.view(), "null");
-        break;
-    case ContextType::global: // {global.<key><transformations>}
-        token = context.global.get<std::string>(scopedKey.view(), "null");
-        break;
-    case ContextType::resource: // {<link><resource_key_or_transformations>}
-        token = Global::instance().getDocCache().get<std::string>(strippedKey, "null");
-        break;
-    case ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
-        {
-            // This requires an empty document that acts as a parsing mechanism for the transformations
-            thread_local Data::JsonScopeBase emptyDoc;
-            token = emptyDoc.get<std::string>(scopedKey.view(), "null");
-        }
-        break;
-    default:
-        Error::println("Error: Unknown context in expression: ", strippedKey);
-        std::unreachable();
+    // Now, we need to convert the tokenDoc to a string for the final output
+    switch (tokenDoc.memberType("")) {
+        case Data::KeyType::null:
+            token = "null";
+            break;
+        case Data::KeyType::array:
+            token = "[array]";
+            break;
+        case Data::KeyType::object:
+            token = "{object}";
+            break;
+        case Data::KeyType::value:
+            token = tokenDoc.get<std::string>("");
+            break;
+        default:
+            std::unreachable();
     }
+    tokenDoc.removeMember(""); // Clear the temporary document for future use
     return true;
 }
 
@@ -116,7 +95,6 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
         }
         break;
     default:
-        Error::println("Error: Unknown context in expression: ", strippedKey);
         std::unreachable();
     }
     return true;

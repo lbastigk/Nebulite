@@ -38,7 +38,7 @@
                 "second_value",
                 "null",
                 "Part 4: Printing an array without indexing",
-                "null"
+                "[array]"
             ], 
             "cerr": [
                 "Invalid key: arr[1",
