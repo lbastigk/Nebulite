@@ -24,7 +24,7 @@ void docLoadingFailedMessage(std::string const& doc) {
 
 namespace Nebulite::Data {
 
-void ReadOnlyDocs::update(){
+void ReadOnlyDocs::update() const {
     if(docs.empty()){
         return; // No documents to check
     }
@@ -41,7 +41,7 @@ void ReadOnlyDocs::update(){
     }
 }
 
-ReadOnlyDoc* ReadOnlyDocs::getDocument(std::string const& doc){
+ReadOnlyDoc* ReadOnlyDocs::getDocument(std::string const& doc) const {
     // Validate inputs and state
     if (doc.empty()){
         docLoadingFailedMessage(doc);

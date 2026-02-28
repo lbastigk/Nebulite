@@ -1,7 +1,7 @@
 #include "Data/Document/DocumentCache.hpp"
 
 namespace Nebulite::Data {
-void DocumentCache::update() {
+void DocumentCache::update() const {
     readOnlyDocs.update();
 }
 

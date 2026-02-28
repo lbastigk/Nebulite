@@ -31,24 +31,21 @@ struct ReadOnlyDoc {
 
 /**
  * @brief Map of document paths to their corresponding ReadOnlyDoc instances.
- * 
- * Takes care of loading and unloading documents as needed.
+ * @details Takes care of loading and unloading documents as needed.
  */
 struct ReadOnlyDocs{
 private:
     /**
      * @brief Time in milliseconds after which unused documents are unloaded.
-     * 
-     * Documents that have not been accessed within this time frame will be removed from the cache to free up memory.
-     * 
-     * Unload documents after 5 minutes of inactivity
+     * @details Documents that have not been accessed within this time frame will be removed from the cache to free up memory.
+     *          Unload documents after 5 minutes of inactivity
      */
     static constexpr uint64_t unloadTime = 5U * Utility::Time::Conversion::millisecondsPerMinute;
 
     /**
      * @brief Contains the cached documents mapped by their file paths.
      */
-    absl::flat_hash_map<std::string, ReadOnlyDoc> docs;
+    mutable absl::flat_hash_map<std::string, ReadOnlyDoc> docs;
 
 public:
     /**
@@ -58,18 +55,17 @@ public:
 
     /**
      * @brief Updates the cache by checking a random document for its last usage time,
-     * and unloading it if it has been unused for too long.
+     *        and unloading it if it has been unused for too long.
      */
-    void update();
+    void update() const ;
 
     /**
-     * @brief Proper retrieval of a document, loading it if not already cached.
-     *        And updating its metadata.
+     * @brief Proper retrieval of a document, loading it if not already cached and updating its metadata.
      * @param doc The link to the document.
      * @return Pointer to the ReadOnlyDoc, or nullptr if loading fails.
      *         If loading fails, writes an error message to the console.
      */
-    ReadOnlyDoc* getDocument(std::string const& doc);
+    ReadOnlyDoc* getDocument(std::string const& doc) const ;
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_READ_ONLY_DOCS_HPP

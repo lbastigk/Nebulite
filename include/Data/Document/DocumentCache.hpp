@@ -42,7 +42,7 @@ public:
      * @return The retrieved data or the default value as type T.
      */
     template <typename T>
-    T get(std::string const& doc_key, T const& defaultValue = T());
+    T get(std::string const& doc_key, T const& defaultValue = T()) const ;
 
     /**
      * @brief Gets a sub-document from the JSON document.
@@ -52,7 +52,7 @@ public:
      * @param doc_key The link and key of the sub-document to retrieve.
      * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
      */
-    JSON getSubDoc(std::string const& doc_key) {
+    JSON getSubDoc(std::string const& doc_key) const {
         auto [doc, key] = splitDocKey(doc_key);
         ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
 
@@ -87,7 +87,7 @@ public:
      * @param doc_key The document and its key to check.
      * @return The type of the key.
      */
-    KeyType memberType(std::string const& doc_key) {
+    KeyType memberType(std::string const& doc_key) const {
         auto [doc, key] = splitDocKey(doc_key);
 
         ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
@@ -114,7 +114,7 @@ public:
      * @param doc_key The key to check.
      * @return The size of the key.
      */
-    size_t memberSize(std::string const& doc_key) {
+    size_t memberSize(std::string const& doc_key) const {
         auto [doc, key] = splitDocKey(doc_key);
 
         ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
@@ -139,7 +139,7 @@ public:
      * @param doc_key The document and key to serialize.
      * @return The serialized JSON string.
      */
-    std::string serialize(std::string const& doc_key) {
+    std::string serialize(std::string const& doc_key) const {
         auto [doc, key] = splitDocKey(doc_key);
 
         ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
@@ -168,7 +168,7 @@ public:
      * @param link The link to the document.
      * @return The serialized JSON string of the entire document.
      */
-    std::string getDocString(std::string const& link) {
+    std::string getDocString(std::string const& link) const {
         ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(link);
 
         // Check if the document exists in the cache
@@ -231,7 +231,7 @@ private:
     /**
      * @brief Updates the cache by checking a random document for its last usage time.
      */
-    void update();
+    void update() const ;
 };
 
 
@@ -239,7 +239,7 @@ private:
 // Definitions of template functions
 
 template <typename T>
-T DocumentCache::get(std::string const& doc_key, T const& defaultValue) {
+T DocumentCache::get(std::string const& doc_key, T const& defaultValue) const {
     auto [doc, key] = splitDocKey(doc_key);
 
     ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
