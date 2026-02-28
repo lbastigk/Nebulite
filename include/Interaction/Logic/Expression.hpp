@@ -311,7 +311,8 @@ private:
         // Component handling methods
 
         /**
-         * @brief Handles the evaluation of a variable component.
+         * @brief Handles the evaluation of a variable component as a string.
+         * @details Takes care of proper conversion to string, with abbreviated representations for non-value types (arrays, objects and null).
          * @param token The string to populate with the evaluated value.
          * @param context The context to evaluate against.
          * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
@@ -320,7 +321,8 @@ private:
         bool handleComponentTypeVariable(std::string& token, ContextScopeBase const& context, uint16_t const& maximumRecursionDepth) const ;
 
         /**
-         * @brief Handles the evaluation of a variable component.
+         * @brief Handles the evaluation of a variable component as a JSON value.
+         * @details Populates the provided JSON object with the evaluated value, preserving its type.
          * @param token The JSON object to populate with the evaluated value.
          * @param context The context to evaluate against.
          * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
