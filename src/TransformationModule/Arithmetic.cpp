@@ -14,94 +14,105 @@ void Arithmetic::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Arithmetic::root, rootName, rootDesc);
 }
 
-bool Arithmetic::add(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (args.size() != 2) {
+bool Arithmetic::forall(std::span<std::string const> const& args, std::function<bool(std::string const&, Data::ScopedKeyView const& key)> const& func){
+    if (args.size() < 2) {
         return false;
     }
     try {
-        double const num = std::stod(args[1]);
-        jsonDoc->set_add(rootKey, num);
+        if (args.size() == 2) {
+            return func(args[1], rootKey);
+        }
+        for (auto [index, arg] : args | std::views::drop(1) | std::views::enumerate) {
+            if (auto key = rootKey + "[" + std::to_string(index) + "]";
+                !func(arg, key.view()))
+            {
+                return false;
+            }
+        }
+        return true;
     } catch (...) {
         return false;
     }
-    return true;
+}
+
+bool Arithmetic::add(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+    return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
+        double const num = std::stod(arg);
+        jsonDoc->set_add(key, num);
+        return true;
+    });
 }
 
 bool Arithmetic::multiply(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (args.size() != 2) {
-        return false;
-    }
-    try {
-        double const num = std::stod(args[1]);
-        jsonDoc->set_multiply(rootKey, num);
-    } catch (...) {
-        return false;
-    }
-    return true;
+    return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
+        double const num = std::stod(arg);
+        jsonDoc->set_multiply(key, num);
+        return true;
+    });
 }
 
 bool Arithmetic::mod(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (args.size() != 2) {
-        return false;
-    }
-    try {
-        double const modValue = std::stod(args[1]);
-        auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
+    return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
+        double const modValue = std::stod(arg);
+        auto const currentValue = jsonDoc->get<double>(key, 0.0);
         if (std::fabs(modValue) < std::numeric_limits<double>::epsilon()) {
             return false; // Modulo by zero is undefined
         }
         double const result = std::fmod(currentValue, modValue);
-        jsonDoc->set<double>(rootKey, result);
+        jsonDoc->set<double>(key, result);
         return true;
-    } catch (...) {
-        return false;
-    }
+    });
 }
 
 bool Arithmetic::pow(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (args.size() != 2) {
-        return false;
-    }
-    try {
-        auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
-        auto const exponent = std::stod(args[1]);
+    return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
+        double const exponent = std::stod(arg);
+        auto const currentValue = jsonDoc->get<double>(key, 0.0);
         double const result = std::pow(currentValue, exponent);
-        jsonDoc->set<double>(rootKey, result);
+        jsonDoc->set<double>(key, result);
         return true;
-    } catch (...) {
-        return false;
-    }
+    });
 }
 
 bool Arithmetic::subtract(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (args.size() != 2) {
-        return false;
-    }
-    try {
-        double const num = - std::stod(args[1]);
-        jsonDoc->set_add(rootKey, num);
-    } catch (...) {
-        return false;
-    }
-    return true;
+    return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
+        double const num = - std::stod(arg);
+        jsonDoc->set_add(key, num);
+        return true;
+    });
 }
 
 bool Arithmetic::divide(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (args.size() != 2) {
-        return false;
-    }
-    try {
-        double const num = 1.0 / std::stod(args[1]);
-        jsonDoc->set_multiply(rootKey, num);
-    } catch (...) {
-        return false;
-    }
-    return true;
+    return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
+        double const divisor = std::stod(arg);
+        if (std::fabs(divisor) < std::numeric_limits<double>::epsilon()) {
+            return false; // Division by zero is undefined
+        }
+        double const result = jsonDoc->get<double>(key, 0.0) / divisor;
+        jsonDoc->set<double>(key, result);
+        return true;
+    });
+}
+
+bool Arithmetic::root(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+    return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
+        double const n = std::stod(arg);
+        if (std::fabs(n) < std::numeric_limits<double>::epsilon()) {
+            return false; // Root of order zero is undefined
+        }
+        auto const currentValue = jsonDoc->get<double>(key, 0.0);
+        if (currentValue < 0.0 && std::fabs(std::fmod(n, 2.0)) < std::numeric_limits<double>::epsilon()) {
+            return false; // Even root of negative number is undefined
+        }
+        double const result = std::pow(currentValue, 1.0 / n);
+        jsonDoc->set<double>(key, result);
+        return true;
+    });
 }
 
 bool Arithmetic::sqrt(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     if (args.size() != 1) {
-        return false;
+        return false; // No arguments should be provided for sqrt, as it's an operator with a single operand (the current JSON value)
     }
     try {
         auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
@@ -109,27 +120,6 @@ bool Arithmetic::sqrt(std::span<std::string const> const& args, Core::JsonScope*
             return false; // Square root of negative number is undefined
         }
         double const result = std::sqrt(currentValue);
-        jsonDoc->set<double>(rootKey, result);
-        return true;
-    } catch (...) {
-        return false;
-    }
-}
-
-bool Arithmetic::root(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
-    if (args.size() != 2) {
-        return false;
-    }
-    try {
-        double const n = std::stod(args[1]);
-        if (std::fabs(n) < std::numeric_limits<double>::epsilon()) {
-            return false; // Root of order zero is undefined
-        }
-        auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
-        if (currentValue < 0.0 && std::fabs(std::fmod(n, 2.0)) < std::numeric_limits<double>::epsilon()) {
-            return false; // Even root of negative number is undefined
-        }
-        double const result = std::pow(currentValue, 1.0 / n);
         jsonDoc->set<double>(rootKey, result);
         return true;
     } catch (...) {

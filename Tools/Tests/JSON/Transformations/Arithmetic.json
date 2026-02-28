@@ -86,7 +86,7 @@
         "command": [
             "# Wrong argument count for transformation",
             "set var 10",
-            "eval echo {global.var|pow 2 3}# pow expects exactly one argument, providing two should result in null",
+            "eval echo {global.var|sqrt 2}# sqrt expects exactly no argument, providing one should result in null",
             "exit"
         ],
         "expected": {
