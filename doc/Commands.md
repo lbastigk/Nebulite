@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Mon Feb 16 18:22:56 CET 2026
+Generated on: Fri Feb 27 21:55:11 CET 2026
 
 ## Table of Contents
 
@@ -40,6 +40,7 @@ Available Functions
 | `error` | Echoes all arguments as string to the standard error. |
 | `errorlog` | Activates or deactivates error logging to a file. |
 | `eval` | Evaluates an expression string and executes it. |
+| `evaluation` | Tests evaluation of self and other globals in one expression |
 | `exit` | Exits the entire program. |
 | `expression-help` | Lists all available expression functions with their descriptions. |
 | `feature-test` | Functions for testing features in the GlobalSpace |
@@ -47,6 +48,7 @@ Available Functions
 | `help` | Show available commands and their descriptions |
 | `if` | Executes a block of code if a condition is true. |
 | `in-scope` | Parses a command within a specific scope of the Global Space. |
+| `input-mapping` | Functions for mapping inputs to actions within the GlobalSpace. |
 | `input-wait` | Waits for user input before continuing. |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
@@ -505,6 +507,13 @@ This evaluates to 'spawn ./Resources/RenderObjects/NAME.json',
 where NAME is the current value of the global variable ToSpawn
 ```
 
+#### `evaluation`
+
+```
+Tests evaluation of self and other globals in one expression
+Usage: evaluation
+```
+
 #### `exit`
 
 ```
@@ -588,6 +597,50 @@ in-scope global echo This is in the global scope!
 This will output: This is in the global scope!
 ```
 
+#### `input-mapping`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `lock` | Functions for locking and unlocking input actions. |
+
+##### `input-mapping lock`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `off` | Unlocks an action, allowing it to be triggered by its associated keys again. |
+| `on` | Locks an action until it is unlocked, preventing it from being triggered by any of its associated keys. |
+| `once` | Locks an action for the current frame, preventing it from being triggered by any of its associated keys. |
+
+###### `input-mapping lock off`
+
+```
+Unlocks an action, allowing it to be triggered by its associated keys again.
+Allows locking of entire categories of actions by using a structured action name, e.g. 'movement::up' or 'combat::primaryAttack' can be locked with 'movement' or 'combat'.
+Usage: input-mapping unlock <actionName>
+```
+
+###### `input-mapping lock on`
+
+```
+Locks an action until it is unlocked, preventing it from being triggered by any of its associated keys.
+Allows locking of entire categories of actions by using a structured action name, e.g. 'movement::up' or 'combat::primaryAttack' can be locked with 'movement' or 'combat'.
+Usage: input-mapping lock on <actionName>
+```
+
+###### `input-mapping lock once`
+
+```
+Locks an action for the current frame, preventing it from being triggered by any of its associated keys.
+Allows locking of entire categories of actions by using a structured action name, e.g. 'movement::up' or 'combat::primaryAttack' can be locked with 'movement' or 'combat'.
+Usage: input-mapping lock once <actionName>
+```
+
 #### `input-wait`
 
 ```
@@ -603,13 +656,48 @@ Available Functions
 
 | Function | Description |
 |----------|-------------|
+| `evaluate` | Functions to evaluate and set JSON data as expressions |
 | `help` | Show available commands and their descriptions |
-| `set` | Sets a key from an expression evaluated as JSON, allowing for complex objects to be set. |
+| `set` | Sets a key from a given expression evaluated as JSON, allowing for complex objects to be set. |
+
+##### `json evaluate`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `member` | If the member is a string or number, treats it as an expression and evaluates it as JSON, setting the member to the result. |
+| `recursive` | Recursively evaluates all string members in the JSON object as expressions, allowing for complex nested structures to be evaluated and set in one command. |
+
+###### `json evaluate member`
+
+```
+If the member is a string or number, treats it as an expression and evaluates it as JSON, setting the member to the result.
+If the member is an array or object, it will do nothing.
+Usage: json evaluate member <key>
+
+Examples:
+evaluate member myExpression
+If the member myExpression is a string, for example "{global.names|filterGlob F*}", myExpression will be set to an array of names starting with F from the global scope.
+```
+
+###### `json evaluate recursive`
+
+```
+Recursively evaluates all string members in the JSON object as expressions, allowing for complex nested structures to be evaluated and set in one command.
+Usage: json evaluate recursive <key>
+
+Examples:
+evaluate recursive myObject
+MyObject could be an array of expressions, that are all evaluated and replaced with their results,
+or an object with nested objects and arrays containing expressions, all of which are evaluated and replaced with their results.
+```
 
 ##### `json set`
 
 ```
-Sets a key from an expression evaluated as JSON, allowing for complex objects to be set.
+Sets a key from a given expression evaluated as JSON, allowing for complex objects to be set.
 Usage: json set <key> <expression>
 
 Examples:
@@ -1133,13 +1221,48 @@ Available Functions
 
 | Function | Description |
 |----------|-------------|
+| `evaluate` | Functions to evaluate and set JSON data as expressions |
 | `help` | Show available commands and their descriptions |
-| `set` | Sets a key from an expression evaluated as JSON, allowing for complex objects to be set. |
+| `set` | Sets a key from a given expression evaluated as JSON, allowing for complex objects to be set. |
+
+##### `json evaluate`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `member` | If the member is a string or number, treats it as an expression and evaluates it as JSON, setting the member to the result. |
+| `recursive` | Recursively evaluates all string members in the JSON object as expressions, allowing for complex nested structures to be evaluated and set in one command. |
+
+###### `json evaluate member`
+
+```
+If the member is a string or number, treats it as an expression and evaluates it as JSON, setting the member to the result.
+If the member is an array or object, it will do nothing.
+Usage: json evaluate member <key>
+
+Examples:
+evaluate member myExpression
+If the member myExpression is a string, for example "{global.names|filterGlob F*}", myExpression will be set to an array of names starting with F from the global scope.
+```
+
+###### `json evaluate recursive`
+
+```
+Recursively evaluates all string members in the JSON object as expressions, allowing for complex nested structures to be evaluated and set in one command.
+Usage: json evaluate recursive <key>
+
+Examples:
+evaluate recursive myObject
+MyObject could be an array of expressions, that are all evaluated and replaced with their results,
+or an object with nested objects and arrays containing expressions, all of which are evaluated and replaced with their results.
+```
 
 ##### `json set`
 
 ```
-Sets a key from an expression evaluated as JSON, allowing for complex objects to be set.
+Sets a key from a given expression evaluated as JSON, allowing for complex objects to be set.
 Usage: json set <key> <expression>
 
 Examples:
