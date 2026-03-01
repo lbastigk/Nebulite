@@ -62,7 +62,7 @@ JsonScopeBase& JsonScopeBase::shareDummyScopeBase() const {
 //------------------------------------------
 // Getter
 
-[[nodiscard]] std::optional<RjDirectAccess::simpleValue> JsonScopeBase::getVariant(ScopedKeyView const& key) const {
+[[nodiscard]] std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JsonScopeBase::getVariant(ScopedKeyView const& key) const {
     return baseDocument->getVariant(key.full(*this));
 }
 

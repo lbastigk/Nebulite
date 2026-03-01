@@ -27,7 +27,7 @@ std::optional<RjDirectAccess::simpleValue> RjDirectAccess::getSimpleValue(rapidj
     if (val->IsDouble()) return val->GetDouble();
     if (val->IsString()) return std::string(val->GetString(), val->GetStringLength());
     if (val->IsBool())   return val->GetBool();
-    return {};
+    return  std::nullopt;
 }
 
 rapidjson::Value* RjDirectAccess::traversePath(char const* key, rapidjson::Value const& val) {

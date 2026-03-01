@@ -10,6 +10,7 @@
 // Includes
 
 // Standard library
+#include <expected>
 #include <mutex>
 #include <string>
 #include <variant>
@@ -22,6 +23,7 @@
 #include "Data/Document/KeyType.hpp"
 #include "Data/Document/JsonRvalueTransformer.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
+#include "Data/Document/SimpleValueError.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -410,11 +412,11 @@ public:
      * @details This function retrieves a variant value from the JSON document.
      *          If the key does not exist, void is returned.
      * @param key The key of the value to retrieve.
-     * @return The variant value associated with the key, or void if the key does not exist.
+     * @return The variant value associated with the key, or an error if the retrieval failed.
      */
-    std::optional<RjDirectAccess::simpleValue> getVariant(std::string const& key) const ;
-    std::optional<RjDirectAccess::simpleValue> getVariant(std::string_view const& key) const { return getVariant(std::string(key)); }
-    std::optional<RjDirectAccess::simpleValue> getVariant(char const* key) const { return getVariant(std::string(key)); }
+    std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(std::string const& key) const ;
+    std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(std::string_view const& key) const { return getVariant(std::string(key)); }
+    std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(char const* key) const { return getVariant(std::string(key)); }
 
     /**
      * @brief Gets a sub-document from the JSON document.
@@ -458,8 +460,8 @@ public:
     KeyType memberType(char const* key) const { return memberType(std::string(key)); }
 
     /**
-     * @brief Checks the type of a key in the JSON document and returns it as a string.
-     * @details This function checks the type of a key in the JSON document and returns it as a string.
+     * @brief Checks the type of the key in the JSON document and returns it as a string.
+     * @details This function checks the type of the key in the JSON document and returns it as a string.
      *          If the key does not exist, the type is considered "null".
      *          Returned type strings:
      *          - "null" : Key does not exist or is null.

@@ -175,7 +175,7 @@ void JSON::flush() const {
 //------------------------------------------
 // Get methods
 
-std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& key) const {
+std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getVariant(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check for transformations
@@ -183,7 +183,7 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
         if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
             return tmp.getVariant(TransformationModule::rootKeyStr);
         }
-        return {};
+        return std::unexpected(TRANSFORMATION_FAILURE);
     }
 
     // Check cache first
@@ -193,7 +193,7 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
     if (it != cache.end() && it->second->state == CacheEntry::EntryState::MALFORMED) {
         Error::println("Warning: Attempted to access malformed key in getVariant(): ", key);
         Error::println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
-        return {};
+        return std::unexpected(MALFORMED_KEY);
     }
 
     if (it != cache.end() && it->second->state != CacheEntry::EntryState::DELETED) {
@@ -222,8 +222,7 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
 
         if (it != cache.end()) {
             // Modify existing entry
-            auto const& v = RjDirectAccess::getSimpleValue(val);
-            if (v.has_value()) {
+            if (auto const& v = RjDirectAccess::getSimpleValue(val); v.has_value()) {
                 it->second->value = v.value();
 
                 // Mark as clean
@@ -232,13 +231,24 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
                 // Set stable double pointer
                 *it->second->stable_double_ptr = convertVariant<double>(it->second->value, 0.0);
                 it->second->last_double_value = *it->second->stable_double_ptr;
+
+                return v.value();
             }
-            return v;
+            if (val->IsNull()) {
+                return std::unexpected(IS_NULL);
+            }
+            if (val->IsArray()) {
+                return std::unexpected(IS_ARRAY);
+            }
+            if (val->IsObject()) {
+                return std::unexpected(IS_OBJECT);
+            }
+            return std::unexpected(IS_UNKNOWN_TYPE);
         }
     }
 
     // Value could not be found, return empty optional
-    return {};
+    return std::unexpected(IS_NULL);
 }
 
 JSON JSON::getSubDoc(std::string const& key) const {
