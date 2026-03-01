@@ -33,6 +33,16 @@ JSON::JSON(JSON&& other) noexcept {
 }
 
 //------------------------------------------
+// Lazy-initialized transformer
+
+std::unique_ptr<JsonRvalueTransformer>& JSON::getTransformer() const {
+    if (!transformer) {
+        transformer = std::make_unique<JsonRvalueTransformer>();
+    }
+    return transformer;
+}
+
+//------------------------------------------
 // Scope sharing
 
 Core::JsonScope JSON::shareScope(std::string const& prefix) {
@@ -287,7 +297,7 @@ bool JSON::getSubDocWithTransformations(std::string const& key, JSON& outDoc) co
     outDoc = getSubDoc(baseKey);
 
     // Apply each transformation in sequence
-    if (!transformer.parse(args, &outDoc)) {
+    if (!getTransformer()->parse(args, &outDoc)) {
         return false; // if any transformation fails, return default value
     }
     return true;
