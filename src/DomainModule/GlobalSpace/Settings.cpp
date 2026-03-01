@@ -12,7 +12,7 @@ Constants::Error Settings::update() {
 //------------------------------------------
 // Available Functions
 
-// Functree currently does not support static methods with no args...
+// FuncTree currently does not support static methods with no args...
 // NOLINTNEXTLINE
 Constants::Error Settings::saveSettings() {
     // Create JSON document with current settings
@@ -87,10 +87,10 @@ void Settings::loadSettings(std::string const& filename) {
     // For freeform custom settings, users may use the prefix from Key::customSettings
 
     // Renderer settings
-    moduleScope.set<uint16_t>(Key::resolutionX, settingsFile.get<uint16_t>(Key::resolutionX, 1000));
-    moduleScope.set<uint16_t>(Key::resolutionY, settingsFile.get<uint16_t>(Key::resolutionY, 1000));
-    moduleScope.set<uint8_t>(Key::resolutionScaling, settingsFile.get<uint8_t>(Key::resolutionScaling, 1));
-    moduleScope.set<uint16_t>(Key::targetFPS, settingsFile.get<uint16_t>(Key::targetFPS, 60));
+    moduleScope.set<uint16_t>(Key::resolutionX, settingsFile.get<uint16_t>(Key::resolutionX).value_or(1000));
+    moduleScope.set<uint16_t>(Key::resolutionY, settingsFile.get<uint16_t>(Key::resolutionY).value_or(1000));
+    moduleScope.set<uint8_t>(Key::resolutionScaling, settingsFile.get<uint8_t>(Key::resolutionScaling).value_or(1));
+    moduleScope.set<uint16_t>(Key::targetFPS, settingsFile.get<uint16_t>(Key::targetFPS).value_or(60));
 
     // Commands: On startup
     moduleScope.setSubDoc(Key::parseOnStartup, settingsFile.getSubDoc(Key::parseOnStartup));

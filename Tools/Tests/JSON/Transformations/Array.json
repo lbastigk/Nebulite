@@ -99,8 +99,8 @@
             "cout": [
                 "3",
                 "20",
-                "null",
-                "null"
+                "<TRANSFORMATION_FAILURE>",
+                "<TRANSFORMATION_FAILURE>"
             ],
             "cerr": []
         }
@@ -111,14 +111,14 @@
             "set arr[0] 1",
             "set arr[1] 2",
             "set arr[2] 3",
-            "eval echo {global.arr|at}# at expects exactly one argument, providing none should result in null",
-            "eval echo {global.arr|at 2 3}# at expects exactly one argument, providing two should result in null",
+            "eval echo {global.arr|at}# at expects exactly one argument, providing none should result in <TRANSFORMATION_FAILURE>",
+            "eval echo {global.arr|at 2 3}# at expects exactly one argument, providing two should result in <TRANSFORMATION_FAILURE>",
             "exit"
         ],
         "expected": {
             "cout": [
-                "null",
-                "null"
+                "<TRANSFORMATION_FAILURE>",
+                "<TRANSFORMATION_FAILURE>"
             ],
             "cerr": []
         }

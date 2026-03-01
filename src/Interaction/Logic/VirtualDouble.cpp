@@ -34,7 +34,7 @@ void VirtualDouble::copyExternalCache() {
 }
 
 void VirtualDouble::copyFromJson(Data::JsonScopeBase const& json) {
-    copiedValue = json.get<double>(scopedKey, 0.0);
+    copiedValue = json.get<double>(scopedKey).value_or(0.0);
 }
 
 void VirtualDouble::setDirect(double const& val) noexcept {

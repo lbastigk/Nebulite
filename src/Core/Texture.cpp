@@ -33,7 +33,7 @@ Constants::Error Texture::update() {
 bool Texture::copyTexture() {
     // If no texture is linked, try to load from the document
     if (texture == nullptr) {
-        std::string const& imageLink = domainScope.get<std::string>(Graphics::Drawcall::Key::SpriteSpecific::imageLocation, "");
+        std::string const& imageLink = domainScope.get<std::string>(Graphics::Drawcall::Key::SpriteSpecific::imageLocation).value_or("");
         texture = Global::instance().getRenderer().getTexture(imageLink);
 
         if (texture == nullptr) {

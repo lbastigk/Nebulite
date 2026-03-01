@@ -79,7 +79,7 @@ public:
     /**
      * @brief Standard maximum recursion depth for nested expression evaluations.
      */
-    static constexpr uint16_t standardMaximumRecursionDepth = 10;
+    static constexpr size_t standardrecursionDepth = 10;
 
     /**
      * @brief Checks if the expression can be returned as a double.
@@ -105,8 +105,8 @@ public:
     //------------------------------------------
     // Actual evaluation functions
 
-    std::string eval(ContextScopeBase const& context, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
-    std::string eval(Context const& context, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const { return eval(context.demote(), max_recursion_depth); }
+    std::string eval(ContextScopeBase const& context, size_t const& recursionDepth = standardrecursionDepth) const ;
+    std::string eval(Context const& context, size_t const& recursionDepth = standardrecursionDepth) const { return eval(context.demote(), recursionDepth); }
 
     double evalAsDouble(ContextScopeBase const& context) const ;
     double evalAsDouble(Context const& context) const { return evalAsDouble(context.demote()); }
@@ -114,8 +114,8 @@ public:
     bool evalAsBool(ContextScopeBase const& context) const ;
     bool evalAsBool(Context const& context) const { return evalAsBool(context.demote()); }
 
-    Data::JSON evalAsJson(ContextScopeBase const& context, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const ;
-    Data::JSON evalAsJson(Context const& context, uint16_t const& max_recursion_depth = standardMaximumRecursionDepth) const { return evalAsJson(context.demote(), max_recursion_depth); }
+    Data::JSON evalAsJson(ContextScopeBase const& context, size_t const& recursionDepth = standardrecursionDepth) const ;
+    Data::JSON evalAsJson(Context const& context, size_t const& recursionDepth = standardrecursionDepth) const { return evalAsJson(context.demote(), recursionDepth); }
 
     //------------------------------------------
     // Static functions for one-time evaluation
@@ -315,26 +315,37 @@ private:
          * @details Takes care of proper conversion to string, with abbreviated representations for non-value types (arrays, objects and null).
          * @param token The string to populate with the evaluated value.
          * @param context The context to evaluate against.
-         * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
+         * @param recursionDepth The current recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(std::string& token, ContextScopeBase const& context, uint16_t const& maximumRecursionDepth) const ;
+        bool handleComponentTypeVariable(std::string& token, ContextScopeBase const& context, size_t const& recursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of a variable component as a JSON value.
          * @details Populates the provided JSON object with the evaluated value, preserving its type.
          * @param token The JSON object to populate with the evaluated value.
          * @param context The context to evaluate against.
-         * @param maximumRecursionDepth The maximum recursion depth for nested evaluations.
+         * @param recursionDepth The current recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(Data::JSON& token, ContextScopeBase const& context, uint16_t const& maximumRecursionDepth) const ;
+        bool handleComponentTypeVariable(Data::JSON& token, ContextScopeBase const& context, size_t const& recursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of an eval component.
          * @param token The string to populate with the evaluated value.
          */
         void handleComponentTypeEval(std::string& token) const ;
+
+    private:
+        /**
+         * @brief Evaluates any inner expressions within the component's key and returns the resulting key.
+         * @param context The context to evaluate against.
+         * @param initialKey The key to evaluate, which may contain inner expressions.
+         * @param initialDestination The initial context type of the key before evaluation.
+         * @param recursionDepth The current recursion depth for nested evaluations.
+         * @return The evaluated key and its destination if successful, or std::nullopt if evaluation fails.
+         */
+        std::optional<std::pair<std::string, ContextType>> evaluateKey(ContextScopeBase const& context, std::string const& initialKey, ContextType const& initialDestination, size_t const& recursionDepth) const ;
     };
 
     /**

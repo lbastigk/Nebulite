@@ -69,7 +69,7 @@ Constants::Error Console::update() {
 
     // Toggling console mode
     static auto const toggleKey = Input::Key::keyboardDelta + "tab";
-    if (moduleScope.get<int>(toggleKey, 0) == 1) {
+    if (moduleScope.get<int>(toggleKey).value_or(0) == 1) {
         consoleMode = !consoleMode;
         if (consoleMode) {
             SDL_StartTextInput(domain.getSdlWindow());
@@ -99,12 +99,12 @@ bool Console::ensureConsoleTexture() {
     // Prerequisites
 
     // Derive logical consoleRect size from display size
-    double const consoleHeight = static_cast<double>(moduleScope.get<size_t>(Constants::KeyNames::Renderer::dispResY, 360)) * consoleLayout.heightRatio;
+    double const consoleHeight = static_cast<double>(moduleScope.get<size_t>(Constants::KeyNames::Renderer::dispResY).value_or(360)) * consoleLayout.heightRatio;
     static SDL_Rect currentConsolePosition;
     currentConsolePosition.x = 0;
-    currentConsolePosition.y = static_cast<int>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResY, 360) - consoleHeight);
-    currentConsolePosition.w = static_cast<int>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResX, 360));
-    currentConsolePosition.h = static_cast<int>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResY, 360) - static_cast<double>(currentConsolePosition.y));
+    currentConsolePosition.y = static_cast<int>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResY).value_or(360) - consoleHeight);
+    currentConsolePosition.w = static_cast<int>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResX).value_or(360));
+    currentConsolePosition.h = static_cast<int>(moduleScope.get<double>(Constants::KeyNames::Renderer::dispResY).value_or(360) - static_cast<double>(currentConsolePosition.y));
 
     //------------------------------------------
     // Texture Setup

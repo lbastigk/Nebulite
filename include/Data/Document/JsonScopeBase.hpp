@@ -6,10 +6,11 @@
 
 // Standard library
 #include <array>
+#include <expected>
 #include <memory>
-#include <string>
-#include <optional>
 #include <mutex>
+#include <optional>
+#include <string>
 #include <thread>
 #include <utility>
 
@@ -18,6 +19,7 @@
 #include "Constants/ThreadSettings.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
 #include "Data/Document/KeyType.hpp"
+#include "Data/Document/SimpleValueError.hpp"
 #include "Data/OrderedDoublePointers.hpp"
 #include "Utility/Threading.hpp"
 
@@ -51,7 +53,7 @@ constexpr std::array<T, N> make_array_with_arg(Arg&& arg) {
  */
 class JsonScopeBase {
 public:
-    // Threadrunners are unique, no locking needed
+    // Thread runners are unique, no locking needed
     static auto constexpr noLockArraySize = THREADRUNNER_COUNT;
 
     // Multiple Container layers means multiple workers, locking needed to avoid conflicts
@@ -163,11 +165,11 @@ public:
     //------------------------------------------
     // Getter
 
-    template<typename T> T get(ScopedKeyView const& key, T const& defaultValue = T()) const ;
-    template<typename T> T get(ScopedKey const& key, T const& defaultValue = T()) const {return get<T>(key.view(), defaultValue);}
+    template<typename T> std::expected<T, SimpleValueRetrievalError> get(ScopedKeyView const& key) const ;
+    template<typename T> std::expected<T, SimpleValueRetrievalError> get(ScopedKey const& key) const {return get<T>(key.view());}
 
-    [[nodiscard]] std::optional<RjDirectAccess::simpleValue> getVariant(ScopedKeyView const& key) const ;
-    [[nodiscard]] std::optional<RjDirectAccess::simpleValue> getVariant(ScopedKey const& key) const {return getVariant(key.view());}
+    [[nodiscard]] std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(ScopedKeyView const& key) const ;
+    [[nodiscard]] std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(ScopedKey const& key) const {return getVariant(key.view());}
 
     [[nodiscard]] JSON getSubDoc(ScopedKeyView const& key) const ;
     [[nodiscard]] JSON getSubDoc(ScopedKey const& key) const ;

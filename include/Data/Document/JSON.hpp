@@ -10,6 +10,7 @@
 // Includes
 
 // Standard library
+#include <expected>
 #include <mutex>
 #include <string>
 #include <variant>
@@ -22,6 +23,7 @@
 #include "Data/Document/KeyType.hpp"
 #include "Data/Document/JsonRvalueTransformer.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
+#include "Data/Document/SimpleValueError.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -170,10 +172,10 @@ private:
      * @brief Inserts a rapidjson value into the cache, converting it to the appropriate C++ type.
      * @param key The key of the value to cache.
      * @param val The rapidjson value to cache.
-     * @param defaultValue The default value to use if conversion fails.
+     * @return The converted value of type T, or nullopt if conversion fails or the value is not cacheable.
      */
     template <typename T>
-    T jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue) const ;
+    std::optional<T> jsonValueToCache(std::string const& key, rapidjson::Value const* val) const ;
 
     /**
      * @brief Invalidate all child keys of a given parent key.
@@ -186,11 +188,10 @@ private:
     /**
      * @brief Helper function to convert any type from cache into another type.
      * @param var The variant value stored in the cache.
-     * @param defaultValue The default value to return if conversion fails.
-     * @return The converted value of type newType, or defaultValue on failure.
+     * @return The converted value of type newType, or nullopt if conversion fails.
      */
     template <typename newType>
-    static newType convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue = newType{});
+    static std::optional<newType> convertVariant(RjDirectAccess::simpleValue const& var);
 
     /**
      * @brief Flush all DIRTY entries in the cache back to the RapidJSON document.
@@ -214,7 +215,8 @@ private:
      * @param key The key string containing transformations.
      * @return The modified value of type T, or none on failure.
      */
-    template <typename T> std::optional<T> getWithTransformations(std::string const& key) const ;
+    template <typename T>
+    std::expected<T, SimpleValueRetrievalError> getWithTransformations(std::string const& key) const ;
 
     /**
      * @brief Apply transformations found in the key string and retrieve the modified document.
@@ -398,23 +400,22 @@ public:
      *          If the key does not exist, the default value is returned.
      * @tparam T The type of the value to retrieve.
      * @param key The key of the value to retrieve.
-     * @param defaultValue The default value to return if the key does not exist.
-     * @return The value associated with the key, or the default value if the key does not exist.
+     * @return The value associated with the key, or an error.
      */
-    template <typename T> T get(std::string const& key, T const& defaultValue = T()) const;
-    template <typename T> T get(std::string_view const& key, T const& defaultValue = T()) const { return get<T>(std::string(key), defaultValue); }
-    template <typename T> T get(char const* key, T const& defaultValue = T()) const { return get<T>(std::string(key), defaultValue); }
+    template <typename T> std::expected<T, SimpleValueRetrievalError> get(std::string const& key) const;
+    template <typename T> std::expected<T, SimpleValueRetrievalError> get(std::string_view const& key) const { return get<T>(std::string(key)); }
+    template <typename T> std::expected<T, SimpleValueRetrievalError> get(char const* key) const { return get<T>(std::string(key)); }
 
     /**
      * @brief Gets a variant value from the JSON document.
      * @details This function retrieves a variant value from the JSON document.
      *          If the key does not exist, void is returned.
      * @param key The key of the value to retrieve.
-     * @return The variant value associated with the key, or void if the key does not exist.
+     * @return The variant value associated with the key, or an error if the retrieval failed.
      */
-    std::optional<RjDirectAccess::simpleValue> getVariant(std::string const& key) const ;
-    std::optional<RjDirectAccess::simpleValue> getVariant(std::string_view const& key) const { return getVariant(std::string(key)); }
-    std::optional<RjDirectAccess::simpleValue> getVariant(char const* key) const { return getVariant(std::string(key)); }
+    std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(std::string const& key) const ;
+    std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(std::string_view const& key) const { return getVariant(std::string(key)); }
+    std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(char const* key) const { return getVariant(std::string(key)); }
 
     /**
      * @brief Gets a sub-document from the JSON document.
@@ -458,8 +459,8 @@ public:
     KeyType memberType(char const* key) const { return memberType(std::string(key)); }
 
     /**
-     * @brief Checks the type of a key in the JSON document and returns it as a string.
-     * @details This function checks the type of a key in the JSON document and returns it as a string.
+     * @brief Checks the type of the key in the JSON document and returns it as a string.
+     * @details This function checks the type of the key in the JSON document and returns it as a string.
      *          If the key does not exist, the type is considered "null".
      *          Returned type strings:
      *          - "null" : Key does not exist or is null.

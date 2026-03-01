@@ -16,12 +16,11 @@ Constants::Error General::update() {
 
 Constants::Error General::reloadTexture() const {
     // Load new texture from the document
-    auto const path = moduleScope.get<std::string>(Graphics::Drawcall::Key::SpriteSpecific::imageLocation, "");
+    auto const path = moduleScope.get<std::string>(Graphics::Drawcall::Key::SpriteSpecific::imageLocation).value_or("");
     if (path.empty()) {
         return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE(); // No valid path in document
     }
     domain.loadTextureFromFile(path);
-
     return Constants::ErrorTable::NONE(); // No error
 }
 

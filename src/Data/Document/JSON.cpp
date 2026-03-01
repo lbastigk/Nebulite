@@ -175,7 +175,7 @@ void JSON::flush() const {
 //------------------------------------------
 // Get methods
 
-std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& key) const {
+std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getVariant(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check for transformations
@@ -183,7 +183,7 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
         if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
             return tmp.getVariant(TransformationModule::rootKeyStr);
         }
-        return {};
+        return std::unexpected(TRANSFORMATION_FAILURE);
     }
 
     // Check cache first
@@ -193,7 +193,7 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
     if (it != cache.end() && it->second->state == CacheEntry::EntryState::MALFORMED) {
         Error::println("Warning: Attempted to access malformed key in getVariant(): ", key);
         Error::println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
-        return {};
+        return std::unexpected(MALFORMED_KEY);
     }
 
     if (it != cache.end() && it->second->state != CacheEntry::EntryState::DELETED) {
@@ -213,7 +213,8 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
 
     // Check document, if not in cache
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key.c_str(), doc); val != nullptr) {
-        if (it == cache.end()) {
+        if (it == cache.end() && RjDirectAccess::getSimpleValue(val).has_value()) {
+            // Insert only if the value is of a supported type, otherwise complex types might be interpreted as simple values.
             // Create new cache entry and insert into cache
             auto new_entry = std::make_unique<CacheEntry>(CACHELINE, cacheline_index);
             cache[key] = std::move(new_entry);
@@ -222,23 +223,33 @@ std::optional<RjDirectAccess::simpleValue> JSON::getVariant(std::string const& k
 
         if (it != cache.end()) {
             // Modify existing entry
-            auto const& v = RjDirectAccess::getSimpleValue(val);
-            if (v.has_value()) {
+            if (auto const& v = RjDirectAccess::getSimpleValue(val); v.has_value()) {
                 it->second->value = v.value();
 
                 // Mark as clean
                 it->second->state = CacheEntry::EntryState::CLEAN;
 
                 // Set stable double pointer
-                *it->second->stable_double_ptr = convertVariant<double>(it->second->value, 0.0);
+                *it->second->stable_double_ptr = convertVariant<double>(it->second->value).value_or(0.0); // Default to 0.0 if conversion fails
                 it->second->last_double_value = *it->second->stable_double_ptr;
+
+                return v.value();
             }
-            return v;
         }
+        if (val->IsNull()) {
+            return std::unexpected(IS_NULL);
+        }
+        if (val->IsArray()) {
+            return std::unexpected(IS_ARRAY);
+        }
+        if (val->IsObject()) {
+            return std::unexpected(IS_OBJECT);
+        }
+        return std::unexpected(CONVERSION_FAILURE);
     }
 
     // Value could not be found, return empty optional
-    return {};
+    return std::unexpected(IS_NULL);
 }
 
 JSON JSON::getSubDoc(std::string const& key) const {
@@ -299,11 +310,10 @@ double* JSON::getStableDoublePointer(std::string const& key) const {
     }
 
     // Check cache first
-    auto it = cache.find(key);
-    if (it != cache.end()) {
+    if (auto const it = cache.find(key); it != cache.end()) {
         // If the entry is deleted, we need to update its value from the document
         if (it->second->state == CacheEntry::EntryState::DELETED) {
-            *it->second->stable_double_ptr = get<double>(key, 0.0);
+            *it->second->stable_double_ptr = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
             it->second->last_double_value = *it->second->stable_double_ptr;
             it->second->state = CacheEntry::EntryState::DERIVED;
         }
@@ -312,13 +322,10 @@ double* JSON::getStableDoublePointer(std::string const& key) const {
 
     // Try loading from document into cache
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key.c_str(), doc); val != nullptr) {
-        (void)jsonValueToCache<double>(key, val, 0.0);
-    }
-
-    // Check cache again
-    it = cache.find(key);
-    if (it != cache.end()) {
-        return it->second->stable_double_ptr;
+        if (jsonValueToCache<double>(key, val).has_value()) {
+            // Successfully loaded into cache, return pointer
+            return cache[key]->stable_double_ptr;
+        }
     }
 
     // If loading from document failed, create a new derived entry
@@ -364,7 +371,7 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
         it->second->state = CacheEntry::EntryState::DIRTY;
 
         // Update double pointer value
-        *it->second->stable_double_ptr = convertVariant<double>(val);
+        *it->second->stable_double_ptr = convertVariant<double>(val).value_or(0.0); // Default to 0.0 if conversion fails
         it->second->last_double_value = *it->second->stable_double_ptr;
     } else {
         // New cache value, structural validity is not guaranteed
@@ -379,7 +386,7 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
         // Set entry values
         new_entry->value = val;
         // Pointer was created in constructor, no need to redo make_shared
-        *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value, 0.0);
+        *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value).value_or(0.0); // Default to 0.0 if conversion fails
         new_entry->last_double_value = *new_entry->stable_double_ptr;
         new_entry->state = CacheEntry::EntryState::DIRTY;
 
@@ -689,7 +696,7 @@ void JSON::set_add(std::string_view const& key, double const& val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
-    auto const current = get<double>(key, 0.0);
+    auto const current = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
     double const newValue = current + val;
 
     // Update double pointer value
@@ -709,7 +716,7 @@ void JSON::set_multiply(std::string_view const& key, double const& val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
-    auto const current = get<double>(key, 0.0);
+    auto const current = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
     double const newValue = current * val;
 
     // Update double pointer value
@@ -728,7 +735,7 @@ void JSON::set_multiply(std::string_view const& key, double const& val) {
 void JSON::set_concat(std::string_view const& key, std::string const& valStr) {
     std::scoped_lock const lockGuard(mtx);
 
-    auto const current = get<std::string>(key, "");
+    auto const current = get<std::string>(key).value_or(""); // Default to empty string if retrieval fails
     set<std::string>(key, current + valStr);
 
     // Update double pointer value to default 0.0

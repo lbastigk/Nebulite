@@ -161,7 +161,7 @@ void Drawcall::updateDrawcallData() {
     //       Otherwise the current implementation re-initializes the texture with every routine trigger
     //       Perhaps some basic checks such as "has the text string/font size changed" would be sufficient for now
     //       However, any change in the drawcall data must be reflected here, otherwise the drawcall will not update properly!!
-    if (auto const t = drawcallScope.get<std::string>(Key::type, "sprite"); t == "sprite") {
+    if (auto const t = drawcallScope.get<std::string>(Key::type).value_or("sprite"); t == "sprite") {
         type = SPRITE;
     }
     else if (t == "text") {
@@ -241,7 +241,7 @@ void Drawcall::initializeSprite() {
     }
 
     // Get Texture from container via link
-    std::string const link = drawcallScope.get<std::string>(Key::SpriteSpecific::imageLocation);
+    std::string const link = drawcallScope.get<std::string>(Key::SpriteSpecific::imageLocation).value_or("");
     if (link.empty()) {
         Error::println("Sprite drawcall has empty texture link.");
         return;
@@ -287,7 +287,7 @@ void Drawcall::initializeText() {
     }
 
     // TODO: Proper width wrapping based on fontsize and max width
-    auto text = drawcallScope.get<std::string>(Key::TextSpecific::str);
+    auto text = drawcallScope.get<std::string>(Key::TextSpecific::str).value_or("");
     if (text.empty()) {
         text = " "; // Render at least a space to get height
     }
@@ -417,8 +417,8 @@ void Drawcall::initializePolygon() {
     }
     points.reserve(pointCount);
     for (size_t i = 0; i < pointCount; ++i) {
-        auto const pointX = w * drawcallScope.get<double>(Key::PolygonSpecific::points + "[" + std::to_string(i) + "].x");
-        auto const pointY = h * drawcallScope.get<double>(Key::PolygonSpecific::points + "[" + std::to_string(i) + "].y");
+        auto const pointX = w * drawcallScope.get<double>(Key::PolygonSpecific::points + "[" + std::to_string(i) + "].x").value_or(0.0);
+        auto const pointY = h * drawcallScope.get<double>(Key::PolygonSpecific::points + "[" + std::to_string(i) + "].y").value_or(0.0);
         points.push_back({ static_cast<float>(pointX), static_cast<float>(pointY) });
     }
 

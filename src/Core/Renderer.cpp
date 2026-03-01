@@ -100,10 +100,10 @@ void Renderer::setupDisplayValues() {
     // Load from settings
     // Default values should never be used, as settings should always exist
     // Still, just in case, we set them to 1000x1000 @ 1x scaling and 60 FPS
-    auto const X = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
-    auto const Y = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX, 1000);
-    windowScale = Global::settings().get<uint8_t>(DomainModule::GlobalSpace::Settings::Key::resolutionScaling, 1);
-    fps.target = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::targetFPS, 60);
+    auto const X = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX).value_or(1000);
+    auto const Y = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::resolutionX).value_or(1000);
+    windowScale = Global::settings().get<uint8_t>(DomainModule::GlobalSpace::Settings::Key::resolutionScaling).value_or(1);
+    fps.target = Global::settings().get<uint16_t>(DomainModule::GlobalSpace::Settings::Key::targetFPS).value_or(60);
 
     // Set in workspace
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X*windowScale);
@@ -231,8 +231,8 @@ void Renderer::initSDL() {
         std::abort();
     }
     // Define window via x|y|w|h
-    int const w = domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0);
-    int const h = domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 0);
+    int const w = domainScope.get<int>(Constants::KeyNames::Renderer::dispResX).value_or(0);
+    int const h = domainScope.get<int>(Constants::KeyNames::Renderer::dispResY).value_or(0);
 
     //------------------------------------------
     // Window and renderer
@@ -342,13 +342,13 @@ void Renderer::loadFonts() {
 //------------------------------------------
 // Getting
 
-int Renderer::getResX() const { return domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0); }
+int Renderer::getResX() const { return domainScope.get<int>(Constants::KeyNames::Renderer::dispResX).value_or(0); }
 
-int Renderer::getResY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 0); }
+int Renderer::getResY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::dispResY).value_or(0); }
 
-int Renderer::getPosX() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionX, 0); }
+int Renderer::getPosX() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionX).value_or(0); }
 
-int Renderer::getPosY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionY, 0); }
+int Renderer::getPosY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionY).value_or(0); }
 
 //------------------------------------------
 // Serialization / Deserialization
@@ -360,8 +360,8 @@ std::string Renderer::serialize() {
 void Renderer::deserialize(std::string const& serialOrLink) noexcept {
     env.deserialize(
         serialOrLink,
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0)
+        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
+        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0)
     );
 }
 
@@ -440,8 +440,8 @@ Constants::Error Renderer::update() {
         env.updateObjects(
             tilePositionX,
             tilePositionY,
-            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
-            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0)
+            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
+            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0)
         );
     }
     if (SDL_GetError()[0] != '\0') {
@@ -477,16 +477,16 @@ void Renderer::append(RenderObject* toAppend) {
     //Append to environment, based on layer
     env.append(
         toAppend,
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0),
-        toAppend->domainScope.get<uint8_t>(Constants::KeyNames::RenderObject::layer, 0)
+        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
+        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0),
+        toAppend->domainScope.get<uint8_t>(Constants::KeyNames::RenderObject::layer).value_or(0)
     );
 }
 
 void Renderer::reinsertAllObjects() {
     env.reinsertAllObjects(
-    domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX, 0),
-    domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY, 0)
+    domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
+    domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0)
     );
 }
 
@@ -640,11 +640,11 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
 void Renderer::moveCam(int const& dX, int const& dY) const {
     domainScope.set<int>(
         Constants::KeyNames::Renderer::positionX,
-        domainScope.get<int>(Constants::KeyNames::Renderer::positionX, 0) + dX
+        domainScope.get<int>(Constants::KeyNames::Renderer::positionX).value_or(0) + dX
     );
     domainScope.set<int>(
         Constants::KeyNames::Renderer::positionY,
-        domainScope.get<int>(Constants::KeyNames::Renderer::positionY, 0) + dY
+        domainScope.get<int>(Constants::KeyNames::Renderer::positionY).value_or(0) + dY
     );
 }
 
@@ -652,8 +652,8 @@ void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle) const {
     int newPosX = X;
     int newPosY = Y;
     if (isMiddle) {
-        newPosX -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResX, 0) / 2;
-        newPosY -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResY, 0) / 2;
+        newPosX -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResX).value_or(0) / 2;
+        newPosY -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResY).value_or(0) / 2;
     }
     domainScope.set<int>(Constants::KeyNames::Renderer::positionX, newPosX);
     domainScope.set<int>(Constants::KeyNames::Renderer::positionY, newPosY);
@@ -674,12 +674,12 @@ void Renderer::renderFrame() {
     // Store for faster access
 
     // Get camera position
-    auto const dispPosX = domainScope.get<int16_t>(Constants::KeyNames::Renderer::positionX, 0);
-    auto const dispPosY = domainScope.get<int16_t>(Constants::KeyNames::Renderer::positionY, 0);
+    auto const dispPosX = domainScope.get<int16_t>(Constants::KeyNames::Renderer::positionX).value_or(0);
+    auto const dispPosY = domainScope.get<int16_t>(Constants::KeyNames::Renderer::positionY).value_or(0);
 
     // Depending on position, set tiles to render
-    auto const dispResX = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResX, 0);
-    auto const dispResY = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResY, 0);
+    auto const dispResX = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0);
+    auto const dispResY = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0);
     if (dispResX == 0 || dispResY == 0) {
         // Avoid division by zero
         Error::println("Display resolution is zero, cannot render frame.");

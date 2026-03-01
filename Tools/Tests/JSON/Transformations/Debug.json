@@ -27,12 +27,12 @@
             "wait 1",
             "set test.val 42",
             "wait 1",
-            "eval echo {global.test.val|}# Should return null, as we have an invalid empty transformation",
+            "eval echo {global.test.val|}# Should return a transformation failure, as we have an invalid empty transformation",
             "exit"
         ],
         "expected": {
             "cout": [
-                "null"
+                "<TRANSFORMATION_FAILURE>"
             ],
             "cerr": []
         }

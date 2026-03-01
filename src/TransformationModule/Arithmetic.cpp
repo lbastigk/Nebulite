@@ -54,7 +54,7 @@ bool Arithmetic::multiply(std::span<std::string const> const& args, Core::JsonSc
 bool Arithmetic::mod(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
         double const modValue = std::stod(arg);
-        auto const currentValue = jsonDoc->get<double>(key, 0.0);
+        auto const currentValue = jsonDoc->get<double>(key).value_or(0.0);
         if (std::fabs(modValue) < std::numeric_limits<double>::epsilon()) {
             return false; // Modulo by zero is undefined
         }
@@ -67,7 +67,7 @@ bool Arithmetic::mod(std::span<std::string const> const& args, Core::JsonScope* 
 bool Arithmetic::pow(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
     return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
         double const exponent = std::stod(arg);
-        auto const currentValue = jsonDoc->get<double>(key, 0.0);
+        auto const currentValue = jsonDoc->get<double>(key).value_or(0.0);
         double const result = std::pow(currentValue, exponent);
         jsonDoc->set<double>(key, result);
         return true;
@@ -88,7 +88,7 @@ bool Arithmetic::divide(std::span<std::string const> const& args, Core::JsonScop
         if (std::fabs(divisor) < std::numeric_limits<double>::epsilon()) {
             return false; // Division by zero is undefined
         }
-        double const result = jsonDoc->get<double>(key, 0.0) / divisor;
+        double const result = jsonDoc->get<double>(key).value_or(0.0) / divisor;
         jsonDoc->set<double>(key, result);
         return true;
     });
@@ -100,7 +100,7 @@ bool Arithmetic::root(std::span<std::string const> const& args, Core::JsonScope*
         if (std::fabs(n) < std::numeric_limits<double>::epsilon()) {
             return false; // Root of order zero is undefined
         }
-        auto const currentValue = jsonDoc->get<double>(key, 0.0);
+        auto const currentValue = jsonDoc->get<double>(key).value_or(0.0);
         if (currentValue < 0.0 && std::fabs(std::fmod(n, 2.0)) < std::numeric_limits<double>::epsilon()) {
             return false; // Even root of negative number is undefined
         }
@@ -115,7 +115,7 @@ bool Arithmetic::sqrt(std::span<std::string const> const& args, Core::JsonScope*
         return false; // No arguments should be provided for sqrt, as it's an operator with a single operand (the current JSON value)
     }
     try {
-        auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
+        auto const currentValue = jsonDoc->get<double>(rootKey).value_or(0.0);
         if (currentValue < 0.0) {
             return false; // Square root of negative number is undefined
         }

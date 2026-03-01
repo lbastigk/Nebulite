@@ -27,5 +27,19 @@
             ], 
             "cerr": [] 
         }
+    },
+    {
+        "command": [
+            "# Testing if no non-simple values are stored in cache, so both evals return {object}",
+            "eval echo {global.}",
+            "eval echo {global.}"
+        ],
+        "expected": {
+            "cout": [
+                "{object}",
+                "{object}"
+            ],
+            "cerr": []
+        }
     }
 ]

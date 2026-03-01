@@ -3,8 +3,8 @@
  * @brief This file contains the DocumentCache class for managing cached, read-only documents.
  */
 
-#ifndef NEBULITE_DATA_DOCUMENTCACHE_HPP
-#define NEBULITE_DATA_DOCUMENTCACHE_HPP
+#ifndef NEBULITE_DATA_DOCUMENT_CACHE_HPP
+#define NEBULITE_DATA_DOCUMENT_CACHE_HPP
 
 //------------------------------------------
 // Includes
@@ -38,11 +38,10 @@ public:
      *                `<linkToDocument>:<key>`
      *                Example:
      *                `./Resources/Data/myData.jsonc:key1.key2`
-     * @param defaultValue The value to return if the document or key is not found.
-     * @return The retrieved data or the default value as type T.
+     * @return The retrieved data or an error.
      */
     template <typename T>
-    T get(std::string const& doc_key, T const& defaultValue = T()) const ;
+    std::expected<T, SimpleValueRetrievalError> get(std::string const& doc_key) const ;
 
     /**
      * @brief Gets a sub-document from the JSON document.
@@ -239,7 +238,7 @@ private:
 // Definitions of template functions
 
 template <typename T>
-T DocumentCache::get(std::string const& doc_key, T const& defaultValue) const {
+std::expected<T, SimpleValueRetrievalError> DocumentCache::get(std::string const& doc_key) const {
     auto [doc, key] = splitDocKey(doc_key);
 
     ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
@@ -249,11 +248,11 @@ T DocumentCache::get(std::string const& doc_key, T const& defaultValue) const {
         // Use get on an empty JSON so we can still apply transformations
         // This way, important transformation commands like assert aren't overlooked just because the document is missing, which would make debugging very difficult
         thread_local JSON const emptyJson;
-        return emptyJson.get<T>(key, defaultValue);
+        return emptyJson.get<T>(key);
     }
 
     // Retrieve the value from the document
-    T data = docPtr->document.get<T>(key, defaultValue);
+    auto data = docPtr->document.get<T>(key);
 
     // Update the cache (unload old documents)
     update();
@@ -264,4 +263,4 @@ T DocumentCache::get(std::string const& doc_key, T const& defaultValue) const {
 
 } // namespace Nebulite::Data
 
-#endif // NEBULITE_DATA_DOCUMENTCACHE_HPP
+#endif // NEBULITE_DATA_DOCUMENT_CACHE_HPP

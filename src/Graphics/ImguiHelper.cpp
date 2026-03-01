@@ -29,7 +29,7 @@ void ImguiHelper::renderJsonScope(Data::JsonScopeBase const& scope, std::string 
                 }
             } else if (type == Data::KeyType::value) {
                 // fetch value every frame and display
-                std::string const valueStr = s.get<std::string>(key, "<unavailable>");
+                std::string const valueStr = s.get<std::string>(key).value_or("<unavailable>");
                 ImGui::Text("%s : %s", keyPath.c_str(), valueStr.c_str());
             } else {
                 ImGui::TextDisabled("%s : null", keyPath.c_str());

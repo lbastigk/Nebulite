@@ -56,13 +56,13 @@ Constants::Error SimpleData::move(std::span<std::string const> const& args, Inte
         size_t const size = callerScope.memberSize(sourceKey);
         for (size_t i = 0; i < size; ++i) {
             auto itemKey = sourceKey + "[" + std::to_string(i) + "]";
-            auto itemValue = callerScope.get<std::string>(itemKey.view());
+            auto itemValue = callerScope.get<std::string>(itemKey.view()).value_or("");
             auto targetItemKey = targetKey + "[" + std::to_string(i) + "]";
             callerScope.set(targetItemKey, itemValue);
         }
     } else {
         // Move the value from sourceKey to targetKey
-        auto const value = callerScope.get<std::string>(sourceKey);
+        auto const value = callerScope.get<std::string>(sourceKey).value_or("");
         callerScope.removeMember(targetKey);
         callerScope.set(targetKey, value);
         callerScope.removeMember(sourceKey);
@@ -97,13 +97,13 @@ Constants::Error SimpleData::copy(std::span<std::string const> const& args, Inte
         size_t const size = callerScope.memberSize(sourceKey);
         for (size_t i = 0; i < size; ++i) {
             auto itemKey = sourceKey + "[" + std::to_string(i) + "]";
-            auto itemValue = callerScope.get<std::string>(itemKey);
+            auto itemValue = callerScope.get<std::string>(itemKey).value_or("");
             auto targetItemKey = targetKey + "[" + std::to_string(i) + "]";
             callerScope.set(targetItemKey, itemValue);
         }
     } else {
         // Move the value from sourceKey to targetKey
-        auto const value = callerScope.get<std::string>(sourceKey);
+        auto const value = callerScope.get<std::string>(sourceKey).value_or("");
         callerScope.removeMember(targetKey);
         callerScope.set(targetKey, value);
     }
@@ -150,7 +150,7 @@ Constants::Error SimpleData::ensureArray(std::span<std::string const> const& arg
 
     if (keyType == Data::KeyType::value) {
         // pop out value
-        auto const existingValue = callerScope.get<std::string>(key);
+        auto const existingValue = callerScope.get<std::string>(key).value_or("");
         callerScope.removeMember(key);
 
         // Set as new value
@@ -277,7 +277,7 @@ Constants::Error SimpleData::push_front(std::span<std::string const> const& args
     // Move all existing items one step forward
     for (size_t i = size; i > 0; --i) {
         auto itemKey = key + "[" + std::to_string(i - 1) + "]";
-        auto itemValue = callerScope.get<std::string>(itemKey);
+        auto itemValue = callerScope.get<std::string>(itemKey).value_or("");
         auto newItemKey = key + "[" + std::to_string(i) + "]";
         callerScope.set(newItemKey, itemValue);
     }
@@ -326,7 +326,7 @@ Constants::Error SimpleData::pop_front(std::span<std::string const> const& args,
     // Move all existing items one step back
     for (size_t i = 1; i < size; i++) {
         auto itemKey = key + "[" + std::to_string(i) + "]";
-        auto itemValue = callerScope.get<std::string>(itemKey);
+        auto itemValue = callerScope.get<std::string>(itemKey).value_or("");
         auto newItemKey = key + "[" + std::to_string(i - 1) + "]";
         callerScope.set(newItemKey, itemValue);
     }
