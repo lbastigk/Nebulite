@@ -52,10 +52,11 @@ std::expected<T, SimpleValueRetrievalError> JSON::get(std::string const& key) co
 
     // Check if a transformation is present
     if (key.contains('|')){
-        if (auto const optionalVal = getWithTransformations<T>(key); optionalVal.has_value()){
+        auto const optionalVal = getWithTransformations<T>(key);
+        if ( optionalVal.has_value()){
             return optionalVal.value();
         }
-        return std::unexpected(TRANSFORMATION_FAILURE);
+        return std::unexpected(optionalVal.error());
     }
 
     // Get variant and convert to requested type
