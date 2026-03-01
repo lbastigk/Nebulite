@@ -26,12 +26,12 @@ bool Array::ensureArray(Core::JsonScope* jsonDoc) {
     }
 
     // Single value, wrap into an array
-    Data::JSON const tmp = jsonDoc->getSubDoc(rootKey);
     auto const key = rootKey + "[0]";
-    jsonDoc->setSubDoc(key, tmp);
+    jsonDoc->moveMember(rootKey, key); // Move the original value to the new array index
 
     // Return whether wrapping succeeded
-    return jsonDoc->memberType(rootKey) == Data::KeyType::array;
+    auto const newType = jsonDoc->memberType(rootKey);
+    return newType == Data::KeyType::array;
 }
 
 bool Array::at(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
