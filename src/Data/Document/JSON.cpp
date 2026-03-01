@@ -243,7 +243,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
             if (val->IsObject()) {
                 return std::unexpected(IS_OBJECT);
             }
-            return std::unexpected(IS_UNKNOWN_TYPE);
+            return std::unexpected(CONVERSION_FAILURE);
         }
     }
 

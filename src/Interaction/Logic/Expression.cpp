@@ -584,7 +584,7 @@ bool Expression::recalculateIsAlwaysTrue() const {
 //------------------------------------------
 // Actual expression evaluation
 
-std::string Expression::eval(ContextScopeBase const& context, uint16_t const& max_recursion_depth) const {
+std::string Expression::eval(ContextScopeBase const& context, size_t const& recursionDepth) const {
     //------------------------------------------
     // Update caches so that tinyexpr has the correct references
     updateCaches(context);
@@ -600,7 +600,7 @@ std::string Expression::eval(ContextScopeBase const& context, uint16_t const& ma
         switch (component->type) {
             //------------------------------------------
         case Component::Type::variable:
-            if (!component->handleComponentTypeVariable(token, context, max_recursion_depth)) {
+            if (!component->handleComponentTypeVariable(token, context, recursionDepth)) {
                 token = "null";
             }
             break;
@@ -631,7 +631,7 @@ bool Expression::evalAsBool(ContextScopeBase const& context) const {
     return std::fabs(result) > DBL_EPSILON;
 }
 
-Data::JSON Expression::evalAsJson(ContextScopeBase const& context, uint16_t const& max_recursion_depth) const {
+Data::JSON Expression::evalAsJson(ContextScopeBase const& context, size_t const& recursionDepth) const {
     if (components.size() == 1 && components[0]->type != Component::Type::text) {
         if (components[0]->type == Component::Type::eval) {
             Data::JSON jsonResult;
@@ -640,12 +640,12 @@ Data::JSON Expression::evalAsJson(ContextScopeBase const& context, uint16_t cons
         }
         if (components[0]->type == Component::Type::variable) {
             Data::JSON jsonResult;
-            components[0]->handleComponentTypeVariable(jsonResult, context, max_recursion_depth);
+            components[0]->handleComponentTypeVariable(jsonResult, context, recursionDepth);
             return jsonResult;
         }
     }
     Data::JSON jsonResult;
-    jsonResult.set<std::string>("", eval(context, max_recursion_depth));
+    jsonResult.set<std::string>("", eval(context, recursionDepth));
     return jsonResult;
 }
 

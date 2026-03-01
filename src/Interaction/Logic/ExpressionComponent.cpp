@@ -1,5 +1,6 @@
 #include "Nebulite.hpp"
 #include "Core/JsonScope.hpp"
+#include "Data/Document/SimpleValueError.hpp"
 #include "Interaction/Logic/Expression.hpp"
 
 namespace Nebulite::Interaction::Logic {
@@ -26,53 +27,67 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
     return *this;
 }
 
-bool Expression::Component::handleComponentTypeVariable(std::string& token, ContextScopeBase const& context, uint16_t const& maximumRecursionDepth) const {
-    thread_local Data::JSON tokenDoc;
-    if (!handleComponentTypeVariable(tokenDoc, context, maximumRecursionDepth)) {
-        return false;
-    }
+bool Expression::Component::handleComponentTypeVariable(std::string& token, ContextScopeBase const& context, size_t const& recursionDepth) const {
+    auto s = evaluateKey(context, key, contextType, recursionDepth);
+    if (!s) {return false;}
+    auto [strippedKey, destination] = s.value();
 
-    // Now, we need to convert the tokenDoc to a string for the final output
-    // TODO: Instead of storing the value in a temp doc, we can use the new get error handling to determine what went wrong on retrieval,
-    //       and set the token string accordingly.
-    switch (tokenDoc.memberType("")) {
-        case Data::KeyType::null:
-            token = "null";
-            break;
-        case Data::KeyType::array:
-            token = "[array]";
-            break;
-        case Data::KeyType::object:
-            token = "{object}";
-            break;
-        case Data::KeyType::value:
-            token = tokenDoc.get<std::string>("").value_or("");
-            break;
-        default:
-            std::unreachable();
+    // Helper lambda to convert a value to a string representation
+    auto getStringValue = []<typename DocumentType, typename KeyType>(DocumentType const& doc, KeyType const& k) -> std::string {
+        std::expected<std::string, Data::SimpleValueRetrievalError> value = doc.template get<std::string>(k);
+        if (value.has_value()) {
+            return value.value();
+        }
+        switch (value.error()) {
+            case Data::SimpleValueRetrievalError::CONVERSION_FAILURE:
+                return "<TO_STRING_CONVERSION_FAILURE>";
+            case Data::SimpleValueRetrievalError::TRANSFORMATION_FAILURE:
+                return "<TRANSFORMATION_FAILURE>";
+            case Data::SimpleValueRetrievalError::MALFORMED_KEY:
+                return "<MALFORMED_KEY>";
+            case Data::SimpleValueRetrievalError::IS_NULL:
+                return "null";
+            case Data::SimpleValueRetrievalError::IS_ARRAY:
+                return "[array]";
+            case Data::SimpleValueRetrievalError::IS_OBJECT:
+                return "{object}";
+            default:
+                std::unreachable();
+        }
+    };
+
+    // Now, use the key to get the value from the correct document
+    auto const scopedKey = Data::ScopedKey(strippedKey);
+    switch (destination) {
+    case ContextType::self: // {self.<key><transformations>}
+        token = getStringValue(context.self, scopedKey.view());
+        break;
+    case ContextType::other: // {other.<key><transformations>}
+        token = getStringValue(context.other, scopedKey.view());
+        break;
+    case ContextType::global: // {global.<key><transformations>}
+        token = getStringValue(context.global, scopedKey.view());
+        break;
+    case ContextType::resource: // {<link><resource_key_or_transformations>}
+        token = getStringValue(Global::instance().getDocCache(), strippedKey);
+        break;
+    case ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
+    {
+        // This requires an empty document that acts as a parsing mechanism for the transformations
+        thread_local Data::JsonScopeBase emptyDoc;
+        token = getStringValue(emptyDoc, scopedKey.view());
     }
-    tokenDoc.removeMember(""); // Clear the temporary document for future use
+        break;
+    default:
+        std::unreachable();
+    }
     return true;
 }
 
-bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, ContextScopeBase const& context, uint16_t const& maximumRecursionDepth) const {
-    std::string strippedKey = key;
-    ContextType destination = contextType;
-
-    // See if the variable contains an inner expression
-    if (str.find('$') != std::string::npos || str.find('{') != std::string::npos) {
-        if (maximumRecursionDepth == 0) {
-            Error::println("Error: Maximum recursion depth reached when evaluating variable: ", key);
-            return false;
-        }
-        // Create a temporary expression to evaluate the inner expression
-        Expression const tempExpr(str);
-        strippedKey = tempExpr.eval(context, maximumRecursionDepth - 1);
-
-        // Redetermine context and strip it from key
-        destination = getContextType(strippedKey);
-        strippedKey = stripContext(strippedKey);
-    }
+bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, ContextScopeBase const& context, size_t const& recursionDepth) const {
+    auto s = evaluateKey(context, key, contextType, recursionDepth);
+    if (!s) {return false;}
+    auto [strippedKey, destination] = s.value();
 
     // Now, use the key to get the value from the correct document
     auto const scopedKey = Data::ScopedKey(strippedKey);
@@ -151,6 +166,27 @@ void Expression::Component::handleComponentTypeEval(std::string& token) const {
         }
         token.insert(0, padding);
     }
+}
+
+std::optional<std::pair<std::string, Expression::Component::ContextType>> Expression::Component::evaluateKey(ContextScopeBase const& context, std::string const& initialKey, ContextType const& initialDestination, size_t const& recursionDepth) const {
+    std::string strippedKey = initialKey;
+    ContextType destination = initialDestination;
+
+    // See if the variable contains an inner expression
+    if (str.find('$') != std::string::npos || str.find('{') != std::string::npos) {
+        if (recursionDepth == 0) {
+            Error::println("Error: Maximum recursion depth reached when evaluating variable: ", key);
+            return std::nullopt;
+        }
+        // Create a temporary expression to evaluate the inner expression
+        Expression const tempExpr(str);
+        strippedKey = tempExpr.eval(context, recursionDepth - 1);
+
+        // Redetermine context and strip it from key
+        destination = getContextType(strippedKey);
+        strippedKey = stripContext(strippedKey);
+    }
+    return std::make_pair(strippedKey, destination);
 }
 
 }  // namespace Nebulite::Interaction::Logic

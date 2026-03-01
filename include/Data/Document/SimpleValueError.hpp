@@ -18,8 +18,7 @@ enum SimpleValueRetrievalError {
     MALFORMED_KEY,
     IS_ARRAY, // The specified key corresponds to an array, not a simple value.
     IS_OBJECT, // The specified key corresponds to an object, not a simple value.
-    IS_NULL,   // The specified key is not a member of the JSON document (null).
-    IS_UNKNOWN_TYPE // The specified key corresponds to a type that is not supported as a simple value
+    IS_NULL   // The specified key is not a member of the JSON document (null).
 };
 } // namespace Nebulite::Data
 #endif // SIMPLE_VALUE_ERROR_HPP
