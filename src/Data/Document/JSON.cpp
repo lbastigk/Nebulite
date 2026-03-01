@@ -213,7 +213,8 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
 
     // Check document, if not in cache
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key.c_str(), doc); val != nullptr) {
-        if (it == cache.end()) {
+        if (it == cache.end() && RjDirectAccess::getSimpleValue(val).has_value()) {
+            // Insert only if the value is of a supported type, otherwise complex types might be interpreted as simple values.
             // Create new cache entry and insert into cache
             auto new_entry = std::make_unique<CacheEntry>(CACHELINE, cacheline_index);
             cache[key] = std::move(new_entry);
@@ -234,17 +235,17 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
 
                 return v.value();
             }
-            if (val->IsNull()) {
-                return std::unexpected(IS_NULL);
-            }
-            if (val->IsArray()) {
-                return std::unexpected(IS_ARRAY);
-            }
-            if (val->IsObject()) {
-                return std::unexpected(IS_OBJECT);
-            }
-            return std::unexpected(CONVERSION_FAILURE);
         }
+        if (val->IsNull()) {
+            return std::unexpected(IS_NULL);
+        }
+        if (val->IsArray()) {
+            return std::unexpected(IS_ARRAY);
+        }
+        if (val->IsObject()) {
+            return std::unexpected(IS_OBJECT);
+        }
+        return std::unexpected(CONVERSION_FAILURE);
     }
 
     // Value could not be found, return empty optional
