@@ -529,24 +529,24 @@ void Expression::updateCaches(ContextScopeBase const& context) const {
 
     for (auto const& vde : virtualDoubles.unstable.self) {
         auto const key = Data::ScopedKey(eval(vde->getKey(), context));
-        vde->setDirect(context.self.get<double>(key, 0.0));
+        vde->setDirect(context.self.get<double>(key).value_or(0.0));
     }
     for (auto const& vde : virtualDoubles.unstable.other) {
         auto const key = Data::ScopedKey(eval(vde->getKey(), context));
-        vde->setDirect(context.other.get<double>(key, 0.0));
+        vde->setDirect(context.other.get<double>(key).value_or(0.0));
     }
     for (auto const& vde : virtualDoubles.unstable.global) {
         auto const key = Data::ScopedKey(eval(vde->getKey(), context));
-        vde->setDirect(context.global.get<double>(key, 0.0));
+        vde->setDirect(context.global.get<double>(key).value_or(0.0));
     }
     for (auto const& vde : virtualDoubles.unstable.resource) {
         // Since resource documents may be unloaded at any time, we must always fetch the value instead of using stable double pointers
         auto const key = eval(vde->getKey(), context);
-        vde->setDirect(Global::instance().getDocCache().get<double>(key, 0.0));
+        vde->setDirect(Global::instance().getDocCache().get<double>(key).value_or(0.0));
     }
     for (auto const& vde : virtualDoubles.unstable.none) {
         auto const key = Data::ScopedKey(eval(vde->getKey(), context));
-        vde->setDirect(emptyDoc().get<double>(key, 0.0));
+        vde->setDirect(emptyDoc().get<double>(key).value_or(0.0));
     }
 }
 

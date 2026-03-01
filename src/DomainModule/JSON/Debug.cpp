@@ -32,7 +32,7 @@ Constants::Error Debug::print(std::span<std::string const> const& args, Interact
             return Constants::ErrorTable::NONE();
         }
         if (memberType == Data::KeyType::value) {
-            Log::println(callerScope.get<std::string>(scopedKey, ""));
+            Log::println(callerScope.get<std::string>(scopedKey).value_or(""));
             return Constants::ErrorTable::NONE();
         }
     }

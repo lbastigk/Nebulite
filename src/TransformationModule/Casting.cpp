@@ -21,7 +21,7 @@ bool Casting::toInt(Core::JsonScope* jsonDoc) {
     }
 
     // Get current value as double and cast to int
-    auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
+    auto const currentValue = jsonDoc->get<double>(rootKey).value_or(0.0);
     auto const valueAsInt = static_cast<int>(currentValue);
     jsonDoc->set<int>(rootKey, valueAsInt);
     return true;
@@ -33,7 +33,7 @@ bool Casting::toString(Core::JsonScope* jsonDoc) {
         return false;
     }
 
-    auto const valAsString = jsonDoc->get<std::string>(rootKey, "");
+    auto const valAsString = jsonDoc->get<std::string>(rootKey).value_or("");
     jsonDoc->set<std::string>(rootKey, valAsString);
     return true;
 }
@@ -48,7 +48,7 @@ bool Casting::toBool(Core::JsonScope* jsonDoc) {
     static auto supportedTrueValues = std::set<std::string>{"true", "1", "yes", "on"};
     static auto supportedFalseValues = std::set<std::string>{"false", "0", "no", "off"};
 
-    auto const currentValueStr = jsonDoc->get<std::string>(rootKey, "");
+    auto const currentValueStr = jsonDoc->get<std::string>(rootKey).value_or("");
     std::string valueLower;
     std::ranges::transform(currentValueStr, std::back_inserter(valueLower), [](unsigned char const c) {
             return std::tolower(c);
@@ -63,7 +63,7 @@ bool Casting::toBool(Core::JsonScope* jsonDoc) {
     }
 
     // Fallback: get as bool directly
-    bool const boolValue = jsonDoc->get<bool>(rootKey, false);
+    bool const boolValue = jsonDoc->get<bool>(rootKey).value_or(false);
     jsonDoc->set<bool>(rootKey, boolValue);
     return true;
 }
@@ -75,7 +75,7 @@ bool Casting::toDouble(Core::JsonScope* jsonDoc) {
     }
 
     // Get current value as double
-    auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
+    auto const currentValue = jsonDoc->get<double>(rootKey).value_or(0.0);
     jsonDoc->set<double>(rootKey, currentValue);
     return true;
 }
@@ -87,7 +87,7 @@ bool Casting::toBoolString(Core::JsonScope* jsonDoc) {
     }
 
     // Get current value as bool
-    bool const boolValue = jsonDoc->get<bool>(rootKey, false);
+    bool const boolValue = jsonDoc->get<bool>(rootKey).value_or(false);
     jsonDoc->set<std::string>(rootKey, boolValue ? "true" : "false");
     return true;
 }
@@ -101,7 +101,7 @@ bool Casting::roundUp(Core::JsonScope* jsonDoc) {
     }
 
     // Get current value as double and round up
-    auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
+    auto const currentValue = jsonDoc->get<double>(rootKey).value_or(0.0);
     auto const roundedValue = static_cast<int>(std::ceil(currentValue));
     jsonDoc->set<int>(rootKey, roundedValue);
     return true;
@@ -114,7 +114,7 @@ bool Casting::roundDown(Core::JsonScope* jsonDoc) {
     }
 
     // Get current value as double and round down
-    auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
+    auto const currentValue = jsonDoc->get<double>(rootKey).value_or(0.0);
     auto const roundedValue = static_cast<int>(std::floor(currentValue));
     jsonDoc->set<int>(rootKey, roundedValue);
     return true;
@@ -127,7 +127,7 @@ bool Casting::round(Core::JsonScope* jsonDoc) {
     }
 
     // Get current value as double and round
-    auto const currentValue = jsonDoc->get<double>(rootKey, 0.0);
+    auto const currentValue = jsonDoc->get<double>(rootKey).value_or(0.0);
     auto const roundedValue = static_cast<int>(std::round(currentValue));
     jsonDoc->set<int>(rootKey, roundedValue);
     return true;

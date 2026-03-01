@@ -9,7 +9,7 @@
  *
  *          Example Commands:
  *          ```bash
- *          ./bin/Nebulite spawn <RenderObject.jsonc>      # Load a single renderobject
+ *          ./bin/Nebulite spawn <RenderObject.jsonc>      # Load a single RenderObject
  *          ./bin/Nebulite env-load <level.jsonc>          # Load and render a level
  *          ./bin/Nebulite task <task.nebs>                # Run a task file
  *          ```
@@ -53,7 +53,6 @@ struct MainReturnValues {
 /**
  * @brief Main function for the NEBULITE engine.
  * @details Initializes the engine, sets up the global space, and processes command-line arguments.
- * @todo: settings.jsonc: Renderer size, fps setting (Input Mapping is already a work in progress. See GSDM_InputMapping.h)
  */
 int main(int const argc, char* argv[]) {
     //------------------------------------------

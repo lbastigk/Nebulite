@@ -172,10 +172,10 @@ private:
      * @brief Inserts a rapidjson value into the cache, converting it to the appropriate C++ type.
      * @param key The key of the value to cache.
      * @param val The rapidjson value to cache.
-     * @param defaultValue The default value to use if conversion fails.
+     * @return The converted value of type T, or nullopt if conversion fails or the value is not cacheable.
      */
     template <typename T>
-    T jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue) const ;
+    std::optional<T> jsonValueToCache(std::string const& key, rapidjson::Value const* val) const ;
 
     /**
      * @brief Invalidate all child keys of a given parent key.
@@ -215,7 +215,8 @@ private:
      * @param key The key string containing transformations.
      * @return The modified value of type T, or none on failure.
      */
-    template <typename T> std::optional<T> getWithTransformations(std::string const& key) const ;
+    template <typename T>
+    std::expected<T, SimpleValueRetrievalError> getWithTransformations(std::string const& key) const ;
 
     /**
      * @brief Apply transformations found in the key string and retrieve the modified document.
@@ -399,12 +400,11 @@ public:
      *          If the key does not exist, the default value is returned.
      * @tparam T The type of the value to retrieve.
      * @param key The key of the value to retrieve.
-     * @param defaultValue The default value to return if the key does not exist.
-     * @return The value associated with the key, or the default value if the key does not exist.
+     * @return The value associated with the key, or an error.
      */
-    template <typename T> T get(std::string const& key, T const& defaultValue = T()) const;
-    template <typename T> T get(std::string_view const& key, T const& defaultValue = T()) const { return get<T>(std::string(key), defaultValue); }
-    template <typename T> T get(char const* key, T const& defaultValue = T()) const { return get<T>(std::string(key), defaultValue); }
+    template <typename T> std::expected<T, SimpleValueRetrievalError> get(std::string const& key) const;
+    template <typename T> std::expected<T, SimpleValueRetrievalError> get(std::string_view const& key) const { return get<T>(std::string(key)); }
+    template <typename T> std::expected<T, SimpleValueRetrievalError> get(char const* key) const { return get<T>(std::string(key)); }
 
     /**
      * @brief Gets a variant value from the JSON document.

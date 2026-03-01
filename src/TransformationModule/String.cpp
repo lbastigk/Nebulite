@@ -25,7 +25,7 @@ void String::bindTransformations() {
 
 // NOLINTNEXTLINE
 bool String::toUpper(Core::JsonScope* jsonDoc) {
-    auto str = jsonDoc->get<std::string>(rootKey);
+    auto str = jsonDoc->get<std::string>(rootKey).value_or("");
     std::ranges::transform(
         str,
         str.begin(),
@@ -39,7 +39,7 @@ bool String::toUpper(Core::JsonScope* jsonDoc) {
 
 // NOLINTNEXTLINE
 bool String::toLower(Core::JsonScope* jsonDoc) {
-    auto str = jsonDoc->get<std::string>(rootKey);
+    auto str = jsonDoc->get<std::string>(rootKey).value_or("");
     std::ranges::transform(
         str,
         str.begin(),
@@ -53,21 +53,21 @@ bool String::toLower(Core::JsonScope* jsonDoc) {
 
 // NOLINTNEXTLINE
 bool String::strip(Core::JsonScope* jsonDoc) {
-    auto const str = Utility::StringHandler::strip(jsonDoc->get<std::string>(rootKey));
+    auto const str = Utility::StringHandler::strip(jsonDoc->get<std::string>(rootKey).value_or(""));
     jsonDoc->set(rootKey, str);
     return true;
 }
 
 // NOLINTNEXTLINE
 bool String::lStrip(Core::JsonScope* jsonDoc) {
-    auto const str = Utility::StringHandler::lStrip(jsonDoc->get<std::string>(rootKey));
+    auto const str = Utility::StringHandler::lStrip(jsonDoc->get<std::string>(rootKey).value_or(""));
     jsonDoc->set(rootKey, str);
     return true;
 }
 
 // NOLINTNEXTLINE
 bool String::rStrip(Core::JsonScope* jsonDoc) {
-    auto const str = Utility::StringHandler::rStrip(jsonDoc->get<std::string>(rootKey));
+    auto const str = Utility::StringHandler::rStrip(jsonDoc->get<std::string>(rootKey).value_or(""));
     jsonDoc->set(rootKey, str);
     return true;
 }
@@ -79,7 +79,7 @@ bool String::substring(std::span<std::string const> const& args, Core::JsonScope
     }
     auto const start = std::stoul(args[1]);
     size_t const length = std::stoul(args[2]);
-    auto const str = jsonDoc->get<std::string>(rootKey);
+    auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     if (start >= str.size()) {
         jsonDoc->set(rootKey, "");
         return true;
@@ -96,7 +96,7 @@ bool String::replace(std::span<std::string const> const& args, Core::JsonScope* 
     }
     auto const target = args[1];
     auto const replacement = args[2];
-    auto const str = jsonDoc->get<std::string>(rootKey);
+    auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     auto const replacedStr = Utility::StringHandler::replaceAll(str, target, replacement);
     jsonDoc->set(rootKey, replacedStr);
     return true;
@@ -107,7 +107,7 @@ bool String::strCountAppearance(std::span<std::string const> const& args, Core::
         return false;
     }
     auto const substring = Utility::StringHandler::recombineArgs(args.subspan(1));
-    auto str = jsonDoc->get<std::string>(rootKey);
+    auto str = jsonDoc->get<std::string>(rootKey).value_or("");
     size_t count = 0;
     while (!substring.empty() && !str.empty()) {
         auto const pos = str.find(substring);
@@ -126,7 +126,7 @@ bool String::strcompareEquals(std::span<std::string const> const& args, Core::Js
         return false;
     }
     auto const compareStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    auto const str = jsonDoc->get<std::string>(rootKey);
+    auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     jsonDoc->set(rootKey, str == compareStr);
     return true;
 }
@@ -136,7 +136,7 @@ bool String::strcompareContains(std::span<std::string const> const& args, Core::
         return false;
     }
     auto const compareStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    auto const str = jsonDoc->get<std::string>(rootKey);
+    auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     jsonDoc->set(rootKey, str.find(compareStr) != std::string::npos);
     return true;
 }
@@ -146,7 +146,7 @@ bool String::strcompareStartsWith(std::span<std::string const> const& args, Core
         return false;
     }
     auto const compareStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    auto const str = jsonDoc->get<std::string>(rootKey);
+    auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     jsonDoc->set(rootKey, str.rfind(compareStr, 0) == 0);
     return true;
 }
@@ -156,7 +156,7 @@ bool String::strcompareEndsWith(std::span<std::string const> const& args, Core::
         return false;
     }
     auto const compareStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    auto const str = jsonDoc->get<std::string>(rootKey);
+    auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     if (compareStr.size() > str.size()) {
         jsonDoc->set(rootKey, false);
         return true;

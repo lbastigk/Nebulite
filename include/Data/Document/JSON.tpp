@@ -1,39 +1,76 @@
 #ifndef NEBULITE_DATA_DOCUMENT_JSON_TPP
 #define NEBULITE_DATA_DOCUMENT_JSON_TPP
 
+#include <expected>
+#include <type_traits>
+
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/TransformationModule.hpp"
 
 namespace Nebulite::Data {
 
+template<typename>
+struct is_std_optional : std::false_type {};
+
+template<typename U>
+struct is_std_optional<std::optional<U>> : std::true_type {};
+
+template<typename T>
+inline constexpr bool is_std_optional_v =
+    is_std_optional<std::remove_cvref_t<T>>::value;
+
+template<typename>
+struct is_std_expected : std::false_type {};
+
+template<typename T, typename E>
+struct is_std_expected<std::expected<T, E>> : std::true_type {};
+
+template<typename T>
+inline constexpr bool is_std_expected_v =
+    is_std_expected<std::remove_cvref_t<T>>::value;
+
 template<typename T>
 void JSON::set(std::string const& key, T const& val){
+    // Check if T is an optional type, and if so, throw an assertion error
+    static_assert(!is_std_optional_v<T>,
+        "Setting optional types directly is not allowed. "
+        "Please use the value inside the optional instead."
+    );
+    static_assert(!is_std_expected_v<T>,
+        "Setting expected types directly is not allowed. "
+        "Please use the value inside the expected instead."
+    );
+
     // Basically the same as setVariant, but for template types
     std::scoped_lock const lockGuard(mtx);
     setVariant(key, RjDirectAccess::simpleValue(val));
 }
 
 template<typename T>
-T JSON::get(std::string const& key, T const& defaultValue) const {
+std::expected<T, SimpleValueRetrievalError> JSON::get(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check if a transformation is present
     if (key.contains('|')){
-        if (auto optionalVal = getWithTransformations<T>(key); optionalVal.has_value()){
+        if (auto const optionalVal = getWithTransformations<T>(key); optionalVal.has_value()){
             return optionalVal.value();
         }
-        return defaultValue;
+        return std::unexpected(TRANSFORMATION_FAILURE);
     }
 
     // Get variant and convert to requested type
-    if(auto const var = getVariant(key); var.has_value()){
-        return convertVariant<T>(var.value()).value_or(defaultValue);
+    auto const var = getVariant(key);
+    if(var.has_value()){
+        if (auto const converted = convertVariant<T>(var.value()); converted.has_value()) {
+            return converted.value();
+        }
+        return std::unexpected(CONVERSION_FAILURE);
     }
-    return defaultValue;
+    return std::unexpected{var.error()};
 }
 
 template<typename T>
-std::optional<T> JSON::getWithTransformations(std::string const& key) const {
+std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::string const& key) const {
     auto args = splitKeyWithTransformations(key);
 
     std::string const baseKey = args[0];
@@ -55,21 +92,20 @@ std::optional<T> JSON::getWithTransformations(std::string const& key) const {
 
     // Apply each transformation in sequence
     if (!transformer.parse(args, &tempDoc)) {
-        return {};    // if any transformation fails, return default value
+        return std::unexpected(TRANSFORMATION_FAILURE); // if any transformation fails, return default value
     }
-    // This should not fail, so we use T() as default value
-    return tempDoc.get<T>(TransformationModule::rootKeyStr, T());
+    return tempDoc.get<T>(TransformationModule::rootKeyStr);
 }
 
 template<typename T>
-T JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T const& defaultValue) const {
+std::optional<T> JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val) const {
     // Create a new cache entry
     auto new_entry = std::make_unique<CacheEntry>(CACHELINE, cacheline_index);
 
     // Get supported types
     auto const& v = RjDirectAccess::getSimpleValue(val);
     if(!v.has_value()) {
-        return defaultValue;
+        return std::nullopt; // Unsupported type, do not cache
     }
     new_entry->value = v.value();
 
@@ -84,10 +120,7 @@ T JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val, T 
     cache[key] = std::move(new_entry);
 
     // Return converted value
-    if (auto converted = convertVariant<T>(cache[key]->value); converted.has_value()) {
-        return converted.value();
-    }
-    return defaultValue;
+    return convertVariant<T>(cache[key]->value);
 }
 
 // Having this flag active used to cause issues on macOS.

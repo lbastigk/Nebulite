@@ -115,7 +115,7 @@ bool Collection::filterGlob(std::span<std::string const> const& args, Core::Json
     auto const memberKeyPairs = jsonDoc->listAvailableMembersAndKeys(rootKey);
     Data::JSON filtered;
     for (const auto& [member, key] : memberKeyPairs) {
-        if (Nebulite::Utility::globMatch(pattern, member)) {
+        if (Utility::globMatch(pattern, member)) {
             filtered.setSubDoc(member, jsonDoc->getSubDoc(key));
         }
     }

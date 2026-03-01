@@ -93,12 +93,12 @@ void InputMapping::reloadMappings() {
     mappings.clear();
     for (auto const& [member, key] : settingsScope.listAvailableMembersAndKeys(Settings::Key::inputMapping)) {
         mapEntry entry;
-        entry.slotA.key = settingsScope.get<std::string>(key + "." + InputMappingSlot::associationA);
-        entry.slotA.type = stringToAssociationType(settingsScope.get<std::string>(key + "." + InputMappingSlot::actionA));
-        entry.slotB.key = settingsScope.get<std::string>(key + "." + InputMappingSlot::associationB);
-        entry.slotB.type = stringToAssociationType(settingsScope.get<std::string>(key + "." + InputMappingSlot::actionB));
-        entry.slotC.key = settingsScope.get<std::string>(key + "." + InputMappingSlot::associationC);
-        entry.slotC.type = stringToAssociationType(settingsScope.get<std::string>(key + "." + InputMappingSlot::actionC));
+        entry.slotA.key = settingsScope.get<std::string>(key + "." + InputMappingSlot::associationA).value_or("");
+        entry.slotA.type = stringToAssociationType(settingsScope.get<std::string>(key + "." + InputMappingSlot::actionA).value_or(""));
+        entry.slotB.key = settingsScope.get<std::string>(key + "." + InputMappingSlot::associationB).value_or("");
+        entry.slotB.type = stringToAssociationType(settingsScope.get<std::string>(key + "." + InputMappingSlot::actionB).value_or(""));
+        entry.slotC.key = settingsScope.get<std::string>(key + "." + InputMappingSlot::associationC).value_or("");
+        entry.slotC.type = stringToAssociationType(settingsScope.get<std::string>(key + "." + InputMappingSlot::actionC).value_or(""));
         mappings[member] = entry;
     }
 }
@@ -114,7 +114,7 @@ void InputMapping::processMappings() {
                 continue;
             switch (type) {
                 case association::action::current:
-                    triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardCurrent + key);
+                    triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardCurrent + key).value_or(0);
                     break;
                 case association::action::onPress:
                     triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key) == 1;
@@ -123,7 +123,7 @@ void InputMapping::processMappings() {
                     triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key) == -1;
                     break;
                 case association::action::onChange:
-                    triggerCount += abs(moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key)) == 1;
+                    triggerCount += abs(moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key).value_or(0)) == 1;
                     break;
                 case association::action::empty:
                     break;

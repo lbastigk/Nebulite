@@ -309,11 +309,10 @@ double* JSON::getStableDoublePointer(std::string const& key) const {
     }
 
     // Check cache first
-    auto it = cache.find(key);
-    if (it != cache.end()) {
+    if (auto const it = cache.find(key); it != cache.end()) {
         // If the entry is deleted, we need to update its value from the document
         if (it->second->state == CacheEntry::EntryState::DELETED) {
-            *it->second->stable_double_ptr = get<double>(key, 0.0);
+            *it->second->stable_double_ptr = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
             it->second->last_double_value = *it->second->stable_double_ptr;
             it->second->state = CacheEntry::EntryState::DERIVED;
         }
@@ -322,13 +321,10 @@ double* JSON::getStableDoublePointer(std::string const& key) const {
 
     // Try loading from document into cache
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key.c_str(), doc); val != nullptr) {
-        (void)jsonValueToCache<double>(key, val, 0.0);
-    }
-
-    // Check cache again
-    it = cache.find(key);
-    if (it != cache.end()) {
-        return it->second->stable_double_ptr;
+        if (jsonValueToCache<double>(key, val).has_value()) {
+            // Successfully loaded into cache, return pointer
+            return cache[key]->stable_double_ptr;
+        }
     }
 
     // If loading from document failed, create a new derived entry
@@ -699,7 +695,7 @@ void JSON::set_add(std::string_view const& key, double const& val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
-    auto const current = get<double>(key, 0.0);
+    auto const current = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
     double const newValue = current + val;
 
     // Update double pointer value
@@ -719,7 +715,7 @@ void JSON::set_multiply(std::string_view const& key, double const& val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
-    auto const current = get<double>(key, 0.0);
+    auto const current = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
     double const newValue = current * val;
 
     // Update double pointer value
@@ -738,7 +734,7 @@ void JSON::set_multiply(std::string_view const& key, double const& val) {
 void JSON::set_concat(std::string_view const& key, std::string const& valStr) {
     std::scoped_lock const lockGuard(mtx);
 
-    auto const current = get<std::string>(key, "");
+    auto const current = get<std::string>(key).value_or(""); // Default to empty string if retrieval fails
     set<std::string>(key, current + valStr);
 
     // Update double pointer value to default 0.0

@@ -33,6 +33,8 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
     }
 
     // Now, we need to convert the tokenDoc to a string for the final output
+    // TODO: Instead of storing the value in a temp doc, we can use the new get error handling to determine what went wrong on retrieval,
+    //       and set the token string accordingly.
     switch (tokenDoc.memberType("")) {
         case Data::KeyType::null:
             token = "null";
@@ -44,7 +46,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
             token = "{object}";
             break;
         case Data::KeyType::value:
-            token = tokenDoc.get<std::string>("");
+            token = tokenDoc.get<std::string>("").value_or("");
             break;
         default:
             std::unreachable();

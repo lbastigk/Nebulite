@@ -11,7 +11,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScopeBase const& entryDoc, Json
         size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnGlobal);
         for (size_t j = 0; j < funcSize; ++j) {
             auto const funcKey = Constants::KeyNames::Ruleset::parseOnGlobal + "[" + std::to_string(j) + "]";
-            auto funcCall = entryDoc.get<std::string>(funcKey, "");
+            auto funcCall = entryDoc.get<std::string>(funcKey).value_or("");
 
             // Create a new Expression, parse the function call
             Logic::Expression invokeExpr(funcCall);
@@ -22,7 +22,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScopeBase const& entryDoc, Json
         size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnSelf);
         for (size_t j = 0; j < funcSize; ++j) {
             auto const funcKey = Constants::KeyNames::Ruleset::parseOnSelf + "[" + std::to_string(j) + "]";
-            auto funcCall = entryDoc.get<std::string>(funcKey, "");
+            auto funcCall = entryDoc.get<std::string>(funcKey).value_or("");
 
             // The first arg has to be some reference of where the function is called
             // Global functions explicitly place the Binary name on the front in the global space
@@ -40,7 +40,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScopeBase const& entryDoc, Json
         size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnOther);
         for (size_t j = 0; j < funcSize; ++j) {
             auto const funcKey = Constants::KeyNames::Ruleset::parseOnOther + "[" + std::to_string(j) + "]";
-            auto funcCall = entryDoc.get<std::string>(funcKey, "");
+            auto funcCall = entryDoc.get<std::string>(funcKey).value_or("");
 
             // The first arg has to be some reference of where the function is called
             // Global functions explicitly place the Binary name on the front in the global space
@@ -63,7 +63,7 @@ std::optional<Logic::Assignment> RulesetCompiler::getExpression(Data::JsonScopeB
     auto const exprKey = Constants::KeyNames::Ruleset::assignments + "[" + std::to_string(index) + "]";
 
     // Get expression
-    auto expr = entry.get<std::string>(exprKey, "");
+    auto expr = entry.get<std::string>(exprKey).value_or("");
 
     Logic::Assignment assignment;
 
@@ -137,14 +137,14 @@ std::string RulesetCompiler::getCondition(Data::JsonScopeBase const& entry) {
         size_t const logicalArgSize = entry.memberSize(Constants::KeyNames::Ruleset::condition);
         for (size_t j = 0; j < logicalArgSize; ++j) {
             auto logicalArgKey = Constants::KeyNames::Ruleset::condition + "[" + std::to_string(j) + "]";
-            logicalArg += "(" + entry.get<std::string>(logicalArgKey, "0") + ")";
+            logicalArg += "(" + entry.get<std::string>(logicalArgKey).value_or("0") + ")";
             if (j < logicalArgSize - 1) {
                 logicalArg += "*"; // Arguments in vector need to be all true: &-logic -> Multiplication
             }
         }
     } else {
         // Assume simple value, string:
-        logicalArg = entry.get<std::string>(Constants::KeyNames::Ruleset::condition, "0");
+        logicalArg = entry.get<std::string>(Constants::KeyNames::Ruleset::condition).value_or("0");
     }
 
     // Add $()
@@ -161,7 +161,7 @@ bool RulesetCompiler::getJsonRuleset(Data::JsonScopeBase const& doc, Data::JsonS
         entry.deserialize(serial);
     } else {
         // Is perhaps link to document
-        auto const potentialLink = doc.get<std::string>(key, "");
+        auto const potentialLink = doc.get<std::string>(key).value_or("");
         if (potentialLink.starts_with("::")) {
             // Is a static ruleset, return false
             return false;
@@ -178,7 +178,7 @@ bool RulesetCompiler::getJsonRuleset(Data::JsonScopeBase const& doc, Data::JsonS
 
 void RulesetCompiler::setMetaData(Execution::Domain const& self, RulesetVector const& rulesetsLocal, RulesetVector const& rulesetsGlobal) {
     // Set IDs
-    auto const id = self.domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id, 0);
+    auto const id = self.domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id).value_or(0);
     for (auto const& entry : rulesetsLocal) {
         entry->id = id;
     }
@@ -287,7 +287,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScopeBase cons
     Data::JsonScopeBase entry;
     if (!getJsonRuleset(doc, entry, key)) {
         // See if it's a static ruleset
-        auto const staticFunctionName = doc.get<std::string>(key, "");
+        auto const staticFunctionName = doc.get<std::string>(key).value_or("");
 
         if (
             auto const staticRulesetEntry = StaticRulesetMap::getInstance().getStaticRulesetByName(staticFunctionName);
@@ -307,7 +307,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScopeBase cons
     }
     // Is a valid JSON-defined ruleset
     auto Ruleset = std::make_shared<JsonRuleset>(self);
-    Ruleset->topic = entry.get<std::string>(Constants::KeyNames::Ruleset::topic, "all");
+    Ruleset->topic = entry.get<std::string>(Constants::KeyNames::Ruleset::topic).value_or("all");
     Ruleset->_isGlobal = !Ruleset->topic.empty(); // If topic is empty, it is a local invoke
     std::string logicalArgStr = getCondition(entry);
     logicalArgStr = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(logicalArgStr));

@@ -28,7 +28,7 @@ bool Types::serialize(Core::JsonScope* jsonDoc) {
 }
 
 bool Types::deserialize(Core::JsonScope* jsonDoc) {
-    auto const serialized = jsonDoc->get<std::string>(rootKey, "");
+    auto const serialized = jsonDoc->get<std::string>(rootKey).value_or("");
     Data::JSON tempDoc;
     if (!Data::JSON::isJsonOrJsonc(serialized)) {
         return false;

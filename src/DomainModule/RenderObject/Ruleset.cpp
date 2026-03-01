@@ -35,7 +35,7 @@ Constants::Error Ruleset::update() {
             listeners.clear();
             for (size_t idx = 0; idx < subscription_size; idx++) {
                 auto const key = Constants::KeyNames::RenderObject::Ruleset::listen + "[" + std::to_string(idx) + "]";
-                auto const subscription = moduleScope.get<std::string>(key, "");
+                auto const subscription = moduleScope.get<std::string>(key).value_or("");
                 auto listener = std::make_shared<Interaction::Rules::Listener>(domain, subscription, id);
                 listeners.push_back(listener);
             }

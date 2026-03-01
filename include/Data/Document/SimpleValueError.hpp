@@ -14,6 +14,7 @@ namespace Nebulite::Data {
  */
 enum SimpleValueRetrievalError {
     TRANSFORMATION_FAILURE, // The specified transformations could not be applied successfully.
+    CONVERSION_FAILURE,      // The value could not be converted to the requested type.
     MALFORMED_KEY,
     IS_ARRAY, // The specified key corresponds to an array, not a simple value.
     IS_OBJECT, // The specified key corresponds to an object, not a simple value.

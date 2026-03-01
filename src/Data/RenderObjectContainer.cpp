@@ -50,14 +50,18 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_
 
             // Check if serial or not:
             auto ro_serial = layer.get<std::string>(key);
-            if (ro_serial == "{Object}") {
+            std::string str;
+            if (ro_serial.error()) {
                 JSON tmp;
                 tmp = layer.getSubDoc(key);
-                ro_serial = tmp.serialize();
+                str = tmp.serialize();
+            }
+            else {
+                str = ro_serial.value();
             }
 
             auto* ro = new Core::RenderObject;
-            ro->deserialize(ro_serial);
+            ro->deserialize(str);
             append(ro, dispResX, dispResY);
         }
     }

@@ -165,8 +165,8 @@ public:
     //------------------------------------------
     // Getter
 
-    template<typename T> T get(ScopedKeyView const& key, T const& defaultValue = T()) const ;
-    template<typename T> T get(ScopedKey const& key, T const& defaultValue = T()) const {return get<T>(key.view(), defaultValue);}
+    template<typename T> std::expected<T, SimpleValueRetrievalError> get(ScopedKeyView const& key) const ;
+    template<typename T> std::expected<T, SimpleValueRetrievalError> get(ScopedKey const& key) const {return get<T>(key.view());}
 
     [[nodiscard]] std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(ScopedKeyView const& key) const ;
     [[nodiscard]] std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getVariant(ScopedKey const& key) const {return getVariant(key.view());}

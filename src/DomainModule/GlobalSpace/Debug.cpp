@@ -350,7 +350,7 @@ void Debug::setupDebugInfo() const {
     moduleScope.set<std::string>(Key::buildType, buildType);
 
     // Show debug window if in debug build
-    if (moduleScope.get<std::string>(Key::buildType, "") == "debug") {
+    if (moduleScope.get<std::string>(Key::buildType).value_or("") == "debug") {
         domain.getRenderer().showDebugWindow(true);
     }
 }
