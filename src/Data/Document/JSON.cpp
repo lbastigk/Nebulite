@@ -229,7 +229,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
                 it->second->state = CacheEntry::EntryState::CLEAN;
 
                 // Set stable double pointer
-                *it->second->stable_double_ptr = convertVariant<double>(it->second->value, 0.0);
+                *it->second->stable_double_ptr = convertVariant<double>(it->second->value).value_or(0.0); // Default to 0.0 if conversion fails
                 it->second->last_double_value = *it->second->stable_double_ptr;
 
                 return v.value();
@@ -374,7 +374,7 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
         it->second->state = CacheEntry::EntryState::DIRTY;
 
         // Update double pointer value
-        *it->second->stable_double_ptr = convertVariant<double>(val);
+        *it->second->stable_double_ptr = convertVariant<double>(val).value_or(0.0); // Default to 0.0 if conversion fails
         it->second->last_double_value = *it->second->stable_double_ptr;
     } else {
         // New cache value, structural validity is not guaranteed
@@ -389,7 +389,7 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
         // Set entry values
         new_entry->value = val;
         // Pointer was created in constructor, no need to redo make_shared
-        *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value, 0.0);
+        *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value).value_or(0.0); // Default to 0.0 if conversion fails
         new_entry->last_double_value = *new_entry->stable_double_ptr;
         new_entry->state = CacheEntry::EntryState::DIRTY;
 

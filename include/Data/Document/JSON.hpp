@@ -188,11 +188,10 @@ private:
     /**
      * @brief Helper function to convert any type from cache into another type.
      * @param var The variant value stored in the cache.
-     * @param defaultValue The default value to return if conversion fails.
-     * @return The converted value of type newType, or defaultValue on failure.
+     * @return The converted value of type newType, or nullopt if conversion fails.
      */
     template <typename newType>
-    static newType convertVariant(RjDirectAccess::simpleValue const& var, newType const& defaultValue = newType{});
+    static std::optional<newType> convertVariant(RjDirectAccess::simpleValue const& var);
 
     /**
      * @brief Flush all DIRTY entries in the cache back to the RapidJSON document.

@@ -53,7 +53,7 @@ constexpr std::array<T, N> make_array_with_arg(Arg&& arg) {
  */
 class JsonScopeBase {
 public:
-    // Threadrunners are unique, no locking needed
+    // Thread runners are unique, no locking needed
     static auto constexpr noLockArraySize = THREADRUNNER_COUNT;
 
     // Multiple Container layers means multiple workers, locking needed to avoid conflicts
