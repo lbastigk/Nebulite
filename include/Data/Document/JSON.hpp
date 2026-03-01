@@ -205,15 +205,10 @@ private:
     // Return Value Transformation system
 
     /**
-     * @brief Instance for applying transformations on get operations.
-     */
-    mutable std::unique_ptr<JsonRvalueTransformer> transformer;
-
-    /**
      * @brief Lazy-initialized instance of the JsonRvalueTransformer for applying transformations on get operations.
      * @return Reference to the JsonRvalueTransformer instance.
      */
-    std::unique_ptr<JsonRvalueTransformer>& getTransformer() const ;
+    static JsonRvalueTransformer* getTransformer();
 
     /**
      * @brief Apply transformations found in the key string and retrieve the modified value.

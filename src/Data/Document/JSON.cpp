@@ -35,11 +35,9 @@ JSON::JSON(JSON&& other) noexcept {
 //------------------------------------------
 // Lazy-initialized transformer
 
-std::unique_ptr<JsonRvalueTransformer>& JSON::getTransformer() const {
-    if (!transformer) {
-        transformer = std::make_unique<JsonRvalueTransformer>();
-    }
-    return transformer;
+JsonRvalueTransformer* JSON::getTransformer() {
+    thread_local JsonRvalueTransformer transformer;
+    return &transformer;
 }
 
 //------------------------------------------
