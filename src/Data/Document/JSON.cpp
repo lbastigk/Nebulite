@@ -405,23 +405,37 @@ void JSON::setSubDoc(char const* key, JSON const& child, char const* childKey) {
     flush();
     helperNonConstVar++; // Signal non-const operation
 
-    // Ensure key path exists
-    // Insert child document
-    if (rapidjson::Value* keyVal = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator()); keyVal != nullptr) {
-        child.flush();
-        if (auto const childVal = RjDirectAccess::traversePath(childKey, child.doc); childVal == nullptr) {
-            RjDirectAccess::removeMember(key, doc);
+    child.flush();
+    if (auto const childVal = RjDirectAccess::traversePath(childKey, child.doc); childVal == nullptr) {
+        RjDirectAccess::removeMember(key, doc);
+    }
+    else {
+        // If the child and this object are the same, we need to be careful with copying to avoid self-assignment issues
+        if (&child == this) {
+            // Copy childVal into keyVal
+            rapidjson::Value childCopy;
+            childCopy.CopyFrom(*childVal, doc.GetAllocator());
+            rapidjson::Value* keyVal = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
+            if (keyVal == nullptr) {
+                throw std::runtime_error("Failed to create or access path: " + std::string(key));
+            }
+            keyVal->CopyFrom(childCopy, doc.GetAllocator());
+
+            // Delete the child copy to free memory, since it's no longer needed
+            childCopy.SetNull();
         }
         else {
-            // Copy childVal into keyVal
+            // Normal case, just copy the value from child to this document
+            rapidjson::Value* keyVal = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
+            if (keyVal == nullptr) {
+                    throw std::runtime_error("Failed to create or access path: " + std::string(key));
+            }
             keyVal->CopyFrom(*childVal, doc.GetAllocator());
         }
-
-        // Since we inserted an entire document, we need to invalidate its child keys:
-        invalidate_child_keys(key);
-    } else {
-        Error::println("Failed to create or access path: ", key);
     }
+
+    // Since we inserted an entire document, we need to invalidate its child keys:
+    invalidate_child_keys(key);
 }
 
 void JSON::setEmptyArray(char const* key) {
@@ -634,7 +648,7 @@ void JSON::moveMember(char const* fromKey, char const* toKey) {
     if (std::string(toKey).starts_with(std::string(fromKey))) {
         // Edge case 2: if fromKey is empty
         if (std::string(fromKey).empty()) {
-            setSubDoc(toKey, *this, fromKey);
+            setSubDoc(toKey, *this);
 
             // Normalize toKey by removing trailing dot if present
             auto toKeyStr = std::string(toKey);
@@ -652,7 +666,6 @@ void JSON::moveMember(char const* fromKey, char const* toKey) {
 
         std::string const tempKey = std::string("__temp_move_") + fromKey; // Unlikely to collide with existing keys
         setSubDoc(tempKey.c_str(), *this, fromKey);
-        removeMember(fromKey);
         setSubDoc(toKey, *this, tempKey.c_str());
         removeMember(tempKey.c_str());
     }

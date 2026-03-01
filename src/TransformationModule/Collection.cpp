@@ -5,8 +5,8 @@
 #include <regex>
 
 // Nebulite
+#include "Nebulite.hpp"
 #include "Core/JsonScope.hpp"
-#include "Interaction/Logic/Expression.hpp"
 #include "TransformationModule/Collection.hpp"
 #include "Utility/Glob.hpp"
 
@@ -25,17 +25,16 @@ void Collection::bindTransformations() {
 }
 
 bool Collection::map(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) const {
-    if (jsonDoc->memberType(rootKey) == Data::KeyType::value) {
-        // Single value, we wrap it into an array
-        // TODO: optimize by using moveMember, once available
-        Data::JSON const tmp = jsonDoc->getSubDoc(rootKey);
+    if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
         auto const key = rootKey + "[0]";
-        jsonDoc->setSubDoc(key, tmp);
+        jsonDoc->moveMember(rootKey, key);
     }
+
     // Now we expect an array
     if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
-        return false; // Not an array
+        return false; // still not an array, something went wrong
     }
+
     // Re-join args into a single transformation command
     std::string cmd = __FUNCTION__;
     for (auto const& arg : args.subspan(1)) {
@@ -52,6 +51,7 @@ bool Collection::map(std::span<std::string const> const& args, Core::JsonScope* 
         auto& scope = jsonDoc->shareScope(elementKey);
         if (!transformationFuncTree->parseStr(cmd, &scope)) {
             jsonDoc->removeMember(elementKey);
+            return false; // If parsing fails for any element, we remove it and return false
         }
     }
     return true;
