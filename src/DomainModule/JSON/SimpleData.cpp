@@ -12,27 +12,22 @@ Constants::Error SimpleData::update() {return Constants::ErrorTable::NONE();} //
 // General set/get/remove functions
 
 // NOLINTNEXTLINE
-Constants::Error SimpleData::set(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error SimpleData::set(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScopeBase& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
-        Error::println("Error: Too few arguments for set command.");
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
     auto const key = callerScope.getRootScope() + args[1];
-    std::string value = args[2];
-    for (auto const& arg : args.subspan(3)) {
-        value += " " + std::string(arg);
-    }
-    (void)caller;
+    std::string const value = Utility::StringHandler::recombineArgs(args.subspan(2));
     callerScope.set(key, value);
     return Constants::ErrorTable::NONE();
 }
 
 // NOLINTNEXTLINE
-Constants::Error SimpleData::move(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error SimpleData::move(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScopeBase& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
-    if (args.size() != 3) {
+    if (args.size() < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (args.size() > 3) {
@@ -41,61 +36,34 @@ Constants::Error SimpleData::move(std::span<std::string const> const& args, Inte
     auto const sourceKey = callerScope.getRootScope() + args[1];
     auto const targetKey = callerScope.getRootScope() + args[2];
     callerScope.moveMember(sourceKey, targetKey);
-    (void)caller;
     return Constants::ErrorTable::NONE();
 }
 
 // NOLINTNEXTLINE
-Constants::Error SimpleData::copy(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error SimpleData::copy(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScopeBase& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
-    if (args.size() != 3) {
+    if (args.size() < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     if (args.size() > 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-
     auto const sourceKey = callerScope.getRootScope() + args[1];
     auto const targetKey = callerScope.getRootScope() + args[2];
-
-    if (callerScope.memberType(sourceKey) == Data::KeyType::null) {
-        Error::println("Error: Source key '", std::string(args[1]), "' does not exist.");
-        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
-    }
-    if (callerScope.memberType(sourceKey) == Data::KeyType::object) {
-        Data::JSON const subDoc = callerScope.getSubDoc(sourceKey);
-        callerScope.removeMember(targetKey);
-        callerScope.setSubDoc(targetKey, subDoc);
-    } else if (callerScope.memberType(sourceKey) == Data::KeyType::array) {
-        // Careful handling required:
-        callerScope.removeMember(targetKey);
-
-        size_t const size = callerScope.memberSize(sourceKey);
-        for (size_t i = 0; i < size; ++i) {
-            auto itemKey = sourceKey + "[" + std::to_string(i) + "]";
-            auto itemValue = callerScope.get<std::string>(itemKey).value_or("");
-            auto targetItemKey = targetKey + "[" + std::to_string(i) + "]";
-            callerScope.set(targetItemKey, itemValue);
-        }
-    } else {
-        // Move the value from sourceKey to targetKey
-        auto const value = callerScope.get<std::string>(sourceKey).value_or("");
-        callerScope.removeMember(targetKey);
-        callerScope.set(targetKey, value);
-    }
-    (void)caller;
+    callerScope.copyMember(sourceKey, targetKey);
     return Constants::ErrorTable::NONE();
 }
 
 // NOLINTNEXTLINE
-Constants::Error SimpleData::keyDelete(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error SimpleData::keyDelete(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScopeBase& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
-    if (args.size() != 2) {
-        Error::println("Error: Too few arguments for delete command.");
+    if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
+    if (args.size() > 2) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+    }
     auto const key = callerScope.getRootScope() + args[1];
-    (void)caller;
     callerScope.removeMember(key);
     return Constants::ErrorTable::NONE();
 }
@@ -103,8 +71,10 @@ Constants::Error SimpleData::keyDelete(std::span<std::string const> const& args,
 //------------------------------------------
 // Array manipulation functions
 
+// TODO: JSON::ensureArray could be a useful function
+
 // NOLINTNEXTLINE
-Constants::Error SimpleData::ensureArray(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error SimpleData::ensureArray(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScopeBase& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         Error::println("Error: Too few arguments for ensureArray command.");
@@ -115,32 +85,13 @@ Constants::Error SimpleData::ensureArray(std::span<std::string const> const& arg
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
 
-    auto const key = callerScope.getRootScope() + args[1];
-
-    Data::KeyType keyType = callerScope.memberType(key);
-
-    if (keyType == Data::KeyType::array) {
-        // Already an array, nothing to do
-        return Constants::ErrorTable::NONE();
+    if (auto const key = callerScope.getRootScope() + args[1]; callerScope.memberType(key) != Data::KeyType::array) {
+        callerScope.moveMember(key, key + "[0]"); // Move existing value to array index 0
     }
-
-    if (keyType == Data::KeyType::value) {
-        // pop out value
-        auto const existingValue = callerScope.get<std::string>(key).value_or("");
-        callerScope.removeMember(key);
-
-        // Set as new value
-        auto const arrayKey = key + "[0]";
-        callerScope.set(arrayKey, existingValue);
-
-        // All done
-        (void)caller;
-        return Constants::ErrorTable::NONE();
-    }
-
-    Error::println("Error: Key '", args[1], "' is unsupported type ", static_cast<int>(keyType), ", cannot convert to array.");
-    return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
+    return Constants::ErrorTable::NONE();
 }
+
+// TODO: Simplify the following functions by integrating the core logic in Data::JSON as well as the derivatives JsonScope and JsonScopeBase.
 
 Constants::Error SimpleData::push_back(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope){
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
@@ -170,7 +121,6 @@ Constants::Error SimpleData::push_back(std::span<std::string const> const& args,
 
     size_t const size = callerScope.memberSize(key);
     auto const itemKey = key + "[" + std::to_string(size) + "]";
-    (void)caller;
     callerScope.set(itemKey, value);
     return Constants::ErrorTable::NONE();
 }
@@ -204,7 +154,6 @@ Constants::Error SimpleData::pop_back(std::span<std::string const> const& args, 
     }
 
     auto const itemKey = key + "[" + std::to_string(size - 1) + "]";
-    (void)caller;
     callerScope.removeMember(itemKey);
     return Constants::ErrorTable::NONE();
 }
@@ -258,7 +207,6 @@ Constants::Error SimpleData::push_front(std::span<std::string const> const& args
         callerScope.set(newItemKey, itemValue);
     }
     auto const itemKey = key + "[0]";
-    (void)caller;
     callerScope.set(itemKey, value);
     return Constants::ErrorTable::NONE();
 }
@@ -308,7 +256,6 @@ Constants::Error SimpleData::pop_front(std::span<std::string const> const& args,
     }
     // Remove the last item
     auto const lastItemKey = key + "[" + std::to_string(size - 1) + "]";
-    (void)caller;
     callerScope.removeMember(lastItemKey);
     return Constants::ErrorTable::NONE();
 }
