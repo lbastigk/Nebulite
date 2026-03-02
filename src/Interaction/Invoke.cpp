@@ -18,8 +18,8 @@ Invoke::Invoke() {
 
     // Create and start threads
     size_t workerIndex = 0;
-    for (auto& w : std::span(worker, THREADRUNNER_COUNT)) {
-        w = std::make_unique<ContainerType>(stopFlag, workerIndex, THREADRUNNER_COUNT);
+    for (auto& w : std::span(worker, INVOKE_WORKER_COUNT)) {
+        w = std::make_unique<ContainerType>(stopFlag, workerIndex, INVOKE_WORKER_COUNT);
         workerIndex++;
     }
 }
@@ -35,13 +35,13 @@ Invoke::~Invoke() {
 
 void Invoke::broadcast(std::shared_ptr<Rules::Ruleset> const& entry) const {
     // Thread assignment based on entry owner ID
-    uint32_t const threadIndex = entry->getId() % THREADRUNNER_COUNT;
+    uint32_t const threadIndex = entry->getId() % INVOKE_WORKER_COUNT;
     worker[threadIndex]->broadcast(entry);
 }
 
 void Invoke::listen(std::shared_ptr<Rules::Listener> const& listener) {
     // Listening happens on all threads
-    for (auto const& w : std::span(worker, THREADRUNNER_COUNT)) {
+    for (auto const& w : std::span(worker, INVOKE_WORKER_COUNT)) {
         w->listen(listener);
     }
 }
@@ -51,17 +51,17 @@ void Invoke::listen(std::shared_ptr<Rules::Listener> const& listener) {
 
 void Invoke::update() {
     // Signal all worker threads to start processing
-    for (auto const& w : std::span(worker, THREADRUNNER_COUNT)) {
+    for (auto const& w : std::span(worker, INVOKE_WORKER_COUNT)) {
         w->startWork();
     }
 
     // Wait for all threads to finish processing
-    for (auto const& w : std::span(worker, THREADRUNNER_COUNT)) {
+    for (auto const& w : std::span(worker, INVOKE_WORKER_COUNT)) {
         w->waitForWorkFinished();
     }
 
     // Prepare work for the next frame
-    for (auto const& w : std::span(worker, THREADRUNNER_COUNT)) {
+    for (auto const& w : std::span(worker, INVOKE_WORKER_COUNT)) {
         w->prepare();
     }
 }

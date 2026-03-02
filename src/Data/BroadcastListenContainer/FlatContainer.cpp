@@ -93,24 +93,33 @@ void FlatContainer::process() {
     thread_local double const bvOffset = std::pow(relativeOffset, 2);
 
     // Process all listeners with offset to reduce contention between worker threads
+
     for (auto& listenerMap : rotate(listeners, listenerOffset)) {
         listenerMap.forall([&](std::string const& topic, auto& lv) {
-            // Process all entries for this topic
+
+            // Build a flattened view of all rulesets for this topic
+            auto rulesets =
+                rotate(broadcasters, broadcasterOffset)
+                | std::views::transform([&](auto& broadcasterMap) -> auto& {
+                      return broadcasterMap[topic];
+                  })
+                | std::views::transform([&](auto& bv) {
+                      return rotate(bv, bvOffset);
+                  })
+                | std::views::join;
+
             for (auto& listener : rotate(lv, lvOffset)) {
-                for (auto& broadcasterMap : rotate(broadcasters, broadcasterOffset)) {
-                    for (auto const& bv = broadcasterMap[topic]; auto const& ruleset : rotate(bv, bvOffset)) {
-                        // No offsetting here, since all broadcasters are per-worker thread and thus already distributed.
-                        // Tests show that offsetting here does not improve performance.
-                        if (ruleset->getId() == listener->listenerId) {
-                            continue; // Skip if the ruleset is from the same render object as the listener
-                        }
-                        if (ruleset->evaluateCondition(listener->domain)) {
-                            ruleset->apply(listener);
-                        }
-                    }
+                for (auto const& ruleset : rulesets) {
+
+                    if (ruleset->getId() == listener->listenerId)
+                        continue;
+
+                    if (ruleset->evaluateCondition(listener->domain))
+                        ruleset->apply(listener);
                 }
             }
-            lv.clear(); // Clear the listener vector for this topic after processing
+
+            lv.clear();
         });
     }
 

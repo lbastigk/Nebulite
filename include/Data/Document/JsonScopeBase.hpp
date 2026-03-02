@@ -54,11 +54,11 @@ constexpr std::array<T, N> make_array_with_arg(Arg&& arg) {
 class JsonScopeBase {
 public:
     // Thread runners are unique, no locking needed
-    static auto constexpr noLockArraySize = THREADRUNNER_COUNT;
+    static auto constexpr noLockArraySize = INVOKE_WORKER_COUNT;
 
     // Multiple Container layers means multiple workers, locking needed to avoid conflicts
     // Currently, each layers is updated after each other, but this may change in the future. So we lock just to be safe
-    static auto constexpr lockArraySize = BATCH_WORKER_COUNT;
+    static auto constexpr lockArraySize = RENDERER_WORKER_COUNT;
 
 protected:
     std::shared_ptr<JSON> baseDocument;

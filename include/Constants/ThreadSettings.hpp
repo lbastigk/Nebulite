@@ -23,16 +23,16 @@
 // General threading settings
 
 /**
- * @def THREADRUNNER_COUNT
+ * @def INVOKE_WORKER_COUNT
  * @brief Number of thread runners for processing broadcast-listen pairs.
  */
-#define THREADRUNNER_COUNT 12
+#define INVOKE_WORKER_COUNT 12
 
 /**
- * @def BATCH_WORKER_COUNT
+ * @def RENDERER_WORKER_COUNT
  * @brief Number of worker threads for processing RenderObjectContainer batches.
  */
-#define BATCH_WORKER_COUNT 4
+#define RENDERER_WORKER_COUNT 4
 
 /**
  * @def BATCH_COST_GOAL

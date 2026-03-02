@@ -103,7 +103,7 @@ private:
     // Average frame time for large benchmark: 0.221746 s
     using ContainerType = Data::BroadcastListenContainer::FlatContainer;
 
-    std::unique_ptr<ContainerType> worker[THREADRUNNER_COUNT];
+    std::unique_ptr<ContainerType> worker[INVOKE_WORKER_COUNT];
 
     //------------------------------------------
     // Threading variables

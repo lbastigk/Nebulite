@@ -3,6 +3,7 @@
 
 // Nebulite
 #include "Core/RenderObject.hpp"
+#include "Data/RendererProcessor.hpp"
 #include "Data/RenderObjectContainer.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Utility/WorkDispatcher.hpp"
@@ -70,15 +71,6 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_
 //------------------------------------------
 // Pipeline
 
-namespace {
-std::pair<int16_t, int16_t> getTilePos(Core::RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
-    auto [x, y] = toAppend->getPosition();
-    auto correspondingTilePositionX = static_cast<int16_t>(x / static_cast<double>(displayResolutionX));
-    auto correspondingTilePositionY = static_cast<int16_t>(y / static_cast<double>(displayResolutionY));
-    return std::make_pair(correspondingTilePositionX, correspondingTilePositionY);
-}
-} // anonymous namespace
-
 void RenderObjectContainer::append(Core::RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY) {
     std::pair<int16_t, int16_t> const pos = getTilePos(toAppend, dispResX, dispResY);
 
@@ -109,43 +101,7 @@ void RenderObjectContainer::append(Core::RenderObject* toAppend, uint16_t const&
     ObjectContainer[pos].push_back(std::move(newBatch));
 }
 
-void RenderObjectContainer::batchWorkerFunc(DispatcherWorkspace const& workspace) {
-    // Process
-    // We update each object and check if it needs to be moved or deleted
-    // Every batch worker has potential objects to move or delete
-    for (auto& batch : workspace.work) {
-        std::vector<Core::RenderObject*> to_move_local;
-        std::vector<Core::RenderObject*> to_delete_local;
-
-        for (auto obj : batch->objects) {
-            obj->update();
-
-            if (!obj->flag.deleteFromScene) {
-                if (getTilePos(obj, workspace.dispResX, workspace.dispResY) != workspace.pos) {
-                    to_move_local.push_back(obj);
-                }
-            } else {
-                to_delete_local.push_back(obj);
-            }
-        }
-
-        // All objects to move are collected in queue
-        for (auto ptr : to_move_local) {
-            batch->removeObject(ptr);
-            std::scoped_lock lock(workspace.reinsertionProcess->reinsertMutex);
-            workspace.reinsertionProcess->queue.push_back(ptr);
-        }
-
-        // All objects to delete are collected in trash
-        for (auto ptr : to_delete_local) {
-            batch->removeObject(ptr);
-            std::scoped_lock lock(workspace.deletionProcess->deleteMutex);
-            workspace.deletionProcess->trash.push_back(ptr);
-        }
-    }
-}
-
-void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tilePosY, uint16_t const& dispResX, uint16_t const& dispResY) {
+void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tilePosY, uint16_t const& dispResX, uint16_t const& dispResY, RendererProcessor const& rendererProcessor) {
     //------------------------------------------
     // Define tile offsets that are being rendered
 
@@ -214,17 +170,17 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
             // Create worker threads that try to closely match the batch cost goal
             // If the current batch added to the worker exceeds the batch cost goal, we start a new worker thread for the next batch
             for (auto& batch : it->second) {
-                if (batchWorkerPool[workerIdx]->workspace.cost + batch.estimatedCost > batchCostGoal || lastPos != pos) {
+                if (rendererProcessor.batchWorkerPool[workerIdx]->workspace.cost + batch.estimatedCost > batchCostGoal || lastPos != pos) {
                     workerIdx++;
                 }
 
-                if (workerIdx >= BATCH_WORKER_COUNT) {
-                    processPool(); // Process all workers and reset pool
+                if (workerIdx >= RENDERER_WORKER_COUNT) {
+                    rendererProcessor.processPool(); // Process all workers and reset pool
                     workerIdx = 0; // Reset worker count for new batch of work
                 }
 
                 // Get current worker, set up workspace and add work to it
-                auto& currentWorker = batchWorkerPool[workerIdx]->workspace;
+                auto& currentWorker = rendererProcessor.batchWorkerPool[workerIdx]->workspace;
                 currentWorker.work.push_back(&batch);
                 currentWorker.pos = pos;
                 currentWorker.dispResX = dispResX;
@@ -238,7 +194,7 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
     }
 
     // Process rest
-    processPool();
+    rendererProcessor.processPool();
 
     // Objects to move to new tile positions
     for (auto const obj_ptr : reinsertionProcess.queue) {
@@ -306,34 +262,6 @@ size_t RenderObjectContainer::getObjectCount() const {
     return totalCount;
 }
 
-//------------------------------------------
-// Batch
-
-Core::RenderObject* RenderObjectContainer::Batch::pop() {
-    if (objects.empty())
-        return nullptr;
-
-    Core::RenderObject* obj = objects.back(); // Get last element
-    estimatedCost -= obj->estimateComputationalCost(); // Adjust cost
-    objects.pop_back(); // Remove from vector
-
-    return obj;
-}
-
-void RenderObjectContainer::Batch::push(Core::RenderObject* obj) {
-    estimatedCost += obj->estimateComputationalCost();
-    objects.push_back(obj);
-}
-
-bool RenderObjectContainer::Batch::removeObject(Core::RenderObject* obj) {
-    if (auto const it = std::ranges::find(objects.begin(), objects.end(), obj); it != objects.end()) {
-        estimatedCost -= obj->estimateComputationalCost();
-        objects.erase(it);
-        return true;
-    }
-    return false;
-}
-
 RenderObjectContainer::ContainerInfo RenderObjectContainer::getContainerInfo() const {
     ContainerInfo info;
 
@@ -347,9 +275,16 @@ RenderObjectContainer::ContainerInfo RenderObjectContainer::getContainerInfo() c
     }
 
     // Worker stats
-    info.totalWorkers = THREADRUNNER_COUNT;
+    info.totalWorkers = INVOKE_WORKER_COUNT;
 
     return info;
+}
+
+std::pair<int16_t, int16_t> RenderObjectContainer::getTilePos(Core::RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
+    auto [x, y] = toAppend->getPosition();
+    auto correspondingTilePositionX = static_cast<int16_t>(x / static_cast<double>(displayResolutionX));
+    auto correspondingTilePositionY = static_cast<int16_t>(y / static_cast<double>(displayResolutionY));
+    return std::make_pair(correspondingTilePositionX, correspondingTilePositionY);
 }
 
 } // namespace Nebulite::Core

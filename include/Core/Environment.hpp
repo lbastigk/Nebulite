@@ -15,6 +15,7 @@
 
 // Nebulite
 #include "Interaction/Execution/Domain.hpp"
+#include "Data/RendererProcessor.hpp"
 #include "Data/RenderObjectContainer.hpp"
 
 //------------------------------------------
@@ -123,8 +124,9 @@ public:
      * @param tilePositionY current camera tile position in the Y direction.
      * @param dispResX display resolution width. Necessary for potential RenderObject reinsertions.
      * @param dispResY display resolution height. Necessary for potential RenderObject reinsertions.
+     * @param rendererProcessor the RendererProcessor instance to use for parallel processing of batches.
      */
-    void updateObjects(int16_t const& tilePositionX, int16_t const& tilePositionY, uint16_t const& dispResX, uint16_t const& dispResY);
+    void updateObjects(int16_t const& tilePositionX, int16_t const& tilePositionY, uint16_t const& dispResX, uint16_t const& dispResY, Data::RendererProcessor const& rendererProcessor);
 
     /**
      * @brief Rebuilds the Container structure.
@@ -151,7 +153,7 @@ public:
      * @param layer The layer index.
      * @return A reference to the RenderObjectContainer at the specified position and layer: A vector of batched RenderObjects.
      */
-    std::vector<Data::RenderObjectContainer::Batch>& getContainerAt(int16_t x, int16_t y, Layer layer);
+    std::vector<Data::Batch>& getContainerAt(int16_t x, int16_t y, Layer layer);
 
     /**
      * @brief Checks if the specified position and layer are valid, meaning they are within the bounds of the environment.
