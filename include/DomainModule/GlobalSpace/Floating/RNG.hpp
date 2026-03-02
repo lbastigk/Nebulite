@@ -68,7 +68,7 @@ public:
     //------------------------------------------
     // Scoped Keys
 
-    struct Key : KeyGroup<"random."> {
+    struct Key : Data::KeyGroup<"random."> {
         static auto constexpr A = makeScoped("A");
         static auto constexpr B = makeScoped("B");
         static auto constexpr C = makeScoped("C");

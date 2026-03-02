@@ -42,6 +42,8 @@ class JsonScopeBase;
 //------------------------------------------
 // Helper struct for compile-time optional fixed strings as template parameters
 
+namespace Nebulite::Data {
+
 template <std::size_t N>
 struct OptionalFixedString {
     char value[N == 0 ? 1 : N]{};
@@ -70,7 +72,7 @@ OptionalFixedString() -> OptionalFixedString<0>;
 
 //------------------------------------------
 // Self-owning scoped key
-namespace Nebulite::Data {
+
 /**
  * @class ScopedKey
  * @brief An owning version of ScopedKeyView that holds its own string buffer.
@@ -78,6 +80,13 @@ namespace Nebulite::Data {
  *          where the key string needs to be built dynamically.
  *          It owns the string buffer, ensuring that the data remains valid
  *          for the lifetime of the ScopedKey instance.
+ *          So what is the point of the scoped keying? Some keys are meant to be used in specific scopes, and to better detect accidental misuse of keys,
+ *          we return access errors when a key is used in the wrong scope. This is unlike accessing members that don't exist or are not returnable as the requested type.
+ *          The difference here is:
+ *          - an error return when the key is used in the right scope is like asking for a book in a library and being told
+ *            "Sorry, we don't have that book" (the key doesn't exist or is not the right type)
+ *          - an error return when the key is used in the wrong scope is like asking for a hotdog in a library.
+ *            You clearly are at the wrong place to ask for that!
  */
 class ScopedKey {
     /**
@@ -107,18 +116,18 @@ public:
     // caller must keep the ScopedKeyView alive while using the returned view.
     [[nodiscard]] ScopedKeyView view() const & noexcept ;
 
-    // convenience: implicit conversion to scopedKey view (only valid while *this is alive)
-    //operator ScopedKeyView() const & noexcept ;
-
     // Add operator for appending suffixes
     [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;
-};
-} // namespace Nebulite::Data
 
+    /**
+     * @brief A constant representing the absence of a scope.
+     */
+    static constexpr auto noScope = OptionalFixedString();
+};
 
 //------------------------------------------
 // Compile-time friendly scoped key
-namespace Nebulite::Data {
+
 /**
  * @class ScopedKeyView
  * @brief Non-Owning String wrapper to represent keys within a JsonScopeBase.
@@ -129,6 +138,7 @@ namespace Nebulite::Data {
  *          It also provides safety checks to ensure that keys are used within their intended scopes.
  *          We can use this to generate static scoped keys in DomainModules, ensuring that
  *          they are always used in the correct scope.
+ *          See also: ScopedKey, which is an owning version of this class that holds its own string buffer.
  */
 class ScopedKeyView {
     /**
@@ -146,16 +156,12 @@ class ScopedKeyView {
      *          that matches or is a sub-scope of this prefix.
      *          If not set, the key is assumed to be at the root scope.
      */
-    // NOLINTNEXTLINE
     std::optional<std::string_view> givenScope = std::nullopt;
-    // Ignored due to warnings with the compile-time construction: Usage of non-initialized class field 'givenScope' when called from function 'create<RequiredScope, T>'
 
     /**
      * @brief The key string within the scope.
      */
-    // NOLINTNEXTLINE
     std::string_view key;
-    // Ignored due to warnings with the compile-time construction: Usage of non-initialized class field 'key' when called from function 'create<RequiredScope, T>'
 
     // Any key shared publicly should be constructed with a required scope to avoid accidental misuse
     constexpr ScopedKeyView(std::optional<std::string_view> const& requiredScope, std::string_view const& keyInScope) noexcept
@@ -171,16 +177,7 @@ public:
     // Adding suffix to produce a new ScopedKeyView
     [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;
 
-    // No scope given, expected at root of JsonScopeBase
-    // Making this explicit would help avoid accidental misuse of keys,
-    // But this would require a lot of code changes in existing codebases.
-    // Instead, we assume every string literal used is assumed to be without given scope.
-    //template<typename T, typename = std::enable_if_t<std::is_constructible_v<std::string_view, T>>>
-    //constexpr ScopedKeyView(T const& keyInScope) noexcept
-    //    : key(std::string_view(keyInScope)) {}
-
-    explicit constexpr ScopedKeyView(std::string_view const& keyInScope)
-        : key(keyInScope) {}
+    explicit constexpr ScopedKeyView(std::string_view const& keyInScope) : key(keyInScope) {}
 
     /**
      * @brief Create a ScopedKeyView from a compile-time fixed string with an optional scope prefix.

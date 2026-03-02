@@ -74,7 +74,7 @@ public:
 
     //------------------------------------------
     // Settings keys
-    struct Key : KeyGroup<"settings."> {
+    struct Key : Data::KeyGroup<"settings."> {
         // Custom settings
         static auto constexpr customSettings = makeScoped("custom");
 

@@ -21,6 +21,8 @@
 //------------------------------------------
 // Helper Classes
 
+namespace Nebulite::Data {
+
 /**
  * @class KeyGroup
  * @brief A template class to group related keys under a common scope.
@@ -28,13 +30,18 @@
  *          The scope is defined as an optional template parameter.
  *          If the parameter is not provided, the scope is arbitrary and the keys will be non-scoped.
  *          This is useful for organizing keys related to specific domains or modules within the Nebulite framework.
- * @tparam Prefix An optional fixed string that defines the scope prefix for the keys in this group. If not provided, the keys will be non-scoped.
+ * @tparam Prefix A string that defines the scope prefix for the keys in this group.
+ *                Pass Data::ScopedKey::noScope to indicate that the keys in this group are not scoped and can be used in any scope.
+ *                Note that there is a difference between a root scope (Prefix = "") and no scope (Prefix = Data::ScopedKey::noScope):
+ *                - a root scope means the jsonScope we access with the key must also be at the root, otherwise access will fail
+ *                - no scope means the jsonScope may be at any scope, and the key will be accessed at the root of that scope,
+ *                  meaning it can be used in any scope without failing. Of course, if the jsonScope is not at the expected scope, the retrieval may return an error.
  */
-template <OptionalFixedString Prefix = OptionalFixedString()>
+template <OptionalFixedString Prefix>
 class KeyGroup {
 public:
     static consteval auto makeScoped(const char* keyStr) {
-        return Nebulite::Data::ScopedKeyView::createFromOptionalFixedString<Prefix>(keyStr);
+        return ScopedKeyView::createFromOptionalFixedString<Prefix>(keyStr);
     }
 
     static constexpr auto getScope() {
@@ -53,6 +60,7 @@ public:
         return Prefix.has_scope;
     }
 };
+} // namespace Nebulite::Constants
 
 //------------------------------------------
 namespace Nebulite::Constants {
@@ -66,7 +74,7 @@ struct KeyNames {
      * @brief Basic keys related to any domain.
      * @details No scope! As Domains may be inside other Domains, the scope is arbitrary.
      */
-    struct Domain : KeyGroup<> {
+    struct Domain : Data::KeyGroup<Data::ScopedKey::noScope> {
         static auto constexpr id = makeScoped("id"); // TODO: Use this instead of RenderObject id
     };
 
@@ -75,7 +83,7 @@ struct KeyNames {
      * @brief Keys related to the Renderer domain
      * @details The scope is set to "renderer.", meaning the entire renderer lives inside this scope of the GlobalSpace.
      */
-    struct Renderer : KeyGroup<"renderer."> {
+    struct Renderer : Data::KeyGroup<"renderer."> {
         static auto constexpr dispResX = makeScoped("resolution.X");
         static auto constexpr dispResY = makeScoped("resolution.Y");
         static auto constexpr dispResXLogical = makeScoped("resolution.logical.X");
@@ -89,7 +97,7 @@ struct KeyNames {
      * @brief Keys in the global space.
      * @details The scope is the root scope.
      */
-    struct GlobalSpace : KeyGroup<""> {
+    struct GlobalSpace : Data::KeyGroup<""> {
         // No keys for now
     };
 
@@ -99,7 +107,7 @@ struct KeyNames {
      * @todo Consider making the scope arbitrary, as RenderObjects may live inside other scopes
      *       e.g. In GlobalSpace for drafts, or in RenderObjects for child objects
      */
-    struct RenderObject : KeyGroup<""> {
+    struct RenderObject : Data::KeyGroup<""> {
         static auto constexpr id = makeScoped("id"); // TODO: Make this part of Domain itself!
         static auto constexpr positionX = makeScoped("posX");
         static auto constexpr positionY = makeScoped("posY");
@@ -112,7 +120,7 @@ struct KeyNames {
 
         // Keys for Ruleset invocations and subscriptions
         // TODO flatten into RenderObject once RenderObject has no scope, turn keys into "ruleset.list" and "ruleset.listen"
-        struct Ruleset : KeyGroup<"ruleset."> {
+        struct Ruleset : Data::KeyGroup<"ruleset."> {
             static auto constexpr list = makeScoped("list");
             static auto constexpr listen = makeScoped("listen");
         };
@@ -123,7 +131,7 @@ struct KeyNames {
      * @details No scope, as they are extracted from larger JSON objects and have arbitrary scopes depending on where they are defined.
      *          E.g. `ruleset.list[0]` for the first one, `ruleset.list[1]` for the second one, etc.
      */
-    struct Ruleset : KeyGroup<> {
+    struct Ruleset : Data::KeyGroup<Data::ScopedKey::noScope> {
         static auto constexpr topic = makeScoped("topic");
         static auto constexpr condition = makeScoped("condition");
         static auto constexpr assignments = makeScoped("action.assign");

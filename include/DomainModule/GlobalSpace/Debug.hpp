@@ -169,7 +169,7 @@ public:
         BIND_FUNCTION(&Debug::standardfileRenderobject, standardfileRenderobject_name, standardfileRenderobject_desc);
     }
 
-    struct Key : KeyGroup<"debug."> {
+    struct Key : Data::KeyGroup<"debug."> {
         static auto constexpr platform = makeScoped("platform");
         static auto constexpr buildType = makeScoped("buildType");
     };

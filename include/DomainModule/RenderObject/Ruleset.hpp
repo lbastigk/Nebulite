@@ -67,7 +67,7 @@ public:
         bindFunction(&Ruleset::once, once_name, once_desc);
     }
 
-    struct Key : KeyGroup<"ruleset."> {
+    struct Key : Data::KeyGroup<"ruleset."> {
         // No keys for now
     };
 

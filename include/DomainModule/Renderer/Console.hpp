@@ -159,7 +159,7 @@ public:
         BIND_FUNCTION(&Console::consoleAutotypeClear, consoleAutotypeClear_name, consoleAutotypeClear_desc);
     }
 
-    struct Key : KeyGroup<"renderer."> {
+    struct Key : Data::KeyGroup<"renderer."> {
         // No keys for now
     };
 

@@ -68,7 +68,7 @@ public:
         bindFunction(&Ruleset::listen, listen_name, listen_desc);
     }
 
-    struct Key : KeyGroup<"ruleset."> {
+    struct Key : Data::KeyGroup<"ruleset."> {
         // No keys for now
     };
 };

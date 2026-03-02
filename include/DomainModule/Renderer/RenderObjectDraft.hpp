@@ -90,7 +90,7 @@ public:
         BIND_FUNCTION(&RenderObjectDraft::draft_reset, draft_reset_name, draft_reset_desc);
     }
 
-    struct Key : KeyGroup<"renderer."> {
+    struct Key : Data::KeyGroup<"renderer."> {
         // TODO: We could modify the RenderObject constructor to accept an optional scope.
         //       This way, we can directly store the draft data in the renderer scope.
         //       Then, we can modify the scope to "renderer.draft." and have the entire renderObject live in that scope at root level.
