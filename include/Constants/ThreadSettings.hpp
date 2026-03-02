@@ -7,7 +7,7 @@
 #define NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP
 
 //------------------------------------------
-// Runtime expression evaluation settings
+// TODO: Move to another location
 
 /**
  * @def EXPRESSION_POOL_SIZE
@@ -19,22 +19,20 @@
  */
 #define EXPRESSION_POOL_SIZE 1
 
+/**
+ * @def BATCH_COST_GOAL
+ * @brief Target cost of each Render::update thread batch.
+ * @details Set to 0 to disable dynamic batching and process all members per tile in a single thread
+ */
+static auto constexpr batchCostGoal = 256;
+
 //------------------------------------------
-// General threading settings
-
-/**
- * @def INVOKE_WORKER_COUNT
- * @brief Number of thread runners for processing broadcast-listen pairs.
- */
-//#define INVOKE_WORKER_COUNT 12
-
-/**
- * @def RENDERER_WORKER_COUNT
- * @brief Number of worker threads for processing RenderObjectContainer batches.
- */
-//#define RENDERER_WORKER_COUNT 4
 
 namespace Nebulite::Constants {
+/**
+ * @class Nebulite::Constants::ThreadSettings
+ * @brief Threading settings for Nebulite's Ruleset processing
+ */
 class ThreadSettings {
     static size_t getThreadCount() {
         size_t const threadCount = std::thread::hardware_concurrency();
@@ -75,12 +73,5 @@ public:
     };
 };
 } // namespace Nebulite::Constants
-
-/**
- * @def BATCH_COST_GOAL
- * @brief Target cost of each Render::update thread batch.
- * @details Set to 0 to disable dynamic batching and process all members per tile in a single thread
- */
-static auto constexpr batchCostGoal = 256;
 
 #endif // NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP
