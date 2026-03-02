@@ -6,7 +6,6 @@
 #ifndef NEBULITE_DATA_BROADCAST_LISTEN_CONTAINER_FLAT_CONTAINER_HPP
 #define NEBULITE_DATA_BROADCAST_LISTEN_CONTAINER_FLAT_CONTAINER_HPP
 
-
 //------------------------------------------
 // Includes
 
@@ -24,7 +23,10 @@ struct Listener;
 
 //------------------------------------------
 namespace Nebulite::Data::BroadcastListenContainer {
-
+/**
+ * @class FlatContainer
+ * @brief A broadcast-listen container that uses a flat structure for storing rulesets and listeners, no direct storage of pairs.
+ */
 class FlatContainer final : public BaseContainer<FlatContainer*> {
 public:
     explicit FlatContainer(std::atomic<bool>& stopFlag, uint32_t const& workerIndex, uint32_t const& workerCount)
@@ -48,11 +50,12 @@ public:
     void prepare() override {}
 
     void process() override;
+
     void init() override;
 private:
-    std::array<HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>>, Constants::ThreadSettings::Maximum::invokeWorkerCount> broadcasters;
-    std::array<HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Listener>>>, Constants::ThreadSettings::Maximum::invokeWorkerCount> listeners;
-    mutable Utility::SharedMutex mutex;
+    static auto constexpr activeWorkerCount = Constants::ThreadSettings::Maximum::invokeWorkerCount;
+    std::array<HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>>, activeWorkerCount> broadcasters;
+    std::array<HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Listener>>>, activeWorkerCount> listeners;
 };
 
 } // namespace Nebulite::Data::BroadcastListenContainer

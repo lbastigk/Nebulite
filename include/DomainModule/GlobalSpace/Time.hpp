@@ -23,7 +23,7 @@
 // Forward declarations
 namespace Nebulite::Core {
 class GlobalSpace; // Forward declaration of domain class GlobalSpace
-}
+} // Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {
