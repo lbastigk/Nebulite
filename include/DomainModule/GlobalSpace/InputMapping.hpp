@@ -91,7 +91,7 @@ public:
         BIND_FUNCTION(&InputMapping::unlock, unlockName, unlockDesc);
     }
 
-    struct Key : KeyGroup<""> {
+    struct Key : Data::KeyGroup<""> {
         static auto constexpr mappingLocation = makeScoped("input.");
     };
 

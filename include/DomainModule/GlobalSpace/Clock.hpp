@@ -49,7 +49,7 @@ public:
     //------------------------------------------
     // Keys in the global document
 
-    struct Key : KeyGroup<"time."> {
+    struct Key : Data::KeyGroup<"time."> {
         /**
          * @brief Key for accessing the list of active clocks.
          * @details access with `"<key_arr_active_clocks>.ms<interval_padded>"`

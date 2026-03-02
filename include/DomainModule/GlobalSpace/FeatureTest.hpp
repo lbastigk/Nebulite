@@ -65,7 +65,7 @@ public:
         BIND_FUNCTION(&FeatureTest::selfOtherGlobalEvaluation, selfOtherGlobalEvaluation_name, selfOtherGlobalEvaluation_desc);
     }
 
-    struct Key : KeyGroup<""> {
+    struct Key : Data::KeyGroup<""> {
         // No keys for now
     };
 };

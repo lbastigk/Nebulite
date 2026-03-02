@@ -38,7 +38,7 @@ public:
         // TODO: Set Global physics constants
     }
 
-    struct Key : KeyGroup<"physics."> {
+    struct Key : Data::KeyGroup<"physics."> {
         // Global physics constants
         struct Global {
             static auto constexpr G = makeScoped("G");
@@ -55,7 +55,7 @@ public:
             static auto constexpr FY = makeScoped("FY"); // force Y
 
             // Correction values
-            struct Correction : KeyGroup<"physics.correction."> {
+            struct Correction : Data::KeyGroup<"physics.correction."> {
                 static auto constexpr X = makeScoped("X"); // position correction X to resolve overlaps
                 static auto constexpr Y = makeScoped("Y"); // position correction Y to resolve overlaps
                 static auto constexpr vX = makeScoped("vX"); // velocity correction X to resolve collisions

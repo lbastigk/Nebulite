@@ -50,11 +50,8 @@ public:
     void process() override;
     void init() override;
 private:
-    static auto constexpr broadcasterSpreading = BATCH_WORKER_COUNT;
-    static auto constexpr listenerSpreading = BATCH_WORKER_COUNT;
-
-    std::array<HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>>,broadcasterSpreading> broadcasters;
-    std::array<HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Listener>>>, listenerSpreading> listeners;
+    std::array<HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>>, Constants::ThreadSettings::Maximum::invokeWorkerCount> broadcasters;
+    std::array<HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Listener>>>, Constants::ThreadSettings::Maximum::invokeWorkerCount> listeners;
     mutable Utility::SharedMutex mutex;
 };
 

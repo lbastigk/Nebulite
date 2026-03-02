@@ -39,7 +39,7 @@ public:
     //------------------------------------------
     // Keys in the global document
 
-    struct Key : KeyGroup<"renderer.environment.debug."> {
+    struct Key : Data::KeyGroup<"renderer.environment.debug."> {
         // Container info
         static auto constexpr containerTotalTiles = makeScoped("container.totalTiles");
         static auto constexpr containerTotalCost = makeScoped("container.totalCost");

@@ -49,7 +49,7 @@ public:
         map_key_names();
     }
 
-    struct Key : KeyGroup<"renderer.input."> {
+    struct Key : Data::KeyGroup<"renderer.input."> {
         static auto constexpr keyboard = makeScoped("keyboard.");
         static auto constexpr keyboardCurrent = makeScoped("keyboard.current.");
         static auto constexpr keyboardDelta = makeScoped("keyboard.delta.");

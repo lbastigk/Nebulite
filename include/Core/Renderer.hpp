@@ -19,6 +19,7 @@
 
 // Nebulite
 #include "Core/Environment.hpp"
+#include "Data/RendererProcessor.hpp"
 #include "Utility/TimeKeeper.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Execution/Domain.hpp"
@@ -431,6 +432,11 @@ public:
     void setQuit() noexcept { status.quit = true; }
 
 private:
+    /**
+     * @brief Holds threads for parallel processing of RenderObjects during the update phase.
+     */
+    Data::RendererProcessor rendererProcessor;
+
     //------------------------------------------
     // Boolean Status Variables
 

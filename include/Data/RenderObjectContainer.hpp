@@ -10,8 +10,7 @@
 // Includes
 
 // Standard library
-#include <condition_variable>
-#include "Utility/WorkDispatcher.hpp"
+#include "Data/RendererProcessor.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -27,39 +26,6 @@ namespace Nebulite::Data {
  */
 class RenderObjectContainer {
 public:
-    /**
-     * @struct Nebulite::Data::RenderObjectContainer::Batch
-     * @brief Represents a batch of RenderObject instances in a given tile.
-     *        `Batch -> vector<RenderObject*>`
-     *        Used for threading and parallel processing of render objects.
-     *        Basically a custom std::vector wrapper for easier cost management.
-     */
-    struct Batch {
-        // Collection of RenderObjects
-        std::vector<Core::RenderObject*> objects;
-
-        // Full estimated cost of the batch
-        uint64_t estimatedCost = 0;
-
-        /**
-         * @brief Pops the last RenderObject from the batch.
-         * @return Pointer to the popped RenderObject, or nullptr if batch is already empty.
-         */
-        Core::RenderObject* pop();
-
-        /**
-         * @brief Pushes a RenderObject into the batch.
-         * @param obj Pointer to the RenderObject to push.
-         */
-        void push(Core::RenderObject* obj);
-
-        /**
-         * @brief Removes a RenderObject from the batch.
-         * @param obj Pointer to the RenderObject to remove.
-         * @return True if the object was removed, false otherwise.
-         */
-        bool removeObject(Core::RenderObject* obj);
-    };
 
     //------------------------------------------
     // Constructor
@@ -67,23 +33,9 @@ public:
     /**
      * @brief Constructs a new RenderObjectContainer.
      */
-    RenderObjectContainer() {
-        for (size_t i = 0; i < BATCH_WORKER_COUNT; i++) {
-            batchWorkerPool[i] = std::make_unique<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>(stopFlag);
-            batchWorkerPool[i]->workspace.deletionProcess = &deletionProcess;
-            batchWorkerPool[i]->workspace.reinsertionProcess = &reinsertionProcess;
-        }
-    }
+    RenderObjectContainer() = default;
 
-    ~RenderObjectContainer() {
-        // 1.) Notify all workers to stop
-        stopFlag = true;
-
-        // 2.) Optionally, start work to wake any waiting threads
-        for (auto const& worker : batchWorkerPool) {
-            worker->startWork();  // wakes worker so it can check stopFlag
-        }
-    }
+    ~RenderObjectContainer() = default;
 
     //------------------------------------------
     // Serialization / Deserialization
@@ -153,8 +105,9 @@ public:
      * @param tilePosY The middle tile to in y-axis.
      * @param dispResX The display resolution width. Needed for potential re-insertion.
      * @param dispResY The display resolution height. Needed for potential re-insertion.
+     * @param rendererProcessor The RendererProcessor instance to use for parallel processing of batches.
      */
-    void update(int16_t const& tilePosX, int16_t const& tilePosY, uint16_t const& dispResX, uint16_t const& dispResY);
+    void update(int16_t const& tilePosX, int16_t const& tilePosY, uint16_t const& dispResX, uint16_t const& dispResY, RendererProcessor const& rendererProcessor);
 
     /**
      * @brief Gets the vector of batches at the specified tile position.
@@ -189,89 +142,31 @@ public:
      */
     ContainerInfo getContainerInfo() const;
 
+    /**
+     * @brief Calculates the corresponding tile position for a given RenderObject based on its coordinates and the display resolution.
+     * @param toAppend Pointer to the RenderObject for which to calculate the tile position.
+     * @param displayResolutionX The display resolution width, used to determine the tile size and position.
+     * @param displayResolutionY The display resolution height, used to determine the tile size and position.
+     * @return A pair of int16_t representing the tile position (tileX, tileY) corresponding to the RenderObject's coordinates.
+     */
+    static std::pair<int16_t, int16_t> getTilePos(Core::RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY);
+
+    /**
+     * @brief Process for reinserting objects after they have been moved.
+     */
+    ReinsertionProcess reinsertionProcess;
+
+    /**
+     * @brief Process for deleting objects after they have been marked for deletion.
+     */
+    DeletionProcess deletionProcess;
+
 private:
     /**
      * @brief Holds all objects in the container.
      *        `ObjectContainer[tileX,tileY] -> vector<batch>`
      */
     absl::flat_hash_map<std::pair<int16_t, int16_t>, std::vector<Batch>> ObjectContainer;
-
-    /**
-     * @struct Nebulite::Data::RenderObjectContainer::ReinsertionProcess
-     * @brief Holds all objects that are awaiting re-insertion into the container.
-     *        The reinsertion process is a 3-step pipeline that ensures objects are properly
-     *        re-evaluated and placed back into the correct tile and batch:
-     *        - Remove from current batch
-     *        - Collect in queue
-     *        - Reinsert into the correct tile and batch
-     */
-    struct ReinsertionProcess {
-        std::vector<Core::RenderObject*> queue;
-        std::mutex reinsertMutex;
-    } reinsertionProcess;
-
-    /**
-     * @struct DeletionProcess
-     * @brief Manages the deletion process of RenderObjects.
-     *        This struct is responsible for handling the various stages of object deletion,
-     *        including marking objects for deletion, moving them to trash, and finally
-     *        purging them from memory.
-     *        The process is a 4-step pipeline that ensures safe and efficient deletion:
-     *        - Mark for deletion
-     *        - Move to trash
-     *        - Move to purgatory
-     *        - Delete
-     *        Just trash should be enough to resolve all existing references, but we keep this structure for now.
-     *        Perhaps in the future we wish to add a restore option, meaning we don't delete purgatory right away.
-     *        Or new mechanisms that require a 2-step deletion.
-     */
-    struct DeletionProcess {
-        //std::vector<Nebulite::Core::RenderObject*> to_delete;
-        std::vector<Core::RenderObject*> trash; // Moving objects, marking for deletion
-        std::vector<Core::RenderObject*> purgatory; // Deleted each frame
-        std::mutex deleteMutex; // Threadsafe insertion into trash
-    } deletionProcess;
-
-    /**
-     * @brief Flag to signal threads to stop.
-     */
-    std::atomic<bool> stopFlag;
-
-    struct DispatcherWorkspace {
-        std::vector<Batch*> work;
-        int16_t tilePosX;
-        int16_t tilePosY;
-        uint16_t dispResX;
-        uint16_t dispResY;
-        std::pair<uint16_t, uint16_t> pos;
-        ReinsertionProcess* reinsertionProcess;
-        DeletionProcess* deletionProcess;
-        uint32_t cost = 0;
-    };
-
-    static void batchWorkerFunc(DispatcherWorkspace const& workspace);
-
-    /**
-     * @brief Holds all batch worker threads.
-     * @todo VERY IMPORTANT! Turn into struct together with processPool and workspace, ensure that there is only one workerPool per renderer!
-     *       Otherwise we have LAYER_COUNT * BATCH_WORKER_COUNT workers, which is a lot and can cause performance issues with thread id assignment!
-     *       Worker pool should reside in renderer, and passed to the container on update!
-     *       Make sure to modify the deletion and reinsertion process pointers on each update, otherwise objects are inserted into the wronger layer
-     */
-    std::array<std::unique_ptr<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>, BATCH_WORKER_COUNT> batchWorkerPool; // Pool of pre-initialized workers for reuse
-
-    void processPool() const {
-        for (auto const& worker : batchWorkerPool) {
-            worker->startWork();
-        }
-        for (auto const& worker : batchWorkerPool) {
-            worker->waitForWorkFinished();
-        }
-        for (auto const& worker : batchWorkerPool) {
-            worker->workspace.work.clear();
-            worker->workspace.cost = 0;
-        }
-    }
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_DATA_RENDER_OBJECT_CONTAINER_HPP

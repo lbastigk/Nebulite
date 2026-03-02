@@ -441,7 +441,8 @@ Constants::Error Renderer::update() {
             tilePositionX,
             tilePositionY,
             domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
-            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0)
+            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0),
+            rendererProcessor
         );
     }
     if (SDL_GetError()[0] != '\0') {

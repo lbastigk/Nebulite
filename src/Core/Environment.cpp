@@ -106,9 +106,10 @@ void Environment::append(RenderObject* toAppend, uint16_t const& dispResX, uint1
     }
 }
 
-void Environment::updateObjects(int16_t const& tilePositionX, int16_t const& tilePositionY, uint16_t const& dispResX, uint16_t const& dispResY) {
+void Environment::updateObjects(int16_t const& tilePositionX, int16_t const& tilePositionY, uint16_t const& dispResX, uint16_t const& dispResY, Data::RendererProcessor const& rendererProcessor) {
     for (unsigned int i = 0; i < LayerCount; i++) {
-        roc[i].update(tilePositionX, tilePositionY, dispResX, dispResY);
+        rendererProcessor.prepareForNewLayer(&roc[i]);
+        roc[i].update(tilePositionX, tilePositionY, dispResX, dispResY, rendererProcessor);
     }
 }
 
@@ -131,7 +132,7 @@ RenderObject* Environment::getObjectFromId(uint32_t const& id) {
 //------------------------------------------
 // Container Management
 
-std::vector<Data::RenderObjectContainer::Batch>& Environment::getContainerAt(int16_t x, int16_t y, Layer layer) {
+std::vector<Data::Batch>& Environment::getContainerAt(int16_t x, int16_t y, Layer layer) {
     auto const pos = std::make_pair(x, y);
     if (static_cast<uint8_t>(layer) < LayerCount) {
         return roc[static_cast<uint8_t>(layer)].getContainerAt(pos);

@@ -11,6 +11,7 @@
 // Includes
 
 // Nebulite
+#include "Constants/ThreadSettings.hpp"
 #include "Data/BroadcastListenContainer/FlatContainer.hpp"
 #include "Constants/ThreadSettings.hpp"
 
@@ -103,7 +104,9 @@ private:
     // Average frame time for large benchmark: 0.221746 s
     using ContainerType = Data::BroadcastListenContainer::FlatContainer;
 
-    std::unique_ptr<ContainerType> worker[THREADRUNNER_COUNT];
+    std::unique_ptr<ContainerType> worker[Constants::ThreadSettings::Maximum::invokeWorkerCount];
+
+    size_t activeWorkerCount = Constants::ThreadSettings::getInvokeWorkerCount();
 
     //------------------------------------------
     // Threading variables

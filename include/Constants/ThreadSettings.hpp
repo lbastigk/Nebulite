@@ -7,7 +7,7 @@
 #define NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP
 
 //------------------------------------------
-// Runtime expression evaluation settings
+// TODO: Move to another location
 
 /**
  * @def EXPRESSION_POOL_SIZE
@@ -19,26 +19,59 @@
  */
 #define EXPRESSION_POOL_SIZE 1
 
-//------------------------------------------
-// General threading settings
-
-/**
- * @def THREADRUNNER_COUNT
- * @brief Number of thread runners for processing broadcast-listen pairs.
- */
-#define THREADRUNNER_COUNT 12
-
-/**
- * @def BATCH_WORKER_COUNT
- * @brief Number of worker threads for processing RenderObjectContainer batches.
- */
-#define BATCH_WORKER_COUNT 4
-
 /**
  * @def BATCH_COST_GOAL
  * @brief Target cost of each Render::update thread batch.
- * @details Set to 0 to disable dynamic batching and process all members per layer in a single thread
+ * @details Set to 0 to disable dynamic batching and process all members per tile in a single thread
  */
 static auto constexpr batchCostGoal = 256;
+
+//------------------------------------------
+
+namespace Nebulite::Constants {
+/**
+ * @class Nebulite::Constants::ThreadSettings
+ * @brief Threading settings for Nebulite's Ruleset processing
+ */
+class ThreadSettings {
+    static size_t getThreadCount() {
+        size_t const threadCount = std::thread::hardware_concurrency();
+        return std::min(std::max(threadCount, static_cast<size_t>(1)), Maximum::totalThreadCount);
+    }
+
+    struct Spreading {
+        static double constexpr invokeWorker = 0.75; // Percentage of threads dedicated to global ruleset processing
+        static double constexpr rendererWorker = 0.125; // Percentage of threads dedicated to local ruleset processing
+    };
+
+    static_assert(Spreading::invokeWorker + Spreading::rendererWorker < 1.0, "Thread spreading percentages must sum to less than 1.0 to not take up all available threads.");
+public:
+    static size_t getInvokeWorkerCount() {
+        return std::max(
+            static_cast<size_t>(1),
+            static_cast<size_t>(static_cast<double>(getThreadCount()) * Spreading::invokeWorker)
+        );
+    }
+
+    static size_t getRendererWorkerCount() {
+        return std::max(
+            static_cast<size_t>(1),
+            static_cast<size_t>(static_cast<double>(getThreadCount()) * Spreading::rendererWorker)
+        );
+    }
+
+    // Maximum values, for array initialization
+    struct Maximum {
+        // Absolute maximum thread count that gets considered for spreading, to prevent overflow in extreme cases
+        static size_t constexpr totalThreadCount = 32;
+
+        // Maximum invoke worker count
+        static size_t constexpr invokeWorkerCount = static_cast<size_t>(static_cast<double>(totalThreadCount) * Spreading::invokeWorker);
+
+        // Maximum renderer worker count
+        static size_t constexpr rendererWorkerCount = static_cast<size_t>(static_cast<double>(totalThreadCount) * Spreading::rendererWorker);
+    };
+};
+} // namespace Nebulite::Constants
 
 #endif // NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP

@@ -7,18 +7,20 @@
 namespace Nebulite::Data::BroadcastListenContainer {
 
 void FlatContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+    static auto workerCount = Constants::ThreadSettings::getInvokeWorkerCount();
     static auto threadSpreader = Utility::Threading::atomicThreadIncrementGenerator();
     thread_local size_t threadId = threadSpreader();
-    if (threadId >= broadcasterSpreading) {
+    if (threadId >= workerCount) {
         throw std::runtime_error("Too many threads trying to broadcast, increase broadcasterSpreading or reduce thread count");
     }
     broadcasters[threadId][entry->getTopic()].push_back(entry);
 }
 
 void FlatContainer::listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
+    static auto workerCount = Constants::ThreadSettings::getInvokeWorkerCount();
     static auto threadSpreader = Utility::Threading::atomicThreadIncrementGenerator();
     thread_local size_t threadId = threadSpreader();
-    if (threadId >= listenerSpreading) {
+    if (threadId >= workerCount) {
         throw std::runtime_error("Too many threads trying to listen, increase listenerSpreading or reduce thread count");
     }
     listeners[threadId][listener->topic].push_back(listener);
@@ -81,8 +83,6 @@ void FlatContainer::process() {
     }
     */
 
-
-
     // Offset for this worker thread
     // Distributes listener access by offsetting the starting index for each worker thread
     // This way, workers are less likely to contend for the same listeners when processing the same topic
@@ -93,24 +93,33 @@ void FlatContainer::process() {
     thread_local double const bvOffset = std::pow(relativeOffset, 2);
 
     // Process all listeners with offset to reduce contention between worker threads
+
     for (auto& listenerMap : rotate(listeners, listenerOffset)) {
         listenerMap.forall([&](std::string const& topic, auto& lv) {
-            // Process all entries for this topic
+
+            // Build a flattened view of all rulesets for this topic
+            auto rulesets =
+                rotate(broadcasters, broadcasterOffset)
+                | std::views::transform([&](auto& broadcasterMap) -> auto& {
+                      return broadcasterMap[topic];
+                  })
+                | std::views::transform([&](auto& bv) {
+                      return rotate(bv, bvOffset);
+                  })
+                | std::views::join;
+
             for (auto& listener : rotate(lv, lvOffset)) {
-                for (auto& broadcasterMap : rotate(broadcasters, broadcasterOffset)) {
-                    for (auto const& bv = broadcasterMap[topic]; auto const& ruleset : rotate(bv, bvOffset)) {
-                        // No offsetting here, since all broadcasters are per-worker thread and thus already distributed.
-                        // Tests show that offsetting here does not improve performance.
-                        if (ruleset->getId() == listener->listenerId) {
-                            continue; // Skip if the ruleset is from the same render object as the listener
-                        }
-                        if (ruleset->evaluateCondition(listener->domain)) {
-                            ruleset->apply(listener);
-                        }
-                    }
+                for (auto const& ruleset : rulesets) {
+
+                    if (ruleset->getId() == listener->listenerId)
+                        continue;
+
+                    if (ruleset->evaluateCondition(listener->domain))
+                        ruleset->apply(listener);
                 }
             }
-            lv.clear(); // Clear the listener vector for this topic after processing
+
+            lv.clear();
         });
     }
 

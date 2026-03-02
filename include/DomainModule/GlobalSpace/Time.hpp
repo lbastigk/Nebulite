@@ -86,7 +86,7 @@ public:
 
     //------------------------------------------
     // Variables
-    struct Key : KeyGroup<"time."> {
+    struct Key : Data::KeyGroup<"time."> {
         // Keys for simulation time
         // May be unequal to actual time, if a custom dt is set
         static auto constexpr time_t = makeScoped("t");
