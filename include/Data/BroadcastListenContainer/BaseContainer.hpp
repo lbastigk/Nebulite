@@ -14,7 +14,6 @@
 
 // Nebulite
 #include "Data/Document/JsonScopeBase.hpp"
-//#include "Interaction/Rules/Ruleset.hpp"
 #include "Utility/WorkDispatcher.hpp"
 
 //------------------------------------------

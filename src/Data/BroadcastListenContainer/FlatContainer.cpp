@@ -27,6 +27,13 @@ void FlatContainer::listen(std::shared_ptr<Interaction::Rules::Listener> const& 
 }
 
 namespace {
+/**
+ * @brief Rotates a range by a given percentage.
+ * @tparam R The type of the range to rotate. Must be a viewable range.
+ * @param r The range to rotate.
+ * @param percent The percentage to rotate the range by. Should be in the range [0, 1), but can be any real number.
+ * @return A new range that is the result of rotating the input range by the specified percentage.
+ */
 template <std::ranges::viewable_range R>
 auto rotate(R&& r, double percent){
     auto size = std::ranges::size(r);
@@ -52,37 +59,6 @@ auto rotate(R&& r, double percent){
 } // namespace
 
 void FlatContainer::process() {
-    /*
-    if (!precalculationDone) {
-        // Precalculate listener vectors for this listener index
-        for (auto [idx, partitionedListenerMaps] : std::views::enumerate(listeners)) {
-            for (auto& listenerMap : partitionedListenerMaps) {
-                listenerMap.forall([&](std::string const& topic, auto& listenerVector) {
-                    precalculatedListenerVectors[static_cast<size_t>(idx)].push_back({topic, listenerVector});
-                });
-            }
-        }
-        precalculationDone = true;
-    }
-    */
-
-    /*
-    for (auto& [topic, listenerVector] : precalculatedListenerVectors[listenerIndexToProcess]) {
-        for (auto& listener : listenerVector) {
-            for (auto& broadcasterMap : broadcasters) {
-                for (auto const& ruleset : broadcasterMap[topic]) {
-                    if (ruleset->getId() == listener->listenerId) {
-                        continue; // Skip if the ruleset is from the same render object as the listener
-                    }
-                    if (ruleset->evaluateCondition(listener->domain)) {
-                        ruleset->apply(listener);
-                    }
-                }
-            }
-        }
-    }
-    */
-
     // Offset for this worker thread
     // Distributes listener access by offsetting the starting index for each worker thread
     // This way, workers are less likely to contend for the same listeners when processing the same topic
@@ -93,7 +69,6 @@ void FlatContainer::process() {
     thread_local double const bvOffset = std::pow(relativeOffset, 2);
 
     // Process all listeners with offset to reduce contention between worker threads
-
     for (auto& listenerMap : rotate(listeners, listenerOffset)) {
         listenerMap.forall([&](std::string const& topic, auto& lv) {
 
