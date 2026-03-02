@@ -54,7 +54,7 @@ constexpr std::array<T, N> make_array_with_arg(Arg&& arg) {
 class JsonScopeBase {
 public:
     // Thread runners are unique, no locking needed
-    static auto constexpr noLockArraySize = INVOKE_WORKER_COUNT + RENDERER_WORKER_COUNT + 4; // A bit extra, just in case
+    static auto constexpr noLockArraySize = Constants::ThreadSettings::Maximum::totalThreadCount + 4; // A bit extra, just in case
 
 protected:
     std::shared_ptr<JSON> baseDocument;

@@ -7,18 +7,20 @@
 namespace Nebulite::Data::BroadcastListenContainer {
 
 void FlatContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+    static auto workerCount = Constants::ThreadSettings::getInvokeWorkerCount();
     static auto threadSpreader = Utility::Threading::atomicThreadIncrementGenerator();
     thread_local size_t threadId = threadSpreader();
-    if (threadId >= broadcasterSpreading) {
+    if (threadId >= workerCount) {
         throw std::runtime_error("Too many threads trying to broadcast, increase broadcasterSpreading or reduce thread count");
     }
     broadcasters[threadId][entry->getTopic()].push_back(entry);
 }
 
 void FlatContainer::listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
+    static auto workerCount = Constants::ThreadSettings::getInvokeWorkerCount();
     static auto threadSpreader = Utility::Threading::atomicThreadIncrementGenerator();
     thread_local size_t threadId = threadSpreader();
-    if (threadId >= listenerSpreading) {
+    if (threadId >= workerCount) {
         throw std::runtime_error("Too many threads trying to listen, increase listenerSpreading or reduce thread count");
     }
     listeners[threadId][listener->topic].push_back(listener);
@@ -80,8 +82,6 @@ void FlatContainer::process() {
         }
     }
     */
-
-
 
     // Offset for this worker thread
     // Distributes listener access by offsetting the starting index for each worker thread

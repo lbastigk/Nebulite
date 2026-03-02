@@ -174,7 +174,7 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
                     workerIdx++;
                 }
 
-                if (workerIdx >= RENDERER_WORKER_COUNT) {
+                if (workerIdx >= Constants::ThreadSettings::getRendererWorkerCount()) {
                     rendererProcessor.processPool(); // Process all workers and reset pool
                     workerIdx = 0; // Reset worker count for new batch of work
                 }
@@ -275,7 +275,7 @@ RenderObjectContainer::ContainerInfo RenderObjectContainer::getContainerInfo() c
     }
 
     // Worker stats
-    info.totalWorkers = INVOKE_WORKER_COUNT;
+    info.totalWorkers = Constants::ThreadSettings::getInvokeWorkerCount();
 
     return info;
 }

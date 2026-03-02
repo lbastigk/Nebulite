@@ -118,21 +118,14 @@ public:
 
     /**
      * @brief Holds all batch worker threads.
+     * @details Pool of pre-initialized workers for reuse
      */
-    std::array<std::unique_ptr<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>, RENDERER_WORKER_COUNT> batchWorkerPool; // Pool of pre-initialized workers for reuse
+    std::array<
+        std::unique_ptr<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>,
+        Constants::ThreadSettings::Maximum::rendererWorkerCount
+    > batchWorkerPool;
 
-    void processPool() const {
-        for (auto const& worker : batchWorkerPool) {
-            worker->startWork();
-        }
-        for (auto const& worker : batchWorkerPool) {
-            worker->waitForWorkFinished();
-        }
-        for (auto const& worker : batchWorkerPool) {
-            worker->workspace.work.clear();
-            worker->workspace.cost = 0;
-        }
-    }
+    void processPool() const ;
 };
 
 } // namespace Nebulite::Data

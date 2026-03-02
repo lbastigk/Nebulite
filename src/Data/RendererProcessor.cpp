@@ -2,6 +2,15 @@
 #include "Data/RendererProcessor.hpp"
 #include "Data/RenderObjectContainer.hpp"
 
+namespace {
+
+size_t usedWorkerCount() {
+    static size_t usedWorkerCount = Nebulite::Constants::ThreadSettings::getRendererWorkerCount();
+    return usedWorkerCount;
+}
+
+}
+
 namespace Nebulite::Data {
 
 Core::RenderObject* Batch::pop() {
@@ -38,7 +47,7 @@ RendererProcessor::RendererProcessor() {
     instanceExists = true;
 
     // Initialize worker pool
-    for (size_t i = 0; i < RENDERER_WORKER_COUNT; i++) {
+    for (size_t i = 0; i < usedWorkerCount(); i++) {
         batchWorkerPool[i] = std::make_unique<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>(stopFlag);
     }
 }
@@ -48,13 +57,13 @@ RendererProcessor::~RendererProcessor() {
     stopFlag = true;
 
     // 2.) Optionally, start work to wake any waiting threads
-    for (auto const& worker : batchWorkerPool) {
+    for (auto const& worker : batchWorkerPool | std::views::take(usedWorkerCount())) {
         worker->startWork();  // wakes worker so it can check stopFlag
     }
 }
 
 void RendererProcessor::prepareForNewLayer(RenderObjectContainer* layer) const {
-    for (auto const& worker : batchWorkerPool) {
+    for (auto const& worker : batchWorkerPool | std::views::take(usedWorkerCount())) {
         worker->workspace.reinsertionProcess = &layer->reinsertionProcess;
         worker->workspace.deletionProcess = &layer->deletionProcess;
     }
@@ -94,6 +103,19 @@ void RendererProcessor::batchWorkerFunc(DispatcherWorkspace const& workspace){
             std::scoped_lock lock(workspace.deletionProcess->deleteMutex);
             workspace.deletionProcess->trash.push_back(ptr);
         }
+    }
+}
+
+void RendererProcessor::processPool() const {
+    for (auto const& worker : batchWorkerPool | std::views::take(usedWorkerCount())) {
+        worker->startWork();
+    }
+    for (auto const& worker : batchWorkerPool | std::views::take(usedWorkerCount())) {
+        worker->waitForWorkFinished();
+    }
+    for (auto const& worker : batchWorkerPool | std::views::take(usedWorkerCount())) {
+        worker->workspace.work.clear();
+        worker->workspace.cost = 0;
     }
 }
 
