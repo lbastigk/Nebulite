@@ -54,11 +54,7 @@ constexpr std::array<T, N> make_array_with_arg(Arg&& arg) {
 class JsonScopeBase {
 public:
     // Thread runners are unique, no locking needed
-    static auto constexpr noLockArraySize = INVOKE_WORKER_COUNT;
-
-    // Multiple Container layers means multiple workers, locking needed to avoid conflicts
-    // Currently, each layers is updated after each other, but this may change in the future. So we lock just to be safe
-    static auto constexpr lockArraySize = RENDERER_WORKER_COUNT;
+    static auto constexpr noLockArraySize = INVOKE_WORKER_COUNT + RENDERER_WORKER_COUNT + 4; // A bit extra, just in case
 
 protected:
     std::shared_ptr<JSON> baseDocument;
@@ -80,14 +76,9 @@ private:
     // Ordered double pointers system
 
     /**
-     * @brief Mapped ordered double pointers for expression references.
+     * @brief Mapped ordered double pointers intended for non-locking access
      */
-    alignas(Constants::Alignment::SIMD_ALIGN) std::array<MappedOrderedDoublePointers, lockArraySize> expressionRefs;
-
-    /**
-     * @brief Secondary mapped ordered double pointers intended for non-locking access
-     */
-    alignas(Constants::Alignment::SIMD_ALIGN) std::array<MappedOrderedDoublePointers, noLockArraySize> expressionRefsNoLock;
+    alignas(Constants::Alignment::SIMD_ALIGN) std::array<MappedOrderedDoublePointers, noLockArraySize> odpCache;
 
     //------------------------------------------
     // Valid prefix check and generation
@@ -223,12 +214,10 @@ public:
 
     odpvec* ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
         thread_local size_t threadIndex = assignThreadIndex();
-        if (threadIndex < noLockArraySize) { // Reserved for the Invoke thread runners
-            return expressionRefsNoLock[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
+        if (threadIndex >= noLockArraySize) {
+            throw std::runtime_error("Thread index exceeds non-locking array size! Too many threads accessing ordered cache lists, increase noLockArraySize or reduce thread count.");
         }
-        // spread rest on locking maps
-        return expressionRefs[threadIndex % lockArraySize].ensureOrderedCacheList(uniqueId, keys);
-
+        return odpCache[threadIndex].ensureOrderedCacheListNoLock(uniqueId, keys);
     }
 
     //------------------------------------------
