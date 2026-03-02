@@ -13,7 +13,6 @@
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Data/BroadcastListenContainer/FlatContainer.hpp"
-#include "Constants/ThreadSettings.hpp"
 
 //------------------------------------------
 // Forward declarations
