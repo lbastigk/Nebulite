@@ -16,6 +16,7 @@
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
+#include "Utility/TimedRoutine.hpp"
 
 
 //------------------------------------------
@@ -35,7 +36,6 @@ NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug) {
 public:
     Constants::Error update() override;
     void reinit() override {}
-
 
     //------------------------------------------
     // Available Functions
@@ -167,6 +167,9 @@ public:
 
         bindCategory(standardfile_name, standardfile_desc);
         BIND_FUNCTION(&Debug::standardfileRenderobject, standardfileRenderobject_name, standardfileRenderobject_desc);
+
+        // Add routines
+        initRoutines();
     }
 
     struct Key : Data::KeyGroup<"debug."> {
@@ -192,6 +195,13 @@ private:
      * @brief Sets up debug information in the global document.
      */
     void setupDebugInfo() const ;
+
+    /**
+     * @brief List of timed routines for performance monitoring and debugging purposes.
+     */
+    std::vector<Utility::TimedRoutine> routines;
+
+    void initRoutines();
 };
 } // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_DEBUG_HPP
