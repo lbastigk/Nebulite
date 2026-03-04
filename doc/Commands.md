@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Fri Feb 27 21:55:11 CET 2026
+Generated on: Wed Mar  4 11:30:08 CET 2026
 
 ## Table of Contents
 
@@ -38,7 +38,7 @@ Available Functions
 | `ensure-array` | Ensure that a key is an array, converting a value to an array if necessary. |
 | `env` | Environment management functions |
 | `error` | Echoes all arguments as string to the standard error. |
-| `errorlog` | Activates or deactivates error logging to a file. |
+| `error-log` | Activates or deactivates error logging to a file. |
 | `eval` | Evaluates an expression string and executes it. |
 | `evaluation` | Tests evaluation of self and other globals in one expression |
 | `exit` | Exits the entire program. |
@@ -71,7 +71,7 @@ Available Functions
 | `show-fps` | Show FPS of renderer. |
 | `snapshot` | Create a snapshot of the current renderer state. |
 | `spawn` | Spawn a RenderObject from a json/jsonc file. |
-| `standardfile` | Functions for generating standard files for common resources. |
+| `standard-file` | Functions for generating standard files for common resources. |
 | `task` | Loads tasks from a file into the taskQueue. |
 | `time` | Commands for time management |
 | `wait` | Sets the waitCounter to the given value to halt all script tasks for a given amount of frames. |
@@ -475,11 +475,11 @@ Usage: error <string...>
 - <string...>: One or more strings to echo to the standard error.
 ```
 
-#### `errorlog`
+#### `error-log`
 
 ```
 Activates or deactivates error logging to a file.
-Usage: errorlog <on/off>
+Usage: error-log <on/off>
 
 - on:  Activates error logging to 'error.log' in the working directory.
 - off: Deactivates error logging, reverting to standard error output.
@@ -1010,20 +1010,20 @@ Looks for object 'sun.jsonc' in the standard directories
 and spawns the first found object.
 ```
 
-#### `standardfile`
+#### `standard-file`
 
 Available Functions
 
 | Function | Description |
 |----------|-------------|
 | `help` | Show available commands and their descriptions |
-| `renderobject` | Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc. |
+| `render-object` | Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc. |
 
-##### `standardfile renderobject`
+##### `standard-file render-object`
 
 ```
 Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.
-Usage: standardfile renderobject
+Usage: standard-file render-object
 
 Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.
 ```
@@ -1563,7 +1563,8 @@ Available Functions
 
 ```
 Adds a numeric value to the current JSON value.
-Usage: |add <number1> <number2> ... -> {number}
+If multiple numbers are provided, the result is an array, one element for each provided argument.
+Usage: |add <number1> <number2> ... -> {number/array}
 ```
 
 #### `assert`
@@ -1650,7 +1651,8 @@ Usage: |deserialize -> {value}
 
 ```
 Divides the current JSON value by a numeric value.
-Usage: |div <number1> <number2> ... -> {number}
+If multiple numbers are provided, the result is an array, one element for each provided argument.
+Usage: |div <number1> <number2> ... -> {number/array}
 ```
 
 #### `echo`
@@ -1780,14 +1782,16 @@ Usage: |min -> {number}
 
 ```
 Calculates the modulo of the current JSON value by a numeric value.
-Usage: |mod <number> -> {number}
+If multiple numbers are provided, the result is an array, one element for each provided argument.
+Usage: |mod <number1> <number2> ... -> {number/array}
 ```
 
 #### `mul`
 
 ```
 Multiplies the current JSON value by a numeric value.
-Usage: |multiply <number1> <number2> ...
+If multiple numbers are provided, the result is an array, one element for each provided argument.
+Usage: |multiply <number1> <number2> ... -> {number/array}
 ```
 
 #### `parse`
@@ -1802,7 +1806,8 @@ Usage: |parse <command> -> {value}
 
 ```
 Raises the current JSON value to the power of a numeric value.
-Usage: |pow <exponent> -> {number}
+If multiple numbers are provided, the result is an array, one element for each provided argument.
+Usage: |pow <exponent1> <exponent2> ... -> {number/array}
 ```
 
 #### `print`
@@ -1921,7 +1926,8 @@ Usage: |reverse -> {array}
 
 ```
 Calculates the n-th root of the current JSON value.
-Usage: |root <n> -> {number}
+If multiple numbers are provided, the result is an array, one element for each provided argument.
+Usage: |root <number1> <number2> ... -> {number/array}
 ```
 
 #### `round`
@@ -2007,6 +2013,7 @@ Usage: |setString <key> <value> -> {json}
 
 ```
 Calculates the square root of the current JSON value.
+No arguments are allowed, as it's an operator with a single operand (the current JSON value).
 Usage: |sqrt -> {number}
 ```
 
@@ -2081,7 +2088,8 @@ Usage: |trim -> {string}
 
 ```
 Subtracts a numeric value from the current JSON value.
-Usage: |sub <number1> <number2> ... -> {number}
+If multiple numbers are provided, the result is an array, one element for each provided argument.
+Usage: |sub <number1> <number2> ... -> {number/array}
 ```
 
 #### `subspan`
