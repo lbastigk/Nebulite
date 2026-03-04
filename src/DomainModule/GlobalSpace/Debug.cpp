@@ -139,7 +139,7 @@ Constants::Error Debug::standardfileRenderobject(std::span<std::string const> co
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Debug::errorlog(int const argc, char** argv) {
+Constants::Error Debug::errorLog(int const argc, char** argv) {
     // Initialize the error logging buffer
     if (!originalCerrBuf) {
         originalCerrBuf = std::cerr.rdbuf();
@@ -200,25 +200,6 @@ inline void clear_screen() {
 
 #else
     std::system("clear");
-
-    // This might work better, if static analyzers criticize system() usage:
-    /*
-    std::cout << "\033[H\033[2J\033[3J" ;
-    //*/
-
-    // Old version, buggy in some terminals:
-    /*
-    // If stdout is a terminal, use ANSI escapes to clear the screen and move cursor to top-left.
-    if (isatty(fileno(stdout))){
-        // ESC[2J clears screen; ESC[H moves cursor to 1;1
-        std::cout << "\x1b[2J\x1b[H" << std::flush;
-
-    } else {
-        // Not a TTY (redirected output). We can optionally print newlines or do nothing.
-        // Printing newlines keeps behavior similar to clearing for plain output.
-        std::cout << std::endl;
-    }
-    //*/
 #endif
 }
 

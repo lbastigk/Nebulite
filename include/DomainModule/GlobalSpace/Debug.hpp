@@ -41,13 +41,13 @@ public:
     // Available Functions
 
     /**
-     * @todo: errorlog on causes crash with wine
+     * @todo: errorLog on causes crash with wine
      *        wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
      */
-    Constants::Error errorlog(int argc, char** argv);
-    static auto constexpr errorlog_name = "errorlog";
-    static auto constexpr errorlog_desc = "Activates or deactivates error logging to a file.\n"
-        "Usage: errorlog <on/off>\n"
+    Constants::Error errorLog(int argc, char** argv);
+    static auto constexpr errorLog_name = "error-log";
+    static auto constexpr errorLog_desc = "Activates or deactivates error logging to a file.\n"
+        "Usage: error-log <on/off>\n"
         "\n"
         "- on:  Activates error logging to 'error.log' in the working directory.\n"
         "- off: Deactivates error logging, reverting to standard error output.\n"
@@ -152,7 +152,7 @@ public:
 
         //------------------------------------------
         // Binding functions to the FuncTree
-        BIND_FUNCTION(&Debug::errorlog, errorlog_name, errorlog_desc);
+        BIND_FUNCTION(&Debug::errorLog, errorLog_name, errorLog_desc);
         BIND_FUNCTION(&Debug::clearConsole, clearConsole_name, clearConsole_desc);
         BIND_FUNCTION(&Debug::error, error_name, error_desc);
         BIND_FUNCTION(&Debug::crash, crash_name, crash_desc);
