@@ -110,8 +110,9 @@ public:
 
         // Free/static function
         template<typename Fn>
-        requires std::is_pointer_v<Fn> && std::is_function_v<std::remove_pointer_t<Fn>>
+        //requires std::is_pointer_v<Fn> && std::is_function_v<std::remove_pointer_t<Fn>>
         explicit FunctionIdentity(Fn fn) : object(nullptr) {
+            static_assert(!std::is_class_v<Fn>, "Lambdas are not allowed, as extracting their function pointer is not portable and may lead to collisions. Use std::function or a function pointer instead.");
             static_assert(sizeof(function) >= sizeof(fn));
             std::memcpy(function.data(), &fn, sizeof(fn));
         }

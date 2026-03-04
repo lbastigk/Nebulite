@@ -713,9 +713,9 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
             else if constexpr (std::is_same_v<T, typename SupportedFunctions::Modern::NoArgs>) {
                 return func();
             }
-            // Unknown function type
+            // Unsupported function type
             else {
-                static_assert(Constants::Assert::always_false(), "Unknown function signature in FuncTree::executeFunction");
+                static_assert(Constants::Assert::always_false(), "Unsupported function signature in FuncTree::executeFunction. Check if you just need to remove some const/ref qualifiers.");
             }
         }, functionPtr);
     }
