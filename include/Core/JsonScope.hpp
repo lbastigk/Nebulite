@@ -23,6 +23,8 @@ namespace Nebulite::Core {
  * @brief Domain-ized JsonScope class
  * @details Inherits from Interaction::Execution::Domain to integrate with the Nebulite interaction system.
  *          Also inherits from JsonScopeBase to provide scoped JSON document access.
+ * @todo Move this class into Domain itself as common utilities, as they always act on the current domain's scope!
+ *       JsonScopeBase becomes JsonScope, and JsonScope is no longer a NEBULITE_DOMAIN.
  */
 NEBULITE_DOMAIN(JsonScope), public Data::JsonScopeBase {
 public:
