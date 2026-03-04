@@ -92,6 +92,47 @@ public:
         >
     >;
 
+    /**
+     * @brief A unique identity to any FunctionPtr, allowing for comparison of function pointers to check if the same function (from the same location in memory)
+     *        is being bound again
+     */
+    struct FunctionIdentity {
+        void const* object = nullptr; // nullptr for free/static functions
+        std::array<std::byte, sizeof(void*) * 2> function{}; // stores function pointer bits
+
+        // Equality
+        bool operator==(FunctionIdentity const& other) const {
+            return object == other.object &&
+                   std::memcmp(function.data(), other.function.data(), function.size()) == 0;
+        }
+
+        // --- Constructors ---
+
+        // Free/static function
+        template<typename Fn>
+        requires std::is_pointer_v<Fn> && std::is_function_v<std::remove_pointer_t<Fn>>
+        explicit FunctionIdentity(Fn fn) : object(nullptr) {
+            static_assert(sizeof(function) >= sizeof(fn));
+            std::memcpy(function.data(), &fn, sizeof(fn));
+        }
+
+        // Member function + object
+        template<typename Obj, typename MemFn>
+        explicit FunctionIdentity(Obj* obj, MemFn memFn) : object(obj) {
+            static_assert(sizeof(function) >= sizeof(memFn));
+            std::memcpy(function.data(), &memFn, sizeof(memFn));
+        }
+    };
+
+    /**
+     * @struct WrappedFunction
+     * @brief Wraps a FunctionPtr with its identity for comparison purposes.
+     */
+    struct WrappedFunction {
+        FunctionPtr function;
+        FunctionIdentity identity;
+    };
+
     //------------------------------------------
 
     /**
@@ -150,6 +191,7 @@ public:
      * @todo Add support for string_view as well as vector<string_view> as command input
      */
     returnValue parseStr(std::string const& cmd, additionalArgs... addArgs);
+    returnValue parse(std::vector<std::string> const& args, additionalArgs... addArgs);
 
     //------------------------------------------
     // Binding (Functions, Categories, Variables)
@@ -163,17 +205,40 @@ public:
      */
     void bindCategory(std::string_view const& name, std::string_view const& helpDescription);
 
+    template <typename R, typename C, typename... Ps>
+    void bindFunction(
+        R (C::*functionPtr)(Ps...),
+        std::string_view const& name,
+        std::string_view const& helpDescription
+    );
+
+    template <typename R, typename C, typename... Ps>
+    void bindFunction(
+        R (C::*functionPtr)(Ps...) const,
+        std::string_view const& name,
+        std::string_view const& helpDescription
+    );
+
+    template <typename Func>
+    void bindFunction(
+        Func functionPtr,
+        std::string_view const& name,
+        std::string_view const& helpDescription
+    );
+
     /**
      * @brief Binds a function to the command tree.
      *        Make sure the function has the signature:
      *        ```cpp
      *        returnValue functionName(int argc, char** argv);
      *        ```
-     * @param func Pointer to the function to bind
+     * @details If the function name already exists, the program will throw an error to prevent accidental overwriting of functions.
+     *          However, if the function being bound has the same pointer as the existing function, the binding will simply be ignored.
+     * @param func Pointer to the function to bind, wrapped to include information about its signature.
      * @param name Name of the function in the command tree
      * @param helpDescription Help description for the function. First line is shown in the general help, full description in detailed help.
      */
-    void bindFunction(FunctionPtr const& func, std::string_view const& name, std::string_view const& helpDescription);
+    void bindFunction(WrappedFunction const& func, std::string_view const& name, std::string_view const& helpDescription);
 
     /**
      * @brief Binds a variable to the command tree.
@@ -184,6 +249,18 @@ public:
      * @param helpDescription Help description for the variable. First line is shown in the general help, full description in detailed help.
      */
     void bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription);
+
+    /**
+     * @brief Checks if a function with the given name or from a full command exists.
+     *        Examples:
+     *        ```cpp
+     *        // Both check if the function "myFunction" exists
+     *        funcTree.hasFunction("myFunction");
+     *        funcTree.hasFunction("./bin/Nebulite --myVariable myFunction argumentOfMyFunction");
+     *        ```
+     * @param nameOrCommand Name of the function or full command string
+     */
+    bool hasFunction(std::string_view const& nameOrCommand);
 
 private:
     // Name of the tree, used for help and output
@@ -211,7 +288,7 @@ private:
      * @brief Contains information about a bound function, including its pointer and description.
      */
     struct FunctionInfo {
-        FunctionPtr function;
+        WrappedFunction function; // Stores both the function pointer and its identity for comparison
         std::string_view description;
     };
 
@@ -244,18 +321,6 @@ private:
 
     //------------------------------------------
     // Functions: basic functionality
-
-    /**
-     * @brief Checks if a function with the given name or from a full command exists.
-     *        Examples:
-     *        ```cpp
-     *        // Both check if the function "myFunction" exists
-     *        funcTree.hasFunction("myFunction");
-     *        funcTree.hasFunction("./bin/Nebulite --myVariable myFunction argumentOfMyFunction");
-     *        ```
-     * @param nameOrCommand Name of the function or full command string
-     */
-    bool hasFunction(std::string_view const& nameOrCommand);
 
     /**
      * @brief Looks up the function by name and calls it with the provided arguments.
@@ -393,8 +458,9 @@ private:
      *          Returns false if a special conflict (help or __complete__ exists).
      *          Returns true if no conflicts are found.
      * @param name The name of the function to check for conflicts.
+     * @param newFuncPtr Pointer to the new function being bound, used for checking if the same function is being bound again (not a conflict).
      */
-    bool conflictCheck(std::string_view const& name);
+    bool conflictCheck(std::string_view const& name, FunctionPtr* newFuncPtr);
 
     //------------------------------------------
     // Completion function

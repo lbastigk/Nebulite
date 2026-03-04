@@ -9,8 +9,8 @@
                 "Error: A bound Function already exists in this tree.",
                 "Function overwrite is heavily discouraged and thus not allowed.",
                 "Please choose a different name or remove the existing function.",
-                "This Tree: collision-detect",
-                "Function:  function"
+                "This Tree: Test",
+                "Function:  test"
             ]
         }
     },
@@ -21,7 +21,7 @@
             "cerr": [
                 "---------------------------------------------------------------",
                 "A Nebulite FuncTree binding failed!",
-                "Error: Cannot create category 'debug collision-detect' because it already exists."
+                "Error: Cannot create category 'test-category' because it already exists."
             ]
         }
     },
@@ -33,7 +33,7 @@
                 "---------------------------------------------------------------",
                 "A Nebulite FuncTree binding failed!",
                 "Error: Variable 'headless' is already bound.",
-                "This Tree: Nebulite"
+                "This Tree: Test"
             ]
         }
     },

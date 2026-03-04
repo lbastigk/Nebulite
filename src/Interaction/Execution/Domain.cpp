@@ -15,8 +15,20 @@ DocumentAccessor::~DocumentAccessor() = default;
 
 } // namespace Nebulite::Interaction::Execution
 
-// Domain Base
 namespace Nebulite::Interaction::Execution {
+
+Domain::Domain(std::string const& name, Core::JsonScope& documentReference) : DocumentAccessor(documentReference), domainName(name){
+    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>>(
+        name,
+        Constants::ErrorTable::NONE(),
+        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
+    );
+
+    // Set default preParse to Domain::preParse
+    funcTree->setPreParse([this] { return preParse(); });
+
+
+}
 
 Domain& Domain::operator=(Domain const& other) {
     if (this == &other) return *this;
@@ -50,12 +62,6 @@ std::string const& Domain::scopePrefix() const {
 }
 
 Constants::Error Domain::parseStr(std::string const& str) {
-    // NOTE: This may fail, as domainScope is from the domain itself, potentially larger than scopes from inner domains
-    //       e.g. we may call parseStr from RenderObject, but the function exists in Texture domain with prefix "texture."
-    //       In that case, we accidentally pass the RenderObject scope instead of the Texture scope...
-    //       Is this okay? For now, we assume it is. Meaning we should not use callerScope in inner Domains with a prefix.
-    //       CallerScope is, however, a nice addition for DomainModules that have no workspace like JsonScope SimpleData.
-    //       This ensures that any calls only touch intended parts of the document.
     return funcTree->parseStr(str, *this, domainScope);
 }
 

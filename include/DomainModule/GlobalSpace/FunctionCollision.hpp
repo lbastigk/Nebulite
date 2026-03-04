@@ -35,7 +35,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Error debug_collisionDetect_function(int argc, char const** argv);
+    static Constants::Error debug_collisionDetect_function(std::span<std::string const> const& args);
     static auto constexpr debug_collisionDetect_function_name = "debug collision-detect function";
     static auto constexpr debug_collisionDetect_function_desc = "Tests collision detection of function names\n"
         "\n"
@@ -45,7 +45,7 @@ public:
         "\n"
         "Defaults to fail\n";
 
-    Constants::Error debug_collisionDetect_category(int argc, char const** argv) const ;
+    static Constants::Error debug_collisionDetect_category(std::span<std::string const> const& args);
     static auto constexpr debug_collisionDetect_category_name = "debug collision-detect category";
     static auto constexpr debug_collisionDetect_category_desc = "Tests collision detection of category names\n"
         "\n"
@@ -55,7 +55,7 @@ public:
         "\n"
         "Defaults to fail\n";
 
-    Constants::Error debug_collisionDetect_variable(int argc, char const** argv) const ;
+    static Constants::Error debug_collisionDetect_variable(std::span<std::string const> const& args);
     static auto constexpr debug_collisionDetect_variable_name = "debug collision-detect variable";
     static auto constexpr debug_collisionDetect_variable_desc = "Tests collision detection of variable names\n"
         "\n"

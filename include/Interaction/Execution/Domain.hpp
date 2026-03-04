@@ -175,17 +175,7 @@ class Domain : public DocumentAccessor {
     std::vector<std::unique_ptr<DomainModuleBase>> modules;
 
 public:
-    Domain(std::string const& name, Core::JsonScope& documentReference)
-        : DocumentAccessor(documentReference), domainName(name){
-        funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>>(
-            name,
-            Constants::ErrorTable::NONE(),
-            Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
-        );
-
-        // Set default preParse to Domain::preParse
-        funcTree->setPreParse([this] { return preParse(); });
-    }
+    Domain(std::string const& name, Core::JsonScope& documentReference);
 
     ~Domain() override ;
 
