@@ -133,7 +133,7 @@ Constants::Error Debug::log_state(int const argc, char** argv) const {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Debug::standardfileRenderobject(std::span<std::string const> const& /*args*/){
+Constants::Error Debug::standardFileRenderObject(std::span<std::string const> const& /*args*/){
     Core::RenderObject const ro;
     Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize());
     return Constants::ErrorTable::NONE();

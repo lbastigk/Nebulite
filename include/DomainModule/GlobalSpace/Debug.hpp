@@ -116,10 +116,10 @@ public:
         "\n"
         "Note: This function pauses execution until the user presses Enter\n";
 
-    static Constants::Error standardfileRenderobject(std::span<std::string const> const& args);
-    static auto constexpr standardfileRenderobject_name = "standardfile renderobject";
-    static auto constexpr standardfileRenderobject_desc = "Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.\n"
-        "Usage: standardfile renderobject\n"
+    static Constants::Error standardFileRenderObject(std::span<std::string const> const& args);
+    static auto constexpr standardFileRenderObject_name = "standard-file render-object";
+    static auto constexpr standardFileRenderObject_desc = "Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.\n"
+        "Usage: standard-file render-object\n"
         "\n"
         "Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.\n";
 
@@ -135,8 +135,8 @@ public:
     static auto constexpr log_name = "log";
     static auto constexpr log_desc = "Functions for logging various states and documents to files.";
 
-    static auto constexpr standardfile_name = "standardfile";
-    static auto constexpr standardfile_desc = "Functions for generating standard files for common resources.";
+    static auto constexpr standardFile_name = "standard-file";
+    static auto constexpr standardFile_desc = "Functions for generating standard files for common resources.";
 
     //------------------------------------------
     // Setup
@@ -165,8 +165,8 @@ public:
         BIND_FUNCTION(&Debug::log_global, log_global_name, log_global_desc);
         BIND_FUNCTION(&Debug::log_state, log_state_name, log_state_desc);
 
-        bindCategory(standardfile_name, standardfile_desc);
-        BIND_FUNCTION(&Debug::standardfileRenderobject, standardfileRenderobject_name, standardfileRenderobject_desc);
+        bindCategory(standardFile_name, standardFile_desc);
+        BIND_FUNCTION(&Debug::standardFileRenderObject, standardFileRenderObject_name, standardFileRenderObject_desc);
 
         // Add routines
         initRoutines();
