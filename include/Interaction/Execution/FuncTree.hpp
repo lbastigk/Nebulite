@@ -106,21 +106,52 @@ public:
                    std::memcmp(function.data(), other.function.data(), function.size()) == 0;
         }
 
+        // Check if Fn is of the correct type
+
         // --- Constructors ---
 
         // Free/static function
         template<typename Fn>
         //requires std::is_pointer_v<Fn> && std::is_function_v<std::remove_pointer_t<Fn>>
         explicit FunctionIdentity(Fn fn) : object(nullptr) {
-            static_assert(!std::is_class_v<Fn>, "Lambdas are not allowed, as extracting their function pointer is not portable and may lead to collisions. Use std::function or a function pointer instead.");
-            static_assert(sizeof(function) >= sizeof(fn));
+            // Lambdas / closures are class types
+            static_assert(!std::is_class_v<Fn>,
+                "Lambdas and functors are not allowed. Extracting a pointer from them is not portable and may lead to collisions. Use a raw function pointer instead."
+            );
+
+            // std::function is not allowed
+            static_assert(!std::is_same_v<std::remove_cv_t<std::remove_reference_t<Fn>>, std::function<void()>>,
+                "std::function objects are not allowed. Use a raw function pointer instead."
+            );
+
+            // Must be a raw function pointer
+            static_assert(std::is_pointer_v<Fn> && std::is_function_v<std::remove_pointer_t<Fn>>,
+                "Only raw function pointers are allowed."
+            );
+
+            // Ensure the function fits in storage
+            static_assert(sizeof(function) >= sizeof(fn),
+                "Function too large to store in FunctionIdentity buffer. Please increase buffer size in FunctionIdentity::function."
+            );
             std::memcpy(function.data(), &fn, sizeof(fn));
         }
 
         // Member function + object
         template<typename Obj, typename MemFn>
         explicit FunctionIdentity(Obj* obj, MemFn memFn) : object(obj) {
-            static_assert(sizeof(function) >= sizeof(memFn));
+            // Ensure the passed obj is not a nullptr
+            // As we use "this" inside the constructor of FuncTree to bind functions like "help" and "__complete__", this somehow fails...
+            if (obj == nullptr) {
+                throw std::invalid_argument(
+                    "Object pointer cannot be nullptr for member function pointers. "
+                    "Please use the free/static function constructor for improved safety."
+                );
+            }
+
+            // Ensure the function fits in storage
+            static_assert(sizeof(function) >= sizeof(memFn),
+                "Function too large to store in FunctionIdentity buffer. Please increase buffer size in FunctionIdentity::function."
+            );
             std::memcpy(function.data(), &memFn, sizeof(memFn));
         }
     };
