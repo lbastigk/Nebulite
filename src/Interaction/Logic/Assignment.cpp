@@ -2,7 +2,7 @@
 
 #include "Nebulite.hpp"
 #include "Core/GlobalSpace.hpp"
-#include "Core/JsonScope.hpp"
+#include "Data/Document/JsonScopeBase.hpp"
 
 namespace Nebulite::Interaction::Logic {
 

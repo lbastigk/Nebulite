@@ -6,7 +6,7 @@
 
 // Nebulite
 #include "Nebulite.hpp"
-#include "Core/JsonScope.hpp"
+#include "Data/Document/JsonScopeBase.hpp"
 #include "TransformationModule/Collection.hpp"
 #include "Utility/Glob.hpp"
 
@@ -24,7 +24,7 @@ void Collection::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Collection::listMembers, listKeysName, listKeysDesc);
 }
 
-bool Collection::map(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) const {
+bool Collection::map(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) const {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
         auto const key = rootKey + "[0]";
         jsonDoc->moveMember(rootKey, key);
@@ -48,7 +48,7 @@ bool Collection::map(std::span<std::string const> const& args, Core::JsonScope* 
         auto const elementKey = rootKey + "[" + std::to_string(idx) + "]";
 
         // Parse transformation command
-        auto& scope = jsonDoc->shareScope(elementKey);
+        auto& scope = jsonDoc->shareScopeBase(elementKey);
         if (!transformationFuncTree->parseStr(cmd, &scope)) {
             jsonDoc->removeMember(elementKey);
             return false; // If parsing fails for any element, we remove it and return false
@@ -57,7 +57,7 @@ bool Collection::map(std::span<std::string const> const& args, Core::JsonScope* 
     return true;
 }
 
-bool Collection::get(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool Collection::get(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -67,7 +67,7 @@ bool Collection::get(std::span<std::string const> const& args, Core::JsonScope* 
     return true;
 }
 
-bool Collection::getMultiple(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool Collection::getMultiple(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (args.size() < 2) {
         return false;
     }
@@ -83,7 +83,7 @@ bool Collection::getMultiple(std::span<std::string const> const& args, Core::Jso
     return true;
 }
 
-bool Collection::filterRegex(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool Collection::filterRegex(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -107,7 +107,7 @@ bool Collection::filterRegex(std::span<std::string const> const& args, Core::Jso
     return true;
 }
 
-bool Collection::filterGlob(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool Collection::filterGlob(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -124,7 +124,7 @@ bool Collection::filterGlob(std::span<std::string const> const& args, Core::Json
 }
 
 // NOLINTNEXTLINE
-bool Collection::filterNulls(Core::JsonScope* jsonDoc) {
+bool Collection::filterNulls(Data::JsonScopeBase* jsonDoc) {
     auto const type = jsonDoc->memberType(rootKey);
 
     if (type == Data::KeyType::null) {
@@ -143,7 +143,7 @@ bool Collection::filterNulls(Core::JsonScope* jsonDoc) {
     auto const memberKeyPairs = jsonDoc->listAvailableMembersAndKeys(rootKey);
     Data::JSON filteredObject;
     for (const auto& [member, key] : memberKeyPairs) {
-        auto& memberScope = jsonDoc->shareScope(key);
+        auto& memberScope = jsonDoc->shareScopeBase(key);
         filterNulls(&memberScope);
 
         // If the member has no more members, we also remove it
@@ -169,7 +169,7 @@ bool Collection::filterNulls(Core::JsonScope* jsonDoc) {
     return true;
 }
 
-bool Collection::listMembers(Core::JsonScope* jsonDoc){
+bool Collection::listMembers(Data::JsonScopeBase* jsonDoc){
     auto const membersAndKeys = jsonDoc->listAvailableMembersAndKeys(rootKey);
     jsonDoc->removeMember(rootKey);
     std::ranges::for_each(

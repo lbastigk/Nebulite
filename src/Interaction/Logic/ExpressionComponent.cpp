@@ -1,5 +1,5 @@
 #include "Nebulite.hpp"
-#include "Core/JsonScope.hpp"
+#include "Data/Document/JsonScopeBase.hpp"
 #include "Data/Document/SimpleValueError.hpp"
 #include "Interaction/Logic/Expression.hpp"
 

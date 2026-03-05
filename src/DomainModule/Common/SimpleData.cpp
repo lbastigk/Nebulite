@@ -260,4 +260,4 @@ Constants::Error SimpleData::pop_front(std::span<std::string const> const& args,
     return Constants::ErrorTable::NONE();
 }
 
-} // namespace Nebulite::DomainModule::JsonScope
+} // namespace Nebulite::DomainModule::Common

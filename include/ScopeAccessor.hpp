@@ -17,9 +17,12 @@
 
 namespace Nebulite::Core {
 class GlobalSpace; // Forward declaration of GlobalSpace
-class JsonScope;   // Forward declaration of JsonScope
 class RenderObject; // Forward declaration of RenderObject
 } // namespace Nebulite::Core
+
+namespace Nebulite::Data {
+class JsonScopeBase; // Forward declaration of JsonScopeBase
+} // namespace Nebulite::Data
 
 namespace Nebulite::Interaction::Rules {
 class RulesetModule; // Forward declaration of RulesetModule

@@ -9,7 +9,12 @@
 // Document Accessor
 namespace Nebulite::Interaction::Execution {
 
-DocumentAccessor::DocumentAccessor(Data::JsonScopeBase& d) : domainScope(d) {}
+DocumentAccessor::DocumentAccessor(Data::JsonScopeBase& d) : ScopeOwner(ScopeOwnership::Borrowed), domainScope(d) {}
+
+DocumentAccessor::DocumentAccessor() : ScopeOwner(ScopeOwnership::Owned), domainScope(*_domainScopeOwned) {
+    // Note: This creates a new JsonScopeBase that is owned by this DocumentAccessor.
+    // It will be automatically cleaned up when the DocumentAccessor is destroyed.
+}
 
 DocumentAccessor::~DocumentAccessor() = default;
 
@@ -29,7 +34,20 @@ Domain::Domain(std::string const& name, Data::JsonScopeBase& documentReference) 
     funcTree->setPreParse([this] { return preParse(); });
 
     // Initialize modules
-    // TODO: Requires Core::JsonScope to be turned into Data::JsonScopeBase, otherwise this call is recursive!
+    Nebulite::DomainModule::Initializer::initCommon(this);
+}
+
+Domain::Domain(std::string const& name) : domainName(name) {
+    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>>(
+        name,
+        Constants::ErrorTable::NONE(),
+        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
+    );
+
+    // Set default preParse to Domain::preParse
+    funcTree->setPreParse([this] { return preParse(); });
+
+    // Initialize modules
     Nebulite::DomainModule::Initializer::initCommon(this);
 }
 

@@ -63,7 +63,7 @@ namespace GlobalSpace {
 } // namespace GlobalSpace
 
 /**
- * @namespace Nebulite::DomainModule::JsonScope
+ * @namespace Nebulite::DomainModule::Common
  * @brief Contains all JsonScope DomainModules.
  */
 namespace JsonScope {

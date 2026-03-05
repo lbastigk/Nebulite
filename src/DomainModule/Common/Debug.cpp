@@ -1,7 +1,7 @@
 #include "Nebulite.hpp"
-#include "DomainModule/JsonScope/Debug.hpp"
+#include "../../../include/DomainModule/Common/Debug.hpp"
 
-namespace Nebulite::DomainModule::JsonScope {
+namespace Nebulite::DomainModule::Common {
 
 //------------------------------------------
 // Update
@@ -41,4 +41,4 @@ Constants::Error Debug::print(std::span<std::string const> const& args, Interact
     return Constants::ErrorTable::NONE();
 }
 
-} // namespace Nebulite::DomainModule::JsonScope
+} // namespace Nebulite::DomainModule::Common

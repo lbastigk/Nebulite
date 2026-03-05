@@ -1,8 +1,7 @@
 #include "Nebulite.hpp"
-#include "Core/JsonScope.hpp"
-#include "DomainModule/JsonScope/ComplexData.hpp"
+#include "DomainModule/Common/ComplexData.hpp"
 
-namespace Nebulite::DomainModule::JsonScope {
+namespace Nebulite::DomainModule::Common {
 
 //------------------------------------------
 // Update
@@ -18,7 +17,6 @@ Constants::Error ComplexData::update() {
 
 // NOLINTNEXTLINE
 Constants::Error ComplexData::querySet() {
-    auto lock = domain.lock(); // Lock the domain for thread-safe access
     return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 
@@ -105,4 +103,4 @@ Constants::Error ComplexData::evaluateRecursive(std::span<std::string const> con
     return Constants::ErrorTable::NONE();
 }
 
-} // namespace Nebulite::DomainModule::JsonScope
+} // namespace Nebulite::DomainModule::Common

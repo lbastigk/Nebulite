@@ -1,5 +1,7 @@
+#include "Data/Document/KeyType.hpp"
+#include "Data/Document/JsonScopeBase.hpp"
 #include "TransformationModule/Array.hpp"
-#include "Core/JsonScope.hpp"
+
 
 namespace Nebulite::TransformationModule {
 
@@ -19,7 +21,7 @@ void Array::bindTransformations() {
 // because it thinks the first branch always returns true?
 // Disable the warning for this function.
 // NOLINTNEXTLINE
-bool Array::ensureArray(Core::JsonScope* jsonDoc) {
+bool Array::ensureArray(Data::JsonScopeBase* jsonDoc) {
     // Cache the original member type to avoid the analyzer thinking the second branch is unreachable
     if (jsonDoc->memberType(rootKey) == Data::KeyType::array) {
         return true;
@@ -34,7 +36,7 @@ bool Array::ensureArray(Core::JsonScope* jsonDoc) {
     return newType == Data::KeyType::array;
 }
 
-bool Array::at(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool Array::at(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -54,7 +56,7 @@ bool Array::at(std::span<std::string const> const& args, Core::JsonScope* jsonDo
     }
 }
 
-bool Array::length(Core::JsonScope* jsonDoc) {
+bool Array::length(Data::JsonScopeBase* jsonDoc) {
     if (!ensureArray(jsonDoc)) {
         return false;
     }
@@ -63,7 +65,7 @@ bool Array::length(Core::JsonScope* jsonDoc) {
     return true;
 }
 
-bool Array::reverse(Core::JsonScope* jsonDoc) {
+bool Array::reverse(Data::JsonScopeBase* jsonDoc) {
     if (!ensureArray(jsonDoc)) {
         return false;
     }
@@ -77,7 +79,7 @@ bool Array::reverse(Core::JsonScope* jsonDoc) {
     return true;
 }
 
-bool Array::first(Core::JsonScope* jsonDoc) {
+bool Array::first(Data::JsonScopeBase* jsonDoc) {
     if (!ensureArray(jsonDoc)) {
         return false;
     }
@@ -89,7 +91,7 @@ bool Array::first(Core::JsonScope* jsonDoc) {
     return true;
 }
 
-bool Array::last(Core::JsonScope* jsonDoc) {
+bool Array::last(Data::JsonScopeBase* jsonDoc) {
     if (!ensureArray(jsonDoc)) {
         return false;
     }
@@ -102,7 +104,7 @@ bool Array::last(Core::JsonScope* jsonDoc) {
     return true;
 }
 
-bool Array::push(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool Array::push(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (args.size() < 2) {
         return false;
     }
@@ -115,7 +117,7 @@ bool Array::push(std::span<std::string const> const& args, Core::JsonScope* json
     return true;
 }
 
-bool Array::pushNumber(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool Array::pushNumber(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -133,7 +135,7 @@ bool Array::pushNumber(std::span<std::string const> const& args, Core::JsonScope
     }
 }
 
-bool Array::subspan(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool Array::subspan(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (args.size() > 3) {
         return false;
     }

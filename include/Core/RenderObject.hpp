@@ -146,9 +146,6 @@ public:
     }
 
 private:
-    // Each RenderObject has its own JSON document
-    Data::JsonScopeBase document;
-
     //------------------------------------------
     // Initialization
 

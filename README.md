@@ -165,7 +165,7 @@ This allows key sharing inbetween classes and throw exceptions if access is atte
 Example for restricted key access:
 ```cpp
 #include "Nebulite.hpp"
-#include "Core/JsonScope.hpp"
+#include "Data/Document/JsonScopeBase.hpp"
 
 inline void exampleUsage() {
     // Our Data document
@@ -173,7 +173,7 @@ inline void exampleUsage() {
 
     // Creating a Domain of type JsonScope
     // that acts on the "physics." sub-scope
-    Nebulite::Core::JsonScope physicsScope(doc, "physics.");
+    Nebulite::Data::JsonScopeBase physicsScope(doc, "physics.");
 
     // Using ScopedKey to access data safely
     Nebulite::Data::ScopedKey const velocityKey("physics.", "velocity");

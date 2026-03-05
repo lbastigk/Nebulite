@@ -58,12 +58,6 @@ public:
     static void initGlobalSpace(Core::GlobalSpace* target);
 
     /**
-     * @brief Initializes DomainModules for the JsonScope Domain.
-     * @param target Pointer to the JsonScope domain to initialize.
-     */
-    static void initJsonScope(Core::JsonScope* target);
-
-    /**
      * @brief Initializes DomainModules for the RenderObject Domain.
      * @param target Pointer to the RenderObject domain to initialize.
      */

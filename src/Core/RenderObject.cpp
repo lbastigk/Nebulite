@@ -6,7 +6,7 @@
 #include "Constants/KeyNames.hpp"
 #include "Core/RenderObject.hpp"
 #include "DomainModule/Initializer.hpp"
-#include "DomainModule/JsonScope/SimpleData.hpp"
+#include "DomainModule/Common/SimpleData.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 
@@ -40,10 +40,10 @@ void setStandardValues(Data::JsonScopeBase& document) {
 }
 } // namespace
 
-RenderObject::RenderObject() : Domain("RenderObject", document) {
+RenderObject::RenderObject() : Domain("RenderObject") {
     //------------------------------------------
     // Set standard values
-    setStandardValues(document);
+    setStandardValues(domainScope);
 
     //------------------------------------------
     // Flags
@@ -79,7 +79,7 @@ RenderObject::~RenderObject() = default;
 void RenderObject::sortDrawcalls() {
     // re-generate drawcall order (alphabetical for now)
     drawcallOrder.clear();
-    for (auto const& [member, _] : document.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
+    for (auto const& [member, _] : domainScope.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
         drawcallOrder.push_back(member);
     }
     std::ranges::sort(drawcallOrder.begin(), drawcallOrder.end());
@@ -90,19 +90,19 @@ void RenderObject::reinitDrawcalls() {
     drawcalls.clear();
 
     // Get list of drawcalls from document
-    for (auto const& [member, key] : document.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
+    for (auto const& [member, key] : domainScope.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
         // Initialize drawcall with its own scope
-        drawcalls[member] = std::make_unique<Graphics::Drawcall>(document.shareScopeBase(key.view()));
+        drawcalls[member] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()));
     }
     sortDrawcalls();
 }
 
 void RenderObject::initDrawcalls() {
     // Get list of drawcalls from document
-    for (auto const& [member, key] : document.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
+    for (auto const& [member, key] : domainScope.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
         // Initialize drawcall with its own scope
         if (drawcalls.find(member) == drawcalls.end()) {
-            drawcalls[member] = std::make_unique<Graphics::Drawcall>(document.shareScopeBase(key.view()));
+            drawcalls[member] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()));
         }
     }
     sortDrawcalls();
@@ -111,7 +111,7 @@ void RenderObject::initDrawcalls() {
 void RenderObject::reInitDrawcall(std::string const& drawcallName) {
     // Reinitialize a specific drawcall from document
     auto const key = Constants::KeyNames::RenderObject::draw + drawcallName;
-    drawcalls[drawcallName] = std::make_unique<Graphics::Drawcall>(document.shareScopeBase(key.view()));
+    drawcalls[drawcallName] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()));
 }
 
 void RenderObject::updateDrawcalls() {
@@ -124,7 +124,7 @@ void RenderObject::updateDrawcalls() {
 // Marshalling
 
 std::string RenderObject::serialize() const {
-    return document.serialize();
+    return domainScope.serialize();
 }
 
 void RenderObject::deserialize(std::string const& serialOrLink) {
@@ -145,11 +145,11 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
 
 void RenderObject::linkFrequentRefs() {
     // Identity
-    refs.id = document.getStableDoublePointer(Constants::KeyNames::RenderObject::id);
+    refs.id = domainScope.getStableDoublePointer(Constants::KeyNames::RenderObject::id);
 
     // Position and Size
-    refs.posX = document.getStableDoublePointer(Constants::KeyNames::RenderObject::positionX);
-    refs.posY = document.getStableDoublePointer(Constants::KeyNames::RenderObject::positionY);
+    refs.posX = domainScope.getStableDoublePointer(Constants::KeyNames::RenderObject::positionX);
+    refs.posY = domainScope.getStableDoublePointer(Constants::KeyNames::RenderObject::positionY);
 }
 
 //------------------------------------------

@@ -12,7 +12,7 @@ namespace Nebulite::TransformationModule {
 
 class Requirements final : public Data::TransformationModule {
 public:
-    explicit Requirements(std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> const& funcTree)
+    explicit Requirements(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScopeBase*>> const& funcTree)
         : TransformationModule(funcTree) {}
 
     void bindTransformations() override;
@@ -29,28 +29,28 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    static bool requireNonEmpty(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool requireNonEmpty(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc);
     static auto constexpr requireNonEmptyName = "require nonEmpty";
     static auto constexpr requireNonEmptyDesc = "Requires that the current JSON value is non-empty.\n"
         "If the value is empty, the transformation fails\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |requireNonEmpty -> {value,<Returns false if empty>}\n";
 
-    static bool requireTypeObject(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool requireTypeObject(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc);
     static auto constexpr requireTypeObjectName = "require type object";
     static auto constexpr requireTypeObjectDesc = "Requires that the current JSON value is of type object.\n"
         "If the value is not an object, the transformation fails\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |requireTypeObject -> {value,<Returns false if not object>}\n";
 
-    static bool requireTypeArray(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool requireTypeArray(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc);
     static auto constexpr requireTypeArrayName = "require type array";
     static auto constexpr requireTypeArrayDesc = "Requires that the current JSON value is of type array.\n"
         "If the value is not an array, the transformation fails\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |requireTypeArray -> {value,<Returns false if not array>}\n";
 
-    static bool requireTypeBasicValue(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool requireTypeBasicValue(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc);
     static auto constexpr requireTypeBasicValueName = "require type basicValue";
     static auto constexpr requireTypeBasicValueDesc = "Requires that the current JSON value is a basic value (not object or array or null).\n"
         "If the value is not a basic value, the transformation fails\n"

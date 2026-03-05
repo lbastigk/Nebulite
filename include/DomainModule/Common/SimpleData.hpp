@@ -114,5 +114,5 @@ public:
         BIND_FUNCTION(&SimpleData::ensureArray, ensureArray_name, ensureArray_desc);
     }
 };
-} // namespace Nebulite::DomainModule::JsonScope
+} // namespace Nebulite::DomainModule::Common
 #endif // NEBULITE_DOMAINMODULE_COMMON_SIMPLEDATA_HPP

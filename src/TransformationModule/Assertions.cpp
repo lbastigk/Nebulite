@@ -1,7 +1,6 @@
 #include "TransformationModule/Assertions.hpp"
 
 #include "Nebulite.hpp"
-#include "Core/JsonScope.hpp"
 
 namespace Nebulite::TransformationModule {
 
@@ -22,7 +21,7 @@ void Assertions::printUserDefinedMessage(std::span<std::string const> const& arg
 }
 
 // NOLINTNEXTLINE
-bool Assertions::assertNonEmpty(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool Assertions::assertNonEmpty(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         printUserDefinedMessage(args);
         static std::string errorMessage = std::string(assertNonEmptyName) + ": JSON value is null";
@@ -32,7 +31,7 @@ bool Assertions::assertNonEmpty(std::span<std::string const> const& args, Core::
 }
 
 // NOLINTNEXTLINE
-bool Assertions::assertTypeObject(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool Assertions::assertTypeObject(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::object) {
         printUserDefinedMessage(args);
         static std::string errorMessage = std::string(assertTypeObjectName) + ": JSON value is not an object";
@@ -42,7 +41,7 @@ bool Assertions::assertTypeObject(std::span<std::string const> const& args, Core
 }
 
 // NOLINTNEXTLINE
-bool Assertions::assertTypeArray(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool Assertions::assertTypeArray(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
         printUserDefinedMessage(args);
         static std::string errorMessage = std::string(assertTypeArrayName) + ": JSON value is not an array";
@@ -52,7 +51,7 @@ bool Assertions::assertTypeArray(std::span<std::string const> const& args, Core:
 }
 
 // NOLINTNEXTLINE
-bool Assertions::assertTypeBasicValue(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool Assertions::assertTypeBasicValue(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::value) {
         printUserDefinedMessage(args);
         static std::string errorMessage = std::string(assertTypeBasicValueName) + ": JSON value is not a basic value";

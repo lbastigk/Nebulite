@@ -33,7 +33,6 @@
 namespace Nebulite::Core {
 class Environment;
 class GlobalSpace;
-class JsonScope;
 class Renderer;
 class RenderObject;
 class Texture;
@@ -57,10 +56,6 @@ namespace Nebulite::Interaction {
 class Context; // Requires access to demote to ContextScope
 } // namespace Nebulite::Interaction
 
-namespace Nebulite::Interaction::Execution {
-class Domain;
-} // namespace Nebulite::Interaction::Execution
-
 namespace Nebulite::Interaction::Logic {
 class Assignment;   // Requires access to set target documents
 class Expression;   // Requires access to get unscoped values from global scope
@@ -80,6 +75,27 @@ class RulesetCompiler;
 // Document Accessor
 
 namespace Nebulite::Interaction::Execution {
+
+// Helps not expose the domainScopeOwned to friend classes of DocumentAccessor
+class ScopeOwner {
+    friend class DocumentAccessor;
+    // Only used if the DocumentAccessor owns the scope (i.e., when constructed with the default constructor)
+    std::unique_ptr<Data::JsonScopeBase> _domainScopeOwned;
+
+public:
+    enum class ScopeOwnership {
+        Owned, // Will create and own a new JsonScopeBase (default constructor)
+        Borrowed // Will be left empty
+    } scopeOwnership;
+
+    virtual ~ScopeOwner() = default;
+    explicit ScopeOwner(ScopeOwnership const& ownership = ScopeOwnership::Borrowed) : scopeOwnership(ownership) {
+        if (scopeOwnership == ScopeOwnership::Owned) {
+            _domainScopeOwned = std::make_unique<Data::JsonScopeBase>();
+        }
+    }
+};
+
 /**
  * @brief DocumentAccessor provides controlled access to a domain's JSON document.
  * @details This class is designed to be a friend of various domain-related classes,
@@ -88,11 +104,13 @@ namespace Nebulite::Interaction::Execution {
  *          For example, DomainModules should not have direct access to the domain's document,
  *          due to the encapsulation they provide. Instead, we pass a scope to them.
  */
-class DocumentAccessor {
+class DocumentAccessor : ScopeOwner {
 public:
     explicit DocumentAccessor(Data::JsonScopeBase& d);
 
-    virtual ~DocumentAccessor();
+    explicit DocumentAccessor(); // Creates a new JsonScopeBase owned by this DocumentAccessor
+
+    ~DocumentAccessor() override;
 
     friend class Domain;
 
@@ -176,6 +194,8 @@ class Domain : public DocumentAccessor {
 
 public:
     Domain(std::string const& name, Data::JsonScopeBase& documentReference);
+
+    explicit Domain(std::string const& name);
 
     ~Domain() override ;
 

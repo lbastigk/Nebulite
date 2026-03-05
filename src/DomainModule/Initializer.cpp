@@ -7,7 +7,6 @@
 //------------------------------------------
 // Domain includes
 #include "Core/GlobalSpace.hpp"
-#include "Core/JsonScope.hpp"
 #include "Core/Renderer.hpp"
 #include "Core/Texture.hpp"
 #include "Core/RenderObject.hpp"
@@ -17,6 +16,8 @@
 
 // Common
 #include "DomainModule/Common/SimpleData.hpp"
+#include "DomainModule/Common/ComplexData.hpp"
+#include "DomainModule/Common/Debug.hpp"
 
 // Environment
 #include "DomainModule/Environment/Debug.hpp"
@@ -31,11 +32,6 @@
 #include "DomainModule/GlobalSpace/Ruleset.hpp"
 #include "DomainModule/GlobalSpace/Settings.hpp"
 #include "DomainModule/GlobalSpace/Time.hpp"
-
-// JSON
-#include "DomainModule/JsonScope/SimpleData.hpp"
-#include "DomainModule/JsonScope/ComplexData.hpp"
-#include "DomainModule/JsonScope/Debug.hpp"
 
 // RenderObject
 #include "DomainModule/RenderObject/Debug.hpp"
@@ -70,6 +66,16 @@ void Initializer::initCommon(Interaction::Execution::Domain* target) {
     // Common modules for all domains
     target->initModule<Interaction::Execution::Domain, Common::SimpleData>(
         "Common Simple Data Functions",
+        Global::settings(),
+        *target
+    );
+    target->initModule<Interaction::Execution::Domain, Common::ComplexData>(
+        "Common Complex Data Functions",
+        Global::settings(),
+        *target
+    );
+    target->initModule<Interaction::Execution::Domain, Common::Debug>(
+        "Common Debug Functions",
         Global::settings(),
         *target
     );
@@ -162,33 +168,6 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
         &target->cmdVars.recover,
         "recover",
         "Enable recoverable error mode"
-    );
-}
-
-void Initializer::initJsonScope(Core::JsonScope* target) {
-    using namespace Nebulite::DomainModule::JsonScope;
-
-    // TODO: Get rid of this function, move to initCommon
-
-    // Already exists in initCommon:
-    /*
-    target->initModule<Core::JsonScope, SimpleData>(
-        "JSON Simple Data Functions",
-        Global::settings(),
-        *target
-    );
-    */
-
-    // Rest to move to initCommon as well:
-    target->initModule<Core::JsonScope, ComplexData>(
-        "JSON Complex Data Functions",
-        Global::settings(),
-        *target
-    );
-    target->initModule<Core::JsonScope, Debug>(
-        "JSON Debug Functions",
-        Global::settings(),
-        *target
     );
 }
 

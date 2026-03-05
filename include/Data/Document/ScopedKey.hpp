@@ -29,10 +29,6 @@
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite::Core {
-class JsonScope;
-} // namespace Nebulite::Core
-
 namespace Nebulite::Data {
 class ScopedKey;
 class ScopedKeyView;
@@ -172,7 +168,6 @@ class ScopedKeyView {
 
 public:
     friend class JsonScopeBase;
-    friend class Core::JsonScope;
 
     // Adding suffix to produce a new ScopedKeyView
     [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;

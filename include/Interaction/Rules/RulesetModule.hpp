@@ -18,7 +18,6 @@
 
 // Nebulite
 #include "ScopeAccessor.hpp"
-#include "Core/JsonScope.hpp"
 #include "Data/OrderedDoublePointers.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 
@@ -143,12 +142,7 @@ protected:
      * @param arr The output array of ordered cache lists corresponding to the provided keys.
      *            If arr passed is not null, this function will do nothing.
      */
-    void ensureBaseList(Execution::Domain const& ctx, std::vector<Data::ScopedKeyView> const& keys, double**& arr) const {
-        if (arr != nullptr) [[likely]] {
-            return; // Already initialized, do nothing
-        }
-        arr = ctx.ensureOrderedCacheList(id, keys)->data();
-    }
+    void ensureBaseList(Execution::Domain const& ctx, std::vector<Data::ScopedKeyView> const& keys, double**& arr) const ;
 
 private:
     // Vector of all static rulesets from this module

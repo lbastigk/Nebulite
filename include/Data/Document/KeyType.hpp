@@ -1,6 +1,8 @@
 #ifndef NEBULITE_DATA_DOCUMENT_KEY_TYPE_HPP
 #define NEBULITE_DATA_DOCUMENT_KEY_TYPE_HPP
 
+#include <cstdint>
+
 namespace Nebulite::Data {
 /**
  * @enum KeyType
