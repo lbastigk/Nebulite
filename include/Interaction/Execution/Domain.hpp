@@ -86,14 +86,10 @@ public:
     enum class ScopeOwnership {
         Owned, // Will create and own a new JsonScopeBase (default constructor)
         Borrowed // Will be left empty
-    } scopeOwnership;
+    };
 
     virtual ~ScopeOwner() = default;
-    explicit ScopeOwner(ScopeOwnership const& ownership = ScopeOwnership::Borrowed) : scopeOwnership(ownership) {
-        if (scopeOwnership == ScopeOwnership::Owned) {
-            _domainScopeOwned = std::make_unique<Data::JsonScopeBase>();
-        }
-    }
+    explicit ScopeOwner(ScopeOwnership const& ownership = ScopeOwnership::Borrowed);
 };
 
 /**
