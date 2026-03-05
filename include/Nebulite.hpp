@@ -56,18 +56,18 @@ namespace Data {
  */
 namespace DomainModule {
 /**
+ * @namespace Nebulite::DomainModule::Common
+ * @brief Contains common Domain functionality.
+ */
+namespace Common {
+} // namespace Common
+
+/**
  * @namespace Nebulite::DomainModule::GlobalSpace
  * @brief Contains all GlobalSpace DomainModules.
  */
 namespace GlobalSpace {
 } // namespace GlobalSpace
-
-/**
- * @namespace Nebulite::DomainModule::Common
- * @brief Contains all JsonScope DomainModules.
- */
-namespace JsonScope {
-} // namespace JsonScope
 
 /**
  * @namespace Nebulite::DomainModule::Renderer

@@ -91,8 +91,6 @@ Constants::Error SimpleData::ensureArray(std::span<std::string const> const& arg
     return Constants::ErrorTable::NONE();
 }
 
-// TODO: Simplify the following functions by integrating the core logic in Data::JSON as well as the derivatives JsonScope and JsonScopeBase.
-
 Constants::Error SimpleData::push_back(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope){
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
