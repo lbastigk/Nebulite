@@ -51,31 +51,6 @@ Domain::Domain(std::string const& name) : domainName(name) {
     Nebulite::DomainModule::Initializer::initCommon(this);
 }
 
-Domain& Domain::operator=(Domain const& other) {
-    if (this == &other) return *this;
-    if (&domainScope != &other.domainScope) {
-        throw std::invalid_argument("Domain::operator=: cannot assign from object with different document reference");
-    }
-
-    domainName = other.domainName;
-    funcTree = other.funcTree; // shared ownership
-    if (funcTree) {
-        // Rebind preParse to this object (avoid using other's bound callback)
-        funcTree->setPreParse([this] { return preParse(); });
-    }
-    return *this;
-}
-
-Domain& Domain::operator=(Domain&& other) noexcept {
-    if (this == &other) return *this;
-    domainName = std::move(other.domainName);
-    funcTree = std::move(other.funcTree);
-    if (funcTree) {
-        funcTree->setPreParse([this] { return preParse(); });
-    }
-    return *this;
-}
-
 Domain::~Domain() = default;
 
 std::string const& Domain::scopePrefix() const {

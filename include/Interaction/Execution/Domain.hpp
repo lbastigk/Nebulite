@@ -202,10 +202,10 @@ public:
     //------------------------------------------
     // Disallow copying and moving
 
-    Domain(Domain const&) = default;
-    Domain& operator=(Domain const& other);
-    Domain(Domain&&) = default;
-    Domain& operator=(Domain&& other) noexcept;
+    Domain(Domain const&) = delete;
+    Domain& operator=(Domain const& other) = delete;
+    Domain(Domain&&) = delete;
+    Domain& operator=(Domain&& other) = delete;
 
     //------------------------------------------
     // Get Document prefix
