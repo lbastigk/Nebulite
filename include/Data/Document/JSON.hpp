@@ -235,6 +235,10 @@ private:
     absl::flat_hash_map<std::string, std::unique_ptr<JsonScopeBase>> managedScopeBases;
 
     std::unique_ptr<Core::JsonScope> fullScopeInstance;
+
+    std::unique_ptr<Core::JsonScope> dummyScopeInstance;
+    std::unique_ptr<JsonScopeBase> dummyScopeBaseInstance;
+
 public:
     //------------------------------------------
     // Assertions
@@ -290,6 +294,8 @@ public:
     Core::JsonScope& shareManagedScope(std::string_view const& prefix) { return shareManagedScope(std::string(prefix)); }
     Core::JsonScope& shareManagedScope(char const* prefix) { return shareManagedScope(std::string(prefix)); }
 
+
+
     /**
      * @brief Shares part JSON document as a JsonScopeBase that is managed internally.
      * @details Sometimes we cannot use full JsonScopes due circular issues, causing a cascade of Domain initializations.
@@ -301,6 +307,8 @@ public:
     JsonScopeBase& shareManagedScopeBase(std::string const& prefix = "");
     JsonScopeBase& shareManagedScopeBase(std::string_view const& prefix) { return shareManagedScopeBase(std::string(prefix)); }
     JsonScopeBase& shareManagedScopeBase(char const* prefix) { return shareManagedScopeBase(std::string(prefix)); }
+
+    JsonScopeBase& getDummyScopeBase();
 
     //------------------------------------------
     // Custom copy method

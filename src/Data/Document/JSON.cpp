@@ -77,6 +77,17 @@ JsonScopeBase& JSON::shareManagedScopeBase(std::string const& prefix) {
 }
 
 //------------------------------------------
+// Dummy sharing
+
+JsonScopeBase& JSON::getDummyScopeBase() {
+    std::scoped_lock const lockGuard(mtx);
+    if (!dummyScopeBaseInstance) {
+        dummyScopeBaseInstance = std::make_unique<JsonScopeBase>(*this, std::nullopt);
+    }
+    return *dummyScopeBaseInstance;
+}
+
+//------------------------------------------
 // Custom copy method
 
 /**
