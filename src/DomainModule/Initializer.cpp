@@ -15,6 +15,9 @@
 //------------------------------------------
 // DomainModules
 
+// Common
+#include "DomainModule/Common/SimpleData.hpp"
+
 // Environment
 #include "DomainModule/Environment/Debug.hpp"
 
@@ -60,6 +63,17 @@
 
 //------------------------------------------
 namespace Nebulite::DomainModule {
+
+
+void Initializer::initCommon(Interaction::Execution::Domain* target) {
+    //using namespace Nebulite::DomainModule::Common;
+    // Common modules for all domains
+    target->initModule<Interaction::Execution::Domain, Common::SimpleData>(
+        "Common Simple Data Functions",
+        Global::settings(),
+        *target
+    );
+}
 
 void Initializer::initEnvironment(Core::Environment* target) {
     using namespace Nebulite::DomainModule::Environment;
