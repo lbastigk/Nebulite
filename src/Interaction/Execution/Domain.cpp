@@ -1,5 +1,4 @@
 #include "Nebulite.hpp"
-#include "Core/JsonScope.hpp"
 #include "Data/Document/JsonScopeBase.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "DomainModule/Initializer.hpp"
@@ -10,7 +9,7 @@
 // Document Accessor
 namespace Nebulite::Interaction::Execution {
 
-DocumentAccessor::DocumentAccessor(Core::JsonScope& d) : domainScope(d) {}
+DocumentAccessor::DocumentAccessor(Data::JsonScopeBase& d) : domainScope(d) {}
 
 DocumentAccessor::~DocumentAccessor() = default;
 
@@ -19,7 +18,7 @@ DocumentAccessor::~DocumentAccessor() = default;
 namespace Nebulite::Interaction::Execution {
 
 // NOLINTNEXTLINE
-Domain::Domain(std::string const& name, Core::JsonScope& documentReference) : DocumentAccessor(documentReference), domainName(name){
+Domain::Domain(std::string const& name, Data::JsonScopeBase& documentReference) : DocumentAccessor(documentReference), domainName(name){
     funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>>(
         name,
         Constants::ErrorTable::NONE(),

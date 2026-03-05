@@ -71,7 +71,7 @@ public:
     //------------------------------------------
     // Special Members
 
-    explicit Environment(JsonScope& documentReference);
+    explicit Environment(Data::JsonScopeBase& documentReference);
 
     ~Environment() override ;
 

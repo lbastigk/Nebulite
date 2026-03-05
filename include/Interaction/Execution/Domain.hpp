@@ -90,7 +90,7 @@ namespace Nebulite::Interaction::Execution {
  */
 class DocumentAccessor {
 public:
-    explicit DocumentAccessor(Core::JsonScope& d);
+    explicit DocumentAccessor(Data::JsonScopeBase& d);
 
     virtual ~DocumentAccessor();
 
@@ -175,7 +175,7 @@ class Domain : public DocumentAccessor {
     std::vector<std::unique_ptr<DomainModuleBase>> modules;
 
 public:
-    Domain(std::string const& name, Core::JsonScope& documentReference);
+    Domain(std::string const& name, Data::JsonScopeBase& documentReference);
 
     ~Domain() override ;
 
