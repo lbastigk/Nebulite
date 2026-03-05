@@ -96,11 +96,11 @@ private:
     // Scripts/Benchmark/BroadcastListenContainer.sh
     //
     // Static Rulesets:
-    // Average total time for small benchmark: 2.135300 s
-    // Average frame time for large benchmark: 0.010032 s
+    // Average total time for small benchmark: 3.261400 s
+    // Average frame time for large benchmark: 0.009293 s
     // JSON Rulesets:
-    // Average total time for small benchmark: 5.952600 s
-    // Average frame time for large benchmark: 0.221746 s
+    // Average total time for small benchmark: 6.303100 s
+    // Average frame time for large benchmark: 0.148972 s
     using ContainerType = Data::BroadcastListenContainer::FlatContainer;
 
     std::unique_ptr<ContainerType> worker[Constants::ThreadSettings::Maximum::invokeWorkerCount];
