@@ -7,6 +7,12 @@
 #define NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP
 
 //------------------------------------------
+// Includes
+
+// Standard Library
+#include <cmath>
+
+//------------------------------------------
 // TODO: Move to another location
 
 /**
@@ -35,8 +41,11 @@ namespace Nebulite::Constants {
  */
 class ThreadSettings {
     static size_t getThreadCount() {
-        size_t const threadCount = std::thread::hardware_concurrency();
-        return std::min(std::max(threadCount, static_cast<size_t>(1)), Maximum::totalThreadCount);
+        size_t const threadCount = std::min(
+            std::max(static_cast<size_t>(std::thread::hardware_concurrency()), static_cast<size_t>(1)),
+            Maximum::totalThreadCount
+        );
+        return threadCount;
     }
 
     struct Spreading {
@@ -49,14 +58,14 @@ public:
     static size_t getInvokeWorkerCount() {
         return std::max(
             static_cast<size_t>(1),
-            static_cast<size_t>(static_cast<double>(getThreadCount()) * Spreading::invokeWorker)
+            static_cast<size_t>(std::floor(static_cast<double>(getThreadCount()) * Spreading::invokeWorker))
         );
     }
 
     static size_t getRendererWorkerCount() {
         return std::max(
             static_cast<size_t>(1),
-            static_cast<size_t>(static_cast<double>(getThreadCount()) * Spreading::rendererWorker)
+            static_cast<size_t>(std::floor(static_cast<double>(getThreadCount()) * Spreading::rendererWorker))
         );
     }
 
