@@ -18,7 +18,7 @@ namespace Nebulite::Core {
 
 namespace {
 // Helper function to initialize RenderObject in constructor
-void setStandardValues(JsonScope& document) {
+void setStandardValues(Data::JsonScopeBase& document) {
     // General
     document.set(Constants::KeyNames::RenderObject::id, 0);    // Initialize to 0, Renderer itself sets proper id, which starts at 1
     document.set(Constants::KeyNames::RenderObject::positionX, 0);
@@ -26,8 +26,8 @@ void setStandardValues(JsonScope& document) {
     document.set(Constants::KeyNames::RenderObject::layer, 0);
 
     // Create a basic drawcall
-    Graphics::Drawcall::ApplyDefault::Sprite(document.shareScope(Constants::KeyNames::RenderObject::draw + ".exampleSprite"));
-    Graphics::Drawcall::ApplyDefault::Text(document.shareScope(Constants::KeyNames::RenderObject::draw + ".exampleText"));
+    Graphics::Drawcall::ApplyDefault::Sprite(document.shareScopeBase(Constants::KeyNames::RenderObject::draw + ".exampleSprite"));
+    Graphics::Drawcall::ApplyDefault::Text(document.shareScopeBase(Constants::KeyNames::RenderObject::draw + ".exampleText"));
 
     // Set default size
     document.set(Constants::KeyNames::RenderObject::sizeX, 32);
@@ -56,7 +56,7 @@ RenderObject::RenderObject() : Domain("RenderObject", document) {
 
 void RenderObject::init() {
     // Inherit functions from child objects
-    inherit(&document);
+    // None so far
 
     // Link frequently used values
     linkFrequentRefs();
@@ -92,7 +92,7 @@ void RenderObject::reinitDrawcalls() {
     // Get list of drawcalls from document
     for (auto const& [member, key] : document.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
         // Initialize drawcall with its own scope
-        drawcalls[member] = std::make_unique<Graphics::Drawcall>(document.shareScope(key.view()));
+        drawcalls[member] = std::make_unique<Graphics::Drawcall>(document.shareScopeBase(key.view()));
     }
     sortDrawcalls();
 }
@@ -102,7 +102,7 @@ void RenderObject::initDrawcalls() {
     for (auto const& [member, key] : document.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
         // Initialize drawcall with its own scope
         if (drawcalls.find(member) == drawcalls.end()) {
-            drawcalls[member] = std::make_unique<Graphics::Drawcall>(document.shareScope(key.view()));
+            drawcalls[member] = std::make_unique<Graphics::Drawcall>(document.shareScopeBase(key.view()));
         }
     }
     sortDrawcalls();
@@ -111,7 +111,7 @@ void RenderObject::initDrawcalls() {
 void RenderObject::reInitDrawcall(std::string const& drawcallName) {
     // Reinitialize a specific drawcall from document
     auto const key = Constants::KeyNames::RenderObject::draw + drawcallName;
-    drawcalls[drawcallName] = std::make_unique<Graphics::Drawcall>(document.shareScope(key.view()));
+    drawcalls[drawcallName] = std::make_unique<Graphics::Drawcall>(document.shareScopeBase(key.view()));
 }
 
 void RenderObject::updateDrawcalls() {
@@ -160,7 +160,6 @@ Constants::Error RenderObject::update() {
     // Update modules and all inner domains
     updateModules();
     updateDrawcalls();
-    document.update();
     return Constants::ErrorTable::NONE();
 }
 

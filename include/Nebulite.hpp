@@ -178,14 +178,6 @@ public:
     // Provide access based on access token and its prefix
 
     /**
-     * @brief Provides access to a shared JsonScope based on the provided access token and prefix.
-     * @param at Access token providing the necessary permissions.
-     * @param prefix Prefix to append to the access token's prefix for scope retrieval.
-     * @return Reference to the shared JsonScope.
-     */
-    [[nodiscard]] static Core::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix = "");
-
-    /**
      * @brief Provides access to a shared JsonScopeBase based on the provided access token and prefix.
      * @param at Access token providing the necessary permissions.
      * @param prefix Prefix to append to the access token's prefix for scope retrieval.

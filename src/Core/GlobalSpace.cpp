@@ -3,7 +3,6 @@
 
 #include "Nebulite.hpp"
 #include "Core/GlobalSpace.hpp"
-#include "Core/JsonScope.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "DomainModule/GlobalSpace/Settings.hpp"
 
@@ -11,9 +10,9 @@
 namespace Nebulite::Core {
 
 GlobalSpace::GlobalSpace(std::string const& name) :
-    Domain("Nebulite", Global::shareScope(ScopeAccessor::Full(), "")), // Domain with reference to GlobalSpace and its full scope
+    Domain("Nebulite", Global::shareScopeBase(ScopeAccessor::Full(), "")), // Domain with reference to GlobalSpace and its full scope
     renderer(
-        Global::shareScope(ScopeAccessor::Full(), "renderer"),
+        Global::shareScopeBase(ScopeAccessor::Full(), "renderer"),
         &cmdVars.headless
     ) // Share only the renderer portion of the global document
 {
@@ -54,7 +53,6 @@ void GlobalSpace::initialize() {
     // Domain-Related
 
     // Inherit functions from child objects
-    inherit(&Global::shareScope(ScopeAccessor::Full(), ""));
     inherit(&renderer);
 
     // Initialize DomainModules
@@ -72,14 +70,8 @@ void GlobalSpace::initialize() {
 }
 
 Constants::Error GlobalSpace::updateInnerDomains() {
-    // For now, just update the JSON domain
-    // Later on the logic here might be more complex
-    // As more inner domains are added
-    static auto& fullScope = Global::shareScope(ScopeAccessor::Full(), "");
-    Constants::Error const result = fullScope.update();
-    // Renderer is not updated here, as it is updated in GlobalSpace::update()
     // TODO: See if we can generalize this so that we can safely call renderer.update() here as well
-    return result;
+    return Constants::ErrorTable::NONE();
 }
 
 Constants::Error GlobalSpace::update() {

@@ -224,6 +224,16 @@ public:
     //------------------------------------------
     // Module Initialization and Updating
 
+    /**
+     * @brief Creates a DomainModule of the specified type with proper linkage, deriving the scope from the module's static scope member.
+     * @tparam DomainType The type of the domain to link the module to
+     * @tparam DomainModuleType The type of module to initialize, must have a static member `Key::scope` that defines the scope for the module, else a dummy scope will be shared (no workspace)
+     * @param moduleName The name of the module
+     * @param settings The settings JsonScope for the module
+     * @param domainReference Reference to the domain to link the module to
+     * @param funcTree Shared FuncTree for the module to modify, should be the same FuncTree as the Domain's main FuncTree
+     * @return A unique pointer to the created DomainModule of the specified type
+     */
     template <typename DomainType, typename DomainModuleType>
     static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScopeBase const& settings, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> funcTree) {
         // Determine the key from root level
@@ -265,9 +275,17 @@ public:
      */
     template <typename DomainType, typename DomainModuleType>
     void initModule(std::string const& moduleName, Data::JsonScopeBase const& settings, DomainType& domainReference) {
-        auto DomainModule = createModule<DomainType, DomainModuleType>(moduleName, settings, domainReference, getFuncTree());
-        DomainModule->reinit();
-        modules.push_back(std::move(DomainModule));
+        if constexpr(std::is_same_v<DomainType, Domain>) {
+            // If the DomainType is the base Domain class, we initialize modules without scope
+            auto& scope = domainReference.domainScope.shareDummyScopeBase();
+            auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, funcTree, scope, settings);
+            DomainModule->reinit();
+            modules.push_back(std::move(DomainModule));
+        } else {
+            auto DomainModule = createModule<DomainType, DomainModuleType>(moduleName, settings, domainReference, getFuncTree());
+            DomainModule->reinit();
+            modules.push_back(std::move(DomainModule));
+        }
     }
 
     /**

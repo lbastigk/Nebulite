@@ -47,7 +47,11 @@ JsonScopeBase& JsonScopeBase::shareScopeBase(std::string const& key) const {
     );
 }
 
-JsonScopeBase& JsonScopeBase::shareDummyScopeBase() const {
+JsonScopeBase& JsonScopeBase::shareDummyScopeBase() {
+    if (!scopePrefix.has_value() || !baseDocument) {
+        return *this; // If this is already a dummy scope, return itself
+    }
+
     // Technically, key name does not matter.
     // But if the access control ever fails, at least we only access a known dummy scope,
     // instead of the entire scope.

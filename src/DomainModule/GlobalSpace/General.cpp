@@ -1,5 +1,4 @@
 #include "Nebulite.hpp"
-#include "ScopeAccessor.hpp"
 #include "Core/GlobalSpace.hpp"
 #include "Core/JsonScope.hpp"
 #include "DomainModule/GlobalSpace/General.hpp"
@@ -232,20 +231,6 @@ Constants::Error General::func_for(std::span<std::string const> const& args, Int
 Constants::Error General::nop(std::span<std::string const> const& /*args*/) {
     // Do nothing
     return Constants::ErrorTable::NONE();
-}
-
-Constants::Error General::inScope(std::span<std::string const> const& args) const {
-    if (args.size() < 3) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
-    }
-
-    // A bit whacky, as we use the global scope for this instead of what is shared with this DomainModule
-    // But this is the only way to get a full JsonScope with domain functionality
-    std::string const& scope = args[1];
-    auto const access = getDomainModuleAccessToken(*this);
-    auto& s = Global::shareScope(access).shareScope(scope);
-    std::string const& cmd = std::string(__FUNCTION__) + std::string(" ") + Utility::StringHandler::recombineArgs(args.subspan(2));
-    return s.parseStr(cmd);
 }
 
 } // namespace Nebulite::DomainModule::GlobalSpace

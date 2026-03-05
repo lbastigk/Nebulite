@@ -4,6 +4,7 @@
 
 namespace Nebulite::DomainModule::JsonScope {
 
+// TODO: remove forcevalue entirely
 Constants::Error ForceValue::update() {
     // On each update, re-apply forced values
     for (auto const& [key, value] : forced_global_values) {

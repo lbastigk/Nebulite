@@ -10,7 +10,6 @@
 // Includes
 
 // Nebulite
-#include "Core/JsonScope.hpp"
 #include "Graphics/Drawcall.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
@@ -148,7 +147,7 @@ public:
 
 private:
     // Each RenderObject has its own JSON document
-    JsonScope document;
+    Data::JsonScopeBase document;
 
     //------------------------------------------
     // Initialization

@@ -168,11 +168,18 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
 void Initializer::initJsonScope(Core::JsonScope* target) {
     using namespace Nebulite::DomainModule::JsonScope;
 
+    // TODO: Get rid of this function, move to initCommon
+
+    // Already exists in initCommon:
+    /*
     target->initModule<Core::JsonScope, SimpleData>(
         "JSON Simple Data Functions",
         Global::settings(),
         *target
     );
+    */
+
+    // Rest to move to initCommon as well:
     target->initModule<Core::JsonScope, ComplexData>(
         "JSON Complex Data Functions",
         Global::settings(),

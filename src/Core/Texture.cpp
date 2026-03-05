@@ -6,7 +6,6 @@
 
 // Nebulite
 #include "Nebulite.hpp"
-#include "Core/JsonScope.hpp"
 #include "Core/Texture.hpp"
 #include "Graphics/Drawcall.hpp"
 #include "DomainModule/Initializer.hpp"
@@ -14,7 +13,7 @@
 
 namespace Nebulite::Core {
 
-Texture::Texture(JsonScope& documentReference)
+Texture::Texture(Data::JsonScopeBase& documentReference)
     : Domain("Texture", documentReference) {
     // Start with no texture
     texture = nullptr;

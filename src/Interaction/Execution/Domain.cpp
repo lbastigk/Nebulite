@@ -30,7 +30,7 @@ Domain::Domain(std::string const& name, Data::JsonScopeBase& documentReference) 
 
     // Initialize modules
     // TODO: Requires Core::JsonScope to be turned into Data::JsonScopeBase, otherwise this call is recursive!
-    //Nebulite::DomainModule::Initializer::initCommon(this);
+    Nebulite::DomainModule::Initializer::initCommon(this);
 }
 
 Domain& Domain::operator=(Domain const& other) {
