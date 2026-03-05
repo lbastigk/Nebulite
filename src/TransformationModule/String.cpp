@@ -1,8 +1,8 @@
 #include <cctype>
 #include <algorithm>
 
+#include "Data/Document/JsonScopeBase.hpp"
 #include "TransformationModule/String.hpp"
-#include "Core/JsonScope.hpp"
 
 namespace Nebulite::TransformationModule {
 
@@ -24,7 +24,7 @@ void String::bindTransformations() {
 }
 
 // NOLINTNEXTLINE
-bool String::toUpper(Core::JsonScope* jsonDoc) {
+bool String::toUpper(Data::JsonScopeBase* jsonDoc) {
     auto str = jsonDoc->get<std::string>(rootKey).value_or("");
     std::ranges::transform(
         str,
@@ -38,7 +38,7 @@ bool String::toUpper(Core::JsonScope* jsonDoc) {
 }
 
 // NOLINTNEXTLINE
-bool String::toLower(Core::JsonScope* jsonDoc) {
+bool String::toLower(Data::JsonScopeBase* jsonDoc) {
     auto str = jsonDoc->get<std::string>(rootKey).value_or("");
     std::ranges::transform(
         str,
@@ -52,28 +52,28 @@ bool String::toLower(Core::JsonScope* jsonDoc) {
 }
 
 // NOLINTNEXTLINE
-bool String::strip(Core::JsonScope* jsonDoc) {
+bool String::strip(Data::JsonScopeBase* jsonDoc) {
     auto const str = Utility::StringHandler::strip(jsonDoc->get<std::string>(rootKey).value_or(""));
     jsonDoc->set(rootKey, str);
     return true;
 }
 
 // NOLINTNEXTLINE
-bool String::lStrip(Core::JsonScope* jsonDoc) {
+bool String::lStrip(Data::JsonScopeBase* jsonDoc) {
     auto const str = Utility::StringHandler::lStrip(jsonDoc->get<std::string>(rootKey).value_or(""));
     jsonDoc->set(rootKey, str);
     return true;
 }
 
 // NOLINTNEXTLINE
-bool String::rStrip(Core::JsonScope* jsonDoc) {
+bool String::rStrip(Data::JsonScopeBase* jsonDoc) {
     auto const str = Utility::StringHandler::rStrip(jsonDoc->get<std::string>(rootKey).value_or(""));
     jsonDoc->set(rootKey, str);
     return true;
 }
 
 // NOLINTNEXTLINE
-bool String::substring(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool String::substring(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (args.size() != 3){
         return false;
     }
@@ -90,7 +90,7 @@ bool String::substring(std::span<std::string const> const& args, Core::JsonScope
 }
 
 // NOLINTNEXTLINE
-bool String::replace(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool String::replace(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (args.size() != 3){
         return false;
     }
@@ -102,7 +102,7 @@ bool String::replace(std::span<std::string const> const& args, Core::JsonScope* 
     return true;
 }
 
-bool String::strCountAppearance(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool String::strCountAppearance(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (args.size() < 2){
         return false;
     }
@@ -121,7 +121,7 @@ bool String::strCountAppearance(std::span<std::string const> const& args, Core::
     return true;
 }
 
-bool String::strcompareEquals(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool String::strcompareEquals(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (args.size() < 2){
         return false;
     }
@@ -131,7 +131,7 @@ bool String::strcompareEquals(std::span<std::string const> const& args, Core::Js
     return true;
 }
 
-bool String::strcompareContains(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool String::strcompareContains(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (args.size() < 2){
         return false;
     }
@@ -141,7 +141,7 @@ bool String::strcompareContains(std::span<std::string const> const& args, Core::
     return true;
 }
 
-bool String::strcompareStartsWith(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool String::strcompareStartsWith(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (args.size() < 2){
         return false;
     }
@@ -151,7 +151,7 @@ bool String::strcompareStartsWith(std::span<std::string const> const& args, Core
     return true;
 }
 
-bool String::strcompareEndsWith(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool String::strcompareEndsWith(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     if (args.size() < 2){
         return false;
     }

@@ -12,7 +12,7 @@ namespace Nebulite::TransformationModule {
 
 class Assertions final : public Data::TransformationModule {
 public:
-    explicit Assertions(std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> const& funcTree)
+    explicit Assertions(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScopeBase*>> const& funcTree)
         : TransformationModule(funcTree) {}
 
     void bindTransformations() override;
@@ -29,28 +29,28 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    static bool assertNonEmpty(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool assertNonEmpty(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc);
     static auto constexpr assertNonEmptyName = "assert nonEmpty";
     static auto constexpr assertNonEmptyDesc = "Asserts that the current JSON value is non-empty.\n"
         "If the value is empty, the transformation fails and the program exits\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |assertNonEmpty -> {value,<Exception thrown if empty>}\n";
 
-    static bool assertTypeObject(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool assertTypeObject(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc);
     static auto constexpr assertTypeObjectName = "assert type object";
     static auto constexpr assertTypeObjectDesc = "Asserts that the current JSON value is of type object.\n"
         "If the value is not an object, the transformation fails and the program exits\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |assertTypeObject -> {value,<Exception thrown if not object>}\n";
 
-    static bool assertTypeArray(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool assertTypeArray(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc);
     static auto constexpr assertTypeArrayName = "assert type array";
     static auto constexpr assertTypeArrayDesc = "Asserts that the current JSON value is of type array.\n"
         "If the value is not an array, the transformation fails and the program exits\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |assertTypeArray -> {value,<Exception thrown if not array>}\n";
 
-    static bool assertTypeBasicValue(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool assertTypeBasicValue(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc);
     static auto constexpr assertTypeBasicValueName = "assert type basicValue";
     static auto constexpr assertTypeBasicValueDesc = "Asserts that the current JSON value is a basic value (not object or array or null).\n"
         "If the value is not a basic value, the transformation fails and the program exits\n"

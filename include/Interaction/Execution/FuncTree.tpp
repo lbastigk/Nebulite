@@ -3,8 +3,8 @@
  * @brief Implementation file for the Basic FuncTree class template functions.
  */
 
-#ifndef NEBULITE_INTERACTION_EXECUTION_FUNCTREE_TPP
-#define NEBULITE_INTERACTION_EXECUTION_FUNCTREE_TPP
+#ifndef NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_TPP
+#define NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_TPP
 
 //------------------------------------------
 // Includes
@@ -36,14 +36,10 @@ FuncTree<returnValue, additionalArgs...>::FuncTree(std::string_view const& treeN
     bindingContainer.functions.emplace(
         helpName,
         FunctionInfo{
-            FunctionPtr(
-                std::in_place_type<typename SupportedFunctions::Modern::NoAddArgsConstRef>,
-                std::function<returnValue(std::span<std::string const> const&)>(
-                    [this](std::span<std::string const> const& args) {
-                        return this->help(args);
-                    }
-                )
-            ),
+                {
+                    makeFunctionPtr(this, &FuncTree::help),
+                    FunctionIdentity{this, &FuncTree::help}
+                },
             helpDesc
         }
     );
@@ -52,14 +48,10 @@ FuncTree<returnValue, additionalArgs...>::FuncTree(std::string_view const& treeN
     bindingContainer.functions.emplace(
         "__complete__",
         FunctionInfo{
-            FunctionPtr(
-                std::in_place_type<typename SupportedFunctions::Modern::NoAddArgsConstRef>,
-                std::function<returnValue(std::span<std::string const> const&)>(
-                    [this](std::span<std::string const> const& args) {
-                        return this->complete(args);
-                    }
-                )
-            ),
+                {
+                    makeFunctionPtr(this, &FuncTree::complete),
+                    FunctionIdentity{this, &FuncTree::complete}
+                },
             completeDesc
         }
     );
@@ -84,8 +76,49 @@ template <typename T> bool FuncTree<returnValue, additionalArgs...>::isEqual(T c
 //------------------------------------------
 // Binding (Functions, Categories, Variables)
 
+// For generating the Wrapper
+
+// Non-static overload: member-function pointer (non-const)
 template <typename returnValue, typename... additionalArgs>
-void FuncTree<returnValue, additionalArgs...>::bindFunction(FunctionPtr const& func, std::string_view const& name, std::string_view const& helpDescription) {
+template <typename R, typename C, typename... Ps>
+void FuncTree<returnValue, additionalArgs...>::bindFunction(
+    R (C::*functionPtr)(Ps...),
+    std::string_view const& name,
+    std::string_view const& helpDescription
+) {
+    auto fp = makeFunctionPtr(functionPtr);
+    auto fp_identity = FunctionIdentity(static_cast<const C*>(this), functionPtr);
+    bindFunction({fp, fp_identity}, name, helpDescription);
+}
+
+// Non-static overload: member-function pointer (const)
+template <typename returnValue, typename... additionalArgs>
+template <typename R, typename C, typename... Ps>
+void FuncTree<returnValue, additionalArgs...>::bindFunction(
+    R (C::*functionPtr)(Ps...) const,
+    std::string_view const& name,
+    std::string_view const& helpDescription
+) {
+    auto fp = makeFunctionPtr(functionPtr);
+    auto fp_identity = FunctionIdentity(static_cast<const C*>(this), functionPtr);
+    bindFunction({fp, fp_identity}, name, helpDescription);
+}
+
+// Non-static overload: generic free/static/callable
+template <typename returnValue, typename... additionalArgs>
+template <typename Func>
+void FuncTree<returnValue, additionalArgs...>::bindFunction(
+    Func functionPtr,
+    std::string_view const& name,
+    std::string_view const& helpDescription
+) {
+    auto fp = makeFunctionPtr(functionPtr);
+    auto fp_identity = FunctionIdentity(functionPtr);
+    bindFunction({fp, fp_identity}, name, helpDescription);
+}
+
+template <typename returnValue, typename... additionalArgs>
+void FuncTree<returnValue, additionalArgs...>::bindFunction(WrappedFunction const& func, std::string_view const& name, std::string_view const& helpDescription) {
     // If the name has a whitespace, the function has to be bound to a category hierarchically
     if (name.find(' ') != std::string::npos) {
         std::vector<std::string> const pathStructure = Utility::StringHandler::split(name, ' ');
@@ -107,15 +140,40 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(FunctionPtr const& f
         return;
     }
 
-    // Check for name conflicts, then bind directly
-    if (conflictCheck(name)) {
-        bindingContainer.functions.emplace(
-            std::string(name),
-            FunctionInfo{
-                func, helpDescription
+    if (auto searchResult = find(std::string(name)); searchResult.any) {
+        if (searchResult.category) {
+            BindErrorMessage::functionShadowsCategory(name);
+        }
+        if (searchResult.function) {
+            if (func.identity == searchResult.funIt->second.function.identity) {
+                // Same function pointer already bound -> ignore
+                return;
             }
-        );
+
+            auto conflictIt = std::find_if(
+                inheritedTrees.begin(), inheritedTrees.end(),
+                [&](auto const& inheritedTree) {
+                    return inheritedTree && inheritedTree->hasFunction(name);
+                }
+            );
+            if (conflictIt != inheritedTrees.end()) {
+                auto const& conflictTree = *conflictIt;
+                BindErrorMessage::functionExistsInInheritedTree(TreeName, conflictTree->TreeName, name);
+            }
+            BindErrorMessage::functionExists(TreeName, name);
+        }
+        if (searchResult.variable) {
+            BindErrorMessage::functionShadowsVariable(name);
+        }
     }
+
+    // All checks passed, bind the function
+    bindingContainer.functions.emplace(
+        std::string(name),
+        FunctionInfo{
+            func, helpDescription
+        }
+    );
 }
 
 // TODO: An "assert_category_exists" function could be useful, which would allow us to create dependent domainModules more easily:
@@ -175,43 +233,6 @@ void FuncTree<returnValue, additionalArgs...>::bindVariable(bool* varPtr, std::s
     *varPtr = false;
     *varPtr = val;
 }
-
-//------------------------------------------
-// Binding helper functions
-
-template <typename returnValue, typename... additionalArgs>
-bool FuncTree<returnValue, additionalArgs...>::conflictCheck(std::string_view const& name) {
-    for (auto const& [categoryName, _] : bindingContainer.categories) {
-        if (categoryName == name) {
-            BindErrorMessage::functionShadowsCategory(name);
-        }
-    }
-
-    if (name == "help" || name == "__complete__") {
-        if (bindingContainer.functions.find(name) != bindingContainer.functions.end()) {
-            // Special function already exists
-            return false;
-        }
-    }
-
-    auto conflictIt = std::find_if(
-        inheritedTrees.begin(), inheritedTrees.end(),
-        [&](auto const& inheritedTree) {
-            return inheritedTree && inheritedTree->hasFunction(name);
-        }
-        );
-    if (conflictIt != inheritedTrees.end()) {
-        auto const& conflictTree = *conflictIt;
-        BindErrorMessage::functionExistsInInheritedTree(TreeName, conflictTree->TreeName, name);
-        return false;
-    }
-    if (hasFunction(name)) {
-        BindErrorMessage::functionExists(TreeName, name);
-        return false;
-    }
-    return true;
-}
-
 
 //------------------------------------------
 // Binding helper
@@ -590,18 +611,22 @@ returnValue FuncTree<returnValue, additionalArgs...>::parseStr(std::string const
     }
 
     // Quote-aware tokenization
-    std::vector<std::string> tokens = Utility::StringHandler::parseQuotedArguments(cmd);
+    std::vector<std::string> const args = Utility::StringHandler::parseQuotedArguments(cmd);
+    return parse(args, addArgs...);
+}
 
+template <typename returnValue, typename... additionalArgs>
+returnValue FuncTree<returnValue, additionalArgs...>::parse(std::vector<std::string> const& args, additionalArgs... addArgs) {
     ////////////////////////////////////////////
     //------------------------------------------
     // TODO: parsing variables etc should be done with tokens or with the span
     //       then we only convert to argc/argv if we need to inside executeFunction
 
     // Convert to argc/argv
-    size_t argc = tokens.size();
+    size_t argc = args.size();
     std::vector<char*> argv_vec;
     argv_vec.reserve(argc + 1);
-    std::transform(tokens.begin(), tokens.end(), std::back_inserter(argv_vec),
+    std::transform(args.begin(), args.end(), std::back_inserter(argv_vec),
                    [](std::string const& str) { return const_cast<char*>(str.c_str()); });
     argv_vec.push_back(nullptr); // Null-terminate
 
@@ -660,7 +685,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
     // Find and execute the function
     auto functionPosition = bindingContainer.functions.find(function);
     if (functionPosition != bindingContainer.functions.end()) {
-        auto& [functionPtr, description] = functionPosition->second;
+        auto& [functionPtr, description] = functionPosition->second.function;
         return std::visit([&]<typename Func>(Func&& func) {
             using T = std::decay_t<Func>;
 
@@ -688,9 +713,9 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
             else if constexpr (std::is_same_v<T, typename SupportedFunctions::Modern::NoArgs>) {
                 return func();
             }
-            // Unknown function type
+            // Unsupported function type
             else {
-                static_assert(Constants::Assert::always_false(), "Unknown function signature in FuncTree::executeFunction");
+                static_assert(Constants::Assert::always_false(), "Unsupported function signature in FuncTree::executeFunction. Check if you just need to remove some const/ref qualifiers.");
             }
         }, functionPtr);
     }
@@ -714,4 +739,4 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
 
 } // namespace Nebulite::Interaction::Execution
 #include "Interaction/Execution/FuncTreeArgumentCompletion.tpp"
-#endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREE_TPP
+#endif // NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_TPP

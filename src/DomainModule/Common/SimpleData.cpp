@@ -1,7 +1,7 @@
 #include "Nebulite.hpp"
-#include "DomainModule/JsonScope/SimpleData.hpp"
+#include "DomainModule/Common/SimpleData.hpp"
 
-namespace Nebulite::DomainModule::JsonScope {
+namespace Nebulite::DomainModule::Common {
 
 Constants::Error SimpleData::update() {return Constants::ErrorTable::NONE();} // No periodic update needed, SimpleData is stateless
 
@@ -90,8 +90,6 @@ Constants::Error SimpleData::ensureArray(std::span<std::string const> const& arg
     }
     return Constants::ErrorTable::NONE();
 }
-
-// TODO: Simplify the following functions by integrating the core logic in Data::JSON as well as the derivatives JsonScope and JsonScopeBase.
 
 Constants::Error SimpleData::push_back(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope){
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
@@ -260,4 +258,4 @@ Constants::Error SimpleData::pop_front(std::span<std::string const> const& args,
     return Constants::ErrorTable::NONE();
 }
 
-} // namespace Nebulite::DomainModule::JsonScope
+} // namespace Nebulite::DomainModule::Common

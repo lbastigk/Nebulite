@@ -100,10 +100,10 @@ public:
     // Constructors
 
     // Constructing a JsonScopeBase from a JSON document and a prefix
-    JsonScopeBase(JSON& doc, std::string const& prefix);
+    explicit JsonScopeBase(JSON& doc, std::optional<std::string> const& prefix);
 
     // Constructing a JsonScopeBase from another JsonScopeBase and a sub-prefix
-    JsonScopeBase(JsonScopeBase const& other, std::string const& prefix);
+    explicit JsonScopeBase(JsonScopeBase const& other, std::optional<std::string> const& prefix);
 
     // Default constructor, we create a self-owned empty JSON document
     explicit JsonScopeBase();
@@ -151,7 +151,7 @@ public:
     [[nodiscard]] JsonScopeBase& shareScopeBase(std::string const& key) const ;
 
     // Share a dummy scope, where all access is denied
-    [[nodiscard]] JsonScopeBase& shareDummyScopeBase() const ;
+    [[nodiscard]] JsonScopeBase& shareDummyScopeBase() ;
 
     //------------------------------------------
     // Getter

@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Wed Mar  4 11:30:08 CET 2026
+Generated on: Thu Mar  5 12:18:44 CET 2026
 
 ## Table of Contents
 
@@ -47,9 +47,9 @@ Available Functions
 | `for` | Executes a for-loop with a function call. |
 | `help` | Show available commands and their descriptions |
 | `if` | Executes a block of code if a condition is true. |
-| `in-scope` | Parses a command within a specific scope of the Global Space. |
 | `input-mapping` | Functions for mapping inputs to actions within the GlobalSpace. |
 | `input-wait` | Waits for user input before continuing. |
+| `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
 | `log` | Functions for logging various states and documents to files. |
@@ -60,6 +60,7 @@ Available Functions
 | `print` | Prints the JSON document to the console for debugging purposes. |
 | `push-back` | Push a value to the back of an array. |
 | `push-front` | Push a value to the front of an array. |
+| `query` | Functions to manipulate JSON data via SQL query results |
 | `query` | Functions to manipulate JSON data via SQL query results |
 | `return` | Returns a custom value as a Critical Error. |
 | `ruleset` | Functions for managing rulesets in the GlobalSpace. |
@@ -583,18 +584,6 @@ It is recommended to wrap the condition in quotes to prevent parsing issues.
 
 Example:
 if '$(eq(1+1,2))' echo Condition is true!
-```
-
-#### `in-scope`
-
-```
-Parses a command within a specific scope of the Global Space.
-
-Usage: in-scope <scope> <command>
-
-Example:
-in-scope global echo This is in the global scope!
-This will output: This is in the global scope!
 ```
 
 #### `input-mapping`
@@ -1519,7 +1508,6 @@ Available Functions
 | `min` | Finds the minimum value among the elements of the array in the current JSON value. |
 | `mod` | Calculates the modulo of the current JSON value by a numeric value. |
 | `mul` | Multiplies the current JSON value by a numeric value. |
-| `parse` | Parses a Nebulite Script command on the JSON |
 | `pow` | Raises the current JSON value to the power of a numeric value. |
 | `print` | Prints the current JSON value to the console. |
 | `product` | Multiplies the elements of the array in the current JSON value. |
@@ -1792,14 +1780,6 @@ Usage: |mod <number1> <number2> ... -> {number/array}
 Multiplies the current JSON value by a numeric value.
 If multiple numbers are provided, the result is an array, one element for each provided argument.
 Usage: |multiply <number1> <number2> ... -> {number/array}
-```
-
-#### `parse`
-
-```
-Parses a Nebulite Script command on the JSON
-Supports argument wrapped in {! ... } for safety with Expression evaluation
-Usage: |parse <command> -> {value}
 ```
 
 #### `pow`

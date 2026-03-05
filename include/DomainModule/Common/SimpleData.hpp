@@ -3,8 +3,8 @@
  * @brief DomainModule for simple data operations on domain class Nebulite::Data::JSON
  */
 
-#ifndef NEBULITE_DOMAINMODULE_JSONSCOPE_SIMPLEDATA_HPP
-#define NEBULITE_DOMAINMODULE_JSONSCOPE_SIMPLEDATA_HPP
+#ifndef NEBULITE_DOMAINMODULE_COMMON_SIMPLEDATA_HPP
+#define NEBULITE_DOMAINMODULE_COMMON_SIMPLEDATA_HPP
 
 //------------------------------------------
 // Includes
@@ -14,20 +14,12 @@
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
-// Forward declarations
-
-namespace Nebulite::Core {
-class JsonScope;
-} // namespace Nebulite::Core
-
-
-//------------------------------------------
-namespace Nebulite::DomainModule::JsonScope {
+namespace Nebulite::DomainModule::Common {
 /**
- * @class Nebulite::DomainModule::JsonScope::SimpleData
+ * @class Nebulite::DomainModule::Common::SimpleData
  * @brief DomainModule for simple data operations on domain class Nebulite::Data::JSON
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::JsonScope, SimpleData) {
+NEBULITE_DOMAINMODULE(Interaction::Execution::Domain, SimpleData) {
 public:
     Constants::Error update() override ;
     void reinit() override {} // No reinitialization needed, SimpleData is stateless
@@ -103,7 +95,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::JsonScope, SimpleData) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Interaction::Execution::Domain, SimpleData) {
         // Bind functions specific to complex data handling
         BIND_FUNCTION(&SimpleData::set, set_name, set_desc);
 
@@ -122,5 +114,5 @@ public:
         BIND_FUNCTION(&SimpleData::ensureArray, ensureArray_name, ensureArray_desc);
     }
 };
-} // namespace Nebulite::DomainModule::JsonScope
-#endif // NEBULITE_DOMAINMODULE_JSONSCOPE_SIMPLEDATA_HPP
+} // namespace Nebulite::DomainModule::Common
+#endif // NEBULITE_DOMAINMODULE_COMMON_SIMPLEDATA_HPP

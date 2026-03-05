@@ -1,5 +1,5 @@
-#ifndef NEBULITE_INTERACTION_EXECUTION_FUNCTREE_ERROR_MESSAGES_HPP
-#define NEBULITE_INTERACTION_EXECUTION_FUNCTREE_ERROR_MESSAGES_HPP
+#ifndef NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_ERROR_MESSAGES_HPP
+#define NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_ERROR_MESSAGES_HPP
 
 //------------------------------------------
 // Includes
@@ -18,6 +18,8 @@ public:
 
     [[noreturn]] static void functionShadowsCategory(std::string_view const& function);
 
+    [[noreturn]] static void functionShadowsVariable(std::string_view const& function);
+
     [[noreturn]] static void functionExistsInInheritedTree(std::string_view const& tree, std::string_view const& inheritedTree, std::string_view const& function);
 
     [[noreturn]] static void parentCategoryDoesNotExist(std::string_view const& name, std::string_view const& currentCategoryName);
@@ -29,6 +31,8 @@ public:
     [[noreturn]] static void variableHasWhitespace(std::string_view const& tree, std::string_view const& variable);
 
     [[noreturn]] static void variableExists(std::string_view const& tree, std::string_view const& variable);
+
+    [[noreturn]] static void commonFunctionHasWhitespace(std::string_view const& function);
 };
 
 class ExecutionErrorMessage {
@@ -39,4 +43,4 @@ public:
 };
 
 } // namespace Nebulite::Interaction::Execution
-#endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREE_ERROR_MESSAGES_HPP
+#endif // NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_ERROR_MESSAGES_HPP

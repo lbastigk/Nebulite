@@ -8,17 +8,17 @@
 // JsonScopeBase methods
 namespace Nebulite::Data {
 // Constructing a JsonScopeBase from a JSON document and a prefix
-JsonScopeBase::JsonScopeBase(JSON& doc, std::string const& prefix)
+JsonScopeBase::JsonScopeBase(JSON& doc, std::optional<std::string> const& prefix)
     // create a non-owning shared_ptr to the provided JSON (no delete on destruction)
     : baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){})),
-      scopePrefix(generatePrefix(prefix)),
+      scopePrefix(prefix.has_value() ? std::optional(generatePrefix(prefix.value())) : std::nullopt),
       odpCache(make_array_with_arg<MappedOrderedDoublePointers, noLockArraySize>(*this))
 {}
 
 // Constructing a JsonScopeBase from another JsonScopeBase and a sub-prefix
-JsonScopeBase::JsonScopeBase(JsonScopeBase const& other, std::string const& prefix)
+JsonScopeBase::JsonScopeBase(JsonScopeBase const& other, std::optional<std::string> const& prefix)
     : baseDocument(other.baseDocument),
-      scopePrefix(ScopedKeyView(generatePrefix(prefix)).full(other)), // Generate full scoped prefix based on the other JsonScopeBase and the new prefix
+      scopePrefix(prefix.has_value() ? std::optional(ScopedKeyView(generatePrefix(prefix.value())).full(other)) : std::nullopt), // Generate full scoped prefix based on the other JsonScopeBase and the new prefix
       odpCache(make_array_with_arg<MappedOrderedDoublePointers, noLockArraySize>(*this))
 {}
 
@@ -47,13 +47,15 @@ JsonScopeBase& JsonScopeBase::shareScopeBase(std::string const& key) const {
     );
 }
 
-JsonScopeBase& JsonScopeBase::shareDummyScopeBase() const {
+JsonScopeBase& JsonScopeBase::shareDummyScopeBase() {
+    if (!scopePrefix.has_value() || !baseDocument) {
+        return *this; // If this is already a dummy scope, return itself
+    }
+
     // Technically, key name does not matter.
     // But if the access control ever fails, at least we only access a known dummy scope,
     // instead of the entire scope.
-    auto& scope = shareScopeBase("__dummy__");
-    scope.scopePrefix = std::nullopt; // Mark as dummy scope
-    return scope;
+    return baseDocument->getDummyScopeBase();
 }
 
 //------------------------------------------

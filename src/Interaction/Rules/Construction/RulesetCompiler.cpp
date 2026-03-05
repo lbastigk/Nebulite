@@ -1,5 +1,4 @@
 #include "Nebulite.hpp"
-#include "Core/JsonScope.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 

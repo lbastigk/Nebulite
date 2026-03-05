@@ -1,6 +1,7 @@
 #include "Nebulite.hpp"
+#include "Data/Document/JsonScopeBase.hpp"
 #include "TransformationModule/Debug.hpp"
-#include "Core/JsonScope.hpp"
+
 
 namespace Nebulite::TransformationModule {
 
@@ -22,7 +23,7 @@ bool Debug::echo(std::span<std::string const> const& args) {
 }
 
 // NOLINTNEXTLINE
-bool Debug::print(std::span<std::string const> const& args, Core::JsonScope* jsonDoc) {
+bool Debug::print(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
     // Print to cout, no modifications
     if (args.size() > 1) {
         for (auto const& arg : args | std::views::drop(1)) {

@@ -10,10 +10,22 @@ Constants::Error FunctionCollision::update() {
 //------------------------------------------
 // Available Functions
 
-Constants::Error FunctionCollision::debug_collisionDetect_function(int const argc, char const** argv){
+namespace {
+bool testFunctionCollision1(bool const& arg) {
+    return arg;
+}
+
+bool testFunctionCollision2(bool const& arg) {
+    (void)arg; // Avoid unused parameter warning
+    return true;
+}
+} // namespace
+
+
+Constants::Error FunctionCollision::debug_collisionDetect_function(std::span<std::string const> const& args){
     bool fail = true;
-    if (argc >= 2) {
-        if (std::string const mode = argv[1]; mode == "succeed") {
+    if (args.size() >= 2) {
+        if (std::string const mode = args.at(1); mode == "succeed") {
             fail = false;
         } else if (mode == "fail") {
             fail = true;
@@ -22,10 +34,13 @@ Constants::Error FunctionCollision::debug_collisionDetect_function(int const arg
         }
     }
 
+    Interaction::Execution::FuncTree<bool,bool const&> testTree("Test",true,true);
+
     if (fail) {
-        // This will fail, as the function name is already registered in GlobalSpace
+        // This will fail, as the function name is already registered
         try {
-            BIND_FUNCTION(&FunctionCollision::debug_collisionDetect_function, debug_collisionDetect_function_name, debug_collisionDetect_function_desc);
+            testTree.bindFunction(&testFunctionCollision1, "test", "Test function for collision detection"); // OK
+            testTree.bindFunction(&testFunctionCollision2, "test", "Test function for collision detection"); // This should cause a collision error
         } catch (...) {
             // Binding failed as expected -> no error
             return Constants::ErrorTable::NONE();
@@ -34,7 +49,8 @@ Constants::Error FunctionCollision::debug_collisionDetect_function(int const arg
     }
     // Try to bind a new function with a unique name
     try {
-        BIND_FUNCTION(&FunctionCollision::debug_collisionDetect_function, "unique_debug_collision_function", debug_collisionDetect_function_desc);
+        testTree.bindFunction(&testFunctionCollision1, "test", "Test function for collision detection"); // OK
+        testTree.bindFunction(&testFunctionCollision1, "test", "Test function for collision detection"); // OK
     } catch (...) {
         // This should not happen
         return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION();
@@ -42,10 +58,10 @@ Constants::Error FunctionCollision::debug_collisionDetect_function(int const arg
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error FunctionCollision::debug_collisionDetect_category(int const argc, char const** argv) const {
+Constants::Error FunctionCollision::debug_collisionDetect_category(std::span<std::string const> const& args) {
     bool fail = true;
-    if (argc >= 2) {
-        if (std::string const mode = argv[1]; mode == "succeed") {
+    if (args.size() >= 2) {
+        if (std::string const mode = args.at(1); mode == "succeed") {
             fail = false;
         } else if (mode == "fail") {
             fail = true;
@@ -54,19 +70,22 @@ Constants::Error FunctionCollision::debug_collisionDetect_category(int const arg
         }
     }
 
+    Interaction::Execution::FuncTree<bool,bool const&> testTree("Test",true,true);
+
     if (fail) {
-        // This will fail, as the category name is already registered in GlobalSpace
+        // This will fail, as the category name is already registered
         try {
-            bindCategory(std::string(debug_collisionDetect_name), debug_collisionDetect_category_desc);
+            testTree.bindCategory("test-category", "Test category for collision detection"); // OK
+            testTree.bindCategory("test-category", "Test category for collision detection"); // Already exists, should cause a collision error
         } catch (...) {
             // Binding failed as expected -> no error
             return Constants::ErrorTable::NONE();
         }
         return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION_EXPECTED();
     }
-    // Try to bind a new category with a unique name
+    // Try to bind a category once
     try {
-        bindCategory("123456", debug_collisionDetect_category_desc);
+        testTree.bindCategory("test-category", "Test category for collision detection"); // OK
     } catch (...) {
         // This should not happen
         return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION();
@@ -74,7 +93,7 @@ Constants::Error FunctionCollision::debug_collisionDetect_category(int const arg
 
     // Just to be safe, we bind a sub-category as well
     try {
-        bindCategory("123456 subcategory", debug_collisionDetect_category_desc);
+        testTree.bindCategory("test-category test-inner-category", "Test category for collision detection"); // OK
     } catch (...) {
         // This should not happen
         return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION();
@@ -82,10 +101,10 @@ Constants::Error FunctionCollision::debug_collisionDetect_category(int const arg
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error FunctionCollision::debug_collisionDetect_variable(int const argc, char const** argv) const {
+Constants::Error FunctionCollision::debug_collisionDetect_variable(std::span<std::string const> const& args) {
     bool fail = true;
-    if (argc >= 2) {
-        if (std::string const mode = argv[1]; mode == "succeed") {
+    if (args.size() >= 2) {
+        if (std::string const mode = args.at(1); mode == "succeed") {
             fail = false;
         } else if (mode == "fail") {
             fail = true;
@@ -94,22 +113,23 @@ Constants::Error FunctionCollision::debug_collisionDetect_variable(int const arg
         }
     }
 
+    Interaction::Execution::FuncTree<bool,bool> testTree("Test",true,true);
+    static bool headless = false;
+    const static std::string headless_var_desc = "Indicates whether the application is running in headless mode (without GUI).";
+
     if (fail) {
         // This will fail, as the variable name is already registered in GlobalSpace
-        static bool headless = false;
-        const static std::string headless_var_desc = "Indicates whether the application is running in headless mode (without GUI).";
         try {
-            bindVariable(&headless, "headless", headless_var_desc);
+            testTree.bindVariable(&headless, "headless", headless_var_desc); // OK, as this is the first time we bind "headless" in this tree
+            testTree.bindVariable(&headless, "headless", headless_var_desc); // This should cause a collision error
         } catch (...) {
             // Binding failed as expected -> no error
             return Constants::ErrorTable::NONE();
         }
         return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION_EXPECTED();
     }
-    // Try to bind a new variable with a unique name
-    static bool testVar = false;
     try {
-        bindVariable(&testVar, "unique_debug_collision_variable", debug_collisionDetect_variable_desc);
+        testTree.bindVariable(&headless, "headless", headless_var_desc); // OK
     } catch (...) {
         // This should not happen
         return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION();

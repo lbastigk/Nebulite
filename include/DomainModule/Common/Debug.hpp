@@ -3,8 +3,8 @@
  * @brief Implementation of force and clearForce functions for forcing JSON variable values.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_JSONSCOPE_DEBUG_HPP
-#define NEBULITE_DOMAINMODULE_JSONSCOPE_DEBUG_HPP
+#ifndef NEBULITE_DOMAIN_MODULE_COMMON_DEBUG_HPP
+#define NEBULITE_DOMAIN_MODULE_COMMON_DEBUG_HPP
 
 //------------------------------------------
 // Includes
@@ -16,13 +16,9 @@
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite::Core {
-class JsonScope;
-} // namespace Nebulite::Data
-
 //------------------------------------------
-namespace Nebulite::DomainModule::JsonScope {
-NEBULITE_DOMAINMODULE(Nebulite::Core::JsonScope, Debug) {
+namespace Nebulite::DomainModule::Common {
+NEBULITE_DOMAINMODULE(Nebulite::Interaction::Execution::Domain, Debug) {
 public:
     Constants::Error update() override;
     void reinit() override {}
@@ -43,7 +39,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::JsonScope, Debug) {
+    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Interaction::Execution::Domain, Debug) {
         // Binding
         BIND_FUNCTION(&Debug::print, print_name, print_desc);
     }
@@ -51,5 +47,5 @@ public:
 private:
     absl::flat_hash_map<std::string, std::string> forced_global_values; // Key-Value pairs to set in global JSON
 };
-} // namespace Nebulite::DomainModule::JsonScope
-#endif // NEBULITE_DOMAINMODULE_JSONSCOPE_DEBUG_HPP
+} // namespace Nebulite::DomainModule::Common
+#endif // NEBULITE_DOMAIN_MODULE_COMMON_DEBUG_HPP

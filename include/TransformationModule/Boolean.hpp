@@ -12,7 +12,7 @@ namespace Nebulite::TransformationModule {
 
 class Boolean final : public Data::TransformationModule {
 public:
-    explicit Boolean(std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> const& funcTree)
+    explicit Boolean(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScopeBase*>> const& funcTree)
         : TransformationModule(funcTree) {}
 
     void bindTransformations() override;

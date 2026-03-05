@@ -31,11 +31,18 @@ void BindErrorMessage::functionShadowsCategory(std::string_view const& function)
     throw std::runtime_error("FuncTree binding failed due to function shadowing category.");
 }
 
+void BindErrorMessage::functionShadowsVariable(std::string_view const& function) {
+    Error::println("---------------------------------------------------------------");
+    Error::println("A Nebulite FuncTree binding failed!");
+    Error::println("Error: Cannot bind function '", function, "' because a variable with the same name already exists.");
+    throw std::runtime_error("FuncTree binding failed due to function shadowing variable.");
+}
+
 void BindErrorMessage::functionExistsInInheritedTree(std::string_view const& tree, std::string_view const& inheritedTree, std::string_view const& function) {
     Error::println("---------------------------------------------------------------");
     Error::println("A Nebulite FuncTree binding failed!");
     Error::println("Error: A bound Function already exists in the inherited FuncTree.");
-    Error::println("Function overwrite is heavily discouraged and thus not allowed.");
+    Error::println("Function overwrite is only allowed if the function it points to is still the same.");
     Error::println("Please choose a different name or remove the existing function.");
     Error::println("This Tree: ", tree);
     Error::println("inherited FuncTree:   ", inheritedTree);
@@ -82,6 +89,13 @@ void BindErrorMessage::variableExists(std::string_view const& tree, std::string_
     Error::println("Error: Variable '", variable, "' is already bound.");
     Error::println("This Tree: ", tree);
     throw std::runtime_error("Failed to bind variable due to name conflict.");
+}
+
+void BindErrorMessage::commonFunctionHasWhitespace(std::string_view const& function) {
+    Error::println("---------------------------------------------------------------");
+    Error::println("A Nebulite FuncTree binding failed!");
+    Error::println("Error: Common function name '", function, "' cannot contain whitespaces.");
+    throw std::runtime_error("Failed to bind common function due to invalid name.");
 }
 
 //------------------------------------------

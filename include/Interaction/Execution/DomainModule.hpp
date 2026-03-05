@@ -62,9 +62,9 @@ public:
      * @param settings Const JsonScopeBase reference for settings.
      */
     DomainModule(
-        std::string name,
+        std::string const& name,
         DomainType& domainReference,
-        std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> funcTreePtr,
+        std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> const& funcTreePtr,
         Data::JsonScopeBase& scope,
         Data::JsonScopeBase const& settings
     );
@@ -76,6 +76,8 @@ public:
 
     // Prevent assignment
     DomainModule& operator=(DomainModule const&) = delete;
+
+    // TODO: hide the update function from the user if DomainType is base class Domain!
 
 protected:
     //------------------------------------------

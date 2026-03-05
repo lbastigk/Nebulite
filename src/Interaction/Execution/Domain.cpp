@@ -1,7 +1,7 @@
 #include "Nebulite.hpp"
-#include "Core/JsonScope.hpp"
 #include "Data/Document/JsonScopeBase.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "DomainModule/Initializer.hpp"
 #include "Interaction/Context.hpp"
 
 #include <vector>
@@ -9,38 +9,52 @@
 // Document Accessor
 namespace Nebulite::Interaction::Execution {
 
-DocumentAccessor::DocumentAccessor(Core::JsonScope& d) : domainScope(d) {}
+ScopeOwner::ScopeOwner(ScopeOwnership const& ownership) {
+    if (ownership == ScopeOwnership::Owned) {
+        _domainScopeOwned = std::make_unique<Data::JsonScopeBase>();
+    }
+}
+
+DocumentAccessor::DocumentAccessor(Data::JsonScopeBase& d) : ScopeOwner(ScopeOwnership::Borrowed), domainScope(d) {}
+
+DocumentAccessor::DocumentAccessor() : ScopeOwner(ScopeOwnership::Owned), domainScope(*_domainScopeOwned) {
+    // Note: This creates a new JsonScopeBase that is owned by this DocumentAccessor.
+    // It will be automatically cleaned up when the DocumentAccessor is destroyed.
+}
 
 DocumentAccessor::~DocumentAccessor() = default;
 
 } // namespace Nebulite::Interaction::Execution
 
-// Domain Base
 namespace Nebulite::Interaction::Execution {
 
-Domain& Domain::operator=(Domain const& other) {
-    if (this == &other) return *this;
-    if (&domainScope != &other.domainScope) {
-        throw std::invalid_argument("Domain::operator=: cannot assign from object with different document reference");
-    }
+// NOLINTNEXTLINE
+Domain::Domain(std::string const& name, Data::JsonScopeBase& documentReference) : DocumentAccessor(documentReference), domainName(name){
+    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>>(
+        name,
+        Constants::ErrorTable::NONE(),
+        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
+    );
 
-    domainName = other.domainName;
-    funcTree = other.funcTree; // shared ownership
-    if (funcTree) {
-        // Rebind preParse to this object (avoid using other's bound callback)
-        funcTree->setPreParse([this] { return preParse(); });
-    }
-    return *this;
+    // Set default preParse to Domain::preParse
+    funcTree->setPreParse([this] { return preParse(); });
+
+    // Initialize modules
+    Nebulite::DomainModule::Initializer::initCommon(this);
 }
 
-Domain& Domain::operator=(Domain&& other) noexcept {
-    if (this == &other) return *this;
-    domainName = std::move(other.domainName);
-    funcTree = std::move(other.funcTree);
-    if (funcTree) {
-        funcTree->setPreParse([this] { return preParse(); });
-    }
-    return *this;
+Domain::Domain(std::string const& name) : domainName(name) {
+    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>>(
+        name,
+        Constants::ErrorTable::NONE(),
+        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
+    );
+
+    // Set default preParse to Domain::preParse
+    funcTree->setPreParse([this] { return preParse(); });
+
+    // Initialize modules
+    Nebulite::DomainModule::Initializer::initCommon(this);
 }
 
 Domain::~Domain() = default;
@@ -50,12 +64,6 @@ std::string const& Domain::scopePrefix() const {
 }
 
 Constants::Error Domain::parseStr(std::string const& str) {
-    // NOTE: This may fail, as domainScope is from the domain itself, potentially larger than scopes from inner domains
-    //       e.g. we may call parseStr from RenderObject, but the function exists in Texture domain with prefix "texture."
-    //       In that case, we accidentally pass the RenderObject scope instead of the Texture scope...
-    //       Is this okay? For now, we assume it is. Meaning we should not use callerScope in inner Domains with a prefix.
-    //       CallerScope is, however, a nice addition for DomainModules that have no workspace like JsonScope SimpleData.
-    //       This ensures that any calls only touch intended parts of the document.
     return funcTree->parseStr(str, *this, domainScope);
 }
 

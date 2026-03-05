@@ -23,9 +23,9 @@ class Renderer;
 class Texture;
 } // namespace Nebulite::Core
 
-namespace Nebulite::Data {
-class JSON;
-} // namespace Nebulite::Data
+namespace Nebulite::Interaction::Execution {
+class Domain;
+} // namespace Nebulite::Interaction::Execution
 
 //------------------------------------------
 namespace Nebulite::DomainModule {
@@ -41,6 +41,11 @@ namespace Nebulite::DomainModule {
 class Initializer {
 public:
     /**
+     * @brief Initializes common features for all domains
+     */
+    static void initCommon(Interaction::Execution::Domain* target);
+
+    /**
      * @brief Initializes DomainModules for the Environment Domain.
      * @param target Pointer to the Environment domain to initialize.
      */
@@ -51,12 +56,6 @@ public:
      * @param target Pointer to the GlobalSpace domain to initialize.
      */
     static void initGlobalSpace(Core::GlobalSpace* target);
-
-    /**
-     * @brief Initializes DomainModules for the JsonScope Domain.
-     * @param target Pointer to the JsonScope domain to initialize.
-     */
-    static void initJsonScope(Core::JsonScope* target);
 
     /**
      * @brief Initializes DomainModules for the RenderObject Domain.

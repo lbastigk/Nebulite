@@ -33,7 +33,6 @@
 namespace Nebulite::Core {
 class Environment;
 class GlobalSpace;
-class JsonScope;
 class Renderer;
 class RenderObject;
 class Texture;
@@ -57,10 +56,6 @@ namespace Nebulite::Interaction {
 class Context; // Requires access to demote to ContextScope
 } // namespace Nebulite::Interaction
 
-namespace Nebulite::Interaction::Execution {
-class Domain;
-} // namespace Nebulite::Interaction::Execution
-
 namespace Nebulite::Interaction::Logic {
 class Assignment;   // Requires access to set target documents
 class Expression;   // Requires access to get unscoped values from global scope
@@ -80,6 +75,23 @@ class RulesetCompiler;
 // Document Accessor
 
 namespace Nebulite::Interaction::Execution {
+
+// Helps not expose the domainScopeOwned to friend classes of DocumentAccessor
+class ScopeOwner {
+    friend class DocumentAccessor;
+    // Only used if the DocumentAccessor owns the scope (i.e., when constructed with the default constructor)
+    std::unique_ptr<Data::JsonScopeBase> _domainScopeOwned;
+
+public:
+    enum class ScopeOwnership {
+        Owned, // Will create and own a new JsonScopeBase (default constructor)
+        Borrowed // Will be left empty
+    };
+
+    virtual ~ScopeOwner() = default;
+    explicit ScopeOwner(ScopeOwnership const& ownership = ScopeOwnership::Borrowed);
+};
+
 /**
  * @brief DocumentAccessor provides controlled access to a domain's JSON document.
  * @details This class is designed to be a friend of various domain-related classes,
@@ -88,11 +100,13 @@ namespace Nebulite::Interaction::Execution {
  *          For example, DomainModules should not have direct access to the domain's document,
  *          due to the encapsulation they provide. Instead, we pass a scope to them.
  */
-class DocumentAccessor {
+class DocumentAccessor : ScopeOwner {
 public:
-    explicit DocumentAccessor(Core::JsonScope& d);
+    explicit DocumentAccessor(Data::JsonScopeBase& d);
 
-    virtual ~DocumentAccessor();
+    explicit DocumentAccessor(); // Creates a new JsonScopeBase owned by this DocumentAccessor
+
+    ~DocumentAccessor() override;
 
     friend class Domain;
 
@@ -175,27 +189,19 @@ class Domain : public DocumentAccessor {
     std::vector<std::unique_ptr<DomainModuleBase>> modules;
 
 public:
-    Domain(std::string const& name, Core::JsonScope& documentReference)
-        : DocumentAccessor(documentReference), domainName(name){
-        funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>>(
-            name,
-            Constants::ErrorTable::NONE(),
-            Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
-        );
+    Domain(std::string const& name, Data::JsonScopeBase& documentReference);
 
-        // Set default preParse to Domain::preParse
-        funcTree->setPreParse([this] { return preParse(); });
-    }
+    explicit Domain(std::string const& name);
 
     ~Domain() override ;
 
     //------------------------------------------
     // Disallow copying and moving
 
-    Domain(Domain const&) = default;
-    Domain& operator=(Domain const& other);
-    Domain(Domain&&) = default;
-    Domain& operator=(Domain&& other) noexcept;
+    Domain(Domain const&) = delete;
+    Domain& operator=(Domain const& other) = delete;
+    Domain(Domain&&) = delete;
+    Domain& operator=(Domain&& other) = delete;
 
     //------------------------------------------
     // Get Document prefix
@@ -234,6 +240,16 @@ public:
     //------------------------------------------
     // Module Initialization and Updating
 
+    /**
+     * @brief Creates a DomainModule of the specified type with proper linkage, deriving the scope from the module's static scope member.
+     * @tparam DomainType The type of the domain to link the module to
+     * @tparam DomainModuleType The type of module to initialize, must have a static member `Key::scope` that defines the scope for the module, else a dummy scope will be shared (no workspace)
+     * @param moduleName The name of the module
+     * @param settings The settings JsonScope for the module
+     * @param domainReference Reference to the domain to link the module to
+     * @param funcTree Shared FuncTree for the module to modify, should be the same FuncTree as the Domain's main FuncTree
+     * @return A unique pointer to the created DomainModule of the specified type
+     */
     template <typename DomainType, typename DomainModuleType>
     static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScopeBase const& settings, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> funcTree) {
         // Determine the key from root level
@@ -275,9 +291,17 @@ public:
      */
     template <typename DomainType, typename DomainModuleType>
     void initModule(std::string const& moduleName, Data::JsonScopeBase const& settings, DomainType& domainReference) {
-        auto DomainModule = createModule<DomainType, DomainModuleType>(moduleName, settings, domainReference, getFuncTree());
-        DomainModule->reinit();
-        modules.push_back(std::move(DomainModule));
+        if constexpr(std::is_same_v<DomainType, Domain>) {
+            // If the DomainType is the base Domain class, we initialize modules without scope
+            auto& scope = domainReference.domainScope.shareDummyScopeBase();
+            auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, funcTree, scope, settings);
+            DomainModule->reinit();
+            modules.push_back(std::move(DomainModule));
+        } else {
+            auto DomainModule = createModule<DomainType, DomainModuleType>(moduleName, settings, domainReference, getFuncTree());
+            DomainModule->reinit();
+            modules.push_back(std::move(DomainModule));
+        }
     }
 
     /**

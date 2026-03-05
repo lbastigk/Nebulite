@@ -1,7 +1,6 @@
 #include "Nebulite.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Data/Document/JsonScopeBase.hpp"
-#include "Core/JsonScope.hpp"
 
 namespace Nebulite::Interaction::Rules {
 

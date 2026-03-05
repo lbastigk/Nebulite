@@ -71,16 +71,8 @@ You can quickly verify the correctness of an expression with the command line:
 
 Nebulite offers clean expansions of its functionality through its DomainModules. 
 Maintainers can create their own module classes and add them to a specific domain.
-
-| Domain: Commands operating on...  | Action                                                            | Info                                                                                          |
-|-----------------------------------|-------------------------------------------------------------------|-----------------------------------------------------------------------------------------------|
-| Global level                      | Extend `Initializer.hpp` by creating GlobalSpace DomainModules    | See `include/Core/GlobalSpace.hpp` and its modules  `include/DomainModule/GlobalSpace/*.hpp`  |
-| Renderer                          | Extend `Initializer.hpp` by creating Renderer DomainModules       | See `include/Core/Renderer.hpp` and its modules     `include/DomainModule/Renderer/*.hpp`     |
-| Environment                       | Extend `Initializer.hpp` by creating Environment DomainModules    | See `include/Core/Environment.hpp` and its modules  `include/DomainModule/Environment/*.hpp`  |
-| Specific RenderObjects            | Extend `Initializer.hpp` by creating RenderObject DomainModules   | See `include/Core/RenderObject.hpp` and its modules `include/DomainModule/RenderObject/*.hpp` |
-| Specific JSON-Documents           | Extend `Initializer.hpp` by creating JSON DomainModules           | See `include/Utility/JSON.hpp` and its modules      `include/DomainModule/JSON/*.hpp`         |
-| Specific Textures                 | Extend `Initializer.hpp` by creating Texture DomainModules        | See `include/Core/Texture.hpp` and its modules      `include/DomainModule/Texture/*.hpp`      |
-
+Either for specific Domains such as Renderer or for the GlobalSpace, 
+or common functionality that is shared across multiple domains.
 
 Each DomainModule has access to a different domain workspace through `domain....`,
 as well as an update routine, allowing us to declutter classes by binding routines to specific modules:
@@ -94,18 +86,18 @@ and more. We then just insert each module into the class and its update function
 ### Function Collision Prevention
 
 Domains follow an inheritance tree structure for their functions:
-- `GlobalSpace` automatically inherits all functions from `JSON` and `Renderer`
-- `Renderer` inherits from `Environment`, but not from `JSON`, as it shares the same document as `GlobalSpace`
-- `RenderObject` automatically inherits all functions from `JSON` and `Texture`
-- `Texture` does not inherit from any other domain, but shares the same document as `RenderObject`
+- `GlobalSpace` automatically inherits all functions from `Renderer`
+- `Renderer` inherits from `Environment`
+- `RenderObject` inherits no other domain, but has floating texture Domains that live inside the same Document that need to be individually accessed.
+   Inheritance is not feasible, as a RenderObject may have multiple textures.
+- `Texture` does not inherit from any other domain.
 
 The difference between inheritance and shared documents is that functions parsed in the Domain 
 are only redirected to another Domain if they inherit from it. Shared documents only allow access to the same variables
 or manual function calls.
 
-It is **not allowed** to overwrite already existing functions:
-- If the function `set` was already declared, it is not possible to declare a new `set` function in that same tree
-- If the function `set` was already declared for the category, it is not possible to declare a new `set` function in the Tree that inherits the function
+It is **not allowed** to overwrite already existing functions, unless the function it points to is exactly the same.
+This is to prevent accidental overwriting of functions and ensure that different modules can safely bind to the same function without worrying about collisions.
 
 Furthermore, it is not allowed to overwrite existing `categories` with functions and vice versa. 
 
@@ -207,7 +199,7 @@ public:
     }
     
     // Add the following struct for sharing data between modules
-    struct Key {
+    struct Key : Data::KeyGroup<"myModule."> { // Sets scope of the module
         // Any key created inside this struct can be accessed by other modules with the same scope or a higher scope
         // If DECLARE_SCOPE is not used, this module will have no workspace (the initmodule function will recognize this and not create a workspace for it)
         // DECLARE_SCOPE expects a scope from the root of the entire json document
@@ -217,7 +209,6 @@ public:
         // -> the texture scope from a RenderObject would be "draw.<drawcallname>"
         //    The idea would be to make these keys per-object instead of static, 
         //    so we can use texture.key.myValue instead of Texture::Key::myValue, which would be shared across all textures.
-        DECLARE_SCOPE("myModule")
         
         // Example of a shared variable that can be accessed by other modules with the same or higher scope
         // using MyModule::Key::myValue

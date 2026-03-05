@@ -2,7 +2,7 @@
 // Includes
 
 #include "Nebulite.hpp"
-#include "Core/JsonScope.hpp"
+#include "Data/Document/JsonScopeBase.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonRvalueTransformer.hpp"
 
@@ -15,7 +15,6 @@
 #include "TransformationModule/Casting.hpp"
 #include "TransformationModule/Collection.hpp"
 #include "TransformationModule/Debug.hpp"
-#include "TransformationModule/Domain.hpp"
 #include "TransformationModule/General.hpp"
 #include "TransformationModule/Requirements.hpp"
 #include "TransformationModule/Statistics.hpp"
@@ -26,7 +25,7 @@
 namespace Nebulite::Data {
 
 JsonRvalueTransformer::JsonRvalueTransformer() {
-    transformationFuncTree = std::make_shared<Interaction::Execution::FuncTree<bool, Core::JsonScope*>>("JSON rvalue transformation FuncTree", true, false);
+    transformationFuncTree = std::make_shared<Interaction::Execution::FuncTree<bool, JsonScopeBase*>>("JSON rvalue transformation FuncTree", true, false);
 
     //------------------------------------------
     // Initialize modules
@@ -37,7 +36,6 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     initModule<Nebulite::TransformationModule::Casting>();
     initModule<Nebulite::TransformationModule::Collection>();
     initModule<Nebulite::TransformationModule::Debug>();
-    initModule<Nebulite::TransformationModule::Domain>();
     initModule<Nebulite::TransformationModule::General>();
     initModule<Nebulite::TransformationModule::Requirements>();
     initModule<Nebulite::TransformationModule::Statistics>();
@@ -51,7 +49,7 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     }
 }
 
-bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, Core::JsonScope* jsonDoc) const {
+bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JsonScopeBase* jsonDoc) const {
     static std::string const funcName = __FUNCTION__;
     if (args.empty()) [[unlikely]] {
         return false;
@@ -71,7 +69,7 @@ bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, Core::Js
 }
 
 bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JSON* jsonDoc) const {
-    auto& scope = jsonDoc->fullScope();
+    auto& scope = jsonDoc->fullScopeBase();
     static std::string const funcName = __FUNCTION__;
     if (args.empty()) [[unlikely]] {
         return false;

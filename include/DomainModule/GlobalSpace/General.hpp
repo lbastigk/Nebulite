@@ -197,16 +197,6 @@ public:
         "Useful for testing or as a placeholder in scripts where no action is required,\n"
         "but a command is syntactically necessary.\n";
 
-    [[nodiscard]] Constants::Error inScope(std::span<std::string const> const& args) const ;
-    static auto constexpr inScope_name = "in-scope";
-    static auto constexpr inScope_desc = "Parses a command within a specific scope of the Global Space.\n"
-        "\n"
-        "Usage: in-scope <scope> <command>\n"
-        "\n"
-        "Example:\n"
-        "in-scope global echo This is in the global scope!\n"
-        "This will output: This is in the global scope!\n";
-
     //------------------------------------------
     // Category names
 
@@ -232,7 +222,6 @@ public:
         BIND_FUNCTION(&General::always, always_name, always_desc);
         BIND_FUNCTION(&General::alwaysClear, alwaysClear_name, alwaysClear_desc);
         BIND_FUNCTION(&General::nop, nop_name, nop_desc);
-        BIND_FUNCTION(&General::inScope, inScope_name, inScope_desc);
     }
 };
 } // namespace Nebulite::DomainModule::GlobalSpace

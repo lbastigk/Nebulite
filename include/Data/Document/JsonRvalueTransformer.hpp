@@ -23,12 +23,9 @@
 //------------------------------------------
 // Forward declarations
 
-namespace Nebulite::Core {
-class JsonScope;
-} // namespace Nebulite::Core
-
 namespace Nebulite::Data {
 class JSON;
+class JsonScopeBase;
 class TransformationModule;
 } // namespace Nebulite::Data
 
@@ -51,7 +48,7 @@ class JsonRvalueTransformer {
      *          Takes in a JsonScope pointer as argument to modify.
      *          Returns true on success, false on failure.
      */
-    std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> transformationFuncTree;
+    std::shared_ptr<Interaction::Execution::FuncTree<bool, JsonScopeBase*>> transformationFuncTree;
 
     /**
      * @brief List of all initialized transformation modules
@@ -81,7 +78,7 @@ public:
      *                in a specified key. On success, the modified value will be stored back in the same key.
      * @return true if the transformations were successfully applied, false otherwise.
      */
-    bool parse(std::vector<std::string> const& args, Core::JsonScope* jsonDoc) const ;
+    bool parse(std::vector<std::string> const& args, JsonScopeBase* jsonDoc) const ;
     bool parse(std::vector<std::string> const& args, JSON* jsonDoc) const ;
 };
 } // namespace Nebulite::Data

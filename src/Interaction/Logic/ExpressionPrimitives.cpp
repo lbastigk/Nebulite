@@ -47,15 +47,20 @@ double ExpressionPrimitives::rng3argInt16(double a, double b, double c) {
     return static_cast<double>(seed % 32768); // Return a value between 0 and 32767
 }
 
+namespace {
+bool pseudoBind() {
+    return true;
+}
+} // namespace
+
 void ExpressionPrimitives::help(std::span<std::string const> const& args) {
     // Create a temporary funcTree to utilize its printFunctionList method for formatted output
 
-    Execution::FuncTree<void*> tempFuncTree("Nebulite Expressions", nullptr, nullptr);
+    Execution::FuncTree<bool> tempFuncTree("Nebulite Expressions", true, true);
 
     // Use a void lambda as binding function
-    auto pseudoBind = []{return nullptr;};
     for (const auto& funcInfo : availableFunctions()) {
-        tempFuncTree.bindFunction(pseudoBind, funcInfo.name, funcInfo.description);
+        tempFuncTree.bindFunction(&pseudoBind, funcInfo.name, funcInfo.description);
     }
 
     // Parse the given command into the temporary funcTree:

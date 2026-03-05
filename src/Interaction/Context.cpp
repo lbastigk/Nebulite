@@ -1,6 +1,6 @@
+#include "Data/Document/JsonScopeBase.hpp"
 #include "Interaction/Context.hpp"
 #include "Interaction/Execution/Domain.hpp"
-#include "Core/JsonScope.hpp"
 
 namespace Nebulite::Interaction {
 

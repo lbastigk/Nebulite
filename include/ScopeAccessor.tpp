@@ -13,8 +13,8 @@ ScopeAccessor::DomainModuleToken<DomainType>::DomainModuleToken(Interaction::Exe
         prefix = "" + dm.moduleScope.getScopePrefix();
     } else if constexpr (std::is_same_v<DomainType, Core::RenderObject>) {
         prefix = "providedScope.domainModule.renderObject."  + dm.moduleScope.getScopePrefix();
-    } else if constexpr (std::is_same_v<DomainType, Core::JsonScope>) {
-        prefix = "providedScope.domainModule.jsonScope." + dm.moduleScope.getScopePrefix();
+    } else if constexpr (std::is_same_v<DomainType, Data::JsonScopeBase>) {
+        prefix = "providedScope.domainModule.jsonScopeBase." + dm.moduleScope.getScopePrefix();
     } else {
         static_assert(Constants::Assert::always_false(), "ScopeAccessor::DomainModuleToken: Unsupported DomainType for DomainModuleToken");
         std::unreachable();

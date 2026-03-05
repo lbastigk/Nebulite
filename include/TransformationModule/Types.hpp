@@ -12,7 +12,7 @@ namespace Nebulite::TransformationModule {
 
 class Types final : public Data::TransformationModule {
 public:
-    explicit Types(std::shared_ptr<Interaction::Execution::FuncTree<bool, Core::JsonScope*>> const& funcTree)
+    explicit Types(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScopeBase*>> const& funcTree)
         : TransformationModule(funcTree) {}
 
     void bindTransformations() override;
@@ -20,28 +20,28 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    static bool typeAsNumber(Core::JsonScope* jsonDoc);
+    static bool typeAsNumber(Data::JsonScopeBase* jsonDoc);
     static auto constexpr typeAsNumberName = "typeAsNumber";
     static auto constexpr typeAsNumberDesc = "Converts the current JSON type value to a number.\n"
         "Usage: |typeAsNumber -> {number}"
         "where the number reflects the enum value KeyType.\n";
 
-    static bool typeAsString(Core::JsonScope* jsonDoc);
+    static bool typeAsString(Data::JsonScopeBase* jsonDoc);
     static auto constexpr typeAsStringName = "typeAsString";
     static auto constexpr typeAsStringDesc = "Converts the current JSON type value to a string.\n"
         "Usage: |typeAsString -> {value,array,object}\n";
 
-    static bool serialize(Core::JsonScope* jsonDoc);
+    static bool serialize(Data::JsonScopeBase* jsonDoc);
     static auto constexpr serializeName = "serialize";
     static auto constexpr serializeDesc = "Serializes the current JSON value to a string.\n"
         "Usage: |serialize -> {string}\n";
 
-    static bool deserialize(Core::JsonScope* jsonDoc);
+    static bool deserialize(Data::JsonScopeBase* jsonDoc);
     static auto constexpr deserializeName = "deserialize";
     static auto constexpr deserializeDesc = "Deserializes the current JSON string value stored in root.\n"
         "Usage: |deserialize -> {value}\n";
 
-    static bool exists(std::span<std::string const> const& args, Core::JsonScope* jsonDoc);
+    static bool exists(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc);
     static auto constexpr existsName = "exists";
     static auto constexpr existsDesc = "Checks if a specified key exists in the current JSON object.\n"
         "If no key is provided, checks if the current JSON value is not null.\n"

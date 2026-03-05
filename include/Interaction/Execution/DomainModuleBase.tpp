@@ -3,6 +3,8 @@
 
 #include "Interaction/Execution/DomainModuleBase.hpp"
 
+// TODO: Consider passing all of these directly to funcTree
+
 namespace Nebulite::Interaction::Execution {
 // Implementation: free/static/function-object overload
 template <typename Func, typename FuncTreeType>
@@ -14,7 +16,8 @@ void DomainModuleBase::bindFunctionStatic(
 ) {
     // Delegate to FuncTree helper to construct FunctionPtr and bind
     auto fp = FuncTreeType::makeFunctionPtr(functionPtr);
-    tree->bindFunction(fp, name, helpDescription);
+    auto fp_identity = typename FuncTreeType::FunctionIdentity(functionPtr);
+    tree->bindFunction({fp, fp_identity}, name, helpDescription);
 }
 
 // Implementation: object + member-function-pointer overload
@@ -30,7 +33,8 @@ void DomainModuleBase::bindFunctionStatic(
 
     // Delegate to FuncTree helper that binds the member pointer to the object
     auto fp = FuncTreeType::makeFunctionPtr(objectPtr, functionPtr);
-    tree->bindFunction(fp, name, helpDescription);
+    auto fp_identity = typename FuncTreeType::FunctionIdentity(objectPtr, functionPtr);
+    tree->bindFunction({fp, fp_identity}, name, helpDescription);
 }
 
 // --- New definitions: category-last overloads ---
