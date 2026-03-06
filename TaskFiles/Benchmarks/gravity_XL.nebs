@@ -12,13 +12,14 @@
 
 # Number of objects per row/column (total objects = n*n)
 # only set if the value hasn't been defined yet
-if $(gt({global.loop.n},0)) echo Predefined object count detected.
-if $(leq({global.loop.n},0)) set loop.n 40
+if $(gt({global.settings.n},0)) echo Predefined object count detected.
+if $(leq({global.settings.n},0)) set settings.n 40
+if $(leq({global.settings.frameCount},0)) set settings.frameCount 2000
 
 set storeSnapshots 0
 set snapshotInterval 100
 
-# Frame average for loop.n=40:
+# Frame average for settings.n=40:
 # 0.745 seconds, 2025-09
 # 0.200 seconds, 2025-10 (new Broadcast-Listen-Model and more efficient threading)
 # 0.075 seconds, 2026-01 (many micro-optimizations)
@@ -36,14 +37,14 @@ show-fps on
 ###############################################
 # [INFO]
 echo
-eval echo Benchmark with $i( {global.loop.n} * {global.loop.n} ) Objects...
+eval echo Benchmark with $i( {global.settings.n} * {global.settings.n} ) Objects...
 eval echo Rendering with a fixed dt of 1 ms
 echo
 
 # Total count of interactions per frame:
 # Gravity,  Apply force, Collision
 # (n*n)^2   + n*n        + 4*n*n
-eval set interactionCountPerFrame $( ({global.loop.n} * {global.loop.n})^2 + ({global.loop.n} * {global.loop.n}) + 4*({global.loop.n} * {global.loop.n}) )
+eval set interactionCountPerFrame $( ({global.settings.n} * {global.settings.n})^2 + ({global.settings.n} * {global.settings.n}) + 4*({global.settings.n} * {global.settings.n}) )
 echo
 eval echo Total ruleset invocations per frame (without sun): $({global.interactionCountPerFrame} / 1000000) million
 echo
@@ -82,19 +83,19 @@ eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc \
 
 ###############################################
 # Calculations
-eval set loop.delta $( 200 / ({global.loop.n}) )
-eval set loop.start $i( 220 / {global.loop.delta})
-eval set loop.end   $i( {global.loop.start} + {global.loop.n} - 1 )
-eval set spriteSize $({global.loop.delta})
+eval set settings.delta $( 200 / ({global.settings.n}) )
+eval set settings.start $i( 220 / {global.settings.delta})
+eval set settings.end   $i( {global.settings.start} + {global.settings.n} - 1 )
+eval set spriteSize $({global.settings.delta})
 
 ###############################################
 # Spawn Objects
-for i {global.loop.start} {global.loop.end} for j {global.loop.start} {global.loop.end} spawn ./Resources/Renderobjects/Boxes/obj_elastic_to_wall.jsonc \
-    |eval set posX $({global.loop.delta}*{i}) \
-    |eval set posY $({global.loop.delta}*{j}) \
+for i {global.settings.start} {global.settings.end} for j {global.settings.start} {global.settings.end} spawn ./Resources/Renderobjects/Boxes/obj_elastic_to_wall.jsonc \
+    |eval set posX $({global.settings.delta}*{i}) \
+    |eval set posY $({global.settings.delta}*{j}) \
     |eval set physics.vX 0 \
     |eval set physics.vY 0 \
-    |eval set physics.mass $( 50000 / ({global.loop.n} * {global.loop.n})) \
+    |eval set physics.mass $( 50000 / ({global.settings.n} * {global.settings.n})) \
     |eval set size.x $({global.spriteSize}) \
     |eval set size.y $({global.spriteSize}) \
     |eval set draw.core.rect.dst.h $({global.spriteSize}) \
@@ -118,7 +119,7 @@ always if $(not({global.time.frameCount}%{global.snapshotInterval})*{global.stor
 ###############################################
 # Spawn extra object and wait
 spawn ./Resources/Renderobjects/Planets/sun.jsonc|posX=500|posY=500 # Heavy object
-wait 2000
+eval wait {global.settings.frameCount}
 
 ###############################################
 # Inform on runtime
