@@ -40,11 +40,14 @@ public:
     //------------------------------------------
     // Category names
 
-    Constants::Error beep() const;
+    Constants::Error beep(std::span<std::string const> const& args) const;
     static auto constexpr beep_name = "beep";
     static auto constexpr beep_desc = "Make a beep noise.\n"
+        "If no waveform type is specified, defaults to sine.\n"
+        "Multiple waveform types can be specified at once, in which case they will be played in the order they were specified.\n"
+        "Unknown waveform types will be ignored, but will print an error message.\n"
         "\n"
-        "Usage: beep\n";
+        "Usage: beep [sine/square/triangle]\n";
 
     //------------------------------------------
     // Setup
@@ -65,11 +68,8 @@ public:
     }
 
 private:
-    struct AudioSpec {
-        SDL_AudioDeviceID device = 0;
-        SDL_AudioSpec desired = {};
-        SDL_AudioSpec obtained = {};
-    } audio;
+    SDL_AudioStream* stream = nullptr;
+    SDL_AudioSpec spec = {};
 
     struct BasicAudioWaveforms {
         struct Settings {

@@ -16,28 +16,35 @@ Constants::Error Audio::update() {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Audio::beep() const {
-    // SDL3: use an SDL_AudioStream to enqueue PCM data (lazy-initialized)
-    static SDL_AudioStream* s_beepStream = nullptr;
-    SDL_SetAudioStreamFormat(s_beepStream, &audio.desired, &audio.desired);
-    int constexpr audioLength = BasicAudioWaveforms::Settings::samples * sizeof(int16_t);
+Constants::Error Audio::beep(std::span<std::string const> const& args) const {
+    if (args.size() < 2) {
+        Log::println("No waveform type specified. Defaulting to sine.");
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    }
 
-    if (!s_beepStream) {
-        s_beepStream = SDL_CreateAudioStream(&audio.desired, &audio.desired);
-        if (!s_beepStream) {
-            Error::println(SDL_GetError());
-            return Constants::ErrorTable::RENDERER::AUDIO::CRITICAL_AUDIO_STREAM_CREATION_FAILED();
+    for (auto const& arg : args | std::views::drop(1)) {
+        if (arg == "sine") {
+            SDL_PutAudioStreamData(
+                stream,
+                basicAudioWaveforms.sineBuffer.data(),
+                static_cast<int>(basicAudioWaveforms.sineBuffer.size() * sizeof(int16_t))
+            );
+        } else if (arg == "triangle") {
+            SDL_PutAudioStreamData(
+                stream,
+                basicAudioWaveforms.triangleBuffer.data(),
+                static_cast<int>(basicAudioWaveforms.triangleBuffer.size() * sizeof(int16_t))
+            );
+        } else if (arg == "square") {
+            SDL_PutAudioStreamData(
+                stream,
+                basicAudioWaveforms.squareBuffer.data(),
+                static_cast<int>(basicAudioWaveforms.squareBuffer.size() * sizeof(int16_t))
+            );
+        } else {
+            Error::println("Unknown waveform type: ", arg);
         }
     }
-
-    if (SDL_PutAudioStreamData(s_beepStream, basicAudioWaveforms.squareBuffer.data(), audioLength) != 0) {
-        // TODO: Parameter 'stream' is invalid
-        Error::println(SDL_GetError());
-        return Constants::ErrorTable::RENDERER::AUDIO::CRITICAL_AUDIO_STREAM_PUSH_FAILED();
-    }
-
-    // Ensure the device is running; SDL3's pause API uses a single-argument form
-    SDL_PauseAudioDevice(audio.device);
     return Constants::ErrorTable::NONE();
 }
 
@@ -47,15 +54,16 @@ void Audio::initAudio(){
         Error::println("SDL_Init Audio Error: ", SDL_GetError());
         std::abort();
     }
-    audio.desired.freq = 44100;
-    audio.desired.format = SDL_AUDIO_S16;
-    audio.desired.channels = 1;
+    spec.freq = 44100;
+    spec.format = SDL_AUDIO_S16;
+    spec.channels = 1;
 
-    audio.device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audio.desired);
-    if (audio.device == 0) {
+    stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, nullptr, nullptr);
+    if (!stream) {
         Error::println("Failed to open audio device: ", SDL_GetError());
         std::abort();
     }
+    SDL_ResumeAudioStreamDevice(stream);
 }
 
 void Audio::initWaveforms() {
