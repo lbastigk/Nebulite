@@ -49,6 +49,11 @@ public:
         "\n"
         "Usage: beep [sine/square/triangle]\n";
 
+    Constants::Error playSound(std::span<std::string const> const& args);
+    static auto constexpr playSound_name = "play-sound";
+    static auto constexpr playSound_desc = "Play a sound from a file.\n"
+        "Usage: play-sound <file-path>\n";
+
     //------------------------------------------
     // Setup
 
@@ -62,6 +67,7 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Audio) {
         BIND_FUNCTION(&Audio::beep, beep_name, beep_desc);
+        BIND_FUNCTION(&Audio::playSound, playSound_name, playSound_desc);
 
         initAudio();
         initWaveforms();
@@ -87,6 +93,15 @@ private:
         std::array<Settings::SampleRange, Settings::samples> squareBuffer;
         std::array<Settings::SampleRange, Settings::samples> triangleBuffer;
     } basicAudioWaveforms;
+
+    struct Sound {
+        Uint8* data;
+        Uint32 length;
+    };
+
+    absl::flat_hash_map<std::string, Sound> soundCache;
+
+    Sound loadSound(std::string const& path);
 
     /**
      * @brief Initializes basic audio waveforms.

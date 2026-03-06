@@ -19,7 +19,12 @@ Constants::Error Audio::update() {
 Constants::Error Audio::beep(std::span<std::string const> const& args) const {
     if (args.size() < 2) {
         Log::println("No waveform type specified. Defaulting to sine.");
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        SDL_PutAudioStreamData(
+            stream,
+            basicAudioWaveforms.sineBuffer.data(),
+            static_cast<int>(basicAudioWaveforms.sineBuffer.size() * sizeof(int16_t))
+        );
+        return Constants::ErrorTable::NONE();
     }
 
     for (auto const& arg : args | std::views::drop(1)) {
@@ -45,6 +50,21 @@ Constants::Error Audio::beep(std::span<std::string const> const& args) const {
             Error::println("Unknown waveform type: ", arg);
         }
     }
+    return Constants::ErrorTable::NONE();
+}
+
+Constants::Error Audio::playSound(std::span<std::string const> const& args) {
+    auto const path = Utility::StringHandler::recombineArgs(args | std::views::drop(1));
+    auto const [data, length] = loadSound(path);
+    if (!data || length == 0) {
+        Error::println("Failed to load sound from path: ", path);
+        return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
+    }
+    SDL_PutAudioStreamData(
+        stream,
+        data,
+        static_cast<int>(length * sizeof(int16_t))
+    );
     return Constants::ErrorTable::NONE();
 }
 
@@ -89,6 +109,22 @@ void Audio::initWaveforms() {
         double const value = sin(2.0 * M_PI * BasicAudioWaveforms::Settings::frequency * time(i)) >= 0.0 ? 1.0 : -1.0;
         return static_cast<int16_t>(amplitudeScale * value);
     });
+}
+
+Audio::Sound Audio::loadSound(std::string const& path) {
+    if (auto const it = soundCache.find(path); it != soundCache.end()) {
+        return it->second;
+    }
+
+    Uint8* data = nullptr;
+    Uint32 length = 0;
+    SDL_LoadWAV(path.c_str(), &spec, &data, &length);
+    if (!data || length == 0) {
+        Error::println("SDL_LoadWAV Error: ", SDL_GetError());
+        return {nullptr, 0};
+    }
+    soundCache[path] = {data, length};
+    return {data, length};
 }
 
 } // namespace Nebulite::DomainModule::Renderer
