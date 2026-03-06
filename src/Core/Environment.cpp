@@ -14,34 +14,18 @@
 #include "Data/RenderObjectContainer.hpp"
 #include "Data/Document/JSON.hpp"
 #include "DomainModule/Initializer.hpp"
+#include "Utility/Generate.hpp"
 
 //------------------------------------------
-
-/**
- * @brief Helper functions to create an array of RenderObjectContainer instances.
- */
-namespace {
-/**
- * @brief Creates an array of RenderObjectContainer instances.
- * @tparam LayerCount The number of layers (size of the array).
- * @return An array of RenderObjectContainer instances.
- */
-template <std::size_t LayerCount>
-std::array<Nebulite::Data::RenderObjectContainer, LayerCount>
-make_roc_array() {
-    return []<std::size_t... Is>(std::index_sequence<Is...>) {
-        return std::array<Nebulite::Data::RenderObjectContainer, sizeof...(Is)>{
-            {(static_cast<void>(Is), Nebulite::Data::RenderObjectContainer{})...}
-        };
-    }(std::make_index_sequence<LayerCount>{});
-}
-} // anonymous namespace
 
 namespace Nebulite::Core {
 
 Environment::Environment(Data::JsonScopeBase& documentReference)
     : Domain("Environment", documentReference),
-      roc(make_roc_array<LayerCount>()) {
+      roc(Utility::Generate::array<Data::RenderObjectContainer, LayerCount>([](std::size_t) {
+          return Data::RenderObjectContainer{};
+      }))
+{
     DomainModule::Initializer::initEnvironment(this);
 }
 
