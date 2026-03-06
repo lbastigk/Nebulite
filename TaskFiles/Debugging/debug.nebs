@@ -22,14 +22,4 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/Tests/Ruleset/globalRulesets.nebs
-
-#task TaskFiles/Tests/Transformations/regex.nebs
-exit
-
-#task TaskFiles/Benchmarks/spawn_constantly.nebs
-
-task TaskFiles/Benchmarks/gravity_XL.nebs
-
-#task TaskFiles/Simulations/bouncing.nebs
-
+set-fps 60

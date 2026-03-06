@@ -11,16 +11,20 @@ Constants::Error Audio::update() {
 Constants::Error Audio::beep() const {
     // SDL3: use an SDL_AudioStream to enqueue PCM data (lazy-initialized)
     static SDL_AudioStream* s_beepStream = nullptr;
+    SDL_SetAudioStreamFormat(s_beepStream, &audio.desired, &audio.desired);
     int const audioLength = static_cast<int>(basicAudioWaveforms.samples * sizeof(int16_t));
 
     if (!s_beepStream) {
         s_beepStream = SDL_CreateAudioStream(&audio.desired, &audio.desired);
         if (!s_beepStream) {
+            Error::println(SDL_GetError());
             return Constants::ErrorTable::RENDERER::AUDIO::CRITICAL_AUDIO_STREAM_CREATION_FAILED();
         }
     }
 
     if (SDL_PutAudioStreamData(s_beepStream, basicAudioWaveforms.squareBuffer->data(), audioLength) != 0) {
+        // TODO: Parameter 'stream' is invalid
+        Error::println(SDL_GetError());
         return Constants::ErrorTable::RENDERER::AUDIO::CRITICAL_AUDIO_STREAM_PUSH_FAILED();
     }
 
