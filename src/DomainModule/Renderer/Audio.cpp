@@ -5,7 +5,6 @@
 namespace Nebulite::DomainModule::Renderer {
 
 Constants::Error Audio::update() {
-    // No update logic needed for now, as we're using SDL's audio stream to manage playback
     return Constants::ErrorTable::NONE();
 }
 
@@ -58,6 +57,7 @@ void Audio::initWaveforms() {
     using SampleRange = BasicAudioWaveforms::Settings::SampleRange;
     static auto constexpr SampleCount = BasicAudioWaveforms::Settings::samples;
 
+    // NOLINTNEXTLINE
     auto constexpr time = [](std::size_t const& i) {
         return static_cast<double>(i) / BasicAudioWaveforms::Settings::sampleRate;
     };
