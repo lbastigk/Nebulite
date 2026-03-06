@@ -1,7 +1,15 @@
+//------------------------------------------
+// Includes
+
+// Standard Library
+#include <cmath>
+
+// Nebulite
 #include "Nebulite.hpp"
 #include "DomainModule/Renderer/Audio.hpp"
 #include "Utility/Generate.hpp"
 
+//------------------------------------------
 namespace Nebulite::DomainModule::Renderer {
 
 Constants::Error Audio::update() {
