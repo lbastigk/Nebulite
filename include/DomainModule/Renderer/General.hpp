@@ -132,12 +132,6 @@ public:
         "Usage: snapshot [filename]\n\n"
         "Defaults to \"./Resources/Snapshots/snapshot.png\" if no argument is provided\n";
 
-    [[nodiscard]] Constants::Error beep() const ;
-    static auto constexpr beep_name = "beep";
-    static auto constexpr beep_desc = "Make a beep noise.\n"
-        "\n"
-        "Usage: beep\n";
-
     /**
      * @todo If an object is deleted, the reference in GlobalSpace::selectedRenderObject is not cleared!
      *       Fix idea: Make Renderer a domain itself, with this function as a domainmodule part
@@ -189,7 +183,6 @@ public:
         BIND_FUNCTION(&General::setFPS, setFPS_name, setFPS_desc);
         BIND_FUNCTION(&General::showFPS, showFPS_name, showFPS_desc);
         BIND_FUNCTION(&General::snapshot, snapshot_name, snapshot_desc);
-        BIND_FUNCTION(&General::beep, beep_name, beep_desc);
 
         bindCategory(cam_name, cam_desc);
         BIND_FUNCTION(&General::cam_move, cam_move_name, cam_move_desc);
