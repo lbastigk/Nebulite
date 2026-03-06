@@ -12,6 +12,7 @@ ResourcesDir=$(pwd)
 
 #----------------------------------------
 # Main Directories
+mkdir -p ./Audio
 mkdir -p ./Cursor
 mkdir -p ./Editor
 mkdir -p ./Fonts
@@ -36,28 +37,18 @@ else
 fi
 
 #----------------------------------------
-# Others
-
-# Cursor, inspired by drakensang
-cd $ResourcesDir/Cursor/
-if [ ! -f "Drakensang.png" ]
+# Audio
+cd $ResourcesDir/Audio/
+if [ ! -f "TEST_AUDIO.wav" ]
 then
-  python3 $ResourcesDir/../Scripts/AssetCreation/Cursor.py
+  python3 $ResourcesDir/../Scripts/AssetCreation/TestAudio.py
 else
-  echo "Skipping Cursor Drakensang.png (already exists)"
-fi
-
-# Selection
-cd $ResourcesDir/Editor/
-if [ ! -f "Selection.png" ]
-then
-  python3 $ResourcesDir/../Scripts/AssetCreation/Selection.py
-else
-  echo "Skipping Editor Selection.png (already exists)"
+  echo "Skipping TEST_AUDIO.wav (already exists)"
 fi
 
 #----------------------------------------
-# Sprites
+# Images
+
 cd "$ResourcesDir/Sprites"
 
 #mkdir -p $ResourcesDir/Sprites/miniworldsprites
@@ -95,3 +86,21 @@ echo "Creating noisy images for TEST100P"
 cd $ResourcesDir/Sprites/TEST100P
 python3 $ResourcesDir/../Scripts/AssetCreation/NoisyColouredImages.py -n 128 -s 100 100
 echo "Resources directory creation done"
+
+# Cursor, inspired by drakensang
+cd $ResourcesDir/Cursor/
+if [ ! -f "Drakensang.png" ]
+then
+  python3 $ResourcesDir/../Scripts/AssetCreation/Cursor.py
+else
+  echo "Skipping Cursor Drakensang.png (already exists)"
+fi
+
+# Selection
+cd $ResourcesDir/Editor/
+if [ ! -f "Selection.png" ]
+then
+  python3 $ResourcesDir/../Scripts/AssetCreation/Selection.py
+else
+  echo "Skipping Editor Selection.png (already exists)"
+fi

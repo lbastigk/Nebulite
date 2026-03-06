@@ -23,3 +23,15 @@ echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
 set-fps 60
+
+beep sine square triangle
+wait 60
+beep sine square triangle
+wait 60
+play-sound ./Resources/Audio/TestAudio.wav
+wait 60
+beep sine square triangle
+wait 60
+beep sine square triangle
+wait 60
+exit

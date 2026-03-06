@@ -95,13 +95,14 @@ private:
     } basicAudioWaveforms;
 
     struct Sound {
-        Uint8* data;
-        Uint32 length;
+        uint8_t* buffer;
+        uint32_t length;
+        SDL_AudioSpec spec;
     };
 
     absl::flat_hash_map<std::string, Sound> soundCache;
 
-    Sound loadSound(std::string const& path);
+    std::optional<decltype(soundCache.find(""))> loadSound(std::string const& path);
 
     /**
      * @brief Initializes basic audio waveforms.

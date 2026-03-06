@@ -2,11 +2,12 @@
 # Resources
 
 # Ignore game resources and error logs
-Resources/Sprites/
-Resources/Fonts/
+Resources/Audio/
 Resources/Cursor/
 Resources/Editor/
-Resources/Snapshots/**
+Resources/Fonts/
+Resources/Snapshots/
+Resources/Sprites/
 *.bmp
 *.jpeg
 *.zip

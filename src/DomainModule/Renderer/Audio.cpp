@@ -54,17 +54,32 @@ Constants::Error Audio::beep(std::span<std::string const> const& args) const {
 }
 
 Constants::Error Audio::playSound(std::span<std::string const> const& args) {
+    if (args.size() < 2) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    }
+
     auto const path = Utility::StringHandler::recombineArgs(args | std::views::drop(1));
-    auto const [data, length] = loadSound(path);
-    if (!data || length == 0) {
+    auto const sound = loadSound(path);
+    if (!sound.has_value()) {
         Error::println("Failed to load sound from path: ", path);
         return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
+
+    // Set spec
+    // TODO: Instead of changing the stream's spec, we need a proper stream queueing system that handles multiple audio formats and mixes them together.
+    //SDL_AudioSpec specBackup;
+    //SDL_SetAudioStreamFormat(stream, &spec, &specBackup);
+    //SDL_SetAudioStreamFormat(stream, &sound.value()->second.spec, &spec);
+
     SDL_PutAudioStreamData(
         stream,
-        data,
-        static_cast<int>(length * sizeof(int16_t))
+        sound.value()->second.buffer,
+        static_cast<int>(sound.value()->second.length)
     );
+
+    // Restore original spec
+    //SDL_SetAudioStreamFormat(stream, &specBackup, &spec);
+
     return Constants::ErrorTable::NONE();
 }
 
@@ -111,20 +126,29 @@ void Audio::initWaveforms() {
     });
 }
 
-Audio::Sound Audio::loadSound(std::string const& path) {
+std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string const& path) {
     if (auto const it = soundCache.find(path); it != soundCache.end()) {
-        return it->second;
+        return it;
     }
 
     Uint8* data = nullptr;
     Uint32 length = 0;
-    SDL_LoadWAV(path.c_str(), &spec, &data, &length);
+    SDL_AudioSpec wavSpec = {};
+    SDL_LoadWAV(path.c_str(), &wavSpec, &data, &length);
     if (!data || length == 0) {
         Error::println("SDL_LoadWAV Error: ", SDL_GetError());
-        return {nullptr, 0};
+        return std::nullopt;
     }
-    soundCache[path] = {data, length};
-    return {data, length};
+
+    Sound sound{data, length, wavSpec};
+    soundCache.emplace(path, sound);
+    SDL_free(data);
+    auto const it = soundCache.find(path);
+    if (it == soundCache.end()) {
+        Error::println("Failed to cache sound after loading: ", path);
+        return std::nullopt;
+    }
+    return it;
 }
 
 } // namespace Nebulite::DomainModule::Renderer
