@@ -1,5 +1,6 @@
 #include "Nebulite.hpp"
 #include "DomainModule/Renderer/Audio.hpp"
+#include "Utility/Generate.hpp"
 
 namespace Nebulite::DomainModule::Renderer {
 
@@ -12,7 +13,7 @@ Constants::Error Audio::beep() const {
     // SDL3: use an SDL_AudioStream to enqueue PCM data (lazy-initialized)
     static SDL_AudioStream* s_beepStream = nullptr;
     SDL_SetAudioStreamFormat(s_beepStream, &audio.desired, &audio.desired);
-    int const audioLength = static_cast<int>(basicAudioWaveforms.samples * sizeof(int16_t));
+    int constexpr audioLength = BasicAudioWaveforms::Settings::samples * sizeof(int16_t);
 
     if (!s_beepStream) {
         s_beepStream = SDL_CreateAudioStream(&audio.desired, &audio.desired);
@@ -22,7 +23,7 @@ Constants::Error Audio::beep() const {
         }
     }
 
-    if (SDL_PutAudioStreamData(s_beepStream, basicAudioWaveforms.squareBuffer->data(), audioLength) != 0) {
+    if (SDL_PutAudioStreamData(s_beepStream, basicAudioWaveforms.squareBuffer.data(), audioLength) != 0) {
         // TODO: Parameter 'stream' is invalid
         Error::println(SDL_GetError());
         return Constants::ErrorTable::RENDERER::AUDIO::CRITICAL_AUDIO_STREAM_PUSH_FAILED();
@@ -42,8 +43,6 @@ void Audio::initAudio(){
     audio.desired.freq = 44100;
     audio.desired.format = SDL_AUDIO_S16;
     audio.desired.channels = 1;
-    //audio.desired.samples = 1024;
-    //audio.desired.callback = nullptr;
 
     audio.device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audio.desired);
     if (audio.device == 0) {
@@ -53,42 +52,23 @@ void Audio::initAudio(){
 }
 
 void Audio::initWaveforms() {
+    static_assert(!std::is_unsigned_v<BasicAudioWaveforms::Settings::SampleRange>, "SampleRange must be a signed type");
+
     // Waveform buffers: Sine wave buffer
-    basicAudioWaveforms.sineBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
-    for (size_t i = 0; i < basicAudioWaveforms.samples; i++) {
-        double const time = static_cast<double>(i) / basicAudioWaveforms.sampleRate;
-        (*basicAudioWaveforms.sineBuffer)[i] = static_cast<int16_t>(32767 * 0.3 * sin(2.0 * M_PI * basicAudioWaveforms.frequency * time));
-    }
-
-    // Waveform buffers: Square wave buffer
-    basicAudioWaveforms.squareBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
-    for (size_t i = 0; i < basicAudioWaveforms.samples; i++) {
-        double const time = static_cast<double>(i) / basicAudioWaveforms.sampleRate;
-
-        // Square wave: alternates between +1 and -1
-        double const phase = 2.0 * M_PI * basicAudioWaveforms.frequency * time;
-        double const squareValue = sin(phase) >= 0 ? 1.0 : -1.0;
-
-        (*basicAudioWaveforms.squareBuffer)[i] = static_cast<int16_t>(32767 * 0.3 * squareValue);
-    }
-
-    // Waveform buffers: Triangle wave buffer
-    basicAudioWaveforms.triangleBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
-    for (size_t i = 0; i < basicAudioWaveforms.samples; i++) {
-        double const time = static_cast<double>(i) / basicAudioWaveforms.sampleRate;
-
-        // Triangle wave: linear ramp up and down
-        double const phase = fmod(basicAudioWaveforms.frequency * time, 1.0); // 0 to 1
-        double triangleValue;
-
-        if (phase < 0.5) {
-            triangleValue = 4.0 * phase - 1.0; // -1 to +1 (rising)
-        } else {
-            triangleValue = 3.0 - 4.0 * phase; // +1 to -1 (falling)
-        }
-
-        (*basicAudioWaveforms.triangleBuffer)[i] = static_cast<int16_t>(32767 * 0.3 * triangleValue);
-    }
+    basicAudioWaveforms.sineBuffer = Utility::Generate::array<BasicAudioWaveforms::Settings::SampleRange, BasicAudioWaveforms::Settings::samples>([](std::size_t const& i) {
+        double const time = static_cast<double>(i) / BasicAudioWaveforms::Settings::sampleRate;
+        return static_cast<int16_t>(BasicAudioWaveforms::Settings::SampleMax * 0.3 * sin(2.0 * M_PI * BasicAudioWaveforms::Settings::frequency * time));
+    });
+    basicAudioWaveforms.triangleBuffer = Utility::Generate::array<BasicAudioWaveforms::Settings::SampleRange, BasicAudioWaveforms::Settings::samples>([](std::size_t const& i) {
+        double const time = static_cast<double>(i) / BasicAudioWaveforms::Settings::sampleRate;
+        double const value = 2.0 * (time * BasicAudioWaveforms::Settings::frequency - floor(time * BasicAudioWaveforms::Settings::frequency + 0.5));
+        return static_cast<int16_t>(BasicAudioWaveforms::Settings::SampleMax * 0.3 * value);
+    });
+    basicAudioWaveforms.squareBuffer = Utility::Generate::array<BasicAudioWaveforms::Settings::SampleRange, BasicAudioWaveforms::Settings::samples>([](std::size_t const& i) {
+        double const time = static_cast<double>(i) / BasicAudioWaveforms::Settings::sampleRate;
+        double const value = sin(2.0 * M_PI * BasicAudioWaveforms::Settings::frequency * time) >= 0.0 ? 1.0 : -1.0;
+        return static_cast<int16_t>(BasicAudioWaveforms::Settings::SampleMax * 0.3 * value);
+    });
 }
 
 } // namespace Nebulite::DomainModule::Renderer

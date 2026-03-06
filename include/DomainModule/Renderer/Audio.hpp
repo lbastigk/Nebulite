@@ -72,13 +72,20 @@ private:
     } audio;
 
     struct BasicAudioWaveforms {
-        double const frequency = 440.0; // 440 Hz beep
-        double const duration = 200.0; // 200ms
-        double const sampleRate = 44100.0;
-        size_t const samples = static_cast<size_t>(sampleRate * duration / 1000.0); // Number of samples
-        std::vector<int16_t>* sineBuffer = nullptr;
-        std::vector<int16_t>* squareBuffer = nullptr;
-        std::vector<int16_t>* triangleBuffer = nullptr;
+        struct Settings {
+            using SampleRange = int16_t; // 16-bit signed integer for audio samples
+            static SampleRange constexpr SampleMax = std::numeric_limits<SampleRange>::max();
+            static SampleRange constexpr SampleMin = std::numeric_limits<SampleRange>::min();
+
+            static double constexpr frequency = 440.0; // 440 Hz beep
+            static double constexpr duration = 200.0; // 200ms
+            static double constexpr sampleRate = 44100.0;
+            static size_t constexpr samples = static_cast<size_t>(sampleRate * duration / 1000.0); // Number of samples
+        };
+
+        std::array<Settings::SampleRange, Settings::samples> sineBuffer;
+        std::array<Settings::SampleRange, Settings::samples> squareBuffer;
+        std::array<Settings::SampleRange, Settings::samples> triangleBuffer;
     } basicAudioWaveforms;
 
     /**
