@@ -65,20 +65,11 @@ Constants::Error Audio::playSound(std::span<std::string const> const& args) {
         return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
 
-    // Set spec
-    // TODO: Instead of changing the stream's spec, we need a proper stream queueing system that handles multiple audio formats and mixes them together.
-    //SDL_AudioSpec specBackup;
-    //SDL_SetAudioStreamFormat(stream, &spec, &specBackup);
-    //SDL_SetAudioStreamFormat(stream, &sound.value()->second.spec, &spec);
-
     SDL_PutAudioStreamData(
         stream,
         sound.value()->second.buffer,
         static_cast<int>(sound.value()->second.length)
     );
-
-    // Restore original spec
-    //SDL_SetAudioStreamFormat(stream, &specBackup, &spec);
 
     return Constants::ErrorTable::NONE();
 }
@@ -90,7 +81,7 @@ void Audio::initAudio(){
         std::abort();
     }
     spec.freq = 44100;
-    spec.format = SDL_AUDIO_S16;
+    spec.format = SDL_AUDIO_F32;
     spec.channels = 1;
 
     stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, nullptr, nullptr);
@@ -102,27 +93,28 @@ void Audio::initAudio(){
 }
 
 void Audio::initWaveforms() {
-    static_assert(!std::is_unsigned_v<BasicAudioWaveforms::Settings::SampleRange>, "SampleRange must be a signed type");
-    static double constexpr amplitudeScale = 0.3 * BasicAudioWaveforms::Settings::SampleMax; // Scale down the amplitude to prevent clipping
+    static_assert(!std::is_unsigned_v<BasicAudioWaveforms::Settings::SampleType>, "SampleType must be a signed type");
+    static double constexpr amplitudeScale = 0.3 * static_cast<double>(BasicAudioWaveforms::Settings::SampleMax); // Scale down the amplitude to prevent clipping
 
-    using SampleRange = BasicAudioWaveforms::Settings::SampleRange;
+    using SampleType = BasicAudioWaveforms::Settings::SampleType;
     static auto constexpr SampleCount = BasicAudioWaveforms::Settings::samples;
+    static auto constexpr frequency = static_cast<double>(BasicAudioWaveforms::Settings::frequency);
 
     // NOLINTNEXTLINE
     auto constexpr time = [](std::size_t const& i) {
         return static_cast<double>(i) / BasicAudioWaveforms::Settings::sampleRate;
     };
 
-    basicAudioWaveforms.sineBuffer = Utility::Generate::array<SampleRange, SampleCount>([time](std::size_t const& i) {
-        return static_cast<int16_t>(amplitudeScale * sin(2.0 * M_PI * BasicAudioWaveforms::Settings::frequency * time(i)));
+    basicAudioWaveforms.sineBuffer = Utility::Generate::array<SampleType, SampleCount>([time](std::size_t const& i) {
+        return static_cast<BasicAudioWaveforms::Settings::SampleType>(amplitudeScale * sin(2.0 * M_PI * frequency * time(i)));
     });
-    basicAudioWaveforms.triangleBuffer = Utility::Generate::array<SampleRange, SampleCount>([time](std::size_t const& i) {
-        double const value = 2.0 * (time(i) * BasicAudioWaveforms::Settings::frequency - floor(time(i) * BasicAudioWaveforms::Settings::frequency + 0.5));
-        return static_cast<int16_t>(amplitudeScale * value);
+    basicAudioWaveforms.triangleBuffer = Utility::Generate::array<SampleType, SampleCount>([time](std::size_t const& i) {
+        double const value = 2.0 * (time(i) * frequency - floor(time(i) * frequency + 0.5));
+        return static_cast<BasicAudioWaveforms::Settings::SampleType>(amplitudeScale * value);
     });
-    basicAudioWaveforms.squareBuffer = Utility::Generate::array<SampleRange, SampleCount>([time](std::size_t const& i) {
-        double const value = sin(2.0 * M_PI * BasicAudioWaveforms::Settings::frequency * time(i)) >= 0.0 ? 1.0 : -1.0;
-        return static_cast<int16_t>(amplitudeScale * value);
+    basicAudioWaveforms.squareBuffer = Utility::Generate::array<SampleType, SampleCount>([time](std::size_t const& i) {
+        double const value = sin(2.0 * M_PI * frequency * time(i)) >= 0.0 ? 1.0 : -1.0;
+        return static_cast<BasicAudioWaveforms::Settings::SampleType>(amplitudeScale * value);
     });
 }
 
@@ -137,6 +129,13 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
     SDL_LoadWAV(path.c_str(), &wavSpec, &data, &length);
     if (!data || length == 0) {
         Error::println("SDL_LoadWAV Error: ", SDL_GetError());
+        return std::nullopt;
+    }
+
+    // Check if sound is the correct format
+    if (wavSpec.format != spec.format || wavSpec.channels != spec.channels || wavSpec.freq != spec.freq) {
+        Error::println("Sound format does not match audio stream format. Sound: ", path);
+        // TODO: Implement format conversion in loadSound
         return std::nullopt;
     }
 
