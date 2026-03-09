@@ -193,7 +193,6 @@ Used for arbitrary variable storing and retrieval in Nebulite Domains.
 -----------------
 ### JsonScopeBase
 Part of a JSON document. Any data access is performed with a key prefix.
-Previously known as `JsonScope` (a Domain), it was merged into `JsonScopeBase` and is no longer a Domain.
 It serves as a scoped view over an existing JSON document, used for modular data management.
 
 -----------------
