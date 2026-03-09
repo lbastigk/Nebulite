@@ -134,7 +134,7 @@ Domains are modular engine components encapsulating specific functionality such 
 Each Domain can initialize DomainModules, which further break down functionality into manageable pieces,
 providing update routines and functions for users to call:
 - Time management for `GlobalSpace` Domain
-- Basic setting and array manipulation for `JsonScope` DomainModule
+- Basic setting and array manipulation via `Common` DomainModule (available to all Domains)
 - Console functionality for `Renderer` DomainModule
 
 Each Domain is able to parse string commands in its own context, that call the respective DomainModules' functions.
@@ -171,8 +171,7 @@ inline void exampleUsage() {
     // Our Data document
     Nebulite::Data::JSON doc;
 
-    // Creating a Domain of type JsonScope
-    // that acts on the "physics." sub-scope
+    // Creating a JsonScopeBase that acts on the "physics." sub-scope
     Nebulite::Data::JsonScopeBase physicsScope(doc, "physics.");
 
     // Using ScopedKey to access data safely

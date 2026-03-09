@@ -92,7 +92,6 @@ See also: [JSON](#json)
 A class on which a FuncTree acts upon. Supported domains are:
 - Environment
 - GlobalSpace
-- JsonScope
 - Renderer
 - RenderObject
 - Texture
@@ -101,7 +100,7 @@ Any domain may have multiple DomainModules attached to it, providing additional 
 All domains provide access to an internal JSON document for variable storage and retrieval.
 All domains support string parsing through `parseStr` from other domains and supported classes.
 
-See also: [DomainModule](#domainmodule), [FuncTree](#functree), [GlobalSpace](#globalspace), [JsonScope](#jsonscope)
+See also: [DomainModule](#domainmodule), [FuncTree](#functree), [GlobalSpace](#globalspace), [JsonScopeBase](#jsonscopebase)
 
 -----------------
 ### Domain-Serialization-Piping
@@ -192,8 +191,10 @@ A custom wrapper around rapidjson for faster variable access.
 Used for arbitrary variable storing and retrieval in Nebulite Domains.
 
 -----------------
-### JsonScope
-Nebulite Domain. Part of a JSON document. Any data access is performed with a key prefix.
+### JsonScopeBase
+Part of a JSON document. Any data access is performed with a key prefix.
+Previously known as `JsonScope` (a Domain), it was merged into `JsonScopeBase` and is no longer a Domain.
+It serves as a scoped view over an existing JSON document, used for modular data management.
 
 -----------------
 ## K
@@ -254,10 +255,10 @@ See also: [Invoke](#invoke), [RenderObject](#renderobject)
 ## S
 
 ### ScopedKey
-A key with an attached scope. If any JsonScope attempts to access a variable with a ScopedKey,
+A key with an attached scope. If any `JsonScopeBase` attempts to access a variable with a ScopedKey,
 it is first checked whether the scope matches. If not, the access fails and the program exits.
 
-See also: [JsonScope](#jsonscope)
+See also: [JsonScopeBase](#jsonscopebase)
 
 -----------------
 ## T
