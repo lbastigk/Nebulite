@@ -87,23 +87,23 @@ Constants::Error Audio::playSoundWithFilter(std::span<std::string const> const& 
         return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
 
-    auto const numCoeffs = Utility::StringHandler::split(args[2], ',');
-    auto const denCoeffs = Utility::StringHandler::split(args[3], ',');
+    auto const [num, den] = [&]() -> std::pair<std::vector<double>, std::vector<double>> {
+        try {
+            auto parse = [](std::string const& str) {
+                return Utility::StringHandler::split(str, ',')
+                    | std::views::transform([](std::string const& coeff) {
+                        return std::stod(coeff);
+                    })
+                    | std::ranges::to<std::vector<double>>();
+            };
 
-    std::vector<double> num;
-    std::vector<double> den;
-
-    try {
-        for (auto const& coeff : numCoeffs) {
-            num.push_back(std::stod(coeff));
+            return { parse(args[2]), parse(args[3]) };
         }
-        for (auto const& coeff : denCoeffs) {
-            den.push_back(std::stod(coeff));
+        catch (std::exception const& e) {
+            Error::println("Failed to parse coefficients: ", e.what());
+            throw;
         }
-    } catch (std::exception const& e) {
-        Error::println("Failed to parse coefficients: ", e.what());
-        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
-    }
+    }();
 
     auto const data = Math::FFT::applyTransferFunction(
         sound.value()->second.audioData | std::views::transform([](Settings::SampleType const& sample) {
@@ -168,7 +168,7 @@ void Audio::initAudio(){
     }
     spec.freq = 44100;
     spec.format = SDL_AUDIO_F32;
-    spec.channels = 1;
+    spec.channels = 1; // TODO: Set default to stereo, convert all mono sounds to stereo. How are multiple channels handled in the audio stream?
 
     stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, nullptr, nullptr);
     if (!stream) {
@@ -226,21 +226,6 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
         return std::nullopt;
     }
 
-    static auto formatToString = [](SDL_AudioFormat const& format) -> std::string {
-        switch (format) {
-            case SDL_AUDIO_U8: return "Unsigned 8-bit";
-            case SDL_AUDIO_S8: return "Signed 8-bit";
-            case SDL_AUDIO_F32: return "Floating point 32 bit";
-            case SDL_AUDIO_S16: return "Signed 16-bit";
-            case SDL_AUDIO_S16BE: return "Signed 16-bit big-endian";
-            case SDL_AUDIO_S32: return "Signed 32-bit";
-            case SDL_AUDIO_S32BE: return "Signed 32-bit big-endian";
-            case SDL_AUDIO_F32BE: return "Floating point 32-bit big-endian";
-            case SDL_AUDIO_UNKNOWN: return "Unknown";
-            default: std::unreachable();
-        }
-    };
-
     // Push sound data into cache
     Sound sound;
     size_t lengthPerSample = 0;
@@ -270,13 +255,13 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
                 return static_cast<Settings::SampleType>(*reinterpret_cast<uint8_t*>(buffer) - 128) / static_cast<Settings::SampleType>(std::numeric_limits<uint8_t>::max() / 2);
             };
             break;
-        case SDL_AUDIO_UNKNOWN:
         case SDL_AUDIO_S8:
         case SDL_AUDIO_S16BE:
         case SDL_AUDIO_S32:
         case SDL_AUDIO_S32BE:
         case SDL_AUDIO_F32BE:
-            Error::println("Unsupported audio format: ", formatToString(wavSpec.format), " for sound: ", path, ". Feel free to submit a PR to add support for this format in function: ", __func__);
+        case SDL_AUDIO_UNKNOWN:
+            Error::println("Unsupported audio format: ", sdlAudioFormatToString(wavSpec.format), " for sound: ", path, ". Feel free to submit a PR to add support for this format in function: ", __func__);
             SDL_free(data);
             return std::nullopt;
         default:

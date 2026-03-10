@@ -150,6 +150,26 @@ private:
      * @brief Initializes SDL audio subsystem and opens the audio device.
      */
     void initAudio();
+
+    /**
+     * @brief Converts an SDL_AudioFormat to a human-readable string for error messages.
+     * @param format The SDL_AudioFormat to convert.
+     * @return A string representation of the audio format.
+     */
+    static std::string sdlAudioFormatToString(SDL_AudioFormat const& format) {
+        switch (format) {
+            case SDL_AUDIO_U8: return "Unsigned 8-bit";
+            case SDL_AUDIO_S8: return "Signed 8-bit";
+            case SDL_AUDIO_F32: return "Floating point 32 bit";
+            case SDL_AUDIO_S16: return "Signed 16-bit";
+            case SDL_AUDIO_S16BE: return "Signed 16-bit big-endian";
+            case SDL_AUDIO_S32: return "Signed 32-bit";
+            case SDL_AUDIO_S32BE: return "Signed 32-bit big-endian";
+            case SDL_AUDIO_F32BE: return "Floating point 32-bit big-endian";
+            case SDL_AUDIO_UNKNOWN: return "Unknown";
+            default: std::unreachable();
+        }
+    }
 };
 } // namespace Nebulite::DomainModule::Renderer
 #endif // NEBULITE_DOMAINMODULE_RENDERER_AUDIO_HPP
