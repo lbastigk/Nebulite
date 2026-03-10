@@ -3,8 +3,8 @@
  * @brief This file contains a collection of custom functions for TinyExpr used in Nebulite
  */
 
-#ifndef NEBULITE_INTERACTION_LOGIC_EXPRESSION_PRIMITIVES_HPP
-#define NEBULITE_INTERACTION_LOGIC_EXPRESSION_PRIMITIVES_HPP
+#ifndef NEBULITE_MATH_EXPRESSION_PRIMITIVES_HPP
+#define NEBULITE_MATH_EXPRESSION_PRIMITIVES_HPP
 
 //------------------------------------------
 // Includes
@@ -15,10 +15,10 @@
 #include <vector>
 
 //------------------------------------------
-namespace Nebulite::Interaction::Logic {
+namespace Nebulite::Math {
 /**
  * @brief A collection of custom functions for TinyExpr
- *        Make sure to register all functions with TinyExpr in Nebulite::Interaction::Logic::Expression::reset
+ *        Make sure to register all functions with TinyExpr in Nebulite::Math::Expression::registerExpressions
  * @note Marking the parameters as `const&` does not work with TinyExpr function pointers,
  *       so they are passed by value instead.
  */
@@ -299,5 +299,5 @@ private:
      */
     static std::vector<FunctionInfo> const& availableFunctions();
 };
-} // namespace Nebulite::Interaction::Logic
-#endif // NEBULITE_INTERACTION_LOGIC_EXPRESSION_PRIMITIVES_HPP
+} // namespace Nebulite::Math
+#endif // NEBULITE_MATH_EXPRESSION_PRIMITIVES_HPP
