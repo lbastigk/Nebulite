@@ -96,9 +96,11 @@ private:
     } basicAudioWaveforms;
 
     struct Sound {
-        uint8_t* buffer;
-        uint32_t length;
-        SDL_AudioSpec spec;
+        std::vector<BasicAudioWaveforms::Settings::SampleType> audioData;
+
+        //uint8_t* buffer;
+        //uint32_t length;
+        //SDL_AudioSpec spec;
     };
 
     absl::flat_hash_map<std::string, Sound> soundCache;

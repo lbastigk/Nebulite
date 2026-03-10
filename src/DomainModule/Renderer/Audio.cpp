@@ -67,8 +67,8 @@ Constants::Error Audio::playSound(std::span<std::string const> const& args) {
 
     SDL_PutAudioStreamData(
         stream,
-        sound.value()->second.buffer,
-        static_cast<int>(sound.value()->second.length)
+        sound.value()->second.audioData.data(),
+        static_cast<int>(sound.value()->second.audioData.size() * sizeof(BasicAudioWaveforms::Settings::SampleType))
     );
 
     return Constants::ErrorTable::NONE();
@@ -139,7 +139,55 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
         return std::nullopt;
     }
 
-    Sound sound{data, length, wavSpec};
+    // Push sound data into cache
+    Sound sound;
+    size_t lengthPerSample = 0;
+    std::function<BasicAudioWaveforms::Settings::SampleType(Uint8* data)> convertFunc = nullptr;
+    switch (wavSpec.format) {
+        case SDL_AUDIO_F32:
+            lengthPerSample = sizeof(float);
+            convertFunc = [](Uint8 const* byteData) {
+                float buffer[4];
+                std::memcpy(buffer, byteData, sizeof(float));
+                return *reinterpret_cast<float*>(buffer);
+            };
+            break;
+        case SDL_AUDIO_S16:
+            lengthPerSample = sizeof(int16_t);
+            convertFunc = [](Uint8 const* byteData) {
+                int16_t buffer[4];
+                std::memcpy(buffer, byteData, sizeof(int16_t));
+                return static_cast<BasicAudioWaveforms::Settings::SampleType>(*reinterpret_cast<int16_t*>(buffer));
+            };
+            break;
+        case SDL_AUDIO_S8:
+            lengthPerSample = sizeof(int8_t);
+            convertFunc = [](Uint8 const* byteData) {
+                int8_t buffer[4];
+                std::memcpy(buffer, byteData, sizeof(int8_t));
+                return static_cast<BasicAudioWaveforms::Settings::SampleType>(*reinterpret_cast<int8_t*>(buffer));
+            };
+            break;
+        case SDL_AUDIO_UNKNOWN:
+        case SDL_AUDIO_U8:
+        case SDL_AUDIO_S16BE:
+        case SDL_AUDIO_S32:
+        case SDL_AUDIO_S32BE:
+        case SDL_AUDIO_F32BE:
+            Error::println("Unsupported audio format: ", wavSpec.format);
+            SDL_free(data);
+            return std::nullopt;
+        default:
+            std::unreachable();
+
+    }
+
+    size_t const sampleCount = length / lengthPerSample;
+    sound.audioData.reserve(sampleCount);
+    for (size_t i = 0; i < sampleCount; ++i) {
+        sound.audioData.push_back(convertFunc(data + i * lengthPerSample));
+    }
+
     soundCache.emplace(path, sound);
     SDL_free(data);
     auto const it = soundCache.find(path);
