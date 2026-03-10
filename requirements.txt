@@ -1,3 +1,6 @@
 numpy
 pillow
 json5
+pyttsx3
+soundfile
+scipy
