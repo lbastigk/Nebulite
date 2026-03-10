@@ -14,7 +14,7 @@
 #include "ScopeAccessor.hpp"
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 
 //------------------------------------------
 // Macro for DomainModule definition
@@ -29,9 +29,9 @@
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
     explicit DomainModuleName( \
         std::string const& name, DomainName& domainReference, \
-        std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error, Nebulite::Interaction::Execution::Domain&, Nebulite::Data::JsonScopeBase&>> funcTreePtr, \
-        Data::JsonScopeBase& w, \
-        Data::JsonScopeBase const& s \
+        std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error, Nebulite::Interaction::Execution::Domain&, Nebulite::Data::JsonScope&>> funcTreePtr, \
+        Data::JsonScope& w, \
+        Data::JsonScope const& s \
     ) \
     : DomainModule(name, domainReference, std::move(funcTreePtr), w, s)
 
@@ -58,15 +58,15 @@ public:
      * @param name Name of the DomainModule, useful for debugging and logging.
      * @param domainReference Reference to the Domain instance this module is associated with.
      * @param funcTreePtr Shared pointer to the FuncTree for binding functions and variables.
-     * @param scope JsonScopeBase reference for this module to use as workspace.
-     * @param settings Const JsonScopeBase reference for settings.
+     * @param scope JsonScope reference for this module to use as workspace.
+     * @param settings Const JsonScope reference for settings.
      */
     DomainModule(
         std::string const& name,
         DomainType& domainReference,
-        std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> const& funcTreePtr,
-        Data::JsonScopeBase& scope,
-        Data::JsonScopeBase const& settings
+        std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> const& funcTreePtr,
+        Data::JsonScope& scope,
+        Data::JsonScope const& settings
     );
 
     ~DomainModule() override ;

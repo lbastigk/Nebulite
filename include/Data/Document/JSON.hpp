@@ -29,7 +29,7 @@
 // Forward declarations
 
 namespace Nebulite::Data {
-class JsonScopeBase;
+class JsonScope;
 } // namespace Nebulite::Data
 
 //------------------------------------------
@@ -227,9 +227,9 @@ private:
     //------------------------------------------
     // Scope sharing system
 
-    absl::flat_hash_map<std::string, std::unique_ptr<JsonScopeBase>> managedScopeBases;
-    std::unique_ptr<JsonScopeBase> fullScopeBaseInstance;
-    std::unique_ptr<JsonScopeBase> dummyScopeBaseInstance;
+    absl::flat_hash_map<std::string, std::unique_ptr<JsonScope>> managedScopeBases;
+    std::unique_ptr<JsonScope> fullScopeBaseInstance;
+    std::unique_ptr<JsonScope> dummyScopeBaseInstance;
 
 public:
     //------------------------------------------
@@ -263,21 +263,21 @@ public:
      * @brief Lazy-initialized full JsonScope representing the entire document.
      * @return Reference to the full JsonScope.
      */
-    JsonScopeBase& fullScopeBase();
+    JsonScope& fullScopeBase();
 
     /**
-     * @brief Shares part JSON document as a JsonScopeBase that is managed internally.
+     * @brief Shares part JSON document as a JsonScope that is managed internally.
      * @details Sometimes we cannot use full JsonScopes due circular issues, causing a cascade of Domain initializations.
-     *          In those cases, use JsonScopeBase via this method.
+     *          In those cases, use JsonScope via this method.
      * @param prefix The prefix representing the part of the JSON document to share.
      *               If empty, shares the entire document.
      * @return A JsonScope reference representing a part of the JSON document.
      */
-    JsonScopeBase& shareManagedScopeBase(std::string const& prefix = "");
-    JsonScopeBase& shareManagedScopeBase(std::string_view const& prefix) { return shareManagedScopeBase(std::string(prefix)); }
-    JsonScopeBase& shareManagedScopeBase(char const* prefix) { return shareManagedScopeBase(std::string(prefix)); }
+    JsonScope& shareManagedScopeBase(std::string const& prefix = "");
+    JsonScope& shareManagedScopeBase(std::string_view const& prefix) { return shareManagedScopeBase(std::string(prefix)); }
+    JsonScope& shareManagedScopeBase(char const* prefix) { return shareManagedScopeBase(std::string(prefix)); }
 
-    JsonScopeBase& getDummyScopeBase();
+    JsonScope& getDummyScopeBase();
 
     //------------------------------------------
     // Custom copy method

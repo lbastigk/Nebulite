@@ -38,7 +38,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    static Constants::Error eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope);
+    static Constants::Error eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr eval_name = "eval";
     static auto constexpr eval_desc = "Evaluate an expression and execute the result.\n"
         "Example: eval echo $(1+1)\n"

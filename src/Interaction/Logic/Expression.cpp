@@ -6,7 +6,7 @@
 
 // Nebulite
 #include "Nebulite.hpp"
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "../../../include/Math/ExpressionPrimitives.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
 #include "Interaction/Logic/Expression.hpp"
@@ -652,12 +652,12 @@ Data::JSON Expression::evalAsJson(ContextScopeBase const& context, size_t const&
 //------------------------------------------
 // Static document access
 
-Data::JsonScopeBase& Expression::emptyDoc() {
-    thread_local Data::JsonScopeBase emptyDoc;
+Data::JsonScope& Expression::emptyDoc() {
+    thread_local Data::JsonScope emptyDoc;
     return emptyDoc;
 }
 
-Data::JsonScopeBase& Expression::globalDoc() {
+Data::JsonScope& Expression::globalDoc() {
     static auto accessToken = ScopeAccessor::Full();
     static auto& globalDoc = Global::shareScopeBase(accessToken, "");
     return globalDoc;

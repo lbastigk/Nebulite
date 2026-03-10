@@ -5,7 +5,7 @@
 // Includes
 
 // Nebulite
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics {
@@ -18,7 +18,7 @@ public:
      * @param scope The JSON scope to render.
      * @param name The name of the ImGui window.
      */
-    static void renderJsonScope(Data::JsonScopeBase const& scope, std::string const& name);
+    static void renderJsonScope(Data::JsonScope const& scope, std::string const& name);
 };
 
 } // namespace Nebulite::Graphics

@@ -1,5 +1,5 @@
 #include "Nebulite.hpp"
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "TransformationModule/Debug.hpp"
 
 
@@ -23,7 +23,7 @@ bool Debug::echo(std::span<std::string const> const& args) {
 }
 
 // NOLINTNEXTLINE
-bool Debug::print(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Debug::print(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     // Print to cout, no modifications
     if (args.size() > 1) {
         for (auto const& arg : args | std::views::drop(1)) {

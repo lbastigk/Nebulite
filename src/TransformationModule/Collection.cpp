@@ -6,7 +6,7 @@
 
 // Nebulite
 #include "Nebulite.hpp"
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "TransformationModule/Collection.hpp"
 #include "Utility/Glob.hpp"
 
@@ -24,7 +24,7 @@ void Collection::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Collection::listMembers, listKeysName, listKeysDesc);
 }
 
-bool Collection::map(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) const {
+bool Collection::map(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) const {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
         auto const key = rootKey + "[0]";
         jsonDoc->moveMember(rootKey, key);
@@ -57,7 +57,7 @@ bool Collection::map(std::span<std::string const> const& args, Data::JsonScopeBa
     return true;
 }
 
-bool Collection::get(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Collection::get(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -67,7 +67,7 @@ bool Collection::get(std::span<std::string const> const& args, Data::JsonScopeBa
     return true;
 }
 
-bool Collection::getMultiple(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Collection::getMultiple(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() < 2) {
         return false;
     }
@@ -83,7 +83,7 @@ bool Collection::getMultiple(std::span<std::string const> const& args, Data::Jso
     return true;
 }
 
-bool Collection::filterRegex(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Collection::filterRegex(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -107,7 +107,7 @@ bool Collection::filterRegex(std::span<std::string const> const& args, Data::Jso
     return true;
 }
 
-bool Collection::filterGlob(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Collection::filterGlob(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -124,7 +124,7 @@ bool Collection::filterGlob(std::span<std::string const> const& args, Data::Json
 }
 
 // NOLINTNEXTLINE
-bool Collection::filterNulls(Data::JsonScopeBase* jsonDoc) {
+bool Collection::filterNulls(Data::JsonScope* jsonDoc) {
     auto const type = jsonDoc->memberType(rootKey);
 
     if (type == Data::KeyType::null) {
@@ -169,7 +169,7 @@ bool Collection::filterNulls(Data::JsonScopeBase* jsonDoc) {
     return true;
 }
 
-bool Collection::listMembers(Data::JsonScopeBase* jsonDoc){
+bool Collection::listMembers(Data::JsonScope* jsonDoc){
     auto const membersAndKeys = jsonDoc->listAvailableMembersAndKeys(rootKey);
     jsonDoc->removeMember(rootKey);
     std::ranges::for_each(

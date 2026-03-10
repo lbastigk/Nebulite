@@ -5,7 +5,7 @@
 // Includes
 
 // Nebulite
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/ScopedKey.hpp"
 
@@ -15,7 +15,7 @@ namespace Nebulite::Data {
 // Getter
 
 template<typename T>
-std::expected<T, SimpleValueRetrievalError> JsonScopeBase::get(ScopedKeyView const& key) const {
+std::expected<T, SimpleValueRetrievalError> JsonScope::get(ScopedKeyView const& key) const {
     return baseDocument->get<T>(key.full(*this));
 }
 
@@ -23,7 +23,7 @@ std::expected<T, SimpleValueRetrievalError> JsonScopeBase::get(ScopedKeyView con
 // Setter
 
 template<typename T>
-void JsonScopeBase::set(ScopedKeyView const& key, T const& value) {
+void JsonScope::set(ScopedKeyView const& key, T const& value) {
     baseDocument->set<T>(key.full(*this), value);
 }
 

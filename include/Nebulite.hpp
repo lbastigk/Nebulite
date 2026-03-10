@@ -15,7 +15,7 @@
 #include "ScopeAccessor.hpp"
 #include "Core/GlobalSpace.hpp"
 #include "Utility/Capture.hpp"
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 
 //------------------------------------------
 // Namespace documentation
@@ -170,20 +170,20 @@ public:
 
     /**
      * @brief Provides access to the global settings scope in the global JSON document.
-     * @return Constant reference to the settings JsonScopeBase.
+     * @return Constant reference to the settings JsonScope.
      */
-    [[nodiscard]] static Data::JsonScopeBase const& settings();
+    [[nodiscard]] static Data::JsonScope const& settings();
 
     //------------------------------------------
     // Provide access based on access token and its prefix
 
     /**
-     * @brief Provides access to a shared JsonScopeBase based on the provided access token and prefix.
+     * @brief Provides access to a shared JsonScope based on the provided access token and prefix.
      * @param at Access token providing the necessary permissions.
      * @param prefix Prefix to append to the access token's prefix for scope retrieval.
-     * @return Reference to the shared JsonScopeBase.
+     * @return Reference to the shared JsonScope.
      */
-    [[nodiscard]] static Data::JsonScopeBase& shareScopeBase(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix = "");
+    [[nodiscard]] static Data::JsonScope& shareScopeBase(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix = "");
 
     //------------------------------------------
     // Imgui rendering

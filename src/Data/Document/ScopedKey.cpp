@@ -1,5 +1,5 @@
 #include "Data/Document/ScopedKey.hpp"
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 
 // ScopedKey methods
 namespace Nebulite::Data {
@@ -27,8 +27,8 @@ ScopedKey ScopedKey::operator+(std::string_view const& suffix) const {
 // ScopedKeyView methods
 namespace Nebulite::Data {
 
-std::string ScopedKeyView::full(JsonScopeBase const& scope) const {
-    // The scope that this JsonScopeBase is allowed to use
+std::string ScopedKeyView::full(JsonScope const& scope) const {
+    // The scope that this JsonScope is allowed to use
     std::string const& allowedScope = scope.getScopePrefix();
 
     // See if we require a specific scope
@@ -44,7 +44,7 @@ std::string ScopedKeyView::full(JsonScopeBase const& scope) const {
                 "ScopedKey scope mismatch:" +
                 ( key.empty() ? " an empty key" : " key '" + std::string(key) + "'" ) +
                 " was created with the given scope prefix '" + given + "'" +
-                " but was used in JsonScopeBase with prefix '" + allowedScope + "'.";
+                " but was used in JsonScope with prefix '" + allowedScope + "'.";
             throw std::invalid_argument(msg);
         }
         // Now we can safely use the given scope, as it lies within the allowed scope

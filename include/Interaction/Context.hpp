@@ -10,7 +10,7 @@
 // Forward declarations
 
 namespace Nebulite::Data {
-class JsonScopeBase;
+class JsonScope;
 } // namespace Nebulite::Data
 
 namespace Nebulite::Interaction::Execution {
@@ -23,21 +23,21 @@ class Expression; // For Context demotion to ContextScope
 
 namespace Nebulite::Interaction {
 
-// ContextScopeBase -> JSON scope access with JsonScopeBase references
+// ContextScopeBase -> JSON scope access with JsonScope references
 //                     Access to the scoped data only
 // Context          -> Full domain access
 
 /**
  * @struct ContextScopeBase
- * @brief Reduced context structure using JsonScopeBase references.
+ * @brief Reduced context structure using JsonScope references.
  *        Useful for functions that only need access to the JSON scopes of the domains.
  * @details Third layer of abstraction, only JSON scope access available.
  */
 class ContextScopeBase {
 public:
-    Data::JsonScopeBase& self;
-    Data::JsonScopeBase& other;
-    Data::JsonScopeBase& global;
+    Data::JsonScope& self;
+    Data::JsonScope& other;
+    Data::JsonScope& global;
     // TODO: Parent context?
 };
 

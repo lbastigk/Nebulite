@@ -18,7 +18,7 @@ Constants::Error Debug::update() {
 // Available Functions
 
 // NOLINTNEXTLINE
-Constants::Error Debug::eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error Debug::eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     std::string const argStr = Utility::StringHandler::recombineArgs(args);
     Interaction::Context const context{caller, caller, Global::instance()};    // Both self and other are this RenderObject?
     std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr, context);

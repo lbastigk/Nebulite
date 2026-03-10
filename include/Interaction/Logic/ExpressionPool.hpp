@@ -14,7 +14,7 @@
 #include <string>
 
 // Nebulite
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Constants/ThreadSettings.hpp"       // pool size is defined here
 #include "Interaction/Logic/Expression.hpp"
 
@@ -160,7 +160,7 @@ private:
      * @return The thread index for the current thread, in the range [0, EXPRESSION_POOL_SIZE).
      */
     static size_t threadIndex() {
-        thread_local size_t threadIndex = Data::JsonScopeBase::assignThreadIndex() % EXPRESSION_POOL_SIZE;
+        thread_local size_t threadIndex = Data::JsonScope::assignThreadIndex() % EXPRESSION_POOL_SIZE;
         return threadIndex;
     }
 };

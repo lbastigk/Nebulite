@@ -1,4 +1,4 @@
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "TransformationModule/Arithmetic.hpp"
 
 namespace Nebulite::TransformationModule {
@@ -35,7 +35,7 @@ bool Arithmetic::forall(std::span<std::string const> const& args, std::function<
     }
 }
 
-bool Arithmetic::add(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Arithmetic::add(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
         double const num = std::stod(arg);
         jsonDoc->set_add(key, num);
@@ -43,7 +43,7 @@ bool Arithmetic::add(std::span<std::string const> const& args, Data::JsonScopeBa
     });
 }
 
-bool Arithmetic::multiply(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Arithmetic::multiply(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
         double const num = std::stod(arg);
         jsonDoc->set_multiply(key, num);
@@ -51,7 +51,7 @@ bool Arithmetic::multiply(std::span<std::string const> const& args, Data::JsonSc
     });
 }
 
-bool Arithmetic::mod(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Arithmetic::mod(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
         double const modValue = std::stod(arg);
         auto const currentValue = jsonDoc->get<double>(key).value_or(0.0);
@@ -64,7 +64,7 @@ bool Arithmetic::mod(std::span<std::string const> const& args, Data::JsonScopeBa
     });
 }
 
-bool Arithmetic::pow(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Arithmetic::pow(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
         double const exponent = std::stod(arg);
         auto const currentValue = jsonDoc->get<double>(key).value_or(0.0);
@@ -74,7 +74,7 @@ bool Arithmetic::pow(std::span<std::string const> const& args, Data::JsonScopeBa
     });
 }
 
-bool Arithmetic::subtract(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Arithmetic::subtract(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
         double const num = - std::stod(arg);
         jsonDoc->set_add(key, num);
@@ -82,7 +82,7 @@ bool Arithmetic::subtract(std::span<std::string const> const& args, Data::JsonSc
     });
 }
 
-bool Arithmetic::divide(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Arithmetic::divide(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
         double const divisor = std::stod(arg);
         if (std::fabs(divisor) < std::numeric_limits<double>::epsilon()) {
@@ -94,7 +94,7 @@ bool Arithmetic::divide(std::span<std::string const> const& args, Data::JsonScop
     });
 }
 
-bool Arithmetic::root(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Arithmetic::root(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
         double const n = std::stod(arg);
         if (std::fabs(n) < std::numeric_limits<double>::epsilon()) {
@@ -110,7 +110,7 @@ bool Arithmetic::root(std::span<std::string const> const& args, Data::JsonScopeB
     });
 }
 
-bool Arithmetic::sqrt(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Arithmetic::sqrt(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 1) {
         return false; // No arguments should be provided for sqrt, as it's an operator with a single operand (the current JSON value)
     }

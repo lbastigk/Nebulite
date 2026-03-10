@@ -45,7 +45,7 @@ namespace Nebulite::Data {
 class MappedOrderedDoublePointers;
 class TaskQueue;
 class ScopedKeyView;
-class JsonScopeBase;
+class JsonScope;
 } // namespace Nebulite::Data
 
 namespace Nebulite::DomainModule {
@@ -80,11 +80,11 @@ namespace Nebulite::Interaction::Execution {
 class ScopeOwner {
     friend class DocumentAccessor;
     // Only used if the DocumentAccessor owns the scope (i.e., when constructed with the default constructor)
-    std::unique_ptr<Data::JsonScopeBase> _domainScopeOwned;
+    std::unique_ptr<Data::JsonScope> _domainScopeOwned;
 
 public:
     enum class ScopeOwnership {
-        Owned, // Will create and own a new JsonScopeBase (default constructor)
+        Owned, // Will create and own a new JsonScope (default constructor)
         Borrowed // Will be left empty
     };
 
@@ -102,9 +102,9 @@ public:
  */
 class DocumentAccessor : ScopeOwner {
 public:
-    explicit DocumentAccessor(Data::JsonScopeBase& d);
+    explicit DocumentAccessor(Data::JsonScope& d);
 
-    explicit DocumentAccessor(); // Creates a new JsonScopeBase owned by this DocumentAccessor
+    explicit DocumentAccessor(); // Creates a new JsonScope owned by this DocumentAccessor
 
     ~DocumentAccessor() override;
 
@@ -139,7 +139,7 @@ private:
     /**
      * @brief Each domain uses a JSON document to store its data.
      */
-    Data::JsonScopeBase& domainScope;
+    Data::JsonScope& domainScope;
 };
 } // namespace Nebulite::Interaction::Execution
 
@@ -181,7 +181,7 @@ class Domain : public DocumentAccessor {
      *          easily create the object with an inherited FuncTree inside the constructor.
      *          The Tree is then shared with the DomainModules for modification.
      */
-    std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> funcTree;
+    std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> funcTree;
 
     /**
      * @brief Stores all available modules
@@ -189,7 +189,7 @@ class Domain : public DocumentAccessor {
     std::vector<std::unique_ptr<DomainModuleBase>> modules;
 
 public:
-    Domain(std::string const& name, Data::JsonScopeBase& documentReference);
+    Domain(std::string const& name, Data::JsonScope& documentReference);
 
     explicit Domain(std::string const& name);
 
@@ -251,7 +251,7 @@ public:
      * @return A unique pointer to the created DomainModule of the specified type
      */
     template <typename DomainType, typename DomainModuleType>
-    static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScopeBase const& settings, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> funcTree) {
+    static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> funcTree) {
         // Determine the key from root level
         if constexpr (HasKeyGroup<DomainModuleType>) {
             if (DomainModuleType::Key::hasScope()) {
@@ -290,7 +290,7 @@ public:
      *       Either always looping through modules to check or using a second set of names for fast lookup.
      */
     template <typename DomainType, typename DomainModuleType>
-    void initModule(std::string const& moduleName, Data::JsonScopeBase const& settings, DomainType& domainReference) {
+    void initModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference) {
         if constexpr(std::is_same_v<DomainType, Domain>) {
             // If the DomainType is the base Domain class, we initialize modules without scope
             auto& scope = domainReference.domainScope.shareDummyScopeBase();
@@ -382,7 +382,7 @@ protected:
      *        Marked as protected, as it's only used to initialize DomainModules.
      * @return A shared pointer to the internal FuncTree.
      */
-    std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> getFuncTree() {
+    std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> getFuncTree() {
         return funcTree;
     }
 

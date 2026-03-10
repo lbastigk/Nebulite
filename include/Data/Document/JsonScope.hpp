@@ -44,14 +44,14 @@ constexpr std::array<T, N> make_array_with_arg(Arg&& arg) {
 }
 
 /**
- * @class Nebulite::Data::JsonScopeBase
- * @brief The JsonScopeBase class provides a scoped interface for accessing and modifying JSON documents.
+ * @class Nebulite::Data::JsonScope
+ * @brief The JsonScope class provides a scoped interface for accessing and modifying JSON documents.
  * @details It allows for modifications to a JSON document within a specific scope,
  *          that is a key-prefixed section of the document. This is useful for modular data management,
  *          where different parts of a JSON document can be managed independently.
  *          Holds little data itself, mostly acts as a scoped view over an existing JSON document or another JsonScope.
  */
-class JsonScopeBase {
+class JsonScope {
 public:
     // Thread runners are unique, no locking needed
     static auto constexpr noLockArraySize = Constants::ThreadSettings::Maximum::totalThreadCount + 4; // A bit extra, just in case
@@ -66,7 +66,7 @@ protected:
 
 private:
     /**
-     * @brief The Prefix of the scope. A nullopt indicates that this JsonScopeBase is a dummy (no access allowed).
+     * @brief The Prefix of the scope. A nullopt indicates that this JsonScope is a dummy (no access allowed).
      * @details Dummy scopes do not allow any access to the underlying JSON document.
      *          The retrieval of the scope prefix of a dummy scope will fail, exiting the program.
      */
@@ -99,26 +99,26 @@ public:
     //------------------------------------------
     // Constructors
 
-    // Constructing a JsonScopeBase from a JSON document and a prefix
-    explicit JsonScopeBase(JSON& doc, std::optional<std::string> const& prefix);
+    // Constructing a JsonScope from a JSON document and a prefix
+    explicit JsonScope(JSON& doc, std::optional<std::string> const& prefix);
 
-    // Constructing a JsonScopeBase from another JsonScopeBase and a sub-prefix
-    explicit JsonScopeBase(JsonScopeBase const& other, std::optional<std::string> const& prefix);
+    // Constructing a JsonScope from another JsonScope and a sub-prefix
+    explicit JsonScope(JsonScope const& other, std::optional<std::string> const& prefix);
 
     // Default constructor, we create a self-owned empty JSON document
-    explicit JsonScopeBase();
+    explicit JsonScope();
 
     //------------------------------------------
     // Special member functions
 
     // Disabled copy/move to avoid issues with Domain ownership and infinite recursion
 
-    JsonScopeBase(JsonScopeBase const& other) = delete;
-    JsonScopeBase(JsonScopeBase&& other) noexcept = delete;
-    JsonScopeBase& operator=(JsonScopeBase const& other) = delete;
-    JsonScopeBase& operator=(JsonScopeBase&& other) noexcept = delete;
+    JsonScope(JsonScope const& other) = delete;
+    JsonScope(JsonScope&& other) noexcept = delete;
+    JsonScope& operator=(JsonScope const& other) = delete;
+    JsonScope& operator=(JsonScope&& other) noexcept = delete;
 
-    virtual ~JsonScopeBase();
+    virtual ~JsonScope();
 
     //------------------------------------------
     // Get the prefix of this scope
@@ -131,7 +131,7 @@ public:
      */
     [[nodiscard]] std::string const& getScopePrefix() const {
         if (!scopePrefix.has_value()) {
-            throw std::runtime_error("JsonScopeBase: Access not granted. Attempted to get scope prefix of a dummy scope. Did you mean to use the caller's scope?");
+            throw std::runtime_error("JsonScope: Access not granted. Attempted to get scope prefix of a dummy scope. Did you mean to use the caller's scope?");
         }
         return scopePrefix.value();
     }
@@ -146,12 +146,12 @@ public:
     // When requesting a scope to share, we always assume its relative to our current scope
     // So we can pass a key as string and generate the full key internally based on our scopePrefix
 
-    [[nodiscard]] JsonScopeBase& shareScopeBase(ScopedKeyView const& key) const ;
-    [[nodiscard]] JsonScopeBase& shareScopeBase(ScopedKey const& key) const {return shareScopeBase(key.view());}
-    [[nodiscard]] JsonScopeBase& shareScopeBase(std::string const& key) const ;
+    [[nodiscard]] JsonScope& shareScopeBase(ScopedKeyView const& key) const ;
+    [[nodiscard]] JsonScope& shareScopeBase(ScopedKey const& key) const {return shareScopeBase(key.view());}
+    [[nodiscard]] JsonScope& shareScopeBase(std::string const& key) const ;
 
     // Share a dummy scope, where all access is denied
-    [[nodiscard]] JsonScopeBase& shareDummyScopeBase() ;
+    [[nodiscard]] JsonScope& shareDummyScopeBase() ;
 
     //------------------------------------------
     // Getter
@@ -180,8 +180,8 @@ public:
     void setSubDoc(ScopedKeyView const& key, JSON const& subDoc);
     void setSubDoc(ScopedKey const& key, JSON const& subDoc){setSubDoc(key.view(), subDoc);}
 
-    void setSubDoc(ScopedKeyView const& key, JsonScopeBase const& subDoc);
-    void setSubDoc(ScopedKey const& key, JsonScopeBase const& subDoc){setSubDoc(key.view(), subDoc);}
+    void setSubDoc(ScopedKeyView const& key, JsonScope const& subDoc);
+    void setSubDoc(ScopedKey const& key, JsonScope const& subDoc){setSubDoc(key.view(), subDoc);}
 
     void setEmptyArray(ScopedKeyView const& key);
     void setEmptyArray(ScopedKey const& key){setEmptyArray(key.view());}
@@ -282,5 +282,5 @@ public:
     void assertAccess(ScopedKey const& key) const { assertAccess(key.view()); }
 };
 } // namespace Nebulite::Data
-#include "Data/Document/JsonScopeBase.tpp"
+#include "Data/Document/JsonScope.tpp"
 #endif // NEBULITE_DATA_DOCUMENT_JSON_SCOPE_BASE_HPP

@@ -1,5 +1,5 @@
 #include "Nebulite.hpp"
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Data/Document/SimpleValueError.hpp"
 #include "Interaction/Logic/Expression.hpp"
 
@@ -74,7 +74,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
     case ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
     {
         // This requires an empty document that acts as a parsing mechanism for the transformations
-        thread_local Data::JsonScopeBase emptyDoc;
+        thread_local Data::JsonScope emptyDoc;
         token = getStringValue(emptyDoc, scopedKey.view());
     }
         break;
@@ -107,7 +107,7 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
     case ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
         {
             // This requires an empty document that acts as a parsing mechanism for the transformations
-            thread_local Data::JsonScopeBase emptyDoc;
+            thread_local Data::JsonScope emptyDoc;
             token = emptyDoc.getSubDoc(scopedKey.view());
         }
         break;

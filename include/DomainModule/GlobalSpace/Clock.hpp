@@ -13,7 +13,7 @@
 #include "Constants/ErrorTypes.hpp"
 #include "Constants/KeyNames.hpp"
 #include "Data/Document/JSON.hpp"
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -96,7 +96,7 @@ private:
         uint64_t interval_ms; // Trigger interval in milliseconds
         double* globalReference; // Pointer to the global document entry
 
-        ClockEntry(uint64_t const& interval, Data::JsonScopeBase& doc, uint64_t const& current_time);
+        ClockEntry(uint64_t const& interval, Data::JsonScope& doc, uint64_t const& current_time);
 
         /**
          * @brief Updates the clock entry, setting the global reference based on the timer.

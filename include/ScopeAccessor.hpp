@@ -21,7 +21,7 @@ class RenderObject; // Forward declaration of RenderObject
 } // namespace Nebulite::Core
 
 namespace Nebulite::Data {
-class JsonScopeBase; // Forward declaration of JsonScopeBase
+class JsonScope; // Forward declaration of JsonScope
 } // namespace Nebulite::Data
 
 namespace Nebulite::Interaction::Rules {

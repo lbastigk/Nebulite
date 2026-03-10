@@ -10,7 +10,7 @@
  *          We can also have scoped keys that fail if used outside their intended scope, e.g. a key
  *          defined with scope "renderer." cannot be used in a JsonScope with scope "physics.",
  *          as that would be an accidental misuse of the key.
- *          The checks happen at runtime when the key is used to access the JsonScopeBase,
+ *          The checks happen at runtime when the key is used to access the JsonScope,
  *          throwing an exception if the scopes do not match.
  *          This allows for greater separation of concerns and reduces accidental key misusage.
  */
@@ -32,7 +32,7 @@
 namespace Nebulite::Data {
 class ScopedKey;
 class ScopedKeyView;
-class JsonScopeBase;
+class JsonScope;
 } // namespace Nebulite::Data
 
 //------------------------------------------
@@ -88,7 +88,7 @@ class ScopedKey {
     /**
      * @brief Optional scope prefix for this key.
      * @details The required scope prefix that this key must be used within.
-     *          If set, any JsonScopeBase using this key must have a scope
+     *          If set, any JsonScope using this key must have a scope
      *          that matches or is a sub-scope of this prefix.
      *          If not set, the key is assumed to be at the root scope.
      */
@@ -126,9 +126,9 @@ public:
 
 /**
  * @class ScopedKeyView
- * @brief Non-Owning String wrapper to represent keys within a JsonScopeBase.
+ * @brief Non-Owning String wrapper to represent keys within a JsonScope.
  * @details This class allows for easy conversion of string literals
- *          into fully scoped keys within the JsonScopeBase.
+ *          into fully scoped keys within the JsonScope.
  *          This reduces accidental key misusage, as conversion to a usable type
  *          std::string requires an explicit action.
  *          It also provides safety checks to ensure that keys are used within their intended scopes.
@@ -139,16 +139,16 @@ public:
 class ScopedKeyView {
     /**
      * @brief Produce the full key string including scope prefix.
-     * @param scope The current scope of the JsonScopeBase.
+     * @param scope The current scope of the JsonScope.
      * @return The full key string with scope prefix.
      * @throws std::invalid_argument if the key is used outside its required scope.
      */
-    [[nodiscard]] std::string full(JsonScopeBase const& scope) const;
+    [[nodiscard]] std::string full(JsonScope const& scope) const;
 
     /**
      * @brief Optional scope prefix for this key.
      * @details The required scope prefix that this key must be used within.
-     *          If set, any JsonScopeBase using this key must have a scope
+     *          If set, any JsonScope using this key must have a scope
      *          that matches or is a sub-scope of this prefix.
      *          If not set, the key is assumed to be at the root scope.
      */
@@ -167,7 +167,7 @@ class ScopedKeyView {
     friend class ScopedKey;
 
 public:
-    friend class JsonScopeBase;
+    friend class JsonScope;
 
     // Adding suffix to produce a new ScopedKeyView
     [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;
@@ -177,7 +177,7 @@ public:
     /**
      * @brief Create a ScopedKeyView from a compile-time fixed string with an optional scope prefix.
      * @tparam RequiredScope A compile-time fixed string representing the required scope prefix for this key.
-     *                       If empty, the keys scope is arbitrary and assumed to be at the root of the JsonScopeBase.
+     *                       If empty, the keys scope is arbitrary and assumed to be at the root of the JsonScope.
      * @tparam T A type that can be converted to std::string_view, representing the key string within the scope.
      * @param keyInScope The key string within the scope, which can be a string literal or any type convertible to std::string_view.
      * @return A ScopedKeyView instance with the appropriate scope and key string.

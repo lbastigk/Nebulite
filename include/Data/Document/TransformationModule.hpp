@@ -46,7 +46,7 @@ Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncT
 namespace Nebulite::Data {
 class TransformationModule {
 public:
-    explicit TransformationModule(std::shared_ptr<Interaction::Execution::FuncTree<bool, JsonScopeBase*>> funcTree);
+    explicit TransformationModule(std::shared_ptr<Interaction::Execution::FuncTree<bool, JsonScope*>> funcTree);
 
     virtual ~TransformationModule();
 
@@ -71,7 +71,7 @@ public:
     static auto constexpr rootKey = ScopedKeyView(rootKeyStr);
 
 protected:
-    std::shared_ptr<Interaction::Execution::FuncTree<bool, JsonScopeBase*>> transformationFuncTree;
+    std::shared_ptr<Interaction::Execution::FuncTree<bool, JsonScope*>> transformationFuncTree;
 
     /**
      * @brief Helper function to handle potentially wrapped strings in transformation arguments.
@@ -85,13 +85,13 @@ private:
     // Example functions for binding
 
     // NOLINTNEXTLINE
-    static bool bar(Data::JsonScopeBase* scope) {
+    static bool bar(Data::JsonScope* scope) {
         (void)scope;
         return true;
     }
 
     // NOLINTNEXTLINE
-    bool baz(Data::JsonScopeBase* scope) {
+    bool baz(Data::JsonScope* scope) {
         (void)scope;
         i++;
         return true;

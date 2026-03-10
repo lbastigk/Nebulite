@@ -3,7 +3,7 @@
 
 namespace Nebulite::Data {
 
-TransformationModule::TransformationModule(std::shared_ptr<Interaction::Execution::FuncTree<bool, JsonScopeBase*>> funcTree)
+TransformationModule::TransformationModule(std::shared_ptr<Interaction::Execution::FuncTree<bool, JsonScope*>> funcTree)
     : transformationFuncTree(std::move(funcTree)){}
 
 TransformationModule::~TransformationModule() = default;

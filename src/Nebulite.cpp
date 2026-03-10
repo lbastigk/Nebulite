@@ -8,12 +8,12 @@ Core::GlobalSpace& Global::instance(){
     return instance;
 }
 
-Data::JsonScopeBase const& Global::settings() {
+Data::JsonScope const& Global::settings() {
     static auto const& settingsScopeConst = globalDoc().shareManagedScopeBase("settings.");
     return settingsScopeConst;
 }
 
-Data::JsonScopeBase& Global::shareScopeBase(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix) {
+Data::JsonScope& Global::shareScopeBase(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix) {
     return globalDoc().shareManagedScopeBase(at.getPrefix() + prefix);
 }
 

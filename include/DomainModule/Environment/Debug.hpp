@@ -12,7 +12,7 @@
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Constants/KeyNames.hpp"
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------

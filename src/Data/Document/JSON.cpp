@@ -2,7 +2,7 @@
 
 #include "Nebulite.hpp"
 #include "Data/Document/JSON.hpp"
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 
 namespace Nebulite::Data {
 
@@ -43,23 +43,23 @@ JsonRvalueTransformer* JSON::getTransformer() {
 //------------------------------------------
 // Scope sharing
 
-JsonScopeBase& JSON::shareManagedScopeBase(std::string const& prefix) {
+JsonScope& JSON::shareManagedScopeBase(std::string const& prefix) {
     std::scoped_lock const lockGuard(mtx);
 
     if (auto const it = managedScopeBases.find(prefix); it != managedScopeBases.end()) {
         return *it->second;
     }
-    managedScopeBases[prefix] = std::make_unique<JsonScopeBase>(*this, prefix);
+    managedScopeBases[prefix] = std::make_unique<JsonScope>(*this, prefix);
     return *managedScopeBases[prefix];
 }
 
 //------------------------------------------
 // Dummy sharing
 
-JsonScopeBase& JSON::getDummyScopeBase() {
+JsonScope& JSON::getDummyScopeBase() {
     std::scoped_lock const lockGuard(mtx);
     if (!dummyScopeBaseInstance) {
-        dummyScopeBaseInstance = std::make_unique<JsonScopeBase>(*this, std::nullopt);
+        dummyScopeBaseInstance = std::make_unique<JsonScope>(*this, std::nullopt);
     }
     return *dummyScopeBaseInstance;
 }
@@ -121,10 +121,10 @@ std::vector<std::string> JSON::splitKeyWithTransformations(std::string const& ke
 //------------------------------------------
 // Private methods
 
-JsonScopeBase& JSON::fullScopeBase() {
+JsonScope& JSON::fullScopeBase() {
     std::scoped_lock const lockGuard(mtx);
     if (!fullScopeBaseInstance) {
-        fullScopeBaseInstance = std::make_unique<JsonScopeBase>(*this, "");
+        fullScopeBaseInstance = std::make_unique<JsonScope>(*this, "");
     }
     return *fullScopeBaseInstance;
 }

@@ -12,7 +12,7 @@ namespace Nebulite::TransformationModule {
 
 class Debug final : public Data::TransformationModule {
 public:
-    explicit Debug(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScopeBase*>> const& funcTree)
+    explicit Debug(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}
 
     void bindTransformations() override;
@@ -25,7 +25,7 @@ public:
     static auto constexpr echoDesc = "Echoes the provided arguments to the console, with newline.\n"
         "Usage: |echo <arg1> <arg2> -> {unchanged-json}\n";
 
-    static bool print(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc);
+    static bool print(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr printName = "print";
     static auto constexpr printDesc = "Prints the current JSON value to the console.\n"
         "Usage: |print -> {unchanged-json}\n";

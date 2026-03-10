@@ -17,7 +17,7 @@
 //------------------------------------------
 namespace Nebulite::Graphics {
 
-Drawcall::Drawcall(Data::JsonScopeBase& workspace) :
+Drawcall::Drawcall(Data::JsonScope& workspace) :
     drawcallScope(workspace),
     texture(workspace),
     updaterRoutine{
@@ -33,7 +33,7 @@ Drawcall::Drawcall(Data::JsonScopeBase& workspace) :
     updateDrawcallData();
 }
 
-void Drawcall::Refs::initialize(Data::JsonScopeBase const& scope){
+void Drawcall::Refs::initialize(Data::JsonScope const& scope){
     // Source Rect
     rectSrcX = scope.getStableDoublePointer(Key::Rect::srcX);
     rectSrcY = scope.getStableDoublePointer(Key::Rect::srcY);
@@ -201,7 +201,7 @@ Constants::Error Drawcall::parseStr(std::string const& str) {
     return texture.parseStr(str);
 }
 
-void Drawcall::ApplyDefault::Sprite(Data::JsonScopeBase& scope) {
+void Drawcall::ApplyDefault::Sprite(Data::JsonScope& scope) {
     // Default type
     scope.set<std::string>(Key::type, "sprite");
     scope.set<std::string>(Key::SpriteSpecific::imageLocation, "Resources/Sprites/TEST001P/001.bmp");
@@ -217,7 +217,7 @@ void Drawcall::ApplyDefault::Sprite(Data::JsonScopeBase& scope) {
     scope.set<double>(Key::Rect::dstH, 32.0);
 }
 
-void Drawcall::ApplyDefault::Text(Data::JsonScopeBase& scope) {
+void Drawcall::ApplyDefault::Text(Data::JsonScope& scope) {
     // Default type
     scope.set<std::string>(Key::type, "text");
     scope.set<std::string>(Key::TextSpecific::str, "Hello, Nebulite!");

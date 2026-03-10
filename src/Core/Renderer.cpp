@@ -25,7 +25,7 @@
 //------------------------------------------
 namespace Nebulite::Core {
 
-Renderer::Renderer(Data::JsonScopeBase& documentReference, bool* flag_headless)
+Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless)
     : Domain("Renderer", documentReference),
       env(documentReference){
 

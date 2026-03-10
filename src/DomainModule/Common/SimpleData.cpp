@@ -12,7 +12,7 @@ Constants::Error SimpleData::update() {return Constants::ErrorTable::NONE();} //
 // General set/get/remove functions
 
 // NOLINTNEXTLINE
-Constants::Error SimpleData::set(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScopeBase& callerScope) {
+Constants::Error SimpleData::set(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -25,7 +25,7 @@ Constants::Error SimpleData::set(std::span<std::string const> const& args, Inter
 }
 
 // NOLINTNEXTLINE
-Constants::Error SimpleData::move(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScopeBase& callerScope) {
+Constants::Error SimpleData::move(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -40,7 +40,7 @@ Constants::Error SimpleData::move(std::span<std::string const> const& args, Inte
 }
 
 // NOLINTNEXTLINE
-Constants::Error SimpleData::copy(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScopeBase& callerScope) {
+Constants::Error SimpleData::copy(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -55,7 +55,7 @@ Constants::Error SimpleData::copy(std::span<std::string const> const& args, Inte
 }
 
 // NOLINTNEXTLINE
-Constants::Error SimpleData::keyDelete(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScopeBase& callerScope) {
+Constants::Error SimpleData::keyDelete(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -74,7 +74,7 @@ Constants::Error SimpleData::keyDelete(std::span<std::string const> const& args,
 // TODO: JSON::ensureArray could be a useful function
 
 // NOLINTNEXTLINE
-Constants::Error SimpleData::ensureArray(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScopeBase& callerScope) {
+Constants::Error SimpleData::ensureArray(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         Error::println("Error: Too few arguments for ensureArray command.");
@@ -91,7 +91,7 @@ Constants::Error SimpleData::ensureArray(std::span<std::string const> const& arg
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error SimpleData::push_back(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope){
+Constants::Error SimpleData::push_back(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope){
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
         Error::println("Error: Too many arguments for push_front command.");
@@ -123,7 +123,7 @@ Constants::Error SimpleData::push_back(std::span<std::string const> const& args,
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error SimpleData::pop_back(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error SimpleData::pop_back(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         Error::println("Error: Too few arguments for push_back command.");
@@ -156,7 +156,7 @@ Constants::Error SimpleData::pop_back(std::span<std::string const> const& args, 
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error SimpleData::push_front(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error SimpleData::push_front(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
         Error::println("Error: Too many arguments for push_front command.");
@@ -209,7 +209,7 @@ Constants::Error SimpleData::push_front(std::span<std::string const> const& args
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error SimpleData::pop_front(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error SimpleData::pop_front(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         Error::println("Error: Too few arguments for pop_front command.");

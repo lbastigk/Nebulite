@@ -164,7 +164,7 @@ public:
     // - caller is helpful if we wish to modify the domain that called the function
     // - callerScope is helpful if we wish to modify the JSON scope from the domain that called the function
     // - Example: JSON domainModules for modifying data needs to modify the callerScope, not its own scope
-    Constants::Error exampleCommand(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope);
+    Constants::Error exampleCommand(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr exampleCommand_name = "example do-something";
     static auto constexpr exampleCommand_desc = "Performs an example action on the current RenderObject.\n"
         "\n"

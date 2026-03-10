@@ -2,11 +2,11 @@
 
 #include "Nebulite.hpp"
 #include "Core/GlobalSpace.hpp"
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 
 namespace Nebulite::Interaction::Logic {
 
-void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Data::JsonScopeBase& target) const {
+void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Data::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
         case Operation::set:
@@ -29,7 +29,7 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::str
     }
 }
 
-void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& val, Data::JsonScopeBase& target) const {
+void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& val, Data::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
         case Operation::set:
@@ -79,7 +79,7 @@ void Assignment::apply(ContextScopeBase const& context) const {
     //------------------------------------------
     // Check what the target document to apply the ruleset to is
 
-    Data::JsonScopeBase* targetDocument;
+    Data::JsonScope* targetDocument;
     switch (onType) {
         case Type::Self:
             targetDocument = &context.self;

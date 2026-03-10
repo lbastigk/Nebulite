@@ -25,7 +25,7 @@
 // Forward declarations
 
 namespace Nebulite::Data {
-class JsonScopeBase;
+class JsonScope;
 class ScopedKey;
 class ScopedKeyView;
 } // namespace Nebulite::Data
@@ -188,13 +188,13 @@ private:
      * @brief Provides an empty JSON document that can be used as a context placeholder
      * @return The empty JSON document reference
      */
-    static Data::JsonScopeBase& emptyDoc();
+    static Data::JsonScope& emptyDoc();
 
     /**
      * @brief Provides access to the global document for expression evaluation
      * @return A reference to the global document
      */
-    static Data::JsonScopeBase& globalDoc();
+    static Data::JsonScope& globalDoc();
 
     /**
      * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
@@ -207,9 +207,9 @@ private:
      *        Cached to optimize for repeated evaluations with the same partial context.
      */
     struct CachedContext {
-        Data::JsonScopeBase* self = nullptr;
-        Data::JsonScopeBase* other = nullptr;
-        Data::JsonScopeBase* global = nullptr;
+        Data::JsonScope* self = nullptr;
+        Data::JsonScope* other = nullptr;
+        Data::JsonScope* global = nullptr;
     };
     mutable CachedContext firstEvaluationContext;
 

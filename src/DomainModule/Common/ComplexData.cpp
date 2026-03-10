@@ -20,7 +20,7 @@ Constants::Error ComplexData::querySet() {
     return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 
-Constants::Error ComplexData::jsonSet(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error ComplexData::jsonSet(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -38,7 +38,7 @@ Constants::Error ComplexData::jsonSet(std::span<std::string const> const& args, 
 }
 
 
-Constants::Error ComplexData::evaluateMember(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error ComplexData::evaluateMember(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -62,7 +62,7 @@ Constants::Error ComplexData::evaluateMember(std::span<std::string const> const&
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error ComplexData::evaluateRecursive(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope){
+Constants::Error ComplexData::evaluateRecursive(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope){
     std::function<void(Data::ScopedKey const&)> recursiveEvaluate = [&](auto const& key) -> void {
         switch (callerScope.memberType(key)) {
             case Data::KeyType::value:

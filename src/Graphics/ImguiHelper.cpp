@@ -10,11 +10,11 @@
 //------------------------------------------
 namespace Nebulite::Graphics {
 
-void ImguiHelper::renderJsonScope(Data::JsonScopeBase const& scope, std::string const& name) {
+void ImguiHelper::renderJsonScope(Data::JsonScope const& scope, std::string const& name) {
     ImGui::Begin(name.c_str());
 
-    std::function<void(Data::JsonScopeBase const&, Data::ScopedKey const&)> traverseObject;
-    traverseObject = [&traverseObject](Data::JsonScopeBase const& s, Data::ScopedKey const& root) {
+    std::function<void(Data::JsonScope const&, Data::ScopedKey const&)> traverseObject;
+    traverseObject = [&traverseObject](Data::JsonScope const& s, Data::ScopedKey const& root) {
         for (auto const& key : s.listAvailableKeys(root)) {
             std::string const rootPath = root.view().toString();
             std::string const fullPath = key.view().toString(); // stable ID

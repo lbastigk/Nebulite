@@ -101,7 +101,7 @@ public:
     /**
      * @brief Loads default input mappings into a given scope.
      */
-    static void loadDefaultMappings(Data::JsonScopeBase& scope);
+    static void loadDefaultMappings(Data::JsonScope& scope);
 
 private:
     struct InputMappingSlot {
@@ -194,6 +194,6 @@ private:
      * @param slots An array of pairs representing the key associations for the action, where each pair consists of the SDL key name and the association type
      *              (e.g. {{"space", "onPress"}, {"w", "current"}, {"", "empty"}} for a jump action that can be triggered by pressing space or holding w).
      */
-    static void addMappingToScope(Data::JsonScopeBase& scope, std::string const& action, std::array<std::pair<std::string, std::string>,3> const& slots);
+    static void addMappingToScope(Data::JsonScope& scope, std::string const& action, std::array<std::pair<std::string, std::string>,3> const& slots);
 };
 }   // namespace Nebulite::DomainModule::GlobalSpace

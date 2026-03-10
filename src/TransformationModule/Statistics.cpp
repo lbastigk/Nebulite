@@ -1,5 +1,5 @@
 #include "TransformationModule/Statistics.hpp"
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 
 namespace Nebulite::TransformationModule {
 
@@ -13,7 +13,7 @@ void Statistics::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&stddev, stddevName, stddevDesc);
 }
 
-double Statistics::accumulate(Data::JsonScopeBase const* scope, std::function<double(double, double)> const& func, double const& initialValue) {
+double Statistics::accumulate(Data::JsonScope const* scope, std::function<double(double, double)> const& func, double const& initialValue) {
     if (scope->memberType(rootKey) != Data::KeyType::array) {
         return std::numeric_limits<double>::quiet_NaN();
     }
@@ -37,7 +37,7 @@ double Statistics::accumulate(Data::JsonScopeBase const* scope, std::function<do
 }
 
 
-bool Statistics::sum(Data::JsonScopeBase* scope) {
+bool Statistics::sum(Data::JsonScope* scope) {
     double const result = accumulate(scope, [](double const a, double const b) { return a + b; });
     if (std::isnan(result)) {
             return false;
@@ -46,7 +46,7 @@ bool Statistics::sum(Data::JsonScopeBase* scope) {
     return true;
 }
 
-bool Statistics::average(Data::JsonScopeBase* scope){
+bool Statistics::average(Data::JsonScope* scope){
     double const result = accumulate(scope, [](double const a, double const b) { return a + b; });
     if (std::isnan(result)) {
             return false;
@@ -55,7 +55,7 @@ bool Statistics::average(Data::JsonScopeBase* scope){
     return true;
 }
 
-bool Statistics::product(Data::JsonScopeBase* scope) {
+bool Statistics::product(Data::JsonScope* scope) {
     double const result = accumulate(scope, [](double const a, double const b) { return a * b; }, 1.0);
     if (std::isnan(result)) {
         return false;
@@ -64,7 +64,7 @@ bool Statistics::product(Data::JsonScopeBase* scope) {
     return true;
 }
 
-bool Statistics::min(Data::JsonScopeBase* scope) {
+bool Statistics::min(Data::JsonScope* scope) {
     double const result = accumulate(scope, [](double const a, double const b) { return std::min(a, b); }, std::numeric_limits<double>::infinity());
     if (std::isnan(result)) {
         return false;
@@ -73,7 +73,7 @@ bool Statistics::min(Data::JsonScopeBase* scope) {
     return true;
 }
 
-bool Statistics::max(Data::JsonScopeBase* scope) {
+bool Statistics::max(Data::JsonScope* scope) {
     double const result = accumulate(scope, [](double const a, double const b) { return std::max(a, b); }, -std::numeric_limits<double>::infinity());
     if (std::isnan(result)) {
         return false;
@@ -82,7 +82,7 @@ bool Statistics::max(Data::JsonScopeBase* scope) {
     return true;
 }
 
-bool Statistics::median(Data::JsonScopeBase* scope) {
+bool Statistics::median(Data::JsonScope* scope) {
     if (scope->memberType(rootKey) != Data::KeyType::array) {
         return false;
     }
@@ -113,7 +113,7 @@ bool Statistics::median(Data::JsonScopeBase* scope) {
     return true;
 }
 
-bool Statistics::stddev(Data::JsonScopeBase* scope) {
+bool Statistics::stddev(Data::JsonScope* scope) {
     if (scope->memberType(rootKey) != Data::KeyType::array) {
         return false;
     }

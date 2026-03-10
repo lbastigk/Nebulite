@@ -13,7 +13,7 @@
 #include <atomic>
 
 // Nebulite
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Utility/WorkDispatcher.hpp"
 
 //------------------------------------------
@@ -98,7 +98,7 @@ private:
     static void ensureEarlyThreadId() {
         thread_local bool threadIdAssigned = false;
         if (threadIdAssigned) return;
-        if (size_t const id = JsonScopeBase::assignThreadIndex(); id >= JsonScopeBase::noLockArraySize) {
+        if (size_t const id = JsonScope::assignThreadIndex(); id >= JsonScope::noLockArraySize) {
             throw std::runtime_error("Thread ID exceeds non-locking array size!");
         }
         threadIdAssigned = true;

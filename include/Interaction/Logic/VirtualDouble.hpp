@@ -84,7 +84,7 @@ public:
      * @details Can only be called once
      * @param json The JSON document to link to.
      */
-    void linkExternalCache(Data::JsonScopeBase const& json);
+    void linkExternalCache(Data::JsonScope const& json);
 
     /**
      * @brief Copies the value from the linked external cache.
@@ -95,7 +95,7 @@ public:
      * @brief Copies the value from another JSON document.
      * @param json The JSON document to copy from.
      */
-    void copyFromJson(Data::JsonScopeBase const& json);
+    void copyFromJson(Data::JsonScope const& json);
 
     /**
      * @brief Set the value of the VirtualDouble directly.

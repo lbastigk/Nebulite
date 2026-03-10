@@ -21,7 +21,7 @@
 // Forward declarations
 
 namespace Nebulite::Data {
-class JsonScopeBase;
+class JsonScope;
 } // namespace Nebulite::Data
 
 namespace Nebulite::Interaction::Logic {
@@ -116,7 +116,7 @@ using odpvec = DynamicFixedArray;
  */
 class MappedOrderedDoublePointers {
 public:
-    explicit MappedOrderedDoublePointers(JsonScopeBase& ownerReference)
+    explicit MappedOrderedDoublePointers(JsonScope& ownerReference)
         : reference(ownerReference) {
     }
 
@@ -158,7 +158,7 @@ private:
     /**
      * @brief Reference to the JSON document that owns this cache.
      */
-    JsonScopeBase& reference;
+    JsonScope& reference;
 
     /**
      * @brief Map from unique IDs to OrderedDoublePointers objects.

@@ -54,9 +54,9 @@ Constants::Error FeatureTest::selfOtherGlobalEvaluation() const {
 
     // Test 1: separate scopeBase
     {
-        Data::JsonScopeBase self1;
+        Data::JsonScope self1;
         self1.set(key, 1);
-        Data::JsonScopeBase other1;
+        Data::JsonScope other1;
         other1.set(key, 2);
         Interaction::Logic::Expression const expr("{self.testKey} {other.testKey} {global.testKey}");
         Log::println(expr.eval({self1, other1, globalScope}));

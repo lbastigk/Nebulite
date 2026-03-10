@@ -28,15 +28,15 @@ public:
     /**
      * @brief Constructor for the DomainModule base class.
      * @param funcTreePtr Shared pointer to the FuncTree for binding functions and variables.
-     * @param w Reference to a JsonScopeBase document for this module to use as workspace.
-     * @param s Reference to a JsonScopeBase document for settings.
+     * @param w Reference to a JsonScope document for this module to use as workspace.
+     * @param s Reference to a JsonScope document for settings.
      * @details The constructor initializes the DomainModuleBase with
      *          the FuncTree pointer for binding functions and variables.
      */
     explicit DomainModuleBase(
-        std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> funcTreePtr,
-        Data::JsonScopeBase& w,
-        Data::JsonScopeBase const& s
+        std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> funcTreePtr,
+        Data::JsonScope& w,
+        Data::JsonScope const& s
     );
 
     virtual ~DomainModuleBase();
@@ -127,17 +127,17 @@ public:
     }
 
     /**
-     * @brief Reference to the JsonScopeBase document.
+     * @brief Reference to the JsonScope document.
      * @details This allows derived DomainModules to access and manipulate
      *          the JSON document as needed.
      */
-    Data::JsonScopeBase& moduleScope;
+    Data::JsonScope& moduleScope;
 
     /**
-     * @brief Reference to the JsonScopeBase document for settings.
+     * @brief Reference to the JsonScope document for settings.
      * @details This allows derived DomainModules to access settings for initial configuration.
      */
-    Data::JsonScopeBase const& settingsScope;
+    Data::JsonScope const& settingsScope;
 
 private:
     /**
@@ -148,7 +148,7 @@ private:
      *          Instead of making a mess by untangling the templates, we simply use a pointer
      *          to the non-templated interface.
      */
-    std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>> funcTree;
+    std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> funcTree;
 };
 } // namespace Nebulite::Interaction::Execution
 #include "Interaction/Execution/DomainModuleBase.tpp"

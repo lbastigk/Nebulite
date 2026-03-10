@@ -5,49 +5,49 @@
 #include <array>
 
 
-// JsonScopeBase methods
+// JsonScope methods
 namespace Nebulite::Data {
-// Constructing a JsonScopeBase from a JSON document and a prefix
-JsonScopeBase::JsonScopeBase(JSON& doc, std::optional<std::string> const& prefix)
+// Constructing a JsonScope from a JSON document and a prefix
+JsonScope::JsonScope(JSON& doc, std::optional<std::string> const& prefix)
     // create a non-owning shared_ptr to the provided JSON (no delete on destruction)
     : baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){})),
       scopePrefix(prefix.has_value() ? std::optional(generatePrefix(prefix.value())) : std::nullopt),
       odpCache(make_array_with_arg<MappedOrderedDoublePointers, noLockArraySize>(*this))
 {}
 
-// Constructing a JsonScopeBase from another JsonScopeBase and a sub-prefix
-JsonScopeBase::JsonScopeBase(JsonScopeBase const& other, std::optional<std::string> const& prefix)
+// Constructing a JsonScope from another JsonScope and a sub-prefix
+JsonScope::JsonScope(JsonScope const& other, std::optional<std::string> const& prefix)
     : baseDocument(other.baseDocument),
-      scopePrefix(prefix.has_value() ? std::optional(ScopedKeyView(generatePrefix(prefix.value())).full(other)) : std::nullopt), // Generate full scoped prefix based on the other JsonScopeBase and the new prefix
+      scopePrefix(prefix.has_value() ? std::optional(ScopedKeyView(generatePrefix(prefix.value())).full(other)) : std::nullopt), // Generate full scoped prefix based on the other JsonScope and the new prefix
       odpCache(make_array_with_arg<MappedOrderedDoublePointers, noLockArraySize>(*this))
 {}
 
 // Default constructor, we create a self-owned empty JSON document
-JsonScopeBase::JsonScopeBase()
+JsonScope::JsonScope()
     : baseDocument(std::make_shared<JSON>()),
       scopePrefix(""),
       odpCache(make_array_with_arg<MappedOrderedDoublePointers, noLockArraySize>(*this))
 
 {}
 
-JsonScopeBase::~JsonScopeBase() = default;
+JsonScope::~JsonScope() = default;
 
 //------------------------------------------
 // Sharing a scope
 
-JsonScopeBase& JsonScopeBase::shareScopeBase(ScopedKeyView const& key) const {
+JsonScope& JsonScope::shareScopeBase(ScopedKeyView const& key) const {
     return baseDocument->shareManagedScopeBase(
         key.full(*this)
     );
 }
 
-JsonScopeBase& JsonScopeBase::shareScopeBase(std::string const& key) const {
+JsonScope& JsonScope::shareScopeBase(std::string const& key) const {
     return baseDocument->shareManagedScopeBase(
         ScopedKey(key).view().full(*this)
     );
 }
 
-JsonScopeBase& JsonScopeBase::shareDummyScopeBase() {
+JsonScope& JsonScope::shareDummyScopeBase() {
     if (!scopePrefix.has_value() || !baseDocument) {
         return *this; // If this is already a dummy scope, return itself
     }
@@ -61,43 +61,43 @@ JsonScopeBase& JsonScopeBase::shareDummyScopeBase() {
 //------------------------------------------
 // Getter
 
-[[nodiscard]] std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JsonScopeBase::getVariant(ScopedKeyView const& key) const {
+[[nodiscard]] std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JsonScope::getVariant(ScopedKeyView const& key) const {
     return baseDocument->getVariant(key.full(*this));
 }
 
-[[nodiscard]] JSON JsonScopeBase::getSubDoc(ScopedKeyView const& key) const {
+[[nodiscard]] JSON JsonScope::getSubDoc(ScopedKeyView const& key) const {
     return baseDocument->getSubDoc(key.full(*this));
 }
-[[nodiscard]] JSON JsonScopeBase::getSubDoc(ScopedKey const& key) const {
+[[nodiscard]] JSON JsonScope::getSubDoc(ScopedKey const& key) const {
     return getSubDoc(key.view());
 }
 
-[[nodiscard]] double* JsonScopeBase::getStableDoublePointer(ScopedKeyView const& key) const {
+[[nodiscard]] double* JsonScope::getStableDoublePointer(ScopedKeyView const& key) const {
     return baseDocument->getStableDoublePointer(key.full(*this));
 }
 
 //------------------------------------------
 // Setter
 
-void JsonScopeBase::setVariant(ScopedKeyView const& key, RjDirectAccess::simpleValue const& value){
+void JsonScope::setVariant(ScopedKeyView const& key, RjDirectAccess::simpleValue const& value){
     helperNonConstVar++; // Mark as non-const operation
     baseDocument->setVariant(key.full(*this), value);
 }
 
-void JsonScopeBase::setSubDoc(ScopedKeyView const& key, JSON const& subDoc){
+void JsonScope::setSubDoc(ScopedKeyView const& key, JSON const& subDoc){
     helperNonConstVar++; // Mark as non-const operation
     baseDocument->setSubDoc(key.full(*this), subDoc);
 }
 
-void JsonScopeBase::setSubDoc(ScopedKeyView const& key, JsonScopeBase const& subDoc){
+void JsonScope::setSubDoc(ScopedKeyView const& key, JsonScope const& subDoc){
     helperNonConstVar++; // Mark as non-const operation
-    // Slightly more complicated: If we wish to set the sub-document from another JsonScopeBase,
+    // Slightly more complicated: If we wish to set the sub-document from another JsonScope,
     // we need to extract the underlying JSON document from it in the correct scope.
     JSON const subDocScope = subDoc.getSubDoc(ScopedKey(""));
     baseDocument->setSubDoc(key.full(*this), subDocScope);
 }
 
-void JsonScopeBase::setEmptyArray(ScopedKeyView const& key){
+void JsonScope::setEmptyArray(ScopedKeyView const& key){
     helperNonConstVar++; // Mark as non-const operation
     baseDocument->setEmptyArray(key.full(*this));
 }
@@ -105,17 +105,17 @@ void JsonScopeBase::setEmptyArray(ScopedKeyView const& key){
 //------------------------------------------
 // Special sets for threadsafe maths operations
 
-void JsonScopeBase::set_add(ScopedKeyView const& key, double const& val){
+void JsonScope::set_add(ScopedKeyView const& key, double const& val){
     helperNonConstVar++; // Mark as non-const operation
     baseDocument->set_add(key.full(*this), val);
 }
 
-void JsonScopeBase::set_multiply(ScopedKeyView const& key, double const& val){
+void JsonScope::set_multiply(ScopedKeyView const& key, double const& val){
     helperNonConstVar++; // Mark as non-const operation
     baseDocument->set_multiply(key.full(*this), val);
 }
 
-void JsonScopeBase::set_concat(ScopedKeyView const& key, std::string const& valStr){
+void JsonScope::set_concat(ScopedKeyView const& key, std::string const& valStr){
     helperNonConstVar++; // Mark as non-const operation
     baseDocument->set_concat(key.full(*this), valStr);
 }
@@ -123,41 +123,41 @@ void JsonScopeBase::set_concat(ScopedKeyView const& key, std::string const& valS
 //------------------------------------------
 // Locking
 
-[[nodiscard]] std::unique_lock<std::recursive_mutex> JsonScopeBase::lock() const {
+[[nodiscard]] std::unique_lock<std::recursive_mutex> JsonScope::lock() const {
     return baseDocument->lock();
 }
 
 //------------------------------------------
 // Key Types, Sizes
 
-[[nodiscard]] KeyType JsonScopeBase::memberType(ScopedKeyView const& key) const {
+[[nodiscard]] KeyType JsonScope::memberType(ScopedKeyView const& key) const {
     return baseDocument->memberType(key.full(*this));
 }
 
-[[nodiscard]] std::string JsonScopeBase::memberTypeString(ScopedKeyView const& key) const {
+[[nodiscard]] std::string JsonScope::memberTypeString(ScopedKeyView const& key) const {
     return baseDocument->memberTypeString(key.full(*this));
 }
 
-[[nodiscard]] size_t JsonScopeBase::memberSize(ScopedKeyView const& key) const {
+[[nodiscard]] size_t JsonScope::memberSize(ScopedKeyView const& key) const {
     return baseDocument->memberSize(key.full(*this));
 }
 
-void JsonScopeBase::removeMember(ScopedKeyView const& key){
+void JsonScope::removeMember(ScopedKeyView const& key){
     helperNonConstVar++; // Mark as non-const operation
     baseDocument->removeMember(key.full(*this));
 }
 
-void JsonScopeBase::moveMember(ScopedKeyView const& fromKey, ScopedKeyView const& toKey){
+void JsonScope::moveMember(ScopedKeyView const& fromKey, ScopedKeyView const& toKey){
     helperNonConstVar++; // Mark as non-const operation
     baseDocument->moveMember(fromKey.full(*this), toKey.full(*this));
 }
 
-void JsonScopeBase::copyMember(ScopedKeyView const& fromKey, ScopedKeyView const& toKey){
+void JsonScope::copyMember(ScopedKeyView const& fromKey, ScopedKeyView const& toKey){
     helperNonConstVar++; // Mark as non-const operation
     baseDocument->copyMember(fromKey.full(*this), toKey.full(*this));
 }
 
-std::vector<ScopedKey> JsonScopeBase::listAvailableKeys(ScopedKeyView const& key) const {
+std::vector<ScopedKey> JsonScope::listAvailableKeys(ScopedKeyView const& key) const {
     std::vector<std::string> const keys = baseDocument->listAvailableKeys(key.full(*this));
     std::vector<ScopedKey> scopedKeys;
     scopedKeys.reserve(keys.size());
@@ -171,7 +171,7 @@ std::vector<ScopedKey> JsonScopeBase::listAvailableKeys(ScopedKeyView const& key
     return scopedKeys;
 }
 
-std::vector<JsonScopeBase::MemberAndKey> JsonScopeBase::listAvailableMembersAndKeys(ScopedKeyView const& key) const {
+std::vector<JsonScope::MemberAndKey> JsonScope::listAvailableMembersAndKeys(ScopedKeyView const& key) const {
     std::vector<std::string> const keys = baseDocument->listAvailableKeys(key.full(*this));
     std::vector<MemberAndKey> scopedKeys;
     scopedKeys.reserve(keys.size());
@@ -188,16 +188,16 @@ std::vector<JsonScopeBase::MemberAndKey> JsonScopeBase::listAvailableMembersAndK
 //------------------------------------------
 // Deserialize/Serialize
 
-std::string JsonScopeBase::serialize() const {
+std::string JsonScope::serialize() const {
     static ScopedKeyView constexpr key("");
     return baseDocument->serialize(key.full(*this));
 }
 
-std::string JsonScopeBase::serialize(ScopedKeyView const& key) const {
+std::string JsonScope::serialize(ScopedKeyView const& key) const {
     return baseDocument->serialize(key.full(*this));
 }
 
-void JsonScopeBase::deserialize(std::string const& serialOrLink) {
+void JsonScope::deserialize(std::string const& serialOrLink) {
     // No support for any tokens, just forward to baseDocument
     baseDocument->deserialize(serialOrLink);
 }
@@ -205,7 +205,7 @@ void JsonScopeBase::deserialize(std::string const& serialOrLink) {
 //------------------------------------------
 // Access test
 
-void JsonScopeBase::assertAccess(ScopedKeyView const& key) const{
+void JsonScope::assertAccess(ScopedKeyView const& key) const{
     (void)key.full(*this); // Just generate full key to test access
 }
 

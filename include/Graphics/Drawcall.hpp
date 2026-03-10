@@ -32,7 +32,7 @@ namespace Nebulite::Graphics {
 class Drawcall {
 public:
     // Any Drawcall is based on a scopes data
-    explicit Drawcall(Data::JsonScopeBase& workspace);
+    explicit Drawcall(Data::JsonScope& workspace);
 
     ~Drawcall() = default;
 
@@ -49,13 +49,13 @@ public:
          * @brief Sets a default drawcall configuration for a sprite.
          * @param scope The JSON scope to set defaults in.
          */
-        static void Sprite(Data::JsonScopeBase& scope);
+        static void Sprite(Data::JsonScope& scope);
 
         /**
          * @brief Sets a default drawcall configuration for text.
          * @param scope The JSON scope to set defaults in.
          */
-        static void Text(Data::JsonScopeBase& scope);
+        static void Text(Data::JsonScope& scope);
     };
 
     /**
@@ -150,7 +150,7 @@ private:
 
         double* polygonFilled = nullptr;
 
-        void initialize(Data::JsonScopeBase const& scope);
+        void initialize(Data::JsonScope const& scope);
     } refs;
 
     bool reInitializeRequested = false;
@@ -178,7 +178,7 @@ private:
         //   > perhaps we should determine if we create a new texture for this or render directly from the original texture?
     }type;
 
-    Data::JsonScopeBase& drawcallScope;
+    Data::JsonScope& drawcallScope;
     Core::Texture texture; // Holds the data for the texture to draw
 
     //------------------------------------------

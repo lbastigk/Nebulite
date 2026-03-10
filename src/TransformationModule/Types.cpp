@@ -1,4 +1,4 @@
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "TransformationModule/Types.hpp"
 
 namespace Nebulite::TransformationModule {
@@ -10,24 +10,24 @@ void Types::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Types::deserialize, deserializeName, deserializeDesc);
 }
 
-bool Types::typeAsNumber(Data::JsonScopeBase* jsonDoc) {
+bool Types::typeAsNumber(Data::JsonScope* jsonDoc) {
     jsonDoc->set<int>(rootKey, static_cast<int>(jsonDoc->memberType(rootKey)));
     return true;
 }
 
-bool Types::typeAsString(Data::JsonScopeBase* jsonDoc) {
+bool Types::typeAsString(Data::JsonScope* jsonDoc) {
     std::string const type = jsonDoc->memberTypeString(rootKey);
     jsonDoc->set<std::string>(rootKey, type);
     return true;
 }
 
-bool Types::serialize(Data::JsonScopeBase* jsonDoc) {
+bool Types::serialize(Data::JsonScope* jsonDoc) {
     std::string const serialized = jsonDoc->serialize();
     jsonDoc->set<std::string>(rootKey, serialized);
     return true;
 }
 
-bool Types::deserialize(Data::JsonScopeBase* jsonDoc) {
+bool Types::deserialize(Data::JsonScope* jsonDoc) {
     auto const serialized = jsonDoc->get<std::string>(rootKey).value_or("");
     Data::JSON tempDoc;
     if (!Data::JSON::isJsonOrJsonc(serialized)) {
@@ -38,7 +38,7 @@ bool Types::deserialize(Data::JsonScopeBase* jsonDoc) {
     return true;
 }
 
-bool Types::exists(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Types::exists(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() > 2) {
         return false;
     }

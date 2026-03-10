@@ -1,5 +1,5 @@
 #include "Nebulite.hpp"
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "Interaction/Context.hpp"
@@ -11,14 +11,14 @@ namespace Nebulite::Interaction::Execution {
 
 ScopeOwner::ScopeOwner(ScopeOwnership const& ownership) {
     if (ownership == ScopeOwnership::Owned) {
-        _domainScopeOwned = std::make_unique<Data::JsonScopeBase>();
+        _domainScopeOwned = std::make_unique<Data::JsonScope>();
     }
 }
 
-DocumentAccessor::DocumentAccessor(Data::JsonScopeBase& d) : ScopeOwner(ScopeOwnership::Borrowed), domainScope(d) {}
+DocumentAccessor::DocumentAccessor(Data::JsonScope& d) : ScopeOwner(ScopeOwnership::Borrowed), domainScope(d) {}
 
 DocumentAccessor::DocumentAccessor() : ScopeOwner(ScopeOwnership::Owned), domainScope(*_domainScopeOwned) {
-    // Note: This creates a new JsonScopeBase that is owned by this DocumentAccessor.
+    // Note: This creates a new JsonScope that is owned by this DocumentAccessor.
     // It will be automatically cleaned up when the DocumentAccessor is destroyed.
 }
 
@@ -29,8 +29,8 @@ DocumentAccessor::~DocumentAccessor() = default;
 namespace Nebulite::Interaction::Execution {
 
 // NOLINTNEXTLINE
-Domain::Domain(std::string const& name, Data::JsonScopeBase& documentReference) : DocumentAccessor(documentReference), domainName(name){
-    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>>(
+Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : DocumentAccessor(documentReference), domainName(name){
+    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
         name,
         Constants::ErrorTable::NONE(),
         Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
@@ -44,7 +44,7 @@ Domain::Domain(std::string const& name, Data::JsonScopeBase& documentReference) 
 }
 
 Domain::Domain(std::string const& name) : domainName(name) {
-    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScopeBase&>>(
+    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
         name,
         Constants::ErrorTable::NONE(),
         Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()

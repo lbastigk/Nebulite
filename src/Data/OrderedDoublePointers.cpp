@@ -1,4 +1,4 @@
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Data/OrderedDoublePointers.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
 

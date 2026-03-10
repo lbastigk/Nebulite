@@ -15,7 +15,7 @@ void Casting::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Casting::round, roundName, roundDesc);
 }
 
-bool Casting::toInt(Data::JsonScopeBase* jsonDoc) {
+bool Casting::toInt(Data::JsonScope* jsonDoc) {
     // Check if it has any value
     if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         return false;
@@ -28,7 +28,7 @@ bool Casting::toInt(Data::JsonScopeBase* jsonDoc) {
     return true;
 }
 
-bool Casting::toString(Data::JsonScopeBase* jsonDoc) {
+bool Casting::toString(Data::JsonScope* jsonDoc) {
     // Check if it has any value
     if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         return false;
@@ -39,7 +39,7 @@ bool Casting::toString(Data::JsonScopeBase* jsonDoc) {
     return true;
 }
 
-bool Casting::toBool(Data::JsonScopeBase* jsonDoc) {
+bool Casting::toBool(Data::JsonScope* jsonDoc) {
     // Check if it has any value
     if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         return false;
@@ -69,7 +69,7 @@ bool Casting::toBool(Data::JsonScopeBase* jsonDoc) {
     return true;
 }
 
-bool Casting::toDouble(Data::JsonScopeBase* jsonDoc) {
+bool Casting::toDouble(Data::JsonScope* jsonDoc) {
     // Check if it has any value
     if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         return false;
@@ -81,7 +81,7 @@ bool Casting::toDouble(Data::JsonScopeBase* jsonDoc) {
     return true;
 }
 
-bool Casting::toBoolString(Data::JsonScopeBase* jsonDoc) {
+bool Casting::toBoolString(Data::JsonScope* jsonDoc) {
     // Check if it has any value
     if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         return false;
@@ -95,7 +95,7 @@ bool Casting::toBoolString(Data::JsonScopeBase* jsonDoc) {
 
 //------------------------------------------
 
-bool Casting::roundUp(Data::JsonScopeBase* jsonDoc) {
+bool Casting::roundUp(Data::JsonScope* jsonDoc) {
     // Check if it has any value
     if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         return false;
@@ -108,7 +108,7 @@ bool Casting::roundUp(Data::JsonScopeBase* jsonDoc) {
     return true;
 }
 
-bool Casting::roundDown(Data::JsonScopeBase* jsonDoc) {
+bool Casting::roundDown(Data::JsonScope* jsonDoc) {
     // Check if it has any value
     if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         return false;
@@ -121,7 +121,7 @@ bool Casting::roundDown(Data::JsonScopeBase* jsonDoc) {
     return true;
 }
 
-bool Casting::round(Data::JsonScopeBase* jsonDoc) {
+bool Casting::round(Data::JsonScope* jsonDoc) {
     // Check if it has any value
     if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         return false;

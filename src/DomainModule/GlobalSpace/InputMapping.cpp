@@ -147,7 +147,7 @@ void InputMapping::processMappings() {
     }
 }
 
-void InputMapping::addMappingToScope(Data::JsonScopeBase& scope, std::string const& action, std::array<std::pair<std::string, std::string>,3> const& slots) {
+void InputMapping::addMappingToScope(Data::JsonScope& scope, std::string const& action, std::array<std::pair<std::string, std::string>,3> const& slots) {
     scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::associationA, slots[0].first);
     scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::actionA, slots[0].second);
     scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::associationB, slots[1].first);
@@ -156,7 +156,7 @@ void InputMapping::addMappingToScope(Data::JsonScopeBase& scope, std::string con
     scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::actionC, slots[2].second);
 }
 
-void InputMapping::loadDefaultMappings(Data::JsonScopeBase& scope) {
+void InputMapping::loadDefaultMappings(Data::JsonScope& scope) {
     // Combat
     addMappingToScope(scope, "combat::attack", {{{"space", "current"}, {"", "empty"}, {"", "empty"}}});
 

@@ -2,7 +2,7 @@
 // Includes
 
 #include "Nebulite.hpp"
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonRvalueTransformer.hpp"
 
@@ -25,7 +25,7 @@
 namespace Nebulite::Data {
 
 JsonRvalueTransformer::JsonRvalueTransformer() {
-    transformationFuncTree = std::make_shared<Interaction::Execution::FuncTree<bool, JsonScopeBase*>>("JSON rvalue transformation FuncTree", true, false);
+    transformationFuncTree = std::make_shared<Interaction::Execution::FuncTree<bool, JsonScope*>>("JSON rvalue transformation FuncTree", true, false);
 
     //------------------------------------------
     // Initialize modules
@@ -49,7 +49,7 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     }
 }
 
-bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JsonScopeBase* jsonDoc) const {
+bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JsonScope* jsonDoc) const {
     static std::string const funcName = __FUNCTION__;
     if (args.empty()) [[unlikely]] {
         return false;

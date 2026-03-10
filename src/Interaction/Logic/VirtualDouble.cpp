@@ -17,7 +17,7 @@ VirtualDouble::VirtualDouble(std::string k) noexcept : key(std::move(k)) {
     scopedKey = Data::ScopedKey(key);
 }
 
-void VirtualDouble::linkExternalCache(Data::JsonScopeBase const& json){
+void VirtualDouble::linkExternalCache(Data::JsonScope const& json){
     if (externalReference != nullptr) {
         // This function should only be called once, throw error
         throw std::logic_error("External cache is already linked for key: " + key);
@@ -33,7 +33,7 @@ void VirtualDouble::copyExternalCache() {
     copiedValue = *externalReference;
 }
 
-void VirtualDouble::copyFromJson(Data::JsonScopeBase const& json) {
+void VirtualDouble::copyFromJson(Data::JsonScope const& json) {
     copiedValue = json.get<double>(scopedKey).value_or(0.0);
 }
 

@@ -2,7 +2,7 @@
 // Includes
 
 // Nebulite
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Interaction/Logic/Expression.hpp"
 #include "TransformationModule/General.hpp"
 
@@ -18,7 +18,7 @@ void General::bindTransformations() {
     BIND_TRANSFORMATION_MEMBER(&General::setFromResult, setFromResultName, setFromResultDesc);
 }
 
-bool General::setString(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool General::setString(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey + std::string(args[1]);
     auto const value = std::string(args[2]);
@@ -26,7 +26,7 @@ bool General::setString(std::span<std::string const> const& args, Data::JsonScop
     return true;
 }
 
-bool General::setInt(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool General::setInt(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey + std::string(args[1]);
     try {
@@ -38,7 +38,7 @@ bool General::setInt(std::span<std::string const> const& args, Data::JsonScopeBa
     }
 }
 
-bool General::setDouble(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool General::setDouble(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey + std::string(args[1]);
     try {
@@ -50,7 +50,7 @@ bool General::setDouble(std::span<std::string const> const& args, Data::JsonScop
     }
 }
 
-bool General::setBool(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool General::setBool(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey + std::string(args[1]);
     std::string const valStr = args[2];
@@ -59,7 +59,7 @@ bool General::setBool(std::span<std::string const> const& args, Data::JsonScopeB
     return true;
 }
 
-bool General::removeMember(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool General::removeMember(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() < 2) return false;
     for (auto const& arg : args.subspan(1)) {
         auto const key = rootKey + std::string(arg);
@@ -68,7 +68,7 @@ bool General::removeMember(std::span<std::string const> const& args, Data::JsonS
     return true;
 }
 
-bool General::setFromResult(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) const {
+bool General::setFromResult(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) const {
     if (args.size() < 2) return false;
     auto const key = rootKey + std::string(args[1]);
     auto const transformation = handlePotentiallyWrappedString(args.subspan(2));

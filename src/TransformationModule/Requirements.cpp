@@ -1,5 +1,5 @@
 #include "Nebulite.hpp"
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "TransformationModule/Requirements.hpp"
 
 namespace Nebulite::TransformationModule {
@@ -21,7 +21,7 @@ void Requirements::printUserDefinedMessage(std::span<std::string const> const& a
 }
 
 // NOLINTNEXTLINE
-bool Requirements::requireNonEmpty(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Requirements::requireNonEmpty(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         printUserDefinedMessage(args);
         return false;
@@ -30,7 +30,7 @@ bool Requirements::requireNonEmpty(std::span<std::string const> const& args, Dat
 }
 
 // NOLINTNEXTLINE
-bool Requirements::requireTypeObject(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Requirements::requireTypeObject(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::object) {
         printUserDefinedMessage(args);
         return false;
@@ -39,7 +39,7 @@ bool Requirements::requireTypeObject(std::span<std::string const> const& args, D
 }
 
 // NOLINTNEXTLINE
-bool Requirements::requireTypeArray(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Requirements::requireTypeArray(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
         printUserDefinedMessage(args);
         return false;
@@ -48,7 +48,7 @@ bool Requirements::requireTypeArray(std::span<std::string const> const& args, Da
 }
 
 // NOLINTNEXTLINE
-bool Requirements::requireTypeBasicValue(std::span<std::string const> const& args, Data::JsonScopeBase* jsonDoc) {
+bool Requirements::requireTypeBasicValue(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::value) {
         printUserDefinedMessage(args);
         return false;

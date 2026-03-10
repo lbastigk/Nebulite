@@ -1,4 +1,4 @@
-#include "Data/Document/JsonScopeBase.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Interaction/Context.hpp"
 #include "Interaction/Execution/Domain.hpp"
 

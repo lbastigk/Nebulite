@@ -18,7 +18,7 @@ Constants::Error General::update() {
 // Domain-Bound Functions
 
 // NOLINTNEXTLINE
-Constants::Error General::eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope){
+Constants::Error General::eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope){
     // TODO: An idea would be to only eval until the next "eval" keyword, allowing for nested evals within for-loops, ifs, etc.:
     //       Example:
     //       eval for i 1 {global.loopCount} eval process-state {global.currentState} {i}
@@ -127,7 +127,7 @@ Constants::Error General::echo(std::span<std::string const> const& args) {
 }
 
 // NOLINTNEXTLINE
-Constants::Error General::func_if(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error General::func_if(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     if (args.size() < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -205,7 +205,7 @@ Constants::Error General::alwaysClear() const {
 }
 
 // NOLINTNEXTLINE
-Constants::Error General::func_for(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScopeBase& callerScope) {
+Constants::Error General::func_for(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     if (args.size() > 4) {
         std::string const& varName = args[1];
 
