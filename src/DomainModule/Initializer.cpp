@@ -41,6 +41,7 @@
 #include "DomainModule/RenderObject/StateUpdate.hpp"
 
 // Renderer
+#include "DomainModule/Renderer/Audio.hpp"
 #include "DomainModule/Renderer/Console.hpp"
 #include "DomainModule/Renderer/General.hpp"
 #include "DomainModule/Renderer/Input.hpp"
@@ -206,6 +207,11 @@ void Initializer::initRenderer(Core::Renderer* target) {
 
     target->initModule<Core::Renderer, General>(
         "Renderer General Functions",
+        Global::settings(),
+        *target
+    );
+    target->initModule<Core::Renderer, Audio>(
+        "Renderer Audio Functions",
         Global::settings(),
         *target
     );

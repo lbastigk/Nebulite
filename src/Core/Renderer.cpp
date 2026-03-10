@@ -43,9 +43,6 @@ Renderer::Renderer(Data::JsonScopeBase& documentReference, bool* flag_headless)
     // Base directory
     baseDirectory = Utility::FileManagement::currentDir();
 
-    // Audio
-    initWaveforms();
-
     //------------------------------------------
     // Start timers
     fps.controlTimer.start();
@@ -54,45 +51,6 @@ Renderer::Renderer(Data::JsonScopeBase& documentReference, bool* flag_headless)
     //------------------------------------------
     // Domain Modules
     DomainModule::Initializer::initRenderer(this);
-}
-
-void Renderer::initWaveforms() {
-    // Waveform buffers: Sine wave buffer
-    basicAudioWaveforms.sineBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
-    for (size_t i = 0; i < basicAudioWaveforms.samples; i++) {
-        double const time = static_cast<double>(i) / basicAudioWaveforms.sampleRate;
-        (*basicAudioWaveforms.sineBuffer)[i] = static_cast<int16_t>(32767 * 0.3 * sin(2.0 * M_PI * basicAudioWaveforms.frequency * time));
-    }
-
-    // Waveform buffers: Square wave buffer
-    basicAudioWaveforms.squareBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
-    for (size_t i = 0; i < basicAudioWaveforms.samples; i++) {
-        double const time = static_cast<double>(i) / basicAudioWaveforms.sampleRate;
-
-        // Square wave: alternates between +1 and -1
-        double const phase = 2.0 * M_PI * basicAudioWaveforms.frequency * time;
-        double const squareValue = sin(phase) >= 0 ? 1.0 : -1.0;
-
-        (*basicAudioWaveforms.squareBuffer)[i] = static_cast<int16_t>(32767 * 0.3 * squareValue);
-    }
-
-    // Waveform buffers: Triangle wave buffer
-    basicAudioWaveforms.triangleBuffer = new std::vector<Sint16>(basicAudioWaveforms.samples);
-    for (size_t i = 0; i < basicAudioWaveforms.samples; i++) {
-        double const time = static_cast<double>(i) / basicAudioWaveforms.sampleRate;
-
-        // Triangle wave: linear ramp up and down
-        double const phase = fmod(basicAudioWaveforms.frequency * time, 1.0); // 0 to 1
-        double triangleValue;
-
-        if (phase < 0.5) {
-            triangleValue = 4.0 * phase - 1.0; // -1 to +1 (rising)
-        } else {
-            triangleValue = 3.0 - 4.0 * phase; // +1 to -1 (falling)
-        }
-
-        (*basicAudioWaveforms.triangleBuffer)[i] = static_cast<int16_t>(32767 * 0.3 * triangleValue);
-    }
 }
 
 // TODO: Move all settings to workspace!
@@ -280,27 +238,6 @@ void Renderer::initSDL() {
         std::abort();
     }
     loadFonts();
-
-    //------------------------------------------
-    // Audio
-
-    // Init
-    if (!SDL_Init(SDL_INIT_AUDIO)) {
-        Error::println("SDL_Init Audio Error: ", SDL_GetError());
-        std::abort();
-    }
-    audio.desired.freq = 44100;
-    audio.desired.format = SDL_AUDIO_S16;
-    audio.desired.channels = 1;
-    //audio.desired.samples = 1024;
-    //audio.desired.callback = nullptr;
-
-    audio.device = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audio.desired);
-    if (audio.device == 0) {
-        Error::println("Failed to open audio device: ", SDL_GetError());
-        std::abort();
-    }
-    status.audioInitialized = true;
 
     //------------------------------------------
     // Check for remaining errors in SDL
@@ -493,31 +430,6 @@ void Renderer::reinsertAllObjects() {
 
 //------------------------------------------
 // Special Functions
-
-void Renderer::beep() const {
-    if (!status.audioInitialized)
-        return;
-
-    // SDL3: use an SDL_AudioStream to enqueue PCM data (lazy-initialized)
-    static SDL_AudioStream* s_beepStream = nullptr;
-    int const audioLength = static_cast<int>(basicAudioWaveforms.samples * sizeof(int16_t));
-
-    if (!s_beepStream) {
-        s_beepStream = SDL_CreateAudioStream(&audio.desired, &audio.desired);
-        if (!s_beepStream) {
-            Error::println("Failed to create audio stream: ", SDL_GetError());
-            return;
-        }
-    }
-
-    if (SDL_PutAudioStreamData(s_beepStream, basicAudioWaveforms.squareBuffer->data(), audioLength) != 0) {
-        Error::println("Failed to push audio to stream: ", SDL_GetError());
-        return;
-    }
-
-    // Ensure the device is running; SDL3's pause API uses a single-argument form
-    SDL_PauseAudioDevice(audio.device);
-}
 
 bool Renderer::snapshot(std::string link) const {
     // Get current window/render target size

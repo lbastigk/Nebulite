@@ -48,7 +48,7 @@ Constants::Error General::spawn(int const argc, char** argv) const {
         // Renderer manages the RenderObjects lifetime
         domain.append(ro);
     } else {
-        Error::println("No renderobject name provided!");
+        Error::println("No RenderObject name provided!");
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     return Constants::ErrorTable::NONE();
@@ -161,12 +161,6 @@ Constants::Error General::snapshot(int const argc, char** argv) const {
         return Constants::ErrorTable::NONE();
     }
     return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
-}
-
-Constants::Error General::beep() const {
-    // Beep function for debugging, from SDL
-    domain.beep();
-    return Constants::ErrorTable::NONE();
 }
 
 Constants::Error General::selectedObject_get(int const argc, char** argv){

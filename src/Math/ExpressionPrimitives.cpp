@@ -6,10 +6,10 @@
 
 // Nebulite
 #include "Interaction/Execution/FuncTree.hpp"
-#include "Interaction/Logic/ExpressionPrimitives.hpp"
+#include "Math/ExpressionPrimitives.hpp"
 
 //------------------------------------------
-namespace Nebulite::Interaction::Logic {
+namespace Nebulite::Math {
 
 // NOLINTNEXTLINE
 double ExpressionPrimitives::rng2arg(double a, double b) {
@@ -56,7 +56,7 @@ bool pseudoBind() {
 void ExpressionPrimitives::help(std::span<std::string const> const& args) {
     // Create a temporary funcTree to utilize its printFunctionList method for formatted output
 
-    Execution::FuncTree<bool> tempFuncTree("Nebulite Expressions", true, true);
+    Interaction::Execution::FuncTree tempFuncTree("Nebulite Expressions", true, true);
 
     // Use a void lambda as binding function
     for (const auto& funcInfo : availableFunctions()) {

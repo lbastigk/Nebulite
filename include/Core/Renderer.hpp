@@ -197,11 +197,6 @@ public:
     // Special Functions
 
     /**
-     * @brief Beeps the system speaker.
-     */
-    void beep() const;
-
-    /**
      * @brief Takes a snapshot of the current Renderer state.
      * @param link The link to save the snapshot to.
      * @return True if the snapshot was successful, false otherwise.
@@ -441,7 +436,6 @@ private:
     // Boolean Status Variables
 
     struct Status {
-        bool audioInitialized = false;
         bool showFps = true; // Set default to false later on
         bool skipUpdate = false;
         bool skippedUpdateLastFrame = false;
@@ -460,30 +454,6 @@ private:
      * @brief Sets up display values in the workspace.
      */
     void setupDisplayValues() ;
-
-    //------------------------------------------
-    // Audio
-
-    struct Audio {
-        SDL_AudioDeviceID device = 0;
-        SDL_AudioSpec desired = {};
-        SDL_AudioSpec obtained = {};
-    } audio;
-
-    struct BasicAudioWaveforms {
-        double const frequency = 440.0; // 440 Hz beep
-        double const duration = 200.0; // 200ms
-        double const sampleRate = 44100.0;
-        size_t const samples = static_cast<size_t>(sampleRate * duration / 1000.0); // Number of samples
-        std::vector<int16_t>* sineBuffer = nullptr;
-        std::vector<int16_t>* squareBuffer = nullptr;
-        std::vector<int16_t>* triangleBuffer = nullptr;
-    } basicAudioWaveforms;
-
-    /**
-     * @brief Initializes basic audio waveforms.
-     */
-    void initWaveforms();
 
     //------------------------------------------
     // General Variables

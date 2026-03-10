@@ -7,7 +7,7 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Data/Document/JsonScopeBase.hpp"
-#include "Interaction/Logic/ExpressionPrimitives.hpp"
+#include "../../../include/Math/ExpressionPrimitives.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
 #include "Interaction/Logic/Expression.hpp"
 
@@ -55,7 +55,7 @@ void Expression::reset() {
 
     //------------------------------------------
     // Register built-in functions
-    ExpressionPrimitives::registerExpressions(te_variables);
+    Math::ExpressionPrimitives::registerExpressions(te_variables);
 }
 
 std::string Expression::stripContext(std::string const& key) {
