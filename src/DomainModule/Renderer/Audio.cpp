@@ -74,6 +74,83 @@ Constants::Error Audio::playSound(std::span<std::string const> const& args) {
     return Constants::ErrorTable::NONE();
 }
 
+Constants::Error Audio::playSoundWithFilter(std::span<std::string const> const& args) {
+    if (args.size() < 4) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    }
+
+    auto const path = args[1];
+    auto const sound = loadSound(path);
+    if (!sound.has_value()) {
+        Error::println("Failed to load sound from path: ", path);
+        return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
+    }
+
+    auto const numCoeffs = Utility::StringHandler::split(args[2], ',');
+    auto const denCoeffs = Utility::StringHandler::split(args[3], ',');
+
+    std::vector<float> num;
+    std::vector<float> den;
+
+    try {
+        for (auto const& coeff : numCoeffs) {
+            num.push_back(std::stof(coeff));
+        }
+        for (auto const& coeff : denCoeffs) {
+            den.push_back(std::stof(coeff));
+        }
+    } catch (std::exception const& e) {
+        Error::println("Failed to parse coefficients: ", e.what());
+        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+    }
+
+    auto const [data] = applyTransferFunction(sound.value()->second, num, den);
+
+    SDL_PutAudioStreamData(
+        stream,
+        data.data(),
+        static_cast<int>(data.size() * sizeof(Settings::SampleType))
+    );
+
+    return Constants::ErrorTable::NONE();
+}
+
+Constants::Error Audio::testFilter(std::span<std::string const> const& args){
+    if (args.size() < 3) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    }
+
+    auto const data = Utility::StringHandler::split(args[1], ',');
+    auto const num = Utility::StringHandler::split(args[2], ',');
+    auto const den = Utility::StringHandler::split(args[3], ',');
+
+    std::vector<float> inputData;
+    std::vector<float> numData;
+    std::vector<float> denData;
+
+    try {
+        for (auto const& coeff : data) {
+            inputData.push_back(std::stof(coeff));
+        }
+        for (auto const& coeff : num) {
+            numData.push_back(std::stof(coeff));
+        }
+        for (auto const& coeff : den) {
+            denData.push_back(std::stof(coeff));
+        }
+    } catch (std::exception const& e) {
+        Error::println("Failed to parse coefficients: ", e.what());
+        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+    }
+
+    auto const [out] = applyTransferFunction({inputData}, numData, denData);
+    Log::println("Output:");
+    for (auto const& sample : out) {
+        Log::println(sample);
+    }
+    return Constants::ErrorTable::NONE();
+}
+
 void Audio::initAudio(){
     // Init
     if (!SDL_Init(SDL_INIT_AUDIO)) {
@@ -211,6 +288,154 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
         return std::nullopt;
     }
     return it;
+}
+
+std::vector<std::complex<double>> Audio::fft(Sound const& sound) {
+    const auto& data = sound.audioData;
+    size_t const n = data.size();
+    if (n == 0) return {};
+
+    // next power of two
+    size_t N = 1;
+    while (N < n) N <<= 1;
+
+    std::vector<std::complex<double>> a(N);
+
+    for (size_t i = 0; i < n; ++i)
+        // NOLINTNEXTLINE
+        a[i] = static_cast<double>(data[i]);
+    for (size_t i = n; i < N; ++i)
+        a[i] = 0.0;
+
+    // bit-reversal permutation
+    size_t b = 0;
+    for (size_t i = 1; i < N; ++i) {
+        size_t bit = N >> 1;
+        while (b & bit) {
+            b ^= bit;
+            bit >>= 1;
+        }
+        b |= bit;
+
+        if (i < b)
+            std::swap(a[i], a[b]);
+    }
+
+    // FFT stages
+    for (size_t len = 2; len <= N; len <<= 1) {
+        double const ang = -2.0 * M_PI / static_cast<double>(len);
+        std::complex const wLen(std::cos(ang), std::sin(ang));
+
+        for (size_t i = 0; i < N; i += len) {
+            std::complex w(1.0);
+
+            for (size_t j = 0; j < len / 2; ++j) {
+                auto u = a[i + j];
+                auto v = a[i + j + len / 2] * w;
+
+                a[i + j] = u + v;
+                a[i + j + len / 2] = u - v;
+
+                w *= wLen;
+            }
+        }
+    }
+
+    return a;
+}
+
+std::vector<std::complex<double>> Audio::fftInverse(std::vector<std::complex<double>> const& X) {
+    size_t const N = X.size();
+    if (N == 0) return {};
+
+    std::vector<std::complex<double>> a = X;
+
+    // bit-reversal permutation
+    size_t b = 0;
+    for (size_t i = 1; i < N; ++i) {
+        size_t bit = N >> 1;
+        while (b & bit) {
+            b ^= bit;
+            bit >>= 1;
+        }
+        b |= bit;
+
+        if (i < b)
+            std::swap(a[i], a[b]);
+    }
+
+    // IFFT stages (note sign flip)
+    for (size_t len = 2; len <= N; len <<= 1) {
+        double const ang = 2.0 * M_PI / static_cast<double>(len);
+        std::complex const wLen(std::cos(ang), std::sin(ang));
+
+        for (size_t i = 0; i < N; i += len) {
+            std::complex w(1.0);
+
+            for (size_t j = 0; j < len / 2; ++j) {
+                auto u = a[i + j];
+                auto v = a[i + j + len / 2] * w;
+
+                a[i + j] = u + v;
+                a[i + j + len / 2] = u - v;
+
+                w *= wLen;
+            }
+        }
+    }
+
+    // normalize
+    for (auto& v : a)
+        v /= static_cast<double>(N);
+
+    return a;
+}
+
+std::complex<double> Audio::evalTransfer(double const& omega,std::vector<float> const& num,std::vector<float> const& den) {
+    std::complex<double> const z = std::exp(std::complex(0.0, -omega));
+    std::complex numSum(0.0);
+    std::complex denSum(0.0);
+    std::complex zPow(1.0);
+
+    // numerator
+    for (float const b : num) {
+        numSum += static_cast<double>(b) * zPow;
+        zPow *= z;
+    }
+
+    zPow = 1.0;
+
+    // denominator
+    for (float const a : den) {
+        denSum += static_cast<double>(a) * zPow;
+        zPow *= z;
+    }
+
+    if (std::abs(denSum) < 1e-12)
+        return 0.0;
+
+    return numSum / denSum;
+}
+
+Audio::Sound Audio::applyTransferFunction(Sound const& sound, std::vector<float> const& num, std::vector<float> const& den) {
+    auto X = fft(sound);
+    size_t const N = X.size();
+
+    for (size_t k = 0; k < N; ++k) {
+        double omega = 2.0 * M_PI * static_cast<double>(k) / static_cast<double>(N);
+        auto const H = evalTransfer(omega, num, den);
+        X[k] *= H;
+    }
+
+    auto const y = fftInverse(X);
+
+    Sound out;
+    out.audioData.resize(y.size());
+
+    for (size_t i = 0; i < y.size(); ++i)
+        out.audioData[i] = static_cast<float>(y[i].real());
+
+    return out;
 }
 
 } // namespace Nebulite::DomainModule::Renderer
