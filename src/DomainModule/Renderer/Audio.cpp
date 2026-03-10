@@ -68,7 +68,7 @@ Constants::Error Audio::playSound(std::span<std::string const> const& args) {
     SDL_PutAudioStreamData(
         stream,
         sound.value()->second.audioData.data(),
-        static_cast<int>(sound.value()->second.audioData.size() * sizeof(BasicAudioWaveforms::Settings::SampleType))
+        static_cast<int>(sound.value()->second.audioData.size() * sizeof(Settings::SampleType))
     );
 
     return Constants::ErrorTable::NONE();
@@ -93,28 +93,28 @@ void Audio::initAudio(){
 }
 
 void Audio::initWaveforms() {
-    static_assert(!std::is_unsigned_v<BasicAudioWaveforms::Settings::SampleType>, "SampleType must be a signed type");
-    static double constexpr amplitudeScale = 0.3 * static_cast<double>(BasicAudioWaveforms::Settings::SampleMax); // Scale down the amplitude to prevent clipping
+    static_assert(!std::is_unsigned_v<Settings::SampleType>, "SampleType must be a signed type");
+    static double constexpr amplitudeScale = 0.3 * static_cast<double>(Settings::SampleMax); // Scale down the amplitude to prevent clipping
 
-    using SampleType = BasicAudioWaveforms::Settings::SampleType;
+    using SampleType = Settings::SampleType;
     static auto constexpr SampleCount = BasicAudioWaveforms::Settings::samples;
     static auto constexpr frequency = static_cast<double>(BasicAudioWaveforms::Settings::frequency);
 
     // NOLINTNEXTLINE
     auto constexpr time = [](std::size_t const& i) {
-        return static_cast<double>(i) / BasicAudioWaveforms::Settings::sampleRate;
+        return static_cast<double>(i) / Settings::sampleRate;
     };
 
     basicAudioWaveforms.sineBuffer = Utility::Generate::array<SampleType, SampleCount>([time](std::size_t const& i) {
-        return static_cast<BasicAudioWaveforms::Settings::SampleType>(amplitudeScale * sin(2.0 * M_PI * frequency * time(i)));
+        return static_cast<Settings::SampleType>(amplitudeScale * sin(2.0 * M_PI * frequency * time(i)));
     });
     basicAudioWaveforms.triangleBuffer = Utility::Generate::array<SampleType, SampleCount>([time](std::size_t const& i) {
         double const value = 2.0 * (time(i) * frequency - floor(time(i) * frequency + 0.5));
-        return static_cast<BasicAudioWaveforms::Settings::SampleType>(amplitudeScale * value);
+        return static_cast<Settings::SampleType>(amplitudeScale * value);
     });
     basicAudioWaveforms.squareBuffer = Utility::Generate::array<SampleType, SampleCount>([time](std::size_t const& i) {
         double const value = sin(2.0 * M_PI * frequency * time(i)) >= 0.0 ? 1.0 : -1.0;
-        return static_cast<BasicAudioWaveforms::Settings::SampleType>(amplitudeScale * value);
+        return static_cast<Settings::SampleType>(amplitudeScale * value);
     });
 }
 
@@ -133,16 +133,32 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
     }
 
     // Check if sound is the correct format
-    if (wavSpec.format != spec.format || wavSpec.channels != spec.channels || wavSpec.freq != spec.freq) {
+    if (wavSpec.channels != spec.channels || wavSpec.freq != spec.freq) {
         Error::println("Sound format does not match audio stream format. Sound: ", path);
-        // TODO: Implement format conversion in loadSound
+        // TODO: Implement channel and sample rate conversion
+        //       Probably best to do this after the conversion to float
         return std::nullopt;
     }
+
+    static auto formatToString = [](SDL_AudioFormat const& format) -> std::string {
+        switch (format) {
+            case SDL_AUDIO_U8: return "Unsigned 8-bit";
+            case SDL_AUDIO_S8: return "Signed 8-bit";
+            case SDL_AUDIO_F32: return "Floating point 32 bit";
+            case SDL_AUDIO_S16: return "Signed 16-bit";
+            case SDL_AUDIO_S16BE: return "Signed 16-bit big-endian";
+            case SDL_AUDIO_S32: return "Signed 32-bit";
+            case SDL_AUDIO_S32BE: return "Signed 32-bit big-endian";
+            case SDL_AUDIO_F32BE: return "Floating point 32-bit big-endian";
+            case SDL_AUDIO_UNKNOWN: return "Unknown";
+            default: std::unreachable();
+        }
+    };
 
     // Push sound data into cache
     Sound sound;
     size_t lengthPerSample = 0;
-    std::function<BasicAudioWaveforms::Settings::SampleType(Uint8* data)> convertFunc = nullptr;
+    std::function<Settings::SampleType(Uint8* data)> convertFunc = nullptr;
     switch (wavSpec.format) {
         case SDL_AUDIO_F32:
             lengthPerSample = sizeof(float);
@@ -157,29 +173,28 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
             convertFunc = [](Uint8 const* byteData) {
                 int16_t buffer[4];
                 std::memcpy(buffer, byteData, sizeof(int16_t));
-                return static_cast<BasicAudioWaveforms::Settings::SampleType>(*reinterpret_cast<int16_t*>(buffer));
+                return static_cast<Settings::SampleType>(*reinterpret_cast<int16_t*>(buffer)) / static_cast<Settings::SampleType>(std::numeric_limits<int16_t>::max());
             };
             break;
-        case SDL_AUDIO_S8:
-            lengthPerSample = sizeof(int8_t);
+        case SDL_AUDIO_U8:
+            lengthPerSample = sizeof(uint8_t);
             convertFunc = [](Uint8 const* byteData) {
-                int8_t buffer[4];
-                std::memcpy(buffer, byteData, sizeof(int8_t));
-                return static_cast<BasicAudioWaveforms::Settings::SampleType>(*reinterpret_cast<int8_t*>(buffer));
+                uint8_t buffer[4];
+                std::memcpy(buffer, byteData, sizeof(uint8_t));
+                return static_cast<Settings::SampleType>(*reinterpret_cast<uint8_t*>(buffer) - 128) / static_cast<Settings::SampleType>(std::numeric_limits<uint8_t>::max() / 2);
             };
             break;
         case SDL_AUDIO_UNKNOWN:
-        case SDL_AUDIO_U8:
+        case SDL_AUDIO_S8:
         case SDL_AUDIO_S16BE:
         case SDL_AUDIO_S32:
         case SDL_AUDIO_S32BE:
         case SDL_AUDIO_F32BE:
-            Error::println("Unsupported audio format: ", wavSpec.format);
+            Error::println("Unsupported audio format: ", formatToString(wavSpec.format), " for sound: ", path, ". Feel free to submit a PR to add support for this format in function: ", __func__);
             SDL_free(data);
             return std::nullopt;
         default:
             std::unreachable();
-
     }
 
     size_t const sampleCount = length / lengthPerSample;

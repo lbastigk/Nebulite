@@ -77,26 +77,29 @@ private:
     SDL_AudioStream* stream = nullptr;
     SDL_AudioSpec spec = {};
 
+    struct Settings {
+        using SampleType = float;
+
+        static SampleType constexpr SampleMax = std::is_floating_point_v<SampleType> ? static_cast<SampleType>( 1.0) : std::numeric_limits<SampleType>::max();
+        static SampleType constexpr SampleMin = std::is_floating_point_v<SampleType> ? static_cast<SampleType>(-1.0) : std::numeric_limits<SampleType>::min();
+
+        static double constexpr sampleRate = 44100.0;
+    };
+
     struct BasicAudioWaveforms {
         struct Settings {
-            using SampleType = float;
-
-            static SampleType constexpr SampleMax = std::is_floating_point_v<SampleType> ? static_cast<SampleType>( 1.0) : std::numeric_limits<SampleType>::max();
-            static SampleType constexpr SampleMin = std::is_floating_point_v<SampleType> ? static_cast<SampleType>(-1.0) : std::numeric_limits<SampleType>::min();
-
             static double constexpr frequency = 440.0; // 440 Hz beep
             static double constexpr duration = 200.0; // 200ms
-            static double constexpr sampleRate = 44100.0;
-            static size_t constexpr samples = static_cast<size_t>(sampleRate * duration / 1000.0); // Number of samples
+            static size_t constexpr samples = static_cast<size_t>(Audio::Settings::sampleRate * duration / 1000.0); // Number of samples
         };
 
-        std::array<Settings::SampleType, Settings::samples> sineBuffer;
-        std::array<Settings::SampleType, Settings::samples> squareBuffer;
-        std::array<Settings::SampleType, Settings::samples> triangleBuffer;
+        std::array<Audio::Settings::SampleType, Settings::samples> sineBuffer;
+        std::array<Audio::Settings::SampleType, Settings::samples> squareBuffer;
+        std::array<Audio::Settings::SampleType, Settings::samples> triangleBuffer;
     } basicAudioWaveforms;
 
     struct Sound {
-        std::vector<BasicAudioWaveforms::Settings::SampleType> audioData;
+        std::vector<Settings::SampleType> audioData;
 
         //uint8_t* buffer;
         //uint32_t length;
