@@ -189,9 +189,9 @@ class Domain : public DocumentAccessor {
     std::vector<std::unique_ptr<DomainModuleBase>> modules;
 
 public:
-    Domain(std::string const& name, Data::JsonScope& documentReference);
+    Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Capture& parentCapture);
 
-    explicit Domain(std::string const& name);
+    explicit Domain(std::string const& name, Utility::Capture& parentCapture);
 
     ~Domain() override ;
 
@@ -376,7 +376,14 @@ public:
      */
     [[nodiscard]] std::unique_lock<std::recursive_mutex> lockDocument() const ;
 
+    /**
+     * @brief Provides access to the domain's capture
+     */
+    [[nodiscard]] Utility::Capture& capture() const { return domainCapture; }
+
 protected:
+    Utility::Capture& domainCapture;
+
     /**
      * @brief Offers access to the internal FuncTree for function binding.
      *        Marked as protected, as it's only used to initialize DomainModules.

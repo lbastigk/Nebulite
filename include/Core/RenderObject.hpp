@@ -36,7 +36,7 @@ public:
     /**
      * @brief Constructs a new RenderObject.
      */
-    RenderObject();
+    explicit RenderObject(Utility::Capture& parentCapture);
 
     /**
      * @brief Destroys the RenderObject.

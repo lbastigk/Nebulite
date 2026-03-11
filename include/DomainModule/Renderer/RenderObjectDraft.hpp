@@ -110,9 +110,9 @@ private:
     public:
         DraftHolder() = default;
 
-        std::unique_ptr<Core::RenderObject>& get() {
+        std::unique_ptr<Core::RenderObject>& get(Utility::Capture& capture) {
             if (!ptr) {
-                ptr = std::make_unique<Core::RenderObject>();
+                ptr = std::make_unique<Core::RenderObject>(capture);
             }
             return ptr;
         }

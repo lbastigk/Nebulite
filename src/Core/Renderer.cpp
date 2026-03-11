@@ -25,9 +25,9 @@
 //------------------------------------------
 namespace Nebulite::Core {
 
-Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless)
-    : Domain("Renderer", documentReference),
-      env(documentReference){
+Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::Capture& parentCapture)
+    : Domain("Renderer", documentReference, parentCapture),
+      env(documentReference, parentCapture){
 
     //------------------------------------------
     // Initialize internal variables

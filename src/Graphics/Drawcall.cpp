@@ -17,9 +17,9 @@
 //------------------------------------------
 namespace Nebulite::Graphics {
 
-Drawcall::Drawcall(Data::JsonScope& workspace) :
+Drawcall::Drawcall(Data::JsonScope& workspace, Utility::Capture& parentCapture) :
     drawcallScope(workspace),
-    texture(workspace),
+    texture(workspace, parentCapture),
     updaterRoutine{
         [this] {
             updateDrawcallData();

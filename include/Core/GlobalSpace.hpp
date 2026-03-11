@@ -52,7 +52,7 @@ public:
     // Constructor itself notices if multiple instances are created
     // and throws an error in that case
 
-    explicit GlobalSpace(std::string const& name = "Unnamed GlobalSpace");
+    GlobalSpace(std::string const& name, Utility::Capture& parentCapture);
 
     /**
      * @brief In order to avoid infinite recursion, we initialize GlobalSpace after construction.

@@ -53,7 +53,7 @@ public:
         "- off: Deactivates error logging, reverting to standard error output.\n"
         "Note: Ensure you have write permissions in the working directory when activating error logging.\n";
 
-    static Constants::Error clearConsole(std::span<std::string const> const& args);
+    Constants::Error clearConsole(std::span<std::string const> const& args) const ;
     static auto constexpr clearConsole_name = "clear";
     static auto constexpr clearConsole_desc = "Clears the console screen.\n"
         "Usage: clear\n"
@@ -116,7 +116,7 @@ public:
         "\n"
         "Note: This function pauses execution until the user presses Enter\n";
 
-    static Constants::Error standardFileRenderObject(std::span<std::string const> const& args);
+    Constants::Error standardFileRenderObject(std::span<std::string const> const& args) const ;
     static auto constexpr standardFileRenderObject_name = "standard-file render-object";
     static auto constexpr standardFileRenderObject_desc = "Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.\n"
         "Usage: standard-file render-object\n"

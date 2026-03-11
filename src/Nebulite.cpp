@@ -4,7 +4,7 @@
 namespace Nebulite {
 
 Core::GlobalSpace& Global::instance(){
-    static Core::GlobalSpace instance{"Nebulite"};
+    static Core::GlobalSpace instance{"Nebulite", Global::capture()};
     return instance;
 }
 

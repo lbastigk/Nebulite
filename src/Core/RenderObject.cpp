@@ -40,7 +40,7 @@ void setStandardValues(Data::JsonScope& document) {
 }
 } // namespace
 
-RenderObject::RenderObject() : Domain("RenderObject") {
+RenderObject::RenderObject(Utility::Capture& parentCapture) : Domain("RenderObject", parentCapture) {
     //------------------------------------------
     // Set standard values
     setStandardValues(domainScope);
@@ -92,7 +92,7 @@ void RenderObject::reinitDrawcalls() {
     // Get list of drawcalls from document
     for (auto const& [member, key] : domainScope.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
         // Initialize drawcall with its own scope
-        drawcalls[member] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()));
+        drawcalls[member] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()), domainCapture);
     }
     sortDrawcalls();
 }
@@ -102,7 +102,7 @@ void RenderObject::initDrawcalls() {
     for (auto const& [member, key] : domainScope.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
         // Initialize drawcall with its own scope
         if (drawcalls.find(member) == drawcalls.end()) {
-            drawcalls[member] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()));
+            drawcalls[member] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()), domainCapture);
         }
     }
     sortDrawcalls();
@@ -111,7 +111,7 @@ void RenderObject::initDrawcalls() {
 void RenderObject::reInitDrawcall(std::string const& drawcallName) {
     // Reinitialize a specific drawcall from document
     auto const key = Constants::KeyNames::RenderObject::draw + drawcallName;
-    drawcalls[drawcallName] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()));
+    drawcalls[drawcallName] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()), domainCapture);
 }
 
 void RenderObject::updateDrawcalls() {

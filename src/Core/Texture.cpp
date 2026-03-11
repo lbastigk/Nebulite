@@ -13,8 +13,8 @@
 
 namespace Nebulite::Core {
 
-Texture::Texture(Data::JsonScope& documentReference)
-    : Domain("Texture", documentReference) {
+Texture::Texture(Data::JsonScope& documentReference, Utility::Capture& parentCapture)
+    : Domain("Texture", documentReference, parentCapture) {
     // Start with no texture
     texture = nullptr;
 

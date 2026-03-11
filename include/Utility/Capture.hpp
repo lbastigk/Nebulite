@@ -1,6 +1,12 @@
 /**
  * @file Capture.hpp
  * @brief Defines classes for capturing output.
+ * @todo Modify Capture to be part of any domain, and every domain forwards captured output to a unified capture class as well.
+ *       This way we may have domain-specific logging, as well as unified logging.
+ *       This is useful if we wish to expand the GlobalSpaceViewer to show be a domain-agnostic tool for
+ *       - viewing state
+ *       - viewing logs
+ *       As we'll be able to see only the logs relevant to a specific domain, or all logs together.
  */
 
 #ifndef NEBULITE_UTILITY_CAPTURE_HPP
@@ -34,6 +40,7 @@ struct OutputLine{
     enum class Type : uint8_t {
         COUT,
         CERR
+        // TODO: add more types: input, info, warn, error, debug, etc. Unify with textInput class
     } type;
 };
 
@@ -77,26 +84,55 @@ class Capture{
 public:
     friend class CaptureStream;
 
-    /**
-     * @brief Retrieves the singleton instance of Capture.
-     * @return Reference to the singleton Capture instance.
-     */
-    static Capture& instance(){
-        static Capture singleton;
-        return singleton;
-    }
+    static auto constexpr noParent = nullptr;
 
-    /**
-     * @brief Retrieves the CaptureStream for cout.
-     * @return Reference to the CaptureStream for cout.
-     */
-    static CaptureStream& cout(){ return instance().coutStream; }
+    explicit Capture(Capture* parent) : log(this, parent), error(this, parent) {}
 
-    /**
-     * @brief Retrieves the CaptureStream for cerr.
-     * @return Reference to the CaptureStream for cerr.
-     */
-    static CaptureStream& cerr(){ return instance().cerrStream; }
+    class Log {
+        CaptureStream coutStream;
+        Capture* parent;
+    public:
+        explicit Log(Capture* cap, Capture* par) : coutStream(cap, std::cout, OutputLine::Type::COUT), parent(par) {}
+
+        template<typename... Args>
+        void print(Args&&... args){
+            if (parent) {
+                parent->error.print(std::forward<Args>(args)...);
+            }
+            coutStream.print(std::forward<Args>(args)...);
+        }
+
+        template<typename... Args>
+        void println(Args&&... args){
+            if (parent) {
+                parent->error.println(std::forward<Args>(args)...);
+            }
+            coutStream.println(std::forward<Args>(args)...);
+        }
+    } log;
+
+    class Error {
+        CaptureStream cerrStream;
+        Capture* parent;
+    public:
+        explicit Error(Capture* cap, Capture* par) : cerrStream(cap, std::cerr, OutputLine::Type::CERR), parent(par) {}
+
+        template<typename... Args>
+        void print(Args&&... args){
+            if (parent) {
+                parent->log.print(std::forward<Args>(args)...);
+            }
+            cerrStream.print(std::forward<Args>(args)...);
+        }
+
+        template<typename... Args>
+        void println(Args&&... args){
+            if (parent) {
+                parent->log.println(std::forward<Args>(args)...);
+            }
+            cerrStream.println(std::forward<Args>(args)...);
+        }
+    } error;
 
     /**
      * @brief Retrieves a pointer to the output log.
@@ -109,19 +145,13 @@ public:
     /**
      * @brief Clears the output log.
      */
-    static void clear(){
-        instance().outputLog.clear();
+    void clear(){
+        outputLog.clear();
     }
 
     static auto constexpr* endl = "\n";
 
 private:
-    // Make constructor private for singleton
-    Capture() = default;
-
-    CaptureStream coutStream{this, std::cout, OutputLine::Type::COUT};
-    CaptureStream cerrStream{this, std::cerr, OutputLine::Type::CERR};
-
     std::deque<OutputLine> outputLog; // Log of captured output lines
     std::mutex outputLogMutex;  // Mutex for thread-safe access to outputLog
 };

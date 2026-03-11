@@ -194,6 +194,14 @@ public:
      */
     static void renderImguiGlobalSpaceWindow();
 
+    //------------------------------------------
+    // Capture access
+
+    static Utility::Capture& capture() {
+        static Utility::Capture captureInstance(Utility::Capture::noParent);
+        return captureInstance;
+    }
+
 private:
     /**
      * @brief Provides access to the global JSON document.
@@ -202,6 +210,8 @@ private:
     static Data::JSON& globalDoc();
 };
 
+// TODO: refactor all usages of Nebulite::Log and Nebulite::Error to either use their local domainCapture or Global::capture()
+
 /**
  * @brief Static class for logging messages to the console (stdout).
  */
@@ -209,12 +219,12 @@ class Log {
 public:
     template<typename... Args>
     static void print(Args&&... args) {
-        Utility::Capture::cout().print(std::forward<Args>(args)...);
+        Global::capture().log.print(std::forward<Args>(args)...);
     }
 
     template<typename... Args>
     static void println(Args&&... args) {
-        Utility::Capture::cout().println(std::forward<Args>(args)...);
+        Global::capture().log.println(std::forward<Args>(args)...);
     }
 };
 
@@ -225,12 +235,12 @@ class Error {
 public:
     template<typename... Args>
     static void print(Args&&... args) {
-        Utility::Capture::cerr().print(std::forward<Args>(args)...);
+        Global::capture().error.print(std::forward<Args>(args)...);
     }
 
     template<typename... Args>
     static void println(Args&&... args) {
-        Utility::Capture::cerr().println(std::forward<Args>(args)...);
+        Global::capture().error.println(std::forward<Args>(args)...);
     }
 };
 

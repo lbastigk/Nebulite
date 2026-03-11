@@ -37,8 +37,10 @@ public:
      * @brief Initializes a Renderer with given dimensions and settings.
      * @param documentReference Reference to the JSON document
      * @param flag_headless Reference to the Boolean flag for headless mode.
+     * @param parentCapture Reference to the parent capture for logging and error handling.
+     *                      Either from the Domain that owns this one or from the global capture if this is a top-level domain.
      */
-    Renderer(Data::JsonScope& documentReference, bool* flag_headless);
+    Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::Capture& parentCapture);
 
     //------------------------------------------
     // Disallow copying and moving

@@ -81,10 +81,10 @@ void FuncTree<returnValue, additionalArgs...>::specificHelp(std::string const& f
         // 1.) Function
         if (searchResult.function) {
             // Found function, display detailed help
-            Utility::Capture::cout().println();
-            Utility::Capture::cout().println("Help for function '", funcName, "':");
-            Utility::Capture::cout().println();
-            Utility::Capture::cout().println(searchResult.funIt->second.description);
+            capture.log.println();
+            capture.log.println("Help for function '", funcName, "':");
+            capture.log.println();
+            capture.log.println(searchResult.funIt->second.description);
         }
         // 2.) Category
         else if (searchResult.category) {
@@ -94,13 +94,13 @@ void FuncTree<returnValue, additionalArgs...>::specificHelp(std::string const& f
         // 3.) Variable
         else if (searchResult.variable) {
             // Found variable, display detailed help
-            Utility::Capture::cout().println();
-            Utility::Capture::cout().println("Help for variable '--", funcName, "':");
-            Utility::Capture::cout().println();
-            Utility::Capture::cout().println(searchResult.varIt->second.description);
+            capture.log.println();
+            capture.log.println("Help for variable '--", funcName, "':");
+            capture.log.println();
+            capture.log.println(searchResult.varIt->second.description);
         }
     } else {
-        Utility::Capture::cerr().println("Function or Category '", funcName, "' not found in FuncTree '", TreeName, "'.");
+        capture.error.println("Function or Category '", funcName, "' not found in FuncTree '", TreeName, "'.");
     }
 }
 
@@ -111,7 +111,7 @@ void FuncTree<returnValue, additionalArgs...>::generalHelp() {
     uint16_t constexpr namePaddingSize = 25;
 
     // Define a lambda to process each member
-    auto displayMember = [](std::string const& name, std::string_view const& description) -> void {
+    auto displayMember = [&](std::string const& name, std::string_view const& description) -> void {
         // Only show the first line of the description
         auto descriptionFirstLine = std::string(description);
         if (size_t const newlinePos = description.find('\n'); newlinePos != std::string::npos) {
@@ -119,7 +119,7 @@ void FuncTree<returnValue, additionalArgs...>::generalHelp() {
         }
         std::string paddedName = name;
         paddedName.resize(namePaddingSize, ' ');
-        Utility::Capture::cout().println("  ", paddedName, " - ", descriptionFirstLine);
+        capture.log.println("  ", paddedName, " - ", descriptionFirstLine);
     };
 
     // All info: [name, description]
@@ -127,15 +127,15 @@ void FuncTree<returnValue, additionalArgs...>::generalHelp() {
     auto allVariables = getAllVariables();
 
     // Display:
-    Utility::Capture::cout().println();
-    Utility::Capture::cout().println("Help for ", TreeName);
-    Utility::Capture::cout().println("Add the entries name to the command for more details: ", TreeName, " help <foo>");
-    Utility::Capture::cout().println("Available functions:");
+    capture.log.println();
+    capture.log.println("Help for ", TreeName);
+    capture.log.println("Add the entries name to the command for more details: ", TreeName, " help <foo>");
+    capture.log.println("Available functions:");
     std::ranges::for_each(allFunctions, [&](auto const& funcInfo) {
         auto const& [name, description] = funcInfo;
         displayMember(name, description);
     });
-    Utility::Capture::cout().println("Available variables:");
+    capture.log.println("Available variables:");
     std::ranges::for_each(allVariables, [&](auto const& varInfo) {
         auto const& [name, description] = varInfo;
         displayMember(name, description);
@@ -237,8 +237,8 @@ returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::st
     });
 
     // Output completions to stdout
-    std::ranges::for_each(completions, [](std::string const& completion){
-        Utility::Capture::cout().println(completion);
+    std::ranges::for_each(completions, [&](std::string const& completion){
+        capture.log.println(completion);
     });
     return standardReturn.valDefault;
 }

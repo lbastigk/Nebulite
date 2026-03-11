@@ -41,7 +41,7 @@ Constants::Error General::spawn(int const argc, char** argv) const {
         std::string const linkOrObject = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
 
         // Create object with link to globalspace
-        auto* ro = new Core::RenderObject;
+        auto* ro = new Core::RenderObject(domain.capture());
         ro->deserialize(linkOrObject);
 
         // Append to renderer

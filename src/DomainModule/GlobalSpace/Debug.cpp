@@ -133,8 +133,8 @@ Constants::Error Debug::log_state(int const argc, char** argv) const {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Debug::standardFileRenderObject(std::span<std::string const> const& /*args*/){
-    Core::RenderObject const ro;
+Constants::Error Debug::standardFileRenderObject(std::span<std::string const> const& /*args*/) const {
+    Core::RenderObject const ro(domain.capture());
     Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize());
     return Constants::ErrorTable::NONE();
 }
@@ -203,9 +203,9 @@ inline void clear_screen() {
 #endif
 }
 
-Constants::Error Debug::clearConsole(std::span<std::string const> const& /*args*/) {
+Constants::Error Debug::clearConsole(std::span<std::string const> const& /*args*/) const {
     clear_screen();
-    Utility::Capture::clear();
+    domain.capture().clear();
     return Constants::ErrorTable::NONE();
 }
 

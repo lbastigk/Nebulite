@@ -294,15 +294,7 @@ double* JSON::getStableDoublePointer(std::string const& key) const {
 
     // Check for transformations
     if (key.find('|') != std::string::npos) {
-        Utility::Capture::cerr() << "Transformations are not supported in getStableDoublePointer(): " << key << Utility::Capture::endl;
-        Utility::Capture::cerr() << "For integrity, we will create a cache entry with the malformed key" << Utility::Capture::endl;
-        auto new_entry = std::make_unique<CacheEntry>(CACHELINE, cacheline_index);
-        new_entry->value = 0.0;
-        *new_entry->stable_double_ptr = 0.0;
-        new_entry->last_double_value = 0.0;
-        new_entry->state = CacheEntry::EntryState::MALFORMED;
-        cache[key] = std::move(new_entry);
-        return cache[key]->stable_double_ptr;
+        throw std::runtime_error("Transformations are not supported in getStableDoublePointer()");
     }
 
     // Check cache first
@@ -348,13 +340,13 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
 
     // Check if key is valid
     if (!RjDirectAccess::isValidKey(key)) {
-        Utility::Capture::cerr() << "Invalid key: " << key << Utility::Capture::endl;
+        Global::capture().error.println("Invalid key: ", key);
         return;
     }
 
     // Check if key contains transformations
     if (key.find('|') != std::string::npos) {
-        Utility::Capture::cerr() << "Transformations are not supported in set(): " << key << Utility::Capture::endl;
+        Global::capture().error.println("Transformations are not supported in set(): ", key);
         return;
     }
 

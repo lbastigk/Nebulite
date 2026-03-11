@@ -20,8 +20,8 @@
 
 namespace Nebulite::Core {
 
-Environment::Environment(Data::JsonScope& documentReference)
-    : Domain("Environment", documentReference),
+Environment::Environment(Data::JsonScope& documentReference, Utility::Capture& parentCapture)
+    : Domain("Environment", documentReference, parentCapture),
       roc(Utility::Generate::array<Data::RenderObjectContainer, LayerCount>([](std::size_t) {
           return Data::RenderObjectContainer{};
       }))
@@ -73,7 +73,7 @@ void Environment::deserialize(std::string const& serialOrLink, uint16_t const& d
             std::string str = layer.serialize();
 
             // Serialize container layer
-            roc[i].deserialize(str, dispResX, dispResY);
+            roc[i].deserialize(str, dispResX, dispResY, domainCapture);
         }
     }
     reinitModules();

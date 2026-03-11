@@ -51,8 +51,9 @@ public:
      * @param serialOrLink JSON string representation of the container, or link to a json/jsonc file.
      * @param dispResX Display resolution width for tile initialization.
      * @param dispResY Display resolution height for tile initialization.
+     * @param capture Capture instance to pass to RenderObjects during construction.
      */
-    void deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY);
+    void deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY, Utility::Capture& capture);
 
     //------------------------------------------
     // Pipeline

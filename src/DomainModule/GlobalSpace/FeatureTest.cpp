@@ -29,9 +29,9 @@ public:
     }
 };
 
-Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& /*args*/) {
+Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& /*args*/) const {
     // Build a FuncTree with extra argument JSON&
-    Interaction::Execution::FuncTree<double, double> testTree("TestFuncTree", 0.0, std::numeric_limits<double>::quiet_NaN());
+    Interaction::Execution::FuncTree<double, double> testTree("TestFuncTree", 0.0, std::numeric_limits<double>::quiet_NaN(), domain.capture());
 
     std::string_view constexpr addName = "add";
     std::string_view constexpr addDesc = "Adds all provided numbers to the input number.\nUsage: <name> add num1 num2 ... numN";

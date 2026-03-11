@@ -29,7 +29,7 @@ Constants::Error Console::update() {
     //------------------------------------------
     // Insert new lines from capture streams
     static size_t last_size = 0;
-    size_t const current_size = Utility::Capture::instance().getOutputLog().size();
+    size_t const current_size = Global::capture().getOutputLog().size();
     if (current_size < last_size) {
         // Log was cleared, reset
         last_size = 0;
@@ -38,7 +38,7 @@ Constants::Error Console::update() {
     }
     for (size_t i = last_size; i < current_size; i++) {
         // Split input line by newlines
-        auto const& [lineContent, lineType] = Utility::Capture::instance().getOutputLog().at(i);
+        auto const& [lineContent, lineType] = Global::capture().getOutputLog().at(i);
         auto const& lines = Utility::StringHandler::split(lineContent, '\n');
 
         // Insert into text input
@@ -51,9 +51,7 @@ Constants::Error Console::update() {
             type = Utility::TextInput::LineEntry::LineType::CERR;
             break;
         default:
-            Error::println("Unknown OutputLine type encountered in ", std::string(__FUNCTION__), ". Please fix!");
-            type = Utility::TextInput::LineEntry::LineType::CERR;
-            break;
+            std::unreachable();
         }
         for (auto const& line : lines) {
             if (!line.empty()) {
