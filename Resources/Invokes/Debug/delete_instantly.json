@@ -1,12 +1,14 @@
 {
     "topic": "",
-    "functioncalls_global": [],
-    "functioncalls_self": [
-        "delete"
-    ],
-    "functioncalls_other": [],
     "condition": "1",
     "action": {
-        "assign": []
+        "assign": [],
+        "functioncall": {
+            "global": [],
+            "self": [
+                "delete"
+            ],
+            "other": []
+        }
     }
 }
