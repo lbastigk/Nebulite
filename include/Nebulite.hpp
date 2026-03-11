@@ -218,12 +218,12 @@ private:
 class Log {
 public:
     template<typename... Args>
-    static void print(Args&&... args) {
+    [[deprecated("Use the domain-specific capture or global capture instead")]] static void print(Args&&... args) {
         Global::capture().log.print(std::forward<Args>(args)...);
     }
 
     template<typename... Args>
-    static void println(Args&&... args) {
+    [[deprecated("Use the domain-specific capture or global capture instead")]] static void println(Args&&... args) {
         Global::capture().log.println(std::forward<Args>(args)...);
     }
 };
@@ -234,12 +234,12 @@ public:
 class Error {
 public:
     template<typename... Args>
-    static void print(Args&&... args) {
+    [[deprecated("Use the domain-specific capture or global capture instead")]] static void print(Args&&... args) {
         Global::capture().error.print(std::forward<Args>(args)...);
     }
 
     template<typename... Args>
-    static void println(Args&&... args) {
+    [[deprecated("Use the domain-specific capture or global capture instead")]] static void println(Args&&... args) {
         Global::capture().error.println(std::forward<Args>(args)...);
     }
 };

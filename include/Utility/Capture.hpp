@@ -54,6 +54,8 @@ class CaptureStream{
     std::reference_wrapper<std::ostream> baseStream;    // ostream outlives CaptureStream, so reference is safe
     OutputLine::Type type;
     explicit CaptureStream(Capture* p, std::ostream& s, OutputLine::Type const& t) : parent(p), baseStream(s), type(t){}
+
+    void putStr(std::string const& str, bool const& printToConsole) const ;
 public:
     friend class Capture;
 
@@ -186,12 +188,26 @@ CaptureStream& CaptureStream::operator<<(T const& data){
     return *this;
 }
 
+inline void CaptureStream::putStr(std::string const& str, bool const& printToConsole) const {
+    if (printToConsole) {
+        baseStream.get() << str;
+    }
+    {
+        std::scoped_lock const lock(parent->outputLogMutex);
+        std::istringstream iss(str);
+        std::string line;
+        while (std::getline(iss, line)) {
+            parent->outputLog.push_back({line, type});
+        }
+    }
+}
+
 template<typename... Args>
 void CaptureStream::print(Args&&... args){
     // Turn into string, pass to operator<<
     std::ostringstream workingBuffer;
     if constexpr (sizeof...(args) != 0) (workingBuffer << ... << args);
-    *this << workingBuffer.str();
+    putStr(workingBuffer.str(), true);
 }
 
 template<typename... Args>
@@ -200,7 +216,7 @@ void CaptureStream::println(Args&&... args) {
     std::ostringstream workingBuffer;
     if constexpr (sizeof...(args) != 0) (workingBuffer << ... << args);
     workingBuffer << '\n';
-    *this << workingBuffer.str();
+    putStr(workingBuffer.str(), true);
 }
 
 } // namespace Nebulite::Utility

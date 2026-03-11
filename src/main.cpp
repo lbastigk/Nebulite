@@ -80,18 +80,18 @@ int main(int const argc, char* argv[]) {
 
     // Inform user about any errors and return error code
     if (criticalStop) {
-        Nebulite::Error::println("Critical Error: ", lastCriticalResult.getDescription());
+        Nebulite::Global::capture().error.println("Critical Error: ", lastCriticalResult.getDescription());
     }
 
     // Parser handles if error files need to be closed
     using namespace Nebulite::Constants;
     try {
         if (Error const result = Nebulite::Global::instance().parseStr(binaryName + " " + std::string(Nebulite::DomainModule::GlobalSpace::Debug::errorLog_name) + " off"); result.isCritical()) {
-            Nebulite::Error::println("Error disabling error log: ", result.getDescription());
+            Nebulite::Global::capture().error.println("Error disabling error log: ", result.getDescription());
             return MainReturnValues::logCloseError; // Closing log failed without exceptions
         }
     } catch (std::exception const& e) {
-        Nebulite::Error::println("Exception during error log closure: ", e.what());
+        Nebulite::Global::capture().error.println("Exception during error log closure: ", e.what());
         return MainReturnValues::logCloseException; // Return a different error code for log closing failure with exceptions
     }
 
