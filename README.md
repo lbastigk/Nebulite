@@ -178,18 +178,12 @@ inline void exampleUsage() {
     Nebulite::Data::ScopedKey const velocityKey("physics.", "velocity");
     Nebulite::Data::ScopedKey const timeInMsKey("time.","t_ms");
 
-    // We can parse user commands in this scope...
-    if(physicsScope.parseStr("set velocity 5.0") != Nebulite::Constants::ErrorTable::NONE()) {
-        // handle error
-        Nebulite::Error::println("Failed to set velocity");
-
-        // ...Or set values directly
-        physicsScope.set<int>(velocityKey, 5.0);
-    }
+    // Set values
+    physicsScope.set<int>(velocityKey, 5.0);
     
     // Now we can get values using ScopedKey
-    double const velocity = physicsScope.get(velocityKey, 0.0); // Success
-    double const timeInMs = physicsScope.get(timeInMsKey, 0.0); // Throws exception
+    auto const velocity = physicsScope.get<double>(velocityKey).value_or(0.0); // Success
+    auto const timeInMs = physicsScope.get<double>(timeInMsKey).value_or(0.0); // Throws exception
 
     Log::println("Velocity: ", velocity);
     Log::println("Time in ms: ", timeInMs);
