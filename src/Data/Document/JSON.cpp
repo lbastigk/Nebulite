@@ -187,8 +187,8 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
 
     // Checking for malformed shouldn't be necessary, but just in case
     if (it != cache.end() && it->second->state == CacheEntry::EntryState::MALFORMED) {
-        Error::println("Warning: Attempted to access malformed key in getVariant(): ", key);
-        Error::println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
+        Global::capture().error.println("Warning: Attempted to access malformed key in getVariant(): ", key);
+        Global::capture().error.println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
         return std::unexpected(MALFORMED_KEY);
     }
 
@@ -578,10 +578,10 @@ std::string JSON::memberTypeString(std::string const& key) const {
     }
 
     // Throw error for unsupported type
-    Error::println("Unsupported type for key: '", key, "'");
-    Error::println("Please add support for this type in memberTypeStr() and report to the developers if this is unexpected!");
-    Error::println("Document is:");
-    Error::println(RjDirectAccess::serialize(doc));
+    Global::capture().error.println("Unsupported type for key: '", key, "'");
+    Global::capture().error.println("Please add support for this type in memberTypeStr() and report to the developers if this is unexpected!");
+    Global::capture().error.println("Document is:");
+    Global::capture().error.println(RjDirectAccess::serialize(doc));
     std::abort();
 }
 
