@@ -165,7 +165,7 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
             break;
         default:
             // Should not happen
-            Error::println(__FUNCTION__, ": Tried to register variable with no known context!");
+            Global::capture().error.println(__FUNCTION__, ": Tried to register variable with no known context!");
             std::unreachable();
         }
 
@@ -385,7 +385,7 @@ void Expression::printCompileError(std::shared_ptr<Component> const& component, 
     ss << "\n";
 
     // Send whole message to cerr at once, to avoid interleaving with other messages
-    Error::println(ss.str());
+    Global::capture().error.println(ss.str());
 }
 
 //------------------------------------------

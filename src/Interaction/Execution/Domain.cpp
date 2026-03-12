@@ -161,7 +161,7 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
         }
         // Forward to FunctionTree for resolution
         if (parseStr(callStr) != Constants::ErrorTable::NONE()) {
-            Error::println("Failed to apply deserialize transformation: ", callStr);
+            capture().error.println("Failed to apply deserialize transformation: ", callStr);
         }
     }
 }

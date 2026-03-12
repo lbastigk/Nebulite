@@ -85,18 +85,18 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
             });
             if (std::fabs(*refs.rotationDegrees) > DBL_EPSILON) {
                 if (!SDL_RenderTextureRotated(nebuliteRenderer.getSdlRenderer(),texture.getSDLTexture(),&srcRect,&dstRect, *refs.rotationDegrees, &rotationCenter,SDL_FLIP_NONE)) {
-                    Error::println("Failed to render rotated sprite texture in drawcall: ", SDL_GetError());
+                    texture.capture().error.println("Failed to render rotated sprite texture in drawcall: ", SDL_GetError());
                 }
             }
             else {
                 if (!SDL_RenderTexture(nebuliteRenderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect)) {
-                    Error::println("Failed to render sprite texture in drawcall: ", SDL_GetError());
+                    texture.capture().error.println("Failed to render sprite texture in drawcall: ", SDL_GetError());
                 }
             }
 
         }
         else {
-            Error::println("Attempted to draw uninitialized texture in drawcall.");
+            texture.capture().error.println("Attempted to draw uninitialized texture in drawcall.");
         }
     };
 
@@ -173,7 +173,7 @@ void Drawcall::updateDrawcallData() {
         type = POLYGON;
     }
     else {
-        Error::println("Unknown drawcall type: ", t, ". Defaulting to sprite.");
+        texture.capture().error.println("Unknown drawcall type: ", t, ". Defaulting to sprite.");
         type = SPRITE;
     }
 
@@ -242,7 +242,7 @@ void Drawcall::initializeSprite() {
     // Get Texture from container via link
     std::string const link = drawcallScope.get<std::string>(Key::SpriteSpecific::imageLocation).value_or("");
     if (link.empty()) {
-        Error::println("Sprite drawcall has empty texture link.");
+        texture.capture().error.println("Sprite drawcall has empty texture link.");
         return;
     }
 
@@ -275,13 +275,13 @@ void Drawcall::initializeText() {
 
     SDL_Renderer* sdl = Global::instance().getRenderer().getSdlRenderer();
     if (!sdl) {
-        Error::println("Renderer not available for text drawcall.");
+        texture.capture().error.println("Renderer not available for text drawcall.");
         return;
     }
 
     TTF_Font* font = Global::instance().getRenderer().getStandardFont();
     if (!font) {
-        Error::println("Font not available for text drawcall.");
+        texture.capture().error.println("Font not available for text drawcall.");
         return;
     }
 
@@ -300,20 +300,20 @@ void Drawcall::initializeText() {
 
     SDL_Surface* surf = TTF_RenderText_Blended_Wrapped(font, text.c_str(), 0, textColor, 0);
     if (!surf) {
-        Error::println("TTF_RenderText_Blended_Wrapped failed: ", SDL_GetError());
+        texture.capture().error.println("TTF_RenderText_Blended_Wrapped failed: ", SDL_GetError());
         return;
     }
 
     SDL_Texture* tex = SDL_CreateTextureFromSurface(sdl, surf);
     SDL_DestroySurface(surf);
     if (!tex) {
-        Error::println("SDL_CreateTextureFromSurface failed: ", SDL_GetError());
+        texture.capture().error.println("SDL_CreateTextureFromSurface failed: ", SDL_GetError());
         return;
     }
 
     float w = 0, h = 0;
     if (!SDL_GetTextureSize(tex, &w, &h)) {
-        Error::println("SDL_GetTextureSize failed: ", SDL_GetError());
+        texture.capture().error.println("SDL_GetTextureSize failed: ", SDL_GetError());
         SDL_DestroyTexture(tex);
         return;
     }
@@ -343,7 +343,7 @@ void Drawcall::initializeCircle() {
     // Set renderer to draw the circle
     SDL_Renderer* sdlRenderer = Global::instance().getRenderer().getSdlRenderer();
     if (!sdlRenderer) {
-        Error::println("Renderer not available for circle drawcall.");
+        texture.capture().error.println("Renderer not available for circle drawcall.");
         return;
     }
 
@@ -381,7 +381,7 @@ void Drawcall::initializePolygon() {
     // Set renderer to draw the polygon
     SDL_Renderer* sdlRenderer = Global::instance().getRenderer().getSdlRenderer();
     if (!sdlRenderer) {
-        Error::println("Renderer not available for circle drawcall.");
+        texture.capture().error.println("Renderer not available for circle drawcall.");
         return;
     }
 
@@ -389,7 +389,7 @@ void Drawcall::initializePolygon() {
     double const w = *refs.rectSrcW;
     double const h = *refs.rectSrcH;
     if (w < DBL_EPSILON || h < DBL_EPSILON) {
-        Error::println("Polygon drawcall has invalid src rect size. w and h must be > 0.");
+        texture.capture().error.println("Polygon drawcall has invalid src rect size. w and h must be > 0.");
         return;
     }
 
@@ -411,7 +411,7 @@ void Drawcall::initializePolygon() {
     std::vector<SDL_FPoint> points;
     size_t const pointCount = drawcallScope.memberSize(Key::PolygonSpecific::points);
     if (pointCount < 2) { // Bump to 3 later on for filled polygons
-        Error::println("Polygon drawcall requires at least 2 points.");
+        texture.capture().error.println("Polygon drawcall requires at least 2 points.");
         return;
     }
     points.reserve(pointCount);
@@ -447,7 +447,7 @@ void Drawcall::initializePolygon() {
 
     // Check for errors
     if (!polyTexture) {
-        Error::println("Failed to create polygon texture: ", SDL_GetError());
+        texture.capture().error.println("Failed to create polygon texture: ", SDL_GetError());
         return;
     }
     texture.linkExternalTexture(polyTexture);

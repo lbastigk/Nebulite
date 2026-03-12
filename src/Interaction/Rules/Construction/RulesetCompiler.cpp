@@ -301,7 +301,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
         }
         // Skip this entry if it cannot be parsed
         // Warn user of invalid entry
-        Error::println("Warning: could not parse Ruleset entry with string '", staticFunctionName, "'. Skipping entry.");
+        Global::capture().error.println("Warning: could not parse Ruleset entry with string '", staticFunctionName, "'. Skipping entry.");
         return std::monostate{};
     }
     // Is a valid JSON-defined ruleset
