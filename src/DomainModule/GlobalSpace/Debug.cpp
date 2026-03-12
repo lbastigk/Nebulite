@@ -139,24 +139,25 @@ Constants::Error Debug::standardFileRenderObject(std::span<std::string const> co
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Debug::errorLog(int const argc, char** argv) {
+// NOLINTNEXTLINE
+Constants::Error Debug::errorLog(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
     // Initialize the error logging buffer
     if (!originalCerrBuf) {
         originalCerrBuf = std::cerr.rdbuf();
     }
 
-    if (argc == 2) {
-        if (!strcmp(argv[1], "on")) {
+    if (args.size() == 2) {
+        if (args[1] == "on") {
             if (!errorLogStatus) {
                 if (!safe_open_log(errorFile)) {
-                    Error::println("Refusing to open log file: '", logFilename, "' is a symlink or could not be opened.");
+                    caller.capture().error.println("Refusing to open log file: '", logFilename, "' is a symlink or could not be opened.");
                     return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
                 }
                 originalCerrBuf = std::cerr.rdbuf();
                 std::cerr.rdbuf(errorFile->rdbuf());
                 errorLogStatus = true;
             }
-        } else if (!strcmp(argv[1], "off")) {
+        } else if (args[1] == "off") {
             if (errorLogStatus) {
                 std::cerr.flush();
                 std::cerr.rdbuf(originalCerrBuf);
@@ -168,7 +169,7 @@ Constants::Error Debug::errorLog(int const argc, char** argv) {
             }
         }
     } else {
-        if (argc > 2) {
+        if (args.size() > 2) {
             return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
         }
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
@@ -209,7 +210,8 @@ Constants::Error Debug::clearConsole(std::span<std::string const> const& /*args*
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Debug::crash(std::span<std::string const> const& args) {
+// NOLINTNEXTLINE
+Constants::Error Debug::crash(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
     // If an argument is provided, use it to select crash type
     if (args.size() > 1) {
         if (std::string const& crashType = args[1]; crashType == "segfault") {
@@ -225,8 +227,8 @@ Constants::Error Debug::crash(std::span<std::string const> const& args) {
             // Throw an uncaught exception
             throw std::runtime_error("Intentional crash: uncaught exception");
         } else {
-            Error::println("Unknown crash type requested: ", crashType);
-            Error::println("Defaulting to segmentation fault");
+            caller.capture().error.println("Unknown crash type requested: ", crashType);
+            caller.capture().error.println("Defaulting to segmentation fault");
         }
     } else {
         // Default: segmentation fault
@@ -236,9 +238,10 @@ Constants::Error Debug::crash(std::span<std::string const> const& args) {
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Debug::error(std::span<std::string const> const& args) {
+// NOLINTNEXTLINE
+Constants::Error Debug::error(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
     auto const& argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    Error::println(argStr);
+    caller.capture().error.println(argStr);
     return Constants::ErrorTable::NONE();
 }
 
@@ -259,7 +262,8 @@ Constants::Error Debug::critical(std::span<std::string const> const& args) {
     return Constants::ErrorTable::addError(argStr, Constants::Error::CRITICAL);
 }
 
-Constants::Error Debug::waitForInput(std::span<std::string const> const& args) {
+// NOLINTNEXTLINE
+Constants::Error Debug::waitForInput(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
     if (args.size() > 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
@@ -268,7 +272,7 @@ Constants::Error Debug::waitForInput(std::span<std::string const> const& args) {
         // Use the provided prompt as message
         message = args[1];
     }
-    Log::println(message);
+    caller.capture().log.println(message);
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return Constants::ErrorTable::NONE();
 }

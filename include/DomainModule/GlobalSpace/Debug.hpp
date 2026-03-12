@@ -44,7 +44,7 @@ public:
      * @todo: errorLog on causes crash with wine
      *        wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
      */
-    Constants::Error errorLog(int argc, char** argv);
+    Constants::Error errorLog(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr errorLog_name = "error-log";
     static auto constexpr errorLog_desc = "Activates or deactivates error logging to a file.\n"
         "Usage: error-log <on/off>\n"
@@ -77,7 +77,7 @@ public:
         "- <filenames>: Optional. One or more filenames to log the renderer state to.\n"
         "               If no filenames are provided, defaults to 'state.log.jsonc'.\n";
 
-    static Constants::Error crash(std::span<std::string const> const& args);
+    static Constants::Error crash(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr crash_name = "crash";
     static auto constexpr crash_desc = "Crashes the program, useful for checking if the testing suite can catch crashes.\n"
         "Usage: crash [<type>]\n"
@@ -88,7 +88,7 @@ public:
         "    - terminate  : Calls std::terminate()\n"
         "    - throw      : Throws an uncaught exception\n";
 
-    static Constants::Error error(std::span<std::string const> const& args);
+    static Constants::Error error(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr error_name = "error";
     static auto constexpr error_desc = "Echoes all arguments as string to the standard error.\n"
         "Usage: error <string...>\n"
@@ -109,7 +109,7 @@ public:
         "\n"
         "- <string>: The critical error message.\n";
 
-    static Constants::Error waitForInput(std::span<std::string const> const& args);
+    static Constants::Error waitForInput(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr waitForInput_name = "input-wait";
     static auto constexpr waitForInput_desc = "Waits for user input before continuing.\n"
         "Usage: input-wait [prompt]\n"

@@ -24,19 +24,19 @@ Constants::Error Debug::print(std::span<std::string const> const& args, Interact
         auto const scopedKey = Data::ScopedKey(args[1]);
         auto const memberType = callerScope.memberType(scopedKey);
         if (memberType == Data::KeyType::null) {
-            Log::println("{}");
+            caller.capture().log.println("{}");
             return Constants::ErrorTable::NONE();
         }
         if (memberType == Data::KeyType::object || memberType == Data::KeyType::array) {
-            Log::println(callerScope.serialize(scopedKey));
+            caller.capture().log.println(callerScope.serialize(scopedKey));
             return Constants::ErrorTable::NONE();
         }
         if (memberType == Data::KeyType::value) {
-            Log::println(callerScope.get<std::string>(scopedKey).value_or(""));
+            caller.capture().log.println(callerScope.get<std::string>(scopedKey).value_or(""));
             return Constants::ErrorTable::NONE();
         }
     }
-    Log::println(callerScope.serialize());
+    caller.capture().log.println(callerScope.serialize());
     (void)caller; // Unused parameter
     return Constants::ErrorTable::NONE();
 }
