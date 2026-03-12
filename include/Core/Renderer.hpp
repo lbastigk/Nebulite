@@ -203,7 +203,7 @@ public:
      * @param link The link to save the snapshot to.
      * @return True if the snapshot was successful, false otherwise.
      */
-    [[nodiscard]] bool snapshot(std::string link) const;
+    [[nodiscard]] bool snapshot(std::string link);
 
     //------------------------------------------
     // Purge
@@ -392,7 +392,7 @@ public:
      * @param link The file path to load the texture from.
      * @return A pointer to the loaded SDL_Texture, or nullptr if loading failed.
      */
-    [[nodiscard]] SDL_Texture* loadTextureToMemory(std::string const& link) const;
+    [[nodiscard]] SDL_Texture* loadTextureToMemory(std::string const& link);
 
     /**
      * @brief Retrieves a texture from the TextureContainer.

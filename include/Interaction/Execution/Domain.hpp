@@ -380,10 +380,10 @@ public:
     /**
      * @brief Provides access to the domain's capture
      */
-    [[nodiscard]] Utility::Capture& capture() const { return domainCapture; }
+    [[nodiscard]] Utility::Capture& capture() { return domainCapture; }
 
 protected:
-    Utility::Capture& domainCapture;
+    Utility::Capture domainCapture;
 
     /**
      * @brief Offers access to the internal FuncTree for function binding.

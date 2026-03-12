@@ -31,7 +31,7 @@ DocumentAccessor::~DocumentAccessor() = default;
 namespace Nebulite::Interaction::Execution {
 
 // NOLINTNEXTLINE
-Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Capture& parentCapture) : DocumentAccessor(documentReference), domainName(name), domainCapture(parentCapture) {
+Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Capture& parentCapture) : DocumentAccessor(documentReference), domainName(name), domainCapture(&parentCapture) {
     funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
         name,
         Constants::ErrorTable::NONE(),
@@ -46,7 +46,7 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Util
     Nebulite::DomainModule::Initializer::initCommon(this);
 }
 
-Domain::Domain(std::string const& name, Utility::Capture& parentCapture) : domainName(name), domainCapture(parentCapture) {
+Domain::Domain(std::string const& name, Utility::Capture& parentCapture) : domainName(name), domainCapture(&parentCapture) {
     funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
         name,
         Constants::ErrorTable::NONE(),

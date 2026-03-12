@@ -431,7 +431,7 @@ void Renderer::reinsertAllObjects() {
 //------------------------------------------
 // Special Functions
 
-bool Renderer::snapshot(std::string link) const {
+bool Renderer::snapshot(std::string link) {
     // Get current window/render target size
     int width, height;
     if (window) {
@@ -692,7 +692,7 @@ void Renderer::loadTexture(std::string const& link) {
     if (auto const t = loadTextureToMemory(link); t != nullptr) TextureContainer[link] = t;
 }
 
-SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
+SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) {
     std::string const path = Utility::FileManagement::CombinePaths(baseDirectory, link);
 
     // Get file extension, based on last dot
