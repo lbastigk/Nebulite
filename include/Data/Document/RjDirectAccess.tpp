@@ -9,7 +9,7 @@
 
 // Nebulite
 #include "Data/Document/RjDirectAccess.hpp"
-#include "Utility/Capture.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
