@@ -55,13 +55,32 @@ public:
 
     //------------------------------------------
     // Printing helpers
+    
+    /**
+     * @brief Prints the provided arguments to the stream and captures them in a list.
+     * @tparam Args The types of the arguments to print.
+     * @param printToConsole Whether to print to the console or just capture in the list.
+     * @param args The arguments to print.
+     */
     template<typename... Args>
     void print(bool const& printToConsole, Args&&... args);
 
+    /**
+     * @brief Prints the provided arguments followed by a newline to the stream and captures them in a list.
+     * @tparam Args The types of the arguments to print.
+     * @param printToConsole Whether to print to the console or just capture in the list.
+     * @param args The arguments to print.
+     */
     template<typename... Args>
     void println(bool const& printToConsole, Args&&... args);
 };
 
+/**
+ * @brief HierarchicalStream class that allows for hierarchical capturing of output, where child streams can forward input to parents for unified listing,
+ *        while proper printing is reserved to only the root stream to avoid duplicates. This is useful for domain-specific logging that still gets captured in a unified log.
+ * @tparam BaseStream The base stream to print to (e.g. std::cout or std::cerr).
+ * @tparam LineType The type of the output line (e.g. COUT or CERR).
+ */
 template<std::ostream* BaseStream, OutputLine::Type LineType>
 class HierarchicalStream {
     Stream<BaseStream, LineType> coutStream;
@@ -94,9 +113,8 @@ public:
 
 /**
  * @class Nebulite::Utility::Capture
- * @brief Captures output to cout and cerr into an internal log.
- * 
- * Both outputs logs cout and cerr are threadsafe.
+ * @brief Unified capture class providing multiple streams with a potential hierarchy, allowing for both domain-specific logging and unified logging,
+ *        while ensuring thread-safe access to the captured output.
  */
 class Capture{
 public:
@@ -117,20 +135,20 @@ public:
      * @brief Retrieves a pointer to the output log.
      * @return A pointer to the output log deque, const.
      */
-    [[nodiscard]] std::deque<OutputLine> const& getOutputLog() const {
-        return outputLog;
+    [[nodiscard]] std::deque<OutputLine> const& getoutputList() const {
+        return outputList;
     }
 
     /**
      * @brief Clears the output log.
      */
     void clear(){
-        outputLog.clear();
+        outputList.clear();
     }
 
 private:
-    std::deque<OutputLine> outputLog; // Log of captured output lines
-    std::mutex outputLogMutex;  // Mutex for thread-safe access to outputLog
+    std::deque<OutputLine> outputList; // List of captured output lines
+    std::mutex outputListMutex;  // Mutex for thread-safe access to outputList
 };
 
 template<std::ostream* BaseStream, OutputLine::Type LineType>
@@ -139,11 +157,11 @@ void Stream<BaseStream, LineType>::putStr(std::string const& str, bool const& pr
         *BaseStream << str;
     }
 
-    std::scoped_lock const lock(parent->outputLogMutex);
+    std::scoped_lock const lock(parent->outputListMutex);
     std::istringstream iss(str);
     std::string line;
     while (std::getline(iss, line)) {
-        parent->outputLog.push_back({line, LineType});
+        parent->outputList.push_back({line, LineType});
     }
 }
 

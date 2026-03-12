@@ -160,7 +160,7 @@ namespace Nebulite {
 /**
  * @brief Static class to provide access to the global GlobalSpace singleton and selected global JSON document scopes.
  */
-class Global {
+class Global final {
 public:
     /**
      * @brief Provides access to the global GlobalSpace singleton.
@@ -197,6 +197,11 @@ public:
     //------------------------------------------
     // Capture access
 
+    /**
+     * @brief Provides access to the global capture instance.
+     * @details Whenever possible, use the local capture provided by the Domain (or DomainModule) instead of this global capture, to ensure proper hierarchical capture behavior.
+     * @return Reference to the global capture instance.
+     */
     static Utility::Capture& capture() {
         static Utility::Capture captureInstance(Utility::Capture::noParent);
         return captureInstance;
