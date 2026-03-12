@@ -56,10 +56,10 @@ public:
     //------------------------------------------
     // Printing helpers
     template<typename... Args>
-    void print(Args&&... args);
+    void print(bool const& printToConsole, Args&&... args);
 
     template<typename... Args>
-    void println(Args&&... args);
+    void println(bool const& printToConsole, Args&&... args);
 };
 
 template<std::ostream* BaseStream, OutputLine::Type LineType>
@@ -74,17 +74,21 @@ public:
     template<typename... Args>
     void print(Args&&... args){
         if (parent) {
+            // Pass to parent stream for retention
             parent->print(std::forward<Args>(args)...);
         }
-        coutStream.print(std::forward<Args>(args)...);
+        // Only print to console if this is the root stream, to avoid duplicate prints
+        coutStream.print(!parent, std::forward<Args>(args)...);
     }
 
     template<typename... Args>
     void println(Args&&... args){
         if (parent) {
+            // Pass to parent stream for retention
             parent->println(std::forward<Args>(args)...);
         }
-        coutStream.println(std::forward<Args>(args)...);
+        // Only print to console if this is the root stream, to avoid duplicate prints
+        coutStream.println(!parent, std::forward<Args>(args)...);
     }
 };
 
@@ -145,23 +149,23 @@ void Stream<BaseStream, LineType>::putStr(std::string const& str, bool const& pr
 
 template<std::ostream* BaseStream, OutputLine::Type LineType>
 template<typename... Args>
-void Stream<BaseStream, LineType>::print(Args&&... args) {
+void Stream<BaseStream, LineType>::print(bool const& printToConsole, Args&&... args) {
     std::ostringstream workingBuffer;
     if constexpr (sizeof...(args) != 0) {
         (workingBuffer << ... << args);
     }
-    putStr(workingBuffer.str(), true);
+    putStr(workingBuffer.str(), printToConsole);
 }
 
 template<std::ostream* BaseStream, OutputLine::Type LineType>
 template<typename... Args>
-void Stream<BaseStream, LineType>::println(Args&&... args) {
+void Stream<BaseStream, LineType>::println(bool const& printToConsole, Args&&... args) {
     std::ostringstream workingBuffer;
     if constexpr (sizeof...(args) != 0) {
         (workingBuffer << ... << args);
     }
     workingBuffer << '\n';
-    putStr(workingBuffer.str(), true);
+    putStr(workingBuffer.str(), printToConsole);
 }
 
 } // namespace Nebulite::Utility
