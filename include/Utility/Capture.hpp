@@ -22,9 +22,6 @@
 #include <sstream>
 #include <string>
 
-// Nebulite
-#include "Utility/StringHandler.hpp"
-
 //------------------------------------------
 namespace Nebulite::Utility {
 
@@ -45,27 +42,16 @@ struct OutputLine{
 };
 
 /**
- * @struct CaptureStream
+ * @class Stream
  * @brief Stream class for capturing output and redirecting it to an ostream and internal log.
  */
-class CaptureStream{
-    std::string lastLine;
-    Capture *parent;                                    // Parent reference so we can lock its mutex, so cout/cerr don't interfere
-    std::reference_wrapper<std::ostream> baseStream;    // ostream outlives CaptureStream, so reference is safe
-    OutputLine::Type type;
-    explicit CaptureStream(Capture* p, std::ostream& s, OutputLine::Type const& t) : parent(p), baseStream(s), type(t){}
-
+template<std::ostream* /*BaseStream*/, OutputLine::Type /*LineType*/>
+class Stream {
+    Capture *parent;                                    // Main capture reference so we can lock its mutex, so cout/cerr don't interfere with each other
     void putStr(std::string const& str, bool const& printToConsole) const ;
 public:
-    friend class Capture;
-
-    template<typename T>
-    CaptureStream& operator<<(T const& data);
-
-    CaptureStream& operator<<(char const* data){
-        // Cast to std::string, then call templated operator
-        return *this << std::string(data);
-    }
+    //friend class Capture;
+    explicit Stream(Capture* p) : parent(p) {}
 
     //------------------------------------------
     // Printing helpers
@@ -76,6 +62,32 @@ public:
     void println(Args&&... args);
 };
 
+template<std::ostream* BaseStream, OutputLine::Type LineType>
+class HierarchicalStream {
+    Stream<BaseStream, LineType> coutStream;
+    HierarchicalStream* parent;
+
+public:
+    explicit HierarchicalStream(Capture* cap, HierarchicalStream* par = nullptr)
+        : coutStream(cap), parent(par) {}
+
+    template<typename... Args>
+    void print(Args&&... args){
+        if (parent) {
+            parent->print(std::forward<Args>(args)...);
+        }
+        coutStream.print(std::forward<Args>(args)...);
+    }
+
+    template<typename... Args>
+    void println(Args&&... args){
+        if (parent) {
+            parent->println(std::forward<Args>(args)...);
+        }
+        coutStream.println(std::forward<Args>(args)...);
+    }
+};
+
 /**
  * @class Nebulite::Utility::Capture
  * @brief Captures output to cout and cerr into an internal log.
@@ -84,57 +96,18 @@ public:
  */
 class Capture{
 public:
-    friend class CaptureStream;
+    template<std::ostream* BaseStream, OutputLine::Type LineType>
+    friend class Stream;
 
     static auto constexpr noParent = nullptr;
 
-    explicit Capture(Capture* parent) : log(this, parent), error(this, parent) {}
+    explicit Capture(Capture* parent)
+    : log(this, parent ? &parent->log : noParent),
+      error(this, parent ? &parent->error : noParent)
+    {}
 
-    class Log {
-        CaptureStream coutStream;
-        Capture* parent;
-    public:
-        explicit Log(Capture* cap, Capture* par) : coutStream(cap, std::cout, OutputLine::Type::COUT), parent(par) {}
-
-        template<typename... Args>
-        void print(Args&&... args){
-            if (parent) {
-                parent->error.print(std::forward<Args>(args)...);
-            }
-            coutStream.print(std::forward<Args>(args)...);
-        }
-
-        template<typename... Args>
-        void println(Args&&... args){
-            if (parent) {
-                parent->error.println(std::forward<Args>(args)...);
-            }
-            coutStream.println(std::forward<Args>(args)...);
-        }
-    } log;
-
-    class Error {
-        CaptureStream cerrStream;
-        Capture* parent;
-    public:
-        explicit Error(Capture* cap, Capture* par) : cerrStream(cap, std::cerr, OutputLine::Type::CERR), parent(par) {}
-
-        template<typename... Args>
-        void print(Args&&... args){
-            if (parent) {
-                parent->log.print(std::forward<Args>(args)...);
-            }
-            cerrStream.print(std::forward<Args>(args)...);
-        }
-
-        template<typename... Args>
-        void println(Args&&... args){
-            if (parent) {
-                parent->log.println(std::forward<Args>(args)...);
-            }
-            cerrStream.println(std::forward<Args>(args)...);
-        }
-    } error;
+    HierarchicalStream<&std::cout, OutputLine::Type::COUT> log; // Stream for capturing cout output
+    HierarchicalStream<&std::cerr, OutputLine::Type::CERR> error; // Stream for capturing cerr output
 
     /**
      * @brief Retrieves a pointer to the output log.
@@ -151,70 +124,42 @@ public:
         outputLog.clear();
     }
 
-    static auto constexpr* endl = "\n";
-
 private:
     std::deque<OutputLine> outputLog; // Log of captured output lines
     std::mutex outputLogMutex;  // Mutex for thread-safe access to outputLog
 };
 
-template<typename T>
-CaptureStream& CaptureStream::operator<<(T const& data){
-    baseStream.get() << data;
-    {
-        std::scoped_lock const lock(parent->outputLogMutex);
-
-        // Combine lastLine with new data
-        std::ostringstream workingBuffer;
-        workingBuffer << lastLine << data;
-        lastLine = "";
-
-        // Split buffer by newlines
-        std::string const buf = workingBuffer.str();
-        std::vector<std::string> lines = StringHandler::split(buf, '\n');
-
-        // If last character is not newline, keep it in workingBuffer
-        // And do not push it to outputLog yet
-        if(!buf.empty() && buf.back() != '\n'){
-            lastLine = lines.back();
-            lines.pop_back();
-        }
-
-        // Push complete lines to outputLog
-        for (auto const& line : lines){
-            parent->outputLog.push_back({line, type});
-        }
-    }
-    return *this;
-}
-
-inline void CaptureStream::putStr(std::string const& str, bool const& printToConsole) const {
+template<std::ostream* BaseStream, OutputLine::Type LineType>
+void Stream<BaseStream, LineType>::putStr(std::string const& str, bool const& printToConsole) const {
     if (printToConsole) {
-        baseStream.get() << str;
+        *BaseStream << str;
     }
-    {
-        std::scoped_lock const lock(parent->outputLogMutex);
-        std::istringstream iss(str);
-        std::string line;
-        while (std::getline(iss, line)) {
-            parent->outputLog.push_back({line, type});
-        }
+
+    std::scoped_lock const lock(parent->outputLogMutex);
+    std::istringstream iss(str);
+    std::string line;
+    while (std::getline(iss, line)) {
+        parent->outputLog.push_back({line, LineType});
     }
 }
 
+template<std::ostream* BaseStream, OutputLine::Type LineType>
 template<typename... Args>
-void CaptureStream::print(Args&&... args){
-    // Turn into string, pass to operator<<
+void Stream<BaseStream, LineType>::print(Args&&... args) {
     std::ostringstream workingBuffer;
-    if constexpr (sizeof...(args) != 0) (workingBuffer << ... << args);
+    if constexpr (sizeof...(args) != 0) {
+        (workingBuffer << ... << args);
+    }
     putStr(workingBuffer.str(), true);
 }
 
+template<std::ostream* BaseStream, OutputLine::Type LineType>
 template<typename... Args>
-void CaptureStream::println(Args&&... args) {
-    // Turn into string, pass to operator<< with newline at end
+void Stream<BaseStream, LineType>::println(Args&&... args) {
     std::ostringstream workingBuffer;
-    if constexpr (sizeof...(args) != 0) (workingBuffer << ... << args);
+    if constexpr (sizeof...(args) != 0) {
+        (workingBuffer << ... << args);
+    }
     workingBuffer << '\n';
     putStr(workingBuffer.str(), true);
 }
