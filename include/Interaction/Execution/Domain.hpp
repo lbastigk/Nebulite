@@ -180,6 +180,7 @@ class Domain : public DocumentAccessor {
      * @details We use a pointer here so we can
      *          easily create the object with an inherited FuncTree inside the constructor.
      *          The Tree is then shared with the DomainModules for modification.
+     * @todo Providing the domain reference and Scope may not be necessary anymore, please investigate!
      */
     std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> funcTree;
 
