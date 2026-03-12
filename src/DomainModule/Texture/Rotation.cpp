@@ -60,7 +60,6 @@ Constants::Error Rotation::rotate(int const argc, char** argv) const {
 
     // Replace the original texture with the rotated texture
     domain.setInternalTexture(rotatedTexture);
-    Log::println("Texture rotated by ", angle, " degrees.");
     return Constants::ErrorTable::NONE();
 }
 

@@ -48,7 +48,7 @@ Constants::Error General::spawn(int const argc, char** argv) const {
         // Renderer manages the RenderObjects lifetime
         domain.append(ro);
     } else {
-        Error::println("No RenderObject name provided!");
+        domain.capture().error.println("No RenderObject name provided!");
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     return Constants::ErrorTable::NONE();

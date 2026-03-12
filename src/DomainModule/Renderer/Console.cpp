@@ -341,7 +341,7 @@ void Console::renderConsole() {
 
     // Ensure console texture is valid
     if (!ensureConsoleTexture()) {
-        Error::println("SDL_CreateTexture failed: ", SDL_GetError());
+        domain.capture().error.println("SDL_CreateTexture failed: ", SDL_GetError());
         return;
     }
 
@@ -408,7 +408,7 @@ void Console::init() {
     // Use a monospaced font for better alignment
     consoleFont = TTF_OpenFont(consoleFontPath.c_str(), consoleLayout.FONT_MAX_SIZE);
     if (!consoleFont) {
-        Error::println("TTF_OpenFont failed for font: ", consoleFontPath);
+        domain.capture().error.println("TTF_OpenFont failed for font: ", consoleFontPath);
         return;
     }
 
@@ -531,7 +531,7 @@ void Console::processAutotypeQueue() {
                 try {
                     autoType.waitTimeRemaining = std::stoul(text);
                 } catch (std::exception const&) {
-                    Error::println("Invalid wait time in autoType command: ", text);
+                    domain.capture().error.println("Invalid wait time in autoType command: ", text);
                 }
                 break;
             case AutoType::Command::Type::HISTORY_UP:

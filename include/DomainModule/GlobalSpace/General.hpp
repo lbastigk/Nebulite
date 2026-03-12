@@ -143,7 +143,7 @@ public:
         "We did not anticipate this happening, weird.\n"
         "Critical Error: We did not anticipate this happening, weird.\n";
 
-    static Constants::Error echo(std::span<std::string const> const& args);
+    Constants::Error echo(std::span<std::string const> const& args) const ;
     static auto constexpr echo_name = "echo";
     static auto constexpr echo_desc = "Echoes all arguments as string to the standard output.\n"
         "\n"

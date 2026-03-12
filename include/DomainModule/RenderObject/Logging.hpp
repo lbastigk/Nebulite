@@ -36,7 +36,7 @@ public:
 
     // Same as GlobalSpace echo, but perhaps useful to quickly check if a RenderObjects ruleset is triggered.
     // Compared to the global echo, this one is not delayed by any taskqueue.
-    static Constants::Error echo(std::span<std::string const> const& args);
+    Constants::Error echo(std::span<std::string const> const& args) const ;
     static auto constexpr echo_name = "echo";
     static auto constexpr echo_desc = "Echoes all arguments as string to the standard output.\n"
         "\n"

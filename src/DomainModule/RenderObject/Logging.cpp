@@ -19,9 +19,9 @@ Constants::Error Logging::update() {
 // Domain-Bound Functions
 
 // NOLINTNEXTLINE
-Constants::Error Logging::echo(std::span<std::string const> const& args) {
+Constants::Error Logging::echo(std::span<std::string const> const& args) const {
     std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    Log::println(argStr);
+    domain.capture().log.println(argStr);
     return Constants::ErrorTable::NONE();
 }
 
