@@ -185,7 +185,7 @@ void Renderer::initSDL() {
     // Create SDL window
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         // SDL initialization failed
-        Error::println("SDL_Init Video Error: ", SDL_GetError());
+        domainCapture.error.println("SDL_Init Video Error: ", SDL_GetError());
         std::abort();
     }
     // Define window via x|y|w|h
@@ -200,7 +200,7 @@ void Renderer::initSDL() {
     ;
 
     if (!SDL_CreateWindowAndRenderer("Nebulite", w*windowScale, h*windowScale, flags, &window, &renderer)) {
-        Error::println("SDL_CreateWindowAndRenderer Error: ", SDL_GetError());
+        domainCapture.error.println("SDL_CreateWindowAndRenderer Error: ", SDL_GetError());
         std::abort();
     }
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
@@ -222,7 +222,7 @@ void Renderer::initSDL() {
             if (SDL_Cursor* cursor = SDL_CreateColorCursor(cursorSurface, 0, 0); cursor) {
                 SDL_SetCursor(cursor);
             } else {
-                Error::println("Failed to create cursor: ", SDL_GetError());
+                domainCapture.error.println("Failed to create cursor: ", SDL_GetError());
                 // No quit, just use default cursor
             }
         }
@@ -234,7 +234,7 @@ void Renderer::initSDL() {
     // Initialize SDL_ttf
     if (!TTF_Init()) {
         // Handle SDL_ttf initialization error
-        Error::println("TTF_Init Error: ", SDL_GetError());
+        domainCapture.error.println("TTF_Init Error: ", SDL_GetError());
         std::abort();
     }
     loadFonts();
@@ -247,7 +247,7 @@ void Renderer::initSDL() {
      *       For now, we just log the error and continue
      */
     if (SDL_GetError()[0] != '\0') {
-        Error::println("SDL Error during initialization: ", SDL_GetError());
+        domainCapture.error.println("SDL Error during initialization: ", SDL_GetError());
         SDL_ClearError(); // Clear error after reporting
     }
 
@@ -271,7 +271,7 @@ void Renderer::loadFonts() {
     font = TTF_OpenFont(fontPath.c_str(), FontSizeGeneral); // Adjust size as needed
     if (font == nullptr) {
         // Handle font loading error
-        Error::println("Failed to load font: ", fontPath);
+        domainCapture.error.println("Failed to load font: ", fontPath);
         std::abort();
     }
 }
@@ -383,7 +383,7 @@ Constants::Error Renderer::update() {
         );
     }
     if (SDL_GetError()[0] != '\0') {
-        Error::println("SDL Error during rendering: ", SDL_GetError());
+        domainCapture.error.println("SDL Error during rendering: ", SDL_GetError());
         SDL_ClearError(); // Clear error after reporting
         return Constants::ErrorTable::SDL::GENERIC_SDL_ERROR();
     }
@@ -446,7 +446,7 @@ bool Renderer::snapshot(std::string link) const {
     SDL_Rect const fullScreenRect = {0, 0, width, height};
     auto const surface = SDL_RenderReadPixels(renderer, &fullScreenRect);
     if (!surface) {
-        Error::println("Failed to read pixels for snapshot: ", SDL_GetError());
+        domainCapture.error.println("Failed to read pixels for snapshot: ", SDL_GetError());
         SDL_DestroySurface(surface);
         return false;
     }
@@ -465,14 +465,14 @@ bool Renderer::snapshot(std::string link) const {
         try {
             std::filesystem::create_directories(directory);
         } catch (std::exception const& e) {
-            Error::println("Warning: Could not create directory ", directory, ": ", e.what());
+            domainCapture.error.println("Warning: Could not create directory ", directory, ": ", e.what());
             // Continue anyway - maybe directory already exists
         }
     }
 
     // Save surface as PNG
     if (int const result = IMG_SavePNG(surface, link.c_str()); result != 0 && SDL_GetError()[0] != '\0') {
-        Error::println("Failed to save snapshot!");
+        domainCapture.error.println("Failed to save snapshot!");
         return false;
     }
 
@@ -520,15 +520,15 @@ void Renderer::destroy() {
 void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scalar) {
     // Validate resolution and scalar
     if (w < 240 || w > 16384) {
-        Error::println("Selected resolution is not supported:", w, "x", h);
+        domainCapture.error.println("Selected resolution is not supported:", w, "x", h);
         return;
     }
     if (h < 240 || h > 16384) {
-        Error::println("Selected resolution is not supported:", w, "x", h);
+        domainCapture.error.println("Selected resolution is not supported:", w, "x", h);
         return;
     }
     if ( scalar < 1 || scalar > 8) {
-        Error::println("Selected window scaling is not supported:", static_cast<int>(scalar), "x");
+        domainCapture.error.println("Selected window scaling is not supported:", static_cast<int>(scalar), "x");
         return;
     }
 
@@ -595,7 +595,7 @@ void Renderer::renderFrame() {
     auto const dispResY = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0);
     if (dispResX == 0 || dispResY == 0) {
         // Avoid division by zero
-        Error::println("Display resolution is zero, cannot render frame.");
+        domainCapture.error.println("Display resolution is zero, cannot render frame.");
         std::abort();
     }
     tilePositionX = static_cast<int16_t>(dispPosX / dispResX);
@@ -658,7 +658,7 @@ void Renderer::renderFrame() {
                 static_cast<float>(rect->h)
             };
             if (!SDL_RenderTexture(renderer, texture, nullptr, &rectF)) {
-                Error::println("Failed to render between-layer texture: ", SDL_GetError());
+                domainCapture.error.println("Failed to render between-layer texture: ", SDL_GetError());
             }
         }
     }
@@ -700,7 +700,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
     if (size_t const dotPos = path.find_last_of('.'); dotPos != std::string::npos) {
         extension = path.substr(dotPos + 1);
     } else {
-        Error::println("Failed to load image '", path, "': No file extension found.");
+        domainCapture.error.println("Failed to load image '", path, "': No file extension found.");
         return nullptr;
     }
 
@@ -717,7 +717,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
 
     // Unknown format or other issues with surface
     if (surface == nullptr) {
-        Error::println("Failed to load image '", path, "': ", SDL_GetError());
+        domainCapture.error.println("Failed to load image '", path, "': ", SDL_GetError());
         return nullptr;
     }
 
@@ -726,7 +726,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) const {
 
     // Check for texture issues
     if (!texture) {
-        Error::println("Failed to create texture from image '", path, "': ", SDL_GetError());
+        domainCapture.error.println("Failed to create texture from image '", path, "': ", SDL_GetError());
         return nullptr;
     }
 
