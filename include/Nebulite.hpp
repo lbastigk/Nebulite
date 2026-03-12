@@ -210,40 +210,6 @@ private:
     static Data::JSON& globalDoc();
 };
 
-// TODO: refactor all usages of Nebulite::Log and Nebulite::Error to either use their local domainCapture or Global::capture()
-
-/**
- * @brief Static class for logging messages to the console (stdout).
- */
-class Log {
-public:
-    template<typename... Args>
-    [[deprecated("Use the domain-specific capture or global capture instead")]] static void print(Args&&... args) {
-        Global::capture().log.print(std::forward<Args>(args)...);
-    }
-
-    template<typename... Args>
-    [[deprecated("Use the domain-specific capture or global capture instead")]] static void println(Args&&... args) {
-        Global::capture().log.println(std::forward<Args>(args)...);
-    }
-};
-
-/**
- * @brief Static class for logging error messages to the console (stderr).
- */
-class Error {
-public:
-    template<typename... Args>
-    [[deprecated("Use the domain-specific capture or global capture instead")]] static void print(Args&&... args) {
-        Global::capture().error.print(std::forward<Args>(args)...);
-    }
-
-    template<typename... Args>
-    [[deprecated("Use the domain-specific capture or global capture instead")]] static void println(Args&&... args) {
-        Global::capture().error.println(std::forward<Args>(args)...);
-    }
-};
-
 } // namespace Nebulite
 
 //------------------------------------------
