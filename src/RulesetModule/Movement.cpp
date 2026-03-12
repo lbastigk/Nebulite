@@ -54,13 +54,13 @@ void Movement::clip(Interaction::Context const& context, double**& slf, double**
     // Prioritize circle collision if radius is set (> 0)
     if (radius1 > 0.0 && radius2 > 0.0) {
         // TODO: Circle-circle collision detection and response
-        Error::println("Circle-circle elastic clipping not yet implemented.");
+        Global::capture().error.println("Circle-circle elastic clipping not yet implemented.");
     }
     else if (radius1 > 0.0) {
-        Error::println("Circle-box elastic clipping not yet implemented.");
+        Global::capture().error.println("Circle-box elastic clipping not yet implemented.");
     }
     else if (radius2 > 0.0) {
-        Error::println("Box-circle elastic clipping not yet implemented.");
+        Global::capture().error.println("Box-circle elastic clipping not yet implemented.");
     }
     else {
         // Base overlap condition
@@ -79,7 +79,6 @@ void Movement::clip(Interaction::Context const& context, double**& slf, double**
             bool const willCollideY = !(p1Y + size1Y < nextP2Y || nextP2Y + size2Y < p1Y);
             bool const isCollidingX = !(p1X + size1X < p2X || p2X + size2X < p1X);
             bool const isCollidingY = !(p1Y + size1Y < p2Y || p2Y + size2Y < p1Y);
-
 
             double drX = 0.0;
             double drY = 0.0;
@@ -134,8 +133,6 @@ void Movement::clip(Interaction::Context const& context, double**& slf, double**
             if (slideRight && !slideLeft) {
                 drX += 1;
             }
-
-
 
             // Set new values:
             auto slfLock = context.self.lockDocument();

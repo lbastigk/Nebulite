@@ -17,7 +17,7 @@ void Assertions::printUserDefinedMessage(std::span<std::string const> const& arg
     if (args.size() < 2) {
         return; // No message provided
     }
-    Error::println(Utility::StringHandler::recombineArgs(args.subspan(1)));
+    Global::capture().error.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
 }
 
 // NOLINTNEXTLINE

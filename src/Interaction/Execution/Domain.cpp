@@ -9,6 +9,8 @@
 // Document Accessor
 namespace Nebulite::Interaction::Execution {
 
+ScopeOwner::~ScopeOwner() = default;
+
 ScopeOwner::ScopeOwner(ScopeOwnership const& ownership) {
     if (ownership == ScopeOwnership::Owned) {
         _domainScopeOwned = std::make_unique<Data::JsonScope>();

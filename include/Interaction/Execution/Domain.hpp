@@ -88,7 +88,7 @@ public:
         Borrowed // Will be left empty
     };
 
-    virtual ~ScopeOwner() = default;
+    virtual ~ScopeOwner();
     explicit ScopeOwner(ScopeOwnership const& ownership = ScopeOwnership::Borrowed);
 };
 

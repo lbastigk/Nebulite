@@ -10,15 +10,17 @@ void Debug::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Debug::print, printName, printDesc);
 }
 
+// Since this is for debugging only, we pass the output directly to global capture, instead of a local capture
+
 bool Debug::echo(std::span<std::string const> const& args) {
     // Echo args to cout
     bool first = true;
     std::ranges::for_each(args | std::views::drop(1), [&](auto const& s) {
-        if (!first) Log::print(" ");
+        if (!first) Global::capture().log.print(" ");
         first = false;
-        Log::print(s);
+        Global::capture().log.print(s);
     });
-    Log::println();
+    Global::capture().log.println();
     return true;
 }
 
@@ -28,16 +30,16 @@ bool Debug::print(std::span<std::string const> const& args, Data::JsonScope* jso
     if (args.size() > 1) {
         for (auto const& arg : args | std::views::drop(1)) {
             if (std::string const value = jsonDoc->serialize(rootKey + arg); value.ends_with('\n')) {
-                Log::print(value);
+                Global::capture().log.print(value);
             } else {
-                Log::println(value);
+                Global::capture().log.println(value);
             }
         }
     } else {
         if (std::string const value = jsonDoc->serialize(); value.ends_with('\n')) {
-            Log::print(value);
+            Global::capture().log.print(value);
         } else {
-            Log::println(value);
+            Global::capture().log.println(value);
         }
     }
     return true;
