@@ -98,7 +98,6 @@ void Renderer::initImgui() const {
     style.ScrollbarRounding = 0.0f;
     style.GrabRounding = 0.0f;
 
-
     // Borders
     style.WindowBorderSize = 1.0f;
     style.FrameBorderSize  = 1.0f;

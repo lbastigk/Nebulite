@@ -20,12 +20,12 @@ void ImguiHelper::renderJsonScope(Data::JsonScope const& scope, std::string cons
 }
 
 // TODO: Provide a rolling id to domain class for this to work properly. For now we just use the provided name
-void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Data::JsonScope const& scope, std::string const& name) {
+void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::Capture& capture, Data::JsonScope const& scope, std::string const& name) {
     ImGui::Begin(name.c_str());
     ImGui::Columns(2, nullptr, true);
 
     ImGui::BeginChild("DomainConsole", ImVec2(0, 0), true);
-    renderDomainConsole(domain, name);
+    renderDomainConsole(domain, capture, name);
     ImGui::EndChild();
 
     ImGui::NextColumn();
@@ -62,11 +62,11 @@ void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKey c
 }
 
 // TODO: Text input is garbage
-void ImguiHelper::renderDomainConsole(Interaction::Execution::Domain& domain, std::string const& name) {
+void ImguiHelper::renderDomainConsole(Interaction::Execution::Domain& domain, Utility::Capture& capture, std::string const& name) {
     // Console output area
     ImGui::BeginChild("ConsoleOutput", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), true);
 
-    for (const auto& [content, lineType] : domain.capture.getOutputList()){
+    for (const auto& [content, lineType] : capture.getOutputList()){
         switch (lineType) {
             case Utility::OutputLine::Type::COUT:
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f)); // white
@@ -92,12 +92,14 @@ void ImguiHelper::renderDomainConsole(Interaction::Execution::Domain& domain, st
 
     static std::unordered_map<std::string, std::string> commands;
     std::string& command = commands[name];
+    command.reserve(256); // Pre-allocate to avoid reallocations during typing
     if (ImGui::InputText("##ConsoleInput", &command, ImGuiInputTextFlags_EnterReturnsTrue)){
         if (!command.empty()){
             if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + command); err.isError()) {
-                domain.capture.error.println(err.getDescription());
+                capture.error.println(err.getDescription());
             }
         }
+        command.clear();
         ImGui::SetKeyboardFocusHere(-1);    // focus again
     }
 }

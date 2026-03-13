@@ -47,11 +47,10 @@ struct OutputLine{
  */
 template<std::ostream* /*BaseStream*/, OutputLine::Type /*LineType*/>
 class Stream {
-    Capture *parent;                                    // Main capture reference so we can lock its mutex, so cout/cerr don't interfere with each other
+    Capture* capture; // Main capture reference so we can lock its mutex, so cout/cerr don't interfere with each other
     void putStr(std::string const& str, bool const& printToConsole) const ;
 public:
-    //friend class Capture;
-    explicit Stream(Capture* p) : parent(p) {}
+    explicit Stream(Capture* c) : capture(c) {}
 
     //------------------------------------------
     // Printing helpers
@@ -157,11 +156,11 @@ void Stream<BaseStream, LineType>::putStr(std::string const& str, bool const& pr
         *BaseStream << str;
     }
 
-    std::scoped_lock const lock(parent->outputListMutex);
+    std::scoped_lock const lock(capture->outputListMutex);
     std::istringstream iss(str);
     std::string line;
     while (std::getline(iss, line)) {
-        parent->outputList.push_back({line, LineType});
+        capture->outputList.push_back({line, LineType});
     }
 }
 

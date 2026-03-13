@@ -34,15 +34,16 @@ public:
     /**
      * @brief Renders a Domains scope, name and capture in an ImGui window.
      * @details Make sure imgui is initialized and a frame is started before calling this function.
-     * @param domain The domain to render.
-     * @param scope The JSON scope to render.
+     * @param domain The domain to render and parse commands into
+     * @param capture The capture to show output from. Likely domain::capture, but passing the global capture is also possible to show all output.
+     * @param scope The JSON scope to render. Likely from the domain, but passing the global scope is also possible to show all data.
      * @param name The name of the ImGui window.
      */
-    static void renderDomain(Interaction::Execution::Domain& domain, Data::JsonScope const& scope, std::string const& name);
+    static void renderDomain(Interaction::Execution::Domain& domain, Utility::Capture& capture, Data::JsonScope const& scope, std::string const& name);
 
 private:
     static void renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKey const& root);
-    static void renderDomainConsole(Interaction::Execution::Domain& domain, std::string const& name);
+    static void renderDomainConsole(Interaction::Execution::Domain& domain, Utility::Capture& capture, std::string const& name);
 };
 
 } // namespace Nebulite::Graphics

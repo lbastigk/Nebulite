@@ -20,7 +20,7 @@ Data::JsonScope& Global::shareScopeBase(ScopeAccessor::BaseAccessToken const& at
 void Global::renderImguiGlobalSpaceWindow(){
     static auto& fullScope = globalDoc().shareManagedScopeBase("");
     //Graphics::ImguiHelper::renderJsonScope(fullScope, "GlobalSpace");
-    Graphics::ImguiHelper::renderDomain(instance(), fullScope, "GlobalSpace Domain");
+    Graphics::ImguiHelper::renderDomain(instance(), capture(), fullScope, "GlobalSpace Domain");
 }
 
 //------------------------------------------
