@@ -22,9 +22,5 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/Tests/Ruleset/globalRulesets.nebs
-
-# Test if renderobject to capture output is logged only once
-spawn ./Resources/Renderobjects/Debug/debug_tester.jsonc
-#wait 30
-#exit
+set settings.n 10
+task TaskFiles/Benchmarks/gravity_XL.nebs

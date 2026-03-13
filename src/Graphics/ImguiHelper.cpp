@@ -21,10 +21,11 @@ void ImguiHelper::renderJsonScope(Data::JsonScope const& scope, std::string cons
 
 // TODO: Provide a rolling id to domain class for this to work properly. For now we just use the provided name
 void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::Capture& capture, Data::JsonScope const& scope, std::string const& name) {
-    ImGui::Begin(name.c_str());
+    std::string const windowName = "Nebulite Domain Interface - " + name + "###DomainViewer_" + std::to_string(domain.getId());
+    ImGui::Begin(windowName.c_str());
     ImGui::Columns(2, nullptr, true);
 
-    ImGui::BeginChild("DomainConsole", ImVec2(0, 0), true);
+    ImGui::BeginChild("DomainConsole", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
     renderDomainConsole(domain, capture, name);
     ImGui::EndChild();
 
@@ -65,6 +66,7 @@ void ImguiHelper::renderDomainConsole(Interaction::Execution::Domain& domain, Ut
     // Console output area
     ImGui::BeginChild("ConsoleOutput", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), true);
 
+    ImGui::PushTextWrapPos(0.0f); // wrap at window/child width
     for (const auto& [content, lineType] : capture.getOutputList()){
         switch (lineType) {
             case Utility::OutputLine::Type::COUT:
@@ -77,8 +79,9 @@ void ImguiHelper::renderDomainConsole(Interaction::Execution::Domain& domain, Ut
                 std::unreachable();
         }
         ImGui::TextUnformatted(content.c_str());
-        ImGui::PopStyleColor();   // <-- required
+        ImGui::PopStyleColor();
     }
+    ImGui::PopTextWrapPos();
 
     // Auto-scroll
     if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())

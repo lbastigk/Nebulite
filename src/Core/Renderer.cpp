@@ -160,8 +160,8 @@ void Renderer::initImgui() const {
     font_cfg.OversampleV = 1;
     font_cfg.PixelSnapH  = true;
 
-    // Adjust the base font size to match pixel aesthetics (choose your font file & size)
-    std::string const pixelFontPath = "./Resources/Fonts/Arimo-Bold.ttf"; // TODO: Use a pixel font
+    // Adjust the base font size to match pixel aesthetics (choose your font file & size)e
+    std::string const pixelFontPath = "./Resources/Fonts/JetBrainsMono-Regular.ttf"; // TODO: Use a pixel font
     if (Utility::FileManagement::fileExists(pixelFontPath)) {
         if (ImFont* f = io.Fonts->AddFontFromFileTTF(pixelFontPath.c_str(), 40.0f * fullScale, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) io.FontDefault = f;
         else io.Fonts->AddFontDefault();
