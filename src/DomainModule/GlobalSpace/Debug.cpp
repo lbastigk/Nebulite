@@ -134,7 +134,7 @@ Constants::Error Debug::log_state(int const argc, char** argv) const {
 }
 
 Constants::Error Debug::standardFileRenderObject(std::span<std::string const> const& /*args*/) const {
-    Core::RenderObject const ro(domain.capture());
+    Core::RenderObject const ro(domain.capture);
     Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize());
     return Constants::ErrorTable::NONE();
 }
@@ -150,7 +150,7 @@ Constants::Error Debug::errorLog(std::span<std::string const> const& args, Inter
         if (args[1] == "on") {
             if (!errorLogStatus) {
                 if (!safe_open_log(errorFile)) {
-                    caller.capture().error.println("Refusing to open log file: '", logFilename, "' is a symlink or could not be opened.");
+                    caller.capture.error.println("Refusing to open log file: '", logFilename, "' is a symlink or could not be opened.");
                     return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
                 }
                 originalCerrBuf = std::cerr.rdbuf();
@@ -206,7 +206,7 @@ inline void clear_screen() {
 
 Constants::Error Debug::clearConsole(std::span<std::string const> const& /*args*/) const {
     clear_screen();
-    domain.capture().clear();
+    domain.capture.clear();
     return Constants::ErrorTable::NONE();
 }
 
@@ -227,8 +227,8 @@ Constants::Error Debug::crash(std::span<std::string const> const& args, Interact
             // Throw an uncaught exception
             throw std::runtime_error("Intentional crash: uncaught exception");
         } else {
-            caller.capture().error.println("Unknown crash type requested: ", crashType);
-            caller.capture().error.println("Defaulting to segmentation fault");
+            caller.capture.error.println("Unknown crash type requested: ", crashType);
+            caller.capture.error.println("Defaulting to segmentation fault");
         }
     } else {
         // Default: segmentation fault
@@ -241,7 +241,7 @@ Constants::Error Debug::crash(std::span<std::string const> const& args, Interact
 // NOLINTNEXTLINE
 Constants::Error Debug::error(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
     auto const& argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    caller.capture().error.println(argStr);
+    caller.capture.error.println(argStr);
     return Constants::ErrorTable::NONE();
 }
 
@@ -272,7 +272,7 @@ Constants::Error Debug::waitForInput(std::span<std::string const> const& args, I
         // Use the provided prompt as message
         message = args[1];
     }
-    caller.capture().log.println(message);
+    caller.capture.log.println(message);
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return Constants::ErrorTable::NONE();
 }

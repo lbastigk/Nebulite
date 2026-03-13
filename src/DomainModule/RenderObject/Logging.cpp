@@ -21,7 +21,7 @@ Constants::Error Logging::update() {
 // NOLINTNEXTLINE
 Constants::Error Logging::echo(std::span<std::string const> const& args) const {
     std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    domain.capture().log.println(argStr);
+    domain.capture.log.println(argStr);
     return Constants::ErrorTable::NONE();
 }
 

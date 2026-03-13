@@ -18,7 +18,7 @@ void Console::keyTriggerSubmit() {
         // Parse command on global level for full access to all functions
         if (auto const err = Global::instance().parseStr(std::string(__FUNCTION__) + " " + command); err != Constants::ErrorTable::NONE()) {
             // Cannot escalate error further, print to cerr
-            domain.capture().error.println(err.getDescription());
+            domain.capture.error.println(err.getDescription());
         }
     }
     outputScrollingOffset = 0; // Reset scrolling to bottom on new input
@@ -41,7 +41,7 @@ void Console::keyTriggerZoomIn() const {
     if (!(SDL_GetModState() & SDL_KMOD_CTRL))
         return;
     if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " in"); err != Constants::ErrorTable::NONE()) {
-        domain.capture().error.println("Error: Failed to zoom into console: ", err.getDescription());
+        domain.capture.error.println("Error: Failed to zoom into console: ", err.getDescription());
     }
 }
 
@@ -50,7 +50,7 @@ void Console::keyTriggerZoomOut() const {
     if (!(SDL_GetModState() & SDL_KMOD_CTRL))
         return;
     if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + std::string(consoleZoom_name) + " out"); err != Constants::ErrorTable::NONE()) {
-        domain.capture().error.println("Error: Failed to zoom out console: ", err.getDescription());
+        domain.capture.error.println("Error: Failed to zoom out console: ", err.getDescription());
     }
 }
 
@@ -180,7 +180,7 @@ void Console::processMode() {
 
         // Check if texture is valid
         if (!consoleTexture.texture_ptr) {
-            domain.capture().error.println("Could not attach Console: Console texture is null!");
+            domain.capture.error.println("Could not attach Console: Console texture is null!");
             return;
         }
 

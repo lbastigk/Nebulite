@@ -31,12 +31,12 @@ DocumentAccessor::~DocumentAccessor() = default;
 namespace Nebulite::Interaction::Execution {
 
 // NOLINTNEXTLINE
-Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Capture& parentCapture) : DocumentAccessor(documentReference), domainName(name), domainCapture(&parentCapture) {
+Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Capture& parentCapture) : DocumentAccessor(documentReference), domainName(name), capture(&parentCapture) {
     funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
         name,
         Constants::ErrorTable::NONE(),
         Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(),
-        domainCapture
+        capture
     );
 
     // Set default preParse to Domain::preParse
@@ -46,12 +46,12 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Util
     Nebulite::DomainModule::Initializer::initCommon(this);
 }
 
-Domain::Domain(std::string const& name, Utility::Capture& parentCapture) : domainName(name), domainCapture(&parentCapture) {
+Domain::Domain(std::string const& name, Utility::Capture& parentCapture) : domainName(name), capture(&parentCapture) {
     funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
         name,
         Constants::ErrorTable::NONE(),
         Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(),
-        domainCapture
+        capture
     );
 
     // Set default preParse to Domain::preParse
@@ -163,7 +163,7 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
         }
         // Forward to FunctionTree for resolution
         if (parseStr(callStr) != Constants::ErrorTable::NONE()) {
-            capture().error.println("Failed to apply deserialize transformation: ", callStr);
+            capture.error.println("Failed to apply deserialize transformation: ", callStr);
         }
     }
 }

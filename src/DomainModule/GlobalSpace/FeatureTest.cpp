@@ -31,7 +31,7 @@ public:
 
 Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& /*args*/) const {
     // Build a FuncTree with extra argument JSON&
-    Interaction::Execution::FuncTree<double, double> testTree("TestFuncTree", 0.0, std::numeric_limits<double>::quiet_NaN(), domain.capture());
+    Interaction::Execution::FuncTree<double, double> testTree("TestFuncTree", 0.0, std::numeric_limits<double>::quiet_NaN(), domain.capture);
 
     std::string_view constexpr addName = "add";
     std::string_view constexpr addDesc = "Adds all provided numbers to the input number.\nUsage: <name> add num1 num2 ... numN";
@@ -42,7 +42,7 @@ Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& /
     // Call the function
     std::string const funcCall = "<name> add 1.5 2.5 3.0";
     double const result = testTree.parseStr(funcCall, 0.0);
-    domain.capture().log.println("FuncTree result for call '", funcCall, "': ", result);
+    domain.capture.log.println("FuncTree result for call '", funcCall, "': ", result);
     return Constants::ErrorTable::NONE();
 }
 
@@ -59,7 +59,7 @@ Constants::Error FeatureTest::selfOtherGlobalEvaluation() const {
         Data::JsonScope other1;
         other1.set(key, 2);
         Interaction::Logic::Expression const expr("{self.testKey} {other.testKey} {global.testKey}");
-        domain.capture().log.println(expr.eval({self1, other1, globalScope}));
+        domain.capture.log.println(expr.eval({self1, other1, globalScope}));
     }
 
     // Test 2: share managed scopeBase
@@ -70,7 +70,7 @@ Constants::Error FeatureTest::selfOtherGlobalEvaluation() const {
         self2.set(key, 5);
         other2.set(key, 4);
         Interaction::Logic::Expression const expr("{self.testKey} {other.testKey} {global.testKey}");
-        domain.capture().log.println(expr.eval({self2, other2, globalScope}));
+        domain.capture.log.println(expr.eval({self2, other2, globalScope}));
     }
     return Constants::ErrorTable::NONE();
 }

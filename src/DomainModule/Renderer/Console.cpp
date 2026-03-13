@@ -29,7 +29,7 @@ Constants::Error Console::update() {
     //------------------------------------------
     // Insert new lines from capture streams
     static size_t last_size = 0;
-    size_t const current_size = Global::capture().getOutputLog().size();
+    size_t const current_size = Global::capture().getOutputList().size();
     if (current_size < last_size) {
         // Log was cleared, reset
         last_size = 0;
@@ -38,7 +38,7 @@ Constants::Error Console::update() {
     }
     for (size_t i = last_size; i < current_size; i++) {
         // Split input line by newlines
-        auto const& [lineContent, lineType] = Global::capture().getOutputLog().at(i);
+        auto const& [lineContent, lineType] = Global::capture().getOutputList().at(i);
         auto const& lines = Utility::StringHandler::split(lineContent, '\n');
 
         // Insert into text input
@@ -341,7 +341,7 @@ void Console::renderConsole() {
 
     // Ensure console texture is valid
     if (!ensureConsoleTexture()) {
-        domain.capture().error.println("SDL_CreateTexture failed: ", SDL_GetError());
+        domain.capture.error.println("SDL_CreateTexture failed: ", SDL_GetError());
         return;
     }
 
@@ -408,7 +408,7 @@ void Console::init() {
     // Use a monospaced font for better alignment
     consoleFont = TTF_OpenFont(consoleFontPath.c_str(), consoleLayout.FONT_MAX_SIZE);
     if (!consoleFont) {
-        domain.capture().error.println("TTF_OpenFont failed for font: ", consoleFontPath);
+        domain.capture.error.println("TTF_OpenFont failed for font: ", consoleFontPath);
         return;
     }
 
@@ -531,7 +531,7 @@ void Console::processAutotypeQueue() {
                 try {
                     autoType.waitTimeRemaining = std::stoul(text);
                 } catch (std::exception const&) {
-                    domain.capture().error.println("Invalid wait time in autoType command: ", text);
+                    domain.capture.error.println("Invalid wait time in autoType command: ", text);
                 }
                 break;
             case AutoType::Command::Type::HISTORY_UP:

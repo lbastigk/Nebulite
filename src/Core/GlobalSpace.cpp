@@ -14,20 +14,17 @@ GlobalSpace::GlobalSpace(std::string const& name, Utility::Capture& parentCaptur
     renderer(
         Global::shareScopeBase(ScopeAccessor::Full(), "renderer"),
         &cmdVars.headless,
-        domainCapture
+        capture
     ) // Share only the renderer portion of the global document
 {
     //------------------------------------------
     // Initialize floating DomainModules
-
     floatingDM.rng = createModule<GlobalSpace, DomainModule::GlobalSpace::RNG>(
         "RNG",
         Global::settings(),
         *this,
         getFuncTree()
     );
-
-
 
     //------------------------------------------
     // There should only be one GlobalSpace

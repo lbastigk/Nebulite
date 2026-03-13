@@ -41,14 +41,14 @@ Constants::Error General::spawn(int const argc, char** argv) const {
         std::string const linkOrObject = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
 
         // Create object with link to globalspace
-        auto* ro = new Core::RenderObject(domain.capture());
+        auto* ro = new Core::RenderObject(domain.capture);
         ro->deserialize(linkOrObject);
 
         // Append to renderer
         // Renderer manages the RenderObjects lifetime
         domain.append(ro);
     } else {
-        domain.capture().error.println("No RenderObject name provided!");
+        domain.capture.error.println("No RenderObject name provided!");
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     return Constants::ErrorTable::NONE();

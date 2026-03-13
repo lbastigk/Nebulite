@@ -73,7 +73,7 @@ void Environment::deserialize(std::string const& serialOrLink, uint16_t const& d
             std::string str = layer.serialize();
 
             // Serialize container layer
-            roc[i].deserialize(str, dispResX, dispResY, domainCapture);
+            roc[i].deserialize(str, dispResX, dispResY, capture);
         }
     }
     reinitModules();

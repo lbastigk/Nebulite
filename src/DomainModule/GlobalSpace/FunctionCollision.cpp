@@ -36,7 +36,7 @@ Constants::Error FunctionCollision::debug_collisionDetect_function(std::span<std
         }
     }
 
-    Interaction::Execution::FuncTree<bool,bool const&> testTree("Test",true,true, domain.capture());
+    Interaction::Execution::FuncTree<bool,bool const&> testTree("Test",true,true, domain.capture);
 
     if (fail) {
         // This will fail, as the function name is already registered
@@ -72,7 +72,7 @@ Constants::Error FunctionCollision::debug_collisionDetect_category(std::span<std
         }
     }
 
-    Interaction::Execution::FuncTree<bool,bool const&> testTree("Test",true,true, domain.capture());
+    Interaction::Execution::FuncTree<bool,bool const&> testTree("Test",true,true, domain.capture);
 
     if (fail) {
         // This will fail, as the category name is already registered
@@ -115,7 +115,7 @@ Constants::Error FunctionCollision::debug_collisionDetect_variable(std::span<std
         }
     }
 
-    Interaction::Execution::FuncTree<bool,bool> testTree("Test",true,true, domain.capture());
+    Interaction::Execution::FuncTree<bool,bool> testTree("Test",true,true, domain.capture);
     static bool headless = false;
     const static std::string headless_var_desc = "Indicates whether the application is running in headless mode (without GUI).";
 

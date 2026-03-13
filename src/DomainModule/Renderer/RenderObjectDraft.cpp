@@ -15,22 +15,22 @@ Constants::Error RenderObjectDraft::draft_parse(std::span<std::string const> con
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     std::string const command = Utility::StringHandler::recombineArgs(args.subspan(1));
-    return draft.get(domain.capture())->parseStr(__FUNCTION__ + std::string(" ") + command);
+    return draft.get(domain.capture)->parseStr(__FUNCTION__ + std::string(" ") + command);
 }
 
 Constants::Error RenderObjectDraft::draft_spawn() {
     // Make a copy of the draft's serialized data
     // Create a new RenderObject on the heap and append it to the renderer
-    std::string const serial = draft.get(domain.capture())->serialize();
-    auto* newObj = new Core::RenderObject(domain.capture());
+    std::string const serial = draft.get(domain.capture)->serialize();
+    auto* newObj = new Core::RenderObject(domain.capture);
     newObj->deserialize(serial);
     domain.append(newObj);
     return Constants::ErrorTable::NONE();
 }
 
 Constants::Error RenderObjectDraft::draft_reset() {
-    Core::RenderObject const newDraft(domain.capture());
-    draft.get(domain.capture())->deserialize(newDraft.serialize());
+    Core::RenderObject const newDraft(domain.capture);
+    draft.get(domain.capture)->deserialize(newDraft.serialize());
     return Constants::ErrorTable::NONE();
 }
 

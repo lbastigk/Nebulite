@@ -377,13 +377,9 @@ public:
      */
     [[nodiscard]] std::unique_lock<std::recursive_mutex> lockDocument() const ;
 
-    /**
-     * @brief Provides access to the domain's capture
-     */
-    [[nodiscard]] Utility::Capture& capture() { return domainCapture; }
-
+    // Stream for collecting any output during command execution, which can be used for debugging or logging purposes.
+    Utility::Capture capture;
 protected:
-    Utility::Capture domainCapture;
 
     /**
      * @brief Offers access to the internal FuncTree for function binding.
