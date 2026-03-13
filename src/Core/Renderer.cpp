@@ -304,12 +304,15 @@ void Renderer::deserialize(std::string const& serialOrLink) noexcept {
 //------------------------------------------
 // Pipeline
 
-void Renderer::renderInit() const {
+void Renderer::renderInit() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
     SDL_RenderClear(renderer);
-    ImGui_ImplSDLRenderer3_NewFrame();
-    ImGui_ImplSDL3_NewFrame();
-    ImGui::NewFrame();
+    if (!status.firstFrameRendered) {
+        ImGui_ImplSDLRenderer3_NewFrame();
+        ImGui_ImplSDL3_NewFrame();
+        ImGui::NewFrame();
+        status.firstFrameRendered = true;
+    }
 }
 
 void Renderer::renderFPS() const {
@@ -357,7 +360,7 @@ void Renderer::render() {
     }
 
     // Rendering
-    renderInit(); // Starts frame for SDL3, Imgui, etc.
+    renderInit();
     renderFrame();
     status.skippedUpdateLastFrame = status.skipUpdate;
     status.skipUpdate = false;
@@ -367,6 +370,11 @@ void Renderer::render() {
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
     SDL_RenderPresent(renderer);
+
+    // Start new imgui frame instantly, so that modules can render to it
+    ImGui_ImplSDLRenderer3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
+    ImGui::NewFrame();
 }
 
 Constants::Error Renderer::update() {

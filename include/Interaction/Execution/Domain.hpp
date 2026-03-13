@@ -247,6 +247,11 @@ public:
     /**
      * @brief Updates the domain.
      *        On overwriting, make sure to update all subdomains and DomainModules as well.
+     * @todo refactor to non-virtual update and a virtual updateImpl, which is called by update
+     *       Inside update, check what's possible:
+     *       - updating modules
+     *       - passing domain id to scope (at least once, maybe as a routine)
+     *       - update all timed routines
      */
     virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
 
@@ -305,7 +310,9 @@ public:
     template <typename DomainType, typename DomainModuleType>
     void initModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference) {
         if constexpr(std::is_same_v<DomainType, Domain>) {
-            // If the DomainType is the base Domain class, we initialize modules without scope
+            // If the DomainType is the base Domain class, we must initialize modules without scope
+            static_assert(!HasKeyGroup<DomainModuleType>, "DomainModules linked to the base Domain class cannot have a scope. Please remove the static Key::scope member from the module.");
+
             auto& scope = domainReference.domainScope.shareDummyScopeBase();
             auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, funcTree, scope, settings);
             DomainModule->reinit();

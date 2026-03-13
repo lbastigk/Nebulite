@@ -11,6 +11,7 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
+#include "Data/Document/KeyGroup.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -25,6 +26,12 @@ public:
 
     //------------------------------------------
     // Available Functions
+
+    Constants::Error imguiView(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    static auto constexpr imguiView_name = "imgui-view";
+    static auto constexpr imguiView_desc = "Creates an ImGui view of the domain.\n"
+       "\n"
+       "Usage: imgui-view <on/off>\n";
 
     static Constants::Error eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr eval_name = "eval";
@@ -133,6 +140,7 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Interaction::Execution::Domain, General) {
         // Binding
+        BIND_FUNCTION(&General::imguiView, imguiView_name, imguiView_desc);
         BIND_FUNCTION(&General::eval, eval_name, eval_desc);
 
         BIND_FUNCTION(&General::func_for, func_for_name, func_for_desc);
@@ -144,7 +152,11 @@ public:
     }
 
 private:
-    absl::flat_hash_map<std::string, std::string> forced_global_values; // Key-Value pairs to set in global JSON
+    bool imguiViewEnabled = false;
+
+    // Store addresses of who called the last imgui-view command, so we can pass them to the imgui view later on
+    // Due to design constraints, a Common DomainModule cannot have a scope...
+    Data::JsonScope* lastImguiCallerScope = nullptr;
 };
 } // namespace Nebulite::DomainModule::Common
 #endif // NEBULITE_DOMAIN_MODULE_COMMON_GENERAL_HPP

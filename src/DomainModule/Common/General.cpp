@@ -1,9 +1,32 @@
 #include "DomainModule/Common/General.hpp"
+#include "Graphics/ImguiHelper.hpp"
 #include "Nebulite.hpp"
 
 namespace Nebulite::DomainModule::Common {
 
 Constants::Error General::update() {
+    if (imguiViewEnabled) {
+        Graphics::ImguiHelper::renderDomain(domain, domain.capture, *lastImguiCallerScope, domain.getName());
+    }
+    return Constants::ErrorTable::NONE();
+}
+
+Constants::Error General::imguiView(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScope& callerScope) {
+    if (args.size() < 2) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    }
+    if (args.size() > 2) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+    }
+
+    lastImguiCallerScope = &callerScope; // Store caller scope for use in imgui view
+    if (args[1] == "on") {
+        imguiViewEnabled = true;
+    } else if (args[1] == "off") {
+        imguiViewEnabled = false;
+    } else {
+        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+    }
     return Constants::ErrorTable::NONE();
 }
 
