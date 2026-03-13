@@ -350,10 +350,15 @@ void Renderer::pollEvents() {
 }
 
 void Renderer::render() {
-    // Core rendering pipeline
-    renderInit();
-    renderFrame();
+    // Event processing before rendering
     pollEvents();
+    for (auto const& event : events) {
+        ImGui_ImplSDL3_ProcessEvent(&event);
+    }
+
+    // Rendering
+    renderInit(); // Starts frame for SDL3, Imgui, etc.
+    renderFrame();
     status.skippedUpdateLastFrame = status.skipUpdate;
     status.skipUpdate = false;
     updateModules(); // Update domain modules, potentially adding ImGui elements
@@ -362,9 +367,6 @@ void Renderer::render() {
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
     SDL_RenderPresent(renderer);
-    for (auto const& event : events) { // TODO: Move to update perhaps?
-        ImGui_ImplSDL3_ProcessEvent(&event);
-    }
 }
 
 Constants::Error Renderer::update() {

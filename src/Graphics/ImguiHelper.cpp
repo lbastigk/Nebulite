@@ -61,7 +61,6 @@ void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKey c
     }
 }
 
-// TODO: Text input is garbage
 void ImguiHelper::renderDomainConsole(Interaction::Execution::Domain& domain, Utility::Capture& capture, std::string const& name) {
     // Console output area
     ImGui::BeginChild("ConsoleOutput", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), true);
