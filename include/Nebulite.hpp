@@ -203,8 +203,7 @@ public:
      * @return Reference to the global capture instance.
      */
     static Utility::Capture& capture() {
-        static Utility::Capture captureInstance(Utility::Capture::noParent);
-        return captureInstance;
+        return instance().capture;
     }
 
 private:

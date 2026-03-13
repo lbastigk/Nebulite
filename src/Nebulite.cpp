@@ -4,7 +4,7 @@
 namespace Nebulite {
 
 Core::GlobalSpace& Global::instance(){
-    static Core::GlobalSpace instance{"Nebulite", capture()}; // Pass the global capture to the GlobalSpace constructor
+    static Core::GlobalSpace instance{"Nebulite"}; // Pass the global capture to the GlobalSpace constructor
     return instance;
 }
 
@@ -18,9 +18,9 @@ Data::JsonScope& Global::shareScopeBase(ScopeAccessor::BaseAccessToken const& at
 }
 
 void Global::renderImguiGlobalSpaceWindow(){
-    static auto& fullScope = globalDoc().shareManagedScopeBase("");
-    //Graphics::ImguiHelper::renderJsonScope(fullScope, "GlobalSpace");
-    Graphics::ImguiHelper::renderDomain(instance(), capture(), fullScope, "GlobalSpace");
+    if (auto const result = instance().parseStr(__FUNCTION__ + std::string(" ") + "imgui-view on"); result.isError()) {
+        capture().error.println("Error enabling ImGui view for GlobalSpace: " + std::string(result.getDescription()));
+    }
 }
 
 //------------------------------------------

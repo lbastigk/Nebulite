@@ -9,8 +9,8 @@
 //------------------------------------------
 namespace Nebulite::Core {
 
-GlobalSpace::GlobalSpace(std::string const& name, Utility::Capture& parentCapture) :
-    Domain("Nebulite", Global::shareScopeBase(ScopeAccessor::Full(), ""), parentCapture), // Domain with reference to GlobalSpace and its full scope
+GlobalSpace::GlobalSpace(std::string const& name) :
+    Domain("GlobalSpace", Global::shareScopeBase(ScopeAccessor::Full(), "")), // Domain with reference to GlobalSpace and its full scope
     renderer(
         Global::shareScopeBase(ScopeAccessor::Full(), "renderer"),
         &cmdVars.headless,

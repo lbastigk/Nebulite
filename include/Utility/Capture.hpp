@@ -89,6 +89,10 @@ public:
     explicit HierarchicalStream(Capture* cap, HierarchicalStream* par = nullptr)
         : coutStream(cap), parent(par) {}
 
+    bool hasParent() const {
+        return parent != nullptr;
+    }
+
     template<typename... Args>
     void print(Args&&... args){
         if (parent) {
@@ -143,6 +147,11 @@ public:
      */
     void clear(){
         outputList.clear();
+    }
+
+    bool hasParent() const {
+        // Doesn't matter what stream we check
+        return log.hasParent();
     }
 
 private:

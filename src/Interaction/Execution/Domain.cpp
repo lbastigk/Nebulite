@@ -59,6 +59,34 @@ Domain::Domain(std::string const& name, Utility::Capture& parentCapture) : domai
     Nebulite::DomainModule::Initializer::initCommon(this);
 }
 
+Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : DocumentAccessor(documentReference), domainName(name), capture(nullptr) {
+    // FuncTree initialization
+    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
+        name,
+        Constants::ErrorTable::NONE(),
+        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(),
+        capture
+    );
+    funcTree->setPreParse([this] { return preParse(); });
+
+    // Initialize modules
+    Nebulite::DomainModule::Initializer::initCommon(this);
+}
+
+Domain::Domain(std::string const& name) : domainName(name), capture(nullptr) {
+    // FuncTree initialization
+    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
+        name,
+        Constants::ErrorTable::NONE(),
+        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(),
+        capture
+    );
+    funcTree->setPreParse([this] { return preParse(); });
+
+    // Initialize modules
+    Nebulite::DomainModule::Initializer::initCommon(this);
+}
+
 Domain::~Domain() = default;
 
 std::string const& Domain::scopePrefix() const {

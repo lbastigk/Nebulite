@@ -24,10 +24,6 @@ echo "Starting debug.nebs"
 
 set settings.n 10
 task TaskFiles/Benchmarks/gravity_XL_unlimited.nebs
+wait 1
 
-wait 10
-selected-object get 10
-selected-object parse imgui-view on
-
-wait 10
-draft parse imgui-view on
+imgui-view on

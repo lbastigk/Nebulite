@@ -203,6 +203,10 @@ public:
 
     explicit Domain(std::string const& name, Utility::Capture& parentCapture);
 
+    Domain(std::string const& name, Data::JsonScope& documentReference);
+
+    explicit Domain(std::string const& name);
+
     ~Domain() override ;
 
     //------------------------------------------
