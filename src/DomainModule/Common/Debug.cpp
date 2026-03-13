@@ -41,6 +41,11 @@ Constants::Error Debug::print(std::span<std::string const> const& args, Interact
     return Constants::ErrorTable::NONE();
 }
 
+Constants::Error Debug::printId(std::span<std::string const> const& /*args*/, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
+    caller.capture.log.println(caller.getId());
+    return Constants::ErrorTable::NONE();
+}
+
 Constants::Error Debug::error(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
     auto const& argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
     caller.capture.error.println(argStr);

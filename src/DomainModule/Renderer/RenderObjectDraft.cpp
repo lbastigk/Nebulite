@@ -4,9 +4,7 @@
 namespace Nebulite::DomainModule::Renderer {
 
 Constants::Error RenderObjectDraft::update() {
-    // Add Domain-specific updates here!
-    // General rule:
-    // This is used to update all variables/states that are INTERNAL ONLY
+    draft.get(domain.capture)->update();
     return Constants::ErrorTable::NONE();
 }
 

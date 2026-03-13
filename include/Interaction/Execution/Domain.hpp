@@ -214,6 +214,13 @@ public:
     Domain& operator=(Domain&& other) = delete;
 
     //------------------------------------------
+    // Set new name
+
+    void setName(std::string const& newName) {
+        domainName = newName;
+    }
+
+    //------------------------------------------
     // Get Document prefix
 
     [[nodiscard]] std::string const& scopePrefix() const ;
@@ -252,6 +259,7 @@ public:
      *       - updating modules
      *       - passing domain id to scope (at least once, maybe as a routine)
      *       - update all timed routines
+     *       Requires some modifications of GlobalSpace::update(), directly calling updateModules there might be an issue.
      */
     virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
 

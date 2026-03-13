@@ -113,6 +113,7 @@ private:
         std::unique_ptr<Core::RenderObject>& get(Utility::Capture& capture) {
             if (!ptr) {
                 ptr = std::make_unique<Core::RenderObject>(capture);
+                ptr->setName("Draft Object");
             }
             return ptr;
         }

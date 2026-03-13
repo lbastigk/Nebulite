@@ -33,6 +33,11 @@ public:
         "\n"
         "Usage: print [key]\n";
 
+    static Constants::Error printId(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    static auto constexpr printId_name = "print-id";
+    static auto constexpr printId_desc = "Prints the unique ID of the domain to the console for debugging purposes.\n"
+       "Usage: print-id\n";
+
     static Constants::Error error(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr error_name = "error";
     static auto constexpr error_desc = "Echoes all arguments as string to the standard error.\n"
@@ -63,6 +68,7 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Interaction::Execution::Domain, Debug) {
         // Binding
         BIND_FUNCTION(&Debug::print, print_name, print_desc);
+        BIND_FUNCTION(&Debug::printId, printId_name, printId_desc);
         BIND_FUNCTION(&Debug::error, error_name, error_desc);
         BIND_FUNCTION(&Debug::warn, warn_name, warn_desc);
         BIND_FUNCTION(&Debug::critical, critical_name, critical_desc);
