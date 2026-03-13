@@ -75,7 +75,7 @@ struct KeyNames {
      * @details No scope! As Domains may be inside other Domains, the scope is arbitrary.
      */
     struct Domain : Data::KeyGroup<Data::ScopedKey::noScope> {
-        static auto constexpr id = makeScoped("id"); // TODO: Use this instead of RenderObject id
+        //static auto constexpr id = makeScoped("id");
     };
 
     /**
@@ -108,7 +108,6 @@ struct KeyNames {
      *       e.g. In GlobalSpace for drafts, or in RenderObjects for child objects
      */
     struct RenderObject : Data::KeyGroup<""> {
-        static auto constexpr id = makeScoped("id"); // TODO: Make this part of Domain itself!
         static auto constexpr positionX = makeScoped("posX");
         static auto constexpr positionY = makeScoped("posY");
         static auto constexpr layer = makeScoped("layer");
@@ -120,7 +119,7 @@ struct KeyNames {
 
         // Keys for Ruleset invocations and subscriptions
         // TODO flatten into RenderObject once RenderObject has no scope, turn keys into "ruleset.list" and "ruleset.listen"
-        struct Ruleset : Data::KeyGroup<"ruleset."> {
+        struct Ruleset : KeyGroup<"ruleset."> {
             static auto constexpr list = makeScoped("list");
             static auto constexpr listen = makeScoped("listen");
         };

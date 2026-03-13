@@ -35,7 +35,7 @@ Invoke::~Invoke() {
 
 void Invoke::broadcast(std::shared_ptr<Rules::Ruleset> const& entry) const {
     // Thread assignment based on entry owner ID
-    uint32_t const threadIndex = entry->getId() % activeWorkerCount;
+    size_t const threadIndex = entry->getId() % activeWorkerCount;
     worker[threadIndex]->broadcast(entry);
 }
 

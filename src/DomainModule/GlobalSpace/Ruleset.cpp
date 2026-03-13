@@ -35,9 +35,7 @@ Constants::Error Ruleset::listen(std::span<std::string const> const& args) const
     if (args.size() > 2) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
     }
-    // TODO: Is Listener ID zero properly reserved for GlobalSpace?
-    //       create a proper static object id handler with an enum for reserved ids?
-    auto const listener = make_shared<Interaction::Rules::Listener>(domain, args[1], 0);
+    auto const listener = make_shared<Interaction::Rules::Listener>(domain, args[1]);
     domain.listen(listener);
     return Constants::ErrorTable::FUNCTIONAL::FEATURE_NOT_IMPLEMENTED();
 }

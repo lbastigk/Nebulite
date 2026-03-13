@@ -189,6 +189,15 @@ class Domain : public DocumentAccessor {
      */
     std::vector<std::unique_ptr<DomainModuleBase>> modules;
 
+    static size_t idGenerator() {
+        static std::atomic<size_t> idCounter{0};
+        idCounter.fetch_add(1, std::memory_order_relaxed);
+        size_t const id = idCounter.load(std::memory_order_relaxed) - 1; // Get the current value before incrementing
+        return id;
+    }
+
+    size_t id = idGenerator(); // Unique ID for the domain, used for ordered cache lists and other purposes
+
 public:
     Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Capture& parentCapture);
 
@@ -209,7 +218,6 @@ public:
 
     [[nodiscard]] std::string const& scopePrefix() const ;
 
-
     //------------------------------------------
     // Binding, initializing and inheriting
 
@@ -227,6 +235,10 @@ public:
         if (toInheritFrom != nullptr) {
             funcTree->inherit(toInheritFrom->funcTree);
         }
+    }
+
+    [[nodiscard]] size_t const& getId() const {
+        return id;
     }
 
     //------------------------------------------
@@ -379,8 +391,8 @@ public:
 
     // Stream for collecting any output during command execution, which can be used for debugging or logging purposes.
     Utility::Capture capture;
-protected:
 
+protected:
     /**
      * @brief Offers access to the internal FuncTree for function binding.
      *        Marked as protected, as it's only used to initialize DomainModules.

@@ -14,7 +14,6 @@
 // External
 
 // Nebulite
-#include "Constants/KeyNames.hpp"
 #include "Interaction/Rules/RulesetModule.hpp"
 
 //------------------------------------------
@@ -59,11 +58,11 @@ private:
     static constexpr std::string_view moduleName = "::debug";
 
     const std::vector<Data::ScopedKeyView> baseKeys = {
-        Constants::KeyNames::RenderObject::id
+        // No keys required
     };
 
     enum class Key : size_t {
-        id
+        // No keys required
     };
 };
 } // namespace Nebulite::RulesetModule

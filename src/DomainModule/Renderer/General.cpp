@@ -169,8 +169,8 @@ Constants::Error General::selectedObject_get(int const argc, char** argv){
     }
 
     // Supports only uint32_t ids
-    uint32_t const id = static_cast<uint32_t>(std::stoul(argv[1]));
-    if (Core::RenderObject* obj = domain.getObjectFromId(id); obj) {
+    size_t const idx = std::stoul(argv[1]);
+    if (Core::RenderObject* obj = domain.getObjectFromIndex(idx); obj) {
         selectedRenderObject = obj;
         return Constants::ErrorTable::NONE();
     }

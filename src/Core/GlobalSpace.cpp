@@ -18,6 +18,12 @@ GlobalSpace::GlobalSpace(std::string const& name, Utility::Capture& parentCaptur
     ) // Share only the renderer portion of the global document
 {
     //------------------------------------------
+    // Ensure GlobalSpace id is zero
+    if (getId() != 0) {
+        throw std::runtime_error("GlobalSpace must have an id of zero! Current id: " + std::to_string(getId()));
+    }
+
+    //------------------------------------------
     // Initialize floating DomainModules
     floatingDM.rng = createModule<GlobalSpace, DomainModule::GlobalSpace::RNG>(
         "RNG",

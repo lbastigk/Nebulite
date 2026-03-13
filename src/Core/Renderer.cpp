@@ -409,9 +409,9 @@ bool Renderer::timeToRender() {
 }
 
 void Renderer::append(RenderObject* toAppend) {
-    // Set ID
-    toAppend->domainScope.set<uint32_t>(Constants::KeyNames::RenderObject::id, renderObjectIdCounter);
-    renderObjectIdCounter++;
+    // Add domain id to map
+    indexToIdMap[indexCounter] = toAppend->getId();
+    indexCounter++;
 
     //Append to environment, based on layer
     env.append(

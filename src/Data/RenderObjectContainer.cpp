@@ -203,12 +203,12 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
     reinsertionProcess.queue.clear();
 }
 
-Core::RenderObject* RenderObjectContainer::getObjectFromId(uint32_t const& id) {
+Core::RenderObject* RenderObjectContainer::getObjectFromId(size_t const& domainId) {
     // Go through all batches
     for (auto& batches : std::views::values(ObjectContainer)) {
         for (auto& [objects, _] : batches) {
             for (auto const& object : objects) {
-                if (object->getId() == id) {
+                if (object->getId() == domainId) {
                     return object;
                 }
             }

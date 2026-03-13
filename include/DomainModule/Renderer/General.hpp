@@ -132,19 +132,12 @@ public:
         "Usage: snapshot [filename]\n\n"
         "Defaults to \"./Resources/Snapshots/snapshot.png\" if no argument is provided\n";
 
-    /**
-     * @todo If an object is deleted, the reference in GlobalSpace::selectedRenderObject is not cleared!
-     *       Fix idea: Make Renderer a domain itself, with this function as a domainmodule part
-     *       Then, we can have the SelectedRenderObject as a private member of the Renderer domain
-     *       and manipulate it directly in Renderer::update()
-     *       This would also make sense, as the Renderer is the owner of the RenderObjects
-     *       and should thus also be the owner of the selected object reference
-     */
     Constants::Error selectedObject_get(int argc, char** argv);
     static auto constexpr selectedObject_get_name = "selected-object get";
-    static auto constexpr selectedObject_get_desc = "Get a renderobject by its ID.\n"
+    static auto constexpr selectedObject_get_desc = "Get a renderobject by its index in the Renderer.\n"
+        "The index is converted to its corresponding Domain ID and selected as the current RenderObject to interact with for other selected-object commands.\n"
         "\n"
-        "Usage: selected-object get <id>\n";
+        "Usage: selected-object get <idx>\n";
 
     [[nodiscard]] Constants::Error selectedObject_Parse(std::span<std::string const> const& args) const ;
     static auto constexpr selectedObject_Parse_name = "selected-object parse";

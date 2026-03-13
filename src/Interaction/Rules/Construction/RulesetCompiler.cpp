@@ -175,16 +175,7 @@ bool RulesetCompiler::getJsonRuleset(Data::JsonScope const& doc, Data::JsonScope
     return true;
 }
 
-void RulesetCompiler::setMetaData(Execution::Domain const& self, RulesetVector const& rulesetsLocal, RulesetVector const& rulesetsGlobal) {
-    // Set IDs
-    auto const id = self.domainScope.get<uint32_t>(Constants::KeyNames::RenderObject::id).value_or(0);
-    for (auto const& entry : rulesetsLocal) {
-        entry->id = id;
-    }
-    for (auto const& entry : rulesetsGlobal) {
-        entry->id = id;
-    }
-
+void RulesetCompiler::setMetaData(RulesetVector const& rulesetsLocal, RulesetVector const& rulesetsGlobal) {
     // Set indices
     for (uint32_t i = 0; i < rulesetsLocal.size(); ++i) {
         rulesetsLocal[i]->index = i;
@@ -248,8 +239,8 @@ void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulese
         }
     }
 
-    // Set necessary metadata: IDs, indices
-    setMetaData(self, rulesetsGlobal, rulesetsLocal);
+    // Set necessary metadata
+    setMetaData(rulesetsGlobal, rulesetsLocal);
 }
 
 void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JsonScope& self) {

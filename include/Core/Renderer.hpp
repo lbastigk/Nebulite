@@ -350,12 +350,43 @@ public:
     [[nodiscard]] SDL_Window* getSdlWindow() const { return window; }
 
     /**
-     * @brief Gets the RenderObject from its ID.
-     * @param id The ID of the RenderObject to retrieve.
-     * @return A pointer to the RenderObject, or nullptr if not found.
+     * @brief Gets the RenderObject ID from its index in the rendering pipeline.
+     * @param index The index of the RenderObject in the rendering pipeline.
+     * @return An optional containing the ID of the RenderObject if found, or std::nullopt if no object is associated with the given index.
      */
-    RenderObject* getObjectFromId(uint32_t const& id) {
-        return env.getObjectFromId(id);
+    std::optional<size_t> getIdFromIndex(size_t const& index) const {
+        if (!indexToIdMap.contains(index)) {
+            return std::nullopt; // No object with this index
+        }
+        return indexToIdMap.at(index);
+    }
+
+    /**
+     * @brief Gets the RenderObject index in the rendering pipeline from its ID.
+     * @param domainId The domain ID of the RenderObject to search for.
+     * @return An optional containing the index of the RenderObject in the rendering pipeline if found, or std::nullopt if no object is associated with the given ID.
+     */
+    std::optional<size_t> getIndexFromId(size_t const& domainId) const {
+        for (const auto& [objIndex, objId] : indexToIdMap) {
+            if (objId == domainId) {
+                return objIndex; // Return the index associated with the given ID
+            }
+        }
+        return std::nullopt; // No index found for the given ID
+    }
+
+    /**
+     * @brief Gets the RenderObject from its ID.
+     * @param searchId The ID of the RenderObject to retrieve.
+     * @return A pointer to the RenderObject, or nullptr if not found.
+     * @todo Add another function that retrieves the renderobject based on index, not id
+     */
+    RenderObject* getObjectFromIndex(size_t const& searchId) {
+        if (!indexToIdMap.contains(searchId)) {
+            return nullptr; // No object with this index
+        }
+        auto const domainId = indexToIdMap[searchId];
+        return env.getObjectFromId(domainId);
     }
 
     /**
@@ -450,6 +481,12 @@ private:
     bool* headless = nullptr;
 
     //------------------------------------------
+    // Append index to domain id
+
+    absl::flat_hash_map<size_t, size_t> indexToIdMap;
+    size_t indexCounter = 1; // Start at 1 to avoid confusion with default value of 0
+
+    //------------------------------------------
     // Display
 
     /**
@@ -465,12 +502,6 @@ private:
      * @todo Route all resource loading through Global::instance() for consistent path management.
      */
     std::string baseDirectory;
-
-    /**
-     * @brief Counter for assigning unique IDs to RenderObjects.
-     * @note Easier to debug if it starts at 1, as 0 might come up in overflows, and negative values may not be valid
-     */
-    uint32_t renderObjectIdCounter = 1;
 
     // Positions
     int16_t tilePositionX;

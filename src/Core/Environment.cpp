@@ -103,10 +103,10 @@ void Environment::reinsertAllObjects(uint16_t const& dispResX, uint16_t const& d
     }
 }
 
-RenderObject* Environment::getObjectFromId(uint32_t const& id) {
+RenderObject* Environment::getObjectFromId(size_t const& domainId) {
     // Go through all layers
     for (unsigned int i = 0; i < LayerCount; ++i) {
-        if (auto const obj = roc[i].getObjectFromId(id); obj != nullptr) {
+        if (auto const obj = roc[i].getObjectFromId(domainId); obj != nullptr) {
             return obj;
         }
     }

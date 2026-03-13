@@ -20,7 +20,6 @@ namespace {
 // Helper function to initialize RenderObject in constructor
 void setStandardValues(Data::JsonScope& document) {
     // General
-    document.set(Constants::KeyNames::RenderObject::id, 0);    // Initialize to 0, Renderer itself sets proper id, which starts at 1
     document.set(Constants::KeyNames::RenderObject::positionX, 0);
     document.set(Constants::KeyNames::RenderObject::positionY, 0);
     document.set(Constants::KeyNames::RenderObject::layer, 0);
@@ -144,9 +143,6 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
 }
 
 void RenderObject::linkFrequentRefs() {
-    // Identity
-    refs.id = domainScope.getStableDoublePointer(Constants::KeyNames::RenderObject::id);
-
     // Position and Size
     refs.posX = domainScope.getStableDoublePointer(Constants::KeyNames::RenderObject::positionX);
     refs.posY = domainScope.getStableDoublePointer(Constants::KeyNames::RenderObject::positionY);

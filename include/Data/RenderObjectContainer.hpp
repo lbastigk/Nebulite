@@ -124,10 +124,10 @@ public:
      *        Does not remove the object from the container.
      *        Do **not** delete the returned object,
      *        it's still owned and managed by the container!
-     * @param id The unique ID of the RenderObject to retrieve.
+     * @param domainId The unique ID of the RenderObject to retrieve.
      * @return Pointer to the RenderObject if found, nullptr otherwise.
      */
-    Core::RenderObject* getObjectFromId(uint32_t const& id);
+    Core::RenderObject* getObjectFromId(size_t const& domainId);
 
     struct ContainerInfo {
         // Container stats

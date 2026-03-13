@@ -32,14 +32,13 @@ namespace Nebulite::Interaction::Execution {
 
 // NOLINTNEXTLINE
 Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Capture& parentCapture) : DocumentAccessor(documentReference), domainName(name), capture(&parentCapture) {
+    // FuncTree initialization
     funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
         name,
         Constants::ErrorTable::NONE(),
         Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(),
         capture
     );
-
-    // Set default preParse to Domain::preParse
     funcTree->setPreParse([this] { return preParse(); });
 
     // Initialize modules
@@ -47,14 +46,13 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Util
 }
 
 Domain::Domain(std::string const& name, Utility::Capture& parentCapture) : domainName(name), capture(&parentCapture) {
+    // FuncTree initialization
     funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
         name,
         Constants::ErrorTable::NONE(),
         Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(),
         capture
     );
-
-    // Set default preParse to Domain::preParse
     funcTree->setPreParse([this] { return preParse(); });
 
     // Initialize modules

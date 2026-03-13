@@ -7,6 +7,8 @@ namespace Nebulite::Interaction::Rules {
 //------------------------------------------
 // Base Class Virtual Methods
 
+size_t const& Ruleset::getId() const { return self.getId(); }
+
 bool Ruleset::evaluateCondition(Execution::Domain& /*other*/) {
     return false;
 }
