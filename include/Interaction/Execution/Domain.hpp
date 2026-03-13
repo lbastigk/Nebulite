@@ -196,7 +196,16 @@ class Domain : public DocumentAccessor {
         return id;
     }
 
+    static size_t splitMix64(size_t x) {
+        x += 0x9e3779b97f4a7c15;
+        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
+        x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
+        x = x ^ (x >> 31);
+        return x;
+    }
+
     size_t id = idGenerator(); // Unique ID for the domain, used for ordered cache lists and other purposes
+    size_t idHashed = splitMix64(id); // Hashed ID for better distribution
 
 public:
     Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Capture& parentCapture);
@@ -250,6 +259,10 @@ public:
 
     [[nodiscard]] size_t const& getId() const {
         return id;
+    }
+
+    [[nodiscard]] size_t const& getIdHashed() const {
+        return idHashed;
     }
 
     //------------------------------------------

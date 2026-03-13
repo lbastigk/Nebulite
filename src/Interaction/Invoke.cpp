@@ -34,8 +34,10 @@ Invoke::~Invoke() {
 // Interactions
 
 void Invoke::broadcast(std::shared_ptr<Rules::Ruleset> const& entry) const {
-    // Thread assignment based on entry owner ID
-    size_t const threadIndex = entry->getId() % activeWorkerCount;
+    // Thread assignment based on entry owner ID.
+    // We used a hash of the id as domain ids may not be equally distributed
+    // E.g. the Broadcasting RenderObjects may be distributed every n IDs, which would lead to all work being done on one thread and the others idle.
+    size_t const threadIndex = entry->getIdHashed() % activeWorkerCount;
     worker[threadIndex]->broadcast(entry);
 }
 
