@@ -365,7 +365,6 @@ void Renderer::render() {
     status.skippedUpdateLastFrame = status.skipUpdate;
     status.skipUpdate = false;
     updateModules(); // Update domain modules, potentially adding ImGui elements
-    if (status.showDebugWindow) Global::renderImguiGlobalSpaceWindow();
     if (status.showFps) renderFPS();
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);

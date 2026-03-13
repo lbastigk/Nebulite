@@ -29,12 +29,13 @@ namespace Nebulite::Utility {
 class Capture;
 
 /**
- * @struct OutputLine
+ * @struct HistoryLine
  * @brief Represents a line of captured output, either to cout or cerr.
  */
-struct OutputLine{
+struct HistoryLine{
     std::string content;
     enum class Type : uint8_t {
+        INPUT,
         COUT,
         CERR
         // TODO: add more types: input, info, warn, error, debug, etc. Unify with textInput class
@@ -45,7 +46,7 @@ struct OutputLine{
  * @class Stream
  * @brief Stream class for capturing output and redirecting it to an ostream and internal log.
  */
-template<std::ostream* /*BaseStream*/, OutputLine::Type /*LineType*/>
+template<std::ostream* /*BaseStream*/, HistoryLine::Type /*LineType*/>
 class Stream {
     Capture* capture; // Main capture reference so we can lock its mutex, so cout/cerr don't interfere with each other
     void putStr(std::string const& str, bool const& printToConsole) const ;
@@ -80,7 +81,7 @@ public:
  * @tparam BaseStream The base stream to print to (e.g. std::cout or std::cerr).
  * @tparam LineType The type of the output line (e.g. COUT or CERR).
  */
-template<std::ostream* BaseStream, OutputLine::Type LineType>
+template<std::ostream* BaseStream, HistoryLine::Type LineType>
 class HierarchicalStream {
     Stream<BaseStream, LineType> coutStream;
     HierarchicalStream* parent;
@@ -121,7 +122,7 @@ public:
  */
 class Capture{
 public:
-    template<std::ostream* BaseStream, OutputLine::Type LineType>
+    template<std::ostream* BaseStream, HistoryLine::Type LineType>
     friend class Stream;
 
     static auto constexpr noParent = nullptr;
@@ -131,22 +132,22 @@ public:
       error(this, parent ? &parent->error : noParent)
     {}
 
-    HierarchicalStream<&std::cout, OutputLine::Type::COUT> log; // Stream for capturing cout output
-    HierarchicalStream<&std::cerr, OutputLine::Type::CERR> error; // Stream for capturing cerr output
+    HierarchicalStream<&std::cout, HistoryLine::Type::COUT> log; // Stream for capturing cout output
+    HierarchicalStream<&std::cerr, HistoryLine::Type::CERR> error; // Stream for capturing cerr output
 
     /**
-     * @brief Retrieves a pointer to the output log.
+     * @brief Retrieves a pointer to the history.
      * @return A pointer to the output log deque, const.
      */
-    [[nodiscard]] std::deque<OutputLine> const& getOutputList() const {
-        return outputList;
+    [[nodiscard]] std::deque<HistoryLine> const& getHistory() const {
+        return history;
     }
 
     /**
      * @brief Clears the output log.
      */
     void clear(){
-        outputList.clear();
+        history.clear();
     }
 
     bool hasParent() const {
@@ -154,26 +155,35 @@ public:
         return log.hasParent();
     }
 
+    /**
+     * @brief Appends input to the output log with thread safety.
+     * @param str The string to append to the log.
+     */
+    void appendInput(std::string const& str) {
+        std::scoped_lock const lock(historyMutex);
+        history.push_back({str, HistoryLine::Type::INPUT}); // Assuming input is treated as COUT, can be modified if needed
+    }
+
 private:
-    std::deque<OutputLine> outputList; // List of captured output lines
-    std::mutex outputListMutex;  // Mutex for thread-safe access to outputList
+    std::deque<HistoryLine> history; // List of captured output lines
+    std::mutex historyMutex;  // Mutex for thread-safe access to outputList
 };
 
-template<std::ostream* BaseStream, OutputLine::Type LineType>
+template<std::ostream* BaseStream, HistoryLine::Type LineType>
 void Stream<BaseStream, LineType>::putStr(std::string const& str, bool const& printToConsole) const {
     if (printToConsole) {
         *BaseStream << str;
     }
 
-    std::scoped_lock const lock(capture->outputListMutex);
+    std::scoped_lock const lock(capture->historyMutex);
     std::istringstream iss(str);
     std::string line;
     while (std::getline(iss, line)) {
-        capture->outputList.push_back({line, LineType});
+        capture->history.push_back({line, LineType});
     }
 }
 
-template<std::ostream* BaseStream, OutputLine::Type LineType>
+template<std::ostream* BaseStream, HistoryLine::Type LineType>
 template<typename... Args>
 void Stream<BaseStream, LineType>::print(bool const& printToConsole, Args&&... args) {
     std::ostringstream workingBuffer;
@@ -183,7 +193,7 @@ void Stream<BaseStream, LineType>::print(bool const& printToConsole, Args&&... a
     putStr(workingBuffer.str(), printToConsole);
 }
 
-template<std::ostream* BaseStream, OutputLine::Type LineType>
+template<std::ostream* BaseStream, HistoryLine::Type LineType>
 template<typename... Args>
 void Stream<BaseStream, LineType>::println(bool const& printToConsole, Args&&... args) {
     std::ostringstream workingBuffer;

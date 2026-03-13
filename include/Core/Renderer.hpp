@@ -270,10 +270,6 @@ public:
         };
     }
 
-    void showDebugWindow(bool const& show) noexcept {
-        status.showDebugWindow = show;
-    }
-
     //------------------------------------------
     // Getting
 
@@ -474,7 +470,6 @@ private:
         bool skippedUpdateLastFrame = false;
         bool sdlInitialized = false;
         bool quit = false; // Set to true when an SDL_QUIT event is received or outside wants to quit
-        bool showDebugWindow = false;
         bool firstFrameRendered = false; // Used to manage first frame rendering and timing
     }status;
 

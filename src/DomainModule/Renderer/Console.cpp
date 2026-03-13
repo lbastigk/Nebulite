@@ -29,7 +29,7 @@ Constants::Error Console::update() {
     //------------------------------------------
     // Insert new lines from capture streams
     static size_t last_size = 0;
-    size_t const current_size = Global::capture().getOutputList().size();
+    size_t const current_size = Global::capture().getHistory().size();
     if (current_size < last_size) {
         // Log was cleared, reset
         last_size = 0;
@@ -38,17 +38,20 @@ Constants::Error Console::update() {
     }
     for (size_t i = last_size; i < current_size; i++) {
         // Split input line by newlines
-        auto const& [lineContent, lineType] = Global::capture().getOutputList().at(i);
+        auto const& [lineContent, lineType] = Global::capture().getHistory().at(i);
         auto const& lines = Utility::StringHandler::split(lineContent, '\n');
 
         // Insert into text input
         Utility::TextInput::LineEntry::LineType type;
         switch (lineType) {
-        case Utility::OutputLine::Type::COUT:
+        case Utility::HistoryLine::Type::COUT:
             type = Utility::TextInput::LineEntry::LineType::COUT;
             break;
-        case Utility::OutputLine::Type::CERR:
+        case Utility::HistoryLine::Type::CERR:
             type = Utility::TextInput::LineEntry::LineType::CERR;
+            break;
+        case Utility::HistoryLine::Type::INPUT:
+            type = Utility::TextInput::LineEntry::LineType::INPUT;
             break;
         default:
             std::unreachable();

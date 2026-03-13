@@ -17,12 +17,6 @@ Data::JsonScope& Global::shareScopeBase(ScopeAccessor::BaseAccessToken const& at
     return globalDoc().shareManagedScopeBase(at.getPrefix() + prefix);
 }
 
-void Global::renderImguiGlobalSpaceWindow(){
-    if (auto const result = instance().parseStr(__FUNCTION__ + std::string(" ") + "imgui-view on"); result.isError()) {
-        capture().error.println("Error enabling ImGui view for GlobalSpace: " + std::string(result.getDescription()));
-    }
-}
-
 //------------------------------------------
 // Private methods
 

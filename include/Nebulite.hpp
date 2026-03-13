@@ -186,15 +186,6 @@ public:
     [[nodiscard]] static Data::JsonScope& shareScopeBase(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix = "");
 
     //------------------------------------------
-    // Imgui rendering
-
-    /**
-     * @brief Renders the Imgui window showing the global space.
-     * @details Make sure imgui is initialized and a frame is started before calling this function.
-     */
-    static void renderImguiGlobalSpaceWindow();
-
-    //------------------------------------------
     // Capture access
 
     /**

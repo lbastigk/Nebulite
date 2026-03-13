@@ -24,6 +24,18 @@ namespace Nebulite::Graphics {
 class ImguiHelper {
 public:
     /**
+     * @brief Checks if imgui is initialized and ready for rendering.
+     * @return true if imgui is initialized, false otherwise.
+     */
+    static bool checkImguiInitialized();
+
+    /**
+     * @brief Checks if Imgui is ready to render a frame
+     * @return true if imgui is initialized and a frame is started, false otherwise.
+     */
+    static bool checkImguiReadyForRendering();
+
+    /**
      * @brief Renders a JSON scope in an ImGui window.
      * @details Make sure imgui is initialized and a frame is started before calling this function.
      * @param scope The JSON scope to render.

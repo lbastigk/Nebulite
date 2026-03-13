@@ -5,7 +5,7 @@
 namespace Nebulite::DomainModule::Common {
 
 Constants::Error General::update() {
-    if (imguiViewEnabled) {
+    if (imguiViewEnabled && Graphics::ImguiHelper::checkImguiReadyForRendering()) {
         Graphics::ImguiHelper::renderDomain(domain, domain.capture, *lastImguiCallerScope, domain.getName());
     }
     return Constants::ErrorTable::NONE();

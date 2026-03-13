@@ -335,7 +335,9 @@ void Debug::setupDebugInfo() const {
 
     // Show debug window if in debug build
     if (moduleScope.get<std::string>(Key::buildType).value_or("") == "debug") {
-        domain.getRenderer().showDebugWindow(true);
+        if (auto const result = domain.parseStr(__FUNCTION__ + std::string(" ") + "imgui-view on"); result.isError()) {
+            domain.capture.error.println("Error enabling ImGui view for GlobalSpace: " + std::string(result.getDescription()));
+        }
     }
 }
 
