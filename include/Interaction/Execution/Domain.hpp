@@ -77,7 +77,7 @@ class RulesetCompiler;
 namespace Nebulite::Interaction::Execution {
 
 // Helps not expose the domainScopeOwned to friend classes of DocumentAccessor
-class ScopeOwner {
+class ScopeOwnershipManager {
     friend class DocumentAccessor;
     // Only used if the DocumentAccessor owns the scope (i.e., when constructed with the default constructor)
     std::unique_ptr<Data::JsonScope> _domainScopeOwned;
@@ -88,8 +88,8 @@ public:
         Borrowed // Will be left empty
     };
 
-    virtual ~ScopeOwner();
-    explicit ScopeOwner(ScopeOwnership const& ownership = ScopeOwnership::Borrowed);
+    virtual ~ScopeOwnershipManager();
+    explicit ScopeOwnershipManager(ScopeOwnership const& ownership = ScopeOwnership::Borrowed);
 };
 
 /**
@@ -100,7 +100,7 @@ public:
  *          For example, DomainModules should not have direct access to the domain's document,
  *          due to the encapsulation they provide. Instead, we pass a scope to them.
  */
-class DocumentAccessor : ScopeOwner {
+class DocumentAccessor : ScopeOwnershipManager {
 public:
     explicit DocumentAccessor(Data::JsonScope& d);
 

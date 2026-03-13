@@ -9,17 +9,17 @@
 // Document Accessor
 namespace Nebulite::Interaction::Execution {
 
-ScopeOwner::~ScopeOwner() = default;
+ScopeOwnershipManager::~ScopeOwnershipManager() = default;
 
-ScopeOwner::ScopeOwner(ScopeOwnership const& ownership) {
+ScopeOwnershipManager::ScopeOwnershipManager(ScopeOwnership const& ownership) {
     if (ownership == ScopeOwnership::Owned) {
         _domainScopeOwned = std::make_unique<Data::JsonScope>();
     }
 }
 
-DocumentAccessor::DocumentAccessor(Data::JsonScope& d) : ScopeOwner(ScopeOwnership::Borrowed), domainScope(d) {}
+DocumentAccessor::DocumentAccessor(Data::JsonScope& d) : ScopeOwnershipManager(ScopeOwnership::Borrowed), domainScope(d) {}
 
-DocumentAccessor::DocumentAccessor() : ScopeOwner(ScopeOwnership::Owned), domainScope(*_domainScopeOwned) {
+DocumentAccessor::DocumentAccessor() : ScopeOwnershipManager(ScopeOwnership::Owned), domainScope(*_domainScopeOwned) {
     // Note: This creates a new JsonScope that is owned by this DocumentAccessor.
     // It will be automatically cleaned up when the DocumentAccessor is destroyed.
 }
