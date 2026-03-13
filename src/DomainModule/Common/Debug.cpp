@@ -1,5 +1,5 @@
 #include "Nebulite.hpp"
-#include "../../../include/DomainModule/Common/Debug.hpp"
+#include "DomainModule/Common/Debug.hpp"
 
 namespace Nebulite::DomainModule::Common {
 
@@ -39,6 +39,29 @@ Constants::Error Debug::print(std::span<std::string const> const& args, Interact
     caller.capture.log.println(callerScope.serialize());
     (void)caller; // Unused parameter
     return Constants::ErrorTable::NONE();
+}
+
+Constants::Error Debug::error(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
+    auto const& argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    caller.capture.error.println(argStr);
+    return Constants::ErrorTable::NONE();
+}
+
+Constants::Error Debug::warn(std::span<std::string const> const& args) {
+    if (args.size() < 2) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    }
+    std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    return Constants::ErrorTable::addError(argStr, Constants::Error::NON_CRITICAL);
+}
+
+Constants::Error Debug::critical(std::span<std::string const> const& args) {
+    if (args.size() < 2) {
+        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    }
+
+    std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    return Constants::ErrorTable::addError(argStr, Constants::Error::CRITICAL);
 }
 
 } // namespace Nebulite::DomainModule::Common

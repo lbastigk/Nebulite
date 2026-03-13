@@ -33,6 +33,27 @@ public:
         "\n"
         "Usage: print [key]\n";
 
+    static Constants::Error error(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    static auto constexpr error_name = "error";
+    static auto constexpr error_desc = "Echoes all arguments as string to the standard error.\n"
+        "Usage: error <string...>\n"
+        "\n"
+        "- <string...>: One or more strings to echo to the standard error.\n";
+
+    static Constants::Error warn(std::span<std::string const> const& args);
+    static auto constexpr warn_name = "warn";
+    static auto constexpr warn_desc = "Returns a warning: a custom, noncritical error.\n"
+        "Usage: warn <string>\n"
+        "\n"
+        "- <string>: The warning message.\n";
+
+    static Constants::Error critical(std::span<std::string const> const& args);
+    static auto constexpr critical_name = "critical";
+    static auto constexpr critical_desc = "Returns a critical error.\n"
+        "Usage: critical <string>\n"
+        "\n"
+        "- <string>: The critical error message.\n";
+
     //------------------------------------------
     // Setup
 
@@ -42,6 +63,9 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Interaction::Execution::Domain, Debug) {
         // Binding
         BIND_FUNCTION(&Debug::print, print_name, print_desc);
+        BIND_FUNCTION(&Debug::error, error_name, error_desc);
+        BIND_FUNCTION(&Debug::warn, warn_name, warn_desc);
+        BIND_FUNCTION(&Debug::critical, critical_name, critical_desc);
     }
 
 private:

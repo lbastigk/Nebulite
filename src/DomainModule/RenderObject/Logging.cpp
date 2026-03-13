@@ -19,13 +19,6 @@ Constants::Error Logging::update() {
 // Domain-Bound Functions
 
 // NOLINTNEXTLINE
-Constants::Error Logging::echo(std::span<std::string const> const& args) const {
-    std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    domain.capture.log.println(argStr);
-    return Constants::ErrorTable::NONE();
-}
-
-// NOLINTNEXTLINE
 Constants::Error Logging::log_all(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     std::string const serialized = callerScope.serialize();
     if (args.size() > 1) {
