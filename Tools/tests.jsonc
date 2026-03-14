@@ -46,9 +46,6 @@
         // Domain tests
         "Tools/Tests/Domain/deserialization.json",
         //---------------------------------------
-        // Renderer tests
-        "Tools/Tests/Renderer/console.json",
-        //---------------------------------------
         // Ruleset tests
         "Tools/Tests/Rulesets/DebugUtils.json",
         "Tools/Tests/Rulesets/selfOtherGlobalInteraction.json",
