@@ -15,9 +15,10 @@
 // DomainModules
 
 // Common
-#include "DomainModule/Common/SimpleData.hpp"
 #include "DomainModule/Common/ComplexData.hpp"
 #include "DomainModule/Common/Debug.hpp"
+#include "DomainModule/Common/General.hpp"
+#include "DomainModule/Common/SimpleData.hpp"
 
 // Environment
 #include "DomainModule/Environment/Debug.hpp"
@@ -34,7 +35,6 @@
 #include "DomainModule/GlobalSpace/Time.hpp"
 
 // RenderObject
-#include "DomainModule/RenderObject/Debug.hpp"
 #include "DomainModule/RenderObject/Logging.hpp"
 #include "DomainModule/RenderObject/Mirror.hpp"
 #include "DomainModule/RenderObject/Ruleset.hpp"
@@ -61,15 +61,7 @@
 //------------------------------------------
 namespace Nebulite::DomainModule {
 
-
 void Initializer::initCommon(Interaction::Execution::Domain* target) {
-    //using namespace Nebulite::DomainModule::Common;
-    // Common modules for all domains
-    target->initModule<Interaction::Execution::Domain, Common::SimpleData>(
-        "Common Simple Data Functions",
-        Global::settings(),
-        *target
-    );
     target->initModule<Interaction::Execution::Domain, Common::ComplexData>(
         "Common Complex Data Functions",
         Global::settings(),
@@ -77,6 +69,16 @@ void Initializer::initCommon(Interaction::Execution::Domain* target) {
     );
     target->initModule<Interaction::Execution::Domain, Common::Debug>(
         "Common Debug Functions",
+        Global::settings(),
+        *target
+    );
+    target->initModule<Interaction::Execution::Domain, Common::General>(
+        "Common General Functions",
+        Global::settings(),
+        *target
+    );
+    target->initModule<Interaction::Execution::Domain, Common::SimpleData>(
+        "Common Simple Data Functions",
         Global::settings(),
         *target
     );
@@ -175,11 +177,6 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
 void Initializer::initRenderObject(Core::RenderObject* target) {
     using namespace Nebulite::DomainModule::RenderObject;
 
-    target->initModule<Core::RenderObject, Debug>(
-        "RenderObject Debug Functions",
-        Global::settings(),
-        *target
-    );
     target->initModule<Core::RenderObject, Logging>(
         "RenderObject Logging Functions",
         Global::settings(),

@@ -28,10 +28,11 @@ namespace Nebulite::Interaction::Execution {
 // Constructor implementation
 
 template <typename returnValue, typename... additionalArgs>
-FuncTree<returnValue, additionalArgs...>::FuncTree(std::string_view const& treeName, returnValue const& valDefault, returnValue const& valFunctionNotFound)
+FuncTree<returnValue, additionalArgs...>::FuncTree(std::string_view const& treeName, returnValue const& valDefault, returnValue const& valFunctionNotFound, Utility::Capture& captureInstance)
     : TreeName(treeName),
-      standardReturn{valDefault, valFunctionNotFound} {
-
+      capture(captureInstance),
+      standardReturn{valDefault, valFunctionNotFound}
+{
     // Add help function for displaying help information
     bindingContainer.functions.emplace(
         helpName,
@@ -208,7 +209,7 @@ void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
                 BindErrorMessage::categoryExists(std::string(name));
             }
             // Create category
-            (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree>(currentCategoryName, standardReturn.valDefault, standardReturn.valFunctionNotFound), helpDescription};
+            (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree>(currentCategoryName, standardReturn.valDefault, standardReturn.valFunctionNotFound, capture), helpDescription};
         }
     }
 }

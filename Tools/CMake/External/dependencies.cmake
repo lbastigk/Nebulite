@@ -59,6 +59,7 @@ function(configure_common_dependencies target_name)
             ${IMGUI_PATH}/imgui_demo.cpp     # optional
             ${IMGUI_PATH}/backends/imgui_impl_sdl3.cpp
             ${IMGUI_PATH}/backends/imgui_impl_sdlrenderer3.cpp
+            ${IMGUI_PATH}/misc/cpp/imgui_stdlib.cpp
     )
     target_include_directories(imgui
             PUBLIC

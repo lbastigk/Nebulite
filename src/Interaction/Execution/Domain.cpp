@@ -9,15 +9,17 @@
 // Document Accessor
 namespace Nebulite::Interaction::Execution {
 
-ScopeOwner::ScopeOwner(ScopeOwnership const& ownership) {
+ScopeOwnershipManager::~ScopeOwnershipManager() = default;
+
+ScopeOwnershipManager::ScopeOwnershipManager(ScopeOwnership const& ownership) {
     if (ownership == ScopeOwnership::Owned) {
         _domainScopeOwned = std::make_unique<Data::JsonScope>();
     }
 }
 
-DocumentAccessor::DocumentAccessor(Data::JsonScope& d) : ScopeOwner(ScopeOwnership::Borrowed), domainScope(d) {}
+DocumentAccessor::DocumentAccessor(Data::JsonScope& d) : ScopeOwnershipManager(ScopeOwnership::Borrowed), domainScope(d) {}
 
-DocumentAccessor::DocumentAccessor() : ScopeOwner(ScopeOwnership::Owned), domainScope(*_domainScopeOwned) {
+DocumentAccessor::DocumentAccessor() : ScopeOwnershipManager(ScopeOwnership::Owned), domainScope(*_domainScopeOwned) {
     // Note: This creates a new JsonScope that is owned by this DocumentAccessor.
     // It will be automatically cleaned up when the DocumentAccessor is destroyed.
 }
@@ -29,28 +31,56 @@ DocumentAccessor::~DocumentAccessor() = default;
 namespace Nebulite::Interaction::Execution {
 
 // NOLINTNEXTLINE
-Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : DocumentAccessor(documentReference), domainName(name){
+Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Capture& parentCapture) : DocumentAccessor(documentReference), domainName(name), capture(&parentCapture) {
+    // FuncTree initialization
     funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
         name,
         Constants::ErrorTable::NONE(),
-        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
+        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(),
+        capture
     );
-
-    // Set default preParse to Domain::preParse
     funcTree->setPreParse([this] { return preParse(); });
 
     // Initialize modules
     Nebulite::DomainModule::Initializer::initCommon(this);
 }
 
-Domain::Domain(std::string const& name) : domainName(name) {
+Domain::Domain(std::string const& name, Utility::Capture& parentCapture) : domainName(name), capture(&parentCapture) {
+    // FuncTree initialization
     funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
         name,
         Constants::ErrorTable::NONE(),
-        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID()
+        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(),
+        capture
     );
+    funcTree->setPreParse([this] { return preParse(); });
 
-    // Set default preParse to Domain::preParse
+    // Initialize modules
+    Nebulite::DomainModule::Initializer::initCommon(this);
+}
+
+Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : DocumentAccessor(documentReference), domainName(name), capture(nullptr) {
+    // FuncTree initialization
+    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
+        name,
+        Constants::ErrorTable::NONE(),
+        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(),
+        capture
+    );
+    funcTree->setPreParse([this] { return preParse(); });
+
+    // Initialize modules
+    Nebulite::DomainModule::Initializer::initCommon(this);
+}
+
+Domain::Domain(std::string const& name) : domainName(name), capture(nullptr) {
+    // FuncTree initialization
+    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
+        name,
+        Constants::ErrorTable::NONE(),
+        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(),
+        capture
+    );
     funcTree->setPreParse([this] { return preParse(); });
 
     // Initialize modules
@@ -159,7 +189,7 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
         }
         // Forward to FunctionTree for resolution
         if (parseStr(callStr) != Constants::ErrorTable::NONE()) {
-            Error::println("Failed to apply deserialize transformation: ", callStr);
+            capture.error.println("Failed to apply deserialize transformation: ", callStr);
         }
     }
 }

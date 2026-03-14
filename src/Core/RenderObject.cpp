@@ -20,7 +20,6 @@ namespace {
 // Helper function to initialize RenderObject in constructor
 void setStandardValues(Data::JsonScope& document) {
     // General
-    document.set(Constants::KeyNames::RenderObject::id, 0);    // Initialize to 0, Renderer itself sets proper id, which starts at 1
     document.set(Constants::KeyNames::RenderObject::positionX, 0);
     document.set(Constants::KeyNames::RenderObject::positionY, 0);
     document.set(Constants::KeyNames::RenderObject::layer, 0);
@@ -40,7 +39,7 @@ void setStandardValues(Data::JsonScope& document) {
 }
 } // namespace
 
-RenderObject::RenderObject() : Domain("RenderObject") {
+RenderObject::RenderObject(Utility::Capture& parentCapture) : Domain("RenderObject", parentCapture) {
     //------------------------------------------
     // Set standard values
     setStandardValues(domainScope);
@@ -92,7 +91,7 @@ void RenderObject::reinitDrawcalls() {
     // Get list of drawcalls from document
     for (auto const& [member, key] : domainScope.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
         // Initialize drawcall with its own scope
-        drawcalls[member] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()));
+        drawcalls[member] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()), capture);
     }
     sortDrawcalls();
 }
@@ -102,7 +101,7 @@ void RenderObject::initDrawcalls() {
     for (auto const& [member, key] : domainScope.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
         // Initialize drawcall with its own scope
         if (drawcalls.find(member) == drawcalls.end()) {
-            drawcalls[member] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()));
+            drawcalls[member] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()), capture);
         }
     }
     sortDrawcalls();
@@ -111,7 +110,7 @@ void RenderObject::initDrawcalls() {
 void RenderObject::reInitDrawcall(std::string const& drawcallName) {
     // Reinitialize a specific drawcall from document
     auto const key = Constants::KeyNames::RenderObject::draw + drawcallName;
-    drawcalls[drawcallName] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()));
+    drawcalls[drawcallName] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()), capture);
 }
 
 void RenderObject::updateDrawcalls() {
@@ -144,9 +143,6 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
 }
 
 void RenderObject::linkFrequentRefs() {
-    // Identity
-    refs.id = domainScope.getStableDoublePointer(Constants::KeyNames::RenderObject::id);
-
     // Position and Size
     refs.posX = domainScope.getStableDoublePointer(Constants::KeyNames::RenderObject::positionX);
     refs.posY = domainScope.getStableDoublePointer(Constants::KeyNames::RenderObject::positionY);

@@ -16,17 +16,7 @@ namespace Nebulite::DomainModule::RenderObject {
 // Basics
 
 Constants::Error Ruleset::update() {
-    //------------------------------------------
-    // Verify id is valid (not zero)
-    // An id of zero means the RenderObject is outside the Renderer/RenderObjectContainer scope
-    // and should not be updated
-    if (id == 0) {
-        id = domain.getId();
-    }
-
-    //------------------------------------------
-    // Check all Rulesets
-    if (id != 0) {
+    if (initialized) {
         // Reload rulesets if needed
         if (reloadRulesets) {
             auto mtx = moduleScope.lock();
@@ -36,7 +26,7 @@ Constants::Error Ruleset::update() {
             for (size_t idx = 0; idx < subscription_size; idx++) {
                 auto const key = Constants::KeyNames::RenderObject::Ruleset::listen + "[" + std::to_string(idx) + "]";
                 auto const subscription = moduleScope.get<std::string>(key).value_or("");
-                auto listener = std::make_shared<Interaction::Rules::Listener>(domain, subscription, id);
+                auto listener = std::make_shared<Interaction::Rules::Listener>(domain, subscription);
                 listeners.push_back(listener);
             }
 
@@ -60,16 +50,17 @@ Constants::Error Ruleset::update() {
             // add pointer to invoke command to global
             Global::instance().broadcast(entry);
         }
-    } else {
-        return Constants::ErrorTable::RENDERER::CRITICAL_INVOKE_NULLPTR();
+    }
+    else {
+        initialized = true;
     }
     return Constants::ErrorTable::NONE();
 }
 
 void Ruleset::reinit() {
     reloadRulesets = true;
+    initialized = false;
     subscription_size = moduleScope.memberSize(Constants::KeyNames::RenderObject::Ruleset::listen);
-    id = domain.getId();
 }
 
 //------------------------------------------

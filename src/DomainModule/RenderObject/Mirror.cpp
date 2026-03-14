@@ -1,8 +1,5 @@
-#include "DomainModule/RenderObject/Mirror.hpp"
-
-#include "Constants/KeyNames.hpp"
 #include "Core/RenderObject.hpp"
-
+#include "DomainModule/RenderObject/Mirror.hpp"
 #include "Nebulite.hpp"
 
 namespace Nebulite::DomainModule::RenderObject {
@@ -66,12 +63,17 @@ Constants::Error Mirror::mirror_fetch() const {
 
 Constants::Error Mirror::setupMirrorKey() {
     // Only fetch key once we turn on mirroring
-    int const id = moduleScope.get<int>(Constants::KeyNames::RenderObject::id).value_or(0);
+    auto const id = domain.getId();
     if (id < 1) {
         return Constants::ErrorTable::addError("Mirror key setup failed: RenderObject has invalid id", Constants::Error::NON_CRITICAL);
     }
 
-    mirrorKey = "mirror.renderObject.id" + std::to_string(id);
+    auto const idx = Global::instance().getIndexFromId(id);
+    if (!idx.has_value()) {
+        mirrorKey = "";
+        return Constants::ErrorTable::addError("Mirror key setup failed: RenderObject id not found in Renderer", Constants::Error::NON_CRITICAL);
+    }
+    mirrorKey = "mirror.renderObject.idx" + std::to_string(idx.value());
     return Constants::ErrorTable::NONE();
 }
 

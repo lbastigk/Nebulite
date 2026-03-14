@@ -71,7 +71,7 @@ public:
         "The coefficients should be specified as comma-separated values, with no spaces. For example:\n"
         "play-sound-filter my_sound.wav 0.1,0.1 1.0,-0.9\n";
 
-    static Constants::Error testFilter(std::span<std::string const> const& args);
+    Constants::Error testFilter(std::span<std::string const> const& args) const ;
     static auto constexpr testFilter_name = "audio-debug test-filter";
     static auto constexpr testFilter_desc = "Test a filter by applying it to sample values and printing the results.\n"
         "Usage: test-filter <sample> <num-coefficients> <den-coefficients>\n"

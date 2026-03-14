@@ -29,11 +29,9 @@ namespace Nebulite::Interaction::Rules {
  * @todo Determine listener ID inside Domain at construction (rolling counter), remove from both Listener and Ruleset and just use getId()
  */
 struct Listener {
-    explicit Listener(Execution::Domain& d, std::string const& t, uint32_t const& id) : domain(d), topic(t), listenerId(id) {}
-
+    explicit Listener(Execution::Domain& d, std::string const& t) : domain(d), topic(t) {}
     Execution::Domain& domain;
     std::string topic;
-    uint32_t listenerId;
     double** otr = nullptr; // Pointer to the ordered cache list of the listener, for performance when evaluating rulesets
 
     // Listener is owned by a single Domain, no copy or move semantics
@@ -75,7 +73,14 @@ public:
      * @brief Gets the id of the ruleset.
      * @return The id of the ruleset, as const reference.
      */
-    [[nodiscard]] uint32_t const& getId() const { return id; }
+    [[nodiscard]] size_t const& getId() const ;
+
+    /**
+    * @brief Gets the hashed id of the ruleset.
+    * @details This is useful for distribution of rulesets, as domain ids may not be equally distributed.
+    * @return The hashed id of the ruleset, as const reference.
+    */
+    [[nodiscard]] size_t const& getIdHashed() const ;
 
     /**
      * @brief Gets the index of the ruleset in the owning Domain's list of entries.
@@ -129,10 +134,6 @@ public:
     virtual void apply();
 
 protected:
-    /**
-     * @brief The id of the object that owns this entry; the `self` domain.
-     */
-    uint32_t id = 0;
 
     /**
      * @brief The index of this entry in the list of entries of the owning Domain.

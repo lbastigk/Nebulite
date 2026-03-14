@@ -42,7 +42,7 @@ std::string RenderObjectContainer::serialize() {
     return doc.serialize();
 }
 
-void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY) {
+void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY, Utility::Capture& capture) {
     JSON layer;
     layer.deserialize(serialOrLink);
     if (layer.memberType("objects") == KeyType::array) {
@@ -61,7 +61,7 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_
                 str = ro_serial.value();
             }
 
-            auto* ro = new Core::RenderObject;
+            auto* ro = new Core::RenderObject(capture);
             ro->deserialize(str);
             append(ro, dispResX, dispResY);
         }
@@ -203,12 +203,12 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
     reinsertionProcess.queue.clear();
 }
 
-Core::RenderObject* RenderObjectContainer::getObjectFromId(uint32_t const& id) {
+Core::RenderObject* RenderObjectContainer::getObjectFromId(size_t const& domainId) {
     // Go through all batches
     for (auto& batches : std::views::values(ObjectContainer)) {
         for (auto& [objects, _] : batches) {
             for (auto const& object : objects) {
-                if (object->getId() == id) {
+                if (object->getId() == domainId) {
                     return object;
                 }
             }

@@ -19,13 +19,6 @@ Constants::Error Logging::update() {
 // Domain-Bound Functions
 
 // NOLINTNEXTLINE
-Constants::Error Logging::echo(std::span<std::string const> const& args) {
-    std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    Log::println(argStr);
-    return Constants::ErrorTable::NONE();
-}
-
-// NOLINTNEXTLINE
 Constants::Error Logging::log_all(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     std::string const serialized = callerScope.serialize();
     if (args.size() > 1) {
@@ -33,7 +26,7 @@ Constants::Error Logging::log_all(std::span<std::string const> const& args, Inte
             Utility::FileManagement::WriteFile(arg, serialized);
         }
     } else {
-        std::string const id = callerScope.get<std::string>(Constants::KeyNames::RenderObject::id).value_or("0");
+        std::string const id = std::to_string(caller.getId());
         Utility::FileManagement::WriteFile("RenderObject_id" + id + ".log.jsonc", serialized);
     }
     (void)caller;      // Unused
@@ -46,7 +39,7 @@ Constants::Error Logging::log_key(std::span<std::string const> const& args, Inte
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     auto const key = callerScope.getRootScope() + args[1];
-    std::string file = "RenderObject_id" + callerScope.get<std::string>(Constants::KeyNames::RenderObject::id).value_or("0") + ".log.jsonc";
+    std::string file = "RenderObject_id" + std::to_string(caller.getId()) + ".log.jsonc";
     if (args.size() > 2) {
         file = args[2];
     }

@@ -4,10 +4,10 @@
     "action": {
         "assign": [],
         "functioncall": {
-            "global": [
+            "global": [],
+            "self": [
                 "eval echo ( {self.posX} , {self.posY} )"
             ],
-            "self": [],
             "other": []
         }
     }

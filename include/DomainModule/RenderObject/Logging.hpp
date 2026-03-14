@@ -34,14 +34,6 @@ public:
     //------------------------------------------
     // Available Functions
 
-    // Same as GlobalSpace echo, but perhaps useful to quickly check if a RenderObjects ruleset is triggered.
-    // Compared to the global echo, this one is not delayed by any taskqueue.
-    static Constants::Error echo(std::span<std::string const> const& args);
-    static auto constexpr echo_name = "echo";
-    static auto constexpr echo_desc = "Echoes all arguments as string to the standard output.\n"
-        "\n"
-        "Usage: echo <string>\n";
-
     static Constants::Error log_all(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr log_all_name = "log all";
     static auto constexpr log_all_desc = "Logs the entire RenderObject to a file.\n"
@@ -70,8 +62,6 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Logging) {
-        BIND_FUNCTION(&Logging::echo, echo_name, echo_desc);
-
         bindCategory(log_name, log_desc);
         BIND_FUNCTION(&Logging::log_all, log_all_name, log_all_desc);
         BIND_FUNCTION(&Logging::log_key, log_key_name, log_key_desc);

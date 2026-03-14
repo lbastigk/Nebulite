@@ -22,8 +22,10 @@ public:
     /**
      * @brief Constructs a new Texture domain.
      * @param documentReference Reference to the JSON document for this domain.
+     * @param parentCapture Reference to the parent capture for logging and error handling.
+     *                      Either from the Domain that owns this one or from the global capture if this is a top-level domain.
      */
-    explicit Texture(Data::JsonScope& documentReference);
+    explicit Texture(Data::JsonScope& documentReference, Utility::Capture& parentCapture);
 
     /**
      * @brief Destroys the Texture and frees resources.

@@ -4,20 +4,20 @@
 
 namespace {
 void docLoadingFailedMessage(std::string const& doc) {
-    Nebulite::Error::println("Nebulite failed to load document: " + doc);
-    Nebulite::Error::println("Please check if the file exists and is accessible.");
-    Nebulite::Error::println("If the string wasn't mean to be a file path, perhaps you forgot to wrap the string in an anti-evaluation wrapper?");
-    Nebulite::Error::println("Instead of writing: {...} in transformations or other nested expressions, try writing: {!...}");
-    Nebulite::Error::println("This prevents the variable from being evaluated, and is passed further down the line as a string.");
-    Nebulite::Error::println("Example:");
-    Nebulite::Error::println("eval echo {global.test|parse json set size {!./Resources/Renderobjects/standard.jsonc:size}|get size.X|toInt}");
-    Nebulite::Error::println("The anti-evaluation wrapper makes sure the link is evaluated at the right time.");
-    Nebulite::Error::println("Without the anti-evaluation wrapper, eval would try to evaluate a JSON object 'size' as string, which would fail");
-    Nebulite::Error::println("Another example that triggers this error:");
+    Nebulite::Global::capture().error.println("Nebulite failed to load document: " + doc);
+    Nebulite::Global::capture().error.println("Please check if the file exists and is accessible.");
+    Nebulite::Global::capture().error.println("If the string wasn't mean to be a file path, perhaps you forgot to wrap the string in an anti-evaluation wrapper?");
+    Nebulite::Global::capture().error.println("Instead of writing: {...} in transformations or other nested expressions, try writing: {!...}");
+    Nebulite::Global::capture().error.println("This prevents the variable from being evaluated, and is passed further down the line as a string.");
+    Nebulite::Global::capture().error.println("Example:");
+    Nebulite::Global::capture().error.println("eval echo {global.test|parse json set size {!./Resources/Renderobjects/standard.jsonc:size}|get size.X|toInt}");
+    Nebulite::Global::capture().error.println("The anti-evaluation wrapper makes sure the link is evaluated at the right time.");
+    Nebulite::Global::capture().error.println("Without the anti-evaluation wrapper, eval would try to evaluate a JSON object 'size' as string, which would fail");
+    Nebulite::Global::capture().error.println("Another example that triggers this error:");
     // NOLINTNEXTLINE
-    Nebulite::Error::println("eval nop {global.arr|filterRegex {!\\[(1\\d*)\\]}|filterNulls|print}");
-    Nebulite::Error::println("The anti-evaluation wrapper prevents the regex from being parsed incorrectly due to quotes, brackets etc");
-    Nebulite::Error::println("and makes sure that eval doesn't try to evaluate the regex, which would fail and trigger this error message as no file named '\\[(1\\d*)\\]' exists.");
+    Nebulite::Global::capture().error.println("eval nop {global.arr|filterRegex {!\\[(1\\d*)\\]}|filterNulls|print}");
+    Nebulite::Global::capture().error.println("The anti-evaluation wrapper prevents the regex from being parsed incorrectly due to quotes, brackets etc");
+    Nebulite::Global::capture().error.println("and makes sure that eval doesn't try to evaluate the regex, which would fail and trigger this error message as no file named '\\[(1\\d*)\\]' exists.");
 }
 } // anonymous namespace
 

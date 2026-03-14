@@ -7,6 +7,13 @@
 #define NEBULITE_UTILITY_THREADING_HPP
 
 //------------------------------------------
+// Includes
+
+// Standard library
+#include <atomic>
+#include <memory>
+
+//------------------------------------------
 namespace Nebulite::Utility {
 /**
  * @class Nebulite::Utility::Threading

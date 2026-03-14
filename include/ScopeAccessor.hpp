@@ -46,7 +46,7 @@ namespace Nebulite {
  * @brief Class to provide access tokens for various Domain types.
  * @details The access tokens can only be constructed by their respective classes.
  */
-class ScopeAccessor {
+class ScopeAccessor final {
 public:
     class BaseAccessToken {
     protected:

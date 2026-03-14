@@ -189,8 +189,9 @@ public:
      * @param treeName Name of the tree
      * @param valDefault Value to return if everything is okay
      * @param valFunctionNotFound Value to return if the parsed function was not found
+     * @param captureInstance Capture instance for logging
      */
-    FuncTree(std::string_view const& treeName, returnValue const& valDefault, returnValue const& valFunctionNotFound);
+    FuncTree(std::string_view const& treeName, returnValue const& valDefault, returnValue const& valFunctionNotFound, Utility::Capture& captureInstance);
 
     /**
      * @brief Inherits functions from another Tree.
@@ -300,6 +301,9 @@ private:
 
     // Function to call before parsing (e.g., for setting up variables or locking resources)
     std::function<returnValue()> preParse = nullptr;
+
+    // Capture instance for logging
+    Utility::Capture& capture;
 
     struct StandardReturnValues {
         returnValue valDefault;

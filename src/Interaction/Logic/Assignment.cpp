@@ -22,7 +22,7 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::str
             target.set_concat(keyEvaluated, val);
             break;
         case Operation::null:
-            Error::println("Could not determine context from key, skipping assignment");
+            Global::capture().error.println("Could not determine context from key, skipping assignment");
             break;
         default:
             std::unreachable();
@@ -45,7 +45,7 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double c
             target.set_concat(keyEvaluated, std::to_string(val));
             break;
         case Operation::null:
-            Error::println("Could not determine context from key, skipping assignment");
+            Global::capture().error.println("Could not determine context from key, skipping assignment");
             break;
         default:
             std::unreachable();
@@ -65,10 +65,10 @@ void Assignment::setValueOfKey(double const& val, double* target) const {
             *target *= val;
             break;
         case Operation::concat:
-            Error::println("Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of a Ruleset!");
+            Global::capture().error.println("Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of a Ruleset!");
             break;
         case Operation::null:
-            Error::println("Could not determine context from key, skipping assignment");
+            Global::capture().error.println("Could not determine context from key, skipping assignment");
             break;
         default:
             std::unreachable();
@@ -93,7 +93,7 @@ void Assignment::apply(ContextScopeBase const& context) const {
         case Type::null:
             // TODO: determine context from expression!
             // If still null, skip assignment
-            Error::println("Assignment expression has null type - skipping");
+            Global::capture().error.println("Assignment expression has null type - skipping");
             return; // Skip this expression
         default:
             std::unreachable();

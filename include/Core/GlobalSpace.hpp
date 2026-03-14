@@ -52,7 +52,7 @@ public:
     // Constructor itself notices if multiple instances are created
     // and throws an error in that case
 
-    explicit GlobalSpace(std::string const& name = "Unnamed GlobalSpace");
+    explicit GlobalSpace(std::string const& name);
 
     /**
      * @brief In order to avoid infinite recursion, we initialize GlobalSpace after construction.
@@ -147,6 +147,23 @@ public:
      * @return Reference to the DocumentCache instance.
      */
     Data::DocumentCache& getDocCache() { return docCache; }
+
+    //------------------------------------------
+    // Id-index mapping
+
+    /**
+    * @brief Gets the RenderObject ID from its index in the rendering pipeline.
+    * @param index The index of the RenderObject in the rendering pipeline.
+    * @return An optional containing the ID of the RenderObject if found, or std::nullopt if no object is associated with the given index.
+    */
+    std::optional<size_t> getIdFromIndex(size_t const& index) const { return renderer.getIdFromIndex(index); }
+
+    /**
+     * @brief Gets the RenderObject index in the rendering pipeline from its ID.
+     * @param searchId The ID of the RenderObject to search for.
+     * @return An optional containing the index of the RenderObject in the rendering pipeline if found, or std::nullopt if no object is associated with the given ID.
+     */
+    std::optional<size_t> getIndexFromId(size_t const& searchId) const { return renderer.getIndexFromId(searchId); }
 
     //------------------------------------------
     // DomainModule variables

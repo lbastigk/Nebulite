@@ -24,7 +24,9 @@
             "all"
         ],
         "list": [
-            "::camera::align::center"
+            "::camera::align::center",
+            "./Resources/Invokes/Debug/echo_pos.jsonc",
+            "./Resources/Invokes/Debug/delete_instantly.json"
         ]
     }
 }

@@ -1,11 +1,14 @@
 #include "Nebulite.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
-#include "Data/Document/JsonScope.hpp"
 
 namespace Nebulite::Interaction::Rules {
 
 //------------------------------------------
 // Base Class Virtual Methods
+
+size_t const& Ruleset::getId() const { return self.getId(); }
+
+size_t const& Ruleset::getIdHashed() const { return self.getIdHashed(); }
 
 bool Ruleset::evaluateCondition(Execution::Domain& /*other*/) {
     return false;

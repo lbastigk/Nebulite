@@ -71,7 +71,7 @@ public:
     //------------------------------------------
     // Special Members
 
-    explicit Environment(Data::JsonScope& documentReference);
+    explicit Environment(Data::JsonScope& documentReference, Utility::Capture& parentCapture);
 
     ~Environment() override ;
 
@@ -138,10 +138,10 @@ public:
 
     /**
      * @brief Retrieves a RenderObject by its ID.
-     * @param id The ID of the RenderObject to retrieve.
+     * @param domainId The ID of the RenderObject to retrieve.
      * @return A pointer to the RenderObject if found, nullptr otherwise.
      */
-    RenderObject* getObjectFromId(uint32_t const& id);
+    RenderObject* getObjectFromId(size_t const& domainId);
 
     //------------------------------------------
     // Container Management

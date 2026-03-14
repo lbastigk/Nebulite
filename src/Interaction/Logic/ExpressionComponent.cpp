@@ -175,7 +175,7 @@ std::optional<std::pair<std::string, Expression::Component::ContextType>> Expres
     // See if the variable contains an inner expression
     if (str.find('$') != std::string::npos || str.find('{') != std::string::npos) {
         if (recursionDepth == 0) {
-            Error::println("Error: Maximum recursion depth reached when evaluating variable: ", key);
+            Global::capture().error.println("Error: Maximum recursion depth reached when evaluating variable: ", key);
             return std::nullopt;
         }
         // Create a temporary expression to evaluate the inner expression

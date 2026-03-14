@@ -32,7 +32,7 @@ namespace Nebulite::Graphics {
 class Drawcall {
 public:
     // Any Drawcall is based on a scopes data
-    explicit Drawcall(Data::JsonScope& workspace);
+    explicit Drawcall(Data::JsonScope& workspace, Utility::Capture& parentCapture);
 
     ~Drawcall() = default;
 

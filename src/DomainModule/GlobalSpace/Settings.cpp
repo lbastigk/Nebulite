@@ -122,11 +122,11 @@ void Settings::loadSettings(std::string const& filename) {
     //---------------------------------------------------
     // Check if settings file existed, if not, write default settings back to file
     if (settings.memberType("") != Data::KeyType::object) {
-        Error::println("Settings: Settings file is invalid. Loading default values.");
+        domain.capture.error.println("Settings: Settings file is invalid. Loading default values.");
         // Settings file does not exist!
         // Write default settings to file
         if (saveSettings() != Constants::ErrorTable::NONE()) {
-            Error::println("Settings: Failed to write default settings to file: ", filename);
+            domain.capture.error.println("Settings: Failed to write default settings to file: ", filename);
         }
     }
 }

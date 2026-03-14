@@ -59,13 +59,13 @@ void Physics::elasticCollision(Interaction::Context const& context, double**& sl
     // Prioritize circle collision if radius is set (> 0)
     if (radius1 > 0.0 && radius2 > 0.0) {
         // TODO: Circle-circle collision detection and response
-        Error::println("Circle-circle elastic collision not yet implemented.");
+        Global::capture().error.println("Circle-circle elastic collision not yet implemented.");
     }
     else if (radius1 > 0.0) {
-        Error::println("Circle-box elastic collision not yet implemented.");
+        Global::capture().error.println("Circle-box elastic collision not yet implemented.");
     }
     else if (radius2 > 0.0) {
-        Error::println("Box-circle elastic collision not yet implemented.");
+        Global::capture().error.println("Box-circle elastic collision not yet implemented.");
     }
     else {
         // Base overlap condition

@@ -160,7 +160,7 @@ namespace Nebulite {
 /**
  * @brief Static class to provide access to the global GlobalSpace singleton and selected global JSON document scopes.
  */
-class Global {
+class Global final {
 public:
     /**
      * @brief Provides access to the global GlobalSpace singleton.
@@ -186,13 +186,16 @@ public:
     [[nodiscard]] static Data::JsonScope& shareScopeBase(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix = "");
 
     //------------------------------------------
-    // Imgui rendering
+    // Capture access
 
     /**
-     * @brief Renders the Imgui window showing the global space.
-     * @details Make sure imgui is initialized and a frame is started before calling this function.
+     * @brief Provides access to the global capture instance.
+     * @details Whenever possible, use the local capture provided by the Domain (or DomainModule) instead of this global capture, to ensure proper hierarchical capture behavior.
+     * @return Reference to the global capture instance.
      */
-    static void renderImguiGlobalSpaceWindow();
+    static Utility::Capture& capture() {
+        return instance().capture;
+    }
 
 private:
     /**
@@ -200,38 +203,6 @@ private:
      * @return Reference to the global JSON document.
      */
     static Data::JSON& globalDoc();
-};
-
-/**
- * @brief Static class for logging messages to the console (stdout).
- */
-class Log {
-public:
-    template<typename... Args>
-    static void print(Args&&... args) {
-        Utility::Capture::cout().print(std::forward<Args>(args)...);
-    }
-
-    template<typename... Args>
-    static void println(Args&&... args) {
-        Utility::Capture::cout().println(std::forward<Args>(args)...);
-    }
-};
-
-/**
- * @brief Static class for logging error messages to the console (stderr).
- */
-class Error {
-public:
-    template<typename... Args>
-    static void print(Args&&... args) {
-        Utility::Capture::cerr().print(std::forward<Args>(args)...);
-    }
-
-    template<typename... Args>
-    static void println(Args&&... args) {
-        Utility::Capture::cerr().println(std::forward<Args>(args)...);
-    }
 };
 
 } // namespace Nebulite

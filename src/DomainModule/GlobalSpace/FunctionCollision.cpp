@@ -1,5 +1,7 @@
 #include "DomainModule/GlobalSpace/FunctionCollision.hpp"
 
+#include "Nebulite.hpp"
+
 namespace Nebulite::DomainModule::GlobalSpace {
 
 Constants::Error FunctionCollision::update() {
@@ -22,7 +24,7 @@ bool testFunctionCollision2(bool const& arg) {
 } // namespace
 
 
-Constants::Error FunctionCollision::debug_collisionDetect_function(std::span<std::string const> const& args){
+Constants::Error FunctionCollision::debug_collisionDetect_function(std::span<std::string const> const& args) const {
     bool fail = true;
     if (args.size() >= 2) {
         if (std::string const mode = args.at(1); mode == "succeed") {
@@ -34,7 +36,7 @@ Constants::Error FunctionCollision::debug_collisionDetect_function(std::span<std
         }
     }
 
-    Interaction::Execution::FuncTree<bool,bool const&> testTree("Test",true,true);
+    Interaction::Execution::FuncTree<bool,bool const&> testTree("Test",true,true, domain.capture);
 
     if (fail) {
         // This will fail, as the function name is already registered
@@ -58,7 +60,7 @@ Constants::Error FunctionCollision::debug_collisionDetect_function(std::span<std
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error FunctionCollision::debug_collisionDetect_category(std::span<std::string const> const& args) {
+Constants::Error FunctionCollision::debug_collisionDetect_category(std::span<std::string const> const& args) const {
     bool fail = true;
     if (args.size() >= 2) {
         if (std::string const mode = args.at(1); mode == "succeed") {
@@ -70,7 +72,7 @@ Constants::Error FunctionCollision::debug_collisionDetect_category(std::span<std
         }
     }
 
-    Interaction::Execution::FuncTree<bool,bool const&> testTree("Test",true,true);
+    Interaction::Execution::FuncTree<bool,bool const&> testTree("Test",true,true, domain.capture);
 
     if (fail) {
         // This will fail, as the category name is already registered
@@ -101,7 +103,7 @@ Constants::Error FunctionCollision::debug_collisionDetect_category(std::span<std
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error FunctionCollision::debug_collisionDetect_variable(std::span<std::string const> const& args) {
+Constants::Error FunctionCollision::debug_collisionDetect_variable(std::span<std::string const> const& args) const {
     bool fail = true;
     if (args.size() >= 2) {
         if (std::string const mode = args.at(1); mode == "succeed") {
@@ -113,7 +115,7 @@ Constants::Error FunctionCollision::debug_collisionDetect_variable(std::span<std
         }
     }
 
-    Interaction::Execution::FuncTree<bool,bool> testTree("Test",true,true);
+    Interaction::Execution::FuncTree<bool,bool> testTree("Test",true,true, domain.capture);
     static bool headless = false;
     const static std::string headless_var_desc = "Indicates whether the application is running in headless mode (without GUI).";
 

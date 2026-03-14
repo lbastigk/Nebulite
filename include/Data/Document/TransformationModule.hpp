@@ -32,7 +32,7 @@ class JSON;
 // Technically dangerous as we do not want any transformationModule to have member variables
 // Better solution would be to pass the FuncTree as argument to any function call, that way we can reparse for functions such as "map",
 // without any risk of having member variables.
-// TODO: Refactor all transformationModule functions so that addionalArgs is both Core::JsonScope* and FuncTree*
+// TODO: Refactor all transformationModule functions so that addionalArgs is both JsonScope* and FuncTree*
 #define BIND_TRANSFORMATION_MEMBER(foo, name, desc) \
 static_assert(::Nebulite::Constants::Assert::endsWithNewline(desc), "Description must end with a newline character"); \
 Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, foo, name, desc)

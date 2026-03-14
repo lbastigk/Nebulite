@@ -22,13 +22,8 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-audio-debug test-filter 0,0.15,0.4,0.8,1.0,0.8,0.4,0.15,0,-0.15,-0.4,-0.8,-1.0,-0.8,-0.4,-0.15,0 0.2066,0.4131,0.2066 1,-0.3695,0.1958
+set settings.n 10
+task TaskFiles/Benchmarks/gravity_XL_unlimited.nebs
+wait 1
 
-
-set-fps 60
-
-play-sound ./Resources/Audio/TestAudio_TTS_F32.wav
-wait 300
-play-sound-filtered ./Resources/Audio/TestAudio_TTS_F32.wav 10,10,1 1,11,11
-wait 300
-exit
+imgui-view on

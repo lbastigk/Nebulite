@@ -25,7 +25,7 @@
 namespace Nebulite::Data {
 
 JsonRvalueTransformer::JsonRvalueTransformer() {
-    transformationFuncTree = std::make_shared<Interaction::Execution::FuncTree<bool, JsonScope*>>("JSON rvalue transformation FuncTree", true, false);
+    transformationFuncTree = std::make_shared<Interaction::Execution::FuncTree<bool, JsonScope*>>("JSON rvalue transformation FuncTree", true, false, Global::capture()); // Pass to main capture
 
     //------------------------------------------
     // Initialize modules

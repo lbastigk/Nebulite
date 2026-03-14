@@ -44,7 +44,7 @@ public:
      * @todo: errorLog on causes crash with wine
      *        wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
      */
-    Constants::Error errorLog(int argc, char** argv);
+    Constants::Error errorLog(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr errorLog_name = "error-log";
     static auto constexpr errorLog_desc = "Activates or deactivates error logging to a file.\n"
         "Usage: error-log <on/off>\n"
@@ -53,6 +53,8 @@ public:
         "- off: Deactivates error logging, reverting to standard error output.\n"
         "Note: Ensure you have write permissions in the working directory when activating error logging.\n";
 
+    // TODO: offer a per-domain clear option in Nebulite::DomainModule::Common::Debug. This clears the global capture.
+    //       perhaps naming them clear-all and clear respectively?
     static Constants::Error clearConsole(std::span<std::string const> const& args);
     static auto constexpr clearConsole_name = "clear";
     static auto constexpr clearConsole_desc = "Clears the console screen.\n"
@@ -77,7 +79,7 @@ public:
         "- <filenames>: Optional. One or more filenames to log the renderer state to.\n"
         "               If no filenames are provided, defaults to 'state.log.jsonc'.\n";
 
-    static Constants::Error crash(std::span<std::string const> const& args);
+    static Constants::Error crash(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr crash_name = "crash";
     static auto constexpr crash_desc = "Crashes the program, useful for checking if the testing suite can catch crashes.\n"
         "Usage: crash [<type>]\n"
@@ -88,35 +90,14 @@ public:
         "    - terminate  : Calls std::terminate()\n"
         "    - throw      : Throws an uncaught exception\n";
 
-    static Constants::Error error(std::span<std::string const> const& args);
-    static auto constexpr error_name = "error";
-    static auto constexpr error_desc = "Echoes all arguments as string to the standard error.\n"
-        "Usage: error <string...>\n"
-        "\n"
-        "- <string...>: One or more strings to echo to the standard error.\n";
-
-    static Constants::Error warn(std::span<std::string const> const& args);
-    static auto constexpr warn_name = "warn";
-    static auto constexpr warn_desc = "Returns a warning: a custom, noncritical error.\n"
-        "Usage: warn <string>\n"
-        "\n"
-        "- <string>: The warning message.\n";
-
-    static Constants::Error critical(std::span<std::string const> const& args);
-    static auto constexpr critical_name = "critical";
-    static auto constexpr critical_desc = "Returns a critical error.\n"
-        "Usage: critical <string>\n"
-        "\n"
-        "- <string>: The critical error message.\n";
-
-    static Constants::Error waitForInput(std::span<std::string const> const& args);
+    static Constants::Error waitForInput(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr waitForInput_name = "input-wait";
     static auto constexpr waitForInput_desc = "Waits for user input before continuing.\n"
         "Usage: input-wait [prompt]\n"
         "\n"
         "Note: This function pauses execution until the user presses Enter\n";
 
-    static Constants::Error standardFileRenderObject(std::span<std::string const> const& args);
+    Constants::Error standardFileRenderObject(std::span<std::string const> const& args) const ;
     static auto constexpr standardFileRenderObject_name = "standard-file render-object";
     static auto constexpr standardFileRenderObject_desc = "Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.\n"
         "Usage: standard-file render-object\n"
@@ -154,10 +135,7 @@ public:
         // Binding functions to the FuncTree
         BIND_FUNCTION(&Debug::errorLog, errorLog_name, errorLog_desc);
         BIND_FUNCTION(&Debug::clearConsole, clearConsole_name, clearConsole_desc);
-        BIND_FUNCTION(&Debug::error, error_name, error_desc);
         BIND_FUNCTION(&Debug::crash, crash_name, crash_desc);
-        BIND_FUNCTION(&Debug::warn, warn_name, warn_desc);
-        BIND_FUNCTION(&Debug::critical, critical_name, critical_desc);
         BIND_FUNCTION(&Debug::waitForInput, waitForInput_name, waitForInput_desc);
         BIND_FUNCTION(&Debug::listExpressionFunctions, listExpressionFunctions_name, listExpressionFunctions_desc);
 

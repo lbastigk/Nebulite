@@ -77,7 +77,7 @@ class RulesetCompiler;
 namespace Nebulite::Interaction::Execution {
 
 // Helps not expose the domainScopeOwned to friend classes of DocumentAccessor
-class ScopeOwner {
+class ScopeOwnershipManager {
     friend class DocumentAccessor;
     // Only used if the DocumentAccessor owns the scope (i.e., when constructed with the default constructor)
     std::unique_ptr<Data::JsonScope> _domainScopeOwned;
@@ -88,8 +88,8 @@ public:
         Borrowed // Will be left empty
     };
 
-    virtual ~ScopeOwner() = default;
-    explicit ScopeOwner(ScopeOwnership const& ownership = ScopeOwnership::Borrowed);
+    virtual ~ScopeOwnershipManager();
+    explicit ScopeOwnershipManager(ScopeOwnership const& ownership = ScopeOwnership::Borrowed);
 };
 
 /**
@@ -100,7 +100,7 @@ public:
  *          For example, DomainModules should not have direct access to the domain's document,
  *          due to the encapsulation they provide. Instead, we pass a scope to them.
  */
-class DocumentAccessor : ScopeOwner {
+class DocumentAccessor : ScopeOwnershipManager {
 public:
     explicit DocumentAccessor(Data::JsonScope& d);
 
@@ -180,6 +180,7 @@ class Domain : public DocumentAccessor {
      * @details We use a pointer here so we can
      *          easily create the object with an inherited FuncTree inside the constructor.
      *          The Tree is then shared with the DomainModules for modification.
+     * @todo Providing the domain reference and Scope may not be necessary anymore, please investigate!
      */
     std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> funcTree;
 
@@ -188,7 +189,29 @@ class Domain : public DocumentAccessor {
      */
     std::vector<std::unique_ptr<DomainModuleBase>> modules;
 
+    static size_t idGenerator() {
+        static std::atomic<size_t> idCounter{0};
+        idCounter.fetch_add(1, std::memory_order_relaxed);
+        size_t const id = idCounter.load(std::memory_order_relaxed) - 1; // Get the current value before incrementing
+        return id;
+    }
+
+    static size_t splitMix64(size_t x) {
+        x += 0x9e3779b97f4a7c15;
+        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
+        x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
+        x = x ^ (x >> 31);
+        return x;
+    }
+
+    size_t id = idGenerator(); // Unique ID for the domain, used for ordered cache lists and other purposes
+    size_t idHashed = splitMix64(id); // Hashed ID for better distribution
+
 public:
+    Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Capture& parentCapture);
+
+    explicit Domain(std::string const& name, Utility::Capture& parentCapture);
+
     Domain(std::string const& name, Data::JsonScope& documentReference);
 
     explicit Domain(std::string const& name);
@@ -204,10 +227,16 @@ public:
     Domain& operator=(Domain&& other) = delete;
 
     //------------------------------------------
+    // Set new name
+
+    void setName(std::string const& newName) {
+        domainName = newName;
+    }
+
+    //------------------------------------------
     // Get Document prefix
 
     [[nodiscard]] std::string const& scopePrefix() const ;
-
 
     //------------------------------------------
     // Binding, initializing and inheriting
@@ -228,12 +257,26 @@ public:
         }
     }
 
+    [[nodiscard]] size_t const& getId() const {
+        return id;
+    }
+
+    [[nodiscard]] size_t const& getIdHashed() const {
+        return idHashed;
+    }
+
     //------------------------------------------
     // Updating
 
     /**
      * @brief Updates the domain.
      *        On overwriting, make sure to update all subdomains and DomainModules as well.
+     * @todo refactor to non-virtual update and a virtual updateImpl, which is called by update
+     *       Inside update, check what's possible:
+     *       - updating modules
+     *       - passing domain id to scope (at least once, maybe as a routine)
+     *       - update all timed routines
+     *       Requires some modifications of GlobalSpace::update(), directly calling updateModules there might be an issue.
      */
     virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
 
@@ -292,7 +335,9 @@ public:
     template <typename DomainType, typename DomainModuleType>
     void initModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference) {
         if constexpr(std::is_same_v<DomainType, Domain>) {
-            // If the DomainType is the base Domain class, we initialize modules without scope
+            // If the DomainType is the base Domain class, we must initialize modules without scope
+            static_assert(!HasKeyGroup<DomainModuleType>, "DomainModules linked to the base Domain class cannot have a scope. Please remove the static Key::scope member from the module.");
+
             auto& scope = domainReference.domainScope.shareDummyScopeBase();
             auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, funcTree, scope, settings);
             DomainModule->reinit();
@@ -375,6 +420,9 @@ public:
      * @brief Locks the domain's document for thread-safe access.
      */
     [[nodiscard]] std::unique_lock<std::recursive_mutex> lockDocument() const ;
+
+    // Stream for collecting any output during command execution, which can be used for debugging or logging purposes.
+    Utility::Capture capture;
 
 protected:
     /**

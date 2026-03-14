@@ -122,12 +122,11 @@ private:
     static void optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JsonScope& self);
 
     /**
-     * @brief Sets metadata in the object itself and in each Ruleset entry, including IDs, indices, and estimated computational cost.
-     * @param self The Domain that owns the entries.
+     * @brief Sets metadata in the object.
      * @param rulesetsLocal The local Ruleset objects.
      * @param rulesetsGlobal The global Ruleset objects.
      */
-    static void setMetaData(Execution::Domain const& self, RulesetVector const& rulesetsLocal, RulesetVector const& rulesetsGlobal);
+    static void setMetaData(RulesetVector const& rulesetsLocal, RulesetVector const& rulesetsGlobal);
 };
 } // namespace Nebulite::Interaction::Rules::Construction
 #endif // NEBULITE_RULESET_COMPILER_HPP

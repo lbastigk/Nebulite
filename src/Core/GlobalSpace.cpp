@@ -10,23 +10,27 @@
 namespace Nebulite::Core {
 
 GlobalSpace::GlobalSpace(std::string const& name) :
-    Domain("Nebulite", Global::shareScopeBase(ScopeAccessor::Full(), "")), // Domain with reference to GlobalSpace and its full scope
+    Domain("GlobalSpace", Global::shareScopeBase(ScopeAccessor::Full(), "")), // Domain with reference to GlobalSpace and its full scope
     renderer(
         Global::shareScopeBase(ScopeAccessor::Full(), "renderer"),
-        &cmdVars.headless
+        &cmdVars.headless,
+        capture
     ) // Share only the renderer portion of the global document
 {
     //------------------------------------------
-    // Initialize floating DomainModules
+    // Ensure GlobalSpace id is zero
+    if (getId() != 0) {
+        throw std::runtime_error("GlobalSpace must have an id of zero! Current id: " + std::to_string(getId()));
+    }
 
+    //------------------------------------------
+    // Initialize floating DomainModules
     floatingDM.rng = createModule<GlobalSpace, DomainModule::GlobalSpace::RNG>(
         "RNG",
         Global::settings(),
         *this,
         getFuncTree()
     );
-
-
 
     //------------------------------------------
     // There should only be one GlobalSpace

@@ -8,6 +8,8 @@
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Math/ExpressionPrimitives.hpp"
 
+#include "Nebulite.hpp"
+
 //------------------------------------------
 namespace Nebulite::Math {
 
@@ -56,7 +58,7 @@ bool pseudoBind() {
 void ExpressionPrimitives::help(std::span<std::string const> const& args) {
     // Create a temporary funcTree to utilize its printFunctionList method for formatted output
 
-    Interaction::Execution::FuncTree tempFuncTree("Nebulite Expressions", true, true);
+    Interaction::Execution::FuncTree tempFuncTree("Nebulite Expressions", true, true, Global::capture()); // Pass to main capture
 
     // Use a void lambda as binding function
     for (const auto& funcInfo : availableFunctions()) {

@@ -19,7 +19,7 @@ Constants::Error Audio::update() {
 
 Constants::Error Audio::beep(std::span<std::string const> const& args) const {
     if (args.size() < 2) {
-        Log::println("No waveform type specified. Defaulting to sine.");
+        domain.capture.log.println("No waveform type specified. Defaulting to sine.");
         SDL_PutAudioStreamData(
             stream,
             basicAudioWaveforms.sineBuffer.data(),
@@ -48,7 +48,7 @@ Constants::Error Audio::beep(std::span<std::string const> const& args) const {
                 static_cast<int>(basicAudioWaveforms.squareBuffer.size() * sizeof(int16_t))
             );
         } else {
-            Error::println("Unknown waveform type: ", arg);
+            domain.capture.error.println("Unknown waveform type: ", arg);
         }
     }
     return Constants::ErrorTable::NONE();
@@ -62,7 +62,7 @@ Constants::Error Audio::playSound(std::span<std::string const> const& args) {
     auto const path = Utility::StringHandler::recombineArgs(args | std::views::drop(1));
     auto const sound = loadSound(path);
     if (!sound.has_value()) {
-        Error::println("Failed to load sound from path: ", path);
+        domain.capture.error.println("Failed to load sound from path: ", path);
         return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
 
@@ -83,7 +83,7 @@ Constants::Error Audio::playSoundWithFilter(std::span<std::string const> const& 
     auto const path = args[1];
     auto const sound = loadSound(path);
     if (!sound.has_value()) {
-        Error::println("Failed to load sound from path: ", path);
+        domain.capture.error.println("Failed to load sound from path: ", path);
         return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
     }
 
@@ -100,7 +100,7 @@ Constants::Error Audio::playSoundWithFilter(std::span<std::string const> const& 
             return { parse(args[2]), parse(args[3]) };
         }
         catch (std::exception const& e) {
-            Error::println("Failed to parse coefficients: ", e.what());
+            domain.capture.error.println("Failed to parse coefficients: ", e.what());
             throw;
         }
     }();
@@ -124,7 +124,7 @@ Constants::Error Audio::playSoundWithFilter(std::span<std::string const> const& 
     return Constants::ErrorTable::NONE();
 }
 
-Constants::Error Audio::testFilter(std::span<std::string const> const& args){
+Constants::Error Audio::testFilter(std::span<std::string const> const& args) const {
     if (args.size() < 3) {
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
@@ -148,14 +148,14 @@ Constants::Error Audio::testFilter(std::span<std::string const> const& args){
             denData.push_back(std::stod(coeff));
         }
     } catch (std::exception const& e) {
-        Error::println("Failed to parse coefficients: ", e.what());
+        domain.capture.error.println("Failed to parse coefficients: ", e.what());
         return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
     }
 
     auto const out = Math::FFT::applyTransferFunction({inputData}, numData, denData);
-    Log::println("Output:");
+    domain.capture.log.println("Output:");
     for (auto const& sample : out) {
-        Log::println(sample);
+        domain.capture.log.println(sample);
     }
     return Constants::ErrorTable::NONE();
 }
@@ -163,7 +163,7 @@ Constants::Error Audio::testFilter(std::span<std::string const> const& args){
 void Audio::initAudio(){
     // Init
     if (!SDL_Init(SDL_INIT_AUDIO)) {
-        Error::println("SDL_Init Audio Error: ", SDL_GetError());
+        domain.capture.error.println("SDL_Init Audio Error: ", SDL_GetError());
         std::abort();
     }
     spec.freq = 44100;
@@ -172,7 +172,7 @@ void Audio::initAudio(){
 
     stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, nullptr, nullptr);
     if (!stream) {
-        Error::println("Failed to open audio device: ", SDL_GetError());
+        domain.capture.error.println("Failed to open audio device: ", SDL_GetError());
         std::abort();
     }
     SDL_ResumeAudioStreamDevice(stream);
@@ -214,13 +214,13 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
     SDL_AudioSpec wavSpec = {};
     SDL_LoadWAV(path.c_str(), &wavSpec, &data, &length);
     if (!data || length == 0) {
-        Error::println("SDL_LoadWAV Error: ", SDL_GetError());
+        domain.capture.error.println("SDL_LoadWAV Error: ", SDL_GetError());
         return std::nullopt;
     }
 
     // Check if sound is the correct format
     if (wavSpec.channels != spec.channels || wavSpec.freq != spec.freq) {
-        Error::println("Sound format does not match audio stream format. Sound: ", path);
+        domain.capture.error.println("Sound format does not match audio stream format. Sound: ", path);
         // TODO: Implement channel and sample rate conversion
         //       Probably best to do this after the conversion to float
         return std::nullopt;
@@ -261,7 +261,7 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
         case SDL_AUDIO_S32BE:
         case SDL_AUDIO_F32BE:
         case SDL_AUDIO_UNKNOWN:
-            Error::println("Unsupported audio format: ", sdlAudioFormatToString(wavSpec.format), " for sound: ", path, ". Feel free to submit a PR to add support for this format in function: ", __func__);
+            domain.capture.error.println("Unsupported audio format: ", sdlAudioFormatToString(wavSpec.format), " for sound: ", path, ". Feel free to submit a PR to add support for this format in function: ", __func__);
             SDL_free(data);
             return std::nullopt;
         default:
@@ -278,7 +278,7 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
     SDL_free(data);
     auto const it = soundCache.find(path);
     if (it == soundCache.end()) {
-        Error::println("Failed to cache sound after loading: ", path);
+        domain.capture.error.println("Failed to cache sound after loading: ", path);
         return std::nullopt;
     }
     return it;

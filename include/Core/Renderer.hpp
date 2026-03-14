@@ -37,8 +37,10 @@ public:
      * @brief Initializes a Renderer with given dimensions and settings.
      * @param documentReference Reference to the JSON document
      * @param flag_headless Reference to the Boolean flag for headless mode.
+     * @param parentCapture Reference to the parent capture for logging and error handling.
+     *                      Either from the Domain that owns this one or from the global capture if this is a top-level domain.
      */
-    Renderer(Data::JsonScope& documentReference, bool* flag_headless);
+    Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::Capture& parentCapture);
 
     //------------------------------------------
     // Disallow copying and moving
@@ -201,7 +203,7 @@ public:
      * @param link The link to save the snapshot to.
      * @return True if the snapshot was successful, false otherwise.
      */
-    [[nodiscard]] bool snapshot(std::string link) const;
+    [[nodiscard]] bool snapshot(std::string link);
 
     //------------------------------------------
     // Purge
@@ -266,10 +268,6 @@ public:
             logicalRect.w * static_cast<float>(windowScale),
             logicalRect.h * static_cast<float>(windowScale)
         };
-    }
-
-    void showDebugWindow(bool const& show) noexcept {
-        status.showDebugWindow = show;
     }
 
     //------------------------------------------
@@ -348,12 +346,43 @@ public:
     [[nodiscard]] SDL_Window* getSdlWindow() const { return window; }
 
     /**
-     * @brief Gets the RenderObject from its ID.
-     * @param id The ID of the RenderObject to retrieve.
-     * @return A pointer to the RenderObject, or nullptr if not found.
+     * @brief Gets the RenderObject ID from its index in the rendering pipeline.
+     * @param index The index of the RenderObject in the rendering pipeline.
+     * @return An optional containing the ID of the RenderObject if found, or std::nullopt if no object is associated with the given index.
      */
-    RenderObject* getObjectFromId(uint32_t const& id) {
-        return env.getObjectFromId(id);
+    std::optional<size_t> getIdFromIndex(size_t const& index) const {
+        if (!indexToIdMap.contains(index)) {
+            return std::nullopt; // No object with this index
+        }
+        return indexToIdMap.at(index);
+    }
+
+    /**
+     * @brief Gets the RenderObject index in the rendering pipeline from its ID.
+     * @param domainId The domain ID of the RenderObject to search for.
+     * @return An optional containing the index of the RenderObject in the rendering pipeline if found, or std::nullopt if no object is associated with the given ID.
+     */
+    std::optional<size_t> getIndexFromId(size_t const& domainId) const {
+        for (const auto& [objIndex, objId] : indexToIdMap) {
+            if (objId == domainId) {
+                return objIndex; // Return the index associated with the given ID
+            }
+        }
+        return std::nullopt; // No index found for the given ID
+    }
+
+    /**
+     * @brief Gets the RenderObject from its ID.
+     * @param searchId The ID of the RenderObject to retrieve.
+     * @return A pointer to the RenderObject, or nullptr if not found.
+     * @todo Add another function that retrieves the renderobject based on index, not id
+     */
+    RenderObject* getObjectFromIndex(size_t const& searchId) {
+        if (!indexToIdMap.contains(searchId)) {
+            return nullptr; // No object with this index
+        }
+        auto const domainId = indexToIdMap[searchId];
+        return env.getObjectFromId(domainId);
     }
 
     /**
@@ -390,7 +419,7 @@ public:
      * @param link The file path to load the texture from.
      * @return A pointer to the loaded SDL_Texture, or nullptr if loading failed.
      */
-    [[nodiscard]] SDL_Texture* loadTextureToMemory(std::string const& link) const;
+    [[nodiscard]] SDL_Texture* loadTextureToMemory(std::string const& link);
 
     /**
      * @brief Retrieves a texture from the TextureContainer.
@@ -441,11 +470,17 @@ private:
         bool skippedUpdateLastFrame = false;
         bool sdlInitialized = false;
         bool quit = false; // Set to true when an SDL_QUIT event is received or outside wants to quit
-        bool showDebugWindow = false;
+        bool firstFrameRendered = false; // Used to manage first frame rendering and timing
     }status;
 
     // External Flags
     bool* headless = nullptr;
+
+    //------------------------------------------
+    // Append index to domain id
+
+    absl::flat_hash_map<size_t, size_t> indexToIdMap;
+    size_t indexCounter = 1; // Start at 1 to avoid confusion with default value of 0
 
     //------------------------------------------
     // Display
@@ -464,12 +499,6 @@ private:
      */
     std::string baseDirectory;
 
-    /**
-     * @brief Counter for assigning unique IDs to RenderObjects.
-     * @note Easier to debug if it starts at 1, as 0 might come up in overflows, and negative values may not be valid
-     */
-    uint32_t renderObjectIdCounter = 1;
-
     // Positions
     int16_t tilePositionX;
     int16_t tilePositionY;
@@ -486,7 +515,7 @@ private:
     //------------------------------------------
     // Pipeline: Software / General
 
-    void renderInit() const;
+    void renderInit();
 
     void pollEvents();
 

@@ -36,7 +36,7 @@ public:
     /**
      * @brief Constructs a new RenderObject.
      */
-    RenderObject();
+    explicit RenderObject(Utility::Capture& parentCapture);
 
     /**
      * @brief Destroys the RenderObject.
@@ -112,10 +112,7 @@ public:
     //------------------------------------------
     // Special getters
 
-    [[nodiscard]] uint32_t getId() const {
-        // A double can represent all uint32_t values exactly, so this is safe
-        return static_cast<uint32_t>(static_cast<int64_t>(*refs.id));
-    }
+
 
     //------------------------------------------
     // Management Flags for Renderer-Interaction
@@ -192,10 +189,7 @@ private:
      *       Later on, we may wish to use static in-function pointers like it's planned for rulesets.
      */
     struct FrequentRefs {
-        // Identity
-        double* id = nullptr;
-
-        // Position and Size
+        // Position
         double* posX = nullptr;
         double* posY = nullptr;
     } refs = {};

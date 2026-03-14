@@ -41,14 +41,14 @@ Constants::Error General::spawn(int const argc, char** argv) const {
         std::string const linkOrObject = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
 
         // Create object with link to globalspace
-        auto* ro = new Core::RenderObject;
+        auto* ro = new Core::RenderObject(domain.capture);
         ro->deserialize(linkOrObject);
 
         // Append to renderer
         // Renderer manages the RenderObjects lifetime
         domain.append(ro);
     } else {
-        Error::println("No RenderObject name provided!");
+        domain.capture.error.println("No RenderObject name provided!");
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
     return Constants::ErrorTable::NONE();
@@ -169,8 +169,8 @@ Constants::Error General::selectedObject_get(int const argc, char** argv){
     }
 
     // Supports only uint32_t ids
-    uint32_t const id = static_cast<uint32_t>(std::stoul(argv[1]));
-    if (Core::RenderObject* obj = domain.getObjectFromId(id); obj) {
+    size_t const idx = std::stoul(argv[1]);
+    if (Core::RenderObject* obj = domain.getObjectFromIndex(idx); obj) {
         selectedRenderObject = obj;
         return Constants::ErrorTable::NONE();
     }

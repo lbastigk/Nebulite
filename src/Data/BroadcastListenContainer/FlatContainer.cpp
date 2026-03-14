@@ -1,6 +1,7 @@
 #include <ranges>
 
 #include "Data/BroadcastListenContainer/FlatContainer.hpp"
+#include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Utility/Threading.hpp"
 
@@ -86,7 +87,7 @@ void FlatContainer::process() {
             for (auto& listener : rotate(lv, lvOffset)) {
                 for (auto const& ruleset : rulesets) {
 
-                    if (ruleset->getId() == listener->listenerId)
+                    if (ruleset->getId() == listener->domain.getId())
                         continue;
 
                     if (ruleset->evaluateCondition(listener->domain))

@@ -72,14 +72,14 @@ public:
     };
 
 private:
+    // Check if the module is initialized and ready to use
+    bool initialized = false;
+
     // Size of subscriptions
     size_t subscription_size = 0;
 
     // Check if rulesets need to be reloaded
     bool reloadRulesets = true;
-
-    // RenderObject id
-    uint32_t id = 0;
 
     // Global rulesets, intended for self-other-global interaction
     std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsGlobal;

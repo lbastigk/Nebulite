@@ -51,8 +51,9 @@ public:
      * @param serialOrLink JSON string representation of the container, or link to a json/jsonc file.
      * @param dispResX Display resolution width for tile initialization.
      * @param dispResY Display resolution height for tile initialization.
+     * @param capture Capture instance to pass to RenderObjects during construction.
      */
-    void deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY);
+    void deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY, Utility::Capture& capture);
 
     //------------------------------------------
     // Pipeline
@@ -123,10 +124,10 @@ public:
      *        Does not remove the object from the container.
      *        Do **not** delete the returned object,
      *        it's still owned and managed by the container!
-     * @param id The unique ID of the RenderObject to retrieve.
+     * @param domainId The unique ID of the RenderObject to retrieve.
      * @return Pointer to the RenderObject if found, nullptr otherwise.
      */
-    Core::RenderObject* getObjectFromId(uint32_t const& id);
+    Core::RenderObject* getObjectFromId(size_t const& domainId);
 
     struct ContainerInfo {
         // Container stats
