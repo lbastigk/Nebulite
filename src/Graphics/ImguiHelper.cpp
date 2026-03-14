@@ -93,7 +93,6 @@ void ImguiHelper::renderJsonScope(Data::JsonScope const& scope, std::string cons
     ImGui::End();
 }
 
-// TODO: Provide a rolling id to domain class for this to work properly. For now we just use the provided name
 void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::Capture& capture, Data::JsonScope const& scope, std::string const& name) {
     std::string const additionalIdentifier = !domain.capture.hasParent() ? "GLOBAL" : "";
     std::string const windowName = "Nebulite Domain Interface - " + name + "###DomainViewer_" + name + "_" + std::to_string(domain.getId()) + "_" + additionalIdentifier;
