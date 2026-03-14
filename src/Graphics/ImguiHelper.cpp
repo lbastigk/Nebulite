@@ -97,12 +97,13 @@ void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::
     std::string const additionalIdentifier = !domain.capture.hasParent() ? "GLOBAL" : "";
     std::string const windowName = "Nebulite Domain Interface - " + name + "###DomainViewer_" + name + "_" + std::to_string(domain.getId()) + "_" + additionalIdentifier;
 
+    // Alignment and sizing
+
     if (flags.windowPos.has_value()) {
-        //ImGui::SetNextWindowPos(flags.windowPos.value(), ImGuiCond_Always);
+        ImGui::SetNextWindowPos(flags.windowPos.value(), ImGuiCond_Always);
     }
     if (flags.windowSize.has_value()) {
         ImGui::SetNextWindowSize(flags.windowSize.value(), ImGuiCond_Always);
-        ImGuiViewport const* const vp = ImGui::GetMainViewport();
     }
 
     if (flags.windowAlignment.has_value()) {
@@ -118,52 +119,38 @@ void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::
 
         // TODO: Fix alignment to only force either width or height
         switch (flags.windowAlignment.value()) {
-
-        case DomainRenderingFlags::Alignment::TOP:
-        {
-            ImGui::SetNextWindowPos(topPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
-            ImGui::SetNextWindowSize(
-                ImVec2(vpSize.x, vpSize.y * 0.5f),
-                ImGuiCond_FirstUseEver
-            );
-            break;
-        }
-
-        case DomainRenderingFlags::Alignment::BOTTOM:
-        {
-            ImGui::SetNextWindowPos(bottomPos, ImGuiCond_Always, ImVec2(0.0f, 1.0f));
-            ImGui::SetNextWindowSize(
-                ImVec2(vpSize.x, vpSize.y * 1.0f),
-                ImGuiCond_FirstUseEver
-            );
-            break;
-        }
-
-        case DomainRenderingFlags::Alignment::LEFT:
-        {
-            ImGui::SetNextWindowPos(leftPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
-            ImGui::SetNextWindowSize(
-                ImVec2(vpSize.x * 0.5f, vpSize.y),
-                ImGuiCond_FirstUseEver
-            );
-            break;
-        }
-
-        case DomainRenderingFlags::Alignment::RIGHT:
-        {
-            ImGui::SetNextWindowPos(rightPos, ImGuiCond_Always, ImVec2(1.0f, 0.0f));
-            ImGui::SetNextWindowSize(
-                ImVec2(vpSize.x * 0.5f, vpSize.y),
-                ImGuiCond_FirstUseEver
-            );
-            break;
-        }
-
-        case DomainRenderingFlags::Alignment::NONE:
-            break;
-
-        default:
-            std::unreachable();
+            case DomainRenderingFlags::Alignment::TOP:
+                ImGui::SetNextWindowPos(topPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
+                ImGui::SetNextWindowSize(
+                    ImVec2(vpSize.x, vpSize.y * 0.5f),
+                    ImGuiCond_FirstUseEver
+                );
+                break;
+            case DomainRenderingFlags::Alignment::BOTTOM:
+                ImGui::SetNextWindowPos(bottomPos, ImGuiCond_Always, ImVec2(0.0f, 1.0f));
+                ImGui::SetNextWindowSize(
+                    ImVec2(vpSize.x, vpSize.y * 1.0f),
+                    ImGuiCond_FirstUseEver
+                );
+                break;
+            case DomainRenderingFlags::Alignment::LEFT:
+                ImGui::SetNextWindowPos(leftPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
+                ImGui::SetNextWindowSize(
+                    ImVec2(vpSize.x * 0.5f, vpSize.y),
+                    ImGuiCond_FirstUseEver
+                );
+                break;
+            case DomainRenderingFlags::Alignment::RIGHT:
+                ImGui::SetNextWindowPos(rightPos, ImGuiCond_Always, ImVec2(1.0f, 0.0f));
+                ImGui::SetNextWindowSize(
+                    ImVec2(vpSize.x * 0.5f, vpSize.y),
+                    ImGuiCond_FirstUseEver
+                );
+                break;
+            case DomainRenderingFlags::Alignment::NONE:
+                break;
+            default:
+                std::unreachable();
         }
     }
 
