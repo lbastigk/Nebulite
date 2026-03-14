@@ -7,6 +7,7 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
+#include "DomainModule/Common/General.hpp"
 #include "DomainModule/GlobalSpace/Debug.hpp"
 #include "Math/ExpressionPrimitives.hpp"
 #include "Utility/FileManagement.hpp"
@@ -335,7 +336,7 @@ void Debug::setupDebugInfo() const {
 
     // Show debug window if in debug build
     if (moduleScope.get<std::string>(Key::buildType).value_or("") == "debug") {
-        if (auto const result = domain.parseStr(__FUNCTION__ + std::string(" ") + "imgui-view on"); result.isError()) {
+        if (auto const result = domain.parseStr(__FUNCTION__ + std::string(" ") + Common::General::imguiView_Enable); result.isError()) {
             domain.capture.error.println("Error enabling ImGui view for GlobalSpace: " + std::string(result.getDescription()));
         }
     }

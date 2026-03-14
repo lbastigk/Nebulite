@@ -32,6 +32,8 @@ public:
     static auto constexpr imguiView_desc = "Creates an ImGui view of the domain.\n"
        "\n"
        "Usage: imgui-view <on/off>\n";
+    static auto constexpr imguiView_Enable = "imgui-view on";
+    static auto constexpr imguiView_Disable = "imgui-view off";
 
     static Constants::Error eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr eval_name = "eval";

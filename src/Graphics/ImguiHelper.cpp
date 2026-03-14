@@ -7,6 +7,7 @@
 
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
+#include "DomainModule/Common/General.hpp"
 #include "Graphics/ImguiHelper.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
@@ -47,6 +48,9 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
             }
         }
         else if (data->EventKey == ImGuiKey_DownArrow) {
+            if (state->historyIndex == 0) {
+                return 0; // Already at the end of history, nothing to do
+            }
             size_t newIndex = state->historyIndex - 1;
             while (newIndex > 0) {
                 if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::HistoryLine::Type::INPUT) {
@@ -94,6 +98,26 @@ void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::
     std::string const additionalIdentifier = !domain.capture.hasParent() ? "GLOBAL" : "";
     std::string const windowName = "Nebulite Domain Interface - " + name + "###DomainViewer_" + name + "_" + std::to_string(domain.getId()) + "_" + additionalIdentifier;
     ImGui::Begin(windowName.c_str());
+
+    // Header row
+    ImGui::TextUnformatted(name.c_str());
+    ImGui::SameLine();
+
+    // Right-align close button in the available content region
+    float const buttonWidth = ImGui::CalcTextSize("Close").x + ImGui::GetStyle().FramePadding.x * 2.0f;
+    float const cursorX = ImGui::GetCursorPosX();
+    float const availX = ImGui::GetContentRegionAvail().x;
+    ImGui::SetCursorPosX(cursorX + availX - buttonWidth);
+
+    // Unique ID per console to avoid collisions
+    std::string const closeId = "Close##DomainConsoleClose_" + name;
+    if (ImGui::Button(closeId.c_str())) {
+        // Instead of closing the window, we disable the ImGui view for this domain, allowing us to reopen it later without losing the capture and scope state
+        if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + DomainModule::Common::General::imguiView_Disable); err.isError()) {
+            capture.error.println("Error disabling ImGui view for domain " + name + ": " + std::string(err.getDescription()));
+        }
+    }
+
     ImGui::Columns(2, nullptr, true);
 
     ImGui::BeginChild("DomainConsole", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
