@@ -12,6 +12,19 @@
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 #include "RulesetModule/Physics.hpp"
 
+namespace {
+// The algorithm we all know and love
+double fastInvSqrt(double const& number){
+    double y = number;
+    double const x2 = y * 0.5;
+    std::int64_t i = std::bit_cast<std::int64_t>(y);
+    i = 0x5fe6eb50c7b537a9 - (i >> 1);
+    y = std::bit_cast<double>(i);
+    y = y * (1.5 - x2 * y * y);
+    return y;
+}
+} // anonymous namespace
+
 namespace Nebulite::RulesetModule {
 
 Physics::Physics() : RulesetModule(moduleName) {
@@ -139,7 +152,8 @@ void Physics::gravity(Interaction::Context const& context, double**& slf, double
     double const dy = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
 
     double const r2 = dx*dx + dy*dy + 1.0;   // softening
-    double const invR = 1.0 / std::sqrt(r2);
+    //double const invR = 1.0 / std::sqrt(r2);
+    double const invR = fastInvSqrt(r2);
     double const invR3 = invR * invR * invR;
 
     double const G  = *globalVal.G;
