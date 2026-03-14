@@ -93,27 +93,100 @@ void ImguiHelper::renderJsonScope(Data::JsonScope const& scope, std::string cons
     ImGui::End();
 }
 
-void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::Capture& capture, Data::JsonScope const& scope, std::string const& name) {
+void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::Capture& capture, Data::JsonScope const& scope, std::string const& name, DomainRenderingFlags const& flags) {
     std::string const additionalIdentifier = !domain.capture.hasParent() ? "GLOBAL" : "";
     std::string const windowName = "Nebulite Domain Interface - " + name + "###DomainViewer_" + name + "_" + std::to_string(domain.getId()) + "_" + additionalIdentifier;
+
+    if (flags.windowPos.has_value()) {
+        //ImGui::SetNextWindowPos(flags.windowPos.value(), ImGuiCond_Always);
+    }
+    if (flags.windowSize.has_value()) {
+        ImGui::SetNextWindowSize(flags.windowSize.value(), ImGuiCond_Always);
+        ImGuiViewport const* const vp = ImGui::GetMainViewport();
+    }
+
+    if (flags.windowAlignment.has_value()) {
+        ImGuiViewport const* const vp = ImGui::GetMainViewport();
+
+        ImVec2 const vpPos  = vp->WorkPos;
+        ImVec2 const vpSize = vp->WorkSize;
+
+        auto const topPos    = ImVec2(vpPos.x, vpPos.y);
+        auto const bottomPos = ImVec2(vpPos.x, vpPos.y + vpSize.y);
+        auto const leftPos   = ImVec2(vpPos.x, vpPos.y);
+        auto const rightPos  = ImVec2(vpPos.x + vpSize.x, vpPos.y);
+
+        // TODO: Fix alignment to only force either width or height
+        switch (flags.windowAlignment.value()) {
+
+        case DomainRenderingFlags::Alignment::TOP:
+        {
+            ImGui::SetNextWindowPos(topPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
+            ImGui::SetNextWindowSize(
+                ImVec2(vpSize.x, vpSize.y * 0.5f),
+                ImGuiCond_FirstUseEver
+            );
+            break;
+        }
+
+        case DomainRenderingFlags::Alignment::BOTTOM:
+        {
+            ImGui::SetNextWindowPos(bottomPos, ImGuiCond_Always, ImVec2(0.0f, 1.0f));
+            ImGui::SetNextWindowSize(
+                ImVec2(vpSize.x, vpSize.y * 1.0f),
+                ImGuiCond_FirstUseEver
+            );
+            break;
+        }
+
+        case DomainRenderingFlags::Alignment::LEFT:
+        {
+            ImGui::SetNextWindowPos(leftPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
+            ImGui::SetNextWindowSize(
+                ImVec2(vpSize.x * 0.5f, vpSize.y),
+                ImGuiCond_FirstUseEver
+            );
+            break;
+        }
+
+        case DomainRenderingFlags::Alignment::RIGHT:
+        {
+            ImGui::SetNextWindowPos(rightPos, ImGuiCond_Always, ImVec2(1.0f, 0.0f));
+            ImGui::SetNextWindowSize(
+                ImVec2(vpSize.x * 0.5f, vpSize.y),
+                ImGuiCond_FirstUseEver
+            );
+            break;
+        }
+
+        case DomainRenderingFlags::Alignment::NONE:
+            break;
+
+        default:
+            std::unreachable();
+        }
+    }
+
     ImGui::Begin(windowName.c_str());
 
     // Header row
     ImGui::TextUnformatted(name.c_str());
     ImGui::SameLine();
 
-    // Right-align close button in the available content region
-    float const buttonWidth = ImGui::CalcTextSize("Close").x + ImGui::GetStyle().FramePadding.x * 2.0f;
-    float const cursorX = ImGui::GetCursorPosX();
-    float const availX = ImGui::GetContentRegionAvail().x;
-    ImGui::SetCursorPosX(cursorX + availX - buttonWidth);
+    if (flags.showCloseButton) {
+        // Right-align close button in the available content region
+        float const buttonWidth = ImGui::CalcTextSize("Close").x + ImGui::GetStyle().FramePadding.x * 2.0f;
+        float const cursorX = ImGui::GetCursorPosX();
+        float const availX = ImGui::GetContentRegionAvail().x;
+        ImGui::SetCursorPosX(cursorX + availX - buttonWidth);
 
-    // Unique ID per console to avoid collisions
-    std::string const closeId = "Close##DomainConsoleClose_" + name;
-    if (ImGui::Button(closeId.c_str())) {
-        // Instead of closing the window, we disable the ImGui view for this domain, allowing us to reopen it later without losing the capture and scope state
-        if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + DomainModule::Common::General::imguiView_Disable); err.isError()) {
-            capture.error.println("Error disabling ImGui view for domain " + name + ": " + std::string(err.getDescription()));
+        // Unique ID per console to avoid collisions
+        std::string const closeId = "Close##DomainConsoleClose_" + name;
+        if (ImGui::Button(closeId.c_str())) {
+            // Instead of closing the window, we disable the ImGui view for this domain, allowing us to reopen it later without losing the capture and scope state
+            if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + DomainModule::Common::General::imguiView_Disable); err.isError()) {
+                capture.error.println("Error disabling ImGui view for domain " + name + ": " + std::string(err.getDescription()));
+            }
         }
     }
 
