@@ -37,13 +37,14 @@ public:
 
     Constants::Error consoleOpen();
     static auto constexpr consoleOpen_name = "console open";
-    static auto constexpr consoleOpen_desc = "Opens the console, allowing it to be rendered and receive input.\n"
+    static auto constexpr consoleOpen_desc = "Opens the console\n"
+        "Pauses the application by sending a skip update signal to the renderer\n"
         "\n"
         "Usage: console open\n";
 
     Constants::Error consoleClose();
     static auto constexpr consoleClose_name = "console close";
-    static auto constexpr consoleClose_desc = "Closes the console, hiding it and preventing it from receiving input.\n"
+    static auto constexpr consoleClose_desc = "Closes the console\n"
         "\n"
         "Usage: console close\n";
 
@@ -62,8 +63,6 @@ public:
      * @brief Initializes the module, binding functions and variables.
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Console) {
-        // we cannot do much here, since renderer might not be initialized yet
-        // so we do the actual initialization in update() when needed
         bindCategory(console_name, console_desc);
         BIND_FUNCTION(&Console::consoleOpen, consoleOpen_name, consoleOpen_desc);
         BIND_FUNCTION(&Console::consoleClose, consoleClose_name, consoleClose_desc);
