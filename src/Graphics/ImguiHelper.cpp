@@ -106,6 +106,7 @@ void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::
         ImGui::SetNextWindowSize(flags.windowSize.value(), ImGuiCond_Always);
     }
 
+    // TODO: Optional resizing (e.g. if aligned to bottom, allow user to resize height but keep aligned to bottom)
     if (flags.windowAlignment.has_value()) {
         ImGuiViewport const* const vp = ImGui::GetMainViewport();
 
@@ -117,34 +118,33 @@ void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::
         auto const leftPos   = ImVec2(vpPos.x, vpPos.y);
         auto const rightPos  = ImVec2(vpPos.x + vpSize.x, vpPos.y);
 
-        // TODO: Fix alignment to only force either width or height
         switch (flags.windowAlignment.value()) {
             case DomainRenderingFlags::Alignment::TOP:
                 ImGui::SetNextWindowPos(topPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
                 ImGui::SetNextWindowSize(
                     ImVec2(vpSize.x, vpSize.y * 0.5f),
-                    ImGuiCond_FirstUseEver
+                    ImGuiCond_Always
                 );
                 break;
             case DomainRenderingFlags::Alignment::BOTTOM:
                 ImGui::SetNextWindowPos(bottomPos, ImGuiCond_Always, ImVec2(0.0f, 1.0f));
                 ImGui::SetNextWindowSize(
-                    ImVec2(vpSize.x, vpSize.y * 1.0f),
-                    ImGuiCond_FirstUseEver
+                    ImVec2(vpSize.x, vpSize.y * 0.5f),
+                    ImGuiCond_Always
                 );
                 break;
             case DomainRenderingFlags::Alignment::LEFT:
                 ImGui::SetNextWindowPos(leftPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
                 ImGui::SetNextWindowSize(
                     ImVec2(vpSize.x * 0.5f, vpSize.y),
-                    ImGuiCond_FirstUseEver
+                    ImGuiCond_Always
                 );
                 break;
             case DomainRenderingFlags::Alignment::RIGHT:
                 ImGui::SetNextWindowPos(rightPos, ImGuiCond_Always, ImVec2(1.0f, 0.0f));
                 ImGui::SetNextWindowSize(
                     ImVec2(vpSize.x * 0.5f, vpSize.y),
-                    ImGuiCond_FirstUseEver
+                    ImGuiCond_Always
                 );
                 break;
             case DomainRenderingFlags::Alignment::NONE:
@@ -160,6 +160,7 @@ void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::
     ImGui::TextUnformatted(name.c_str());
     ImGui::SameLine();
 
+    // Optional close button
     if (flags.showCloseButton) {
         // Right-align close button in the available content region
         float const buttonWidth = ImGui::CalcTextSize("Close").x + ImGui::GetStyle().FramePadding.x * 2.0f;
@@ -177,18 +178,15 @@ void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::
         }
     }
 
+    // Console + JSON viewer in two columns
     ImGui::Columns(2, nullptr, true);
-
     ImGui::BeginChild("DomainConsole", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
     renderDomainConsole(domain, capture, name);
     ImGui::EndChild();
-
     ImGui::NextColumn();
-
     ImGui::BeginChild("JsonScopeViewer", ImVec2(0, 0), true);
     renderJsonTreeNode(scope, scope.getRootScope().toScopedKey());
     ImGui::EndChild();
-
     ImGui::Columns(1); // Restore single column
     ImGui::End();
 }

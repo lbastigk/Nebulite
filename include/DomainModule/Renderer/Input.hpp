@@ -56,7 +56,6 @@ public:
         static auto constexpr mouse = makeScoped("mouse.");
         static auto constexpr mouseCurrent = makeScoped("mouse.current.");
         static auto constexpr mouseDelta = makeScoped("mouse.delta.");
-
         static auto constexpr routineActivated = makeScoped("polled");
     };
 
