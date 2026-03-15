@@ -12,13 +12,14 @@
 #endif // !defined(_WIN32)
 
 //------------------------------------------
-namespace Nebulite::Utility {
+namespace Nebulite::Utility::Coordination {
 
 // Perhaps using a different flag: NEBULITE_WINE_COMPATIBILITY or similar would be better
 // as the shared mutax should work on native Windows builds.
 #if defined(_WIN32)
 
 /**
+ * @class Nebulite::Utility::Coordination::SharedMutex
  * @brief A compatibility SharedMutex class for Windows platforms.
  * @details This class emulates the behavior of a shared mutex using a standard mutex.
  *          Shared locking operations are treated as exclusive locks.
@@ -51,5 +52,5 @@ using ReadLock    = std::shared_lock<SharedMutex>;
 using WriteLock   = std::unique_lock<SharedMutex>;
 
 #endif // defined(_WIN32)
-} // namespace Nebulite::Utility
+} // namespace Nebulite::Utility::Coordination
 #endif // NEBULITE_UTILITY_SHARED_MUTEX_HPP

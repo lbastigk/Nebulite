@@ -11,7 +11,7 @@
 #include "DomainModule/GlobalSpace/Debug.hpp"
 #include "Math/ExpressionPrimitives.hpp"
 #include "Utility/FileManagement.hpp"
-#include "Utility/TimedRoutine.hpp"
+#include "Utility/Coordination/TimedRoutine.hpp"
 
 //------------------------------------------
 #if defined(_WIN32)
@@ -277,7 +277,7 @@ void Debug::initRoutines() {
             moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.residentMB"), residentMemMB);
         },
         1000 /*ms*/, // Call every second
-        Utility::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
     );
 
     // Worker count monitoring routine
@@ -296,7 +296,7 @@ void Debug::initRoutines() {
             moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.total.max"), Constants::ThreadSettings::Maximum::totalThreadCount);
         },
         5000 /*ms*/, // Call every 5 seconds
-        Utility::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
     );
 }
 

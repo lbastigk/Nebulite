@@ -3,8 +3,8 @@
  * @brief Definition of TimedRoutine class for scheduling routines at specific intervals.
  */
 
-#ifndef NEBULITE_UTILITY_TIMED_ROUTINE_HPP
-#define NEBULITE_UTILITY_TIMED_ROUTINE_HPP
+#ifndef NEBULITE_UTILITY_COORDINATION_TIMED_ROUTINE_HPP
+#define NEBULITE_UTILITY_COORDINATION_TIMED_ROUTINE_HPP
 
 //------------------------------------------
 // Includes
@@ -16,7 +16,7 @@
 #include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
-namespace Nebulite::Utility {
+namespace Nebulite::Utility::Coordination {
 /**
  * @class TimedRoutine
  * @brief A class that schedules a routine to be executed at specified time intervals.
@@ -33,33 +33,29 @@ public:
         WAIT_FOR_START
     };
 
-    TimedRoutine(std::function<void()> const& routine, uint64_t const& intervalMillis, ConstructionMode const& mode = ConstructionMode::WAIT_FOR_START)
-        : foo(routine), interval(intervalMillis) {
-        if (mode == ConstructionMode::START_IMMEDIATELY) {
-            timer.start();
-        }
-    }
+    TimedRoutine(std::function<void()> const& routine, uint64_t const& intervalMillis, ConstructionMode const& mode = ConstructionMode::WAIT_FOR_START);
 
-    void start() {
-        timer.start();
-    }
+    /**
+     * @brief Start the timer for the scheduled routine.
+     *        This will allow the routine to be executed at the specified intervals when update() is called.
+     */
+    void start();
 
-    void update() {
-        if (timer.projected_dt() >= interval) {
-            timer.update(); // Update timer to reset dt
-            foo(); // Execute the scheduled routine
-        }
-    }
+    /**
+     * @brief Check if the scheduled routine should be executed based
+     *        on the timer and interval, and execute it if necessary.
+     */
+    void update();
 
-    // Force execute the routine without checking the timer or updating the timer
-    void forceExecute() const {
-        foo();
-    }
+    /**
+     * @brief Force execute the scheduled routine immediately, without checking the timer or updating the timer.
+     */
+    void forceExecute() const ;
 
 private:
     std::function<void()> foo;
     TimeKeeper timer;
     uint64_t interval;
 };
-} // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_TIMED_ROUTINE_HPP
+} // namespace Nebulite::Utility::Coordination
+#endif // NEBULITE_UTILITY_COORDINATION_TIMED_ROUTINE_HPP

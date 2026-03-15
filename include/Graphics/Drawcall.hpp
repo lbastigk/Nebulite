@@ -14,7 +14,7 @@
 
 // Nebulite
 #include "Core/Texture.hpp"
-#include "Utility/TimedRoutine.hpp"
+#include "Utility/Coordination/TimedRoutine.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics {
@@ -190,7 +190,7 @@ private:
     void updateDrawcallData();
 
     // Allows periodic updating of drawcall data to reflect current state
-    Utility::TimedRoutine updaterRoutine;
+    Utility::Coordination::TimedRoutine updaterRoutine;
 
     //------------------------------------------
     // Specific initializers for each type

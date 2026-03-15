@@ -14,7 +14,7 @@
 
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
-#include "Utility/WorkDispatcher.hpp"
+#include "Utility/Coordination/WorkDispatcher.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -102,7 +102,7 @@ private:
     }
 
     // store WorkDispatcher with container reference
-    Utility::WorkDispatcher<DerivedContainer, &BaseContainer::processImpl, &BaseContainer::initImpl> dispatcher;
+    Utility::Coordination::WorkDispatcher<DerivedContainer, &BaseContainer::processImpl, &BaseContainer::initImpl> dispatcher;
 };
 } // namespace Nebulite::Data::BroadcastListenContainer
 #endif // NEBULITE_DATA_BROADCAST_LISTEN_CONTAINER_BASE_CONTAINER_HPP

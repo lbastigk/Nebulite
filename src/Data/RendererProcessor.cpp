@@ -48,7 +48,7 @@ RendererProcessor::RendererProcessor() {
 
     // Initialize worker pool
     for (size_t i = 0; i < usedWorkerCount(); i++) {
-        batchWorkerPool[i] = std::make_unique<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>(stopFlag);
+        batchWorkerPool[i] = std::make_unique<Utility::Coordination::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>(stopFlag);
     }
 }
 

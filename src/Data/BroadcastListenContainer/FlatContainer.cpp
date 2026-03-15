@@ -3,13 +3,13 @@
 #include "Data/BroadcastListenContainer/FlatContainer.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
-#include "Utility/Threading.hpp"
+#include "Utility/Coordination/IdGenerator.hpp"
 
 namespace Nebulite::Data::BroadcastListenContainer {
 
 void FlatContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
     static auto workerCount = Constants::ThreadSettings::getInvokeWorkerCount();
-    static auto threadSpreader = Utility::Threading::atomicThreadIncrementGenerator();
+    static auto threadSpreader = Utility::Coordination::IdGenerator::atomicThreadIncrementGenerator();
     thread_local size_t threadId = threadSpreader();
     if (threadId >= workerCount) {
         throw std::runtime_error("Too many threads trying to broadcast, increase broadcasterSpreading or reduce thread count");
@@ -19,7 +19,7 @@ void FlatContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const
 
 void FlatContainer::listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
     static auto workerCount = Constants::ThreadSettings::getInvokeWorkerCount();
-    static auto threadSpreader = Utility::Threading::atomicThreadIncrementGenerator();
+    static auto threadSpreader = Utility::Coordination::IdGenerator::atomicThreadIncrementGenerator();
     thread_local size_t threadId = threadSpreader();
     if (threadId >= workerCount) {
         throw std::runtime_error("Too many threads trying to listen, increase listenerSpreading or reduce thread count");

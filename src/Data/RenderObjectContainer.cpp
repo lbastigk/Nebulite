@@ -6,7 +6,7 @@
 #include "Data/RendererProcessor.hpp"
 #include "Data/RenderObjectContainer.hpp"
 #include "Data/Document/JSON.hpp"
-#include "Utility/WorkDispatcher.hpp"
+#include "Utility/Coordination/WorkDispatcher.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

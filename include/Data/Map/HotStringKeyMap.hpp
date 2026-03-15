@@ -21,7 +21,7 @@
 
 // Nebulite
 #include "Data/Map/HotKeyMap.hpp"
-#include "Utility/SharedMutex.hpp"
+#include "Utility/Coordination/SharedMutex.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -43,7 +43,7 @@ private:
     std::array<MapType, BucketCount> map;
     static_assert(BucketCount == 256, "Expected 256 buckets for HotStringKeyMap");
 
-    std::array<Utility::SharedMutex, BucketCount> bucketMutex; // Mutexes for each character bucket
+    std::array<Utility::Coordination::SharedMutex, BucketCount> bucketMutex; // Mutexes for each character bucket
 public:
     HotStringKeyMap() = default;
 
@@ -128,10 +128,10 @@ public:
 
     auto lock(std::string const& key) {
         if (key.empty()) {
-            return Utility::SharedLock(bucketMutex[0]);
+            return Utility::Coordination::SharedLock(bucketMutex[0]);
         }
         auto const lastChar = static_cast<unsigned char>(key.back());
-        return Utility::SharedLock(bucketMutex[lastChar]);
+        return Utility::Coordination::SharedLock(bucketMutex[lastChar]);
     }
 
     /**

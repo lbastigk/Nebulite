@@ -16,7 +16,7 @@
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
-#include "Utility/TimedRoutine.hpp"
+#include "Utility/Coordination/TimedRoutine.hpp"
 
 
 //------------------------------------------
@@ -177,7 +177,7 @@ private:
     /**
      * @brief List of timed routines for performance monitoring and debugging purposes.
      */
-    std::vector<Utility::TimedRoutine> routines;
+    std::vector<Utility::Coordination::TimedRoutine> routines;
 
     void initRoutines();
 };

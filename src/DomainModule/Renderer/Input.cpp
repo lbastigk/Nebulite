@@ -1,13 +1,13 @@
 #include "Nebulite.hpp"
 #include "DomainModule/Renderer/Input.hpp"
-#include "Utility/TimedRoutine.hpp"
+#include "Utility/Coordination/TimedRoutine.hpp"
 
 namespace Nebulite::DomainModule::Renderer {
 
 Constants::Error Input::update() {
     static auto const keyRoutineActivated = moduleScope.getRootScope() + "polled";
 
-    static Utility::TimedRoutine routine(
+    static Utility::Coordination::TimedRoutine routine(
         [this]() -> void {
             SDL_PumpEvents();
             writeCurrentAndDeltaInputs();
@@ -15,7 +15,7 @@ Constants::Error Input::update() {
             resetDeltaOnNextUpdate = true; // Mark to reset deltas on next update
         },
         10 /* ms */,
-        Utility::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
     );
 
     //------------------------------------------

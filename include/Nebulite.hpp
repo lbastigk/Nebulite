@@ -149,6 +149,14 @@ namespace TransformationModule {
  * @brief Contains all utility classes, functions, types and variables related to the Nebulite framework.
  */
 namespace Utility {
+/**
+ * @namespace Nebulite::Utility::Coordination
+ * @brief Contains all classes, functions, types and variables related to the coordination of threaded and unthreaded processes within the Nebulite framework.
+ * @details This includes timed routines, id generation, and other mechanisms that assist in coordinating various processes across the engine.
+ */
+namespace Coordination {
+
+}
 } // namespace Utility
 } // namespace Nebulite
 

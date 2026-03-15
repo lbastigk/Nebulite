@@ -7,12 +7,12 @@ namespace Nebulite::Data {
 odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
     // Quick-cache path protected by mtxCache
     if (uniqueId < quickCacheSize) {
-        Utility::WriteLock lock(mtxCache);
+        Utility::Coordination::WriteLock lock(mtxCache);
         return fromQuickCache(uniqueId, keys);
     }
 
     // Map path protected by mtxMap
-    Utility::WriteLock lock(mtxMap);
+    Utility::Coordination::WriteLock lock(mtxMap);
     return fromMap(uniqueId, keys);
 }
 

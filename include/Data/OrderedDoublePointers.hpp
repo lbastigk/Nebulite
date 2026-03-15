@@ -14,8 +14,8 @@
 
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
-#include "Utility/SharedMutex.hpp"
-#include "Utility/Threading.hpp"
+#include "Utility/Coordination/SharedMutex.hpp"
+#include "Utility/Coordination/IdGenerator.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -134,7 +134,7 @@ public:
      * @return A unique ID corresponding to the given expression string. This ID can be used for caching purposes in the MappedOrderedDoublePointers.
      */
     static size_t generateUniqueId(std::string_view const& identifier) {
-        static auto generator = Utility::Threading::stringToRollingIdGenerator();
+        static auto generator = Utility::Coordination::IdGenerator::stringToRollingIdGenerator();
         return generator(identifier);
     }
 
@@ -168,12 +168,12 @@ private:
     /**
      * @brief Mutex for thread-safe access to the cache.
      */
-    Utility::SharedMutex mtxCache;
+    Utility::Coordination::SharedMutex mtxCache;
 
     /**
      * @brief Mutex for thread-safe access to the map.
      */
-    Utility::SharedMutex mtxMap;
+    Utility::Coordination::SharedMutex mtxMap;
 
     /**
      * @brief Quick cache for the first few OrderedDoublePointers entries.

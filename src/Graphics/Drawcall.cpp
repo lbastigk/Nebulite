@@ -25,7 +25,7 @@ Drawcall::Drawcall(Data::JsonScope& workspace, Utility::Capture& parentCapture) 
             updateDrawcallData();
         },
         updateDrawcallDataIntervalMs + static_cast<uint64_t>(std::rand()) % updateDrawcallDataIntervalJitterMs,
-        Utility::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
     }
 {
     reInitializeRequested = true;

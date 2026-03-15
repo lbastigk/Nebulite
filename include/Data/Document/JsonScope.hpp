@@ -20,7 +20,7 @@
 #include "Data/Document/KeyType.hpp"
 #include "Data/Document/SimpleValueError.hpp"
 #include "Data/OrderedDoublePointers.hpp"
-#include "Utility/Threading.hpp"
+#include "Utility/Coordination/IdGenerator.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -195,7 +195,7 @@ public:
     // Extra fast ordered cache list retrieval with minimal locking
 
     static size_t assignThreadIndex() {
-        static auto indexCounter = Utility::Threading::atomicThreadIncrementGenerator();
+        static auto indexCounter = Utility::Coordination::IdGenerator::atomicThreadIncrementGenerator();
         thread_local size_t threadIndex = indexCounter();
         return threadIndex;
     }

@@ -1,5 +1,10 @@
-#ifndef NEBULITE_UTILITY_WORK_DISPATCHER_HPP
-#define NEBULITE_UTILITY_WORK_DISPATCHER_HPP
+/**
+ * @file WorkDispatcher.hpp
+ * @brief Definition of the WorkDispatcher class for managing worker threads that process work using provided functions and workspaces.
+ */
+
+#ifndef NEBULITE_UTILITY_COORDINATION_WORK_DISPATCHER_HPP
+#define NEBULITE_UTILITY_COORDINATION_WORK_DISPATCHER_HPP
 
 
 //------------------------------------------
@@ -10,12 +15,9 @@
 #include <thread>
 
 // Nebulite
-#include "Utility/SharedMutex.hpp"
+#include "SharedMutex.hpp"
 
-namespace Nebulite::Utility {
-
-// TODO: Use this dispatcher for the BaseContainer class
-
+namespace Nebulite::Utility::Coordination {
 /**
  * @brief A class to manage a worker thread that processes work using a provided function and workspace.
  * @tparam Workspace The workspace of the worker thread
@@ -95,5 +97,5 @@ private:
     mutable SharedMutex mutex;
 };
 
-} // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_WORK_DISPATCHER_HPP
+} // namespace Nebulite::Utility::Coordination
+#endif // NEBULITE_UTILITY_COORDINATION_WORK_DISPATCHER_HPP

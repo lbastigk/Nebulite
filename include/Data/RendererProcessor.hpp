@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "Constants/ThreadSettings.hpp"
-#include "Utility/WorkDispatcher.hpp"
+#include "Utility/Coordination/WorkDispatcher.hpp"
 
 namespace Nebulite::Core {
 class RenderObject;
@@ -144,7 +144,7 @@ public:
      * @details Pool of pre-initialized workers for reuse
      */
     std::array<
-        std::unique_ptr<Utility::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>,
+        std::unique_ptr<Utility::Coordination::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>,
         Constants::ThreadSettings::Maximum::rendererWorkerCount
     > batchWorkerPool;
 
