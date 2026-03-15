@@ -35,7 +35,7 @@ namespace Nebulite::Data {
  * @class Nebulite::Data::DynamicFixedArray
  * @brief Dynamic fixed-size array for double pointers.
  * @details Size is set once at construction and never changes.
- * @todo Change to a simple std::vector or inlinedvector later, should be more efficient and simpler.
+ * @todo Change to a simple std::vector or inlined vector later, should be more efficient and simpler.
  */
 class DynamicFixedArray {
 public:

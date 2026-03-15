@@ -1,6 +1,7 @@
 #include "Nebulite.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/ScopedKey.hpp"
+#include "Utility/Generate.hpp"
 
 #include <array>
 
@@ -12,21 +13,21 @@ JsonScope::JsonScope(JSON& doc, std::optional<std::string> const& prefix)
     // create a non-owning shared_ptr to the provided JSON (no delete on destruction)
     : baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){})),
       scopePrefix(prefix.has_value() ? std::optional(generatePrefix(prefix.value())) : std::nullopt),
-      odpCache(make_array_with_arg<MappedOrderedDoublePointers, noLockArraySize>(*this))
+      odpCache(Utility::Generate::array<MappedOrderedDoublePointers, noLockArraySize>([this](size_t) {return MappedOrderedDoublePointers(*this);}))
 {}
 
 // Constructing a JsonScope from another JsonScope and a sub-prefix
 JsonScope::JsonScope(JsonScope const& other, std::optional<std::string> const& prefix)
     : baseDocument(other.baseDocument),
       scopePrefix(prefix.has_value() ? std::optional(ScopedKeyView(generatePrefix(prefix.value())).full(other)) : std::nullopt), // Generate full scoped prefix based on the other JsonScope and the new prefix
-      odpCache(make_array_with_arg<MappedOrderedDoublePointers, noLockArraySize>(*this))
+      odpCache(Utility::Generate::array<MappedOrderedDoublePointers, noLockArraySize>([this](size_t){return MappedOrderedDoublePointers(*this);}))
 {}
 
 // Default constructor, we create a self-owned empty JSON document
 JsonScope::JsonScope()
     : baseDocument(std::make_shared<JSON>()),
       scopePrefix(""),
-      odpCache(make_array_with_arg<MappedOrderedDoublePointers, noLockArraySize>(*this))
+      odpCache(Utility::Generate::array<MappedOrderedDoublePointers, noLockArraySize>([this](size_t) {return MappedOrderedDoublePointers(*this);}))
 
 {}
 
@@ -197,7 +198,7 @@ std::string JsonScope::serialize(ScopedKeyView const& key) const {
     return baseDocument->serialize(key.full(*this));
 }
 
-void JsonScope::deserialize(std::string const& serialOrLink) {
+void JsonScope::deserialize(std::string const& serialOrLink) const {
     // No support for any tokens, just forward to baseDocument
     baseDocument->deserialize(serialOrLink);
 }

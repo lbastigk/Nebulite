@@ -12,7 +12,6 @@
 #include <optional>
 #include <string>
 #include <thread>
-#include <utility>
 
 // Nebulite
 #include "Constants/Alignment.hpp"
@@ -32,17 +31,6 @@ class ScopedKey;
 
 //------------------------------------------
 namespace Nebulite::Data {
-
-template<typename T, std::size_t N, typename Arg, std::size_t... I>
-constexpr std::array<T, N> make_array_with_arg_impl(Arg&& arg, std::index_sequence<I...>) {
-    return std::array<T, N>{ { (static_cast<void>(I), T(std::forward<Arg>(arg)))... } };
-}
-
-template<typename T, std::size_t N, typename Arg>
-constexpr std::array<T, N> make_array_with_arg(Arg&& arg) {
-    return make_array_with_arg_impl<T, N>(std::forward<Arg>(arg), std::make_index_sequence<N>{});
-}
-
 /**
  * @class Nebulite::Data::JsonScope
  * @brief The JsonScope class provides a scoped interface for accessing and modifying JSON documents.
@@ -266,7 +254,7 @@ public:
     [[nodiscard]] std::string serialize(ScopedKeyView const& key) const ;
     [[nodiscard]] std::string serialize(ScopedKey const& key) const {return serialize(key.view());}
 
-    void deserialize(std::string const& serialOrLink);
+    void deserialize(std::string const& serialOrLink) const ;
 
     //------------------------------------------
     // Access test
