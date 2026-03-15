@@ -14,8 +14,8 @@
 
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
-#include "Data/RollingId.hpp"
 #include "Utility/SharedMutex.hpp"
+#include "Utility/Threading.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -134,8 +134,8 @@ public:
      * @return A unique ID corresponding to the given expression string. This ID can be used for caching purposes in the MappedOrderedDoublePointers.
      */
     static size_t generateUniqueId(std::string_view const& identifier) {
-        static RollingId idGenerator;
-        return idGenerator.getId(identifier);
+        static auto generator = Utility::Threading::stringToRollingIdGenerator();
+        return generator(identifier);
     }
 
     /**
@@ -178,13 +178,8 @@ private:
     /**
      * @brief Quick cache for the first few OrderedDoublePointers entries.
      * @details This array allows for fast access to frequently used entries without the overhead of a hashmap lookup.
-     * @todo In order for this to work in production, we need a global functioncall that generates unique IDs for expressions.
-     *       E.g. if we know our engine relies a lot on expression A, but it might not be used first,
-     *       its best to then call this function early on to assign it a low unique ID.
-     *       Idea: DomainModule for performance: GSDM_Performance.hpp that has a function to register frequently used expressions:
-     *       registerId <string>
-     *       This function assigns a unique integer ID to the string expression, which can then be used to access the quick cache.
-     *       This function should be called right at the start of the program for known expressions to ensure they get low IDs.
+     * @todo Is the quickcache still helpful? Or should we just rely on the hashmap?
+     *       Write a simple preprocessor flag USE_QUICK_CACHE to enable/disable this feature and benchmark the difference in performance and memory usage.
      */
     OrderedDoublePointers quickCache[quickCacheSize];
 
