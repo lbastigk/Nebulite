@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# TODO: doesn't notice deleted files
+#       Perhaps we need to check last changes not only to files, but also to directories?
+
 # commit-test-pipeline: run full pipeline if sources changed
 WATCH_DIRS=(src Scripts TaskFiles include)
 ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"

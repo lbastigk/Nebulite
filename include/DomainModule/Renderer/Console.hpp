@@ -14,7 +14,6 @@
 #include "Constants/KeyNames.hpp"
 #include "DomainModule/Renderer/Input.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
-#include "Utility/TextInput.hpp"
 
 //------------------------------------------
 // Forward declarations
