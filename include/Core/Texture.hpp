@@ -17,6 +17,13 @@
 
 //------------------------------------------
 namespace Nebulite::Core {
+/**
+ * @class Nebulite::Core::Texture
+ * @brief Manages an SDL_Texture for rendering in the Nebulite engine.
+ *        This domain is responsible for handling texture loading, updating, and lifecycle management.
+ *        It can either reference an external texture (e.g., from the renderer) or manage its own internal texture.
+ *        If the texture is modified, it creates a local copy to avoid affecting the original texture used by the renderer.
+ */
 NEBULITE_DOMAIN(Texture) {
 public:
     /**

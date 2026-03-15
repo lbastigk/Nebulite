@@ -16,7 +16,6 @@
 
 //------------------------------------------
 namespace Nebulite::Data {
-
 /**
  * @class Nebulite::Data::DocumentCache
  * @brief Provides methods to retrieve data from cached documents efficiently.

@@ -14,7 +14,6 @@
 
 // Standard library
 #include <string>
-#include <vector>
 
 // Nebulite
 #include "Core/Renderer.hpp"
@@ -26,13 +25,8 @@
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 
-
 //------------------------------------------
 namespace Nebulite::Core {
-
-//------------------------------------------
-// Global Space object
-
 /**
  * @class Nebulite::Core::GlobalSpace
  * @brief Declares the core types, global objects, and functions for the Nebulite Engine.

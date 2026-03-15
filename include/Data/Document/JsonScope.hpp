@@ -51,7 +51,7 @@ constexpr std::array<T, N> make_array_with_arg(Arg&& arg) {
  *          where different parts of a JSON document can be managed independently.
  *          Holds little data itself, mostly acts as a scoped view over an existing JSON document or another JsonScope.
  */
-class JsonScope {
+class JsonScope final {
 public:
     // Thread runners are unique, no locking needed
     static auto constexpr noLockArraySize = Constants::ThreadSettings::Maximum::totalThreadCount + 4; // A bit extra, just in case
@@ -118,7 +118,7 @@ public:
     JsonScope& operator=(JsonScope const& other) = delete;
     JsonScope& operator=(JsonScope&& other) noexcept = delete;
 
-    virtual ~JsonScope();
+    ~JsonScope();
 
     //------------------------------------------
     // Get the prefix of this scope
@@ -266,7 +266,7 @@ public:
     [[nodiscard]] std::string serialize(ScopedKeyView const& key) const ;
     [[nodiscard]] std::string serialize(ScopedKey const& key) const {return serialize(key.view());}
 
-    virtual void deserialize(std::string const& serialOrLink);
+    void deserialize(std::string const& serialOrLink);
 
     //------------------------------------------
     // Access test

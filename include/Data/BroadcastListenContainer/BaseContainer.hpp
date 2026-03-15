@@ -24,17 +24,14 @@ class Ruleset;
 struct Listener;
 } // namespace Nebulite::Interaction::Rules
 
-
 //------------------------------------------
 namespace Nebulite::Data::BroadcastListenContainer {
-
 /**
  * @brief Class to manage broadcast-listen pairs of rulesets.
  */
 template<typename DerivedContainer>
 class BaseContainer {
 public:
-
     explicit BaseContainer(std::atomic<bool>& stopFlag, uint32_t const& workerIndex, uint32_t const& workerCount, DerivedContainer container)
         : workerInfo{workerIndex, workerCount}
         , dispatcher(stopFlag)

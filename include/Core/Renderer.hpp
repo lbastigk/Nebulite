@@ -26,7 +26,6 @@
 
 //------------------------------------------
 namespace Nebulite::Core {
-
 /**
  * @class Nebulite::Core::Renderer
  * @brief Responsible for rendering game objects and managing the rendering pipeline.
