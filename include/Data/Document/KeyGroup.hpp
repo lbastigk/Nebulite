@@ -25,9 +25,16 @@ namespace Nebulite::Data {
  */
 template <OptionalFixedString Prefix>
 class KeyGroup {
+    // Store the prefix as member
+    static auto constexpr prefix = Prefix;
+
 public:
     static consteval auto makeScoped(const char* keyStr) {
         return ScopedKeyView::createFromOptionalFixedString<Prefix>(keyStr);
+    }
+
+    static constexpr auto getPrefix() {
+        return prefix;
     }
 
     static constexpr auto getScope() {

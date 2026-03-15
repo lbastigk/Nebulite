@@ -12,6 +12,7 @@
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
 #include "Constants/KeyNames.hpp"
+#include "DomainModule/Renderer/Input.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Utility/TextInput.hpp"
 
@@ -68,7 +69,7 @@ public:
         BIND_FUNCTION(&Console::consoleClose, consoleClose_name, consoleClose_desc);
     }
 
-    struct Key : Data::KeyGroup<"renderer."> {
+    struct Key : Data::KeyGroup<Input::Key::getPrefix()> { // Same scope as input domainmodule, so we can access input states for toggling the console
         // No keys for now
     };
 
