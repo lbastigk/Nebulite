@@ -18,7 +18,6 @@ class RenderObjectContainer;
 } // namespace Nebulite::Data
 
 namespace Nebulite::Data {
-
 /**
  * @struct Nebulite::Data::ReinsertionProcess
  * @brief Holds all objects that are awaiting re-insertion into the container.
@@ -89,12 +88,29 @@ struct Batch {
     bool removeObject(Core::RenderObject* obj);
 };
 
+/**
+ * @class Nebulite::Data::RendererProcessor
+ * @brief Manages the processing of RenderObjects for rendering.
+ *        This class is responsible for preparing RenderObjects for rendering by organizing them into batches,
+ *        managing worker threads for batch processing, and handling reinsertion and deletion processes.
+ */
 class RendererProcessor {
 public:
     RendererProcessor();
 
     ~RendererProcessor();
 
+    // Non-copyable, non-movable
+    RendererProcessor(RendererProcessor const&) = delete;
+    RendererProcessor& operator=(RendererProcessor const&) = delete;
+    RendererProcessor(RendererProcessor&&) = delete;
+    RendererProcessor& operator=(RendererProcessor&&) = delete;
+
+    /**
+     * @brief Prepares the RendererProcessor for processing a new layer of RenderObjects
+     *        by setting all worker threads referencing the new layer.
+     * @param layer The RenderObjectContainer representing the new layer to process.
+     */
     void prepareForNewLayer(RenderObjectContainer* layer) const ;
 
     /**
@@ -102,6 +118,9 @@ public:
      */
     std::atomic<bool> stopFlag;
 
+    /**
+     * @brief Workspace struct for batch worker threads.
+     */
     struct DispatcherWorkspace {
         std::vector<Batch*> work;
         int16_t tilePosX;
@@ -114,6 +133,10 @@ public:
         uint32_t cost = 0;
     };
 
+    /**
+     * @brief Worker function for processing batches in parallel.
+     * @param workspace The workspace containing the batches to process and necessary context information.
+     */
     static void batchWorkerFunc(DispatcherWorkspace const& workspace);
 
     /**
@@ -125,6 +148,9 @@ public:
         Constants::ThreadSettings::Maximum::rendererWorkerCount
     > batchWorkerPool;
 
+    /**
+     * @brief Starts all batch worker threads to process the assigned batches in parallel.
+     */
     void processPool() const ;
 };
 

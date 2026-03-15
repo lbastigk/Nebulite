@@ -26,16 +26,18 @@ namespace Nebulite::Data {
  */
 class RenderObjectContainer {
 public:
-
     //------------------------------------------
-    // Constructor
+    // Special member functions
 
-    /**
-     * @brief Constructs a new RenderObjectContainer.
-     */
     RenderObjectContainer() = default;
 
     ~RenderObjectContainer() = default;
+
+    // Non-copyable, non-movable
+    RenderObjectContainer(RenderObjectContainer const&) = delete;
+    RenderObjectContainer(RenderObjectContainer&&) = delete;
+    RenderObjectContainer& operator=(RenderObjectContainer const&) = delete;
+    RenderObjectContainer& operator=(RenderObjectContainer&&) = delete;
 
     //------------------------------------------
     // Serialization / Deserialization
