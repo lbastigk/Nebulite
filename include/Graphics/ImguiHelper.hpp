@@ -18,11 +18,29 @@ namespace Nebulite::Interaction::Execution {
 // Standard Library
 #include <string>
 
+// External
+#include <imgui.h>
+
 //------------------------------------------
 namespace Nebulite::Graphics {
 
 class ImguiHelper {
 public:
+    struct DomainRenderingFlags {
+        bool showCloseButton = true; // Whether to show the close button in the ImGui window when rendering a domain
+        std::optional<ImVec2> windowPos = std::nullopt; // Optional position
+        std::optional<ImVec2> windowSize = std::nullopt; // Optional size
+
+        enum class Alignment {
+            NONE, // No automatic alignment, use exact position specified in windowPos
+            TOP,
+            BOTTOM,
+            LEFT,
+            RIGHT
+        };
+        std::optional<Alignment> windowAlignment = std::nullopt; // Optional alignment to position the window relative to the specified position
+    };
+
     /**
      * @brief Checks if imgui is initialized and ready for rendering.
      * @return true if imgui is initialized, false otherwise.
@@ -50,8 +68,14 @@ public:
      * @param capture The capture to show output from. Likely domain::capture, but passing the global capture is also possible to show all output.
      * @param scope The JSON scope to render. Likely from the domain, but passing the global scope is also possible to show all data.
      * @param name The name of the ImGui window.
+     * @param flags Optional rendering flags to control the appearance and behavior of the ImGui window.
      */
-    static void renderDomain(Interaction::Execution::Domain& domain, Utility::Capture& capture, Data::JsonScope const& scope, std::string const& name);
+    static void renderDomain(
+        Interaction::Execution::Domain& domain,
+        Utility::Capture& capture,
+        Data::JsonScope const& scope,
+        std::string const& name,
+        DomainRenderingFlags const& flags = {.showCloseButton = true, .windowPos = std::nullopt, .windowSize = std::nullopt, .windowAlignment = std::nullopt});
 
 private:
     static void renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKey const& root);
