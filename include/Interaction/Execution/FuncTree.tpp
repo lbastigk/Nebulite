@@ -61,7 +61,7 @@ FuncTree<returnValue, additionalArgs...>::FuncTree(std::string_view const& treeN
 //------------------------------------------
 // Template comparison
 
-// TODO: Move to private part of FuncTree
+// TODO: Move to math namespace
 
 template <typename returnValue, typename... additionalArgs>
 template <typename T> bool FuncTree<returnValue, additionalArgs...>::isEqual(T const& a, T const& b) {
@@ -176,12 +176,6 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(WrappedFunction cons
         }
     );
 }
-
-// TODO: An "assert_category_exists" function could be useful, which would allow us to create dependent domainModules more easily:
-//       - DomainModule 'debug' creates category 'debug'
-//       - DomainModule 'debug_network' creates category 'debug network', but first asserts that 'debug' exists
-//       - if 'debug' does not exist, the program exits with an error message: "Please initialize the 'debug' module before 'debug_network'"
-//       Perhaps the error message from just bindCategory is sufficient already?
 
 template <typename returnValue, typename... additionalArgs>
 void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view const& name, std::string_view const& helpDescription) {
