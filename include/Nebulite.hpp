@@ -155,8 +155,7 @@ namespace Utility {
  * @details This includes timed routines, id generation, and other mechanisms that assist in coordinating various processes across the engine.
  */
 namespace Coordination {
-
-}
+} // namespace Coordination
 } // namespace Utility
 } // namespace Nebulite
 
