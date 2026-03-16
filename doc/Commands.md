@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Thu Mar  5 12:18:44 CET 2026
+Generated on: Mon Mar 16 13:56:39 CET 2026
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ Generated on: Thu Mar  5 12:18:44 CET 2026
 
 These commands are available in the global Nebulite namespace.
 
-Help for Nebulite
+Help for GlobalSpace
 
 Available Functions
 
@@ -25,6 +25,7 @@ Available Functions
 | `always` | Attach a command to the always-taskqueue that is executed on each tick. |
 | `always-clear` | Clears the entire always-taskqueue. |
 | `assert` | Asserts a condition and throws a custom error if false. |
+| `audio-debug` | Audio debugging functions. |
 | `beep` | Make a beep noise. |
 | `cam` | Renderer Camera Functions |
 | `clear` | Clears the console screen. |
@@ -47,20 +48,22 @@ Available Functions
 | `for` | Executes a for-loop with a function call. |
 | `help` | Show available commands and their descriptions |
 | `if` | Executes a block of code if a condition is true. |
+| `imgui-view` | Creates an ImGui view of the domain. |
 | `input-mapping` | Functions for mapping inputs to actions within the GlobalSpace. |
 | `input-wait` | Waits for user input before continuing. |
-| `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
 | `log` | Functions for logging various states and documents to files. |
 | `move` | Move data from one key to another. |
 | `nop` | No operation. Does nothing. |
+| `play-sound` | Play a sound from a file. |
+| `play-sound-filtered` | Play a sound from a file with a filter applied to it. |
 | `pop-back` | Pop a value from the back of an array. |
 | `pop-front` | Pop a value from the front of an array. |
 | `print` | Prints the JSON document to the console for debugging purposes. |
+| `print-id` | Prints the unique ID of the domain to the console for debugging purposes. |
 | `push-back` | Push a value to the back of an array. |
 | `push-front` | Push a value to the front of an array. |
-| `query` | Functions to manipulate JSON data via SQL query results |
 | `query` | Functions to manipulate JSON data via SQL query results |
 | `return` | Returns a custom value as a Critical Error. |
 | `ruleset` | Functions for managing rulesets in the GlobalSpace. |
@@ -135,12 +138,33 @@ assert '$(eq(1+1,3))'    // Critical Error: A custom assertion failed.
 Assertion failed: $(eq(1+1,3)) is not true.
 ```
 
+#### `audio-debug`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `test-filter` | Test a filter by applying it to sample values and printing the results. |
+
+##### `audio-debug test-filter`
+
+```
+Test a filter by applying it to sample values and printing the results.
+Usage: test-filter <sample> <num-coefficients> <den-coefficients>
+The coefficients should be specified as comma-separated values, with no spaces. For example:
+test-filter -0.5,0,0.5,1,0.5,0,-0.5,-1 1 0.5,0.5
+```
+
 #### `beep`
 
 ```
 Make a beep noise.
+If no waveform type is specified, defaults to sine.
+Multiple waveform types can be specified at once, in which case they will be played in the order they were specified.
+Unknown waveform types will be ignored, but will print an error message.
 
-Usage: beep
+Usage: beep [sine/square/triangle]
 ```
 
 #### `cam`
@@ -192,97 +216,14 @@ Available Functions
 
 | Function | Description |
 |----------|-------------|
-| `autotype` | Utilities to automate typing in the console |
-| `close` | Closes the console, hiding it and preventing it from receiving input. |
+| `close` | Closes the console |
 | `help` | Show available commands and their descriptions |
-| `open` | Opens the console, allowing it to be rendered and receive input. |
-| `set-background` | Sets a background image for the console. |
-| `zoom` | Reduces or increases the console font size. |
-
-##### `console autotype`
-
-Available Functions
-
-| Function | Description |
-|----------|-------------|
-| `clear` | Clears the autotype queue without executing the commands. |
-| `close` | Closes the console if the autotype wait counter reaches zero |
-| `down` | Adds a history down command into the autotype queue. |
-| `enter` | Puts an enter command into the autotype queue. |
-| `execute` | Executes all autotype commands in the queue. |
-| `help` | Show available commands and their descriptions |
-| `text` | Adds a text input command into the autotype queue. |
-| `up` | Adds a history up command into the autotype queue. |
-| `wait` | Waits for a specified amount of ms before executing the next autotype command. |
-
-###### `console autotype clear`
-
-```
-Clears the autotype queue without executing the commands.
-Clears both the queue pending for execution and the active queue currently being executed.
-
-Usage: console autotype clear
-```
-
-###### `console autotype close`
-
-```
-Closes the console if the autotype wait counter reaches zero
-Usage: console autotype close
-```
-
-###### `console autotype down`
-
-```
-Adds a history down command into the autotype queue.
-
-Usage: console autotype down
-```
-
-###### `console autotype enter`
-
-```
-Puts an enter command into the autotype queue.
-
-Usage: console autotype enter
-```
-
-###### `console autotype execute`
-
-```
-Executes all autotype commands in the queue.
-
-Usage: console autotype execute
-```
-
-###### `console autotype text`
-
-```
-Adds a text input command into the autotype queue.
-
-Usage: console autotype text <text>
-```
-
-###### `console autotype up`
-
-```
-Adds a history up command into the autotype queue.
-
-Usage: console autotype up
-```
-
-###### `console autotype wait`
-
-```
-Waits for a specified amount of ms before executing the next autotype command.
-
-Usage: console autotype wait <milliseconds>
-```
+| `open` | Opens the console |
 
 ##### `console close`
 
 ```
-Closes the console, hiding it and preventing it from receiving input.
+Closes the console
 
 Usage: console close
 ```
@@ -290,27 +231,10 @@ Usage: console close
 ##### `console open`
 
 ```
-Opens the console, allowing it to be rendered and receive input.
+Opens the console
+Pauses the application by sending a skip update signal to the renderer
 
 Usage: console open
-```
-
-##### `console set-background`
-
-```
-Sets a background image for the console.
-
-Usage: console set-background <image_path>
-```
-
-##### `console zoom`
-
-```
-Reduces or increases the console font size.
-
-Usage: console zoom [in/out/+/-]
-- in  / + : Zooms in  (increases font size)
-- out / - : Zooms out (decreases font size)
 ```
 
 #### `copy`
@@ -586,6 +510,14 @@ Example:
 if '$(eq(1+1,2))' echo Condition is true!
 ```
 
+#### `imgui-view`
+
+```
+Creates an ImGui view of the domain.
+
+Usage: imgui-view <on/off>
+```
+
 #### `input-mapping`
 
 Available Functions
@@ -753,6 +685,22 @@ Useful for testing or as a placeholder in scripts where no action is required,
 but a command is syntactically necessary.
 ```
 
+#### `play-sound`
+
+```
+Play a sound from a file.
+Usage: play-sound <file-path>
+```
+
+#### `play-sound-filtered`
+
+```
+Play a sound from a file with a filter applied to it.
+Usage: play-sound-filtered <file-path> <num-coefficients> <den-coefficients>
+The coefficients should be specified as comma-separated values, with no spaces. For example:
+play-sound-filter my_sound.wav 0.1,0.1 1.0,-0.9
+```
+
 #### `pop-back`
 
 ```
@@ -776,6 +724,13 @@ Prints the JSON document to the console for debugging purposes.
 If key is empty, prints the entire document.
 
 Usage: print [key]
+```
+
+#### `print-id`
+
+```
+Prints the unique ID of the domain to the console for debugging purposes.
+Usage: print-id
 ```
 
 #### `push-back`
@@ -861,16 +816,17 @@ Available Functions
 
 | Function | Description |
 |----------|-------------|
-| `get` | Get a renderobject by its ID. |
+| `get` | Get a renderobject by its index in the Renderer. |
 | `help` | Show available commands and their descriptions |
 | `parse` | Parse a command on the selected RenderObject. |
 
 ##### `selected-object get`
 
 ```
-Get a renderobject by its ID.
+Get a renderobject by its index in the Renderer.
+The index is converted to its corresponding Domain ID and selected as the current RenderObject to interact with for other selected-object commands.
 
-Usage: selected-object get <id>
+Usage: selected-object get <idx>
 ```
 
 ##### `selected-object parse`
@@ -1138,25 +1094,50 @@ Available Functions
 
 | Function | Description |
 |----------|-------------|
+| `assert` | Asserts a condition and throws a custom error if false. |
 | `copy` | Copy data from one key to another. |
+| `critical` | Returns a critical error. |
 | `delete` | Marks object for deletion |
 | `echo` | Echoes all arguments as string to the standard output. |
 | `ensure-array` | Ensure that a key is an array, converting a value to an array if necessary. |
-| `eval` | Evaluate an expression and execute the result. |
+| `error` | Echoes all arguments as string to the standard error. |
+| `eval` | Evaluates an expression string and executes it. |
+| `for` | Executes a for-loop with a function call. |
 | `help` | Show available commands and their descriptions |
+| `if` | Executes a block of code if a condition is true. |
+| `imgui-view` | Creates an ImGui view of the domain. |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
 | `log` | Logging utilities |
 | `mirror` | Mirror utilities for RenderObject to GlobalSpace synchronization |
 | `move` | Move data from one key to another. |
+| `nop` | No operation. Does nothing. |
 | `pop-back` | Pop a value from the back of an array. |
 | `pop-front` | Pop a value from the front of an array. |
 | `print` | Prints the JSON document to the console for debugging purposes. |
+| `print-id` | Prints the unique ID of the domain to the console for debugging purposes. |
 | `push-back` | Push a value to the back of an array. |
 | `push-front` | Push a value to the front of an array. |
 | `query` | Functions to manipulate JSON data via SQL query results |
+| `return` | Returns a custom value as a Critical Error. |
 | `ruleset` | Ruleset management functions for the RenderObject domain. |
 | `set` | Set a key to a value in the JSON document. |
+| `warn` | Returns a warning: a custom, noncritical error. |
+
+#### `assert`
+
+```
+Asserts a condition and throws a custom error if false.
+
+Usage: assert <condition>
+
+It is recommended to wrap the condition in quotes to prevent parsing issues.
+
+Example:
+assert '$(eq(1+1,2))'    // No error
+assert '$(eq(1+1,3))'    // Critical Error: A custom assertion failed.
+Assertion failed: $(eq(1+1,3)) is not true.
+```
 
 #### `copy`
 
@@ -1164,6 +1145,15 @@ Available Functions
 Copy data from one key to another.
 
 Usage: copy <source_key> <destination_key>
+```
+
+#### `critical`
+
+```
+Returns a critical error.
+Usage: critical <string>
+
+- <string>: The critical error message.
 ```
 
 #### `delete`
@@ -1182,6 +1172,12 @@ Marks the object for deletion on the next update cycle.
 Echoes all arguments as string to the standard output.
 
 Usage: echo <string>
+
+This command concatenates all arguments with a whitespace and outputs them to the standard output (cout).
+Example:
+./bin/Nebulite echo Hello World!
+Outputs:
+Hello World!
 ```
 
 #### `ensure-array`
@@ -1192,16 +1188,77 @@ Ensure that a key is an array, converting a value to an array if necessary.
 Usage: ensure-array <key>
 ```
 
+#### `error`
+
+```
+Echoes all arguments as string to the standard error.
+Usage: error <string...>
+
+- <string...>: One or more strings to echo to the standard error.
+```
+
 #### `eval`
 
 ```
-Evaluate an expression and execute the result.
-Example: eval echo $(1+1)
+Evaluates an expression string and executes it.
+Every argument after eval is concatenated with a whitespace to form the expression to be evaluated and then reparsed.
+
+Usage: eval <expression>
 
 Examples:
 
-eval echo $(1+1)    outputs:    2.000000
-eval echo {self.id} outputs this objects id
+eval echo $(1+1)
+outputs: 2.000000
+First, eval evaluates every argument, then concatenates them with a whitespace,
+and finally executes the resulting string as a command.
+The string 'echo $(1+1)' is evaluated to "echo 2.000000", which is then executed.
+
+eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
+This evaluates to 'spawn ./Resources/RenderObjects/NAME.json',
+where NAME is the current value of the global variable ToSpawn
+```
+
+#### `for`
+
+```
+Executes a for-loop with a function call.
+
+Usage: for <var> <start> <end> <functioncall>
+
+Example:
+for i 1 5 echo Iteration {i}
+This will output:
+    Iteration 1
+    Iteration 2
+    Iteration 3
+    Iteration 4
+    Iteration 5
+
+This is useful for:
+- Repeating actions a specific number of times.
+- Iterating over a range of values.
+- Creating complex control flows in scripts.
+```
+
+#### `if`
+
+```
+Executes a block of code if a condition is true.
+
+Usage: if <condition> <functioncall>
+
+It is recommended to wrap the condition in quotes to prevent parsing issues.
+
+Example:
+if '$(eq(1+1,2))' echo Condition is true!
+```
+
+#### `imgui-view`
+
+```
+Creates an ImGui view of the domain.
+
+Usage: imgui-view <on/off>
 ```
 
 #### `json`
@@ -1375,6 +1432,17 @@ Move data from one key to another.
 Usage: move <source_key> <destination_key>
 ```
 
+#### `nop`
+
+```
+No operation. Does nothing.
+
+Usage: nop <blind arguments>
+
+Useful for testing or as a placeholder in scripts where no action is required,
+but a command is syntactically necessary.
+```
+
 #### `pop-back`
 
 ```
@@ -1398,6 +1466,13 @@ Prints the JSON document to the console for debugging purposes.
 If key is empty, prints the entire document.
 
 Usage: print [key]
+```
+
+#### `print-id`
+
+```
+Prints the unique ID of the domain to the console for debugging purposes.
+Usage: print-id
 ```
 
 #### `push-back`
@@ -1430,6 +1505,23 @@ Available Functions
 ```
 Sets a key from a SQL query result.
 Not implemented yet.
+```
+
+#### `return`
+
+```
+Returns a custom value as a Critical Error.
+
+Usage: return <string>
+
+This command creates a custom critical error with the given string as description.
+This can be used to exit from a task queue with a custom message.
+
+Example:
+./bin/Nebulite return We did not anticipate this happening, weird.
+Outputs:
+We did not anticipate this happening, weird.
+Critical Error: We did not anticipate this happening, weird.
 ```
 
 #### `ruleset`
@@ -1472,6 +1564,15 @@ Usage: set <key> <value>
 Note: All values are stored as strings.
 ```
 
+#### `warn`
+
+```
+Returns a warning: a custom, noncritical error.
+Usage: warn <string>
+
+- <string>: The warning message.
+```
+
 ## JSON Transformations
 
 These commands are available during JSON value retrieval with the transformation operator '|'.
@@ -1498,10 +1599,10 @@ Available Functions
 | `get` | Gets the value at the specified key from the current JSON object. |
 | `getMultiple` | Gets multiple values at the specified keys from the current JSON object. |
 | `help` | Show available commands and their descriptions |
+| `lStrip` | Strips whitespace from the left end of the current JSON string value. |
 | `last` | Gets the last element of the array in the current JSON value. |
 | `length` | Gets the length of the array in the current JSON value. |
 | `listMembers` | Lists all members of the current JSON object as an array. |
-| `lStrip` | Strips whitespace from the left end of the current JSON string value. |
 | `map` | Applies a mapping function to each element in the array of the current JSON value. |
 | `max` | Finds the maximum value among the elements of the array in the current JSON value. |
 | `median` | Calculates the median of the elements of the array in the current JSON value. |
@@ -1513,6 +1614,7 @@ Available Functions
 | `product` | Multiplies the elements of the array in the current JSON value. |
 | `push` | Pushes a string value to the end of the array in the current JSON value. |
 | `pushNumber` | Pushes a numeric value to the end of the array in the current JSON value. |
+| `rStrip` | Strips whitespace from the right end of the current JSON string value. |
 | `removeMember` | Removes the member at the specified key from the JSON document. |
 | `replace` | Replaces all occurrences of a target substring with a replacement substring in the current JSON string value. |
 | `require` | Requirement transformations that validate JSON values and return false on failure (fallback to default value in get-call, usually 'null' or 0.0). |
@@ -1521,7 +1623,6 @@ Available Functions
 | `round` | Rounds the current JSON numeric value to the nearest integer. |
 | `roundDown` | Rounds the current JSON numeric value down to the nearest integer. |
 | `roundUp` | Rounds the current JSON numeric value up to the nearest integer. |
-| `rStrip` | Strips whitespace from the right end of the current JSON string value. |
 | `serialize` | Serializes the current JSON value to a string. |
 | `setBool` | Sets a boolean value at the specified key in the JSON document. |
 | `setDouble` | Sets a double value at the specified key in the JSON document. |
@@ -1704,6 +1805,13 @@ Gets multiple values at the specified keys from the current JSON object.
 Usage: |getMultiple <key1> <key2> ... -> {array of values}
 ```
 
+#### `lStrip`
+
+```
+Strips whitespace from the left end of the current JSON string value.
+Usage: |lStrip -> {string}
+```
+
 #### `last`
 
 ```
@@ -1725,13 +1833,6 @@ Usage: |length -> {number}
 Lists all members of the current JSON object as an array.
 If the current value is an array, it lists the indices as strings.
 Usage: |listKeys -> {array of keys}
-```
-
-#### `lStrip`
-
-```
-Strips whitespace from the left end of the current JSON string value.
-Usage: |lStrip -> {string}
 ```
 
 #### `map`
@@ -1819,6 +1920,13 @@ Usage: |push <value> -> {array}
 Pushes a numeric value to the end of the array in the current JSON value.
 If the current value is not an array, it is first wrapped into a single-element array.
 Usage: |pushNumber <value> -> {array}
+```
+
+#### `rStrip`
+
+```
+Strips whitespace from the right end of the current JSON string value.
+Usage: |rStrip -> {string}
 ```
 
 #### `removeMember`
@@ -1932,13 +2040,6 @@ Non-numeric values default to 0. Fails if the value is null.
 Rounds the current JSON numeric value up to the nearest integer.
 Usage: |roundUp -> {value:int}
 Non-numeric values default to 0.
-```
-
-#### `rStrip`
-
-```
-Strips whitespace from the right end of the current JSON string value.
-Usage: |rStrip -> {string}
 ```
 
 #### `serialize`

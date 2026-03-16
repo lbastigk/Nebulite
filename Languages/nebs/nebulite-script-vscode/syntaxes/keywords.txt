@@ -9,7 +9,7 @@ and
 array
 assert
 at
-autotype
+audio-debug
 average
 basicValue
 beep
@@ -32,13 +32,11 @@ delete
 deload
 deserialize
 div
-down
 draft
 echo
 endsWith
 ensure-array
 ensureArray
-enter
 env
 eq
 equals
@@ -47,7 +45,6 @@ error-log
 eval
 evaluate
 evaluation
-execute
 exit
 expression-help
 feature-test
@@ -67,6 +64,7 @@ gt
 halt-once
 help
 if
+imgui-view
 input-mapping
 input-wait
 json
@@ -105,10 +103,13 @@ once
 open
 or
 parse
+play-sound
+play-sound-filtered
 pop-back
 pop-front
 pow
 print
+print-id
 product
 push
 push-back
@@ -138,7 +139,6 @@ save-standards
 selected-object
 serialize
 set
-set-background
 set-fixed-dt
 set-fps
 set-integer
@@ -167,7 +167,7 @@ subspan
 substring
 sum
 task
-text
+test-filter
 time
 toBool
 toBoolString
@@ -181,10 +181,8 @@ type
 typeAsNumber
 typeAsString
 unlock
-up
 variable
 wait
 warn
 xnor
 xor
-zoom
