@@ -126,6 +126,20 @@ void FuncTree<returnValue, additionalArgs...>::generalHelp() {
     auto allFunctions = getAllFunctions(); // includes categories
     auto allVariables = getAllVariables();
 
+    // Filter duplicates
+    std::ranges::sort(allFunctions, {}, &std::pair<std::string, std::string_view>::first);
+    std::erase_if(allFunctions, [seen = std::string{}](auto const& item) mutable {
+        bool const duplicate = (item.first == seen);
+        seen = item.first;
+        return duplicate;
+    });
+    std::ranges::sort(allVariables, {}, &std::pair<std::string, std::string_view>::first);
+    std::erase_if(allVariables, [seen = std::string{}](auto const& item) mutable {
+        bool const duplicate = (item.first == seen);
+        seen = item.first;
+        return duplicate;
+    });
+
     // Display:
     capture.log.println();
     capture.log.println("Help for ", TreeName);

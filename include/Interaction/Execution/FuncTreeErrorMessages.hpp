@@ -33,6 +33,10 @@ public:
     [[noreturn]] static void variableExists(std::string_view const& tree, std::string_view const& variable);
 
     [[noreturn]] static void commonFunctionHasWhitespace(std::string_view const& function);
+
+    [[noreturn]] static void categoryShadowsFunction(std::string_view const& category);
+
+    [[noreturn]] static void categoryShadowsVariable(std::string_view const& category);
 };
 
 class ExecutionErrorMessage {

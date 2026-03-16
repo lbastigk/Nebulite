@@ -189,6 +189,19 @@ void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
     std::vector<std::string> const categoryStructure = Utility::StringHandler::split(name, ' ');
     size_t const depth = categoryStructure.size();
 
+    // Check for shadowing issues
+    if (BindingSearchResult const searchResult = find(std::string(name)); searchResult.any) {
+        if (searchResult.category) {
+            // Category already exists, proper error handling below
+        }
+        if (searchResult.function) {
+            BindErrorMessage::categoryShadowsFunction(name);
+        }
+        if (searchResult.variable) {
+            BindErrorMessage::categoryShadowsVariable(name);
+        }
+    }
+
     absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
     for (size_t idx = 0; idx < depth; idx++) {
         std::string currentCategoryName = categoryStructure[idx];

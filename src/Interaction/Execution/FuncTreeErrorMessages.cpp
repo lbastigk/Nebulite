@@ -98,6 +98,20 @@ void BindErrorMessage::commonFunctionHasWhitespace(std::string_view const& funct
     throw std::runtime_error("Failed to bind common function due to invalid name.");
 }
 
+void BindErrorMessage::categoryShadowsFunction(std::string_view const& category) {
+    Global::capture().error.println("---------------------------------------------------------------");
+    Global::capture().error.println("A Nebulite FuncTree binding failed!");
+    Global::capture().error.println("Error: Cannot bind category '", category, "' because a function with the same name already exists.");
+    throw std::runtime_error("FuncTree binding failed due to category shadowing function.");
+}
+
+void BindErrorMessage::categoryShadowsVariable(std::string_view const& category) {
+    Global::capture().error.println("---------------------------------------------------------------");
+    Global::capture().error.println("A Nebulite FuncTree binding failed!");
+    Global::capture().error.println("Error: Cannot bind category '", category, "' because a variable with the same name already exists.");
+    throw std::runtime_error("FuncTree binding failed due to category shadowing variable.");
+}
+
 //------------------------------------------
 // Execution error messages
 
