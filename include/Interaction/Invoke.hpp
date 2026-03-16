@@ -101,7 +101,7 @@ private:
     // JSON Rulesets:
     // Average total time for small benchmark: 6.524900 s
     // Average frame time for large benchmark: 0.160309 s
-    using ContainerType = Data::BroadcastListenContainer::FlatContainer;
+    using ContainerType = Data::BroadcastListenContainer::FlatContainer<Data::BroadcastListenContainer::FlatContainerType::WithRotation>;
 
     std::unique_ptr<ContainerType> worker[Constants::ThreadSettings::Maximum::invokeWorkerCount];
 

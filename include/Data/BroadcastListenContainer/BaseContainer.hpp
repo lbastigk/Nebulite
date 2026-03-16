@@ -27,7 +27,8 @@ struct Listener;
 //------------------------------------------
 namespace Nebulite::Data::BroadcastListenContainer {
 /**
- * @brief Class to manage broadcast-listen pairs of rulesets.
+ * @brief Interface Class to manage broadcast-listen pairs of rulesets.
+ * @tparam DerivedContainer The type of the derived container class, required as argument of the WorkDispatcher to use as workspace reference.
  */
 template<typename DerivedContainer>
 class BaseContainer {
@@ -54,7 +55,7 @@ public:
     }
 
     //------------------------------------------
-    // Container Methods
+    // Container Methods to be implemented by derived classes
 
     /**
      * @brief Broadcasts a ruleset to all listeners on its topic.
@@ -83,15 +84,16 @@ protected:
         uint32_t count;
     } workerInfo;
 
-    // non-static hooks for derived classes
+    // non-static hooks for derived classes to implement
     virtual void init() {}
     virtual void process() {}
+
+private:
 
     // static wrappers for WorkDispatcher
     static void initImpl(DerivedContainer container) { container->init(); }
     static void processImpl(DerivedContainer container) { container->process(); }
 
-private:
     static void ensureEarlyThreadId() {
         thread_local bool threadIdAssigned = false;
         if (threadIdAssigned) return;

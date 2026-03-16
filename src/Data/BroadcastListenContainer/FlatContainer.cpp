@@ -7,7 +7,7 @@
 
 namespace Nebulite::Data::BroadcastListenContainer {
 
-void FlatContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+void FlatContainerImpl::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
     static auto workerCount = Constants::ThreadSettings::getInvokeWorkerCount();
     static auto threadSpreader = Utility::Coordination::IdGenerator::atomicThreadIncrementGenerator();
     thread_local size_t threadId = threadSpreader();
@@ -17,7 +17,7 @@ void FlatContainer::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const
     broadcasters[threadId][entry->getTopic()].push_back(entry);
 }
 
-void FlatContainer::listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
+void FlatContainerImpl::listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
     static auto workerCount = Constants::ThreadSettings::getInvokeWorkerCount();
     static auto threadSpreader = Utility::Coordination::IdGenerator::atomicThreadIncrementGenerator();
     thread_local size_t threadId = threadSpreader();
@@ -59,32 +59,22 @@ auto rotate(R&& r, double percent){
 }
 } // namespace
 
-void FlatContainer::process() {
-    // Offset for this worker thread
-    // Distributes listener access by offsetting the starting index for each worker thread
-    // This way, workers are less likely to contend for the same listeners when processing the same topic
-    thread_local double const relativeOffset = static_cast<double>(workerInfo.index) / static_cast<double>(workerInfo.count);
-    thread_local double const listenerOffset = std::pow(relativeOffset, 1);
-    thread_local double const broadcasterOffset = std::pow(relativeOffset, 1);
-    thread_local double const lvOffset = std::pow(relativeOffset, 2);
-    thread_local double const bvOffset = std::pow(relativeOffset, 2);
-
-    // Process all listeners with offset to reduce contention between worker threads
-    for (auto& listenerMap : rotate(listeners, listenerOffset)) {
+void FlatContainerImpl::process() {
+    for (auto& listenerMap : rotate(listeners, settings.listenerOffset)) {
         listenerMap.forall([&](std::string const& topic, auto& lv) {
 
             // Build a flattened view of all rulesets for this topic
             auto rulesets =
-                rotate(broadcasters, broadcasterOffset)
+                rotate(broadcasters, settings.broadcasterOffset)
                 | std::views::transform([&](auto& broadcasterMap) -> auto& {
                       return broadcasterMap[topic];
                   })
                 | std::views::transform([&](auto& bv) {
-                      return rotate(bv, bvOffset);
+                      return rotate(bv, settings.bvOffset);
                   })
                 | std::views::join;
 
-            for (auto& listener : rotate(lv, lvOffset)) {
+            for (auto& listener : rotate(lv, settings.lvOffset)) {
                 for (auto const& ruleset : rulesets) {
 
                     if (ruleset->getId() == listener->domain.getId())
@@ -105,10 +95,6 @@ void FlatContainer::process() {
             bv.clear();
         });
     }
-}
-
-void FlatContainer::init() {
-    // Nothing to initialize for the flat container
 }
 
 } // namespace Nebulite::Data::BroadcastListenContainer
