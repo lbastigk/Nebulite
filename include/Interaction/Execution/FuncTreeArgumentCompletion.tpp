@@ -7,8 +7,8 @@
  *          - Searching for bindings
  */
 
-#ifndef NEBULITE_INTERACTION_EXECUTION_FUNCTREE_ARGUMENT_COMPLETION_TPP
-#define NEBULITE_INTERACTION_EXECUTION_FUNCTREE_ARGUMENT_COMPLETION_TPP
+#ifndef NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_ARGUMENT_COMPLETION_TPP
+#define NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_ARGUMENT_COMPLETION_TPP
 
 //------------------------------------------
 // Includes
@@ -129,13 +129,13 @@ void FuncTree<returnValue, additionalArgs...>::generalHelp() {
     // Filter duplicates
     std::ranges::sort(allFunctions, {}, &std::pair<std::string, std::string_view>::first);
     std::erase_if(allFunctions, [seen = std::string{}](auto const& item) mutable {
-        bool const duplicate = (item.first == seen);
+        bool const duplicate = item.first == seen;
         seen = item.first;
         return duplicate;
     });
     std::ranges::sort(allVariables, {}, &std::pair<std::string, std::string_view>::first);
     std::erase_if(allVariables, [seen = std::string{}](auto const& item) mutable {
-        bool const duplicate = (item.first == seen);
+        bool const duplicate = item.first == seen;
         seen = item.first;
         return duplicate;
     });
@@ -282,7 +282,7 @@ std::vector<std::string> FuncTree<returnValue, additionalArgs...>::findCompletio
     auto collect = [&](auto const& map, std::string_view const prefix = "") {
         for (auto const& [name, _] : map) {
             if (std::string const full = std::string(prefix) + name; full.starts_with(pattern)) {
-                completions.push_back(std::move(full));
+                completions.push_back(full);
             }
         }
     };
@@ -300,4 +300,4 @@ std::vector<std::string> FuncTree<returnValue, additionalArgs...>::findCompletio
 }
 
 } // namespace Nebulite::Interaction::Execution
-#endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREE_ARGUMENT_COMPLETION_TPP
+#endif // NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_ARGUMENT_COMPLETION_TPP

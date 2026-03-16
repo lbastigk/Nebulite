@@ -45,7 +45,7 @@ public:
     static auto constexpr noLockArraySize = Constants::ThreadSettings::Maximum::totalThreadCount + 4; // A bit extra, just in case
 
 protected:
-    std::shared_ptr<JSON> baseDocument;
+    mutable std::shared_ptr<JSON> baseDocument;
 
     /**
      * @brief A helper variable that is modified to signal certain functions as non-const.
@@ -240,8 +240,6 @@ public:
     struct MemberAndKey {
         std::string member;
         ScopedKey key;
-
-        MemberAndKey(std::string const& member_, ScopedKey const& key_) : member(member_), key(key_) {}
     };
 
     std::vector<MemberAndKey> listAvailableMembersAndKeys(ScopedKeyView const& key) const ;

@@ -199,8 +199,13 @@ std::string JsonScope::serialize(ScopedKeyView const& key) const {
 }
 
 void JsonScope::deserialize(std::string const& serialOrLink) const {
-    // No support for any tokens, just forward to baseDocument
-    baseDocument->deserialize(serialOrLink);
+    if (scopePrefix.has_value()) {
+        JSON tempDoc;
+        tempDoc.deserialize(serialOrLink);
+
+        // No support for any tokens, just forward to baseDocument
+        baseDocument->setSubDoc(scopePrefix.value(), tempDoc);
+    }
 }
 
 //------------------------------------------
