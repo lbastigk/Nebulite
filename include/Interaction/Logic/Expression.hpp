@@ -412,7 +412,7 @@ private:
     std::vector<te_variable> te_variables; // Variables for TinyExpr evaluation
 
     //------------------------------------------
-    // Helper functions
+    // Core Helper functions
 
     /**
      * @brief Compiles a component, if its of type Expression
@@ -488,10 +488,35 @@ private:
      */
     void printCompileError(std::shared_ptr<Component> const& component, int const& error) const;
 
+    //------------------------------------------
+    // Cache helper functions
+
     /**
-     * @brief Updates caches
+     * @brief Updates caches to reflect current context
+     * @param context The context to update caches for
      */
     void updateCaches(ContextScopeBase const& context) const ;
+
+    /**
+     * @brief Sets up the first evaluation context cache if it hasn't been set up yet
+     * @param context The current context to potentially set up as the first evaluation context
+     */
+    void setupFirstContext(ContextScopeBase const& context) const ;
+
+    /**
+     * @brief Updates the stable value caches based on the current context.
+     * @details Either copies from first context via pointers (fast),
+     *          or copies from the current context via json->get (slow)
+     * @param context The current context to update stable value caches for
+     */
+    void updateStableValues(ContextScopeBase const& context) const ;
+
+    /**
+    * @brief Updates the unstable value caches based on the current context.
+    * @details Evaluates member and fetches value from the context
+    * @param context The current context to update unstable value caches for
+    */
+    void updateUnstableValues(ContextScopeBase const& context) const ;
 };
 
 } // namespace Nebulite::Interaction::Logic

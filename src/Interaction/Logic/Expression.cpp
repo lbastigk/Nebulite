@@ -7,7 +7,7 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Data/Document/JsonScope.hpp"
-#include "../../../include/Math/ExpressionPrimitives.hpp"
+#include "Math/ExpressionPrimitives.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
 #include "Interaction/Logic/Expression.hpp"
 
@@ -463,6 +463,12 @@ Data::JSON Expression::evalAsJson(std::string const& input) {
 // Private helper functions
 
 void Expression::updateCaches(ContextScopeBase const& context) const {
+    setupFirstContext(context);
+    updateStableValues(context);
+    updateUnstableValues(context);
+}
+
+void Expression::setupFirstContext(ContextScopeBase const& context) const {
     if (!firstEvaluationContext.self) {
         firstEvaluationContext.self = &context.self;
         for (auto const& vde : virtualDoubles.stable.self) {
@@ -479,13 +485,9 @@ void Expression::updateCaches(ContextScopeBase const& context) const {
             vde->linkExternalCache(context.global);
         }
     }
+}
 
-    //===================================================
-    // Stable values:
-    // either copy from first context via pointers (fast),
-    // or copy from the current context via json->get (slow)
-    //===================================================
-
+void Expression::updateStableValues(ContextScopeBase const& context) const {
     // self
     if (&context.self == firstEvaluationContext.self) {
         for (auto const& vde : virtualDoubles.stable.self) {
@@ -521,12 +523,9 @@ void Expression::updateCaches(ContextScopeBase const& context) const {
             vde->copyFromJson(context.global);
         }
     }
+}
 
-    //===================================================
-    // Unstable values:
-    // evaluate key and fetch value from json
-    //===================================================
-
+void Expression::updateUnstableValues(ContextScopeBase const& context) const {
     for (auto const& vde : virtualDoubles.unstable.self) {
         auto const key = Data::ScopedKey(eval(vde->getKey(), context));
         vde->setDirect(context.self.get<double>(key).value_or(0.0));
