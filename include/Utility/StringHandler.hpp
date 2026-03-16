@@ -120,11 +120,16 @@ public:
      */
     static std::vector<std::string> splitOnSameDepth(std::string const& input, char const& delimiter);
 
+    struct ParseResult {
+        std::vector<std::string> args;
+        bool unclosedQuote = false;
+    };
+
     /**
      * @brief Parses a command string into individual arguments, taking quotes into account.
      * @param cmd The command string to parse.
      */
-    static std::vector<std::string> parseQuotedArguments(std::string const& cmd);
+    static ParseResult parseQuotedArguments(std::string const& cmd);
 
     /**
      * @brief Recombines argc/argv into a single string with spaces.

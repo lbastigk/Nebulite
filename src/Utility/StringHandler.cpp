@@ -254,7 +254,7 @@ void handleQuotedToken(std::string const& token, QuoteParseState& state, std::ve
 }
 } // namespace
 
-std::vector<std::string> StringHandler::parseQuotedArguments(std::string const& cmd) {
+StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string const& cmd) {
     std::vector<std::string> const tokens = split(cmd, ' ');
     std::vector<std::string> result;
     QuoteParseState state;
@@ -262,6 +262,8 @@ std::vector<std::string> StringHandler::parseQuotedArguments(std::string const& 
     for (auto const& token : tokens) {
         // Keep empty tokens as extra whitespace - important for preserving user formatting
         // e.g. for text: "eval echo Value: {global.myVal}  |  Expected: {global.expected}"
+        // Without this, the double spaces around | would be lost, which can be important for readability of the command
+        // or simply to preserve the user's intended formatting.
         if (token.empty()) {
             handleEmptyToken(state, result);
             continue;
@@ -274,30 +276,13 @@ std::vector<std::string> StringHandler::parseQuotedArguments(std::string const& 
         }
     }
 
-    // Warning for unclosed quotes
-    if (state.inAnyQuote()) {
-        // Deactivate due to potential false positives in complex commands with nested quotes
-        // TODO: Is there a good reason why this fails with json strings?
-        //Error::println("Warning: Unclosed quote in command: ", cmd);
-    }
-
-    return result;
+    return {.args = std::move(result), .unclosedQuote = state.inAnyQuote()};
 }
 
-// cppcheck-suppress constParameter
 std::string StringHandler::recombineArgs(int const argc, char* argv[]) {
-    std::string result;
-    for (int i = 0; i < argc; ++i) {
-        result += argv[i];
-        // Don't add a whitespace if it's the last argument
-        if (i < argc - 1) {
-            // Important: don't add a whitespace if the argument already is a whitespace!
-            // This is due to how parseQuotedArguments handles multiple spaces. They are treated as one arg per space.
-            if (argv[i][0] != ' ')
-                result += " ";
-        }
-    }
-    return result;
+    // Turn into vector and pass to span version for code reuse
+    std::vector<std::string> args(argv, argv + argc);
+    return recombineArgs(args);
 }
 
 std::string StringHandler::recombineArgs(std::span<std::string const> const& args) {
