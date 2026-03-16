@@ -5,11 +5,11 @@
 // Forward declarations
 
 namespace Nebulite::Data {
-    class JsonScope;
-}
+class JsonScope;
+} // namespace Nebulite::Data
 
 namespace Nebulite::Interaction::Execution {
-    class Domain;
+class Domain;
 } // namespace Nebulite::Interaction::Execution
 
 //------------------------------------------

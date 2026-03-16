@@ -3,7 +3,6 @@
 
 #include <utility>
 #include "ScopeAccessor.hpp"
-#include "Constants/Asserts.hpp"
 
 namespace Nebulite {
 
@@ -16,7 +15,7 @@ ScopeAccessor::DomainModuleToken<DomainType>::DomainModuleToken(Interaction::Exe
     } else if constexpr (std::is_same_v<DomainType, Data::JsonScope>) {
         prefix = "providedScope.domainModule.jsonScope." + dm.moduleScope.getScopePrefix();
     } else {
-        static_assert(Constants::Assert::always_false(), "ScopeAccessor::DomainModuleToken: Unsupported DomainType for DomainModuleToken");
+        // Unknown DomainType, please add the specialization for it in this constructor
         std::unreachable();
     }
 }

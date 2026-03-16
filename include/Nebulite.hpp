@@ -38,6 +38,7 @@ namespace Constants {
  * @details These form the backbone of the Nebulite system.
  *          They provide essential services such as scoped data management, command parsing, serialization, etc.
  * @note Contains the Texture class, even if it is graphics-related, as it is a core class simply by being a Domain.
+ * @todo Rename to 'Domain'
  */
 namespace Core {
 } // namespace Core
@@ -160,10 +161,9 @@ namespace Coordination {
 } // namespace Nebulite
 
 //------------------------------------------
-// Singleton accessors
+// Global class for singleton access
 
 namespace Nebulite {
-
 /**
  * @brief Static class to provide access to the global GlobalSpace singleton and selected global JSON document scopes.
  */
