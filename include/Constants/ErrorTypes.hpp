@@ -17,6 +17,7 @@
  * @todo Refactor into capture class using the streams warn and error.
  *       Then we create a special capture derived class for GlobalSpace
  *       that uses it's flags to determine if to close the program or not on errors
+ *       This requires the ErrorTable to be turned into a StandardCaptureMessage(Capture&) class to log standard messages.
  */
 
 #ifndef NEBULITE_CONSTANTS_ERROR_TYPES_HPP
