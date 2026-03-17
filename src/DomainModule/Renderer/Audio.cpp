@@ -80,7 +80,7 @@ Constants::Error Audio::playSoundWithFilter(std::span<std::string const> const& 
         return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
     }
 
-    auto const path = args[1];
+    auto const& path = args[1];
     auto const sound = loadSound(path);
     if (!sound.has_value()) {
         domain.capture.error.println("Failed to load sound from path: ", path);
@@ -252,7 +252,8 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
             convertFunc = [](Uint8 const* byteData) {
                 uint8_t buffer[4];
                 std::memcpy(buffer, byteData, sizeof(uint8_t));
-                return static_cast<Settings::SampleType>(*reinterpret_cast<uint8_t*>(buffer) - 128) / static_cast<Settings::SampleType>(std::numeric_limits<uint8_t>::max() / 2);
+                Settings::SampleType const valueShifted = static_cast<Settings::SampleType>(*reinterpret_cast<uint8_t*>(buffer)) - static_cast<Settings::SampleType>(128);
+                return valueShifted / (static_cast<Settings::SampleType>(std::numeric_limits<uint8_t>::max()) / static_cast<Settings::SampleType>(2));
             };
             break;
         case SDL_AUDIO_S8:
