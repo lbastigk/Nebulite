@@ -1,5 +1,18 @@
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <atomic>
+#include <memory>
+#include <mutex>
+
+// External
+#include "absl/container/flat_hash_map.h"
+
+// Nebulite
 #include "Utility/Coordination/IdGenerator.hpp"
 
+//------------------------------------------
 namespace Nebulite::Utility::Coordination {
 
 std::function<size_t()> IdGenerator::atomicThreadRollGenerator(size_t const& distributionSize) {

@@ -7,17 +7,6 @@
 #define NEBULITE_UTILITY_COORDINATION_ID_GENERATOR_HPP
 
 //------------------------------------------
-// Includes
-
-// Standard library
-#include <atomic>
-#include <memory>
-#include <mutex>
-
-// External
-#include "absl/container/flat_hash_map.h"
-
-//------------------------------------------
 namespace Nebulite::Utility::Coordination {
 /**
  * @class Nebulite::Utility::Coordination::IdGenerator
