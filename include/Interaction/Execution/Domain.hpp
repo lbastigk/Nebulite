@@ -336,6 +336,7 @@ public:
     void initModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference) {
         if constexpr(std::is_same_v<DomainType, Domain>) {
             // If the DomainType is the base Domain class, we must initialize modules without scope
+            // TODO: Is this still an issue?
             static_assert(!HasKeyGroup<DomainModuleType>, "DomainModules linked to the base Domain class cannot have a scope. Please remove the static Key::scope member from the module.");
 
             auto& scope = domainReference.domainScope.shareDummyScopeBase();

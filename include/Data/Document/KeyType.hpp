@@ -1,7 +1,8 @@
 #ifndef NEBULITE_DATA_DOCUMENT_KEY_TYPE_HPP
 #define NEBULITE_DATA_DOCUMENT_KEY_TYPE_HPP
 
-#include <cstdint>
+// NOLINTNTEXTLINE
+#include <cstdint> // For some reason clang-tidy flags the include as unnecessary
 
 namespace Nebulite::Data {
 /**

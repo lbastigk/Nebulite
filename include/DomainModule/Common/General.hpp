@@ -11,7 +11,6 @@
 
 // Nebulite
 #include "Constants/ErrorTypes.hpp"
-#include "Data/Document/KeyGroup.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -122,7 +121,7 @@ public:
         "We did not anticipate this happening, weird.\n"
         "Critical Error: We did not anticipate this happening, weird.\n";
 
-    Constants::Error echo(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Error echo(std::span<std::string const> const& args) const ;
     static auto constexpr echo_name = "echo";
     static auto constexpr echo_desc = "Echoes all arguments as string to the standard output.\n"
         "\n"
