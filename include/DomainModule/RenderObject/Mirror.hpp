@@ -30,13 +30,13 @@ namespace Nebulite::DomainModule::RenderObject {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Mirror) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Error update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    Constants::Error mirror_once();
+    [[nodiscard]] Constants::Error mirror_once();
     static auto constexpr mirror_once_name = "mirror once";
     static auto constexpr mirror_once_desc = "Mirrors the object to the GlobalSpace document once on next update\n"
         "\n"
@@ -45,7 +45,7 @@ public:
         "Mirroring is only done for one frame.\n"
         "Mirrors are stored in the GlobalSpace document under key \"mirror.renderObject.id<id>\"\n";
 
-    Constants::Error mirror_on();
+    [[nodiscard]] Constants::Error mirror_on();
     static auto constexpr mirror_on_name = "mirror on";
     static auto constexpr mirror_on_desc = "Enables mirroring to the GlobalSpace document\n"
         "\n"
@@ -55,7 +55,7 @@ public:
         "\n"
         "Mirrors are stored in the GlobalSpace document under key \"mirror.renderObject.id<id>\"\n";
 
-    Constants::Error mirror_off();
+    [[nodiscard]] Constants::Error mirror_off();
     static auto constexpr mirror_off_name = "mirror off";
     static auto constexpr mirror_off_desc = "Disables mirroring to the GlobalSpace document\n"
         "\n"
@@ -127,7 +127,7 @@ private:
      * @details If the RenderObject has an invalid ID (<1), mirrorKey won't be set.
      * @return Potential errors that occurred during setup
      */
-    Constants::Error setupMirrorKey();
+    [[nodiscard]] Constants::Error setupMirrorKey();
 };
 } // namespace Nebulite::DomainModule::RenderObject
 #endif // NEBULITE_DOMAINMODULE_RENDEROBJECT_MIRROR_HPP

@@ -27,18 +27,18 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, FeatureTest) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Error update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    Constants::Error testFuncTree(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Error testFuncTree(std::span<std::string const> const& args) const ;
     static auto constexpr testFuncTree_name = "feature-test functree";
     static auto constexpr testFuncTree_desc = "Builds a funcTree with extra arguments and tests it\n"
         "Usage: feature-test functree\n";
 
-    Constants::Error selfOtherGlobalEvaluation() const ;
+    [[nodiscard]] Constants::Error selfOtherGlobalEvaluation() const ;
     static auto constexpr selfOtherGlobalEvaluation_name = "evaluation";
     static auto constexpr selfOtherGlobalEvaluation_desc = "Tests evaluation of self and other globals in one expression\n"
         "Usage: evaluation\n";

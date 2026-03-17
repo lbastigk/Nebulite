@@ -87,13 +87,13 @@ public:
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         the last critical error code otherwise.
      */
-    Constants::Error parseQueue();
+    [[nodiscard]] Constants::Error parseQueue();
 
     /**
      * @brief Updates the global space.
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Error update() override;
 
     /**
      * @brief Quits the renderer by setting the quit flag.
@@ -273,7 +273,7 @@ private:
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         an error code otherwise.
      */
-    Constants::Error preParse() override;
+    [[nodiscard]] Constants::Error preParse() override;
 
     /**
      * @brief Updates all inner domains.

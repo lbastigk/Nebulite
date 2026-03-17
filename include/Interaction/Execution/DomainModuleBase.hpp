@@ -49,7 +49,7 @@ public:
     /**
      * @brief Virtual update function to be Overwritten by derived classes.
      */
-    virtual Constants::Error update();
+    [[nodiscard]] virtual Constants::Error update();
 
     /**
      * @brief Virtual re-initialization function to be Overwritten by derived classes.

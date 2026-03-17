@@ -27,7 +27,7 @@ namespace Nebulite::DomainModule::RenderObject {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Ruleset) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Error update() override;
     void reinit() override ;
 
     //------------------------------------------
@@ -41,7 +41,7 @@ public:
         "\n"
         "All rulesets are applied once on the next update cycle.\n";
 
-    Constants::Error reload();
+    [[nodiscard]] Constants::Error reload();
     static auto constexpr reload_name = "ruleset reload";
     static auto constexpr reload_desc = "Reloads all rulesets for this RenderObject on the next update.\n"
         "\n"

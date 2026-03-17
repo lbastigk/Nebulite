@@ -99,7 +99,7 @@ public:
      *        - calculates source and destination rects
      * @return Constants::Error indicating success or failure.
      */
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Error update() override;
 
     /**
      * @brief Estimates the computational cost of updating the RenderObject.

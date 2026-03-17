@@ -28,7 +28,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Ruleset) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Error update() override;
     void reinit() override {}
 
     //------------------------------------------

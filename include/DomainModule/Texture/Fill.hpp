@@ -29,13 +29,13 @@ namespace Nebulite::DomainModule::Texture {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Fill) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Error update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    Constants::Error fill(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Error fill(int argc, char** argv) const ;
     static auto constexpr fill_name = "fill";
     static auto constexpr fill_desc = "Fills the texture with a specified color.\n"
         "Usage:\n"

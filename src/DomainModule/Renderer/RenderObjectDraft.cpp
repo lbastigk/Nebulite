@@ -4,8 +4,7 @@
 namespace Nebulite::DomainModule::Renderer {
 
 Constants::Error RenderObjectDraft::update() {
-    draft.get(domain.capture)->update();
-    return Constants::ErrorTable::NONE();
+    return draft.get(domain.capture)->update();
 }
 
 Constants::Error RenderObjectDraft::draft_parse(std::span<std::string const> const& args) {

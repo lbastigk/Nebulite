@@ -29,20 +29,20 @@ namespace Nebulite::DomainModule::Renderer {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Console) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Error update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    Constants::Error consoleOpen();
+    [[nodiscard]] Constants::Error consoleOpen();
     static auto constexpr consoleOpen_name = "console open";
     static auto constexpr consoleOpen_desc = "Opens the console\n"
         "Pauses the application by sending a skip update signal to the renderer\n"
         "\n"
         "Usage: console open\n";
 
-    Constants::Error consoleClose();
+    [[nodiscard]] Constants::Error consoleClose();
     static auto constexpr consoleClose_name = "console close";
     static auto constexpr consoleClose_desc = "Closes the console\n"
         "\n"

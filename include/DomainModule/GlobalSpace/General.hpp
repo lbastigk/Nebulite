@@ -27,7 +27,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, General) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Error update() override;
     void reinit() override {}
 
     //------------------------------------------
@@ -42,7 +42,7 @@ public:
         "Closes the program\n"
         "Any queued tasks will be discarded.\n";
 
-    Constants::Error wait(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Error wait(int argc, char** argv) const ;
     static auto constexpr wait_name = "wait";
     static auto constexpr wait_desc = "Sets the waitCounter to the given value to halt all script tasks for a given amount of frames.\n"
         "\n"
@@ -56,7 +56,7 @@ public:
         "- Timing events in a sequence.\n"
         "- Tool assisted speedruns (TAS)\n";
 
-    Constants::Error task(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Error task(int argc, char** argv) const ;
     static auto constexpr task_name = "task";
     static auto constexpr task_desc = "Loads tasks from a file into the taskQueue.\n"
         "\n"
@@ -78,7 +78,7 @@ public:
         "        subCommand2\n"
         "    mainCommand4\n";
 
-    Constants::Error always(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Error always(int argc, char** argv) const ;
     static auto constexpr always_name = "always";
     static auto constexpr always_desc = "Attach a command to the always-taskqueue that is executed on each tick.\n"
         "\n"

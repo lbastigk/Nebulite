@@ -20,39 +20,39 @@
 namespace Nebulite::DomainModule::Common {
 NEBULITE_DOMAINMODULE(Nebulite::Interaction::Execution::Domain, Debug) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Error update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    static Constants::Error print(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Error print(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr print_name = "print";
     static auto constexpr print_desc = "Prints the JSON document to the console for debugging purposes.\n"
         "If key is empty, prints the entire document.\n"
         "\n"
         "Usage: print [key]\n";
 
-    static Constants::Error printId(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Error printId(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr printId_name = "print-id";
     static auto constexpr printId_desc = "Prints the unique ID of the domain to the console for debugging purposes.\n"
        "Usage: print-id\n";
 
-    static Constants::Error error(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Error error(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr error_name = "error";
     static auto constexpr error_desc = "Echoes all arguments as string to the standard error.\n"
         "Usage: error <string...>\n"
         "\n"
         "- <string...>: One or more strings to echo to the standard error.\n";
 
-    static Constants::Error warn(std::span<std::string const> const& args);
+    [[nodiscard]] static Constants::Error warn(std::span<std::string const> const& args);
     static auto constexpr warn_name = "warn";
     static auto constexpr warn_desc = "Returns a warning: a custom, noncritical error.\n"
         "Usage: warn <string>\n"
         "\n"
         "- <string>: The warning message.\n";
 
-    static Constants::Error critical(std::span<std::string const> const& args);
+    [[nodiscard]] static Constants::Error critical(std::span<std::string const> const& args);
     static auto constexpr critical_name = "critical";
     static auto constexpr critical_desc = "Returns a critical error.\n"
         "Usage: critical <string>\n"

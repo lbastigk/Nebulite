@@ -41,7 +41,7 @@ public:
     void update();
 
     // Parse a string onto the texture
-    Constants::Error parseStr(std::string const& str);
+    [[nodiscard]] Constants::Error parseStr(std::string const& str);
 
     class ApplyDefault {
     public:

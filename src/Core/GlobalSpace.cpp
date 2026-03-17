@@ -128,7 +128,14 @@ Constants::Error GlobalSpace::update() {
                 tq->decrementWaitCounter();
             }
             invoke.update();        // Invoke broadcasted-listen-updates
-            renderer.update();
+            auto const err = renderer.update();
+            if (err.isError()) {
+                capture.error.println(err.getDescription());
+            }
+            if (err.isCritical() && !cmdVars.recover) {
+                criticalStop = true;
+                lastCriticalResult = err;
+            }
 
             // Increment frame count
             static size_t frameCount = 0;

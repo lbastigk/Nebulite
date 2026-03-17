@@ -41,7 +41,7 @@ namespace Nebulite::DomainModule::Renderer {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Audio) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Error update() override;
     void reinit() override {}
 
     //------------------------------------------
@@ -50,7 +50,7 @@ public:
     //------------------------------------------
     // Category names
 
-    Constants::Error beep(std::span<std::string const> const& args) const;
+    [[nodiscard]] Constants::Error beep(std::span<std::string const> const& args) const;
     static auto constexpr beep_name = "beep";
     static auto constexpr beep_desc = "Make a beep noise.\n"
         "If no waveform type is specified, defaults to sine.\n"
@@ -59,19 +59,19 @@ public:
         "\n"
         "Usage: beep [sine/square/triangle]\n";
 
-    Constants::Error playSound(std::span<std::string const> const& args);
+    [[nodiscard]] Constants::Error playSound(std::span<std::string const> const& args);
     static auto constexpr playSound_name = "play-sound";
     static auto constexpr playSound_desc = "Play a sound from a file.\n"
         "Usage: play-sound <file-path>\n";
 
-    Constants::Error playSoundWithFilter(std::span<std::string const> const& args);
+    [[nodiscard]] Constants::Error playSoundWithFilter(std::span<std::string const> const& args);
     static auto constexpr playSoundWithFilter_name = "play-sound-filtered";
     static auto constexpr playSoundWithFilter_desc = "Play a sound from a file with a filter applied to it.\n"
         "Usage: play-sound-filtered <file-path> <num-coefficients> <den-coefficients>\n"
         "The coefficients should be specified as comma-separated values, with no spaces. For example:\n"
         "play-sound-filter my_sound.wav 0.1,0.1 1.0,-0.9\n";
 
-    Constants::Error testFilter(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Error testFilter(std::span<std::string const> const& args) const ;
     static auto constexpr testFilter_name = "audio-debug test-filter";
     static auto constexpr testFilter_desc = "Test a filter by applying it to sample values and printing the results.\n"
         "Usage: test-filter <sample> <num-coefficients> <den-coefficients>\n"

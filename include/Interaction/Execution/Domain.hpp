@@ -278,7 +278,7 @@ public:
      *       - update all timed routines
      *       Requires some modifications of GlobalSpace::update(), directly calling updateModules there might be an issue.
      */
-    virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
+    [[nodiscard]] virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
 
     //------------------------------------------
     // Module Initialization and Updating
@@ -353,9 +353,12 @@ public:
     /**
      * @brief Updates all DomainModules.
      */
-    void updateModules() const {
+    void updateModules() {
         for (auto const& module : modules) {
-            module->update();
+            // Todo: actually pass to capture as either warn or error
+            if (auto err = module->update(); err.isError()) {
+                capture.error.println(err.getDescription());
+            }
         }
     }
 
@@ -396,7 +399,7 @@ public:
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         an error code otherwise.
      */
-    virtual Constants::Error preParse() {
+    [[nodiscard]] virtual Constants::Error preParse() {
         return Constants::ErrorTable::NONE();
     }
 

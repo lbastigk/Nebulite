@@ -48,12 +48,12 @@ public:
     /**
      * @brief Updates the texture.
      */
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Error update() override;
 
     /**
      * @brief Necessary operations before parsing commands.
      */
-    Constants::Error preParse() override;
+    [[nodiscard]] Constants::Error preParse() override;
 
     //------------------------------------------
     // SDL_Texture related

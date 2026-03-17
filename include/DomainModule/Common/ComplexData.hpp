@@ -24,7 +24,7 @@ namespace Nebulite::DomainModule::Common {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Interaction::Execution::Domain, ComplexData) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Error update() override;
     void reinit() override {}
 
     //------------------------------------------
@@ -33,12 +33,12 @@ public:
     /**
      * @todo Not implemented yet
      */
-    Constants::Error querySet();
+    [[nodiscard]] Constants::Error querySet();
     static auto constexpr querySet_name = "query set";
     static auto constexpr querySet_desc = "Sets a key from a SQL query result.\n"
         "Not implemented yet.\n";
 
-    static Constants::Error jsonSet(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Error jsonSet(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr jsonSet_name = "json set";
     static auto constexpr jsonSet_desc = "Sets a key from a given expression evaluated as JSON, allowing for complex objects to be set.\n"
         "Usage: json set <key> <expression>\n"
@@ -49,7 +49,7 @@ public:
         "json set readOnlyDoc {./Resources/sample.json:key1.key2}\n"
         "json set sizeCopy {self.size}\n";
 
-    static Constants::Error evaluateMember(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Error evaluateMember(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr evaluateMember_name = "json evaluate member";
     static auto constexpr evaluateMember_desc = "If the member is a string or number, treats it as an expression and evaluates it as JSON, setting the member to the result.\n"
         "If the member is an array or object, it will do nothing.\n"
@@ -59,7 +59,7 @@ public:
         "evaluate member myExpression\n"
         "If the member myExpression is a string, for example \"{global.names|filterGlob F*}\", myExpression will be set to an array of names starting with F from the global scope.\n";
 
-    static Constants::Error evaluateRecursive(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Error evaluateRecursive(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr evaluateRecursive_name = "json evaluate recursive";
     static auto constexpr evaluateRecursive_desc = "Recursively evaluates all string members in the JSON object as expressions, allowing for complex nested structures to be evaluated and set in one command.\n"
         "Usage: json evaluate recursive <key>\n"

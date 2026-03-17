@@ -154,7 +154,7 @@ namespace Nebulite::DomainModule::RenderObject {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, MyModule) {
 public:
-    Constants::Error update() override; // Per-frame update function
+    [[nodiscard]] Constants::Error update() override; // Per-frame update function
     void reinit() override {}           // What to do on re-initialization
 
     //------------------------------------------
@@ -164,14 +164,14 @@ public:
     // - caller is helpful if we wish to modify the domain that called the function
     // - callerScope is helpful if we wish to modify the JSON scope from the domain that called the function
     // - Example: JSON domainModules for modifying data needs to modify the callerScope, not its own scope
-    Constants::Error exampleCommand(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] Constants::Error exampleCommand(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr exampleCommand_name = "example do-something";
     static auto constexpr exampleCommand_desc = "Performs an example action on the current RenderObject.\n"
         "\n"
         "Usage: example do-something [args]\n";
 
     // Simplified command signature without caller and callerScope
-    Constants::Error anotherCmd(std::span<std::string const> const& args);
+    [[nodiscard]] Constants::Error anotherCmd(std::span<std::string const> const& args);
     static auto constexpr anotherCmd_name = "example another-cmd";
     static auto constexpr anotherCmd_desc = "Another example command demonstrating binding and descriptions.\n"
         "\n";

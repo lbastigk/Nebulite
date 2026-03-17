@@ -37,13 +37,13 @@ namespace Nebulite::DomainModule::Renderer {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, RenderObjectDraft) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Error update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    Constants::Error draft_parse(std::span<std::string const> const& args);
+    [[nodiscard]] Constants::Error draft_parse(std::span<std::string const> const& args);
     static auto constexpr draft_parse_name = "draft parse";
     static auto constexpr draft_parse_desc = "Parse Renderobject-specific functions on the draft.\n"
         "\n"
@@ -56,13 +56,13 @@ public:
         "draft parse set posX 100\n"
         "draft parse set posY 200\n";
 
-    Constants::Error draft_spawn();
+    [[nodiscard]] Constants::Error draft_spawn();
     static auto constexpr draft_spawn_name = "draft spawn";
     static auto constexpr draft_spawn_desc = "Spawn the created draft object.\n"
         "\n"
         "Usage: draft spawn\n";
 
-    Constants::Error draft_reset();
+    [[nodiscard]] Constants::Error draft_reset();
     static auto constexpr draft_reset_name = "draft reset";
     static auto constexpr draft_reset_desc = "Reset the draft object.\n"
         "\n"

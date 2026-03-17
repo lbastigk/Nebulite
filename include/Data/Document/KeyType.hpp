@@ -2,7 +2,8 @@
 #define NEBULITE_DATA_DOCUMENT_KEY_TYPE_HPP
 
 // NOLINTNTEXTLINE
-#include <cstdint> // For some reason clang-tidy flags the include as unnecessary
+#include <cstdint> // NOLINT(misc-include-cleaner)
+// For some reason clang-tidy flags the include as unnecessary
 
 namespace Nebulite::Data {
 /**
