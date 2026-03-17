@@ -30,7 +30,7 @@ class Capture;
 
 /**
  * @struct HistoryLine
- * @brief Represents a line of captured output, either to cout or cerr.
+ * @brief Represents a line of captured output and its type
  */
 struct HistoryLine{
     std::string content;
@@ -79,7 +79,7 @@ public:
  * @brief HierarchicalStream class that allows for hierarchical capturing of output, where child streams can forward input to parents for unified listing,
  *        while proper printing is reserved to only the root stream to avoid duplicates. This is useful for domain-specific logging that still gets captured in a unified log.
  * @tparam BaseStream The base stream to print to (e.g. std::cout or std::cerr).
- * @tparam LineType The type of the output line (e.g. COUT or CERR).
+ * @tparam LineType The type of the output line
  */
 template<std::ostream* BaseStream, HistoryLine::Type LineType>
 class HierarchicalStream {
@@ -90,7 +90,7 @@ public:
     explicit HierarchicalStream(Capture* cap, HierarchicalStream* par = nullptr)
         : coutStream(cap), parent(par) {}
 
-    bool hasParent() const {
+    [[nodiscard]] bool hasParent() const {
         return parent != nullptr;
     }
 
@@ -150,7 +150,7 @@ public:
         history.clear();
     }
 
-    bool hasParent() const {
+    [[nodiscard]] bool hasParent() const {
         // Doesn't matter what stream we check
         return log.hasParent();
     }
@@ -161,7 +161,7 @@ public:
      */
     void appendInput(std::string const& str) {
         std::scoped_lock const lock(historyMutex);
-        history.push_back({str, HistoryLine::Type::INPUT}); // Assuming input is treated as COUT, can be modified if needed
+        history.push_back({str, HistoryLine::Type::INPUT});
     }
 
 private:

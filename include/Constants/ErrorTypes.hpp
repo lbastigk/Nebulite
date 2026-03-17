@@ -14,6 +14,9 @@
  *            - The NONE value (0) indicates successful execution with no errors.
  *
  *          See main.cpp for detailed usage in the main engine loop and error handling.
+ * @todo Refactor into capture class using the streams warn and error.
+ *       Then we create a special capture derived class for GlobalSpace
+ *       that uses it's flags to determine if to close the program or not on errors
  */
 
 #ifndef NEBULITE_CONSTANTS_ERROR_TYPES_HPP
