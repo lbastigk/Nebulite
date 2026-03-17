@@ -35,10 +35,10 @@ class Capture;
 struct HistoryLine{
     std::string content;
     enum class Type : uint8_t {
-        INPUT,
-        COUT,
-        CERR
-        // TODO: add more types: input, info, warn, error, debug, etc. Unify with textInput class
+        Input,
+        Info,
+        Warning,
+        Error
     } type;
 };
 
@@ -132,8 +132,8 @@ public:
       error(this, parent ? &parent->error : noParent)
     {}
 
-    HierarchicalStream<&std::cout, HistoryLine::Type::COUT> log; // Stream for capturing cout output
-    HierarchicalStream<&std::cerr, HistoryLine::Type::CERR> error; // Stream for capturing cerr output
+    HierarchicalStream<&std::cout, HistoryLine::Type::Info> log; // Stream for capturing cout output
+    HierarchicalStream<&std::cerr, HistoryLine::Type::Error> error; // Stream for capturing cerr output
 
     /**
      * @brief Retrieves a pointer to the history.
@@ -161,7 +161,7 @@ public:
      */
     void appendInput(std::string const& str) {
         std::scoped_lock const lock(historyMutex);
-        history.push_back({str, HistoryLine::Type::INPUT});
+        history.push_back({str, HistoryLine::Type::Input});
     }
 
 private:

@@ -38,7 +38,7 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
 
             while (newIndex < state->capture->getHistory().size() - 1) {
                 newIndex++;
-                if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::HistoryLine::Type::INPUT) {
+                if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::HistoryLine::Type::Input) {
                     state->historyIndex = newIndex;
                     state->command = state->capture->getHistory().at(historySize-state->historyIndex).content; // Load command from history
                     data->DeleteChars(0, data->BufTextLen);
@@ -53,7 +53,7 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
             }
             size_t newIndex = state->historyIndex - 1;
             while (newIndex > 0) {
-                if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::HistoryLine::Type::INPUT) {
+                if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::HistoryLine::Type::Input) {
                     state->historyIndex = newIndex;
                     break;
                 }
@@ -220,15 +220,18 @@ void ImguiHelper::renderDomainConsole(Interaction::Execution::Domain& domain, Ut
 
     ImGui::PushTextWrapPos(0.0f); // wrap at window/child width
     for (const auto& [content, lineType] : capture.getHistory()){
-        std::string contentFull = "";
+        std::string contentFull;
         switch (lineType) {
-            case Utility::HistoryLine::Type::COUT:
+            case Utility::HistoryLine::Type::Info:
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f)); // white
                 break;
-            case Utility::HistoryLine::Type::CERR:
+            case Utility::HistoryLine::Type::Warning:
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 165.0f / 265.0f, 0.0f, 1.0f)); // orange
+                break;
+            case Utility::HistoryLine::Type::Error:
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); // red
                 break;
-            case Utility::HistoryLine::Type::INPUT:
+            case Utility::HistoryLine::Type::Input:
                 contentFull = "> ";
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.0f)); // grey
                 break;
