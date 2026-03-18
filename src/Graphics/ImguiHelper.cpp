@@ -20,7 +20,7 @@ struct ConsoleState {
     std::string draftCommand;
     size_t historyIndex = 0;
     Nebulite::Utility::Capture* capture = nullptr;
-};
+}; // namespace
 
 // NOLINTNEXTLINE
 int consoleInputCallback(ImGuiInputTextCallbackData* data) {
