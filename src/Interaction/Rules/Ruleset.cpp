@@ -31,11 +31,20 @@ void Ruleset::apply() {
 
 void StaticRuleset::apply(std::shared_ptr<Listener> const& contextOther) {
     Context const context{self, contextOther->domain, Global::instance()};
+    if (!slf) {
+        slf = baseListFunc(context.self);
+    }
+    if (!contextOther->otr) {
+        contextOther->otr = baseListFunc(context.other);
+    }
     staticFunction(context, slf, contextOther->otr);
 }
 
 void StaticRuleset::apply() {
     Context const context{self, self, Global::instance()};
+    if (!slf) {
+        slf = baseListFunc(context.self);
+    }
     staticFunction(context, slf, slf);
 }
 

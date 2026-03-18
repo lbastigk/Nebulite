@@ -38,6 +38,7 @@ namespace Nebulite::Interaction::Rules {
 // Defining what a ruleset function looks like
 
 using StaticRulesetFunction = std::function<void(const Context&, double**& slf, double**& otr)>;
+using BaseListFunction = std::function<double**(Execution::Domain const&)>;
 
 //------------------------------------------
 // Defining a Ruleset Map where static rulesets can be looked up by name
@@ -53,6 +54,7 @@ public:
         std::string_view topic;
         std::string_view description;
         StaticRulesetFunction function = nullptr;
+        BaseListFunction baseListFunc = nullptr;
     };
 
     StaticRulesetMap() {

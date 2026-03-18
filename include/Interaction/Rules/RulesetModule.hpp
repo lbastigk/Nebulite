@@ -29,11 +29,12 @@
  * @param func The function implementing the ruleset
  * @param topic The topic/name of the ruleset
  * @param description A brief description of the ruleset's purpose and its used variables
+ * @param baseListFunc
  */
-#define BIND_STATIC_ASSERT(type, func, topic, description) \
+#define BIND_STATIC_ASSERT(type, func, topic, description, baseListFunc) \
     static_assert(Nebulite::Interaction::Rules::RulesetModule::isValidTopic(topic), \
     "BIND_STATIC_ASSERT(): A static rulesets topic must start with '::'. Tried to bind variable: " #topic); \
-    bind(type, func, topic, description)
+    bind(type, func, topic, description, baseListFunc)
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {
@@ -80,9 +81,16 @@ protected:
      * @param func The function implementing the ruleset
      * @param topic The topic/name of the ruleset
      * @param description A brief description of the ruleset's purpose and its used variables
+     * @param baseListFunc A function that returns the ordered cache list of base values required by this ruleset, given a context.
      */
     template<typename T>
-    void bind(RulesetType const& type, void (T::*func)(Context const&, double**&), std::string_view const& topic, std::string_view const& description){
+    void bind(
+        RulesetType const& type,
+        void (T::*func)(Context const&, double**&),
+        std::string_view const& topic,
+        std::string_view const& description,
+        std::function<double**(const Context&)> baseListFunc
+    ){
         static_assert(std::is_base_of_v<RulesetModule, T>, "bind(): T must derive from RulesetModule");
         if (!topic.starts_with("::")) {
             throw std::invalid_argument("RulesetModule::bind(): topic must start with '::'. Tried to bind: " + std::string(topic));
@@ -91,7 +99,8 @@ protected:
             type,
             topic,
             description,
-            [this, func](Context const& ctx, double**& slf, double**& otr) { (static_cast<T*>(this)->*func)(ctx, slf, otr); }
+            [this, func](Context const& ctx, double**& slf, double**& otr) { (static_cast<T*>(this)->*func)(ctx, slf, otr); },
+            baseListFunc
         });
     }
 
@@ -103,9 +112,16 @@ protected:
      * @param func The function implementing the ruleset
      * @param topic The topic/name of the ruleset
      * @param description A brief description of the ruleset's purpose and its used variables
+     * @param baseListFunc A function that returns the ordered cache list of base values required by this ruleset, given a context.
      */
     template<typename T>
-    void bind(RulesetType const& type, void (T::*func)(Context const&, double**&, double**&) const, std::string_view const& topic, std::string_view const& description){
+    void bind(
+        RulesetType const& type,
+        void (T::*func)(Context const&, double**&, double**&) const,
+        std::string_view const& topic,
+        std::string_view const& description,
+        BaseListFunction baseListFunc
+    ){
         static_assert(std::is_base_of_v<RulesetModule, T>, "bind(): T must derive from RulesetModule");
         if (!topic.starts_with("::")) {
             throw std::invalid_argument("RulesetModule::bind(): topic must start with '::'. Tried to bind: " + std::string(topic));
@@ -114,7 +130,8 @@ protected:
             type,
             topic,
             description,
-            [this, func](Context const& ctx, double**& slf, double**& otr) { (static_cast<T const*>(this)->*func)(ctx, slf, otr); }
+            [this, func](Context const& ctx, double**& slf, double**& otr) { (static_cast<T const*>(this)->*func)(ctx, slf, otr); },
+            baseListFunc
         });
     }
 
@@ -134,15 +151,15 @@ protected:
     }
 
     /**
-     * @brief Retrieves the ordered cache list of base values for the given render object context.
+     * @brief Retrieves the ordered cache list of base values for the domain.
      *        Instead of retrieving each value individually, this function fetches all required values in a single call.
      *        This reduces lookup overhead and improves performance when accessing multiple base values.
-     * @param ctx The render object context from which to retrieve the base values.
+     * @param domain The domain from which to retrieve the base values.
      * @param keys The array of keys to retrieve values for.
      * @param arr The output array of ordered cache lists corresponding to the provided keys.
      *            If arr passed is not null, this function will do nothing.
      */
-    void ensureBaseList(Execution::Domain const& ctx, std::vector<Data::ScopedKeyView> const& keys, double**& arr) const ;
+    void ensureBaseList(Execution::Domain const& domain, std::vector<Data::ScopedKeyView> const& keys, double**& arr) const ;
 
 private:
     // Vector of all static rulesets from this module

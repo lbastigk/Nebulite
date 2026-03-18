@@ -15,14 +15,20 @@
 namespace Nebulite::RulesetModule {
 
 Physics::Physics() : RulesetModule(moduleName) {
+    std::function<double**(const Interaction::Execution::Domain&)> const baseListFunc = [this](const Interaction::Execution::Domain& domain) -> double** {
+        double** v;
+        ensureBaseList(domain, baseKeys, v);
+        return v;
+    };
+
     // Global rulesets
-    BIND_STATIC_ASSERT(RulesetType::Global, &Physics::elasticCollision, elasticCollisionName, elasticCollisionDesc);
-    BIND_STATIC_ASSERT(RulesetType::Global, &Physics::gravity, gravityName, gravityDesc);
+    BIND_STATIC_ASSERT(RulesetType::Global, &Physics::elasticCollision, elasticCollisionName, elasticCollisionDesc, baseListFunc);
+    BIND_STATIC_ASSERT(RulesetType::Global, &Physics::gravity, gravityName, gravityDesc, baseListFunc);
 
     // Local rulesets
-    BIND_STATIC_ASSERT(RulesetType::Local, &Physics::applyForce, applyForceName, applyForceDesc);
-    BIND_STATIC_ASSERT(RulesetType::Local, &Physics::applyCorrection, applyCorrectionName, applyCorrectionDesc);
-    BIND_STATIC_ASSERT(RulesetType::Local, &Physics::drag, dragName, dragDesc);
+    BIND_STATIC_ASSERT(RulesetType::Local, &Physics::applyForce, applyForceName, applyForceDesc, baseListFunc);
+    BIND_STATIC_ASSERT(RulesetType::Local, &Physics::applyCorrection, applyCorrectionName, applyCorrectionDesc, baseListFunc);
+    BIND_STATIC_ASSERT(RulesetType::Local, &Physics::drag, dragName, dragDesc, baseListFunc);
 
     // Global Variables
     auto const token = getRulesetModuleAccessToken(*this);

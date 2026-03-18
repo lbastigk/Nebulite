@@ -227,6 +227,7 @@ public:
 
 private:
     StaticRulesetFunction staticFunction = nullptr;
+    BaseListFunction baseListFunc = nullptr;
 };
 
 /**

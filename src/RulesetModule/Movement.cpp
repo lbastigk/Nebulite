@@ -10,8 +10,14 @@
 namespace Nebulite::RulesetModule {
 
 Movement::Movement() : RulesetModule(moduleName) {
+    std::function<double**(const Interaction::Execution::Domain&)> const baseListFunc = [this](const Interaction::Execution::Domain& domain) -> double** {
+        double** v;
+        ensureBaseList(domain, baseKeys, v);
+        return v;
+    };
+
     // Global rulesets
-    BIND_STATIC_ASSERT(RulesetType::Global, &Movement::clip, clipName, clipDesc);
+    BIND_STATIC_ASSERT(RulesetType::Global, &Movement::clip, clipName, clipDesc, baseListFunc);
 
     // Local rulesets
 

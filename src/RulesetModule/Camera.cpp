@@ -5,12 +5,18 @@
 namespace Nebulite::RulesetModule {
 
 Camera::Camera() : RulesetModule(moduleName) {
+    std::function<double**(const Interaction::Execution::Domain&)> const baseListFunc = [this](const Interaction::Execution::Domain& domain) -> double** {
+        double** v;
+        ensureBaseList(domain, baseKeys, v);
+        return v;
+    };
+
     // Bind Camera-related static rulesets here
-    BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignCenter, alignCenterName, alignCenterDesc);
-    BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignTop, alignTopName, alignTopDesc);
-    BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignBottom, alignBottomName, alignBottomDesc);
-    BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignLeft, alignLeftName, alignLeftDesc);
-    BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignRight, alignRightName, alignRightDesc);
+    BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignCenter, alignCenterName, alignCenterDesc, baseListFunc);
+    BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignTop, alignTopName, alignTopDesc, baseListFunc);
+    BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignBottom, alignBottomName, alignBottomDesc, baseListFunc);
+    BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignLeft, alignLeftName, alignLeftDesc, baseListFunc);
+    BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignRight, alignRightName, alignRightDesc, baseListFunc);
 
     // References
     auto const token = getRulesetModuleAccessToken(*this);
