@@ -1,12 +1,6 @@
 /**
  * @file Capture.hpp
  * @brief Defines classes for capturing output.
- * @todo Modify Capture to be part of any domain, and every domain forwards captured output to a unified capture class as well.
- *       This way we may have domain-specific logging, as well as unified logging.
- *       This is useful if we wish to expand the GlobalSpaceViewer to show be a domain-agnostic tool for
- *       - viewing state
- *       - viewing logs
- *       As we'll be able to see only the logs relevant to a specific domain, or all logs together.
  */
 
 #ifndef NEBULITE_UTILITY_CAPTURE_HPP

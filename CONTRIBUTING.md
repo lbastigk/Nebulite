@@ -226,9 +226,8 @@ public:
 <!-- TOC --><a name="implementation-guidelines"></a>
 ### Implementation Guidelines
 
-- It is recommended to implement unfinished functions inside the cpp file with a return of 
-`Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED()`
-- Use the recommended class naming schemes and namespaces for modules: 
+- It is recommended to return `Nebulite::Constants::StandardCapture::Error::Functional::functionNotImplemented` in unfinished functions/features
+- Use the recommended class and namespace naming schemes for modules: 
 `Nebulite::DomainModule::<Domain>::<ModuleName>`
 
 <!-- TOC --><a name="preview-editing-work-in-progress"></a>
