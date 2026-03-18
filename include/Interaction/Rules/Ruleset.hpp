@@ -26,13 +26,18 @@ namespace Nebulite::Interaction::Rules {
 /**
  * @struct Listener
  * @brief Represents a listener for a specific topic
- * @todo Determine listener ID inside Domain at construction (rolling counter), remove from both Listener and Ruleset and just use getId()
  */
 struct Listener {
-    explicit Listener(Execution::Domain& d, std::string const& t) : domain(d), topic(t) {}
+    explicit Listener(Execution::Domain& d, std::string const& t) : domain(d), topic(t) {
+        if (auto const& entry = StaticRulesetMap::getInstance().getStaticRulesetByName(t); entry.type != StaticRulesetMap::StaticRuleSetWithMetaData::invalid) {
+            // Static ruleset, ensure list of required double values
+            otr = entry.baseListFunc(domain);
+        }
+        // Json ruleset or unknown static ruleset, no list required
+    }
     Execution::Domain& domain;
     std::string topic;
-    double** otr = nullptr; // Pointer to the ordered cache list of the listener, for performance when evaluating rulesets
+    double** otr; // Pointer to the ordered cache list of the listener, for performance when evaluating rulesets
 
     // Listener is owned by a single Domain, no copy or move semantics
 
@@ -227,7 +232,6 @@ public:
 
 private:
     StaticRulesetFunction staticFunction = nullptr;
-    BaseListFunction baseListFunc = nullptr;
 };
 
 /**

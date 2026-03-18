@@ -288,8 +288,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
             Ruleset->topic = staticRulesetEntry.topic;
             Ruleset->_isGlobal = staticRulesetEntry.type == StaticRulesetMap::StaticRuleSetWithMetaData::Type::Global;
             Ruleset->staticFunction = staticRulesetEntry.function;
-            Ruleset->baseListFunc = staticRulesetEntry.baseListFunc;
-            Ruleset->slf = Ruleset->baseListFunc(self);
+            Ruleset->slf = staticRulesetEntry.baseListFunc(self);
             return Ruleset;
         }
         // Skip this entry if it cannot be parsed

@@ -31,10 +31,6 @@ void Ruleset::apply() {
 
 void StaticRuleset::apply(std::shared_ptr<Listener> const& contextOther) {
     Context const context{self, contextOther->domain, Global::instance()};
-    // TODO: Find a way to set the listener double** otr on construction by searching for the list from the staticRulesetMap
-    if (!contextOther->otr) {
-        contextOther->otr = baseListFunc(context.other);
-    }
     staticFunction(context, slf, contextOther->otr);
 }
 
