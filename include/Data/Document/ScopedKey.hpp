@@ -203,14 +203,14 @@ public:
         }
     }
 
-    std::string toString() const {
+    [[nodiscard]] std::string toString() const {
         if (givenScope.has_value()) {
             return std::string(givenScope.value()) + std::string(key);
         }
         return std::string(key);
     }
 
-    ScopedKey toScopedKey() const {
+    [[nodiscard]] ScopedKey toScopedKey() const {
         if (givenScope.has_value()) {
             return ScopedKey(std::string(givenScope.value()) + std::string(key), givenScope);
         }

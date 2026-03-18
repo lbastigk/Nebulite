@@ -81,7 +81,7 @@ public:
     explicit FlatContainer(std::atomic<bool>& stopFlag, uint32_t const& workerIndex, uint32_t const& workerCount)
         : BaseContainer<FlatContainer*>(stopFlag, workerIndex, workerCount, this)
     {
-        FlatContainerImpl::Settings settings;
+        FlatContainerImpl::Settings settings{};
 
         if constexpr (Type == FlatContainerType::WithRotation) { // Set offsets based on worker index
             settings.relativeOffset = static_cast<double>(workerIndex) / static_cast<double>(workerCount);

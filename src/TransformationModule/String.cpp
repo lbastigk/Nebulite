@@ -94,8 +94,8 @@ bool String::replace(std::span<std::string const> const& args, Data::JsonScope* 
     if (args.size() != 3){
         return false;
     }
-    auto const target = args[1];
-    auto const replacement = args[2];
+    auto const& target = args[1];
+    auto const& replacement = args[2];
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     auto const replacedStr = Utility::StringHandler::replaceAll(str, target, replacement);
     jsonDoc->set(rootKey, replacedStr);

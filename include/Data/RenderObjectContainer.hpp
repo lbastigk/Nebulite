@@ -133,17 +133,17 @@ public:
 
     struct ContainerInfo {
         // Container stats
-        size_t containerTotalTiles;
-        size_t containerTotalCost;
+        size_t containerTotalTiles = 0;
+        size_t containerTotalCost = 0;
 
         // Worker stats
-        size_t totalWorkers;
+        size_t totalWorkers = 0;
     };
 
     /**
      * @brief Returns information about the internal state of the container for debugging purposes.
      */
-    ContainerInfo getContainerInfo() const;
+    [[nodiscard]] ContainerInfo getContainerInfo() const;
 
     /**
      * @brief Calculates the corresponding tile position for a given RenderObject based on its coordinates and the display resolution.

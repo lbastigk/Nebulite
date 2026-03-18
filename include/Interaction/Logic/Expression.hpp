@@ -345,7 +345,7 @@ private:
          * @param recursionDepth The current recursion depth for nested evaluations.
          * @return The evaluated key and its destination if successful, or std::nullopt if evaluation fails.
          */
-        std::optional<std::pair<std::string, ContextType>> evaluateKey(ContextScopeBase const& context, std::string const& initialKey, ContextType const& initialDestination, size_t const& recursionDepth) const ;
+        [[nodiscard]] std::optional<std::pair<std::string, ContextType>> evaluateKey(ContextScopeBase const& context, std::string const& initialKey, ContextType const& initialDestination, size_t const& recursionDepth) const ;
     };
 
     /**

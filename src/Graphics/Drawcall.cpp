@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <cfloat>
+#include <random>
 
 // External
 #include <SDL3/SDL.h>
@@ -13,6 +14,15 @@
 #include "Nebulite.hpp"
 #include "Graphics/Drawcall.hpp"
 #include "Graphics/SdlPrimitive.hpp"
+#include "Utility/Coordination/IdGenerator.hpp"
+
+//------------------------------------------
+namespace {
+uint64_t rollingJitter(uint32_t const& size) {
+    static auto jitterGenerator = Nebulite::Utility::Coordination::IdGenerator::atomicThreadRollGenerator(size);
+    return jitterGenerator();
+}
+} // namespace
 
 //------------------------------------------
 namespace Nebulite::Graphics {
@@ -24,7 +34,7 @@ Drawcall::Drawcall(Data::JsonScope& workspace, Utility::Capture& parentCapture) 
         [this] {
             updateDrawcallData();
         },
-        updateDrawcallDataIntervalMs + static_cast<uint64_t>(std::rand()) % updateDrawcallDataIntervalJitterMs,
+        updateDrawcallDataIntervalMs + rollingJitter(updateDrawcallDataIntervalJitterMs),
         Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
     }
 {

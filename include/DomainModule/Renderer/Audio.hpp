@@ -127,10 +127,10 @@ private:
             static size_t constexpr samples = static_cast<size_t>(Audio::Settings::sampleRate * duration / 1000.0); // Number of samples
         };
 
-        std::array<Audio::Settings::SampleType, Settings::samples> sineBuffer;
-        std::array<Audio::Settings::SampleType, Settings::samples> squareBuffer;
-        std::array<Audio::Settings::SampleType, Settings::samples> triangleBuffer;
-    } basicAudioWaveforms;
+        std::array<Audio::Settings::SampleType, Settings::samples> sineBuffer{};
+        std::array<Audio::Settings::SampleType, Settings::samples> squareBuffer{};
+        std::array<Audio::Settings::SampleType, Settings::samples> triangleBuffer{};
+    } basicAudioWaveforms{};
 
     struct Sound {
         // TODO: Either we add metadata or we reduce this to a type alias for std::vector<Settings::SampleType>

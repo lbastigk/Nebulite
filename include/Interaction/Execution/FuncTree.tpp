@@ -619,11 +619,11 @@ returnValue FuncTree<returnValue, additionalArgs...>::parseStr(std::string const
     }
 
     // Quote-aware tokenization
-    auto result = Utility::StringHandler::parseQuotedArguments(cmd);
-    if (result.unclosedQuote) {
+    auto const [args, unclosedQuote] = Utility::StringHandler::parseQuotedArguments(cmd);
+    if (unclosedQuote) {
         capture.error.println("Warning: Unclosed quote in command: ", cmd);
     }
-    return parse(result.args, addArgs...);
+    return parse(args, addArgs...);
 }
 
 template <typename returnValue, typename... additionalArgs>

@@ -53,7 +53,7 @@ bool General::setDouble(std::span<std::string const> const& args, Data::JsonScop
 bool General::setBool(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey + std::string(args[1]);
-    std::string const valStr = args[2];
+    std::string const& valStr = args[2];
     bool const value = valStr == "true";
     jsonDoc->set<bool>(key, value);
     return true;
@@ -82,9 +82,9 @@ bool General::setFromResult(std::span<std::string const> const& args, Data::Json
 
     Data::JSON transformationResult = jsonDoc->getSubDoc(rootKey + scopeKey);
     auto& scope = transformationResult.shareManagedScopeBase("");
-    static std::string const funcName = __FUNCTION__;
+    static std::string const funcName = __FUNCTION__ + std::string(" ");
     for (auto const& targ : targs) {
-        if (!transformationFuncTree->parseStr(funcName + " " + targ, &scope)) {
+        if (!transformationFuncTree->parseStr(funcName + targ, &scope)) {
             return false; // Transformation failed
         }
     }

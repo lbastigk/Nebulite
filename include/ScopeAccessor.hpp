@@ -55,9 +55,9 @@ public:
     class BaseAccessToken {
     protected:
         BaseAccessToken() = default;
-        std::string prefix = "";
+        std::string prefix;
     public:
-        std::string getPrefix() const {return prefix; }
+        [[nodiscard]] std::string getPrefix() const {return prefix; }
     };
 
     class Full final : public BaseAccessToken {

@@ -22,14 +22,13 @@ bool Arithmetic::forall(std::span<std::string const> const& args, std::function<
         if (args.size() == 2) {
             return func(args[1], rootKey);
         }
-        for (auto [index, arg] : args | std::views::drop(1) | std::views::enumerate) {
-            if (auto key = rootKey + "[" + std::to_string(index) + "]";
-                !func(arg, key.view()))
-            {
-                return false;
+        return std::ranges::all_of(args | std::views::drop(1) | std::views::enumerate,
+            [&](auto const& item) {
+                auto const& [index, arg] = item;
+                auto key = rootKey + "[" + std::to_string(index) + "]";
+                return func(arg, key.view());
             }
-        }
-        return true;
+        );
     } catch (...) {
         return false;
     }

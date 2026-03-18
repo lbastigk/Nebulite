@@ -18,12 +18,6 @@
 #include "Interaction/Rules/RulesetModule.hpp"
 
 //------------------------------------------
-// Forward declarations
-namespace Nebulite::Interaction::Rules {
-struct Context;
-} // namespace Interaction::Rules
-
-//------------------------------------------
 namespace Nebulite::RulesetModule {
 class Camera : public Interaction::Rules::RulesetModule {
 public:

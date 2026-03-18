@@ -1,16 +1,12 @@
 #ifndef NEBULITE_DATA_DOCUMENT_KEY_TYPE_HPP
 #define NEBULITE_DATA_DOCUMENT_KEY_TYPE_HPP
 
-// NOLINTNTEXTLINE
-#include <cstdint> // NOLINT(misc-include-cleaner)
-// For some reason clang-tidy flags the include as unnecessary
-
 namespace Nebulite::Data {
 /**
  * @enum KeyType
  * @brief Enum representing the type stored of a key in the JSON document.
  */
-enum class KeyType : uint8_t {
+enum class KeyType {
     null,
     value,
     array,

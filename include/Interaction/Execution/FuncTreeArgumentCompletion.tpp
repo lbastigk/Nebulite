@@ -14,7 +14,6 @@
 // Includes
 
 // Standard library
-#include <memory>
 #include <string>
 
 // Nebulite

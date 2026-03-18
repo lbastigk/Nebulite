@@ -1,6 +1,6 @@
 #include "Graphics/SdlPrimitive.hpp"
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 #include <cfloat>
 
 namespace Nebulite::Graphics {
