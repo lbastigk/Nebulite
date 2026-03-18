@@ -10,6 +10,7 @@
 #include "DomainModule/Common/General.hpp"
 #include "Graphics/ImguiHelper.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Nebulite.hpp"
 
 //------------------------------------------
 
@@ -266,10 +267,7 @@ void ImguiHelper::renderDomainConsole(Interaction::Execution::Domain& domain, Ut
     if (ImGui::InputText("##ConsoleInput", &command, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory, consoleInputCallback, &state)) {
         if (!command.empty()){
             capture.appendInput(command);
-            if (auto const event = domain.parseStr(__FUNCTION__ + std::string(" ") + command); event != Constants::Event::Success) {
-                // TODO: differentiate between warning and error?
-                capture.warning.println("Error executing command: " + command);
-            }
+            Global::instance().notifyEvent(domain.parseStr(__FUNCTION__ + std::string(" ") + command));
             command.clear();
             state.historyIndex = 0; // Reset history index after executing a command
         }
