@@ -379,7 +379,7 @@ Constants::Event Renderer::update() {
     // Skip update if flagged
     if (!status.skipUpdate) {
         // Update environment
-        env.update();
+        Global::instance().notifyEvent(env.update());
         env.updateObjects(
             tilePositionX,
             tilePositionY,

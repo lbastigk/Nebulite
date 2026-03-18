@@ -67,7 +67,7 @@ void RenderObject::init() {
     initDrawcalls();
 
     // Update once to initialize
-    update();
+    Global::instance().notifyEvent(update());
 }
 
 RenderObject::~RenderObject() = default;
@@ -139,7 +139,7 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
 
     //------------------------------------------
     // Update once to initialize
-    update();
+    Global::instance().notifyEvent(update());
 }
 
 void RenderObject::linkFrequentRefs() {
