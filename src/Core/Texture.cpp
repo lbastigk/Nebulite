@@ -22,11 +22,11 @@ Texture::Texture(Data::JsonScope& documentReference, Utility::Capture& parentCap
     DomainModule::Initializer::initTexture(this);
 }
 
-Constants::Error Texture::update() {
+Constants::Event Texture::update() {
     updateModules();
 
     // No evaluation of previous lines for now, just return NONE
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 bool Texture::copyTexture() {
@@ -93,7 +93,7 @@ void Texture::loadTextureFromFile(std::string const& filePath) {
     }
 }
 
-Constants::Error Texture::preParse() {
+Constants::Event Texture::preParse() {
     if (!textureStoredLocally) {
         // Make a local copy if we modify the texture
         textureStoredLocally = copyTexture();
@@ -101,9 +101,9 @@ Constants::Error Texture::preParse() {
 
     if (!textureStoredLocally) {
         // Failed to copy texture, cannot proceed with modifications
-        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_COPY_FAILED();
+        return Constants::StandardCapture::Error::Texture::copyFailed(capture);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::Core

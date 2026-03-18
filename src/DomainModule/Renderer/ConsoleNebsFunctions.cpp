@@ -7,14 +7,14 @@
 //------------------------------------------
 namespace Nebulite::DomainModule::Renderer {
 
-Constants::Error Console::consoleOpen() {
+Constants::Event Console::consoleOpen() {
     consoleMode = true;
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error Console::consoleClose() {
+Constants::Event Console::consoleClose() {
     consoleMode = false;
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::DomainModule::Renderer

@@ -5,7 +5,7 @@
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 
 //------------------------------------------
@@ -25,7 +25,7 @@ namespace Nebulite::Interaction::Execution {
  */
 class DomainModuleBase {
 public:
-    using DomainFuncTree = std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>;
+    using DomainFuncTree = std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>>;
 
     /**
      * @brief Constructor for the DomainModule base class.
@@ -49,7 +49,7 @@ public:
     /**
      * @brief Virtual update function to be Overwritten by derived classes.
      */
-    [[nodiscard]] virtual Constants::Error update();
+    [[nodiscard]] virtual Constants::Event update();
 
     /**
      * @brief Virtual re-initialization function to be Overwritten by derived classes.

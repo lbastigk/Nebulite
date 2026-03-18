@@ -11,7 +11,7 @@
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -29,13 +29,13 @@ namespace Nebulite::DomainModule::Texture {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Fill) {
 public:
-    [[nodiscard]] Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Error fill(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event fill(int argc, char** argv) const ;
     static auto constexpr fill_name = "fill";
     static auto constexpr fill_desc = "Fills the texture with a specified color.\n"
         "Usage:\n"

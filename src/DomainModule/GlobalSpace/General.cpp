@@ -7,48 +7,48 @@ namespace Nebulite::DomainModule::GlobalSpace {
 
 //------------------------------------------
 // Update
-Constants::Error General::update() {
+Constants::Event General::update() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Error General::exit() const {
+Constants::Event General::exit() const {
     // Clear all task queues to prevent further execution
     domain.clearAllTaskQueues();
 
     // Set the renderer to quit
     domain.quitRenderer();
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error General::wait(int const argc, char** argv) const {
+Constants::Event General::wait(int const argc, char** argv) const {
     if (argc == 2) {
         // Standard wait acts on taskQueue "script"
         domain.getTaskQueue(Core::GlobalSpace::StandardTasks::script)->incrementWaitCounter(std::stoull(argv[1]));
-        return Constants::ErrorTable::NONE();
+        return Constants::Event::Success;
     }
     if (argc < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+    return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
 }
 
-Constants::Error General::task(int const argc, char** argv) const {
+Constants::Event General::task(int const argc, char** argv) const {
     domain.capture.log.println("Loading task list from file: ", argc > 1 ? std::string(argv[1]) : "none");
 
     // Rollback RNG, loading a task file should not change the RNG state
     domain.rngRollback();
 
     if (argc < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     if (argc > 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
 
     // Warn if file ending is not .nebs
@@ -61,7 +61,7 @@ Constants::Error General::task(int const argc, char** argv) const {
     std::string file = Utility::FileManagement::LoadFile(filename);
     if (file.empty()) {
         domain.capture.error.println("Error: ", argv[0], " Could not open file '", filename, "'.");
-        return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
+        return Constants::StandardCapture::Error::File::invalidFile(domain.capture);
     }
 
     // Replace all "\n " with "\n" to allow for multi-line commands with leading spaces
@@ -98,10 +98,10 @@ Constants::Error General::task(int const argc, char** argv) const {
     for (auto const& taskLine : lines) {
         domain.getTaskQueue(Core::GlobalSpace::StandardTasks::script)->pushFront(taskLine);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error General::always(int argc, char** argv) const {
+Constants::Event General::always(int argc, char** argv) const {
     if (argc > 1) {
         std::ostringstream oss;
         for (int i = 1; i < argc; ++i) {
@@ -124,12 +124,12 @@ Constants::Error General::always(int argc, char** argv) const {
             }
         }
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error General::alwaysClear() const {
+Constants::Event General::alwaysClear() const {
     domain.getTaskQueue(Core::GlobalSpace::StandardTasks::always)->clear();
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::DomainModule::GlobalSpace

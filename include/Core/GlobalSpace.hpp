@@ -17,7 +17,7 @@
 
 // Nebulite
 #include "Core/Renderer.hpp"
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Data/Document/DocumentCache.hpp"
 #include "Data/TaskQueue.hpp"
 #include "DomainModule/GlobalSpace/Floating/RNG.hpp"
@@ -87,13 +87,13 @@ public:
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         the last critical error code otherwise.
      */
-    [[nodiscard]] Constants::Error parseQueue();
+    [[nodiscard]] Constants::Event parseQueue();
 
     /**
      * @brief Updates the global space.
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    [[nodiscard]] Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
 
     /**
      * @brief Quits the renderer by setting the quit flag.
@@ -273,13 +273,13 @@ private:
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         an error code otherwise.
      */
-    [[nodiscard]] Constants::Error preParse() override;
+    [[nodiscard]] Constants::Event preParse() override;
 
     /**
      * @brief Updates all inner domains.
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    [[nodiscard]] static Constants::Error updateInnerDomains();
+    [[nodiscard]] static Constants::Event updateInnerDomains();
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_CORE_GLOBALSPACE_HPP

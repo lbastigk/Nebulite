@@ -79,13 +79,7 @@ void RendererProcessor::batchWorkerFunc(DispatcherWorkspace const& workspace){
         std::vector<Core::RenderObject*> to_delete_local;
 
         for (auto obj : batch->objects) {
-            auto err = obj->update();
-            if (err.isError()) {
-                obj->capture.error.println(err.getDescription());
-            }
-            if (err.isCritical()) {
-                // TODO: critical error handling
-            }
+            obj->update();
 
             if (!obj->flag.deleteFromScene) {
                 if (RenderObjectContainer::getTilePos(obj, workspace.dispResX, workspace.dispResY) != workspace.pos) {

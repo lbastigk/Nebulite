@@ -4,9 +4,9 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Constants::Error FunctionCollision::update() {
+Constants::Event FunctionCollision::update() {
     // No periodic update needed for this domain module
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 //------------------------------------------
@@ -24,7 +24,7 @@ bool testFunctionCollision2(bool const& arg) {
 } // namespace
 
 
-Constants::Error FunctionCollision::debug_collisionDetect_function(std::span<std::string const> const& args) const {
+Constants::Event FunctionCollision::debug_collisionDetect_function(std::span<std::string const> const& args) const {
     bool fail = true;
     if (args.size() >= 2) {
         if (std::string const mode = args.at(1); mode == "succeed") {
@@ -32,7 +32,7 @@ Constants::Error FunctionCollision::debug_collisionDetect_function(std::span<std
         } else if (mode == "fail") {
             fail = true;
         } else {
-            return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+            return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
         }
     }
 
@@ -45,9 +45,9 @@ Constants::Error FunctionCollision::debug_collisionDetect_function(std::span<std
             testTree.bindFunction(&testFunctionCollision2, "test", "Test function for collision detection"); // This should cause a collision error
         } catch (...) {
             // Binding failed as expected -> no error
-            return Constants::ErrorTable::NONE();
+            return Constants::Event::Success;
         }
-        return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION_EXPECTED();
+        return Constants::StandardCapture::Warning::Functional::bindingCollisionExpected(domain.capture);
     }
     // Try to bind a new function with a unique name
     try {
@@ -55,12 +55,12 @@ Constants::Error FunctionCollision::debug_collisionDetect_function(std::span<std
         testTree.bindFunction(&testFunctionCollision1, "test", "Test function for collision detection"); // OK
     } catch (...) {
         // This should not happen
-        return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION();
+        return Constants::StandardCapture::Warning::Functional::bindingCollision(domain.capture);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error FunctionCollision::debug_collisionDetect_category(std::span<std::string const> const& args) const {
+Constants::Event FunctionCollision::debug_collisionDetect_category(std::span<std::string const> const& args) const {
     bool fail = true;
     if (args.size() >= 2) {
         if (std::string const mode = args.at(1); mode == "succeed") {
@@ -68,7 +68,7 @@ Constants::Error FunctionCollision::debug_collisionDetect_category(std::span<std
         } else if (mode == "fail") {
             fail = true;
         } else {
-            return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+            return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
         }
     }
 
@@ -81,16 +81,16 @@ Constants::Error FunctionCollision::debug_collisionDetect_category(std::span<std
             testTree.bindCategory("test-category", "Test category for collision detection"); // Already exists, should cause a collision error
         } catch (...) {
             // Binding failed as expected -> no error
-            return Constants::ErrorTable::NONE();
+            return Constants::Event::Success;
         }
-        return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION_EXPECTED();
+        return Constants::StandardCapture::Warning::Functional::bindingCollisionExpected(domain.capture);
     }
     // Try to bind a category once
     try {
         testTree.bindCategory("test-category", "Test category for collision detection"); // OK
     } catch (...) {
         // This should not happen
-        return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION();
+        return Constants::StandardCapture::Warning::Functional::bindingCollision(domain.capture);
     }
 
     // Just to be safe, we bind a sub-category as well
@@ -98,12 +98,12 @@ Constants::Error FunctionCollision::debug_collisionDetect_category(std::span<std
         testTree.bindCategory("test-category test-inner-category", "Test category for collision detection"); // OK
     } catch (...) {
         // This should not happen
-        return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION();
+        return Constants::StandardCapture::Warning::Functional::bindingCollision(domain.capture);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error FunctionCollision::debug_collisionDetect_variable(std::span<std::string const> const& args) const {
+Constants::Event FunctionCollision::debug_collisionDetect_variable(std::span<std::string const> const& args) const {
     bool fail = true;
     if (args.size() >= 2) {
         if (std::string const mode = args.at(1); mode == "succeed") {
@@ -111,7 +111,7 @@ Constants::Error FunctionCollision::debug_collisionDetect_variable(std::span<std
         } else if (mode == "fail") {
             fail = true;
         } else {
-            return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+            return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
         }
     }
 
@@ -126,17 +126,17 @@ Constants::Error FunctionCollision::debug_collisionDetect_variable(std::span<std
             testTree.bindVariable(&headless, "headless", headless_var_desc); // This should cause a collision error
         } catch (...) {
             // Binding failed as expected -> no error
-            return Constants::ErrorTable::NONE();
+            return Constants::Event::Success;
         }
-        return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION_EXPECTED();
+        return Constants::StandardCapture::Warning::Functional::bindingCollisionExpected(domain.capture);
     }
     try {
         testTree.bindVariable(&headless, "headless", headless_var_desc); // OK
     } catch (...) {
         // This should not happen
-        return Constants::ErrorTable::FUNCTIONAL::BINDING_COLLISION();
+        return Constants::StandardCapture::Warning::Functional::bindingCollision(domain.capture);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::DomainModule::GlobalSpace

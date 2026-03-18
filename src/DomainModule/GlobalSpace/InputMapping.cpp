@@ -14,12 +14,12 @@
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Constants::Error InputMapping::lockOnce(std::span<std::string const> const& args) {
+Constants::Event InputMapping::lockOnce(std::span<std::string const> const& args) {
     if (args.size() > 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
     if (args.size() < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
 
     auto const it = mappings.find(args[1]);
@@ -30,18 +30,18 @@ Constants::Error InputMapping::lockOnce(std::span<std::string const> const& args
                 entry.lockState = mapEntry::LockState::lockOnce;
             }
         }
-        return Constants::ErrorTable::NONE();
+        return Constants::Event::Success;
     }
     it->second.lockState = mapEntry::LockState::lockOnce;
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error InputMapping::lockOn(std::span<std::string const> const& args) {
+Constants::Event InputMapping::lockOn(std::span<std::string const> const& args) {
     if (args.size() > 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
     if (args.size() < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
 
     auto const it = mappings.find(args[1]);
@@ -52,18 +52,18 @@ Constants::Error InputMapping::lockOn(std::span<std::string const> const& args) 
                 entry.lockState = mapEntry::LockState::lockOn;
             }
         }
-        return Constants::ErrorTable::NONE();
+        return Constants::Event::Success;
     }
     it->second.lockState = mapEntry::LockState::lockOn;
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error InputMapping::unlock(std::span<std::string const> const& args) {
+Constants::Event InputMapping::unlock(std::span<std::string const> const& args) {
     if (args.size() > 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
     if (args.size() < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
 
     auto const it = mappings.find(args[1]);
@@ -74,19 +74,19 @@ Constants::Error InputMapping::unlock(std::span<std::string const> const& args) 
                 entry.lockState = mapEntry::LockState::unlocked;
             }
         }
-        return Constants::ErrorTable::NONE();
+        return Constants::Event::Success;
     }
     it->second.lockState = mapEntry::LockState::unlocked;
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 //------------------------------------------
 
-Constants::Error InputMapping::update() {
+Constants::Event InputMapping::update() {
     if (std::fabs(*sdlPolledInput) > DBL_EPSILON) {
         processMappings();
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 void InputMapping::reloadMappings() {

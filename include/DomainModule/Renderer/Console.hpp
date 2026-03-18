@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Constants/KeyNames.hpp"
 #include "DomainModule/Renderer/Input.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
@@ -29,20 +29,20 @@ namespace Nebulite::DomainModule::Renderer {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Console) {
 public:
-    [[nodiscard]] Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Error consoleOpen();
+    [[nodiscard]] Constants::Event consoleOpen();
     static auto constexpr consoleOpen_name = "console open";
     static auto constexpr consoleOpen_desc = "Opens the console\n"
         "Pauses the application by sending a skip update signal to the renderer\n"
         "\n"
         "Usage: console open\n";
 
-    [[nodiscard]] Constants::Error consoleClose();
+    [[nodiscard]] Constants::Event consoleClose();
     static auto constexpr consoleClose_name = "console close";
     static auto constexpr consoleClose_desc = "Closes the console\n"
         "\n"

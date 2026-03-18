@@ -54,7 +54,7 @@ Do NOT attempt to use these functions until implementation is complete.
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -75,43 +75,43 @@ namespace GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Communication){
 public:
-    Nebulite::Constants::Error update() override;
+    Nebulite::Constants::Event update() override;
 
     //------------------------------------------
     // Connection Management
 
     // Basic connection functions
-    Nebulite::Constants::Error connect(int argc, char* argv[]);          // Establish connection: connect [protocol] [address] [port]
-    Nebulite::Constants::Error disconnect(int argc, char* argv[]);       // Close connection: disconnect
-    Nebulite::Constants::Error reconnect(int argc, char* argv[]);        // Reconnect using last settings: reconnect
+    Nebulite::Constants::Event connect(int argc, char* argv[]);          // Establish connection: connect [protocol] [address] [port]
+    Nebulite::Constants::Event disconnect(int argc, char* argv[]);       // Close connection: disconnect
+    Nebulite::Constants::Event reconnect(int argc, char* argv[]);        // Reconnect using last settings: reconnect
 
     //------------------------------------------
     // Status Monitoring
 
     // Connection status and health
-    Nebulite::Constants::Error status(int argc, char* argv[]);           // Show connection status: status
-    Nebulite::Constants::Error ping(int argc, char* argv[]);             // Test connection: ping
-    Nebulite::Constants::Error isConnected(int argc, char* argv[]);      // Check if connected: is-connected
+    Nebulite::Constants::Event status(int argc, char* argv[]);           // Show connection status: status
+    Nebulite::Constants::Event ping(int argc, char* argv[]);             // Test connection: ping
+    Nebulite::Constants::Event isConnected(int argc, char* argv[]);      // Check if connected: is-connected
 
     //------------------------------------------
     // Command Parsing and Execution
 
     // Command handling
-    Nebulite::Constants::Error parseCommand(int argc, char* argv[]);     // Parse incoming command: parse-command <command_string>
-    Nebulite::Constants::Error executeRemote(int argc, char* argv[]);    // Execute command from remote: execute-remote <command>
-    Nebulite::Constants::Error setCommandHandler(int argc, char* argv[]); // Set command callback: set-command-handler <callback_command>
+    Nebulite::Constants::Event parseCommand(int argc, char* argv[]);     // Parse incoming command: parse-command <command_string>
+    Nebulite::Constants::Event executeRemote(int argc, char* argv[]);    // Execute command from remote: execute-remote <command>
+    Nebulite::Constants::Event setCommandHandler(int argc, char* argv[]); // Set command callback: set-command-handler <callback_command>
 
     //------------------------------------------
     // Image Transfer
 
     // Image sending functionality
-    Nebulite::Constants::Error sendImage(int argc, char* argv[]);        // Send image of current renderer to connected client.
+    Nebulite::Constants::Event sendImage(int argc, char* argv[]);        // Send image of current renderer to connected client.
 
     //------------------------------------------
     // Console Output Redirection
 
     // Output redirection
-    Nebulite::Constants::Error redirectOutput(int argc, char* argv[]);   // Redirect cout to connection: redirect-output <enable/disable>
+    Nebulite::Constants::Event redirectOutput(int argc, char* argv[]);   // Redirect cout to connection: redirect-output <enable/disable>
 
     //------------------------------------------
     // Setup

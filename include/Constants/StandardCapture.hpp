@@ -9,129 +9,159 @@
 #include "Utility/Capture.hpp"
 
 namespace Nebulite::Constants {
+
+enum class Event : uint8_t {
+    Success = 0,
+    Warning,
+    Error
+};
+
 /**
  * @struct Nebulite::Constants::StandardCapture
  * @brief Standard capture outputs for various warnings, errors, etc.
  * @details The advantage of these standard errors is the reusability in multiple places.
- *
  */
 struct StandardCapture {
 
     struct Warning {
         struct SDL {
-            static void generic(Utility::Capture& cap) {
+            static Event generic(Utility::Capture& cap) {
                 cap.warning.println("SDL encountered a non-critical issue.");
+                return Event::Warning;
             }
         };
 
         struct Renderer {
-            static void snapshotFailed(Utility::Capture& cap) {
+            static Event snapshotFailed(Utility::Capture& cap) {
                 cap.warning.println("Renderer snapshot failed.");
+                return Event::Warning;
             }
         };
 
         struct Functional {
-            static void functionCallInvalid(Utility::Capture& cap) {
+            static Event functionCallInvalid(Utility::Capture& cap) {
                 cap.warning.println("Requested function call is invalid.");
+                return Event::Warning;
             }
 
-            static void invalidArgcArgvParsing(Utility::Capture& cap) {
+            static Event invalidArgcArgvParsing(Utility::Capture& cap) {
                 cap.warning.println("argc/argv parsing error.");
+                return Event::Warning;
             }
 
-            static void tooManyArgs(Utility::Capture& cap) {
+            static Event tooManyArgs(Utility::Capture& cap) {
                 cap.warning.println("Too Many Arguments in function call");
+                return Event::Warning;
             }
 
-            static void tooFewArgs(Utility::Capture& cap) {
+            static Event tooFewArgs(Utility::Capture& cap) {
                 cap.warning.println("Too Few Arguments in function call");
+                return Event::Warning;
             }
 
-            static void unknownArg(Utility::Capture& cap) {
+            static Event unknownArg(Utility::Capture& cap) {
                 cap.warning.println("Unknown Argument Error");
+                return Event::Warning;
             }
 
-            static void featureNotImplemented(Utility::Capture& cap) {
+            static Event featureNotImplemented(Utility::Capture& cap) {
                 cap.warning.println("Requested feature of functioncall is not implemented");
+                return Event::Warning;
             }
 
-            static void bindingCollision(Utility::Capture& cap) {
+            static Event bindingCollision(Utility::Capture& cap) {
                 cap.warning.println("Binding Collision: Failed to bind a function, category or variable.");
+                return Event::Warning;
             }
 
-            static void bindingCollisionExpected(Utility::Capture& cap) {
+            static Event bindingCollisionExpected(Utility::Capture& cap) {
                 cap.warning.println("Binding Collision Expected: No collision occurred when one was expected.");
+                return Event::Warning;
             }
         };
     };
 
     struct Error {
         struct SDL {
-            static void initFailed(Utility::Capture& cap) {
+            static Event initFailed(Utility::Capture& cap) {
                 cap.error.println("SDL Renderer could not be initialized. This may cause rendering issues.");
+                return Event::Error;
             }
-            static void settingTargetFailed(Utility::Capture& cap) {
+            static Event settingTargetFailed(Utility::Capture& cap) {
                 cap.error.println("SDL Renderer target could not be set.");
+                return Event::Error;
             }
         };
 
         struct Renderer {
-            static void notInitialized(Utility::Capture& cap) {
+            static Event notInitialized(Utility::Capture& cap) {
                 cap.error.println("Renderer not initialized.");
+                return Event::Error;
             }
         };
 
         struct Texture {
-            static void notFound(Utility::Capture& cap) {
+            static Event notFound(Utility::Capture& cap) {
                 cap.error.println("Texture not found.");
+                return Event::Error;
             }
 
-            static void copyFailed(Utility::Capture& cap) {
+            static Event copyFailed(Utility::Capture& cap) {
                 cap.error.println("Texture copy failed.");
+                return Event::Error;
             }
 
-            static void colorUnsupported(Utility::Capture& cap) {
+            static Event colorUnsupported(Utility::Capture& cap) {
                 cap.error.println("Texture color format unsupported.");
+                return Event::Error;
             }
 
-            static void lockFailed(Utility::Capture& cap) {
+            static Event lockFailed(Utility::Capture& cap) {
                 cap.error.println("Texture lock failed.");
+                return Event::Error;
             }
 
-            static void queryFailed(Utility::Capture& cap) {
+            static Event queryFailed(Utility::Capture& cap) {
                 cap.error.println("Texture query failed.");
+                return Event::Error;
             }
 
-            static void modificationFailed(Utility::Capture& cap) {
+            static Event modificationFailed(Utility::Capture& cap) {
                 cap.error.println("Texture modification failed.");
+                return Event::Error;
             }
 
-            static void invalid(Utility::Capture& cap) {
+            static Event invalid(Utility::Capture& cap) {
                 cap.error.println("Texture is invalid.");
+                return Event::Error;
             }
         };
 
         struct Audio {
-            static void deviceInitFailed(Utility::Capture& cap) {
+            static Event deviceInitFailed(Utility::Capture& cap) {
                 cap.error.println("Audio device could not be initialized.");
+                return Event::Error;
             }
         };
 
         struct Functional {
-            static void functionNotImplemented(Utility::Capture& cap) {
+            static Event functionNotImplemented(Utility::Capture& cap) {
                 cap.error.println("Requested function not implemented.");
+                return Event::Error;
             }
         };
 
         struct File {
-            static void invalidFile(Utility::Capture& cap) {
+            static Event invalidFile(Utility::Capture& cap) {
                 cap.error.println("Requested file is invalid.");
+                return Event::Error;
             }
         };
 
         struct Ruleset {
-            static void parsingFailed(Utility::Capture& cap) {
+            static Event parsingFailed(Utility::Capture& cap) {
                 cap.error.println("Ruleset parsing failed.");
+                return Event::Error;
             }
         };
     };

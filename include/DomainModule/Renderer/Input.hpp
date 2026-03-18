@@ -13,7 +13,7 @@
 #include <SDL3/SDL.h>    // Needed to access SDL input events
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -30,7 +30,7 @@ namespace Nebulite::DomainModule::Renderer {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Input) {
 public:
-    [[nodiscard]] Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
     //------------------------------------------

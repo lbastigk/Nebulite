@@ -22,7 +22,7 @@
 #include <string_view>
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 
@@ -182,7 +182,7 @@ class Domain : public DocumentAccessor {
      *          The Tree is then shared with the DomainModules for modification.
      * @todo Providing the domain reference and Scope may not be necessary anymore, please investigate!
      */
-    std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> funcTree;
+    std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>> funcTree;
 
     /**
      * @brief Stores all available modules
@@ -278,7 +278,7 @@ public:
      *       - update all timed routines
      *       Requires some modifications of GlobalSpace::update(), directly calling updateModules there might be an issue.
      */
-    [[nodiscard]] virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
+    [[nodiscard]] virtual Constants::Event update() { return Constants::Event::Success; }
 
     //------------------------------------------
     // Module Initialization and Updating
@@ -294,7 +294,7 @@ public:
      * @return A unique pointer to the created DomainModule of the specified type
      */
     template <typename DomainType, typename DomainModuleType>
-    static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> funcTree) {
+    static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>> funcTree) {
         // Determine the key from root level
         if constexpr (HasKeyGroup<DomainModuleType>) {
             if (DomainModuleType::Key::hasScope()) {
@@ -356,9 +356,7 @@ public:
     void updateModules() {
         for (auto const& module : modules) {
             // Todo: actually pass to capture as either warn or error
-            if (auto err = module->update(); err.isError()) {
-                capture.error.println(err.getDescription());
-            }
+            module->update();
         }
     }
 
@@ -391,7 +389,7 @@ public:
      * @param str The string to parse.
      * @return Potential errors that occurred on command execution
      */
-    [[nodiscard]] Constants::Error parseStr(std::string const& str);
+    [[nodiscard]] Constants::Event parseStr(std::string const& str);
 
     /**
      * @brief Necessary operations before parsing commands.
@@ -399,8 +397,8 @@ public:
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         an error code otherwise.
      */
-    [[nodiscard]] virtual Constants::Error preParse() {
-        return Constants::ErrorTable::NONE();
+    [[nodiscard]] virtual Constants::Event preParse() {
+        return Constants::Event::Success;
     }
 
     //------------------------------------------
@@ -434,7 +432,7 @@ protected:
      *        Marked as protected, as it's only used to initialize DomainModules.
      * @return A shared pointer to the internal FuncTree.
      */
-    std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> getFuncTree() {
+    std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>> getFuncTree() {
         return funcTree;
     }
 

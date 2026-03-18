@@ -172,8 +172,8 @@ void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::
         std::string const closeId = "Close##DomainConsoleClose_" + name;
         if (ImGui::Button(closeId.c_str())) {
             // Instead of closing the window, we disable the ImGui view for this domain, allowing us to reopen it later without losing the capture and scope state
-            if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + DomainModule::Common::General::imguiView_Disable); err.isError()) {
-                capture.error.println("Error disabling ImGui view for domain " + name + ": " + std::string(err.getDescription()));
+            if (auto const event = domain.parseStr(__FUNCTION__ + std::string(" ") + DomainModule::Common::General::imguiView_Disable); event != Constants::Event::Success) {
+                capture.warning.println("Error disabling ImGui view for domain " + name);
             }
         }
     }
@@ -266,8 +266,9 @@ void ImguiHelper::renderDomainConsole(Interaction::Execution::Domain& domain, Ut
     if (ImGui::InputText("##ConsoleInput", &command, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory, consoleInputCallback, &state)) {
         if (!command.empty()){
             capture.appendInput(command);
-            if (auto const err = domain.parseStr(__FUNCTION__ + std::string(" ") + command); err.isError()) {
-                capture.error.println(err.getDescription());
+            if (auto const event = domain.parseStr(__FUNCTION__ + std::string(" ") + command); event != Constants::Event::Success) {
+                // TODO: differentiate between warning and error?
+                capture.warning.println("Error executing command: " + command);
             }
             command.clear();
             state.historyIndex = 0; // Reset history index after executing a command

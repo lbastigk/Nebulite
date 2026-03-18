@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -27,18 +27,18 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, FeatureTest) {
 public:
-    [[nodiscard]] Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Error testFuncTree(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event testFuncTree(std::span<std::string const> const& args) const ;
     static auto constexpr testFuncTree_name = "feature-test functree";
     static auto constexpr testFuncTree_desc = "Builds a funcTree with extra arguments and tests it\n"
         "Usage: feature-test functree\n";
 
-    [[nodiscard]] Constants::Error selfOtherGlobalEvaluation() const ;
+    [[nodiscard]] Constants::Event selfOtherGlobalEvaluation() const ;
     static auto constexpr selfOtherGlobalEvaluation_name = "evaluation";
     static auto constexpr selfOtherGlobalEvaluation_desc = "Tests evaluation of self and other globals in one expression\n"
         "Usage: evaluation\n";

@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -28,20 +28,20 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Ruleset) {
 public:
-    [[nodiscard]] Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Error broadcast(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event broadcast(std::span<std::string const> const& args) const ;
     static auto constexpr broadcast_name = "ruleset broadcast";
     static auto constexpr broadcast_desc = "Broadcasts a ruleset to its specified topic.\n"
         "Usage: broadcast <ruleset>\n"
         "\n"
         "- ruleset: The ruleset content to be broadcasted.";
 
-    [[nodiscard]] Constants::Error listen(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event listen(std::span<std::string const> const& args) const ;
     static auto constexpr listen_name = "ruleset listen";
     static auto constexpr listen_desc = "Listens for rulesets on a specified topic.\n"
         "Usage: listen <topic>\n"

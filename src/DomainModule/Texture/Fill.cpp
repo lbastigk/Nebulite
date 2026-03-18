@@ -5,26 +5,26 @@
 
 namespace Nebulite::DomainModule::Texture {
 
-Constants::Error Fill::update() {
+Constants::Event Fill::update() {
     // Nothing to do in update for fill
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error Fill::fill(int const argc, char** argv) const {
+Constants::Event Fill::fill(int const argc, char** argv) const {
     if (argc < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
 
     // Get the SDL_Renderer
     SDL_Renderer* renderer = Global::instance().getSdlRenderer();
     if (renderer == nullptr) {
-        return Constants::ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED();
+        return Constants::StandardCapture::Error::SDL::initFailed(domain.capture);
     }
 
     // Get the texture to fill
     SDL_Texture* texture = domain.getSDLTexture();
     if (texture == nullptr) {
-        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_NOT_FOUND();
+        return Constants::StandardCapture::Error::Texture::notFound(domain.capture);
     }
 
     // Parse color arguments
@@ -37,33 +37,33 @@ Constants::Error Fill::fill(int const argc, char** argv) const {
         } else if (color == "blue") {
             b = 255;
         } else {
-            return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_COLOR_UNSUPPORTED();
+            return Constants::StandardCapture::Error::Texture::colorUnsupported(domain.capture);
         }
     } else if (argc == 4) {
         r = static_cast<Uint8>(std::stoi(argv[1]));
         g = static_cast<Uint8>(std::stoi(argv[2]));
         b = static_cast<Uint8>(std::stoi(argv[3]));
     } else {
-        return Constants::ErrorTable::FUNCTIONAL::CRITICAL_INVALID_ARGC_ARGV_PARSING();
+        return Constants::StandardCapture::Warning::Functional::invalidArgcArgvParsing(domain.capture);
     }
 
     // Bind texture as render target, fill with draw color, restore previous target.
     SDL_Texture* prevTarget = SDL_GetRenderTarget(renderer); // may be nullptr
     if (SDL_SetRenderTarget(renderer, texture) != 0) {
         domain.capture.error.println("Failed to set render target: ", SDL_GetError());
-        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_LOCK_FAILED();
+        return Constants::StandardCapture::Error::Texture::lockFailed(domain.capture);
     }
 
     if (SDL_SetRenderDrawColor(renderer, r, g, b, 255) != 0) {
         domain.capture.error.println("Failed to set draw color: ", SDL_GetError());
         SDL_SetRenderTarget(renderer, prevTarget);
-        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_LOCK_FAILED();
+        return Constants::StandardCapture::Error::Texture::lockFailed(domain.capture);
     }
 
     if (SDL_RenderClear(renderer) != 0) {
         domain.capture.error.println("Failed to clear (fill) texture: ", SDL_GetError());
         SDL_SetRenderTarget(renderer, prevTarget);
-        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_LOCK_FAILED();
+        return Constants::StandardCapture::Error::Texture::lockFailed(domain.capture);
     }
 
     // restore previous render target
@@ -74,7 +74,7 @@ Constants::Error Fill::fill(int const argc, char** argv) const {
         , " R=", static_cast<int>(r)
         , " G=", static_cast<int>(g)
         , " B=", static_cast<int>(b));
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::DomainModule::Texture

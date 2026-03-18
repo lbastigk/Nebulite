@@ -75,10 +75,10 @@ void Renderer::setupDisplayValues() {
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::positionY, 0);
 }
 
-Constants::Error Renderer::preParse() {
+Constants::Event Renderer::preParse() {
     // Initialize SDL and related subsystems
     initSDL();
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 void Renderer::initImgui() const {
@@ -374,14 +374,12 @@ void Renderer::render() {
     ImGui::NewFrame();
 }
 
-Constants::Error Renderer::update() {
+Constants::Event Renderer::update() {
     //------------------------------------------
     // Skip update if flagged
     if (!status.skipUpdate) {
         // Update environment
-        if (auto const err = env.update(); err.isError()) {
-            capture.error.println(err.getDescription());
-        }
+        env.update();
         env.updateObjects(
             tilePositionX,
             tilePositionY,
@@ -393,9 +391,9 @@ Constants::Error Renderer::update() {
     if (SDL_GetError()[0] != '\0') {
         capture.error.println("SDL Error during rendering: ", SDL_GetError());
         SDL_ClearError(); // Clear error after reporting
-        return Constants::ErrorTable::SDL::GENERIC_SDL_ERROR();
+        return Constants::StandardCapture::Warning::SDL::generic(capture);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 bool Renderer::timeToRender() {

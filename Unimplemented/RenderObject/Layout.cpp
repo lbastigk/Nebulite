@@ -5,7 +5,7 @@ namespace Nebulite::DomainModule::RenderObject{
 
 //------------------------------------------
 // Update
-Nebulite::Constants::Error Layout::update() {
+Nebulite::Constants::Event Layout::update() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -15,10 +15,10 @@ Nebulite::Constants::Error Layout::update() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Nebulite::Constants::Error Layout::alignText(int argc, char* argv[]){
+Nebulite::Constants::Event Layout::alignText(int argc, char* argv[]){
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
-Nebulite::Constants::Error Layout::makeBox(int argc, char* argv[]){
+Nebulite::Constants::Event Layout::makeBox(int argc, char* argv[]){
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 

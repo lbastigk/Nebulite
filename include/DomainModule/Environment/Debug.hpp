@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Constants/KeyNames.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
@@ -30,7 +30,7 @@ namespace Nebulite::DomainModule::Environment {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Environment, Debug) {
 public:
-    [[nodiscard]] Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
     //------------------------------------------

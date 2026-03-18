@@ -73,15 +73,14 @@ void GlobalSpace::initialize() {
     // If we ever need a full update beforehand, we should manually call update after full initialization
 }
 
-Constants::Error GlobalSpace::updateInnerDomains() {
+Constants::Event GlobalSpace::updateInnerDomains() {
     // TODO: See if we can generalize this so that we can safely call renderer.update() here as well
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error GlobalSpace::update() {
+Constants::Event GlobalSpace::update() {
     static bool queueParsed = false; // Indicates if the task queue has been parsed on this frame render
-    static bool criticalStop = false; // Indicates if a critical stop has occurred
-    Constants::Error lastCriticalResult = Constants::ErrorTable::NONE(); // Last critical error result
+    auto worstEventThisUpdate = Constants::Event::Success;
 
     //------------------------------------------
     /**
@@ -96,14 +95,15 @@ Constants::Error GlobalSpace::update() {
      *       e.G. inside the GlobalSpace, checking state of Renderer might be useful
      */
     if (!queueParsed) {
-        lastCriticalResult = parseQueue();
-        criticalStop = lastCriticalResult != Constants::ErrorTable::NONE();
+        if (auto const result = parseQueue(); result > worstEventThisUpdate) {
+            worstEventThisUpdate = result;
+        }
         queueParsed = true;
     }
 
     //------------------------------------------
     // Update and render, only if initialized
-    if (!criticalStop && renderer.isSdlInitialized() && renderer.timeToRender()) {
+    if (worstEventThisUpdate != Constants::Event::Error && renderer.isSdlInitialized() && renderer.timeToRender()) {
 
         //========================================================
 
@@ -115,9 +115,8 @@ Constants::Error GlobalSpace::update() {
         updateModules();
 
         // Then, update inner domains
-        if (auto const result = updateInnerDomains(); result.isCritical() && !cmdVars.recover) {
-            criticalStop = true;
-            lastCriticalResult = result;
+        if (auto const event = updateInnerDomains(); event > worstEventThisUpdate) {
+            worstEventThisUpdate = event;
         }
 
         //========================================================
@@ -128,13 +127,8 @@ Constants::Error GlobalSpace::update() {
                 tq->decrementWaitCounter();
             }
             invoke.update();        // Invoke broadcasted-listen-updates
-            auto const err = renderer.update();
-            if (err.isError()) {
-                capture.error.println(err.getDescription());
-            }
-            if (err.isCritical() && !cmdVars.recover) {
-                criticalStop = true;
-                lastCriticalResult = err;
+            if (auto const event = renderer.update(); event > worstEventThisUpdate) {
+                worstEventThisUpdate = event;
             }
 
             // Increment frame count
@@ -153,7 +147,8 @@ Constants::Error GlobalSpace::update() {
 
     //------------------------------------------
     // Check if we need to continue the loop
-    continueLoop = !criticalStop && renderer.isSdlInitialized() && !renderer.shouldQuit();
+    bool const encounteredCriticalErrorWithNoRecover = !cmdVars.recover && worstEventThisUpdate == Constants::Event::Error;
+    continueLoop = !encounteredCriticalErrorWithNoRecover && renderer.isSdlInitialized() && !renderer.shouldQuit();
     if (tasks[StandardTasks::script]->isWaiting() && !renderer.isSdlInitialized()) {
         /**
          * @brief Overwrite: If there is a wait operation and no renderer exists,
@@ -169,7 +164,7 @@ Constants::Error GlobalSpace::update() {
     //------------------------------------------
     // Return last critical result if there was a critical stop
     // main then evaluates this and decides what to do
-    return lastCriticalResult;
+    return worstEventThisUpdate;
 }
 
 void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) {
@@ -207,23 +202,23 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
     }
 }
 
-Constants::Error GlobalSpace::parseQueue() {
+Constants::Event GlobalSpace::parseQueue() {
     queueResult.clear();
     for (auto const& [name, queue] : tasks) {
         queueResult[name] = queue->resolve(*this, cmdVars.recover);
         if (queueResult[name].encounteredCriticalResult && !cmdVars.recover) {
-            return queueResult[name].errors.back();
+            return queueResult[name].events.back();
         }
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error GlobalSpace::preParse() {
+Constants::Event GlobalSpace::preParse() {
     // NOTE: This function is only called once there is a parse-command
     // Meaning its timing is consistent and not dependent on framerate, frame time variations, etc.
     // Meaning everything we do here is, timing wise, deterministic!
     (void)floatingDM.rng->update();
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::Core

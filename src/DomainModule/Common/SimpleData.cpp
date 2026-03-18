@@ -3,7 +3,7 @@
 
 namespace Nebulite::DomainModule::Common {
 
-Constants::Error SimpleData::update() {return Constants::ErrorTable::NONE();} // No periodic update needed, SimpleData is stateless
+Constants::Event SimpleData::update() {return Constants::Event::Success;} // No periodic update needed, SimpleData is stateless
 
 //------------------------------------------
 // Domain-Bound Functions
@@ -12,60 +12,60 @@ Constants::Error SimpleData::update() {return Constants::ErrorTable::NONE();} //
 // General set/get/remove functions
 
 // NOLINTNEXTLINE
-Constants::Error SimpleData::set(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScope& callerScope) {
+Constants::Event SimpleData::set(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
     }
 
     auto const key = callerScope.getRootScope() + args[1];
     std::string const value = Utility::StringHandler::recombineArgs(args.subspan(2));
     callerScope.set(key, value);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 // NOLINTNEXTLINE
-Constants::Error SimpleData::move(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScope& callerScope) {
+Constants::Event SimpleData::move(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
     }
     if (args.size() > 3) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
     }
     auto const sourceKey = callerScope.getRootScope() + args[1];
     auto const targetKey = callerScope.getRootScope() + args[2];
     callerScope.moveMember(sourceKey, targetKey);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 // NOLINTNEXTLINE
-Constants::Error SimpleData::copy(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScope& callerScope) {
+Constants::Event SimpleData::copy(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
     }
     if (args.size() > 3) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
     }
     auto const sourceKey = callerScope.getRootScope() + args[1];
     auto const targetKey = callerScope.getRootScope() + args[2];
     callerScope.copyMember(sourceKey, targetKey);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 // NOLINTNEXTLINE
-Constants::Error SimpleData::keyDelete(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScope& callerScope) {
+Constants::Event SimpleData::keyDelete(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
     }
     if (args.size() > 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
     }
     auto const key = callerScope.getRootScope() + args[1];
     callerScope.removeMember(key);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 //------------------------------------------
@@ -74,28 +74,28 @@ Constants::Error SimpleData::keyDelete(std::span<std::string const> const& args,
 // TODO: JSON::ensureArray could be a useful function
 
 // NOLINTNEXTLINE
-Constants::Error SimpleData::ensureArray(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
+Constants::Event SimpleData::ensureArray(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         caller.capture.error.println("Error: Too few arguments for ensureArray command.");
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
     }
     if (args.size() > 2) {
         caller.capture.error.println("Error: Too many arguments for ensureArray command.");
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
     }
 
     if (auto const key = callerScope.getRootScope() + args[1]; callerScope.memberType(key) != Data::KeyType::array) {
         callerScope.moveMember(key, key + "[0]"); // Move existing value to array index 0
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error SimpleData::push_back(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope){
+Constants::Event SimpleData::push_back(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope){
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
         caller.capture.error.println("Error: Too many arguments for push_front command.");
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
     }
     auto const key = callerScope.getRootScope() + args[1];
     std::string value;
@@ -111,7 +111,7 @@ Constants::Error SimpleData::push_back(std::span<std::string const> const& args,
         std::string command = __FUNCTION__;
         command += " " + std::string(ensureArray_name);
         command += " " + std::string(args[1]);
-        if (Constants::Error const result = caller.parseStr(command); result != Constants::ErrorTable::NONE()) {
+        if (Constants::Event const result = caller.parseStr(command); result != Constants::Event::Success) {
             caller.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }
@@ -120,18 +120,18 @@ Constants::Error SimpleData::push_back(std::span<std::string const> const& args,
     size_t const size = callerScope.memberSize(key);
     auto const itemKey = key + "[" + std::to_string(size) + "]";
     callerScope.set(itemKey, value);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error SimpleData::pop_back(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
+Constants::Event SimpleData::pop_back(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         caller.capture.error.println("Error: Too few arguments for push_back command.");
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
     }
     if (args.size() > 2) {
         caller.capture.error.println("Error: Too many arguments for push_back command.");
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
     }
     auto const key = callerScope.getRootScope() + args[1];
 
@@ -139,7 +139,7 @@ Constants::Error SimpleData::pop_back(std::span<std::string const> const& args, 
         std::string command = __FUNCTION__;
         command += " " + std::string(ensureArray_name);
         command += " " + std::string(args[1]);
-        if (Constants::Error const result = caller.parseStr(command); result != Constants::ErrorTable::NONE()) {
+        if (Constants::Event const result = caller.parseStr(command); result != Constants::Event::Success) {
             caller.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }
@@ -148,19 +148,19 @@ Constants::Error SimpleData::pop_back(std::span<std::string const> const& args, 
     size_t const size = callerScope.memberSize(key);
     if (size == 0) {
         // nothing to pop out, not seen as error
-        return Constants::ErrorTable::NONE();
+        return Constants::Event::Success;
     }
 
     auto const itemKey = key + "[" + std::to_string(size - 1) + "]";
     callerScope.removeMember(itemKey);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error SimpleData::push_front(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
+Constants::Event SimpleData::push_front(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
         caller.capture.error.println("Error: Too many arguments for push_front command.");
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
     }
     auto const key = callerScope.getRootScope() + args[1];
     std::string value;
@@ -176,7 +176,7 @@ Constants::Error SimpleData::push_front(std::span<std::string const> const& args
         std::string command = __FUNCTION__;
         command += " " + std::string(ensureArray_name);
         command += " " + std::string(args[1]);
-        if (Constants::Error const result = caller.parseStr(command); result != Constants::ErrorTable::NONE()) {
+        if (Constants::Event const result = caller.parseStr(command); result != Constants::Event::Success) {
             caller.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }
@@ -192,7 +192,7 @@ Constants::Error SimpleData::push_front(std::span<std::string const> const& args
         auto itemKey = key + "[" + std::to_string(i) + "]";
         if (Data::KeyType const itemType = callerScope.memberType(itemKey); itemType == Data::KeyType::object) {
             caller.capture.error.println("Error: Cannot push_front into an array containing documents.");
-            return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
+            return Constants::StandardCapture::Error::Functional::functionNotImplemented(caller.capture);
         }
     }
 
@@ -206,18 +206,18 @@ Constants::Error SimpleData::push_front(std::span<std::string const> const& args
     }
     auto const itemKey = key + "[0]";
     callerScope.set(itemKey, value);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error SimpleData::pop_front(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
+Constants::Event SimpleData::pop_front(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         caller.capture.error.println("Error: Too few arguments for pop_front command.");
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
     }
     if (args.size() > 2) {
         caller.capture.error.println("Error: Too many arguments for pop_front command.");
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
     }
     auto const key = callerScope.getRootScope() + args[1];
 
@@ -225,7 +225,7 @@ Constants::Error SimpleData::pop_front(std::span<std::string const> const& args,
         std::string command = __FUNCTION__;
         command += " " + std::string(ensureArray_name);
         command += " " + std::string(args[1]);
-        if (Constants::Error const result = caller.parseStr(command); result != Constants::ErrorTable::NONE()) {
+        if (Constants::Event const result = caller.parseStr(command); result != Constants::Event::Success) {
             caller.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }
@@ -240,7 +240,7 @@ Constants::Error SimpleData::pop_front(std::span<std::string const> const& args,
     for (size_t i = 0; i < size; ++i) {
         if (callerScope.memberType(key + "[" + std::to_string(i) + "]") == Data::KeyType::object) {
             caller.capture.error.println("Error: Cannot push_front into an array containing documents.");
-            return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
+            return Constants::StandardCapture::Error::Functional::functionNotImplemented(caller.capture);
         }
     }
 
@@ -255,7 +255,7 @@ Constants::Error SimpleData::pop_front(std::span<std::string const> const& args,
     // Remove the last item
     auto const lastItemKey = key + "[" + std::to_string(size - 1) + "]";
     callerScope.removeMember(lastItemKey);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::DomainModule::Common

@@ -32,24 +32,24 @@ public:
     /**
      * @brief Applies the input mappings, processing any new input events (via the Global Document) and updating the binding states.
      */
-    [[nodiscard]] Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
 
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Error lockOnce(std::span<std::string const> const& args);
+    [[nodiscard]] Constants::Event lockOnce(std::span<std::string const> const& args);
     static auto constexpr lockOnceName = "input-mapping lock once";
     static auto constexpr lockOnceDesc = "Locks an action for the current frame, preventing it from being triggered by any of its associated keys.\n"
         "Allows locking of entire categories of actions by using a structured action name, e.g. 'movement::up' or 'combat::primaryAttack' can be locked with 'movement' or 'combat'.\n"
         "Usage: input-mapping lock once <actionName>\n";
 
-    [[nodiscard]] Constants::Error lockOn(std::span<std::string const> const& args);
+    [[nodiscard]] Constants::Event lockOn(std::span<std::string const> const& args);
     static auto constexpr lockOnName = "input-mapping lock on";
     static auto constexpr lockOnDesc = "Locks an action until it is unlocked, preventing it from being triggered by any of its associated keys.\n"
         "Allows locking of entire categories of actions by using a structured action name, e.g. 'movement::up' or 'combat::primaryAttack' can be locked with 'movement' or 'combat'.\n"
         "Usage: input-mapping lock on <actionName>\n";
 
-    [[nodiscard]] Constants::Error unlock(std::span<std::string const> const& args);
+    [[nodiscard]] Constants::Event unlock(std::span<std::string const> const& args);
     static auto constexpr unlockName = "input-mapping lock off";
     static auto constexpr unlockDesc = "Unlocks an action, allowing it to be triggered by its associated keys again.\n"
         "Allows locking of entire categories of actions by using a structured action name, e.g. 'movement::up' or 'combat::primaryAttack' can be locked with 'movement' or 'combat'.\n"

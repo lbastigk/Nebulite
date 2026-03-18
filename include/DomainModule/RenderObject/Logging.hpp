@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -28,13 +28,13 @@ namespace Nebulite::DomainModule::RenderObject {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Logging) {
 public:
-    [[nodiscard]] Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] static Constants::Error log_all(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event log_all(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr log_all_name = "log all";
     static auto constexpr log_all_desc = "Logs the entire RenderObject to a file.\n"
         "\n"
@@ -42,7 +42,7 @@ public:
         "\n"
         "Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.\n";
 
-    [[nodiscard]] static Constants::Error log_key(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event log_key(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr log_key_name = "log key";
     static auto constexpr log_key_desc = "Logs a specific key's value to a file.\n"
         "\n"

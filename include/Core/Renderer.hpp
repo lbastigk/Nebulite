@@ -80,7 +80,7 @@ public:
     /**
      * @brief Called before parsing any commands.
      */
-    [[nodiscard]] Constants::Error preParse() override;
+    [[nodiscard]] Constants::Event preParse() override;
 
     /**
      * @brief Updates the renderer for the next frame.
@@ -104,7 +104,7 @@ public:
      *          - updates the invoke instance
      *          - updates the environment
      */
-    [[nodiscard]] Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
 
     /**
      * @brief Checks if it's time to render the next frame based on the target FPS.

@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Constants/KeyNames.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonScope.hpp"
@@ -31,13 +31,13 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Clock) {
 public:
-    [[nodiscard]] Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Error addClock(int argc, char** argv);
+    [[nodiscard]] Constants::Event addClock(int argc, char** argv);
     static auto constexpr addClock_name = "add-clock";
     static auto constexpr addClock_desc = "Adds a clock with specified interval (ms) to the global clock system\n"
         "\n"

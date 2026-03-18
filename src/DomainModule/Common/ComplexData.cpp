@@ -5,25 +5,25 @@ namespace Nebulite::DomainModule::Common {
 
 //------------------------------------------
 // Update
-Constants::Error ComplexData::update() {
+Constants::Event ComplexData::update() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 //------------------------------------------
 // Domain-Bound Functions
 
 // NOLINTNEXTLINE
-Constants::Error ComplexData::querySet() {
-    return Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
+Constants::Event ComplexData::querySet() {
+    return Constants::StandardCapture::Error::Functional::functionNotImplemented(domain.capture);
 }
 
-Constants::Error ComplexData::jsonSet(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
+Constants::Event ComplexData::jsonSet(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
     }
 
     // Argument parsing
@@ -34,24 +34,24 @@ Constants::Error ComplexData::jsonSet(std::span<std::string const> const& args, 
     Interaction::Context const ctx{caller, caller, Global::instance()};
     auto const result = Interaction::Logic::Expression::evalAsJson(expression, ctx);
     callerScope.setSubDoc(callerScope.getRootScope() + myKey, result);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 
-Constants::Error ComplexData::evaluateMember(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
+Constants::Event ComplexData::evaluateMember(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
     }
     if (args.size() > 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
     }
 
     // Get the member value
     auto const fullKey = callerScope.getRootScope() + args[1];
     if (callerScope.memberType(fullKey) != Data::KeyType::value) {
         // If it's not a value, we can't evaluate it as an expression, so we do nothing
-        return Constants::ErrorTable::NONE();
+        return Constants::Event::Success;
     }
 
     // Evaluate the string as an expression and set the member to the result
@@ -59,10 +59,10 @@ Constants::Error ComplexData::evaluateMember(std::span<std::string const> const&
     Interaction::Context const ctx{caller, caller, Global::instance()};
     auto const result = Interaction::Logic::Expression::evalAsJson(expressionStr, ctx);
     callerScope.setSubDoc(fullKey, result);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error ComplexData::evaluateRecursive(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope){
+Constants::Event ComplexData::evaluateRecursive(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope){
     std::function<void(Data::ScopedKey const&)> recursiveEvaluate = [&](auto const& key) -> void {
         switch (callerScope.memberType(key)) {
             case Data::KeyType::value:
@@ -92,15 +92,15 @@ Constants::Error ComplexData::evaluateRecursive(std::span<std::string const> con
 
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
     }
     if (args.size() > 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
     }
 
     auto const fullKey = callerScope.getRootScope() + args[1];
     recursiveEvaluate(fullKey);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::DomainModule::Common

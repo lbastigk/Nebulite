@@ -97,9 +97,9 @@ public:
      *        - listens to global rulesets
      *        - broadcasts its own global rulesets
      *        - calculates source and destination rects
-     * @return Constants::Error indicating success or failure.
+     * @return Constants::Event indicating success or failure.
      */
-    [[nodiscard]] Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
 
     /**
      * @brief Estimates the computational cost of updating the RenderObject.

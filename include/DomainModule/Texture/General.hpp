@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -27,13 +27,13 @@ namespace Nebulite::DomainModule::Texture {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, General) {
 public:
-    [[nodiscard]] Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Error reloadTexture() const;
+    [[nodiscard]] Constants::Event reloadTexture() const;
     static auto constexpr reloadTexture_name = "reload-texture";
     static auto constexpr reloadTexture_desc = "Reload the texture from the document.\n"
         "\n"

@@ -98,19 +98,19 @@ void getMemoryUsageMB(double& virtualMemMB, double& residentMemMB) {
 namespace Nebulite::DomainModule::GlobalSpace {
 //------------------------------------------
 // Update
-Constants::Error Debug::update() {
+Constants::Event Debug::update() {
     for (auto& routine : routines) {
         routine.update();
     }
 
     //------------------------------------------
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Error Debug::log_global(int const argc, char** argv) const {
+Constants::Event Debug::log_global(int const argc, char** argv) const {
     std::string const serialized = moduleScope.serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
@@ -119,10 +119,10 @@ Constants::Error Debug::log_global(int const argc, char** argv) const {
     } else {
         Utility::FileManagement::WriteFile("global.log.jsonc", serialized);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error Debug::log_state(int const argc, char** argv) const {
+Constants::Event Debug::log_state(int const argc, char** argv) const {
     std::string const serialized = domain.getRenderer().serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
@@ -131,17 +131,17 @@ Constants::Error Debug::log_state(int const argc, char** argv) const {
     } else {
         Utility::FileManagement::WriteFile("state.log.jsonc", serialized);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error Debug::standardFileRenderObject(std::span<std::string const> const& /*args*/) const {
+Constants::Event Debug::standardFileRenderObject(std::span<std::string const> const& /*args*/) const {
     Core::RenderObject const ro(domain.capture);
     Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize());
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 // NOLINTNEXTLINE
-Constants::Error Debug::errorLog(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
+Constants::Event Debug::errorLog(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
     // Initialize the error logging buffer
     if (!originalCerrBuf) {
         originalCerrBuf = std::cerr.rdbuf();
@@ -152,7 +152,7 @@ Constants::Error Debug::errorLog(std::span<std::string const> const& args, Inter
             if (!errorLogStatus) {
                 if (!safe_open_log(errorFile)) {
                     caller.capture.error.println("Refusing to open log file: '", logFilename, "' is a symlink or could not be opened.");
-                    return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
+                    return Constants::StandardCapture::Error::File::invalidFile(domain.capture);
                 }
                 originalCerrBuf = std::cerr.rdbuf();
                 std::cerr.rdbuf(errorFile->rdbuf());
@@ -171,11 +171,11 @@ Constants::Error Debug::errorLog(std::span<std::string const> const& args, Inter
         }
     } else {
         if (args.size() > 2) {
-            return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+            return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
         }
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 inline void clear_screen() {
@@ -205,14 +205,14 @@ inline void clear_screen() {
 #endif
 }
 
-Constants::Error Debug::clearConsole(std::span<std::string const> const& /*args*/){
+Constants::Event Debug::clearConsole(std::span<std::string const> const& /*args*/){
     clear_screen();
     Global::capture().clear();
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 // NOLINTNEXTLINE
-Constants::Error Debug::crash(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
+Constants::Event Debug::crash(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
     // If an argument is provided, use it to select crash type
     if (args.size() > 1) {
         if (std::string const& crashType = args[1]; crashType == "segfault") {
@@ -236,16 +236,16 @@ Constants::Error Debug::crash(std::span<std::string const> const& args, Interact
         raise(SIGSEGV);
     }
     // Should never reach here
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 // NOLINTNEXTLINE
 
 
 // NOLINTNEXTLINE
-Constants::Error Debug::waitForInput(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
+Constants::Event Debug::waitForInput(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
     if (args.size() > 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
     }
     std::string message = "Press Enter to continue...";
     if (args.size() == 2) {
@@ -254,13 +254,13 @@ Constants::Error Debug::waitForInput(std::span<std::string const> const& args, I
     }
     caller.capture.log.println(message);
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error Debug::listExpressionFunctions(std::span<std::string const> const& args) {
+Constants::Event Debug::listExpressionFunctions(std::span<std::string const> const& args) {
     // Forward to ExpressionPrimitives::help
     Math::ExpressionPrimitives::help(args);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 //------------------------------------------
@@ -336,8 +336,8 @@ void Debug::setupDebugInfo() const {
 
     // Show debug window if in debug build
     if (moduleScope.get<std::string>(Key::buildType).value_or("") == "debug") {
-        if (auto const result = domain.parseStr(__FUNCTION__ + std::string(" ") + Common::General::imguiView_Enable); result.isError()) {
-            domain.capture.error.println("Error enabling ImGui view for GlobalSpace: " + std::string(result.getDescription()));
+        if (auto const event = domain.parseStr(__FUNCTION__ + std::string(" ") + Common::General::imguiView_Enable); event != Constants::Event::Success) {
+            domain.capture.error.println("Error enabling ImGui view for GlobalSpace");
         }
     }
 }

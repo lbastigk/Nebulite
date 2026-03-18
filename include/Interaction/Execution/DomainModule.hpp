@@ -12,7 +12,7 @@
 
 // Nebulite
 #include "ScopeAccessor.hpp"
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Data/Document/JsonScope.hpp"
 
@@ -40,7 +40,7 @@ public:
     DomainModule(
         std::string name,
         DomainType& domainReference,
-        std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> const& funcTreePtr,
+        std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>> const& funcTreePtr,
         Data::JsonScope& scope,
         Data::JsonScope const& settings
     );

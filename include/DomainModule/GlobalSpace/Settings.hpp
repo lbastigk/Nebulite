@@ -13,7 +13,7 @@
 #include <memory>
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Constants/KeyNames.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
@@ -33,32 +33,32 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Settings) {
 public:
-    [[nodiscard]] Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
 
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Error saveSettings();
+    [[nodiscard]] Constants::Event saveSettings();
     static auto constexpr saveSettings_name = "settings save";
     static auto constexpr saveSettings_desc = "Saves the current global settings to the default filename.\n"
         "\n"
         "Usage: settings save\n";
 
-    [[nodiscard]] Constants::Error overWriteSettingsFile();
+    [[nodiscard]] Constants::Event overWriteSettingsFile();
     static auto constexpr overWriteSettingsFile_name = "settings save-standards";
     static auto constexpr overWriteSettingsFile_desc = "Overwrites the settings file with default settings.\n"
         "\n"
         "Usage: settings save-standards\n";
 
-    [[nodiscard]] Constants::Error setSettingStr(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event setSettingStr(std::span<std::string const> const& args) const ;
     static auto constexpr setSetting_name = "settings set-string";
     static auto constexpr setSetting_desc = "Sets a global setting to a specified value.\n"
         "\n"
         "Usage: settings set-string <key> <value>\n";
 
-    [[nodiscard]] Constants::Error setSettingInt(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event setSettingInt(std::span<std::string const> const& args) const ;
     static auto constexpr setSettingInt_name = "settings set-integer";
     static auto constexpr setSettingInt_desc = "Sets a global setting to a specified integer value.\n"
         "\n"

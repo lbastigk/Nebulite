@@ -6,11 +6,11 @@ void StateManagement::update(){
     // Nothing to do for now
 }
 
-Nebulite::Constants::Error StateManagement::stateLoad(int argc, char* argv[]){ 
+Nebulite::Constants::Event StateManagement::stateLoad(int argc, char* argv[]){
     return Nebulite::Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTION_NOT_IMPLEMENTED();
 }
 
-Nebulite::Constants::Error StateManagement::stateSave(int argc, char* argv[]){
+Nebulite::Constants::Event StateManagement::stateSave(int argc, char* argv[]){
     // <stateName>
     // Change std::string Nebulite::stateName to name
     // Check if dir ./States/stateName exists

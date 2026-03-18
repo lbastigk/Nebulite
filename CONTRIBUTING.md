@@ -115,8 +115,8 @@ bindFunction(/**/,"MyCategory foo","<Description of foo>"); //<-- This would fai
 
 1. **Create expansion file**
 2. **Inherit from DomainModule base class:** Create class using the `NEBULITE_DOMAINMODULE(Domain,MyDomainModule)` macro
-3. **Implement command methods:** Functions with `Nebulite::Constants::Error (std::span<std::string const> const& args)` signature
-4. **Implement the update method:** Override `Nebulite::Constants::Error update()` for per-frame updates
+3. **Implement command methods:** Functions with `Nebulite::Constants::Event (std::span<std::string const> const& args)` signature
+4. **Implement the update method:** Override `Nebulite::Constants::Event update()` for per-frame updates
 5. **DomainModule init** inside `include/DomainModule/Initializer.hpp`, initialize the DomainModule
 
 <!-- TOC --><a name="complete-code-example"></a>
@@ -137,7 +137,7 @@ bindFunction(/**/,"MyCategory foo","<Description of foo>"); //<-- This would fai
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -154,7 +154,7 @@ namespace Nebulite::DomainModule::RenderObject {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, MyModule) {
 public:
-    [[nodiscard]] Constants::Error update() override; // Per-frame update function
+    [[nodiscard]] Constants::Event update() override; // Per-frame update function
     void reinit() override {}           // What to do on re-initialization
 
     //------------------------------------------
@@ -164,14 +164,14 @@ public:
     // - caller is helpful if we wish to modify the domain that called the function
     // - callerScope is helpful if we wish to modify the JSON scope from the domain that called the function
     // - Example: JSON domainModules for modifying data needs to modify the callerScope, not its own scope
-    [[nodiscard]] Constants::Error exampleCommand(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] Constants::Event exampleCommand(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr exampleCommand_name = "example do-something";
     static auto constexpr exampleCommand_desc = "Performs an example action on the current RenderObject.\n"
         "\n"
         "Usage: example do-something [args]\n";
 
     // Simplified command signature without caller and callerScope
-    [[nodiscard]] Constants::Error anotherCmd(std::span<std::string const> const& args);
+    [[nodiscard]] Constants::Event anotherCmd(std::span<std::string const> const& args);
     static auto constexpr anotherCmd_name = "example another-cmd";
     static auto constexpr anotherCmd_desc = "Another example command demonstrating binding and descriptions.\n"
         "\n";
