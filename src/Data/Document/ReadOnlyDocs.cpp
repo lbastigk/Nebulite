@@ -17,6 +17,7 @@ void docLoadingFailedMessage(std::string const& doc) {
     // NOLINTNEXTLINE
     Nebulite::Global::capture().error.println("eval nop {global.arr|filterRegex {!\\[(1\\d*)\\]}|filterNulls|print}");
     Nebulite::Global::capture().error.println("The anti-evaluation wrapper prevents the regex from being parsed incorrectly due to quotes, brackets etc");
+    // NOLINTNEXTLINE
     Nebulite::Global::capture().error.println("and makes sure that eval doesn't try to evaluate the regex, which would fail and trigger this error message as no file named '\\[(1\\d*)\\]' exists.");
 }
 } // anonymous namespace

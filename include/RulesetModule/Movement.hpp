@@ -15,12 +15,6 @@
 #include "Interaction/Rules/RulesetModule.hpp"
 
 //------------------------------------------
-// Forward declarations
-namespace Nebulite::Interaction::Rules {
-struct Context;
-} // namespace Interaction::Rules
-
-//------------------------------------------
 namespace Nebulite::RulesetModule {
 /**
  * @brief The Movement ruleset module, containing static rulesets related to movement and collision clipping

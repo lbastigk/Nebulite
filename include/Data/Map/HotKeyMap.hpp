@@ -148,7 +148,7 @@ public:
      * @brief Begin iterator for const map.
      * @return Const iterator to the beginning of the map.
      */
-    auto begin() const {
+    [[nodiscard]] auto begin() const {
         return const_cast<HotKeyMap*>(this)->begin();
     }
 
@@ -156,7 +156,7 @@ public:
      * @brief End iterator for const map.
      * @return Const iterator to the end of the map.
      */
-    auto end() const {
+    [[nodiscard]] auto end() const {
         return const_cast<HotKeyMap*>(this)->end();
     }
 

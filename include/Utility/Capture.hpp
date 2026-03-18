@@ -92,7 +92,7 @@ public:
     void print(Args&&... args){
         if (parent) {
             // Pass to parent stream for retention
-            parent->print(std::forward<Args>(args)...);
+            parent->print(args...);
         }
         // Only print to console if this is the root stream, to avoid duplicate prints
         coutStream.print(!parent, std::forward<Args>(args)...);
@@ -102,7 +102,7 @@ public:
     void println(Args&&... args){
         if (parent) {
             // Pass to parent stream for retention
-            parent->println(std::forward<Args>(args)...);
+            parent->println(args...);
         }
         // Only print to console if this is the root stream, to avoid duplicate prints
         coutStream.println(!parent, std::forward<Args>(args)...);

@@ -17,12 +17,6 @@
 #include "Interaction/Rules/RulesetModule.hpp"
 
 //------------------------------------------
-// Forward declarations
-namespace Nebulite::Interaction::Rules {
-struct Context;
-} // namespace Interaction::Rules
-
-//------------------------------------------
 namespace Nebulite::RulesetModule {
 class Debug : public Interaction::Rules::RulesetModule {
 public:

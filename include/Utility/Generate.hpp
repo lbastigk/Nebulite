@@ -67,14 +67,14 @@ public:
         for (size_t r = 0; r < roundCount; ++r) {
             // Each round must have exactly pairsPerRound pairs
             if (roundsAssigned[r] != pairsPerRound) {
-                throw "Invalid pairing: round does not contain the expected number of pairs!";
+                throw std::runtime_error("Invalid pairing: round does not contain the expected number of pairs!");
             }
         }
         for (size_t r = 0; r < roundCount; ++r) {
             for (size_t i = 0; i < pairsPerRound; ++i) {
                 for (size_t j = i + 1; j < pairsPerRound; ++j) {
                     if (rounds[r][i] == rounds[r][j]) {
-                        throw "Duplicate pair detected in a round!";
+                        throw std::runtime_error("Duplicate pair detected in a round!");
                     }
                 }
             }
