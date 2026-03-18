@@ -194,4 +194,10 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
     }
 }
 
+void Domain::updateModules() const {
+    for (auto const& module : modules) {
+        Global::instance().notifyEvent(module->update());
+    }
+}
+
 } // namespace Nebulite::Interaction::Execution

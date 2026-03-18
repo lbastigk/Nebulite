@@ -63,10 +63,11 @@ int main(int const argc, char* argv[]) {
 
     //------------------------------------------
     // Render loop
-    Nebulite::Constants::Event result;
     do {
         // At least one loop, to handle command line arguments
-        result = Nebulite::Global::instance().update();
+        Nebulite::Global::instance().notifyEvent(
+            Nebulite::Global::instance().update()
+        );
     } while (Nebulite::Global::instance().shouldContinueLoop());
 
     //------------------------------------------
@@ -87,7 +88,7 @@ int main(int const argc, char* argv[]) {
     }
 
     // Return 1 on critical stop, 0 otherwise
-    if (result == Nebulite::Constants::Event::Error) {
+    if (Nebulite::Global::instance().criticalErrorOccurred()) {
         return MainReturnValues::criticalError;
     }
     return MainReturnValues::success;

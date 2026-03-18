@@ -80,7 +80,6 @@ Constants::Event GlobalSpace::updateInnerDomains() {
 
 Constants::Event GlobalSpace::update() {
     static bool queueParsed = false; // Indicates if the task queue has been parsed on this frame render
-    auto worstEventThisUpdate = Constants::Event::Success;
 
     //------------------------------------------
     /**
@@ -95,15 +94,13 @@ Constants::Event GlobalSpace::update() {
      *       e.G. inside the GlobalSpace, checking state of Renderer might be useful
      */
     if (!queueParsed) {
-        if (auto const result = parseQueue(); result > worstEventThisUpdate) {
-            worstEventThisUpdate = result;
-        }
+        notifyEvent(parseQueue());
         queueParsed = true;
     }
 
     //------------------------------------------
     // Update and render, only if initialized
-    if (worstEventThisUpdate != Constants::Event::Error && renderer.isSdlInitialized() && renderer.timeToRender()) {
+    if (continueLoop && renderer.isSdlInitialized() && renderer.timeToRender()) {
 
         //========================================================
 
@@ -115,9 +112,7 @@ Constants::Event GlobalSpace::update() {
         updateModules();
 
         // Then, update inner domains
-        if (auto const event = updateInnerDomains(); event > worstEventThisUpdate) {
-            worstEventThisUpdate = event;
-        }
+        notifyEvent(updateInnerDomains());
 
         //========================================================
 
@@ -127,9 +122,7 @@ Constants::Event GlobalSpace::update() {
                 tq->decrementWaitCounter();
             }
             invoke.update();        // Invoke broadcasted-listen-updates
-            if (auto const event = renderer.update(); event > worstEventThisUpdate) {
-                worstEventThisUpdate = event;
-            }
+            notifyEvent(renderer.update());
 
             // Increment frame count
             static size_t frameCount = 0;
@@ -147,8 +140,7 @@ Constants::Event GlobalSpace::update() {
 
     //------------------------------------------
     // Check if we need to continue the loop
-    bool const encounteredCriticalErrorWithNoRecover = !cmdVars.recover && worstEventThisUpdate == Constants::Event::Error;
-    continueLoop = !encounteredCriticalErrorWithNoRecover && renderer.isSdlInitialized() && !renderer.shouldQuit();
+    continueLoop = continueLoop && renderer.isSdlInitialized() && !renderer.shouldQuit();
     if (tasks[StandardTasks::script]->isWaiting() && !renderer.isSdlInitialized()) {
         /**
          * @brief Overwrite: If there is a wait operation and no renderer exists,
@@ -161,10 +153,7 @@ Constants::Event GlobalSpace::update() {
         queueParsed = false;
     }
 
-    //------------------------------------------
-    // Return last critical result if there was a critical stop
-    // main then evaluates this and decides what to do
-    return worstEventThisUpdate;
+    return Constants::Event::Success;
 }
 
 void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) {
@@ -202,6 +191,7 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
     }
 }
 
+// TODO: turn into void and call notifyEvent on each parse instead
 Constants::Event GlobalSpace::parseQueue() {
     queueResult.clear();
     for (auto const& [name, queue] : tasks) {

@@ -152,8 +152,7 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
 
 void Drawcall::update() {
     updaterRoutine.update();
-    // TODO: actually pass to capture as either warn or error
-    texture.update();
+    Global::instance().notifyEvent(texture.update());
 }
 
 void Drawcall::updateDrawcallData() {

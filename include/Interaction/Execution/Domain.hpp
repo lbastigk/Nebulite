@@ -353,12 +353,7 @@ public:
     /**
      * @brief Updates all DomainModules.
      */
-    void updateModules() {
-        for (auto const& module : modules) {
-            // Todo: actually pass to capture as either warn or error
-            module->update();
-        }
-    }
+    void updateModules() const ;
 
     /**
      * @brief Re-initializes all DomainModules.
