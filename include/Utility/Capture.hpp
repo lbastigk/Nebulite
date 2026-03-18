@@ -129,6 +129,7 @@ public:
 
     explicit Capture(Capture* parent)
     : log(this, parent ? &parent->log : noParent),
+      warning(this, parent ? &parent->warning : noParent),
       error(this, parent ? &parent->error : noParent)
     {}
 
