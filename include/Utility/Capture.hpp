@@ -132,8 +132,9 @@ public:
       error(this, parent ? &parent->error : noParent)
     {}
 
-    HierarchicalStream<&std::cout, HistoryLine::Type::Info> log; // Stream for capturing cout output
-    HierarchicalStream<&std::cerr, HistoryLine::Type::Error> error; // Stream for capturing cerr output
+    HierarchicalStream<&std::cout, HistoryLine::Type::Info> log;
+    HierarchicalStream<&std::cerr, HistoryLine::Type::Warning> warning;
+    HierarchicalStream<&std::cerr, HistoryLine::Type::Error> error;
 
     /**
      * @brief Retrieves a pointer to the history.
