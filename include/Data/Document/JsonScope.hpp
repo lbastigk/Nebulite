@@ -45,7 +45,7 @@ public:
     static auto constexpr noLockArraySize = Constants::ThreadSettings::Maximum::totalThreadCount + 4; // A bit extra, just in case
 
 protected:
-    mutable std::shared_ptr<JSON> baseDocument;
+    std::shared_ptr<JSON> baseDocument;
 
     /**
      * @brief A helper variable that is modified to signal certain functions as non-const.
