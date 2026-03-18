@@ -18,6 +18,10 @@ Constants::Event Settings::saveSettings() {
     // TODO: Check if file was properly written: extend WriteFile to return errors
     // Create JSON document with current settings
     std::string const settings = Global::settings().serialize();
+    if (settings.empty()) {
+        domain.capture.error.println("Failed to serialize settings. No data was written to file.");
+        return Constants::Event::Error;
+    }
     Utility::FileManagement::WriteFile(defaultSettingsFile, settings);
     return Constants::Event::Success;
 }
@@ -45,10 +49,10 @@ Constants::Event Settings::setSettingStr(std::span<std::string const> const& arg
 
 Constants::Event Settings::setSettingInt(std::span<std::string const> const& args) const {
     if (args.size() < 2) {
-            return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     if (args.size() > 2) {
-            return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
     std::string const& key = args[0];
     int const value = std::stoi(args[1]);
@@ -61,7 +65,7 @@ Constants::Event Settings::setSettingInt(std::span<std::string const> const& arg
 //------------------------------------------
 // Private methods
 
-void Settings::loadSettings(std::string const& filename) {
+Constants::Event Settings::loadSettings(std::string const& filename) {
     // Load settings file and only set known settings
     Data::JSON settings;
     settings.deserialize(filename);
@@ -123,10 +127,12 @@ void Settings::loadSettings(std::string const& filename) {
         domain.capture.error.println("Settings: Settings file is invalid. Loading default values.");
         // Settings file does not exist!
         // Write default settings to file
-        if (saveSettings() != Constants::Event::Success) {
+        if (saveSettings() == Constants::Event::Error) {
             domain.capture.error.println("Settings: Failed to write default settings to file: ", filename);
         }
+        return Constants::Event::Warning;
     }
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::DomainModule::GlobalSpace

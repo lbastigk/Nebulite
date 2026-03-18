@@ -111,7 +111,7 @@ public:
     }
 
 private:
-    void loadSettings(std::string const& filename);
+    Constants::Event loadSettings(std::string const& filename);
 };
 } // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_SETTINGS_HPP
