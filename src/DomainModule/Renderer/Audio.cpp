@@ -48,7 +48,8 @@ Constants::Event Audio::beep(std::span<std::string const> const& args) const {
                 static_cast<int>(basicAudioWaveforms.squareBuffer.size() * sizeof(int16_t))
             );
         } else {
-            domain.capture.error.println("Unknown waveform type: ", arg);
+            domain.capture.warning.println("Unknown waveform type: ", arg);
+            return Constants::Event::Warning;
         }
     }
     return Constants::Event::Success;
@@ -101,9 +102,13 @@ Constants::Event Audio::playSoundWithFilter(std::span<std::string const> const& 
         }
         catch (std::exception const& e) {
             domain.capture.error.println("Failed to parse coefficients: ", e.what());
-            throw;
+            return {{}, {}}; // Return empty coefficients
         }
     }();
+
+    if (num.empty() || den.empty()) {
+        return Constants::Event::Warning;
+    }
 
     auto const data = Math::FFT::applyTransferFunction(
         sound.value()->second.audioData | std::views::transform([](Settings::SampleType const& sample) {
