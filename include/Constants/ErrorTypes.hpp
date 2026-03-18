@@ -218,23 +218,6 @@ public:
             static Error error = addError("Critical Error: Renderer snapshot failed.", Error::CRITICAL);
             return error;
         }
-
-        static Error CRITICAL_INVOKE_NULLPTR() {
-            static Error error = addError("Critical Error: Linked Invoke pointer is nullptr.", Error::CRITICAL);
-            return error;
-        }
-
-        struct AUDIO {
-            static Error CRITICAL_AUDIO_STREAM_CREATION_FAILED() {
-                static Error error = addError("Critical Error: Audio stream could not be created.", Error::CRITICAL);
-                return error;
-            }
-
-            static Error CRITICAL_AUDIO_STREAM_PUSH_FAILED() {
-                static Error error = addError("Critical Error: Audio stream data push failed.", Error::CRITICAL);
-                return error;
-            }
-        };
     };
 
     /**
