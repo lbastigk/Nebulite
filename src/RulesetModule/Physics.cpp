@@ -41,10 +41,6 @@ Physics::Physics() : RulesetModule(moduleName) {
 
 // TODO: add collision for circle-box and circle-circle
 void Physics::elasticCollision(Interaction::Context const& context, double**& slf, double**& otr) const {
-    // Get ordered cache lists for both entities for base values
-    ensureBaseList(context.self, baseKeys, slf);
-    ensureBaseList(context.other, baseKeys, otr);
-
     //------------------------------------------
     // Base condition check
 
@@ -137,10 +133,8 @@ void Physics::elasticCollision(Interaction::Context const& context, double**& sl
     }
 }
 
-void Physics::gravity(Interaction::Context const& context, double**& slf, double**& otr) const {
-    ensureBaseList(context.self, baseKeys, slf);
-    ensureBaseList(context.other, baseKeys, otr);
 
+void Physics::gravity(Interaction::Context const& context, double**& slf, double**& otr) const {
     double const dx = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
     double const dy = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
 
@@ -162,10 +156,7 @@ void Physics::gravity(Interaction::Context const& context, double**& slf, double
 
 // Local rulesets
 
-void Physics::applyForce(Interaction::Context const& context, double**& slf, double**&) const {
-    // Get ordered cache list for self entity for base values
-    ensureBaseList(context.self, baseKeys, slf);
-
+void Physics::applyForce(Interaction::Context const& /*context*/, double**& slf, double**&) const {
     // Pre-calculate values before locking
     double const dt = *globalVal.dt;
     double const invMass = 1.0 / baseVal(slf, Key::physics_mass);
@@ -193,10 +184,8 @@ void Physics::applyForce(Interaction::Context const& context, double**& slf, dou
     baseVal(slf, Key::physics_FY) = 0.0;
 }
 
+// NOLINTNEXTLINE
 void Physics::applyCorrection(Interaction::Context const& context, double**& slf, double**&) const {
-    // Get ordered cache list for self entity for base values
-    ensureBaseList(context.self, baseKeys, slf);
-
     // Check if any corrections are significant enough to apply (greater than a small epsilon)
     if (std::abs(baseVal(slf, Key::physics_correction_X))  > DBL_EPSILON || std::abs(baseVal(slf, Key::physics_correction_Y))  > DBL_EPSILON
      || std::abs(baseVal(slf, Key::physics_correction_vX)) > DBL_EPSILON || std::abs(baseVal(slf, Key::physics_correction_vY)) > DBL_EPSILON) {
@@ -215,10 +204,8 @@ void Physics::applyCorrection(Interaction::Context const& context, double**& slf
     }
 }
 
+// NOLINTNEXTLINE
 void Physics::drag(Interaction::Context const& context, double**& slf, double**&) const {
-    // Get ordered cache list for self entity for base values
-    ensureBaseList(context.self, baseKeys, slf);
-
     // Drag coefficient (tunable parameter)
     static constexpr double dragCoefficient = 0.1;
 

@@ -268,9 +268,6 @@ or via static rulesets in C++ code:
 ```cpp
 // Called with keyword "::physics:gravity" (both broadcast and listen)
 void Physics::gravity(Interaction::Context const& context, double**& slf, double**& otr) const {
-    ensureBaseList(context.self, baseKeys, slf);
-    ensureBaseList(context.other, baseKeys, otr);
-
     double const dx = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
     double const dy = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
 
@@ -281,11 +278,9 @@ void Physics::gravity(Interaction::Context const& context, double**& slf, double
     double const G  = *globalVal.G;
     double const m1 = baseVal(slf, Key::physics_mass);
     double const m2 = baseVal(otr, Key::physics_mass);
-
     double const coeff = G * m1 * m2 * invR3;
 
     auto otrLock = context.other.lockDocument();
-
     baseVal(otr, Key::physics_FX) += dx * coeff;
     baseVal(otr, Key::physics_FY) += dy * coeff;
 }
