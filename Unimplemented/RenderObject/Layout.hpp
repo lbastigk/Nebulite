@@ -10,7 +10,7 @@
 // Includes
 
 // General
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -34,7 +34,7 @@ public:
     /**
      * @brief Override of update.
      */
-    Nebulite::Constants::Error update() override;
+    Nebulite::Constants::Event update() override;
 
     //------------------------------------------
     // Available Functions
@@ -48,7 +48,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error alignText(int argc, char* argv[]);
+    Nebulite::Constants::Event alignText(int argc, char* argv[]);
 
     /**
      * @brief Creates a box based on text dimensions
@@ -59,7 +59,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error makeBox(int argc, char* argv[]);
+    Nebulite::Constants::Event makeBox(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup

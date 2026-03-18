@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -27,13 +27,13 @@ namespace Nebulite::DomainModule::RenderObject {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Ruleset) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override ;
 
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Error once(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event once(std::span<std::string const> const& args) const ;
     static auto constexpr once_name = "ruleset once";
     static auto constexpr once_desc = "Applies all rulesets once on the next update\n"
         "\n"
@@ -41,7 +41,7 @@ public:
         "\n"
         "All rulesets are applied once on the next update cycle.\n";
 
-    Constants::Error reload();
+    [[nodiscard]] Constants::Event reload();
     static auto constexpr reload_name = "ruleset reload";
     static auto constexpr reload_desc = "Reloads all rulesets for this RenderObject on the next update.\n"
         "\n"

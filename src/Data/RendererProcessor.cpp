@@ -1,15 +1,14 @@
+#include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
 #include "Data/RendererProcessor.hpp"
 #include "Data/RenderObjectContainer.hpp"
 
 namespace {
-
 size_t usedWorkerCount() {
     static size_t usedWorkerCount = Nebulite::Constants::ThreadSettings::getRendererWorkerCount();
     return usedWorkerCount;
 }
-
-}
+} // namespace
 
 namespace Nebulite::Data {
 
@@ -79,7 +78,8 @@ void RendererProcessor::batchWorkerFunc(DispatcherWorkspace const& workspace){
         std::vector<Core::RenderObject*> to_delete_local;
 
         for (auto obj : batch->objects) {
-            obj->update();
+            Global::instance().notifyEvent(obj->update());
+
 
             if (!obj->flag.deleteFromScene) {
                 if (RenderObjectContainer::getTilePos(obj, workspace.dispResX, workspace.dispResY) != workspace.pos) {

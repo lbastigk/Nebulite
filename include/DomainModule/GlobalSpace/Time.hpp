@@ -14,7 +14,7 @@
 
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Constants/KeyNames.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Utility/TimeKeeper.hpp"
@@ -33,20 +33,20 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Time) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    Constants::Error time_haltOnce();
+    [[nodiscard]] Constants::Event time_haltOnce();
     static auto constexpr time_haltOnce_name = "time halt-once";
     static auto constexpr time_haltOnce_desc = "Halts time for one frame\n"
         "Meaning you can halt time by continuously calling this function.\n"
         "\n"
         "Usage: time halt-once\n";
 
-    Constants::Error time_lock(int argc, char** argv);
+    [[nodiscard]] Constants::Event time_lock(int argc, char** argv);
     static auto constexpr time_lock_name = "time lock";
     static auto constexpr time_lock_desc = "Locks time with lock provided,\n"
         "Time can only progress if no locks are present.\n"
@@ -55,7 +55,7 @@ public:
         "\n"
         "<lock_name> : Name of the lock to add. Any string without whitespace is valid.\n";
 
-    Constants::Error time_unlock(int argc, char** argv);
+    [[nodiscard]] Constants::Event time_unlock(int argc, char** argv);
     static auto constexpr time_unlock_name = "time unlock";
     static auto constexpr time_unlock_desc = "Removes a time lock.\n"
         "Time can only progress if no locks are present.\n"
@@ -64,14 +64,14 @@ public:
         "\n"
         "<lock_name> : Name of the lock to remove. Must match an existing lock.\n";
 
-    Constants::Error time_masterUnlock();
+    [[nodiscard]] Constants::Event time_masterUnlock();
     static auto constexpr time_masterUnlock_name = "time master-unlock";
     static auto constexpr time_masterUnlock_desc = "Removes all time locks.\n"
         "Time can only progress if no locks are present.\n"
         "\n"
         "Usage: time master-unlock\n";
 
-    Constants::Error time_setFixedDeltaTime(int argc, char** argv);
+    [[nodiscard]] Constants::Event time_setFixedDeltaTime(int argc, char** argv);
     static auto constexpr time_setFixedDeltaTime_name = "time set-fixed-dt";
     static auto constexpr time_setFixedDeltaTime_desc = "Sets a fixed delta time in milliseconds for the simulation time.\n"
         "\n"

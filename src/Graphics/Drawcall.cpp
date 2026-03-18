@@ -152,7 +152,7 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
 
 void Drawcall::update() {
     updaterRoutine.update();
-    texture.update();
+    Global::instance().notifyEvent(texture.update());
 }
 
 void Drawcall::updateDrawcallData() {
@@ -197,7 +197,7 @@ void Drawcall::updateDrawcallData() {
     reInitializeRequested = true;
 }
 
-Constants::Error Drawcall::parseStr(std::string const& str) {
+Constants::Event Drawcall::parseStr(std::string const& str) {
     return texture.parseStr(str);
 }
 

@@ -17,7 +17,7 @@
 
 // Nebulite
 #include "Core/Renderer.hpp"
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Data/Document/DocumentCache.hpp"
 #include "Data/TaskQueue.hpp"
 #include "DomainModule/GlobalSpace/Floating/RNG.hpp"
@@ -87,13 +87,13 @@ public:
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         the last critical error code otherwise.
      */
-    Constants::Error parseQueue();
+    [[nodiscard]] Constants::Event parseQueue();
 
     /**
      * @brief Updates the global space.
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
 
     /**
      * @brief Quits the renderer by setting the quit flag.
@@ -174,6 +174,8 @@ public:
      */
     [[nodiscard]] bool shouldContinueLoop() const { return continueLoop; }
 
+    [[nodiscard]] bool criticalErrorOccurred() const { return errorOccurred; }
+
 
     //------------------------------------------
     // Task Queue Management
@@ -209,6 +211,23 @@ public:
         static auto constexpr script = "tasks::script";
     };
 
+    void notifyEvent(Constants::Event const& event) {
+        switch (event) {
+            case Constants::Event::Success:
+            case Constants::Event::Warning:
+                // No action needed
+                break;
+            case Constants::Event::Error:
+                if (!cmdVars.recover) {
+                    continueLoop = false; // Stop the main loop on critical error if not in recover mode
+                }
+                errorOccurred = true;
+                break;
+            default:
+                std::unreachable();
+        }
+    }
+
     //------------------------------------------
     // Special Functions
 
@@ -224,6 +243,9 @@ private:
 
     // Check if main loop should continue
     bool continueLoop = true;
+
+    // Flag to indicate if a critical error has occurred
+    bool errorOccurred = false;
 
     // DocumentCache for read-only documents
     Data::DocumentCache docCache;
@@ -273,13 +295,13 @@ private:
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         an error code otherwise.
      */
-    Constants::Error preParse() override;
+    [[nodiscard]] Constants::Event preParse() override;
 
     /**
      * @brief Updates all inner domains.
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    [[nodiscard]] static Constants::Error updateInnerDomains();
+    [[nodiscard]] static Constants::Event updateInnerDomains();
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_CORE_GLOBALSPACE_HPP

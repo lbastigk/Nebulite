@@ -9,19 +9,19 @@
 //------------------------------------------
 namespace Nebulite::DomainModule::Texture {
 
-Constants::Error General::update() {
+Constants::Event General::update() {
     // No periodic updates needed for general functions
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error General::reloadTexture() const {
+Constants::Event General::reloadTexture() const {
     // Load new texture from the document
     auto const path = moduleScope.get<std::string>(Graphics::Drawcall::Key::SpriteSpecific::imageLocation).value_or("");
     if (path.empty()) {
-        return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE(); // No valid path in document
+        return Constants::StandardCapture::Error::File::invalidFile(domain.capture);// No valid path in document
     }
     domain.loadTextureFromFile(path);
-    return Constants::ErrorTable::NONE(); // No error
+    return Constants::Event::Success; // No error
 }
 
 } // namespace Nebulite::DomainModule::Texture

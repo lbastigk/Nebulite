@@ -34,9 +34,9 @@ Environment::~Environment() = default;
 //------------------------------------------
 // Domain-related
 
-Constants::Error Environment::update() {
+Constants::Event Environment::update() {
     updateModules();
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 //------------------------------------------

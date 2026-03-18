@@ -22,7 +22,7 @@
 #include <string_view>
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 
@@ -182,7 +182,7 @@ class Domain : public DocumentAccessor {
      *          The Tree is then shared with the DomainModules for modification.
      * @todo Providing the domain reference and Scope may not be necessary anymore, please investigate!
      */
-    std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> funcTree;
+    std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>> funcTree;
 
     /**
      * @brief Stores all available modules
@@ -198,9 +198,9 @@ class Domain : public DocumentAccessor {
 
     static size_t splitMix64(size_t x) {
         x += 0x9e3779b97f4a7c15;
-        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;
-        x = (x ^ (x >> 27)) * 0x94d049bb133111eb;
-        x = x ^ (x >> 31);
+        x = (x ^ x >> 30) * 0xbf58476d1ce4e5b9;
+        x = (x ^ x >> 27) * 0x94d049bb133111eb;
+        x = x ^ x >> 31;
         return x;
     }
 
@@ -278,7 +278,7 @@ public:
      *       - update all timed routines
      *       Requires some modifications of GlobalSpace::update(), directly calling updateModules there might be an issue.
      */
-    virtual Constants::Error update() { return Constants::ErrorTable::NONE(); }
+    [[nodiscard]] virtual Constants::Event update() { return Constants::Event::Success; }
 
     //------------------------------------------
     // Module Initialization and Updating
@@ -294,7 +294,7 @@ public:
      * @return A unique pointer to the created DomainModule of the specified type
      */
     template <typename DomainType, typename DomainModuleType>
-    static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> funcTree) {
+    static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>> funcTree) {
         // Determine the key from root level
         if constexpr (HasKeyGroup<DomainModuleType>) {
             if (DomainModuleType::Key::hasScope()) {
@@ -336,6 +336,7 @@ public:
     void initModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference) {
         if constexpr(std::is_same_v<DomainType, Domain>) {
             // If the DomainType is the base Domain class, we must initialize modules without scope
+            // TODO: Is this still an issue?
             static_assert(!HasKeyGroup<DomainModuleType>, "DomainModules linked to the base Domain class cannot have a scope. Please remove the static Key::scope member from the module.");
 
             auto& scope = domainReference.domainScope.shareDummyScopeBase();
@@ -352,11 +353,7 @@ public:
     /**
      * @brief Updates all DomainModules.
      */
-    void updateModules() const {
-        for (auto const& module : modules) {
-            module->update();
-        }
-    }
+    void updateModules() const ;
 
     /**
      * @brief Re-initializes all DomainModules.
@@ -387,7 +384,7 @@ public:
      * @param str The string to parse.
      * @return Potential errors that occurred on command execution
      */
-    [[nodiscard]] Constants::Error parseStr(std::string const& str);
+    [[nodiscard]] Constants::Event parseStr(std::string const& str);
 
     /**
      * @brief Necessary operations before parsing commands.
@@ -395,8 +392,8 @@ public:
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         an error code otherwise.
      */
-    virtual Constants::Error preParse() {
-        return Constants::ErrorTable::NONE();
+    [[nodiscard]] virtual Constants::Event preParse() {
+        return Constants::Event::Success;
     }
 
     //------------------------------------------
@@ -430,7 +427,7 @@ protected:
      *        Marked as protected, as it's only used to initialize DomainModules.
      * @return A shared pointer to the internal FuncTree.
      */
-    std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> getFuncTree() {
+    std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>> getFuncTree() {
         return funcTree;
     }
 

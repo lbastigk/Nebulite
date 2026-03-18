@@ -4,19 +4,19 @@
 
 namespace Nebulite::DomainModule::Common {
 
-Constants::Error General::update() {
+Constants::Event General::update() {
     if (imguiViewEnabled && Graphics::ImguiHelper::checkImguiReadyForRendering()) {
         Graphics::ImguiHelper::renderDomain(domain, domain.capture, *lastImguiCallerScope, domain.getName());
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error General::imguiView(std::span<std::string const> const& args, Interaction::Execution::Domain& /*caller*/, Data::JsonScope& callerScope) {
+Constants::Event General::imguiView(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     if (args.size() < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
     }
     if (args.size() > 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
     }
 
     lastImguiCallerScope = &callerScope; // Store caller scope for use in imgui view
@@ -25,13 +25,13 @@ Constants::Error General::imguiView(std::span<std::string const> const& args, In
     } else if (args[1] == "off") {
         imguiViewEnabled = false;
     } else {
-        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+        return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 // NOLINTNEXTLINE
-Constants::Error General::eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope){
+Constants::Event General::eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope){
     // TODO: An idea would be to only eval until the next "eval" keyword, allowing for nested evals within for-loops, ifs, etc.:
     //       Example:
     //       eval for i 1 {global.loopCount} eval process-state {global.currentState} {i}
@@ -50,20 +50,20 @@ Constants::Error General::eval(std::span<std::string const> const& args, Interac
     return caller.parseStr(argsEvaluated);
 }
 
-Constants::Error General::echo(std::span<std::string const> const& args) const {
+Constants::Event General::echo(std::span<std::string const> const& args) const {
     domain.capture.log.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 // NOLINTNEXTLINE
-Constants::Error General::func_if(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
+Constants::Event General::func_if(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     if (args.size() < 3) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
     }
 
     if (!Interaction::Logic::Expression::evalAsBool(args[1])) {
         // If the condition is false/nan, skip the following commands
-        return Constants::ErrorTable::NONE();
+        return Constants::Event::Success;
     }
 
     // Build the command string from rest
@@ -73,37 +73,34 @@ Constants::Error General::func_if(std::span<std::string const> const& args, Inte
     return caller.parseStr(commands);
 }
 
-Constants::Error General::func_assert(std::span<std::string const> const& args) {
+Constants::Event General::func_assert(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
     if (args.size() < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
     }
 
     if (args.size() > 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
     }
 
     std::string const& condition = args[1];
 
     // condition must start with $( and end with )
     if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
-        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+        return Constants::StandardCapture::Warning::Functional::unknownArg(caller.capture);
     }
 
     // Evaluate condition
     if (!Interaction::Logic::Expression::evalAsBool(condition)) {
-        return Constants::ErrorTable::addError("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.", Constants::Error::CRITICAL);
+        caller.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.");
+        return Constants::Event::Error;
     }
 
     // All good
-    return Constants::ErrorTable::NONE();
-}
-
-Constants::Error General::func_return(std::span<std::string const> const& args) {
-    return Constants::ErrorTable::addError(Utility::StringHandler::recombineArgs(args.subspan(1)), Constants::Error::CRITICAL);
+    return Constants::Event::Success;
 }
 
 // NOLINTNEXTLINE
-Constants::Error General::func_for(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
+Constants::Event General::func_for(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     if (args.size() > 4) {
         std::string const& varName = args[1];
 
@@ -115,19 +112,17 @@ Constants::Error General::func_for(std::span<std::string const> const& args, Int
             // for + args
             std::string args_replaced = std::string(args[0]) + " " + Utility::StringHandler::replaceAll(argStr, '{' + varName + '}', std::to_string(i));
             (void)callerScope; // Unused parameter
-            if (auto const err = caller.parseStr(args_replaced); err.isCritical()) {
-                return err;
-            } else if (err.isError()) {
-                caller.capture.error.println(err.getDescription());
+            if (auto const event = caller.parseStr(args_replaced); event != Constants::Event::Success) {
+                return event;
             }
         }
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error General::nop(std::span<std::string const> const& /*args*/) {
+Constants::Event General::nop(std::span<std::string const> const& /*args*/) {
     // Do nothing
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::DomainModule::Common

@@ -4,7 +4,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
 
 //------------------------------------------
 // Update
-Nebulite::Constants::Error GUI::update() {
+Nebulite::Constants::Event GUI::update() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY
@@ -15,7 +15,7 @@ Nebulite::Constants::Error GUI::update() {
 }
 
 
-Nebulite::Constants::Error GUI::example(int argc, char* argv[]) {
+Nebulite::Constants::Event GUI::example(int argc, char* argv[]) {
     // Goal is to create an SDL texture with DearImgui and attach it to the renderer queue
     // We might wish to create container variables local to the GUI class to hold DearImgui elements
     // so that we might call update on them, or modify them in any way

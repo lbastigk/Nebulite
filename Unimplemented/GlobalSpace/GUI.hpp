@@ -13,7 +13,7 @@
 #include <SDL.h>
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -34,7 +34,7 @@ namespace GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, GUI) {
 public:
-    Nebulite::Constants::Error update() override;
+    Nebulite::Constants::Event update() override;
 
     //------------------------------------------
     // Available Functions
@@ -48,7 +48,7 @@ public:
      * @param argv The argument vector: no arguments available
      * @return Potential errors that occurred on command execution
      */
-    Nebulite::Constants::Error example(int argc, char* argv[]);
+    Nebulite::Constants::Event example(int argc, char* argv[]);
     
     //------------------------------------------
     // Setup

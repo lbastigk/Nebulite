@@ -12,33 +12,9 @@
 
 // Nebulite
 #include "ScopeAccessor.hpp"
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Data/Document/JsonScope.hpp"
-
-//------------------------------------------
-// Macro for DomainModule definition
-
-// Macro for defining a new DomainModule class with the correct inheritance and template parameters
-// NOLINTNEXTLINE
-#define NEBULITE_DOMAINMODULE(DomainName,DomainModuleName) \
-    class DomainModuleName final : public Nebulite::Interaction::Execution::DomainModule<DomainName>
-
-// Macro for easily passing the constructor parameters to the base class constructor in the DomainModule definition
-// NOLINTNEXTLINE
-#define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
-    explicit DomainModuleName( \
-        std::string const& name, DomainName& domainReference, \
-        std::shared_ptr<Nebulite::Interaction::Execution::FuncTree<Nebulite::Constants::Error, Nebulite::Interaction::Execution::Domain&, Nebulite::Data::JsonScope&>> funcTreePtr, \
-        Data::JsonScope& w, \
-        Data::JsonScope const& s \
-    ) \
-    : DomainModule(name, domainReference, std::move(funcTreePtr), w, s)
-
-// Macro for binding a function to the FuncTree with a description that must end with a newline character
-#define BIND_FUNCTION(func, name,desc) \
-static_assert(::Nebulite::Constants::Assert::endsWithNewline(desc), "Function description must end with a newline character."); \
-    bindFunction(func, name, desc)
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
@@ -62,9 +38,9 @@ public:
      * @param settings Const JsonScope reference for settings.
      */
     DomainModule(
-        std::string const& name,
+        std::string name,
         DomainType& domainReference,
-        std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> const& funcTreePtr,
+        std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>> const& funcTreePtr,
         Data::JsonScope& scope,
         Data::JsonScope const& settings
     );
@@ -104,5 +80,30 @@ protected:
     }
 };
 } // namespace Nebulite::Interaction::Execution
+
+//------------------------------------------
+// Macros for DomainModule definition and function binding
+
+// Macro for defining a new DomainModule class with the correct inheritance and template parameters
+// NOLINTNEXTLINE
+#define NEBULITE_DOMAINMODULE(DomainName,DomainModuleName) \
+class DomainModuleName final : public Nebulite::Interaction::Execution::DomainModule<DomainName>
+
+// Macro for easily passing the constructor parameters to the base class constructor in the DomainModule definition
+// NOLINTNEXTLINE
+#define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
+explicit DomainModuleName( \
+std::string const& name, DomainName& domainReference, \
+DomainFuncTree const& funcTreePtr, \
+Data::JsonScope& w, \
+Data::JsonScope const& s \
+) \
+: DomainModule(name, domainReference, std::move(funcTreePtr), w, s)
+
+// Macro for binding a function to the FuncTree with a description that must end with a newline character
+#define BIND_FUNCTION(func, name,desc) \
+static_assert(::Nebulite::Constants::Assert::endsWithNewline(desc), "Function description must end with a newline character."); \
+bindFunction(func, name, desc)
+
 #include "Interaction/Execution/DomainModule.tpp"
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_HPP

@@ -75,10 +75,10 @@ void Renderer::setupDisplayValues() {
     domainScope.set<unsigned int>(Constants::KeyNames::Renderer::positionY, 0);
 }
 
-Constants::Error Renderer::preParse() {
+Constants::Event Renderer::preParse() {
     // Initialize SDL and related subsystems
     initSDL();
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 void Renderer::initImgui() const {
@@ -86,7 +86,7 @@ void Renderer::initImgui() const {
     ImGui::CreateContext();
 
     // Pixel-friendly ImGui style for retro RPGs
-    float const fullScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay()) * windowScale * 0.6f; // adjust to taste
+    float const fullScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay()) * static_cast<float>(windowScale) * 0.6f; // adjust to taste
 
     ImGuiStyle &style = ImGui::GetStyle();
 
@@ -100,13 +100,13 @@ void Renderer::initImgui() const {
 
     // Borders
     style.WindowBorderSize = 1.0f;
-    style.FrameBorderSize  = 1.0f;
-    style.TabBorderSize    = 1.0f;
+    style.FrameBorderSize = 1.0f;
+    style.TabBorderSize = 1.0f;
 
     // Spacing and padding: compact, consistent with retro UI
     style.WindowPadding = ImVec2(6.0f, 6.0f);
-    style.FramePadding  = ImVec2(6.0f, 2.0f);
-    style.ItemSpacing   = ImVec2(6.0f, 4.0f);
+    style.FramePadding = ImVec2(6.0f, 2.0f);
+    style.ItemSpacing = ImVec2(6.0f, 4.0f);
     style.ItemInnerSpacing = ImVec2(4.0f, 4.0f);
     style.CellPadding = ImVec2(4.0f, 4.0f);
     style.GrabMinSize = 8.0f;
@@ -193,9 +193,8 @@ void Renderer::initSDL() {
 
     //------------------------------------------
     // Window and renderer
-
     uint32_t const flags = *headless ? SDL_WINDOW_HIDDEN : 0
-        | SDL_WINDOW_HIGH_PIXEL_DENSITY
+    | SDL_WINDOW_HIGH_PIXEL_DENSITY // Add more necessary flags here
     ;
 
     if (!SDL_CreateWindowAndRenderer("Nebulite", w*windowScale, h*windowScale, flags, &window, &renderer)) {
@@ -206,7 +205,6 @@ void Renderer::initSDL() {
 
     //------------------------------------------
     // ImGui
-
     initImgui();
 
     //------------------------------------------
@@ -376,12 +374,12 @@ void Renderer::render() {
     ImGui::NewFrame();
 }
 
-Constants::Error Renderer::update() {
+Constants::Event Renderer::update() {
     //------------------------------------------
     // Skip update if flagged
     if (!status.skipUpdate) {
         // Update environment
-        env.update();
+        Global::instance().notifyEvent(env.update());
         env.updateObjects(
             tilePositionX,
             tilePositionY,
@@ -393,9 +391,9 @@ Constants::Error Renderer::update() {
     if (SDL_GetError()[0] != '\0') {
         capture.error.println("SDL Error during rendering: ", SDL_GetError());
         SDL_ClearError(); // Clear error after reporting
-        return Constants::ErrorTable::SDL::GENERIC_SDL_ERROR();
+        return Constants::StandardCapture::Warning::SDL::generic(capture);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 bool Renderer::timeToRender() {

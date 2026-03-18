@@ -4,7 +4,7 @@
 namespace Nebulite::Data {
 
 TaskQueueResult TaskQueue::resolve(Interaction::Execution::Domain& context, bool const& recover) {
-    Constants::Error currentResult;
+    Constants::Event currentResult;
     TaskQueueResult fullResult;
 
     // 1.) Process and pop tasks
@@ -30,10 +30,10 @@ TaskQueueResult TaskQueue::resolve(Interaction::Execution::Domain& context, bool
             currentResult = context.parseStr(argStr);
 
             // Check result
-            if (currentResult.isCritical()) {
+            if (currentResult == Constants::Event::Error) {
                 fullResult.encounteredCriticalResult = true;
             }
-            fullResult.errors.push_back(currentResult);
+            fullResult.events.push_back(currentResult);
         }
     }
     // 2.) Process without popping tasks
@@ -56,10 +56,10 @@ TaskQueueResult TaskQueue::resolve(Interaction::Execution::Domain& context, bool
             currentResult = context.parseStr(argStr);
 
             // Check result
-            if (currentResult.isCritical()) {
+            if (currentResult == Constants::Event::Error) {
                 fullResult.encounteredCriticalResult = true;
             }
-            fullResult.errors.push_back(currentResult);
+            fullResult.events.push_back(currentResult);
         }
     }
     return fullResult;

@@ -5,7 +5,7 @@
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 
 //------------------------------------------
@@ -25,6 +25,8 @@ namespace Nebulite::Interaction::Execution {
  */
 class DomainModuleBase {
 public:
+    using DomainFuncTree = std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>>;
+
     /**
      * @brief Constructor for the DomainModule base class.
      * @param funcTreePtr Shared pointer to the FuncTree for binding functions and variables.
@@ -34,7 +36,7 @@ public:
      *          the FuncTree pointer for binding functions and variables.
      */
     explicit DomainModuleBase(
-        std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> funcTreePtr,
+        DomainFuncTree funcTreePtr,
         Data::JsonScope& w,
         Data::JsonScope const& s
     );
@@ -47,7 +49,7 @@ public:
     /**
      * @brief Virtual update function to be Overwritten by derived classes.
      */
-    virtual Constants::Error update();
+    [[nodiscard]] virtual Constants::Event update();
 
     /**
      * @brief Virtual re-initialization function to be Overwritten by derived classes.
@@ -142,13 +144,8 @@ public:
 private:
     /**
      * @brief Pointer to the internal FuncTree for binding functions and variables.
-     * @details We need a pointer here to avoid circular dependencies that are hard to resolve,
-     *          as both Domain and DomainModule are templated classes
-     *          FuncTree, however, is fully defined at this point, so we can use it directly.
-     *          Instead of making a mess by untangling the templates, we simply use a pointer
-     *          to the non-templated interface.
      */
-    std::shared_ptr<FuncTree<Constants::Error, Domain&, Data::JsonScope&>> funcTree;
+    DomainFuncTree funcTree;
 };
 } // namespace Nebulite::Interaction::Execution
 #include "Interaction/Execution/DomainModuleBase.tpp"

@@ -33,10 +33,10 @@ namespace Nebulite::Interaction::Execution {
 // NOLINTNEXTLINE
 Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Capture& parentCapture) : DocumentAccessor(documentReference), domainName(name), capture(&parentCapture) {
     // FuncTree initialization
-    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
+    funcTree = std::make_shared<FuncTree<Constants::Event, Domain&, Data::JsonScope&>>(
         name,
-        Constants::ErrorTable::NONE(),
-        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(),
+        Constants::Event::Success,
+        Constants::Event::Warning,
         capture
     );
     funcTree->setPreParse([this] { return preParse(); });
@@ -47,10 +47,10 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Util
 
 Domain::Domain(std::string const& name, Utility::Capture& parentCapture) : domainName(name), capture(&parentCapture) {
     // FuncTree initialization
-    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
+    funcTree = std::make_shared<FuncTree<Constants::Event, Domain&, Data::JsonScope&>>(
         name,
-        Constants::ErrorTable::NONE(),
-        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(),
+        Constants::Event::Success,
+        Constants::Event::Warning,
         capture
     );
     funcTree->setPreParse([this] { return preParse(); });
@@ -61,10 +61,10 @@ Domain::Domain(std::string const& name, Utility::Capture& parentCapture) : domai
 
 Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : DocumentAccessor(documentReference), domainName(name), capture(nullptr) {
     // FuncTree initialization
-    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
+    funcTree = std::make_shared<FuncTree<Constants::Event, Domain&, Data::JsonScope&>>(
         name,
-        Constants::ErrorTable::NONE(),
-        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(),
+        Constants::Event::Success,
+        Constants::Event::Warning,
         capture
     );
     funcTree->setPreParse([this] { return preParse(); });
@@ -75,10 +75,10 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : Do
 
 Domain::Domain(std::string const& name) : domainName(name), capture(nullptr) {
     // FuncTree initialization
-    funcTree = std::make_shared<FuncTree<Constants::Error, Domain&, Data::JsonScope&>>(
+    funcTree = std::make_shared<FuncTree<Constants::Event, Domain&, Data::JsonScope&>>(
         name,
-        Constants::ErrorTable::NONE(),
-        Constants::ErrorTable::FUNCTIONAL::CRITICAL_FUNCTIONCALL_INVALID(),
+        Constants::Event::Success,
+        Constants::Event::Warning,
         capture
     );
     funcTree->setPreParse([this] { return preParse(); });
@@ -93,7 +93,7 @@ std::string const& Domain::scopePrefix() const {
     return domainScope.getScopePrefix();
 }
 
-Constants::Error Domain::parseStr(std::string const& str) {
+Constants::Event Domain::parseStr(std::string const& str) {
     return funcTree->parseStr(str, *this, domainScope);
 }
 
@@ -188,9 +188,15 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
             callStr = std::string(__FUNCTION__) + " " + token;
         }
         // Forward to FunctionTree for resolution
-        if (parseStr(callStr) != Constants::ErrorTable::NONE()) {
+        if (parseStr(callStr) != Constants::Event::Success) {
             capture.error.println("Failed to apply deserialize transformation: ", callStr);
         }
+    }
+}
+
+void Domain::updateModules() const {
+    for (auto const& module : modules) {
+        Global::instance().notifyEvent(module->update());
     }
 }
 

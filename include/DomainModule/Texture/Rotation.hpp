@@ -11,7 +11,7 @@
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -29,13 +29,13 @@ namespace Nebulite::DomainModule::Texture {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Rotation) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    Constants::Error rotate(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event rotate(int argc, char** argv) const ;
     static auto constexpr rotate_name = "rotate";
     static auto constexpr rotate_desc = "Rotate the texture by a specified angle.\n"
         "\n"

@@ -9,7 +9,7 @@
 // Includes
 
 // General
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -30,7 +30,7 @@ namespace GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, StateManagement) {
 public:
-    Nebulite::Constants::Error update() override;
+    Nebulite::Constants::Event update() override;
 
     //------------------------------------------
     // Available Functions
@@ -44,7 +44,7 @@ public:
      * 
      * @todo not implemented
      */
-    Nebulite::Constants::Error stateSave(int argc, char* argv[]);
+    Nebulite::Constants::Event stateSave(int argc, char* argv[]);
 
     /**
      * @brief Loads a saved game state
@@ -55,7 +55,7 @@ public:
      * 
      * @todo not implemented
      */
-    Nebulite::Constants::Error stateLoad(int argc, char* argv[]);
+    Nebulite::Constants::Event stateLoad(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup

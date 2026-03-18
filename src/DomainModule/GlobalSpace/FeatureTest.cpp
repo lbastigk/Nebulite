@@ -8,8 +8,8 @@
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Constants::Error FeatureTest::update() {
-    return Constants::ErrorTable::NONE();
+Constants::Event FeatureTest::update() {
+    return Constants::Event::Success;
 }
 
 class MathModifier {
@@ -29,7 +29,7 @@ public:
     }
 };
 
-Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& /*args*/) const {
+Constants::Event FeatureTest::testFuncTree(std::span<std::string const> const& /*args*/) const {
     // Build a FuncTree with extra argument JSON&
     Interaction::Execution::FuncTree<double, double> testTree("TestFuncTree", 0.0, std::numeric_limits<double>::quiet_NaN(), domain.capture);
 
@@ -43,10 +43,10 @@ Constants::Error FeatureTest::testFuncTree(std::span<std::string const> const& /
     std::string const funcCall = "<name> add 1.5 2.5 3.0";
     double const result = testTree.parseStr(funcCall, 0.0);
     domain.capture.log.println("FuncTree result for call '", funcCall, "': ", result);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error FeatureTest::selfOtherGlobalEvaluation() const {
+Constants::Event FeatureTest::selfOtherGlobalEvaluation() const {
     Data::ScopedKey const key("testKey");
     auto const token = getDomainModuleAccessToken(*this);
     auto& globalScope = Global::shareScopeBase(token);
@@ -72,7 +72,7 @@ Constants::Error FeatureTest::selfOtherGlobalEvaluation() const {
         Interaction::Logic::Expression const expr("{self.testKey} {other.testKey} {global.testKey}");
         domain.capture.log.println(expr.eval({self2, other2, globalScope}));
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::DomainModule::GlobalSpace

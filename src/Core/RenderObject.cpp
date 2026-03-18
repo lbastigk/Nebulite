@@ -67,7 +67,7 @@ void RenderObject::init() {
     initDrawcalls();
 
     // Update once to initialize
-    update();
+    Global::instance().notifyEvent(update());
 }
 
 RenderObject::~RenderObject() = default;
@@ -139,7 +139,7 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
 
     //------------------------------------------
     // Update once to initialize
-    update();
+    Global::instance().notifyEvent(update());
 }
 
 void RenderObject::linkFrequentRefs() {
@@ -151,12 +151,12 @@ void RenderObject::linkFrequentRefs() {
 //------------------------------------------
 // Outside communication with invoke for updating and estimation
 
-Constants::Error RenderObject::update() {
+Constants::Event RenderObject::update() {
     //------------------------------------------
     // Update modules and all inner domains
     updateModules();
     updateDrawcalls();
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 // TODO: Improve estimation by somehow leveraging a generated value from DomainModule Ruleset!

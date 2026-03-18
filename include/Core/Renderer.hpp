@@ -80,7 +80,7 @@ public:
     /**
      * @brief Called before parsing any commands.
      */
-    Constants::Error preParse() override;
+    [[nodiscard]] Constants::Event preParse() override;
 
     /**
      * @brief Updates the renderer for the next frame.
@@ -104,7 +104,7 @@ public:
      *          - updates the invoke instance
      *          - updates the environment
      */
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
 
     /**
      * @brief Checks if it's time to render the next frame based on the target FPS.
@@ -260,7 +260,7 @@ public:
      */
     void moveCam(int const& dX, int const& dY) const;
 
-    SDL_FRect scaleRectFromLogicalSize(SDL_FRect const& logicalRect) const {
+    [[nodiscard]] SDL_FRect scaleRectFromLogicalSize(SDL_FRect const& logicalRect) const {
         return SDL_FRect{
             logicalRect.x * static_cast<float>(windowScale),
             logicalRect.y * static_cast<float>(windowScale),
@@ -349,7 +349,7 @@ public:
      * @param index The index of the RenderObject in the rendering pipeline.
      * @return An optional containing the ID of the RenderObject if found, or std::nullopt if no object is associated with the given index.
      */
-    std::optional<size_t> getIdFromIndex(size_t const& index) const {
+    [[nodiscard]] std::optional<size_t> getIdFromIndex(size_t const& index) const {
         if (!indexToIdMap.contains(index)) {
             return std::nullopt; // No object with this index
         }
@@ -361,7 +361,7 @@ public:
      * @param domainId The domain ID of the RenderObject to search for.
      * @return An optional containing the index of the RenderObject in the rendering pipeline if found, or std::nullopt if no object is associated with the given ID.
      */
-    std::optional<size_t> getIndexFromId(size_t const& domainId) const {
+    [[nodiscard]] std::optional<size_t> getIndexFromId(size_t const& domainId) const {
         for (const auto& [objIndex, objId] : indexToIdMap) {
             if (objId == domainId) {
                 return objIndex; // Return the index associated with the given ID

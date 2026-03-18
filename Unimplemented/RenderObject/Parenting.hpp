@@ -11,7 +11,7 @@
 // Includes
 
 // General
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -35,7 +35,7 @@ public:
     /**
      * @brief Override of update.
      */
-    Nebulite::Constants::Error update() override;
+    Nebulite::Constants::Event update() override;
 
     //------------------------------------------
     // Available Functions
@@ -49,7 +49,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error addChildren(int argc, char* argv[]);
+    Nebulite::Constants::Event addChildren(int argc, char* argv[]);
 
     /**
      * @brief Removes a child from the RenderObject
@@ -60,7 +60,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error removeChildren(int argc, char* argv[]);
+    Nebulite::Constants::Event removeChildren(int argc, char* argv[]);
 
     /**
      * @brief Removes all children from the RenderObject
@@ -71,7 +71,7 @@ public:
      * 
      * @todo Not implemented yet
      */
-    Nebulite::Constants::Error removeAllChildren(int argc, char* argv[]);
+    Nebulite::Constants::Event removeAllChildren(int argc, char* argv[]);
 
     //------------------------------------------
     // Setup

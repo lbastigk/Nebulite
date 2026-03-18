@@ -97,7 +97,7 @@ std::vector<std::string> JSON::splitKeyWithTransformations(std::string const& ke
 
     if (!key.empty() && key.starts_with('|')) {
         // No key provided, assume root and push back an empty string
-        args.push_back("");
+        args.emplace_back("");
     }
 
     for (auto const& arg : braceArgs) {

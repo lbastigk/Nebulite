@@ -83,7 +83,7 @@ public:
     //------------------------------------------
     // Domain-related
 
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
 
     //------------------------------------------
     // Marshalling

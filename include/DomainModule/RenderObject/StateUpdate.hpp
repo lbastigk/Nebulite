@@ -12,7 +12,7 @@
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -29,13 +29,13 @@ namespace Nebulite::DomainModule::RenderObject {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, StateUpdate) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Error deleteObject() const ;
+    [[nodiscard]] Constants::Event deleteObject() const ;
     static auto constexpr deleteObject_name = "delete";
     static auto constexpr deleteObject_desc = "Marks object for deletion\n"
         "\n"

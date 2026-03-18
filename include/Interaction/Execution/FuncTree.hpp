@@ -5,8 +5,8 @@
  *        The main goal of this class is to manage hierarchical commands and arguments for modular and flexible execution.
  */
 
-#ifndef NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
-#define NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
+#ifndef NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_HPP
+#define NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_HPP
 
 //------------------------------------------
 // Includes
@@ -113,7 +113,7 @@ public:
         // Free/static function
         template<typename Fn>
         //requires std::is_pointer_v<Fn> && std::is_function_v<std::remove_pointer_t<Fn>>
-        explicit FunctionIdentity(Fn fn) : object(nullptr) {
+        explicit FunctionIdentity(Fn fn) {
             // Lambdas / closures are class types
             static_assert(!std::is_class_v<Fn>,
                 "Lambdas and functors are not allowed. Extracting a pointer from them is not portable and may lead to collisions. Use a raw function pointer instead."
@@ -486,19 +486,6 @@ private:
     }
 
     //------------------------------------------
-    // Binding Helper functions
-
-    /**
-     * @brief Checks if there is a binding conflict with the given function name.
-     * @details Prints an error message and exits if a bad conflict is found, such as overshadowing or overwriting existing functions.
-     *          Returns false if a special conflict (help or __complete__ exists).
-     *          Returns true if no conflicts are found.
-     * @param name The name of the function to check for conflicts.
-     * @param newFuncPtr Pointer to the new function being bound, used for checking if the same function is being bound again (not a conflict).
-     */
-    bool conflictCheck(std::string_view const& name, FunctionPtr* newFuncPtr);
-
-    //------------------------------------------
     // Completion function
 
     /**
@@ -534,4 +521,4 @@ private:
 
 // Template implementations
 #include "Interaction/Execution/FuncTree.tpp"
-#endif // NEBULITE_INTERACTION_EXECUTION_FUNCTREE_HPP
+#endif // NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_HPP

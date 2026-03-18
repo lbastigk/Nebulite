@@ -5,8 +5,8 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Constants::Error Settings::update() {
-    return Constants::ErrorTable::NONE();
+Constants::Event Settings::update() {
+    return Constants::Event::Success;
 }
 
 //------------------------------------------
@@ -14,50 +14,48 @@ Constants::Error Settings::update() {
 
 // FuncTree currently does not support static methods with no args...
 // NOLINTNEXTLINE
-Constants::Error Settings::saveSettings() {
+Constants::Event Settings::saveSettings() {
+    // TODO: Check if file was properly written: extend WriteFile to return errors
     // Create JSON document with current settings
     std::string const settings = Global::settings().serialize();
     Utility::FileManagement::WriteFile(defaultSettingsFile, settings);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error Settings::overWriteSettingsFile() {
+Constants::Event Settings::overWriteSettingsFile() {
     // Overwrite settings file with default settings
     loadSettings(defaultSettingsFile);
-    if (saveSettings() != Constants::ErrorTable::NONE()) {
-        return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
-    }
-    return Constants::ErrorTable::NONE();
+    return saveSettings();
 }
 
-Constants::Error Settings::setSettingStr(std::span<std::string const> const& args) const {
+Constants::Event Settings::setSettingStr(std::span<std::string const> const& args) const {
     if (args.size() < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     if (args.size() > 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
     std::string const& key = args[0];
     std::string const& value = args[1];
 
     // Set string setting in global settings
     moduleScope.set<std::string>(moduleScope.getRootScope() + key, value);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error Settings::setSettingInt(std::span<std::string const> const& args) const {
+Constants::Event Settings::setSettingInt(std::span<std::string const> const& args) const {
     if (args.size() < 2) {
-            return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+            return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     if (args.size() > 2) {
-            return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+            return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
     std::string const& key = args[0];
     int const value = std::stoi(args[1]);
 
     // Set integer setting in global settings
     moduleScope.set<int>(moduleScope.getRootScope() + key, value);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 //------------------------------------------
@@ -125,7 +123,7 @@ void Settings::loadSettings(std::string const& filename) {
         domain.capture.error.println("Settings: Settings file is invalid. Loading default values.");
         // Settings file does not exist!
         // Write default settings to file
-        if (saveSettings() != Constants::ErrorTable::NONE()) {
+        if (saveSettings() != Constants::Event::Success) {
             domain.capture.error.println("Settings: Failed to write default settings to file: ", filename);
         }
     }

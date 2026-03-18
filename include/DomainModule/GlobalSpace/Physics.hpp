@@ -28,7 +28,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Physics) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
     /**
@@ -55,7 +55,7 @@ public:
             static auto constexpr FY = makeScoped("FY"); // force Y
 
             // Correction values
-            struct Correction : Data::KeyGroup<"physics.correction."> {
+            struct Correction : KeyGroup<"physics.correction."> {
                 static auto constexpr X = makeScoped("X"); // position correction X to resolve overlaps
                 static auto constexpr Y = makeScoped("Y"); // position correction Y to resolve overlaps
                 static auto constexpr vX = makeScoped("vX"); // velocity correction X to resolve collisions

@@ -7,7 +7,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
 //------------------------------------------
 // Update
 
-Constants::Error Time::update() {
+Constants::Event Time::update() {
     //------------------------------------------
     // Full time (runtime)
 
@@ -49,55 +49,55 @@ Constants::Error Time::update() {
     haltThisFrame = false;
 
     // Ignoring results for now, just return NONE
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 //------------------------------------------
 // Available Functions
 
-Constants::Error Time::time_haltOnce() {
+Constants::Event Time::time_haltOnce() {
     haltThisFrame = true;
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error Time::time_lock(int const argc, char** argv) {
+Constants::Event Time::time_lock(int const argc, char** argv) {
     if (argc < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     std::string const lockName = argv[1];
     timeLocks.insert(lockName);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error Time::time_unlock(int const argc, char** argv) {
+Constants::Event Time::time_unlock(int const argc, char** argv) {
     if (argc < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     std::string const lockName = argv[1];
     if (auto const it = timeLocks.find(lockName); it != timeLocks.end()) {
         timeLocks.erase(it);
     } else {
-        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+        return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error Time::time_masterUnlock() {
+Constants::Event Time::time_masterUnlock() {
     timeLocks.clear();
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error Time::time_setFixedDeltaTime(int const argc, char** argv) {
+Constants::Event Time::time_setFixedDeltaTime(int const argc, char** argv) {
     if (argc < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     try {
         uint64_t const dt = std::stoull(argv[1]);
         fixedDeltaTime = dt;
     } catch (...) {
-        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+        return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::DomainModule::GlobalSpace

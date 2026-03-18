@@ -13,11 +13,11 @@
 //------------------------------------------
 namespace Nebulite::DomainModule::Renderer {
 
-Constants::Error Audio::update() {
-    return Constants::ErrorTable::NONE();
+Constants::Event Audio::update() {
+    return Constants::Event::Success;
 }
 
-Constants::Error Audio::beep(std::span<std::string const> const& args) const {
+Constants::Event Audio::beep(std::span<std::string const> const& args) const {
     if (args.size() < 2) {
         domain.capture.log.println("No waveform type specified. Defaulting to sine.");
         SDL_PutAudioStreamData(
@@ -25,7 +25,7 @@ Constants::Error Audio::beep(std::span<std::string const> const& args) const {
             basicAudioWaveforms.sineBuffer.data(),
             static_cast<int>(basicAudioWaveforms.sineBuffer.size() * sizeof(int16_t))
         );
-        return Constants::ErrorTable::NONE();
+        return Constants::Event::Success;
     }
 
     for (auto const& arg : args | std::views::drop(1)) {
@@ -51,19 +51,19 @@ Constants::Error Audio::beep(std::span<std::string const> const& args) const {
             domain.capture.error.println("Unknown waveform type: ", arg);
         }
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error Audio::playSound(std::span<std::string const> const& args) {
+Constants::Event Audio::playSound(std::span<std::string const> const& args) {
     if (args.size() < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
 
     auto const path = Utility::StringHandler::recombineArgs(args | std::views::drop(1));
     auto const sound = loadSound(path);
     if (!sound.has_value()) {
         domain.capture.error.println("Failed to load sound from path: ", path);
-        return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
+        return Constants::StandardCapture::Error::File::invalidFile(domain.capture);
     }
 
     SDL_PutAudioStreamData(
@@ -72,19 +72,19 @@ Constants::Error Audio::playSound(std::span<std::string const> const& args) {
         static_cast<int>(sound.value()->second.audioData.size() * sizeof(Settings::SampleType))
     );
 
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error Audio::playSoundWithFilter(std::span<std::string const> const& args) {
+Constants::Event Audio::playSoundWithFilter(std::span<std::string const> const& args) {
     if (args.size() < 4) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
 
-    auto const path = args[1];
+    auto const& path = args[1];
     auto const sound = loadSound(path);
     if (!sound.has_value()) {
         domain.capture.error.println("Failed to load sound from path: ", path);
-        return Constants::ErrorTable::FILE::CRITICAL_INVALID_FILE();
+        return Constants::StandardCapture::Error::File::invalidFile(domain.capture);
     }
 
     auto const [num, den] = [&]() -> std::pair<std::vector<double>, std::vector<double>> {
@@ -121,12 +121,12 @@ Constants::Error Audio::playSoundWithFilter(std::span<std::string const> const& 
         static_cast<int>(data.size() * sizeof(Settings::SampleType))
     );
 
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error Audio::testFilter(std::span<std::string const> const& args) const {
+Constants::Event Audio::testFilter(std::span<std::string const> const& args) const {
     if (args.size() < 3) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
 
     auto const data = Utility::StringHandler::split(args[1], ',');
@@ -149,7 +149,7 @@ Constants::Error Audio::testFilter(std::span<std::string const> const& args) con
         }
     } catch (std::exception const& e) {
         domain.capture.error.println("Failed to parse coefficients: ", e.what());
-        return Constants::ErrorTable::FUNCTIONAL::UNKNOWN_ARG();
+        return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
     }
 
     auto const out = Math::FFT::applyTransferFunction({inputData}, numData, denData);
@@ -157,7 +157,7 @@ Constants::Error Audio::testFilter(std::span<std::string const> const& args) con
     for (auto const& sample : out) {
         domain.capture.log.println(sample);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 void Audio::initAudio(){
@@ -252,7 +252,8 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
             convertFunc = [](Uint8 const* byteData) {
                 uint8_t buffer[4];
                 std::memcpy(buffer, byteData, sizeof(uint8_t));
-                return static_cast<Settings::SampleType>(*reinterpret_cast<uint8_t*>(buffer) - 128) / static_cast<Settings::SampleType>(std::numeric_limits<uint8_t>::max() / 2);
+                Settings::SampleType const valueShifted = static_cast<Settings::SampleType>(*reinterpret_cast<uint8_t*>(buffer)) - static_cast<Settings::SampleType>(128);
+                return valueShifted / (static_cast<Settings::SampleType>(std::numeric_limits<uint8_t>::max()) / static_cast<Settings::SampleType>(2));
             };
             break;
         case SDL_AUDIO_S8:

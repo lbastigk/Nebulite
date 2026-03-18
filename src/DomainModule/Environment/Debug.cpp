@@ -3,7 +3,7 @@
 
 namespace Nebulite::DomainModule::Environment {
 
-Constants::Error Debug::update(){
+Constants::Event Debug::update(){
     size_t containerTotalTiles = 0;
     size_t containerTotalCost = 0;
     size_t totalWorkers = 0;
@@ -17,7 +17,7 @@ Constants::Error Debug::update(){
     moduleScope.set<size_t>(Key::containerTotalTiles, containerTotalTiles);
     moduleScope.set<size_t>(Key::containerTotalCost, containerTotalCost);
     moduleScope.set<size_t>(Key::workersTotalCount, totalWorkers);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::DomainModule::Environment

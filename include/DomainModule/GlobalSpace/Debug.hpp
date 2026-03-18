@@ -14,7 +14,7 @@
 #include <memory>
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
 
@@ -34,7 +34,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
     //------------------------------------------
@@ -44,7 +44,7 @@ public:
      * @todo: errorLog on causes crash with wine
      *        wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
      */
-    Constants::Error errorLog(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] Constants::Event errorLog(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr errorLog_name = "error-log";
     static auto constexpr errorLog_desc = "Activates or deactivates error logging to a file.\n"
         "Usage: error-log <on/off>\n"
@@ -55,7 +55,7 @@ public:
 
     // TODO: offer a per-domain clear option in Nebulite::DomainModule::Common::Debug. This clears the global capture.
     //       perhaps naming them clear-all and clear respectively?
-    static Constants::Error clearConsole(std::span<std::string const> const& args);
+    [[nodiscard]] static Constants::Event clearConsole(std::span<std::string const> const& args);
     static auto constexpr clearConsole_name = "clear";
     static auto constexpr clearConsole_desc = "Clears the console screen.\n"
         "Usage: clear\n"
@@ -63,7 +63,7 @@ public:
         "Note: This function attempts to clear the console screen using system-specific commands.\n"
         "      It may not work in all environments or IDEs.\n";
 
-    Constants::Error log_global(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event log_global(int argc, char** argv) const ;
     static auto constexpr log_global_name = "log global";
     static auto constexpr log_global_desc = "Logs the global document to a file.\n"
         "Usage: log global [<filenames>...]\n"
@@ -71,7 +71,7 @@ public:
         "- <filenames>: Optional. One or more filenames to log the global document to.\n"
         "               If no filenames are provided, defaults to 'global.log.jsonc'.\n";
 
-    Constants::Error log_state(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event log_state(int argc, char** argv) const ;
     static auto constexpr log_state_name = "log state";
     static auto constexpr log_state_desc = "Logs the current state of the renderer to a file.\n"
         "Usage: log state [<filenames>...]\n"
@@ -79,7 +79,7 @@ public:
         "- <filenames>: Optional. One or more filenames to log the renderer state to.\n"
         "               If no filenames are provided, defaults to 'state.log.jsonc'.\n";
 
-    static Constants::Error crash(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event crash(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr crash_name = "crash";
     static auto constexpr crash_desc = "Crashes the program, useful for checking if the testing suite can catch crashes.\n"
         "Usage: crash [<type>]\n"
@@ -90,21 +90,21 @@ public:
         "    - terminate  : Calls std::terminate()\n"
         "    - throw      : Throws an uncaught exception\n";
 
-    static Constants::Error waitForInput(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event waitForInput(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr waitForInput_name = "input-wait";
     static auto constexpr waitForInput_desc = "Waits for user input before continuing.\n"
         "Usage: input-wait [prompt]\n"
         "\n"
         "Note: This function pauses execution until the user presses Enter\n";
 
-    Constants::Error standardFileRenderObject(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event standardFileRenderObject(std::span<std::string const> const& args) const ;
     static auto constexpr standardFileRenderObject_name = "standard-file render-object";
     static auto constexpr standardFileRenderObject_desc = "Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.\n"
         "Usage: standard-file render-object\n"
         "\n"
         "Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.\n";
 
-    static Constants::Error listExpressionFunctions(std::span<std::string const> const& args);
+    [[nodiscard]] static Constants::Event listExpressionFunctions(std::span<std::string const> const& args);
     static auto constexpr listExpressionFunctions_name = "expression-help";
     static auto constexpr listExpressionFunctions_desc = "Lists all available expression functions with their descriptions.\n"
         "Usage: expression-help\n"

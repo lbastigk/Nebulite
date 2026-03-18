@@ -5,7 +5,7 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Constants::Error Clock::update() {
+Constants::Event Clock::update() {
     // Update current time from document
     current_time_ms = moduleScope.get<uint64_t>(Time::Key::time_t_ms).value_or(0);
 
@@ -13,7 +13,7 @@ Constants::Error Clock::update() {
     for (auto& clockEntry : std::views::values(clockEntries)) {
         clockEntry.update(current_time_ms);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 void Clock::readClocksFromDocument() {
@@ -49,12 +49,12 @@ void Clock::readClocksFromDocument() {
 //------------------------------------------
 // Functions
 
-Constants::Error Clock::addClock(int const argc, char** argv) {
+Constants::Event Clock::addClock(int const argc, char** argv) {
     if (argc < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     if (argc > 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
 
     // Parse interval
@@ -62,16 +62,19 @@ Constants::Error Clock::addClock(int const argc, char** argv) {
     try {
         interval_ms = std::stoull(argv[1]);
     } catch (...) {
-        return Constants::ErrorTable::addError(__FUNCTION__ + std::string(": Invalid interval argument, must be a positive integer."), Constants::Error::NON_CRITICAL);
+        domain.capture.warning.println("Invalid interval argument, must be a positive integer.");
+        return Constants::Event::Warning;
     }
 
     if (interval_ms < 1) {
-        return Constants::ErrorTable::addError(__FUNCTION__ + std::string(": Interval must be greater than 0"), Constants::Error::NON_CRITICAL);
+        domain.capture.warning.println("Interval must be greater than 0");
+        return Constants::Event::Warning;
     }
 
     // Check if clock already exists
     if (clockEntries.find(interval_ms) != clockEntries.end()) {
-        return Constants::ErrorTable::addError(__FUNCTION__ + std::string(": Clock with this interval already exists"), Constants::Error::NON_CRITICAL);
+        domain.capture.warning.println("Clock with this interval already exists.");
+        return Constants::Event::Warning;
     }
 
     // Add to document
@@ -81,7 +84,7 @@ Constants::Error Clock::addClock(int const argc, char** argv) {
     // Create new ClockEntry
     clockEntries.emplace(interval_ms, ClockEntry(interval_ms, moduleScope, current_time_ms));
 
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 //------------------------------------------

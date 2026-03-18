@@ -10,7 +10,7 @@
 //------------------------------------------
 namespace Nebulite::DomainModule::Renderer {
 
-Constants::Error Console::update() {
+Constants::Event Console::update() {
     static auto const toggleKey = Input::Key::keyboardDelta + "tab";
     if (moduleScope.get<int>(toggleKey).value_or(0) == 1) {
         consoleMode = !consoleMode;
@@ -23,7 +23,7 @@ Constants::Error Console::update() {
         flags.windowAlignment = Graphics::ImguiHelper::DomainRenderingFlags::Alignment::BOTTOM;
         Graphics::ImguiHelper::renderDomain(Global::instance(), Global::capture(), Global::shareScopeBase(accessToken), "Console", flags);
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::DomainModule::GlobalSpace::Console

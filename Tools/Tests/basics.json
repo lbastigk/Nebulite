@@ -44,7 +44,7 @@
         "expected": { 
             "cout": [], 
             "cerr": [
-                "Critical Error: Critical Error: A custom assertion failed.",
+                "Critical Error: A custom assertion failed.",
                 "Assertion failed: $(0) is not true."
             ],
             "ignore_exit": true

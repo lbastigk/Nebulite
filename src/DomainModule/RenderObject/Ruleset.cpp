@@ -15,7 +15,7 @@ namespace Nebulite::DomainModule::RenderObject {
 //------------------------------------------
 // Basics
 
-Constants::Error Ruleset::update() {
+Constants::Event Ruleset::update() {
     if (initialized) {
         // Reload rulesets if needed
         if (reloadRulesets) {
@@ -54,7 +54,7 @@ Constants::Error Ruleset::update() {
     else {
         initialized = true;
     }
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 void Ruleset::reinit() {
@@ -66,7 +66,7 @@ void Ruleset::reinit() {
 //------------------------------------------
 // Available Functions
 
-Constants::Error Ruleset::once(std::span<std::string const> const& args) const {
+Constants::Event Ruleset::once(std::span<std::string const> const& args) const {
     if (args.size() > 1) {
         std::string const arg = Utility::StringHandler::recombineArgs(args.subspan(1));
         if (auto const rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(arg, domain); rs.has_value()) {
@@ -76,17 +76,17 @@ Constants::Error Ruleset::once(std::span<std::string const> const& args) const {
             else {
                 rs.value()->apply();
             }
-            return Constants::ErrorTable::NONE();
+            return Constants::Event::Success;
         }
         // TODO: Better, custom error for invalid ruleset parsing
-        return Constants::ErrorTable::FUNCTIONAL::CRITICAL_INVALID_ARGC_ARGV_PARSING();
+        return Constants::StandardCapture::Warning::Functional::invalidArgcArgvParsing(domain.capture);
     }
-    return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+    return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
 }
 
-Constants::Error Ruleset::reload() {
+Constants::Event Ruleset::reload() {
     reloadRulesets = true;
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::DomainModule::RenderObject

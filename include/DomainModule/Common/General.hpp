@@ -10,8 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Constants/ErrorTypes.hpp"
-#include "Data/Document/KeyGroup.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -21,13 +20,13 @@
 namespace Nebulite::DomainModule::Common {
 NEBULITE_DOMAINMODULE(Nebulite::Interaction::Execution::Domain, General) {
 public:
-    Constants::Error update() override;
+    [[nodiscard]] Constants::Event update() override;
     void reinit() override {}
 
     //------------------------------------------
     // Available Functions
 
-    Constants::Error imguiView(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] Constants::Event imguiView(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr imguiView_name = "imgui-view";
     static auto constexpr imguiView_desc = "Creates an ImGui view of the domain.\n"
        "\n"
@@ -35,7 +34,7 @@ public:
     static auto constexpr imguiView_Enable = "imgui-view on";
     static auto constexpr imguiView_Disable = "imgui-view off";
 
-    static Constants::Error eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr eval_name = "eval";
     static auto constexpr eval_desc = "Evaluates an expression string and executes it.\n"
         "Every argument after eval is concatenated with a whitespace to form the expression to be evaluated and then reparsed.\n"
@@ -54,7 +53,7 @@ public:
         "This evaluates to 'spawn ./Resources/RenderObjects/NAME.json',\n"
         "where NAME is the current value of the global variable ToSpawn\n";
 
-    static Constants::Error nop(std::span<std::string const> const& args);
+    [[nodiscard]] static Constants::Event nop(std::span<std::string const> const& args);
     static auto constexpr nop_name = "nop";
     static auto constexpr nop_desc = "No operation. Does nothing.\n"
         "\n"
@@ -63,7 +62,7 @@ public:
         "Useful for testing or as a placeholder in scripts where no action is required,\n"
         "but a command is syntactically necessary.\n";
 
-    static Constants::Error func_assert(std::span<std::string const> const& args);
+    [[nodiscard]] static Constants::Event func_assert(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr assert_name = "assert";
     static auto constexpr assert_desc = "Asserts a condition and throws a custom error if false.\n"
         "\n"
@@ -76,7 +75,7 @@ public:
         "assert '$(eq(1+1,3))'    // Critical Error: A custom assertion failed.\n"
         "Assertion failed: $(eq(1+1,3)) is not true.\n";
 
-    static Constants::Error func_for(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event func_for(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr func_for_name = "for";
     static auto constexpr func_for_desc = "Executes a for-loop with a function call.\n"
         "\n"
@@ -96,7 +95,7 @@ public:
         "- Iterating over a range of values.\n"
         "- Creating complex control flows in scripts.\n";
 
-    static Constants::Error func_if(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event func_if(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr func_if_name = "if";
     static auto constexpr func_if_desc = "Executes a block of code if a condition is true.\n"
         "\n"
@@ -107,22 +106,7 @@ public:
         "Example:\n"
         "if '$(eq(1+1,2))' echo Condition is true!\n";
 
-    static Constants::Error func_return(std::span<std::string const> const& args);
-    static auto constexpr func_return_name = "return";
-    static auto constexpr func_return_desc = "Returns a custom value as a Critical Error.\n"
-        "\n"
-        "Usage: return <string>\n"
-        "\n"
-        "This command creates a custom critical error with the given string as description.\n"
-        "This can be used to exit from a task queue with a custom message.\n"
-        "\n"
-        "Example:\n"
-        "./bin/Nebulite return We did not anticipate this happening, weird.\n"
-        "Outputs:\n"
-        "We did not anticipate this happening, weird.\n"
-        "Critical Error: We did not anticipate this happening, weird.\n";
-
-    Constants::Error echo(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event echo(std::span<std::string const> const& args) const ;
     static auto constexpr echo_name = "echo";
     static auto constexpr echo_desc = "Echoes all arguments as string to the standard output.\n"
         "\n"
@@ -147,7 +131,6 @@ public:
 
         BIND_FUNCTION(&General::func_for, func_for_name, func_for_desc);
         BIND_FUNCTION(&General::func_if, func_if_name, func_if_desc);
-        BIND_FUNCTION(&General::func_return, func_return_name, func_return_desc);
         BIND_FUNCTION(&General::echo, echo_name, echo_desc);
         BIND_FUNCTION(&General::func_assert, assert_name, assert_desc);
         BIND_FUNCTION(&General::nop, nop_name, nop_desc);

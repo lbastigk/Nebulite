@@ -4,47 +4,47 @@
 
 namespace Nebulite::DomainModule::Texture {
 
-Constants::Error Rotation::update() {
+Constants::Event Rotation::update() {
     // Nothing to do in update for rotation
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
-Constants::Error Rotation::rotate(int const argc, char** argv) const {
+Constants::Event Rotation::rotate(int const argc, char** argv) const {
     if (argc < 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_FEW_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     if (argc > 2) {
-        return Constants::ErrorTable::FUNCTIONAL::TOO_MANY_ARGS();
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
 
     // Get the SDL_Renderer
     SDL_Renderer* renderer = Global::instance().getSdlRenderer();
     if (renderer == nullptr) {
-        return Constants::ErrorTable::SDL::CRITICAL_SDL_RENDERER_INIT_FAILED();
+        return Constants::StandardCapture::Error::SDL::initFailed(domain.capture);
     }
 
     // Get the texture to rotate
     SDL_Texture* texture = domain.getSDLTexture();
     if (texture == nullptr) {
-        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_NOT_FOUND();
+        return Constants::StandardCapture::Error::Texture::notFound(domain.capture);
     }
 
     // Get the texture's width and height
     float width, height;
     if (SDL_GetTextureSize(texture, &width, &height) != 0) {
-        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_QUERY_FAILED();
+        return Constants::StandardCapture::Error::Texture::queryFailed(domain.capture);
     }
 
     // Create a new texture to hold the rotated result
     SDL_Texture* rotatedTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, static_cast<int>(width), static_cast<int>(height));
     if (rotatedTexture == nullptr) {
-        return Constants::ErrorTable::TEXTURE::CRITICAL_TEXTURE_MODIFICATION_FAILED();
+        return Constants::StandardCapture::Error::Texture::modificationFailed(domain.capture);
     }
 
     // Set the new texture as the render target
     if (SDL_SetRenderTarget(renderer, rotatedTexture) != 0) {
         SDL_DestroyTexture(rotatedTexture);
-        return Constants::ErrorTable::SDL::CRITICAL_SDL_RENDERER_TARGET_FAILED();
+        return Constants::StandardCapture::Error::SDL::settingTargetFailed(domain.capture);
     }
 
     // Clear the render target
@@ -60,7 +60,7 @@ Constants::Error Rotation::rotate(int const argc, char** argv) const {
 
     // Replace the original texture with the rotated texture
     domain.setInternalTexture(rotatedTexture);
-    return Constants::ErrorTable::NONE();
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::DomainModule::Texture
