@@ -41,12 +41,18 @@ public:
     //------------------------------------------
     // Constructor
     Debug() : RulesetModule(moduleName) {
+        std::function<double**(const Interaction::Execution::Domain&)> const baseListFunc = [this](const Interaction::Execution::Domain& domain) -> double** {
+            double** v;
+            ensureBaseList(domain, baseKeys, v);
+            return v;
+        };
+
         // Local
-        BIND_STATIC_ASSERT(RulesetType::Local, &Debug::message, messageName, messageDesc);
-        BIND_STATIC_ASSERT(RulesetType::Local, &Debug::error, errorName, errorDesc);
+        BIND_STATIC_ASSERT(RulesetType::Local, &Debug::message, messageName, messageDesc, baseListFunc);
+        BIND_STATIC_ASSERT(RulesetType::Local, &Debug::error, errorName, errorDesc, baseListFunc);
 
         // Global
-        BIND_STATIC_ASSERT(RulesetType::Global, &Debug::whoInteracts, whoInteractsName, whoInteractsDesc);
+        BIND_STATIC_ASSERT(RulesetType::Global, &Debug::whoInteracts, whoInteractsName, whoInteractsDesc, baseListFunc);
     }
 private:
     static constexpr std::string_view moduleName = "::debug";
