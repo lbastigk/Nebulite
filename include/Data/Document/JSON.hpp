@@ -174,12 +174,13 @@ private:
     std::optional<T> jsonValueToCache(std::string const& key, rapidjson::Value const* val) const ;
 
     /**
-     * @brief Invalidate all child keys of a given parent key.
-     * @details For example, if parent_key is "config", it will invalidate
+     * @brief Synchronizes all children of a given key.
+     * @details For example, if parent_key is "config", it will sync
      *          "config.option1", "config.option2.suboption", etc.
      *          as well as "config[0]", "config[1].suboption", etc.
+     *          with the rapidjson values.
      */
-    void invalidate_child_keys(std::string const& parent_key) const ;
+    void synchronizeChildren(std::string const& parentKey) const ;
 
     /**
      * @brief Helper function to convert any type from cache into another type.

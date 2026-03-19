@@ -129,21 +129,24 @@ JsonScope& JSON::fullScopeBase() {
     return *fullScopeBaseInstance;
 }
 
-// Mark all child keys as virtual
-// e.g.: "parent.child1", "parent.child2.subchild", "parent[0]", etc.
-// TODO: Better option would be sync_child_keys, where we use getVariant on each child cache entry
-//       To resync cache with the new json structure
-//       Any cache entry that is not a simple value anymore is marked as deleted
-void JSON::invalidate_child_keys(std::string const& parent_key) const {
+void JSON::synchronizeChildren(std::string const& parentKey) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Find all child keys and invalidate them
     for (auto& [key, entry] : cache) {
-        if (key.starts_with(parent_key + ".") || key.starts_with(parent_key + "[") || parent_key.empty()) {
-            entry->state = CacheEntry::EntryState::DELETED; // Mark as deleted
-            entry->value = 0.0;
-            *entry->stable_double_ptr = 0.0;
-            entry->last_double_value = 0.0;
+        if (parentKey.empty() || key.starts_with(parentKey + ".") || key.starts_with(parentKey + "[")) {
+            if (auto const variant = RjDirectAccess::getSimpleValue(key.c_str(), doc); variant.has_value()) {
+                entry->state = CacheEntry::EntryState::CLEAN;
+                entry->value = variant.value();
+                *entry->stable_double_ptr = convertVariant<double>(entry->value).value_or(0.0); // Default to 0.0 if conversion fails
+                entry->last_double_value = *entry->stable_double_ptr;
+            }
+            else {
+                entry->state = CacheEntry::EntryState::DELETED; // Mark as deleted
+                entry->value = 0.0;
+                *entry->stable_double_ptr = 0.0;
+                entry->last_double_value = 0.0;
+            }
         }
     }
 }
@@ -368,8 +371,8 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
         // New cache value, structural validity is not guaranteed
         // so we flush contents into the rapidjson document after inserting
 
-        // Remove any child keys to synchronize the structure
-        invalidate_child_keys(key);
+        // Synchronize structure
+        synchronizeChildren(key);
 
         // Create new entry directly in DIRTY state
         auto new_entry = std::make_unique<CacheEntry>(CACHELINE, cacheline_index);
@@ -425,8 +428,8 @@ void JSON::setSubDoc(char const* key, JSON const& child, char const* childKey) {
         }
     }
 
-    // Since we inserted an entire document, we need to invalidate its child keys:
-    invalidate_child_keys(key);
+    // Since we inserted an entire document, we need sync its children
+    synchronizeChildren(key);
 }
 
 void JSON::setEmptyArray(char const* key) {
@@ -470,8 +473,8 @@ void JSON::deserialize(std::string const& serialOrLink) {
     RjDirectAccess::deserialize(doc, serialOrLink);
 
     //------------------------------------------
-    // Delete all cache entries
-    invalidate_child_keys("");
+    // Sync all cache entries
+    synchronizeChildren("");
 }
 
 //------------------------------------------
@@ -613,12 +616,10 @@ void JSON::removeMember(char const* key) {
     // Ensure cache is flushed before removing key
     flush();
 
-    // Remove member from cache
+    // Remove member from cache, synchronize children
     cache.erase(key);
-    invalidate_child_keys(key);
-
-    // Find in RapidJSON document
     RjDirectAccess::removeMember(key, doc);
+    synchronizeChildren(key);
 }
 
 void JSON::moveMember(char const* fromKey, char const* toKey) {
