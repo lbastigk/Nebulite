@@ -131,14 +131,17 @@ JsonScope& JSON::fullScopeBase() {
 
 // Mark all child keys as virtual
 // e.g.: "parent.child1", "parent.child2.subchild", "parent[0]", etc.
+// TODO: Better option would be sync_child_keys, where we use getVariant on each child cache entry
+//       To resync cache with the new json structure
+//       Any cache entry that is not a simple value anymore is marked as deleted
 void JSON::invalidate_child_keys(std::string const& parent_key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Find all child keys and invalidate them
     for (auto& [key, entry] : cache) {
-        if (key.starts_with(parent_key + ".") || key.starts_with(parent_key + "[")) {
+        if (key.starts_with(parent_key + ".") || key.starts_with(parent_key + "[") || parent_key.empty()) {
             entry->state = CacheEntry::EntryState::DELETED; // Mark as deleted
-            entry->value = 0.0; // Reset value to default
+            entry->value = 0.0;
             *entry->stable_double_ptr = 0.0;
             entry->last_double_value = 0.0;
         }
@@ -468,14 +471,7 @@ void JSON::deserialize(std::string const& serialOrLink) {
 
     //------------------------------------------
     // Delete all cache entries
-    for (auto& [key, entry] : cache) {
-        // Mark all as deleted
-        entry->state = CacheEntry::EntryState::DELETED;
-
-        // Set its double pointer value
-        *entry->stable_double_ptr = RjDirectAccess::get<double>(key.c_str(), 0.0, doc);
-        entry->last_double_value = *entry->stable_double_ptr;
-    }
+    invalidate_child_keys("");
 }
 
 //------------------------------------------

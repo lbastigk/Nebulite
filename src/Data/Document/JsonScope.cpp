@@ -198,20 +198,12 @@ std::string JsonScope::serialize(ScopedKeyView const& key) const {
     return baseDocument->serialize(key.full(*this));
 }
 
-
 void JsonScope::deserialize(std::string const& serialOrLink) const {
-    baseDocument->deserialize(serialOrLink);
-
-    // Proper implementation needs to take into account the scope
-    // TODO: Causes issues with json rulesetcompiler...
-    /*
     JSON tempDoc;
     tempDoc.deserialize(serialOrLink);
-
-    // No support for any tokens, just forward to baseDocument
     static ScopedKeyView constexpr key("");
-    baseDocument->setSubDoc(key.full(*this), tempDoc);
-    */
+    std::string const fullKey = key.full(*this);
+    baseDocument->setSubDoc(fullKey, tempDoc);
 }
 
 //------------------------------------------
