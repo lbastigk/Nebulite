@@ -46,6 +46,14 @@ public:
      * @return An optional simpleValue containing the value if successful, or std::nullopt if the type is unsupported.
      */
     static std::optional<simpleValue> getSimpleValue(rapidjson::Value const* val);
+    static std::optional<simpleValue> getSimpleValue(std::string const& key, rapidjson::Value const& doc) {
+        if (auto const rjVal = traversePath(key.c_str(), doc); rjVal != nullptr) {
+            if (auto variant = RjDirectAccess::getSimpleValue(rjVal); variant.has_value()) {
+                return variant.value();
+            }
+        }
+        return std::nullopt;
+    }
 
     //------------------------------------------
     // Templated Getter, Setter
