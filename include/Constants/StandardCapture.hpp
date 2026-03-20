@@ -24,13 +24,6 @@ enum class Event : uint8_t {
 struct StandardCapture {
 
     struct Warning {
-        struct SDL {
-            static Event generic(Utility::Capture& cap) {
-                cap.warning.println("SDL encountered a non-critical issue.");
-                return Event::Warning;
-            }
-        };
-
         struct Renderer {
             static Event snapshotFailed(Utility::Capture& cap) {
                 cap.warning.println("Renderer snapshot failed.");

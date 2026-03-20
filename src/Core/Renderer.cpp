@@ -390,8 +390,8 @@ Constants::Event Renderer::update() {
     }
     if (SDL_GetError()[0] != '\0') {
         capture.error.println("SDL Error during rendering: ", SDL_GetError());
-        SDL_ClearError(); // Clear error after reporting
-        return Constants::StandardCapture::Warning::SDL::generic(capture);
+        SDL_ClearError();
+        return Constants::Event::Warning;
     }
     return Constants::Event::Success;
 }
