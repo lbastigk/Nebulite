@@ -20,6 +20,7 @@ enum class Event : uint8_t {
  * @struct Nebulite::Constants::StandardCapture
  * @brief Standard capture outputs for various warnings, errors, etc.
  * @details The advantage of these standard errors is the reusability in multiple places.
+ *          Takes care of both the logging and the proper Event return value.
  */
 struct StandardCapture {
 
