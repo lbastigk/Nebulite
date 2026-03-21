@@ -47,7 +47,7 @@ namespace Nebulite {
 // Define accessor for various scopes
 
 /**
- * @brief Class to provide access tokens for various Domain types.
+ * @brief Class to provide access tokens to the GlobalSpace document for various Domain types.
  * @details The access tokens can only be constructed by their respective classes.
  */
 class ScopeAccessor final {
@@ -60,6 +60,10 @@ public:
         [[nodiscard]] std::string getPrefix() const {return prefix; }
     };
 
+    /**
+     * @brief Full access token for the entire GlobalSpace document.
+     * @details Only accessible by a select few classes that require full access, such as the Console and Expression evaluation.
+     */
     class Full final : public BaseAccessToken {
         Full() {
             prefix = "";

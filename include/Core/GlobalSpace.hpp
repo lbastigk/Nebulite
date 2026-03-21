@@ -301,7 +301,7 @@ private:
      * @brief Updates all inner domains.
      * @return If a critical error occurred, the corresponding error code. None otherwise.
      */
-    [[nodiscard]] static Constants::Event updateInnerDomains();
+    [[nodiscard]] Constants::Event updateInnerDomains();
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_CORE_GLOBALSPACE_HPP

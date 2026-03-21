@@ -15,12 +15,12 @@ GlobalSpace::GlobalSpace(std::string const& name) :
         Global::shareScopeBase(ScopeAccessor::Full(), "renderer"),
         &cmdVars.headless,
         capture
-    ) // Share only the renderer portion of the global document
+    )
 {
     //------------------------------------------
     // Ensure GlobalSpace id is zero
     if (getId() != 0) {
-        throw std::runtime_error("GlobalSpace must have an id of zero! Current id: " + std::to_string(getId()));
+        throw std::runtime_error("GlobalSpace must have an id of zero! Current id: " + std::to_string(getId()) + ". This means another Domain is initialized before GlobalSpace. Please fix.");
     }
 
     //------------------------------------------
@@ -74,7 +74,21 @@ void GlobalSpace::initialize() {
 }
 
 Constants::Event GlobalSpace::updateInnerDomains() {
-    // TODO: See if we can generalize this so that we can safely call renderer.update() here as well
+    // Update renderer if nothing is stopping us
+    if (!renderer.isSkippingUpdate()) { // e.g. Console mode might flag renderer to skip update
+        for (auto const& tq : std::views::values(tasks)) {
+            tq->decrementWaitCounter();
+        }
+        invoke.update();        // Invoke broadcasted-listen-updates
+        auto const event = renderer.update();      // Renderer updates its inner domains (e.g. RenderObjects)
+
+        // Increment frame count and return event
+        static size_t frameCount = 0;
+        static auto constexpr frameCountKey = Data::ScopedKeyView("time.frameCount");
+        domainScope.set<uint64_t>(frameCountKey, frameCount); // Starts at 0
+        frameCount++;
+        return event;
+    }
     return Constants::Event::Success;
 }
 
@@ -82,54 +96,24 @@ Constants::Event GlobalSpace::update() {
     static bool queueParsed = false; // Indicates if the task queue has been parsed on this frame render
 
     //------------------------------------------
-    /**
-     * Parse queue in GlobalSpace.
-     * Result determines if a critical stop is initiated.
-     *
-     * We do this once before rendering
-     *
-     * @note For now, all tasks are parsed even if the program is in console mode.
-     *       This is useful as tasks like "spawn" or "echo" are directly executed.
-     *       But might break for more complex tasks, so this should be taken into account later on,
-     *       e.G. inside the GlobalSpace, checking state of Renderer might be useful
-     */
+    // TaskQueue parsing
     if (!queueParsed) {
         notifyEvent(parseQueue());
         queueParsed = true;
     }
 
     //------------------------------------------
-    // Update and render, only if initialized
+    // Compared to all other domains,
+    // we cannot simply update inner domains all the time.
+    // This is because the GlobalSpace is the uppermost Domain
+    // And is responsible for the proper update timing.
+    // We do this by checking if enough time has passed since the last renderer to reach the target FPS.
     if (continueLoop && renderer.isSdlInitialized() && renderer.timeToRender()) {
-
-        //========================================================
-
-        // This part is a bit annoying, since we require a renderer for GlobalSpace module updates
-        // But without this, the time domainmodule and all DomainModules depending on it
-        // are inconsistent...
-
         // Update modules first
         updateModules();
 
         // Then, update inner domains
         notifyEvent(updateInnerDomains());
-
-        //========================================================
-
-        // Update renderer if nothing is stopping us
-        if (!renderer.isSkippingUpdate()) { // e.g. Console mode might flag renderer to skip update
-            for (auto const& tq : std::views::values(tasks)) {
-                tq->decrementWaitCounter();
-            }
-            invoke.update();        // Invoke broadcasted-listen-updates
-            notifyEvent(renderer.update());
-
-            // Increment frame count
-            static size_t frameCount = 0;
-            static auto constexpr frameCountKey = Data::ScopedKeyView("time.frameCount");
-            domainScope.set<uint64_t>(frameCountKey, frameCount); // Starts at 0
-            frameCount++;
-        }
 
         // Render frame
         renderer.render();
