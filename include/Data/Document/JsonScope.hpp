@@ -233,8 +233,8 @@ public:
     void copyMember(ScopedKeyView const& fromKey, ScopedKey const& toKey) {copyMember(fromKey, toKey.view());}
     void copyMember(ScopedKey const& fromKey, ScopedKeyView const& toKey) {copyMember(fromKey.view(), toKey);}
 
-    std::vector<ScopedKey> listAvailableKeys(ScopedKeyView const& key) const ;
-    std::vector<ScopedKey> listAvailableKeys(ScopedKey const& key) const {return listAvailableKeys(key.view());}
+    [[nodiscard]] std::vector<ScopedKey> listAvailableKeys(ScopedKeyView const& key) const ;
+    [[nodiscard]] std::vector<ScopedKey> listAvailableKeys(ScopedKey const& key) const {return listAvailableKeys(key.view());}
 
     // Helper struct for holding a member as well as its full key
     struct MemberAndKey {
@@ -242,8 +242,8 @@ public:
         ScopedKey key;
     };
 
-    std::vector<MemberAndKey> listAvailableMembersAndKeys(ScopedKeyView const& key) const ;
-    std::vector<MemberAndKey> listAvailableMembersAndKeys(ScopedKey const& key) const {return listAvailableMembersAndKeys(key.view());}
+    [[nodiscard]] std::vector<MemberAndKey> listAvailableMembersAndKeys(ScopedKeyView const& key) const ;
+    [[nodiscard]] std::vector<MemberAndKey> listAvailableMembersAndKeys(ScopedKey const& key) const {return listAvailableMembersAndKeys(key.view());}
 
     //------------------------------------------
     // Serialize/Deserialize

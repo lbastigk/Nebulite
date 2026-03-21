@@ -135,7 +135,7 @@ void JSON::synchronizeChildren(std::string const& parentKey) const {
     // Find all child keys and invalidate them
     for (auto& [key, entry] : cache) {
         if (parentKey.empty() || key.starts_with(parentKey + ".") || key.starts_with(parentKey + "[")) {
-            if (auto const variant = RjDirectAccess::getSimpleValue(key.c_str(), doc); variant.has_value()) {
+            if (auto const variant = RjDirectAccess::getSimpleValue(key, doc); variant.has_value()) {
                 entry->state = CacheEntry::EntryState::CLEAN;
                 entry->value = variant.value();
                 *entry->stable_double_ptr = convertVariant<double>(entry->value).value_or(0.0); // Default to 0.0 if conversion fails

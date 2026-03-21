@@ -4,8 +4,8 @@
  * Direct access to RapidJSON values
  */
 
-#ifndef NEBULITE_DATA_RJDIRECTACCESS_HPP
-#define NEBULITE_DATA_RJDIRECTACCESS_HPP
+#ifndef NEBULITE_DATA_RJ_DIRECT_ACCESS_HPP
+#define NEBULITE_DATA_RJ_DIRECT_ACCESS_HPP
 
 //------------------------------------------
 // Includes
@@ -48,7 +48,7 @@ public:
     static std::optional<simpleValue> getSimpleValue(rapidjson::Value const* val);
     static std::optional<simpleValue> getSimpleValue(std::string const& key, rapidjson::Value const& doc) {
         if (auto const rjVal = traversePath(key.c_str(), doc); rjVal != nullptr) {
-            if (auto variant = RjDirectAccess::getSimpleValue(rjVal); variant.has_value()) {
+            if (auto variant = getSimpleValue(rjVal); variant.has_value()) {
                 return variant.value();
             }
         }
@@ -225,4 +225,4 @@ private:
 };
 } // namespace Nebulite::Data
 #include "RjDirectAccess.tpp"
-#endif // NEBULITE_DATA_RJDIRECTACCESS_HPP
+#endif // NEBULITE_DATA_RJ_DIRECT_ACCESS_HPP
