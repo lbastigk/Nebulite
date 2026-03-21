@@ -46,7 +46,16 @@ public:
      * @return An optional simpleValue containing the value if successful, or std::nullopt if the type is unsupported.
      */
     static std::optional<simpleValue> getSimpleValue(rapidjson::Value const* val);
-    static std::optional<simpleValue> getSimpleValue(std::string const& key, rapidjson::Value const& doc) {
+    template<typename RjValType>
+    static std::optional<simpleValue> getSimpleValue(std::string const& key, RjValType const& doc) {
+        // The given RjValType should be a Document
+        // If we pass a rapidjson value, we risk not starting at the top of the document, where we should apply the key traversal
+        static_assert(
+            std::is_same_v<RjValType, rapidjson::Document>,
+            "The given Rapidjson Value type should be a document to ensure the key traversal happens at the top! "
+            "Passing, for example, a rapidjson::Value would risk starting the traversal at the wrong point in the document, which could lead to incorrect retrieval or failure to find the value."
+        );
+
         if (auto const rjVal = traversePath(key.c_str(), doc); rjVal != nullptr) {
             if (auto variant = getSimpleValue(rjVal); variant.has_value()) {
                 return variant.value();
