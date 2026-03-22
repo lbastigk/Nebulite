@@ -23,17 +23,17 @@ class Expression; // For Context demotion to ContextScope
 
 namespace Nebulite::Interaction {
 
-// ContextScopeBase -> JSON scope access with JsonScope references
-//                     Access to the scoped data only
-// Context          -> Full domain access
+// ContextScope -> JSON scope access with JsonScope references
+//                 Access to the scoped data only
+// Context      -> Full domain access
 
 /**
- * @struct ContextScopeBase
+ * @struct ContextScope
  * @brief Reduced context structure using JsonScope references.
  *        Useful for functions that only need access to the JSON scopes of the domains.
  * @details Third layer of abstraction, only JSON scope access available.
  */
-class ContextScopeBase {
+class ContextScope {
 public:
     Data::JsonScope& self;
     Data::JsonScope& other;
@@ -54,9 +54,15 @@ public:
     Execution::Domain& global;
     // TODO: Parent context?
 
-    friend class Logic::Expression; // For context demotion
+    // Context Demotion access
+    friend class Logic::Expression;
 private:
-    [[nodiscard]] ContextScopeBase demote() const ;
+    /**
+     * @brief Demotes the full Domain to its inner data. Since the JSON data of a Domain is private,
+     *        demotion is only permitted for few selected classes that require full access.
+     * @return The scope of each context member
+     */
+    [[nodiscard]] ContextScope demote() const ;
 };
 
 } // namespace Nebulite::Interaction

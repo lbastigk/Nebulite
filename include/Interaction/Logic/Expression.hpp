@@ -31,7 +31,7 @@ class ScopedKeyView;
 } // namespace Nebulite::Data
 
 namespace Nebulite::Interaction {
-class ContextScopeBase;
+class ContextScope;
 } // namespace Nebulite::Interaction
 
 namespace Nebulite::Interaction::Logic {
@@ -105,16 +105,16 @@ public:
     //------------------------------------------
     // Actual evaluation functions
 
-    std::string eval(ContextScopeBase const& context, size_t const& recursionDepth = standardrecursionDepth) const ;
+    std::string eval(ContextScope const& context, size_t const& recursionDepth = standardrecursionDepth) const ;
     std::string eval(Context const& context, size_t const& recursionDepth = standardrecursionDepth) const { return eval(context.demote(), recursionDepth); }
 
-    double evalAsDouble(ContextScopeBase const& context) const ;
+    double evalAsDouble(ContextScope const& context) const ;
     double evalAsDouble(Context const& context) const { return evalAsDouble(context.demote()); }
 
-    bool evalAsBool(ContextScopeBase const& context) const ;
+    bool evalAsBool(ContextScope const& context) const ;
     bool evalAsBool(Context const& context) const { return evalAsBool(context.demote()); }
 
-    Data::JSON evalAsJson(ContextScopeBase const& context, size_t const& recursionDepth = standardrecursionDepth) const ;
+    Data::JSON evalAsJson(ContextScope const& context, size_t const& recursionDepth = standardrecursionDepth) const ;
     Data::JSON evalAsJson(Context const& context, size_t const& recursionDepth = standardrecursionDepth) const { return evalAsJson(context.demote(), recursionDepth); }
 
     //------------------------------------------
@@ -122,16 +122,16 @@ public:
 
     // 1.) Using full context (self, other and global)
 
-    static std::string eval(std::string const& input, ContextScopeBase const& context);
+    static std::string eval(std::string const& input, ContextScope const& context);
     static std::string eval(std::string const& input, Context const& context){return eval(input, context.demote());}
 
-    static double evalAsDouble(std::string const& input, ContextScopeBase const& context);
+    static double evalAsDouble(std::string const& input, ContextScope const& context);
     static double evalAsDouble(std::string const& input, Context const& context){return evalAsDouble(input, context.demote());}
 
-    static bool evalAsBool(std::string const& input, ContextScopeBase const& context);
+    static bool evalAsBool(std::string const& input, ContextScope const& context);
     static bool evalAsBool(std::string const& input, Context const& context){return evalAsBool(input, context.demote());}
 
-    static Data::JSON evalAsJson(std::string const& input, ContextScopeBase const& context);
+    static Data::JSON evalAsJson(std::string const& input, ContextScope const& context);
     static Data::JSON evalAsJson(std::string const& input, Context const& context){return evalAsJson(input, context.demote());}
 
     // 2.) Global-only evaluation (both self and other context are empty documents)
@@ -318,7 +318,7 @@ private:
          * @param recursionDepth The current recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(std::string& token, ContextScopeBase const& context, size_t const& recursionDepth) const ;
+        bool handleComponentTypeVariable(std::string& token, ContextScope const& context, size_t const& recursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of a variable component as a JSON value.
@@ -328,7 +328,7 @@ private:
          * @param recursionDepth The current recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(Data::JSON& token, ContextScopeBase const& context, size_t const& recursionDepth) const ;
+        bool handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, size_t const& recursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of an eval component.
@@ -345,7 +345,7 @@ private:
          * @param recursionDepth The current recursion depth for nested evaluations.
          * @return The evaluated key and its destination if successful, or std::nullopt if evaluation fails.
          */
-        [[nodiscard]] std::optional<std::pair<std::string, ContextType>> evaluateKey(ContextScopeBase const& context, std::string const& initialKey, ContextType const& initialDestination, size_t const& recursionDepth) const ;
+        [[nodiscard]] std::optional<std::pair<std::string, ContextType>> evaluateKey(ContextScope const& context, std::string const& initialKey, ContextType const& initialDestination, size_t const& recursionDepth) const ;
     };
 
     /**
@@ -495,13 +495,13 @@ private:
      * @brief Updates caches to reflect current context
      * @param context The context to update caches for
      */
-    void updateCaches(ContextScopeBase const& context) const ;
+    void updateCaches(ContextScope const& context) const ;
 
     /**
      * @brief Sets up the first evaluation context cache if it hasn't been set up yet
      * @param context The current context to potentially set up as the first evaluation context
      */
-    void setupFirstContext(ContextScopeBase const& context) const ;
+    void setupFirstContext(ContextScope const& context) const ;
 
     /**
      * @brief Updates the stable value caches based on the current context.
@@ -509,14 +509,14 @@ private:
      *          or copies from the current context via json->get (slow)
      * @param context The current context to update stable value caches for
      */
-    void updateStableValues(ContextScopeBase const& context) const ;
+    void updateStableValues(ContextScope const& context) const ;
 
     /**
     * @brief Updates the unstable value caches based on the current context.
     * @details Evaluates member and fetches value from the context
     * @param context The current context to update unstable value caches for
     */
-    void updateUnstableValues(ContextScopeBase const& context) const ;
+    void updateUnstableValues(ContextScope const& context) const ;
 };
 
 } // namespace Nebulite::Interaction::Logic

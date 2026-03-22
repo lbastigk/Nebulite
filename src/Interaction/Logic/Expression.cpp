@@ -417,22 +417,22 @@ void Expression::parse(std::string const& expr) {
 
 // With context
 
-std::string Expression::eval(std::string const& input, ContextScopeBase const& context) {
+std::string Expression::eval(std::string const& input, ContextScope const& context) {
     Expression const expr(input);
     return expr.eval(context);
 }
 
-double Expression::evalAsDouble(std::string const& input, ContextScopeBase const& context) {
+double Expression::evalAsDouble(std::string const& input, ContextScope const& context) {
     Expression const expr(input);
     return expr.evalAsDouble(context);
 }
 
-bool Expression::evalAsBool(std::string const& input, ContextScopeBase const& context) {
+bool Expression::evalAsBool(std::string const& input, ContextScope const& context) {
     Expression const expr(input);
     return expr.evalAsBool(context);
 }
 
-Data::JSON Expression::evalAsJson(std::string const& input, ContextScopeBase const& context) {
+Data::JSON Expression::evalAsJson(std::string const& input, ContextScope const& context) {
     Expression const expr(input);
     return expr.evalAsJson(context);
 }
@@ -440,35 +440,35 @@ Data::JSON Expression::evalAsJson(std::string const& input, ContextScopeBase con
 // Global-only as context
 
 std::string Expression::eval(std::string const& input) {
-    ContextScopeBase const context{emptyDoc(), emptyDoc(), globalDoc()};
+    ContextScope const context{emptyDoc(), emptyDoc(), globalDoc()};
     return eval(input, context);
 }
 
 double Expression::evalAsDouble(std::string const& input) {
-    ContextScopeBase const context{emptyDoc(), emptyDoc(), globalDoc()};
+    ContextScope const context{emptyDoc(), emptyDoc(), globalDoc()};
     return evalAsDouble(input, context);
 }
 
 bool Expression::evalAsBool(std::string const& input) {
-    ContextScopeBase const context{emptyDoc(), emptyDoc(), globalDoc()};
+    ContextScope const context{emptyDoc(), emptyDoc(), globalDoc()};
     return evalAsBool(input, context);
 }
 
 Data::JSON Expression::evalAsJson(std::string const& input) {
-    ContextScopeBase const context{emptyDoc(), emptyDoc(), globalDoc()};
+    ContextScope const context{emptyDoc(), emptyDoc(), globalDoc()};
     return evalAsJson(input, context);
 }
 
 //------------------------------------------
 // Private helper functions
 
-void Expression::updateCaches(ContextScopeBase const& context) const {
+void Expression::updateCaches(ContextScope const& context) const {
     setupFirstContext(context);
     updateStableValues(context);
     updateUnstableValues(context);
 }
 
-void Expression::setupFirstContext(ContextScopeBase const& context) const {
+void Expression::setupFirstContext(ContextScope const& context) const {
     if (!firstEvaluationContext.self) {
         firstEvaluationContext.self = &context.self;
         for (auto const& vde : virtualDoubles.stable.self) {
@@ -487,7 +487,7 @@ void Expression::setupFirstContext(ContextScopeBase const& context) const {
     }
 }
 
-void Expression::updateStableValues(ContextScopeBase const& context) const {
+void Expression::updateStableValues(ContextScope const& context) const {
     // self
     if (&context.self == firstEvaluationContext.self) {
         for (auto const& vde : virtualDoubles.stable.self) {
@@ -525,7 +525,7 @@ void Expression::updateStableValues(ContextScopeBase const& context) const {
     }
 }
 
-void Expression::updateUnstableValues(ContextScopeBase const& context) const {
+void Expression::updateUnstableValues(ContextScope const& context) const {
     for (auto const& vde : virtualDoubles.unstable.self) {
         auto const key = Data::ScopedKey(eval(vde->getKey(), context));
         vde->setDirect(context.self.get<double>(key).value_or(0.0));
@@ -583,7 +583,7 @@ bool Expression::recalculateIsAlwaysTrue() const {
 //------------------------------------------
 // Actual expression evaluation
 
-std::string Expression::eval(ContextScopeBase const& context, size_t const& recursionDepth) const {
+std::string Expression::eval(ContextScope const& context, size_t const& recursionDepth) const {
     //------------------------------------------
     // Update caches so that tinyexpr has the correct references
     updateCaches(context);
@@ -618,17 +618,17 @@ std::string Expression::eval(ContextScopeBase const& context, size_t const& recu
     return result;
 }
 
-double Expression::evalAsDouble(ContextScopeBase const& context) const {
+double Expression::evalAsDouble(ContextScope const& context) const {
     updateCaches(context);
     return te_eval(components[0]->expression);
 }
 
-bool Expression::evalAsBool(ContextScopeBase const& context) const {
+bool Expression::evalAsBool(ContextScope const& context) const {
     double const result = evalAsDouble(context);
     return std::fabs(result) > DBL_EPSILON;
 }
 
-Data::JSON Expression::evalAsJson(ContextScopeBase const& context, size_t const& recursionDepth) const {
+Data::JSON Expression::evalAsJson(ContextScope const& context, size_t const& recursionDepth) const {
     if (components.size() == 1 && components[0]->type != Component::Type::text) {
         if (components[0]->type == Component::Type::eval) {
             Data::JSON jsonResult;

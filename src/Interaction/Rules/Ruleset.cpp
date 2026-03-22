@@ -58,7 +58,7 @@ bool JsonRuleset::evaluateCondition(Execution::Domain& other) {
 }
 
 void JsonRuleset::apply(std::shared_ptr<Listener> const& contextOther) {
-    ContextScopeBase const context{self.domainScope, contextOther->domain.domainScope, Global::instance().domainScope};
+    ContextScope const context{self.domainScope, contextOther->domain.domainScope, Global::instance().domainScope};
 
     // 1.) Assignments
     for (auto& assignment : assignments) {
@@ -87,7 +87,7 @@ void JsonRuleset::apply(std::shared_ptr<Listener> const& contextOther) {
 }
 
 void JsonRuleset::apply() {
-    ContextScopeBase const context{self.domainScope, self.domainScope, Global::instance().domainScope};
+    ContextScope const context{self.domainScope, self.domainScope, Global::instance().domainScope};
 
     // 1.) Assignments
     for (auto& assignment : assignments) {

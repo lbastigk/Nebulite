@@ -64,7 +64,7 @@ public:
     /**
      * @brief Applies the assignment to the given target document.
      */
-    void apply(ContextScopeBase const& context) const ;
+    void apply(ContextScope const& context) const ;
 
     /**
      * @brief Get the unevaluated expression as string

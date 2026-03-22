@@ -27,7 +27,7 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
     return *this;
 }
 
-bool Expression::Component::handleComponentTypeVariable(std::string& token, ContextScopeBase const& context, size_t const& recursionDepth) const {
+bool Expression::Component::handleComponentTypeVariable(std::string& token, ContextScope const& context, size_t const& recursionDepth) const {
     auto s = evaluateKey(context, key, contextType, recursionDepth);
     if (!s) {return false;}
     auto [strippedKey, destination] = s.value();
@@ -84,7 +84,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
     return true;
 }
 
-bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, ContextScopeBase const& context, size_t const& recursionDepth) const {
+bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, size_t const& recursionDepth) const {
     auto s = evaluateKey(context, key, contextType, recursionDepth);
     if (!s) {return false;}
     auto [strippedKey, destination] = s.value();
@@ -168,7 +168,7 @@ void Expression::Component::handleComponentTypeEval(std::string& token) const {
     }
 }
 
-std::optional<std::pair<std::string, Expression::Component::ContextType>> Expression::Component::evaluateKey(ContextScopeBase const& context, std::string const& initialKey, ContextType const& initialDestination, size_t const& recursionDepth) const {
+std::optional<std::pair<std::string, Expression::Component::ContextType>> Expression::Component::evaluateKey(ContextScope const& context, std::string const& initialKey, ContextType const& initialDestination, size_t const& recursionDepth) const {
     std::string strippedKey = initialKey;
     ContextType destination = initialDestination;
 

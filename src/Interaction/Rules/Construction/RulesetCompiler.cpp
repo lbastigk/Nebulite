@@ -252,7 +252,7 @@ void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Data::
         Logic::Assignment::Operation::multiply
     };
 
-    ContextScopeBase const context{self, self, Global::instance().domainScope};
+    ContextScope const context{self, self, Global::instance().domainScope};
     for (auto& assignment : entry->assignments) {
         if (assignment.onType == Logic::Assignment::Type::Self) {
             if (std::ranges::find(numeric_operations, assignment.operation) != std::ranges::end(numeric_operations)) {

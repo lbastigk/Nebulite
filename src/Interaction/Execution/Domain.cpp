@@ -134,7 +134,7 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
         std::string const& variableWithTransformations = parts[0];
 
         // Setup context for parsing
-        ContextScopeBase const ctxBase{domainScope, domainScope, Global::instance().domainScope};
+        ContextScope const ctxBase{domainScope, domainScope, Global::instance().domainScope};
 
         // Parse into expression
         Data::JSON const result = Logic::Expression::evalAsJson(variableWithTransformations, ctxBase);

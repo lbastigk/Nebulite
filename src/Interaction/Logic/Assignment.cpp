@@ -75,7 +75,7 @@ void Assignment::setValueOfKey(double const& val, double* target) const {
     }
 }
 
-void Assignment::apply(ContextScopeBase const& context) const {
+void Assignment::apply(ContextScope const& context) const {
     //------------------------------------------
     // Check what the target document to apply the ruleset to is
 

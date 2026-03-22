@@ -71,7 +71,7 @@ public:
     [[nodiscard]] std::string eval(Context const& context) const {
         return pool[threadIndex()]->eval(context);
     }
-    [[nodiscard]] std::string eval(ContextScopeBase const& context) const {
+    [[nodiscard]] std::string eval(ContextScope const& context) const {
         return pool[threadIndex()]->eval(context);
     }
 
@@ -83,7 +83,7 @@ public:
     [[nodiscard]] double evalAsDouble(Context const& context) const {
         return pool[threadIndex()]->evalAsDouble(context);
     }
-    [[nodiscard]] double evalAsDouble(ContextScopeBase const& context) const {
+    [[nodiscard]] double evalAsDouble(ContextScope const& context) const {
         return pool[threadIndex()]->evalAsDouble(context);
     }
 

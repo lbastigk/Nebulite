@@ -4,8 +4,8 @@
 
 namespace Nebulite::Interaction {
 
-ContextScopeBase Context::demote() const {
-    return ContextScopeBase{
+ContextScope Context::demote() const {
+    return ContextScope{
         self.domainScope.shareScope(""),
         other.domainScope.shareScope(""),
         global.domainScope.shareScope("")
