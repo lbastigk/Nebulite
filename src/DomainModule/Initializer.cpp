@@ -30,6 +30,7 @@
 #include "DomainModule/GlobalSpace/FeatureTest.hpp"         // Feature testing module
 #include "DomainModule/GlobalSpace/General.hpp"
 #include "DomainModule/GlobalSpace/InputMapping.hpp"
+#include "DomainModule/GlobalSpace/Physics.hpp"
 #include "DomainModule/GlobalSpace/Ruleset.hpp"
 #include "DomainModule/GlobalSpace/Settings.hpp"
 #include "DomainModule/GlobalSpace/Time.hpp"
@@ -153,9 +154,18 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
 
     //------------------------------------------
     // Input mapping
-    // Even though input is initialized in the Renderer module, the input mapping module may be better suited to live in the GlobalSpace
+    // Even though input is initialized in the Renderer module,
+    // the input mapping module may be better suited to live in the GlobalSpace
     target->initModule<Core::GlobalSpace, InputMapping>(
         "Global Input Mapping Functions",
+        Global::settings(),
+        *target
+    );
+
+    //------------------------------------------
+    // Misc
+    target->initModule<Core::GlobalSpace, Physics>(
+        "Global Physics Utilities",
         Global::settings(),
         *target
     );
