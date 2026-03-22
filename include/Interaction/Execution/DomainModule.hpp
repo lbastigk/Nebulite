@@ -23,6 +23,11 @@ namespace Nebulite::Interaction::Execution {
  * @brief Wrapper class for binding functions to a specific category in the FuncTree and adding separate update routines.
  * @details Allows for cleaner separation of object files for different categories
  *          and reduces boilerplate code when attaching functions to the FuncTree.
+ *          DomainModules provide several functionalities:
+ *          - Data inside their scope
+ *          - Keys for other classes to use to retrieve data
+ *          - Update routines
+ *          - Functions to call via the FuncTree system
  */
 template <typename DomainType>
 class DomainModule : public DomainModuleBase {
