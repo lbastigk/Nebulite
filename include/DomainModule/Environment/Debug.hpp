@@ -43,9 +43,6 @@ public:
         // Container info
         static auto constexpr containerTotalTiles = makeScoped("container.totalTiles");
         static auto constexpr containerTotalCost = makeScoped("container.totalCost");
-
-        // Worker info
-        static auto constexpr workersTotalCount = makeScoped("workers.total.count");
     };
 
 

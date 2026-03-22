@@ -135,9 +135,6 @@ public:
         // Container stats
         size_t containerTotalTiles = 0;
         size_t containerTotalCost = 0;
-
-        // Worker stats
-        size_t totalWorkers = 0;
     };
 
     /**

@@ -273,10 +273,6 @@ RenderObjectContainer::ContainerInfo RenderObjectContainer::getContainerInfo() c
             info.containerTotalCost += cost;
         }
     }
-
-    // Worker stats
-    info.totalWorkers = Constants::ThreadSettings::getInvokeWorkerCount();
-
     return info;
 }
 
