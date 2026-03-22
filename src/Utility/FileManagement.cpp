@@ -13,48 +13,49 @@
 //------------------------------------------
 namespace Nebulite::Utility {
 
-std::string FileManagement::CombinePaths(std::string const& baseDir, std::string const& innerDir) {
+std::string FileManagement::CombinePaths(std::string_view const& baseDir, std::string_view const& innerDir) {
     std::filesystem::path const basePath(baseDir);
     std::filesystem::path const innerPath(innerDir);
     std::filesystem::path const fullPath = basePath / innerPath;
     return fullPath.string();
 }
 
-/**
- * @todo Switch back to std::filesystem
- *       this old version was used to avoid locale issues on some platforms.
- *       Should work now, issue was probably some borked Kubuntu install.
- */
-std::string FileManagement::LoadFile(std::string const& link) {
-    // Use C-style file I/O to avoid locale issues
-    FILE* file = fopen(link.c_str(), "rb");
-    if (!file) {
-        Global::capture().error.println("File '", link, "' could not be opened! Reason: ", strerror(errno));
+std::string FileManagement::LoadFile(std::string_view const& link) {
+    std::filesystem::path const filepath(link);
+
+    if (!exists(filepath)) {
+        Global::capture().error.println("File '", filepath.string(), "' does not exist!");
+        return "";
+    }
+    if (!is_regular_file(filepath)) {
+        Global::capture().error.println("Path '", filepath.string(), "' is not a regular file!");
         return "";
     }
 
-    // Get file size
-    fseek(file, 0, SEEK_END);
-    long const fileSize = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    if (fileSize <= 0) {
-        Global::capture().error.println("File '", link, "' is empty or invalid!");
-        fclose(file);
+    std::ifstream file(filepath, std::ios::binary);
+    if (!file.is_open()) {
+        Global::capture().error.println("File '", filepath.string(), "' could not be opened for reading!");
         return "";
     }
 
-    // Read entire file into string
-    std::string content(static_cast<size_t>(fileSize), '\0');
-    size_t const bytesRead = fread(&content[0], 1, static_cast<size_t>(fileSize), file);
-    fclose(file);
+    std::string content;
+    try {
+        auto const size = file_size(filepath);
+        content.resize(size);
+        file.read(content.data(), static_cast<std::streamsize>(content.size()));
 
-    // Adjust string size to actual bytes read
-    content.resize(bytesRead);
+        if (!file && !file.eof()) {
+            Global::capture().error.println("Error reading file '", filepath.string(), "'!");
+            content = "";
+        }
+    } catch (std::exception const& e) {
+        Global::capture().error.println("Error reading file '", filepath.string(), "': ", e.what());
+        content = "";
+    }
     return content;
 }
 
-void FileManagement::WriteFile(std::string const& filename, std::string const& text) {
+void FileManagement::WriteFile(std::string_view const& filename, std::string_view const& text) {
     std::filesystem::path const filepath(filename); // Modern: handles encoding and platform separators
 
     std::ofstream file(filepath, std::ios::out);
@@ -78,7 +79,7 @@ std::string FileManagement::currentDir() {
     }
 }
 
-bool FileManagement::fileExists(std::string const& path) {
+bool FileManagement::fileExists(std::string_view const& path) {
     return std::filesystem::exists(path);
 }
 

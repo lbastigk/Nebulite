@@ -31,7 +31,7 @@ public:
      * 
      * @return The combined path as a string.
      */
-    static std::string CombinePaths(std::string const& baseDir, std::string const& innerDir);
+    static std::string CombinePaths(std::string_view const& baseDir, std::string_view const& innerDir);
 
     /**
      * @brief Loads the contents of a file into a string.
@@ -43,7 +43,7 @@ public:
      * @return The contents of the file as a string. If the file cannot be read,
      *         an empty string is returned.
      */
-    static std::string LoadFile(std::string const& link);
+    static std::string LoadFile(std::string_view const& link);
 
     /**
      * @brief Writes a string to a file.
@@ -54,7 +54,7 @@ public:
      * @param filename The name of the file to write to.
      * @param text The text to write to the file.
      */
-    static void WriteFile(std::string const& filename, std::string const& text);
+    static void WriteFile(std::string_view const& filename, std::string_view const& text);
 
     /**
      * @brief Returns the preferred directory separator for the platform.
@@ -84,7 +84,7 @@ public:
      * 
      * @return True if the file exists, false otherwise.
      */
-    static bool fileExists(std::string const& path);
+    static bool fileExists(std::string_view const& path);
 };
 } // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_FILE_MANAGEMENT_HPP
