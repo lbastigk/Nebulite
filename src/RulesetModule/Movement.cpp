@@ -23,7 +23,7 @@ Movement::Movement() : RulesetModule(moduleName) {
 
     // Global Variables
     auto const token = getRulesetModuleAccessToken(*this);
-    globalVal.dt = Global::shareScopeBase(token).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_dt); // Simulation delta time
+    globalVal.dt = Global::shareScope(token).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_dt); // Simulation delta time
 }
 
 // Global rulesets

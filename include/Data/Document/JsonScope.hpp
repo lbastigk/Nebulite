@@ -134,9 +134,9 @@ public:
     // When requesting a scope to share, we always assume its relative to our current scope
     // So we can pass a key as string and generate the full key internally based on our scopePrefix
 
-    [[nodiscard]] JsonScope& shareScopeBase(ScopedKeyView const& key) const ;
-    [[nodiscard]] JsonScope& shareScopeBase(ScopedKey const& key) const {return shareScopeBase(key.view());}
-    [[nodiscard]] JsonScope& shareScopeBase(std::string const& key) const ;
+    [[nodiscard]] JsonScope& shareScope(ScopedKeyView const& key) const ;
+    [[nodiscard]] JsonScope& shareScope(ScopedKey const& key) const {return shareScope(key.view());}
+    [[nodiscard]] JsonScope& shareScope(std::string const& key) const ;
 
     // Share a dummy scope, where all access is denied
     [[nodiscard]] JsonScope& shareDummyScopeBase() ;

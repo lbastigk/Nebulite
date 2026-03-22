@@ -10,8 +10,8 @@ Constants::Event Mirror::update() {
     if (mirrorEnabled || mirrorOnceEnabled) {
         // Mirror to GlobalSpace
         auto const token = getDomainModuleAccessToken(*this);
-        auto const baseKey = Global::shareScopeBase(token).getRootScope();
-        Global::shareScopeBase(token).setSubDoc(baseKey + mirrorKey, moduleScope);
+        auto const baseKey = Global::shareScope(token).getRootScope();
+        Global::shareScope(token).setSubDoc(baseKey + mirrorKey, moduleScope);
 
         // Reset once-flag
         mirrorOnceEnabled = false;
@@ -43,19 +43,19 @@ Constants::Event Mirror::mirror_off() {
 
 Constants::Event Mirror::mirror_delete() const {
     auto const token = getDomainModuleAccessToken(*this);
-    auto const baseKey = Global::shareScopeBase(token).getRootScope();
-    Global::shareScopeBase(token).removeMember(baseKey + mirrorKey);
+    auto const baseKey = Global::shareScope(token).getRootScope();
+    Global::shareScope(token).removeMember(baseKey + mirrorKey);
     return Constants::Event::Success;
 }
 
 Constants::Event Mirror::mirror_fetch() const {
     auto const token = getDomainModuleAccessToken(*this);
-    auto const baseKey = Global::shareScopeBase(token).getRootScope();
-    if (Global::shareScopeBase(token).memberType(baseKey + mirrorKey) != Data::KeyType::object) {
+    auto const baseKey = Global::shareScope(token).getRootScope();
+    if (Global::shareScope(token).memberType(baseKey + mirrorKey) != Data::KeyType::object) {
         domain.capture.warning.println("Mirror fetch failed: Key '" + mirrorKey + "' not of type document");
         return Constants::Event::Warning;
     }
-    domain.deserialize(Global::shareScopeBase(token).serialize(baseKey + mirrorKey));
+    domain.deserialize(Global::shareScope(token).serialize(baseKey + mirrorKey));
     return Constants::Event::Success;
 }
 

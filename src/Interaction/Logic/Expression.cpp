@@ -656,7 +656,7 @@ Data::JsonScope& Expression::emptyDoc() {
 
 Data::JsonScope& Expression::globalDoc() {
     static auto accessToken = ScopeAccessor::Full();
-    static auto& globalDoc = Global::shareScopeBase(accessToken, "");
+    static auto& globalDoc = Global::shareScope(accessToken, "");
     return globalDoc;
 }
 

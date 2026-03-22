@@ -21,7 +21,7 @@ Constants::Event Console::update() {
         Graphics::ImguiHelper::DomainRenderingFlags flags;
         flags.showCloseButton = false;
         flags.windowAlignment = Graphics::ImguiHelper::DomainRenderingFlags::Alignment::BOTTOM;
-        Graphics::ImguiHelper::renderDomain(Global::instance(), Global::capture(), Global::shareScopeBase(accessToken), "Console", flags);
+        Graphics::ImguiHelper::renderDomain(Global::instance(), Global::capture(), Global::shareScope(accessToken), "Console", flags);
     }
     return Constants::Event::Success;
 }

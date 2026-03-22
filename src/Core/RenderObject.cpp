@@ -25,8 +25,8 @@ void setStandardValues(Data::JsonScope& document) {
     document.set(Constants::KeyNames::RenderObject::layer, 0);
 
     // Create a basic drawcall
-    Graphics::Drawcall::ApplyDefault::Sprite(document.shareScopeBase(Constants::KeyNames::RenderObject::draw + ".exampleSprite"));
-    Graphics::Drawcall::ApplyDefault::Text(document.shareScopeBase(Constants::KeyNames::RenderObject::draw + ".exampleText"));
+    Graphics::Drawcall::ApplyDefault::Sprite(document.shareScope(Constants::KeyNames::RenderObject::draw + ".exampleSprite"));
+    Graphics::Drawcall::ApplyDefault::Text(document.shareScope(Constants::KeyNames::RenderObject::draw + ".exampleText"));
 
     // Set default size
     document.set(Constants::KeyNames::RenderObject::sizeX, 32);
@@ -91,7 +91,7 @@ void RenderObject::reinitDrawcalls() {
     // Get list of drawcalls from document
     for (auto const& [member, key] : domainScope.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
         // Initialize drawcall with its own scope
-        drawcalls[member] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()), capture);
+        drawcalls[member] = std::make_unique<Graphics::Drawcall>(domainScope.shareScope(key.view()), capture);
     }
     sortDrawcalls();
 }
@@ -101,7 +101,7 @@ void RenderObject::initDrawcalls() {
     for (auto const& [member, key] : domainScope.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
         // Initialize drawcall with its own scope
         if (drawcalls.find(member) == drawcalls.end()) {
-            drawcalls[member] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()), capture);
+            drawcalls[member] = std::make_unique<Graphics::Drawcall>(domainScope.shareScope(key.view()), capture);
         }
     }
     sortDrawcalls();
@@ -110,7 +110,7 @@ void RenderObject::initDrawcalls() {
 void RenderObject::reInitDrawcall(std::string const& drawcallName) {
     // Reinitialize a specific drawcall from document
     auto const key = Constants::KeyNames::RenderObject::draw + drawcallName;
-    drawcalls[drawcallName] = std::make_unique<Graphics::Drawcall>(domainScope.shareScopeBase(key.view()), capture);
+    drawcalls[drawcallName] = std::make_unique<Graphics::Drawcall>(domainScope.shareScope(key.view()), capture);
 }
 
 void RenderObject::updateDrawcalls() {

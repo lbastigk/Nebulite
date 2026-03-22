@@ -301,7 +301,7 @@ public:
                 static auto const scopeKey = Data::ScopedKey("", DomainModuleType::Key::getScope());
 
                 // Share the scope based on the module's defined scope
-                auto& scope = domainReference.domainScope.shareScopeBase(scopeKey); // Sharing a scope based on the module's defined scope
+                auto& scope = domainReference.domainScope.shareScope(scopeKey); // Sharing a scope based on the module's defined scope
                 auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, funcTree, scope, settings);
                 DomainModule->reinit();
                 return DomainModule;

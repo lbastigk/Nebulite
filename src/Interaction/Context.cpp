@@ -6,9 +6,9 @@ namespace Nebulite::Interaction {
 
 ContextScopeBase Context::demote() const {
     return ContextScopeBase{
-        self.domainScope.shareScopeBase(""),
-        other.domainScope.shareScopeBase(""),
-        global.domainScope.shareScopeBase("")
+        self.domainScope.shareScope(""),
+        other.domainScope.shareScope(""),
+        global.domainScope.shareScope("")
     };
 }
 

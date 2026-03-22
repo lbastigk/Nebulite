@@ -13,7 +13,7 @@ Data::JsonScope const& Global::settings() {
     return settingsScopeConst;
 }
 
-Data::JsonScope& Global::shareScopeBase(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix) {
+Data::JsonScope& Global::shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix) {
     return globalDoc().shareManagedScopeBase(at.getPrefix() + prefix);
 }
 

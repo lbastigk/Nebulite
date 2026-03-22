@@ -48,7 +48,7 @@ bool Collection::map(std::span<std::string const> const& args, Data::JsonScope* 
         auto const elementKey = rootKey + "[" + std::to_string(idx) + "]";
 
         // Parse transformation command
-        auto& scope = jsonDoc->shareScopeBase(elementKey);
+        auto& scope = jsonDoc->shareScope(elementKey);
         if (!transformationFuncTree->parseStr(cmd, &scope)) {
             jsonDoc->removeMember(elementKey);
             return false; // If parsing fails for any element, we remove it and return false
@@ -143,7 +143,7 @@ bool Collection::filterNulls(Data::JsonScope* jsonDoc) {
     auto const memberKeyPairs = jsonDoc->listAvailableMembersAndKeys(rootKey);
     Data::JSON filteredObject;
     for (const auto& [member, key] : memberKeyPairs) {
-        auto& memberScope = jsonDoc->shareScopeBase(key);
+        auto& memberScope = jsonDoc->shareScope(key);
         filterNulls(&memberScope);
 
         // If the member has no more members, we also remove it

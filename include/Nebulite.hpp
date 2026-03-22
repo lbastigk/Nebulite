@@ -190,7 +190,7 @@ public:
      * @param prefix Prefix to append to the access token's prefix for scope retrieval.
      * @return Reference to the shared JsonScope.
      */
-    [[nodiscard]] static Data::JsonScope& shareScopeBase(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix = "");
+    [[nodiscard]] static Data::JsonScope& shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix = "");
 
     //------------------------------------------
     // Capture access
