@@ -110,11 +110,6 @@ public:
     uint64_t estimateComputationalCost(bool const& onlyInternal = true);
 
     //------------------------------------------
-    // Special getters
-
-
-
-    //------------------------------------------
     // Management Flags for Renderer-Interaction
 
     /**
@@ -142,6 +137,18 @@ public:
         }
     }
 
+    //------------------------------------------
+    // Draw calls
+
+    // Re-initialize all drawcalls from document
+    void reinitDrawcalls();
+
+    // Initialize only unknown drawcalls from document
+    void initDrawcalls();
+
+    // Reinitialize a specific drawcall from document
+    void reInitDrawcall(std::string const& drawcallName);
+
 private:
     //------------------------------------------
     // Initialization
@@ -153,10 +160,7 @@ private:
     void init();
 
     //------------------------------------------
-    // Draw calls
-
-    // TODO: expose drawcall init/reinit for a domainmodule to use
-    //       This way, we may add new drawcalls at runtime via scripts
+    // Private draw call management
 
     absl::flat_hash_map<std::string, std::shared_ptr<Graphics::Drawcall>> drawcalls;
 
@@ -164,15 +168,6 @@ private:
     std::vector<std::string> drawcallOrder;
 
     void sortDrawcalls();
-
-    // Re-initialize all drawcalls from document
-    void reinitDrawcalls();
-
-    // Initialize only unknown drawcalls from document
-    void initDrawcalls();
-
-    // Reinitialize a specific drawcall from document
-    void reInitDrawcall(std::string const& drawcallName);
 
     // Update all drawcalls
     void updateDrawcalls();
