@@ -591,8 +591,6 @@ std::string Expression::eval(ContextScopeBase const& context, size_t const& recu
     //------------------------------------------
     // Evaluate expression
     // Concatenate results of each component
-    // TODO: Best to have both result and token be part of the class?
-    //       Set to empty should not be needed, as any previous data is overwritten?
     std::string result;
     for (auto const& component : components) {
         std::string token;
