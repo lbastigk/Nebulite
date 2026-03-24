@@ -42,7 +42,7 @@ class Texture;
 // Forward declarations: Other classes
 
 namespace Nebulite::Data {
-class MappedOrderedDoublePointers;
+class MappedOrderedCacheList;
 class TaskQueue;
 class ScopedKeyView;
 class JsonScope;

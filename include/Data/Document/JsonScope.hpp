@@ -19,7 +19,7 @@
 #include "Data/Document/RjDirectAccess.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Data/Document/SimpleValueError.hpp"
-#include "Data/OrderedDoublePointers.hpp"
+#include "Data/OrderedCacheList.hpp"
 #include "Utility/Coordination/IdGenerator.hpp"
 
 //------------------------------------------
@@ -66,7 +66,7 @@ private:
     /**
      * @brief Mapped ordered double pointers intended for non-locking access
      */
-    alignas(Constants::Alignment::SIMD_ALIGN) std::array<MappedOrderedDoublePointers, noLockArraySize> odpCache;
+    alignas(Constants::Alignment::SIMD_ALIGN) std::array<MappedOrderedCacheList, noLockArraySize> odpCache;
 
     //------------------------------------------
     // Valid prefix check and generation

@@ -1,5 +1,5 @@
 /**
- * @file OrderedDoublePointers.hpp
+ * @file OrderedCacheList.hpp
  * @brief Defines a list of double pointers for interaction logic.
  */
 
@@ -94,11 +94,11 @@ private:
 /**
  * @brief Lightweight container for ordered double pointers in expression evaluations.
  */
-class OrderedDoublePointers {
+class OrderedCacheList {
 public:
-    OrderedDoublePointers() = default;
+    OrderedCacheList() = default;
 
-    explicit OrderedDoublePointers(size_t const& exact_size) : orderedValues(exact_size) {}
+    explicit OrderedCacheList(size_t const& exact_size) : orderedValues(exact_size) {}
 
     DynamicFixedArray orderedValues {};
 };
@@ -107,19 +107,19 @@ public:
 using odpvec = DynamicFixedArray;
 
 /**
- * @class MappedOrderedDoublePointers
- * @brief A thread-safe map from strings to OrderedDoublePointers objects.
+ * @class MappedOrderedCacheList
+ * @brief A thread-safe map from strings to OrderedCacheList objects.
  */
-class MappedOrderedDoublePointers {
+class MappedOrderedCacheList {
 public:
-    explicit MappedOrderedDoublePointers(JsonScope& ownerReference)
+    explicit MappedOrderedCacheList(JsonScope& ownerReference)
         : reference(ownerReference) {
     }
 
     /**
      * @brief Generates a unique ID for an expression based on its string representation.
      * @param identifier The string representation of the expression for which to generate a unique ID.
-     * @return A unique ID corresponding to the given expression string. This ID can be used for caching purposes in the MappedOrderedDoublePointers.
+     * @return A unique ID corresponding to the given expression string. This ID can be used for caching purposes in the MappedOrderedCacheList.
      */
     static size_t generateUniqueId(std::string_view const& identifier) {
         static auto generator = Utility::Coordination::IdGenerator::stringToRollingIdGenerator();
@@ -149,9 +149,9 @@ private:
     JsonScope& reference;
 
     /**
-     * @brief Map from unique IDs to OrderedDoublePointers objects.
+     * @brief Map from unique IDs to OrderedCacheList objects.
      */
-    absl::flat_hash_map<uint64_t, OrderedDoublePointers> map;
+    absl::flat_hash_map<uint64_t, OrderedCacheList> map;
 
     /**
      * @brief Mutex for thread-safe access to the map.

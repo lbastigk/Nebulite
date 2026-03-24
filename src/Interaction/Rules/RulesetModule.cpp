@@ -4,7 +4,7 @@
 
 namespace Nebulite::Interaction::Rules {
 RulesetModule::RulesetModule(std::string_view const& moduleName)
-: id{Data::MappedOrderedDoublePointers::generateUniqueId(moduleName)}
+: id{Data::MappedOrderedCacheList::generateUniqueId(moduleName)}
 {}
 
 void RulesetModule::ensureBaseList(Execution::Domain const& domain, std::vector<Data::ScopedKeyView> const& keys, double**& arr) const {

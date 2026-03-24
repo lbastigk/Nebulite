@@ -1,22 +1,22 @@
 #include "Data/Document/JsonScope.hpp"
-#include "Data/OrderedDoublePointers.hpp"
+#include "Data/OrderedCacheList.hpp"
 
 namespace Nebulite::Data {
 
-odpvec* MappedOrderedDoublePointers::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
+odpvec* MappedOrderedCacheList::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
     Utility::Coordination::WriteLock lock(mtxMap);
     return fromMap(uniqueId, keys);
 }
 
-odpvec* MappedOrderedDoublePointers::ensureOrderedCacheListNoLock(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
+odpvec* MappedOrderedCacheList::ensureOrderedCacheListNoLock(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
     return fromMap(uniqueId, keys);
 }
 
-odpvec* MappedOrderedDoublePointers::fromMap(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys){
+odpvec* MappedOrderedCacheList::fromMap(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys){
     if (auto const it = map.find(uniqueId); it != map.end()) [[likely]] {
         return &it->second.orderedValues;
     }
-    auto [newIt, inserted] = map.try_emplace(uniqueId, OrderedDoublePointers(keys.size()));
+    auto [newIt, inserted] = map.try_emplace(uniqueId, OrderedCacheList(keys.size()));
     if (inserted) {
         for (auto const& key : keys) {
             double* ptr = reference.getStableDoublePointer(key);
