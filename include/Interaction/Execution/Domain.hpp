@@ -411,7 +411,7 @@ public:
      * @param keys The vector of keys to populate the cache with if it does not exist.
      * @return A pointer to the ordered vector of double pointers for the specified keys.
      */
-    [[nodiscard]] Data::odpvec* ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<Data::ScopedKeyView> const& keys) const ;
+    [[nodiscard]] double** ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<Data::ScopedKeyView> const& keys) const ;
 
     /**
      * @brief Locks the domain's document for thread-safe access.

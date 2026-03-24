@@ -103,9 +103,6 @@ public:
     DynamicFixedArray orderedValues {};
 };
 
-// Vector alias for easier usage of ordered double pointer vectors
-using odpvec = DynamicFixedArray;
-
 /**
  * @class MappedOrderedCacheList
  * @brief A thread-safe map from strings to OrderedCacheList objects.
@@ -132,7 +129,7 @@ public:
      * @param keys The vector of keys to populate the cache with.
      * @return A pointer to the ordered vector of double pointers for the specified keys.
      */
-    odpvec* ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
+    double** ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
 
     /**
      * @brief Ensures the existence of an ordered cache list of double pointers for a set of keys. Non-locking version.
@@ -140,7 +137,7 @@ public:
      * @param keys The vector of keys to populate the cache with.
      * @return A pointer to the ordered vector of double pointers for the specified keys.
      */
-    odpvec* ensureOrderedCacheListNoLock(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
+    double** ensureOrderedCacheListNoLock(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
 
 private:
     /**
@@ -165,7 +162,7 @@ private:
      * @param keys The keys to potentially create the entry with
      * @return An ordered vector of double pointers corresponding to the keys, either retrieved from the map or newly created if it did not exist.
      */
-    odpvec* fromMap(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
+    double** fromMap(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
 };
 } // namespace Nebulite::Data
 

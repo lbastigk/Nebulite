@@ -97,7 +97,7 @@ Constants::Event Domain::parseStr(std::string const& str) {
     return funcTree->parseStr(str, *this, domainScope);
 }
 
-Data::odpvec* Domain::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<Data::ScopedKeyView> const& keys) const {
+double** Domain::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<Data::ScopedKeyView> const& keys) const {
     return domainScope.ensureOrderedCacheList(uniqueId, keys);
 }
 

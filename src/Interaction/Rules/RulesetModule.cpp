@@ -8,7 +8,7 @@ RulesetModule::RulesetModule(std::string_view const& moduleName)
 {}
 
 void RulesetModule::ensureBaseList(Execution::Domain const& domain, std::vector<Data::ScopedKeyView> const& keys, double**& arr) const {
-    arr = domain.ensureOrderedCacheList(id, keys)->data();
+    arr = domain.ensureOrderedCacheList(id, keys);
 }
 
 } // namespace Nebulite::Interaction::Rules
