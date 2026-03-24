@@ -158,51 +158,13 @@ private:
      */
     Utility::Coordination::SharedMutex mtxMap;
 
-    // With QuickCache:
-    // Static Rulesets:
-    // Average total time for small benchmark: 3.134300 s
-    // Average frame time for large benchmark: 0.010235 s
-    // JSON Rulesets:
-    // Average total time for small benchmark: 7.050400 s
-    // Average frame time for large benchmark: 0.188441 s
-
-    // Without QuickCache:
-    // Static Rulesets:
-    // Average total time for small benchmark: 3.127900 s
-    // Average frame time for large benchmark: 0.010146 s
-    // JSON Rulesets:
-    // Average total time for small benchmark: 7.061100 s
-    // Average frame time for large benchmark: 0.186681 s
-
-#define USE_QUICK_CACHE 0
-#if USE_QUICK_CACHE
     /**
-     * @brief Size of the quickcache for ordered double pointers.
-     * @details This defines how many OrderedDoublePointers can be cached for quick access
-     *          without needing to look them up in a hashmap.
-     *          see MappedOrderedDoublePointers::quickCache for important considerations.
+     * @brief Retrieves or creates an ordered cache list of double pointers for a set of keys from the map.
+     * @details Not protected by any mutex
+     * @param uniqueId The unique id of the entry
+     * @param keys The keys to potentially create the entry with
+     * @return An ordered vector of double pointers corresponding to the keys, either retrieved from the map or newly created if it did not exist.
      */
-    static constexpr size_t quickCacheSize = 32;
-
-    /**
-     * @brief Quick cache for the first few OrderedDoublePointers entries.
-     * @details This array allows for fast access to frequently used entries without the overhead of a hashmap lookup.
-     * @todo Is the quickcache still helpful? Or should we just rely on the hashmap?
-     *       Write a simple preprocessor flag USE_QUICK_CACHE to enable/disable this feature and benchmark the difference in performance and memory usage.
-     */
-    OrderedDoublePointers quickCache[quickCacheSize];
-
-    /**
-     * @brief Mutex for thread-safe access to the cache.
-     */
-    Utility::Coordination::SharedMutex mtxCache;
-
-    odpvec* fromQuickCache(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
-#endif
-
-    //------------------------------
-    // Helper functions to retrieve values from map/cache
-
     odpvec* fromMap(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
 };
 } // namespace Nebulite::Data
