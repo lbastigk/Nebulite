@@ -128,9 +128,11 @@ void Assignment::apply(ContextScope const& context) const {
         }
     }
     // Check if returning as a json is preferred
-    //else if (!expression->isReturnableAsString()) {
-    //
-    //}
+    else if (!expression->isReturnableAsString() && this->operation == Operation::set) {
+        auto const resolved = expression->evalAsJson(context);
+        auto const k = Data::ScopedKey(key->eval(context));
+        targetDocument->setSubDoc(k.view(), std::move(resolved));
+    }
     // If not, we resolve as string and update that way
     else {
         std::string const resolved = expression->eval(context);
