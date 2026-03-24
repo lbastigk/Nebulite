@@ -54,72 +54,19 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRule
     }
 }
 
-std::optional<Logic::Assignment> RulesetCompiler::getExpression(Data::JsonScope const& entry, size_t const& index) {
-    static std::string constexpr startSelf = "self.";
-    static std::string constexpr startOther = "other.";
-    static std::string constexpr startGlobal = "global.";
-
+std::optional<Logic::Assignment> RulesetCompiler::getAssignment(Data::JsonScope const& entry, size_t const& index) {
     auto const exprKey = Constants::KeyNames::Ruleset::assignments + "[" + std::to_string(index) + "]";
-
-    // Get expression
-    auto expr = entry.get<std::string>(exprKey).value_or("");
-
-    Logic::Assignment assignment;
-
-    // needs to start with "self.", "other." or "global."
-    std::string prefix;
-    if (expr.starts_with(startSelf)) {
-        assignment.onType = Logic::Assignment::Type::Self;
-        prefix = startSelf;
-    } else if (expr.starts_with(startOther)) {
-        assignment.onType = Logic::Assignment::Type::Other;
-        prefix = startOther;
-    } else if (expr.starts_with(startGlobal)) {
-        assignment.onType = Logic::Assignment::Type::Global;
-        prefix = startGlobal;
-    } else {
-        // Invalid expression
-        assignment.onType = Logic::Assignment::Type::null;
-        return {};
+    if (Logic::Assignment assignment; assignment.parse(entry.get<std::string>(exprKey).value_or(""))) {
+        return assignment;
     }
-
-    // Find the operator position in the full expression, set operation, key and value
-    if (size_t pos; (pos = expr.find("+=")) != std::string::npos) {
-        assignment.operation = Logic::Assignment::Operation::add;
-        assignment.value = expr.substr(pos + 2);
-        assignment.keyStr = expr.substr(prefix.length(), pos - prefix.length());
-    } else if ((pos = expr.find("*=")) != std::string::npos) {
-        assignment.operation = Logic::Assignment::Operation::multiply;
-        assignment.value = expr.substr(pos + 2);
-        assignment.keyStr = expr.substr(prefix.length(), pos - prefix.length());
-    } else if ((pos = expr.find("|=")) != std::string::npos) {
-        assignment.operation = Logic::Assignment::Operation::concat;
-        assignment.value = expr.substr(pos + 2);
-        assignment.keyStr = expr.substr(prefix.length(), pos - prefix.length());
-    } else if ((pos = expr.find("=")) != std::string::npos) {
-        assignment.operation = Logic::Assignment::Operation::set;
-        assignment.value = expr.substr(pos + 1);
-        assignment.keyStr = expr.substr(prefix.length(), pos - prefix.length());
-    } else {
-        return {};
-    }
-    return assignment;
+    return std::nullopt;
 }
 
-bool RulesetCompiler::getExpressions(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JsonScope const& entry) {
+bool RulesetCompiler::getAssignments(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JsonScope const& entry) {
     if (entry.memberType(Constants::KeyNames::Ruleset::assignments) == Data::KeyType::array) {
         size_t const exprSize = entry.memberSize(Constants::KeyNames::Ruleset::assignments);
         for (size_t j = 0; j < exprSize; ++j) {
-            if (auto v = getExpression(entry, j); v.has_value()) {
-                // Successfully parsed expression
-
-                // Remove whitespaces at start and end of key and value
-                v->key = std::make_unique<Logic::Expression>(
-                    Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(v->keyStr))
-                );
-                v->value = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(v->value));
-
-                // Add assignmentExpr to Ruleset
+            if (auto v = getAssignment(entry, j); v.has_value()) {
                 Ruleset->assignments.emplace_back(std::move(*v));
             }
         }
@@ -244,32 +191,9 @@ void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulese
 }
 
 void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JsonScope& self) {
-    // List of operations that are considered numeric and thus eligible for direct pointer assignment.
-    // Any new numeric operation must be added here to benefit from optimization techniques in the Invoke class.
-    std::array constexpr numeric_operations = {
-        Logic::Assignment::Operation::set,
-        Logic::Assignment::Operation::add,
-        Logic::Assignment::Operation::multiply
-    };
-
     ContextScope const context{self, self, Global::instance().domainScope};
     for (auto& assignment : entry->assignments) {
-        if (assignment.onType == Logic::Assignment::Type::Self) {
-            if (std::ranges::find(numeric_operations, assignment.operation) != std::ranges::end(numeric_operations)) {
-                // Numeric operation on self, try to get a direct pointer
-                if (double* ptr = self.getStableDoublePointer(Data::ScopedKey(assignment.key->eval(context))); ptr != nullptr) {
-                    assignment.targetValuePtr = ptr;
-                }
-            }
-        }
-        if (assignment.onType == Logic::Assignment::Type::Global) {
-            if (std::ranges::find(numeric_operations, assignment.operation) != std::ranges::end(numeric_operations)) {
-                // Numeric operation on global, try to get a direct pointer
-                if (double* ptr = Global::instance().domainScope.getStableDoublePointer(Data::ScopedKey(assignment.key->eval(context))); ptr != nullptr) {
-                    assignment.targetValuePtr = ptr;
-                }
-            }
-        }
+        assignment.optimize(context);
     }
 }
 
@@ -313,14 +237,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
     }
 
     // Get and parse all assignments
-    getExpressions(Ruleset, entry);
-    for (auto& assignment : Ruleset->assignments) {
-#if EXPRESSION_POOL_SIZE > 1
-        assignment.expression = std::make_unique<Logic::ExpressionPool>(assignment.value);
-#else
-        assignment.expression = std::make_unique<Logic::Expression>(assignment.value);
-#endif
-    }
+    getAssignments(Ruleset, entry);
 
     // Parse all function calls
     getFunctionCalls(entry, *Ruleset);

@@ -24,6 +24,16 @@ Constants::Event SimpleData::set(std::span<std::string const> const& args, Inter
     return Constants::Event::Success;
 }
 
+Constants::Event SimpleData::assign(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope){
+    auto lock = callerScope.lock(); // Lock the domain for thread-safe access
+    if (args.size() < 2) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
+    }
+    //auto const assignmentString = Utility::StringHandler::recombineArgs(args.subspan(1));
+    // TODO: Implement logic
+    return Constants::StandardCapture::Warning::Functional::featureNotImplemented(caller.capture);
+}
+
 // NOLINTNEXTLINE
 Constants::Event SimpleData::move(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access

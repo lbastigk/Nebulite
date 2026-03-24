@@ -8,6 +8,86 @@
 
 namespace Nebulite::Interaction::Logic {
 
+ bool Assignment::parse(std::string_view const& str){
+     static std::string constexpr startSelf = "self.";
+     static std::string constexpr startOther = "other.";
+     static std::string constexpr startGlobal = "global.";
+
+     // needs to start with "self.", "other." or "global."
+     std::string prefix;
+     if (str.starts_with(startSelf)) {
+         onType = Type::Self;
+         prefix = startSelf;
+     } else if (str.starts_with(startOther)) {
+         onType = Type::Other;
+         prefix = startOther;
+     } else if (str.starts_with(startGlobal)) {
+         onType = Type::Global;
+         prefix = startGlobal;
+     } else {
+         // Invalid expression
+         onType = Type::null;
+         return false;
+     }
+
+     // Find the operator position in the full expression, set operation, key and value
+     if (size_t pos; (pos = str.find("+=")) != std::string::npos) {
+         operation = Operation::add;
+         value = str.substr(pos + 2);
+         keyStr = str.substr(prefix.length(), pos - prefix.length());
+     } else if ((pos = str.find("*=")) != std::string::npos) {
+         operation = Operation::multiply;
+         value = str.substr(pos + 2);
+         keyStr = str.substr(prefix.length(), pos - prefix.length());
+     } else if ((pos = str.find("|=")) != std::string::npos) {
+         operation = Operation::concat;
+         value = str.substr(pos + 2);
+         keyStr = str.substr(prefix.length(), pos - prefix.length());
+     } else if ((pos = str.find('=')) != std::string::npos) {
+         operation = Operation::set;
+         value = str.substr(pos + 1);
+         keyStr = str.substr(prefix.length(), pos - prefix.length());
+     } else {
+         return false;
+     }
+
+     // Remove whitespaces at start and end of key and value
+     key = std::make_unique<Expression>(Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(keyStr)));
+     value = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(value));
+
+     // Set expression
+     expression = std::make_unique<Expression>(value);
+
+
+     return true;
+}
+
+void Assignment::optimize(ContextScope const& contextScope){
+     std::array constexpr numeric_operations = {
+         Operation::set,
+         Operation::add,
+         Operation::multiply
+     };
+
+     // Optimize
+     if (onType == Type::Self) {
+         if (std::ranges::find(numeric_operations, operation) != std::ranges::end(numeric_operations)) {
+             // Numeric operation on self, try to get a direct pointer
+             if (double* ptr = contextScope.self.getStableDoublePointer(Data::ScopedKey(key->eval(contextScope))); ptr != nullptr) {
+                 targetValuePtr = ptr;
+             }
+         }
+     }
+     if (onType == Type::Global) {
+         if (std::ranges::find(numeric_operations, operation) != std::ranges::end(numeric_operations)) {
+             // Numeric operation on global, try to get a direct pointer
+             if (double* ptr = Global::instance().domainScope.getStableDoublePointer(Data::ScopedKey(key->eval(contextScope))); ptr != nullptr) {
+                 targetValuePtr = ptr;
+             }
+         }
+     }
+}
+
 void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Data::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
@@ -127,7 +207,7 @@ void Assignment::apply(ContextScope const& context) const {
             }
         }
     }
-    // Check if returning as a json is preferred
+    // Check if returning as a JSON is preferred
     else if (!expression->isReturnableAsString() && this->operation == Operation::set) {
         auto const resolved = expression->evalAsJson(context);
         auto const k = Data::ScopedKey(key->eval(context));

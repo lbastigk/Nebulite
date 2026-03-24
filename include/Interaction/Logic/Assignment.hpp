@@ -39,10 +39,25 @@ public:
     //------------------------------------------
     // Standard constructor/destructor
 
-    // TODO: Refactor assignment parsing into the class itself instead of RulesetCompiler
-    //       This would require a non-default constructor taking the full assignment string.
     Assignment() = default;
     ~Assignment() = default;
+
+    //------------------------------------------
+    // Parsing
+
+    /**
+     * @brief Parses the assignment from a string.
+     * @param str The string containing the assignment
+     * @return true on success, false on failure
+     */
+    bool parse(std::string_view const& str);
+
+    /**
+     * @brief Tries to optimize the assignment by assuming the provided context self and global are constant.
+     * @param contextScope The context to use for optimization, containing the self and global context.
+     * @todo Just like expression, we could auto-optimize to use the first provided context
+     */
+    void optimize(ContextScope const& contextScope);
 
     //------------------------------------------
     // Since assignments are unique to a RenderObject
@@ -54,10 +69,6 @@ public:
     // enable moving
     Assignment(Assignment&&) noexcept = default;
     Assignment& operator=(Assignment&&) noexcept = delete;
-
-    //------------------------------------------
-    // Allow ruleset compiler to access private members
-    friend class Rules::Construction::RulesetCompiler;
 
     //------------------------------------------
 
@@ -72,6 +83,17 @@ public:
     [[nodiscard]] std::string const& getFullExpression() const {
         return value;
     }
+
+    /**
+     * @brief Type of operation used
+     */
+    enum class Operation : uint8_t {
+        null,       // No operation
+        set,        // '='
+        add,        // '+='
+        multiply,   // '*='
+        concat      // '|='
+    };
 
 private:
     void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Data::JsonScope& target) const ;
@@ -134,17 +156,6 @@ private:
      *          - expression is returnable as double
      */
     double* targetValuePtr = nullptr;
-
-    /**
-     * @brief Type of operation used
-     */
-    enum class Operation : uint8_t {
-        null,       // No operation
-        set,        // '='
-        add,        // '+='
-        multiply,   // '*='
-        concat      // '|='
-    };
 
     /**
      * @brief Type of operation used.

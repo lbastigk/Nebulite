@@ -35,6 +35,14 @@ public:
         "\n"
         "Note: All values are stored as strings.\n";
 
+    [[nodiscard]] Constants::Event assign(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    static auto constexpr assign_name = "assign";
+    static auto constexpr assign_desc = "Assign a key to a value in the JSON document\n"
+        "\n"
+        "Usage: assign <context>.<key> <assignment-operator> <expression>\n"
+        "\n"
+        "Note: All values are stored as strings.\n";
+
     [[nodiscard]] static Constants::Event move(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr move_name = "move";
     static auto constexpr move_desc = "Move data from one key to another.\n"
