@@ -4,6 +4,8 @@
 #include "Core/GlobalSpace.hpp"
 #include "Data/Document/JsonScope.hpp"
 
+#include <complex>
+
 namespace Nebulite::Interaction::Logic {
 
 void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Data::JsonScope& target) const {
@@ -125,6 +127,10 @@ void Assignment::apply(ContextScope const& context) const {
             }
         }
     }
+    // Check if returning as a json is preferred
+    //else if (!expression->isReturnableAsString()) {
+    //
+    //}
     // If not, we resolve as string and update that way
     else {
         std::string const resolved = expression->eval(context);

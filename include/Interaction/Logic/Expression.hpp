@@ -91,7 +91,17 @@ public:
      * @return True if the expression can be returned as a double, false otherwise.
      */
     [[nodiscard]] bool isReturnableAsDouble() const noexcept {
-        return _isReturnableAsDouble;
+        return evaluationInfo.returnableAsDouble;
+    }
+
+    /**
+     * @brief Checks if the expression can be returned as a string.
+     * @details This is almost always the case. The only exception is an expression with only one variable,
+     *          e.g. "{global.var}" or "{self.arr}"
+     * @return True if the expression can be returned as string, false otherwise.
+     */
+    [[nodiscard]] bool isReturnableAsString() const noexcept {
+        return evaluationInfo.returnableAsString;
     }
 
     /**
@@ -99,7 +109,7 @@ public:
      * @return True if the expression is always true, false otherwise.
      */
     [[nodiscard]] bool isAlwaysTrue() const noexcept {
-        return _isAlwaysTrue;
+        return evaluationInfo.alwaysTrue;
     }
 
     //------------------------------------------
@@ -159,6 +169,8 @@ public:
      * @return True if the expression can be returned as a double, false otherwise.
      */
     [[nodiscard]] bool recalculateIsReturnableAsDouble() const;
+
+    [[nodiscard]] bool recalculateIsReturnableAsString() const;
 
     /**
      * @brief Recalculates whether the expression is always true (i.e., "1").
@@ -372,15 +384,23 @@ private:
         } unstable;
     } virtualDoubles;
 
-    /**
-     * @brief Storing info about the expression's returnability
-     */
-    bool _isReturnableAsDouble;
+    struct EvaluationInfo {
+        /**
+         * @brief Storing info about the expression's returnability
+         */
+        bool returnableAsDouble = false;
 
-    /**
-     * @brief Storing info about the expression's always-true state
-     */
-    bool _isAlwaysTrue;
+        /**
+         * @brief If the expression is a single variable, this is not true.
+         *        Otherwise, it is true.
+         */
+        bool returnableAsString = false;
+
+        /**
+         * @brief If the expression is a simple non-zero numeric value to evaluate
+         */
+        bool alwaysTrue = false;
+    } evaluationInfo;
 
     /**
      * @brief Resets the expression to its initial state.

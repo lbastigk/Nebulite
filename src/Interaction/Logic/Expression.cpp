@@ -392,8 +392,11 @@ void Expression::printCompileError(std::shared_ptr<Component> const& component, 
 // Public:
 
 Expression::Expression(std::string const& expr){
-    _isReturnableAsDouble = false;
-    _isAlwaysTrue = false;
+    evaluationInfo = {
+        .returnableAsDouble = false,
+        .returnableAsString = false,
+        .alwaysTrue = false
+    };
     reset();
     parse(expr);
 }
@@ -405,8 +408,9 @@ void Expression::parse(std::string const& expr) {
     for (auto& component : components) {
         compileIfExpression(component);
     }
-    _isReturnableAsDouble = recalculateIsReturnableAsDouble();
-    _isAlwaysTrue = recalculateIsAlwaysTrue();
+    evaluationInfo.returnableAsDouble = recalculateIsReturnableAsDouble();
+    evaluationInfo.returnableAsString = recalculateIsReturnableAsString();
+    evaluationInfo.alwaysTrue = recalculateIsAlwaysTrue();
 
     // Reset variable name generator, data is only needed during parsing
     varNameGen.clear();
@@ -574,6 +578,10 @@ bool Expression::recalculateIsReturnableAsDouble() const {
     return components.size() == 1
            && components[0]->type == Component::Type::eval
            && components[0]->cast == Component::CastType::none;
+}
+
+bool Expression::recalculateIsReturnableAsString() const {
+    return !(components.size() == 1 && components[0]->type == Component::Type::variable);
 }
 
 bool Expression::recalculateIsAlwaysTrue() const {
