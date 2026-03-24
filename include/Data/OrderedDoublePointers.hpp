@@ -24,10 +24,6 @@ namespace Nebulite::Data {
 class JsonScope;
 } // namespace Nebulite::Data
 
-namespace Nebulite::Interaction::Logic {
-class VirtualDouble;
-} // namespace Nebulite::Interaction::Logic
-
 //------------------------------------------
 
 namespace Nebulite::Data {
@@ -121,14 +117,6 @@ public:
     }
 
     /**
-     * @brief Size of the quickcache for ordered double pointers.
-     * @details This defines how many OrderedDoublePointers can be cached for quick access
-     *          without needing to look them up in a hashmap.
-     *          see MappedOrderedDoublePointers::quickCache for important considerations.
-     */
-    static constexpr size_t quickCacheSize = 32;
-
-    /**
      * @brief Generates a unique ID for an expression based on its string representation.
      * @param identifier The string representation of the expression for which to generate a unique ID.
      * @return A unique ID corresponding to the given expression string. This ID can be used for caching purposes in the MappedOrderedDoublePointers.
@@ -166,14 +154,35 @@ private:
     absl::flat_hash_map<uint64_t, OrderedDoublePointers> map;
 
     /**
-     * @brief Mutex for thread-safe access to the cache.
-     */
-    Utility::Coordination::SharedMutex mtxCache;
-
-    /**
      * @brief Mutex for thread-safe access to the map.
      */
     Utility::Coordination::SharedMutex mtxMap;
+
+    // With QuickCache:
+    // Static Rulesets:
+    // Average total time for small benchmark: 3.134300 s
+    // Average frame time for large benchmark: 0.010235 s
+    // JSON Rulesets:
+    // Average total time for small benchmark: 7.050400 s
+    // Average frame time for large benchmark: 0.188441 s
+
+    // Without QuickCache:
+    // Static Rulesets:
+    // Average total time for small benchmark: 3.127900 s
+    // Average frame time for large benchmark: 0.010146 s
+    // JSON Rulesets:
+    // Average total time for small benchmark: 7.061100 s
+    // Average frame time for large benchmark: 0.186681 s
+
+#define USE_QUICK_CACHE 0
+#if USE_QUICK_CACHE
+    /**
+     * @brief Size of the quickcache for ordered double pointers.
+     * @details This defines how many OrderedDoublePointers can be cached for quick access
+     *          without needing to look them up in a hashmap.
+     *          see MappedOrderedDoublePointers::quickCache for important considerations.
+     */
+    static constexpr size_t quickCacheSize = 32;
 
     /**
      * @brief Quick cache for the first few OrderedDoublePointers entries.
@@ -183,10 +192,16 @@ private:
      */
     OrderedDoublePointers quickCache[quickCacheSize];
 
-    //------------------------------
-    // Helper functions to retrieve values from map/cache
+    /**
+     * @brief Mutex for thread-safe access to the cache.
+     */
+    Utility::Coordination::SharedMutex mtxCache;
 
     odpvec* fromQuickCache(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
+#endif
+
+    //------------------------------
+    // Helper functions to retrieve values from map/cache
 
     odpvec* fromMap(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
 };
