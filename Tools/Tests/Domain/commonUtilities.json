@@ -1,0 +1,11 @@
+[
+    {
+        "command": "task TaskFiles/Tests/JSON/Assign.nebs",
+        "expected": { "cout": [
+            "[",
+            "    \"t_ms\",",
+            "    \"dt_ms\"",
+            "]"
+        ], "cerr": [] }
+    }
+]

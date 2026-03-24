@@ -45,6 +45,7 @@
         //---------------------------------------
         // Domain tests
         "Tools/Tests/Domain/deserialization.json",
+        "Tools/Tests/Domain/commonUtilities.json",
         //---------------------------------------
         // Ruleset tests
         "Tools/Tests/Rulesets/DebugUtils.json",

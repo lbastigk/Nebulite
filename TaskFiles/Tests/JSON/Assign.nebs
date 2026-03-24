@@ -1,0 +1,10 @@
+set-fps 60
+wait 1
+
+# Now we have access to renderer values like time etc.
+# Test if we can manipulate data and assign it as a json object
+assign global.testValue = {global.time|require type object|filterGlob *_ms|listMembers|reverse}
+
+# Show result
+print testValue
+exit
