@@ -27,7 +27,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event set(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event set(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr set_name = "set";
     static auto constexpr set_desc = "Set a key to a value in the JSON document.\n"
         "\n"
@@ -35,13 +35,14 @@ public:
         "\n"
         "Note: All values are stored as strings.\n";
 
-    [[nodiscard]] Constants::Event assign(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event assign(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr assign_name = "assign";
     static auto constexpr assign_desc = "Assign a key to a value in the JSON document\n"
         "\n"
         "Usage: assign <context>.<key> <assignment-operator> <expression>\n"
         "\n"
-        "Note: All values are stored as strings.\n";
+        "Example: 'assign global.rngCurrentValuesCopy = {global.random}"
+        "Supports complex types like arrays or objects.\n";
 
     [[nodiscard]] static Constants::Event move(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr move_name = "move";
@@ -100,6 +101,7 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Interaction::Execution::Domain, SimpleData) {
         // Bind functions specific to complex data handling
         BIND_FUNCTION(&SimpleData::set, set_name, set_desc);
+        BIND_FUNCTION(&SimpleData::assign, assign_name, assign_desc);
 
         // Internal move/copy
         BIND_FUNCTION(&SimpleData::move, move_name, move_desc);

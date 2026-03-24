@@ -24,6 +24,10 @@ namespace Nebulite::Data {
 class JsonScope; // Forward declaration of JsonScope
 } // namespace Nebulite::Data
 
+namespace Nebulite::DomainModule::Common {
+class SimpleData; // Forward declaration of SimpleData DomainModule
+} // namespace Nebulite::DomainModule::Common
+
 namespace Nebulite::DomainModule::Renderer {
 class Console; // Forward declaration of Console
 } // namespace Nebulite::DomainModule::Renderer
@@ -73,6 +77,7 @@ public:
         friend class Core::GlobalSpace;
         friend class Interaction::Logic::Expression;
         friend class DomainModule::Renderer::Console; // Console needs full access to display entire scope
+        friend class DomainModule::Common::SimpleData; // Required for assign function
     public:
         ~Full() = default;
     };

@@ -1,4 +1,5 @@
 #include "Nebulite.hpp"
+#include "ScopeAccessor.hpp"
 #include "DomainModule/Common/SimpleData.hpp"
 
 namespace Nebulite::DomainModule::Common {
@@ -11,7 +12,6 @@ Constants::Event SimpleData::update() {return Constants::Event::Success;} // No 
 //------------------------------------------
 // General set/get/remove functions
 
-// NOLINTNEXTLINE
 Constants::Event SimpleData::set(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
@@ -29,12 +29,19 @@ Constants::Event SimpleData::assign(std::span<std::string const> const& args, In
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
     }
-    //auto const assignmentString = Utility::StringHandler::recombineArgs(args.subspan(1));
-    // TODO: Implement logic
-    return Constants::StandardCapture::Warning::Functional::featureNotImplemented(caller.capture);
+    auto const assignmentString = Utility::StringHandler::recombineArgs(args.subspan(1));
+    Interaction::Logic::Assignment assignment;
+    if (!assignment.parse(assignmentString)) {
+        caller.capture.error.println("Error: Failed to parse assignment string '", assignmentString, "'.");
+        return Constants::Event::Warning;
+    }
+    auto const accessToken = ScopeAccessor::Full();
+    auto& globalScope = Global::shareScope(accessToken);
+    Interaction::ContextScope const contextScope{callerScope, callerScope, globalScope};
+    assignment.apply(contextScope);
+    return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
 Constants::Event SimpleData::move(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
@@ -49,7 +56,6 @@ Constants::Event SimpleData::move(std::span<std::string const> const& args, Inte
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
 Constants::Event SimpleData::copy(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
@@ -64,7 +70,6 @@ Constants::Event SimpleData::copy(std::span<std::string const> const& args, Inte
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
 Constants::Event SimpleData::keyDelete(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
@@ -81,9 +86,6 @@ Constants::Event SimpleData::keyDelete(std::span<std::string const> const& args,
 //------------------------------------------
 // Array manipulation functions
 
-// TODO: JSON::ensureArray could be a useful function
-
-// NOLINTNEXTLINE
 Constants::Event SimpleData::ensureArray(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
     auto lock = callerScope.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
