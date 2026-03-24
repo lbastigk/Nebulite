@@ -47,7 +47,8 @@ public:
         "json set namesStartingWithF {global.names|filterGlob F*}\n"
         "json set userInfo {global.users|filterRegex {!^user[0-9]+$}}\n"
         "json set readOnlyDoc {./Resources/sample.json:key1.key2}\n"
-        "json set sizeCopy {self.size}\n";
+        "json set sizeCopy {self.size}\n"
+        "Same as the function 'assign', but does not allow assigning values in the Global context, and is only for set ('=') operations.\n";
 
     [[nodiscard]] static Constants::Event evaluateMember(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr evaluateMember_name = "json evaluate member";

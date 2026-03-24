@@ -35,7 +35,7 @@ Constants::Event SimpleData::assign(std::span<std::string const> const& args, In
         caller.capture.error.println("Error: Failed to parse assignment string '", assignmentString, "'.");
         return Constants::Event::Warning;
     }
-    auto const accessToken = ScopeAccessor::Full();
+    auto const accessToken = ScopeAccessor::Full(); // One of the few instances where a full context is required
     auto& globalScope = Global::shareScope(accessToken);
     Interaction::ContextScope const contextScope{callerScope, callerScope, globalScope};
     assignment.apply(contextScope);

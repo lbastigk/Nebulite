@@ -37,12 +37,14 @@ public:
 
     [[nodiscard]] static Constants::Event assign(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr assign_name = "assign";
-    static auto constexpr assign_desc = "Assign a key to a value in the JSON document\n"
+    static auto constexpr assign_desc = "Assign a key to a value in the JSON document (self) or the global context (global)\n"
         "\n"
         "Usage: assign <context>.<key> <assignment-operator> <expression>\n"
         "\n"
         "Example: 'assign global.rngCurrentValuesCopy = {global.random}"
-        "Supports complex types like arrays or objects.\n";
+        "Supports complex types like arrays or objects.\n"
+        "The assignment has full access to the entire global scope here, so be cautious when using this function to overwrite global values.\n"
+        "Use json set instead, if you only wish to modify values in the context self with no special operators.\n";
 
     [[nodiscard]] static Constants::Event move(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
     static auto constexpr move_name = "move";
