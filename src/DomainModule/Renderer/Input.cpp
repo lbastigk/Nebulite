@@ -5,28 +5,12 @@
 namespace Nebulite::DomainModule::Renderer {
 
 Constants::Event Input::updateHook() {
-    static auto const keyRoutineActivated = moduleScope.getRootScope() + "polled";
-
-    static Utility::Coordination::TimedRoutine routine(
-        [this]() -> void {
-            SDL_PumpEvents();
-            writeCurrentAndDeltaInputs();
-            moduleScope.set<bool>(keyRoutineActivated, true);
-            resetDeltaOnNextUpdate = true; // Mark to reset deltas on next update
-        },
-        10 /* ms */,
-        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
-    );
-
-    //------------------------------------------
-    // Only update if SDL is initialized
-    moduleScope.set<bool>(keyRoutineActivated, false);
+    moduleScope.set<bool>(Key::routineActivated, false);
     if (domain.isSdlInitialized()) {
         if (resetDeltaOnNextUpdate) {
             resetDeltaValues();
             resetDeltaOnNextUpdate = false;
         }
-        routine.update();
     }
     return Constants::Event::Success;
 }
@@ -34,7 +18,7 @@ Constants::Event Input::updateHook() {
 //------------------------------------------
 // Private Functions
 
-void Input::map_key_names() {
+void Input::mapKeyNames() {
     for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++
          scancode) {
         char const* nameRaw = SDL_GetScancodeName(
@@ -64,6 +48,25 @@ void Input::map_key_names() {
             }
         }
     }
+}
+
+void Input::addRoutines(){
+    addRoutine(
+        Utility::Coordination::TimedRoutine(
+            [this]() -> void {
+                // Only update if SDL is initialized
+                if (domain.isSdlInitialized()) {
+                    SDL_PumpEvents();
+                    writeCurrentAndDeltaInputs();
+                    moduleScope.set<bool>(Key::routineActivated, true);
+                    resetDeltaOnNextUpdate = true; // Mark to reset deltas on next update
+                }
+            },
+            10 /* ms */,
+            Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+        ),
+        RoutineUpdateMode::AFTER_UPDATE_HOOK
+    );
 }
 
 namespace {

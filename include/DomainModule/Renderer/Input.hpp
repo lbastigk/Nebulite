@@ -45,8 +45,8 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Input) {
-        // Mapping key names
-        map_key_names();
+        mapKeyNames();
+        addRoutines();
     }
 
     struct Key : Data::KeyGroup<"renderer.input."> {
@@ -65,11 +65,15 @@ private:
 
     /**
      * @brief Maps SDL scancodes to human-readable key names and sets double pointers.
-     * 
-     * This function populates the keyNames map with SDL scancode values
-     * as keys and their corresponding human-readable names as values.
+     * @details This function populates the keyNames map with SDL scancode values
+     *          as keys and their corresponding human-readable names as values.
      */
-    void map_key_names();
+    void mapKeyNames();
+
+    /**
+     * @brief Adds all routines necessary for input handling
+     */
+    void addRoutines();
 
     /**
      * @brief Writes the current and delta input states to the global JSON structure.

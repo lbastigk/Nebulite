@@ -51,12 +51,14 @@ public:
      * @brief Updates all routines and calls the update hook
      */
     [[nodiscard]] Constants::Event update() {
-        // Update all routines
-        for (auto& routine : routines) {
+        for (auto& routine : routinesBeforeHook) {
             routine.update();
         }
-        // Call the update hook for derived classes
-        return updateHook();
+        auto const event = updateHook();
+        for (auto& routine : routinesAfterHook) {
+            routine.update();
+        }
+        return event;
     }
 
     /**
@@ -154,6 +156,11 @@ public:
      */
     Data::JsonScope const& settingsScope;
 
+    enum class RoutineUpdateMode {
+        BEFORE_UPDATE_HOOK, ///< Update routines before calling the update hook
+        AFTER_UPDATE_HOOK   ///< Update routines after calling the update hook
+    };
+
 protected:
     //------------------------------------------
     // Routine management
@@ -162,15 +169,24 @@ protected:
      * @brief Adds a routine to the DomainModule's routine list. Automatically updated on each update-call.
      * @param routine The routine to add
      */
-    void addRoutine(Utility::Coordination::TimedRoutine routine) {
-        routines.push_back(Utility::Coordination::TimedRoutine(routine));
+    void addRoutine(Utility::Coordination::TimedRoutine routine, RoutineUpdateMode mode) {
+        if (mode == RoutineUpdateMode::BEFORE_UPDATE_HOOK) {
+            routinesBeforeHook.push_back(Utility::Coordination::TimedRoutine(routine));
+        }
+        else if (mode == RoutineUpdateMode::AFTER_UPDATE_HOOK) {
+            routinesAfterHook.push_back(Utility::Coordination::TimedRoutine(routine));
+        }
+        else {
+            std::unreachable();
+        }
     }
 
 private:
     /**
      * @brief Vector of update routines for this DomainModule, which will be called every update cycle by the Domain.
      */
-    std::vector<Utility::Coordination::TimedRoutine> routines;
+    std::vector<Utility::Coordination::TimedRoutine> routinesBeforeHook;
+    std::vector<Utility::Coordination::TimedRoutine> routinesAfterHook;
 
     /**
      * @brief Pointer to the internal FuncTree for binding functions and variables.

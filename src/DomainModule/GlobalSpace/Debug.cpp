@@ -99,11 +99,6 @@ namespace Nebulite::DomainModule::GlobalSpace {
 //------------------------------------------
 // Update
 Constants::Event Debug::updateHook() {
-    for (auto& routine : routines) {
-        routine.update();
-    }
-
-    //------------------------------------------
     return Constants::Event::Success;
 }
 
@@ -266,37 +261,44 @@ Constants::Event Debug::listExpressionFunctions(std::span<std::string const> con
 //------------------------------------------
 // Private Methods
 
-void Debug::initRoutines() {
+void Debug::addRoutines() {
     // Memory usage monitoring routine
-    routines.emplace_back([this] {
-            // store memory usage in global document
-            double virtualMemMB = 0.0;
-            double residentMemMB = 0.0;
-            getMemoryUsageMB(virtualMemMB, residentMemMB);
-            moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.virtualMB"), virtualMemMB);
-            moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.residentMB"), residentMemMB);
-        },
-        1000 /*ms*/, // Call every second
-        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+    addRoutine(
+        Utility::Coordination::TimedRoutine(
+            [this] {
+                // store memory usage in global document
+                double virtualMemMB = 0.0;
+                double residentMemMB = 0.0;
+                getMemoryUsageMB(virtualMemMB, residentMemMB);
+                moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.virtualMB"), virtualMemMB);
+                moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.residentMB"), residentMemMB);
+            },
+            1000 /*ms*/, // Call every second
+            Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+        ),
+        RoutineUpdateMode::BEFORE_UPDATE_HOOK
     );
 
-    // Worker count monitoring routine
-    routines.emplace_back([this] {
-            // store worker count in global document
-            size_t const invokeWorkerCount = Constants::ThreadSettings::getInvokeWorkerCount();
-            size_t const rendererWorkerCount = Constants::ThreadSettings::getRendererWorkerCount();
-            size_t const workerCount = invokeWorkerCount + rendererWorkerCount;
+    addRoutine(
+        Utility::Coordination::TimedRoutine(
+            [this] {
+                // store worker count in global document
+                size_t const invokeWorkerCount = Constants::ThreadSettings::getInvokeWorkerCount();
+                size_t const rendererWorkerCount = Constants::ThreadSettings::getRendererWorkerCount();
+                size_t const workerCount = invokeWorkerCount + rendererWorkerCount;
 
-            moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.invoke.used"), invokeWorkerCount);
-            moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.renderer.used"), rendererWorkerCount);
-            moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.total.used"), workerCount);
+                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.invoke.used"), invokeWorkerCount);
+                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.renderer.used"), rendererWorkerCount);
+                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.total.used"), workerCount);
 
-            moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.invoke.max"), Constants::ThreadSettings::Maximum::invokeWorkerCount);
-            moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.renderer.max"), Constants::ThreadSettings::Maximum::rendererWorkerCount);
-            moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.total.max"), Constants::ThreadSettings::Maximum::totalThreadCount);
-        },
-        5000 /*ms*/, // Call every 5 seconds
-        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.invoke.max"), Constants::ThreadSettings::Maximum::invokeWorkerCount);
+                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.renderer.max"), Constants::ThreadSettings::Maximum::rendererWorkerCount);
+                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.total.max"), Constants::ThreadSettings::Maximum::totalThreadCount);
+            },
+            5000 /*ms*/, // Call every 5 seconds
+            Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+        ),
+        RoutineUpdateMode::BEFORE_UPDATE_HOOK
     );
 }
 
