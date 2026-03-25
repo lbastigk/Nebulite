@@ -55,15 +55,14 @@ std::string FileManagement::LoadFile(std::string_view const& link) {
     return content;
 }
 
-void FileManagement::WriteFile(std::string_view const& filename, std::string_view const& text) {
+bool FileManagement::WriteFile(std::string_view const& filename, std::string_view const& text) {
     std::filesystem::path const filepath(filename); // Modern: handles encoding and platform separators
-
     std::ofstream file(filepath, std::ios::out);
     if (!file.is_open()) {
-        Global::capture().error.println("File '", filepath.string(), "' could not be opened/created for writing!");
-        return;
+        return false;
     }
     file << text;
+    return true;
 }
 
 char FileManagement::preferredSeparator() {

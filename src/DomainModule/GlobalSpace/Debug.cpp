@@ -34,7 +34,6 @@ auto const* logFilename = "errors.log";
 
 /**
  * @brief Safely opens a log file for writing, ensuring it is not a symlink.
- *
  * @todo Move this functionality to globalspace
  */
 bool safe_open_log(std::unique_ptr<std::ofstream>& out) {
@@ -109,10 +108,14 @@ Constants::Event Debug::log_global(int const argc, char** argv) const {
     std::string const serialized = moduleScope.serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
-            Utility::FileManagement::WriteFile(argv[i], serialized);
+            if (!Utility::FileManagement::WriteFile(argv[i], serialized)) {
+                return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
+            }
         }
     } else {
-        Utility::FileManagement::WriteFile("global.log.jsonc", serialized);
+        if (!Utility::FileManagement::WriteFile("global.log.jsonc", serialized)) {
+            return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
+        }
     }
     return Constants::Event::Success;
 }
@@ -121,17 +124,22 @@ Constants::Event Debug::log_state(int const argc, char** argv) const {
     std::string const serialized = domain.getRenderer().serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
-            Utility::FileManagement::WriteFile(argv[i], serialized);
+            if (!Utility::FileManagement::WriteFile(argv[i], serialized)) {
+                return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
+            }
         }
     } else {
-        Utility::FileManagement::WriteFile("state.log.jsonc", serialized);
+        if (!Utility::FileManagement::WriteFile("state.log.jsonc", serialized)) {
+            return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
+        }
     }
     return Constants::Event::Success;
 }
 
 Constants::Event Debug::standardFileRenderObject(std::span<std::string const> const& /*args*/) const {
-    Core::RenderObject const ro(domain.capture);
-    Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize());
+    if (Core::RenderObject const ro(domain.capture); !Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize())) {
+        return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
+    }
     return Constants::Event::Success;
 }
 

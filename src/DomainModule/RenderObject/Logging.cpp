@@ -23,11 +23,14 @@ Constants::Event Logging::log_all(std::span<std::string const> const& args, Inte
     std::string const serialized = callerScope.serialize();
     if (args.size() > 1) {
         for (auto const& arg : args.subspan(1)) {
-            Utility::FileManagement::WriteFile(arg, serialized);
+            if (!Utility::FileManagement::WriteFile(arg, serialized)) {
+                return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
+            }
         }
     } else {
-        std::string const id = std::to_string(caller.getId());
-        Utility::FileManagement::WriteFile("RenderObject_id" + id + ".log.jsonc", serialized);
+        if (!Utility::FileManagement::WriteFile("RenderObject_id" + std::to_string(caller.getId()) + ".log.jsonc", serialized)) {
+            return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
+        }
     }
     (void)caller;      // Unused
     return Constants::Event::Success;
@@ -44,7 +47,9 @@ Constants::Event Logging::log_key(std::span<std::string const> const& args, Inte
         file = args[2];
     }
     auto const value = callerScope.get<std::string>(key.view()).value_or("Key not found");
-    Utility::FileManagement::WriteFile(file, value);
+    if (!Utility::FileManagement::WriteFile(file, value)) {
+        return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
+    }
     (void)caller;      // Unused
     return Constants::Event::Success;
 }

@@ -15,14 +15,14 @@ Constants::Event Settings::updateHook() {
 // FuncTree currently does not support static methods with no args...
 // NOLINTNEXTLINE
 Constants::Event Settings::saveSettings() {
-    // TODO: Check if file was properly written: extend WriteFile to return errors
-    // Create JSON document with current settings
     std::string const settings = Global::settings().serialize();
     if (settings.empty()) {
         domain.capture.error.println("Failed to serialize settings. No data was written to file.");
         return Constants::Event::Error;
     }
-    Utility::FileManagement::WriteFile(defaultSettingsFile, settings);
+    if (!Utility::FileManagement::WriteFile(defaultSettingsFile, settings)) {
+        return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
+    }
     return Constants::Event::Success;
 }
 
