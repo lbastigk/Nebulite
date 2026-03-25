@@ -7,6 +7,7 @@
 // Nebulite
 #include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
+#include "Utility/Coordination/TimedRoutine.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -48,8 +49,14 @@ public:
 
     /**
      * @brief Virtual update function to be Overwritten by derived classes.
+     * @todo Break up into non-virtual update and a specific virtual update for the derived class
      */
     [[nodiscard]] virtual Constants::Event update();
+
+    /**
+     * @brief Virtual update function to be Overwritten by derived classes.
+     */
+    //[[nodiscard]] virtual Constants::Event updateHook();
 
     /**
      * @brief Virtual re-initialization function to be Overwritten by derived classes.
@@ -141,7 +148,24 @@ public:
      */
     Data::JsonScope const& settingsScope;
 
+protected:
+    //------------------------------------------
+    // Routine management
+
+    /**
+     * @brief Adds a routine to the DomainModule's routine list. Automatically updated on each update-call.
+     * @param routine The routine to add
+     */
+    void addRoutine(Utility::Coordination::TimedRoutine routine) {
+        routines.push_back(Utility::Coordination::TimedRoutine(routine));
+    }
+
 private:
+    /**
+     * @brief Vector of update routines for this DomainModule, which will be called every update cycle by the Domain.
+     */
+    std::vector<Utility::Coordination::TimedRoutine> routines;
+
     /**
      * @brief Pointer to the internal FuncTree for binding functions and variables.
      */
