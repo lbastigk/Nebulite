@@ -21,7 +21,7 @@ namespace Nebulite::DomainModule::Common {
  */
 NEBULITE_DOMAINMODULE(Interaction::Execution::Domain, SimpleData) {
 public:
-    [[nodiscard]] Constants::Event update() override ;
+    [[nodiscard]] Constants::Event updateHook() override ;
     void reinit() override {} // No reinitialization needed, SimpleData is stateless
 
     //------------------------------------------

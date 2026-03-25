@@ -82,7 +82,7 @@ Constants::Event InputMapping::unlock(std::span<std::string const> const& args) 
 
 //------------------------------------------
 
-Constants::Event InputMapping::update() {
+Constants::Event InputMapping::updateHook() {
     if (std::fabs(*sdlPolledInput) > DBL_EPSILON) {
         processMappings();
     }

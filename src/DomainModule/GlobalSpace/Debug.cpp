@@ -98,7 +98,7 @@ void getMemoryUsageMB(double& virtualMemMB, double& residentMemMB) {
 namespace Nebulite::DomainModule::GlobalSpace {
 //------------------------------------------
 // Update
-Constants::Event Debug::update() {
+Constants::Event Debug::updateHook() {
     for (auto& routine : routines) {
         routine.update();
     }

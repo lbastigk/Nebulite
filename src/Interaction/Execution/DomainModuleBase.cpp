@@ -12,7 +12,7 @@ DomainModuleBase::DomainModuleBase(
 
 DomainModuleBase::~DomainModuleBase() = default;
 
-Constants::Event DomainModuleBase::update() { return Constants::Event::Success; }
+Constants::Event DomainModuleBase::updateHook() { return Constants::Event::Success; }
 
 void DomainModuleBase::reinit() {}
 

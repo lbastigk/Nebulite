@@ -8,7 +8,7 @@ namespace Nebulite::DomainModule::Renderer {
 
 //------------------------------------------
 // Update
-Constants::Event General::update() {
+Constants::Event General::updateHook() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY

@@ -5,7 +5,7 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Constants::Event Settings::update() {
+Constants::Event Settings::updateHook() {
     return Constants::Event::Success;
 }
 

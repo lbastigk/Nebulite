@@ -4,7 +4,7 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Constants::Event FunctionCollision::update() {
+Constants::Event FunctionCollision::updateHook() {
     // No periodic update needed for this domain module
     return Constants::Event::Success;
 }

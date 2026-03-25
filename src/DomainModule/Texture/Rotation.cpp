@@ -4,7 +4,7 @@
 
 namespace Nebulite::DomainModule::Texture {
 
-Constants::Event Rotation::update() {
+Constants::Event Rotation::updateHook() {
     // Nothing to do in update for rotation
     return Constants::Event::Success;
 }

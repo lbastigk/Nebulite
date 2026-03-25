@@ -7,7 +7,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
 //------------------------------------------
 // Update
 
-Constants::Event Time::update() {
+Constants::Event Time::updateHook() {
     //------------------------------------------
     // Full time (runtime)
 

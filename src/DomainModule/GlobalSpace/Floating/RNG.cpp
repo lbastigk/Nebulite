@@ -2,7 +2,7 @@
 #include "Core/GlobalSpace.hpp"
 
 namespace Nebulite::DomainModule::GlobalSpace {
-Constants::Event RNG::update() {
+Constants::Event RNG::updateHook() {
     // Disabled if renderer skipped update last frame, active otherwise
     bool RNG_update_enabled = domain.getRenderer().isSdlInitialized() && domain.getRenderer().hasSkippedUpdate() == false;
     RNG_update_enabled |= !domain.getRenderer().isSdlInitialized(); // If renderer is not initialized, we always update RNGs

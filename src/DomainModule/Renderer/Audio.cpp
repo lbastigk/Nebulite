@@ -13,7 +13,7 @@
 //------------------------------------------
 namespace Nebulite::DomainModule::Renderer {
 
-Constants::Event Audio::update() {
+Constants::Event Audio::updateHook() {
     return Constants::Event::Success;
 }
 

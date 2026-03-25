@@ -29,7 +29,7 @@ namespace Nebulite::DomainModule::RenderObject {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, StateUpdate) {
 public:
-    [[nodiscard]] Constants::Event update() override;
+    [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
 
     //------------------------------------------

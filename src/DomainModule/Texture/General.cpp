@@ -9,8 +9,7 @@
 //------------------------------------------
 namespace Nebulite::DomainModule::Texture {
 
-Constants::Event General::update() {
-    // No periodic updates needed for general functions
+Constants::Event General::updateHook() {
     return Constants::Event::Success;
 }
 

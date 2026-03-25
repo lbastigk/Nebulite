@@ -5,7 +5,7 @@
 
 namespace Nebulite::DomainModule::Texture {
 
-Constants::Event Fill::update() {
+Constants::Event Fill::updateHook() {
     // Nothing to do in update for fill
     return Constants::Event::Success;
 }

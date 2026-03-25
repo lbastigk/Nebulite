@@ -30,7 +30,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, RNG) {
 public:
-    [[nodiscard]] Constants::Event update() override;
+    [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
 
     //------------------------------------------

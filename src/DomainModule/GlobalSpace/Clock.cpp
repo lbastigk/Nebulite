@@ -5,7 +5,7 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Constants::Event Clock::update() {
+Constants::Event Clock::updateHook() {
     // Update current time from document
     current_time_ms = moduleScope.get<uint64_t>(Time::Key::time_t_ms).value_or(0);
 

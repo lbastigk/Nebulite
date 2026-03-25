@@ -15,7 +15,7 @@ namespace Nebulite::DomainModule::RenderObject {
 //------------------------------------------
 // Basics
 
-Constants::Event Ruleset::update() {
+Constants::Event Ruleset::updateHook() {
     if (initialized) {
         // Reload rulesets if needed
         if (reloadRulesets) {

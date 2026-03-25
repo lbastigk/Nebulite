@@ -3,7 +3,7 @@
 
 namespace Nebulite::DomainModule::Renderer {
 
-Constants::Event RenderObjectDraft::update() {
+Constants::Event RenderObjectDraft::updateHook() {
     return draft.get(domain.capture)->update();
 }
 

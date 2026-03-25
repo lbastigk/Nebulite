@@ -48,15 +48,21 @@ public:
     // Virtual functions for derived classes to implement
 
     /**
-     * @brief Virtual update function to be Overwritten by derived classes.
-     * @todo Break up into non-virtual update and a specific virtual update for the derived class
+     * @brief Updates all routines and calls the update hook
      */
-    [[nodiscard]] virtual Constants::Event update();
+    [[nodiscard]] Constants::Event update() {
+        // Update all routines
+        for (auto& routine : routines) {
+            routine.update();
+        }
+        // Call the update hook for derived classes
+        return updateHook();
+    }
 
     /**
      * @brief Virtual update function to be Overwritten by derived classes.
      */
-    //[[nodiscard]] virtual Constants::Event updateHook();
+    [[nodiscard]] virtual Constants::Event updateHook();
 
     /**
      * @brief Virtual re-initialization function to be Overwritten by derived classes.

@@ -4,7 +4,7 @@
 
 namespace Nebulite::DomainModule::Renderer {
 
-Constants::Event Input::update() {
+Constants::Event Input::updateHook() {
     static auto const keyRoutineActivated = moduleScope.getRootScope() + "polled";
 
     static Utility::Coordination::TimedRoutine routine(

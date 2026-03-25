@@ -5,7 +5,7 @@ namespace Nebulite::DomainModule::Common {
 
 //------------------------------------------
 // Update
-Constants::Event ComplexData::update() {
+Constants::Event ComplexData::updateHook() {
     // Add Domain-specific updates here!
     // General rule:
     // This is used to update all variables/states that are INTERNAL ONLY

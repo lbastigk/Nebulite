@@ -32,7 +32,7 @@ public:
     /**
      * @brief Applies the input mappings, processing any new input events (via the Global Document) and updating the binding states.
      */
-    [[nodiscard]] Constants::Event update() override;
+    [[nodiscard]] Constants::Event updateHook() override;
 
     //------------------------------------------
     // Available Functions

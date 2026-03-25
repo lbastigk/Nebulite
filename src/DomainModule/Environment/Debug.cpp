@@ -3,7 +3,7 @@
 
 namespace Nebulite::DomainModule::Environment {
 
-Constants::Event Debug::update(){
+Constants::Event Debug::updateHook() {
     size_t containerTotalTiles = 0;
     size_t containerTotalCost = 0;
     for (auto const& layer : domain.getAllLayers()) {

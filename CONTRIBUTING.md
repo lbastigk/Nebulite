@@ -154,7 +154,7 @@ namespace Nebulite::DomainModule::RenderObject {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, MyModule) {
 public:
-    [[nodiscard]] Constants::Event update() override; // Per-frame update function
+    [[nodiscard]] Constants::Event updateHook() override; // Per-frame update function
     void reinit() override {}           // What to do on re-initialization
 
     //------------------------------------------

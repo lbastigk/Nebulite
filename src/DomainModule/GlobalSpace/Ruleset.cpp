@@ -5,7 +5,7 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Constants::Event Ruleset::update() {
+Constants::Event Ruleset::updateHook() {
     // Currently, no periodic update logic is required for the Ruleset module.
     return Constants::Event::Success;
 }
