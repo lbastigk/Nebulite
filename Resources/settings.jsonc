@@ -83,9 +83,11 @@
         "onStartup": []
     },
     "renderer": {
-        "resolutionScaling": 1,
-        "resolutionX": 1000,
-        "resolutionY": 1000,
+        "resolution": {
+            "w": 1000,
+            "h": 1000,
+            "scale": 1
+        },
         "targetFPS": 60
     }
 }
