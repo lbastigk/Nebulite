@@ -287,12 +287,6 @@ public:
     /**
      * @brief Updates the domain.
      *        On overwriting, make sure to update all subdomains and DomainModules as well.
-     * @todo refactor to non-virtual update and a virtual updateImpl, which is called by update
-     *       Inside update, check what's possible:
-     *       - updating modules
-     *       - passing domain id to scope (at least once, maybe as a routine)
-     *       - update all timed routines
-     *       Requires some modifications of GlobalSpace::update(), directly calling updateModules there might be an issue.
      */
     [[nodiscard]] virtual Constants::Event update() { return Constants::Event::Success; }
 

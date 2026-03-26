@@ -2,7 +2,6 @@
  * @file StateUpdate.hpp
  * @brief Contains the RenderObject DomainModule for updating the state of render objects.
  * @todo If more flags are not added, we may merge them into a General DomainModule.
- *       Later on, the text update function should be moved to the texture domain once that works properly.
  */
 
 #ifndef NEBULITE_DOMAINMODULE_RENDEROBJECT_STATE_UPDATE_HPP
