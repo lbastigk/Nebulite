@@ -26,7 +26,6 @@
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 
-
 //------------------------------------------
 // Forward declarations: Domains
 
@@ -180,7 +179,9 @@ class Domain : public DocumentAccessor {
      * @details We use a pointer here so we can
      *          easily create the object with an inherited FuncTree inside the constructor.
      *          The Tree is then shared with the DomainModules for modification.
-     * @todo Providing the domain reference and Scope may not be necessary anymore, please investigate!
+     *          - Constants::Event: Return type of the funcTree
+     *          - Domain&: Provides access to the caller domain
+     *          - Data::JsonScope&: provides access to the callers scope
      */
     std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>> funcTree;
 
@@ -189,6 +190,10 @@ class Domain : public DocumentAccessor {
      */
     std::vector<std::unique_ptr<DomainModuleBase>> modules;
 
+    /**
+     * @brief Generates the unique id of this domain
+     * @return The id generated
+     */
     static size_t idGenerator() {
         static std::atomic<size_t> idCounter{0};
         idCounter.fetch_add(1, std::memory_order_relaxed);
@@ -196,6 +201,14 @@ class Domain : public DocumentAccessor {
         return id;
     }
 
+    /**
+     * @brief Generates a hashed version of the domain id.
+     * @details This is done for proper distribution of the id to workers.
+     *          If every RenderObject has N many subdomains, the RenderObject (R) id will likely be
+     *          N*R+M, meaning the modulo is always the same. That's not optimal for proper worker distribution.
+     * @param x The id input
+     * @return The hashed id
+     */
     static size_t splitMix64(size_t x) {
         x += 0x9e3779b97f4a7c15;
         x = (x ^ x >> 30) * 0xbf58476d1ce4e5b9;
@@ -204,8 +217,11 @@ class Domain : public DocumentAccessor {
         return x;
     }
 
-    size_t id = idGenerator(); // Unique ID for the domain, used for ordered cache lists and other purposes
-    size_t idHashed = splitMix64(id); // Hashed ID for better distribution
+    // Unique ID for the domain, used for ordered cache lists and other purposes
+    size_t id = idGenerator();
+
+    // Hashed ID for better distribution
+    size_t idHashed = splitMix64(id);
 
 public:
     Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Capture& parentCapture);
@@ -335,9 +351,9 @@ public:
     template <typename DomainType, typename DomainModuleType>
     void initModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference) {
         if constexpr(std::is_same_v<DomainType, Domain>) {
-            // If the DomainType is the base Domain class, we must initialize modules without scope
-            // TODO: Is this still an issue?
-            static_assert(!HasKeyGroup<DomainModuleType>, "DomainModules linked to the base Domain class cannot have a scope. Please remove the static Key::scope member from the module.");
+            // If the DomainType is the base Domain class, we must initialize modules without scope,
+            // otherwise this will lead to circular initialization problems.
+            static_assert(!HasKeyGroup<DomainModuleType>, "DomainModules linked to the base Domain class cannot have a scope. Please remove the static Key::scope member from the module. Use the callers scope instead!");
 
             auto& scope = domainReference.domainScope.shareDummyScopeBase();
             auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, funcTree, scope, settings);
