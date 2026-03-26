@@ -54,12 +54,6 @@
 #include "DomainModule/Texture/Fill.hpp"
 
 //------------------------------------------
-// TODO: Some way to reference the scope of a module as static member,
-//       perhaps by making it part of the module itself, and using it in the initializer class?
-//       This may actually be necessary later on, with dll/so loading of modules
-//       Then we can call module.getPrefix() inside the initModule function
-
-//------------------------------------------
 namespace Nebulite::DomainModule {
 
 void Initializer::initCommon(Interaction::Execution::Domain* target) {
