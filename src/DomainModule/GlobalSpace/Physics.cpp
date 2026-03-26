@@ -3,7 +3,7 @@
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Constants::Event Physics::update() {
+Constants::Event Physics::updateHook() {
     // No dynamic updates needed for constants
     return Constants::Event::Success;
 }

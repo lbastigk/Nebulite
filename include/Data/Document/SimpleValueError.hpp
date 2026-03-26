@@ -14,11 +14,11 @@ namespace Nebulite::Data {
  */
 enum SimpleValueRetrievalError {
     TRANSFORMATION_FAILURE, // The specified transformations could not be applied successfully.
-    CONVERSION_FAILURE,      // The value could not be converted to the requested type.
-    MALFORMED_KEY,
-    IS_ARRAY, // The specified key corresponds to an array, not a simple value.
-    IS_OBJECT, // The specified key corresponds to an object, not a simple value.
-    IS_NULL   // The specified key is not a member of the JSON document (null).
+    CONVERSION_FAILURE,     // The value could not be converted to the requested type.
+    MALFORMED_KEY,          // The provided key is malformed
+    IS_ARRAY,               // The specified key corresponds to an array, not a simple value.
+    IS_OBJECT,              // The specified key corresponds to an object, not a simple value.
+    IS_NULL                 // The specified key is not a member of the JSON document (null).
 };
 } // namespace Nebulite::Data
 #endif // SIMPLE_VALUE_ERROR_HPP

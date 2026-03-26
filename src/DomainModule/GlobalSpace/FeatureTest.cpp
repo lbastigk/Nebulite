@@ -8,7 +8,7 @@
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {
 
-Constants::Event FeatureTest::update() {
+Constants::Event FeatureTest::updateHook() {
     return Constants::Event::Success;
 }
 

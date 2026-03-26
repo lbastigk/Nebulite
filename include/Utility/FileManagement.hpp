@@ -53,8 +53,9 @@ public:
      * 
      * @param filename The name of the file to write to.
      * @param text The text to write to the file.
+     * @return True on success, false on failure
      */
-    static void WriteFile(std::string_view const& filename, std::string_view const& text);
+    [[nodiscard]] static bool WriteFile(std::string_view const& filename, std::string_view const& text);
 
     /**
      * @brief Returns the preferred directory separator for the platform.

@@ -41,7 +41,7 @@ namespace Nebulite::DomainModule::Renderer {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Audio) {
 public:
-    [[nodiscard]] Constants::Event update() override;
+    [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
 
     //------------------------------------------

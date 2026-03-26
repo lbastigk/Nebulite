@@ -15,7 +15,7 @@ namespace Nebulite::DomainModule::RenderObject {
 //------------------------------------------
 // Basics
 
-Constants::Event Ruleset::update() {
+Constants::Event Ruleset::updateHook() {
     if (initialized) {
         // Reload rulesets if needed
         if (reloadRulesets) {
@@ -78,8 +78,8 @@ Constants::Event Ruleset::once(std::span<std::string const> const& args) const {
             }
             return Constants::Event::Success;
         }
-        // TODO: Better, custom error for invalid ruleset parsing
-        return Constants::StandardCapture::Warning::Functional::invalidArgcArgvParsing(domain.capture);
+        domain.capture.warning.println("Failed to parse ruleset: " + arg);
+        return Constants::Event::Warning;
     }
     return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
 }

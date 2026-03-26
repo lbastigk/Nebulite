@@ -20,7 +20,7 @@
 namespace Nebulite::DomainModule::Common {
 NEBULITE_DOMAINMODULE(Nebulite::Interaction::Execution::Domain, Debug) {
 public:
-    [[nodiscard]] Constants::Event update() override;
+    [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
 
     //------------------------------------------

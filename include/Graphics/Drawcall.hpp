@@ -26,8 +26,6 @@ namespace Nebulite::Graphics {
  *          Each drawcall is able to forward arguments to the texture it owns,
  *          allowing for dynamic texture updates based on user-defined strings.
  *          Drawcalls properly manage texture metadata updates such as source/destination rectangles.
- * @todo Legacy drawcall system has been removed, but the data still exists inside all json documents.
- *       We need to merge that data into the new system for all existing tests to actually show something.
  */
 class Drawcall {
 public:

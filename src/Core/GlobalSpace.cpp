@@ -175,7 +175,6 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
     }
 }
 
-// TODO: turn into void and call notifyEvent on each parse instead
 Constants::Event GlobalSpace::parseQueue() {
     queueResult.clear();
     for (auto const& [name, queue] : tasks) {

@@ -30,7 +30,7 @@ namespace Nebulite::DomainModule::Environment {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Environment, Debug) {
 public:
-    [[nodiscard]] Constants::Event update() override;
+    [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
 
     //------------------------------------------

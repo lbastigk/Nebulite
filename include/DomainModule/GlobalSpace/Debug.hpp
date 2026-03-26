@@ -34,7 +34,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug) {
 public:
-    [[nodiscard]] Constants::Event update() override;
+    [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
 
     //------------------------------------------
@@ -147,7 +147,7 @@ public:
         BIND_FUNCTION(&Debug::standardFileRenderObject, standardFileRenderObject_name, standardFileRenderObject_desc);
 
         // Add routines
-        initRoutines();
+        addRoutines();
     }
 
     struct Key : Data::KeyGroup<"debug."> {
@@ -174,12 +174,7 @@ private:
      */
     void setupDebugInfo() const ;
 
-    /**
-     * @brief List of timed routines for performance monitoring and debugging purposes.
-     */
-    std::vector<Utility::Coordination::TimedRoutine> routines;
-
-    void initRoutines();
+    void addRoutines();
 };
 } // namespace Nebulite::DomainModule::GlobalSpace
 #endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_DEBUG_HPP

@@ -58,8 +58,6 @@ public:
     // Prevent assignment
     DomainModule& operator=(DomainModule const&) = delete;
 
-    // TODO: hide the update function from the user if DomainType is base class Domain!
-
 protected:
     //------------------------------------------
     // Name of Module

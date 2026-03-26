@@ -28,7 +28,7 @@ namespace Nebulite::Interaction::Logic {
  *          where the context changes dynamically during evaluations
  *          or the lifetime is limited.
  *          This distinction is crucial for efficient and accurate expression evaluations.
- * @todo Perhaps a better name would be LinkedDouble
+ * @todo Perhaps a better name would be LinkedDouble or LinkedNumericValue
  */
 class VirtualDouble {
     // Key associated with this VirtualDouble

@@ -33,7 +33,7 @@ namespace Nebulite::DomainModule::GlobalSpace {
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Settings) {
 public:
-    [[nodiscard]] Constants::Event update() override;
+    [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
 
 
@@ -81,9 +81,9 @@ public:
         // Use scoped keys to set and access from GlobalSpace
 
         // Renderer-related settings
-        static auto constexpr resolutionX = makeScoped("renderer.resolutionX"); // TODO: change to resolution.w
-        static auto constexpr resolutionY = makeScoped("renderer.resolutionY"); // TODO: change to resolution.h
-        static auto constexpr resolutionScaling = makeScoped("renderer.resolutionScaling");
+        static auto constexpr resolutionX = makeScoped("renderer.resolution.w");
+        static auto constexpr resolutionY = makeScoped("renderer.resolution.h");
+        static auto constexpr resolutionScaling = makeScoped("renderer.resolution.scale");
         static auto constexpr targetFPS = makeScoped("renderer.targetFPS");
 
         // Startup-related settings

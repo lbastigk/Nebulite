@@ -4,7 +4,7 @@
 
 namespace Nebulite::DomainModule::Common {
 
-Constants::Event General::update() {
+Constants::Event General::updateHook() {
     if (imguiViewEnabled && Graphics::ImguiHelper::checkImguiReadyForRendering()) {
         Graphics::ImguiHelper::renderDomain(domain, domain.capture, *lastImguiCallerScope, domain.getName());
     }

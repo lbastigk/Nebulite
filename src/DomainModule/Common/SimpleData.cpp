@@ -4,7 +4,7 @@
 
 namespace Nebulite::DomainModule::Common {
 
-Constants::Event SimpleData::update() {return Constants::Event::Success;} // No periodic update needed, SimpleData is stateless
+Constants::Event SimpleData::updateHook() {return Constants::Event::Success;} // No periodic update needed, SimpleData is stateless
 
 //------------------------------------------
 // Domain-Bound Functions

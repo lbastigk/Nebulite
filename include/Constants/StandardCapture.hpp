@@ -150,6 +150,10 @@ struct StandardCapture {
                 cap.error.println("Requested file is invalid.");
                 return Event::Error;
             }
+            static Event couldNotWriteFile(Utility::Capture& cap) {
+                cap.error.println("Couldn't write to file.");
+                return Event::Error;
+            }
         };
 
         struct Ruleset {

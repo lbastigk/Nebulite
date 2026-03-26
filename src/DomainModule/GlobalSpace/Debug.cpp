@@ -34,7 +34,6 @@ auto const* logFilename = "errors.log";
 
 /**
  * @brief Safely opens a log file for writing, ensuring it is not a symlink.
- *
  * @todo Move this functionality to globalspace
  */
 bool safe_open_log(std::unique_ptr<std::ofstream>& out) {
@@ -98,12 +97,7 @@ void getMemoryUsageMB(double& virtualMemMB, double& residentMemMB) {
 namespace Nebulite::DomainModule::GlobalSpace {
 //------------------------------------------
 // Update
-Constants::Event Debug::update() {
-    for (auto& routine : routines) {
-        routine.update();
-    }
-
-    //------------------------------------------
+Constants::Event Debug::updateHook() {
     return Constants::Event::Success;
 }
 
@@ -114,10 +108,14 @@ Constants::Event Debug::log_global(int const argc, char** argv) const {
     std::string const serialized = moduleScope.serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
-            Utility::FileManagement::WriteFile(argv[i], serialized);
+            if (!Utility::FileManagement::WriteFile(argv[i], serialized)) {
+                return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
+            }
         }
     } else {
-        Utility::FileManagement::WriteFile("global.log.jsonc", serialized);
+        if (!Utility::FileManagement::WriteFile("global.log.jsonc", serialized)) {
+            return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
+        }
     }
     return Constants::Event::Success;
 }
@@ -126,17 +124,22 @@ Constants::Event Debug::log_state(int const argc, char** argv) const {
     std::string const serialized = domain.getRenderer().serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
-            Utility::FileManagement::WriteFile(argv[i], serialized);
+            if (!Utility::FileManagement::WriteFile(argv[i], serialized)) {
+                return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
+            }
         }
     } else {
-        Utility::FileManagement::WriteFile("state.log.jsonc", serialized);
+        if (!Utility::FileManagement::WriteFile("state.log.jsonc", serialized)) {
+            return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
+        }
     }
     return Constants::Event::Success;
 }
 
 Constants::Event Debug::standardFileRenderObject(std::span<std::string const> const& /*args*/) const {
-    Core::RenderObject const ro(domain.capture);
-    Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize());
+    if (Core::RenderObject const ro(domain.capture); !Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize())) {
+        return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
+    }
     return Constants::Event::Success;
 }
 
@@ -266,37 +269,44 @@ Constants::Event Debug::listExpressionFunctions(std::span<std::string const> con
 //------------------------------------------
 // Private Methods
 
-void Debug::initRoutines() {
+void Debug::addRoutines() {
     // Memory usage monitoring routine
-    routines.emplace_back([this] {
-            // store memory usage in global document
-            double virtualMemMB = 0.0;
-            double residentMemMB = 0.0;
-            getMemoryUsageMB(virtualMemMB, residentMemMB);
-            moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.virtualMB"), virtualMemMB);
-            moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.residentMB"), residentMemMB);
-        },
-        1000 /*ms*/, // Call every second
-        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+    addRoutine(
+        Utility::Coordination::TimedRoutine(
+            [this] {
+                // store memory usage in global document
+                double virtualMemMB = 0.0;
+                double residentMemMB = 0.0;
+                getMemoryUsageMB(virtualMemMB, residentMemMB);
+                moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.virtualMB"), virtualMemMB);
+                moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.residentMB"), residentMemMB);
+            },
+            1000 /*ms*/, // Call every second
+            Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+        ),
+        RoutineUpdateMode::BEFORE_UPDATE_HOOK
     );
 
-    // Worker count monitoring routine
-    routines.emplace_back([this] {
-            // store worker count in global document
-            size_t const invokeWorkerCount = Constants::ThreadSettings::getInvokeWorkerCount();
-            size_t const rendererWorkerCount = Constants::ThreadSettings::getRendererWorkerCount();
-            size_t const workerCount = invokeWorkerCount + rendererWorkerCount;
+    addRoutine(
+        Utility::Coordination::TimedRoutine(
+            [this] {
+                // store worker count in global document
+                size_t const invokeWorkerCount = Constants::ThreadSettings::getInvokeWorkerCount();
+                size_t const rendererWorkerCount = Constants::ThreadSettings::getRendererWorkerCount();
+                size_t const workerCount = invokeWorkerCount + rendererWorkerCount;
 
-            moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.invoke.used"), invokeWorkerCount);
-            moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.renderer.used"), rendererWorkerCount);
-            moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.total.used"), workerCount);
+                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.invoke.used"), invokeWorkerCount);
+                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.renderer.used"), rendererWorkerCount);
+                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.total.used"), workerCount);
 
-            moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.invoke.max"), Constants::ThreadSettings::Maximum::invokeWorkerCount);
-            moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.renderer.max"), Constants::ThreadSettings::Maximum::rendererWorkerCount);
-            moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.total.max"), Constants::ThreadSettings::Maximum::totalThreadCount);
-        },
-        5000 /*ms*/, // Call every 5 seconds
-        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.invoke.max"), Constants::ThreadSettings::Maximum::invokeWorkerCount);
+                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.renderer.max"), Constants::ThreadSettings::Maximum::rendererWorkerCount);
+                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.total.max"), Constants::ThreadSettings::Maximum::totalThreadCount);
+            },
+            5000 /*ms*/, // Call every 5 seconds
+            Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+        ),
+        RoutineUpdateMode::BEFORE_UPDATE_HOOK
     );
 }
 

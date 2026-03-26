@@ -6,7 +6,7 @@ namespace Nebulite::DomainModule::RenderObject {
 
 //------------------------------------------
 // Update
-Constants::Event Mirror::update() {
+Constants::Event Mirror::updateHook() {
     if (mirrorEnabled || mirrorOnceEnabled) {
         // Mirror to GlobalSpace
         auto const token = getDomainModuleAccessToken(*this);
