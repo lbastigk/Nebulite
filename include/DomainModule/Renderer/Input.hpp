@@ -131,6 +131,21 @@ private:
      * Represents their values inside the global document.
      */
     double* currentKey[SDL_SCANCODE_COUNT] = {nullptr}; // Pointers to current key states in global doc
+
+    /**
+     * @brief Mouse values
+     */
+    struct MouseValues {
+        double* x;
+        double* y;
+        double* xScaled;
+        double* yScaled;
+        double* left;
+        double* right;
+    };
+
+    MouseValues mouseCurrent;
+    MouseValues mouseDelta;
 };
 } // namespace Nebulite::DomainModule::Renderer
 #endif // NEBULITE_DOMAINMODULE_RENDERER_INPUT_HPP

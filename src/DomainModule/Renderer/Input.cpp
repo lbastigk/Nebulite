@@ -19,6 +19,25 @@ Constants::Event Input::updateHook() {
 // Private Functions
 
 void Input::mapKeyNames() {
+    // Mouse
+    mouseCurrent = MouseValues{
+        .x = moduleScope.getStableDoublePointer(Key::mouseCurrent + "X"),
+        .y = moduleScope.getStableDoublePointer(Key::mouseCurrent + "Y"),
+        .xScaled = moduleScope.getStableDoublePointer(Key::mouseCurrent + "scaledX"),
+        .yScaled = moduleScope.getStableDoublePointer(Key::mouseCurrent + "scaledY"),
+        .left = moduleScope.getStableDoublePointer(Key::mouseCurrent + "left"),
+        .right = moduleScope.getStableDoublePointer(Key::mouseCurrent + "right")
+    };
+    mouseDelta = MouseValues{
+        .x = moduleScope.getStableDoublePointer(Key::mouseDelta + "X"),
+        .y = moduleScope.getStableDoublePointer(Key::mouseDelta + "Y"),
+        .xScaled = moduleScope.getStableDoublePointer(Key::mouseDelta + "scaledX"),
+        .yScaled = moduleScope.getStableDoublePointer(Key::mouseDelta + "scaledY"),
+        .left = moduleScope.getStableDoublePointer(Key::mouseDelta + "left"),
+        .right = moduleScope.getStableDoublePointer(Key::mouseDelta + "right")
+    };
+
+    // Keyboard
     for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++
          scancode) {
         char const* nameRaw = SDL_GetScancodeName(
@@ -70,18 +89,19 @@ void Input::addRoutines(){
 }
 
 namespace {
+
+// Helper to calculate mouse state from SDL values
 int calcMouseState(uint32_t const& key, uint32_t const& state) {
     return !!(key & state);
 }
 
+// Helper to calculate mouse delta from SDL values
 int calcMouseDelta(uint32_t const& key, uint32_t const& currentState, uint32_t const& lastState) {
     return !!(key & currentState) - !!(key & lastState);
 }
-}
 
-// TODO: Use stable double pointers instead of the expensive set() calls!!!
-//       double* vals[SDL_SCANCODE_COUNT], with initialization in constructor
-//       Same for mouse
+} // namespace
+
 void Input::writeCurrentAndDeltaInputs() {
     //------------------------------------------
     // Mouse
@@ -91,20 +111,20 @@ void Input::writeCurrentAndDeltaInputs() {
     mouse.state = SDL_GetMouseState(&mouse.posX, &mouse.posY);
 
     // Cursor Position and state
-    moduleScope.set(Key::mouseCurrent + "X", static_cast<double>(mouse.posX));
-    moduleScope.set(Key::mouseCurrent + "Y", static_cast<double>(mouse.posY));
-    moduleScope.set(Key::mouseDelta + "X", static_cast<double>(mouse.posX - mouse.lastPosX));
-    moduleScope.set(Key::mouseDelta + "Y", static_cast<double>(mouse.posY - mouse.lastPosY));
-    moduleScope.set(Key::mouseCurrent + "left", calcMouseState(SDL_BUTTON_MASK(SDL_BUTTON_LEFT), mouse.state));
-    moduleScope.set(Key::mouseCurrent + "right", calcMouseState(SDL_BUTTON_MASK(SDL_BUTTON_RIGHT), mouse.state));
-    moduleScope.set(Key::mouseDelta + "left", calcMouseDelta(SDL_BUTTON_MASK(SDL_BUTTON_LEFT), mouse.state, mouse.lastState));
-    moduleScope.set(Key::mouseDelta + "right", calcMouseDelta(SDL_BUTTON_MASK(SDL_BUTTON_RIGHT), mouse.state, mouse.lastState));
+    *mouseCurrent.x = static_cast<double>(mouse.posX);
+    *mouseCurrent.y = static_cast<double>(mouse.posY);
+    *mouseDelta.x = static_cast<double>(mouse.posX - mouse.lastPosX);
+    *mouseDelta.y = static_cast<double>(mouse.posY - mouse.lastPosY);
+    *mouseCurrent.left = calcMouseState(SDL_BUTTON_MASK(SDL_BUTTON_LEFT), mouse.state);
+    *mouseCurrent.right = calcMouseState(SDL_BUTTON_MASK(SDL_BUTTON_RIGHT), mouse.state);
+    *mouseDelta.left = calcMouseDelta(SDL_BUTTON_MASK(SDL_BUTTON_LEFT), mouse.state, mouse.lastState);
+    *mouseDelta.right = calcMouseDelta(SDL_BUTTON_MASK(SDL_BUTTON_RIGHT), mouse.state, mouse.lastState);
 
     // Scaled positions
-    moduleScope.set(Key::mouseCurrent + "scaledX", static_cast<double>(mouse.posX)/static_cast<double>(domain.getWindowScale()));
-    moduleScope.set(Key::mouseCurrent + "scaledY", static_cast<double>(mouse.posY)/static_cast<double>(domain.getWindowScale()));
-    moduleScope.set(Key::mouseDelta + "scaledX", static_cast<double>(mouse.posX - mouse.lastPosX)/static_cast<double>(domain.getWindowScale()));
-    moduleScope.set(Key::mouseDelta + "scaledY", static_cast<double>(mouse.posY - mouse.lastPosY)/static_cast<double>(domain.getWindowScale()));
+    *mouseCurrent.xScaled = static_cast<double>(mouse.posX)/static_cast<double>(domain.getWindowScale());
+    *mouseCurrent.yScaled = static_cast<double>(mouse.posY)/static_cast<double>(domain.getWindowScale());
+    *mouseDelta.xScaled = static_cast<double>(mouse.posX - mouse.lastPosX)/static_cast<double>(domain.getWindowScale());
+    *mouseDelta.yScaled = static_cast<double>(mouse.posY - mouse.lastPosY)/static_cast<double>(domain.getWindowScale());
 
     //------------------------------------------
     // Keyboard
@@ -128,21 +148,17 @@ void Input::writeCurrentAndDeltaInputs() {
     }
 }
 
-// TODO: Use stable double pointers instead of the expensive set() calls!!!
-//       double* deltas[SDL_SCANCODE_COUNT], with initialization in constructor
-//       Same for mouse
 void Input::resetDeltaValues() const {
     // 1.) Mouse
-    moduleScope.set(Key::mouseDelta + "X", 0);
-    moduleScope.set(Key::mouseDelta + "Y", 0);
-    moduleScope.set(Key::mouseDelta + "left", 0);
-    moduleScope.set(Key::mouseDelta + "right", 0);
+    *mouseDelta.x = 0.0;
+    *mouseDelta.y = 0.0;
+    *mouseDelta.left = 0.0;
+    *mouseDelta.right = 0.0;
 
     // 2.) Keyboard
-    for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++
-         scancode) {
+    for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++scancode) {
         if (!keyNames[scancode].empty()) {
-            moduleScope.set<int>(Key::keyboardDelta + keyNames[scancode], 0);
+            *deltaKey[scancode] = 0.0;
         }
     }
 }
