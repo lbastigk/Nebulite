@@ -214,10 +214,10 @@ public:
 
     /**
      * @brief Parses the command line arguments and executes the corresponding function.
-     *        All whitespaces outside of quotes are seen as argument separators.
-     *        The first argument should be used to identify where the execution comes from.
-     *        All subsequent arguments starting with -- are treated as variable assignments.
-     *        The first argument after the variable assignments is the function to execute.
+     * @details All whitespaces outside of quotes are seen as argument separators.
+     *          The first argument should be used to identify where the execution comes from.
+     *          All subsequent arguments starting with -- are treated as variable assignments.
+     *          The first argument after the variable assignments is the function to execute.
      * @param cmd Command string to parse
      * @param addArgs Additional arguments to pass to the executed function
      * @return The return value of the executed function, or the standard/error value.
@@ -229,13 +229,18 @@ public:
     // Binding (Functions, Categories, Variables)
 
     /**
-     * @brief Creates a category.
-     *        A category acts a "function bundler" to the main tree.
-     * @param name Name of the category
-     * @param helpDescription Description of the category, shown in the help command. First line is shown in the general help, full description in detailed help
-     * @throws std::runtime_error if the category already exists or if category hierarchy is invalid.
+     * @brief Binds a function to the command tree.
+     *        Make sure the function has the signature:
+     *        ```cpp
+     *        returnValue functionName(int argc, char** argv);
+     *        ```
+     * @details If the function name already exists, the program will throw an error to prevent accidental overwriting of functions.
+     *          However, if the function being bound has the same pointer as the existing function, the binding will simply be ignored.
+     * @param func Pointer to the function to bind, wrapped to include information about its signature.
+     * @param name Name of the function in the command tree
+     * @param helpDescription Help description for the function. First line is shown in the general help, full description in detailed help.
      */
-    void bindCategory(std::string_view const& name, std::string_view const& helpDescription);
+    void bindFunction(WrappedFunction const& func, std::string_view const& name, std::string_view const& helpDescription);
 
     template <typename R, typename C, typename... Ps>
     void bindFunction(
@@ -259,18 +264,13 @@ public:
     );
 
     /**
-     * @brief Binds a function to the command tree.
-     *        Make sure the function has the signature:
-     *        ```cpp
-     *        returnValue functionName(int argc, char** argv);
-     *        ```
-     * @details If the function name already exists, the program will throw an error to prevent accidental overwriting of functions.
-     *          However, if the function being bound has the same pointer as the existing function, the binding will simply be ignored.
-     * @param func Pointer to the function to bind, wrapped to include information about its signature.
-     * @param name Name of the function in the command tree
-     * @param helpDescription Help description for the function. First line is shown in the general help, full description in detailed help.
+     * @brief Creates a category.
+     * @details A category acts a "function bundler" to the main tree.
+     * @param name Name of the category
+     * @param helpDescription Description of the category, shown in the help command. First line is shown in the general help, full description in detailed help
+     * @throws std::runtime_error if the category already exists or if category hierarchy is invalid.
      */
-    void bindFunction(WrappedFunction const& func, std::string_view const& name, std::string_view const& helpDescription);
+    void bindCategory(std::string_view const& name, std::string_view const& helpDescription);
 
     /**
      * @brief Binds a variable to the command tree.
@@ -282,15 +282,14 @@ public:
      */
     void bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription);
 
+
+    //------------------------------------------
+    // Binding checker
+
     /**
      * @brief Checks if a function with the given name or from a full command exists.
-     *        Examples:
-     *        ```cpp
-     *        // Both check if the function "myFunction" exists
-     *        funcTree.hasFunction("myFunction");
-     *        funcTree.hasFunction("./bin/Nebulite --myVariable myFunction argumentOfMyFunction");
-     *        ```
-     * @param nameOrCommand Name of the function or full command string
+     * @param nameOrCommand Name of the function or full command string,
+     *                      where arg[1] is the command and arg[0] is the caller
      */
     bool hasFunction(std::string_view const& nameOrCommand);
 
@@ -406,6 +405,7 @@ private:
     /**
      * @struct BindingSearchResult
      * @brief Helper struct to store search results for find
+     * @todo Use an optional variant instead
      */
     struct BindingSearchResult {
         bool any = false;
