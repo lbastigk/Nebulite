@@ -19,6 +19,7 @@
 #include "Constants/Asserts.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Interaction/Execution/FuncTreeErrorMessages.hpp"
+#include "Math/Equality.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -56,22 +57,6 @@ FuncTree<returnValue, additionalArgs...>::FuncTree(std::string_view const& treeN
             completeDesc
         }
     );
-}
-
-//------------------------------------------
-// Template comparison
-
-// TODO: Move to math namespace
-
-template <typename returnValue, typename... additionalArgs>
-template <typename T> bool FuncTree<returnValue, additionalArgs...>::isEqual(T const& a, T const& b) {
-    if constexpr (std::is_floating_point_v<T>) {
-        // Consider EPSILON for floating point comparison
-        return std::fabs(a - b) < std::numeric_limits<T>::epsilon();
-    } else {
-        // Default comparison
-        return a == b;
-    }
 }
 
 //------------------------------------------
@@ -683,7 +668,7 @@ template <typename returnValue, typename... additionalArgs>
 returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::string const& name, int argc, char** argv, std::span<std::string const> const& args, additionalArgs... addArgs) {
     // Call preParse function if set
     if (preParse != nullptr) {
-        if (returnValue err = preParse(); !isEqual(err, standardReturn.valDefault)) {
+        if (returnValue err = preParse(); !Math::isEqual(err, standardReturn.valDefault)) {
             return err; // Return error if preParse failed
         }
     }

@@ -509,12 +509,6 @@ private:
      * @return Pointer to the FuncTree of the category, or nullptr if not found.
      */
     FuncTree* traverseIntoCategory(std::string const& categoryName, FuncTree const* ftree);
-
-    //------------------------------------------
-    // Comparison helper
-
-    template <typename T>
-    static bool isEqual(T const& a, T const& b);
 };
 } // namespace Nebulite::Interaction::Execution
 
