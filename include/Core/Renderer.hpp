@@ -372,15 +372,15 @@ public:
 
     /**
      * @brief Gets the RenderObject from its ID.
-     * @param searchId The ID of the RenderObject to retrieve.
+     * @param searchIndex The Index of the RenderObject to retrieve. In chronological order based on when they were appended to the Renderer.
+     *        Does not change when objects are removed or purged.
      * @return A pointer to the RenderObject, or nullptr if not found.
-     * @todo Add another function that retrieves the renderobject based on index, not id
      */
-    RenderObject* getObjectFromIndex(size_t const& searchId) {
-        if (!indexToIdMap.contains(searchId)) {
+    RenderObject* getObjectFromIndex(size_t const& searchIndex) {
+        if (!indexToIdMap.contains(searchIndex)) {
             return nullptr; // No object with this index
         }
-        auto const domainId = indexToIdMap[searchId];
+        auto const domainId = indexToIdMap[searchIndex];
         return env.getObjectFromId(domainId);
     }
 

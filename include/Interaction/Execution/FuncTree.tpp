@@ -612,7 +612,7 @@ std::vector<std::pair<std::string, std::string_view>> FuncTree<returnValue, addi
 // Parsing and execution
 
 template <typename returnValue, typename... additionalArgs>
-returnValue FuncTree<returnValue, additionalArgs...>::parseStr(std::string const& cmd, additionalArgs... addArgs) {
+returnValue FuncTree<returnValue, additionalArgs...>::parseStr(std::string_view const& cmd, additionalArgs... addArgs) {
     // Early exit on empty command
     if (cmd.empty()) {
         return standardReturn.valDefault;

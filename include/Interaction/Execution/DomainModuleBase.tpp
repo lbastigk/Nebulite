@@ -3,7 +3,7 @@
 
 #include "Interaction/Execution/DomainModuleBase.hpp"
 
-// TODO: Consider passing all of these directly to funcTree
+// TODO: Consider using all of these directly to funcTree
 
 namespace Nebulite::Interaction::Execution {
 // Implementation: free/static/function-object overload

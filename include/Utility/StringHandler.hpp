@@ -129,7 +129,7 @@ public:
      * @brief Parses a command string into individual arguments, taking quotes into account.
      * @param cmd The command string to parse.
      */
-    static ParseResult parseQuotedArguments(std::string const& cmd);
+    static ParseResult parseQuotedArguments(std::string_view const& cmd);
 
     /**
      * @brief Recombines argc/argv into a single string with spaces.
