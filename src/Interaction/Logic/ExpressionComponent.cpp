@@ -28,9 +28,11 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
 }
 
 bool Expression::Component::handleComponentTypeVariable(std::string& token, ContextScope const& context, size_t const& recursionDepth) const {
-    auto s = evaluateKey(context, key, contextType, recursionDepth);
-    if (!s) {return false;}
-    auto [strippedKey, destination] = s.value();
+    auto nestedEvalResult = handleNesting(context, recursionDepth);
+    if (!nestedEvalResult.has_value()) {
+        return false;
+    }
+    auto const& [strippedKey, source] = nestedEvalResult.value();
 
     // Helper lambda to convert a value to a string representation
     auto getStringValue = []<typename DocumentType, typename KeyType>(DocumentType const& doc, KeyType const& k) -> std::string {
@@ -58,7 +60,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
 
     // Now, use the key to get the value from the correct document
     auto const scopedKey = Data::ScopedKey(strippedKey);
-    switch (destination) {
+    switch (source) {
     case ContextType::self: // {self.<key><transformations>}
         token = getStringValue(context.self, scopedKey.view());
         break;
@@ -85,13 +87,15 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
 }
 
 bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, size_t const& recursionDepth) const {
-    auto s = evaluateKey(context, key, contextType, recursionDepth);
-    if (!s) {return false;}
-    auto [strippedKey, destination] = s.value();
+    auto nestedEvalResult = handleNesting(context, recursionDepth);
+    if (!nestedEvalResult.has_value()) {
+        return false;
+    }
+    auto const& [strippedKey, source] = nestedEvalResult.value();
 
     // Now, use the key to get the value from the correct document
     auto const scopedKey = Data::ScopedKey(strippedKey);
-    switch (destination) {
+    switch (source) {
     case ContextType::self: // {self.<key><transformations>}
         token = context.self.getSubDoc(scopedKey.view());
         break;
@@ -168,25 +172,33 @@ void Expression::Component::handleComponentTypeEval(std::string& token) const {
     }
 }
 
-std::optional<std::pair<std::string, Expression::Component::ContextType>> Expression::Component::evaluateKey(ContextScope const& context, std::string const& initialKey, ContextType const& initialDestination, size_t const& recursionDepth) const {
-    std::string strippedKey = initialKey;
-    ContextType destination = initialDestination;
-
+std::expected<std::string, Expression::Component::KeyEvaluationInfo> Expression::Component::evaluateKey(ContextScope const& context, size_t const& recursionDepth) const {
     // See if the variable contains an inner expression
     if (str.find('$') != std::string::npos || str.find('{') != std::string::npos) {
         if (recursionDepth == 0) {
             Global::capture().error.println("Error: Maximum recursion depth reached when evaluating variable: ", key);
-            return std::nullopt;
+            return std::unexpected(KeyEvaluationInfo::maximumDepthReached);
         }
         // Create a temporary expression to evaluate the inner expression
         Expression const tempExpr(str);
-        strippedKey = tempExpr.eval(context, recursionDepth - 1);
-
-        // Redetermine context and strip it from key
-        destination = getContextType(strippedKey);
-        strippedKey = stripContext(strippedKey);
+        return tempExpr.eval(context, recursionDepth - 1);
     }
-    return std::make_pair(strippedKey, destination);
+    return std::unexpected(KeyEvaluationInfo::noNesting);
 }
+
+std::optional<std::pair<std::string, Expression::Component::ContextType>> Expression::Component::handleNesting(ContextScope const& context, size_t const& recursionDepth) const {
+    auto s = evaluateKey(context, recursionDepth);
+
+    // If max depth was reached, return false
+    if (!s.has_value() && s.error() == KeyEvaluationInfo::maximumDepthReached) {
+        return std::nullopt;
+    }
+
+    // If the evaluation changed anything, we must re-evaluate the context of the source
+    std::string strippedKey = s.has_value() ? stripContext(s.value()) : key;
+    ContextType source = s.has_value() ? getContextType(s.value()) : contextType;
+    return std::make_pair(strippedKey, source);
+}
+
 
 }  // namespace Nebulite::Interaction::Logic

@@ -349,15 +349,18 @@ private:
         void handleComponentTypeEval(std::string& token) const ;
 
     private:
+        enum class KeyEvaluationInfo {
+            maximumDepthReached, // Could not resolve due to maximum depth reached
+            noNesting // No nested variables found
+        };
+
         /**
          * @brief For variable component handling. Evaluates any inner expressions/variables within the component's key and returns the resulting key.
          * @details If the key, for example is nested: {global.{self.info.requiredKey}}, it turns into {global.evaluatedValueOfRequiredKey}
          *          and fetches that value from the global document.
          * @param context The context to evaluate against.
-         * @param initialKey The key to evaluate, which may contain inner expressions.
-         * @param initialDestination The initial context type of the key before evaluation.
          * @param recursionDepth The current recursion depth for nested evaluations.
-         * @return The evaluated key and its destination if successful, or std::nullopt if evaluation fails.
+         * @return The evaluated string if successful, or std::nullopt if evaluation fails.
          * @todo Instead of relying on other services to remove the anti-evaluation-wrapper, we could make the depth implicit
          *       {...}   - Is evaluated.
          *       {1!...} - is turned into {...} or {0!...}, as its the same
@@ -367,7 +370,9 @@ private:
          *       or if depth = 0:
          *       strippedKey = evaluate(inner)
          */
-        [[nodiscard]] std::optional<std::pair<std::string, ContextType>> evaluateKey(ContextScope const& context, std::string const& initialKey, ContextType const& initialDestination, size_t const& recursionDepth) const ;
+        [[nodiscard]] std::expected<std::string, KeyEvaluationInfo> evaluateKey(ContextScope const& context, size_t const& recursionDepth) const ;
+
+        [[nodiscard]] std::optional<std::pair<std::string, ContextType>> handleNesting(ContextScope const& context, size_t const& recursionDepth) const ;
     };
 
     /**
