@@ -20,7 +20,7 @@ bool StringHandler::containsAnyOf(std::string const& str, std::string const& cha
     });
 }
 
-bool StringHandler::isNumber(std::string const& str) {
+bool StringHandler::isNumber(std::string_view const& str) {
     // Check if all characters are digits, +, -, or .
     // Then check if count of . is at most 1
     // Then check if + or - is only at the start

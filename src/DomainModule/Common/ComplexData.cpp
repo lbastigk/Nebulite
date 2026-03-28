@@ -28,7 +28,7 @@ Constants::Event ComplexData::jsonSet(std::span<std::string const> const& args, 
 
     // Argument parsing
     std::string const& myKey = args[1];
-    std::string const expression = Interaction::Logic::Expression::removeOuterAntiEvalWrapper(args.subspan(2));
+    std::string const expression = Utility::StringHandler::recombineArgs(args.subspan(2));
 
     // Evaluate
     Interaction::Context const ctx{caller, caller, Global::instance()};
@@ -55,7 +55,7 @@ Constants::Event ComplexData::evaluateMember(std::span<std::string const> const&
     }
 
     // Evaluate the string as an expression and set the member to the result
-    auto const expressionStr = Interaction::Logic::Expression::removeOuterAntiEvalWrapper(callerScope.get<std::string>(fullKey).value_or(""));
+    auto const expressionStr = callerScope.get<std::string>(fullKey).value_or("");
     Interaction::Context const ctx{caller, caller, Global::instance()};
     auto const result = Interaction::Logic::Expression::evalAsJson(expressionStr, ctx);
     callerScope.setSubDoc(fullKey, result);
@@ -68,7 +68,7 @@ Constants::Event ComplexData::evaluateRecursive(std::span<std::string const> con
             case Data::KeyType::value:
                 {
                     // If it's a value, we try to evaluate it as an expression
-                    auto const expressionStr = Interaction::Logic::Expression::removeOuterAntiEvalWrapper(callerScope.get<std::string>(key).value_or(""));
+                    auto const expressionStr = callerScope.get<std::string>(key).value_or("");
                     Interaction::Context const ctx{caller, caller, Global::instance()};
                     auto const result = Interaction::Logic::Expression::evalAsJson(expressionStr, ctx);
                     callerScope.setSubDoc(key, result);

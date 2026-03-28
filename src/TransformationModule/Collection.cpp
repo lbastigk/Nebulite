@@ -89,7 +89,7 @@ bool Collection::filterRegex(std::span<std::string const> const& args, Data::Jso
     }
     std::regex regexPattern;
     try {
-        std::string const pattern = handlePotentiallyWrappedString(args.subspan(1));
+        std::string const pattern = Utility::StringHandler::recombineArgs(args.subspan(1));
         regexPattern = std::regex(pattern);
     } catch (const std::regex_error&) {
         return false; // Invalid regex pattern
@@ -111,7 +111,7 @@ bool Collection::filterGlob(std::span<std::string const> const& args, Data::Json
     if (args.size() != 2) {
         return false;
     }
-    std::string const pattern = handlePotentiallyWrappedString(args.subspan(1));
+    std::string const pattern = Utility::StringHandler::recombineArgs(args.subspan(1));
     auto const memberKeyPairs = jsonDoc->listAvailableMembersAndKeys(rootKey);
     Data::JSON filtered;
     for (const auto& [member, key] : memberKeyPairs) {

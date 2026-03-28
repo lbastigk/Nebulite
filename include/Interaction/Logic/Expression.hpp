@@ -49,7 +49,7 @@ namespace Nebulite::Interaction::Logic {
  *          e.g.:
  *          "This script took {global.time.t} Seconds"
  *          "The rounded value is: $03.2f( {global.value} )"
- *          Supports anti-evaluation formatting with {! ... }:
+ *          Supports explicit evaluation delay formatting with {n! ... }:
  *          Any variable wrapped in {!...} instead of {...} will be treated as pure text and will not be evaluated
  * @todo Add support for marrying contexts into a single data structure for transformations
  *       Example: If we have a matrix transformation module, multiplying matrices
@@ -79,7 +79,7 @@ public:
     /**
      * @brief Standard maximum recursion depth for nested expression evaluations.
      */
-    static constexpr size_t standardrecursionDepth = 10;
+    static constexpr size_t standardRecursionDepth = 10;
 
     /**
      * @brief Checks if the expression can be returned as a double.
@@ -115,8 +115,8 @@ public:
     //------------------------------------------
     // Actual evaluation functions
 
-    std::string eval(ContextScope const& context, size_t const& recursionDepth = standardrecursionDepth) const ;
-    std::string eval(Context const& context, size_t const& recursionDepth = standardrecursionDepth) const { return eval(context.demote(), recursionDepth); }
+    std::string eval(ContextScope const& context, size_t const& recursionDepth = standardRecursionDepth) const ;
+    std::string eval(Context const& context, size_t const& recursionDepth = standardRecursionDepth) const { return eval(context.demote(), recursionDepth); }
 
     double evalAsDouble(ContextScope const& context) const ;
     double evalAsDouble(Context const& context) const { return evalAsDouble(context.demote()); }
@@ -124,8 +124,8 @@ public:
     bool evalAsBool(ContextScope const& context) const ;
     bool evalAsBool(Context const& context) const { return evalAsBool(context.demote()); }
 
-    Data::JSON evalAsJson(ContextScope const& context, size_t const& recursionDepth = standardrecursionDepth) const ;
-    Data::JSON evalAsJson(Context const& context, size_t const& recursionDepth = standardrecursionDepth) const { return evalAsJson(context.demote(), recursionDepth); }
+    Data::JSON evalAsJson(ContextScope const& context, size_t const& recursionDepth = standardRecursionDepth) const ;
+    Data::JSON evalAsJson(Context const& context, size_t const& recursionDepth = standardRecursionDepth) const { return evalAsJson(context.demote(), recursionDepth); }
 
     //------------------------------------------
     // Static functions for one-time evaluation
@@ -177,23 +177,6 @@ public:
      * @return True if the expression is always true, false otherwise.
      */
     [[nodiscard]] bool recalculateIsAlwaysTrue() const;
-
-    //------------------------------------------
-    // Static helpers
-
-    /**
-     * @brief Removes outer anti-evaluation wrappers from an expression string
-     * @details Example: "This Expression has two anti-evaluation wrappers: {!self.value} and {!global.value}"
-     *          would be transformed to "This Expression has two anti-evaluation wrappers: {self.value} and {global.value}"
-     *          It's best to use this function at the lowest level possible, right before parsing the expression,
-     *          to preserve as much formatting as possible in the expression string in case it's passed down further.
-     * @param expression The expression string to remove outer anti-evaluation wrappers from.
-     * @return The expression string with outer anti-evaluation wrappers removed.
-     */
-    static std::string removeOuterAntiEvalWrapper(std::string const& expression);
-    static std::string removeOuterAntiEvalWrapper(std::span<std::string const> const& args) {
-        return removeOuterAntiEvalWrapper(Utility::StringHandler::recombineArgs(args));
-    }
 
 private:
     /**
@@ -287,12 +270,18 @@ private:
          *        - The pure text
          *        - The variable key, with no context stripped
          */
-        std::string str;
+        std::string stringRepresentation;
 
         /**
          * @brief Holds the context-stripped key of the component, if it's of type variable.
          */
         std::string key;
+
+        /**
+         * @brief The evaluation wait count. Used to delay the evaluation of a component.
+         * @details For each evaluation, the count is reduced by 1. Only for component type Variable!
+         */
+        size_t evaluationWait = 0;
 
         /**
          * @brief Pointer to the tinyexpr representation of the expression.
@@ -361,14 +350,6 @@ private:
          * @param context The context to evaluate against.
          * @param recursionDepth The current recursion depth for nested evaluations.
          * @return The evaluated string if successful, or std::nullopt if evaluation fails.
-         * @todo Instead of relying on other services to remove the anti-evaluation-wrapper, we could make the depth implicit
-         *       {...}   - Is evaluated.
-         *       {1!...} - is turned into {...} or {0!...}, as its the same
-         *       {2!...} - is turned into {1!...}
-         *       For this to work, add variableDepth to Component struct, use info to reconstruct the text:
-         *       strippedKey = "{" + std::to_string(depth-1) + "!" + inner + "}";
-         *       or if depth = 0:
-         *       strippedKey = evaluate(inner)
          */
         [[nodiscard]] std::expected<std::string, KeyEvaluationInfo> evaluateKey(ContextScope const& context, size_t const& recursionDepth) const ;
 
@@ -500,20 +481,18 @@ private:
 
     /**
      * @brief Used to parse a string token of type "eval" into a component.
-     * @details Tasks:
-     *          - Parses the token on the assumption that it is of type "eval".
-     *          - Populates the current component with the parsed information.
-     *          - Pushes the current component onto the components vector.
      * @param token The token to parse.
      */
     void parseTokenTypeEval(std::string const& token);
 
     /**
+     * @brief Used to parse a string token of type "variable" into a component.
+     * @param token The token to parse
+     */
+    void parseTokenTypeVariable(std::string const& token);
+
+    /**
      * @brief Used to parse a string token of type "text" into a component.
-     * @details Tasks:
-     *          - Parses the token on the assumption that it is of type "text".
-     *          - Populates the current component with the parsed information.
-     *          - Pushes the current component onto the components vector.
      * @param token The token to parse.
      */
     void parseTokenTypeText(std::string const& token);

@@ -50,11 +50,11 @@ public:
     static auto constexpr removeMemberDesc = "Removes the member at the specified key from the JSON document.\n"
             "Usage: |removeMember <key1> <key2> ... -> {json}\n";
 
-    bool setFromResult(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) const ;
+    static bool setFromResult(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr setFromResultName = "setFromResult";
     static auto constexpr setFromResultDesc = "Sets the value at the specified key in the JSON document from the result of another transformation.\n"
-        "Usage: |setFromResult <key> {!transformation} -> {json}\n"
-        "The '!' is required, otherwise the nested variable is evaluated by the expression class before the transformation is applied!\n";
+        "Usage: |setFromResult <key> <expression> -> {json}\n"
+        "Inside the inner expression, all context is the own scope.\n";
 
     // TODO: setFromExpression?
 

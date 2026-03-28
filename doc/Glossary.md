@@ -37,25 +37,6 @@ Rather, it reflects commonly used names within its documentation and shall be us
 ## A
 
 -----------------
-### Anti-evaluation
-Allows for expression evaluation to forward any variable access to future functions
-in the same expression.
-Example:
-```
-set workspace.arr[0] 1
-set workspace.arr[1] 2
-set workspace.arr[2] 3
-eval nop {global.workspace|setFromResult arraySize {arr|length|toInt}|print}
-eval nop {global.workspace|setFromResult arraySize {!arr|length|toInt}|print}
-exit
-```
-The first eval fails, because the expression evaluation tries to evaluate `{arr|length|toInt}` 
-before the `setFromResult` function is executed, leading to the setFromResult function to get the arguments:
-`arraySize` and `null` instead of `arraySize` and `{arr|length|toInt}`.
-
-See also: [Expression](#expression), [FuncTree](#functree), [Transformation](#transformation)
-
------------------
 ## B
 
 -----------------
@@ -120,6 +101,24 @@ See also: [Domain](#domain)
 
 -----------------
 ## E
+
+-----------------
+### Evaluation-delay
+Allows for expression evaluation to be delayed by a set number of evaluation steps.
+Example:
+```
+set workspace.arr[0] 1
+set workspace.arr[1] 2
+set workspace.arr[2] 3
+eval nop {global.workspace|setFromResult arraySize {arr|length|toInt}|print}
+eval nop {global.workspace|setFromResult arraySize {1!arr|length|toInt}|print}
+exit
+```
+The first eval fails, because the expression evaluation tries to evaluate `{arr|length|toInt}`
+before the `setFromResult` function is executed, leading to the setFromResult function to get the arguments:
+`arraySize` and `null` instead of `arraySize` and `{arr|length|toInt}`.
+
+See also: [Expression](#expression), [FuncTree](#functree), [Transformation](#transformation)
 
 -----------------
 ### Expression
@@ -208,7 +207,10 @@ It serves as a scoped view over an existing JSON document, used for modular data
 ### Multiresolve
 A feature that allows nested variable access: 
 `{global.mirror.id{self.id}.posX}` would evaluate to `{global.mirror.id1.posX}` first, 
-if `{self.id}` = `1`. Then, `{global.mirror.id1.posX}` is evaluated.
+if `{self.id}` = `1`. Then, `{global.mirror.id1.posX}` is evaluated. 
+Evaluation may be delayed with the Evaluation-delay feature.
+
+See also: [Evaluation-delay](#evaluation-delay), [Context](#context), [Expression](#expression)
 
 -----------------
 ## N
@@ -275,7 +277,7 @@ Transformations are supported for any JSON variable access.
 Example: `{self.var|add 5}` would retrieve `{self.var}` and apply the add transformation to it before returning it. 
 Transformations are applied after all variable resolving is done, including Multiresolve. 
 
-See also: [Anti-evaluation](#anti-evaluation) [JSON](#json), [Multiresolve](#multiresolve)
+See also: [Evaluation-delay](#evaluation-delay) [JSON](#json), [Multiresolve](#multiresolve)
 
 -----------------
 ## U

@@ -73,14 +73,6 @@ public:
 protected:
     std::shared_ptr<Interaction::Execution::FuncTree<bool, JsonScope*>> transformationFuncTree;
 
-    /**
-     * @brief Helper function to handle potentially wrapped strings in transformation arguments.
-     * @details This function removes all outer anti-eval wrappers and then checks if the resulting string is still wrapped in braces, removing them as well.
-     * @param args A span of strings
-     * @return The unwrapped string, with all outer anti-eval wrappers and outer braces removed if present.
-     */
-    static std::string handlePotentiallyWrappedString(std::span<std::string const> const& args);
-
 private:
     // Example functions for binding
 

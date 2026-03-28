@@ -89,7 +89,7 @@ void Expression::compileIfExpression(std::shared_ptr<Component> const& component
     if (component->type == Component::Type::eval) {
         // Compile the expression using TinyExpr
         int error;
-        component->expression = te_compile(component->str.c_str(), te_variables.data(), static_cast<int>(te_variables.size()), &error);
+        component->expression = te_compile(component->stringRepresentation.c_str(), te_variables.data(), static_cast<int>(te_variables.size()), &error);
         if (error) {
             printCompileError(component, error);
 
@@ -232,7 +232,18 @@ void Expression::parseIntoComponents(std::string const& expr) {
             if (token.starts_with('$')) {
                 parseTokenTypeEval(token);
             } else {
-                parseTokenTypeText(token);
+                // Current token is Text
+                // Perhaps mixed with variables...
+                for (auto const& subToken : Utility::StringHandler::splitOnSameDepth(token, '{')) {
+                    // Token is type variable
+                    if (subToken.starts_with('{')) {
+                        parseTokenTypeVariable(subToken);
+                    }
+                    // Token is type text
+                    else {
+                        parseTokenTypeText(subToken);
+                    }
+                }
             }
         }
     }
@@ -308,9 +319,9 @@ void Expression::parseTokenTypeEval(std::string const& token) {
             Component::ContextType contextType = getContextType(key);
             key = stripContext(key);
             registerVariable(te_name, key, contextType);
-            currentComponent->str += te_name;
+            currentComponent->stringRepresentation += te_name;
         } else {
-            currentComponent->str += subToken;
+            currentComponent->stringRepresentation += subToken;
         }
     }
 
@@ -323,49 +334,53 @@ void Expression::parseTokenTypeEval(std::string const& token) {
     components.push_back(currentComponent);
 }
 
-void Expression::parseTokenTypeText(std::string const& token) {
-    // Current token is Text
-    // Perhaps mixed with variables...
-    for (auto const& subToken : Utility::StringHandler::splitOnSameDepth(token, '{')) {
-        auto currentComponent = std::make_shared<Component>();
+void Expression::parseTokenTypeVariable(std::string const& token) {
+    auto const currentComponent = std::make_shared<Component>();
 
-        // Token is type variable
-        // All variables starting with "{!" are considered text
-        if (subToken.starts_with('{') && !subToken.starts_with("{!")) {
-            // 1.) remove {}
-            // We keep all other potential {} inside the variable name for later MultiResolve
-            std::string inner;
+    // 1.) remove {}
+    // We keep all other potential {} inside the variable name for later MultiResolve
+    std::string inner = token.substr(1, token.length() - 2);
 
-            inner = subToken.substr(1, subToken.length() - 2);
-            // 2.) determine context
-            currentComponent->type = Component::Type::variable;
-            currentComponent->str = inner;
-            currentComponent->contextType = getContextType(inner);
-            currentComponent->key = stripContext(inner);
+    // 2.) Check if inner starts with a number followed by an exclamation mark, if so, this is an evaluation wait specifier,
+    // and we set the evaluation wait of the component accordingly, and remove the specifier from the inner string
+    if (auto const exclamationMarkPosition = inner.find('!'); exclamationMarkPosition != std::string::npos) {
+        if (std::string const beforeExclamation = inner.substr(0, exclamationMarkPosition); Utility::StringHandler::isNumber(beforeExclamation)) {
+            if (!beforeExclamation.empty()) {
+                currentComponent->evaluationWait = std::stoul(std::string(beforeExclamation));
+            }
+            inner = inner.substr(exclamationMarkPosition + 1);
         }
-        // Token is type text
-        else {
-            // Determine context
-            currentComponent->type = Component::Type::text;
-            currentComponent->str = subToken;
-            currentComponent->contextType = Component::ContextType::None;
-            currentComponent->key = ""; // No key for text expressions
-        }
-        // Add to components
-        components.push_back(currentComponent);
     }
+
+    // 3.) determine context
+    currentComponent->type = Component::Type::variable;
+    currentComponent->stringRepresentation = inner;
+    currentComponent->contextType = getContextType(inner);
+    currentComponent->key = stripContext(inner);
+
+    components.push_back(currentComponent);
+}
+
+void Expression::parseTokenTypeText(std::string const& token) {
+    auto const currentComponent = std::make_shared<Component>();
+    // Determine context
+    currentComponent->type = Component::Type::text;
+    currentComponent->stringRepresentation = token;
+    currentComponent->contextType = Component::ContextType::None;
+    currentComponent->key = ""; // No key for text expressions
+    components.push_back(currentComponent);
 }
 
 void Expression::printCompileError(std::shared_ptr<Component> const& component, int const& error) const {
     std::string offendingChar;
-    if (error <= 0 || static_cast<size_t>(error) > component->str.size()) {
+    if (error <= 0 || static_cast<size_t>(error) > component->stringRepresentation.size()) {
         offendingChar = "N/A (error position out of bounds)";
     } else {
-        offendingChar = std::string(1, component->str[static_cast<size_t>(error) - 1]);
+        offendingChar = std::string(1, component->stringRepresentation[static_cast<size_t>(error) - 1]);
     }
     std::stringstream ss;
     ss << "-----------------------------------------------------------------" << "\n";
-    ss << "Error compiling expression: '" << component->str << "' At position: " << std::to_string(error) << ", offending character: " << offendingChar << "\n";
+    ss << "Error compiling expression: '" << component->stringRepresentation << "' At position: " << std::to_string(error) << ", offending character: " << offendingChar << "\n";
     ss << "You might see this message multiple times due to expression parallelization." << "\n";
     ss << "\n";
     ss << "If you only see the start of your expression, make sure to encompass your expression in quotes" << "\n";
@@ -553,24 +568,6 @@ void Expression::updateUnstableValues(ContextScope const& context) const {
     }
 }
 
-
-//------------------------------------------
-// Other Static helpers
-
-std::string Expression::removeOuterAntiEvalWrapper(std::string const& expression) {
-    auto expressionParts = Utility::StringHandler::splitOnSameDepth(expression, '{');
-    for (auto& expressionPart : expressionParts) {
-        // Any outer expression part with an anti-evaluation wrapper {! ... } should have it replaced with { ... }
-        // as we want to evaluate the expression inside as normal
-        if (expressionPart.starts_with("{!")) {
-            expressionPart = "{" + expressionPart.substr(2);
-        }
-    }
-
-    // Recombine to form the full expression
-    return std::accumulate(expressionParts.begin(), expressionParts.end(), std::string{});
-}
-
 //------------------------------------------
 // Recalculation helpers:
 
@@ -615,7 +612,7 @@ std::string Expression::eval(ContextScope const& context, size_t const& recursio
             break;
             //------------------------------------------
         case Component::Type::text:
-            token = component->str;
+            token = component->stringRepresentation;
             break;
             //------------------------------------------
         default:

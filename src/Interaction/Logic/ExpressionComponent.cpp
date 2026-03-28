@@ -7,7 +7,7 @@ namespace Nebulite::Interaction::Logic {
 
 Expression::Component::Component(Component&& other) noexcept
             : type(other.type), contextType(other.contextType), cast(other.cast),
-              formatter(other.formatter), str(std::move(other.str)), key(std::move(other.key)),
+              formatter(other.formatter), stringRepresentation(std::move(other.stringRepresentation)), key(std::move(other.key)),
               expression(other.expression) {
     other.expression = nullptr;
 }
@@ -19,7 +19,7 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
         contextType = other.contextType;
         cast = other.cast;
         formatter = other.formatter;
-        str = std::move(other.str);
+        stringRepresentation = std::move(other.stringRepresentation);
         key = std::move(other.key);
         expression = other.expression;
         other.expression = nullptr;
@@ -28,11 +28,22 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
 }
 
 bool Expression::Component::handleComponentTypeVariable(std::string& token, ContextScope const& context, size_t const& recursionDepth) const {
+    // Do not evaluate if wait is active
+    if (evaluationWait > 1) {
+        token = "{" + std::to_string(evaluationWait - 1) + "! + " + stringRepresentation + "}";
+        return true;
+    }
+    if (evaluationWait == 1) {
+        token = "{" + stringRepresentation + "}";
+        return true;
+    }
+
+    // Evaluate inner variables/expressions if necessary, for example in {global.{self.info.requiredKey}}
     auto nestedEvalResult = handleNesting(context, recursionDepth);
     if (!nestedEvalResult.has_value()) {
         return false;
     }
-    auto const& [strippedKey, source] = nestedEvalResult.value();
+    auto const& [evaluatedKey, source] = nestedEvalResult.value();
 
     // Helper lambda to convert a value to a string representation
     auto getStringValue = []<typename DocumentType, typename KeyType>(DocumentType const& doc, KeyType const& k) -> std::string {
@@ -59,7 +70,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
     };
 
     // Now, use the key to get the value from the correct document
-    auto const scopedKey = Data::ScopedKey(strippedKey);
+    auto const scopedKey = Data::ScopedKey(evaluatedKey);
     switch (source) {
     case ContextType::self: // {self.<key><transformations>}
         token = getStringValue(context.self, scopedKey.view());
@@ -71,7 +82,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
         token = getStringValue(context.global, scopedKey.view());
         break;
     case ContextType::resource: // {<link><resource_key_or_transformations>}
-        token = getStringValue(Global::instance().getDocCache(), strippedKey);
+        token = getStringValue(Global::instance().getDocCache(), evaluatedKey);
         break;
     case ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
     {
@@ -87,14 +98,25 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
 }
 
 bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, size_t const& recursionDepth) const {
+    // Do not evaluate if wait is active
+    if (evaluationWait > 1) {
+        token.set<std::string>("", "{" + std::to_string(evaluationWait - 1) + "! + " + stringRepresentation + "}");
+        return true;
+    }
+    if (evaluationWait == 1) {
+        token.set<std::string>("", "{" + stringRepresentation + "}");
+        return true;
+    }
+
+    // Evaluate inner variables/expressions if necessary, for example in {global.{self.info.requiredKey}}
     auto nestedEvalResult = handleNesting(context, recursionDepth);
     if (!nestedEvalResult.has_value()) {
         return false;
     }
-    auto const& [strippedKey, source] = nestedEvalResult.value();
+    auto const& [evaluatedKey, source] = nestedEvalResult.value();
 
     // Now, use the key to get the value from the correct document
-    auto const scopedKey = Data::ScopedKey(strippedKey);
+    auto const scopedKey = Data::ScopedKey(evaluatedKey);
     switch (source) {
     case ContextType::self: // {self.<key><transformations>}
         token = context.self.getSubDoc(scopedKey.view());
@@ -106,7 +128,7 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
         token = context.global.getSubDoc(scopedKey.view());
         break;
     case ContextType::resource: // {<link><resource_key_or_transformations>}
-        token = Global::instance().getDocCache().getSubDoc(strippedKey);
+        token = Global::instance().getDocCache().getSubDoc(evaluatedKey);
         break;
     case ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
         {
@@ -174,13 +196,13 @@ void Expression::Component::handleComponentTypeEval(std::string& token) const {
 
 std::expected<std::string, Expression::Component::KeyEvaluationInfo> Expression::Component::evaluateKey(ContextScope const& context, size_t const& recursionDepth) const {
     // See if the variable contains an inner expression
-    if (str.find('$') != std::string::npos || str.find('{') != std::string::npos) {
+    if (stringRepresentation.find('$') != std::string::npos || stringRepresentation.find('{') != std::string::npos) {
         if (recursionDepth == 0) {
             Global::capture().error.println("Error: Maximum recursion depth reached when evaluating variable: ", key);
             return std::unexpected(KeyEvaluationInfo::maximumDepthReached);
         }
         // Create a temporary expression to evaluate the inner expression
-        Expression const tempExpr(str);
+        Expression const tempExpr(stringRepresentation);
         return tempExpr.eval(context, recursionDepth - 1);
     }
     return std::unexpected(KeyEvaluationInfo::noNesting);
@@ -195,10 +217,9 @@ std::optional<std::pair<std::string, Expression::Component::ContextType>> Expres
     }
 
     // If the evaluation changed anything, we must re-evaluate the context of the source
-    std::string strippedKey = s.has_value() ? stripContext(s.value()) : key;
+    std::string evaluatedKey = s.has_value() ? stripContext(s.value()) : key;
     ContextType source = s.has_value() ? getContextType(s.value()) : contextType;
-    return std::make_pair(strippedKey, source);
+    return std::make_pair(evaluatedKey, source);
 }
-
 
 }  // namespace Nebulite::Interaction::Logic
