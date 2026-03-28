@@ -358,10 +358,14 @@ private:
          * @param initialDestination The initial context type of the key before evaluation.
          * @param recursionDepth The current recursion depth for nested evaluations.
          * @return The evaluated key and its destination if successful, or std::nullopt if evaluation fails.
-         * @todo Instead of relying on other services to remove the anti-evaluationwrapper, we could make the depth implicit
+         * @todo Instead of relying on other services to remove the anti-evaluation-wrapper, we could make the depth implicit
          *       {...}   - Is evaluated.
-         *       !1{...} - is turned into {...}
-         *       !2{...} - is turned into !1{...}
+         *       {1!...} - is turned into {...} or {0!...}, as its the same
+         *       {2!...} - is turned into {1!...}
+         *       For this to work, add variableDepth to Component struct, use info to reconstruct the text:
+         *       strippedKey = "{" + std::to_string(depth-1) + "!" + inner + "}";
+         *       or if depth = 0:
+         *       strippedKey = evaluate(inner)
          */
         [[nodiscard]] std::optional<std::pair<std::string, ContextType>> evaluateKey(ContextScope const& context, std::string const& initialKey, ContextType const& initialDestination, size_t const& recursionDepth) const ;
     };
