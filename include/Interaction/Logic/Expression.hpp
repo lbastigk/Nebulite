@@ -350,12 +350,18 @@ private:
 
     private:
         /**
-         * @brief Evaluates any inner expressions within the component's key and returns the resulting key.
+         * @brief For variable component handling. Evaluates any inner expressions/variables within the component's key and returns the resulting key.
+         * @details If the key, for example is nested: {global.{self.info.requiredKey}}, it turns into {global.evaluatedValueOfRequiredKey}
+         *          and fetches that value from the global document.
          * @param context The context to evaluate against.
          * @param initialKey The key to evaluate, which may contain inner expressions.
          * @param initialDestination The initial context type of the key before evaluation.
          * @param recursionDepth The current recursion depth for nested evaluations.
          * @return The evaluated key and its destination if successful, or std::nullopt if evaluation fails.
+         * @todo Instead of relying on other services to remove the anti-evaluationwrapper, we could make the depth implicit
+         *       {...}   - Is evaluated.
+         *       !1{...} - is turned into {...}
+         *       !2{...} - is turned into !1{...}
          */
         [[nodiscard]] std::optional<std::pair<std::string, ContextType>> evaluateKey(ContextScope const& context, std::string const& initialKey, ContextType const& initialDestination, size_t const& recursionDepth) const ;
     };
