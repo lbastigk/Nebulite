@@ -30,6 +30,7 @@
         //---------------------------------------
         // JSON tests
         "Tools/Tests/JSON/Array.json",
+        "Tools/Tests/JSON/Caching.json",
         "Tools/Tests/JSON/ComplexData.json",
         "Tools/Tests/JSON/Transformations/Arithmetic.json",
         "Tools/Tests/JSON/Transformations/Array.json",

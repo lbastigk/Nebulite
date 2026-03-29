@@ -22,11 +22,6 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-set test.val 3
-eval echo {global.test.val|ensureArray}
-eval echo {global.test.val|ensureArray|print|at 0}
-exit
-
 set settings.n 10
 task TaskFiles/Benchmarks/gravity_XL_unlimited.nebs
 wait 1

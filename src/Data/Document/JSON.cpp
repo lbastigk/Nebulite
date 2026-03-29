@@ -425,11 +425,16 @@ void JSON::setSubDoc(char const* key, JSON const& child, char const* childKey) {
                 throw std::runtime_error("Failed to create or access path: " + std::string(key));
             }
             keyVal->CopyFrom(*childVal, doc.GetAllocator());
-
-            // TODO: Seems to struggle when copying simple values?
-            //Global::capture().log.println(RjDirectAccess::serialize(*keyVal));
-            //Global::capture().log.println(RjDirectAccess::serialize(*childVal));
         }
+    }
+
+    // Check if cache holds the key mark as deleted
+    if (auto const it = cache.find(key); it != cache.end()) {
+        auto const& entry = it->second;
+        entry->state = CacheEntry::EntryState::DELETED; // Mark as deleted
+        entry->value = 0.0;
+        *entry->stable_double_ptr = 0.0;
+        entry->last_double_value = 0.0;
     }
 
     // Since we inserted an entire document, we need sync its children
