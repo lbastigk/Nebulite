@@ -398,8 +398,8 @@ void JSON::setSubDoc(char const* key, JSON const& child, char const* childKey) {
     // Flush own contents
     flush();
     helperNonConstVar++; // Signal non-const operation
-
     child.flush();
+
     if (auto const childVal = RjDirectAccess::traversePath(childKey, child.doc); childVal == nullptr) {
         RjDirectAccess::removeMember(key, doc);
     }
@@ -422,9 +422,13 @@ void JSON::setSubDoc(char const* key, JSON const& child, char const* childKey) {
             // Normal case, just copy the value from child to this document
             rapidjson::Value* keyVal = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
             if (keyVal == nullptr) {
-                    throw std::runtime_error("Failed to create or access path: " + std::string(key));
+                throw std::runtime_error("Failed to create or access path: " + std::string(key));
             }
             keyVal->CopyFrom(*childVal, doc.GetAllocator());
+
+            // TODO: Seems to struggle when copying simple values?
+            //Global::capture().log.println(RjDirectAccess::serialize(*keyVal));
+            //Global::capture().log.println(RjDirectAccess::serialize(*childVal));
         }
     }
 

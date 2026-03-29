@@ -1,0 +1,21 @@
+{
+    "topic": "contextMarrying",
+    "condition": "1",
+    "action": {
+        "assign": [
+            "global.result.self = {self.}",
+            "global.result.other = {other.}",
+            "global.result.local = {local.}",
+            "global.result.global = {global.}",
+            "global.result.full = {full.}"
+        ],
+        "functioncall": {
+            "global": [
+                // TODO: Doesn't work in debug mode? No output in console!
+                //"echo Context Marrying test ruleset executed!"
+            ],
+            "self": [],
+            "other": []
+        }
+    }
+}

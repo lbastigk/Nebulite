@@ -78,18 +78,40 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
     case ContextType::other: // {other.<key><transformations>}
         token = getStringValue(context.other, scopedKey.view());
         break;
+    case ContextType::local:
+        {
+            Data::JsonScope merged;
+            Data::ScopedKey const self("self.");
+            Data::ScopedKey const other("other.");
+            merged.setSubDoc(self, context.self);
+            merged.setSubDoc(other, context.other);
+            token = getStringValue(merged, scopedKey.view());
+        }
+        break;
     case ContextType::global: // {global.<key><transformations>}
         token = getStringValue(context.global, scopedKey.view());
+        break;
+    case ContextType::full:
+        {
+            Data::JsonScope merged;
+            Data::ScopedKey const self("self.");
+            Data::ScopedKey const other("other.");
+            Data::ScopedKey const global("global.");
+            merged.setSubDoc(self, context.self);
+            merged.setSubDoc(other, context.other);
+            merged.setSubDoc(global, context.global);
+            token = getStringValue(merged, scopedKey.view());
+        }
         break;
     case ContextType::resource: // {<link><resource_key_or_transformations>}
         token = getStringValue(Global::instance().getDocCache(), evaluatedKey);
         break;
     case ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
-    {
-        // This requires an empty document that acts as a parsing mechanism for the transformations
-        thread_local Data::JsonScope emptyDoc;
-        token = getStringValue(emptyDoc, scopedKey.view());
-    }
+        {
+            // This requires an empty document that acts as a parsing mechanism for the transformations
+            thread_local Data::JsonScope emptyDoc;
+            token = getStringValue(emptyDoc, scopedKey.view());
+        }
         break;
     default:
         std::unreachable();
@@ -124,8 +146,30 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
     case ContextType::other: // {other.<key><transformations>}
         token = context.other.getSubDoc(scopedKey.view());
         break;
+    case ContextType::local:
+        {
+            Data::JsonScope merged;
+            Data::ScopedKey const self("self.");
+            Data::ScopedKey const other("other.");
+            merged.setSubDoc(self, context.self);
+            merged.setSubDoc(other, context.other);
+            token = merged.getSubDoc(scopedKey.view());
+        }
+        break;
     case ContextType::global: // {global.<key><transformations>}
         token = context.global.getSubDoc(scopedKey.view());
+        break;
+    case ContextType::full:
+        {
+            Data::JsonScope merged;
+            Data::ScopedKey const self("self.");
+            Data::ScopedKey const other("other.");
+            Data::ScopedKey const global("global.");
+            merged.setSubDoc(self, context.self);
+            merged.setSubDoc(other, context.other);
+            merged.setSubDoc(global, context.global);
+            token = merged.getSubDoc(scopedKey.view());
+        }
         break;
     case ContextType::resource: // {<link><resource_key_or_transformations>}
         token = Global::instance().getDocCache().getSubDoc(evaluatedKey);

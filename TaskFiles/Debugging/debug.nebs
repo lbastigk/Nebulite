@@ -22,7 +22,9 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/Tests/Transformations/setFromResult.nebs
+set test.val 3
+eval echo {global.test.val|ensureArray}
+eval echo {global.test.val|ensureArray|print|at 0}
 exit
 
 set settings.n 10

@@ -239,6 +239,8 @@ private:
             self, // Using the "self" document for expression evaluation
             other, // Using the "other" document for expression evaluation
             global, // Using the "global" document for expression evaluation
+            local, // Context marrying: self and other
+            full, // Context marrying: self, other and global
             resource, // Using a document from the document cache for expression evaluation
             None // No context given for evaluation
         } contextType = ContextType::None; // Default to None
@@ -374,11 +376,21 @@ private:
         struct Unstable {
             vd_list self; // Variables from context self with transformations or multi-resolve
             vd_list other; // Variables from context other with transformations or multi-resolve
+            vd_list local; // Variables from context marrying: self and other
             vd_list global; // Variables from context global with transformations or multi-resolve
+            vd_list full; // Variables from context marrying: self, other and global
             vd_list resource; // Variables from context resource with transformations or multi-resolve
             vd_list none; // Variables with no context with transformations or multi-resolve
         } unstable;
     } virtualDoubles;
+
+    static std::array<std::pair<Component::ContextType, std::string_view>, 5> constexpr contextPrefixPairs = {
+        std::make_pair(Component::ContextType::self, "self."),
+        std::make_pair(Component::ContextType::other, "other."),
+        std::make_pair(Component::ContextType::local, "local."),
+        std::make_pair(Component::ContextType::global, "global."),
+        std::make_pair(Component::ContextType::full, "full.")
+    };
 
     struct EvaluationInfo {
         /**

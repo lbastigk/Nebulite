@@ -59,12 +59,12 @@ void Expression::reset() {
 }
 
 std::string Expression::stripContext(std::string const& key) {
-    constexpr std::array<std::string_view, 3> prefixes = {"self.", "other.", "global."};
-    auto const it = std::ranges::find_if(prefixes, [&](std::string_view const p) {
-        return key.size() >= p.size() && std::equal(p.begin(), p.end(), key.begin());
+    auto const it = std::ranges::find_if(contextPrefixPairs, [&](auto const p) {
+        auto const& str = p.second;
+        return key.size() >= str.size() && std::equal(str.begin(), str.end(), key.begin());
     });
-    if (it != prefixes.end()) {
-        return key.substr(it->size());
+    if (it != contextPrefixPairs.end()) {
+        return key.substr(it->second.size());
     }
     return key;
 }
@@ -73,16 +73,14 @@ Expression::Component::ContextType Expression::getContextType(std::string const&
     if (key.empty() || key.starts_with("|")) {
         return Component::ContextType::None;
     }
-    if (key.starts_with("self.")) {
-        return Component::ContextType::self;
+    auto const it = std::ranges::find_if(contextPrefixPairs, [&](auto const p) {
+        auto const& str = p.second;
+        return key.size() >= str.size() && std::equal(str.begin(), str.end(), key.begin());
+    });
+    if (it != contextPrefixPairs.end()) {
+        return it->first;
     }
-    if (key.starts_with("other.")) {
-        return Component::ContextType::other;
-    }
-    if (key.starts_with("global.")) {
-        return Component::ContextType::global;
-    }
-    return Component::ContextType::resource;
+    return Component::ContextType::resource; // All other prefixes are considered type resource
 }
 
 void Expression::compileIfExpression(std::shared_ptr<Component> const& component) const {
@@ -149,12 +147,18 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
                 virtualDoubles.unstable.other.push_back(vd);
             }
             break;
+        case Component::ContextType::local:
+            virtualDoubles.unstable.local.push_back(vd);
+            break;
         case Component::ContextType::global:
             if (isAvailableAsDoublePtr(key)) {
                 virtualDoubles.stable.global.push_back(vd);
             } else {
                 virtualDoubles.unstable.global.push_back(vd);
             }
+            break;
+        case Component::ContextType::full:
+            virtualDoubles.unstable.full.push_back(vd);
             break;
         case Component::ContextType::resource:
             virtualDoubles.unstable.resource.push_back(vd);
