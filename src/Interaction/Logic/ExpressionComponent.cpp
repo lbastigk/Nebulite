@@ -30,7 +30,7 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
 bool Expression::Component::handleComponentTypeVariable(std::string& token, ContextScope const& context, size_t const& recursionDepth) const {
     // Do not evaluate if wait is active
     if (evaluationWait > 1) {
-        token = "{" + std::to_string(evaluationWait - 1) + "! + " + stringRepresentation + "}";
+        token = "{" + std::to_string(evaluationWait - 1) + "!" + stringRepresentation + "}";
         return true;
     }
     if (evaluationWait == 1) {
@@ -100,7 +100,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
 bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, size_t const& recursionDepth) const {
     // Do not evaluate if wait is active
     if (evaluationWait > 1) {
-        token.set<std::string>("", "{" + std::to_string(evaluationWait - 1) + "! + " + stringRepresentation + "}");
+        token.set<std::string>("", "{" + std::to_string(evaluationWait - 1) + "!" + stringRepresentation + "}");
         return true;
     }
     if (evaluationWait == 1) {
