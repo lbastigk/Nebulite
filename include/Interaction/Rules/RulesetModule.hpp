@@ -22,21 +22,6 @@
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 
 //------------------------------------------
-
-/**
- * @brief Macro to bind a static ruleset with a compile-time assertion on the topic format
- * @param type The type of the ruleset (Local/Global)
- * @param func The function implementing the ruleset
- * @param topic The topic/name of the ruleset
- * @param description A brief description of the ruleset's purpose and its used variables
- * @param baseListFunc The function that returns the ordered cache list of base values required by this ruleset, given a context.
- */
-#define BIND_RULESET(type, func, topic, description, baseListFunc) \
-    static_assert(Nebulite::Interaction::Rules::RulesetModule::isValidTopic(topic), \
-    "BIND_RULESET(): A static rulesets topic must start with '::'. Tried to bind variable: " #topic); \
-    bind(type, func, topic, description, baseListFunc)
-
-//------------------------------------------
 namespace Nebulite::Interaction::Rules {
 class RulesetModule {
 public:
@@ -74,39 +59,31 @@ protected:
     }
 
     /**
-     * @brief helper function to add a static ruleset to this module (const version)
-     *        Use the BIND_RULESET macro instead to both check and bind in one line
-     * @tparam T The derived RulesetModule type
+     * @brief helper function to add a static ruleset to this module
+     * @tparam topic The topic/name of the ruleset
+     * @tparam DerivedRulesetModule The derived RulesetModule type
      * @param type The type of the ruleset (Local/Global)
      * @param func The function implementing the ruleset
-     * @param topic The topic/name of the ruleset
      * @param description A brief description of the ruleset's purpose and its used variables
      * @param baseListFunc A function that returns the ordered cache list of base values required by this ruleset, given a context.
      * @todo Add an argument param std::span<std::string> const& args, so that we can have rulesets with arguments such as
      *       ::Controls::PT1 path.to.pt1.object
      *       topic must reduce to the first arg, and we must add the args to the static ruleset object
-     * @todo Template the topic so we can use the consteval isValidTopic?
      */
-    template<typename T>
+    template<std::string_view const& topic, typename DerivedRulesetModule>
     void bind(
         RulesetType const& type,
-        void (T::*func)(Context const&, double**&, double**&) const,
-        std::string_view const& topic,
+        void (DerivedRulesetModule::*func)(Context const&, double**&, double**&) const,
         std::string_view const& description,
         BaseListFunction baseListFunc
     ){
-        static_assert(std::is_base_of_v<RulesetModule, T>, "RulesetModule::bind(): T must derive from RulesetModule");
-        if (!topic.starts_with("::")) {
-            throw std::invalid_argument("RulesetModule::bind(): The name of a static ruleset must start with '::' to properly distinguish from json rulesets. Tried to bind: " + std::string(topic));
-        }
-        if (topic.contains(' ')) {
-            throw std::invalid_argument("RulesetModule::bind(): The name of a static ruleset cannot contain spaces. Tried to bind: " + std::string(topic));
-        }
+        static_assert(isValidTopic(topic), "RulesetModule::bind(): The topic name is not valid. It must start with '::' and contain no spaces.");
+        static_assert(std::is_base_of_v<RulesetModule, DerivedRulesetModule>, "RulesetModule::bind(): T must derive from RulesetModule");
         moduleRulesets.push_back({
             type,
             topic,
             description,
-            [this, func](Context const& ctx, double**& slf, double**& otr) { (static_cast<T const*>(this)->*func)(ctx, slf, otr); },
+            [this, func](Context const& ctx, double**& slf, double**& otr) { (static_cast<DerivedRulesetModule const*>(this)->*func)(ctx, slf, otr); },
             baseListFunc
         });
     }

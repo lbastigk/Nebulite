@@ -17,7 +17,7 @@ Movement::Movement() : RulesetModule(moduleName) {
     };
 
     // Global rulesets
-    BIND_RULESET(RulesetType::Global, &Movement::clip, clipName, clipDesc, baseListFunc);
+    bind<clipName>(RulesetType::Global, &Movement::clip, clipDesc, baseListFunc);
 
     // Local rulesets
 

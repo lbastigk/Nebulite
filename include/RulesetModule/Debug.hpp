@@ -48,11 +48,11 @@ public:
         };
 
         // Local
-        BIND_RULESET(RulesetType::Local, &Debug::message, messageName, messageDesc, baseListFunc);
-        BIND_RULESET(RulesetType::Local, &Debug::error, errorName, errorDesc, baseListFunc);
+        bind<messageName>(RulesetType::Local, &Debug::message, messageDesc, baseListFunc);
+        bind<errorName>(RulesetType::Local, &Debug::error, errorDesc, baseListFunc);
 
         // Global
-        BIND_RULESET(RulesetType::Global, &Debug::whoInteracts, whoInteractsName, whoInteractsDesc, baseListFunc);
+        bind<whoInteractsName>(RulesetType::Global, &Debug::whoInteracts, whoInteractsDesc, baseListFunc);
     }
 private:
     static constexpr std::string_view moduleName = "::debug";
