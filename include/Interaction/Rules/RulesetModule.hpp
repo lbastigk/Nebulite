@@ -29,7 +29,7 @@
  * @param func The function implementing the ruleset
  * @param topic The topic/name of the ruleset
  * @param description A brief description of the ruleset's purpose and its used variables
- * @param baseListFunc
+ * @param baseListFunc The function that returns the ordered cache list of base values required by this ruleset, given a context.
  */
 #define BIND_STATIC_ASSERT(type, func, topic, description, baseListFunc) \
     static_assert(Nebulite::Interaction::Rules::RulesetModule::isValidTopic(topic), \
@@ -82,6 +82,9 @@ protected:
      * @param topic The topic/name of the ruleset
      * @param description A brief description of the ruleset's purpose and its used variables
      * @param baseListFunc A function that returns the ordered cache list of base values required by this ruleset, given a context.
+     * @todo Add an argument param std::span<std::string> const& args, so that we can have rulesets with arguments such as
+     *       ::Controls::PT1 path.to.pt1.object
+     *       topic must reduce to the first arg, and we must add the args to the static ruleset object
      */
     template<typename T>
     void bind(
