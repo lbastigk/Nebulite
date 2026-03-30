@@ -1,0 +1,27 @@
+[
+    {
+        "command": [
+            "# Test if no previous value is cached when using setSubDoc when using assign",
+            "# If there is any 3 left in the output, there is a problem",
+            "set test.val 3",
+            "set test.val2 4",
+            "assign global.test.val = {global.test.val2}",
+            "print test","print test.val",
+            "eval echo {global.test}",
+            "eval echo {global.test.val}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "{",
+                "    \"val\": \"4\",",
+                "    \"val2\": \"4\"",
+                "}",
+                "4",
+                "{object}",
+                "4"
+            ],
+            "cerr": []
+        }
+    }
+]

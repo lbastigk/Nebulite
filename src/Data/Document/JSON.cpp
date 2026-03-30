@@ -398,8 +398,8 @@ void JSON::setSubDoc(char const* key, JSON const& child, char const* childKey) {
     // Flush own contents
     flush();
     helperNonConstVar++; // Signal non-const operation
-
     child.flush();
+
     if (auto const childVal = RjDirectAccess::traversePath(childKey, child.doc); childVal == nullptr) {
         RjDirectAccess::removeMember(key, doc);
     }
@@ -422,10 +422,19 @@ void JSON::setSubDoc(char const* key, JSON const& child, char const* childKey) {
             // Normal case, just copy the value from child to this document
             rapidjson::Value* keyVal = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
             if (keyVal == nullptr) {
-                    throw std::runtime_error("Failed to create or access path: " + std::string(key));
+                throw std::runtime_error("Failed to create or access path: " + std::string(key));
             }
             keyVal->CopyFrom(*childVal, doc.GetAllocator());
         }
+    }
+
+    // Check if cache holds the key mark as deleted
+    if (auto const it = cache.find(key); it != cache.end()) {
+        auto const& entry = it->second;
+        entry->state = CacheEntry::EntryState::DELETED; // Mark as deleted
+        entry->value = 0.0;
+        *entry->stable_double_ptr = 0.0;
+        entry->last_double_value = 0.0;
     }
 
     // Since we inserted an entire document, we need sync its children

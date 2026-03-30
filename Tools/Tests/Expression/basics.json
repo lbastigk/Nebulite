@@ -29,6 +29,43 @@
         }
     },
     {
+        "command": "task TaskFiles/Tests/Expression/evaluationDelay.nebs",
+        "expected": {
+            "cout": [
+                "Testing variable evaluation delay in Nebulite expressions",
+                "value",
+                "{global.key}",
+                "{1!global.key}",
+                "{2!global.key}"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": "task TaskFiles/Tests/Expression/contextMarrying.nebs",
+        "expected": {
+            "cout": [
+                "All results:",
+                "object:5",
+                "",
+                "Separated:",
+                "self:   localValue",
+                "other:  globalValue",
+                "global: globalValue",
+                "",
+                "Married: local",
+                "local.self:  localValue",
+                "local.other: globalValue",
+                "",
+                "Married: full",
+                "full.self:   localValue",
+                "full.other:  globalValue",
+                "full.global: globalValue"
+            ],
+            "cerr": []
+        }
+    },
+    {
         "command": [
             "# Testing if no non-simple values are stored in cache, so both evals return {object}",
             "eval echo {global.}",

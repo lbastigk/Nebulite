@@ -1,6 +1,5 @@
-#include "Interaction/Logic/VirtualDouble.hpp"
-
 #include "Nebulite.hpp"
+#include "Interaction/Logic/VirtualDouble.hpp"
 
 namespace Nebulite::Interaction::Logic {
 

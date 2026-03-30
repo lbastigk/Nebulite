@@ -7,7 +7,7 @@ namespace Nebulite::Interaction::Logic {
 
 Expression::Component::Component(Component&& other) noexcept
             : type(other.type), contextType(other.contextType), cast(other.cast),
-              formatter(other.formatter), str(std::move(other.str)), key(std::move(other.key)),
+              formatter(other.formatter), stringRepresentation(std::move(other.stringRepresentation)), key(std::move(other.key)),
               expression(other.expression) {
     other.expression = nullptr;
 }
@@ -19,7 +19,7 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
         contextType = other.contextType;
         cast = other.cast;
         formatter = other.formatter;
-        str = std::move(other.str);
+        stringRepresentation = std::move(other.stringRepresentation);
         key = std::move(other.key);
         expression = other.expression;
         other.expression = nullptr;
@@ -28,9 +28,22 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
 }
 
 bool Expression::Component::handleComponentTypeVariable(std::string& token, ContextScope const& context, size_t const& recursionDepth) const {
-    auto s = evaluateKey(context, key, contextType, recursionDepth);
-    if (!s) {return false;}
-    auto [strippedKey, destination] = s.value();
+    // Do not evaluate if wait is active
+    if (evaluationWait > 1) {
+        token = "{" + std::to_string(evaluationWait - 1) + "!" + stringRepresentation + "}";
+        return true;
+    }
+    if (evaluationWait == 1) {
+        token = "{" + stringRepresentation + "}";
+        return true;
+    }
+
+    // Evaluate inner variables/expressions if necessary, for example in {global.{self.info.requiredKey}}
+    auto nestedEvalResult = handleNesting(context, recursionDepth);
+    if (!nestedEvalResult.has_value()) {
+        return false;
+    }
+    auto const& [evaluatedKey, source] = nestedEvalResult.value();
 
     // Helper lambda to convert a value to a string representation
     auto getStringValue = []<typename DocumentType, typename KeyType>(DocumentType const& doc, KeyType const& k) -> std::string {
@@ -57,26 +70,48 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
     };
 
     // Now, use the key to get the value from the correct document
-    auto const scopedKey = Data::ScopedKey(strippedKey);
-    switch (destination) {
+    auto const scopedKey = Data::ScopedKey(evaluatedKey);
+    switch (source) {
     case ContextType::self: // {self.<key><transformations>}
         token = getStringValue(context.self, scopedKey.view());
         break;
     case ContextType::other: // {other.<key><transformations>}
         token = getStringValue(context.other, scopedKey.view());
         break;
+    case ContextType::local:
+        {
+            Data::JsonScope merged;
+            Data::ScopedKey const self("self.");
+            Data::ScopedKey const other("other.");
+            merged.setSubDoc(self, context.self);
+            merged.setSubDoc(other, context.other);
+            token = getStringValue(merged, scopedKey.view());
+        }
+        break;
     case ContextType::global: // {global.<key><transformations>}
         token = getStringValue(context.global, scopedKey.view());
         break;
+    case ContextType::full:
+        {
+            Data::JsonScope merged;
+            Data::ScopedKey const self("self.");
+            Data::ScopedKey const other("other.");
+            Data::ScopedKey const global("global.");
+            merged.setSubDoc(self, context.self);
+            merged.setSubDoc(other, context.other);
+            merged.setSubDoc(global, context.global);
+            token = getStringValue(merged, scopedKey.view());
+        }
+        break;
     case ContextType::resource: // {<link><resource_key_or_transformations>}
-        token = getStringValue(Global::instance().getDocCache(), strippedKey);
+        token = getStringValue(Global::instance().getDocCache(), evaluatedKey);
         break;
     case ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
-    {
-        // This requires an empty document that acts as a parsing mechanism for the transformations
-        thread_local Data::JsonScope emptyDoc;
-        token = getStringValue(emptyDoc, scopedKey.view());
-    }
+        {
+            // This requires an empty document that acts as a parsing mechanism for the transformations
+            thread_local Data::JsonScope emptyDoc;
+            token = getStringValue(emptyDoc, scopedKey.view());
+        }
         break;
     default:
         std::unreachable();
@@ -85,24 +120,59 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
 }
 
 bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, size_t const& recursionDepth) const {
-    auto s = evaluateKey(context, key, contextType, recursionDepth);
-    if (!s) {return false;}
-    auto [strippedKey, destination] = s.value();
+    // Do not evaluate if wait is active
+    if (evaluationWait > 1) {
+        token.set<std::string>("", "{" + std::to_string(evaluationWait - 1) + "!" + stringRepresentation + "}");
+        return true;
+    }
+    if (evaluationWait == 1) {
+        token.set<std::string>("", "{" + stringRepresentation + "}");
+        return true;
+    }
+
+    // Evaluate inner variables/expressions if necessary, for example in {global.{self.info.requiredKey}}
+    auto nestedEvalResult = handleNesting(context, recursionDepth);
+    if (!nestedEvalResult.has_value()) {
+        return false;
+    }
+    auto const& [evaluatedKey, source] = nestedEvalResult.value();
 
     // Now, use the key to get the value from the correct document
-    auto const scopedKey = Data::ScopedKey(strippedKey);
-    switch (destination) {
+    auto const scopedKey = Data::ScopedKey(evaluatedKey);
+    switch (source) {
     case ContextType::self: // {self.<key><transformations>}
         token = context.self.getSubDoc(scopedKey.view());
         break;
     case ContextType::other: // {other.<key><transformations>}
         token = context.other.getSubDoc(scopedKey.view());
         break;
+    case ContextType::local:
+        {
+            Data::JsonScope merged;
+            Data::ScopedKey const self("self.");
+            Data::ScopedKey const other("other.");
+            merged.setSubDoc(self, context.self);
+            merged.setSubDoc(other, context.other);
+            token = merged.getSubDoc(scopedKey.view());
+        }
+        break;
     case ContextType::global: // {global.<key><transformations>}
         token = context.global.getSubDoc(scopedKey.view());
         break;
+    case ContextType::full:
+        {
+            Data::JsonScope merged;
+            Data::ScopedKey const self("self.");
+            Data::ScopedKey const other("other.");
+            Data::ScopedKey const global("global.");
+            merged.setSubDoc(self, context.self);
+            merged.setSubDoc(other, context.other);
+            merged.setSubDoc(global, context.global);
+            token = merged.getSubDoc(scopedKey.view());
+        }
+        break;
     case ContextType::resource: // {<link><resource_key_or_transformations>}
-        token = Global::instance().getDocCache().getSubDoc(strippedKey);
+        token = Global::instance().getDocCache().getSubDoc(evaluatedKey);
         break;
     case ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
         {
@@ -168,25 +238,32 @@ void Expression::Component::handleComponentTypeEval(std::string& token) const {
     }
 }
 
-std::optional<std::pair<std::string, Expression::Component::ContextType>> Expression::Component::evaluateKey(ContextScope const& context, std::string const& initialKey, ContextType const& initialDestination, size_t const& recursionDepth) const {
-    std::string strippedKey = initialKey;
-    ContextType destination = initialDestination;
-
+std::expected<std::string, Expression::Component::KeyEvaluationInfo> Expression::Component::evaluateKey(ContextScope const& context, size_t const& recursionDepth) const {
     // See if the variable contains an inner expression
-    if (str.find('$') != std::string::npos || str.find('{') != std::string::npos) {
+    if (stringRepresentation.find('$') != std::string::npos || stringRepresentation.find('{') != std::string::npos) {
         if (recursionDepth == 0) {
             Global::capture().error.println("Error: Maximum recursion depth reached when evaluating variable: ", key);
-            return std::nullopt;
+            return std::unexpected(KeyEvaluationInfo::maximumDepthReached);
         }
         // Create a temporary expression to evaluate the inner expression
-        Expression const tempExpr(str);
-        strippedKey = tempExpr.eval(context, recursionDepth - 1);
-
-        // Redetermine context and strip it from key
-        destination = getContextType(strippedKey);
-        strippedKey = stripContext(strippedKey);
+        Expression const tempExpr(stringRepresentation);
+        return tempExpr.eval(context, recursionDepth - 1);
     }
-    return std::make_pair(strippedKey, destination);
+    return std::unexpected(KeyEvaluationInfo::noNesting);
+}
+
+std::optional<std::pair<std::string, Expression::Component::ContextType>> Expression::Component::handleNesting(ContextScope const& context, size_t const& recursionDepth) const {
+    auto s = evaluateKey(context, recursionDepth);
+
+    // If max depth was reached, return false
+    if (!s.has_value() && s.error() == KeyEvaluationInfo::maximumDepthReached) {
+        return std::nullopt;
+    }
+
+    // If the evaluation changed anything, we must re-evaluate the context of the source
+    std::string evaluatedKey = s.has_value() ? stripContext(s.value()) : key;
+    ContextType source = s.has_value() ? getContextType(s.value()) : contextType;
+    return std::make_pair(evaluatedKey, source);
 }
 
 }  // namespace Nebulite::Interaction::Logic

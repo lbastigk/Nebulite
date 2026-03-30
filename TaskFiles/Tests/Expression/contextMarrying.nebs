@@ -1,0 +1,34 @@
+# Even though from global scope there isn't really a "self" and "other" to refer to,
+# that gap is filled as the expression simply uses global as the context.
+# Meaning if we refer to "self" and "other" in the global scope, they will both refer to the global scope.
+set var globalValue
+
+# Spawn an object to use as context self that broadcasts a ruleset
+spawn ./Resources/Renderobjects/standard.jsonc|set posX 250|set posY 250|set ruleset.list[0] ./Resources/Invokes/Debug/contextMarrying.jsonc|set var localValue
+wait 1
+ruleset listen contextMarrying # Global listens for that ruleset to be broadcast by the spawned object
+wait 1
+
+#####################################
+echo "All results:"
+eval echo {global.result|typeAsString}
+echo
+
+echo "Separated:"
+eval echo "self:   {global.result.self.var}"    # must be local from renderobject
+eval echo "other:  {global.result.other.var}"   # must be global, as globalspace is listener
+eval echo "global: {global.result.global.var}"  # must be global, as globalspace is by definition context global
+echo
+
+echo "Married: local"
+eval echo "local.self:  {global.result.local.self.var}"
+eval echo "local.other: {global.result.local.other.var}"
+echo
+
+echo "Married: full"
+eval echo "full.self:   {global.result.full.self.var}"
+eval echo "full.other:  {global.result.full.other.var}"
+eval echo "full.global: {global.result.full.global.var}"
+
+#####################################
+exit

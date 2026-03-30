@@ -1,0 +1,7 @@
+echo "Testing variable evaluation delay in Nebulite expressions"
+
+set key value
+eval echo {global.key}
+eval echo {1!global.key}
+eval echo {2!global.key}
+eval echo {3!global.key}

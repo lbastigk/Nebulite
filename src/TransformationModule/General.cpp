@@ -15,7 +15,7 @@ void General::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&General::setDouble, setDoubleName, setDoubleDesc);
     BIND_TRANSFORMATION_STATIC(&General::setBool, setBoolName, setBoolDesc);
     BIND_TRANSFORMATION_STATIC(&General::removeMember, removeMemberName, removeMemberDesc);
-    BIND_TRANSFORMATION_MEMBER(&General::setFromResult, setFromResultName, setFromResultDesc);
+    BIND_TRANSFORMATION_STATIC(&General::setFromResult, setFromResultName, setFromResultDesc);
 }
 
 bool General::setString(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
@@ -68,26 +68,13 @@ bool General::removeMember(std::span<std::string const> const& args, Data::JsonS
     return true;
 }
 
-bool General::setFromResult(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) const {
+bool General::setFromResult(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() < 2) return false;
     auto const key = rootKey + std::string(args[1]);
-    auto const transformation = handlePotentiallyWrappedString(args.subspan(2));
+    auto const innerEval = Utility::StringHandler::recombineArgs(args.subspan(2));
 
-    auto targs = Data::JSON::splitKeyWithTransformations(transformation);
-    if (targs.empty()) {
-        return false;
-    }
-    std::string const scopeKey = targs.front();
-    targs.erase(targs.begin());
-
-    Data::JSON transformationResult = jsonDoc->getSubDoc(rootKey + scopeKey);
-    auto& scope = transformationResult.shareManagedScopeBase("");
-    static std::string const funcName = __FUNCTION__ + std::string(" ");
-    for (auto const& targ : targs) {
-        if (!transformationFuncTree->parseStr(funcName + targ, &scope)) {
-            return false; // Transformation failed
-        }
-    }
+    Interaction::ContextScope const context{*jsonDoc, *jsonDoc, *jsonDoc}; // Using the same scope for self, other and global since we only have access to one scope here
+    Data::JSON const transformationResult = Interaction::Logic::Expression::evalAsJson(innerEval, context); // Evaluating the expression to get the transformation result
     jsonDoc->setSubDoc(key, transformationResult);
     return true;
 }

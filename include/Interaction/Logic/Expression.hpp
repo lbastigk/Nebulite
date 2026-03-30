@@ -49,7 +49,7 @@ namespace Nebulite::Interaction::Logic {
  *          e.g.:
  *          "This script took {global.time.t} Seconds"
  *          "The rounded value is: $03.2f( {global.value} )"
- *          Supports anti-evaluation formatting with {! ... }:
+ *          Supports explicit evaluation delay formatting with {n! ... }:
  *          Any variable wrapped in {!...} instead of {...} will be treated as pure text and will not be evaluated
  * @todo Add support for marrying contexts into a single data structure for transformations
  *       Example: If we have a matrix transformation module, multiplying matrices
@@ -79,7 +79,7 @@ public:
     /**
      * @brief Standard maximum recursion depth for nested expression evaluations.
      */
-    static constexpr size_t standardrecursionDepth = 10;
+    static constexpr size_t standardRecursionDepth = 10;
 
     /**
      * @brief Checks if the expression can be returned as a double.
@@ -115,8 +115,8 @@ public:
     //------------------------------------------
     // Actual evaluation functions
 
-    std::string eval(ContextScope const& context, size_t const& recursionDepth = standardrecursionDepth) const ;
-    std::string eval(Context const& context, size_t const& recursionDepth = standardrecursionDepth) const { return eval(context.demote(), recursionDepth); }
+    std::string eval(ContextScope const& context, size_t const& recursionDepth = standardRecursionDepth) const ;
+    std::string eval(Context const& context, size_t const& recursionDepth = standardRecursionDepth) const { return eval(context.demote(), recursionDepth); }
 
     double evalAsDouble(ContextScope const& context) const ;
     double evalAsDouble(Context const& context) const { return evalAsDouble(context.demote()); }
@@ -124,8 +124,8 @@ public:
     bool evalAsBool(ContextScope const& context) const ;
     bool evalAsBool(Context const& context) const { return evalAsBool(context.demote()); }
 
-    Data::JSON evalAsJson(ContextScope const& context, size_t const& recursionDepth = standardrecursionDepth) const ;
-    Data::JSON evalAsJson(Context const& context, size_t const& recursionDepth = standardrecursionDepth) const { return evalAsJson(context.demote(), recursionDepth); }
+    Data::JSON evalAsJson(ContextScope const& context, size_t const& recursionDepth = standardRecursionDepth) const ;
+    Data::JSON evalAsJson(Context const& context, size_t const& recursionDepth = standardRecursionDepth) const { return evalAsJson(context.demote(), recursionDepth); }
 
     //------------------------------------------
     // Static functions for one-time evaluation
@@ -177,23 +177,6 @@ public:
      * @return True if the expression is always true, false otherwise.
      */
     [[nodiscard]] bool recalculateIsAlwaysTrue() const;
-
-    //------------------------------------------
-    // Static helpers
-
-    /**
-     * @brief Removes outer anti-evaluation wrappers from an expression string
-     * @details Example: "This Expression has two anti-evaluation wrappers: {!self.value} and {!global.value}"
-     *          would be transformed to "This Expression has two anti-evaluation wrappers: {self.value} and {global.value}"
-     *          It's best to use this function at the lowest level possible, right before parsing the expression,
-     *          to preserve as much formatting as possible in the expression string in case it's passed down further.
-     * @param expression The expression string to remove outer anti-evaluation wrappers from.
-     * @return The expression string with outer anti-evaluation wrappers removed.
-     */
-    static std::string removeOuterAntiEvalWrapper(std::string const& expression);
-    static std::string removeOuterAntiEvalWrapper(std::span<std::string const> const& args) {
-        return removeOuterAntiEvalWrapper(Utility::StringHandler::recombineArgs(args));
-    }
 
 private:
     /**
@@ -256,6 +239,8 @@ private:
             self, // Using the "self" document for expression evaluation
             other, // Using the "other" document for expression evaluation
             global, // Using the "global" document for expression evaluation
+            local, // Context marrying: self and other
+            full, // Context marrying: self, other and global
             resource, // Using a document from the document cache for expression evaluation
             None // No context given for evaluation
         } contextType = ContextType::None; // Default to None
@@ -287,12 +272,18 @@ private:
          *        - The pure text
          *        - The variable key, with no context stripped
          */
-        std::string str;
+        std::string stringRepresentation;
 
         /**
          * @brief Holds the context-stripped key of the component, if it's of type variable.
          */
         std::string key;
+
+        /**
+         * @brief The evaluation wait count. Used to delay the evaluation of a component.
+         * @details For each evaluation, the count is reduced by 1. Only for component type Variable!
+         */
+        size_t evaluationWait = 0;
 
         /**
          * @brief Pointer to the tinyexpr representation of the expression.
@@ -349,25 +340,22 @@ private:
         void handleComponentTypeEval(std::string& token) const ;
 
     private:
+        enum class KeyEvaluationInfo {
+            maximumDepthReached, // Could not resolve due to maximum depth reached
+            noNesting // No nested variables found
+        };
+
         /**
          * @brief For variable component handling. Evaluates any inner expressions/variables within the component's key and returns the resulting key.
          * @details If the key, for example is nested: {global.{self.info.requiredKey}}, it turns into {global.evaluatedValueOfRequiredKey}
          *          and fetches that value from the global document.
          * @param context The context to evaluate against.
-         * @param initialKey The key to evaluate, which may contain inner expressions.
-         * @param initialDestination The initial context type of the key before evaluation.
          * @param recursionDepth The current recursion depth for nested evaluations.
-         * @return The evaluated key and its destination if successful, or std::nullopt if evaluation fails.
-         * @todo Instead of relying on other services to remove the anti-evaluation-wrapper, we could make the depth implicit
-         *       {...}   - Is evaluated.
-         *       {1!...} - is turned into {...} or {0!...}, as its the same
-         *       {2!...} - is turned into {1!...}
-         *       For this to work, add variableDepth to Component struct, use info to reconstruct the text:
-         *       strippedKey = "{" + std::to_string(depth-1) + "!" + inner + "}";
-         *       or if depth = 0:
-         *       strippedKey = evaluate(inner)
+         * @return The evaluated string if successful, or std::nullopt if evaluation fails.
          */
-        [[nodiscard]] std::optional<std::pair<std::string, ContextType>> evaluateKey(ContextScope const& context, std::string const& initialKey, ContextType const& initialDestination, size_t const& recursionDepth) const ;
+        [[nodiscard]] std::expected<std::string, KeyEvaluationInfo> evaluateKey(ContextScope const& context, size_t const& recursionDepth) const ;
+
+        [[nodiscard]] std::optional<std::pair<std::string, ContextType>> handleNesting(ContextScope const& context, size_t const& recursionDepth) const ;
     };
 
     /**
@@ -378,6 +366,9 @@ private:
         using vd_list = std::vector<std::shared_ptr<VirtualDouble>>;
 
         // Linkable as external cache, no multi-resolve or transformations
+        // This works by Caching the first context used. If the new context address matches the first,
+        // we can use the stable vd_list and simply copy double values.
+        // Otherwise, we need to retrieve them from a document first, which is expensive
         struct Stable {
             vd_list self; // Variables from context self
             vd_list other; // Variables from context other
@@ -388,26 +379,46 @@ private:
         struct Unstable {
             vd_list self; // Variables from context self with transformations or multi-resolve
             vd_list other; // Variables from context other with transformations or multi-resolve
+            vd_list local; // Variables from context marrying: self and other
             vd_list global; // Variables from context global with transformations or multi-resolve
+            vd_list full; // Variables from context marrying: self, other and global
             vd_list resource; // Variables from context resource with transformations or multi-resolve
             vd_list none; // Variables with no context with transformations or multi-resolve
         } unstable;
     } virtualDoubles;
 
+    /**
+     * @brief Pairs of context types and their corresponding prefixes for easy reference when parsing variable keys.
+     */
+    static std::array<std::pair<Component::ContextType, std::string_view>, 5> constexpr contextPrefixPairs = {
+        std::make_pair(Component::ContextType::self, "self."),
+        std::make_pair(Component::ContextType::other, "other."),
+        std::make_pair(Component::ContextType::local, "local."),
+        std::make_pair(Component::ContextType::global, "global."),
+        std::make_pair(Component::ContextType::full, "full.")
+    };
+
+    /**
+     * @brief Info about this expressions evaluation-ability
+     * @details Some expressions are not always castable to types like numeric values or strings
+     *          without the loss of information
+     */
     struct EvaluationInfo {
         /**
-         * @brief Storing info about the expression's returnability
+         * @brief Only true if the expression consists of a single component of type eval
          */
         bool returnableAsDouble = false;
 
         /**
-         * @brief If the expression is a single variable, this is not true.
-         *        Otherwise, it is true.
+         * @brief Only false if the expression consists of a single component of type variable
+         * @details This is because retrieving values without any additional text etc. has no implicit cast to string
+         *          A single value could hold more complex types: "{global.someObject}",
+         *          whereas "My value is: {global.value}" has an implicit cast to a string.
          */
         bool returnableAsString = false;
 
         /**
-         * @brief If the expression is a simple non-zero numeric value to evaluate
+         * @brief True if the expression is a simple non-zero numeric value to evaluate
          */
         bool alwaysTrue = false;
     } evaluationInfo;
@@ -495,20 +506,18 @@ private:
 
     /**
      * @brief Used to parse a string token of type "eval" into a component.
-     * @details Tasks:
-     *          - Parses the token on the assumption that it is of type "eval".
-     *          - Populates the current component with the parsed information.
-     *          - Pushes the current component onto the components vector.
      * @param token The token to parse.
      */
     void parseTokenTypeEval(std::string const& token);
 
     /**
+     * @brief Used to parse a string token of type "variable" into a component.
+     * @param token The token to parse
+     */
+    void parseTokenTypeVariable(std::string const& token);
+
+    /**
      * @brief Used to parse a string token of type "text" into a component.
-     * @details Tasks:
-     *          - Parses the token on the assumption that it is of type "text".
-     *          - Populates the current component with the parsed information.
-     *          - Pushes the current component onto the components vector.
      * @param token The token to parse.
      */
     void parseTokenTypeText(std::string const& token);
