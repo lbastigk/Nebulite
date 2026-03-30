@@ -366,6 +366,9 @@ private:
         using vd_list = std::vector<std::shared_ptr<VirtualDouble>>;
 
         // Linkable as external cache, no multi-resolve or transformations
+        // This works by Caching the first context used. If the new context address matches the first,
+        // we can use the stable vd_list and simply copy double values.
+        // Otherwise, we need to retrieve them from a document first, which is expensive
         struct Stable {
             vd_list self; // Variables from context self
             vd_list other; // Variables from context other
@@ -384,6 +387,9 @@ private:
         } unstable;
     } virtualDoubles;
 
+    /**
+     * @brief Pairs of context types and their corresponding prefixes for easy reference when parsing variable keys.
+     */
     static std::array<std::pair<Component::ContextType, std::string_view>, 5> constexpr contextPrefixPairs = {
         std::make_pair(Component::ContextType::self, "self."),
         std::make_pair(Component::ContextType::other, "other."),
@@ -392,20 +398,27 @@ private:
         std::make_pair(Component::ContextType::full, "full.")
     };
 
+    /**
+     * @brief Info about this expressions evaluation-ability
+     * @details Some expressions are not always castable to types like numeric values or strings
+     *          without the loss of information
+     */
     struct EvaluationInfo {
         /**
-         * @brief Storing info about the expression's returnability
+         * @brief Only true if the expression consists of a single component of type eval
          */
         bool returnableAsDouble = false;
 
         /**
-         * @brief If the expression is a single variable, this is not true.
-         *        Otherwise, it is true.
+         * @brief Only false if the expression consists of a single component of type variable
+         * @details This is because retrieving values without any additional text etc. has no implicit cast to string
+         *          A single value could hold more complex types: "{global.someObject}",
+         *          whereas "My value is: {global.value}" has an implicit cast to a string.
          */
         bool returnableAsString = false;
 
         /**
-         * @brief If the expression is a simple non-zero numeric value to evaluate
+         * @brief True if the expression is a simple non-zero numeric value to evaluate
          */
         bool alwaysTrue = false;
     } evaluationInfo;
