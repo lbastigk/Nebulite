@@ -7,6 +7,7 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Data/Document/JsonScope.hpp"
+#include "Math/Equality.hpp"
 #include "Math/ExpressionPrimitives.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
 #include "Interaction/Logic/Expression.hpp"
@@ -586,7 +587,11 @@ bool Expression::recalculateIsReturnableAsString() const {
 }
 
 bool Expression::recalculateIsAlwaysTrue() const {
-    return fullExpression == "1" || fullExpression == "$(1)";
+    if (fullExpression.starts_with("$(") && fullExpression.ends_with(")")){
+        std::string const innerExpression = fullExpression.substr(2, fullExpression.size() - 3);
+        return Utility::StringHandler::isNumber(innerExpression) && !Math::isEqual(0.0,std::stod(innerExpression));
+    }
+    return Utility::StringHandler::isNumber(fullExpression) && !Math::isEqual(0.0,std::stod(fullExpression));
 }
 
 //------------------------------------------
