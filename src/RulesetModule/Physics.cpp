@@ -22,13 +22,13 @@ Physics::Physics() : RulesetModule(moduleName) {
     };
 
     // Global rulesets
-    BIND_STATIC_ASSERT(RulesetType::Global, &Physics::elasticCollision, elasticCollisionName, elasticCollisionDesc, baseListFunc);
-    BIND_STATIC_ASSERT(RulesetType::Global, &Physics::gravity, gravityName, gravityDesc, baseListFunc);
+    BIND_RULESET(RulesetType::Global, &Physics::elasticCollision, elasticCollisionName, elasticCollisionDesc, baseListFunc);
+    BIND_RULESET(RulesetType::Global, &Physics::gravity, gravityName, gravityDesc, baseListFunc);
 
     // Local rulesets
-    BIND_STATIC_ASSERT(RulesetType::Local, &Physics::applyForce, applyForceName, applyForceDesc, baseListFunc);
-    BIND_STATIC_ASSERT(RulesetType::Local, &Physics::applyCorrection, applyCorrectionName, applyCorrectionDesc, baseListFunc);
-    BIND_STATIC_ASSERT(RulesetType::Local, &Physics::drag, dragName, dragDesc, baseListFunc);
+    BIND_RULESET(RulesetType::Local, &Physics::applyForce, applyForceName, applyForceDesc, baseListFunc);
+    BIND_RULESET(RulesetType::Local, &Physics::applyCorrection, applyCorrectionName, applyCorrectionDesc, baseListFunc);
+    BIND_RULESET(RulesetType::Local, &Physics::drag, dragName, dragDesc, baseListFunc);
 
     // Global Variables
     auto const token = getRulesetModuleAccessToken(*this);

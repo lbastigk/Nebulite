@@ -48,11 +48,11 @@ public:
         };
 
         // Local
-        BIND_STATIC_ASSERT(RulesetType::Local, &Debug::message, messageName, messageDesc, baseListFunc);
-        BIND_STATIC_ASSERT(RulesetType::Local, &Debug::error, errorName, errorDesc, baseListFunc);
+        BIND_RULESET(RulesetType::Local, &Debug::message, messageName, messageDesc, baseListFunc);
+        BIND_RULESET(RulesetType::Local, &Debug::error, errorName, errorDesc, baseListFunc);
 
         // Global
-        BIND_STATIC_ASSERT(RulesetType::Global, &Debug::whoInteracts, whoInteractsName, whoInteractsDesc, baseListFunc);
+        BIND_RULESET(RulesetType::Global, &Debug::whoInteracts, whoInteractsName, whoInteractsDesc, baseListFunc);
     }
 private:
     static constexpr std::string_view moduleName = "::debug";

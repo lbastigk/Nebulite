@@ -31,9 +31,9 @@
  * @param description A brief description of the ruleset's purpose and its used variables
  * @param baseListFunc The function that returns the ordered cache list of base values required by this ruleset, given a context.
  */
-#define BIND_STATIC_ASSERT(type, func, topic, description, baseListFunc) \
+#define BIND_RULESET(type, func, topic, description, baseListFunc) \
     static_assert(Nebulite::Interaction::Rules::RulesetModule::isValidTopic(topic), \
-    "BIND_STATIC_ASSERT(): A static rulesets topic must start with '::'. Tried to bind variable: " #topic); \
+    "BIND_RULESET(): A static rulesets topic must start with '::'. Tried to bind variable: " #topic); \
     bind(type, func, topic, description, baseListFunc)
 
 //------------------------------------------
@@ -74,8 +74,8 @@ protected:
     }
 
     /**
-     * @brief helper function to add a static ruleset to this module
-     *        Use the BIND_STATIC_ASSERT macro instead to both check and bind in one line
+     * @brief helper function to add a static ruleset to this module (const version)
+     *        Use the BIND_RULESET macro instead to both check and bind in one line
      * @tparam T The derived RulesetModule type
      * @param type The type of the ruleset (Local/Global)
      * @param func The function implementing the ruleset
@@ -89,10 +89,10 @@ protected:
     template<typename T>
     void bind(
         RulesetType const& type,
-        void (T::*func)(Context const&, double**&),
+        void (T::*func)(Context const&, double**&, double**&) const,
         std::string_view const& topic,
         std::string_view const& description,
-        std::function<double**(const Context&)> baseListFunc
+        BaseListFunction baseListFunc
     ){
         static_assert(std::is_base_of_v<RulesetModule, T>, "RulesetModule::bind(): T must derive from RulesetModule");
         if (!topic.starts_with("::")) {
@@ -100,37 +100,6 @@ protected:
         }
         if (topic.contains(' ')) {
             throw std::invalid_argument("RulesetModule::bind(): The name of a static ruleset cannot contain spaces. Tried to bind: " + std::string(topic));
-        }
-        moduleRulesets.push_back({
-            type,
-            topic,
-            description,
-            [this, func](Context const& ctx, double**& slf, double**& otr) { (static_cast<T*>(this)->*func)(ctx, slf, otr); },
-            baseListFunc
-        });
-    }
-
-    /**
-     * @brief helper function to add a static ruleset to this module (const version)
-     *        Use the BIND_STATIC_ASSERT macro instead to both check and bind in one line
-     * @tparam T The derived RulesetModule type
-     * @param type The type of the ruleset (Local/Global)
-     * @param func The function implementing the ruleset
-     * @param topic The topic/name of the ruleset
-     * @param description A brief description of the ruleset's purpose and its used variables
-     * @param baseListFunc A function that returns the ordered cache list of base values required by this ruleset, given a context.
-     */
-    template<typename T>
-    void bind(
-        RulesetType const& type,
-        void (T::*func)(Context const&, double**&, double**&) const,
-        std::string_view const& topic,
-        std::string_view const& description,
-        BaseListFunction baseListFunc
-    ){
-        static_assert(std::is_base_of_v<RulesetModule, T>, "bind(): T must derive from RulesetModule");
-        if (!topic.starts_with("::")) {
-            throw std::invalid_argument("RulesetModule::bind(): topic must start with '::'. Tried to bind: " + std::string(topic));
         }
         moduleRulesets.push_back({
             type,

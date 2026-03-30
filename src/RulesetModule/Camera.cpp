@@ -12,11 +12,11 @@ Camera::Camera() : RulesetModule(moduleName) {
     };
 
     // Bind Camera-related static rulesets here
-    BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignCenter, alignCenterName, alignCenterDesc, baseListFunc);
-    BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignTop, alignTopName, alignTopDesc, baseListFunc);
-    BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignBottom, alignBottomName, alignBottomDesc, baseListFunc);
-    BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignLeft, alignLeftName, alignLeftDesc, baseListFunc);
-    BIND_STATIC_ASSERT(RulesetType::Local, &Camera::alignRight, alignRightName, alignRightDesc, baseListFunc);
+    BIND_RULESET(RulesetType::Local, &Camera::alignCenter, alignCenterName, alignCenterDesc, baseListFunc);
+    BIND_RULESET(RulesetType::Local, &Camera::alignTop, alignTopName, alignTopDesc, baseListFunc);
+    BIND_RULESET(RulesetType::Local, &Camera::alignBottom, alignBottomName, alignBottomDesc, baseListFunc);
+    BIND_RULESET(RulesetType::Local, &Camera::alignLeft, alignLeftName, alignLeftDesc, baseListFunc);
+    BIND_RULESET(RulesetType::Local, &Camera::alignRight, alignRightName, alignRightDesc, baseListFunc);
 
     // References
     auto const token = getRulesetModuleAccessToken(*this);
