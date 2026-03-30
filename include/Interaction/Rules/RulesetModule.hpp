@@ -94,9 +94,12 @@ protected:
         std::string_view const& description,
         std::function<double**(const Context&)> baseListFunc
     ){
-        static_assert(std::is_base_of_v<RulesetModule, T>, "bind(): T must derive from RulesetModule");
+        static_assert(std::is_base_of_v<RulesetModule, T>, "RulesetModule::bind(): T must derive from RulesetModule");
         if (!topic.starts_with("::")) {
-            throw std::invalid_argument("RulesetModule::bind(): topic must start with '::'. Tried to bind: " + std::string(topic));
+            throw std::invalid_argument("RulesetModule::bind(): The name of a static ruleset must start with '::' to properly distinguish from json rulesets. Tried to bind: " + std::string(topic));
+        }
+        if (topic.contains(' ')) {
+            throw std::invalid_argument("RulesetModule::bind(): The name of a static ruleset cannot contain spaces. Tried to bind: " + std::string(topic));
         }
         moduleRulesets.push_back({
             type,
