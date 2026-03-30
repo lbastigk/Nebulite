@@ -24,7 +24,7 @@
             "all"
         ],
         "list": [
-            "::message"
+            "::debug::message"
         ]
     }
 }

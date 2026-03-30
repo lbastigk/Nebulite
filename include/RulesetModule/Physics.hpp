@@ -56,9 +56,8 @@ public:
     // Constructor
     Physics();
 
-private:
     static constexpr std::string_view moduleName = "::physics";
-
+private:
     //------------------------------------------
     // Base values for physics framework
 

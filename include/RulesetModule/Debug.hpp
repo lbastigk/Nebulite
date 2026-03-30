@@ -25,17 +25,17 @@ public:
 
     // Provides a simple debug message to cout
     void message(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static constexpr std::string_view messageName = "::message";
+    static constexpr std::string_view messageName = "::debug::message";
     static constexpr std::string_view messageDesc = "Outputs a debug message to the standard output (cout).";
 
     // Provides a simple debug message to cerr
     void error(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static constexpr std::string_view errorName = "::error";
+    static constexpr std::string_view errorName = "::debug::error";
     static constexpr std::string_view errorDesc = "Outputs a debug error message to the standard error output (cerr).";
 
     // Prints the ids of both contexts
     void whoInteracts(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static constexpr std::string_view whoInteractsName = "::whoInteracts";
+    static constexpr std::string_view whoInteractsName = "::debug::whoInteracts";
     static constexpr std::string_view whoInteractsDesc = "Prints a message with the unique IDs of the self and other render object contexts.";
 
     //------------------------------------------
@@ -54,8 +54,11 @@ public:
         // Global
         bind<whoInteractsName>(RulesetType::Global, &Debug::whoInteracts, whoInteractsDesc, baseListFunc);
     }
-private:
+
     static constexpr std::string_view moduleName = "::debug";
+private:
+    //------------------------------------------
+    // Base value caching
 
     const std::vector<Data::ScopedKeyView> baseKeys = {
         // No keys required

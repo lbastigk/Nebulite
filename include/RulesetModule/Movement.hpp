@@ -34,9 +34,8 @@ public:
     // Constructor
     Movement();
 
-private:
     static constexpr std::string_view moduleName = "::movement";
-
+private:
     //------------------------------------------
     // Base values for movement framework
 
