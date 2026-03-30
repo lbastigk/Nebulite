@@ -77,6 +77,7 @@ protected:
         std::string_view const& description,
         BaseListFunction baseListFunc
     ){
+        assert(func != nullptr);
         static_assert(isValidTopic(topic), "RulesetModule::bind(): The topic name is not valid. It must start with '::' and contain no spaces.");
         static_assert(std::is_base_of_v<RulesetModule, DerivedRulesetModule>, "RulesetModule::bind(): T must derive from RulesetModule");
         static_assert(std::is_same_v<decltype(DerivedRulesetModule::moduleName), const std::string_view>, "RulesetModule::bind(): DerivedRulesetModule must have a static member 'moduleName' of type std::string_view");
@@ -102,6 +103,8 @@ protected:
      */
     template<typename keyEnum>
     static double& baseVal(double** v, keyEnum k) noexcept {
+        assert(v != nullptr);
+        // NOLINTNEXTLINE
         return *v[static_cast<std::size_t>(k)];
     }
 
