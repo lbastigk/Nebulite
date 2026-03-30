@@ -65,12 +65,12 @@ protected:
     }
 
     /**
-     * @brief Helper consteval function to determine if a string_view starts with '::'
+     * @brief Helper consteval function to determine if a string_view starts with '::' and has no whitespaces
      * @param str The string_view to check
-     * @return true if str starts with '::', false otherwise
+     * @return true if str is a valid topic name, false otherwise
      */
     static consteval bool isValidTopic(std::string_view const& str) {
-        return str.starts_with("::");
+        return str.starts_with("::") && !str.contains(' ');
     }
 
     /**
@@ -85,6 +85,7 @@ protected:
      * @todo Add an argument param std::span<std::string> const& args, so that we can have rulesets with arguments such as
      *       ::Controls::PT1 path.to.pt1.object
      *       topic must reduce to the first arg, and we must add the args to the static ruleset object
+     * @todo Template the topic so we can use the consteval isValidTopic?
      */
     template<typename T>
     void bind(
