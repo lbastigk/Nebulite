@@ -38,11 +38,11 @@ FuncTree<returnValue, additionalArgs...>::FuncTree(std::string_view const& treeN
     bindingContainer.functions.emplace(
         helpName,
         FunctionInfo{
-                {
-                    makeFunctionPtr(this, &FuncTree::help),
-                    FunctionIdentity{this, &FuncTree::help}
-                },
-            helpDesc
+            {
+                makeFunctionPtr(this, &FuncTree::help),
+                FunctionIdentity{this, &FuncTree::help}
+            },
+        helpDesc
         }
     );
 
@@ -50,11 +50,11 @@ FuncTree<returnValue, additionalArgs...>::FuncTree(std::string_view const& treeN
     bindingContainer.functions.emplace(
         "__complete__",
         FunctionInfo{
-                {
-                    makeFunctionPtr(this, &FuncTree::complete),
-                    FunctionIdentity{this, &FuncTree::complete}
-                },
-            completeDesc
+            {
+                makeFunctionPtr(this, &FuncTree::complete),
+                FunctionIdentity{this, &FuncTree::complete}
+            },
+        completeDesc
         }
     );
 }
@@ -135,7 +135,6 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(WrappedFunction cons
                 // Same function pointer already bound -> ignore
                 return;
             }
-
             auto conflictIt = std::find_if(
                 inheritedTrees.begin(), inheritedTrees.end(),
                 [&](auto const& inheritedTree) {
@@ -164,10 +163,6 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(WrappedFunction cons
 
 template <typename returnValue, typename... additionalArgs>
 void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view const& name, std::string_view const& helpDescription) {
-    // Split based on whitespaces
-    std::vector<std::string> const categoryStructure = Utility::StringHandler::split(name, ' ');
-    size_t const depth = categoryStructure.size();
-
     // Check for shadowing issues
     if (BindingSearchResult const searchResult = find(std::string(name)); searchResult.any) {
         if (searchResult.category) {
@@ -181,29 +176,26 @@ void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
         }
     }
 
+    // Category traversal
+    std::vector<std::string> const categoryStructure = Utility::StringHandler::split(name, ' ');
     absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
-    for (size_t idx = 0; idx < depth; idx++) {
-        std::string currentCategoryName = categoryStructure[idx];
-
-        if (idx < depth - 1) {
-            // Not yet at last category
-            if (currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()) {
-                // Category exists, go deeper
-                currentCategoryMap = &(*currentCategoryMap)[currentCategoryName].tree->bindingContainer.categories;
-            } else {
-                // Category does not exist, throw error
-                BindErrorMessage::parentCategoryDoesNotExist(std::string(name), currentCategoryName);
-            }
+    for (auto [idx, currentCategoryName] : categoryStructure | std::views::enumerate | std::views::take(categoryStructure.size() - 1)) {
+        if (currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()) {
+            // Category exists, go deeper
+            currentCategoryMap = &(*currentCategoryMap)[currentCategoryName].tree->bindingContainer.categories;
         } else {
-            // Last category, create it, if it doesn't exist yet
-            if (currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()) {
-                // Final category we wish to create already exists
-                BindErrorMessage::categoryExists(std::string(name));
-            }
-            // Create category
-            (*currentCategoryMap)[currentCategoryName] = {std::make_unique<FuncTree>(currentCategoryName, standardReturn.valDefault, standardReturn.valFunctionNotFound, capture), helpDescription};
+            // Category does not exist, throw error
+            BindErrorMessage::parentCategoryDoesNotExist(std::string(name), currentCategoryName);
         }
     }
+    // Last category, create it, if it doesn't exist yet
+    std::string const& functionName = categoryStructure.back();
+    if (currentCategoryMap->find(functionName) != currentCategoryMap->end()) {
+        // Final category we wish to create already exists
+        BindErrorMessage::categoryExists(std::string(name));
+    }
+    // Create category
+    (*currentCategoryMap)[functionName] = {std::make_unique<FuncTree>(functionName, standardReturn.valDefault, standardReturn.valFunctionNotFound, capture), helpDescription};
 }
 
 template <typename returnValue, typename... additionalArgs>
