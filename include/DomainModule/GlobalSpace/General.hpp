@@ -111,11 +111,11 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, General) {
-        BIND_FUNCTION(&General::exit, exit_name, exit_desc);
-        BIND_FUNCTION(&General::wait, wait_name, wait_desc);
-        BIND_FUNCTION(&General::task, task_name, task_desc);
-        BIND_FUNCTION(&General::always, always_name, always_desc);
-        BIND_FUNCTION(&General::alwaysClear, alwaysClear_name, alwaysClear_desc);
+        bindFunction(&General::exit, exit_name, exit_desc);
+        bindFunction(&General::wait, wait_name, wait_desc);
+        bindFunction(&General::task, task_name, task_desc);
+        bindFunction(&General::always, always_name, always_desc);
+        bindFunction(&General::alwaysClear, alwaysClear_name, alwaysClear_desc);
     }
 };
 } // namespace Nebulite::DomainModule::GlobalSpace

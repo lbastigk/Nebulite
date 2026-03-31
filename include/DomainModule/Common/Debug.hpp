@@ -67,11 +67,11 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Interaction::Execution::Domain, Debug) {
         // Binding
-        BIND_FUNCTION(&Debug::print, print_name, print_desc);
-        BIND_FUNCTION(&Debug::printId, printId_name, printId_desc);
-        BIND_FUNCTION(&Debug::error, error_name, error_desc);
-        BIND_FUNCTION(&Debug::warn, warn_name, warn_desc);
-        BIND_FUNCTION(&Debug::critical, critical_name, critical_desc);
+        bindFunction(&Debug::print, print_name, print_desc);
+        bindFunction(&Debug::printId, printId_name, printId_desc);
+        bindFunction(&Debug::error, error_name, error_desc);
+        bindFunction(&Debug::warn, warn_name, warn_desc);
+        bindFunction(&Debug::critical, critical_name, critical_desc);
     }
 
 private:

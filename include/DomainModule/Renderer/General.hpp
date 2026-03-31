@@ -171,23 +171,23 @@ public:
      *       The only downside currently is that we have to implement a method to lazy-init the SDL Renderer within the Renderer domain itself.
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, General) {
-        BIND_FUNCTION(&General::spawn, spawn_name, spawn_desc);
-        BIND_FUNCTION(&General::setResolution, setResolution_name, setResolution_desc);
-        BIND_FUNCTION(&General::setFPS, setFPS_name, setFPS_desc);
-        BIND_FUNCTION(&General::showFPS, showFPS_name, showFPS_desc);
-        BIND_FUNCTION(&General::snapshot, snapshot_name, snapshot_desc);
+        bindFunction(&General::spawn, spawn_name, spawn_desc);
+        bindFunction(&General::setResolution, setResolution_name, setResolution_desc);
+        bindFunction(&General::setFPS, setFPS_name, setFPS_desc);
+        bindFunction(&General::showFPS, showFPS_name, showFPS_desc);
+        bindFunction(&General::snapshot, snapshot_name, snapshot_desc);
 
         bindCategory(cam_name, cam_desc);
-        BIND_FUNCTION(&General::cam_move, cam_move_name, cam_move_desc);
-        BIND_FUNCTION(&General::cam_set, cam_set_name, cam_set_desc);
+        bindFunction(&General::cam_move, cam_move_name, cam_move_desc);
+        bindFunction(&General::cam_set, cam_set_name, cam_set_desc);
 
         bindCategory(selectedObject_name, selectedObject_desc);
-        BIND_FUNCTION(&General::selectedObject_get, selectedObject_get_name, selectedObject_get_desc);
-        BIND_FUNCTION(&General::selectedObject_Parse, selectedObject_Parse_name, selectedObject_Parse_desc);
+        bindFunction(&General::selectedObject_get, selectedObject_get_name, selectedObject_get_desc);
+        bindFunction(&General::selectedObject_Parse, selectedObject_Parse_name, selectedObject_Parse_desc);
 
         bindCategory(env_name, env_desc);
-        BIND_FUNCTION(&General::envLoad, envLoad_name, envLoad_desc);
-        BIND_FUNCTION(&General::envDeload, envDeload_name, envDeload_desc);
+        bindFunction(&General::envLoad, envLoad_name, envLoad_desc);
+        bindFunction(&General::envDeload, envDeload_name, envDeload_desc);
     }
 
 private:

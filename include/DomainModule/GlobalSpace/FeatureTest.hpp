@@ -61,8 +61,8 @@ public:
         //------------------------------------------
         // Binding functions to the FuncTree
         bindCategory(category_feature_test_name, category_feature_test_desc);
-        BIND_FUNCTION(&FeatureTest::testFuncTree, testFuncTree_name, testFuncTree_desc);
-        BIND_FUNCTION(&FeatureTest::selfOtherGlobalEvaluation, selfOtherGlobalEvaluation_name, selfOtherGlobalEvaluation_desc);
+        bindFunction(&FeatureTest::testFuncTree, testFuncTree_name, testFuncTree_desc);
+        bindFunction(&FeatureTest::selfOtherGlobalEvaluation, selfOtherGlobalEvaluation_name, selfOtherGlobalEvaluation_desc);
     }
 
     struct Key : Data::KeyGroup<""> {

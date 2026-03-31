@@ -104,10 +104,10 @@ public:
         loadSettings(defaultSettingsFile);
 
         bindCategory(settings_name, "Functions for managing global settings.");
-        BIND_FUNCTION(&Settings::saveSettings, saveSettings_name, saveSettings_desc);
-        BIND_FUNCTION(&Settings::overWriteSettingsFile, overWriteSettingsFile_name, overWriteSettingsFile_desc);
-        BIND_FUNCTION(&Settings::setSettingStr, setSetting_name, setSetting_desc);
-        BIND_FUNCTION(&Settings::setSettingInt, setSettingInt_name, setSettingInt_desc);
+        bindFunction(&Settings::saveSettings, saveSettings_name, saveSettings_desc);
+        bindFunction(&Settings::overWriteSettingsFile, overWriteSettingsFile_name, overWriteSettingsFile_desc);
+        bindFunction(&Settings::setSettingStr, setSetting_name, setSetting_desc);
+        bindFunction(&Settings::setSettingInt, setSettingInt_name, setSettingInt_desc);
     }
 
 private:

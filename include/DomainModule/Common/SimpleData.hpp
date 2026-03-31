@@ -102,22 +102,22 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Interaction::Execution::Domain, SimpleData) {
         // Bind functions specific to complex data handling
-        BIND_FUNCTION(&SimpleData::set, set_name, set_desc);
-        BIND_FUNCTION(&SimpleData::assign, assign_name, assign_desc);
+        bindFunction(&SimpleData::set, set_name, set_desc);
+        bindFunction(&SimpleData::assign, assign_name, assign_desc);
 
         // Internal move/copy
-        BIND_FUNCTION(&SimpleData::move, move_name, move_desc);
-        BIND_FUNCTION(&SimpleData::copy, copy_name, copy_desc);
+        bindFunction(&SimpleData::move, move_name, move_desc);
+        bindFunction(&SimpleData::copy, copy_name, copy_desc);
 
         // Internal key deletion
-        BIND_FUNCTION(&SimpleData::keyDelete, keyDelete_name, keyDelete_desc);
+        bindFunction(&SimpleData::keyDelete, keyDelete_name, keyDelete_desc);
 
         // Array manipulation
-        BIND_FUNCTION(&SimpleData::push_back, push_back_name, push_back_desc);
-        BIND_FUNCTION(&SimpleData::pop_back, pop_back_name, pop_back_desc);
-        BIND_FUNCTION(&SimpleData::push_front, push_front_name, push_front_desc);
-        BIND_FUNCTION(&SimpleData::pop_front, pop_front_name, pop_front_desc);
-        BIND_FUNCTION(&SimpleData::ensureArray, ensureArray_name, ensureArray_desc);
+        bindFunction(&SimpleData::push_back, push_back_name, push_back_desc);
+        bindFunction(&SimpleData::pop_back, pop_back_name, pop_back_desc);
+        bindFunction(&SimpleData::push_front, push_front_name, push_front_desc);
+        bindFunction(&SimpleData::pop_front, pop_front_name, pop_front_desc);
+        bindFunction(&SimpleData::ensureArray, ensureArray_name, ensureArray_desc);
     }
 };
 } // namespace Nebulite::DomainModule::Common

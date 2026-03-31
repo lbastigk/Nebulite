@@ -85,7 +85,7 @@ protected:
 } // namespace Nebulite::Interaction::Execution
 
 //------------------------------------------
-// Macros for DomainModule definition and function binding
+// Macros for DomainModule definition
 
 // Macro for defining a new DomainModule class with the correct inheritance and template parameters
 // NOLINTNEXTLINE
@@ -102,11 +102,6 @@ Data::JsonScope& w, \
 Data::JsonScope const& s \
 ) \
 : DomainModule(name, domainReference, std::move(funcTreePtr), w, s)
-
-// Macro for binding a function to the FuncTree with a description that must end with a newline character
-#define BIND_FUNCTION(func, name,desc) \
-static_assert(::Nebulite::Constants::Assert::endsWithNewline(desc), "Function description must end with a newline character."); \
-bindFunction(func, name, desc)
 
 #include "Interaction/Execution/DomainModule.tpp"
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_HPP

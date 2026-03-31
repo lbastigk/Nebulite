@@ -17,7 +17,13 @@ void DomainModuleBase::bindFunctionStatic(
     // Delegate to FuncTree helper to construct FunctionPtr and bind
     auto fp = FuncTreeType::makeFunctionPtr(functionPtr);
     auto fp_identity = typename FuncTreeType::FunctionIdentity(functionPtr);
-    tree->bindFunction({fp, fp_identity}, name, helpDescription);
+    if (helpDescription.ends_with('\n')) {
+        tree->bindFunction({fp, fp_identity}, name, helpDescription);
+    }
+    else {
+        std::string const withNewline = std::string(helpDescription) + '\n';
+        tree->bindFunction({fp, fp_identity}, name, withNewline);
+    }
 }
 
 // Implementation: object + member-function-pointer overload
@@ -34,7 +40,13 @@ void DomainModuleBase::bindFunctionStatic(
     // Delegate to FuncTree helper that binds the member pointer to the object
     auto fp = FuncTreeType::makeFunctionPtr(objectPtr, functionPtr);
     auto fp_identity = typename FuncTreeType::FunctionIdentity(objectPtr, functionPtr);
-    tree->bindFunction({fp, fp_identity}, name, helpDescription);
+    if (helpDescription.ends_with('\n')) {
+        tree->bindFunction({fp, fp_identity}, name, helpDescription);
+    }
+    else {
+        std::string const withNewline = std::string(helpDescription) + '\n';
+        tree->bindFunction({fp, fp_identity}, name, withNewline);
+    }
 }
 
 // --- New definitions: category-last overloads ---

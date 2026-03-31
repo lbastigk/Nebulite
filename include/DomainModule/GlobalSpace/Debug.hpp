@@ -133,18 +133,18 @@ public:
 
         //------------------------------------------
         // Binding functions to the FuncTree
-        BIND_FUNCTION(&Debug::errorLog, errorLog_name, errorLog_desc);
-        BIND_FUNCTION(&Debug::clearConsole, clearConsole_name, clearConsole_desc);
-        BIND_FUNCTION(&Debug::crash, crash_name, crash_desc);
-        BIND_FUNCTION(&Debug::waitForInput, waitForInput_name, waitForInput_desc);
-        BIND_FUNCTION(&Debug::listExpressionFunctions, listExpressionFunctions_name, listExpressionFunctions_desc);
+        bindFunction(&Debug::errorLog, errorLog_name, errorLog_desc);
+        bindFunction(&Debug::clearConsole, clearConsole_name, clearConsole_desc);
+        bindFunction(&Debug::crash, crash_name, crash_desc);
+        bindFunction(&Debug::waitForInput, waitForInput_name, waitForInput_desc);
+        bindFunction(&Debug::listExpressionFunctions, listExpressionFunctions_name, listExpressionFunctions_desc);
 
         bindCategory(log_name, log_desc);
-        BIND_FUNCTION(&Debug::log_global, log_global_name, log_global_desc);
-        BIND_FUNCTION(&Debug::log_state, log_state_name, log_state_desc);
+        bindFunction(&Debug::log_global, log_global_name, log_global_desc);
+        bindFunction(&Debug::log_state, log_state_name, log_state_desc);
 
         bindCategory(standardFile_name, standardFile_desc);
-        BIND_FUNCTION(&Debug::standardFileRenderObject, standardFileRenderObject_name, standardFileRenderObject_desc);
+        bindFunction(&Debug::standardFileRenderObject, standardFileRenderObject_name, standardFileRenderObject_desc);
 
         // Add routines
         addRoutines();

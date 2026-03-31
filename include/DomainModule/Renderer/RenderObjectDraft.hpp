@@ -85,9 +85,9 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RenderObjectDraft) {
         // Bind functions
         bindCategory(draft_name, draft_desc);
-        BIND_FUNCTION(&RenderObjectDraft::draft_parse, draft_parse_name, draft_parse_desc);
-        BIND_FUNCTION(&RenderObjectDraft::draft_spawn, draft_spawn_name, draft_spawn_desc);
-        BIND_FUNCTION(&RenderObjectDraft::draft_reset, draft_reset_name, draft_reset_desc);
+        bindFunction(&RenderObjectDraft::draft_parse, draft_parse_name, draft_parse_desc);
+        bindFunction(&RenderObjectDraft::draft_spawn, draft_spawn_name, draft_spawn_desc);
+        bindFunction(&RenderObjectDraft::draft_reset, draft_reset_name, draft_reset_desc);
     }
 
     struct Key : Data::KeyGroup<"renderer."> {

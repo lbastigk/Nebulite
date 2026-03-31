@@ -94,11 +94,11 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Mirror) {
         bindCategory(mirror_name, mirror_desc);
-        BIND_FUNCTION(&Mirror::mirror_once, mirror_once_name, mirror_once_desc);
-        BIND_FUNCTION(&Mirror::mirror_on, mirror_on_name, mirror_on_desc);
-        BIND_FUNCTION(&Mirror::mirror_off, mirror_off_name, mirror_off_desc);
-        BIND_FUNCTION(&Mirror::mirror_delete, mirror_delete_name, mirror_delete_desc);
-        BIND_FUNCTION(&Mirror::mirror_fetch, mirror_fetch_name, mirror_fetch_desc);
+        bindFunction(&Mirror::mirror_once, mirror_once_name, mirror_once_desc);
+        bindFunction(&Mirror::mirror_on, mirror_on_name, mirror_on_desc);
+        bindFunction(&Mirror::mirror_off, mirror_off_name, mirror_off_desc);
+        bindFunction(&Mirror::mirror_delete, mirror_delete_name, mirror_delete_desc);
+        bindFunction(&Mirror::mirror_fetch, mirror_fetch_name, mirror_fetch_desc);
     }
 
     struct Key : Data::KeyGroup<""> { // Requires full access to mirror entire object in update routine.

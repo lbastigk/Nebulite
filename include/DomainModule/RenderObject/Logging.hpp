@@ -63,8 +63,8 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Logging) {
         bindCategory(log_name, log_desc);
-        BIND_FUNCTION(&Logging::log_all, log_all_name, log_all_desc);
-        BIND_FUNCTION(&Logging::log_key, log_key_name, log_key_desc);
+        bindFunction(&Logging::log_all, log_all_name, log_all_desc);
+        bindFunction(&Logging::log_key, log_key_name, log_key_desc);
     }
 };
 } // namespace Nebulite::DomainModule::RenderObject

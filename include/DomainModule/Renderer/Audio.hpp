@@ -96,12 +96,12 @@ public:
      *       The only downside currently is that we have to implement a method to lazy-init the SDL Renderer within the Renderer domain itself.
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Audio) {
-        BIND_FUNCTION(&Audio::beep, beep_name, beep_desc);
-        BIND_FUNCTION(&Audio::playSound, playSound_name, playSound_desc);
-        BIND_FUNCTION(&Audio::playSoundWithFilter, playSoundWithFilter_name, playSoundWithFilter_desc);
+        bindFunction(&Audio::beep, beep_name, beep_desc);
+        bindFunction(&Audio::playSound, playSound_name, playSound_desc);
+        bindFunction(&Audio::playSoundWithFilter, playSoundWithFilter_name, playSoundWithFilter_desc);
 
         bindCategory(audioDebug_name, audioDebug_desc);
-        BIND_FUNCTION(&Audio::testFilter, testFilter_name, testFilter_desc);
+        bindFunction(&Audio::testFilter, testFilter_name, testFilter_desc);
 
         initAudio();
         initWaveforms();

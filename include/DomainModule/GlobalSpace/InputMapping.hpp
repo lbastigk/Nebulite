@@ -86,9 +86,9 @@ public:
         // Bind functions
         bindCategory(inputMappingName, inputMappingDesc);
         bindCategory(inputMappingLockName, inputMappingLockDesc);
-        BIND_FUNCTION(&InputMapping::lockOnce, lockOnceName, lockOnceDesc);
-        BIND_FUNCTION(&InputMapping::lockOn, lockOnName, lockOnDesc);
-        BIND_FUNCTION(&InputMapping::unlock, unlockName, unlockDesc);
+        bindFunction(&InputMapping::lockOnce, lockOnceName, lockOnceDesc);
+        bindFunction(&InputMapping::lockOn, lockOnName, lockOnDesc);
+        bindFunction(&InputMapping::unlock, unlockName, unlockDesc);
     }
 
     struct Key : Data::KeyGroup<""> {

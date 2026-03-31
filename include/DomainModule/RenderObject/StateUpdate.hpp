@@ -49,7 +49,7 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, StateUpdate) {
-        BIND_FUNCTION(&StateUpdate::deleteObject, deleteObject_name, deleteObject_desc);
+        bindFunction(&StateUpdate::deleteObject, deleteObject_name, deleteObject_desc);
     }
 };
 } // namespace Nebulite::DomainModule::RenderObject

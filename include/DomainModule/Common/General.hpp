@@ -126,14 +126,14 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Interaction::Execution::Domain, General) {
         // Binding
-        BIND_FUNCTION(&General::imguiView, imguiView_name, imguiView_desc);
-        BIND_FUNCTION(&General::eval, eval_name, eval_desc);
+        bindFunction(&General::imguiView, imguiView_name, imguiView_desc);
+        bindFunction(&General::eval, eval_name, eval_desc);
 
-        BIND_FUNCTION(&General::func_for, func_for_name, func_for_desc);
-        BIND_FUNCTION(&General::func_if, func_if_name, func_if_desc);
-        BIND_FUNCTION(&General::echo, echo_name, echo_desc);
-        BIND_FUNCTION(&General::func_assert, assert_name, assert_desc);
-        BIND_FUNCTION(&General::nop, nop_name, nop_desc);
+        bindFunction(&General::func_for, func_for_name, func_for_desc);
+        bindFunction(&General::func_if, func_if_name, func_if_desc);
+        bindFunction(&General::echo, echo_name, echo_desc);
+        bindFunction(&General::func_assert, assert_name, assert_desc);
+        bindFunction(&General::nop, nop_name, nop_desc);
     }
 
 private:

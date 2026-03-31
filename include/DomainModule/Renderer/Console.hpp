@@ -64,8 +64,8 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Console) {
         bindCategory(console_name, console_desc);
-        BIND_FUNCTION(&Console::consoleOpen, consoleOpen_name, consoleOpen_desc);
-        BIND_FUNCTION(&Console::consoleClose, consoleClose_name, consoleClose_desc);
+        bindFunction(&Console::consoleOpen, consoleOpen_name, consoleOpen_desc);
+        bindFunction(&Console::consoleClose, consoleClose_name, consoleClose_desc);
     }
 
     struct Key : Data::KeyGroup<Input::Key::getPrefix()> { // Same scope as input domainmodule, so we can access input states for toggling the console

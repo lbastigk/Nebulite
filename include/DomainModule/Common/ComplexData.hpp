@@ -93,16 +93,16 @@ public:
 
         // SQL Queries
         bindCategory(query_name, query_desc);
-        BIND_FUNCTION(&ComplexData::querySet, querySet_name, querySet_desc);
+        bindFunction(&ComplexData::querySet, querySet_name, querySet_desc);
 
         // Set from read only JSON documents
         bindCategory(json_name, json_desc);
-        BIND_FUNCTION(&ComplexData::jsonSet, jsonSet_name, jsonSet_desc);
+        bindFunction(&ComplexData::jsonSet, jsonSet_name, jsonSet_desc);
 
         // Evaluate members as expressions
         bindCategory(jsonEvaluate_name, jsonEvaluate_desc);
-        BIND_FUNCTION(&ComplexData::evaluateMember, evaluateMember_name, evaluateMember_desc);
-        BIND_FUNCTION(&ComplexData::evaluateRecursive, evaluateRecursive_name, evaluateRecursive_desc);
+        bindFunction(&ComplexData::evaluateMember, evaluateMember_name, evaluateMember_desc);
+        bindFunction(&ComplexData::evaluateRecursive, evaluateRecursive_name, evaluateRecursive_desc);
     }
 };
 } // namespace Nebulite::JSON::DomainModule

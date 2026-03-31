@@ -194,8 +194,8 @@ public:
 
         // Bind functions using the name/description constants above
         // Using a macro to ensure consistency
-        BIND_FUNCTION(&MyModule::exampleCommand, exampleCommand_name, exampleCommand_desc);
-        BIND_FUNCTION(&MyModule::anotherCmd, anotherCmd_name, anotherCmd_desc);
+        bindFunction(&MyModule::exampleCommand, exampleCommand_name, exampleCommand_desc);
+        bindFunction(&MyModule::anotherCmd, anotherCmd_name, anotherCmd_desc);
     }
     
     // Add the following struct for sharing data between modules
