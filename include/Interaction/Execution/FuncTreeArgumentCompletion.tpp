@@ -76,28 +76,26 @@ returnValue FuncTree<returnValue, additionalArgs...>::help(std::span<std::string
 
 template <typename returnValue, typename... additionalArgs>
 void FuncTree<returnValue, additionalArgs...>::specificHelp(std::string const& funcName) {
-    if (BindingSearchResult const searchResult = find(funcName); searchResult.any) {
-        // 1.) Function
-        if (searchResult.function) {
-            // Found function, display detailed help
-            capture.log.println();
-            capture.log.println("Help for function '", funcName, "':");
-            capture.log.println();
-            capture.log.println(searchResult.funIt->second.description);
-        }
-        // 2.) Category
-        else if (searchResult.category) {
-            // Found category, display detailed help
-            searchResult.catIt->second.tree->help({}); // Display all functions in the category
-        }
-        // 3.) Variable
-        else if (searchResult.variable) {
-            // Found variable, display detailed help
-            capture.log.println();
-            capture.log.println("Help for variable '--", funcName, "':");
-            capture.log.println();
-            capture.log.println(searchResult.varIt->second.description);
-        }
+    if (BindingSearchResult const searchResult = find(funcName); searchResult.has_value()) {
+        std::visit([&]<typename T>(T&& iterator) {
+            using Decayed = std::decay_t<T>;
+
+            if constexpr (std::is_same_v<Decayed, categoryIterator>) {
+                iterator->second.tree->help({});
+            }
+            else if constexpr (std::is_same_v<Decayed, functionIterator>) {
+                capture.log.println();
+                capture.log.println("Help for function '", funcName, "':");
+                capture.log.println();
+                capture.log.println(iterator->second.description);
+            }
+            else if constexpr (std::is_same_v<Decayed, variableIterator>) {
+                capture.log.println();
+                capture.log.println("Help for variable '--", funcName, "':");
+                capture.log.println();
+                capture.log.println(iterator->second.description);
+            }
+        }, searchResult.value());
     } else {
         capture.error.println("Function or Category '", funcName, "' not found in FuncTree '", TreeName, "'.");
     }
@@ -158,47 +156,57 @@ void FuncTree<returnValue, additionalArgs...>::generalHelp() {
 template <typename returnValue, typename... additionalArgs>
 FuncTree<returnValue, additionalArgs...>::BindingSearchResult
 FuncTree<returnValue, additionalArgs...>::find(std::string const& name) {
-    BindingSearchResult result;
+    typename absl::flat_hash_map<std::string, CategoryInfo>::iterator catIt;
+    typename absl::flat_hash_map<std::string, FunctionInfo>::iterator funIt;
+    typename absl::flat_hash_map<std::string, VariableInfo>::iterator varIt;
 
     // Helper lambda to search in inherited trees
-    auto searchInInherited = [&](auto mapMember, auto& iteratorMember, bool& foundFlag) {
+    auto searchInInherited = [&](auto mapMember, auto& iteratorMember) -> bool {
         for (auto const& inheritedTree : inheritedTrees) {
             if (inheritedTree) {
                 iteratorMember = (inheritedTree->bindingContainer.*mapMember).find(name);
                 if (iteratorMember != (inheritedTree->bindingContainer.*mapMember).end()) {
-                    foundFlag = true;
-                    return;
+                    return true;
                 }
             }
         }
+        return false;
     };
 
     // --- Categories ---
-    result.catIt = bindingContainer.categories.find(name);
-    if (result.catIt != bindingContainer.categories.end()) {
-        result.category = true;
-    } else {
-        searchInInherited(&BindingContainer::categories, result.catIt, result.category);
+    catIt = bindingContainer.categories.find(name);
+    if (catIt == bindingContainer.categories.end()) {
+        if (searchInInherited(&BindingContainer::categories, catIt)) {
+            return catIt;
+        }
+    }
+    else {
+        return catIt;
     }
 
     // --- Functions ---
-    result.funIt = bindingContainer.functions.find(name);
-    if (result.funIt != bindingContainer.functions.end()) {
-        result.function = true;
-    } else {
-        searchInInherited(&BindingContainer::functions, result.funIt, result.function);
+    funIt = bindingContainer.functions.find(name);
+    if (funIt == bindingContainer.functions.end()) {
+        if (searchInInherited(&BindingContainer::functions, funIt)) {
+            return funIt;
+        }
+    }
+    else {
+        return funIt;
     }
 
     // --- Variables ---
-    result.varIt = bindingContainer.variables.find(name);
-    if (result.varIt != bindingContainer.variables.end()) {
-        result.variable = true;
-    } else {
-        searchInInherited(&BindingContainer::variables, result.varIt, result.variable);
+    varIt = bindingContainer.variables.find(name);
+    if (varIt == bindingContainer.variables.end()) {
+        if (searchInInherited(&BindingContainer::variables, varIt)) {
+            return varIt;
+        }
+    }
+    else {
+        return varIt;
     }
 
-    result.any = result.category || result.function || result.variable;
-    return result;
+    return std::nullopt;
 }
 
 template <typename returnValue, typename ... additionalArgs>

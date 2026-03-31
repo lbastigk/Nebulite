@@ -126,29 +126,42 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(WrappedFunction cons
         return;
     }
 
-    if (auto searchResult = find(std::string(name)); searchResult.any) {
-        if (searchResult.category) {
-            BindErrorMessage::functionShadowsCategory(name);
-        }
-        if (searchResult.function) {
-            if (func.identity == searchResult.funIt->second.function.identity) {
-                // Same function pointer already bound -> ignore
-                return;
+    if (auto searchResult = find(std::string(name)); searchResult.has_value()) {
+        bool const shouldReturn = std::visit([&]<typename T>(T&& iterator) -> bool {
+            using Decayed = std::decay_t<T>;
+
+            if constexpr (std::is_same_v<Decayed, categoryIterator>) {
+                BindErrorMessage::functionShadowsCategory(name);
             }
-            auto conflictIt = std::find_if(
-                inheritedTrees.begin(), inheritedTrees.end(),
-                [&](auto const& inheritedTree) {
-                    return inheritedTree && inheritedTree->hasFunction(name);
+            else if constexpr (std::is_same_v<Decayed, functionIterator>) {
+                if (func.identity == iterator->second.function.identity) {
+                    return true; // signal: exit outer function
                 }
-            );
-            if (conflictIt != inheritedTrees.end()) {
-                auto const& conflictTree = *conflictIt;
-                BindErrorMessage::functionExistsInInheritedTree(TreeName, conflictTree->TreeName, name);
+
+                auto conflictIt = std::find_if(
+                    inheritedTrees.begin(), inheritedTrees.end(),
+                    [&](auto const& inheritedTree) {
+                        return inheritedTree && inheritedTree->hasFunction(name);
+                    }
+                );
+
+                if (conflictIt != inheritedTrees.end()) {
+                    auto const& conflictTree = *conflictIt;
+                    BindErrorMessage::functionExistsInInheritedTree(
+                        TreeName, conflictTree->TreeName, name);
+                }
+
+                BindErrorMessage::functionExists(TreeName, name);
             }
-            BindErrorMessage::functionExists(TreeName, name);
-        }
-        if (searchResult.variable) {
-            BindErrorMessage::functionShadowsVariable(name);
+            else if constexpr (std::is_same_v<Decayed, variableIterator>) {
+                BindErrorMessage::functionShadowsVariable(name);
+            }
+
+            return false;
+        }, searchResult.value());
+
+        if (shouldReturn) {
+            return; // Same function already exists
         }
     }
 
@@ -164,16 +177,15 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(WrappedFunction cons
 template <typename returnValue, typename... additionalArgs>
 void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view const& name, std::string_view const& helpDescription) {
     // Check for shadowing issues
-    if (BindingSearchResult const searchResult = find(std::string(name)); searchResult.any) {
-        if (searchResult.category) {
-            // Category already exists, proper error handling below
-        }
-        if (searchResult.function) {
-            BindErrorMessage::categoryShadowsFunction(name);
-        }
-        if (searchResult.variable) {
-            BindErrorMessage::categoryShadowsVariable(name);
-        }
+    if (BindingSearchResult const searchResult = find(std::string(name)); searchResult.has_value()) {
+        std::visit([&]<typename T>(T&&) {
+            using Decayed = std::decay_t<T>;
+            if constexpr (std::is_same_v<Decayed, categoryIterator>) {
+                BindErrorMessage::categoryExists(name);
+            } else if constexpr (std::is_same_v<Decayed, functionIterator>) {
+                BindErrorMessage::functionShadowsCategory(name);
+            }
+        }, searchResult.value());
     }
 
     // Category traversal

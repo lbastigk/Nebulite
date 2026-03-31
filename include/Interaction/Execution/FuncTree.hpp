@@ -402,21 +402,21 @@ private:
      */
     void specificHelp(std::string const& funcName);
 
-    /**
-     * @struct BindingSearchResult
-     * @brief Helper struct to store search results for find
-     * @todo Use an optional variant instead
-     */
-    struct BindingSearchResult {
-        bool any = false;
-        bool function = false;
-        bool category = false;
-        bool variable = false;
+    using categoryIterator = absl::flat_hash_map<std::string, CategoryInfo>::iterator;
+    using functionIterator = absl::flat_hash_map<std::string, FunctionInfo>::iterator;
+    using variableIterator = absl::flat_hash_map<std::string, VariableInfo>::iterator;
 
-        absl::flat_hash_map<std::string, CategoryInfo>::iterator catIt;
-        absl::flat_hash_map<std::string, FunctionInfo>::iterator funIt;
-        absl::flat_hash_map<std::string, VariableInfo>::iterator varIt;
-    };
+    /**
+     * @using BindingSearchResult
+     * @brief Helper type to store search results for finding functions, categories, and variables by name.
+     */
+    using BindingSearchResult = std::optional<
+        std::variant<
+            categoryIterator,
+            functionIterator,
+            variableIterator
+        >
+    >;
 
     /**
      * @brief After calling find on each hashmap, this function takes a closer look at the results
