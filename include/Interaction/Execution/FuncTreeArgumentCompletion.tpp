@@ -69,7 +69,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::help(std::span<std::string
     }
 
     //------------------------------------------
-    // Case 2: General help for all functions, bindingContainer.categories and variables
+    // Case 2: General help for all functions, categories and variables
     generalHelp();
     return standardReturn.valDefault;
 }
