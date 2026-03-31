@@ -179,7 +179,7 @@ void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
     // Category traversal
     std::vector<std::string> const categoryStructure = Utility::StringHandler::split(name, ' ');
     absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
-    for (auto [idx, currentCategoryName] : categoryStructure | std::views::enumerate | std::views::take(categoryStructure.size() - 1)) {
+    for (auto const& currentCategoryName : categoryStructure | std::views::take(categoryStructure.size() - 1)) {
         if (currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()) {
             // Category exists, go deeper
             currentCategoryMap = &(*currentCategoryMap)[currentCategoryName].tree->bindingContainer.categories;
@@ -195,7 +195,15 @@ void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
         BindErrorMessage::categoryExists(std::string(name));
     }
     // Create category
-    (*currentCategoryMap)[functionName] = {std::make_unique<FuncTree>(functionName, standardReturn.valDefault, standardReturn.valFunctionNotFound, capture), helpDescription};
+    (*currentCategoryMap)[functionName] = {
+        std::make_unique<FuncTree>(
+            functionName,
+            standardReturn.valDefault,
+            standardReturn.valFunctionNotFound,
+            capture
+        ),
+        helpDescription
+    };
 }
 
 template <typename returnValue, typename... additionalArgs>
