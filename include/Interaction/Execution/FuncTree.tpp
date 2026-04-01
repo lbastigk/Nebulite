@@ -16,10 +16,10 @@
 #include <string>
 
 // Nebulite
-#include "Constants/Asserts.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Interaction/Execution/FuncTreeErrorMessages.hpp"
 #include "Math/Equality.hpp"
+#include "Utility/CompileTimeEvaluate.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -626,7 +626,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::parseStr(std::string_view 
 template <typename returnValue, typename... additionalArgs>
 returnValue FuncTree<returnValue, additionalArgs...>::parse(std::vector<std::string> const& args, additionalArgs... addArgs) {
     // Turn into span
-    std::span<std::string const> argsSpan(args.data(), args.size());
+    std::span argsSpan(args.data(), args.size());
     argsSpan = argsSpan.subspan(1); // First arg is caller, remove
     processVariableArguments(argsSpan);
     if (argsSpan.empty()) {
@@ -668,7 +668,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
             // Legacy function types
             if constexpr (std::is_same_v<T, std::function<returnValue(int, char**)>>) {
                 // Convert to argc/argv
-                size_t argc = args.size();
+                size_t const argc = args.size();
                 std::vector<char*> argv_vec;
                 argv_vec.reserve(argc + 1);
                 std::transform(
@@ -682,7 +682,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
                 return func(static_cast<int>(argc), argv);
             } else if constexpr (std::is_same_v<T, std::function<returnValue(int, char const**)>>) {
                 // Convert to argc/argv
-                size_t argc = args.size();
+                size_t const argc = args.size();
                 std::vector<char*> argv_vec;
                 argv_vec.reserve(argc + 1);
                 std::transform(
@@ -695,7 +695,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
                 char** argv = argv_vec.data();
 
                 // Convert char** to char const**
-                std::vector<char const*> argv_const(static_cast<size_t>(argc));
+                std::vector<char const*> argv_const(argc);
                 for (size_t i = 0; i < static_cast<size_t>(argc); ++i)
                     argv_const[i] = argv[i];
                 return func(static_cast<int>(argc), argv_const.data());
@@ -715,7 +715,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
             }
             // Unsupported function type
             else {
-                static_assert(Constants::Assert::always_false(), "Unsupported function signature in FuncTree::executeFunction. Check if you just need to remove some const/ref qualifiers.");
+                static_assert(Utility::CompileTimeEvaluate::always_false(), "Unsupported function signature in FuncTree::executeFunction. Check if you just need to remove some const/ref qualifiers.");
             }
         }, functionPtr);
     }

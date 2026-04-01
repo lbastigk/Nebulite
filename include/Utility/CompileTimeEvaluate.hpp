@@ -1,23 +1,23 @@
 /**
- * @file Asserts.hpp
- * @brief Compile-time assertion utilities for Nebulite.
+ * @file CompileTimeEvaluate.hpp
+ * @brief Compile-time evaluation utilities for Nebulite.
  */
 
-#ifndef CONSTANTS_ASSERTS_HPP
-#define CONSTANTS_ASSERTS_HPP
+#ifndef UTILITY_COMPILE_TIME_EVALUATE_HPP
+#define UTILITY_COMPILE_TIME_EVALUATE_HPP
 
 #include <string_view>
 
-namespace Nebulite::Constants {
+namespace Nebulite::Utility {
 
-class Assert {
+class CompileTimeEvaluate {
 public:
     /**
      * @brief Checks if a string ends with a newline character.
      * @param str The string to check.
      * @return true if the string ends with a newline character, false otherwise.
      */
-    static bool constexpr endsWithNewline(std::string_view const& str) {
+    static bool consteval endsWithNewline(std::string_view const& str) {
         return !str.empty() && str.back() == '\n';
     }
 
@@ -25,7 +25,7 @@ public:
      * @brief A helper function that always evaluates to false.
      * @return false
      */
-    static bool constexpr always_false() {
+    static bool consteval always_false() {
         return false;
     }
 
@@ -34,11 +34,10 @@ public:
      * @param n The number to check.
      * @return true if the number is a power of two, false otherwise.
      */
-    static bool constexpr isPowerOfTwo(std::size_t const& n) {
+    static bool consteval isPowerOfTwo(std::size_t const& n) {
         // NOLINTNEXTLINE
         return n > 0 && (n & (n - 1)) == 0;
     }
 };
-} // namespace Nebulite::Constants
-
-#endif // CONSTANTS_ASSERTS_HPP
+} // namespace Nebulite::Utility
+#endif // UTILITY_COMPILE_TIME_EVALUATE_HPP

@@ -237,7 +237,7 @@ public:
     // Assertions
 
     // Make sure cache size is a power of two for optimal performance
-    static_assert(Constants::Assert::isPowerOfTwo(CACHELINE_SIZE), "CACHELINE_SIZE must be a power of two for optimal performance.");
+    static_assert(Utility::CompileTimeEvaluate::isPowerOfTwo(CACHELINE_SIZE), "CACHELINE_SIZE must be a power of two for optimal performance.");
 
     //------------------------------------------
     // Constructor/Destructor

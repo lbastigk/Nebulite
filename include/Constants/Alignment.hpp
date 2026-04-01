@@ -6,12 +6,16 @@
 #ifndef NEBULITE_CONSTANTS_ALIGNMENT_HPP
 #define NEBULITE_CONSTANTS_ALIGNMENT_HPP
 
-#include "Asserts.hpp"
+//------------------------------------------
+// Includes
 
-
+// Standard library
 #include <new> // for std::hardware_destructive_interference_size (if available)
 
+// Nebulite
+#include "Utility/CompileTimeEvaluate.hpp"
 
+//------------------------------------------
 namespace Nebulite::Constants {
 class Alignment {
 public:
@@ -25,7 +29,7 @@ private:
     // Assertions
 
     // Check if SIMD_ALIGN is a power of two
-    static_assert(Assert::isPowerOfTwo(SIMD_ALIGN), "SIMD_ALIGN must be a power of two.");
+    static_assert(Utility::CompileTimeEvaluate::isPowerOfTwo(SIMD_ALIGN), "SIMD_ALIGN must be a power of two.");
 };
 
 } // namespace Nebulite::Constants

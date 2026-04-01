@@ -1,12 +1,16 @@
 #ifndef NEBULITE_MATH_EQUALITY_HPP
 #define NEBULITE_MATH_EQUALITY_HPP
 
+//------------------------------------------
+// Includes
+
 // Standard library
 #include <cmath>
 
 // Nebulite
-#include "Constants/Asserts.hpp"
+#include "Utility/CompileTimeEvaluate.hpp"
 
+//------------------------------------------
 namespace Nebulite::Math {
 
 /**
@@ -27,7 +31,7 @@ template <typename T> bool isEqual(T const& a, T const& b) {
         return a == b;
     }
     else {
-        static_assert(Constants::Assert::always_false(), "isEqual does not support this type. It must either be a floating-point type or support operator==.");
+        static_assert(Utility::CompileTimeEvaluate::always_false(), "isEqual does not support this type. It must either be a floating-point type or support operator==.");
         return false;
     }
 }

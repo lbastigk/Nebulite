@@ -6,9 +6,18 @@
 #ifndef NEBULITE_UTILITY_INITIALIZER_HPP
 #define NEBULITE_UTILITY_INITIALIZER_HPP
 
+
+//------------------------------------------
+// Includes
+
+// Standard library
 #include <array>
 #include <functional>
+#include <stdexcept>
 #include <string>
+
+// Nebulite
+#include "Utility/CompileTimeEvaluate.hpp"
 
 namespace Nebulite::Utility {
 
@@ -33,7 +42,7 @@ public:
      */
     template <size_t N>
     static consteval auto pairingTable() {
-        static_assert(N%4 == 0 && N >=4 && Constants::Assert::isPowerOfTwo(N/4), "N must be of type 4*n^k for some n >= 1 and k >= 0 to ensure proper pairing and round generation.");
+        static_assert(N%4 == 0 && N >=4 && CompileTimeEvaluate::isPowerOfTwo(N/4), "N must be of type 4*n^k for some n >= 1 and k >= 0 to ensure proper pairing and round generation.");
 
         static auto constexpr roundCount = 2*N;
         static auto constexpr pairsPerRound = N/2;
