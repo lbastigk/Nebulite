@@ -2,7 +2,7 @@
  * @file FuncTree.hpp
  * @brief This file defines the FuncTree class, which is responsible for managing and executing functions
  *        through a command tree structure.
- *        The main goal of this class is to manage hierarchical commands and arguments for modular and flexible execution.
+ * @details The main goal of this class is to manage hierarchical commands and arguments for modular and flexible execution.
  */
 
 #ifndef NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_HPP
@@ -21,29 +21,22 @@
 
 // Nebulite
 #include "Interaction/Execution/FuncTreeErrorMessages.hpp"
-#include "Utility/Capture.hpp"  // Due to circular dependencies, we use Capture for logging instead of Nebulite.hpp
+#include "Utility/Capture.hpp"  // Due to circular dependencies, we use Capture for logging instead of Nebulite.hpp that we use as constructor argument for the FuncTree to use
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
 /**
  * @class Nebulite::Interaction::Execution::FuncTree
  * @brief Function tree class for managing and executing functions through linguistic commands.
- *        The FuncTree class allows for the binding of functions and variables to a command tree structure,
- *        enabling modular and flexible execution of commands based on user input.
- *        Functions are identified by their names and can have multiple arguments.
- *        Variables can be bound to the command tree and accessed within functions,
- *        provided the functions themselves have access to the space of the variables.
+ * @details The FuncTree class allows for the binding of functions and variables to a command tree structure,
+ *          enabling modular and flexible execution of commands based on user input.
+ *          Functions are identified by their names and can have multiple arguments.
+ *          Variables can be bound to the command tree and accessed within functions,
+ *          provided the functions themselves have access to the space of the variables.
  */
 template <typename returnValue, typename... additionalArgs>
 class FuncTree {
 public:
-    //------------------------------------------
-    // Access
-
-    // Make sure all FuncTrees are friends
-    template <typename RT, typename... AA>
-    friend class FuncTree;
-
     //------------------------------------------
     // Important types
 
@@ -230,10 +223,6 @@ public:
 
     /**
      * @brief Binds a function to the command tree.
-     *        Make sure the function has the signature:
-     *        ```cpp
-     *        returnValue functionName(int argc, char** argv);
-     *        ```
      * @details If the function name already exists, the program will throw an error to prevent accidental overwriting of functions.
      *          However, if the function being bound has the same pointer as the existing function, the binding will simply be ignored.
      * @param func Pointer to the function to bind, wrapped to include information about its signature.
@@ -482,7 +471,7 @@ private:
     }
 
     //------------------------------------------
-    // Completion function
+    // Completion
 
     /**
      * @brief Provides command completion suggestions based on the current arguments.
