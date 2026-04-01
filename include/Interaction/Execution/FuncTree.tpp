@@ -623,13 +623,19 @@ returnValue FuncTree<returnValue, additionalArgs...>::parseStr(std::string_view 
     return parse(args, addArgs...);
 }
 
+#define USE_NEW_SPAN_VERSION 0
+
 template <typename returnValue, typename... additionalArgs>
 returnValue FuncTree<returnValue, additionalArgs...>::parse(std::vector<std::string> const& args, additionalArgs... addArgs) {
-    ////////////////////////////////////////////
-    //------------------------------------------
-    // TODO: parsing variables etc should be done with tokens or with the span
-    //       then we only convert to argc/argv if we need to inside executeFunction
-
+#if USE_NEW_SPAN_VERSION
+    // Turn into span
+    std::span<std::string const> argsSpan(args.data(), args.size());
+    argsSpan = argsSpan.subspan(1); // First arg is caller, remove
+    processVariableArguments(argsSpan);
+    if (argsSpan.empty()) {
+        return standardReturn.valDefault; // Nothing to execute, return standard
+    }
+#else
     // Convert to argc/argv
     size_t argc = args.size();
     std::vector<char*> argv_vec;
@@ -658,26 +664,21 @@ returnValue FuncTree<returnValue, additionalArgs...>::parse(std::vector<std::str
     for (size_t i = 0; i < argc; i++) {
         argsVec.emplace_back(argv[i]);
     }
-    auto tokensSpan = std::span<std::string const>(argsVec.data(), argsVec.size());
-
-    ////////////////////////////////////////////
-
-    // The first argument left is the new function name
-    std::string funcName = tokensSpan.front();
-
-    // Check in inherited FuncTrees first
+    auto argsSpan = std::span<std::string const>(argsVec.data(), argsVec.size());
+#endif
+    std::string funcName = argsSpan.front();
     auto inheritedTree = findInInheritedTrees(funcName);
     if (inheritedTree != nullptr) {
         // Function is in inherited tree, parse there
-        return inheritedTree->executeFunction(funcName, static_cast<int>(argc), argv, tokensSpan, addArgs...);
+        return inheritedTree->executeFunction(funcName, argsSpan, addArgs...);
     }
 
     // Not found in inherited trees, execute the function the main tree
-    return executeFunction(funcName, static_cast<int>(argc), argv, tokensSpan, addArgs...);
+    return executeFunction(funcName, argsSpan, addArgs...);
 }
 
 template <typename returnValue, typename... additionalArgs>
-returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::string const& name, int argc, char** argv, std::span<std::string const> const& args, additionalArgs... addArgs) {
+returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::string const& name, std::span<std::string const> const& args, additionalArgs... addArgs) {
     // Call preParse function if set
     if (preParse != nullptr) {
         if (returnValue err = preParse(); !Math::isEqual(err, standardReturn.valDefault)) {
@@ -700,13 +701,37 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
             // Legacy function types
             if constexpr (std::is_same_v<T, std::function<returnValue(int, char**)>>) {
                 // Convert to argc/argv
-                return func(argc, argv);
+                size_t argc = args.size();
+                std::vector<char*> argv_vec;
+                argv_vec.reserve(argc + 1);
+                std::transform(
+                    args.begin(),
+                    args.end(),
+                    std::back_inserter(argv_vec),
+                    [](std::string const& str) { return const_cast<char*>(str.c_str()); }
+                );
+                argv_vec.push_back(nullptr); // Null-terminate
+                char** argv = argv_vec.data();
+                return func(static_cast<int>(argc), argv);
             } else if constexpr (std::is_same_v<T, std::function<returnValue(int, char const**)>>) {
+                // Convert to argc/argv
+                size_t argc = args.size();
+                std::vector<char*> argv_vec;
+                argv_vec.reserve(argc + 1);
+                std::transform(
+                    args.begin(),
+                    args.end(),
+                    std::back_inserter(argv_vec),
+                    [](std::string const& str) { return const_cast<char*>(str.c_str()); }
+                );
+                argv_vec.push_back(nullptr); // Null-terminate
+                char** argv = argv_vec.data();
+
                 // Convert char** to char const**
                 std::vector<char const*> argv_const(static_cast<size_t>(argc));
                 for (size_t i = 0; i < static_cast<size_t>(argc); ++i)
                     argv_const[i] = argv[i];
-                return func(argc, argv_const.data());
+                return func(static_cast<int>(argc), argv_const.data());
             }
             // Modern function types
             else if constexpr (std::is_same_v<T, typename SupportedFunctions::Modern::Full> || std::is_same_v<T, typename SupportedFunctions::Modern::FullConstRef>) {
@@ -730,16 +755,16 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
     // Find function name in bindingContainer.categories
     if (bindingContainer.categories.find(function) != bindingContainer.categories.end()) {
         std::string cmd;
-        for (int i = 0; i < argc; i++) {
-            cmd += std::string(argv[i]) + " ";
+        for (auto const& arg : args) {
+            cmd += std::string(arg) + " ";
         }
         return bindingContainer.categories[function].tree->parseStr(cmd, addArgs...);
     }
 
     // Return error if function not found
     std::string arguments;
-    for (int i = 0; i < argc; i++) {
-        arguments += std::string("argv[") + std::to_string(i) + "] = '" + argv[i] + "'\n";
+    for (auto [i, arg] : args | std::views::enumerate) {
+        arguments += std::string("argv[") + std::to_string(i) + "] = '" + arg + "'\n";
     }
     ExecutionErrorMessage::functionNotFound(TreeName, arguments, function);
     return standardReturn.valFunctionNotFound;

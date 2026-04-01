@@ -359,13 +359,11 @@ private:
     /**
      * @brief Looks up the function by name and calls it with the provided arguments.
      * @param name The name of the function to execute.
-     * @param argc [Legacy] Argument count.
-     * @param argv [Legacy] Argument vector.
      * @param args Modern argument span.
      * @param addArgs Additional arguments to pass to the function.
      * @return The return value of the function.
      */
-    returnValue executeFunction(std::string const& name, int argc, char** argv, std::span<std::string const> const& args, additionalArgs... addArgs);
+    returnValue executeFunction(std::string const& name, std::span<std::string const> const& args, additionalArgs... addArgs);
 
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
@@ -419,8 +417,9 @@ private:
     >;
 
     /**
-     * @brief After calling find on each hashmap, this function takes a closer look at the results
-     *        and sets the found flags accordingly.
+     * @brief Tries to find a function, category, or variable by name in the current FuncTree.
+     *        Fully keyword required, e.g.: "category1 category2 function"
+     *        Just "function" will not find the function iterator, as it's nested inside categories.
      * @param name Name of the function/category/variable to find
      * @return SearchResult struct containing found flags
      */
@@ -458,6 +457,31 @@ private:
                 // Remove from argument list
                 argv++; // Skip the first argument (function name)
                 argc--; // Reduce the argument count (function name is processed)
+            } else {
+                // no more vars to parse
+                return;
+            }
+        }
+    }
+
+    void processVariableArguments(std::span<std::string const>& args) {
+        while (!args.empty()) {
+            if (auto const& arg = args[0]; arg.length() >= 2 && arg.starts_with("--")) {
+                // Extract name
+                std::string name = arg.substr(2);
+
+                // Set variable if attached
+                // TODO: Search in inherited FuncTrees as well
+                if (auto varIt = bindingContainer.variables.find(name); varIt != bindingContainer.variables.end()) {
+                    if (auto const& varInfo = varIt->second; varInfo.pointer) {
+                        *varInfo.pointer = true;
+                    }
+                } else {
+                    ExecutionErrorMessage::unknownVariable(TreeName, name);
+                }
+
+                // Remove first arg
+                args = args.subspan(1);
             } else {
                 // no more vars to parse
                 return;
