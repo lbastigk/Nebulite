@@ -623,11 +623,8 @@ returnValue FuncTree<returnValue, additionalArgs...>::parseStr(std::string_view 
     return parse(args, addArgs...);
 }
 
-#define USE_NEW_SPAN_VERSION 0
-
 template <typename returnValue, typename... additionalArgs>
 returnValue FuncTree<returnValue, additionalArgs...>::parse(std::vector<std::string> const& args, additionalArgs... addArgs) {
-#if USE_NEW_SPAN_VERSION
     // Turn into span
     std::span<std::string const> argsSpan(args.data(), args.size());
     argsSpan = argsSpan.subspan(1); // First arg is caller, remove
@@ -635,45 +632,15 @@ returnValue FuncTree<returnValue, additionalArgs...>::parse(std::vector<std::str
     if (argsSpan.empty()) {
         return standardReturn.valDefault; // Nothing to execute, return standard
     }
-#else
-    // Convert to argc/argv
-    size_t argc = args.size();
-    std::vector<char*> argv_vec;
-    argv_vec.reserve(argc + 1);
-    std::transform(args.begin(), args.end(), std::back_inserter(argv_vec),
-                   [](std::string const& str) { return const_cast<char*>(str.c_str()); });
-    argv_vec.push_back(nullptr); // Null-terminate
-
-    // First argument is binary name or last function name
-    // remove it from the argument list
-    char** argv = argv_vec.data();
-    argv++;
-    argc--;
-
-    // Process arguments directly after binary/function name (like --count or -c)
-    processVariableArguments(argc, argv);
-
-    // Check if there are still arguments left
-    if (argc == 0) {
-        return standardReturn.valDefault; // Nothing to execute, return standard
-    }
-
-    // turn argc/argv into span
-    std::vector<std::string> argsVec;
-    argsVec.reserve(argc);
-    for (size_t i = 0; i < argc; i++) {
-        argsVec.emplace_back(argv[i]);
-    }
-    auto argsSpan = std::span<std::string const>(argsVec.data(), argsVec.size());
-#endif
+    // Call function
     std::string funcName = argsSpan.front();
     auto inheritedTree = findInInheritedTrees(funcName);
     if (inheritedTree != nullptr) {
-        // Function is in inherited tree, parse there
+        // Function is in inherited tree, call there
         return inheritedTree->executeFunction(funcName, argsSpan, addArgs...);
     }
 
-    // Not found in inherited trees, execute the function the main tree
+    // Not found in inherited trees, execute the function in main tree
     return executeFunction(funcName, argsSpan, addArgs...);
 }
 

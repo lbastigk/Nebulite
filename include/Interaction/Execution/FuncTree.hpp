@@ -435,35 +435,8 @@ private:
 
     /**
      * @brief Processes variable arguments at the start of the argument list.
-     * @param argc Argument count
-     * @param argv Argument vector
+     * @param args The arguments to remove and process variable assignments from.
      */
-    void processVariableArguments(size_t& argc, char**& argv) {
-        while (argc > 0) {
-            if (std::string arg = argv[0]; arg.length() >= 2 && arg.substr(0, 2) == "--" /*same as arg.starts_with("--"), but C++17 compatible*/) {
-                // Extract name
-                std::string name = arg.substr(2);
-
-                // Set variable if attached
-                // TODO: Search in inherited FuncTrees as well
-                if (auto varIt = bindingContainer.variables.find(name); varIt != bindingContainer.variables.end()) {
-                    if (auto const& varInfo = varIt->second; varInfo.pointer) {
-                        *varInfo.pointer = true;
-                    }
-                } else {
-                    ExecutionErrorMessage::unknownVariable(TreeName, name);
-                }
-
-                // Remove from argument list
-                argv++; // Skip the first argument (function name)
-                argc--; // Reduce the argument count (function name is processed)
-            } else {
-                // no more vars to parse
-                return;
-            }
-        }
-    }
-
     void processVariableArguments(std::span<std::string const>& args) {
         while (!args.empty()) {
             if (auto const& arg = args[0]; arg.length() >= 2 && arg.starts_with("--")) {
