@@ -344,6 +344,7 @@ The function calls are parsed and executed in their respective domains after exp
 - *abseil* - fast hash maps
 - *tinyexpr* - expression evaluation
 - *imgui* - GUI
+- *stb* - image encoding/decoding
 
 <!-- TOC --><a name="testing"></a>
 ## Testing
