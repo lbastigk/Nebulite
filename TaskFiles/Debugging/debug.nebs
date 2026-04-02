@@ -22,6 +22,17 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+set-fps 1000
+wait 1
+eval set benchmark.startTime {global.time.runtime.t}
+wait 1
+dump-view
+wait 1
+eval echo {global.time.runtime.t} - {global.benchmark.startTime}
+eval set benchmark.endTime $({global.time.runtime.t} - {global.benchmark.startTime})
+print benchmark
+exit
+
 set settings.n 10
 task TaskFiles/Benchmarks/gravity_XL_unlimited.nebs
 wait 1

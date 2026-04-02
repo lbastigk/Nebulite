@@ -164,6 +164,70 @@ Constants::Event General::snapshot(int const argc, char** argv) const {
     return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
 }
 
+namespace {
+auto constexpr base64_chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789+/";
+
+std::string base64_encode(const uint8_t* data, size_t const& len) {
+    std::string out;
+    out.reserve(((len + 2) / 3) * 4);
+
+    int val = 0, valb = -6;
+    for (size_t i = 0; i < len; i++) {
+        val = (val << 8) + data[i];
+        valb += 8;
+        while (valb >= 0) {
+            out.push_back(base64_chars[(val >> valb) & 0x3F]);
+            valb -= 6;
+        }
+    }
+
+    if (valb > -6) out.push_back(base64_chars[((val << 8) >> (valb + 8)) & 0x3F]);
+    while (out.size() % 4) out.push_back('=');
+
+    return out;
+}
+} // namespace
+
+Constants::Event General::dumpView() const {
+    Data::JSON view;
+    auto const renderer = domain.getSdlRenderer();
+
+    // Read pixels into an SDL_Surface
+    SDL_Surface* surface = SDL_RenderReadPixels(renderer, nullptr);
+    if (!surface) {
+        view.set("type", "error");
+        view.set("message", SDL_GetError());
+        domain.capture.log.println(view.serialize());
+        return Constants::Event::Warning;
+    }
+
+    int const w = surface->w;
+    int const h = surface->h;
+    int const pitch = surface->pitch;
+
+    uint8_t const* pixels = static_cast<uint8_t*>(surface->pixels);
+    size_t const size = static_cast<size_t>(pitch) * static_cast<size_t>(h);
+
+    // Base64 encode
+    std::string const  encoded = base64_encode(pixels, size);
+
+    view.set("type","frame");
+    view.set("width", w);
+    view.set("height", h);
+    view.set("format", "rgba");   // depends on surface->format
+    view.set("pitch", pitch);
+    view.set("encoding", "base64");
+    view.set("data", encoded);
+
+    SDL_DestroySurface(surface);
+
+    domain.capture.log.println(view.serialize());
+    return Constants::Event::Success;
+}
+
 Constants::Event General::selectedObject_get(int const argc, char** argv){
     if (argc != 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
