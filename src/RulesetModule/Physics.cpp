@@ -10,6 +10,7 @@
 #include "Core/GlobalSpace.hpp"
 #include "DomainModule/GlobalSpace/Time.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
+#include "Math/Equality.hpp"
 #include "RulesetModule/Physics.hpp"
 
 namespace Nebulite::RulesetModule {
@@ -187,8 +188,8 @@ void Physics::applyForce(Interaction::Context const& /*context*/, double**& slf,
 // NOLINTNEXTLINE
 void Physics::applyCorrection(Interaction::Context const& context, double**& slf, double**&) const {
     // Check if any corrections are significant enough to apply (greater than a small epsilon)
-    if (std::abs(baseVal(slf, Key::physics_correction_X))  > DBL_EPSILON || std::abs(baseVal(slf, Key::physics_correction_Y))  > DBL_EPSILON
-     || std::abs(baseVal(slf, Key::physics_correction_vX)) > DBL_EPSILON || std::abs(baseVal(slf, Key::physics_correction_vY)) > DBL_EPSILON) {
+    if (Math::isNonZero(baseVal(slf, Key::physics_correction_X))  || Math::isNonZero(baseVal(slf, Key::physics_correction_Y))
+     || Math::isNonZero(baseVal(slf, Key::physics_correction_vX)) || Math::isNonZero(baseVal(slf, Key::physics_correction_vY))) {
         // Lock and apply corrections
         auto slfLock = context.self.lockDocument();
         baseVal(slf, Key::posX) += baseVal(slf, Key::physics_correction_X);

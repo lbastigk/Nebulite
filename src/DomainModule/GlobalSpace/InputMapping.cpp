@@ -10,6 +10,7 @@
 #include "DomainModule/GlobalSpace/InputMapping.hpp"
 #include "DomainModule/GlobalSpace/Settings.hpp"
 #include "DomainModule/Renderer/Input.hpp"
+#include "Math/Equality.hpp"
 
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {
@@ -83,7 +84,7 @@ Constants::Event InputMapping::unlock(std::span<std::string const> const& args) 
 //------------------------------------------
 
 Constants::Event InputMapping::updateHook() {
-    if (std::fabs(*sdlPolledInput) > DBL_EPSILON) {
+    if (Math::isNonZero(*sdlPolledInput)) {
         processMappings();
     }
     return Constants::Event::Success;

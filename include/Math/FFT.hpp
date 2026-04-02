@@ -15,7 +15,9 @@
 
 //------------------------------------------
 namespace Nebulite::Math {
-
+/**
+ * @brief A class that provides static methods for performing Fast Fourier Transform (FFT) and related operations on audio data.
+ */
 class FFT {
 public:
     /**
@@ -50,6 +52,5 @@ public:
      */
     static std::vector<double> applyTransferFunction(std::vector<double> const& data, std::vector<double> const& num, std::vector<double> const& den);
 };
-
 } // namespace Nebulite::Math
 #endif // NEBULITE_MATH_FFT_HPP

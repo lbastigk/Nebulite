@@ -14,6 +14,7 @@
 #include "Nebulite.hpp"
 #include "Graphics/Drawcall.hpp"
 #include "Graphics/SdlPrimitive.hpp"
+#include "Math/Equality.hpp"
 #include "Utility/Coordination/IdGenerator.hpp"
 
 //------------------------------------------
@@ -93,7 +94,7 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
                 std::floor(static_cast<float>(*refs.rectDstW)),
                 std::floor(static_cast<float>(*refs.rectDstH))
             });
-            if (std::fabs(*refs.rotationDegrees) > DBL_EPSILON) {
+            if (Math::isNonZero(*refs.rotationDegrees)) {
                 if (!SDL_RenderTextureRotated(nebuliteRenderer.getSdlRenderer(),texture.getSDLTexture(),&srcRect,&dstRect, *refs.rotationDegrees, &rotationCenter,SDL_FLIP_NONE)) {
                     texture.capture.error.println("Failed to render rotated sprite texture in drawcall: ", SDL_GetError());
                 }
@@ -446,7 +447,7 @@ void Drawcall::initializePolygon() {
         static_cast<Uint8>(*refs.colorA)
     };
 
-    if (std::fabs(*refs.polygonFilled) > DBL_EPSILON) {
+    if (Math::isNonZero(*refs.polygonFilled)) {
         // Filled polygon
         SdlPrimitive::drawFilledPolygon(sdlRenderer, polyTexture, polyColor, points);
     }

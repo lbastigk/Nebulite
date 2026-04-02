@@ -7,10 +7,10 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Data/Document/JsonScope.hpp"
-#include "Math/Equality.hpp"
-#include "Math/ExpressionPrimitives.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
 #include "Interaction/Logic/Expression.hpp"
+#include "Math/Equality.hpp"
+#include "Math/ExpressionPrimitives.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -639,7 +639,7 @@ double Expression::evalAsDouble(ContextScope const& context) const {
 
 bool Expression::evalAsBool(ContextScope const& context) const {
     double const result = evalAsDouble(context);
-    return std::fabs(result) > DBL_EPSILON;
+    return Math::isNonZero(result);
 }
 
 Data::JSON Expression::evalAsJson(ContextScope const& context, size_t const& recursionDepth) const {
