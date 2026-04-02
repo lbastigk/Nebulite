@@ -37,12 +37,12 @@ template <typename T> bool isEqual(T const& a, T const& b) {
 }
 
 /**
- * @brief Floating-Point safe check if a double value is nonzero
+ * @brief Floating-Point safe check if a double value is zero
  * @param value The value to check
- * @return True if the value is considered nonzero, false if it is considered zero (within an epsilon threshold).
+ * @return True if the value is considered zero, false if it is considered nonzero (within an epsilon threshold).
  */
-inline bool isNonZero(double const& value) {
-    return std::fabs(value) > std::numeric_limits<double>::epsilon();
+inline bool isZero(double const& value) {
+    return std::fabs(value) <= std::numeric_limits<double>::epsilon();
 }
 
 } // namespace Nebulite::Math

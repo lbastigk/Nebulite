@@ -188,8 +188,8 @@ void Physics::applyForce(Interaction::Context const& /*context*/, double**& slf,
 // NOLINTNEXTLINE
 void Physics::applyCorrection(Interaction::Context const& context, double**& slf, double**&) const {
     // Check if any corrections are significant enough to apply (greater than a small epsilon)
-    if (Math::isNonZero(baseVal(slf, Key::physics_correction_X))  || Math::isNonZero(baseVal(slf, Key::physics_correction_Y))
-     || Math::isNonZero(baseVal(slf, Key::physics_correction_vX)) || Math::isNonZero(baseVal(slf, Key::physics_correction_vY))) {
+    if (!Math::isZero(baseVal(slf, Key::physics_correction_X))  || !Math::isZero(baseVal(slf, Key::physics_correction_Y))
+     || !Math::isZero(baseVal(slf, Key::physics_correction_vX)) || !Math::isZero(baseVal(slf, Key::physics_correction_vY))) {
         // Lock and apply corrections
         auto slfLock = context.self.lockDocument();
         baseVal(slf, Key::posX) += baseVal(slf, Key::physics_correction_X);

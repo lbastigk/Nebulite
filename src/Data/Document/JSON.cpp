@@ -159,7 +159,7 @@ void JSON::flush() const {
         }
 
         // If double values changed, mark dirty
-        if (Math::isNonZero(entry->last_double_value - *entry->stable_double_ptr)) {
+        if (!Math::isZero(entry->last_double_value - *entry->stable_double_ptr)) {
             entry->state = CacheEntry::EntryState::DIRTY;
             entry->last_double_value = *entry->stable_double_ptr;
             entry->value = *entry->stable_double_ptr;
@@ -201,7 +201,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
         // Entry exists and is not deleted
 
         // Check its double value for change detection using an epsilon to avoid unsafe direct comparison
-        if (Math::isNonZero(*it->second->stable_double_ptr - it->second->last_double_value)) {
+        if (!Math::isZero(*it->second->stable_double_ptr - it->second->last_double_value)) {
             // Value changed since last check
             // We update the actual value with the new double value
             // Then we convert the double to the requested type

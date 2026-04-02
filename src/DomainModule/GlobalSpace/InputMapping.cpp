@@ -84,7 +84,7 @@ Constants::Event InputMapping::unlock(std::span<std::string const> const& args) 
 //------------------------------------------
 
 Constants::Event InputMapping::updateHook() {
-    if (Math::isNonZero(*sdlPolledInput)) {
+    if (!Math::isZero(*sdlPolledInput)) {
         processMappings();
     }
     return Constants::Event::Success;

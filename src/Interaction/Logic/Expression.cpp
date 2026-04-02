@@ -639,7 +639,7 @@ double Expression::evalAsDouble(ContextScope const& context) const {
 
 bool Expression::evalAsBool(ContextScope const& context) const {
     double const result = evalAsDouble(context);
-    return Math::isNonZero(result);
+    return !Math::isZero(result);
 }
 
 Data::JSON Expression::evalAsJson(ContextScope const& context, size_t const& recursionDepth) const {

@@ -117,10 +117,10 @@ void Movement::clip(Interaction::Context const& context, double**& slf, double**
 
             // Edge sliding
             static double edgeThreshold = 3.0; // Threshold distance to consider for edge sliding
-            bool const slideUp = willCollideY && std::fabs(p2Y + size2Y - p1Y) <= edgeThreshold && Math::isNonZero(v2X) && Math::isNonZero(v2Y);
-            bool const slideDown = willCollideY && std::abs(p2Y - (p1Y + size1Y)) <= edgeThreshold && Math::isNonZero(v2X) && Math::isNonZero(v2Y);
-            bool const slideLeft = willCollideX && std::fabs(p2X + size2X - p1X) <= edgeThreshold && Math::isNonZero(v2Y) && Math::isNonZero(v2X);
-            bool const slideRight = willCollideX && std::fabs(p2X - (p1X + size1X)) <= edgeThreshold && Math::isNonZero(v2Y) && Math::isNonZero(v2X);
+            bool const slideUp = willCollideY && std::fabs(p2Y + size2Y - p1Y) <= edgeThreshold && !Math::isZero(v2X) && !Math::isZero(v2Y);
+            bool const slideDown = willCollideY && std::abs(p2Y - (p1Y + size1Y)) <= edgeThreshold && !Math::isZero(v2X) && !Math::isZero(v2Y);
+            bool const slideLeft = willCollideX && std::fabs(p2X + size2X - p1X) <= edgeThreshold && !Math::isZero(v2Y) && !Math::isZero(v2X);
+            bool const slideRight = willCollideX && std::fabs(p2X - (p1X + size1X)) <= edgeThreshold && !Math::isZero(v2Y) && !Math::isZero(v2X);
 
             // Allow for sliding along edges if close enough to the edge and moving towards it
             // Bit too fast, needs tuning
