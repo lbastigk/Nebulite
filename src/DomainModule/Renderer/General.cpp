@@ -1,3 +1,5 @@
+#include "stb_image_write.h"
+
 #include "Nebulite.hpp"
 #include "DomainModule/Renderer/General.hpp"
 #include "Core/Renderer.hpp"       // The domain
@@ -191,6 +193,20 @@ std::string base64_encode(const uint8_t* data, size_t const& len) {
 }
 } // namespace
 
+namespace {
+// Memory buffer struct for stb callback
+struct JpegMemory {
+    std::vector<uint8_t> data;
+};
+
+// stb callback: append to vector
+void write_jpeg_callback(void* context, void* data, int size) {
+    JpegMemory* buf = static_cast<JpegMemory*>(context);
+    uint8_t* bytes = static_cast<uint8_t*>(data);
+    buf->data.insert(buf->data.end(), bytes, bytes + size);
+}
+} // namespace
+
 Constants::Event General::dumpView() const {
     std::function<void()> const callback = [&]() -> void {
         Data::JSON view;
@@ -204,24 +220,31 @@ Constants::Event General::dumpView() const {
             domain.capture.log.println(view.serialize());
             return;
         }
-
-        // Compress surface (optional)
-        // TODO...
-
-        // Base64 encode
         auto const w = static_cast<size_t>(surface->w);
         auto const h = static_cast<size_t>(surface->h);
         auto const pitch = static_cast<size_t>(surface->pitch);
         uint8_t const* pixels = static_cast<uint8_t*>(surface->pixels);
-        size_t const size = pitch * h;
-        std::string const encoded = base64_encode(pixels, size);
+
+        // Using stb_image to convert to jpeg
+        JpegMemory jpegBuffer;
+        int constexpr jpegQuality = 90; // 0-100
+        stbi_write_jpg_to_func(write_jpeg_callback, &jpegBuffer,
+           static_cast<int>(w),
+           static_cast<int>(h),
+           4,       // channels (RGBA)
+           pixels,  // pixel data from SDL_Surface
+           jpegQuality
+        );
+
+        // Convert data to Base64
+        std::string const encoded = base64_encode(jpegBuffer.data.data(), jpegBuffer.data.size());
         SDL_DestroySurface(surface);
 
         // Set values
         view.set("type","frame");
         view.set("width", w);
         view.set("height", h);
-        view.set("format", "rgba");
+        view.set("format", "jpeg");
         view.set("pitch", pitch);
         view.set("encoding", "base64");
         view.set("data", encoded);
