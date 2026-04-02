@@ -84,6 +84,20 @@ private:
         /* Add more global variables here as needed */
         double* dt = nullptr; // Time step for movement calculations
     } globalVal = {};
+
+    struct Radius {
+        double& slf;
+        double& otr;
+
+        Radius(double**& slfBase, double**& otrBase)
+        : slf(baseVal(slfBase, Key::sizeR)), otr(baseVal(otrBase, Key::sizeR))
+        {}
+    };
+
+    void collisionCircleCircle(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    void collisionCircleBox(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    void collisionBoxCircle(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    void collisionBoxBox(Interaction::Context const& context, double**& slf, double**& otr) const ;
 };
 } // namespace Nebulite::RulesetModule
 #endif // NEBULITE_RULESET_MODULE_MOVEMENT_HPP
