@@ -27,10 +27,19 @@ wait 1
 eval set benchmark.startTime {global.time.runtime.t}
 wait 1
 dump-view
+dump-view
+dump-view
+dump-view
+dump-view
+dump-view
+dump-view
+dump-view
+dump-view
+dump-view
 wait 1
-eval echo {global.time.runtime.t} - {global.benchmark.startTime}
-eval set benchmark.endTime $({global.time.runtime.t} - {global.benchmark.startTime})
-print benchmark
+eval set benchmark.endTime {global.time.runtime.t}
+eval echo {global.benchmark.startTime} -> {global.benchmark.endTime}
+eval echo "Elapsed time per view: $i(1000*({global.benchmark.endTime} - {global.benchmark.startTime})/10) ms"
 exit
 
 set settings.n 10

@@ -454,6 +454,18 @@ public:
      */
     void setQuit() noexcept { status.quit = true; }
 
+    //------------------------------------------
+    // Callback
+
+    /**
+    * @brief Adds a callback function to be executed after the current render pass is complete.
+    * @details Is executed once.
+    * @param function The callback function to add.
+    */
+    void addPostRenderCallback(std::function<void()> const& function) noexcept {
+        postRenderCallback.emplace_back(function);
+    }
+
 private:
     /**
      * @brief Holds threads for parallel processing of RenderObjects during the update phase.
@@ -525,9 +537,12 @@ private:
     static void renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
 
     //------------------------------------------
-    // Event Handling
+    // Event and routine Handling
 
     std::vector<SDL_Event> events;
+
+    // Functions to execute after a full render pass
+    std::vector<std::function<void()>> postRenderCallback;
 
 
     //------------------------------------------

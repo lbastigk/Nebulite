@@ -192,39 +192,59 @@ std::string base64_encode(const uint8_t* data, size_t const& len) {
 } // namespace
 
 Constants::Event General::dumpView() const {
-    Data::JSON view;
-    auto const renderer = domain.getSdlRenderer();
+    std::function<void()> const callback = [&]() -> void {
+        Data::JSON view;
+        auto const renderer = domain.getSdlRenderer();
 
-    // Read pixels into an SDL_Surface
-    SDL_Surface* surface = SDL_RenderReadPixels(renderer, nullptr);
-    if (!surface) {
-        view.set("type", "error");
-        view.set("message", SDL_GetError());
+        // Read pixels into an SDL_Surface
+        SDL_Surface* surface = SDL_RenderReadPixels(renderer, nullptr);
+        if (!surface) {
+            view.set("type", "error");
+            view.set("message", SDL_GetError());
+            domain.capture.log.println(view.serialize());
+            return;
+        }
+
+
+
+        // Compress surface (optional)
+        // TODO...
+
+        auto const w = static_cast<size_t>(surface->w);
+        auto const h = static_cast<size_t>(surface->h);
+        auto const pitch = static_cast<size_t>(surface->pitch);
+
+        uint8_t const* pixels = static_cast<uint8_t*>(surface->pixels);
+        size_t const size = pitch * h;
+
+        // Convert to RGB (drop alpha)
+        std::vector<uint8_t> rgb;
+        rgb.reserve(w*h*3);
+        for (size_t y=0; y < h; ++y) {
+            uint8_t const* row = pixels + y*pitch;
+            for (size_t x=0; x < w; ++x) {
+                rgb.push_back(row[x*4+0]); // R
+                rgb.push_back(row[x*4+1]); // G
+                rgb.push_back(row[x*4+2]); // B
+            }
+        }
+
+        // Base64 encode
+        std::string const encoded = base64_encode(pixels, size);
+
+        view.set("type","frame");
+        view.set("width", w);
+        view.set("height", h);
+        view.set("format", "rgb");
+        view.set("pitch", pitch);
+        view.set("encoding", "base64");
+        view.set("data", encoded);
+
+        SDL_DestroySurface(surface);
+
         domain.capture.log.println(view.serialize());
-        return Constants::Event::Warning;
-    }
-
-    int const w = surface->w;
-    int const h = surface->h;
-    int const pitch = surface->pitch;
-
-    uint8_t const* pixels = static_cast<uint8_t*>(surface->pixels);
-    size_t const size = static_cast<size_t>(pitch) * static_cast<size_t>(h);
-
-    // Base64 encode
-    std::string const  encoded = base64_encode(pixels, size);
-
-    view.set("type","frame");
-    view.set("width", w);
-    view.set("height", h);
-    view.set("format", "rgba");   // depends on surface->format
-    view.set("pitch", pitch);
-    view.set("encoding", "base64");
-    view.set("data", encoded);
-
-    SDL_DestroySurface(surface);
-
-    domain.capture.log.println(view.serialize());
+    };
+    domain.addPostRenderCallback(callback);
     return Constants::Event::Success;
 }
 
