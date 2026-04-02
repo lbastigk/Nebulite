@@ -185,24 +185,52 @@ rapidjson::Value RjDirectAccess::sortRecursive(rapidjson::Value const& value, ra
     return {value, allocator};
 }
 
-std::string RjDirectAccess::serialize(rapidjson::Document const& doc) {
-    if (!doc.IsObject() && !doc.IsArray()) {
-        // Get root object and serialize
-        rapidjson::StringBuffer buffer;
+std::string RjDirectAccess::serialize(rapidjson::Document const& doc, SerializationType type) {
+    // Determine writer type
+    rapidjson::StringBuffer buffer;
+
+    switch (type) {
+    case SerializationType::pretty: {
         rapidjson::PrettyWriter writer(buffer);
-        doc.Accept(writer);
-        return buffer.GetString();
+
+        // If root is not object or array, wrap root as object/array
+        if (!doc.IsObject() && !doc.IsArray()) {
+            rapidjson::Document tmp;
+            tmp.SetObject();
+            rapidjson::Value sortedRoot = sortRecursive(doc, tmp.GetAllocator());
+            tmp.Swap(sortedRoot);
+            tmp.Accept(writer);
+        } else {
+            rapidjson::Document sortedDoc;
+            sortedDoc.SetObject();
+            rapidjson::Value sortedRoot = sortRecursive(doc, sortedDoc.GetAllocator());
+            sortedDoc.Swap(sortedRoot);
+            sortedDoc.Accept(writer);
+        }
+        break;
+    }
+    case SerializationType::compact: {
+        rapidjson::Writer writer(buffer);
+
+        if (!doc.IsObject() && !doc.IsArray()) {
+            rapidjson::Document tmp;
+            tmp.SetObject();
+            rapidjson::Value sortedRoot = sortRecursive(doc, tmp.GetAllocator());
+            tmp.Swap(sortedRoot);
+            tmp.Accept(writer);
+        } else {
+            rapidjson::Document sortedDoc;
+            sortedDoc.SetObject();
+            rapidjson::Value sortedRoot = sortRecursive(doc, sortedDoc.GetAllocator());
+            sortedDoc.Swap(sortedRoot);
+            sortedDoc.Accept(writer);
+        }
+        break;
+    }
+    default:
+        std::unreachable();
     }
 
-    rapidjson::Document sortedDoc;
-    sortedDoc.SetObject(); // Required before Swap or adding values
-
-    rapidjson::Value sortedRoot = sortRecursive(doc, sortedDoc.GetAllocator());
-    sortedDoc.Swap(sortedRoot); // Efficiently replace contents
-
-    rapidjson::StringBuffer buffer;
-    rapidjson::PrettyWriter writer(buffer);
-    sortedDoc.Accept(writer);
     return buffer.GetString();
 }
 

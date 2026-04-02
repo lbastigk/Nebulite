@@ -217,32 +217,20 @@ Constants::Event General::dumpView() const {
         uint8_t const* pixels = static_cast<uint8_t*>(surface->pixels);
         size_t const size = pitch * h;
 
-        // Convert to RGB (drop alpha)
-        std::vector<uint8_t> rgb;
-        rgb.reserve(w*h*3);
-        for (size_t y=0; y < h; ++y) {
-            uint8_t const* row = pixels + y*pitch;
-            for (size_t x=0; x < w; ++x) {
-                rgb.push_back(row[x*4+0]); // R
-                rgb.push_back(row[x*4+1]); // G
-                rgb.push_back(row[x*4+2]); // B
-            }
-        }
-
         // Base64 encode
         std::string const encoded = base64_encode(pixels, size);
 
         view.set("type","frame");
         view.set("width", w);
         view.set("height", h);
-        view.set("format", "rgb");
+        view.set("format", "rgba");
         view.set("pitch", pitch);
         view.set("encoding", "base64");
         view.set("data", encoded);
 
         SDL_DestroySurface(surface);
 
-        domain.capture.log.println(view.serialize());
+        domain.capture.log.println(view.serialize("", Data::RjDirectAccess::SerializationType::compact));
     };
     domain.addPostRenderCallback(callback);
     return Constants::Event::Success;
