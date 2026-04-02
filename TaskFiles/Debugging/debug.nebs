@@ -23,19 +23,12 @@ echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
 set-fps 1000
-wait 1
+wait 1000 # For FPS to stabilize
 eval set benchmark.startTime {global.time.runtime.t}
 wait 1
-dump-view
-dump-view
-dump-view
-dump-view
-dump-view
-dump-view
-dump-view
-dump-view
-dump-view
-dump-view
+always dump-view
+wait 10
+always-clear
 wait 1
 eval set benchmark.endTime {global.time.runtime.t}
 eval echo {global.benchmark.startTime} -> {global.benchmark.endTime}

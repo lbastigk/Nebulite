@@ -205,21 +205,19 @@ Constants::Event General::dumpView() const {
             return;
         }
 
-
-
         // Compress surface (optional)
         // TODO...
 
+        // Base64 encode
         auto const w = static_cast<size_t>(surface->w);
         auto const h = static_cast<size_t>(surface->h);
         auto const pitch = static_cast<size_t>(surface->pitch);
-
         uint8_t const* pixels = static_cast<uint8_t*>(surface->pixels);
         size_t const size = pitch * h;
-
-        // Base64 encode
         std::string const encoded = base64_encode(pixels, size);
+        SDL_DestroySurface(surface);
 
+        // Set values
         view.set("type","frame");
         view.set("width", w);
         view.set("height", h);
@@ -228,9 +226,10 @@ Constants::Event General::dumpView() const {
         view.set("encoding", "base64");
         view.set("data", encoded);
 
-        SDL_DestroySurface(surface);
-
-        domain.capture.log.println(view.serialize("", Data::RjDirectAccess::SerializationType::compact));
+        // Instead of logging this info to the usual capture, we send it directly to cout.
+        // Otherwise, this will clog up the domain viewer and make rendering super slow
+        //domain.capture.log.println(view.serialize("", Data::RjDirectAccess::SerializationType::compact));
+        std::cout << view.serialize("", Data::RjDirectAccess::SerializationType::compact) << std::endl;
     };
     domain.addPostRenderCallback(callback);
     return Constants::Event::Success;
