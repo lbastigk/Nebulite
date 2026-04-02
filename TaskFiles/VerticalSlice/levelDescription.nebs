@@ -14,6 +14,10 @@ echo
 echo Adding character with wasd-control
 spawn ./Resources/Renderobjects/Creatures/player.jsonc|posX=160|posY=160
 
+# Show imgui-view for debugging
+selected-object get 1
+selected-object parse imgui-view on
+
 ###########################
 # Part 2: Background
 echo Adding background

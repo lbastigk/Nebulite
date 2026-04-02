@@ -35,6 +35,7 @@
     },
     "ruleset": {
         "list": [
+            "::movement::boxEdgeSliding",
             "::movement::clip"
         ],
         "listen": [
