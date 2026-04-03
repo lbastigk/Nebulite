@@ -156,9 +156,9 @@ void FuncTree<returnValue, additionalArgs...>::generalHelp() {
 template <typename returnValue, typename... additionalArgs>
 FuncTree<returnValue, additionalArgs...>::BindingSearchResult
 FuncTree<returnValue, additionalArgs...>::find(std::string const& name) {
-    typename absl::flat_hash_map<std::string, CategoryInfo>::iterator catIt;
-    typename absl::flat_hash_map<std::string, FunctionInfo>::iterator funIt;
-    typename absl::flat_hash_map<std::string, VariableInfo>::iterator varIt;
+    categoryIterator catIt;
+    functionIterator funIt;
+    variableIterator varIt;
 
     // Helper lambda to search in inherited trees
     auto searchInInherited = [&](auto mapMember, auto& iteratorMember) -> bool {
