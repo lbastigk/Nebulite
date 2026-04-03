@@ -70,16 +70,27 @@ private:
      * @brief List of keys for per-object movement-related base values in the ordered cache list.
      */
     const std::vector<Data::ScopedKeyView> baseKeys = {
+        // Position and size
         Constants::KeyNames::RenderObject::positionX,
         Constants::KeyNames::RenderObject::positionY,
         Constants::KeyNames::RenderObject::sizeX,
         Constants::KeyNames::RenderObject::sizeY,
         Constants::KeyNames::RenderObject::sizeR,
+        // Physics
         DomainModule::GlobalSpace::Physics::Key::Local::vX,
         DomainModule::GlobalSpace::Physics::Key::Local::vY,
         DomainModule::GlobalSpace::Physics::Key::Local::m,
         DomainModule::GlobalSpace::Physics::Key::Local::FX,
-        DomainModule::GlobalSpace::Physics::Key::Local::FY
+        DomainModule::GlobalSpace::Physics::Key::Local::FY,
+        // Clipping
+        Data::ScopedKeyView("movement.clip.direction.north"),
+        Data::ScopedKeyView("movement.clip.direction.east"),
+        Data::ScopedKeyView("movement.clip.direction.south"),
+        Data::ScopedKeyView("movement.clip.direction.west"),
+        Data::ScopedKeyView("movement.clip.corner.NW"),
+        Data::ScopedKeyView("movement.clip.corner.NE"),
+        Data::ScopedKeyView("movement.clip.corner.SE"),
+        Data::ScopedKeyView("movement.clip.corner.SW")
     };
 
     /**
@@ -88,16 +99,27 @@ private:
      *        Used for indexing into the ordered cache list.
      */
     enum class Key : std::size_t {
+        // Position and size
         posX,
         posY,
         sizeX,
         sizeY,
         sizeR,
+        // Physics
         physics_vX,
         physics_vY,
         physics_mass,
         physics_FX,
         physics_FY,
+        // Clipping
+        clip_north,
+        clip_east,
+        clip_south,
+        clip_west,
+        clip_corner_NW,
+        clip_corner_NE,
+        clip_corner_SE,
+        clip_corner_SW
     };
 
     // 2.) To retrieve from globalspace
