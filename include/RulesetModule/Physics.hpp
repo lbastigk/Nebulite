@@ -88,8 +88,7 @@ private:
         DomainModule::GlobalSpace::Physics::Key::Local::Correction::vY,
         // More specialized keys
         DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeX,
-        DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeY,
-
+        DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeY
     };
 
     /**
