@@ -98,3 +98,8 @@ Python
     script_exe python3.8
     3rd_gen_scale 4.20
     end_of_line_continuation \\$
+Go
+    filter remove_matches ^\s*//.*
+    filter call_regexp_common C++
+    extension go
+    3rd_gen_scale 1.00
