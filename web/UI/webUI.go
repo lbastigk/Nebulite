@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"sync"
 
-	comm "golang-test/communication"
+	comm "web/communication"
 )
 
 type WebUI struct {

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	comm "golang-test/communication"
-	webUI "golang-test/web"
+	webUI "web/UI"
+	comm "web/communication"
 )
 
 func main() {

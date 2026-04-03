@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 )
@@ -36,15 +39,56 @@ type Communication struct {
 }
 
 func NewCommunication() (*Communication, error) {
+	// Find the Nebulite binary relative to this package
+	// Go up from web/communication to the Nebulite project root
+	binaryPath, err := findNebuliteBinary()
+	if err != nil {
+		return nil, fmt.Errorf("failed to find Nebulite binary: %w", err)
+	}
+
+	// Set working directory to the project root so relative paths work
+	projectRoot := filepath.Dir(filepath.Dir(binaryPath))
+
 	cmd := exec.Command(
 		"stdbuf",
 		"-oL",
 		"-eL",
-		"./bin/Nebulite",
+		binaryPath,
 		"always dump-view ;",
 		"task TaskFiles/Benchmarks/gravity_XL.nebs",
 	)
+	cmd.Dir = projectRoot
 	return NewCommunicationFromCmd(cmd)
+}
+
+func findNebuliteBinary() (string, error) {
+	// Try to find the binary in common locations
+	possiblePaths := []string{
+		"../bin/Nebulite",
+		"../../bin/Nebulite",
+		"bin/Nebulite",
+	}
+
+	// Get the directory where this file is located
+	_, filename, _, ok := runtime.Caller(0)
+	if ok {
+		baseDir := filepath.Dir(filename)
+		for _, relPath := range possiblePaths {
+			fullPath := filepath.Join(baseDir, relPath)
+			if info, err := os.Stat(fullPath); err == nil && !info.IsDir() {
+				absPath, _ := filepath.Abs(fullPath)
+				return absPath, nil
+			}
+		}
+	}
+
+	// Fallback: try current working directory
+	if info, err := os.Stat("./bin/Nebulite"); err == nil && !info.IsDir() {
+		absPath, _ := filepath.Abs("./bin/Nebulite")
+		return absPath, nil
+	}
+
+	return "", fmt.Errorf("binary not found in standard locations")
 }
 
 func NewCommunicationFromCmd(cmd *exec.Cmd) (*Communication, error) {
