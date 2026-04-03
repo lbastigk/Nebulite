@@ -132,10 +132,10 @@ public:
         "Usage: snapshot [filename]\n\n"
         "Defaults to \"./Resources/Snapshots/snapshot.png\" if no argument is provided\n";
 
-    // TODO: Convert to jpeg
     [[nodiscard]] Constants::Event dumpView() const;
     static auto constexpr dumpView_name = "dump-view";
     static auto constexpr dumpView_desc = "Dump the current view of the renderer to the console, as JSON.\n"
+        "The dump is not synchronous with the call, but is executed after the next render pass.\n"
         "\n"
         "Usage: dump-view\n";
 
