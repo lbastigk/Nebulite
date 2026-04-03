@@ -8,6 +8,7 @@ always-clear
 and
 array
 assert
+assign
 at
 audio-debug
 average
@@ -33,6 +34,7 @@ deload
 deserialize
 div
 draft
+dump-view
 echo
 endsWith
 ensure-array
@@ -123,7 +125,6 @@ removeMember
 render-object
 replace
 require
-return
 reverse
 rng2arg
 rng2argInt16
