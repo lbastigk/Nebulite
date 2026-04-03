@@ -15,7 +15,7 @@ type lineEvent struct {
 	line   string
 }
 
-type frameView struct {
+type FrameView struct {
 	Type     string `json:"type"`
 	Encoding string `json:"encoding"`
 	Width    int    `json:"width"`
@@ -31,7 +31,7 @@ type Communication struct {
 	mu       sync.RWMutex
 	active   bool
 	lastLine string
-	lastView frameView
+	lastView FrameView
 	err      error
 }
 
@@ -102,7 +102,7 @@ func (c *Communication) readPipe(prefix string, pipe io.Reader, wg *sync.WaitGro
 		c.lines <- lineEvent{prefix: prefix, line: line}
 
 		// Try to parse JSON
-		var tmp frameView
+		var tmp FrameView
 		if err := json.Unmarshal([]byte(line), &tmp); err == nil {
 			// Success → update lastView
 			c.lastView = tmp
@@ -150,7 +150,7 @@ func (c *Communication) LastLine() string {
 	return c.lastLine
 }
 
-func (c *Communication) LastView() frameView {
+func (c *Communication) LastView() FrameView {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.lastView
