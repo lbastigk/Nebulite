@@ -1,60 +1,44 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"io"
-	"os/exec"
+	"time"
+
+	comm "golang-test/communication"
 )
 
 func main() {
-	cmd := exec.Command("stdbuf", "-oL", "-eL", "./bin/Nebulite", "always dump-view")
-
-	stdout, err := cmd.StdoutPipe()
+	communication, err := comm.NewCommunication()
 	if err != nil {
-		fmt.Println("Error getting stdout:", err)
+		fmt.Println("Error creating communication:", err)
 		return
 	}
 
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		fmt.Println("Error getting stderr:", err)
-		return
-	}
+	var previous string
+	for communication.Active() {
+		communication.Update()
 
-	if err := cmd.Start(); err != nil {
-		fmt.Println("Error starting process:", err)
-		return
-	}
-
-	// Function now accepts io.Reader
-	readPipe := func(prefix string, pipe io.Reader) {
-		scanner := bufio.NewScanner(pipe)
-
-		BufferSizeMiB := 20 // 20 MiB buffer
-		buf := make([]byte, 0, BufferSizeMiB*1024*1024)
-		scanner.Buffer(buf, 1024*1024)
-
-		for scanner.Scan() {
-			line := scanner.Text()
-
+		line := communication.LastLine()
+		if line != "" && line != previous {
 			if len(line) > 50 {
-				line = line[:50]
+				fmt.Println(line[:50])
+			} else {
+				fmt.Println(line)
 			}
+			previous = line
 
-			fmt.Printf("[%s] %s\n", prefix, line)
+			// Show info about last view:
+			view := communication.LastView()
+			fmt.Println(view)
+
+			// TODO: Convert to jpeg and show
 		}
 
-		if err := scanner.Err(); err != nil {
-			fmt.Println("Scanner error:", err)
-		}
+		// Avoid busy-waiting while still polling for new lines.
+		time.Sleep(10 * time.Millisecond)
 	}
 
-	go readPipe("COUT", stdout)
-	go readPipe("CERR", stderr)
-
-	err = cmd.Wait()
-	if err != nil {
+	if err := communication.Err(); err != nil {
 		fmt.Println("Process exited with error:", err)
 	} else {
 		fmt.Println("Process exited normally")
