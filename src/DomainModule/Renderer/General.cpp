@@ -1,3 +1,5 @@
+#include "stb_image_write.h"
+
 #include "Nebulite.hpp"
 #include "DomainModule/Renderer/General.hpp"
 #include "Core/Renderer.hpp"       // The domain
@@ -162,6 +164,98 @@ Constants::Event General::snapshot(int const argc, char** argv) const {
         return Constants::Event::Success;
     }
     return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+}
+
+namespace {
+auto constexpr base64_chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789+/";
+
+std::string base64_encode(const uint8_t* data, size_t const& len) {
+    std::string out;
+    out.reserve(((len + 2) / 3) * 4);
+
+    int val = 0, valb = -6;
+    for (size_t i = 0; i < len; i++) {
+        val = (val << 8) + data[i];
+        valb += 8;
+        while (valb >= 0) {
+            out.push_back(base64_chars[(val >> valb) & 0x3F]);
+            valb -= 6;
+        }
+    }
+
+    if (valb > -6) out.push_back(base64_chars[((val << 8) >> (valb + 8)) & 0x3F]);
+    while (out.size() % 4) out.push_back('=');
+
+    return out;
+}
+} // namespace
+
+namespace {
+// Memory buffer struct for stb callback
+struct JpegMemory {
+    std::vector<uint8_t> data;
+};
+
+// stb callback: append to vector
+void write_jpeg_callback(void* context, void* data, int size) {
+    JpegMemory* buf = static_cast<JpegMemory*>(context);
+    uint8_t* bytes = static_cast<uint8_t*>(data);
+    buf->data.insert(buf->data.end(), bytes, bytes + size);
+}
+} // namespace
+
+Constants::Event General::dumpView() const {
+    std::function<void()> const callback = [&]() -> void {
+        Data::JSON view;
+        auto const renderer = domain.getSdlRenderer();
+
+        // Read pixels into an SDL_Surface
+        SDL_Surface* surface = SDL_RenderReadPixels(renderer, nullptr);
+        if (!surface) {
+            view.set("type", "error");
+            view.set("message", SDL_GetError());
+            domain.capture.log.println(view.serialize());
+            return;
+        }
+        auto const w = static_cast<size_t>(surface->w);
+        auto const h = static_cast<size_t>(surface->h);
+        auto const pitch = static_cast<size_t>(surface->pitch);
+        uint8_t const* pixels = static_cast<uint8_t*>(surface->pixels);
+
+        // Using stb_image to convert to jpeg
+        JpegMemory jpegBuffer;
+        int constexpr jpegQuality = 90; // 0-100
+        stbi_write_jpg_to_func(write_jpeg_callback, &jpegBuffer,
+           static_cast<int>(w),
+           static_cast<int>(h),
+           4,       // channels (RGBA)
+           pixels,  // pixel data from SDL_Surface
+           jpegQuality
+        );
+
+        // Convert data to Base64
+        std::string const encoded = base64_encode(jpegBuffer.data.data(), jpegBuffer.data.size());
+        SDL_DestroySurface(surface);
+
+        // Set values
+        view.set("type","frame");
+        view.set("width", w);
+        view.set("height", h);
+        view.set("format", "jpeg");
+        view.set("pitch", pitch);
+        view.set("encoding", "base64");
+        view.set("data", encoded);
+
+        // Instead of logging this info to the usual capture, we send it directly to cout.
+        // Otherwise, this will clog up the domain viewer and make rendering super slow
+        //domain.capture.log.println(view.serialize("", Data::RjDirectAccess::SerializationType::compact));
+        std::cout << view.serialize("", Data::RjDirectAccess::SerializationType::compact) << std::endl;
+    };
+    domain.addPostRenderCallback(callback);
+    return Constants::Event::Success;
 }
 
 Constants::Event General::selectedObject_get(int const argc, char** argv){

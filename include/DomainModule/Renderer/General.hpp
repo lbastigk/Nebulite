@@ -132,6 +132,13 @@ public:
         "Usage: snapshot [filename]\n\n"
         "Defaults to \"./Resources/Snapshots/snapshot.png\" if no argument is provided\n";
 
+    [[nodiscard]] Constants::Event dumpView() const;
+    static auto constexpr dumpView_name = "dump-view";
+    static auto constexpr dumpView_desc = "Dump the current view of the renderer to the console, as JSON.\n"
+        "The dump is not synchronous with the call, but is executed after the next render pass.\n"
+        "\n"
+        "Usage: dump-view\n";
+
     [[nodiscard]] Constants::Event selectedObject_get(int argc, char** argv);
     static auto constexpr selectedObject_get_name = "selected-object get";
     static auto constexpr selectedObject_get_desc = "Get a renderobject by its index in the Renderer.\n"
@@ -176,6 +183,7 @@ public:
         bindFunction(&General::setFPS, setFPS_name, setFPS_desc);
         bindFunction(&General::showFPS, showFPS_name, showFPS_desc);
         bindFunction(&General::snapshot, snapshot_name, snapshot_desc);
+        bindFunction(&General::dumpView, dumpView_name, dumpView_desc);
 
         bindCategory(cam_name, cam_desc);
         bindFunction(&General::cam_move, cam_move_name, cam_move_desc);

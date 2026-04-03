@@ -303,7 +303,7 @@ private:
      */
     struct CategoryInfo {
         std::unique_ptr<FuncTree> tree;
-        std::string_view description;
+        std::string description;
     };
 
     /**
@@ -312,7 +312,7 @@ private:
      */
     struct FunctionInfo {
         WrappedFunction function; // Stores both the function pointer and its identity for comparison
-        std::string_view description;
+        std::string description;
     };
 
     /**
@@ -321,7 +321,7 @@ private:
      */
     struct VariableInfo {
         bool* pointer = nullptr;
-        std::string_view description;
+        std::string description;
     };
 
     // inherited FuncTrees linked to this tree
@@ -389,10 +389,9 @@ private:
      */
     void specificHelp(std::string const& funcName);
 
-    using categoryIterator = absl::flat_hash_map<std::string, CategoryInfo>::iterator;
-    using functionIterator = absl::flat_hash_map<std::string, FunctionInfo>::iterator;
-    using variableIterator = absl::flat_hash_map<std::string, VariableInfo>::iterator;
-
+    using categoryIterator = decltype(bindingContainer.categories)::iterator;
+    using functionIterator = decltype(bindingContainer.functions)::iterator;
+    using variableIterator = decltype(bindingContainer.variables)::iterator;
     /**
      * @using BindingSearchResult
      * @brief Helper type to store search results for finding functions, categories, and variables by name.

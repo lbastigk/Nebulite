@@ -26,9 +26,34 @@ public:
 
     // Global rulesets
 
+    // TODO: Needs rework. The idea of clipping + box Edge sliding doesn't work...
+    //       New idea:
+    //       1.) ::movement::clip determines 8 different collisions:
+    //       - north, east, south, west
+    //       - cornerNW, cornerNE, cornerSE, cornerSW
+    //       2.) ::movement::processClip (local) then sets XY forces accordingly:
+    //       if only one corner is active and no other normal direction -> edge sliding
+    //       if any normal direction is active -> normal clipping
+    //       That means:
+    //       CNW   N    CNE
+    //       W    SLF      E   <- OTR
+    //       CSW   S    CSE
+    //       Then we set forces accordingly. For safety we may only set edge-sliding forces if there are no forces present in that direction?
+    //       N,S -> FY = 0
+    //       E,W -> FX = 0
+    //       CNW -> FY += dF if FX != 0, FX -= dF if FY != 0
+    //       CNE -> FY += dF if FX != 0, FX += dF if FY != 0
+    //       CSW -> FY -= dF if FX != 0, FX -= dF if FY != 0
+    //       CSE -> FY -= dF if FX != 0, FX += dF if FY != 0
+    //       3.) after that, we apply the forces using ::physics::applyForce
+
     void clip(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static constexpr std::string_view clipName = "::movement::clip";
-    static constexpr std::string_view clipDesc = "Global ruleset to handle collision clipping between entities. The entry listening to this ruleset will be placed accordingly.";
+    static constexpr std::string_view clipDesc = "Global ruleset to handle collision clipping between entities. Affects forces of the entry listening to this ruleset.";
+
+    void boxEdgeSliding(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    static constexpr std::string_view boxEdgeSlidingName = "::movement::boxEdgeSliding";
+    static constexpr std::string_view boxEdgeSlidingDesc = "Global ruleset to handle edge sliding for box collisions. Affects forces of the entry listening to this ruleset.";
 
     //------------------------------------------
     // Constructor

@@ -13,8 +13,8 @@ fi
 function print_loc_for_dirs {
     DIRS=$1
     LABEL=$2
-
     CLOC_SETTINGS="--force-lang-def=./Tools/cloc_lang_define.txt $DIRS"
+
     NUM=$(cloc $CLOC_SETTINGS --csv 2>/dev/null | tail -1 | awk -F',' '{total=$3+$4+$5; print total}' 2>/dev/null)
     printf "Lines of code for %-26s| %05d\n" "$LABEL" "$NUM"
 }
@@ -24,3 +24,4 @@ print_loc_for_dirs "./src ./include" "Source Code (C, C++)"
 print_loc_for_dirs "./Scripts" "Scripts (Python, Bash)"
 print_loc_for_dirs "./Tools/Tests/ ./Tools/tests.jsonc ./TaskFiles/" "Tests (JSON, JSONC, nebs)"
 print_loc_for_dirs "./Resources" "Resources (JSON, JSOC)"
+print_loc_for_dirs "./interface" "Interfaces (Go)"

@@ -451,12 +451,12 @@ void JSON::setEmptyArray(char const* key) {
 //------------------------------------------
 // Serialize/Deserialize
 
-std::string JSON::serialize(std::string const& key) const {
+std::string JSON::serialize(std::string const& key, RjDirectAccess::SerializationType type) const {
     std::scoped_lock const lockGuard(mtx);
     flush(); // Ensure all changes are reflected in the document
     if (key.empty()) {
         // Serialize entire doc
-        return RjDirectAccess::serialize(doc);
+        return RjDirectAccess::serialize(doc, type);
     }
     JSON const sub = getSubDoc(key);
     return sub.serialize();

@@ -13,6 +13,7 @@ set(IMGUI_PATH          "${CMAKE_SOURCE_DIR}/external/imgui")
 set(RAPIDJSON_PATH      "${CMAKE_SOURCE_DIR}/external/rapidjson")
 set(TINYEXPR_PATH       "${CMAKE_SOURCE_DIR}/external/tinyexpr")
 set(ABSEIL_PATH         "${CMAKE_SOURCE_DIR}/external/abseil")
+set(STB_PATH            "${CMAKE_SOURCE_DIR}/external/stb")
 
 ############################################################
 # Function to setup external subdirectories
@@ -48,6 +49,7 @@ function(configure_common_dependencies target_name)
             ${SDL3_IMAGE_PATH}/include
             ${IMGUI_PATH}
             ${IMGUI_PATH}/backends
+            ${STB_PATH}
     )
 
     # Setup imgui library

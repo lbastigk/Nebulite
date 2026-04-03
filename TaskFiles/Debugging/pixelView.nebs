@@ -1,0 +1,11 @@
+set-fps 1000
+wait 1
+imgui-view on
+eval set benchmark.startTime {global.time.runtime.t}
+wait 1
+dump-view
+wait 1
+eval set benchmark.endTime {global.time.runtime.t}
+eval echo {global.benchmark.startTime} -> {global.benchmark.endTime}
+eval echo "Elapsed time per view: $i(1000*({global.benchmark.endTime} - {global.benchmark.startTime})/10) ms"
+exit

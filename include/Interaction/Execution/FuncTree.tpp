@@ -169,7 +169,8 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(WrappedFunction cons
     bindingContainer.functions.emplace(
         std::string(name),
         FunctionInfo{
-            func, helpDescription
+            func,
+            std::string(helpDescription)
         }
     );
 }
@@ -214,7 +215,7 @@ void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
             standardReturn.valFunctionNotFound,
             capture
         ),
-        helpDescription
+        std::string(helpDescription)
     };
 }
 
@@ -231,7 +232,7 @@ void FuncTree<returnValue, additionalArgs...>::bindVariable(bool* varPtr, std::s
     }
 
     // Bind the variable
-    bindingContainer.variables.emplace(name, VariableInfo{varPtr, helpDescription});
+    bindingContainer.variables.emplace(name, VariableInfo{varPtr, std::string(helpDescription)});
 
     // Use the variable pointer once to silence "can be made const" warnings
     bool const val = *varPtr;

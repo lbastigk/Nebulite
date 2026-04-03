@@ -152,12 +152,18 @@ public:
     //------------------------------------------
     // Serialization/Deserialization
 
+    enum class SerializationType {
+        compact,
+        pretty
+    };
+
     /**
      * @brief Serializes a rapidjson document to a string.
      * @param doc The rapidjson document to serialize.
+     * @param type Type of serialization. Defaults to pretty printing.
      * @return The serialized JSON string.
      */
-    static std::string serialize(rapidjson::Document const& doc);
+    static std::string serialize(rapidjson::Document const& doc, SerializationType type = SerializationType::pretty);
 
     static std::string serialize(rapidjson::Value const& val);
 

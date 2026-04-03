@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Mon Mar 16 14:40:53 CET 2026
+Generated on: Fri Apr  3 14:10:19 CEST 2026
 
 ## Table of Contents
 
@@ -25,6 +25,7 @@ Available Functions
 | `always` | Attach a command to the always-taskqueue that is executed on each tick. |
 | `always-clear` | Clears the entire always-taskqueue. |
 | `assert` | Asserts a condition and throws a custom error if false. |
+| `assign` | Assign a key to a value in the JSON document (self) or the global context (global) |
 | `audio-debug` | Audio debugging functions. |
 | `beep` | Make a beep noise. |
 | `cam` | Renderer Camera Functions |
@@ -32,9 +33,10 @@ Available Functions
 | `console` | Console commands and settings. |
 | `copy` | Copy data from one key to another. |
 | `crash` | Crashes the program, useful for checking if the testing suite can catch crashes. |
-| `critical` | Returns a critical error. |
+| `critical` | Sends an error to the capture. |
 | `debug` | DomainModule for special debugging capabilities within the GlobalSpace. |
 | `draft` | Functions to manipulate and spawn RenderObjects in draft state |
+| `dump-view` | Dump the current view of the renderer to the console, as JSON. |
 | `echo` | Echoes all arguments as string to the standard output. |
 | `ensure-array` | Ensure that a key is an array, converting a value to an array if necessary. |
 | `env` | Environment management functions |
@@ -65,7 +67,6 @@ Available Functions
 | `push-back` | Push a value to the back of an array. |
 | `push-front` | Push a value to the front of an array. |
 | `query` | Functions to manipulate JSON data via SQL query results |
-| `return` | Returns a custom value as a Critical Error. |
 | `ruleset` | Functions for managing rulesets in the GlobalSpace. |
 | `selected-object` | Functions to select and interact with a selected RenderObject |
 | `set` | Set a key to a value in the JSON document. |
@@ -79,7 +80,7 @@ Available Functions
 | `task` | Loads tasks from a file into the taskQueue. |
 | `time` | Commands for time management |
 | `wait` | Sets the waitCounter to the given value to halt all script tasks for a given amount of frames. |
-| `warn` | Returns a warning: a custom, noncritical error. |
+| `warn` | Sends a warning to the capture. |
 
 Available Variables
 
@@ -136,6 +137,18 @@ Example:
 assert '$(eq(1+1,2))'    // No error
 assert '$(eq(1+1,3))'    // Critical Error: A custom assertion failed.
 Assertion failed: $(eq(1+1,3)) is not true.
+```
+
+#### `assign`
+
+```
+Assign a key to a value in the JSON document (self) or the global context (global)
+
+Usage: assign <context>.<key> <assignment-operator> <expression>
+
+Example: 'assign global.rngCurrentValuesCopy = {global.random}Supports complex types like arrays or objects.
+The assignment has full access to the entire global scope here, so be cautious when using this function to overwrite global values.
+Use json set instead, if you only wish to modify values in the context self with no special operators.
 ```
 
 #### `audio-debug`
@@ -261,7 +274,7 @@ Usage: crash [<type>]
 #### `critical`
 
 ```
-Returns a critical error.
+Sends an error to the capture.
 Usage: critical <string>
 
 - <string>: The critical error message.
@@ -339,6 +352,15 @@ Tries to bind a variable name to globalspace that is already registered, expecti
 Usage: debug collision-detect variable [fail/succeed]
 
 Defaults to fail
+```
+
+#### `dump-view`
+
+```
+Dump the current view of the renderer to the console, as JSON.
+The dump is not synchronous with the call, but is executed after the next render pass.
+
+Usage: dump-view
 ```
 
 #### `echo`
@@ -626,6 +648,7 @@ json set namesStartingWithF {global.names|filterGlob F*}
 json set userInfo {global.users|filterRegex {!^user[0-9]+$}}
 json set readOnlyDoc {./Resources/sample.json:key1.key2}
 json set sizeCopy {self.size}
+Same as the function 'assign', but does not allow assigning values in the Global context, and is only for set ('=') operations.
 ```
 
 #### `keyDelete`
@@ -763,23 +786,6 @@ Available Functions
 ```
 Sets a key from a SQL query result.
 Not implemented yet.
-```
-
-#### `return`
-
-```
-Returns a custom value as a Critical Error.
-
-Usage: return <string>
-
-This command creates a custom critical error with the given string as description.
-This can be used to exit from a task queue with a custom message.
-
-Example:
-./bin/Nebulite return We did not anticipate this happening, weird.
-Outputs:
-We did not anticipate this happening, weird.
-Critical Error: We did not anticipate this happening, weird.
 ```
 
 #### `ruleset`
@@ -1078,7 +1084,7 @@ This is useful for:- Creating pauses in scripts to wait for certain conditions t
 #### `warn`
 
 ```
-Returns a warning: a custom, noncritical error.
+Sends a warning to the capture.
 Usage: warn <string>
 
 - <string>: The warning message.
@@ -1095,8 +1101,9 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `assert` | Asserts a condition and throws a custom error if false. |
+| `assign` | Assign a key to a value in the JSON document (self) or the global context (global) |
 | `copy` | Copy data from one key to another. |
-| `critical` | Returns a critical error. |
+| `critical` | Sends an error to the capture. |
 | `delete` | Marks object for deletion |
 | `echo` | Echoes all arguments as string to the standard output. |
 | `ensure-array` | Ensure that a key is an array, converting a value to an array if necessary. |
@@ -1119,10 +1126,9 @@ Available Functions
 | `push-back` | Push a value to the back of an array. |
 | `push-front` | Push a value to the front of an array. |
 | `query` | Functions to manipulate JSON data via SQL query results |
-| `return` | Returns a custom value as a Critical Error. |
 | `ruleset` | Ruleset management functions for the RenderObject domain. |
 | `set` | Set a key to a value in the JSON document. |
-| `warn` | Returns a warning: a custom, noncritical error. |
+| `warn` | Sends a warning to the capture. |
 
 #### `assert`
 
@@ -1139,6 +1145,18 @@ assert '$(eq(1+1,3))'    // Critical Error: A custom assertion failed.
 Assertion failed: $(eq(1+1,3)) is not true.
 ```
 
+#### `assign`
+
+```
+Assign a key to a value in the JSON document (self) or the global context (global)
+
+Usage: assign <context>.<key> <assignment-operator> <expression>
+
+Example: 'assign global.rngCurrentValuesCopy = {global.random}Supports complex types like arrays or objects.
+The assignment has full access to the entire global scope here, so be cautious when using this function to overwrite global values.
+Use json set instead, if you only wish to modify values in the context self with no special operators.
+```
+
 #### `copy`
 
 ```
@@ -1150,7 +1168,7 @@ Usage: copy <source_key> <destination_key>
 #### `critical`
 
 ```
-Returns a critical error.
+Sends an error to the capture.
 Usage: critical <string>
 
 - <string>: The critical error message.
@@ -1316,6 +1334,7 @@ json set namesStartingWithF {global.names|filterGlob F*}
 json set userInfo {global.users|filterRegex {!^user[0-9]+$}}
 json set readOnlyDoc {./Resources/sample.json:key1.key2}
 json set sizeCopy {self.size}
+Same as the function 'assign', but does not allow assigning values in the Global context, and is only for set ('=') operations.
 ```
 
 #### `keyDelete`
@@ -1507,23 +1526,6 @@ Sets a key from a SQL query result.
 Not implemented yet.
 ```
 
-#### `return`
-
-```
-Returns a custom value as a Critical Error.
-
-Usage: return <string>
-
-This command creates a custom critical error with the given string as description.
-This can be used to exit from a task queue with a custom message.
-
-Example:
-./bin/Nebulite return We did not anticipate this happening, weird.
-Outputs:
-We did not anticipate this happening, weird.
-Critical Error: We did not anticipate this happening, weird.
-```
-
 #### `ruleset`
 
 Available Functions
@@ -1567,7 +1569,7 @@ Note: All values are stored as strings.
 #### `warn`
 
 ```
-Returns a warning: a custom, noncritical error.
+Sends a warning to the capture.
 Usage: warn <string>
 
 - <string>: The warning message.
@@ -2070,8 +2072,8 @@ Usage: |setDouble <key> <value> -> {json}
 
 ```
 Sets the value at the specified key in the JSON document from the result of another transformation.
-Usage: |setFromResult <key> {!transformation} -> {json}
-The '!' is required, otherwise the nested variable is evaluated by the expression class before the transformation is applied!
+Usage: |setFromResult <key> <expression> -> {json}
+Inside the inner expression, all context is the own scope.
 ```
 
 #### `setInt`

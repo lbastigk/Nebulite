@@ -368,6 +368,12 @@ void Renderer::render() {
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
     SDL_RenderPresent(renderer);
 
+    // Execute post-render callbacks and clear them
+    for (auto const& callback : postRenderCallback) {
+        callback();
+    }
+    postRenderCallback.clear();
+
     // Start new imgui frame instantly, so that modules can render to it
     ImGui_ImplSDLRenderer3_NewFrame();
     ImGui_ImplSDL3_NewFrame();

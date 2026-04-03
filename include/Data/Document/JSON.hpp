@@ -519,9 +519,10 @@ public:
     /**
      * @brief Serializes the entire document or a portion of the document
      * @param key The key to serialize. (Optional: leave empty to serialize entire document)
+     * @param type Type of serialization. Defaults to pretty printing.
      * @return The serialized JSON string.
      */
-    std::string serialize(std::string const& key = "") const ;
+    std::string serialize(std::string const& key = "", RjDirectAccess::SerializationType type = RjDirectAccess::SerializationType::pretty) const ;
 
     /**
      * @brief Deserializes a JSON string or loads from a file, with optional modifications.
