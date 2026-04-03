@@ -48,18 +48,18 @@ public:
     //       3.) after that, we apply the forces using ::physics::applyForce
 
     void clip(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static constexpr std::string_view clipName = "::movement::clip";
-    static constexpr std::string_view clipDesc = "Global ruleset to handle collision clipping between entities. Affects forces of the entry listening to this ruleset.";
+    static std::string_view constexpr clipName = "::movement::clip";
+    static std::string_view constexpr clipDesc = "Global ruleset to handle collision clipping between entities. Affects forces of the entry listening to this ruleset.";
 
     void boxEdgeSliding(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static constexpr std::string_view boxEdgeSlidingName = "::movement::boxEdgeSliding";
-    static constexpr std::string_view boxEdgeSlidingDesc = "Global ruleset to handle edge sliding for box collisions. Affects forces of the entry listening to this ruleset.";
+    static std::string_view constexpr boxEdgeSlidingName = "::movement::boxEdgeSliding";
+    static std::string_view constexpr boxEdgeSlidingDesc = "Global ruleset to handle edge sliding for box collisions. Affects forces of the entry listening to this ruleset.";
 
     //------------------------------------------
     // Constructor
     Movement();
 
-    static constexpr std::string_view moduleName = "::movement";
+    static std::string_view constexpr moduleName = "::movement";
 private:
     //------------------------------------------
     // Base values for movement framework

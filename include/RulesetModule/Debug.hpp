@@ -25,18 +25,18 @@ public:
 
     // Provides a simple debug message to cout
     void message(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static constexpr std::string_view messageName = "::debug::message";
-    static constexpr std::string_view messageDesc = "Outputs a debug message to the standard output (cout).";
+    static std::string_view constexpr messageName = "::debug::message";
+    static std::string_view constexpr messageDesc = "Outputs a debug message to the standard output (cout).";
 
     // Provides a simple debug message to cerr
     void error(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static constexpr std::string_view errorName = "::debug::error";
-    static constexpr std::string_view errorDesc = "Outputs a debug error message to the standard error output (cerr).";
+    static std::string_view constexpr errorName = "::debug::error";
+    static std::string_view constexpr errorDesc = "Outputs a debug error message to the standard error output (cerr).";
 
     // Prints the ids of both contexts
     void whoInteracts(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static constexpr std::string_view whoInteractsName = "::debug::whoInteracts";
-    static constexpr std::string_view whoInteractsDesc = "Prints a message with the unique IDs of the self and other render object contexts.";
+    static std::string_view constexpr whoInteractsName = "::debug::whoInteracts";
+    static std::string_view constexpr whoInteractsDesc = "Prints a message with the unique IDs of the self and other render object contexts.";
 
     //------------------------------------------
     // Constructor
@@ -55,7 +55,7 @@ public:
         bind<whoInteractsName>(RulesetType::Global, &Debug::whoInteracts, whoInteractsDesc, baseListFunc);
     }
 
-    static constexpr std::string_view moduleName = "::debug";
+    static std::string_view constexpr moduleName = "::debug";
 private:
     //------------------------------------------
     // Base value caching
