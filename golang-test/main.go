@@ -2,122 +2,61 @@ package main
 
 import (
 	"bufio"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
-	"image"
-	"image/png"
 	"io"
-	"log"
-	"os"
 	"os/exec"
-	"strings"
 )
 
 func main() {
-	cmd := exec.Command("./bin/Nebulite", "--headless", "task", "TaskFiles/Debugging/pixelView.nebs")
+	cmd := exec.Command("stdbuf", "-oL", "-eL", "./bin/Nebulite", "always dump-view")
+
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("Error getting stdout:", err)
+		return
 	}
+
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("Error getting stderr:", err)
+		return
 	}
 
 	if err := cmd.Start(); err != nil {
-		log.Fatal(err)
+		fmt.Println("Error starting process:", err)
+		return
 	}
 
-	reader := bufio.NewReader(io.MultiReader(stdout, stderr))
-	var latestFrame map[string]interface{}
-	frameCount := 0
+	// Function now accepts io.Reader
+	readPipe := func(prefix string, pipe io.Reader) {
+		scanner := bufio.NewScanner(pipe)
 
-	for {
-		line, err := reader.ReadString('\n')
-		if err != nil {
-			if err == io.EOF {
-				break
+		BufferSizeMiB := 20 // 20 MiB buffer
+		buf := make([]byte, 0, BufferSizeMiB*1024*1024)
+		scanner.Buffer(buf, 1024*1024)
+
+		for scanner.Scan() {
+			line := scanner.Text()
+
+			if len(line) > 50 {
+				line = line[:50]
 			}
-			log.Fatal("Read error:", err)
+
+			fmt.Printf("[%s] %s\n", prefix, line)
 		}
 
-		line = strings.TrimSpace(line)
-		if line == "" {
-			continue
-		}
-
-		// Debug: first 100 characters
-		fmt.Println("DEBUG LINE:", line[:min(len(line), 100)])
-
-		if strings.HasPrefix(line, "{") {
-			var obj map[string]interface{}
-			if err := json.Unmarshal([]byte(line), &obj); err != nil {
-				fmt.Println("Failed to decode JSON:", err)
-				continue
-			}
-
-			// Debug keys
-			fmt.Printf("DEBUG: Read JSON keys: %v\n", keys(obj))
-
-			if t, ok := obj["type"]; ok && t == "frame" {
-				format, ok := obj["format"].(string)
-				if !ok || format != "rgba" {
-					log.Fatalf("Unsupported frame format: %v", obj["format"])
-				}
-
-				latestFrame = obj
-				frameCount++
-				fmt.Println("DEBUG: Latest frame updated, width/height/format:",
-					obj["width"], obj["height"], obj["format"])
-			}
+		if err := scanner.Err(); err != nil {
+			fmt.Println("Scanner error:", err)
 		}
 	}
 
-	fmt.Printf("Total frames found: %d\n", frameCount)
-	if latestFrame != nil {
-		encoded, _ := latestFrame["data"].(string)
-		width := int(latestFrame["width"].(float64))
-		height := int(latestFrame["height"].(float64))
+	go readPipe("COUT", stdout)
+	go readPipe("CERR", stderr)
 
-		rawData, err := base64.StdEncoding.DecodeString(encoded)
-		if err != nil {
-			log.Fatal("Base64 decode failed:", err)
-		}
-
-		// Convert raw RGBA bytes to image.RGBA
-		img := image.NewRGBA(image.Rect(0, 0, width, height))
-		copy(img.Pix, rawData)
-
-		// Save as PNG
-		fileName := "latest_frame.png"
-		outFile, err := os.Create(fileName)
-		if err != nil {
-			log.Fatal("Failed to create PNG file:", err)
-		}
-		defer outFile.Close()
-
-		if err := png.Encode(outFile, img); err != nil {
-			log.Fatal("Failed to encode PNG:", err)
-		}
-
-		fmt.Println("Frame saved as PNG to", fileName)
+	err = cmd.Wait()
+	if err != nil {
+		fmt.Println("Process exited with error:", err)
 	} else {
-		fmt.Println("No frame found in output.")
+		fmt.Println("Process exited normally")
 	}
-}
-
-func keys(m map[string]interface{}) []string {
-	ks := make([]string, 0, len(m))
-	for k := range m {
-		ks = append(ks, k)
-	}
-	return ks
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
 }
