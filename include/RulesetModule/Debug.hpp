@@ -41,11 +41,7 @@ public:
     //------------------------------------------
     // Constructor
     Debug() : RulesetModule(moduleName) {
-        std::function<double**(const Interaction::Execution::Domain&)> const baseListFunc = [this](const Interaction::Execution::Domain& domain) -> double** {
-            double** v;
-            ensureBaseList(domain, baseKeys, v);
-            return v;
-        };
+        auto const baseListFunc = generateBaseListFunction(baseKeys);
 
         // Local
         bind<messageName>(RulesetType::Local, &Debug::message, messageDesc, baseListFunc);

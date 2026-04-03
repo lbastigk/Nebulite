@@ -16,11 +16,7 @@
 namespace Nebulite::RulesetModule {
 
 Physics::Physics() : RulesetModule(moduleName) {
-    std::function<double**(const Interaction::Execution::Domain&)> const baseListFunc = [this](const Interaction::Execution::Domain& domain) -> double** {
-        double** v;
-        ensureBaseList(domain, baseKeys, v);
-        return v;
-    };
+    auto const baseListFunc = generateBaseListFunction(baseKeys);
 
     // Global rulesets
     bind<elasticCollisionName>(RulesetType::Global, &Physics::elasticCollision, elasticCollisionDesc, baseListFunc);
