@@ -14,17 +14,42 @@ Movement::Movement() : RulesetModule(moduleName) {
     auto const baseListFunc = generateBaseListFunction(baseKeys);
 
     // Global rulesets
+    bind<detectClippingName>(RulesetType::Global, &Movement::detectClipping, detectClippingDesc, baseListFunc);
+
+    // OLD
     bind<clipName>(RulesetType::Global, &Movement::clip, clipDesc, baseListFunc);
     bind<boxEdgeSlidingName>(RulesetType::Global, &Movement::boxEdgeSliding, boxEdgeSlidingDesc, baseListFunc);
 
     // Local rulesets
+    bind<processClippingName>(RulesetType::Local, &Movement::processClipping, processClippingDesc, baseListFunc);
 
     // Global Variables
     auto const token = getRulesetModuleAccessToken(*this);
     globalVal.dt = Global::shareScope(token).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_dt); // Simulation delta time
 }
 
-// Global rulesets
+
+void Movement::detectClipping(Interaction::Context const& context, double**& slf, double**& otr) const {
+    // Assume context part is circle if radius is set (> 0)
+    if (auto const& radius = Radius(slf, otr); radius.slf > 0.0 && radius.otr > 0.0) {
+        // TODO
+    }
+    else if (radius.slf > 0.0) {
+        // TODO
+    }
+    else if (radius.otr > 0.0) {
+        // TODO
+    }
+    else {
+        // TODO
+    }
+}
+
+void Movement::processClipping(Interaction::Context const& context, double**& slf, double**& otr) const {
+    // TODO ...
+}
+
+// Old Rulesets
 
 void Movement::collisionCircleCircle(Interaction::Context const& context, double**& slf, double**& otr) const {
     Global::capture().error.println("Circle-circle elastic clipping not yet implemented. Skipping ruleset.");

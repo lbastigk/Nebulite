@@ -28,10 +28,10 @@ public:
 
     // TODO: Needs rework. The idea of clipping + box Edge sliding doesn't work...
     //       New idea:
-    //       1.) ::movement::clip determines 8 different collisions:
+    //       1.) ::movement::detectClipping determines 8 different collisions:
     //       - north, east, south, west
     //       - cornerNW, cornerNE, cornerSE, cornerSW
-    //       2.) ::movement::processClip (local) then sets XY forces accordingly:
+    //       2.) ::movement::processClipping (local) then sets XY forces accordingly:
     //       if only one corner is active and no other normal direction -> edge sliding
     //       if any normal direction is active -> normal clipping
     //       That means:
@@ -46,6 +46,14 @@ public:
     //       CSW -> FY -= dF if FX != 0, FX -= dF if FY != 0
     //       CSE -> FY -= dF if FX != 0, FX += dF if FY != 0
     //       3.) after that, we apply the forces using ::physics::applyForce
+
+    void detectClipping(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    static std::string_view constexpr detectClippingName = "::movement::detectClipping";
+    static std::string_view constexpr detectClippingDesc = "Global ruleset to detect collision clipping between entities based on current forces. Sets detection directions and corners to true if a collision is detected.";
+
+    void processClipping(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    static std::string_view constexpr processClippingName = "::movement::processClipping";
+    static std::string_view constexpr processClippingDesc = "Local ruleset to process collision clipping for the self entry based on detected clipping directions and corners. Adjusts forces to achieve clipping and edge sliding behavior.";
 
     void clip(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static std::string_view constexpr clipName = "::movement::clip";
