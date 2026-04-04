@@ -28,27 +28,10 @@ public:
 
     // TODO: Needs rework. The idea of clipping + box Edge sliding doesn't work...
     //       New idea:
-    //       1.) ::movement::detectClipping determines 8 different collisions:
-    //       - north, east, south, west
-    //       - cornerNW, cornerNE, cornerSE, cornerSW
-    //       Current and projected cornering!
-    //       - write closest distance in each direction as well for repositioning
-    //       2.) ::movement::processClipping (local) then sets XY forces accordingly:
-    //       if only one corner is active and no other normal direction -> edge sliding
-    //       if any normal direction is active -> normal clipping
-    //       That means:
-    //       CNW   N    CNE
-    //       W    SLF      E   <- OTR
-    //       CSW   S    CSE
-    //       Then we set forces accordingly. For safety we may only set edge-sliding forces if there are no forces present in that direction?
-    //       N,S -> FY = 0
-    //       E,W -> FX = 0
-    //       CNW -> FY += dF if FX != 0, FX -= dF if FY != 0
-    //       CNE -> FY += dF if FX != 0, FX += dF if FY != 0
-    //       CSW -> FY -= dF if FX != 0, FX -= dF if FY != 0
-    //       CSE -> FY -= dF if FX != 0, FX += dF if FY != 0
-    //       Use the closest position to each direction to reposition: If force was set from nonzero to zero, reposition to the edge
+    //       1.) ::movement::detectClipping determines closest distance in each direction
+    //       2.) ::physics::storeLastPosition is required for applyClipping to work (TODO, not implemented yet!)
     //       3.) after that, we apply the forces using ::physics::applyForce
+    //       4.) ::movement::applyClipping then uses the closest distance and the applied dr from applyForce to reposition on each axis
 
     void detectClipping(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static std::string_view constexpr detectClippingName = "::movement::detectClipping";
@@ -93,15 +76,6 @@ private:
         DomainModule::GlobalSpace::Physics::Key::Local::m,
         DomainModule::GlobalSpace::Physics::Key::Local::FX,
         DomainModule::GlobalSpace::Physics::Key::Local::FY,
-        // Clipping
-        Data::ScopedKeyView("movement.clip.direction.north"),
-        Data::ScopedKeyView("movement.clip.direction.east"),
-        Data::ScopedKeyView("movement.clip.direction.south"),
-        Data::ScopedKeyView("movement.clip.direction.west"),
-        Data::ScopedKeyView("movement.clip.corner.NW"),
-        Data::ScopedKeyView("movement.clip.corner.NE"),
-        Data::ScopedKeyView("movement.clip.corner.SE"),
-        Data::ScopedKeyView("movement.clip.corner.SW"),
         // Closest X/Y
         Data::ScopedKeyView("movement.clip.closest.N"),
         Data::ScopedKeyView("movement.clip.closest.E"),
@@ -127,25 +101,11 @@ private:
         physics_mass,
         physics_FX,
         physics_FY,
-        // Clipping
-        clip_north,
-        clip_east,
-        clip_south,
-        clip_west,
-        clip_corner_NW,
-        clip_corner_NE,
-        clip_corner_SE,
-        clip_corner_SW,
         // Closest X/Y
         clip_closest_N,
         clip_closest_E,
         clip_closest_S,
         clip_closest_W,
-        // Closest X/Y from last frame
-        clip_closest_last_N,
-        clip_closest_last_E,
-        clip_closest_last_S,
-        clip_closest_last_W
     };
 
     // 2.) To retrieve from globalspace
