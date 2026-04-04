@@ -49,6 +49,7 @@
             "./Resources/Invokes/Animation/set_SpriteSheetOffsetX.jsonc",
             "./Resources/Invokes/Animation/set_SpriteSheetOffsetY.jsonc",
             "./Resources/Invokes/Movement/no_movement_on_attack.jsonc",
+            "::movement::processClipping",
             "./Resources/Invokes/Physics/applyForce.jsonc",
             "./Resources/Invokes/Movement/movement_wasd_to_v.jsonc", // Apply velocity after forces to prevent input overriding physics setting velocity
             "./Resources/Invokes/Physics/normalize_v_to_physics-vNorm.jsonc",
@@ -56,8 +57,7 @@
         ],
         "listen": [
             "all",
-            "::movement::boxEdgeSliding",
-            "::movement::clip"
+            "::movement::detectClipping"
         ]
     },
     "size": {

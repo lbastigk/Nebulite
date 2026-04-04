@@ -41,12 +41,71 @@ void Movement::detectClipping(Interaction::Context const& context, double**& slf
         // TODO
     }
     else {
-        // TODO
+        double const& p1X = baseVal(slf, Key::posX);
+        double const& p1Y = baseVal(slf, Key::posY);
+        double const& p2X = baseVal(otr, Key::posX);
+        double const& p2Y = baseVal(otr, Key::posY);
+        double const& size1X = baseVal(slf, Key::sizeX);
+        double const& size1Y = baseVal(slf, Key::sizeY);
+        double const& size2X = baseVal(otr, Key::sizeX);
+        double const& size2Y = baseVal(otr, Key::sizeY);
+        double const& m1 = baseVal(slf, Key::physics_mass);
+        double const& m2 = baseVal(otr, Key::physics_mass);
+
+        if (bool const baseCondition = m1 > 0.0 && m2 > 0.0; baseCondition) {
+            // Determine if they align along an axis
+            bool const axisAlignX = std::max(p1X, p2X) < std::min(p1X + size1X, p2X + size2X);
+            bool const axisAlignY = std::max(p1Y, p2Y) < std::min(p1Y + size1Y, p2Y + size2Y);
+
+            bool const isNorth = axisAlignX && (p1Y + size1Y <= p2Y);
+            bool const isEast = axisAlignY && (p1X >= p2X + size2X);
+            bool const isSouth = axisAlignX && (p1Y >= p2Y + size2Y);
+            bool const isWest = axisAlignY && (p1X + size1X <= p2X);
+
+            if (isNorth) {
+                double const dist = p2Y - p1Y - size1Y;
+                auto lock = context.other.lockDocument();
+                if (double& closestCurrent = baseVal(otr, Key::clip_closest_N); closestCurrent > dist) {
+                    closestCurrent = dist;
+                }
+            }
+            if (isEast) {
+                double const dist = p1X - p2X - size2X;
+                auto lock = context.other.lockDocument();
+                if (double& closestCurrent = baseVal(otr, Key::clip_closest_E); closestCurrent > dist) {
+                    closestCurrent = dist;
+                }
+            }
+            if (isSouth) {
+                double const dist = p1Y - p2Y - size2Y;
+                auto lock = context.other.lockDocument();
+                if (double& closestCurrent = baseVal(otr, Key::clip_closest_S); closestCurrent > dist) {
+                    closestCurrent = dist;
+                }
+            }
+            if (isWest) {
+                double const dist = p2X - p1X - size1X;
+                auto lock = context.other.lockDocument();
+                if (double& closestCurrent = baseVal(otr, Key::clip_closest_W); closestCurrent > dist) {
+                    closestCurrent = dist;
+                }
+            }
+        }
     }
 }
 
 void Movement::processClipping(Interaction::Context const& context, double**& slf, double**& otr) const {
-    // TODO ...
+    double& N = baseVal(slf, Key::clip_closest_N);
+    double& E = baseVal(slf, Key::clip_closest_E);
+    double& S = baseVal(slf, Key::clip_closest_S);
+    double& W = baseVal(slf, Key::clip_closest_W);
+
+    // Set clip values to max double for next frame's detection
+    auto lock = context.self.lockDocument();
+    N = DBL_MAX;
+    E = DBL_MAX;
+    S = DBL_MAX;
+    W = DBL_MAX;
 }
 
 // Old Rulesets

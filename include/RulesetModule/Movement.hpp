@@ -31,6 +31,8 @@ public:
     //       1.) ::movement::detectClipping determines 8 different collisions:
     //       - north, east, south, west
     //       - cornerNW, cornerNE, cornerSE, cornerSW
+    //       Current and projected cornering!
+    //       - write closest distance in each direction as well for repositioning
     //       2.) ::movement::processClipping (local) then sets XY forces accordingly:
     //       if only one corner is active and no other normal direction -> edge sliding
     //       if any normal direction is active -> normal clipping
@@ -45,6 +47,7 @@ public:
     //       CNE -> FY += dF if FX != 0, FX += dF if FY != 0
     //       CSW -> FY -= dF if FX != 0, FX -= dF if FY != 0
     //       CSE -> FY -= dF if FX != 0, FX += dF if FY != 0
+    //       Use the closest position to each direction to reposition: If force was set from nonzero to zero, reposition to the edge
     //       3.) after that, we apply the forces using ::physics::applyForce
 
     void detectClipping(Interaction::Context const& context, double**& slf, double**& otr) const ;
@@ -98,7 +101,12 @@ private:
         Data::ScopedKeyView("movement.clip.corner.NW"),
         Data::ScopedKeyView("movement.clip.corner.NE"),
         Data::ScopedKeyView("movement.clip.corner.SE"),
-        Data::ScopedKeyView("movement.clip.corner.SW")
+        Data::ScopedKeyView("movement.clip.corner.SW"),
+        // Closest X/Y
+        Data::ScopedKeyView("movement.clip.closest.N"),
+        Data::ScopedKeyView("movement.clip.closest.E"),
+        Data::ScopedKeyView("movement.clip.closest.S"),
+        Data::ScopedKeyView("movement.clip.closest.W"),
     };
 
     /**
@@ -127,7 +135,17 @@ private:
         clip_corner_NW,
         clip_corner_NE,
         clip_corner_SE,
-        clip_corner_SW
+        clip_corner_SW,
+        // Closest X/Y
+        clip_closest_N,
+        clip_closest_E,
+        clip_closest_S,
+        clip_closest_W,
+        // Closest X/Y from last frame
+        clip_closest_last_N,
+        clip_closest_last_E,
+        clip_closest_last_S,
+        clip_closest_last_W
     };
 
     // 2.) To retrieve from globalspace
