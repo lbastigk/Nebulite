@@ -40,6 +40,10 @@ public:
 
     // Local rulesets
 
+    void storeLastPosition(Interaction::Context const& context, double**& slf, double**& otr) const;
+    static std::string_view constexpr storeLastPositionName = "::physics::storeLastPosition";
+    static std::string_view constexpr storeLastPositionDesc = "Stores the current position. Should be called before ::physics::applyForce.";
+
     void applyForce(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static std::string_view constexpr applyForceName = "::physics::applyForce";
     static std::string_view constexpr applyForceDesc = "Applies accumulated forces to the render object's acceleration, velocity, and position based on its mass and the simulation delta time.";
@@ -88,7 +92,9 @@ private:
         DomainModule::GlobalSpace::Physics::Key::Local::Correction::vY,
         // More specialized keys
         DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeX,
-        DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeY
+        DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeY,
+        Data::ScopedKeyView("physics.last.position.X"),
+        Data::ScopedKeyView("physics.last.position.Y")
     };
 
     /**
@@ -118,7 +124,9 @@ private:
         physics_correction_vY,
         // More specialized keys
         physics_lastCollisionX,
-        physics_lastCollisionY
+        physics_lastCollisionY,
+        physics_lastPositionX,
+        physics_lastPositionY,
     };
 
     // 2.) To retrieve from GlobalSpace

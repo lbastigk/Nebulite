@@ -28,8 +28,8 @@ public:
 
     // TODO: Needs rework. The idea of clipping + box Edge sliding doesn't work...
     //       New idea:
-    //       1.) ::movement::detectClipping determines closest distance in each direction
-    //       2.) ::physics::storeLastPosition is required for applyClipping to work (TODO, not implemented yet!)
+    //       1.) ::movement::detectClipping listen determines closest distance in each direction
+    //       2.) ::physics::storeLastPosition is required for applyClipping to work
     //       3.) after that, we apply the forces using ::physics::applyForce
     //       4.) ::movement::applyClipping then uses the closest distance and the applied dr from applyForce to reposition on each axis
 

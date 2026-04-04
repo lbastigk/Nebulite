@@ -23,6 +23,7 @@ Physics::Physics() : RulesetModule(moduleName) {
     bind<gravityName>(RulesetType::Global, &Physics::gravity, gravityDesc, baseListFunc);
 
     // Local rulesets
+    bind<storeLastPositionName>(RulesetType::Local, &Physics::storeLastPosition, storeLastPositionDesc, baseListFunc);
     bind<applyForceName>(RulesetType::Local, &Physics::applyForce, applyForceDesc, baseListFunc);
     bind<applyCorrectionName>(RulesetType::Local, &Physics::applyCorrection, applyCorrectionDesc, baseListFunc);
     bind<dragName>(RulesetType::Local, &Physics::drag, dragDesc, baseListFunc);
@@ -152,6 +153,11 @@ void Physics::gravity(Interaction::Context const& context, double**& slf, double
 }
 
 // Local rulesets
+
+void Physics::storeLastPosition(Interaction::Context const& context, double**& slf, double**& otr) const {
+    baseVal(slf, Key::physics_lastPositionX) = baseVal(slf, Key::posX);
+    baseVal(slf, Key::physics_lastPositionY) = baseVal(slf, Key::posY);
+}
 
 void Physics::applyForce(Interaction::Context const& /*context*/, double**& slf, double**&) const {
     // Pre-calculate values before locking
