@@ -119,6 +119,13 @@ protected:
      */
     void ensureBaseList(Execution::Domain const& domain, std::vector<Data::ScopedKeyView> const& keys, double**& arr) const ;
 
+    /**
+     * @brief Generates a BaseList-ensurer function for any provided keys.
+     * @param baseKeys The key list to retrieve
+     * @return The BaseList-ensurer function.
+     */
+    std::function<double**(const Execution::Domain&)> generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const ;
+
 private:
     // Vector of all static rulesets from this module
     std::vector<StaticRulesetMap::StaticRuleSetWithMetaData> moduleRulesets;

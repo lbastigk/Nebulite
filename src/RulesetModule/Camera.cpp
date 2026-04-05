@@ -5,11 +5,7 @@
 namespace Nebulite::RulesetModule {
 
 Camera::Camera() : RulesetModule(moduleName) {
-    std::function<double**(const Interaction::Execution::Domain&)> const baseListFunc = [this](const Interaction::Execution::Domain& domain) -> double** {
-        double** v;
-        ensureBaseList(domain, baseKeys, v);
-        return v;
-    };
+    auto const baseListFunc = generateBaseListFunction(baseKeys);
 
     // Bind Camera-related static rulesets here
     bind<alignCenterName>(RulesetType::Local, &Camera::alignCenter, alignCenterDesc, baseListFunc);

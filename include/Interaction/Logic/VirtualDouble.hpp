@@ -53,9 +53,9 @@ class VirtualDouble {
      * @brief Key prefixes for different contexts.
      */
     struct ContextPrefix {
-        static constexpr std::string_view self   = "self.";
-        static constexpr std::string_view other  = "other.";
-        static constexpr std::string_view global = "global.";
+        static std::string_view constexpr self   = "self.";
+        static std::string_view constexpr other  = "other.";
+        static std::string_view constexpr global = "global.";
     };
 
 public:

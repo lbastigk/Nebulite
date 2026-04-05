@@ -31,32 +31,37 @@ public:
     // Global rulesets
 
     void elasticCollision(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static constexpr std::string_view elasticCollisionName = "::physics::elasticCollision";
-    static constexpr std::string_view elasticCollisionDesc = "Applies elastic collision velocity corrections between two RenderObjects based on their masses and velocities.";
+    static std::string_view constexpr elasticCollisionName = "::physics::elasticCollision";
+    static std::string_view constexpr elasticCollisionDesc = "Applies elastic collision velocity corrections between two RenderObjects based on their masses and velocities.";
 
     void gravity(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static constexpr std::string_view gravityName = "::physics::gravity";
-    static constexpr std::string_view gravityDesc = "Applies gravitational force between two render objects based on their masses and the gravitational constant.";
+    static std::string_view constexpr gravityName = "::physics::gravity";
+    static std::string_view constexpr gravityDesc = "Applies gravitational force between two render objects based on their masses and the gravitational constant.";
 
     // Local rulesets
 
+    void storeLastPosition(Interaction::Context const& context, double**& slf, double**& otr) const;
+    static std::string_view constexpr storeLastPositionName = "::physics::storeLastPosition";
+    static std::string_view constexpr storeLastPositionDesc = "Stores the current position. Should be called before ::physics::applyForce.";
+
     void applyForce(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static constexpr std::string_view applyForceName = "::physics::applyForce";
-    static constexpr std::string_view applyForceDesc = "Applies accumulated forces to the render object's acceleration, velocity, and position based on its mass and the simulation delta time.";
+    static std::string_view constexpr applyForceName = "::physics::applyForce";
+    static std::string_view constexpr applyForceDesc = "Applies accumulated forces to the render object's acceleration, velocity, and position based on its mass and the simulation delta time.";
 
     void applyCorrection(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static constexpr std::string_view applyCorrectionName = "::physics::applyCorrection";
-    static constexpr std::string_view applyCorrectionDesc = "Applies position and velocity corrections to resolve overlaps and prevent tunneling.";
+    static std::string_view constexpr applyCorrectionName = "::physics::applyCorrection";
+    static std::string_view constexpr applyCorrectionDesc = "Applies position and velocity corrections to resolve overlaps and prevent tunneling.";
 
     void drag(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static constexpr std::string_view dragName = "::physics::drag";
-    static constexpr std::string_view dragDesc = "Applies drag force to the render object, simulating air resistance based on its velocity and a drag coefficient.";
+    static std::string_view constexpr dragName = "::physics::drag";
+    static std::string_view constexpr dragDesc = "Applies drag force to the render object, simulating air resistance based on its velocity and a drag coefficient.";
 
     //------------------------------------------
     // Constructor
     Physics();
 
-    static constexpr std::string_view moduleName = "::physics";
+    static std::string_view constexpr moduleName = "::physics";
+
 private:
     //------------------------------------------
     // Base values for physics framework
@@ -89,7 +94,8 @@ private:
         // More specialized keys
         DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeX,
         DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeY,
-
+        DomainModule::GlobalSpace::Physics::Key::Local::lastPositionX,
+        DomainModule::GlobalSpace::Physics::Key::Local::lastPositionY
     };
 
     /**
@@ -119,7 +125,9 @@ private:
         physics_correction_vY,
         // More specialized keys
         physics_lastCollisionX,
-        physics_lastCollisionY
+        physics_lastCollisionY,
+        physics_lastPositionX,
+        physics_lastPositionY,
     };
 
     // 2.) To retrieve from GlobalSpace

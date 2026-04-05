@@ -89,6 +89,10 @@ public:
             // More specialized, but still useful keys
             static auto constexpr lastCollisionTimeX = makeScoped("collision.time.lastX");
             static auto constexpr lastCollisionTimeY = makeScoped("collision.time.lastY");
+
+            // Last X/Y Pos
+            static auto constexpr lastPositionX = makeScoped("last.position.X");
+            static auto constexpr lastPositionY = makeScoped("last.position.Y");
         };
     };
 

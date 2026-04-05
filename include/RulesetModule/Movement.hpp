@@ -26,40 +26,20 @@ public:
 
     // Global rulesets
 
-    // TODO: Needs rework. The idea of clipping + box Edge sliding doesn't work...
-    //       New idea:
-    //       1.) ::movement::clip determines 8 different collisions:
-    //       - north, east, south, west
-    //       - cornerNW, cornerNE, cornerSE, cornerSW
-    //       2.) ::movement::processClip (local) then sets XY forces accordingly:
-    //       if only one corner is active and no other normal direction -> edge sliding
-    //       if any normal direction is active -> normal clipping
-    //       That means:
-    //       CNW   N    CNE
-    //       W    SLF      E   <- OTR
-    //       CSW   S    CSE
-    //       Then we set forces accordingly. For safety we may only set edge-sliding forces if there are no forces present in that direction?
-    //       N,S -> FY = 0
-    //       E,W -> FX = 0
-    //       CNW -> FY += dF if FX != 0, FX -= dF if FY != 0
-    //       CNE -> FY += dF if FX != 0, FX += dF if FY != 0
-    //       CSW -> FY -= dF if FX != 0, FX -= dF if FY != 0
-    //       CSE -> FY -= dF if FX != 0, FX += dF if FY != 0
-    //       3.) after that, we apply the forces using ::physics::applyForce
+    void detectClipping(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    static std::string_view constexpr detectClippingName = "::movement::detectClipping";
+    static std::string_view constexpr detectClippingDesc = "Global ruleset to detect the closest object in each direction. The listeners distance is set.";
 
-    void clip(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static constexpr std::string_view clipName = "::movement::clip";
-    static constexpr std::string_view clipDesc = "Global ruleset to handle collision clipping between entities. Affects forces of the entry listening to this ruleset.";
-
-    void boxEdgeSliding(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static constexpr std::string_view boxEdgeSlidingName = "::movement::boxEdgeSliding";
-    static constexpr std::string_view boxEdgeSlidingDesc = "Global ruleset to handle edge sliding for box collisions. Affects forces of the entry listening to this ruleset.";
+    void processClipping(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    static std::string_view constexpr processClippingName = "::movement::processClipping";
+    static std::string_view constexpr processClippingDesc = "Local ruleset to process collision clipping for the self entry based on position delta and closest objects.\n"
+        "Call this ruleset after ::physics::applyForce. Requires ::physics::storeLastPosition to be called before ::physics::applyForce.";
 
     //------------------------------------------
     // Constructor
     Movement();
 
-    static constexpr std::string_view moduleName = "::movement";
+    static std::string_view constexpr moduleName = "::movement";
 private:
     //------------------------------------------
     // Base values for movement framework
@@ -70,16 +50,26 @@ private:
      * @brief List of keys for per-object movement-related base values in the ordered cache list.
      */
     const std::vector<Data::ScopedKeyView> baseKeys = {
+        // Position and size
         Constants::KeyNames::RenderObject::positionX,
         Constants::KeyNames::RenderObject::positionY,
         Constants::KeyNames::RenderObject::sizeX,
         Constants::KeyNames::RenderObject::sizeY,
         Constants::KeyNames::RenderObject::sizeR,
+        // Physics
         DomainModule::GlobalSpace::Physics::Key::Local::vX,
         DomainModule::GlobalSpace::Physics::Key::Local::vY,
         DomainModule::GlobalSpace::Physics::Key::Local::m,
         DomainModule::GlobalSpace::Physics::Key::Local::FX,
-        DomainModule::GlobalSpace::Physics::Key::Local::FY
+        DomainModule::GlobalSpace::Physics::Key::Local::FY,
+        // Closest X/Y
+        Data::ScopedKeyView("movement.clip.closest.N"),
+        Data::ScopedKeyView("movement.clip.closest.E"),
+        Data::ScopedKeyView("movement.clip.closest.S"),
+        Data::ScopedKeyView("movement.clip.closest.W"),
+        // X/Y last pos
+        DomainModule::GlobalSpace::Physics::Key::Local::lastPositionX,
+        DomainModule::GlobalSpace::Physics::Key::Local::lastPositionY
     };
 
     /**
@@ -88,16 +78,26 @@ private:
      *        Used for indexing into the ordered cache list.
      */
     enum class Key : std::size_t {
+        // Position and size
         posX,
         posY,
         sizeX,
         sizeY,
         sizeR,
+        // Physics
         physics_vX,
         physics_vY,
         physics_mass,
         physics_FX,
         physics_FY,
+        // Closest X/Y
+        clip_closest_N,
+        clip_closest_E,
+        clip_closest_S,
+        clip_closest_W,
+        // X/Y last
+        position_last_X,
+        position_last_Y
     };
 
     // 2.) To retrieve from globalspace
@@ -118,11 +118,6 @@ private:
         : slf(baseVal(slfBase, Key::sizeR)), otr(baseVal(otrBase, Key::sizeR))
         {}
     };
-
-    void collisionCircleCircle(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    void collisionCircleBox(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    void collisionBoxCircle(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    void collisionBoxBox(Interaction::Context const& context, double**& slf, double**& otr) const ;
 };
 } // namespace Nebulite::RulesetModule
 #endif // NEBULITE_RULESET_MODULE_MOVEMENT_HPP

@@ -16,17 +16,14 @@
 namespace Nebulite::RulesetModule {
 
 Physics::Physics() : RulesetModule(moduleName) {
-    std::function<double**(const Interaction::Execution::Domain&)> const baseListFunc = [this](const Interaction::Execution::Domain& domain) -> double** {
-        double** v;
-        ensureBaseList(domain, baseKeys, v);
-        return v;
-    };
+    auto const baseListFunc = generateBaseListFunction(baseKeys);
 
     // Global rulesets
     bind<elasticCollisionName>(RulesetType::Global, &Physics::elasticCollision, elasticCollisionDesc, baseListFunc);
     bind<gravityName>(RulesetType::Global, &Physics::gravity, gravityDesc, baseListFunc);
 
     // Local rulesets
+    bind<storeLastPositionName>(RulesetType::Local, &Physics::storeLastPosition, storeLastPositionDesc, baseListFunc);
     bind<applyForceName>(RulesetType::Local, &Physics::applyForce, applyForceDesc, baseListFunc);
     bind<applyCorrectionName>(RulesetType::Local, &Physics::applyCorrection, applyCorrectionDesc, baseListFunc);
     bind<dragName>(RulesetType::Local, &Physics::drag, dragDesc, baseListFunc);
@@ -156,6 +153,12 @@ void Physics::gravity(Interaction::Context const& context, double**& slf, double
 }
 
 // Local rulesets
+
+// NOLINTNEXTLINE
+void Physics::storeLastPosition(Interaction::Context const& /*context*/, double**& slf, double**& /*otr*/) const {
+    baseVal(slf, Key::physics_lastPositionX) = baseVal(slf, Key::posX);
+    baseVal(slf, Key::physics_lastPositionY) = baseVal(slf, Key::posY);
+}
 
 void Physics::applyForce(Interaction::Context const& /*context*/, double**& slf, double**&) const {
     // Pre-calculate values before locking

@@ -13,19 +13,4 @@
 echo "Starting profiling.nebs"
 # -----------------------------------------------------------------------------
 
-# SETTINGS
-set benchmark.count 10
-
-#################
-set-fps 10000
-wait 1000 # For FPS to stabilize
-eval set benchmark.startTime {global.time.runtime.t}
-wait 1
-always dump-view
-eval wait {global.benchmark.count}
-always-clear
-wait 1
-eval set benchmark.endTime {global.time.runtime.t}
-eval echo {global.benchmark.startTime} -> {global.benchmark.endTime}
-eval echo "Elapsed time per view: $i(1000*({global.benchmark.endTime} - {global.benchmark.startTime})/{global.benchmark.count}) ms"
-exit
+task TaskFiles/Benchmarks/transformation.nebs
