@@ -5,13 +5,13 @@
 #include <random>
 
 // External
-#include <SDL3_image/SDL_image.h>
 #include <absl/container/flat_hash_map.h>
 #include <imgui_impl_sdl3.h>
-#include "imgui_impl_sdlrenderer3.h"
+#include <imgui_impl_sdlrenderer3.h>
+#include <RmlUi/Core/Input.h>
+#include <SDL3_image/SDL_image.h>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Constants/KeyNames.hpp"
 #include "Core/Environment.hpp"
 #include "Core/Renderer.hpp"
@@ -19,6 +19,7 @@
 #include "DomainModule/GlobalSpace/Settings.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "Interaction/Invoke.hpp"
+#include "Nebulite.hpp"
 #include "Utility/FileManagement.hpp"
 #include "Utility/TimeKeeper.hpp"
 
@@ -51,6 +52,26 @@ Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, Util
     //------------------------------------------
     // Domain Modules
     DomainModule::Initializer::initRenderer(this);
+}
+
+Renderer::~Renderer() {
+
+    // Clean up SDL resources
+    if (renderer) {
+        SDL_DestroyRenderer(renderer);
+        renderer = nullptr;
+    }
+    if (window) {
+        SDL_DestroyWindow(window);
+        window = nullptr;
+    }
+    // Quit SDL subsystems
+    if (!status.sdlInitialized)
+        return;
+    Rml::Shutdown();
+    //IMG_Quit();
+    TTF_Quit();
+    SDL_Quit();
 }
 
 // TODO: Move all settings to workspace!
@@ -161,9 +182,8 @@ void Renderer::initImgui() const {
     font_cfg.PixelSnapH  = true;
 
     // Adjust the base font size to match pixel aesthetics (choose your font file & size)e
-    std::string const pixelFontPath = "./Resources/Fonts/JetBrainsMono-Regular.ttf"; // TODO: Use a pixel font
     if (Utility::FileManagement::fileExists(pixelFontPath)) {
-        if (ImFont* f = io.Fonts->AddFontFromFileTTF(pixelFontPath.c_str(), 40.0f * fullScale, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) io.FontDefault = f;
+        if (ImFont* f = io.Fonts->AddFontFromFileTTF(pixelFontPath, 40.0f * fullScale, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) io.FontDefault = f;
         else io.Fonts->AddFontDefault();
     } else {
         io.Fonts->AddFontDefault();
@@ -171,6 +191,44 @@ void Renderer::initImgui() const {
 
     ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer3_Init(renderer);
+}
+
+void Renderer::initRmlUi() {
+    Rml::Initialise();
+
+    // Interfaces
+    rml.renderInterface = std::make_unique<RenderInterface_SDL>(renderer);
+    if (!rml.renderInterface) {
+        throw std::runtime_error("Failed to create RmlUi render interface!");
+    }
+    SetRenderInterface(rml.renderInterface.get());
+    rml.systemInterface = std::make_unique<SystemInterface_SDL>(window);
+    if (!rml.systemInterface) {
+        throw std::runtime_error("Failed to create system interface!");
+    }
+
+    // Context
+    rml.context = Rml::CreateContext(
+        "main", {
+            domainScope.get<int>(Constants::KeyNames::Renderer::dispResX).value_or(800),
+            domainScope.get<int>(Constants::KeyNames::Renderer::dispResY).value_or(600)
+        }
+    );
+    if (!rml.context) {
+        throw std::runtime_error("Failed to create RmlUi context!");
+    }
+
+    if (!Rml::LoadFontFace(pixelFontPath)) {
+        throw std::runtime_error("Failed to load font!");
+    }
+
+    // Demo Document
+    auto const document = Utility::FileManagement::LoadFile("./Resources/Rml/example.html");
+    rml.demoDocument = rml.context->LoadDocumentFromMemory(document);
+    if (!rml.demoDocument) {
+        throw std::runtime_error("Failed to load RmlUi document from memory!");
+    }
+    rml.demoDocument->Show();
 }
 
 void Renderer::initSDL() {
@@ -204,8 +262,9 @@ void Renderer::initSDL() {
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
     //------------------------------------------
-    // ImGui
+    // UI
     initImgui();
+    initRmlUi();
 
     //------------------------------------------
     // Cursor
@@ -350,11 +409,89 @@ void Renderer::pollEvents() {
     }
 }
 
+namespace {
+Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode const& keycode) {
+    using KI = Rml::Input::KeyIdentifier;
+    switch (keycode) {
+    case SDLK_BACKSPACE: return KI::KI_BACK;
+    case SDLK_TAB:       return KI::KI_TAB;
+    case SDLK_RETURN:    return KI::KI_RETURN;
+    case SDLK_ESCAPE:    return KI::KI_ESCAPE;
+    case SDLK_SPACE:     return KI::KI_SPACE;
+    case SDLK_DELETE:    return KI::KI_DELETE;
+    default:             return KI::KI_UNKNOWN;
+    }
+}
+
+int SdlModifierToRmlModifier(uint32_t const& modifier) {
+    return static_cast<int>(0 * modifier); // TODO: implement
+}
+
+} // namespace
+
+void Renderer::processRmlUiEvent(const SDL_Event& event) const {
+    if (!rml.context) return;
+
+    switch (event.type) {
+
+    case SDL_EVENT_MOUSE_MOTION:
+        rml.context->ProcessMouseMove(
+            static_cast<int>(event.motion.x),
+            static_cast<int>(event.motion.y),
+            0
+        );
+        break;
+
+    case SDL_EVENT_MOUSE_BUTTON_DOWN:
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+        int button = 0;
+        if (event.button.button == SDL_BUTTON_LEFT) button = 0;
+        else if (event.button.button == SDL_BUTTON_RIGHT) button = 1;
+        else if (event.button.button == SDL_BUTTON_MIDDLE) button = 2;
+
+        if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+            rml.context->ProcessMouseButtonDown(button, 0);
+        else
+            rml.context->ProcessMouseButtonUp(button, 0);
+        break;
+    }
+
+    case SDL_EVENT_MOUSE_WHEEL: {
+        Rml::Vector2f const wheel = {event.wheel.x, event.wheel.y};
+        auto const mods = SdlModifierToRmlModifier(event.key.mod);
+        rml.context->ProcessMouseWheel(wheel, mods);
+        break;
+    }
+
+
+
+    case SDL_EVENT_KEY_DOWN:
+    case SDL_EVENT_KEY_UP: {
+        auto const rmlKey = SDLKeyToRmlKey(event.key.scancode);
+        auto const mods = SdlModifierToRmlModifier(event.key.mod);
+
+        if (event.type == SDL_EVENT_KEY_DOWN)
+            rml.context->ProcessKeyDown(rmlKey, mods);
+        else
+            rml.context->ProcessKeyUp(rmlKey, mods);
+        break;
+    }
+
+    case SDL_EVENT_TEXT_INPUT:
+        rml.context->ProcessTextInput(event.text.text);
+        break;
+
+    default:
+        break;
+    }
+}
+
 void Renderer::render() {
     // Event processing before rendering
     pollEvents();
     for (auto const& event : events) {
         ImGui_ImplSDL3_ProcessEvent(&event);
+        processRmlUiEvent(event);
     }
 
     // Rendering
@@ -364,8 +501,16 @@ void Renderer::render() {
     status.skipUpdate = false;
     updateModules(); // Update domain modules, potentially adding ImGui elements
     if (status.showFps) renderFPS();
+
+    // RML
+    rml.context->Update();
+    rml.context->Render();
+
+
+    // Imgui
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+
     SDL_RenderPresent(renderer);
 
     // Execute post-render callbacks and clear them

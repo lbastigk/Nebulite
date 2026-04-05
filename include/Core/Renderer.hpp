@@ -13,9 +13,12 @@
 // Standard library
 
 // External
+#include <absl/container/flat_hash_map.h>
+#include <RmlUi_Platform_SDL.h>
+#include <RmlUi_Renderer_SDL.h>
+#include <RmlUi/Core.h>
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
-#include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Core/Environment.hpp"
@@ -40,6 +43,8 @@ public:
      *                      Either from the Domain that owns this one or from the global capture if this is a top-level domain.
      */
     Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::Capture& parentCapture);
+
+    ~Renderer() override ;
 
     //------------------------------------------
     // Disallow copying and moving
@@ -75,7 +80,12 @@ public:
     /**
      * @brief Initializes ImGui for the Renderer. Called within `initSDL()`.
      */
-    void initImgui() const;
+    void initImgui() const ;
+
+    /**
+     * @brief Initializes RmlUi for the Renderer. Called within `initSDL()`
+     */
+    void initRmlUi() ;
 
     /**
      * @brief Called before parsing any commands.
@@ -467,10 +477,24 @@ public:
     }
 
 private:
+    static auto constexpr pixelFontPath  = "./Resources/Fonts/JetBrainsMono-Regular.ttf"; // TODO: Use a pixel font
+
     /**
      * @brief Holds threads for parallel processing of RenderObjects during the update phase.
      */
     Data::RendererProcessor rendererProcessor;
+
+    //------------------------------------------
+    // Rml Interface
+
+    struct RML {
+        std::unique_ptr<RenderInterface_SDL> renderInterface;
+        std::unique_ptr<SystemInterface_SDL> systemInterface;
+        Rml::Context* context;
+        Rml::ElementDocument* demoDocument;
+    } rml;
+
+    void processRmlUiEvent(const SDL_Event& event) const ;
 
     //------------------------------------------
     // Boolean Status Variables

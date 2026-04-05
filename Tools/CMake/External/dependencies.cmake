@@ -8,6 +8,7 @@ set(SDL3_IMAGE_PATH     "${CMAKE_SOURCE_DIR}/external/SDL3_image")
 
 # GUI libraries
 set(IMGUI_PATH          "${CMAKE_SOURCE_DIR}/external/imgui")
+set(RMLUI_PATH          "${CMAKE_SOURCE_DIR}/external/RmlUi")
 
 # Other external libraries
 set(RAPIDJSON_PATH      "${CMAKE_SOURCE_DIR}/external/rapidjson")
@@ -20,6 +21,7 @@ set(STB_PATH            "${CMAKE_SOURCE_DIR}/external/stb")
 function(setup_external_subdirectories)
     message(STATUS "Setting up external subdirectories...")
     add_subdirectory(${ABSEIL_PATH})
+    add_subdirectory(${RMLUI_PATH})
     add_subdirectory(${SDL3_PATH})
     add_subdirectory(${SDL3_TTF_PATH})
     add_subdirectory(${SDL3_IMAGE_PATH})
@@ -30,6 +32,8 @@ endfunction()
 # Function to configure common dependencies for a target
 function(configure_common_dependencies target_name)
     message(STATUS "Configuring common dependencies for target: ${target_name}")
+
+    add_compile_definitions(RMLUI_SDL_VERSION_MAJOR=3)
 
     # Include directories
     # normal include dir
@@ -49,6 +53,8 @@ function(configure_common_dependencies target_name)
             ${SDL3_IMAGE_PATH}/include
             ${IMGUI_PATH}
             ${IMGUI_PATH}/backends
+            ${RMLUI_PATH}/Backends
+            ${RMLUI_PATH}/Include
             ${STB_PATH}
     )
 
@@ -72,11 +78,12 @@ function(configure_common_dependencies target_name)
 
     # Link libraries
     target_link_libraries(${target_name} PRIVATE
+            absl::flat_hash_map
+            imgui
+            RmlUi::RmlUi
             SDL3::SDL3
             SDL3_ttf::SDL3_ttf
             SDL3_image::SDL3_image
-            imgui
-            absl::flat_hash_map
     )
 
     message(STATUS "Common dependencies configured for ${target_name}")
