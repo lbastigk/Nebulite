@@ -42,6 +42,8 @@
     "posY": 100,
     "ruleset": {
         "list": [
+            // -----------------------------------
+            // Animation
             "./Resources/Invokes/Animation/poll_attack.jsonc",
             "./Resources/Invokes/Animation/set_AnimationxRolling_active.jsonc",
             "./Resources/Invokes/Animation/set_AnimationxRolling_mod.jsonc",
@@ -49,12 +51,16 @@
             "./Resources/Invokes/Animation/set_SpriteSheetOffsetX.jsonc",
             "./Resources/Invokes/Animation/set_SpriteSheetOffsetY.jsonc",
             "./Resources/Invokes/Movement/no_movement_on_attack.jsonc",
+            // -----------------------------------
+            // Movement + Collision
             "::physics::storeLastPosition",
             "::physics::applyForce",
             "::movement::processClipping",
             // TODO: Grid snapping or edge sliding so we can get into narrow spaces without getting stuck on corners
             "./Resources/Invokes/Movement/movement_wasd_to_v.jsonc", // Apply velocity after forces to prevent input overriding physics setting velocity
-            "./Resources/Invokes/Physics/normalize_v_to_physics-vNorm.jsonc",
+            "./Resources/Invokes/Physics/normalize_v_to_physics-vNorm.jsonc", // Cap velocity to physics-vNorm
+            // -----------------------------------
+            // Centering
             "./Resources/Invokes/General/set_render_position_center.jsonc"
         ],
         "listen": [

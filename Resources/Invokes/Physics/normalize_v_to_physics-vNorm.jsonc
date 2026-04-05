@@ -1,11 +1,14 @@
 {
     "topic": "",
-    "condition": "$(neq({self.physics.vX},0) + neq({self.physics.vY},0))",
+    "condition": "$(neq({self.physics.vX},0) + neq({self.physics.vY},0))", // At least one of vX or vY must be nonzero to normalize, otherwise we divide by zero
     "action": {
         "assign": [
-            "self.physics.v = $( sqrt( {self.physics.vX}^2 + {self.physics.vY}^2 ) )",
-            "self.physics.vX = $( {self.physics.vNorm} * {self.physics.vX} /  {self.physics.v} )",
-            "self.physics.vY = $( {self.physics.vNorm} * {self.physics.vY} /  {self.physics.v} )"
+            // normalize velocity using vScalar so that we don't walk faster diagonally
+            // sqrt(vX^2 + vY^2) must be vNorm
+            // Since we only update if a velocity is present, vScalar will hold the last movements scaling value and is not reset to 0.
+            "self.physics.vScalar = $( {self.physics.vNorm} / sqrt( {self.physics.vX}^2 + {self.physics.vY}^2 ) )",
+            "self.physics.vX = $( {self.physics.vX} * {self.physics.vScalar} )",
+            "self.physics.vY = $( {self.physics.vY} * {self.physics.vScalar} )"
         ],
         "functioncall": {
             "global": [],
