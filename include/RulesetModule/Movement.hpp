@@ -26,20 +26,14 @@ public:
 
     // Global rulesets
 
-    // TODO: Needs rework. The idea of clipping + box Edge sliding doesn't work...
-    //       New idea:
-    //       1.) ::movement::detectClipping listen determines closest distance in each direction
-    //       2.) ::physics::storeLastPosition is required for applyClipping to work
-    //       3.) after that, we apply the forces using ::physics::applyForce
-    //       4.) ::movement::applyClipping then uses the closest distance and the applied dr from applyForce to reposition on each axis
-
     void detectClipping(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static std::string_view constexpr detectClippingName = "::movement::detectClipping";
-    static std::string_view constexpr detectClippingDesc = "Global ruleset to detect collision clipping between entities based on current forces. Sets detection directions and corners to true if a collision is detected.";
+    static std::string_view constexpr detectClippingDesc = "Global ruleset to detect the closest object in each direction. The listeners distance is set.";
 
     void processClipping(Interaction::Context const& context, double**& slf, double**& otr) const ;
     static std::string_view constexpr processClippingName = "::movement::processClipping";
-    static std::string_view constexpr processClippingDesc = "Local ruleset to process collision clipping for the self entry based on detected clipping directions and corners. Adjusts forces to achieve clipping and edge sliding behavior.";
+    static std::string_view constexpr processClippingDesc = "Local ruleset to process collision clipping for the self entry based on position delta and closest objects.\n"
+        "Call this ruleset after ::physics::applyForce. Requires ::physics::storeLastPosition to be called before ::physics::applyForce.";
 
     //------------------------------------------
     // Constructor
