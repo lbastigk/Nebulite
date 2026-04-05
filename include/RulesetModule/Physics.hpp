@@ -61,6 +61,7 @@ public:
     Physics();
 
     static std::string_view constexpr moduleName = "::physics";
+
 private:
     //------------------------------------------
     // Base values for physics framework
@@ -93,8 +94,8 @@ private:
         // More specialized keys
         DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeX,
         DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeY,
-        Data::ScopedKeyView("physics.last.position.X"),
-        Data::ScopedKeyView("physics.last.position.Y")
+        DomainModule::GlobalSpace::Physics::Key::Local::lastPositionX,
+        DomainModule::GlobalSpace::Physics::Key::Local::lastPositionY
     };
 
     /**

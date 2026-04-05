@@ -41,14 +41,6 @@ public:
     static std::string_view constexpr processClippingName = "::movement::processClipping";
     static std::string_view constexpr processClippingDesc = "Local ruleset to process collision clipping for the self entry based on detected clipping directions and corners. Adjusts forces to achieve clipping and edge sliding behavior.";
 
-    void clip(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static std::string_view constexpr clipName = "::movement::clip";
-    static std::string_view constexpr clipDesc = "Global ruleset to handle collision clipping between entities. Affects forces of the entry listening to this ruleset.";
-
-    void boxEdgeSliding(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    static std::string_view constexpr boxEdgeSlidingName = "::movement::boxEdgeSliding";
-    static std::string_view constexpr boxEdgeSlidingDesc = "Global ruleset to handle edge sliding for box collisions. Affects forces of the entry listening to this ruleset.";
-
     //------------------------------------------
     // Constructor
     Movement();
@@ -81,6 +73,9 @@ private:
         Data::ScopedKeyView("movement.clip.closest.E"),
         Data::ScopedKeyView("movement.clip.closest.S"),
         Data::ScopedKeyView("movement.clip.closest.W"),
+        // X/Y last pos
+        DomainModule::GlobalSpace::Physics::Key::Local::lastPositionX,
+        DomainModule::GlobalSpace::Physics::Key::Local::lastPositionY
     };
 
     /**
@@ -106,6 +101,9 @@ private:
         clip_closest_E,
         clip_closest_S,
         clip_closest_W,
+        // X/Y last
+        position_last_X,
+        position_last_Y
     };
 
     // 2.) To retrieve from globalspace
@@ -126,11 +124,6 @@ private:
         : slf(baseVal(slfBase, Key::sizeR)), otr(baseVal(otrBase, Key::sizeR))
         {}
     };
-
-    void collisionCircleCircle(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    void collisionCircleBox(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    void collisionBoxCircle(Interaction::Context const& context, double**& slf, double**& otr) const ;
-    void collisionBoxBox(Interaction::Context const& context, double**& slf, double**& otr) const ;
 };
 } // namespace Nebulite::RulesetModule
 #endif // NEBULITE_RULESET_MODULE_MOVEMENT_HPP

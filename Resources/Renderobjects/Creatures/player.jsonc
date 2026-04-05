@@ -52,6 +52,7 @@
             "::physics::storeLastPosition",
             "::physics::applyForce",
             "::movement::processClipping",
+            // TODO: Grid snapping or edge sliding so we can get into narrow spaces without getting stuck on corners
             "./Resources/Invokes/Movement/movement_wasd_to_v.jsonc", // Apply velocity after forces to prevent input overriding physics setting velocity
             "./Resources/Invokes/Physics/normalize_v_to_physics-vNorm.jsonc",
             "./Resources/Invokes/General/set_render_position_center.jsonc"

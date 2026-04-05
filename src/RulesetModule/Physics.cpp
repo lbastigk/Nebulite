@@ -154,7 +154,8 @@ void Physics::gravity(Interaction::Context const& context, double**& slf, double
 
 // Local rulesets
 
-void Physics::storeLastPosition(Interaction::Context const& context, double**& slf, double**& otr) const {
+// NOLINTNEXTLINE
+void Physics::storeLastPosition(Interaction::Context const& /*context*/, double**& slf, double**& /*otr*/) const {
     baseVal(slf, Key::physics_lastPositionX) = baseVal(slf, Key::posX);
     baseVal(slf, Key::physics_lastPositionY) = baseVal(slf, Key::posY);
 }
