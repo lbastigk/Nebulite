@@ -482,6 +482,35 @@ private:
         std::unique_ptr<SystemInterface_SDL> systemInterface;
         Rml::Context* context;
         Rml::ElementDocument* demoDocument;
+        Rml::DataModelConstructor dataModelConstructor;
+
+
+        void updateVariables(Data::JsonScope& domainScope) {
+            for (auto const& [member, key] : domainScope.listAvailableMembersAndKeys(domainScope.getRootScope())) {
+                if (auto it = registeredStrings.find(member); it == registeredStrings.end()) {
+                    registeredStrings[member] = domainScope.get<std::string>(key).value_or("");
+                    dataModelConstructor.Bind(member, &registeredStrings[member]);
+                }
+                else {
+                    // TODO: determine data flow based on diffs of both values.
+                    //       if registeredStrings[member] changes, update domainScope.
+                    //       if domainScope.get<std::string>(key) changes, update registeredStrings[member].
+
+                    //registeredStrings[member] = domainScope.get<std::string>(key).value_or("");
+                    std::string const& value = registeredStrings[member];
+                    domainScope.set<std::string>(key, value);
+                }
+            }
+        }
+    private:
+        struct RegisteredEntry { // TODO: use this to manage the data flow between Rml and domainScope, instead of just a string
+            Rml::String currentRmlValue;
+            Rml::String previousRmlValue;
+            std::string previousDocumentValue;
+        };
+
+        absl::node_hash_map<std::string, Rml::String> registeredStrings;
+
     } rml;
 
     void processRmlUiEvent(const SDL_Event& event) const ;

@@ -226,8 +226,12 @@ void Renderer::initRmlUi() {
         throw std::runtime_error("Failed to load font!");
     }
 
+    // Data Model
+    rml.dataModelConstructor = rml.context->CreateDataModel("renderer");
+    rml.updateVariables(domainScope);
+
     // Demo Document
-    auto const document = Utility::FileManagement::LoadFile("./Resources/Rml/example.rml");
+    auto const document = Utility::FileManagement::LoadFile("./Resources/Rml/alignment.rml");
     rml.demoDocument = rml.context->LoadDocumentFromMemory(document);
     if (!rml.demoDocument) {
         throw std::runtime_error("Failed to load RmlUi document from memory!");
@@ -510,6 +514,8 @@ void Renderer::render() {
     updateModules(); // Update domain modules, potentially adding ImGui elements
 
     // RML
+    // Update variables
+    rml.updateVariables(domainScope);
     rml.context->Update();
     rml.context->Render();
 
