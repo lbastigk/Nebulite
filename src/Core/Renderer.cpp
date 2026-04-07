@@ -227,7 +227,7 @@ void Renderer::initRmlUi() {
     }
 
     // Demo Document
-    auto const document = Utility::FileManagement::LoadFile("./Resources/Rml/alignment.rml");
+    auto const document = Utility::FileManagement::LoadFile("./Resources/Rml/example.rml");
     rml.demoDocument = rml.context->LoadDocumentFromMemory(document);
     if (!rml.demoDocument) {
         throw std::runtime_error("Failed to load RmlUi document from memory!");

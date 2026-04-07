@@ -12,6 +12,7 @@
         "cerr" : [
             "*wined3d_swapchain_resize_buffers*",
             "SDL Error during initialization:*",    // TODO: still needed?
+            "Could not locate data model*",         // TODO: remove once data model loading is implemented
             "Loaded font face*"                     // From RmlUi on initialization
         ]
     },
