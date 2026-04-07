@@ -208,14 +208,13 @@ void Renderer::initRmlUi() {
     }
 
     // Context
-    double constexpr scalar = 1.278; // TODO: why is the rml context not properly aligned with the actual window size?
     rml.context = Rml::CreateContext(
         "main", {
             static_cast<int>(
-                domainScope.get<double>(Constants::KeyNames::Renderer::dispResX).value_or(800.0) * scalar
+                domainScope.get<double>(Constants::KeyNames::Renderer::dispResX).value_or(800.0)
             ),
             static_cast<int>(
-                domainScope.get<double>(Constants::KeyNames::Renderer::dispResY).value_or(600.0) * scalar
+                domainScope.get<double>(Constants::KeyNames::Renderer::dispResY).value_or(600.0)
             )
         }
     );
@@ -715,6 +714,12 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
 
     // Set the physical window size
     SDL_SetWindowSize(window, w * windowScale, h * windowScale);
+
+    // Rescale rml context
+    rml.context->SetDimensions({
+        w * windowScale,
+        h * windowScale
+    });
 
     // Reinsert objects
     // TODO: Once fixed tiles are implemented, this isn't needed anymore
