@@ -21,10 +21,22 @@ set(STB_PATH            "${CMAKE_SOURCE_DIR}/external/stb")
 function(setup_external_subdirectories)
     message(STATUS "Setting up external subdirectories...")
     add_subdirectory(${ABSEIL_PATH})
-    add_subdirectory(${RMLUI_PATH})
     add_subdirectory(${SDL3_PATH})
     add_subdirectory(${SDL3_TTF_PATH})
     add_subdirectory(${SDL3_IMAGE_PATH})
+
+    # RmlUi defaults to the freetype font engine and errors out if freetype isn't available.
+    # Fall back to 'none' so configure can continue on toolchains without a freetype package.
+    if(NOT TARGET Freetype::Freetype)
+        find_package(Freetype QUIET)
+    endif()
+
+    if(NOT TARGET Freetype::Freetype)
+        set(RMLUI_FONT_ENGINE "none" CACHE STRING "RmlUi font engine" FORCE)
+        message(WARNING "Freetype not found. Setting RMLUI_FONT_ENGINE=none for this build. Install freetype or set Freetype_ROOT to enable RmlUi text rendering.")
+    endif()
+
+    add_subdirectory(${RMLUI_PATH})
     message(STATUS "External subdirectories setup complete")
 endfunction()
 
