@@ -223,7 +223,7 @@ void Renderer::initRmlUi() {
     }
 
     // Demo Document
-    auto const document = Utility::FileManagement::LoadFile("./Resources/Rml/example.html");
+    auto const document = Utility::FileManagement::LoadFile("./Resources/Rml/alignment.rml");
     rml.demoDocument = rml.context->LoadDocumentFromMemory(document);
     if (!rml.demoDocument) {
         throw std::runtime_error("Failed to load RmlUi document from memory!");
@@ -487,33 +487,42 @@ void Renderer::processRmlUiEvent(const SDL_Event& event) const {
 }
 
 void Renderer::render() {
-    // Event processing before rendering
+    //---------------------------------------
+    // Pre-render processing
+
+    // Event polling and processing
     pollEvents();
     for (auto const& event : events) {
         ImGui_ImplSDL3_ProcessEvent(&event);
         processRmlUiEvent(event);
     }
 
-    // Rendering
+    //---------------------------------------
+    // Frame rendering
+
+    // Core
     renderInit();
     renderFrame();
     status.skippedUpdateLastFrame = status.skipUpdate;
     status.skipUpdate = false;
     updateModules(); // Update domain modules, potentially adding ImGui elements
-    if (status.showFps) renderFPS();
 
     // RML
     rml.context->Update();
     rml.context->Render();
 
-
     // Imgui
+    if (status.showFps) renderFPS();
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
 
+    // Present frame
     SDL_RenderPresent(renderer);
 
-    // Execute post-render callbacks and clear them
+    //---------------------------------------
+    // Post-render processing
+
+    // Custom callback functions
     for (auto const& callback : postRenderCallback) {
         callback();
     }
