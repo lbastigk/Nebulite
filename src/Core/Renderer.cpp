@@ -208,10 +208,15 @@ void Renderer::initRmlUi() {
     }
 
     // Context
+    double constexpr scalar = 1.278; // TODO: why is the rml context not properly aligned with the actual window size?
     rml.context = Rml::CreateContext(
         "main", {
-            domainScope.get<int>(Constants::KeyNames::Renderer::dispResX).value_or(800),
-            domainScope.get<int>(Constants::KeyNames::Renderer::dispResY).value_or(600)
+            static_cast<int>(
+                domainScope.get<double>(Constants::KeyNames::Renderer::dispResX).value_or(800.0) * scalar
+            ),
+            static_cast<int>(
+                domainScope.get<double>(Constants::KeyNames::Renderer::dispResY).value_or(600.0) * scalar
+            )
         }
     );
     if (!rml.context) {
