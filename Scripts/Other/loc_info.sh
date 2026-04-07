@@ -22,6 +22,6 @@ function print_loc_for_dirs {
 # Custom lang define, counting:
 print_loc_for_dirs "./src ./include" "Source Code (C, C++)"
 print_loc_for_dirs "./Scripts" "Scripts (Python, Bash)"
-print_loc_for_dirs "./Tools/Tests/ ./Tools/tests.jsonc ./TaskFiles/" "Tests (JSON, JSONC, nebs)"
-print_loc_for_dirs "./Resources" "Resources (JSON, JSOC)"
+print_loc_for_dirs "./Tools/Tests/ ./Tools/tests.jsonc ./TaskFiles/" "Tests (JSON, nebs)"
+print_loc_for_dirs "./Resources" "Resources (JSON, RML)"
 print_loc_for_dirs "./interface" "Interfaces (Go)"
