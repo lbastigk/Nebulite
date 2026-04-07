@@ -130,7 +130,8 @@ public:
     static auto constexpr snapshot_desc = "Create a snapshot of the current renderer state.\n"
         "\n"
         "Usage: snapshot [filename]\n\n"
-        "Defaults to \"./Resources/Snapshots/snapshot.png\" if no argument is provided\n";
+        "Defaults to \"./Resources/Snapshots/snapshot.png\" if no argument is provided.\n"
+        "Snapshots are create asynchronously; a snapshot callback function is added to the renderer that is called after the next render pass.\n";
 
     [[nodiscard]] Constants::Event dumpView() const;
     static auto constexpr dumpView_name = "dump-view";

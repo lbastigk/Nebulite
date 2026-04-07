@@ -1,4 +1,5 @@
 #include "stb_image_write.h"
+#include "SDL3_image/SDL_image.h"
 
 #include "Nebulite.hpp"
 #include "DomainModule/Renderer/General.hpp"
@@ -149,21 +150,64 @@ Constants::Event General::cam_set(int const argc, char** argv) const {
 }
 
 Constants::Event General::snapshot(int const argc, char** argv) const {
-    if (argc == 1) {
-        // No link provided, use default
-        if (!domain.snapshot("./Resources/Snapshots/snapshot.png")) {
-            return Constants::StandardCapture::Warning::Renderer::snapshotFailed(domain.capture);
-        }
-        return Constants::Event::Success;
+    if (argc > 2) {
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
-    if (argc == 2) {
-        // Link provided
-        if (!domain.snapshot(argv[1])) {
-            return Constants::StandardCapture::Warning::Renderer::snapshotFailed(domain.capture);
+
+    static std::string fileName;
+    fileName = argc == 2 ? argv[1] : "./Resources/Snapshots/snapshot.png";
+    auto snapshotFunction = [&]() {
+        // Get current window/render target size
+        auto const window = domain.getSdlWindow();
+        auto const renderer = domain.getSdlRenderer();
+        int width, height;
+        if (window) {
+            // Normal windowed mode
+            SDL_GetWindowSize(window, &width, &height);
+        } else {
+            // Headless mode - get renderer output size
+            SDL_GetCurrentRenderOutputSize(renderer, &width, &height);
         }
-        return Constants::Event::Success;
-    }
-    return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+
+        // Create surface to capture pixels
+        SDL_Rect const fullScreenRect = {0, 0, width, height};
+        auto const surface = SDL_RenderReadPixels(renderer, &fullScreenRect);
+        if (!surface) {
+            domain.capture.error.println("Failed to read pixels for snapshot: ", SDL_GetError());
+            SDL_DestroySurface(surface);
+            return;
+        }
+
+        // Create directory if it doesn't exist
+        std::string directory = fileName.substr(0, fileName.find_last_of("/\\"));
+
+        // Edge case: check if link contains no directory:
+        if (fileName.find_last_of("/\\") == std::string::npos) {
+            directory = "./Resources/Snapshots";
+            fileName = directory + "/" + fileName;
+        }
+
+        if (!directory.empty()) {
+            // Create directory using C++17 filesystem
+            try {
+                std::filesystem::create_directories(directory);
+            } catch (std::exception const& e) {
+                domain.capture.error.println("Warning: Could not create directory ", directory, ": ", e.what());
+                // Continue anyway - maybe directory already exists
+            }
+        }
+
+        // Save surface as PNG
+        if (int const result = IMG_SavePNG(surface, fileName.c_str()); result != 0 && SDL_GetError()[0] != '\0') {
+            domain.capture.error.println("Failed to save snapshot!");
+            return;
+        }
+
+        // Cleanup
+        SDL_DestroySurface(surface);
+    };
+    domain.addPostRenderCallback(snapshotFunction);
+    return Constants::Event::Success;
 }
 
 namespace {

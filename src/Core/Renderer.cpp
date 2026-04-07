@@ -467,8 +467,6 @@ void Renderer::processRmlUiEvent(const SDL_Event& event) const {
         break;
     }
 
-
-
     case SDL_EVENT_KEY_DOWN:
     case SDL_EVENT_KEY_UP: {
         auto const rmlKey = SDLKeyToRmlKey(event.key.scancode);
@@ -539,9 +537,7 @@ void Renderer::render() {
 }
 
 Constants::Event Renderer::update() {
-    //------------------------------------------
-    // Skip update if flagged
-    if (!status.skipUpdate) {
+    if (!status.skipUpdate) { // Skip update if flagged
         // Update environment
         Global::instance().notifyEvent(env.update());
         env.updateObjects(
@@ -582,7 +578,7 @@ void Renderer::append(RenderObject* toAppend) {
     indexToIdMap[indexCounter] = toAppend->getId();
     indexCounter++;
 
-    //Append to environment, based on layer
+    // Append to environment, based on layer
     env.append(
         toAppend,
         domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
@@ -596,59 +592,6 @@ void Renderer::reinsertAllObjects() {
     domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
     domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0)
     );
-}
-
-//------------------------------------------
-// Special Functions
-
-bool Renderer::snapshot(std::string link) {
-    // Get current window/render target size
-    int width, height;
-    if (window) {
-        // Normal windowed mode
-        SDL_GetWindowSize(window, &width, &height);
-    } else {
-        // Headless mode - get renderer output size
-        SDL_GetCurrentRenderOutputSize(renderer, &width, &height);
-    }
-
-    // Create surface to capture pixels
-    SDL_Rect const fullScreenRect = {0, 0, width, height};
-    auto const surface = SDL_RenderReadPixels(renderer, &fullScreenRect);
-    if (!surface) {
-        capture.error.println("Failed to read pixels for snapshot: ", SDL_GetError());
-        SDL_DestroySurface(surface);
-        return false;
-    }
-
-    // Create directory if it doesn't exist
-    std::string directory = link.substr(0, link.find_last_of("/\\"));
-
-    // Edge case: check if link contains no directory:
-    if (link.find_last_of("/\\") == std::string::npos) {
-        directory = "./Resources/Snapshots";
-        link = directory + "/" + link;
-    }
-
-    if (!directory.empty()) {
-        // Create directory using C++17 filesystem
-        try {
-            std::filesystem::create_directories(directory);
-        } catch (std::exception const& e) {
-            capture.error.println("Warning: Could not create directory ", directory, ": ", e.what());
-            // Continue anyway - maybe directory already exists
-        }
-    }
-
-    // Save surface as PNG
-    if (int const result = IMG_SavePNG(surface, link.c_str()); result != 0 && SDL_GetError()[0] != '\0') {
-        capture.error.println("Failed to save snapshot!");
-        return false;
-    }
-
-    // Cleanup
-    SDL_DestroySurface(surface);
-    return true;
 }
 
 //------------------------------------------

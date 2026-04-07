@@ -205,16 +205,6 @@ public:
     }
 
     //------------------------------------------
-    // Special Functions
-
-    /**
-     * @brief Takes a snapshot of the current Renderer state.
-     * @param link The link to save the snapshot to.
-     * @return True if the snapshot was successful, false otherwise.
-     */
-    [[nodiscard]] bool snapshot(std::string link);
-
-    //------------------------------------------
     // Purge
 
     /**
