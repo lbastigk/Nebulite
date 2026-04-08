@@ -477,39 +477,65 @@ private:
     //------------------------------------------
     // Rml Interface
 
-    struct RML {
+    struct RmlInterface {
+
+        static std::array<std::string_view, 2> constexpr availableDocuments = {
+            "./Resources/Rml/alignment.rml",
+            "./Resources/Rml/example.rml"
+        };
+
+        static auto constexpr testRmlDocumentPath = availableDocuments[0];
+
         std::unique_ptr<RenderInterface_SDL> renderInterface;
         std::unique_ptr<SystemInterface_SDL> systemInterface;
         Rml::Context* context;
         Rml::ElementDocument* demoDocument;
         Rml::DataModelConstructor dataModelConstructor;
 
-
         void updateVariables(Data::JsonScope& domainScope) {
             for (auto const& [member, key] : domainScope.listAvailableMembersAndKeys(domainScope.getRootScope())) {
                 if (auto it = registeredStrings.find(member); it == registeredStrings.end()) {
-                    registeredStrings[member] = domainScope.get<std::string>(key).value_or("");
-                    dataModelConstructor.Bind(member, &registeredStrings[member]);
+                    auto const value = domainScope.get<std::string>(key).value_or("");
+                    auto entry = std::make_unique<RegisteredEntry>();
+                    entry->currentRmlValue = value;
+                    entry->previousRmlValue = value;
+                    entry->previousDocumentValue = value;
+                    dataModelConstructor.Bind(member, &entry->currentRmlValue);
+                    registeredStrings.emplace(member, std::move(entry));
                 }
                 else {
-                    // TODO: determine data flow based on diffs of both values.
-                    //       if registeredStrings[member] changes, update domainScope.
-                    //       if domainScope.get<std::string>(key) changes, update registeredStrings[member].
+                    // Determine data flow
+                    auto const& entry = registeredStrings[member];
+                    auto& currentRml = entry->currentRmlValue;
+                    auto const& previousRml = entry->previousRmlValue;
 
-                    //registeredStrings[member] = domainScope.get<std::string>(key).value_or("");
-                    std::string const& value = registeredStrings[member];
-                    domainScope.set<std::string>(key, value);
+                    auto currentDocument = domainScope.get<std::string>(key).value_or("");
+                    auto const& previousDocument = entry->previousDocumentValue;
+
+                    // 1.) rml -> document
+                    if (currentRml != previousRml) {
+                        domainScope.set<std::string>(key, currentRml);
+                        entry->currentRmlValue = currentRml;
+                        entry->previousRmlValue = currentRml;
+                        entry->previousDocumentValue = currentRml;
+                    }
+                    // 2.) document -> rml
+                    else if (currentDocument != previousDocument) {
+                        entry->currentRmlValue = currentDocument;
+                        entry->previousRmlValue = currentDocument;
+                        entry->previousDocumentValue = currentDocument;
+                    }
                 }
             }
         }
     private:
-        struct RegisteredEntry { // TODO: use this to manage the data flow between Rml and domainScope, instead of just a string
+        struct RegisteredEntry {
             Rml::String currentRmlValue;
             Rml::String previousRmlValue;
             std::string previousDocumentValue;
         };
 
-        absl::node_hash_map<std::string, Rml::String> registeredStrings;
+        absl::node_hash_map<std::string, std::unique_ptr<RegisteredEntry>> registeredStrings;
 
     } rml;
 

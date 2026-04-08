@@ -20,6 +20,7 @@
 #include "DomainModule/Initializer.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Nebulite.hpp"
+#include "RmlUi/Core/TextInputHandler.h"
 #include "Utility/FileManagement.hpp"
 #include "Utility/TimeKeeper.hpp"
 
@@ -231,7 +232,7 @@ void Renderer::initRmlUi() {
     rml.updateVariables(domainScope);
 
     // Demo Document
-    auto const document = Utility::FileManagement::LoadFile("./Resources/Rml/alignment.rml");
+    auto const document = Utility::FileManagement::LoadFile(RmlInterface::testRmlDocumentPath);
     rml.demoDocument = rml.context->LoadDocumentFromMemory(document);
     if (!rml.demoDocument) {
         throw std::runtime_error("Failed to load RmlUi document from memory!");
@@ -482,6 +483,8 @@ void Renderer::processRmlUiEvent(const SDL_Event& event) const {
             rml.context->ProcessKeyUp(rmlKey, mods);
         break;
     }
+
+    // TODO: feedback to activate text input if rml is highlighted?
 
     case SDL_EVENT_TEXT_INPUT:
         rml.context->ProcessTextInput(event.text.text);
