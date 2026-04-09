@@ -20,7 +20,6 @@
 #include "DomainModule/Initializer.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Nebulite.hpp"
-#include "RmlUi/Core/TextInputHandler.h"
 #include "Utility/FileManagement.hpp"
 #include "Utility/TimeKeeper.hpp"
 
@@ -436,6 +435,21 @@ int SdlModifierToRmlModifier(uint32_t const& modifier) {
     return static_cast<int>(0 * modifier); // TODO: implement
 }
 
+bool isTextInputFocused(Rml::Context* context){
+    if (Rml::Element* el = context->GetFocusElement(); el){
+        // Covers <input type="text"> and <textarea>
+        if (Rml::String const tag = el->GetTagName(); tag == "input" || tag == "textarea"){
+            // Optional: check type="text"
+            if (tag == "input"){
+                if (Rml::Variant const* type = el->GetAttribute("type"); type && type->Get<Rml::String>() != "text")
+                    return false;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
 } // namespace
 
 void Renderer::processRmlUiEvent(const SDL_Event& event) const {
@@ -458,10 +472,15 @@ void Renderer::processRmlUiEvent(const SDL_Event& event) const {
         else if (event.button.button == SDL_BUTTON_RIGHT) button = 1;
         else if (event.button.button == SDL_BUTTON_MIDDLE) button = 2;
 
-        if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+        if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
+            // We assume the mouse click unfocused the element.
+            // If the click was at the elements position, ProcessMouseButtonDown will refocus the element.
+            rml.context->GetFocusElement()->Blur();
             rml.context->ProcessMouseButtonDown(button, 0);
-        else
+        }
+        else {
             rml.context->ProcessMouseButtonUp(button, 0);
+        }
         break;
     }
 
@@ -484,8 +503,9 @@ void Renderer::processRmlUiEvent(const SDL_Event& event) const {
         break;
     }
 
-    // TODO: feedback to activate text input if rml is highlighted?
-
+    // TODO: backspace does not work
+    // TODO: for some reason, the letter 'e' will just replace the last written character
+    // TODO: Add left/right text cursor movement
     case SDL_EVENT_TEXT_INPUT:
         rml.context->ProcessTextInput(event.text.text);
         break;
@@ -504,6 +524,14 @@ void Renderer::render() {
     for (auto const& event : events) {
         ImGui_ImplSDL3_ProcessEvent(&event);
         processRmlUiEvent(event);
+    }
+
+    // Text focus override for RmlUi
+    if (isTextInputFocused(rml.context)) {
+        SDL_StartTextInput(window);
+    }
+    else if (!isTextInputFocused(rml.context) && !ImGui::GetIO().WantTextInput) { // Only stop text input if no other GUI requires it
+        SDL_StopTextInput(window);
     }
 
     //---------------------------------------
