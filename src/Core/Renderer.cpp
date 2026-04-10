@@ -568,6 +568,7 @@ void Renderer::render() {
     postRenderCallback.clear();
 
     // Start new imgui frame instantly, so that modules can render to it
+    // TODO: Remove the new imgui frame, relay on postRenderCallbacks only. Start a new imgui frame in renderInit
     ImGui_ImplSDLRenderer3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
