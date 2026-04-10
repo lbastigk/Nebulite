@@ -19,6 +19,18 @@
             }
         },
         {
+            "name": "linux-debug-temporary",
+            "inherits": "base",
+            "displayName": "Linux Debug",
+            "description": "Debug build for Linux",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_FLAGS": "-DUSE_DEBUG_RML_DOC",
+                "CMAKE_C_COMPILER": "/usr/bin/clang",
+                "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
+            }
+        },
+        {
             "name": "linux-debug",
             "inherits": "base",
             "displayName": "Linux Debug",

@@ -484,7 +484,15 @@ private:
             "./Resources/Rml/example.rml"
         };
 
+        // If we use the example rml in the normal release or debug binary,
+        // we get some annoying "missing variable" warnings that break the expected testing output.
+        // A different cmake target with USE_DEBUG_RML_DOC defined is used
+        // so we can activate the example doc without having to always go back and edit the code to switch between them
+#ifdef USE_DEBUG_RML_DOC
+        static auto constexpr testRmlDocumentPath = availableDocuments[1];
+#else
         static auto constexpr testRmlDocumentPath = availableDocuments[0];
+#endif
 
         std::unique_ptr<RenderInterface_SDL> renderInterface;
         std::unique_ptr<SystemInterface_SDL> systemInterface;
