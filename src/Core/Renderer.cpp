@@ -5,7 +5,6 @@
 #include <random>
 
 // External
-#include <absl/container/flat_hash_map.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
 #include <RmlUi/Core/Input.h>
@@ -13,16 +12,14 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "Core/Environment.hpp"
 #include "Core/Renderer.hpp"
 #include "Core/RenderObject.hpp"
 #include "DomainModule/GlobalSpace/Settings.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "Interaction/Invoke.hpp"
+#include "Module/RmlUi/TestPlugin.hpp"
 #include "Nebulite.hpp"
-#include "UI/Plugin/TestPlugin.hpp"
 #include "Utility/FileManagement.hpp"
-#include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {

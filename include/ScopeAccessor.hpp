@@ -45,8 +45,8 @@ namespace Nebulite::Interaction::Logic {
 class Expression; // Forward declaration of Expression
 } // namespace Nebulite::Interaction::Logic
 
-namespace Nebulite::UI::Plugin {
-class TestPlugin; // Forward declaration of TestPlugin
+namespace Nebulite::Module::Base {
+class RmlUiModule; // Forward declaration of RmlUiModule
 } // namespace Nebulite::UI::Plugin
 
 namespace Nebulite {
@@ -83,8 +83,8 @@ public:
         friend class DomainModule::Renderer::Console; // Console needs full access to display entire scope
         friend class DomainModule::Common::SimpleData; // Required for assign function
 
-        // Any Rml::Plugin gets full access (todo: proper Nebulite plugin base class that can provide an access token)
-        friend class UI::Plugin::TestPlugin;
+        // Any Rml::Plugin gets full access
+        friend class Module::Base::RmlUiModule;
     public:
         ~Full() = default;
     };

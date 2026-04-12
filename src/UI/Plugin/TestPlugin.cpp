@@ -1,18 +1,24 @@
+
+//------------------------------------------
+// Includes
+
+// Standard library
 #include <numeric>
 
-#include "UI/Plugin/TestPlugin.hpp"
+// External
+
+// Nebulite
+#include "Module/RmlUi/TestPlugin.hpp"
 #include "Nebulite.hpp"
-#include "ScopeAccessor.hpp"
 
-
+//------------------------------------------
 namespace Nebulite::UI::Plugin {
 
 void TestPlugin::update() {
-    auto const at = ScopeAccessor::Full();
     Interaction::ContextScope const ctx{
-        .self = Global::shareScope(at),
-        .other = Global::shareScope(at),
-        .global = Global::shareScope(at)
+        .self = Global::shareScope(accessToken),
+        .other = Global::shareScope(accessToken),
+        .global = Global::shareScope(accessToken)
     };
 
     for (auto const& elements : std::views::values(expressions)) {

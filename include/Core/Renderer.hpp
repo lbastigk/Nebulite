@@ -11,6 +11,7 @@
 // Includes
 
 // Standard library
+#include <vector>
 
 // External
 #include <absl/container/flat_hash_map.h>
@@ -23,10 +24,10 @@
 // Nebulite
 #include "Core/Environment.hpp"
 #include "Data/RendererProcessor.hpp"
-#include "UI/PluginBase.hpp"
-#include "Utility/TimeKeeper.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Module/Base/RmlUiModule.hpp"
+#include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -508,7 +509,7 @@ private:
         //       Idea: RML class to load document based on path, requires caller scope. Stores that info in a hashmap for every plugin to use
         //       Another issue here is lifetime of that contextScope. We need a way to destroy the gui document if any contextScope is destroyed.
         //       Perhaps adding a call to remove the gui document + it's context in the hashmap on DomainModule destruction would work.
-        std::unique_ptr<UI::PluginBase> testPlugin;
+        std::unique_ptr<Module::Base::RmlUiModule> testPlugin;
 
         void updateVariables(Data::JsonScope& domainScope) {
             testPlugin->update();

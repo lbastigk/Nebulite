@@ -1,19 +1,26 @@
 #ifndef RML_TEST_PLUGIN_HPP
 #define RML_TEST_PLUGIN_HPP
 
+//------------------------------------------
+// Includes
+
+// Standard library
+
+// External
 #include "absl/container/flat_hash_map.h"
 #include <RmlUi/Core.h>
 
+// Nebulite
 #include "Interaction/Logic/Expression.hpp"
 #include "Utility/Capture.hpp"
-#include "UI/PluginBase.hpp"
+#include "Module/Base/RmlUiModule.hpp"
 
-// TODO: custom plugin base class with virtual update() function + all standard virtual Rml::Plugin functions.
+//------------------------------------------
 namespace Nebulite::UI::Plugin {
 
-class TestPlugin final : public PluginBase {
+class TestPlugin final : public Module::Base::RmlUiModule {
 public:
-    explicit TestPlugin(Utility::Capture& c) : PluginBase(c) {}
+    explicit TestPlugin(Utility::Capture& c) : RmlUiModule(c) {}
 
     void update() override ;
 
