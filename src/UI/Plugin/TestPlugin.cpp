@@ -10,9 +10,9 @@ namespace Nebulite::UI::Plugin {
 void TestPlugin::update() {
     auto const at = ScopeAccessor::Full();
     Interaction::ContextScope const ctx{
-        Global::shareScope(at),
-        Global::shareScope(at),
-        Global::shareScope(at)
+        .self = Global::shareScope(at),
+        .other = Global::shareScope(at),
+        .global = Global::shareScope(at)
     };
 
     for (auto const& elements : std::views::values(expressions)) {
