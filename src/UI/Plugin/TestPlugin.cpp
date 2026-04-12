@@ -68,6 +68,7 @@ void TestPlugin::OnElementDestroy(Rml::Element* /*element*/) {
 
 }
 
+// TODO: Add attributes such as data-reflect that loop through each member of a given scope to, for example, dynamically generate lists
 void TestPlugin::compileDocument(Rml::ElementDocument* root, Rml::Element* element, size_t const& depth) {
     if (!element) return;
     if (element->GetAttribute("data-eval")) {
@@ -77,9 +78,9 @@ void TestPlugin::compileDocument(Rml::ElementDocument* root, Rml::Element* eleme
     else { // Do not evaluate any inner elements, as this could cause issues with pointers: parent element gets re-evaluated, potentially breaking element pointers of children.
         auto const count = static_cast<size_t>(element->GetNumChildren());
         std::vector<int> indices(count);
-        std::iota(indices.begin(), indices.end(), 0);
-        std::ranges::for_each(indices.begin(), indices.end(),[&](size_t const i){
-            compileDocument(root, element->GetChild(static_cast<int>(i)), depth + 1);
+        std::ranges::iota(indices, 0);
+        std::ranges::for_each(indices.begin(), indices.end(),[&](int const& idx){
+            compileDocument(root, element->GetChild(idx), depth + 1);
         });
     }
 }
