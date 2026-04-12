@@ -6,8 +6,29 @@
     </head>
     <body data-model="renderer">
     <h1>RmlUi</h1>
+
     <p>Hello <span id="world">world</span>!</p>
-    <p data-if="show_text">The quick brown fox jumps over the lazy {{animal}}.</p>
+
+    <hr />
+
+    <p data-eval="true">
+        Test expression, text only
+    </p>
+    <p data-eval="true">
+        Test expression, with variable:
+        {global.|typeAsString}
+    </p>
+    <p data-eval="true">
+        Test expression, with evaluation:
+        $06.2f(1+{global.time.t|sub 1})
+    </p>
+
+    <hr />
+
+    <p data-if="show_text">
+        The quick brown fox jumps over the lazy {{animal}}.
+    </p>
+
     <input type="text" data-value="animal"/>
     </body>
 </rml>

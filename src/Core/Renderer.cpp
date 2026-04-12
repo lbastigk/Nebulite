@@ -20,6 +20,7 @@
 #include "DomainModule/Initializer.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Nebulite.hpp"
+#include "UI/Plugin/TestPlugin.hpp"
 #include "Utility/FileManagement.hpp"
 #include "Utility/TimeKeeper.hpp"
 
@@ -206,6 +207,10 @@ void Renderer::initRmlUi() {
     if (!rml.systemInterface) {
         throw std::runtime_error("Failed to create system interface!");
     }
+
+    // Plugins
+    rml.testPlugin = std::make_unique<UI::Plugin::TestPlugin>();
+    RegisterPlugin(rml.testPlugin.get());
 
     // Context
     rml.context = Rml::CreateContext(

@@ -23,6 +23,7 @@
 // Nebulite
 #include "Core/Environment.hpp"
 #include "Data/RendererProcessor.hpp"
+#include "UI/Plugin/TestPlugin.hpp"
 #include "Utility/TimeKeeper.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Execution/Domain.hpp"
@@ -477,6 +478,7 @@ private:
     //------------------------------------------
     // Rml Interface
 
+    // TODO: Refactor into custom class outside of renderer
     struct RmlInterface {
 
         static std::array<std::string_view, 2> constexpr availableDocuments = {
@@ -500,7 +502,12 @@ private:
         Rml::ElementDocument* demoDocument;
         Rml::DataModelConstructor dataModelConstructor;
 
+        // TODO: vector of Nebulite::UI::RmlPlugin
+        std::unique_ptr<UI::Plugin::TestPlugin> testPlugin;
+
         void updateVariables(Data::JsonScope& domainScope) {
+            testPlugin->update();
+
             for (auto const& [member, key] : domainScope.listAvailableMembersAndKeys(domainScope.getRootScope())) {
                 if (auto it = registeredStrings.find(member); it == registeredStrings.end()) {
                     auto const value = domainScope.get<std::string>(key).value_or("");
