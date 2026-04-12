@@ -17,7 +17,7 @@
 #include "DomainModule/GlobalSpace/Settings.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "Interaction/Invoke.hpp"
-#include "Module/RmlUi/TestPlugin.hpp"
+#include "Module/RmlUi/ExpressionManager.hpp"
 #include "Nebulite.hpp"
 #include "Utility/FileManagement.hpp"
 
@@ -206,8 +206,11 @@ void Renderer::initRmlUi() {
     }
 
     // Plugins
-    rml.testPlugin = std::make_unique<UI::Plugin::TestPlugin>(capture);
-    RegisterPlugin(rml.testPlugin.get());
+    rml.modules.emplace_back(std::make_unique<Module::RmlUi::ExpressionManager>(capture));
+
+    for (auto& module : rml.modules) {
+        RegisterPlugin(module.get());
+    }
 
     // Context
     rml.context = Rml::CreateContext(

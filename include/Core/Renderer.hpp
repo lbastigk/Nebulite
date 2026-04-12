@@ -502,17 +502,12 @@ private:
         Rml::Context* context;
         Rml::ElementDocument* demoDocument;
         Rml::DataModelConstructor dataModelConstructor;
-
-        // TODO: hashmap/vector of plugins. We need some way to store contextScopes of each rml-document:
-        //       e.g. later on we have a GUI Renderer DomainModule, with a command like "load-gui conversation ./path/to/rml".
-        //       we need a way to store the contextScope self/other/global, where self is the callerScope.
-        //       Idea: RML class to load document based on path, requires caller scope. Stores that info in a hashmap for every plugin to use
-        //       Another issue here is lifetime of that contextScope. We need a way to destroy the gui document if any contextScope is destroyed.
-        //       Perhaps adding a call to remove the gui document + it's context in the hashmap on DomainModule destruction would work.
-        std::unique_ptr<Module::Base::RmlUiModule> testPlugin;
+        std::vector<std::unique_ptr<Module::Base::RmlUiModule>> modules;
 
         void updateVariables(Data::JsonScope& domainScope) {
-            testPlugin->update();
+            for (auto const& module : modules) {
+                module->update();
+            }
 
             for (auto const& [member, key] : domainScope.listAvailableMembersAndKeys(domainScope.getRootScope())) {
                 if (auto it = registeredStrings.find(member); it == registeredStrings.end()) {

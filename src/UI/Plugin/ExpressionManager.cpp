@@ -8,13 +8,13 @@
 // External
 
 // Nebulite
-#include "Module/RmlUi/TestPlugin.hpp"
+#include "Module/RmlUi/ExpressionManager.hpp"
 #include "Nebulite.hpp"
 
 //------------------------------------------
-namespace Nebulite::UI::Plugin {
+namespace Nebulite::Module::RmlUi {
 
-void TestPlugin::update() {
+void ExpressionManager::update() {
     Interaction::ContextScope const ctx{
         .self = Global::shareScope(accessToken),
         .other = Global::shareScope(accessToken),
@@ -30,46 +30,46 @@ void TestPlugin::update() {
     }
 }
 
-void TestPlugin::OnInitialise() {
+void ExpressionManager::OnInitialise() {
 
 }
 
-void TestPlugin::OnShutdown() {
+void ExpressionManager::OnShutdown() {
 
 }
 
 // NOLINTNEXTLINE
-void TestPlugin::OnDocumentOpen(Rml::Context* /*context*/, const Rml::String& /*document_path*/) {
+void ExpressionManager::OnDocumentOpen(Rml::Context* /*context*/, const Rml::String& /*document_path*/) {
 
 }
 
-void TestPlugin::OnDocumentLoad(Rml::ElementDocument* document) {
+void ExpressionManager::OnDocumentLoad(Rml::ElementDocument* document) {
     if (!document) return;
     compileDocument(document, document, 0);
 }
 
-void TestPlugin::OnDocumentUnload(Rml::ElementDocument* document) {
+void ExpressionManager::OnDocumentUnload(Rml::ElementDocument* document) {
     expressions.erase(document);
 }
 
-void TestPlugin::OnContextCreate(Rml::Context* /*context*/) {
+void ExpressionManager::OnContextCreate(Rml::Context* /*context*/) {
 
 }
 
-void TestPlugin::OnContextDestroy(Rml::Context* /*context*/) {
+void ExpressionManager::OnContextDestroy(Rml::Context* /*context*/) {
 
 }
 
-void TestPlugin::OnElementCreate(Rml::Element* /*element*/) {
+void ExpressionManager::OnElementCreate(Rml::Element* /*element*/) {
 
 }
 
-void TestPlugin::OnElementDestroy(Rml::Element* /*element*/) {
+void ExpressionManager::OnElementDestroy(Rml::Element* /*element*/) {
 
 }
 
 // TODO: Add attributes such as data-reflect that loop through each member of a given scope to, for example, dynamically generate lists
-void TestPlugin::compileDocument(Rml::ElementDocument* root, Rml::Element* element, size_t const& depth) {
+void ExpressionManager::compileDocument(Rml::ElementDocument* root, Rml::Element* element, size_t const& depth) {
     if (!element) return;
     if (element->GetAttribute("data-eval")) {
         // Nebulite Expression can handle text, so we don't need to sanitize the inner RML in any way.

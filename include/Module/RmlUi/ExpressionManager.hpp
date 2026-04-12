@@ -16,11 +16,11 @@
 #include "Module/Base/RmlUiModule.hpp"
 
 //------------------------------------------
-namespace Nebulite::UI::Plugin {
+namespace Nebulite::Module::RmlUi {
 
-class TestPlugin final : public Module::Base::RmlUiModule {
+class ExpressionManager final : public Base::RmlUiModule {
 public:
-    explicit TestPlugin(Utility::Capture& c) : RmlUiModule(c) {}
+    explicit ExpressionManager(Utility::Capture& c) : RmlUiModule(c) {}
 
     void update() override ;
 
@@ -44,6 +44,10 @@ public:
 
 private:
 
+    // TODO: set context for each document. Idea: Rml::ElementDocument* -> context in renderer, on document load via DomainModule, set context from caller scope
+    //       we need to store the Nebulite Renderer reference for each RmlUiModule so we can easily access this data from any module (or use Global::getRenderer()?
+    //       Then we can use another RmlUiModule just for context management on Document load/unload. If no context is available, use an dummy context (dummy scope for all scopes)
+
     absl::flat_hash_map<
         Rml::ElementDocument*,
         absl::flat_hash_map<
@@ -54,7 +58,5 @@ private:
 
     void compileDocument(Rml::ElementDocument* root, Rml::Element* element, size_t const& depth);
 };
-
-} //
-
+} // namespace Nebulite::UI::Plugin
 #endif // RML_TEST_PLUGIN_HPP
