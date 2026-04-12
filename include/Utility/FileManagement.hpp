@@ -21,24 +21,16 @@ namespace Nebulite::Utility {
 class FileManagement{
 public:
     /**
-     * @brief Combines two paths into one.
-     * 
-     * This function takes a base directory and an inner directory and combines them
-     * into a single path using the appropriate directory separator for the platform.
-     * 
+     * @brief Combines two paths into one using the appropriate directory separator for the platform.
      * @param baseDir The base directory.
      * @param innerDir The inner directory to append to the base directory.
-     * 
      * @return The combined path as a string.
      */
     static std::string CombinePaths(std::string_view const& baseDir, std::string_view const& innerDir);
 
     /**
      * @brief Loads the contents of a file into a string.
-     * 
-     * This function takes a file path and reads its contents into a string.
-     * Outputs error messages to cerr() if the file cannot be opened or read.
-     * 
+     * @details Outputs error messages to the Global error capture if the file cannot be opened or read.
      * @param link The path to the file to read.
      * @return The contents of the file as a string. If the file cannot be read,
      *         an empty string is returned.
@@ -47,10 +39,8 @@ public:
 
     /**
      * @brief Writes a string to a file.
-     * 
-     * This function takes a filename and a string and writes the string to the file.
-     * Outputs error messages to cerr() if the file cannot be opened/created for writing.
-     * 
+     * @details Takes a filename and a string and writes the string to the file.
+     *          Outputs error messages to the Global error capture if the file cannot be opened/created for writing.
      * @param filename The name of the file to write to.
      * @param text The text to write to the file.
      * @return True on success, false on failure
@@ -59,36 +49,27 @@ public:
 
     /**
      * @brief Returns the preferred directory separator for the platform.
-     * 
-     * This function returns the preferred directory separator character for the platform.
-     * 
      * @return The preferred directory separator character.
      */
     static char preferredSeparator();
 
     /**
      * @brief Returns the current working directory.
-     * 
-     * This function returns the current working directory as a string.
-     * Outputs error messages to cerr() if the directory cannot be accessed.
-     * 
+     * @details Outputs error messages to the Global error capture if the directory cannot be accessed.
      * @return The current working directory as a string.
      */
     static std::string currentDir();
 
     /**
      * @brief Checks if a file exists at the given path.
-     * 
-     * This function checks if a file exists at the specified path.
-     * 
      * @param path The path to the file to check.
-     * 
      * @return True if the file exists, false otherwise.
      */
     static bool fileExists(std::string_view const& path);
 
     /**
      * @brief List files in a directory
+     * @details Outputs error messages to the Global error capture if the directory cannot be accessed.
      * @param dir The directory to search
      * @return A vector of file names in the directory. If the directory cannot be accessed, an empty vector is returned.
      */

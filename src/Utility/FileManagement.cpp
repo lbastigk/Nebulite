@@ -91,7 +91,7 @@ std::vector<std::string> FileManagement::listFilesInDirectory(std::string_view c
             }
         }
     } catch (std::exception const& e) {
-            Global::capture().error.println("Error listing files in directory '", dir, "': ", e.what());
+        Global::capture().error.println("Error listing files in directory '", dir, "': ", e.what());
     }
     return files;
 }
