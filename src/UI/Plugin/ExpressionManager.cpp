@@ -10,24 +10,35 @@
 // Nebulite
 #include "Module/RmlUi/ExpressionManager.hpp"
 #include "Nebulite.hpp"
+#include "Utility/Coordination/TimedRoutine.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-void ExpressionManager::update() {
-    Interaction::ContextScope const ctx{
-        .self = Global::shareScope(accessToken),
-        .other = Global::shareScope(accessToken),
-        .global = Global::shareScope(accessToken)
-    };
+ExpressionManager::ExpressionManager(Utility::Capture& c) : RmlUiModule(c) {
+    evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
+        [this]() {
+            Interaction::ContextScope const ctx{
+                .self = Global::shareScope(accessToken),
+                .other = Global::shareScope(accessToken),
+                .global = Global::shareScope(accessToken)
+            };
 
-    for (auto const& elements : std::views::values(expressions)) {
-        for (auto& [element, expression] : elements) {
-            if (!element) continue;
-            auto const result = expression.eval(ctx);
-            element->SetInnerRML(result);
-        }
-    }
+            for (auto const& elements : std::views::values(expressions)) {
+                for (auto& [element, expression] : elements) {
+                    if (!element) continue;
+                    auto const result = expression.eval(ctx);
+                    element->SetInnerRML(result);
+                }
+            }
+        },
+        10, // Update every 10ms
+        Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+    );
+}
+
+void ExpressionManager::update() {
+    evaluationRoutine->update();
 }
 
 void ExpressionManager::OnInitialise() {
@@ -85,4 +96,4 @@ void ExpressionManager::compileDocument(Rml::ElementDocument* root, Rml::Element
     }
 }
 
-} // namespace Nebulite::UI::Plugin
+} // namespace Nebulite::Module::RmlUi

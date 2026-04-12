@@ -1,5 +1,5 @@
-#ifndef RML_TEST_PLUGIN_HPP
-#define RML_TEST_PLUGIN_HPP
+#ifndef NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP
+#define NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP
 
 //------------------------------------------
 // Includes
@@ -13,6 +13,7 @@
 // Nebulite
 #include "Interaction/Logic/Expression.hpp"
 #include "Utility/Capture.hpp"
+#include "Utility/Coordination/TimedRoutine.hpp"
 #include "Module/Base/RmlUiModule.hpp"
 
 //------------------------------------------
@@ -20,7 +21,7 @@ namespace Nebulite::Module::RmlUi {
 
 class ExpressionManager final : public Base::RmlUiModule {
 public:
-    explicit ExpressionManager(Utility::Capture& c) : RmlUiModule(c) {}
+    explicit ExpressionManager(Utility::Capture& c);
 
     void update() override ;
 
@@ -57,6 +58,8 @@ private:
     >expressions;
 
     void compileDocument(Rml::ElementDocument* root, Rml::Element* element, size_t const& depth);
+
+    std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
 };
-} // namespace Nebulite::UI::Plugin
-#endif // RML_TEST_PLUGIN_HPP
+} // namespace Nebulite::Module::RmlUi
+#endif // NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP
