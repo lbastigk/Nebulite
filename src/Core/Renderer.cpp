@@ -419,20 +419,40 @@ void Renderer::pollEvents() {
 
 namespace {
 Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode const& keycode) {
-    using KI = Rml::Input::KeyIdentifier;
     switch (keycode) {
-    case SDLK_BACKSPACE: return KI::KI_BACK;
-    case SDLK_TAB:       return KI::KI_TAB;
-    case SDLK_RETURN:    return KI::KI_RETURN;
-    case SDLK_ESCAPE:    return KI::KI_ESCAPE;
-    case SDLK_SPACE:     return KI::KI_SPACE;
-    case SDLK_DELETE:    return KI::KI_DELETE;
-    default:             return KI::KI_UNKNOWN;
+    // Basic text editing keys
+    case SDL_SCANCODE_BACKSPACE: return Rml::Input::KI_BACK;
+    case SDL_SCANCODE_TAB:       return Rml::Input::KI_TAB;
+    case SDL_SCANCODE_RETURN:    return Rml::Input::KI_RETURN;
+    case SDL_SCANCODE_SPACE:     return Rml::Input::KI_SPACE;
+    case SDL_SCANCODE_DELETE:    return Rml::Input::KI_DELETE;
+    // Arrow
+    case SDL_SCANCODE_LEFT:      return Rml::Input::KI_LEFT;
+    case SDL_SCANCODE_RIGHT:     return Rml::Input::KI_RIGHT;
+    case SDL_SCANCODE_UP:        return Rml::Input::KI_UP;
+    case SDL_SCANCODE_DOWN:      return Rml::Input::KI_DOWN;
+    // Other
+    case SDL_SCANCODE_ESCAPE:    return Rml::Input::KI_ESCAPE;
+    default:                     return Rml::Input::KI_UNKNOWN;
     }
 }
 
 int SdlModifierToRmlModifier(uint32_t const& modifier) {
-    return static_cast<int>(0 * modifier); // TODO: implement
+    int result = 0;
+
+    if (modifier & SDL_KMOD_SHIFT)
+        result |= Rml::Input::KM_SHIFT;
+
+    if (modifier & SDL_KMOD_CTRL)
+        result |= Rml::Input::KM_CTRL;
+
+    if (modifier & SDL_KMOD_ALT)
+        result |= Rml::Input::KM_ALT;
+
+    if (modifier & SDL_KMOD_GUI)
+        result |= Rml::Input::KM_META; // Windows key / Cmd key
+
+    return result;
 }
 
 bool isTextInputFocused(Rml::Context* context){
@@ -450,6 +470,13 @@ bool isTextInputFocused(Rml::Context* context){
     return false;
 }
 
+bool isTextSdlScancode(SDL_Scancode const& scancode) {
+    // Covers letters, numbers, and common symbols
+    return (scancode >= SDL_SCANCODE_A && scancode <= SDL_SCANCODE_Z) ||
+           (scancode >= SDL_SCANCODE_1 && scancode <= SDL_SCANCODE_0) ||
+           (scancode >= SDL_SCANCODE_MINUS && scancode <= SDL_SCANCODE_RIGHTBRACKET);
+}
+
 } // namespace
 
 void Renderer::processRmlUiEvent(const SDL_Event& event) const {
@@ -461,7 +488,7 @@ void Renderer::processRmlUiEvent(const SDL_Event& event) const {
         rml.context->ProcessMouseMove(
             static_cast<int>(event.motion.x),
             static_cast<int>(event.motion.y),
-            0
+            SdlModifierToRmlModifier(event.key.mod)
         );
         break;
 
@@ -476,26 +503,31 @@ void Renderer::processRmlUiEvent(const SDL_Event& event) const {
             // We assume the mouse click unfocused the element.
             // If the click was at the elements position, ProcessMouseButtonDown will refocus the element.
             rml.context->GetFocusElement()->Blur();
-            rml.context->ProcessMouseButtonDown(button, 0);
+            rml.context->ProcessMouseButtonDown(button, SdlModifierToRmlModifier(event.key.mod));
         }
         else {
-            rml.context->ProcessMouseButtonUp(button, 0);
+            rml.context->ProcessMouseButtonUp(button, SdlModifierToRmlModifier(event.key.mod));
         }
         break;
     }
 
     case SDL_EVENT_MOUSE_WHEEL: {
-        Rml::Vector2f const wheel = {event.wheel.x, event.wheel.y};
-        auto const mods = SdlModifierToRmlModifier(event.key.mod);
-        rml.context->ProcessMouseWheel(wheel, mods);
+        rml.context->ProcessMouseWheel(
+            {event.wheel.x, event.wheel.y},
+            SdlModifierToRmlModifier(event.key.mod)
+        );
         break;
     }
 
     case SDL_EVENT_KEY_DOWN:
     case SDL_EVENT_KEY_UP: {
+        // Skip keys that generate text input
+        if (isTextSdlScancode(event.key.scancode)) {
+            break;
+        }
+
         auto const rmlKey = SDLKeyToRmlKey(event.key.scancode);
         auto const mods = SdlModifierToRmlModifier(event.key.mod);
-
         if (event.type == SDL_EVENT_KEY_DOWN)
             rml.context->ProcessKeyDown(rmlKey, mods);
         else
@@ -503,9 +535,6 @@ void Renderer::processRmlUiEvent(const SDL_Event& event) const {
         break;
     }
 
-    // TODO: backspace does not work
-    // TODO: for some reason, the letter 'e' will just replace the last written character
-    // TODO: Add left/right text cursor movement
     case SDL_EVENT_TEXT_INPUT:
         rml.context->ProcessTextInput(event.text.text);
         break;
