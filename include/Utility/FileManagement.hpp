@@ -86,6 +86,13 @@ public:
      * @return True if the file exists, false otherwise.
      */
     static bool fileExists(std::string_view const& path);
+
+    /**
+     * @brief List files in a directory
+     * @param dir The directory to search
+     * @return A vector of file names in the directory. If the directory cannot be accessed, an empty vector is returned.
+     */
+    static std::vector<std::string> listFilesInDirectory(std::string_view const& dir);
 };
 } // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_FILE_MANAGEMENT_HPP

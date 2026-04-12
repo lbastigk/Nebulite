@@ -209,7 +209,7 @@ void Renderer::initRmlUi() {
     }
 
     // Plugins
-    rml.testPlugin = std::make_unique<UI::Plugin::TestPlugin>();
+    rml.testPlugin = std::make_unique<UI::Plugin::TestPlugin>(capture);
     RegisterPlugin(rml.testPlugin.get());
 
     // Context
@@ -227,8 +227,12 @@ void Renderer::initRmlUi() {
         throw std::runtime_error("Failed to create RmlUi context!");
     }
 
-    if (!Rml::LoadFontFace(pixelFontPath)) {
-        throw std::runtime_error("Failed to load font!");
+    for (auto constexpr fontDirectory = "./Resources/Fonts/"; auto& fontFile : Utility::FileManagement::listFilesInDirectory(fontDirectory)) {
+        if (fontFile.ends_with(".ttf")) {
+            if (auto const fontPath = fontDirectory + fontFile; !Rml::LoadFontFace(fontPath)) {
+                throw std::runtime_error("Failed to load font face for RmlUi from path: " + fontPath);
+            }
+        }
     }
 
     // Data Model

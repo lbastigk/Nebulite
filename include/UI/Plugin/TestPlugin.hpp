@@ -5,12 +5,14 @@
 #include <RmlUi/Core.h>
 
 #include "Interaction/Logic/Expression.hpp"
+#include "Utility/Capture.hpp"
 
 // TODO: custom plugin base class with virtual update() function + all standard virtual Rml::Plugin functions.
 namespace Nebulite::UI::Plugin {
 
 class TestPlugin final : public Rml::Plugin {
 public:
+    explicit TestPlugin(Utility::Capture& c) : capture(c) {}
 
     void update();
 
@@ -33,7 +35,7 @@ public:
     void OnElementDestroy(Rml::Element* element) override ;
 
 private:
-    void compileDocument(Rml::ElementDocument* root, Rml::Element* element, size_t const& depth);
+    Utility::Capture& capture; // Could be helpful for logging and error handling within the plugin.
 
     absl::flat_hash_map<
         Rml::ElementDocument*,
@@ -42,6 +44,8 @@ private:
             Interaction::Logic::Expression
         >
     >expressions;
+
+    void compileDocument(Rml::ElementDocument* root, Rml::Element* element, size_t const& depth);
 };
 
 } //

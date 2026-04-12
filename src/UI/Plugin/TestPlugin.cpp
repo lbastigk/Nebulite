@@ -1,11 +1,9 @@
-#include "UI/Plugin/TestPlugin.hpp"
+#include <numeric>
 
+#include "UI/Plugin/TestPlugin.hpp"
 #include "Nebulite.hpp"
 #include "ScopeAccessor.hpp"
-#include "Utility/StringHandler.hpp"
 
-#include <iostream>
-#include <numeric>
 
 namespace Nebulite::UI::Plugin {
 
@@ -66,19 +64,18 @@ void TestPlugin::OnElementDestroy(Rml::Element* /*element*/) {
 
 void TestPlugin::compileDocument(Rml::ElementDocument* root, Rml::Element* element, size_t const& depth) {
     if (!element) return;
-
-    // Show all strings with data-eval attribute, which need to be stored as expressions
-    if (std::string const inner = element->GetInnerRML(); !inner.empty() && element->GetAttribute("data-eval")) {
-        std::cout << Utility::StringHandler::replaceAll(inner, "\n", "\\n") << std::endl;
-        expressions[root].emplace(element, Interaction::Logic::Expression(inner));
+    if (element->GetAttribute("data-eval")) {
+        // Nebulite Expression can handle text, so we don't need to sanitize the inner RML in any way.
+        expressions[root].emplace(element, Interaction::Logic::Expression(element->GetInnerRML()));
     }
-
-    auto const count = static_cast<size_t>(element->GetNumChildren());
-    std::vector<int> indices(count);
-    std::iota(indices.begin(), indices.end(), 0);
-    std::ranges::for_each(indices.begin(), indices.end(),[&](size_t const i){
-        compileDocument(root, element->GetChild(static_cast<int>(i)), depth + 1);
-    });
+    else { // Do not evaluate any inner elements, as this could cause issues with pointers: parent element gets re-evaluated, potentially breaking element pointers of children.
+        auto const count = static_cast<size_t>(element->GetNumChildren());
+        std::vector<int> indices(count);
+        std::iota(indices.begin(), indices.end(), 0);
+        std::ranges::for_each(indices.begin(), indices.end(),[&](size_t const i){
+            compileDocument(root, element->GetChild(static_cast<int>(i)), depth + 1);
+        });
+    }
 }
 
 } // namespace Nebulite::UI::Plugin

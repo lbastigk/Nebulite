@@ -22,6 +22,10 @@
         Test expression, with evaluation:
         $06.2f(1+{global.time.t|sub 1})
     </p>
+    <p data-eval="true">
+        Test expression with <b>bold text</b> inside
+        {global.renderer.input.mouse.current|serialize}
+    </p>
 
     <hr />
 
