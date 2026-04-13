@@ -182,6 +182,7 @@ class Domain : public DocumentAccessor {
      *          - Constants::Event: Return type of the funcTree
      *          - Domain&: Provides access to the caller domain
      *          - Data::JsonScope&: provides access to the callers scope
+     * @todo Extend to CallerContext and CallerContextScope for more complex interactions that can resolve self/other/global interactions
      */
     std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>> funcTree;
 
