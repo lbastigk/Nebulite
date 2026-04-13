@@ -114,7 +114,7 @@ std::optional<T> JSON::jsonValueToCache(std::string const& key, rapidjson::Value
     new_entry->state = CacheEntry::EntryState::CLEAN;
 
     // Set stable double pointer
-    *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value).value_or(0.0); // Default to 0.0 if conversion fails
+    *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value).value_or(standardNumericValue); // Default to NAN if conversion fails
     new_entry->last_double_value = *new_entry->stable_double_ptr;
 
     // Insert into cache
