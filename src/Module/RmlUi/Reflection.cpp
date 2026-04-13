@@ -22,8 +22,8 @@ Reflection::Reflection(Utility::Capture& c, Core::Renderer& r) : RmlUiModule(c,r
                 .other = global,
                 .global = global
             };
-
-            // Todo: reflect on each entry
+            removeDeletedElements();
+            reflect();
         },
         10, // Update every 10ms
         Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
@@ -48,12 +48,11 @@ void Reflection::OnDocumentOpen(Rml::Context* /*context*/, const Rml::String& /*
 }
 
 void Reflection::OnDocumentLoad(Rml::ElementDocument* document) {
-    if (!document) return;
-    compileDocument(document, document, 0);
+
 }
 
 void Reflection::OnDocumentUnload(Rml::ElementDocument* document) {
-    expressions.erase(document);
+    reflections.erase(document);
 }
 
 void Reflection::OnContextCreate(Rml::Context* /*context*/) {
@@ -65,38 +64,81 @@ void Reflection::OnContextDestroy(Rml::Context* /*context*/) {
 }
 
 void Reflection::OnElementCreate(Rml::Element* element) {
-
-}
-
-void Reflection::OnElementDestroy(Rml::Element* /*element*/) {
-
-}
-
-
-void Reflection::compileDocument(Rml::ElementDocument* root, Rml::Element* element, size_t const& depth) {
     if (!element) return;
     if (element->GetAttribute("data-reflect")) {
-        // TODO: Add attributes such as data-reflect that loop through each member of a given scope to, for example, dynamically generate lists
-        // Idea: duplicate any inner rml for each member. The only issue is how we pass the correct context to each element. We need a way to store the context for each element.
-        // The only way to also get the member key is to copy the values on each update?
-        // e.g.: Reflect on global.obj with members a,b,c
-        // <p data-reflect="global.obj">
-        //   <p data-eval="true">
-        //     Member is: {self.key} with value: {self.value}
-        //   </p>
-        // </p>
-        // Would expand on every update
-        auto expression = std::string(element->GetAttribute("data-reflect")->Get<Rml::String>());
-        capture.warning.println("Data attribute data-reflect is not yet supported. Tried reflect on expression: ", expression);
-    }
-    else { // Do not evaluate any inner elements, as this could cause issues with pointers: parent element gets re-evaluated, potentially breaking element pointers of children.
-        auto const count = static_cast<size_t>(element->GetNumChildren());
-        std::vector<int> indices(count);
-        std::ranges::iota(indices, 0);
-        std::ranges::for_each(indices.begin(), indices.end(),[&](int const& idx){
-            compileDocument(root, element->GetChild(idx), depth + 1);
-        });
+        auto const expression = std::string(element->GetAttribute("data-reflect")->Get<Rml::String>());
+        reflections[element->GetOwnerDocument()].emplace(
+            element,
+            ReflectionEntry{
+                .entries = Interaction::Logic::Expression(expression),
+                .context = Interaction::ContextScope{
+                    .self = global,
+                    .other = global,
+                    .global = global
+                },
+                .rmlValue = element->GetInnerRML(),
+                .markedForDeletion = false
+            }
+        );
     }
 }
+
+void Reflection::OnElementDestroy(Rml::Element* element) {
+    if (!element) return;
+    if (auto const it = reflections[element->GetOwnerDocument()].find(element); it != reflections[element->GetOwnerDocument()].end()) {
+        it->second.markedForDeletion = true;
+    }
+}
+
+void Reflection::removeDeletedElements(){
+    for (auto& elements : std::views::values(reflections)) {
+        std::vector<Rml::Element*> elementsToRemove;
+        for (auto& [element, entry] : elements) {
+            if (entry.markedForDeletion) {
+                elementsToRemove.emplace_back(element);
+            }
+        }
+        for (auto const& elementToRemove : elementsToRemove) {
+            elements.erase(elementToRemove);
+        }
+    }
+}
+
+void Reflection::reflect(){
+    for (auto& elements : std::views::values(reflections)) {
+        for (auto& [element, entry] : elements) {
+            if (!element) continue;
+            if (entry.markedForDeletion) continue;
+            auto const jsonResult = entry.entries.evalAsJson(entry.context);
+            if (auto const type = jsonResult.memberType(""); type != Data::KeyType::array) {
+                capture.warning.println("Reflection expression did not evaluate to an array. Skipping reflection. Result: " + jsonResult.serialize());
+                continue;
+            }
+            auto repeat = [](size_t const count, std::string const& str) {
+                std::string result;
+                for (auto _ : std::views::iota(size_t{0}, count)) {
+                    result += str;
+                }
+                return result;
+            };
+            if (entry.rmlValue.empty()) {
+                entry.rmlValue = element->GetInnerRML();
+            }
+
+            size_t const size = jsonResult.memberSize("");
+            std::string const newRml = repeat(size, entry.rmlValue);
+            element->SetInnerRML(newRml);
+
+            // Check children size
+            if (size_t const childrenCount = element->GetNumChildren(); childrenCount != size) {
+                capture.warning.println("Rml Children count does not match reflection count. Expected: ", size, ", Actual: ", childrenCount);
+            }
+            else {
+                // Overwrite context for each element
+            }
+        }
+    }
+}
+
 
 } // namespace Nebulite::Module::RmlUi

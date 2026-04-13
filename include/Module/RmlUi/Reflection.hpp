@@ -52,17 +52,26 @@ private:
     //       we need to store the Nebulite Renderer reference for each RmlUiModule so we can easily access this data from any module (or use Global::getRenderer()?
     //       Then we can use another RmlUiModule just for context management on Document load/unload. If no context is available, use an dummy context (dummy scope for all scopes)
 
+    struct ReflectionEntry {
+        Interaction::Logic::Expression entries;
+        Interaction::ContextScope context;
+        Rml::String rmlValue;
+        bool markedForDeletion = false;
+    };
+
     absl::flat_hash_map<
         Rml::ElementDocument*,
         absl::flat_hash_map<
             Rml::Element*,
-            Interaction::Logic::Expression
+            ReflectionEntry
         >
-    >expressions;
-
-    void compileDocument(Rml::ElementDocument* root, Rml::Element* element, size_t const& depth);
+    >reflections;
 
     std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
+
+    void removeDeletedElements();
+
+    void reflect();
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // NEBULITE_MODULE_RMLUI_REFLECTION_HPP

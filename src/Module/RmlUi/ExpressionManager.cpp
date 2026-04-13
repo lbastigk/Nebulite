@@ -56,7 +56,7 @@ void ExpressionManager::OnContextDestroy(Rml::Context* /*context*/) {
 
 void ExpressionManager::OnElementCreate(Rml::Element* element) {
     if (!element) return;
-    if (element->GetAttribute("data-eval")) {
+    if (element->GetAttribute("data-eval") || element->GetAttribute("data-if")) {
         // On element creation, the inner rml is not set. So we create an empty ElementEntry that is populated later on.
         expressions[element->GetOwnerDocument()].emplace(element, ElementEntry());
     }
@@ -82,6 +82,7 @@ void ExpressionManager::OnElementCreate(Rml::Element* element) {
                 Data::ScopedKey const key{keyStr};
                 auto const value = global.get<std::string>(key).value_or("");
                 auto entry = std::make_unique<RegisteredEntry>();
+                entry->element = element;
                 entry->currentRmlValue = value;
                 entry->previousRmlValue = value;
                 entry->previousDocumentValue = value;
@@ -106,10 +107,14 @@ void ExpressionManager::OnElementDestroy(Rml::Element* element) {
 
 void ExpressionManager::removeDeletedElements(){
     for (auto& elements : std::views::values(expressions)) {
+        std::vector<Rml::Element*> elementsToRemove;
         for (auto& [element, entry] : elements) {
             if (entry.markedForDeletion) {
-                elements.erase(element);
+                elementsToRemove.emplace_back(element);
             }
+        }
+        for (auto const& elementToRemove : elementsToRemove) {
+            elements.erase(elementToRemove);
         }
     }
 }
@@ -153,9 +158,13 @@ void ExpressionManager::updateDataValues() {
         }
         // 2.) document -> rml
         else if (currentDocument != previousDocument) {
+            // TODO: does not work
+            //entry->element->
+            entry->element->SetAttribute("value", currentDocument);
             entry->currentRmlValue = currentDocument;
             entry->previousRmlValue = currentDocument;
             entry->previousDocumentValue = currentDocument;
+            entry->element->GetOwnerDocument()->UpdateDocument();
         }
     }
 }

@@ -67,6 +67,7 @@ private:
     >expressions;
 
     struct RegisteredEntry {
+        Rml::Element* element = nullptr;
         Rml::String currentRmlValue;
         Rml::String previousRmlValue;
         std::string previousDocumentValue;

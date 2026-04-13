@@ -37,7 +37,6 @@
         <p data-eval="true">
             Member is: {self.key} with value: {self.value}
         </p>
-
     </p>
 
     </body>
