@@ -56,10 +56,16 @@ public:
         "Usage: |filterNulls -> {filtered json}\n";
 
     static bool listMembers(Data::JsonScope* jsonDoc);
-    static auto constexpr listKeysName = "listMembers";
-    static auto constexpr listKeysDesc = "Lists all members of the current JSON object as an array.\n"
+    static auto constexpr listMembersName = "listMembers";
+    static auto constexpr listMembersDesc = "Lists all members of the current JSON object as an array.\n"
         "If the current value is an array, it lists the indices as strings.\n"
         "Usage: |listKeys -> {array of keys}\n";
+
+    static bool listMembersAndValues(Data::JsonScope* jsonDoc);
+    static auto constexpr listMembersAndValuesName = "listMembersAndValues";
+    static auto constexpr listMembersAndValuesDesc = "Lists all members of the current JSON object as an array of {key, value} objects.\n"
+        "If the current value is an array, it lists the indices as strings.\n"
+        "Usage: |listMembersAndValues -> {array of {key, value} objects}\n";
 };
 } // namespace Nebulite::TransformationModule
 #endif // NEBULITE_TRANSFORMATION_MODULE_COLLECTION_HPP

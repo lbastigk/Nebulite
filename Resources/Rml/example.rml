@@ -22,7 +22,7 @@
     <h>Data input</h>
 
     <p data-if="show_text">
-        The quick brown fox jumps over the lazy {{animal}}.
+        The quick brown fox jumps over the lazy {global.animal}.
     </p>
 
     <p>
@@ -33,10 +33,11 @@
     <hr />
     <h>Data-Reflect</h>
 
-    <p data-reflect="global.time">
+    <p data-reflect="{global.time|listMembersAndValues}">
         <p data-eval="true">
             Member is: {self.key} with value: {self.value}
         </p>
+
     </p>
 
     </body>

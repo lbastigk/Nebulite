@@ -86,8 +86,8 @@ void Reflection::compileDocument(Rml::ElementDocument* root, Rml::Element* eleme
         //   </p>
         // </p>
         // Would expand on every update
-        auto key = std::string(element->GetAttribute("data-reflect")->Get<Rml::String>());
-        capture.warning.println("Data attribute data-reflect is not yet supported. Tried reflect on key: ", key);
+        auto expression = std::string(element->GetAttribute("data-reflect")->Get<Rml::String>());
+        capture.warning.println("Data attribute data-reflect is not yet supported. Tried reflect on expression: ", expression);
     }
     else { // Do not evaluate any inner elements, as this could cause issues with pointers: parent element gets re-evaluated, potentially breaking element pointers of children.
         auto const count = static_cast<size_t>(element->GetNumChildren());
