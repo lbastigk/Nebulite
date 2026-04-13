@@ -62,22 +62,23 @@ Constants::Event General::func_if(std::span<std::string const> const& args, Inte
     }
 
     // See if any arg is "then", if so, only evaluate until then, and execute the rest as commands if the condition is true
-    size_t commandStart = 2;
-    if (auto const it = std::ranges::find(args.begin(), args.end(), "then"); it != args.end()) {
-        auto const idx = std::distance(args.begin(), it);
-        commandStart = static_cast<size_t>(idx) + 1;
-    }
+    auto commandStartFinder = [&] {
+        size_t start = 2;
+        if (auto const it = std::ranges::find(args, std::string("then")); it != args.end()) {
+            auto const idx = std::distance(args.begin(), it);
+            start = static_cast<size_t>(idx) + 1;
+        }
+        return start;
+    };
 
-    if (!Interaction::Logic::Expression::evalAsBool(Utility::StringHandler::recombineArgs(args.subspan(1, commandStart - 1)))) {
-        // If the condition is false/nan, skip the following commands
-        return Constants::Event::Success;
+    // Conditional check
+    if (size_t const commandStart = commandStartFinder(); Interaction::Logic::Expression::evalAsBool(Utility::StringHandler::recombineArgs(args.subspan(1, commandStart - 1)))) {
+        std::string commands = Utility::StringHandler::recombineArgs(args.subspan(commandStart));
+        commands = __FUNCTION__ + std::string(" ") + commands;
+        (void)callerScope; // Unused parameter
+        return caller.parseStr(commands);
     }
-
-    // Build the command string from rest
-    std::string commands = Utility::StringHandler::recombineArgs(args.subspan(commandStart));
-    commands = __FUNCTION__ + std::string(" ") + commands;
-    (void)callerScope; // Unused parameter
-    return caller.parseStr(commands);
+    return Constants::Event::Success;
 }
 
 Constants::Event General::func_assert(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
