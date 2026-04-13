@@ -33,6 +33,12 @@
         The quick brown fox jumps over the lazy {{animal}}.
     </p>
 
+    <p data-reflect="global.time">
+        <p data-eval="true">
+            Member is: {self.key} with value: {self.value}
+        </p>
+    </p>
+
     <input type="text" data-value="animal"/>
     </body>
 </rml>
