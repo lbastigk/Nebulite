@@ -25,7 +25,10 @@
         The quick brown fox jumps over the lazy {{animal}}.
     </p>
 
-    <input type="text" data-value="animal"/>
+    <p>
+        <input type="text" data-value="animal"/>
+    </p>
+
 
     <hr />
     <h>Data-Reflect</h>

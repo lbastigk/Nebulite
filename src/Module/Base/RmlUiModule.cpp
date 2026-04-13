@@ -3,9 +3,12 @@
 
 namespace Nebulite::Module::Base {
 
-RmlUiModule::RmlUiModule(Utility::Capture& c, Core::Renderer& r) : accessToken(ScopeAccessor::Full()), capture(c), renderer(r) {
-}
+RmlUiModule::RmlUiModule(Utility::Capture& c, Core::Renderer& r) :
+    capture(c),
+    renderer(r),
+    global(Global::shareScope(ScopeAccessor::Full()))
+{}
 
-void RmlUiModule::update() {};
+void RmlUiModule::update() {}
 
 } // namespace Nebulite::Module::Base

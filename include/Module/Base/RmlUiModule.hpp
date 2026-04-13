@@ -21,11 +21,12 @@ public:
     virtual void update();
 
 protected:
-    ScopeAccessor::BaseAccessToken const accessToken;
 
     Utility::Capture& capture;
 
     Core::Renderer& renderer;
+
+    Data::JsonScope& global;
 };
 } // namespace Nebulite::Module::Base
 #endif // NEBULITE_MODULE_BASE_RML_UI_MODULE_HPP

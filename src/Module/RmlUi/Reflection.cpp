@@ -18,9 +18,9 @@ Reflection::Reflection(Utility::Capture& c, Core::Renderer& r) : RmlUiModule(c,r
     evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
         [this] {
             Interaction::ContextScope const ctx{
-                .self = Global::shareScope(accessToken),
-                .other = Global::shareScope(accessToken),
-                .global = Global::shareScope(accessToken)
+                .self = global,
+                .other = global,
+                .global = global
             };
 
             // Todo: reflect on each entry

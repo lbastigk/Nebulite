@@ -57,11 +57,11 @@ void ExpressionManager::OnContextDestroy(Rml::Context* /*context*/) {
 void ExpressionManager::OnElementCreate(Rml::Element* element) {
     if (!element) return;
     if (element->GetAttribute("data-eval")) {
-        // Nebulite Expression can handle text, so we don't need to sanitize the inner RML in any way.
+        // On element creation, the inner rml is not set. So we create an empty ElementEntry that is populated later on.
         expressions[element->GetOwnerDocument()].emplace(element, ElementEntry());
     }
 
-    // TODO: For some reason this just causes the data-if field to be empty:
+    // TODO: For some reason this just causes the data-if field to be empty. Please Investigate!
 
     // Check if the element has a data-value
     auto const dataAttributes = {
@@ -69,19 +69,24 @@ void ExpressionManager::OnElementCreate(Rml::Element* element) {
         "data-if"
     };
     for (auto const& attribute : dataAttributes) {
-        auto const variantValue = element->GetAttribute(attribute);
-        if (!variantValue) continue;
+        auto const rmlValue = element->GetAttribute(attribute);
+        if (!rmlValue) continue;
 
-        if (variantValue->GetType() == Rml::Variant::STRING) {
-            auto const keyStr = std::string(variantValue->Get<Rml::String>());
-            auto& scope = Global::shareScope(accessToken);
+        // TODO: use attribute data-context. Fallback to global if not available
+        // Still, we need a document to owner map, so we can dynamically set context. Should be enough to use the callerScope as self/other
+
+        if (rmlValue->GetType() == Rml::Variant::STRING) {
+            auto const keyStr = std::string(rmlValue->Get<Rml::String>());
             if (auto it = registeredStrings.find(keyStr); it == registeredStrings.end()) {
+                // Create entry
                 Data::ScopedKey const key{keyStr};
-                auto const value = scope.get<std::string>(key).value_or("");
+                auto const value = global.get<std::string>(key).value_or("");
                 auto entry = std::make_unique<RegisteredEntry>();
                 entry->currentRmlValue = value;
                 entry->previousRmlValue = value;
                 entry->previousDocumentValue = value;
+
+                // Register entry
                 renderer.getDataModelConstructor().Bind(keyStr, &entry->currentRmlValue);
                 registeredStrings.emplace(keyStr, std::move(entry));
             }
@@ -111,9 +116,9 @@ void ExpressionManager::removeDeletedElements(){
 
 void ExpressionManager::updateExpressions(){
     Interaction::ContextScope const ctx{
-        .self = Global::shareScope(accessToken),
-        .other = Global::shareScope(accessToken),
-        .global = Global::shareScope(accessToken)
+        .self = global,
+        .other = global,
+        .global = global
     };
 
     for (auto& elements : std::views::values(expressions)) {
@@ -130,19 +135,18 @@ void ExpressionManager::updateExpressions(){
 }
 
 void ExpressionManager::updateDataValues() {
-    auto& scope = Global::shareScope(accessToken);
     for (auto const& [keyStr, entry] : registeredStrings) {
         auto key = Data::ScopedKey{keyStr};
         // Determine data flow
         auto& currentRml = entry->currentRmlValue;
         auto const& previousRml = entry->previousRmlValue;
 
-        auto currentDocument = scope.get<std::string>(key).value_or("");
+        auto currentDocument = global.get<std::string>(key).value_or("");
         auto const& previousDocument = entry->previousDocumentValue;
 
         // 1.) rml -> document
         if (currentRml != previousRml) {
-            scope.set<std::string>(key, currentRml);
+            global.set<std::string>(key, currentRml);
             entry->currentRmlValue = currentRml;
             entry->previousRmlValue = currentRml;
             entry->previousDocumentValue = currentRml;

@@ -22,6 +22,9 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+set show_text 1
+set animal dog
+
 # grid or example
 set rml.settings.document_to_show example
 
