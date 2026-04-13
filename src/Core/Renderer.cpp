@@ -359,8 +359,7 @@ int Renderer::getPosY() const { return domainScope.get<int>(Constants::KeyNames:
 //------------------------------------------
 // Rml context
 
-std::optional<Interaction::ContextScope> Renderer::getRmlElementContextScope(Rml::Element* element) {
-    if (!element) return std::nullopt;
+std::optional<Interaction::ContextScope> Renderer::getRmlElementContextScope(RmlInterface::RmlElementIdentifier const& element) {
     if (auto const it = rml.elementContextScopes.find(element); it != rml.elementContextScopes.end()) {
         return it->second;
     }
@@ -375,8 +374,7 @@ std::optional<Interaction::ContextScope> Renderer::getRmlDocumentContextScope(Rm
     return std::nullopt;
 }
 
-void Renderer::setRmlElementContextScope(Rml::Element* element, Interaction::ContextScope const& context) {
-    if (!element) return;
+void Renderer::setRmlElementContextScope(RmlInterface::RmlElementIdentifier const& element, Interaction::ContextScope const& context) {
     rml.elementContextScopes.emplace(element, context);
 }
 
@@ -633,6 +631,9 @@ void Renderer::render() {
     // Custom callback functions
     for (auto const& callback : postRenderCallback) {
         callback();
+    }
+    for (auto const& module : rml.modules) {
+        module->postRenderUpdate();
     }
     postRenderCallback.clear();
 

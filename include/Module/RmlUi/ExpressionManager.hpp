@@ -29,6 +29,8 @@ public:
 
     void update() override ;
 
+    void postRenderUpdate() override;
+
     void OnInitialise() override ;
 
     void OnShutdown() override ;
@@ -49,6 +51,8 @@ public:
 
 private:
 
+    bool expressionsWereEvaluated = false;
+
     // TODO: Separate module for simple input to variable sync: <input type="text" data-value="animal"/>
     //       Two-way sync would be nice.
 
@@ -56,18 +60,23 @@ private:
     //       we need to store the Nebulite Renderer reference for each RmlUiModule so we can easily access this data from any module (or use Global::getRenderer()?
     //       Then we can use another RmlUiModule just for context management on Document load/unload. If no context is available, use an dummy context (dummy scope for all scopes)
 
-    struct ElementEntry {
-        std::optional<Interaction::Logic::Expression> expression;
-        bool markedForDeletion = false;
-    };
+    std::vector<Rml::ElementDocument*> documents;
 
     absl::flat_hash_map<
-        Rml::ElementDocument*,
-        absl::flat_hash_map<
-            Rml::Element*,
-            ElementEntry
-        >
-    >expressions;
+        Rml::String,
+        Interaction::Logic::Expression
+    > expressions;
+
+    absl::flat_hash_map<
+        Rml::Element*,
+        Rml::String
+    > rmlStrings;
+
+    void updateExpressions();
+
+    void resetExpressions();
+
+    //--------------------------------
 
     struct RegisteredEntry {
         Rml::Element* element = nullptr;
@@ -80,14 +89,9 @@ private:
 
     std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
 
-    void removeDeletedElements();
-
-    void updateExpressions();
-
     void updateDataValues();
 
-    size_t elementsAdded = 0;
-    size_t elementsRemoved = 0;
+
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP

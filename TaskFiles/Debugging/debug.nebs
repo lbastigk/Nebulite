@@ -22,6 +22,10 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+set test.member1 value1
+set test.member2 value2
+set test.member3 value3
+
 set show_text 1
 set animal dog
 
@@ -34,8 +38,7 @@ if $({global.rml.settings.document_to_show|strCompare equals example}) then rmlu
 set renderer.animal dog
 set renderer.show_text true
 
-set settings.n 10
-task TaskFiles/Benchmarks/gravity_XL_unlimited.nebs
-wait 1
-
-imgui-view on
+#set settings.n 10
+#task TaskFiles/Benchmarks/gravity_XL_unlimited.nebs
+#wait 1
+#imgui-view on

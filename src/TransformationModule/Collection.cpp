@@ -179,8 +179,10 @@ bool Collection::listMembers(Data::JsonScope* jsonDoc){
             auto const& [i, memberAndKey] = enumeratedMemberAndKey;
             auto const& [member, _] = memberAndKey;
 
+            auto key = Data::ScopedKey(rootKey.toString() + "[" + std::to_string(i) + "]");
+
             jsonDoc->set<std::string>(
-                rootKey + "[" + std::to_string(i) + "]",
+                key,
                 member
             );
         }
@@ -196,7 +198,9 @@ bool Collection::listMembersAndValues(Data::JsonScope* jsonDoc){
         [&](auto const& enumeratedMemberAndKey) {
             auto const& [i, memberAndKey] = enumeratedMemberAndKey;
             auto const& [member, key] = memberAndKey;
-            values.push_back(jsonDoc->getSubDoc(key));
+            Data::JSON newObject;
+            newObject.deserialize(jsonDoc->serialize(key));
+            values.push_back(std::move(newObject));
         }
     );
 
@@ -207,14 +211,18 @@ bool Collection::listMembersAndValues(Data::JsonScope* jsonDoc){
             auto const& [i, memberAndKey] = enumeratedMemberAndKey;
             auto const& [member, key] = memberAndKey;
 
+            auto key1 = Data::ScopedKey(rootKey.toString() + "[" + std::to_string(i) + "].key");
+            auto key2 = Data::ScopedKey(rootKey.toString() + "[" + std::to_string(i) + "].value");
+
             jsonDoc->set<std::string>(
-                rootKey + "[" + std::to_string(i) + "].key",
+                key1,
                 member
             );
             jsonDoc->setSubDoc(
-                rootKey + "[" + std::to_string(i) + "].value",
+                key2,
                 values[i]
             );
+
         }
     );
     return true;

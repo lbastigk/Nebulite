@@ -20,6 +20,8 @@ public:
 
     virtual void update();
 
+    virtual void postRenderUpdate();
+
 protected:
 
     Utility::Capture& capture;
@@ -27,6 +29,8 @@ protected:
     Core::Renderer& renderer;
 
     Data::JsonScope& global;
+
+    static void updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*, size_t const&)> const& updateFunc);
 };
 } // namespace Nebulite::Module::Base
 #endif // NEBULITE_MODULE_BASE_RML_UI_MODULE_HPP

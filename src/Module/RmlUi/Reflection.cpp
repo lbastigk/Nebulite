@@ -15,7 +15,7 @@ Reflection::Reflection(Utility::Capture& c, Core::Renderer& r) : RmlUiModule(c,r
             removeDeletedElements();
             reflect();
         },
-        1000, // ms
+        100, // ms
         Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
     );
 }
@@ -67,6 +67,7 @@ void Reflection::OnElementCreate(Rml::Element* element) {
                     .global = global
                 },
                 .rmlValue = element->GetInnerRML(),
+                .jsonResult = Data::JSON(),
                 .markedForDeletion = false
             }
         );
@@ -96,56 +97,19 @@ void Reflection::removeDeletedElements(){
 
 //----------------------------------------------
 
-/*
-
-TODO... does not work correctly at the moment. On every update, the result switches between two:
-
-<p data-reflect="{global.time|listMembersAndValues}">
-    <p data-eval="true">
-        Member is: {self.key} with value: {self.value}.
-    </p>
-</p>
-
-[FRAME 1]
-Member is: {self.key} with value: {self.value}.
-Member is: {self.key} with value: {self.value}.
-Member is: {self.key} with value: {self.value}.
-Member is: {self.key} with value: {self.value}.
-Member is: dt with value: 0.001.
-
-[FRAME 2]
-Member is: {self.key} with value: {self.value}.
-Member is: dt_ms with value: 1.
-Member is: frameCount with value: 6422.
-Member is: runtime with value: {object}.
-Member is: t with value: 6.342.
-Member is: t_ms with value: 6432.
-
-capture output:
-
---------------------------
-0x2a5e6d8 -> [0] = dt
-0x2a5e540 -> [1] = dt_ms
-0x2a5e3a8 -> [2] = frameCount
-0x2a5e210 -> [3] = runtime
-0x2a5e078 -> [4] = t
-0x2a5dee0 -> [5] = t_ms
---------------------------
-0x2a5dee0 -> [0] = dt
-0x2a5e078 -> [1] = dt_ms
-0x2a5e210 -> [2] = frameCount
-0x2a5e3a8 -> [3] = runtime
-0x2a5e540 -> [4] = t
-0x2a5e6d8 -> [5] = t_ms
-
- */
-
 void Reflection::reflect(){
     for (auto& elements : std::views::values(reflections)) {
         for (auto& [element, entry] : elements) {
             if (!element) continue;
             if (entry.markedForDeletion) continue;
             entry.jsonResult = entry.entries.evalAsJson(entry.context);
+
+            // TODO: the f*cking json wrapper has cache issues...
+            // Copy is required, otherwise we have the key values, e.g. '[2].key', are numbers???
+            // A new JSON wrapper with better cache treatment is required ...
+            std::string const serial = entry.jsonResult.serialize();
+            entry.jsonResult.deserialize(serial);
+
             if (auto const type = entry.jsonResult.memberType(""); type != Data::KeyType::array) {
                 capture.warning.println("Reflection expression did not evaluate to an array. Skipping reflection. Result: " + entry.jsonResult.serialize());
                 continue;
@@ -165,7 +129,6 @@ void Reflection::reflect(){
             }
             else {
                 // Overwrite context for each element
-                capture.log.println("--------------------------");
                 for (size_t i = 0; i < size; ++i) {
                     auto const& child = element->GetChild(static_cast<int>(i));
                     if (!child) {
@@ -179,9 +142,8 @@ void Reflection::reflect(){
                         .other = entry.context.other,
                         .global = entry.context.global,
                     };
-                    renderer.setRmlElementContextScope(child, childContext);
-
-                    capture.log.println(child, " -> ",childKey, " = ", entry.jsonResult.get<std::string>(childKey+".key").value_or("???"));
+                    Core::Renderer::RmlInterface::RmlElementIdentifier childId(element, i, child);
+                    renderer.setRmlElementContextScope(childId, childContext);
                 }
             }
         }

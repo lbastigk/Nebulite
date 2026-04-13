@@ -7,14 +7,10 @@
 // Standard library
 
 // External
-#include "absl/container/flat_hash_map.h"
-#include "absl/container/node_hash_map.h"
 #include <RmlUi/Core.h>
 
 // Nebulite
-#include "Interaction/Logic/Expression.hpp"
 #include "Utility/Capture.hpp"
-#include "Utility/Coordination/TimedRoutine.hpp"
 #include "Module/Base/RmlUiModule.hpp"
 
 //------------------------------------------
@@ -45,6 +41,8 @@ public:
     void OnElementDestroy(Rml::Element* element) override ;
 
 private:
+
+    std::vector<Rml::ElementDocument*> documents;
 
     std::vector<Rml::Element*> toRegister;
 };

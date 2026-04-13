@@ -15,32 +15,20 @@ ContextManager::ContextManager(Utility::Capture& c, Core::Renderer& r) : RmlUiMo
 }
 
 void ContextManager::update() {
-    for (auto const& element : toRegister) {
-        if (renderer.getRmlElementContextScope(element).has_value()) {
-            capture.warning.println("Element already has a context. Skipping context assignment for element: " + std::string(element->GetTagName()));
-            continue;
-        }
-
-        // See if a document is available now
-        if (element->GetOwnerDocument()) {
-            if (auto context = renderer.getRmlDocumentContextScope(element->GetOwnerDocument()); context.has_value()) {
-                renderer.setRmlElementContextScope(element, context.value());
+    for (auto const& document : documents) {
+        updateElement(document, [&](Rml::Element* element, Rml::Element* parent, size_t const& index) {
+            if (element->GetAttribute("data-eval") || element->GetAttribute("data-if")) {
+                // Skip elements that are part of a reflection, as they will be handled by the Reflection module
+                if (!parent->GetAttribute("data-reflect")) {
+                    if (Core::Renderer::RmlInterface::RmlElementIdentifier const elementId(parent, index, element); !renderer.getRmlElementContextScope(elementId).has_value()) {
+                        if (auto const ctx = renderer.getRmlDocumentContextScope(document); ctx.has_value()) {
+                            renderer.setRmlElementContextScope(elementId, ctx.value());
+                        }
+                    }
+                }
             }
-            // Edge case: document and element have the same tag name?
-            else if (element->GetTagName() == element->GetOwnerDocument()->GetTagName()) {
-                renderer.setRmlElementContextScope(element, {
-                    .self = global,
-                    .other = global,
-                    .global = global
-                });
-            }
-            else {
-                capture.warning.println("Document does not have a context. Skipping context assignment for element: " + std::string(element->GetTagName()));
-                capture.warning.println("Document Tag name:", element->GetOwnerDocument()->GetTagName());
-            }
-        }
+        });
     }
-    toRegister.clear();
 }
 
 void ContextManager::OnInitialise() {
@@ -53,7 +41,6 @@ void ContextManager::OnShutdown() {
 
 // NOLINTNEXTLINE
 void ContextManager::OnDocumentOpen(Rml::Context* /*context*/, const Rml::String& /*document_path*/) {
-
 }
 
 void ContextManager::OnDocumentLoad(Rml::ElementDocument* document) {
@@ -64,10 +51,11 @@ void ContextManager::OnDocumentLoad(Rml::ElementDocument* document) {
         .other = global,
         .global = global
     });
+    documents.push_back(document);
 }
 
 void ContextManager::OnDocumentUnload(Rml::ElementDocument* document) {
-
+    std::erase(documents, document);
 }
 
 void ContextManager::OnContextCreate(Rml::Context* /*context*/) {

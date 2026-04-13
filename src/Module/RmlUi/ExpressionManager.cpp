@@ -12,15 +12,9 @@ namespace Nebulite::Module::RmlUi {
 ExpressionManager::ExpressionManager(Utility::Capture& c, Core::Renderer& r) : RmlUiModule(c,r) {
     evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
         [this] {
-            removeDeletedElements();
-            updateExpressions();
             updateDataValues();
-
-            if (elementsAdded > 0) {
-                capture.log.println("Added ", elementsAdded, " elements with expressions to the expression manager. Removed ", elementsRemoved, " elements.");
-                elementsAdded = 0;
-                elementsRemoved = 0;
-            }
+            updateExpressions();
+            expressionsWereEvaluated = true;
         },
         10, // Update every 10ms
         Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
@@ -29,6 +23,13 @@ ExpressionManager::ExpressionManager(Utility::Capture& c, Core::Renderer& r) : R
 
 void ExpressionManager::update() {
     evaluationRoutine->update();
+}
+
+void ExpressionManager::postRenderUpdate() {
+    if (expressionsWereEvaluated) {
+        resetExpressions();
+        expressionsWereEvaluated = false;
+    }
 }
 
 void ExpressionManager::OnInitialise() {
@@ -44,12 +45,12 @@ void ExpressionManager::OnDocumentOpen(Rml::Context* /*context*/, const Rml::Str
 
 }
 
-void ExpressionManager::OnDocumentLoad(Rml::ElementDocument* /*document*/) {
-
+void ExpressionManager::OnDocumentLoad(Rml::ElementDocument* document) {
+    documents.emplace_back(document);
 }
 
 void ExpressionManager::OnDocumentUnload(Rml::ElementDocument* document) {
-    expressions.erase(document);
+    std::erase(documents, document);
 }
 
 void ExpressionManager::OnContextCreate(Rml::Context* /*context*/) {
@@ -62,13 +63,6 @@ void ExpressionManager::OnContextDestroy(Rml::Context* /*context*/) {
 
 void ExpressionManager::OnElementCreate(Rml::Element* element) {
     if (!element) return;
-    if (element->GetAttribute("data-eval") || element->GetAttribute("data-if")) {
-        // On element creation, the inner rml is not set. So we create an empty ElementEntry that is populated later on.
-        expressions[element->GetOwnerDocument()].emplace(element, ElementEntry());
-        elementsAdded++;
-    }
-
-    // TODO: For some reason this just causes the data-if field to be empty. Please Investigate!
 
     // Check if the element has a data-value
     auto const dataAttributes = {
@@ -102,64 +96,47 @@ void ExpressionManager::OnElementCreate(Rml::Element* element) {
     }
 }
 
-void ExpressionManager::OnElementDestroy(Rml::Element* element) {
-    for (auto& elementMap: std::views::values(expressions)) {
-        if (auto const it = elementMap.find(element); it != elementMap.end()) {
-            element->SetInnerRML(it->second.expression->getFullExpression());
-            it->second.markedForDeletion = true;
-            elementsRemoved++;
-        }
-    }
+void ExpressionManager::OnElementDestroy(Rml::Element* /*element*/) {
+
 }
 
 //----------------------------------------------
 
-void ExpressionManager::removeDeletedElements(){
-    for (auto& elements : std::views::values(expressions)) {
-        std::vector<Rml::Element*> elementsToRemove;
-        for (auto& [element, entry] : elements) {
-            if (entry.markedForDeletion) {
-                elementsToRemove.emplace_back(element);
+void ExpressionManager::updateExpressions(){
+    for (auto const& document : documents) {
+        updateElement(document, [&](Rml::Element* element, Rml::Element* parent, size_t const& index) {
+            if (element->GetAttribute("data-eval") || element->GetAttribute("data-if")) {
+                // On element creation, the inner rml is not set. So we create an empty ElementEntry that is populated later on.
+                Rml::String innerRml = element->GetInnerRML();
+                rmlStrings[element] = innerRml;
+                if (auto const it = expressions.find(innerRml); it == expressions.end()) {
+                    expressions.emplace(innerRml, Interaction::Logic::Expression(innerRml));
+                }
+
+                Core::Renderer::RmlInterface::RmlElementIdentifier const elementId(parent, index, element);
+                if (auto const context = renderer.getRmlElementContextScope(elementId); context.has_value()) {
+                    if (auto const it = expressions.find(innerRml); it != expressions.end()) {
+                        std::string const& evaluated = it->second.eval(context.value());
+                        element->SetInnerRML(evaluated);
+
+                        //capture.log.println("Evaluated with context: ", context.value().self.serialize());
+                    }
+                } else {
+                    capture.warning.println("Could not find context for expression: " + innerRml);
+                }
             }
-        }
-        for (auto const& elementToRemove : elementsToRemove) {
-            elements.erase(elementToRemove);
-        }
+        });
     }
 }
 
-void ExpressionManager::updateExpressions(){
-    for (auto& elements : std::views::values(expressions)) {
-        for (auto& [element, entry] : elements) {
-            if (!element || entry.markedForDeletion) {
-                continue;
+void ExpressionManager::resetExpressions(){
+    for (auto const& document : documents) {
+        updateElement(document, [&](Rml::Element* element, Rml::Element* /*parent*/, size_t const& /*index*/) {
+            if (element->GetAttribute("data-eval") || element->GetAttribute("data-if")) {
+                // Reset
+                element->SetInnerRML(rmlStrings[element]);
             }
-            if (!entry.expression.has_value()) {
-                std::string const& innerRml = element->GetInnerRML();
-                entry.expression.emplace(innerRml);
-            }
-            auto const ctx = renderer.getRmlElementContextScope(element);
-
-            if (!ctx.has_value()) {
-                capture.warning.println("Element does not have a context. Skipping expression evaluation for element: " + std::string(element->GetTagName()), " with pointer", element);
-                continue;
-            }
-
-
-
-            auto const result = entry.expression.value().eval(ctx.value());
-
-            // DEBUG: Show scope of entry self:
-            capture.log.println("Evaluating with scope prefix: ", ctx.value().self.getScopePrefix());
-            capture.log.println(ctx.value().self.serialize());
-            capture.log.println(
-                Utility::StringHandler::strip(entry.expression.value().getFullExpression()),
-                " = ",
-                Utility::StringHandler::strip(result)
-            );
-
-            element->SetInnerRML(result);
-        }
+        });
     }
 }
 
