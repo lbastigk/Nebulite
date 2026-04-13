@@ -71,8 +71,23 @@ void ExpressionManager::OnContextDestroy(Rml::Context* /*context*/) {
 
 }
 
-void ExpressionManager::OnElementCreate(Rml::Element* /*element*/) {
+void ExpressionManager::OnElementCreate(Rml::Element* element) {
+    // Check if the element has a data-value
+    if (element) {
+        auto const dataAttributes = {
+            "data-value",
+            "data-if"
+        };
+        for (auto const& attribute : dataAttributes) {
+            auto const value = element->GetAttribute(attribute);
+            if (!value) continue;
 
+            if (value->GetType() == Rml::Variant::STRING) {
+                auto const dataValue = std::string(value->Get<Rml::String>());
+                capture.warning.println("Data attribute ", attribute," is not yet supported. Tried to bind value: ", dataValue);
+            }
+        }
+    }
 }
 
 void ExpressionManager::OnElementDestroy(Rml::Element* element) {
