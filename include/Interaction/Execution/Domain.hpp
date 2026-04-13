@@ -396,6 +396,9 @@ public:
      * @return Potential errors that occurred on command execution
      */
     [[nodiscard]] Constants::Event parseStr(std::string const& str);
+    [[nodiscard]] Constants::Event parseStr(std::string const& str, Domain& other);
+
+
 
     /**
      * @brief Necessary operations before parsing commands.

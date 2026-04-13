@@ -94,6 +94,16 @@ std::string const& Domain::scopePrefix() const {
 }
 
 Constants::Event Domain::parseStr(std::string const& str) {
+    // TODO: Later on we need these context to pass to funcTree:
+    //Context ctx = {*this, *this, Global::instance()};
+    //ContextScope ctxScope{domainScope, domainScope, Global::instance().domainScope};
+    return funcTree->parseStr(str, *this, domainScope);
+}
+
+Constants::Event Domain::parseStr(std::string const& str, Domain& other) {
+    // TODO: Later on we need these context to pass to funcTree:
+    //Context ctx = {*this, other, Global::instance()};
+    //ContextScope ctxScope{domainScope, other.domainScope, Global::instance().domainScope};
     return funcTree->parseStr(str, *this, domainScope);
 }
 
