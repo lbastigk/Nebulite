@@ -7,6 +7,8 @@
     <body data-model="renderer">
     <h1>RmlUi</h1>
 
+    <!-- This is a comment
+
     <p>Hello <span id="world">world</span>!</p>
 
     <hr />
@@ -29,13 +31,15 @@
         <input type="text" data-value="animal"/>
     </p>
 
+    -->
+
 
     <hr />
     <h>Data-Reflect</h>
 
     <p data-reflect="{global.time|listMembersAndValues}">
         <p data-eval="true">
-            Member is: {self.key} with value: {self.value}
+            Member is: {self.key} with value: {self.value}.
         </p>
     </p>
 

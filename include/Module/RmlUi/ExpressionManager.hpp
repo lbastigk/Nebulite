@@ -22,6 +22,9 @@ namespace Nebulite::Module::RmlUi {
 
 class ExpressionManager final : public Base::RmlUiModule {
 public:
+
+    // TODO: Needs a large rework, perhaps a per-document traversal instead of storing element pointers ...
+
     explicit ExpressionManager(Utility::Capture& c, Core::Renderer& r);
 
     void update() override ;
@@ -82,6 +85,9 @@ private:
     void updateExpressions();
 
     void updateDataValues();
+
+    size_t elementsAdded = 0;
+    size_t elementsRemoved = 0;
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP

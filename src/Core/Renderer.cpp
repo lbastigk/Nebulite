@@ -17,6 +17,7 @@
 #include "DomainModule/GlobalSpace/Settings.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "Interaction/Invoke.hpp"
+#include "Module/RmlUi/ContextManager.hpp"
 #include "Module/RmlUi/ExpressionManager.hpp"
 #include "Module/RmlUi/Reflection.hpp"
 #include "Nebulite.hpp"
@@ -207,8 +208,9 @@ void Renderer::initRmlUi() {
     }
 
     // Plugins
-    rml.modules.emplace_back(std::make_unique<Module::RmlUi::ExpressionManager>(capture, *this));
+    rml.modules.emplace_back(std::make_unique<Module::RmlUi::ContextManager>(capture, *this));
     rml.modules.emplace_back(std::make_unique<Module::RmlUi::Reflection>(capture, *this));
+    rml.modules.emplace_back(std::make_unique<Module::RmlUi::ExpressionManager>(capture, *this));
 
     for (auto& module : rml.modules) {
         RegisterPlugin(module.get());
@@ -353,6 +355,35 @@ int Renderer::getResY() const { return domainScope.get<int>(Constants::KeyNames:
 int Renderer::getPosX() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionX).value_or(0); }
 
 int Renderer::getPosY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionY).value_or(0); }
+
+//------------------------------------------
+// Rml context
+
+std::optional<Interaction::ContextScope> Renderer::getRmlElementContextScope(Rml::Element* element) {
+    if (!element) return std::nullopt;
+    if (auto const it = rml.elementContextScopes.find(element); it != rml.elementContextScopes.end()) {
+        return it->second;
+    }
+    return std::nullopt;
+}
+
+std::optional<Interaction::ContextScope> Renderer::getRmlDocumentContextScope(Rml::ElementDocument* document){
+    if (!document) return std::nullopt;
+    if (auto const it = rml.documentContextScopes.find(document); it != rml.documentContextScopes.end()) {
+        return it->second;
+    }
+    return std::nullopt;
+}
+
+void Renderer::setRmlElementContextScope(Rml::Element* element, Interaction::ContextScope const& context) {
+    if (!element) return;
+    rml.elementContextScopes.emplace(element, context);
+}
+
+void Renderer::setRmlDocumentContextScope(Rml::ElementDocument* document, Interaction::ContextScope const& context) {
+    if (!document) return;
+    rml.documentContextScopes.emplace(document, context);
+}
 
 //------------------------------------------
 // Serialization / Deserialization

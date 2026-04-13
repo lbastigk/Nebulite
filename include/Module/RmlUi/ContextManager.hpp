@@ -1,5 +1,5 @@
-#ifndef NEBULITE_MODULE_RMLUI_REFLECTION_HPP
-#define NEBULITE_MODULE_RMLUI_REFLECTION_HPP
+#ifndef NEBULITE_MODULE_RMLUI_CONTEXT_MANAGER_HPP
+#define NEBULITE_MODULE_RMLUI_CONTEXT_MANAGER_HPP
 
 //------------------------------------------
 // Includes
@@ -8,6 +8,7 @@
 
 // External
 #include "absl/container/flat_hash_map.h"
+#include "absl/container/node_hash_map.h"
 #include <RmlUi/Core.h>
 
 // Nebulite
@@ -19,9 +20,9 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-class Reflection final : public Base::RmlUiModule {
+class ContextManager final : public Base::RmlUiModule {
 public:
-    explicit Reflection(Utility::Capture& c, Core::Renderer& r);
+    explicit ContextManager(Utility::Capture& c, Core::Renderer& r);
 
     void update() override ;
 
@@ -45,27 +46,7 @@ public:
 
 private:
 
-    struct ReflectionEntry {
-        Interaction::Logic::Expression entries;
-        Interaction::ContextScope const context;
-        Rml::String rmlValue;
-        Data::JSON jsonResult;
-        bool markedForDeletion = false;
-    };
-
-    absl::flat_hash_map<
-        Rml::ElementDocument*,
-        absl::flat_hash_map<
-            Rml::Element*,
-            ReflectionEntry
-        >
-    >reflections;
-
-    std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
-
-    void removeDeletedElements();
-
-    void reflect();
+    std::vector<Rml::Element*> toRegister;
 };
 } // namespace Nebulite::Module::RmlUi
-#endif // NEBULITE_MODULE_RMLUI_REFLECTION_HPP
+#endif // NEBULITE_MODULE_RMLUI_CONTEXT_MANAGER_HPP

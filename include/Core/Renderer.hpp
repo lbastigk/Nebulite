@@ -8,6 +8,13 @@
 #define NEBULITE_CORE_RENDERER_HPP
 
 //------------------------------------------
+// Predeclare
+
+namespace Nebulite::Interaction {
+class ContextScope;
+} // namespace Nebulite::Interaction
+
+//------------------------------------------
 // Includes
 
 // Standard library
@@ -418,6 +425,15 @@ public:
     [[nodiscard]] unsigned int getWindowScale() const noexcept { return windowScale; }
 
     //------------------------------------------
+    // Rml Context
+
+    std::optional<Interaction::ContextScope> getRmlElementContextScope(Rml::Element* element);
+    std::optional<Interaction::ContextScope> getRmlDocumentContextScope(Rml::ElementDocument* document);
+
+    void setRmlElementContextScope(Rml::Element* element, Interaction::ContextScope const& context);
+    void setRmlDocumentContextScope(Rml::ElementDocument* document, Interaction::ContextScope const& context);
+
+    //------------------------------------------
     // Texture-Related
 
     /**
@@ -494,6 +510,9 @@ private:
         Rml::Context* context;
         Rml::DataModelConstructor dataModelConstructor;
         std::vector<std::unique_ptr<Module::Base::RmlUiModule>> modules;
+
+        absl::flat_hash_map<Rml::ElementDocument*, Interaction::ContextScope> documentContextScopes; // Map of document to its context scope for expression evaluation
+        absl::flat_hash_map<Rml::Element*, Interaction::ContextScope> elementContextScopes; // Map of element to its context scope for expression evaluation
 
         void updateModules() const ;
     } rml;

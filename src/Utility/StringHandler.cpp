@@ -300,4 +300,13 @@ std::string StringHandler::recombineArgs(std::span<std::string const> const& arg
     return result;
 }
 
+std::string StringHandler::repeat(std::string const& str, size_t const& count){
+    std::string result;
+    // NOLINTNEXTLINE
+    for (auto _ : std::views::iota(size_t{0}, count)) {
+        result += str;
+    }
+    return result;
+}
+
 } // namespace Nebulite::Utility
