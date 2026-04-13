@@ -61,13 +61,20 @@ Constants::Event General::func_if(std::span<std::string const> const& args, Inte
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
     }
 
-    if (!Interaction::Logic::Expression::evalAsBool(args[1])) {
+    // See if any arg is "then", if so, only evaluate until then, and execute the rest as commands if the condition is true
+    size_t commandStart = 2;
+    if (auto const it = std::ranges::find(args.begin(), args.end(), "then"); it != args.end()) {
+        auto const idx = std::distance(args.begin(), it);
+        commandStart = static_cast<size_t>(idx) + 1;
+    }
+
+    if (!Interaction::Logic::Expression::evalAsBool(Utility::StringHandler::recombineArgs(args.subspan(1, commandStart - 1)))) {
         // If the condition is false/nan, skip the following commands
         return Constants::Event::Success;
     }
 
     // Build the command string from rest
-    std::string commands = Utility::StringHandler::recombineArgs(args.subspan(2));
+    std::string commands = Utility::StringHandler::recombineArgs(args.subspan(commandStart));
     commands = __FUNCTION__ + std::string(" ") + commands;
     (void)callerScope; // Unused parameter
     return caller.parseStr(commands);
