@@ -118,11 +118,7 @@ void ExpressionManager::updateExpressions(){
                     if (auto const it = expressions.find(innerRml); it != expressions.end()) {
                         std::string const& evaluated = it->second.eval(context.value());
                         element->SetInnerRML(evaluated);
-
-                        //capture.log.println("Evaluated with context: ", context.value().self.serialize());
                     }
-                } else {
-                    capture.warning.println("Could not find context for expression: " + innerRml);
                 }
             }
         });
