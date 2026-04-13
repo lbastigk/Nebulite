@@ -238,14 +238,6 @@ void Renderer::initRmlUi() {
     // Data Model
     rml.dataModelConstructor = rml.context->CreateDataModel("renderer");
     rml.updateVariables(domainScope);
-
-    // Demo Document
-    auto const document = Utility::FileManagement::LoadFile(RmlInterface::testRmlDocumentPath);
-    rml.demoDocument = rml.context->LoadDocumentFromMemory(document);
-    if (!rml.demoDocument) {
-        throw std::runtime_error("Failed to load RmlUi document from memory!");
-    }
-    rml.demoDocument->Show();
 }
 
 void Renderer::initSDL() {

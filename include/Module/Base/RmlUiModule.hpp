@@ -11,7 +11,7 @@
 #include "ScopeAccessor.hpp"
 #include "Utility/Capture.hpp"
 
-
+//------------------------------------------
 namespace Nebulite::Module::Base {
 class RmlUiModule : public Rml::Plugin {
 public:

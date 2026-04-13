@@ -17,7 +17,7 @@ namespace Nebulite::Module::RmlUi {
 
 ExpressionManager::ExpressionManager(Utility::Capture& c) : RmlUiModule(c) {
     evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
-        [this]() {
+        [this] {
             Interaction::ContextScope const ctx{
                 .self = Global::shareScope(accessToken),
                 .other = Global::shareScope(accessToken),
@@ -75,8 +75,16 @@ void ExpressionManager::OnElementCreate(Rml::Element* /*element*/) {
 
 }
 
-void ExpressionManager::OnElementDestroy(Rml::Element* /*element*/) {
-
+void ExpressionManager::OnElementDestroy(Rml::Element* element) {
+    (void)element;
+    // TODO: doesn't work:
+    /*
+    for (auto elementMap: expressions | std::views::values) {
+        if (elementMap.find(element) != elementMap.end()) {
+            elementMap.erase(elementMap.find(element));
+        }
+    }
+    */
 }
 
 // TODO: Add attributes such as data-reflect that loop through each member of a given scope to, for example, dynamically generate lists

@@ -45,6 +45,9 @@ public:
 
 private:
 
+    // TODO: Separate module for simple input to variable sync: <input type="text" data-value="animal"/>
+    //       Two-way sync would be nice.
+
     // TODO: set context for each document. Idea: Rml::ElementDocument* -> context in renderer, on document load via DomainModule, set context from caller scope
     //       we need to store the Nebulite Renderer reference for each RmlUiModule so we can easily access this data from any module (or use Global::getRenderer()?
     //       Then we can use another RmlUiModule just for context management on Document load/unload. If no context is available, use an dummy context (dummy scope for all scopes)
