@@ -496,15 +496,6 @@ private:
         std::vector<std::unique_ptr<Module::Base::RmlUiModule>> modules;
 
         void updateModules() const ;
-    private:
-        struct RegisteredEntry {
-            Rml::String currentRmlValue;
-            Rml::String previousRmlValue;
-            std::string previousDocumentValue;
-        };
-
-        absl::node_hash_map<std::string, std::unique_ptr<RegisteredEntry>> registeredStrings;
-
     } rml;
 
     void processRmlUiEvent(const SDL_Event& event) const ;
