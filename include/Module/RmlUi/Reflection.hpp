@@ -1,5 +1,5 @@
-#ifndef NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP
-#define NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP
+#ifndef NEBULITE_MODULE_RMLUI_REFLECTION_HPP
+#define NEBULITE_MODULE_RMLUI_REFLECTION_HPP
 
 //------------------------------------------
 // Includes
@@ -8,7 +8,6 @@
 
 // External
 #include "absl/container/flat_hash_map.h"
-#include "absl/container/node_hash_map.h"
 #include <RmlUi/Core.h>
 
 // Nebulite
@@ -20,9 +19,9 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-class ExpressionManager final : public Base::RmlUiModule {
+class Reflection final : public Base::RmlUiModule {
 public:
-    explicit ExpressionManager(Utility::Capture& c, Core::Renderer& r);
+    explicit Reflection(Utility::Capture& c, Core::Renderer& r);
 
     void update() override ;
 
@@ -53,34 +52,17 @@ private:
     //       we need to store the Nebulite Renderer reference for each RmlUiModule so we can easily access this data from any module (or use Global::getRenderer()?
     //       Then we can use another RmlUiModule just for context management on Document load/unload. If no context is available, use an dummy context (dummy scope for all scopes)
 
-    struct ElementEntry {
-        std::optional<Interaction::Logic::Expression> expression;
-        bool markedForDeletion = false;
-    };
-
     absl::flat_hash_map<
         Rml::ElementDocument*,
         absl::flat_hash_map<
             Rml::Element*,
-            ElementEntry
+            Interaction::Logic::Expression
         >
     >expressions;
 
-    struct RegisteredEntry {
-        Rml::String currentRmlValue;
-        Rml::String previousRmlValue;
-        std::string previousDocumentValue;
-    };
-
-    absl::node_hash_map<std::string, std::unique_ptr<RegisteredEntry>> registeredStrings;
+    void compileDocument(Rml::ElementDocument* root, Rml::Element* element, size_t const& depth);
 
     std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
-
-    void removeDeletedElements();
-
-    void updateExpressions();
-
-    void updateDataValues();
 };
 } // namespace Nebulite::Module::RmlUi
-#endif // NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP
+#endif // NEBULITE_MODULE_RMLUI_REFLECTION_HPP

@@ -18,6 +18,7 @@
 #include "DomainModule/Initializer.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Module/RmlUi/ExpressionManager.hpp"
+#include "Module/RmlUi/Reflection.hpp"
 #include "Nebulite.hpp"
 #include "Utility/FileManagement.hpp"
 
@@ -206,7 +207,8 @@ void Renderer::initRmlUi() {
     }
 
     // Plugins
-    rml.modules.emplace_back(std::make_unique<Module::RmlUi::ExpressionManager>(capture));
+    rml.modules.emplace_back(std::make_unique<Module::RmlUi::ExpressionManager>(capture, *this));
+    rml.modules.emplace_back(std::make_unique<Module::RmlUi::Reflection>(capture, *this));
 
     for (auto& module : rml.modules) {
         RegisterPlugin(module.get());
@@ -237,7 +239,7 @@ void Renderer::initRmlUi() {
 
     // Data Model
     rml.dataModelConstructor = rml.context->CreateDataModel("renderer");
-    rml.updateVariables(domainScope);
+    rml.updateModules();
 }
 
 void Renderer::initSDL() {
@@ -480,6 +482,12 @@ bool isTextSdlScancode(SDL_Scancode const& scancode) {
 
 } // namespace
 
+void Renderer::RmlInterface::updateModules() const{
+    for (auto& module : modules) {
+        module->update();
+    }
+}
+
 void Renderer::processRmlUiEvent(const SDL_Event& event) const {
     if (!rml.context) return;
 
@@ -576,7 +584,7 @@ void Renderer::render() {
 
     // RML
     // Update variables
-    rml.updateVariables(domainScope);
+    rml.updateModules();
     rml.context->Update();
     rml.context->Render();
 

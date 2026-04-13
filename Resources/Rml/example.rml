@@ -10,28 +10,25 @@
     <p>Hello <span id="world">world</span>!</p>
 
     <hr />
+    <h>Expression</h>
 
     <p data-eval="true">
-        Test expression, text only
-    </p>
-    <p data-eval="true">
-        Test expression, with variable:
-        {global.|typeAsString}
-    </p>
-    <p data-eval="true">
-        Test expression, with evaluation:
+        Test expression, <b>with</b> evaluation and more:
         $06.2f(1+{global.time.t|sub 1})
-    </p>
-    <p data-eval="true">
-        Test expression with <b>bold text</b> inside
-        {global.renderer.input.mouse.current|serialize}
+        <div class="box">{global.renderer.input.mouse.current|serialize}</div>
     </p>
 
     <hr />
+    <h>Data input</h>
 
     <p data-if="show_text">
         The quick brown fox jumps over the lazy {{animal}}.
     </p>
+
+    <input type="text" data-value="animal"/>
+
+    <hr />
+    <h>Data-Reflect</h>
 
     <p data-reflect="global.time">
         <p data-eval="true">
@@ -39,6 +36,5 @@
         </p>
     </p>
 
-    <input type="text" data-value="animal"/>
     </body>
 </rml>

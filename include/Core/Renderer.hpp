@@ -352,6 +352,8 @@ public:
      */
     [[nodiscard]] Rml::Context* getRmlContext() const { return rml.context; }
 
+    [[nodiscard]] Rml::DataModelConstructor& getDataModelConstructor() { return rml.dataModelConstructor; }
+
     /**
      * @brief Gets the RenderObject ID from its index in the rendering pipeline.
      * @param index The index of the RenderObject in the rendering pipeline.
@@ -493,46 +495,7 @@ private:
         Rml::DataModelConstructor dataModelConstructor;
         std::vector<std::unique_ptr<Module::Base::RmlUiModule>> modules;
 
-        void updateVariables(Data::JsonScope& domainScope) {
-            for (auto const& module : modules) {
-                module->update();
-            }
-
-            for (auto const& [member, key] : domainScope.listAvailableMembersAndKeys(domainScope.getRootScope())) {
-                if (auto it = registeredStrings.find(member); it == registeredStrings.end()) {
-                    auto const value = domainScope.get<std::string>(key).value_or("");
-                    auto entry = std::make_unique<RegisteredEntry>();
-                    entry->currentRmlValue = value;
-                    entry->previousRmlValue = value;
-                    entry->previousDocumentValue = value;
-                    dataModelConstructor.Bind(member, &entry->currentRmlValue);
-                    registeredStrings.emplace(member, std::move(entry));
-                }
-                else {
-                    // Determine data flow
-                    auto const& entry = registeredStrings[member];
-                    auto& currentRml = entry->currentRmlValue;
-                    auto const& previousRml = entry->previousRmlValue;
-
-                    auto currentDocument = domainScope.get<std::string>(key).value_or("");
-                    auto const& previousDocument = entry->previousDocumentValue;
-
-                    // 1.) rml -> document
-                    if (currentRml != previousRml) {
-                        domainScope.set<std::string>(key, currentRml);
-                        entry->currentRmlValue = currentRml;
-                        entry->previousRmlValue = currentRml;
-                        entry->previousDocumentValue = currentRml;
-                    }
-                    // 2.) document -> rml
-                    else if (currentDocument != previousDocument) {
-                        entry->currentRmlValue = currentDocument;
-                        entry->previousRmlValue = currentDocument;
-                        entry->previousDocumentValue = currentDocument;
-                    }
-                }
-            }
-        }
+        void updateModules() const ;
     private:
         struct RegisteredEntry {
             Rml::String currentRmlValue;
