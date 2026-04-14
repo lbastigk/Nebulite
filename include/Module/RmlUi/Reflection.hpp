@@ -45,8 +45,6 @@ public:
 
 private:
 
-    // TODO: Add attribute-overwrite attribute to set any reflect element to the reflection id or some string. This is important for unique identifiers
-
     struct ReflectionEntry {
         Interaction::Logic::Expression entries;
         Interaction::ContextScope const context;
