@@ -7,7 +7,7 @@
 // External
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
-#include <RmlUi/Core/Input.h>
+
 #include <SDL3_image/SDL_image.h>
 
 // Nebulite
@@ -17,10 +17,6 @@
 #include "DomainModule/GlobalSpace/Settings.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "Interaction/Invoke.hpp"
-#include "Module/RmlUi/ContextManager.hpp"
-#include "Module/RmlUi/DataInput.hpp"
-#include "Module/RmlUi/ExpressionManager.hpp"
-#include "Module/RmlUi/Reflection.hpp"
 #include "Nebulite.hpp"
 #include "Utility/FileManagement.hpp"
 
@@ -194,59 +190,6 @@ void Renderer::initImgui() const {
     ImGui_ImplSDLRenderer3_Init(renderer);
 }
 
-void Renderer::initRmlUi() {
-    Rml::Initialise();
-
-    // Interfaces
-    rml.renderInterface = std::make_unique<RenderInterface_SDL>(renderer);
-    if (!rml.renderInterface) {
-        throw std::runtime_error("Failed to create RmlUi render interface!");
-    }
-    SetRenderInterface(rml.renderInterface.get());
-    rml.systemInterface = std::make_unique<SystemInterface_SDL>(window);
-    if (!rml.systemInterface) {
-        throw std::runtime_error("Failed to create system interface!");
-    }
-
-    // Plugins
-    rml.modules.emplace_back(std::make_unique<Module::RmlUi::ContextManager>(capture, *this));
-    rml.modules.emplace_back(std::make_unique<Module::RmlUi::DataInput>(capture, *this));
-    rml.modules.emplace_back(std::make_unique<Module::RmlUi::Reflection>(capture, *this));
-    rml.modules.emplace_back(std::make_unique<Module::RmlUi::ExpressionManager>(capture, *this)); // Must come after Reflection module!
-
-
-    for (auto& module : rml.modules) {
-        RegisterPlugin(module.get());
-    }
-
-    // Context
-    rml.context = Rml::CreateContext(
-        "main", {
-            static_cast<int>(
-                domainScope.get<double>(Constants::KeyNames::Renderer::dispResX).value_or(800.0)
-            ),
-            static_cast<int>(
-                domainScope.get<double>(Constants::KeyNames::Renderer::dispResY).value_or(600.0)
-            )
-        }
-    );
-    if (!rml.context) {
-        throw std::runtime_error("Failed to create RmlUi context!");
-    }
-
-    for (auto constexpr fontDirectory = "./Resources/Fonts/"; auto& fontFile : Utility::FileManagement::listFilesInDirectory(fontDirectory)) {
-        if (fontFile.ends_with(".ttf")) {
-            if (auto const fontPath = fontDirectory + fontFile; !Rml::LoadFontFace(fontPath)) {
-                throw std::runtime_error("Failed to load font face for RmlUi from path: " + fontPath);
-            }
-        }
-    }
-
-    // Data Model used for data-value sync
-    rml.dataModelConstructor = rml.context->CreateDataModel("nebuliteDataSync");
-    rml.updateModules();
-}
-
 void Renderer::initSDL() {
     if (status.sdlInitialized)
         return;
@@ -280,7 +223,7 @@ void Renderer::initSDL() {
     //------------------------------------------
     // UI
     initImgui();
-    initRmlUi();
+    rml.init(*this, domainScope);
 
     //------------------------------------------
     // Cursor
@@ -362,7 +305,7 @@ int Renderer::getPosY() const { return domainScope.get<int>(Constants::KeyNames:
 //------------------------------------------
 // Rml context
 
-std::optional<Interaction::ContextScope> Renderer::getRmlElementContextScope(RmlInterface::RmlElementIdentifier const& element) {
+std::optional<Interaction::ContextScope> Renderer::getRmlElementContextScope(Graphics::RmlInterface::RmlElementIdentifier const& element) {
     if (auto const it = rml.elementContextScopes.find(element); it != rml.elementContextScopes.end()) {
         return it->second;
     }
@@ -377,7 +320,7 @@ std::optional<Interaction::ContextScope> Renderer::getRmlDocumentContextScope(Rm
     return std::nullopt;
 }
 
-void Renderer::setRmlElementContextScope(RmlInterface::RmlElementIdentifier const& element, Interaction::ContextScope const& context) {
+void Renderer::setRmlElementContextScope(Graphics::RmlInterface::RmlElementIdentifier const& element, Interaction::ContextScope const& context) {
     rml.elementContextScopes.emplace(element, context);
 }
 
@@ -453,42 +396,6 @@ void Renderer::pollEvents() {
 }
 
 namespace {
-Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode const& keycode) {
-    switch (keycode) {
-    // Basic text editing keys
-    case SDL_SCANCODE_BACKSPACE: return Rml::Input::KI_BACK;
-    case SDL_SCANCODE_TAB:       return Rml::Input::KI_TAB;
-    case SDL_SCANCODE_RETURN:    return Rml::Input::KI_RETURN;
-    case SDL_SCANCODE_SPACE:     return Rml::Input::KI_SPACE;
-    case SDL_SCANCODE_DELETE:    return Rml::Input::KI_DELETE;
-    // Arrow
-    case SDL_SCANCODE_LEFT:      return Rml::Input::KI_LEFT;
-    case SDL_SCANCODE_RIGHT:     return Rml::Input::KI_RIGHT;
-    case SDL_SCANCODE_UP:        return Rml::Input::KI_UP;
-    case SDL_SCANCODE_DOWN:      return Rml::Input::KI_DOWN;
-    // Other
-    case SDL_SCANCODE_ESCAPE:    return Rml::Input::KI_ESCAPE;
-    default:                     return Rml::Input::KI_UNKNOWN;
-    }
-}
-
-int SdlModifierToRmlModifier(uint32_t const& modifier) {
-    int result = 0;
-
-    if (modifier & SDL_KMOD_SHIFT)
-        result |= Rml::Input::KM_SHIFT;
-
-    if (modifier & SDL_KMOD_CTRL)
-        result |= Rml::Input::KM_CTRL;
-
-    if (modifier & SDL_KMOD_ALT)
-        result |= Rml::Input::KM_ALT;
-
-    if (modifier & SDL_KMOD_GUI)
-        result |= Rml::Input::KM_META; // Windows key / Cmd key
-
-    return result;
-}
 
 bool isTextInputFocused(Rml::Context* context){
     if (Rml::Element* el = context->GetFocusElement(); el){
@@ -505,85 +412,7 @@ bool isTextInputFocused(Rml::Context* context){
     return false;
 }
 
-bool isTextSdlScancode(SDL_Scancode const& scancode) {
-    // Covers letters, numbers, and common symbols
-    return (scancode >= SDL_SCANCODE_A && scancode <= SDL_SCANCODE_Z) ||
-           (scancode >= SDL_SCANCODE_1 && scancode <= SDL_SCANCODE_0) ||
-           (scancode >= SDL_SCANCODE_MINUS && scancode <= SDL_SCANCODE_RIGHTBRACKET);
-}
-
 } // namespace
-
-void Renderer::RmlInterface::updateModules() const{
-    for (auto& module : modules) {
-        module->update();
-    }
-}
-
-void Renderer::processRmlUiEvent(const SDL_Event& event) const {
-    if (!rml.context) return;
-
-    switch (event.type) {
-
-    case SDL_EVENT_MOUSE_MOTION:
-        rml.context->ProcessMouseMove(
-            static_cast<int>(event.motion.x),
-            static_cast<int>(event.motion.y),
-            SdlModifierToRmlModifier(event.key.mod)
-        );
-        break;
-
-    case SDL_EVENT_MOUSE_BUTTON_DOWN:
-    case SDL_EVENT_MOUSE_BUTTON_UP: {
-        int button = 0;
-        if (event.button.button == SDL_BUTTON_LEFT) button = 0;
-        else if (event.button.button == SDL_BUTTON_RIGHT) button = 1;
-        else if (event.button.button == SDL_BUTTON_MIDDLE) button = 2;
-
-        if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
-            // We assume the mouse click unfocused the element.
-            // If the click was at the elements position, ProcessMouseButtonDown will refocus the element.
-            rml.context->GetFocusElement()->Blur();
-            rml.context->ProcessMouseButtonDown(button, SdlModifierToRmlModifier(event.key.mod));
-        }
-        else {
-            rml.context->ProcessMouseButtonUp(button, SdlModifierToRmlModifier(event.key.mod));
-        }
-        break;
-    }
-
-    case SDL_EVENT_MOUSE_WHEEL: {
-        rml.context->ProcessMouseWheel(
-            {event.wheel.x, event.wheel.y},
-            SdlModifierToRmlModifier(event.key.mod)
-        );
-        break;
-    }
-
-    case SDL_EVENT_KEY_DOWN:
-    case SDL_EVENT_KEY_UP: {
-        // Skip keys that generate text input
-        if (isTextSdlScancode(event.key.scancode)) {
-            break;
-        }
-
-        auto const rmlKey = SDLKeyToRmlKey(event.key.scancode);
-        auto const mods = SdlModifierToRmlModifier(event.key.mod);
-        if (event.type == SDL_EVENT_KEY_DOWN)
-            rml.context->ProcessKeyDown(rmlKey, mods);
-        else
-            rml.context->ProcessKeyUp(rmlKey, mods);
-        break;
-    }
-
-    case SDL_EVENT_TEXT_INPUT:
-        rml.context->ProcessTextInput(event.text.text);
-        break;
-
-    default:
-        break;
-    }
-}
 
 void Renderer::render() {
     //---------------------------------------
@@ -593,7 +422,7 @@ void Renderer::render() {
     pollEvents();
     for (auto const& event : events) {
         ImGui_ImplSDL3_ProcessEvent(&event);
-        processRmlUiEvent(event);
+        rml.processRmlUiEvent(event);
     }
 
     // Text focus override for RmlUi

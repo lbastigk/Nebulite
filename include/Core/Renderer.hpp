@@ -22,15 +22,13 @@ class ContextScope;
 
 // External
 #include <absl/container/flat_hash_map.h>
-#include <RmlUi_Platform_SDL.h>
-#include <RmlUi_Renderer_SDL.h>
-#include <RmlUi/Core.h>
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
 // Nebulite
 #include "Core/Environment.hpp"
 #include "Data/RendererProcessor.hpp"
+#include "Graphics/RmlInterface.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Module/Base/RmlUiModule.hpp"
@@ -90,11 +88,6 @@ public:
      * @brief Initializes ImGui for the Renderer. Called within `initSDL()`.
      */
     void initImgui() const ;
-
-    /**
-     * @brief Initializes RmlUi for the Renderer. Called within `initSDL()`
-     */
-    void initRmlUi() ;
 
     /**
      * @brief Called before parsing any commands.
@@ -427,45 +420,10 @@ public:
     //------------------------------------------
     // Rml Context
 
-    // TODO: Refactor into custom class outside of renderer
-    struct RmlInterface {
-        std::unique_ptr<RenderInterface_SDL> renderInterface;
-        std::unique_ptr<SystemInterface_SDL> systemInterface;
-        Rml::Context* context;
-        Rml::DataModelConstructor dataModelConstructor;
-        std::vector<std::unique_ptr<Module::Base::RmlUiModule>> modules;
-
-        struct RmlElementIdentifier {
-            Rml::Element* parent;
-            size_t index; // Index of the element among its siblings, to uniquely identify it in case of multiple elements with the same tag
-            int children;
-
-            RmlElementIdentifier(Rml::Element* p, size_t const& i, Rml::Element* e){
-                parent = p;
-                index = i;
-                children = e->GetNumChildren();
-            }
-
-            bool operator==(const RmlElementIdentifier& other) const {
-                return parent == other.parent && index == other.index;
-            }
-
-            template <typename H>
-            friend H AbslHashValue(H h, const RmlElementIdentifier& id) {
-                return H::combine(std::move(h), id.parent, id.index, id.children);
-            }
-        };
-
-        absl::flat_hash_map<Rml::ElementDocument*, Interaction::ContextScope> documentContextScopes; // Map of document to its context scope for expression evaluation
-        absl::flat_hash_map<RmlElementIdentifier, Interaction::ContextScope> elementContextScopes; // Map of element to its context scope for expression evaluation
-
-        void updateModules() const ;
-    };
-
-    std::optional<Interaction::ContextScope> getRmlElementContextScope(RmlInterface::RmlElementIdentifier const& element);
+    std::optional<Interaction::ContextScope> getRmlElementContextScope(Graphics::RmlInterface::RmlElementIdentifier const& element);
     std::optional<Interaction::ContextScope> getRmlDocumentContextScope(Rml::ElementDocument* document);
 
-    void setRmlElementContextScope(RmlInterface::RmlElementIdentifier const& element, Interaction::ContextScope const& context);
+    void setRmlElementContextScope(Graphics::RmlInterface::RmlElementIdentifier const& element, Interaction::ContextScope const& context);
     void setRmlDocumentContextScope(Rml::ElementDocument* document, Interaction::ContextScope const& context);
 
     //------------------------------------------
@@ -538,11 +496,7 @@ private:
     //------------------------------------------
     // Rml Interface
 
-
-
-    RmlInterface rml;
-
-    void processRmlUiEvent(const SDL_Event& event) const ;
+    Graphics::RmlInterface rml;
 
     //------------------------------------------
     // Boolean Status Variables
