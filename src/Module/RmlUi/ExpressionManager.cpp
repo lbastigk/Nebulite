@@ -64,39 +64,8 @@ void ExpressionManager::OnContextDestroy(Rml::Context* /*context*/) {
 
 }
 
-void ExpressionManager::OnElementCreate(Rml::Element* element) {
-    if (!element) return;
+void ExpressionManager::OnElementCreate(Rml::Element* /*element*/) {
 
-    // Check if the element has a data-value
-    auto const dataAttributes = {
-        "data-value",
-        "data-if"
-    };
-    for (auto const& attribute : dataAttributes) {
-        auto const rmlValue = element->GetAttribute(attribute);
-        if (!rmlValue) continue;
-
-        // TODO: use attribute data-context. Fallback to global if not available
-        // Still, we need a document to owner map, so we can dynamically set context. Should be enough to use the callerScope as self/other
-
-        if (rmlValue->GetType() == Rml::Variant::STRING) {
-            auto const keyStr = std::string(rmlValue->Get<Rml::String>());
-            if (auto it = registeredStrings.find(keyStr); it == registeredStrings.end()) {
-                // Create entry
-                Data::ScopedKey const key{keyStr};
-                auto const value = global.get<std::string>(key).value_or("");
-                auto entry = std::make_unique<RegisteredEntry>();
-                entry->element = element;
-                entry->currentRmlValue = value;
-                entry->previousRmlValue = value;
-                entry->previousDocumentValue = value;
-
-                // Register entry
-                renderer.getDataModelConstructor().Bind(keyStr, &entry->currentRmlValue);
-                registeredStrings.emplace(keyStr, std::move(entry));
-            }
-        }
-    }
 }
 
 void ExpressionManager::OnElementDestroy(Rml::Element* /*element*/) {

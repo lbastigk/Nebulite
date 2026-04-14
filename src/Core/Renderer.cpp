@@ -18,6 +18,7 @@
 #include "DomainModule/Initializer.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Module/RmlUi/ContextManager.hpp"
+#include "Module/RmlUi/DataInput.hpp"
 #include "Module/RmlUi/ExpressionManager.hpp"
 #include "Module/RmlUi/Reflection.hpp"
 #include "Nebulite.hpp"
@@ -209,8 +210,10 @@ void Renderer::initRmlUi() {
 
     // Plugins
     rml.modules.emplace_back(std::make_unique<Module::RmlUi::ContextManager>(capture, *this));
+    rml.modules.emplace_back(std::make_unique<Module::RmlUi::DataInput>(capture, *this));
     rml.modules.emplace_back(std::make_unique<Module::RmlUi::Reflection>(capture, *this));
-    rml.modules.emplace_back(std::make_unique<Module::RmlUi::ExpressionManager>(capture, *this));
+    rml.modules.emplace_back(std::make_unique<Module::RmlUi::ExpressionManager>(capture, *this)); // Must come after Reflection module!
+
 
     for (auto& module : rml.modules) {
         RegisterPlugin(module.get());
@@ -239,8 +242,8 @@ void Renderer::initRmlUi() {
         }
     }
 
-    // Data Model
-    rml.dataModelConstructor = rml.context->CreateDataModel("renderer");
+    // Data Model used for data-value sync
+    rml.dataModelConstructor = rml.context->CreateDataModel("nebuliteDataSync");
     rml.updateModules();
 }
 

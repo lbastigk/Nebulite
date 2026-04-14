@@ -1,5 +1,5 @@
-#ifndef NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP
-#define NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP
+#ifndef NEBULITE_MODULE_RMLUI_DATA_INPUT_HPP
+#define NEBULITE_MODULE_RMLUI_DATA_INPUT_HPP
 
 //------------------------------------------
 // Includes
@@ -20,10 +20,10 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-class ExpressionManager final : public Base::RmlUiModule {
+class DataInput final : public Base::RmlUiModule {
 public:
 
-    explicit ExpressionManager(Utility::Capture& c, Core::Renderer& r);
+    explicit DataInput(Utility::Capture& c, Core::Renderer& r);
 
     void update() override ;
 
@@ -49,7 +49,7 @@ public:
 
 private:
 
-    bool expressionsWereEvaluated = false;
+    // TODO: Add context instead of always retrieving from global
 
     std::vector<Rml::ElementDocument*> documents;
 
@@ -63,17 +63,15 @@ private:
         Rml::String
     > rmlStrings;
 
-    void updateExpressions();
-
-    void resetExpressions();
-
     //--------------------------------
 
     struct RegisteredEntry {
+        Data::ScopedKey key;
         Rml::Element* element = nullptr;
         Rml::String currentRmlValue;
         Rml::String previousRmlValue;
         std::string previousDocumentValue;
+        bool isNewEntry = true;
     };
 
     absl::node_hash_map<std::string, std::unique_ptr<RegisteredEntry>> registeredStrings;
@@ -82,7 +80,8 @@ private:
 
     void updateDataValues();
 
+    static std::string normalizeJsonKey(std::string const& key);
 
 };
 } // namespace Nebulite::Module::RmlUi
-#endif // NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP
+#endif // NEBULITE_MODULE_RMLUI_DATA_INPUT_HPP
