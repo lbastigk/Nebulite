@@ -160,9 +160,18 @@ void JSON::flush() const {
 
         // If double values changed, mark dirty
         if (!Math::isEqualAllowNan(entry->last_double_value, *entry->stable_double_ptr)) {
-            entry->state = CacheEntry::EntryState::DIRTY;
-            entry->last_double_value = *entry->stable_double_ptr;
-            entry->value = *entry->stable_double_ptr;
+            // TODO: somehow entry->stable_double_ptr is corrupted with very large values?
+            //       This, for example, happens with the [i].key values of Nebulite::Module::RmlUi::Reflection.
+            //       Likely an issue on json copying, not too sure though...
+            if (std::fabs(*entry->stable_double_ptr) > 1e100) {
+                *entry->stable_double_ptr = convertVariant<double>(entry->value).value_or(standardNumericValue);
+                entry->last_double_value = *entry->stable_double_ptr;
+            }
+            else {
+                entry->state = CacheEntry::EntryState::DIRTY;
+                entry->last_double_value = *entry->stable_double_ptr;
+                entry->value = *entry->stable_double_ptr;
+            }
         }
 
         // Every dirty entry is flushed back to the document and marked clean

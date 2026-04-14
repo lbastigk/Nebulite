@@ -104,13 +104,6 @@ void Reflection::reflect(){
             if (entry.markedForDeletion) continue;
             entry.jsonResult = entry.entries.evalAsJson(entry.context);
 
-            // TODO: the f*cking json wrapper has cache issues...
-            // Copy is required, otherwise we have the key values, e.g. '[2].key', are numbers???
-            // A new JSON wrapper with better cache treatment is required ...
-            // This works for the debug binary, but not release...
-            std::string const serial = entry.jsonResult.serialize();
-            entry.jsonResult.deserialize(serial);
-
             if (auto const type = entry.jsonResult.memberType(""); type != Data::KeyType::array) {
                 capture.warning.println("Reflection expression did not evaluate to an array. Skipping reflection. Result: " + entry.jsonResult.serialize());
                 continue;
