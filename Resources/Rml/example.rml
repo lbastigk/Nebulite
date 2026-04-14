@@ -38,7 +38,7 @@
     </p>
     <p data-reflect="{global.time|listMembersAndValues}">
         <pCompact data-eval="true">
-            {self.key|asString|rPad 15 .}{self.value|asString|lPad 15 .}.
+            {self.key|asString|rPad 15 .}{self.value|asString|lPad 15 .}
         </pCompact>
     </p>
 

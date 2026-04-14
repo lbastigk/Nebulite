@@ -16,7 +16,10 @@ ExpressionManager::ExpressionManager(Utility::Capture& c, Core::Renderer& r) : R
             updateExpressions();
             expressionsWereEvaluated = true;
         },
-        10, // Update every 10ms
+        // If 1000.0/fps is higher than this value, the ui starts glitching due to the reset rml still being written while rendering.
+        // So we update Expressions instantly with each new render pass.
+        // Getting rid of the TimedRoutine is also an option, but we leave it here atm.
+        0,
         Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
     );
 }
