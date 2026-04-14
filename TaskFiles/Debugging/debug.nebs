@@ -22,9 +22,7 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-# TODO: Breaks down when set too high, investigate and fix
-set-fps 100 # works with about 60fps, breaks down at more than 100fps. Issue is likely with ExpressionManagers update cycle?
-
+set-res 1500 1000
 set-fps 2000
 
 set show_text 1
@@ -36,10 +34,7 @@ set rml.settings.document_to_show example
 if $({global.rml.settings.document_to_show|strCompare equals grid})    then rmlui document load demo1 ./Resources/Rml/alignment.rml
 if $({global.rml.settings.document_to_show|strCompare equals example}) then rmlui document load demo2 ./Resources/Rml/example.rml
 
-set renderer.animal dog
-set renderer.show_text true
-
-set settings.n 20
+#set settings.n 20
 #task TaskFiles/Benchmarks/gravity_XL_unlimited.nebs
 wait 1
 imgui-view on

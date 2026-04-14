@@ -11,6 +11,7 @@ body {
     height: 600px;
     margin: auto;
     white-space: pre-line;
+    left: 50%;
 }
 
 hr {
