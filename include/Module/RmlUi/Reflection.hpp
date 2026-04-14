@@ -67,6 +67,8 @@ private:
 
     std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
 
+    static std::string modifyDataIdentifier(std::string const& input, size_t const& index);
+
     void removeDeletedElements();
 
     void reflect();

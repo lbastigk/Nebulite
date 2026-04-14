@@ -1,6 +1,9 @@
 //------------------------------------------
 // Includes
 
+// Standard Library
+#include <regex>
+
 // Nebulite
 #include "Module/RmlUi/Reflection.hpp"
 #include "Nebulite.hpp"
@@ -118,6 +121,28 @@ void Reflection::removeDeletedElements(){
 
 //----------------------------------------------
 
+std::string Reflection::modifyDataIdentifier(const std::string& input, const size_t& index) {
+    static const std::regex re(R"escape(data-identifier="([^"]*)")escape");
+
+    std::string result;
+    std::string::const_iterator searchStart(input.cbegin());
+    std::smatch match;
+
+    while (std::regex_search(searchStart, input.cend(), match, re)) {
+        result.append(match.prefix());
+
+        result += "data-identifier=\"";
+        result += match[1].str();
+        result += "_REFLECT_INDEX_" + std::to_string(index);
+        result += "\"";
+
+        searchStart = match.suffix().first;
+    }
+
+    result.append(searchStart, input.cend());
+    return result;
+}
+
 void Reflection::reflect(){
     for (auto& elements : std::views::values(reflections)) {
         for (auto& [element, entry] : elements) {
@@ -145,7 +170,13 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
     }
 
     size_t const size = entry.jsonResult.memberSize("");
-    std::string const newRml = Utility::StringHandler::repeat(entry.rmlValue, size);
+    std::string newRml = "";
+    for (size_t i = 0; i < size; ++i) {
+        // TODO Find any data-identifier="<id>" tags in entry.rmlValue and replace them with data-identifier="<id>_REFLECT_INDEX_<i>"
+
+        newRml += modifyDataIdentifier(entry.rmlValue, i);
+    }
+
     element->SetInnerRML(newRml);
 
     // Check children size
@@ -153,13 +184,15 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
         capture.warning.println("Rml Children count does not match reflection count. Expected: ", size, ", Actual: ", childrenCount);
     }
     else {
-        // Overwrite context for each element
+        // For each element...
         for (size_t i = 0; i < size; ++i) {
             auto const& child = element->GetChild(static_cast<int>(i));
             if (!child) {
                 capture.warning.println("Failed to get child at index ", i, " for element ", element->GetTagName());
                 continue;
             }
+
+            // Overwrite context
             std::string const childKey = "[" + std::to_string(i) + "]";
             auto& newScope = entry.jsonResult.shareManagedScopeBase(childKey);
             Interaction::ContextScope childContext{

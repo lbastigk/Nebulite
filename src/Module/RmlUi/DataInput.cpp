@@ -68,7 +68,6 @@ void DataInput::OnContextDestroy(Rml::Context* /*context*/) {
 
 void DataInput::OnElementCreate(Rml::Element* element) {
     if (!element) return;
-    elementsToAdd.emplace_back(element);
 
     //auto const identifier = Graphics::RmlInterface::RmlElementIdentifier(parent, index, element);
     //auto const contextScope = renderer.getRmlElementContextScope(identifier);
@@ -90,9 +89,7 @@ void DataInput::OnElementCreate(Rml::Element* element) {
     for (auto const& attribute : dataAttributes) {
         auto const rmlValue = element->GetAttribute(attribute);
         if (!rmlValue) continue;
-
-        auto const identifier = element->GetAttribute("data-identifier");
-        if (!identifier) {
+        if (!element->HasAttribute("data-identifier")) {
             capture.warning.println("A unique identifier is required for data inputs to work. Please provide 'data-identifier'.");
             continue;
         }
@@ -103,18 +100,33 @@ void DataInput::OnElementCreate(Rml::Element* element) {
         if (rmlValue->GetType() == Rml::Variant::STRING) {
             // Normalize value
             auto const attributeValue = std::string(rmlValue->Get<Rml::String>());
-            std::string normalized;
-            if (element->GetAttribute("data-was-normalized")) {
-                normalized = attributeValue;
+
+            // Backup value if needed
+            std::string const backupAttributeKey = attribute + std::string("_backup");
+            if (!element->GetAttribute(backupAttributeKey)) {
+                // Normalize attribute and store backup
+                element->SetAttribute(backupAttributeKey, attributeValue);
             }
-            else {
-                normalized = normalizeJsonKey("ID__" + identifier->Get<Rml::String>() + "__KEY__" + attributeValue);
-                element->SetAttribute(attribute, normalized);
-                element->SetAttribute("data-was-normalized", "true");
+            if (!element->GetAttribute(attribute)) {
+                capture.warning.println("Failed to create backup attribute for data input: ", attributeValue);
+                continue;
+            }
+
+            auto const unnormalizedId = element->GetAttribute("data-identifier");
+            auto const unnormalizedKey = element->GetAttribute(backupAttributeKey);
+            if (!unnormalizedId || !unnormalizedKey) {
+                capture.warning.println("Failed to normalize data input.");
+                continue;
+            }
+
+            std::string normalized = "ID__" + normalize(unnormalizedId->Get<Rml::String>()) + "__VALUE__" + normalize(unnormalizedKey->Get<Rml::String>());
+            element->SetAttribute(attribute, normalized);
+            if (registeredStrings.contains(normalized)) {
+                continue;
             }
 
             // Create entry
-            Data::ScopedKey const key{attributeValue};
+            Data::ScopedKey const key{unnormalizedKey->Get<Rml::String>()};
             auto const value = global.get<std::string>(key).value_or("");
             auto entry = std::make_unique<RegisteredEntry>();
             entry->normalizedValue = normalized;
@@ -126,11 +138,10 @@ void DataInput::OnElementCreate(Rml::Element* element) {
             entry->previousDocumentValue = value;
             entry->isNewEntry = true;
 
-            if (!registeredStrings.contains(normalized)) {
-                renderer.getDataModelConstructor().Bind(normalized, &entry->currentRmlValue);
-                registeredStrings.emplace(normalized, std::move(entry));
-                //capture.log.println("Registered data input with key: ", normalized);
-            }
+            // Add Entry
+            renderer.getDataModelConstructor().Bind(normalized, &entry->currentRmlValue);
+            registeredStrings.emplace(normalized, std::move(entry));
+            //capture.log.println("Registered data input with key: ", normalized);
         }
     }
 }
@@ -158,19 +169,6 @@ void DataInput::updateDataValues() {
             continue;
         }
 
-        // TODO: This almost works, but having multiple inputs of the same data-value seems to fail sometimes?
-        // e.g., editing the first entry only changes the first two: Likely because they share the same pointer?
-        /*
-        <p>
-            <input type="text" data-value="rml.input.animal"/>
-        </p>
-        <p data-reflect-once="{global.time|listMembersAndValues}">
-            <p>
-                <input type="text" data-value="rml.input.animal"/>
-            </p>
-        </p>
-         */
-
         // 1.) rml -> document
         if (currentRml != previousRml) {
             global.set<std::string>(entry->key, currentRml);
@@ -189,7 +187,7 @@ void DataInput::updateDataValues() {
     }
 }
 
-std::string DataInput::normalizeJsonKey(std::string const& key) {
+std::string DataInput::normalize(std::string const& key) {
     auto view = key
         | std::views::transform([](char const& c) -> std::string {
             if (std::isalnum(c)) return std::string(1, c);

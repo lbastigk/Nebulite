@@ -80,15 +80,13 @@ private:
         Rml::String attribute;
     };
 
-    std::vector<Rml::Element*> elementsToAdd;
-
     absl::flat_hash_map<std::string,std::unique_ptr<RegisteredEntry>> registeredStrings;
 
     std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
 
     void updateDataValues();
 
-    static std::string normalizeJsonKey(std::string const& key);
+    static std::string normalize(std::string const& key);
 
 };
 } // namespace Nebulite::Module::RmlUi
