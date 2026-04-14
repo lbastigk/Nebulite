@@ -29,11 +29,6 @@
     <p>
         <input type="text" data-value="rml.input.animal" data-identifier="input"/>
     </p>
-    <p data-reflect-once="{global.time|listMembersAndValues}">
-        <p>
-            <input type="text" data-value="rml.input.animal" data-identifier="input-reflect"/>
-        </p>
-    </p>
 
     <hr />
     <h2>Data-Reflect</h2>
@@ -46,8 +41,6 @@
             {self.key|asString|rPad 15 .}{self.value|asString|lPad 15 .}
         </pCompact>
     </p>
-
-
 
     </body>
 </rml>

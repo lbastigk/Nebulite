@@ -125,7 +125,7 @@ std::string Reflection::modifyDataIdentifier(const std::string& input, const siz
     static const std::regex re(R"escape(data-identifier="([^"]*)")escape");
 
     std::string result;
-    std::string::const_iterator searchStart(input.cbegin());
+    auto searchStart(input.cbegin());
     std::smatch match;
 
     while (std::regex_search(searchStart, input.cend(), match, re)) {
@@ -159,41 +159,39 @@ void Reflection::reflect(){
 void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) const {
     if (!element) return;
     if (entry.markedForDeletion) return;
-    entry.jsonResult = entry.entries.evalAsJson(entry.context);
 
+    // Evaluate expression, result must be an array
+    entry.jsonResult = entry.entries.evalAsJson(entry.context);
     if (auto const type = entry.jsonResult.memberType(""); type != Data::KeyType::array) {
         capture.warning.println("Reflection expression did not evaluate to an array. Skipping reflection. Result: " + entry.jsonResult.serialize());
         return;
     }
+
+    // Combine inner RMLs and replace the data-identifier with a unique id
     if (entry.rmlValue.empty()) {
         entry.rmlValue = element->GetInnerRML();
     }
-
     size_t const size = entry.jsonResult.memberSize("");
     std::string newRml = "";
     for (size_t i = 0; i < size; ++i) {
-        // TODO Find any data-identifier="<id>" tags in entry.rmlValue and replace them with data-identifier="<id>_REFLECT_INDEX_<i>"
-
         newRml += modifyDataIdentifier(entry.rmlValue, i);
     }
-
     element->SetInnerRML(newRml);
 
     // Check children size
-    if (auto const childrenCount = static_cast<size_t>(element->GetNumChildren()); childrenCount != size) {
-        capture.warning.println("Rml Children count does not match reflection count. Expected: ", size, ", Actual: ", childrenCount);
+    if (auto const childrenCount = static_cast<size_t>(element->GetNumChildren()); childrenCount % size != 0) {
+        capture.warning.println("Rml Children count does not match reflection count. Expected a multiple of: ", size, ", Actual: ", childrenCount, ". Skipping reflection, Something went seriously wrong...");
     }
     else {
-        // For each element...
-        for (size_t i = 0; i < size; ++i) {
+        // For each element, overwrite context
+        for (size_t i = 0; i < childrenCount; ++i) {
             auto const& child = element->GetChild(static_cast<int>(i));
             if (!child) {
                 capture.warning.println("Failed to get child at index ", i, " for element ", element->GetTagName());
                 continue;
             }
-
-            // Overwrite context
-            std::string const childKey = "[" + std::to_string(i) + "]";
+            auto const jsonIndex = i * size / childrenCount;
+            std::string const childKey = "[" + std::to_string(jsonIndex) + "]";
             auto& newScope = entry.jsonResult.shareManagedScopeBase(childKey);
             Interaction::ContextScope childContext{
                 .self = newScope,
