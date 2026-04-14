@@ -49,6 +49,10 @@ public:
 
 private:
 
+    // TODO: Add ability to dynamically retrieve data value from the scope of the element/parent element
+    //       Issue: elements inside a data-reflect aren't scoped, so data-value=rml.input.animal is always relative to the documents scope
+    //       Instead, we should perhaps use an element scope? Or is a separate keyword like data-value-scoped necessary?
+
     // TODO: Add context instead of always retrieving from global
 
     std::vector<Rml::ElementDocument*> documents;
@@ -67,14 +71,18 @@ private:
 
     struct RegisteredEntry {
         Data::ScopedKey key;
+        std::string normalizedValue;
         Rml::Element* element = nullptr;
         Rml::String currentRmlValue;
         Rml::String previousRmlValue;
         std::string previousDocumentValue;
         bool isNewEntry = true;
+        Rml::String attribute;
     };
 
-    absl::node_hash_map<std::string, std::unique_ptr<RegisteredEntry>> registeredStrings;
+    std::vector<Rml::Element*> elementsToAdd;
+
+    absl::flat_hash_map<std::string,std::unique_ptr<RegisteredEntry>> registeredStrings;
 
     std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
 

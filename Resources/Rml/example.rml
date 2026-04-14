@@ -22,12 +22,17 @@
     <hr />
     <h2>Data input</h2>
 
-    <p data-if="rml.settings.show_text">
+    <p data-if="rml.settings.show_text" data-identifier="text_example">
         The quick brown fox jumps over the lazy {global.rml.input.animal}.
     </p>
 
     <p>
-        <input type="text" data-value="rml.input.animal"/>
+        <input type="text" data-value="rml.input.animal" data-identifier="input"/>
+    </p>
+    <p data-reflect-once="{global.time|listMembersAndValues}">
+        <p>
+            <input type="text" data-value="rml.input.animal" data-identifier="input-reflect"/>
+        </p>
     </p>
 
     <hr />
@@ -41,6 +46,8 @@
             {self.key|asString|rPad 15 .}{self.value|asString|lPad 15 .}
         </pCompact>
     </p>
+
+
 
     </body>
 </rml>

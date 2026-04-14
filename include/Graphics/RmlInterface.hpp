@@ -29,6 +29,7 @@ struct RmlInterface {
         int children;
 
         RmlElementIdentifier(Rml::Element* p, size_t const& i, Rml::Element const* e){
+            // Using e->getParentNode is buggy, so we don't use it here
             parent = p;
             index = i;
             children = e->GetNumChildren();

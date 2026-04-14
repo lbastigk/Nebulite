@@ -55,6 +55,8 @@ void Reflection::OnContextDestroy(Rml::Context* /*context*/) {
 
 void Reflection::OnElementCreate(Rml::Element* element) {
     if (!element) return;
+
+    // Reflect on each update
     if (element->GetAttribute("data-reflect")) {
         auto const expression = std::string(element->GetAttribute("data-reflect")->Get<Rml::String>());
         reflections[element->GetOwnerDocument()].emplace(
@@ -72,6 +74,25 @@ void Reflection::OnElementCreate(Rml::Element* element) {
             }
         );
     }
+    // Reflect once (Important for interactive UI-Elements, as data-reflect would invalidate any fields, causing them to unfocus on each update
+    else if (element->GetAttribute("data-reflect-once")) {
+        auto const expression = std::string(element->GetAttribute("data-reflect-once")->Get<Rml::String>());
+        reflectOnce.emplace_back(std::make_pair(
+            element,
+            ReflectionEntry{
+                .entries = Interaction::Logic::Expression(expression),
+                .context = Interaction::ContextScope{
+                    .self = global,
+                    .other = global,
+                    .global = global
+                },
+                .rmlValue = element->GetInnerRML(),
+                .jsonResult = Data::JSON(),
+                .markedForDeletion = false
+            }
+        ));
+    }
+    // TODO: Reflect-on-change?
 }
 
 void Reflection::OnElementDestroy(Rml::Element* element) {
@@ -100,46 +121,54 @@ void Reflection::removeDeletedElements(){
 void Reflection::reflect(){
     for (auto& elements : std::views::values(reflections)) {
         for (auto& [element, entry] : elements) {
-            if (!element) continue;
-            if (entry.markedForDeletion) continue;
-            entry.jsonResult = entry.entries.evalAsJson(entry.context);
+            reflectElement(element, entry);
+        }
+    }
 
-            if (auto const type = entry.jsonResult.memberType(""); type != Data::KeyType::array) {
-                capture.warning.println("Reflection expression did not evaluate to an array. Skipping reflection. Result: " + entry.jsonResult.serialize());
+    for (auto& [element, entry] : reflectOnce) {
+        reflectElement(element, entry);
+    }
+    reflectOnce.clear();
+}
+
+void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) const {
+    if (!element) return;
+    if (entry.markedForDeletion) return;
+    entry.jsonResult = entry.entries.evalAsJson(entry.context);
+
+    if (auto const type = entry.jsonResult.memberType(""); type != Data::KeyType::array) {
+        capture.warning.println("Reflection expression did not evaluate to an array. Skipping reflection. Result: " + entry.jsonResult.serialize());
+        return;
+    }
+    if (entry.rmlValue.empty()) {
+        entry.rmlValue = element->GetInnerRML();
+    }
+
+    size_t const size = entry.jsonResult.memberSize("");
+    std::string const newRml = Utility::StringHandler::repeat(entry.rmlValue, size);
+    element->SetInnerRML(newRml);
+
+    // Check children size
+    if (auto const childrenCount = static_cast<size_t>(element->GetNumChildren()); childrenCount != size) {
+        capture.warning.println("Rml Children count does not match reflection count. Expected: ", size, ", Actual: ", childrenCount);
+    }
+    else {
+        // Overwrite context for each element
+        for (size_t i = 0; i < size; ++i) {
+            auto const& child = element->GetChild(static_cast<int>(i));
+            if (!child) {
+                capture.warning.println("Failed to get child at index ", i, " for element ", element->GetTagName());
                 continue;
             }
-            if (entry.rmlValue.empty()) {
-                entry.rmlValue = element->GetInnerRML();
-            }
-
-            size_t const size = entry.jsonResult.memberSize("");
-            std::string const newRml = Utility::StringHandler::repeat(entry.rmlValue, size);
-            element->SetInnerRML(newRml);
-            if (entry.markedForDeletion) continue;
-
-            // Check children size
-            if (auto const childrenCount = static_cast<size_t>(element->GetNumChildren()); childrenCount != size) {
-                capture.warning.println("Rml Children count does not match reflection count. Expected: ", size, ", Actual: ", childrenCount);
-            }
-            else {
-                // Overwrite context for each element
-                for (size_t i = 0; i < size; ++i) {
-                    auto const& child = element->GetChild(static_cast<int>(i));
-                    if (!child) {
-                        capture.warning.println("Failed to get child at index ", i, " for element ", element->GetTagName());
-                        continue;
-                    }
-                    std::string const childKey = "[" + std::to_string(i) + "]";
-                    auto& newScope = entry.jsonResult.shareManagedScopeBase(childKey);
-                    Interaction::ContextScope childContext{
-                        .self = newScope,
-                        .other = entry.context.other,
-                        .global = entry.context.global,
-                    };
-                    Graphics::RmlInterface::RmlElementIdentifier childId(element, i, child);
-                    renderer.setRmlElementContextScope(childId, childContext);
-                }
-            }
+            std::string const childKey = "[" + std::to_string(i) + "]";
+            auto& newScope = entry.jsonResult.shareManagedScopeBase(childKey);
+            Interaction::ContextScope childContext{
+                .self = newScope,
+                .other = entry.context.other,
+                .global = entry.context.global,
+            };
+            Graphics::RmlInterface::RmlElementIdentifier childId(element, i, child);
+            renderer.setRmlElementContextScope(childId, childContext);
         }
     }
 }

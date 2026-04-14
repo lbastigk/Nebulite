@@ -82,7 +82,6 @@ private:
 
     void updateDataValues();
 
-
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP

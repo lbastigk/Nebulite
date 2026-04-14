@@ -45,6 +45,8 @@ public:
 
 private:
 
+    // TODO: Add attribute-overwrite attribute to set any reflect element to the reflection id or some string. This is important for unique identifiers
+
     struct ReflectionEntry {
         Interaction::Logic::Expression entries;
         Interaction::ContextScope const context;
@@ -61,11 +63,15 @@ private:
         >
     >reflections;
 
+    std::vector<std::pair<Rml::Element*, ReflectionEntry>> reflectOnce;
+
     std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
 
     void removeDeletedElements();
 
     void reflect();
+
+    void reflectElement(Rml::Element* element, ReflectionEntry& entry) const ;
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // NEBULITE_MODULE_RMLUI_REFLECTION_HPP
