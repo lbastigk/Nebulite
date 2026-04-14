@@ -23,7 +23,7 @@ JSON& JSON::operator=(JSON&& other) noexcept {
         std::scoped_lock lockGuard(mtx, other.mtx);
         doc = std::move(other.doc);
         cache = std::move(other.cache);
-        CACHELINE = std::move(other.CACHELINE);
+        CACHELINE = other.CACHELINE;
     }
     return *this;
 }
@@ -34,7 +34,7 @@ JSON::JSON(JSON&& other) noexcept {
     std::scoped_lock lockGuard(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);
     cache = std::move(other.cache);
-    CACHELINE = std::move(other.CACHELINE);
+    CACHELINE = other.CACHELINE;
 }
 
 //------------------------------------------
@@ -457,7 +457,7 @@ void JSON::setEmptyArray(char const* key) {
 //------------------------------------------
 // Serialize/Deserialize
 
-std::string JSON::serialize(std::string const& key, RjDirectAccess::SerializationType type) const {
+std::string JSON::serialize(std::string const& key, RjDirectAccess::SerializationType const& type) const {
     std::scoped_lock const lockGuard(mtx);
     flush(); // Ensure all changes are reflected in the document
     if (key.empty()) {

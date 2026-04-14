@@ -527,7 +527,7 @@ public:
      * @param type Type of serialization. Defaults to pretty printing.
      * @return The serialized JSON string.
      */
-    std::string serialize(std::string const& key = "", RjDirectAccess::SerializationType type = RjDirectAccess::SerializationType::pretty) const ;
+    std::string serialize(std::string const& key = "", RjDirectAccess::SerializationType const& type = RjDirectAccess::SerializationType::pretty) const ;
 
     /**
      * @brief Deserializes a JSON string or loads from a file, with optional modifications.
