@@ -17,6 +17,8 @@ JSON::~JSON() {
 // Allow move
 
 JSON& JSON::operator=(JSON&& other) noexcept {
+    static_assert(sizeof(JSON) == 1280, "JSON size has changed, please review the move assignment operator for potential cache invalidation cache issues.");
+
     if (this != &other) {
         std::scoped_lock lockGuard(mtx, other.mtx);
         doc = std::move(other.doc);
@@ -27,6 +29,8 @@ JSON& JSON::operator=(JSON&& other) noexcept {
 }
 
 JSON::JSON(JSON&& other) noexcept {
+    static_assert(sizeof(JSON) == 1280, "JSON size has changed, please review the move assignment operator for potential cache invalidation issues.");
+
     std::scoped_lock lockGuard(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);
     cache = std::move(other.cache);
