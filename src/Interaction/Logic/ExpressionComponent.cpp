@@ -53,11 +53,11 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
         }
         switch (value.error()) {
             case Data::SimpleValueRetrievalError::CONVERSION_FAILURE:
-                return "<TO_STRING_CONVERSION_FAILURE>";
+                return "[TO_STRING_CONVERSION_FAILURE]";
             case Data::SimpleValueRetrievalError::TRANSFORMATION_FAILURE:
-                return "<TRANSFORMATION_FAILURE>";
+                return "[TRANSFORMATION_FAILURE]";
             case Data::SimpleValueRetrievalError::MALFORMED_KEY:
-                return "<MALFORMED_KEY>";
+                return "[MALFORMED_KEY]";
             case Data::SimpleValueRetrievalError::IS_NULL:
                 return "null";
             case Data::SimpleValueRetrievalError::IS_ARRAY:
