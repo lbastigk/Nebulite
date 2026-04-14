@@ -254,8 +254,11 @@ public:
     //------------------------------------------
     // Overload of assign operators
 
+    // No copy
     JSON(JSON const&) = delete;
     JSON& operator=(JSON const&) = delete;
+
+    // Allow move
     JSON(JSON&& other) noexcept;
     JSON& operator=(JSON&& other) noexcept;
 

@@ -14,13 +14,14 @@ JSON::~JSON() {
 }
 
 //------------------------------------------
-// Allow copy/move
+// Allow move
 
 JSON& JSON::operator=(JSON&& other) noexcept {
     if (this != &other) {
         std::scoped_lock lockGuard(mtx, other.mtx);
         doc = std::move(other.doc);
         cache = std::move(other.cache);
+        CACHELINE = std::move(other.CACHELINE);
     }
     return *this;
 }
@@ -29,6 +30,7 @@ JSON::JSON(JSON&& other) noexcept {
     std::scoped_lock lockGuard(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);
     cache = std::move(other.cache);
+    CACHELINE = std::move(other.CACHELINE);
 }
 
 //------------------------------------------
@@ -163,9 +165,12 @@ void JSON::flush() const {
             // TODO: somehow entry->stable_double_ptr is corrupted with very large values?
             //       This, for example, happens with the [i].key values of Nebulite::Module::RmlUi::Reflection.
             //       Likely an issue on json copying, not too sure though...
+            //       Was this fixed with the addition of std::move(CACHELINE) in the JSON move operators?
             if (std::fabs(*entry->stable_double_ptr) > 1e100) {
                 *entry->stable_double_ptr = convertVariant<double>(entry->value).value_or(standardNumericValue);
                 entry->last_double_value = *entry->stable_double_ptr;
+
+                // TODO: Maybe adding a throw for now is an idea to see if this is ever triggered?
             }
             else {
                 entry->state = CacheEntry::EntryState::DIRTY;
