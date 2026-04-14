@@ -4,7 +4,7 @@
         <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
         <link type="text/rcss" href="./Resources/Rml/window.rcss"/>
     </head>
-    <body data-model="renderer">
+    <body data-model="nebuliteDataSync">
     <h1>RmlUi</h1>
 
     <p>Hello <span id="world">world</span>!</p>
@@ -22,12 +22,12 @@
     <hr />
     <h2>Data input</h2>
 
-    <p data-if="show_text">
-        The quick brown fox jumps over the lazy {global.animal}.
+    <p data-if="rml.settings.show_text">
+        The quick brown fox jumps over the lazy {global.rml.input.animal}.
     </p>
 
     <p>
-        <input type="text" data-value="animal"/>
+        <input type="text" data-value="rml.input.animal"/>
     </p>
 
     <hr />

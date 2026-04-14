@@ -85,7 +85,7 @@ void ExpressionManager::updateExpressions(){
                     expressions.emplace(innerRml, Interaction::Logic::Expression(innerRml));
                 }
 
-                Core::Renderer::RmlInterface::RmlElementIdentifier const elementId(parent, index, element);
+                Graphics::RmlInterface::RmlElementIdentifier const elementId(parent, index, element);
                 if (auto const context = renderer.getRmlElementContextScope(elementId); context.has_value()) {
                     if (auto const it = expressions.find(innerRml); it != expressions.end()) {
                         std::string const& evaluated = it->second.eval(context.value());

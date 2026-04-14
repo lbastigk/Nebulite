@@ -136,7 +136,7 @@ void Reflection::reflect(){
                         .other = entry.context.other,
                         .global = entry.context.global,
                     };
-                    Core::Renderer::RmlInterface::RmlElementIdentifier childId(element, i, child);
+                    Graphics::RmlInterface::RmlElementIdentifier childId(element, i, child);
                     renderer.setRmlElementContextScope(childId, childContext);
                 }
             }

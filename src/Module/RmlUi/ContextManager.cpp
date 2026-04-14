@@ -18,7 +18,7 @@ void ContextManager::update() {
             if (element->GetAttribute("data-eval") || element->GetAttribute("data-if")) {
                 // Skip elements that are part of a reflection, as they will be handled by the Reflection module
                 if (!parent->GetAttribute("data-reflect")) {
-                    if (Core::Renderer::RmlInterface::RmlElementIdentifier const elementId(parent, index, element); !renderer.getRmlElementContextScope(elementId).has_value()) {
+                    if (Graphics::RmlInterface::RmlElementIdentifier const elementId(parent, index, element); !renderer.getRmlElementContextScope(elementId).has_value()) {
                         if (auto const ctx = renderer.getRmlDocumentContextScope(document); ctx.has_value()) {
                             renderer.setRmlElementContextScope(elementId, ctx.value());
                         }

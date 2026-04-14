@@ -25,8 +25,8 @@ echo "Starting debug.nebs"
 set-res 1500 1000
 set-fps 2000
 
-set show_text 1
-set animal dog
+set rml.settings.show_text 1
+set rml.input.animal dog
 
 # grid or example
 set rml.settings.document_to_show example

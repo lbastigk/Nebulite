@@ -148,7 +148,7 @@ void DataInput::updateDataValues() {
 
 std::string DataInput::normalizeJsonKey(std::string const& key) {
     auto view = key
-        | std::views::transform([](unsigned char const& c) -> std::string {
+        | std::views::transform([](char const& c) -> std::string {
             if (std::isalnum(c)) return std::string(1, c);
             if (c == '_')  return std::string("_");
             return "__" + std::to_string(c) + "__";
