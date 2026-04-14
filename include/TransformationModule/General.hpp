@@ -56,6 +56,12 @@ public:
         "Usage: |setFromResult <key> <expression> -> {json}\n"
         "Inside the inner expression, all context is the own scope.\n";
 
+    static bool asString(Data::JsonScope* jsonDoc);
+    static auto constexpr asStringName = "asString";
+    static auto constexpr asStringDesc = "Converts the current JSON value to a string representation.\n"
+        "Usage: |asString -> {string}\n"
+        "Either the value as string, or [array] or {object}\n";
+
     // TODO: setFromExpression?
 
     // TODO: Even though copy/move is implemented in DomainModule:JsonScope:SimpleData, having these as transformations as well could be useful

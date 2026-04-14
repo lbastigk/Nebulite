@@ -8,7 +8,7 @@ body {
     position: absolute;
     border: 2px #ccc;
     width: 600px;
-    height: 800px;
+    height: 600px;
     margin: auto;
     white-space: pre-line;
 }
@@ -29,9 +29,22 @@ h1 {
     margin-bottom: 0.7em;
 }
 
+h2 {
+    color: #f6470a;
+    font-family: JetBrains Mono;
+    font-size: 1.1em;
+    font-weight: bold;
+    margin-bottom: 0.7em;
+}
+
 p {
     font-family: JetBrains Mono;
     margin: 0.7em 0;
+}
+
+.pCompact{
+    font-family: "JetBrains Mono";
+    margin: 0 0;
 }
 
 b {

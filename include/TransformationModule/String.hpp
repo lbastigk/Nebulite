@@ -30,6 +30,20 @@ public:
     static auto constexpr toLowerDesc = "Converts the current JSON string value to lowercase.\n"
         "Usage: |toLower -> {string}\n";
 
+    static bool lPad(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr lPadName = "lPad";
+    static auto constexpr lPadDesc = "Pads the current JSON string value on the left with a specified character until it reaches a specified total length.\n"
+        "Usage: |lPad {totalLength} {padChar} -> {string}\n"
+        "{totalLength}: Desired total length of the resulting string (including original string and padding)\n"
+        "{padChar}: Character to use for padding (if not provided, defaults to space)\n";
+
+    static bool rPad(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr rPadName = "rPad";
+    static auto constexpr rPadDesc = "Pads the current JSON string value on the right with a specified character until it reaches a specified total length.\n"
+        "Usage: |lPad {totalLength} {padChar} -> {string}\n"
+        "{totalLength}: Desired total length of the resulting string (including original string and padding)\n"
+        "{padChar}: Character to use for padding (if not provided, defaults to space)\n";
+
     static bool strip(Data::JsonScope* jsonDoc);
     static auto constexpr trimName = "strip";
     static auto constexpr trimDesc = "Strips whitespace from both ends of the current JSON string value.\n"

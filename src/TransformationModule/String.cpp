@@ -9,6 +9,8 @@ namespace Nebulite::TransformationModule {
 void String::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&toUpper, toUpperName, toUpperDesc);
     BIND_TRANSFORMATION_STATIC(&toLower, toLowerName, toLowerDesc);
+    BIND_TRANSFORMATION_STATIC(&lPad, lPadName, lPadDesc);
+    BIND_TRANSFORMATION_STATIC(&rPad, rPadName, rPadDesc);
     BIND_TRANSFORMATION_STATIC(&strip, trimName, trimDesc);
     BIND_TRANSFORMATION_STATIC(&lStrip, lStripName, lStripDesc);
     BIND_TRANSFORMATION_STATIC(&rStrip, rStripName, rStripDesc);
@@ -47,6 +49,38 @@ bool String::toLower(Data::JsonScope* jsonDoc) {
             return static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
         }
     );
+    jsonDoc->set(rootKey, str);
+    return true;
+}
+
+// NOLINTNEXTLINE
+bool String::lPad(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+    if (args.size() < 2) {
+        return false;
+    }
+    auto const size = std::stoul(args[1]);
+    auto const padChar = args.size() >= 3 ? args[2][0] : ' ';
+    auto str = jsonDoc->get<std::string>(rootKey).value_or("");
+    if (str.size() >= size) {
+        return true; // No padding needed
+    }
+    str = std::string(size - str.size(), padChar) + str;
+    jsonDoc->set(rootKey, str);
+    return true;
+}
+
+// NOLINTNEXTLINE
+bool String::rPad(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+    if (args.size() < 2) {
+        return false;
+    }
+    auto const size = std::stoul(args[1]);
+    auto const padChar = args.size() >= 3 ? args[2][0] : ' ';
+    auto str = jsonDoc->get<std::string>(rootKey).value_or("");
+    if (str.size() >= size) {
+        return true; // No padding needed
+    }
+    str = str + std::string(size - str.size(), padChar);
     jsonDoc->set(rootKey, str);
     return true;
 }
