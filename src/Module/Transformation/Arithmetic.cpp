@@ -1,5 +1,5 @@
 #include "Data/Document/JsonScope.hpp"
-#include "TransformationModule/Arithmetic.hpp"
+#include "Module/Transformation/Arithmetic.hpp"
 
 namespace Nebulite::TransformationModule {
 

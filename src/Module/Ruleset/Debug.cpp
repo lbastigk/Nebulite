@@ -1,5 +1,5 @@
 #include "Nebulite.hpp"
-#include "RulesetModule/Debug.hpp"
+#include "Module/Ruleset/Debug.hpp"
 
 namespace Nebulite::RulesetModule {
 

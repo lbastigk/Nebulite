@@ -4,7 +4,7 @@
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Interaction/Logic/Expression.hpp"
-#include "TransformationModule/General.hpp"
+#include "Module/Transformation/General.hpp"
 
 //------------------------------------------
 namespace Nebulite::TransformationModule {

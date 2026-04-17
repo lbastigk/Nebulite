@@ -1,6 +1,6 @@
 #include "Nebulite.hpp"
 #include "Data/Document/JsonScope.hpp"
-#include "TransformationModule/Requirements.hpp"
+#include "Module/Transformation/Requirements.hpp"
 
 namespace Nebulite::TransformationModule {
 

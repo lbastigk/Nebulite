@@ -2,7 +2,7 @@
 #include <algorithm>
 
 #include "Data/Document/JsonScope.hpp"
-#include "TransformationModule/String.hpp"
+#include "Module/Transformation/String.hpp"
 
 namespace Nebulite::TransformationModule {
 

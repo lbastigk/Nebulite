@@ -1,6 +1,6 @@
 #include "Data/Document/KeyType.hpp"
 #include "Data/Document/JsonScope.hpp"
-#include "TransformationModule/Array.hpp"
+#include "Module/Transformation/Array.hpp"
 
 
 namespace Nebulite::TransformationModule {

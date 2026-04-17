@@ -8,18 +8,18 @@
 
 //------------------------------------------
 // Modules
-#include "TransformationModule/Arithmetic.hpp"
-#include "TransformationModule/Array.hpp"
-#include "TransformationModule/Assertions.hpp"
-#include "TransformationModule/Boolean.hpp"
-#include "TransformationModule/Casting.hpp"
-#include "TransformationModule/Collection.hpp"
-#include "TransformationModule/Debug.hpp"
-#include "TransformationModule/General.hpp"
-#include "TransformationModule/Requirements.hpp"
-#include "TransformationModule/Statistics.hpp"
-#include "TransformationModule/String.hpp"
-#include "TransformationModule/Types.hpp"
+#include "Module/Transformation/Arithmetic.hpp"
+#include "Module/Transformation/Array.hpp"
+#include "Module/Transformation/Assertions.hpp"
+#include "Module/Transformation/Boolean.hpp"
+#include "Module/Transformation/Casting.hpp"
+#include "Module/Transformation/Collection.hpp"
+#include "Module/Transformation/Debug.hpp"
+#include "Module/Transformation/General.hpp"
+#include "Module/Transformation/Requirements.hpp"
+#include "Module/Transformation/Statistics.hpp"
+#include "Module/Transformation/String.hpp"
+#include "Module/Transformation/Types.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

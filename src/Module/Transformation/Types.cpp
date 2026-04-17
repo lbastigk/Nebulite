@@ -1,5 +1,5 @@
 #include "Data/Document/JsonScope.hpp"
-#include "TransformationModule/Types.hpp"
+#include "Module/Transformation/Types.hpp"
 
 namespace Nebulite::TransformationModule {
 

@@ -9,7 +9,7 @@
 #include "Core/GlobalSpace.hpp"
 #include "Module/Domain/GlobalSpace/Time.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
-#include "RulesetModule/Movement.hpp"
+#include "Module/Ruleset/Movement.hpp"
 #include "ScopeAccessor.hpp"
 
 namespace Nebulite::RulesetModule {

@@ -11,7 +11,7 @@
 #include "Module/Domain/GlobalSpace/Time.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 #include "Math/Equality.hpp"
-#include "RulesetModule/Physics.hpp"
+#include "Module/Ruleset/Physics.hpp"
 
 namespace Nebulite::RulesetModule {
 

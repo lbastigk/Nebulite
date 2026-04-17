@@ -2,10 +2,10 @@
 
 //------------------------------------------
 // Modules
-#include "RulesetModule/Camera.hpp"
-#include "RulesetModule/Debug.hpp"
-#include "RulesetModule/Movement.hpp"
-#include "RulesetModule/Physics.hpp"
+#include "Module/Ruleset/Camera.hpp"
+#include "Module/Ruleset/Debug.hpp"
+#include "Module/Ruleset/Movement.hpp"
+#include "Module/Ruleset/Physics.hpp"
 
 
 //------------------------------------------

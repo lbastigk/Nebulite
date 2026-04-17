@@ -7,7 +7,7 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Data/Document/JsonScope.hpp"
-#include "TransformationModule/Collection.hpp"
+#include "Module/Transformation/Collection.hpp"
 #include "Utility/Glob.hpp"
 
 //------------------------------------------

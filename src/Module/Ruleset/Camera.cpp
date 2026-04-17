@@ -1,5 +1,5 @@
 #include "Nebulite.hpp"
-#include "RulesetModule/Camera.hpp"
+#include "Module/Ruleset/Camera.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 
 namespace Nebulite::RulesetModule {
