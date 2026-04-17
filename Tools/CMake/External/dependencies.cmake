@@ -81,8 +81,7 @@ function(configure_common_dependencies target_name)
             ${IMGUI_PATH}/backends/imgui_impl_sdlrenderer3.cpp
             ${IMGUI_PATH}/misc/cpp/imgui_stdlib.cpp
     )
-    target_include_directories(imgui
-            PUBLIC
+    target_include_directories(imgui PUBLIC
             ${IMGUI_PATH}
             ${IMGUI_PATH}/backends
             ${SDL3_PATH}/include/
@@ -90,6 +89,10 @@ function(configure_common_dependencies target_name)
 
     # Link libraries
     target_link_libraries(${target_name} PRIVATE
+            absl::base
+            absl::synchronization
+            absl::strings
+            absl::hash
             absl::flat_hash_map
             imgui
             RmlUi::RmlUi
