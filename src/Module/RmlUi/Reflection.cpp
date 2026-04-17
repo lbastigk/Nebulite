@@ -18,7 +18,7 @@ Reflection::Reflection(Utility::Capture& c, Core::Renderer& r) : RmlUiModule(c,r
             removeDeletedElements();
             reflect();
         },
-        100, // ms
+        10, // ms
         Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
     );
 }
