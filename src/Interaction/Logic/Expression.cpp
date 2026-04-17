@@ -188,6 +188,13 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
     }
 }
 
+namespace {
+bool isTypeVariable(std::string_view const& str) {
+    return str.starts_with('{') && str != "{object}";
+}
+} // namespace
+
+
 void Expression::parseIntoComponents(std::string const& expr) {
     // First, we must split the expression into tokens
     // Split, keep delimiter(at start)
@@ -241,7 +248,7 @@ void Expression::parseIntoComponents(std::string const& expr) {
                 // Perhaps mixed with variables...
                 for (auto const& subToken : Utility::StringHandler::splitOnSameDepth(token, '{')) {
                     // Token is type variable
-                    if (subToken.starts_with('{')) {
+                    if (isTypeVariable(subToken)) {
                         parseTokenTypeVariable(subToken);
                     }
                     // Token is type text

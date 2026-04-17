@@ -49,8 +49,6 @@ public:
 
 private:
 
-    bool expressionsWereEvaluated = false;
-
     std::vector<Rml::ElementDocument*> documents;
 
     absl::flat_hash_map<
@@ -64,8 +62,6 @@ private:
     > rmlStrings;
 
     void updateExpressions();
-
-    void resetExpressions();
 
     //--------------------------------
 

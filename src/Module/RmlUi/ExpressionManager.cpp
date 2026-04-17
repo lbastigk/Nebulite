@@ -14,7 +14,6 @@ ExpressionManager::ExpressionManager(Utility::Capture& c, Core::Renderer& r) : R
         [this] {
             updateDataValues();
             updateExpressions();
-            expressionsWereEvaluated = true;
         },
         // If 1000.0/fps is higher than this value, the ui starts glitching due to the reset rml still being written while rendering.
         // So we update Expressions instantly with each new render pass.
@@ -29,10 +28,7 @@ void ExpressionManager::update() {
 }
 
 void ExpressionManager::postRenderUpdate() {
-    if (expressionsWereEvaluated) {
-        resetExpressions();
-        expressionsWereEvaluated = false;
-    }
+
 }
 
 void ExpressionManager::OnInitialise() {
@@ -92,17 +88,6 @@ void ExpressionManager::updateExpressions(){
                         element->SetInnerRML(evaluated);
                     }
                 }
-            }
-        });
-    }
-}
-
-void ExpressionManager::resetExpressions(){
-    for (auto const& document : documents) {
-        updateElement(document, [&](Rml::Element* element, Rml::Element* /*parent*/, size_t const& /*index*/) {
-            if (element->GetAttribute("data-eval") || element->GetAttribute("data-if")) {
-                // Reset
-                element->SetInnerRML(rmlStrings[element]);
             }
         });
     }
