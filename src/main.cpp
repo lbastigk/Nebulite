@@ -33,7 +33,7 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Constants/StandardCapture.hpp"
-#include "DomainModule/GlobalSpace/Debug.hpp"
+#include "Module/Domain/GlobalSpace/Debug.hpp"
 
 //------------------------------------------
 // Constants

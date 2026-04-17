@@ -8,7 +8,7 @@
 #include "Nebulite.hpp"
 #include "ScopeAccessor.hpp"
 #include "Core/GlobalSpace.hpp"
-#include "DomainModule/GlobalSpace/Time.hpp"
+#include "Module/Domain/GlobalSpace/Time.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 #include "Math/Equality.hpp"
 #include "RulesetModule/Physics.hpp"

@@ -13,7 +13,7 @@
 #include "Core/Environment.hpp"
 #include "Data/RenderObjectContainer.hpp"
 #include "Data/Document/JSON.hpp"
-#include "DomainModule/Initializer.hpp"
+#include "Module/Domain/Initializer.hpp"
 #include "Utility/Generate.hpp"
 
 //------------------------------------------

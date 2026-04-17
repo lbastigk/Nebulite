@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "DomainModule/GlobalSpace/Physics.hpp"
+#include "Module/Domain/GlobalSpace/Physics.hpp"
 #include "Interaction/Rules/RulesetModule.hpp"
 
 //------------------------------------------

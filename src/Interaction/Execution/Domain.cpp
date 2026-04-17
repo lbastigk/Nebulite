@@ -1,7 +1,7 @@
 #include "Nebulite.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Interaction/Execution/Domain.hpp"
-#include "DomainModule/Initializer.hpp"
+#include "Module/Domain/Initializer.hpp"
 #include "Interaction/Context.hpp"
 
 #include <vector>

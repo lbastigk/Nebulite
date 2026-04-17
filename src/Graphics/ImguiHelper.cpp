@@ -7,7 +7,7 @@
 
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
-#include "DomainModule/Common/General.hpp"
+#include "Module/Domain/Common/General.hpp"
 #include "Graphics/ImguiHelper.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Nebulite.hpp"

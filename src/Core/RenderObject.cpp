@@ -5,8 +5,8 @@
 #include "Nebulite.hpp"
 #include "Constants/KeyNames.hpp"
 #include "Core/RenderObject.hpp"
-#include "DomainModule/Initializer.hpp"
-#include "DomainModule/Common/SimpleData.hpp"
+#include "Module/Domain/Initializer.hpp"
+#include "Module/Domain/Common/SimpleData.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 

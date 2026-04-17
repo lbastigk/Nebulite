@@ -8,7 +8,7 @@
 #include "Nebulite.hpp"
 #include "Core/Texture.hpp"
 #include "Graphics/Drawcall.hpp"
-#include "DomainModule/Initializer.hpp"
+#include "Module/Domain/Initializer.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
 namespace Nebulite::Core {

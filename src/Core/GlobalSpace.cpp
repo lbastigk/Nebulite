@@ -3,8 +3,8 @@
 
 #include "Nebulite.hpp"
 #include "Core/GlobalSpace.hpp"
-#include "DomainModule/Initializer.hpp"
-#include "DomainModule/GlobalSpace/Settings.hpp"
+#include "Module/Domain/Initializer.hpp"
+#include "Module/Domain/GlobalSpace/Settings.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
