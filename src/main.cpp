@@ -55,40 +55,41 @@ struct MainReturnValues {
  * @details Initializes the engine, sets up the global space, and processes command-line arguments.
  */
 int main(int const argc, char* argv[]) {
+    auto const binaryName = std::string(argv[0]);
+    auto& global = Nebulite::Global::instance();
+    auto& capture = Nebulite::Global::capture();
+
     //------------------------------------------
     // Initialize the global space, parse command line arguments
-    auto const binaryName = std::string(argv[0]);
-    Nebulite::Global::instance().initialize();
-    Nebulite::Global::instance().parseCommandLineArguments(argc, const_cast<char const**>(argv));
+    global.initialize();
+    global.parseCommandLineArguments(argc, const_cast<char const**>(argv));
 
     //------------------------------------------
     // Render loop
     do {
         // At least one loop, to handle command line arguments
-        Nebulite::Global::instance().notifyEvent(
-            Nebulite::Global::instance().update()
-        );
-    } while (Nebulite::Global::instance().shouldContinueLoop());
+        global.notifyEvent(global.update());
+    } while (global.shouldContinueLoop());
 
     //------------------------------------------
     // Exit
 
     // Destroy renderer
-    Nebulite::Global::instance().getRenderer().destroy();
+    global.getRenderer().destroy();
 
     // Parser handles if error files need to be closed
     try {
-        if (auto const event = Nebulite::Global::instance().parseStr(binaryName + " " + std::string(Nebulite::DomainModule::GlobalSpace::Debug::errorLog_name) + " off"); event != Nebulite::Constants::Event::Success) {
-            Nebulite::Global::capture().error.println("Could not close log properly!");
+        if (auto const event = global.parseStr(binaryName + " " + std::string(Nebulite::DomainModule::GlobalSpace::Debug::errorLog_name) + " off"); event != Nebulite::Constants::Event::Success) {
+            capture.error.println("Could not close log properly!");
             return MainReturnValues::logCloseError; // Closing log failed without exceptions
         }
     } catch (std::exception const& e) {
-        Nebulite::Global::capture().error.println("Exception during error log closure: ", e.what());
+        capture.error.println("Exception during error log closure: ", e.what());
         return MainReturnValues::logCloseException; // Return a different error code for log closing failure with exceptions
     }
 
     // Return 1 on critical stop, 0 otherwise
-    if (Nebulite::Global::instance().criticalErrorOccurred()) {
+    if (global.criticalErrorOccurred()) {
         return MainReturnValues::criticalError;
     }
     return MainReturnValues::success;
