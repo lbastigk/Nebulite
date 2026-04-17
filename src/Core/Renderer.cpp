@@ -5,22 +5,20 @@
 #include <random>
 
 // External
-#include <SDL3_image/SDL_image.h>
-#include <absl/container/flat_hash_map.h>
 #include <imgui_impl_sdl3.h>
-#include "imgui_impl_sdlrenderer3.h"
+#include <imgui_impl_sdlrenderer3.h>
+
+#include <SDL3_image/SDL_image.h>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Constants/KeyNames.hpp"
-#include "Core/Environment.hpp"
 #include "Core/Renderer.hpp"
 #include "Core/RenderObject.hpp"
 #include "DomainModule/GlobalSpace/Settings.hpp"
 #include "DomainModule/Initializer.hpp"
 #include "Interaction/Invoke.hpp"
+#include "Nebulite.hpp"
 #include "Utility/FileManagement.hpp"
-#include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -51,6 +49,26 @@ Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, Util
     //------------------------------------------
     // Domain Modules
     DomainModule::Initializer::initRenderer(this);
+}
+
+Renderer::~Renderer() {
+
+    // Clean up SDL resources
+    if (renderer) {
+        SDL_DestroyRenderer(renderer);
+        renderer = nullptr;
+    }
+    if (window) {
+        SDL_DestroyWindow(window);
+        window = nullptr;
+    }
+    // Quit SDL subsystems
+    if (!status.sdlInitialized)
+        return;
+    Rml::Shutdown();
+    //IMG_Quit();
+    TTF_Quit();
+    SDL_Quit();
 }
 
 // TODO: Move all settings to workspace!
@@ -161,9 +179,8 @@ void Renderer::initImgui() const {
     font_cfg.PixelSnapH  = true;
 
     // Adjust the base font size to match pixel aesthetics (choose your font file & size)e
-    std::string const pixelFontPath = "./Resources/Fonts/JetBrainsMono-Regular.ttf"; // TODO: Use a pixel font
     if (Utility::FileManagement::fileExists(pixelFontPath)) {
-        if (ImFont* f = io.Fonts->AddFontFromFileTTF(pixelFontPath.c_str(), 40.0f * fullScale, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) io.FontDefault = f;
+        if (ImFont* f = io.Fonts->AddFontFromFileTTF(pixelFontPath, 40.0f * fullScale, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) io.FontDefault = f;
         else io.Fonts->AddFontDefault();
     } else {
         io.Fonts->AddFontDefault();
@@ -204,8 +221,9 @@ void Renderer::initSDL() {
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
     //------------------------------------------
-    // ImGui
+    // UI
     initImgui();
+    rml.init(*this, domainScope);
 
     //------------------------------------------
     // Cursor
@@ -285,6 +303,33 @@ int Renderer::getPosX() const { return domainScope.get<int>(Constants::KeyNames:
 int Renderer::getPosY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionY).value_or(0); }
 
 //------------------------------------------
+// Rml context
+
+std::optional<Interaction::ContextScope> Renderer::getRmlElementContextScope(Graphics::RmlInterface::RmlElementIdentifier const& element) {
+    if (auto const it = rml.elementContextScopes.find(element); it != rml.elementContextScopes.end()) {
+        return it->second;
+    }
+    return std::nullopt;
+}
+
+std::optional<Interaction::ContextScope> Renderer::getRmlDocumentContextScope(Rml::ElementDocument* document){
+    if (!document) return std::nullopt;
+    if (auto const it = rml.documentContextScopes.find(document); it != rml.documentContextScopes.end()) {
+        return it->second;
+    }
+    return std::nullopt;
+}
+
+void Renderer::setRmlElementContextScope(Graphics::RmlInterface::RmlElementIdentifier const& element, Interaction::ContextScope const& context) {
+    rml.elementContextScopes.emplace(element, context);
+}
+
+void Renderer::setRmlDocumentContextScope(Rml::ElementDocument* document, Interaction::ContextScope const& context) {
+    if (!document) return;
+    rml.documentContextScopes.emplace(document, context);
+}
+
+//------------------------------------------
 // Serialization / Deserialization
 
 std::string Renderer::serialize() {
@@ -350,40 +395,89 @@ void Renderer::pollEvents() {
     }
 }
 
+namespace {
+
+bool isTextInputFocused(Rml::Context* context){
+    if (Rml::Element* el = context->GetFocusElement(); el){
+        // Covers <input type="text"> and <textarea>
+        if (Rml::String const tag = el->GetTagName(); tag == "input" || tag == "textarea"){
+            // Optional: check type="text"
+            if (tag == "input"){
+                if (Rml::Variant const* type = el->GetAttribute("type"); type && type->Get<Rml::String>() != "text")
+                    return false;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+} // namespace
+
 void Renderer::render() {
-    // Event processing before rendering
+    //---------------------------------------
+    // Pre-render processing
+
+    // Event polling and processing
     pollEvents();
     for (auto const& event : events) {
         ImGui_ImplSDL3_ProcessEvent(&event);
+        rml.processRmlUiEvent(event);
     }
 
-    // Rendering
+    // Text focus override for RmlUi
+    if (isTextInputFocused(rml.context)) {
+        SDL_StartTextInput(window);
+    }
+    else if (!isTextInputFocused(rml.context) && !ImGui::GetIO().WantTextInput) { // Only stop text input if no other GUI requires it
+        SDL_StopTextInput(window);
+    }
+
+    //---------------------------------------
+    // Frame rendering
+
+    // Core
     renderInit();
     renderFrame();
     status.skippedUpdateLastFrame = status.skipUpdate;
     status.skipUpdate = false;
     updateModules(); // Update domain modules, potentially adding ImGui elements
+
+    // RML
+    // Update variables
+    rml.updateModules();
+    rml.context->Update();
+    rml.context->Render();
+
+    // Imgui
     if (status.showFps) renderFPS();
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+
+    // Present frame
     SDL_RenderPresent(renderer);
 
-    // Execute post-render callbacks and clear them
+    //---------------------------------------
+    // Post-render processing
+
+    // Custom callback functions
     for (auto const& callback : postRenderCallback) {
         callback();
+    }
+    for (auto const& module : rml.modules) {
+        module->postRenderUpdate();
     }
     postRenderCallback.clear();
 
     // Start new imgui frame instantly, so that modules can render to it
+    // TODO: Remove the new imgui frame, relay on postRenderCallbacks only. Start a new imgui frame in renderInit
     ImGui_ImplSDLRenderer3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
 }
 
 Constants::Event Renderer::update() {
-    //------------------------------------------
-    // Skip update if flagged
-    if (!status.skipUpdate) {
+    if (!status.skipUpdate) { // Skip update if flagged
         // Update environment
         Global::instance().notifyEvent(env.update());
         env.updateObjects(
@@ -424,7 +518,7 @@ void Renderer::append(RenderObject* toAppend) {
     indexToIdMap[indexCounter] = toAppend->getId();
     indexCounter++;
 
-    //Append to environment, based on layer
+    // Append to environment, based on layer
     env.append(
         toAppend,
         domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
@@ -438,59 +532,6 @@ void Renderer::reinsertAllObjects() {
     domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
     domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0)
     );
-}
-
-//------------------------------------------
-// Special Functions
-
-bool Renderer::snapshot(std::string link) {
-    // Get current window/render target size
-    int width, height;
-    if (window) {
-        // Normal windowed mode
-        SDL_GetWindowSize(window, &width, &height);
-    } else {
-        // Headless mode - get renderer output size
-        SDL_GetCurrentRenderOutputSize(renderer, &width, &height);
-    }
-
-    // Create surface to capture pixels
-    SDL_Rect const fullScreenRect = {0, 0, width, height};
-    auto const surface = SDL_RenderReadPixels(renderer, &fullScreenRect);
-    if (!surface) {
-        capture.error.println("Failed to read pixels for snapshot: ", SDL_GetError());
-        SDL_DestroySurface(surface);
-        return false;
-    }
-
-    // Create directory if it doesn't exist
-    std::string directory = link.substr(0, link.find_last_of("/\\"));
-
-    // Edge case: check if link contains no directory:
-    if (link.find_last_of("/\\") == std::string::npos) {
-        directory = "./Resources/Snapshots";
-        link = directory + "/" + link;
-    }
-
-    if (!directory.empty()) {
-        // Create directory using C++17 filesystem
-        try {
-            std::filesystem::create_directories(directory);
-        } catch (std::exception const& e) {
-            capture.error.println("Warning: Could not create directory ", directory, ": ", e.what());
-            // Continue anyway - maybe directory already exists
-        }
-    }
-
-    // Save surface as PNG
-    if (int const result = IMG_SavePNG(surface, link.c_str()); result != 0 && SDL_GetError()[0] != '\0') {
-        capture.error.println("Failed to save snapshot!");
-        return false;
-    }
-
-    // Cleanup
-    SDL_DestroySurface(surface);
-    return true;
 }
 
 //------------------------------------------
@@ -556,6 +597,12 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
 
     // Set the physical window size
     SDL_SetWindowSize(window, w * windowScale, h * windowScale);
+
+    // Rescale rml context
+    rml.context->SetDimensions({
+        w * windowScale,
+        h * windowScale
+    });
 
     // Reinsert objects
     // TODO: Once fixed tiles are implemented, this isn't needed anymore

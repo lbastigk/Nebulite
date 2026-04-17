@@ -66,6 +66,8 @@ public:
     static auto constexpr reservedCharacters = "[]{}.|\":";
 
 private:
+    static double constexpr standardNumericValue = 0.0;
+
     /**
      * @brief The amount of pre-cached double values per Document.
      */
@@ -118,21 +120,21 @@ private:
         //------------------------------------------
         // Data members
 
-        RjDirectAccess::simpleValue value = 0.0; // Default virtual entries to 0
-        double last_double_value = 0.0; // For change detection
+        RjDirectAccess::simpleValue value = standardNumericValue;
+        double last_double_value = standardNumericValue;
         double* stable_double_ptr = nullptr; // Stable pointer to double value
         EntryState state = EntryState::DIRTY; // Default to dirty: each new entry needs flushing
         bool managedInternalDouble = false; // Whether the stable double pointer is managed internally or externally (from cacheline)
 
         CacheEntry(std::array<double, CACHELINE_SIZE>& cacheLine, size_t& index) {
             if (index >= CACHELINE_SIZE) [[unlikely]] {
-                stable_double_ptr = new double(0.0);
+                stable_double_ptr = new double(standardNumericValue);
                 managedInternalDouble = true;
             }
             else [[likely]] {
                 // Assign stable double pointer from cacheline
                 stable_double_ptr = &cacheLine[index++];
-                *stable_double_ptr = 0.0;
+                *stable_double_ptr = standardNumericValue;
                 managedInternalDouble = false;
             }
         }
@@ -252,8 +254,11 @@ public:
     //------------------------------------------
     // Overload of assign operators
 
+    // No copy
     JSON(JSON const&) = delete;
     JSON& operator=(JSON const&) = delete;
+
+    // Allow move
     JSON(JSON&& other) noexcept;
     JSON& operator=(JSON&& other) noexcept;
 
@@ -522,7 +527,7 @@ public:
      * @param type Type of serialization. Defaults to pretty printing.
      * @return The serialized JSON string.
      */
-    std::string serialize(std::string const& key = "", RjDirectAccess::SerializationType type = RjDirectAccess::SerializationType::pretty) const ;
+    std::string serialize(std::string const& key = "", RjDirectAccess::SerializationType const& type = RjDirectAccess::SerializationType::pretty) const ;
 
     /**
      * @brief Deserializes a JSON string or loads from a file, with optional modifications.

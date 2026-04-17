@@ -103,3 +103,7 @@ Go
     filter call_regexp_common C++
     extension go
     3rd_gen_scale 1.00
+RML
+    filter remove_matches ^\s*#.*
+    extension rml
+    3rd_gen_scale 0.5

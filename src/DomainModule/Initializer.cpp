@@ -47,6 +47,7 @@
 #include "DomainModule/Renderer/General.hpp"
 #include "DomainModule/Renderer/Input.hpp"
 #include "DomainModule/Renderer/RenderObjectDraft.hpp"
+#include "DomainModule/Renderer/RmlUi.hpp"
 
 // Texture
 #include "DomainModule/Texture/General.hpp"
@@ -228,6 +229,11 @@ void Initializer::initRenderer(Core::Renderer* target) {
     );
     target->initModule<Core::Renderer, RenderObjectDraft>(
         "Renderer RenderObjectDraft Functions",
+        Global::settings(),
+        *target
+    );
+    target->initModule<Core::Renderer, RmlUi>(
+        "Renderer RmlUi Functions",
         Global::settings(),
         *target
     );

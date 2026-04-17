@@ -14,21 +14,27 @@ JSON::~JSON() {
 }
 
 //------------------------------------------
-// Allow copy/move
+// Allow move
 
 JSON& JSON::operator=(JSON&& other) noexcept {
+    static_assert(sizeof(JSON) == 1280, "JSON size has changed, please review the move assignment operator for potential cache invalidation cache issues.");
+
     if (this != &other) {
         std::scoped_lock lockGuard(mtx, other.mtx);
         doc = std::move(other.doc);
         cache = std::move(other.cache);
+        CACHELINE = other.CACHELINE;
     }
     return *this;
 }
 
 JSON::JSON(JSON&& other) noexcept {
+    static_assert(sizeof(JSON) == 1280, "JSON size has changed, please review the move assignment operator for potential cache invalidation issues.");
+
     std::scoped_lock lockGuard(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);
     cache = std::move(other.cache);
+    CACHELINE = other.CACHELINE;
 }
 
 //------------------------------------------
@@ -137,14 +143,14 @@ void JSON::synchronizeChildren(std::string const& parentKey) const {
             if (auto const variant = RjDirectAccess::getSimpleValue(key, doc); variant.has_value()) {
                 entry->state = CacheEntry::EntryState::CLEAN;
                 entry->value = variant.value();
-                *entry->stable_double_ptr = convertVariant<double>(entry->value).value_or(0.0); // Default to 0.0 if conversion fails
+                *entry->stable_double_ptr = convertVariant<double>(entry->value).value_or(standardNumericValue); // Default to NAN if conversion fails
                 entry->last_double_value = *entry->stable_double_ptr;
             }
             else {
                 entry->state = CacheEntry::EntryState::DELETED; // Mark as deleted
-                entry->value = 0.0;
-                *entry->stable_double_ptr = 0.0;
-                entry->last_double_value = 0.0;
+                entry->value = standardNumericValue;
+                *entry->stable_double_ptr = standardNumericValue;
+                entry->last_double_value = standardNumericValue;
             }
         }
     }
@@ -159,7 +165,7 @@ void JSON::flush() const {
         }
 
         // If double values changed, mark dirty
-        if (!Math::isZero(entry->last_double_value - *entry->stable_double_ptr)) {
+        if (!Math::isEqualAllowNan(entry->last_double_value, *entry->stable_double_ptr)) {
             entry->state = CacheEntry::EntryState::DIRTY;
             entry->last_double_value = *entry->stable_double_ptr;
             entry->value = *entry->stable_double_ptr;
@@ -201,7 +207,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
         // Entry exists and is not deleted
 
         // Check its double value for change detection using an epsilon to avoid unsafe direct comparison
-        if (!Math::isZero(*it->second->stable_double_ptr - it->second->last_double_value)) {
+        if (!Math::isEqualAllowNan(*it->second->stable_double_ptr, it->second->last_double_value)) {
             // Value changed since last check
             // We update the actual value with the new double value
             // Then we convert the double to the requested type
@@ -231,7 +237,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
                 it->second->state = CacheEntry::EntryState::CLEAN;
 
                 // Set stable double pointer
-                *it->second->stable_double_ptr = convertVariant<double>(it->second->value).value_or(0.0); // Default to 0.0 if conversion fails
+                *it->second->stable_double_ptr = convertVariant<double>(it->second->value).value_or(standardNumericValue); // Default to NAN if conversion fails
                 it->second->last_double_value = *it->second->stable_double_ptr;
 
                 return v.value();
@@ -323,9 +329,9 @@ double* JSON::getStableDoublePointer(std::string const& key) const {
 
     // If loading from document failed, create a new derived entry
     auto new_entry = std::make_unique<CacheEntry>(CACHELINE, cacheline_index);
-    new_entry->value = 0.0;
-    *new_entry->stable_double_ptr = 0.0;
-    new_entry->last_double_value = 0.0;
+    new_entry->value = standardNumericValue;
+    *new_entry->stable_double_ptr = standardNumericValue;
+    new_entry->last_double_value = standardNumericValue;
     new_entry->state = CacheEntry::EntryState::DERIVED;
     cache[key] = std::move(new_entry);
     return cache[key]->stable_double_ptr;
@@ -364,7 +370,7 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
         it->second->state = CacheEntry::EntryState::DIRTY;
 
         // Update double pointer value
-        *it->second->stable_double_ptr = convertVariant<double>(val).value_or(0.0); // Default to 0.0 if conversion fails
+        *it->second->stable_double_ptr = convertVariant<double>(val).value_or(standardNumericValue); // Default to NAN if conversion fails
         it->second->last_double_value = *it->second->stable_double_ptr;
     } else {
         // New cache value, structural validity is not guaranteed
@@ -379,7 +385,7 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
         // Set entry values
         new_entry->value = val;
         // Pointer was created in constructor, no need to redo make_shared
-        *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value).value_or(0.0); // Default to 0.0 if conversion fails
+        *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value).value_or(standardNumericValue); // Default to NAN if conversion fails
         new_entry->last_double_value = *new_entry->stable_double_ptr;
         new_entry->state = CacheEntry::EntryState::DIRTY;
 
@@ -431,9 +437,9 @@ void JSON::setSubDoc(char const* key, JSON const& child, char const* childKey) {
     if (auto const it = cache.find(key); it != cache.end()) {
         auto const& entry = it->second;
         entry->state = CacheEntry::EntryState::DELETED; // Mark as deleted
-        entry->value = 0.0;
-        *entry->stable_double_ptr = 0.0;
-        entry->last_double_value = 0.0;
+        entry->value = standardNumericValue;
+        *entry->stable_double_ptr = standardNumericValue;
+        entry->last_double_value = standardNumericValue;
     }
 
     // Since we inserted an entire document, we need sync its children
@@ -451,7 +457,7 @@ void JSON::setEmptyArray(char const* key) {
 //------------------------------------------
 // Serialize/Deserialize
 
-std::string JSON::serialize(std::string const& key, RjDirectAccess::SerializationType type) const {
+std::string JSON::serialize(std::string const& key, RjDirectAccess::SerializationType const& type) const {
     std::scoped_lock const lockGuard(mtx);
     flush(); // Ensure all changes are reflected in the document
     if (key.empty()) {
@@ -471,9 +477,9 @@ void JSON::deserialize(std::string const& serialOrLink) {
     doc.SetObject();
     for (auto const& entry : std::views::values(cache)) {
         entry->state = CacheEntry::EntryState::DELETED; // Mark as deleted
-        entry->value = 0.0; // Reset value to default
-        *entry->stable_double_ptr = 0.0;
-        entry->last_double_value = 0.0;
+        entry->value = standardNumericValue; // Reset value to default
+        *entry->stable_double_ptr = standardNumericValue;
+        entry->last_double_value = standardNumericValue;
     }
 
     //------------------------------------------
@@ -702,7 +708,7 @@ void JSON::set_add(std::string_view const& key, double const& val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
-    auto const current = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
+    auto const current = get<double>(key).value_or(standardNumericValue); // Default to nan if retrieval fails
     double const newValue = current + val;
 
     // Update double pointer value
@@ -722,7 +728,7 @@ void JSON::set_multiply(std::string_view const& key, double const& val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
-    auto const current = get<double>(key).value_or(0.0); // Default to 0.0 if retrieval fails
+    auto const current = get<double>(key).value_or(standardNumericValue); // Default to NAN if retrieval fails
     double const newValue = current * val;
 
     // Update double pointer value
@@ -744,11 +750,11 @@ void JSON::set_concat(std::string_view const& key, std::string const& valStr) {
     auto const current = get<std::string>(key).value_or(""); // Default to empty string if retrieval fails
     set<std::string>(key, current + valStr);
 
-    // Update double pointer value to default 0.0
+    // Update double pointer value to default NAN
     if (auto const it = cache.find(key); it != cache.end()) {
-        // Strings default to 0.0
-        *it->second->stable_double_ptr = 0.0;
-        it->second->last_double_value = 0.0;
+        // Strings default to NAN
+        *it->second->stable_double_ptr = standardNumericValue;
+        it->second->last_double_value = standardNumericValue;
     }
 }
 

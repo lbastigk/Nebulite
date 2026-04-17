@@ -159,10 +159,9 @@ public:
 
     /**
      * @brief Gets the full expression string that was parsed.
-     *
      * @return The full expression string.
      */
-    [[nodiscard]] std::string const* getFullExpression() const noexcept { return &fullExpression; }
+    [[nodiscard]] std::string const& getFullExpression() const noexcept { return fullExpression; }
 
     /**
      * @brief Recalculates whether the expression is returnable as a double.

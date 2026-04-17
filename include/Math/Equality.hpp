@@ -37,6 +37,22 @@ template <typename T> bool isEqual(T const& a, T const& b) {
 }
 
 /**
+ * @brief Compares to double values for equality, treating NaN values as equal.
+ * @param a First value
+ * @param b Second value
+ * @return True if the values are considered equal (including if both are NaN), false otherwise.
+ */
+inline bool isEqualAllowNan(double const& a, double const& b) {
+    if (std::isnan(a) && std::isnan(b)) {
+        return true; // Treat NaN values as equal
+    }
+    if (std::isnan(a) || std::isnan(b)) {
+        return false; // If only one is NaN, they are not equal
+    }
+    return std::fabs(a - b) < std::numeric_limits<double>::epsilon();
+}
+
+/**
  * @brief Floating-Point safe check if a double value is zero
  * @param value The value to check
  * @return True if the value is considered zero, false if it is considered nonzero (within an epsilon threshold).

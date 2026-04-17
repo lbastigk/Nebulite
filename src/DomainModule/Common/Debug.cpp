@@ -1,5 +1,7 @@
 #include "Nebulite.hpp"
 #include "DomainModule/Common/Debug.hpp"
+#include "Utility/FileManagement.hpp"
+#include "Utility/StringHandler.hpp"
 
 namespace Nebulite::DomainModule::Common {
 
@@ -70,6 +72,17 @@ Constants::Event Debug::critical(std::span<std::string const> const& args) const
     std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
     domain.capture.error.println(argStr);
     return Constants::Event::Error;
+}
+
+Constants::Event Debug::cat(std::span<std::string const> const& args) const{
+    if (args.size() < 2) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
+    }
+
+    auto const filePath = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const fileContent = Utility::FileManagement::LoadFile(filePath);
+    domain.capture.log.println(fileContent);
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::DomainModule::Common

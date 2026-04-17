@@ -8,21 +8,31 @@
 #define NEBULITE_CORE_RENDERER_HPP
 
 //------------------------------------------
+// Predeclare
+
+namespace Nebulite::Interaction {
+class ContextScope;
+} // namespace Nebulite::Interaction
+
+//------------------------------------------
 // Includes
 
 // Standard library
+#include <vector>
 
 // External
+#include <absl/container/flat_hash_map.h>
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
-#include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Core/Environment.hpp"
 #include "Data/RendererProcessor.hpp"
-#include "Utility/TimeKeeper.hpp"
+#include "Graphics/RmlInterface.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Module/Base/RmlUiModule.hpp"
+#include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -40,6 +50,8 @@ public:
      *                      Either from the Domain that owns this one or from the global capture if this is a top-level domain.
      */
     Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::Capture& parentCapture);
+
+    ~Renderer() override ;
 
     //------------------------------------------
     // Disallow copying and moving
@@ -75,7 +87,7 @@ public:
     /**
      * @brief Initializes ImGui for the Renderer. Called within `initSDL()`.
      */
-    void initImgui() const;
+    void initImgui() const ;
 
     /**
      * @brief Called before parsing any commands.
@@ -193,16 +205,6 @@ public:
     void detachAllTextures() {
         BetweenLayerTextures.clear();
     }
-
-    //------------------------------------------
-    // Special Functions
-
-    /**
-     * @brief Takes a snapshot of the current Renderer state.
-     * @param link The link to save the snapshot to.
-     * @return True if the snapshot was successful, false otherwise.
-     */
-    [[nodiscard]] bool snapshot(std::string link);
 
     //------------------------------------------
     // Purge
@@ -345,6 +347,14 @@ public:
     [[nodiscard]] SDL_Window* getSdlWindow() const { return window; }
 
     /**
+     * @brief Gets the RmlUi context.
+     * @return The Rml::Context pointer.
+     */
+    [[nodiscard]] Rml::Context* getRmlContext() const { return rml.context; }
+
+    [[nodiscard]] Rml::DataModelConstructor& getDataModelConstructor() { return rml.dataModelConstructor; }
+
+    /**
      * @brief Gets the RenderObject ID from its index in the rendering pipeline.
      * @param index The index of the RenderObject in the rendering pipeline.
      * @return An optional containing the ID of the RenderObject if found, or std::nullopt if no object is associated with the given index.
@@ -408,6 +418,15 @@ public:
     [[nodiscard]] unsigned int getWindowScale() const noexcept { return windowScale; }
 
     //------------------------------------------
+    // Rml Context
+
+    std::optional<Interaction::ContextScope> getRmlElementContextScope(Graphics::RmlInterface::RmlElementIdentifier const& element);
+    std::optional<Interaction::ContextScope> getRmlDocumentContextScope(Rml::ElementDocument* document);
+
+    void setRmlElementContextScope(Graphics::RmlInterface::RmlElementIdentifier const& element, Interaction::ContextScope const& context);
+    void setRmlDocumentContextScope(Rml::ElementDocument* document, Interaction::ContextScope const& context);
+
+    //------------------------------------------
     // Texture-Related
 
     /**
@@ -467,10 +486,17 @@ public:
     }
 
 private:
+    static auto constexpr pixelFontPath  = "./Resources/Fonts/JetBrainsMono-Regular.ttf"; // TODO: Use a pixel font
+
     /**
      * @brief Holds threads for parallel processing of RenderObjects during the update phase.
      */
     Data::RendererProcessor rendererProcessor;
+
+    //------------------------------------------
+    // Rml Interface
+
+    Graphics::RmlInterface rml;
 
     //------------------------------------------
     // Boolean Status Variables

@@ -21,7 +21,8 @@ void Collection::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Collection::filterRegex, filterRegexName, filterRegexDesc);
     BIND_TRANSFORMATION_STATIC(&Collection::filterGlob, filterGlobName, filterGlobDesc);
     BIND_TRANSFORMATION_STATIC(&Collection::filterNulls, filterOutNullsName, filterOutNullsDesc);
-    BIND_TRANSFORMATION_STATIC(&Collection::listMembers, listKeysName, listKeysDesc);
+    BIND_TRANSFORMATION_STATIC(&Collection::listMembers, listMembersName, listMembersDesc);
+    BIND_TRANSFORMATION_STATIC(&Collection::listMembersAndValues, listMembersAndValuesName, listMembersAndValuesDesc);
 }
 
 bool Collection::map(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) const {
@@ -165,7 +166,6 @@ bool Collection::filterNulls(Data::JsonScope* jsonDoc) {
         }
     }
     jsonDoc->setSubDoc(rootKey, filteredObject);
-
     return true;
 }
 
@@ -177,11 +177,38 @@ bool Collection::listMembers(Data::JsonScope* jsonDoc){
         [&](auto const& enumeratedMemberAndKey) {
             auto const& [i, memberAndKey] = enumeratedMemberAndKey;
             auto const& [member, _] = memberAndKey;
+            auto key = Data::ScopedKey(rootKey.toString() + "[" + std::to_string(i) + "]");
+            jsonDoc->set<std::string>(key,member);
+        }
+    );
+    return true;
+}
 
-            jsonDoc->set<std::string>(
-                rootKey + "[" + std::to_string(i) + "]",
-                member
-            );
+bool Collection::listMembersAndValues(Data::JsonScope* jsonDoc){
+    auto const membersAndKeys = jsonDoc->listAvailableMembersAndKeys(rootKey);
+    std::vector<Data::JSON> values;
+    std::ranges::for_each(
+    std::views::zip(std::views::iota(std::size_t{0}), membersAndKeys),
+        [&](auto const& enumeratedMemberAndKey) {
+            auto const& [i, memberAndKey] = enumeratedMemberAndKey;
+            auto const& [member, key] = memberAndKey;
+            Data::JSON newObject;
+            newObject.deserialize(jsonDoc->serialize(key));
+            values.push_back(std::move(newObject));
+        }
+    );
+
+    jsonDoc->removeMember(rootKey);
+    std::ranges::for_each(
+    std::views::zip(std::views::iota(std::size_t{0}), membersAndKeys),
+        [&](auto const& enumeratedMemberAndKey) {
+            auto const& [i, memberAndKey] = enumeratedMemberAndKey;
+            auto const& [member, key] = memberAndKey;
+            auto key1 = Data::ScopedKey(rootKey.toString() + "[" + std::to_string(i) + "].key");
+            auto key2 = Data::ScopedKey(rootKey.toString() + "[" + std::to_string(i) + "].value");
+            jsonDoc->set<std::string>(key1,member);
+            jsonDoc->setSubDoc(key2,values[i]);
+
         }
     );
     return true;

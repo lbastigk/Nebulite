@@ -8,6 +8,7 @@ set(SDL3_IMAGE_PATH     "${CMAKE_SOURCE_DIR}/external/SDL3_image")
 
 # GUI libraries
 set(IMGUI_PATH          "${CMAKE_SOURCE_DIR}/external/imgui")
+set(RMLUI_PATH          "${CMAKE_SOURCE_DIR}/external/RmlUi")
 
 # Other external libraries
 set(RAPIDJSON_PATH      "${CMAKE_SOURCE_DIR}/external/rapidjson")
@@ -23,6 +24,19 @@ function(setup_external_subdirectories)
     add_subdirectory(${SDL3_PATH})
     add_subdirectory(${SDL3_TTF_PATH})
     add_subdirectory(${SDL3_IMAGE_PATH})
+
+    # RmlUi defaults to the freetype font engine and errors out if freetype isn't available.
+    # Fall back to 'none' so configure can continue on toolchains without a freetype package.
+    if(NOT TARGET Freetype::Freetype)
+        find_package(Freetype QUIET)
+    endif()
+
+    if(NOT TARGET Freetype::Freetype)
+        set(RMLUI_FONT_ENGINE "none" CACHE STRING "RmlUi font engine" FORCE)
+        message(WARNING "Freetype not found. Setting RMLUI_FONT_ENGINE=none for this build. Install freetype or set Freetype_ROOT to enable RmlUi text rendering.")
+    endif()
+
+    add_subdirectory(${RMLUI_PATH})
     message(STATUS "External subdirectories setup complete")
 endfunction()
 
@@ -30,6 +44,8 @@ endfunction()
 # Function to configure common dependencies for a target
 function(configure_common_dependencies target_name)
     message(STATUS "Configuring common dependencies for target: ${target_name}")
+
+    add_compile_definitions(RMLUI_SDL_VERSION_MAJOR=3)
 
     # Include directories
     # normal include dir
@@ -49,6 +65,8 @@ function(configure_common_dependencies target_name)
             ${SDL3_IMAGE_PATH}/include
             ${IMGUI_PATH}
             ${IMGUI_PATH}/backends
+            ${RMLUI_PATH}/Backends
+            ${RMLUI_PATH}/Include
             ${STB_PATH}
     )
 
@@ -72,11 +90,12 @@ function(configure_common_dependencies target_name)
 
     # Link libraries
     target_link_libraries(${target_name} PRIVATE
+            absl::flat_hash_map
+            imgui
+            RmlUi::RmlUi
             SDL3::SDL3
             SDL3_ttf::SDL3_ttf
             SDL3_image::SDL3_image
-            imgui
-            absl::flat_hash_map
     )
 
     message(STATUS "Common dependencies configured for ${target_name}")

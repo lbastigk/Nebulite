@@ -328,7 +328,7 @@ bool handleRegularContent(char const c, char const next, ParseState& state, std:
     }
     return true; // Character was handled
 }
-}
+} // namespace
 
 std::string RjDirectAccess::stripComments(std::string const& jsonc) {
     std::string result;

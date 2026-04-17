@@ -192,6 +192,10 @@ void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::
     ImGui::End();
 }
 
+// TODO: does not work if external processes reactivate an object through stable double pointers.
+//       e.g.: set time.runtime someValue -> time.runtime will keep showing someValue!
+//       even though "print time" will print it correctly, with time.runtime.t,dt,etc.
+//       Perhaps the memberType isn't working correctly?
 void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKey const& root) {
     for (auto const& key : s.listAvailableKeys(root)) {
         std::string const rootPath = root.view().toString();

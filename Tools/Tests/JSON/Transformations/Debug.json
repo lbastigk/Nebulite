@@ -32,7 +32,7 @@
         ],
         "expected": {
             "cout": [
-                "<TRANSFORMATION_FAILURE>"
+                "[TRANSFORMATION_FAILURE]"
             ],
             "cerr": []
         }

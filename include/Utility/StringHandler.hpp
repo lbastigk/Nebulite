@@ -147,6 +147,14 @@ public:
      * @return The recombined argument string.
      */
     static std::string recombineArgs(std::span<std::string const> const& args);
+
+    /**
+     * @brief Repeats a given string a specified number of times.
+     * @param str The string to repeat.
+     * @param count The number of times to repeat the string.
+     * @return The resulting string after repetition.
+     */
+    static std::string repeat(std::string const& str, size_t const& count);
 };
 }   // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_STRING_HANDLER_HPP

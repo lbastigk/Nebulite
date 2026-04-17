@@ -16,6 +16,7 @@ void General::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&General::setBool, setBoolName, setBoolDesc);
     BIND_TRANSFORMATION_STATIC(&General::removeMember, removeMemberName, removeMemberDesc);
     BIND_TRANSFORMATION_STATIC(&General::setFromResult, setFromResultName, setFromResultDesc);
+    BIND_TRANSFORMATION_STATIC(&General::asString, asStringName, asStringDesc);
 }
 
 bool General::setString(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
@@ -76,6 +77,26 @@ bool General::setFromResult(std::span<std::string const> const& args, Data::Json
     Interaction::ContextScope const context{*jsonDoc, *jsonDoc, *jsonDoc}; // Using the same scope for self, other and global since we only have access to one scope here
     Data::JSON const transformationResult = Interaction::Logic::Expression::evalAsJson(innerEval, context); // Evaluating the expression to get the transformation result
     jsonDoc->setSubDoc(key, transformationResult);
+    return true;
+}
+
+bool General::asString(Data::JsonScope* jsonDoc){
+    switch (jsonDoc->memberType(rootKey)) {
+        case Data::KeyType::null:
+            jsonDoc->set(rootKey, "null");
+            break;
+        case Data::KeyType::value:
+            // Nothing to do
+            break;
+        case Data::KeyType::array:
+            jsonDoc->set(rootKey, "[array]");
+            break;
+        case Data::KeyType::object:
+            jsonDoc->set(rootKey, "{object}");
+            break;
+        default:
+            std::unreachable();
+    }
     return true;
 }
 

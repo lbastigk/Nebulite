@@ -101,10 +101,12 @@ public:
         "\n"
         "Usage: if <condition> <functioncall>\n"
         "\n"
-        "It is recommended to wrap the condition in quotes to prevent parsing issues.\n"
+        "It is recommended to use the if-then syntax to avoid whitespace issues:\n"
+        "\n"
+        "Usage: if <condition> then <functioncall>\n"
         "\n"
         "Example:\n"
-        "if '$(eq(1+1,2))' echo Condition is true!\n";
+        "if $({global.settings.someFile|strCompare equals ./Resources/myFile.txt}) then echo Condition is true!\n";
 
     [[nodiscard]] Constants::Event echo(std::span<std::string const> const& args) const ;
     static auto constexpr echo_name = "echo";

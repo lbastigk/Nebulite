@@ -6,6 +6,8 @@ function(setup_common_sources TARGET)
     )
 
     list(APPEND COMMON_SOURCES "${TINYEXPR_PATH}/tinyexpr.c")
+    list(APPEND COMMON_SOURCES "${RMLUI_PATH}/Backends/RmlUi_Platform_SDL.cpp")
+    list(APPEND COMMON_SOURCES "${RMLUI_PATH}/Backends/RmlUi_Renderer_SDL.cpp")
 
     if(TARGET)
         if(TARGET ${TARGET})
