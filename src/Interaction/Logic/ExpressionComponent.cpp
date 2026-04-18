@@ -189,52 +189,7 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
 void Expression::Component::handleComponentTypeEval(std::string& token) const {
     //------------------------------------------
     // Handle casting and precision together
-    if (formatter.cast == Formatter::CastType::to_int) {
-        token = std::to_string(static_cast<int>(te_eval(expression)));
-    } else {
-        // to_double or none, both use double directly
-        double value = te_eval(expression);
-
-        // Apply rounding if precision is specified
-        if (formatter.precision != -1) {
-            double const multiplier = std::pow(10.0, formatter.precision);
-            value = std::round(value * multiplier) / multiplier;
-        }
-
-        token = std::to_string(value);
-    }
-
-    // Precision formatting (after rounding)
-    if (formatter.precision != -1) {
-        if (size_t const dotPos = token.find('.'); dotPos != std::string::npos) {
-            if (size_t const currentPrecision = token.size() - dotPos - 1; currentPrecision < static_cast<size_t>(formatter.precision)) {
-                // Add zeros to match the required precision
-                token.append(static_cast<size_t>(formatter.precision) - currentPrecision, '0');
-            } else if (currentPrecision > static_cast<size_t>(formatter.precision)) {
-                // Truncate to the required precision (should be minimal after rounding)
-                token.resize(dotPos + static_cast<size_t>(formatter.precision) + 1);
-            }
-        } else {
-            // No decimal point, add one and pad with zeros
-            token += '.';
-            token.append(static_cast<size_t>(formatter.precision), '0');
-        }
-    }
-
-    // Adding padding
-    if (formatter.alignment > 0 && token.size() < static_cast<size_t>(formatter.alignment)) {
-        // Cast to int, as alignment may be negative (-1 signals no alignment)
-        int const size = static_cast<int>(token.size());
-        std::string padding;
-        for (int i = 0; i < formatter.alignment - size; i++) {
-            if (formatter.leadingZero) {
-                padding += "0";
-            } else {
-                padding += " ";
-            }
-        }
-        token.insert(0, padding);
-    }
+    token = formatter.format(te_eval(expression));
 }
 
 std::expected<std::string, Expression::Component::KeyEvaluationInfo> Expression::Component::evaluateKey(ContextScope const& context, size_t const& recursionDepth) const {

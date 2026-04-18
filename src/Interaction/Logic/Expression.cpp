@@ -258,14 +258,14 @@ void Expression::parseIntoComponents(std::string const& expr) {
     }
 }
 
-Expression::Component::Formatter Expression::readFormatter(std::string const& formatter) {
+Expression::Formatter Expression::Formatter::readFormatter(std::string const& formatter) {
     // Check formatter. Integer cast should not include precision. Is ignored later on in casting but acceptable as input
     // Examples:
     // $i     : leadingZero = false , alignment = -1 , precision = -1
     // $04i   : leadingZero = true  , alignment =  4 , precision = -1
     // $03.5i : leadingZero = true  , alignment =  3 , precision =  5
 
-    Component::Formatter fmt;
+    Formatter fmt;
 
     if (formatter.empty()) {
         return fmt;
@@ -273,10 +273,10 @@ Expression::Component::Formatter Expression::readFormatter(std::string const& fo
 
     // Format cast
     if (formatter.ends_with("i")) {
-        fmt.cast = Component::Formatter::CastType::to_int;
+        fmt.cast = CastType::to_int;
     }
     else if (formatter.ends_with("f")) {
-        fmt.cast = Component::Formatter::CastType::to_double;
+        fmt.cast = CastType::to_double;
     }
 
     // Read leading zero
@@ -299,6 +299,57 @@ Expression::Component::Formatter Expression::readFormatter(std::string const& fo
     return fmt;
 }
 
+std::string Expression::Formatter::format(double const& value) const {
+    std::string token;
+    if (cast == CastType::to_int) {
+        token = std::to_string(static_cast<int>(value));
+    } else {
+        // to_double or none, both use double directly
+        double newValue = value;
+
+        // Apply rounding if precision is specified
+        if (precision != -1) {
+            double const multiplier = std::pow(10.0, precision);
+            newValue = std::round(value * multiplier) / multiplier;
+        }
+
+        token = std::to_string(newValue);
+    }
+
+    // Precision formatting (after rounding)
+    if (precision != -1) {
+        if (size_t const dotPos = token.find('.'); dotPos != std::string::npos) {
+            if (size_t const currentPrecision = token.size() - dotPos - 1; currentPrecision < static_cast<size_t>(precision)) {
+                // Add zeros to match the required precision
+                token.append(static_cast<size_t>(precision) - currentPrecision, '0');
+            } else if (currentPrecision > static_cast<size_t>(precision)) {
+                // Truncate to the required precision (should be minimal after rounding)
+                token.resize(dotPos + static_cast<size_t>(precision) + 1);
+            }
+        } else {
+            // No decimal point, add one and pad with zeros
+            token += '.';
+            token.append(static_cast<size_t>(precision), '0');
+        }
+    }
+
+    // Adding padding
+    if (alignment > 0 && token.size() < static_cast<size_t>(alignment)) {
+        // Cast to int, as alignment may be negative (-1 signals no alignment)
+        int const size = static_cast<int>(token.size());
+        std::string padding;
+        for (int i = 0; i < alignment - size; i++) {
+            if (leadingZero) {
+                padding += "0";
+            } else {
+                padding += " ";
+            }
+        }
+        token.insert(0, padding);
+    }
+    return token;
+}
+
 void Expression::parseTokenTypeEval(std::string const& token) {
     // $[leading zero][alignment][.][precision]<type:f,i>
     // - bool leading zero   : on/off
@@ -318,7 +369,7 @@ void Expression::parseTokenTypeEval(std::string const& token) {
     size_t const pos = token.find('(');
     std::string const formatter = token.substr(1, pos - 1); // Remove leading $
     std::string const expression = token.substr(pos);
-    currentComponent->formatter = readFormatter(formatter);
+    currentComponent->formatter = Formatter::readFormatter(formatter);
 
     // Register internal variables
     // And build equivalent expression using new variable names
@@ -584,7 +635,7 @@ void Expression::updateUnstableValues(ContextScope const& context) const {
 bool Expression::recalculateIsReturnableAsDouble() const {
     return components.size() == 1
            && components[0]->type == Component::Type::eval
-           && components[0]->formatter.cast == Component::Formatter::CastType::none;
+           && components[0]->formatter.cast == Formatter::CastType::none;
 }
 
 bool Expression::recalculateIsReturnableAsString() const {
