@@ -158,6 +158,7 @@ void JSON::synchronizeChildren(std::string const& parentKey) const {
 
 void JSON::flush() const {
     std::scoped_lock const lockGuard(mtx);
+
     for (auto& [key, entry] : cache) {
         // Skip malformed entries
         if (entry->state == CacheEntry::EntryState::MALFORMED) {
@@ -196,29 +197,38 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
     // Check cache first
     auto it = cache.find(key);
 
-    // Checking for malformed shouldn't be necessary, but just in case
-    if (it != cache.end() && it->second->state == CacheEntry::EntryState::MALFORMED) {
-        Global::capture().error.println("Warning: Attempted to access malformed key in getVariant(): ", key);
-        Global::capture().error.println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
-        return std::unexpected(MALFORMED_KEY);
-    }
-
-    if (it != cache.end() && it->second->state != CacheEntry::EntryState::DELETED) {
-        // Entry exists and is not deleted
-
-        // Check its double value for change detection using an epsilon to avoid unsafe direct comparison
-        if (!Math::isEqualAllowNan(*it->second->stable_double_ptr, it->second->last_double_value)) {
-            // Value changed since last check
-            // We update the actual value with the new double value
-            // Then we convert the double to the requested type
-            it->second->last_double_value = *it->second->stable_double_ptr;
-            it->second->value = it->second->last_double_value;
-            it->second->state = CacheEntry::EntryState::DIRTY; // Mark as dirty to sync back
+    if (!std::ranges::any_of(cache, [&key](auto const& pair) {
+        auto& [cachedKey, entry] = pair;
+        return cachedKey.starts_with(key)
+            && cachedKey != key
+            && entry->state != CacheEntry::EntryState::DELETED
+            && Math::isEqualAllowNan(*entry->stable_double_ptr, entry->last_double_value);
+    })) {
+        // Checking for malformed shouldn't be necessary, but just in case
+        if (it != cache.end() && it->second->state == CacheEntry::EntryState::MALFORMED) {
+            Global::capture().error.println("Warning: Attempted to access malformed key in getVariant(): ", key);
+            Global::capture().error.println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
+            return std::unexpected(MALFORMED_KEY);
         }
-        return it->second->value;
+
+        if (it != cache.end() && it->second->state != CacheEntry::EntryState::DELETED) {
+            // Entry exists and is not deleted
+
+            // Check its double value for change detection using an epsilon to avoid unsafe direct comparison
+            if (!Math::isEqualAllowNan(*it->second->stable_double_ptr, it->second->last_double_value)) {
+                // Value changed since last check
+                // We update the actual value with the new double value
+                // Then we convert the double to the requested type
+                it->second->last_double_value = *it->second->stable_double_ptr;
+                it->second->value = it->second->last_double_value;
+                it->second->state = CacheEntry::EntryState::DIRTY; // Mark as dirty to sync back
+            }
+            return it->second->value;
+        }
     }
 
     // Check document, if not in cache
+    flush();
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key.c_str(), doc); val != nullptr) {
         if (it == cache.end() && RjDirectAccess::getSimpleValue(val).has_value()) {
             // Insert only if the value is of a supported type, otherwise complex types might be interpreted as simple values.
@@ -506,17 +516,9 @@ KeyType JSON::memberType(std::string const& key) const {
         return KeyType::null;
     }
 
-    // Check cache first
-    if (auto const it = cache.find(key); it != cache.end()) {
-        // Key is cached, return its type
-        // Only consider CLEAN entries as valid
-        // For all other entries, we must flush and check the document
-        if (it->second->state == CacheEntry::EntryState::CLEAN) {
-            return KeyType::value;
-        }
-    }
-
-    // Not directly in cache, flush before accessing the document
+    // Checking cache is risky, as inner values may have changed ...
+    // Once partial flushing is available, we should use that to minimize the performance impact!
+    // Flush before accessing the document to ensure integrity
     flush();
 
     // If not cached, check rapidjson doc
@@ -548,6 +550,8 @@ std::string JSON::memberTypeString(std::string const& key) const {
         return "null";
     }
 
+    // Checking cache is risky, as inner values may have changed ...
+    // Once partial flushing is available, we should use that to minimize the performance impact!
     // Flush before accessing the document to ensure integrity
     flush();
 
@@ -589,13 +593,7 @@ std::string JSON::memberTypeString(std::string const& key) const {
     if (val->IsBool()) {
         return "value:bool";
     }
-
-    // Throw error for unsupported type
-    Global::capture().error.println("Unsupported type for key: '", key, "'");
-    Global::capture().error.println("Please add support for this type in memberTypeStr() and report to the developers if this is unexpected!");
-    Global::capture().error.println("Document is:");
-    Global::capture().error.println(RjDirectAccess::serialize(doc));
-    std::abort();
+    std::unreachable(); // If it's any other type, something went wrong...
 }
 
 size_t JSON::memberSize(std::string const& key) const {

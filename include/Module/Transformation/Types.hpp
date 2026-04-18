@@ -26,10 +26,15 @@ public:
         "Usage: |typeAsNumber -> {number}"
         "where the number reflects the enum value KeyType.\n";
 
+    static bool typeAsSimpleString(Data::JsonScope* jsonDoc);
+    static auto constexpr typeAsSimpleStringName = "typeAsSimpleString";
+    static auto constexpr typeAsSimpleStringDesc = "Converts the current JSON type value to a string.\n"
+        "Usage: |typeAsString -> {value,array,object}\n";
+
     static bool typeAsString(Data::JsonScope* jsonDoc);
     static auto constexpr typeAsStringName = "typeAsString";
-    static auto constexpr typeAsStringDesc = "Converts the current JSON type value to a string.\n"
-        "Usage: |typeAsString -> {value,array,object}\n";
+    static auto constexpr typeAsStringDesc = "Converts the current JSON type value to a string with metadata.\n"
+        "Usage: |typeAsString -> {value:metadata,array:metadata,object:metadata}\n";
 
     static bool serialize(Data::JsonScope* jsonDoc);
     static auto constexpr serializeName = "serialize";

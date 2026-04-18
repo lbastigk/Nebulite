@@ -5,6 +5,7 @@ namespace Nebulite::TransformationModule {
 
 void Types::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Types::typeAsNumber, typeAsNumberName, typeAsNumberDesc);
+    BIND_TRANSFORMATION_STATIC(&Types::typeAsSimpleString, typeAsSimpleStringName, typeAsSimpleStringDesc);
     BIND_TRANSFORMATION_STATIC(&Types::typeAsString, typeAsStringName, typeAsStringDesc);
     BIND_TRANSFORMATION_STATIC(&Types::serialize, serializeName, serializeDesc);
     BIND_TRANSFORMATION_STATIC(&Types::deserialize, deserializeName, deserializeDesc);
@@ -12,6 +13,26 @@ void Types::bindTransformations() {
 
 bool Types::typeAsNumber(Data::JsonScope* jsonDoc) {
     jsonDoc->set<int>(rootKey, static_cast<int>(jsonDoc->memberType(rootKey)));
+    return true;
+}
+
+bool Types::typeAsSimpleString(Data::JsonScope* jsonDoc){
+    switch (jsonDoc->memberType(rootKey)) {
+        case Data::KeyType::null:
+            jsonDoc->set<std::string>(rootKey, "null");
+            break;
+        case Data::KeyType::value:
+            jsonDoc->set<std::string>(rootKey, "value");
+            break;
+        case Data::KeyType::array:
+            jsonDoc->set<std::string>(rootKey, "array");
+            break;
+        case Data::KeyType::object:
+            jsonDoc->set<std::string>(rootKey, "object");
+            break;
+        default:
+            std::unreachable();
+    }
     return true;
 }
 

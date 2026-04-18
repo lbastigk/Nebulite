@@ -23,5 +23,51 @@
             ],
             "cerr": []
         }
+    },
+    {
+        "command": [
+            "task TaskFiles/Tests/JSON/stableDoublePointerOverride.nebs"
+        ],
+        "expected": {
+            "cout": [
+                "Base state: time is an object, time.dt is a value:",
+                "object",
+                "object",
+                "value",
+                "value:float:64",
+                "1.) Setting global.time to a simple value:",
+                "value",
+                "value:string:15",
+                "null",
+                "null",
+                "2.) After wait, time should be an object again, and time.dt should be a value again:",
+                "object",
+                "object",
+                "value",
+                "value:float:64"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "time set-fixed-dt 1",
+            "set-fps 60",
+            "wait 1",
+            "eval echo {global.time}",
+            "wait 1",
+            "set time someOverrideValue",
+            "wait 1",
+            "# TODO: expected should be that the last eval returns object again, as the time module overrides the value",
+            "eval echo {global.time}",
+            "exit"
+        ],
+        "expected": {
+            "cout": [
+                "{object}",
+                "{object}"
+            ],
+            "cerr": []
+        }
     }
 ]
