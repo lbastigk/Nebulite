@@ -437,6 +437,11 @@ public:
      *          If the key does not exist, the type is considered null.
      * @param key The key to check.
      * @return The type of the key.
+     * @todo Fix bug of memberType not recognizing if a simple variable was overwritten due to an inner member being set through stable double pointers:
+     *       Example is object global.time, where variables such as t,dt etc are set through double pointers.
+     *       If we overwrite global.time with a simple value and wait for an overwrite of t, and call memberType("time"):
+     *       Expected: object, as time.t overwrote the value of time
+     *       But it returns simpleValue, as it doesn't recognize the change!
      */
     KeyType memberType(std::string const& key) const ;
     KeyType memberType(std::string_view const& key) const { return memberType(std::string(key)); }
