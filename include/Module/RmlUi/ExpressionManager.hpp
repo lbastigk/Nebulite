@@ -49,6 +49,8 @@ public:
 
 private:
 
+    bool expressionsWereEvaluated = false;
+
     std::vector<Rml::ElementDocument*> documents;
 
     absl::flat_hash_map<
@@ -77,6 +79,8 @@ private:
     std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
 
     void updateDataValues();
+
+    void resetExpressions();
 
 };
 } // namespace Nebulite::Module::RmlUi
