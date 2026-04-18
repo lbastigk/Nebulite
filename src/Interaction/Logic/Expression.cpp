@@ -1,9 +1,6 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <cmath>
-
 // Nebulite
 #include "Nebulite.hpp"
 #include "Data/Document/JsonScope.hpp"
@@ -261,34 +258,45 @@ void Expression::parseIntoComponents(std::string const& expr) {
     }
 }
 
-void Expression::readFormatter(std::shared_ptr<Component> const& component, std::string const& formatter) {
+Expression::Component::Formatter Expression::readFormatter(std::string const& formatter) {
     // Check formatter. Integer cast should not include precision. Is ignored later on in casting but acceptable as input
     // Examples:
     // $i     : leadingZero = false , alignment = -1 , precision = -1
     // $04i   : leadingZero = true  , alignment =  4 , precision = -1
     // $03.5i : leadingZero = true  , alignment =  3 , precision =  5
 
+    Component::Formatter fmt;
+
     if (formatter.empty()) {
-        return;
+        return fmt;
+    }
+
+    // Format cast
+    if (formatter.ends_with("i")) {
+        fmt.cast = Component::Formatter::CastType::to_int;
+    }
+    else if (formatter.ends_with("f")) {
+        fmt.cast = Component::Formatter::CastType::to_double;
     }
 
     // Read leading zero
     if (formatter.starts_with("0")) {
-        component->formatter.leadingZero = true;
+        fmt.leadingZero = true;
     }
     if (formatter.size() > 1) {
         size_t const dotPos = formatter.find('.');
         // Read alignment
         if (dotPos == 0) {
-            component->formatter.alignment = 0;
+            fmt.alignment = 0;
         } else {
-            component->formatter.alignment = std::stoi(formatter.substr(0, dotPos));
+            fmt.alignment = std::stoi(formatter.substr(0, dotPos));
         }
         // Read precision
         if (dotPos != std::string::npos) {
-            component->formatter.precision = std::stoi(formatter.substr(dotPos + 1));
+            fmt.precision = std::stoi(formatter.substr(dotPos + 1));
         }
     }
+    return fmt;
 }
 
 void Expression::parseTokenTypeEval(std::string const& token) {
@@ -310,17 +318,7 @@ void Expression::parseTokenTypeEval(std::string const& token) {
     size_t const pos = token.find('(');
     std::string const formatter = token.substr(1, pos - 1); // Remove leading $
     std::string const expression = token.substr(pos);
-
-    // Check cast type in formatter:
-    if (formatter.ends_with("i")) {
-        readFormatter(currentComponent, formatter);
-        currentComponent->cast = Component::CastType::to_int;
-    } else if (formatter.ends_with("f")) {
-        readFormatter(currentComponent, formatter);
-        currentComponent->cast = Component::CastType::to_double;
-    } else {
-        currentComponent->cast = Component::CastType::none;
-    }
+    currentComponent->formatter = readFormatter(formatter);
 
     // Register internal variables
     // And build equivalent expression using new variable names
@@ -586,7 +584,7 @@ void Expression::updateUnstableValues(ContextScope const& context) const {
 bool Expression::recalculateIsReturnableAsDouble() const {
     return components.size() == 1
            && components[0]->type == Component::Type::eval
-           && components[0]->cast == Component::CastType::none;
+           && components[0]->formatter.cast == Component::Formatter::CastType::none;
 }
 
 bool Expression::recalculateIsReturnableAsString() const {

@@ -245,16 +245,6 @@ private:
         } contextType = ContextType::None; // Default to None
 
         /**
-         * @enum Nebulite::Interaction::Logic::Expression::Component::CastType
-         * @brief Represents the type of cast to apply to an expression component.
-         */
-        enum class CastType : uint8_t {
-            none, // No cast -> using pure string
-            to_int, // Cast to integer
-            to_double // Cast to double
-        } cast = CastType::none; // Default to none
-
-        /**
          * @struct Nebulite::Interaction::Logic::Expression::Component::Formatter
          * @brief Represents formatting options for the component.
          */
@@ -262,6 +252,16 @@ private:
             bool leadingZero = false; // If true, pad with leading zeros
             int alignment = -1; // The alignment width of the component. -1 means no formatting.
             int precision = -1; // The precision of the component. -1 means no formatting.
+
+            /**
+             * @enum Nebulite::Interaction::Logic::Expression::Component::Formatter::CastType
+             * @brief Represents the type of cast to apply to an expression component.
+             */
+            enum class CastType : uint8_t {
+                none, // No cast -> using pure string
+                to_int, // Cast to integer
+                to_double // Cast to double
+            } cast = CastType::none; // Default to none
         } formatter;
 
         /**
@@ -497,11 +497,11 @@ private:
     void parseIntoComponents(std::string const& expr);
 
     /**
-     * @brief Reads the formatter string from a string and parses it intro the component.
-     * @param component The component to populate with the parsed formatter.
+     * @brief Parses the formatter string
      * @param formatter The formatter string to parse.
+     * @return a formatter, or nullopt
      */
-    static void readFormatter(std::shared_ptr<Component> const& component, std::string const& formatter);
+    static Component::Formatter readFormatter(std::string const& formatter);
 
     /**
      * @brief Used to parse a string token of type "eval" into a component.

@@ -6,7 +6,7 @@
 namespace Nebulite::Interaction::Logic {
 
 Expression::Component::Component(Component&& other) noexcept
-            : type(other.type), contextType(other.contextType), cast(other.cast),
+            : type(other.type), contextType(other.contextType),
               formatter(other.formatter), stringRepresentation(std::move(other.stringRepresentation)), key(std::move(other.key)),
               expression(other.expression) {
     other.expression = nullptr;
@@ -17,7 +17,6 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
         te_free(expression);
         type = other.type;
         contextType = other.contextType;
-        cast = other.cast;
         formatter = other.formatter;
         stringRepresentation = std::move(other.stringRepresentation);
         key = std::move(other.key);
@@ -190,7 +189,7 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
 void Expression::Component::handleComponentTypeEval(std::string& token) const {
     //------------------------------------------
     // Handle casting and precision together
-    if (cast == CastType::to_int) {
+    if (formatter.cast == Formatter::CastType::to_int) {
         token = std::to_string(static_cast<int>(te_eval(expression)));
     } else {
         // to_double or none, both use double directly
