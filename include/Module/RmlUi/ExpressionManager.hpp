@@ -53,11 +53,13 @@ private:
 
     std::vector<Rml::ElementDocument*> documents;
 
+    // Pre-compiled RML strings to expressions
     absl::flat_hash_map<
         Rml::String,
         Interaction::Logic::Expression
     > expressions;
 
+    // Original, non-evaluated rml strings of elements
     absl::flat_hash_map<
         Rml::Element*,
         Rml::String
