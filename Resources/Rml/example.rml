@@ -38,7 +38,6 @@
     </p>
     <p data-reflect="{global.time|listMembersAndValues}">
         <pCompact data-eval="true">
-            <!-- TODO: add transformation to format strings if they are numbers, e.g.: formatNumber f06.2, normal strings are just passed through-->
             {self.key|asString|rPad 15 .}{self.value|asString|lPad 15 .}
         </pCompact>
     </p>
