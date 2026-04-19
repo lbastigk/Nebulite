@@ -6,6 +6,8 @@
 #include "Interaction/Logic/Expression.hpp"
 #include "Module/Transformation/General.hpp"
 
+#include "Module/RmlUi/ExpressionManager.hpp"
+
 //------------------------------------------
 namespace Nebulite::TransformationModule {
 
@@ -17,6 +19,7 @@ void General::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&General::removeMember, removeMemberName, removeMemberDesc);
     BIND_TRANSFORMATION_STATIC(&General::setFromResult, setFromResultName, setFromResultDesc);
     BIND_TRANSFORMATION_STATIC(&General::asString, asStringName, asStringDesc);
+    BIND_TRANSFORMATION_STATIC(&General::formatNumber, formatNumberName, formatNumberDesc);
 }
 
 bool General::setString(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
@@ -96,6 +99,19 @@ bool General::asString(Data::JsonScope* jsonDoc){
             break;
         default:
             std::unreachable();
+    }
+    return true;
+}
+
+bool General::formatNumber(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+    if (jsonDoc->memberType(rootKey) != Data::KeyType::value) return false;
+    if (args.size() != 2) return false;
+    auto const value = jsonDoc->get<std::string>(rootKey);
+    if (!value.has_value()) return false;
+
+    if (Utility::StringHandler::isNumber(value.value())) {
+        auto const fmt = Interaction::Logic::Expression::Formatter::readFormatter(args[1]);
+        jsonDoc->set(rootKey, fmt.format(std::stod(value.value())));
     }
     return true;
 }

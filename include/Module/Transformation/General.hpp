@@ -62,6 +62,13 @@ public:
         "Usage: |asString -> {string}\n"
         "Either the value as string, or [array] or {object}\n";
 
+    static bool formatNumber(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr formatNumberName = "formatNumber";
+    static auto constexpr formatNumberDesc = "If the stored value is a number, it is formatted with a given format specifier\n"
+        "Usage: |formatNumber <format> -> {string}"
+        "If the value stored is a non-numeric string, the value is not modified.\n"
+        "Example formatters: 04.2f, 5i, 06i\n";
+
     // TODO: setFromExpression?
 
     // TODO: Even though copy/move is implemented in DomainModule:JsonScope:SimpleData, having these as transformations as well could be useful

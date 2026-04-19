@@ -177,6 +177,35 @@ public:
      */
     [[nodiscard]] bool recalculateIsAlwaysTrue() const;
 
+    /**
+     * @struct Nebulite::Interaction::Logic::Expression::Formatter
+     * @brief Represents formatting options for the component.
+     */
+    struct Formatter {
+        bool leadingZero = false; // If true, pad with leading zeros
+        int alignment = -1; // The alignment width of the component. -1 means no formatting.
+        int precision = -1; // The precision of the component. -1 means no formatting.
+
+        /**
+         * @enum Nebulite::Interaction::Logic::Expression::Formatter::CastType
+         * @brief Represents the type of cast to apply to an expression component.
+         */
+        enum class CastType : uint8_t {
+            none, // No cast -> using pure string
+            to_int, // Cast to integer
+            to_double // Cast to double
+        } cast = CastType::none; // Default to none
+
+        /**
+         * @brief Parses the formatter string
+         * @param formatter The formatter string to parse.
+         * @return a formatter, or nullopt
+         */
+        static Formatter readFormatter(std::string const& formatter);
+
+        [[nodiscard]] std::string format(double const& value) const ;
+    };
+
 private:
     /**
      * @brief Provides an empty JSON document that can be used as a context placeholder
@@ -211,35 +240,6 @@ private:
      * @brief Generates short variable names for tinyexpr variables.
      */
     VariableNameGenerator varNameGen;
-
-    /**
-     * @struct Nebulite::Interaction::Logic::Expression::Formatter
-     * @brief Represents formatting options for the component.
-     */
-    struct Formatter {
-        bool leadingZero = false; // If true, pad with leading zeros
-        int alignment = -1; // The alignment width of the component. -1 means no formatting.
-        int precision = -1; // The precision of the component. -1 means no formatting.
-
-        /**
-         * @enum Nebulite::Interaction::Logic::Expression::Formatter::CastType
-         * @brief Represents the type of cast to apply to an expression component.
-         */
-        enum class CastType : uint8_t {
-            none, // No cast -> using pure string
-            to_int, // Cast to integer
-            to_double // Cast to double
-        } cast = CastType::none; // Default to none
-
-        /**
-         * @brief Parses the formatter string
-         * @param formatter The formatter string to parse.
-         * @return a formatter, or nullopt
-         */
-        static Formatter readFormatter(std::string const& formatter);
-
-        std::string format(double const& value) const ;
-    };
 
     /**
      * @struct Nebulite::Interaction::Logic::Expression::Component
