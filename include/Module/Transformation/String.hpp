@@ -40,7 +40,39 @@ public:
     static bool rPad(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr rPadName = "rPad";
     static auto constexpr rPadDesc = "Pads the current JSON string value on the right with a specified character until it reaches a specified total length.\n"
-        "Usage: |lPad {totalLength} {padChar} -> {string}\n"
+        "Usage: |rPad {totalLength} {padChar} -> {string}\n"
+        "{totalLength}: Desired total length of the resulting string (including original string and padding)\n"
+        "{padChar}: Character to use for padding (if not provided, defaults to space)\n";
+
+    static bool lPadNumeric(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr lPadNumericName = "lPadNumeric";
+    static auto constexpr lPadNumericDesc = "Pads the current JSON numeric string value on the left with a specified character until it reaches a specified total length.\n"
+        "If the value is not numeric, it is not modified.\n"
+        "Usage: |lPadNumeric {totalLength} {padChar} -> {string}\n"
+        "{totalLength}: Desired total length of the resulting string (including original string and padding)\n"
+        "{padChar}: Character to use for padding (if not provided, defaults to space)\n";
+
+    static bool rPadNumeric(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr rPadNumericName = "rPadNumeric";
+    static auto constexpr rPadNumericDesc = "Pads the current JSON numeric string value on the right with a specified character until it reaches a specified total length.\n"
+        "If the value is not numeric, it is not modified.\n"
+        "Usage: |lPadNumeric {totalLength} {padChar} -> {string}\n"
+        "{totalLength}: Desired total length of the resulting string (including original string and padding)\n"
+        "{padChar}: Character to use for padding (if not provided, defaults to space)\n";
+
+    static bool lPadNonNumeric(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr lPadNonNumericName = "lPadNonNumeric";
+    static auto constexpr lPadNonNumericDesc = "Pads the current JSON non-numeric string value on the left with a specified character until it reaches a specified total length.\n"
+        "If the value is numeric, it is not modified.\n"
+        "Usage: |lPadNumeric {totalLength} {padChar} -> {string}\n"
+        "{totalLength}: Desired total length of the resulting string (including original string and padding)\n"
+        "{padChar}: Character to use for padding (if not provided, defaults to space)\n";
+
+    static bool rPadNonNumeric(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr rPadNonNumericName = "rPadNonNumeric";
+    static auto constexpr rPadNonNumericDesc = "Pads the current JSON non-numeric string value on the right with a specified character until it reaches a specified total length.\n"
+        "If the value is numeric, it is not modified.\n"
+        "Usage: |lPadNumeric {totalLength} {padChar} -> {string}\n"
         "{totalLength}: Desired total length of the resulting string (including original string and padding)\n"
         "{padChar}: Character to use for padding (if not provided, defaults to space)\n";
 

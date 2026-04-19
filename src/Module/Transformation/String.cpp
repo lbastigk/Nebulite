@@ -11,6 +11,10 @@ void String::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&toLower, toLowerName, toLowerDesc);
     BIND_TRANSFORMATION_STATIC(&lPad, lPadName, lPadDesc);
     BIND_TRANSFORMATION_STATIC(&rPad, rPadName, rPadDesc);
+    BIND_TRANSFORMATION_STATIC(&lPadNumeric, lPadNumericName, lPadNumericDesc);
+    BIND_TRANSFORMATION_STATIC(&rPadNumeric, rPadNumericName, rPadNumericDesc);
+    BIND_TRANSFORMATION_STATIC(&lPadNonNumeric, lPadNonNumericName, lPadNonNumericDesc);
+    BIND_TRANSFORMATION_STATIC(&rPadNonNumeric, rPadNonNumericName, rPadNonNumericDesc);
     BIND_TRANSFORMATION_STATIC(&strip, trimName, trimDesc);
     BIND_TRANSFORMATION_STATIC(&lStrip, lStripName, lStripDesc);
     BIND_TRANSFORMATION_STATIC(&rStrip, rStripName, rStripDesc);
@@ -83,6 +87,34 @@ bool String::rPad(std::span<std::string const> const& args, Data::JsonScope* jso
     str = str + std::string(size - str.size(), padChar);
     jsonDoc->set(rootKey, str);
     return true;
+}
+
+bool String::lPadNumeric(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+    if (Utility::StringHandler::isNumber(jsonDoc->get<std::string>(rootKey).value_or(""))) {
+        return lPad(args, jsonDoc);
+    }
+    return true; // Not numeric, but not an error either, so we return true without modifying the string
+}
+
+bool String::rPadNumeric(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+    if (Utility::StringHandler::isNumber(jsonDoc->get<std::string>(rootKey).value_or(""))) {
+            return rPad(args, jsonDoc);
+    }
+    return true; // Not numeric, but not an error either, so we return true without modifying the string
+}
+
+bool String::lPadNonNumeric(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+    if (!Utility::StringHandler::isNumber(jsonDoc->get<std::string>(rootKey).value_or(""))) {
+        return lPad(args, jsonDoc);
+    }
+    return true; // numeric, but not an error either, so we return true without modifying the string
+}
+
+bool String::rPadNonNumeric(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+    if (!Utility::StringHandler::isNumber(jsonDoc->get<std::string>(rootKey).value_or(""))) {
+        return rPad(args, jsonDoc);
+    }
+    return true; // numeric, but not an error either, so we return true without modifying the string
 }
 
 // NOLINTNEXTLINE
