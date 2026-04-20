@@ -169,6 +169,10 @@ concept HasKeyGroup = requires {
  *          - Updating the domain through its DomainModules.
  */
 class Domain : public DocumentAccessor {
+public:
+    using DomainTree = FuncTree<Constants::Event, Domain&, Data::JsonScope&>;
+private:
+
     /**
      * @brief The name of the domain.
      */
@@ -184,7 +188,7 @@ class Domain : public DocumentAccessor {
      *          - Data::JsonScope&: provides access to the callers scope
      * @todo Extend to CallerContext and CallerContextScope for more complex interactions that can resolve self/other/global interactions
      */
-    std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>> funcTree;
+    std::shared_ptr<DomainTree> funcTree;
 
     /**
      * @brief Stores all available modules
@@ -396,7 +400,7 @@ public:
      * @return Potential errors that occurred on command execution
      */
     [[nodiscard]] Constants::Event parseStr(std::string const& str);
-    [[nodiscard]] Constants::Event parseStr(std::string const& str, Domain& other);
+    [[nodiscard]] Constants::Event parseStr(std::string const& str, Context& ctx);
 
 
 

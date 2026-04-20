@@ -33,7 +33,7 @@ namespace Nebulite::Interaction::Execution {
 // NOLINTNEXTLINE
 Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Capture& parentCapture) : DocumentAccessor(documentReference), domainName(name), capture(&parentCapture) {
     // FuncTree initialization
-    funcTree = std::make_shared<FuncTree<Constants::Event, Domain&, Data::JsonScope&>>(
+    funcTree = std::make_shared<DomainTree>(
         name,
         Constants::Event::Success,
         Constants::Event::Warning,
@@ -47,7 +47,7 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Util
 
 Domain::Domain(std::string const& name, Utility::Capture& parentCapture) : domainName(name), capture(&parentCapture) {
     // FuncTree initialization
-    funcTree = std::make_shared<FuncTree<Constants::Event, Domain&, Data::JsonScope&>>(
+    funcTree = std::make_shared<DomainTree>(
         name,
         Constants::Event::Success,
         Constants::Event::Warning,
@@ -61,7 +61,7 @@ Domain::Domain(std::string const& name, Utility::Capture& parentCapture) : domai
 
 Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : DocumentAccessor(documentReference), domainName(name), capture(nullptr) {
     // FuncTree initialization
-    funcTree = std::make_shared<FuncTree<Constants::Event, Domain&, Data::JsonScope&>>(
+    funcTree = std::make_shared<DomainTree>(
         name,
         Constants::Event::Success,
         Constants::Event::Warning,
@@ -75,7 +75,7 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : Do
 
 Domain::Domain(std::string const& name) : domainName(name), capture(nullptr) {
     // FuncTree initialization
-    funcTree = std::make_shared<FuncTree<Constants::Event, Domain&, Data::JsonScope&>>(
+    funcTree = std::make_shared<DomainTree>(
         name,
         Constants::Event::Success,
         Constants::Event::Warning,
@@ -93,17 +93,13 @@ std::string const& Domain::scopePrefix() const {
     return domainScope.getScopePrefix();
 }
 
+// TODO: remove the parseStr without context later on
 Constants::Event Domain::parseStr(std::string const& str) {
-    // TODO: Later on we need these context to pass to funcTree:
-    //Context ctx = {*this, *this, Global::instance()};
-    //ContextScope ctxScope{domainScope, domainScope, Global::instance().domainScope};
     return funcTree->parseStr(str, *this, domainScope);
 }
 
-Constants::Event Domain::parseStr(std::string const& str, Domain& other) {
-    // TODO: Later on we need these context to pass to funcTree:
-    //Context ctx = {*this, other, Global::instance()};
-    //ContextScope ctxScope{domainScope, other.domainScope, Global::instance().domainScope};
+Constants::Event Domain::parseStr(std::string const& str, Context& /*ctx*/) {
+    // TODO: Later on we need pass ctx to parseStr
     return funcTree->parseStr(str, *this, domainScope);
 }
 
