@@ -1,4 +1,5 @@
 #include "Nebulite.hpp"
+#include "Interaction/Rules/Listener.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 
 namespace Nebulite::Interaction::Rules {

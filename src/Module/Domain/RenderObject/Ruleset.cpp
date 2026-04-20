@@ -6,6 +6,7 @@
 #include "Core/RenderObject.hpp"
 #include "Module/Domain/RenderObject/Ruleset.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
+#include "Interaction/Rules/Listener.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Utility/StringHandler.hpp"
 

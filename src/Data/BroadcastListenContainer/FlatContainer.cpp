@@ -2,6 +2,7 @@
 
 #include "Data/BroadcastListenContainer/FlatContainer.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Interaction/Rules/Listener.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Utility/Coordination/IdGenerator.hpp"
 

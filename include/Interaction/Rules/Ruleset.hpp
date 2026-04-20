@@ -24,30 +24,6 @@ class Domain;
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {
 /**
- * @struct Listener
- * @brief Represents a listener for a specific topic
- */
-struct Listener {
-    explicit Listener(Execution::Domain& d, std::string const& t) : domain(d), topic(t) {
-        if (auto const& entry = StaticRulesetMap::getInstance().getStaticRulesetByName(t); entry.type != StaticRulesetMap::StaticRuleSetWithMetaData::invalid) {
-            // Static ruleset, ensure list of required double values
-            otr = entry.baseListFunc(domain);
-        }
-        // Json ruleset or unknown static ruleset, no list required
-    }
-    Execution::Domain& domain;
-    std::string topic;
-    double** otr; // Pointer to the ordered cache list of the listener, for performance when evaluating rulesets
-
-    // Listener is owned by a single Domain, no copy or move semantics
-
-    Listener(Listener const&) = delete;
-    Listener& operator=(Listener const&) = delete;
-    Listener(Listener&&) = delete;
-    Listener& operator=(Listener&&) = delete;
-};
-
-/**
  * @class Ruleset
  * @brief Virtual base class for Ruleset types.
  */
