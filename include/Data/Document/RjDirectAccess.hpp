@@ -229,6 +229,13 @@ public:
      *         - For any other type, returns an empty vector.
      */
     static std::vector<std::string> listAvailableKeys(rapidjson::Value const& val);
+
+    // Special characters for key parsing
+    struct SpecialCharacter {
+        static auto constexpr arrayOpen = '[';
+        static auto constexpr arrayClose = ']';
+        static auto constexpr dot = '.';
+    };
 private:
     /**
      * @brief Extracts the next part of a key from a dot/bracket notation key string.

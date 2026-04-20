@@ -50,15 +50,15 @@ rapidjson::Value* RjDirectAccess::traversePath(char const* key, rapidjson::Value
         }
 
         // Now handle zero or more array indices if they appear next
-        while (!keyView.empty() && keyView[0] == '[') {
-            // Find closing ']'
-            size_t const closeBracket = keyView.find(']');
+        while (!keyView.empty() && keyView[0] == SpecialCharacter::arrayOpen) {
+            // Find closing character
+            size_t const closeBracket = keyView.find(SpecialCharacter::arrayClose);
             if (closeBracket == std::string_view::npos) {
-                // Malformed key - missing ']'
+                // Malformed key - missing closing character
                 return nullptr;
             }
 
-            // Extract index string between '[' and ']'
+            // Extract index string between open and close array character
             std::string_view idxStr = keyView.substr(1, closeBracket - 1);
             unsigned int index = 0;
             try {
@@ -83,8 +83,8 @@ rapidjson::Value* RjDirectAccess::traversePath(char const* key, rapidjson::Value
             keyView.remove_prefix(closeBracket + 1);
         }
 
-        // If next character is '.', skip it and continue
-        if (!keyView.empty() && keyView[0] == '.') {
+        // If next character is dot, skip it and continue
+        if (!keyView.empty() && keyView[0] == SpecialCharacter::dot) {
             keyView.remove_prefix(1);
         }
     }
@@ -114,15 +114,15 @@ rapidjson::Value* RjDirectAccess::ensurePath(char const* key, rapidjson::Value& 
         }
 
         // Now handle zero or more array indices if they appear next
-        while (!keyView.empty() && keyView[0] == '[') {
-            // Find closing ']'
-            size_t closeBracket = keyView.find(']');
+        while (!keyView.empty() && keyView[0] == SpecialCharacter::arrayOpen) {
+            // Find closing character
+            size_t closeBracket = keyView.find(SpecialCharacter::arrayClose);
             if (closeBracket == std::string_view::npos) {
-                // Malformed key - missing ']'
+                // Malformed key - missing closing character
                 return nullptr;
             }
 
-            // Extract index string between '[' and ']'
+            // Extract index string between open and close array character
             std::string_view idxStr = keyView.substr(1, closeBracket - 1);
             unsigned int index = 0;
             try {
@@ -148,8 +148,8 @@ rapidjson::Value* RjDirectAccess::ensurePath(char const* key, rapidjson::Value& 
             keyView.remove_prefix(closeBracket + 1);
         }
 
-        // If next character is '.', skip it and continue
-        if (!keyView.empty() && keyView[0] == '.') {
+        // If next character is dot, skip it and continue
+        if (!keyView.empty() && keyView[0] == SpecialCharacter::dot) {
             keyView.remove_prefix(1);
         }
     }
@@ -356,14 +356,14 @@ std::string RjDirectAccess::stripComments(std::string const& jsonc) {
 
 rapidjson::Value* RjDirectAccess::traverseToParent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex) {
     std::string const keyStr(fullKey);
-    size_t const lastDot = keyStr.find_last_of('.');
-    size_t const lastBracket = keyStr.find_last_of('[');
+    size_t const lastDot = keyStr.find_last_of(SpecialCharacter::dot);
+    size_t const lastBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
 
     rapidjson::Value const* parent = nullptr;
     if (lastBracket != std::string::npos && (lastDot == std::string::npos || lastBracket > lastDot)) {
         // Last access is array index: var.subVar[2] or var[2]
-        size_t const openBracket = keyStr.find_last_of('[');
-        if (size_t const closeBracket = keyStr.find_last_of(']'); openBracket != std::string::npos && closeBracket != std::string::npos && closeBracket > openBracket) {
+        size_t const openBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
+        if (size_t const closeBracket = keyStr.find_last_of(SpecialCharacter::arrayClose); openBracket != std::string::npos && closeBracket != std::string::npos && closeBracket > openBracket) {
             std::string const parentPath = keyStr.substr(0, openBracket);
             std::string const indexStr = keyStr.substr(openBracket + 1, closeBracket - openBracket - 1);
 
@@ -396,7 +396,7 @@ void RjDirectAccess::removeMember(char const* key, rapidjson::Value& val) {
     }
 
     // Handle simple case: direct member of root document
-    if (std::string const keyStr(key); keyStr.find('.') == std::string::npos && keyStr.find('[') == std::string::npos) {
+    if (std::string const keyStr(key); keyStr.find(SpecialCharacter::dot) == std::string::npos && keyStr.find(SpecialCharacter::arrayOpen) == std::string::npos) {
         if (val.HasMember(key)) {
             val.RemoveMember(key);
         }
@@ -450,14 +450,14 @@ bool RjDirectAccess::isValidKey(std::string const& key) {
         }
 
         // Now handle zero or more array indices if they appear next
-        while (!keyView.empty() && keyView[0] == '[') {
-            // Find closing ']'
-            size_t const closeBracket = keyView.find(']');
+        while (!keyView.empty() && keyView[0] == SpecialCharacter::arrayOpen) {
+            // Find closing character
+            size_t const closeBracket = keyView.find(SpecialCharacter::arrayClose);
             if (closeBracket == std::string_view::npos) {
-                return false; // Malformed key - missing ']'
+                return false; // Malformed key - missing closing character
             }
 
-            // Extract index string between '[' and ']'
+            // Extract index string between open and close character
             if (std::string_view idxStr = keyView.substr(1, closeBracket - 1); !Utility::StringHandler::isNumber(std::string(idxStr))) {
                 return false; // invalid number
             }
@@ -466,8 +466,8 @@ bool RjDirectAccess::isValidKey(std::string const& key) {
             keyView.remove_prefix(closeBracket + 1);
         }
 
-        // If next character is '.', skip it and continue
-        if (!keyView.empty() && keyView[0] == '.') {
+        // If next character is dot, skip it and continue
+        if (!keyView.empty() && keyView[0] == SpecialCharacter::dot) {
             keyView.remove_prefix(1);
         }
     }
@@ -506,9 +506,9 @@ std::vector<std::string> RjDirectAccess::listAvailableKeys(rapidjson::Value cons
 
 // Helper for key traversal: extracts next key part and advances the view
 std::string RjDirectAccess::extractKeyPart(std::string_view& keyView) {
-    // Find '.' or '[' as next separators
-    size_t const dotPos = keyView.find('.');
-    size_t const bracketPos = keyView.find('[');
+    // Find dot or array opening char as next separators
+    size_t const dotPos = keyView.find(SpecialCharacter::dot);
+    size_t const bracketPos = keyView.find(SpecialCharacter::arrayOpen);
 
     size_t nextSep;
     if (dotPos == std::string_view::npos && bracketPos == std::string_view::npos) {

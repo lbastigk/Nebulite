@@ -51,7 +51,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::get(std::string const& key) co
     std::scoped_lock const lockGuard(mtx);
 
     // Check if a transformation is present
-    if (key.contains('|')){
+    if (key.contains(SpecialCharacter::transformationPipe)) {
         auto const optionalVal = getWithTransformations<T>(key);
         if ( optionalVal.has_value()){
             return optionalVal.value();
@@ -79,7 +79,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::st
 
     // In order to minimize the re-initialization overhead of an entire JSON document,
     // we use a thread-local temporary JSON document for applying transformations.
-    // Then, on each call, we clear the entire document and re-initialize it with the base key's sub-document,
+    // Then, on each call, we clear the entire document and re-initialize it with the base keys sub-document,
     // which we use as the starting point for transformations.
     // This approach ensures a temporary document with the same value as this JSON object,
     // but without the overhead of creating and destroying a new JSON object on each call.

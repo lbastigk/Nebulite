@@ -53,13 +53,13 @@ std::string ScopedKeyView::full(JsonScope const& scope) const {
         fullKey = given; // start with the given scope
 
         // Special cases to consider if our scope ends with a dot
-        if (!fullKey.empty() && fullKey.back() == '.') {
+        if (!fullKey.empty() && fullKey.back() == JSON::SpecialCharacter::dot) {
             // NOLINTNEXTLINE
             if (key.empty()) {
                 // empty key, remove trailing dot
                 fullKey.pop_back();
             }
-            else if (key.front() == '[') {
+            else if (key.front() == JSON::SpecialCharacter::arrayOpen) {
                 // array index access, remove trailing dot
                 fullKey.pop_back();
             }

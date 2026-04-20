@@ -100,7 +100,7 @@ std::vector<std::string> JSON::splitKeyWithTransformations(std::string const& ke
     auto const braceArgs = Utility::StringHandler::splitOnSameDepth(key, '{');
     std::vector<std::string> args;
 
-    if (!key.empty() && key.starts_with('|')) {
+    if (!key.empty() && key.starts_with(SpecialCharacter::transformationPipe)) {
         // No key provided, assume root and push back an empty string
         args.emplace_back("");
     }
@@ -115,8 +115,8 @@ std::vector<std::string> JSON::splitKeyWithTransformations(std::string const& ke
                 args.push_back(arg); // Should not happen, but just in case
             }
         } else {
-            // Split further on '|'
-            auto splitArgs = Utility::StringHandler::split(arg, '|');
+            // Split further on transformation piping character
+            auto splitArgs = Utility::StringHandler::split(arg, SpecialCharacter::transformationPipe);
             args.insert(args.end(), splitArgs.begin(), splitArgs.end());
         }
     }
@@ -139,7 +139,7 @@ void JSON::synchronizeChildren(std::string const& parentKey) const {
 
     // Find all child keys and invalidate them
     for (auto& [key, entry] : cache) {
-        if (parentKey.empty() || key.starts_with(parentKey + ".") || key.starts_with(parentKey + "[")) {
+        if (parentKey.empty() || key.starts_with(parentKey + SpecialCharacter::dot) || key.starts_with(parentKey + SpecialCharacter::arrayOpen)) {
             if (auto const variant = RjDirectAccess::getSimpleValue(key, doc); variant.has_value()) {
                 entry->state = CacheEntry::EntryState::CLEAN;
                 entry->value = variant.value();
@@ -187,7 +187,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
     std::scoped_lock const lockGuard(mtx);
 
     // Check for transformations
-    if (key.contains('|')) {
+    if (key.contains(SpecialCharacter::transformationPipe)) {
         if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
             return tmp.getVariant(TransformationModule::rootKeyStr);
         }
@@ -278,7 +278,7 @@ JSON JSON::getSubDoc(std::string const& key) const {
     flush();
 
     // Check if a transformation is present
-    if (key.contains('|')) {
+    if (key.contains(SpecialCharacter::transformationPipe)) {
         if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
             return tmp;
         }
@@ -314,7 +314,7 @@ double* JSON::getStableDoublePointer(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check for transformations
-    if (key.find('|') != std::string::npos) {
+    if (key.find(SpecialCharacter::transformationPipe) != std::string::npos) {
         throw std::runtime_error("Transformations are not supported in getStableDoublePointer()");
     }
 
@@ -366,7 +366,7 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
     }
 
     // Check if key contains transformations
-    if (key.find('|') != std::string::npos) {
+    if (key.find(SpecialCharacter::transformationPipe) != std::string::npos) {
         Global::capture().error.println("Transformations are not supported in set(): ", key);
         return;
     }
@@ -508,7 +508,7 @@ KeyType JSON::memberType(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // See if transformations are present
-    if (key.contains('|')) {
+    if (key.contains(SpecialCharacter::transformationPipe)) {
         // Apply transformations to a temp document
         if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
             return tmp.memberType("");
@@ -542,7 +542,7 @@ std::string JSON::memberTypeString(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // See if transformations are present
-    if (key.contains('|')) {
+    if (key.contains(SpecialCharacter::transformationPipe)) {
         // Apply transformations to a temp document
         if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
             return tmp.memberTypeString("");
@@ -600,7 +600,7 @@ size_t JSON::memberSize(std::string const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // See if transformations are present
-    if (key.contains('|')) {
+    if (key.contains(SpecialCharacter::transformationPipe)) {
         // Apply transformations to a temp document
         if (JSON tempDoc; getSubDocWithTransformations(key, tempDoc)) {
             return tempDoc.memberSize("");
@@ -649,7 +649,7 @@ void JSON::moveMember(char const* fromKey, char const* toKey) {
 
             // Normalize toKey by removing trailing dot if present
             auto toKeyStr = std::string(toKey);
-            if (toKeyStr.ends_with('.')) {
+            if (toKeyStr.ends_with(SpecialCharacter::dot)) {
                 toKeyStr.pop_back();
             }
 

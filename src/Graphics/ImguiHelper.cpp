@@ -202,7 +202,7 @@ void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKey c
         std::string const fullPath = key.view().toString(); // stable ID
         std::string keyPath = fullPath;                   // visible label
         if (rootPath != fullPath) keyPath = fullPath.substr(rootPath.length());
-        if (!keyPath.empty() && keyPath.front() == '.') keyPath.erase(0, 1);
+        if (!keyPath.empty() && keyPath.front() == Data::JSON::SpecialCharacter::dot) keyPath.erase(0, 1);
         if (auto const type = s.memberType(key); type == Data::KeyType::object || type == Data::KeyType::array) {
             // use fullPath as the ID (first arg) and keyPath as the visible text (format)
             if (ImGui::TreeNode(fullPath.c_str(), "%s", keyPath.c_str())) {

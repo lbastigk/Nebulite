@@ -65,6 +65,14 @@ public:
      */
     static auto constexpr reservedCharacters = "[]{}.|\":";
 
+    struct SpecialCharacter {
+        static auto constexpr arrayOpen = RjDirectAccess::SpecialCharacter::arrayOpen;
+        static auto constexpr arrayClose = RjDirectAccess::SpecialCharacter::arrayClose;
+        static auto constexpr dot = RjDirectAccess::SpecialCharacter::dot;
+        static auto constexpr transformationPipe = '|';
+        static auto constexpr linkKeySeparator = ':';
+    };
+
 private:
     static double constexpr standardNumericValue = 0.0;
 
