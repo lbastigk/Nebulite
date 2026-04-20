@@ -20,10 +20,11 @@ set storeSnapshots 0
 set snapshotInterval 100
 
 # Frame average for settings.n=40:
-# 0.745 seconds, 2025-09
-# 0.200 seconds, 2025-10 (new Broadcast-Listen-Model and more efficient threading)
-# 0.075 seconds, 2026-01 (many micro-optimizations)
-# 0.021 seconds, 2026-02 (new broadcast-listen container: FlatContainer)
+# 0.745  seconds, 2025-09
+# 0.200  seconds, 2025-10 (new Broadcast-Listen-Model and more efficient threading)
+# 0.075  seconds, 2026-01 (many micro-optimizations)
+# 0.021  seconds, 2026-02 (new broadcast-listen container: FlatContainer)
+# 0.0104 seconds, 2026-04 (further ruleset optimizations, new worker model, etc.)
 
 ###############################################
 # [BASICS]
