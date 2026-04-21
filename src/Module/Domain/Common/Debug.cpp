@@ -18,39 +18,40 @@ Constants::Event Debug::updateHook() {
 // Domain-Bound Functions
 
 // NOLINTNEXTLINE
-Constants::Event Debug::print(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
+Constants::Event Debug::print(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() > 2) {
-        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
     if (args.size() == 2) {
         auto const scopedKey = Data::ScopedKey(args[1]);
-        auto const memberType = callerScope.memberType(scopedKey);
+        auto const memberType = ctxScope.self.memberType(scopedKey);
         if (memberType == Data::KeyType::null) {
-            caller.capture.log.println("{}");
+            ctx.self.capture.log.println("{}");
             return Constants::Event::Success;
         }
         if (memberType == Data::KeyType::object || memberType == Data::KeyType::array) {
-            caller.capture.log.println(callerScope.serialize(scopedKey));
+            ctx.self.capture.log.println(ctxScope.self.serialize(scopedKey));
             return Constants::Event::Success;
         }
         if (memberType == Data::KeyType::value) {
-            caller.capture.log.println(callerScope.get<std::string>(scopedKey).value_or(""));
+            ctx.self.capture.log.println(ctxScope.self.get<std::string>(scopedKey).value_or(""));
             return Constants::Event::Success;
         }
     }
-    caller.capture.log.println(callerScope.serialize());
-    (void)caller; // Unused parameter
+    ctx.self.capture.log.println(ctxScope.self.serialize());
     return Constants::Event::Success;
 }
 
-Constants::Event Debug::printId(std::span<std::string const> const& /*args*/, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
-    caller.capture.log.println(caller.getId());
+// NOLINTNEXTLINE
+Constants::Event Debug::printId(std::span<std::string const> const& /*args*/, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+    ctx.self.capture.log.println(ctx.self.getId());
     return Constants::Event::Success;
 }
 
-Constants::Event Debug::error(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
+// NOLINTNEXTLINE
+Constants::Event Debug::error(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     auto const& argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    caller.capture.error.println(argStr);
+    ctx.self.capture.error.println(argStr);
     return Constants::Event::Success;
 }
 

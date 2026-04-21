@@ -1,25 +1,36 @@
-#include "Module/Domain/Common/General.hpp"
 #include "Graphics/ImguiHelper.hpp"
+#include "Module/Domain/Common/General.hpp"
 #include "Nebulite.hpp"
+
 
 namespace Nebulite::DomainModule::Common {
 
 Constants::Event General::updateHook() {
     if (imguiViewEnabled && Graphics::ImguiHelper::checkImguiReadyForRendering()) {
-        Graphics::ImguiHelper::renderDomain(domain, domain.capture, *lastImguiCallerScope, domain.getName());
+        auto ctx = lastContext.rebuild();
+        auto ctxScope = lastContextScope.rebuild();
+        if (!ctx || !ctxScope) {
+            // Context is not valid, disable imgui view and log error
+            imguiViewEnabled = false;
+            domain.capture.error.println("Failed to render ImGui view: Context is no longer valid. Disabling ImGui view.");
+            return Constants::Event::Error;
+        }
+        Graphics::ImguiHelper::renderDomain(ctx.value(), ctxScope.value(), domain.capture, domain.getName());
     }
     return Constants::Event::Success;
 }
 
-Constants::Event General::imguiView(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
+// NOLINTNEXTLINE
+Constants::Event General::imguiView(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
-        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
     if (args.size() > 2) {
-        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
 
-    lastImguiCallerScope = &callerScope; // Store caller scope for use in imgui view
+    lastContext = Interaction::ContextView(ctx);
+    lastContextScope = Interaction::ContextScopeView(ctxScope);
     if (args[1] == "on") {
         imguiViewEnabled = true;
     } else if (args[1] == "off") {
@@ -31,7 +42,7 @@ Constants::Event General::imguiView(std::span<std::string const> const& args, In
 }
 
 // NOLINTNEXTLINE
-Constants::Event General::eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope){
+Constants::Event General::eval(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
     // TODO: An idea would be to only eval until the next "eval" keyword, allowing for nested evals within for-loops, ifs, etc.:
     //       Example:
     //       eval for i 1 {global.loopCount} eval process-state {global.currentState} {i}
@@ -46,8 +57,7 @@ Constants::Event General::eval(std::span<std::string const> const& args, Interac
     std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr);
 
     // reparse
-    (void)callerScope; // Unused parameter
-    return caller.parseStr(argsEvaluated);
+    return ctx.self.parseStr(argsEvaluated, ctx, ctxScope);
 }
 
 Constants::Event General::echo(std::span<std::string const> const& args) const {
@@ -56,9 +66,9 @@ Constants::Event General::echo(std::span<std::string const> const& args) const {
 }
 
 // NOLINTNEXTLINE
-Constants::Event General::func_if(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
+Constants::Event General::func_if(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 3) {
-        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
 
     // See if any arg is "then", if so, only evaluate until then, and execute the rest as commands if the condition is true
@@ -75,31 +85,31 @@ Constants::Event General::func_if(std::span<std::string const> const& args, Inte
     if (size_t const commandStart = commandStartFinder(); Interaction::Logic::Expression::evalAsBool(Utility::StringHandler::recombineArgs(args.subspan(1, commandStart - 1)))) {
         std::string commands = Utility::StringHandler::recombineArgs(args.subspan(commandStart));
         commands = __FUNCTION__ + std::string(" ") + commands;
-        (void)callerScope; // Unused parameter
-        return caller.parseStr(commands);
+        return ctx.self.parseStr(commands, ctx, ctxScope);
     }
     return Constants::Event::Success;
 }
 
-Constants::Event General::func_assert(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
+// NOLINTNEXTLINE
+Constants::Event General::func_assert(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
-        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
 
     if (args.size() > 2) {
-        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
 
     std::string const& condition = args[1];
 
     // condition must start with $( and end with )
     if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
-        return Constants::StandardCapture::Warning::Functional::unknownArg(caller.capture);
+        return Constants::StandardCapture::Warning::Functional::unknownArg(ctx.self.capture);
     }
 
     // Evaluate condition
     if (!Interaction::Logic::Expression::evalAsBool(condition)) {
-        caller.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.");
+        ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.");
         return Constants::Event::Error;
     }
 
@@ -108,7 +118,7 @@ Constants::Event General::func_assert(std::span<std::string const> const& args, 
 }
 
 // NOLINTNEXTLINE
-Constants::Event General::func_for(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
+Constants::Event General::func_for(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() > 4) {
         std::string const& varName = args[1];
 
@@ -119,8 +129,7 @@ Constants::Event General::func_for(std::span<std::string const> const& args, Int
         for (int i = iStart; i <= iEnd; i++) {
             // for + args
             std::string args_replaced = std::string(args[0]) + " " + Utility::StringHandler::replaceAll(argStr, '{' + varName + '}', std::to_string(i));
-            (void)callerScope; // Unused parameter
-            if (auto const event = caller.parseStr(args_replaced); event != Constants::Event::Success) {
+            if (auto const event = ctx.self.parseStr(args_replaced, ctx, ctxScope); event != Constants::Event::Success) {
                 return event;
             }
         }

@@ -7,12 +7,12 @@ Constants::Event RenderObjectDraft::updateHook() {
     return draft.get(domain.capture)->update();
 }
 
-Constants::Event RenderObjectDraft::draft_parse(std::span<std::string const> const& args) {
+Constants::Event RenderObjectDraft::draft_parse(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     std::string const command = Utility::StringHandler::recombineArgs(args.subspan(1));
-    return draft.get(domain.capture)->parseStr(__FUNCTION__ + std::string(" ") + command);
+    return draft.get(domain.capture)->parseStr(__FUNCTION__ + std::string(" ") + command, ctx, ctxScope);
 }
 
 Constants::Event RenderObjectDraft::draft_spawn() {

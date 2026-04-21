@@ -48,7 +48,7 @@ Constants::Event General::spawn(int const argc, char** argv) const {
         auto* ro = new Core::RenderObject(domain.capture);
         ro->deserialize(linkOrObject);
 
-        // Append to renderer
+        // Append to renderer.
         // Renderer manages the RenderObjects lifetime
         domain.append(ro);
     } else {
@@ -156,7 +156,7 @@ Constants::Event General::snapshot(int const argc, char** argv) const {
 
     static std::string fileName;
     fileName = argc == 2 ? argv[1] : "./Resources/Snapshots/snapshot.png";
-    auto snapshotFunction = [&]() {
+    auto snapshotFunction = [&] {
         // Get current window/render target size
         auto const window = domain.getSdlWindow();
         auto const renderer = domain.getSdlRenderer();
@@ -216,8 +216,9 @@ auto constexpr base64_chars =
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789+/";
 
-std::string base64_encode(const uint8_t* data, size_t const& len) {
+std::string base64_encode(uint8_t const* data, size_t const& len) {
     std::string out;
+    // NOLINTNEXTLINE
     out.reserve(((len + 2) / 3) * 4);
 
     int val = 0, valb = -6;
@@ -225,11 +226,13 @@ std::string base64_encode(const uint8_t* data, size_t const& len) {
         val = (val << 8) + data[i];
         valb += 8;
         while (valb >= 0) {
+            // NOLINTNEXTLINE
             out.push_back(base64_chars[(val >> valb) & 0x3F]);
             valb -= 6;
         }
     }
 
+    // NOLINTNEXTLINE
     if (valb > -6) out.push_back(base64_chars[((val << 8) >> (valb + 8)) & 0x3F]);
     while (out.size() % 4) out.push_back('=');
 
@@ -244,9 +247,11 @@ struct JpegMemory {
 };
 
 // stb callback: append to vector
+
+// NOLINTNEXTLINE
 void write_jpeg_callback(void* context, void* data, int size) {
-    JpegMemory* buf = static_cast<JpegMemory*>(context);
-    uint8_t* bytes = static_cast<uint8_t*>(data);
+    auto* buf = static_cast<JpegMemory*>(context);
+    auto* bytes = static_cast<uint8_t*>(data);
     buf->data.insert(buf->data.end(), bytes, bytes + size);
 }
 } // namespace
@@ -309,8 +314,10 @@ Constants::Event General::selectedObject_get(int const argc, char** argv){
 
     // Supports only uint32_t ids
     size_t const idx = std::stoul(argv[1]);
-    if (Core::RenderObject* obj = domain.getObjectFromIndex(idx); obj) {
+    if (auto objAndScope = domain.getObjectFromIndex(idx); objAndScope.has_value()) {
+        auto [obj, scope] = objAndScope.value();
         selectedRenderObject = obj;
+        selectedRenderObjectData = scope;
         return Constants::Event::Success;
     }
     selectedRenderObject = nullptr;
@@ -318,17 +325,28 @@ Constants::Event General::selectedObject_get(int const argc, char** argv){
     return Constants::Event::Warning;
 }
 
-Constants::Event General::selectedObject_Parse(std::span<std::string const> const& args) const {
+// NOLINTNEXTLINE
+Constants::Event General::selectedObject_Parse(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     std::string const command = Utility::StringHandler::recombineArgs(args.subspan(1));
-    if (selectedRenderObject == nullptr) {
+    if (selectedRenderObject == nullptr || selectedRenderObjectData == nullptr) {
         domain.capture.warning.println("No RenderObject selected! Use selectedObject_get <id> to select a valid object.");
         return Constants::Event::Warning;
     }
 
-    return selectedRenderObject->parseStr(std::string(__FUNCTION__) + " " + command);
+    Interaction::Context objectCtx = {
+        .self = *selectedRenderObject,
+        .other = *selectedRenderObject,
+        .global = ctx.global
+    };
+    Interaction::ContextScope objectCtxScope = {
+        .self = *selectedRenderObjectData,
+        .other = *selectedRenderObjectData,
+        .global = ctxScope.global
+    };
+    return selectedRenderObject->parseStr(std::string(__FUNCTION__) + " " + command, objectCtx, objectCtxScope);
 }
 
 } // namespace Nebulite::DomainModule::Renderer

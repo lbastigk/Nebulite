@@ -21,7 +21,10 @@ Constants::Event Console::updateHook() {
         Graphics::ImguiHelper::DomainRenderingFlags flags;
         flags.showCloseButton = false;
         flags.windowAlignment = Graphics::ImguiHelper::DomainRenderingFlags::Alignment::BOTTOM;
-        Graphics::ImguiHelper::renderDomain(Global::instance(), Global::capture(), Global::shareScope(accessToken), "Console", flags);
+
+        Interaction::Context ctx = {Global::instance(), Global::instance(), Global::instance()};
+        Interaction::ContextScope ctxScope = {Global::shareScope(accessToken), Global::shareScope(accessToken), Global::shareScope(accessToken)};
+        Graphics::ImguiHelper::renderDomain(ctx, ctxScope, Global::capture(), "Console", flags);
     }
     return Constants::Event::Success;
 }

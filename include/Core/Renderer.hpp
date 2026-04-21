@@ -6,6 +6,7 @@
 
 #ifndef NEBULITE_CORE_RENDERER_HPP
 #define NEBULITE_CORE_RENDERER_HPP
+#include "RenderObject.hpp"
 
 //------------------------------------------
 // Predeclare
@@ -386,12 +387,16 @@ public:
      *        Does not change when objects are removed or purged.
      * @return A pointer to the RenderObject, or nullptr if not found.
      */
-    RenderObject* getObjectFromIndex(size_t const& searchIndex) {
+    std::optional<std::pair<RenderObject*, Data::JsonScope*>> getObjectFromIndex(size_t const& searchIndex) {
         if (!indexToIdMap.contains(searchIndex)) {
-            return nullptr; // No object with this index
+            return std::nullopt; // No object with this index
         }
         auto const domainId = indexToIdMap[searchIndex];
-        return env.getObjectFromId(domainId);
+        auto ro = env.getObjectFromId(domainId);
+        if (ro) {
+            return std::make_pair(ro, &ro->domainScope);
+        }
+        return std::nullopt; // Object retrieval failed somehow
     }
 
     /**

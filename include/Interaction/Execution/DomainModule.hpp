@@ -97,7 +97,7 @@ class DomainModuleName final : public Nebulite::Interaction::Execution::DomainMo
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
 explicit DomainModuleName( \
 std::string const& name, DomainName& domainReference, \
-DomainFuncTree const& funcTreePtr, \
+std::shared_ptr<Interaction::Execution::DomainTree> const& funcTreePtr, \
 Data::JsonScope& w, \
 Data::JsonScope const& s \
 ) \

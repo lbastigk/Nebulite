@@ -208,8 +208,8 @@ void Drawcall::updateDrawcallData() {
     reInitializeRequested = true;
 }
 
-Constants::Event Drawcall::parseStr(std::string const& str) {
-    return texture.parseStr(str);
+Constants::Event Drawcall::parseStr(std::string const& str, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const {
+    return texture.parseStr(str, ctx, ctxScope);
 }
 
 void Drawcall::ApplyDefault::Sprite(Data::JsonScope& scope) {

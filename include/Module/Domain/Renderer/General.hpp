@@ -147,7 +147,7 @@ public:
         "\n"
         "Usage: selected-object get <idx>\n";
 
-    [[nodiscard]] Constants::Event selectedObject_Parse(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event selectedObject_Parse(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr selectedObject_Parse_name = "selected-object parse";
     static auto constexpr selectedObject_Parse_desc = "Parse a command on the selected RenderObject.\n"
         "\n"
@@ -208,6 +208,7 @@ private:
      *          to signal that it not act on the moduleScope's data itself.
      */
     Core::RenderObject* selectedRenderObject = nullptr;
+    Data::JsonScope* selectedRenderObjectData = nullptr;
 };
 } // namespace Nebulite::DomainModule::Renderer
 #endif // NEBULITE_DOMAINMODULE_RENDERER_GENERAL_HPP

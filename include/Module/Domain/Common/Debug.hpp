@@ -26,19 +26,19 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] static Constants::Event print(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event print(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr print_name = "print";
     static auto constexpr print_desc = "Prints the JSON document to the console for debugging purposes.\n"
         "If key is empty, prints the entire document.\n"
         "\n"
         "Usage: print [key]\n";
 
-    [[nodiscard]] static Constants::Event printId(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event printId(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr printId_name = "print-id";
     static auto constexpr printId_desc = "Prints the unique ID of the domain to the console for debugging purposes.\n"
        "Usage: print-id\n";
 
-    [[nodiscard]] static Constants::Event error(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event error(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr error_name = "error";
     static auto constexpr error_desc = "Echoes all arguments as string to the standard error.\n"
         "Usage: error <string...>\n"
