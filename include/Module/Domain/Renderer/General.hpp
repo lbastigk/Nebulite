@@ -19,7 +19,7 @@
 namespace Nebulite::Core {
 class Renderer; // Forward declaration of domain class Renderer
 class RenderObject; // Forward declaration of RenderObject
-}
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::DomainModule::Renderer {
@@ -42,7 +42,7 @@ public:
      *          Implementing `unique_ptr` or `shared_ptr` is a work in progress
      *          as its made difficult by the ability of globalspace to select a RenderObject
      *          and store its pointer.
-     *          The Renderer is, besides the selection addition from `selectedObject_get`,
+     *          The Renderer is, besides the selection addition from `selectedObjectGet`,
      *          a closed system that handles the pointer and lifetime of RenderObjects.
      *          Thus, the usage of `unique_ptr` or `shared_ptr` is not needed here,
      *          but perhaps helpful if complexity increases.
@@ -140,16 +140,16 @@ public:
         "\n"
         "Usage: dump-view\n";
 
-    [[nodiscard]] Constants::Event selectedObject_get(int argc, char** argv);
-    static auto constexpr selectedObject_get_name = "selected-object get";
-    static auto constexpr selectedObject_get_desc = "Get a renderobject by its index in the Renderer.\n"
+    [[nodiscard]] Constants::Event selectedObjectGet(int argc, char** argv);
+    static auto constexpr selectedObjectGet_name = "selected-object get";
+    static auto constexpr selectedObjectGet_desc = "Get a renderobject by its index in the Renderer.\n"
         "The index is converted to its corresponding Domain ID and selected as the current RenderObject to interact with for other selected-object commands.\n"
         "\n"
         "Usage: selected-object get <idx>\n";
 
-    [[nodiscard]] Constants::Event selectedObject_Parse(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
-    static auto constexpr selectedObject_Parse_name = "selected-object parse";
-    static auto constexpr selectedObject_Parse_desc = "Parse a command on the selected RenderObject.\n"
+    [[nodiscard]] Constants::Event selectedObjectParse(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    static auto constexpr selectedObjectParse_name = "selected-object parse";
+    static auto constexpr selectedObjectParse_desc = "Parse a command on the selected RenderObject.\n"
         "\n"
         "Usage: selected-object parse <command>\n"
         "\n"
@@ -191,8 +191,8 @@ public:
         bindFunction(&General::cam_set, cam_set_name, cam_set_desc);
 
         bindCategory(selectedObject_name, selectedObject_desc);
-        bindFunction(&General::selectedObject_get, selectedObject_get_name, selectedObject_get_desc);
-        bindFunction(&General::selectedObject_Parse, selectedObject_Parse_name, selectedObject_Parse_desc);
+        bindFunction(&General::selectedObjectGet, selectedObjectGet_name, selectedObjectGet_desc);
+        bindFunction(&General::selectedObjectParse, selectedObjectParse_name, selectedObjectParse_desc);
 
         bindCategory(env_name, env_desc);
         bindFunction(&General::envLoad, envLoad_name, envLoad_desc);

@@ -307,7 +307,7 @@ Constants::Event General::dumpView() const {
     return Constants::Event::Success;
 }
 
-Constants::Event General::selectedObject_get(int const argc, char** argv){
+Constants::Event General::selectedObjectGet(int const argc, char** argv){
     if (argc != 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -326,13 +326,13 @@ Constants::Event General::selectedObject_get(int const argc, char** argv){
 }
 
 // NOLINTNEXTLINE
-Constants::Event General::selectedObject_Parse(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::selectedObjectParse(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     std::string const command = Utility::StringHandler::recombineArgs(args.subspan(1));
     if (selectedRenderObject == nullptr || selectedRenderObjectData == nullptr) {
-        domain.capture.warning.println("No RenderObject selected! Use selectedObject_get <id> to select a valid object.");
+        domain.capture.warning.println("No RenderObject selected! Use selectedObjectGet <id> to select a valid object.");
         return Constants::Event::Warning;
     }
 
