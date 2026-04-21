@@ -24,6 +24,7 @@
 // Nebulite
 #include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
+#include "Interaction/Execution/DomainTree.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 
 //------------------------------------------
@@ -169,10 +170,6 @@ concept HasKeyGroup = requires {
  *          - Updating the domain through its DomainModules.
  */
 class Domain : public DocumentAccessor {
-public:
-    using DomainTree = FuncTree<Constants::Event, Domain&, Data::JsonScope&>;
-private:
-
     /**
      * @brief The name of the domain.
      */
@@ -227,6 +224,16 @@ private:
 
     // Hashed ID for better distribution
     size_t idHashed = splitMix64(id);
+
+    /**
+     * @brief Necessary operations before parsing commands.
+     * @details Override this function to implement domain-specific pre-parse logic.
+     * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
+     *         an error code otherwise.
+     */
+    [[nodiscard]] virtual Constants::Event preParse() {
+        return Constants::Event::Success;
+    }
 
 public:
     Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Capture& parentCapture);
@@ -309,7 +316,7 @@ public:
      * @return A unique pointer to the created DomainModule of the specified type
      */
     template <typename DomainType, typename DomainModuleType>
-    static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference, std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>> funcTree) {
+    static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference, std::shared_ptr<DomainTree> funcTree) {
         // Determine the key from root level
         if constexpr (HasKeyGroup<DomainModuleType>) {
             if (DomainModuleType::Key::hasScope()) {
@@ -397,22 +404,11 @@ public:
      *          The function is marked as `[[nodiscard]]` to ensure that the caller handles potential errors.
      *          The errors are not printed to stderr by default to allow the caller to handle them as needed.
      * @param str The string to parse.
+     * @param ctx The context of the caller
+     * @param ctxScope The context scope of the caller
      * @return Potential errors that occurred on command execution
      */
-    [[nodiscard]] Constants::Event parseStr(std::string const& str);
-    [[nodiscard]] Constants::Event parseStr(std::string const& str, Context& ctx);
-
-
-
-    /**
-     * @brief Necessary operations before parsing commands.
-     * @details Override this function to implement domain-specific pre-parse logic.
-     * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
-     *         an error code otherwise.
-     */
-    [[nodiscard]] virtual Constants::Event preParse() {
-        return Constants::Event::Success;
-    }
+    [[nodiscard]] Constants::Event parseStr(std::string const& str, Context& ctx, ContextScope& ctxScope) const ;
 
     //------------------------------------------
     // Access to private members
@@ -445,7 +441,7 @@ protected:
      *        Marked as protected, as it's only used to initialize DomainModules.
      * @return A shared pointer to the internal FuncTree.
      */
-    std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>> getFuncTree() {
+    std::shared_ptr<DomainTree> getFuncTree() {
         return funcTree;
     }
 

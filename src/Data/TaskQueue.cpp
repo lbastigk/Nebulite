@@ -3,7 +3,7 @@
 
 namespace Nebulite::Data {
 
-TaskQueueResult TaskQueue::resolve(Interaction::Execution::Domain& context, bool const& recover) {
+TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool const& recover) {
     Constants::Event currentResult;
     TaskQueueResult fullResult;
 
@@ -27,7 +27,7 @@ TaskQueueResult TaskQueue::resolve(Interaction::Execution::Domain& context, bool
             }
 
             // Parse
-            currentResult = context.parseStr(argStr);
+            currentResult = ctx.self.parseStr(argStr, ctx, ctxScope);
 
             // Check result
             if (currentResult == Constants::Event::Error) {
@@ -53,7 +53,7 @@ TaskQueueResult TaskQueue::resolve(Interaction::Execution::Domain& context, bool
             }
 
             // Parse
-            currentResult = context.parseStr(argStr);
+            currentResult = ctx.self.parseStr(argStr, ctx, ctxScope);
 
             // Check result
             if (currentResult == Constants::Event::Error) {

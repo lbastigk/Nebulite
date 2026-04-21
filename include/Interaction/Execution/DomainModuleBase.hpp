@@ -6,6 +6,7 @@
 
 // Nebulite
 #include "Constants/StandardCapture.hpp"
+#include "Interaction/Execution/DomainTree.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
 
@@ -26,8 +27,6 @@ namespace Nebulite::Interaction::Execution {
  */
 class DomainModuleBase {
 public:
-    using DomainFuncTree = std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>>;
-
     /**
      * @brief Constructor for the DomainModule base class.
      * @param funcTreePtr Shared pointer to the FuncTree for binding functions and variables.
@@ -37,7 +36,7 @@ public:
      *          the FuncTree pointer for binding functions and variables.
      */
     explicit DomainModuleBase(
-        DomainFuncTree funcTreePtr,
+        std::shared_ptr<DomainTree> funcTreePtr,
         Data::JsonScope& w,
         Data::JsonScope const& s
     );
@@ -168,13 +167,14 @@ protected:
     /**
      * @brief Adds a routine to the DomainModule's routine list. Automatically updated on each update-call.
      * @param routine The routine to add
+     * @param mode Update routine type, either before or after the update hook.
      */
-    void addRoutine(Utility::Coordination::TimedRoutine routine, RoutineUpdateMode mode) {
+    void addRoutine(Utility::Coordination::TimedRoutine const& routine, RoutineUpdateMode const& mode) {
         if (mode == RoutineUpdateMode::BEFORE_UPDATE_HOOK) {
-            routinesBeforeHook.push_back(Utility::Coordination::TimedRoutine(routine));
+            routinesBeforeHook.push_back(routine);
         }
         else if (mode == RoutineUpdateMode::AFTER_UPDATE_HOOK) {
-            routinesAfterHook.push_back(Utility::Coordination::TimedRoutine(routine));
+            routinesAfterHook.push_back(routine);
         }
         else {
             std::unreachable();
@@ -191,7 +191,7 @@ private:
     /**
      * @brief Pointer to the internal FuncTree for binding functions and variables.
      */
-    DomainFuncTree funcTree;
+    std::shared_ptr<DomainTree> funcTree;
 };
 } // namespace Nebulite::Interaction::Execution
 #include "Interaction/Execution/DomainModuleBase.tpp"
