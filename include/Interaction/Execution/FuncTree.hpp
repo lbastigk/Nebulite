@@ -282,6 +282,16 @@ public:
      */
     bool hasFunction(std::string_view const& nameOrCommand);
 
+    //------------------------------------------
+    // Complete
+
+    /**
+     * @brief Finds possible completions for a given pattern and prefix in the current FuncTree.
+     * @param patternStr The pattern to match for completions, full command
+     * @return A vector of possible completions
+     */
+    std::vector<std::string> findCompletionForFullCommand(std::string const& patternStr);
+
 private:
     // Name of the tree, used for help and output
     std::string TreeName;

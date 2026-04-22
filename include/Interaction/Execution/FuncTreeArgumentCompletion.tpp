@@ -284,6 +284,58 @@ FuncTree<returnValue, additionalArgs...>* FuncTree<returnValue, additionalArgs..
 }
 
 template <typename returnValue, typename ... additionalArgs>
+std::vector<std::string> FuncTree<returnValue, additionalArgs...>::findCompletionForFullCommand(std::string const& patternStr) {
+    auto [argsVec, _] = Utility::StringHandler::parseQuotedArguments(patternStr);
+
+    // Traverse into categories based on args, get pattern to complete
+    auto const [pattern, ftree] = [&]() -> std::pair<std::string, FuncTree*> {
+        auto args = std::span(argsVec.data(), argsVec.size());
+        if (args.empty()) {
+            // No pattern provided
+            return {};
+        }
+        FuncTree* innerTree = this;
+        std::string const lastArg = args.back();
+        args = args.subspan(0, args.size() - 1); // Remove pattern from argsSpan
+
+        // Traverse into categories
+        std::ranges::for_each(args, [&](std::string const& arg) {
+            if (innerTree) innerTree = traverseIntoCategory(arg, innerTree);
+        });
+        return {lastArg, innerTree}; // innerTree is potentially nullptr
+    }();
+
+    // Return if traversal failed -> no completions
+    if (ftree == nullptr) {
+        return {};
+    }
+
+    // Find completions for the pattern in the current FuncTree
+    auto completions = ftree->findCompletions(pattern);
+
+    // If there is only one completion, it might be a category, so we traverse into it
+    if (bool const lastWordIsLikelyCategory = completions.size() == 1 && completions.front() == pattern; lastWordIsLikelyCategory) {
+        if (auto newTree = traverseIntoCategory(pattern, ftree); newTree) {
+            completions = newTree->findCompletions("");
+        }
+        else{
+            completions.clear(); // No completions found
+        }
+    }
+
+    // Sort and remove duplicates, filter out __complete__ from completions
+    std::ranges::sort(completions);
+    completions.erase(std::unique(completions.begin(), completions.end()), completions.end());
+    completions.erase(std::remove(completions.begin(), completions.end(), "__complete__"), completions.end());
+
+    // Remove any argument that is exactly equal to the pattern provided
+    std::erase_if(completions, [&](std::string const& completion){
+        return completion == pattern;
+    });
+    return completions;
+}
+
+template <typename returnValue, typename ... additionalArgs>
 std::vector<std::string> FuncTree<returnValue, additionalArgs...>::findCompletions(std::string const& pattern) {
     std::vector<std::string> completions;
     auto collect = [&](auto const& map, std::string_view const prefix = "") {
@@ -303,6 +355,14 @@ std::vector<std::string> FuncTree<returnValue, additionalArgs...>::findCompletio
             std::ranges::move(inheritedCompletions, std::back_inserter(completions));
         }
     });
+
+    std::ranges::sort(completions);
+    std::erase_if(completions, [seen = std::string{}](auto const& item) mutable {
+        bool const duplicate = item == seen;
+        seen = item;
+        return duplicate;
+    });
+
     return completions;
 }
 

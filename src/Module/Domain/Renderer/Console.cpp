@@ -11,7 +11,7 @@
 namespace Nebulite::DomainModule::Renderer {
 
 Constants::Event Console::updateHook() {
-    static auto const toggleKey = Input::Key::keyboardDelta + "tab";
+    static auto const toggleKey = Input::Key::keyboardDelta + "`";
     if (moduleScope.get<int>(toggleKey).value_or(0) == 1) {
         consoleMode = !consoleMode;
     }

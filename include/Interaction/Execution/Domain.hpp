@@ -410,6 +410,15 @@ public:
      */
     [[nodiscard]] Constants::Event parseStr(std::string const& str, Context& ctx, ContextScope& ctxScope) const ;
 
+    /**
+     * @brief Finds possible completions of registered functions, categories and variables for a given pattern
+     * @param pattern The pattern to match for completions, full command
+     * @return A vector of possible completions
+     */
+    std::vector<std::string> findCompletions(std::string const& pattern) const {
+        return funcTree->findCompletionForFullCommand(pattern);
+    }
+
     //------------------------------------------
     // Access to private members
 

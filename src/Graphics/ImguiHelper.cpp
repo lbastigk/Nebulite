@@ -15,11 +15,19 @@
 //------------------------------------------
 
 namespace {
+
+// TODO: Use FileManagement class to find matches
+void addFileCompletions(std::vector<std::string>& completions) {
+    (void) completions;
+}
+
 struct ConsoleState {
     std::string command;
     std::string draftCommand;
     size_t historyIndex = 0;
     Nebulite::Utility::IO::Capture* capture = nullptr;
+    Nebulite::Interaction::Context* ctx = nullptr;
+    Nebulite::Interaction::ContextScope* ctxScope = nullptr;
 }; // namespace
 
 // NOLINTNEXTLINE
@@ -27,10 +35,15 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
     auto* state = static_cast<ConsoleState*>(data->UserData);
     if (!state) return 0;
 
+    // Should not happen
+    if (!state->capture) return 0;
+    if (!state->ctx) return 0;
+    if (!state->ctxScope) return 0;
+
+    // Check callback type
     if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory) {
         auto const historySize = state->capture->getHistory().size();
 
-        // Determine if up or down arrow was pressed
         if (data->EventKey == ImGuiKey_UpArrow) {
             size_t newIndex = state->historyIndex;
             if (state->historyIndex == 0) {
@@ -73,6 +86,29 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
             }
         }
     }
+
+    else if (data->EventFlag == ImGuiInputTextFlags_CallbackCompletion) {
+        auto completions = state->ctx->self.findCompletions(state->command);
+        addFileCompletions(completions);
+        if (completions.size() == 1) {
+            auto const len = static_cast<int>(state->command.size() - state->command.find_last_of(' ') - 1); // Get length of last word
+            data->DeleteChars(data->CursorPos - len, len); // Delete last word
+            data->InsertChars(data->CursorPos, completions.front().c_str()); // Insert completion
+        }
+        else if (completions.size() > 1) {
+            // Find largest word
+            auto maxSize = std::ranges::max_element(completions, [](std::string const& a, std::string const& b) {
+                return a.size() < b.size();
+            })->length();
+
+            std::string const completionStr = std::accumulate(completions.begin(), completions.end(), std::string(""), [maxSize](std::string const& acc, std::string const& a) {
+                // Pad to maxSize + 1
+                return acc + a + std::string(maxSize - a.length() + 1, ' ');
+            });
+
+            state->capture->log.println(completionStr);
+        }
+    }
     return 0;
 }
 } // namespace
@@ -94,67 +130,73 @@ void ImguiHelper::renderJsonScope(Data::JsonScope const& scope, std::string cons
     ImGui::End();
 }
 
+// TODO: Optional resizing (e.g. if aligned to bottom, allow user to resize height but keep aligned to bottom)
+namespace {
+
+void align(ImguiHelper::DomainRenderingFlags::Alignment const& alignment) {
+    ImGuiViewport const* const vp = ImGui::GetMainViewport();
+
+    ImVec2 const vpPos  = vp->WorkPos;
+    ImVec2 const vpSize = vp->WorkSize;
+
+    auto const topPos    = ImVec2(vpPos.x, vpPos.y);
+    auto const bottomPos = ImVec2(vpPos.x, vpPos.y + vpSize.y);
+    auto const leftPos   = ImVec2(vpPos.x, vpPos.y);
+    auto const rightPos  = ImVec2(vpPos.x + vpSize.x, vpPos.y);
+
+    switch (alignment) {
+    case ImguiHelper::DomainRenderingFlags::Alignment::TOP:
+        ImGui::SetNextWindowPos(topPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
+        ImGui::SetNextWindowSize(
+            ImVec2(vpSize.x, vpSize.y * 0.5f),
+            ImGuiCond_Always
+        );
+        break;
+    case ImguiHelper::DomainRenderingFlags::Alignment::BOTTOM:
+        ImGui::SetNextWindowPos(bottomPos, ImGuiCond_Always, ImVec2(0.0f, 1.0f));
+        ImGui::SetNextWindowSize(
+            ImVec2(vpSize.x, vpSize.y * 0.5f),
+            ImGuiCond_Always
+        );
+        break;
+    case ImguiHelper::DomainRenderingFlags::Alignment::LEFT:
+        ImGui::SetNextWindowPos(leftPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
+        ImGui::SetNextWindowSize(
+            ImVec2(vpSize.x * 0.5f, vpSize.y),
+            ImGuiCond_Always
+        );
+        break;
+    case ImguiHelper::DomainRenderingFlags::Alignment::RIGHT:
+        ImGui::SetNextWindowPos(rightPos, ImGuiCond_Always, ImVec2(1.0f, 0.0f));
+        ImGui::SetNextWindowSize(
+            ImVec2(vpSize.x * 0.5f, vpSize.y),
+            ImGuiCond_Always
+        );
+        break;
+    case ImguiHelper::DomainRenderingFlags::Alignment::NONE:
+        break;
+    default:
+        std::unreachable();
+    }
+}
+
+} // namespace
+
 void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::IO::Capture& capture, std::string const& name, DomainRenderingFlags const& flags) {
     auto const& domain = ctx.self;
     auto const& scope = ctxScope.self;
     std::string const additionalIdentifier = !domain.capture.hasParent() ? "GLOBAL" : "";
     std::string const windowName = "Nebulite Domain Interface - " + name + "###DomainViewer_" + name + "_" + std::to_string(domain.getId()) + "_" + additionalIdentifier;
 
-    // Alignment and sizing
-
+    // Sizing and alignment
     if (flags.windowPos.has_value()) {
         ImGui::SetNextWindowPos(flags.windowPos.value(), ImGuiCond_Always);
     }
     if (flags.windowSize.has_value()) {
         ImGui::SetNextWindowSize(flags.windowSize.value(), ImGuiCond_Always);
     }
-
-    // TODO: Optional resizing (e.g. if aligned to bottom, allow user to resize height but keep aligned to bottom)
     if (flags.windowAlignment.has_value()) {
-        ImGuiViewport const* const vp = ImGui::GetMainViewport();
-
-        ImVec2 const vpPos  = vp->WorkPos;
-        ImVec2 const vpSize = vp->WorkSize;
-
-        auto const topPos    = ImVec2(vpPos.x, vpPos.y);
-        auto const bottomPos = ImVec2(vpPos.x, vpPos.y + vpSize.y);
-        auto const leftPos   = ImVec2(vpPos.x, vpPos.y);
-        auto const rightPos  = ImVec2(vpPos.x + vpSize.x, vpPos.y);
-
-        switch (flags.windowAlignment.value()) {
-            case DomainRenderingFlags::Alignment::TOP:
-                ImGui::SetNextWindowPos(topPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
-                ImGui::SetNextWindowSize(
-                    ImVec2(vpSize.x, vpSize.y * 0.5f),
-                    ImGuiCond_Always
-                );
-                break;
-            case DomainRenderingFlags::Alignment::BOTTOM:
-                ImGui::SetNextWindowPos(bottomPos, ImGuiCond_Always, ImVec2(0.0f, 1.0f));
-                ImGui::SetNextWindowSize(
-                    ImVec2(vpSize.x, vpSize.y * 0.5f),
-                    ImGuiCond_Always
-                );
-                break;
-            case DomainRenderingFlags::Alignment::LEFT:
-                ImGui::SetNextWindowPos(leftPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
-                ImGui::SetNextWindowSize(
-                    ImVec2(vpSize.x * 0.5f, vpSize.y),
-                    ImGuiCond_Always
-                );
-                break;
-            case DomainRenderingFlags::Alignment::RIGHT:
-                ImGui::SetNextWindowPos(rightPos, ImGuiCond_Always, ImVec2(1.0f, 0.0f));
-                ImGui::SetNextWindowSize(
-                    ImVec2(vpSize.x * 0.5f, vpSize.y),
-                    ImGuiCond_Always
-                );
-                break;
-            case DomainRenderingFlags::Alignment::NONE:
-                break;
-            default:
-                std::unreachable();
-        }
+        align(flags.windowAlignment.value());
     }
 
     ImGui::Begin(windowName.c_str());
@@ -269,10 +311,12 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
     }
     auto& state = states.find(name)->second; // Get iterator again after potential insertion
     state.capture = &capture; // Set for history scrolling
+    state.ctx = &ctx;
+    state.ctxScope = &ctxScope;
     std::string& command = state.command; // Get command buffer for this console
     command.reserve(256); // Pre-allocate to avoid reallocations during typing
 
-    if (ImGui::InputText("##ConsoleInput", &command, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory, consoleInputCallback, &state)) {
+    if (ImGui::InputText("##ConsoleInput", &command, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackCompletion, consoleInputCallback, &state)) {
         if (!command.empty()){
             capture.appendInput(command);
             Global::instance().notifyEvent(domain.parseStr(__FUNCTION__ + std::string(" ") + command, ctx, ctxScope));
