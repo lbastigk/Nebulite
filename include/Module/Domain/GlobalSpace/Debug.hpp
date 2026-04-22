@@ -150,9 +150,22 @@ public:
         addRoutines();
     }
 
-    struct Key : Data::KeyGroup<"debug."> {
-        static auto constexpr platform = makeScoped("platform");
-        static auto constexpr buildType = makeScoped("buildType");
+    struct Key : Data::KeyGroup<""> { // Needs full access to create imgui debug window with full scope viewer
+        // However, the keys we use are all stored in "debug.":
+
+        static auto constexpr platform = makeScoped("debug.platform");
+        static auto constexpr buildType = makeScoped("debug.buildType");
+        static auto constexpr memoryVirtualMB = makeScoped("debug.memory.virtualMB");
+        static auto constexpr memoryResidentMB = makeScoped("debug.memory.residentMB");
+
+        static auto constexpr workerInvokeUsed = makeScoped("debug.worker.invoke.used");
+        static auto constexpr workerInvokeMax = makeScoped("debug.worker.invoke.max");
+
+        static auto constexpr workerRendererUsed = makeScoped("debug.worker.renderer.used");
+        static auto constexpr workerRendererMax = makeScoped("debug.worker.renderer.max");
+
+        static auto constexpr workerTotalUsed = makeScoped("debug.worker.total.used");
+        static auto constexpr workerTotalMax = makeScoped("debug.worker.total.max");
     };
 
 private:

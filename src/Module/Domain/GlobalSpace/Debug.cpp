@@ -278,8 +278,8 @@ void Debug::addRoutines() {
                 double virtualMemMB = 0.0;
                 double residentMemMB = 0.0;
                 getMemoryUsageMB(virtualMemMB, residentMemMB);
-                moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.virtualMB"), virtualMemMB);
-                moduleScope.set<double>(Data::ScopedKey(moduleScope.getRootScope() + "memory.residentMB"), residentMemMB);
+                moduleScope.set<double>(Key::memoryVirtualMB, virtualMemMB);
+                moduleScope.set<double>(Key::memoryResidentMB, residentMemMB);
             },
             1000 /*ms*/, // Call every second
             Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
@@ -295,13 +295,13 @@ void Debug::addRoutines() {
                 size_t const rendererWorkerCount = Constants::ThreadSettings::getRendererWorkerCount();
                 size_t const workerCount = invokeWorkerCount + rendererWorkerCount;
 
-                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.invoke.used"), invokeWorkerCount);
-                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.renderer.used"), rendererWorkerCount);
-                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.total.used"), workerCount);
+                moduleScope.set<size_t>(Key::workerInvokeUsed, invokeWorkerCount);
+                moduleScope.set<size_t>(Key::workerRendererUsed, rendererWorkerCount);
+                moduleScope.set<size_t>(Key::workerTotalUsed, workerCount);
 
-                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.invoke.max"), Constants::ThreadSettings::Maximum::invokeWorkerCount);
-                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.renderer.max"), Constants::ThreadSettings::Maximum::rendererWorkerCount);
-                moduleScope.set<size_t>(Data::ScopedKey(moduleScope.getRootScope() + "worker.total.max"), Constants::ThreadSettings::Maximum::totalThreadCount);
+                moduleScope.set<size_t>(Key::workerInvokeMax, Constants::ThreadSettings::Maximum::invokeWorkerCount);
+                moduleScope.set<size_t>(Key::workerRendererMax, Constants::ThreadSettings::Maximum::rendererWorkerCount);
+                moduleScope.set<size_t>(Key::workerTotalMax, Constants::ThreadSettings::Maximum::totalThreadCount);
             },
             5000 /*ms*/, // Call every 5 seconds
             Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
