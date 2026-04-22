@@ -3,8 +3,8 @@
  * @brief Utility functions for string manipulation and parsing.
  */
 
-#ifndef NEBULITE_UTILITY_STRING_HANDLER_HPP
-#define NEBULITE_UTILITY_STRING_HANDLER_HPP
+#ifndef NEBULITE_UTILITY_IO_STRING_HANDLER_HPP
+#define NEBULITE_UTILITY_IO_STRING_HANDLER_HPP
 
 //------------------------------------------
 // Includes
@@ -157,4 +157,4 @@ public:
     static std::string repeat(std::string const& str, size_t const& count);
 };
 }   // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_STRING_HANDLER_HPP
+#endif // NEBULITE_UTILITY_IO_STRING_HANDLER_HPP
