@@ -84,9 +84,9 @@
     },
     "renderer": {
         "resolution": {
-            "w": 1000,
             "h": 1000,
-            "scale": 1
+            "scale": 1,
+            "w": 1000
         },
         "targetFPS": 60
     }
