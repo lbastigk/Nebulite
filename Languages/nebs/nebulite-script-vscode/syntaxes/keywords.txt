@@ -7,6 +7,7 @@ always
 always-clear
 and
 array
+asString
 assert
 assign
 at
@@ -16,6 +17,7 @@ basicValue
 beep
 broadcast
 cam
+cat
 category
 categoryLevel1
 categoryLevel2
@@ -33,6 +35,7 @@ delete
 deload
 deserialize
 div
+document
 draft
 dump-view
 echo
@@ -56,6 +59,7 @@ filterNulls
 filterRegex
 first
 for
+formatNumber
 function
 functree
 geq
@@ -72,11 +76,15 @@ input-wait
 json
 key
 keyDelete
+lPad
+lPadNonNumeric
+lPadNumeric
 lStrip
 last
 length
 leq
 listMembers
+listMembersAndValues
 listen
 load
 lock
@@ -118,14 +126,19 @@ push-back
 push-front
 pushNumber
 query
+rPad
+rPadNonNumeric
+rPadNumeric
 rStrip
 recursive
 reload
+remove
 removeMember
 render-object
 replace
 require
 reverse
+rmlui
 rng2arg
 rng2argInt16
 rng3arg
@@ -180,6 +193,7 @@ toUpper
 to_bipolar
 type
 typeAsNumber
+typeAsSimpleString
 typeAsString
 unlock
 variable
