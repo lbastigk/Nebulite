@@ -14,9 +14,11 @@ set -e
 LIC_ABSEIL=$(cat ./external/abseil/LICENSE)
 LIC_IMGUI=$(cat ./external/imgui/LICENSE.txt)
 LIC_RAPIDJSON=$(cat ./external/rapidjson/license.txt)
+LIC_RMLUI=$(cat ./external/RmlUi/LICENSE.txt)
 LIC_SDL=$(cat ./external/SDL3/LICENSE.txt)
 LIC_SDL_IMAGE=$(cat ./external/SDL3_image/LICENSE.txt)
 LIC_SDL_TTF=$(cat ./external/SDL3_ttf/LICENSE.txt)
+LIC_STB_IMAGE=$(cat ./external/stb/LICENSE)
 LIC_TINYEXPR=$(cat ./external/tinyexpr/LICENSE)
 
 # Generate array of licenses
@@ -24,9 +26,11 @@ LICENSES=(
   "$LIC_ABSEIL"
   "$LIC_IMGUI"
   "$LIC_RAPIDJSON"
+  "$LIC_RMLUI"
   "$LIC_SDL"
   "$LIC_SDL_IMAGE"
   "$LIC_SDL_TTF"
+  "$LIC_STB_IMAGE"
   "$LIC_TINYEXPR"
 )
 
