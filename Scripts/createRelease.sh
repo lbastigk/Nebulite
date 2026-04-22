@@ -167,36 +167,44 @@ EOF
 create_third_party_licenses_txt(){
     cat << EOF
 Nebulite Third-Party Library Licenses
-=====================================
+==========================================================================
 
 This software includes the following third-party libraries:
 
 Abseil (Apache License 2.0)
-----------------------------
+=====================================
 ${LIC_ABSEIL}
 
 ImGui (MIT License)
-----------------------
+=====================================
 ${LIC_IMGUI}
 
 RapidJSON (MIT License)
------------------------
+=====================================
 ${LIC_RAPIDJSON}
 
+RmlUi (MIT License)
+=====================================
+${LIC_RMLUI}
+
 SDL3 - Simple DirectMedia Layer (zlib License)
------------------------
+=====================================
 ${LIC_SDL}
 
 SDL3_image (zlib License)
------------------------
+=====================================
 ${LIC_SDL_IMAGE}
 
 SDL3_ttf (zlib License)
------------------------
+=====================================
 ${LIC_SDL_TTF}
 
+STB Image (MIT License)
+=====================================
+${LIC_STB_IMAGE}
+
 TinyExpr (zlib License)
------------------------
+=====================================
 ${LIC_TINYEXPR}
 
 EOF
