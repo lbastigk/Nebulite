@@ -63,7 +63,6 @@ public:
      * @brief Initializes the module, binding functions and variables.
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RmlUi) {
-        // TODO: Add document load/unload functions
         bindCategory(ui_name, ui_desc);
         bindCategory(uiDocument_name, uiDocument_desc);
         bindFunction(&RmlUi::loadDocument, loadDocument_name, loadDocument_desc);
