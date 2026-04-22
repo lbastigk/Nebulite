@@ -81,7 +81,8 @@ public:
         Interaction::ContextScope& ctxScope,
         Utility::IO::Capture& capture,
         std::string const& name,
-        DomainRenderingFlags const& flags = {.showCloseButton = true, .windowPos = std::nullopt, .windowSize = std::nullopt, .windowAlignment = std::nullopt});
+        DomainRenderingFlags const& flags = {.showCloseButton = true, .windowPos = std::nullopt, .windowSize = std::nullopt, .windowAlignment = std::nullopt}
+    );
 
 private:
     static void renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKey const& root);

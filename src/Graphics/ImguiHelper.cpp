@@ -65,24 +65,19 @@ struct ConsoleState {
     Nebulite::Interaction::ContextScope* ctxScope = nullptr;
 };
 
-void checkCompletionsForStart(std::string_view const& input, std::vector<std::string>& completions) {
+void checkCompletionsForCommonPrefix(std::string_view const& input, std::vector<std::string>& completions) {
     if (completions.empty()) {
         return;
     }
-
-    // Check if all completions for the longest common prefix
-    if (completions.empty()) return;
-
     const auto& first = completions.front();
-
     auto const mismatch_it = std::ranges::find_if(
-        std::views::iota(std::size_t{0}, first.size()),
-        [&](std::size_t const& i) {
-            char const c = first[i];
-            return std::ranges::any_of(completions, [&](const std::string& s) {
-                return i >= s.size() || s[i] != c;
-            });
+    std::views::iota(std::size_t{0}, first.size()),
+    [&](std::size_t const& i) {
+        char const c = first[i];
+        return std::ranges::any_of(completions, [&](const std::string& s) {
+            return i >= s.size() || s[i] != c;
         });
+    });
 
     if (std::string const match = first.substr(0, mismatch_it == std::views::iota(std::size_t{0}, first.size()).end() ? first.size() : *mismatch_it); !match.empty() && !input.ends_with(match)) {
         completions.clear();
@@ -96,12 +91,10 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
     if (!state) return 0;
 
     // Should not happen
-    if (!state->capture) return 0;
-    if (!state->ctx) return 0;
-    if (!state->ctxScope) return 0;
+    if (!state->capture || !state->ctx || !state->ctxScope) return 0;
 
-    // Check callback type
-    if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory) {
+    // Check callback type...
+    if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory) { // History scrolling
         auto const historySize = state->capture->getHistory().size();
 
         if (data->EventKey == ImGuiKey_UpArrow) {
@@ -146,28 +139,26 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
             }
         }
     }
-
-    else if (data->EventFlag == ImGuiInputTextFlags_CallbackCompletion) {
+    else if (data->EventFlag == ImGuiInputTextFlags_CallbackCompletion) { // Tab-Autocomplete
         auto completions = state->ctx->self.findCompletions(state->command);
         addFileCompletions(state->command, completions);
-        checkCompletionsForStart(state->command, completions);
+        checkCompletionsForCommonPrefix(state->command, completions);
         if (completions.size() == 1) {
             auto const& toInsert = completions.front();
             const std::string& cmd = state->command;
 
+            // Find overlap suffix: the part at the end of the current command that matches the beginning of the completion.
+            // e.g.: typed is fooBar, fooBarBaz is complete -> remove fooBar and insert full complete string.
             int overlap = 0;
             auto const maxCheck = static_cast<int>(std::min(cmd.size(), toInsert.size()));
-
             for (int i = 1; i <= maxCheck; ++i) {
                 if (auto const idx = static_cast<size_t>(i); cmd.compare(cmd.size() - idx, idx, toInsert, 0, idx) == 0) {
                     overlap = i;
                 }
             }
 
-            // delete only the overlapping suffix
+            // delete only the overlapping suffix and insert full completion
             data->DeleteChars(data->CursorPos - overlap, overlap);
-
-            // insert full completion
             data->InsertChars(data->CursorPos, toInsert.c_str());
         }
         else if (completions.size() > 1) {
@@ -312,10 +303,6 @@ void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextSc
     ImGui::End();
 }
 
-// TODO: does not work if external processes reactivate an object through stable double pointers.
-//       e.g.: set time.runtime someValue -> time.runtime will keep showing someValue!
-//       even though "print time" will print it correctly, with time.runtime.t,dt,etc.
-//       Perhaps the memberType isn't working correctly?
 void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKey const& root) {
     for (auto const& key : s.listAvailableKeys(root)) {
         std::string const rootPath = root.view().toString();
