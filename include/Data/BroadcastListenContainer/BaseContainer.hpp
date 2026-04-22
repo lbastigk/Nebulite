@@ -35,7 +35,7 @@ class BaseContainer {
 public:
     explicit BaseContainer(std::atomic<bool>& stopFlag, uint32_t const& workerIndex, uint32_t const& workerCount, DerivedContainer container)
         : workerInfo{workerIndex, workerCount}
-        , dispatcher(stopFlag)
+        , dispatcher(stopFlag, processImpl, initImpl)
     {
         dispatcher.workspace = container;
         ensureEarlyThreadId();
@@ -104,7 +104,7 @@ private:
     }
 
     // store WorkDispatcher with container reference
-    Utility::Coordination::WorkDispatcher<DerivedContainer, &BaseContainer::processImpl, &BaseContainer::initImpl> dispatcher;
+    Utility::Coordination::WorkDispatcher<DerivedContainer> dispatcher;
 };
 } // namespace Nebulite::Data::BroadcastListenContainer
 #endif // NEBULITE_DATA_BROADCAST_LISTEN_CONTAINER_BASE_CONTAINER_HPP

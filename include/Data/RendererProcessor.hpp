@@ -144,7 +144,7 @@ public:
      * @details Pool of pre-initialized workers for reuse
      */
     std::array<
-        std::unique_ptr<Utility::Coordination::WorkDispatcher<DispatcherWorkspace, batchWorkerFunc>>,
+        std::unique_ptr<Utility::Coordination::WorkDispatcher<DispatcherWorkspace>>,
         Constants::ThreadSettings::Maximum::rendererWorkerCount
     > batchWorkerPool;
 

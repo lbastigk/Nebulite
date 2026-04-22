@@ -21,70 +21,24 @@ namespace Nebulite::Utility::Coordination {
 /**
  * @brief A class to manage a worker thread that processes work using a provided function and workspace.
  * @tparam Workspace The workspace of the worker thread
- * @tparam WorkerFunc The function to call in the worker thread, must be a template function that takes the workspace as an argument
- * @tparam InitFunc An optional function to call in the worker thread before the main loop, must be a template function that takes the workspace as an argument
  */
-template<typename Workspace, auto WorkerFunc, auto InitFunc = nullptr>
+template<typename Workspace>
 class WorkDispatcher {
 public:
-    explicit WorkDispatcher(std::atomic<bool>& stop)
-        : threadState{ .stopFlag = stop }
-    {
-        initializeWorkerThread();
-    }
+    explicit WorkDispatcher(std::atomic<bool>& stop, std::function<void(Workspace&)> const& wF, std::function<void(Workspace&)> const& iF = nullptr);
 
-    ~WorkDispatcher() {
-        threadState.stopFlag = true;
-        threadState.condition.notify_one();
-        if (workerThread.joinable()) {
-            workerThread.join();
-        }
-    }
+    ~WorkDispatcher();
 
-    void initializeWorkerThread() {
-        if constexpr (InitFunc != nullptr) {
-            InitFunc(workspace);
-        }
-        workerThread = std::thread([this] {
-            this->process();
-        });
-    }
+    void initializeWorkerThread();
 
-    void waitForWorkFinished() {
-        std::unique_lock lock(mutex);
-        threadState.condition.wait(lock, [this] {
-            return threadState.workFinished.load();
-        });
-    }
+    void waitForWorkFinished();
 
-    void startWork() {
-        std::unique_lock lock(mutex);
-        threadState.workReady = true;
-        threadState.workFinished = false;
-        threadState.condition.notify_one();
-    }
+    void startWork();
 
     Workspace workspace;
 
 private:
-    void process() {
-        while (!threadState.stopFlag.load()) {
-            std::unique_lock lock(mutex);
-            threadState.condition.wait(lock, [this] {
-                return threadState.workReady.load() || threadState.stopFlag.load();
-            });
-
-            if (threadState.stopFlag.load()) break;
-
-            // Call the template function
-            WorkerFunc(workspace);
-
-            // Notify that work is finished
-            threadState.workReady = false;
-            threadState.workFinished = true;
-            threadState.condition.notify_one();
-        }
-    }
+    void process();
 
     struct ThreadState {
         std::atomic<bool>& stopFlag;
@@ -93,9 +47,13 @@ private:
         std::condition_variable_any condition = {};
     } threadState;
 
+    std::function<void(Workspace&)> workerFunction;
+    std::function<void(Workspace&)> initFunction;
+
     std::thread workerThread;
     mutable SharedMutex mutex;
 };
 
 } // namespace Nebulite::Utility::Coordination
+#include "Utility/Coordination/WorkDispatcher.tpp"
 #endif // NEBULITE_UTILITY_COORDINATION_WORK_DISPATCHER_HPP
