@@ -295,7 +295,7 @@ private:
      * @return Error code `Constants::ErrorTable::NONE()` if there was no critical stop,
      *         an error code otherwise.
      */
-    [[nodiscard]] Constants::Event preParse() override;
+    [[nodiscard]] Constants::Event preParse() override ;
 
     /**
      * @brief Updates all inner domains.

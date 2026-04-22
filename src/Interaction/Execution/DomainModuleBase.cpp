@@ -5,7 +5,7 @@
 namespace Nebulite::Interaction::Execution {
 
 DomainModuleBase::DomainModuleBase(
-    std::shared_ptr<Domain::DomainTree> funcTreePtr,
+    std::shared_ptr<DomainTree> funcTreePtr,
     Data::JsonScope& w,
     Data::JsonScope const& s
 ) : moduleScope(w), settingsScope(s), funcTree(std::move(funcTreePtr)) {}

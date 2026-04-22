@@ -12,7 +12,7 @@
 
 // Nebulite
 #include "ScopeAccessor.hpp"
-#include "Constants/StandardCapture.hpp"
+#include "Interaction/Execution/DomainTree.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Data/Document/JsonScope.hpp"
 
@@ -45,7 +45,7 @@ public:
     DomainModule(
         std::string name,
         DomainType& domainReference,
-        std::shared_ptr<FuncTree<Constants::Event, Domain&, Data::JsonScope&>> const& funcTreePtr,
+        std::shared_ptr<DomainTree> const& funcTreePtr,
         Data::JsonScope& scope,
         Data::JsonScope const& settings
     );
@@ -97,7 +97,7 @@ class DomainModuleName final : public Nebulite::Interaction::Execution::DomainMo
 #define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
 explicit DomainModuleName( \
 std::string const& name, DomainName& domainReference, \
-DomainFuncTree const& funcTreePtr, \
+std::shared_ptr<Interaction::Execution::DomainTree> const& funcTreePtr, \
 Data::JsonScope& w, \
 Data::JsonScope const& s \
 ) \

@@ -11,6 +11,8 @@
 // Nebulite
 #include "Nebulite.hpp"
 #include "Core/Environment.hpp"
+
+#include "Core/RenderObject.hpp"
 #include "Data/RenderObjectContainer.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Module/Domain/Initializer.hpp"

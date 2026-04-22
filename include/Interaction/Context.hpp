@@ -38,7 +38,6 @@ public:
     Data::JsonScope& self;
     Data::JsonScope& other;
     Data::JsonScope& global;
-    // TODO: Parent context?
 };
 
 /**
@@ -52,9 +51,10 @@ public:
     Execution::Domain& self;
     Execution::Domain& other;
     Execution::Domain& global;
-    // TODO: Parent context?
 
     // Context Demotion access
+    // Expression requires demotion so we deduce the full scope of any domain for evaluation.
+    // We assume that any written expression acts on the root scope of the domain, unless specified differently
     friend class Logic::Expression;
 private:
     /**

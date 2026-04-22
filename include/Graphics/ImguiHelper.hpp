@@ -16,10 +16,16 @@ class Domain;
 // Includes
 
 // Standard Library
+#include <optional>
 #include <string>
 
 // External
 #include <imgui.h>
+
+// Nebulite
+#include "Data/Document/ScopedKey.hpp"
+#include "Interaction/Context.hpp"
+#include "Utility/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics {
@@ -64,22 +70,22 @@ public:
     /**
      * @brief Renders a Domains scope, name and capture in an ImGui window.
      * @details Make sure imgui is initialized and a frame is started before calling this function.
-     * @param domain The domain to render and parse commands into
+     * @param ctx The context of the caller
+     * @param ctxScope the context scope of the caller
      * @param capture The capture to show output from. Likely domain::capture, but passing the global capture is also possible to show all output.
-     * @param scope The JSON scope to render. Likely from the domain, but passing the global scope is also possible to show all data.
      * @param name The name of the ImGui window.
      * @param flags Optional rendering flags to control the appearance and behavior of the ImGui window.
      */
     static void renderDomain(
-        Interaction::Execution::Domain& domain,
+        Interaction::Context& ctx,
+        Interaction::ContextScope& ctxScope,
         Utility::Capture& capture,
-        Data::JsonScope const& scope,
         std::string const& name,
         DomainRenderingFlags const& flags = {.showCloseButton = true, .windowPos = std::nullopt, .windowSize = std::nullopt, .windowAlignment = std::nullopt});
 
 private:
     static void renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKey const& root);
-    static void renderDomainConsole(Interaction::Execution::Domain& domain, Utility::Capture& capture, std::string const& name);
+    static void renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Capture& capture, std::string const& name);
 };
 
 } // namespace Nebulite::Graphics

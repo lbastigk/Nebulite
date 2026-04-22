@@ -11,6 +11,7 @@
 
 // Nebulite
 #include "Constants/StandardCapture.hpp"
+#include "Interaction/ContextView.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -26,7 +27,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event imguiView(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] Constants::Event imguiView(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr imguiView_name = "imgui-view";
     static auto constexpr imguiView_desc = "Creates an ImGui view of the domain.\n"
        "\n"
@@ -34,7 +35,7 @@ public:
     static auto constexpr imguiView_Enable = "imgui-view on";
     static auto constexpr imguiView_Disable = "imgui-view off";
 
-    [[nodiscard]] static Constants::Event eval(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event eval(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr eval_name = "eval";
     static auto constexpr eval_desc = "Evaluates an expression string and executes it.\n"
         "Every argument after eval is concatenated with a whitespace to form the expression to be evaluated and then reparsed.\n"
@@ -62,7 +63,7 @@ public:
         "Useful for testing or as a placeholder in scripts where no action is required,\n"
         "but a command is syntactically necessary.\n";
 
-    [[nodiscard]] static Constants::Event func_assert(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event func_assert(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr assert_name = "assert";
     static auto constexpr assert_desc = "Asserts a condition and throws a custom error if false.\n"
         "\n"
@@ -75,7 +76,7 @@ public:
         "assert '$(eq(1+1,3))'    // Critical Error: A custom assertion failed.\n"
         "Assertion failed: $(eq(1+1,3)) is not true.\n";
 
-    [[nodiscard]] static Constants::Event func_for(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event func_for(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr func_for_name = "for";
     static auto constexpr func_for_desc = "Executes a for-loop with a function call.\n"
         "\n"
@@ -95,7 +96,7 @@ public:
         "- Iterating over a range of values.\n"
         "- Creating complex control flows in scripts.\n";
 
-    [[nodiscard]] static Constants::Event func_if(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event func_if(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr func_if_name = "if";
     static auto constexpr func_if_desc = "Executes a block of code if a condition is true.\n"
         "\n"
@@ -143,7 +144,8 @@ private:
 
     // Store addresses of who called the last imgui-view command, so we can pass them to the imgui view later on
     // Due to design constraints, a Common DomainModule cannot have a scope...
-    Data::JsonScope* lastImguiCallerScope = nullptr;
+    Interaction::ContextView lastContext;
+    Interaction::ContextScopeView lastContextScope;
 };
 } // namespace Nebulite::DomainModule::Common
 #endif // NEBULITE_DOMAIN_MODULE_COMMON_GENERAL_HPP

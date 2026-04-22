@@ -144,7 +144,7 @@ Constants::Event Debug::standardFileRenderObject(std::span<std::string const> co
 }
 
 // NOLINTNEXTLINE
-Constants::Event Debug::errorLog(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
+Constants::Event Debug::errorLog(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
     // Initialize the error logging buffer
     if (!originalCerrBuf) {
         originalCerrBuf = std::cerr.rdbuf();
@@ -154,7 +154,7 @@ Constants::Event Debug::errorLog(std::span<std::string const> const& args, Inter
         if (args[1] == "on") {
             if (!errorLogStatus) {
                 if (!safe_open_log(errorFile)) {
-                    caller.capture.error.println("Refusing to open log file: '", logFilename, "' is a symlink or could not be opened.");
+                    ctx.self.capture.error.println("Refusing to open log file: '", logFilename, "' is a symlink or could not be opened.");
                     return Constants::StandardCapture::Error::File::invalidFile(domain.capture);
                 }
                 originalCerrBuf = std::cerr.rdbuf();
@@ -215,7 +215,7 @@ Constants::Event Debug::clearConsole(std::span<std::string const> const& /*args*
 }
 
 // NOLINTNEXTLINE
-Constants::Event Debug::crash(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
+Constants::Event Debug::crash(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
     // If an argument is provided, use it to select crash type
     if (args.size() > 1) {
         if (std::string const& crashType = args[1]; crashType == "segfault") {
@@ -231,8 +231,8 @@ Constants::Event Debug::crash(std::span<std::string const> const& args, Interact
             // Throw an uncaught exception
             throw std::runtime_error("Intentional crash: uncaught exception");
         } else {
-            caller.capture.error.println("Unknown crash type requested: ", crashType);
-            caller.capture.error.println("Defaulting to segmentation fault");
+            ctx.self.capture.error.println("Unknown crash type requested: ", crashType);
+            ctx.self.capture.error.println("Defaulting to segmentation fault");
         }
     } else {
         // Default: segmentation fault
@@ -246,16 +246,16 @@ Constants::Event Debug::crash(std::span<std::string const> const& args, Interact
 
 
 // NOLINTNEXTLINE
-Constants::Event Debug::waitForInput(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& /*callerScope*/) {
+Constants::Event Debug::waitForInput(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
     if (args.size() > 2) {
-        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
     std::string message = "Press Enter to continue...";
     if (args.size() == 2) {
         // Use the provided prompt as message
         message = args[1];
     }
-    caller.capture.log.println(message);
+    ctx.self.capture.log.println(message);
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     return Constants::Event::Success;
 }
@@ -346,7 +346,9 @@ void Debug::setupDebugInfo() const {
 
     // Show debug window if in debug build
     if (moduleScope.get<std::string>(Key::buildType).value_or("") == "debug") {
-        if (auto const event = domain.parseStr(__FUNCTION__ + std::string(" ") + Common::General::imguiView_Enable); event != Constants::Event::Success) {
+        Interaction::Context ctx{domain, domain, domain};
+        Interaction::ContextScope ctxScope{moduleScope, moduleScope, moduleScope};
+        if (auto const event = domain.parseStr(__FUNCTION__ + std::string(" ") + Common::General::imguiView_Enable, ctx, ctxScope); event != Constants::Event::Success) {
             domain.capture.error.println("Error enabling ImGui view for GlobalSpace");
         }
     }

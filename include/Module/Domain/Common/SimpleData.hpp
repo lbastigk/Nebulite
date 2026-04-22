@@ -27,7 +27,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] static Constants::Event set(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event set(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr set_name = "set";
     static auto constexpr set_desc = "Set a key to a value in the JSON document.\n"
         "\n"
@@ -35,7 +35,7 @@ public:
         "\n"
         "Note: All values are stored as strings.\n";
 
-    [[nodiscard]] static Constants::Event assign(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event assign(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr assign_name = "assign";
     static auto constexpr assign_desc = "Assign a key to a value in the JSON document (self) or the global context (global)\n"
         "\n"
@@ -46,49 +46,49 @@ public:
         "The assignment has full access to the entire global scope here, so be cautious when using this function to overwrite global values.\n"
         "Use json set instead, if you only wish to modify values in the context self with no special operators.\n";
 
-    [[nodiscard]] static Constants::Event move(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event move(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr move_name = "move";
     static auto constexpr move_desc = "Move data from one key to another.\n"
         "\n"
         "Usage: move <source_key> <destination_key>\n";
 
-    [[nodiscard]] static Constants::Event copy(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event copy(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr copy_name = "copy";
     static auto constexpr copy_desc = "Copy data from one key to another.\n"
         "\n"
         "Usage: copy <source_key> <destination_key>\n";
 
-    [[nodiscard]] static Constants::Event keyDelete(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event keyDelete(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr keyDelete_name = "keyDelete";
     static auto constexpr keyDelete_desc = "Delete a key from the JSON document.\n"
         "\n"
         "Usage: keyDelete <key>\n";
 
-    [[nodiscard]] static Constants::Event ensureArray(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event ensureArray(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr ensureArray_name = "ensure-array";
     static auto constexpr ensureArray_desc = "Ensure that a key is an array, converting a value to an array if necessary.\n"
         "\n"
         "Usage: ensure-array <key>\n";
 
-    [[nodiscard]] static Constants::Event push_back(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event push_back(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr push_back_name = "push-back";
     static auto constexpr push_back_desc = "Push a value to the back of an array.\n"
         "\n"
         "Usage: push-back <key> <value>\n";
 
-    [[nodiscard]] static Constants::Event pop_back(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event pop_back(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr pop_back_name = "pop-back";
     static auto constexpr pop_back_desc = "Pop a value from the back of an array.\n"
         "\n"
         "Usage: pop-back <key>\n";
 
-    [[nodiscard]] static Constants::Event push_front(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event push_front(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr push_front_name = "push-front";
     static auto constexpr push_front_desc = "Push a value to the front of an array.\n"
         "\n"
         "Usage: push-front <key> <value>\n";
 
-    [[nodiscard]] static Constants::Event pop_front(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    [[nodiscard]] static Constants::Event pop_front(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr pop_front_name = "pop-front";
     static auto constexpr pop_front_desc = "Pop a value from the front of an array.\n"
         "\n"

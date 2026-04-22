@@ -20,10 +20,11 @@ Constants::Event ComplexData::querySet() {
     return Constants::StandardCapture::Error::Functional::functionNotImplemented(domain.capture);
 }
 
-Constants::Event ComplexData::jsonSet(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
-    auto lock = callerScope.lock(); // Lock the domain for thread-safe access
+// NOLINTNEXTLINE
+Constants::Event ComplexData::jsonSet(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
-        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
 
     // Argument parsing
@@ -31,53 +32,51 @@ Constants::Event ComplexData::jsonSet(std::span<std::string const> const& args, 
     std::string const expression = Utility::StringHandler::recombineArgs(args.subspan(2));
 
     // Evaluate
-    Interaction::Context const ctx{caller, caller, Global::instance()};
     auto const result = Interaction::Logic::Expression::evalAsJson(expression, ctx);
-    callerScope.setSubDoc(callerScope.getRootScope() + myKey, result);
+    ctxScope.self.setSubDoc(ctxScope.self.getRootScope() + myKey, result);
     return Constants::Event::Success;
 }
 
-
-Constants::Event ComplexData::evaluateMember(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
-    auto lock = callerScope.lock(); // Lock the domain for thread-safe access
+// NOLINTNEXTLINE
+Constants::Event ComplexData::evaluateMember(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
-        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
     if (args.size() > 2) {
-        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
 
     // Get the member value
-    auto const fullKey = callerScope.getRootScope() + args[1];
-    if (callerScope.memberType(fullKey) != Data::KeyType::value) {
+    auto const fullKey = ctxScope.self.getRootScope() + args[1];
+    if (ctxScope.self.memberType(fullKey) != Data::KeyType::value) {
         // If it's not a value, we can't evaluate it as an expression, so we do nothing
         return Constants::Event::Success;
     }
 
     // Evaluate the string as an expression and set the member to the result
-    auto const expressionStr = callerScope.get<std::string>(fullKey).value_or("");
-    Interaction::Context const ctx{caller, caller, Global::instance()};
+    auto const expressionStr = ctxScope.self.get<std::string>(fullKey).value_or("");
     auto const result = Interaction::Logic::Expression::evalAsJson(expressionStr, ctx);
-    callerScope.setSubDoc(fullKey, result);
+    ctxScope.self.setSubDoc(fullKey, result);
     return Constants::Event::Success;
 }
 
-Constants::Event ComplexData::evaluateRecursive(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope){
+// NOLINTNEXTLINE
+Constants::Event ComplexData::evaluateRecursive(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
     std::function<void(Data::ScopedKey const&)> recursiveEvaluate = [&](auto const& key) -> void {
-        switch (callerScope.memberType(key)) {
+        switch (ctxScope.self.memberType(key)) {
             case Data::KeyType::value:
                 {
                     // If it's a value, we try to evaluate it as an expression
-                    auto const expressionStr = callerScope.get<std::string>(key).value_or("");
-                    Interaction::Context const ctx{caller, caller, Global::instance()};
+                    auto const expressionStr = ctxScope.self.get<std::string>(key).value_or("");
                     auto const result = Interaction::Logic::Expression::evalAsJson(expressionStr, ctx);
-                    callerScope.setSubDoc(key, result);
+                    ctxScope.self.setSubDoc(key, result);
                     break;
                 }
             case Data::KeyType::object:
             case Data::KeyType::array:
                 {
-                    for (auto const& member : callerScope.listAvailableKeys(key)) {
+                    for (auto const& member : ctxScope.self.listAvailableKeys(key)) {
                         recursiveEvaluate(member);
                     }
                     break;
@@ -90,15 +89,15 @@ Constants::Event ComplexData::evaluateRecursive(std::span<std::string const> con
         }
     };
 
-    auto lock = callerScope.lock(); // Lock the domain for thread-safe access
+    auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
-        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
     if (args.size() > 2) {
-        return Constants::StandardCapture::Warning::Functional::tooManyArgs(caller.capture);
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
 
-    auto const fullKey = callerScope.getRootScope() + args[1];
+    auto const fullKey = ctxScope.self.getRootScope() + args[1];
     recursiveEvaluate(fullKey);
     return Constants::Event::Success;
 }

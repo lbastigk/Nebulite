@@ -93,14 +93,9 @@ std::string const& Domain::scopePrefix() const {
     return domainScope.getScopePrefix();
 }
 
-// TODO: remove the parseStr without context later on
-Constants::Event Domain::parseStr(std::string const& str) {
-    return funcTree->parseStr(str, *this, domainScope);
-}
-
-Constants::Event Domain::parseStr(std::string const& str, Context& /*ctx*/) {
+Constants::Event Domain::parseStr(std::string const& str, Context& ctx, ContextScope& ctxScope) const {
     // TODO: Later on we need pass ctx to parseStr
-    return funcTree->parseStr(str, *this, domainScope);
+    return funcTree->parseStr(str, ctx, ctxScope);
 }
 
 double** Domain::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<Data::ScopedKeyView> const& keys) const {
@@ -194,7 +189,9 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
             callStr = std::string(__FUNCTION__) + " " + token;
         }
         // Forward to FunctionTree for resolution
-        if (parseStr(callStr) != Constants::Event::Success) {
+        // At this point, all context and all contextScope is the domain itself.
+        Context ctx{*this, *this, Global::instance()};
+        if (ContextScope ctxScope{domainScope, domainScope, Global::instance().domainScope}; parseStr(callStr, ctx, ctxScope) != Constants::Event::Success) {
             capture.error.println("Failed to apply deserialize transformation: ", callStr);
         }
     }

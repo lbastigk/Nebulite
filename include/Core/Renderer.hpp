@@ -6,6 +6,7 @@
 
 #ifndef NEBULITE_CORE_RENDERER_HPP
 #define NEBULITE_CORE_RENDERER_HPP
+#include "RenderObject.hpp"
 
 //------------------------------------------
 // Predeclare
@@ -88,11 +89,6 @@ public:
      * @brief Initializes ImGui for the Renderer. Called within `initSDL()`.
      */
     void initImgui() const ;
-
-    /**
-     * @brief Called before parsing any commands.
-     */
-    [[nodiscard]] Constants::Event preParse() override;
 
     /**
      * @brief Updates the renderer for the next frame.
@@ -386,12 +382,16 @@ public:
      *        Does not change when objects are removed or purged.
      * @return A pointer to the RenderObject, or nullptr if not found.
      */
-    RenderObject* getObjectFromIndex(size_t const& searchIndex) {
+    std::optional<std::pair<RenderObject*, Data::JsonScope*>> getObjectFromIndex(size_t const& searchIndex) {
         if (!indexToIdMap.contains(searchIndex)) {
-            return nullptr; // No object with this index
+            return std::nullopt; // No object with this index
         }
         auto const domainId = indexToIdMap[searchIndex];
-        return env.getObjectFromId(domainId);
+        auto ro = env.getObjectFromId(domainId);
+        if (ro) {
+            return std::make_pair(ro, &ro->domainScope);
+        }
+        return std::nullopt; // Object retrieval failed somehow
     }
 
     /**
@@ -420,11 +420,11 @@ public:
     //------------------------------------------
     // Rml Context
 
-    std::optional<Interaction::ContextScope> getRmlElementContextScope(Graphics::RmlInterface::RmlElementIdentifier const& element);
-    std::optional<Interaction::ContextScope> getRmlDocumentContextScope(Rml::ElementDocument* document);
+    std::optional<Graphics::RmlInterface::ContextAndScope> getRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element);
+    std::optional<Graphics::RmlInterface::ContextAndScope> getRmlDocumentContextAndScope(Rml::ElementDocument* document);
 
-    void setRmlElementContextScope(Graphics::RmlInterface::RmlElementIdentifier const& element, Interaction::ContextScope const& context);
-    void setRmlDocumentContextScope(Rml::ElementDocument* document, Interaction::ContextScope const& context);
+    void setRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element, Graphics::RmlInterface::ContextAndScope const& ctxAndScope);
+    void setRmlDocumentContextAndScope(Rml::ElementDocument* document, Graphics::RmlInterface::ContextAndScope const& ctxAndScope);
 
     //------------------------------------------
     // Texture-Related
@@ -486,6 +486,11 @@ public:
     }
 
 private:
+    /**
+     * @brief Called before parsing any commands.
+     */
+    [[nodiscard]] Constants::Event preParse() override;
+
     static auto constexpr pixelFontPath  = "./Resources/Fonts/JetBrainsMono-Regular.ttf"; // TODO: Use a pixel font
 
     /**

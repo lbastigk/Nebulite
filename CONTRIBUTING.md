@@ -58,18 +58,10 @@ After adding your test cases in `Tools/Tests/*.json`, add the file to `Tools/tes
 ]
 ```
 
-<!-- TOC --><a name="quick-expression-testing"></a>
-### Quick Expression Testing
-
-You can quickly verify the correctness of an expression with the command line:
-```bash
-./bin/Nebulite 'set myVariable 2 ; eval echo $i(1 + {global.myVariable})' # returns 3
-```
-
 <!-- TOC --><a name="adding-features"></a>
 ## Adding Features
 
-Nebulite offers clean expansions of its functionality through its DomainModules. 
+Nebulite offers clean expansions of its functionality through its Modules, especially DomainModules.
 Maintainers can create their own module classes and add them to a specific domain.
 Either for specific Domains such as Renderer or for the GlobalSpace, 
 or common functionality that is shared across multiple domains.
@@ -81,6 +73,13 @@ as well as an update routine, allowing us to declutter classes by binding routin
 - lifetime management
 
 and more. We then just insert each module into the class and its update function is automatically called.
+
+Similarly, you can add or extend modules for other features such as:
+- `RmlUI` (aka Plugins) for UI features
+- `Ruleset` for custom hardcoded rulesets
+- `Transformation` for custom JSON returnvalue-transformation functions
+
+See `include/Module/` for the existing modules.
 
 <!-- TOC --><a name="function-collision-prevention"></a>
 ### Function Collision Prevention
@@ -160,11 +159,11 @@ public:
     //------------------------------------------
     // Available Functions
 
-    // Full command signature with caller and callerScope
-    // - caller is helpful if we wish to modify the domain that called the function
-    // - callerScope is helpful if we wish to modify the JSON scope from the domain that called the function
-    // - Example: JSON domainModules for modifying data needs to modify the callerScope, not its own scope
-    [[nodiscard]] Constants::Event exampleCommand(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope);
+    // Full command signature with caller context and its scope
+    // - context is helpful if we wish to modify the context that called the function
+    // - contextScope is helpful if we wish to modify the JSON scope from the context that called the function
+    // - Example: domainModules for modifying data needs to modify the callers scope (likely domain self of the interaction), not its own scope
+    [[nodiscard]] Constants::Event exampleCommand(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr exampleCommand_name = "example do-something";
     static auto constexpr exampleCommand_desc = "Performs an example action on the current RenderObject.\n"
         "\n"
@@ -228,20 +227,21 @@ public:
 
 - It is recommended to return `Nebulite::Constants::StandardCapture::Error::Functional::functionNotImplemented` in unfinished functions/features
 - Use the recommended class and namespace naming schemes for modules: 
-`Nebulite::DomainModule::<Domain>::<ModuleName>`
+`Nebulite::Module::Domain::<DomainName>::<ModuleName>`, where `<DomainName>` is `Common` if the module is for any Domain.
 
 <!-- TOC --><a name="preview-editing-work-in-progress"></a>
 ## Preview Editing (Work in Progress)
 
 Preview Editing is currently under development. The current plan is to use the headless rendering mode of Nebulite 
-in combination with either a taskfile or a python-script to allow rendering snapshots while editing JSON files.
+in combination with a Golang-Backend to allow rendering snapshots to a web viewer UI while editing JSON files.
+See `interface/web/` for the current progress.
 
 <!-- TOC --><a name="submitting-changes"></a>
 ## Submitting Changes
 
 1. Make sure you cover a wide range of test cases for your new feature. 
 Verify the coverage with `make build-and-coverage-report`.
-2. Ensure all tests pass: `make test`
+2. Ensure all tests pass: `make test` or `make build-and-test-available`
 3. Update documentation: `make docs` as well as manual updates if necessary
 4. Create a pull request with a clear description of your changes
 

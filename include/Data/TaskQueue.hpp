@@ -56,11 +56,12 @@ public:
     /**
      * @brief Resolves the task queue by parsing and executing each task in the context of the provided domain.
      * @details skips tasks if the internal wait counter is greater than zero.
-     * @param context The domain context in which to resolve the tasks.
+     * @param ctx The context of the interaction. Commands are parsed into 'self'
+     * @param ctxScope The context scope of the interaction.
      * @param recover If true, continues processing tasks even after encountering a critical error.
      * @return The result of the task queue resolution.
      */
-    TaskQueueResult resolve(Interaction::Execution::Domain& context, bool const& recover);
+    TaskQueueResult resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool const& recover);
 
     /**
      * @brief Appends a task to the task queue.

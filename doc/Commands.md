@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Fri Apr  3 14:10:19 CEST 2026
+Generated on: Wed Apr 22 02:26:47 CEST 2026
 
 ## Table of Contents
 
@@ -29,6 +29,7 @@ Available Functions
 | `audio-debug` | Audio debugging functions. |
 | `beep` | Make a beep noise. |
 | `cam` | Renderer Camera Functions |
+| `cat` | Opens a provided file and prints its content to the console. |
 | `clear` | Clears the console screen. |
 | `console` | Console commands and settings. |
 | `copy` | Copy data from one key to another. |
@@ -67,6 +68,7 @@ Available Functions
 | `push-back` | Push a value to the back of an array. |
 | `push-front` | Push a value to the front of an array. |
 | `query` | Functions to manipulate JSON data via SQL query results |
+| `rmlui` | Functions for managing RmlUI elements. |
 | `ruleset` | Functions for managing rulesets in the GlobalSpace. |
 | `selected-object` | Functions to select and interact with a selected RenderObject |
 | `set` | Set a key to a value in the JSON document. |
@@ -211,6 +213,15 @@ Usage: cam set <x> <y> [c]
 <x> : X position to set camera to
 <y> : Y position to set camera to
 [c] : Optional. If provided, sets the camera's center to the given position.
+```
+
+#### `cat`
+
+```
+Opens a provided file and prints its content to the console.
+Usage: cat <filePath>
+
+- <filePath>: The path to the file to be read and printed.
 ```
 
 #### `clear`
@@ -526,10 +537,12 @@ Executes a block of code if a condition is true.
 
 Usage: if <condition> <functioncall>
 
-It is recommended to wrap the condition in quotes to prevent parsing issues.
+It is recommended to use the if-then syntax to avoid whitespace issues:
+
+Usage: if <condition> then <functioncall>
 
 Example:
-if '$(eq(1+1,2))' echo Condition is true!
+if $({global.settings.someFile|strCompare equals ./Resources/myFile.txt}) then echo Condition is true!
 ```
 
 #### `imgui-view`
@@ -788,6 +801,39 @@ Sets a key from a SQL query result.
 Not implemented yet.
 ```
 
+#### `rmlui`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `document` | Functions for managing RmlUI documents. |
+| `help` | Show available commands and their descriptions |
+
+##### `rmlui document`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `load` | Loads an RmlUI document from a specified file path and adds it to the renderer's context. |
+| `remove` | Removes a loaded RmlUI document from the renderer's context by its name. |
+
+###### `rmlui document load`
+
+```
+Loads an RmlUI document from a specified file path and adds it to the renderer's context.
+Usage: rmlui document load <name> <file_path>
+```
+
+###### `rmlui document remove`
+
+```
+Removes a loaded RmlUI document from the renderer's context by its name.
+Usage: rmlui document remove <name>
+```
+
 #### `ruleset`
 
 Available Functions
@@ -939,7 +985,8 @@ Create a snapshot of the current renderer state.
 
 Usage: snapshot [filename]
 
-Defaults to "./Resources/Snapshots/snapshot.png" if no argument is provided
+Defaults to "./Resources/Snapshots/snapshot.png" if no argument is provided.
+Snapshots are create asynchronously; a snapshot callback function is added to the renderer that is called after the next render pass.
 ```
 
 #### `spawn`
@@ -1102,6 +1149,7 @@ Available Functions
 |----------|-------------|
 | `assert` | Asserts a condition and throws a custom error if false. |
 | `assign` | Assign a key to a value in the JSON document (self) or the global context (global) |
+| `cat` | Opens a provided file and prints its content to the console. |
 | `copy` | Copy data from one key to another. |
 | `critical` | Sends an error to the capture. |
 | `delete` | Marks object for deletion |
@@ -1155,6 +1203,15 @@ Usage: assign <context>.<key> <assignment-operator> <expression>
 Example: 'assign global.rngCurrentValuesCopy = {global.random}Supports complex types like arrays or objects.
 The assignment has full access to the entire global scope here, so be cautious when using this function to overwrite global values.
 Use json set instead, if you only wish to modify values in the context self with no special operators.
+```
+
+#### `cat`
+
+```
+Opens a provided file and prints its content to the console.
+Usage: cat <filePath>
+
+- <filePath>: The path to the file to be read and printed.
 ```
 
 #### `copy`
@@ -1265,10 +1322,12 @@ Executes a block of code if a condition is true.
 
 Usage: if <condition> <functioncall>
 
-It is recommended to wrap the condition in quotes to prevent parsing issues.
+It is recommended to use the if-then syntax to avoid whitespace issues:
+
+Usage: if <condition> then <functioncall>
 
 Example:
-if '$(eq(1+1,2))' echo Condition is true!
+if $({global.settings.someFile|strCompare equals ./Resources/myFile.txt}) then echo Condition is true!
 ```
 
 #### `imgui-view`
@@ -1587,6 +1646,7 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `add` | Adds a numeric value to the current JSON value. |
+| `asString` | Converts the current JSON value to a string representation. |
 | `assert` | Assertion transformations that validate JSON values and throw exceptions on failure. |
 | `at` | Gets the element at the specified index from the array in the current JSON value. |
 | `average` | Calculates the average of the elements of the array in the current JSON value. |
@@ -1598,13 +1658,18 @@ Available Functions
 | `filterNulls` | Filters out null values, empty objects, and empty arrays from the current JSON |
 | `filterRegex` | Filters members in the current JSON array/object based on a regular expression pattern. |
 | `first` | Gets the first element of the array in the current JSON value. |
+| `formatNumber` | If the stored value is a number, it is formatted with a given format specifier |
 | `get` | Gets the value at the specified key from the current JSON object. |
 | `getMultiple` | Gets multiple values at the specified keys from the current JSON object. |
 | `help` | Show available commands and their descriptions |
+| `lPad` | Pads the current JSON string value on the left with a specified character until it reaches a specified total length. |
+| `lPadNonNumeric` | Pads the current JSON non-numeric string value on the left with a specified character until it reaches a specified total length. |
+| `lPadNumeric` | Pads the current JSON numeric string value on the left with a specified character until it reaches a specified total length. |
 | `lStrip` | Strips whitespace from the left end of the current JSON string value. |
 | `last` | Gets the last element of the array in the current JSON value. |
 | `length` | Gets the length of the array in the current JSON value. |
 | `listMembers` | Lists all members of the current JSON object as an array. |
+| `listMembersAndValues` | Lists all members of the current JSON object as an array of {key, value} objects. |
 | `map` | Applies a mapping function to each element in the array of the current JSON value. |
 | `max` | Finds the maximum value among the elements of the array in the current JSON value. |
 | `median` | Calculates the median of the elements of the array in the current JSON value. |
@@ -1616,6 +1681,9 @@ Available Functions
 | `product` | Multiplies the elements of the array in the current JSON value. |
 | `push` | Pushes a string value to the end of the array in the current JSON value. |
 | `pushNumber` | Pushes a numeric value to the end of the array in the current JSON value. |
+| `rPad` | Pads the current JSON string value on the right with a specified character until it reaches a specified total length. |
+| `rPadNonNumeric` | Pads the current JSON non-numeric string value on the right with a specified character until it reaches a specified total length. |
+| `rPadNumeric` | Pads the current JSON numeric string value on the right with a specified character until it reaches a specified total length. |
 | `rStrip` | Strips whitespace from the right end of the current JSON string value. |
 | `removeMember` | Removes the member at the specified key from the JSON document. |
 | `replace` | Replaces all occurrences of a target substring with a replacement substring in the current JSON string value. |
@@ -1648,7 +1716,8 @@ Available Functions
 | `toString` | Converts the current JSON value to a string. |
 | `toUpper` | Converts the current JSON string value to uppercase. |
 | `typeAsNumber` | Converts the current JSON type value to a number. |
-| `typeAsString` | Converts the current JSON type value to a string. |
+| `typeAsSimpleString` | Converts the current JSON type value to a string. |
+| `typeAsString` | Converts the current JSON type value to a string with metadata. |
 
 #### `add`
 
@@ -1656,6 +1725,14 @@ Available Functions
 Adds a numeric value to the current JSON value.
 If multiple numbers are provided, the result is an array, one element for each provided argument.
 Usage: |add <number1> <number2> ... -> {number/array}
+```
+
+#### `asString`
+
+```
+Converts the current JSON value to a string representation.
+Usage: |asString -> {string}
+Either the value as string, or [array] or {object}
 ```
 
 #### `assert`
@@ -1793,6 +1870,14 @@ If the current value is not an array, it is first wrapped into a single-element 
 Usage: |first -> {value}
 ```
 
+#### `formatNumber`
+
+```
+If the stored value is a number, it is formatted with a given format specifier
+Usage: |formatNumber <format> -> {string}If the value stored is a non-numeric string, the value is not modified.
+Example formatters: 04.2f, 5i, 06i
+```
+
 #### `get`
 
 ```
@@ -1805,6 +1890,35 @@ Usage: |get <key> -> {value}
 ```
 Gets multiple values at the specified keys from the current JSON object.
 Usage: |getMultiple <key1> <key2> ... -> {array of values}
+```
+
+#### `lPad`
+
+```
+Pads the current JSON string value on the left with a specified character until it reaches a specified total length.
+Usage: |lPad {totalLength} {padChar} -> {string}
+{totalLength}: Desired total length of the resulting string (including original string and padding)
+{padChar}: Character to use for padding (if not provided, defaults to space)
+```
+
+#### `lPadNonNumeric`
+
+```
+Pads the current JSON non-numeric string value on the left with a specified character until it reaches a specified total length.
+If the value is numeric, it is not modified.
+Usage: |lPadNumeric {totalLength} {padChar} -> {string}
+{totalLength}: Desired total length of the resulting string (including original string and padding)
+{padChar}: Character to use for padding (if not provided, defaults to space)
+```
+
+#### `lPadNumeric`
+
+```
+Pads the current JSON numeric string value on the left with a specified character until it reaches a specified total length.
+If the value is not numeric, it is not modified.
+Usage: |lPadNumeric {totalLength} {padChar} -> {string}
+{totalLength}: Desired total length of the resulting string (including original string and padding)
+{padChar}: Character to use for padding (if not provided, defaults to space)
 ```
 
 #### `lStrip`
@@ -1835,6 +1949,14 @@ Usage: |length -> {number}
 Lists all members of the current JSON object as an array.
 If the current value is an array, it lists the indices as strings.
 Usage: |listKeys -> {array of keys}
+```
+
+#### `listMembersAndValues`
+
+```
+Lists all members of the current JSON object as an array of {key, value} objects.
+If the current value is an array, it lists the indices as strings.
+Usage: |listMembersAndValues -> {array of {key, value} objects}
 ```
 
 #### `map`
@@ -1922,6 +2044,35 @@ Usage: |push <value> -> {array}
 Pushes a numeric value to the end of the array in the current JSON value.
 If the current value is not an array, it is first wrapped into a single-element array.
 Usage: |pushNumber <value> -> {array}
+```
+
+#### `rPad`
+
+```
+Pads the current JSON string value on the right with a specified character until it reaches a specified total length.
+Usage: |rPad {totalLength} {padChar} -> {string}
+{totalLength}: Desired total length of the resulting string (including original string and padding)
+{padChar}: Character to use for padding (if not provided, defaults to space)
+```
+
+#### `rPadNonNumeric`
+
+```
+Pads the current JSON non-numeric string value on the right with a specified character until it reaches a specified total length.
+If the value is numeric, it is not modified.
+Usage: |lPadNumeric {totalLength} {padChar} -> {string}
+{totalLength}: Desired total length of the resulting string (including original string and padding)
+{padChar}: Character to use for padding (if not provided, defaults to space)
+```
+
+#### `rPadNumeric`
+
+```
+Pads the current JSON numeric string value on the right with a specified character until it reaches a specified total length.
+If the value is not numeric, it is not modified.
+Usage: |lPadNumeric {totalLength} {padChar} -> {string}
+{totalLength}: Desired total length of the resulting string (including original string and padding)
+{padChar}: Character to use for padding (if not provided, defaults to space)
 ```
 
 #### `rStrip`
@@ -2262,11 +2413,18 @@ Converts the current JSON type value to a number.
 Usage: |typeAsNumber -> {number}where the number reflects the enum value KeyType.
 ```
 
-#### `typeAsString`
+#### `typeAsSimpleString`
 
 ```
 Converts the current JSON type value to a string.
 Usage: |typeAsString -> {value,array,object}
+```
+
+#### `typeAsString`
+
+```
+Converts the current JSON type value to a string with metadata.
+Usage: |typeAsString -> {value:metadata,array:metadata,object:metadata}
 ```
 
 ## Expression Functions

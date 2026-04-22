@@ -37,7 +37,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Event loadDocument(std::span<std::string const> const& args);
+    Constants::Event loadDocument(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr loadDocument_name = "rmlui document load";
     static auto constexpr loadDocument_desc = "Loads an RmlUI document from a specified file path and adds it to the renderer's context.\n"
         "Usage: rmlui document load <name> <file_path>\n";
@@ -63,7 +63,6 @@ public:
      * @brief Initializes the module, binding functions and variables.
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RmlUi) {
-        // TODO: Add document load/unload functions
         bindCategory(ui_name, ui_desc);
         bindCategory(uiDocument_name, uiDocument_desc);
         bindFunction(&RmlUi::loadDocument, loadDocument_name, loadDocument_desc);

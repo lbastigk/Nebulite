@@ -59,17 +59,18 @@ bool JsonRuleset::evaluateCondition(Execution::Domain& other) {
 }
 
 void JsonRuleset::apply(std::shared_ptr<Listener> const& contextOther) {
-    ContextScope const context{self.domainScope, contextOther->domain.domainScope, Global::instance().domainScope};
+    Context ctx{self, contextOther->domain, Global::instance()};
+    ContextScope ctxScope{self.domainScope, contextOther->domain.domainScope, Global::instance().domainScope};
 
     // 1.) Assignments
     for (auto& assignment : assignments) {
-        assignment.apply(context);
+        assignment.apply(ctxScope);
     }
 
     // 2.) Function calls
     for (auto& entry : functioncalls_global) {
         // replace vars
-        std::string call = entry.eval(context);
+        std::string call = entry.eval(ctxScope);
 
         // attach to task queue
         Global::instance().getTaskQueue(Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
@@ -77,28 +78,29 @@ void JsonRuleset::apply(std::shared_ptr<Listener> const& contextOther) {
     }
     for (auto& entry : functioncalls_self) {
         // replace vars
-        std::string const call = entry.eval(context);
-        (void)self.parseStr(call);
+        std::string const call = entry.eval(ctxScope);
+        (void)self.parseStr(call, ctx, ctxScope);
     }
     for (auto& entry : functioncalls_other) {
         // replace vars
-        std::string const call = entry.eval(context);
-        (void)contextOther->domain.parseStr(call);
+        std::string const call = entry.eval(ctxScope);
+        (void)contextOther->domain.parseStr(call, ctx, ctxScope);
     }
 }
 
 void JsonRuleset::apply() {
-    ContextScope const context{self.domainScope, self.domainScope, Global::instance().domainScope};
+    Context ctx{self, self, Global::instance()};
+    ContextScope ctxScope{self.domainScope, self.domainScope, Global::instance().domainScope};
 
     // 1.) Assignments
     for (auto& assignment : assignments) {
-        assignment.apply(context);
+        assignment.apply(ctxScope);
     }
 
     // 2.) Function calls
     for (auto& entry : functioncalls_global) {
         // replace vars
-        std::string call = entry.eval(context);
+        std::string call = entry.eval(ctxScope);
 
         // attach to task queue
         Global::instance().getTaskQueue(Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
@@ -106,13 +108,13 @@ void JsonRuleset::apply() {
     }
     for (auto& entry : functioncalls_self) {
         // replace vars
-        std::string const call = entry.eval(context);
-        (void)self.parseStr(call);
+        std::string const call = entry.eval(ctxScope);
+        (void)self.parseStr(call, ctx, ctxScope);
     }
     for (auto& entry : functioncalls_other) {
         // replace vars
-        std::string const call = entry.eval(context);
-        (void)self.parseStr(call);
+        std::string const call = entry.eval(ctxScope);
+        (void)self.parseStr(call, ctx, ctxScope);
     }
 }
 

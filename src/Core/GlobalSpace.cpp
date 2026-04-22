@@ -176,9 +176,11 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
 }
 
 Constants::Event GlobalSpace::parseQueue() {
+    Interaction::Context ctx{*this, *this, *this};
+    Interaction::ContextScope ctxScope{domainScope, domainScope, domainScope};
     queueResult.clear();
     for (auto const& [name, queue] : tasks) {
-        queueResult[name] = queue->resolve(*this, cmdVars.recover);
+        queueResult[name] = queue->resolve(ctx, ctxScope, cmdVars.recover);
         if (queueResult[name].encounteredCriticalResult && !cmdVars.recover) {
             return queueResult[name].events.back();
         }

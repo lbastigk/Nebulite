@@ -94,7 +94,9 @@ void ImguiHelper::renderJsonScope(Data::JsonScope const& scope, std::string cons
     ImGui::End();
 }
 
-void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::Capture& capture, Data::JsonScope const& scope, std::string const& name, DomainRenderingFlags const& flags) {
+void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Capture& capture, std::string const& name, DomainRenderingFlags const& flags) {
+    auto const& domain = ctx.self;
+    auto const& scope = ctxScope.self;
     std::string const additionalIdentifier = !domain.capture.hasParent() ? "GLOBAL" : "";
     std::string const windowName = "Nebulite Domain Interface - " + name + "###DomainViewer_" + name + "_" + std::to_string(domain.getId()) + "_" + additionalIdentifier;
 
@@ -173,7 +175,7 @@ void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::
         std::string const closeId = "Close##DomainConsoleClose_" + name;
         if (ImGui::Button(closeId.c_str())) {
             // Instead of closing the window, we disable the ImGui view for this domain, allowing us to reopen it later without losing the capture and scope state
-            if (auto const event = domain.parseStr(__FUNCTION__ + std::string(" ") + DomainModule::Common::General::imguiView_Disable); event != Constants::Event::Success) {
+            if (auto const event = domain.parseStr(__FUNCTION__ + std::string(" ") + DomainModule::Common::General::imguiView_Disable, ctx, ctxScope); event != Constants::Event::Success) {
                 capture.warning.println("Error disabling ImGui view for domain " + name);
             }
         }
@@ -182,7 +184,7 @@ void ImguiHelper::renderDomain(Interaction::Execution::Domain& domain, Utility::
     // Console + JSON viewer in two columns
     ImGui::Columns(2, nullptr, true);
     ImGui::BeginChild("DomainConsole", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
-    renderDomainConsole(domain, capture, name);
+    renderDomainConsole(ctx, ctxScope, capture, name);
     ImGui::EndChild();
     ImGui::NextColumn();
     ImGui::BeginChild("JsonScopeViewer", ImVec2(0, 0), true);
@@ -219,7 +221,9 @@ void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKey c
     }
 }
 
-void ImguiHelper::renderDomainConsole(Interaction::Execution::Domain& domain, Utility::Capture& capture, std::string const& name) {
+void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Capture& capture, std::string const& name) {
+    auto const& domain = ctx.self;
+
     // Console output area
     ImGui::BeginChild("ConsoleOutput", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), true);
 
@@ -271,7 +275,7 @@ void ImguiHelper::renderDomainConsole(Interaction::Execution::Domain& domain, Ut
     if (ImGui::InputText("##ConsoleInput", &command, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory, consoleInputCallback, &state)) {
         if (!command.empty()){
             capture.appendInput(command);
-            Global::instance().notifyEvent(domain.parseStr(__FUNCTION__ + std::string(" ") + command));
+            Global::instance().notifyEvent(domain.parseStr(__FUNCTION__ + std::string(" ") + command, ctx, ctxScope));
             command.clear();
             state.historyIndex = 0; // Reset history index after executing a command
         }

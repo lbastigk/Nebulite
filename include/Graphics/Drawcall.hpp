@@ -39,7 +39,7 @@ public:
     void update();
 
     // Parse a string onto the texture
-    [[nodiscard]] Constants::Event parseStr(std::string const& str);
+    [[nodiscard]] Constants::Event parseStr(std::string const& str, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const ;
 
     class ApplyDefault {
     public:

@@ -19,8 +19,8 @@ Constants::Event Logging::updateHook() {
 // Domain-Bound Functions
 
 // NOLINTNEXTLINE
-Constants::Event Logging::log_all(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
-    std::string const serialized = callerScope.serialize();
+Constants::Event Logging::log_all(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+    std::string const serialized = ctxScope.self.serialize();
     if (args.size() > 1) {
         for (auto const& arg : args.subspan(1)) {
             if (!Utility::FileManagement::WriteFile(arg, serialized)) {
@@ -28,29 +28,27 @@ Constants::Event Logging::log_all(std::span<std::string const> const& args, Inte
             }
         }
     } else {
-        if (!Utility::FileManagement::WriteFile("RenderObject_id" + std::to_string(caller.getId()) + ".log.jsonc", serialized)) {
+        if (!Utility::FileManagement::WriteFile("RenderObject_id" + std::to_string(ctx.self.getId()) + ".log.jsonc", serialized)) {
             return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
         }
     }
-    (void)caller;      // Unused
     return Constants::Event::Success;
 }
 
 // NOLINTNEXTLINE
-Constants::Event Logging::log_key(std::span<std::string const> const& args, Interaction::Execution::Domain& caller, Data::JsonScope& callerScope) {
+Constants::Event Logging::log_key(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
-        return Constants::StandardCapture::Warning::Functional::tooFewArgs(caller.capture);
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    auto const key = callerScope.getRootScope() + args[1];
-    std::string file = "RenderObject_id" + std::to_string(caller.getId()) + ".log.jsonc";
+    auto const key = ctxScope.self.getRootScope() + args[1];
+    std::string file = "RenderObject_id" + std::to_string(ctx.self.getId()) + ".log.jsonc";
     if (args.size() > 2) {
         file = args[2];
     }
-    auto const value = callerScope.get<std::string>(key.view()).value_or("Key not found");
+    auto const value = ctxScope.self.get<std::string>(key.view()).value_or("Key not found");
     if (!Utility::FileManagement::WriteFile(file, value)) {
         return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
     }
-    (void)caller;      // Unused
     return Constants::Event::Success;
 }
 

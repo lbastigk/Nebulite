@@ -79,7 +79,11 @@ int main(int const argc, char* argv[]) {
 
     // Parser handles if error files need to be closed
     try {
-        if (auto const event = global.parseStr(binaryName + " " + std::string(Nebulite::DomainModule::GlobalSpace::Debug::errorLog_name) + " off"); event != Nebulite::Constants::Event::Success) {
+        // Dummy scope for closing
+        Nebulite::Interaction::Context ctx{global, global, global};
+        Nebulite::Data::JsonScope dummy;
+        Nebulite::Interaction::ContextScope dummyCtxScope{dummy, dummy, dummy};
+        if (auto const event = global.parseStr(binaryName + " " + std::string(Nebulite::DomainModule::GlobalSpace::Debug::errorLog_name) + " off", ctx, dummyCtxScope); event != Nebulite::Constants::Event::Success) {
             capture.error.println("Could not close log properly!");
             return MainReturnValues::logCloseError; // Closing log failed without exceptions
         }

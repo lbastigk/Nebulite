@@ -18,9 +18,9 @@ void ContextManager::update() {
             if (element->GetAttribute("data-eval") || element->GetAttribute("data-if")) {
                 // Skip elements that are part of a reflection, as they will be handled by the Reflection module
                 if (!parent->GetAttribute("data-reflect")) {
-                    if (Graphics::RmlInterface::RmlElementIdentifier const elementId(parent, index, element); !renderer.getRmlElementContextScope(elementId).has_value()) {
-                        if (auto const ctx = renderer.getRmlDocumentContextScope(document); ctx.has_value()) {
-                            renderer.setRmlElementContextScope(elementId, ctx.value());
+                    if (Graphics::RmlInterface::RmlElementIdentifier const elementId(parent, index, element); !renderer.getRmlElementContextAndScope(elementId).has_value()) {
+                        if (auto const ctx = renderer.getRmlDocumentContextAndScope(document); ctx.has_value()) {
+                            renderer.setRmlElementContextAndScope(elementId, ctx.value());
                         }
                     }
                 }
@@ -43,12 +43,6 @@ void ContextManager::OnDocumentOpen(Rml::Context* /*context*/, const Rml::String
 
 void ContextManager::OnDocumentLoad(Rml::ElementDocument* document) {
     if (!document) return;
-    // For now, we set the every document context to {global, global, global}
-    renderer.setRmlDocumentContextScope(document, {
-        .self = global,
-        .other = global,
-        .global = global
-    });
     documents.push_back(document);
 }
 
