@@ -82,6 +82,10 @@ bool FileManagement::fileExists(std::string_view const& path) {
     return std::filesystem::exists(path);
 }
 
+bool FileManagement::isDirectory(std::string_view const& path) {
+    return std::filesystem::is_directory(path);
+}
+
 std::vector<std::string> FileManagement::listFilesInDirectory(std::string_view const& dir){
     std::vector<std::string> files;
     try {
@@ -94,6 +98,18 @@ std::vector<std::string> FileManagement::listFilesInDirectory(std::string_view c
         Global::capture().error.println("Error listing files in directory '", dir, "': ", e.what());
     }
     return files;
+}
+
+std::vector<std::string> FileManagement::listFilesAndDirectoriesInDirectory(std::string_view const& dir) {
+    std::vector<std::string> entries;
+    try {
+        for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+            entries.push_back(entry.path().filename().string());
+        }
+    } catch (std::exception const& e) {
+        Global::capture().error.println("Error listing files and directories in directory '", dir, "': ", e.what());
+    }
+    return entries;
 }
 
 } // namespace Nebulite::Utility

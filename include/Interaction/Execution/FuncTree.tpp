@@ -20,6 +20,7 @@
 #include "Interaction/Execution/FuncTreeErrorMessages.hpp"
 #include "Math/Equality.hpp"
 #include "Utility/CompileTimeEvaluate.hpp"
+#include "Utility/Sort.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -548,22 +549,10 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
 //------------------------------------------
 // Getter
 
-namespace SortFunctions {
-// Case-insensitive comparison function
-inline auto caseInsensitiveLess = [](auto const& a, auto const& b) {
-    return std::ranges::lexicographical_compare(
-        a.first, b.first,
-        [](char const lhs, char const rhs) {
-            return std::tolower(static_cast<unsigned char>(lhs)) <
-                   std::tolower(static_cast<unsigned char>(rhs));
-        }
-    );
-};
-} // namespace SortFunctions
-
 template <typename returnValue, typename... additionalArgs>
 std::vector<std::pair<std::string, std::string_view>> FuncTree<returnValue, additionalArgs...>::getAllFunctions() {
-    std::vector<std::pair<std::string, std::string_view>> allFunctions;
+    using Pair = std::pair<std::string, std::string_view>;
+    std::vector<Pair> allFunctions;
     for (auto const& [name, info] : bindingContainer.functions) {
         allFunctions.emplace_back(name, info.description);
     }
@@ -582,13 +571,14 @@ std::vector<std::pair<std::string, std::string_view>> FuncTree<returnValue, addi
         allFunctions.emplace_back(categoryName, cat.description);
     }
 
-    std::ranges::sort(allFunctions, SortFunctions::caseInsensitiveLess);
+    std::ranges::sort(allFunctions, Utility::Sort::caseInsensitiveLess, &Pair::first);
     return allFunctions;
 }
 
 template <typename returnValue, typename... additionalArgs>
 std::vector<std::pair<std::string, std::string_view>> FuncTree<returnValue, additionalArgs...>::getAllVariables() {
-    std::vector<std::pair<std::string, std::string_view>> allVariables;
+    using Pair = std::pair<std::string, std::string_view>;
+    std::vector<Pair> allVariables;
     for (auto const& [name, info] : bindingContainer.variables) {
         allVariables.emplace_back(name, info.description);
     }
@@ -602,7 +592,7 @@ std::vector<std::pair<std::string, std::string_view>> FuncTree<returnValue, addi
             }
         }
     }
-    std::ranges::sort(allVariables, SortFunctions::caseInsensitiveLess);
+    std::ranges::sort(allVariables, Utility::Sort::caseInsensitiveLess, &Pair::first);
     return allVariables;
 }
 

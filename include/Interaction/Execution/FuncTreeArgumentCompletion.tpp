@@ -291,8 +291,8 @@ std::vector<std::string> FuncTree<returnValue, additionalArgs...>::findCompletio
     auto const [pattern, ftree] = [&]() -> std::pair<std::string, FuncTree*> {
         auto args = std::span(argsVec.data(), argsVec.size());
         if (args.empty()) {
-            // No pattern provided
-            return {};
+            // No pattern provided, assume root
+            return {"", this};
         }
         FuncTree* innerTree = this;
         std::string const lastArg = args.back();
@@ -307,6 +307,11 @@ std::vector<std::string> FuncTree<returnValue, additionalArgs...>::findCompletio
 
     // Return if traversal failed -> no completions
     if (ftree == nullptr) {
+        return {};
+    }
+
+    // If patternStr ends with a whitespace, we cannot use the root tree. Otherwise, input like "error " is completed with "error-log"
+    if (patternStr.ends_with(' ') && ftree == this) {
         return {};
     }
 

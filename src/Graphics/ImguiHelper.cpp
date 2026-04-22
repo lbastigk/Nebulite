@@ -11,14 +11,49 @@
 #include "Graphics/ImguiHelper.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Nebulite.hpp"
+#include "Utility/IO/FileManagement.hpp"
 
 //------------------------------------------
 
 namespace {
 
-// TODO: Use FileManagement class to find matches
-void addFileCompletions(std::vector<std::string>& completions) {
-    (void) completions;
+size_t find_pos_or_fallback(std::string_view const& str) {
+    auto const result = std::ranges::find_last_if(str, [](char const& c) {
+        return c == Nebulite::Utility::IO::FileManagement::preferredSeparator();
+    });
+
+    if (result.empty()) {
+        return 0;
+    }
+
+    return static_cast<size_t>(std::ranges::distance(str.begin(), result.begin()));
+}
+
+void addFileCompletions(std::string_view const& input, std::vector<std::string>& completions) {
+    auto const args = Nebulite::Utility::StringHandler::parseQuotedArguments(input).args;
+    if (args.empty()) {
+        return;
+    }
+
+    // Separate inner from outer directory and get the actual input we need to complete
+    std::string const& pattern = args.back();  // Get last argument, which is the one we want to complete
+    size_t const startIndex = pattern.starts_with("./") ? 2 : 0; // If pattern starts with "./", we want to ignore that for file searching
+    size_t const endIndex = find_pos_or_fallback(pattern.substr(startIndex)) + startIndex;
+    auto const inputToComplete = pattern.substr(endIndex != startIndex ? endIndex + 1 : startIndex);
+    auto const innerDir = std::string(pattern.substr(startIndex, endIndex - startIndex)) + Nebulite::Utility::IO::FileManagement::preferredSeparator();
+    auto const directory = Nebulite::Utility::IO::FileManagement::CombinePaths(".", innerDir == "/" ? "" : innerDir);
+
+    // Build list
+    auto const list = Nebulite::Utility::IO::FileManagement::listFilesAndDirectoriesInDirectory(directory) | std::views::filter([&](std::string const& fileOrDirectory) {
+        return fileOrDirectory.starts_with(inputToComplete);
+    }) | std::views::transform([&](std::string const& fileOrDirectory) {
+        if (Nebulite::Utility::IO::FileManagement::isDirectory(directory + fileOrDirectory)) {
+            return fileOrDirectory + Nebulite::Utility::IO::FileManagement::preferredSeparator();
+        }
+        return fileOrDirectory;
+    }) | std::ranges::to<std::vector>();
+    std::ranges::move(list, std::back_inserter(completions));
+    std::ranges::sort(completions, Nebulite::Utility::Sort::caseInsensitiveLess);
 }
 
 struct ConsoleState {
@@ -28,7 +63,32 @@ struct ConsoleState {
     Nebulite::Utility::IO::Capture* capture = nullptr;
     Nebulite::Interaction::Context* ctx = nullptr;
     Nebulite::Interaction::ContextScope* ctxScope = nullptr;
-}; // namespace
+};
+
+void checkCompletionsForStart(std::string_view const& input, std::vector<std::string>& completions) {
+    if (completions.empty()) {
+        return;
+    }
+
+    // Check if all completions for the longest common prefix
+    if (completions.empty()) return;
+
+    const auto& first = completions.front();
+
+    auto const mismatch_it = std::ranges::find_if(
+        std::views::iota(std::size_t{0}, first.size()),
+        [&](std::size_t const& i) {
+            char const c = first[i];
+            return std::ranges::any_of(completions, [&](const std::string& s) {
+                return i >= s.size() || s[i] != c;
+            });
+        });
+
+    if (std::string const match = first.substr(0, mismatch_it == std::views::iota(std::size_t{0}, first.size()).end() ? first.size() : *mismatch_it); !match.empty() && !input.ends_with(match)) {
+        completions.clear();
+        completions.push_back(match);
+    }
+}
 
 // NOLINTNEXTLINE
 int consoleInputCallback(ImGuiInputTextCallbackData* data) {
@@ -89,11 +149,26 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
 
     else if (data->EventFlag == ImGuiInputTextFlags_CallbackCompletion) {
         auto completions = state->ctx->self.findCompletions(state->command);
-        addFileCompletions(completions);
+        addFileCompletions(state->command, completions);
+        checkCompletionsForStart(state->command, completions);
         if (completions.size() == 1) {
-            auto const len = static_cast<int>(state->command.size() - state->command.find_last_of(' ') - 1); // Get length of last word
-            data->DeleteChars(data->CursorPos - len, len); // Delete last word
-            data->InsertChars(data->CursorPos, completions.front().c_str()); // Insert completion
+            auto const& toInsert = completions.front();
+            const std::string& cmd = state->command;
+
+            int overlap = 0;
+            auto const maxCheck = static_cast<int>(std::min(cmd.size(), toInsert.size()));
+
+            for (int i = 1; i <= maxCheck; ++i) {
+                if (auto const idx = static_cast<size_t>(i); cmd.compare(cmd.size() - idx, idx, toInsert, 0, idx) == 0) {
+                    overlap = i;
+                }
+            }
+
+            // delete only the overlapping suffix
+            data->DeleteChars(data->CursorPos - overlap, overlap);
+
+            // insert full completion
+            data->InsertChars(data->CursorPos, toInsert.c_str());
         }
         else if (completions.size() > 1) {
             // Find largest word
@@ -111,6 +186,7 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
     }
     return 0;
 }
+
 } // namespace
 
 //------------------------------------------
