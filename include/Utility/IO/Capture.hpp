@@ -3,8 +3,8 @@
  * @brief Defines classes for capturing output.
  */
 
-#ifndef NEBULITE_UTILITY_CAPTURE_HPP
-#define NEBULITE_UTILITY_CAPTURE_HPP
+#ifndef NEBULITE_UTILITY_IO_CAPTURE_HPP
+#define NEBULITE_UTILITY_IO_CAPTURE_HPP
 
 //------------------------------------------
 // Includes
@@ -89,24 +89,10 @@ public:
     }
 
     template<typename... Args>
-    void print(Args&&... args){
-        if (parent) {
-            // Pass to parent stream for retention
-            parent->print(args...);
-        }
-        // Only print to console if this is the root stream, to avoid duplicate prints
-        coutStream.print(!parent, std::forward<Args>(args)...);
-    }
+    void print(Args&&... args);
 
     template<typename... Args>
-    void println(Args&&... args){
-        if (parent) {
-            // Pass to parent stream for retention
-            parent->println(args...);
-        }
-        // Only print to console if this is the root stream, to avoid duplicate prints
-        coutStream.println(!parent, std::forward<Args>(args)...);
-    }
+    void println(Args&&... args);
 };
 
 /**
@@ -121,11 +107,7 @@ public:
 
     static auto constexpr noParent = nullptr;
 
-    explicit Capture(Capture* parent)
-    : log(this, parent ? &parent->log : noParent),
-      warning(this, parent ? &parent->warning : noParent),
-      error(this, parent ? &parent->error : noParent)
-    {}
+    explicit Capture(Capture* parent);
 
     HierarchicalStream<&std::cout, HistoryLine::Type::Info> log;
     HierarchicalStream<&std::cerr, HistoryLine::Type::Warning> warning;
@@ -135,70 +117,25 @@ public:
      * @brief Retrieves a pointer to the history.
      * @return A pointer to the output log deque, const.
      */
-    [[nodiscard]] std::deque<HistoryLine> const& getHistory() const {
-        return history;
-    }
+    [[nodiscard]] std::deque<HistoryLine> const& getHistory() const ;
 
     /**
      * @brief Clears the output log.
      */
-    void clear(){
-        history.clear();
-    }
+    void clear();
 
-    [[nodiscard]] bool hasParent() const {
-        // Doesn't matter what stream we check
-        return log.hasParent();
-    }
+    [[nodiscard]] bool hasParent() const ;
 
     /**
      * @brief Appends input to the output log with thread safety.
      * @param str The string to append to the log.
      */
-    void appendInput(std::string const& str) {
-        std::scoped_lock const lock(historyMutex);
-        history.push_back({str, HistoryLine::Type::Input});
-    }
+    void appendInput(std::string const& str) ;
 
 private:
     std::deque<HistoryLine> history; // List of captured output lines
     std::mutex historyMutex;  // Mutex for thread-safe access to outputList
 };
-
-template<std::ostream* BaseStream, HistoryLine::Type LineType>
-void Stream<BaseStream, LineType>::putStr(std::string const& str, bool const& printToConsole) const {
-    if (printToConsole) {
-        *BaseStream << str;
-    }
-
-    std::scoped_lock const lock(capture->historyMutex);
-    std::istringstream iss(str);
-    std::string line;
-    while (std::getline(iss, line)) {
-        capture->history.push_back({line, LineType});
-    }
-}
-
-template<std::ostream* BaseStream, HistoryLine::Type LineType>
-template<typename... Args>
-void Stream<BaseStream, LineType>::print(bool const& printToConsole, Args&&... args) {
-    std::ostringstream workingBuffer;
-    if constexpr (sizeof...(args) != 0) {
-        (workingBuffer << ... << args);
-    }
-    putStr(workingBuffer.str(), printToConsole);
-}
-
-template<std::ostream* BaseStream, HistoryLine::Type LineType>
-template<typename... Args>
-void Stream<BaseStream, LineType>::println(bool const& printToConsole, Args&&... args) {
-    std::ostringstream workingBuffer;
-    if constexpr (sizeof...(args) != 0) {
-        (workingBuffer << ... << args);
-    }
-    workingBuffer << '\n';
-    putStr(workingBuffer.str(), printToConsole);
-}
-
 } // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_CAPTURE_HPP
+#include "Utility/IO/Capture.tpp"
+#endif // NEBULITE_UTILITY_IO_CAPTURE_HPP
