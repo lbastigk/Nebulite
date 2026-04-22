@@ -80,8 +80,7 @@ public:
         // Allowed accessors:
         friend class Core::GlobalSpace;
         friend class Interaction::Logic::Expression;
-        friend class DomainModule::Renderer::Console; // Console needs full access to display entire scope
-        friend class DomainModule::Common::SimpleData; // Required for assign function
+        friend class DomainModule::Renderer::Console; // Console needs full access to display entire scope.
 
         // Any Rml::Plugin gets full access
         friend class Module::Base::RmlUiModule;

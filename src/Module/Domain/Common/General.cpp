@@ -91,7 +91,7 @@ Constants::Event General::func_if(std::span<std::string const> const& args, Inte
 }
 
 // NOLINTNEXTLINE
-Constants::Event General::func_assert(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::func_assert(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }

@@ -43,13 +43,13 @@ Constants::Event Debug::print(std::span<std::string const> const& args, Interact
 }
 
 // NOLINTNEXTLINE
-Constants::Event Debug::printId(std::span<std::string const> const& /*args*/, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event Debug::printId(std::span<std::string const> const& /*args*/, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
     ctx.self.capture.log.println(ctx.self.getId());
     return Constants::Event::Success;
 }
 
 // NOLINTNEXTLINE
-Constants::Event Debug::error(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event Debug::error(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
     auto const& argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
     ctx.self.capture.error.println(argStr);
     return Constants::Event::Success;

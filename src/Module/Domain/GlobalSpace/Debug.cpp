@@ -144,7 +144,7 @@ Constants::Event Debug::standardFileRenderObject(std::span<std::string const> co
 }
 
 // NOLINTNEXTLINE
-Constants::Event Debug::errorLog(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event Debug::errorLog(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
     // Initialize the error logging buffer
     if (!originalCerrBuf) {
         originalCerrBuf = std::cerr.rdbuf();
@@ -215,7 +215,7 @@ Constants::Event Debug::clearConsole(std::span<std::string const> const& /*args*
 }
 
 // NOLINTNEXTLINE
-Constants::Event Debug::crash(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event Debug::crash(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
     // If an argument is provided, use it to select crash type
     if (args.size() > 1) {
         if (std::string const& crashType = args[1]; crashType == "segfault") {
@@ -246,7 +246,7 @@ Constants::Event Debug::crash(std::span<std::string const> const& args, Interact
 
 
 // NOLINTNEXTLINE
-Constants::Event Debug::waitForInput(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event Debug::waitForInput(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
