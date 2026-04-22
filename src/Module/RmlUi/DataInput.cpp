@@ -49,9 +49,6 @@ void DataInput::OnDocumentOpen(Rml::Context* /*context*/, const Rml::String& /*d
 
 void DataInput::OnDocumentLoad(Rml::ElementDocument* document) {
     documents.emplace_back(document);
-
-    // We cheat and set the context to full
-    renderer.setRmlDocumentContextScope(document, {global, global, global});
 }
 
 void DataInput::OnDocumentUnload(Rml::ElementDocument* document) {
@@ -68,15 +65,6 @@ void DataInput::OnContextDestroy(Rml::Context* /*context*/) {
 
 void DataInput::OnElementCreate(Rml::Element* element) {
     if (!element) return;
-
-    //auto const identifier = Graphics::RmlInterface::RmlElementIdentifier(parent, index, element);
-    //auto const contextScope = renderer.getRmlElementContextScope(identifier);
-    //if (!contextScope.has_value()) return;
-
-    // TODO: Determine Document context:
-    //auto const context = renderer.getRmlDocumentContext(document);
-    //if (!context) return;
-    Interaction::Context const context = {Global::instance(), Global::instance(), Global::instance()};
 
     // TODO: Update data-if, so that we can actually hide/show the element at runtime!
     //       At the moment, the data-if is only evaluated at document creat, not during an update

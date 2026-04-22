@@ -47,7 +47,6 @@ private:
 
     struct ReflectionEntry {
         Interaction::Logic::Expression entries;
-        Interaction::ContextScope const context;
         Rml::String rmlValue;
         Data::JSON jsonResult;
         bool markedForDeletion = false;

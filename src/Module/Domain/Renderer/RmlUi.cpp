@@ -11,7 +11,8 @@ Constants::Event RmlUi::updateHook() {
     return Constants::Event::Success;
 }
 
-Constants::Event RmlUi::loadDocument(std::span<std::string const> const& args) {
+// NOLINTNEXTLINE
+Constants::Event RmlUi::loadDocument(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -25,6 +26,7 @@ Constants::Event RmlUi::loadDocument(std::span<std::string const> const& args) {
     auto const document = Utility::FileManagement::LoadFile(Utility::StringHandler::recombineArgs(args.subspan(2)));
 
     Rml::ElementDocument* doc = domain.getRmlContext()->LoadDocumentFromMemory(document);
+    domain.setRmlDocumentContextAndScope(doc, {ctx, ctxScope});
     if (!doc) {
         domain.capture.warning.println("Failed to load document '", document, "'.");
         return Constants::Event::Warning;

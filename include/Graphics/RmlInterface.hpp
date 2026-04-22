@@ -45,8 +45,13 @@ struct RmlInterface {
         }
     };
 
-    absl::flat_hash_map<Rml::ElementDocument*, Interaction::ContextScope> documentContextScopes; // Map of document to its context scope for expression evaluation
-    absl::flat_hash_map<RmlElementIdentifier, Interaction::ContextScope> elementContextScopes; // Map of element to its context scope for expression evaluation
+    struct ContextAndScope {
+        Interaction::Context ctx;
+        Interaction::ContextScope ctxScope;
+    };
+
+    absl::flat_hash_map<Rml::ElementDocument*, ContextAndScope> documentContext; // Map of document to its context and scope for expression evaluation
+    absl::flat_hash_map<RmlElementIdentifier, ContextAndScope> elementContext; // Map of element to its context and scope for expression evaluation
 
     void updateModules() const ;
 

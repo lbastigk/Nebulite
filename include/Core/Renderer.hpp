@@ -91,11 +91,6 @@ public:
     void initImgui() const ;
 
     /**
-     * @brief Called before parsing any commands.
-     */
-    [[nodiscard]] Constants::Event preParse() override;
-
-    /**
      * @brief Updates the renderer for the next frame.
      * @details Tasks performed:
      *          - clears the screen
@@ -425,11 +420,11 @@ public:
     //------------------------------------------
     // Rml Context
 
-    std::optional<Interaction::ContextScope> getRmlElementContextScope(Graphics::RmlInterface::RmlElementIdentifier const& element);
-    std::optional<Interaction::ContextScope> getRmlDocumentContextScope(Rml::ElementDocument* document);
+    std::optional<Graphics::RmlInterface::ContextAndScope> getRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element);
+    std::optional<Graphics::RmlInterface::ContextAndScope> getRmlDocumentContextAndScope(Rml::ElementDocument* document);
 
-    void setRmlElementContextScope(Graphics::RmlInterface::RmlElementIdentifier const& element, Interaction::ContextScope const& context);
-    void setRmlDocumentContextScope(Rml::ElementDocument* document, Interaction::ContextScope const& context);
+    void setRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element, Graphics::RmlInterface::ContextAndScope const& ctxAndScope);
+    void setRmlDocumentContextAndScope(Rml::ElementDocument* document, Graphics::RmlInterface::ContextAndScope const& ctxAndScope);
 
     //------------------------------------------
     // Texture-Related
@@ -491,6 +486,11 @@ public:
     }
 
 private:
+    /**
+     * @brief Called before parsing any commands.
+     */
+    [[nodiscard]] Constants::Event preParse() override;
+
     static auto constexpr pixelFontPath  = "./Resources/Fonts/JetBrainsMono-Regular.ttf"; // TODO: Use a pixel font
 
     /**

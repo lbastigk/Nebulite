@@ -66,11 +66,6 @@ void Reflection::OnElementCreate(Rml::Element* element) {
             element,
             ReflectionEntry{
                 .entries = Interaction::Logic::Expression(expression),
-                .context = Interaction::ContextScope{
-                    .self = global,
-                    .other = global,
-                    .global = global
-                },
                 .rmlValue = element->GetInnerRML(),
                 .jsonResult = Data::JSON(),
                 .markedForDeletion = false
@@ -80,20 +75,15 @@ void Reflection::OnElementCreate(Rml::Element* element) {
     // Reflect once (Important for interactive UI-Elements, as data-reflect would invalidate any fields, causing them to unfocus on each update
     else if (element->GetAttribute("data-reflect-once")) {
         auto const expression = std::string(element->GetAttribute("data-reflect-once")->Get<Rml::String>());
-        reflectOnce.emplace_back(std::make_pair(
+        reflectOnce.emplace_back(
             element,
             ReflectionEntry{
                 .entries = Interaction::Logic::Expression(expression),
-                .context = Interaction::ContextScope{
-                    .self = global,
-                    .other = global,
-                    .global = global
-                },
                 .rmlValue = element->GetInnerRML(),
                 .jsonResult = Data::JSON(),
                 .markedForDeletion = false
             }
-        ));
+        );
     }
     // TODO: Reflect-on-change?
 }
@@ -160,8 +150,16 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
     if (!element) return;
     if (entry.markedForDeletion) return;
 
+    // Get owner context, keep nearly everything the same but nest contextScope self
+    auto const ownerContextAndScope = renderer.getRmlDocumentContextAndScope(element->GetOwnerDocument());
+    if (!ownerContextAndScope) {
+        return;
+    }
+    auto const& ownerContext = ownerContextAndScope.value().ctx;
+    auto const& ownerContextScope = ownerContextAndScope.value().ctxScope;
+
     // Evaluate expression, result must be an array
-    entry.jsonResult = entry.entries.evalAsJson(entry.context);
+    entry.jsonResult = entry.entries.evalAsJson(ownerContext);
     if (auto const type = entry.jsonResult.memberType(""); type != Data::KeyType::array) {
         capture.warning.println("Reflection expression did not evaluate to an array. Skipping reflection. Result: " + entry.jsonResult.serialize());
         return;
@@ -172,7 +170,7 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
         entry.rmlValue = element->GetInnerRML();
     }
     size_t const size = entry.jsonResult.memberSize("");
-    std::string newRml = "";
+    std::string newRml;
     for (size_t i = 0; i < size; ++i) {
         newRml += modifyDataIdentifier(entry.rmlValue, i);
     }
@@ -183,7 +181,7 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
         capture.warning.println("Rml Children count does not match reflection count. Expected a multiple of: ", size, ", Actual: ", childrenCount, ". Skipping reflection, Something went seriously wrong...");
     }
     else {
-        // For each element, overwrite context
+        // For each element, overwrite context mapping
         for (size_t i = 0; i < childrenCount; ++i) {
             auto const& child = element->GetChild(static_cast<int>(i));
             if (!child) {
@@ -193,13 +191,15 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
             auto const jsonIndex = i * size / childrenCount;
             std::string const childKey = "[" + std::to_string(jsonIndex) + "]";
             auto& newScope = entry.jsonResult.shareManagedScopeBase(childKey);
-            Interaction::ContextScope childContext{
+
+            // Keep nearly all context and contextScope the same, but modify scope of self
+            Interaction::ContextScope const childContextScope{
                 .self = newScope,
-                .other = entry.context.other,
-                .global = entry.context.global,
+                .other = ownerContextScope.other,
+                .global = ownerContextScope.global,
             };
             Graphics::RmlInterface::RmlElementIdentifier childId(element, i, child);
-            renderer.setRmlElementContextScope(childId, childContext);
+            renderer.setRmlElementContextAndScope(childId, {ownerContext, childContextScope});
         }
     }
 }
