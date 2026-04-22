@@ -14,7 +14,7 @@
 // Nebulite
 #include "ScopeAccessor.hpp"
 #include "Core/GlobalSpace.hpp"
-#include "Utility/Capture.hpp"
+#include "Utility/IO/Capture.hpp"
 #include "Data/Document/JsonScope.hpp"
 
 //------------------------------------------
@@ -57,7 +57,7 @@ public:
      * @details Whenever possible, use the local capture provided by the Domain (or DomainModule) instead of this global capture, to ensure proper hierarchical capture behavior.
      * @return Reference to the global capture instance.
      */
-    static Utility::Capture& capture() {
+    static Utility::IO::Capture& capture() {
         return instance().capture;
     }
 

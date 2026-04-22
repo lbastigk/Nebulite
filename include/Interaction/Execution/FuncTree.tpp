@@ -29,7 +29,7 @@ namespace Nebulite::Interaction::Execution {
 // Constructor implementation
 
 template <typename returnValue, typename... additionalArgs>
-FuncTree<returnValue, additionalArgs...>::FuncTree(std::string_view const& treeName, returnValue const& valDefault, returnValue const& valFunctionNotFound, Utility::Capture& captureInstance)
+FuncTree<returnValue, additionalArgs...>::FuncTree(std::string_view const& treeName, returnValue const& valDefault, returnValue const& valFunctionNotFound, Utility::IO::Capture& captureInstance)
     : TreeName(treeName),
       capture(captureInstance),
       standardReturn{valDefault, valFunctionNotFound}

@@ -50,7 +50,7 @@ public:
      * @param parentCapture Reference to the parent capture for logging and error handling.
      *                      Either from the Domain that owns this one or from the global capture if this is a top-level domain.
      */
-    Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::Capture& parentCapture);
+    Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::IO::Capture& parentCapture);
 
     ~Renderer() override ;
 

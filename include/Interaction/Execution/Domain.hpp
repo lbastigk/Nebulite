@@ -236,9 +236,9 @@ class Domain : public DocumentAccessor {
     }
 
 public:
-    Domain(std::string const& name, Data::JsonScope& documentReference, Utility::Capture& parentCapture);
+    Domain(std::string const& name, Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture);
 
-    explicit Domain(std::string const& name, Utility::Capture& parentCapture);
+    explicit Domain(std::string const& name, Utility::IO::Capture& parentCapture);
 
     Domain(std::string const& name, Data::JsonScope& documentReference);
 
@@ -433,7 +433,7 @@ public:
     [[nodiscard]] std::unique_lock<std::recursive_mutex> lockDocument() const ;
 
     // Stream for collecting any output during command execution, which can be used for debugging or logging purposes.
-    Utility::Capture capture;
+    Utility::IO::Capture capture;
 
 protected:
     /**

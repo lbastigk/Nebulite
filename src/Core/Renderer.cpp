@@ -18,12 +18,12 @@
 #include "Module/Domain/Initializer.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Nebulite.hpp"
-#include "Utility/FileManagement.hpp"
+#include "Utility/IO/FileManagement.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
 
-Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::Capture& parentCapture)
+Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::IO::Capture& parentCapture)
     : Domain("Renderer", documentReference, parentCapture),
       env(documentReference, parentCapture){
 
@@ -39,7 +39,7 @@ Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, Util
     tilePositionY = 0;
 
     // Base directory
-    baseDirectory = Utility::FileManagement::currentDir();
+    baseDirectory = Utility::IO::FileManagement::currentDir();
 
     //------------------------------------------
     // Start timers
@@ -179,7 +179,7 @@ void Renderer::initImgui() const {
     font_cfg.PixelSnapH  = true;
 
     // Adjust the base font size to match pixel aesthetics (choose your font file & size)e
-    if (Utility::FileManagement::fileExists(pixelFontPath)) {
+    if (Utility::IO::FileManagement::fileExists(pixelFontPath)) {
         if (ImFont* f = io.Fonts->AddFontFromFileTTF(pixelFontPath, 40.0f * fullScale, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) io.FontDefault = f;
         else io.Fonts->AddFontDefault();
     } else {
@@ -230,7 +230,7 @@ void Renderer::initSDL() {
     static auto const cursorPath = "./Resources/Cursor/Drakensang.png";
 
     // See if cursor file exists
-    if (Utility::FileManagement::fileExists(cursorPath)) {
+    if (Utility::IO::FileManagement::fileExists(cursorPath)) {
         // Load pixel data
         if (SDL_Surface* cursorSurface = IMG_Load(cursorPath); cursorSurface) {
             // Create cursor
@@ -277,9 +277,9 @@ void Renderer::loadFonts() {
 
     //------------------------------------------
     // Font location
-    std::string const sep(1, Utility::FileManagement::preferredSeparator());
+    std::string const sep(1, Utility::IO::FileManagement::preferredSeparator());
     std::string const fontDir = std::string("Resources") + sep + std::string("Fonts") + sep + std::string("Arimo-Regular.ttf");
-    std::string const fontPath = Utility::FileManagement::CombinePaths(baseDirectory, fontDir);
+    std::string const fontPath = Utility::IO::FileManagement::CombinePaths(baseDirectory, fontDir);
 
     //------------------------------------------
     // Load general font
@@ -752,7 +752,7 @@ void Renderer::loadTexture(std::string const& link) {
 }
 
 SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) {
-    std::string const path = Utility::FileManagement::CombinePaths(baseDirectory, link);
+    std::string const path = Utility::IO::FileManagement::CombinePaths(baseDirectory, link);
 
     // Get file extension, based on last dot
     std::string extension;

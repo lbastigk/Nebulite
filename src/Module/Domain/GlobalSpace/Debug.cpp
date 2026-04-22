@@ -10,7 +10,7 @@
 #include "Module/Domain/Common/General.hpp"
 #include "Module/Domain/GlobalSpace/Debug.hpp"
 #include "Math/ExpressionPrimitives.hpp"
-#include "Utility/FileManagement.hpp"
+#include "Utility/IO/FileManagement.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
 
 //------------------------------------------
@@ -108,12 +108,12 @@ Constants::Event Debug::log_global(int const argc, char** argv) const {
     std::string const serialized = moduleScope.serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
-            if (!Utility::FileManagement::WriteFile(argv[i], serialized)) {
+            if (!Utility::IO::FileManagement::WriteFile(argv[i], serialized)) {
                 return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
             }
         }
     } else {
-        if (!Utility::FileManagement::WriteFile("global.log.jsonc", serialized)) {
+        if (!Utility::IO::FileManagement::WriteFile("global.log.jsonc", serialized)) {
             return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
         }
     }
@@ -124,12 +124,12 @@ Constants::Event Debug::log_state(int const argc, char** argv) const {
     std::string const serialized = domain.getRenderer().serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
-            if (!Utility::FileManagement::WriteFile(argv[i], serialized)) {
+            if (!Utility::IO::FileManagement::WriteFile(argv[i], serialized)) {
                 return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
             }
         }
     } else {
-        if (!Utility::FileManagement::WriteFile("state.log.jsonc", serialized)) {
+        if (!Utility::IO::FileManagement::WriteFile("state.log.jsonc", serialized)) {
             return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
         }
     }
@@ -137,7 +137,7 @@ Constants::Event Debug::log_state(int const argc, char** argv) const {
 }
 
 Constants::Event Debug::standardFileRenderObject(std::span<std::string const> const& /*args*/) const {
-    if (Core::RenderObject const ro(domain.capture); !Utility::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize())) {
+    if (Core::RenderObject const ro(domain.capture); !Utility::IO::FileManagement::WriteFile("./Resources/Renderobjects/standard.jsonc", ro.serialize())) {
         return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
     }
     return Constants::Event::Success;

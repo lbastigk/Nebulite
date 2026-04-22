@@ -1,6 +1,6 @@
 #include "Nebulite.hpp"
 #include "Module/Domain/Common/Debug.hpp"
-#include "Utility/FileManagement.hpp"
+#include "Utility/IO/FileManagement.hpp"
 #include "Utility/StringHandler.hpp"
 
 namespace Nebulite::DomainModule::Common {
@@ -81,7 +81,7 @@ Constants::Event Debug::cat(std::span<std::string const> const& args) const{
     }
 
     auto const filePath = Utility::StringHandler::recombineArgs(args.subspan(1));
-    auto const fileContent = Utility::FileManagement::LoadFile(filePath);
+    auto const fileContent = Utility::IO::FileManagement::LoadFile(filePath);
     domain.capture.log.println(fileContent);
     return Constants::Event::Success;
 }

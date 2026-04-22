@@ -28,7 +28,7 @@ uint64_t rollingJitter(uint32_t const& size) {
 //------------------------------------------
 namespace Nebulite::Graphics {
 
-Drawcall::Drawcall(Data::JsonScope& workspace, Utility::Capture& parentCapture) :
+Drawcall::Drawcall(Data::JsonScope& workspace, Utility::IO::Capture& parentCapture) :
     drawcallScope(workspace),
     texture(workspace, parentCapture),
     updaterRoutine{

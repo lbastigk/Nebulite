@@ -3,7 +3,7 @@
 #include "Core/Renderer.hpp"
 #include "Constants/KeyNames.hpp"
 #include "Graphics/RmlInterface.hpp"
-#include "Utility/FileManagement.hpp"
+#include "Utility/IO/FileManagement.hpp"
 
 #include "Module/RmlUi/ContextManager.hpp"
 #include "Module/RmlUi/DataInput.hpp"
@@ -53,7 +53,7 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
         throw std::runtime_error("Failed to create RmlUi context!");
     }
 
-    for (auto constexpr fontDirectory = "./Resources/Fonts/"; auto& fontFile : Utility::FileManagement::listFilesInDirectory(fontDirectory)) {
+    for (auto constexpr fontDirectory = "./Resources/Fonts/"; auto& fontFile : Utility::IO::FileManagement::listFilesInDirectory(fontDirectory)) {
         if (fontFile.ends_with(".ttf")) {
             if (auto const fontPath = fontDirectory + fontFile; !Rml::LoadFontFace(fontPath)) {
                 throw std::runtime_error("Failed to load font face for RmlUi from path: " + fontPath);

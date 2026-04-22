@@ -21,7 +21,7 @@
 
 // Nebulite
 #include "Interaction/Execution/FuncTreeErrorMessages.hpp"
-#include "Utility/Capture.hpp"  // Due to circular dependencies, we use Capture for logging instead of Nebulite.hpp that we use as constructor argument for the FuncTree to use
+#include "Utility/IO/Capture.hpp"  // Due to circular dependencies, we use Capture for logging instead of Nebulite.hpp that we use as constructor argument for the FuncTree to use
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
@@ -184,7 +184,7 @@ public:
      * @param valFunctionNotFound Value to return if the parsed function was not found
      * @param captureInstance Capture instance for logging
      */
-    FuncTree(std::string_view const& treeName, returnValue const& valDefault, returnValue const& valFunctionNotFound, Utility::Capture& captureInstance);
+    FuncTree(std::string_view const& treeName, returnValue const& valDefault, returnValue const& valFunctionNotFound, Utility::IO::Capture& captureInstance);
 
     /**
      * @brief Inherits functions from another Tree.
@@ -290,7 +290,7 @@ private:
     std::function<returnValue()> preParse = nullptr;
 
     // Capture instance for logging
-    Utility::Capture& capture;
+    Utility::IO::Capture& capture;
 
     struct StandardReturnValues {
         returnValue valDefault;

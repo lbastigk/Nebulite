@@ -8,7 +8,7 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-ContextManager::ContextManager(Utility::Capture& c, Core::Renderer& r) : RmlUiModule(c,r) {
+ContextManager::ContextManager(Utility::IO::Capture& c, Core::Renderer& r) : RmlUiModule(c,r) {
     
 }
 

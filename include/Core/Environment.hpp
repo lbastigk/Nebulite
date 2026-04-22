@@ -71,7 +71,7 @@ public:
     //------------------------------------------
     // Special Members
 
-    explicit Environment(Data::JsonScope& documentReference, Utility::Capture& parentCapture);
+    explicit Environment(Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture);
 
     ~Environment() override ;
 

@@ -55,7 +55,7 @@ public:
      * @param dispResY Display resolution height for tile initialization.
      * @param capture Capture instance to pass to RenderObjects during construction.
      */
-    void deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY, Utility::Capture& capture);
+    void deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY, Utility::IO::Capture& capture);
 
     //------------------------------------------
     // Pipeline

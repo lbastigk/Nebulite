@@ -12,7 +12,7 @@
 
 // Nebulite
 #include "Interaction/Logic/Expression.hpp"
-#include "Utility/Capture.hpp"
+#include "Utility/IO/Capture.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
 #include "Module/Base/RmlUiModule.hpp"
 
@@ -21,7 +21,7 @@ namespace Nebulite::Module::RmlUi {
 
 class Reflection final : public Base::RmlUiModule {
 public:
-    explicit Reflection(Utility::Capture& c, Core::Renderer& r);
+    explicit Reflection(Utility::IO::Capture& c, Core::Renderer& r);
 
     void update() override ;
 

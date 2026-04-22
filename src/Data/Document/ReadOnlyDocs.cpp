@@ -1,6 +1,6 @@
 #include "Nebulite.hpp"
 #include "Data/Document/ReadOnlyDocs.hpp"
-#include "Utility/FileManagement.hpp"
+#include "Utility/IO/FileManagement.hpp"
 
 namespace {
 void docLoadingFailedMessage(std::string const& doc) {
@@ -52,7 +52,7 @@ ReadOnlyDoc* ReadOnlyDocs::getDocument(std::string const& doc) const {
     auto it = docs.find(doc);
     if (it == docs.end()){
         // Load the document if it doesn't exist
-        std::string const serial = Utility::FileManagement::LoadFile(doc);
+        std::string const serial = Utility::IO::FileManagement::LoadFile(doc);
         if (serial.empty()){
             docLoadingFailedMessage(doc);
             return nullptr; // Return nullptr if document loading fails

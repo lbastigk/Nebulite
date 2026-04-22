@@ -1,7 +1,7 @@
 #include "Nebulite.hpp"
 #include "Module/Domain/GlobalSpace/InputMapping.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
-#include "Utility/FileManagement.hpp"
+#include "Utility/IO/FileManagement.hpp"
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
@@ -20,7 +20,7 @@ Constants::Event Settings::saveSettings() {
         domain.capture.error.println("Failed to serialize settings. No data was written to file.");
         return Constants::Event::Error;
     }
-    if (!Utility::FileManagement::WriteFile(defaultSettingsFile, settings)) {
+    if (!Utility::IO::FileManagement::WriteFile(defaultSettingsFile, settings)) {
         return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
     }
     return Constants::Event::Success;

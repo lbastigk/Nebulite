@@ -1,7 +1,7 @@
 #include "Nebulite.hpp"
 #include "Core/GlobalSpace.hpp"
 #include "Module/Domain/GlobalSpace/General.hpp"
-#include "Utility/FileManagement.hpp"
+#include "Utility/IO/FileManagement.hpp"
 
 namespace Nebulite::DomainModule::GlobalSpace {
 
@@ -58,7 +58,7 @@ Constants::Event General::task(int const argc, char** argv) const {
     }
 
     // Using FileManagement to load the .nebs file
-    std::string file = Utility::FileManagement::LoadFile(filename);
+    std::string file = Utility::IO::FileManagement::LoadFile(filename);
     if (file.empty()) {
         domain.capture.error.println("Error: ", argv[0], " Could not open file '", filename, "'.");
         return Constants::StandardCapture::Error::File::invalidFile(domain.capture);

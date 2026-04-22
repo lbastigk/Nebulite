@@ -1,6 +1,6 @@
 #include "Module/Domain/RenderObject/Logging.hpp"
 #include "Core/RenderObject.hpp"
-#include "Utility/FileManagement.hpp"
+#include "Utility/IO/FileManagement.hpp"
 
 #include "Nebulite.hpp"
 
@@ -23,12 +23,12 @@ Constants::Event Logging::log_all(std::span<std::string const> const& args, Inte
     std::string const serialized = ctxScope.self.serialize();
     if (args.size() > 1) {
         for (auto const& arg : args.subspan(1)) {
-            if (!Utility::FileManagement::WriteFile(arg, serialized)) {
+            if (!Utility::IO::FileManagement::WriteFile(arg, serialized)) {
                 return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
             }
         }
     } else {
-        if (!Utility::FileManagement::WriteFile("RenderObject_id" + std::to_string(ctx.self.getId()) + ".log.jsonc", serialized)) {
+        if (!Utility::IO::FileManagement::WriteFile("RenderObject_id" + std::to_string(ctx.self.getId()) + ".log.jsonc", serialized)) {
             return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
         }
     }
@@ -46,7 +46,7 @@ Constants::Event Logging::log_key(std::span<std::string const> const& args, Inte
         file = args[2];
     }
     auto const value = ctxScope.self.get<std::string>(key.view()).value_or("Key not found");
-    if (!Utility::FileManagement::WriteFile(file, value)) {
+    if (!Utility::IO::FileManagement::WriteFile(file, value)) {
         return Constants::StandardCapture::Error::File::couldNotWriteFile(domain.capture);
     }
     return Constants::Event::Success;

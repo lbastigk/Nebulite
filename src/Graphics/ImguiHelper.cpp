@@ -19,7 +19,7 @@ struct ConsoleState {
     std::string command;
     std::string draftCommand;
     size_t historyIndex = 0;
-    Nebulite::Utility::Capture* capture = nullptr;
+    Nebulite::Utility::IO::Capture* capture = nullptr;
 }; // namespace
 
 // NOLINTNEXTLINE
@@ -39,7 +39,7 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
 
             while (newIndex < state->capture->getHistory().size() - 1) {
                 newIndex++;
-                if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::HistoryLine::Type::Input) {
+                if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::IO::HistoryLine::Type::Input) {
                     state->historyIndex = newIndex;
                     state->command = state->capture->getHistory().at(historySize-state->historyIndex).content; // Load command from history
                     data->DeleteChars(0, data->BufTextLen);
@@ -54,7 +54,7 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
             }
             size_t newIndex = state->historyIndex - 1;
             while (newIndex > 0) {
-                if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::HistoryLine::Type::Input) {
+                if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::IO::HistoryLine::Type::Input) {
                     state->historyIndex = newIndex;
                     break;
                 }
@@ -94,7 +94,7 @@ void ImguiHelper::renderJsonScope(Data::JsonScope const& scope, std::string cons
     ImGui::End();
 }
 
-void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Capture& capture, std::string const& name, DomainRenderingFlags const& flags) {
+void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::IO::Capture& capture, std::string const& name, DomainRenderingFlags const& flags) {
     auto const& domain = ctx.self;
     auto const& scope = ctxScope.self;
     std::string const additionalIdentifier = !domain.capture.hasParent() ? "GLOBAL" : "";
@@ -221,7 +221,7 @@ void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKey c
     }
 }
 
-void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Capture& capture, std::string const& name) {
+void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::IO::Capture& capture, std::string const& name) {
     auto const& domain = ctx.self;
 
     // Console output area
@@ -231,16 +231,16 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
     for (const auto& [content, lineType] : capture.getHistory()){
         std::string contentFull;
         switch (lineType) {
-            case Utility::HistoryLine::Type::Info:
+            case Utility::IO::HistoryLine::Type::Info:
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f)); // white
                 break;
-            case Utility::HistoryLine::Type::Warning:
+            case Utility::IO::HistoryLine::Type::Warning:
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 165.0f / 265.0f, 0.0f, 1.0f)); // orange
                 break;
-            case Utility::HistoryLine::Type::Error:
+            case Utility::IO::HistoryLine::Type::Error:
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); // red
                 break;
-            case Utility::HistoryLine::Type::Input:
+            case Utility::IO::HistoryLine::Type::Input:
                 contentFull = "> ";
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.0f)); // grey
                 break;

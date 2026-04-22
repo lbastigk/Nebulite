@@ -3,7 +3,7 @@
 
 namespace Nebulite::Module::Base {
 
-RmlUiModule::RmlUiModule(Utility::Capture& c, Core::Renderer& r) :
+RmlUiModule::RmlUiModule(Utility::IO::Capture& c, Core::Renderer& r) :
     capture(c),
     renderer(r),
     global(Global::shareScope(ScopeAccessor::Full()))

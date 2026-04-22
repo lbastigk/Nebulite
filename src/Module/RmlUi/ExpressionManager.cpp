@@ -9,7 +9,7 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-ExpressionManager::ExpressionManager(Utility::Capture& c, Core::Renderer& r) : RmlUiModule(c,r) {
+ExpressionManager::ExpressionManager(Utility::IO::Capture& c, Core::Renderer& r) : RmlUiModule(c,r) {
     evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
         [this] {
             updateDataValues();

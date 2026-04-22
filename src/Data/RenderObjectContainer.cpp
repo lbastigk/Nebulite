@@ -42,7 +42,7 @@ std::string RenderObjectContainer::serialize() {
     return doc.serialize();
 }
 
-void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY, Utility::Capture& capture) {
+void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY, Utility::IO::Capture& capture) {
     JSON layer;
     layer.deserialize(serialOrLink);
     if (layer.memberType("objects") == KeyType::array) {

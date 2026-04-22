@@ -12,7 +12,7 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-Reflection::Reflection(Utility::Capture& c, Core::Renderer& r) : RmlUiModule(c,r) {
+Reflection::Reflection(Utility::IO::Capture& c, Core::Renderer& r) : RmlUiModule(c,r) {
     evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
         [this] {
             removeDeletedElements();

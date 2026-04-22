@@ -10,13 +10,13 @@
 // Nebulite
 #include "Core/Renderer.hpp"
 #include "ScopeAccessor.hpp"
-#include "Utility/Capture.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Base {
 class RmlUiModule : public Rml::Plugin {
 public:
-    explicit RmlUiModule(Utility::Capture& c, Core::Renderer& r);
+    explicit RmlUiModule(Utility::IO::Capture& c, Core::Renderer& r);
 
     virtual void update();
 
@@ -24,7 +24,7 @@ public:
 
 protected:
 
-    Utility::Capture& capture;
+    Utility::IO::Capture& capture;
 
     Core::Renderer& renderer;
 

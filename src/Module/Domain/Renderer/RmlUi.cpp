@@ -1,7 +1,7 @@
 #include "Module/Domain/Renderer/RmlUi.hpp"
 
 #include "Core/Renderer.hpp"
-#include "Utility/FileManagement.hpp"
+#include "Utility/IO/FileManagement.hpp"
 #include "Utility/StringHandler.hpp"
 
 namespace Nebulite::DomainModule::Renderer {
@@ -23,7 +23,7 @@ Constants::Event RmlUi::loadDocument(std::span<std::string const> const& args, I
         return Constants::Event::Warning;
     }
 
-    auto const document = Utility::FileManagement::LoadFile(Utility::StringHandler::recombineArgs(args.subspan(2)));
+    auto const document = Utility::IO::FileManagement::LoadFile(Utility::StringHandler::recombineArgs(args.subspan(2)));
 
     Rml::ElementDocument* doc = domain.getRmlContext()->LoadDocumentFromMemory(document);
     domain.setRmlDocumentContextAndScope(doc, {ctx, ctxScope});

@@ -17,7 +17,7 @@
 #include <string>
 
 //------------------------------------------
-namespace Nebulite::Utility {
+namespace Nebulite::Utility::IO {
 
 // Predeclaration of Capture
 class Capture;
@@ -110,7 +110,7 @@ public:
 };
 
 /**
- * @class Nebulite::Utility::Capture
+ * @class Nebulite::Utility::IO::Capture
  * @brief Unified capture class providing multiple streams with a potential hierarchy, allowing for both domain-specific logging and unified logging,
  *        while ensuring thread-safe access to the captured output.
  */

@@ -22,7 +22,7 @@
 
 namespace Nebulite::Core {
 
-Environment::Environment(Data::JsonScope& documentReference, Utility::Capture& parentCapture)
+Environment::Environment(Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture)
     : Domain("Environment", documentReference, parentCapture),
       roc(Utility::Generate::array<Data::RenderObjectContainer, LayerCount>([](std::size_t) {
           return Data::RenderObjectContainer{};

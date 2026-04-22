@@ -39,7 +39,7 @@ void setStandardValues(Data::JsonScope& document) {
 }
 } // namespace
 
-RenderObject::RenderObject(Utility::Capture& parentCapture) : Domain("RenderObject", parentCapture) {
+RenderObject::RenderObject(Utility::IO::Capture& parentCapture) : Domain("RenderObject", parentCapture) {
     //------------------------------------------
     // Set standard values
     setStandardValues(domainScope);

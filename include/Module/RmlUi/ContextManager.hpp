@@ -10,7 +10,7 @@
 #include <RmlUi/Core.h>
 
 // Nebulite
-#include "Utility/Capture.hpp"
+#include "Utility/IO/Capture.hpp"
 #include "Module/Base/RmlUiModule.hpp"
 
 //------------------------------------------
@@ -18,7 +18,7 @@ namespace Nebulite::Module::RmlUi {
 
 class ContextManager final : public Base::RmlUiModule {
 public:
-    explicit ContextManager(Utility::Capture& c, Core::Renderer& r);
+    explicit ContextManager(Utility::IO::Capture& c, Core::Renderer& r);
 
     void update() override ;
 

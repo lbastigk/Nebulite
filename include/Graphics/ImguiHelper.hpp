@@ -25,7 +25,7 @@ class Domain;
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Context.hpp"
-#include "Utility/Capture.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics {
@@ -79,13 +79,13 @@ public:
     static void renderDomain(
         Interaction::Context& ctx,
         Interaction::ContextScope& ctxScope,
-        Utility::Capture& capture,
+        Utility::IO::Capture& capture,
         std::string const& name,
         DomainRenderingFlags const& flags = {.showCloseButton = true, .windowPos = std::nullopt, .windowSize = std::nullopt, .windowAlignment = std::nullopt});
 
 private:
     static void renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKey const& root);
-    static void renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::Capture& capture, std::string const& name);
+    static void renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::IO::Capture& capture, std::string const& name);
 };
 
 } // namespace Nebulite::Graphics
