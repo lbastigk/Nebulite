@@ -18,7 +18,7 @@ struct RmlInterface {
     void init(Core::Renderer& renderer, Data::JsonScope const& domainScope);
 
     std::unique_ptr<RenderInterface_SDL> renderInterface;
-    std::unique_ptr<SystemInterface_SDL> systemInterface;
+    std::unique_ptr<SystemInterface_SDL> systemInterface; // TODO: Use custom SystemInterface derived from SDL and add toggle for Logging messages/Redirecting them to capture
     Rml::Context* context;
     Rml::DataModelConstructor dataModelConstructor;
     std::vector<std::unique_ptr<Module::Base::RmlUiModule>> modules;
