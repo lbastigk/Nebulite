@@ -58,5 +58,5 @@
         "Tools/Tests/scenes.json",
         "Tools/Tests/mirror_draft_selection.json"
     ],
-    "timeout": 40
+    "timeout": 240 // Coverage reports can take a while to generate, so we set a higher timeout for all tests. Later on we should set a separate timeout for coverage tests, but for now this is good enough.
 }
