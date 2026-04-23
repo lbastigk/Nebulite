@@ -10,9 +10,7 @@
             "Loading task list from file*" // Every time a task list is loaded, this is printed. Instead of adding the line to every test, we can just ignore it globally.
         ],
         "cerr" : [
-            "*wined3d_swapchain_resize_buffers*",
-            "SDL Error during initialization:*",    // TODO: still needed?
-            "Could not locate data model*",         // TODO: remove once data model loading is implemented
+            "*wined3d_swapchain_resize_buffers*",   // Wine-related debug message
             "Loaded font face*"                     // From RmlUi on initialization
         ]
     },
