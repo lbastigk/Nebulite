@@ -17,7 +17,7 @@ ContextDeriver::Type ContextDeriver::getTypeFromString(std::string_view const& s
     return Type::resource; // Any other start is assumed to be type resource
 }
 
-std::pair<ContextDeriver::Type, std::string> ContextDeriver::getTypeAndPrefixFromString(std::string_view const& str){
+std::pair<ContextDeriver::Type, std::string_view> ContextDeriver::getTypeAndPrefixFromString(std::string_view const& str){
     if (str.starts_with(startSelf)) {
         return {Type::self, startSelf};
     }

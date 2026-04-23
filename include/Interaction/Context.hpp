@@ -5,7 +5,6 @@
  */
 #ifndef NEBULITE_INTERACTION_CONTEXT_HPP
 #define NEBULITE_INTERACTION_CONTEXT_HPP
-#include "absl/cleanup/internal/cleanup.h"
 
 //------------------------------------------
 // Forward declarations
@@ -22,6 +21,15 @@ namespace Nebulite::Interaction::Logic {
 class Expression; // For Context demotion to ContextScope
 } // namespace Nebulite::Interaction::Logic
 
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <optional>
+#include <string_view>
+#include <utility>
+
+//------------------------------------------
 namespace Nebulite::Interaction {
 
 class ContextDeriver {
@@ -35,16 +43,16 @@ public:
 
     static Type getTypeFromString(std::string_view const& str);
 
-    static std::pair<Type, std::string> getTypeAndPrefixFromString(std::string_view const& str);
+    static std::pair<Type, std::string_view> getTypeAndPrefixFromString(std::string_view const& str);
 
 private:
     // TODO: Change to "self:", "other:", "global:", same for expression and any tests, documentation and scripts
     //       lots of work, but is more consistent with the naming of read-only-docs: <link>:<key>
     //       So overall it is: <context>:<key.path.traversal>|<transformations>
 
-    static std::string constexpr startSelf = "self.";
-    static std::string constexpr startOther = "other.";
-    static std::string constexpr startGlobal = "global.";
+    static std::string_view constexpr startSelf = "self.";
+    static std::string_view constexpr startOther = "other.";
+    static std::string_view constexpr startGlobal = "global.";
 };
 
 template <typename Storage>
@@ -53,6 +61,21 @@ public:
     Storage& self;
     Storage& other;
     Storage& global;
+
+    std::optional<std::reference_wrapper<Storage>> getTargetFromType(ContextDeriver::Type const& type) const {
+        switch (type) {
+            case ContextDeriver::Type::self:
+                return self;
+            case ContextDeriver::Type::other:
+                return other;
+            case ContextDeriver::Type::global:
+                return global;
+            case ContextDeriver::Type::resource:
+                return std::nullopt;
+            default:
+                std::unreachable();
+        }
+    }
 };
 
 // ContextScope -> JSON scope access with JsonScope references

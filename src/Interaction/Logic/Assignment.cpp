@@ -10,9 +10,8 @@ namespace Nebulite::Interaction::Logic {
 
  bool Assignment::parse(std::string_view const& str) {
 
-     auto const [resultType, resultPrefix] = ContextDeriver::getTypeAndPrefixFromString(str);
+     auto const [resultType, prefix] = ContextDeriver::getTypeAndPrefixFromString(str);
      onType = resultType;
-     auto& prefix = resultPrefix;
      if (onType == ContextDeriver::Type::resource) {
          return false;
      }
@@ -147,26 +146,12 @@ void Assignment::setValueOfKey(double const& val, double* target) const {
 void Assignment::apply(ContextScope const& context) const {
     //------------------------------------------
     // Check what the target document to apply the ruleset to is
-
-    Data::JsonScope* targetDocument;
-    switch (onType) {
-        case ContextDeriver::Type::self:
-            targetDocument = &context.self;
-            break;
-        case ContextDeriver::Type::other:
-            targetDocument = &context.other;
-            break;
-        case ContextDeriver::Type::global:
-            targetDocument = &context.global;
-            break;
-        case ContextDeriver::Type::resource:
-            // TODO: determine context from expression!
-            // If still null, skip assignment
-            Global::capture().error.println("Assignment expression has an unsupported type - skipping");
-            return; // Skip this expression
-        default:
-            std::unreachable();
+    auto const potentialTarget = context.getTargetFromType(onType);
+    if (!potentialTarget.has_value()) {
+        Global::capture().error.println("Assignment expression has an unsupported type - skipping");
+        return; // Skip this expression
     }
+    auto& targetDocument = potentialTarget.value().get();
 
     //------------------------------------------
     // Update
@@ -182,15 +167,15 @@ void Assignment::apply(ContextScope const& context) const {
 
             // Try to get a stable double pointer from the target document
             auto const scopedKey = Data::ScopedKey(key->eval(context));
-            if (double* target = targetDocument->getStableDoublePointer(scopedKey.view()); target != nullptr) {
+            if (double* target = targetDocument.getStableDoublePointer(scopedKey.view()); target != nullptr) {
                 // Lock is needed here, otherwise we have race conditions, and the engine is no longer deterministic!
-                auto lock(targetDocument->lock());
+                auto lock(targetDocument.lock());
                 setValueOfKey(resolved, target);
             } else {
                 // Still not possible, fallback to using JSON's internal methods
                 // This is slower, but should work in all cases
                 // No lock needed here, as we use JSON's threadsafe methods
-                setValueOfKey(scopedKey.view(), resolved, *targetDocument);
+                setValueOfKey(scopedKey.view(), resolved, targetDocument);
             }
         }
     }
@@ -198,13 +183,13 @@ void Assignment::apply(ContextScope const& context) const {
     else if (!expression->isReturnableAsString() && this->operation == Operation::set) {
         auto const resolved = expression->evalAsJson(context);
         auto const k = Data::ScopedKey(key->eval(context));
-        targetDocument->setSubDoc(k.view(), std::move(resolved));
+        targetDocument.setSubDoc(k.view(), std::move(resolved));
     }
     // If not, we resolve as string and update that way
     else {
         std::string const resolved = expression->eval(context);
         auto const k = Data::ScopedKey(key->eval(context));
-        setValueOfKey(k.view(), resolved, *targetDocument);
+        setValueOfKey(k.view(), resolved, targetDocument);
     }
 }
 } // namespace Nebulite::Interaction::Logic
