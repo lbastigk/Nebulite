@@ -8,44 +8,42 @@
 
 namespace Nebulite::Interaction::Logic {
 
- bool Assignment::parse(std::string_view const& str) {
+bool Assignment::parse(std::string_view const& str) {
 
-     auto const [resultType, prefix] = ContextDeriver::getTypeAndPrefixFromString(str);
-     onType = resultType;
-     if (onType == ContextDeriver::Type::resource) {
-         return false;
-     }
+    auto const [resultType, prefix] = ContextDeriver::getTypeAndPrefixFromString(str);
+    onType = resultType;
+    if (onType == ContextDeriver::Type::resource) {
+        return false;
+    }
 
-     // Find the operator position in the full expression, set operation, key and value
-     if (size_t pos; (pos = str.find("+=")) != std::string::npos) {
-         operation = Operation::add;
-         value = str.substr(pos + 2);
-         keyStr = str.substr(prefix.length(), pos - prefix.length());
-     } else if ((pos = str.find("*=")) != std::string::npos) {
-         operation = Operation::multiply;
-         value = str.substr(pos + 2);
-         keyStr = str.substr(prefix.length(), pos - prefix.length());
-     } else if ((pos = str.find("|=")) != std::string::npos) {
-         operation = Operation::concat;
-         value = str.substr(pos + 2);
-         keyStr = str.substr(prefix.length(), pos - prefix.length());
-     } else if ((pos = str.find('=')) != std::string::npos) {
-         operation = Operation::set;
-         value = str.substr(pos + 1);
-         keyStr = str.substr(prefix.length(), pos - prefix.length());
-     } else {
-         return false;
-     }
+    // Find the operator position in the full expression, set operation, key and value
+    if (size_t pos; (pos = str.find("+=")) != std::string::npos) {
+        operation = Operation::add;
+        value = str.substr(pos + 2);
+        keyStr = str.substr(prefix.length(), pos - prefix.length());
+    } else if ((pos = str.find("*=")) != std::string::npos) {
+        operation = Operation::multiply;
+        value = str.substr(pos + 2);
+        keyStr = str.substr(prefix.length(), pos - prefix.length());
+    } else if ((pos = str.find("|=")) != std::string::npos) {
+        operation = Operation::concat;
+        value = str.substr(pos + 2);
+        keyStr = str.substr(prefix.length(), pos - prefix.length());
+    } else if ((pos = str.find('=')) != std::string::npos) {
+        operation = Operation::set;
+        value = str.substr(pos + 1);
+        keyStr = str.substr(prefix.length(), pos - prefix.length());
+    } else {
+        return false;
+    }
 
-     // Remove whitespaces at start and end of key and value
-     key = std::make_unique<Expression>(Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(keyStr)));
-     value = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(value));
+    // Remove whitespaces at start and end of key and value
+    key = std::make_unique<Expression>(Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(keyStr)));
+    value = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(value));
 
-     // Set expression
-     expression = std::make_unique<Expression>(value);
-
-
-     return true;
+    // Set expression
+    expression = std::make_unique<Expression>(value);
+    return true;
 }
 
 void Assignment::optimize(ContextScope const& contextScope){
@@ -132,16 +130,22 @@ void Assignment::setValueOfKey(double const& val, double* target) const {
         case Operation::multiply:
             *target *= val;
             break;
-        case Operation::concat:
-            Global::capture().error.println("Unsupported operation: concat. If you see this message, something is wrong with the deserialization process of a Ruleset!");
-            break;
         case Operation::null:
             Global::capture().error.println("Could not determine context from key, skipping assignment");
             break;
+        case Operation::concat: // Cannot be reached, is filtered out using isNumericOperation
         default:
             std::unreachable();
     }
 }
+
+namespace {
+
+bool isNumericOperation(Assignment::Operation const& op) {
+    return op == Assignment::Operation::set || op == Assignment::Operation::add || op == Assignment::Operation::multiply;
+}
+
+} // namespace
 
 void Assignment::apply(ContextScope const& context) const {
     //------------------------------------------
@@ -157,7 +161,7 @@ void Assignment::apply(ContextScope const& context) const {
     // Update
 
     // If the expression is returnable as double, we can optimize numeric operations
-    if (expression->isReturnableAsDouble()) {
+    if (expression->isReturnableAsDouble() && isNumericOperation(operation)) {
         double const resolved = expression->evalAsDouble(context);
         if (targetValuePtr != nullptr) {
             setValueOfKey(resolved, targetValuePtr);
