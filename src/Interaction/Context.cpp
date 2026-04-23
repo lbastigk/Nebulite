@@ -45,6 +45,22 @@ std::pair<ContextDeriver::TargetType, std::string_view> ContextDeriver::getTypeA
     return {TargetType::resource, str}; // All other prefixes are considered type resource
 }
 
+void ContextScope::combineAll(Data::JsonScope& merged) const {
+    Data::ScopedKey const contextSelf("self.");
+    Data::ScopedKey const contextOther("other.");
+    Data::ScopedKey const contextGlobal("global.");
+    merged.setSubDoc(contextSelf, self);
+    merged.setSubDoc(contextOther, other);
+    merged.setSubDoc(contextGlobal, global);
+}
+
+void ContextScope::combineLocal(Data::JsonScope& merged) const {
+    Data::ScopedKey const contextSelf("self.");
+    Data::ScopedKey const contextOther("other.");
+    merged.setSubDoc(contextSelf, self);
+    merged.setSubDoc(contextOther, other);
+}
+
 ContextScope Context::demote() const {
     return ContextScope{
         self.domainScope.shareScope(""),

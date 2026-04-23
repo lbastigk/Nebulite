@@ -543,64 +543,50 @@ void Expression::setupFirstContext(ContextScope const& context) const {
 }
 
 void Expression::updateStableValues(ContextScope const& context) const {
-    // self
-    if (&context.self == firstEvaluationContext.self) {
-        for (auto const& vde : virtualDoubles.stable.self) {
-            vde->copyExternalCache();
+    auto updateContext = [&](auto const& currentContext, auto const& firstContext, auto const& vdList) {
+        if (&currentContext == firstContext) {
+            for (auto const& vde : vdList) {
+                vde->copyExternalCache();
+            }
         }
-    }
-    else {
-        for (auto const& vde : virtualDoubles.stable.self) {
-            vde->copyFromJson(context.self);
+        else {
+            for (auto const& vde : vdList) {
+                vde->copyFromJson(currentContext);
+            }
         }
-    }
-
-    // other
-    if (&context.other == firstEvaluationContext.other) {
-        for (auto const& vde : virtualDoubles.stable.other) {
-            vde->copyExternalCache();
-        }
-    }
-    else {
-        for (auto const& vde : virtualDoubles.stable.other) {
-            vde->copyFromJson(context.other);
-        }
-    }
-
-    // global
-    if (&context.global == firstEvaluationContext.global) {
-        for (auto const& vde : virtualDoubles.stable.global) {
-            vde->copyExternalCache();
-        }
-    }
-    else {
-        for (auto const& vde : virtualDoubles.stable.global) {
-            vde->copyFromJson(context.global);
-        }
-    }
+    };
+    updateContext(context.self, firstEvaluationContext.self, virtualDoubles.stable.self);
+    updateContext(context.other, firstEvaluationContext.other, virtualDoubles.stable.other);
+    updateContext(context.global, firstEvaluationContext.global, virtualDoubles.stable.global);
 }
 
 void Expression::updateUnstableValues(ContextScope const& context) const {
-    for (auto const& vde : virtualDoubles.unstable.self) {
-        auto const key = Data::ScopedKey(eval(vde->getKey(), context));
-        vde->setDirect(context.self.get<double>(key).value_or(0.0));
+    auto updateContext = [&]<typename DataType>(DataType& jsonScope, auto& vdList) {
+        for (auto const& vde : vdList) {
+            if constexpr (auto const evaluatedKey = eval(vde->getKey(), context); requires { jsonScope.template get<double>(Data::ScopedKey(evaluatedKey)); }) {
+                auto key = Data::ScopedKey(evaluatedKey);
+                vde->setDirect(jsonScope.template get<double>(key).value_or(0.0));
+            } else if constexpr (requires { jsonScope.template get<double>(evaluatedKey); }) {
+                vde->setDirect(jsonScope.template get<double>(evaluatedKey).value_or(0.0));
+            } else {
+                static_assert(Utility::CompileTimeEvaluate::always_false(), "Unsupported key type for get()");
+            }
+        }
+    };
+    updateContext(context.self, virtualDoubles.unstable.self);
+    updateContext(context.other, virtualDoubles.unstable.other);
+    updateContext(context.global, virtualDoubles.unstable.global);
+    updateContext(Global::instance().getDocCache(), virtualDoubles.unstable.resource);
+    updateContext(emptyDoc(), virtualDoubles.unstable.none);
+    if (!virtualDoubles.unstable.local.empty()) {
+        Data::JsonScope merged;
+        context.combineLocal(merged);
+        updateContext(merged, virtualDoubles.unstable.local);
     }
-    for (auto const& vde : virtualDoubles.unstable.other) {
-        auto const key = Data::ScopedKey(eval(vde->getKey(), context));
-        vde->setDirect(context.other.get<double>(key).value_or(0.0));
-    }
-    for (auto const& vde : virtualDoubles.unstable.global) {
-        auto const key = Data::ScopedKey(eval(vde->getKey(), context));
-        vde->setDirect(context.global.get<double>(key).value_or(0.0));
-    }
-    for (auto const& vde : virtualDoubles.unstable.resource) {
-        // Since resource documents may be unloaded at any time, we must always fetch the value instead of using stable double pointers
-        auto const key = eval(vde->getKey(), context);
-        vde->setDirect(Global::instance().getDocCache().get<double>(key).value_or(0.0));
-    }
-    for (auto const& vde : virtualDoubles.unstable.none) {
-        auto const key = Data::ScopedKey(eval(vde->getKey(), context));
-        vde->setDirect(emptyDoc().get<double>(key).value_or(0.0));
+    if (!virtualDoubles.unstable.full.empty()) {
+        Data::JsonScope merged;
+        context.combineAll(merged);
+        updateContext(merged, virtualDoubles.unstable.full);
     }
 }
 

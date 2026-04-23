@@ -117,7 +117,12 @@ public:
  *        Useful for functions that only need access to the JSON scopes of the domains.
  * @details Third layer of abstraction, only JSON scope access available.
  */
-class ContextScope : public ContextTemplate<Data::JsonScope> {};
+class ContextScope : public ContextTemplate<Data::JsonScope> {
+public:
+    void combineAll(Data::JsonScope& merged) const ;
+
+    void combineLocal(Data::JsonScope& merged) const ;
+};
 
 /**
  * @struct Context

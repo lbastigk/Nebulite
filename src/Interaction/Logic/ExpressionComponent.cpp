@@ -148,10 +148,7 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
     case ContextDeriver::TargetType::local:
         {
             Data::JsonScope merged;
-            Data::ScopedKey const self("self.");
-            Data::ScopedKey const other("other.");
-            merged.setSubDoc(self, context.self);
-            merged.setSubDoc(other, context.other);
+            context.combineLocal(merged);
             token = merged.getSubDoc(scopedKey.view());
         }
         break;
@@ -161,12 +158,7 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
     case ContextDeriver::TargetType::full:
         {
             Data::JsonScope merged;
-            Data::ScopedKey const self("self.");
-            Data::ScopedKey const other("other.");
-            Data::ScopedKey const global("global.");
-            merged.setSubDoc(self, context.self);
-            merged.setSubDoc(other, context.other);
-            merged.setSubDoc(global, context.global);
+            context.combineAll(merged);
             token = merged.getSubDoc(scopedKey.view());
         }
         break;
