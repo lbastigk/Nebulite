@@ -55,14 +55,14 @@ private:
     static std::string_view constexpr startGlobal = "global.";
 };
 
-template <typename Storage>
+template <typename Target>
 class ContextTemplate {
 public:
-    Storage& self;
-    Storage& other;
-    Storage& global;
+    Target& self;
+    Target& other;
+    Target& global;
 
-    std::optional<std::reference_wrapper<Storage>> getTargetFromType(ContextDeriver::Type const& type) const {
+    std::optional<std::reference_wrapper<Target>> getTargetFromType(ContextDeriver::Type const& type) const {
         switch (type) {
             case ContextDeriver::Type::self:
                 return self;

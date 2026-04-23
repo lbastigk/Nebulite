@@ -53,23 +53,24 @@ void Assignment::optimize(ContextScope const& contextScope){
          Operation::multiply
      };
 
-     // Optimize
-     if (onType == ContextDeriver::Type::self) {
-         if (std::ranges::find(numeric_operations, operation) != std::ranges::end(numeric_operations)) {
-             // Numeric operation on self, try to get a direct pointer
-             if (double* ptr = contextScope.self.getStableDoublePointer(Data::ScopedKey(key->eval(contextScope))); ptr != nullptr) {
-                 targetValuePtr = ptr;
-             }
-         }
-     }
-     if (onType == ContextDeriver::Type::global) {
-         if (std::ranges::find(numeric_operations, operation) != std::ranges::end(numeric_operations)) {
-             // Numeric operation on global, try to get a direct pointer
-             if (double* ptr = Global::instance().domainScope.getStableDoublePointer(Data::ScopedKey(key->eval(contextScope))); ptr != nullptr) {
-                 targetValuePtr = ptr;
-             }
-         }
-     }
+    // Optimize
+    if (key->getFullExpression().find('|') != std::string::npos) {
+        // Keys with transformations cannot be optimized to use a stable double pointer
+        return;
+    }
+
+    if (onType == ContextDeriver::Type::self) {
+        if (std::ranges::find(numeric_operations, operation) != std::ranges::end(numeric_operations)) {
+            // Numeric operation on self, try to get a direct pointer
+            targetValuePtr = contextScope.self.getStableDoublePointer(Data::ScopedKey(key->eval(contextScope)));
+        }
+    }
+    if (onType == ContextDeriver::Type::global) { // We assume the global context target stays the same
+        if (std::ranges::find(numeric_operations, operation) != std::ranges::end(numeric_operations)) {
+            // Numeric operation on global, try to get a direct pointer
+            targetValuePtr = Global::instance().domainScope.getStableDoublePointer(Data::ScopedKey(key->eval(contextScope)));
+        }
+    }
 }
 
 void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Data::JsonScope& target) const {
