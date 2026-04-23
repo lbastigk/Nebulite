@@ -9,3 +9,4 @@ print obj
 json evaluate member obj.expression
 json evaluate recursive obj.expressions
 print obj
+exit

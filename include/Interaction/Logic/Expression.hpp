@@ -515,6 +515,13 @@ private:
     * @param context The current context to update unstable value caches for
     */
     void updateUnstableValues(ContextScope const& context) const ;
+
+    static ContextDeriver::TargetType getContextType(std::string_view const& str) {
+        if (str.empty() || str.front() == Data::JSON::SpecialCharacter::transformationPipe) {
+            return ContextDeriver::TargetType::none;
+        }
+        return ContextDeriver::getTypeFromString(str);
+    }
 };
 
 } // namespace Nebulite::Interaction::Logic

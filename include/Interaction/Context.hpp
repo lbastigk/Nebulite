@@ -57,7 +57,7 @@ public:
 
     /**
      * @brief Gets the context from a key before it's stripped
-     * @details If the key doesn't start with a known prefix, it is considered a resource variable.
+     * @details If the string doesn't start with a known prefix, it is considered a resource variable.
      * @param str The string to get the context from.
      * @return The string of the key.
      */
