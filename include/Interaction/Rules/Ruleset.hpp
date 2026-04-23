@@ -266,7 +266,7 @@ private:
     /**
      * @brief The Logical Argument that determines when the ruleset is triggered.
      * @details Logical Arguments are evaluated inside the Invoke class with access to `self`, `other`, and `global` variables.
-     *          e.g. "{self.posX} > {other.posY}"
+     *          e.g. "{self:posX} > {other:posY}"
      */
     std::unique_ptr<Logic::ExpressionPool> logicalArg;
 
@@ -290,7 +290,7 @@ private:
 
     /**
      * @brief The expressions that are evaluated and applied to the corresponding domains.
-     * @details e.g.: `self.key1 = 0`, `other.key2 *= $( sin({self.key2}) * 2 )`, `global.key3 = 1`
+     * @details e.g.: `self:key1 = 0`, `other:key2 *= $( sin({self:key2}) * 2 )`, `global:key3 = 1`
      */
     std::vector<Logic::Assignment> assignments;
 

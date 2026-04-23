@@ -5,18 +5,18 @@ set-fps 60 # start renderer
 
 wait 1
 echo "Base state: time is an object, time.dt is a value:"
-eval echo {global.time|typeAsSimpleString|substring 0 6} # object
-eval echo {global.time|typeAsString|substring 0 6}       # object
-eval echo {global.time.dt|typeAsSimpleString}            # value
-eval echo {global.time.dt|typeAsString}                  # value:float:64
+eval echo {global:time|typeAsSimpleString|substring 0 6} # object
+eval echo {global:time|typeAsString|substring 0 6}       # object
+eval echo {global:time.dt|typeAsSimpleString}            # value
+eval echo {global:time.dt|typeAsString}                  # value:float:64
 
 wait 1
-echo "1.) Setting global.time to a simple value:"
+echo "1.) Setting global:time to a simple value:"
 set time someStringValue
-eval echo {global.time|typeAsSimpleString}    # value
-eval echo {global.time|typeAsString}          # value:string:15
-eval echo {global.time.dt|typeAsSimpleString} # null
-eval echo {global.time.dt|typeAsString}       # null
+eval echo {global:time|typeAsSimpleString}    # value
+eval echo {global:time|typeAsString}          # value:string:15
+eval echo {global:time.dt|typeAsSimpleString} # null
+eval echo {global:time.dt|typeAsString}       # null
 
 # next step is the critical one: after wait
 # time.dt is set again by the time system, and time is an object again!
@@ -25,8 +25,8 @@ wait 1
 echo "2.) After wait, time should be an object again, and time.dt should be a value again:"
 # Note: we use substrings to avoid printing the amount of members,
 # which may change and cause the test to fail even if the override works correctly
-eval echo {global.time|typeAsSimpleString}            # object
-eval echo {global.time|typeAsString|substring 0 6}    # object
-eval echo {global.time.dt|typeAsSimpleString}         # value:float:64
-eval echo {global.time.dt|typeAsString}               # value
+eval echo {global:time|typeAsSimpleString}            # object
+eval echo {global:time|typeAsString|substring 0 6}    # object
+eval echo {global:time.dt|typeAsSimpleString}         # value:float:64
+eval echo {global:time.dt|typeAsString}               # value
 exit

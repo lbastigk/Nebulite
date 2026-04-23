@@ -31,9 +31,9 @@ namespace Nebulite::Interaction::Logic {
  * @brief Representing a variable assignment in the Nebulite scripting language.
  * @details [target] [operation] [value-to-evaluate]
  *          e.g.:
- *          - `self.posX = 0`
- *          - `other.health += $(self.damage * 2)`
- *          - `global.name |= " the Great"`
+ *          - `self:posX = 0`
+ *          - `other.health += $(self:damage * 2)`
+ *          - `global:name |= " the Great"`
  */
 class Assignment{
 public:
@@ -121,7 +121,7 @@ private:
 
     /**
      * @brief Represents the full assignment as string
-     * @details e.g. "0", "$($(self.posX) + 1)", does not include the assignment operator and target
+     * @details e.g. "0", "$($(self:posX) + 1)", does not include the assignment operator and target
      *          Storing the full value is necessary for:
      *          - estimating computational cost based on the amount of evaluations `$` as well as variables `{...}`
      *          - parsing the expression later on

@@ -3,9 +3,9 @@
     "condition": "1",
     "action": {
         "assign": [
-            "self.key1 = $(0)",
-            "other.key2 *= $(2)",
-            "global.key3 = abc"
+            "self:key1 = $(0)",
+            "other:key2 *= $(2)",
+            "global:key3 = abc"
         ],
         "functioncall": {
             "global": [],

@@ -1,11 +1,11 @@
 {
     "topic": "all",
-    "condition": "$(neq( {other.physics.vX}, 0))",
+    "condition": "$(neq( {other:physics.vX}, 0))",
     "action": {
         "assign": [
-            "self.go_down = $( gt( {other.posY}, {self.posY} + {self.sprite.sizeY} / 2 ) * leq( {self.posY}, {global.renderer.resolution.logical.Y} - {self.sprite.sizeY} - 32 ) )",
-            "self.go_up =   $( lt( {other.posY}, {self.posY} + {self.sprite.sizeY} / 2 ) * geq({self.posY},32))",
-            "self.physics.vY = $( ( {self.go_down} - {self.go_up} ) * {self.physics.vNorm} )"
+            "self:go_down = $( gt( {other:posY}, {self:posY} + {self:sprite.sizeY} / 2 ) * leq( {self:posY}, {global:renderer.resolution.logical.Y} - {self:sprite.sizeY} - 32 ) )",
+            "self:go_up =   $( lt( {other:posY}, {self:posY} + {self:sprite.sizeY} / 2 ) * geq({self:posY},32))",
+            "self:physics.vY = $( ( {self:go_down} - {self:go_up} ) * {self:physics.vNorm} )"
         ],
         "functioncall": {
             "global": [],

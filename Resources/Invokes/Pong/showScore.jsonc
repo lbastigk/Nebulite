@@ -3,7 +3,7 @@
     "condition": "1",
     "action": {
         "assign": [
-            "self.draw.scoreText.textureData.str = '              $06i({global.score.left})              |              $06i({global.score.right})              '"
+            "self:draw.scoreText.textureData.str = '              $06i({global:score.left})              |              $06i({global:score.right})              '"
         ],
         "functioncall": {
             "global": [],

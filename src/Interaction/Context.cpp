@@ -5,36 +5,44 @@
 namespace Nebulite::Interaction {
 
 std::string_view ContextDeriver::stripContext(std::string_view const& str){
-    auto const it = std::ranges::find_if(contextPrefixPairs, [&](auto const p) {
-            auto const& toCompare = p.second;
-            return str.size() >= toCompare.size() && std::equal(toCompare.begin(), toCompare.end(), str.begin());
-        });
-    if (it != contextPrefixPairs.end()) {
-        return str.substr(it->second.size());
+    auto [targetType, targetString] = getTypeAndPrefixFromString(str);
+    // Don't strip context for resource variables or a none-context, as the context is needed for the link
+    if (targetType == TargetType::resource || targetType == TargetType::none) {
+        return str;
     }
-    return str;
+    if (str.size() <= targetString.size()) {
+        return "";
+    }
+    return str.substr(targetString.size() + 1);
 }
 
 ContextDeriver::TargetType ContextDeriver::getTypeFromString(std::string_view const& str){
-    auto const it = std::ranges::find_if(contextPrefixPairs, [&](auto const p) {
-        auto const& toCompare = p.second;
-        return str.size() >= toCompare.size() && std::equal(toCompare.begin(), toCompare.end(), str.begin());
-    });
-    if (it != contextPrefixPairs.end()) {
-        return it->first;
-    }
-    return TargetType::resource; // All other prefixes are considered type resource
+    return getTypeAndPrefixFromString(str).first;
 }
 
 std::pair<ContextDeriver::TargetType, std::string_view> ContextDeriver::getTypeAndPrefixFromString(std::string_view const& str){
+    auto const positionPipingOperator = str.find(Data::JSON::SpecialCharacter::transformationPipe);
+    auto const positionContextKeySeparator = str.find(contextKeySeparator);
+
+    // Find context string
+    auto firstSeparatorPosition = std::min(positionPipingOperator, positionContextKeySeparator);
+    if (firstSeparatorPosition == std::string_view::npos) {
+        firstSeparatorPosition = str.size() + 1;
+    }
+
+    // Determine TargetType based on string
+    if (firstSeparatorPosition == 0) {
+        return {TargetType::none, str};
+    }
+    std::string_view const context = str.substr(0, firstSeparatorPosition);
+
     auto const it = std::ranges::find_if(contextPrefixPairs, [&](auto const p) {
-        auto const& toCompare = p.second;
-        return str.size() >= toCompare.size() && std::equal(toCompare.begin(), toCompare.end(), str.begin());
+        return context == p.second;
     });
     if (it != contextPrefixPairs.end()) {
-        return {it->first, it->second};
+        return *it;
     }
-    return {TargetType::resource, ""}; // All other prefixes are considered type resource
+    return {TargetType::resource, str}; // All other prefixes are considered type resource
 }
 
 ContextScope Context::demote() const {

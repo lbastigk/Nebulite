@@ -3,7 +3,7 @@
     "condition": "1",
     "action": {
         "assign": [
-            "self.physics.FY += $({global.physics.g} * {self.physics.mass})"
+            "self:physics.FY += $({global:physics.g} * {self:physics.mass})"
         ],
         "functioncall": {
             "global": [],

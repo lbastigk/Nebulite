@@ -65,20 +65,18 @@ public:
 
     static std::pair<TargetType, std::string_view> getTypeAndPrefixFromString(std::string_view const& str);
 
+    static auto constexpr contextKeySeparator = ':';
 private:
-    // TODO: Change to "self:", "other:", "global:", same for expression and any tests, documentation and scripts
-    //       lots of work, but is more consistent with the naming of read-only-docs: <link>:<key>
-    //       So overall it is: <context>:<key.path.traversal>|<transformations>
-
     /**
      * @brief Pairs of context types and their corresponding prefixes for easy reference when parsing variable keys.
+     * @details The character contextKeySeparator after the corresponding prefix is required.
      */
     static std::array<std::pair<TargetType, std::string_view>, 5> constexpr contextPrefixPairs = {
-        std::make_pair(TargetType::self, "self."),
-        std::make_pair(TargetType::other, "other."),
-        std::make_pair(TargetType::local, "local."),
-        std::make_pair(TargetType::global, "global."),
-        std::make_pair(TargetType::full, "full.")
+        std::make_pair(TargetType::self, "self"),
+        std::make_pair(TargetType::other, "other"),
+        std::make_pair(TargetType::local, "local"),
+        std::make_pair(TargetType::global, "global"),
+        std::make_pair(TargetType::full, "full")
     };
 };
 

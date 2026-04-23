@@ -6,7 +6,7 @@
         "functioncall": {
             "global": [],
             "self": [
-                "eval echo ( {self.posX} , {self.posY} )"
+                "eval echo ( {self:posX} , {self:posY} )"
             ],
             "other": []
         }

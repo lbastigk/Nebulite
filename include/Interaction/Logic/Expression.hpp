@@ -47,17 +47,10 @@ namespace Nebulite::Interaction::Logic {
  *          Expressions can be parsed from a string format and evaluated against JSON documents.
  *          Expressions are a mix of evaluations, variables and text:
  *          e.g.:
- *          "This script took {global.time.t} Seconds"
- *          "The rounded value is: $03.2f( {global.value} )"
+ *          "This script took {global:time.t} Seconds"
+ *          "The rounded value is: $03.2f( {global:value} )"
  *          Supports explicit evaluation delay formatting with {n! ... }:
  *          Any variable wrapped in {!...} instead of {...} will be treated as pure text and will not be evaluated
- * @todo Add support for marrying contexts into a single data structure for transformations
- *       Example: If we have a matrix transformation module, multiplying matrices
- *       from different contexts can be difficult, as we need to somehow copy them into one context first.
- *       With context marrying, we could have a single context that encompasses all variables from self, other and global, with some sort of prefix to differentiate them.
- *       {all.|matMultiply self.matrix other.matrix} could then be evaluated directly without needing to copy variables into a new context first.
- *       Unless we also implement scope marrying, we will have to copy a lot of data here. Perhaps a selfOther combined context is helpful for faster evaluation:
- *       {so.|matMultiply self.matrix other.matrix} could then be evaluated directly without needing to copy global variables, which is typically the largest portion of variables, into a new context first.
  */
 class Expression {
 public:
@@ -97,7 +90,7 @@ public:
     /**
      * @brief Checks if the expression can be returned as a string.
      * @details This is almost always the case. The only exception is an expression with only one variable,
-     *          e.g. "{global.var}" or "{self.arr}"
+     *          e.g. "{global:var}" or "{self:arr}"
      * @return True if the expression can be returned as string, false otherwise.
      */
     [[nodiscard]] bool isReturnableAsString() const noexcept {
@@ -345,7 +338,7 @@ private:
 
         /**
          * @brief For variable component handling. Evaluates any inner expressions/variables within the component's key and returns the resulting key.
-         * @details If the key, for example is nested: {global.{self.info.requiredKey}}, it turns into {global.evaluatedValueOfRequiredKey}
+         * @details If the key, for example is nested: {global:{self:info.requiredKey}}, it turns into {global:evaluatedValueOfRequiredKey}
          *          and fetches that value from the global document.
          * @param context The context to evaluate against.
          * @param recursionDepth The current recursion depth for nested evaluations.
@@ -399,8 +392,8 @@ private:
         /**
          * @brief Only false if the expression consists of a single component of type variable
          * @details This is because retrieving values without any additional text etc. has no implicit cast to string
-         *          A single value could hold more complex types: "{global.someObject}",
-         *          whereas "My value is: {global.value}" has an implicit cast to a string.
+         *          A single value could hold more complex types: "{global:someObject}",
+         *          whereas "My value is: {global:value}" has an implicit cast to a string.
          */
         bool returnableAsString = false;
 
@@ -515,13 +508,6 @@ private:
     * @param context The current context to update unstable value caches for
     */
     void updateUnstableValues(ContextScope const& context) const ;
-
-    static ContextDeriver::TargetType getContextType(std::string_view const& str) {
-        if (str.empty() || str.front() == Data::JSON::SpecialCharacter::transformationPipe) {
-            return ContextDeriver::TargetType::none;
-        }
-        return ContextDeriver::getTypeFromString(str);
-    }
 };
 
 } // namespace Nebulite::Interaction::Logic

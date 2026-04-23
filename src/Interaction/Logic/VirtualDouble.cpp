@@ -3,16 +3,8 @@
 
 namespace Nebulite::Interaction::Logic {
 
-VirtualDouble::VirtualDouble(std::string k) noexcept : key(std::move(k)) {
-    if (key.starts_with(ContextPrefix::self)) {
-        key.erase(0, ContextPrefix::self.size());
-    }
-    else if (key.starts_with(ContextPrefix::other)) {
-        key.erase(0, ContextPrefix::other.size());
-    }
-    else if (key.starts_with(ContextPrefix::global)) {
-        key.erase(0, ContextPrefix::global.size());
-    }
+VirtualDouble::VirtualDouble(std::string_view const& k) noexcept {
+    key = ContextDeriver::stripContext(k);
     scopedKey = Data::ScopedKey(key);
 }
 

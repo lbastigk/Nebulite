@@ -198,22 +198,22 @@ Access and manipulate data using variables `{...}` inside and outside mathematic
 
 | Variable               | Description                           |
 |------------------------|---------------------------------------|
-| `{self.*}`             | the object broadcasting logic         |
-| `{other.*}`            | the object listening to the broadcast |
-| `{global.*}`           | shared engine state                   |
+| `{self:*}`             | the object broadcasting logic         |
+| `{other:*}`            | the object listening to the broadcast |
+| `{global:*}`           | shared engine state                   |
 | `{file.json:key.path}` | external read-only JSON files         |
-| `{global.{self.id}}`   | nested resolution (multiresolve).     |
-| `{self.arr\|length}`   | return value transformations          |
+| `{global:{self:id}}`   | nested resolution (multiresolve).     |
+| `{self:arr\|length}`   | return value transformations          |
 
 **Mathematical Expressions:**
 
 | Example                  | Description                                   |
 |--------------------------|-----------------------------------------------|
-| `$(1 + 2 * {self.mass})` | arithmetic with variables                     |
-| `$(gt({self.hp}, 0))`    | logical operations (gt, lt, eq, and, or, not) |
+| `$(1 + 2 * {self:mass})` | arithmetic with variables                     |
+| `$(gt({self:hp}, 0))`    | logical operations (gt, lt, eq, and, or, not) |
 | `$i(3.14)`               | cast to integer                               |
 | `$04i(3.14)`             | cast to integer with formatting               |
-| `$10.5f({self.var})`     | cast to float with formatting                 |
+| `$10.5f({self:var})`     | cast to float with formatting                 |
 
 retrieved values from JSON documents inside mathematical expressions are auto-casted to double.
 Expressions do not offer the ability to operate on non-double values (strings, arrays, objects).
@@ -222,13 +222,13 @@ If the stored value is non-numerical, it is treated as `0.0`.
 **Return Value Transformations:**
 Nebulite offers transformation functions of JSON values on retrieval.
 They do not modify the stored value, only the returned one. Examples:
-- `{self.arr|length}` - get array length instead of the array
-- `{self.arr|map <function>}` - apply function to each array element
-- `{self.val|add 5}` - add 5 to value on retrieval
-- `{self.val|typeAsString}` - returns the type of the value as string (value, array, object, null)
-- `{self.arr|print|at 1}` - Useful for debugging: prints the array to console (no modification of its value)
+- `{self:arr|length}` - get array length instead of the array
+- `{self:arr|map <function>}` - apply function to each array element
+- `{self:val|add 5}` - add 5 to value on retrieval
+- `{self:val|typeAsString}` - returns the type of the value as string (value, array, object, null)
+- `{self:arr|print|at 1}` - Useful for debugging: prints the array to console (no modification of its value)
   and returns the element at index 1
-- `{self.str|transform1|transform2|...}` - chain multiple transformations
+- `{self:str|transform1|transform2|...}` - chain multiple transformations
 - `{|transform1|transform2|...}` - start with empty value and apply transformations
 
 See [Commands.md](./doc/Commands.md) for a full list of available transformations.
@@ -236,13 +236,13 @@ See [Commands.md](./doc/Commands.md) for a full list of available transformation
 **Usage Examples**
 
 Health percentage:
-`$3i( {self.health} / max(1,{self.maxHealth}) * 100 )%`
+`$3i( {self:health} / max(1,{self:maxHealth}) * 100 )%`
 
 Inventory size:
-`The player has {self.inventory|length} items.`
+`The player has {self:inventory|length} items.`
 
 Sum of two inventories:
-`You will have $i({self.inventory|length} + {other.inventory|length}) items after trade.`
+`You will have $i({self:inventory|length} + {other:inventory|length}) items after trade.`
 
 <!-- TOC --><a name="ruleset-system"></a>
 ### Ruleset System
@@ -253,8 +253,8 @@ Define object interactions via JSON rulesets:
     "condition": "1",       // Condition to execute
     "action": {             // What to do
         "assign": [         // Modify values
-            "other.physics.FX += $({global.physics.G} * {self.physics.mass} * {other.physics.mass} * ( {self.posX} - {other.posX}  ) / ( 1 + (({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2)^(1.5)) )",
-            "other.physics.FY += $({global.physics.G} * {self.physics.mass} * {other.physics.mass} * ( {self.posY} - {other.posY}  ) / ( 1 + (({self.posX} - {other.posX})^2 + ({self.posY} - {other.posY})^2)^(1.5)) )"
+            "other:physics.FX += $({global:physics.G} * {self:physics.mass} * {other:physics.mass} * ( {self:posX} - {other:posX}  ) / ( 1 + (({self:posX} - {other:posX})^2 + ({self:posY} - {other:posY})^2)^(1.5)) )",
+            "other:physics.FY += $({global:physics.G} * {self:physics.mass} * {other:physics.mass} * ( {self:posY} - {other:posY}  ) / ( 1 + (({self:posX} - {other:posX})^2 + ({self:posY} - {other:posY})^2)^(1.5)) )"
         ],
         "functioncall": {   // Commands to parse ...
             "global": [],   // ...on domain GlobalSpace

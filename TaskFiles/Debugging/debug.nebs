@@ -22,7 +22,8 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/Tests/JSON/evaluateMember.nebs
+task TaskFiles/Tests/Ruleset/globalRulesets.nebs
+#task TaskFiles/Tests/Expression/contextMarrying.nebs
 
 #task TaskFiles/Tests/JSON/stableDoublePointerOverride.nebs
 
@@ -35,8 +36,8 @@ set rml.input.animal dog
 # grid or example
 set rml.settings.document_to_show example
 
-if $({global.rml.settings.document_to_show|strCompare equals grid})    then rmlui document load demo1 ./Resources/Rml/alignment.rml
-if $({global.rml.settings.document_to_show|strCompare equals example}) then rmlui document load demo2 ./Resources/Rml/example.rml
+if $({global:rml.settings.document_to_show|strCompare equals grid})    then rmlui document load demo1 ./Resources/Rml/alignment.rml
+if $({global:rml.settings.document_to_show|strCompare equals example}) then rmlui document load demo2 ./Resources/Rml/example.rml
 
 #set settings.n 20
 #task TaskFiles/Benchmarks/gravity_XL_unlimited.nebs

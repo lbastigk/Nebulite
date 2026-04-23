@@ -261,7 +261,7 @@ StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string_view 
 
     for (auto const& token : tokens) {
         // Keep empty tokens as extra whitespace - important for preserving user formatting
-        // e.g. for text: "eval echo Value: {global.myVal}  |  Expected: {global.expected}"
+        // e.g. for text: "eval echo Value: {global:myVal}  |  Expected: {global:expected}"
         // Without this, the double spaces around | would be lost, which can be important for readability of the command
         // or simply to preserve the user's intended formatting.
         if (token.empty()) {

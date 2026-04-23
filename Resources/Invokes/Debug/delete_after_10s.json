@@ -1,6 +1,6 @@
 {
     "topic": "",
-    "condition": "gt( {global.time.t}, 10)",
+    "condition": "gt( {global:time.t}, 10)",
     "action": {
         "assign": [],
         "functioncall": {

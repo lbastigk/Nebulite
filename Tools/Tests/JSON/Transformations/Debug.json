@@ -6,8 +6,8 @@
             "wait 1",
             "set test.val 42",
             "wait 1",
-            "eval echo {global.test.val|print}# Should print the value first with quotes from print, then without quotes from echo",
-            "eval echo {global.test.val|echo Hello, World!}# Should print 'Hello, World!', then 42 from echo",
+            "eval echo {global:test.val|print}# Should print the value first with quotes from print, then without quotes from echo",
+            "eval echo {global:test.val|echo Hello, World!}# Should print 'Hello, World!', then 42 from echo",
             "exit"
         ],
         "expected": {
@@ -27,7 +27,7 @@
             "wait 1",
             "set test.val 42",
             "wait 1",
-            "eval echo {global.test.val|}# Should return a transformation failure, as we have an invalid empty transformation",
+            "eval echo {global:test.val|}# Should return a transformation failure, as we have an invalid empty transformation",
             "exit"
         ],
         "expected": {
@@ -43,7 +43,7 @@
             "set arr[0] 1",
             "set arr[1] 2",
             "set arr[2] 3",
-            "eval echo {global.arr|print [1]|at 2}# Should print the second element of the array with quotes, then the third element",
+            "eval echo {global:arr|print [1]|at 2}# Should print the second element of the array with quotes, then the third element",
             "exit"
         ],
         "expected": {

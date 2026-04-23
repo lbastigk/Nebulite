@@ -37,7 +37,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
         return true;
     }
 
-    // Evaluate inner variables/expressions if necessary, for example in {global.{self.info.requiredKey}}
+    // Evaluate inner variables/expressions if necessary, for example in {global:{self:info.requiredKey}}
     auto nestedEvalResult = handleNesting(context, recursionDepth);
     if (!nestedEvalResult.has_value()) {
         return false;
@@ -71,10 +71,10 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
     // Now, use the key to get the value from the correct document
     auto const scopedKey = Data::ScopedKey(evaluatedKey);
     switch (source) {
-    case ContextDeriver::TargetType::self: // {self.<key><transformations>}
+    case ContextDeriver::TargetType::self: // {self:<key><transformations>}
         token = getStringValue(context.self, scopedKey.view());
         break;
-    case ContextDeriver::TargetType::other: // {other.<key><transformations>}
+    case ContextDeriver::TargetType::other: // {other:<key><transformations>}
         token = getStringValue(context.other, scopedKey.view());
         break;
     case ContextDeriver::TargetType::local:
@@ -87,7 +87,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
             token = getStringValue(merged, scopedKey.view());
         }
         break;
-    case ContextDeriver::TargetType::global: // {global.<key><transformations>}
+    case ContextDeriver::TargetType::global: // {global:<key><transformations>}
         token = getStringValue(context.global, scopedKey.view());
         break;
     case ContextDeriver::TargetType::full:
@@ -95,7 +95,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
             Data::JsonScope merged;
             Data::ScopedKey const self("self.");
             Data::ScopedKey const other("other.");
-            Data::ScopedKey const global("global.");
+            Data::ScopedKey const global("global:");
             merged.setSubDoc(self, context.self);
             merged.setSubDoc(other, context.other);
             merged.setSubDoc(global, context.global);
@@ -129,7 +129,7 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
         return true;
     }
 
-    // Evaluate inner variables/expressions if necessary, for example in {global.{self.info.requiredKey}}
+    // Evaluate inner variables/expressions if necessary, for example in {global:{self:info.requiredKey}}
     auto nestedEvalResult = handleNesting(context, recursionDepth);
     if (!nestedEvalResult.has_value()) {
         return false;
@@ -139,10 +139,10 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
     // Now, use the key to get the value from the correct document
     auto const scopedKey = Data::ScopedKey(evaluatedKey);
     switch (source) {
-    case ContextDeriver::TargetType::self: // {self.<key><transformations>}
+    case ContextDeriver::TargetType::self: // {self:<key><transformations>}
         token = context.self.getSubDoc(scopedKey.view());
         break;
-    case ContextDeriver::TargetType::other: // {other.<key><transformations>}
+    case ContextDeriver::TargetType::other: // {other:<key><transformations>}
         token = context.other.getSubDoc(scopedKey.view());
         break;
     case ContextDeriver::TargetType::local:
@@ -155,7 +155,7 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
             token = merged.getSubDoc(scopedKey.view());
         }
         break;
-    case ContextDeriver::TargetType::global: // {global.<key><transformations>}
+    case ContextDeriver::TargetType::global: // {global:<key><transformations>}
         token = context.global.getSubDoc(scopedKey.view());
         break;
     case ContextDeriver::TargetType::full:
@@ -216,7 +216,7 @@ std::optional<std::pair<std::string, ContextDeriver::TargetType>> Expression::Co
 
     // If the evaluation changed anything, we must re-evaluate the context of the source
     std::string evaluatedKey = s.has_value() ? std::string(ContextDeriver::stripContext(s.value())) : key;
-    ContextDeriver::TargetType source = s.has_value() ? getContextType(s.value()) : contextType;
+    ContextDeriver::TargetType source = s.has_value() ? ContextDeriver::getTypeFromString(s.value()) : contextType;
     return std::make_pair(evaluatedKey, source);
 }
 

@@ -3,7 +3,7 @@
     "condition": "1",
     "action": {
         "assign": [
-            "self.posX += $(1)"
+            "self:posX += $(1)"
         ],
         "functioncall": {
             "global": [],

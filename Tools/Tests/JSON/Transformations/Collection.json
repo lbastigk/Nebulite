@@ -6,10 +6,10 @@
             "set arr[0] 1",
             "set arr[1] 2",
             "set arr[2] 3",
-            "eval echo {global.val|map add 10|at 0|toInt}",
-            "eval echo {global.arr|map add 10|at 0|toInt}",
-            "eval echo {global.arr|map add 10|at 1|toInt}",
-            "eval echo {global.arr|map add 10|at 2|toInt}",
+            "eval echo {global:val|map add 10|at 0|toInt}",
+            "eval echo {global:arr|map add 10|at 0|toInt}",
+            "eval echo {global:arr|map add 10|at 1|toInt}",
+            "eval echo {global:arr|map add 10|at 2|toInt}",
             "exit"
         ],
         "expected": {
@@ -31,8 +31,8 @@
             "set obj.key1 value1",
             "set obj.key2 value2",
             "set obj.key3 value3",
-            "eval echo {global.arr|get [1]|toInt}",
-            "eval echo {global.obj|get key2}",
+            "eval echo {global:arr|get [1]|toInt}",
+            "eval echo {global:obj|get key2}",
             "exit"
         ],
         "expected": {
@@ -52,8 +52,8 @@
             "set obj.key1 value1",
             "set obj.key2 value2",
             "set obj.key3 value3",
-            "eval nop {global.arr|getMultiple [0] [1]|print}",
-            "eval nop {global.obj|getMultiple key1 key2|print}",
+            "eval nop {global:arr|getMultiple [0] [1]|print}",
+            "eval nop {global:obj|getMultiple key1 key2|print}",
             "exit"
         ],
         "expected": {
@@ -139,8 +139,8 @@
             "set obj.key1 value1",
             "set obj.key2 value2",
             "set obj.key3 value3",
-            "eval nop {global.arr|listMembers|print}",
-            "eval nop {global.obj|listMembers|print}",
+            "eval nop {global:arr|listMembers|print}",
+            "eval nop {global:obj|listMembers|print}",
             "exit"
         ],
         "expected": {

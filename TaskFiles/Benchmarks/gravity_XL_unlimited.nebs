@@ -12,9 +12,9 @@
 
 # Number of objects per row/column (total objects = n*n)
 # only set if the value hasn't been defined yet
-if $(gt({global.settings.n},0)) echo Predefined object count detected.
-if $(leq({global.settings.n},0)) set settings.n 40
-if $(leq({global.settings.frameCount},0)) set settings.frameCount 2000
+if $(gt({global:settings.n},0)) echo Predefined object count detected.
+if $(leq({global:settings.n},0)) set settings.n 40
+if $(leq({global:settings.frameCount},0)) set settings.frameCount 2000
 
 set storeSnapshots 0
 set snapshotInterval 100
@@ -37,16 +37,16 @@ show-fps on
 ###############################################
 # [INFO]
 echo
-eval echo Benchmark with $i( {global.settings.n} * {global.settings.n} ) Objects...
+eval echo Benchmark with $i( {global:settings.n} * {global:settings.n} ) Objects...
 eval echo Rendering with a fixed dt of 1 ms
 echo
 
 # Total count of interactions per frame:
 # Gravity,  Apply force, Collision
 # (n*n)^2   + n*n        + 4*n*n
-eval set interactionCountPerFrame $( ({global.settings.n} * {global.settings.n})^2 + ({global.settings.n} * {global.settings.n}) + 4*({global.settings.n} * {global.settings.n}) )
+eval set interactionCountPerFrame $( ({global:settings.n} * {global:settings.n})^2 + ({global:settings.n} * {global:settings.n}) + 4*({global:settings.n} * {global:settings.n}) )
 echo
-eval echo Total ruleset invocations per frame (without sun): $({global.interactionCountPerFrame} / 1000000) million
+eval echo Total ruleset invocations per frame (without sun): $({global:interactionCountPerFrame} / 1000000) million
 echo
 
 
@@ -83,23 +83,23 @@ eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc \
 
 ###############################################
 # Calculations
-eval set settings.delta $( 200 / ({global.settings.n}) )
-eval set settings.start $i( 220 / {global.settings.delta})
-eval set settings.end   $i( {global.settings.start} + {global.settings.n} - 1 )
-eval set spriteSize $({global.settings.delta})
+eval set settings.delta $( 200 / ({global:settings.n}) )
+eval set settings.start $i( 220 / {global:settings.delta})
+eval set settings.end   $i( {global:settings.start} + {global:settings.n} - 1 )
+eval set spriteSize $({global:settings.delta})
 
 ###############################################
 # Spawn Objects
-for i {global.settings.start} {global.settings.end} for j {global.settings.start} {global.settings.end} spawn ./Resources/Renderobjects/Boxes/obj_elastic_to_wall.jsonc \
-    |eval set posX $({global.settings.delta}*{i}) \
-    |eval set posY $({global.settings.delta}*{j}) \
+for i {global:settings.start} {global:settings.end} for j {global:settings.start} {global:settings.end} spawn ./Resources/Renderobjects/Boxes/obj_elastic_to_wall.jsonc \
+    |eval set posX $({global:settings.delta}*{i}) \
+    |eval set posY $({global:settings.delta}*{j}) \
     |eval set physics.vX 0 \
     |eval set physics.vY 0 \
-    |eval set physics.mass $( 50000 / ({global.settings.n} * {global.settings.n})) \
-    |eval set size.x $({global.spriteSize}) \
-    |eval set size.y $({global.spriteSize}) \
-    |eval set draw.core.rect.dst.h $({global.spriteSize}) \
-    |eval set draw.core.rect.dst.w $({global.spriteSize}) \
+    |eval set physics.mass $( 50000 / ({global:settings.n} * {global:settings.n})) \
+    |eval set size.x $({global:spriteSize}) \
+    |eval set size.y $({global:spriteSize}) \
+    |eval set draw.core.rect.dst.h $({global:spriteSize}) \
+    |eval set draw.core.rect.dst.w $({global:spriteSize}) \
     |eval set draw.core.rect.dst.x 0 \
     |eval set draw.core.rect.dst.y 0
     # Objects aren't centered for now (dst.x/y = 0), otherwise the box-box collision detection isn't accurate

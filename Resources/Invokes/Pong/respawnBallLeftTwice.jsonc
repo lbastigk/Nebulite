@@ -1,14 +1,14 @@
 {
     "topic": "",
-    "condition": "$( lt({self.posX},0) )",
+    "condition": "$( lt({self:posX},0) )",
     "action": {
         "assign": [
-            "global.score.right += $(1)"
+            "global:score.right += $(1)"
         ],
         "functioncall": {
             "global": [
-                "eval spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc|posX=$( {global.renderer.resolution.logical.X} * 0.5 + ({global.random.A}/32768 - 0.5) * 100)|posY=$( {global.renderer.resolution.logical.Y} * 0.5 + ({global.random.B}/32768 - 0.5) * 100)|physics.vX=$( ({global.random.A}/32768 + 1) * 100 * (-1)^{global.random.A})|physics.vY=$( ({global.random.B}/32768 - 0.5) * 100 )",
-                "eval spawn ./Resources/Renderobjects/Pong/ball.jsonc|posX=$( {global.renderer.resolution.logical.X} * 0.5 + ({global.random.B}/32768 - 0.5) * 100)|posY=$( {global.renderer.resolution.logical.Y} * 0.5 + ({global.random.A}/32768 - 0.5) * 100)|physics.vX=$( ({global.random.B}/32768 + 1) * 100 * (-1)^{global.random.B})|physics.vY=$( ({global.random.A}/32768 - 0.5) * 100 )"
+                "eval spawn ./Resources/Renderobjects/Pong/ball_doublespawn.jsonc|posX=$( {global:renderer.resolution.logical.X} * 0.5 + ({global:random.A}/32768 - 0.5) * 100)|posY=$( {global:renderer.resolution.logical.Y} * 0.5 + ({global:random.B}/32768 - 0.5) * 100)|physics.vX=$( ({global:random.A}/32768 + 1) * 100 * (-1)^{global:random.A})|physics.vY=$( ({global:random.B}/32768 - 0.5) * 100 )",
+                "eval spawn ./Resources/Renderobjects/Pong/ball.jsonc|posX=$( {global:renderer.resolution.logical.X} * 0.5 + ({global:random.B}/32768 - 0.5) * 100)|posY=$( {global:renderer.resolution.logical.Y} * 0.5 + ({global:random.A}/32768 - 0.5) * 100)|physics.vX=$( ({global:random.B}/32768 + 1) * 100 * (-1)^{global:random.B})|physics.vY=$( ({global:random.A}/32768 - 0.5) * 100 )"
             ],
             "self": [
                 "delete"

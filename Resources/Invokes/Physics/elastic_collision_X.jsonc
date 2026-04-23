@@ -2,20 +2,20 @@
     "todo": "Apply force instead of directly setting velocity",
     "topic": "collision",
     "condition": [
-        "neq({global.time.t}, {other.physics.collision.time.lastX})",
-        "{other.physics.mass}",
-        " lt({self.posX},        {other.posX} + {other.size.X})",
-        " lt({self.posY},        {other.posY} + {other.size.Y})",
-        " lt({other.posX},       {self.posX}  + {self.size.X})",
-        " lt({other.posY},       {self.posY}  + {self.size.Y})",
-        "not(  lt({self.posY}+{self.size.Y} - 2,{other.posY}) + lt({other.posY}+{other.size.Y} - 2,{self.posY})  )"
+        "neq({global:time.t}, {other:physics.collision.time.lastX})",
+        "{other:physics.mass}",
+        " lt({self:posX},        {other:posX} + {other:size.X})",
+        " lt({self:posY},        {other:posY} + {other:size.Y})",
+        " lt({other:posX},       {self:posX}  + {self:size.X})",
+        " lt({other:posY},       {self:posY}  + {self:size.Y})",
+        "not(  lt({self:posY}+{self:size.Y} - 2,{other:posY}) + lt({other:posY}+{other:size.Y} - 2,{self:posY})  )"
     ],
     "action": {
         "assign": [
-            "other.physics.vX = $(0.99*({other.physics.vX} - (2 * {self.physics.mass} / ({other.physics.mass} + {self.physics.mass})) * ({other.physics.vX} - {self.physics.vX})))",
-            "other.physics.aX = $(0)",
-            "other.physics.aY = $(0)",
-            "other.physics.collision.time.lastX = $({global.time.t})"
+            "other:physics.vX = $(0.99*({other:physics.vX} - (2 * {self:physics.mass} / ({other:physics.mass} + {self:physics.mass})) * ({other:physics.vX} - {self:physics.vX})))",
+            "other:physics.aX = $(0)",
+            "other:physics.aY = $(0)",
+            "other:physics.collision.time.lastX = $({global:time.t})"
         ],
         "functioncall": {
             "global": [],

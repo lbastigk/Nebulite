@@ -204,8 +204,8 @@ private:
      * @brief Splits a doc:key string into its components, also works for doc|transform or doc:key|transform
      */
     static std::pair<std::string, std::string> splitDocKey(std::string const& doc_key) {
-        size_t const colonPos = doc_key.find(':');
-        size_t const barPos = doc_key.find('|');
+        size_t const barPos = doc_key.find(JSON::SpecialCharacter::transformationPipe);
+        size_t const colonPos = doc_key.find(Interaction::ContextDeriver::contextKeySeparator);
 
         // Choose the first occurring separator
         size_t const pos = colonPos == std::string::npos ? barPos
@@ -221,7 +221,7 @@ private:
 
         // Add back the transform part if needed
         if (pos == barPos) {
-            return {doc, std::string("|") + key};
+            return {doc, JSON::SpecialCharacter::transformationPipe + key};
         }
         return {doc, key};
     }

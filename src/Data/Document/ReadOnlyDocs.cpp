@@ -10,12 +10,12 @@ void docLoadingFailedMessage(std::string const& doc) {
     Nebulite::Global::capture().error.println("Instead of writing: {...} in transformations or other nested expressions, try writing: {!...}");
     Nebulite::Global::capture().error.println("This prevents the variable from being evaluated, and is passed further down the line as a string.");
     Nebulite::Global::capture().error.println("Example:");
-    Nebulite::Global::capture().error.println("eval echo {global.test|parse json set size {!./Resources/Renderobjects/standard.jsonc:size}|get size.X|toInt}");
+    Nebulite::Global::capture().error.println("eval echo {global:test|parse json set size {!./Resources/Renderobjects/standard.jsonc:size}|get size.X|toInt}");
     Nebulite::Global::capture().error.println("The evaluation delay makes sure the link is evaluated at the right time.");
     Nebulite::Global::capture().error.println("Without the evaluation delay, eval would try to evaluate a JSON object 'size' as string, which would fail");
     Nebulite::Global::capture().error.println("Another example that triggers this error:");
     // NOLINTNEXTLINE
-    Nebulite::Global::capture().error.println("eval nop {global.arr|filterRegex {!\\[(1\\d*)\\]}|filterNulls|print}");
+    Nebulite::Global::capture().error.println("eval nop {global:arr|filterRegex {!\\[(1\\d*)\\]}|filterNulls|print}");
     Nebulite::Global::capture().error.println("The evaluation delay prevents the regex from being parsed incorrectly due to quotes, brackets etc");
     // NOLINTNEXTLINE
     Nebulite::Global::capture().error.println("and makes sure that eval doesn't try to evaluate the regex, which would fail and trigger this error message as no file named '\\[(1\\d*)\\]' exists.");

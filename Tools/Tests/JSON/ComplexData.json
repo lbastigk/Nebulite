@@ -15,9 +15,9 @@
         "expected": {
             "cout": [
                 "{",
-                "    \"expression\": \"{global.obj.expressions|typeAsString}\",",
+                "    \"expression\": \"{global:obj.expressions|typeAsString}\",",
                 "    \"expressions\": [","        \"$(1+1)\",",
-                "        \"$({global.obj.expressions[0]}+1)\",",
+                "        \"$({global:obj.expressions[0]}+1)\",",
                 "        \"{|ensureArray|push a|push b|push c|filterNulls}\"",
                 "    ]",
                 "}",

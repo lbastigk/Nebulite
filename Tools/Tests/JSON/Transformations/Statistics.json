@@ -8,9 +8,9 @@
             "set arr[3] 3",
             "set arr[4] 4",
             "set arr[5] 1",
-            "eval echo {global.arr|sum}",
-            "eval echo {global.arr|average}",
-            "eval echo {global.arr|product}",
+            "eval echo {global:arr|sum}",
+            "eval echo {global:arr|average}",
+            "eval echo {global:arr|product}",
             "exit"
         ],
         "expected": {
@@ -31,10 +31,10 @@
             "set arr[3] 3",
             "set arr[4] 4",
             "set arr[5] 1",
-            "eval echo {global.arr|min}",
-            "eval echo {global.arr|max}",
-            "eval echo {global.arr|median}",
-            "eval echo $6.4f({global.arr|stddev})",
+            "eval echo {global:arr|min}",
+            "eval echo {global:arr|max}",
+            "eval echo {global:arr|median}",
+            "eval echo $6.4f({global:arr|stddev})",
             "exit"
         ],
         "expected": {

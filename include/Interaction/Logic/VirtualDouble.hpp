@@ -48,16 +48,6 @@ class VirtualDouble {
      */
     double* externalReference = nullptr;
 
-
-    /**
-     * @brief Key prefixes for different contexts.
-     */
-    struct ContextPrefix {
-        static std::string_view constexpr self   = "self.";
-        static std::string_view constexpr other  = "other.";
-        static std::string_view constexpr global = "global.";
-    };
-
 public:
     /**
      * @brief Construct a new VirtualDouble object.
@@ -65,7 +55,7 @@ public:
      *          It also removes any prefixes from the key to ensure consistent access.
      * @param k The key associated with this VirtualDouble.
      */
-    explicit VirtualDouble(std::string k) noexcept ;
+    explicit VirtualDouble(std::string_view const& k) noexcept ;
 
     /**
      * @brief Get the key associated with this VirtualDouble.

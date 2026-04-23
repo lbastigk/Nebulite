@@ -352,7 +352,7 @@ void Expression::parseTokenTypeEval(std::string const& token) {
         if (subToken.starts_with('{')) {
             std::string const te_name = varNameGen.getUniqueName(subToken);
             std::string key = subToken.substr(1, subToken.length() - 2);
-            ContextDeriver::TargetType contextType = getContextType(key);
+            ContextDeriver::TargetType contextType = ContextDeriver::getTypeFromString(key);
             key = ContextDeriver::stripContext(key);
             registerVariable(te_name, key, contextType);
             currentComponent->stringRepresentation += te_name;
@@ -391,7 +391,7 @@ void Expression::parseTokenTypeVariable(std::string const& token) {
     // 3.) determine context
     currentComponent->type = Component::Type::variable;
     currentComponent->stringRepresentation = inner;
-    currentComponent->contextType = getContextType(inner);
+    currentComponent->contextType = ContextDeriver::getTypeFromString(inner);
     currentComponent->key = ContextDeriver::stripContext(inner);
 
     components.push_back(currentComponent);

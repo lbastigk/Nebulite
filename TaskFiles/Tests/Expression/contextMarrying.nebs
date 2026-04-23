@@ -11,24 +11,24 @@ wait 1
 
 #####################################
 echo "All results:"
-eval echo {global.result|typeAsString}
+eval echo {global:result|typeAsString}
 echo
 
 echo "Separated:"
-eval echo "self:   {global.result.self.var}"    # must be local from renderobject
-eval echo "other:  {global.result.other.var}"   # must be global, as globalspace is listener
-eval echo "global: {global.result.global.var}"  # must be global, as globalspace is by definition context global
+eval echo "self:   {global:result.self.var}"    # must be local from renderobject
+eval echo "other:  {global:result.other.var}"   # must be global, as globalspace is listener
+eval echo "global: {global:result.global.var}"  # must be global, as globalspace is by definition context global
 echo
 
 echo "Married: local"
-eval echo "local.self:  {global.result.local.self.var}"
-eval echo "local.other: {global.result.local.other.var}"
+eval echo "local.self:  {global:result.local.self.var}"
+eval echo "local.other: {global:result.local.other.var}"
 echo
 
 echo "Married: full"
-eval echo "full.self:   {global.result.full.self.var}"
-eval echo "full.other:  {global.result.full.other.var}"
-eval echo "full.global: {global.result.full.global.var}"
+eval echo "full.self:   {global:result.full.self.var}"
+eval echo "full.other:  {global:result.full.other.var}"
+eval echo "full.global: {global:result.full.global.var}"
 
 #####################################
 exit

@@ -10,32 +10,33 @@ namespace Nebulite::Interaction::Logic {
 
 bool Assignment::parse(std::string_view const& str) {
 
-    auto const [resultType, prefix] = ContextDeriver::getTypeAndPrefixFromString(str);
-    onType = resultType;
+    onType = ContextDeriver::getTypeFromString(str);
     if (onType == ContextDeriver::TargetType::resource) {
         return false;
     }
-
+    keyStr = ContextDeriver::stripContext(str);
+    
     // Find the operator position in the full expression, set operation, key and value
-    if (size_t pos; (pos = str.find("+=")) != std::string::npos) {
+    if (size_t pos; (pos = keyStr.find("+=")) != std::string::npos) {
         operation = Operation::add;
-        value = str.substr(pos + 2);
-        keyStr = str.substr(prefix.length(), pos - prefix.length());
-    } else if ((pos = str.find("*=")) != std::string::npos) {
+        value = keyStr.substr(pos + 2);
+        keyStr = keyStr.substr(0, pos);
+    } else if ((pos = keyStr.find("*=")) != std::string::npos) {
         operation = Operation::multiply;
-        value = str.substr(pos + 2);
-        keyStr = str.substr(prefix.length(), pos - prefix.length());
-    } else if ((pos = str.find("|=")) != std::string::npos) {
+        value = keyStr.substr(pos + 2);
+        keyStr = keyStr.substr(0, pos);
+    } else if ((pos = keyStr.find("|=")) != std::string::npos) {
         operation = Operation::concat;
-        value = str.substr(pos + 2);
-        keyStr = str.substr(prefix.length(), pos - prefix.length());
-    } else if ((pos = str.find('=')) != std::string::npos) {
+        value = keyStr.substr(pos + 2);
+        keyStr = keyStr.substr(0, pos);
+    } else if ((pos = keyStr.find('=')) != std::string::npos) {
         operation = Operation::set;
-        value = str.substr(pos + 1);
-        keyStr = str.substr(prefix.length(), pos - prefix.length());
+        value = keyStr.substr(pos + 1);
+        keyStr = keyStr.substr(0, pos);
     } else {
         return false;
     }
+    keyStr = Utility::StringHandler::strip(keyStr);
 
     // Remove whitespaces at start and end of key and value
     key = std::make_unique<Expression>(Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(keyStr)));

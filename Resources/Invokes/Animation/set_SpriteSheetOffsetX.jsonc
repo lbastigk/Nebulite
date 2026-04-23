@@ -1,11 +1,11 @@
 {
     "topic": "",
-    "condition": "$( {self.animation.xRolling.active} * gt({global.time.t_ms},{self.animation.xRolling.next}) )",
+    "condition": "$( {self:animation.xRolling.active} * gt({global:time.t_ms},{self:animation.xRolling.next}) )",
     "action": {
         "assign": [
-            "self.draw.core.rect.src.x = $( ({self.draw.core.rect.src.x} + 16) % {self.animation.xRolling.mod} )",
-            "self.animation.xRolling.next = $({global.time.t_ms}+150)",
-            "self.animation.xRolling.active = $(0)"
+            "self:draw.core.rect.src.x = $( ({self:draw.core.rect.src.x} + 16) % {self:animation.xRolling.mod} )",
+            "self:animation.xRolling.next = $({global:time.t_ms}+150)",
+            "self:animation.xRolling.active = $(0)"
         ],
         "functioncall": {
             "global": [],

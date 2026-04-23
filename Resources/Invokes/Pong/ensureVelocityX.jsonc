@@ -1,9 +1,9 @@
 {
     "topic": "",
-    "condition": "$( lt( abs({self.physics.vX}) ,10) )",
+    "condition": "$( lt( abs({self:physics.vX}) ,10) )",
     "action": {
         "assign": [
-            "self.physics.vX *= $(sgn({self.physics.vX}) + 10)"
+            "self:physics.vX *= $(sgn({self:physics.vX}) + 10)"
         ],
         "functioncall": {
             "global": [],

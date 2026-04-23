@@ -14,16 +14,16 @@
 
     <p data-eval="true">
         Test expression, <b>with</b> evaluation and more:
-        $08.2f(1+{global.time.t|sub 1})
-        Global space is type: {global.|typeAsString}
-    <!--div class="box">{global.renderer.input.mouse.current|serialize}</div-->
+        $08.2f(1+{global:time.t|sub 1})
+        Global space is type: {global:|typeAsString}
+    <!--div class="box">{global:renderer.input.mouse.current|serialize}</div-->
     </p>
 
     <hr />
     <h2>Data input</h2>
 
     <p data-if="rml.settings.show_text" data-identifier="text_example">
-        The quick brown fox jumps over the lazy {global.rml.input.animal}.
+        The quick brown fox jumps over the lazy {global:rml.input.animal}.
     </p>
 
     <p>
@@ -34,11 +34,11 @@
     <h2>Data-Reflect</h2>
 
     <p data-eval="true">
-        global.time has {global.time|listMembers|length} members:
+        global:time has {global:time|listMembers|length} members:
     </p>
-    <p data-reflect="{global.time|listMembersAndValues}">
+    <p data-reflect="{global:time|listMembersAndValues}">
         <pCompact data-eval="true">
-            {self.key|asString|rPad 15 .}{self.value|asString|lPad 15 .}
+            {self:key|asString|rPad 15 .}{self:value|asString|lPad 15 .}
         </pCompact>
     </p>
 

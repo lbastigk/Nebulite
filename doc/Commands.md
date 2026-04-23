@@ -148,7 +148,7 @@ Assign a key to a value in the JSON document (self) or the global context (globa
 
 Usage: assign <context>.<key> <assignment-operator> <expression>
 
-Example: 'assign global.rngCurrentValuesCopy = {global.random}Supports complex types like arrays or objects.
+Example: 'assign global:rngCurrentValuesCopy = {global:random}Supports complex types like arrays or objects.
 The assignment has full access to the entire global scope here, so be cautious when using this function to overwrite global values.
 Use json set instead, if you only wish to modify values in the context self with no special operators.
 ```
@@ -460,7 +460,7 @@ First, eval evaluates every argument, then concatenates them with a whitespace,
 and finally executes the resulting string as a command.
 The string 'echo $(1+1)' is evaluated to "echo 2.000000", which is then executed.
 
-eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
+eval spawn ./Resources/RenderObjects/{global:ToSpawn}.json
 This evaluates to 'spawn ./Resources/RenderObjects/NAME.json',
 where NAME is the current value of the global variable ToSpawn
 ```
@@ -542,7 +542,7 @@ It is recommended to use the if-then syntax to avoid whitespace issues:
 Usage: if <condition> then <functioncall>
 
 Example:
-if $({global.settings.someFile|strCompare equals ./Resources/myFile.txt}) then echo Condition is true!
+if $({global:settings.someFile|strCompare equals ./Resources/myFile.txt}) then echo Condition is true!
 ```
 
 #### `imgui-view`
@@ -635,7 +635,7 @@ Usage: json evaluate member <key>
 
 Examples:
 evaluate member myExpression
-If the member myExpression is a string, for example "{global.names|filterGlob F*}", myExpression will be set to an array of names starting with F from the global scope.
+If the member myExpression is a string, for example "{global:names|filterGlob F*}", myExpression will be set to an array of names starting with F from the global scope.
 ```
 
 ###### `json evaluate recursive`
@@ -657,10 +657,10 @@ Sets a key from a given expression evaluated as JSON, allowing for complex objec
 Usage: json set <key> <expression>
 
 Examples:
-json set namesStartingWithF {global.names|filterGlob F*}
-json set userInfo {global.users|filterRegex {!^user[0-9]+$}}
+json set namesStartingWithF {global:names|filterGlob F*}
+json set userInfo {global:users|filterRegex {!^user[0-9]+$}}
 json set readOnlyDoc {./Resources/sample.json:key1.key2}
-json set sizeCopy {self.size}
+json set sizeCopy {self:size}
 Same as the function 'assign', but does not allow assigning values in the Global context, and is only for set ('=') operations.
 ```
 
@@ -689,7 +689,7 @@ Logs the global document to a file.
 Usage: log global [<filenames>...]
 
 - <filenames>: Optional. One or more filenames to log the global document to.
-               If no filenames are provided, defaults to 'global.log.jsonc'.
+               If no filenames are provided, defaults to 'global:log.jsonc'.
 ```
 
 ##### `log state`
@@ -1200,7 +1200,7 @@ Assign a key to a value in the JSON document (self) or the global context (globa
 
 Usage: assign <context>.<key> <assignment-operator> <expression>
 
-Example: 'assign global.rngCurrentValuesCopy = {global.random}Supports complex types like arrays or objects.
+Example: 'assign global:rngCurrentValuesCopy = {global:random}Supports complex types like arrays or objects.
 The assignment has full access to the entire global scope here, so be cautious when using this function to overwrite global values.
 Use json set instead, if you only wish to modify values in the context self with no special operators.
 ```
@@ -1288,7 +1288,7 @@ First, eval evaluates every argument, then concatenates them with a whitespace,
 and finally executes the resulting string as a command.
 The string 'echo $(1+1)' is evaluated to "echo 2.000000", which is then executed.
 
-eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json
+eval spawn ./Resources/RenderObjects/{global:ToSpawn}.json
 This evaluates to 'spawn ./Resources/RenderObjects/NAME.json',
 where NAME is the current value of the global variable ToSpawn
 ```
@@ -1327,7 +1327,7 @@ It is recommended to use the if-then syntax to avoid whitespace issues:
 Usage: if <condition> then <functioncall>
 
 Example:
-if $({global.settings.someFile|strCompare equals ./Resources/myFile.txt}) then echo Condition is true!
+if $({global:settings.someFile|strCompare equals ./Resources/myFile.txt}) then echo Condition is true!
 ```
 
 #### `imgui-view`
@@ -1367,7 +1367,7 @@ Usage: json evaluate member <key>
 
 Examples:
 evaluate member myExpression
-If the member myExpression is a string, for example "{global.names|filterGlob F*}", myExpression will be set to an array of names starting with F from the global scope.
+If the member myExpression is a string, for example "{global:names|filterGlob F*}", myExpression will be set to an array of names starting with F from the global scope.
 ```
 
 ###### `json evaluate recursive`
@@ -1389,10 +1389,10 @@ Sets a key from a given expression evaluated as JSON, allowing for complex objec
 Usage: json set <key> <expression>
 
 Examples:
-json set namesStartingWithF {global.names|filterGlob F*}
-json set userInfo {global.users|filterRegex {!^user[0-9]+$}}
+json set namesStartingWithF {global:names|filterGlob F*}
+json set userInfo {global:users|filterRegex {!^user[0-9]+$}}
 json set readOnlyDoc {./Resources/sample.json:key1.key2}
-json set sizeCopy {self.size}
+json set sizeCopy {self:size}
 Same as the function 'assign', but does not allow assigning values in the Global context, and is only for set ('=') operations.
 ```
 
@@ -1637,7 +1637,7 @@ Usage: warn <string>
 ## JSON Transformations
 
 These commands are available during JSON value retrieval with the transformation operator '|'.
-Example: `{global.var|length}`
+Example: `{global:var|length}`
 
 Help for JSON rvalue transformation FuncTree
 

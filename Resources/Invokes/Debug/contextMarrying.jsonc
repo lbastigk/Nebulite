@@ -3,11 +3,11 @@
     "condition": "1",
     "action": {
         "assign": [
-            "global.result.self = {self.}",
-            "global.result.other = {other.}",
-            "global.result.local = {local.}",
-            "global.result.global = {global.}",
-            "global.result.full = {full.}"
+            "global:result.self = {self}",
+            "global:result.other = {other}",
+            "global:result.local = {local}",
+            "global:result.global = {global}",
+            "global:result.full = {full}"
         ],
         "functioncall": {
             "global": [
