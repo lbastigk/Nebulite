@@ -9,6 +9,9 @@
 namespace Nebulite::Interaction::Logic {
 
  bool Assignment::parse(std::string_view const& str){
+     // TODO: Change to "self:", "other:", "global:", same for expression and any tests, documentation and scripts
+     //       lots of work, but is more consistent with the naming of read-only-docs: <link>:<key>
+     //       So overall it is: <context>:<key.path.traversal>|<transformations>
      static std::string constexpr startSelf = "self.";
      static std::string constexpr startOther = "other.";
      static std::string constexpr startGlobal = "global.";
