@@ -106,7 +106,7 @@ private:
      * @details Depending on Type, the proper JSON document will be used.
      *          Initialized as resource, which means the assignment is evaluated at runtime.
      */
-    ContextDeriver::Type onType = ContextDeriver::Type::resource;
+    ContextDeriver::TargetType onType = ContextDeriver::TargetType::resource;
 
     /**
      * @brief Key of the variable being assigned

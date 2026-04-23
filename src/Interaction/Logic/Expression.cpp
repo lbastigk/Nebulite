@@ -56,31 +56,6 @@ void Expression::reset() {
     Math::ExpressionPrimitives::registerExpressions(te_variables);
 }
 
-std::string Expression::stripContext(std::string const& key) {
-    auto const it = std::ranges::find_if(contextPrefixPairs, [&](auto const p) {
-        auto const& str = p.second;
-        return key.size() >= str.size() && std::equal(str.begin(), str.end(), key.begin());
-    });
-    if (it != contextPrefixPairs.end()) {
-        return key.substr(it->second.size());
-    }
-    return key;
-}
-
-Expression::Component::ContextType Expression::getContextType(std::string const& key) {
-    if (key.empty() || key.starts_with("|")) {
-        return Component::ContextType::None;
-    }
-    auto const it = std::ranges::find_if(contextPrefixPairs, [&](auto const p) {
-        auto const& str = p.second;
-        return key.size() >= str.size() && std::equal(str.begin(), str.end(), key.begin());
-    });
-    if (it != contextPrefixPairs.end()) {
-        return it->first;
-    }
-    return Component::ContextType::resource; // All other prefixes are considered type resource
-}
-
 void Expression::compileIfExpression(std::shared_ptr<Component> const& component) const {
     if (component->type == Component::Type::eval) {
         // Compile the expression using TinyExpr
@@ -112,7 +87,7 @@ bool isAvailableAsDoublePtr(std::string const& key) {
 }
 } // anonymous namespace
 
-void Expression::registerVariable(std::string te_name, std::string const& key, Component::ContextType const& contextType) {
+void Expression::registerVariable(std::string te_name, std::string const& key, ContextDeriver::TargetType const& contextType) {
     // Check if variable exists in variables vector:
     bool const found = std::ranges::any_of(te_variables, [&](auto const& te_var) {
         if (te_var.name == te_name) {
@@ -127,14 +102,14 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
 
         // Register cache based on context
         switch (contextType) {
-        case Component::ContextType::self:
+        case ContextDeriver::TargetType::self:
             if (isAvailableAsDoublePtr(key)) {
                 virtualDoubles.stable.self.push_back(vd);
             } else {
                 virtualDoubles.unstable.self.push_back(vd);
             }
             break;
-        case Component::ContextType::other:
+        case ContextDeriver::TargetType::other:
             // Type other is always non-remanent, as other document reference can change
             // However, we need to distinguish between stable and unstable double pointers
             // Meaning the ones we can get from an ordered list, and the ones we need to resolve each time
@@ -145,23 +120,23 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
                 virtualDoubles.unstable.other.push_back(vd);
             }
             break;
-        case Component::ContextType::local:
+        case ContextDeriver::TargetType::local:
             virtualDoubles.unstable.local.push_back(vd);
             break;
-        case Component::ContextType::global:
+        case ContextDeriver::TargetType::global:
             if (isAvailableAsDoublePtr(key)) {
                 virtualDoubles.stable.global.push_back(vd);
             } else {
                 virtualDoubles.unstable.global.push_back(vd);
             }
             break;
-        case Component::ContextType::full:
+        case ContextDeriver::TargetType::full:
             virtualDoubles.unstable.full.push_back(vd);
             break;
-        case Component::ContextType::resource:
+        case ContextDeriver::TargetType::resource:
             virtualDoubles.unstable.resource.push_back(vd);
             break;
-        case Component::ContextType::None:
+        case ContextDeriver::TargetType::none:
             // Use an empty document
             virtualDoubles.unstable.none.push_back(vd);
             break;
@@ -377,8 +352,8 @@ void Expression::parseTokenTypeEval(std::string const& token) {
         if (subToken.starts_with('{')) {
             std::string const te_name = varNameGen.getUniqueName(subToken);
             std::string key = subToken.substr(1, subToken.length() - 2);
-            Component::ContextType contextType = getContextType(key);
-            key = stripContext(key);
+            ContextDeriver::TargetType contextType = ContextDeriver::getTypeFromString(key);
+            key = ContextDeriver::stripContext(key);
             registerVariable(te_name, key, contextType);
             currentComponent->stringRepresentation += te_name;
         } else {
@@ -388,7 +363,7 @@ void Expression::parseTokenTypeEval(std::string const& token) {
 
     // Write component data
     currentComponent->type = Component::Type::eval;
-    currentComponent->contextType = Component::ContextType::None; // None, since this is an eval expression
+    currentComponent->contextType = ContextDeriver::TargetType::none; // None, since this is an eval expression
     currentComponent->key = ""; // No key for eval expressions
 
     // Add to components
@@ -416,8 +391,8 @@ void Expression::parseTokenTypeVariable(std::string const& token) {
     // 3.) determine context
     currentComponent->type = Component::Type::variable;
     currentComponent->stringRepresentation = inner;
-    currentComponent->contextType = getContextType(inner);
-    currentComponent->key = stripContext(inner);
+    currentComponent->contextType = ContextDeriver::getTypeFromString(inner);
+    currentComponent->key = ContextDeriver::stripContext(inner);
 
     components.push_back(currentComponent);
 }
@@ -427,7 +402,7 @@ void Expression::parseTokenTypeText(std::string const& token) {
     // Determine context
     currentComponent->type = Component::Type::text;
     currentComponent->stringRepresentation = token;
-    currentComponent->contextType = Component::ContextType::None;
+    currentComponent->contextType = ContextDeriver::TargetType::none;
     currentComponent->key = ""; // No key for text expressions
     components.push_back(currentComponent);
 }

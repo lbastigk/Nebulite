@@ -71,13 +71,13 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
     // Now, use the key to get the value from the correct document
     auto const scopedKey = Data::ScopedKey(evaluatedKey);
     switch (source) {
-    case ContextType::self: // {self.<key><transformations>}
+    case ContextDeriver::TargetType::self: // {self.<key><transformations>}
         token = getStringValue(context.self, scopedKey.view());
         break;
-    case ContextType::other: // {other.<key><transformations>}
+    case ContextDeriver::TargetType::other: // {other.<key><transformations>}
         token = getStringValue(context.other, scopedKey.view());
         break;
-    case ContextType::local:
+    case ContextDeriver::TargetType::local:
         {
             Data::JsonScope merged;
             Data::ScopedKey const self("self.");
@@ -87,10 +87,10 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
             token = getStringValue(merged, scopedKey.view());
         }
         break;
-    case ContextType::global: // {global.<key><transformations>}
+    case ContextDeriver::TargetType::global: // {global.<key><transformations>}
         token = getStringValue(context.global, scopedKey.view());
         break;
-    case ContextType::full:
+    case ContextDeriver::TargetType::full:
         {
             Data::JsonScope merged;
             Data::ScopedKey const self("self.");
@@ -102,10 +102,10 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
             token = getStringValue(merged, scopedKey.view());
         }
         break;
-    case ContextType::resource: // {<link><resource_key_or_transformations>}
+    case ContextDeriver::TargetType::resource: // {<link><resource_key_or_transformations>}
         token = getStringValue(Global::instance().getDocCache(), evaluatedKey);
         break;
-    case ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
+    case ContextDeriver::TargetType::none: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
         {
             // This requires an empty document that acts as a parsing mechanism for the transformations
             thread_local Data::JsonScope emptyDoc;
@@ -139,13 +139,13 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
     // Now, use the key to get the value from the correct document
     auto const scopedKey = Data::ScopedKey(evaluatedKey);
     switch (source) {
-    case ContextType::self: // {self.<key><transformations>}
+    case ContextDeriver::TargetType::self: // {self.<key><transformations>}
         token = context.self.getSubDoc(scopedKey.view());
         break;
-    case ContextType::other: // {other.<key><transformations>}
+    case ContextDeriver::TargetType::other: // {other.<key><transformations>}
         token = context.other.getSubDoc(scopedKey.view());
         break;
-    case ContextType::local:
+    case ContextDeriver::TargetType::local:
         {
             Data::JsonScope merged;
             Data::ScopedKey const self("self.");
@@ -155,10 +155,10 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
             token = merged.getSubDoc(scopedKey.view());
         }
         break;
-    case ContextType::global: // {global.<key><transformations>}
+    case ContextDeriver::TargetType::global: // {global.<key><transformations>}
         token = context.global.getSubDoc(scopedKey.view());
         break;
-    case ContextType::full:
+    case ContextDeriver::TargetType::full:
         {
             Data::JsonScope merged;
             Data::ScopedKey const self("self.");
@@ -170,10 +170,10 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
             token = merged.getSubDoc(scopedKey.view());
         }
         break;
-    case ContextType::resource: // {<link><resource_key_or_transformations>}
+    case ContextDeriver::TargetType::resource: // {<link><resource_key_or_transformations>}
         token = Global::instance().getDocCache().getSubDoc(evaluatedKey);
         break;
-    case ContextType::None: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
+    case ContextDeriver::TargetType::none: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
         {
             // This requires an empty document that acts as a parsing mechanism for the transformations
             thread_local Data::JsonScope emptyDoc;
@@ -206,7 +206,7 @@ std::expected<std::string, Expression::Component::KeyEvaluationInfo> Expression:
     return std::unexpected(KeyEvaluationInfo::noNesting);
 }
 
-std::optional<std::pair<std::string, Expression::Component::ContextType>> Expression::Component::handleNesting(ContextScope const& context, size_t const& recursionDepth) const {
+std::optional<std::pair<std::string, ContextDeriver::TargetType>> Expression::Component::handleNesting(ContextScope const& context, size_t const& recursionDepth) const {
     auto s = evaluateKey(context, recursionDepth);
 
     // If max depth was reached, return false
@@ -215,8 +215,8 @@ std::optional<std::pair<std::string, Expression::Component::ContextType>> Expres
     }
 
     // If the evaluation changed anything, we must re-evaluate the context of the source
-    std::string evaluatedKey = s.has_value() ? stripContext(s.value()) : key;
-    ContextType source = s.has_value() ? getContextType(s.value()) : contextType;
+    std::string evaluatedKey = s.has_value() ? std::string(ContextDeriver::stripContext(s.value())) : key;
+    ContextDeriver::TargetType source = s.has_value() ? ContextDeriver::getTypeFromString(s.value()) : contextType;
     return std::make_pair(evaluatedKey, source);
 }
 

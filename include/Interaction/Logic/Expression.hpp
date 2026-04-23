@@ -259,19 +259,7 @@ private:
             text // outside of a $<cast>(...), not a variable reference, Represents a plain text string
         } type = Type::text;
 
-        /**
-         * @enum Nebulite::Interaction::Logic::Expression::Component::ContextType
-         * @brief Represents the source of a variable reference.
-         */
-        enum class ContextType : uint8_t {
-            self, // Using the "self" document for expression evaluation
-            other, // Using the "other" document for expression evaluation
-            global, // Using the "global" document for expression evaluation
-            local, // Context marrying: self and other
-            full, // Context marrying: self, other and global
-            resource, // Using a document from the document cache for expression evaluation
-            None // No context given for evaluation
-        } contextType = ContextType::None; // Default to None
+        ContextDeriver::TargetType contextType = ContextDeriver::TargetType::none; // Default to none
 
         Formatter formatter; // Formatting options for this component, if applicable
 
@@ -365,7 +353,7 @@ private:
          */
         [[nodiscard]] std::expected<std::string, KeyEvaluationInfo> evaluateKey(ContextScope const& context, size_t const& recursionDepth) const ;
 
-        [[nodiscard]] std::optional<std::pair<std::string, ContextType>> handleNesting(ContextScope const& context, size_t const& recursionDepth) const ;
+        [[nodiscard]] std::optional<std::pair<std::string, ContextDeriver::TargetType>> handleNesting(ContextScope const& context, size_t const& recursionDepth) const ;
     };
 
     /**
@@ -396,17 +384,6 @@ private:
             vd_list none; // Variables with no context with transformations or multi-resolve
         } unstable;
     } virtualDoubles;
-
-    /**
-     * @brief Pairs of context types and their corresponding prefixes for easy reference when parsing variable keys.
-     */
-    static std::array<std::pair<Component::ContextType, std::string_view>, 5> constexpr contextPrefixPairs = {
-        std::make_pair(Component::ContextType::self, "self."),
-        std::make_pair(Component::ContextType::other, "other."),
-        std::make_pair(Component::ContextType::local, "local."),
-        std::make_pair(Component::ContextType::global, "global."),
-        std::make_pair(Component::ContextType::full, "full.")
-    };
 
     /**
      * @brief Info about this expressions evaluation-ability
@@ -478,28 +455,7 @@ private:
      * @param key The key in the JSON document that the variable refers to.
      * @param contextType The context from which the variable is being registered.
      */
-    void registerVariable(std::string te_name, std::string const& key, Component::ContextType const& contextType);
-
-    /**
-     * @brief used to strip any context prefix from a key
-     * @details Removes the beginning, if applicable:
-     *          - `self.`
-     *          - `other.`
-     *          - `global.`
-     *          Does not remove the beginning context for resource variables,
-     *          as the beginning is needed for the link.
-     * @param key The key to strip the context from.
-     * @return The key without its context prefix.
-     */
-    static std::string stripContext(std::string const& key);
-
-    /**
-     * @brief Gets the context from a key before it's stripped
-     * @details If the key doesn't start with `self.`, `other.`, or `global.`, it is considered a resource variable.
-     * @param key The key to get the context from.
-     * @return The context of the key.
-     */
-    static Component::ContextType getContextType(std::string const& key);
+    void registerVariable(std::string te_name, std::string const& key, ContextDeriver::TargetType const& contextType);
 
     /**
      * @brief Parses the given expression into a series of components.

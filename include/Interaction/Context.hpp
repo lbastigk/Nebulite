@@ -25,6 +25,7 @@ class Expression; // For Context demotion to ContextScope
 // Includes
 
 // Standard library
+#include <array>
 #include <optional>
 #include <string_view>
 #include <utility>
@@ -34,25 +35,51 @@ namespace Nebulite::Interaction {
 
 class ContextDeriver {
 public:
-    enum class Type {
+    enum class TargetType {
         self,
         other,
         global,
-        resource
+        resource,
+        local,
+        full,
+        none
     };
 
-    static Type getTypeFromString(std::string_view const& str);
+    /**
+     * @brief used to strip any context prefix from a key
+     * @details Removes the beginning, if applicable.
+     *          Does not remove the beginning context for resource variables,
+     *          as the beginning is needed for the link.
+     * @param str The string to strip the context from.
+     * @return The string without its context prefix.
+     */
+    static std::string_view stripContext(std::string_view const& str);
 
-    static std::pair<Type, std::string_view> getTypeAndPrefixFromString(std::string_view const& str);
+    /**
+     * @brief Gets the context from a key before it's stripped
+     * @details If the key doesn't start with a known prefix, it is considered a resource variable.
+     * @param str The string to get the context from.
+     * @return The string of the key.
+     */
+    static TargetType getTypeFromString(std::string_view const& str);
+
+    static std::pair<TargetType, std::string_view> getTypeAndPrefixFromString(std::string_view const& str);
 
 private:
     // TODO: Change to "self:", "other:", "global:", same for expression and any tests, documentation and scripts
     //       lots of work, but is more consistent with the naming of read-only-docs: <link>:<key>
     //       So overall it is: <context>:<key.path.traversal>|<transformations>
 
-    static std::string_view constexpr startSelf = "self.";
-    static std::string_view constexpr startOther = "other.";
-    static std::string_view constexpr startGlobal = "global.";
+    /**
+     * @brief Pairs of context types and their corresponding prefixes for easy reference when parsing variable keys.
+     */
+    static std::array<std::pair<TargetType, std::string_view>, 5> constexpr contextPrefixPairs = {
+        std::make_pair(TargetType::self, "self."),
+        std::make_pair(TargetType::other, "other."),
+        std::make_pair(TargetType::local, "local."),
+        std::make_pair(TargetType::global, "global."),
+        std::make_pair(TargetType::full, "full.")
+    };
 };
 
 template <typename Target>
@@ -62,15 +89,19 @@ public:
     Target& other;
     Target& global;
 
-    std::optional<std::reference_wrapper<Target>> getTargetFromType(ContextDeriver::Type const& type) const {
+    std::optional<std::reference_wrapper<Target>> getTargetFromType(ContextDeriver::TargetType const& type) const {
         switch (type) {
-            case ContextDeriver::Type::self:
+            case ContextDeriver::TargetType::self:
                 return self;
-            case ContextDeriver::Type::other:
+            case ContextDeriver::TargetType::other:
                 return other;
-            case ContextDeriver::Type::global:
+            case ContextDeriver::TargetType::global:
                 return global;
-            case ContextDeriver::Type::resource:
+            // Unsupported
+            case ContextDeriver::TargetType::resource:
+            case ContextDeriver::TargetType::local:
+            case ContextDeriver::TargetType::full:
+            case ContextDeriver::TargetType::none:
                 return std::nullopt;
             default:
                 std::unreachable();

@@ -12,7 +12,7 @@ bool Assignment::parse(std::string_view const& str) {
 
     auto const [resultType, prefix] = ContextDeriver::getTypeAndPrefixFromString(str);
     onType = resultType;
-    if (onType == ContextDeriver::Type::resource) {
+    if (onType == ContextDeriver::TargetType::resource) {
         return false;
     }
 
@@ -59,13 +59,13 @@ void Assignment::optimize(ContextScope const& contextScope){
         return;
     }
 
-    if (onType == ContextDeriver::Type::self) {
+    if (onType == ContextDeriver::TargetType::self) {
         if (std::ranges::find(numeric_operations, operation) != std::ranges::end(numeric_operations)) {
             // Numeric operation on self, try to get a direct pointer
             targetValuePtr = contextScope.self.getStableDoublePointer(Data::ScopedKey(key->eval(contextScope)));
         }
     }
-    if (onType == ContextDeriver::Type::global) { // We assume the global context target stays the same
+    if (onType == ContextDeriver::TargetType::global) { // We assume the global context target stays the same
         if (std::ranges::find(numeric_operations, operation) != std::ranges::end(numeric_operations)) {
             // Numeric operation on global, try to get a direct pointer
             targetValuePtr = Global::instance().domainScope.getStableDoublePointer(Data::ScopedKey(key->eval(contextScope)));
