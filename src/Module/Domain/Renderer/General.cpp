@@ -337,14 +337,18 @@ Constants::Event General::selectedObjectParse(std::span<std::string const> const
     }
 
     Interaction::Context objectCtx = {
-        .self = *selectedRenderObject,
-        .other = *selectedRenderObject,
-        .global = ctx.global
+        {
+            .self = *selectedRenderObject,
+            .other = *selectedRenderObject,
+            .global = ctx.global
+        }
     };
     Interaction::ContextScope objectCtxScope = {
-        .self = *selectedRenderObjectData,
-        .other = *selectedRenderObjectData,
-        .global = ctxScope.global
+        {
+            .self = *selectedRenderObjectData,
+            .other = *selectedRenderObjectData,
+            .global = ctxScope.global
+        }
     };
     return selectedRenderObject->parseStr(std::string(__FUNCTION__) + " " + command, objectCtx, objectCtxScope);
 }

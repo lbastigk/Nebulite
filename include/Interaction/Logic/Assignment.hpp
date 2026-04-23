@@ -11,6 +11,7 @@
 // Includes
 
 // Nebulite
+#include "Interaction/Context.hpp"
 #include "Interaction/Logic/ExpressionPool.hpp"
 
 //------------------------------------------
@@ -102,20 +103,10 @@ private:
 
     /**
      * @brief Target document type (Self, Other, Global)
-     */
-    enum class Type : uint8_t {
-        null,
-        Self,
-        Other,
-        Global
-    };
-
-    /**
-     * @brief Target document type (Self, Other, Global)
      * @details Depending on Type, the proper JSON document will be used.
-     *          Initialized as null, which means the assignment is evaluated at runtime.
+     *          Initialized as resource, which means the assignment is evaluated at runtime.
      */
-    Type onType = Type::null;
+    ContextDeriver::Type onType = ContextDeriver::Type::resource;
 
     /**
      * @brief Key of the variable being assigned

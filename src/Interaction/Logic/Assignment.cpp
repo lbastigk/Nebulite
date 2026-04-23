@@ -8,28 +8,12 @@
 
 namespace Nebulite::Interaction::Logic {
 
- bool Assignment::parse(std::string_view const& str){
-     // TODO: Change to "self:", "other:", "global:", same for expression and any tests, documentation and scripts
-     //       lots of work, but is more consistent with the naming of read-only-docs: <link>:<key>
-     //       So overall it is: <context>:<key.path.traversal>|<transformations>
-     static std::string constexpr startSelf = "self.";
-     static std::string constexpr startOther = "other.";
-     static std::string constexpr startGlobal = "global.";
+ bool Assignment::parse(std::string_view const& str) {
 
-     // needs to start with "self.", "other." or "global."
-     std::string prefix;
-     if (str.starts_with(startSelf)) {
-         onType = Type::Self;
-         prefix = startSelf;
-     } else if (str.starts_with(startOther)) {
-         onType = Type::Other;
-         prefix = startOther;
-     } else if (str.starts_with(startGlobal)) {
-         onType = Type::Global;
-         prefix = startGlobal;
-     } else {
-         // Invalid expression
-         onType = Type::null;
+     auto const [resultType, resultPrefix] = ContextDeriver::getTypeAndPrefixFromString(str);
+     onType = resultType;
+     auto& prefix = resultPrefix;
+     if (onType == ContextDeriver::Type::resource) {
          return false;
      }
 
@@ -73,7 +57,7 @@ void Assignment::optimize(ContextScope const& contextScope){
      };
 
      // Optimize
-     if (onType == Type::Self) {
+     if (onType == ContextDeriver::Type::self) {
          if (std::ranges::find(numeric_operations, operation) != std::ranges::end(numeric_operations)) {
              // Numeric operation on self, try to get a direct pointer
              if (double* ptr = contextScope.self.getStableDoublePointer(Data::ScopedKey(key->eval(contextScope))); ptr != nullptr) {
@@ -81,7 +65,7 @@ void Assignment::optimize(ContextScope const& contextScope){
              }
          }
      }
-     if (onType == Type::Global) {
+     if (onType == ContextDeriver::Type::global) {
          if (std::ranges::find(numeric_operations, operation) != std::ranges::end(numeric_operations)) {
              // Numeric operation on global, try to get a direct pointer
              if (double* ptr = Global::instance().domainScope.getStableDoublePointer(Data::ScopedKey(key->eval(contextScope))); ptr != nullptr) {
@@ -166,19 +150,19 @@ void Assignment::apply(ContextScope const& context) const {
 
     Data::JsonScope* targetDocument;
     switch (onType) {
-        case Type::Self:
+        case ContextDeriver::Type::self:
             targetDocument = &context.self;
             break;
-        case Type::Other:
+        case ContextDeriver::Type::other:
             targetDocument = &context.other;
             break;
-        case Type::Global:
+        case ContextDeriver::Type::global:
             targetDocument = &context.global;
             break;
-        case Type::null:
+        case ContextDeriver::Type::resource:
             // TODO: determine context from expression!
             // If still null, skip assignment
-            Global::capture().error.println("Assignment expression has null type - skipping");
+            Global::capture().error.println("Assignment expression has an unsupported type - skipping");
             return; // Skip this expression
         default:
             std::unreachable();

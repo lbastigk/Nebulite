@@ -194,9 +194,11 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
 
             // Keep nearly all context and contextScope the same, but modify scope of self
             Interaction::ContextScope const childContextScope{
-                .self = newScope,
-                .other = ownerContextScope.other,
-                .global = ownerContextScope.global,
+                {
+                    .self = newScope,
+                    .other = ownerContextScope.other,
+                    .global = ownerContextScope.global,
+                }
             };
             Graphics::RmlInterface::RmlElementIdentifier childId(element, i, child);
             renderer.setRmlElementContextAndScope(childId, {ownerContext, childContextScope});

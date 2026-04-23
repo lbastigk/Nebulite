@@ -5,6 +5,7 @@
  */
 #ifndef NEBULITE_INTERACTION_CONTEXT_HPP
 #define NEBULITE_INTERACTION_CONTEXT_HPP
+#include "absl/cleanup/internal/cleanup.h"
 
 //------------------------------------------
 // Forward declarations
@@ -23,6 +24,37 @@ class Expression; // For Context demotion to ContextScope
 
 namespace Nebulite::Interaction {
 
+class ContextDeriver {
+public:
+    enum class Type {
+        self,
+        other,
+        global,
+        resource
+    };
+
+    static Type getTypeFromString(std::string_view const& str);
+
+    static std::pair<Type, std::string> getTypeAndPrefixFromString(std::string_view const& str);
+
+private:
+    // TODO: Change to "self:", "other:", "global:", same for expression and any tests, documentation and scripts
+    //       lots of work, but is more consistent with the naming of read-only-docs: <link>:<key>
+    //       So overall it is: <context>:<key.path.traversal>|<transformations>
+
+    static std::string constexpr startSelf = "self.";
+    static std::string constexpr startOther = "other.";
+    static std::string constexpr startGlobal = "global.";
+};
+
+template <typename Storage>
+class ContextTemplate {
+public:
+    Storage& self;
+    Storage& other;
+    Storage& global;
+};
+
 // ContextScope -> JSON scope access with JsonScope references
 //                 Access to the scoped data only
 // Context      -> Full domain access
@@ -33,12 +65,7 @@ namespace Nebulite::Interaction {
  *        Useful for functions that only need access to the JSON scopes of the domains.
  * @details Third layer of abstraction, only JSON scope access available.
  */
-class ContextScope {
-public:
-    Data::JsonScope& self;
-    Data::JsonScope& other;
-    Data::JsonScope& global;
-};
+class ContextScope : public ContextTemplate<Data::JsonScope> {};
 
 /**
  * @struct Context
@@ -46,12 +73,8 @@ public:
  *        Contains references to the 'self', 'other', and 'global' domains, with base domain types.
  * @details Second layer of abstraction, only base domain functionality available.
  */
-class Context {
+class Context : public ContextTemplate<Execution::Domain>{
 public:
-    Execution::Domain& self;
-    Execution::Domain& other;
-    Execution::Domain& global;
-
     // Context Demotion access
     // Expression requires demotion so we deduce the full scope of any domain for evaluation.
     // We assume that any written expression acts on the root scope of the domain, unless specified differently
