@@ -44,10 +44,10 @@ public:
         "Usage: json set <key> <expression>\n"
         "\n"
         "Examples:\n"
-        "json set namesStartingWithF {global.names|filterGlob F*}\n"
-        "json set userInfo {global.users|filterRegex {!^user[0-9]+$}}\n"
+        "json set namesStartingWithF {global:names|filterGlob F*}\n"
+        "json set userInfo {global:users|filterRegex {!^user[0-9]+$}}\n"
         "json set readOnlyDoc {./Resources/sample.json:key1.key2}\n"
-        "json set sizeCopy {self.size}\n"
+        "json set sizeCopy {self:size}\n"
         "Same as the function 'assign', but does not allow assigning values in the Global context, and is only for set ('=') operations.\n";
 
     [[nodiscard]] static Constants::Event evaluateMember(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
@@ -58,7 +58,7 @@ public:
         "\n"
         "Examples:\n"
         "evaluate member myExpression\n"
-        "If the member myExpression is a string, for example \"{global.names|filterGlob F*}\", myExpression will be set to an array of names starting with F from the global scope.\n";
+        "If the member myExpression is a string, for example \"{global:names|filterGlob F*}\", myExpression will be set to an array of names starting with F from the global scope.\n";
 
     [[nodiscard]] static Constants::Event evaluateRecursive(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr evaluateRecursive_name = "json evaluate recursive";

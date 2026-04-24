@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Wed Apr 22 22:13:03 CEST 2026
+Generated on: Fri Apr 24 18:27:19 CEST 2026
 
 ## Table of Contents
 
@@ -689,7 +689,7 @@ Logs the global document to a file.
 Usage: log global [<filenames>...]
 
 - <filenames>: Optional. One or more filenames to log the global document to.
-               If no filenames are provided, defaults to 'global:log.jsonc'.
+               If no filenames are provided, defaults to 'global.log.jsonc'.
 ```
 
 ##### `log state`
@@ -2457,6 +2457,9 @@ Available Functions
 | `rng2argInt16` | Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a and b. |
 | `rng3arg` | Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a, b, and c. |
 | `rng3argInt16` | Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a, b, and c. |
+| `round` | Rounds the first argument to the amount of decimal places specified by the second argument. |
+| `roundDown` | Rounds the first argument down to the amount of decimal places specified by the second argument. |
+| `roundUp` | Rounds the first argument up to the amount of decimal places specified by the second argument. |
 | `sgn` | Returns the sign of a. |
 | `to_bipolar` | Converts a numeric value to bipolar form. |
 | `xnor` | Returns 1 if a and b are both logically true or both logically false, otherwise returns 0. |
@@ -2608,6 +2611,27 @@ Usage: rng3arg(a, b, c)
 Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a, b, and c.
 The same input values will always produce the same output, making it suitable for deterministic procedural generation.
 Usage: rng3argInt16(a, b, c)
+```
+
+#### `round`
+
+```
+Rounds the first argument to the amount of decimal places specified by the second argument.
+Usage: round(a, b)
+```
+
+#### `roundDown`
+
+```
+Rounds the first argument down to the amount of decimal places specified by the second argument.
+Usage: roundDown(a, b)
+```
+
+#### `roundUp`
+
+```
+Rounds the first argument up to the amount of decimal places specified by the second argument.
+Usage: roundUp(a, b)
 ```
 
 #### `sgn`

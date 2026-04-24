@@ -50,7 +50,7 @@ public:
         "and finally executes the resulting string as a command.\n"
         "The string 'echo $(1+1)' is evaluated to \"echo 2.000000\", which is then executed.\n"
         "\n"
-        "eval spawn ./Resources/RenderObjects/{global.ToSpawn}.json\n"
+        "eval spawn ./Resources/RenderObjects/{global:ToSpawn}.json\n"
         "This evaluates to 'spawn ./Resources/RenderObjects/NAME.json',\n"
         "where NAME is the current value of the global variable ToSpawn\n";
 
@@ -107,7 +107,7 @@ public:
         "Usage: if <condition> then <functioncall>\n"
         "\n"
         "Example:\n"
-        "if $({global.settings.someFile|strCompare equals ./Resources/myFile.txt}) then echo Condition is true!\n";
+        "if $({global:settings.someFile|strCompare equals ./Resources/myFile.txt}) then echo Condition is true!\n";
 
     [[nodiscard]] Constants::Event echo(std::span<std::string const> const& args) const ;
     static auto constexpr echo_name = "echo";

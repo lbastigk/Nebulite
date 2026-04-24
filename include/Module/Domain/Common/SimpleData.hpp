@@ -41,7 +41,7 @@ public:
         "\n"
         "Usage: assign <context>.<key> <assignment-operator> <expression>\n"
         "\n"
-        "Example: 'assign global.rngCurrentValuesCopy = {global.random}"
+        "Example: 'assign global:rngCurrentValuesCopy = {global:random}"
         "Supports complex types like arrays or objects.\n"
         "The assignment has full access to the entire global scope here, so be cautious when using this function to overwrite global values.\n"
         "Use json set instead, if you only wish to modify values in the context self with no special operators.\n";
