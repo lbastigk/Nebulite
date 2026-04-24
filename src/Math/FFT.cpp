@@ -1,5 +1,10 @@
 #include "Math/FFT.hpp"
 
+#include <algorithm>
+#include <ranges>
+
+// TODO: Large refactor + testing required!
+
 namespace Nebulite::Math {
 
 std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
@@ -102,7 +107,7 @@ std::vector<std::complex<double>> FFT::fftInverse(std::vector<std::complex<doubl
     return a;
 }
 
-std::complex<double> FFT::evalTransfer(double const& omega,std::vector<double> const& num,std::vector<double> const& den) {
+std::complex<double> FFT::evalTransfer(double const& omega, std::vector<double> const& num, std::vector<double> const& den) {
     std::complex<double> const z = std::exp(std::complex(0.0, -omega));
     std::complex numSum(0.0);
     std::complex denSum(0.0);
@@ -130,22 +135,15 @@ std::complex<double> FFT::evalTransfer(double const& omega,std::vector<double> c
 
 std::vector<double> FFT::applyTransferFunction(std::vector<double> const& data, std::vector<double> const& num, std::vector<double> const& den) {
     auto X = fft(data);
-    size_t const N = X.size();
-
-    for (size_t k = 0; k < N; ++k) {
-        double omega = 2.0 * M_PI * static_cast<double>(k) / static_cast<double>(N);
-        auto const H = evalTransfer(omega, num, den);
-        X[k] *= H;
+    for (auto [k, x] : std::views::zip(std::views::iota(size_t{0}), X)) {
+        double omega = 2.0 * M_PI * static_cast<double>(k) / static_cast<double>(X.size());
+        x *= evalTransfer(omega, num, den);
     }
-
     auto const y = fftInverse(X);
-
-    std::vector<double> dataOut;
-    dataOut.resize(y.size());
-
-    for (size_t i = 0; i < y.size(); ++i)
-        dataOut[i] = y[i].real();
-
+    std::vector<double> dataOut(y.size());
+    std::ranges::transform(y, dataOut.begin(), [](std::complex<double> const& c) {
+        return c.real();
+    });
     return dataOut;
 }
 
