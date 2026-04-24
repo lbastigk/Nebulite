@@ -22,12 +22,17 @@
     <hr />
     <h2>Data input</h2>
 
-    <p data-if="rml.settings.show_text" data-identifier="text_example">
+    <p data-eval="true">
         The quick brown fox jumps over the lazy {global:rml.input.animal}.
     </p>
 
+    <!-- TODO: data-if is broken ... -->
+    <p data-if="rml.settings.show_text" data-identifier="text_example">
+        If you see this text, the data-if functionality works!
+    </p>
+
     <p>
-        <input type="text" data-value="rml.input.animal" data-identifier="input"/>
+        <input type="text" data-value="rml.input.animal" data-identifier="animalInput"/>
     </p>
 
     <hr />

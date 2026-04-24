@@ -12,7 +12,6 @@ namespace Nebulite::Module::RmlUi {
 ExpressionManager::ExpressionManager(Utility::IO::Capture& c, Core::Renderer& r) : RmlUiModule(c,r) {
     evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
         [this] {
-            updateDataValues();
             updateExpressions();
             expressionsWereEvaluated = true;
         },
@@ -76,7 +75,7 @@ void ExpressionManager::OnElementDestroy(Rml::Element* /*element*/) {
 
 void ExpressionManager::updateExpressions(){
     for (auto const& document : documents) {
-        updateElement(document, [&](Rml::Element* element, Rml::Element* parent, size_t const& index) {
+        Graphics::RmlInterface::updateElement(document, [&](Rml::Element* element, Rml::Element* parent, size_t const& index) {
             if (element->GetAttribute("data-eval") || element->GetAttribute("data-if")) {
                 // On element creation, the inner rml is not set. So we create an empty ElementEntry that is populated later on.
                 Rml::String innerRml = element->GetInnerRML();
@@ -99,40 +98,12 @@ void ExpressionManager::updateExpressions(){
 
 void ExpressionManager::resetExpressions(){
     for (auto const& document : documents) {
-        updateElement(document, [&](Rml::Element* element, Rml::Element* /*parent*/, size_t const& /*index*/) {
+        Graphics::RmlInterface::updateElement(document, [&](Rml::Element* element, Rml::Element* /*parent*/, size_t const& /*index*/) {
             if (element->GetAttribute("data-eval") || element->GetAttribute("data-if")) {
                 // Reset
                 element->SetInnerRML(rmlStrings[element]);
             }
         });
-    }
-}
-
-void ExpressionManager::updateDataValues() {
-    for (auto const& [keyStr, entry] : registeredStrings) {
-        auto key = Data::ScopedKey{keyStr};
-
-        // Determine data flow...
-        auto& currentRml = entry->currentRmlValue;
-        auto const& previousRml = entry->previousRmlValue;
-        auto currentDocument = global.get<std::string>(key).value_or("");
-        auto const& previousDocument = entry->previousDocumentValue;
-
-        // 1.) rml -> document
-        if (currentRml != previousRml) {
-            global.set<std::string>(key, currentRml);
-            entry->currentRmlValue = currentRml;
-            entry->previousRmlValue = currentRml;
-            entry->previousDocumentValue = currentRml;
-        }
-        // 2.) document -> rml
-        else if (currentDocument != previousDocument) {
-            entry->element->SetAttribute("value", currentDocument);
-            entry->currentRmlValue = currentDocument;
-            entry->previousRmlValue = currentDocument;
-            entry->previousDocumentValue = currentDocument;
-            entry->element->GetOwnerDocument()->UpdateDocument();
-        }
     }
 }
 

@@ -10,6 +10,14 @@
 
 //------------------------------------------
 
+namespace {
+auto constexpr dataAttributes = {
+    "data-value",
+    "data-if"       // TODO: data-if does not work ... Value is seen as "1", but it's somehow not updated correctly. Perhaps missing a document/element update?
+                    //       previously this worked, as the data set was directly pulled from the scope. But now we initialize to an empty string, so it's false at start
+};
+} // namespace
+
 namespace Nebulite::Module::RmlUi {
 
 
@@ -64,16 +72,17 @@ void DataInput::OnContextDestroy(Rml::Context* /*context*/) {
 }
 
 void DataInput::OnElementCreate(Rml::Element* element) {
-    if (!element) return;
+    // Normalize bound data value
+    normalizeDataValue(element);
+}
 
-    // TODO: Update data-if, so that we can actually hide/show the element at runtime!
-    //       At the moment, the data-if is only evaluated at document creat, not during an update
+void DataInput::OnElementDestroy(Rml::Element* /*element*/) {
 
-    // Check if the element has a data-value
-    auto const dataAttributes = {
-        "data-value",
-        "data-if"
-    };
+}
+
+//----------------------------------------------
+
+void DataInput::normalizeDataValue(Rml::Element* element) {
     for (auto const& attribute : dataAttributes) {
         auto const rmlValue = element->GetAttribute(attribute);
         if (!rmlValue) continue;
@@ -81,10 +90,6 @@ void DataInput::OnElementCreate(Rml::Element* element) {
             capture.warning.println("A unique identifier is required for data inputs to work. Please provide 'data-identifier'.");
             continue;
         }
-
-        // TODO: use attribute data-context. Fallback to global if not available
-        // Still, we need a document to owner map, so we can dynamically set context. Should be enough to use the callerScope as self/other
-
         if (rmlValue->GetType() == Rml::Variant::STRING) {
             // Normalize value
             auto const attributeValue = std::string(rmlValue->Get<Rml::String>());
@@ -109,65 +114,98 @@ void DataInput::OnElementCreate(Rml::Element* element) {
 
             std::string normalized = "ID__" + normalize(unnormalizedId->Get<Rml::String>()) + "__VALUE__" + normalize(unnormalizedKey->Get<Rml::String>());
             element->SetAttribute(attribute, normalized);
-            if (registeredStrings.contains(normalized)) {
-                continue;
-            }
 
             // Create entry
             Data::ScopedKey const key{unnormalizedKey->Get<Rml::String>()};
-            auto const value = global.get<std::string>(key).value_or("");
             auto entry = std::make_unique<RegisteredEntry>();
             entry->normalizedValue = normalized;
             entry->attribute = attribute;
             entry->key = key;
             entry->element = element;
-            entry->currentRmlValue = value;
-            entry->previousRmlValue = value;
-            entry->previousDocumentValue = value;
+            entry->previousRmlValue = "";
+            entry->previousDocumentValue = "";
             entry->isNewEntry = true;
 
+            auto value = std::make_unique<Rml::String>();
+            *value = "";
+
             // Add Entry
-            renderer.getDataModelConstructor().Bind(normalized, &entry->currentRmlValue);
-            registeredStrings.emplace(normalized, std::move(entry));
-            //capture.log.println("Registered data input with key: ", normalized);
+            renderer.getDataModelConstructor().Bind(normalized, value.get());
+            registeredButWithoutId.emplace_back(std::move(entry));
+            registeredStrings.emplace(normalized, std::move(value));
         }
     }
 }
 
-void DataInput::OnElementDestroy(Rml::Element* /*element*/) {
-
+void DataInput::updateDataValues() {
+    // TODO: Update data-if, so that we can actually hide/show the element at runtime!
+    //       At the moment, the data-if is only evaluated at document creat, not during an update
+    for (auto const& document : documents) {
+        Graphics::RmlInterface::updateElement(document, [&](Rml::Element const* element, Rml::Element* parent, size_t const& index) {
+            Graphics::RmlInterface::RmlElementIdentifier const id(parent, index, element);
+            registerNewValues(id, element);
+            updateRegisteredValues(id, element);
+        });
+    }
 }
 
-//----------------------------------------------
+void DataInput::registerNewValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element const* element){
+    std::vector<std::unique_ptr<RegisteredEntry>> toAdd;
+    if (auto const it = registeredEntries.find(id); it == registeredEntries.end()) {
+        for (auto& noId : registeredButWithoutId) {
+            if (noId->element == element) {
+                // Push out of vector and into map
+                toAdd.emplace_back(std::move(noId));
+                registeredButWithoutId.erase(std::ranges::find(registeredButWithoutId, noId));
+                break;
+            }
+        }
+    }
+    for (auto& entry : toAdd) {
+        registeredEntries[id] = std::move(entry);
+    }
+}
 
-void DataInput::updateDataValues() {
-    for (auto const& entry : registeredStrings | std::views::values) {
-        // Determine data flow...
-        auto& currentRml = entry->currentRmlValue;
-        auto const& previousRml = entry->previousRmlValue;
-        auto currentDocument = global.get<std::string>(entry->key).value_or("");
-        auto const& previousDocument = entry->previousDocumentValue;
+void DataInput::updateRegisteredValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element const* element){
+    if (!element) return;
+    if (auto const it = registeredEntries.find(id); it != registeredEntries.end()){
+        auto const idContext = renderer.getRmlElementContextAndScope(id);
+        auto const docContext = renderer.getRmlDocumentContextAndScope(element->GetOwnerDocument());
+        if (!idContext && !docContext) return;
+
+        auto const& entry = it->second;
+        auto& slf = idContext ? idContext.value().ctxScope.self : docContext.value().ctxScope.self;
 
         // Check if entry is new
         if (entry->isNewEntry) {
             entry->isNewEntry = false;
             entry->element->SetAttribute(entry->attribute, entry->normalizedValue);
-            entry->element->SetAttribute("value", currentDocument);
+            entry->element->SetAttribute("value", slf.get<std::string>(entry->key).value_or(""));
             entry->element->GetOwnerDocument()->UpdateDocument();
-            continue;
+            return;
         }
+
+        // Determine data flow...
+        auto const registered = registeredStrings.find(entry->normalizedValue);
+        if (registered == registeredStrings.end()) {
+            return;
+        }
+
+        auto& currentRml = *registered->second;
+        auto const& previousRml = entry->previousRmlValue;
+        auto const currentDocument = slf.get<std::string>(entry->key).value_or("");
+        auto const& previousDocument = entry->previousDocumentValue;
 
         // 1.) rml -> document
         if (currentRml != previousRml) {
-            global.set<std::string>(entry->key, currentRml);
-            entry->currentRmlValue = currentRml;
+            slf.set<std::string>(entry->key, currentRml);
             entry->previousRmlValue = currentRml;
             entry->previousDocumentValue = currentRml;
         }
         // 2.) document -> rml
         else if (currentDocument != previousDocument) {
             entry->element->SetAttribute("value", currentDocument);
-            entry->currentRmlValue = currentDocument;
+            currentRml = currentDocument;
             entry->previousRmlValue = currentDocument;
             entry->previousDocumentValue = currentDocument;
             entry->element->GetOwnerDocument()->UpdateDocument();
