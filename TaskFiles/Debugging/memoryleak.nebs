@@ -1,4 +1,14 @@
-# Spawn a bunch of object
+###########################################
+# Test 1: Classic scene
+
+task TaskFiles/Games/AutoPong.nebs
+set-fps 10000
+wait 1000000
+exit
+
+###########################################
+# Test 2: Spawn a bunch of objects
+
 echo Use massif to track memory usage
 echo Expected result: Memory usage goes up, then down once objects are deleted.
 set-res 500 500
