@@ -5,9 +5,8 @@
 
 #include <array>
 
-
-// JsonScope methods
 namespace Nebulite::Data {
+
 // Constructing a JsonScope from a JSON document and a prefix
 JsonScope::JsonScope(JSON& doc, std::optional<std::string> const& prefix)
     // create a non-owning shared_ptr to the provided JSON (no delete on destruction)
@@ -28,7 +27,6 @@ JsonScope::JsonScope()
     : baseDocument(std::make_shared<JSON>()),
       scopePrefix(""),
       odpCache(Utility::Generate::array<MappedOrderedCacheList, noLockArraySize>([this](size_t) {return MappedOrderedCacheList(*this);}))
-
 {}
 
 JsonScope::~JsonScope() = default;
@@ -81,44 +79,37 @@ JsonScope& JsonScope::shareDummyScopeBase() {
 // Setter
 
 void JsonScope::setVariant(ScopedKeyView const& key, RjDirectAccess::simpleValue const& value){
-    helperNonConstVar++; // Mark as non-const operation
-    baseDocument->setVariant(key.full(*this), value);
+    doc().setVariant(key.full(*this), value);
 }
 
 void JsonScope::setSubDoc(ScopedKeyView const& key, JSON const& subDoc){
-    helperNonConstVar++; // Mark as non-const operation
-    baseDocument->setSubDoc(key.full(*this), subDoc);
+    doc().setSubDoc(key.full(*this), subDoc);
 }
 
 void JsonScope::setSubDoc(ScopedKeyView const& key, JsonScope const& subDoc){
-    helperNonConstVar++; // Mark as non-const operation
     // Slightly more complicated: If we wish to set the sub-document from another JsonScope,
     // we need to extract the underlying JSON document from it in the correct scope.
     JSON const subDocScope = subDoc.getSubDoc(ScopedKey(""));
-    baseDocument->setSubDoc(key.full(*this), subDocScope);
+    doc().setSubDoc(key.full(*this), subDocScope);
 }
 
 void JsonScope::setEmptyArray(ScopedKeyView const& key){
-    helperNonConstVar++; // Mark as non-const operation
-    baseDocument->setEmptyArray(key.full(*this));
+    doc().setEmptyArray(key.full(*this));
 }
 
 //------------------------------------------
 // Special sets for threadsafe maths operations
 
 void JsonScope::set_add(ScopedKeyView const& key, double const& val){
-    helperNonConstVar++; // Mark as non-const operation
-    baseDocument->set_add(key.full(*this), val);
+    doc().set_add(key.full(*this), val);
 }
 
 void JsonScope::set_multiply(ScopedKeyView const& key, double const& val){
-    helperNonConstVar++; // Mark as non-const operation
-    baseDocument->set_multiply(key.full(*this), val);
+    doc().set_multiply(key.full(*this), val);
 }
 
 void JsonScope::set_concat(ScopedKeyView const& key, std::string const& valStr){
-    helperNonConstVar++; // Mark as non-const operation
-    baseDocument->set_concat(key.full(*this), valStr);
+    doc().set_concat(key.full(*this), valStr);
 }
 
 //------------------------------------------
@@ -144,18 +135,15 @@ void JsonScope::set_concat(ScopedKeyView const& key, std::string const& valStr){
 }
 
 void JsonScope::removeMember(ScopedKeyView const& key){
-    helperNonConstVar++; // Mark as non-const operation
-    baseDocument->removeMember(key.full(*this));
+    doc().removeMember(key.full(*this));
 }
 
 void JsonScope::moveMember(ScopedKeyView const& fromKey, ScopedKeyView const& toKey){
-    helperNonConstVar++; // Mark as non-const operation
-    baseDocument->moveMember(fromKey.full(*this), toKey.full(*this));
+    doc().moveMember(fromKey.full(*this), toKey.full(*this));
 }
 
 void JsonScope::copyMember(ScopedKeyView const& fromKey, ScopedKeyView const& toKey){
-    helperNonConstVar++; // Mark as non-const operation
-    baseDocument->copyMember(fromKey.full(*this), toKey.full(*this));
+    doc().copyMember(fromKey.full(*this), toKey.full(*this));
 }
 
 std::vector<ScopedKey> JsonScope::listAvailableKeys(ScopedKeyView const& key) const {
@@ -198,12 +186,12 @@ std::string JsonScope::serialize(ScopedKeyView const& key) const {
     return baseDocument->serialize(key.full(*this));
 }
 
-void JsonScope::deserialize(std::string const& serialOrLink) const {
+void JsonScope::deserialize(std::string const& serialOrLink) {
     JSON tempDoc;
     tempDoc.deserialize(serialOrLink);
     static ScopedKeyView constexpr key("");
     std::string const fullKey = key.full(*this);
-    baseDocument->setSubDoc(fullKey, tempDoc);
+    doc().setSubDoc(fullKey, tempDoc);
 }
 
 //------------------------------------------

@@ -102,7 +102,7 @@ private:
      * @param key The key of the entry in the document.
      * @return True if the Ruleset was successfully extracted, false otherwise.
      */
-    static bool getJsonRuleset(Data::JsonScope const& doc, Data::JsonScope const& entry, Data::ScopedKeyView const& key);
+    static bool getJsonRuleset(Data::JsonScope const& doc, Data::JsonScope& entry, Data::ScopedKeyView const& key);
 
     /**
      * @brief Extracts a Ruleset from a JSON document or static ruleset identifier.
