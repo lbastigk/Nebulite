@@ -137,39 +137,40 @@ void Renderer::initImgui() const {
     style.FontScaleDpi = fullScale;
 
     // Color palette: dark backgrounds, warm accent for UI (tweak hex to taste)
-    auto constexpr bg      = ImVec4(0.05f, 0.07f, 0.10f, 1.00f); // deep navy
-    auto constexpr panel   = ImVec4(0.10f, 0.13f, 0.16f, 1.00f); // slightly lighter
+    auto constexpr layer0  = ImVec4(0.05f, 0.07f, 0.10f, 1.00f); // deep navy
+    auto constexpr layer1  = ImVec4(0.10f, 0.13f, 0.16f, 1.00f); // slightly lighter
     auto constexpr accent  = ImVec4(0.92f, 0.70f, 0.16f, 1.00f); // golden accent
     auto constexpr accent2 = ImVec4(0.48f, 0.86f, 1.00f, 1.00f); // cyan for highlights
     auto constexpr textCol = ImVec4(0.92f, 0.92f, 0.92f, 1.00f); // bright text
+    auto constexpr border  = ImVec4(0.18f, 0.20f, 0.22f, 1.00f);
+    auto constexpr button  = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
 
     ImVec4* colors = style.Colors;
     colors[ImGuiCol_Text]                  = textCol;
-    colors[ImGuiCol_WindowBg]              = bg;
-    colors[ImGuiCol_ChildBg]               = panel;
-    colors[ImGuiCol_PopupBg]               = panel;
-    colors[ImGuiCol_Border]                = ImVec4(0.18f, 0.20f, 0.22f, 1.00f);
+    colors[ImGuiCol_WindowBg]              = layer0;
+    colors[ImGuiCol_ChildBg]               = layer1;
+    colors[ImGuiCol_PopupBg]               = layer1;
+    colors[ImGuiCol_Border]                = border;
     colors[ImGuiCol_FrameBg]               = ImVec4(0.08f, 0.10f, 0.13f, 1.00f);
     colors[ImGuiCol_FrameBgHovered]        = ImVec4(0.16f, 0.18f, 0.20f, 1.00f);
     colors[ImGuiCol_FrameBgActive]         = ImVec4(0.22f, 0.24f, 0.26f, 1.00f);
-    colors[ImGuiCol_Button]                = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
+    colors[ImGuiCol_Button]                = button;
     colors[ImGuiCol_ButtonHovered]         = accent2;
     colors[ImGuiCol_ButtonActive]          = accent;
-    colors[ImGuiCol_Header]                = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
+    colors[ImGuiCol_Header]                = button;
     colors[ImGuiCol_HeaderHovered]         = accent2;
     colors[ImGuiCol_HeaderActive]          = accent;
     colors[ImGuiCol_Separator]             = ImVec4(0.14f, 0.16f, 0.18f, 1.00f);
-    colors[ImGuiCol_ResizeGrip]            = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
-    colors[ImGuiCol_Tab]                   = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
+    colors[ImGuiCol_ResizeGrip]            = button;
+    colors[ImGuiCol_Tab]                   = button;
     colors[ImGuiCol_TabHovered]            = accent2;
     colors[ImGuiCol_TabActive]             = accent;
-    colors[ImGuiCol_TitleBg]               = panel;
-    colors[ImGuiCol_TitleBgActive]         = panel;
+    colors[ImGuiCol_TitleBg]               = layer1;
+    colors[ImGuiCol_TitleBgActive]         = layer1;
 
     // IO config
     ImGuiIO &io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad;
 
     // Load a pixel font if available; fallback to default
     // Use a font config that disables oversampling and enables pixel snapping
@@ -191,8 +192,7 @@ void Renderer::initImgui() const {
 }
 
 void Renderer::initSDL() {
-    if (status.sdlInitialized)
-        return;
+    if (status.sdlInitialized) return;
 
     //------------------------------------------
     // Window
