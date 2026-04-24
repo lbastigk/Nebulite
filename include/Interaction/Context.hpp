@@ -17,10 +17,6 @@ namespace Nebulite::Interaction::Execution {
 class Domain;
 } // namespace Nebulite::Interaction::Execution
 
-namespace Nebulite::Interaction::Logic {
-class Expression; // For Context demotion to ContextScope
-} // namespace Nebulite::Interaction::Logic
-
 //------------------------------------------
 // Includes
 
