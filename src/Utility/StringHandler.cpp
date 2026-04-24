@@ -66,7 +66,9 @@ std::string StringHandler::rStrip(std::string const& input, char const& specialC
 }
 
 std::string StringHandler::strip(std::string const& input, char const& specialChar) {
-    return rStrip(lStrip(input, specialChar), specialChar);
+    size_t const start = input.find_first_not_of(specialChar);
+    size_t const end = input.find_last_not_of(specialChar);
+    return (start == std::string::npos || end == std::string::npos) ? "" : input.substr(start, end - start + 1);
 }
 
 std::vector<std::string> StringHandler::split(std::string_view const& input, char const& delimiter, bool const& keepDelimiter) {
