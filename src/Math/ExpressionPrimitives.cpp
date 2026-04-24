@@ -107,6 +107,11 @@ std::vector<ExpressionPrimitives::FunctionInfo> const& ExpressionPrimitives::ava
         {maxName, maxDesc, reinterpret_cast<void*>(max), TE_FUNCTION2, nullptr},
         {minName, minDesc, reinterpret_cast<void*>(min), TE_FUNCTION2, nullptr},
 
+        // Rounding
+        {roundName, roundDesc, reinterpret_cast<void*>(round), TE_FUNCTION2, nullptr},
+        {roundUpName, roundUpDesc, reinterpret_cast<void*>(roundUp), TE_FUNCTION2, nullptr},
+        {roundDownName, roundDownDesc, reinterpret_cast<void*>(roundDown), TE_FUNCTION2, nullptr},
+
         // More mathematical functions
         {sgnName, sgnDesc, reinterpret_cast<void*>(sgn), TE_FUNCTION1, nullptr},
 

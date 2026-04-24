@@ -203,6 +203,36 @@ public:
         "Usage: min(a, b)";
 
     //----------------------------------
+    // Rounding
+
+    // NOLINTNEXTLINE
+    static double round(double a, double b) {
+        auto const digits = std::floor(b);
+        return std::round(a * std::pow(10, digits)) / std::pow(10, digits);
+    }
+    static auto constexpr roundName = "round";
+    static auto constexpr roundDesc = "Rounds the first argument to the amount of decimal places specified by the second argument.\n"
+        "Usage: round(a, b)";
+
+    // NOLINTNEXTLINE
+    static double roundUp(double a, double b) {
+        auto const digits = std::floor(b);
+        return std::floor(a * std::pow(10, digits)) / std::pow(10, digits);
+    }
+    static auto constexpr roundUpName = "roundUp";
+    static auto constexpr roundUpDesc = "Rounds the first argument up to the amount of decimal places specified by the second argument.\n"
+        "Usage: roundUp(a, b)";
+
+    // NOLINTNEXTLINE
+    static auto constexpr roundDown(double a, double b) {
+        auto const digits = std::floor(b);
+        return std::ceil(a * std::pow(10, digits)) / std::pow(10, digits);
+    }
+    static auto constexpr roundDownName = "roundDown";
+    static auto constexpr roundDownDesc = "Rounds the first argument down to the amount of decimal places specified by the second argument.\n"
+        "Usage: roundDown(a, b)";
+
+    //----------------------------------
     // More mathematical functions
 
     // NOLINTNEXTLINE
