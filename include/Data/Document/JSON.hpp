@@ -19,7 +19,6 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Constants/Alignment.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Data/Document/JsonRvalueTransformer.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
@@ -86,7 +85,11 @@ private:
      * @details Instead of always allocating new double values, we use a pre-allocated cacheline.
      *          This reduces memory fragmentation and improves cache locality.
      */
-    alignas(Constants::Alignment::SIMD_ALIGN) mutable std::array<double, CACHELINE_SIZE> CACHELINE = {0.0};
+    //alignas(Constants::Alignment::SIMD_ALIGN) mutable std::array<double, CACHELINE_SIZE> CACHELINE = {0.0};
+
+    using CacheLine = std::array<double, CACHELINE_SIZE>;
+
+    mutable std::unique_ptr<CacheLine> cacheLine;
 
     /**
      * @brief Current index in the cacheline for the next double value.
@@ -134,14 +137,14 @@ private:
         EntryState state = EntryState::DIRTY; // Default to dirty: each new entry needs flushing
         bool managedInternalDouble = false; // Whether the stable double pointer is managed internally or externally (from cacheline)
 
-        CacheEntry(std::array<double, CACHELINE_SIZE>& cacheLine, size_t& index) {
+        CacheEntry(CacheLine& cl, size_t& index) {
             if (index >= CACHELINE_SIZE) [[unlikely]] {
                 stable_double_ptr = new double(standardNumericValue);
                 managedInternalDouble = true;
             }
             else [[likely]] {
                 // Assign stable double pointer from cacheline
-                stable_double_ptr = &cacheLine[index++];
+                stable_double_ptr = &cl[index++];
                 *stable_double_ptr = standardNumericValue;
                 managedInternalDouble = false;
             }

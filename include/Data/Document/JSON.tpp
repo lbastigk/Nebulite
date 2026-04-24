@@ -101,7 +101,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::st
 template<typename T>
 std::optional<T> JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val) const {
     // Create a new cache entry
-    auto new_entry = std::make_unique<CacheEntry>(CACHELINE, cacheline_index);
+    auto new_entry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
 
     // Get supported types
     auto const& v = RjDirectAccess::getSimpleValue(val);
