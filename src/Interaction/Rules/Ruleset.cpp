@@ -48,8 +48,8 @@ bool JsonRuleset::evaluateCondition(Execution::Domain& other) {
     if (logicalArg->isAlwaysTrue())
         return true;
 
-    Context const context{self, other, Global::instance()};
-    double const result = logicalArg->evalAsDouble(context);
+    ContextScope const contextScope{self.domainScope, other.domainScope, Global::instance().domainScope};
+    double const result = logicalArg->evalAsDouble(contextScope);
     if (std::isnan(result)) {
         // We consider NaN as false
         return false;

@@ -61,12 +61,4 @@ void ContextScope::combineLocal(Data::JsonScope& merged) const {
     merged.setSubDoc(contextOther, other);
 }
 
-ContextScope Context::demote() const {
-    return ContextScope{
-        self.domainScope.shareScope(""),
-        other.domainScope.shareScope(""),
-        global.domainScope.shareScope("")
-    };
-}
-
 } // namespace Nebulite::Interaction

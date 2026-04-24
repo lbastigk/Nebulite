@@ -130,20 +130,7 @@ public:
  *        Contains references to the 'self', 'other', and 'global' domains, with base domain types.
  * @details Second layer of abstraction, only base domain functionality available.
  */
-class Context : public ContextTemplate<Execution::Domain>{
-public:
-    // Context Demotion access
-    // Expression requires demotion so we deduce the full scope of any domain for evaluation.
-    // We assume that any written expression acts on the root scope of the domain, unless specified differently
-    friend class Logic::Expression;
-private:
-    /**
-     * @brief Demotes the full Domain to its inner data. Since the JSON data of a Domain is private,
-     *        demotion is only permitted for few selected classes that require full access.
-     * @return The scope of each context member
-     */
-    [[nodiscard]] ContextScope demote() const ;
-};
+class Context : public ContextTemplate<Execution::Domain>{};
 
 } // namespace Nebulite::Interaction
 #endif // NEBULITE_INTERACTION_CONTEXT_HPP

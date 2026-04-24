@@ -109,16 +109,12 @@ public:
     // Actual evaluation functions
 
     std::string eval(ContextScope const& context, size_t const& recursionDepth = standardRecursionDepth) const ;
-    std::string eval(Context const& context, size_t const& recursionDepth = standardRecursionDepth) const { return eval(context.demote(), recursionDepth); }
 
     double evalAsDouble(ContextScope const& context) const ;
-    double evalAsDouble(Context const& context) const { return evalAsDouble(context.demote()); }
 
     bool evalAsBool(ContextScope const& context) const ;
-    bool evalAsBool(Context const& context) const { return evalAsBool(context.demote()); }
 
     Data::JSON evalAsJson(ContextScope const& context, size_t const& recursionDepth = standardRecursionDepth) const ;
-    Data::JSON evalAsJson(Context const& context, size_t const& recursionDepth = standardRecursionDepth) const { return evalAsJson(context.demote(), recursionDepth); }
 
     //------------------------------------------
     // Static functions for one-time evaluation
@@ -126,16 +122,12 @@ public:
     // 1.) Using full context (self, other and global)
 
     static std::string eval(std::string const& input, ContextScope const& context);
-    static std::string eval(std::string const& input, Context const& context){return eval(input, context.demote());}
 
     static double evalAsDouble(std::string const& input, ContextScope const& context);
-    static double evalAsDouble(std::string const& input, Context const& context){return evalAsDouble(input, context.demote());}
 
     static bool evalAsBool(std::string const& input, ContextScope const& context);
-    static bool evalAsBool(std::string const& input, Context const& context){return evalAsBool(input, context.demote());}
 
     static Data::JSON evalAsJson(std::string const& input, ContextScope const& context);
-    static Data::JSON evalAsJson(std::string const& input, Context const& context){return evalAsJson(input, context.demote());}
 
     // 2.) Global-only evaluation (both self and other context are empty documents)
 
