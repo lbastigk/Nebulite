@@ -119,8 +119,16 @@ public:
  */
 class ContextScope : public ContextTemplate<Data::JsonScope> {
 public:
+    /**
+     * @brief Combines all scopes into a single JSON scope, with keys prefixed by their context (self., other., global.).
+     * @param merged The scope to populate
+     */
     void combineAll(Data::JsonScope& merged) const ;
 
+    /**
+     * @brief Combines only the local scopes (self and other) into a single JSON scope, with keys prefixed by their context (self., other.).
+     * @param merged The scope to populate
+     */
     void combineLocal(Data::JsonScope& merged) const ;
 };
 
