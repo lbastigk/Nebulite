@@ -15,16 +15,14 @@
 
 // Nebulite
 #include "Constants/StandardCapture.hpp"
+#include "Data/Document/KeyGroup.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
-#include "Utility/Coordination/TimedRoutine.hpp"
-
 
 //------------------------------------------
 // Forward declarations
 namespace Nebulite::Core {
 class GlobalSpace; // Forward declaration of domain class GlobalSpace
 } // namespace Nebulite::Core
-
 
 //------------------------------------------
 namespace Nebulite::DomainModule::GlobalSpace {

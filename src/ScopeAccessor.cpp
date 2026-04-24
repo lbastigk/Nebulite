@@ -1,6 +1,5 @@
-#include "ScopeAccessor.hpp"
-
 #include "Interaction/Execution/DomainModule.hpp"
+#include "ScopeAccessor.hpp"
 
 namespace Nebulite {
 

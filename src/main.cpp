@@ -31,19 +31,19 @@
 #include <string>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Constants/StandardCapture.hpp"
 #include "Module/Domain/GlobalSpace/Debug.hpp"
+#include "Nebulite.hpp"
 
 //------------------------------------------
 // Constants
 
 namespace {
 struct MainReturnValues {
-    static constexpr int success = 0; ///< Return value for successful execution
-    static constexpr int criticalError = 1; ///< Return value for execution halted by critical error
-    static constexpr int logCloseError = 2; ///< Return value for failure to close error log
-    static constexpr int logCloseException = 3; ///< Return value for exception during error log closure
+    static constexpr int success = 0;
+    static constexpr int criticalError = 1;
+    static constexpr int logCloseError = 2;
+    static constexpr int logCloseException = 3;
 };
 } // namespace
 
