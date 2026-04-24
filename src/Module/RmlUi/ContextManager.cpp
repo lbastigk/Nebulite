@@ -14,7 +14,7 @@ ContextManager::ContextManager(Utility::IO::Capture& c, Core::Renderer& r) : Rml
 
 void ContextManager::update() {
     for (auto const& document : documents) {
-        updateElement(document, [&](Rml::Element* element, Rml::Element* parent, size_t const& index) {
+        Graphics::RmlInterface::updateElement(document, [&](Rml::Element* element, Rml::Element* parent, size_t const& index) {
             if (element->GetAttribute("data-eval") || element->GetAttribute("data-if")) {
                 // Skip elements that are part of a reflection, as they will be handled by the Reflection module
                 if (!parent->GetAttribute("data-reflect")) {

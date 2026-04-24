@@ -29,6 +29,6 @@ spawn ./Resources/Renderobjects/Boxes/bounce.jsonc|posX=100|posY=100|physics.vX=
 # Spawn on mouse click
 
 wait 100
-always if $(eq({global.renderer.input.mouse.delta.left},1)) eval set bounceCount $({global.bounceCount}+1)
-always if $(eq({global.renderer.input.mouse.delta.left},1)) eval echo Spawning at: ($06.2f({global.renderer.input.mouse.current.scaledX}),$06.2f({global.renderer.input.mouse.current.scaledY})) | Count: {global.bounceCount}
-always if $(eq({global.renderer.input.mouse.delta.left},1)) eval spawn ./Resources/Renderobjects/Boxes/bounce.jsonc|posX={global.renderer.input.mouse.current.scaledX}|posY={global.renderer.input.mouse.current.scaledY}|physics.vX={global.renderer.input.mouse.delta.scaledX}|physics.vY={global.renderer.input.mouse.delta.scaledY}
+always if $(eq({global:renderer.input.mouse.delta.left},1)) eval set bounceCount $({global:bounceCount}+1)
+always if $(eq({global:renderer.input.mouse.delta.left},1)) eval echo Spawning at: ($06.2f({global:renderer.input.mouse.current.scaledX}),$06.2f({global:renderer.input.mouse.current.scaledY})) | Count: {global:bounceCount}
+always if $(eq({global:renderer.input.mouse.delta.left},1)) eval spawn ./Resources/Renderobjects/Boxes/bounce.jsonc|posX={global:renderer.input.mouse.current.scaledX}|posY={global:renderer.input.mouse.current.scaledY}|physics.vX={global:renderer.input.mouse.delta.scaledX}|physics.vY={global:renderer.input.mouse.delta.scaledY}

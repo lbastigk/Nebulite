@@ -3,8 +3,8 @@
     "condition": "1",
     "action": {
         "assign": [
-            "self.physics.vX = $( {global.input.movement::right} - {global.input.movement::left} )",
-            "self.physics.vY = $( {global.input.movement::down} - {global.input.movement::up} )"
+            "self:physics.vX = $( {global:input.movement::right} - {global:input.movement::left} )",
+            "self:physics.vY = $( {global:input.movement::down} - {global:input.movement::up} )"
         ],
         "functioncall": {
             "global": [],

@@ -22,18 +22,18 @@ spawn ./Resources/Renderobjects/Planets/sun.jsonc \
 always spawn ./Resources/Renderobjects/Planets/obj1.jsonc \
     |physics.vX=020|physics.vY=-120 \
     |posX=250|posY=250 \
-    |eval set size.x {global.planetSize} \
-    |eval set size.y {global.planetSize} \
-    |eval set draw.core.rect.dst.h {global.planetSize} \
-    |eval set draw.core.rect.dst.w {global.planetSize}
+    |eval set size.x {global:planetSize} \
+    |eval set size.y {global:planetSize} \
+    |eval set draw.core.rect.dst.h {global:planetSize} \
+    |eval set draw.core.rect.dst.w {global:planetSize}
 
 always spawn ./Resources/Renderobjects/Planets/obj2.jsonc \
     |physics.vX=-20|physics.vY=0120 \
     |posX=750|posY=750 \
-    |eval set size.x {global.planetSize} \
-    |eval set size.y {global.planetSize} \
-    |eval set draw.core.rect.dst.h {global.planetSize} \
-    |eval set draw.core.rect.dst.w {global.planetSize} \
+    |eval set size.x {global:planetSize} \
+    |eval set size.y {global:planetSize} \
+    |eval set draw.core.rect.dst.h {global:planetSize} \
+    |eval set draw.core.rect.dst.w {global:planetSize} \
 
 wait 1000
 always-clear

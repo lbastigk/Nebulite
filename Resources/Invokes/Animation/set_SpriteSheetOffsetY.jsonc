@@ -3,7 +3,7 @@
     "condition": "1",
     "action": {
         "assign": [
-            "self.draw.core.rect.src.y = $( {self.animation.Direction} + {self.animation.attack} * 16 * 4 )"
+            "self:draw.core.rect.src.y = $( {self:animation.Direction} + {self:animation.attack} * 16 * 4 )"
         ],
         "functioncall": {
             "global": [],

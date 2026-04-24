@@ -3,8 +3,8 @@
     "condition": "1",
     "action": {
         "assign": [
-            "self.posX = $(floor({self.posX}))",
-            "self.posY = $(floor({self.posY}))"
+            "self:posX = $(floor({self:posX}))",
+            "self:posY = $(floor({self:posY}))"
         ],
         "functioncall": {
             "global": [],

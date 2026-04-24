@@ -52,9 +52,9 @@ In Nebulite, each Expression/Ruleset has access to 3 domains defined by keywords
 as well as read-only resources for Expressions defined through a link.
 
 Examples for access in Expressions:
-- `{self.posX}` would access the posX variable of the context self
-- `{other.posX}` would access the posX variable of the context other
-- `{global.someVar}` would access the someVar variable of the context global
+- `{self:posX}` would access the posX variable of the context self
+- `{other:posX}` would access the posX variable of the context other
+- `{global:someVar}` would access the someVar variable of the context global
 - `{./link/to/file.json:key}` would access a read-only document
 
 See also: [Expression](#expression), [Domain](#domain), [GlobalSpace](#globalspace), [RenderObject](#renderobject)
@@ -110,8 +110,8 @@ Example:
 set workspace.arr[0] 1
 set workspace.arr[1] 2
 set workspace.arr[2] 3
-eval nop {global.workspace|setFromResult arraySize {arr|length|toInt}|print}
-eval nop {global.workspace|setFromResult arraySize {1!arr|length|toInt}|print}
+eval nop {global:workspace|setFromResult arraySize {arr|length|toInt}|print}
+eval nop {global:workspace|setFromResult arraySize {1!arr|length|toInt}|print}
 exit
 ```
 The first eval fails, because the expression evaluation tries to evaluate `{arr|length|toInt}`
@@ -125,7 +125,7 @@ See also: [Expression](#expression), [FuncTree](#functree), [Transformation](#tr
 Inside the Nebulite Framework, an expression is any string that 
 Nebulite::Interaction::Logic::Expression can compile. This includes any mix of:
 - Text
-- Variable: `{self.var}`
+- Variable: `{self:var}`
 - Expression: `$(1+1)`
 
 Expressions may include variables. Certain conditions must be met for an expression to compile. 
@@ -206,8 +206,8 @@ It serves as a scoped view over an existing JSON document, used for modular data
 -----------------
 ### Multiresolve
 A feature that allows nested variable access: 
-`{global.mirror.id{self.id}.posX}` would evaluate to `{global.mirror.id1.posX}` first, 
-if `{self.id}` = `1`. Then, `{global.mirror.id1.posX}` is evaluated. 
+`{global:mirror.id{self:id}.posX}` would evaluate to `{global:mirror.id1.posX}` first, 
+if `{self:id}` = `1`. Then, `{global:mirror.id1.posX}` is evaluated. 
 Evaluation may be delayed with the Evaluation-delay feature.
 
 See also: [Evaluation-delay](#evaluation-delay), [Context](#context), [Expression](#expression)
@@ -274,7 +274,7 @@ See also: [Domain](#domain)
 ### Transformation
 During JSON variable access, Transformations may be applied to the retrieved value.
 Transformations are supported for any JSON variable access.
-Example: `{self.var|add 5}` would retrieve `{self.var}` and apply the add transformation to it before returning it. 
+Example: `{self:var|add 5}` would retrieve `{self:var}` and apply the add transformation to it before returning it. 
 Transformations are applied after all variable resolving is done, including Multiresolve. 
 
 See also: [Evaluation-delay](#evaluation-delay) [JSON](#json), [Multiresolve](#multiresolve)

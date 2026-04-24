@@ -23,6 +23,7 @@ struct RmlInterface {
     Rml::DataModelConstructor dataModelConstructor;
     std::vector<std::unique_ptr<Module::Base::RmlUiModule>> modules;
 
+    // Simpler identifiers based on element pointer did not work previously, maybe this isn't the case anymore?
     struct RmlElementIdentifier {
         Rml::Element* parent;
         size_t index; // Index of the element among its siblings, to uniquely identify it in case of multiple elements with the same tag
@@ -53,7 +54,9 @@ struct RmlInterface {
     absl::flat_hash_map<Rml::ElementDocument*, ContextAndScope> documentContext; // Map of document to its context and scope for expression evaluation
     absl::flat_hash_map<RmlElementIdentifier, ContextAndScope> elementContext; // Map of element to its context and scope for expression evaluation
 
-    void updateModules() const ;
+    static void updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*, size_t const&)> const& updateFunc);
+
+    void update() const ;
 
     void processRmlUiEvent(const SDL_Event& event) const ;
 };

@@ -24,8 +24,8 @@ set animal dog
 # grid or example
 set rml.settings.document_to_show example
 
-if $({global.rml.settings.document_to_show|strCompare equals grid})    then rmlui document load demo1 ./Resources/Rml/alignment.rml
-if $({global.rml.settings.document_to_show|strCompare equals example}) then rmlui document load demo2 ./Resources/Rml/example.rml
+if $({global:rml.settings.document_to_show|strCompare equals grid})    then rmlui document load demo1 ./Resources/Rml/alignment.rml
+if $({global:rml.settings.document_to_show|strCompare equals example}) then rmlui document load demo2 ./Resources/Rml/example.rml
 
 set renderer.animal dog
 set renderer.show_text true

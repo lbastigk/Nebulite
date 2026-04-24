@@ -1,0 +1,16 @@
+set-res 1500 1000
+set-fps 2000
+
+set rml.settings.show_text 1
+set rml.input.animal dog
+
+# grid or example
+set rml.settings.document_to_show example
+
+if $({global:rml.settings.document_to_show|strCompare equals grid})    then rmlui document load demo1 ./Resources/Rml/alignment.rml
+if $({global:rml.settings.document_to_show|strCompare equals example}) then rmlui document load demo2 ./Resources/Rml/example.rml
+
+#set settings.n 20
+#task TaskFiles/Benchmarks/gravity_XL_unlimited.nebs
+wait 1
+imgui-view on

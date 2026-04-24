@@ -44,13 +44,10 @@ public:
     // Thread runners are unique, no locking needed
     static auto constexpr noLockArraySize = Constants::ThreadSettings::Maximum::totalThreadCount + 4; // A bit extra, just in case
 
-protected:
     std::shared_ptr<JSON> baseDocument;
-
-    /**
-     * @brief A helper variable that is modified to signal certain functions as non-const.
-     */
-    int64_t helperNonConstVar = 0;
+protected:
+    // NOLINTNEXTLINE
+    JSON& doc(){return *baseDocument;} // For non-const-access
 
 private:
     /**
@@ -252,7 +249,7 @@ public:
     [[nodiscard]] std::string serialize(ScopedKeyView const& key) const ;
     [[nodiscard]] std::string serialize(ScopedKey const& key) const {return serialize(key.view());}
 
-    void deserialize(std::string const& serialOrLink) const ;
+    void deserialize(std::string const& serialOrLink);
 
     //------------------------------------------
     // Access test

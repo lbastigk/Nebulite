@@ -3,8 +3,8 @@
         "command": [
             "# Upper and Lower Case Transformation Test",
             "set test.string HelloWorld",
-            "eval echo {global.test.string|toUpper}",
-            "eval echo {global.test.string|toLower}",
+            "eval echo {global:test.string|toUpper}",
+            "eval echo {global:test.string|toLower}",
             "exit"
         ],
         "expected": {
@@ -19,8 +19,8 @@
         "command": [
             "# Substring Extraction Test",
             "set test.string HelloWorld",
-            "eval echo {global.test.string|substring 0 5}",
-            "eval echo {global.test.string|substring 5 5}",
+            "eval echo {global:test.string|substring 0 5}",
+            "eval echo {global:test.string|substring 5 5}",
             "exit"
         ],
         "expected": {
@@ -35,8 +35,8 @@
         "command": [
             "# String Replacement Test",
             "set test.string HelloWorld",
-            "eval echo {global.test.string|replace World Universe}",
-            "eval echo {global.test.string|replace Hello Hi}",
+            "eval echo {global:test.string|replace World Universe}",
+            "eval echo {global:test.string|replace Hello Hi}",
             "exit"
         ],
         "expected": {
@@ -67,7 +67,7 @@
         "command": [
             "# String count appearance",
             "set test.string HelloWorldHello",
-            "eval echo {global.test.string|strCountAppearance Hello}",
+            "eval echo {global:test.string|strCountAppearance Hello}",
             "exit"
         ],
         "expected": {
@@ -81,9 +81,9 @@
         "command": [
             "# String equality",
             "set test.string HelloWorld",
-            "eval nop {global.test.string|strCompare equals HelloWorld|print}",
-            "eval nop {global.test.string|strCompare equals Hello|print}",
-            "eval nop {global.test.string|strCompare equals helloworld|print}",
+            "eval nop {global:test.string|strCompare equals HelloWorld|print}",
+            "eval nop {global:test.string|strCompare equals Hello|print}",
+            "eval nop {global:test.string|strCompare equals helloworld|print}",
             "exit"
         ],
         "expected": {
@@ -99,9 +99,9 @@
         "command": [
             "# String contains",
             "set test.string HelloWorld",
-            "eval nop {global.test.string|strCompare contains Hello|print}",
-            "eval nop {global.test.string|strCompare contains World|print}",
-            "eval nop {global.test.string|strCompare contains Hi|print}",
+            "eval nop {global:test.string|strCompare contains Hello|print}",
+            "eval nop {global:test.string|strCompare contains World|print}",
+            "eval nop {global:test.string|strCompare contains Hi|print}",
             "exit"
         ],
         "expected": {
@@ -117,10 +117,10 @@
         "command": [
             "# String starts with and ends with",
             "set test.string HelloWorld",
-            "eval nop {global.test.string|strCompare startsWith Hello|print}",
-            "eval nop {global.test.string|strCompare startsWith World|print}",
-            "eval nop {global.test.string|strCompare endsWith World|print}",
-            "eval nop {global.test.string|strCompare endsWith Hello|print}",
+            "eval nop {global:test.string|strCompare startsWith Hello|print}",
+            "eval nop {global:test.string|strCompare startsWith World|print}",
+            "eval nop {global:test.string|strCompare endsWith World|print}",
+            "eval nop {global:test.string|strCompare endsWith Hello|print}",
             "exit"
         ],
         "expected": {

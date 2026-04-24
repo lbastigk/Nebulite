@@ -1,15 +1,15 @@
 echo Classic Gravity test with 1 Sun and 2 Planets
 set framesToRender 500
-eval echo Rendering {global.framesToRender} Frames
+eval echo Rendering {global:framesToRender} Frames
 
 set-fps 1000
 set physics.G 10
 spawn ./Resources/Renderobjects/Planets/sun.jsonc
 spawn ./Resources/Renderobjects/Planets/obj1.jsonc
 spawn ./Resources/Renderobjects/Planets/obj2.jsonc
-eval wait {global.framesToRender}
+eval wait {global:framesToRender}
 #print all
 #print-state
 echo Test Passed!
-eval echo Rendered {global.framesToRender} Frames in: {global.time.t} Seconds.
+eval echo Rendered {global:framesToRender} Frames in: {global:time.t} Seconds.
 exit

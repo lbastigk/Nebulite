@@ -6,7 +6,7 @@
 #include "Utility/IO/FileManagement.hpp"
 
 #include "Module/RmlUi/ContextManager.hpp"
-#include "Module/RmlUi/DataInput.hpp"
+#include "Module/RmlUi/DataReference.hpp"
 #include "Module/RmlUi/ExpressionManager.hpp"
 #include "Module/RmlUi/Reflection.hpp"
 
@@ -29,7 +29,7 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
 
     // Plugins
     modules.emplace_back(std::make_unique<Module::RmlUi::ContextManager>(renderer.capture, renderer));
-    modules.emplace_back(std::make_unique<Module::RmlUi::DataInput>(renderer.capture, renderer));
+    modules.emplace_back(std::make_unique<Module::RmlUi::DataReference>(renderer.capture, renderer));
     modules.emplace_back(std::make_unique<Module::RmlUi::Reflection>(renderer.capture, renderer));
     modules.emplace_back(std::make_unique<Module::RmlUi::ExpressionManager>(renderer.capture, renderer)); // Must come after Reflection module!
 
@@ -63,11 +63,25 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
 
     // Data Model used for data-value sync
     dataModelConstructor = context->CreateDataModel("nebuliteDataSync");
-    updateModules();
+    update();
 }
 
-void RmlInterface::updateModules() const {
-    for (auto& module : modules) {
+void RmlInterface::updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*, size_t const&)> const& updateFunc) {
+    size_t const numChildren = static_cast<size_t>(element->GetNumChildren());
+    for (size_t i = 0; i < numChildren; ++i) {
+        if (auto const child = element->GetChild(static_cast<int>(i)); child) {
+            updateFunc(child, element, i);
+            updateElement(child, updateFunc);
+        }
+    }
+}
+
+void RmlInterface::update() const {
+    for (auto const& doc : documentContext | std::views::keys) {
+        doc->UpdateDocument();
+    }
+
+    for (auto const& module : modules) {
         module->update();
     }
 }

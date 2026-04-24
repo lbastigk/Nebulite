@@ -3,8 +3,8 @@
     "condition": "1",
     "action": {
         "assign": [
-            "self.posX = $( ({global.input.movement::right} - {global.input.movement::left}) * 40 * {global.time.dt} )",
-            "self.posY = $( ({global.input.movement::down} - {global.input.movement::up}) * 40 * {global.time.dt} )"
+            "self:posX = $( ({global:input.movement::right} - {global:input.movement::left}) * 40 * {global:time.dt} )",
+            "self:posY = $( ({global:input.movement::down} - {global:input.movement::up}) * 40 * {global:time.dt} )"
         ],
         "functioncall": {
             "global": [],

@@ -5,10 +5,10 @@
             "# If there is any 3 left in the output, there is a problem",
             "set test.val 3",
             "set test.val2 4",
-            "assign global.test.val = {global.test.val2}",
+            "assign global:test.val = {global:test.val2}",
             "print test","print test.val",
-            "eval echo {global.test}",
-            "eval echo {global.test.val}",
+            "eval echo {global:test}",
+            "eval echo {global:test.val}",
             "exit"
         ],
         "expected": {
@@ -35,7 +35,7 @@
                 "object",
                 "value",
                 "value:float:64",
-                "1.) Setting global.time to a simple value:",
+                "1.) Setting global:time to a simple value:",
                 "value",
                 "value:string:15",
                 "null",
@@ -54,12 +54,12 @@
             "time set-fixed-dt 1",
             "set-fps 60",
             "wait 1",
-            "eval echo {global.time}",
+            "eval echo {global:time}",
             "wait 1",
             "set time someOverrideValue",
             "wait 1",
             "# TODO: expected should be that the last eval returns object again, as the time module overrides the value",
-            "eval echo {global.time}",
+            "eval echo {global:time}",
             "exit"
         ],
         "expected": {

@@ -159,7 +159,7 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
     auto const& ownerContextScope = ownerContextAndScope.value().ctxScope;
 
     // Evaluate expression, result must be an array
-    entry.jsonResult = entry.entries.evalAsJson(ownerContext);
+    entry.jsonResult = entry.entries.evalAsJson(ownerContextScope);
     if (auto const type = entry.jsonResult.memberType(""); type != Data::KeyType::array) {
         capture.warning.println("Reflection expression did not evaluate to an array. Skipping reflection. Result: " + entry.jsonResult.serialize());
         return;

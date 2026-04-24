@@ -445,7 +445,7 @@ void Renderer::render() {
 
     // RML
     // Update variables
-    rml.updateModules();
+    rml.update();
     rml.context->Update();
     rml.context->Render();
 

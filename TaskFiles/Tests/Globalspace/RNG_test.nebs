@@ -9,6 +9,6 @@ selected-object get 50
 always selected-object parse set posX 100   # using some constant getter, modifies RNG state on each call
 always selected-object parse set posY 100   # using some constant getter, modifies RNG state on each call
 wait 1000
-eval echo {global.random.A}
+eval echo {global:random.A}
 exit #20095 is the expected output. If it changed, we either modified the RNG generation or something went wrong
 # Tested with console call, does not modify the RNG state

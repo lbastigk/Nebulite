@@ -47,17 +47,10 @@ namespace Nebulite::Interaction::Logic {
  *          Expressions can be parsed from a string format and evaluated against JSON documents.
  *          Expressions are a mix of evaluations, variables and text:
  *          e.g.:
- *          "This script took {global.time.t} Seconds"
- *          "The rounded value is: $03.2f( {global.value} )"
+ *          "This script took {global:time.t} Seconds"
+ *          "The rounded value is: $03.2f( {global:value} )"
  *          Supports explicit evaluation delay formatting with {n! ... }:
  *          Any variable wrapped in {!...} instead of {...} will be treated as pure text and will not be evaluated
- * @todo Add support for marrying contexts into a single data structure for transformations
- *       Example: If we have a matrix transformation module, multiplying matrices
- *       from different contexts can be difficult, as we need to somehow copy them into one context first.
- *       With context marrying, we could have a single context that encompasses all variables from self, other and global, with some sort of prefix to differentiate them.
- *       {all.|matMultiply self.matrix other.matrix} could then be evaluated directly without needing to copy variables into a new context first.
- *       Unless we also implement scope marrying, we will have to copy a lot of data here. Perhaps a selfOther combined context is helpful for faster evaluation:
- *       {so.|matMultiply self.matrix other.matrix} could then be evaluated directly without needing to copy global variables, which is typically the largest portion of variables, into a new context first.
  */
 class Expression {
 public:
@@ -97,7 +90,7 @@ public:
     /**
      * @brief Checks if the expression can be returned as a string.
      * @details This is almost always the case. The only exception is an expression with only one variable,
-     *          e.g. "{global.var}" or "{self.arr}"
+     *          e.g. "{global:var}" or "{self:arr}"
      * @return True if the expression can be returned as string, false otherwise.
      */
     [[nodiscard]] bool isReturnableAsString() const noexcept {
@@ -116,43 +109,23 @@ public:
     // Actual evaluation functions
 
     std::string eval(ContextScope const& context, size_t const& recursionDepth = standardRecursionDepth) const ;
-    std::string eval(Context const& context, size_t const& recursionDepth = standardRecursionDepth) const { return eval(context.demote(), recursionDepth); }
 
     double evalAsDouble(ContextScope const& context) const ;
-    double evalAsDouble(Context const& context) const { return evalAsDouble(context.demote()); }
 
     bool evalAsBool(ContextScope const& context) const ;
-    bool evalAsBool(Context const& context) const { return evalAsBool(context.demote()); }
 
     Data::JSON evalAsJson(ContextScope const& context, size_t const& recursionDepth = standardRecursionDepth) const ;
-    Data::JSON evalAsJson(Context const& context, size_t const& recursionDepth = standardRecursionDepth) const { return evalAsJson(context.demote(), recursionDepth); }
 
     //------------------------------------------
     // Static functions for one-time evaluation
 
-    // 1.) Using full context (self, other and global)
-
     static std::string eval(std::string const& input, ContextScope const& context);
-    static std::string eval(std::string const& input, Context const& context){return eval(input, context.demote());}
 
     static double evalAsDouble(std::string const& input, ContextScope const& context);
-    static double evalAsDouble(std::string const& input, Context const& context){return evalAsDouble(input, context.demote());}
 
     static bool evalAsBool(std::string const& input, ContextScope const& context);
-    static bool evalAsBool(std::string const& input, Context const& context){return evalAsBool(input, context.demote());}
 
     static Data::JSON evalAsJson(std::string const& input, ContextScope const& context);
-    static Data::JSON evalAsJson(std::string const& input, Context const& context){return evalAsJson(input, context.demote());}
-
-    // 2.) Global-only evaluation (both self and other context are empty documents)
-
-    static std::string eval(std::string const& input);
-
-    static double evalAsDouble(std::string const& input);
-
-    static bool evalAsBool(std::string const& input);
-
-    static Data::JSON evalAsJson(std::string const& input);
 
     //------------------------------------------
     // Other helpers
@@ -211,13 +184,7 @@ private:
      * @brief Provides an empty JSON document that can be used as a context placeholder
      * @return The empty JSON document reference
      */
-    static Data::JsonScope& emptyDoc();
-
-    /**
-     * @brief Provides access to the global document for expression evaluation
-     * @return A reference to the global document
-     */
-    static Data::JsonScope& globalDoc();
+    static Data::JsonScope const& emptyDoc();
 
     /**
      * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
@@ -259,19 +226,7 @@ private:
             text // outside of a $<cast>(...), not a variable reference, Represents a plain text string
         } type = Type::text;
 
-        /**
-         * @enum Nebulite::Interaction::Logic::Expression::Component::ContextType
-         * @brief Represents the source of a variable reference.
-         */
-        enum class ContextType : uint8_t {
-            self, // Using the "self" document for expression evaluation
-            other, // Using the "other" document for expression evaluation
-            global, // Using the "global" document for expression evaluation
-            local, // Context marrying: self and other
-            full, // Context marrying: self, other and global
-            resource, // Using a document from the document cache for expression evaluation
-            None // No context given for evaluation
-        } contextType = ContextType::None; // Default to None
+        ContextDeriver::TargetType contextType = ContextDeriver::TargetType::none; // Default to none
 
         Formatter formatter; // Formatting options for this component, if applicable
 
@@ -357,7 +312,7 @@ private:
 
         /**
          * @brief For variable component handling. Evaluates any inner expressions/variables within the component's key and returns the resulting key.
-         * @details If the key, for example is nested: {global.{self.info.requiredKey}}, it turns into {global.evaluatedValueOfRequiredKey}
+         * @details If the key, for example is nested: {global:{self:info.requiredKey}}, it turns into {global:evaluatedValueOfRequiredKey}
          *          and fetches that value from the global document.
          * @param context The context to evaluate against.
          * @param recursionDepth The current recursion depth for nested evaluations.
@@ -365,7 +320,7 @@ private:
          */
         [[nodiscard]] std::expected<std::string, KeyEvaluationInfo> evaluateKey(ContextScope const& context, size_t const& recursionDepth) const ;
 
-        [[nodiscard]] std::optional<std::pair<std::string, ContextType>> handleNesting(ContextScope const& context, size_t const& recursionDepth) const ;
+        [[nodiscard]] std::optional<std::pair<std::string, ContextDeriver::TargetType>> handleNesting(ContextScope const& context, size_t const& recursionDepth) const ;
     };
 
     /**
@@ -398,17 +353,6 @@ private:
     } virtualDoubles;
 
     /**
-     * @brief Pairs of context types and their corresponding prefixes for easy reference when parsing variable keys.
-     */
-    static std::array<std::pair<Component::ContextType, std::string_view>, 5> constexpr contextPrefixPairs = {
-        std::make_pair(Component::ContextType::self, "self."),
-        std::make_pair(Component::ContextType::other, "other."),
-        std::make_pair(Component::ContextType::local, "local."),
-        std::make_pair(Component::ContextType::global, "global."),
-        std::make_pair(Component::ContextType::full, "full.")
-    };
-
-    /**
      * @brief Info about this expressions evaluation-ability
      * @details Some expressions are not always castable to types like numeric values or strings
      *          without the loss of information
@@ -422,8 +366,8 @@ private:
         /**
          * @brief Only false if the expression consists of a single component of type variable
          * @details This is because retrieving values without any additional text etc. has no implicit cast to string
-         *          A single value could hold more complex types: "{global.someObject}",
-         *          whereas "My value is: {global.value}" has an implicit cast to a string.
+         *          A single value could hold more complex types: "{global:someObject}",
+         *          whereas "My value is: {global:value}" has an implicit cast to a string.
          */
         bool returnableAsString = false;
 
@@ -478,28 +422,7 @@ private:
      * @param key The key in the JSON document that the variable refers to.
      * @param contextType The context from which the variable is being registered.
      */
-    void registerVariable(std::string te_name, std::string const& key, Component::ContextType const& contextType);
-
-    /**
-     * @brief used to strip any context prefix from a key
-     * @details Removes the beginning, if applicable:
-     *          - `self.`
-     *          - `other.`
-     *          - `global.`
-     *          Does not remove the beginning context for resource variables,
-     *          as the beginning is needed for the link.
-     * @param key The key to strip the context from.
-     * @return The key without its context prefix.
-     */
-    static std::string stripContext(std::string const& key);
-
-    /**
-     * @brief Gets the context from a key before it's stripped
-     * @details If the key doesn't start with `self.`, `other.`, or `global.`, it is considered a resource variable.
-     * @param key The key to get the context from.
-     * @return The context of the key.
-     */
-    static Component::ContextType getContextType(std::string const& key);
+    void registerVariable(std::string te_name, std::string const& key, ContextDeriver::TargetType const& contextType);
 
     /**
      * @brief Parses the given expression into a series of components.

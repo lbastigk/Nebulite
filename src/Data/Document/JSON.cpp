@@ -5,7 +5,9 @@
 
 namespace Nebulite::Data {
 
-JSON::JSON() = default;
+JSON::JSON() {
+    cacheLine = std::make_unique<CacheLine>();
+}
 
 JSON::~JSON() {
     std::scoped_lock const lockGuard(mtx);
@@ -17,24 +19,24 @@ JSON::~JSON() {
 // Allow move
 
 JSON& JSON::operator=(JSON&& other) noexcept {
-    static_assert(sizeof(JSON) == 1280, "JSON size has changed, please review the move assignment operator for potential cache invalidation cache issues.");
+    static_assert(sizeof(JSON) == 240, "JSON size has changed, please review the move assignment operator for potential cache invalidation cache issues.");
 
     if (this != &other) {
         std::scoped_lock lockGuard(mtx, other.mtx);
         doc = std::move(other.doc);
         cache = std::move(other.cache);
-        CACHELINE = other.CACHELINE;
+        cacheLine = std::move(other.cacheLine);
     }
     return *this;
 }
 
 JSON::JSON(JSON&& other) noexcept {
-    static_assert(sizeof(JSON) == 1280, "JSON size has changed, please review the move assignment operator for potential cache invalidation issues.");
+    static_assert(sizeof(JSON) == 240, "JSON size has changed, please review the move assignment operator for potential cache invalidation issues.");
 
     std::scoped_lock lockGuard(mtx, other.mtx); // Locks both, deadlock-free
     doc = std::move(other.doc);
     cache = std::move(other.cache);
-    CACHELINE = other.CACHELINE;
+    cacheLine = std::move(other.cacheLine);
 }
 
 //------------------------------------------
@@ -233,7 +235,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
         if (it == cache.end() && RjDirectAccess::getSimpleValue(val).has_value()) {
             // Insert only if the value is of a supported type, otherwise complex types might be interpreted as simple values.
             // Create new cache entry and insert into cache
-            auto new_entry = std::make_unique<CacheEntry>(CACHELINE, cacheline_index);
+            auto new_entry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
             cache[key] = std::move(new_entry);
             it = cache.find(key);
         }
@@ -338,7 +340,7 @@ double* JSON::getStableDoublePointer(std::string const& key) const {
     }
 
     // If loading from document failed, create a new derived entry
-    auto new_entry = std::make_unique<CacheEntry>(CACHELINE, cacheline_index);
+    auto new_entry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
     new_entry->value = standardNumericValue;
     *new_entry->stable_double_ptr = standardNumericValue;
     new_entry->last_double_value = standardNumericValue;
@@ -390,7 +392,7 @@ void JSON::setVariant(std::string const& key, RjDirectAccess::simpleValue const&
         synchronizeChildren(key);
 
         // Create new entry directly in DIRTY state
-        auto new_entry = std::make_unique<CacheEntry>(CACHELINE, cacheline_index);
+        auto new_entry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
 
         // Set entry values
         new_entry->value = val;

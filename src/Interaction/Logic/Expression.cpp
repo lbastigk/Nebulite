@@ -56,31 +56,6 @@ void Expression::reset() {
     Math::ExpressionPrimitives::registerExpressions(te_variables);
 }
 
-std::string Expression::stripContext(std::string const& key) {
-    auto const it = std::ranges::find_if(contextPrefixPairs, [&](auto const p) {
-        auto const& str = p.second;
-        return key.size() >= str.size() && std::equal(str.begin(), str.end(), key.begin());
-    });
-    if (it != contextPrefixPairs.end()) {
-        return key.substr(it->second.size());
-    }
-    return key;
-}
-
-Expression::Component::ContextType Expression::getContextType(std::string const& key) {
-    if (key.empty() || key.starts_with("|")) {
-        return Component::ContextType::None;
-    }
-    auto const it = std::ranges::find_if(contextPrefixPairs, [&](auto const p) {
-        auto const& str = p.second;
-        return key.size() >= str.size() && std::equal(str.begin(), str.end(), key.begin());
-    });
-    if (it != contextPrefixPairs.end()) {
-        return it->first;
-    }
-    return Component::ContextType::resource; // All other prefixes are considered type resource
-}
-
 void Expression::compileIfExpression(std::shared_ptr<Component> const& component) const {
     if (component->type == Component::Type::eval) {
         // Compile the expression using TinyExpr
@@ -112,7 +87,7 @@ bool isAvailableAsDoublePtr(std::string const& key) {
 }
 } // anonymous namespace
 
-void Expression::registerVariable(std::string te_name, std::string const& key, Component::ContextType const& contextType) {
+void Expression::registerVariable(std::string te_name, std::string const& key, ContextDeriver::TargetType const& contextType) {
     // Check if variable exists in variables vector:
     bool const found = std::ranges::any_of(te_variables, [&](auto const& te_var) {
         if (te_var.name == te_name) {
@@ -127,14 +102,14 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
 
         // Register cache based on context
         switch (contextType) {
-        case Component::ContextType::self:
+        case ContextDeriver::TargetType::self:
             if (isAvailableAsDoublePtr(key)) {
                 virtualDoubles.stable.self.push_back(vd);
             } else {
                 virtualDoubles.unstable.self.push_back(vd);
             }
             break;
-        case Component::ContextType::other:
+        case ContextDeriver::TargetType::other:
             // Type other is always non-remanent, as other document reference can change
             // However, we need to distinguish between stable and unstable double pointers
             // Meaning the ones we can get from an ordered list, and the ones we need to resolve each time
@@ -145,23 +120,23 @@ void Expression::registerVariable(std::string te_name, std::string const& key, C
                 virtualDoubles.unstable.other.push_back(vd);
             }
             break;
-        case Component::ContextType::local:
+        case ContextDeriver::TargetType::local:
             virtualDoubles.unstable.local.push_back(vd);
             break;
-        case Component::ContextType::global:
+        case ContextDeriver::TargetType::global:
             if (isAvailableAsDoublePtr(key)) {
                 virtualDoubles.stable.global.push_back(vd);
             } else {
                 virtualDoubles.unstable.global.push_back(vd);
             }
             break;
-        case Component::ContextType::full:
+        case ContextDeriver::TargetType::full:
             virtualDoubles.unstable.full.push_back(vd);
             break;
-        case Component::ContextType::resource:
+        case ContextDeriver::TargetType::resource:
             virtualDoubles.unstable.resource.push_back(vd);
             break;
-        case Component::ContextType::None:
+        case ContextDeriver::TargetType::none:
             // Use an empty document
             virtualDoubles.unstable.none.push_back(vd);
             break;
@@ -377,8 +352,8 @@ void Expression::parseTokenTypeEval(std::string const& token) {
         if (subToken.starts_with('{')) {
             std::string const te_name = varNameGen.getUniqueName(subToken);
             std::string key = subToken.substr(1, subToken.length() - 2);
-            Component::ContextType contextType = getContextType(key);
-            key = stripContext(key);
+            ContextDeriver::TargetType contextType = ContextDeriver::getTypeFromString(key);
+            key = ContextDeriver::stripContext(key);
             registerVariable(te_name, key, contextType);
             currentComponent->stringRepresentation += te_name;
         } else {
@@ -388,7 +363,7 @@ void Expression::parseTokenTypeEval(std::string const& token) {
 
     // Write component data
     currentComponent->type = Component::Type::eval;
-    currentComponent->contextType = Component::ContextType::None; // None, since this is an eval expression
+    currentComponent->contextType = ContextDeriver::TargetType::none; // None, since this is an eval expression
     currentComponent->key = ""; // No key for eval expressions
 
     // Add to components
@@ -416,8 +391,8 @@ void Expression::parseTokenTypeVariable(std::string const& token) {
     // 3.) determine context
     currentComponent->type = Component::Type::variable;
     currentComponent->stringRepresentation = inner;
-    currentComponent->contextType = getContextType(inner);
-    currentComponent->key = stripContext(inner);
+    currentComponent->contextType = ContextDeriver::getTypeFromString(inner);
+    currentComponent->key = ContextDeriver::stripContext(inner);
 
     components.push_back(currentComponent);
 }
@@ -427,7 +402,7 @@ void Expression::parseTokenTypeText(std::string const& token) {
     // Determine context
     currentComponent->type = Component::Type::text;
     currentComponent->stringRepresentation = token;
-    currentComponent->contextType = Component::ContextType::None;
+    currentComponent->contextType = ContextDeriver::TargetType::none;
     currentComponent->key = ""; // No key for text expressions
     components.push_back(currentComponent);
 }
@@ -495,8 +470,6 @@ void Expression::parse(std::string const& expr) {
 //------------------------------------------
 // Static one-time evaluation
 
-// With context
-
 std::string Expression::eval(std::string const& input, ContextScope const& context) {
     Expression const expr(input);
     return expr.eval(context);
@@ -515,28 +488,6 @@ bool Expression::evalAsBool(std::string const& input, ContextScope const& contex
 Data::JSON Expression::evalAsJson(std::string const& input, ContextScope const& context) {
     Expression const expr(input);
     return expr.evalAsJson(context);
-}
-
-// Global-only as context
-
-std::string Expression::eval(std::string const& input) {
-    ContextScope const context{emptyDoc(), emptyDoc(), globalDoc()};
-    return eval(input, context);
-}
-
-double Expression::evalAsDouble(std::string const& input) {
-    ContextScope const context{emptyDoc(), emptyDoc(), globalDoc()};
-    return evalAsDouble(input, context);
-}
-
-bool Expression::evalAsBool(std::string const& input) {
-    ContextScope const context{emptyDoc(), emptyDoc(), globalDoc()};
-    return evalAsBool(input, context);
-}
-
-Data::JSON Expression::evalAsJson(std::string const& input) {
-    ContextScope const context{emptyDoc(), emptyDoc(), globalDoc()};
-    return evalAsJson(input, context);
 }
 
 //------------------------------------------
@@ -568,64 +519,50 @@ void Expression::setupFirstContext(ContextScope const& context) const {
 }
 
 void Expression::updateStableValues(ContextScope const& context) const {
-    // self
-    if (&context.self == firstEvaluationContext.self) {
-        for (auto const& vde : virtualDoubles.stable.self) {
-            vde->copyExternalCache();
+    auto updateContext = [&](auto const& currentContext, auto const& firstContext, auto const& vdList) {
+        if (&currentContext == firstContext) {
+            for (auto const& vde : vdList) {
+                vde->copyExternalCache();
+            }
         }
-    }
-    else {
-        for (auto const& vde : virtualDoubles.stable.self) {
-            vde->copyFromJson(context.self);
+        else {
+            for (auto const& vde : vdList) {
+                vde->copyFromJson(currentContext);
+            }
         }
-    }
-
-    // other
-    if (&context.other == firstEvaluationContext.other) {
-        for (auto const& vde : virtualDoubles.stable.other) {
-            vde->copyExternalCache();
-        }
-    }
-    else {
-        for (auto const& vde : virtualDoubles.stable.other) {
-            vde->copyFromJson(context.other);
-        }
-    }
-
-    // global
-    if (&context.global == firstEvaluationContext.global) {
-        for (auto const& vde : virtualDoubles.stable.global) {
-            vde->copyExternalCache();
-        }
-    }
-    else {
-        for (auto const& vde : virtualDoubles.stable.global) {
-            vde->copyFromJson(context.global);
-        }
-    }
+    };
+    updateContext(context.self, firstEvaluationContext.self, virtualDoubles.stable.self);
+    updateContext(context.other, firstEvaluationContext.other, virtualDoubles.stable.other);
+    updateContext(context.global, firstEvaluationContext.global, virtualDoubles.stable.global);
 }
 
 void Expression::updateUnstableValues(ContextScope const& context) const {
-    for (auto const& vde : virtualDoubles.unstable.self) {
-        auto const key = Data::ScopedKey(eval(vde->getKey(), context));
-        vde->setDirect(context.self.get<double>(key).value_or(0.0));
+    auto updateContext = [&]<typename DataType>(DataType const& jsonScope, auto& vdList) {
+        for (auto const& vde : vdList) {
+            if constexpr (auto const evaluatedKey = eval(vde->getKey(), context); requires { jsonScope.template get<double>(Data::ScopedKey(evaluatedKey)); }) {
+                auto key = Data::ScopedKey(evaluatedKey);
+                vde->setDirect(jsonScope.template get<double>(key).value_or(0.0));
+            } else if constexpr (requires { jsonScope.template get<double>(evaluatedKey); }) {
+                vde->setDirect(jsonScope.template get<double>(evaluatedKey).value_or(0.0));
+            } else {
+                static_assert(Utility::CompileTimeEvaluate::always_false(), "Unsupported key type for get()");
+            }
+        }
+    };
+    updateContext(context.self, virtualDoubles.unstable.self);
+    updateContext(context.other, virtualDoubles.unstable.other);
+    updateContext(context.global, virtualDoubles.unstable.global);
+    updateContext(Global::instance().getDocCache(), virtualDoubles.unstable.resource);
+    updateContext(emptyDoc(), virtualDoubles.unstable.none);
+    if (!virtualDoubles.unstable.local.empty()) {
+        Data::JsonScope merged;
+        context.combineLocal(merged);
+        updateContext(merged, virtualDoubles.unstable.local);
     }
-    for (auto const& vde : virtualDoubles.unstable.other) {
-        auto const key = Data::ScopedKey(eval(vde->getKey(), context));
-        vde->setDirect(context.other.get<double>(key).value_or(0.0));
-    }
-    for (auto const& vde : virtualDoubles.unstable.global) {
-        auto const key = Data::ScopedKey(eval(vde->getKey(), context));
-        vde->setDirect(context.global.get<double>(key).value_or(0.0));
-    }
-    for (auto const& vde : virtualDoubles.unstable.resource) {
-        // Since resource documents may be unloaded at any time, we must always fetch the value instead of using stable double pointers
-        auto const key = eval(vde->getKey(), context);
-        vde->setDirect(Global::instance().getDocCache().get<double>(key).value_or(0.0));
-    }
-    for (auto const& vde : virtualDoubles.unstable.none) {
-        auto const key = Data::ScopedKey(eval(vde->getKey(), context));
-        vde->setDirect(emptyDoc().get<double>(key).value_or(0.0));
+    if (!virtualDoubles.unstable.full.empty()) {
+        Data::JsonScope merged;
+        context.combineAll(merged);
+        updateContext(merged, virtualDoubles.unstable.full);
     }
 }
 
@@ -719,15 +656,9 @@ Data::JSON Expression::evalAsJson(ContextScope const& context, size_t const& rec
 //------------------------------------------
 // Static document access
 
-Data::JsonScope& Expression::emptyDoc() {
+Data::JsonScope const& Expression::emptyDoc() {
     thread_local Data::JsonScope emptyDoc;
     return emptyDoc;
-}
-
-Data::JsonScope& Expression::globalDoc() {
-    static auto accessToken = ScopeAccessor::Full();
-    static auto& globalDoc = Global::shareScope(accessToken, "");
-    return globalDoc;
 }
 
 }   // namespace Nebulite::Interaction::Logic

@@ -4,7 +4,7 @@
             "# Testing ensureArray works correctly",
             "set test.val 3",
             "# Testing:",
-            "eval echo {global.test.val|ensureArray|print|at 0}",
+            "eval echo {global:test.val|ensureArray|print|at 0}",
             "exit"
         ],
         "expected": {
@@ -23,8 +23,8 @@
             "set test.arr[0] zero",
             "set test.arr[1] 1",
             "# Testing:",
-            "eval echo {global.test.arr|at 0}",
-            "eval echo {global.test.arr|at 1}",
+            "eval echo {global:test.arr|at 0}",
+            "eval echo {global:test.arr|at 1}",
             "exit"
         ],
         "expected": {
@@ -40,7 +40,7 @@
             "# Testing array length",
             "set test.arr[5] 5",
             "# Testing:",
-            "eval echo {global.test.arr|length}",
+            "eval echo {global:test.arr|length}",
             "exit"
         ],
         "expected": {
@@ -60,12 +60,12 @@
             "set test.arr[4] four",
             "set test.arr[5] 5",
             "# Testing:",
-            "eval echo {global.test.arr|first}",
-            "eval echo {global.test.arr|last}",
-            "eval echo {global.test.arr|reverse|first}",
-            "eval echo {global.test.arr|reverse|last}",
-            "eval echo {global.test.arr|at 2}",
-            "eval echo {global.test.arr|reverse|at 2}",
+            "eval echo {global:test.arr|first}",
+            "eval echo {global:test.arr|last}",
+            "eval echo {global:test.arr|reverse|first}",
+            "eval echo {global:test.arr|reverse|last}",
+            "eval echo {global:test.arr|at 2}",
+            "eval echo {global:test.arr|reverse|at 2}",
             "exit"
         ],
         "expected": {
@@ -89,10 +89,10 @@
             "set test.arr[1] 20",
             "set test.arr[2] 30",
             "wait 1",
-            "eval echo {global.test.arr|length|toInt}",
-            "eval echo {global.test.arr|at 1|toInt}",
-            "eval echo {global.test.arr|at 5}",
-            "eval echo {global.test.arr|at malformedIndex}",
+            "eval echo {global:test.arr|length|toInt}",
+            "eval echo {global:test.arr|at 1|toInt}",
+            "eval echo {global:test.arr|at 5}",
+            "eval echo {global:test.arr|at malformedIndex}",
             "exit"
         ],
         "expected": {
@@ -111,8 +111,8 @@
             "set arr[0] 1",
             "set arr[1] 2",
             "set arr[2] 3",
-            "eval echo {global.arr|at}# at expects exactly one argument, providing none should result in <TRANSFORMATION_FAILURE>",
-            "eval echo {global.arr|at 2 3}# at expects exactly one argument, providing two should result in <TRANSFORMATION_FAILURE>",
+            "eval echo {global:arr|at}# at expects exactly one argument, providing none should result in <TRANSFORMATION_FAILURE>",
+            "eval echo {global:arr|at 2 3}# at expects exactly one argument, providing two should result in <TRANSFORMATION_FAILURE>",
             "exit"
         ],
         "expected": {
@@ -129,10 +129,10 @@
             "set arr[0] 1",
             "set arr[1] 2",
             "set arr[2] 3",
-            "eval nop {global.arr|push text|at 3|print}",
-            "eval nop {global.arr|push 1234|at 3|print}",
-            "eval nop {global.arr|pushNumber 1234|at 3|print}",
-            "eval nop {global.arr|pushNumber 1234|at 3|toInt|print}",
+            "eval nop {global:arr|push text|at 3|print}",
+            "eval nop {global:arr|push 1234|at 3|print}",
+            "eval nop {global:arr|pushNumber 1234|at 3|print}",
+            "eval nop {global:arr|pushNumber 1234|at 3|toInt|print}",
             "exit"
         ],
         "expected": {
@@ -153,10 +153,10 @@
             "set arr[2] two",
             "set arr[3] 3",
             "set arr[4] four",
-            "eval nop {global.arr|subspan 1 1|print} # Subspan in range",
-            "eval nop {global.arr|subspan 2 3|print} # Subspan in range",
-            "eval nop {global.arr|subspan 2 4|print} # Subspan exceeding range, gets shortened (same output as previous)",
-            "eval nop {global.arr|subspan 8 2|print} # Subspan starting out of range, results empty array",
+            "eval nop {global:arr|subspan 1 1|print} # Subspan in range",
+            "eval nop {global:arr|subspan 2 3|print} # Subspan in range",
+            "eval nop {global:arr|subspan 2 4|print} # Subspan exceeding range, gets shortened (same output as previous)",
+            "eval nop {global:arr|subspan 8 2|print} # Subspan starting out of range, results empty array",
             "exit"
         ],
         "expected": {

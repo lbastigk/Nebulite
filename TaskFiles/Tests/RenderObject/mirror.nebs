@@ -22,12 +22,12 @@ wait 1
 # - velocity is opposite in x-direction
 # - acceleration is opposite in x-direction
 wait 10
-eval echo SUN1:  p({global.providedScope.domainModule.renderObject.mirror.renderObject.idx1.posX},{global.providedScope.domainModule.renderObject.mirror.renderObject.idx1.posY})
-eval echo SUN1:  v({global.providedScope.domainModule.renderObject.mirror.renderObject.idx1.physics.vX},{global.providedScope.domainModule.renderObject.mirror.renderObject.idx1.physics.vY})
-eval echo SUN1:  a({global.providedScope.domainModule.renderObject.mirror.renderObject.idx1.physics.aX},{global.providedScope.domainModule.renderObject.mirror.renderObject.idx1.physics.aY})
-eval echo SUN1:  mass {global.providedScope.domainModule.renderObject.mirror.renderObject.idx1.physics.mass}
-eval echo SUN2:  p({global.providedScope.domainModule.renderObject.mirror.renderObject.idx2.posX},{global.providedScope.domainModule.renderObject.mirror.renderObject.idx2.posY})
-eval echo SUN2:  v({global.providedScope.domainModule.renderObject.mirror.renderObject.idx2.physics.vX},{global.providedScope.domainModule.renderObject.mirror.renderObject.idx2.physics.vY})
-eval echo SUN2:  a({global.providedScope.domainModule.renderObject.mirror.renderObject.idx2.physics.aX},{global.providedScope.domainModule.renderObject.mirror.renderObject.idx2.physics.aY})
-eval echo SUN2:  mass {global.providedScope.domainModule.renderObject.mirror.renderObject.idx2.physics.mass}
+eval echo SUN1:  p({global:providedScope.domainModule.renderObject.mirror.renderObject.idx1.posX},{global:providedScope.domainModule.renderObject.mirror.renderObject.idx1.posY})
+eval echo SUN1:  v({global:providedScope.domainModule.renderObject.mirror.renderObject.idx1.physics.vX},{global:providedScope.domainModule.renderObject.mirror.renderObject.idx1.physics.vY})
+eval echo SUN1:  a({global:providedScope.domainModule.renderObject.mirror.renderObject.idx1.physics.aX},{global:providedScope.domainModule.renderObject.mirror.renderObject.idx1.physics.aY})
+eval echo SUN1:  mass {global:providedScope.domainModule.renderObject.mirror.renderObject.idx1.physics.mass}
+eval echo SUN2:  p({global:providedScope.domainModule.renderObject.mirror.renderObject.idx2.posX},{global:providedScope.domainModule.renderObject.mirror.renderObject.idx2.posY})
+eval echo SUN2:  v({global:providedScope.domainModule.renderObject.mirror.renderObject.idx2.physics.vX},{global:providedScope.domainModule.renderObject.mirror.renderObject.idx2.physics.vY})
+eval echo SUN2:  a({global:providedScope.domainModule.renderObject.mirror.renderObject.idx2.physics.aX},{global:providedScope.domainModule.renderObject.mirror.renderObject.idx2.physics.aY})
+eval echo SUN2:  mass {global:providedScope.domainModule.renderObject.mirror.renderObject.idx2.physics.mass}
 exit

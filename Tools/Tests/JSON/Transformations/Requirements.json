@@ -3,7 +3,7 @@
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
             "set test.val 3",
-            "eval echo {global.test.val|require nonEmpty}",
+            "eval echo {global:test.val|require nonEmpty}",
             "exit"
         ],
         "expected": {
@@ -16,7 +16,7 @@
     {
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
-            "eval echo {global.test.val|require nonEmpty}",
+            "eval echo {global:test.val|require nonEmpty}",
             "exit"
         ],
         "expected": {
@@ -30,7 +30,7 @@
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
             "set test.val[0] 3",
-            "eval echo {global.test.val|require type array|at 0}",
+            "eval echo {global:test.val|require type array|at 0}",
             "exit"
         ],
         "expected": {
@@ -44,7 +44,7 @@
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
             "set test.val 3",
-            "eval echo {global.test.val|require type array}",
+            "eval echo {global:test.val|require type array}",
             "exit"
         ],
         "expected": {
@@ -58,7 +58,7 @@
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
             "set test.obj.val 3",
-            "eval echo {global.test.obj|require type object|get val}",
+            "eval echo {global:test.obj|require type object|get val}",
             "exit"
         ],
         "expected": {
@@ -72,7 +72,7 @@
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
             "set test.val 3",
-            "eval echo {global.test.val|require type object}",
+            "eval echo {global:test.val|require type object}",
             "exit"
         ],
         "expected": {
@@ -86,7 +86,7 @@
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
             "set test.obj.val 3",
-            "eval echo {global.test.obj.val|require type basicValue}",
+            "eval echo {global:test.obj.val|require type basicValue}",
             "exit"
         ],
         "expected": {
@@ -100,7 +100,7 @@
         "command": [
             "# Testing non-numeric values in arithmetic transformations",
             "set test.obj.val 3",
-            "eval echo {global.test.obj|require type basicValue}",
+            "eval echo {global:test.obj|require type basicValue}",
             "exit"
         ],
         "expected": {

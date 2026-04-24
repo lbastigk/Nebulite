@@ -20,10 +20,10 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-class DataInput final : public Base::RmlUiModule {
+class DataReference final : public Base::RmlUiModule {
 public:
 
-    explicit DataInput(Utility::IO::Capture& c, Core::Renderer& r);
+    explicit DataReference(Utility::IO::Capture& c, Core::Renderer& r);
 
     void update() override ;
 
@@ -58,11 +58,6 @@ private:
     std::vector<Rml::ElementDocument*> documents;
 
     absl::flat_hash_map<
-        Rml::String,
-        Interaction::Logic::Expression
-    > expressions;
-
-    absl::flat_hash_map<
         Rml::Element*,
         Rml::String
     > rmlStrings;
@@ -73,18 +68,27 @@ private:
         Data::ScopedKey key;
         std::string normalizedValue;
         Rml::Element* element = nullptr;
-        Rml::String currentRmlValue;
         Rml::String previousRmlValue;
         std::string previousDocumentValue;
         bool isNewEntry = true;
         Rml::String attribute;
     };
 
-    absl::flat_hash_map<std::string,std::unique_ptr<RegisteredEntry>> registeredStrings;
+    std::vector<std::unique_ptr<RegisteredEntry>> registeredButWithoutId;
+
+    absl::flat_hash_map<Graphics::RmlInterface::RmlElementIdentifier, std::unique_ptr<RegisteredEntry>> registeredEntries;
+
+    absl::flat_hash_map<std::string, std::unique_ptr<Rml::String>> registeredStrings;
 
     std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
 
     void updateDataValues();
+
+    void normalizeDataValue(Rml::Element* element) ;
+
+    void registerNewValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element const* element);
+
+    void updateRegisteredValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element const* element);
 
     static std::string normalize(std::string const& key);
 

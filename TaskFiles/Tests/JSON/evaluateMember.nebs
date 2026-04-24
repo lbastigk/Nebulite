@@ -1,11 +1,12 @@
 # Set some variables in global space
 
-set obj.expression {global.obj.expressions|typeAsString}
+set obj.expression {global:obj.expressions|typeAsString}
 set obj.expressions[0] $(1+1)
-set obj.expressions[1] $({global.obj.expressions[0]}+1)
+set obj.expressions[1] $({global:obj.expressions[0]}+1)
 set obj.expressions[2] {|ensureArray|push a|push b|push c|filterNulls}
 
 print obj
 json evaluate member obj.expression
 json evaluate recursive obj.expressions
 print obj
+exit

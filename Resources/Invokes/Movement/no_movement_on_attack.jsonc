@@ -1,10 +1,10 @@
 {
     "topic": "",
-    "condition": "$({self.animation.attack})",
+    "condition": "$({self:animation.attack})",
     "action": {
         "assign": [
-            "self.physics.vX = $(0)",
-            "self.physics.vY = $(0)"
+            "self:physics.vX = $(0)",
+            "self:physics.vY = $(0)"
         ],
         "functioncall": {
             "global": [],

@@ -26,7 +26,7 @@ from typing import List, Dict, Tuple, Optional
 # We simply need to add "help" to these commands to get the list of available functions/variables
 ROOT_GLOBALSPACE = "./bin/Nebulite --headless <arg>"
 ROOT_RENDEROBJECT = "./bin/Nebulite --headless draft parse <arg>"
-ROOT_JSON_TRANSFORMATIONS = "./bin/Nebulite --headless eval nop {global.var|<arg>}"
+ROOT_JSON_TRANSFORMATIONS = "./bin/Nebulite --headless eval nop {global:var|<arg>}"
 ROOT_EXPRESSION_FUNCTIONS = "./bin/Nebulite --headless expression-<arg>"
 
 # Output file for the generated documentation
@@ -388,7 +388,7 @@ def generate_documentation(date: str) -> str:
     print("Processing JSON Transformations...")
     markdown += "## JSON Transformations\n\n"
     markdown += "These commands are available during JSON value retrieval with the transformation operator '|'.\n"
-    markdown += "Example: `{global.var|length}`\n\n"
+    markdown += "Example: `{global:var|length}`\n\n"
 
     json_transform_data = process_command_recursively(ROOT_JSON_TRANSFORMATIONS)
     if json_transform_data and json_transform_data.get('help'):

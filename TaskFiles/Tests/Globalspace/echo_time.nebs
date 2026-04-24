@@ -6,6 +6,6 @@ set-fps 100
 wait 10
 
 # Should be 0.001000 and 1.001000
-eval echo {global.time.dt}
-eval echo $({global.time.dt} + 1)
+eval echo {global:time.dt}
+eval echo $({global:time.dt} + 1)
 exit

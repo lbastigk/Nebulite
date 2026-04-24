@@ -24,7 +24,7 @@ namespace Nebulite::Interaction::Rules::Construction {
  *       Then, on parsing, the overwrites are applied:
  *       $(overwrites.key1) would be replaced by "value1"
  *       If, however, an overwrite is not found:
- *       $(overwrites.key3) would be replaced by $(global.key3)
+ *       $(overwrites.key3) would be replaced by $(global:key3)
  *       This allows us to flexibly overwrite values in the invoke without changing the original JSON file.
  *       Also, the behavior is well-defined, as it defaults to the global value if no overwrite is defined.
  *       Note: retrieval of overwrites in a type object might be difficult. Instead, perhaps:
@@ -39,7 +39,7 @@ namespace Nebulite::Interaction::Rules::Construction {
  *       ```
  *       This makes subkey-overwrites easier to parse, e.g.: `"overwrites" [ "physics.G -> 9.81" ]`
  *       turns an `$(overwrites.physics.G)` into `9.81` and
- *       defaults to `{global.physics.G}` if not overwritten.
+ *       defaults to `{global:physics.G}` if not overwritten.
  */
 class RulesetCompiler {
 public:
@@ -102,7 +102,7 @@ private:
      * @param key The key of the entry in the document.
      * @return True if the Ruleset was successfully extracted, false otherwise.
      */
-    static bool getJsonRuleset(Data::JsonScope const& doc, Data::JsonScope const& entry, Data::ScopedKeyView const& key);
+    static bool getJsonRuleset(Data::JsonScope const& doc, Data::JsonScope& entry, Data::ScopedKeyView const& key);
 
     /**
      * @brief Extracts a Ruleset from a JSON document or static ruleset identifier.

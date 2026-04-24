@@ -29,10 +29,10 @@ selected-object get 2
 selected-object parse mirror on
 
 wait 100
-eval nop {global.providedScope.domainModule.renderObject.mirror.renderObject.idx1|assert nonEmpty obj1.jsonc mirror could not be found}
-eval nop {global.providedScope.domainModule.renderObject.mirror.renderObject.idx2|assert nonEmpty obj2.jsonc mirror could not be found}
-eval nop {global.providedScope.domainModule.renderObject.mirror.renderObject.idx1.physics.FY|assert nonEmpty Forces should not be empty}
-eval nop {global.providedScope.domainModule.renderObject.mirror.renderObject.idx2.physics.FY|assert nonEmpty Forces should not be empty}
+eval nop {global:providedScope.domainModule.renderObject.mirror.renderObject.idx1|assert nonEmpty obj1.jsonc mirror could not be found}
+eval nop {global:providedScope.domainModule.renderObject.mirror.renderObject.idx2|assert nonEmpty obj2.jsonc mirror could not be found}
+eval nop {global:providedScope.domainModule.renderObject.mirror.renderObject.idx1.physics.FY|assert nonEmpty Forces should not be empty}
+eval nop {global:providedScope.domainModule.renderObject.mirror.renderObject.idx2.physics.FY|assert nonEmpty Forces should not be empty}
 
 ##########################################################################
 # Reset the scene by deleting the objects
@@ -56,10 +56,10 @@ selected-object get 4
 selected-object parse mirror on
 
 wait 100
-eval nop {global.providedScope.domainModule.renderObject.mirror.renderObject.idx3|assert nonEmpty obj1_classic.jsonc mirror could not be found}
-eval nop {global.providedScope.domainModule.renderObject.mirror.renderObject.idx4|assert nonEmpty obj2_classic.jsonc mirror could not be found}
-eval nop {global.providedScope.domainModule.renderObject.mirror.renderObject.idx3.physics.FY|assert nonEmpty Forces should not be empty}
-eval nop {global.providedScope.domainModule.renderObject.mirror.renderObject.idx4.physics.FY|assert nonEmpty Forces should not be empty}
+eval nop {global:providedScope.domainModule.renderObject.mirror.renderObject.idx3|assert nonEmpty obj1_classic.jsonc mirror could not be found}
+eval nop {global:providedScope.domainModule.renderObject.mirror.renderObject.idx4|assert nonEmpty obj2_classic.jsonc mirror could not be found}
+eval nop {global:providedScope.domainModule.renderObject.mirror.renderObject.idx3.physics.FY|assert nonEmpty Forces should not be empty}
+eval nop {global:providedScope.domainModule.renderObject.mirror.renderObject.idx4.physics.FY|assert nonEmpty Forces should not be empty}
 
 ##########################################################################
 # All done

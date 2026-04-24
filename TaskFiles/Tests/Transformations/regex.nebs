@@ -6,6 +6,6 @@ set arr[11] 12
 set obj.keyfoobar foobar
 set obj.keybarfoo barfoo
 set obj.keybarbaz barbaz
-eval nop {global.arr|filterRegex \[(1\d*)\]|filterNulls|print}
-eval nop {global.obj|filterRegex ^keybar.*|filterNulls|print}
+eval nop {global:arr|filterRegex \[(1\d*)\]|filterNulls|print}
+eval nop {global:obj|filterRegex ^keybar.*|filterNulls|print}
 exit

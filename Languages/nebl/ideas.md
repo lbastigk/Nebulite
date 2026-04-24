@@ -46,7 +46,7 @@ state deliver-mail::start:
     # - ...
     # Later on it might be helpful to make more specified modifiers, only applying at certain points
     # Currently, the modify is directly parsed in each RenderObject:
-    # renderObject.parse("eval if-strcomp {self.name} <QuestGiver> set-dialogue-start ...")
+    # renderObject.parse("eval if-strcomp {self:name} <QuestGiver> set-dialogue-start ...")
     # Meaning everything after "modify:" is interpreted as Nebulite Script .nebs that we apply to every acter to modify them
     # Which works fine, but might become a burden as we have to apply the if-conditionals over and over again
     # A more streamlined approach is setting standards, and parse them in .nebl language:

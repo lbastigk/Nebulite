@@ -68,9 +68,6 @@ public:
      *        Matches `Nebulite::Interaction::Logic::Expression::eval`, but allows for concurrent evaluation across multiple threads.
      * @return The result of the evaluation as a string.
      */
-    [[nodiscard]] std::string eval(Context const& context) const {
-        return pool[threadIndex()]->eval(context);
-    }
     [[nodiscard]] std::string eval(ContextScope const& context) const {
         return pool[threadIndex()]->eval(context);
     }
@@ -80,9 +77,6 @@ public:
      *        Matches `Nebulite::Interaction::Logic::Expression::evalAsDouble`.
      * @return The result of the evaluation as a double.
      */
-    [[nodiscard]] double evalAsDouble(Context const& context) const {
-        return pool[threadIndex()]->evalAsDouble(context);
-    }
     [[nodiscard]] double evalAsDouble(ContextScope const& context) const {
         return pool[threadIndex()]->evalAsDouble(context);
     }

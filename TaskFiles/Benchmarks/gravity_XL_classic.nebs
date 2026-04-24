@@ -12,8 +12,8 @@
 
 # Number of objects per row/column (total objects = n*n)
 # only set if the value hasn't been defined yet
-if $(gt({global.loop.n},0)) echo Predefined object count detected.
-if $(leq({global.loop.n},0)) set loop.n 40
+if $(gt({global:loop.n},0)) echo Predefined object count detected.
+if $(leq({global:loop.n},0)) set loop.n 40
 
 set storeSnapshots 0
 set snapshotInterval 100
@@ -36,16 +36,16 @@ show-fps on
 ###############################################
 # [INFO]
 echo
-eval echo Benchmark with $i( {global.loop.n} * {global.loop.n} ) Objects...
+eval echo Benchmark with $i( {global:loop.n} * {global:loop.n} ) Objects...
 eval echo Rendering with a fixed dt of 1 ms
 echo
 
 # Total count of interactions per frame:
 # Gravity,  Apply force, Collision
 # (n*n)^2   + n*n        + 4*n*n
-eval set interactionCountPerFrame $( ({global.loop.n} * {global.loop.n})^2 + ({global.loop.n} * {global.loop.n}) + 4*({global.loop.n} * {global.loop.n}) )
+eval set interactionCountPerFrame $( ({global:loop.n} * {global:loop.n})^2 + ({global:loop.n} * {global:loop.n}) + 4*({global:loop.n} * {global:loop.n}) )
 echo
-eval echo Total ruleset invocations per frame (without sun): $({global.interactionCountPerFrame} / 1000000) million
+eval echo Total ruleset invocations per frame (without sun): $({global:interactionCountPerFrame} / 1000000) million
 echo
 
 
@@ -82,23 +82,23 @@ eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc \
 
 ###############################################
 # Calculations
-eval set loop.delta $( 200 / ({global.loop.n}) )
-eval set loop.start $i( 220 / {global.loop.delta})
-eval set loop.end   $i( {global.loop.start} + {global.loop.n} - 1 )
-eval set spriteSize $({global.loop.delta})
+eval set loop.delta $( 200 / ({global:loop.n}) )
+eval set loop.start $i( 220 / {global:loop.delta})
+eval set loop.end   $i( {global:loop.start} + {global:loop.n} - 1 )
+eval set spriteSize $({global:loop.delta})
 
 ###############################################
 # Spawn Objects
-for i {global.loop.start} {global.loop.end} for j {global.loop.start} {global.loop.end} spawn ./Resources/Renderobjects/Boxes/obj_elastic_to_wall_classic.jsonc \
-    |eval set posX $({global.loop.delta}*{i}) \
-    |eval set posY $({global.loop.delta}*{j}) \
+for i {global:loop.start} {global:loop.end} for j {global:loop.start} {global:loop.end} spawn ./Resources/Renderobjects/Boxes/obj_elastic_to_wall_classic.jsonc \
+    |eval set posX $({global:loop.delta}*{i}) \
+    |eval set posY $({global:loop.delta}*{j}) \
     |eval set physics.vX 0 \
     |eval set physics.vY 0 \
-    |eval set physics.mass $( 50000 / ({global.loop.n} * {global.loop.n})) \
-    |eval set size.x $({global.spriteSize}) \
-    |eval set size.y $({global.spriteSize}) \
-    |eval set draw.core.rect.dst.h $({global.spriteSize}) \
-    |eval set draw.core.rect.dst.w $({global.spriteSize}) \
+    |eval set physics.mass $( 50000 / ({global:loop.n} * {global:loop.n})) \
+    |eval set size.x $({global:spriteSize}) \
+    |eval set size.y $({global:spriteSize}) \
+    |eval set draw.core.rect.dst.h $({global:spriteSize}) \
+    |eval set draw.core.rect.dst.w $({global:spriteSize}) \
     |eval set draw.core.rect.dst.x 0 \
     |eval set draw.core.rect.dst.y 0
     # Objects aren't centered for now (dst.x/y = 0), otherwise the box-box collision detection isn't accurate
@@ -109,11 +109,11 @@ for i {global.loop.start} {global.loop.end} for j {global.loop.start} {global.lo
 ###############################################
 # Store Snapshots, info
 wait 1
-if $({global.storeSnapshots}) set framename 0
-always if $(not({global.time.frameCount}%{global.snapshotInterval})*{global.storeSnapshots}) eval echo Frame {global.time.frameCount} rendered! Frame average: $( {global.time.runtime.t} / {global.time.frameCount} ) seconds. Full runtime: {global.time.runtime.t} seconds.
-always if $(not({global.time.frameCount}%{global.snapshotInterval})*{global.storeSnapshots}) eval set framename $i(1 + {global.framename})
-always if $(not({global.time.frameCount}%{global.snapshotInterval})*{global.storeSnapshots}) eval snapshot ./Resources/Snapshots/ToGif/$05i({global.framename}).png
-always if $(not({global.time.frameCount}%{global.snapshotInterval})*{global.storeSnapshots}) eval echo stored snapshot: ./Resources/Snapshots/ToGif/$05i({global.framename}).png
+if $({global:storeSnapshots}) set framename 0
+always if $(not({global:time.frameCount}%{global:snapshotInterval})*{global:storeSnapshots}) eval echo Frame {global:time.frameCount} rendered! Frame average: $( {global:time.runtime.t} / {global:time.frameCount} ) seconds. Full runtime: {global:time.runtime.t} seconds.
+always if $(not({global:time.frameCount}%{global:snapshotInterval})*{global:storeSnapshots}) eval set framename $i(1 + {global:framename})
+always if $(not({global:time.frameCount}%{global:snapshotInterval})*{global:storeSnapshots}) eval snapshot ./Resources/Snapshots/ToGif/$05i({global:framename}).png
+always if $(not({global:time.frameCount}%{global:snapshotInterval})*{global:storeSnapshots}) eval echo stored snapshot: ./Resources/Snapshots/ToGif/$05i({global:framename}).png
 
 ###############################################
 # Spawn extra object
@@ -122,8 +122,8 @@ wait 400
 
 ###############################################
 # Inform on runtime
-eval echo Simulation done! Total runtime: {global.time.runtime.t} Seconds.
-eval echo Average frame time: $( {global.time.runtime.t} / {global.time.frameCount} ) seconds.
+eval echo Simulation done! Total runtime: {global:time.runtime.t} Seconds.
+eval echo Average frame time: $( {global:time.runtime.t} / {global:time.frameCount} ) seconds.
 
 ###############################################
 # Exit
