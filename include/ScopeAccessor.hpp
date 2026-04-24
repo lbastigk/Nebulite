@@ -81,9 +81,6 @@ public:
         friend class Core::GlobalSpace;
         friend class Interaction::Logic::Expression;
         friend class DomainModule::Renderer::Console; // Console needs full access to display entire scope.
-
-        // Any Rml::Plugin gets full access
-        friend class Module::Base::RmlUiModule;
     public:
         ~Full() = default;
     };

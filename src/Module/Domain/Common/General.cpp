@@ -54,7 +54,7 @@ Constants::Event General::eval(std::span<std::string const> const& args, Interac
     std::string const argStr = Utility::StringHandler::recombineArgs(args);
 
     // Evaluate expression, empty context for self and other
-    std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr);
+    std::string const argsEvaluated = Interaction::Logic::Expression::eval(argStr, ctxScope);
 
     // reparse
     return ctx.self.parseStr(argsEvaluated, ctx, ctxScope);
@@ -82,7 +82,7 @@ Constants::Event General::func_if(std::span<std::string const> const& args, Inte
     };
 
     // Conditional check
-    if (size_t const commandStart = commandStartFinder(); Interaction::Logic::Expression::evalAsBool(Utility::StringHandler::recombineArgs(args.subspan(1, commandStart - 1)))) {
+    if (size_t const commandStart = commandStartFinder(); Interaction::Logic::Expression::evalAsBool(Utility::StringHandler::recombineArgs(args.subspan(1, commandStart - 1)), ctxScope)) {
         std::string commands = Utility::StringHandler::recombineArgs(args.subspan(commandStart));
         commands = __FUNCTION__ + std::string(" ") + commands;
         return ctx.self.parseStr(commands, ctx, ctxScope);
@@ -91,7 +91,7 @@ Constants::Event General::func_if(std::span<std::string const> const& args, Inte
 }
 
 // NOLINTNEXTLINE
-Constants::Event General::func_assert(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
+Constants::Event General::func_assert(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -108,7 +108,7 @@ Constants::Event General::func_assert(std::span<std::string const> const& args, 
     }
 
     // Evaluate condition
-    if (!Interaction::Logic::Expression::evalAsBool(condition)) {
+    if (!Interaction::Logic::Expression::evalAsBool(condition, ctxScope)) {
         ctx.self.capture.error.println("Critical Error: A custom assertion failed.\nAssertion failed: " + condition + " is not true.");
         return Constants::Event::Error;
     }
@@ -122,8 +122,8 @@ Constants::Event General::func_for(std::span<std::string const> const& args, Int
     if (args.size() > 4) {
         std::string const& varName = args[1];
 
-        int const iStart = std::stoi(Interaction::Logic::Expression::eval(args[2]));
-        int const iEnd = std::stoi(Interaction::Logic::Expression::eval(args[3]));
+        int const iStart = std::stoi(Interaction::Logic::Expression::eval(args[2], ctxScope));
+        int const iEnd = std::stoi(Interaction::Logic::Expression::eval(args[3], ctxScope));
 
         std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(4));
         for (int i = iStart; i <= iEnd; i++) {

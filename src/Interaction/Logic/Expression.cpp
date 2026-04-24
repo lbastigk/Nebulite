@@ -470,8 +470,6 @@ void Expression::parse(std::string const& expr) {
 //------------------------------------------
 // Static one-time evaluation
 
-// With context
-
 std::string Expression::eval(std::string const& input, ContextScope const& context) {
     Expression const expr(input);
     return expr.eval(context);
@@ -490,28 +488,6 @@ bool Expression::evalAsBool(std::string const& input, ContextScope const& contex
 Data::JSON Expression::evalAsJson(std::string const& input, ContextScope const& context) {
     Expression const expr(input);
     return expr.evalAsJson(context);
-}
-
-// Global-only as context
-
-std::string Expression::eval(std::string const& input) {
-    ContextScope const context{emptyDoc(), emptyDoc(), globalDoc()};
-    return eval(input, context);
-}
-
-double Expression::evalAsDouble(std::string const& input) {
-    ContextScope const context{emptyDoc(), emptyDoc(), globalDoc()};
-    return evalAsDouble(input, context);
-}
-
-bool Expression::evalAsBool(std::string const& input) {
-    ContextScope const context{emptyDoc(), emptyDoc(), globalDoc()};
-    return evalAsBool(input, context);
-}
-
-Data::JSON Expression::evalAsJson(std::string const& input) {
-    ContextScope const context{emptyDoc(), emptyDoc(), globalDoc()};
-    return evalAsJson(input, context);
 }
 
 //------------------------------------------
@@ -561,7 +537,7 @@ void Expression::updateStableValues(ContextScope const& context) const {
 }
 
 void Expression::updateUnstableValues(ContextScope const& context) const {
-    auto updateContext = [&]<typename DataType>(DataType& jsonScope, auto& vdList) {
+    auto updateContext = [&]<typename DataType>(DataType const& jsonScope, auto& vdList) {
         for (auto const& vde : vdList) {
             if constexpr (auto const evaluatedKey = eval(vde->getKey(), context); requires { jsonScope.template get<double>(Data::ScopedKey(evaluatedKey)); }) {
                 auto key = Data::ScopedKey(evaluatedKey);
@@ -680,15 +656,9 @@ Data::JSON Expression::evalAsJson(ContextScope const& context, size_t const& rec
 //------------------------------------------
 // Static document access
 
-Data::JsonScope& Expression::emptyDoc() {
+Data::JsonScope const& Expression::emptyDoc() {
     thread_local Data::JsonScope emptyDoc;
     return emptyDoc;
-}
-
-Data::JsonScope& Expression::globalDoc() {
-    static auto accessToken = ScopeAccessor::Full();
-    static auto& globalDoc = Global::shareScope(accessToken, "");
-    return globalDoc;
 }
 
 }   // namespace Nebulite::Interaction::Logic

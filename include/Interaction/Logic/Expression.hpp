@@ -119,8 +119,6 @@ public:
     //------------------------------------------
     // Static functions for one-time evaluation
 
-    // 1.) Using full context (self, other and global)
-
     static std::string eval(std::string const& input, ContextScope const& context);
 
     static double evalAsDouble(std::string const& input, ContextScope const& context);
@@ -128,16 +126,6 @@ public:
     static bool evalAsBool(std::string const& input, ContextScope const& context);
 
     static Data::JSON evalAsJson(std::string const& input, ContextScope const& context);
-
-    // 2.) Global-only evaluation (both self and other context are empty documents)
-
-    static std::string eval(std::string const& input);
-
-    static double evalAsDouble(std::string const& input);
-
-    static bool evalAsBool(std::string const& input);
-
-    static Data::JSON evalAsJson(std::string const& input);
 
     //------------------------------------------
     // Other helpers
@@ -196,13 +184,7 @@ private:
      * @brief Provides an empty JSON document that can be used as a context placeholder
      * @return The empty JSON document reference
      */
-    static Data::JsonScope& emptyDoc();
-
-    /**
-     * @brief Provides access to the global document for expression evaluation
-     * @return A reference to the global document
-     */
-    static Data::JsonScope& globalDoc();
+    static Data::JsonScope const& emptyDoc();
 
     /**
      * @brief Parses a given expression string with a constant reference to the document cache and the self and global JSON objects.
