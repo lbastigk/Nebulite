@@ -20,10 +20,10 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-class DataInput final : public Base::RmlUiModule {
+class DataReference final : public Base::RmlUiModule {
 public:
 
-    explicit DataInput(Utility::IO::Capture& c, Core::Renderer& r);
+    explicit DataReference(Utility::IO::Capture& c, Core::Renderer& r);
 
     void update() override ;
 

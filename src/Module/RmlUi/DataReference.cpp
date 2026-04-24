@@ -2,26 +2,26 @@
 // Includes
 
 // Nebulite
-#include "Module/RmlUi/DataInput.hpp"
+#include "Module/RmlUi/DataReference.hpp"
 #include "Nebulite.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
 
-#include <complex>
-
 //------------------------------------------
 
+// TODO: data-if does not work ... Value is seen as "1", but it's somehow not updated correctly. Perhaps missing a document/element update?
+//       previously this worked, as the data set was directly pulled from the scope. But now we initialize to an empty string, so it's false at start
+//       perhaps we need to update the full rml?
 namespace {
 auto constexpr dataAttributes = {
     "data-value",
-    "data-if"       // TODO: data-if does not work ... Value is seen as "1", but it's somehow not updated correctly. Perhaps missing a document/element update?
-                    //       previously this worked, as the data set was directly pulled from the scope. But now we initialize to an empty string, so it's false at start
+    "data-if"
 };
 } // namespace
 
 namespace Nebulite::Module::RmlUi {
 
 
-DataInput::DataInput(Utility::IO::Capture& c, Core::Renderer& r) : RmlUiModule(c,r) {
+DataReference::DataReference(Utility::IO::Capture& c, Core::Renderer& r) : RmlUiModule(c,r) {
     evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
         [this] {
             updateDataValues();
@@ -34,55 +34,55 @@ DataInput::DataInput(Utility::IO::Capture& c, Core::Renderer& r) : RmlUiModule(c
     );
 }
 
-void DataInput::update() {
+void DataReference::update() {
     evaluationRoutine->update();
 }
 
-void DataInput::postRenderUpdate() {
+void DataReference::postRenderUpdate() {
 
 }
 
-void DataInput::OnInitialise() {
+void DataReference::OnInitialise() {
 
 }
 
-void DataInput::OnShutdown() {
+void DataReference::OnShutdown() {
 
 }
 
 // NOLINTNEXTLINE
-void DataInput::OnDocumentOpen(Rml::Context* /*context*/, const Rml::String& /*document_path*/) {
+void DataReference::OnDocumentOpen(Rml::Context* /*context*/, const Rml::String& /*document_path*/) {
 
 }
 
-void DataInput::OnDocumentLoad(Rml::ElementDocument* document) {
+void DataReference::OnDocumentLoad(Rml::ElementDocument* document) {
     documents.emplace_back(document);
 }
 
-void DataInput::OnDocumentUnload(Rml::ElementDocument* document) {
+void DataReference::OnDocumentUnload(Rml::ElementDocument* document) {
     std::erase(documents, document);
 }
 
-void DataInput::OnContextCreate(Rml::Context* /*context*/) {
+void DataReference::OnContextCreate(Rml::Context* /*context*/) {
 
 }
 
-void DataInput::OnContextDestroy(Rml::Context* /*context*/) {
+void DataReference::OnContextDestroy(Rml::Context* /*context*/) {
 
 }
 
-void DataInput::OnElementCreate(Rml::Element* element) {
+void DataReference::OnElementCreate(Rml::Element* element) {
     // Normalize bound data value
     normalizeDataValue(element);
 }
 
-void DataInput::OnElementDestroy(Rml::Element* /*element*/) {
+void DataReference::OnElementDestroy(Rml::Element* /*element*/) {
 
 }
 
 //----------------------------------------------
 
-void DataInput::normalizeDataValue(Rml::Element* element) {
+void DataReference::normalizeDataValue(Rml::Element* element) {
     for (auto const& attribute : dataAttributes) {
         auto const rmlValue = element->GetAttribute(attribute);
         if (!rmlValue) continue;
@@ -137,7 +137,7 @@ void DataInput::normalizeDataValue(Rml::Element* element) {
     }
 }
 
-void DataInput::updateDataValues() {
+void DataReference::updateDataValues() {
     // TODO: Update data-if, so that we can actually hide/show the element at runtime!
     //       At the moment, the data-if is only evaluated at document creat, not during an update
     for (auto const& document : documents) {
@@ -149,7 +149,7 @@ void DataInput::updateDataValues() {
     }
 }
 
-void DataInput::registerNewValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element const* element){
+void DataReference::registerNewValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element const* element){
     std::vector<std::unique_ptr<RegisteredEntry>> toAdd;
     if (auto const it = registeredEntries.find(id); it == registeredEntries.end()) {
         for (auto& noId : registeredButWithoutId) {
@@ -166,7 +166,7 @@ void DataInput::registerNewValues(Graphics::RmlInterface::RmlElementIdentifier c
     }
 }
 
-void DataInput::updateRegisteredValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element const* element){
+void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element const* element){
     if (!element) return;
     if (auto const it = registeredEntries.find(id); it != registeredEntries.end()){
         auto const idContext = renderer.getRmlElementContextAndScope(id);
@@ -213,7 +213,7 @@ void DataInput::updateRegisteredValues(Graphics::RmlInterface::RmlElementIdentif
     }
 }
 
-std::string DataInput::normalize(std::string const& key) {
+std::string DataReference::normalize(std::string const& key) {
     auto view = key
         | std::views::transform([](char const& c) -> std::string {
             if (std::isalnum(c)) return std::string(1, c);
