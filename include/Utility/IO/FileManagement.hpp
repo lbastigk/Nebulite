@@ -80,10 +80,10 @@ public:
     /**
      * @brief Lists files and directories in a directory
      * @details Outputs error messages to the Global error capture if the directory cannot be accessed.
-     * @param dir The directory to search
+     * @param path The directory to search
      * @return A vector of file and directory names in the directory. If the directory cannot be accessed, an empty vector is returned.
      */
-     static std::vector<std::string> listFilesAndDirectoriesInDirectory(std::string_view const& dir);
+     static std::vector<std::string> listFilesAndDirectoriesInPath(std::string_view const& path);
 };
 } // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_FILE_MANAGEMENT_HPP

@@ -49,6 +49,7 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Interaction::Execution::Domain, Filesystem) {
         // Binding
         bindFunction(&Filesystem::cat, cat_name, cat_desc);
+        bindFunction(&Filesystem::ls, ls_name, ls_desc);
     }
 
 private:

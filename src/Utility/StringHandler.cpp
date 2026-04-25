@@ -14,6 +14,17 @@
 //------------------------------------------
 namespace Nebulite::Utility {
 
+std::string StringHandler::createPaddedTable(std::vector<std::string> const& words, size_t const& rowSize){
+    // Find largest word
+    auto maxSize = std::ranges::max_element(words, [](std::string const& a, std::string const& b) {
+        return a.size() < b.size();
+    })->length();
+    // TODO: add rowSize to accumulation ...
+    return std::accumulate(words.begin(), words.end(), std::string(""), [maxSize](std::string const& acc, std::string const& a) {
+        return acc + a + std::string(maxSize - a.length() + 1, ' ');
+    });
+}
+
 bool StringHandler::containsAnyOf(std::string const& str, std::string const& chars) {
     return std::ranges::any_of(str, [&](char const c) {
         return chars.find(c) != std::string::npos;

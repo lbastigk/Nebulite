@@ -44,7 +44,7 @@ void addFileCompletions(std::string_view const& input, std::vector<std::string>&
     auto const directory = Nebulite::Utility::IO::FileManagement::CombinePaths(".", innerDir == "/" ? "" : innerDir);
 
     // Build list
-    auto const list = Nebulite::Utility::IO::FileManagement::listFilesAndDirectoriesInDirectory(directory) | std::views::filter([&](std::string const& fileOrDirectory) {
+    auto const list = Nebulite::Utility::IO::FileManagement::listFilesAndDirectoriesInPath(directory) | std::views::filter([&](std::string const& fileOrDirectory) {
         return fileOrDirectory.starts_with(inputToComplete);
     }) | std::views::transform([&](std::string const& fileOrDirectory) {
         if (Nebulite::Utility::IO::FileManagement::isDirectory(directory + fileOrDirectory)) {
@@ -162,17 +162,7 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
             data->InsertChars(data->CursorPos, toInsert.c_str());
         }
         else if (completions.size() > 1) {
-            // Find largest word
-            auto maxSize = std::ranges::max_element(completions, [](std::string const& a, std::string const& b) {
-                return a.size() < b.size();
-            })->length();
-
-            std::string const completionStr = std::accumulate(completions.begin(), completions.end(), std::string(""), [maxSize](std::string const& acc, std::string const& a) {
-                // Pad to maxSize + 1
-                return acc + a + std::string(maxSize - a.length() + 1, ' ');
-            });
-
-            state->capture->log.println(completionStr);
+            state->capture->log.println(Nebulite::Utility::StringHandler::createPaddedTable(completions));
         }
     }
     return 0;

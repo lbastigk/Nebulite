@@ -111,14 +111,14 @@ std::vector<std::string> FileManagement::listFilesInDirectory(std::string_view c
     return files;
 }
 
-std::vector<std::string> FileManagement::listFilesAndDirectoriesInDirectory(std::string_view const& dir) {
+std::vector<std::string> FileManagement::listFilesAndDirectoriesInPath(std::string_view const& path) {
     std::vector<std::string> entries;
     try {
-        for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+        for (const auto& entry : std::filesystem::directory_iterator(path)) {
             entries.push_back(entry.path().filename().string());
         }
     } catch (std::exception const& e) {
-        errorPrintln("Error listing files and directories in directory '", dir, "': ", e.what());
+        errorPrintln("Error listing files and directories in directory '", path, "': ", e.what());
     }
     return entries;
 }

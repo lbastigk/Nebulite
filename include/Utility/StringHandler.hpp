@@ -23,6 +23,15 @@ namespace Nebulite::Utility {
 class StringHandler {
 public:
     /**
+     * @brief Pads a list of words with spaces to create a table-like view.
+     * @details The padding is based on the longest word.
+     * @param words The list of words to pad
+     * @param rowSize The maximum character size per row. Set to zero for no newlines
+     * @todo rowSize usage not implemented
+     */
+    static std::string createPaddedTable(std::vector<std::string> const& words, size_t const& rowSize = 0);
+
+    /**
      * @brief Checks if a string contains any characters from a given set.
      * 
      * @param str The input string to check.

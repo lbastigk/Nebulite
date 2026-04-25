@@ -28,4 +28,11 @@ Constants::Event Filesystem::cat(std::span<std::string const> const& args) const
     return Constants::Event::Success;
 }
 
+Constants::Event Filesystem::ls(std::span<std::string const> const& args) const {
+    std::string const directoryPath = args.size() >= 2 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : ".";
+    auto const entries = Utility::IO::FileManagement::listFilesAndDirectoriesInPath(directoryPath);
+    domain.capture.log.println(Utility::StringHandler::createPaddedTable(entries));
+    return Constants::Event::Success;
+}
+
 } // namespace Nebulite::Module::Domain::Common
