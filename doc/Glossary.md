@@ -83,6 +83,10 @@ All domains support string parsing through `parseStr` from other domains and sup
 
 See also: [DomainModule](#domainmodule), [FuncTree](#functree), [GlobalSpace](#globalspace), [JsonScope](#jsonscope)
 
+### Domain-Inheritance
+
+Domains may inherit functions from each other, allowing for shared data, functionality and properties.
+
 -----------------
 ### Domain-Serialization-Piping
 
@@ -135,7 +139,7 @@ See also: [Context](#context), [VirtualDouble](#virtualdouble), [Multiresolve](#
 
 -----------------
 ### ExpressionPool
-Allows for parallel computation of Expressions with different other-instances. 
+Allows for parallel computation of a single Expression. 
 
 See also: [Expression](#expression), [Context](#context)
 
@@ -150,7 +154,7 @@ Execution of a bound function with its arguments through FuncTree parsing.
 ### FuncTree
 Central function parsing logic. Allows for Functions of signature 
 
-`RETURN_TYPE foo(std::span<std::string const> const& args, AdditionalArgs)` 
+`returnValue foo(std::span<std::string const> const& args, additionalArgs...)` 
 
 to be bound to a keyword and executed with this keyword and its arguments. 
 
@@ -188,6 +192,7 @@ See also: [Ruleset](#p)
 ### JSON
 A custom wrapper around rapidjson for faster variable access. 
 Used for arbitrary variable storing and retrieval in Nebulite Domains.
+Allows users to get a stable pointer to a numeric value (type double) for even faster access and modification.
 
 -----------------
 ### JsonScope

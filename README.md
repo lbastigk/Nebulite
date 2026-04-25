@@ -48,7 +48,7 @@
 <!-- TOC --><a name="overview"></a>
 ## Overview
 
-**Nebulite** is a modern C++26 2D game engine built around a flexible, ruleset-driven architecture.
+**Nebulite** is a modern C++26 2D game engine with flexible data-driven logic and a powerful expression and ruleset system.
 
 Gameplay logic can be defined in two complementary ways:
 
@@ -74,13 +74,12 @@ allowing you to freely mix data-defined and hardcoded behavior within the same p
 
 - **Scoped Data & Access Control**
     - JSON-backed data model
-    - Custom key scopes for controlled data access
-    - Explicit permission boundaries between subsystems
+    - No hardcoded variables, you may define your own keys and data structure as you see fit
+    - Custom key scopes for controlled data access for encapsulated logic and modularity
 
 - **Context-Driven Interaction**
-    - SELF / OTHER / GLOBAL context model
-    - Event broadcasting between objects
-    - Local and global ruleset execution
+    - **self** / **other** / **global** context model, with flexible combinations (**all** and **local**)
+    - Event broadcasting between objects or just per-object logic handling
 
 <!-- TOC --><a name="quick-start"></a>
 ## Quick Start
@@ -137,21 +136,21 @@ providing update routines and functions for users to call:
 - Basic setting and array manipulation via `Common` DomainModule (available to all Domains)
 - Console functionality for `Renderer` DomainModule
 
-Each Domain is able to parse string commands in its own context, that call the respective DomainModules' functions.
-These commands may be called by other Domains, the interactive console, or Task Files:
+Each Domain is able to parse string commands that call the respective DomainModules' functions.
+These commands may be called by Parent-Domains, the interactive console, or Task Files:
 ```bash
-# Example commands
-set myVar 5
-set-fps 60
+# Example commands, parsed in the GlobalSpace domain
+set myVar 5               # Common function, available in all domains
+set-fps 60                # As GlobalSpace is a parent domain of Renderer, it is able to call its functions
 always eval echo {myVar}
 always eval set myVar $({myVar} + 1)
 wait 100
 exit
 ```
 
-See [Commands.md](./doc/Commands.md) for a full list of available commands for both GlobalSpace and RenderObject domains.
+See [Commands.md](./doc/Commands.md) for a full list of available commands for both GlobalSpace and RenderObject domains, including the inherited ones.
 
-Domains may be arranged in a hierarchy, where parent Domains can contain child Domains.
+Domains may be arranged in a hierarchy, where parent Domains can contain child Domains (Domain-inheritance).
 This allows for shared functionality and data between related Domains.
 
 Child Domains share their functions with their parent Domains, allowing for seamless integration and interaction between different parts of the engine.
@@ -196,14 +195,16 @@ Access and manipulate data using variables `{...}` inside and outside mathematic
 
 **Variable Contexts:**
 
-| Variable               | Description                           |
-|------------------------|---------------------------------------|
-| `{self:*}`             | the object broadcasting logic         |
-| `{other:*}`            | the object listening to the broadcast |
-| `{global:*}`           | shared engine state                   |
-| `{file.json:key.path}` | external read-only JSON files         |
-| `{global:{self:id}}`   | nested resolution (multiresolve).     |
-| `{self:arr\|length}`   | return value transformations          |
+| Variable               | Description                            |
+|------------------------|----------------------------------------|
+| `{self:*}`             | the object broadcasting logic          |
+| `{other:*}`            | the object listening to the broadcast  |
+| `{global:*}`           | shared engine state                    |
+| `{local:*}`            | combination of self and other contexts |
+| `{all:*}`              | combination of all contexts            |
+| `{file.json:key.path}` | external read-only JSON files          |
+| `{global:{self:id}}`   | nested resolution (multiresolve).      |
+| `{self:arr\|length}`   | return value transformations           |
 
 **Mathematical Expressions:**
 
@@ -217,7 +218,8 @@ Access and manipulate data using variables `{...}` inside and outside mathematic
 
 retrieved values from JSON documents inside mathematical expressions are auto-casted to double.
 Expressions do not offer the ability to operate on non-double values (strings, arrays, objects).
-If the stored value is non-numerical, it is treated as `0.0`.
+If the stored value is non-numerical, the expression system tries to cast it to double, 
+which results in 0.0 for non-castable values
 
 **Return Value Transformations:**
 Nebulite offers transformation functions of JSON values on retrieval.
@@ -286,7 +288,7 @@ void Physics::gravity(Interaction::Context const& context, double**& slf, double
 }
 ```
 
-Rulesets are either local or global.
+Rulesets are either local (no broadcasting) or global.
 This allows for inter-object communication via broadcasting for
 - hitbox collisions
 - area triggers
@@ -316,7 +318,7 @@ Supported assignment operators:
 - `*=` : multiplication assignment (cast to double)
 - `|=` : Concatenation assignment (cast to string)
 
-The function calls are parsed and executed in their respective domains after expression evaluation.
+The function calls are parsed and executed in their respective context after expression evaluation.
 
 <!-- TOC --><a name="runtime-modes"></a>
 ### Runtime Modes
@@ -343,7 +345,7 @@ The function calls are parsed and executed in their respective domains after exp
 - *rapidJSON* - JSON parsing
 - *abseil* - fast hash maps
 - *tinyexpr* - expression evaluation
-- *imgui* - GUI
+- *imgui*, *rmlui* - GUI
 - *stb* - image encoding/decoding
 
 <!-- TOC --><a name="testing"></a>
@@ -373,10 +375,8 @@ Language extensions for other editors may be added in the future.
 
 Run `build-and-install.sh` inside its directory for installation.
 
-<!-- TOC --><a name="nebulite-logic"></a>
-### Nebulite Logic
-
-The `.nebl` *(Nebulite Logic)* language is a work in progress and not yet usable.
+Or call `make docs` in the root directory to generate up-to-date command documentation for the extension
+and use `Languages/nebs/nebulite-script-vscode/syntaxes/keywords.{txt,json}` as source for the syntax highlighting.
 
 <!-- TOC --><a name="contributing"></a>
 ## Contributing
@@ -393,13 +393,13 @@ See full details in [CONTRIBUTING.md](CONTRIBUTING.md).
 ## Learn More
 
 - **Tutorials & Examples**: [Nebulite_Examples](https://github.com/lbastigk/Nebulite_Examples) -
-  hands-on tutorials and sample projects
-- **Glossary**: [./doc/Glossary.md](./doc/Glossary.md) -
+  hands-on tutorials and sample projects (work in progress, not usable yet)
+- **Glossary**: [Glossary.md](./doc/Glossary.md) -
   definitions of key terms and concepts
-- **Command Reference**: [./doc/Commands.md](./doc/Commands.md) -
+- **Command Reference**: [Commands.md](./doc/Commands.md) -
   comprehensive documentation of all available commands for both GlobalSpace and RenderObject domains
-  as well as all JSON-Transformations
-  (automatically generated with Scripts/MakeCommandDocumentation.py)
+  as well as all JSON-Transformations and expression functions
+  (automatically generated with `make docs`)
 
 <!-- TOC --><a name="license"></a>
 ## License
