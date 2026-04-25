@@ -75,22 +75,7 @@ bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JsonScop
 
 bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JSON* jsonDoc) const {
     auto& scope = jsonDoc->fullScopeBase();
-    static std::string constexpr funcName = __FUNCTION__;
-    if (args.empty()) [[unlikely]] {
-        return false;
-    }
-
-    // Pre-allocate string to avoid reallocations in the loop
-    std::string call;
-    call.reserve(funcName.size() + 1 + 128); // funcName + space + typical transformation size
-
-    return std::ranges::all_of(args, [&](std::string const& transformation) {
-        call.clear();
-        call.append(funcName);
-        call.push_back(' ');
-        call.append(transformation);
-        return transformationFuncTree->parseStr(call, &scope);
-    });
+    return parse(args, &scope);
 }
 
 
