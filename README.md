@@ -431,6 +431,10 @@ Run validation and tests:
 ```bash
 python Scripts/TestingSuite.py --stop --verbose
 ```
+or:
+```bash
+make test
+```
 
 <!-- TOC --><a name="languages"></a>
 ## Languages
