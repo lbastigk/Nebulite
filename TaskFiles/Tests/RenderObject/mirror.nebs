@@ -4,8 +4,14 @@
 set-fps 100
 set physics.G 10 # Gravity constant, high value for testing
 time set-fixed-dt 1
-spawn ./Resources/Renderobjects/Planets/sun.jsonc|set posX 750|set posY 500|set text.str SUN1
-spawn ./Resources/Renderobjects/Planets/sun.jsonc|set posX 250|set posY 500|set text.str SUN2
+spawn ./Resources/Renderobjects/Planets/sun.jsonc \
+    |set posX 750 \
+    |set posY 500 \
+    |set text.str SUN1
+spawn ./Resources/Renderobjects/Planets/sun.jsonc \
+    |set posX 250 \
+    |set posY 500 \
+    |set text.str SUN2
 
 ###############################
 # Setup mirror
