@@ -59,13 +59,6 @@ public:
         "\n"
         "- <string>: The critical error message.\n";
 
-    [[nodiscard]] Constants::Event cat(std::span<std::string const> const& args) const ;
-    static auto constexpr cat_name = "cat";
-    static auto constexpr cat_desc = "Opens a provided file and prints its content to the console.\n"
-        "Usage: cat <filePath>\n"
-        "\n"
-        "- <filePath>: The path to the file to be read and printed.\n";
-
     //------------------------------------------
     // Setup
 
@@ -79,7 +72,6 @@ public:
         bindFunction(&Debug::error, error_name, error_desc);
         bindFunction(&Debug::warn, warn_name, warn_desc);
         bindFunction(&Debug::critical, critical_name, critical_desc);
-        bindFunction(&Debug::cat, cat_name, cat_desc);
     }
 
 private:

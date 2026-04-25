@@ -133,7 +133,7 @@ public:
     friend class Rules::Construction::RulesetCompiler;
 
     // Initializer needs access to share scopes
-    friend class Nebulite::Module::Domain::Initializer;
+    friend class Module::Domain::Initializer;
 
 private:
     /**

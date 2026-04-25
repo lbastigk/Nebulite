@@ -17,6 +17,7 @@
 // Common
 #include "Module/Domain/Common/ComplexData.hpp"
 #include "Module/Domain/Common/Debug.hpp"
+#include "Module/Domain/Common/Filesystem.hpp"
 #include "Module/Domain/Common/General.hpp"
 #include "Module/Domain/Common/SimpleData.hpp"
 
@@ -65,6 +66,11 @@ void Initializer::initCommon(Interaction::Execution::Domain* target) {
     );
     target->initModule<Interaction::Execution::Domain, Common::Debug>(
         "Common Debug Functions",
+        Global::settings(),
+        *target
+    );
+    target->initModule<Interaction::Execution::Domain, Common::Filesystem>(
+        "Common Filesystem Functions",
         Global::settings(),
         *target
     );
