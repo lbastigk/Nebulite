@@ -64,8 +64,11 @@ class JsonRvalueTransformer {
         modules.emplace_back(std::make_unique<ModuleType>(transformationFuncTree));
     }
 
-public:
     JsonRvalueTransformer();
+public:
+
+    // Singleton-Instance
+    static JsonRvalueTransformer& instance();
 
     /**
      * @brief Parses and applies JSON transformations from the given arguments.
@@ -73,13 +76,15 @@ public:
      *          Calls: parse(["add 5", "multiply 2"], inputDocument)
      *          Input document: {"value": 10}
      *          After applying the transformation, the document will be: {"value": 30}
-     * @param args A list of arguments representing the transformations to apply.
+     * @param transformationList A list of strings representing the transformations to apply.
      * @param jsonDoc The JSON document to modify. Should hold the value from the get-operation
      *                in a specified key. On success, the modified value will be stored back in the same key.
      * @return true if the transformations were successfully applied, false otherwise.
      */
-    bool parse(std::vector<std::string> const& args, JsonScope* jsonDoc) const ;
-    bool parse(std::vector<std::string> const& args, JSON* jsonDoc) const ;
+    bool parse(std::vector<std::string> const& transformationList, JsonScope* jsonDoc) const ;
+    bool parse(std::vector<std::string> const& transformationList, JSON* jsonDoc) const ;
+
+    bool parseSingleTransformation(std::span<std::string const> const& args, JsonScope* jsonDoc) const ;
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_JSON_RVALUE_TRANSFORMER_HPP

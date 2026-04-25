@@ -252,6 +252,17 @@ public:
     void deserialize(std::string const& serialOrLink);
 
     //------------------------------------------
+    // Transform
+
+    /**
+     * @brief Transforms the Scope based on a provided transformation
+     * @details Must be a single transformation! Even on failure, this will potentially modify data!
+     * @param args The arguments to parse
+     * @return True if the transformation was successful, false otherwise.
+     */
+    bool transform(std::span<std::string const> const& args);
+
+    //------------------------------------------
     // Access test
 
     /**

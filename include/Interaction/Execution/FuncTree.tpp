@@ -618,21 +618,26 @@ template <typename returnValue, typename... additionalArgs>
 returnValue FuncTree<returnValue, additionalArgs...>::parse(std::vector<std::string> const& args, additionalArgs... addArgs) {
     // Turn into span
     std::span argsSpan(args.data(), args.size());
-    argsSpan = argsSpan.subspan(1); // First arg is caller, remove
-    processVariableArguments(argsSpan);
-    if (argsSpan.empty()) {
+    return parse(argsSpan, addArgs...);
+}
+
+template <typename returnValue, typename... additionalArgs>
+returnValue FuncTree<returnValue, additionalArgs...>::parse(std::span<std::string const> const& args, additionalArgs... addArgs) {
+    auto actualArgs = args.subspan(1); // First arg is caller, remove
+    processVariableArguments(actualArgs);
+    if (actualArgs.empty()) {
         return standardReturn.valDefault; // Nothing to execute, return standard
     }
     // Call function
-    std::string funcName = argsSpan.front();
+    std::string funcName = actualArgs.front();
     auto inheritedTree = findInInheritedTrees(funcName);
     if (inheritedTree != nullptr) {
         // Function is in inherited tree, call there
-        return inheritedTree->executeFunction(funcName, argsSpan, addArgs...);
+        return inheritedTree->executeFunction(funcName, actualArgs, addArgs...);
     }
 
     // Not found in inherited trees, execute the function in main tree
-    return executeFunction(funcName, argsSpan, addArgs...);
+    return executeFunction(funcName, actualArgs, addArgs...);
 }
 
 template <typename returnValue, typename... additionalArgs>

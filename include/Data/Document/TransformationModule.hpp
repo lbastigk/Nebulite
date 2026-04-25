@@ -28,15 +28,6 @@ class JSON;
 //------------------------------------------
 // Binding helper macro
 
-// Bind non-static member function
-// Technically dangerous as we do not want any transformationModule to have member variables
-// Better solution would be to pass the FuncTree as argument to any function call, that way we can reparse for functions such as "map",
-// without any risk of having member variables.
-// TODO: Refactor all transformationModule functions so that additionalArgs is both JsonScope* and FuncTree*
-#define BIND_TRANSFORMATION_MEMBER(foo, name, desc) \
-static_assert(::Nebulite::Utility::CompileTimeEvaluate::endsWithNewline(desc), "Description must end with a newline character"); \
-Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), this, foo, name, desc)
-
 // Bind static/free function
 #define BIND_TRANSFORMATION_STATIC(foo, name, desc) \
 static_assert(::Nebulite::Utility::CompileTimeEvaluate::endsWithNewline(desc), "Description must end with a newline character"); \
@@ -53,7 +44,6 @@ public:
     virtual void bindTransformations() {
         // Basic example of how to bind transformations
         BIND_TRANSFORMATION_STATIC(&TransformationModule::bar, "test1", "Example bind of a static function.\n");
-        BIND_TRANSFORMATION_MEMBER(&TransformationModule::baz, "test2", "Example bind of a member function.\n");
     }
 
     /**
@@ -74,21 +64,13 @@ protected:
     std::shared_ptr<Interaction::Execution::FuncTree<bool, JsonScope*>> transformationFuncTree;
 
 private:
-    // Example functions for binding
+    // Example function for binding
 
     // NOLINTNEXTLINE
     static bool bar(Data::JsonScope* scope) {
         (void)scope;
         return true;
     }
-
-    // NOLINTNEXTLINE
-    bool baz(Data::JsonScope* scope) {
-        (void)scope;
-        i++;
-        return true;
-    }
-    int i = 0;
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_TRANSFORMATION_MODULE_HPP

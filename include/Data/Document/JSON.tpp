@@ -92,7 +92,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::st
     tempDoc.setSubDoc("", *this, baseKey.c_str()); // Make a copy of the required member to transform
 
     // Apply each transformation in sequence
-    if (!getTransformer()->parse(args, &tempDoc)) {
+    if (!JsonRvalueTransformer::instance().parse(args, &tempDoc)) {
         return std::unexpected(TRANSFORMATION_FAILURE); // if any transformation fails, return default value
     }
     return tempDoc.get<T>(TransformationModule::rootKeyStr);

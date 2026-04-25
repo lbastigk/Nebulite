@@ -215,12 +215,6 @@ private:
     // Return Value Transformation system
 
     /**
-     * @brief Lazy-initialized instance of the JsonRvalueTransformer for applying transformations on get operations.
-     * @return Reference to the JsonRvalueTransformer instance.
-     */
-    static JsonRvalueTransformer* getTransformer();
-
-    /**
      * @brief Apply transformations found in the key string and retrieve the modified value.
      * @tparam T The type of the value to retrieve.
      * @param key The key string containing transformations.

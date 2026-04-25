@@ -15,7 +15,7 @@ namespace Nebulite::Module::Transformation {
 
 void Collection::bindTransformations() {
     // BIND_TRANSFORMATION_MEMBER(&Collection::filter, filterName, &filterDesc);
-    BIND_TRANSFORMATION_MEMBER(&Collection::map, mapName, mapDesc);
+    BIND_TRANSFORMATION_STATIC(&Collection::map, mapName, mapDesc);
     BIND_TRANSFORMATION_STATIC(&Collection::get, getName, getDesc);
     BIND_TRANSFORMATION_STATIC(&Collection::getMultiple, getMultipleName, getMultipleDesc);
     BIND_TRANSFORMATION_STATIC(&Collection::filterRegex, filterRegexName, filterRegexDesc);
@@ -25,7 +25,7 @@ void Collection::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Collection::listMembersAndValues, listMembersAndValuesName, listMembersAndValuesDesc);
 }
 
-bool Collection::map(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) const {
+bool Collection::map(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
         auto const key = rootKey + "[0]";
         jsonDoc->moveMember(rootKey, key);
@@ -36,21 +36,13 @@ bool Collection::map(std::span<std::string const> const& args, Data::JsonScope* 
         return false; // still not an array, something went wrong
     }
 
-    // Re-join args into a single transformation command
-    std::string cmd = __FUNCTION__;
-    for (auto const& arg : args.subspan(1)) {
-        cmd += " ";
-        cmd += arg;
-    }
-
     size_t const arraySize = jsonDoc->memberSize(rootKey);
     for (uint32_t idx = 0; idx < arraySize; ++idx) {
         // Set temp document with current element
         auto const elementKey = rootKey + "[" + std::to_string(idx) + "]";
 
         // Parse transformation command
-        auto& scope = jsonDoc->shareScope(elementKey);
-        if (!transformationFuncTree->parseStr(cmd, &scope)) {
+        if (auto& scope = jsonDoc->shareScope(elementKey); !scope.transform(args)) {
             jsonDoc->removeMember(elementKey);
             return false; // If parsing fails for any element, we remove it and return false
         }

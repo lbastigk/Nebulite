@@ -195,6 +195,13 @@ void JsonScope::deserialize(std::string const& serialOrLink) {
 }
 
 //------------------------------------------
+// Transform
+
+bool JsonScope::transform(std::span<std::string const> const& args){
+    return JsonRvalueTransformer::instance().parseSingleTransformation(args, this);
+}
+
+//------------------------------------------
 // Access test
 
 void JsonScope::assertAccess(ScopedKeyView const& key) const{

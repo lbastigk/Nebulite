@@ -217,6 +217,7 @@ public:
      */
     returnValue parseStr(std::string_view const& cmd, additionalArgs... addArgs);
     returnValue parse(std::vector<std::string> const& args, additionalArgs... addArgs);
+    returnValue parse(std::span<std::string const> const& args, additionalArgs... addArgs);
 
     //------------------------------------------
     // Binding (Functions, Categories, Variables)

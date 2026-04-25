@@ -40,14 +40,6 @@ JSON::JSON(JSON&& other) noexcept {
 }
 
 //------------------------------------------
-// Lazy-initialized transformer
-
-JsonRvalueTransformer* JSON::getTransformer() {
-    thread_local JsonRvalueTransformer transformer;
-    return &transformer;
-}
-
-//------------------------------------------
 // Scope sharing
 
 JsonScope& JSON::shareManagedScopeBase(std::string const& prefix) {
@@ -306,7 +298,7 @@ bool JSON::getSubDocWithTransformations(std::string const& key, JSON& outDoc) co
     outDoc = getSubDoc(baseKey);
 
     // Apply each transformation in sequence
-    if (!getTransformer()->parse(args, &outDoc)) {
+    if (!JsonRvalueTransformer::instance().parse(args, &outDoc)) {
         return false; // if any transformation fails, return default value
     }
     return true;

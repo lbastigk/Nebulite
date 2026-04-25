@@ -20,7 +20,7 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    bool map(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) const ; // Map needs to reparse, so it's a member function
+    static bool map(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr mapName = "map";
     static auto constexpr mapDesc = "Applies a mapping function to each element in the array of the current JSON value.\n"
         "If the current value is not an array, it is first wrapped into a single-element array.\n"
