@@ -11,7 +11,6 @@
 
 // Nebulite
 #include "Constants/StandardCapture.hpp"
-#include "Interaction/ContextView.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -143,9 +142,17 @@ private:
     bool imguiViewEnabled = false;
 
     // Store addresses of who called the last imgui-view command, so we can pass them to the imgui view later on
-    // Due to design constraints, a Common DomainModule cannot have a scope...
-    Interaction::ContextView lastContext;
-    Interaction::ContextScopeView lastContextScope;
+    // We assume the lifetime of both self and global exceeds the usage here
+    struct LastContext {
+        Interaction::Execution::Domain* self;
+        Interaction::Execution::Domain* global;
+        Data::JsonScope* selfScope;
+        Data::JsonScope* globalScope;
+
+        bool valid() const {
+            return self && global && selfScope && globalScope;
+        }
+    } lastContext;
 };
 } // namespace Nebulite::Module::Domain::Common
 #endif // NEBULITE_DOMAIN_MODULE_COMMON_GENERAL_HPP

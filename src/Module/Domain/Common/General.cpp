@@ -7,15 +7,27 @@ namespace Nebulite::Module::Domain::Common {
 
 Constants::Event General::updateHook() {
     if (imguiViewEnabled && Graphics::ImguiHelper::checkImguiReadyForRendering()) {
-        auto ctx = lastContext.rebuild();
-        auto ctxScope = lastContextScope.rebuild();
-        if (!ctx || !ctxScope) {
+        if (!lastContext.valid()) {
             // Context is not valid, disable imgui view and log error
             imguiViewEnabled = false;
             domain.capture.error.println("Failed to render ImGui view: Context is no longer valid. Disabling ImGui view.");
             return Constants::Event::Error;
         }
-        Graphics::ImguiHelper::renderDomain(ctx.value(), ctxScope.value(), domain.capture, domain.getName());
+        auto ctx = Interaction::Context{
+            {
+                .self = *lastContext.self,
+                .other = *lastContext.self,
+                .global = *lastContext.global
+            }
+        };
+        auto ctxScope = Interaction::ContextScope{
+            {
+                .self = *lastContext.selfScope,
+                .other = *lastContext.selfScope,
+                .global = *lastContext.globalScope
+            }
+        };
+        Graphics::ImguiHelper::renderDomain(ctx, ctxScope, domain.capture, domain.getName());
     }
     return Constants::Event::Success;
 }
@@ -29,8 +41,15 @@ Constants::Event General::imguiView(std::span<std::string const> const& args, In
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
 
-    lastContext = Interaction::ContextView(ctx);
-    lastContextScope = Interaction::ContextScopeView(ctxScope);
+    // We store the context of 'self' and 'global', as their lifetime should exceed that of the updateHook
+    // This isn't textbook, as we make a huge assumption about the architecture.
+    // But so far, context global is always the same and outlives the context self at all times.
+    // Later on we may need a better interaction system, where each element using a global context is automatically deleted if the global context is deleted
+    // But that isn't necessary at the moment.
+    lastContext.self = &ctx.self;
+    lastContext.global = &ctx.global;
+    lastContext.selfScope = &ctxScope.self;
+    lastContext.globalScope = &ctxScope.global; // We actually need the global context so the ImGui console calls can propagate it to different functions!
     if (args[1] == "on") {
         imguiViewEnabled = true;
     } else if (args[1] == "off") {
