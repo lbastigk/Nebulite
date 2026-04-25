@@ -7,7 +7,7 @@
 namespace Nebulite::Module::Domain::Renderer {
 
 Constants::Event RmlUi::updateHook() {
-    // No update tasks for now, but this can be used for future features such as RmlUi event handling or variable updates
+    moduleScope.set<uint32_t>(Key::openedDocuments, static_cast<uint32_t>(loadedDocuments.size()));
     return Constants::Event::Success;
 }
 
@@ -16,7 +16,8 @@ Constants::Event RmlUi::loadDocument(std::span<std::string const> const& args, I
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    std::string const& name = args[1];
+    // Enforce uniqueness using the domains id
+    std::string const name = args[1] + std::string("_id") + std::to_string(ctx.self.getId());
 
     if (loadedDocuments.find(name) != loadedDocuments.end()) {
         domain.capture.warning.println("Document with name '", name, "' already exists. Please choose a different name or remove the existing document first.");
@@ -36,11 +37,13 @@ Constants::Event RmlUi::loadDocument(std::span<std::string const> const& args, I
     return Constants::Event::Success;
 }
 
-Constants::Event RmlUi::removeDocument(std::span<std::string const> const& args) {
+// NOLINTNEXTLINE
+Constants::Event RmlUi::removeDocument(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    std::string const& name = args[1];
+    // Enforce uniqueness using the domains id
+    std::string const name = args[1] + std::string("_id") + std::to_string(ctx.self.getId());
 
     auto const it = loadedDocuments.find(name);
     if (it == loadedDocuments.end()) {
