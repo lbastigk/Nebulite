@@ -320,9 +320,78 @@ Supported assignment operators:
 
 The function calls are parsed and executed in their respective context after expression evaluation.
 
+### GUI
+
+Nebulite includes two GUI libraries:
+- **ImGui** for in-game debug interfaces and tools
+- **RmlUI** for more complex, styled interfaces (menus, HUDs, etc.)
+
+The RmlUi implementation contains custom plugins to allow for seamless integration with Nebulite's data model and expression system,
+as well as Reflection capabilities for iterating over JSON data in the UI.
+Instead of using the default RmlUi syntax for data binding and event handling, use the standard Nebulite expression syntax.
+
+Examples:
+
+```html
+<rml>
+    <head>
+        <title>Hello world</title>
+        <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
+        <link type="text/rcss" href="./Resources/Rml/window.rcss"/>
+    </head>
+    <body data-model="nebuliteDataSync"> <!-- one data model for all RmlUi documents, the proper Nebulite Context is handled automatically -->
+    <h1>RmlUi</h1>
+
+    <p>Hello <span id="world">world</span>!</p>
+
+    <hr />
+    <h2>Expression</h2>
+
+    <!-- data-eval="true" allows for expression evaluation inside the tag -->
+    <p data-eval="true">
+        Test expression, <b>with</b> evaluation and more:
+        $08.2f(1+{global:time.t|sub 1})
+        Global space is type: {global:|typeAsString}
+    </p>
+
+    <hr />
+    <h2>Data input</h2>
+
+    <p data-eval="true">
+        The quick brown fox jumps over the lazy {global:rml.input.animal}.
+    </p>
+
+    <!-- data-value binds the input value to the given key in the data model. A unique data-identifier is necessary-->
+    <p>
+        <input type="text" data-value="rml.input.animal" data-identifier="animalInput"/>
+    </p>
+
+    <hr />
+    <h2>Data-Reflect</h2>
+
+    <p data-eval="true">
+        global:time has {global:time|listMembers|length} members:
+    </p>
+    <!-- data-reflect allows for iterating over all members of a array, with access to their keys and values -->
+    <!-- You can use JSON-Transformation to turn objects into arrays for propper reflection -->
+    <p data-reflect="{global:time|listMembersAndValues}">
+        <pCompact data-eval="true">
+            {self:key|asString|rPad 15 .}{self:value|asString|lPad 15 .}
+        </pCompact>
+    </p>
+
+    </body>
+</rml>
+```
+
+The document is loaded via the RmlUi DomainModule:
+```bash
+rmlui document load <name> ./Resources/Rml/example.rml
+```
+
 <!-- TOC --><a name="runtime-modes"></a>
 ### Runtime Modes
-- **Interactive**: Press `tab` for live console
+- **Interactive**: Press `^` for live console
 - **Task Files**: `./bin/Nebulite task script.nebs`
 - **Headless**: `--headless` for automation/testing
 - **CLI**: `./bin/Nebulite 'command ; chain'`
