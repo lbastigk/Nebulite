@@ -189,6 +189,13 @@ inline void exampleUsage() {
 }
 ```
 
+Keys are either Defined in a DomainModule or for a specific Domain. Any runtime user-input is assumed to be
+at the root of the current scope, so it never throws an exception on access.
+The Intent is that the access restrictions apply to the hardcoded logic to enforce encapsulation,
+so we can safely assume that any DomainModule with a defined scope:
+- accesses the correct member (if we always access based on the root of the provided scope, this is not guaranteed)
+- throws an exception if the member is accessed outside its intended scope
+
 <!-- TOC --><a name="expression-system"></a>
 ### Expression System
 Access and manipulate data using variables `{...}` inside and outside mathematical expressions `$(...)`:
