@@ -28,17 +28,18 @@
 <!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
 
 - [Overview](#overview)
-- [Quick Start](#quick-start)
+    * [Core Principles](#core-principles)
+    * [Quick Start](#quick-start)
 - [Core Concepts](#core-concepts)
     * [Domains & DomainModules](#domains-domainmodules)
     * [Expression System](#expression-system)
     * [Ruleset System](#ruleset-system)
+    * [GUI](#gui)
     * [Runtime Modes](#runtime-modes)
 - [Platform Support & Dependencies](#platform-support-dependencies)
 - [Testing](#testing)
 - [Languages](#languages)
     * [Nebulite Script](#nebulite-script)
-    * [Nebulite Logic](#nebulite-logic)
 - [Contributing](#contributing)
 - [Learn More](#learn-more)
 - [License](#license)
@@ -55,9 +56,10 @@ Gameplay logic can be defined in two complementary ways:
 - **JSON rulesets** — declarative, data-driven, and ideal for experimentation
 - **Native C++ rulesets** — hardcoded for maximum performance and full control
 
-Both approaches share the same runtime pipeline and context model, 
+Both approaches share the same runtime pipeline and context model,
 allowing you to freely mix data-defined and hardcoded behavior within the same project.
 
+<!-- TOC --><a name="core-principles"></a>
 ### Core Principles
 
 - **Modular Architecture**
@@ -82,7 +84,7 @@ allowing you to freely mix data-defined and hardcoded behavior within the same p
     - Event broadcasting between objects or just per-object logic handling
 
 <!-- TOC --><a name="quick-start"></a>
-## Quick Start
+### Quick Start
 
 1. Clone & enter repo
 ```bash
@@ -225,7 +227,7 @@ Access and manipulate data using variables `{...}` inside and outside mathematic
 
 retrieved values from JSON documents inside mathematical expressions are auto-casted to double.
 Expressions do not offer the ability to operate on non-double values (strings, arrays, objects).
-If the stored value is non-numerical, the expression system tries to cast it to double, 
+If the stored value is non-numerical, the expression system tries to cast it to double,
 which results in 0.0 for non-castable values
 
 **Return Value Transformations:**
@@ -327,6 +329,7 @@ Supported assignment operators:
 
 The function calls are parsed and executed in their respective context after expression evaluation.
 
+<!-- TOC --><a name="gui"></a>
 ### GUI
 
 Nebulite includes two GUI libraries:
@@ -336,8 +339,8 @@ Nebulite includes two GUI libraries:
 The RmlUi implementation contains custom plugins to allow for seamless integration with Nebulite's data model and expression system,
 as well as Reflection capabilities for iterating over JSON data in the UI.
 Instead of using the default RmlUi syntax for data binding and event handling, use the standard Nebulite expression syntax.
-The context of each document is determined by the context of the caller: 
-- If we call the document from a RenderObject, the self context is set to that object, 
+The context of each document is determined by the context of the caller:
+- If we call the document from a RenderObject, the self context is set to that object,
 - If we call it from GlobalSpace, every context is set to global.
 - If the document is called from an object interaction, the self and other context are set to the respective objects.
 
@@ -414,7 +417,7 @@ Nebulite script files (`.nebs`) allow for scripted execution of commands, with s
 Many classic programming constructs are available, such as if-statements, variable assignments, assertions as well as line continuation with `\`.
 This allows for quick prototyping and testing without building additional C++ code.
 
-The entire testing suite is implemented as a set of Nebulite script files, 
+The entire testing suite is implemented as a set of Nebulite script files,
 which are executed in headless mode and report their results to the console.
 
 See `./TaskFiles/Tests` for examples of Nebulite script files.
