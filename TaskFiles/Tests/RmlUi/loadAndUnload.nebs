@@ -1,0 +1,6 @@
+set-fps 60
+rmlui document load test ./Resources/Rml/alignment.rml
+wait 30
+rmlui document remove test
+wait 30
+exit

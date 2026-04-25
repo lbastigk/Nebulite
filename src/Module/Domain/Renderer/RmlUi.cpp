@@ -49,7 +49,7 @@ Constants::Event RmlUi::removeDocument(std::span<std::string const> const& args)
     }
 
     it->second->Close();
-    domain.getRmlContext()->UnloadDocument(it->second);
+    domain.removeRmlDocument(it->second);
     loadedDocuments.erase(it);
     return Constants::Event::Success;
 }

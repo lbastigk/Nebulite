@@ -420,6 +420,11 @@ public:
     //------------------------------------------
     // Rml Context
 
+    void removeRmlDocument(Rml::ElementDocument* doc) {
+        rml.documentContext.erase(doc);
+        rml.context->UnloadDocument(doc);
+    }
+
     std::optional<Graphics::RmlInterface::ContextAndScope> getRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element);
     std::optional<Graphics::RmlInterface::ContextAndScope> getRmlDocumentContextAndScope(Rml::ElementDocument* document);
 

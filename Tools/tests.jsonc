@@ -52,6 +52,9 @@
         "Tools/Tests/Rulesets/DebugUtils.json",
         "Tools/Tests/Rulesets/selfOtherGlobalInteraction.json",
         //---------------------------------------
+        // RmlUi tests
+        "Tools/Tests/RmlUi/basics.json",
+        //---------------------------------------
         // Misc tests, sort, expand and diversify later
         "Tools/Tests/scenes.json",
         "Tools/Tests/mirror_draft_selection.json"
