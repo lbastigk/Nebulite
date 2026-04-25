@@ -16,7 +16,6 @@
 #include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Interaction/Execution/DomainModuleBase.hpp"
-#include "Utility/CompileTimeEvaluate.hpp"
 
 //------------------------------------------
 // Forward declarations
