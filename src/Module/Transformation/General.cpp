@@ -12,14 +12,14 @@
 namespace Nebulite::Module::Transformation {
 
 void General::bindTransformations() {
-    BIND_TRANSFORMATION_STATIC(&General::setString, setStringName, setStringDesc);
-    BIND_TRANSFORMATION_STATIC(&General::setInt, setIntName, setIntDesc);
-    BIND_TRANSFORMATION_STATIC(&General::setDouble, setDoubleName, setDoubleDesc);
-    BIND_TRANSFORMATION_STATIC(&General::setBool, setBoolName, setBoolDesc);
-    BIND_TRANSFORMATION_STATIC(&General::removeMember, removeMemberName, removeMemberDesc);
-    BIND_TRANSFORMATION_STATIC(&General::setFromResult, setFromResultName, setFromResultDesc);
-    BIND_TRANSFORMATION_STATIC(&General::asString, asStringName, asStringDesc);
-    BIND_TRANSFORMATION_STATIC(&General::formatNumber, formatNumberName, formatNumberDesc);
+    bindTransformation(&General::setString, setStringName, setStringDesc);
+    bindTransformation(&General::setInt, setIntName, setIntDesc);
+    bindTransformation(&General::setDouble, setDoubleName, setDoubleDesc);
+    bindTransformation(&General::setBool, setBoolName, setBoolDesc);
+    bindTransformation(&General::removeMember, removeMemberName, removeMemberDesc);
+    bindTransformation(&General::setFromResult, setFromResultName, setFromResultDesc);
+    bindTransformation(&General::asString, asStringName, asStringDesc);
+    bindTransformation(&General::formatNumber, formatNumberName, formatNumberDesc);
 }
 
 bool General::setString(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {

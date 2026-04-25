@@ -7,26 +7,26 @@
 namespace Nebulite::Module::Transformation {
 
 void String::bindTransformations() {
-    BIND_TRANSFORMATION_STATIC(&toUpper, toUpperName, toUpperDesc);
-    BIND_TRANSFORMATION_STATIC(&toLower, toLowerName, toLowerDesc);
-    BIND_TRANSFORMATION_STATIC(&lPad, lPadName, lPadDesc);
-    BIND_TRANSFORMATION_STATIC(&rPad, rPadName, rPadDesc);
-    BIND_TRANSFORMATION_STATIC(&lPadNumeric, lPadNumericName, lPadNumericDesc);
-    BIND_TRANSFORMATION_STATIC(&rPadNumeric, rPadNumericName, rPadNumericDesc);
-    BIND_TRANSFORMATION_STATIC(&lPadNonNumeric, lPadNonNumericName, lPadNonNumericDesc);
-    BIND_TRANSFORMATION_STATIC(&rPadNonNumeric, rPadNonNumericName, rPadNonNumericDesc);
-    BIND_TRANSFORMATION_STATIC(&strip, trimName, trimDesc);
-    BIND_TRANSFORMATION_STATIC(&lStrip, lStripName, lStripDesc);
-    BIND_TRANSFORMATION_STATIC(&rStrip, rStripName, rStripDesc);
-    BIND_TRANSFORMATION_STATIC(&substring, substringName, substringDesc);
-    BIND_TRANSFORMATION_STATIC(&replace, replaceName, replaceDesc);
-    BIND_TRANSFORMATION_STATIC(&strCountAppearance, strCountAppearanceName, strCountAppearanceDesc);
+    bindTransformation(&toUpper, toUpperName, toUpperDesc);
+    bindTransformation(&toLower, toLowerName, toLowerDesc);
+    bindTransformation(&lPad, lPadName, lPadDesc);
+    bindTransformation(&rPad, rPadName, rPadDesc);
+    bindTransformation(&lPadNumeric, lPadNumericName, lPadNumericDesc);
+    bindTransformation(&rPadNumeric, rPadNumericName, rPadNumericDesc);
+    bindTransformation(&lPadNonNumeric, lPadNonNumericName, lPadNonNumericDesc);
+    bindTransformation(&rPadNonNumeric, rPadNonNumericName, rPadNonNumericDesc);
+    bindTransformation(&strip, trimName, trimDesc);
+    bindTransformation(&lStrip, lStripName, lStripDesc);
+    bindTransformation(&rStrip, rStripName, rStripDesc);
+    bindTransformation(&substring, substringName, substringDesc);
+    bindTransformation(&replace, replaceName, replaceDesc);
+    bindTransformation(&strCountAppearance, strCountAppearanceName, strCountAppearanceDesc);
 
-    transformationFuncTree->bindCategory(strcompareName, strcompareDesc);
-    BIND_TRANSFORMATION_STATIC(&strcompareEquals, strcompareEqualsName, strcompareEqualsDesc);
-    BIND_TRANSFORMATION_STATIC(&strcompareContains, strcompareContainsName, strcompareContainsDesc);
-    BIND_TRANSFORMATION_STATIC(&strcompareStartsWith, strcompareStartsWithName, strcompareStartsWithDesc);
-    BIND_TRANSFORMATION_STATIC(&strcompareEndsWith, strcompareEndsWithName, strcompareEndsWithDesc);
+    bindCategory(strcompareName, strcompareDesc);
+    bindTransformation(&strcompareEquals, strcompareEqualsName, strcompareEqualsDesc);
+    bindTransformation(&strcompareContains, strcompareContainsName, strcompareContainsDesc);
+    bindTransformation(&strcompareStartsWith, strcompareStartsWithName, strcompareStartsWithDesc);
+    bindTransformation(&strcompareEndsWith, strcompareEndsWithName, strcompareEndsWithDesc);
 }
 
 // NOLINTNEXTLINE

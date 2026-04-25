@@ -5,14 +5,14 @@
 namespace Nebulite::Module::Transformation {
 
 void Casting::bindTransformations() {
-    BIND_TRANSFORMATION_STATIC(&Casting::toInt, toIntName, toIntDesc);
-    BIND_TRANSFORMATION_STATIC(&Casting::toString, toStringName, toStringDesc);
-    BIND_TRANSFORMATION_STATIC(&Casting::toBool, toBoolName, toBoolDesc);
-    BIND_TRANSFORMATION_STATIC(&Casting::toDouble, toDoubleName, toDoubleDesc);
-    BIND_TRANSFORMATION_STATIC(&Casting::toBoolString, toBoolStringName, toBoolStringDesc);
-    BIND_TRANSFORMATION_STATIC(&Casting::roundUp, roundUpName, roundUpDesc);
-    BIND_TRANSFORMATION_STATIC(&Casting::roundDown, roundDownName, roundDownDesc);
-    BIND_TRANSFORMATION_STATIC(&Casting::round, roundName, roundDesc);
+    bindTransformation(&Casting::toInt, toIntName, toIntDesc);
+    bindTransformation(&Casting::toString, toStringName, toStringDesc);
+    bindTransformation(&Casting::toBool, toBoolName, toBoolDesc);
+    bindTransformation(&Casting::toDouble, toDoubleName, toDoubleDesc);
+    bindTransformation(&Casting::toBoolString, toBoolStringName, toBoolStringDesc);
+    bindTransformation(&Casting::roundUp, roundUpName, roundUpDesc);
+    bindTransformation(&Casting::roundDown, roundDownName, roundDownDesc);
+    bindTransformation(&Casting::round, roundName, roundDesc);
 }
 
 bool Casting::toInt(Data::JsonScope* jsonDoc) {

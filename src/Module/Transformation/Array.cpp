@@ -6,15 +6,15 @@
 namespace Nebulite::Module::Transformation {
 
 void Array::bindTransformations() {
-    BIND_TRANSFORMATION_STATIC(&Array::ensureArray, ensureArrayName, ensureArrayDesc);
-    BIND_TRANSFORMATION_STATIC(&Array::at, atName, atDesc);
-    BIND_TRANSFORMATION_STATIC(&Array::length, lengthName, lengthDesc);
-    BIND_TRANSFORMATION_STATIC(&Array::reverse, reverseName, reverseDesc);
-    BIND_TRANSFORMATION_STATIC(&Array::first, firstName, firstDesc);
-    BIND_TRANSFORMATION_STATIC(&Array::last, lastName, lastDesc);
-    BIND_TRANSFORMATION_STATIC(&Array::push, pushName, pushDesc);
-    BIND_TRANSFORMATION_STATIC(&Array::pushNumber, pushNumberName, pushNumberDesc);
-    BIND_TRANSFORMATION_STATIC(&Array::subspan, subspanName, subspanDesc);
+    bindTransformation(&Array::ensureArray, ensureArrayName, ensureArrayDesc);
+    bindTransformation(&Array::at, atName, atDesc);
+    bindTransformation(&Array::length, lengthName, lengthDesc);
+    bindTransformation(&Array::reverse, reverseName, reverseDesc);
+    bindTransformation(&Array::first, firstName, firstDesc);
+    bindTransformation(&Array::last, lastName, lastDesc);
+    bindTransformation(&Array::push, pushName, pushDesc);
+    bindTransformation(&Array::pushNumber, pushNumberName, pushNumberDesc);
+    bindTransformation(&Array::subspan, subspanName, subspanDesc);
 }
 
 // Clang marks this function as having an unreachable branch,

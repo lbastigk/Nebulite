@@ -4,13 +4,13 @@
 namespace Nebulite::Module::Transformation {
 
 void Statistics::bindTransformations() {
-    BIND_TRANSFORMATION_STATIC(&sum, sumName, sumDesc);
-    BIND_TRANSFORMATION_STATIC(&average, averageName, averageDesc);
-    BIND_TRANSFORMATION_STATIC(&product, productName, productDesc);
-    BIND_TRANSFORMATION_STATIC(&min, minName, minDesc);
-    BIND_TRANSFORMATION_STATIC(&max, maxName, maxDesc);
-    BIND_TRANSFORMATION_STATIC(&median, medianName, medianDesc);
-    BIND_TRANSFORMATION_STATIC(&stddev, stddevName, stddevDesc);
+    bindTransformation(&sum, sumName, sumDesc);
+    bindTransformation(&average, averageName, averageDesc);
+    bindTransformation(&product, productName, productDesc);
+    bindTransformation(&min, minName, minDesc);
+    bindTransformation(&max, maxName, maxDesc);
+    bindTransformation(&median, medianName, medianDesc);
+    bindTransformation(&stddev, stddevName, stddevDesc);
 }
 
 double Statistics::accumulate(Data::JsonScope const* scope, std::function<double(double, double)> const& func, double const& initialValue) {

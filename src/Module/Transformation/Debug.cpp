@@ -6,8 +6,8 @@
 namespace Nebulite::Module::Transformation {
 
 void Debug::bindTransformations() {
-    BIND_TRANSFORMATION_STATIC(&Debug::echo, echoName, echoDesc);
-    BIND_TRANSFORMATION_STATIC(&Debug::print, printName, printDesc);
+    bindTransformation(&Debug::echo, echoName, echoDesc);
+    bindTransformation(&Debug::print, printName, printDesc);
 }
 
 // Since this is for debugging only, we pass the output directly to global capture, instead of a local capture

@@ -15,14 +15,14 @@ namespace Nebulite::Module::Transformation {
 
 void Collection::bindTransformations() {
     // BIND_TRANSFORMATION_MEMBER(&Collection::filter, filterName, &filterDesc);
-    BIND_TRANSFORMATION_STATIC(&Collection::map, mapName, mapDesc);
-    BIND_TRANSFORMATION_STATIC(&Collection::get, getName, getDesc);
-    BIND_TRANSFORMATION_STATIC(&Collection::getMultiple, getMultipleName, getMultipleDesc);
-    BIND_TRANSFORMATION_STATIC(&Collection::filterRegex, filterRegexName, filterRegexDesc);
-    BIND_TRANSFORMATION_STATIC(&Collection::filterGlob, filterGlobName, filterGlobDesc);
-    BIND_TRANSFORMATION_STATIC(&Collection::filterNulls, filterOutNullsName, filterOutNullsDesc);
-    BIND_TRANSFORMATION_STATIC(&Collection::listMembers, listMembersName, listMembersDesc);
-    BIND_TRANSFORMATION_STATIC(&Collection::listMembersAndValues, listMembersAndValuesName, listMembersAndValuesDesc);
+    bindTransformation(&Collection::map, mapName, mapDesc);
+    bindTransformation(&Collection::get, getName, getDesc);
+    bindTransformation(&Collection::getMultiple, getMultipleName, getMultipleDesc);
+    bindTransformation(&Collection::filterRegex, filterRegexName, filterRegexDesc);
+    bindTransformation(&Collection::filterGlob, filterGlobName, filterGlobDesc);
+    bindTransformation(&Collection::filterNulls, filterOutNullsName, filterOutNullsDesc);
+    bindTransformation(&Collection::listMembers, listMembersName, listMembersDesc);
+    bindTransformation(&Collection::listMembersAndValues, listMembersAndValuesName, listMembersAndValuesDesc);
 }
 
 bool Collection::map(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {

@@ -4,11 +4,11 @@
 namespace Nebulite::Module::Transformation {
 
 void Types::bindTransformations() {
-    BIND_TRANSFORMATION_STATIC(&Types::typeAsNumber, typeAsNumberName, typeAsNumberDesc);
-    BIND_TRANSFORMATION_STATIC(&Types::typeAsSimpleString, typeAsSimpleStringName, typeAsSimpleStringDesc);
-    BIND_TRANSFORMATION_STATIC(&Types::typeAsString, typeAsStringName, typeAsStringDesc);
-    BIND_TRANSFORMATION_STATIC(&Types::serialize, serializeName, serializeDesc);
-    BIND_TRANSFORMATION_STATIC(&Types::deserialize, deserializeName, deserializeDesc);
+    bindTransformation(&Types::typeAsNumber, typeAsNumberName, typeAsNumberDesc);
+    bindTransformation(&Types::typeAsSimpleString, typeAsSimpleStringName, typeAsSimpleStringDesc);
+    bindTransformation(&Types::typeAsString, typeAsStringName, typeAsStringDesc);
+    bindTransformation(&Types::serialize, serializeName, serializeDesc);
+    bindTransformation(&Types::deserialize, deserializeName, deserializeDesc);
 }
 
 bool Types::typeAsNumber(Data::JsonScope* jsonDoc) {

@@ -5,12 +5,13 @@
 namespace Nebulite::Module::Transformation {
 
 void Requirements::bindTransformations() {
-    transformationFuncTree->bindCategory(requireName, requireDesc);
-    transformationFuncTree->bindCategory(requireTypeName, requireTypeDesc);
-    BIND_TRANSFORMATION_STATIC(&Requirements::requireNonEmpty, requireNonEmptyName, requireNonEmptyDesc);
-    BIND_TRANSFORMATION_STATIC(&Requirements::requireTypeObject, requireTypeObjectName, requireTypeObjectDesc);
-    BIND_TRANSFORMATION_STATIC(&Requirements::requireTypeArray, requireTypeArrayName, requireTypeArrayDesc);
-    BIND_TRANSFORMATION_STATIC(&Requirements::requireTypeBasicValue, requireTypeBasicValueName, requireTypeBasicValueDesc);
+    bindCategory(requireName, requireDesc);
+    bindTransformation(&Requirements::requireNonEmpty, requireNonEmptyName, requireNonEmptyDesc);
+
+    bindCategory(requireTypeName, requireTypeDesc);
+    bindTransformation(&Requirements::requireTypeObject, requireTypeObjectName, requireTypeObjectDesc);
+    bindTransformation(&Requirements::requireTypeArray, requireTypeArrayName, requireTypeArrayDesc);
+    bindTransformation(&Requirements::requireTypeBasicValue, requireTypeBasicValueName, requireTypeBasicValueDesc);
 }
 
 void Requirements::printUserDefinedMessage(std::span<std::string const> const& args){

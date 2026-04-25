@@ -26,14 +26,6 @@ class JSON;
 } // namespace Nebulite::Data
 
 //------------------------------------------
-// Binding helper macro
-
-// Bind static/free function
-#define BIND_TRANSFORMATION_STATIC(foo, name, desc) \
-static_assert(::Nebulite::Utility::CompileTimeEvaluate::endsWithNewline(desc), "Description must end with a newline character"); \
-Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), foo, name, desc)
-
-//------------------------------------------
 namespace Nebulite::Data {
 class TransformationModule {
 public:
@@ -41,9 +33,18 @@ public:
 
     virtual ~TransformationModule();
 
+    template <typename Func>
+    void bindTransformation(Func functionPtr, std::string_view const& name, std::string_view const& helpDescription) const {
+        Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), functionPtr, name, helpDescription);
+    }
+
+    void bindCategory(std::string_view const& name, std::string_view const& helpDescription) const {
+        transformationFuncTree->bindCategory(name, helpDescription);
+    }
+
     virtual void bindTransformations() {
         // Basic example of how to bind transformations
-        BIND_TRANSFORMATION_STATIC(&TransformationModule::bar, "test1", "Example bind of a static function.\n");
+        bindTransformation(&TransformationModule::bar, "test1", "Example bind of a static function.\n");
     }
 
     /**
@@ -60,10 +61,9 @@ public:
      */
     static auto constexpr rootKey = ScopedKeyView(rootKeyStr);
 
-protected:
+private:
     std::shared_ptr<Interaction::Execution::FuncTree<bool, JsonScope*>> transformationFuncTree;
 
-private:
     // Example function for binding
 
     // NOLINTNEXTLINE

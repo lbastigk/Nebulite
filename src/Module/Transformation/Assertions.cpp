@@ -5,12 +5,13 @@
 namespace Nebulite::Module::Transformation {
 
 void Assertions::bindTransformations() {
-    transformationFuncTree->bindCategory(assertName, assertDesc);
-    transformationFuncTree->bindCategory(assertTypeName, assertTypeDesc);
-    BIND_TRANSFORMATION_STATIC(&Assertions::assertNonEmpty, assertNonEmptyName, assertNonEmptyDesc);
-    BIND_TRANSFORMATION_STATIC(&Assertions::assertTypeObject, assertTypeObjectName, assertTypeObjectDesc);
-    BIND_TRANSFORMATION_STATIC(&Assertions::assertTypeArray, assertTypeArrayName, assertTypeArrayDesc);
-    BIND_TRANSFORMATION_STATIC(&Assertions::assertTypeBasicValue, assertTypeBasicValueName, assertTypeBasicValueDesc);
+    bindCategory(assertName, assertDesc);
+    bindTransformation(&Assertions::assertNonEmpty, assertNonEmptyName, assertNonEmptyDesc);
+
+    bindCategory(assertTypeName, assertTypeDesc);
+    bindTransformation(&Assertions::assertTypeObject, assertTypeObjectName, assertTypeObjectDesc);
+    bindTransformation(&Assertions::assertTypeArray, assertTypeArrayName, assertTypeArrayDesc);
+    bindTransformation(&Assertions::assertTypeBasicValue, assertTypeBasicValueName, assertTypeBasicValueDesc);
 }
 
 void Assertions::printUserDefinedMessage(std::span<std::string const> const& args){

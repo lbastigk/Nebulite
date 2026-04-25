@@ -4,14 +4,14 @@
 namespace Nebulite::Module::Transformation {
 
 void Arithmetic::bindTransformations() {
-    BIND_TRANSFORMATION_STATIC(&Arithmetic::add, addName, addDesc);
-    BIND_TRANSFORMATION_STATIC(&Arithmetic::mod, modName, modDesc);
-    BIND_TRANSFORMATION_STATIC(&Arithmetic::multiply, multiplyName, multiplyDesc);
-    BIND_TRANSFORMATION_STATIC(&Arithmetic::pow, powName, powDesc);
-    BIND_TRANSFORMATION_STATIC(&Arithmetic::subtract, subtractName, subtractDesc);
-    BIND_TRANSFORMATION_STATIC(&Arithmetic::divide, divideName, divideDesc);
-    BIND_TRANSFORMATION_STATIC(&Arithmetic::sqrt, sqrtName, sqrtDesc);
-    BIND_TRANSFORMATION_STATIC(&Arithmetic::root, rootName, rootDesc);
+    bindTransformation(&Arithmetic::add, addName, addDesc);
+    bindTransformation(&Arithmetic::mod, modName, modDesc);
+    bindTransformation(&Arithmetic::multiply, multiplyName, multiplyDesc);
+    bindTransformation(&Arithmetic::pow, powName, powDesc);
+    bindTransformation(&Arithmetic::subtract, subtractName, subtractDesc);
+    bindTransformation(&Arithmetic::divide, divideName, divideDesc);
+    bindTransformation(&Arithmetic::sqrt, sqrtName, sqrtDesc);
+    bindTransformation(&Arithmetic::root, rootName, rootDesc);
 }
 
 bool Arithmetic::forall(std::span<std::string const> const& args, std::function<bool(std::string const&, Data::ScopedKeyView const& key)> const& func){
