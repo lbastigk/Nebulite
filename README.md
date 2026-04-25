@@ -329,6 +329,10 @@ Nebulite includes two GUI libraries:
 The RmlUi implementation contains custom plugins to allow for seamless integration with Nebulite's data model and expression system,
 as well as Reflection capabilities for iterating over JSON data in the UI.
 Instead of using the default RmlUi syntax for data binding and event handling, use the standard Nebulite expression syntax.
+The context of each document is determined by the context of the caller: 
+- If we call the document from a RenderObject, the self context is set to that object, 
+- If we call it from GlobalSpace, every context is set to global.
+- If the document is called from an object interaction, the self and other context are set to the respective objects.
 
 Examples:
 
@@ -375,6 +379,9 @@ Examples:
     <!-- data-reflect allows for iterating over all members of a array, with access to their keys and values -->
     <!-- You can use JSON-Transformation to turn objects into arrays for propper reflection -->
     <p data-reflect="{global:time|listMembersAndValues}">
+        <!-- For every index in the array, the following is repeated: -->
+        <!-- Each entry has access to arr[i] as {self:} -->
+        <!-- where arr is the generated array from the data-reflect statement -->
         <pCompact data-eval="true">
             {self:key|asString|rPad 15 .}{self:value|asString|lPad 15 .}
         </pCompact>
