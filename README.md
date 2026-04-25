@@ -403,6 +403,19 @@ rmlui document load <name> ./Resources/Rml/example.rml
 - **Headless**: `--headless` for automation/testing
 - **CLI**: `./bin/Nebulite 'command ; chain'`
 
+Nebulite script files (`.nebs`) allow for scripted execution of commands, with support for control flow and chaining.
+Many classic programming constructs are available, such as if-statements, variable assignments, assertions as well as line continuation with `\`.
+This allows for quick prototyping and testing without building additional C++ code.
+
+The entire testing suite is implemented as a set of Nebulite script files, 
+which are executed in headless mode and report their results to the console.
+
+See `./TaskFiles/Tests` for examples of Nebulite script files.
+
+If C++ code is necessary for a specific test or feature, it is recommended to implement it as a DomainModule function
+and call it from the Nebulite script file, which allows for easy integration into the testing suite.
+see `./include/Module/GlobalSpace/FeatureTest.hpp` for an example of this approach.
+
 <!-- TOC --><a name="platform-support-dependencies"></a>
 ## Platform Support & Dependencies
 
