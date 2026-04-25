@@ -40,17 +40,16 @@ Constants::Event General::imguiView(std::span<std::string const> const& args, In
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
-
-    // We store the context of 'self' and 'global', as their lifetime should exceed that of the updateHook
-    // This isn't textbook, as we make a huge assumption about the architecture.
-    // But so far, context global is always the same and outlives the context self at all times.
-    // Later on we may need a better interaction system, where each element using a global context is automatically deleted if the global context is deleted
-    // But that isn't necessary at the moment.
-    lastContext.self = &ctx.self;
-    lastContext.global = &ctx.global;
-    lastContext.selfScope = &ctxScope.self;
-    lastContext.globalScope = &ctxScope.global; // We actually need the global context so the ImGui console calls can propagate it to different functions!
     if (args[1] == "on") {
+        // We store the context of 'self' and 'global', as their lifetime should exceed that of the updateHook
+        // This isn't textbook, as we make a huge assumption about the architecture.
+        // But so far, context global is always the same and outlives the context self at all times.
+        // Later on we may need a better interaction system, where each element using a global context is automatically deleted if the global context is deleted
+        // But that isn't necessary at the moment.
+        lastContext.self = &ctx.self;
+        lastContext.global = &ctx.global;
+        lastContext.selfScope = &ctxScope.self;
+        lastContext.globalScope = &ctxScope.global; // We actually need the global context so the ImGui console calls can propagate it to different functions!
         imguiViewEnabled = true;
     } else if (args[1] == "off") {
         imguiViewEnabled = false;
