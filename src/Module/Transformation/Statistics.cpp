@@ -1,7 +1,7 @@
 #include "Module/Transformation/Statistics.hpp"
 #include "Data/Document/JsonScope.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 void Statistics::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&sum, sumName, sumDesc);
@@ -145,4 +145,4 @@ bool Statistics::stddev(Data::JsonScope* scope) {
     return true;
 }
 
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation

@@ -61,7 +61,7 @@ void RenderObject::init() {
     linkFrequentRefs();
 
     // Initialize Domain Modules
-    DomainModule::Initializer::initRenderObject(this);
+    Module::Domain::Initializer::initRenderObject(this);
 
     // Initialize Drawcalls
     initDrawcalls();

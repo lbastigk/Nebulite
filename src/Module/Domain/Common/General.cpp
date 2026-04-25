@@ -3,7 +3,7 @@
 #include "Nebulite.hpp"
 
 
-namespace Nebulite::DomainModule::Common {
+namespace Nebulite::Module::Domain::Common {
 
 Constants::Event General::updateHook() {
     if (imguiViewEnabled && Graphics::ImguiHelper::checkImguiReadyForRendering()) {
@@ -142,4 +142,4 @@ Constants::Event General::nop(std::span<std::string const> const& /*args*/) {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::Common
+} // namespace Nebulite::Module::Domain::Common

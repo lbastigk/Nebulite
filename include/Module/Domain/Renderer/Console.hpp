@@ -22,9 +22,9 @@ class Renderer;
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Renderer {
+namespace Nebulite::Module::Domain::Renderer {
 /**
- * @class Nebulite::DomainModule::Renderer::Console
+ * @class Nebulite::Module::Domain::Renderer::Console
  * @brief DomainModule for Console capabilities within the Renderer.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Console) {
@@ -76,5 +76,5 @@ private:
     // Whether the console is currently active
     bool consoleMode = false;
 };
-} // namespace Nebulite::DomainModule::Renderer
+} // namespace Nebulite::Module::Domain::Renderer
 #endif // NEBULITE_DOMAINMODULE_RENDERER_CONSOLE_HPP

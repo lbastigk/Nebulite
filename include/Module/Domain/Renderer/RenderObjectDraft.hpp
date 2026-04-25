@@ -28,9 +28,9 @@ class Renderer; // Forward declaration of domain class Renderer
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Renderer {
+namespace Nebulite::Module::Domain::Renderer {
 /**
- * @class Nebulite::DomainModule::Renderer::RenderObjectDraft
+ * @class Nebulite::Module::Domain::Renderer::RenderObjectDraft
  * @brief Utilities for creating and manipulating RenderObjects
  * @details Allows for the creation and manipulation of RenderObjects in a draft state
  *          before spawning them into the Environment.
@@ -124,5 +124,5 @@ private:
      */
     DraftHolder draft;
 };
-} // namespace Nebulite::DomainModule::Renderer
+} // namespace Nebulite::Module::Domain::Renderer
 #endif // NEBULITE_DOMAINMODULE_RENDERER_RENDER_OBJECT_DRAFT_HPP

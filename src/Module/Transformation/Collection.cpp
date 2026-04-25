@@ -11,7 +11,7 @@
 #include "Utility/Glob.hpp"
 
 //------------------------------------------
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 void Collection::bindTransformations() {
     // BIND_TRANSFORMATION_MEMBER(&Collection::filter, filterName, &filterDesc);
@@ -214,4 +214,4 @@ bool Collection::listMembersAndValues(Data::JsonScope* jsonDoc){
     return true;
 }
 
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation

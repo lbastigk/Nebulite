@@ -12,7 +12,7 @@
 #include "Module/Ruleset/Movement.hpp"
 #include "ScopeAccessor.hpp"
 
-namespace Nebulite::RulesetModule {
+namespace Nebulite::Module::Ruleset {
 
 Movement::Movement() : RulesetModule(moduleName) {
     auto const baseListFunc = generateBaseListFunction(baseKeys);
@@ -25,7 +25,7 @@ Movement::Movement() : RulesetModule(moduleName) {
 
     // Global Variables
     auto const token = getRulesetModuleAccessToken(*this);
-    globalVal.dt = Global::shareScope(token).getStableDoublePointer(DomainModule::GlobalSpace::Time::Key::time_dt); // Simulation delta time
+    globalVal.dt = Global::shareScope(token).getStableDoublePointer(Module::Domain::GlobalSpace::Time::Key::time_dt); // Simulation delta time
 }
 
 // NOLINTNEXTLINE
@@ -132,4 +132,4 @@ void Movement::processClipping(Interaction::Context const& /*context*/, double**
     W = DBL_MAX;
 }
 
-} // namespace Nebulite::RulesetModule
+} // namespace Nebulite::Module::Ruleset

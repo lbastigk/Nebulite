@@ -19,7 +19,7 @@ Texture::Texture(Data::JsonScope& documentReference, Utility::IO::Capture& paren
     texture = nullptr;
 
     // Initialize all DomainModules
-    DomainModule::Initializer::initTexture(this);
+    Module::Domain::Initializer::initTexture(this);
 }
 
 Constants::Event Texture::update() {

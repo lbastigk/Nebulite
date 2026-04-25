@@ -18,7 +18,7 @@
 #include "Interaction/Rules/RulesetModule.hpp"
 
 //------------------------------------------
-namespace Nebulite::RulesetModule {
+namespace Nebulite::Module::Ruleset {
 class Camera : public Interaction::Rules::RulesetModule {
 public:
     //------------------------------------------
@@ -149,5 +149,5 @@ private:
         return pos;
     }
 };
-} // namespace Nebulite::RulesetModule
+} // namespace Nebulite::Module::Ruleset
 #endif // NEBULITE_RULESET_MODULE_CAMERA_HPP

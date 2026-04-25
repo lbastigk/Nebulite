@@ -8,7 +8,7 @@
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 class Collection final : public Data::TransformationModule {
 public:
@@ -67,5 +67,5 @@ public:
         "If the current value is an array, it lists the indices as strings.\n"
         "Usage: |listMembersAndValues -> {array of {key, value} objects}\n";
 };
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_TRANSFORMATION_MODULE_COLLECTION_HPP

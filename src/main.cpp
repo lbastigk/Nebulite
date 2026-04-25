@@ -83,7 +83,7 @@ int main(int const argc, char* argv[]) {
         Nebulite::Interaction::Context ctx{global, global, global};
         Nebulite::Data::JsonScope dummy;
         Nebulite::Interaction::ContextScope dummyCtxScope{dummy, dummy, dummy};
-        if (auto const event = global.parseStr(binaryName + " " + std::string(Nebulite::DomainModule::GlobalSpace::Debug::errorLog_name) + " off", ctx, dummyCtxScope); event != Nebulite::Constants::Event::Success) {
+        if (auto const event = global.parseStr(binaryName + " " + std::string(Nebulite::Module::Domain::GlobalSpace::Debug::errorLog_name) + " off", ctx, dummyCtxScope); event != Nebulite::Constants::Event::Success) {
             capture.error.println("Could not close log properly!");
             return MainReturnValues::logCloseError; // Closing log failed without exceptions
         }

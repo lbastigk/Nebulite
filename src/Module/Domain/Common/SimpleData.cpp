@@ -1,7 +1,7 @@
 #include "Nebulite.hpp"
 #include "Module/Domain/Common/SimpleData.hpp"
 
-namespace Nebulite::DomainModule::Common {
+namespace Nebulite::Module::Domain::Common {
 
 Constants::Event SimpleData::updateHook() {return Constants::Event::Success;} // No periodic update needed, SimpleData is stateless
 
@@ -272,4 +272,4 @@ Constants::Event SimpleData::pop_front(std::span<std::string const> const& args,
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::Common
+} // namespace Nebulite::Module::Domain::Common

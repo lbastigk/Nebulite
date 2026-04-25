@@ -8,7 +8,7 @@
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 class Types final : public Data::TransformationModule {
 public:
@@ -52,5 +52,5 @@ public:
         "If no key is provided, checks if the current JSON value is not null.\n"
         "Usage: |exists  [key] -> {bool}\n";
 };
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_TRANSFORMATION_MODULE_TYPES_HPP

@@ -3,7 +3,7 @@
 #include "Module/Domain/GlobalSpace/General.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 
 //------------------------------------------
 // Update
@@ -132,4 +132,4 @@ Constants::Event General::alwaysClear() const {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace

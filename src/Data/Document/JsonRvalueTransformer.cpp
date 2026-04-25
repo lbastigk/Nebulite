@@ -25,22 +25,27 @@
 namespace Nebulite::Data {
 
 JsonRvalueTransformer::JsonRvalueTransformer() {
-    transformationFuncTree = std::make_shared<Interaction::Execution::FuncTree<bool, JsonScope*>>("JSON rvalue transformation FuncTree", true, false, Global::capture()); // Pass to main capture
+    transformationFuncTree = std::make_shared<Interaction::Execution::FuncTree<bool, JsonScope*>>(
+        "JSON rvalue transformation FuncTree",
+        true,
+        false,
+        Global::capture()
+    );
 
     //------------------------------------------
     // Initialize modules
-    initModule<Nebulite::TransformationModule::Arithmetic>();
-    initModule<Nebulite::TransformationModule::Array>();
-    initModule<Nebulite::TransformationModule::Assertions>();
-    initModule<Nebulite::TransformationModule::Boolean>();
-    initModule<Nebulite::TransformationModule::Casting>();
-    initModule<Nebulite::TransformationModule::Collection>();
-    initModule<Nebulite::TransformationModule::Debug>();
-    initModule<Nebulite::TransformationModule::General>();
-    initModule<Nebulite::TransformationModule::Requirements>();
-    initModule<Nebulite::TransformationModule::Statistics>();
-    initModule<Nebulite::TransformationModule::String>();
-    initModule<Nebulite::TransformationModule::Types>();
+    initModule<Module::Transformation::Arithmetic>();
+    initModule<Module::Transformation::Array>();
+    initModule<Module::Transformation::Assertions>();
+    initModule<Module::Transformation::Boolean>();
+    initModule<Module::Transformation::Casting>();
+    initModule<Module::Transformation::Collection>();
+    initModule<Module::Transformation::Debug>();
+    initModule<Module::Transformation::General>();
+    initModule<Module::Transformation::Requirements>();
+    initModule<Module::Transformation::Statistics>();
+    initModule<Module::Transformation::String>();
+    initModule<Module::Transformation::Types>();
 
     //------------------------------------------
     // Bind all transformations
@@ -50,7 +55,7 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
 }
 
 bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JsonScope* jsonDoc) const {
-    static std::string const funcName = __FUNCTION__;
+    static std::string constexpr funcName = __FUNCTION__;
     if (args.empty()) [[unlikely]] {
         return false;
     }
@@ -70,7 +75,7 @@ bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JsonScop
 
 bool JsonRvalueTransformer::parse(std::vector<std::string> const& args, JSON* jsonDoc) const {
     auto& scope = jsonDoc->fullScopeBase();
-    static std::string const funcName = __FUNCTION__;
+    static std::string constexpr funcName = __FUNCTION__;
     if (args.empty()) [[unlikely]] {
         return false;
     }

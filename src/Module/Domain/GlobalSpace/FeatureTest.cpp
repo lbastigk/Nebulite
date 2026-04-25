@@ -6,7 +6,7 @@
 #include "Module/Domain/GlobalSpace/FeatureTest.hpp"
 
 //------------------------------------------
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event FeatureTest::updateHook() {
     return Constants::Event::Success;
@@ -75,4 +75,4 @@ Constants::Event FeatureTest::selfOtherGlobalEvaluation() const {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace

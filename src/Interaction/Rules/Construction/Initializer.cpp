@@ -7,22 +7,17 @@
 #include "Module/Ruleset/Movement.hpp"
 #include "Module/Ruleset/Physics.hpp"
 
-
-//------------------------------------------
-// Shortcut
-#define Module Nebulite::RulesetModule
-
 //------------------------------------------
 namespace Nebulite::Interaction::Rules::Construction {
 
 void rulesetMapInit(StaticRulesetMap* srm) {
-    static Module::Camera cameraModule;
+    static Module::Ruleset::Camera cameraModule;
     cameraModule.registerModule(*srm);
-    static Module::Debug debugModule;
+    static Module::Ruleset::Debug debugModule;
     debugModule.registerModule(*srm);
-    static Module::Movement movementModule;
+    static Module::Ruleset::Movement movementModule;
     movementModule.registerModule(*srm);
-    static Module::Physics physicsModule;
+    static Module::Ruleset::Physics physicsModule;
     physicsModule.registerModule(*srm);
 }
 

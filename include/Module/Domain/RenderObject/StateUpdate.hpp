@@ -21,9 +21,9 @@ class RenderObject;
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::RenderObject {
+namespace Nebulite::Module::Domain::RenderObject {
 /**
- * @class Nebulite::DomainModule::RenderObject::StateUpdate
+ * @class Nebulite::Module::Domain::RenderObject::StateUpdate
  * @brief State update DomainModule of the RenderObject tree.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, StateUpdate) {
@@ -52,5 +52,5 @@ public:
         bindFunction(&StateUpdate::deleteObject, deleteObject_name, deleteObject_desc);
     }
 };
-} // namespace Nebulite::DomainModule::RenderObject
+} // namespace Nebulite::Module::Domain::RenderObject
 #endif // NEBULITE_DOMAINMODULE_RENDEROBJECT_STATE_UPDATE_HPP

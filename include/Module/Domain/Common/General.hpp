@@ -18,7 +18,7 @@
 // Forward declarations
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Common {
+namespace Nebulite::Module::Domain::Common {
 NEBULITE_DOMAINMODULE(Nebulite::Interaction::Execution::Domain, General) {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
@@ -147,5 +147,5 @@ private:
     Interaction::ContextView lastContext;
     Interaction::ContextScopeView lastContextScope;
 };
-} // namespace Nebulite::DomainModule::Common
+} // namespace Nebulite::Module::Domain::Common
 #endif // NEBULITE_DOMAIN_MODULE_COMMON_GENERAL_HPP

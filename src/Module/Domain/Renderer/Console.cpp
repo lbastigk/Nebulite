@@ -8,7 +8,7 @@
 #include "Graphics/ImguiHelper.hpp"
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Renderer {
+namespace Nebulite::Module::Domain::Renderer {
 
 Constants::Event Console::updateHook() {
     static auto const toggleKey = Input::Key::keyboardDelta + "`";
@@ -29,4 +29,4 @@ Constants::Event Console::updateHook() {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::GlobalSpace::Console
+} // namespace Nebulite::Module::Domain::GlobalSpace::Console

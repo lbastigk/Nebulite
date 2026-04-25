@@ -22,9 +22,9 @@ class GlobalSpace;
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::InputMapping
+ * @class Nebulite::Module::Domain::GlobalSpace::InputMapping
  * @brief DomainModule for mapping inputs to actions within the GlobalSpace.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, InputMapping) {
@@ -196,4 +196,4 @@ private:
      */
     static void addMappingToScope(Data::JsonScope& scope, std::string const& action, std::array<std::pair<std::string, std::string>,3> const& slots);
 };
-}   // namespace Nebulite::DomainModule::GlobalSpace
+}   // namespace Nebulite::Module::Domain::GlobalSpace

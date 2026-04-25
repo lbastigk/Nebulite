@@ -1,7 +1,7 @@
 #include "Module/Domain/Environment/Debug.hpp"
 #include "Core/Environment.hpp"
 
-namespace Nebulite::DomainModule::Environment {
+namespace Nebulite::Module::Domain::Environment {
 
 Constants::Event Debug::updateHook() {
     size_t containerTotalTiles = 0;
@@ -17,4 +17,4 @@ Constants::Event Debug::updateHook() {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::Environment
+} // namespace Nebulite::Module::Domain::Environment

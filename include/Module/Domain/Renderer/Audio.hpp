@@ -34,9 +34,9 @@ class RenderObject; // Forward declaration of RenderObject
 }
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Renderer {
+namespace Nebulite::Module::Domain::Renderer {
 /**
- * @class Nebulite::DomainModule::Renderer::Audio
+ * @class Nebulite::Module::Domain::Renderer::Audio
  * @brief Basic Renderer-Related Functions
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Audio) {
@@ -171,5 +171,5 @@ private:
         }
     }
 };
-} // namespace Nebulite::DomainModule::Renderer
+} // namespace Nebulite::Module::Domain::Renderer
 #endif // NEBULITE_DOMAINMODULE_RENDERER_AUDIO_HPP

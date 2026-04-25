@@ -20,9 +20,9 @@ class GlobalSpace; // Forward declaration of domain class GlobalSpace
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::FeatureTest
+ * @class Nebulite::Module::Domain::GlobalSpace::FeatureTest
  * @brief DomainModule for testing features in the GlobalSpace.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, FeatureTest) {
@@ -69,5 +69,5 @@ public:
         // No keys for now
     };
 };
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace
 #endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_FEATURE_TEST_HPP

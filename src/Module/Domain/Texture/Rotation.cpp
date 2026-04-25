@@ -2,7 +2,7 @@
 #include "Core/Texture.hpp"
 #include "Nebulite.hpp"
 
-namespace Nebulite::DomainModule::Texture {
+namespace Nebulite::Module::Domain::Texture {
 
 Constants::Event Rotation::updateHook() {
     // Nothing to do in update for rotation
@@ -63,4 +63,4 @@ Constants::Event Rotation::rotate(int const argc, char** argv) const {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::Texture
+} // namespace Nebulite::Module::Domain::Texture

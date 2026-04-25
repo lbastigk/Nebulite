@@ -48,9 +48,9 @@ class ScopedKeyView;
 class JsonScope;
 } // namespace Nebulite::Data
 
-namespace Nebulite::DomainModule {
+namespace Nebulite::Module::Domain {
 class Initializer;
-} // namespace Nebulite::DomainModule
+} // namespace Nebulite::Module::Domain
 
 namespace Nebulite::Interaction {
 class Context; // Requires access to demote to ContextScope
@@ -133,7 +133,7 @@ public:
     friend class Rules::Construction::RulesetCompiler;
 
     // Initializer needs access to share scopes
-    friend class Nebulite::DomainModule::Initializer;
+    friend class Nebulite::Module::Domain::Initializer;
 
 private:
     /**

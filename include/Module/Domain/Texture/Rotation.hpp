@@ -22,9 +22,9 @@ class Texture;
 
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Texture {
+namespace Nebulite::Module::Domain::Texture {
 /**
- * @class Nebulite::DomainModule::Texture::Rotation
+ * @class Nebulite::Module::Domain::Texture::Rotation
  * @brief DomainModule for rotation functions within the Texture.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Rotation) {
@@ -54,5 +54,5 @@ public:
         bindFunction(&Rotation::rotate, rotate_name, rotate_desc);
     }
 };
-} // namespace Nebulite::DomainModule::Texture
+} // namespace Nebulite::Module::Domain::Texture
 #endif // NEBULITE_DOMAINMODULE_TEXTURE_ROTATION_HPP

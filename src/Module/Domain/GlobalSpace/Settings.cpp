@@ -3,7 +3,7 @@
 #include "Module/Domain/GlobalSpace/Settings.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event Settings::updateHook() {
     return Constants::Event::Success;
@@ -135,4 +135,4 @@ Constants::Event Settings::loadSettings(std::string const& filename) {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace

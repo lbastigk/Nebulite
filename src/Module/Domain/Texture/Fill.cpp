@@ -3,7 +3,7 @@
 
 #include "Nebulite.hpp"
 
-namespace Nebulite::DomainModule::Texture {
+namespace Nebulite::Module::Domain::Texture {
 
 Constants::Event Fill::updateHook() {
     // Nothing to do in update for fill
@@ -77,4 +77,4 @@ Constants::Event Fill::fill(int const argc, char** argv) const {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::Texture
+} // namespace Nebulite::Module::Domain::Texture

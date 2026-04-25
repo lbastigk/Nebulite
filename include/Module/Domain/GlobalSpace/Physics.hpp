@@ -21,9 +21,9 @@ class GlobalSpace;
 } // namespace Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::Physics
+ * @class Nebulite::Module::Domain::GlobalSpace::Physics
  * @brief The Physics DomainModule in the GlobalSpace,
  *        containing keys for global physics constants and settings.
  */
@@ -102,5 +102,5 @@ private:
      */
     void setupConstants() const ;
 };
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace
 #endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_PHYSICS_HPP

@@ -55,7 +55,7 @@
 #include "Module/Domain/Texture/Fill.hpp"
 
 //------------------------------------------
-namespace Nebulite::DomainModule {
+namespace Nebulite::Module::Domain {
 
 void Initializer::initCommon(Interaction::Execution::Domain* target) {
     target->initModule<Interaction::Execution::Domain, Common::ComplexData>(
@@ -81,7 +81,7 @@ void Initializer::initCommon(Interaction::Execution::Domain* target) {
 }
 
 void Initializer::initEnvironment(Core::Environment* target) {
-    using namespace Nebulite::DomainModule::Environment;
+    using namespace Nebulite::Module::Domain::Environment;
 
     target->initModule<Core::Environment, Debug>(
         "Environment Debug Functions",
@@ -91,7 +91,7 @@ void Initializer::initEnvironment(Core::Environment* target) {
 }
 
 void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
-    using namespace Nebulite::DomainModule::GlobalSpace;
+    using namespace Nebulite::Module::Domain::GlobalSpace;
 
     //------------------------------------------
     // Settings module should be initialized first to load settings for other modules
@@ -180,7 +180,7 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
 }
 
 void Initializer::initRenderObject(Core::RenderObject* target) {
-    using namespace Nebulite::DomainModule::RenderObject;
+    using namespace Nebulite::Module::Domain::RenderObject;
 
     target->initModule<Core::RenderObject, Logging>(
         "RenderObject Logging Functions",
@@ -205,7 +205,7 @@ void Initializer::initRenderObject(Core::RenderObject* target) {
 }
 
 void Initializer::initRenderer(Core::Renderer* target) {
-    using namespace Nebulite::DomainModule::Renderer;
+    using namespace Nebulite::Module::Domain::Renderer;
 
     target->initModule<Core::Renderer, General>(
         "Renderer General Functions",
@@ -240,7 +240,7 @@ void Initializer::initRenderer(Core::Renderer* target) {
 }
 
 void Initializer::initTexture(Core::Texture* target) {
-    using namespace Nebulite::DomainModule::Texture;
+    using namespace Nebulite::Module::Domain::Texture;
 
     target->initModule<Core::Texture, General>(
         "Texture General Functions",
@@ -259,4 +259,4 @@ void Initializer::initTexture(Core::Texture* target) {
     );
 }
 
-} // namespace Nebulite::DomainModule
+} // namespace Nebulite::Module::Domain

@@ -3,7 +3,7 @@
 #include "Module/Transformation/Array.hpp"
 
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 void Array::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Array::ensureArray, ensureArrayName, ensureArrayDesc);
@@ -171,4 +171,4 @@ bool Array::subspan(std::span<std::string const> const& args, Data::JsonScope* j
     return true;
 }
 
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation

@@ -28,10 +28,10 @@ class Domain;
 } // namespace Nebulite::Interaction::Execution
 
 //------------------------------------------
-namespace Nebulite::DomainModule {
+namespace Nebulite::Module::Domain {
 
 /**
- * @class Nebulite::DomainModule::Initializer
+ * @class Nebulite::Module::Domain::Initializer
  * @brief Initializes DomainModules for Domains.
  * @todo Later on, we might consider initialization based on configuration inside the Domain,
  *       e.g., only initialize certain modules if enabled inside the Domain's JSON document.
@@ -75,5 +75,5 @@ public:
      */
     static void initTexture(Core::Texture* target);
 };
-} // namespace Nebulite::DomainModule
+} // namespace Nebulite::Module::Domain
 #endif // NEBULITE_DOMAINMODULE_INITIALIZER_HPP

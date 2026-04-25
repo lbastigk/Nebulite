@@ -1,7 +1,7 @@
 #include "Data/Document/JsonScope.hpp"
 #include "Module/Transformation/Types.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 void Types::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Types::typeAsNumber, typeAsNumberName, typeAsNumberDesc);
@@ -73,4 +73,4 @@ bool Types::exists(std::span<std::string const> const& args, Data::JsonScope* js
     return true;
 }
 
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation

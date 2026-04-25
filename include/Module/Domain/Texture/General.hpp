@@ -20,9 +20,9 @@ class Texture;
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Texture {
+namespace Nebulite::Module::Domain::Texture {
 /**
- * @class Nebulite::DomainModule::Texture::General
+ * @class Nebulite::Module::Domain::Texture::General
  * @brief DomainModule for general functions within the Texture.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, General) {
@@ -49,5 +49,5 @@ public:
         bindFunction(&General::reloadTexture, reloadTexture_name, reloadTexture_desc);
     }
 };
-} // namespace Nebulite::DomainModule::Texture
+} // namespace Nebulite::Module::Domain::Texture
 #endif // NEBULITE_DOMAINMODULE_TEXTURE_GENERAL_HPP

@@ -1,9 +1,9 @@
 #include "Module/Transformation/Boolean.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 void Boolean::bindTransformations(){
 
 }
 
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation

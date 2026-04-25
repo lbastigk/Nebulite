@@ -2,7 +2,7 @@
 
 #include "Nebulite.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 void Assertions::bindTransformations() {
     transformationFuncTree->bindCategory(assertName, assertDesc);
@@ -60,4 +60,4 @@ bool Assertions::assertTypeBasicValue(std::span<std::string const> const& args, 
     return true;
 }
 
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation

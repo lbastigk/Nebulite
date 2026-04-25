@@ -284,7 +284,7 @@ void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextSc
         std::string const closeId = "Close##DomainConsoleClose_" + name;
         if (ImGui::Button(closeId.c_str())) {
             // Instead of closing the window, we disable the ImGui view for this domain, allowing us to reopen it later without losing the capture and scope state
-            if (auto const event = domain.parseStr(__FUNCTION__ + std::string(" ") + DomainModule::Common::General::imguiView_Disable, ctx, ctxScope); event != Constants::Event::Success) {
+            if (auto const event = domain.parseStr(__FUNCTION__ + std::string(" ") + Module::Domain::Common::General::imguiView_Disable, ctx, ctxScope); event != Constants::Event::Success) {
                 capture.warning.println("Error disabling ImGui view for domain " + name);
             }
         }

@@ -9,7 +9,7 @@
 #include "Module/RmlUi/ExpressionManager.hpp"
 
 //------------------------------------------
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 void General::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&General::setString, setStringName, setStringDesc);
@@ -117,4 +117,4 @@ bool General::formatNumber(std::span<std::string const> const& args, Data::JsonS
 }
 
 
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation

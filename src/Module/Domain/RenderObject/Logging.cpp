@@ -4,7 +4,7 @@
 
 #include "Nebulite.hpp"
 
-namespace Nebulite::DomainModule::RenderObject {
+namespace Nebulite::Module::Domain::RenderObject {
 
 //------------------------------------------
 // Update
@@ -52,4 +52,4 @@ Constants::Event Logging::log_key(std::span<std::string const> const& args, Inte
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::RenderObject
+} // namespace Nebulite::Module::Domain::RenderObject

@@ -20,9 +20,9 @@ class RenderObject;
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::RenderObject {
+namespace Nebulite::Module::Domain::RenderObject {
 /**
- * @class Nebulite::DomainModule::RenderObject::Ruleset
+ * @class Nebulite::Module::Domain::RenderObject::Ruleset
  * @brief Ruleset management for the RenderObject tree DomainModule.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Ruleset) {
@@ -90,5 +90,5 @@ private:
     // Topic subscriptions
     std::vector<std::shared_ptr<Interaction::Rules::Listener>> listeners;
 };
-} // namespace Nebulite::DomainModule::RenderObject
+} // namespace Nebulite::Module::Domain::RenderObject
 #endif // NEBULITE_DOMAINMODULE_RENDEROBJECT_RULESET_HPP

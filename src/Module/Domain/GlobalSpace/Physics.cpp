@@ -1,7 +1,7 @@
 #include "Nebulite.hpp"
 #include "Module/Domain/GlobalSpace/Physics.hpp"
 
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event Physics::updateHook() {
     // No dynamic updates needed for constants
@@ -37,4 +37,4 @@ void Physics::setupConstants() const {
     scope.set(Key::Global::g, 9.80665);
 }
 
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace

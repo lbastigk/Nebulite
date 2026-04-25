@@ -23,9 +23,9 @@ class Renderer;
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Renderer {
+namespace Nebulite::Module::Domain::Renderer {
 /**
- * @class Nebulite::DomainModule::Renderer::Input
+ * @class Nebulite::Module::Domain::Renderer::Input
  * @brief DomainModule for handling input events and states.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Input) {
@@ -147,5 +147,5 @@ private:
     MouseValues mouseCurrent;
     MouseValues mouseDelta;
 };
-} // namespace Nebulite::DomainModule::Renderer
+} // namespace Nebulite::Module::Domain::Renderer
 #endif // NEBULITE_DOMAINMODULE_RENDERER_INPUT_HPP

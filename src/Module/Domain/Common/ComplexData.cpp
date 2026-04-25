@@ -1,7 +1,7 @@
 #include "Nebulite.hpp"
 #include "Module/Domain/Common/ComplexData.hpp"
 
-namespace Nebulite::DomainModule::Common {
+namespace Nebulite::Module::Domain::Common {
 
 //------------------------------------------
 // Update
@@ -102,4 +102,4 @@ Constants::Event ComplexData::evaluateRecursive(std::span<std::string const> con
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::Common
+} // namespace Nebulite::Module::Domain::Common

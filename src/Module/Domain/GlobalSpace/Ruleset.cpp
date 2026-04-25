@@ -4,7 +4,7 @@
 #include "Interaction/Rules/Listener.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event Ruleset::updateHook() {
     // Currently, no periodic update logic is required for the Ruleset module.
@@ -41,4 +41,4 @@ Constants::Event Ruleset::listen(std::span<std::string const> const& args) const
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace

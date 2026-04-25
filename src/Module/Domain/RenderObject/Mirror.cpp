@@ -2,7 +2,7 @@
 #include "Module/Domain/RenderObject/Mirror.hpp"
 #include "Nebulite.hpp"
 
-namespace Nebulite::DomainModule::RenderObject {
+namespace Nebulite::Module::Domain::RenderObject {
 
 //------------------------------------------
 // Update
@@ -80,4 +80,4 @@ Constants::Event Mirror::setupMirrorKey() {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::RenderObject
+} // namespace Nebulite::Module::Domain::RenderObject

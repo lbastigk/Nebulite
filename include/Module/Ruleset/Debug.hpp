@@ -17,7 +17,7 @@
 #include "Interaction/Rules/RulesetModule.hpp"
 
 //------------------------------------------
-namespace Nebulite::RulesetModule {
+namespace Nebulite::Module::Ruleset {
 class Debug : public Interaction::Rules::RulesetModule {
 public:
     //------------------------------------------
@@ -64,5 +64,5 @@ private:
         // No keys required
     };
 };
-} // namespace Nebulite::RulesetModule
+} // namespace Nebulite::Module::Ruleset
 #endif // NEBULITE_RULESET_MODULE_DEBUG_HPP

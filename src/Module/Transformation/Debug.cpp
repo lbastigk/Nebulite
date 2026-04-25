@@ -3,7 +3,7 @@
 #include "Module/Transformation/Debug.hpp"
 
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 void Debug::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Debug::echo, echoName, echoDesc);
@@ -45,4 +45,4 @@ bool Debug::print(std::span<std::string const> const& args, Data::JsonScope* jso
     return true;
 }
 
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation

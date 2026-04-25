@@ -2,7 +2,7 @@
 #include "Module/Domain/Renderer/Input.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
 
-namespace Nebulite::DomainModule::Renderer {
+namespace Nebulite::Module::Domain::Renderer {
 
 Constants::Event Input::updateHook() {
     moduleScope.set<bool>(Key::routineActivated, false);
@@ -163,4 +163,4 @@ void Input::resetDeltaValues() const {
     }
 }
 
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace

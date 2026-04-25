@@ -26,9 +26,9 @@ class GlobalSpace; // Forward declaration of domain class GlobalSpace
 
 
 //------------------------------------------
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::Settings
+ * @class Nebulite::Module::Domain::GlobalSpace::Settings
  * @brief DomainModule for loading settings into GlobalSpace for other Domains/DomainModules to use.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Settings) {
@@ -113,5 +113,5 @@ public:
 private:
     Constants::Event loadSettings(std::string const& filename);
 };
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace
 #endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_SETTINGS_HPP

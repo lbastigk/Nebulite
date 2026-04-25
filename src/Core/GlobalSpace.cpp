@@ -25,7 +25,7 @@ GlobalSpace::GlobalSpace(std::string const& name) :
 
     //------------------------------------------
     // Initialize floating DomainModules
-    floatingDM.rng = createModule<GlobalSpace, DomainModule::GlobalSpace::RNG>(
+    floatingDM.rng = createModule<GlobalSpace, Module::Domain::GlobalSpace::RNG>(
         "RNG",
         Global::settings(),
         *this,
@@ -60,7 +60,7 @@ void GlobalSpace::initialize() {
     inherit(&renderer);
 
     // Initialize DomainModules
-    DomainModule::Initializer::initGlobalSpace(this);
+    Module::Domain::Initializer::initGlobalSpace(this);
 
     //------------------------------------------
     // Update
@@ -166,9 +166,9 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
         }
     } else {
         // Load standard commands from settings, type 'parseIfNoArgs', if no args provided
-        auto const cmdCount = Global::settings().memberSize(DomainModule::GlobalSpace::Settings::Key::parseIfNoArgs);
+        auto const cmdCount = Global::settings().memberSize(Module::Domain::GlobalSpace::Settings::Key::parseIfNoArgs);
         for (std::size_t i = 0; i < cmdCount; ++i) {
-            if (std::string const cmd = Global::settings().get<std::string>(DomainModule::GlobalSpace::Settings::Key::parseIfNoArgs + "[" + std::to_string(i) + "]").value_or(""); !cmd.empty()) {
+            if (std::string const cmd = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::parseIfNoArgs + "[" + std::to_string(i) + "]").value_or(""); !cmd.empty()) {
                 tasks[StandardTasks::script]->pushBack(cmd);
             }
         }

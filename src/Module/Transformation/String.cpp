@@ -4,7 +4,7 @@
 #include "Data/Document/JsonScope.hpp"
 #include "Module/Transformation/String.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 void String::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&toUpper, toUpperName, toUpperDesc);
@@ -231,4 +231,4 @@ bool String::strcompareEndsWith(std::span<std::string const> const& args, Data::
     return true;
 }
 
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation

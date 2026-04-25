@@ -42,7 +42,7 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Util
     funcTree->setPreParse([this] { return preParse(); });
 
     // Initialize modules
-    Nebulite::DomainModule::Initializer::initCommon(this);
+    Nebulite::Module::Domain::Initializer::initCommon(this);
 }
 
 Domain::Domain(std::string const& name, Utility::IO::Capture& parentCapture) : domainName(name), capture(&parentCapture) {
@@ -56,7 +56,7 @@ Domain::Domain(std::string const& name, Utility::IO::Capture& parentCapture) : d
     funcTree->setPreParse([this] { return preParse(); });
 
     // Initialize modules
-    Nebulite::DomainModule::Initializer::initCommon(this);
+    Nebulite::Module::Domain::Initializer::initCommon(this);
 }
 
 Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : DocumentAccessor(documentReference), domainName(name), capture(nullptr) {
@@ -70,7 +70,7 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : Do
     funcTree->setPreParse([this] { return preParse(); });
 
     // Initialize modules
-    Nebulite::DomainModule::Initializer::initCommon(this);
+    Nebulite::Module::Domain::Initializer::initCommon(this);
 }
 
 Domain::Domain(std::string const& name) : domainName(name), capture(nullptr) {
@@ -84,7 +84,7 @@ Domain::Domain(std::string const& name) : domainName(name), capture(nullptr) {
     funcTree->setPreParse([this] { return preParse(); });
 
     // Initialize modules
-    Nebulite::DomainModule::Initializer::initCommon(this);
+    Nebulite::Module::Domain::Initializer::initCommon(this);
 }
 
 Domain::~Domain() = default;

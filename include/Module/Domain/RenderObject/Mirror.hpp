@@ -21,9 +21,9 @@ class RenderObject;
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::RenderObject {
+namespace Nebulite::Module::Domain::RenderObject {
 /**
- * @class Nebulite::DomainModule::RenderObject::Mirror
+ * @class Nebulite::Module::Domain::RenderObject::Mirror
  * @brief Mirror DomainModule of the RenderObject Domain.
  * 
  * Contains RenderObject-specific Mirror functionality, syncing data with the GlobalSpace document.
@@ -129,5 +129,5 @@ private:
      */
     [[nodiscard]] Constants::Event setupMirrorKey();
 };
-} // namespace Nebulite::DomainModule::RenderObject
+} // namespace Nebulite::Module::Domain::RenderObject
 #endif // NEBULITE_DOMAINMODULE_RENDEROBJECT_MIRROR_HPP

@@ -7,7 +7,7 @@
 #include "Graphics/Drawcall.hpp"
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Texture {
+namespace Nebulite::Module::Domain::Texture {
 
 Constants::Event General::updateHook() {
     return Constants::Event::Success;
@@ -23,4 +23,4 @@ Constants::Event General::reloadTexture() const {
     return Constants::Event::Success; // No error
 }
 
-} // namespace Nebulite::DomainModule::Texture
+} // namespace Nebulite::Module::Domain::Texture

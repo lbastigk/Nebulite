@@ -22,9 +22,9 @@ class GlobalSpace; // Forward declaration of domain class GlobalSpace
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::FunctionCollision
+ * @class Nebulite::Module::Domain::GlobalSpace::FunctionCollision
  * @brief DomainModule for debugging capabilities within the GlobalSpace.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, FunctionCollision) {
@@ -102,5 +102,5 @@ public:
         bindFunction(&FunctionCollision::debug_collisionDetect_variable, debug_collisionDetect_variable_name, debug_collisionDetect_variable_desc);
     }
 };
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace
 #endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_DEBUG_DOMAIN_COLLISION_DETECTION_HPP

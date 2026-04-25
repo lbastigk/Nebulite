@@ -28,7 +28,7 @@ Environment::Environment(Data::JsonScope& documentReference, Utility::IO::Captur
           return Data::RenderObjectContainer{};
       }))
 {
-    DomainModule::Initializer::initEnvironment(this);
+    Module::Domain::Initializer::initEnvironment(this);
 }
 
 Environment::~Environment() = default;

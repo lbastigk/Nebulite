@@ -8,7 +8,7 @@
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 class Arithmetic final : public Data::TransformationModule {
 public:
@@ -71,5 +71,5 @@ public:
 private:
     static bool forall(std::span<std::string const> const& args, std::function<bool(std::string const&, Data::ScopedKeyView const& key)> const& func);
 };
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_TRANSFORMATION_MODULE_ARITHMETIC_HPP

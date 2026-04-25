@@ -146,9 +146,9 @@ class RenderObject;
 }
 
 //------------------------------------------
-namespace Nebulite::DomainModule::RenderObject {
+namespace Nebulite::Module::Domain::RenderObject {
 /**
- * @class Nebulite::DomainModule::RenderObject::MyModule
+ * @class Nebulite::Module::Domain::RenderObject::MyModule
  * @brief Example module for RenderObject domain using the Debug.hpp conventions.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, MyModule) {
@@ -215,7 +215,7 @@ public:
         static auto constexpr myValue = makeScoped("myValue");
     };
 };
-} // namespace Nebulite::DomainModule::RenderObject
+} // namespace Nebulite::Module::Domain::RenderObject
 #endif // NEBULITE_DOMAINMODULE_RENDEROBJECT_MYMODULE_HPP
 
 ```

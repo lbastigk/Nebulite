@@ -26,9 +26,9 @@ class GlobalSpace; // Forward declaration of domain class GlobalSpace
 } // Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::Time
+ * @class Nebulite::Module::Domain::GlobalSpace::Time
  * @brief DomainModule for time management within the GlobalSpace.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Time) {
@@ -153,5 +153,5 @@ private:
      */
     uint64_t fixedDeltaTime = 0;
 };
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace
 #endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_TIME_HPP

@@ -94,7 +94,7 @@ void getMemoryUsageMB(double& virtualMemMB, double& residentMemMB) {
 }
 } // anonymous namespace
 
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 //------------------------------------------
 // Update
 Constants::Event Debug::updateHook() {
@@ -354,4 +354,4 @@ void Debug::setupDebugInfo() const {
     }
 }
 
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace

@@ -8,7 +8,7 @@
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 class Boolean final : public Data::TransformationModule {
 public:
@@ -27,5 +27,5 @@ public:
     // TODO: boolean to signed: true -> 1, false -> -1
     //       boolean to unsigned: true -> 1, false -> 0
 };
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_TRANSFORMATION_MODULE_BOOLEAN_HPP

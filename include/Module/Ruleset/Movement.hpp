@@ -15,7 +15,7 @@
 #include "Interaction/Rules/RulesetModule.hpp"
 
 //------------------------------------------
-namespace Nebulite::RulesetModule {
+namespace Nebulite::Module::Ruleset {
 /**
  * @brief The Movement ruleset module, containing static rulesets related to movement and collision clipping
  */
@@ -57,19 +57,19 @@ private:
         Constants::KeyNames::RenderObject::sizeY,
         Constants::KeyNames::RenderObject::sizeR,
         // Physics
-        DomainModule::GlobalSpace::Physics::Key::Local::vX,
-        DomainModule::GlobalSpace::Physics::Key::Local::vY,
-        DomainModule::GlobalSpace::Physics::Key::Local::m,
-        DomainModule::GlobalSpace::Physics::Key::Local::FX,
-        DomainModule::GlobalSpace::Physics::Key::Local::FY,
+        Module::Domain::GlobalSpace::Physics::Key::Local::vX,
+        Module::Domain::GlobalSpace::Physics::Key::Local::vY,
+        Module::Domain::GlobalSpace::Physics::Key::Local::m,
+        Module::Domain::GlobalSpace::Physics::Key::Local::FX,
+        Module::Domain::GlobalSpace::Physics::Key::Local::FY,
         // Closest X/Y
         Data::ScopedKeyView("movement.clip.closest.N"),
         Data::ScopedKeyView("movement.clip.closest.E"),
         Data::ScopedKeyView("movement.clip.closest.S"),
         Data::ScopedKeyView("movement.clip.closest.W"),
         // X/Y last pos
-        DomainModule::GlobalSpace::Physics::Key::Local::lastPositionX,
-        DomainModule::GlobalSpace::Physics::Key::Local::lastPositionY
+        Module::Domain::GlobalSpace::Physics::Key::Local::lastPositionX,
+        Module::Domain::GlobalSpace::Physics::Key::Local::lastPositionY
     };
 
     /**
@@ -119,5 +119,5 @@ private:
         {}
     };
 };
-} // namespace Nebulite::RulesetModule
+} // namespace Nebulite::Module::Ruleset
 #endif // NEBULITE_RULESET_MODULE_MOVEMENT_HPP

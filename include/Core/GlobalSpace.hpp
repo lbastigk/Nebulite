@@ -283,7 +283,7 @@ private:
     // Floating DomainModules
 
     struct FloatingDomainModules {
-        std::unique_ptr<DomainModule::GlobalSpace::RNG> rng;
+        std::unique_ptr<Module::Domain::GlobalSpace::RNG> rng;
     } floatingDM;
 
     //------------------------------------------

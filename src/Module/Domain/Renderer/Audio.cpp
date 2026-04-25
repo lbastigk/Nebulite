@@ -11,7 +11,7 @@
 #include "Utility/Generate.hpp"
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Renderer {
+namespace Nebulite::Module::Domain::Renderer {
 
 Constants::Event Audio::updateHook() {
     return Constants::Event::Success;
@@ -290,4 +290,4 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
     return it;
 }
 
-} // namespace Nebulite::DomainModule::Renderer
+} // namespace Nebulite::Module::Domain::Renderer

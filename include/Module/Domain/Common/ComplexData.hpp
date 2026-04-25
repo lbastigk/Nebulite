@@ -17,9 +17,9 @@
 // Forward declarations
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Common {
+namespace Nebulite::Module::Domain::Common {
 /**
- * @class Nebulite::DomainModule::Common::ComplexData
+ * @class Nebulite::Module::Domain::Common::ComplexData
  * @brief DomainModule for complex data operations on domain class Nebulite::Data::JSON
  */
 NEBULITE_DOMAINMODULE(Nebulite::Interaction::Execution::Domain, ComplexData) {

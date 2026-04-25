@@ -22,9 +22,9 @@ class RenderObject; // Forward declaration of RenderObject
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Renderer {
+namespace Nebulite::Module::Domain::Renderer {
 /**
- * @class Nebulite::DomainModule::Renderer::General
+ * @class Nebulite::Module::Domain::Renderer::General
  * @brief Basic Renderer-Related Functions
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, General) {
@@ -210,5 +210,5 @@ private:
     Core::RenderObject* selectedRenderObject = nullptr;
     Data::JsonScope* selectedRenderObjectData = nullptr;
 };
-} // namespace Nebulite::DomainModule::Renderer
+} // namespace Nebulite::Module::Domain::Renderer
 #endif // NEBULITE_DOMAINMODULE_RENDERER_GENERAL_HPP

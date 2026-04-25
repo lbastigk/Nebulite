@@ -8,7 +8,7 @@
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 class Casting final : public Data::TransformationModule {
 public:
@@ -70,5 +70,5 @@ public:
         "Usage: |round -> {value:int}\n"
         "Non-numeric values default to 0. Fails if the value is null.\n";
 };
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_TRANSFORMATION_MODULE_CASTING_HPP

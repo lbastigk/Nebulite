@@ -25,9 +25,9 @@ class GlobalSpace; // Forward declaration of domain class GlobalSpace
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::Debug
+ * @class Nebulite::Module::Domain::GlobalSpace::Debug
  * @brief DomainModule for debugging capabilities within the GlobalSpace.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug) {
@@ -51,7 +51,7 @@ public:
         "- off: Deactivates error logging, reverting to standard error output.\n"
         "Note: Ensure you have write permissions in the working directory when activating error logging.\n";
 
-    // TODO: offer a per-domain clear option in Nebulite::DomainModule::Common::Debug. This clears the global capture.
+    // TODO: offer a per-domain clear option in Nebulite::Module::Domain::Common::Debug. This clears the global capture.
     //       perhaps naming them clear-all and clear respectively?
     [[nodiscard]] static Constants::Event clearConsole(std::span<std::string const> const& args);
     static auto constexpr clearConsole_name = "clear";
@@ -187,5 +187,5 @@ private:
 
     void addRoutines();
 };
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace
 #endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_DEBUG_HPP

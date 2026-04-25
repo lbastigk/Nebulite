@@ -22,9 +22,9 @@ class GlobalSpace; // Forward declaration of domain class GlobalSpace
 
 
 //------------------------------------------
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::Ruleset
+ * @class Nebulite::Module::Domain::GlobalSpace::Ruleset
  * @brief DomainModule for managing rulesets within the GlobalSpace.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Ruleset) {
@@ -73,5 +73,5 @@ public:
         // No keys for now
     };
 };
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace
 #endif // NEBULITE_DOMAINMODULE_GLOBAL_SPACE_RULESET_HPP

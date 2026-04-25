@@ -23,9 +23,9 @@ class Environment;
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Environment {
+namespace Nebulite::Module::Domain::Environment {
 /**
- * @class Nebulite::DomainModule::Environment::Debug
+ * @class Nebulite::Module::Domain::Environment::Debug
  * @brief DomainModule for debugging utilities within the Environment domain.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Environment, Debug) {
@@ -54,5 +54,5 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Environment, Debug) {}
 };
-} // namespace Nebulite::DomainModule::Environment
+} // namespace Nebulite::Module::Domain::Environment
 #endif // NEBULITE_DOMAINMODULE_ENVIRONMENT_DEBUG

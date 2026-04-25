@@ -15,7 +15,7 @@
 #include "Interaction/Rules/RulesetModule.hpp"
 
 //------------------------------------------
-namespace Nebulite::RulesetModule {
+namespace Nebulite::Module::Ruleset {
 /**
  * @brief The Physics ruleset module, containing static rulesets related to physics.
  * @details All rulesets here should be force-based physics simulations.
@@ -79,23 +79,23 @@ private:
         Constants::KeyNames::RenderObject::sizeY,
         Constants::KeyNames::RenderObject::sizeR,
         // Base Physics values
-        DomainModule::GlobalSpace::Physics::Key::Local::aX,
-        DomainModule::GlobalSpace::Physics::Key::Local::aY,
-        DomainModule::GlobalSpace::Physics::Key::Local::vX,
-        DomainModule::GlobalSpace::Physics::Key::Local::vY,
-        DomainModule::GlobalSpace::Physics::Key::Local::m,
-        DomainModule::GlobalSpace::Physics::Key::Local::FX,
-        DomainModule::GlobalSpace::Physics::Key::Local::FY,
+        Module::Domain::GlobalSpace::Physics::Key::Local::aX,
+        Module::Domain::GlobalSpace::Physics::Key::Local::aY,
+        Module::Domain::GlobalSpace::Physics::Key::Local::vX,
+        Module::Domain::GlobalSpace::Physics::Key::Local::vY,
+        Module::Domain::GlobalSpace::Physics::Key::Local::m,
+        Module::Domain::GlobalSpace::Physics::Key::Local::FX,
+        Module::Domain::GlobalSpace::Physics::Key::Local::FY,
         // Correction values
-        DomainModule::GlobalSpace::Physics::Key::Local::Correction::X,
-        DomainModule::GlobalSpace::Physics::Key::Local::Correction::Y,
-        DomainModule::GlobalSpace::Physics::Key::Local::Correction::vX,
-        DomainModule::GlobalSpace::Physics::Key::Local::Correction::vY,
+        Module::Domain::GlobalSpace::Physics::Key::Local::Correction::X,
+        Module::Domain::GlobalSpace::Physics::Key::Local::Correction::Y,
+        Module::Domain::GlobalSpace::Physics::Key::Local::Correction::vX,
+        Module::Domain::GlobalSpace::Physics::Key::Local::Correction::vY,
         // More specialized keys
-        DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeX,
-        DomainModule::GlobalSpace::Physics::Key::Local::lastCollisionTimeY,
-        DomainModule::GlobalSpace::Physics::Key::Local::lastPositionX,
-        DomainModule::GlobalSpace::Physics::Key::Local::lastPositionY
+        Module::Domain::GlobalSpace::Physics::Key::Local::lastCollisionTimeX,
+        Module::Domain::GlobalSpace::Physics::Key::Local::lastCollisionTimeY,
+        Module::Domain::GlobalSpace::Physics::Key::Local::lastPositionX,
+        Module::Domain::GlobalSpace::Physics::Key::Local::lastPositionY
     };
 
     /**
@@ -143,5 +143,5 @@ private:
         /* Add more global variables here as needed */
     } globalVal = {};
 };
-} // namespace Nebulite::RulesetModule
+} // namespace Nebulite::Module::Ruleset
 #endif // NEBULITE_RULESET_MODULE_PHYSICS_HPP

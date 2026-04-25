@@ -8,7 +8,7 @@
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 class Debug final : public Data::TransformationModule {
 public:
@@ -32,5 +32,5 @@ public:
 
     // TODO: log (to file), error (to stderr)
 };
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_TRANSFORMATION_MODULE_DEBUG_HPP

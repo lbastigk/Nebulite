@@ -14,9 +14,9 @@
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Common {
+namespace Nebulite::Module::Domain::Common {
 /**
- * @class Nebulite::DomainModule::Common::SimpleData
+ * @class Nebulite::Module::Domain::Common::SimpleData
  * @brief DomainModule for simple data operations on domain class Nebulite::Data::JSON
  */
 NEBULITE_DOMAINMODULE(Interaction::Execution::Domain, SimpleData) {
@@ -120,5 +120,5 @@ public:
         bindFunction(&SimpleData::ensureArray, ensureArray_name, ensureArray_desc);
     }
 };
-} // namespace Nebulite::DomainModule::Common
+} // namespace Nebulite::Module::Domain::Common
 #endif // NEBULITE_DOMAINMODULE_COMMON_SIMPLEDATA_HPP

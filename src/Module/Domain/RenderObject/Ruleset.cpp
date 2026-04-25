@@ -11,7 +11,7 @@
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------
-namespace Nebulite::DomainModule::RenderObject {
+namespace Nebulite::Module::Domain::RenderObject {
 
 //------------------------------------------
 // Basics
@@ -90,4 +90,4 @@ Constants::Event Ruleset::reload() {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::RenderObject
+} // namespace Nebulite::Module::Domain::RenderObject

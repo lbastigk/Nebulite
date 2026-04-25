@@ -1,7 +1,7 @@
 #include "Module/Domain/RenderObject/StateUpdate.hpp"
 #include "Core/RenderObject.hpp"
 
-namespace Nebulite::DomainModule::RenderObject {
+namespace Nebulite::Module::Domain::RenderObject {
 
 //------------------------------------------
 // Update
@@ -20,4 +20,4 @@ Constants::Event StateUpdate::deleteObject() const {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::RenderObject
+} // namespace Nebulite::Module::Domain::RenderObject

@@ -22,9 +22,9 @@ class Texture;
 
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Texture {
+namespace Nebulite::Module::Domain::Texture {
 /**
- * @class Nebulite::DomainModule::Texture::Fill
+ * @class Nebulite::Module::Domain::Texture::Fill
  * @brief DomainModule for fill functions within the Texture.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Fill) {
@@ -54,5 +54,5 @@ public:
         bindFunction(&Fill::fill, fill_name, fill_desc);
     }
 };
-} // namespace Nebulite::DomainModule::Texture
+} // namespace Nebulite::Module::Domain::Texture
 #endif // NEBULITE_DOMAINMODULE_TEXTURE_FILL_HPP

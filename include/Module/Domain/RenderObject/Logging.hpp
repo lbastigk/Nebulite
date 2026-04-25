@@ -20,9 +20,9 @@ class RenderObject;
 }
 
 //------------------------------------------
-namespace Nebulite::DomainModule::RenderObject {
+namespace Nebulite::Module::Domain::RenderObject {
 /**
- * @class Nebulite::DomainModule::RenderObject::Logging
+ * @class Nebulite::Module::Domain::RenderObject::Logging
  * @brief Logging DomainModule of the RenderObject Domain.
  * @details Contains RenderObject-specific logging functionality.
  */
@@ -67,5 +67,5 @@ public:
         bindFunction(&Logging::log_key, log_key_name, log_key_desc);
     }
 };
-} // namespace Nebulite::DomainModule::RenderObject
+} // namespace Nebulite::Module::Domain::RenderObject
 #endif // NEBULITE_DOMAINMODULE_RENDEROBJECT_LOGGING_HPP

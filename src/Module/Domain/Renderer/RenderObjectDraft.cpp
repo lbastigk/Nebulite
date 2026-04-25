@@ -1,7 +1,7 @@
 #include "Module/Domain/Renderer/RenderObjectDraft.hpp"
 #include "Core/Renderer.hpp"
 
-namespace Nebulite::DomainModule::Renderer {
+namespace Nebulite::Module::Domain::Renderer {
 
 Constants::Event RenderObjectDraft::updateHook() {
     return draft.get(domain.capture)->update();
@@ -31,4 +31,4 @@ Constants::Event RenderObjectDraft::draft_reset() {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace

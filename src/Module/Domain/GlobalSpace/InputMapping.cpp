@@ -13,7 +13,7 @@
 #include "Math/Equality.hpp"
 
 //------------------------------------------
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event InputMapping::lockOnce(std::span<std::string const> const& args) {
     if (args.size() > 2) {
@@ -168,4 +168,4 @@ void InputMapping::loadDefaultMappings(Data::JsonScope& scope) {
     addMappingToScope(scope, "movement::right", {{{"d", "onPress"}, {"right", "onPress"}, {"", "empty"}}});
 }
 
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace

@@ -2,7 +2,7 @@
 #include "Module/Transformation/Casting.hpp"
 
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 void Casting::bindTransformations() {
     BIND_TRANSFORMATION_STATIC(&Casting::toInt, toIntName, toIntDesc);
@@ -134,4 +134,4 @@ bool Casting::round(Data::JsonScope* jsonDoc) {
     return true;
 }
 
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation

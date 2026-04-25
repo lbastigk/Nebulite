@@ -5,7 +5,7 @@
 #include "Module/Domain/Renderer/Console.hpp"
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Renderer {
+namespace Nebulite::Module::Domain::Renderer {
 
 Constants::Event Console::consoleOpen() {
     consoleMode = true;
@@ -17,4 +17,4 @@ Constants::Event Console::consoleClose() {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::Renderer
+} // namespace Nebulite::Module::Domain::Renderer

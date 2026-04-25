@@ -24,9 +24,9 @@ class Renderer;
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Renderer {
+namespace Nebulite::Module::Domain::Renderer {
 /**
- * @class Nebulite::DomainModule::Renderer::RmlUi
+ * @class Nebulite::Module::Domain::Renderer::RmlUi
  * @brief DomainModule for RmlUi management functions
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, RmlUi) {
@@ -76,5 +76,5 @@ public:
 private:
     absl::flat_hash_map<std::string, Rml::ElementDocument*> loadedDocuments;
 };
-} // namespace Nebulite::DomainModule::Renderer
+} // namespace Nebulite::Module::Domain::Renderer
 #endif // NEBULITE_DOMAINMODULE_RENDERER_RMLUI_HPP

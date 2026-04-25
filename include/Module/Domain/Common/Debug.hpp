@@ -17,7 +17,7 @@
 // Forward declarations
 
 //------------------------------------------
-namespace Nebulite::DomainModule::Common {
+namespace Nebulite::Module::Domain::Common {
 NEBULITE_DOMAINMODULE(Nebulite::Interaction::Execution::Domain, Debug) {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
@@ -85,5 +85,5 @@ public:
 private:
     absl::flat_hash_map<std::string, std::string> forced_global_values; // Key-Value pairs to set in global JSON
 };
-} // namespace Nebulite::DomainModule::Common
+} // namespace Nebulite::Module::Domain::Common
 #endif // NEBULITE_DOMAIN_MODULE_COMMON_DEBUG_HPP

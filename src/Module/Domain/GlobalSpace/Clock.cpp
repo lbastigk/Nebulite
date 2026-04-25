@@ -3,7 +3,7 @@
 
 #include "Nebulite.hpp"
 
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event Clock::updateHook() {
     // Update current time from document
@@ -115,4 +115,4 @@ void Clock::ClockEntry::update(uint64_t const& current_time) {
     }
 }
 
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace

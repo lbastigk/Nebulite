@@ -8,7 +8,7 @@
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 class Array final : public Data::TransformationModule {
 public:
@@ -74,5 +74,5 @@ public:
 
     // TODO: dedupe, sort, sortby, pick, omit
 };
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_TRANSFORMATION_MODULE_ARRAY_HPP

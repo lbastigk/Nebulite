@@ -2,7 +2,7 @@
 
 #include "Nebulite.hpp"
 
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event FunctionCollision::updateHook() {
     // No periodic update needed for this domain module
@@ -139,4 +139,4 @@ Constants::Event FunctionCollision::debug_collisionDetect_variable(std::span<std
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace

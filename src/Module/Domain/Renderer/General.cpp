@@ -7,7 +7,7 @@
 #include "Interaction/Invoke.hpp"  // Invoke for parsing expressions
 #include "Core/RenderObject.hpp"   // RenderObject for Renderer
 
-namespace Nebulite::DomainModule::Renderer {
+namespace Nebulite::Module::Domain::Renderer {
 
 //------------------------------------------
 // Update
@@ -353,4 +353,4 @@ Constants::Event General::selectedObjectParse(std::span<std::string const> const
     return selectedRenderObject->parseStr(std::string(__FUNCTION__) + " " + command, objectCtx, objectCtxScope);
 }
 
-} // namespace Nebulite::DomainModule::Renderer
+} // namespace Nebulite::Module::Domain::Renderer

@@ -2,7 +2,7 @@
 
 #include "Nebulite.hpp"
 
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 
 //------------------------------------------
 // Update
@@ -100,4 +100,4 @@ Constants::Event Time::time_setFixedDeltaTime(int const argc, char** argv) {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace

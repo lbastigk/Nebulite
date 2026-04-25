@@ -8,7 +8,7 @@
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 class Statistics final : public Data::TransformationModule {
 public:
@@ -74,5 +74,5 @@ private:
      */
     static double accumulate(Data::JsonScope const* scope, std::function<double(double, double)> const& func, double const& initialValue = 0.0);
 };
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_TRANSFORMATION_MODULE_STATISTICS_HPP

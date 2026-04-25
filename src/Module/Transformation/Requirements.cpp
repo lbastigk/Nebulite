@@ -2,7 +2,7 @@
 #include "Data/Document/JsonScope.hpp"
 #include "Module/Transformation/Requirements.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 void Requirements::bindTransformations() {
     transformationFuncTree->bindCategory(requireName, requireDesc);
@@ -56,4 +56,4 @@ bool Requirements::requireTypeBasicValue(std::span<std::string const> const& arg
     return true;
 }
 
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation

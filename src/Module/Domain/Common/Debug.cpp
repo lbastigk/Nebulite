@@ -3,7 +3,7 @@
 #include "Utility/IO/FileManagement.hpp"
 #include "Utility/StringHandler.hpp"
 
-namespace Nebulite::DomainModule::Common {
+namespace Nebulite::Module::Domain::Common {
 
 //------------------------------------------
 // Update
@@ -86,4 +86,4 @@ Constants::Event Debug::cat(std::span<std::string const> const& args) const{
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::Common
+} // namespace Nebulite::Module::Domain::Common

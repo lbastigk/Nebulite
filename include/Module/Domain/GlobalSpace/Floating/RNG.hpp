@@ -23,9 +23,9 @@ class GlobalSpace; // Forward declaration of domain class GlobalSpace
 } // namespace Nebulite::Core
 
 //------------------------------------------
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::RNG
+ * @class Nebulite::Module::Domain::GlobalSpace::RNG
  * @brief DomainModule for RNG capabilities within the GlobalSpace.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, RNG) {
@@ -98,5 +98,5 @@ private:
      */
     void updateRNGs();
 };
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace
 #endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_RNG_HPP

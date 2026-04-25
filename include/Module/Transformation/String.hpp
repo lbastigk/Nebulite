@@ -8,7 +8,7 @@
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 class String final : public Data::TransformationModule {
 public:
@@ -141,5 +141,5 @@ public:
         "Usage: |strCompare endsWith {string} -> {bool}\n"
         "{string}: Substring to check for\n";
 };
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_TRANSFORMATION_MODULE_STRING_HPP

@@ -8,7 +8,7 @@
 
 #include "Data/Document/TransformationModule.hpp"
 
-namespace Nebulite::TransformationModule {
+namespace Nebulite::Module::Transformation {
 
 class Assertions final : public Data::TransformationModule {
 public:
@@ -67,5 +67,5 @@ private:
      */
     static void printUserDefinedMessage(std::span<std::string const> const& args);
 };
-} // namespace Nebulite::TransformationModule
+} // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_TRANSFORMATION_MODULE_ASSERTIONS_HPP

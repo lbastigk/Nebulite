@@ -2,7 +2,7 @@
 #include "Module/Ruleset/Camera.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 
-namespace Nebulite::RulesetModule {
+namespace Nebulite::Module::Ruleset {
 
 Camera::Camera() : RulesetModule(moduleName) {
     auto const baseListFunc = generateBaseListFunction(baseKeys);
@@ -45,4 +45,4 @@ void Camera::alignRight(Interaction::Context const& /*context*/, double**& slf, 
 }
 
 
-} // namespace Nebulite::RulesetModule
+} // namespace Nebulite::Module::Ruleset

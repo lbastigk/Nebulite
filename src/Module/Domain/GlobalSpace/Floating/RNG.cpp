@@ -1,7 +1,7 @@
 #include "Module/Domain/GlobalSpace/Floating/RNG.hpp"
 #include "Core/GlobalSpace.hpp"
 
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 Constants::Event RNG::updateHook() {
     // Disabled if renderer skipped update last frame, active otherwise
     bool RNG_update_enabled = domain.getRenderer().isSdlInitialized() && domain.getRenderer().hasSkippedUpdate() == false;
@@ -39,5 +39,5 @@ void RNG::updateRNGs() {
     moduleScope.set<RngVars::rngSize_t>(Key::D, rng.D.get());
 }
 
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace
 

@@ -20,9 +20,9 @@ class GlobalSpace; // Forward declaration of domain class GlobalSpace
 }
 
 //------------------------------------------
-namespace Nebulite::DomainModule::GlobalSpace {
+namespace Nebulite::Module::Domain::GlobalSpace {
 /**
- * @class Nebulite::DomainModule::GlobalSpace::General
+ * @class Nebulite::Module::Domain::GlobalSpace::General
  * @brief DomainModule for general-purpose functions within the GlobalSpace.
  */
 NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, General) {
@@ -118,5 +118,5 @@ public:
         bindFunction(&General::alwaysClear, alwaysClear_name, alwaysClear_desc);
     }
 };
-} // namespace Nebulite::DomainModule::GlobalSpace
+} // namespace Nebulite::Module::Domain::GlobalSpace
 #endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_GENERAL_HPP

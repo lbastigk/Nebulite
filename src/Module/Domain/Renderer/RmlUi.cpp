@@ -4,7 +4,7 @@
 #include "Utility/IO/FileManagement.hpp"
 #include "Utility/StringHandler.hpp"
 
-namespace Nebulite::DomainModule::Renderer {
+namespace Nebulite::Module::Domain::Renderer {
 
 Constants::Event RmlUi::updateHook() {
     // No update tasks for now, but this can be used for future features such as RmlUi event handling or variable updates
@@ -54,4 +54,4 @@ Constants::Event RmlUi::removeDocument(std::span<std::string const> const& args)
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::DomainModule::Renderer
+} // namespace Nebulite::Module::Domain::Renderer
