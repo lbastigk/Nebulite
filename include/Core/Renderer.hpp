@@ -434,22 +434,6 @@ public:
         return rml.removeDocument(doc);
     }
 
-    std::optional<Graphics::RmlInterface::ContextAndScope> getRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element) {
-        return rml.getRmlElementContextAndScope(element);
-    }
-
-    std::optional<Graphics::RmlInterface::ContextAndScope> getRmlDocumentContextAndScope(Rml::ElementDocument* document) {
-        return rml.getRmlDocumentContextAndScope(document);
-    }
-
-    void setRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element, Graphics::RmlInterface::ContextAndScope const& ctxAndScope) {
-        rml.setRmlElementContextAndScope(element, ctxAndScope);
-    }
-
-    void setRmlDocumentContextAndScope(Rml::ElementDocument* document, Graphics::RmlInterface::ContextAndScope const& ctxAndScope) {
-        rml.setRmlDocumentContextAndScope(document, ctxAndScope);
-    }
-
     //------------------------------------------
     // Texture-Related
 
