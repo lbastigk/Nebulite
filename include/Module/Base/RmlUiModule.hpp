@@ -25,6 +25,7 @@ protected:
 
     Utility::IO::Capture& capture;
 
+    // TODO: reduce to RmlInterface, full renderer access is not needed
     Core::Renderer& renderer;
 };
 } // namespace Nebulite::Module::Base
