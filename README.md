@@ -156,7 +156,7 @@ Domains may be arranged in a hierarchy, where parent Domains can contain child D
 This allows for shared functionality and data between related Domains.
 
 Child Domains share their functions with their parent Domains, allowing for seamless integration and interaction between different parts of the engine.
-This way, we may parse commands in a parent Domain that are actually implemented in a child Domain.
+This way, you may parse commands in a parent Domain that are actually implemented in a child Domain.
 
 Child domains can have access to their parent's full Document Scope or only to a sub-scope, depending on the use case.
 
@@ -194,8 +194,8 @@ inline void exampleUsage() {
 Keys are either Defined in a DomainModule or for a specific Domain. Any runtime user-input is assumed to be
 at the root of the current scope, so it never throws an exception on access.
 The Intent is that the access restrictions apply to the hardcoded logic to enforce encapsulation,
-so we can safely assume that any DomainModule with a defined scope:
-- accesses the correct member (if we always access based on the root of the provided scope, this is not guaranteed)
+so you can safely assume that any DomainModule with a defined scope:
+- accesses the correct member (if you always access based on the root of the provided scope, this is not guaranteed)
 - throws an exception if the member is accessed outside its intended scope
 
 <!-- TOC --><a name="expression-system"></a>
@@ -340,8 +340,8 @@ The RmlUi implementation contains custom plugins to allow for seamless integrati
 as well as Reflection capabilities for iterating over JSON data in the UI.
 Instead of using the default RmlUi syntax for data binding and event handling, use the standard Nebulite expression syntax.
 The context of each document is determined by the context of the caller:
-- If we call the document from a RenderObject, the self context is set to that object,
-- If we call it from GlobalSpace, every context is set to global.
+- If you call the document from a RenderObject, the self context is set to that object,
+- If you call it from GlobalSpace, every context is set to global.
 - If the document is called from an object interaction, the self and other context are set to the respective objects.
 
 Examples:
@@ -386,12 +386,15 @@ Examples:
     <p data-eval="true">
         global:time has {global:time|listMembers|length} members:
     </p>
-    <!-- data-reflect allows for iterating over all members of a array, with access to their keys and values -->
+    <!-- data-reflect allows for iterating over all array indices -->
     <!-- You can use JSON-Transformation to turn objects into arrays for propper reflection -->
+    <!-- Here we use listMembersAndValues to get an array of objects with key and value members for each entry in the original object -->
+    <!-- Data-reflect populates the self-context, all other contexts stay unchanged -->
     <p data-reflect="{global:time|listMembersAndValues}">
-        <!-- For every index in the array, the following is repeated: -->
+        <!-- For every index in the generated array, the following is repeated: -->
         <!-- Each entry has access to arr[i] as {self:} -->
         <!-- where arr is the generated array from the data-reflect statement -->
+        <!-- you may also use context-marrying prefixes like "all:" or "local:" to reflect on a combination of contexts -->
         <pCompact data-eval="true">
             {self:key|asString|rPad 15 .}{self:value|asString|lPad 15 .}
         </pCompact>
