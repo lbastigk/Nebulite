@@ -12,7 +12,7 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-Reflection::Reflection(Utility::IO::Capture& c, Core::Renderer& r) : RmlUiModule(c,r) {
+Reflection::Reflection(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {
     evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
         [this] {
             removeDeletedElements();
@@ -151,7 +151,7 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
     if (entry.markedForDeletion) return;
 
     // Get owner context, keep nearly everything the same but nest contextScope self
-    auto const ownerContextAndScope = renderer.getRmlDocumentContextAndScope(element->GetOwnerDocument());
+    auto const ownerContextAndScope = interface.getRmlDocumentContextAndScope(element->GetOwnerDocument());
     if (!ownerContextAndScope) {
         return;
     }
@@ -201,7 +201,7 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
                 }
             };
             Graphics::RmlInterface::RmlElementIdentifier childId(element, i, child);
-            renderer.setRmlElementContextAndScope(childId, {ownerContext, childContextScope});
+            interface.setRmlElementContextAndScope(childId, {ownerContext, childContextScope});
         }
     }
 }

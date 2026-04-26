@@ -23,7 +23,7 @@ namespace Nebulite::Module::RmlUi {
 class ExpressionManager final : public Base::RmlUiModule {
 public:
 
-    explicit ExpressionManager(Utility::IO::Capture& c, Core::Renderer& r);
+    explicit ExpressionManager(Utility::IO::Capture& c, Graphics::RmlInterface& i);
 
     void update() override ;
 

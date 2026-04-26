@@ -9,7 +9,7 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-ExpressionManager::ExpressionManager(Utility::IO::Capture& c, Core::Renderer& r) : RmlUiModule(c,r) {
+ExpressionManager::ExpressionManager(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {
     evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
         [this] {
             updateExpressions();
@@ -85,7 +85,7 @@ void ExpressionManager::updateExpressions(){
                 }
 
                 Graphics::RmlInterface::RmlElementIdentifier const elementId(parent, index, element);
-                if (auto const context = renderer.getRmlElementContextAndScope(elementId); context.has_value()) {
+                if (auto const context = interface.getRmlElementContextAndScope(elementId); context.has_value()) {
                     if (auto const it = expressions.find(innerRml); it != expressions.end()) {
                         std::string const& evaluated = it->second.eval(context.value().ctxScope);
                         element->SetInnerRML(evaluated);

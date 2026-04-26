@@ -15,7 +15,7 @@
 namespace Nebulite::Module::Base {
 class RmlUiModule : public Rml::Plugin {
 public:
-    explicit RmlUiModule(Utility::IO::Capture& c, Core::Renderer& r);
+    explicit RmlUiModule(Utility::IO::Capture& c, Graphics::RmlInterface& i);
 
     virtual void update();
 
@@ -25,8 +25,7 @@ protected:
 
     Utility::IO::Capture& capture;
 
-    // TODO: reduce to RmlInterface, full renderer access is not needed
-    Core::Renderer& renderer;
+    Graphics::RmlInterface& interface;
 };
 } // namespace Nebulite::Module::Base
 #endif // NEBULITE_MODULE_BASE_RML_UI_MODULE_HPP

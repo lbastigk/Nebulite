@@ -28,12 +28,10 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
     }
 
     // Plugins
-    modules.emplace_back(std::make_unique<Module::RmlUi::ContextManager>(renderer.capture, renderer));
-    modules.emplace_back(std::make_unique<Module::RmlUi::DataReference>(renderer.capture, renderer));
-    modules.emplace_back(std::make_unique<Module::RmlUi::Reflection>(renderer.capture, renderer));
-    modules.emplace_back(std::make_unique<Module::RmlUi::ExpressionManager>(renderer.capture, renderer)); // Must come after Reflection module!
-
-
+    modules.emplace_back(std::make_unique<Module::RmlUi::ContextManager>(renderer.capture, *this));
+    modules.emplace_back(std::make_unique<Module::RmlUi::DataReference>(renderer.capture, *this));
+    modules.emplace_back(std::make_unique<Module::RmlUi::Reflection>(renderer.capture, *this));
+    modules.emplace_back(std::make_unique<Module::RmlUi::ExpressionManager>(renderer.capture, *this)); // Must be registered after Reflection module!
     for (auto& module : modules) {
         RegisterPlugin(module.get());
     }

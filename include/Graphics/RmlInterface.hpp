@@ -89,7 +89,7 @@ public:
 
     void processRmlUiEvent(const SDL_Event& event) const ;
 
-    // TODO: Add a custom bind function
+    // TODO: Add a custom bind function for modules to use
     Rml::DataModelConstructor dataModelConstructor;
 private:
     std::unique_ptr<RenderInterface_SDL> renderInterface;

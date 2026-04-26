@@ -3,9 +3,9 @@
 
 namespace Nebulite::Module::Base {
 
-RmlUiModule::RmlUiModule(Utility::IO::Capture& c, Core::Renderer& r) :
+RmlUiModule::RmlUiModule(Utility::IO::Capture& c, Graphics::RmlInterface& i) :
     capture(c),
-    renderer(r)
+    interface(i)
 {}
 
 void RmlUiModule::update() {}

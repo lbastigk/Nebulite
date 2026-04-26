@@ -21,7 +21,7 @@ namespace Nebulite::Module::RmlUi {
 
 class Reflection final : public Base::RmlUiModule {
 public:
-    explicit Reflection(Utility::IO::Capture& c, Core::Renderer& r);
+    explicit Reflection(Utility::IO::Capture& c, Graphics::RmlInterface& i);
 
     void update() override ;
 

@@ -21,7 +21,7 @@ auto constexpr dataAttributes = {
 namespace Nebulite::Module::RmlUi {
 
 
-DataReference::DataReference(Utility::IO::Capture& c, Core::Renderer& r) : RmlUiModule(c,r) {
+DataReference::DataReference(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {
     evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
         [this] {
             updateDataValues();
@@ -130,7 +130,7 @@ void DataReference::normalizeDataValue(Rml::Element* element) {
             *value = "";
 
             // Add Entry
-            renderer.getDataModelConstructor().Bind(normalized, value.get());
+            interface.dataModelConstructor.Bind(normalized, value.get());
             registeredButWithoutId.emplace_back(std::move(entry));
             registeredStrings.emplace(normalized, std::move(value));
         }
@@ -169,8 +169,8 @@ void DataReference::registerNewValues(Graphics::RmlInterface::RmlElementIdentifi
 void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element const* element){
     if (!element) return;
     if (auto const it = registeredEntries.find(id); it != registeredEntries.end()){
-        auto const idContext = renderer.getRmlElementContextAndScope(id);
-        auto const docContext = renderer.getRmlDocumentContextAndScope(element->GetOwnerDocument());
+        auto const idContext = interface.getRmlElementContextAndScope(id);
+        auto const docContext = interface.getRmlDocumentContextAndScope(element->GetOwnerDocument());
         if (!idContext && !docContext) return;
 
         auto const& entry = it->second;
