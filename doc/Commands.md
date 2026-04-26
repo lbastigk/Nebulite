@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sat Apr 25 12:21:04 CEST 2026
+Generated on: Sun Apr 26 05:58:55 PM CEST 2026
 
 ## Table of Contents
 
@@ -57,6 +57,7 @@ Available Functions
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
 | `log` | Functions for logging various states and documents to files. |
+| `ls` | Lists the contents of a provided directory. |
 | `move` | Move data from one key to another. |
 | `nop` | No operation. Does nothing. |
 | `play-sound` | Play a sound from a file. |
@@ -702,6 +703,15 @@ Usage: log state [<filenames>...]
                If no filenames are provided, defaults to 'state.log.jsonc'.
 ```
 
+#### `ls`
+
+```
+Lists the contents of a provided directory.
+Usage: ls [directoryPath]
+
+- [directoryPath]: The path to the directory to list. If not provided, lists the current directory.
+```
+
 #### `move`
 
 ```
@@ -1164,6 +1174,7 @@ Available Functions
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
 | `log` | Logging utilities |
+| `ls` | Lists the contents of a provided directory. |
 | `mirror` | Mirror utilities for RenderObject to GlobalSpace synchronization |
 | `move` | Move data from one key to another. |
 | `nop` | No operation. Does nothing. |
@@ -1432,6 +1443,15 @@ Logs a specific key's value to a file.
 Usage: log key <key> [filename]
 
 Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.
+```
+
+#### `ls`
+
+```
+Lists the contents of a provided directory.
+Usage: ls [directoryPath]
+
+- [directoryPath]: The path to the directory to list. If not provided, lists the current directory.
 ```
 
 #### `mirror`
