@@ -302,6 +302,34 @@ int Renderer::getPosX() const { return domainScope.get<int>(Constants::KeyNames:
 
 int Renderer::getPosY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionY).value_or(0); }
 
+std::optional<size_t> Renderer::getIdFromIndex(size_t const& index) const {
+    if (!indexToIdMap.contains(index)) {
+        return std::nullopt; // No object with this index
+    }
+    return indexToIdMap.at(index);
+}
+
+std::optional<size_t> Renderer::getIndexFromId(size_t const& domainId) const {
+    for (const auto& [objIndex, objId] : indexToIdMap) {
+        if (objId == domainId) {
+            return objIndex; // Return the index associated with the given ID
+        }
+    }
+    return std::nullopt; // No index found for the given ID
+}
+
+std::optional<std::pair<RenderObject*, Data::JsonScope*>> Renderer::getObjectFromIndex(size_t const& searchIndex) {
+    if (!indexToIdMap.contains(searchIndex)) {
+        return std::nullopt; // No object with this index
+    }
+    auto const domainId = indexToIdMap[searchIndex];
+    auto ro = env.getObjectFromId(domainId);
+    if (ro) {
+        return std::make_pair(ro, &ro->domainScope);
+    }
+    return std::nullopt; // Object retrieval failed somehow
+}
+
 //------------------------------------------
 // Serialization / Deserialization
 
