@@ -19,9 +19,16 @@ std::string StringHandler::createPaddedTable(std::vector<std::string> const& wor
     auto maxSize = std::ranges::max_element(words, [](std::string const& a, std::string const& b) {
         return a.size() < b.size();
     })->length();
-    // TODO: add rowSize to accumulation ...
-    return std::accumulate(words.begin(), words.end(), std::string(""), [maxSize](std::string const& acc, std::string const& a) {
-        return acc + a + std::string(maxSize - a.length() + 1, ' ');
+    return std::accumulate(words.begin(), words.end(), std::string(""), [maxSize, rowSize](std::string const& acc, std::string const& a) {
+        std::string const paddedEntry = a + std::string(maxSize - a.length() + 1, ' ');
+        if (rowSize > 0) {
+            // Determine linebreaks
+            auto const lastNewLinePos = acc.contains('\n') ? acc.find_last_of('\n') : 0;
+            if (auto const projectedSize = acc.size() - lastNewLinePos + a.size(); projectedSize > rowSize) {
+                return acc + std::string(maxSize - lastNewLinePos % maxSize + 1, ' ') + "\n" + paddedEntry;
+            }
+        }
+        return acc + paddedEntry;
     });
 }
 

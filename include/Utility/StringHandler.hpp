@@ -27,7 +27,6 @@ public:
      * @details The padding is based on the longest word.
      * @param words The list of words to pad
      * @param rowSize The maximum character size per row. Set to zero for no newlines
-     * @todo rowSize usage not implemented
      */
     static std::string createPaddedTable(std::vector<std::string> const& words, size_t const& rowSize = 0);
 

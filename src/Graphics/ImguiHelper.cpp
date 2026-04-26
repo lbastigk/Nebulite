@@ -162,7 +162,8 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
             data->InsertChars(data->CursorPos, toInsert.c_str());
         }
         else if (completions.size() > 1) {
-            state->capture->log.println(Nebulite::Utility::StringHandler::createPaddedTable(completions));
+            // TODO: determine console width in characters
+            state->capture->log.println(Nebulite::Utility::StringHandler::createPaddedTable(completions, 80));
         }
     }
     return 0;
