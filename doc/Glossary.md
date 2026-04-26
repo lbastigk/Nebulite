@@ -62,7 +62,7 @@ Examples for access in Expressions:
 
 However, context may be combined during variable access:
 - `{local:}` combines self and other
-- `{all:}` combines self, other and global
+- `{full:}` combines self, other and global
 
 where the name of the context member is the key prefix.
 
