@@ -8,7 +8,7 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-ContextManager::ContextManager(Utility::IO::Capture& c, Core::Renderer& r) : RmlUiModule(c,r) {
+ContextManager::ContextManager(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {
     
 }
 
@@ -18,9 +18,9 @@ void ContextManager::update() {
             if (element->GetAttribute("data-eval") || element->GetAttribute("data-if")) {
                 // Skip elements that are part of a reflection, as they will be handled by the Reflection module
                 if (!parent->GetAttribute("data-reflect")) {
-                    if (Graphics::RmlInterface::RmlElementIdentifier const elementId(parent, index, element); !renderer.getRmlElementContextAndScope(elementId).has_value()) {
-                        if (auto const ctx = renderer.getRmlDocumentContextAndScope(document); ctx.has_value()) {
-                            renderer.setRmlElementContextAndScope(elementId, ctx.value());
+                    if (Graphics::RmlInterface::RmlElementIdentifier const elementId(parent, index, element); !interface.getRmlElementContextAndScope(elementId).has_value()) {
+                        if (auto const ctx = interface.getRmlDocumentContextAndScope(document); ctx.has_value()) {
+                            interface.setRmlElementContextAndScope(elementId, ctx.value());
                         }
                     }
                 }

@@ -28,12 +28,10 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
     }
 
     // Plugins
-    modules.emplace_back(std::make_unique<Module::RmlUi::ContextManager>(renderer.capture, renderer));
-    modules.emplace_back(std::make_unique<Module::RmlUi::DataReference>(renderer.capture, renderer));
-    modules.emplace_back(std::make_unique<Module::RmlUi::Reflection>(renderer.capture, renderer));
-    modules.emplace_back(std::make_unique<Module::RmlUi::ExpressionManager>(renderer.capture, renderer)); // Must come after Reflection module!
-
-
+    modules.emplace_back(std::make_unique<Module::RmlUi::ContextManager>(renderer.capture, *this));
+    modules.emplace_back(std::make_unique<Module::RmlUi::DataReference>(renderer.capture, *this));
+    modules.emplace_back(std::make_unique<Module::RmlUi::Reflection>(renderer.capture, *this));
+    modules.emplace_back(std::make_unique<Module::RmlUi::ExpressionManager>(renderer.capture, *this)); // Must be registered after Reflection module!
     for (auto& module : modules) {
         RegisterPlugin(module.get());
     }
@@ -66,6 +64,52 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
     update();
 }
 
+bool RmlInterface::loadDocument(std::string_view const& name, std::string_view const& path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+    auto const document = Utility::IO::FileManagement::LoadFile(path);
+    Rml::ElementDocument* doc = context->LoadDocumentFromMemory(document);
+    if (!doc) return false;
+
+    auto& id = ctx.self.getId();
+    auto ctxAndScope = ContextAndScope{ctx, ctxScope};
+
+    if (ownerToDocument[id].contains(name)) {
+        return false; // Document with this name already exists for this owner
+    }
+    ownerToDocument[id][std::string(name)] = doc;
+    documentToContext.emplace(doc, ctxAndScope);
+    doc->Show();
+    return true;
+}
+
+bool RmlInterface::removeDocument(size_t const& id, std::string_view const& name) {
+    auto const it = std::ranges::find(ownerToDocument[id], name, [](auto const& pair) { return pair.first; });
+    if (it == ownerToDocument[id].end()) {
+        return false; // No document with this name for this owner
+    }
+    auto const doc = it->second;
+    doc->Close();
+    ownerToDocument[id].erase(name);
+    documentToContext.erase(doc);
+    return true;
+}
+
+bool RmlInterface::removeDocument(Rml::ElementDocument* doc) {
+    bool foundInOwnerMap = false;
+    for (auto& documents : ownerToDocument | std::views::values) {
+        if (auto const it = std::ranges::find_if(documents, [doc](auto const& pair) { return pair.second == doc; }); it != documents.end()) {
+            documents.erase(it);
+            foundInOwnerMap = true;
+            break;
+        }
+    }
+    bool const foundInContextMap = documentToContext.contains(doc);
+    if (foundInContextMap) {
+        documentToContext.erase(doc);
+    }
+    context->UnloadDocument(doc);
+    return foundInOwnerMap && foundInContextMap;
+}
+
 void RmlInterface::updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*, size_t const&)> const& updateFunc) {
     size_t const numChildren = static_cast<size_t>(element->GetNumChildren());
     for (size_t i = 0; i < numChildren; ++i) {
@@ -76,14 +120,50 @@ void RmlInterface::updateElement(Rml::Element* element, std::function<void(Rml::
     }
 }
 
+
+std::optional<RmlInterface::ContextAndScope> RmlInterface::getRmlElementContextAndScope(RmlElementIdentifier const& element) {
+    if (auto const it = elementToContext.find(element); it != elementToContext.end()) {
+        return it->second;
+    }
+    return std::nullopt;
+}
+
+std::optional<RmlInterface::ContextAndScope> RmlInterface::getRmlDocumentContextAndScope(Rml::ElementDocument* document){
+    if (!document) return std::nullopt;
+    if (auto const it = documentToContext.find(document); it != documentToContext.end()) {
+        return it->second;
+    }
+    return std::nullopt;
+}
+
+void RmlInterface::setRmlElementContextAndScope(RmlElementIdentifier const& element, ContextAndScope const& ctxAndScope) {
+    elementToContext.emplace(element, ctxAndScope);
+}
+
+void RmlInterface::setRmlDocumentContextAndScope(Rml::ElementDocument* document, ContextAndScope const& ctxAndScope) {
+    if (!document) return;
+    documentToContext.emplace(document, ctxAndScope);
+}
+
 void RmlInterface::update() const {
-    for (auto const& doc : documentContext | std::views::keys) {
+    for (auto const& doc : documentToContext | std::views::keys) {
         doc->UpdateDocument();
     }
 
     for (auto const& module : modules) {
         module->update();
     }
+    context->Update();
+}
+
+void RmlInterface::postRenderUpdate() const {
+    for (auto& module : modules) {
+        module->postRenderUpdate();
+    }
+}
+
+void RmlInterface::setDimensions(int const& width, int const& height) const {
+    context->SetDimensions({width, height});
 }
 
 namespace {

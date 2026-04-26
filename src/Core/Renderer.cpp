@@ -302,31 +302,32 @@ int Renderer::getPosX() const { return domainScope.get<int>(Constants::KeyNames:
 
 int Renderer::getPosY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionY).value_or(0); }
 
-//------------------------------------------
-// Rml context
-
-std::optional<Graphics::RmlInterface::ContextAndScope> Renderer::getRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element) {
-    if (auto const it = rml.elementContext.find(element); it != rml.elementContext.end()) {
-        return it->second;
+std::optional<size_t> Renderer::getIdFromIndex(size_t const& index) const {
+    if (!indexToIdMap.contains(index)) {
+        return std::nullopt; // No object with this index
     }
-    return std::nullopt;
+    return indexToIdMap.at(index);
 }
 
-std::optional<Graphics::RmlInterface::ContextAndScope> Renderer::getRmlDocumentContextAndScope(Rml::ElementDocument* document){
-    if (!document) return std::nullopt;
-    if (auto const it = rml.documentContext.find(document); it != rml.documentContext.end()) {
-        return it->second;
+std::optional<size_t> Renderer::getIndexFromId(size_t const& domainId) const {
+    for (const auto& [objIndex, objId] : indexToIdMap) {
+        if (objId == domainId) {
+            return objIndex; // Return the index associated with the given ID
+        }
     }
-    return std::nullopt;
+    return std::nullopt; // No index found for the given ID
 }
 
-void Renderer::setRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element, Graphics::RmlInterface::ContextAndScope const& ctxAndScope) {
-    rml.elementContext.emplace(element, ctxAndScope);
-}
-
-void Renderer::setRmlDocumentContextAndScope(Rml::ElementDocument* document, Graphics::RmlInterface::ContextAndScope const& ctxAndScope) {
-    if (!document) return;
-    rml.documentContext.emplace(document, ctxAndScope);
+std::optional<std::pair<RenderObject*, Data::JsonScope*>> Renderer::getObjectFromIndex(size_t const& searchIndex) {
+    if (!indexToIdMap.contains(searchIndex)) {
+        return std::nullopt; // No object with this index
+    }
+    auto const domainId = indexToIdMap[searchIndex];
+    auto ro = env.getObjectFromId(domainId);
+    if (ro) {
+        return std::make_pair(ro, &ro->domainScope);
+    }
+    return std::nullopt; // Object retrieval failed somehow
 }
 
 //------------------------------------------
@@ -395,25 +396,6 @@ void Renderer::pollEvents() {
     }
 }
 
-namespace {
-
-bool isTextInputFocused(Rml::Context* context){
-    if (Rml::Element* el = context->GetFocusElement(); el){
-        // Covers <input type="text"> and <textarea>
-        if (Rml::String const tag = el->GetTagName(); tag == "input" || tag == "textarea"){
-            // Optional: check type="text"
-            if (tag == "input"){
-                if (Rml::Variant const* type = el->GetAttribute("type"); type && type->Get<Rml::String>() != "text")
-                    return false;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-} // namespace
-
 void Renderer::render() {
     //---------------------------------------
     // Pre-render processing
@@ -426,10 +408,10 @@ void Renderer::render() {
     }
 
     // Text focus override for RmlUi
-    if (isTextInputFocused(rml.context)) {
+    if (rml.isTextInputFocused()) {
         SDL_StartTextInput(window);
     }
-    else if (!isTextInputFocused(rml.context) && !ImGui::GetIO().WantTextInput) { // Only stop text input if no other GUI requires it
+    else if (!rml.isTextInputFocused() && !ImGui::GetIO().WantTextInput) { // Only stop text input if no other GUI requires it
         SDL_StopTextInput(window);
     }
 
@@ -446,8 +428,7 @@ void Renderer::render() {
     // RML
     // Update variables
     rml.update();
-    rml.context->Update();
-    rml.context->Render();
+    rml.render();
 
     // Imgui
     if (status.showFps) renderFPS();
@@ -464,9 +445,7 @@ void Renderer::render() {
     for (auto const& callback : postRenderCallback) {
         callback();
     }
-    for (auto const& module : rml.modules) {
-        module->postRenderUpdate();
-    }
+    rml.postRenderUpdate();
     postRenderCallback.clear();
 
     // Start new imgui frame instantly, so that modules can render to it
@@ -599,10 +578,7 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
     SDL_SetWindowSize(window, w * windowScale, h * windowScale);
 
     // Rescale rml context
-    rml.context->SetDimensions({
-        w * windowScale,
-        h * windowScale
-    });
+    rml.setDimensions(w * windowScale, h * windowScale);
 
     // Reinsert objects
     // TODO: Once fixed tiles are implemented, this isn't needed anymore

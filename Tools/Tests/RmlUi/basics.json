@@ -1,0 +1,9 @@
+[
+  {
+    "command": "task TaskFiles/Tests/RmlUi/loadAndUnload.nebs",
+    "expected": {
+      "cout": [],
+      "cerr": []
+    }
+  }
+]

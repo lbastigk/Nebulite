@@ -18,7 +18,7 @@ namespace Nebulite::Module::RmlUi {
 
 class ContextManager final : public Base::RmlUiModule {
 public:
-    explicit ContextManager(Utility::IO::Capture& c, Core::Renderer& r);
+    explicit ContextManager(Utility::IO::Capture& c, Graphics::RmlInterface& i);
 
     void update() override ;
 

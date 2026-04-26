@@ -7,7 +7,7 @@
 namespace Nebulite::Module::Domain::Renderer {
 
 Constants::Event RmlUi::updateHook() {
-    // No update tasks for now, but this can be used for future features such as RmlUi event handling or variable updates
+    moduleScope.set<uint64_t>(Key::openedDocuments, domain.rmlDocumentCount());
     return Constants::Event::Success;
 }
 
@@ -16,41 +16,25 @@ Constants::Event RmlUi::loadDocument(std::span<std::string const> const& args, I
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    std::string const& name = args[1];
-
-    if (loadedDocuments.find(name) != loadedDocuments.end()) {
-        domain.capture.warning.println("Document with name '", name, "' already exists. Please choose a different name or remove the existing document first.");
+    auto const& name = args[1];
+    auto path = Utility::StringHandler::recombineArgs(args.subspan(2));
+    if (!domain.loadRmlDocument(name, path, ctx, ctxScope)) {
+        domain.capture.warning.println("Failed to load document: ", path, "Either the owner already has a document with the same name, or the file could not be loaded. Please check the name and path, and try again.");
         return Constants::Event::Warning;
     }
-
-    auto const document = Utility::IO::FileManagement::LoadFile(Utility::StringHandler::recombineArgs(args.subspan(2)));
-
-    Rml::ElementDocument* doc = domain.getRmlContext()->LoadDocumentFromMemory(document);
-    domain.setRmlDocumentContextAndScope(doc, {ctx, ctxScope});
-    if (!doc) {
-        domain.capture.warning.println("Failed to load document '", document, "'.");
-        return Constants::Event::Warning;
-    }
-    doc->Show();
-    loadedDocuments[name] = doc;
     return Constants::Event::Success;
 }
 
-Constants::Event RmlUi::removeDocument(std::span<std::string const> const& args) {
+// NOLINTNEXTLINE
+Constants::Event RmlUi::removeDocument(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    std::string const& name = args[1];
-
-    auto const it = loadedDocuments.find(name);
-    if (it == loadedDocuments.end()) {
-        domain.capture.warning.println("No document with name '", name, "' found. Please check the name and try again.");
+    auto const& name = args[1];
+    if (!domain.removeRmlDocument(ctx.self.getId(), name)) {
+        domain.capture.warning.println("Failed to remove document: ", name, "Either the owner does not have a document with this name, or there was an issue removing the document. Please check the name, and try again.");
         return Constants::Event::Warning;
     }
-
-    it->second->Close();
-    domain.getRmlContext()->UnloadDocument(it->second);
-    loadedDocuments.erase(it);
     return Constants::Event::Success;
 }
 

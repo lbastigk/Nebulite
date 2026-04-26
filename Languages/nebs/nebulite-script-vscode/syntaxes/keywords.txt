@@ -89,6 +89,7 @@ listen
 load
 lock
 log
+ls
 lt
 map
 master-unlock

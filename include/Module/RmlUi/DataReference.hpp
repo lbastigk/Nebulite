@@ -8,7 +8,6 @@
 
 // External
 #include "absl/container/flat_hash_map.h"
-#include "absl/container/node_hash_map.h"
 #include <RmlUi/Core.h>
 
 // Nebulite
@@ -23,7 +22,7 @@ namespace Nebulite::Module::RmlUi {
 class DataReference final : public Base::RmlUiModule {
 public:
 
-    explicit DataReference(Utility::IO::Capture& c, Core::Renderer& r);
+    explicit DataReference(Utility::IO::Capture& c, Graphics::RmlInterface& i);
 
     void update() override ;
 

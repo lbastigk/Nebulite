@@ -6,7 +6,6 @@
 
 #ifndef NEBULITE_CORE_RENDERER_HPP
 #define NEBULITE_CORE_RENDERER_HPP
-#include "RenderObject.hpp"
 
 //------------------------------------------
 // Predeclare
@@ -343,11 +342,9 @@ public:
     [[nodiscard]] SDL_Window* getSdlWindow() const { return window; }
 
     /**
-     * @brief Gets the RmlUi context.
-     * @return The Rml::Context pointer.
+     * @brief Exposes the Rml::DataModelConstructor for external use.
+     * @return A reference to the Rml::DataModelConstructor instance used by the Renderer.
      */
-    [[nodiscard]] Rml::Context* getRmlContext() const { return rml.context; }
-
     [[nodiscard]] Rml::DataModelConstructor& getDataModelConstructor() { return rml.dataModelConstructor; }
 
     /**
@@ -355,26 +352,14 @@ public:
      * @param index The index of the RenderObject in the rendering pipeline.
      * @return An optional containing the ID of the RenderObject if found, or std::nullopt if no object is associated with the given index.
      */
-    [[nodiscard]] std::optional<size_t> getIdFromIndex(size_t const& index) const {
-        if (!indexToIdMap.contains(index)) {
-            return std::nullopt; // No object with this index
-        }
-        return indexToIdMap.at(index);
-    }
+    [[nodiscard]] std::optional<size_t> getIdFromIndex(size_t const& index) const ;
 
     /**
      * @brief Gets the RenderObject index in the rendering pipeline from its ID.
      * @param domainId The domain ID of the RenderObject to search for.
      * @return An optional containing the index of the RenderObject in the rendering pipeline if found, or std::nullopt if no object is associated with the given ID.
      */
-    [[nodiscard]] std::optional<size_t> getIndexFromId(size_t const& domainId) const {
-        for (const auto& [objIndex, objId] : indexToIdMap) {
-            if (objId == domainId) {
-                return objIndex; // Return the index associated with the given ID
-            }
-        }
-        return std::nullopt; // No index found for the given ID
-    }
+    [[nodiscard]] std::optional<size_t> getIndexFromId(size_t const& domainId) const ;
 
     /**
      * @brief Gets the RenderObject from its ID.
@@ -382,35 +367,20 @@ public:
      *        Does not change when objects are removed or purged.
      * @return A pointer to the RenderObject, or nullptr if not found.
      */
-    std::optional<std::pair<RenderObject*, Data::JsonScope*>> getObjectFromIndex(size_t const& searchIndex) {
-        if (!indexToIdMap.contains(searchIndex)) {
-            return std::nullopt; // No object with this index
-        }
-        auto const domainId = indexToIdMap[searchIndex];
-        auto ro = env.getObjectFromId(domainId);
-        if (ro) {
-            return std::make_pair(ro, &ro->domainScope);
-        }
-        return std::nullopt; // Object retrieval failed somehow
-    }
+    std::optional<std::pair<RenderObject*, Data::JsonScope*>> getObjectFromIndex(size_t const& searchIndex) ;
 
     /**
      * @brief Gets the standard font used by the Renderer.
      *        Loads the font if it hasn't been loaded yet.
      * @return A pointer to the TTF_Font instance.
      */
-    [[nodiscard]] TTF_Font* getStandardFont() const {
-        // Should always be loaded at this point
-        return font;
-    }
+    [[nodiscard]] TTF_Font* getStandardFont() const {return font;}
 
     /**
      * @brief Gets the current SDL event.
      * @return Vector of all SDL events from the current frame.
      */
-    std::vector<SDL_Event>* getEventHandles() noexcept {
-        return &events;
-    }
+    std::vector<SDL_Event>* getEventHandles() noexcept {return &events;}
 
     /**
      * @brief Gets the current window scale factor.
@@ -420,11 +390,21 @@ public:
     //------------------------------------------
     // Rml Context
 
-    std::optional<Graphics::RmlInterface::ContextAndScope> getRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element);
-    std::optional<Graphics::RmlInterface::ContextAndScope> getRmlDocumentContextAndScope(Rml::ElementDocument* document);
+    size_t rmlDocumentCount() const {
+        return rml.countOpenedDocuments();
+    }
 
-    void setRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element, Graphics::RmlInterface::ContextAndScope const& ctxAndScope);
-    void setRmlDocumentContextAndScope(Rml::ElementDocument* document, Graphics::RmlInterface::ContextAndScope const& ctxAndScope);
+    bool loadRmlDocument(std::string_view const& name, std::string_view const& path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+        return rml.loadDocument(name, path, ctx, ctxScope);
+    }
+
+    bool removeRmlDocument(size_t const& domainId, std::string_view const& name) {
+        return rml.removeDocument(domainId, name);
+    }
+
+    bool removeRmlDocument(Rml::ElementDocument* doc) {
+        return rml.removeDocument(doc);
+    }
 
     //------------------------------------------
     // Texture-Related
