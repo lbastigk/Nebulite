@@ -420,16 +420,37 @@ public:
     //------------------------------------------
     // Rml Context
 
-    void removeRmlDocument(Rml::ElementDocument* doc) {
-        rml.documentContext.erase(doc);
-        rml.context->UnloadDocument(doc);
+    size_t rmlDocumentCount() const {
+        return rml.countOpenedDocuments();
     }
 
-    std::optional<Graphics::RmlInterface::ContextAndScope> getRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element);
-    std::optional<Graphics::RmlInterface::ContextAndScope> getRmlDocumentContextAndScope(Rml::ElementDocument* document);
+    bool loadRmlDocument(std::string_view const& name, std::string_view const& path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+        return rml.loadDocument(name, path, ctx, ctxScope);
+    }
 
-    void setRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element, Graphics::RmlInterface::ContextAndScope const& ctxAndScope);
-    void setRmlDocumentContextAndScope(Rml::ElementDocument* document, Graphics::RmlInterface::ContextAndScope const& ctxAndScope);
+    bool removeRmlDocument(size_t const& domainId, std::string_view const& name) {
+        return rml.removeDocument(domainId, name);
+    }
+
+    bool removeRmlDocument(Rml::ElementDocument* doc) {
+        return rml.removeDocument(doc);
+    }
+
+    std::optional<Graphics::RmlInterface::ContextAndScope> getRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element) {
+        return rml.getRmlElementContextAndScope(element);
+    }
+
+    std::optional<Graphics::RmlInterface::ContextAndScope> getRmlDocumentContextAndScope(Rml::ElementDocument* document) {
+        return rml.getRmlDocumentContextAndScope(document);
+    }
+
+    void setRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element, Graphics::RmlInterface::ContextAndScope const& ctxAndScope) {
+        rml.setRmlElementContextAndScope(element, ctxAndScope);
+    }
+
+    void setRmlDocumentContextAndScope(Rml::ElementDocument* document, Graphics::RmlInterface::ContextAndScope const& ctxAndScope) {
+        rml.setRmlDocumentContextAndScope(document, ctxAndScope);
+    }
 
     //------------------------------------------
     // Texture-Related

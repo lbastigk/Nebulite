@@ -51,14 +51,38 @@ struct RmlInterface {
         Interaction::ContextScope ctxScope;
     };
 
-    absl::flat_hash_map<Rml::ElementDocument*, ContextAndScope> documentContext; // Map of document to its context and scope for expression evaluation
-    absl::flat_hash_map<RmlElementIdentifier, ContextAndScope> elementContext; // Map of element to its context and scope for expression evaluation
+    size_t countOpenedDocuments() const {
+        return documentToContext.size();
+    }
+
+    bool loadDocument(std::string_view const& name, std::string_view const& path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
+    bool removeDocument(size_t const& id, std::string_view const& name);
+    bool removeDocument(Rml::ElementDocument* doc);
+
+    std::optional<ContextAndScope> getRmlElementContextAndScope(RmlElementIdentifier const& element);
+    std::optional<ContextAndScope> getRmlDocumentContextAndScope(Rml::ElementDocument* document);
+
+    void setRmlElementContextAndScope(RmlElementIdentifier const& element, ContextAndScope const& ctxAndScope);
+    void setRmlDocumentContextAndScope(Rml::ElementDocument* document, ContextAndScope const& ctxAndScope);
+
 
     static void updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*, size_t const&)> const& updateFunc);
 
     void update() const ;
 
     void processRmlUiEvent(const SDL_Event& event) const ;
+
+private:
+    absl::flat_hash_map<Rml::ElementDocument*, ContextAndScope> documentToContext; // Map of document to its context and scope for expression evaluation
+    absl::flat_hash_map<RmlElementIdentifier, ContextAndScope> elementToContext; // Map of element to its context and scope for expression evaluation
+
+    absl::flat_hash_map<
+        size_t, // owner domain id
+        absl::flat_hash_map<
+            std::string, // document name
+            Rml::ElementDocument*
+        >
+    > ownerToDocument; // Map of owner domain id to its document for easy retrieval and management
 };
 
 } // namespace Nebulite::Graphics

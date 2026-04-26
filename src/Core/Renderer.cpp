@@ -303,33 +303,6 @@ int Renderer::getPosX() const { return domainScope.get<int>(Constants::KeyNames:
 int Renderer::getPosY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionY).value_or(0); }
 
 //------------------------------------------
-// Rml context
-
-std::optional<Graphics::RmlInterface::ContextAndScope> Renderer::getRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element) {
-    if (auto const it = rml.elementContext.find(element); it != rml.elementContext.end()) {
-        return it->second;
-    }
-    return std::nullopt;
-}
-
-std::optional<Graphics::RmlInterface::ContextAndScope> Renderer::getRmlDocumentContextAndScope(Rml::ElementDocument* document){
-    if (!document) return std::nullopt;
-    if (auto const it = rml.documentContext.find(document); it != rml.documentContext.end()) {
-        return it->second;
-    }
-    return std::nullopt;
-}
-
-void Renderer::setRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier const& element, Graphics::RmlInterface::ContextAndScope const& ctxAndScope) {
-    rml.elementContext.emplace(element, ctxAndScope);
-}
-
-void Renderer::setRmlDocumentContextAndScope(Rml::ElementDocument* document, Graphics::RmlInterface::ContextAndScope const& ctxAndScope) {
-    if (!document) return;
-    rml.documentContext.emplace(document, ctxAndScope);
-}
-
-//------------------------------------------
 // Serialization / Deserialization
 
 std::string Renderer::serialize() {
