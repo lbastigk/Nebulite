@@ -74,6 +74,10 @@ public:
     };
 
 private:
+    // TODO: modify the rml context to keep track of the documents
+    //       use a hashmap: id -> name -> document -> context
+    //       this way we can easily manage the documents and remove any if needed
+    //       also, add a common domainmodule that removes documents on deletion based on id
     // In order to keep track of loaded documents and manage them, we store their unique name to pointer
     absl::flat_hash_map<std::string, Rml::ElementDocument*> loadedDocuments;
 };
