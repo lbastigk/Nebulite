@@ -43,12 +43,12 @@ Rather, it reflects commonly used names within its documentation and shall be us
 ## C
 
 -----------------
-### Context
+### Context / ContextScope
 In Nebulite, any interaction is performed in a specific context. This context is twofold:
 - Context - the domains of the interaction
 - ContextScope - the JSON document scopes of the interaction
 
-The following context types are supported:
+The following context members are supported:
 - self - domain broadcasting the logic
 - other - domain listening
 - global - domain acting as a global storage and coordinator for the engine
@@ -59,6 +59,12 @@ Examples for access in Expressions:
 - `{other:posX}` would access the posX variable of the context other
 - `{global:someVar}` would access the someVar variable of the context global
 - `{./link/to/file.json:key}` would access a read-only document
+
+However, context may be combined during variable access:
+- `{local:}` combines self and other
+- `{all:}` combines self, other and global
+
+where the name of the context member is the key prefix.
 
 See also: [Expression](#expression), [Domain](#domain), [GlobalSpace](#globalspace)
 
