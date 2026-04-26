@@ -9,9 +9,6 @@
 //------------------------------------------
 // Includes
 
-// External
-#include "RmlUi/Core.h"
-
 // Nebulite
 #include "Constants/StandardCapture.hpp"
 #include "Constants/KeyNames.hpp"
