@@ -13,15 +13,34 @@ class Renderer;
 
 namespace Nebulite::Graphics {
 
-struct RmlInterface {
-
+class RmlInterface {
+public:
     void init(Core::Renderer& renderer, Data::JsonScope const& domainScope);
 
-    std::unique_ptr<RenderInterface_SDL> renderInterface;
-    std::unique_ptr<SystemInterface_SDL> systemInterface; // TODO: Use custom SystemInterface derived from SDL and add toggle for Logging messages/Redirecting them to capture
-    Rml::Context* context;
-    Rml::DataModelConstructor dataModelConstructor;
-    std::vector<std::unique_ptr<Module::Base::RmlUiModule>> modules;
+    void update() const ;
+
+    void postRenderUpdate() const ;
+
+    void render() const {
+        context->Render();
+    }
+
+    void setDimensions(int const& width, int const& height) const ;
+
+    bool isTextInputFocused() const {
+        if (Rml::Element* el = context->GetFocusElement(); el){
+            // Covers <input type="text"> and <textarea>
+            if (Rml::String const tag = el->GetTagName(); tag == "input" || tag == "textarea"){
+                // Optional: check type="text"
+                if (tag == "input"){
+                    if (Rml::Variant const* type = el->GetAttribute("type"); type && type->Get<Rml::String>() != "text")
+                        return false;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
 
     // Simpler identifiers based on element pointer did not work previously, maybe this isn't the case anymore?
     struct RmlElementIdentifier {
@@ -68,11 +87,16 @@ struct RmlInterface {
 
     static void updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*, size_t const&)> const& updateFunc);
 
-    void update() const ;
-
     void processRmlUiEvent(const SDL_Event& event) const ;
 
+    // TODO: Add a custom bind function
+    Rml::DataModelConstructor dataModelConstructor;
 private:
+    std::unique_ptr<RenderInterface_SDL> renderInterface;
+    std::unique_ptr<SystemInterface_SDL> systemInterface; // TODO: Use custom SystemInterface derived from SDL and add toggle for Logging messages/Redirecting them to capture
+    Rml::Context* context = nullptr;
+    std::vector<std::unique_ptr<Module::Base::RmlUiModule>> modules;
+
     absl::flat_hash_map<Rml::ElementDocument*, ContextAndScope> documentToContext; // Map of document to its context and scope for expression evaluation
     absl::flat_hash_map<RmlElementIdentifier, ContextAndScope> elementToContext; // Map of element to its context and scope for expression evaluation
 

@@ -343,11 +343,9 @@ public:
     [[nodiscard]] SDL_Window* getSdlWindow() const { return window; }
 
     /**
-     * @brief Gets the RmlUi context.
-     * @return The Rml::Context pointer.
+     * @brief Exposes the Rml::DataModelConstructor for external use.
+     * @return A reference to the Rml::DataModelConstructor instance used by the Renderer.
      */
-    [[nodiscard]] Rml::Context* getRmlContext() const { return rml.context; }
-
     [[nodiscard]] Rml::DataModelConstructor& getDataModelConstructor() { return rml.dataModelConstructor; }
 
     /**

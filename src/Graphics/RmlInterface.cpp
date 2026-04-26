@@ -155,6 +155,17 @@ void RmlInterface::update() const {
     for (auto const& module : modules) {
         module->update();
     }
+    context->Update();
+}
+
+void RmlInterface::postRenderUpdate() const {
+    for (auto& module : modules) {
+        module->postRenderUpdate();
+    }
+}
+
+void RmlInterface::setDimensions(int const& width, int const& height) const {
+    context->SetDimensions({width, height});
 }
 
 namespace {

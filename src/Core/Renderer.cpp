@@ -368,25 +368,6 @@ void Renderer::pollEvents() {
     }
 }
 
-namespace {
-
-bool isTextInputFocused(Rml::Context* context){
-    if (Rml::Element* el = context->GetFocusElement(); el){
-        // Covers <input type="text"> and <textarea>
-        if (Rml::String const tag = el->GetTagName(); tag == "input" || tag == "textarea"){
-            // Optional: check type="text"
-            if (tag == "input"){
-                if (Rml::Variant const* type = el->GetAttribute("type"); type && type->Get<Rml::String>() != "text")
-                    return false;
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-} // namespace
-
 void Renderer::render() {
     //---------------------------------------
     // Pre-render processing
@@ -399,10 +380,10 @@ void Renderer::render() {
     }
 
     // Text focus override for RmlUi
-    if (isTextInputFocused(rml.context)) {
+    if (rml.isTextInputFocused()) {
         SDL_StartTextInput(window);
     }
-    else if (!isTextInputFocused(rml.context) && !ImGui::GetIO().WantTextInput) { // Only stop text input if no other GUI requires it
+    else if (!rml.isTextInputFocused() && !ImGui::GetIO().WantTextInput) { // Only stop text input if no other GUI requires it
         SDL_StopTextInput(window);
     }
 
@@ -419,8 +400,7 @@ void Renderer::render() {
     // RML
     // Update variables
     rml.update();
-    rml.context->Update();
-    rml.context->Render();
+    rml.render();
 
     // Imgui
     if (status.showFps) renderFPS();
@@ -437,9 +417,7 @@ void Renderer::render() {
     for (auto const& callback : postRenderCallback) {
         callback();
     }
-    for (auto const& module : rml.modules) {
-        module->postRenderUpdate();
-    }
+    rml.postRenderUpdate();
     postRenderCallback.clear();
 
     // Start new imgui frame instantly, so that modules can render to it
@@ -572,10 +550,7 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
     SDL_SetWindowSize(window, w * windowScale, h * windowScale);
 
     // Rescale rml context
-    rml.context->SetDimensions({
-        w * windowScale,
-        h * windowScale
-    });
+    rml.setDimensions(w * windowScale, h * windowScale);
 
     // Reinsert objects
     // TODO: Once fixed tiles are implemented, this isn't needed anymore
