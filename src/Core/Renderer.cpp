@@ -182,7 +182,8 @@ void Renderer::initImgui() const {
 
     // Adjust the base font size to match pixel aesthetics (choose your font file & size)
     if (Utility::IO::FileManagement::fileExists(fontPath)) {
-        if (ImFont* f = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 40.0f * fullScale, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) io.FontDefault = f;
+        auto const size = Global::settings().get<double>(Module::Domain::GlobalSpace::Settings::Key::fontSize1).value_or(40.0);
+        if (ImFont* f = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), static_cast<float>(size) * fullScale, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) io.FontDefault = f;
         else io.Fonts->AddFontDefault();
     } else {
         io.Fonts->AddFontDefault();
@@ -270,7 +271,7 @@ void Renderer::initSDL() {
 void Renderer::loadFonts() {
     //------------------------------------------
     // Sizes
-    uint32_t constexpr FontSizeGeneral = 60; // Does not need to scale
+    auto const FontSizeGeneral = Global::settings().get<double>(Module::Domain::GlobalSpace::Settings::Key::fontSize3).value_or(80.0);
 
     //------------------------------------------
     // Font location
@@ -278,7 +279,7 @@ void Renderer::loadFonts() {
 
     //------------------------------------------
     // Load general font
-    font = TTF_OpenFont(fontPath.c_str(), FontSizeGeneral); // Adjust size as needed
+    font = TTF_OpenFont(fontPath.c_str(), static_cast<float>(FontSizeGeneral)); // Adjust size as needed
     if (font == nullptr) {
         // Handle font loading error
         capture.error.println("Failed to load font: ", fontPath);

@@ -97,6 +97,10 @@ Constants::Event Settings::loadSettings(std::string const& filename) {
     moduleScope.set<std::string>(Key::fontStandard, settingsFile.get<std::string>(Key::fontStandard).value_or("./Resources/Fonts/Arimo-Regular.ttf"));
     moduleScope.set<std::string>(Key::cursor, settingsFile.get<std::string>(Key::cursor).value_or("./Resources/Cursor/Drakensang.png"));
 
+    moduleScope.set<uint16_t>(Key::fontSize1, settingsFile.get<uint16_t>(Key::fontSize1).value_or(40));
+    moduleScope.set<uint16_t>(Key::fontSize2, settingsFile.get<uint16_t>(Key::fontSize2).value_or(60));
+    moduleScope.set<uint16_t>(Key::fontSize3, settingsFile.get<uint16_t>(Key::fontSize3).value_or(80));
+
     // Commands: On startup
     moduleScope.setSubDoc(Key::parseOnStartup, settingsFile.getSubDoc(Key::parseOnStartup));
     if (moduleScope.memberType(Key::parseOnStartup) != Data::KeyType::array) { // Load default if not present

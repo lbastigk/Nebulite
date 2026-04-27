@@ -86,6 +86,11 @@
         "cursor": "./Resources/Cursor/Drakensang.png",
         "font": {
             "mono": "./Resources/Fonts/JetBrainsMono-Regular.ttf",
+            "size": [
+                40,
+                60,
+                80
+            ],
             "standard": "./Resources/Fonts/Arimo-Regular.ttf"
         },
         "resolution": {
