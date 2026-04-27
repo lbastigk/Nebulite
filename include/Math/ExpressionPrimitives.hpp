@@ -154,14 +154,14 @@ public:
     // Other logical functions
 
     // NOLINTNEXTLINE
-    static double to_bipolar(double a) {
+    static double toBipolar(double a) {
         return std::fabs(a) > DBL_EPSILON ? 1 : -1;
     }
-    static auto constexpr toBipolarName = "to_bipolar";
+    static auto constexpr toBipolarName = "toBipolar";
     static auto constexpr toBipolarDesc = "Converts a numeric value to bipolar form.\n"
         "output is 1 or -1\n"
         "Returns 1 if a is logically true (absolute value > DBL_EPSILON), otherwise returns -1.\n"
-        "Usage: to_bipolar(a)";
+        "Usage: toBipolar(a)";
 
     //----------------------------------
     // Mapping functions

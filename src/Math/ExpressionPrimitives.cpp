@@ -97,7 +97,7 @@ std::vector<ExpressionPrimitives::FunctionInfo> const& ExpressionPrimitives::ava
         {logicalXnorName, logicalXnorDesc, reinterpret_cast<void*>(logical_xnor), TE_FUNCTION2, nullptr},
 
         // Other logical functions
-        {toBipolarName, toBipolarDesc, reinterpret_cast<void*>(to_bipolar), TE_FUNCTION1, nullptr},
+        {toBipolarName, toBipolarDesc, reinterpret_cast<void*>(toBipolar), TE_FUNCTION1, nullptr},
 
         // Mapping functions
         {mapName, mapDesc, reinterpret_cast<void*>(map), TE_FUNCTION5, nullptr},

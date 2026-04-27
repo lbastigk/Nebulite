@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sun Apr 26 05:58:55 PM CEST 2026
+Generated on: Mon Apr 27 12:51:19 CEST 2026
 
 ## Table of Contents
 
@@ -2481,7 +2481,7 @@ Available Functions
 | `roundDown` | Rounds the first argument down to the amount of decimal places specified by the second argument. |
 | `roundUp` | Rounds the first argument up to the amount of decimal places specified by the second argument. |
 | `sgn` | Returns the sign of a. |
-| `to_bipolar` | Converts a numeric value to bipolar form. |
+| `toBipolar` | Converts a numeric value to bipolar form. |
 | `xnor` | Returns 1 if a and b are both logically true or both logically false, otherwise returns 0. |
 | `xor` | Returns 1 if exactly one of a or b is logically true, otherwise returns 0. |
 
@@ -2662,13 +2662,13 @@ Returns 1 if a is positive, -1 if a is negative, and 0 if a is zero.
 Usage: sgn(a)
 ```
 
-#### `to_bipolar`
+#### `toBipolar`
 
 ```
 Converts a numeric value to bipolar form.
 output is 1 or -1
 Returns 1 if a is logically true (absolute value > DBL_EPSILON), otherwise returns -1.
-Usage: to_bipolar(a)
+Usage: toBipolar(a)
 ```
 
 #### `xnor`

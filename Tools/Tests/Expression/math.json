@@ -60,11 +60,11 @@
         "expected": { "cout": ["0"], "cerr": [] }
     },
     {
-        "command": "eval echo $i(to_bipolar(1))",
+        "command": "eval echo $i(toBipolar(1))",
         "expected": { "cout": ["1"], "cerr": [] }
     },
     {
-        "command": "eval echo $i(to_bipolar(0))",
+        "command": "eval echo $i(toBipolar(0))",
         "expected": { "cout": ["-1"], "cerr": [] }
     },
     {

@@ -184,6 +184,7 @@ sum
 task
 test-filter
 time
+toBipolar
 toBool
 toBoolString
 toDouble
@@ -191,7 +192,6 @@ toInt
 toLower
 toString
 toUpper
-to_bipolar
 type
 typeAsNumber
 typeAsSimpleString
