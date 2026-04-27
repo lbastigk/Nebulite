@@ -13,21 +13,25 @@ Constants::Event General::updateHook() {
             domain.capture.error.println("Failed to render ImGui view: Context is no longer valid. Disabling ImGui view.");
             return Constants::Event::Error;
         }
-        auto ctx = Interaction::Context{
-            {
-                .self = *lastContext.self,
-                .other = *lastContext.self,
-                .global = *lastContext.global
-            }
-        };
-        auto ctxScope = Interaction::ContextScope{
-            {
-                .self = *lastContext.selfScope,
-                .other = *lastContext.selfScope,
-                .global = *lastContext.globalScope
-            }
-        };
-        Graphics::ImguiHelper::renderDomain(ctx, ctxScope, domain.capture, domain.getName());
+
+        Global::instance().getRenderer().addRenderCallback([&] {
+            auto ctx = Interaction::Context{
+                {
+                    .self = *lastContext.self,
+                    .other = *lastContext.self,
+                    .global = *lastContext.global
+                }
+            };
+            auto ctxScope = Interaction::ContextScope{
+                {
+                    .self = *lastContext.selfScope,
+                    .other = *lastContext.selfScope,
+                    .global = *lastContext.globalScope
+                }
+            };
+            Graphics::ImguiHelper::renderDomain(ctx, ctxScope, domain.capture, domain.getName());
+        });
+
     }
     return Constants::Event::Success;
 }

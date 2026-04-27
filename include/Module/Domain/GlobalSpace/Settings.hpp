@@ -85,7 +85,9 @@ public:
         static auto constexpr resolutionY = makeScoped("renderer.resolution.h");
         static auto constexpr resolutionScaling = makeScoped("renderer.resolution.scale");
         static auto constexpr targetFPS = makeScoped("renderer.targetFPS");
-        static auto constexpr font = makeScoped("renderer.font");
+        static auto constexpr fontMono = makeScoped("renderer.font.mono");
+        static auto constexpr fontStandard = makeScoped("renderer.font.standard");
+        static auto constexpr cursor = makeScoped("renderer.cursor");
 
         // Startup-related settings
         static auto constexpr parseOnStartup = makeScoped("parse.onStartup");

@@ -83,7 +83,11 @@
         "onStartup": []
     },
     "renderer": {
-        "font": "./Resources/Fonts/JetBrainsMono-Regular.ttf",
+        "cursor": "./Resources/Cursor/Drakensang.png",
+        "font": {
+            "mono": "./Resources/Fonts/JetBrainsMono-Regular.ttf",
+            "standard": "./Resources/Fonts/Arimo-Regular.ttf"
+        },
         "resolution": {
             "h": 1000,
             "scale": 1,

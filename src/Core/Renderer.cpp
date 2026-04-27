@@ -71,7 +71,6 @@ Renderer::~Renderer() {
     SDL_Quit();
 }
 
-// TODO: Move all settings to workspace!
 void Renderer::setupDisplayValues() {
     // Load from settings
     // Default values should never be used, as settings should always exist
@@ -179,7 +178,7 @@ void Renderer::initImgui() const {
     font_cfg.OversampleV = 1;
     font_cfg.PixelSnapH  = true;
 
-    auto const fontPath = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::font).value_or("null");
+    auto const fontPath = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::fontMono).value_or("null");
 
     // Adjust the base font size to match pixel aesthetics (choose your font file & size)
     if (Utility::IO::FileManagement::fileExists(fontPath)) {
@@ -229,12 +228,12 @@ void Renderer::initSDL() {
 
     //------------------------------------------
     // Cursor
-    static auto const cursorPath = "./Resources/Cursor/Drakensang.png";
+    static auto const cursorPath = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::cursor).value_or("");
 
     // See if cursor file exists
-    if (Utility::IO::FileManagement::fileExists(cursorPath)) {
+    if (!cursorPath.empty()) {
         // Load pixel data
-        if (SDL_Surface* cursorSurface = IMG_Load(cursorPath); cursorSurface) {
+        if (SDL_Surface* cursorSurface = IMG_Load(cursorPath.c_str()); cursorSurface) {
             // Create cursor
             if (SDL_Cursor* cursor = SDL_CreateColorCursor(cursorSurface, 0, 0); cursor) {
                 SDL_SetCursor(cursor);
@@ -259,10 +258,6 @@ void Renderer::initSDL() {
     //------------------------------------------
     // Check for remaining errors in SDL
 
-    /**
-     * @todo On wine, it says: "Device not found", but seems to work anyway. Investigate further.
-     *       For now, we just log the error and continue
-     */
     if (SDL_GetError()[0] != '\0') {
         capture.error.println("SDL Error during initialization: ", SDL_GetError());
         SDL_ClearError(); // Clear error after reporting
@@ -279,9 +274,7 @@ void Renderer::loadFonts() {
 
     //------------------------------------------
     // Font location
-    std::string const sep(1, Utility::IO::FileManagement::preferredSeparator());
-    std::string const fontDir = std::string("Resources") + sep + std::string("Fonts") + sep + std::string("Arimo-Regular.ttf");
-    std::string const fontPath = Utility::IO::FileManagement::CombinePaths(baseDirectory, fontDir);
+    std::string const fontPath = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::fontStandard).value_or("null");
 
     //------------------------------------------
     // Load general font
@@ -350,15 +343,12 @@ void Renderer::deserialize(std::string const& serialOrLink) noexcept {
 //------------------------------------------
 // Pipeline
 
-void Renderer::renderInit() {
+void Renderer::renderInit() const {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // RGB values (black)
     SDL_RenderClear(renderer);
-    if (!status.firstFrameRendered) {
-        ImGui_ImplSDLRenderer3_NewFrame();
-        ImGui_ImplSDL3_NewFrame();
-        ImGui::NewFrame();
-        status.firstFrameRendered = true;
-    }
+    ImGui_ImplSDLRenderer3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
+    ImGui::NewFrame();
 }
 
 void Renderer::renderFPS() const {
@@ -368,9 +358,6 @@ void Renderer::renderFPS() const {
     // Make the window tighter: small padding and item spacing
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6.0f, 2.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4.0f, 2.0f));
-
-    // Optional: constrain maximum size (min 0, max 150x50)
-    //ImGui::SetNextWindowSizeConstraints(ImVec2(0, 0), ImVec2(150.0f, 50.0f));
 
     ImGui::Begin(
         "FPS Overlay",
@@ -432,7 +419,13 @@ void Renderer::render() {
     rml.update();
     rml.render();
 
-    // Imgui
+    // Render callbacks, likely imgui functions
+    for (auto const& callback : renderCallbacks) {
+        callback();
+    }
+    renderCallbacks.clear();
+
+    // Finalize render
     if (status.showFps) renderFPS();
     ImGui::Render();
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
@@ -449,12 +442,6 @@ void Renderer::render() {
     }
     rml.postRenderUpdate();
     postRenderCallback.clear();
-
-    // Start new imgui frame instantly, so that modules can render to it
-    // TODO: Remove the new imgui frame, relay on postRenderCallbacks only. Start a new imgui frame in renderInit
-    ImGui_ImplSDLRenderer3_NewFrame();
-    ImGui_ImplSDL3_NewFrame();
-    ImGui::NewFrame();
 }
 
 Constants::Event Renderer::update() {

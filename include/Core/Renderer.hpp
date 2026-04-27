@@ -457,6 +457,15 @@ public:
     // Callback
 
     /**
+     * @brief Adds a callback function to be executed during the render pass
+     * @details Is executed once.
+     * @param function The callback function to add
+     */
+    void addRenderCallback(std::function<void()> const& function) noexcept {
+        renderCallbacks.emplace_back(function);
+    }
+
+    /**
     * @brief Adds a callback function to be executed after the current render pass is complete.
     * @details Is executed once.
     * @param function The callback function to add.
@@ -492,7 +501,6 @@ private:
         bool skippedUpdateLastFrame = false;
         bool sdlInitialized = false;
         bool quit = false; // Set to true when an SDL_QUIT event is received or outside wants to quit
-        bool firstFrameRendered = false; // Used to manage first frame rendering and timing
     }status;
 
     // External Flags
@@ -537,7 +545,7 @@ private:
     //------------------------------------------
     // Pipeline: Software / General
 
-    void renderInit();
+    void renderInit() const ;
 
     void pollEvents();
 
@@ -551,6 +559,9 @@ private:
     // Event and routine Handling
 
     std::vector<SDL_Event> events;
+
+    // Functions to execute during rendering
+    std::vector<std::function<void()>> renderCallbacks;
 
     // Functions to execute after a full render pass
     std::vector<std::function<void()>> postRenderCallback;
