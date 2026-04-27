@@ -179,9 +179,11 @@ void Renderer::initImgui() const {
     font_cfg.OversampleV = 1;
     font_cfg.PixelSnapH  = true;
 
-    // Adjust the base font size to match pixel aesthetics (choose your font file & size)e
-    if (Utility::IO::FileManagement::fileExists(pixelFontPath)) {
-        if (ImFont* f = io.Fonts->AddFontFromFileTTF(pixelFontPath, 40.0f * fullScale, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) io.FontDefault = f;
+    auto const fontPath = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::font).value_or("null");
+
+    // Adjust the base font size to match pixel aesthetics (choose your font file & size)
+    if (Utility::IO::FileManagement::fileExists(fontPath)) {
+        if (ImFont* f = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 40.0f * fullScale, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) io.FontDefault = f;
         else io.Fonts->AddFontDefault();
     } else {
         io.Fonts->AddFontDefault();

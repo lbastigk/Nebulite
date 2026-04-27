@@ -471,7 +471,7 @@ private:
      */
     [[nodiscard]] Constants::Event preParse() override;
 
-    static auto constexpr pixelFontPath  = "./Resources/Fonts/JetBrainsMono-Regular.ttf"; // TODO: Use a pixel font
+    //static auto constexpr pixelFontPath  = "./Resources/Fonts/JetBrainsMono-Regular.ttf"; // TODO: Use a pixel font
 
     /**
      * @brief Holds threads for parallel processing of RenderObjects during the update phase.

@@ -83,6 +83,7 @@
         "onStartup": []
     },
     "renderer": {
+        "font": "./Resources/Fonts/JetBrainsMono-Regular.ttf",
         "resolution": {
             "h": 1000,
             "scale": 1,
