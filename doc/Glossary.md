@@ -57,7 +57,7 @@ Furthermore, access to read-only documents is supported inside expressions.
 Examples for access in Expressions:
 - `{self:posX}` would access the posX variable of the context self
 - `{other:posX}` would access the posX variable of the context other
-- `{global:someVar}` would access the someVar variable of the context global
+- `{global:time.dt}` would access the dt variable of the time object in the global context
 - `{./link/to/file.json:key}` would access a read-only document
 
 However, context may be combined during variable access:
