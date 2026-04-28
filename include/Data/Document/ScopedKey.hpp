@@ -102,11 +102,12 @@ class ScopedKey {
 public:
     ScopedKey() = default;
 
-    // construct from a view + suffix (runtime)
+    // construct from a view + suffix
     ScopedKey(ScopedKeyView const& base, std::string_view const& suffix);
 
     // direct construction
-    explicit ScopedKey(std::string s, std::optional<std::string_view> const& scope = std::nullopt);
+    explicit ScopedKey(std::optional<std::string_view> const& scope, std::string suffix);
+    explicit ScopedKey(std::string suffix);
 
     // produce a scopedKey view that points into this owned buffer.
     // caller must keep the ScopedKeyView alive while using the returned view.
@@ -119,6 +120,12 @@ public:
      * @brief A constant representing the absence of a scope.
      */
     static constexpr auto noScope = OptionalFixedString();
+
+    /**
+     * @brief Add another scopedKey to the current Key
+     */
+    [[nodiscard]] ScopedKey nestKey(ScopedKey const& other) const ;
+    [[nodiscard]] ScopedKey nestKey(ScopedKeyView const& other) const ;
 };
 
 //------------------------------------------
@@ -138,12 +145,12 @@ public:
  */
 class ScopedKeyView {
     /**
-     * @brief Produce the full key string including scope prefix.
-     * @param scope The current scope of the JsonScope.
-     * @return The full key string with scope prefix.
-     * @throws std::invalid_argument if the key is used outside its required scope.
+     * @brief Combines the givenScope and the prefix to a full key
+     * @return the full key
      */
-    [[nodiscard]] std::string full(JsonScope const& scope) const;
+    [[nodiscard]] std::string buildKey() const ;
+
+    static std::string combineKeys(std::string_view const& key1, std::string_view const& key2);
 
     /**
      * @brief Optional scope prefix for this key.
@@ -159,18 +166,24 @@ class ScopedKeyView {
      */
     std::string_view key;
 
-    // Any key shared publicly should be constructed with a required scope to avoid accidental misuse
-    constexpr ScopedKeyView(std::optional<std::string_view> const& requiredScope, std::string_view const& keyInScope) noexcept
-        : givenScope(requiredScope), key(keyInScope) {}
-
     // allow the owning type to construct views pointing into its buffer
     friend class ScopedKey;
 
 public:
-    friend class JsonScope;
+    /**
+     * @brief Produce the full key string including scope prefix.
+     * @param scope The current scope of the JsonScope.
+     * @return The full key string with scope prefix.
+     * @throws std::invalid_argument if the key is used outside its required scope.
+     */
+    [[nodiscard]] std::string full(JsonScope const& scope) const;
 
     // Adding suffix to produce a new ScopedKeyView
     [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;
+
+    // Any key shared publicly should be constructed with a required scope to avoid accidental misuse
+    constexpr ScopedKeyView(std::optional<std::string_view> const& requiredScope, std::string_view const& keyInScope) noexcept
+        : givenScope(requiredScope), key(keyInScope) {}
 
     explicit constexpr ScopedKeyView(std::string_view const& keyInScope) : key(keyInScope) {}
 
@@ -212,10 +225,16 @@ public:
 
     [[nodiscard]] ScopedKey toScopedKey() const {
         if (givenScope.has_value()) {
-            return ScopedKey(std::string(givenScope.value()) + std::string(key), givenScope);
+            return ScopedKey(givenScope, std::string(givenScope.value()) + std::string(key));
         }
-        return ScopedKey(std::string(key), std::nullopt);
+        return ScopedKey(std::nullopt, std::string(key));
     }
+
+    /**
+     * @brief Add another scopedKey to the current Key
+     */
+    [[nodiscard]] ScopedKey nestKey(ScopedKey const& other) const ;
+    [[nodiscard]] ScopedKey nestKey(ScopedKeyView const& other) const ;
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_SCOPED_KEY_HPP

@@ -320,7 +320,7 @@ public:
         // Determine the key from root level
         if constexpr (HasKeyGroup<DomainModuleType>) {
             if (DomainModuleType::Key::hasScope()) {
-                static auto const scopeKey = Data::ScopedKey("", DomainModuleType::Key::getScope());
+                static auto const scopeKey = Data::ScopedKey(DomainModuleType::Key::getScope(), "");
 
                 // Share the scope based on the module's defined scope
                 auto& scope = domainReference.domainScope.shareScope(scopeKey); // Sharing a scope based on the module's defined scope
