@@ -81,7 +81,7 @@ class ContextTemplate {
 public:
     Target& self;
     Target& other;
-    Target& global;
+    Target& global; // The global target, must be the owner of self and other to outlive them! Otherwise, some context storages may break!
 
     std::optional<std::reference_wrapper<Target>> getTargetFromType(ContextDeriver::TargetType const& type) const {
         switch (type) {
