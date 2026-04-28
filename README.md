@@ -90,11 +90,29 @@ allowing you to freely mix data-defined and hardcoded behavior within the same p
 ```bash
   git clone https://github.com/lbastigk/Nebulite && cd Nebulite
 ```
+Then, run the following commands from the repo root:
+
 2. Install dependencies, if necessary
 ```bash
   make install-deps
 ```
+
+This will install all necessary dependencies for Linux via the package manager and git submodules,
+as well as a python environment for testing and mock asset creation.
+apt, dnf, yum and brew are supported.
+
+See the makefile for details on the installation process and the dependencies installed for each platform.
+
+The installation process, especially for package managers other than dnf, is not fully tested on all platforms, so 
+**if you notice any issues with the installation process, please tell!**
+
 3. Build binaries
+
+Windows and MacOs support is currently in early stages.
+We're actively looking for contributors to help with testing 
+and improving the build process on these platforms.
+Any help is appreciated!
+
 ```bash
   # Linux
   make linux-debug linux-release linux-coverage
@@ -107,7 +125,7 @@ allowing you to freely mix data-defined and hardcoded behavior within the same p
   # Windows
   make windows-debug windows-release
 ```
-4. Download Resources
+4. Download and generate Resources
 ```bash
   make resources
 ```
@@ -115,14 +133,29 @@ allowing you to freely mix data-defined and hardcoded behavior within the same p
 ```bash
   source Scripts/Other/nebuliteCompletion.sh # for bash
 ```
+This is optional but allows for autocompletion of commands in bash.
+The interactive console inside Nebulite also supports autocompletion.
+
 6. Run any script:
-  ```bash
-  ./bin/Nebulite task TaskFiles/Benchmarks/gravity_unlimited.nebs 
-  ```
+```bash
+./bin/Nebulite task TaskFiles/Benchmarks/gravity_unlimited.nebs 
+```
+You should see a window pop up with a small gravity simulation running indefinitely.
+
+**The general directory structure is as follows:**
+
+- Documentation is located in `./doc/`
+- Assets like images, rulesets, RenderObjects are located in `./Resources/`.
+- TaskFiles for various Simulations, Tests and Demos are located in `./TaskFiles/`.
+- Tests are located in `./Tools/Tests/`
+- The main engine code is located in `./include/` and `./src/`, with the entry point in `./src/main.cpp`.
+
 7. Open console (press `tab`) and type `help` for interactive commands.
 
 <!-- TOC --><a name="core-concepts"></a>
 ## Core Concepts
+
+See [Glossary.md](./doc/Glossary.md) for further definitions of key terms and concepts.
 
 <!-- TOC --><a name="domains-domainmodules"></a>
 ### Domains & DomainModules
@@ -229,6 +262,9 @@ retrieved values from JSON documents inside mathematical expressions are auto-ca
 Expressions do not offer the ability to operate on non-double values (strings, arrays, objects).
 If the stored value is non-numerical, the expression system tries to cast it to double,
 which results in 0.0 for non-castable values
+
+If the expression is a single variable access, assignments respect the variable's type
+and insert them as such, giving you the ability to store complex types like arrays and objects via expressions.
 
 **Return Value Transformations:**
 Nebulite offers transformation functions of JSON values on retrieval.
@@ -470,7 +506,7 @@ make test
 
 The `.nebs` *(Nebulite Script)* language is used for parsing commands in different domains.
 
-Nebulite includes a VSCode language extension in `./Languages/nebulite-script-vscode/`.
+Nebulite includes a VSCode language extension in `./Languages/nebs/nebulite-script-vscode/`.
 The extension offers proper syntax highlight for:
 - available functions
 - variables
