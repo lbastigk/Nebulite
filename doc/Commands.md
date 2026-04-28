@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Mon Apr 27 12:51:19 CEST 2026
+Generated on: Tue Apr 28 07:31:27 PM CEST 2026
 
 ## Table of Contents
 
@@ -1668,8 +1668,10 @@ Available Functions
 | `add` | Adds a numeric value to the current JSON value. |
 | `asString` | Converts the current JSON value to a string representation. |
 | `assert` | Assertion transformations that validate JSON values and throw exceptions on failure. |
+| `assign` | Assigns a value based on the result of an expression. |
 | `at` | Gets the element at the specified index from the array in the current JSON value. |
 | `average` | Calculates the average of the elements of the array in the current JSON value. |
+| `bundleToArray` | Gathers all members from the provided keys into an array. |
 | `deserialize` | Deserializes the current JSON string value stored in root. |
 | `div` | Divides the current JSON value by a numeric value. |
 | `echo` | Echoes the provided arguments to the console, with newline. |
@@ -1716,7 +1718,7 @@ Available Functions
 | `serialize` | Serializes the current JSON value to a string. |
 | `setBool` | Sets a boolean value at the specified key in the JSON document. |
 | `setDouble` | Sets a double value at the specified key in the JSON document. |
-| `setFromResult` | Sets the value at the specified key in the JSON document from the result of another transformation. |
+| `setFromResult` | Sets the value at the specified key in the JSON document from the result of another expression. |
 | `setInt` | Sets an integer value at the specified key in the JSON document. |
 | `setString` | Sets a string value at the specified key in the JSON document. |
 | `sqrt` | Calculates the square root of the current JSON value. |
@@ -1761,9 +1763,28 @@ Available Functions
 
 | Function | Description |
 |----------|-------------|
+| `equals` | Assertion transformations that validate JSON value equality and throw exceptions on failure. |
 | `help` | Show available commands and their descriptions |
 | `nonEmpty` | Asserts that the current JSON value is non-empty. |
 | `type` | Assertion transformations that validate JSON value types and throw exceptions on failure. |
+
+##### `assert equals`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `string` | Asserts that the current JSON value is equal to the specified string. |
+
+###### `assert equals string`
+
+```
+Asserts that the current JSON value is equal to the specified string.
+If the value is not equal to the specified string, the transformation fails and the program exits
+Accepts an optional user-defined error message as additional arguments.
+Usage: |assertEqualsString <expected> -> {value,<Exception thrown if not equal>}
+```
 
 ##### `assert nonEmpty`
 
@@ -1812,6 +1833,15 @@ Accepts an optional user-defined error message as additional arguments.
 Usage: |assertTypeObject -> {value,<Exception thrown if not object>}
 ```
 
+#### `assign`
+
+```
+Assigns a value based on the result of an expression.
+Usage: |assign <context>:<key> <assign-operator> <expression> -> {json}
+The expression is evaluated in the current scope, and the result is assigned to the given key.
+The entire context is local, meaning self, other, global are all the same and refer to the current scope.
+```
+
 #### `at`
 
 ```
@@ -1826,6 +1856,13 @@ Usage: |at <index> -> {value}
 Calculates the average of the elements of the array in the current JSON value.
 Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.
 Usage: |average -> {number}
+```
+
+#### `bundleToArray`
+
+```
+Gathers all members from the provided keys into an array.
+Usage: |bundleToArray <key1> <key2> ... -> {array}
 ```
 
 #### `deserialize`
@@ -2242,7 +2279,7 @@ Usage: |setDouble <key> <value> -> {json}
 #### `setFromResult`
 
 ```
-Sets the value at the specified key in the JSON document from the result of another transformation.
+Sets the value at the specified key in the JSON document from the result of another expression.
 Usage: |setFromResult <key> <expression> -> {json}
 Inside the inner expression, all context is the own scope.
 ```
