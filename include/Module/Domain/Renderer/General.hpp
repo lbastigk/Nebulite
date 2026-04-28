@@ -173,10 +173,6 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      * @todo Add domainModules for camera and renderobject-selection and move respective functions in there.
-     * @todo Move functions for Renderer and Environment to domains themselves,
-     *       once they are implemented as such.
-     *       This will declutter the globalspace, separating its usage from the Renderer and Environment.
-     *       The only downside currently is that we have to implement a method to lazy-init the SDL Renderer within the Renderer domain itself.
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, General) {
         bindFunction(&General::spawn, spawn_name, spawn_desc);
@@ -194,6 +190,7 @@ public:
         bindFunction(&General::selectedObjectGet, selectedObjectGet_name, selectedObjectGet_desc);
         bindFunction(&General::selectedObjectParse, selectedObjectParse_name, selectedObjectParse_desc);
 
+        // TODO: move to env domainModule
         bindCategory(env_name, env_desc);
         bindFunction(&General::envLoad, envLoad_name, envLoad_desc);
         bindFunction(&General::envDeload, envDeload_name, envDeload_desc);
@@ -202,10 +199,7 @@ public:
 private:
     /**
      * @brief Pointer to the currently selected RenderObject
-     * @details Marked mutable to allow modification in const functions
-     *          We consider the act of selecting a RenderObject
-     *          as a non-logical change to the state of the DomainModule,
-     *          to signal that it not act on the moduleScope's data itself.
+     * @todo Move pointer ownership to env, so that we can unselect it if the object is deleted
      */
     Core::RenderObject* selectedRenderObject = nullptr;
     Data::JsonScope* selectedRenderObjectData = nullptr;

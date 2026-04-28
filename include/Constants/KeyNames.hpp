@@ -61,8 +61,6 @@ struct KeyNames {
     /**
      * @brief Keys related to RenderObjects, which are the main entities in the Renderer domain.
      * @details The scope is the root scope, as RenderObjects own their own scope.
-     * @todo Consider making the scope arbitrary, as RenderObjects may live inside other scopes
-     *       e.g. In GlobalSpace for drafts, or in RenderObjects for child objects
      */
     struct RenderObject : Data::KeyGroup<""> {
         static auto constexpr positionX = makeScoped("posX");
@@ -75,7 +73,6 @@ struct KeyNames {
         static auto constexpr sizeR = makeScoped("size.r");
 
         // Keys for Ruleset invocations and subscriptions
-        // TODO flatten into RenderObject once RenderObject has no scope, turn keys into "ruleset.list" and "ruleset.listen"
         struct Ruleset : KeyGroup<"ruleset."> {
             static auto constexpr list = makeScoped("list");
             static auto constexpr listen = makeScoped("listen");
