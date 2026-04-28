@@ -256,30 +256,43 @@ void write_jpeg_callback(void* context, void* data, int size) {
 }
 } // namespace
 
+// TODO: black bars on the top and right in headless mode!
 Constants::Event General::dumpView() const {
     std::function<void()> const callback = [&]() -> void {
         Data::JSON view;
+
+        // Get current window/render target size
+        auto const window = domain.getSdlWindow();
         auto const renderer = domain.getSdlRenderer();
+        int width, height;
+        if (window) {
+            // Normal windowed mode
+            SDL_GetWindowSize(window, &width, &height);
+        } else {
+            // Headless mode - get renderer output size
+            SDL_GetCurrentRenderOutputSize(renderer, &width, &height);
+        }
+
+        // Create surface to capture pixels
+        SDL_Rect const fullScreenRect = {0, 0, width, height};
 
         // Read pixels into an SDL_Surface
-        SDL_Surface* surface = SDL_RenderReadPixels(renderer, nullptr);
+        SDL_Surface* surface = SDL_RenderReadPixels(renderer, &fullScreenRect);
         if (!surface) {
             view.set("type", "error");
             view.set("message", SDL_GetError());
             domain.capture.log.println(view.serialize());
             return;
         }
-        auto const w = static_cast<size_t>(surface->w);
-        auto const h = static_cast<size_t>(surface->h);
         auto const pitch = static_cast<size_t>(surface->pitch);
         uint8_t const* pixels = static_cast<uint8_t*>(surface->pixels);
 
         // Using stb_image to convert to jpeg
         JpegMemory jpegBuffer;
-        int constexpr jpegQuality = 90; // 0-100
+        int constexpr jpegQuality = 80; // 0-100
         stbi_write_jpg_to_func(write_jpeg_callback, &jpegBuffer,
-           static_cast<int>(w),
-           static_cast<int>(h),
+           width,
+           height,
            4,       // channels (RGBA)
            pixels,  // pixel data from SDL_Surface
            jpegQuality
@@ -291,8 +304,8 @@ Constants::Event General::dumpView() const {
 
         // Set values
         view.set("type","frame");
-        view.set("width", w);
-        view.set("height", h);
+        view.set("width", width);
+        view.set("height", height);
         view.set("format", "jpeg");
         view.set("pitch", pitch);
         view.set("encoding", "base64");

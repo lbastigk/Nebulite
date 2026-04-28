@@ -54,7 +54,7 @@ func NewCommunication() (*Communication, error) {
 		"-oL",
 		"-eL",
 		binaryPath,
-		//"--headless",
+		"--headless",
 		// TODO: headless mode does not render correctly. Headless snapshot is fine.
 		// the top right of the image is black, about 1/5 of the width and height.
 		// likely an issue with the jpeg encoding?
