@@ -17,6 +17,7 @@
 
 namespace Nebulite::Core {
 class GlobalSpace; // Forward declaration of GlobalSpace
+class RenderObject; // Forward declaration of RenderObject
 } // namespace Nebulite::Core
 
 namespace Nebulite::Module::Domain::Renderer {
