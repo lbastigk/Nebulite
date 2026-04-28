@@ -24,7 +24,7 @@
             "all"
         ],
         "list": [
-            "./Resources/Invokes/Debug/delete_instantly.json"
+            "./Resources/Rulesets/Debug/delete_instantly.json"
         ]
     }
 }

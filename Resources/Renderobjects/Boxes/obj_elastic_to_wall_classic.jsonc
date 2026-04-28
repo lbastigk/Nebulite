@@ -34,9 +34,9 @@
             "::physics::elasticCollision"
         ],
         "list": [
-            "./Resources/Invokes/Physics/gravity.jsonc",
+            "./Resources/Rulesets/Physics/gravity.jsonc",
             "::physics::applyCorrection",
-            "./Resources/Invokes/Physics/applyForce.jsonc"
+            "./Resources/Rulesets/Physics/applyForce.jsonc"
         ]
     },
     "size": {

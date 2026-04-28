@@ -32,8 +32,8 @@
             "collision"
         ],
         "list": [
-            "./Resources/Invokes/Physics/elastic_collision_X.jsonc",
-            "./Resources/Invokes/Physics/elastic_collision_Y.jsonc"
+            "./Resources/Rulesets/Physics/elastic_collision_X.jsonc",
+            "./Resources/Rulesets/Physics/elastic_collision_Y.jsonc"
         ]
     },
     "size": {

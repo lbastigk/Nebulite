@@ -40,8 +40,8 @@
             "gravity"
         ],
         "list": [
-            "Resources/Invokes/Physics/gravity.jsonc",
-            "Resources/Invokes/Physics/applyForce.jsonc"
+            "Resources/Rulesets/Physics/gravity.jsonc",
+            "Resources/Rulesets/Physics/applyForce.jsonc"
         ]
     },
     "size": {

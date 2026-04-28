@@ -25,8 +25,8 @@
         ],
         "list": [
             "::camera::align::center",
-            "./Resources/Invokes/Debug/echo_pos.jsonc",
-            "./Resources/Invokes/Debug/delete_instantly.json"
+            "./Resources/Rulesets/Debug/echo_pos.jsonc",
+            "./Resources/Rulesets/Debug/delete_instantly.json"
         ]
     }
 }

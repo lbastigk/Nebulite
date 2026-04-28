@@ -30,12 +30,12 @@
             "::physics::elasticCollision"
         ],
         "list": [
-            "./Resources/Invokes/Physics/falling.jsonc",
+            "./Resources/Rulesets/Physics/falling.jsonc",
             "::physics::applyCorrection",
             "::physics::applyForce",
-            "./Resources/Invokes/Pong/ensureVelocityX.jsonc",
-            "./Resources/Invokes/Pong/respawnBallLeft.jsonc",
-            "./Resources/Invokes/Pong/respawnBallRight.jsonc"
+            "./Resources/Rulesets/Pong/ensureVelocityX.jsonc",
+            "./Resources/Rulesets/Pong/respawnBallLeft.jsonc",
+            "./Resources/Rulesets/Pong/respawnBallRight.jsonc"
         ]
     },
     "size": {

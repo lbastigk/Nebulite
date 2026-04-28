@@ -51,8 +51,8 @@
         ],
         "list": [
             "::physics::elasticCollision",
-            "./Resources/Invokes/Pong/movementNpc.jsonc",
-            "./Resources/Invokes/Physics/applyForce.jsonc"
+            "./Resources/Rulesets/Pong/movementNpc.jsonc",
+            "./Resources/Rulesets/Physics/applyForce.jsonc"
         ]
     },
     "size": {

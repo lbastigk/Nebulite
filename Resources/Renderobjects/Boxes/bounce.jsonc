@@ -32,7 +32,7 @@
             "::physics::elasticCollision"
         ],
         "list": [
-            "./Resources/Invokes/Physics/falling.jsonc",
+            "./Resources/Rulesets/Physics/falling.jsonc",
             "::physics::elasticCollision",
             "::physics::applyCorrection",
             "::physics::drag",

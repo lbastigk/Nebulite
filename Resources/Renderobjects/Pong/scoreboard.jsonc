@@ -29,7 +29,7 @@
             "all"
         ],
         "list": [
-            "./Resources/Invokes/Pong/showScore.jsonc"
+            "./Resources/Rulesets/Pong/showScore.jsonc"
         ]
     }
 }

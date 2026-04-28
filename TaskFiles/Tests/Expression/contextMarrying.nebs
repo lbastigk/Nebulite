@@ -4,7 +4,7 @@
 set var globalValue
 
 # Spawn an object to use as context self that broadcasts a ruleset
-spawn ./Resources/Renderobjects/standard.jsonc|set posX 250|set posY 250|set ruleset.list[0] ./Resources/Invokes/Debug/contextMarrying.jsonc|set var localValue
+spawn ./Resources/Renderobjects/standard.jsonc|set posX 250|set posY 250|set ruleset.list[0] ./Resources/Rulesets/Debug/contextMarrying.jsonc|set var localValue
 wait 1
 ruleset listen contextMarrying # Global listens for that ruleset to be broadcast by the spawned object
 wait 1

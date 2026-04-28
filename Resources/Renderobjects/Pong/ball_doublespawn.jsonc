@@ -33,10 +33,10 @@
             "collision"
         ],
         "list": [
-            "./Resources/Invokes/Physics/falling.jsonc",
-            "./Resources/Invokes/Physics/applyForce.jsonc",
-            "./Resources/Invokes/Pong/respawnBallLeftTwice.jsonc",
-            "./Resources/Invokes/Pong/respawnBallRightTwice.jsonc"
+            "./Resources/Rulesets/Physics/falling.jsonc",
+            "./Resources/Rulesets/Physics/applyForce.jsonc",
+            "./Resources/Rulesets/Pong/respawnBallLeftTwice.jsonc",
+            "./Resources/Rulesets/Pong/respawnBallRightTwice.jsonc"
         ]
     },
     "size": {
