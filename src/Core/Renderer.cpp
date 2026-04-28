@@ -397,11 +397,13 @@ void Renderer::render() {
         rml.processRmlUiEvent(event);
     }
 
-    // Text focus override for RmlUi
-    if (rml.isTextInputFocused()) {
+    // TODO: rml.isTextInputFocused() is somehow very buggy: cursor has to be below the text input field for it to register
+    //       -> scaling issue or mouse delta accumulation issue?
+    // External text focus management
+    if (rml.isTextInputFocused() || ImGui::GetIO().WantTextInput) {
         SDL_StartTextInput(window);
     }
-    else if (!rml.isTextInputFocused() && !ImGui::GetIO().WantTextInput) { // Only stop text input if no other GUI requires it
+    else if (!rml.isTextInputFocused() && !ImGui::GetIO().WantTextInput) {
         SDL_StopTextInput(window);
     }
 
@@ -413,7 +415,7 @@ void Renderer::render() {
     renderFrame();
     status.skippedUpdateLastFrame = status.skipUpdate;
     status.skipUpdate = false;
-    updateModules(); // Update domain modules, potentially adding ImGui elements
+    updateModules(); // Update domain modules, potentially adding ImGui elements through render Callbacks
 
     // RML
     // Update variables
