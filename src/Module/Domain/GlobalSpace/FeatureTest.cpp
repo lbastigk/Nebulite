@@ -48,8 +48,7 @@ Constants::Event FeatureTest::testFuncTree(std::span<std::string const> const& /
 
 Constants::Event FeatureTest::selfOtherGlobalEvaluation() const {
     Data::ScopedKey const key("testKey");
-    auto const token = getDomainModuleAccessToken(*this);
-    auto& globalScope = Global::shareScope(token);
+    auto globalScope = Data::JsonScope();
     globalScope.set(key, 3);
 
     // Test 1: separate scopeBase
