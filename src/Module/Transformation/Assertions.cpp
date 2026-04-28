@@ -12,6 +12,9 @@ void Assertions::bindTransformations() {
     bindTransformation(&Assertions::assertTypeObject, assertTypeObjectName, assertTypeObjectDesc);
     bindTransformation(&Assertions::assertTypeArray, assertTypeArrayName, assertTypeArrayDesc);
     bindTransformation(&Assertions::assertTypeBasicValue, assertTypeBasicValueName, assertTypeBasicValueDesc);
+
+    bindCategory(assertEqualsName, assertEqualsDesc);
+    bindTransformation(&Assertions::assertEqualsString, assertEqualsStringName, assertEqualsStringDesc);
 }
 
 void Assertions::printUserDefinedMessage(std::span<std::string const> const& args){
@@ -57,6 +60,18 @@ bool Assertions::assertTypeBasicValue(std::span<std::string const> const& args, 
         printUserDefinedMessage(args);
         static std::string errorMessage = std::string(assertTypeBasicValueName) + ": JSON value is not a basic value";
         throw std::runtime_error(errorMessage);
+    }
+    return true;
+}
+
+// NOLINTNEXTLINE
+bool Assertions::assertEqualsString(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+    auto const expected = Utility::StringHandler::recombineArgs(args.subspan(1));
+    if (jsonDoc->memberType(rootKey) != Data::KeyType::value) {
+        throw std::runtime_error(std::string(assertEqualsStringName) + ": Current JSON value is not a basic value, expected string: " + expected);
+    }
+    if (auto const actual = jsonDoc->get<std::string>(rootKey).value_or("null"); actual != expected) {
+        throw std::runtime_error(std::string(assertEqualsStringName) + ": JSON value '" + actual + "' does not equal expected string '" + expected + "'");
     }
     return true;
 }

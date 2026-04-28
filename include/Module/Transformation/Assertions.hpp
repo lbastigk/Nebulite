@@ -26,6 +26,9 @@ public:
     static auto constexpr assertTypeName = "assert type";
     static auto constexpr assertTypeDesc = "Assertion transformations that validate JSON value types and throw exceptions on failure.";
 
+    static auto constexpr assertEqualsName = "assert equals";
+    static auto constexpr assertEqualsDesc = "Assertion transformations that validate JSON value equality and throw exceptions on failure.";
+
     //------------------------------------------
     // Available Transformations
 
@@ -58,6 +61,13 @@ public:
         "Usage: |assertTypeValue -> {value,<Exception thrown if not value>}\n";
 
     // TODO: assertRegex perhaps?
+
+    static bool assertEqualsString(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr assertEqualsStringName = "assert equals string";
+    static auto constexpr assertEqualsStringDesc = "Asserts that the current JSON value is equal to the specified string.\n"
+        "If the value is not equal to the specified string, the transformation fails and the program exits\n"
+        "Accepts an optional user-defined error message as additional arguments.\n"
+        "Usage: |assertEqualsString <expected> -> {value,<Exception thrown if not equal>}\n";
 
 private:
     /**
