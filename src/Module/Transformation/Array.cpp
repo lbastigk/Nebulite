@@ -15,6 +15,7 @@ void Array::bindTransformations() {
     bindTransformation(&Array::push, pushName, pushDesc);
     bindTransformation(&Array::pushNumber, pushNumberName, pushNumberDesc);
     bindTransformation(&Array::subspan, subspanName, subspanDesc);
+    bindTransformation(&Array::bundleToArray, bundleToArrayName, bundleToArrayDesc);
 }
 
 // Clang marks this function as having an unreachable branch,
@@ -167,6 +168,21 @@ bool Array::subspan(std::span<std::string const> const& args, Data::JsonScope* j
     // Remove any remaining elements from the original array that are not in the subspan + the allocated temp key
     for (size_t i = originalSize; i >= index; i--) {
         jsonDoc->removeMember(rootKey + "[" + std::to_string(i) + "]");
+    }
+    return true;
+}
+
+bool Array::bundleToArray(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+    if (args.size() < 2) {
+        return false;
+    }
+    std::vector<Data::JSON> elements;
+    for (auto& arg : args.subspan(1)) {
+        elements.push_back(jsonDoc->getSubDoc(rootKey + arg));
+    }
+    for (auto [idx, element] : elements | std::views::enumerate) {
+        auto const key = rootKey + "[" + std::to_string(idx) + "]";
+        jsonDoc->setSubDoc(key, element);
     }
     return true;
 }
