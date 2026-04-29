@@ -98,7 +98,7 @@ Constants::Event Renderer::preParse() {
     return Constants::Event::Success;
 }
 
-void Renderer::initImgui() const {
+void Renderer::initImgui() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
@@ -173,20 +173,33 @@ void Renderer::initImgui() const {
 
     // Load a pixel font if available; fallback to default
     // Use a font config that disables oversampling and enables pixel snapping
+    auto const size = Global::settings().get<double>(Module::Domain::GlobalSpace::Settings::Key::fontSize1).value_or(40.0);
     ImFontConfig font_cfg;
     font_cfg.OversampleH = 1;
     font_cfg.OversampleV = 1;
     font_cfg.PixelSnapH  = true;
+    font_cfg.SizePixels = static_cast<float>(size) * fullScale;
+
+    // Set different default font config
+    ImFontConfig defaultFontCfg;
+    //defaultFontCfg.OversampleH = 1;
+    //defaultFontCfg.OversampleV = 1;
+    //defaultFontCfg.PixelSnapH  = true;
+    defaultFontCfg.SizePixels = static_cast<float>(size) * fullScale;
 
     auto const fontPath = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::fontMono).value_or("null");
 
-    // Adjust the base font size to match pixel aesthetics (choose your font file & size)
     if (Utility::IO::FileManagement::fileExists(fontPath)) {
-        auto const size = Global::settings().get<double>(Module::Domain::GlobalSpace::Settings::Key::fontSize1).value_or(40.0);
-        if (ImFont* f = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), static_cast<float>(size) * fullScale, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) io.FontDefault = f;
-        else io.Fonts->AddFontDefault();
+        if (ImFont* f = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 0, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) {
+            io.FontDefault = f;
+        }
+        else {
+            capture.warning.println("Failed to load font: ", fontPath, ". Falling back to default font.");
+            io.Fonts->AddFontDefault(&defaultFontCfg);
+        }
     } else {
-        io.Fonts->AddFontDefault();
+        capture.warning.println("Font file: ", fontPath, " not found. Falling back to default font");
+        io.Fonts->AddFontDefault(&defaultFontCfg);
     }
 
     ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
@@ -229,6 +242,9 @@ void Renderer::initSDL() {
 
     //------------------------------------------
     // Cursor
+
+    // TODO: Cursor does not work
+
     static auto const cursorPath = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::cursor).value_or("");
 
     // See if cursor file exists
@@ -239,9 +255,12 @@ void Renderer::initSDL() {
             if (SDL_Cursor* cursor = SDL_CreateColorCursor(cursorSurface, 0, 0); cursor) {
                 SDL_SetCursor(cursor);
             } else {
-                capture.error.println("Failed to create cursor: ", SDL_GetError());
+                capture.warning.println("Failed to create cursor: ", SDL_GetError());
                 // No quit, just use default cursor
             }
+        }
+        else {
+            capture.warning.println("Failed to load cursor: ", cursorPath, ". Using default cursor.");
         }
     }
 

@@ -87,7 +87,7 @@ public:
     /**
      * @brief Initializes ImGui for the Renderer. Called within `initSDL()`.
      */
-    void initImgui() const ;
+    void initImgui();
 
     /**
      * @brief Updates the renderer for the next frame.
