@@ -26,7 +26,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event imguiView(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] Constants::Event imguiView(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     static auto constexpr imguiView_name = "imgui-view";
     static auto constexpr imguiView_desc = "Creates an ImGui view of the domain.\n"
        "\n"
@@ -62,7 +62,7 @@ public:
         "Useful for testing or as a placeholder in scripts where no action is required,\n"
         "but a command is syntactically necessary.\n";
 
-    [[nodiscard]] static Constants::Event func_assert(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event func_assert(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     static auto constexpr assert_name = "assert";
     static auto constexpr assert_desc = "Asserts a condition and throws a custom error if false.\n"
         "\n"

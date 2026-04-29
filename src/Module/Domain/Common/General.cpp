@@ -36,8 +36,7 @@ Constants::Event General::updateHook() {
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
-Constants::Event General::imguiView(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::imguiView(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -63,7 +62,6 @@ Constants::Event General::imguiView(std::span<std::string const> const& args, In
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
 Constants::Event General::eval(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
     // TODO: An idea would be to only eval until the next "eval" keyword, allowing for nested evals within for-loops, ifs, etc.:
     //       Example:
@@ -87,7 +85,6 @@ Constants::Event General::echo(std::span<std::string const> const& args) const {
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
 Constants::Event General::func_if(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -112,8 +109,7 @@ Constants::Event General::func_if(std::span<std::string const> const& args, Inte
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
-Constants::Event General::func_assert(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::func_assert(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -139,7 +135,6 @@ Constants::Event General::func_assert(std::span<std::string const> const& args, 
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
 Constants::Event General::func_for(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() > 4) {
         std::string const& varName = args[1];
