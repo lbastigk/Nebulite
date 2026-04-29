@@ -180,6 +180,7 @@ Constants::Event SimpleData::push_front(std::span<std::string const> const& args
         value = args[2];
     }
 
+    // TODO: use an anonymous function instead, or add functionality to JSON/JsonScope
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
         std::string command = __FUNCTION__;
         command += " " + std::string(ensureArray_name);
