@@ -1,7 +1,12 @@
-#include "Nebulite.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Module/Domain/Renderer/Input.hpp"
+#include "Nebulite.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
 
 Constants::Event Input::updateHook() {

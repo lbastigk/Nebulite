@@ -1,16 +1,25 @@
-#include "stb_image_write.h"
+//------------------------------------------
+// Includes
+
+// External
 #include "SDL3_image/SDL_image.h"
+#include "stb_image_write.h"
 
-#include "Nebulite.hpp"
+// Nebulite
+#include "Core/Renderer.hpp"
+#include "Core/RenderObject.hpp"
+#include "Interaction/Invoke.hpp"
 #include "Module/Domain/Renderer/General.hpp"
-#include "Core/Renderer.hpp"       // The domain
-#include "Interaction/Invoke.hpp"  // Invoke for parsing expressions
-#include "Core/RenderObject.hpp"   // RenderObject for Renderer
+#include "Nebulite.hpp"
+#include "Utility/IO/FileManagement.hpp"
+#include "Utility/StringHandler.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
 
 //------------------------------------------
 // Update
+
 Constants::Event General::updateHook() {
     // Add Domain-specific updates here!
     // General rule:
@@ -21,14 +30,19 @@ Constants::Event General::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-// NOLINTNEXTLINE
-Constants::Event General::envLoad(int const argc, char** argv) const {
-    if (argc > 1) {
-        domain.deserialize(argv[1]);
+Constants::Event General::envLoad(std::span<std::string const> const& args) const {
+    if (args.size() < 2) {
+        // no name provided, load empty env
+        domain.deserialize("{}");
         return Constants::Event::Success;
     }
-    // no name provided, load empty env
-    domain.deserialize("{}");
+    auto const fileName = Utility::StringHandler::recombineArgs(args.subspan(1));
+    if (!Utility::IO::FileManagement::fileExists(fileName)) {
+        domain.capture.error.println("File ", fileName, " does not exist! Loading an empty environment.");
+        domain.deserialize("{}");
+        return Constants::Event::Warning;
+    }
+    domain.deserialize(fileName);
     return Constants::Event::Success;
 }
 
@@ -338,8 +352,7 @@ Constants::Event General::selectedObjectGet(int const argc, char** argv){
     return Constants::Event::Warning;
 }
 
-// NOLINTNEXTLINE
-Constants::Event General::selectedObjectParse(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::selectedObjectParse(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

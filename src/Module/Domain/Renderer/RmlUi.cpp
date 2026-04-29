@@ -1,9 +1,13 @@
-#include "Module/Domain/Renderer/RmlUi.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
 #include "Core/Renderer.hpp"
+#include "Module/Domain/Renderer/RmlUi.hpp"
 #include "Utility/IO/FileManagement.hpp"
 #include "Utility/StringHandler.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
 
 Constants::Event RmlUi::updateHook() {
@@ -11,8 +15,7 @@ Constants::Event RmlUi::updateHook() {
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
-Constants::Event RmlUi::loadDocument(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event RmlUi::loadDocument(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -25,8 +28,7 @@ Constants::Event RmlUi::loadDocument(std::span<std::string const> const& args, I
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
-Constants::Event RmlUi::removeDocument(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
+Constants::Event RmlUi::removeDocument(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

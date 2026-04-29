@@ -72,7 +72,7 @@ public:
         "- './Resources/Renderobjects/Planets/sun.jsonc'\n"
         "and spawns the first found object.\n";
 
-    [[nodiscard]] Constants::Event envLoad(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event envLoad(std::span<std::string const> const& args) const ;
     static auto constexpr envLoad_name = "env load";
     static auto constexpr envLoad_desc = "Load an environment/level from a json/jsonc file.\n"
         "\n"
@@ -147,7 +147,7 @@ public:
         "\n"
         "Usage: selected-object get <idx>\n";
 
-    [[nodiscard]] Constants::Event selectedObjectParse(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] Constants::Event selectedObjectParse(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
     static auto constexpr selectedObjectParse_name = "selected-object parse";
     static auto constexpr selectedObjectParse_desc = "Parse a command on the selected RenderObject.\n"
         "\n"

@@ -1,6 +1,11 @@
-#include "Module/Domain/Renderer/RenderObjectDraft.hpp"
-#include "Core/Renderer.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
+#include "Core/Renderer.hpp"
+#include "Module/Domain/Renderer/RenderObjectDraft.hpp"
+
+//------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
 
 Constants::Event RenderObjectDraft::updateHook() {
