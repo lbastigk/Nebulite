@@ -326,17 +326,14 @@ void Debug::setupPlatformInfo() const {
 }
 
 void Debug::setupDebugInfo() const {
-    std::string buildType = "Unknown";
-
+    // Set build type based on preprocessor definitions
 #if defined(COVERAGE) || defined(ENABLE_COVERAGE)
-    buildType = "Coverage";
+    moduleScope.set<std::string>(Key::buildType, "coverage");
 #elif defined(_GLIBCXX_DEBUG) || defined(_ITERATOR_DEBUG_LEVEL) || !defined(NDEBUG)
-    buildType = "debug";
+    moduleScope.set<std::string>(Key::buildType, "debug");
 #else
-    buildType = "release";
+    moduleScope.set<std::string>(Key::buildType, "release");
 #endif
-
-    moduleScope.set<std::string>(Key::buildType, buildType);
 
     // Show debug window if in debug build
     if (moduleScope.get<std::string>(Key::buildType).value_or("") == "debug") {
