@@ -650,7 +650,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::parseStr(std::string_view 
 template <typename returnValue, typename... additionalArgs>
 returnValue FuncTree<returnValue, additionalArgs...>::parse(std::vector<std::string> const& args, additionalArgs... addArgs) {
     // Turn into span
-    std::span argsSpan(args.data(), args.size());
+    std::span const argsSpan(args.data(), args.size());
     return parse(argsSpan, addArgs...);
 }
 
