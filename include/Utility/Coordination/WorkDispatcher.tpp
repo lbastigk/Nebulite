@@ -1,8 +1,13 @@
 #ifndef NEBULITE_UTILITY_COORDINATION_WORK_DISPATCHER_TPP
 #define NEBULITE_UTILITY_COORDINATION_WORK_DISPATCHER_TPP
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Utility/Coordination/WorkDispatcher.hpp"
 
+//------------------------------------------
 namespace Nebulite::Utility::Coordination {
 
 template<typename Workspace>

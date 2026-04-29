@@ -6,10 +6,18 @@
 #ifndef NEBULITE_TRANSFORMATION_MODULE_COLLECTION_HPP
 #define NEBULITE_TRANSFORMATION_MODULE_COLLECTION_HPP
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/TransformationModule.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
-
+/**
+ * @class Nebulite::Module::Transformation::Collection
+ * @brief Various transformations for applying functions to multiple entries, collecting data and collecting metadata.
+ */
 class Collection final : public Data::TransformationModule {
 public:
     explicit Collection(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)

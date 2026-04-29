@@ -6,10 +6,18 @@
 #ifndef NEBULITE_TRANSFORMATION_MODULE_TYPES_HPP
 #define NEBULITE_TRANSFORMATION_MODULE_TYPES_HPP
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/TransformationModule.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
-
+/**
+ * @class Nebulite::Module::Transformation::Types
+ * @brief Various type metadata extraction and marshaling transformations
+ */
 class Types final : public Data::TransformationModule {
 public:
     explicit Types(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)

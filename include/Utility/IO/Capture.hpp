@@ -17,10 +17,14 @@
 #include <string>
 
 //------------------------------------------
-namespace Nebulite::Utility::IO {
+// Forward declarations
 
-// Predeclaration of Capture
+namespace Nebulite::Utility::IO {
 class Capture;
+} // namespace Nebulite::Utility::IO
+
+//------------------------------------------
+namespace Nebulite::Utility::IO {
 
 /**
  * @struct HistoryLine
@@ -136,6 +140,7 @@ private:
     std::deque<HistoryLine> history; // List of captured output lines
     std::mutex historyMutex;  // Mutex for thread-safe access to outputList
 };
+
 } // namespace Nebulite::Utility
 #include "Utility/IO/Capture.tpp"
 #endif // NEBULITE_UTILITY_IO_CAPTURE_HPP

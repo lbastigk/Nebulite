@@ -6,10 +6,21 @@
 #ifndef NEBULITE_TRANSFORMATION_MODULE_ARITHMETIC_HPP
 #define NEBULITE_TRANSFORMATION_MODULE_ARITHMETIC_HPP
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/TransformationModule.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
-
+/**
+ * @class Nebulite::Module::Transformation::Arithmetic
+ * @brief Various arithmetic transformations for numeric JSON values.
+ * @details These transformations perform basic arithmetic operations on the current JSON value, which must be a number.
+ *          The transformations can take one or more numeric arguments, and the result is either a single number (if one argument is provided)
+ *          or an array of numbers (if multiple arguments are provided).
+ */
 class Arithmetic final : public Data::TransformationModule {
 public:
     explicit Arithmetic(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)

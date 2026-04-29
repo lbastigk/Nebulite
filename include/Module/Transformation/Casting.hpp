@@ -6,10 +6,18 @@
 #ifndef NEBULITE_TRANSFORMATION_MODULE_CASTING_HPP
 #define NEBULITE_TRANSFORMATION_MODULE_CASTING_HPP
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/TransformationModule.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
-
+/**
+ * @class Nebulite::Module::Transformation::Casting
+ * @brief Casting transformation functions for simple values.
+ */
 class Casting final : public Data::TransformationModule {
 public:
     explicit Casting(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)

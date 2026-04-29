@@ -1,8 +1,13 @@
 #ifndef UTILITY_IO_CAPTURE_TPP
 #define UTILITY_IO_CAPTURE_TPP
 
+//------------------------------------------
+// Includes
+
+// Standard library
 #include "Utility/IO/Capture.hpp"
 
+//------------------------------------------
 namespace Nebulite::Utility::IO {
 
 template<std::ostream* BaseStream, HistoryLine::Type LineType>
@@ -61,8 +66,6 @@ void HierarchicalStream<BaseStream, LineType>::println(Args&&... args){
     // Only print to console if this is the root stream, to avoid duplicate prints
     coutStream.println(!parent, std::forward<Args>(args)...);
 }
-
-
 
 } // namespace Nebulite::Utility::IO
 #endif // UTILITY_IO_CAPTURE_TPP

@@ -6,10 +6,18 @@
 #ifndef NEBULITE_TRANSFORMATION_MODULE_STATISTICS_HPP
 #define NEBULITE_TRANSFORMATION_MODULE_STATISTICS_HPP
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/TransformationModule.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
-
+/**
+ * @class Nebulite::Module::Transformation::Statistics
+ * @brief Statistical analysis transformations
+ */
 class Statistics final : public Data::TransformationModule {
 public:
     explicit Statistics(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)

@@ -6,10 +6,18 @@
 #ifndef NEBULITE_TRANSFORMATION_MODULE_ASSERTIONS_HPP
 #define NEBULITE_TRANSFORMATION_MODULE_ASSERTIONS_HPP
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/TransformationModule.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
-
+/**
+ * @class Nebulite::Module::Transformation::Assertions
+ * @brief Various assertion transformations that validate JSON values and throw exceptions on failure.
+ */
 class Assertions final : public Data::TransformationModule {
 public:
     explicit Assertions(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)

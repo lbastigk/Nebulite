@@ -6,10 +6,20 @@
 #ifndef NEBULITE_TRANSFORMATION_MODULE_REQUIREMENTS_HPP
 #define NEBULITE_TRANSFORMATION_MODULE_REQUIREMENTS_HPP
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/TransformationModule.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
-
+/**
+ * @class Nebulite::Module::Transformation::Requirements
+ * @brief Non-exiting assertion transformation functions
+ * @details Instead of exiting, these transformations simply return false, indicating a transformation failure.
+ *          Any user-defined error messages are forwarded to the Global capture.
+ */
 class Requirements final : public Data::TransformationModule {
 public:
     explicit Requirements(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)

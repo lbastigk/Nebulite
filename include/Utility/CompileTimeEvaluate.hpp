@@ -6,8 +6,13 @@
 #ifndef UTILITY_COMPILE_TIME_EVALUATE_HPP
 #define UTILITY_COMPILE_TIME_EVALUATE_HPP
 
+//------------------------------------------
+// Includes
+
+// Standard library
 #include <string_view>
 
+//------------------------------------------
 namespace Nebulite::Utility {
 
 class CompileTimeEvaluate {

@@ -6,10 +6,20 @@
 #ifndef NEBULITE_TRANSFORMATION_MODULE_DEBUG_HPP
 #define NEBULITE_TRANSFORMATION_MODULE_DEBUG_HPP
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/TransformationModule.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
-
+/**
+ * @class Nebulite::Module::Transformation::Debug
+ * @brief Various debugging transformations
+ * @details These transformations are intended for debugging purposes and may not be suitable for production use.
+ *          They can be used to inspect the current JSON value or output messages to the console during transformations.
+ */
 class Debug final : public Data::TransformationModule {
 public:
     explicit Debug(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)

@@ -6,10 +6,18 @@
 #ifndef NEBULITE_TRANSFORMATION_MODULE_ARRAY_HPP
 #define NEBULITE_TRANSFORMATION_MODULE_ARRAY_HPP
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/TransformationModule.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
-
+/**
+ * @class Nebulite::Module::Transformation::Array
+ * @brief Array modification utilities
+ */
 class Array final : public Data::TransformationModule {
 public:
     explicit Array(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)
@@ -72,12 +80,18 @@ public:
     static auto constexpr subspanDesc = "Gets a subarray from the array in the current JSON value.\n"
         "Usage: |subspan <start> [<length>] -> {array}\n";
 
+    // TODO: is duplicate of collection::getMultiple
+    //       bundleToArray seems to be a better name...
+    //       1.) remove getMultiple
+    //       2.) remove tests from getMultiple
+    //       3.) move bundleToArray to collection class
+    //       4.) move tests to collection test file
     static bool bundleToArray(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr bundleToArrayName = "bundleToArray";
     static auto constexpr bundleToArrayDesc = "Gathers all members from the provided keys into an array.\n"
         "Usage: |bundleToArray <key1> <key2> ... -> {array}\n";
 
-    // TODO: dedupe, sort, sortby, pick, omit
+    // TODO: dedupe, sort, sortBy, pick, omit
 };
 } // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_TRANSFORMATION_MODULE_ARRAY_HPP

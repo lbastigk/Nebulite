@@ -4,9 +4,9 @@
 //------------------------------------------
 // Includes
 
-#include <mutex>
+// Standard library
 #include <memory>
-
+#include <mutex>
 #if !defined(_WIN32)
   #include <shared_mutex>
 #endif // !defined(_WIN32)

@@ -6,7 +6,6 @@
 #ifndef NEBULITE_UTILITY_COORDINATION_WORK_DISPATCHER_HPP
 #define NEBULITE_UTILITY_COORDINATION_WORK_DISPATCHER_HPP
 
-
 //------------------------------------------
 // Includes
 
@@ -17,6 +16,7 @@
 // Nebulite
 #include "SharedMutex.hpp"
 
+//------------------------------------------
 namespace Nebulite::Utility::Coordination {
 /**
  * @brief A class to manage a worker thread that processes work using a provided function and workspace.
@@ -53,7 +53,6 @@ private:
     std::thread workerThread;
     mutable SharedMutex mutex;
 };
-
 } // namespace Nebulite::Utility::Coordination
 #include "Utility/Coordination/WorkDispatcher.tpp"
 #endif // NEBULITE_UTILITY_COORDINATION_WORK_DISPATCHER_HPP

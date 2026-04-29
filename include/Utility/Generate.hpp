@@ -6,7 +6,6 @@
 #ifndef NEBULITE_UTILITY_INITIALIZER_HPP
 #define NEBULITE_UTILITY_INITIALIZER_HPP
 
-
 //------------------------------------------
 // Includes
 
@@ -19,6 +18,7 @@
 // Nebulite
 #include "Utility/CompileTimeEvaluate.hpp"
 
+//------------------------------------------
 namespace Nebulite::Utility {
 
 class Generate {

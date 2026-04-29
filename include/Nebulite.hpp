@@ -12,10 +12,10 @@
 // Includes
 
 // Nebulite
-#include "ScopeAccessor.hpp"
 #include "Core/GlobalSpace.hpp"
-#include "Utility/IO/Capture.hpp"
 #include "Data/Document/JsonScope.hpp"
+#include "ScopeAccessor.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 // Global class for singleton access

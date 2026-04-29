@@ -6,10 +6,18 @@
 #ifndef NEBULITE_TRANSFORMATION_MODULE_CORE_HPP
 #define NEBULITE_TRANSFORMATION_MODULE_CORE_HPP
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/TransformationModule.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
-
+/**
+ * @class Nebulite::Module::Transformation::General
+ * @brief Basic transformation functions: setting, assigning, removing, formatting, etc.
+ */
 class General final : public Data::TransformationModule {
 public:
     explicit General(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)

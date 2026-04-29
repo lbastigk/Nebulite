@@ -13,7 +13,6 @@
 #include <string>
 
 //------------------------------------------
-
 namespace Nebulite::Utility {
 /**
  * @class RNG

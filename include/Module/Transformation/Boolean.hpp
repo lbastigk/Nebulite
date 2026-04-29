@@ -6,10 +6,19 @@
 #ifndef NEBULITE_TRANSFORMATION_MODULE_BOOLEAN_HPP
 #define NEBULITE_TRANSFORMATION_MODULE_BOOLEAN_HPP
 
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/TransformationModule.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
-
+/**
+ * @class Nebulite::Module::Transformation::Boolean
+ * @brief Boolean transformation utilities
+ * @details **WORK IN PROGRESS**
+ */
 class Boolean final : public Data::TransformationModule {
 public:
     explicit Boolean(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)

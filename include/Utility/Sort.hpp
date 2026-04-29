@@ -1,8 +1,18 @@
 #ifndef NEBULITE_UTILITY_SORT_HPP
 #define NEBULITE_UTILITY_SORT_HPP
 
-namespace Nebulite::Utility {
+//------------------------------------------
+// Includes
 
+// Standard library
+#include <string_view>
+
+//------------------------------------------
+namespace Nebulite::Utility {
+/**
+ * @class Nebulite::Utility::Sort
+ * @brief Sorting utilities
+ */
 class Sort {
 public:
 
@@ -26,7 +36,6 @@ struct CaseInsensitiveLess {
 };
 
 static CaseInsensitiveLess caseInsensitiveLess;
-
 
 };
 

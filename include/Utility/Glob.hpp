@@ -6,6 +6,10 @@
 #ifndef NEBULITE_UTILITY_GLOB_HPP
 #define NEBULITE_UTILITY_GLOB_HPP
 
+//------------------------------------------
+// Includes
+
+// Standard library
 #include <string>
 #ifdef _WIN32
 #include <shlwapi.h>
@@ -13,6 +17,7 @@
 #include <fnmatch.h>
 #endif
 
+//------------------------------------------
 namespace Nebulite::Utility {
 
 #ifdef _WIN32
