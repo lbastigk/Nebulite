@@ -23,22 +23,13 @@
 //------------------------------------------
 namespace Nebulite::Core {
 
-Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::IO::Capture& parentCapture)
-    : Domain("Renderer", documentReference, parentCapture),
-      env(documentReference, parentCapture){
+Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::IO::Capture& parentCapture) :
+    Domain("Renderer", documentReference, parentCapture),
+    env(documentReference, parentCapture){
 
     //------------------------------------------
     // Initialize internal variables
-
-    // Window
-    windowScale = 1;
     headless = flag_headless;
-
-    // Position
-    tilePositionX = 0;
-    tilePositionY = 0;
-
-    // Base directory
     baseDirectory = Utility::IO::FileManagement::currentDir();
 
     //------------------------------------------
@@ -52,7 +43,6 @@ Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, Util
 }
 
 Renderer::~Renderer() {
-
     // Clean up SDL resources
     if (renderer) {
         SDL_DestroyRenderer(renderer);
@@ -62,11 +52,10 @@ Renderer::~Renderer() {
         SDL_DestroyWindow(window);
         window = nullptr;
     }
+
     // Quit SDL subsystems
-    if (!status.sdlInitialized)
-        return;
+    if (!status.sdlInitialized) return;
     Rml::Shutdown();
-    //IMG_Quit();
     TTF_Quit();
     SDL_Quit();
 }
@@ -93,7 +82,6 @@ void Renderer::setupDisplayValues() {
 }
 
 Constants::Event Renderer::preParse() {
-    // Initialize SDL and related subsystems
     initSDL();
     return Constants::Event::Success;
 }
@@ -103,8 +91,6 @@ void Renderer::initImgui() {
     ImGui::CreateContext();
 
     // Pixel-friendly ImGui style for retro RPGs
-    float const fullScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay()) * static_cast<float>(windowScale) * 0.6f; // adjust to taste
-
     ImGuiStyle &style = ImGui::GetStyle();
 
     // Rounding
@@ -133,6 +119,7 @@ void Renderer::initImgui() {
     style.AntiAliasedFill  = false;
 
     // Scaling
+    float const fullScale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay()) * static_cast<float>(windowScale) * 0.6f; // adjust to taste
     style.FontScaleDpi = fullScale;
 
     // Color palette: dark backgrounds, warm accent for UI (tweak hex to taste)
@@ -182,13 +169,10 @@ void Renderer::initImgui() {
 
     // Set different default font config
     ImFontConfig defaultFontCfg;
-    //defaultFontCfg.OversampleH = 1;
-    //defaultFontCfg.OversampleV = 1;
-    //defaultFontCfg.PixelSnapH  = true;
     defaultFontCfg.SizePixels = static_cast<float>(size) * fullScale;
 
+    // Load font, fallback to default if not found or failed to load
     auto const fontPath = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::fontMono).value_or("null");
-
     if (Utility::IO::FileManagement::fileExists(fontPath)) {
         if (ImFont* f = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 0, &font_cfg, io.Fonts->GetGlyphRangesDefault()); f) {
             io.FontDefault = f;
@@ -202,6 +186,7 @@ void Renderer::initImgui() {
         io.Fonts->AddFontDefault(&defaultFontCfg);
     }
 
+    // Initialize
     ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer3_Init(renderer);
 }
@@ -242,13 +227,11 @@ void Renderer::initSDL() {
 
     //------------------------------------------
     // Cursor
-
     // TODO: Cursor does not work
 
+    // Try to load specified cursor, fall back to default
     static auto const cursorPath = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::cursor).value_or("");
-
-    // See if cursor file exists
-    if (!cursorPath.empty()) {
+    if (!cursorPath.empty()) { // No file specified -> keep default cursor
         // Load pixel data
         if (SDL_Surface* cursorSurface = IMG_Load(cursorPath.c_str()); cursorSurface) {
             // Create cursor
@@ -256,7 +239,6 @@ void Renderer::initSDL() {
                 SDL_SetCursor(cursor);
             } else {
                 capture.warning.println("Failed to create cursor: ", SDL_GetError());
-                // No quit, just use default cursor
             }
         }
         else {
@@ -338,8 +320,7 @@ std::optional<std::pair<RenderObject*, Data::JsonScope*>> Renderer::getObjectFro
         return std::nullopt; // No object with this index
     }
     auto const domainId = indexToIdMap[searchIndex];
-    auto ro = env.getObjectFromId(domainId);
-    if (ro) {
+    if (auto ro = env.getObjectFromId(domainId); ro) {
         return std::make_pair(ro, &ro->domainScope);
     }
     return std::nullopt; // Object retrieval failed somehow
@@ -347,6 +328,9 @@ std::optional<std::pair<RenderObject*, Data::JsonScope*>> Renderer::getObjectFro
 
 //------------------------------------------
 // Serialization / Deserialization
+
+// TODO: serialize/deserialize domain itself, pass subdoc for env into renderer
+//       However, this is not as important, as env might not stay as a child domain of renderer
 
 std::string Renderer::serialize() {
     return env.serialize();

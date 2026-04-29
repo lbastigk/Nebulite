@@ -530,8 +530,8 @@ private:
     std::string baseDirectory;
 
     // Positions
-    int16_t tilePositionX;
-    int16_t tilePositionY;
+    int16_t tilePositionX = 0;
+    int16_t tilePositionY = 0;
 
     // Custom Subclasses
     Environment env;
