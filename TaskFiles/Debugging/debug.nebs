@@ -22,6 +22,15 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+# TODO: add to test suite
+# Testing non-numeric values in arithmetic transformations
+eval echo {global:|typeAsString|ensureArray|print}
+#expected: echos array:1, due to ensureArray converting the string to an array with one element
+exit
+
+task TaskFiles/Tests/Expression/contextMarrying.nebs
+exit
+
 #task TaskFiles/Tests/RmlUi/loadAndUnload.nebs
 
 task TaskFiles/Examples/RmlUi.nebs
