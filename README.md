@@ -150,7 +150,9 @@ You should see a window pop up with a small gravity simulation running indefinit
 - Tests are located in `./Tools/Tests/`
 - The main engine code is located in `./include/` and `./src/`, with the entry point in `./src/main.cpp`.
 
-7. Open console (press `tab`) and type `help` for interactive commands.
+7. Open console (press `^`) and type `help` for interactive commands available for the GlobalSpace domain.
+
+Due to locale settings, some users may need to use a different key for opening the console, such as `°` or the backtick `` ` ``.
 
 <!-- TOC --><a name="core-concepts"></a>
 ## Core Concepts
