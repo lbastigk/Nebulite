@@ -7,13 +7,14 @@
 
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
-#include "Module/Domain/Common/General.hpp"
 #include "Graphics/ImguiHelper.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Module/Domain/Common/General.hpp"
 #include "Nebulite.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
 //------------------------------------------
+// Helper functions
 
 namespace {
 
@@ -188,10 +189,7 @@ void ImguiHelper::renderJsonScope(Data::JsonScope const& scope, std::string cons
     ImGui::End();
 }
 
-// TODO: Optional resizing (e.g. if aligned to bottom, allow user to resize height but keep aligned to bottom)
-namespace {
-
-void align(ImguiHelper::DomainRenderingFlags::Alignment const& alignment) {
+void ImguiHelper::align(DomainRenderingFlags::Alignment const& alignment) {
     ImGuiViewport const* const vp = ImGui::GetMainViewport();
 
     ImVec2 const vpPos  = vp->WorkPos;
@@ -203,42 +201,40 @@ void align(ImguiHelper::DomainRenderingFlags::Alignment const& alignment) {
     auto const rightPos  = ImVec2(vpPos.x + vpSize.x, vpPos.y);
 
     switch (alignment) {
-    case ImguiHelper::DomainRenderingFlags::Alignment::TOP:
+    case DomainRenderingFlags::Alignment::TOP:
         ImGui::SetNextWindowPos(topPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
         ImGui::SetNextWindowSize(
             ImVec2(vpSize.x, vpSize.y * 0.5f),
             ImGuiCond_Always
         );
         break;
-    case ImguiHelper::DomainRenderingFlags::Alignment::BOTTOM:
+    case DomainRenderingFlags::Alignment::BOTTOM:
         ImGui::SetNextWindowPos(bottomPos, ImGuiCond_Always, ImVec2(0.0f, 1.0f));
         ImGui::SetNextWindowSize(
             ImVec2(vpSize.x, vpSize.y * 0.5f),
             ImGuiCond_Always
         );
         break;
-    case ImguiHelper::DomainRenderingFlags::Alignment::LEFT:
+    case DomainRenderingFlags::Alignment::LEFT:
         ImGui::SetNextWindowPos(leftPos, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
         ImGui::SetNextWindowSize(
             ImVec2(vpSize.x * 0.5f, vpSize.y),
             ImGuiCond_Always
         );
         break;
-    case ImguiHelper::DomainRenderingFlags::Alignment::RIGHT:
+    case DomainRenderingFlags::Alignment::RIGHT:
         ImGui::SetNextWindowPos(rightPos, ImGuiCond_Always, ImVec2(1.0f, 0.0f));
         ImGui::SetNextWindowSize(
             ImVec2(vpSize.x * 0.5f, vpSize.y),
             ImGuiCond_Always
         );
         break;
-    case ImguiHelper::DomainRenderingFlags::Alignment::NONE:
+    case DomainRenderingFlags::Alignment::NONE:
         break;
     default:
         std::unreachable();
     }
 }
-
-} // namespace
 
 void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::IO::Capture& capture, std::string const& name, DomainRenderingFlags const& flags) {
     auto const& domain = ctx.self;

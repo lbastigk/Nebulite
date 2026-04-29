@@ -1,8 +1,15 @@
-#include "Graphics/SdlPrimitive.hpp"
-#include <algorithm>
-#include <cmath>
-#include <cfloat>
+//------------------------------------------
+// Includes
 
+// Standard library
+#include <algorithm>
+#include <cfloat>
+#include <cmath>
+
+// Nebulite
+#include "Graphics/SdlPrimitive.hpp"
+
+//------------------------------------------
 namespace Nebulite::Graphics {
 
 void SdlPrimitive::drawFilledCircle(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Color const& color, int const& radius) {

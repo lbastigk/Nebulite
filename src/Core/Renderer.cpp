@@ -7,16 +7,15 @@
 // External
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
-
 #include <SDL3_image/SDL_image.h>
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
 #include "Core/Renderer.hpp"
 #include "Core/RenderObject.hpp"
+#include "Interaction/Invoke.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
 #include "Module/Domain/Initializer.hpp"
-#include "Interaction/Invoke.hpp"
 #include "Nebulite.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
@@ -329,7 +328,7 @@ std::optional<std::pair<RenderObject*, Data::JsonScope*>> Renderer::getObjectFro
 //------------------------------------------
 // Serialization / Deserialization
 
-// TODO: serialize/deserialize domain itself, pass subdoc for env into renderer
+// TODO: serialize/deserialize domain itself, pass subDoc for env into renderer
 //       However, this is not as important, as env might not stay as a child domain of renderer
 
 std::string Renderer::serialize() {

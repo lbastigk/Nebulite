@@ -1,6 +1,11 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/TaskQueue.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
+//------------------------------------------
 namespace Nebulite::Data {
 
 TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool const& recover) {

@@ -1,7 +1,12 @@
-#include "Nebulite.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/RulesetModule.hpp"
+#include "Nebulite.hpp"
 
+//------------------------------------------
 namespace Nebulite::Interaction::Rules {
 RulesetModule::RulesetModule(std::string_view const& moduleName)
 : id{Data::MappedOrderedCacheList::generateUniqueId(moduleName)}

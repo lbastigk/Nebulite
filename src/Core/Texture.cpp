@@ -5,12 +5,13 @@
 #include <SDL3/SDL.h>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Core/Texture.hpp"
 #include "Graphics/Drawcall.hpp"
-#include "Module/Domain/Initializer.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Module/Domain/Initializer.hpp"
+#include "Nebulite.hpp"
 
+//------------------------------------------
 namespace Nebulite::Core {
 
 Texture::Texture(Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture)

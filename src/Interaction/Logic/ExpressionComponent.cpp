@@ -1,8 +1,13 @@
-#include "Nebulite.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Data/Document/SimpleValueError.hpp"
 #include "Interaction/Logic/Expression.hpp"
+#include "Nebulite.hpp"
 
+//------------------------------------------
 namespace Nebulite::Interaction::Logic {
 
 Expression::Component::Component(Component&& other) noexcept

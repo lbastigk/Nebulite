@@ -1,6 +1,11 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Data/OrderedCacheList.hpp"
 
+//------------------------------------------
 namespace Nebulite::Data {
 
 double** MappedOrderedCacheList::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {

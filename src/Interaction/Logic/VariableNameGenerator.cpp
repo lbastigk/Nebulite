@@ -1,5 +1,10 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Interaction/Logic/VariableNameGenerator.hpp"
 
+//------------------------------------------
 namespace Nebulite::Interaction::Logic {
 
 std::string VariableNameGenerator::numberToString(uint16_t number) {

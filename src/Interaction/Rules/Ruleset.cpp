@@ -1,7 +1,12 @@
-#include "Nebulite.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Interaction/Rules/Listener.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
+#include "Nebulite.hpp"
 
+//------------------------------------------
 namespace Nebulite::Interaction::Rules {
 
 //------------------------------------------

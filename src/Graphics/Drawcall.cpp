@@ -2,9 +2,9 @@
 // Includes
 
 // Standard library
+#include <cfloat>
 #include <cmath>
 #include <cstdlib>
-#include <cfloat>
 #include <random>
 
 // External

@@ -1,11 +1,17 @@
+//------------------------------------------
+// Includes
+
+// Standard library
 #include <ranges>
 
+// Nebulite
 #include "Data/BroadcastListenContainer/FlatContainer.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Listener.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Utility/Coordination/IdGenerator.hpp"
 
+//------------------------------------------
 namespace Nebulite::Data::BroadcastListenContainer {
 
 void FlatContainerImpl::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {

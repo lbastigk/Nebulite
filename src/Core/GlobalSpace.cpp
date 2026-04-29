@@ -1,10 +1,11 @@
 //------------------------------------------
 // Includes
 
-#include "Nebulite.hpp"
+// Nebulite
 #include "Core/GlobalSpace.hpp"
 #include "Module/Domain/Initializer.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
+#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -15,8 +16,7 @@ GlobalSpace::GlobalSpace(std::string const& name) :
         Global::shareScope(ScopeAccessor::Full(), "renderer"),
         &cmdVars.headless,
         capture
-    )
-{
+    ){
     //------------------------------------------
     // Ensure GlobalSpace id is zero
     if (getId() != 0) {

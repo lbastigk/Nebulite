@@ -2,13 +2,13 @@
 // Includes
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Constants/KeyNames.hpp"
 #include "Core/RenderObject.hpp"
+#include "Interaction/Rules/Construction/RulesetCompiler.hpp"
+#include "Interaction/Rules/Ruleset.hpp"
 #include "Module/Domain/Initializer.hpp"
 #include "Module/Domain/Common/SimpleData.hpp"
-#include "Interaction/Rules/Ruleset.hpp"
-#include "Interaction/Rules/Construction/RulesetCompiler.hpp"
+#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {

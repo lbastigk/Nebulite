@@ -9,12 +9,13 @@
 #include <rapidjson/prettywriter.h>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
 #include "Utility/StringHandler.hpp"
+#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
+
 //------------------------------------------
 // Static Public Helper Functions
 

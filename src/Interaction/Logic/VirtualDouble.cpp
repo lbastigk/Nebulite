@@ -1,6 +1,11 @@
-#include "Nebulite.hpp"
-#include "Interaction/Logic/VirtualDouble.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
+#include "Interaction/Logic/VirtualDouble.hpp"
+#include "Nebulite.hpp"
+
+//------------------------------------------
 namespace Nebulite::Interaction::Logic {
 
 VirtualDouble::VirtualDouble(std::string_view const& k) noexcept {

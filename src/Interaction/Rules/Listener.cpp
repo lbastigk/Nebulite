@@ -1,5 +1,10 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Interaction/Rules/Listener.hpp"
 
+//------------------------------------------
 namespace Nebulite::Interaction::Rules {
 
 Listener::Listener(Execution::Domain& d, std::string const& t) : domain(d), topic(t) {

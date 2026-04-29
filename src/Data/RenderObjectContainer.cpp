@@ -106,8 +106,8 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
     // Define tile offsets that are being rendered
 
     // Currently, tile size is based on resolution so we render a 3x3 grid of tiles
-    static std::vector<int16_t> const tileOffsetsX = {-1, 0, 1};
-    static std::vector<int16_t> const tileOffsetsY = {-1, 0, 1};
+    static std::initializer_list<int16_t> constexpr tileOffsetsX = {-1, 0, 1};
+    static std::initializer_list<int16_t> constexpr tileOffsetsY = {-1, 0, 1};
 
     //------------------------------------------
     // 2-Step Deletion

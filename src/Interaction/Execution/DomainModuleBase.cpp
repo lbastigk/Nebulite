@@ -1,7 +1,11 @@
-#include "Nebulite.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Interaction/Execution/DomainModuleBase.hpp"
+#include "Nebulite.hpp"
 
-
+//------------------------------------------
 namespace Nebulite::Interaction::Execution {
 
 DomainModuleBase::DomainModuleBase(

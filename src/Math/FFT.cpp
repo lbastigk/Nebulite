@@ -1,11 +1,17 @@
-#include "Math/FFT.hpp"
+//------------------------------------------
+// Includes
 
+// Standard library
 #include <algorithm>
 #include <ranges>
 
-// TODO: Large refactor + testing required!
+// Nebulite
+#include "Math/FFT.hpp"
 
+//------------------------------------------
 namespace Nebulite::Math {
+
+// TODO: Large refactor + testing required!
 
 std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
     size_t const n = data.size();

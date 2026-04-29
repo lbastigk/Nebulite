@@ -21,6 +21,10 @@ namespace Nebulite::Interaction::Execution {
 class Domain;
 } // namespace Nebulite::Interaction::Execution
 
+namespace Nebulite::Interaction::Rules {
+struct Listener;
+} // namespace Nebulite::Interaction::Rules
+
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {
 /**

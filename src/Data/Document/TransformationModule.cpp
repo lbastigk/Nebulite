@@ -1,6 +1,11 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/TransformationModule.hpp"
 #include "Interaction/Logic/Expression.hpp"
 
+//------------------------------------------
 namespace Nebulite::Data {
 
 TransformationModule::TransformationModule(std::shared_ptr<Interaction::Execution::FuncTree<bool, JsonScope*>> funcTree)

@@ -1,12 +1,17 @@
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <vector>
+
+// Nebulite
 #include "Nebulite.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Module/Domain/Initializer.hpp"
 #include "Interaction/Context.hpp"
 
-#include <vector>
-
-// Document Accessor
+//------------------------------------------
 namespace Nebulite::Interaction::Execution {
 
 ScopeOwnershipManager::~ScopeOwnershipManager() = default;
@@ -26,11 +31,6 @@ DocumentAccessor::DocumentAccessor() : ScopeOwnershipManager(ScopeOwnership::Own
 
 DocumentAccessor::~DocumentAccessor() = default;
 
-} // namespace Nebulite::Interaction::Execution
-
-namespace Nebulite::Interaction::Execution {
-
-// NOLINTNEXTLINE
 Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture) : DocumentAccessor(documentReference), domainName(name), capture(&parentCapture) {
     // FuncTree initialization
     funcTree = std::make_shared<DomainTree>(
@@ -42,7 +42,7 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Util
     funcTree->setPreParse([this] { return preParse(); });
 
     // Initialize modules
-    Nebulite::Module::Domain::Initializer::initCommon(this);
+    Module::Domain::Initializer::initCommon(this);
 }
 
 Domain::Domain(std::string const& name, Utility::IO::Capture& parentCapture) : domainName(name), capture(&parentCapture) {
@@ -56,7 +56,7 @@ Domain::Domain(std::string const& name, Utility::IO::Capture& parentCapture) : d
     funcTree->setPreParse([this] { return preParse(); });
 
     // Initialize modules
-    Nebulite::Module::Domain::Initializer::initCommon(this);
+    Module::Domain::Initializer::initCommon(this);
 }
 
 Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : DocumentAccessor(documentReference), domainName(name), capture(nullptr) {
@@ -70,7 +70,7 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : Do
     funcTree->setPreParse([this] { return preParse(); });
 
     // Initialize modules
-    Nebulite::Module::Domain::Initializer::initCommon(this);
+    Module::Domain::Initializer::initCommon(this);
 }
 
 Domain::Domain(std::string const& name) : domainName(name), capture(nullptr) {
@@ -84,7 +84,7 @@ Domain::Domain(std::string const& name) : domainName(name), capture(nullptr) {
     funcTree->setPreParse([this] { return preParse(); });
 
     // Initialize modules
-    Nebulite::Module::Domain::Initializer::initCommon(this);
+    Module::Domain::Initializer::initCommon(this);
 }
 
 Domain::~Domain() = default;
@@ -94,7 +94,6 @@ std::string const& Domain::scopePrefix() const {
 }
 
 Constants::Event Domain::parseStr(std::string const& str, Context& ctx, ContextScope& ctxScope) const {
-    // TODO: Later on we need pass ctx to parseStr
     return funcTree->parseStr(str, ctx, ctxScope);
 }
 

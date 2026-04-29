@@ -180,10 +180,6 @@ class Domain : public DocumentAccessor {
      * @details We use a pointer here so we can
      *          easily create the object with an inherited FuncTree inside the constructor.
      *          The Tree is then shared with the DomainModules for modification.
-     *          - Constants::Event: Return type of the funcTree
-     *          - Domain&: Provides access to the caller domain
-     *          - Data::JsonScope&: provides access to the callers scope
-     * @todo Extend to CallerContext and CallerContextScope for more complex interactions that can resolve self/other/global interactions
      */
     std::shared_ptr<DomainTree> funcTree;
 
@@ -415,7 +411,7 @@ public:
      * @param pattern The pattern to match for completions, full command
      * @return A vector of possible completions
      */
-    std::vector<std::string> findCompletions(std::string const& pattern) const {
+    [[nodiscard]] std::vector<std::string> findCompletions(std::string const& pattern) const {
         return funcTree->findCompletionForFullCommand(pattern);
     }
 

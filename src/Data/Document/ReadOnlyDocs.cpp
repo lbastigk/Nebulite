@@ -1,7 +1,13 @@
-#include "Nebulite.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/ReadOnlyDocs.hpp"
 #include "Utility/IO/FileManagement.hpp"
+#include "Nebulite.hpp"
 
+//------------------------------------------
+// Error message
 namespace {
 void docLoadingFailedMessage(std::string const& doc) {
     Nebulite::Global::capture().error.println("Nebulite failed to load document: " + doc);
@@ -22,7 +28,7 @@ void docLoadingFailedMessage(std::string const& doc) {
 }
 } // anonymous namespace
 
-
+//------------------------------------------
 namespace Nebulite::Data {
 
 void ReadOnlyDocs::update() const {

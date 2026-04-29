@@ -7,7 +7,6 @@
 // Nebulite
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Math/ExpressionPrimitives.hpp"
-
 #include "Nebulite.hpp"
 
 //------------------------------------------

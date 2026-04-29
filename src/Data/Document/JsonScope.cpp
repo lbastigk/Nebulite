@@ -1,10 +1,16 @@
-#include "Nebulite.hpp"
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <array>
+
+// Nebulite
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/ScopedKey.hpp"
 #include "Utility/Generate.hpp"
+#include "Nebulite.hpp"
 
-#include <array>
-
+//------------------------------------------
 namespace Nebulite::Data {
 
 // Constructing a JsonScope from a JSON document and a prefix

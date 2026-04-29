@@ -1,7 +1,12 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Interaction/Context.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
+//------------------------------------------
 namespace Nebulite::Interaction {
 
 std::string_view ContextDeriver::stripContext(std::string_view const& str){

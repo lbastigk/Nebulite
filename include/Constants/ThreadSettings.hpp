@@ -11,6 +11,7 @@
 
 // Standard Library
 #include <cmath>
+#include <thread>
 
 //------------------------------------------
 // TODO: Move to another location

@@ -1,8 +1,13 @@
-#include "Nebulite.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Math/Equality.hpp"
+#include "Nebulite.hpp"
 
+//------------------------------------------
 namespace Nebulite::Data {
 
 JSON::JSON() {

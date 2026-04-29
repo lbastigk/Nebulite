@@ -1,15 +1,17 @@
-#include "Interaction/Logic/Assignment.hpp"
+//------------------------------------------
+// Includes
 
-#include "Nebulite.hpp"
+// Nebulite
 #include "Core/GlobalSpace.hpp"
 #include "Data/Document/JsonScope.hpp"
+#include "Interaction/Logic/Assignment.hpp"
+#include "Nebulite.hpp"
 
-#include <complex>
-
+//------------------------------------------
 namespace Nebulite::Interaction::Logic {
 
 bool Assignment::parse(std::string_view const& str) {
-
+    // Derive context and strip it from the key
     onType = ContextDeriver::getTypeFromString(str);
     if (onType == ContextDeriver::TargetType::resource) {
         return false;

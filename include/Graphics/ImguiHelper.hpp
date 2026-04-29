@@ -85,7 +85,14 @@ public:
     );
 
 private:
+    /**
+     * @brief Imgui alignment helper, call before Imgui::Begin()
+     * @param alignment The flags for the window alignment
+     */
+    static void align(DomainRenderingFlags::Alignment const& alignment);
+
     static void renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKey const& root);
+    
     static void renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::IO::Capture& capture, std::string const& name);
 };
 

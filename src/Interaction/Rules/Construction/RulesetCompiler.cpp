@@ -1,7 +1,12 @@
-#include "Nebulite.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
+#include "Nebulite.hpp"
 
+//------------------------------------------
 namespace Nebulite::Interaction::Rules::Construction {
 
 void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRuleset& Ruleset) {

@@ -1,6 +1,11 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/ScopedKey.hpp"
 #include "Data/Document/JsonScope.hpp"
 
+//------------------------------------------
 // ScopedKey methods
 namespace Nebulite::Data {
 
@@ -32,9 +37,9 @@ ScopedKey ScopedKey::nestKey(ScopedKeyView const& other) const {
     return this->view().nestKey(other);
 }
 
-
 } // namespace Nebulite::Data
 
+//------------------------------------------
 // ScopedKeyView methods
 namespace Nebulite::Data {
 

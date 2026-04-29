@@ -1,7 +1,11 @@
-#include "Interaction/Execution/FuncTreeErrorMessages.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
+#include "Interaction/Execution/FuncTreeErrorMessages.hpp"
 #include "Nebulite.hpp"
 
+//------------------------------------------
 namespace Nebulite::Interaction::Execution {
 
 //------------------------------------------

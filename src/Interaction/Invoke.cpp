@@ -2,9 +2,9 @@
 // Includes
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
+#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction {

@@ -1,8 +1,14 @@
-#include "Nebulite.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Core/RenderObject.hpp"
 #include "Data/RendererProcessor.hpp"
 #include "Data/RenderObjectContainer.hpp"
+#include "Nebulite.hpp"
 
+//------------------------------------------
+// Helper
 namespace {
 size_t usedWorkerCount() {
     static size_t usedWorkerCount = Nebulite::Constants::ThreadSettings::getRendererWorkerCount();
@@ -10,6 +16,7 @@ size_t usedWorkerCount() {
 }
 } // namespace
 
+//------------------------------------------
 namespace Nebulite::Data {
 
 Core::RenderObject* Batch::pop() {

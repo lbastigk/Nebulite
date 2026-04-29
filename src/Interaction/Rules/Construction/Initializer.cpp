@@ -1,7 +1,8 @@
-#include "Interaction/Rules/Construction/Initializer.hpp"
-
 //------------------------------------------
-// Modules
+// Includes
+
+// Nebulite
+#include "Interaction/Rules/Construction/Initializer.hpp"
 #include "Module/Ruleset/Camera.hpp"
 #include "Module/Ruleset/Debug.hpp"
 #include "Module/Ruleset/Movement.hpp"

@@ -9,17 +9,15 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Core/Environment.hpp"
-
 #include "Core/RenderObject.hpp"
-#include "Data/RenderObjectContainer.hpp"
 #include "Data/Document/JSON.hpp"
+#include "Data/RenderObjectContainer.hpp"
 #include "Module/Domain/Initializer.hpp"
+#include "Nebulite.hpp"
 #include "Utility/Generate.hpp"
 
 //------------------------------------------
-
 namespace Nebulite::Core {
 
 Environment::Environment(Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture)

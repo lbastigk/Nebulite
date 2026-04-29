@@ -1,16 +1,22 @@
+//------------------------------------------
+// Includes
+
+// External
 #include <RmlUi/Core/Input.h>
 
+// Nebulite
 #include "Core/Renderer.hpp"
 #include "Constants/KeyNames.hpp"
 #include "Graphics/RmlInterface.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
+// Nebulite: RmlUi-Modules
 #include "Module/RmlUi/ContextManager.hpp"
 #include "Module/RmlUi/DataReference.hpp"
 #include "Module/RmlUi/ExpressionManager.hpp"
 #include "Module/RmlUi/Reflection.hpp"
 
-
+//------------------------------------------
 namespace Nebulite::Graphics {
 
 void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainScope){
@@ -111,7 +117,7 @@ bool RmlInterface::removeDocument(Rml::ElementDocument* doc) {
 }
 
 void RmlInterface::updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*, size_t const&)> const& updateFunc) {
-    size_t const numChildren = static_cast<size_t>(element->GetNumChildren());
+    auto const numChildren = static_cast<size_t>(element->GetNumChildren());
     for (size_t i = 0; i < numChildren; ++i) {
         if (auto const child = element->GetChild(static_cast<int>(i)); child) {
             updateFunc(child, element, i);

@@ -1,13 +1,13 @@
 //------------------------------------------
 // Includes
 
-#include "Nebulite.hpp"
+// Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonRvalueTransformer.hpp"
+#include "Nebulite.hpp"
 
-//------------------------------------------
-// Modules
+// Nebulite: Transformation modules
 #include "Module/Transformation/Arithmetic.hpp"
 #include "Module/Transformation/Array.hpp"
 #include "Module/Transformation/Assertions.hpp"

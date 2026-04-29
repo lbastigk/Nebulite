@@ -2,12 +2,12 @@
 // Includes
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
 #include "Interaction/Logic/Expression.hpp"
 #include "Math/Equality.hpp"
 #include "Math/ExpressionPrimitives.hpp"
+#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
