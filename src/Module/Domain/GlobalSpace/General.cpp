@@ -88,15 +88,15 @@ Constants::Event General::task(int const argc, char** argv) const {
     std::istringstream stream(file);
     std::string line;
     while (std::getline(stream, line)) {
-        line = Utility::StringHandler::untilSpecialChar(line, '#'); // Remove comments.
-        line = Utility::StringHandler::lStrip(line, ' '); // Remove whitespaces at start
-        line = Utility::StringHandler::rStrip(line, ' '); // Remove whitespaces at end
-        if (line.empty()) {
-            // line is empty
+        std::string_view lineView(line);
+        Utility::StringHandler::untilSpecialChar(lineView, '#'); // Remove comments.
+        Utility::StringHandler::lStrip(lineView, ' '); // Remove whitespaces at start
+        Utility::StringHandler::rStrip(lineView, ' '); // Remove whitespaces at end
+        if (lineView.empty()) {
             continue;
         }
         // Insert line backwards, so we can process them in the order they were written later on:
-        lines.insert(lines.begin(), line);
+        lines.insert(lines.begin(), std::string(lineView));
     }
 
     // Now insert all lines into the task queue

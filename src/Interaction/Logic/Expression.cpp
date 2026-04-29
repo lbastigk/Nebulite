@@ -80,14 +80,14 @@ namespace {
  * @param key The key to check.
  * @return true if the expression can be returned as a double pointer, false otherwise.
  */
-bool isAvailableAsDoublePtr(std::string const& key) {
+bool isAvailableAsDoublePtr(std::string_view const& key) {
     return key.find('{') == std::string::npos
         && key.find('}') == std::string::npos
         && key.find('|') == std::string::npos;
 }
 } // anonymous namespace
 
-void Expression::registerVariable(std::string te_name, std::string const& key, ContextDeriver::TargetType const& contextType) {
+void Expression::registerVariable(std::string te_name, std::string_view const& key, ContextDeriver::TargetType const& contextType) {
     // Check if variable exists in variables vector:
     bool const found = std::ranges::any_of(te_variables, [&](auto const& te_var) {
         if (te_var.name == te_name) {
@@ -167,7 +167,7 @@ bool isTypeVariable(std::string_view const& str) {
 } // namespace
 
 
-void Expression::parseIntoComponents(std::string const& expr) {
+void Expression::parseIntoComponents(std::string_view const& expr) {
     // First, we must split the expression into tokens
     // Split, keep delimiter(at start)
     // "abc$def$ghi" -> ["abc", "$def", "$ghi"]
@@ -427,7 +427,7 @@ void Expression::parseTokenTypeVariable(std::string const& token) {
     components.push_back(currentComponent);
 }
 
-void Expression::parseTokenTypeText(std::string const& token) {
+void Expression::parseTokenTypeText(std::string_view const& token) {
     auto const currentComponent = std::make_shared<Component>();
     // Determine context
     currentComponent->type = Component::Type::text;
@@ -472,7 +472,7 @@ void Expression::printCompileError(std::shared_ptr<Component> const& component, 
 //------------------------------------------
 // Public:
 
-Expression::Expression(std::string const& expr){
+Expression::Expression(std::string_view const& expr){
     evaluationInfo = {
         .returnableAsDouble = false,
         .returnableAsString = false,
@@ -482,7 +482,7 @@ Expression::Expression(std::string const& expr){
     parse(expr);
 }
 
-void Expression::parse(std::string const& expr) {
+void Expression::parse(std::string_view const& expr) {
     reset();
     fullExpression = expr;
     parseIntoComponents(expr);
@@ -500,22 +500,22 @@ void Expression::parse(std::string const& expr) {
 //------------------------------------------
 // Static one-time evaluation
 
-std::string Expression::eval(std::string const& input, ContextScope const& context) {
+std::string Expression::eval(std::string_view const& input, ContextScope const& context) {
     Expression const expr(input);
     return expr.eval(context);
 }
 
-double Expression::evalAsDouble(std::string const& input, ContextScope const& context) {
+double Expression::evalAsDouble(std::string_view const& input, ContextScope const& context) {
     Expression const expr(input);
     return expr.evalAsDouble(context);
 }
 
-bool Expression::evalAsBool(std::string const& input, ContextScope const& context) {
+bool Expression::evalAsBool(std::string_view const& input, ContextScope const& context) {
     Expression const expr(input);
     return expr.evalAsBool(context);
 }
 
-Data::JSON Expression::evalAsJson(std::string const& input, ContextScope const& context) {
+Data::JSON Expression::evalAsJson(std::string_view const& input, ContextScope const& context) {
     Expression const expr(input);
     return expr.evalAsJson(context);
 }

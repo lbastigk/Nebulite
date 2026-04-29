@@ -683,9 +683,8 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
     }
 
     // Strip whitespaces of name
-    std::string function = name;
-    function = Utility::StringHandler::lStrip(function, ' ');
-    function = Utility::StringHandler::rStrip(function, ' ');
+    std::string_view function = name;
+    Utility::StringHandler::strip(function);
 
     // Find and execute the function
     auto functionPosition = bindingContainer.functions.find(function);

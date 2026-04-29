@@ -49,7 +49,13 @@ void JSON::set(std::string_view const& key, T const& val){
 
     // Basically the same as setVariant, but for template types
     std::scoped_lock const lockGuard(mtx);
-    setVariant(key, RjDirectAccess::simpleValue(val));
+
+    if constexpr (std::is_same_v<T, std::string_view>) {
+        setVariant(key, RjDirectAccess::simpleValue(std::string(val)));
+    }
+    else {
+        setVariant(key, RjDirectAccess::simpleValue(val));
+    }
 }
 
 template<typename T>

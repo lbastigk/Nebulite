@@ -33,7 +33,6 @@ public:
 
     /**
      * @brief Checks if a string contains any characters from a given set.
-     * 
      * @param str The input string to check.
      * @param chars The set of characters to look for.
      * @return true if any character from chars is found in str, false otherwise.
@@ -42,7 +41,6 @@ public:
 
     /**
      * @brief Checks if a string represents a valid number.
-     * 
      * @param str The input string to check.
      * @return true if the string is a valid number, false otherwise.
      */
@@ -50,7 +48,6 @@ public:
 
     /**
      * @brief Replaces all occurrences of a substring within a string.
-     * 
      * @param target The original string.
      * @param toReplace The substring to replace.
      * @param replacer The replacement substring.
@@ -60,52 +57,41 @@ public:
 
     /**
      * @brief Extracts the substring from the start of the input until a special character is found.
-     * 
-     * @param input The original string.
+     * @param str The string to modify
      * @param specialChar The special character to look for.
-     * @return The substring from the start of the input until the special character is found,
-     * but not including the special character itself.
      */
-    static std::string untilSpecialChar(std::string_view const& input, char const& specialChar);
+    static void untilSpecialChar(std::string_view& str, char const& specialChar);
 
     /**
      * @brief Extracts the substring from the input after a special character is found.
-     * 
-     * @param input The original string.
+     * @param str The string to modify
      * @param specialChar The special character to look for.
-     * @return The substring from the input after the special character is found.
      */
-    static std::string afterSpecialChar(std::string_view const& input, char const& specialChar);
+    static void afterSpecialChar(std::string_view& str, char const& specialChar);
 
     /**
      * @brief Left strips a string of a special character.
-     * 
-     * @param input The original string.
+     * @param str The string to modify
      * @param specialChar The special character to remove.
-     * @return The left-stripped string.
      */
-    static std::string lStrip(std::string_view const& input, char const& specialChar = ' ');
+    static void lStrip(std::string_view& str, char const& specialChar = ' ');
 
     /**
      * @brief Right strips a string of a special character.
-     * 
-     * @param input The original string.
+     * @param str The string to modify
      * @param specialChar The special character to remove.
-     * @return The right-stripped string.
      */
-    static std::string rStrip(std::string_view const& input, char const& specialChar = ' ');
+    static void rStrip(std::string_view& str, char const& specialChar = ' ');
 
     /**
      * @brief Left and right strips a string of a special character.
-     * @param input The original string.
+     * @param str The string to modify
      * @param specialChar The special character to remove.
-     * @return The left and right stripped string.
      */
-    static std::string strip(std::string_view const& input, char const& specialChar = ' ');
+    static void strip(std::string_view& str, char const& specialChar = ' ');
 
     /**
      * @brief Splits a string into tokens based on a delimiter.
-     * 
      * @param input The original string.
      * @param delimiter The character to split the string on.
      * @param keepDelimiter Whether to keep the delimiter in the tokens. 

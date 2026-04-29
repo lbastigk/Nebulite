@@ -59,34 +59,31 @@ std::string StringHandler::replaceAll(std::string target, std::string_view const
         | std::ranges::to<std::string>();
 }
 
-std::string StringHandler::untilSpecialChar(std::string_view const& input, char const& specialChar) {
-    if (size_t const pos = input.find(specialChar); pos != std::string::npos && pos < input.size()) {
-        return std::string(input).substr(0, pos);
+void StringHandler::untilSpecialChar(std::string_view& str, char const& specialChar) {
+    if (size_t const pos = str.find(specialChar); pos != std::string::npos && pos < str.size()) {
+        str.remove_suffix(str.size() - pos);
     }
-    return std::string(input);
 }
 
-std::string StringHandler::afterSpecialChar(std::string_view const& input, char const& specialChar) {
-    if (size_t const pos = input.find(specialChar); pos != std::string::npos && pos + 1 < input.size()) {
-        return std::string(input).substr(pos + 1);
+void StringHandler::afterSpecialChar(std::string_view& str, char const& specialChar) {
+    if (size_t const pos = str.find(specialChar); pos != std::string::npos && pos + 1 < str.size()) {
+        str.remove_prefix(pos + 1);
     }
-    return std::string(input);
 }
 
-std::string StringHandler::lStrip(std::string_view const& input, char const& specialChar) {
-    size_t const start = input.find_first_not_of(specialChar);
-    return start == std::string::npos ? "" : std::string(input).substr(start);
+void StringHandler::lStrip(std::string_view& str, char const& specialChar) {
+    size_t const start = str.find_first_not_of(specialChar);
+    str.remove_prefix(start == std::string::npos ? 0 : start);
 }
 
-std::string StringHandler::rStrip(std::string_view const& input, char const& specialChar) {
-    size_t const end = input.find_last_not_of(specialChar);
-    return end == std::string::npos ? "" : std::string(input).substr(0, end + 1);
+void StringHandler::rStrip(std::string_view& str, char const& specialChar) {
+    size_t const end = str.find_last_not_of(specialChar);
+    str.remove_suffix(end == std::string::npos ? 0 : str.size() - end - 1);
 }
 
-std::string StringHandler::strip(std::string_view const& input, char const& specialChar) {
-    size_t const start = input.find_first_not_of(specialChar);
-    size_t const end = input.find_last_not_of(specialChar);
-    return start == std::string::npos || end == std::string::npos ? "" : std::string(input).substr(start, end - start + 1);
+void StringHandler::strip(std::string_view& str, char const& specialChar) {
+    lStrip(str, specialChar);
+    rStrip(str, specialChar);
 }
 
 std::vector<std::string> StringHandler::split(std::string_view const& input, char const& delimiter, bool const& keepDelimiter) {
