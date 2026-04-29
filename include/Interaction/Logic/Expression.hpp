@@ -241,7 +241,6 @@ private:
 
         /**
          * @brief Holds the context-stripped key of the component, if it's of type variable.
-         * @todo Should be reducible to string_view of stringRepresentation
          */
         std::string key;
 
