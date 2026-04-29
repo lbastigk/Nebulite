@@ -31,6 +31,7 @@ public:
     enum class ConstructionMode {
         START_IMMEDIATELY,
         WAIT_FOR_START
+        // TODO: START_AND_FORCE_EXECUTE to force an execution on the first update call
     };
 
     TimedRoutine(std::function<void()> const& routine, uint64_t const& intervalMillis, ConstructionMode const& mode = ConstructionMode::WAIT_FOR_START);
