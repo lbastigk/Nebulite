@@ -11,8 +11,8 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "Module/Domain/GlobalSpace/Physics.hpp"
 #include "Interaction/Rules/RulesetModule.hpp"
+#include "Module/Domain/GlobalSpace/Physics.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Ruleset {
@@ -79,23 +79,23 @@ private:
         Constants::KeyNames::RenderObject::sizeY,
         Constants::KeyNames::RenderObject::sizeR,
         // Base Physics values
-        Module::Domain::GlobalSpace::Physics::Key::Local::aX,
-        Module::Domain::GlobalSpace::Physics::Key::Local::aY,
-        Module::Domain::GlobalSpace::Physics::Key::Local::vX,
-        Module::Domain::GlobalSpace::Physics::Key::Local::vY,
-        Module::Domain::GlobalSpace::Physics::Key::Local::m,
-        Module::Domain::GlobalSpace::Physics::Key::Local::FX,
-        Module::Domain::GlobalSpace::Physics::Key::Local::FY,
+        Domain::GlobalSpace::Physics::Key::Local::aX,
+        Domain::GlobalSpace::Physics::Key::Local::aY,
+        Domain::GlobalSpace::Physics::Key::Local::vX,
+        Domain::GlobalSpace::Physics::Key::Local::vY,
+        Domain::GlobalSpace::Physics::Key::Local::m,
+        Domain::GlobalSpace::Physics::Key::Local::FX,
+        Domain::GlobalSpace::Physics::Key::Local::FY,
         // Correction values
-        Module::Domain::GlobalSpace::Physics::Key::Local::Correction::X,
-        Module::Domain::GlobalSpace::Physics::Key::Local::Correction::Y,
-        Module::Domain::GlobalSpace::Physics::Key::Local::Correction::vX,
-        Module::Domain::GlobalSpace::Physics::Key::Local::Correction::vY,
+        Domain::GlobalSpace::Physics::Key::Local::Correction::X,
+        Domain::GlobalSpace::Physics::Key::Local::Correction::Y,
+        Domain::GlobalSpace::Physics::Key::Local::Correction::vX,
+        Domain::GlobalSpace::Physics::Key::Local::Correction::vY,
         // More specialized keys
-        Module::Domain::GlobalSpace::Physics::Key::Local::lastCollisionTimeX,
-        Module::Domain::GlobalSpace::Physics::Key::Local::lastCollisionTimeY,
-        Module::Domain::GlobalSpace::Physics::Key::Local::lastPositionX,
-        Module::Domain::GlobalSpace::Physics::Key::Local::lastPositionY
+        Domain::GlobalSpace::Physics::Key::Local::lastCollisionTimeX,
+        Domain::GlobalSpace::Physics::Key::Local::lastCollisionTimeY,
+        Domain::GlobalSpace::Physics::Key::Local::lastPositionX,
+        Domain::GlobalSpace::Physics::Key::Local::lastPositionY
     };
 
     /**

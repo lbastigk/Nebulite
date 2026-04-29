@@ -17,6 +17,7 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
 class GlobalSpace;
 } // namespace Core
@@ -71,7 +72,7 @@ public:
 
         // Per-object physics properties
         struct Local {
-            static auto constexpr m = makeScoped("mass"); // TODO: rename to physics.m here and in all json and nebs files
+            static auto constexpr m = makeScoped("mass"); // TODO: rename to physics.m here and in all JSON and nebs files
             static auto constexpr aX = makeScoped("aX"); // acceleration X
             static auto constexpr aY = makeScoped("aY"); // acceleration Y
             static auto constexpr vX = makeScoped("vX"); // velocity X

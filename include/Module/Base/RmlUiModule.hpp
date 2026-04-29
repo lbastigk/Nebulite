@@ -8,7 +8,7 @@
 #include <RmlUi/Core.h>
 
 // Nebulite
-#include "Core/Renderer.hpp"
+#include "Graphics/RmlInterface.hpp"
 #include "Utility/IO/Capture.hpp"
 
 //------------------------------------------

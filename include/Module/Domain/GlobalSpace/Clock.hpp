@@ -10,8 +10,8 @@
 // Includes
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Constants/KeyNames.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
@@ -83,7 +83,7 @@ public:
 private:
     /**
      * @brief Current time in milliseconds since the program started.
-     * @details Extracted from the global document, calculated via GSDM_Time.
+     * @details Extracted from the global document, calculated via Time DomainModule.
      */
     uint64_t current_time_ms = 0;
 

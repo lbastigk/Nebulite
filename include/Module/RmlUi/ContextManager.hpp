@@ -4,14 +4,12 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-
 // External
 #include <RmlUi/Core.h>
 
 // Nebulite
-#include "Utility/IO/Capture.hpp"
 #include "Module/Base/RmlUiModule.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {

@@ -11,16 +11,15 @@
 
 // Standard library
 #include <deque>
+#include <mutex>
 #include <string>
 #include <vector>
-#include <mutex>
 
 // Nebulite
 #include "Constants/StandardCapture.hpp"
 #include "Interaction/Context.hpp"
 
 //------------------------------------------
-
 namespace Nebulite::Data {
 /**
  * @brief Represents the result of resolving a task queue.

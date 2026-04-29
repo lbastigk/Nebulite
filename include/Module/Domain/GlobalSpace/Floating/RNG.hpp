@@ -10,16 +10,17 @@
 // Includes
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Constants/KeyNames.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Utility/RNG.hpp"
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
-class GlobalSpace; // Forward declaration of domain class GlobalSpace
+class GlobalSpace;
 } // namespace Nebulite::Core
 
 //------------------------------------------

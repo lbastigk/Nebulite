@@ -6,8 +6,13 @@
 #ifndef NEBULITE_CONSTANTS_STANDARD_CAPTURE_HPP
 #define NEBULITE_CONSTANTS_STANDARD_CAPTURE_HPP
 
+//------------------------------------------
+// Includes
+
+// Standard Library
 #include "Utility/IO/Capture.hpp"
 
+//------------------------------------------
 namespace Nebulite::Constants {
 
 enum class Event : uint8_t {

@@ -13,11 +13,11 @@
 // Standard library
 #include <array>
 #include <cstddef>
+#include <functional>
 #include <limits>
 #include <new>
 #include <string>
 #include <utility>
-#include <functional>
 
 // Nebulite
 #include "Data/Map/HotKeyMap.hpp"

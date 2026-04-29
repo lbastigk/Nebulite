@@ -9,11 +9,16 @@
 //------------------------------------------
 // Includes
 
-// Standard library
+// External
+#include <absl/container/flat_hash_map.h>
+
+// Nebulite
 #include "Data/RendererProcessor.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
 class RenderObject;
 } // namespace Nebulite::Core

@@ -13,16 +13,17 @@
 #include <unordered_set>
 
 // Nebulite
-#include "Data/Document/ScopedKey.hpp"
-#include "Constants/StandardCapture.hpp"
 #include "Constants/KeyNames.hpp"
+#include "Constants/StandardCapture.hpp"
+#include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
-class GlobalSpace; // Forward declaration of domain class GlobalSpace
+class GlobalSpace;
 } // Nebulite::Core
 
 //------------------------------------------
@@ -80,7 +81,8 @@ public:
         "<dt_ms> : Fixed delta time in milliseconds. Use 0 to reset to real delta time.\n";
 
     //------------------------------------------
-    // Category names
+    // Categories
+
     static auto constexpr time_name = "time";
     static auto constexpr time_desc = R"(Commands for time management)";
 

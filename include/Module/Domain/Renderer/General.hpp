@@ -16,9 +16,10 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
-class Renderer; // Forward declaration of domain class Renderer
-class RenderObject; // Forward declaration of RenderObject
+class Renderer;
+class RenderObject;
 } // namespace Nebulite::Core
 
 //------------------------------------------
@@ -157,7 +158,8 @@ public:
         "Use 'selected-object parse help' to see available commands for the selected object.\n";
 
     //------------------------------------------
-    // Category names
+    // Categories
+
     static auto constexpr cam_name = "cam";
     static auto constexpr cam_desc = "Renderer Camera Functions";
 

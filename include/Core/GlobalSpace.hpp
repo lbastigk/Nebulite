@@ -21,8 +21,8 @@
 #include "Data/Document/DocumentCache.hpp"
 #include "Data/TaskQueue.hpp"
 #include "Module/Domain/GlobalSpace/Floating/RNG.hpp"
-#include "Interaction/Invoke.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Interaction/Invoke.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 
 //------------------------------------------

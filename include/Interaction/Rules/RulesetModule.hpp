@@ -10,16 +10,12 @@
 // Includes
 
 // Standard library
-#include <string>
 #include <type_traits>
 #include <vector>
 
-// External
-
 // Nebulite
-#include "ScopeAccessor.hpp"
-#include "Data/OrderedCacheList.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
+#include "ScopeAccessor.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {

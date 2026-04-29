@@ -1,13 +1,21 @@
 #ifndef NEBULITE_DATA_RENDERER_PROCESSOR_HPP
 #define NEBULITE_DATA_RENDERER_PROCESSOR_HPP
 
+//------------------------------------------
+// Includes
+
+// Standard library
 #include <array>
 #include <atomic>
 #include <memory>
 #include <vector>
 
+// Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Utility/Coordination/WorkDispatcher.hpp"
+
+//------------------------------------------
+// Forward declarations
 
 namespace Nebulite::Core {
 class RenderObject;
@@ -17,6 +25,7 @@ namespace Nebulite::Data {
 class RenderObjectContainer;
 } // namespace Nebulite::Data
 
+//------------------------------------------
 namespace Nebulite::Data {
 /**
  * @struct Nebulite::Data::ReinsertionProcess

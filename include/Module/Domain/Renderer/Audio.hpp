@@ -28,10 +28,11 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
 class Renderer; // Forward declaration of domain class Renderer
 class RenderObject; // Forward declaration of RenderObject
-}
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
@@ -46,9 +47,6 @@ public:
 
     //------------------------------------------
     // Available Functions
-
-    //------------------------------------------
-    // Category names
 
     [[nodiscard]] Constants::Event beep(std::span<std::string const> const& args) const;
     static auto constexpr beep_name = "beep";

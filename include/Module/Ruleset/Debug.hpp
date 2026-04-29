@@ -9,10 +9,6 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-
-// External
-
 // Nebulite
 #include "Interaction/Rules/RulesetModule.hpp"
 

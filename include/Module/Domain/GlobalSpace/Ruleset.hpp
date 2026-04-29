@@ -16,8 +16,9 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
-class GlobalSpace; // Forward declaration of domain class GlobalSpace
+class GlobalSpace;
 } // namespace Nebulite::Core
 
 
@@ -50,7 +51,7 @@ public:
         "- topic: The topic to listen for incoming rulesets.";
 
     //------------------------------------------
-    // Category names
+    // Categories
 
     static auto constexpr ruleset_name = "ruleset";
     static auto constexpr ruleset_desc = "Functions for managing rulesets in the GlobalSpace.";

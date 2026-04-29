@@ -11,12 +11,13 @@
 
 // Nebulite
 #include "Constants/StandardCapture.hpp"
-#include "Constants/KeyNames.hpp"
+#include "Data/Document/KeyGroup.hpp"
 #include "Module/Domain/Renderer/Input.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
 class Renderer;
 } // namespace Nebulite::Core
@@ -49,7 +50,7 @@ public:
         "Usage: console close\n";
 
     //------------------------------------------
-    // Category strings
+    // Categories
 
     static auto constexpr console_name = "console";
     static auto constexpr console_desc = "Console commands and settings.\n"

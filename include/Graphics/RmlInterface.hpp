@@ -4,10 +4,14 @@
 //------------------------------------------
 // Includes
 
+// External
 #include <absl/container/flat_hash_map.h>
 #include <RmlUi_Platform_SDL.h>
 #include <RmlUi_Renderer_SDL.h>
 #include <RmlUi/Core.h>
+
+// Nebulite
+#include "Interaction/Context.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -15,6 +19,10 @@
 namespace Nebulite::Core {
 class Renderer;
 } // namespace Nebulite::Core
+
+namespace Nebulite::Data {
+class JsonScope;
+} // namespace Nebulite::Data
 
 namespace Nebulite::Module::Base {
 class RmlUiModule;
@@ -37,20 +45,7 @@ public:
 
     void setDimensions(int const& width, int const& height) const ;
 
-    bool isTextInputFocused() const {
-        if (Rml::Element* el = context->GetFocusElement(); el){
-            // Covers <input type="text"> and <textarea>
-            if (Rml::String const tag = el->GetTagName(); tag == "input" || tag == "textarea"){
-                // Optional: check type="text"
-                if (tag == "input"){
-                    if (Rml::Variant const* type = el->GetAttribute("type"); type && type->Get<Rml::String>() != "text")
-                        return false;
-                }
-                return true;
-            }
-        }
-        return false;
-    }
+    bool isTextInputFocused() const ;
 
     // Simpler identifiers based on element pointer did not work previously, maybe this isn't the case anymore?
     struct RmlElementIdentifier {

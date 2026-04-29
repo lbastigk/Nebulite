@@ -14,7 +14,7 @@
 #include <functional>
 
 // External
-#include "absl/container/flat_hash_map.h"
+#include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Interaction/Context.hpp"
@@ -22,14 +22,15 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
 class RenderObject;
 class GlobalSpace;
-}   // namespace Nebulite::Core
+} // namespace Nebulite::Core
 
 namespace Nebulite::Interaction::Execution {
 class Domain;
-}   // namespace Nebulite::Interaction::Execution
+} // namespace Nebulite::Interaction::Execution
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {

@@ -16,7 +16,6 @@
 #include <SDL3/SDL.h>
 
 //------------------------------------------
-
 namespace Nebulite::Graphics {
 class SdlPrimitive {
 public:

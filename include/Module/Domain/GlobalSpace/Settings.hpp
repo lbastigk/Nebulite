@@ -13,15 +13,15 @@
 #include <memory>
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Constants/KeyNames.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
-
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
-class GlobalSpace; // Forward declaration of domain class GlobalSpace
+class GlobalSpace;
 } // namespace Nebulite::Core
 
 
@@ -65,7 +65,8 @@ public:
         "Usage: settings set-integer <key> <value>\n";
 
     //------------------------------------------
-    // Category names
+    // Categories
+
     static auto constexpr settings_name = "settings";
     static auto constexpr settings_desc = "Functions for managing global settings.";
 
@@ -121,7 +122,7 @@ public:
     }
 
 private:
-    Constants::Event loadSettings(std::string const& filename) const ;
+    [[nodiscard]] Constants::Event loadSettings(std::string const& filename) const ;
 
     void logInitError() const ;
 };

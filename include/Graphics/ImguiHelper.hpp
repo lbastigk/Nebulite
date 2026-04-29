@@ -2,17 +2,6 @@
 #define NEBULITE_GRAPHICS_IMGUI_HELPER_HPP
 
 //------------------------------------------
-// Forward declarations
-
-namespace Nebulite::Data {
-class JsonScope;
-} // namespace Nebulite::Data
-
-namespace Nebulite::Interaction::Execution {
-class Domain;
-} // namespace Nebulite::Interaction::Execution
-
-//------------------------------------------
 // Includes
 
 // Standard Library
@@ -26,6 +15,17 @@ class Domain;
 #include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Context.hpp"
 #include "Utility/IO/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Data {
+class JsonScope;
+} // namespace Nebulite::Data
+
+namespace Nebulite::Interaction::Execution {
+class Domain;
+} // namespace Nebulite::Interaction::Execution
 
 //------------------------------------------
 namespace Nebulite::Graphics {

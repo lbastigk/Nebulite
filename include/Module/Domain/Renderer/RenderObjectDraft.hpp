@@ -10,21 +10,20 @@
 // Includes
 
 // Standard library
-#include <string>
 #include <memory>
+#include <string>
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Constants/KeyNames.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Core/RenderObject.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
-
 
 //------------------------------------------
 // Forward declarations
 
 namespace Nebulite::Core {
-class Renderer; // Forward declaration of domain class Renderer
+class Renderer;
 } // namespace Nebulite::Core
 
 //------------------------------------------
@@ -71,7 +70,7 @@ public:
         "Usage: draft reset\n";
 
     //------------------------------------------
-    // Category names
+    // Categories
 
     static auto constexpr draft_name = "draft";
     static auto constexpr draft_desc = "Functions to manipulate and spawn RenderObjects in draft state";

@@ -12,11 +12,12 @@
 // Nebulite
 #include "Constants/StandardCapture.hpp"
 #include "Data/Document/KeyGroup.hpp"
-#include "Interaction/Rules/Listener.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
+#include "Interaction/Rules/Listener.hpp"
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
 class RenderObject;
 } // namespace Nebulite::Core
@@ -52,7 +53,8 @@ public:
         "All rulesets are re-evaluated and reloaded on the next update cycle.\n";
 
     //------------------------------------------
-    // Category names
+    // Categories
+
     static auto constexpr ruleset_name = "ruleset";
     static auto constexpr ruleset_desc = "Ruleset management functions for the RenderObject domain.";
 

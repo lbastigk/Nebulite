@@ -8,7 +8,7 @@
 #define NEBULITE_CORE_RENDERER_HPP
 
 //------------------------------------------
-// Predeclare
+// Forward declarations
 
 namespace Nebulite::Interaction {
 class ContextScope;

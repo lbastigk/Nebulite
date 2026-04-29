@@ -126,7 +126,6 @@ void RmlInterface::updateElement(Rml::Element* element, std::function<void(Rml::
     }
 }
 
-
 std::optional<RmlInterface::ContextAndScope> RmlInterface::getRmlElementContextAndScope(RmlElementIdentifier const& element) {
     if (auto const it = elementToContext.find(element); it != elementToContext.end()) {
         return it->second;
@@ -170,6 +169,21 @@ void RmlInterface::postRenderUpdate() const {
 
 void RmlInterface::setDimensions(int const& width, int const& height) const {
     context->SetDimensions({width, height});
+}
+
+bool RmlInterface::isTextInputFocused() const {
+    if (Rml::Element* el = context->GetFocusElement(); el){
+        // Covers <input type="text"> and <textarea>
+        if (Rml::String const tag = el->GetTagName(); tag == "input" || tag == "textarea"){
+            // Optional: check type="text"
+            if (tag == "input"){
+                if (Rml::Variant const* type = el->GetAttribute("type"); type && type->Get<Rml::String>() != "text")
+                    return false;
+            }
+            return true;
+        }
+    }
+    return false;
 }
 
 namespace {

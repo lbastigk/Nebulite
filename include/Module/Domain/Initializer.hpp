@@ -9,11 +9,13 @@
 #define NEBULITE_DOMAINMODULE_INITIALIZER_HPP
 
 //------------------------------------------
-// Basic includes
+// Includes
+
+// Nebulite
 #include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
-// Predeclarations of Domains
+// Forward declarations
 
 namespace Nebulite::Core {
 class Environment;

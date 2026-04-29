@@ -14,9 +14,9 @@
 #include <vector>
 
 // Nebulite
-#include "Interaction/Execution/Domain.hpp"
 #include "Data/RendererProcessor.hpp"
 #include "Data/RenderObjectContainer.hpp"
+#include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {

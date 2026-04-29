@@ -7,6 +7,15 @@
 #define NEBULITE_INTERACTION_CONTEXT_HPP
 
 //------------------------------------------
+// Includes
+
+// Standard library
+#include <array>
+#include <optional>
+#include <string_view>
+#include <utility>
+
+//------------------------------------------
 // Forward declarations
 
 namespace Nebulite::Data {
@@ -16,15 +25,6 @@ class JsonScope;
 namespace Nebulite::Interaction::Execution {
 class Domain;
 } // namespace Nebulite::Interaction::Execution
-
-//------------------------------------------
-// Includes
-
-// Standard library
-#include <array>
-#include <optional>
-#include <string_view>
-#include <utility>
 
 //------------------------------------------
 namespace Nebulite::Interaction {

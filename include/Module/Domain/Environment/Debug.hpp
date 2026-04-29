@@ -10,9 +10,8 @@
 // Includes
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Constants/KeyNames.hpp"
-#include "Data/Document/JsonScope.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -44,7 +43,6 @@ public:
         static auto constexpr containerTotalTiles = makeScoped("container.totalTiles");
         static auto constexpr containerTotalCost = makeScoped("container.totalCost");
     };
-
 
     //------------------------------------------
     // Setup

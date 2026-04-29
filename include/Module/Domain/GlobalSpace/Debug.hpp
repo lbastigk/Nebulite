@@ -20,8 +20,9 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
-class GlobalSpace; // Forward declaration of domain class GlobalSpace
+class GlobalSpace;
 } // namespace Nebulite::Core
 
 //------------------------------------------
@@ -110,7 +111,8 @@ public:
         "Note: This function provides a comprehensive list of all functions that can be used within expressions, along with their usage and descriptions.\n";
 
     //------------------------------------------
-    // Category names
+    // Categories
+
     static auto constexpr log_name = "log";
     static auto constexpr log_desc = "Functions for logging various states and documents to files.";
 

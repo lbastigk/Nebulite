@@ -16,10 +16,10 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
 class Texture;
 } // namespace Nebulite::Core
-
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Texture {

@@ -14,9 +14,6 @@
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
-// Forward declarations
-
-//------------------------------------------
 namespace Nebulite::Module::Domain::Common {
 /**
  * @class Nebulite::Module::Domain::Common::ComplexData
@@ -71,7 +68,7 @@ public:
         "or an object with nested objects and arrays containing expressions, all of which are evaluated and replaced with their results.\n";
 
     //------------------------------------------
-    // Category names
+    // Categories
 
     static auto constexpr query_name = "query";
     static auto constexpr query_desc = "Functions to manipulate JSON data via SQL query results";

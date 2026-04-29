@@ -11,12 +11,13 @@
 //------------------------------------------
 // Includes
 
-// General
-#include "Module/Domain/Renderer/Input.hpp"
+// Nebulite
 #include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Domain/Renderer/Input.hpp"
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
 class GlobalSpace;
 } // namespace Nebulite::Core

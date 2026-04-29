@@ -15,9 +15,10 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
 class RenderObject;
-}
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::RenderObject {
@@ -51,7 +52,8 @@ public:
         "Logs to `RenderObject_id<id>.log.jsonc` if no filename is provided.\n";
 
     //------------------------------------------
-    // Category names
+    // Categories
+
     static auto constexpr log_name = "log";
     static auto constexpr log_desc = "Logging utilities";
 

@@ -19,6 +19,7 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
 class Renderer;
 } // namespace Nebulite::Core

@@ -11,8 +11,8 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "Module/Domain/GlobalSpace/Physics.hpp"
 #include "Interaction/Rules/RulesetModule.hpp"
+#include "Module/Domain/GlobalSpace/Physics.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Ruleset {
@@ -57,19 +57,19 @@ private:
         Constants::KeyNames::RenderObject::sizeY,
         Constants::KeyNames::RenderObject::sizeR,
         // Physics
-        Module::Domain::GlobalSpace::Physics::Key::Local::vX,
-        Module::Domain::GlobalSpace::Physics::Key::Local::vY,
-        Module::Domain::GlobalSpace::Physics::Key::Local::m,
-        Module::Domain::GlobalSpace::Physics::Key::Local::FX,
-        Module::Domain::GlobalSpace::Physics::Key::Local::FY,
+        Domain::GlobalSpace::Physics::Key::Local::vX,
+        Domain::GlobalSpace::Physics::Key::Local::vY,
+        Domain::GlobalSpace::Physics::Key::Local::m,
+        Domain::GlobalSpace::Physics::Key::Local::FX,
+        Domain::GlobalSpace::Physics::Key::Local::FY,
         // Closest X/Y
         Data::ScopedKeyView("movement.clip.closest.N"),
         Data::ScopedKeyView("movement.clip.closest.E"),
         Data::ScopedKeyView("movement.clip.closest.S"),
         Data::ScopedKeyView("movement.clip.closest.W"),
         // X/Y last pos
-        Module::Domain::GlobalSpace::Physics::Key::Local::lastPositionX,
-        Module::Domain::GlobalSpace::Physics::Key::Local::lastPositionY
+        Domain::GlobalSpace::Physics::Key::Local::lastPositionX,
+        Domain::GlobalSpace::Physics::Key::Local::lastPositionY
     };
 
     /**

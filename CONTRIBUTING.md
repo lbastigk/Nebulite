@@ -177,7 +177,8 @@ public:
         "Usage: example another-cmd [args]\n";
 
     //------------------------------------------
-    // Category names
+    // Categories
+    
     static auto constexpr example_name = "example";
     static auto constexpr example_desc = "Example functions for RenderObject domain";
 

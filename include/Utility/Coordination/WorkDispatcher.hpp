@@ -11,6 +11,7 @@
 
 // Standard library
 #include <condition_variable>
+#include <functional>
 #include <thread>
 
 // Nebulite

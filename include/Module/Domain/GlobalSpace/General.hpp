@@ -15,9 +15,10 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
-class GlobalSpace; // Forward declaration of domain class GlobalSpace
-}
+class GlobalSpace;
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
@@ -99,7 +100,7 @@ public:
         "This will remove all commands from the always-taskqueue.\n";
 
     //------------------------------------------
-    // Category names
+    // Categories
 
     // None, general functions should be in the root of the GlobalSpace
     // Otherwise they should not be considered general-purpose

@@ -14,9 +14,6 @@
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
-// Forward declarations
-
-//------------------------------------------
 namespace Nebulite::Module::Domain::Common {
 NEBULITE_DOMAINMODULE(Nebulite::Interaction::Execution::Domain, General) {
 public:

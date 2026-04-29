@@ -16,8 +16,9 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
-class GlobalSpace; // Forward declaration of domain class GlobalSpace
+class GlobalSpace;
 } // namespace Nebulite::Core
 
 //------------------------------------------
@@ -44,9 +45,8 @@ public:
     static auto constexpr selfOtherGlobalEvaluation_desc = "Tests evaluation of self and other globals in one expression\n"
         "Usage: evaluation\n";
 
-
     //------------------------------------------
-    // Category names and descriptions
+    // Categories
 
     static auto constexpr category_feature_test_name = "feature-test";
     static auto constexpr category_feature_test_desc = "Functions for testing features in the GlobalSpace\n"

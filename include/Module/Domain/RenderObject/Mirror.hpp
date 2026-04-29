@@ -10,12 +10,13 @@
 // Includes
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Constants/KeyNames.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
 class RenderObject;
 } // namespace Nebulite::Core

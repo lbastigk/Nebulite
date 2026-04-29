@@ -14,11 +14,11 @@
 #include "Data/Document/JSON.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
-
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
-class GlobalSpace; // Forward declaration of domain class GlobalSpace
+class GlobalSpace;
 } // namespace Nebulite::Core
 
 //------------------------------------------
@@ -67,7 +67,7 @@ public:
 
 
     //------------------------------------------
-    // Category names
+    // Categories
 
     static auto constexpr debug_name = "debug";
     static auto constexpr debug_desc = "DomainModule for special debugging capabilities within the GlobalSpace.";

@@ -10,7 +10,7 @@
 // Includes
 
 // Standard library
-#include <new> // for std::hardware_destructive_interference_size (if available)
+#include <new>
 
 // Nebulite
 #include "Utility/CompileTimeEvaluate.hpp"
