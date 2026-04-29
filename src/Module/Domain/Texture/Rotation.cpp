@@ -1,7 +1,12 @@
-#include "Module/Domain/Texture/Rotation.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Core/Texture.hpp"
+#include "Module/Domain/Texture/Rotation.hpp"
 #include "Nebulite.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Domain::Texture {
 
 Constants::Event Rotation::updateHook() {

@@ -5,6 +5,7 @@
 #include <regex>
 
 // Nebulite
+#include "Module/RmlUi/DataReference.hpp"
 #include "Module/RmlUi/Reflection.hpp"
 #include "Nebulite.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
@@ -60,8 +61,8 @@ void Reflection::OnElementCreate(Rml::Element* element) {
     if (!element) return;
 
     // Reflect on each update
-    if (element->GetAttribute("data-reflect")) {
-        auto const expression = std::string(element->GetAttribute("data-reflect")->Get<Rml::String>());
+    if (element->GetAttribute(reflectionAttribute)) {
+        auto const expression = std::string(element->GetAttribute(reflectionAttribute)->Get<Rml::String>());
         reflections[element->GetOwnerDocument()].emplace(
             element,
             ReflectionEntry{
@@ -73,8 +74,8 @@ void Reflection::OnElementCreate(Rml::Element* element) {
         );
     }
     // Reflect once (Important for interactive UI-Elements, as data-reflect would invalidate any fields, causing them to unfocus on each update
-    else if (element->GetAttribute("data-reflect-once")) {
-        auto const expression = std::string(element->GetAttribute("data-reflect-once")->Get<Rml::String>());
+    else if (element->GetAttribute(reflectionOnceAttribute)) {
+        auto const expression = std::string(element->GetAttribute(reflectionOnceAttribute)->Get<Rml::String>());
         reflectOnce.emplace_back(
             element,
             ReflectionEntry{
@@ -112,7 +113,9 @@ void Reflection::removeDeletedElements(){
 //----------------------------------------------
 
 std::string Reflection::modifyDataIdentifier(const std::string& input, const size_t& index) {
-    static const std::regex re(R"escape(data-identifier="([^"]*)")escape");
+    std::string const pattern = DataReference::referenceIdentifierAttribute + std::string(R"escape(="([^"]*)")escape");
+
+    static const std::regex re(pattern);
 
     std::string result;
     auto searchStart(input.cbegin());
@@ -121,7 +124,8 @@ std::string Reflection::modifyDataIdentifier(const std::string& input, const siz
     while (std::regex_search(searchStart, input.cend(), match, re)) {
         result.append(match.prefix());
 
-        result += "data-identifier=\"";
+        result += DataReference::referenceIdentifierAttribute;
+        result += "=\"";
         result += match[1].str();
         result += "_REFLECT_INDEX_" + std::to_string(index);
         result += "\"";
@@ -165,7 +169,7 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
         return;
     }
 
-    // Combine inner RMLs and replace the data-identifier with a unique id
+    // Combine inner RMLs and replace the referenceIdentifierAttribute with a unique id
     if (entry.rmlValue.empty()) {
         entry.rmlValue = element->GetInnerRML();
     }

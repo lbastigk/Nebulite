@@ -43,6 +43,9 @@ public:
 
     void OnElementDestroy(Rml::Element* element) override ;
 
+    static auto constexpr reflectionAttribute = "data-reflect";
+    static auto constexpr reflectionOnceAttribute = "data-reflect-once";
+
 private:
 
     struct ReflectionEntry {

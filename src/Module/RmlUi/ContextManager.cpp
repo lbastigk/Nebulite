@@ -3,6 +3,8 @@
 
 // Nebulite
 #include "Module/RmlUi/ContextManager.hpp"
+#include "Module/RmlUi/ExpressionManager.hpp"
+#include "Module/RmlUi/Reflection.hpp"
 #include "Nebulite.hpp"
 
 //------------------------------------------
@@ -15,9 +17,10 @@ ContextManager::ContextManager(Utility::IO::Capture& c, Graphics::RmlInterface& 
 void ContextManager::update() {
     for (auto const& document : documents) {
         Graphics::RmlInterface::updateElement(document, [&](Rml::Element* element, Rml::Element* parent, size_t const& index) {
-            if (element->GetAttribute("data-eval") || element->GetAttribute("data-if")) {
+            if (element->GetAttribute(ExpressionManager::evalAttribute) || element->GetAttribute(ExpressionManager::conditionalAttribute)) {
                 // Skip elements that are part of a reflection, as they will be handled by the Reflection module
-                if (!parent->GetAttribute("data-reflect")) {
+                // But not reflectionOnceAttribute, as those are only reflected once and then should be handled like normal elements
+                if (!parent->GetAttribute(Reflection::reflectionAttribute)) {
                     if (Graphics::RmlInterface::RmlElementIdentifier const elementId(parent, index, element); !interface.getRmlElementContextAndScope(elementId).has_value()) {
                         if (auto const ctx = interface.getRmlDocumentContextAndScope(document); ctx.has_value()) {
                             interface.setRmlElementContextAndScope(elementId, ctx.value());

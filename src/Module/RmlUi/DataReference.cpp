@@ -86,8 +86,8 @@ void DataReference::normalizeDataValue(Rml::Element* element) {
     for (auto const& attribute : dataAttributes) {
         auto const rmlValue = element->GetAttribute(attribute);
         if (!rmlValue) continue;
-        if (!element->HasAttribute("data-identifier")) {
-            capture.warning.println("A unique identifier is required for data inputs to work. Please provide 'data-identifier'.");
+        if (!element->HasAttribute(referenceIdentifierAttribute)) {
+            capture.warning.println("A unique identifier is required for data inputs to work. Please provide '", referenceIdentifierAttribute, "'.");
             continue;
         }
         if (rmlValue->GetType() == Rml::Variant::STRING) {
@@ -105,7 +105,7 @@ void DataReference::normalizeDataValue(Rml::Element* element) {
                 continue;
             }
 
-            auto const unnormalizedId = element->GetAttribute("data-identifier");
+            auto const unnormalizedId = element->GetAttribute(referenceIdentifierAttribute);
             auto const unnormalizedKey = element->GetAttribute(backupAttributeKey);
             if (!unnormalizedId || !unnormalizedKey) {
                 capture.warning.println("Failed to normalize data input.");

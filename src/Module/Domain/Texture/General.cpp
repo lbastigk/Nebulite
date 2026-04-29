@@ -3,8 +3,8 @@
 
 // Nebulite
 #include "Core/Texture.hpp"
-#include "Module/Domain/Texture/General.hpp"
 #include "Graphics/Drawcall.hpp"
+#include "Module/Domain/Texture/General.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Texture {

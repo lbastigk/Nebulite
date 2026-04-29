@@ -76,7 +76,7 @@ void ExpressionManager::OnElementDestroy(Rml::Element* /*element*/) {
 void ExpressionManager::updateExpressions(){
     for (auto const& document : documents) {
         Graphics::RmlInterface::updateElement(document, [&](Rml::Element* element, Rml::Element* parent, size_t const& index) {
-            if (element->GetAttribute("data-eval") || element->GetAttribute("data-if")) {
+            if (element->GetAttribute(evalAttribute) || element->GetAttribute(conditionalAttribute)) {
                 // On element creation, the inner rml is not set. So we create an empty ElementEntry that is populated later on.
                 Rml::String innerRml = element->GetInnerRML();
                 rmlStrings[element] = innerRml;
@@ -99,7 +99,7 @@ void ExpressionManager::updateExpressions(){
 void ExpressionManager::resetExpressions(){
     for (auto const& document : documents) {
         Graphics::RmlInterface::updateElement(document, [&](Rml::Element* element, Rml::Element* /*parent*/, size_t const& /*index*/) {
-            if (element->GetAttribute("data-eval") || element->GetAttribute("data-if")) {
+            if (element->GetAttribute(evalAttribute) || element->GetAttribute(conditionalAttribute)) {
                 // Reset
                 element->SetInnerRML(rmlStrings[element]);
             }

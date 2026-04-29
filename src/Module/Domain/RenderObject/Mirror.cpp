@@ -1,7 +1,12 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Core/RenderObject.hpp"
 #include "Module/Domain/RenderObject/Mirror.hpp"
 #include "Nebulite.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Domain::RenderObject {
 
 //------------------------------------------

@@ -46,6 +46,8 @@ public:
 
     void OnElementDestroy(Rml::Element* element) override ;
 
+    static auto constexpr referenceIdentifierAttribute = "data-identifier";
+
 private:
 
     // TODO: Add ability to dynamically retrieve data value from the scope of the element/parent element

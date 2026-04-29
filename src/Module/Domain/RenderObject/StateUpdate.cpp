@@ -1,6 +1,11 @@
-#include "Module/Domain/RenderObject/StateUpdate.hpp"
-#include "Core/RenderObject.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
+#include "Core/RenderObject.hpp"
+#include "Module/Domain/RenderObject/StateUpdate.hpp"
+
+//------------------------------------------
 namespace Nebulite::Module::Domain::RenderObject {
 
 //------------------------------------------

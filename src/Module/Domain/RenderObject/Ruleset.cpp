@@ -2,9 +2,9 @@
 // Includes
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
 #include "Module/Domain/RenderObject/Ruleset.hpp"
+#include "Nebulite.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Interaction/Rules/Listener.hpp"
 #include "Interaction/Rules/Ruleset.hpp"

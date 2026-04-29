@@ -1,8 +1,12 @@
-#include "Module/Domain/Texture/Fill.hpp"
-#include "Core/Texture.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
+#include "Core/Texture.hpp"
+#include "Module/Domain/Texture/Fill.hpp"
 #include "Nebulite.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Domain::Texture {
 
 Constants::Event Fill::updateHook() {

@@ -47,6 +47,9 @@ public:
 
     void OnElementDestroy(Rml::Element* element) override ;
 
+    static auto constexpr evalAttribute = "data-eval";
+    static auto constexpr conditionalAttribute = "data-if";
+
 private:
 
     bool expressionsWereEvaluated = false;

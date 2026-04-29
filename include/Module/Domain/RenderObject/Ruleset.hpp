@@ -11,6 +11,8 @@
 
 // Nebulite
 #include "Constants/StandardCapture.hpp"
+#include "Data/Document/KeyGroup.hpp"
+#include "Interaction/Rules/Listener.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------

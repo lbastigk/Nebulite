@@ -1,9 +1,13 @@
-#include "Module/Domain/RenderObject/Logging.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Core/RenderObject.hpp"
+#include "Module/Domain/RenderObject/Logging.hpp"
+#include "Nebulite.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
-#include "Nebulite.hpp"
-
+//------------------------------------------
 namespace Nebulite::Module::Domain::RenderObject {
 
 //------------------------------------------
@@ -18,8 +22,7 @@ Constants::Event Logging::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-// NOLINTNEXTLINE
-Constants::Event Logging::log_all(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event Logging::log_all(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
     std::string const serialized = ctxScope.self.serialize();
     if (args.size() > 1) {
         for (auto const& arg : args.subspan(1)) {
@@ -35,8 +38,7 @@ Constants::Event Logging::log_all(std::span<std::string const> const& args, Inte
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
-Constants::Event Logging::log_key(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event Logging::log_key(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
