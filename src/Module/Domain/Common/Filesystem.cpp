@@ -1,8 +1,13 @@
-#include "Nebulite.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Module/Domain/Common/Filesystem.hpp"
+#include "Nebulite.hpp"
 #include "Utility/IO/FileManagement.hpp"
 #include "Utility/StringHandler.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Domain::Common {
 
 //------------------------------------------

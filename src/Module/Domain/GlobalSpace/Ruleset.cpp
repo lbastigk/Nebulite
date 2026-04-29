@@ -1,9 +1,14 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Core/GlobalSpace.hpp"
-#include "Module/Domain/GlobalSpace/Ruleset.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Interaction/Rules/Listener.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
+#include "Module/Domain/GlobalSpace/Ruleset.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event Ruleset::updateHook() {

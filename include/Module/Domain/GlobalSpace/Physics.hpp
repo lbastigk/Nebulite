@@ -11,8 +11,9 @@
 // Includes
 
 // Nebulite
-#include "ScopeAccessor.hpp"
+#include "Data/Document/KeyGroup.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
+#include "ScopeAccessor.hpp"
 
 //------------------------------------------
 // Forward declarations

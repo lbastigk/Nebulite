@@ -5,13 +5,13 @@
 #include <csignal>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Core/RenderObject.hpp"
+#include "Math/ExpressionPrimitives.hpp"
 #include "Module/Domain/Common/General.hpp"
 #include "Module/Domain/GlobalSpace/Debug.hpp"
-#include "Math/ExpressionPrimitives.hpp"
-#include "Utility/IO/FileManagement.hpp"
+#include "Nebulite.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
+#include "Utility/IO/FileManagement.hpp"
 
 //------------------------------------------
 #if defined(_WIN32)
@@ -143,8 +143,7 @@ Constants::Event Debug::standardFileRenderObject(std::span<std::string const> co
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
-Constants::Event Debug::errorLog(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
+Constants::Event Debug::errorLog(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     // Initialize the error logging buffer
     if (!originalCerrBuf) {
         originalCerrBuf = std::cerr.rdbuf();
@@ -214,8 +213,7 @@ Constants::Event Debug::clearConsole(std::span<std::string const> const& /*args*
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
-Constants::Event Debug::crash(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
+Constants::Event Debug::crash(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     // If an argument is provided, use it to select crash type
     if (args.size() > 1) {
         if (std::string const& crashType = args[1]; crashType == "segfault") {
@@ -242,11 +240,7 @@ Constants::Event Debug::crash(std::span<std::string const> const& args, Interact
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
-
-
-// NOLINTNEXTLINE
-Constants::Event Debug::waitForInput(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
+Constants::Event Debug::waitForInput(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }

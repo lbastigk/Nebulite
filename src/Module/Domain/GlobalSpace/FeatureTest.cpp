@@ -2,8 +2,8 @@
 // Includes
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Module/Domain/GlobalSpace/FeatureTest.hpp"
+#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
@@ -40,7 +40,7 @@ Constants::Event FeatureTest::testFuncTree(std::span<std::string const> const& /
     bindFunctionStatic(&testTree, &MathModifier::add, addName, addDesc);
 
     // Call the function
-    std::string const funcCall = "<name> add 1.5 2.5 3.0";
+    auto constexpr funcCall = "<name> add 1.5 2.5 3.0";
     double const result = testTree.parseStr(funcCall, 0.0);
     domain.capture.log.println("FuncTree result for call '", funcCall, "': ", result);
     return Constants::Event::Success;

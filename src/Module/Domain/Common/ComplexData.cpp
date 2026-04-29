@@ -1,6 +1,11 @@
-#include "Nebulite.hpp"
-#include "Module/Domain/Common/ComplexData.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
+#include "Module/Domain/Common/ComplexData.hpp"
+#include "Nebulite.hpp"
+
+//------------------------------------------
 namespace Nebulite::Module::Domain::Common {
 
 //------------------------------------------

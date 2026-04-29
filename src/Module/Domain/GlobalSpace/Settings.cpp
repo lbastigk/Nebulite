@@ -1,8 +1,13 @@
-#include "Nebulite.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Module/Domain/GlobalSpace/InputMapping.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
+#include "Nebulite.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event Settings::updateHook() {
@@ -13,8 +18,8 @@ Constants::Event Settings::updateHook() {
 // Available Functions
 
 // FuncTree currently does not support static methods with no args...
-// NOLINTNEXTLINE
-Constants::Event Settings::saveSettings() {
+
+Constants::Event Settings::saveSettings() const {
     std::string const settings = Global::settings().serialize();
     if (settings.empty()) {
         domain.capture.error.println("Failed to serialize settings. No data was written to file.");
@@ -26,9 +31,12 @@ Constants::Event Settings::saveSettings() {
     return Constants::Event::Success;
 }
 
-Constants::Event Settings::overWriteSettingsFile() {
+Constants::Event Settings::overWriteSettingsFile() const {
     // Overwrite settings file with default settings
-    loadSettings(defaultSettingsFile);
+    if (auto const loadResult = loadSettings(""); loadResult != Constants::Event::Success) {
+        domain.capture.warning.println("Failed to load settings");
+        return loadResult;
+    }
     return saveSettings();
 }
 
@@ -65,10 +73,12 @@ Constants::Event Settings::setSettingInt(std::span<std::string const> const& arg
 //------------------------------------------
 // Private methods
 
-Constants::Event Settings::loadSettings(std::string const& filename) {
+Constants::Event Settings::loadSettings(std::string const& filename) const {
     // Load settings file and only set known settings
     Data::JSON settings;
-    settings.deserialize(filename);
+
+    // Load defaults if no filename was provided
+    if (!filename.empty()) settings.deserialize(filename);
 
     // We move the settings into a key to match the same structure as in globalSpace
     // This way, we can use the scoped keys to set and access settings in the same way as we do for global settings
@@ -111,7 +121,7 @@ Constants::Event Settings::loadSettings(std::string const& filename) {
     moduleScope.setSubDoc(Key::parseIfNoArgs, settingsFile.getSubDoc(Key::parseIfNoArgs));
     if (moduleScope.memberType(Key::parseIfNoArgs) != Data::KeyType::array) { // Load default if not present
         moduleScope.set<std::string>(Key::parseIfNoArgs + "[0]", "echo Nebulite opened with no arguments provided. Starting empty renderer.");
-        moduleScope.set<std::string>(Key::parseIfNoArgs + "[1]", "echo Open the interactive console with <tab> key and type 'help' for available commands.");
+        moduleScope.set<std::string>(Key::parseIfNoArgs + "[1]", "echo Open the interactive console with the ^ key and type 'help' for available commands.");
         moduleScope.set<std::string>(Key::parseIfNoArgs + "[2]", "set-fps 60"); // TODO: add an initRenderer command and use that instead of setting fps here
     }
 
@@ -140,6 +150,10 @@ Constants::Event Settings::loadSettings(std::string const& filename) {
         return Constants::Event::Warning;
     }
     return Constants::Event::Success;
+}
+
+void Settings::logInitError() const {
+    domain.capture.warning.println("Failed to load settings during module initialization");
 }
 
 } // namespace Nebulite::Module::Domain::GlobalSpace

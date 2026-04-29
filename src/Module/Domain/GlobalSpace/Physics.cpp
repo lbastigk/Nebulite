@@ -1,6 +1,11 @@
-#include "Nebulite.hpp"
-#include "Module/Domain/GlobalSpace/Physics.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
+#include "Module/Domain/GlobalSpace/Physics.hpp"
+#include "Nebulite.hpp"
+
+//------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event Physics::updateHook() {

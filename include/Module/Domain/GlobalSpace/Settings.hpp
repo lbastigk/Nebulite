@@ -40,13 +40,13 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event saveSettings();
+    [[nodiscard]] Constants::Event saveSettings() const ;
     static auto constexpr saveSettings_name = "settings save";
     static auto constexpr saveSettings_desc = "Saves the current global settings to the default filename.\n"
         "\n"
         "Usage: settings save\n";
 
-    [[nodiscard]] Constants::Event overWriteSettingsFile();
+    [[nodiscard]] Constants::Event overWriteSettingsFile() const ;
     static auto constexpr overWriteSettingsFile_name = "settings save-standards";
     static auto constexpr overWriteSettingsFile_desc = "Overwrites the settings file with default settings.\n"
         "\n"
@@ -67,6 +67,7 @@ public:
     //------------------------------------------
     // Category names
     static auto constexpr settings_name = "settings";
+    static auto constexpr settings_desc = "Functions for managing global settings.";
 
     //------------------------------------------
     // Other constants
@@ -108,9 +109,11 @@ public:
      * @brief Initializes the module, binding functions and variables. 
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Settings) {
-        loadSettings(defaultSettingsFile);
+        if (loadSettings(defaultSettingsFile) != Constants::Event::Success) {
+            logInitError();
+        }
 
-        bindCategory(settings_name, "Functions for managing global settings.");
+        bindCategory(settings_name, settings_desc);
         bindFunction(&Settings::saveSettings, saveSettings_name, saveSettings_desc);
         bindFunction(&Settings::overWriteSettingsFile, overWriteSettingsFile_name, overWriteSettingsFile_desc);
         bindFunction(&Settings::setSettingStr, setSetting_name, setSetting_desc);
@@ -118,7 +121,9 @@ public:
     }
 
 private:
-    Constants::Event loadSettings(std::string const& filename);
+    Constants::Event loadSettings(std::string const& filename) const ;
+
+    void logInitError() const ;
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
 #endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_SETTINGS_HPP

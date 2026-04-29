@@ -1,8 +1,12 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Module/Domain/GlobalSpace/Clock.hpp"
 #include "Module/Domain/GlobalSpace/Time.hpp"
-
 #include "Nebulite.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event Clock::updateHook() {

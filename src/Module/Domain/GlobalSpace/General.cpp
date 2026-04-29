@@ -1,8 +1,13 @@
-#include "Nebulite.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Core/GlobalSpace.hpp"
 #include "Module/Domain/GlobalSpace/General.hpp"
+#include "Nebulite.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
 
 //------------------------------------------

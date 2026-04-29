@@ -1,7 +1,11 @@
-#include "Module/Domain/GlobalSpace/Time.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
+#include "Module/Domain/GlobalSpace/Time.hpp"
 #include "Nebulite.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
 
 //------------------------------------------

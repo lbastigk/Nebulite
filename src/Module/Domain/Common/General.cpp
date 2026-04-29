@@ -1,8 +1,12 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Graphics/ImguiHelper.hpp"
 #include "Module/Domain/Common/General.hpp"
 #include "Nebulite.hpp"
 
-
+//------------------------------------------
 namespace Nebulite::Module::Domain::Common {
 
 Constants::Event General::updateHook() {

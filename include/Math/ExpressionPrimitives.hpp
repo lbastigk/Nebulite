@@ -14,6 +14,9 @@
 #include <cmath>
 #include <vector>
 
+// External
+#include "tinyexpr.h"
+
 //------------------------------------------
 namespace Nebulite::Math {
 /**

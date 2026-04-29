@@ -1,7 +1,11 @@
-#include "Module/Domain/GlobalSpace/FunctionCollision.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
+#include "Module/Domain/GlobalSpace/FunctionCollision.hpp"
 #include "Nebulite.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event FunctionCollision::updateHook() {

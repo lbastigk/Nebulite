@@ -1,6 +1,11 @@
-#include "Module/Domain/GlobalSpace/Floating/RNG.hpp"
-#include "Core/GlobalSpace.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
+#include "Core/GlobalSpace.hpp"
+#include "Module/Domain/GlobalSpace/Floating/RNG.hpp"
+
+//------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
 Constants::Event RNG::updateHook() {
     // Disabled if renderer skipped update last frame, active otherwise

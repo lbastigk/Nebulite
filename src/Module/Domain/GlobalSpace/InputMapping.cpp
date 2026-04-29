@@ -3,14 +3,13 @@
 
 // Standard library
 #include <cmath>
-#include <cfloat>
 
 // Nebulite
-#include "Nebulite.hpp"
+#include "Math/Equality.hpp"
 #include "Module/Domain/GlobalSpace/InputMapping.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
 #include "Module/Domain/Renderer/Input.hpp"
-#include "Math/Equality.hpp"
+#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
@@ -162,10 +161,10 @@ void InputMapping::loadDefaultMappings(Data::JsonScope& scope) {
     addMappingToScope(scope, "combat::attack", {{{"space", "current"}, {"", "empty"}, {"", "empty"}}});
 
     // Movement
-    addMappingToScope(scope, "movement::up", {{{"w", "onPress"}, {"up", "onPress"}, {"", "empty"}}});
-    addMappingToScope(scope, "movement::down", {{{"s", "onPress"}, {"down", "onPress"}, {"", "empty"}}});
-    addMappingToScope(scope, "movement::left", {{{"a", "onPress"}, {"left", "onPress"}, {"", "empty"}}});
-    addMappingToScope(scope, "movement::right", {{{"d", "onPress"}, {"right", "onPress"}, {"", "empty"}}});
+    addMappingToScope(scope, "movement::up", {{{"w", "current"}, {"up", "current"}, {"", "empty"}}});
+    addMappingToScope(scope, "movement::down", {{{"s", "current"}, {"down", "current"}, {"", "empty"}}});
+    addMappingToScope(scope, "movement::left", {{{"a", "current"}, {"left", "current"}, {"", "empty"}}});
+    addMappingToScope(scope, "movement::right", {{{"d", "current"}, {"right", "current"}, {"", "empty"}}});
 }
 
 } // namespace Nebulite::Module::Domain::GlobalSpace

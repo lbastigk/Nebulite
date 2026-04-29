@@ -1,6 +1,11 @@
-#include "Module/Domain/Environment/Debug.hpp"
-#include "Core/Environment.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
+#include "Core/Environment.hpp"
+#include "Module/Domain/Environment/Debug.hpp"
+
+//------------------------------------------
 namespace Nebulite::Module::Domain::Environment {
 
 Constants::Event Debug::updateHook() {

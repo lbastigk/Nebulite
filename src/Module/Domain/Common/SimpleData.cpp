@@ -1,6 +1,11 @@
-#include "Nebulite.hpp"
-#include "Module/Domain/Common/SimpleData.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
+#include "Module/Domain/Common/SimpleData.hpp"
+#include "Nebulite.hpp"
+
+//------------------------------------------
 namespace Nebulite::Module::Domain::Common {
 
 Constants::Event SimpleData::updateHook() {return Constants::Event::Success;} // No periodic update needed, SimpleData is stateless
