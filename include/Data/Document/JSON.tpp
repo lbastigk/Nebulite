@@ -36,7 +36,7 @@ inline constexpr bool is_std_expected_v =
     is_std_expected<std::remove_cvref_t<T>>::value;
 
 template<typename T>
-void JSON::set(std::string const& key, T const& val){
+void JSON::set(std::string_view const& key, T const& val){
     // Check if T is an optional type, and if so, throw an assertion error
     static_assert(!is_std_optional_v<T>,
         "Setting optional types directly is not allowed. "
@@ -53,13 +53,13 @@ void JSON::set(std::string const& key, T const& val){
 }
 
 template<typename T>
-std::expected<T, SimpleValueRetrievalError> JSON::get(std::string const& key) const {
+std::expected<T, SimpleValueRetrievalError> JSON::get(std::string_view const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check if a transformation is present
     if (key.contains(SpecialCharacter::transformationPipe)) {
         auto const optionalVal = getWithTransformations<T>(key);
-        if ( optionalVal.has_value()){
+        if (optionalVal.has_value()){
             return optionalVal.value();
         }
         return std::unexpected(optionalVal.error());
@@ -77,11 +77,8 @@ std::expected<T, SimpleValueRetrievalError> JSON::get(std::string const& key) co
 }
 
 template<typename T>
-std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::string const& key) const {
+std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::string_view const& key) const {
     auto args = splitKeyWithTransformations(key);
-
-    std::string const baseKey = args[0];
-    args.erase(args.begin());
 
     // In order to minimize the re-initialization overhead of an entire JSON document,
     // we use a thread-local temporary JSON document for applying transformations.
@@ -90,14 +87,17 @@ std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::st
     // This approach ensures a temporary document with the same value as this JSON object,
     // but without the overhead of creating and destroying a new JSON object on each call.
     thread_local JSON tempDoc;
-
-    // Simply overwriting with setSubDoc isn't enough, as this may leave behind stale entries for stable double pointers, which we don't need here.
-    // So we manually clear the entire cache.
-    tempDoc.cache.clear();
-    tempDoc.doc.SetObject();
-    tempDoc.setSubDoc("", *this, baseKey.c_str()); // Make a copy of the required member to transform
+    {
+        // Simply overwriting with setSubDoc isn't enough, as this may leave behind stale entries for stable double pointers, which we don't need here.
+        // So we manually clear the entire cache.
+        auto const& baseKey = args[0];
+        tempDoc.cache.clear();
+        tempDoc.doc.SetObject();
+        tempDoc.setSubDoc("", *this, baseKey); // Make a copy of the required member to transform
+    }
 
     // Apply each transformation in sequence
+    args.erase(args.begin());
     if (!JsonRvalueTransformer::instance().parse(args, &tempDoc)) {
         return std::unexpected(TRANSFORMATION_FAILURE); // if any transformation fails, return default value
     }
@@ -105,7 +105,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::st
 }
 
 template<typename T>
-std::optional<T> JSON::jsonValueToCache(std::string const& key, rapidjson::Value const* val) const {
+std::optional<T> JSON::jsonValueToCache(std::string_view const& key, rapidjson::Value const* val) const {
     // Create a new cache entry
     auto new_entry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
 

@@ -47,7 +47,7 @@ public:
      */
     static std::optional<simpleValue> getSimpleValue(rapidjson::Value const* val);
     template<typename RjValType>
-    static std::optional<simpleValue> getSimpleValue(std::string const& key, RjValType const& doc) {
+    static std::optional<simpleValue> getSimpleValue(std::string_view const& key, RjValType const& doc) {
         // The given RjValType should be a Document
         // If we pass a rapidjson value, we risk not starting at the top of the document, where we should apply the key traversal
         static_assert(
@@ -56,7 +56,7 @@ public:
             "Passing, for example, a rapidjson::Value would risk starting the traversal at the wrong point in the document, which could lead to incorrect retrieval or failure to find the value."
         );
 
-        if (auto const rjVal = traversePath(key.c_str(), doc); rjVal != nullptr) {
+        if (auto const rjVal = traversePath(key, doc); rjVal != nullptr) {
             if (auto variant = getSimpleValue(rjVal); variant.has_value()) {
                 return variant.value();
             }
@@ -122,7 +122,7 @@ public:
      * @param val The rapidjson value to search within.
      * @return A pointer to the found rapidjson value, or nullptr if not found.
      */
-    static rapidjson::Value* traversePath(char const* key, rapidjson::Value const& val);
+    static rapidjson::Value* traversePath(std::string_view const& key, rapidjson::Value const& val);
 
     /**
      * @brief Traverses a rapidjson value to find or create a value within identified by its key.
@@ -134,7 +134,7 @@ public:
      *         Note that the returned value may be nullptr if the given key is invalid
      *         (e.g., trying to index into a non-array or using a malformed index).
      */
-    static rapidjson::Value* ensurePath(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
+    static rapidjson::Value* ensurePath(std::string_view const& key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator);
 
     /**
      * @brief Traverses a rapidjson value to find the parent of a value identified by its key.
@@ -147,7 +147,7 @@ public:
      * @param arrayIndex The index if the final key is an array index, -1 otherwise.
      * @return A pointer to the parent rapidjson value, or nullptr if not found
      */
-    static rapidjson::Value* traverseToParent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex);
+    static rapidjson::Value* traverseToParent(std::string_view const& fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex);
 
     //------------------------------------------
     // Serialization/Deserialization
@@ -172,7 +172,7 @@ public:
      * @param doc The rapidjson document to populate.
      * @param serialOrLink The JSON string to deserialize.
      */
-    static void deserialize(rapidjson::Document& doc, std::string const& serialOrLink);
+    static void deserialize(rapidjson::Document& doc, std::string_view const& serialOrLink);
 
 
     //------------------------------------------
@@ -191,7 +191,7 @@ public:
      * @param jsonc The JSONC string to process.
      * @return The JSON-compatible string.
      */
-    static std::string stripComments(std::string const& jsonc);
+    static std::string stripComments(std::string_view const& jsonc);
 
     /**
      * @brief Empties a rapidjson document.
@@ -204,21 +204,21 @@ public:
      * @param key The key of the member to remove.
      * @param val The rapidjson object to remove the member from.
      */
-    static void removeMember(char const* key, rapidjson::Value& val);
+    static void removeMember(std::string_view const& key, rapidjson::Value& val);
 
     /**
      * @brief Checks if a string is in JSON or JSONC format.
      * @param str The string to check.
      * @return true if the string is JSON or JSONC, false otherwise.
      */
-    static bool isJsonOrJsonc(std::string const& str);
+    static bool isJsonOrJsonc(std::string_view const& str);
 
     /**
      * @brief Validates if a key string is valid for traversal.
      * @param key The key string to validate.
      * @return true if the key is valid, false otherwise.
      */
-    static bool isValidKey(std::string const& key);
+    static bool isValidKey(std::string_view const& key);
 
     /**
      * @brief Lists all available keys in a rapidjson object.

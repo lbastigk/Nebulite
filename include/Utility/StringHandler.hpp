@@ -6,6 +6,8 @@
 #ifndef NEBULITE_UTILITY_IO_STRING_HANDLER_HPP
 #define NEBULITE_UTILITY_IO_STRING_HANDLER_HPP
 
+// TODO: Return string_view if possible!
+
 //------------------------------------------
 // Includes
 
@@ -15,7 +17,6 @@
 
 //------------------------------------------
 namespace Nebulite::Utility {
-
 /**
  * @class Nebulite::Utility::StringHandler
  * @brief Utility functions for string manipulation and parsing.
@@ -37,7 +38,7 @@ public:
      * @param chars The set of characters to look for.
      * @return true if any character from chars is found in str, false otherwise.
      */
-    static bool containsAnyOf(std::string const& str, std::string const& chars);
+    static bool containsAnyOf(std::string_view const& str, std::string_view const& chars);
 
     /**
      * @brief Checks if a string represents a valid number.
@@ -55,7 +56,7 @@ public:
      * @param replacer The replacement substring.
      * @return The modified string with all occurrences replaced.
      */
-    static std::string replaceAll(std::string target, std::string const& toReplace, std::string const& replacer);
+    static std::string replaceAll(std::string target, std::string_view const& toReplace, std::string_view const& replacer);
 
     /**
      * @brief Extracts the substring from the start of the input until a special character is found.
@@ -65,7 +66,7 @@ public:
      * @return The substring from the start of the input until the special character is found,
      * but not including the special character itself.
      */
-    static std::string untilSpecialChar(std::string const& input, char const& specialChar);
+    static std::string untilSpecialChar(std::string_view const& input, char const& specialChar);
 
     /**
      * @brief Extracts the substring from the input after a special character is found.
@@ -74,7 +75,7 @@ public:
      * @param specialChar The special character to look for.
      * @return The substring from the input after the special character is found.
      */
-    static std::string afterSpecialChar(std::string const& input, char const& specialChar);
+    static std::string afterSpecialChar(std::string_view const& input, char const& specialChar);
 
     /**
      * @brief Left strips a string of a special character.
@@ -83,7 +84,7 @@ public:
      * @param specialChar The special character to remove.
      * @return The left-stripped string.
      */
-    static std::string lStrip(std::string const& input, char const& specialChar = ' ');
+    static std::string lStrip(std::string_view const& input, char const& specialChar = ' ');
 
     /**
      * @brief Right strips a string of a special character.
@@ -92,7 +93,7 @@ public:
      * @param specialChar The special character to remove.
      * @return The right-stripped string.
      */
-    static std::string rStrip(std::string const& input, char const& specialChar = ' ');
+    static std::string rStrip(std::string_view const& input, char const& specialChar = ' ');
 
     /**
      * @brief Left and right strips a string of a special character.
@@ -100,7 +101,7 @@ public:
      * @param specialChar The special character to remove.
      * @return The left and right stripped string.
      */
-    static std::string strip(std::string const& input, char const& specialChar = ' ');
+    static std::string strip(std::string_view const& input, char const& specialChar = ' ');
 
     /**
      * @brief Splits a string into tokens based on a delimiter.
@@ -126,7 +127,7 @@ public:
      * @param delimiter The opening parenthesis to split on.
      * @return A vector of strings split on the same depth of parentheses.
      */
-    static std::vector<std::string> splitOnSameDepth(std::string const& input, char const& delimiter);
+    static std::vector<std::string> splitOnSameDepth(std::string_view const& input, char const& delimiter);
 
     struct ParseResult {
         std::vector<std::string> args;
@@ -162,7 +163,7 @@ public:
      * @param count The number of times to repeat the string.
      * @return The resulting string after repetition.
      */
-    static std::string repeat(std::string const& str, size_t const& count);
+    static std::string repeat(std::string_view const& str, size_t const& count);
 };
 }   // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_IO_STRING_HANDLER_HPP

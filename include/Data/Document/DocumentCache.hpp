@@ -164,7 +164,7 @@ public:
      * @param link The link to the document.
      * @return The serialized JSON string of the entire document.
      */
-    std::string getDocString(std::string const& link) const {
+    std::string getDocString(std::string_view const& link) const {
         ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(link);
 
         // Check if the document exists in the cache

@@ -10,10 +10,10 @@
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
 
-Expression::Component::Component(Component&& other) noexcept
-            : type(other.type), contextType(other.contextType),
-              formatter(other.formatter), stringRepresentation(std::move(other.stringRepresentation)), key(std::move(other.key)),
-              expression(other.expression) {
+Expression::Component::Component(Component&& other) noexcept :
+    type(other.type), contextType(other.contextType),
+    formatter(other.formatter), stringRepresentation(std::move(other.stringRepresentation)), key(std::move(other.key)),
+    expression(other.expression) {
     other.expression = nullptr;
 }
 
