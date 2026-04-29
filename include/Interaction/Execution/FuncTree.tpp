@@ -298,36 +298,57 @@ namespace ShapeClassifier {
         static constexpr bool is_const = true;
     };
 
-    // TODO: use is_invokable like for free/static functions
     // Classify function pointers
     template <typename FunctionPointer, typename returnValue, typename... additionalArgs>
     constexpr FunctionShape classifyFunctionPtr() {
         using M = std::decay_t<FunctionPointer>;
         using Traits = mfp_traits<M>;
-        using Params = Traits::params;
+        using C = Traits::class_t;
 
         using Span = FuncTree<returnValue, additionalArgs...>::CmdArgs::Span;
         using SpanConstRef = FuncTree<returnValue, additionalArgs...>::CmdArgs::SpanConstRef;
 
+        // We test with both const and non-const object to support both member types
+        using Obj = C&;
+        using ConstObj = const C&;
+
         //------------------------------------------
-        if constexpr      (std::is_same_v<Params, std::tuple<int, char**>>)
+
+        if constexpr (std::is_invocable_r_v<returnValue, M, Obj, int, char**> ||
+                      std::is_invocable_r_v<returnValue, M, ConstObj, int, char**>) {
             return FunctionShape::Member_Legacy_IntChar;
-        else if constexpr (std::is_same_v<Params, std::tuple<int, char const**>>)
+        }
+        else if constexpr (std::is_invocable_r_v<returnValue, M, Obj, int, char const**> ||
+                           std::is_invocable_r_v<returnValue, M, ConstObj, int, char const**>) {
             return FunctionShape::Member_Legacy_IntConstChar;
-        else if constexpr (std::is_same_v<Params, std::tuple<Span>>)
-            return FunctionShape::Member_Modern_NoAddArgs;
-        else if constexpr (std::is_same_v<Params, std::tuple<SpanConstRef>>)
-            return FunctionShape::Member_Modern_NoAddArgsConstRef;
-        else if constexpr (std::is_same_v<Params, std::tuple<Span, additionalArgs...>>)
-            return FunctionShape::Member_Modern_Full;
-        else if constexpr (std::is_same_v<Params, std::tuple<SpanConstRef, additionalArgs...>>)
+        }
+        else if constexpr (std::is_invocable_r_v<returnValue, M, Obj, SpanConstRef, additionalArgs...> ||
+                           std::is_invocable_r_v<returnValue, M, ConstObj, SpanConstRef, additionalArgs...>) {
             return FunctionShape::Member_Modern_FullConstRef;
-        else if constexpr (std::is_same_v<Params, std::tuple<additionalArgs...>>)
+        }
+        else if constexpr (std::is_invocable_r_v<returnValue, M, Obj, Span, additionalArgs...> ||
+                           std::is_invocable_r_v<returnValue, M, ConstObj, Span, additionalArgs...>) {
+            return FunctionShape::Member_Modern_Full;
+        }
+        else if constexpr (std::is_invocable_r_v<returnValue, M, Obj, SpanConstRef> ||
+                           std::is_invocable_r_v<returnValue, M, ConstObj, SpanConstRef>) {
+            return FunctionShape::Member_Modern_NoAddArgsConstRef;
+        }
+        else if constexpr (std::is_invocable_r_v<returnValue, M, Obj, Span> ||
+                           std::is_invocable_r_v<returnValue, M, ConstObj, Span>) {
+            return FunctionShape::Member_Modern_NoAddArgs;
+        }
+        else if constexpr (std::is_invocable_r_v<returnValue, M, Obj, additionalArgs...> ||
+                           std::is_invocable_r_v<returnValue, M, ConstObj, additionalArgs...>) {
             return FunctionShape::Member_NoCmdArgs;
-        else if constexpr (std::is_same_v<Params, std::tuple<>>)
+        }
+        else if constexpr (std::is_invocable_r_v<returnValue, M, Obj> ||
+                           std::is_invocable_r_v<returnValue, M, ConstObj>) {
             return FunctionShape::Member_NoArgs;
-        else
+        }
+        else {
             return FunctionShape::Unknown;
+        }
     }
 
     // Classify free/static function pointers
