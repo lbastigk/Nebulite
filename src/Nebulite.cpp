@@ -1,6 +1,11 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Graphics/ImguiHelper.hpp"
 #include "Nebulite.hpp"
 
+//------------------------------------------
 namespace Nebulite {
 
 Core::GlobalSpace& Global::instance(){

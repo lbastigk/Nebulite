@@ -1,6 +1,11 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Interaction/Execution/DomainModule.hpp"
 #include "ScopeAccessor.hpp"
 
+//------------------------------------------
 namespace Nebulite {
 
 // RulesetModule accessor
