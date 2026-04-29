@@ -1,16 +1,26 @@
 #ifndef NEBULITE_GRAPHICS_RML_INTERFACE_HPP
 #define NEBULITE_GRAPHICS_RML_INTERFACE_HPP
 
-#include <absl/container/flat_hash_map.h>
+//------------------------------------------
+// Includes
 
+#include <absl/container/flat_hash_map.h>
 #include <RmlUi_Platform_SDL.h>
 #include <RmlUi_Renderer_SDL.h>
 #include <RmlUi/Core.h>
+
+//------------------------------------------
+// Forward declarations
 
 namespace Nebulite::Core {
 class Renderer;
 } // namespace Nebulite::Core
 
+namespace Nebulite::Module::Base {
+class RmlUiModule;
+} // namespace Nebulite::Module::Base
+
+//------------------------------------------
 namespace Nebulite::Graphics {
 
 class RmlInterface {

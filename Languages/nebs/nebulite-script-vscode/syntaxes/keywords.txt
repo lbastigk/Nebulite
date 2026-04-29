@@ -16,6 +16,7 @@ average
 basicValue
 beep
 broadcast
+bundleToArray
 cam
 cat
 category
@@ -176,6 +177,7 @@ state
 stddev
 strCompare
 strCountAppearance
+string
 strip
 sub
 subspan

@@ -53,7 +53,7 @@
     },
     {
         "command": [
-            "task TaskFiles/Tests/Transformations/setFromResult.nebs"
+            "task TaskFiles/Tests/Transformations/assign.nebs"
         ],
         "expected": {
             "cout": [
@@ -64,6 +64,17 @@
                 "        \"3\"",
                 "    ],",
                 "    \"arraySize\": 3",
+                "}",
+                "{",
+                "    \"arr\": [",
+                "        \"1\",",
+                "        \"2\",",
+                "        \"3\"",
+                "    ],",
+                "    \"arraySize\": 3",
+                "}",
+                "{",
+                "    \"key\": \"2\"",
                 "}"
             ],
             "cerr": []

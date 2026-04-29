@@ -171,11 +171,41 @@ void Expression::parseIntoComponents(std::string const& expr) {
     // First, we must split the expression into tokens
     // Split, keep delimiter(at start)
     // "abc$def$ghi" -> ["abc", "$def", "$ghi"]
-    std::vector<std::string> const tokensPhase1 = Utility::StringHandler::split(expr, '$', true);
+    std::vector<std::string> tokensPhase1 = Utility::StringHandler::split(expr, '$', true);
+
+    // Combine tokens where the amount of `(` + `{` and `}` + `)` are not the same
+    std::vector<std::string> tokensPhase2;
+    std::string currentToken;
+    for (auto& token : tokensPhase1) {
+        int pCount = 0;
+        int bCount = 0;
+        pCount += static_cast<int>(std::ranges::count(token, '('));
+        pCount -= static_cast<int>(std::ranges::count(token, ')'));
+        bCount += static_cast<int>(std::ranges::count(token, '{'));
+        bCount -= static_cast<int>(std::ranges::count(token, '}'));
+
+        // If the current token has no mismatch, push back
+        if (pCount == 0 && bCount == 0 && !currentToken.empty()) {
+            tokensPhase2.push_back(currentToken);
+            currentToken = "";
+        }
+
+        // TODO: needs some more logic so that, for example, the following is still split properly:
+        //       "Value is: ($(1+1))" -> ["Value is: (", "$(1+1)", ")"]
+        //       Currently, this would be split into a single token
+        //       Sadly this isn't as straightforward as it seems...
+
+        // Add the token to the current token
+        currentToken += token;
+    }
+    if (!currentToken.empty()) {
+        tokensPhase2.push_back(currentToken);
+    }
+
     std::vector<std::string> tokens;
 
     // Now we need to split on same depth
-    for (auto const& token : tokensPhase1) {
+    for (auto const& token : tokensPhase2) {
         // If the first token starts with '$', it means the string started with '$'
         // If not, the first token is text before the first '$'
         if (token.starts_with('$')) {

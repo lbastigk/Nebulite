@@ -8,6 +8,7 @@ namespace Nebulite::Module::Domain::RenderObject {
 // Update
 Constants::Event Mirror::updateHook() {
     if (mirrorEnabled || mirrorOnceEnabled) {
+        // TODO: store the callers Global context instead of using the access token!
         // Mirror to GlobalSpace
         auto const token = getDomainModuleAccessToken(*this);
         auto const baseKey = Global::shareScope(token).getRootScope();

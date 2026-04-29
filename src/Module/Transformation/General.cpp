@@ -3,10 +3,9 @@
 
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
+#include "Interaction/Logic/Assignment.hpp"
 #include "Interaction/Logic/Expression.hpp"
 #include "Module/Transformation/General.hpp"
-
-#include "Module/RmlUi/ExpressionManager.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -18,8 +17,10 @@ void General::bindTransformations() {
     bindTransformation(&General::setBool, setBoolName, setBoolDesc);
     bindTransformation(&General::removeMember, removeMemberName, removeMemberDesc);
     bindTransformation(&General::setFromResult, setFromResultName, setFromResultDesc);
+    bindTransformation(&General::assign, assignName, assignDesc);
     bindTransformation(&General::asString, asStringName, asStringDesc);
     bindTransformation(&General::formatNumber, formatNumberName, formatNumberDesc);
+
 }
 
 bool General::setString(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
@@ -83,6 +84,15 @@ bool General::setFromResult(std::span<std::string const> const& args, Data::Json
     return true;
 }
 
+bool General::assign(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+    if (args.size() < 1) return false;
+    Interaction::Logic::Assignment ass;
+    ass.parse(Utility::StringHandler::recombineArgs(args.subspan(1)));
+    Interaction::ContextScope const context{*jsonDoc, *jsonDoc, *jsonDoc};
+    ass.apply(context);
+    return true;
+}
+
 bool General::asString(Data::JsonScope* jsonDoc){
     switch (jsonDoc->memberType(rootKey)) {
         case Data::KeyType::null:
@@ -115,6 +125,5 @@ bool General::formatNumber(std::span<std::string const> const& args, Data::JsonS
     }
     return true;
 }
-
 
 } // namespace Nebulite::Module::Transformation

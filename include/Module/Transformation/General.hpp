@@ -50,11 +50,19 @@ public:
     static auto constexpr removeMemberDesc = "Removes the member at the specified key from the JSON document.\n"
             "Usage: |removeMember <key1> <key2> ... -> {json}\n";
 
+    // Basically the same as assign, but weaker. Remove later
     static bool setFromResult(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr setFromResultName = "setFromResult";
-    static auto constexpr setFromResultDesc = "Sets the value at the specified key in the JSON document from the result of another transformation.\n"
+    static auto constexpr setFromResultDesc = "Sets the value at the specified key in the JSON document from the result of another expression.\n"
         "Usage: |setFromResult <key> <expression> -> {json}\n"
         "Inside the inner expression, all context is the own scope.\n";
+
+    static bool assign(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr assignName = "assign";
+    static auto constexpr assignDesc = "Assigns a value based on the result of an expression.\n"
+        "Usage: |assign <context>:<key> <assign-operator> <expression> -> {json}\n"
+        "The expression is evaluated in the current scope, and the result is assigned to the given key.\n"
+        "The entire context is local, meaning self, other, global are all the same and refer to the current scope.\n";
 
     static bool asString(Data::JsonScope* jsonDoc);
     static auto constexpr asStringName = "asString";
@@ -68,8 +76,6 @@ public:
         "Usage: |formatNumber <format> -> {string}"
         "If the value stored is a non-numeric string, the value is not modified.\n"
         "Example formatters: 04.2f, 5i, 06i\n";
-
-    // TODO: setFromExpression?
 
     // TODO: Even though copy/move is implemented in DomainModule:JsonScope:SimpleData, having these as transformations as well could be useful
     //       instead of writing |parse copy <source> <destination>, we can simply write |copy <source> <destination>

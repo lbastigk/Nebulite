@@ -72,6 +72,11 @@ public:
     static auto constexpr subspanDesc = "Gets a subarray from the array in the current JSON value.\n"
         "Usage: |subspan <start> [<length>] -> {array}\n";
 
+    static bool bundleToArray(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr bundleToArrayName = "bundleToArray";
+    static auto constexpr bundleToArrayDesc = "Gathers all members from the provided keys into an array.\n"
+        "Usage: |bundleToArray <key1> <key2> ... -> {array}\n";
+
     // TODO: dedupe, sort, sortby, pick, omit
 };
 } // namespace Nebulite::Module::Transformation

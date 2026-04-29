@@ -20,14 +20,6 @@ class GlobalSpace; // Forward declaration of GlobalSpace
 class RenderObject; // Forward declaration of RenderObject
 } // namespace Nebulite::Core
 
-namespace Nebulite::Data {
-class JsonScope; // Forward declaration of JsonScope
-} // namespace Nebulite::Data
-
-namespace Nebulite::Module::Domain::Common {
-class SimpleData; // Forward declaration of SimpleData DomainModule
-} // namespace Nebulite::Module::Domain::Common
-
 namespace Nebulite::Module::Domain::Renderer {
 class Console; // Forward declaration of Console
 } // namespace Nebulite::Module::Domain::Renderer
@@ -40,14 +32,6 @@ namespace Nebulite::Interaction::Execution {
 template<typename DomainType>
 class DomainModule; // Forward declaration of DomainModule
 } // namespace Nebulite::Interaction::Execution
-
-namespace Nebulite::Interaction::Logic {
-class Expression; // Forward declaration of Expression
-} // namespace Nebulite::Interaction::Logic
-
-namespace Nebulite::Module::Base {
-class RmlUiModule; // Forward declaration of RmlUiModule
-} // namespace Nebulite::UI::Plugin
 
 namespace Nebulite {
 
@@ -78,8 +62,7 @@ public:
         }
 
         // Allowed accessors:
-        friend class Core::GlobalSpace;
-        friend class Interaction::Logic::Expression;
+        friend class Core::GlobalSpace; // GlobalSpace needs to create the token and manage access to its Subdomains and itself
         friend class Module::Domain::Renderer::Console; // Console needs full access to display entire scope.
     public:
         ~Full() = default;

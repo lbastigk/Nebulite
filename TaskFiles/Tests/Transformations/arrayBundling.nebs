@@ -1,0 +1,15 @@
+set workspace.valueMember value
+set workspace.arrayMember[0] 0
+set workspace.arrayMember[1] 1
+set workspace.arrayMember[2] 2
+set workspace.objectMember.value0 0
+set workspace.objectMember.value1 1
+set workspace.objectMember.value2 2
+
+# Bundle the members into an array and store the result in the workspace
+assign global:workspace.result = {global:|bundleToArray workspace.valueMember workspace.arrayMember workspace.objectMember}
+
+# Confirm the result is correct
+eval nop {global:workspace.result[0]|typeAsString|assert equals string value:string:5}
+eval nop {global:workspace.result[1]|typeAsString|assert equals string array:3}
+eval nop {global:workspace.result[2]|typeAsString|assert equals string object:3}

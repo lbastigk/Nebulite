@@ -150,8 +150,6 @@ class ScopedKeyView {
      */
     [[nodiscard]] std::string buildKey() const ;
 
-    static std::string combineKeys(std::string_view const& key1, std::string_view const& key2);
-
     /**
      * @brief Optional scope prefix for this key.
      * @details The required scope prefix that this key must be used within.
@@ -235,6 +233,14 @@ public:
      */
     [[nodiscard]] ScopedKey nestKey(ScopedKey const& other) const ;
     [[nodiscard]] ScopedKey nestKey(ScopedKeyView const& other) const ;
+
+    /**
+     * @brief Combines two keys, removing trailing dots between them if necessary.
+     * @param key1 The first key
+     * @param key2 The second key to append to the first key
+     * @return The combined key string
+     */
+    static std::string combineKeys(std::string_view const& key1, std::string_view const& key2);
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_SCOPED_KEY_HPP

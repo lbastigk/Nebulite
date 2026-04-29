@@ -178,5 +178,15 @@
             ],
             "cerr": []
         }
+    },
+    {
+        "command": [
+            "task TaskFiles/Tests/Transformations/arrayBundling.nebs"
+        ],
+        "expected": {
+            "cout": [],
+            "cerr": []
+        }
     }
+
 ]
