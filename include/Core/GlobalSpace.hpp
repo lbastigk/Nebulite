@@ -6,8 +6,8 @@
  *        Manages rendering, task queues, RNGs, and similar global features.
  */
 
-#ifndef NEBULITE_CORE_GLOBALSPACE_HPP
-#define NEBULITE_CORE_GLOBALSPACE_HPP
+#ifndef NEBULITE_CORE_GLOBAL_SPACE_HPP
+#define NEBULITE_CORE_GLOBAL_SPACE_HPP
 
 //------------------------------------------
 // Includes
@@ -16,8 +16,8 @@
 #include <string>
 
 // Nebulite
-#include "Core/Renderer.hpp"
 #include "Constants/StandardCapture.hpp"
+#include "Core/Renderer.hpp"
 #include "Data/Document/DocumentCache.hpp"
 #include "Data/TaskQueue.hpp"
 #include "Module/Domain/GlobalSpace/Floating/RNG.hpp"
@@ -304,4 +304,4 @@ private:
     [[nodiscard]] Constants::Event updateInnerDomains();
 };
 } // namespace Nebulite::Core
-#endif // NEBULITE_CORE_GLOBALSPACE_HPP
+#endif // NEBULITE_CORE_GLOBAL_SPACE_HPP

@@ -1,11 +1,10 @@
-#ifndef SIMPLE_VALUE_ERROR_HPP
-#define SIMPLE_VALUE_ERROR_HPP
+#ifndef NEBULITE_DATA_DOCUMENT_SIMPLE_VALUE_ERROR_HPP
+#define NEBULITE_DATA_DOCUMENT_SIMPLE_VALUE_ERROR_HPP
 
 //------------------------------------------
 // Enum for simple value retrieval error
 
 namespace Nebulite::Data {
-
 /**
  * @enum SimpleValueRetrievalError
  * @brief An enumeration representing possible errors that can occur during the retrieval of a simple value from a JSON document.
@@ -21,4 +20,4 @@ enum SimpleValueRetrievalError {
     IS_NULL                 // The specified key is not a member of the JSON document (null).
 };
 } // namespace Nebulite::Data
-#endif // SIMPLE_VALUE_ERROR_HPP
+#endif // NEBULITE_DATA_DOCUMENT_SIMPLE_VALUE_ERROR_HPP

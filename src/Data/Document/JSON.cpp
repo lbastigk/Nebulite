@@ -188,7 +188,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
     // Check for transformations
     if (key.contains(SpecialCharacter::transformationPipe)) {
         if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
-            return tmp.getVariant(TransformationModule::rootKeyStr);
+            return tmp.getVariant(Module::Base::TransformationModule::rootKeyStr);
         }
         return std::unexpected(TRANSFORMATION_FAILURE);
     }

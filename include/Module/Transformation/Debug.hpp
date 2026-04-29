@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Data/Document/TransformationModule.hpp"
+#include "Module/Base/TransformationModule.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -20,7 +20,7 @@ namespace Nebulite::Module::Transformation {
  * @details These transformations are intended for debugging purposes and may not be suitable for production use.
  *          They can be used to inspect the current JSON value or output messages to the console during transformations.
  */
-class Debug final : public Data::TransformationModule {
+class Debug final : public Base::TransformationModule {
 public:
     explicit Debug(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}

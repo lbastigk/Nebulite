@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Data/Document/TransformationModule.hpp"
+#include "Module/Base/TransformationModule.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -21,7 +21,7 @@ namespace Nebulite::Module::Transformation {
  *          The transformations can take one or more numeric arguments, and the result is either a single number (if one argument is provided)
  *          or an array of numbers (if multiple arguments are provided).
  */
-class Arithmetic final : public Data::TransformationModule {
+class Arithmetic final : public Base::TransformationModule {
 public:
     explicit Arithmetic(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}

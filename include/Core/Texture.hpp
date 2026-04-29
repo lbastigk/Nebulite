@@ -50,11 +50,6 @@ public:
      */
     [[nodiscard]] Constants::Event update() override;
 
-    /**
-     * @brief Necessary operations before parsing commands.
-     */
-    [[nodiscard]] Constants::Event preParse() override;
-
     //------------------------------------------
     // SDL_Texture related
 
@@ -107,6 +102,11 @@ public:
     void loadTextureFromFile(std::string const& filePath);
 
 private:
+    /**
+     * @brief Necessary operations before parsing commands.
+     */
+    [[nodiscard]] Constants::Event preParse() override;
+
     /**
      * @brief The SDL texture managed by this class.
      *        If the texture is unmodified, this will reference the renderer's texture.

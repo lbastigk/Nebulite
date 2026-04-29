@@ -9,18 +9,13 @@
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/ScopedKey.hpp"
 
-namespace Nebulite::Data {
-
 //------------------------------------------
-// Getter
+namespace Nebulite::Data {
 
 template<typename T>
 std::expected<T, SimpleValueRetrievalError> JsonScope::get(ScopedKeyView const& key) const {
     return baseDocument->get<T>(key.full(*this));
 }
-
-//------------------------------------------
-// Setter
 
 template<typename T>
 void JsonScope::set(ScopedKeyView const& key, T const& value) {

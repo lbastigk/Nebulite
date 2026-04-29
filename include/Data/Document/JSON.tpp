@@ -1,12 +1,18 @@
 #ifndef NEBULITE_DATA_DOCUMENT_JSON_TPP
 #define NEBULITE_DATA_DOCUMENT_JSON_TPP
 
+//------------------------------------------
+// Includes
+
+// Standard library
 #include <expected>
 #include <type_traits>
 
+// Nebulite
 #include "Data/Document/JSON.hpp"
-#include "Data/Document/TransformationModule.hpp"
+#include "Module/Base/TransformationModule.hpp"
 
+//------------------------------------------
 namespace Nebulite::Data {
 
 template<typename>
@@ -95,7 +101,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::st
     if (!JsonRvalueTransformer::instance().parse(args, &tempDoc)) {
         return std::unexpected(TRANSFORMATION_FAILURE); // if any transformation fails, return default value
     }
-    return tempDoc.get<T>(TransformationModule::rootKeyStr);
+    return tempDoc.get<T>(Module::Base::TransformationModule::rootKeyStr);
 }
 
 template<typename T>

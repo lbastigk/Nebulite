@@ -4,8 +4,8 @@
  *        containing keys for global physics constants and settings.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_GLOBALSPACE_PHYSICS_HPP
-#define NEBULITE_DOMAINMODULE_GLOBALSPACE_PHYSICS_HPP
+#ifndef NEBULITE_MODULE_DOMAIN_GLOBAL_SPACE_PHYSICS_HPP
+#define NEBULITE_MODULE_DOMAIN_GLOBAL_SPACE_PHYSICS_HPP
 
 //------------------------------------------
 // Includes
@@ -105,4 +105,4 @@ private:
     void setupConstants() const ;
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
-#endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_PHYSICS_HPP
+#endif // NEBULITE_DOMAINMODULE_GLOBAL_SPACE_PHYSICS_HPP

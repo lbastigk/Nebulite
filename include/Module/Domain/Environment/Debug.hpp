@@ -3,8 +3,8 @@
  * @brief Contains the Debug DomainModule for the Environment domain.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_ENVIRONMENT_DEBUG
-#define NEBULITE_DOMAINMODULE_ENVIRONMENT_DEBUG
+#ifndef NEBULITE_MODULE_DOMAIN_ENVIRONMENT_DEBUG
+#define NEBULITE_MODULE_DOMAIN_ENVIRONMENT_DEBUG
 
 //------------------------------------------
 // Includes
@@ -53,4 +53,4 @@ public:
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Environment, Debug) {}
 };
 } // namespace Nebulite::Module::Domain::Environment
-#endif // NEBULITE_DOMAINMODULE_ENVIRONMENT_DEBUG
+#endif // NEBULITE_MODULE_DOMAIN_ENVIRONMENT_DEBUG

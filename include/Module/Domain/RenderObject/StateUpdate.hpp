@@ -4,8 +4,8 @@
  * @todo If more flags are not added, we may merge them into a General DomainModule.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_RENDEROBJECT_STATE_UPDATE_HPP
-#define NEBULITE_DOMAINMODULE_RENDEROBJECT_STATE_UPDATE_HPP
+#ifndef NEBULITE_MODULE_DOMAIN_RENDEROBJECT_STATE_UPDATE_HPP
+#define NEBULITE_MODULE_DOMAIN_RENDEROBJECT_STATE_UPDATE_HPP
 
 //------------------------------------------
 // Includes
@@ -54,4 +54,4 @@ public:
     }
 };
 } // namespace Nebulite::Module::Domain::RenderObject
-#endif // NEBULITE_DOMAINMODULE_RENDEROBJECT_STATE_UPDATE_HPP
+#endif // NEBULITE_MODULE_DOMAIN_RENDEROBJECT_STATE_UPDATE_HPP

@@ -124,14 +124,6 @@ public:
     }
 
     /**
-     * @brief Processes all broadcasted rulesets,
-     *        matching them with listeners and executing the appropriate actions.
-     */
-    void process() override {
-        impl->process();
-    }
-
-    /**
      * @brief Empty, no preparation needed for this container type
      */
     void prepare() override {}
@@ -140,6 +132,15 @@ public:
      * @brief Empty, no initialization needed for this container type
      */
     void init() override {}
+
+    /**
+     * @brief Processes all broadcasted rulesets,
+     *        matching them with listeners and executing the appropriate actions.
+     */
+    void process() override {
+        impl->process();
+    }
+
 private:
     /**
      * @brief Non-templated implementation class of the FlatContainer

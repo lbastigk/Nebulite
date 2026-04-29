@@ -3,8 +3,8 @@
  * @brief Input handling for the NEBULITE engine.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_RENDERER_INPUT_HPP
-#define NEBULITE_DOMAINMODULE_RENDERER_INPUT_HPP
+#ifndef NEBULITE_MODULE_DOMAIN_RENDERER_INPUT_HPP
+#define NEBULITE_MODULE_DOMAIN_RENDERER_INPUT_HPP
 
 //------------------------------------------
 // Includes

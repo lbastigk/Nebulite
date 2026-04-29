@@ -22,9 +22,9 @@
 // Includes
 
 // Standard library
+#include <optional>
 #include <string>
 #include <string_view>
-#include <optional>
 
 //------------------------------------------
 // Forward declarations

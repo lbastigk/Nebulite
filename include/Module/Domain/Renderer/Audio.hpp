@@ -3,8 +3,8 @@
  * @brief Provides audio-related utilities for the Nebulite engine.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_RENDERER_AUDIO_HPP
-#define NEBULITE_DOMAINMODULE_RENDERER_AUDIO_HPP
+#ifndef NEBULITE_MODULE_DOMAIN_RENDERER_AUDIO_HPP
+#define NEBULITE_MODULE_DOMAIN_RENDERER_AUDIO_HPP
 
 //------------------------------------------
 // Includes
@@ -170,4 +170,4 @@ private:
     }
 };
 } // namespace Nebulite::Module::Domain::Renderer
-#endif // NEBULITE_DOMAINMODULE_RENDERER_AUDIO_HPP
+#endif // NEBULITE_MODULE_DOMAIN_RENDERER_AUDIO_HPP

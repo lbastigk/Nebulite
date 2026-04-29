@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Data/Document/TransformationModule.hpp"
+#include "Module/Base/TransformationModule.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -19,7 +19,7 @@ namespace Nebulite::Module::Transformation {
  * @brief Boolean transformation utilities
  * @details **WORK IN PROGRESS**
  */
-class Boolean final : public Data::TransformationModule {
+class Boolean final : public Base::TransformationModule {
 public:
     explicit Boolean(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}

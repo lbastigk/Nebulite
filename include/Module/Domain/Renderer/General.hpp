@@ -4,8 +4,8 @@
  *        This file contains a DomainModule for basic rendering-related functioncalls.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_RENDERER_GENERAL_HPP
-#define NEBULITE_DOMAINMODULE_RENDERER_GENERAL_HPP
+#ifndef NEBULITE_MODULE_DOMAIN_RENDERER_GENERAL_HPP
+#define NEBULITE_MODULE_DOMAIN_RENDERER_GENERAL_HPP
 
 //------------------------------------------
 // Includes

@@ -11,7 +11,6 @@
 #include <mutex>
 #include <optional>
 #include <string>
-#include <thread>
 
 // Nebulite
 #include "Constants/Alignment.hpp"
@@ -24,6 +23,7 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Data {
 class JSON;
 class ScopedKey;

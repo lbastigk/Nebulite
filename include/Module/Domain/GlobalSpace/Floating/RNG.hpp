@@ -3,8 +3,8 @@
  * @brief Contains the declaration of the RNG DomainModule for the GlobalSpace domain.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_GLOBALSPACE_RNG_HPP
-#define NEBULITE_DOMAINMODULE_GLOBALSPACE_RNG_HPP
+#ifndef NEBULITE_MODULE_DOMAIN_GLOBAL_SPACE_RNG_HPP
+#define NEBULITE_MODULE_DOMAIN_GLOBAL_SPACE_RNG_HPP
 
 //------------------------------------------
 // Includes
@@ -100,4 +100,4 @@ private:
     void updateRNGs();
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
-#endif // NEBULITE_DOMAINMODULE_GLOBALSPACE_RNG_HPP
+#endif // NEBULITE_DOMAINMODULE_GLOBAL_SPACE_RNG_HPP

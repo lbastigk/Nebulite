@@ -3,8 +3,8 @@
  * @brief DomainModule for complex data operations on domain class Nebulite::Data::JSON
  */
 
-#ifndef NEBULITE_DOMAINMODULE_JSON_SCOPE_COMPLEX_DATA_HPP
-#define NEBULITE_DOMAINMODULE_JSON_SCOPE_COMPLEX_DATA_HPP
+#ifndef NEBULITE_MODULE_DOMAIN_COMMON_COMPLEX_DATA_HPP
+#define NEBULITE_MODULE_DOMAIN_COMMON_COMPLEX_DATA_HPP
 
 //------------------------------------------
 // Includes
@@ -103,4 +103,4 @@ public:
     }
 };
 } // namespace Nebulite::JSON::DomainModule
-#endif // NEBULITE_DOMAINMODULE_JSON_SCOPE_COMPLEX_DATA_HPP
+#endif // NEBULITE_MODULE_DOMAIN_COMMON_COMPLEX_DATA_HPP

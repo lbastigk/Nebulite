@@ -78,15 +78,15 @@ public:
      */
     virtual void prepare() {}
 
+    // non-static hooks for derived classes to implement
+    virtual void init() {}
+    virtual void process() {}
+
 protected:
     struct WorkerInfo {
         uint32_t index;
         uint32_t count;
     } workerInfo;
-
-    // non-static hooks for derived classes to implement
-    virtual void init() {}
-    virtual void process() {}
 
 private:
 

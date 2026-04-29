@@ -4,8 +4,8 @@
  * Direct access to RapidJSON values
  */
 
-#ifndef NEBULITE_DATA_RJ_DIRECT_ACCESS_HPP
-#define NEBULITE_DATA_RJ_DIRECT_ACCESS_HPP
+#ifndef NEBULITE_DATA_DOCUMENT_RJ_DIRECT_ACCESS_HPP
+#define NEBULITE_DATA_DOCUMENT_RJ_DIRECT_ACCESS_HPP
 
 //------------------------------------------
 // Includes
@@ -247,4 +247,4 @@ private:
 };
 } // namespace Nebulite::Data
 #include "RjDirectAccess.tpp"
-#endif // NEBULITE_DATA_RJ_DIRECT_ACCESS_HPP
+#endif // NEBULITE_DATA_DOCUMENT_RJ_DIRECT_ACCESS_HPP

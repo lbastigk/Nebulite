@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Data/Document/TransformationModule.hpp"
+#include "Module/Base/TransformationModule.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -20,7 +20,7 @@ namespace Nebulite::Module::Transformation {
  * @details Instead of exiting, these transformations simply return false, indicating a transformation failure.
  *          Any user-defined error messages are forwarded to the Global capture.
  */
-class Requirements final : public Data::TransformationModule {
+class Requirements final : public Base::TransformationModule {
 public:
     explicit Requirements(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}

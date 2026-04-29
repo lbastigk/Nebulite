@@ -7,6 +7,7 @@
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
 
+//------------------------------------------
 namespace Nebulite::Data {
 
 /**

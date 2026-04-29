@@ -5,8 +5,8 @@
  *          This allows for dynamic modification of JSON values during retrieval.
  */
 
-#ifndef NEBULITE_DATA_JSON_RVALUE_TRANSFORMER_HPP
-#define NEBULITE_DATA_JSON_RVALUE_TRANSFORMER_HPP
+#ifndef NEBULITE_DATA_DOCUMENT_JSON_RVALUE_TRANSFORMER_HPP
+#define NEBULITE_DATA_DOCUMENT_JSON_RVALUE_TRANSFORMER_HPP
 
 //------------------------------------------
 // Includes
@@ -26,8 +26,11 @@
 namespace Nebulite::Data {
 class JSON;
 class JsonScope;
-class TransformationModule;
 } // namespace Nebulite::Data
+
+namespace Nebulite::Module::Base {
+class TransformationModule;
+} // namespace Nebulite::Module::Base
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -53,14 +56,14 @@ class JsonRvalueTransformer {
     /**
      * @brief List of all initialized transformation modules
      */
-    std::vector<std::unique_ptr<TransformationModule>> modules;
+    std::vector<std::unique_ptr<Module::Base::TransformationModule>> modules;
 
     /**
      * @brief Initializes a transformation module and adds it to the list of modules.
      * @tparam ModuleType The type of the transformation module to initialize. Must be a subclass of TransformationModule.
      */
     template<typename ModuleType> void initModule() {
-        static_assert(std::is_base_of_v<TransformationModule, ModuleType>, "ModuleType must be a subclass of TransformationModule");
+        static_assert(std::is_base_of_v<Module::Base::TransformationModule, ModuleType>, "ModuleType must be a subclass of TransformationModule");
         modules.emplace_back(std::make_unique<ModuleType>(transformationFuncTree));
     }
 
@@ -87,4 +90,4 @@ public:
     bool parseSingleTransformation(std::span<std::string const> const& args, JsonScope* jsonDoc) const ;
 };
 } // namespace Nebulite::Data
-#endif // NEBULITE_DATA_JSON_RVALUE_TRANSFORMER_HPP
+#endif // NEBULITE_DATA_DOCUMENT_JSON_RVALUE_TRANSFORMER_HPP

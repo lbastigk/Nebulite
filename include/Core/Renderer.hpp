@@ -8,13 +8,6 @@
 #define NEBULITE_CORE_RENDERER_HPP
 
 //------------------------------------------
-// Forward declarations
-
-namespace Nebulite::Interaction {
-class ContextScope;
-} // namespace Nebulite::Interaction
-
-//------------------------------------------
 // Includes
 
 // Standard library
@@ -29,10 +22,17 @@ class ContextScope;
 #include "Core/Environment.hpp"
 #include "Data/RendererProcessor.hpp"
 #include "Graphics/RmlInterface.hpp"
-#include "Interaction/Invoke.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Interaction/Invoke.hpp"
 #include "Module/Base/RmlUiModule.hpp"
 #include "Utility/TimeKeeper.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction {
+class ContextScope;
+} // namespace Nebulite::Interaction
 
 //------------------------------------------
 namespace Nebulite::Core {

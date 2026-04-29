@@ -3,8 +3,8 @@
  * @brief A wrapper around rapidjson to simplify JSON manipulation in Nebulite.
  */
 
-#ifndef NEBULITE_DATA_JSON_HPP
-#define NEBULITE_DATA_JSON_HPP
+#ifndef NEBULITE_DATA_DOCUMENT_JSON_HPP
+#define NEBULITE_DATA_DOCUMENT_JSON_HPP
 
 //------------------------------------------
 // Includes
@@ -19,8 +19,8 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Data/Document/KeyType.hpp"
 #include "Data/Document/JsonRvalueTransformer.hpp"
+#include "Data/Document/KeyType.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
 #include "Data/Document/SimpleValueError.hpp"
 
@@ -548,4 +548,4 @@ public:
 };
 } // namespace Nebulite::Data
 #include "JSON.tpp"
-#endif // NEBULITE_DATA_JSON_HPP
+#endif // NEBULITE_DATA_DOCUMENT_JSON_HPP

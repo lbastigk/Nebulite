@@ -3,8 +3,8 @@
  * @brief Provides RenderObject creation utilities
  */
 
-#ifndef NEBULITE_DOMAINMODULE_RENDERER_RENDER_OBJECT_DRAFT_HPP
-#define NEBULITE_DOMAINMODULE_RENDERER_RENDER_OBJECT_DRAFT_HPP
+#ifndef NEBULITE_MODULE_DOMAIN_RENDERER_RENDER_OBJECT_DRAFT_HPP
+#define NEBULITE_MODULE_DOMAIN_RENDERER_RENDER_OBJECT_DRAFT_HPP
 
 //------------------------------------------
 // Includes
@@ -120,4 +120,4 @@ private:
     DraftHolder draft;
 };
 } // namespace Nebulite::Module::Domain::Renderer
-#endif // NEBULITE_DOMAINMODULE_RENDERER_RENDER_OBJECT_DRAFT_HPP
+#endif // NEBULITE_MODULE_DOMAIN_RENDERER_RENDER_OBJECT_DRAFT_HPP

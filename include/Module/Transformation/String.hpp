@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Data/Document/TransformationModule.hpp"
+#include "Module/Base/TransformationModule.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -18,7 +18,7 @@ namespace Nebulite::Module::Transformation {
  * @class Nebulite::Module::Transformation::String
  * @brief Various string conversion transformation functions
  */
-class String final : public Data::TransformationModule {
+class String final : public Base::TransformationModule {
 public:
     explicit String(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> const& funcTree)
         : TransformationModule(funcTree) {}

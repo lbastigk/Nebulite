@@ -3,8 +3,8 @@
  * @brief Header file for the Mirror DomainModule of the RenderObject tree.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_RENDEROBJECT_MIRROR_HPP
-#define NEBULITE_DOMAINMODULE_RENDEROBJECT_MIRROR_HPP
+#ifndef NEBULITE_MODULE_DOMAIN_RENDEROBJECT_MIRROR_HPP
+#define NEBULITE_MODULE_DOMAIN_RENDEROBJECT_MIRROR_HPP
 
 //------------------------------------------
 // Includes
@@ -131,4 +131,4 @@ private:
     [[nodiscard]] Constants::Event setupMirrorKey();
 };
 } // namespace Nebulite::Module::Domain::RenderObject
-#endif // NEBULITE_DOMAINMODULE_RENDEROBJECT_MIRROR_HPP
+#endif // NEBULITE_MODULE_DOMAIN_RENDEROBJECT_MIRROR_HPP

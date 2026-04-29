@@ -3,8 +3,8 @@
  * @brief Header file for the Logging DomainModule of the RenderObject tree.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_RENDEROBJECT_LOGGING_HPP
-#define NEBULITE_DOMAINMODULE_RENDEROBJECT_LOGGING_HPP
+#ifndef NEBULITE_MODULE_DOMAIN_RENDEROBJECT_LOGGING_HPP
+#define NEBULITE_MODULE_DOMAIN_RENDEROBJECT_LOGGING_HPP
 
 //------------------------------------------
 // Includes
@@ -70,4 +70,4 @@ public:
     }
 };
 } // namespace Nebulite::Module::Domain::RenderObject
-#endif // NEBULITE_DOMAINMODULE_RENDEROBJECT_LOGGING_HPP
+#endif // NEBULITE_MODULE_DOMAIN_RENDEROBJECT_LOGGING_HPP
