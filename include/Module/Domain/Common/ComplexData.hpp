@@ -38,7 +38,7 @@ public:
     static auto constexpr querySet_desc = "Sets a key from a SQL query result.\n"
         "Not implemented yet.\n";
 
-    [[nodiscard]] static Constants::Event jsonSet(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event jsonSet(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     static auto constexpr jsonSet_name = "json set";
     static auto constexpr jsonSet_desc = "Sets a key from a given expression evaluated as JSON, allowing for complex objects to be set.\n"
         "Usage: json set <key> <expression>\n"
@@ -50,7 +50,7 @@ public:
         "json set sizeCopy {self:size}\n"
         "Same as the function 'assign', but does not allow assigning values in the Global context, and is only for set ('=') operations.\n";
 
-    [[nodiscard]] static Constants::Event evaluateMember(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event evaluateMember(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     static auto constexpr evaluateMember_name = "json evaluate member";
     static auto constexpr evaluateMember_desc = "If the member is a string or number, treats it as an expression and evaluates it as JSON, setting the member to the result.\n"
         "If the member is an array or object, it will do nothing.\n"
@@ -60,7 +60,7 @@ public:
         "evaluate member myExpression\n"
         "If the member myExpression is a string, for example \"{global:names|filterGlob F*}\", myExpression will be set to an array of names starting with F from the global scope.\n";
 
-    [[nodiscard]] static Constants::Event evaluateRecursive(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event evaluateRecursive(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr evaluateRecursive_name = "json evaluate recursive";
     static auto constexpr evaluateRecursive_desc = "Recursively evaluates all string members in the JSON object as expressions, allowing for complex nested structures to be evaluated and set in one command.\n"
         "Usage: json evaluate recursive <key>\n"

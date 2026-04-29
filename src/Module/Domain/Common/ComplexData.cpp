@@ -20,8 +20,7 @@ Constants::Event ComplexData::querySet() {
     return Constants::StandardCapture::Error::Functional::functionNotImplemented(domain.capture);
 }
 
-// NOLINTNEXTLINE
-Constants::Event ComplexData::jsonSet(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event ComplexData::jsonSet(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -37,8 +36,7 @@ Constants::Event ComplexData::jsonSet(std::span<std::string const> const& args, 
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
-Constants::Event ComplexData::evaluateMember(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event ComplexData::evaluateMember(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -61,8 +59,7 @@ Constants::Event ComplexData::evaluateMember(std::span<std::string const> const&
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
-Constants::Event ComplexData::evaluateRecursive(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
+Constants::Event ComplexData::evaluateRecursive(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope){
     std::function<void(Data::ScopedKey const&)> recursiveEvaluate = [&](auto const& key) -> void {
         switch (ctxScope.self.memberType(key)) {
             case Data::KeyType::value:
