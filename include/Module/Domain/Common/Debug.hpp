@@ -38,7 +38,7 @@ public:
     static auto constexpr printId_desc = "Prints the unique ID of the domain to the console for debugging purposes.\n"
        "Usage: print-id\n";
 
-    [[nodiscard]] static Constants::Event error(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event error(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr error_name = "error";
     static auto constexpr error_desc = "Echoes all arguments as string to the standard error.\n"
         "Usage: error <string...>\n"
