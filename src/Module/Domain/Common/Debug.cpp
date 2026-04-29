@@ -17,8 +17,7 @@ Constants::Event Debug::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-// NOLINTNEXTLINE
-Constants::Event Debug::print(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event Debug::print(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
@@ -42,8 +41,7 @@ Constants::Event Debug::print(std::span<std::string const> const& args, Interact
     return Constants::Event::Success;
 }
 
-// NOLINTNEXTLINE
-Constants::Event Debug::printId(std::span<std::string const> const& /*args*/, Interaction::Context& ctx, Interaction::ContextScope& /*ctxScope*/) {
+Constants::Event Debug::printId(std::span<std::string const> const& /*args*/, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
     ctx.self.capture.log.println(ctx.self.getId());
     return Constants::Event::Success;
 }
@@ -54,6 +52,8 @@ Constants::Event Debug::error(std::span<std::string const> const& args, Interact
     return Constants::Event::Success;
 }
 
+
+// Ignore lint: Function warn always returns Constants::Event::Warning
 // NOLINTNEXTLINE
 Constants::Event Debug::warn(std::span<std::string const> const& args) const {
     if (args.size() < 2) {

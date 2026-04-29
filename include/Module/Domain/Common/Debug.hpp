@@ -26,14 +26,14 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] static Constants::Event print(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event print(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     static auto constexpr print_name = "print";
     static auto constexpr print_desc = "Prints the JSON document to the console for debugging purposes.\n"
         "If key is empty, prints the entire document.\n"
         "\n"
         "Usage: print [key]\n";
 
-    [[nodiscard]] static Constants::Event printId(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event printId(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr printId_name = "print-id";
     static auto constexpr printId_desc = "Prints the unique ID of the domain to the console for debugging purposes.\n"
        "Usage: print-id\n";
