@@ -222,8 +222,8 @@ private:
          */
         enum class Type : uint8_t {
             variable, // outside $<cast>(...), Starts with self, other, global or a dot for link, represents a variable reference, outside an evaluatable context
-            eval, // inside $<cast>(...), represents an evaluatable expression
-            text // outside of a $<cast>(...), not a variable reference, Represents a plain text string
+            eval, // inside a $<cast>(...), represents an evaluatable expression
+            text // outside a $<cast>(...), not a variable reference, Represents a plain text string
         } type = Type::text;
 
         ContextDeriver::TargetType contextType = ContextDeriver::TargetType::none; // Default to none
@@ -241,6 +241,7 @@ private:
 
         /**
          * @brief Holds the context-stripped key of the component, if it's of type variable.
+         * @todo Should be reducible to string_view of stringRepresentation
          */
         std::string key;
 
@@ -353,7 +354,7 @@ private:
     } virtualDoubles;
 
     /**
-     * @brief Info about this expressions evaluation-ability
+     * @brief Info about the expressions evaluation-ability
      * @details Some expressions are not always castable to types like numeric values or strings
      *          without the loss of information
      */
