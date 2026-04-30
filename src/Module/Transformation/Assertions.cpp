@@ -1,7 +1,14 @@
-#include "Module/Transformation/Assertions.hpp"
+//------------------------------------------
+// Includes
 
+// Standard library
+#include <regex>
+
+// Nebulite
+#include "Module/Transformation/Assertions.hpp"
 #include "Nebulite.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
 
 void Assertions::bindTransformations() {
@@ -12,6 +19,9 @@ void Assertions::bindTransformations() {
     bindTransformation(&Assertions::assertTypeObject, assertTypeObjectName, assertTypeObjectDesc);
     bindTransformation(&Assertions::assertTypeArray, assertTypeArrayName, assertTypeArrayDesc);
     bindTransformation(&Assertions::assertTypeBasicValue, assertTypeBasicValueName, assertTypeBasicValueDesc);
+
+    bindCategory(assertMatchName, assertMatchDesc);
+    bindTransformation(&Assertions::assertMatchRegex, assertMatchesRegexName, assertMatchesRegexDesc);
 
     bindCategory(assertEqualsName, assertEqualsDesc);
     bindTransformation(&Assertions::assertEqualsString, assertEqualsStringName, assertEqualsStringDesc);
@@ -26,7 +36,7 @@ void Assertions::printUserDefinedMessage(std::span<std::string const> const& arg
 }
 
 // NOLINTNEXTLINE
-bool Assertions::assertNonEmpty(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool Assertions::assertNonEmpty(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
     if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         printUserDefinedMessage(args);
         static std::string errorMessage = std::string(assertNonEmptyName) + ": JSON value is null";
@@ -36,7 +46,7 @@ bool Assertions::assertNonEmpty(std::span<std::string const> const& args, Data::
 }
 
 // NOLINTNEXTLINE
-bool Assertions::assertTypeObject(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool Assertions::assertTypeObject(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::object) {
         printUserDefinedMessage(args);
         static std::string errorMessage = std::string(assertTypeObjectName) + ": JSON value is not an object";
@@ -46,7 +56,7 @@ bool Assertions::assertTypeObject(std::span<std::string const> const& args, Data
 }
 
 // NOLINTNEXTLINE
-bool Assertions::assertTypeArray(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool Assertions::assertTypeArray(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
         printUserDefinedMessage(args);
         static std::string errorMessage = std::string(assertTypeArrayName) + ": JSON value is not an array";
@@ -56,11 +66,24 @@ bool Assertions::assertTypeArray(std::span<std::string const> const& args, Data:
 }
 
 // NOLINTNEXTLINE
-bool Assertions::assertTypeBasicValue(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool Assertions::assertTypeBasicValue(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::value) {
         printUserDefinedMessage(args);
         static std::string errorMessage = std::string(assertTypeBasicValueName) + ": JSON value is not a basic value";
         throw std::runtime_error(errorMessage);
+    }
+    return true;
+}
+
+// NOLINTNEXTLINE
+bool Assertions::assertMatchRegex(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc){
+    std::string const pattern = args.size() < 2 ? "" : Utility::StringHandler::recombineArgs(args.subspan(1));
+    std::regex const regex(pattern);
+    if (jsonDoc->memberType(rootKey) != Data::KeyType::value) {
+        throw std::runtime_error(std::string(assertMatchesRegexName) + ": Current JSON value is not a basic value, expected string to match regex: '" + pattern + "'");
+    }
+    if (auto const actual = jsonDoc->get<std::string>(rootKey).value_or("null"); !std::regex_match(actual, regex)) {
+        throw std::runtime_error(std::string(assertMatchesRegexName) + ": JSON value '" + actual + "' does not match expected regex '" + pattern + "'");
     }
     return true;
 }

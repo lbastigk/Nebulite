@@ -1,0 +1,8 @@
+set v MyTestString
+
+# Verify the value matches the regex
+eval nop {global:v|assert match regex ^MyTestString$}
+eval nop {global:v|assert match regex ^My.*String$}
+
+# Another test with a non-matching regex
+eval nop {global:v|assert match regex ^My.*string$}

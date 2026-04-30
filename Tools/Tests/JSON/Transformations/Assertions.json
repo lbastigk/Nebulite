@@ -121,5 +121,18 @@
             ],
             "ignore_exit": true
         }
+    },
+    {
+        "command": [
+            "task TaskFiles/Tests/Transformations/assertRegex.nebs"
+        ],
+        "expected": {
+            "cout": [],
+            "cerr": [
+                "terminate called after throwing an instance of 'std::runtime_error'",
+                "  what():  assert match regex: JSON value 'MyTestString' does not match expected regex '^My.*string'"
+            ],
+            "ignore_exit": true
+        }
     }
 ]
