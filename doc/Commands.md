@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Tue Apr 28 07:31:27 PM CEST 2026
+Generated on: Thu Apr 30 02:57:16 CEST 2026
 
 ## Table of Contents
 
@@ -1765,6 +1765,7 @@ Available Functions
 |----------|-------------|
 | `equals` | Assertion transformations that validate JSON value equality and throw exceptions on failure. |
 | `help` | Show available commands and their descriptions |
+| `match` | Assertion transformation that validate JSON string values with patterns and throw exceptions on failure. |
 | `nonEmpty` | Asserts that the current JSON value is non-empty. |
 | `type` | Assertion transformations that validate JSON value types and throw exceptions on failure. |
 
@@ -1775,15 +1776,40 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `help` | Show available commands and their descriptions |
+| `int` | Asserts that the current JSON value is an integer. |
 | `string` | Asserts that the current JSON value is equal to the specified string. |
+
+###### `assert equals int`
+
+```
+Asserts that the current JSON value is an integer.
+If the value is not an integer, the transformation fails and the program exits
+Usage: |assert equals int <expected> -> {value,<Exception thrown if not equal>}
+```
 
 ###### `assert equals string`
 
 ```
 Asserts that the current JSON value is equal to the specified string.
 If the value is not equal to the specified string, the transformation fails and the program exits
-Accepts an optional user-defined error message as additional arguments.
-Usage: |assertEqualsString <expected> -> {value,<Exception thrown if not equal>}
+Usage: |assert equals string <expected> -> {value,<Exception thrown if not equal>}
+```
+
+##### `assert match`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `regex` | Asserts that the current JSON string value matches a provided regular expression. |
+
+###### `assert match regex`
+
+```
+Asserts that the current JSON string value matches a provided regular expression.
+If the value does not match the regular expression, the transformation fails and the program exits
+Usage: |assert match regex <regex> -> {value,<Exception thrown if not matches>}
 ```
 
 ##### `assert nonEmpty`
@@ -1792,7 +1818,7 @@ Usage: |assertEqualsString <expected> -> {value,<Exception thrown if not equal>}
 Asserts that the current JSON value is non-empty.
 If the value is empty, the transformation fails and the program exits
 Accepts an optional user-defined error message as additional arguments.
-Usage: |assertNonEmpty -> {value,<Exception thrown if empty>}
+Usage: |assert nonEmpty -> {value,<Exception thrown if empty>}
 ```
 
 ##### `assert type`
@@ -1812,7 +1838,7 @@ Available Functions
 Asserts that the current JSON value is of type array.
 If the value is not an array, the transformation fails and the program exits
 Accepts an optional user-defined error message as additional arguments.
-Usage: |assertTypeArray -> {value,<Exception thrown if not array>}
+Usage: |assert type array -> {value,<Exception thrown if not array>}
 ```
 
 ###### `assert type basicValue`
@@ -1821,7 +1847,7 @@ Usage: |assertTypeArray -> {value,<Exception thrown if not array>}
 Asserts that the current JSON value is a basic value (not object or array or null).
 If the value is not a basic value, the transformation fails and the program exits
 Accepts an optional user-defined error message as additional arguments.
-Usage: |assertTypeValue -> {value,<Exception thrown if not value>}
+Usage: |assert type value -> {value,<Exception thrown if not value>}
 ```
 
 ###### `assert type object`
@@ -1830,7 +1856,7 @@ Usage: |assertTypeValue -> {value,<Exception thrown if not value>}
 Asserts that the current JSON value is of type object.
 If the value is not an object, the transformation fails and the program exits
 Accepts an optional user-defined error message as additional arguments.
-Usage: |assertTypeObject -> {value,<Exception thrown if not object>}
+Usage: |assert type object -> {value,<Exception thrown if not object>}
 ```
 
 #### `assign`

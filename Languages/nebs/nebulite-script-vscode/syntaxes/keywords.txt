@@ -74,6 +74,7 @@ if
 imgui-view
 input-mapping
 input-wait
+int
 json
 key
 keyDelete
@@ -94,6 +95,7 @@ ls
 lt
 map
 master-unlock
+match
 max
 median
 member
@@ -133,6 +135,7 @@ rPadNonNumeric
 rPadNumeric
 rStrip
 recursive
+regex
 reload
 remove
 removeMember
