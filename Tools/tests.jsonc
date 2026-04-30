@@ -20,6 +20,10 @@
         "Tools/Tests/basics.json",
         "Tools/Tests/time.json",
         //---------------------------------------
+        // Domain tests
+        "Tools/Tests/Domain/commonUtilities.json",
+        "Tools/Tests/Domain/deserialization.json",
+        //---------------------------------------
         // Expression tests
         "Tools/Tests/Expression/basics.json",
         "Tools/Tests/Expression/math.json",
@@ -45,10 +49,6 @@
         "Tools/Tests/JSON/Transformations/Statistics.json",
         "Tools/Tests/JSON/Transformations/String.json",
         "Tools/Tests/JSON/Transformations/Types.json",
-        //---------------------------------------
-        // Domain tests
-        "Tools/Tests/Domain/deserialization.json",
-        "Tools/Tests/Domain/commonUtilities.json",
         //---------------------------------------
         // Ruleset tests
         "Tools/Tests/Rulesets/DebugUtils.json",

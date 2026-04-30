@@ -1,5 +1,42 @@
 [
     {
+        "command": "echo Hello, World!",
+        "expected": { "cout": ["Hello, World!"], "cerr": [] }
+    },
+    {
+        "command": "eval echo $i(1+1)",
+        "expected": { "cout": ["2"], "cerr": [] }
+    },
+    {
+        "command": "nop",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "assert $(eq(2,1+1))",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "for i 1 5 echo Iteration {i}",
+        "expected": {
+            "cout": [
+                "Iteration 1",
+                "Iteration 2",
+                "Iteration 3",
+                "Iteration 4",
+                "Iteration 5"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": "if $(eq(1+1,2)) then echo true",
+        "expected": { "cout": ["true"], "cerr": [] }
+    },
+    {
+        "command": "if $(eq(1+1,3)) then echo false",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
         "command": "task TaskFiles/Tests/JSON/Assign.nebs",
         "expected": { "cout": [
             "[",
@@ -7,5 +44,25 @@
             "    \"dt_ms\"",
             "]"
         ], "cerr": [] }
+    },
+    {
+        "command": "error Hello, Error!",
+        "expected": { "cout": [], "cerr": ["Hello, Error!"] }
+    },
+    {
+        "command": "print physics.G",
+        "expected": { "cout": ["6.6743e-11"], "cerr": [] }
+    },
+    {
+        "command": "print-id",
+        "expected": { "cout": ["0"], "cerr": [] }
+    },
+    {
+        "command": "warn This is a warning!",
+        "expected": { "cout": [], "cerr": ["This is a warning!"] }
+    },
+    {
+        "command": "set-fps 60 ; wait 1; critical Aborting due to error!",
+        "expected": { "cout": [], "cerr": ["Aborting due to error!"], "ignore_exit": true }
     }
 ]

@@ -59,6 +59,7 @@ public:
         "Useful for testing or as a placeholder in scripts where no action is required,\n"
         "but a command is syntactically necessary.\n";
 
+    // TODO: Use recombineArgs to use the full line of code instead of args[1]
     [[nodiscard]] static Constants::Event func_assert(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     static auto constexpr assert_name = "assert";
     static auto constexpr assert_desc = "Asserts a condition and throws a custom error if false.\n"
