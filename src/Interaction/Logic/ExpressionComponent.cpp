@@ -212,7 +212,7 @@ std::optional<std::pair<std::string, ContextDeriver::TargetType>> Expression::Co
     }
 
     // If the evaluation changed anything, we must re-evaluate the context of the source
-    std::string evaluatedKey = s.has_value() ? std::string(ContextDeriver::stripContext(s.value())) : key;
+    std::string evaluatedKey = s.has_value() ? ContextDeriver::stripContext(s.value()) : key;
     ContextDeriver::TargetType source = s.has_value() ? ContextDeriver::getTypeFromString(s.value()) : contextType;
     return std::make_pair(evaluatedKey, source);
 }
