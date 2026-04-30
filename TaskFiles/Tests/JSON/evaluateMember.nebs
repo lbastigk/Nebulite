@@ -1,12 +1,23 @@
 # Set some variables in global space
-
+# Start value, obj holds a single expression and an array of expressions
 set obj.expression {global:obj.expressions|typeAsString}
 set obj.expressions[0] $(1+1)
 set obj.expressions[1] $({global:obj.expressions[0]}+1)
 set obj.expressions[2] {|ensureArray|push a|push b|push c|filterNulls}
 
-print obj
+# Evaluate the single expression
 json evaluate member obj.expression
+
+# Recursively evaluate the array of expressions
 json evaluate recursive obj.expressions
-print obj
+
+# Verify the results
+eval nop {global:obj.expression|assert equals string array:3}
+eval nop {global:obj.expressions[0]|assert equals int 2}
+eval nop {global:obj.expressions[1]|assert equals int 1}
+eval nop {global:obj.expressions[2]|typeAsString|assert equals string array:3}
+eval nop {global:obj.expressions[2][0]|assert equals string a}
+eval nop {global:obj.expressions[2][1]|assert equals string b}
+eval nop {global:obj.expressions[2][2]|assert equals string c}
+
 exit

@@ -2,38 +2,14 @@
     {
         "command": "task TaskFiles/Tests/JSON/retrieval.nebs",
         "expected": { 
-            "cout": [
-                "Printing value retrieved from: ./Resources/Renderobjects/standard.jsonc:size.x",
-                "Expected value: 32",
-                "32"
-            ], 
+            "cout": [],
             "cerr": [] 
         }
     },
     {
         "command": "task TaskFiles/Tests/JSON/evaluateMember.nebs",
         "expected": {
-            "cout": [
-                "{",
-                "    \"expression\": \"{global:obj.expressions|typeAsString}\",",
-                "    \"expressions\": [","        \"$(1+1)\",",
-                "        \"$({global:obj.expressions[0]}+1)\",",
-                "        \"{|ensureArray|push a|push b|push c|filterNulls}\"",
-                "    ]",
-                "}",
-                "{",
-                "    \"expression\": \"array:3\",",
-                "    \"expressions\": [",
-                "        2.0,",
-                "        1.0,",
-                "        [",
-                "            \"a\",",
-                "            \"b\",",
-                "            \"c\"",
-                "        ]",
-                "    ]",
-                "}"
-            ],
+            "cout": [],
             "cerr": []
         }
     }
