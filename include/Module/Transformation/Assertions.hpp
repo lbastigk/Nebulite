@@ -70,12 +70,19 @@ public:
 
     // TODO: assertRegex perhaps?
 
-    static bool assertEqualsString(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static bool assertEqualsString(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc);
     static auto constexpr assertEqualsStringName = "assert equals string";
     static auto constexpr assertEqualsStringDesc = "Asserts that the current JSON value is equal to the specified string.\n"
         "If the value is not equal to the specified string, the transformation fails and the program exits\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |assertEqualsString <expected> -> {value,<Exception thrown if not equal>}\n";
+
+    static bool assertEqualsInt(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc);
+    static auto constexpr assertEqualsIntName = "assert equals int";
+    static auto constexpr assertEqualsIntDesc = "Asserts that the current JSON value is an integer.\n"
+        "If the value is not an integer, the transformation fails and the program exits\n"
+        "Accepts an optional user-defined error message as additional arguments.\n"
+        "Usage: |assertEqualsInt <expected> -> {value,<Exception thrown if not equal>}\n";
 
 private:
     /**
