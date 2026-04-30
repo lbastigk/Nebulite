@@ -53,7 +53,7 @@ public:
 
     /**
      * @brief used to strip any context prefix from a key
-    * @details Removes the beginning, if applicable.
+     * @details Removes the beginning, if applicable.
      *          Does not remove the beginning context for resource variables,
      *          as the beginning is needed for the link.
      * @param str The string to strip the context from, is modified!
