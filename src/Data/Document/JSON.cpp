@@ -149,10 +149,7 @@ void JSON::synchronizeChildren(std::string_view const& parentKey) const {
                 entry->last_double_value = *entry->stable_double_ptr;
             }
             else {
-                entry->state = CacheEntry::EntryState::DELETED; // Mark as deleted
-                entry->value = standardNumericValue;
-                *entry->stable_double_ptr = standardNumericValue;
-                entry->last_double_value = standardNumericValue;
+                deleteCacheEntry(entry);
             }
         }
     }
@@ -413,6 +410,9 @@ void JSON::setVariant(std::string_view const& key, RjDirectAccess::simpleValue c
 void JSON::setSubDoc(std::string_view const& key, JSON const& child, std::string_view const& childKey) {
     std::scoped_lock const lockGuard(mtx);
 
+    // Delete cache entry
+    deleteCacheEntry(key);
+
     // Flush own contents
     flush();
     helperNonConstVar++; // Signal non-const operation
@@ -433,6 +433,9 @@ void JSON::setSubDoc(std::string_view const& key, JSON const& child, std::string
             }
             keyVal->CopyFrom(childCopy, doc.GetAllocator());
 
+            // Delete cache entry
+            deleteCacheEntry(childKey);
+
             // Delete the child copy to free memory, since it's no longer needed
             childCopy.SetNull();
         }
@@ -447,13 +450,7 @@ void JSON::setSubDoc(std::string_view const& key, JSON const& child, std::string
     }
 
     // Check if cache holds the key mark as deleted
-    if (auto const it = cache.find(key); it != cache.end()) {
-        auto const& entry = it->second;
-        entry->state = CacheEntry::EntryState::DELETED; // Mark as deleted
-        entry->value = standardNumericValue;
-        *entry->stable_double_ptr = standardNumericValue;
-        entry->last_double_value = standardNumericValue;
-    }
+    deleteCacheEntry(key);
 
     // Since we inserted an entire document, we need sync its children
     synchronizeChildren(key);
@@ -489,10 +486,7 @@ void JSON::deserialize(std::string_view const& serialOrLink) {
     flush();
     doc.SetObject();
     for (auto const& entry : std::views::values(cache)) {
-        entry->state = CacheEntry::EntryState::DELETED; // Mark as deleted
-        entry->value = standardNumericValue; // Reset value to default
-        *entry->stable_double_ptr = standardNumericValue;
-        entry->last_double_value = standardNumericValue;
+        deleteCacheEntry(entry);
     }
 
     //------------------------------------------

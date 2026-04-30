@@ -69,5 +69,19 @@
             ],
             "cerr": []
         }
+    },
+    {
+        "command":[
+            "eval echo {global:|typeAsString|ensureArray|print}"
+        ],
+        "expected":{
+            "cout":[
+                "[",
+                "    \"object:4\"",
+                "]",
+                "[array]"
+            ],
+            "cerr":[]
+        }
     }
 ]

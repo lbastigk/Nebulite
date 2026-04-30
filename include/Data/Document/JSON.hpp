@@ -236,6 +236,23 @@ private:
     std::unique_ptr<JsonScope> fullScopeBaseInstance;
     std::unique_ptr<JsonScope> dummyScopeBaseInstance;
 
+    //------------------------------------------
+    // Cache management
+
+    void deleteCacheEntry(std::string_view const& key) const {
+        if (auto const it = cache.find(key); it != cache.end()) {
+            auto const& entry = it->second;
+            deleteCacheEntry(entry);
+        }
+    }
+
+    static void deleteCacheEntry(std::unique_ptr<CacheEntry> const& entry) {
+        entry->state = CacheEntry::EntryState::DELETED; // Mark as deleted
+        entry->value = standardNumericValue;
+        *entry->stable_double_ptr = standardNumericValue;
+        entry->last_double_value = standardNumericValue;
+    }
+
 public:
     //------------------------------------------
     // Assertions
