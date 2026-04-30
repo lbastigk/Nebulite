@@ -14,6 +14,7 @@ namespace Nebulite::Module::Transformation {
 void Assertions::bindTransformations() {
     bindCategory(assertName, assertDesc);
     bindTransformation(&Assertions::assertNonEmpty, assertNonEmptyName, assertNonEmptyDesc);
+    bindTransformation(&Assertions::assertEmpty, assertEmptyName, assertEmptyDesc);
 
     bindCategory(assertTypeName, assertTypeDesc);
     bindTransformation(&Assertions::assertTypeObject, assertTypeObjectName, assertTypeObjectDesc);
@@ -40,6 +41,15 @@ bool Assertions::assertNonEmpty(std::span<std::string const> const& args, Data::
     if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         printUserDefinedMessage(args);
         static std::string errorMessage = std::string(assertNonEmptyName) + ": JSON value is null";
+        throw std::runtime_error(errorMessage);
+    }
+    return true;
+}
+
+bool Assertions::assertEmpty(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc){
+    if (jsonDoc->memberType(rootKey) != Data::KeyType::null) {
+        printUserDefinedMessage(args);
+        static std::string errorMessage = std::string(assertEmptyName) + ": JSON value is not null";
         throw std::runtime_error(errorMessage);
     }
     return true;

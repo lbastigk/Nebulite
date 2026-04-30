@@ -50,6 +50,13 @@ public:
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |assert nonEmpty -> {value,<Exception thrown if empty>}\n";
 
+    static bool assertEmpty(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc);
+    static auto constexpr assertEmptyName = "assert empty";
+    static auto constexpr assertEmptyDesc = "Asserts that the current JSON value is empty.\n"
+        "If the value is not empty, the transformation fails and the program exits\n"
+        "Accepts an optional user-defined error message as additional arguments.\n"
+        "Usage: |assert empty -> {value,<Exception thrown if not empty>}\n";
+
     // [TYPE]
 
     static bool assertTypeObject(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc);
