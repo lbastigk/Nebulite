@@ -164,7 +164,7 @@ public:
      * @param link The link to the document.
      * @return The serialized JSON string of the entire document.
      */
-    std::string getDocString(std::string const& link) const {
+    std::string getDocString(std::string_view const& link) const {
         ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(link);
 
         // Check if the document exists in the cache
@@ -202,11 +202,11 @@ private:
      * @brief Splits a doc:key string into its components, also works for doc|transform or doc:key|transform
      */
     static std::pair<std::string, std::string> splitDocKey(std::string const& doc_key) {
-        size_t const barPos = doc_key.find(JSON::SpecialCharacter::transformationPipe);
-        size_t const colonPos = doc_key.find(Interaction::ContextDeriver::contextKeySeparator);
+        auto const barPos = doc_key.find(JSON::SpecialCharacter::transformationPipe);
+        auto const colonPos = doc_key.find(Interaction::ContextDeriver::contextKeySeparator);
 
         // Choose the first occurring separator
-        size_t const pos = colonPos == std::string::npos ? barPos
+        auto const pos = colonPos == std::string::npos ? barPos
                            : barPos == std::string::npos ? colonPos
                            : std::min(colonPos, barPos);
 
@@ -214,8 +214,8 @@ private:
             // No colon found, meaning the entire string is document name/link
             return {doc_key, ""};
         }
-        std::string const doc = doc_key.substr(0, pos);
-        std::string const key = doc_key.substr(pos + 1);
+        auto const doc = doc_key.substr(0, pos);
+        auto const key = doc_key.substr(pos + 1);
 
         // Add back the transform part if needed
         if (pos == barPos) {

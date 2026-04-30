@@ -17,32 +17,36 @@ bool Assignment::parse(std::string_view const& str) {
         return false;
     }
     keyStr = ContextDeriver::stripContext(str);
+
+    std::string_view valueView = keyStr;
+    std::string_view keyView = keyStr;
     
     // Find the operator position in the full expression, set operation, key and value
     if (size_t pos; (pos = keyStr.find("+=")) != std::string::npos) {
         operation = Operation::add;
-        value = keyStr.substr(pos + 2);
-        keyStr = keyStr.substr(0, pos);
+        valueView.remove_prefix(pos + 2);
+        keyView.remove_suffix(keyView.size() - pos);
     } else if ((pos = keyStr.find("*=")) != std::string::npos) {
         operation = Operation::multiply;
-        value = keyStr.substr(pos + 2);
-        keyStr = keyStr.substr(0, pos);
+        valueView.remove_prefix(pos + 2);
+        keyView.remove_suffix(keyView.size() - pos);
     } else if ((pos = keyStr.find("|=")) != std::string::npos) {
         operation = Operation::concat;
-        value = keyStr.substr(pos + 2);
-        keyStr = keyStr.substr(0, pos);
+        valueView.remove_prefix(pos + 2);
+        keyView.remove_suffix(keyView.size() - pos);
     } else if ((pos = keyStr.find('=')) != std::string::npos) {
         operation = Operation::set;
-        value = keyStr.substr(pos + 1);
-        keyStr = keyStr.substr(0, pos);
+        valueView.remove_prefix(pos + 1);
+        keyView.remove_suffix(keyView.size() - pos);
     } else {
         return false;
     }
-    keyStr = Utility::StringHandler::strip(keyStr);
+    Utility::StringHandler::strip(keyView);
+    Utility::StringHandler::strip(valueView);
 
-    // Remove whitespaces at start and end of key and value
-    key = std::make_unique<Expression>(Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(keyStr)));
-    value = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(value));
+    keyStr = keyView;
+    key = std::make_unique<Expression>(keyView);
+    value = valueView;
 
     // Set expression
     expression = std::make_unique<Expression>(value);

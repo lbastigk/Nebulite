@@ -31,7 +31,7 @@ std::optional<RjDirectAccess::simpleValue> RjDirectAccess::getSimpleValue(rapidj
     return  std::nullopt;
 }
 
-rapidjson::Value* RjDirectAccess::traversePath(char const* key, rapidjson::Value const& val) {
+rapidjson::Value* RjDirectAccess::traversePath(std::string_view const& key, rapidjson::Value const& val) {
     rapidjson::Value const* current = &val;
     std::string_view keyView(key);
 
@@ -92,7 +92,7 @@ rapidjson::Value* RjDirectAccess::traversePath(char const* key, rapidjson::Value
     return const_cast<rapidjson::Value*>(current);
 }
 
-rapidjson::Value* RjDirectAccess::ensurePath(char const* key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
+rapidjson::Value* RjDirectAccess::ensurePath(std::string_view const& key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
 
@@ -248,7 +248,7 @@ std::string RjDirectAccess::serialize(rapidjson::Value const& val) {
     return buffer.GetString();
 }
 
-void RjDirectAccess::deserialize(rapidjson::Document& doc, std::string const& serialOrLink) {
+void RjDirectAccess::deserialize(rapidjson::Document& doc, std::string_view const& serialOrLink) {
     std::string jsonString;
 
     // Check if the input is already a serialized JSON string
@@ -331,7 +331,7 @@ bool handleRegularContent(char const c, char const next, ParseState& state, std:
 }
 } // namespace
 
-std::string RjDirectAccess::stripComments(std::string const& jsonc) {
+std::string RjDirectAccess::stripComments(std::string_view const& jsonc) {
     std::string result;
     result.reserve(jsonc.size());
     ParseState state;
@@ -355,7 +355,7 @@ std::string RjDirectAccess::stripComments(std::string const& jsonc) {
     return result;
 }
 
-rapidjson::Value* RjDirectAccess::traverseToParent(char const* fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex) {
+rapidjson::Value* RjDirectAccess::traverseToParent(std::string_view const& fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex) {
     std::string const keyStr(fullKey);
     size_t const lastDot = keyStr.find_last_of(SpecialCharacter::dot);
     size_t const lastBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
@@ -388,18 +388,19 @@ rapidjson::Value* RjDirectAccess::traverseToParent(char const* fullKey, rapidjso
     return const_cast<rapidjson::Value*>(parent);
 }
 
-void RjDirectAccess::removeMember(char const* key, rapidjson::Value& val) {
+void RjDirectAccess::removeMember(std::string_view const& key, rapidjson::Value& val) {
     // Edge case: empty key
-    if (key == nullptr || key[0] == '\0') {
+    if (key.empty()) {
         // Remove entire document content
         val.SetNull();
         return;
     }
 
     // Handle simple case: direct member of root document
-    if (std::string const keyStr(key); keyStr.find(SpecialCharacter::dot) == std::string::npos && keyStr.find(SpecialCharacter::arrayOpen) == std::string::npos) {
-        if (val.HasMember(key)) {
-            val.RemoveMember(key);
+    if (key.find(SpecialCharacter::dot) == std::string::npos && key.find(SpecialCharacter::arrayOpen) == std::string::npos) {
+        std::string const keyStr(key);
+        if (val.HasMember(keyStr.c_str())) {
+            val.RemoveMember(keyStr.c_str());
         }
         return;
     }
@@ -430,7 +431,7 @@ void RjDirectAccess::removeMember(char const* key, rapidjson::Value& val) {
     }
 }
 
-bool RjDirectAccess::isJsonOrJsonc(std::string const& str) {
+bool RjDirectAccess::isJsonOrJsonc(std::string_view const& str) {
     // Complicated check using RapidJSON parsing
     // Simpler check is just not worth it due to various valid JSON formats
     rapidjson::Document doc;
@@ -438,7 +439,7 @@ bool RjDirectAccess::isJsonOrJsonc(std::string const& str) {
     return !doc.Parse(cleanJson.c_str()).HasParseError();
 }
 
-bool RjDirectAccess::isValidKey(std::string const& key) {
+bool RjDirectAccess::isValidKey(std::string_view const& key) {
     std::string_view keyView(key);
     while (!keyView.empty()) {
         // Extract current key part (object key)

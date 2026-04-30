@@ -49,7 +49,16 @@ public:
      * @param str The string to strip the context from.
      * @return The string without its context prefix.
      */
-    static std::string_view stripContext(std::string_view const& str);
+    static std::string stripContext(std::string_view const& str);
+
+    /**
+     * @brief used to strip any context prefix from a key
+     * @details Removes the beginning, if applicable.
+     *          Does not remove the beginning context for resource variables,
+     *          as the beginning is needed for the link.
+     * @param str The string to strip the context from, is modified!
+     */
+    static void stripContextFromView(std::string_view& str);
 
     /**
      * @brief Gets the context from a key before it's stripped
@@ -59,6 +68,12 @@ public:
      */
     static TargetType getTypeFromString(std::string_view const& str);
 
+    /**
+     * @brief Gets the context and type from a key before it's stripped
+     * @details If the string doesn't start with a known prefix, it is considered a resource variable. The returned prefix string is the full given string.
+     * @param str The string to get the context and prefix from
+     * @return The Target and string_view as pair.
+     */
     static std::pair<TargetType, std::string_view> getTypeAndPrefixFromString(std::string_view const& str);
 
     static auto constexpr contextKeySeparator = ':';
@@ -83,7 +98,7 @@ public:
     Target& other;
     Target& global; // The global target, must be the owner of self and other to outlive them! Otherwise, some context storages may break!
 
-    std::optional<std::reference_wrapper<Target>> getTargetFromType(ContextDeriver::TargetType const& type) const {
+    [[nodiscard]] std::optional<std::reference_wrapper<Target>> getTargetFromType(ContextDeriver::TargetType const& type) const {
         switch (type) {
             case ContextDeriver::TargetType::self:
                 return self;

@@ -120,7 +120,7 @@ protected:
      * @param baseKeys The key list to retrieve
      * @return The BaseList-ensurer function.
      */
-    std::function<double**(const Execution::Domain&)> generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const ;
+    [[nodiscard]] std::function<double**(const Execution::Domain&)> generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const ;
 
 private:
     // Vector of all static rulesets from this module

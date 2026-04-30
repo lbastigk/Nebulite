@@ -228,18 +228,17 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
     // Is a valid JSON-defined ruleset
     auto Ruleset = std::make_shared<JsonRuleset>(self);
     Ruleset->topic = entry.get<std::string>(Constants::KeyNames::Ruleset::topic).value_or("all");
-    Ruleset->_isGlobal = !Ruleset->topic.empty(); // If topic is empty, it is a local invoke
-    std::string logicalArgStr = getCondition(entry);
-    logicalArgStr = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(logicalArgStr));
-    Ruleset->logicalArg = std::make_unique<Logic::ExpressionPool>(logicalArgStr);
 
-    // Remove whitespaces at start and end from topic and logicalArg:
-    Ruleset->topic = Utility::StringHandler::rStrip(Utility::StringHandler::lStrip(Ruleset->topic));
+    std::string const logicalArgStr = getCondition(entry);
+    std::string_view lsa = logicalArgStr;
+    Utility::StringHandler::strip(lsa);
+    Ruleset->logicalArg = std::make_unique<Logic::ExpressionPool>(lsa);
 
-    // If topic becomes empty after stripping, treat as local-only
-    if (Ruleset->topic.empty()) {
-        Ruleset->topic = ""; // Keep empty for local identification
-    }
+    // Remove whitespaces at start and end from topic:
+    std::string_view top = Ruleset->topic;
+    Utility::StringHandler::strip(top);
+    Ruleset->topic = top;
+    Ruleset->_isGlobal = !Ruleset->topic.empty(); // If topic is empty, it is a local ruleset
 
     // Get and parse all assignments
     getAssignments(Ruleset, entry);

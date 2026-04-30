@@ -40,7 +40,7 @@ namespace Nebulite::Interaction::Logic {
  */
 class ExpressionPool {
 public:
-    explicit ExpressionPool(std::string const& expr) {
+    explicit ExpressionPool(std::string_view const& expr) {
         parse(expr);
     }
 
@@ -118,7 +118,7 @@ private:
      *        Matches Nebulite::Interaction::Logic::Expression::parse, but allows for concurrent evaluation across multiple threads.
      * @param expr The expression to parse.
      */
-    void parse(std::string const& expr){
+    void parse(std::string_view const& expr){
         static_assert(EXPRESSION_POOL_SIZE > 0, "EXPRESSION_POOL_SIZE must be greater than 0");
 
         fullExpression = expr;

@@ -119,22 +119,28 @@ bool String::rPadNonNumeric(std::span<std::string const> const& args, Data::Json
 
 // NOLINTNEXTLINE
 bool String::strip(Data::JsonScope* jsonDoc) {
-    auto const str = Utility::StringHandler::strip(jsonDoc->get<std::string>(rootKey).value_or(""));
-    jsonDoc->set(rootKey, str);
+    auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
+    std::string_view view = str;
+    Utility::StringHandler::strip(view);
+    jsonDoc->set(rootKey, view);
     return true;
 }
 
 // NOLINTNEXTLINE
 bool String::lStrip(Data::JsonScope* jsonDoc) {
-    auto const str = Utility::StringHandler::lStrip(jsonDoc->get<std::string>(rootKey).value_or(""));
-    jsonDoc->set(rootKey, str);
+    auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
+    std::string_view view = str;
+    Utility::StringHandler::lStrip(view);
+    jsonDoc->set(rootKey, view);
     return true;
 }
 
 // NOLINTNEXTLINE
 bool String::rStrip(Data::JsonScope* jsonDoc) {
-    auto const str = Utility::StringHandler::rStrip(jsonDoc->get<std::string>(rootKey).value_or(""));
-    jsonDoc->set(rootKey, str);
+    auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
+    std::string_view view = str;
+    Utility::StringHandler::rStrip(view);
+    jsonDoc->set(rootKey, view);
     return true;
 }
 

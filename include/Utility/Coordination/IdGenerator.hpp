@@ -7,6 +7,12 @@
 #define NEBULITE_UTILITY_COORDINATION_ID_GENERATOR_HPP
 
 //------------------------------------------
+// Includes
+
+// Standard library
+#include <functional>
+
+//------------------------------------------
 namespace Nebulite::Utility::Coordination {
 /**
  * @class Nebulite::Utility::Coordination::IdGenerator

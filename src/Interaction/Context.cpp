@@ -9,16 +9,23 @@
 //------------------------------------------
 namespace Nebulite::Interaction {
 
-std::string_view ContextDeriver::stripContext(std::string_view const& str){
+std::string ContextDeriver::stripContext(std::string_view const& str){
+    std::string_view strView = str;
+    stripContextFromView(strView);
+    return std::string(strView);
+}
+
+void ContextDeriver::stripContextFromView(std::string_view& str){
     auto [targetType, targetString] = getTypeAndPrefixFromString(str);
     // Don't strip context for resource variables or a none-context, as the context is needed for the link
     if (targetType == TargetType::resource || targetType == TargetType::none) {
-        return str;
+        return;
     }
     if (str.size() <= targetString.size()) {
-        return "";
+        str = "";
+        return;
     }
-    return str.substr(targetString.size() + 1);
+    str = str.substr(targetString.size() + 1);
 }
 
 ContextDeriver::TargetType ContextDeriver::getTypeFromString(std::string_view const& str){

@@ -16,10 +16,10 @@ namespace Nebulite::Utility {
 
 std::string StringHandler::createPaddedTable(std::vector<std::string> const& words, size_t const& rowSize){
     // Find largest word
-    auto maxSize = std::ranges::max_element(words, [](std::string const& a, std::string const& b) {
+    auto maxSize = std::ranges::max_element(words, [](std::string_view const& a, std::string_view const& b) {
         return a.size() < b.size();
     })->length();
-    return std::accumulate(words.begin(), words.end(), std::string(""), [maxSize, rowSize](std::string const& acc, std::string const& a) {
+    return std::accumulate(words.begin(), words.end(), std::string(""), [maxSize, rowSize](std::string_view const& acc, std::string_view const& a) {
         std::string const paddedEntry = a + std::string(maxSize - a.length() + 1, ' ');
         if (rowSize > 0) {
             // Determine linebreaks
@@ -32,7 +32,7 @@ std::string StringHandler::createPaddedTable(std::vector<std::string> const& wor
     });
 }
 
-bool StringHandler::containsAnyOf(std::string const& str, std::string const& chars) {
+bool StringHandler::containsAnyOf(std::string_view const& str, std::string_view const& chars) {
     return std::ranges::any_of(str, [&](char const c) {
         return chars.find(c) != std::string::npos;
     });
@@ -50,7 +50,7 @@ bool StringHandler::isNumber(std::string_view const& str) {
            && !str.empty();
 }
 
-std::string StringHandler::replaceAll(std::string target, std::string const& toReplace, std::string const& replacer) {
+std::string StringHandler::replaceAll(std::string target, std::string_view const& toReplace, std::string_view const& replacer) {
     if (toReplace.empty())
         return target;
     return target
@@ -59,34 +59,31 @@ std::string StringHandler::replaceAll(std::string target, std::string const& toR
         | std::ranges::to<std::string>();
 }
 
-std::string StringHandler::untilSpecialChar(std::string const& input, char const& specialChar) {
-    if (size_t const pos = input.find(specialChar); pos != std::string::npos && pos < input.size()) {
-        return input.substr(0, pos);
+void StringHandler::untilSpecialChar(std::string_view& str, char const& specialChar) {
+    if (size_t const pos = str.find(specialChar); pos != std::string::npos && pos < str.size()) {
+        str.remove_suffix(str.size() - pos);
     }
-    return input;
 }
 
-std::string StringHandler::afterSpecialChar(std::string const& input, char const& specialChar) {
-    if (size_t const pos = input.find(specialChar); pos != std::string::npos && pos + 1 < input.size()) {
-        return input.substr(pos + 1);
+void StringHandler::afterSpecialChar(std::string_view& str, char const& specialChar) {
+    if (size_t const pos = str.find(specialChar); pos != std::string::npos && pos + 1 < str.size()) {
+        str.remove_prefix(pos + 1);
     }
-    return input;
 }
 
-std::string StringHandler::lStrip(std::string const& input, char const& specialChar) {
-    size_t const start = input.find_first_not_of(specialChar);
-    return start == std::string::npos ? "" : input.substr(start);
+void StringHandler::lStrip(std::string_view& str, char const& specialChar) {
+    size_t const start = str.find_first_not_of(specialChar);
+    str.remove_prefix(start == std::string::npos ? 0 : start);
 }
 
-std::string StringHandler::rStrip(std::string const& input, char const& specialChar) {
-    size_t const end = input.find_last_not_of(specialChar);
-    return end == std::string::npos ? "" : input.substr(0, end + 1);
+void StringHandler::rStrip(std::string_view& str, char const& specialChar) {
+    size_t const end = str.find_last_not_of(specialChar);
+    str.remove_suffix(end == std::string::npos ? 0 : str.size() - end - 1);
 }
 
-std::string StringHandler::strip(std::string const& input, char const& specialChar) {
-    size_t const start = input.find_first_not_of(specialChar);
-    size_t const end = input.find_last_not_of(specialChar);
-    return start == std::string::npos || end == std::string::npos ? "" : input.substr(start, end - start + 1);
+void StringHandler::strip(std::string_view& str, char const& specialChar) {
+    lStrip(str, specialChar);
+    rStrip(str, specialChar);
 }
 
 std::vector<std::string> StringHandler::split(std::string_view const& input, char const& delimiter, bool const& keepDelimiter) {
@@ -139,7 +136,7 @@ std::vector<std::string> StringHandler::split(std::string_view const& input, cha
     return tokens;
 }
 
-std::vector<std::string> StringHandler::splitOnSameDepth(std::string const& input, char const& delimiter) {
+std::vector<std::string> StringHandler::splitOnSameDepth(std::string_view const& input, char const& delimiter) {
     std::vector<std::string> result;
 
     // Map opening delimiters to their closing ones
@@ -158,7 +155,7 @@ std::vector<std::string> StringHandler::splitOnSameDepth(std::string const& inpu
 
     if (closing == 0) {
         // Invalid delimiter
-        result.push_back(input);
+        result.emplace_back(input);
         return result;
     }
 
@@ -220,20 +217,20 @@ void handleEmptyToken(QuoteParseState const& state, std::vector<std::string>& re
     }
 }
 
-std::string processQuoteToken(std::string const& token, char const quoteChar, bool& quoteState) {
-    std::string cleanToken = token.substr(1); // Remove opening quote
+std::string processQuoteToken(std::string_view const& token, char const quoteChar, bool& quoteState) {
+    auto cleanToken = token.substr(1); // Remove opening quote
     quoteState = true;
 
     // Check if quote closes in same token
     if (!cleanToken.empty() && cleanToken.back() == quoteChar) {
         quoteState = false;
-        cleanToken.pop_back(); // Remove closing quote
+        cleanToken.remove_suffix(1); // Remove closing quote
     }
 
-    return cleanToken;
+    return std::string(cleanToken);
 }
 
-void handleQuoteStart(std::string const& token, QuoteParseState& state, std::vector<std::string>& result) {
+void handleQuoteStart(std::string_view const& token, QuoteParseState& state, std::vector<std::string>& result) {
     if (token[0] == '"') {
         std::string const cleanToken = processQuoteToken(token, '"', state.inDoubleQuote);
         result.push_back(cleanToken);
@@ -242,13 +239,13 @@ void handleQuoteStart(std::string const& token, QuoteParseState& state, std::vec
         result.push_back(cleanToken);
     } else {
         // Regular unquoted token
-        result.push_back(token);
+        result.emplace_back(token);
     }
 }
 
-void handleQuoteEnd(std::string const& token, char const quoteChar, bool& quoteState, std::vector<std::string>& result) {
+void handleQuoteEnd(std::string_view const& token, char const quoteChar, bool& quoteState, std::vector<std::string>& result) {
     quoteState = false;
-    std::string cleanToken = token;
+    auto cleanToken = std::string(token);
 
     // Remove the closing quote if it matches the expected quote character
     if (!cleanToken.empty() && cleanToken.back() == quoteChar) {
@@ -260,7 +257,7 @@ void handleQuoteEnd(std::string const& token, char const quoteChar, bool& quoteS
     }
 }
 
-void handleQuotedToken(std::string const& token, QuoteParseState& state, std::vector<std::string>& result) {
+void handleQuotedToken(std::string_view const& token, QuoteParseState& state, std::vector<std::string>& result) {
     if (state.inDoubleQuote && !token.empty() && token.back() == '"') {
         handleQuoteEnd(token, '"', state.inDoubleQuote, result);
     } else if (state.inSingleQuote && !token.empty() && token.back() == '\'') {
@@ -268,7 +265,7 @@ void handleQuotedToken(std::string const& token, QuoteParseState& state, std::ve
     } else {
         // Still in quotes, append to last token
         if (!result.empty()) {
-            result.back() += " " + token;
+            result.back() += " " + std::string(token);
         }
     }
 }
@@ -320,7 +317,7 @@ std::string StringHandler::recombineArgs(std::span<std::string const> const& arg
     return result;
 }
 
-std::string StringHandler::repeat(std::string const& str, size_t const& count){
+std::string StringHandler::repeat(std::string_view const& str, size_t const& count){
     std::string result;
     // NOLINTNEXTLINE
     for (auto _ : std::views::iota(size_t{0}, count)) {

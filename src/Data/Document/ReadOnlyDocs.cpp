@@ -9,8 +9,8 @@
 //------------------------------------------
 // Error message
 namespace {
-void docLoadingFailedMessage(std::string const& doc) {
-    Nebulite::Global::capture().error.println("Nebulite failed to load document: " + doc);
+void docLoadingFailedMessage(std::string_view const& doc) {
+    Nebulite::Global::capture().error.println("Nebulite failed to load document: ", doc);
     Nebulite::Global::capture().error.println("Please check if the file exists and is accessible.");
     Nebulite::Global::capture().error.println("If the string wasn't mean to be a file path, perhaps you forgot to wrap the string in an evaluation delay?");
     Nebulite::Global::capture().error.println("Instead of writing: {...} in transformations or other nested expressions, try writing: {!...}");
@@ -48,7 +48,7 @@ void ReadOnlyDocs::update() const {
     }
 }
 
-ReadOnlyDoc* ReadOnlyDocs::getDocument(std::string const& doc) const {
+ReadOnlyDoc* ReadOnlyDocs::getDocument(std::string_view const& doc) const {
     // Validate inputs and state
     if (doc.empty()){
         docLoadingFailedMessage(doc);

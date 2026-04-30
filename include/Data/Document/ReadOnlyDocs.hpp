@@ -65,7 +65,7 @@ public:
      * @return Pointer to the ReadOnlyDoc, or nullptr if loading fails.
      *         If loading fails, writes an error message to the console.
      */
-    ReadOnlyDoc* getDocument(std::string const& doc) const ;
+    ReadOnlyDoc* getDocument(std::string_view const& doc) const ;
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_READ_ONLY_DOCS_HPP
