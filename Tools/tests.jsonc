@@ -23,6 +23,8 @@
         // Expression tests
         "Tools/Tests/Expression/basics.json",
         "Tools/Tests/Expression/math.json",
+        "Tools/Tests/Expression/nestedEvaluation.json",
+        "Tools/Tests/Expression/types.json",
         //---------------------------------------
         // Functioncall tests
         "Tools/Tests/Functional/bindingCollisionDetection.json",

@@ -1,0 +1,21 @@
+[
+    {
+        "command": [
+            "task TaskFiles/Tests/Expression/types.nebs"
+        ],
+        "expected": {
+            "cout": [
+                "null",
+                "simpleValue",
+                "1",
+                "[array]",
+                "first",
+                "second",
+                "{object}",
+                "value1",
+                "value2"
+            ],
+            "cerr": []
+        }
+    }
+]

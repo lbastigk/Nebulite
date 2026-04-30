@@ -1,15 +1,25 @@
-# Using names starting with "zz" so they're at the end of the global doc 
-# This way, they're at the end of the cli output when using print all 
-
 # Testing general push/pop of arrays
-set zzy[0] 1
-push-back zzy 2
-push-front zzy 0
-push-front zzy
-push-back zzy
+set test.val1[0] 1
+push-back test.val1 2
+push-front test.val1 0
+push-front test.val1
+push-back test.val1
 
 # Testing push/pop if a value is NOT an array
-set zzz 1
-push-back zzz 2
-print all
+set test.val2 1
+push-back test.val2 2
+
+# Verify result: val1
+eval nop {global:test.val1|typeAsString|assert equals string array:5}
+eval nop {global:test.val1[0]|assert equals string}
+eval nop {global:test.val1[1]|assert equals string 0}
+eval nop {global:test.val1[2]|assert equals string 1}
+eval nop {global:test.val1[3]|assert equals string 2}
+eval nop {global:test.val1[4]|assert equals string}
+
+# Verify result: val2
+eval nop {global:test.val2|typeAsString|assert equals string array:2}
+eval nop {global:test.val2[0]|assert equals string 1}
+eval nop {global:test.val2[1]|assert equals string 2}
+
 exit

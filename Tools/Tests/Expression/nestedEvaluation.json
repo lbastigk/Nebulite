@@ -1,0 +1,26 @@
+[
+    {
+        "command": "task TaskFiles/Tests/Expression/multiresolve.nebs",
+        "expected": {
+            "cout": [
+                "Testing multi-resolve in Nebulite expressions",
+                "final_value",
+                "final_value"
+            ],
+            "cerr": []
+        }
+    },
+    {
+        "command": "task TaskFiles/Tests/Expression/evaluationDelay.nebs",
+        "expected": {
+            "cout": [
+                "Testing variable evaluation delay in Nebulite expressions",
+                "value",
+                "{global:key}",
+                "{1!global:key}",
+                "{2!global:key}"
+            ],
+            "cerr": []
+        }
+    }
+]

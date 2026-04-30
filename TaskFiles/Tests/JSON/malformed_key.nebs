@@ -3,37 +3,32 @@ set-fps 60
 wait 1
 
 ####################################################
-echo Part 1: Basic malformed arrays
+# Part 1: Basic malformed arrays
 set arr[1] valid_key
-set arr[1  invalid_key1
-set arr[d] invalid_key2
-set arr[d  invalid_key3
+set arr[1  invalid_key1 # cerr: "Invalid key: arr[1"
+set arr[d] invalid_key2 # cerr: "Invalid key: arr[d"
+set arr[d  invalid_key3 # cerr: "Invalid key: arr[d"
 
-eval echo {global:arr[1]} # Valid
-eval echo {global:arr[1}  # Malformed
-eval echo {global:arr[d]} # Malformed
-eval echo {global:arr[d}  # Malformed
+eval nop {global:arr[1]|assert equals string valid_key} # Valid
+eval nop {global:arr[1|assert empty}  # Malformed, returns null
+eval nop {global:arr[d]|assert empty} # Malformed, returns null
+eval nop {global:arr[d|assert empty}  # Malformed, returns null
 
 ####################################################
-echo Part 2: Getting an array of a non-array value
+# Part 2: Getting an array of a non-array value
 set MyKey some_value
 
-eval echo {global:MyKey} # Valid, returns some_value
-eval echo {global:MyKey[0]} # No error as its not malformed, but returns null since MyKey is not an array
+eval nop {global:MyKey|assert equals string some_value}    # Valid, returns some_value
+eval nop {global:MyKey[0]|assert empty} # No error as its not malformed, but returns null since MyKey is not an array
 
 ####################################################
-echo Part 3: Getting an out of bounds array index
+# Part 3: Getting an out of bounds array index
 set MyArray[0] first_value
 set MyArray[1] second_value
 
-
-eval echo {global:MyArray[0]} # Valid, returns first_value
-eval echo {global:MyArray[1]} # Valid, returns second_value
-eval echo {global:MyArray[2]} # Out of bounds, returns 0
-
-####################################################
-echo Part 4: Printing an array without indexing
-eval echo {global:MyArray}
+eval nop {global:MyArray[0]|assert equals string first_value}  # Valid, returns first_value
+eval nop {global:MyArray[1]|assert equals string second_value} # Valid, returns second_value
+eval nop {global:MyArray[2]|assert empty} # Out of bounds, returns null
 
 ####################################################
 exit

@@ -1,0 +1,27 @@
+# Test if the expression system can handle different types of data
+
+set workspace.simpleValue simpleValue
+set workspace.numericValue 1
+set workspace.arrayValue[0] first
+set workspace.arrayValue[1] second
+set workspace.objectValue.key1 value1
+set workspace.objectValue.key2 value2
+
+# Unknown value
+eval echo {global:workspace.unknownValue|assert empty}
+
+# String value
+eval echo {global:workspace.simpleValue|assert equals string simpleValue}
+
+# Numeric value
+eval echo {global:workspace.numericValue|assert equals int 1}
+
+# Array value
+eval echo {global:workspace.arrayValue|assert type array}
+eval echo {global:workspace.arrayValue[0]|assert equals string first}
+eval echo {global:workspace.arrayValue[1]|assert equals string second}
+
+# Object value
+eval echo {global:workspace.objectValue|assert type object}
+eval echo {global:workspace.objectValue.key1|assert equals string value1}
+eval echo {global:workspace.objectValue.key2|assert equals string value2}
