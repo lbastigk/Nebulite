@@ -8,6 +8,8 @@
 
 //------------------------------------------
 
+// TODO: large refactor required ...
+
 // TODO: data-if does not work ... Value is seen as "1", but it's somehow not updated correctly. Perhaps missing a document/element update?
 //       previously this worked, as the data set was directly pulled from the scope. But now we initialize to an empty string, so it's false at start
 //       perhaps we need to update the full rml?
@@ -82,6 +84,8 @@ void DataReference::OnElementDestroy(Rml::Element* /*element*/) {
 
 //----------------------------------------------
 
+// TODO: perhaps binding to a temp value at first is a better approach, then modifying the attribute back to the normalized string with domain id
+//       The temp value should only be visible for a frame, until on next update, the domain id is available for the elementIdentifier
 void DataReference::normalizeDataValue(Rml::Element* element) {
     for (auto const& attribute : dataAttributes) {
         auto const rmlValue = element->GetAttribute(attribute);
