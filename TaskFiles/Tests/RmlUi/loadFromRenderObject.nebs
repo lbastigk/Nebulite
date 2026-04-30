@@ -1,0 +1,32 @@
+set-fps 60
+
+# Spawn and select a renderObject. Ensure that the object is selected by asserting the position values.
+spawn Resources/Renderobjects/standard.jsonc|set posX 500|set posY 500
+selected-object get 1
+selected-object parse eval nop {self:posX|assert equals int 500}
+selected-object parse eval nop {self:posY|assert equals int 500}
+
+# Spawn a document
+selected-object parse set rml.input.animal dog
+selected-object parse forward global rmlui document load test ./Resources/Rml/example.rml
+
+# TODO: add debug modules to rmlui to check if the document shows the correct text
+
+# Assert that the document is open, then remove it and assert that it is closed
+wait 1
+assert $(eq({global:renderer.RmlUi.openedDocuments},1))
+selected-object parse forward global rmlui document remove test
+wait 1
+assert $(eq({global:renderer.RmlUi.openedDocuments},0))
+
+# TODO: add tests for automatic deletion of documents on owner deletion
+#       requires common rmlui module to be implemented!
+#       and update DataReference module to directly bind with domain id!
+#selected-object parse forward global rmlui document load test ./Resources/Rml/example.rml
+#wait 1
+#assert $(eq({global:renderer.RmlUi.openedDocuments},1))
+#selected-object parse delete
+#wait 1
+#assert $(eq({global:renderer.RmlUi.openedDocuments},0))
+
+exit

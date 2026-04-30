@@ -1,9 +1,16 @@
 [
-  {
-    "command": "task TaskFiles/Tests/RmlUi/loadAndUnload.nebs",
-    "expected": {
-      "cout": [],
-      "cerr": []
+    {
+        "command": "task TaskFiles/Tests/RmlUi/loadAndUnload.nebs",
+        "expected": {
+            "cout": [],
+            "cerr": []
+        }
+    },
+    {
+        "command": "task TaskFiles/Tests/RmlUi/loadFromRenderObject.nebs",
+        "expected": {
+            "cout": [],
+            "cerr": []
+        }
     }
-  }
 ]

@@ -23,7 +23,7 @@
     <h2>Data input</h2>
 
     <p data-eval="true">
-        The quick brown fox jumps over the lazy {global:rml.input.animal}.
+        The quick brown fox jumps over the lazy {self:rml.input.animal}.
     </p>
 
     <!-- TODO: data-if is broken ... -->
