@@ -40,32 +40,6 @@ Constants::Event General::updateHook() {
     return Constants::Event::Success;
 }
 
-Constants::Event General::imguiView(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
-    if (args.size() < 2) {
-        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
-    }
-    if (args.size() > 2) {
-        return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
-    }
-    if (args[1] == "on") {
-        // We store the context of 'self' and 'global', as their lifetime should exceed that of the updateHook
-        // This isn't textbook, as we make a huge assumption about the architecture.
-        // But so far, context global is always the same and outlives the context self at all times.
-        // Later on we may need a better interaction system, where each element using a global context is automatically deleted if the global context is deleted
-        // But that isn't necessary at the moment.
-        lastContext.self = &ctx.self;
-        lastContext.global = &ctx.global;
-        lastContext.selfScope = &ctxScope.self;
-        lastContext.globalScope = &ctxScope.global; // We actually need the global context so the ImGui console calls can propagate it to different functions!
-        imguiViewEnabled = true;
-    } else if (args[1] == "off") {
-        imguiViewEnabled = false;
-    } else {
-        return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
-    }
-    return Constants::Event::Success;
-}
-
 Constants::Event General::eval(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
     // TODO: An idea would be to only eval until the next "eval" keyword, allowing for nested evals within for-loops, ifs, etc.:
     //       Example:
@@ -160,6 +134,98 @@ Constants::Event General::func_for(std::span<std::string const> const& args, Int
 
 Constants::Event General::nop(std::span<std::string const> const& /*args*/) {
     // Do nothing
+    return Constants::Event::Success;
+}
+
+// [FORWARD/REPARSE[]
+
+Constants::Event General::forwardToOther(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+    if (args.size() < 2) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
+    }
+    std::string const argStr = Utility::StringHandler::recombineArgs(args);
+    return ctx.other.parseStr(argStr, ctx, ctxScope);
+}
+
+Constants::Event General::forwardToGlobal(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+    if (args.size() < 2) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
+    }
+    std::string const argStr = Utility::StringHandler::recombineArgs(args);
+    return ctx.global.parseStr(argStr, ctx, ctxScope);
+}
+
+Constants::Event General::reparseInOther(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+    if (args.size() < 2) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
+    }
+    std::string const argStr = Utility::StringHandler::recombineArgs(args);
+    Interaction::Context otherCtx{
+        {
+            .self = ctx.other,
+            .other = ctx.self,
+            .global = ctx.global
+        }
+    };
+    Interaction::ContextScope otherCtxScope{
+        {
+            .self = ctxScope.other,
+            .other = ctxScope.self,
+            .global = ctxScope.global
+        }
+    };
+    return ctx.other.parseStr(argStr, otherCtx, otherCtxScope);
+}
+
+Constants::Event General::reparseInGlobal(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+    if (args.size() < 2) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
+    }
+    std::string const argStr = Utility::StringHandler::recombineArgs(args);
+
+    Interaction::Context globalCtx{
+        {
+            .self = ctx.global,
+            .other = ctx.global,
+            .global = ctx.global
+        }
+    };
+    Interaction::ContextScope globalCtxScope{
+        {
+            .self = ctxScope.global,
+            .other = ctxScope.global,
+            .global = ctxScope.global
+        }
+    };
+
+    return ctx.global.parseStr(argStr, globalCtx, globalCtxScope);
+}
+
+// [IMGUI]
+
+Constants::Event General::imguiView(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+    if (args.size() < 2) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
+    }
+    if (args.size() > 2) {
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
+    }
+    if (args[1] == "on") {
+        // We store the context of 'self' and 'global', as their lifetime should exceed that of the updateHook
+        // This isn't textbook, as we make a huge assumption about the architecture.
+        // But so far, context global is always the same and outlives the context self at all times.
+        // Later on we may need a better interaction system, where each element using a global context is automatically deleted if the global context is deleted
+        // But that isn't necessary at the moment.
+        lastContext.self = &ctx.self;
+        lastContext.global = &ctx.global;
+        lastContext.selfScope = &ctxScope.self;
+        lastContext.globalScope = &ctxScope.global; // We actually need the global context so the ImGui console calls can propagate it to different functions!
+        imguiViewEnabled = true;
+    } else if (args[1] == "off") {
+        imguiViewEnabled = false;
+    } else {
+        return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
+    }
     return Constants::Event::Success;
 }
 

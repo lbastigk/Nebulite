@@ -7,7 +7,7 @@
             "other:key2 *= $(2)",
             "global:key3 = abc"
         ],
-        "functioncall": {
+        "functioncall": { // TODO: refactor to reparse and forward
             "global": [],
             "self": [],
             "other": []

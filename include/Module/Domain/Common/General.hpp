@@ -23,14 +23,6 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event imguiView(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
-    static auto constexpr imguiView_name = "imgui-view";
-    static auto constexpr imguiView_desc = "Creates an ImGui view of the domain.\n"
-       "\n"
-       "Usage: imgui-view <on/off>\n";
-    static auto constexpr imguiView_Enable = "imgui-view on";
-    static auto constexpr imguiView_Disable = "imgui-view off";
-
     [[nodiscard]] static Constants::Event eval(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr eval_name = "eval";
     static auto constexpr eval_desc = "Evaluates an expression string and executes it.\n"
@@ -118,6 +110,61 @@ public:
         "Outputs:\n"
         "Hello World!\n";
 
+    // [FORWARD/REPARSE]
+
+    [[nodiscard]] static Constants::Event forwardToOther(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    static auto constexpr forwardToOther_name = "forward other";
+    static auto constexpr forwardToOther_desc = "Forwards the arguments to the other context without modifying context.\n"
+        "Same as a json ruleset functioncall in the other context.\n"
+        "Usage: forward other <functioncall>\n"
+        "\n"
+        "This command takes the arguments after 'forward other' and executes them as a command in the other context.\n"
+        "This is useful for executing commands that are only available in the other context.\n";
+
+    [[nodiscard]] static Constants::Event forwardToGlobal(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    static auto constexpr forwardToGlobal_name = "forward global";
+    static auto constexpr forwardToGlobal_desc = "Forwards the arguments to the global context without modifying context.\n"
+        "Same as a json ruleset functioncall in the global context.\n"
+        "Usage: forward global <functioncall>\n"
+        "\n"
+        "This command takes the arguments after 'forward global' and executes them as a command in the global context.\n"
+        "This is useful for executing commands that are only available in the global context or for modifying global variables.\n";
+
+    [[nodiscard]] static Constants::Event reparseInOther(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
+    static auto constexpr reparseInOther_name = "reparse other";
+    static auto constexpr reparseInOther_desc = "Forwards the arguments to the other context, switching the contexts self and other.\n"
+        "Usage: forward other <functioncall>\n"
+        "\n"
+        "This command takes the arguments after 'forward other' and executes them as a command in the other context.\n"
+        "This is useful for modifying variables in the other context.\n";
+
+    [[nodiscard]] static Constants::Event reparseInGlobal(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
+    static auto constexpr reparseInGlobal_name = "reparse global";
+    static auto constexpr reparseInGlobal_desc = "Forwards the arguments to the global context, replacing all context with global.\n"
+        "Usage: forward global <functioncall>\n"
+        "\n"
+        "This command takes the arguments after 'forward global' and executes them as a command in the global context.\n"
+        "This is useful for modifying global variables.\n";
+
+    // [IMGUI]
+
+    [[nodiscard]] Constants::Event imguiView(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
+    static auto constexpr imguiView_name = "imgui-view";
+    static auto constexpr imguiView_desc = "Creates an ImGui view of the domain.\n"
+       "\n"
+       "Usage: imgui-view <on/off>\n";
+    static auto constexpr imguiView_Enable = "imgui-view on";
+    static auto constexpr imguiView_Disable = "imgui-view off";
+
+    //------------------------------------------
+    // Categories
+
+    static auto constexpr forwardName = "forward";
+    static auto constexpr forwardDesc = "Commands for forwarding function calls to other contexts (other or global).";
+
+    static auto constexpr reparseName = "reparse";
+    static auto constexpr reparseDesc = "Commands for forwarding function calls to other contexts (other or global) while switching context.";
+
     //------------------------------------------
     // Setup
 
@@ -126,14 +173,25 @@ public:
      */
     NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Interaction::Execution::Domain, General) {
         // Binding
-        bindFunction(&General::imguiView, imguiView_name, imguiView_desc);
-        bindFunction(&General::eval, eval_name, eval_desc);
 
+        // Base functions
+        bindFunction(&General::eval, eval_name, eval_desc);
         bindFunction(&General::func_for, func_for_name, func_for_desc);
         bindFunction(&General::func_if, func_if_name, func_if_desc);
         bindFunction(&General::echo, echo_name, echo_desc);
         bindFunction(&General::func_assert, assert_name, assert_desc);
         bindFunction(&General::nop, nop_name, nop_desc);
+
+        // Forwarding
+        bindCategory(forwardName, forwardDesc);
+        bindFunction(&General::forwardToOther, forwardToOther_name, forwardToOther_desc);
+        bindFunction(&General::forwardToGlobal, forwardToGlobal_name, forwardToGlobal_desc);
+        bindCategory(reparseName, reparseDesc);
+        bindFunction(&General::reparseInOther, reparseInOther_name, reparseInOther_desc);
+        bindFunction(&General::reparseInGlobal, reparseInGlobal_name, reparseInGlobal_desc);
+
+        // Imgui view
+        bindFunction(&General::imguiView, imguiView_name, imguiView_desc);
     }
 
 private:
