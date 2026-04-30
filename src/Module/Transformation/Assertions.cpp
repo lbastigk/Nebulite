@@ -65,8 +65,9 @@ bool Assertions::assertTypeBasicValue(std::span<std::string const> const& args, 
     return true;
 }
 
+// NOLINTNEXTLINE
 bool Assertions::assertEqualsString(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
-    auto const expected = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const expected = args.size() < 2 ? "" : Utility::StringHandler::recombineArgs(args.subspan(1));
     if (jsonDoc->memberType(rootKey) != Data::KeyType::value) {
         throw std::runtime_error(std::string(assertEqualsStringName) + ": Current JSON value is not a basic value, expected string: " + expected);
     }
@@ -76,6 +77,7 @@ bool Assertions::assertEqualsString(std::span<std::string const> const& args, Da
     return true;
 }
 
+// NOLINTNEXTLINE
 bool Assertions::assertEqualsInt(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc){
     if (args.size() < 2) {
         throw std::runtime_error(std::string(assertEqualsIntName) + ": No expected integer provided");
