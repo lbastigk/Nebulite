@@ -4,9 +4,6 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <mutex>
-
 // External
 #include <absl/container/flat_hash_map.h>
 #include <RmlUi_Platform_SDL.h>
@@ -57,7 +54,7 @@ public:
 
     void setDimensions(int const& width, int const& height) const ;
 
-    bool isTextInputFocused() const ;
+    [[nodiscard]] bool isTextInputFocused() const ;
 
     class RmlElementIdentifier {
         size_t id;
@@ -80,7 +77,7 @@ public:
             }
         }
 
-        size_t getId() const noexcept {
+        [[nodiscard]] size_t getId() const noexcept {
             return id;
         }
 
@@ -99,9 +96,9 @@ public:
         Interaction::ContextScope ctxScope;
     };
 
-    std::unordered_set<Rml::ElementDocument*> const& getOpenedDocuments() const ;
+    [[nodiscard]] std::unordered_set<Rml::ElementDocument*> const& getOpenedDocuments() const ;
 
-    size_t countOpenedDocuments() const ;
+    [[nodiscard]] size_t countOpenedDocuments() const ;
 
     bool loadDocument(std::string_view const& name, std::string_view const& path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     bool removeDocument(size_t const& id, std::string_view const& name);

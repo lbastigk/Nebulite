@@ -363,7 +363,7 @@ void RmlInterface::processRmlUiEvent(const SDL_Event& event) const {
         if (event.key.key == SDLK_A) {
             // TODO: highlight entire text input field
         }
-        if (event.key.key == SDLK_C) {
+        else if (event.key.key == SDLK_C) {
             // TODO: copy highlighted text
             //       - how to extract highlighted portion?
         }
