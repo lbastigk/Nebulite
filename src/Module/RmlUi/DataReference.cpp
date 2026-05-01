@@ -161,11 +161,11 @@ void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIde
             }
         }
         if (entry->innerRml.has_value() && !entry->innerRml->empty()) {
-            if (bool const show = target.get<bool>(entry->key).value_or(false); show && element->GetInnerRML() == "") {
+            if (bool const show = target.get<bool>(entry->key).value_or(false); show && element->GetInnerRML().empty()) {
                 element->SetInnerRML(entry->innerRml.value());
                 element->GetOwnerDocument()->UpdateDocument();
             }
-            else if (!show && element->GetInnerRML() != "") {
+            else if (!show && !element->GetInnerRML().empty()) {
                 element->SetInnerRML("");
                 element->GetOwnerDocument()->UpdateDocument();
             }
@@ -177,9 +177,10 @@ void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIde
 std::string DataReference::normalize(std::string const& key) {
     auto view = key
         | std::views::transform([](char const& c) -> std::string {
+            // NOLINTNEXTLINE
             if (std::isalnum(c)) return std::string(1, c);
-            if (c == '_')  return std::string("_");
-            return "__" + std::to_string(c) + "__";
+            if (c == '_')  return "_";
+            return "__" + std::to_string(c) + "__"; // Replace non-alphanumeric characters with their ASCII value
         })
         | std::views::join;
 
