@@ -2,6 +2,7 @@
 // Includes
 
 // Nebulite
+#include "Constants/StandardCapture.hpp"
 #include "Graphics/ImguiHelper.hpp"
 #include "Module/Domain/Common/General.hpp"
 #include "Nebulite.hpp"
