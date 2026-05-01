@@ -7,7 +7,11 @@
     <body data-model="nebuliteDataSync">
     <h1>RmlUi</h1>
 
-    <p>Hello <span id="world">world</span>!</p>
+    <!-- Toggle between bold and italic every second -->
+    <p>
+        <b data-if="global:time.t|toInt|add 0|mod 2">Hello <span id="world">world</span>!</b>
+        <i data-if="global:time.t|toInt|add 1|mod 2">Hello <span id="world">world</span>!</i>
+    </p>
 
     <hr />
     <h2>Expression</h2>
@@ -26,11 +30,7 @@
         The quick brown fox jumps over the lazy {self:rml.input.animal}.
     </p>
 
-    <p data-if="self:rml.settings.show_text">
-        If you see this text, the data-if functionality works!
-    </p>
-
-    <p>
+    <p data-if="self:rml.settings.showInput">
         <input type="text" data-value="self:rml.input.animal"/>
     </p>
 

@@ -48,7 +48,7 @@ private:
         Rml::String previousRmlValue;
         std::string previousDocumentValue;
         bool isNewEntry = true;
-        std::string innerRml;
+        std::optional<std::string> innerRml; // Only set if element has data-if-attribute
     };
 
     absl::flat_hash_map<Graphics::RmlInterface::RmlElementIdentifier, std::unique_ptr<RegisteredEntry>> registeredEntries;

@@ -46,11 +46,21 @@ void DataReference::OnElementDestroy(Rml::Element* element) {
 
 void DataReference::registerDataValue(Rml::Element* element) {
     for (auto const& attribute : {dataValueAttribute, dataIfAttribute}) {
+        std::string backupAttribute = "__backup__" + std::string(attribute);
         auto const rmlValue = element->GetAttribute(attribute);
+        auto const rmlBackupValue = element->GetAttribute(backupAttribute);
         if (!rmlValue) continue;
         if (rmlValue->GetType() == Rml::Variant::STRING) {
+            // Get either from backup or directly
+            auto attributeValue = std::string(rmlValue->Get<Rml::String>());
+            if (!rmlBackupValue) {
+                element->SetAttribute(backupAttribute, attributeValue);
+            }
+            else {
+                attributeValue = rmlBackupValue->Get<Rml::String>();
+            }
+
             // Normalize value + unique element id
-            auto const attributeValue = std::string(rmlValue->Get<Rml::String>());
             auto id = Graphics::RmlInterface::RmlElementIdentifier(element);
             std::string const normalized = "ID__" + std::to_string(id.getId()) + "__VALUE__" + normalize(attributeValue);
             element->SetAttribute(attribute, normalized);
@@ -65,20 +75,22 @@ void DataReference::registerDataValue(Rml::Element* element) {
             entry->previousRmlValue = "";
             entry->previousDocumentValue = "";
             entry->isNewEntry = true;
-            entry->innerRml = element->GetInnerRML();
+            entry->innerRml = "";
             auto value = std::make_unique<Rml::String>();
             *value = "";
 
             // Remove data-if attribute
             if (std::string(attribute) == dataIfAttribute) {
-                element->RemoveAttribute(dataIfAttribute);
-                element->SetInnerRML("");
+                entry->innerRml = "";
+                element->RemoveAttribute(attribute);
             }
 
             // Add Entry
-            interface.dataModelConstructor.Bind(normalized, value.get());
             registeredEntries.emplace(id, std::move(entry));
-            registeredStrings.emplace(normalized, std::move(value));
+            if (registeredStrings.find(normalized) == registeredStrings.end()) {
+                interface.dataModelConstructor.Bind(normalized, value.get());
+                registeredStrings.emplace(normalized, std::move(value));
+            }
         }
     }
 }
@@ -130,11 +142,9 @@ void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIde
         if (registered == registeredStrings.end()) {
             return;
         }
-
         auto& currentRml = *registered->second;
         auto const& previousRml = entry->previousRmlValue;
         auto const currentDocument = target.get<std::string>(entry->key).value_or("");
-        bool const show = target.get<bool>(entry->key).value_or(false);
         auto const& previousDocument = entry->previousDocumentValue;
 
         // 1.) rml -> document
@@ -152,15 +162,24 @@ void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIde
             entry->element->GetOwnerDocument()->UpdateDocument();
         }
 
-        // Show document
-        if (show && element->GetInnerRML() == "") {
-            element->SetInnerRML(entry->innerRml);
-            element->GetOwnerDocument()->UpdateDocument();
+        // 3.) data-if attribute
+        if (entry->innerRml.has_value() && entry->innerRml->empty()) {
+            entry->innerRml = element->GetInnerRML();
+            if (!entry->innerRml->empty()) {
+                element->SetInnerRML("");
+            }
         }
-        else if (!show && element->GetInnerRML() != "") {
-            element->SetInnerRML("");
-            element->GetOwnerDocument()->UpdateDocument();
+        if (entry->innerRml.has_value() && !entry->innerRml->empty()) {
+            if (bool const show = target.get<bool>(entry->key).value_or(false); show && element->GetInnerRML() == "") {
+                element->SetInnerRML(entry->innerRml.value());
+                element->GetOwnerDocument()->UpdateDocument();
+            }
+            else if (!show && element->GetInnerRML() != "") {
+                element->SetInnerRML("");
+                element->GetOwnerDocument()->UpdateDocument();
+            }
         }
+
     }
 }
 
