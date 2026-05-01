@@ -174,7 +174,6 @@ void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIde
                 element->GetOwnerDocument()->UpdateDocument();
             }
         }
-
     }
 }
 
