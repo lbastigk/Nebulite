@@ -39,6 +39,7 @@ private:
         Rml::String rmlValue;
         Data::JSON jsonResult;
         bool markedForDeletion = false;
+        std::vector<size_t> allocatedIds;
     };
 
     absl::flat_hash_map<

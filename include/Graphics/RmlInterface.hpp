@@ -61,21 +61,19 @@ public:
         static auto constexpr identifierAttribute = "element-identifier";
         static size_t idRoll();
 
+        static size_t& count();
     public:
-        static void removeIdentifierAttribute(Rml::Element* element) {
-            element->RemoveAttribute(identifierAttribute);
-        }
+        static size_t getCount() ;
 
-        explicit RmlElementIdentifier(Rml::Element* e){
-            // See if element has attribute
-            if (e->GetAttribute(identifierAttribute)) {
-                id = e->GetAttribute(identifierAttribute)->Get<size_t>();
-            }
-            else {
-                id = idRoll();
-                e->SetAttribute(identifierAttribute, id);
-            }
-        }
+        static void forceElementIdentifier(Rml::Element* element, size_t const& id);
+
+        static void removeElementIdentifier(Rml::Element* element);
+
+        static bool hasElementIdentifier(Rml::Element* element);
+
+        explicit RmlElementIdentifier(Rml::Element* e);
+
+        explicit RmlElementIdentifier(size_t const& knownId) : id(knownId) {}
 
         [[nodiscard]] size_t getId() const noexcept {
             return id;

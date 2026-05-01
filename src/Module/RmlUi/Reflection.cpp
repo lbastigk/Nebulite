@@ -40,7 +40,8 @@ void Reflection::OnElementCreate(Rml::Element* element) {
                 .entries = Interaction::Logic::Expression(expression),
                 .rmlValue = element->GetInnerRML(),
                 .jsonResult = Data::JSON(),
-                .markedForDeletion = false
+                .markedForDeletion = false,
+                .allocatedIds = {}
             }
         );
     }
@@ -53,7 +54,8 @@ void Reflection::OnElementCreate(Rml::Element* element) {
                 .entries = Interaction::Logic::Expression(expression),
                 .rmlValue = element->GetInnerRML(),
                 .jsonResult = Data::JSON(),
-                .markedForDeletion = false
+                .markedForDeletion = false,
+                .allocatedIds = {}
             }
         );
     }
@@ -127,10 +129,7 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
     element->SetInnerRML(newRml);
 
     // Check children size
-    if (auto const childrenCount = static_cast<size_t>(element->GetNumChildren()); childrenCount % size != 0) {
-        capture.warning.println("Rml Children count does not match reflection count. Expected a multiple of: ", size, ", Actual: ", childrenCount, ". Skipping reflection, Something went seriously wrong...");
-    }
-    else {
+    if (auto const childrenCount = static_cast<size_t>(element->GetNumChildren()); childrenCount % size == 0) {
         // For each element, overwrite context mapping
         for (size_t i = 0; i < childrenCount; ++i) {
             auto const jsonIndex = i * size / childrenCount;
@@ -146,10 +145,21 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
                 }
             };
             auto const child = element->GetChild(static_cast<int>(i));
-            Graphics::RmlInterface::RmlElementIdentifier::removeIdentifierAttribute(child);
-            Graphics::RmlInterface::RmlElementIdentifier childId(child);
-            interface.setRmlElementContextAndScope(childId, {ownerContext, childContextScope});
+            if (entry.allocatedIds.size() > i) {
+                auto childId = Graphics::RmlInterface::RmlElementIdentifier(entry.allocatedIds[i]);
+                interface.setRmlElementContextAndScope(childId, {ownerContext, childContextScope});
+            }
+            else {
+                Graphics::RmlInterface::RmlElementIdentifier::removeElementIdentifier(child);
+                Graphics::RmlInterface::RmlElementIdentifier childId(child);
+                entry.allocatedIds.push_back(childId.getId());
+                interface.setRmlElementContextAndScope(childId, {ownerContext, childContextScope});
+            }
+            Graphics::RmlInterface::RmlElementIdentifier::forceElementIdentifier(child, entry.allocatedIds[i]);
         }
+    }
+    else {
+        capture.warning.println("Rml Children count does not match reflection count. Expected a multiple of: ", size, ", Actual: ", childrenCount, ". Skipping reflection, Something went seriously wrong...");
     }
 }
 

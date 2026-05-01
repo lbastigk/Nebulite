@@ -29,8 +29,10 @@ void DataReference::OnElementCreate(Rml::Element* element) {
 }
 
 void DataReference::OnElementDestroy(Rml::Element* element) {
-    Graphics::RmlInterface::RmlElementIdentifier const id(element);
-    registeredEntries.erase(id);
+    if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(element)) {
+        Graphics::RmlInterface::RmlElementIdentifier const id(element);
+        registeredEntries.erase(id);
+    }
 }
 
 //----------------------------------------------
@@ -89,8 +91,10 @@ void DataReference::registerDataValue(Rml::Element* element) {
 void DataReference::updateDataValues() {
     for (auto const& document : interface.getOpenedDocuments()) {
         Graphics::RmlInterface::updateElement(document, [&](Rml::Element* element, Rml::Element* /*parent*/) {
-            Graphics::RmlInterface::RmlElementIdentifier const id(element);
-            updateRegisteredValues(id, element);
+            if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(element)) {
+                Graphics::RmlInterface::RmlElementIdentifier const id(element);
+                updateRegisteredValues(id, element);
+            }
         });
     }
 }

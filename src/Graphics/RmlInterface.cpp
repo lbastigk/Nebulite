@@ -27,6 +27,46 @@ struct StatusTracker {
 //------------------------------------------
 namespace Nebulite::Graphics {
 
+// RmlInterface::RmlElementIdentifier
+
+size_t& RmlInterface::RmlElementIdentifier::count() {
+    static size_t rollingIdentifier = 0;
+    return rollingIdentifier;
+}
+
+size_t RmlInterface::RmlElementIdentifier::idRoll() {
+    return count()++;
+}
+
+size_t RmlInterface::RmlElementIdentifier::getCount() {
+    return count();
+}
+
+void RmlInterface::RmlElementIdentifier::forceElementIdentifier(Rml::Element* element, size_t const& id) {
+    element->SetAttribute(identifierAttribute, id);
+}
+
+void RmlInterface::RmlElementIdentifier::removeElementIdentifier(Rml::Element* element) {
+    element->RemoveAttribute(identifierAttribute);
+}
+
+bool RmlInterface::RmlElementIdentifier::hasElementIdentifier(Rml::Element* element){
+    return element->GetAttribute(identifierAttribute) != nullptr;
+}
+
+RmlInterface::RmlElementIdentifier::RmlElementIdentifier(Rml::Element* e){
+    // See if element has attribute
+    if (e->GetAttribute(identifierAttribute)) {
+        id = e->GetAttribute(identifierAttribute)->Get<size_t>();
+    }
+    else {
+        id = idRoll();
+        e->SetAttribute(identifierAttribute, id);
+    }
+}
+
+// RmlInterface
+
 // Lifetime of RmlInterface must be longer than any domain
 RmlInterface& RmlInterface::instance() {
     static RmlInterface instance;
@@ -40,11 +80,6 @@ RmlInterface::~RmlInterface() {
         Rml::Shutdown();
         statusTracker.rmlInterfaceInitialized = false;
     }
-}
-
-size_t RmlInterface::RmlElementIdentifier::idRoll() {
-    static size_t rollingIdentifier = 0;
-    return rollingIdentifier++;
 }
 
 void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainScope){

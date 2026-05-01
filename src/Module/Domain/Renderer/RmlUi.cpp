@@ -11,7 +11,8 @@
 namespace Nebulite::Module::Domain::Renderer {
 
 Constants::Event RmlUi::updateHook() {
-    moduleScope.set<uint64_t>(Key::openedDocuments, Graphics::RmlInterface::instance().countOpenedDocuments());
+    moduleScope.set<size_t>(Key::openedDocuments, Graphics::RmlInterface::instance().countOpenedDocuments());
+    moduleScope.set<size_t>(Key::usedElementIds, Graphics::RmlInterface::RmlElementIdentifier::getCount());
     return Constants::Event::Success;
 }
 
