@@ -73,9 +73,11 @@ void ExpressionManager::updateExpressions(){
 
                 Graphics::RmlInterface::RmlElementIdentifier const elementId(element);
                 if (auto const context = interface.getRmlElementContextAndScope(elementId); context.has_value()) {
-                    if (context.value().ctxScope.self.isDummy()) return;
-                    if (context.value().ctxScope.other.isDummy()) return;
-                    if (context.value().ctxScope.global.isDummy()) return;
+
+                    if (context.value().ctxScope.hasDummyScope()) {
+                        capture.warning.println("Failed to evaluate expression, a context member has a dummy scope!");
+                        return;
+                    }
 
                     if (auto const it = expressions.find(innerRml); it != expressions.end()) {
                         std::string const& evaluated = it->second.eval(context.value().ctxScope);
