@@ -265,17 +265,20 @@ Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode const& keycode) {
 int SdlModifierToRmlModifier(uint32_t const& modifier) {
     int result = 0;
 
-    if (modifier & SDL_KMOD_SHIFT)
-        result |= Rml::Input::KM_SHIFT;
+    if (modifier & SDL_KMOD_ALT)
+        result |= Rml::Input::KM_ALT;
+
+    if (modifier & SDL_KMOD_CAPS)
+        result |= Rml::Input::KM_CAPSLOCK;
 
     if (modifier & SDL_KMOD_CTRL)
         result |= Rml::Input::KM_CTRL;
 
-    if (modifier & SDL_KMOD_ALT)
-        result |= Rml::Input::KM_ALT;
-
     if (modifier & SDL_KMOD_GUI)
-        result |= Rml::Input::KM_META; // Windows key / Cmd key
+        result |= Rml::Input::KM_META;
+
+    if (modifier & SDL_KMOD_SHIFT)
+        result |= Rml::Input::KM_SHIFT;
 
     return result;
 }
@@ -292,6 +295,9 @@ bool isTextSdlScancode(SDL_Scancode const& scancode) {
 void RmlInterface::processRmlUiEvent(const SDL_Event& event) const {
     if (!context) return;
 
+    auto const modifiers = SdlModifierToRmlModifier(event.key.mod);
+
+    // Core events
     switch (event.type) {
 
     case SDL_EVENT_MOUSE_MOTION:
@@ -313,10 +319,10 @@ void RmlInterface::processRmlUiEvent(const SDL_Event& event) const {
             // We assume the mouse click unfocused the element.
             // If the click was at the elements position, ProcessMouseButtonDown will refocus the element.
             context->GetFocusElement()->Blur();
-            context->ProcessMouseButtonDown(button, SdlModifierToRmlModifier(event.key.mod));
+            context->ProcessMouseButtonDown(button, modifiers);
         }
         else {
-            context->ProcessMouseButtonUp(button, SdlModifierToRmlModifier(event.key.mod));
+            context->ProcessMouseButtonUp(button, modifiers);
         }
         break;
     }
@@ -337,11 +343,10 @@ void RmlInterface::processRmlUiEvent(const SDL_Event& event) const {
         }
 
         auto const rmlKey = SDLKeyToRmlKey(event.key.scancode);
-        auto const mods = SdlModifierToRmlModifier(event.key.mod);
         if (event.type == SDL_EVENT_KEY_DOWN)
-            context->ProcessKeyDown(rmlKey, mods);
+            context->ProcessKeyDown(rmlKey, modifiers);
         else
-            context->ProcessKeyUp(rmlKey, mods);
+            context->ProcessKeyUp(rmlKey, modifiers);
         break;
     }
 
@@ -351,6 +356,26 @@ void RmlInterface::processRmlUiEvent(const SDL_Event& event) const {
 
     default:
         break;
+    }
+
+    // Handle Ctrl + A/C/V/X for text input fields
+    if (modifiers & Rml::Input::KM_CTRL && event.type == SDL_EVENT_KEY_DOWN && isTextInputFocused()) {
+        if (event.key.key == SDLK_A) {
+            // TODO: highlight entire text input field
+        }
+        if (event.key.key == SDLK_C) {
+            // TODO: copy highlighted text
+            //       - how to extract highlighted portion?
+        }
+        else if (event.key.key == SDLK_V) {
+            std::string const input(SDL_GetClipboardText());
+            context->ProcessTextInput(input);
+        }
+        else if (event.key.key == SDLK_X) {
+            // TODO: extract highlighted text
+            //       - how to extract highlighted portion?
+            //       - how to remove highlighted portion?
+        }
     }
 }
 
