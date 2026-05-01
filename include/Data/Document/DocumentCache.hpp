@@ -10,7 +10,8 @@
 // Includes
 
 // Nebulite
-#include "ReadOnlyDocs.hpp"
+#include "Data/Document/ReadOnlyDocs.hpp"
+#include "Interaction/Context.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

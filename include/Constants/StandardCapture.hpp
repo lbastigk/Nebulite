@@ -10,17 +10,11 @@
 // Includes
 
 // Standard Library
+#include "Constants/Event.hpp"
 #include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Constants {
-
-enum class Event : uint8_t {
-    Success = 0,
-    Warning,
-    Error
-};
-
 /**
  * @struct Nebulite::Constants::StandardCapture
  * @brief Standard capture outputs for various warnings, errors, etc.
