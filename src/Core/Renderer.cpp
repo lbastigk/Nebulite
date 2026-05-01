@@ -395,6 +395,12 @@ void Renderer::render() {
     pollEvents();
     for (auto const& event : events) {
         ImGui_ImplSDL3_ProcessEvent(&event);
+
+        // Skip tab key if Imgui wants text input. Otherwise RmlUi tries to focus some element.
+        if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_TAB && ImGui::GetIO().WantTextInput) {
+            continue;
+        }
+
         Graphics::RmlInterface::instance().processRmlUiEvent(event);
     }
 
