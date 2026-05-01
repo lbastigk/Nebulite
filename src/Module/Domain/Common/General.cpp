@@ -91,12 +91,7 @@ Constants::Event General::func_assert(std::span<std::string const> const& args, 
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-
-    if (args.size() > 2) {
-        return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
-    }
-
-    std::string const& condition = args[1];
+    std::string const& condition = Utility::StringHandler::recombineArgs(args.subspan(1));
 
     // condition must start with $( and end with )
     if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {

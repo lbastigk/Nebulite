@@ -8,12 +8,12 @@ assert $(eq({global:renderer.RmlUi.openedDocuments},1))
 
 # Test 1: value doesn't start too high
 wait 10
-assert $(gt({global:renderer.RmlUi.usedElementIds},1))
-assert $(lt({global:renderer.RmlUi.usedElementIds},50))
+assert $(gt({global:renderer.RmlUi.usedElementIds},  1))
+assert $(lt({global:renderer.RmlUi.usedElementIds}, 50))
 
 # Test 2: value doesn't increase after some time
 assign global:initialCount = {global:renderer.RmlUi.usedElementIds}
 wait 100
-assert $(eq({global:renderer.RmlUi.usedElementIds},{global:initialCount}))
+assert $(eq({global:renderer.RmlUi.usedElementIds}, {global:initialCount}))
 
 exit
