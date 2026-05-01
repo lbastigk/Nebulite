@@ -342,12 +342,6 @@ public:
     [[nodiscard]] SDL_Window* getSdlWindow() const { return window; }
 
     /**
-     * @brief Exposes the Rml::DataModelConstructor for external use.
-     * @return A reference to the Rml::DataModelConstructor instance used by the Renderer.
-     */
-    [[nodiscard]] Rml::DataModelConstructor& getDataModelConstructor() { return rml.dataModelConstructor; }
-
-    /**
      * @brief Gets the RenderObject ID from its index in the rendering pipeline.
      * @param index The index of the RenderObject in the rendering pipeline.
      * @return An optional containing the ID of the RenderObject if found, or std::nullopt if no object is associated with the given index.
@@ -386,25 +380,6 @@ public:
      * @brief Gets the current window scale factor.
      */
     [[nodiscard]] unsigned int getWindowScale() const noexcept { return windowScale; }
-
-    //------------------------------------------
-    // Rml Context
-
-    size_t rmlDocumentCount() const {
-        return rml.countOpenedDocuments();
-    }
-
-    bool loadRmlDocument(std::string_view const& name, std::string_view const& path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
-        return rml.loadDocument(name, path, ctx, ctxScope);
-    }
-
-    bool removeRmlDocument(size_t const& domainId, std::string_view const& name) {
-        return rml.removeDocument(domainId, name);
-    }
-
-    bool removeRmlDocument(Rml::ElementDocument* doc) {
-        return rml.removeDocument(doc);
-    }
 
     //------------------------------------------
     // Texture-Related
@@ -486,11 +461,6 @@ private:
      * @brief Holds threads for parallel processing of RenderObjects during the update phase.
      */
     Data::RendererProcessor rendererProcessor;
-
-    //------------------------------------------
-    // Rml Interface
-
-    Graphics::RmlInterface rml;
 
     //------------------------------------------
     // Boolean Status Variables

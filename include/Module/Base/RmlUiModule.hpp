@@ -21,6 +21,12 @@ public:
 
     virtual void postRenderUpdate();
 
+    void OnDocumentOpen(Rml::Context* /*context*/, const Rml::String& /*document_path*/) override {}
+
+    void OnDocumentLoad(Rml::ElementDocument* /*document*/) override {}
+
+    void OnDocumentUnload(Rml::ElementDocument* /*document*/) override {}
+
 protected:
 
     Utility::IO::Capture& capture;

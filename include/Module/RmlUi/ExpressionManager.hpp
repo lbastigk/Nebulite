@@ -33,12 +33,6 @@ public:
 
     void OnShutdown() override ;
 
-    void OnDocumentOpen(Rml::Context* context, const Rml::String& document_path) override ;
-
-    void OnDocumentLoad(Rml::ElementDocument* document) override ;
-
-    void OnDocumentUnload(Rml::ElementDocument* document) override ;
-
     void OnContextCreate(Rml::Context* context) override ;
 
     void OnContextDestroy(Rml::Context* context) override ;
@@ -54,8 +48,6 @@ private:
 
     bool expressionsWereEvaluated = false;
 
-    std::vector<Rml::ElementDocument*> documents;
-
     // Pre-compiled RML strings to expressions
     absl::flat_hash_map<
         Rml::String,
@@ -68,9 +60,9 @@ private:
         Rml::String
     > rmlStrings;
 
-    void updateExpressions();
-
     std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
+
+    void updateExpressions();
 
     void resetExpressions();
 

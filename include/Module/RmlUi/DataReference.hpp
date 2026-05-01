@@ -26,44 +26,15 @@ public:
 
     void update() override ;
 
-    void postRenderUpdate() override;
-
-    void OnInitialise() override ;
-
-    void OnShutdown() override ;
-
-    void OnDocumentOpen(Rml::Context* context, const Rml::String& document_path) override ;
-
-    void OnDocumentLoad(Rml::ElementDocument* document) override ;
-
-    void OnDocumentUnload(Rml::ElementDocument* document) override ;
-
-    void OnContextCreate(Rml::Context* context) override ;
-
-    void OnContextDestroy(Rml::Context* context) override ;
-
     void OnElementCreate(Rml::Element* element) override ;
 
     void OnElementDestroy(Rml::Element* element) override ;
 
-    static auto constexpr referenceIdentifierAttribute = "data-identifier";
-
 private:
-
-    // TODO: Add ability to dynamically retrieve data value from the scope of the element/parent element
-    //       Issue: elements inside a data-reflect aren't scoped, so data-value=rml.input.animal is always relative to the documents scope
-    //       Instead, we should perhaps use an element scope? Or is a separate keyword like data-value-scoped necessary?
-
-    // TODO: Add context instead of always retrieving from global
-
-    std::vector<Rml::ElementDocument*> documents;
-
     absl::flat_hash_map<
         Rml::Element*,
         Rml::String
     > rmlStrings;
-
-    //--------------------------------
 
     struct RegisteredEntry {
         Data::ScopedKey key;

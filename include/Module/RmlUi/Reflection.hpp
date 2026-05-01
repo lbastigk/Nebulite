@@ -25,20 +25,6 @@ public:
 
     void update() override ;
 
-    void OnInitialise() override ;
-
-    void OnShutdown() override ;
-
-    void OnDocumentOpen(Rml::Context* context, const Rml::String& document_path) override ;
-
-    void OnDocumentLoad(Rml::ElementDocument* document) override ;
-
-    void OnDocumentUnload(Rml::ElementDocument* document) override ;
-
-    void OnContextCreate(Rml::Context* context) override ;
-
-    void OnContextDestroy(Rml::Context* context) override ;
-
     void OnElementCreate(Rml::Element* element) override ;
 
     void OnElementDestroy(Rml::Element* element) override ;
@@ -66,8 +52,6 @@ private:
     std::vector<std::pair<Rml::Element*, ReflectionEntry>> reflectOnce;
 
     std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
-
-    static std::string modifyDataIdentifier(std::string const& input, size_t const& index);
 
     void removeDeletedElements();
 

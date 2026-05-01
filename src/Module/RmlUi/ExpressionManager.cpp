@@ -42,19 +42,6 @@ void ExpressionManager::OnShutdown() {
 
 }
 
-// NOLINTNEXTLINE
-void ExpressionManager::OnDocumentOpen(Rml::Context* /*context*/, const Rml::String& /*document_path*/) {
-
-}
-
-void ExpressionManager::OnDocumentLoad(Rml::ElementDocument* document) {
-    documents.emplace_back(document);
-}
-
-void ExpressionManager::OnDocumentUnload(Rml::ElementDocument* document) {
-    std::erase(documents, document);
-}
-
 void ExpressionManager::OnContextCreate(Rml::Context* /*context*/) {
 
 }
@@ -74,8 +61,8 @@ void ExpressionManager::OnElementDestroy(Rml::Element* /*element*/) {
 //----------------------------------------------
 
 void ExpressionManager::updateExpressions(){
-    for (auto const& document : documents) {
-        Graphics::RmlInterface::updateElement(document, [&](Rml::Element* element, Rml::Element* parent, size_t const& index) {
+    for (auto const& document : interface.getOpenedDocuments()) {
+        Graphics::RmlInterface::updateElement(document, [&](Rml::Element* element, Rml::Element* /*parent*/) {
             if (element->GetAttribute(evalAttribute) || element->GetAttribute(conditionalAttribute)) {
                 // On element creation, the inner rml is not set. So we create an empty ElementEntry that is populated later on.
                 Rml::String innerRml = element->GetInnerRML();
@@ -84,8 +71,12 @@ void ExpressionManager::updateExpressions(){
                     expressions.emplace(innerRml, Interaction::Logic::Expression(innerRml));
                 }
 
-                Graphics::RmlInterface::RmlElementIdentifier const elementId(parent, index, element);
+                Graphics::RmlInterface::RmlElementIdentifier const elementId(element);
                 if (auto const context = interface.getRmlElementContextAndScope(elementId); context.has_value()) {
+                    if (context.value().ctxScope.self.isDummy()) return;
+                    if (context.value().ctxScope.other.isDummy()) return;
+                    if (context.value().ctxScope.global.isDummy()) return;
+
                     if (auto const it = expressions.find(innerRml); it != expressions.end()) {
                         std::string const& evaluated = it->second.eval(context.value().ctxScope);
                         element->SetInnerRML(evaluated);
@@ -97,8 +88,8 @@ void ExpressionManager::updateExpressions(){
 }
 
 void ExpressionManager::resetExpressions(){
-    for (auto const& document : documents) {
-        Graphics::RmlInterface::updateElement(document, [&](Rml::Element* element, Rml::Element* /*parent*/, size_t const& /*index*/) {
+    for (auto const& document : interface.getOpenedDocuments()) {
+        Graphics::RmlInterface::updateElement(document, [&](Rml::Element* element, Rml::Element* /*parent*/) {
             if (element->GetAttribute(evalAttribute) || element->GetAttribute(conditionalAttribute)) {
                 // Reset
                 element->SetInnerRML(rmlStrings[element]);

@@ -17,10 +17,39 @@
 #include "Module/RmlUi/Reflection.hpp"
 
 //------------------------------------------
+
+namespace {
+struct StatusTracker {
+    bool rmlInterfaceInitialized = false;
+} statusTracker;
+} // namespace
+
+//------------------------------------------
 namespace Nebulite::Graphics {
+
+// Lifetime of RmlInterface must be longer than any domain
+RmlInterface& RmlInterface::instance() {
+    static RmlInterface instance;
+    return instance;
+}
+
+RmlInterface::RmlInterface() = default;
+
+RmlInterface::~RmlInterface() {
+    if (statusTracker.rmlInterfaceInitialized) {
+        Rml::Shutdown();
+        statusTracker.rmlInterfaceInitialized = false;
+    }
+}
+
+size_t RmlInterface::RmlElementIdentifier::idRoll() {
+    static size_t rollingIdentifier = 0;
+    return rollingIdentifier++;
+}
 
 void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainScope){
     Rml::Initialise();
+    statusTracker.rmlInterfaceInitialized = true;
 
     // Interfaces
     renderInterface = std::make_unique<RenderInterface_SDL>(renderer.getSdlRenderer());
@@ -32,6 +61,10 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
     if (!systemInterface) {
         throw std::runtime_error("Failed to create system interface!");
     }
+
+    // Core document manager plugin
+    documentManager = std::make_unique<DocumentManager>();
+    RegisterPlugin(documentManager.get());
 
     // Plugins
     modules.emplace_back(std::make_unique<Module::RmlUi::ContextManager>(renderer.capture, *this));
@@ -68,6 +101,14 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
     // Data Model used for data-value sync
     dataModelConstructor = context->CreateDataModel("nebuliteDataSync");
     update();
+}
+
+std::unordered_set<Rml::ElementDocument*> const& RmlInterface::getOpenedDocuments() const{
+    return documentManager->openedDocuments;
+}
+
+size_t RmlInterface::countOpenedDocuments() const {
+    return documentManager->openedDocuments.size();
 }
 
 bool RmlInterface::loadDocument(std::string_view const& name, std::string_view const& path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
@@ -116,11 +157,25 @@ bool RmlInterface::removeDocument(Rml::ElementDocument* doc) {
     return foundInOwnerMap && foundInContextMap;
 }
 
-void RmlInterface::updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*, size_t const&)> const& updateFunc) {
+void RmlInterface::removeAllDocumentsOfOwner(size_t const& domainId){
+    // This function might be called after the interface is already deleted... So we keep track of the singleton
+    // NOLINTBEGIN
+    if (!statusTracker.rmlInterfaceInitialized) return;
+    if (!ownerToDocument.contains(domainId)) return;
+    for (auto const& doc : ownerToDocument[domainId] | std::views::values) {
+        doc->Close();
+        documentToContext.erase(doc);
+        context->UnloadDocument(doc);
+    }
+    ownerToDocument.erase(domainId);
+    // NOLINTEND
+}
+
+void RmlInterface::updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*)> const& updateFunc) {
     auto const numChildren = static_cast<size_t>(element->GetNumChildren());
     for (size_t i = 0; i < numChildren; ++i) {
         if (auto const child = element->GetChild(static_cast<int>(i)); child) {
-            updateFunc(child, element, i);
+            updateFunc(child, element);
             updateElement(child, updateFunc);
         }
     }
@@ -297,6 +352,18 @@ void RmlInterface::processRmlUiEvent(const SDL_Event& event) const {
     default:
         break;
     }
+}
+
+// Plugin for document handling
+
+DocumentManager::DocumentManager() = default;
+
+void DocumentManager::OnDocumentLoad(Rml::ElementDocument* document){
+    openedDocuments.insert(document);
+}
+
+void DocumentManager::OnDocumentUnload(Rml::ElementDocument* document) {
+    openedDocuments.erase(document);
 }
 
 } // namespace Nebulite::Graphics

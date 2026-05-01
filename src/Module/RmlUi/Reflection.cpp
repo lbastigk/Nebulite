@@ -28,35 +28,6 @@ void Reflection::update() {
     evaluationRoutine->update();
 }
 
-void Reflection::OnInitialise() {
-
-}
-
-void Reflection::OnShutdown() {
-
-}
-
-// NOLINTNEXTLINE
-void Reflection::OnDocumentOpen(Rml::Context* /*context*/, const Rml::String& /*document_path*/) {
-
-}
-
-void Reflection::OnDocumentLoad(Rml::ElementDocument* /*document*/) {
-
-}
-
-void Reflection::OnDocumentUnload(Rml::ElementDocument* document) {
-    reflections.erase(document);
-}
-
-void Reflection::OnContextCreate(Rml::Context* /*context*/) {
-
-}
-
-void Reflection::OnContextDestroy(Rml::Context* /*context*/) {
-
-}
-
 void Reflection::OnElementCreate(Rml::Element* element) {
     if (!element) return;
 
@@ -112,31 +83,6 @@ void Reflection::removeDeletedElements(){
 
 //----------------------------------------------
 
-std::string Reflection::modifyDataIdentifier(const std::string& input, const size_t& index) {
-    std::string const pattern = DataReference::referenceIdentifierAttribute + std::string(R"escape(="([^"]*)")escape");
-
-    static const std::regex re(pattern);
-
-    std::string result;
-    auto searchStart(input.cbegin());
-    std::smatch match;
-
-    while (std::regex_search(searchStart, input.cend(), match, re)) {
-        result.append(match.prefix());
-
-        result += DataReference::referenceIdentifierAttribute;
-        result += "=\"";
-        result += match[1].str();
-        result += "_REFLECT_INDEX_" + std::to_string(index);
-        result += "\"";
-
-        searchStart = match.suffix().first;
-    }
-
-    result.append(searchStart, input.cend());
-    return result;
-}
-
 void Reflection::reflect(){
     for (auto& elements : std::views::values(reflections)) {
         for (auto& [element, entry] : elements) {
@@ -176,7 +122,7 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
     size_t const size = entry.jsonResult.memberSize("");
     std::string newRml;
     for (size_t i = 0; i < size; ++i) {
-        newRml += modifyDataIdentifier(entry.rmlValue, i);
+        newRml += entry.rmlValue;
     }
     element->SetInnerRML(newRml);
 
@@ -187,11 +133,6 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
     else {
         // For each element, overwrite context mapping
         for (size_t i = 0; i < childrenCount; ++i) {
-            auto const& child = element->GetChild(static_cast<int>(i));
-            if (!child) {
-                capture.warning.println("Failed to get child at index ", i, " for element ", element->GetTagName());
-                continue;
-            }
             auto const jsonIndex = i * size / childrenCount;
             std::string const childKey = "[" + std::to_string(jsonIndex) + "]";
             auto& newScope = entry.jsonResult.shareManagedScopeBase(childKey);
@@ -204,7 +145,9 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
                     .global = ownerContextScope.global,
                 }
             };
-            Graphics::RmlInterface::RmlElementIdentifier childId(element, i, child);
+            auto const child = element->GetChild(static_cast<int>(i));
+            Graphics::RmlInterface::RmlElementIdentifier::removeIdentifierAttribute(child);
+            Graphics::RmlInterface::RmlElementIdentifier childId(child);
             interface.setRmlElementContextAndScope(childId, {ownerContext, childContextScope});
         }
     }

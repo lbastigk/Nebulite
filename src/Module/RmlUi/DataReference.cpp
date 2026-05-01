@@ -40,46 +40,14 @@ void DataReference::update() {
     evaluationRoutine->update();
 }
 
-void DataReference::postRenderUpdate() {
-
-}
-
-void DataReference::OnInitialise() {
-
-}
-
-void DataReference::OnShutdown() {
-
-}
-
-// NOLINTNEXTLINE
-void DataReference::OnDocumentOpen(Rml::Context* /*context*/, const Rml::String& /*document_path*/) {
-
-}
-
-void DataReference::OnDocumentLoad(Rml::ElementDocument* document) {
-    documents.emplace_back(document);
-}
-
-void DataReference::OnDocumentUnload(Rml::ElementDocument* document) {
-    std::erase(documents, document);
-}
-
-void DataReference::OnContextCreate(Rml::Context* /*context*/) {
-
-}
-
-void DataReference::OnContextDestroy(Rml::Context* /*context*/) {
-
-}
-
 void DataReference::OnElementCreate(Rml::Element* element) {
     // Normalize bound data value
     normalizeDataValue(element);
 }
 
-void DataReference::OnElementDestroy(Rml::Element* /*element*/) {
-
+void DataReference::OnElementDestroy(Rml::Element* element) {
+    Graphics::RmlInterface::RmlElementIdentifier const id(element);
+    registeredEntries.erase(id);
 }
 
 //----------------------------------------------
@@ -90,10 +58,6 @@ void DataReference::normalizeDataValue(Rml::Element* element) {
     for (auto const& attribute : dataAttributes) {
         auto const rmlValue = element->GetAttribute(attribute);
         if (!rmlValue) continue;
-        if (!element->HasAttribute(referenceIdentifierAttribute)) {
-            capture.warning.println("A unique identifier is required for data inputs to work. Please provide '", referenceIdentifierAttribute, "'.");
-            continue;
-        }
         if (rmlValue->GetType() == Rml::Variant::STRING) {
             // Normalize value
             auto const attributeValue = std::string(rmlValue->Get<Rml::String>());
@@ -109,14 +73,14 @@ void DataReference::normalizeDataValue(Rml::Element* element) {
                 continue;
             }
 
-            auto const unnormalizedId = element->GetAttribute(referenceIdentifierAttribute);
             auto const unnormalizedKey = element->GetAttribute(backupAttributeKey);
-            if (!unnormalizedId || !unnormalizedKey) {
+            if (!unnormalizedKey) {
                 capture.warning.println("Failed to normalize data input.");
                 continue;
             }
 
-            std::string normalized = "ID__" + normalize(unnormalizedId->Get<Rml::String>()) + "__VALUE__" + normalize(unnormalizedKey->Get<Rml::String>());
+            auto id = Graphics::RmlInterface::RmlElementIdentifier(element);
+            std::string normalized = "ID__" + std::to_string(id.getId()) + "__VALUE__" + normalize(unnormalizedKey->Get<Rml::String>());
             element->SetAttribute(attribute, normalized);
 
             // Create entry
@@ -144,9 +108,9 @@ void DataReference::normalizeDataValue(Rml::Element* element) {
 void DataReference::updateDataValues() {
     // TODO: Update data-if, so that we can actually hide/show the element at runtime!
     //       At the moment, the data-if is only evaluated at document creat, not during an update
-    for (auto const& document : documents) {
-        Graphics::RmlInterface::updateElement(document, [&](Rml::Element const* element, Rml::Element* parent, size_t const& index) {
-            Graphics::RmlInterface::RmlElementIdentifier const id(parent, index, element);
+    for (auto const& document : interface.getOpenedDocuments()) {
+        Graphics::RmlInterface::updateElement(document, [&](Rml::Element* element, Rml::Element* /*parent*/) {
+            Graphics::RmlInterface::RmlElementIdentifier const id(element);
             registerNewValues(id, element);
             updateRegisteredValues(id, element);
         });
@@ -172,13 +136,18 @@ void DataReference::registerNewValues(Graphics::RmlInterface::RmlElementIdentifi
 
 void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element const* element){
     if (!element) return;
-    if (auto const it = registeredEntries.find(id); it != registeredEntries.end()){
-        auto const idContext = interface.getRmlElementContextAndScope(id);
-        auto const docContext = interface.getRmlDocumentContextAndScope(element->GetOwnerDocument());
-        if (!idContext && !docContext) return;
 
+    auto const idContext = interface.getRmlElementContextAndScope(id);
+    auto const docContext = interface.getRmlDocumentContextAndScope(element->GetOwnerDocument());
+    if (!idContext && !docContext) return;
+    auto& slf = idContext ? idContext.value().ctxScope.self : docContext.value().ctxScope.self;
+    if (slf.isDummy()) {
+        registeredEntries.erase(id);
+        return;
+    }
+
+    if (auto const it = registeredEntries.find(id); it != registeredEntries.end()){
         auto const& entry = it->second;
-        auto& slf = idContext ? idContext.value().ctxScope.self : docContext.value().ctxScope.self;
 
         // Check if entry is new
         if (entry->isNewEntry) {
@@ -217,6 +186,7 @@ void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIde
     }
 }
 
+// TODO: instead of normalize, using a unique id might be better?
 std::string DataReference::normalize(std::string const& key) {
     auto view = key
         | std::views::transform([](char const& c) -> std::string {

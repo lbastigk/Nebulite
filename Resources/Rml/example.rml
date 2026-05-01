@@ -27,12 +27,12 @@
     </p>
 
     <!-- TODO: data-if is broken ... -->
-    <p data-if="rml.settings.show_text" data-identifier="text_example">
+    <p data-if="rml.settings.show_text">
         If you see this text, the data-if functionality works!
     </p>
 
     <p>
-        <input type="text" data-value="rml.input.animal" data-identifier="animalInput"/>
+        <input type="text" data-value="rml.input.animal"/>
     </p>
 
     <hr />
