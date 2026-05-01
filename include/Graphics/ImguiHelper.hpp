@@ -13,7 +13,6 @@
 
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
-#include "Interaction/Context.hpp"
 #include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
@@ -22,6 +21,11 @@
 namespace Nebulite::Data {
 class JsonScope;
 } // namespace Nebulite::Data
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
 
 namespace Nebulite::Interaction::Execution {
 class Domain;
