@@ -34,12 +34,12 @@ void Reflection::OnElementCreate(Rml::Element* element) {
     // Reflect on each update
     if (element->GetAttribute(reflectionAttribute)) {
         auto const expression = std::string(element->GetAttribute(reflectionAttribute)->Get<Rml::String>());
-        reflections[element->GetOwnerDocument()].emplace(
+        reflections.emplace(
             element,
             ReflectionEntry{
-                .entries = Interaction::Logic::Expression(expression),
+                .reflectionListExpression = Interaction::Logic::Expression(expression),
+                .reflectionList = Data::JSON(),
                 .rmlValue = element->GetInnerRML(),
-                .jsonResult = Data::JSON(),
                 .markedForDeletion = false,
                 .allocatedIds = {}
             }
@@ -51,9 +51,9 @@ void Reflection::OnElementCreate(Rml::Element* element) {
         reflectOnce.emplace_back(
             element,
             ReflectionEntry{
-                .entries = Interaction::Logic::Expression(expression),
+                .reflectionListExpression = Interaction::Logic::Expression(expression),
+                .reflectionList = Data::JSON(),
                 .rmlValue = element->GetInnerRML(),
-                .jsonResult = Data::JSON(),
                 .markedForDeletion = false,
                 .allocatedIds = {}
             }
@@ -64,32 +64,28 @@ void Reflection::OnElementCreate(Rml::Element* element) {
 
 void Reflection::OnElementDestroy(Rml::Element* element) {
     if (!element) return;
-    if (auto const it = reflections[element->GetOwnerDocument()].find(element); it != reflections[element->GetOwnerDocument()].end()) {
+    if (auto const it = reflections.find(element); it != reflections.end()) {
         it->second.markedForDeletion = true;
     }
 }
 
 void Reflection::removeDeletedElements(){
-    for (auto& elements : std::views::values(reflections)) {
-        std::vector<Rml::Element*> elementsToRemove;
-        for (auto& [element, entry] : elements) {
-            if (entry.markedForDeletion) {
-                elementsToRemove.emplace_back(element);
-            }
+    std::vector<Rml::Element*> elementsToRemove;
+    for (auto& [element, entry] : reflections) {
+        if (entry.markedForDeletion) {
+            elementsToRemove.emplace_back(element);
         }
-        for (auto const& elementToRemove : elementsToRemove) {
-            elements.erase(elementToRemove);
-        }
+    }
+    for (auto const& elementToRemove : elementsToRemove) {
+        reflections.erase(elementToRemove);
     }
 }
 
 //----------------------------------------------
 
 void Reflection::reflect(){
-    for (auto& elements : std::views::values(reflections)) {
-        for (auto& [element, entry] : elements) {
-            reflectElement(element, entry);
-        }
+    for (auto& [element, entry] : reflections) {
+        reflectElement(element, entry);
     }
 
     for (auto& [element, entry] : reflectOnce) {
@@ -111,9 +107,9 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
     auto const& ownerContextScope = ownerContextAndScope.value().ctxScope;
 
     // Evaluate expression, result must be an array
-    entry.jsonResult = entry.entries.evalAsJson(ownerContextScope);
-    if (auto const type = entry.jsonResult.memberType(""); type != Data::KeyType::array) {
-        capture.warning.println("Reflection expression did not evaluate to an array. Skipping reflection. Result: " + entry.jsonResult.serialize());
+    entry.reflectionList = entry.reflectionListExpression.evalAsJson(ownerContextScope);
+    if (auto const type = entry.reflectionList.memberType(""); type != Data::KeyType::array) {
+        capture.warning.println("Reflection expression did not evaluate to an array. Skipping reflection. Result: " + entry.reflectionList.serialize());
         return;
     }
 
@@ -121,7 +117,7 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
     if (entry.rmlValue.empty()) {
         entry.rmlValue = element->GetInnerRML();
     }
-    size_t const size = entry.jsonResult.memberSize("");
+    size_t const size = entry.reflectionList.memberSize("");
     std::string newRml;
     for (size_t i = 0; i < size; ++i) {
         newRml += entry.rmlValue;
@@ -134,7 +130,7 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
         for (size_t i = 0; i < childrenCount; ++i) {
             auto const jsonIndex = i * size / childrenCount;
             std::string const childKey = "[" + std::to_string(jsonIndex) + "]";
-            auto& newScope = entry.jsonResult.shareManagedScopeBase(childKey);
+            auto& newScope = entry.reflectionList.shareManagedScopeBase(childKey);
 
             // Keep nearly all context and contextScope the same, but modify scope of self
             Interaction::ContextScope const childContextScope{

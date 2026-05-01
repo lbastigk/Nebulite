@@ -33,23 +33,21 @@ public:
     static auto constexpr reflectionOnceAttribute = "data-reflect-once";
 
 private:
-
+    /**
+     * @brief Necessary metadata information for each entry
+     */
     struct ReflectionEntry {
-        Interaction::Logic::Expression entries;
-        Rml::String rmlValue;
-        Data::JSON jsonResult;
+        Interaction::Logic::Expression reflectionListExpression; // Expression to generate an array of entries to reflect to
+        Data::JSON reflectionList; // Result of evaluating the expression, must be an array
+        Rml::String rmlValue; // Original RML value to replicate for each entry
         bool markedForDeletion = false;
-        std::vector<size_t> allocatedIds;
+        std::vector<size_t> allocatedIds; // Instead of constantly allocating new element Identifiers per reflection, we reuse them.
     };
 
-    absl::flat_hash_map<
-        Rml::ElementDocument*,
-        absl::flat_hash_map<
-            Rml::Element*,
-            ReflectionEntry
-        >
-    >reflections;
+    // All registered reflections
+    absl::flat_hash_map<Rml::Element*, ReflectionEntry> reflections;
 
+    // All one-time reflections
     std::vector<std::pair<Rml::Element*, ReflectionEntry>> reflectOnce;
 
     std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
