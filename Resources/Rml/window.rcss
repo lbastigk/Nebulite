@@ -11,7 +11,7 @@ body {
     color: #e3e3e3;
 
     background: #455d7a;
-    border: 10px #233142;
+    border: 0.25em #233142;
 
     text-align: center;
     padding: 2em 1em;
@@ -69,6 +69,8 @@ input.text {
     box-sizing: border-box;
     width: 200px;
     font-size: 0.9em;
+
+    border-radius: 0.5em;
 }
 
 .box {
