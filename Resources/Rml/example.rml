@@ -26,13 +26,12 @@
         The quick brown fox jumps over the lazy {self:rml.input.animal}.
     </p>
 
-    <!-- TODO: data-if is broken ... -->
-    <p data-if="rml.settings.show_text">
+    <p data-if="self:rml.settings.show_text">
         If you see this text, the data-if functionality works!
     </p>
 
     <p>
-        <input type="text" data-value="rml.input.animal"/>
+        <input type="text" data-value="self:rml.input.animal"/>
     </p>
 
     <hr />

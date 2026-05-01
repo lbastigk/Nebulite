@@ -30,23 +30,26 @@ public:
 
     void OnElementDestroy(Rml::Element* element) override ;
 
+    static auto constexpr dataValueAttribute = "data-value";
+    static auto constexpr dataIfAttribute = "data-if";
 private:
+
     absl::flat_hash_map<
         Rml::Element*,
         Rml::String
     > rmlStrings;
 
     struct RegisteredEntry {
+        Interaction::ContextDeriver::TargetType targetType;
         Data::ScopedKey key;
         std::string normalizedValue;
         Rml::Element* element = nullptr;
+        Rml::String attribute;
         Rml::String previousRmlValue;
         std::string previousDocumentValue;
         bool isNewEntry = true;
-        Rml::String attribute;
+        std::string innerRml;
     };
-
-    std::vector<std::unique_ptr<RegisteredEntry>> registeredButWithoutId;
 
     absl::flat_hash_map<Graphics::RmlInterface::RmlElementIdentifier, std::unique_ptr<RegisteredEntry>> registeredEntries;
 
@@ -56,14 +59,11 @@ private:
 
     void updateDataValues();
 
-    void normalizeDataValue(Rml::Element* element) ;
+    void registerDataValue(Rml::Element* element) ;
 
-    void registerNewValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element const* element);
-
-    void updateRegisteredValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element const* element);
+    void updateRegisteredValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element* element);
 
     static std::string normalize(std::string const& key);
-
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // NEBULITE_MODULE_RMLUI_DATA_INPUT_HPP
