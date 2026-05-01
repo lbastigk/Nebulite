@@ -54,7 +54,6 @@ Renderer::~Renderer() {
 
     // Quit SDL subsystems
     if (!status.sdlInitialized) return;
-    Rml::Shutdown();
     TTF_Quit();
     SDL_Quit();
 }
@@ -222,7 +221,7 @@ void Renderer::initSDL() {
     //------------------------------------------
     // UI
     initImgui();
-    rml.init(*this, domainScope);
+    Graphics::RmlInterface::instance().init(*this, domainScope);
 
     //------------------------------------------
     // Cursor
@@ -396,16 +395,22 @@ void Renderer::render() {
     pollEvents();
     for (auto const& event : events) {
         ImGui_ImplSDL3_ProcessEvent(&event);
-        rml.processRmlUiEvent(event);
+
+        // Skip tab key if Imgui wants text input. Otherwise RmlUi tries to focus some element.
+        if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_TAB && ImGui::GetIO().WantTextInput) {
+            continue;
+        }
+
+        Graphics::RmlInterface::instance().processRmlUiEvent(event);
     }
 
     // TODO: rml.isTextInputFocused() is somehow very buggy: cursor has to be below the text input field for it to register
     //       -> scaling issue or mouse delta accumulation issue?
     // External text focus management
-    if (rml.isTextInputFocused() || ImGui::GetIO().WantTextInput) {
+    if (Graphics::RmlInterface::instance().isTextInputFocused() || ImGui::GetIO().WantTextInput) {
         SDL_StartTextInput(window);
     }
-    else if (!rml.isTextInputFocused() && !ImGui::GetIO().WantTextInput) {
+    else if (!Graphics::RmlInterface::instance().isTextInputFocused() && !ImGui::GetIO().WantTextInput) {
         SDL_StopTextInput(window);
     }
 
@@ -421,8 +426,8 @@ void Renderer::render() {
 
     // RML
     // Update variables
-    rml.update();
-    rml.render();
+    Graphics::RmlInterface::instance().update();
+    Graphics::RmlInterface::instance().render();
 
     // Render callbacks, likely imgui functions
     for (auto const& callback : renderCallbacks) {
@@ -445,7 +450,7 @@ void Renderer::render() {
     for (auto const& callback : postRenderCallback) {
         callback();
     }
-    rml.postRenderUpdate();
+    Graphics::RmlInterface::instance().postRenderUpdate();
     postRenderCallback.clear();
 }
 
@@ -572,7 +577,7 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
     SDL_SetWindowSize(window, w * windowScale, h * windowScale);
 
     // Rescale rml context
-    rml.setDimensions(w * windowScale, h * windowScale);
+    Graphics::RmlInterface::instance().setDimensions(w * windowScale, h * windowScale);
 
     // Reinsert objects
     // TODO: Once fixed tiles are implemented, this isn't needed anymore

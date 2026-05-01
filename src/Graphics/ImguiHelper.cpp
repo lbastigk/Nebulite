@@ -143,6 +143,7 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
     else if (data->EventFlag == ImGuiInputTextFlags_CallbackCompletion) { // Tab-Autocomplete
         auto completions = state->ctx->self.findCompletions(state->command);
         addFileCompletions(state->command, completions);
+        // TODO: add json key completions
         checkCompletionsForCommonPrefix(state->command, completions);
         if (completions.size() == 1) {
             auto const& toInsert = completions.front();

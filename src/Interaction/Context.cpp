@@ -73,4 +73,8 @@ void ContextScope::combineLocal(Data::JsonScope& merged) const {
     merged.setSubDoc(contextOther, other);
 }
 
+bool ContextScope::hasDummyScope() const{
+    return self.isDummy() || other.isDummy() || global.isDummy();
+}
+
 } // namespace Nebulite::Interaction

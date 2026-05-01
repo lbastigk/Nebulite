@@ -26,56 +26,30 @@ public:
 
     void update() override ;
 
-    void postRenderUpdate() override;
-
-    void OnInitialise() override ;
-
-    void OnShutdown() override ;
-
-    void OnDocumentOpen(Rml::Context* context, const Rml::String& document_path) override ;
-
-    void OnDocumentLoad(Rml::ElementDocument* document) override ;
-
-    void OnDocumentUnload(Rml::ElementDocument* document) override ;
-
-    void OnContextCreate(Rml::Context* context) override ;
-
-    void OnContextDestroy(Rml::Context* context) override ;
-
     void OnElementCreate(Rml::Element* element) override ;
 
     void OnElementDestroy(Rml::Element* element) override ;
 
-    static auto constexpr referenceIdentifierAttribute = "data-identifier";
-
+    static auto constexpr dataValueAttribute = "data-value";
+    static auto constexpr dataIfAttribute = "data-if";
 private:
-
-    // TODO: Add ability to dynamically retrieve data value from the scope of the element/parent element
-    //       Issue: elements inside a data-reflect aren't scoped, so data-value=rml.input.animal is always relative to the documents scope
-    //       Instead, we should perhaps use an element scope? Or is a separate keyword like data-value-scoped necessary?
-
-    // TODO: Add context instead of always retrieving from global
-
-    std::vector<Rml::ElementDocument*> documents;
 
     absl::flat_hash_map<
         Rml::Element*,
         Rml::String
     > rmlStrings;
 
-    //--------------------------------
-
     struct RegisteredEntry {
+        Interaction::ContextDeriver::TargetType targetType;
         Data::ScopedKey key;
         std::string normalizedValue;
         Rml::Element* element = nullptr;
+        Rml::String attribute;
         Rml::String previousRmlValue;
         std::string previousDocumentValue;
         bool isNewEntry = true;
-        Rml::String attribute;
+        std::optional<std::string> innerRml; // Only set if element has data-if-attribute
     };
-
-    std::vector<std::unique_ptr<RegisteredEntry>> registeredButWithoutId;
 
     absl::flat_hash_map<Graphics::RmlInterface::RmlElementIdentifier, std::unique_ptr<RegisteredEntry>> registeredEntries;
 
@@ -85,14 +59,11 @@ private:
 
     void updateDataValues();
 
-    void normalizeDataValue(Rml::Element* element) ;
+    void registerDataValue(Rml::Element* element) ;
 
-    void registerNewValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element const* element);
-
-    void updateRegisteredValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element const* element);
+    void updateRegisteredValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element* element);
 
     static std::string normalize(std::string const& key);
-
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // NEBULITE_MODULE_RMLUI_DATA_INPUT_HPP

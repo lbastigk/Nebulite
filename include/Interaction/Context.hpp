@@ -11,9 +11,14 @@
 
 // Standard library
 #include <array>
+#include <expected>
 #include <optional>
 #include <string_view>
 #include <utility>
+
+// Nebulite
+#include "Data/Document/SimpleValueError.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -141,6 +146,12 @@ public:
      * @param merged The scope to populate
      */
     void combineLocal(Data::JsonScope& merged) const ;
+
+    /**
+     * @brief Checks if any Context member has a dummy scope
+     * @details True if a member has a dummy scope, fals otherwise
+     */
+    bool hasDummyScope() const ;
 };
 
 /**

@@ -17,10 +17,74 @@
 #include "Module/RmlUi/Reflection.hpp"
 
 //------------------------------------------
+
+namespace {
+struct StatusTracker {
+    bool rmlInterfaceInitialized = false;
+} statusTracker;
+} // namespace
+
+//------------------------------------------
 namespace Nebulite::Graphics {
+
+// RmlInterface::RmlElementIdentifier
+
+size_t& RmlInterface::RmlElementIdentifier::count() {
+    static size_t rollingIdentifier = 0;
+    return rollingIdentifier;
+}
+
+size_t RmlInterface::RmlElementIdentifier::idRoll() {
+    return count()++;
+}
+
+size_t RmlInterface::RmlElementIdentifier::getCount() {
+    return count();
+}
+
+void RmlInterface::RmlElementIdentifier::forceElementIdentifier(Rml::Element* element, size_t const& id) {
+    element->SetAttribute(identifierAttribute, id);
+}
+
+void RmlInterface::RmlElementIdentifier::removeElementIdentifier(Rml::Element* element) {
+    element->RemoveAttribute(identifierAttribute);
+}
+
+bool RmlInterface::RmlElementIdentifier::hasElementIdentifier(Rml::Element* element){
+    return element->GetAttribute(identifierAttribute) != nullptr;
+}
+
+RmlInterface::RmlElementIdentifier::RmlElementIdentifier(Rml::Element* e){
+    // See if element has attribute
+    if (e->GetAttribute(identifierAttribute)) {
+        id = e->GetAttribute(identifierAttribute)->Get<size_t>();
+    }
+    else {
+        id = idRoll();
+        e->SetAttribute(identifierAttribute, id);
+    }
+}
+
+// RmlInterface
+
+// Lifetime of RmlInterface must be longer than any domain
+RmlInterface& RmlInterface::instance() {
+    static RmlInterface instance;
+    return instance;
+}
+
+RmlInterface::RmlInterface() = default;
+
+RmlInterface::~RmlInterface() {
+    if (statusTracker.rmlInterfaceInitialized) {
+        Rml::Shutdown();
+        statusTracker.rmlInterfaceInitialized = false;
+    }
+}
 
 void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainScope){
     Rml::Initialise();
+    statusTracker.rmlInterfaceInitialized = true;
 
     // Interfaces
     renderInterface = std::make_unique<RenderInterface_SDL>(renderer.getSdlRenderer());
@@ -32,6 +96,10 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
     if (!systemInterface) {
         throw std::runtime_error("Failed to create system interface!");
     }
+
+    // Core document manager plugin
+    documentManager = std::make_unique<DocumentManager>();
+    RegisterPlugin(documentManager.get());
 
     // Plugins
     modules.emplace_back(std::make_unique<Module::RmlUi::ContextManager>(renderer.capture, *this));
@@ -68,6 +136,14 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
     // Data Model used for data-value sync
     dataModelConstructor = context->CreateDataModel("nebuliteDataSync");
     update();
+}
+
+std::unordered_set<Rml::ElementDocument*> const& RmlInterface::getOpenedDocuments() const{
+    return documentManager->openedDocuments;
+}
+
+size_t RmlInterface::countOpenedDocuments() const {
+    return documentManager->openedDocuments.size();
 }
 
 bool RmlInterface::loadDocument(std::string_view const& name, std::string_view const& path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
@@ -116,11 +192,25 @@ bool RmlInterface::removeDocument(Rml::ElementDocument* doc) {
     return foundInOwnerMap && foundInContextMap;
 }
 
-void RmlInterface::updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*, size_t const&)> const& updateFunc) {
+void RmlInterface::removeAllDocumentsOfOwner(size_t const& domainId){
+    // This function might be called after the interface is already deleted... So we keep track of the singleton
+    // NOLINTBEGIN
+    if (!statusTracker.rmlInterfaceInitialized) return;
+    if (!ownerToDocument.contains(domainId)) return;
+    for (auto const& doc : ownerToDocument[domainId] | std::views::values) {
+        doc->Close();
+        documentToContext.erase(doc);
+        context->UnloadDocument(doc);
+    }
+    ownerToDocument.erase(domainId);
+    // NOLINTEND
+}
+
+void RmlInterface::updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*)> const& updateFunc) {
     auto const numChildren = static_cast<size_t>(element->GetNumChildren());
     for (size_t i = 0; i < numChildren; ++i) {
         if (auto const child = element->GetChild(static_cast<int>(i)); child) {
-            updateFunc(child, element, i);
+            updateFunc(child, element);
             updateElement(child, updateFunc);
         }
     }
@@ -210,17 +300,20 @@ Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode const& keycode) {
 int SdlModifierToRmlModifier(uint32_t const& modifier) {
     int result = 0;
 
-    if (modifier & SDL_KMOD_SHIFT)
-        result |= Rml::Input::KM_SHIFT;
+    if (modifier & SDL_KMOD_ALT)
+        result |= Rml::Input::KM_ALT;
+
+    if (modifier & SDL_KMOD_CAPS)
+        result |= Rml::Input::KM_CAPSLOCK;
 
     if (modifier & SDL_KMOD_CTRL)
         result |= Rml::Input::KM_CTRL;
 
-    if (modifier & SDL_KMOD_ALT)
-        result |= Rml::Input::KM_ALT;
-
     if (modifier & SDL_KMOD_GUI)
-        result |= Rml::Input::KM_META; // Windows key / Cmd key
+        result |= Rml::Input::KM_META;
+
+    if (modifier & SDL_KMOD_SHIFT)
+        result |= Rml::Input::KM_SHIFT;
 
     return result;
 }
@@ -237,6 +330,9 @@ bool isTextSdlScancode(SDL_Scancode const& scancode) {
 void RmlInterface::processRmlUiEvent(const SDL_Event& event) const {
     if (!context) return;
 
+    auto const modifiers = SdlModifierToRmlModifier(event.key.mod);
+
+    // Core events
     switch (event.type) {
 
     case SDL_EVENT_MOUSE_MOTION:
@@ -258,10 +354,10 @@ void RmlInterface::processRmlUiEvent(const SDL_Event& event) const {
             // We assume the mouse click unfocused the element.
             // If the click was at the elements position, ProcessMouseButtonDown will refocus the element.
             context->GetFocusElement()->Blur();
-            context->ProcessMouseButtonDown(button, SdlModifierToRmlModifier(event.key.mod));
+            context->ProcessMouseButtonDown(button, modifiers);
         }
         else {
-            context->ProcessMouseButtonUp(button, SdlModifierToRmlModifier(event.key.mod));
+            context->ProcessMouseButtonUp(button, modifiers);
         }
         break;
     }
@@ -282,11 +378,10 @@ void RmlInterface::processRmlUiEvent(const SDL_Event& event) const {
         }
 
         auto const rmlKey = SDLKeyToRmlKey(event.key.scancode);
-        auto const mods = SdlModifierToRmlModifier(event.key.mod);
         if (event.type == SDL_EVENT_KEY_DOWN)
-            context->ProcessKeyDown(rmlKey, mods);
+            context->ProcessKeyDown(rmlKey, modifiers);
         else
-            context->ProcessKeyUp(rmlKey, mods);
+            context->ProcessKeyUp(rmlKey, modifiers);
         break;
     }
 
@@ -297,6 +392,38 @@ void RmlInterface::processRmlUiEvent(const SDL_Event& event) const {
     default:
         break;
     }
+
+    // Handle Ctrl + A/C/V/X for text input fields
+    if (modifiers & Rml::Input::KM_CTRL && event.type == SDL_EVENT_KEY_DOWN && isTextInputFocused()) {
+        if (event.key.key == SDLK_A) {
+            // TODO: highlight entire text input field
+        }
+        else if (event.key.key == SDLK_C) {
+            // TODO: copy highlighted text
+            //       - how to extract highlighted portion?
+        }
+        else if (event.key.key == SDLK_V) {
+            std::string const input(SDL_GetClipboardText());
+            context->ProcessTextInput(input);
+        }
+        else if (event.key.key == SDLK_X) {
+            // TODO: extract highlighted text
+            //       - how to extract highlighted portion?
+            //       - how to remove highlighted portion?
+        }
+    }
+}
+
+// Plugin for document handling
+
+DocumentManager::DocumentManager() = default;
+
+void DocumentManager::OnDocumentLoad(Rml::ElementDocument* document){
+    openedDocuments.insert(document);
+}
+
+void DocumentManager::OnDocumentUnload(Rml::ElementDocument* document) {
+    openedDocuments.erase(document);
 }
 
 } // namespace Nebulite::Graphics

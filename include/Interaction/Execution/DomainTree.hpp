@@ -1,9 +1,21 @@
 #pragma once
 
-#include "Constants/StandardCapture.hpp"
-#include "Interaction/Context.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
+#include "Constants/Event.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
+
+//------------------------------------------
 namespace Nebulite::Interaction::Execution {
 
 /**

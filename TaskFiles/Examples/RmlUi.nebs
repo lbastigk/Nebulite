@@ -1,7 +1,7 @@
 set-res 1500 1000
 set-fps 2000
 
-set rml.settings.show_text 1
+set rml.settings.showInput 1
 set rml.input.animal dog
 
 # grid or example

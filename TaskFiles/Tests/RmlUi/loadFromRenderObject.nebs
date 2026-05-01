@@ -19,14 +19,12 @@ selected-object parse forward global rmlui document remove test
 wait 1
 assert $(eq({global:renderer.RmlUi.openedDocuments},0))
 
-# TODO: add tests for automatic deletion of documents on owner deletion
-#       requires common rmlui module to be implemented!
-#       and update DataReference module to directly bind with domain id!
-#selected-object parse forward global rmlui document load test ./Resources/Rml/example.rml
-#wait 1
-#assert $(eq({global:renderer.RmlUi.openedDocuments},1))
-#selected-object parse delete
-#wait 1
-#assert $(eq({global:renderer.RmlUi.openedDocuments},0))
+# Open again and see if it auto-closes when the object is deleted
+selected-object parse forward global rmlui document load test ./Resources/Rml/example.rml
+wait 10
+assert $(eq({global:renderer.RmlUi.openedDocuments},1))
+selected-object parse delete
+wait 10
+assert $(eq({global:renderer.RmlUi.openedDocuments},0))
 
 exit

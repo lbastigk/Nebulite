@@ -69,7 +69,9 @@ public:
 
     struct Key : Data::KeyGroup<"renderer.RmlUi."> {
         static auto constexpr openedDocuments = makeScoped("openedDocuments"); // Amount of opened documents
+        static auto constexpr usedElementIds = makeScoped("usedElementIds");
     };
 };
 } // namespace Nebulite::Module::Domain::Renderer
 #endif // NEBULITE_DOMAINMODULE_RENDERER_RMLUI_HPP
+
