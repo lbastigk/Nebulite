@@ -7,23 +7,14 @@
 #include "Utility/Coordination/TimedRoutine.hpp"
 
 //------------------------------------------
-
-namespace {
-
-} // namespace
-
 namespace Nebulite::Module::RmlUi {
-
 
 DataReference::DataReference(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {
     evaluationRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
         [this] {
             updateDataValues();
         },
-        // If 1000.0/fps is higher than this value, the ui starts glitching due to the reset rml still being written while rendering.
-        // So we update Expressions instantly with each new render pass.
-        // Getting rid of the TimedRoutine is also an option, but we leave it here atm.
-        10,
+        10, // ms
         Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
     );
 }
