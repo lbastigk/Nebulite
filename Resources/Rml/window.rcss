@@ -1,10 +1,17 @@
+/*
+    --color1: #233142;
+    --color2: #455d7a;
+    --color3: #f95959;
+    --color4: #e3e3e3;
+ */
+
 body {
     font-family: JetBrains Mono;
     font-size: 18px;
+    color: #e3e3e3;
 
-    color: #02475e;
-    background: white;
-    border: 10px #02475e;
+    background: #455d7a;
+    border: 10px #233142;
 
     text-align: center;
     padding: 2em 1em;
@@ -24,19 +31,18 @@ hr {
     display: block;
     height: 1px;
     margin: 20px 0;
-    /*border: none;*/
-    background: #02475e;
+    background: #233142;
 }
 
 h1 {
-    color: #f6470a;
+    color: #f95959;
     font-size: 1.5em;
     font-weight: bold;
     margin-bottom: 0.7em;
 }
 
 h2 {
-    color: #f6470a;
+    color: #f95959;
     font-size: 1.1em;
     font-weight: bold;
     margin-bottom: 0.7em;
@@ -56,9 +62,8 @@ b {
 }
 
 input.text {
-    background-color: #fff;
-    color: #555;
-    border: 2px #02475e;
+    background-color: #233142;
+    border: 2px #e3e3e3;
     padding: 5px;
     cursor: text;
     box-sizing: border-box;
