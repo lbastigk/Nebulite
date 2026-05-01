@@ -11,6 +11,7 @@
 #include <RmlUi/Core.h>
 
 // Nebulite
+#include "Data/Document/JsonScope.hpp"
 #include "Interaction/Logic/Expression.hpp"
 #include "Utility/IO/Capture.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
@@ -37,18 +38,31 @@ private:
      * @brief Necessary metadata information for each entry
      */
     struct ReflectionEntry {
+        ReflectionEntry(std::string const& expression, Rml::Element const* element) : reflectionListExpression(expression) {
+            rmlValue = element->GetInnerRML();
+        }
+
         Interaction::Logic::Expression reflectionListExpression; // Expression to generate an array of entries to reflect to
-        Data::JSON reflectionList; // Result of evaluating the expression, must be an array
         Rml::String rmlValue; // Original RML value to replicate for each entry
         bool markedForDeletion = false;
-        std::vector<size_t> allocatedIds; // Instead of constantly allocating new element Identifiers per reflection, we reuse them.
+        std::vector<size_t> allocatedIds = {}; // Instead of constantly allocating new element Identifiers per reflection, we reuse them.
     };
 
+    // Entries that we have to add to the active list
+    struct ToAdd {
+        std::vector<std::pair<Rml::Element*, std::unique_ptr<ReflectionEntry>>> reflections;
+        std::vector<std::pair<Rml::Element*, std::unique_ptr<ReflectionEntry>>> reflectOnce;
+    } toAdd;
+
+    // Reflection results
+    // Must be kept alive
+    absl::flat_hash_map<Rml::Element*, std::unique_ptr<Data::JSON>> reflectionResults;
+
     // All registered reflections
-    absl::flat_hash_map<Rml::Element*, ReflectionEntry> reflections;
+    absl::flat_hash_map<Rml::Element*, std::unique_ptr<ReflectionEntry>> reflections;
 
     // All one-time reflections
-    std::vector<std::pair<Rml::Element*, ReflectionEntry>> reflectOnce;
+    std::vector<std::pair<Rml::Element*, std::unique_ptr<ReflectionEntry>>> reflectOnce;
 
     std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
 
@@ -56,7 +70,7 @@ private:
 
     void reflect();
 
-    void reflectElement(Rml::Element* element, ReflectionEntry& entry) const ;
+    void reflectElement(Rml::Element* element, std::unique_ptr<ReflectionEntry> const& entry);
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // NEBULITE_MODULE_RMLUI_REFLECTION_HPP

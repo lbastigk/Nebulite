@@ -1,0 +1,22 @@
+<rml>
+    <head>
+        <title>Hello world</title>
+        <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
+        <link type="text/rcss" href="./Resources/Rml/window.rcss"/>
+    </head>
+    <body data-model="nebuliteDataSync">
+    <h1>RmlUi</h1>
+
+    <!-- WIP: Nested reflection is not yet supported ... -->
+    <p data-reflect="{self:|listMembersAndValues}">
+        <pCompact data-eval="true">
+            {self:key|asString|rPad 15 .}{self:value|asString|lPad 15 .}
+        </pCompact>
+        <p data-reflect="{self:value|listMembersAndValues}">
+            <pCompact data-eval="true">
+                {self:key|asString|rPad 15 .}{self:value|asString|lPad 15 .}
+            </pCompact>
+        </p>
+    </p>
+    </body>
+</rml>

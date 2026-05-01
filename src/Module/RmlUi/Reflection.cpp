@@ -31,48 +31,35 @@ void Reflection::update() {
 void Reflection::OnElementCreate(Rml::Element* element) {
     if (!element) return;
 
-    // Reflect on each update
-    if (element->GetAttribute(reflectionAttribute)) {
-        auto const expression = std::string(element->GetAttribute(reflectionAttribute)->Get<Rml::String>());
-        reflections.emplace(
-            element,
-            ReflectionEntry{
-                .reflectionListExpression = Interaction::Logic::Expression(expression),
-                .reflectionList = Data::JSON(),
-                .rmlValue = element->GetInnerRML(),
-                .markedForDeletion = false,
-                .allocatedIds = {}
+    auto addToList = [&](std::string const& attribute, std::vector<std::pair<Rml::Element*, std::unique_ptr<ReflectionEntry>>>& list) {
+        if (element->GetAttribute(attribute)) {
+            auto const expression = std::string(element->GetAttribute(attribute)->Get<Rml::String>());
+            if (expression.empty()) {
+                capture.warning.println("Element has empty reflection expression, skipping reflection.");
+                return;
             }
-        );
-    }
-    // Reflect once (Important for interactive UI-Elements, as data-reflect would invalidate any fields, causing them to unfocus on each update
-    else if (element->GetAttribute(reflectionOnceAttribute)) {
-        auto const expression = std::string(element->GetAttribute(reflectionOnceAttribute)->Get<Rml::String>());
-        reflectOnce.emplace_back(
-            element,
-            ReflectionEntry{
-                .reflectionListExpression = Interaction::Logic::Expression(expression),
-                .reflectionList = Data::JSON(),
-                .rmlValue = element->GetInnerRML(),
-                .markedForDeletion = false,
-                .allocatedIds = {}
-            }
-        );
-    }
-    // TODO: Reflect-on-change?
+            list.emplace_back(
+                element,
+                std::make_unique<ReflectionEntry>(expression, element)
+            );
+        }
+    };
+
+    addToList(reflectionAttribute, toAdd.reflections);
+    addToList(reflectionOnceAttribute, toAdd.reflectOnce);
 }
 
 void Reflection::OnElementDestroy(Rml::Element* element) {
     if (!element) return;
     if (auto const it = reflections.find(element); it != reflections.end()) {
-        it->second.markedForDeletion = true;
+        if (it->second) it->second->markedForDeletion = true;
     }
 }
 
 void Reflection::removeDeletedElements(){
     std::vector<Rml::Element*> elementsToRemove;
     for (auto& [element, entry] : reflections) {
-        if (entry.markedForDeletion) {
+        if (!entry || entry->markedForDeletion) {
             elementsToRemove.emplace_back(element);
         }
     }
@@ -84,43 +71,75 @@ void Reflection::removeDeletedElements(){
 //----------------------------------------------
 
 void Reflection::reflect(){
+    // Add new reflections
+    for (auto& [element, entry] : toAdd.reflections) {
+        reflections.emplace(element, std::move(entry));
+    }
+    toAdd.reflections.clear();
+    for (auto& [element, entry] : toAdd.reflectOnce) {
+        reflectOnce.emplace_back(element, std::move(entry));
+    }
+    toAdd.reflectOnce.clear();
+
+    // Reflect
     for (auto& [element, entry] : reflections) {
         reflectElement(element, entry);
     }
-
     for (auto& [element, entry] : reflectOnce) {
-        reflectElement(element, entry);
+         reflectElement(element, entry);
     }
     reflectOnce.clear();
 }
 
-void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) const {
+void Reflection::reflectElement(Rml::Element* element, std::unique_ptr<ReflectionEntry> const& entry) {
     if (!element) return;
-    if (entry.markedForDeletion) return;
+    if (!entry) return;
+    if (entry->markedForDeletion) return;
+
+    auto getContextAndScope = [this](Rml::Element* e) -> std::optional<Graphics::RmlInterface::ContextAndScope> {
+        if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(e)) {
+            // TODO: Maybe something like reflect -> serialize -> deserialize would help here?
+            throw std::logic_error("Nested reflection is not supported.");
+            //return interface.getRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier(e));
+        }
+        if (auto const ownerContextAndScope = interface.getRmlDocumentContextAndScope(e->GetOwnerDocument()); ownerContextAndScope) {
+            return ownerContextAndScope;
+        }
+        return std::nullopt;
+    };
 
     // Get owner context, keep nearly everything the same but nest contextScope self
-    auto const ownerContextAndScope = interface.getRmlDocumentContextAndScope(element->GetOwnerDocument());
-    if (!ownerContextAndScope) {
+    auto const contextAndScope = getContextAndScope(element);
+    if (!contextAndScope) {
         return;
     }
-    auto const& ownerContext = ownerContextAndScope.value().ctx;
-    auto const& ownerContextScope = ownerContextAndScope.value().ctxScope;
+    auto const& context = contextAndScope.value().ctx;
+    auto const& scope = contextAndScope.value().ctxScope;
+
+    // Get JSON to store result
+    if (reflectionResults.find(element) == reflectionResults.end()) {
+        reflectionResults[element] = std::make_unique<Data::JSON>();
+    }
+    auto& reflectionList = *reflectionResults[element].get();
 
     // Evaluate expression, result must be an array
-    entry.reflectionList = entry.reflectionListExpression.evalAsJson(ownerContextScope);
-    if (auto const type = entry.reflectionList.memberType(""); type != Data::KeyType::array) {
-        capture.warning.println("Reflection expression did not evaluate to an array. Skipping reflection. Result: " + entry.reflectionList.serialize());
+    reflectionList = entry->reflectionListExpression.evalAsJson(scope);
+    if (auto const type = reflectionList.memberType(""); type != Data::KeyType::array) {
+        capture.warning.println("Reflection expression '", entry->reflectionListExpression.getFullExpression() ,"' did not evaluate to an array. Skipping reflection.");
+        capture.warning.println("Result: " + reflectionList.serialize());
+        capture.warning.println("Self scope provided: ", scope.self.serialize() );
+        //std::abort();
         return;
     }
 
     // Combine inner RMLs and replace the referenceIdentifierAttribute with a unique id
-    if (entry.rmlValue.empty()) {
-        entry.rmlValue = element->GetInnerRML();
+    if (entry->rmlValue.empty()) {
+        entry->rmlValue = element->GetInnerRML();
     }
-    size_t const size = entry.reflectionList.memberSize("");
+    size_t const size = reflectionList.memberSize("");
     std::string newRml;
     for (size_t i = 0; i < size; ++i) {
-        newRml += entry.rmlValue;
+        newRml += entry->rmlValue;
     }
     element->SetInnerRML(newRml);
 
@@ -130,28 +149,28 @@ void Reflection::reflectElement(Rml::Element* element, ReflectionEntry& entry) c
         for (size_t i = 0; i < childrenCount; ++i) {
             auto const jsonIndex = i * size / childrenCount;
             std::string const childKey = "[" + std::to_string(jsonIndex) + "]";
-            auto& newScope = entry.reflectionList.shareManagedScopeBase(childKey);
+            auto& newScope = reflectionList.shareManagedScopeBase(childKey);
 
             // Keep nearly all context and contextScope the same, but modify scope of self
             Interaction::ContextScope const childContextScope{
                 {
                     .self = newScope,
-                    .other = ownerContextScope.other,
-                    .global = ownerContextScope.global,
+                    .other = scope.other,
+                    .global = scope.global,
                 }
             };
             auto const child = element->GetChild(static_cast<int>(i));
-            if (entry.allocatedIds.size() > i) {
-                auto childId = Graphics::RmlInterface::RmlElementIdentifier(entry.allocatedIds[i]);
-                interface.setRmlElementContextAndScope(childId, {ownerContext, childContextScope});
+            if (entry->allocatedIds.size() > i) {
+                auto childId = Graphics::RmlInterface::RmlElementIdentifier(entry->allocatedIds[i]);
+                interface.setRmlElementContextAndScope(childId, {context, childContextScope});
             }
             else {
                 Graphics::RmlInterface::RmlElementIdentifier::removeElementIdentifier(child);
                 Graphics::RmlInterface::RmlElementIdentifier childId(child);
-                entry.allocatedIds.push_back(childId.getId());
-                interface.setRmlElementContextAndScope(childId, {ownerContext, childContextScope});
+                entry->allocatedIds.push_back(childId.getId());
+                interface.setRmlElementContextAndScope(childId, {context, childContextScope});
             }
-            Graphics::RmlInterface::RmlElementIdentifier::forceElementIdentifier(child, entry.allocatedIds[i]);
+            Graphics::RmlInterface::RmlElementIdentifier::forceElementIdentifier(child, entry->allocatedIds[i]);
         }
     }
     else {

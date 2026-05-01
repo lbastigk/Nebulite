@@ -51,7 +51,7 @@ void RmlInterface::RmlElementIdentifier::removeElementIdentifier(Rml::Element* e
 }
 
 bool RmlInterface::RmlElementIdentifier::hasElementIdentifier(Rml::Element* element){
-    return element->GetAttribute(identifierAttribute) != nullptr;
+    return element->HasAttribute(identifierAttribute);
 }
 
 RmlInterface::RmlElementIdentifier::RmlElementIdentifier(Rml::Element* e){
