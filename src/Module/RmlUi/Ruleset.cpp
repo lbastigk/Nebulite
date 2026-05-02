@@ -54,13 +54,13 @@ void Ruleset::OnElementDestroy(Rml::Element* element){
 void Ruleset::DeletedElement::applyRuleset(Utility::IO::Capture& capture, Graphics::RmlInterface& interface){
     auto ctxAndScope = [&] -> std::optional<Graphics::RmlInterface::ContextAndScope> {
         // NOLINTNEXTLINE
-        return std::visit([&](auto&& identifier) -> std::optional<Graphics::RmlInterface::ContextAndScope> {
-            using T = std::decay_t<decltype(identifier)>;
+        return std::visit([&](auto&& id) -> std::optional<Graphics::RmlInterface::ContextAndScope> {
+            using T = std::decay_t<decltype(id)>;
             if constexpr (std::is_same_v<T, Graphics::RmlInterface::RmlElementIdentifier>) {
-                return interface.getRmlElementContextAndScope(identifier);
+                return interface.getRmlElementContextAndScope(id);
             }
             else if constexpr (std::is_same_v<T, Rml::ElementDocument*>) {
-                return interface.getRmlDocumentContextAndScope(identifier);
+                return interface.getRmlDocumentContextAndScope(id);
             }
             else {
                 std::unreachable();
@@ -82,7 +82,7 @@ void Ruleset::DeletedElement::applyRuleset(Utility::IO::Capture& capture, Graphi
             ruleset.value()->apply();
         }
         else {
-            capture.warning.println("Could not find ruleset with identifier '", link, "'. Skipping ruleset invocation on element destroy.");
+            capture.warning.println("Could not find ruleset with identifier '", rulesetLink.value(), "'. Skipping ruleset invocation on element destroy.");
         }
     }
 
