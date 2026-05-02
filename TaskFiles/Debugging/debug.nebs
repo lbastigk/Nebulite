@@ -22,11 +22,10 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+#task TaskFiles/Tests/RmlUi/loadFromRenderObject.nebs
 
 #task TaskFiles/Tests/RmlUi/loadFromRenderObject.nebs
 
 #task TaskFiles/Tests/RmlUi/loadAndUnload.nebs
 
 task TaskFiles/Examples/RmlUi.nebs
-
-#rmlui document load documentViewer ./Resources/Rml/documentViewer.rml

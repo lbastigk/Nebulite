@@ -57,6 +57,16 @@ std::pair<ContextDeriver::TargetType, std::string_view> ContextDeriver::getTypeA
     return {TargetType::resource, str}; // All other prefixes are considered type resource
 }
 
+std::string ContextDeriver::typeToString(TargetType const& type){
+    auto const it = std::ranges::find_if(contextPrefixPairs, [&](auto const p) {
+        return type == p.first;
+    });
+    if (it != contextPrefixPairs.end()) {
+        return std::string(it->second);
+    }
+    return "<resource>"; // All other prefixes are considered type resource
+}
+
 void ContextScope::combineAll(Data::JsonScope& merged) const {
     Data::ScopedKey const contextSelf("self.");
     Data::ScopedKey const contextOther("other.");

@@ -5,7 +5,7 @@
     },
     {
         "command": "task TaskFiles/Tests/RmlUi/loadFromRenderObject.nebs",
-        "expected": { "cout": [], "cerr": [] }
+        "expected": { "cout": ["Hello World!"], "cerr": [] }
     },
     {
         "command": "task TaskFiles/Tests/RmlUi/elementIdCount.nebs",

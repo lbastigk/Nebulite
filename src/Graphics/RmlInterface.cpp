@@ -6,7 +6,6 @@
 
 // Nebulite
 #include "Core/Renderer.hpp"
-#include "Constants/KeyNames.hpp"
 #include "Graphics/RmlInterface.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
@@ -15,8 +14,11 @@
 #include "Module/RmlUi/DataReference.hpp"
 #include "Module/RmlUi/ExpressionManager.hpp"
 #include "Module/RmlUi/Reflection.hpp"
+#include "Module/RmlUi/Ruleset.hpp"
 
 //------------------------------------------
+// Due to lifetime issues, we need to keep track of the interface
+// with an outside variable.
 
 namespace {
 struct StatusTracker {
@@ -50,7 +52,7 @@ void RmlInterface::RmlElementIdentifier::removeElementIdentifier(Rml::Element* e
     element->RemoveAttribute(identifierAttribute);
 }
 
-bool RmlInterface::RmlElementIdentifier::hasElementIdentifier(Rml::Element* element){
+bool RmlInterface::RmlElementIdentifier::hasElementIdentifier(Rml::Element const* element){
     return element->HasAttribute(identifierAttribute);
 }
 
@@ -82,7 +84,7 @@ RmlInterface::~RmlInterface() {
     }
 }
 
-void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainScope){
+void RmlInterface::init(Core::Renderer& renderer, int const& width, int const& height){
     Rml::Initialise();
     statusTracker.rmlInterfaceInitialized = true;
 
@@ -102,6 +104,7 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
     RegisterPlugin(documentManager.get());
 
     // Plugins
+    modules.emplace_back(std::make_unique<Module::RmlUi::Ruleset>(renderer.capture, *this));
     modules.emplace_back(std::make_unique<Module::RmlUi::ContextManager>(renderer.capture, *this));
     modules.emplace_back(std::make_unique<Module::RmlUi::DataReference>(renderer.capture, *this));
     modules.emplace_back(std::make_unique<Module::RmlUi::Reflection>(renderer.capture, *this));
@@ -111,16 +114,7 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
     }
 
     // Context
-    context = Rml::CreateContext(
-        "main", {
-            static_cast<int>(
-                domainScope.get<double>(Constants::KeyNames::Renderer::dispResX).value_or(800.0)
-            ),
-            static_cast<int>(
-                domainScope.get<double>(Constants::KeyNames::Renderer::dispResY).value_or(600.0)
-            )
-        }
-    );
+    context = Rml::CreateContext(contextName,{width,height});
     if (!context) {
         throw std::runtime_error("Failed to create RmlUi context!");
     }
@@ -134,146 +128,8 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
     }
 
     // Data Model used for data-value sync
-    dataModelConstructor = context->CreateDataModel("nebuliteDataSync");
+    dataModelConstructor = context->CreateDataModel(dataModelName);
     update();
-}
-
-std::unordered_set<Rml::ElementDocument*> const& RmlInterface::getOpenedDocuments() const{
-    return documentManager->openedDocuments;
-}
-
-size_t RmlInterface::countOpenedDocuments() const {
-    return documentManager->openedDocuments.size();
-}
-
-bool RmlInterface::loadDocument(std::string_view const& name, std::string_view const& path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
-    auto const document = Utility::IO::FileManagement::LoadFile(path);
-    Rml::ElementDocument* doc = context->LoadDocumentFromMemory(document);
-    if (!doc) return false;
-
-    auto& id = ctx.self.getId();
-    auto ctxAndScope = ContextAndScope{ctx, ctxScope};
-
-    if (ownerToDocument[id].contains(name)) {
-        return false; // Document with this name already exists for this owner
-    }
-    ownerToDocument[id][std::string(name)] = doc;
-    documentToContext.emplace(doc, ctxAndScope);
-    doc->Show();
-    return true;
-}
-
-bool RmlInterface::removeDocument(size_t const& id, std::string_view const& name) {
-    auto const it = std::ranges::find(ownerToDocument[id], name, [](auto const& pair) { return pair.first; });
-    if (it == ownerToDocument[id].end()) {
-        return false; // No document with this name for this owner
-    }
-    auto const doc = it->second;
-    doc->Close();
-    ownerToDocument[id].erase(name);
-    documentToContext.erase(doc);
-    return true;
-}
-
-bool RmlInterface::removeDocument(Rml::ElementDocument* doc) {
-    bool foundInOwnerMap = false;
-    for (auto& documents : ownerToDocument | std::views::values) {
-        if (auto const it = std::ranges::find_if(documents, [doc](auto const& pair) { return pair.second == doc; }); it != documents.end()) {
-            documents.erase(it);
-            foundInOwnerMap = true;
-            break;
-        }
-    }
-    bool const foundInContextMap = documentToContext.contains(doc);
-    if (foundInContextMap) {
-        documentToContext.erase(doc);
-    }
-    context->UnloadDocument(doc);
-    return foundInOwnerMap && foundInContextMap;
-}
-
-void RmlInterface::removeAllDocumentsOfOwner(size_t const& domainId){
-    // This function might be called after the interface is already deleted... So we keep track of the singleton
-    // NOLINTBEGIN
-    if (!statusTracker.rmlInterfaceInitialized) return;
-    if (!ownerToDocument.contains(domainId)) return;
-    for (auto const& doc : ownerToDocument[domainId] | std::views::values) {
-        doc->Close();
-        documentToContext.erase(doc);
-        context->UnloadDocument(doc);
-    }
-    ownerToDocument.erase(domainId);
-    // NOLINTEND
-}
-
-void RmlInterface::updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*)> const& updateFunc) {
-    auto const numChildren = static_cast<size_t>(element->GetNumChildren());
-    for (size_t i = 0; i < numChildren; ++i) {
-        if (auto const child = element->GetChild(static_cast<int>(i)); child) {
-            updateFunc(child, element);
-            updateElement(child, updateFunc);
-        }
-    }
-}
-
-std::optional<RmlInterface::ContextAndScope> RmlInterface::getRmlElementContextAndScope(RmlElementIdentifier const& element) {
-    if (auto const it = elementToContext.find(element); it != elementToContext.end()) {
-        return it->second;
-    }
-    return std::nullopt;
-}
-
-std::optional<RmlInterface::ContextAndScope> RmlInterface::getRmlDocumentContextAndScope(Rml::ElementDocument* document){
-    if (!document) return std::nullopt;
-    if (auto const it = documentToContext.find(document); it != documentToContext.end()) {
-        return it->second;
-    }
-    return std::nullopt;
-}
-
-void RmlInterface::setRmlElementContextAndScope(RmlElementIdentifier const& element, ContextAndScope const& ctxAndScope) {
-    elementToContext.emplace(element, ctxAndScope);
-}
-
-void RmlInterface::setRmlDocumentContextAndScope(Rml::ElementDocument* document, ContextAndScope const& ctxAndScope) {
-    if (!document) return;
-    documentToContext.emplace(document, ctxAndScope);
-}
-
-void RmlInterface::update() const {
-    for (auto const& doc : documentToContext | std::views::keys) {
-        doc->UpdateDocument();
-    }
-
-    for (auto const& module : modules) {
-        module->update();
-    }
-    context->Update();
-}
-
-void RmlInterface::postRenderUpdate() const {
-    for (auto& module : modules) {
-        module->postRenderUpdate();
-    }
-}
-
-void RmlInterface::setDimensions(int const& width, int const& height) const {
-    context->SetDimensions({width, height});
-}
-
-bool RmlInterface::isTextInputFocused() const {
-    if (Rml::Element* el = context->GetFocusElement(); el){
-        // Covers <input type="text"> and <textarea>
-        if (Rml::String const tag = el->GetTagName(); tag == "input" || tag == "textarea"){
-            // Optional: check type="text"
-            if (tag == "input"){
-                if (Rml::Variant const* type = el->GetAttribute("type"); type && type->Get<Rml::String>() != "text")
-                    return false;
-            }
-            return true;
-        }
-    }
-    return false;
 }
 
 namespace {
@@ -281,19 +137,19 @@ namespace {
 Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode const& keycode) {
     switch (keycode) {
         // Basic text editing keys
-    case SDL_SCANCODE_BACKSPACE: return Rml::Input::KI_BACK;
-    case SDL_SCANCODE_TAB:       return Rml::Input::KI_TAB;
-    case SDL_SCANCODE_RETURN:    return Rml::Input::KI_RETURN;
-    case SDL_SCANCODE_SPACE:     return Rml::Input::KI_SPACE;
-    case SDL_SCANCODE_DELETE:    return Rml::Input::KI_DELETE;
+        case SDL_SCANCODE_BACKSPACE: return Rml::Input::KI_BACK;
+        case SDL_SCANCODE_TAB:       return Rml::Input::KI_TAB;
+        case SDL_SCANCODE_RETURN:    return Rml::Input::KI_RETURN;
+        case SDL_SCANCODE_SPACE:     return Rml::Input::KI_SPACE;
+        case SDL_SCANCODE_DELETE:    return Rml::Input::KI_DELETE;
         // Arrow
-    case SDL_SCANCODE_LEFT:      return Rml::Input::KI_LEFT;
-    case SDL_SCANCODE_RIGHT:     return Rml::Input::KI_RIGHT;
-    case SDL_SCANCODE_UP:        return Rml::Input::KI_UP;
-    case SDL_SCANCODE_DOWN:      return Rml::Input::KI_DOWN;
+        case SDL_SCANCODE_LEFT:      return Rml::Input::KI_LEFT;
+        case SDL_SCANCODE_RIGHT:     return Rml::Input::KI_RIGHT;
+        case SDL_SCANCODE_UP:        return Rml::Input::KI_UP;
+        case SDL_SCANCODE_DOWN:      return Rml::Input::KI_DOWN;
         // Other
-    case SDL_SCANCODE_ESCAPE:    return Rml::Input::KI_ESCAPE;
-    default:                     return Rml::Input::KI_UNKNOWN;
+        case SDL_SCANCODE_ESCAPE:    return Rml::Input::KI_ESCAPE;
+        default:                     return Rml::Input::KI_UNKNOWN;
     }
 }
 
@@ -327,7 +183,7 @@ bool isTextSdlScancode(SDL_Scancode const& scancode) {
 
 } // namespace
 
-void RmlInterface::processRmlUiEvent(const SDL_Event& event) const {
+void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
     if (!context) return;
 
     auto const modifiers = SdlModifierToRmlModifier(event.key.mod);
@@ -414,15 +270,167 @@ void RmlInterface::processRmlUiEvent(const SDL_Event& event) const {
     }
 }
 
-// Plugin for document handling
+void RmlInterface::update() const {
+    for (auto const& doc : documentToContext | std::views::keys) {
+        doc->UpdateDocument();
+    }
 
-DocumentManager::DocumentManager() = default;
+    for (auto const& module : modules) {
+        module->update();
+    }
+    context->Update();
+}
 
-void DocumentManager::OnDocumentLoad(Rml::ElementDocument* document){
+void RmlInterface::postRenderUpdate() const {
+    for (auto& module : modules) {
+        module->postRenderUpdate();
+    }
+}
+
+void RmlInterface::render() const {
+    context->Render();
+}
+
+void RmlInterface::setDimensions(int const& width, int const& height) const {
+    context->SetDimensions({width, height});
+}
+
+bool RmlInterface::isTextInputFocused() const {
+    if (Rml::Element* el = context->GetFocusElement(); el){
+        // Covers <input type="text"> and <textarea>
+        if (Rml::String const tag = el->GetTagName(); tag == "input" || tag == "textarea"){
+            // Optional: check type="text"
+            if (tag == "input"){
+                if (Rml::Variant const* type = el->GetAttribute("type"); type && type->Get<Rml::String>() != "text")
+                    return false;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+// Helper functions
+
+void RmlInterface::updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*)> const& updateFunc) {
+    auto const numChildren = static_cast<size_t>(element->GetNumChildren());
+    for (size_t i = 0; i < numChildren; ++i) {
+        if (auto const child = element->GetChild(static_cast<int>(i)); child) {
+            updateFunc(child, element);
+            updateElement(child, updateFunc);
+        }
+    }
+}
+
+std::unordered_set<Rml::ElementDocument*> const& RmlInterface::getOpenedDocuments() const{
+    return documentManager->openedDocuments;
+}
+
+size_t RmlInterface::countOpenedDocuments() const {
+    return documentManager->openedDocuments.size();
+}
+
+// Context Management
+
+bool RmlInterface::loadDocument(std::string_view const& name, std::string_view const& path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+    auto const document = Utility::IO::FileManagement::LoadFile(path);
+    Rml::ElementDocument* doc = context->LoadDocumentFromMemory(document);
+    if (!doc) return false;
+
+    auto& id = ctx.self.getId();
+    auto ctxAndScope = ContextAndScope{ctx, ctxScope};
+
+    if (ownerToDocument[id].contains(name)) {
+        return false; // Document with this name already exists for this owner
+    }
+    ownerToDocument[id][std::string(name)] = doc;
+    documentToContext.emplace(doc, ctxAndScope);
+    doc->Show();
+    return true;
+}
+
+bool RmlInterface::removeDocument(size_t const& id, std::string_view const& name) {
+    auto const it = std::ranges::find(ownerToDocument[id], name, [](auto const& pair) { return pair.first; });
+    if (it == ownerToDocument[id].end()) {
+        return false; // No document with this name for this owner
+    }
+    auto const doc = it->second;
+    doc->Close();
+    ownerToDocument[id].erase(name);
+    documentToContext.erase(doc);
+    return true;
+}
+
+bool RmlInterface::removeDocument(Rml::ElementDocument* doc) {
+    bool foundInOwnerMap = false;
+    for (auto& documents : ownerToDocument | std::views::values) {
+        if (auto const it = std::ranges::find_if(documents, [doc](auto const& pair) { return pair.second == doc; }); it != documents.end()) {
+            documents.erase(it);
+            foundInOwnerMap = true;
+            break;
+        }
+    }
+    bool const foundInContextMap = documentToContext.contains(doc);
+    if (foundInContextMap) {
+        documentToContext.erase(doc);
+    }
+    context->UnloadDocument(doc);
+    return foundInOwnerMap && foundInContextMap;
+}
+
+void RmlInterface::removeAllDocumentsOfOwner(size_t const& domainId){
+    // This function might be called after the interface is already deleted... So we keep track of the singleton
+    // NOLINTBEGIN
+    if (!statusTracker.rmlInterfaceInitialized) return;
+    if (!ownerToDocument.contains(domainId)) return;
+    for (auto const& doc : ownerToDocument[domainId] | std::views::values) {
+        doc->Close();
+        documentToContext.erase(doc);
+        context->UnloadDocument(doc);
+    }
+    ownerToDocument.erase(domainId);
+
+    absl::erase_if(elementToContext, [&](auto const& pair) {
+        auto const& [element, ctxAndScope] = pair;
+        return ctxAndScope.ctx.self.getId() == domainId;
+    });
+
+    // NOLINTEND
+}
+
+std::optional<RmlInterface::ContextAndScope> RmlInterface::getRmlElementContextAndScope(RmlElementIdentifier const& element) {
+    if (auto const it = elementToContext.find(element); it != elementToContext.end()) {
+        return it->second;
+    }
+    return std::nullopt;
+}
+
+std::optional<RmlInterface::ContextAndScope> RmlInterface::getRmlDocumentContextAndScope(Rml::ElementDocument* document){
+    if (!document) return std::nullopt;
+    if (auto const it = documentToContext.find(document); it != documentToContext.end()) {
+        return it->second;
+    }
+    return std::nullopt;
+}
+
+void RmlInterface::setRmlElementContextAndScope(RmlElementIdentifier const& element, ContextAndScope const& ctxAndScope) {
+    elementToContext.emplace(element, ctxAndScope);
+}
+
+void RmlInterface::setRmlDocumentContextAndScope(Rml::ElementDocument* document, ContextAndScope const& ctxAndScope) {
+    if (!document) return;
+    documentToContext.emplace(document, ctxAndScope);
+}
+
+// Plugin for document tracking
+
+RmlInterface::DocumentManager::DocumentManager() = default;
+
+void RmlInterface::DocumentManager::OnDocumentLoad(Rml::ElementDocument* document){
     openedDocuments.insert(document);
 }
 
-void DocumentManager::OnDocumentUnload(Rml::ElementDocument* document) {
+void RmlInterface::DocumentManager::OnDocumentUnload(Rml::ElementDocument* document) {
     openedDocuments.erase(document);
 }
 

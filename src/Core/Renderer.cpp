@@ -221,7 +221,11 @@ void Renderer::initSDL() {
     //------------------------------------------
     // UI
     initImgui();
-    Graphics::RmlInterface::instance().init(*this, domainScope);
+    Graphics::RmlInterface::instance().init(
+        *this,
+        domainScope.get<int>(Constants::KeyNames::Renderer::dispResX).value_or(800),
+        domainScope.get<int>(Constants::KeyNames::Renderer::dispResY).value_or(600)
+    );
 
     //------------------------------------------
     // Cursor
@@ -396,7 +400,7 @@ void Renderer::render() {
     for (auto const& event : events) {
         ImGui_ImplSDL3_ProcessEvent(&event);
 
-        // Skip tab key if Imgui wants text input. Otherwise RmlUi tries to focus some element.
+        // Skip tab key if Imgui wants text input. Otherwise, RmlUi tries to focus some element.
         if (event.type == SDL_EVENT_KEY_DOWN && event.key.scancode == SDL_SCANCODE_TAB && ImGui::GetIO().WantTextInput) {
             continue;
         }
