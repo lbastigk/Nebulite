@@ -106,17 +106,26 @@ void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIde
     auto const docContext = interface.getRmlDocumentContextAndScope(element->GetOwnerDocument());
     if (!idContext && !docContext) return;
 
-    auto& ctxScope = idContext ? idContext.value().ctxScope : docContext.value().ctxScope;
-    if (ctxScope.hasDummyScope()) {
-        capture.warning.println("Failed to update data reference, a context member has a dummy scope!");
-        registeredEntries.erase(id);
-        return;
-    }
-
     // Update all registered entries
     if (auto const it = registeredEntries.find(id); it != registeredEntries.end()){
-        auto const& entry = it->second;
+        // Check if a dummy scope is registered
+        auto& ctxScope = idContext ? idContext.value().ctxScope : docContext.value().ctxScope;
+        if (ctxScope.hasDummyScope()) {
+            capture.warning.println("Failed to update data reference, a context member has a dummy scope!");
+            registeredEntries.erase(id);
+            return;
+        }
 
+        // Check if the owner has a data model
+        if (!element->GetDataModel()) {
+            capture.error.println("Failed to update data reference: ", Interaction::ContextDeriver::typeToString(it->second->targetType), ":", it->second->key.view().toString());
+            capture.error.println("element has no data model! Please add 'data-model=\"nebuliteDataSync\"' to the body tag.");
+            registeredEntries.erase(id);
+            return;
+        }
+
+        // Now we can actually synchronize the values
+        auto const& entry = it->second;
         auto const targetCheck = ctxScope.getTargetFromType(entry->targetType);
         if (!targetCheck) {
             capture.warning.println("Failed to update data reference, target is not available in context!");

@@ -81,6 +81,8 @@ public:
      */
     static std::pair<TargetType, std::string_view> getTypeAndPrefixFromString(std::string_view const& str);
 
+    static std::string typeToString(TargetType const& type);
+
     static auto constexpr contextKeySeparator = ':';
 private:
     /**
