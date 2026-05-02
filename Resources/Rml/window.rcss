@@ -22,7 +22,6 @@ body {
     left: 0%;
 
     margin: auto;
-    white-space: pre-line;
 
     border-radius: 1em;
 }

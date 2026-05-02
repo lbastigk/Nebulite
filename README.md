@@ -387,35 +387,46 @@ Examples:
 ```html
 <rml>
     <head>
-        <title>Hello world</title>
+        <title>RmlUi demo</title>
         <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
         <link type="text/rcss" href="./Resources/Rml/window.rcss"/>
     </head>
-    <body data-model="nebuliteDataSync"> <!-- one data model for all RmlUi documents, the proper Nebulite Context is handled automatically -->
+    <!-- one data model for all RmlUi documents, the proper Nebulite Context is handled automatically -->
+    <body data-model="nebuliteDataSync">
     <h1>RmlUi</h1>
 
-    <p>Hello <span id="world">world</span>!</p>
+    <!-- Set actions to do on destruction -->
+    <!-- Any on-destroy is activated when the element is removed from the document -->
+    <!-- Or, if the document itself is removed. -->
+    <div on-destroy-invoke-ruleset="Resources/Rulesets/Debug/helloWorld.jsonc"></div>
+    <div on-destroy-parse="set UI_DELETED 1 ; assert $(eq({self:UI_DELETED},1))"></div>
+
+    <!-- Toggle between bold and italic every second -->
+    <p>
+        <b data-if="global:time.t|toInt|add 0|mod 2">Hello world!</b>
+        <i data-if="global:time.t|toInt|add 1|mod 2">Hello world!</i>
+    </p>
 
     <hr />
     <h2>Expression</h2>
 
     <!-- data-eval="true" allows for expression evaluation inside the tag -->
     <p data-eval="true">
-        Test expression, <b>with</b> evaluation and more:
-        $08.2f(1+{global:time.t|sub 1})
-        Global space is type: {global:|typeAsString}
+        <!-- Example expression of a time code:  HH:MM:SS:FF at 24 fps -->
+        $02i({global:time.t|div 60|div 60|mod 60}):$02i({global:time.t|div 60|mod 60}):$02i({global:time.t|mod 60}):$02i({global:time.t|mul 24|mod 25})
     </p>
 
     <hr />
     <h2>Data input</h2>
 
+    <!-- Show input -->
     <p data-eval="true">
-        The quick brown fox jumps over the lazy {global:rml.input.animal}.
+        The quick brown fox jumps over the lazy {self:rml.input.animal}.
     </p>
 
-    <!-- data-value binds the input value to the given key in the data model. A unique data-identifier is necessary-->
-    <p>
-        <input type="text" data-value="rml.input.animal" data-identifier="animalInput"/>
+    <!-- Set input, if self:rml.settings.showInput is true -->
+    <p data-if="self:rml.settings.showInput">
+        <input type="text" data-value="self:rml.input.animal"/>
     </p>
 
     <hr />
@@ -437,14 +448,13 @@ Examples:
             {self:key|asString|rPad 15 .}{self:value|asString|lPad 15 .}
         </pCompact>
     </p>
-
     </body>
 </rml>
 ```
 
 The document is loaded via the RmlUi DomainModule:
 ```bash
-rmlui document load <name> ./Resources/Rml/example.rml
+./bin/Nebulite "set rml.input.animal dog ; set rml.settings.showInput 1 ; rmlui document load myDemoDocument ./Resources/Rml/example.rml"
 ```
 
 <!-- TOC --><a name="runtime-modes"></a>
