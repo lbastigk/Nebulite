@@ -18,6 +18,8 @@
 #include "Module/RmlUi/Ruleset.hpp"
 
 //------------------------------------------
+// Due to lifetime issues, we need to keep track of the interface
+// with an outside variable.
 
 namespace {
 struct StatusTracker {
