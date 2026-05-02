@@ -17,12 +17,12 @@ void Collection::bindTransformations() {
     // BIND_TRANSFORMATION_MEMBER(&Collection::filter, filterName, &filterDesc);
     bindTransformation(&Collection::map, mapName, mapDesc);
     bindTransformation(&Collection::get, getName, getDesc);
-    bindTransformation(&Collection::getMultiple, getMultipleName, getMultipleDesc);
     bindTransformation(&Collection::filterRegex, filterRegexName, filterRegexDesc);
     bindTransformation(&Collection::filterGlob, filterGlobName, filterGlobDesc);
     bindTransformation(&Collection::filterNulls, filterOutNullsName, filterOutNullsDesc);
     bindTransformation(&Collection::listMembers, listMembersName, listMembersDesc);
     bindTransformation(&Collection::listMembersAndValues, listMembersAndValuesName, listMembersAndValuesDesc);
+    bindTransformation(&Collection::bundleToArray, bundleToArrayName, bundleToArrayDesc);
 }
 
 bool Collection::map(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
@@ -57,22 +57,6 @@ bool Collection::get(std::span<std::string const> const& args, Data::JsonScope* 
     auto const& key = rootKey + args[1];
     Data::JSON const subDoc = jsonDoc->getSubDoc(key);
     jsonDoc->setSubDoc(rootKey, subDoc);
-    return true;
-}
-
-bool Collection::getMultiple(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    if (args.size() < 2) {
-        return false;
-    }
-    Data::JSON tmp;
-    size_t i = 0;
-    for (auto const& key : args.subspan(1)) {
-        tmp.setSubDoc("[" + std::to_string(i) + "]", jsonDoc->getSubDoc(rootKey + key));
-        ++i;
-    }
-
-    // Create result array
-    jsonDoc->setSubDoc(rootKey, tmp);
     return true;
 }
 
@@ -203,6 +187,18 @@ bool Collection::listMembersAndValues(Data::JsonScope* jsonDoc){
 
         }
     );
+    return true;
+}
+
+bool Collection::bundleToArray(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+    if (args.size() < 2) {
+        return false;
+    }
+    Data::JSON tmp;
+    for (auto [idx, key] : args.subspan(1) | std::views::enumerate) {
+        tmp.setSubDoc("[" + std::to_string(idx) + "]", jsonDoc->getSubDoc(rootKey + key));
+    }
+    jsonDoc->setSubDoc(rootKey, tmp);
     return true;
 }
 

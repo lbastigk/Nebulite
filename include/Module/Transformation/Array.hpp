@@ -80,17 +80,6 @@ public:
     static auto constexpr subspanDesc = "Gets a subarray from the array in the current JSON value.\n"
         "Usage: |subspan <start> [<length>] -> {array}\n";
 
-    // TODO: is duplicate of collection::getMultiple
-    //       bundleToArray seems to be a better name...
-    //       1.) remove getMultiple
-    //       2.) remove tests from getMultiple
-    //       3.) move bundleToArray to collection class
-    //       4.) move tests to collection test file
-    static bool bundleToArray(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
-    static auto constexpr bundleToArrayName = "bundleToArray";
-    static auto constexpr bundleToArrayDesc = "Gathers all members from the provided keys into an array.\n"
-        "Usage: |bundleToArray <key1> <key2> ... -> {array}\n";
-
     // TODO: dedupe, sort, sortBy, pick, omit
 };
 } // namespace Nebulite::Module::Transformation

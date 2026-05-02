@@ -52,8 +52,8 @@
             "set obj.key1 value1",
             "set obj.key2 value2",
             "set obj.key3 value3",
-            "eval nop {global:arr|getMultiple [0] [1]|print}",
-            "eval nop {global:obj|getMultiple key1 key2|print}",
+            "eval nop {global:arr|bundleToArray [0] [1]|print}",
+            "eval nop {global:obj|bundleToArray key1 key2|print}",
             "exit"
         ],
         "expected": {
