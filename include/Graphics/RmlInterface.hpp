@@ -24,10 +24,6 @@ namespace Nebulite::Data {
 class JsonScope;
 } // namespace Nebulite::Data
 
-namespace Nebulite::Graphics {
-class DocumentManager;
-} // namespace Nebulite::Graphics
-
 namespace Nebulite::Module::Base {
 class RmlUiModule;
 } // namespace Nebulite::Module::Base
@@ -40,6 +36,9 @@ class RmlInterface {
     ~RmlInterface();
 
 public:
+    static auto constexpr contextName = "nebuliteRmlContext";
+    static auto constexpr dataModelName = "nebuliteDataSync";
+
     static RmlInterface& instance();
 
     void init(Core::Renderer& renderer, Data::JsonScope const& domainScope);
@@ -69,7 +68,7 @@ public:
 
         static void removeElementIdentifier(Rml::Element* element);
 
-        static bool hasElementIdentifier(Rml::Element* element);
+        static bool hasElementIdentifier(Rml::Element const* element);
 
         explicit RmlElementIdentifier(Rml::Element* e);
 
@@ -135,20 +134,18 @@ private:
     absl::flat_hash_map<RmlElementIdentifier, ContextAndScope> elementToContext; // Map of element to its context and scope for expression evaluation
 
     // Document manager
+    class DocumentManager final : public Rml::Plugin {
+    public:
+        explicit DocumentManager();
+
+        void OnDocumentLoad(Rml::ElementDocument* document) override ;
+
+        void OnDocumentUnload(Rml::ElementDocument* document) override ;
+
+        // Hashset of opened documents
+        std::unordered_set<Rml::ElementDocument*> openedDocuments;
+    };
     std::unique_ptr<DocumentManager> documentManager;
 };
-
-class DocumentManager final : public Rml::Plugin {
-public:
-    explicit DocumentManager();
-
-    void OnDocumentLoad(Rml::ElementDocument* document) override ;
-
-    void OnDocumentUnload(Rml::ElementDocument* document) override ;
-
-    // Hashset of opened documents
-    std::unordered_set<Rml::ElementDocument*> openedDocuments;
-};
-
 } // namespace Nebulite::Graphics
 #endif // NEBULITE_GRAPHICS_RML_INTERFACE_HPP

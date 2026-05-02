@@ -119,7 +119,7 @@ void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIde
         // Check if the owner has a data model
         if (!element->GetDataModel()) {
             capture.error.println("Failed to update data reference: ", Interaction::ContextDeriver::typeToString(it->second->targetType), ":", it->second->key.view().toString());
-            capture.error.println("element has no data model! Please add 'data-model=\"nebuliteDataSync\"' to the body tag.");
+            capture.error.println("element has no data model! Please add 'data-model=\"", Graphics::RmlInterface::dataModelName,"\"' to the body tag.");
             registeredEntries.erase(id);
             return;
         }

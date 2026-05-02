@@ -51,7 +51,7 @@ void RmlInterface::RmlElementIdentifier::removeElementIdentifier(Rml::Element* e
     element->RemoveAttribute(identifierAttribute);
 }
 
-bool RmlInterface::RmlElementIdentifier::hasElementIdentifier(Rml::Element* element){
+bool RmlInterface::RmlElementIdentifier::hasElementIdentifier(Rml::Element const* element){
     return element->HasAttribute(identifierAttribute);
 }
 
@@ -114,7 +114,8 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
 
     // Context
     context = Rml::CreateContext(
-        "main", {
+        contextName,
+        {
             static_cast<int>(
                 domainScope.get<double>(Constants::KeyNames::Renderer::dispResX).value_or(800.0)
             ),
@@ -136,7 +137,7 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
     }
 
     // Data Model used for data-value sync
-    dataModelConstructor = context->CreateDataModel("nebuliteDataSync");
+    dataModelConstructor = context->CreateDataModel(dataModelName);
     update();
 }
 
@@ -289,19 +290,19 @@ namespace {
 Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode const& keycode) {
     switch (keycode) {
         // Basic text editing keys
-    case SDL_SCANCODE_BACKSPACE: return Rml::Input::KI_BACK;
-    case SDL_SCANCODE_TAB:       return Rml::Input::KI_TAB;
-    case SDL_SCANCODE_RETURN:    return Rml::Input::KI_RETURN;
-    case SDL_SCANCODE_SPACE:     return Rml::Input::KI_SPACE;
-    case SDL_SCANCODE_DELETE:    return Rml::Input::KI_DELETE;
+        case SDL_SCANCODE_BACKSPACE: return Rml::Input::KI_BACK;
+        case SDL_SCANCODE_TAB:       return Rml::Input::KI_TAB;
+        case SDL_SCANCODE_RETURN:    return Rml::Input::KI_RETURN;
+        case SDL_SCANCODE_SPACE:     return Rml::Input::KI_SPACE;
+        case SDL_SCANCODE_DELETE:    return Rml::Input::KI_DELETE;
         // Arrow
-    case SDL_SCANCODE_LEFT:      return Rml::Input::KI_LEFT;
-    case SDL_SCANCODE_RIGHT:     return Rml::Input::KI_RIGHT;
-    case SDL_SCANCODE_UP:        return Rml::Input::KI_UP;
-    case SDL_SCANCODE_DOWN:      return Rml::Input::KI_DOWN;
+        case SDL_SCANCODE_LEFT:      return Rml::Input::KI_LEFT;
+        case SDL_SCANCODE_RIGHT:     return Rml::Input::KI_RIGHT;
+        case SDL_SCANCODE_UP:        return Rml::Input::KI_UP;
+        case SDL_SCANCODE_DOWN:      return Rml::Input::KI_DOWN;
         // Other
-    case SDL_SCANCODE_ESCAPE:    return Rml::Input::KI_ESCAPE;
-    default:                     return Rml::Input::KI_UNKNOWN;
+        case SDL_SCANCODE_ESCAPE:    return Rml::Input::KI_ESCAPE;
+        default:                     return Rml::Input::KI_UNKNOWN;
     }
 }
 
@@ -422,15 +423,15 @@ void RmlInterface::processRmlUiEvent(const SDL_Event& event) const {
     }
 }
 
-// Plugin for document handling
+// Plugin for document tracking
 
-DocumentManager::DocumentManager() = default;
+RmlInterface::DocumentManager::DocumentManager() = default;
 
-void DocumentManager::OnDocumentLoad(Rml::ElementDocument* document){
+void RmlInterface::DocumentManager::OnDocumentLoad(Rml::ElementDocument* document){
     openedDocuments.insert(document);
 }
 
-void DocumentManager::OnDocumentUnload(Rml::ElementDocument* document) {
+void RmlInterface::DocumentManager::OnDocumentUnload(Rml::ElementDocument* document) {
     openedDocuments.erase(document);
 }
 
