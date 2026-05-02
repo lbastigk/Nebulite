@@ -30,6 +30,14 @@ public:
 
     void OnElementDestroy(Rml::Element* element) override ;
 
+    void OnDocumentLoad(Rml::ElementDocument* document) override {
+        reflectionResults.emplace(document, absl::flat_hash_map<Rml::Element*, std::unique_ptr<Data::JSON>>{});
+    }
+
+    void OnDocumentUnload(Rml::ElementDocument* document) override {
+        reflectionResults.erase(document);
+    }
+
     static auto constexpr reflectionAttribute = "data-reflect";
     static auto constexpr reflectionOnceAttribute = "data-reflect-once";
 
@@ -55,8 +63,19 @@ private:
     } toAdd;
 
     // Reflection results
-    // Must be kept alive
-    absl::flat_hash_map<Rml::Element*, std::unique_ptr<Data::JSON>> reflectionResults;
+    // Must be kept alive as long as the document is alive
+    // Technically, this could be stored in the ReflectionEntry.
+    // The idea with this container was to allow nested reflections,
+    // and this setup solved some details. However, a bigger overhaul of the reflection system
+    // is necessary for this to work.
+    absl::flat_hash_map<
+        Rml::ElementDocument*,
+        absl::flat_hash_map<
+            Rml::Element*,
+            std::unique_ptr<Data::JSON>
+        >
+    >
+    reflectionResults;
 
     // All registered reflections
     absl::flat_hash_map<Rml::Element*, std::unique_ptr<ReflectionEntry>> reflections;

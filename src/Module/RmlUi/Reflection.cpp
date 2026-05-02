@@ -96,19 +96,19 @@ void Reflection::reflectElement(Rml::Element* element, std::unique_ptr<Reflectio
     if (!entry) return;
     if (entry->markedForDeletion) return;
 
+    // Get context and scope of this reflection
     auto getContextAndScope = [this](Rml::Element* e) -> std::optional<Graphics::RmlInterface::ContextAndScope> {
         if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(e)) {
-            // TODO: Maybe something like reflect -> serialize -> deserialize would help here?
-            throw std::logic_error("Nested reflection is not supported.");
-            //return interface.getRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier(e));
+            // Nested reflections are incredibly difficult to realize and would require a complete overhaul of the current system
+            // Perhaps later on we could use short-lived rml documents to generate reflection results and insert them in the main document,
+            // keeping track of each JSON reflection result
+            throw std::logic_error("Nested reflection is not supported. Use JSON-Transformations on the outer reflection to mimic the inner one.");
         }
         if (auto const ownerContextAndScope = interface.getRmlDocumentContextAndScope(e->GetOwnerDocument()); ownerContextAndScope) {
             return ownerContextAndScope;
         }
         return std::nullopt;
     };
-
-    // Get owner context, keep nearly everything the same but nest contextScope self
     auto const contextAndScope = getContextAndScope(element);
     if (!contextAndScope) {
         return;
@@ -117,26 +117,26 @@ void Reflection::reflectElement(Rml::Element* element, std::unique_ptr<Reflectio
     auto const& scope = contextAndScope.value().ctxScope;
 
     // Get JSON to store result
-    if (reflectionResults.find(element) == reflectionResults.end()) {
-        reflectionResults[element] = std::make_unique<Data::JSON>();
+    auto const elementDocument = element->GetOwnerDocument();
+    if (reflectionResults[elementDocument].find(element) == reflectionResults[elementDocument].end()) {
+        reflectionResults[elementDocument][element] = std::make_unique<Data::JSON>();
     }
-    auto& reflectionList = *reflectionResults[element].get();
+    auto const& reflectionList = reflectionResults[elementDocument][element];
 
     // Evaluate expression, result must be an array
-    reflectionList = entry->reflectionListExpression.evalAsJson(scope);
-    if (auto const type = reflectionList.memberType(""); type != Data::KeyType::array) {
+    *reflectionList = entry->reflectionListExpression.evalAsJson(scope);
+    if (auto const type = reflectionList->memberType(""); type != Data::KeyType::array) {
         capture.warning.println("Reflection expression '", entry->reflectionListExpression.getFullExpression() ,"' did not evaluate to an array. Skipping reflection.");
-        capture.warning.println("Result: " + reflectionList.serialize());
+        capture.warning.println("Result: " + reflectionList->serialize());
         capture.warning.println("Self scope provided: ", scope.self.serialize() );
-        //std::abort();
-        return;
+        std::abort();
     }
 
     // Combine inner RMLs and replace the referenceIdentifierAttribute with a unique id
     if (entry->rmlValue.empty()) {
         entry->rmlValue = element->GetInnerRML();
     }
-    size_t const size = reflectionList.memberSize("");
+    size_t const size = reflectionList->memberSize("");
     std::string newRml;
     for (size_t i = 0; i < size; ++i) {
         newRml += entry->rmlValue;
@@ -149,7 +149,7 @@ void Reflection::reflectElement(Rml::Element* element, std::unique_ptr<Reflectio
         for (size_t i = 0; i < childrenCount; ++i) {
             auto const jsonIndex = i * size / childrenCount;
             std::string const childKey = "[" + std::to_string(jsonIndex) + "]";
-            auto& newScope = reflectionList.shareManagedScopeBase(childKey);
+            auto& newScope = reflectionList->shareManagedScopeBase(childKey);
 
             // Keep nearly all context and contextScope the same, but modify scope of self
             Interaction::ContextScope const childContextScope{
