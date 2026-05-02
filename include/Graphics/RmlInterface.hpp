@@ -195,7 +195,7 @@ public:
 
     bool removeDocument(Rml::ElementDocument* doc);
 
-    void removeAllDocumentsOfOwner(size_t const& domainId);
+    void removeReferencesToId(size_t const& domainId);
 
     std::optional<ContextAndScope> getRmlElementContextAndScope(RmlElementIdentifier const& element);
 

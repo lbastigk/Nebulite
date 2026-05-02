@@ -378,11 +378,13 @@ bool RmlInterface::removeDocument(Rml::ElementDocument* doc) {
     return foundInOwnerMap && foundInContextMap;
 }
 
-void RmlInterface::removeAllDocumentsOfOwner(size_t const& domainId){
+void RmlInterface::removeReferencesToId(size_t const& domainId){
     // This function might be called after the interface is already deleted... So we keep track of the singleton
     // NOLINTBEGIN
     if (!statusTracker.rmlInterfaceInitialized) return;
     if (!ownerToDocument.contains(domainId)) return;
+
+    // 1.) Close and remove all documents owned by the id, and remove them from the context map
     for (auto const& doc : ownerToDocument[domainId] | std::views::values) {
         doc->Close();
         documentToContext.erase(doc);
@@ -390,10 +392,54 @@ void RmlInterface::removeAllDocumentsOfOwner(size_t const& domainId){
     }
     ownerToDocument.erase(domainId);
 
+    // 2.) Erase all references to the domain from the element to context map
     absl::erase_if(elementToContext, [&](auto const& pair) {
         auto const& [element, ctxAndScope] = pair;
         return ctxAndScope.ctx.self.getId() == domainId;
     });
+
+    // 3.) See if the context is referenced as other or global in any document or element contexts, and if so replace it with self
+
+    // Templated helper lambda for updating any context
+    auto determineNewContext = [&]<typename Key, typename UpdatedElementContainer>(auto const& ctxAndScope, Key const& key, UpdatedElementContainer& container) {
+        auto& oldCtx = ctxAndScope.ctx;
+        auto& oldCtxScope = ctxAndScope.ctxScope;
+        if (oldCtx.other.getId() != domainId && oldCtx.global.getId() != domainId) {
+            return;
+        }
+        using newDomainAndScope = std::pair<Interaction::Execution::Domain*, Data::JsonScope*>;
+        newDomainAndScope newOther = oldCtx.other.getId() == domainId ? std::make_pair(&oldCtx.self, &oldCtxScope.self) : std::make_pair(&oldCtx.other, &oldCtxScope.other);
+        newDomainAndScope newGlobal = oldCtx.global.getId() == domainId ? std::make_pair(&oldCtx.self, &oldCtxScope.self) : std::make_pair(&oldCtx.global, &oldCtxScope.global);
+        ContextAndScope newCtxAndScope = {
+            {
+                ctxAndScope.ctx.self,
+                *newOther.first,
+                *newGlobal.first
+            },
+            {
+                ctxAndScope.ctxScope.self,
+                *newOther.second,
+                *newGlobal.second
+            }
+        };
+        container.emplace_back(key, newCtxAndScope);
+    };
+
+    // Replace
+    std::vector<std::pair<RmlElementIdentifier, ContextAndScope>> updatedElements;
+    for (auto& [element, ctxAndScope] : elementToContext) {
+        determineNewContext(ctxAndScope, element, updatedElements);
+    }
+    for (auto& [element, newCtxAndScope] : updatedElements) {
+        elementToContext.emplace(element, newCtxAndScope);
+    }
+    std::vector<std::pair<Rml::ElementDocument*, ContextAndScope>> updatedDocuments;
+    for (auto& [document, ctxAndScope] : documentToContext) {
+        determineNewContext(ctxAndScope, document, updatedDocuments);
+    }
+    for (auto& [document, newCtxAndScope] : updatedDocuments) {
+        elementToContext.emplace(document, newCtxAndScope);
+    }
 
     // NOLINTEND
 }

@@ -9,7 +9,7 @@
 namespace Nebulite::Module::Domain::Common {
 
 RmlUi::~RmlUi(){
-    Graphics::RmlInterface::instance().removeAllDocumentsOfOwner(domain.getId());
+    Graphics::RmlInterface::instance().removeReferencesToId(domain.getId());
 }
 
 } // namespace Nebulite::Module::Domain::Common
