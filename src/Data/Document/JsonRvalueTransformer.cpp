@@ -17,6 +17,7 @@
 #include "Module/Transformation/Debug.hpp"
 #include "Module/Transformation/General.hpp"
 #include "Module/Transformation/Requirements.hpp"
+#include "Module/Transformation/Sort.hpp"
 #include "Module/Transformation/Statistics.hpp"
 #include "Module/Transformation/String.hpp"
 #include "Module/Transformation/Types.hpp"
@@ -43,6 +44,7 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     initModule<Module::Transformation::Debug>();
     initModule<Module::Transformation::General>();
     initModule<Module::Transformation::Requirements>();
+    initModule<Module::Transformation::Sort>();
     initModule<Module::Transformation::Statistics>();
     initModule<Module::Transformation::String>();
     initModule<Module::Transformation::Types>();

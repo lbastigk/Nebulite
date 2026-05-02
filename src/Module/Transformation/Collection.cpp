@@ -14,7 +14,6 @@
 namespace Nebulite::Module::Transformation {
 
 void Collection::bindTransformations() {
-    // BIND_TRANSFORMATION_MEMBER(&Collection::filter, filterName, &filterDesc);
     bindTransformation(&Collection::map, mapName, mapDesc);
     bindTransformation(&Collection::get, getName, getDesc);
     bindTransformation(&Collection::filterRegex, filterRegexName, filterRegexDesc);

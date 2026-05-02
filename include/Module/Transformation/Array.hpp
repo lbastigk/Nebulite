@@ -80,7 +80,7 @@ public:
     static auto constexpr subspanDesc = "Gets a subarray from the array in the current JSON value.\n"
         "Usage: |subspan <start> [<length>] -> {array}\n";
 
-    // TODO: dedupe, sort, sortBy, pick, omit
+    // TODO: dedupe, pick, omit
 };
 } // namespace Nebulite::Module::Transformation
 #endif // NEBULITE_TRANSFORMATION_MODULE_ARRAY_HPP
