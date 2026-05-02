@@ -22,8 +22,8 @@ public:
 
     void OnElementDestroy(Rml::Element* element) override ;
 
-    static auto constexpr rulesetAttributeOnDestroy = "ruleset-invoke-on-destroy";
-    static auto constexpr parseOnDestroy = "parse-on-destroy";
+    static auto constexpr rulesetAttributeOnDestroy = "on-destroy-invoke-ruleset";
+    static auto constexpr parseOnDestroy = "on-destroy-parse";
 private:
 
     struct DeletedElement {
