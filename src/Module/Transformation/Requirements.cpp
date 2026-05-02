@@ -1,7 +1,16 @@
-#include "Nebulite.hpp"
-#include "Data/Document/JsonScope.hpp"
-#include "Module/Transformation/Requirements.hpp"
+//------------------------------------------
+// Includes
 
+// Standard library
+#include <regex>
+
+// Nebulite
+#include "Data/Document/JsonScope.hpp"
+#include "Module/Transformation/Assertions.hpp"
+#include "Module/Transformation/Requirements.hpp"
+#include "Nebulite.hpp"
+
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
 
 void Requirements::bindTransformations() {
@@ -21,37 +30,81 @@ void Requirements::printUserDefinedMessage(std::span<std::string const> const& a
     Global::capture().error.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
 }
 
-// NOLINTNEXTLINE
-bool Requirements::requireNonEmpty(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
-        printUserDefinedMessage(args);
+bool Requirements::requireNonEmpty(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
+    try {
+        Assertions::assertNonEmpty(args, jsonDoc);
+    }
+    catch (...) {
         return false;
     }
     return true;
 }
 
-// NOLINTNEXTLINE
-bool Requirements::requireTypeObject(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    if (jsonDoc->memberType(rootKey) != Data::KeyType::object) {
-        printUserDefinedMessage(args);
+bool Requirements::requireEmpty(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc){
+    try {
+        Assertions::assertEmpty(args, jsonDoc);
+    }
+    catch (...) {
         return false;
     }
     return true;
 }
 
-// NOLINTNEXTLINE
-bool Requirements::requireTypeArray(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
-        printUserDefinedMessage(args);
+bool Requirements::requireTypeObject(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
+    try {
+        Assertions::assertTypeObject(args, jsonDoc);
+    }
+    catch (...) {
         return false;
     }
     return true;
 }
 
-// NOLINTNEXTLINE
-bool Requirements::requireTypeBasicValue(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    if (jsonDoc->memberType(rootKey) != Data::KeyType::value) {
-        printUserDefinedMessage(args);
+bool Requirements::requireTypeArray(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
+    try {
+        Assertions::assertTypeArray(args, jsonDoc);
+    }
+    catch (...) {
+        return false;
+    }
+    return true;
+}
+
+bool Requirements::requireTypeBasicValue(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
+    try {
+        Assertions::assertTypeBasicValue(args, jsonDoc);
+    }
+    catch (...) {
+        return false;
+    }
+    return true;
+}
+
+bool Requirements::requireMatchRegex(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc){
+    try {
+        Assertions::assertMatchRegex(args, jsonDoc);
+    }
+    catch (...) {
+        return false;
+    }
+    return true;
+}
+
+bool Requirements::requireEqualsString(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
+    try {
+        Assertions::assertEqualsString(args, jsonDoc);
+    }
+    catch (...) {
+        return false;
+    }
+    return true;
+}
+
+bool Requirements::requireEqualsInt(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc){
+    try {
+        Assertions::assertEqualsInt(args, jsonDoc);
+    }
+    catch (...) {
         return false;
     }
     return true;

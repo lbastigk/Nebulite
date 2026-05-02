@@ -36,7 +36,6 @@ void Assertions::printUserDefinedMessage(std::span<std::string const> const& arg
     Global::capture().error.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
 }
 
-// NOLINTNEXTLINE
 bool Assertions::assertNonEmpty(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
     if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         printUserDefinedMessage(args);
@@ -55,7 +54,6 @@ bool Assertions::assertEmpty(std::span<std::string const> const& args, Data::Jso
     return true;
 }
 
-// NOLINTNEXTLINE
 bool Assertions::assertTypeObject(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::object) {
         printUserDefinedMessage(args);
@@ -65,7 +63,6 @@ bool Assertions::assertTypeObject(std::span<std::string const> const& args, Data
     return true;
 }
 
-// NOLINTNEXTLINE
 bool Assertions::assertTypeArray(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
         printUserDefinedMessage(args);
@@ -75,7 +72,6 @@ bool Assertions::assertTypeArray(std::span<std::string const> const& args, Data:
     return true;
 }
 
-// NOLINTNEXTLINE
 bool Assertions::assertTypeBasicValue(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::value) {
         printUserDefinedMessage(args);
@@ -110,7 +106,6 @@ bool Assertions::assertEqualsString(std::span<std::string const> const& args, Da
     return true;
 }
 
-// NOLINTNEXTLINE
 bool Assertions::assertEqualsInt(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc){
     if (args.size() < 2) {
         throw std::runtime_error(std::string(assertEqualsIntName) + ": No expected integer provided");
