@@ -15,6 +15,7 @@
 #include "Module/RmlUi/DataReference.hpp"
 #include "Module/RmlUi/ExpressionManager.hpp"
 #include "Module/RmlUi/Reflection.hpp"
+#include "Module/RmlUi/Ruleset.hpp"
 
 //------------------------------------------
 
@@ -102,6 +103,7 @@ void RmlInterface::init(Core::Renderer& renderer, Data::JsonScope const& domainS
     RegisterPlugin(documentManager.get());
 
     // Plugins
+    modules.emplace_back(std::make_unique<Module::RmlUi::Ruleset>(renderer.capture, *this));
     modules.emplace_back(std::make_unique<Module::RmlUi::ContextManager>(renderer.capture, *this));
     modules.emplace_back(std::make_unique<Module::RmlUi::DataReference>(renderer.capture, *this));
     modules.emplace_back(std::make_unique<Module::RmlUi::Reflection>(renderer.capture, *this));
@@ -203,6 +205,12 @@ void RmlInterface::removeAllDocumentsOfOwner(size_t const& domainId){
         context->UnloadDocument(doc);
     }
     ownerToDocument.erase(domainId);
+
+    absl::erase_if(elementToContext, [&](auto const& pair) {
+        auto const& [element, ctxAndScope] = pair;
+        return ctxAndScope.ctx.self.getId() == domainId;
+    });
+
     // NOLINTEND
 }
 

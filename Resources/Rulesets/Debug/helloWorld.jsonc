@@ -1,0 +1,14 @@
+{
+    "topic": "",
+    "condition": "1",
+    "action": {
+        "assign": [],
+        "functioncall": {
+            "global": [
+                "echo Hello World!"
+            ],
+            "self": [],
+            "other": []
+        }
+    }
+}

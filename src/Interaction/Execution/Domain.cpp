@@ -87,7 +87,9 @@ Domain::Domain(std::string const& name) : domainName(name), capture(nullptr) {
     Module::Domain::Initializer::initCommon(this);
 }
 
-Domain::~Domain() = default;
+Domain::~Domain() {
+    modules.clear();
+}
 
 std::string const& Domain::scopePrefix() const {
     return domainScope.getScopePrefix();
