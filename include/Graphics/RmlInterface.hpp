@@ -39,41 +39,116 @@ public:
     static auto constexpr contextName = "nebuliteRmlContext";
     static auto constexpr dataModelName = "nebuliteDataSync";
 
+    /**
+     * @brief Provides access to the singleton RmlInterface instance
+     * @return A reference to the Nebulite RmlInterface
+     */
     static RmlInterface& instance();
 
-    void init(Core::Renderer& renderer, Data::JsonScope const& domainScope);
+    /**
+     * @brief Initialize the RmlInterface with a given Renderer and scope
+     * @param renderer The Renderer to use for rendering RmlUi documents
+     * @param width The width of the context
+     * @param height The height of the context
+     */
+    void init(Core::Renderer& renderer, int const& width, int const& height);
 
+    /**
+     * @brief Translates and processes an SDL_Event
+     * @param event The event to process
+     */
+    void processRmlUiEvent(SDL_Event const& event) const ;
+
+    /**
+     * @brief Update the RmlInterface, including all open documents and registered modules.
+     */
     void update() const ;
 
+    /**
+     * @brief Call the provided postRenderUpdate function of each registered module.
+     */
     void postRenderUpdate() const ;
 
-    void render() const {
-        context->Render();
-    }
+    /**
+     * @brief Render the RmlUi context to the screen. This should be called after all updates and before presenting the frame.
+     */
+    void render() const ;
 
+    /**
+     * @brief Set the dimensions of the RmlUi context
+     * @param width The width of the context
+     * @param height The height of the context
+     */
     void setDimensions(int const& width, int const& height) const ;
 
+    /**
+     * @brief Checks if the focused element is a text input
+     * @return True if a text input is active, false otherwise
+     */
     [[nodiscard]] bool isTextInputFocused() const ;
 
+    /**
+     * @brief Handles unique element identification for context management.
+     * @details Uses the Rml Attribute functionality to set and retrieve unique identifications
+     */
     class RmlElementIdentifier {
-        size_t id;
         static auto constexpr identifierAttribute = "element-identifier";
-        static size_t idRoll();
 
-        static size_t& count();
+        size_t id; // This elements id
+
+        static size_t idRoll(); // Get a new id
+
+        static size_t& count(); // Get the current id count as reference
     public:
-        static size_t getCount() ;
+        /**
+         * @brief Get the current count of assigned identifiers.
+         * @return The count of assigned identifiers.
+         */
+        static size_t getCount();
 
+        /**
+         * @brief Forces an Element to have a certain identifier id
+         * @details This should be used with caution and only used with ids that are known to not be registered elsewhere
+         * @param element The element to manipulate
+         * @param id The id to set
+         * @todo Pass an RmlElementIdentifier instead?
+         */
         static void forceElementIdentifier(Rml::Element* element, size_t const& id);
 
+        /**
+         * @brief Remove the identifier attribute from an element, effectively unregistering it.
+         *        The freed id cannot be reused.
+         * @param element The element to manipulate
+         */
         static void removeElementIdentifier(Rml::Element* element);
 
+        /**
+         * @brief Checks if an element has an identifier.
+         * @param element The element to check
+         * @return True if it has an identifier, false otherwise.
+         */
         static bool hasElementIdentifier(Rml::Element const* element);
 
+        /**
+         * @brief Construct an identifier for/from an Rml::Element.
+         * @details If the element already has an identifier, it will be used.
+         *          Otherwise, a new identifier will be generated and assigned to the element.
+         * @param e The element to construct the identifier for
+         */
         explicit RmlElementIdentifier(Rml::Element* e);
 
+        /**
+         * @brief Construct an identifier with a known id.
+         * @details This should only be used if you are sure the id is not already assigned to another element,
+         *          e.g. for the reflection module to assign a list of owned, pre-allocated, identifiers to newly generated elements
+         * @param knownId The id to use
+         */
         explicit RmlElementIdentifier(size_t const& knownId) : id(knownId) {}
 
+        /**
+         * @brief Get the identifier's id.
+         * @return The id
+         */
         [[nodiscard]] size_t getId() const noexcept {
             return id;
         }
@@ -88,30 +163,47 @@ public:
         }
     };
 
+    // Helper functions
+
+    static void updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*)> const& updateFunc);
+
+    /**
+     * @brief Get a list of all opened Rml Documents
+     * @return An unordered set of all Documents
+     */
+    [[nodiscard]] std::unordered_set<Rml::ElementDocument*> const& getOpenedDocuments() const ;
+
+    /**
+     * @brief Get the count of currently opened Rml Documents
+     * @return The count of currently opened documents
+     */
+    [[nodiscard]] size_t countOpenedDocuments() const ;
+
+    // Context Management
+
+    /**
+     * @brief Storage of an Elements/Documents Interaction Context and ContextScope.
+     */
     struct ContextAndScope {
         Interaction::Context ctx;
         Interaction::ContextScope ctxScope;
     };
 
-    [[nodiscard]] std::unordered_set<Rml::ElementDocument*> const& getOpenedDocuments() const ;
-
-    [[nodiscard]] size_t countOpenedDocuments() const ;
-
     bool loadDocument(std::string_view const& name, std::string_view const& path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
+
     bool removeDocument(size_t const& id, std::string_view const& name);
+
     bool removeDocument(Rml::ElementDocument* doc);
 
     void removeAllDocumentsOfOwner(size_t const& domainId);
 
     std::optional<ContextAndScope> getRmlElementContextAndScope(RmlElementIdentifier const& element);
+
     std::optional<ContextAndScope> getRmlDocumentContextAndScope(Rml::ElementDocument* document);
 
     void setRmlElementContextAndScope(RmlElementIdentifier const& element, ContextAndScope const& ctxAndScope);
+    
     void setRmlDocumentContextAndScope(Rml::ElementDocument* document, ContextAndScope const& ctxAndScope);
-
-    static void updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*)> const& updateFunc);
-
-    void processRmlUiEvent(const SDL_Event& event) const ;
 
     // TODO: Add a custom bind function for modules to use
     Rml::DataModelConstructor dataModelConstructor;
