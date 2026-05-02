@@ -62,14 +62,16 @@ public:
 
     static bool roundUp(Data::JsonScope* jsonDoc);
     static auto constexpr roundUpName = "roundUp";
+    static auto constexpr roundUpName2 = "ceiling";
     static auto constexpr roundUpDesc = "Rounds the current JSON numeric value up to the nearest integer.\n"
-        "Usage: |roundUp -> {value:int}\n"
+        "Usage: |roundUp/ceiling -> {value:int}\n"
         "Non-numeric values default to 0.\n";
 
     static bool roundDown(Data::JsonScope* jsonDoc);
     static auto constexpr roundDownName = "roundDown";
+    static auto constexpr roundDownName2 = "floor";
     static auto constexpr roundDownDesc = "Rounds the current JSON numeric value down to the nearest integer.\n"
-        "Usage: |roundDown -> {value:int}\n"
+        "Usage: |roundDown/floor -> {value:int}\n"
     "Non-numeric values default to 0. Fails if the value is null.\n";
 
     static bool round(Data::JsonScope* jsonDoc);

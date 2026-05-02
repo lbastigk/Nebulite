@@ -10,8 +10,13 @@ void Casting::bindTransformations() {
     bindTransformation(&Casting::toBool, toBoolName, toBoolDesc);
     bindTransformation(&Casting::toDouble, toDoubleName, toDoubleDesc);
     bindTransformation(&Casting::toBoolString, toBoolStringName, toBoolStringDesc);
-    bindTransformation(&Casting::roundUp, roundUpName, roundUpDesc);
-    bindTransformation(&Casting::roundDown, roundDownName, roundDownDesc);
+
+    // Two names for roundUp/roundDown
+    bindTransformation(&Casting::roundUp, roundUpName, roundUpDesc); // roundUp
+    bindTransformation(&Casting::roundUp, roundUpName2, roundDownDesc); // ceiling
+    bindTransformation(&Casting::roundDown, roundDownName, roundDownDesc); // roundDown
+    bindTransformation(&Casting::roundDown, roundDownName2, roundDownDesc); // floor
+
     bindTransformation(&Casting::round, roundName, roundDesc);
 }
 

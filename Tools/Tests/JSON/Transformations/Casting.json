@@ -77,6 +77,11 @@
             "eval echo {global:test.val2|roundDown}",
             "eval echo {global:test.val1|round}",
             "eval echo {global:test.val2|round}",
+            "# Secondary names for roundUp and roundDown:",
+            "eval echo {global:test.val1|ceiling}",
+            "eval echo {global:test.val2|ceiling}",
+            "eval echo {global:test.val1|floor}",
+            "eval echo {global:test.val2|floor}",
             "exit"
         ],
         "expected": {
@@ -88,7 +93,11 @@
                 "3",
                 "-3",
                 "4",
-                "-2"
+                "-2",
+                "4",
+                "-2",
+                "3",
+                "-3"
             ],
             "cerr": []
         }
