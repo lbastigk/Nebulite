@@ -25,9 +25,6 @@ std::array constexpr supportedOperations = {
 } // namespace
 
 bool Assignment::parse(std::string_view const& str) {
-    // Reset
-    operation = Operation::null;
-
     // 1.) Derive context
     onType = ContextDeriver::getTypeFromString(str);
     if (onType == ContextDeriver::TargetType::resource) {
@@ -41,6 +38,7 @@ bool Assignment::parse(std::string_view const& str) {
     ContextDeriver::stripContextFromView(keyView);
 
     // 3.) Find the operator position, get views for key and value
+    operation = Operation::null;
     for (auto const& [op, symbol] : supportedOperations) {
         if (size_t pos; (pos = keyView.find(symbol)) != std::string::npos) {
             operation = op;
@@ -53,13 +51,12 @@ bool Assignment::parse(std::string_view const& str) {
         return false;
     }
 
-    // 4.) strip whitespaces
+    // 4.) Generate expressions for key and value
     Utility::StringHandler::strip(keyView);
     Utility::StringHandler::strip(valueView);
-
-    // 5.) Generate expressions for key and value
     key = std::make_unique<Expression>(keyView);
     expression = std::make_unique<Expression>(valueView);
+
     return true;
 }
 
