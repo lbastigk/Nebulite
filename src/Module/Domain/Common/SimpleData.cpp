@@ -2,6 +2,7 @@
 // Includes
 
 // Nebulite
+#include "Constants/StandardCapture.hpp"
 #include "Module/Domain/Common/SimpleData.hpp"
 #include "Nebulite.hpp"
 
@@ -136,7 +137,7 @@ Constants::Event SimpleData::push_back(std::span<std::string const> const& args,
     return Constants::Event::Success;
 }
 
-Constants::Event SimpleData::pop_back(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event SimpleData::pop_back(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         ctx.self.capture.error.println("Error: Too few arguments for push_back command.");
@@ -149,10 +150,7 @@ Constants::Event SimpleData::pop_back(std::span<std::string const> const& args, 
     auto const key = ctxScope.self.getRootScope() + args[1];
 
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
-        std::string command = __FUNCTION__;
-        command += " " + std::string(ensureArray_name);
-        command += " " + std::string(args[1]);
-        if (Constants::Event const result = ctx.self.parseStr(command, ctx, ctxScope); result != Constants::Event::Success) {
+        if (Constants::Event const result = ensureArray({"", args[1]}, ctx, ctxScope); result != Constants::Event::Success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }
@@ -185,12 +183,8 @@ Constants::Event SimpleData::push_front(std::span<std::string const> const& args
         value = args[2];
     }
 
-    // TODO: use an anonymous function instead, or add functionality to JSON/JsonScope
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
-        std::string command = __FUNCTION__;
-        command += " " + std::string(ensureArray_name);
-        command += " " + std::string(args[1]);
-        if (Constants::Event const result = ctx.self.parseStr(command, ctx, ctxScope); result != Constants::Event::Success) {
+        if (Constants::Event const result = ensureArray({"", args[1]}, ctx, ctxScope); result != Constants::Event::Success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }

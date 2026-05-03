@@ -10,7 +10,6 @@
 // Includes
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -76,7 +75,7 @@ public:
         "\n"
         "Usage: push-back <key> <value>\n";
 
-    [[nodiscard]] static Constants::Event pop_back(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event pop_back(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     static auto constexpr pop_back_name = "pop-back";
     static auto constexpr pop_back_desc = "Pop a value from the back of an array.\n"
         "\n"
