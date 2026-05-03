@@ -11,7 +11,6 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "Constants/StandardCapture.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Interaction/Execution/DomainModule.hpp"

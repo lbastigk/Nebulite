@@ -11,14 +11,9 @@
 
 // Standard library
 #include <array>
-#include <expected>
 #include <optional>
 #include <string_view>
 #include <utility>
-
-// Nebulite
-#include "Data/Document/SimpleValueError.hpp"
-#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations

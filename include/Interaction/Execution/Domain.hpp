@@ -22,7 +22,6 @@
 #include <string_view>
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Interaction/Execution/DomainTree.hpp"
 #include "Interaction/Execution/FuncTree.hpp"

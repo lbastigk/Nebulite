@@ -5,7 +5,6 @@
 // Includes
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainTree.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"

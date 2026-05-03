@@ -10,7 +10,6 @@
 // Includes
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------

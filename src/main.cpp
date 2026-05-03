@@ -31,7 +31,6 @@
 #include <string>
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Module/Domain/GlobalSpace/Debug.hpp"
 #include "Nebulite.hpp"
 

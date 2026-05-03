@@ -14,7 +14,6 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "Constants/StandardCapture.hpp"
 #include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Utility/TimeKeeper.hpp"

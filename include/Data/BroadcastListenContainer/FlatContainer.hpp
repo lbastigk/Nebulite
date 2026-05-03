@@ -54,10 +54,8 @@ class FlatContainerImpl {
     Settings const& settings;
 
     static std::unique_ptr<FlatContainerImpl> create(Settings const& s) {
-        return std::unique_ptr<FlatContainerImpl>(new FlatContainerImpl(s));
+        return std::make_unique<FlatContainerImpl>(s);
     }
-
-    explicit FlatContainerImpl(Settings const& s) : settings(s) {}
 
     void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
     void listen(std::shared_ptr<Interaction::Rules::Listener> const& listener);
@@ -66,6 +64,9 @@ class FlatContainerImpl {
     static auto constexpr activeWorkerCount = Constants::ThreadSettings::Maximum::invokeWorkerCount;
     std::array<HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>>, activeWorkerCount> broadcasters = {};
     std::array<HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Listener>>>, activeWorkerCount> listeners = {};
+
+public:
+    explicit FlatContainerImpl(Settings const& s) : settings(s) {}
 };
 
 /**

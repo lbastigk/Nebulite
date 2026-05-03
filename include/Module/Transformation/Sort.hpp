@@ -63,7 +63,6 @@ public:
         "Usage: |sort custom <expression> -> {sorted array}\n";
 
 private:
-
     /**
      * @brief Custom JSON sort function
      * @tparam T The value to compare
@@ -80,7 +79,7 @@ private:
         }
         std::ranges::sort(values.begin(), values.end(), comparator);
         for (auto [idx, value] : values | std::views::enumerate) {
-            auto const key = rootKey.addIndex(idx);
+            auto const key = rootKey.addIndex(static_cast<size_t>(idx));
             jsonDoc->setSubDoc(key, value.second);
         }
     }

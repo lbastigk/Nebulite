@@ -16,7 +16,6 @@
 #include <string>
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Core/Renderer.hpp"
 #include "Data/Document/DocumentCache.hpp"
 #include "Data/TaskQueue.hpp"

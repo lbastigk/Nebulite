@@ -40,7 +40,7 @@ private:
     > rmlStrings;
 
     struct RegisteredEntry {
-        Interaction::ContextDeriver::TargetType targetType;
+        Interaction::ContextDeriver::TargetType targetType = Interaction::ContextDeriver::TargetType::none;
         Data::ScopedKey key;
         std::string normalizedValue;
         Rml::Element* element = nullptr;
