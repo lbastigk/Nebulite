@@ -209,7 +209,7 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
         if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
             // We assume the mouse click unfocused the element.
             // If the click was at the elements position, ProcessMouseButtonDown will refocus the element.
-            context->GetFocusElement()->Blur();
+            if (auto const el = context->GetFocusElement(); el) el->Blur();
             context->ProcessMouseButtonDown(button, modifiers);
         }
         else {
