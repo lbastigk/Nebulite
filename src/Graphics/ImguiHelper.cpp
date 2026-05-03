@@ -163,7 +163,7 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
         std::ranges::sort(completions, Nebulite::Utility::Sort::caseInsensitiveLess);
         auto v = std::ranges::unique(completions);
         completions.erase(v.begin(), v.end());
-        auto const commonPrefixFound = checkCompletionsForCommonPrefix(state->command, completions);
+        auto const commonPrefixFound = completions.size() != 1 && checkCompletionsForCommonPrefix(state->command, completions);
 
         // Check completions
         if (completions.size() == 1) {
