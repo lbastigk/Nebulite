@@ -24,7 +24,7 @@ namespace Nebulite::Core {
  *        It can either reference an external texture (e.g., from the renderer) or manage its own internal texture.
  *        If the texture is modified, it creates a local copy to avoid affecting the original texture used by the renderer.
  */
-class Texture final : public Nebulite::Interaction::Execution::Domain {
+class Texture final : public Interaction::Execution::Domain {
 public:
     /**
      * @brief Constructs a new Texture domain.

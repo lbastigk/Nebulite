@@ -40,7 +40,7 @@ namespace Nebulite::Core {
  * @class Nebulite::Core::Renderer
  * @brief Responsible for rendering game objects and managing the rendering pipeline.
  */
-class Renderer final : public Nebulite::Interaction::Execution::Domain {
+class Renderer final : public Interaction::Execution::Domain {
 public:
     /**
      * @brief Initializes a Renderer with given dimensions and settings.

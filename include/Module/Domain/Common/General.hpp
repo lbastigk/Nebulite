@@ -14,7 +14,7 @@
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
-class General final : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Interaction::Execution::Domain> {
+class General final : public Interaction::Execution::DomainModule<Interaction::Execution::Domain> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

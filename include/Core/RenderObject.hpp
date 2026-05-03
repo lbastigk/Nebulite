@@ -28,7 +28,7 @@ namespace Nebulite::Core {
  *        This class encapsulates all data and logic needed to
  *        display, update, and interact with a single object on the screen.
  */
-class RenderObject final : public Nebulite::Interaction::Execution::Domain {
+class RenderObject final : public Interaction::Execution::Domain {
 public:
     //------------------------------------------
     // Special member Functions

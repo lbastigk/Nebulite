@@ -12,7 +12,7 @@
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
-class RmlUi final : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Interaction::Execution::Domain> {
+class RmlUi final : public Interaction::Execution::DomainModule<Interaction::Execution::Domain> {
 public:
     [[nodiscard]] Constants::Event updateHook() override {
         return Constants::Event::Success;

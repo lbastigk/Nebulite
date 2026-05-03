@@ -18,7 +18,7 @@ namespace Nebulite::Module::Domain::Common {
  * @class Nebulite::Module::Domain::Common::SimpleData
  * @brief DomainModule for simple data operations on domain class Nebulite::Data::JSON
  */
-class SimpleData final : public Nebulite::Interaction::Execution::DomainModule<Interaction::Execution::Domain> {
+class SimpleData final : public Interaction::Execution::DomainModule<Interaction::Execution::Domain> {
 public:
     [[nodiscard]] Constants::Event updateHook() override ;
     void reinit() override {} // No reinitialization needed, SimpleData is stateless

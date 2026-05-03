@@ -77,20 +77,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    explicit InputMapping(ConstructorParams const& params) : DomainModule(params){
-        // Setup pointer to polled input key in Renderer::Input module, to sync our updates with it and avoid missing deltas
-        sdlPolledInput = moduleScope.getStableDoublePointer(Renderer::Input::Key::routineActivated);
-
-        // Load initial mappings from settings
-        reloadMappings();
-
-        // Bind functions
-        bindCategory(inputMappingName, inputMappingDesc);
-        bindCategory(inputMappingLockName, inputMappingLockDesc);
-        bindFunction(&InputMapping::lockOnce, lockOnceName, lockOnceDesc);
-        bindFunction(&InputMapping::lockOn, lockOnName, lockOnDesc);
-        bindFunction(&InputMapping::unlock, unlockName, unlockDesc);
-    }
+    explicit InputMapping(ConstructorParams const& params);
 
     struct Key : Data::KeyGroup<""> {
         static auto constexpr mappingLocation = makeScoped("input.");

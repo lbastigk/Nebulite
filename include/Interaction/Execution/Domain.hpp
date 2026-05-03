@@ -304,7 +304,7 @@ public:
      * @return A unique pointer to the created DomainModule of the specified type
      */
     template <typename DomainType, typename DomainModuleType>
-    static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference, std::shared_ptr<DomainTree> funcTree) {
+    static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference, std::shared_ptr<DomainTree> const& funcTree) {
         // Determine the key from root level
         if constexpr (HasKeyGroup<DomainModuleType>) {
             // Share the scope based on the module's defined scope
