@@ -2,8 +2,9 @@
 // Includes
 
 // Nebulite
+#include "Data/Document/JsonScope.hpp"
+#include "Interaction/Context.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
-#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {

@@ -12,10 +12,18 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <string>
+
 // Nebulite
-#include "Data/Document/DocumentCache.hpp"
 #include "Data/Document/ScopedKey.hpp"
-#include "Data/Document/JSON.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Data {
+class JsonScope;
+} // namespace Nebulite::Data
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {

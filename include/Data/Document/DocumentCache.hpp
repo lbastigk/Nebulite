@@ -42,30 +42,6 @@ public:
     std::expected<T, SimpleValueRetrievalError> get(std::string const& doc_key) const ;
 
     /**
-     * @brief Gets a sub-document from the JSON document.
-     *        This function retrieves a sub-document from the JSON document.
-     *        If the key does not exist, an empty JSON object is returned.
-     *        Note that the document is flushed for data integrity.
-     * @param doc_key The link and key of the sub-document to retrieve.
-     * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
-     */
-    JSON getSubDoc(std::string const& doc_key) const {
-        auto [doc, key] = splitDocKey(doc_key);
-
-        ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
-        if (!docPtr) {
-            return JSON{};
-        }
-
-        // Check if the document exists in the cache
-        JSON data = docPtr->document.getSubDoc(key);
-
-        // Update the cache (unload old documents) and return the size
-        update();
-        return data;
-    }
-
-    /**
      * @brief Retrieves a pointer to a double value from a cached document.
      *        This is used to compile tinyexpr expressions with direct linkage to in-document values.
      * @param doc_key The key identifying the document and the specific data to retrieve: <linkToDocument>:<key>
@@ -81,11 +57,7 @@ public:
      * @param doc_key The document and its key to check.
      * @return The type of the key.
      */
-    KeyType memberType(std::string const& doc_key) const {
-        return getValueFromCache<KeyType>(doc_key, KeyType::null, [](ReadOnlyDoc const* docPtr, std::string_view const& key) {
-            return docPtr->document.memberType(key);
-        });
-    }
+    KeyType memberType(std::string const& doc_key) const ;
 
     /**
      * @brief Checks the size of a key in the JSON document.
@@ -94,48 +66,31 @@ public:
      * @param doc_key The key to check.
      * @return The size of the key.
      */
-    size_t memberSize(std::string const& doc_key) const {
-        return getValueFromCache<size_t>(doc_key, 0, [](ReadOnlyDoc const* docPtr, std::string_view const& key) {
-            return docPtr->document.memberSize(key);
-        });
-    }
+    size_t memberSize(std::string const& doc_key) const ;
 
     /**
      * @brief Serializes the entire document or a portion of the document
      * @param doc_key The document and key to serialize.
      * @return The serialized JSON string.
      */
-    std::string serialize(std::string const& doc_key) const {
-        return getValueFromCache<std::string>(doc_key, "{}", [](ReadOnlyDoc const* docPtr, std::string_view const& key) {
-            if (key.empty()) {
-                return docPtr->serial;
-            }
-            JSON const subDoc = docPtr->document.getSubDoc(key);
-            return subDoc.serialize();
-        });
-    }
+    std::string serialize(std::string const& doc_key) const ;
+
+    /**
+     * @brief Gets a sub-document from the JSON document.
+     *        This function retrieves a sub-document from the JSON document.
+     *        If the key does not exist, an empty JSON object is returned.
+     *        Note that the document is flushed for data integrity.
+     * @param doc_key The link and key of the sub-document to retrieve.
+     * @return The sub-document associated with the key, or an empty JSON object if the key does not exist.
+     */
+    JSON getSubDoc(std::string const& doc_key) const ;
 
     /**
      * @brief Retrieves the entire document as a serialized string.
      * @param link The link to the document.
      * @return The serialized JSON string of the entire document.
      */
-    std::string getDocString(std::string_view const& link) const {
-        ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(link);
-
-        // Check if the document exists in the cache
-        if (docPtr == nullptr) {
-            return JSON().serialize(); // Return empty JSON if document loading fails
-        }
-
-        // Return string of document:
-        std::string serial = docPtr->serial;
-
-        // Update the cache (unload old documents)
-        update();
-
-        return serial;
-    }
+    std::string getDocString(std::string_view const& link) const ;
 
 private:
     /**
@@ -175,11 +130,6 @@ private:
     }
 
     /**
-     * @brief Updates the cache by checking a random document for its last usage time.
-     */
-    void update() const ;
-
-    /**
      * @brief Templated helper function to retrieve a value from the read only cache
      */
     template <typename ValueType>
@@ -197,7 +147,7 @@ private:
         ValueType const data = retrievalFunction(docPtr, key);
 
         // Update the cache (unload old documents) and return the size
-        update();
+        readOnlyDocs.update();
         return data;
     }
 };
@@ -223,7 +173,7 @@ std::expected<T, SimpleValueRetrievalError> DocumentCache::get(std::string const
     auto data = docPtr->document.get<T>(key);
 
     // Update the cache (unload old documents)
-    update();
+    readOnlyDocs.update();
 
     // Return key:
     return data; // Use the JSON get method to retrieve the value
