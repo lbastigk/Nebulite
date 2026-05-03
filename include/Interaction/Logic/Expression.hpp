@@ -349,6 +349,14 @@ private:
             vd_list resource; // Variables from context resource with transformations or multi-resolve
             vd_list none; // Variables with no context with transformations or multi-resolve
         } unstable;
+
+        /**
+         * @brief Registers a variable
+         * @param contextType The context to register for
+         * @param key The key to register
+         * @return Pointer to the registered variable
+         */
+        double* registerVariable(ContextDeriver::TargetType const& contextType, std::string_view const& key);
     } virtualDoubles;
 
     /**

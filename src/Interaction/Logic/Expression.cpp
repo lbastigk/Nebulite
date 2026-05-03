@@ -87,6 +87,55 @@ bool isAvailableAsDoublePtr(std::string_view const& key) {
 }
 } // anonymous namespace
 
+double* Expression::VirtualDoubleLists::registerVariable(ContextDeriver::TargetType const& contextType, std::string_view const& key){
+    auto const vd = std::make_shared<VirtualDouble>(key);
+    switch (contextType) {
+    case ContextDeriver::TargetType::self:
+        if (isAvailableAsDoublePtr(key)) {
+            stable.self.push_back(vd);
+        } else {
+            unstable.self.push_back(vd);
+        }
+        break;
+    case ContextDeriver::TargetType::other:
+        // Type other is always non-remanent, as other document reference can change
+        // However, we need to distinguish between stable and unstable double pointers
+        // Meaning the ones we can get from an ordered list, and the ones we need to resolve each time
+        // (e.g. with multi-resolve or transformations)
+        if (isAvailableAsDoublePtr(key)) {
+            stable.other.push_back(vd);
+        } else {
+            unstable.other.push_back(vd);
+        }
+        break;
+    case ContextDeriver::TargetType::local:
+        unstable.local.push_back(vd);
+        break;
+    case ContextDeriver::TargetType::global:
+        if (isAvailableAsDoublePtr(key)) {
+            stable.global.push_back(vd);
+        } else {
+            unstable.global.push_back(vd);
+        }
+        break;
+    case ContextDeriver::TargetType::full:
+        unstable.full.push_back(vd);
+        break;
+    case ContextDeriver::TargetType::resource:
+        unstable.resource.push_back(vd);
+        break;
+    case ContextDeriver::TargetType::none:
+        // Use an empty document
+        unstable.none.push_back(vd);
+        break;
+    default:
+        // Should not happen
+        Global::capture().error.println(__FUNCTION__, ": Tried to register variable with no known context!");
+        std::unreachable();
+    }
+    return vd->ptr();
+}
+
 void Expression::registerVariable(std::string te_name, std::string_view const& key, ContextDeriver::TargetType const& contextType) {
     // Check if variable exists in variables vector:
     bool const found = std::ranges::any_of(te_variables, [&](auto const& te_var) {
@@ -97,54 +146,8 @@ void Expression::registerVariable(std::string te_name, std::string_view const& k
     });
 
     if (!found) {
-        // Initialize with reference to document and cache register
-        auto const vd = std::make_shared<VirtualDouble>(key);
-
         // Register cache based on context
-        switch (contextType) {
-        case ContextDeriver::TargetType::self:
-            if (isAvailableAsDoublePtr(key)) {
-                virtualDoubles.stable.self.push_back(vd);
-            } else {
-                virtualDoubles.unstable.self.push_back(vd);
-            }
-            break;
-        case ContextDeriver::TargetType::other:
-            // Type other is always non-remanent, as other document reference can change
-            // However, we need to distinguish between stable and unstable double pointers
-            // Meaning the ones we can get from an ordered list, and the ones we need to resolve each time
-            // (e.g. with multi-resolve or transformations)
-            if (isAvailableAsDoublePtr(key)) {
-                virtualDoubles.stable.other.push_back(vd);
-            } else {
-                virtualDoubles.unstable.other.push_back(vd);
-            }
-            break;
-        case ContextDeriver::TargetType::local:
-            virtualDoubles.unstable.local.push_back(vd);
-            break;
-        case ContextDeriver::TargetType::global:
-            if (isAvailableAsDoublePtr(key)) {
-                virtualDoubles.stable.global.push_back(vd);
-            } else {
-                virtualDoubles.unstable.global.push_back(vd);
-            }
-            break;
-        case ContextDeriver::TargetType::full:
-            virtualDoubles.unstable.full.push_back(vd);
-            break;
-        case ContextDeriver::TargetType::resource:
-            virtualDoubles.unstable.resource.push_back(vd);
-            break;
-        case ContextDeriver::TargetType::none:
-            // Use an empty document
-            virtualDoubles.unstable.none.push_back(vd);
-            break;
-        default:
-            // Should not happen
-            Global::capture().error.println(__FUNCTION__, ": Tried to register variable with no known context!");
-            std::unreachable();
-        }
+        auto const ptr = virtualDoubles.registerVariable(contextType, key);
 
         // Store variable name for tinyexpr
         auto const te_name_ptr = std::make_shared<std::string>(te_name);
@@ -153,7 +156,7 @@ void Expression::registerVariable(std::string te_name, std::string_view const& k
         // Push back into variable components
         te_variables.push_back({
             te_names.back()->c_str(),
-            vd->ptr(),
+            ptr,
             TE_VARIABLE,
             nullptr
         });
