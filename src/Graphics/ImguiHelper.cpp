@@ -44,7 +44,7 @@ void addRootCompletions(std::string_view const& input, std::vector<std::string>&
 void addFileCompletions(std::string_view const& input, std::vector<std::string>& completions) {
     auto args = Nebulite::Utility::StringHandler::parseQuotedArguments(input).args;
     if (args.empty()) {
-        args.push_back(""); // If there are no arguments, we want to complete the first one, which is empty
+        args.emplace_back(""); // If there are no arguments, we want to complete the first one, which is empty
     }
 
     // Separate inner from outer directory and get the actual input we need to complete
@@ -98,6 +98,99 @@ bool checkCompletionsForCommonPrefix(std::string_view const& input, std::vector<
     return false;
 }
 
+void historyScrollingCallback(ImGuiInputTextCallbackData* data, ConsoleState* state) {
+    auto const historySize = state->capture->getHistory().size();
+    if (data->EventKey == ImGuiKey_UpArrow) {
+        size_t newIndex = state->historyIndex;
+        if (state->historyIndex == 0) {
+            state->draftCommand = state->command; // Save current command as draft if we are at the start of history
+        }
+
+        while (newIndex < state->capture->getHistory().size() - 1) {
+            newIndex++;
+            if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::IO::HistoryLine::Type::Input) {
+                state->historyIndex = newIndex;
+                state->command = state->capture->getHistory().at(historySize-state->historyIndex).content; // Load command from history
+                data->DeleteChars(0, data->BufTextLen);
+                data->InsertChars(0, state->command.c_str());
+                break;
+            }
+        }
+    }
+    else if (data->EventKey == ImGuiKey_DownArrow) {
+        if (state->historyIndex == 0) {
+            return; // Already at the end of history, nothing to do
+        }
+        size_t newIndex = state->historyIndex - 1;
+        while (newIndex > 0) {
+            if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::IO::HistoryLine::Type::Input) {
+                state->historyIndex = newIndex;
+                break;
+            }
+            newIndex--;
+        }
+        if (newIndex == 0) {
+            state->historyIndex = newIndex;
+            state->command = state->draftCommand; // Restore draft command if we go back to the start
+            data->DeleteChars(0, data->BufTextLen);
+            data->InsertChars(0, state->command.c_str());
+        }
+        else {
+            state->command = state->capture->getHistory().at(historySize - state->historyIndex).content; // Load command from history
+            data->DeleteChars(0, data->BufTextLen);
+            data->InsertChars(0, state->command.c_str());
+        }
+    }
+}
+
+void completionCallback(ImGuiInputTextCallbackData* data, ConsoleState const* state) {
+    // Build completions list
+    auto completions = state->ctx->self.findCompletions(state->command);
+    if (completions.empty()) addRootCompletions(state->command, completions, state->ctx->self);
+    addFileCompletions(state->command, completions);
+    // TODO: add JSON key completions
+
+    // Finish completions
+    std::ranges::sort(completions, Nebulite::Utility::Sort::caseInsensitiveLess);
+    auto v = std::ranges::unique(completions);
+    completions.erase(v.begin(), v.end());
+    auto const commonPrefixFound = completions.size() != 1 && checkCompletionsForCommonPrefix(state->command, completions);
+
+    // Check completions
+    if (completions.size() == 1) {
+        auto const& toInsert = completions.front();
+        const std::string& cmd = state->command;
+
+        // Find overlap suffix: the part at the end of the current command that matches the beginning of the completion.
+        // e.g.: typed is fooBar, fooBarBaz is complete -> remove fooBar and insert full complete string.
+        int overlap = 0;
+        auto const maxCheck = static_cast<int>(std::min(cmd.size(), toInsert.size()));
+        for (int i = 1; i <= maxCheck; ++i) {
+            if (auto const idx = static_cast<size_t>(i); cmd.compare(cmd.size() - idx, idx, toInsert, 0, idx) == 0) {
+                overlap = i;
+            }
+        }
+
+        // delete only the overlapping suffix and insert full completion
+        data->DeleteChars(data->CursorPos - overlap, overlap);
+        data->InsertChars(data->CursorPos, toInsert.c_str());
+
+        // Insert additional whitespace under certain conditions:
+        static auto endCharsToIgnore = {
+            Nebulite::Utility::IO::FileManagement::preferredSeparator(), // Directory Path
+            '.', // JSON indexing
+            ']' // JSON array indexing
+        };
+        if (!commonPrefixFound && !toInsert.empty() && !std::ranges::any_of(endCharsToIgnore, [&](char const& c) { return toInsert.back() == c; })) {
+            data->InsertChars(data->CursorPos, " ");
+        }
+    }
+    else if (completions.size() > 1) {
+        // TODO: determine console width in characters
+        state->capture->log.println(Nebulite::Utility::StringHandler::createPaddedTable(completions, 80));
+    }
+}
+
 // NOLINTNEXTLINE
 int consoleInputCallback(ImGuiInputTextCallbackData* data) {
     auto* state = static_cast<ConsoleState*>(data->UserData);
@@ -107,97 +200,15 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
     if (!state->capture || !state->ctx || !state->ctxScope) return 0;
 
     // Check callback type...
-    if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory) { // History scrolling
-        auto const historySize = state->capture->getHistory().size();
-
-        if (data->EventKey == ImGuiKey_UpArrow) {
-            size_t newIndex = state->historyIndex;
-            if (state->historyIndex == 0) {
-                state->draftCommand = state->command; // Save current command as draft if we are at the start of history
-            }
-
-            while (newIndex < state->capture->getHistory().size() - 1) {
-                newIndex++;
-                if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::IO::HistoryLine::Type::Input) {
-                    state->historyIndex = newIndex;
-                    state->command = state->capture->getHistory().at(historySize-state->historyIndex).content; // Load command from history
-                    data->DeleteChars(0, data->BufTextLen);
-                    data->InsertChars(0, state->command.c_str());
-                    break;
-                }
-            }
-        }
-        else if (data->EventKey == ImGuiKey_DownArrow) {
-            if (state->historyIndex == 0) {
-                return 0; // Already at the end of history, nothing to do
-            }
-            size_t newIndex = state->historyIndex - 1;
-            while (newIndex > 0) {
-                if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::IO::HistoryLine::Type::Input) {
-                    state->historyIndex = newIndex;
-                    break;
-                }
-                newIndex--;
-            }
-            if (newIndex == 0) {
-                state->historyIndex = newIndex;
-                state->command = state->draftCommand; // Restore draft command if we go back to the start
-                data->DeleteChars(0, data->BufTextLen);
-                data->InsertChars(0, state->command.c_str());
-            }
-            else {
-                state->command = state->capture->getHistory().at(historySize - state->historyIndex).content; // Load command from history
-                data->DeleteChars(0, data->BufTextLen);
-                data->InsertChars(0, state->command.c_str());
-            }
-        }
-    }
-    else if (data->EventFlag == ImGuiInputTextFlags_CallbackCompletion) { // Tab-Autocomplete
-        // Build completions list
-        auto completions = state->ctx->self.findCompletions(state->command);
-        if (completions.empty()) addRootCompletions(state->command, completions, state->ctx->self);
-        addFileCompletions(state->command, completions);
-        // TODO: add json key completions
-
-        // Finish completions
-        std::ranges::sort(completions, Nebulite::Utility::Sort::caseInsensitiveLess);
-        auto v = std::ranges::unique(completions);
-        completions.erase(v.begin(), v.end());
-        auto const commonPrefixFound = completions.size() != 1 && checkCompletionsForCommonPrefix(state->command, completions);
-
-        // Check completions
-        if (completions.size() == 1) {
-            auto const& toInsert = completions.front();
-            const std::string& cmd = state->command;
-
-            // Find overlap suffix: the part at the end of the current command that matches the beginning of the completion.
-            // e.g.: typed is fooBar, fooBarBaz is complete -> remove fooBar and insert full complete string.
-            int overlap = 0;
-            auto const maxCheck = static_cast<int>(std::min(cmd.size(), toInsert.size()));
-            for (int i = 1; i <= maxCheck; ++i) {
-                if (auto const idx = static_cast<size_t>(i); cmd.compare(cmd.size() - idx, idx, toInsert, 0, idx) == 0) {
-                    overlap = i;
-                }
-            }
-
-            // delete only the overlapping suffix and insert full completion
-            data->DeleteChars(data->CursorPos - overlap, overlap);
-            data->InsertChars(data->CursorPos, toInsert.c_str());
-
-            // Insert additional whitespace under certain conditions:
-            static auto endCharsToIgnore = {
-                Nebulite::Utility::IO::FileManagement::preferredSeparator(), // Directory Path
-                '.', // JSON indexing
-                ']' // JSON array indexing
-            };
-            if (!commonPrefixFound && !toInsert.empty() && !std::ranges::any_of(endCharsToIgnore, [&](char const& c) { return toInsert.back() == c; })) {
-                data->InsertChars(data->CursorPos, " ");
-            }
-        }
-        else if (completions.size() > 1) {
-            // TODO: determine console width in characters
-            state->capture->log.println(Nebulite::Utility::StringHandler::createPaddedTable(completions, 80));
-        }
+    switch (data->EventFlag) {
+    case ImGuiInputTextFlags_CallbackHistory:
+        historyScrollingCallback(data, state);
+        break;
+    case ImGuiInputTextFlags_CallbackCompletion:
+        completionCallback(data, state);
+        break;
+    default:
+        break;
     }
     return 0;
 }

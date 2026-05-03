@@ -102,16 +102,11 @@ public:
 
     /**
      * @brief Splits a string on the same depth of parentheses.
-     * 
-     * Example:
-     * 
-     * `"This is a text {with} {some}{!} nested {{parenthesis}}"`
-     * 
-     * -> `["This is a text ", "{with}", " ", "{some}", "{!}", " nested ", "{{parenthesis}}"]`
-     * 
      * @param input The original string.
      * @param delimiter The opening parenthesis to split on.
      * @return A vector of strings split on the same depth of parentheses.
+     * @todo Remove delimiter parameter, use all types and only split of they're all at zero depth
+     *
      */
     static std::vector<std::string> splitOnSameDepth(std::string_view const& input, char const& delimiter);
 

@@ -98,9 +98,13 @@ bool JSON::isJsonOrJsonc(std::string_view const& str) {
 //------------------------------------------
 // Argument splitting for transformations
 
+namespace {
+auto constexpr braceOpen = '{';
+} // namespace
+
 std::vector<std::string> JSON::splitKeyWithTransformations(std::string_view const& key) {
     // Split based on transformation pipe character, but respecting inner braces
-    auto const braceArgs = Utility::StringHandler::splitOnSameDepth(key, '{');
+    auto const braceArgs = Utility::StringHandler::splitOnSameDepth(key, braceOpen);
     std::vector<std::string> args;
 
     if (!key.empty() && key.starts_with(SpecialCharacter::transformationPipe)) {
@@ -109,7 +113,7 @@ std::vector<std::string> JSON::splitKeyWithTransformations(std::string_view cons
     }
 
     for (auto const& arg : braceArgs) {
-        if (arg.starts_with('{')) {
+        if (arg.starts_with(braceOpen)) {
             // Add to last argument
             if (!args.empty()) {
                 args.back() += arg;
