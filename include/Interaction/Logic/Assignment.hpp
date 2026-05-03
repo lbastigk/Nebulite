@@ -16,6 +16,7 @@
 
 //------------------------------------------
 // Forward declarations
+
 namespace Nebulite::Core {
 class RenderObject;
 } // namespace Nebulite::Core
@@ -31,9 +32,9 @@ namespace Nebulite::Interaction::Logic {
  * @brief Representing a variable assignment in the Nebulite scripting language.
  * @details [target] [operation] [value-to-evaluate]
  *          e.g.:
- *          - `self:posX = 0`
- *          - `other.health += $(self:damage * 2)`
- *          - `global:name |= " the Great"`
+ *          - self:posX = 0
+ *          - other:health += $(self:damage * 2)
+ *          - global:name |= " the Great"
  */
 class Assignment{
 public:
@@ -56,7 +57,6 @@ public:
     /**
      * @brief Tries to optimize the assignment by assuming the provided context self and global are constant.
      * @param contextScope The context to use for optimization, containing the self and global context.
-     * @todo Just like expression, we could auto-optimize to use the first provided context
      */
     void optimize(ContextScope const& contextScope);
 
@@ -81,9 +81,7 @@ public:
     /**
      * @brief Get the unevaluated expression as string
      */
-    [[nodiscard]] std::string const& getFullExpression() const {
-        return value;
-    }
+    [[nodiscard]] std::string const& getFullExpression() const ;
 
     /**
      * @brief Type of operation used
@@ -109,24 +107,9 @@ private:
     ContextDeriver::TargetType onType = ContextDeriver::TargetType::resource;
 
     /**
-     * @brief Key of the variable being assigned
-     * @details e.g.: "posX"
-     */
-    std::string keyStr;
-
-    /**
      * @brief Parsed expression representing the key
      */
     std::unique_ptr<Expression> key;
-
-    /**
-     * @brief Represents the full assignment as string
-     * @details e.g. "0", "$($(self:posX) + 1)", does not include the assignment operator and target
-     *          Storing the full value is necessary for:
-     *          - estimating computational cost based on the amount of evaluations `$` as well as variables `{...}`
-     *          - parsing the expression later on
-     */
-    std::string value;
 
     /**
      * @brief Parsed expression representing the value to assign
@@ -143,7 +126,7 @@ private:
     double* targetValuePtr = nullptr;
 
     /**
-     * @brief Type of operation used.
+     * @brief Type of assignment operation used.
      * @details Depending on operation, the proper JSON operation helper will be called.
      *          This ensures quick and threadsafe assignment.
      *          Initialized as null, which means the assignment is ignored.

@@ -10,62 +10,76 @@
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
 
+namespace {
+struct OperationInfo {
+    Assignment::Operation op;
+    std::string_view symbol;
+    constexpr OperationInfo(Assignment::Operation const& o, std::string_view const& s) noexcept : op(o), symbol(s) {}
+};
+std::array constexpr supportedOperations = {
+    OperationInfo{Assignment::Operation::add, "+="},
+    OperationInfo{Assignment::Operation::multiply, "*="},
+    OperationInfo{Assignment::Operation::concat, "|="},
+    OperationInfo{Assignment::Operation::set, "="} // Must come at last place, otherwise it is registered before any other operator
+};
+} // namespace
+
 bool Assignment::parse(std::string_view const& str) {
-    // Derive context and strip it from the key
+    // Reset
+    operation = Operation::null;
+
+    // 1.) Derive context
     onType = ContextDeriver::getTypeFromString(str);
     if (onType == ContextDeriver::TargetType::resource) {
         return false;
     }
-    keyStr = ContextDeriver::stripContext(str);
 
-    std::string_view valueView = keyStr;
-    std::string_view keyView = keyStr;
-    
-    // Find the operator position in the full expression, set operation, key and value
-    if (size_t pos; (pos = keyStr.find("+=")) != std::string::npos) {
-        operation = Operation::add;
-        valueView.remove_prefix(pos + 2);
-        keyView.remove_suffix(keyView.size() - pos);
-    } else if ((pos = keyStr.find("*=")) != std::string::npos) {
-        operation = Operation::multiply;
-        valueView.remove_prefix(pos + 2);
-        keyView.remove_suffix(keyView.size() - pos);
-    } else if ((pos = keyStr.find("|=")) != std::string::npos) {
-        operation = Operation::concat;
-        valueView.remove_prefix(pos + 2);
-        keyView.remove_suffix(keyView.size() - pos);
-    } else if ((pos = keyStr.find('=')) != std::string::npos) {
-        operation = Operation::set;
-        valueView.remove_prefix(pos + 1);
-        keyView.remove_suffix(keyView.size() - pos);
-    } else {
+    // 2.) Strip context, create views for key and value
+    std::string_view valueView = str;
+    ContextDeriver::stripContextFromView(valueView);
+    std::string_view keyView = str;
+    ContextDeriver::stripContextFromView(keyView);
+
+    // 3.) Find the operator position, get views for key and value
+    for (auto const& [op, symbol] : supportedOperations) {
+        if (size_t pos; (pos = keyView.find(symbol)) != std::string::npos) {
+            operation = op;
+            valueView.remove_prefix(pos + symbol.size());
+            keyView.remove_suffix(keyView.size() - pos);
+            break;
+        }
+    }
+    if (operation == Operation::null) { // No supported operation found
         return false;
     }
+
+    // 4.) strip whitespaces
     Utility::StringHandler::strip(keyView);
     Utility::StringHandler::strip(valueView);
 
-    keyStr = keyView;
+    // 5.) Generate expressions for key and value
     key = std::make_unique<Expression>(keyView);
-    value = valueView;
-
-    // Set expression
-    expression = std::make_unique<Expression>(value);
+    expression = std::make_unique<Expression>(valueView);
     return true;
 }
 
 void Assignment::optimize(ContextScope const& contextScope){
+    // Supported operations for optimizations
      std::array constexpr numeric_operations = {
          Operation::set,
          Operation::add,
          Operation::multiply
      };
 
-    // Optimize
-    if (key->getFullExpression().find('|') != std::string::npos) {
-        // Keys with transformations cannot be optimized to use a stable double pointer
+    // Keys with transformations cannot be optimized to use a stable double pointer
+    if (key->getFullExpression().find(Data::JSON::SpecialCharacter::transformationPipe) != std::string::npos) {
         return;
     }
 
+    // Optimize supported targets from a given context
+    // - target self is the owner and stays the same
+    // - target global is assumed to stay the same
+    // We cannot optimize for target other, as that changes based on the interaction.
     if (onType == ContextDeriver::TargetType::self) {
         if (std::ranges::find(numeric_operations, operation) != std::ranges::end(numeric_operations)) {
             // Numeric operation on self, try to get a direct pointer
@@ -204,4 +218,9 @@ void Assignment::apply(ContextScope const& context) const {
         setValueOfKey(k.view(), resolved, targetDocument);
     }
 }
+
+std::string const& Assignment::getFullExpression() const {
+    return expression->getFullExpression();
+}
+
 } // namespace Nebulite::Interaction::Logic
