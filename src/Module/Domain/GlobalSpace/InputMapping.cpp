@@ -93,19 +93,19 @@ void InputMapping::reloadMappings() {
     mappings.clear();
     for (auto const& [member, key] : settingsScope.listAvailableMembersAndKeys(Settings::Key::inputMapping)) {
         mapEntry entry;
-        entry.slotA.key = settingsScope.get<std::string>(key + "." + InputMappingSlot::associationA).value_or("");
-        entry.slotA.type = stringToAssociationType(settingsScope.get<std::string>(key + "." + InputMappingSlot::actionA).value_or(""));
-        entry.slotB.key = settingsScope.get<std::string>(key + "." + InputMappingSlot::associationB).value_or("");
-        entry.slotB.type = stringToAssociationType(settingsScope.get<std::string>(key + "." + InputMappingSlot::actionB).value_or(""));
-        entry.slotC.key = settingsScope.get<std::string>(key + "." + InputMappingSlot::associationC).value_or("");
-        entry.slotC.type = stringToAssociationType(settingsScope.get<std::string>(key + "." + InputMappingSlot::actionC).value_or(""));
+        entry.slotA.key = settingsScope.get<std::string>(key.addMember(InputMappingSlot::associationA)).value_or("");
+        entry.slotA.type = stringToAssociationType(settingsScope.get<std::string>(key.addMember(InputMappingSlot::actionA)).value_or(""));
+        entry.slotB.key = settingsScope.get<std::string>(key.addMember(InputMappingSlot::associationB)).value_or("");
+        entry.slotB.type = stringToAssociationType(settingsScope.get<std::string>(key.addMember(InputMappingSlot::actionB)).value_or(""));
+        entry.slotC.key = settingsScope.get<std::string>(key.addMember(InputMappingSlot::associationC)).value_or("");
+        entry.slotC.type = stringToAssociationType(settingsScope.get<std::string>(key.addMember(InputMappingSlot::actionC)).value_or(""));
         mappings[member] = entry;
     }
 }
 
 void InputMapping::processMappings() {
     for (auto& [action, entry] : mappings) {
-        static auto const mappingLocation = moduleScope.getRootScope() + "input.";
+        static auto const mappingLocation = moduleScope.getRootScope().addMember("input");
 
         // Process each mapping
         int triggerCount = 0;
@@ -114,16 +114,16 @@ void InputMapping::processMappings() {
                 continue;
             switch (type) {
                 case association::action::current:
-                    triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardCurrent + key).value_or(0);
+                    triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardCurrent.addMember(key)).value_or(0);
                     break;
                 case association::action::onPress:
-                    triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key) == 1;
+                    triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardDelta.addMember(key)) == 1;
                     break;
                 case association::action::onRelease:
-                    triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key) == -1;
+                    triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardDelta.addMember(key)) == -1;
                     break;
                 case association::action::onChange:
-                    triggerCount += abs(moduleScope.get<int>(Renderer::Input::Key::keyboardDelta + key).value_or(0)) == 1;
+                    triggerCount += abs(moduleScope.get<int>(Renderer::Input::Key::keyboardDelta.addMember(key)).value_or(0)) == 1;
                     break;
                 case association::action::empty:
                     break;
@@ -143,17 +143,17 @@ void InputMapping::processMappings() {
 
         // Now we write the state into our mapping location
         // We write the amount of actions triggered, may need to be normalized later on
-        moduleScope.set<int>(mappingLocation + action, triggerCount);
+        moduleScope.set<int>(mappingLocation.addMember(action), triggerCount);
     }
 }
 
 void InputMapping::addMappingToScope(Data::JsonScope& scope, std::string const& action, std::array<std::pair<std::string, std::string>,3> const& slots) {
-    scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::associationA, slots[0].first);
-    scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::actionA, slots[0].second);
-    scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::associationB, slots[1].first);
-    scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::actionB, slots[1].second);
-    scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::associationC, slots[2].first);
-    scope.set<std::string>(Settings::Key::inputMapping + "." + action + "." + InputMappingSlot::actionC, slots[2].second);
+    scope.set<std::string>(Settings::Key::inputMapping.addMember(action).addMember(InputMappingSlot::associationA), slots[0].first);
+    scope.set<std::string>(Settings::Key::inputMapping.addMember(action).addMember(InputMappingSlot::actionA), slots[0].second);
+    scope.set<std::string>(Settings::Key::inputMapping.addMember(action).addMember(InputMappingSlot::associationB), slots[1].first);
+    scope.set<std::string>(Settings::Key::inputMapping.addMember(action).addMember(InputMappingSlot::actionB), slots[1].second);
+    scope.set<std::string>(Settings::Key::inputMapping.addMember(action).addMember(InputMappingSlot::associationC), slots[2].first);
+    scope.set<std::string>(Settings::Key::inputMapping.addMember(action).addMember(InputMappingSlot::actionC), slots[2].second);
 }
 
 void InputMapping::loadDefaultMappings(Data::JsonScope& scope) {

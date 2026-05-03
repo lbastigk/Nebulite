@@ -427,8 +427,8 @@ void Drawcall::initializePolygon() {
     }
     points.reserve(pointCount);
     for (size_t i = 0; i < pointCount; ++i) {
-        auto const pointX = w * drawcallScope.get<double>(Key::PolygonSpecific::points + "[" + std::to_string(i) + "].x").value_or(0.0);
-        auto const pointY = h * drawcallScope.get<double>(Key::PolygonSpecific::points + "[" + std::to_string(i) + "].y").value_or(0.0);
+        auto const pointX = w * drawcallScope.get<double>(Key::PolygonSpecific::points.addIndex(i).addMember("x")).value_or(0.0);
+        auto const pointY = h * drawcallScope.get<double>(Key::PolygonSpecific::points.addIndex(i).addMember("y")).value_or(0.0);
         points.push_back({ static_cast<float>(pointX), static_cast<float>(pointY) });
     }
 

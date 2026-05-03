@@ -64,7 +64,7 @@ bool Types::exists(std::span<std::string const> const& args, Data::JsonScope* js
         return false;
     }
     std::string const key = args.size() == 2 ? args[1] : "";
-    if (jsonDoc->memberType(rootKey + key) == Data::KeyType::null) {
+    if (jsonDoc->memberType(rootKey.addMember(key)) == Data::KeyType::null) {
         jsonDoc->set<bool>(rootKey, false);
     }
     else {

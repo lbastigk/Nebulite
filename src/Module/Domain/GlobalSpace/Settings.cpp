@@ -51,7 +51,7 @@ Constants::Event Settings::setSettingStr(std::span<std::string const> const& arg
     std::string const& value = args[1];
 
     // Set string setting in global settings
-    moduleScope.set<std::string>(moduleScope.getRootScope() + key, value);
+    moduleScope.set<std::string>(moduleScope.getRootScope().addMember(key), value);
     return Constants::Event::Success;
 }
 
@@ -66,7 +66,7 @@ Constants::Event Settings::setSettingInt(std::span<std::string const> const& arg
     int const value = std::stoi(args[1]);
 
     // Set integer setting in global settings
-    moduleScope.set<int>(moduleScope.getRootScope() + key, value);
+    moduleScope.set<int>(moduleScope.getRootScope().addMember(key), value);
     return Constants::Event::Success;
 }
 
@@ -88,7 +88,7 @@ Constants::Event Settings::loadSettings(std::string const& filename) const {
     // Get custom settings
     moduleScope.setSubDoc(Key::customSettings, settingsFile.getSubDoc(Key::customSettings));
     if (moduleScope.memberType(Key::customSettings) != Data::KeyType::object) { // Load default if not present
-        moduleScope.set<std::string>(Key::customSettings + ".__example__", "This is an example custom setting. You can add any settings you want under the 'custom' key in the settings file, and they will always be loaded into the globalspace.");
+        moduleScope.set<std::string>(Key::customSettings.addMember("__example__"), "This is an example custom setting. You can add any settings you want under the 'custom' key in the settings file, and they will always be loaded into the globalspace.");
     }
 
     //---------------------------------------------------
@@ -120,9 +120,9 @@ Constants::Event Settings::loadSettings(std::string const& filename) const {
     // Commands: When opening Nebulite with no arguments, e.g. by double-clicking the executable
     moduleScope.setSubDoc(Key::parseIfNoArgs, settingsFile.getSubDoc(Key::parseIfNoArgs));
     if (moduleScope.memberType(Key::parseIfNoArgs) != Data::KeyType::array) { // Load default if not present
-        moduleScope.set<std::string>(Key::parseIfNoArgs + "[0]", "echo Nebulite opened with no arguments provided. Starting empty renderer.");
-        moduleScope.set<std::string>(Key::parseIfNoArgs + "[1]", "echo Open the interactive console with the ^ key and type 'help' for available commands.");
-        moduleScope.set<std::string>(Key::parseIfNoArgs + "[2]", "set-fps 60"); // TODO: add an initRenderer command and use that instead of setting fps here
+        moduleScope.set<std::string>(Key::parseIfNoArgs.addIndex(0), "echo Nebulite opened with no arguments provided. Starting empty renderer.");
+        moduleScope.set<std::string>(Key::parseIfNoArgs.addIndex(1), "echo Open the interactive console with the ^ key and type 'help' for available commands.");
+        moduleScope.set<std::string>(Key::parseIfNoArgs.addIndex(2), "set-fps 60"); // TODO: add an initRenderer command and use that instead of setting fps here
     }
 
     // Input mappings

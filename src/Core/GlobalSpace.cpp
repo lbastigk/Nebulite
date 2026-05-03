@@ -168,7 +168,7 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
         // Load standard commands from settings, type 'parseIfNoArgs', if no args provided
         auto const cmdCount = Global::settings().memberSize(Module::Domain::GlobalSpace::Settings::Key::parseIfNoArgs);
         for (std::size_t i = 0; i < cmdCount; ++i) {
-            if (std::string const cmd = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::parseIfNoArgs + "[" + std::to_string(i) + "]").value_or(""); !cmd.empty()) {
+            if (std::string const cmd = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::parseIfNoArgs.addIndex(i)).value_or(""); !cmd.empty()) {
                 tasks[StandardTasks::script]->pushBack(cmd);
             }
         }

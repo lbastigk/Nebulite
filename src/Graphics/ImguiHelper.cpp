@@ -217,7 +217,7 @@ bool ImguiHelper::checkImguiReadyForRendering() {
 
 void ImguiHelper::renderJsonScope(Data::JsonScope const& scope, std::string const& name) {
     ImGui::Begin(name.c_str());
-    renderJsonTreeNode(scope, scope.getRootScope().toScopedKey());
+    renderJsonTreeNode(scope, scope.getRootScope());
     ImGui::End();
 }
 
@@ -316,23 +316,23 @@ void ImguiHelper::renderDomain(Interaction::Context& ctx, Interaction::ContextSc
     ImGui::EndChild();
     ImGui::NextColumn();
     ImGui::BeginChild("JsonScopeViewer", ImVec2(0, 0), true);
-    renderJsonTreeNode(scope, scope.getRootScope().toScopedKey());
+    renderJsonTreeNode(scope, scope.getRootScope());
     ImGui::EndChild();
     ImGui::Columns(1); // Restore single column
     ImGui::End();
 }
 
-void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKey const& root) {
+void ImguiHelper::renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKeyView const& root) {
     for (auto const& key : s.listAvailableKeys(root)) {
-        std::string const rootPath = root.view().toString();
-        std::string const fullPath = key.view().toString(); // stable ID
-        std::string keyPath = fullPath;                   // visible label
+        std::string const rootPath = root.toString();
+        std::string const fullPath = key.view().toString();
+        std::string keyPath = fullPath;
         if (rootPath != fullPath) keyPath = fullPath.substr(rootPath.length());
         if (!keyPath.empty() && keyPath.front() == Data::JSON::SpecialCharacter::dot) keyPath.erase(0, 1);
         if (auto const type = s.memberType(key); type == Data::KeyType::object || type == Data::KeyType::array) {
             // use fullPath as the ID (first arg) and keyPath as the visible text (format)
             if (ImGui::TreeNode(fullPath.c_str(), "%s", keyPath.c_str())) {
-                renderJsonTreeNode(s, key);
+                renderJsonTreeNode(s, key.view());
                 ImGui::TreePop();
             }
         } else if (type == Data::KeyType::value) {

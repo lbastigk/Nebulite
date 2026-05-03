@@ -14,7 +14,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRule
     if (entryDoc.memberType(Constants::KeyNames::Ruleset::parseOnGlobal) == Data::KeyType::array) {
         size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnGlobal);
         for (size_t j = 0; j < funcSize; ++j) {
-            auto const funcKey = Constants::KeyNames::Ruleset::parseOnGlobal + "[" + std::to_string(j) + "]";
+            auto const funcKey = Constants::KeyNames::Ruleset::parseOnGlobal.addIndex(j);
             auto funcCall = entryDoc.get<std::string>(funcKey).value_or("");
 
             // Create a new Expression, parse the function call
@@ -25,7 +25,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRule
     if (entryDoc.memberType(Constants::KeyNames::Ruleset::parseOnSelf) == Data::KeyType::array) {
         size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnSelf);
         for (size_t j = 0; j < funcSize; ++j) {
-            auto const funcKey = Constants::KeyNames::Ruleset::parseOnSelf + "[" + std::to_string(j) + "]";
+            auto const funcKey = Constants::KeyNames::Ruleset::parseOnSelf.addIndex(j);
             auto funcCall = entryDoc.get<std::string>(funcKey).value_or("");
 
             // The first arg has to be some reference of where the function is called
@@ -43,7 +43,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRule
     if (entryDoc.memberType(Constants::KeyNames::Ruleset::parseOnOther) == Data::KeyType::array) {
         size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnOther);
         for (size_t j = 0; j < funcSize; ++j) {
-            auto const funcKey = Constants::KeyNames::Ruleset::parseOnOther + "[" + std::to_string(j) + "]";
+            auto const funcKey = Constants::KeyNames::Ruleset::parseOnOther.addIndex(j);
             auto funcCall = entryDoc.get<std::string>(funcKey).value_or("");
 
             // The first arg has to be some reference of where the function is called
@@ -60,7 +60,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRule
 }
 
 std::optional<Logic::Assignment> RulesetCompiler::getAssignment(Data::JsonScope const& entry, size_t const& index) {
-    auto const exprKey = Constants::KeyNames::Ruleset::assignments + "[" + std::to_string(index) + "]";
+    auto const exprKey = Constants::KeyNames::Ruleset::assignments.addIndex(index);
     if (Logic::Assignment assignment; assignment.parse(entry.get<std::string>(exprKey).value_or(""))) {
         return assignment;
     }
@@ -87,7 +87,7 @@ std::string RulesetCompiler::getCondition(Data::JsonScope const& entry) {
     if (entry.memberType(Constants::KeyNames::Ruleset::condition) == Data::KeyType::array) {
         size_t const logicalArgSize = entry.memberSize(Constants::KeyNames::Ruleset::condition);
         for (size_t j = 0; j < logicalArgSize; ++j) {
-            auto logicalArgKey = Constants::KeyNames::Ruleset::condition + "[" + std::to_string(j) + "]";
+            auto logicalArgKey = Constants::KeyNames::Ruleset::condition.addIndex(j);
             logicalArg += "(" + entry.get<std::string>(logicalArgKey).value_or("0") + ")";
             if (j < logicalArgSize - 1) {
                 logicalArg += "*"; // Arguments in vector need to be all true: &-logic -> Multiplication
@@ -157,7 +157,7 @@ void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulese
     // Iterate through all entries
     for (size_t idx = 0; idx < size; ++idx) {
         // Parse entry into separate JSON object
-        auto const key = Constants::KeyNames::RenderObject::Ruleset::list + "[" + std::to_string(idx) + "]";
+        auto const key = Constants::KeyNames::RenderObject::Ruleset::list.addIndex(idx);
         auto Ruleset = getRuleset(self.domainScope, key.view(), self);
 
         if (std::holds_alternative<std::monostate>(Ruleset)) {

@@ -28,7 +28,7 @@ bool Array::ensureArray(Data::JsonScope* jsonDoc) {
     }
 
     // Single value, wrap into an array
-    auto const key = rootKey + "[0]";
+    auto const key = rootKey.addIndex(0);
     jsonDoc->moveMember(rootKey, key); // Move the original value to the new array index
 
     // Return whether wrapping succeeded
@@ -48,7 +48,7 @@ bool Array::at(std::span<std::string const> const& args, Data::JsonScope* jsonDo
         if (index >= jsonDoc->memberSize(rootKey)) {
             return false; // Index out of bounds
         }
-        Data::JSON const temp = jsonDoc->getSubDoc(rootKey + "[" + std::to_string(index) + "]");
+        Data::JSON const temp = jsonDoc->getSubDoc(rootKey.addIndex(index));
         jsonDoc->setSubDoc(rootKey, temp);
         return true;
     } catch (...) {
@@ -72,7 +72,7 @@ bool Array::reverse(Data::JsonScope* jsonDoc) {
     size_t const arraySize = jsonDoc->memberSize(rootKey);
     Data::JSON const tmp = jsonDoc->getSubDoc(rootKey);
     for (size_t i = 0; i < arraySize; ++i) {
-        auto const key = rootKey + "[" + std::to_string(i) + "]";
+        auto const key = rootKey.addIndex(i);
         Data::JSON element = tmp.getSubDoc("[" + std::to_string(arraySize - 1 - i) + "]");
         jsonDoc->setSubDoc(key, element);
     }
@@ -86,7 +86,7 @@ bool Array::first(Data::JsonScope* jsonDoc) {
     if (jsonDoc->memberSize(rootKey) == 0) {
         return false; // Empty array
     }
-    Data::JSON const firstElement = jsonDoc->getSubDoc(rootKey + "[0]");
+    Data::JSON const firstElement = jsonDoc->getSubDoc(rootKey.addIndex(0));
     jsonDoc->setSubDoc(rootKey, firstElement);
     return true;
 }
@@ -99,7 +99,7 @@ bool Array::last(Data::JsonScope* jsonDoc) {
     if (arraySize == 0) {
         return false; // Empty array
     }
-    Data::JSON const lastElement = jsonDoc->getSubDoc(rootKey + "[" + std::to_string(arraySize - 1) + "]");
+    Data::JSON const lastElement = jsonDoc->getSubDoc(rootKey.addIndex(arraySize - 1));
     jsonDoc->setSubDoc(rootKey, lastElement);
     return true;
 }
@@ -112,7 +112,7 @@ bool Array::push(std::span<std::string const> const& args, Data::JsonScope* json
         return false;
     }
     size_t const arraySize = jsonDoc->memberSize(rootKey);
-    auto const key = rootKey + "[" + std::to_string(arraySize) + "]";
+    auto const key = rootKey.addIndex(arraySize);
     jsonDoc->set(key, Utility::StringHandler::recombineArgs(args.subspan(1)));
     return true;
 }
@@ -127,7 +127,7 @@ bool Array::pushNumber(std::span<std::string const> const& args, Data::JsonScope
             return false;
         }
         size_t const arraySize = jsonDoc->memberSize(rootKey);
-        auto const key = rootKey + "[" + std::to_string(arraySize) + "]";
+        auto const key = rootKey.addIndex(arraySize);
         jsonDoc->set(key, number);
         return true;
     } catch (...) {
@@ -141,7 +141,7 @@ bool Array::subspan(std::span<std::string const> const& args, Data::JsonScope* j
     }
     // Move the original array to a temp key, so we can modify the original key to be the subspan without losing data
     size_t const originalSize = jsonDoc->memberSize(rootKey);
-    auto const tmpKey = rootKey + "[" + std::to_string(originalSize) + "]";
+    auto const tmpKey = rootKey.addIndex(originalSize);
     jsonDoc->copyMember(rootKey, tmpKey); // Using copy, as current moveMember is more of a copy+delete and thus slower
 
     // Setup start index and length, with length defaulting to the rest of the array if not provided
@@ -159,14 +159,14 @@ bool Array::subspan(std::span<std::string const> const& args, Data::JsonScope* j
     std::ranges::for_each(
         std::views::iota(startIndex, std::min(startIndex + length, originalSize)),
         [&](size_t const& i) {
-            auto const key = rootKey + "[" + std::to_string(index++) + "]";
-            jsonDoc->copyMember(tmpKey + "[" + std::to_string(i) + "]", key);
+            auto const key = rootKey.addIndex(index++);
+            jsonDoc->copyMember(tmpKey.addIndex(i), key);
         }
     );
 
     // Remove any remaining elements from the original array that are not in the subspan + the allocated temp key
     for (size_t i = originalSize; i >= index; i--) {
-        jsonDoc->removeMember(rootKey + "[" + std::to_string(i) + "]");
+        jsonDoc->removeMember(rootKey.addIndex(i));
     }
     return true;
 }

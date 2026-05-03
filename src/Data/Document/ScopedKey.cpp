@@ -13,7 +13,7 @@ namespace Nebulite::Data {
 ScopedKey::ScopedKey(ScopedKeyView const& base, std::string_view const& suffix)
     : givenScope(base.givenScope), owned(base.key)
 {
-    owned.append(suffix);
+    owned = ScopedKeyView::combineKeys(owned, suffix);
 }
 
 ScopedKey::ScopedKey(std::optional<std::string_view> const& scope, std::string suffix)
@@ -27,7 +27,7 @@ ScopedKeyView ScopedKey::view() const & noexcept {
 }
 
 ScopedKey ScopedKey::operator+(std::string_view const& suffix) const {
-    return ScopedKey{givenScope, owned + std::string(suffix)};
+    return ScopedKey{givenScope, ScopedKeyView::combineKeys(owned, suffix)};
 }
 
 ScopedKey ScopedKey::nestKey(ScopedKey const& other) const {
@@ -35,6 +35,14 @@ ScopedKey ScopedKey::nestKey(ScopedKey const& other) const {
 }
 ScopedKey ScopedKey::nestKey(ScopedKeyView const& other) const {
     return this->view().nestKey(other);
+}
+
+ScopedKey ScopedKey::addIndex(size_t const& index) const noexcept{
+    return this->view().addIndex(index);
+}
+
+ScopedKey ScopedKey::addMember(std::string_view const& member) const noexcept{
+    return this->view().addMember(member);
 }
 
 } // namespace Nebulite::Data
@@ -55,15 +63,15 @@ std::string ScopedKeyView::combineKeys(std::string_view const& key1, std::string
     std::string fullKey;
     fullKey.reserve(key1.size() + key2.size());
     fullKey = key1; // start with the given scope
-
-    // Special cases to consider if our scope ends with a dot
-    if (!fullKey.empty() && fullKey.back() == JSON::SpecialCharacter::dot) {
-        // NOLINTNEXTLINE
-        if (key2.empty() || key2.front() == JSON::SpecialCharacter::arrayOpen) {
-            // remove trailing dot
-            fullKey.pop_back();
-        }
+    if (!key1.empty() && !key1.ends_with(JSON::SpecialCharacter::dot)) {
+        fullKey += JSON::SpecialCharacter::dot;
     }
+
+    // remove trailing dot
+    if (!key1.empty() && (key2.empty() || key2.front() == JSON::SpecialCharacter::arrayOpen)) {
+        fullKey.pop_back();
+    }
+
     return fullKey.append(key2);
 }
 
@@ -101,6 +109,15 @@ ScopedKey ScopedKeyView::nestKey(ScopedKey const& other) const {
 ScopedKey ScopedKeyView::nestKey(ScopedKeyView const& other) const {
     auto const suffix = other.buildKey();
     return ScopedKey(givenScope, combineKeys(key,suffix));
+}
+
+ScopedKey ScopedKeyView::addIndex(size_t const& index) const noexcept {
+    std::string const arrayIndex = "[" + std::to_string(index) + "]";
+    return *this + arrayIndex;
+}
+
+ScopedKey ScopedKeyView::addMember(std::string_view const& member) const noexcept {
+    return *this + member;
 }
 
 } // namespace Nebulite::Data

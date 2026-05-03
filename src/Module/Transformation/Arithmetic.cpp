@@ -25,7 +25,7 @@ bool Arithmetic::forall(std::span<std::string const> const& args, std::function<
         return std::ranges::all_of(args | std::views::drop(1) | std::views::enumerate,
             [&](auto const& item) {
                 auto const& [index, arg] = item;
-                auto key = rootKey + "[" + std::to_string(index) + "]";
+                auto const key = rootKey.addIndex(static_cast<size_t>(index));
                 return func(arg, key.view());
             }
         );

@@ -42,7 +42,7 @@ Constants::Event Logging::log_key(std::span<std::string const> const& args, Inte
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-    auto const key = ctxScope.self.getRootScope() + args[1];
+    auto const key = ctxScope.self.getRootScope().addMember(args[1]);
     std::string file = "RenderObject_id" + std::to_string(ctx.self.getId()) + ".log.jsonc";
     if (args.size() > 2) {
         file = args[2];

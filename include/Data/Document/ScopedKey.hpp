@@ -99,6 +99,8 @@ class ScopedKey {
      */
     std::string owned;
 
+    // Add operator for appending suffixes
+    [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;
 public:
     ScopedKey() = default;
 
@@ -113,9 +115,6 @@ public:
     // caller must keep the ScopedKeyView alive while using the returned view.
     [[nodiscard]] ScopedKeyView view() const & noexcept ;
 
-    // Add operator for appending suffixes
-    [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;
-
     /**
      * @brief A constant representing the absence of a scope.
      */
@@ -126,6 +125,16 @@ public:
      */
     [[nodiscard]] ScopedKey nestKey(ScopedKey const& other) const ;
     [[nodiscard]] ScopedKey nestKey(ScopedKeyView const& other) const ;
+
+    /**
+     * @brief Adds a specified index to the key
+     */
+    [[nodiscard]] ScopedKey addIndex(size_t const& index) const noexcept;
+
+    /**
+     * @brief Adds a specified member to the key
+     */
+    [[nodiscard]] ScopedKey addMember(std::string_view const& member) const noexcept;
 };
 
 //------------------------------------------
@@ -167,6 +176,8 @@ class ScopedKeyView {
     // allow the owning type to construct views pointing into its buffer
     friend class ScopedKey;
 
+    // Adding suffix to produce a new ScopedKeyView
+    [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;
 public:
     /**
      * @brief Produce the full key string including scope prefix.
@@ -176,8 +187,7 @@ public:
      */
     [[nodiscard]] std::string full(JsonScope const& scope) const;
 
-    // Adding suffix to produce a new ScopedKeyView
-    [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;
+
 
     // Any key shared publicly should be constructed with a required scope to avoid accidental misuse
     constexpr ScopedKeyView(std::optional<std::string_view> const& requiredScope, std::string_view const& keyInScope) noexcept
@@ -215,17 +225,7 @@ public:
     }
 
     [[nodiscard]] std::string toString() const {
-        if (givenScope.has_value()) {
-            return std::string(givenScope.value()) + std::string(key);
-        }
-        return std::string(key);
-    }
-
-    [[nodiscard]] ScopedKey toScopedKey() const {
-        if (givenScope.has_value()) {
-            return ScopedKey(givenScope, std::string(givenScope.value()) + std::string(key));
-        }
-        return ScopedKey(std::nullopt, std::string(key));
+        return buildKey();
     }
 
     /**
@@ -241,6 +241,16 @@ public:
      * @return The combined key string
      */
     static std::string combineKeys(std::string_view const& key1, std::string_view const& key2);
+
+    /**
+     * @brief Adds a specified index to the key
+     */
+    [[nodiscard]] ScopedKey addIndex(size_t const& index) const noexcept;
+
+    /**
+     * @brief Adds a specified member to the key
+     */
+    [[nodiscard]] ScopedKey addMember(std::string_view const& member) const noexcept;
 };
 } // namespace Nebulite::Data
 #endif // NEBULITE_DATA_DOCUMENT_SCOPED_KEY_HPP

@@ -75,12 +75,12 @@ private:
     static void sort(Data::JsonScope* jsonDoc, T const& fallbackValue, std::function<bool(std::pair<T, Data::JSON>&, std::pair<T, Data::JSON>&)> comparator) {
         std::vector<std::pair<T, Data::JSON>> values;
         for (auto const idx : std::views::iota(std::size_t{0}, jsonDoc->memberSize(rootKey))) {
-            auto const key = rootKey + "[" + std::to_string(idx) + "]";
+            auto const key = rootKey.addIndex(idx);
             values.emplace_back(jsonDoc->get<T>(key).value_or(fallbackValue), jsonDoc->getSubDoc(key));
         }
         std::ranges::sort(values.begin(), values.end(), comparator);
         for (auto [idx, value] : values | std::views::enumerate) {
-            auto const key = rootKey + "[" + std::to_string(idx) + "]";
+            auto const key = rootKey.addIndex(idx);
             jsonDoc->setSubDoc(key, value.second);
         }
     }

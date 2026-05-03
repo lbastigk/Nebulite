@@ -29,7 +29,7 @@ bool Debug::print(std::span<std::string const> const& args, Data::JsonScope* jso
     // Print to cout, no modifications
     if (args.size() > 1) {
         for (auto const& arg : args | std::views::drop(1)) {
-            if (std::string const value = jsonDoc->serialize(rootKey + arg); value.ends_with('\n')) {
+            if (std::string const value = jsonDoc->serialize(rootKey.addMember(arg)); value.ends_with('\n')) {
                 Global::capture().log.print(value);
             } else {
                 Global::capture().log.println(value);

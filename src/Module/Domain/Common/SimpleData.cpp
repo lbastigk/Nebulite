@@ -23,7 +23,7 @@ Constants::Event SimpleData::set(std::span<std::string const> const& args, Inter
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
 
-    auto const key = ctxScope.self.getRootScope() + args[1];
+    auto const key = ctxScope.self.getRootScope().addMember(args[1]);
     std::string const value = Utility::StringHandler::recombineArgs(args.subspan(2));
     ctxScope.self.set(key, value);
     return Constants::Event::Success;
@@ -52,8 +52,8 @@ Constants::Event SimpleData::move(std::span<std::string const> const& args, Inte
     if (args.size() > 3) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
-    auto const sourceKey = ctxScope.self.getRootScope() + args[1];
-    auto const targetKey = ctxScope.self.getRootScope() + args[2];
+    auto const sourceKey = ctxScope.self.getRootScope().addMember(args[1]);
+    auto const targetKey = ctxScope.self.getRootScope().addMember(args[2]);
     ctxScope.self.moveMember(sourceKey, targetKey);
     return Constants::Event::Success;
 }
@@ -66,8 +66,8 @@ Constants::Event SimpleData::copy(std::span<std::string const> const& args, Inte
     if (args.size() > 3) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
-    auto const sourceKey = ctxScope.self.getRootScope() + args[1];
-    auto const targetKey = ctxScope.self.getRootScope() + args[2];
+    auto const sourceKey = ctxScope.self.getRootScope().addMember(args[1]);
+    auto const targetKey = ctxScope.self.getRootScope().addMember(args[2]);
     ctxScope.self.copyMember(sourceKey, targetKey);
     return Constants::Event::Success;
 }
@@ -80,7 +80,7 @@ Constants::Event SimpleData::keyDelete(std::span<std::string const> const& args,
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
-    auto const key = ctxScope.self.getRootScope() + args[1];
+    auto const key = ctxScope.self.getRootScope().addMember(args[1]);
     ctxScope.self.removeMember(key);
     return Constants::Event::Success;
 }
@@ -99,8 +99,8 @@ Constants::Event SimpleData::ensureArray(std::span<std::string const> const& arg
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
 
-    if (auto const key = ctxScope.self.getRootScope() + args[1]; ctxScope.self.memberType(key) != Data::KeyType::array) {
-        ctxScope.self.moveMember(key, key + "[0]"); // Move existing value to array index 0
+    if (auto const key = ctxScope.self.getRootScope().addMember(args[1]); ctxScope.self.memberType(key) != Data::KeyType::array) {
+        ctxScope.self.moveMember(key, key.addIndex(0)); // Move existing value to array index 0
     }
     return Constants::Event::Success;
 }
@@ -111,7 +111,7 @@ Constants::Event SimpleData::push_back(std::span<std::string const> const& args,
         ctx.self.capture.error.println("Error: Too many arguments for push_front command.");
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
-    auto const key = ctxScope.self.getRootScope() + args[1];
+    auto const key = ctxScope.self.getRootScope().addMember(args[1]);
     std::string value;
     if (args.size() < 3) {
         // Trying to push an empty value
@@ -132,7 +132,7 @@ Constants::Event SimpleData::push_back(std::span<std::string const> const& args,
     }
 
     size_t const size = ctxScope.self.memberSize(key);
-    auto const itemKey = key + "[" + std::to_string(size) + "]";
+    auto const itemKey = key.addIndex(size);
     ctxScope.self.set(itemKey, value);
     return Constants::Event::Success;
 }
@@ -147,7 +147,7 @@ Constants::Event SimpleData::pop_back(std::span<std::string const> const& args, 
         ctx.self.capture.error.println("Error: Too many arguments for push_back command.");
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
-    auto const key = ctxScope.self.getRootScope() + args[1];
+    auto const key = ctxScope.self.getRootScope().addMember(args[1]);
 
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
         if (Constants::Event const result = ensureArray({"", args[1]}, ctx, ctxScope); result != Constants::Event::Success) {
@@ -162,7 +162,7 @@ Constants::Event SimpleData::pop_back(std::span<std::string const> const& args, 
         return Constants::Event::Success;
     }
 
-    auto const itemKey = key + "[" + std::to_string(size - 1) + "]";
+    auto const itemKey = key.addIndex(size - 1);
     ctxScope.self.removeMember(itemKey);
     return Constants::Event::Success;
 }
@@ -173,7 +173,7 @@ Constants::Event SimpleData::push_front(std::span<std::string const> const& args
         ctx.self.capture.error.println("Error: Too many arguments for push_front command.");
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
-    auto const key = ctxScope.self.getRootScope() + args[1];
+    auto const key = ctxScope.self.getRootScope().addMember(args[1]);
     std::string value;
     if (args.size() < 3) {
         // Trying to push an empty value
@@ -197,7 +197,7 @@ Constants::Event SimpleData::push_front(std::span<std::string const> const& args
     // if any array item is a document, throw error
     // This feature is yet to be implemented!
     for (size_t i = 0; i < size; ++i) {
-        auto itemKey = key + "[" + std::to_string(i) + "]";
+        auto itemKey = key.addIndex(i);
         if (Data::KeyType const itemType = ctxScope.self.memberType(itemKey); itemType == Data::KeyType::object) {
             ctx.self.capture.error.println("Error: Cannot push_front into an array containing documents.");
             return Constants::StandardCapture::Error::Functional::functionNotImplemented(ctx.self.capture);
@@ -207,12 +207,12 @@ Constants::Event SimpleData::push_front(std::span<std::string const> const& args
     //------------------------------------------
     // Move all existing items one step forward
     for (size_t i = size; i > 0; --i) {
-        auto itemKey = key + "[" + std::to_string(i - 1) + "]";
+        auto itemKey = key.addIndex(i - 1);
         auto itemValue = ctxScope.self.get<std::string>(itemKey).value_or("");
-        auto newItemKey = key + "[" + std::to_string(i) + "]";
+        auto newItemKey = key.addIndex(i);
         ctxScope.self.set(newItemKey, itemValue);
     }
-    auto const itemKey = key + "[0]";
+    auto const itemKey = key.addIndex(0);
     ctxScope.self.set(itemKey, value);
     return Constants::Event::Success;
 }
@@ -227,7 +227,7 @@ Constants::Event SimpleData::pop_front(std::span<std::string const> const& args,
         ctx.self.capture.error.println("Error: Too many arguments for pop_front command.");
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
-    auto const key = ctxScope.self.getRootScope() + args[1];
+    auto const key = ctxScope.self.getRootScope().addMember(args[1]);
 
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
         std::string command = __FUNCTION__;
@@ -246,7 +246,7 @@ Constants::Event SimpleData::pop_front(std::span<std::string const> const& args,
     // if any array item is a document, throw error
     // This feature is yet to be implemented!
     for (size_t i = 0; i < size; ++i) {
-        if (ctxScope.self.memberType(key + "[" + std::to_string(i) + "]") == Data::KeyType::object) {
+        if (ctxScope.self.memberType(key.addIndex(i)) == Data::KeyType::object) {
             ctx.self.capture.error.println("Error: Cannot push_front into an array containing documents.");
             return Constants::StandardCapture::Error::Functional::functionNotImplemented(ctx.self.capture);
         }
@@ -255,13 +255,13 @@ Constants::Event SimpleData::pop_front(std::span<std::string const> const& args,
     //------------------------------------------
     // Move all existing items one step back
     for (size_t i = 1; i < size; i++) {
-        auto itemKey = key + "[" + std::to_string(i) + "]";
+        auto itemKey = key.addIndex(i);
         auto itemValue = ctxScope.self.get<std::string>(itemKey).value_or("");
-        auto newItemKey = key + "[" + std::to_string(i - 1) + "]";
+        auto newItemKey = key.addIndex(i - 1);
         ctxScope.self.set(newItemKey, itemValue);
     }
     // Remove the last item
-    auto const lastItemKey = key + "[" + std::to_string(size - 1) + "]";
+    auto const lastItemKey = key.addIndex(size - 1);
     ctxScope.self.removeMember(lastItemKey);
     return Constants::Event::Success;
 }

@@ -26,7 +26,7 @@ void Collection::bindTransformations() {
 
 bool Collection::map(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
-        auto const key = rootKey + "[0]";
+        auto const key = rootKey.addIndex(0);
         jsonDoc->moveMember(rootKey, key);
     }
 
@@ -38,7 +38,7 @@ bool Collection::map(std::span<std::string const> const& args, Data::JsonScope* 
     size_t const arraySize = jsonDoc->memberSize(rootKey);
     for (uint32_t idx = 0; idx < arraySize; ++idx) {
         // Set temp document with current element
-        auto const elementKey = rootKey + "[" + std::to_string(idx) + "]";
+        auto const elementKey = rootKey.addIndex(idx);
 
         // Parse transformation command
         if (auto& scope = jsonDoc->shareScope(elementKey); !scope.transform(args)) {
@@ -53,7 +53,7 @@ bool Collection::get(std::span<std::string const> const& args, Data::JsonScope* 
     if (args.size() != 2) {
         return false;
     }
-    auto const& key = rootKey + args[1];
+    auto const& key = rootKey.addMember(args[1]);
     Data::JSON const subDoc = jsonDoc->getSubDoc(key);
     jsonDoc->setSubDoc(rootKey, subDoc);
     return true;
@@ -152,7 +152,7 @@ bool Collection::listMembers(Data::JsonScope* jsonDoc){
         [&](auto const& enumeratedMemberAndKey) {
             auto const& [i, memberAndKey] = enumeratedMemberAndKey;
             auto const& [member, _] = memberAndKey;
-            auto key = Data::ScopedKey(rootKey.toString() + "[" + std::to_string(i) + "]");
+            auto key = Data::ScopedKey(rootKey.addIndex(i));
             jsonDoc->set<std::string>(key,member);
         }
     );
@@ -179,8 +179,8 @@ bool Collection::listMembersAndValues(Data::JsonScope* jsonDoc){
         [&](auto const& enumeratedMemberAndKey) {
             auto const& [i, memberAndKey] = enumeratedMemberAndKey;
             auto const& [member, key] = memberAndKey;
-            auto key1 = Data::ScopedKey(rootKey.toString() + "[" + std::to_string(i) + "].key");
-            auto key2 = Data::ScopedKey(rootKey.toString() + "[" + std::to_string(i) + "].value");
+            auto key1 = rootKey.addIndex(i).addMember("key");
+            auto key2 = rootKey.addIndex(i).addMember("value");
             jsonDoc->set<std::string>(key1,member);
             jsonDoc->setSubDoc(key2,values[i]);
 
@@ -195,7 +195,7 @@ bool Collection::bundleToArray(std::span<std::string const> const& args, Data::J
     }
     Data::JSON tmp;
     for (auto [idx, key] : args.subspan(1) | std::views::enumerate) {
-        tmp.setSubDoc("[" + std::to_string(idx) + "]", jsonDoc->getSubDoc(rootKey + key));
+        tmp.setSubDoc("[" + std::to_string(idx) + "]", jsonDoc->getSubDoc(rootKey.addMember(key)));
     }
     jsonDoc->setSubDoc(rootKey, tmp);
     return true;

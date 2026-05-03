@@ -26,20 +26,20 @@ Constants::Event Input::updateHook() {
 void Input::mapKeyNames() {
     // Mouse
     mouseCurrent = MouseValues{
-        .x = moduleScope.getStableDoublePointer(Key::mouseCurrent + "X"),
-        .y = moduleScope.getStableDoublePointer(Key::mouseCurrent + "Y"),
-        .xScaled = moduleScope.getStableDoublePointer(Key::mouseCurrent + "scaledX"),
-        .yScaled = moduleScope.getStableDoublePointer(Key::mouseCurrent + "scaledY"),
-        .left = moduleScope.getStableDoublePointer(Key::mouseCurrent + "left"),
-        .right = moduleScope.getStableDoublePointer(Key::mouseCurrent + "right")
+        .x = moduleScope.getStableDoublePointer(Key::mouseCurrent.addMember("X")),
+        .y = moduleScope.getStableDoublePointer(Key::mouseCurrent.addMember("Y")),
+        .xScaled = moduleScope.getStableDoublePointer(Key::mouseCurrent.addMember("scaledX")),
+        .yScaled = moduleScope.getStableDoublePointer(Key::mouseCurrent.addMember("scaledY")),
+        .left = moduleScope.getStableDoublePointer(Key::mouseCurrent.addMember("left")),
+        .right = moduleScope.getStableDoublePointer(Key::mouseCurrent.addMember("right"))
     };
     mouseDelta = MouseValues{
-        .x = moduleScope.getStableDoublePointer(Key::mouseDelta + "X"),
-        .y = moduleScope.getStableDoublePointer(Key::mouseDelta + "Y"),
-        .xScaled = moduleScope.getStableDoublePointer(Key::mouseDelta + "scaledX"),
-        .yScaled = moduleScope.getStableDoublePointer(Key::mouseDelta + "scaledY"),
-        .left = moduleScope.getStableDoublePointer(Key::mouseDelta + "left"),
-        .right = moduleScope.getStableDoublePointer(Key::mouseDelta + "right")
+        .x = moduleScope.getStableDoublePointer(Key::mouseDelta.addMember("X")),
+        .y = moduleScope.getStableDoublePointer(Key::mouseDelta.addMember("Y")),
+        .xScaled = moduleScope.getStableDoublePointer(Key::mouseDelta.addMember("scaledX")),
+        .yScaled = moduleScope.getStableDoublePointer(Key::mouseDelta.addMember("scaledY")),
+        .left = moduleScope.getStableDoublePointer(Key::mouseDelta.addMember("left")),
+        .right = moduleScope.getStableDoublePointer(Key::mouseDelta.addMember("right"))
     };
 
     // Keyboard
@@ -65,8 +65,8 @@ void Input::mapKeyNames() {
                 keyNames[scancode] = keyName;
 
                 // Paths
-                auto currentPath = Key::keyboardCurrent + keyNames[scancode];
-                auto deltaPath = Key::keyboardDelta + keyNames[scancode];
+                auto currentPath = Key::keyboardCurrent.addMember(keyNames[scancode]);
+                auto deltaPath = Key::keyboardDelta.addMember(keyNames[scancode]);
                 deltaKey[scancode] = moduleScope.getStableDoublePointer(deltaPath);
                 currentKey[scancode] = moduleScope.getStableDoublePointer(currentPath);
             }

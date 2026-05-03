@@ -25,7 +25,7 @@ void General::bindTransformations() {
 
 bool General::setString(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3) return false;
-    auto const key = rootKey + std::string(args[1]);
+    auto const key = rootKey.addMember(args[1]);
     auto const value = std::string(args[2]);
     jsonDoc->set<std::string>(key, value);
     return true;
@@ -33,7 +33,7 @@ bool General::setString(std::span<std::string const> const& args, Data::JsonScop
 
 bool General::setInt(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3) return false;
-    auto const key = rootKey + std::string(args[1]);
+    auto const key = rootKey.addMember(args[1]);
     try {
         int const value = std::stoi(args[2]);
         jsonDoc->set<int>(key, value);
@@ -45,7 +45,7 @@ bool General::setInt(std::span<std::string const> const& args, Data::JsonScope* 
 
 bool General::setDouble(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3) return false;
-    auto const key = rootKey + std::string(args[1]);
+    auto const key = rootKey.addMember(args[1]);
     try {
         double const value = std::stod(args[2]);
         jsonDoc->set<double>(key, value);
@@ -57,7 +57,7 @@ bool General::setDouble(std::span<std::string const> const& args, Data::JsonScop
 
 bool General::setBool(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3) return false;
-    auto const key = rootKey + std::string(args[1]);
+    auto const key = rootKey.addMember(args[1]);
     std::string const& valStr = args[2];
     bool const value = valStr == "true";
     jsonDoc->set<bool>(key, value);
@@ -67,7 +67,7 @@ bool General::setBool(std::span<std::string const> const& args, Data::JsonScope*
 bool General::removeMember(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() < 2) return false;
     for (auto const& arg : args.subspan(1)) {
-        auto const key = rootKey + std::string(arg);
+        auto const key = rootKey.addMember(arg);
         jsonDoc->removeMember(key);
     }
     return true;
@@ -75,7 +75,7 @@ bool General::removeMember(std::span<std::string const> const& args, Data::JsonS
 
 bool General::setFromResult(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() < 2) return false;
-    auto const key = rootKey + std::string(args[1]);
+    auto const key = rootKey.addMember(args[1]);
     auto const innerEval = Utility::StringHandler::recombineArgs(args.subspan(2));
 
     Interaction::ContextScope const context{*jsonDoc, *jsonDoc, *jsonDoc}; // Using the same scope for self, other and global since we only have access to one scope here

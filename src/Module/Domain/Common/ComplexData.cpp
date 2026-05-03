@@ -37,7 +37,7 @@ Constants::Event ComplexData::jsonSet(std::span<std::string const> const& args, 
 
     // Evaluate
     auto const result = Interaction::Logic::Expression::evalAsJson(expression, ctxScope);
-    ctxScope.self.setSubDoc(ctxScope.self.getRootScope() + myKey, result);
+    ctxScope.self.setSubDoc(ctxScope.self.getRootScope().addMember(myKey), result);
     return Constants::Event::Success;
 }
 
@@ -51,7 +51,7 @@ Constants::Event ComplexData::evaluateMember(std::span<std::string const> const&
     }
 
     // Get the member value
-    auto const fullKey = ctxScope.self.getRootScope() + args[1];
+    auto const fullKey = ctxScope.self.getRootScope().addMember(args[1]);
     if (ctxScope.self.memberType(fullKey) != Data::KeyType::value) {
         // If it's not a value, we can't evaluate it as an expression, so we do nothing
         return Constants::Event::Success;
@@ -99,7 +99,7 @@ Constants::Event ComplexData::evaluateRecursive(std::span<std::string const> con
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);
     }
 
-    auto const fullKey = ctxScope.self.getRootScope() + args[1];
+    auto const fullKey = ctxScope.self.getRootScope().addMember(args[1]);
     recursiveEvaluate(fullKey);
     return Constants::Event::Success;
 }

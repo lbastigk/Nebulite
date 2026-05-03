@@ -157,11 +157,7 @@ std::vector<ScopedKey> JsonScope::listAvailableKeys(ScopedKeyView const& key) co
     std::vector<ScopedKey> scopedKeys;
     scopedKeys.reserve(keys.size());
     for (auto const& k : keys) {
-        if (key.toString().ends_with('.') || key.toString().empty()) {
-            scopedKeys.emplace_back(key + k);
-        } else {
-            scopedKeys.emplace_back(key + "." + k);
-        }
+        scopedKeys.emplace_back(key.addMember(k));
     }
     return scopedKeys;
 }
@@ -171,11 +167,7 @@ std::vector<JsonScope::MemberAndKey> JsonScope::listAvailableMembersAndKeys(Scop
     std::vector<MemberAndKey> scopedKeys;
     scopedKeys.reserve(keys.size());
     for (auto const& k : keys) {
-        if (key.toString().ends_with('.') || key.toString().empty()) {
-            scopedKeys.emplace_back(MemberAndKey{k, key + k});
-        } else {
-            scopedKeys.emplace_back(MemberAndKey{k, key + "." + k});
-        }
+        scopedKeys.emplace_back(MemberAndKey{k,key.addMember(k)});
     }
     return scopedKeys;
 }

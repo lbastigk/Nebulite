@@ -7,7 +7,6 @@
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Module/Domain/Initializer.hpp"
-#include "Module/Domain/Common/SimpleData.hpp"
 #include "Nebulite.hpp"
 
 //------------------------------------------
@@ -25,8 +24,8 @@ void setStandardValues(Data::JsonScope& document) {
     document.set(Constants::KeyNames::RenderObject::layer, 0);
 
     // Create a basic drawcall
-    Graphics::Drawcall::ApplyDefault::Sprite(document.shareScope(Constants::KeyNames::RenderObject::draw + ".exampleSprite"));
-    Graphics::Drawcall::ApplyDefault::Text(document.shareScope(Constants::KeyNames::RenderObject::draw + ".exampleText"));
+    Graphics::Drawcall::ApplyDefault::Sprite(document.shareScope(Constants::KeyNames::RenderObject::draw.addMember("exampleSprite")));
+    Graphics::Drawcall::ApplyDefault::Text(document.shareScope(Constants::KeyNames::RenderObject::draw.addMember("exampleText")));
 
     // Set default size
     document.set(Constants::KeyNames::RenderObject::sizeX, 32);
@@ -35,7 +34,7 @@ void setStandardValues(Data::JsonScope& document) {
     // Ruleset
     document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::list);
     document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::listen);
-    document.set(Constants::KeyNames::RenderObject::Ruleset::listen + "[0]", std::string("all"));
+    document.set(Constants::KeyNames::RenderObject::Ruleset::listen.addIndex(0), std::string("all"));
 }
 } // namespace
 
@@ -109,7 +108,7 @@ void RenderObject::initDrawcalls() {
 
 void RenderObject::reInitDrawcall(std::string const& drawcallName) {
     // Reinitialize a specific drawcall from document
-    auto const key = Constants::KeyNames::RenderObject::draw + drawcallName;
+    auto const key = Constants::KeyNames::RenderObject::draw.addMember(drawcallName);
     drawcalls[drawcallName] = std::make_unique<Graphics::Drawcall>(domainScope.shareScope(key.view()), capture);
 }
 
