@@ -2,7 +2,9 @@
 // Includes
 
 // Nebulite
+#include "Interaction/Logic/Expression.hpp"
 #include "Interaction/Rules/Listener.hpp"
+#include "Interaction/Rules/StaticRulesetMap.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {

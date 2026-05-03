@@ -31,7 +31,7 @@ std::string RenderObjectContainer::serialize() {
 
                 // insert into doc
                 std::string key = "objects[" + std::to_string(i) + "]";
-                doc.setSubDoc(key.c_str(), obj_serial);
+                doc.setSubDoc(key, obj_serial);
                 i++;
             }
         }

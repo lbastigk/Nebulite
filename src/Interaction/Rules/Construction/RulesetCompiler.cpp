@@ -232,7 +232,7 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
     std::string const logicalArgStr = getCondition(entry);
     std::string_view lsa = logicalArgStr;
     Utility::StringHandler::strip(lsa);
-    Ruleset->logicalArg = std::make_unique<Logic::ExpressionPool>(lsa);
+    Ruleset->logicalArg = std::make_unique<Logic::Expression>(lsa);
 
     // Remove whitespaces at start and end from topic:
     std::string_view top = Ruleset->topic;

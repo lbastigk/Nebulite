@@ -12,7 +12,7 @@
 
 // Nebulite
 #include "Interaction/Context.hpp"
-#include "Interaction/Logic/ExpressionPool.hpp"
+#include "Interaction/Logic/Expression.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -128,16 +128,10 @@ private:
      */
     std::string value;
 
-    // Activate threadsafe expression pool only if needed
-#if EXPRESSION_POOL_SIZE > 1
     /**
-     * @brief The parsed expression in a thread-friendly Pool-Configuration
+     * @brief Parsed expression representing the value to assign
      */
-    std::unique_ptr<ExpressionPool> expression;
-#else // EXPRESSION_POOL_SIZE > 1
-    static_assert(EXPRESSION_POOL_SIZE == 1, "EXPRESSION_POOL_SIZE must be at least 1");
     std::unique_ptr<Expression> expression;
-#endif // EXPRESSION_POOL_SIZE > 1
 
     /**
      * @brief Expression assignment target as double pointer

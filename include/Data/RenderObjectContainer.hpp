@@ -45,6 +45,15 @@ public:
     RenderObjectContainer& operator=(RenderObjectContainer&&) = delete;
 
     //------------------------------------------
+    // constants
+
+    /**
+     * @brief Target cost of each Render::update thread batch.
+     * @details Set to 0 to disable dynamic batching and process all members per tile in a single thread
+     */
+    static auto constexpr batchCostGoal = 256;
+
+    //------------------------------------------
     // Serialization / Deserialization
 
     /**

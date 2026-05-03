@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Interaction/Logic/Assignment.hpp"
-#include "Interaction/Logic/ExpressionPool.hpp"
+#include "Interaction/Logic/Expression.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 
 //------------------------------------------
@@ -272,7 +272,7 @@ private:
      * @details Logical Arguments are evaluated inside the Invoke class with access to `self`, `other`, and `global` variables.
      *          e.g. "{self:posX} > {other:posY}"
      */
-    std::unique_ptr<Logic::ExpressionPool> logicalArg;
+    std::unique_ptr<Logic::Expression> logicalArg;
 
     /**
      * @brief The function calls that to be executed on global domain.
@@ -303,8 +303,8 @@ private:
      */
     void estimateComputationalCost() {
         // Count number of $ and { in logicalArg
-        std::string const* expr = logicalArg->getFullExpression();
-        estimatedCost += static_cast<size_t>(std::ranges::count(expr->begin(), expr->end(), '$'));
+        std::string const& expr = logicalArg->getFullExpression();
+        estimatedCost += static_cast<size_t>(std::ranges::count(expr.begin(), expr.end(), '$'));
 
         // Count number of $ and { in exprs
         for (auto const& assignment : assignments) {

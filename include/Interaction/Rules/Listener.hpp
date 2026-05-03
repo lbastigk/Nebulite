@@ -4,9 +4,8 @@
 //------------------------------------------
 // Includes
 
-// Nebulite
-#include "Interaction/Logic/ExpressionPool.hpp"
-#include "Interaction/Rules/StaticRulesetMap.hpp"
+// Standard library
+#include <string>
 
 //------------------------------------------
 // Forward declarations
