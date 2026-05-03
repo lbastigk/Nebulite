@@ -67,5 +67,13 @@
             ],
             "cerr": []
         }
+    },
+    {
+        "command": [
+            "# TODO: remove the nested evaluation from expression class for this to work",
+            "exit",
+            "task TaskFiles/Tests/Transformations/customSort.nebs"
+        ],
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

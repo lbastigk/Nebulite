@@ -3,6 +3,9 @@
  * @brief This file contains the definition of the Expression class, which is responsible for parsing and evaluating expressions within the Nebulite engine.
  */
 
+// TODO: remove multi-resolve feature aka nested expressions.
+//       The transformation feature becomes much more powerful if that part is gone!
+
 #ifndef NEBULITE_INTERACTION_LOGIC_EXPRESSION_HPP
 #define NEBULITE_INTERACTION_LOGIC_EXPRESSION_HPP
 

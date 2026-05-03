@@ -54,12 +54,25 @@ public:
         "If the current value is not an array, the transformation fails.\n"
         "Usage: |sort numerically -> {sorted array}\n";
 
-    // TODO: provide a custom sort function, e.g. $(gt({self:|length},{other:|length}))
+    // TODO: Remove nested evaluation from expression class so this can work properly ...
+    static bool sortCustom(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr sortCustomName = "sort custom";
+    static auto constexpr sortCustomDesc = "Sorts the array in the current JSON value using a custom comparator expression.\n"
+        "The comparator function uses the context self for the first element and other for the second element.\n"
+        "For example: $(gt({self:|length},{other:|length}))\n)"
+        "Usage: |sort custom <expression> -> {sorted array}\n";
 
 private:
 
+    /**
+     * @brief Custom JSON sort function
+     * @tparam T The value to compare
+     * @param jsonDoc The scope to sort. Must be an array at scope root!
+     * @param fallbackValue Fallback value for the get call
+     * @param comparator The custom comparator function, taking both T and the JSON as possible value.
+     */
     template <typename T>
-    static void sort(Data::JsonScope* jsonDoc, T const& fallbackValue, std::function<bool(std::pair<T, Data::JSON> const&, std::pair<T, Data::JSON> const&)> comparator) {
+    static void sort(Data::JsonScope* jsonDoc, T const& fallbackValue, std::function<bool(std::pair<T, Data::JSON>&, std::pair<T, Data::JSON>&)> comparator) {
         std::vector<std::pair<T, Data::JSON>> values;
         for (auto const idx : std::views::iota(std::size_t{0}, jsonDoc->memberSize(rootKey))) {
             auto const key = rootKey + "[" + std::to_string(idx) + "]";
