@@ -61,12 +61,17 @@ public:
     static std::string currentDir();
 
     /**
-     * @brief Checks if a file exists at the given path.
+     * @brief Checks if a given path is a file.
      * @param path The path to the file to check.
      * @return True if the file exists, false otherwise.
      */
     static bool fileExists(std::string_view const& path);
 
+    /**
+     * @brief Checks if a given path is a directory
+     * @param path The path to check
+     * @return True if the directory exists, false otherwise
+     */
     static bool isDirectory(std::string_view const& path);
 
     /**
@@ -80,10 +85,10 @@ public:
     /**
      * @brief Lists files and directories in a directory
      * @details Outputs error messages to the Global error capture if the directory cannot be accessed.
-     * @param path The directory to search
+     * @param dir The directory to search
      * @return A vector of file and directory names in the directory. If the directory cannot be accessed, an empty vector is returned.
      */
-     static std::vector<std::string> listFilesAndDirectoriesInPath(std::string_view const& path);
+     static std::vector<std::string> listContentInDirectory(std::string_view const& dir);
 };
 } // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_FILE_MANAGEMENT_HPP
