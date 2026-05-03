@@ -543,6 +543,40 @@ KeyType JSON::memberType(std::string_view const& key) const {
     std::unreachable(); // If it's any other type, something went wrong...
 }
 
+namespace {
+
+using Fn = bool (rapidjson::Value::*)() const;
+using Formatter = std::string (*)(rapidjson::Value const*);
+
+std::array<std::pair<Fn, const char*>, 6> numericTypeList = {{
+    {&rapidjson::Value::IsInt64, "value:int:64"},
+    {&rapidjson::Value::IsInt, "value:int:32"},
+    {&rapidjson::Value::IsDouble, "value:float:64"},
+    {&rapidjson::Value::IsFloat, "value:float:32"},
+    {&rapidjson::Value::IsUint64, "value:uint:64"},
+    {&rapidjson::Value::IsUint, "value:uint:32"}
+}};
+
+std::string numberType(rapidjson::Value const* val) {
+    for (auto const& [checkFunc, typeStr] : numericTypeList) {
+        if ((val->*checkFunc)()) {
+            return typeStr;
+        }
+    }
+    std::unreachable();
+}
+
+std::array<std::pair<Fn, Formatter>, 6> generalTypeList = {{
+    {&rapidjson::Value::IsNull, [](rapidjson::Value const*) -> std::string { return "null"; }},
+    {&rapidjson::Value::IsArray, [](rapidjson::Value const* val) -> std::string { return "array:" + std::to_string(val->Size()); }},
+    {&rapidjson::Value::IsObject, [](rapidjson::Value const* val) -> std::string { return "object:" + std::to_string(val->MemberCount()); }},
+    {&rapidjson::Value::IsNumber, [](rapidjson::Value const* val) -> std::string { return numberType(val); }},
+    {&rapidjson::Value::IsString, [](rapidjson::Value const* val) -> std::string { return "value:string:" + std::to_string(val->GetStringLength()); }},
+    {&rapidjson::Value::IsBool, [](rapidjson::Value const*) -> std::string { return "value:bool"; }}
+}};
+
+} // namespace
+
 std::string JSON::memberTypeString(std::string_view const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
@@ -559,44 +593,14 @@ std::string JSON::memberTypeString(std::string_view const& key) const {
     // Once partial flushing is available, we should use that to minimize the performance impact!
     // Flush before accessing the document to ensure integrity
     flush();
-
-    // If not cached, check rapidjson doc
     auto const val = RjDirectAccess::traversePath(key, doc);
-    if (val == nullptr || val->IsNull()) {
+    if (val == nullptr) {
         return "null";
     }
-    if (val->IsArray()) {
-        return "array:" + std::to_string(val->Size());
-    }
-    if (val->IsObject()) {
-        return "object:" + std::to_string(val->MemberCount());
-    }
-    if (val->IsNumber()) {
-        if (val->IsInt64()) {
-            return "value:int:64";
+    for (auto const& [checkFunc, typeFunc] : generalTypeList) {
+        if ((val->*checkFunc)()) {
+            return typeFunc(val);
         }
-        if (val->IsInt()) {
-            return "value:int:32";
-        }
-        if (val->IsDouble()) {
-            return "value:float:64";
-        }
-        if (val->IsFloat()) {
-            return "value:float:32";
-        }
-        if (val->IsUint64()) {
-            return "value:uint:64";
-        }
-        if (val->IsUint()) {
-            return "value:uint:32";
-        }
-    }
-    if (val->IsString()) {
-        std::string const str = val->GetString();
-        return "value:string:" + std::to_string(str.size());
-    }
-    if (val->IsBool()) {
-        return "value:bool";
     }
     std::unreachable(); // If it's any other type, something went wrong...
 }
