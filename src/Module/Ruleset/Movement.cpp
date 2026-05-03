@@ -25,7 +25,7 @@ Movement::Movement() : RulesetModule(moduleName) {
 
     // Global Variables
     auto const token = getRulesetModuleAccessToken(*this);
-    globalVal.dt = Global::shareScope(token).getStableDoublePointer(Module::Domain::GlobalSpace::Time::Key::time_dt); // Simulation delta time
+    globalVal.dt = Global::shareScope(token).getStableDoublePointer(Domain::GlobalSpace::Time::Key::time_dt); // Simulation delta time
 }
 
 // NOLINTNEXTLINE
@@ -57,10 +57,10 @@ void Movement::detectClipping(Interaction::Context const& context, double**& slf
             bool const axisAlignX = std::max(p1X, p2X) < std::min(p1X + size1X, p2X + size2X);
             bool const axisAlignY = std::max(p1Y, p2Y) < std::min(p1Y + size1Y, p2Y + size2Y);
 
-            bool const isNorth = axisAlignX && (p1Y + size1Y <= p2Y);
-            bool const isEast = axisAlignY && (p1X >= p2X + size2X);
-            bool const isSouth = axisAlignX && (p1Y >= p2Y + size2Y);
-            bool const isWest = axisAlignY && (p1X + size1X <= p2X);
+            bool const isNorth = axisAlignX && p1Y + size1Y <= p2Y;
+            bool const isEast  = axisAlignY && p1X >= p2X + size2X;
+            bool const isSouth = axisAlignX && p1Y >= p2Y + size2Y;
+            bool const isWest  = axisAlignY && p1X + size1X <= p2X;
 
             if (isNorth) {
                 double const dist = p2Y - p1Y - size1Y;

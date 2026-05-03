@@ -10,6 +10,7 @@
 #include "Utility/IO/FileManagement.hpp"
 
 // Nebulite: RmlUi-Modules
+#include "Nebulite.hpp"
 #include "Module/RmlUi/ContextManager.hpp"
 #include "Module/RmlUi/DataReference.hpp"
 #include "Module/RmlUi/ExpressionManager.hpp"
@@ -253,10 +254,12 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
     if (modifiers & Rml::Input::KM_CTRL && event.type == SDL_EVENT_KEY_DOWN && isTextInputFocused()) {
         if (event.key.key == SDLK_A) {
             // TODO: highlight entire text input field
+            Global::capture().warning.println("Ctrl + A pressed - TODO: implement select all functionality for text input fields");
         }
         else if (event.key.key == SDLK_C) {
             // TODO: copy highlighted text
             //       - how to extract highlighted portion?
+            Global::capture().warning.println("Ctrl + C pressed - TODO: implement copy functionality for text input fields");
         }
         else if (event.key.key == SDLK_V) {
             std::string const input(SDL_GetClipboardText());
@@ -266,6 +269,7 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
             // TODO: extract highlighted text
             //       - how to extract highlighted portion?
             //       - how to remove highlighted portion?
+            Global::capture().warning.println("Ctrl + X pressed - TODO: implement cut functionality for text input fields");
         }
     }
 }

@@ -373,7 +373,7 @@ rapidjson::Value* RjDirectAccess::traverseToParent(std::string_view const& fullK
                 if (parentPath.empty()) {
                     parent = &root;
                 } else {
-                    parent = traversePath(parentPath.c_str(), root);
+                    parent = traversePath(parentPath, root);
                 }
             } catch (...) {
                 return nullptr; // Invalid index
@@ -383,7 +383,7 @@ rapidjson::Value* RjDirectAccess::traverseToParent(std::string_view const& fullK
         // Last access is object member: var.subVar.finalKey
         std::string const parentPath = keyStr.substr(0, lastDot);
         finalKey = keyStr.substr(lastDot + 1);
-        parent = traversePath(parentPath.c_str(), root);
+        parent = traversePath(parentPath, root);
     }
     return const_cast<rapidjson::Value*>(parent);
 }

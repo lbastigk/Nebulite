@@ -97,7 +97,7 @@ void Reflection::reflectElement(Rml::Element* element, std::unique_ptr<Reflectio
     if (entry->markedForDeletion) return;
 
     // Get context and scope of this reflection
-    auto getContextAndScope = [this](Rml::Element* e) -> std::optional<Graphics::RmlInterface::ContextAndScope> {
+    auto getContextAndScope = [this](Rml::Element const* e) -> std::optional<Graphics::RmlInterface::ContextAndScope> {
         if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(e)) {
             // Nested reflections are incredibly difficult to realize and would require a complete overhaul of the current system
             // Perhaps later on we could use short-lived rml documents to generate reflection results and insert them in the main document,

@@ -146,8 +146,8 @@ private:
         double* right;
     };
 
-    MouseValues mouseCurrent;
-    MouseValues mouseDelta;
+    MouseValues mouseCurrent{};
+    MouseValues mouseDelta{};
 };
 } // namespace Nebulite::Module::Domain::Renderer
 #endif // NEBULITE_DOMAINMODULE_RENDERER_INPUT_HPP

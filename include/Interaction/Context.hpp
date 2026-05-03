@@ -153,7 +153,7 @@ public:
      * @brief Checks if any Context member has a dummy scope
      * @details True if a member has a dummy scope, fals otherwise
      */
-    bool hasDummyScope() const ;
+    [[nodiscard]] bool hasDummyScope() const ;
 };
 
 /**

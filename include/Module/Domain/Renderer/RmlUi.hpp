@@ -35,12 +35,12 @@ public:
     //------------------------------------------
     // Available Functions
 
-    Constants::Event loadDocument(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
+    [[nodiscard]] Constants::Event loadDocument(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
     static auto constexpr loadDocument_name = "rmlui document load";
     static auto constexpr loadDocument_desc = "Loads an RmlUI document from a specified file path and adds it to the renderer's context.\n"
         "Usage: rmlui document load <name> <file_path>\n";
 
-    Constants::Event removeDocument(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope) const ;
+    [[nodiscard]] Constants::Event removeDocument(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope) const ;
     static auto constexpr removeDocument_name = "rmlui document remove";
     static auto constexpr removeDocument_desc = "Removes a loaded RmlUI document from the renderer's context by its name.\n"
         "Usage: rmlui document remove <name>\n";

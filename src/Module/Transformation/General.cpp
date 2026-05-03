@@ -85,7 +85,7 @@ bool General::setFromResult(std::span<std::string const> const& args, Data::Json
 }
 
 bool General::assign(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    if (args.size() < 1) return false;
+    if (args.empty()) return false;
     Interaction::Logic::Assignment ass;
     ass.parse(Utility::StringHandler::recombineArgs(args.subspan(1)));
     Interaction::ContextScope const context{*jsonDoc, *jsonDoc, *jsonDoc};

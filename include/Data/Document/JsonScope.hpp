@@ -275,7 +275,7 @@ public:
     void assertAccess(ScopedKeyView const& key) const ;
     void assertAccess(ScopedKey const& key) const { assertAccess(key.view()); }
 
-    bool isDummy() const {
+    [[nodiscard]] bool isDummy() const {
         return !scopePrefix.has_value();
     }
 };

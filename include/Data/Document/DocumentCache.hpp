@@ -133,7 +133,7 @@ private:
      * @brief Templated helper function to retrieve a value from the read only cache
      */
     template <typename ValueType>
-    ValueType getValueFromCache(std::string const& doc_key, ValueType const& defaultValue, std::function<ValueType(ReadOnlyDoc const* doc, std::string_view const& key)> retrievalFunction) const {
+    ValueType getValueFromCache(std::string const& doc_key, ValueType const& defaultValue, std::function<ValueType(ReadOnlyDoc const* doc, std::string_view const& key)> const& retrievalFunction) const {
         static_assert(!std::is_same_v<ValueType, JSON>, "JSON values cannot be used here. Please re-implement the retrieval logic in a custom way instead of using this helper function.");
 
         auto [doc, key] = splitDocKey(doc_key);

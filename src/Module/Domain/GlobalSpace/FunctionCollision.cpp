@@ -121,7 +121,7 @@ Constants::Event FunctionCollision::debug_collisionDetect_variable(std::span<std
 
     Interaction::Execution::FuncTree<bool,bool> testTree("Test",true,true, domain.capture);
     static bool headless = false;
-    const static std::string headless_var_desc = "Indicates whether the application is running in headless mode (without GUI).";
+    static auto constexpr headless_var_desc = "Indicates whether the application is running in headless mode (without GUI).";
 
     if (fail) {
         // This will fail, as the variable name is already registered in GlobalSpace
