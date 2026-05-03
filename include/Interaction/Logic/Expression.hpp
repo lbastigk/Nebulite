@@ -33,10 +33,6 @@ class ScopedKey;
 class ScopedKeyView;
 } // namespace Nebulite::Data
 
-namespace Nebulite::Interaction {
-class ContextScope;
-} // namespace Nebulite::Interaction
-
 namespace Nebulite::Interaction::Logic {
 class VirtualDouble;
 } // namespace Nebulite::Interaction::Logic
