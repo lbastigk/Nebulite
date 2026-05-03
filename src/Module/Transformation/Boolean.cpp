@@ -2,8 +2,6 @@
 
 namespace Nebulite::Module::Transformation {
 
-void Boolean::bindTransformations(){
-
-}
+void Boolean::bindTransformations(){}
 
 } // namespace Nebulite::Module::Transformation

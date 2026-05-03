@@ -48,6 +48,7 @@ public:
     }
 
     static std::string_view constexpr moduleName = "::debug";
+
 private:
     //------------------------------------------
     // Base value caching

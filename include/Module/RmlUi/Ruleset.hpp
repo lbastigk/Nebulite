@@ -24,8 +24,8 @@ public:
 
     static auto constexpr rulesetAttributeOnDestroy = "on-destroy-invoke-ruleset";
     static auto constexpr parseOnDestroy = "on-destroy-parse";
-private:
 
+private:
     struct DeletedElement {
         std::variant<
             Graphics::RmlInterface::RmlElementIdentifier,

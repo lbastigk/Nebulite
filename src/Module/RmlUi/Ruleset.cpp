@@ -1,9 +1,12 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
+#include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Module/RmlUi/Ruleset.hpp"
 
-#include "Interaction/Execution/Domain.hpp"
-
-
+//------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
 Ruleset::Ruleset(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}

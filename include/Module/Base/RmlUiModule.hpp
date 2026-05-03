@@ -28,7 +28,6 @@ public:
     void OnDocumentUnload(Rml::ElementDocument* /*document*/) override {}
 
 protected:
-
     Utility::IO::Capture& capture;
 
     Graphics::RmlInterface& interface;
