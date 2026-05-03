@@ -202,7 +202,6 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
     }
 
     // Check cache first
-    auto it = cache.find(key);
     if (!std::ranges::any_of(cache, [&key](auto const& pair) {
         auto& [cachedKey, entry] = pair;
         return cachedKey.starts_with(key)
@@ -211,6 +210,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
             && Math::isEqualAllowNan(*entry->stable_double_ptr, entry->last_double_value);
     })) {
         // Checking for malformed shouldn't be necessary, but just in case
+        auto const it = cache.find(key);
         if (it != cache.end() && it->second->state == CacheEntry::EntryState::MALFORMED) {
             Global::capture().error.println("Warning: Attempted to access malformed key in getVariant(): ", key);
             Global::capture().error.println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
@@ -235,44 +235,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
 
     // Check document, if not in cache
     flush();
-    if (rapidjson::Value const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
-        if (it == cache.end() && RjDirectAccess::getSimpleValue(val).has_value()) {
-            // Insert only if the value is of a supported type, otherwise complex types might be interpreted as simple values.
-            // Create new cache entry and insert into cache
-            auto new_entry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
-            cache[key] = std::move(new_entry);
-            it = cache.find(key);
-        }
-
-        if (it != cache.end()) {
-            // Modify existing entry
-            if (auto const& v = RjDirectAccess::getSimpleValue(val); v.has_value()) {
-                it->second->value = v.value();
-
-                // Mark as clean
-                it->second->state = CacheEntry::EntryState::CLEAN;
-
-                // Set stable double pointer
-                *it->second->stable_double_ptr = convertVariant<double>(it->second->value).value_or(standardNumericValue); // Default to NAN if conversion fails
-                it->second->last_double_value = *it->second->stable_double_ptr;
-
-                return v.value();
-            }
-        }
-        if (val->IsNull()) {
-            return std::unexpected(IS_NULL);
-        }
-        if (val->IsArray()) {
-            return std::unexpected(IS_ARRAY);
-        }
-        if (val->IsObject()) {
-            return std::unexpected(IS_OBJECT);
-        }
-        return std::unexpected(CONVERSION_FAILURE);
-    }
-
-    // Value could not be found, return empty optional
-    return std::unexpected(IS_NULL);
+    return getSimpleValueFromDocument(key);
 }
 
 JSON JSON::getSubDoc(std::string_view const& key) const {
@@ -767,6 +730,51 @@ void JSON::set_concat(std::string_view const& key, std::string_view const& valSt
         *it->second->stable_double_ptr = standardNumericValue;
         it->second->last_double_value = standardNumericValue;
     }
+}
+
+//------------------------------------------
+// JSON - Rapidjson
+
+std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getSimpleValueFromDocument(std::string_view const& key) const {
+    if (rapidjson::Value const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
+        auto it = cache.find(key);
+        if (it == cache.end() && RjDirectAccess::getSimpleValue(val).has_value()) {
+            // Insert only if the value is of a supported type, otherwise complex types might be interpreted as simple values.
+            // Create new cache entry and insert into cache
+            auto new_entry = std::make_unique<CacheEntry>(*cacheLine, cacheline_index);
+            cache[key] = std::move(new_entry);
+            it = cache.find(key);
+        }
+
+        if (it != cache.end()) {
+            // Modify existing entry
+            if (auto const& v = RjDirectAccess::getSimpleValue(val); v.has_value()) {
+                it->second->value = v.value();
+
+                // Mark as clean
+                it->second->state = CacheEntry::EntryState::CLEAN;
+
+                // Set stable double pointer
+                *it->second->stable_double_ptr = convertVariant<double>(it->second->value).value_or(standardNumericValue); // Default to NAN if conversion fails
+                it->second->last_double_value = *it->second->stable_double_ptr;
+
+                return v.value();
+            }
+        }
+        if (val->IsNull()) {
+            return std::unexpected(IS_NULL);
+        }
+        if (val->IsArray()) {
+            return std::unexpected(IS_ARRAY);
+        }
+        if (val->IsObject()) {
+            return std::unexpected(IS_OBJECT);
+        }
+        return std::unexpected(CONVERSION_FAILURE);
+    }
+
+    // Value could not be found, return empty optional
+    return std::unexpected(IS_NULL);
 }
 
 } // namespace Utility

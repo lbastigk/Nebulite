@@ -530,6 +530,16 @@ public:
      *                     - `file.json|set-from-json key1.key2[5] otherFile.json:key` - Sets key1.key2[5] from the value of key in otherFile.json
      */
     void deserialize(std::string_view const& serialOrLink);
+
+    //------------------------------------------
+    // JSON - Rapidjson
+
+    /**
+     * @brief Gets a simple value form the rapidjson documents and synchronizes the cache with its value.
+     * @param key The key of the value to retrieve
+     * @return The value, or a SimpleValueRetrievalError if retrieval failed (e.g. key doesn't exist, type not supported, etc.)
+     */
+    std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getSimpleValueFromDocument(std::string_view const& key) const ;
 };
 } // namespace Nebulite::Data
 #include "JSON.tpp"
