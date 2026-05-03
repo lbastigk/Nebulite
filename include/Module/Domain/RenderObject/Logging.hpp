@@ -27,7 +27,7 @@ namespace Nebulite::Module::Domain::RenderObject {
  * @brief Logging DomainModule of the RenderObject Domain.
  * @details Contains RenderObject-specific logging functionality.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Logging) {
+class Logging final : public Interaction::Execution::DomainModule<Core::RenderObject> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -63,7 +63,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Logging) {
+    explicit Logging(ConstructorParams const& params) : DomainModule(params) {
         bindCategory(log_name, log_desc);
         bindFunction(&Logging::log_all, log_all_name, log_all_desc);
         bindFunction(&Logging::log_key, log_key_name, log_key_desc);

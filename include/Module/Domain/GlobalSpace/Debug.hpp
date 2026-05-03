@@ -31,7 +31,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @class Nebulite::Module::Domain::GlobalSpace::Debug
  * @brief DomainModule for debugging capabilities within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Debug) {
+class Debug final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -125,7 +125,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Debug) {
+    explicit Debug(ConstructorParams const& params) : DomainModule(params) {
         //------------------------------------------
         // Setup key information in the global document
         setupPlatformInfo();
@@ -190,4 +190,4 @@ private:
     void addRoutines();
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
-#endif // NEBULITE_DOMAINMODULE_GLOBAL_SPACE_DEBUG_HPP
+#endif // NEBULITE_MODULE_DOMAIN_GLOBAL_SPACE_DEBUG_HPP

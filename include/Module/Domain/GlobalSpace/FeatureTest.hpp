@@ -26,7 +26,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @class Nebulite::Module::Domain::GlobalSpace::FeatureTest
  * @brief DomainModule for testing features in the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, FeatureTest) {
+class FeatureTest final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -57,7 +57,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, FeatureTest) {
+    explicit FeatureTest(ConstructorParams const& params) : DomainModule(params) {
         //------------------------------------------
         // Binding functions to the FuncTree
         bindCategory(category_feature_test_name, category_feature_test_desc);

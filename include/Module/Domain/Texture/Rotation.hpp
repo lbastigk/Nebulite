@@ -27,7 +27,7 @@ namespace Nebulite::Module::Domain::Texture {
  * @class Nebulite::Module::Domain::Texture::Rotation
  * @brief DomainModule for rotation functions within the Texture.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Rotation) {
+class Rotation final : public Interaction::Execution::DomainModule<Core::Texture> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -50,7 +50,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Rotation) {
+    explicit Rotation(ConstructorParams const& params) : DomainModule(params) {
         bindFunction(&Rotation::rotate, rotate_name, rotate_desc);
     }
 };

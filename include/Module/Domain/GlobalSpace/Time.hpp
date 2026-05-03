@@ -31,7 +31,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @class Nebulite::Module::Domain::GlobalSpace::Time
  * @brief DomainModule for time management within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Time) {
+class Time final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -108,7 +108,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Time) {
+    explicit Time(ConstructorParams const& params) : DomainModule(params) {
         //------------------------------------------
         // Start timers
         SimulationTime.start();

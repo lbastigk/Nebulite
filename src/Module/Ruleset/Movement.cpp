@@ -33,12 +33,15 @@ void Movement::detectClipping(Interaction::Context const& context, double**& slf
     // Assume context part is circle if radius is set (> 0)
     if (auto const& radius = Radius(slf, otr); radius.slf > 0.0 && radius.otr > 0.0) {
         // TODO
+        context.self.capture.error.println("Circle-circle clipping detection not implemented yet");
     }
     else if (radius.slf > 0.0) {
         // TODO
+        context.self.capture.error.println("Circle-rectangle clipping detection not implemented yet");
     }
     else if (radius.otr > 0.0) {
         // TODO
+        context.self.capture.error.println("Rectangle-circle clipping detection not implemented yet");
     }
     else {
         double const& p1X = baseVal(slf, Key::posX);

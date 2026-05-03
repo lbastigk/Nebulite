@@ -9,13 +9,6 @@
 #define NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
 
 //------------------------------------------
-// Macro to define a new Nebulite Domain class
-
-// NOLINTNEXTLINE
-#define NEBULITE_DOMAIN(DomainName) \
-    class DomainName final : public Nebulite::Interaction::Execution::Domain
-
-//------------------------------------------
 // Includes
 
 // Standard library
@@ -314,25 +307,29 @@ public:
     static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference, std::shared_ptr<DomainTree> funcTree) {
         // Determine the key from root level
         if constexpr (HasKeyGroup<DomainModuleType>) {
-            if (DomainModuleType::Key::hasScope()) {
-                static auto const scopeKey = Data::ScopedKey(DomainModuleType::Key::getScope(), "");
-
-                // Share the scope based on the module's defined scope
-                auto& scope = domainReference.domainScope.shareScope(scopeKey); // Sharing a scope based on the module's defined scope
-                auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, funcTree, scope, settings);
-                DomainModule->reinit();
-                return DomainModule;
-            }
-            // No scope defined, share a dummy scope (no workspace)
-            auto& scope = domainReference.domainScope.shareDummyScopeBase();
-            auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, funcTree, scope, settings);
+            // Share the scope based on the module's defined scope
+            auto& scope = DomainModuleType::Key::hasScope() ? domainReference.domainScope.shareScope(Data::ScopedKey(DomainModuleType::Key::getScope(), "")) : domainReference.domainScope.shareDummyScopeBase();
+            typename DomainModule<DomainType>::ConstructorParams params = {
+                .domainReference = domainReference,
+                .name = moduleName,
+                .scope = scope,
+                .funcTreePtr = funcTree,
+                .settings = settings
+            };
+            auto DomainModule = std::make_unique<DomainModuleType>(params);
             DomainModule->reinit();
             return DomainModule;
         }
         else {
             // No scope defined, share a dummy scope (no workspace)
-            auto& scope = domainReference.domainScope.shareDummyScopeBase();
-            auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, funcTree, scope, settings);
+            typename DomainModule<DomainType>::ConstructorParams params = {
+                .domainReference = domainReference,
+                .name = moduleName,
+                .scope = domainReference.domainScope.shareDummyScopeBase(),
+                .funcTreePtr = funcTree,
+                .settings = settings
+            };
+            auto DomainModule = std::make_unique<DomainModuleType>(params);
             DomainModule->reinit();
             return DomainModule;
         }
@@ -355,9 +352,14 @@ public:
             // If the DomainType is the base Domain class, we must initialize modules without scope,
             // otherwise this will lead to circular initialization problems.
             static_assert(!HasKeyGroup<DomainModuleType>, "DomainModules linked to the base Domain class cannot have a scope. Please remove the static Key::scope member from the module. Use the callers scope instead!");
-
-            auto& scope = domainReference.domainScope.shareDummyScopeBase();
-            auto DomainModule = std::make_unique<DomainModuleType>(moduleName, domainReference, funcTree, scope, settings);
+            typename DomainModule<DomainType>::ConstructorParams params = {
+                .domainReference = domainReference,
+                .name = moduleName,
+                .scope = domainReference.domainScope.shareDummyScopeBase(),
+                .funcTreePtr = funcTree,
+                .settings = settings
+            };
+            auto DomainModule = std::make_unique<DomainModuleType>(params);
             DomainModule->reinit();
             modules.push_back(std::move(DomainModule));
         } else {

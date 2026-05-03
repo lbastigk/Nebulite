@@ -14,7 +14,7 @@
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
-NEBULITE_DOMAINMODULE(Nebulite::Interaction::Execution::Domain, Debug) {
+class Debug final : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Interaction::Execution::Domain> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -61,7 +61,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Interaction::Execution::Domain, Debug) {
+    explicit Debug(ConstructorParams const& params) : DomainModule(params) {
         // Binding
         bindFunction(&Debug::print, print_name, print_desc);
         bindFunction(&Debug::printId, printId_name, printId_desc);

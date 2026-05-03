@@ -28,7 +28,7 @@ namespace Nebulite::Module::Domain::RenderObject {
  * @class Nebulite::Module::Domain::RenderObject::Ruleset
  * @brief Ruleset management for the RenderObject tree DomainModule.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, Ruleset) {
+class Ruleset final : public Interaction::Execution::DomainModule<Core::RenderObject> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override ;
@@ -64,7 +64,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, Ruleset) {
+    explicit Ruleset(ConstructorParams const& params) : DomainModule(params) {
         // Bind functions
         bindCategory(ruleset_name, ruleset_desc);
         bindFunction(&Ruleset::reload, reload_name, reload_desc);

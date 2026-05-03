@@ -12,14 +12,14 @@
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
-NEBULITE_DOMAINMODULE(Nebulite::Interaction::Execution::Domain, RmlUi) {
+class RmlUi final : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Interaction::Execution::Domain> {
 public:
     [[nodiscard]] Constants::Event updateHook() override {
         return Constants::Event::Success;
     }
     void reinit() override {}
 
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Interaction::Execution::Domain, RmlUi) {}
+    explicit RmlUi(ConstructorParams const& params) : DomainModule(params) {}
 
     ~RmlUi() override ;
 };

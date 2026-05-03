@@ -26,7 +26,7 @@ namespace Nebulite::Module::Domain::Texture {
  * @class Nebulite::Module::Domain::Texture::General
  * @brief DomainModule for general functions within the Texture.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, General) {
+class General final : public Interaction::Execution::DomainModule<Core::Texture> {
 public:
     [[nodiscard]] Constants::Event updateHook() override ;
     void reinit() override {}
@@ -46,7 +46,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, General) {
+    explicit General(ConstructorParams const& params) : DomainModule(params) {
         bindFunction(&General::reloadTexture, reloadTexture_name, reloadTexture_desc);
     }
 };

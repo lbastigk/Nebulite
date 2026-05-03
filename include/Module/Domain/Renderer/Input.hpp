@@ -29,7 +29,7 @@ namespace Nebulite::Module::Domain::Renderer {
  * @class Nebulite::Module::Domain::Renderer::Input
  * @brief DomainModule for handling input events and states.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Input) {
+class Input final : public Interaction::Execution::DomainModule<Core::Renderer> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -45,7 +45,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Input) {
+    explicit Input(ConstructorParams const& params) : DomainModule(params) {
         mapKeyNames();
         addRoutines();
     }
@@ -149,4 +149,4 @@ private:
     MouseValues mouseDelta{};
 };
 } // namespace Nebulite::Module::Domain::Renderer
-#endif // NEBULITE_DOMAINMODULE_RENDERER_INPUT_HPP
+#endif // NEBULITE_MODULE_DOMAIN_RENDERER_INPUT_HPP

@@ -27,7 +27,7 @@ namespace Nebulite::Module::Domain::Environment {
  * @class Nebulite::Module::Domain::Environment::Debug
  * @brief DomainModule for debugging utilities within the Environment domain.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Environment, Debug) {
+class Debug final : public Interaction::Execution::DomainModule<Core::Environment> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -50,7 +50,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Environment, Debug) {}
+    explicit Debug(ConstructorParams const& params) : DomainModule(params) {}
 };
 } // namespace Nebulite::Module::Domain::Environment
 #endif // NEBULITE_MODULE_DOMAIN_ENVIRONMENT_DEBUG

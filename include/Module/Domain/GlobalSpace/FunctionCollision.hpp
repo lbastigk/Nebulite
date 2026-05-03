@@ -26,7 +26,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @class Nebulite::Module::Domain::GlobalSpace::FunctionCollision
  * @brief DomainModule for debugging capabilities within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, FunctionCollision) {
+class FunctionCollision final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -86,7 +86,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, FunctionCollision) {
+    explicit FunctionCollision(ConstructorParams const& params) : DomainModule(params) {
         //------------------------------------------
         // Test categories for nested category binding
         bindCategory(debug_name, debug_desc);

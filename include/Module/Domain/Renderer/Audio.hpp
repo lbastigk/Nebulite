@@ -23,7 +23,6 @@
 #include <SDL3/SDL.h>
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -40,7 +39,7 @@ namespace Nebulite::Module::Domain::Renderer {
  * @class Nebulite::Module::Domain::Renderer::Audio
  * @brief Basic Renderer-Related Functions
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Audio) {
+class Audio final : public Interaction::Execution::DomainModule<Core::Renderer> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -93,7 +92,7 @@ public:
      *       This will declutter the globalspace, separating its usage from the Renderer and Environment.
      *       The only downside currently is that we have to implement a method to lazy-init the SDL Renderer within the Renderer domain itself.
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Audio) {
+    explicit Audio(ConstructorParams const& params) : DomainModule(params) {
         bindFunction(&Audio::beep, beep_name, beep_desc);
         bindFunction(&Audio::playSound, playSound_name, playSound_desc);
         bindFunction(&Audio::playSoundWithFilter, playSoundWithFilter_name, playSoundWithFilter_desc);

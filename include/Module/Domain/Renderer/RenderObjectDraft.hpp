@@ -34,7 +34,7 @@ namespace Nebulite::Module::Domain::Renderer {
  * @details Allows for the creation and manipulation of RenderObjects in a draft state
  *          before spawning them into the Environment.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, RenderObjectDraft) {
+class RenderObjectDraft final : public Interaction::Execution::DomainModule<Core::Renderer> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -81,7 +81,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RenderObjectDraft) {
+    explicit RenderObjectDraft(ConstructorParams const& params) : DomainModule(params) {
         // Bind functions
         bindCategory(draft_name, draft_desc);
         bindFunction(&RenderObjectDraft::draft_parse, draft_parse_name, draft_parse_desc);

@@ -28,7 +28,7 @@ namespace Nebulite::Module::Domain::Texture {
  * @class Nebulite::Module::Domain::Texture::Fill
  * @brief DomainModule for fill functions within the Texture.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Texture, Fill) {
+class Fill final : public Interaction::Execution::DomainModule<Core::Texture> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -51,7 +51,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Texture, Fill) {
+    explicit Fill(ConstructorParams const& params) : DomainModule(params) {
         bindFunction(&Fill::fill, fill_name, fill_desc);
     }
 };

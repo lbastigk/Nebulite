@@ -37,7 +37,7 @@ namespace Nebulite::Core {
  *          By separating the GlobalSpace and the Global Document, we ensure that the construction of both is independent.
  *          This allows DomainModules to safely access the global document without causing recursion problems.
  */
-NEBULITE_DOMAIN(GlobalSpace) {
+class GlobalSpace final : public Nebulite::Interaction::Execution::Domain {
 public:
     //------------------------------------------
     // Special Member Functions

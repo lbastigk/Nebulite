@@ -10,7 +10,6 @@
 // Includes
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Data/Document/KeyGroup.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
@@ -21,14 +20,13 @@ namespace Nebulite::Core {
 class GlobalSpace;
 } // namespace Nebulite::Core
 
-
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
 /**
  * @class Nebulite::Module::Domain::GlobalSpace::Ruleset
  * @brief DomainModule for managing rulesets within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Ruleset) {
+class Ruleset final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -62,7 +60,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Ruleset) {
+    explicit Ruleset(ConstructorParams const& params) : DomainModule(params) {
         //------------------------------------------
         // Binding functions to the FuncTree
         bindCategory(ruleset_name, ruleset_desc);

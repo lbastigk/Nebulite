@@ -28,7 +28,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @class Nebulite::Module::Domain::GlobalSpace::InputMapping
  * @brief DomainModule for mapping inputs to actions within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, InputMapping) {
+class InputMapping final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
 public:
     /**
      * @brief Applies the input mappings, processing any new input events (via the Global Document) and updating the binding states.
@@ -77,7 +77,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, InputMapping){
+    explicit InputMapping(ConstructorParams const& params) : DomainModule(params){
         // Setup pointer to polled input key in Renderer::Input module, to sync our updates with it and avoid missing deltas
         sdlPolledInput = moduleScope.getStableDoublePointer(Renderer::Input::Key::routineActivated);
 

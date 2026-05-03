@@ -32,23 +32,22 @@ namespace Nebulite::Interaction::Execution {
 template <typename DomainType>
 class DomainModule : public DomainModuleBase {
 public:
+    struct ConstructorParams {
+        DomainType& domainReference; // Reference to the Domain instance this module is associated with.
+        std::string name; // Name of the DomainModule, useful for debugging and logging.
+        Data::JsonScope& scope; // JsonScope reference for this module to use as workspace.
+        std::shared_ptr<DomainTree> const& funcTreePtr; // Shared pointer to the FuncTree for binding functions and variables.
+        Data::JsonScope const& settings; // Const JsonScope reference for settings.
+    };
+
     /**
      * @brief Constructor for the DomainModule base class.
      * @details The constructor initializes the DomainModule with a reference to the domain and
      *          the FuncTree.
-     * @param name Name of the DomainModule, useful for debugging and logging.
-     * @param domainReference Reference to the Domain instance this module is associated with.
-     * @param funcTreePtr Shared pointer to the FuncTree for binding functions and variables.
-     * @param scope JsonScope reference for this module to use as workspace.
-     * @param settings Const JsonScope reference for settings.
+     * @param params Struct containing all necessary parameters for constructing the DomainModule.
+     *               Kept in a struct to keep the parameter list of derived DomainModules short
      */
-    DomainModule(
-        std::string name,
-        DomainType& domainReference,
-        std::shared_ptr<DomainTree> const& funcTreePtr,
-        Data::JsonScope& scope,
-        Data::JsonScope const& settings
-    );
+    explicit DomainModule(ConstructorParams const& params);
 
     ~DomainModule() override ;
 
@@ -83,25 +82,5 @@ protected:
     }
 };
 } // namespace Nebulite::Interaction::Execution
-
-//------------------------------------------
-// Macros for DomainModule definition
-
-// Macro for defining a new DomainModule class with the correct inheritance and template parameters
-// NOLINTNEXTLINE
-#define NEBULITE_DOMAINMODULE(DomainName,DomainModuleName) \
-class DomainModuleName final : public Nebulite::Interaction::Execution::DomainModule<DomainName>
-
-// Macro for easily passing the constructor parameters to the base class constructor in the DomainModule definition
-// NOLINTNEXTLINE
-#define NEBULITE_DOMAINMODULE_CONSTRUCTOR(DomainName,DomainModuleName) \
-explicit DomainModuleName( \
-std::string const& name, DomainName& domainReference, \
-std::shared_ptr<Interaction::Execution::DomainTree> const& funcTreePtr, \
-Data::JsonScope& w, \
-Data::JsonScope const& s \
-) \
-: DomainModule(name, domainReference, std::move(funcTreePtr), w, s)
-
 #include "Interaction/Execution/DomainModule.tpp"
 #endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_HPP

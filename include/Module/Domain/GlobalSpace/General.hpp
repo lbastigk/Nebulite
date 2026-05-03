@@ -10,7 +10,6 @@
 // Includes
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
@@ -26,7 +25,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @class Nebulite::Module::Domain::GlobalSpace::General
  * @brief DomainModule for general-purpose functions within the GlobalSpace.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, General) {
+class General final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -111,7 +110,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, General) {
+    explicit General(ConstructorParams const& params) : DomainModule(params) {
         bindFunction(&General::exit, exit_name, exit_desc);
         bindFunction(&General::wait, wait_name, wait_desc);
         bindFunction(&General::task, task_name, task_desc);

@@ -113,7 +113,7 @@ bindFunction(/**/,"MyCategory foo","<Description of foo>"); //<-- This would fai
 #### Step-by-Step Process
 
 1. **Create expansion file**
-2. **Inherit from DomainModule base class:** Create class using the `NEBULITE_DOMAINMODULE(Domain,MyDomainModule)` macro
+2. **Inherit from DomainModule base class:**
 3. **Implement command methods:** Functions with `Nebulite::Constants::Event (std::span<std::string const> const& args)` signature
 4. **Implement the update method:** Override `Nebulite::Constants::Event update()` for per-frame updates
 5. **DomainModule init** inside `include/DomainModule/Initializer.hpp`, initialize the DomainModule
@@ -129,8 +129,8 @@ bindFunction(/**/,"MyCategory foo","<Description of foo>"); //<-- This would fai
  * @brief Contains the DomainModule of the GlobalSpace for MyFeature functions.
  */
 
-#ifndef NEBULITE_DOMAINMODULE_RENDEROBJECT_MYMODULE_HPP
-#define NEBULITE_DOMAINMODULE_RENDEROBJECT_MYMODULE_HPP
+#ifndef NEBULITE_MODULE_DOMAIN_RENDEROBJECT_MYMODULE_HPP
+#define NEBULITE_MODULE_DOMAIN_RENDEROBJECT_MYMODULE_HPP
 
 //------------------------------------------
 // Includes
@@ -151,7 +151,7 @@ namespace Nebulite::Module::Domain::RenderObject {
  * @class Nebulite::Module::Domain::RenderObject::MyModule
  * @brief Example module for RenderObject domain using the Debug.hpp conventions.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, MyModule) {
+class MyModule final : public Interaction::Execution::DomainModule<Core::RenderObject> {
 public:
     [[nodiscard]] Constants::Event updateHook() override; // Per-frame update function
     void reinit() override {}           // What to do on re-initialization
@@ -188,7 +188,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, MyModule) {
+    explicit MyModule(ConstructorParams const& params) : DomainModule(params) {
         // Ensure category exists before binding functions that include it
         bindCategory(example_name, example_desc);
 
@@ -217,7 +217,7 @@ public:
     };
 };
 } // namespace Nebulite::Module::Domain::RenderObject
-#endif // NEBULITE_DOMAINMODULE_RENDEROBJECT_MYMODULE_HPP
+#endif // NEBULITE_MODULE_DOMAIN_RENDEROBJECT_MYMODULE_HPP
 
 ```
 

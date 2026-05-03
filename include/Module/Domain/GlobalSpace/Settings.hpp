@@ -9,9 +9,6 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <memory>
-
 // Nebulite
 #include "Constants/KeyNames.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
@@ -23,14 +20,13 @@ namespace Nebulite::Core {
 class GlobalSpace;
 } // namespace Nebulite::Core
 
-
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
 /**
  * @class Nebulite::Module::Domain::GlobalSpace::Settings
  * @brief DomainModule for loading settings into GlobalSpace for other Domains/DomainModules to use.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Settings) {
+class Settings final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -108,7 +104,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Settings) {
+    explicit Settings(ConstructorParams const& params) : DomainModule(params) {
         if (loadSettings(defaultSettingsFile) != Constants::Event::Success) {
             logInitError();
         }
@@ -126,4 +122,4 @@ private:
     void logInitError() const ;
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
-#endif // NEBULITE_DOMAINMODULE_GLOBAL_SPACE_SETTINGS_HPP
+#endif // NEBULITE_MODULE_DOMAIN_GLOBAL_SPACE_SETTINGS_HPP

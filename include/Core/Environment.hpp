@@ -29,7 +29,7 @@ namespace Nebulite::Core {
  *          The grid size depends on the display resolution:
  *          `<display_resolution_x> * <display_resolution_y>`
  */
-NEBULITE_DOMAIN(Environment) {
+class Environment final : public Nebulite::Interaction::Execution::Domain {
 public:
     /**
      * @enum Nebulite::Core::Environment::Layer

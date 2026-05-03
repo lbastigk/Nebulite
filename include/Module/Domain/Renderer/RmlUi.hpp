@@ -27,7 +27,7 @@ namespace Nebulite::Module::Domain::Renderer {
  * @class Nebulite::Module::Domain::Renderer::RmlUi
  * @brief DomainModule for RmlUi management functions
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, RmlUi) {
+class RmlUi final : public Interaction::Execution::DomainModule<Core::Renderer> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -60,7 +60,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, RmlUi) {
+    explicit RmlUi(ConstructorParams const& params) : DomainModule(params) {
         bindCategory(ui_name, ui_desc);
         bindCategory(uiDocument_name, uiDocument_desc);
         bindFunction(&RmlUi::loadDocument, loadDocument_name, loadDocument_desc);
@@ -73,5 +73,5 @@ public:
     };
 };
 } // namespace Nebulite::Module::Domain::Renderer
-#endif // NEBULITE_DOMAINMODULE_RENDERER_RMLUI_HPP
+#endif // NEBULITE_MODULE_DOMAIN_RENDERER_RMLUI_HPP
 

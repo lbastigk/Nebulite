@@ -27,7 +27,7 @@ namespace Nebulite::Module::Domain::RenderObject {
  * @class Nebulite::Module::Domain::RenderObject::StateUpdate
  * @brief State update DomainModule of the RenderObject tree.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::RenderObject, StateUpdate) {
+class StateUpdate final : public Interaction::Execution::DomainModule<Core::RenderObject> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -49,7 +49,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::RenderObject, StateUpdate) {
+    explicit StateUpdate(ConstructorParams const& params) : DomainModule(params) {
         bindFunction(&StateUpdate::deleteObject, deleteObject_name, deleteObject_desc);
     }
 };

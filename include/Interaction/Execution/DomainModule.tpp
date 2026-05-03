@@ -8,19 +8,14 @@
 namespace Nebulite::Interaction::Execution {
 
 template <typename DomainType>
-DomainModule<DomainType>::DomainModule(
-    std::string name,
-    DomainType& domainReference,
-    std::shared_ptr<DomainTree> const& funcTreePtr,
-    Data::JsonScope& scope,
-    Data::JsonScope const& settings
-) : DomainModuleBase(
-        funcTreePtr,
-        scope,
-        settings
+DomainModule<DomainType>::DomainModule(ConstructorParams const& params)
+    : DomainModuleBase(
+        params.funcTreePtr,
+        params.scope,
+        params.settings
     ),
-    moduleName(std::move(name)),
-    domain(domainReference) {}
+    moduleName(std::move(params.name)),
+    domain(params.domainReference) {}
 
 template <typename DomainType>
 DomainModule<DomainType>::~DomainModule() = default;

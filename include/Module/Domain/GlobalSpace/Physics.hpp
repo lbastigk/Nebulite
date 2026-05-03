@@ -29,7 +29,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @brief The Physics DomainModule in the GlobalSpace,
  *        containing keys for global physics constants and settings.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::GlobalSpace, Physics) {
+class Physics final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -37,7 +37,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::GlobalSpace, Physics) {
+    explicit Physics(ConstructorParams const& params) : DomainModule(params) {
         setupConstants();
     }
 
@@ -105,4 +105,4 @@ private:
     void setupConstants() const ;
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
-#endif // NEBULITE_DOMAINMODULE_GLOBAL_SPACE_PHYSICS_HPP
+#endif // NEBULITE_MODULE_DOMAIN_GLOBAL_SPACE_PHYSICS_HPP

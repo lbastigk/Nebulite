@@ -10,7 +10,6 @@
 // Includes
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Data/Document/KeyGroup.hpp"
 #include "Module/Domain/Renderer/Input.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
@@ -28,7 +27,7 @@ namespace Nebulite::Module::Domain::Renderer {
  * @class Nebulite::Module::Domain::Renderer::Console
  * @brief DomainModule for Console capabilities within the Renderer.
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, Console) {
+class Console final : public Interaction::Execution::DomainModule<Core::Renderer> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -63,7 +62,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, Console) {
+    explicit Console(ConstructorParams const& params) : DomainModule(params) {
         bindCategory(console_name, console_desc);
         bindFunction(&Console::consoleOpen, consoleOpen_name, consoleOpen_desc);
         bindFunction(&Console::consoleClose, consoleClose_name, consoleClose_desc);

@@ -18,7 +18,7 @@ namespace Nebulite::Module::Domain::Common {
  * @class Nebulite::Module::Domain::Common::ComplexData
  * @brief DomainModule for complex data operations on domain class Nebulite::Data::JSON
  */
-NEBULITE_DOMAINMODULE(Nebulite::Interaction::Execution::Domain, ComplexData) {
+class ComplexData final : public Nebulite::Interaction::Execution::DomainModule<Nebulite::Interaction::Execution::Domain> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -84,7 +84,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables. 
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Interaction::Execution::Domain, ComplexData) {
+    explicit ComplexData(ConstructorParams const& params) : DomainModule(params) {
         // Bind functions specific to complex data handling
 
         // SQL Queries

@@ -28,7 +28,7 @@ namespace Nebulite::Module::Domain::Renderer {
  * @class Nebulite::Module::Domain::Renderer::General
  * @brief Basic Renderer-Related Functions
  */
-NEBULITE_DOMAINMODULE(Nebulite::Core::Renderer, General) {
+class General final : public Interaction::Execution::DomainModule<Core::Renderer> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -176,7 +176,7 @@ public:
      * @brief Initializes the module, binding functions and variables.
      * @todo Add domainModules for camera and renderobject-selection and move respective functions in there.
      */
-    NEBULITE_DOMAINMODULE_CONSTRUCTOR(Nebulite::Core::Renderer, General) {
+    explicit General(ConstructorParams const& params) : DomainModule(params) {
         bindFunction(&General::spawn, spawn_name, spawn_desc);
         bindFunction(&General::setResolution, setResolution_name, setResolution_desc);
         bindFunction(&General::setFPS, setFPS_name, setFPS_desc);
@@ -207,4 +207,4 @@ private:
     Data::JsonScope* selectedRenderObjectData = nullptr;
 };
 } // namespace Nebulite::Module::Domain::Renderer
-#endif // NEBULITE_DOMAINMODULE_RENDERER_GENERAL_HPP
+#endif // NEBULITE_MODULE_DOMAIN_RENDERER_GENERAL_HPP
