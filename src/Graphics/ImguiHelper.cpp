@@ -30,10 +30,21 @@ size_t find_pos_or_fallback(std::string_view const& str) {
     return static_cast<size_t>(std::ranges::distance(str.begin(), result.begin()));
 }
 
+void addRootCompletions(std::string_view const& input, std::vector<std::string>& completions, Nebulite::Interaction::Execution::Domain const& domain) {
+    auto args = Nebulite::Utility::StringHandler::parseQuotedArguments(input).args;
+    if (args.empty() || input.ends_with(' ')) {
+        args = {""};
+    }
+    std::string const& pattern = args.back();  // Get last argument, which is the one we want to complete
+
+    auto rootCompletions = domain.findCompletions(pattern);
+    completions.insert(completions.end(), rootCompletions.begin(), rootCompletions.end());
+}
+
 void addFileCompletions(std::string_view const& input, std::vector<std::string>& completions) {
-    auto const args = Nebulite::Utility::StringHandler::parseQuotedArguments(input).args;
+    auto args = Nebulite::Utility::StringHandler::parseQuotedArguments(input).args;
     if (args.empty()) {
-        return;
+        args.push_back(""); // If there are no arguments, we want to complete the first one, which is empty
     }
 
     // Separate inner from outer directory and get the actual input we need to complete
@@ -45,7 +56,7 @@ void addFileCompletions(std::string_view const& input, std::vector<std::string>&
     auto const directory = Nebulite::Utility::IO::FileManagement::CombinePaths(".", innerDir == "/" ? "" : innerDir);
 
     // Build list
-    auto const list = Nebulite::Utility::IO::FileManagement::listFilesAndDirectoriesInPath(directory) | std::views::filter([&](std::string const& fileOrDirectory) {
+    auto const list = Nebulite::Utility::IO::FileManagement::listContentInDirectory(directory) | std::views::filter([&](std::string const& fileOrDirectory) {
         return fileOrDirectory.starts_with(inputToComplete);
     }) | std::views::transform([&](std::string const& fileOrDirectory) {
         if (Nebulite::Utility::IO::FileManagement::isDirectory(directory + fileOrDirectory)) {
@@ -54,7 +65,6 @@ void addFileCompletions(std::string_view const& input, std::vector<std::string>&
         return fileOrDirectory;
     }) | std::ranges::to<std::vector>();
     std::ranges::move(list, std::back_inserter(completions));
-    std::ranges::sort(completions, Nebulite::Utility::Sort::caseInsensitiveLess);
 }
 
 struct ConsoleState {
@@ -66,9 +76,9 @@ struct ConsoleState {
     Nebulite::Interaction::ContextScope* ctxScope = nullptr;
 };
 
-void checkCompletionsForCommonPrefix(std::string_view const& input, std::vector<std::string>& completions) {
+bool checkCompletionsForCommonPrefix(std::string_view const& input, std::vector<std::string>& completions) {
     if (completions.empty()) {
-        return;
+        return false;
     }
     const auto& first = completions.front();
     auto const mismatch_it = std::ranges::find_if(
@@ -83,7 +93,9 @@ void checkCompletionsForCommonPrefix(std::string_view const& input, std::vector<
     if (std::string const match = first.substr(0, mismatch_it == std::views::iota(std::size_t{0}, first.size()).end() ? first.size() : *mismatch_it); !match.empty() && !input.ends_with(match)) {
         completions.clear();
         completions.push_back(match);
+        return true;
     }
+    return false;
 }
 
 // NOLINTNEXTLINE
@@ -141,10 +153,19 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
         }
     }
     else if (data->EventFlag == ImGuiInputTextFlags_CallbackCompletion) { // Tab-Autocomplete
+        // Build completions list
         auto completions = state->ctx->self.findCompletions(state->command);
+        if (completions.empty()) addRootCompletions(state->command, completions, state->ctx->self);
         addFileCompletions(state->command, completions);
         // TODO: add json key completions
-        checkCompletionsForCommonPrefix(state->command, completions);
+
+        // Finish completions
+        std::ranges::sort(completions, Nebulite::Utility::Sort::caseInsensitiveLess);
+        auto v = std::ranges::unique(completions);
+        completions.erase(v.begin(), v.end());
+        auto const commonPrefixFound = checkCompletionsForCommonPrefix(state->command, completions);
+
+        // Check completions
         if (completions.size() == 1) {
             auto const& toInsert = completions.front();
             const std::string& cmd = state->command;
@@ -162,6 +183,16 @@ int consoleInputCallback(ImGuiInputTextCallbackData* data) {
             // delete only the overlapping suffix and insert full completion
             data->DeleteChars(data->CursorPos - overlap, overlap);
             data->InsertChars(data->CursorPos, toInsert.c_str());
+
+            // Insert additional whitespace under certain conditions:
+            static auto endCharsToIgnore = {
+                Nebulite::Utility::IO::FileManagement::preferredSeparator(), // Directory Path
+                '.', // JSON indexing
+                ']' // JSON array indexing
+            };
+            if (!commonPrefixFound && !toInsert.empty() && !std::ranges::any_of(endCharsToIgnore, [&](char const& c) { return toInsert.back() == c; })) {
+                data->InsertChars(data->CursorPos, " ");
+            }
         }
         else if (completions.size() > 1) {
             // TODO: determine console width in characters
