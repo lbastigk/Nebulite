@@ -11,13 +11,12 @@ void DocumentCache::update() const {
     readOnlyDocs.update();
 }
 
-double* DocumentCache::getStableDoublePointer(std::string const& doc_key) {
+double const* DocumentCache::getStableDoublePointer(std::string const& doc_key) const {
     auto [doc, key] = splitDocKey(doc_key);
 
     ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
     if (docPtr == nullptr) {
-        // Return a pointer to zero if document loading fails
-        zero = 0.0; // Make sure zero is always 0.0
+        // Return a pointer to internal zero if document loading fails
         return &zero;
     }
 

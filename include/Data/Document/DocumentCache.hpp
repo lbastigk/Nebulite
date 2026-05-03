@@ -51,21 +51,18 @@ public:
      */
     JSON getSubDoc(std::string const& doc_key) const {
         auto [doc, key] = splitDocKey(doc_key);
-        ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
 
-        // Check if the document exists in the cache
-        if (docPtr == nullptr) {
-            return JSON{}; // Return empty JSON if document loading fails
+        ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
+        if (!docPtr) {
+            return JSON{};
         }
 
-        // Retrieve the sub-document from the document
+        // Check if the document exists in the cache
         JSON data = docPtr->document.getSubDoc(key);
 
-        // Update the cache (unload old documents)
+        // Update the cache (unload old documents) and return the size
         update();
-
-        // Return key:
-        return data; // Use the JSON get method to retrieve the value
+        return data;
     }
 
     /**
@@ -76,7 +73,7 @@ public:
      *         Guaranteed to be valid even if the key does not exist within the document,
      *         or if the document itself is not found!
      */
-    double* getStableDoublePointer(std::string const& doc_key);
+    double const* getStableDoublePointer(std::string const& doc_key) const ;
 
     /**
      * @brief Checks the type of any key in the JSON document.
@@ -85,23 +82,9 @@ public:
      * @return The type of the key.
      */
     KeyType memberType(std::string const& doc_key) const {
-        auto [doc, key] = splitDocKey(doc_key);
-
-        ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
-
-        // Check if the document exists in the cache
-        if (docPtr == nullptr) {
-            return KeyType::null; // Return null if document loading fails
-        }
-
-        // Retrieve the key type from the document
-        KeyType const type = docPtr->document.memberType(key);
-
-        // Update the cache (unload old documents)
-        update();
-
-        // Return key:
-        return type; // Use the JSON get method to retrieve the value
+        return getValueFromCache<KeyType>(doc_key, KeyType::null, [](ReadOnlyDoc const* docPtr, std::string_view const& key) {
+            return docPtr->document.memberType(key);
+        });
     }
 
     /**
@@ -112,23 +95,9 @@ public:
      * @return The size of the key.
      */
     size_t memberSize(std::string const& doc_key) const {
-        auto [doc, key] = splitDocKey(doc_key);
-
-        ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
-
-        // Check if the document exists in the cache
-        if (docPtr == nullptr) {
-            return 0; // Return 0 if document loading fails
-        }
-
-        // Retrieve the key size from the document
-        size_t const size = docPtr->document.memberSize(key);
-
-        // Update the cache (unload old documents)
-        update();
-
-        // Return key:
-        return size; // Use the JSON get method to retrieve the value
+        return getValueFromCache<size_t>(doc_key, 0, [](ReadOnlyDoc const* docPtr, std::string_view const& key) {
+            return docPtr->document.memberSize(key);
+        });
     }
 
     /**
@@ -137,27 +106,13 @@ public:
      * @return The serialized JSON string.
      */
     std::string serialize(std::string const& doc_key) const {
-        auto [doc, key] = splitDocKey(doc_key);
-
-        ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
-
-        // Check if the document exists in the cache
-        if (docPtr == nullptr) {
-            return "{}"; // Return empty JSON object if document loading fails
-        }
-
-        // if key is empty, return entire document
-        std::string data;
-        if (key.empty()) {
-            data = docPtr->serial;
-        }
-        else {
-            // Retrieve the sub-document from the document
+        return getValueFromCache<std::string>(doc_key, "{}", [](ReadOnlyDoc const* docPtr, std::string_view const& key) {
+            if (key.empty()) {
+                return docPtr->serial;
+            }
             JSON const subDoc = docPtr->document.getSubDoc(key);
-            data = subDoc.serialize();
-        }
-        update();
-        return data;
+            return subDoc.serialize();
+        });
     }
 
     /**
@@ -188,16 +143,10 @@ private:
      */
     ReadOnlyDocs readOnlyDocs;
 
-    // Default value for double pointers, if the document or key is not found
     /**
-     * @brief Default zero value for stable double pointers.
-     * @todo Currently used as a fallback for missing documents/keys and set to 0 on each access.
-     *       Consider optimizing this by implementing a more sophisticated handling mechanism.
-     *       Perhaps storing a unique double pointer for each missing key instead and keeping track of them and their keys.
-     *       This would usually not be needed, as zero is only assigned for missing documents?
-     *       But at least one pointer per key would be better than resetting this one each time.
+     * @brief Default zero value for stable double pointer retrieval, if document access fails.
      */
-    double zero = 0.0;
+    double const zero = 0.0;
 
     /**
      * @brief Splits a doc:key string into its components, also works for doc|transform or doc:key|transform
@@ -229,8 +178,29 @@ private:
      * @brief Updates the cache by checking a random document for its last usage time.
      */
     void update() const ;
-};
 
+    /**
+     * @brief Templated helper function to retrieve a value from the read only cache
+     */
+    template <typename ValueType>
+    ValueType getValueFromCache(std::string const& doc_key, ValueType const& defaultValue, std::function<ValueType(ReadOnlyDoc const* doc, std::string_view const& key)> retrievalFunction) const {
+        static_assert(!std::is_same_v<ValueType, JSON>, "JSON values cannot be used here. Please re-implement the retrieval logic in a custom way instead of using this helper function.");
+
+        auto [doc, key] = splitDocKey(doc_key);
+
+        ReadOnlyDoc const* docPtr = readOnlyDocs.getDocument(doc);
+        if (!docPtr) {
+            return defaultValue;
+        }
+
+        // Check if the document exists in the cache
+        ValueType const data = retrievalFunction(docPtr, key);
+
+        // Update the cache (unload old documents) and return the size
+        update();
+        return data;
+    }
+};
 
 //------------------------------------------
 // Definitions of template functions
