@@ -18,10 +18,13 @@ beep
 broadcast
 bundleToArray
 cam
+case-insensitive
+case-sensitive
 cat
 category
 categoryLevel1
 categoryLevel2
+ceiling
 clear
 close
 collision-detect
@@ -31,6 +34,7 @@ contains
 copy
 crash
 critical
+custom
 debug
 delete
 deload
@@ -40,6 +44,7 @@ document
 draft
 dump-view
 echo
+empty
 endsWith
 ensure-array
 ensureArray
@@ -59,13 +64,14 @@ filterGlob
 filterNulls
 filterRegex
 first
+floor
 for
 formatNumber
+forward
 function
 functree
 geq
 get
-getMultiple
 global
 gt
 halt-once
@@ -110,12 +116,14 @@ nonEmpty
 nop
 nor
 not
+numerically
 object
 off
 on
 once
 open
 or
+other
 parse
 play-sound
 play-sound-filtered
@@ -140,6 +148,7 @@ reload
 remove
 removeMember
 render-object
+reparse
 replace
 require
 reverse
@@ -172,6 +181,7 @@ settings
 sgn
 show-fps
 snapshot
+sort
 spawn
 sqrt
 standard-file

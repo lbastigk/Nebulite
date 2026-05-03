@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Thu Apr 30 02:57:16 CEST 2026
+Generated on: Sun May  3 17:53:37 CEST 2026
 
 ## Table of Contents
 
@@ -49,6 +49,7 @@ Available Functions
 | `expression-help` | Lists all available expression functions with their descriptions. |
 | `feature-test` | Functions for testing features in the GlobalSpace |
 | `for` | Executes a for-loop with a function call. |
+| `forward` | Commands for forwarding function calls to other contexts (other or global). |
 | `help` | Show available commands and their descriptions |
 | `if` | Executes a block of code if a condition is true. |
 | `imgui-view` | Creates an ImGui view of the domain. |
@@ -69,6 +70,7 @@ Available Functions
 | `push-back` | Push a value to the back of an array. |
 | `push-front` | Push a value to the front of an array. |
 | `query` | Functions to manipulate JSON data via SQL query results |
+| `reparse` | Commands for forwarding function calls to other contexts (other or global) while switching context. |
 | `rmlui` | Functions for managing RmlUI elements. |
 | `ruleset` | Functions for managing rulesets in the GlobalSpace. |
 | `selected-object` | Functions to select and interact with a selected RenderObject |
@@ -531,6 +533,38 @@ This is useful for:
 - Creating complex control flows in scripts.
 ```
 
+#### `forward`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `global` | Forwards the arguments to the global context without modifying context. |
+| `help` | Show available commands and their descriptions |
+| `other` | Forwards the arguments to the other context without modifying context. |
+
+##### `forward global`
+
+```
+Forwards the arguments to the global context without modifying context.
+Same as a json ruleset functioncall in the global context.
+Usage: forward global <functioncall>
+
+This command takes the arguments after 'forward global' and executes them as a command in the global context.
+This is useful for executing commands that are only available in the global context or for modifying global variables.
+```
+
+##### `forward other`
+
+```
+Forwards the arguments to the other context without modifying context.
+Same as a json ruleset functioncall in the other context.
+Usage: forward other <functioncall>
+
+This command takes the arguments after 'forward other' and executes them as a command in the other context.
+This is useful for executing commands that are only available in the other context.
+```
+
 #### `if`
 
 ```
@@ -809,6 +843,36 @@ Available Functions
 ```
 Sets a key from a SQL query result.
 Not implemented yet.
+```
+
+#### `reparse`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `global` | Forwards the arguments to the global context, replacing all context with global. |
+| `help` | Show available commands and their descriptions |
+| `other` | Forwards the arguments to the other context, switching the contexts self and other. |
+
+##### `reparse global`
+
+```
+Forwards the arguments to the global context, replacing all context with global.
+Usage: forward global <functioncall>
+
+This command takes the arguments after 'forward global' and executes them as a command in the global context.
+This is useful for modifying global variables.
+```
+
+##### `reparse other`
+
+```
+Forwards the arguments to the other context, switching the contexts self and other.
+Usage: forward other <functioncall>
+
+This command takes the arguments after 'forward other' and executes them as a command in the other context.
+This is useful for modifying variables in the other context.
 ```
 
 #### `rmlui`
@@ -1168,6 +1232,7 @@ Available Functions
 | `error` | Echoes all arguments as string to the standard error. |
 | `eval` | Evaluates an expression string and executes it. |
 | `for` | Executes a for-loop with a function call. |
+| `forward` | Commands for forwarding function calls to other contexts (other or global). |
 | `help` | Show available commands and their descriptions |
 | `if` | Executes a block of code if a condition is true. |
 | `imgui-view` | Creates an ImGui view of the domain. |
@@ -1185,6 +1250,7 @@ Available Functions
 | `push-back` | Push a value to the back of an array. |
 | `push-front` | Push a value to the front of an array. |
 | `query` | Functions to manipulate JSON data via SQL query results |
+| `reparse` | Commands for forwarding function calls to other contexts (other or global) while switching context. |
 | `ruleset` | Ruleset management functions for the RenderObject domain. |
 | `set` | Set a key to a value in the JSON document. |
 | `warn` | Sends a warning to the capture. |
@@ -1324,6 +1390,38 @@ This is useful for:
 - Repeating actions a specific number of times.
 - Iterating over a range of values.
 - Creating complex control flows in scripts.
+```
+
+#### `forward`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `global` | Forwards the arguments to the global context without modifying context. |
+| `help` | Show available commands and their descriptions |
+| `other` | Forwards the arguments to the other context without modifying context. |
+
+##### `forward global`
+
+```
+Forwards the arguments to the global context without modifying context.
+Same as a json ruleset functioncall in the global context.
+Usage: forward global <functioncall>
+
+This command takes the arguments after 'forward global' and executes them as a command in the global context.
+This is useful for executing commands that are only available in the global context or for modifying global variables.
+```
+
+##### `forward other`
+
+```
+Forwards the arguments to the other context without modifying context.
+Same as a json ruleset functioncall in the other context.
+Usage: forward other <functioncall>
+
+This command takes the arguments after 'forward other' and executes them as a command in the other context.
+This is useful for executing commands that are only available in the other context.
 ```
 
 #### `if`
@@ -1605,6 +1703,36 @@ Sets a key from a SQL query result.
 Not implemented yet.
 ```
 
+#### `reparse`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `global` | Forwards the arguments to the global context, replacing all context with global. |
+| `help` | Show available commands and their descriptions |
+| `other` | Forwards the arguments to the other context, switching the contexts self and other. |
+
+##### `reparse global`
+
+```
+Forwards the arguments to the global context, replacing all context with global.
+Usage: forward global <functioncall>
+
+This command takes the arguments after 'forward global' and executes them as a command in the global context.
+This is useful for modifying global variables.
+```
+
+##### `reparse other`
+
+```
+Forwards the arguments to the other context, switching the contexts self and other.
+Usage: forward other <functioncall>
+
+This command takes the arguments after 'forward other' and executes them as a command in the other context.
+This is useful for modifying variables in the other context.
+```
+
 #### `ruleset`
 
 Available Functions
@@ -1672,6 +1800,7 @@ Available Functions
 | `at` | Gets the element at the specified index from the array in the current JSON value. |
 | `average` | Calculates the average of the elements of the array in the current JSON value. |
 | `bundleToArray` | Gathers all members from the provided keys into an array. |
+| `ceiling` | Rounds the current JSON numeric value down to the nearest integer. |
 | `deserialize` | Deserializes the current JSON string value stored in root. |
 | `div` | Divides the current JSON value by a numeric value. |
 | `echo` | Echoes the provided arguments to the console, with newline. |
@@ -1680,9 +1809,9 @@ Available Functions
 | `filterNulls` | Filters out null values, empty objects, and empty arrays from the current JSON |
 | `filterRegex` | Filters members in the current JSON array/object based on a regular expression pattern. |
 | `first` | Gets the first element of the array in the current JSON value. |
+| `floor` | Rounds the current JSON numeric value down to the nearest integer. |
 | `formatNumber` | If the stored value is a number, it is formatted with a given format specifier |
 | `get` | Gets the value at the specified key from the current JSON object. |
-| `getMultiple` | Gets multiple values at the specified keys from the current JSON object. |
 | `help` | Show available commands and their descriptions |
 | `lPad` | Pads the current JSON string value on the left with a specified character until it reaches a specified total length. |
 | `lPadNonNumeric` | Pads the current JSON non-numeric string value on the left with a specified character until it reaches a specified total length. |
@@ -1721,6 +1850,7 @@ Available Functions
 | `setFromResult` | Sets the value at the specified key in the JSON document from the result of another expression. |
 | `setInt` | Sets an integer value at the specified key in the JSON document. |
 | `setString` | Sets a string value at the specified key in the JSON document. |
+| `sort` | Sorting transformation functions |
 | `sqrt` | Calculates the square root of the current JSON value. |
 | `stddev` | Calculates the standard deviation of the elements of the array in the current JSON value. |
 | `strCompare` | Functions for comparing string values. |
@@ -1763,11 +1893,21 @@ Available Functions
 
 | Function | Description |
 |----------|-------------|
+| `empty` | Asserts that the current JSON value is empty. |
 | `equals` | Assertion transformations that validate JSON value equality and throw exceptions on failure. |
 | `help` | Show available commands and their descriptions |
-| `match` | Assertion transformation that validate JSON string values with patterns and throw exceptions on failure. |
+| `match` | Assertion transformations that validate JSON string values with patterns and throw exceptions on failure. |
 | `nonEmpty` | Asserts that the current JSON value is non-empty. |
 | `type` | Assertion transformations that validate JSON value types and throw exceptions on failure. |
+
+##### `assert empty`
+
+```
+Asserts that the current JSON value is empty.
+If the value is not empty, the transformation fails and the program exits.
+Accepts an optional user-defined error message as additional arguments.
+Usage: |assert empty -> {value,<Exception thrown if not empty>}
+```
 
 ##### `assert equals`
 
@@ -1783,7 +1923,7 @@ Available Functions
 
 ```
 Asserts that the current JSON value is an integer.
-If the value is not an integer, the transformation fails and the program exits
+If the value is not an integer, the transformation fails and the program exits.
 Usage: |assert equals int <expected> -> {value,<Exception thrown if not equal>}
 ```
 
@@ -1791,7 +1931,7 @@ Usage: |assert equals int <expected> -> {value,<Exception thrown if not equal>}
 
 ```
 Asserts that the current JSON value is equal to the specified string.
-If the value is not equal to the specified string, the transformation fails and the program exits
+If the value is not equal to the specified string, the transformation fails and the program exits.
 Usage: |assert equals string <expected> -> {value,<Exception thrown if not equal>}
 ```
 
@@ -1808,15 +1948,15 @@ Available Functions
 
 ```
 Asserts that the current JSON string value matches a provided regular expression.
-If the value does not match the regular expression, the transformation fails and the program exits
-Usage: |assert match regex <regex> -> {value,<Exception thrown if not matches>}
+If the value does not match the regular expression, the transformation fails and the program exits.
+Usage: |assert match regex <regex> -> {value,<Exception thrown if no match>}
 ```
 
 ##### `assert nonEmpty`
 
 ```
 Asserts that the current JSON value is non-empty.
-If the value is empty, the transformation fails and the program exits
+If the value is empty, the transformation fails and the program exits.
 Accepts an optional user-defined error message as additional arguments.
 Usage: |assert nonEmpty -> {value,<Exception thrown if empty>}
 ```
@@ -1836,7 +1976,7 @@ Available Functions
 
 ```
 Asserts that the current JSON value is of type array.
-If the value is not an array, the transformation fails and the program exits
+If the value is not an array, the transformation fails and the program exits.
 Accepts an optional user-defined error message as additional arguments.
 Usage: |assert type array -> {value,<Exception thrown if not array>}
 ```
@@ -1845,7 +1985,7 @@ Usage: |assert type array -> {value,<Exception thrown if not array>}
 
 ```
 Asserts that the current JSON value is a basic value (not object or array or null).
-If the value is not a basic value, the transformation fails and the program exits
+If the value is not a basic value, the transformation fails and the program exits.
 Accepts an optional user-defined error message as additional arguments.
 Usage: |assert type value -> {value,<Exception thrown if not value>}
 ```
@@ -1854,7 +1994,7 @@ Usage: |assert type value -> {value,<Exception thrown if not value>}
 
 ```
 Asserts that the current JSON value is of type object.
-If the value is not an object, the transformation fails and the program exits
+If the value is not an object, the transformation fails and the program exits.
 Accepts an optional user-defined error message as additional arguments.
 Usage: |assert type object -> {value,<Exception thrown if not object>}
 ```
@@ -1889,6 +2029,14 @@ Usage: |average -> {number}
 ```
 Gathers all members from the provided keys into an array.
 Usage: |bundleToArray <key1> <key2> ... -> {array}
+```
+
+#### `ceiling`
+
+```
+Rounds the current JSON numeric value down to the nearest integer.
+Usage: |roundDown/floor -> {value:int}
+Non-numeric values default to 0. Fails if the value is null.
 ```
 
 #### `deserialize`
@@ -1953,6 +2101,14 @@ If the current value is not an array, it is first wrapped into a single-element 
 Usage: |first -> {value}
 ```
 
+#### `floor`
+
+```
+Rounds the current JSON numeric value down to the nearest integer.
+Usage: |roundDown/floor -> {value:int}
+Non-numeric values default to 0. Fails if the value is null.
+```
+
 #### `formatNumber`
 
 ```
@@ -1966,13 +2122,6 @@ Example formatters: 04.2f, 5i, 06i
 ```
 Gets the value at the specified key from the current JSON object.
 Usage: |get <key> -> {value}
-```
-
-#### `getMultiple`
-
-```
-Gets multiple values at the specified keys from the current JSON object.
-Usage: |getMultiple <key1> <key2> ... -> {array of values}
 ```
 
 #### `lPad`
@@ -2195,7 +2344,7 @@ Available Functions
 
 ```
 Requires that the current JSON value is non-empty.
-If the value is empty, the transformation fails
+If the value is empty, the transformation fails.
 Accepts an optional user-defined error message as additional arguments.
 Usage: |requireNonEmpty -> {value,<Returns false if empty>}
 ```
@@ -2215,7 +2364,7 @@ Available Functions
 
 ```
 Requires that the current JSON value is of type array.
-If the value is not an array, the transformation fails
+If the value is not an array, the transformation fails.
 Accepts an optional user-defined error message as additional arguments.
 Usage: |requireTypeArray -> {value,<Returns false if not array>}
 ```
@@ -2224,7 +2373,7 @@ Usage: |requireTypeArray -> {value,<Returns false if not array>}
 
 ```
 Requires that the current JSON value is a basic value (not object or array or null).
-If the value is not a basic value, the transformation fails
+If the value is not a basic value, the transformation fails.
 Accepts an optional user-defined error message as additional arguments.
 Usage: |requireTypeValue -> {value,<Returns false if not value>}
 ```
@@ -2233,7 +2382,7 @@ Usage: |requireTypeValue -> {value,<Returns false if not value>}
 
 ```
 Requires that the current JSON value is of type object.
-If the value is not an object, the transformation fails
+If the value is not an object, the transformation fails.
 Accepts an optional user-defined error message as additional arguments.
 Usage: |requireTypeObject -> {value,<Returns false if not object>}
 ```
@@ -2266,7 +2415,7 @@ Non-numeric values default to 0. Fails if the value is null.
 
 ```
 Rounds the current JSON numeric value down to the nearest integer.
-Usage: |roundDown -> {value:int}
+Usage: |roundDown/floor -> {value:int}
 Non-numeric values default to 0. Fails if the value is null.
 ```
 
@@ -2274,7 +2423,7 @@ Non-numeric values default to 0. Fails if the value is null.
 
 ```
 Rounds the current JSON numeric value up to the nearest integer.
-Usage: |roundUp -> {value:int}
+Usage: |roundUp/ceiling -> {value:int}
 Non-numeric values default to 0.
 ```
 
@@ -2324,6 +2473,52 @@ Usage: |setInt <key> <value> -> {json}
 Sets a string value at the specified key in the JSON document.
 Expects two arguments: <key> and <value>.
 Usage: |setString <key> <value> -> {json}
+```
+
+#### `sort`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `case-insensitive` | Sorts the array in the current JSON value case-insensitive. |
+| `case-sensitive` | Sorts the array in the current JSON value case-sensitive. |
+| `custom` | Sorts the array in the current JSON value using a custom comparator expression. |
+| `help` | Show available commands and their descriptions |
+| `numerically` | Sorts the array in the current JSON value numerically. |
+
+##### `sort case-insensitive`
+
+```
+Sorts the array in the current JSON value case-insensitive.
+If the current value is not an array, the transformation fails.
+Usage: |sort alphabetically -> {sorted array}
+```
+
+##### `sort case-sensitive`
+
+```
+Sorts the array in the current JSON value case-sensitive.
+Upper case letters first.
+If the current value is not an array, the transformation fails.
+Usage: |sort case-sensitive -> {sorted array}
+```
+
+##### `sort custom`
+
+```
+Sorts the array in the current JSON value using a custom comparator expression.
+The comparator function uses the context self for the first element and other for the second element.
+For example: $(gt({self:|length},{other:|length}))
+)Usage: |sort custom <expression> -> {sorted array}
+```
+
+##### `sort numerically`
+
+```
+Sorts the array in the current JSON value numerically.
+If the current value is not an array, the transformation fails.
+Usage: |sort numerically -> {sorted array}
 ```
 
 #### `sqrt`

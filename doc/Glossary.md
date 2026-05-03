@@ -161,12 +161,6 @@ Examples:
 See also: [Context](#context), [VirtualDouble](#virtualdouble), [Multiresolve](#multiresolve)
 
 -----------------
-### ExpressionPool
-Allows for parallel computation of a single Expression. 
-
-See also: [Expression](#expression), [Context](#context)
-
------------------
 ## F
 
 -----------------
