@@ -89,7 +89,6 @@ protected:
     } workerInfo;
 
 private:
-
     // static wrappers for WorkDispatcher
     static void initImpl(DerivedContainer container) { container->init(); }
     static void processImpl(DerivedContainer container) { container->process(); }

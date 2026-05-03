@@ -18,7 +18,6 @@ Constants::Event General::updateHook() {
             domain.capture.error.println("Failed to render ImGui view: Context is no longer valid. Disabling ImGui view.");
             return Constants::Event::Error;
         }
-
         Global::instance().getRenderer().addRenderCallback([&] {
             auto ctx = Interaction::Context{
                 {
@@ -36,7 +35,6 @@ Constants::Event General::updateHook() {
             };
             Graphics::ImguiHelper::renderDomain(ctx, ctxScope, domain.capture, domain.getName());
         });
-
     }
     return Constants::Event::Success;
 }

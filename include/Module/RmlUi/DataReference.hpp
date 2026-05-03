@@ -21,7 +21,6 @@ namespace Nebulite::Module::RmlUi {
 
 class DataReference final : public Base::RmlUiModule {
 public:
-
     explicit DataReference(Utility::IO::Capture& c, Graphics::RmlInterface& i);
 
     void update() override ;
@@ -32,8 +31,8 @@ public:
 
     static auto constexpr dataValueAttribute = "data-value";
     static auto constexpr dataIfAttribute = "data-if";
-private:
 
+private:
     absl::flat_hash_map<
         Rml::Element*,
         Rml::String

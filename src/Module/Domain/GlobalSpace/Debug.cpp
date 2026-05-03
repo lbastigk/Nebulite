@@ -37,7 +37,6 @@ auto const* logFilename = "errors.log";
  * @todo Move this functionality to globalspace
  */
 bool safe_open_log(std::unique_ptr<std::ofstream>& out) {
-
 #if defined(_WIN32)
     DWORD attrs = GetFileAttributesA(logFilename);
     if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_REPARSE_POINT)) {

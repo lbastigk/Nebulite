@@ -47,6 +47,7 @@ public:
     Camera();
 
     static std::string_view constexpr moduleName = "::camera";
+    
 private:
     //------------------------------------------
     // Base value caching for camera alignment

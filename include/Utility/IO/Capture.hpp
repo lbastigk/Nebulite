@@ -48,6 +48,7 @@ template<std::ostream* /*BaseStream*/, HistoryLine::Type /*LineType*/>
 class Stream {
     Capture* capture; // Main capture reference so we can lock its mutex, so cout/cerr don't interfere with each other
     void putStr(std::string const& str, bool const& printToConsole) const ;
+
 public:
     explicit Stream(Capture* c) : capture(c) {}
 

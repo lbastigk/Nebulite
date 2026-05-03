@@ -40,6 +40,7 @@ public:
     Movement();
 
     static std::string_view constexpr moduleName = "::movement";
+
 private:
     //------------------------------------------
     // Base values for movement framework
