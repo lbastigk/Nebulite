@@ -101,6 +101,7 @@ class ScopedKey {
 
     // Add operator for appending suffixes
     [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;
+
 public:
     ScopedKey() = default;
 
@@ -178,6 +179,7 @@ class ScopedKeyView {
 
     // Adding suffix to produce a new ScopedKeyView
     [[nodiscard]] ScopedKey operator+(std::string_view const& suffix) const ;
+
 public:
     /**
      * @brief Produce the full key string including scope prefix.

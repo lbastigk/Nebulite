@@ -104,7 +104,6 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
                     texture.capture.error.println("Failed to render sprite texture in drawcall: ", SDL_GetError());
                 }
             }
-
         }
         else {
             texture.capture.error.println("Attempted to draw uninitialized texture in drawcall.");
@@ -112,7 +111,6 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
     };
 
     auto const& renderer = Global::instance().getRenderer();
-
 
     switch (type) {
         // Sprite and text draw calls simply render their texture

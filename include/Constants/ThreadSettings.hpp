@@ -35,6 +35,7 @@ class ThreadSettings {
     };
 
     static_assert(Spreading::invokeWorker + Spreading::rendererWorker < 1.0, "Thread spreading percentages must sum to less than 1.0 to not take up all available threads.");
+
 public:
     static size_t getInvokeWorkerCount() {
         return std::max(

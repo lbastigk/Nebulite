@@ -191,7 +191,6 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
 
     // Core events
     switch (event.type) {
-
     case SDL_EVENT_MOUSE_MOTION:
         context->ProcessMouseMove(
             static_cast<int>(event.motion.x),
@@ -199,7 +198,6 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
             SdlModifierToRmlModifier(event.key.mod)
         );
         break;
-
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
     case SDL_EVENT_MOUSE_BUTTON_UP: {
         int button = 0;
@@ -218,7 +216,6 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
         }
         break;
     }
-
     case SDL_EVENT_MOUSE_WHEEL: {
         context->ProcessMouseWheel(
             {event.wheel.x, event.wheel.y},
@@ -226,7 +223,6 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
         );
         break;
     }
-
     case SDL_EVENT_KEY_DOWN:
     case SDL_EVENT_KEY_UP: {
         // Skip keys that generate text input
@@ -241,11 +237,9 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
             context->ProcessKeyUp(rmlKey, modifiers);
         break;
     }
-
     case SDL_EVENT_TEXT_INPUT:
         context->ProcessTextInput(event.text.text);
         break;
-
     default:
         break;
     }

@@ -68,8 +68,8 @@ class JsonRvalueTransformer {
     }
 
     JsonRvalueTransformer();
-public:
 
+public:
     // Singleton-Instance
     static JsonRvalueTransformer& instance();
 
@@ -87,6 +87,12 @@ public:
     bool parse(std::vector<std::string> const& transformationList, JsonScope* jsonDoc) const ;
     bool parse(std::vector<std::string> const& transformationList, JSON* jsonDoc) const ;
 
+    /**
+     * @brief Parse a single transformation with already separated arguments.
+     * @param args The arguments to pass to the function
+     * @param jsonDoc The document to manipulate
+     * @return true if the transformations were successfully applied, false otherwise.
+     */
     bool parseSingleTransformation(std::span<std::string const> const& args, JsonScope* jsonDoc) const ;
 };
 } // namespace Nebulite::Data

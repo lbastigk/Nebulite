@@ -22,7 +22,6 @@ namespace Nebulite::Constants {
  *          Takes care of both the logging and the proper Event return value.
  */
 struct StandardCapture {
-
     struct Warning {
         struct Renderer {
             static Event snapshotFailed(Utility::IO::Capture& cap) {
@@ -30,7 +29,6 @@ struct StandardCapture {
                 return Event::Warning;
             }
         };
-
         struct Functional {
             static Event functionCallInvalid(Utility::IO::Capture& cap) {
                 cap.warning.println("Requested function call is invalid.");

@@ -20,7 +20,6 @@ void General::bindTransformations() {
     bindTransformation(&General::assign, assignName, assignDesc);
     bindTransformation(&General::asString, asStringName, asStringDesc);
     bindTransformation(&General::formatNumber, formatNumberName, formatNumberDesc);
-
 }
 
 bool General::setString(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {

@@ -35,6 +35,7 @@ template<typename V>
 class HotStringKeyMap {
 public:
     static auto constexpr BucketCount = static_cast<std::size_t>(std::numeric_limits<unsigned char>::max()) + 1;
+
 private:
     // Use 256 buckets for first-byte partitioning
     using MapType = HotKeyMap<std::string, V>;
@@ -44,6 +45,7 @@ private:
     static_assert(BucketCount == 256, "Expected 256 buckets for HotStringKeyMap");
 
     std::array<Utility::Coordination::SharedMutex, BucketCount> bucketMutex; // Mutexes for each character bucket
+
 public:
     HotStringKeyMap() = default;
 

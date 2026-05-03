@@ -69,10 +69,8 @@ auto rotate(R&& r, double percent){
 void FlatContainerImpl::process() {
     for (auto& listenerMap : rotate(listeners, settings.listenerOffset)) {
         listenerMap.forall([&](std::string const& topic, auto& lv) {
-
             // Build a flattened view of all rulesets for this topic
-            auto rulesets =
-                rotate(broadcasters, settings.broadcasterOffset)
+            auto rulesets = rotate(broadcasters, settings.broadcasterOffset)
                 | std::views::transform([&](auto& broadcasterMap) -> auto& {
                       return broadcasterMap[topic];
                   })
@@ -81,22 +79,18 @@ void FlatContainerImpl::process() {
                   })
                 | std::views::join;
 
+            // Apply all valid rulesets and clear listeners
             for (auto& listener : rotate(lv, settings.lvOffset)) {
                 for (auto const& ruleset : rulesets) {
-
-                    if (ruleset->getId() == listener->domain.getId())
-                        continue;
-
-                    if (ruleset->evaluateCondition(listener->domain))
-                        ruleset->apply(listener);
+                    if (ruleset->getId() == listener->domain.getId()) continue;
+                    if (ruleset->evaluateCondition(listener->domain)) ruleset->apply(listener);
                 }
             }
-
             lv.clear();
         });
     }
 
-    // Cleanup: Clear all broadcaster vectors
+    // Cleanup: Clear all broadcasters
     for (auto& broadcasterMap : broadcasters) {
         broadcasterMap.forall([&](auto& bv) {
             bv.clear();

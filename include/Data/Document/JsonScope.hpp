@@ -44,12 +44,12 @@ public:
     // Thread runners are unique, no locking needed
     static auto constexpr noLockArraySize = Constants::ThreadSettings::Maximum::totalThreadCount + 4; // A bit extra, just in case
 
-    std::shared_ptr<JSON> baseDocument;
-protected:
-    // NOLINTNEXTLINE
-    JSON& doc(){return *baseDocument;} // For non-const-access
-
 private:
+    std::shared_ptr<JSON> baseDocument;
+
+    // NOLINTNEXTLINE
+    JSON& doc(){return *baseDocument;} // For non-const-access, carrying over the non-const-attribute of baseDocument
+
     /**
      * @brief The Prefix of the scope. A nullopt indicates that this JsonScope is a dummy (no access allowed).
      * @details Dummy scopes do not allow any access to the underlying JSON document.

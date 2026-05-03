@@ -104,7 +104,6 @@ public:
         struct TextSpecific {
             static auto constexpr fontsize = Data::ScopedKeyView("textureData.fontSize");
             static auto constexpr str = Data::ScopedKeyView("textureData.str");
-
         };
 
         struct CircleSpecific {

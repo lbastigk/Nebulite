@@ -236,6 +236,7 @@ public:
         static auto constexpr arrayClose = ']';
         static auto constexpr dot = '.';
     };
+
 private:
     /**
      * @brief Extracts the next part of a key from a dot/bracket notation key string.

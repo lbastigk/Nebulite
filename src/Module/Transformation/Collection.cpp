@@ -183,7 +183,6 @@ bool Collection::listMembersAndValues(Data::JsonScope* jsonDoc){
             auto key2 = rootKey.addIndex(i).addMember("value");
             jsonDoc->set<std::string>(key1,member);
             jsonDoc->setSubDoc(key2,values[i]);
-
         }
     );
     return true;

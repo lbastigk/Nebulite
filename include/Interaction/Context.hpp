@@ -79,6 +79,7 @@ public:
     static std::string typeToString(TargetType const& type);
 
     static auto constexpr contextKeySeparator = ':';
+
 private:
     /**
      * @brief Pairs of context types and their corresponding prefixes for easy reference when parsing variable keys.

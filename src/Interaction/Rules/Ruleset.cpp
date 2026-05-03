@@ -79,7 +79,6 @@ void JsonRuleset::apply(std::shared_ptr<Listener> const& contextOther) {
 
         // attach to task queue
         Global::instance().getTaskQueue(Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
-
     }
     for (auto& entry : functioncalls_self) {
         // replace vars
@@ -109,7 +108,6 @@ void JsonRuleset::apply() {
 
         // attach to task queue
         Global::instance().getTaskQueue(Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
-
     }
     for (auto& entry : functioncalls_self) {
         // replace vars

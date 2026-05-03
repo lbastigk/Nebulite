@@ -119,7 +119,6 @@ public:
     virtual void apply();
 
 protected:
-
     /**
      * @brief The index of this entry in the list of entries of the owning Domain.
      */

@@ -99,6 +99,7 @@ public:
         static size_t idRoll(); // Get a new id
 
         static size_t& count(); // Get the current id count as reference
+
     public:
         /**
          * @brief Get the current count of assigned identifiers.
@@ -207,8 +208,8 @@ public:
 
     // TODO: Add a custom bind function for modules to use
     Rml::DataModelConstructor dataModelConstructor;
-private:
 
+private:
     std::unique_ptr<RenderInterface_SDL> renderInterface;
     std::unique_ptr<SystemInterface_SDL> systemInterface; // TODO: Use custom SystemInterface derived from SDL and add toggle for Logging messages/Redirecting them to capture
     Rml::Context* context = nullptr;
