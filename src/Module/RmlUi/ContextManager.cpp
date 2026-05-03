@@ -11,9 +11,7 @@
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-ContextManager::ContextManager(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {
-    
-}
+ContextManager::ContextManager(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
 
 void ContextManager::update() {
     auto anySupportedAttribute = [] (Rml::Element* element) {

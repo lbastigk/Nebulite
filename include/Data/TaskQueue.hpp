@@ -43,7 +43,6 @@ struct TaskQueueResult {
  */
 class TaskQueue {
 public:
-
     /**
      * @brief Constructs a TaskQueue with specified settings.
      * @param clearAfterResolving If true, the task queue is cleared after resolving tasks.

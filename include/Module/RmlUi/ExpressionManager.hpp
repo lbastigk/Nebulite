@@ -4,8 +4,6 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-
 // External
 #include <absl/container/flat_hash_map.h>
 #include <absl/container/node_hash_map.h>
@@ -22,7 +20,6 @@ namespace Nebulite::Module::RmlUi {
 
 class ExpressionManager final : public Base::RmlUiModule {
 public:
-
     explicit ExpressionManager(Utility::IO::Capture& c, Graphics::RmlInterface& i);
 
     void update() override ;
@@ -33,7 +30,6 @@ public:
     static auto constexpr conditionalAttribute = "data-if";
 
 private:
-
     bool expressionsWereEvaluated = false;
 
     // Pre-compiled RML strings to expressions
@@ -53,7 +49,6 @@ private:
     void updateExpressions();
 
     void resetExpressions();
-
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP
