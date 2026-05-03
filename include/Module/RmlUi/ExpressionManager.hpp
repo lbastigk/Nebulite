@@ -29,18 +29,6 @@ public:
 
     void postRenderUpdate() override;
 
-    void OnInitialise() override ;
-
-    void OnShutdown() override ;
-
-    void OnContextCreate(Rml::Context* context) override ;
-
-    void OnContextDestroy(Rml::Context* context) override ;
-
-    void OnElementCreate(Rml::Element* element) override ;
-
-    void OnElementDestroy(Rml::Element* element) override ;
-
     static auto constexpr evalAttribute = "data-eval";
     static auto constexpr conditionalAttribute = "data-if";
 

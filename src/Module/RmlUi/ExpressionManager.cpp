@@ -34,30 +34,6 @@ void ExpressionManager::postRenderUpdate() {
     }
 }
 
-void ExpressionManager::OnInitialise() {
-
-}
-
-void ExpressionManager::OnShutdown() {
-
-}
-
-void ExpressionManager::OnContextCreate(Rml::Context* /*context*/) {
-
-}
-
-void ExpressionManager::OnContextDestroy(Rml::Context* /*context*/) {
-
-}
-
-void ExpressionManager::OnElementCreate(Rml::Element* /*element*/) {
-
-}
-
-void ExpressionManager::OnElementDestroy(Rml::Element* /*element*/) {
-
-}
-
 //----------------------------------------------
 
 void ExpressionManager::updateExpressions(){
@@ -73,12 +49,10 @@ void ExpressionManager::updateExpressions(){
 
                 Graphics::RmlInterface::RmlElementIdentifier const elementId(element);
                 if (auto const context = interface.getRmlElementContextAndScope(elementId); context.has_value()) {
-
                     if (context.value().ctxScope.hasDummyScope()) {
                         capture.warning.println("Failed to evaluate expression, a context member has a dummy scope!");
                         return;
                     }
-
                     if (auto const it = expressions.find(innerRml); it != expressions.end()) {
                         std::string const& evaluated = it->second.eval(context.value().ctxScope);
                         element->SetInnerRML(evaluated);

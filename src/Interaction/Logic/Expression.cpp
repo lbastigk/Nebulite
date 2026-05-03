@@ -161,13 +161,12 @@ void Expression::registerVariable(std::string te_name, std::string_view const& k
 }
 
 namespace {
+
 bool isTypeVariable(std::string_view const& str) {
     return str.starts_with('{') && str != "{object}";
 }
-} // namespace
 
-
-void Expression::parseIntoComponents(std::string_view const& expr) {
+std::vector<std::string> getTokens(std::string_view const& expr) {
     // First, we must split the expression into tokens
     // Split, keep delimiter(at start)
     // "abc$def$ghi" -> ["abc", "$def", "$ghi"]
@@ -202,9 +201,8 @@ void Expression::parseIntoComponents(std::string_view const& expr) {
         tokensPhase2.push_back(currentToken);
     }
 
-    std::vector<std::string> tokens;
-
     // Now we need to split on same depth
+    std::vector<std::string> tokens;
     for (auto const& token : tokensPhase2) {
         // If the first token starts with '$', it means the string started with '$'
         // If not, the first token is text before the first '$'
@@ -231,17 +229,13 @@ void Expression::parseIntoComponents(std::string_view const& expr) {
             tokens.push_back(token);
         }
     }
+    return tokens;
+}
 
-    // Now we have a correct list of tokens. Either:
-    // - evaluation
-    // - text
-    // Now we parse all tokens into a proper component, which further splits and categorizes them:
-    // - general type: {variable, eval, text}
-    // - cast type
-    // - formatting
-    // - splitting all text-variable mixes
-    // - variable info (from what document, what the key is)
-    for (auto const& token : tokens) {
+} // namespace
+
+void Expression::parseIntoComponents(std::string_view const& expr) {
+    for (auto const& token : getTokens(expr)) {
         if (!token.empty()) {
             if (token.starts_with('$')) {
                 parseTokenTypeEval(token);
