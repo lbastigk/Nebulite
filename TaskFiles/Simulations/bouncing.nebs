@@ -1,5 +1,5 @@
 set-fps 1000
-time set-fixed-dt 1 # Low fixed time step, otherwise fast objects may tunnel
+time set-fixed-dt 5
 set physics.g 9.81  # Earth gravity
 eval set-res $i(640*1.6) $i(360*1.6)
 echo
@@ -7,8 +7,9 @@ echo Bouncing test
 echo
 
 #########################################
-#echo Spawning player
-#spawn ./Resources/Renderobjects/Creatures/player_with_collision.jsonc|posX=160|posY=160|physics.vNorm=200
+echo Spawning bouncing block
+set bounceCount 1
+spawn ./Resources/Renderobjects/Boxes/bounce.jsonc|posX=100|posY=100|physics.vX=100|physics.vY=-100
 
 #########################################
 echo Spawning boundary
@@ -21,14 +22,21 @@ for i 10 20 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|p
 for i 01 30 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|posY=$(16*{i} + 48)|posX=$(60*16)
 
 #########################################
-echo Spawning bouncing block
-set bounceCount 1
-spawn ./Resources/Renderobjects/Boxes/bounce.jsonc|posX=100|posY=100|physics.vX=100|physics.vY=-100
-
-#########################################
 # Spawn on mouse click
 
 wait 100
 always if $(eq({global:renderer.input.mouse.delta.left},1)) eval set bounceCount $({global:bounceCount}+1)
 always if $(eq({global:renderer.input.mouse.delta.left},1)) eval echo Spawning at: ($06.2f({global:renderer.input.mouse.current.scaledX}),$06.2f({global:renderer.input.mouse.current.scaledY})) | Count: {global:bounceCount}
 always if $(eq({global:renderer.input.mouse.delta.left},1)) eval spawn ./Resources/Renderobjects/Boxes/bounce.jsonc|posX={global:renderer.input.mouse.current.scaledX}|posY={global:renderer.input.mouse.current.scaledY}|physics.vX={global:renderer.input.mouse.delta.scaledX}|physics.vY={global:renderer.input.mouse.delta.scaledY}
+
+#########################################
+# If the bouncing block ever leaves the screen, throw an error
+
+selected-object get 1
+selected-object parse mirror on
+
+wait 1
+always assert $(gt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posX},0))
+always assert $(gt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posY},0))
+always assert $(lt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posX},{global:renderer.resolution.X}))
+always assert $(lt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posY},{global:renderer.resolution.X}))

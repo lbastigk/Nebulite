@@ -10,5 +10,17 @@
     {
         "command": "task TaskFiles/Tests/Scenes/gravity_classic_some_frames.nebs",
         "expected": { "cout": null, "cerr": [] }
+    },
+    {
+        "command": [
+            "# Check if the bouncing simulation runs without the ball leaving the scene",
+            "# At such a high fixed dt, the ball should hold for some 1000s of frames",
+            "# This also has the benefit of checking if json-rulesets are being executed",
+            "task TaskFiles/Simulations/bouncing.nebs",
+            "time set-fixed-dt 50",
+            "wait 1000",
+            "exit"
+        ],
+        "expected": { "cout": null, "cerr": [] }
     }
 ]
