@@ -29,7 +29,7 @@ public:
     }
 };
 
-Constants::Event FeatureTest::testFuncTree(std::span<std::string const> const& /*args*/) const {
+Constants::Event FeatureTest::testFuncTree() const {
     // Build a FuncTree with extra argument JSON&
     Interaction::Execution::FuncTree<double, double> testTree("TestFuncTree", 0.0, std::numeric_limits<double>::quiet_NaN(), domain.capture);
 
@@ -71,6 +71,20 @@ Constants::Event FeatureTest::selfOtherGlobalEvaluation() const {
         Interaction::Logic::Expression const expr("{self:testKey} {other:testKey} {global:testKey}");
         domain.capture.log.println(expr.eval({self2, other2, globalScope}));
     }
+    return Constants::Event::Success;
+}
+
+Constants::Event FeatureTest::keyCombination(std::span<std::string const> const& args) const {
+    if (args.size() < 3) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
+    }
+    if (args.size() > 3) {
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+    }
+    std::string const key1 = args[1] == "<empty>" ? "" : args[1];
+    std::string const key2 = args[2] == "<empty>" ? "" : args[2];
+    auto const key = Data::ScopedKey(key1).addMember(key2);
+    domain.capture.log.println(key.view().toString());
     return Constants::Event::Success;
 }
 

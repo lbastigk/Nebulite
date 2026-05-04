@@ -34,15 +34,21 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event testFuncTree(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event testFuncTree() const ;
     static auto constexpr testFuncTree_name = "feature-test functree";
     static auto constexpr testFuncTree_desc = "Builds a funcTree with extra arguments and tests it\n"
         "Usage: feature-test functree\n";
 
     [[nodiscard]] Constants::Event selfOtherGlobalEvaluation() const ;
-    static auto constexpr selfOtherGlobalEvaluation_name = "evaluation";
+    static auto constexpr selfOtherGlobalEvaluation_name = "feature-test evaluation";
     static auto constexpr selfOtherGlobalEvaluation_desc = "Tests evaluation of self and other globals in one expression\n"
         "Usage: evaluation\n";
+
+    [[nodiscard]] Constants::Event keyCombination(std::span<std::string const> const& args) const ;
+    static auto constexpr keyCombination_name = "feature-test key-combination";
+    static auto constexpr keyCombination_desc = "Tests key-combinations for the ScopedKey class.\n"
+        "Usage: feature-test key-combination <key1> <key2>\n"
+        "Using <empty> as argument will treated as an empty key.\n";
 
     //------------------------------------------
     // Categories
@@ -63,6 +69,7 @@ public:
         bindCategory(category_feature_test_name, category_feature_test_desc);
         bindFunction(&FeatureTest::testFuncTree, testFuncTree_name, testFuncTree_desc);
         bindFunction(&FeatureTest::selfOtherGlobalEvaluation, selfOtherGlobalEvaluation_name, selfOtherGlobalEvaluation_desc);
+        bindFunction(&FeatureTest::keyCombination, keyCombination_name, keyCombination_desc);
     }
 
     struct Key : Data::KeyGroup<""> {

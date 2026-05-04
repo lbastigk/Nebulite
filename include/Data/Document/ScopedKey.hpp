@@ -242,7 +242,7 @@ public:
      * @param key2 The second key to append to the first key
      * @return The combined key string
      */
-    static std::string combineKeys(std::string_view const& key1, std::string_view const& key2);
+    static std::string combineKeys(std::string_view const& key1, std::string_view key2);
 
     /**
      * @brief Adds a specified index to the key

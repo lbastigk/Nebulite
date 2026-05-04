@@ -59,19 +59,34 @@ std::string ScopedKeyView::buildKey() const {
     return std::string(key);
 }
 
-std::string ScopedKeyView::combineKeys(std::string_view const& key1, std::string_view const& key2) {
+std::string ScopedKeyView::combineKeys(std::string_view const& key1, std::string_view key2) {
     std::string fullKey;
     fullKey.reserve(key1.size() + key2.size());
-    fullKey = key1; // start with the given scope
+
+    // start with the given scope + a dot, if it doesn't have one.
+    fullKey = key1;
     if (!key1.empty() && !key1.ends_with(JSON::SpecialCharacter::dot)) {
         fullKey += JSON::SpecialCharacter::dot;
     }
 
-    // remove trailing dot
-    if (!key1.empty() && (key2.empty() || key2.front() == JSON::SpecialCharacter::arrayOpen)) {
-        fullKey.pop_back();
+    // remove trailing dot from key2
+    if (key2.starts_with(JSON::SpecialCharacter::dot)) {
+        key2.remove_prefix(1);
     }
 
+    // remove trailing dot from key1
+    if (!fullKey.empty()) {
+        if (key2.empty() || key2.front() == JSON::SpecialCharacter::arrayOpen) {
+            fullKey.pop_back();
+        }
+    }
+
+    // Remove dot at the beginning
+    if (fullKey.starts_with(JSON::SpecialCharacter::dot)) {
+        fullKey.erase(0, 1);
+    }
+
+    // Append second key
     return fullKey.append(key2);
 }
 

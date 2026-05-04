@@ -20,6 +20,9 @@
         "Tools/Tests/basics.json",
         "Tools/Tests/time.json",
         //---------------------------------------
+        // Tests from the featureTest DomainModule, for calling hardcoded test functions
+        "Tools/Tests/Integrated/basics.json",
+        //---------------------------------------
         // Domain tests
         "Tools/Tests/Domain/commonUtilities.json",
         "Tools/Tests/Domain/deserialization.json",

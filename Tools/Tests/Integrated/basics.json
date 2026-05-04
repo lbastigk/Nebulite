@@ -1,0 +1,138 @@
+[
+    {
+        "command": "feature-test functree",
+        "expected": { "cout": ["FuncTree result for call '<name> add 1.5 2.5 3.0': 7"], "cerr": [] }
+    },
+    {
+        "command": "feature-test evaluation",
+        "expected": { "cout": ["1 2 3", "5 4 3"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination foo bar",
+        "expected": { "cout": ["foo.bar"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination foo. bar",
+        "expected": { "cout": ["foo.bar"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination foo. .bar",
+        "expected": { "cout": ["foo.bar"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination foo .bar",
+        "expected": { "cout": ["foo.bar"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination foo [1]",
+        "expected": { "cout": ["foo[1]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination foo. [1]",
+        "expected": { "cout": ["foo[1]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination foo .[1]",
+        "expected": { "cout": ["foo[1]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination foo. .[1]",
+        "expected": { "cout": ["foo[1]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination [0] [1]",
+        "expected": { "cout": ["[0][1]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination [0]. [1]",
+        "expected": { "cout": ["[0][1]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination [0]. .[1]",
+        "expected": { "cout": ["[0][1]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination [0] .[1]",
+        "expected": { "cout": ["[0][1]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination [0] bar",
+        "expected": { "cout": ["[0].bar"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination [0]. bar",
+        "expected": { "cout": ["[0].bar"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination [0]. .bar",
+        "expected": { "cout": ["[0].bar"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination [0] .bar",
+        "expected": { "cout": ["[0].bar"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination <empty> bar",
+        "expected": { "cout": ["bar"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination . bar",
+        "expected": { "cout": ["bar"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination . .bar",
+        "expected": { "cout": ["bar"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination <empty> .bar",
+        "expected": { "cout": ["bar"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination foo <empty>",
+        "expected": { "cout": ["foo"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination foo. <empty>",
+        "expected": { "cout": ["foo"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination foo. .",
+        "expected": { "cout": ["foo"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination foo .",
+        "expected": { "cout": ["foo"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination <empty> [1]",
+        "expected": { "cout": ["[1]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination . [1]",
+        "expected": { "cout": ["[1]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination . .[1]",
+        "expected": { "cout": ["[1]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination <empty> .[1]",
+        "expected": { "cout": ["[1]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination [0] <empty>",
+        "expected": { "cout": ["[0]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination [0]. <empty>",
+        "expected": { "cout": ["[0]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination [0]. .",
+        "expected": { "cout": ["[0]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test key-combination [0] .",
+        "expected": { "cout": ["[0]"], "cerr": [] }
+    }
+]
