@@ -23,9 +23,9 @@ set settings.profilingTask transformations
 
 ###################
 # 1.) Transformations
-if {global:settings.profilingTask|strCompare equals transformations} then task TaskFiles/Benchmarks/transformation.nebs
+if $({global:settings.profilingTask|strCompare equals transformations}) then task TaskFiles/Benchmarks/transformation.nebs
 
 ###################
 # 2.) Heavy physics
-if {global:settings.profilingTask|strCompare equals physics} then task TaskFiles/Benchmarks/gravity_XL.nebs
+if $({global:settings.profilingTask|strCompare equals physics}) then task TaskFiles/Benchmarks/gravity_XL.nebs
 
