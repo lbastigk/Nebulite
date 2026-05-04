@@ -27,7 +27,10 @@
         <!-- data-eval="true" allows for expression evaluation inside the tag -->
         <p data-eval="true">
             <!-- Example expression of a time code:  HH:MM:SS:FF at 24 fps -->
-            $02i({global:time.t|div 60|div 60|mod 60}):$02i({global:time.t|div 60|mod 60}):$02i({global:time.t|mod 60}):$02i({global:time.t|mul 24|mod 25})
+            $02i({global:time.t|div 60|div 60|mod 60}):<!--
+            -->$02i({global:time.t|div 60|mod 60}):<!--
+            -->$02i({global:time.t|mod 60}):<!--
+            -->$02i({global:time.t|mul 24|mod 24})
         </p>
 
         <hr />
@@ -51,7 +54,8 @@
         </p>
         <!-- data-reflect allows for iterating over all array indices -->
         <!-- You can use JSON-Transformation to turn objects into arrays for propper reflection -->
-        <!-- Here we use listMembersAndValues to get an array of objects with key and value members for each entry in the original object -->
+        <!-- Here we use listMembersAndValues to get an array of objects -->
+        <!-- with key and value members for each entry in the original object -->
         <!-- Data-reflect populates the self-context, all other contexts stay unchanged -->
         <p data-reflect="{global:time|listMembersAndValues}">
             <!-- For every index in the generated array, the following is repeated: -->

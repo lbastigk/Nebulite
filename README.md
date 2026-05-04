@@ -394,61 +394,65 @@ Examples:
     </head>
     <!-- one data model for all RmlUi documents, the proper Nebulite Context is handled automatically -->
     <body data-model="nebuliteDataSync">
-    <h1>RmlUi</h1>
-
-    <!-- Set actions to do on destruction -->
-    <!-- Any on-destroy is activated when the element is removed from the document -->
-    <!-- Or, if the document itself is removed. -->
-    <div on-destroy-invoke-ruleset="Resources/Rulesets/Debug/helloWorld.jsonc"></div>
-    <div on-destroy-parse="set UI_DELETED 1 ; assert $(eq({self:UI_DELETED},1))"></div>
-
-    <!-- Toggle between bold and italic every second -->
-    <p>
-        <b data-if="global:time.t|toInt|add 0|mod 2">Hello world!</b>
-        <i data-if="global:time.t|toInt|add 1|mod 2">Hello world!</i>
-    </p>
-
-    <hr />
-    <h2>Expression</h2>
-
-    <!-- data-eval="true" allows for expression evaluation inside the tag -->
-    <p data-eval="true">
-        <!-- Example expression of a time code:  HH:MM:SS:FF at 24 fps -->
-        $02i({global:time.t|div 60|div 60|mod 60}):$02i({global:time.t|div 60|mod 60}):$02i({global:time.t|mod 60}):$02i({global:time.t|mul 24|mod 25})
-    </p>
-
-    <hr />
-    <h2>Data input</h2>
-
-    <!-- Show input -->
-    <p data-eval="true">
-        The quick brown fox jumps over the lazy {self:rml.input.animal}.
-    </p>
-
-    <!-- Set input, if self:rml.settings.showInput is true -->
-    <p data-if="self:rml.settings.showInput">
-        <input type="text" data-value="self:rml.input.animal"/>
-    </p>
-
-    <hr />
-    <h2>Data-Reflect</h2>
-
-    <p data-eval="true">
-        global:time has {global:time|listMembers|length} members:
-    </p>
-    <!-- data-reflect allows for iterating over all array indices -->
-    <!-- You can use JSON-Transformation to turn objects into arrays for propper reflection -->
-    <!-- Here we use listMembersAndValues to get an array of objects with key and value members for each entry in the original object -->
-    <!-- Data-reflect populates the self-context, all other contexts stay unchanged -->
-    <p data-reflect="{global:time|listMembersAndValues}">
-        <!-- For every index in the generated array, the following is repeated: -->
-        <!-- Each entry has access to arr[i] as {self:} -->
-        <!-- where arr is the generated array from the data-reflect statement -->
-        <!-- you may also use context-marrying prefixes like "all:" or "local:" to reflect on a combination of contexts -->
-        <pCompact data-eval="true">
-            {self:key|asString|rPad 15 .}{self:value|asString|lPad 15 .}
-        </pCompact>
-    </p>
+        <h1>RmlUi</h1>
+    
+        <!-- Set actions to do on destruction -->
+        <!-- Any on-destroy is activated when the element is removed from the document -->
+        <!-- Or, if the document itself is removed. -->
+        <div on-destroy-invoke-ruleset="Resources/Rulesets/Debug/helloWorld.jsonc"></div>
+        <div on-destroy-parse="set UI_DELETED 1 ; assert $(eq({self:UI_DELETED},1))"></div>
+    
+        <!-- Toggle between bold and italic every second -->
+        <p>
+            <b data-if="global:time.t|toInt|add 0|mod 2">Hello world!</b>
+            <i data-if="global:time.t|toInt|add 1|mod 2">Hello world!</i>
+        </p>
+    
+        <hr />
+        <h2>Expression</h2>
+    
+        <!-- data-eval="true" allows for expression evaluation inside the tag -->
+        <p data-eval="true">
+            <!-- Example expression of a time code:  HH:MM:SS:FF at 24 fps -->
+            $02i({global:time.t|div 60|div 60|mod 60}):<!--
+            -->$02i({global:time.t|div 60|mod 60}):<!--
+            -->$02i({global:time.t|mod 60}):<!--
+            -->$02i({global:time.t|mul 24|mod 24})
+        </p>
+    
+        <hr />
+        <h2>Data input</h2>
+    
+        <!-- Show input -->
+        <p data-eval="true">
+            The quick brown fox jumps over the lazy {self:rml.input.animal}.
+        </p>
+    
+        <!-- Set input, if self:rml.settings.showInput is true -->
+        <p data-if="self:rml.settings.showInput">
+            <input type="text" data-value="self:rml.input.animal"/>
+        </p>
+    
+        <hr />
+        <h2>Data-Reflect</h2>
+    
+        <p data-eval="true">
+            global:time has {global:time|listMembers|length} members:
+        </p>
+        <!-- data-reflect allows for iterating over all array indices -->
+        <!-- You can use JSON-Transformation to turn objects into arrays for propper reflection -->
+        <!-- Here we use listMembersAndValues to get an array of objects -->
+        <!-- with key and value members for each entry in the original object -->
+        <!-- Data-reflect populates the self-context, all other contexts stay unchanged -->
+        <p data-reflect="{global:time|listMembersAndValues}">
+            <!-- For every index in the generated array, the following is repeated: -->
+            <!-- Each entry has access to arr[i] as {self:} -->
+            <!-- where arr is the generated array from the data-reflect statement -->
+            <!-- you may also use context-marrying prefixes like "all:" or "local:" to reflect on a combination of contexts -->
+            <pCompact data-eval="true">
+                {self:key|asString|rPad 15 .}{self:value|asString|lPad 15 .}
+            </pCompact>
+        </p>
     </body>
 </rml>
 ```
