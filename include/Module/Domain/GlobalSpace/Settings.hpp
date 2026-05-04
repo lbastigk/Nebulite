@@ -86,6 +86,7 @@ public:
         static auto constexpr fontStandard = makeScoped("renderer.font.standard");
         static auto constexpr cursor = makeScoped("renderer.cursor");
 
+        static auto constexpr fontScale = makeScoped("renderer.font.scale");
         static auto constexpr fontSize1 = makeScoped("renderer.font.size[0]");
         static auto constexpr fontSize2 = makeScoped("renderer.font.size[1]");
         static auto constexpr fontSize3 = makeScoped("renderer.font.size[2]");

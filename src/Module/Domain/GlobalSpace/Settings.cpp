@@ -107,6 +107,7 @@ Constants::Event Settings::loadSettings(std::string const& filename) const {
     moduleScope.set<std::string>(Key::fontStandard, settingsFile.get<std::string>(Key::fontStandard).value_or("./Resources/Fonts/Arimo-Regular.ttf"));
     moduleScope.set<std::string>(Key::cursor, settingsFile.get<std::string>(Key::cursor).value_or("./Resources/Cursor/Drakensang.png"));
 
+    moduleScope.set<double>(Key::fontScale, settingsFile.get<double>(Key::fontScale).value_or(1.0));
     moduleScope.set<uint16_t>(Key::fontSize1, settingsFile.get<uint16_t>(Key::fontSize1).value_or(40));
     moduleScope.set<uint16_t>(Key::fontSize2, settingsFile.get<uint16_t>(Key::fontSize2).value_or(60));
     moduleScope.set<uint16_t>(Key::fontSize3, settingsFile.get<uint16_t>(Key::fontSize3).value_or(80));

@@ -19,8 +19,18 @@
 #include "Nebulite.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
+
+
 //------------------------------------------
 namespace Nebulite::Core {
+
+namespace {
+
+double fontSize(auto const fontSizeKey, double defaultValue) {
+    return Global::settings().get<double>(fontSizeKey).value_or(defaultValue) * Global::settings().get<double>(Module::Domain::GlobalSpace::Settings::Key::fontScale).value_or(1.0);
+}
+
+} // namespace
 
 Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::IO::Capture& parentCapture) :
     Domain("Renderer", documentReference, parentCapture),
@@ -157,7 +167,7 @@ void Renderer::initImgui() {
 
     // Load a pixel font if available; fallback to default
     // Use a font config that disables oversampling and enables pixel snapping
-    auto const size = Global::settings().get<double>(Module::Domain::GlobalSpace::Settings::Key::fontSize1).value_or(40.0);
+    auto const size = fontSize(Module::Domain::GlobalSpace::Settings::Key::fontSize1, 40.0);
     ImFontConfig font_cfg;
     font_cfg.OversampleH = 1;
     font_cfg.OversampleV = 1;
@@ -273,7 +283,7 @@ void Renderer::initSDL() {
 void Renderer::loadFonts() {
     //------------------------------------------
     // Sizes
-    auto const FontSizeGeneral = Global::settings().get<double>(Module::Domain::GlobalSpace::Settings::Key::fontSize3).value_or(80.0);
+    auto const FontSizeGeneral = fontSize(Module::Domain::GlobalSpace::Settings::Key::fontSize3, 80.0);
 
     //------------------------------------------
     // Font location
