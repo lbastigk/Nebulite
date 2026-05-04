@@ -13,12 +13,26 @@
     },
     {
         "command": "'echo testing multiline echo ; echo this is the second line'",
-        "expected": { 
+        "expected": { "cout": [ "testing multiline echo", "this is the second line" ], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/ArgumentParsing/echoTests.nebs",
+        "expected": {
             "cout": [
-                "testing multiline echo", 
-                "this is the second line"
-            ], 
-            "cerr": [] 
+                "1234",
+                "Hello, World!",
+                "Hello, World!",
+                "Hello, World!",
+                "Multiple  spaces  between  words  are  always  preserved",
+                "Multiple  spaces  between  words  are  always  preserved",
+                "Multiple  spaces  between  words  are  always  preserved",
+                "  Leading spaces are always preserved",
+                "  Leading spaces are always preserved",
+                "  Leading spaces are always preserved",
+                "Trailing spaces inside double quotes preserved  ",
+                "Trailing spaces inside single quotes preserved  "
+            ],
+            "cerr": []
         }
     },
     {
@@ -31,18 +45,12 @@
     },
     {
         "command": "task TaskFiles/Tests/Globalspace/echo_time.nebs",
-        "expected": { 
-            "cout": [
-                "0.001",
-                "1.001"
-            ], 
-          "cerr": [] 
-        }
+        "expected": { "cout": [ "0.001", "1.001" ], "cerr": [] }
     },
     {
         "command": "task TaskFiles/Tests/Functional/NebuliteError.nebs",
-        "expected": { 
-            "cout": [], 
+        "expected": {
+            "cout": [],
             "cerr": [
                 "Critical Error: A custom assertion failed.",
                 "Assertion failed: $(0) is not true."
@@ -69,8 +77,14 @@
                 "Note: All values are stored as strings.",
                 ""
             ],
-            "cerr": [],
-            "ignore_exit": true
+            "cerr": []
         }
+    },
+    {
+        "command": [
+            "# Test completion",
+            "__complete__ feature-"
+        ],
+        "expected": { "cout": ["feature-test"], "cerr": [] }
     }
 ]

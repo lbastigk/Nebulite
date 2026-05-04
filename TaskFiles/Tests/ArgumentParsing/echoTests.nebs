@@ -1,0 +1,14 @@
+# Testing passing of arguments by echoing them back
+echo 1234
+echo Hello, World!
+echo "Hello, World!"
+echo 'Hello, World!'
+echo Multiple  spaces  between  words  are  always  preserved
+echo "Multiple  spaces  between  words  are  always  preserved"
+echo 'Multiple  spaces  between  words  are  always  preserved'
+echo   Leading spaces are always preserved
+echo "  Leading spaces are always preserved"
+echo '  Leading spaces are always preserved'
+# Trailing spaces outside quotes are often auto-trimmed by IDEs, so we don't test them.
+echo "Trailing spaces inside double quotes preserved  "
+echo 'Trailing spaces inside single quotes preserved  '
