@@ -1,7 +1,12 @@
-#include "Nebulite.hpp"
-#include "Module/Ruleset/Camera.hpp"
-#include "Interaction/Rules/StaticRulesetMap.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
+#include "Interaction/Rules/StaticRulesetMap.hpp"
+#include "Module/Ruleset/Camera.hpp"
+#include "Nebulite.hpp"
+
+//------------------------------------------
 namespace Nebulite::Module::Ruleset {
 
 Camera::Camera() : RulesetModule(moduleName) {

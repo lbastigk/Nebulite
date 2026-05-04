@@ -1,5 +1,10 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Utility/Coordination/TimedRoutine.hpp"
 
+//------------------------------------------
 namespace Nebulite::Utility::Coordination {
 
 TimedRoutine::TimedRoutine(std::function<void()> const& routine, uint64_t const& intervalMillis, ConstructionMode const& mode)

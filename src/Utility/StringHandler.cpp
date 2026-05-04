@@ -10,7 +10,6 @@
 #include "Nebulite.hpp"
 #include "Utility/StringHandler.hpp"
 
-
 //------------------------------------------
 namespace Nebulite::Utility {
 

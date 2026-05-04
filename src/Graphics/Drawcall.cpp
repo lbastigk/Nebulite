@@ -11,10 +11,10 @@
 #include <SDL3/SDL.h>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Graphics/Drawcall.hpp"
 #include "Graphics/SdlPrimitive.hpp"
 #include "Math/Equality.hpp"
+#include "Nebulite.hpp"
 #include "Utility/Coordination/IdGenerator.hpp"
 
 //------------------------------------------

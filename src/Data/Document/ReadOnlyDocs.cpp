@@ -3,8 +3,8 @@
 
 // Nebulite
 #include "Data/Document/ReadOnlyDocs.hpp"
-#include "Utility/IO/FileManagement.hpp"
 #include "Nebulite.hpp"
+#include "Utility/IO/FileManagement.hpp"
 
 //------------------------------------------
 // Error message

@@ -1,7 +1,11 @@
-#include "Nebulite.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Module/Transformation/Casting.hpp"
+#include "Nebulite.hpp"
 
-
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
 
 void Casting::bindTransformations() {

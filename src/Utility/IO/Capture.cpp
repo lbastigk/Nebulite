@@ -1,5 +1,10 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Utility/IO/Capture.hpp"
 
+//------------------------------------------
 namespace Nebulite::Utility::IO {
 
 std::deque<HistoryLine> const& Capture::getHistory() const {
@@ -25,6 +30,5 @@ void Capture::appendInput(std::string const& str) {
     std::scoped_lock const lock(historyMutex);
     history.push_back({str, HistoryLine::Type::Input});
 }
-
 
 } // namespace Nebulite::Utility::IO

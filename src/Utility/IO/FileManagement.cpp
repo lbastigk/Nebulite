@@ -20,7 +20,6 @@ void errorPrintln(Args&&... args) {
 }
 } // namespace
 
-
 //------------------------------------------
 namespace Nebulite::Utility::IO {
 

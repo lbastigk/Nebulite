@@ -8,6 +8,18 @@
 //------------------------------------------
 namespace Nebulite {
 
+ScopeAccessor::BaseAccessToken::BaseAccessToken() = default;
+
+std::string const& ScopeAccessor::BaseAccessToken::getPrefix() const {
+    return prefix;
+}
+
+ScopeAccessor::Full::Full() {
+    prefix = ""; // Full access gets an empty prefix, meaning it can access the entire GlobalSpace document
+}
+
+ScopeAccessor::Full::~Full() = default;
+
 // RulesetModule accessor
 
 ScopeAccessor::RulesetModuleToken::RulesetModuleToken(Interaction::Rules::RulesetModule const& rm) {

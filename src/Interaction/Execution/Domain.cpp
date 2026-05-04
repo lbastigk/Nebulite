@@ -5,11 +5,11 @@
 #include <vector>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Data/Document/JsonScope.hpp"
+#include "Interaction/Context.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Module/Domain/Initializer.hpp"
-#include "Interaction/Context.hpp"
+#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {

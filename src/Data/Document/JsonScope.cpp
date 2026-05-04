@@ -7,8 +7,8 @@
 // Nebulite
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/ScopedKey.hpp"
-#include "Utility/Generate.hpp"
 #include "Nebulite.hpp"
+#include "Utility/Generate.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

@@ -13,7 +13,7 @@ Core::GlobalSpace& Global::instance(){
 }
 
 Data::JsonScope const& Global::settings() {
-    static auto const& settingsScopeConst = globalDoc().shareManagedScopeBase("settings.");
+    static auto const& settingsScopeConst = globalDoc().shareManagedScopeBase("settings");
     return settingsScopeConst;
 }
 

@@ -5,9 +5,9 @@
 #include <cmath>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Module/Domain/Renderer/Audio.hpp"
 #include "Math/FFT.hpp"
+#include "Nebulite.hpp"
 #include "Utility/Generate.hpp"
 
 //------------------------------------------

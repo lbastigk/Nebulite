@@ -5,13 +5,14 @@
 #include <cfloat>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Core/GlobalSpace.hpp"
-#include "Module/Domain/GlobalSpace/Time.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
+#include "Module/Domain/GlobalSpace/Time.hpp"
 #include "Module/Ruleset/Movement.hpp"
+#include "Nebulite.hpp"
 #include "ScopeAccessor.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Ruleset {
 
 Movement::Movement() : RulesetModule(moduleName) {

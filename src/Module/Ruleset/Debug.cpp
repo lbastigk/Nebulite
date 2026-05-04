@@ -1,6 +1,11 @@
-#include "Nebulite.hpp"
-#include "Module/Ruleset/Debug.hpp"
+//------------------------------------------
+// Includes
 
+// Nebulite
+#include "Module/Ruleset/Debug.hpp"
+#include "Nebulite.hpp"
+
+//------------------------------------------
 namespace Nebulite::Module::Ruleset {
 
 // NOLINTNEXTLINE

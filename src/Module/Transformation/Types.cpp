@@ -1,6 +1,11 @@
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Module/Transformation/Types.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
 
 void Types::bindTransformations() {

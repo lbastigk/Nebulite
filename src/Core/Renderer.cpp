@@ -19,8 +19,6 @@
 #include "Nebulite.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
-
-
 //------------------------------------------
 namespace Nebulite::Core {
 

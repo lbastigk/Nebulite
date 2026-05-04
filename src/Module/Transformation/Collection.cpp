@@ -5,9 +5,9 @@
 #include <regex>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Module/Transformation/Collection.hpp"
+#include "Nebulite.hpp"
 #include "Utility/Glob.hpp"
 
 //------------------------------------------

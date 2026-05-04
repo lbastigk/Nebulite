@@ -10,8 +10,8 @@
 
 // Nebulite
 #include "Data/Document/RjDirectAccess.hpp"
-#include "Utility/StringHandler.hpp"
 #include "Nebulite.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

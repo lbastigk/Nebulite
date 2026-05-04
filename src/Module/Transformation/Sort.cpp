@@ -5,8 +5,8 @@
 #include <regex>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Module/Transformation/Sort.hpp"
+#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

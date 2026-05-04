@@ -2,8 +2,8 @@
 // Includes
 
 // Nebulite
-#include "Module/Base/TransformationModule.hpp"
 #include "Interaction/Logic/Expression.hpp"
+#include "Module/Base/TransformationModule.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Base {

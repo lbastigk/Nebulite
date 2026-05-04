@@ -1,8 +1,12 @@
-#include "Data/Document/KeyType.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/JsonScope.hpp"
+#include "Data/Document/KeyType.hpp"
 #include "Module/Transformation/Array.hpp"
 
-
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
 
 void Array::bindTransformations() {

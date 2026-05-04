@@ -16,11 +16,12 @@ namespace Nebulite {
 
 template <typename DomainType>
 ScopeAccessor::DomainModuleToken<DomainType>::DomainModuleToken(Interaction::Execution::DomainModule<DomainType> const& dm){
-    static std::string start = "providedScope.module.domain.";
+    static auto constexpr root = Data::ScopedKeyView("providedScope.module.domain");
+
     if constexpr (std::is_same_v<DomainType, Core::GlobalSpace>) {
-        prefix = Data::ScopedKeyView::combineKeys(start + "globalSpace.", dm.moduleScope.getScopePrefix());
+        prefix = root.addMember("globalSpace").addMember(dm.moduleScope.getScopePrefix()).toString();
     } else if constexpr (std::is_same_v<DomainType, Core::RenderObject>) {
-        prefix = Data::ScopedKeyView::combineKeys(start + "renderObject.", dm.moduleScope.getScopePrefix());
+        prefix = root.addMember("renderObject").addMember(dm.moduleScope.getScopePrefix()).toString();
     } else {
         // Unsupported DomainType, please add the specialization for it in this constructor
         std::unreachable();

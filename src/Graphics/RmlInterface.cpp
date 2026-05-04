@@ -8,9 +8,9 @@
 #include "Core/Renderer.hpp"
 #include "Graphics/RmlInterface.hpp"
 #include "Utility/IO/FileManagement.hpp"
+#include "Nebulite.hpp"
 
 // Nebulite: RmlUi-Modules
-#include "Nebulite.hpp"
 #include "Module/RmlUi/ContextManager.hpp"
 #include "Module/RmlUi/DataReference.hpp"
 #include "Module/RmlUi/ExpressionManager.hpp"

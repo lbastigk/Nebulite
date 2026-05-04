@@ -2,8 +2,8 @@
 // Includes
 
 // Nebulite
-#include "Data/Document/ScopedKey.hpp"
 #include "Data/Document/JsonScope.hpp"
+#include "Data/Document/ScopedKey.hpp"
 
 //------------------------------------------
 // ScopedKey methods
@@ -21,6 +21,10 @@ ScopedKey::ScopedKey(std::optional<std::string_view> const& scope, std::string s
 
 ScopedKey::ScopedKey(std::string suffix)
     : owned(std::move(suffix)) {}
+
+std::string ScopedKey::toString() const{
+    return view().toString();
+}
 
 ScopedKeyView ScopedKey::view() const & noexcept {
     return {givenScope, std::string_view(owned)};

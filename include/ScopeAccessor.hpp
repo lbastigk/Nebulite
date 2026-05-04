@@ -46,10 +46,10 @@ class ScopeAccessor final {
 public:
     class BaseAccessToken {
     protected:
-        BaseAccessToken() = default;
+        BaseAccessToken();
         std::string prefix;
     public:
-        [[nodiscard]] std::string getPrefix() const {return prefix; }
+        [[nodiscard]] std::string const& getPrefix() const ;
     };
 
     /**
@@ -57,15 +57,14 @@ public:
      * @details Only accessible by a select few classes that require full access, such as the Console and Expression evaluation.
      */
     class Full final : public BaseAccessToken {
-        Full() {
-            prefix = "";
-        }
+        Full();
+
+    public:
+        ~Full();
 
         // Allowed accessors:
         friend class Core::GlobalSpace; // GlobalSpace needs to create the token and manage access to its Subdomains and itself
         friend class Module::Domain::Renderer::Console; // Console needs full access to display entire scope.
-    public:
-        ~Full() = default;
     };
 
     // Provide scoped GlobalSpace access to DomainModules

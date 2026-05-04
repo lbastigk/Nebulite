@@ -112,6 +112,8 @@ public:
     explicit ScopedKey(std::optional<std::string_view> const& scope, std::string suffix);
     explicit ScopedKey(std::string suffix);
 
+    [[nodiscard]] std::string toString() const ;
+
     // produce a scopedKey view that points into this owned buffer.
     // caller must keep the ScopedKeyView alive while using the returned view.
     [[nodiscard]] ScopedKeyView view() const & noexcept ;
@@ -188,8 +190,6 @@ public:
      * @throws std::invalid_argument if the key is used outside its required scope.
      */
     [[nodiscard]] std::string full(JsonScope const& scope) const;
-
-
 
     // Any key shared publicly should be constructed with a required scope to avoid accidental misuse
     constexpr ScopedKeyView(std::optional<std::string_view> const& requiredScope, std::string_view const& keyInScope) noexcept

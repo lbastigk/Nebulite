@@ -1,8 +1,12 @@
-#include "Nebulite.hpp"
+//------------------------------------------
+// Includes
+
+// Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Module/Transformation/Debug.hpp"
+#include "Nebulite.hpp"
 
-
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
 
 void Debug::bindTransformations() {

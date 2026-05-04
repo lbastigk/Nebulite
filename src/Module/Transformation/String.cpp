@@ -1,9 +1,15 @@
+//------------------------------------------
+// Includes
+
+// Standard library
 #include <cctype>
 #include <algorithm>
 
+// Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Module/Transformation/String.hpp"
 
+//------------------------------------------
 namespace Nebulite::Module::Transformation {
 
 void String::bindTransformations() {
