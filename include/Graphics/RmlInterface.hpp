@@ -180,6 +180,12 @@ public:
      */
     [[nodiscard]] size_t countOpenedDocuments() const ;
 
+    /**
+     * @brief Get a list of all opened Rml Documents with their associated owner domain id and document name
+     * @return The list
+     */
+    [[nodiscard]] std::vector<std::pair<size_t, std::string>> listOpenedDocuments() const ;
+
     // Context Management
 
     /**

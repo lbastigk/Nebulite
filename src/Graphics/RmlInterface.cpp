@@ -328,6 +328,16 @@ size_t RmlInterface::countOpenedDocuments() const {
     return documentManager->openedDocuments.size();
 }
 
+std::vector<std::pair<size_t, std::string>> RmlInterface::listOpenedDocuments() const{
+    std::vector<std::pair<size_t, std::string>> documents;
+    for (auto const& [ownerId, nameToDoc] : ownerToDocument) {
+        for (auto const& name : nameToDoc | std::views::keys) {
+            documents.emplace_back(ownerId, name);
+        }
+    }
+    return documents;
+}
+
 // Context Management
 
 bool RmlInterface::loadDocument(std::string_view const& name, std::string_view const& path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {

@@ -35,6 +35,11 @@ public:
     //------------------------------------------
     // Available Functions
 
+    [[nodiscard]] Constants::Event listDocuments(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
+    static auto constexpr listDocuments_name = "rmlui document list";
+    static auto constexpr listDocuments_desc = "Lists all currently loaded RmlUI documents in the renderer's context.\n"
+        "Usage: rmlui document list\n";
+
     [[nodiscard]] Constants::Event loadDocument(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
     static auto constexpr loadDocument_name = "rmlui document load";
     static auto constexpr loadDocument_desc = "Loads an RmlUI document from a specified file path and adds it to the renderer's context.\n"
@@ -63,6 +68,7 @@ public:
     explicit RmlUi(ConstructorParams const& params) : DomainModule(params) {
         bindCategory(ui_name, ui_desc);
         bindCategory(uiDocument_name, uiDocument_desc);
+        bindFunction(&RmlUi::listDocuments, listDocuments_name, listDocuments_desc);
         bindFunction(&RmlUi::loadDocument, loadDocument_name, loadDocument_desc);
         bindFunction(&RmlUi::removeDocument, removeDocument_name, removeDocument_desc);
     }

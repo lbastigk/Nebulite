@@ -16,6 +16,15 @@ Constants::Event RmlUi::updateHook() {
     return Constants::Event::Success;
 }
 
+Constants::Event RmlUi::listDocuments(std::span<std::string const> const& /*args*/, Interaction::Context const& /*ctx*/, Interaction::ContextScope const& /*ctxScope*/) const {
+    auto const& documents = Graphics::RmlInterface::instance().listOpenedDocuments();
+    domain.capture.log.println("Currently loaded RmlUI documents from any domain: ");
+    for (auto const& [ownerId, name] : documents) {
+        domain.capture.log.println(" - Owner Domain ID: ", ownerId, ", Document Name: '", name, "'");
+    }
+    return Constants::Event::Success;
+}
+
 Constants::Event RmlUi::loadDocument(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
