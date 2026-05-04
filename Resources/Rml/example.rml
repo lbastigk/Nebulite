@@ -3,9 +3,10 @@
         <title>RmlUi demo</title>
         <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
         <link type="text/rcss" href="./Resources/Rml/window.rcss"/>
+        <link type="text/rcss" href="./Resources/Rml/text.rcss"/>
     </head>
     <!-- one data model for all RmlUi documents, the proper Nebulite Context is handled automatically -->
-    <body data-model="nebuliteDataSync">
+    <body data-model="nebuliteDataSync" style="width: 800px;">
         <h1>RmlUi</h1>
 
         <!-- Set actions to do on destruction -->
@@ -14,10 +15,10 @@
         <div on-destroy-invoke-ruleset="Resources/Rulesets/Debug/helloWorld.jsonc"></div>
         <div on-destroy-parse="set UI_DELETED 1 ; assert $(eq({self:UI_DELETED},1))"></div>
 
-        <!-- Toggle between bold and italic every second -->
+        <!-- Toggle between bold and vanilla every second -->
         <p>
             <b data-if="global:time.t|toInt|add 0|mod 2">Hello world!</b>
-            <i data-if="global:time.t|toInt|add 1|mod 2">Hello world!</i>
+            <div data-if="global:time.t|toInt|add 1|mod 2">Hello world!</div>
         </p>
 
         <hr />
@@ -57,9 +58,9 @@
             <!-- Each entry has access to arr[i] as {self:} -->
             <!-- where arr is the generated array from the data-reflect statement -->
             <!-- you may also use context-marrying prefixes like "all:" or "local:" to reflect on a combination of contexts -->
-            <pCompact data-eval="true">
+            <p data-eval="true" style="margin: 0 0;">
                 {self:key|asString|rPad 15 .}{self:value|asString|lPad 15 .}
-            </pCompact>
+            </p>
         </p>
     </body>
 </rml>

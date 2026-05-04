@@ -6,80 +6,33 @@
  */
 
 body {
-    font-family: JetBrains Mono;
-    font-size: 18px;
+    /* Colour + Shape */
     color: #e3e3e3;
-
     background: #455d7a;
     border: 0.25em #233142;
+    border-radius: 1em;
 
-    text-align: center;
-    padding: 2em 1em;
-
-    position: absolute;
+    /* Size */
     width: 600px;
     height: 600px;
+
+    /* Position */
+    margin: auto;
+    position: absolute;
+    top: 0%;
     left: 0%;
 
-    margin: auto;
-
-    border-radius: 1em;
+    /* Text */
+    font-size: 18px;
+    font-family: JetBrains Mono;
+    text-align: center;
+    padding: 1em 1em;
 }
 
+/* Horizontal rule */
 hr {
     display: block;
     height: 1px;
     margin: 20px 0;
     background: #233142;
-}
-
-h1 {
-    color: #f95959;
-    font-size: 1.5em;
-    font-weight: bold;
-    margin-bottom: 0.7em;
-    font-effect: outline(1px #233142);
-}
-
-h2 {
-    color: #f95959;
-    font-size: 1.1em;
-    font-weight: bold;
-    margin-bottom: 0.7em;
-    font-effect: outline(1px #233142);
-}
-
-p {
-    margin: 0.7em 0;
-}
-
-.pCompact{
-    margin: 0 0;
-}
-
-b {
-    margin: 0.7em 0;
-    font-weight: bold;
-}
-
-input.text {
-    background-color: #233142;
-    border: 2px #e3e3e3;
-    padding: 5px;
-    cursor: text;
-    box-sizing: border-box;
-    width: 200px;
-    font-size: 0.9em;
-
-    border-radius: 0.5em;
-}
-
-.box {
-    white-space: pre;
-    display: block;
-    width: 500px;
-    height: 200px;
-    overflow: hidden;
-    text-align: left;
-    vertical-align: middle;
 }
