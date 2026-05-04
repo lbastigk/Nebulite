@@ -13,14 +13,19 @@
 echo "Starting profiling.nebs"
 # -----------------------------------------------------------------------------
 
-set-fps 10000
+# Uncomment the profiling task you want to run
+# Some of them may exit, so you can likely only run one at a time.
 
-set settings.n 40 # Before loading the scene, set the number of objects (n*n)
-task TaskFiles/Benchmarks/gravity_XL_unlimited.nebs
-wait 1
-imgui-view on
+# Available:
+# - transformations
+# - physics
+set settings.profilingTask transformations
 
-wait 2000
-exit
+###################
+# 1.) Transformations
+if {global:settings.profilingTask|strCompare equals transformations} then task TaskFiles/Benchmarks/transformation.nebs
 
-#task TaskFiles/Benchmarks/transformation.nebs
+###################
+# 2.) Heavy physics
+if {global:settings.profilingTask|strCompare equals physics} then task TaskFiles/Benchmarks/gravity_XL.nebs
+

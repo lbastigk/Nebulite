@@ -22,15 +22,19 @@ echo ---------------------------------------------
 set var "TestValue"
 set num 1
 set arr[0] 0
-set arr[1] 1
+set arr[1] 9
 set arr[2] 2
-set arr[3] 3
+set arr[3] 7
 set arr[4] 4
 set arr[5] 5
 set arr[6] 6
-set arr[7] 7
+set arr[7] 3
 set arr[8] 8
-set arr[9] 9
+set arr[9] 1
+set obj.key1 value1
+set obj.key2 value2
+set obj.key3 value3
+set obj.key4 value4
 
 #############################################
 # Start renderer for time measurement
@@ -39,8 +43,8 @@ wait 1
 
 #############################################
 # Benchmarks
-set benchmark.totalIterationCount 50000 # Manually set total iterations in code below! Do not just change this value!
-set benchmark.transformationCount 6 # Manually set number of transformations per iteration
+set benchmark.totalIterationCount 100000
+set benchmark.transformationCount 10 # Manually set number of transformations per iteration, see code below
 
 echo
 eval echo Running transformation benchmark with {global:benchmark.totalIterationCount} iterations...
@@ -49,13 +53,30 @@ echo
 # Start recording time
 eval set benchmark.startTime {global:time.runtime.t}
 
-# Manually set total iterations!
-for i 1 50000 eval nop --- Add operations below: \
+# Transformations to benchmark:
+for i 1 {global:benchmark.totalIterationCount} eval nop --- Add operations below: \
     {global:num|add 1} \
     {global:arr|subspan 2 2} \
     {global:time|get runtime.dt} \
+    {global:arr[0]|toBoolString} \
+    {global:obj|listMembers} \
     {global:arr|map add 1} \
     {global:arr|typeAsString} \
+    {global:arr|sort numerically} \
+    {global:arr|average} \
+    {global:var|typeAsString}
+
+# DEBUG: verify results, should not show any transformation failure!
+if $(0) then eval echo Results: \
+    {global:num|add 1} \
+    {global:arr|subspan 2 2} \
+    {global:time|get runtime.dt} \
+    {global:arr[0]|toBoolString} \
+    {global:obj|listMembers} \
+    {global:arr|map add 1} \
+    {global:arr|typeAsString} \
+    {global:arr|sort numerically} \
+    {global:arr|average} \
     {global:var|typeAsString}
 
 wait 1
@@ -68,11 +89,15 @@ eval set benchmark.time $({global:time.runtime.t} - {global:benchmark.startTime}
 # Start recording time
 eval set benchmark.startTime {global:time.runtime.t}
 
-# Manually set total iterations!
-for i 1 50000 eval nop --- ensure the same amount of variables as above: \
+# Baseline expression evaluation without transformations
+for i 1 {global:benchmark.totalIterationCount} eval nop --- ensure the same amount of variables as above: \
     {global:num} \
     {global:arr} \
     {global:time} \
+    {global:arr[0]} \
+    {global:obj} \
+    {global:arr} \
+    {global:arr} \
     {global:arr} \
     {global:arr} \
     {global:var}
