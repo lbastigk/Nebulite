@@ -1,0 +1,6 @@
+[
+    {
+        "command": "feature-test functree",
+        "expected": { "cout": ["FuncTree result for call '<name> add 1.5 2.5 3.0': 7"], "cerr": [] }
+    }
+]

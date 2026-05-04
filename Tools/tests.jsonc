@@ -21,7 +21,9 @@
         "Tools/Tests/time.json",
         //---------------------------------------
         // Tests from the featureTest DomainModule, for calling hardcoded test functions
-        "Tools/Tests/Integrated/basics.json",
+        "Tools/Tests/Integrated/funcTree.json",
+        "Tools/Tests/Integrated/keyCombination.json",
+        "Tools/Tests/Integrated/context.json",
         //---------------------------------------
         // Domain tests
         "Tools/Tests/Domain/commonUtilities.json",

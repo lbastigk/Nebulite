@@ -1,0 +1,6 @@
+[
+    {
+        "command": "feature-test context-evaluation",
+        "expected": { "cout": ["1 2 3", "5 4 3"], "cerr": [] }
+    }
+]

@@ -40,9 +40,9 @@ public:
         "Usage: feature-test functree\n";
 
     [[nodiscard]] Constants::Event selfOtherGlobalEvaluation() const ;
-    static auto constexpr selfOtherGlobalEvaluation_name = "feature-test evaluation";
-    static auto constexpr selfOtherGlobalEvaluation_desc = "Tests evaluation of self and other globals in one expression\n"
-        "Usage: evaluation\n";
+    static auto constexpr selfOtherGlobalEvaluation_name = "feature-test context-evaluation";
+    static auto constexpr selfOtherGlobalEvaluation_desc = "Tests evaluation of self and other global variable access in one expression\n"
+        "Usage: feature-test context-evaluation\n";
 
     [[nodiscard]] Constants::Event keyCombination(std::span<std::string const> const& args) const ;
     static auto constexpr keyCombination_name = "feature-test key-combination";
