@@ -25,9 +25,9 @@
             "description": "Debug build for Linux",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
-                "CMAKE_CXX_FLAGS": "-ftime-trace=${sourceDir}/tmp/trace_${presetName}.json",
-                "CMAKE_C_COMPILER": "/usr/bin/clang",
-                "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
+                "CMAKE_CXX_FLAGS": "-freflection -std=c++26",
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++"
             }
         },
         {
@@ -37,7 +37,7 @@
             "description": "Release build for Linux with optimizations",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_CXX_FLAGS": "-O3 -DNDEBUG -march=native -mtune=native -flto=auto -fno-semantic-interposition -fomit-frame-pointer -fuse-linker-plugin -fvisibility=hidden -fvisibility-inlines-hidden -finline-functions -fpredictive-commoning",
+                "CMAKE_CXX_FLAGS": "-freflection -std=c++26 -O3 -DNDEBUG -march=native -mtune=native -flto=auto -fno-semantic-interposition -fomit-frame-pointer -fuse-linker-plugin -fvisibility=hidden -fvisibility-inlines-hidden -finline-functions -fpredictive-commoning",
                 "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
@@ -50,7 +50,7 @@
             "description": "Optimized build with debug symbols for profiling",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Profiling",
-                "CMAKE_CXX_FLAGS": "-O3 -g -fno-omit-frame-pointer -march=native",
+                "CMAKE_CXX_FLAGS": "-freflection -std=c++26 -O3 -g -fno-omit-frame-pointer -march=native",
                 "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "OFF",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++"
@@ -63,6 +63,7 @@
             "displayName": "Linux Coverage",
             "description": "Coverage build for Linux",
             "cacheVariables": {
+                "CMAKE_CXX_FLAGS": "-freflection -std=c++26",
                 "CMAKE_C_COMPILER": "/usr/bin/gcc",
                 "CMAKE_CXX_COMPILER": "/usr/bin/g++",
                 "CMAKE_BUILD_TYPE": "Coverage"
@@ -77,7 +78,7 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_C_FLAGS": "-Wa,-mbig-obj",
-                "CMAKE_CXX_FLAGS": "-Wa,-mbig-obj",
+                "CMAKE_CXX_FLAGS": "-freflection -Wa,-mbig-obj",
                 "CMAKE_ASM_FLAGS": "-Wa,-mbig-obj"
             }
         },
@@ -89,7 +90,7 @@
             "toolchainFile": "${sourceDir}/Tools/CMake/Toolchains/windows-mingw.cmake",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release",
-                "CMAKE_CXX_FLAGS_RELEASE": "-O3 -DNDEBUG",
+                "CMAKE_CXX_FLAGS_RELEASE": "-freflection -O3 -DNDEBUG",
                 "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
             }
         },
