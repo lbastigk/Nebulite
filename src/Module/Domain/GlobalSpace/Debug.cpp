@@ -34,7 +34,6 @@ auto const* logFilename = "errors.log";
 
 /**
  * @brief Safely opens a log file for writing, ensuring it is not a symlink.
- * @todo Move this functionality to globalspace
  */
 bool safe_open_log(std::unique_ptr<std::ofstream>& out) {
 #if defined(_WIN32)
