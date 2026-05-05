@@ -13,6 +13,17 @@
 //------------------------------------------
 namespace Nebulite::Utility {
 
+// [GENERATE]
+
+std::string StringHandler::repeat(std::string_view const& str, size_t const& count){
+    std::string result;
+    // NOLINTNEXTLINE
+    for (auto _ : std::views::iota(size_t{0}, count)) {
+        result += str;
+    }
+    return result;
+}
+
 std::string StringHandler::createPaddedTable(std::vector<std::string> const& words, size_t const& rowSize){
     // Find largest word
     auto maxSize = std::ranges::max_element(words, [](std::string_view const& a, std::string_view const& b) {
@@ -30,6 +41,17 @@ std::string StringHandler::createPaddedTable(std::vector<std::string> const& wor
         return acc + paddedEntry;
     });
 }
+
+std::string StringHandler::replaceAll(std::string target, std::string_view const& toReplace, std::string_view const& replacer) {
+    if (toReplace.empty())
+        return target;
+    return target
+        | std::views::split(toReplace)
+        | std::views::join_with(replacer)
+        | std::ranges::to<std::string>();
+}
+
+// [VALIDATE]
 
 bool StringHandler::containsAnyOf(std::string_view const& str, std::string_view const& chars) {
     return std::ranges::any_of(str, [&](char const c) {
@@ -49,14 +71,7 @@ bool StringHandler::isNumber(std::string_view const& str) {
            && !str.empty();
 }
 
-std::string StringHandler::replaceAll(std::string target, std::string_view const& toReplace, std::string_view const& replacer) {
-    if (toReplace.empty())
-        return target;
-    return target
-        | std::views::split(toReplace)
-        | std::views::join_with(replacer)
-        | std::ranges::to<std::string>();
-}
+// [STRIP]
 
 void StringHandler::untilSpecialChar(std::string_view& str, char const& specialChar) {
     if (size_t const pos = str.find(specialChar); pos != std::string::npos && pos < str.size()) {
@@ -84,6 +99,135 @@ void StringHandler::strip(std::string_view& str, char const& specialChar) {
     lStrip(str, specialChar);
     rStrip(str, specialChar);
 }
+
+// [ARGS]
+
+// Helpers for parsing quoted arguments
+namespace {
+struct QuoteParseState {
+    bool inDoubleQuote = false;
+    bool inSingleQuote = false;
+
+    [[nodiscard]] bool inAnyQuote() const {
+        return inDoubleQuote || inSingleQuote;
+    }
+};
+
+void handleEmptyToken(QuoteParseState const& state, std::vector<std::string>& result) {
+    if (!state.inAnyQuote()) {
+        // If not in quotes, add empty token with whitespace
+        result.emplace_back(" ");
+    } else {
+        // In quotes, append space to last token
+        if (!result.empty()) {
+            result.back() += " ";
+        }
+    }
+}
+
+std::string processQuoteToken(std::string_view const& token, char const quoteChar, bool& quoteState) {
+    auto cleanToken = token.substr(1); // Remove opening quote
+    quoteState = true;
+
+    // Check if quote closes in same token
+    if (!cleanToken.empty() && cleanToken.back() == quoteChar) {
+        quoteState = false;
+        cleanToken.remove_suffix(1); // Remove closing quote
+    }
+
+    return std::string(cleanToken);
+}
+
+void handleQuoteStart(std::string_view const& token, QuoteParseState& state, std::vector<std::string>& result) {
+    if (token[0] == '"') {
+        std::string const cleanToken = processQuoteToken(token, '"', state.inDoubleQuote);
+        result.push_back(cleanToken);
+    } else if (token[0] == '\'') {
+        std::string const cleanToken = processQuoteToken(token, '\'', state.inSingleQuote);
+        result.push_back(cleanToken);
+    } else {
+        // Regular unquoted token
+        result.emplace_back(token);
+    }
+}
+
+void handleQuoteEnd(std::string_view const& token, char const quoteChar, bool& quoteState, std::vector<std::string>& result) {
+    quoteState = false;
+    auto cleanToken = std::string(token);
+
+    // Remove the closing quote if it matches the expected quote character
+    if (!cleanToken.empty() && cleanToken.back() == quoteChar) {
+        cleanToken.pop_back();
+    }
+
+    if (!result.empty()) {
+        result.back() += " " + cleanToken;
+    }
+}
+
+void handleQuotedToken(std::string_view const& token, QuoteParseState& state, std::vector<std::string>& result) {
+    if (state.inDoubleQuote && !token.empty() && token.back() == '"') {
+        handleQuoteEnd(token, '"', state.inDoubleQuote, result);
+    } else if (state.inSingleQuote && !token.empty() && token.back() == '\'') {
+        handleQuoteEnd(token, '\'', state.inSingleQuote, result);
+    } else {
+        // Still in quotes, append to last token
+        if (!result.empty()) {
+            result.back() += " " + std::string(token);
+        }
+    }
+}
+} // namespace
+
+// [Args]
+
+StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string_view const& cmd) {
+    std::vector<std::string> const tokens = split(cmd, ' ');
+    std::vector<std::string> result;
+    QuoteParseState state;
+
+    for (auto const& token : tokens) {
+        // Keep empty tokens as extra whitespace - important for preserving user formatting
+        // e.g. for text: "eval echo Value: {global:myVal}  |  Expected: {global:expected}"
+        // Without this, the double spaces around | would be lost, which can be important for readability of the command
+        // or simply to preserve the user's intended formatting.
+        if (token.empty()) {
+            handleEmptyToken(state, result);
+            continue;
+        }
+
+        if (!state.inAnyQuote()) {
+            handleQuoteStart(token, state, result);
+        } else {
+            handleQuotedToken(token, state, result);
+        }
+    }
+
+    return {.args = std::move(result), .unclosedQuote = state.inAnyQuote()};
+}
+
+std::string StringHandler::recombineArgs(int const argc, char* argv[]) {
+    // Turn into vector and pass to span version for code reuse
+    std::vector<std::string> args(argv, argv + argc);
+    return recombineArgs(args);
+}
+
+std::string StringHandler::recombineArgs(std::span<std::string const> const& args) {
+    std::string result;
+    for (size_t i = 0; i < args.size(); ++i) {
+        result += args[i];
+        // Don't add a whitespace if it's the last argument
+        if (i < args.size() - 1) {
+            // Important: don't add a whitespace if the argument already is a whitespace!
+            // This is due to how parseQuotedArguments handles multiple spaces. They are treated as one arg per space.
+            if (!args[i].empty() && args[i][0] != ' ')
+                result += " ";
+        }
+    }
+    return result;
+}
+
+// [SPLIT]
 
 std::vector<std::string> StringHandler::split(std::string_view const& input, char const& delimiter, bool const& keepDelimiter) {
     std::vector<std::string> tokens;
@@ -189,139 +333,6 @@ std::vector<std::string> StringHandler::splitOnSameDepth(std::string_view const&
         result.push_back(current);
     }
 
-    return result;
-}
-
-
-// Helpers for parsing quoted arguments
-namespace {
-struct QuoteParseState {
-    bool inDoubleQuote = false;
-    bool inSingleQuote = false;
-
-    [[nodiscard]] bool inAnyQuote() const {
-        return inDoubleQuote || inSingleQuote;
-    }
-};
-
-void handleEmptyToken(QuoteParseState const& state, std::vector<std::string>& result) {
-    if (!state.inAnyQuote()) {
-        // If not in quotes, add empty token with whitespace
-        result.emplace_back(" ");
-    } else {
-        // In quotes, append space to last token
-        if (!result.empty()) {
-            result.back() += " ";
-        }
-    }
-}
-
-std::string processQuoteToken(std::string_view const& token, char const quoteChar, bool& quoteState) {
-    auto cleanToken = token.substr(1); // Remove opening quote
-    quoteState = true;
-
-    // Check if quote closes in same token
-    if (!cleanToken.empty() && cleanToken.back() == quoteChar) {
-        quoteState = false;
-        cleanToken.remove_suffix(1); // Remove closing quote
-    }
-
-    return std::string(cleanToken);
-}
-
-void handleQuoteStart(std::string_view const& token, QuoteParseState& state, std::vector<std::string>& result) {
-    if (token[0] == '"') {
-        std::string const cleanToken = processQuoteToken(token, '"', state.inDoubleQuote);
-        result.push_back(cleanToken);
-    } else if (token[0] == '\'') {
-        std::string const cleanToken = processQuoteToken(token, '\'', state.inSingleQuote);
-        result.push_back(cleanToken);
-    } else {
-        // Regular unquoted token
-        result.emplace_back(token);
-    }
-}
-
-void handleQuoteEnd(std::string_view const& token, char const quoteChar, bool& quoteState, std::vector<std::string>& result) {
-    quoteState = false;
-    auto cleanToken = std::string(token);
-
-    // Remove the closing quote if it matches the expected quote character
-    if (!cleanToken.empty() && cleanToken.back() == quoteChar) {
-        cleanToken.pop_back();
-    }
-
-    if (!result.empty()) {
-        result.back() += " " + cleanToken;
-    }
-}
-
-void handleQuotedToken(std::string_view const& token, QuoteParseState& state, std::vector<std::string>& result) {
-    if (state.inDoubleQuote && !token.empty() && token.back() == '"') {
-        handleQuoteEnd(token, '"', state.inDoubleQuote, result);
-    } else if (state.inSingleQuote && !token.empty() && token.back() == '\'') {
-        handleQuoteEnd(token, '\'', state.inSingleQuote, result);
-    } else {
-        // Still in quotes, append to last token
-        if (!result.empty()) {
-            result.back() += " " + std::string(token);
-        }
-    }
-}
-} // namespace
-
-StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string_view const& cmd) {
-    std::vector<std::string> const tokens = split(cmd, ' ');
-    std::vector<std::string> result;
-    QuoteParseState state;
-
-    for (auto const& token : tokens) {
-        // Keep empty tokens as extra whitespace - important for preserving user formatting
-        // e.g. for text: "eval echo Value: {global:myVal}  |  Expected: {global:expected}"
-        // Without this, the double spaces around | would be lost, which can be important for readability of the command
-        // or simply to preserve the user's intended formatting.
-        if (token.empty()) {
-            handleEmptyToken(state, result);
-            continue;
-        }
-
-        if (!state.inAnyQuote()) {
-            handleQuoteStart(token, state, result);
-        } else {
-            handleQuotedToken(token, state, result);
-        }
-    }
-
-    return {.args = std::move(result), .unclosedQuote = state.inAnyQuote()};
-}
-
-std::string StringHandler::recombineArgs(int const argc, char* argv[]) {
-    // Turn into vector and pass to span version for code reuse
-    std::vector<std::string> args(argv, argv + argc);
-    return recombineArgs(args);
-}
-
-std::string StringHandler::recombineArgs(std::span<std::string const> const& args) {
-    std::string result;
-    for (size_t i = 0; i < args.size(); ++i) {
-        result += args[i];
-        // Don't add a whitespace if it's the last argument
-        if (i < args.size() - 1) {
-            // Important: don't add a whitespace if the argument already is a whitespace!
-            // This is due to how parseQuotedArguments handles multiple spaces. They are treated as one arg per space.
-            if (!args[i].empty() && args[i][0] != ' ')
-                result += " ";
-        }
-    }
-    return result;
-}
-
-std::string StringHandler::repeat(std::string_view const& str, size_t const& count){
-    std::string result;
-    // NOLINTNEXTLINE
-    for (auto _ : std::views::iota(size_t{0}, count)) {
-        result += str;
-    }
     return result;
 }
 

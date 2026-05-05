@@ -6,8 +6,6 @@
 #ifndef NEBULITE_UTILITY_IO_STRING_HANDLER_HPP
 #define NEBULITE_UTILITY_IO_STRING_HANDLER_HPP
 
-// TODO: Return string_view if possible!
-
 //------------------------------------------
 // Includes
 
@@ -23,6 +21,16 @@ namespace Nebulite::Utility {
  */
 class StringHandler {
 public:
+    // [GENERATE]
+
+    /**
+     * @brief Repeats a given string a specified number of times.
+     * @param str The string to repeat.
+     * @param count The number of times to repeat the string.
+     * @return The resulting string after repetition.
+     */
+    static std::string repeat(std::string_view const& str, size_t const& count);
+
     /**
      * @brief Pads a list of words with spaces to create a table-like view.
      * @details The padding is based on the longest word.
@@ -30,6 +38,17 @@ public:
      * @param rowSize The maximum character size per row. Set to zero for no newlines
      */
     static std::string createPaddedTable(std::vector<std::string> const& words, size_t const& rowSize = 0);
+
+    /**
+     * @brief Replaces all occurrences of a substring within a string.
+     * @param target The original string.
+     * @param toReplace The substring to replace.
+     * @param replacer The replacement substring.
+     * @return The modified string with all occurrences replaced.
+     */
+    static std::string replaceAll(std::string target, std::string_view const& toReplace, std::string_view const& replacer);
+
+    // [VALIDATE]
 
     /**
      * @brief Checks if a string contains any characters from a given set.
@@ -46,14 +65,7 @@ public:
      */
     static bool isNumber(std::string_view const& str);
 
-    /**
-     * @brief Replaces all occurrences of a substring within a string.
-     * @param target The original string.
-     * @param toReplace The substring to replace.
-     * @param replacer The replacement substring.
-     * @return The modified string with all occurrences replaced.
-     */
-    static std::string replaceAll(std::string target, std::string_view const& toReplace, std::string_view const& replacer);
+    // [STRIP]
 
     /**
      * @brief Extracts the substring from the start of the input until a special character is found.
@@ -90,25 +102,7 @@ public:
      */
     static void strip(std::string_view& str, char const& specialChar = ' ');
 
-    /**
-     * @brief Splits a string into tokens based on a delimiter.
-     * @param input The original string.
-     * @param delimiter The character to split the string on.
-     * @param keepDelimiter Whether to keep the delimiter in the tokens. 
-     * Keeps the delimiter at the start of the token. (Optional, default: false)
-     * @return A vector of tokens extracted from the input string.
-     */
-    static std::vector<std::string> split(std::string_view const& input, char const& delimiter, bool const& keepDelimiter = false);
-
-    /**
-     * @brief Splits a string on the same depth of parentheses.
-     * @param input The original string.
-     * @param delimiter The opening parenthesis to split on.
-     * @return A vector of strings split on the same depth of parentheses.
-     * @todo Remove delimiter parameter, use all types and only split of they're all at zero depth
-     *
-     */
-    static std::vector<std::string> splitOnSameDepth(std::string_view const& input, char const& delimiter);
+    // [ARGS]
 
     struct ParseResult {
         std::vector<std::string> args;
@@ -138,13 +132,29 @@ public:
      */
     static std::string recombineArgs(std::span<std::string const> const& args);
 
+    // [SPLIT]
+
+    // TODO: modify split functions to return a vector of views
+    //       -> re-evaluate the usage inside nebulite first
+
     /**
-     * @brief Repeats a given string a specified number of times.
-     * @param str The string to repeat.
-     * @param count The number of times to repeat the string.
-     * @return The resulting string after repetition.
+     * @brief Splits a string into tokens based on a delimiter.
+     * @param input The original string.
+     * @param delimiter The character to split the string on.
+     * @param keepDelimiter Whether to keep the delimiter in the tokens. (Optional, default: false)
+     * @return A vector of tokens extracted from the input string.
      */
-    static std::string repeat(std::string_view const& str, size_t const& count);
+    static std::vector<std::string> split(std::string_view const& input, char const& delimiter, bool const& keepDelimiter = false);
+
+    /**
+     * @brief Splits a string on the same depth of parentheses.
+     * @param input The original string.
+     * @param delimiter The opening parenthesis to split on.
+     * @return A vector of strings split on the same depth of parentheses.
+     * @todo Use all brace types and only split of they're all at zero depth + we're at a delimiter
+     *
+     */
+    static std::vector<std::string> splitOnSameDepth(std::string_view const& input, char const& delimiter);
 };
 }   // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_IO_STRING_HANDLER_HPP
