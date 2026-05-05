@@ -30,6 +30,29 @@ class ScopedKey;
 } // namespace Nebulite::Data
 
 //------------------------------------------
+// Reflection concepts
+
+template<typename T, typename Variant>
+    struct is_in_variant;
+
+template<typename T, typename... Ts>
+struct is_in_variant<T, std::variant<Ts...>>
+    : std::bool_constant<(std::same_as<T, Ts> || ...)> {};
+
+template<typename T>
+concept isSimpleValue = is_in_variant<T, Nebulite::Data::RjDirectAccess::simpleValue>::value;
+
+template<typename Obj>
+concept isValidObject = std::default_initializable<Obj> &&
+    std::copyable<Obj> &&
+    std::movable<Obj>;
+    // TODO: all members of Obj are public
+
+template<typename Obj>
+concept Reflectable = isSimpleValue<Obj> || isValidObject<Obj>;
+
+
+//------------------------------------------
 namespace Nebulite::Data {
 /**
  * @class Nebulite::Data::JsonScope
@@ -278,6 +301,15 @@ public:
     [[nodiscard]] bool isDummy() const {
         return !scopePrefix.has_value();
     }
+
+    //------------------------------------------
+    // Reflection
+
+    template<Reflectable Obj>
+    Obj getObject();
+
+    template<Reflectable Obj>
+    void setObject(Obj const& obj);
 };
 } // namespace Nebulite::Data
 #include "Data/Document/JsonScope.tpp"
