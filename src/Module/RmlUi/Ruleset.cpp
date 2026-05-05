@@ -81,8 +81,7 @@ void Ruleset::DeletedElement::applyRuleset(Utility::IO::Capture& capture, Graphi
     // 1.) rulesetAttributeOnDestroy
     if (rulesetLink) {
         if (auto const ruleset = Interaction::Rules::Construction::RulesetCompiler::parseSingle(rulesetLink.value(), ctx.self); ruleset) {
-            // TODO: add functionality to pass ctx and scope into Ruleset::apply
-            ruleset.value()->apply();
+            ruleset.value()->apply(ctx, scope);
         }
         else {
             capture.warning.println("Could not find ruleset with identifier '", rulesetLink.value(), "'. Skipping ruleset invocation on element destroy.");
