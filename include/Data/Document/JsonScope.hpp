@@ -8,6 +8,7 @@
 #include <array>
 #include <expected>
 #include <memory>
+#include <meta>
 #include <mutex>
 #include <optional>
 #include <string>
@@ -42,11 +43,27 @@ struct is_in_variant<T, std::variant<Ts...>>
 template<typename T>
 concept isSimpleValue = is_in_variant<T, Nebulite::Data::RjDirectAccess::simpleValue>::value;
 
+template <typename T>
+consteval bool hasOnlyPublicMembersImpl() {
+    constexpr auto all = define_static_array(
+        nonstatic_data_members_of(^^T, std::meta::access_context::unchecked())
+    );
+
+    constexpr auto accessible = define_static_array(
+        nonstatic_data_members_of(^^T, std::meta::access_context::current())
+    );
+
+    return all.size() == accessible.size();
+}
+
+template <typename T>
+concept hasOnlyPublicMembers = hasOnlyPublicMembersImpl<T>();
+
 template<typename Obj>
-concept isValidObject = std::default_initializable<Obj> &&
+concept isValidObject = hasOnlyPublicMembers<Obj> &&
+    std::default_initializable<Obj> &&
     std::copyable<Obj> &&
     std::movable<Obj>;
-    // TODO: all members of Obj are public
 
 template<typename Obj>
 concept Reflectable = isSimpleValue<Obj> || isValidObject<Obj>;
@@ -306,7 +323,7 @@ public:
     // Reflection
 
     template<Reflectable Obj>
-    Obj getObject();
+    Obj getObject() const ;
 
     template<Reflectable Obj>
     void setObject(Obj const& obj);
