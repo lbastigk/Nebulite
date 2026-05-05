@@ -606,10 +606,6 @@ void JSON::removeMember(std::string_view const& key) {
     synchronizeChildren(key);
 }
 
-// TODO: moveMember seems to be broken ... Does not remove the cache at rootKey
-// Test:
-// eval echo {global:|typeAsString|ensureArray|print}
-// It prints the correct type, but on retrieval of the rootKey as string, it returns the cache entry!
 void JSON::moveMember(std::string_view const& fromKey, std::string_view const& toKey) {
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++; // Signal non-const operation
