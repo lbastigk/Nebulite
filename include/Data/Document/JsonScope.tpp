@@ -44,8 +44,6 @@ struct array_traits<T[N]> {
 
 } // namespace
 
-
-
 template<Reflectable Obj>
 Obj JsonScope::getObject() const {
     Obj obj{};
@@ -58,15 +56,11 @@ Obj JsonScope::getObject() const {
             auto& scope = shareScope(key);
             for (std::size_t i = 0; i < N; ++i) {
                 auto idxKey = scope.getRootScope().addIndex(i);
-
                 if constexpr (isSimpleValue<Elem>) {
-                    obj.[:member:][i] =
-                        get<Elem>(idxKey.view())
-                            .value_or(obj.[:member:][i]);
+                    obj.[:member:][i] = get<Elem>(idxKey.view()).value_or(obj.[:member:][i]);
                 } else {
                     auto child = scope.shareScope(idxKey);
-                    obj.[:member:][i] =
-                        child.getObject<Elem>();
+                    obj.[:member:][i] = child.getObject<Elem>();
                 }
             }
         }
