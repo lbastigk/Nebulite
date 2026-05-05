@@ -68,18 +68,33 @@ Constants::Event General::func_if(std::span<std::string const> const& args, Inte
     }
 
     // See if any arg is "then", if so, only evaluate until then, and execute the rest as commands if the condition is true
-    auto commandStartFinder = [&] {
-        size_t start = 2;
+    auto commandStartFinder = [&]-> std::pair<size_t, size_t> {
         if (auto const it = std::ranges::find(args, std::string("then")); it != args.end()) {
-            auto const idx = std::distance(args.begin(), it);
-            start = static_cast<size_t>(idx) + 1;
+            auto const commandStart = static_cast<size_t>(std::distance(args.begin(), it));
+
+            // remove whitespaces
+            for (size_t conditionEnd = commandStart-1; conditionEnd > 0; conditionEnd--) {
+                if (!args[conditionEnd].empty() && args[conditionEnd] != " ") {
+                    return {conditionEnd, commandStart};
+                }
+            }
+            return {1, commandStart};
         }
-        return start;
+        return {1,2};
     };
 
+    auto const [conditionEnd, commandStart] = commandStartFinder();
+    std::string const condition = Utility::StringHandler::recombineArgs(args.subspan(1, conditionEnd));
+    std::string commands = Utility::StringHandler::recombineArgs(args.subspan(commandStart+1));
+
+    // condition must start with $( and end with )
+    if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
+        return Constants::StandardCapture::Warning::Functional::unknownArg(ctx.self.capture);
+    }
+
     // Conditional check
-    if (size_t const commandStart = commandStartFinder(); Interaction::Logic::Expression::evalAsBool(Utility::StringHandler::recombineArgs(args.subspan(1, commandStart - 1)), ctxScope)) {
-        std::string commands = Utility::StringHandler::recombineArgs(args.subspan(commandStart));
+    if (Interaction::Logic::Expression::evalAsBool(condition, ctxScope)) {
+
         commands = __FUNCTION__ + std::string(" ") + commands;
         return ctx.self.parseStr(commands, ctx, ctxScope);
     }
