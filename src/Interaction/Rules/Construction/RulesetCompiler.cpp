@@ -217,12 +217,13 @@ RulesetCompiler::AnyRuleset RulesetCompiler::getRuleset(Data::JsonScope const& d
             Ruleset->topic = staticRulesetEntry.topic;
             Ruleset->_isGlobal = staticRulesetEntry.type == StaticRulesetMap::StaticRuleSetWithMetaData::Type::Global;
             Ruleset->staticFunction = staticRulesetEntry.function;
+            Ruleset->baseListFunction = staticRulesetEntry.baseListFunc;
             Ruleset->slf = staticRulesetEntry.baseListFunc(self);
             return Ruleset;
         }
         // Skip this entry if it cannot be parsed
         // Warn user of invalid entry
-        Global::capture().error.println("Warning: could not parse Ruleset entry with string '", staticFunctionName, "'. Skipping entry.");
+        Global::capture().error.println("Could not parse Ruleset entry with string '", staticFunctionName, "'. Skipping entry.");
         return std::monostate{};
     }
     // Is a valid JSON-defined ruleset

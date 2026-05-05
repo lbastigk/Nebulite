@@ -108,6 +108,11 @@ public:
     virtual bool evaluateCondition();
 
     /**
+     * @brief Applies the ruleset with a full context given
+     */
+    virtual void apply(Context& context, ContextScope& contextScope);
+
+    /**
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
      */
@@ -151,6 +156,11 @@ protected:
      *          Due to the large checks needed for `all`, it should only be used when absolutely necessary.
      */
     std::string topic = "all";
+
+    /**
+     * @brief Baselist generator function
+     */
+    BaseListFunction baseListFunction;
 
     /**
      * @brief Ordered list of variables for this ruleset to use as self
@@ -199,10 +209,15 @@ public:
     bool evaluateCondition() override { return evaluateCondition(self); }
 
     /**
+     * @brief Applies the ruleset with a full context given
+     */
+    void apply(Context& context, ContextScope& contextScope) override ;
+
+    /**
      * @brief Applies the ruleset
      * @param contextOther The render object in the other domain.
      */
-    void apply(std::shared_ptr<Listener> const& contextOther) override;
+    void apply(std::shared_ptr<Listener> const& contextOther) override ;
 
     /**
      * @brief Applies the ruleset to its own Domain as contextOther.
@@ -250,6 +265,11 @@ public:
      * @return True if the ruleset is true in the context of its own Domain, false otherwise.
      */
     bool evaluateCondition() override { return evaluateCondition(self); }
+
+    /**
+     * @brief Applies the ruleset with a full context given
+     */
+    void apply(Context& context, ContextScope& contextScope) override ;
 
     /**
      * @brief Applies the ruleset
