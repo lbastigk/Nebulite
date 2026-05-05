@@ -1,0 +1,6 @@
+[
+    {
+        "command": "feature-test reflection",
+        "expected": { "cout:":  null, "cerr":  [] }
+    }
+]

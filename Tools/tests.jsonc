@@ -24,6 +24,7 @@
         "Tools/Tests/Integrated/funcTree.json",
         "Tools/Tests/Integrated/keyCombination.json",
         "Tools/Tests/Integrated/context.json",
+        "Tools/Tests/Integrated/reflection.json",
         //---------------------------------------
         // Domain tests
         "Tools/Tests/Domain/commonUtilities.json",

@@ -50,6 +50,10 @@ public:
         "Usage: feature-test key-combination <key1> <key2>\n"
         "Using <empty> as argument will treated as an empty key.\n";
 
+    [[nodiscard]] Constants::Event reflection() const ;
+    static auto constexpr reflection_name = "feature-test reflection";
+    static auto constexpr reflection_desc = "Tests the ability of the JsonScope class to use C++26 reflection";
+
     //------------------------------------------
     // Categories
 
@@ -70,6 +74,7 @@ public:
         bindFunction(&FeatureTest::testFuncTree, testFuncTree_name, testFuncTree_desc);
         bindFunction(&FeatureTest::selfOtherGlobalEvaluation, selfOtherGlobalEvaluation_name, selfOtherGlobalEvaluation_desc);
         bindFunction(&FeatureTest::keyCombination, keyCombination_name, keyCombination_desc);
+        bindFunction(&FeatureTest::reflection, reflection_name, reflection_desc);
     }
 
     struct Key : Data::KeyGroup<""> {

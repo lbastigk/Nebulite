@@ -88,4 +88,63 @@ Constants::Event FeatureTest::keyCombination(std::span<std::string const> const&
     return Constants::Event::Success;
 }
 
+namespace {
+struct SensorReading {
+    double convertedValue = -271.3;
+    uint32_t rawValue = 0;
+
+    bool operator==(const SensorReading& rhs) const {
+        return rawValue == rhs.rawValue && Math::isEqual(convertedValue, rhs.convertedValue);
+    }
+};
+struct ComputerInfo {
+    SensorReading cpu;
+    SensorReading gpu;
+    SensorReading ram;
+    std::array<int, 6> HWID = {1, 2, 3, 4, 5, 6};
+
+    bool operator==(const ComputerInfo& rhs) const {
+        bool result = true;
+        result &= cpu == rhs.cpu;
+        result &= gpu == rhs.gpu;
+        result &= ram == rhs.ram;
+        result &= HWID == rhs.HWID;
+        return result;
+    }
+};
+struct StructWithArray {
+    int normalValue = 123;
+    std::array<double, 3> rawValue = {7.11, 3.141, 2.};
+};
+} // namespace
+
+Constants::Event FeatureTest::reflection() const {
+    domain.capture.log.println("Testing reflection capability");
+    domain.capture.log.println("Struct1 -> JSON -> Struct2, then checking for equality");
+
+    // 1.) struct -> JSON
+    Data::JsonScope info1;
+    ComputerInfo infoObj1{
+        .cpu = {.convertedValue = 55.5, .rawValue = 1023},
+        .gpu = {.convertedValue = 65.2, .rawValue = 2047},
+        .ram = {.convertedValue = 16.0, .rawValue = 4095},
+        .HWID = {42, 43, 44, 45, 46, 47}
+    };
+    info1.setObject<ComputerInfo>(infoObj1);
+    domain.capture.log.println("Output:");
+    domain.capture.log.println(info1.serialize());
+
+    // 2.) json -> struct
+    // Making sure that info2 is a fresh JSON, in case there are some caching issues
+    // That part is tested separately
+    Data::JsonScope info2;
+    info2.deserialize(info1.serialize());
+    if (ComputerInfo infoObj2 = info2.getObject<ComputerInfo>(); infoObj1 != infoObj2) {
+        domain.capture.error.println("Objects are not equal!");
+        return Constants::Event::Error;
+    }
+    domain.capture.log.println("Objects are equal!");
+    return Constants::Event::Success;
+}
+
 } // namespace Nebulite::Module::Domain::GlobalSpace
