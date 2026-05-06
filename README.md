@@ -8,21 +8,6 @@
 [![C++ Standard](https://img.shields.io/badge/C%2B%2B-26-blue)]()
 [![Status](https://img.shields.io/badge/State-Active%20Dev-orange)]()
 
-<p align="center">
-  <img src="doc/images/globalSpaceViewer.png" alt="Nebulite Overview" width="45%">
-  <img src="doc/images/console.png" alt="Nebulite Overview" width="45%">
-</p>
-
-<p align="center">
-  <img src="doc/images/demo.gif" alt="Conventional gravity test" width="45%">
-  <img src="doc/images/walking.gif" alt="Walking animations" width="45%">
-</p>
-
-<p align="center">
-  <img src="doc/images/pong.gif" alt="Pong" width="45%">
-  <img src="doc/images/xxl_test.gif" alt="Gravity + Elastic collision" width="45%">
-</p>
-
 </div>
 
 <!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
@@ -58,6 +43,11 @@ Gameplay logic can be defined in two complementary ways:
 
 Both approaches share the same runtime pipeline and context model,
 allowing you to freely mix data-defined and hardcoded behavior within the same project.
+
+<p align="center">
+    <img src="doc/images/walking.gif" alt="Walking animations" width="45%">
+    <img src="doc/images/xxl_test.gif" alt="Gravity + Elastic collision" width="45%">
+</p>
 
 <!-- TOC --><a name="core-principles"></a>
 ### Core Principles
@@ -138,9 +128,14 @@ The interactive console inside Nebulite also supports autocompletion.
 
 6. Run any script:
 ```bash
-./bin/Nebulite task TaskFiles/Benchmarks/gravity_unlimited.nebs 
+./bin/Nebulite task TaskFiles/Benchmarks/gravity_XL.nebs 
 ```
-You should see a window pop up with a small gravity simulation running indefinitely.
+You should see a window pop up with a large gravity simulation running indefinitely.
+
+<p align="center">
+  <img src="doc/images/demo.gif" alt="Conventional gravity test" width="45%">
+  <img src="doc/images/pong.gif" alt="Pong" width="45%">
+</p>
 
 **The general directory structure is as follows:**
 
@@ -374,6 +369,8 @@ Nebulite includes two GUI libraries:
 - **ImGui** for in-game debug interfaces and tools
 - **RmlUI** for more complex, styled interfaces (menus, HUDs, etc.)
 
+<img src="doc/images/globalSpaceViewer.png" alt="Nebulite Overview" width="95%">
+
 The RmlUi implementation contains custom plugins to allow for seamless integration with Nebulite's data model and expression system,
 as well as Reflection capabilities for iterating over JSON data in the UI.
 Instead of using the default RmlUi syntax for data binding and event handling, use the standard Nebulite expression syntax.
@@ -456,6 +453,7 @@ Examples:
     </body>
 </rml>
 ```
+<img src="doc/images/RmlUi.png" alt="Nebulite Overview" width="95%">
 
 The document is loaded via the RmlUi DomainModule:
 ```bash
