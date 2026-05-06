@@ -36,14 +36,6 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event once(std::span<std::string const> const& args) const ;
-    static auto constexpr once_name = "ruleset once";
-    static auto constexpr once_desc = "Applies all rulesets once on the next update\n"
-        "\n"
-        "Usage: ruleset once\n"
-        "\n"
-        "All rulesets are applied once on the next update cycle.\n";
-
     [[nodiscard]] Constants::Event reload();
     static auto constexpr reload_name = "ruleset reload";
     static auto constexpr reload_desc = "Reloads all rulesets for this RenderObject on the next update.\n"
@@ -68,7 +60,6 @@ public:
         // Bind functions
         bindCategory(ruleset_name, ruleset_desc);
         bindFunction(&Ruleset::reload, reload_name, reload_desc);
-        bindFunction(&Ruleset::once, once_name, once_desc);
     }
 
     struct Key : Data::KeyGroup<"ruleset."> {

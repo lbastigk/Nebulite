@@ -16,8 +16,8 @@ void RulesetModule::ensureBaseList(Execution::Domain const& domain, std::vector<
     arr = domain.ensureOrderedCacheList(id, keys);
 }
 
-std::function<double**(const Execution::Domain&)> RulesetModule::generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const {
-    std::function<double**(const Execution::Domain&)> const baseListFunc = [this, baseKeys](const Execution::Domain& domain) -> double** {
+BaseListFunction RulesetModule::generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const {
+    BaseListFunction const baseListFunc = [this, baseKeys](const Execution::Domain& domain) -> double** {
         double** v;
         ensureBaseList(domain, baseKeys, v);
         return v;

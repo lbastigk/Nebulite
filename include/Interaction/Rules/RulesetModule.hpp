@@ -21,7 +21,7 @@
 namespace Nebulite::Interaction::Rules {
 class RulesetModule {
 public:
-    using RulesetType = StaticRulesetMap::StaticRuleSetWithMetaData::Type;
+    using RulesetType = StaticRulesetMap::StaticRulesetWithMetadata::Type;
 
     explicit RulesetModule(std::string_view const& moduleName);
 
@@ -120,11 +120,11 @@ protected:
      * @param baseKeys The key list to retrieve
      * @return The BaseList-ensurer function.
      */
-    [[nodiscard]] std::function<double**(const Execution::Domain&)> generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const ;
+    [[nodiscard]] BaseListFunction generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const ;
 
 private:
     // Vector of all static rulesets from this module
-    std::vector<StaticRulesetMap::StaticRuleSetWithMetaData> moduleRulesets;
+    std::vector<StaticRulesetMap::StaticRulesetWithMetadata> moduleRulesets;
 
     // Unique identifier for caching
     uint64_t const id;

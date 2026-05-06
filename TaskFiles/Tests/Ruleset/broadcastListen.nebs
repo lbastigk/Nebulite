@@ -1,0 +1,13 @@
+# GlobalSpace listens for any broadcasted events of ::debug::whoInteracts
+ruleset listen ::debug::whoInteracts
+
+# We spawn an object that invokes that ruleset
+spawn ./Resources/Renderobjects/standard.jsonc
+selected-object get 1
+selected-object parse invoke ::debug::whoInteracts
+wait 1
+
+# Since GlobalSpace is only listening for one frame, the following will not trigger the ruleset
+selected-object parse invoke ::debug::whoInteracts
+wait 1
+exit

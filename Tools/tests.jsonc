@@ -28,6 +28,7 @@
         // Domain tests
         "Tools/Tests/Domain/commonUtilities.json",
         "Tools/Tests/Domain/deserialization.json",
+        "Tools/Tests/Domain/ruleset.json",
         //---------------------------------------
         // Expression tests
         "Tools/Tests/Expression/basics.json",

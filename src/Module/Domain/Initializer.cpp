@@ -20,6 +20,7 @@
 #include "Module/Domain/Common/Filesystem.hpp"
 #include "Module/Domain/Common/General.hpp"
 #include "Module/Domain/Common/RmlUi.hpp"
+#include "Module/Domain/Common/Ruleset.hpp"
 #include "Module/Domain/Common/SimpleData.hpp"
 
 // Environment
@@ -82,6 +83,11 @@ void Initializer::initCommon(Interaction::Execution::Domain* target) {
     );
     target->initModule<Interaction::Execution::Domain, Common::RmlUi>(
         "Automatic Rml document deletion on ownership deletion",
+        Global::settings(),
+        *target
+    );
+    target->initModule<Interaction::Execution::Domain, Common::Ruleset>(
+        "Common Ruleset Functions",
         Global::settings(),
         *target
     );

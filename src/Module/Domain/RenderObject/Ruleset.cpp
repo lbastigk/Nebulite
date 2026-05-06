@@ -67,24 +67,6 @@ void Ruleset::reinit() {
 //------------------------------------------
 // Available Functions
 
-Constants::Event Ruleset::once(std::span<std::string const> const& args) const {
-    if (args.size() > 1) {
-        std::string const arg = Utility::StringHandler::recombineArgs(args.subspan(1));
-        if (auto const rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(arg, domain); rs.has_value()) {
-            if (rs.value()->isGlobal()) {
-                Global::instance().broadcast(rs.value());
-            }
-            else {
-                rs.value()->apply();
-            }
-            return Constants::Event::Success;
-        }
-        domain.capture.warning.println("Failed to parse ruleset: " + arg);
-        return Constants::Event::Warning;
-    }
-    return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
-}
-
 Constants::Event Ruleset::reload() {
     reloadRulesets = true;
     return Constants::Event::Success;
