@@ -95,10 +95,11 @@ void RmlInterface::init(Core::Renderer& renderer, int const& width, int const& h
         throw std::runtime_error("Failed to create RmlUi render interface!");
     }
     SetRenderInterface(renderInterface.get());
-    systemInterface = std::make_unique<SystemInterface_SDL>(renderer.getSdlWindow());
+    systemInterface = std::make_unique<RmlSystemInterface>(renderer.getSdlWindow(), renderer.capture);
     if (!systemInterface) {
         throw std::runtime_error("Failed to create system interface!");
     }
+    SetSystemInterface(systemInterface.get());
 
     // Core document manager plugin
     documentManager = std::make_unique<DocumentManager>();
@@ -269,6 +270,10 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
 }
 
 void RmlInterface::update() const {
+    // Update SystemInterface
+    systemInterface->update();
+
+    // Update Documents
     for (auto const& doc : documentToContext | std::views::keys) {
         doc->UpdateDocument();
     }

@@ -7,11 +7,11 @@
     ],
     "ignore_lines": { // Lines to ignore in the output, supports wildcards (*)
         "cout" : [
-            "Loading task list from file*" // Every time a task list is loaded, this is printed. Instead of adding the line to every test, we can just ignore it globally.
+            "Loading task list from file*", // Every time a task list is loaded, this is printed. Instead of adding the line to every test, we can just ignore it globally.
+            "Loaded font face*"             // From RmlUi on initialization
         ],
         "cerr" : [
-            "*wined3d_swapchain_resize_buffers*",   // Wine-related debug message
-            "Loaded font face*"                     // From RmlUi on initialization
+            "*wined3d_swapchain_resize_buffers*"   // Wine-related debug message
         ]
     },
     "tests": [

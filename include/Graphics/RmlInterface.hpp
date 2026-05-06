@@ -11,6 +11,7 @@
 #include <RmlUi/Core.h>
 
 // Nebulite
+#include "Graphics/RmlSystemInterface.hpp"
 #include "Interaction/Context.hpp"
 
 //------------------------------------------
@@ -131,7 +132,7 @@ public:
         static bool hasElementIdentifier(Rml::Element const* element);
 
         /**
-         * @brief Construct an identifier for/from an Rml::Element.
+         * @brief Construct an identifier for/from a given Rml::Element.
          * @details If the element already has an identifier, it will be used.
          *          Otherwise, a new identifier will be generated and assigned to the element.
          * @param e The element to construct the identifier for
@@ -217,7 +218,7 @@ public:
 
 private:
     std::unique_ptr<RenderInterface_SDL> renderInterface;
-    std::unique_ptr<SystemInterface_SDL> systemInterface; // TODO: Use custom SystemInterface derived from SDL and add toggle for Logging messages/Redirecting them to capture
+    std::unique_ptr<RmlSystemInterface> systemInterface;
     Rml::Context* context = nullptr;
     std::vector<std::unique_ptr<Module::Base::RmlUiModule>> modules;
 
