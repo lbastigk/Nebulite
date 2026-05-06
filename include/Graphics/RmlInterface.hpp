@@ -58,7 +58,7 @@ public:
      * @brief Translates and processes an SDL_Event
      * @param event The event to process
      */
-    void processRmlUiEvent(SDL_Event const& event) const ;
+    void processRmlUiEvent(SDL_Event event) const ;
 
     /**
      * @brief Update the RmlInterface, including all open documents and registered modules.
@@ -221,6 +221,7 @@ private:
     std::unique_ptr<RmlSystemInterface> systemInterface;
     Rml::Context* context = nullptr;
     std::vector<std::unique_ptr<Module::Base::RmlUiModule>> modules;
+    SDL_Window* window = nullptr;
 
     // Owner -> name -> document
     absl::flat_hash_map<

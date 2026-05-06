@@ -86,6 +86,7 @@ RmlInterface::~RmlInterface() {
 }
 
 void RmlInterface::init(Core::Renderer& renderer, int const& width, int const& height){
+    window = renderer.getSdlWindow();
     Rml::Initialise();
     statusTracker.rmlInterfaceInitialized = true;
 
@@ -95,7 +96,7 @@ void RmlInterface::init(Core::Renderer& renderer, int const& width, int const& h
         throw std::runtime_error("Failed to create RmlUi render interface!");
     }
     SetRenderInterface(renderInterface.get());
-    systemInterface = std::make_unique<RmlSystemInterface>(renderer.getSdlWindow(), renderer.capture);
+    systemInterface = std::make_unique<RmlSystemInterface>(window, renderer.capture);
     if (!systemInterface) {
         throw std::runtime_error("Failed to create system interface!");
     }
@@ -185,7 +186,12 @@ bool isTextSdlScancode(SDL_Scancode const& scancode) {
 
 } // namespace
 
-void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
+void RmlInterface::processRmlUiEvent(SDL_Event event) const {
+    // Just forwarding all events to RmlSDL::InputEventHandler has a ton of issues...
+    // Instead, we manually translate the events and cherrypick what to process with RmlSDL::InputEventHandler
+
+    // Click-activating text input fields is still a nightmare ...
+
     if (!context) return;
 
     auto const modifiers = SdlModifierToRmlModifier(event.key.mod);
@@ -242,30 +248,13 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
         context->ProcessTextInput(event.text.text);
         break;
     default:
+        RmlSDL::InputEventHandler(context, window, event);
         break;
     }
 
     // Handle Ctrl + A/C/V/X for text input fields
     if (modifiers & Rml::Input::KM_CTRL && event.type == SDL_EVENT_KEY_DOWN && isTextInputFocused()) {
-        if (event.key.key == SDLK_A) {
-            // TODO: highlight entire text input field
-            Global::capture().warning.println("Ctrl + A pressed - TODO: implement select all functionality for text input fields");
-        }
-        else if (event.key.key == SDLK_C) {
-            // TODO: copy highlighted text
-            //       - how to extract highlighted portion?
-            Global::capture().warning.println("Ctrl + C pressed - TODO: implement copy functionality for text input fields");
-        }
-        else if (event.key.key == SDLK_V) {
-            std::string const input(SDL_GetClipboardText());
-            context->ProcessTextInput(input);
-        }
-        else if (event.key.key == SDLK_X) {
-            // TODO: extract highlighted text
-            //       - how to extract highlighted portion?
-            //       - how to remove highlighted portion?
-            Global::capture().warning.println("Ctrl + X pressed - TODO: implement cut functionality for text input fields");
-        }
+        RmlSDL::InputEventHandler(context, window, event);
     }
 }
 
