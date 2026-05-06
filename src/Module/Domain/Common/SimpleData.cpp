@@ -150,7 +150,8 @@ Constants::Event SimpleData::pop_back(std::span<std::string const> const& args, 
     auto const key = ctxScope.self.getRootScope().addMember(args[1]);
 
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
-        if (Constants::Event const result = ensureArray({"", args[1]}, ctx, ctxScope); result != Constants::Event::Success) {
+        std::vector<std::string> ensureArrayArgs = {"", args[1]};
+        if (Constants::Event const result = ensureArray(ensureArrayArgs, ctx, ctxScope); result != Constants::Event::Success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }
@@ -184,7 +185,8 @@ Constants::Event SimpleData::push_front(std::span<std::string const> const& args
     }
 
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
-        if (Constants::Event const result = ensureArray({"", args[1]}, ctx, ctxScope); result != Constants::Event::Success) {
+        std::vector<std::string> ensureArrayArgs = {"", args[1]};
+        if (Constants::Event const result = ensureArray(ensureArrayArgs, ctx, ctxScope); result != Constants::Event::Success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
         }
