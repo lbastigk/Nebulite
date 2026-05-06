@@ -40,33 +40,25 @@ public:
      *          Each layer can be thought of as a separate "pass" over the render objects.
      *          Starting with the lowest layer (background) and ending with the highest layer (menu).
      *          *IMPORTANT:* New layers must be added to private variable `allLayers` in the correct order.
-     * @todo Once GUI DomainModule and renderer texture queuing is properly implemented,
-     *       the layer size may be reduced and layer names reworked.
      */
     enum class Layer : uint8_t {
         background,
         general,
         foreground,
-        effects,
-        UI
+        effects
     };
 
     /**
      * @brief Retrieves all layers in rendering order.
      * @return the vector of all layers.
      */
-    std::vector<Layer> const& getAllLayerTypes() {
+    static auto constexpr& getAllLayerTypes() {
         return allLayers;
     }
 
     auto const& getAllLayers() {
         return roc;
     }
-
-    /**
-     * @brief The number of RenderObjectContainer layers in the Environment.
-     */
-    static constexpr uint8_t LayerCount = 5;
 
     //------------------------------------------
     // Special Members
@@ -177,10 +169,10 @@ public:
 
 private:
     // All layers in rendering order
-    std::vector<Layer> allLayers = {Layer::background, Layer::general, Layer::foreground, Layer::effects, Layer::UI};
+    static std::array constexpr allLayers = {Layer::background, Layer::general, Layer::foreground, Layer::effects};
 
     // Inner RenderObject container layers
-    std::array<Data::RenderObjectContainer, LayerCount> roc;
+    std::array<Data::RenderObjectContainer, allLayers.size()> roc;
 };
 } // namespace Nebulite::Core
 

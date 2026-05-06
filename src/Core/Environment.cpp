@@ -22,7 +22,7 @@ namespace Nebulite::Core {
 
 Environment::Environment(Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture)
     : Domain("Environment", documentReference, parentCapture),
-      roc(Utility::Generate::array<Data::RenderObjectContainer, LayerCount>([](std::size_t) {
+      roc(Utility::Generate::array<Data::RenderObjectContainer, allLayers.size()>([](std::size_t) {
           return Data::RenderObjectContainer{};
       }))
 {
@@ -46,7 +46,7 @@ std::string Environment::serialize() {
     Data::JSON doc;
 
     // Serialize each container and add to the document
-    for (unsigned int i = 0; i < LayerCount; i++) {
+    for (unsigned int i = 0; i < allLayers.size(); i++) {
         std::string key = "containerLayer" + std::to_string(i);
         std::string serializedContainer = roc[i].serialize();
 
@@ -63,7 +63,7 @@ void Environment::deserialize(std::string const& serialOrLink, uint16_t const& d
     file.deserialize(serialOrLink);
 
     // Getting all layers
-    for (unsigned int i = 0; i < LayerCount; i++) {
+    for (unsigned int i = 0; i < allLayers.size(); i++) {
         // Check if the key exists in the document
         if (std::string key = "containerLayer" + std::to_string(i); file.memberType(key) != Data::KeyType::null) {
             // Extract the value corresponding to the key
@@ -83,7 +83,7 @@ void Environment::deserialize(std::string const& serialOrLink, uint16_t const& d
 // Object Management
 
 void Environment::append(RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY, uint8_t const& layer) {
-    if (layer < LayerCount) {
+    if (layer < allLayers.size()) {
         roc[layer].append(toAppend, dispResX, dispResY);
     } else {
         roc[0].append(toAppend, dispResX, dispResY);
@@ -91,21 +91,21 @@ void Environment::append(RenderObject* toAppend, uint16_t const& dispResX, uint1
 }
 
 void Environment::updateObjects(int16_t const& tilePositionX, int16_t const& tilePositionY, uint16_t const& dispResX, uint16_t const& dispResY, Data::RendererProcessor const& rendererProcessor) {
-    for (unsigned int i = 0; i < LayerCount; i++) {
+    for (unsigned int i = 0; i < allLayers.size(); i++) {
         rendererProcessor.prepareForNewLayer(&roc[i]);
         roc[i].update(tilePositionX, tilePositionY, dispResX, dispResY, rendererProcessor);
     }
 }
 
 void Environment::reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY) {
-    for (unsigned int i = 0; i < LayerCount; i++) {
+    for (unsigned int i = 0; i < allLayers.size(); i++) {
         roc[i].reinsertAllObjects(dispResX, dispResY);
     }
 }
 
 RenderObject* Environment::getObjectFromId(size_t const& domainId) {
     // Go through all layers
-    for (unsigned int i = 0; i < LayerCount; ++i) {
+    for (unsigned int i = 0; i < allLayers.size(); ++i) {
         if (auto const obj = roc[i].getObjectFromId(domainId); obj != nullptr) {
             return obj;
         }
@@ -118,7 +118,7 @@ RenderObject* Environment::getObjectFromId(size_t const& domainId) {
 
 std::vector<Data::Batch>& Environment::getContainerAt(int16_t x, int16_t y, Layer layer) {
     auto const pos = std::make_pair(x, y);
-    if (static_cast<uint8_t>(layer) < LayerCount) {
+    if (static_cast<uint8_t>(layer) < allLayers.size()) {
         return roc[static_cast<uint8_t>(layer)].getContainerAt(pos);
     }
     return roc[0].getContainerAt(pos);
@@ -126,7 +126,7 @@ std::vector<Data::Batch>& Environment::getContainerAt(int16_t x, int16_t y, Laye
 
 bool Environment::isValidPosition(int x, int y, Layer layer) {
     auto const pos = std::make_pair(x, y);
-    if (static_cast<uint8_t>(layer) < LayerCount) {
+    if (static_cast<uint8_t>(layer) < allLayers.size()) {
         return roc[static_cast<uint8_t>(layer)].isValidPosition(pos);
     }
     return roc[0].isValidPosition(pos);
@@ -134,7 +134,7 @@ bool Environment::isValidPosition(int x, int y, Layer layer) {
 
 void Environment::purgeObjects() {
     // Release resources for ObjectContainer
-    for (unsigned int i = 0; i < LayerCount; i++) {
+    for (unsigned int i = 0; i < allLayers.size(); i++) {
         roc[i].purgeObjects();
     }
 }
