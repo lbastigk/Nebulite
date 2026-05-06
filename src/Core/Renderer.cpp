@@ -438,7 +438,13 @@ void Renderer::render() {
 
     // RML
     // Update variables
-    Graphics::RmlInterface::instance().update();
+    float x = 0;
+    float y = 0;
+    SDL_GetMouseState(&x,&y);
+    Graphics::RmlInterface::instance().update(
+        static_cast<int>(x),
+        static_cast<int>(y)
+    );
     Graphics::RmlInterface::instance().render();
 
     // Render callbacks, likely imgui functions

@@ -9,7 +9,7 @@ namespace Nebulite::Graphics {
 
 RmlSystemInterface::RmlSystemInterface(SDL_Window* w, Utility::IO::Capture& c) : SystemInterface_SDL(w), capture(c) {}
 
-void RmlSystemInterface::update(){
+void RmlSystemInterface::update(int const& mousePositionX, int const& mousePositionY){
     // We order the candidates by priority and pick the first one that has been updated within the hold duration
     static auto constexpr holdDuration = 200; // ms
     SDL_Cursor* newCursor = nullptr;
@@ -19,9 +19,12 @@ void RmlSystemInterface::update(){
             break;
         }
     }
-    if (!newCursor) { // No cursor active, fall back to lowest priority
-        newCursor = availableCursors.back().get();
+    // Only reset cursor if mouse has moved
+    currentMousePosition = {mousePositionX, mousePositionY};
+    if (!newCursor && currentMousePosition != lastMousePosition) {
+        availableCursors.back().forceUpdate();
     }
+    lastMousePosition = currentMousePosition;
 
     // Only update if cursor changed
     static SDL_Cursor* lastCursor = nullptr;

@@ -21,7 +21,7 @@ class RmlSystemInterface final : public SystemInterface_SDL {
 public:
     RmlSystemInterface(SDL_Window* w, Utility::IO::Capture& c);
 
-    void update();
+    void update(int const& mousePositionX, int const& mousePositionY);
 
     void disableLogging();
 
@@ -63,7 +63,13 @@ private:
         }
 
         void update(Rml::String const& currentCursorName) {
-            if (enableCondition(currentCursorName)) usageTracker.update();
+            if (enableCondition(currentCursorName)) {
+                usageTracker.update();
+            }
+        }
+
+        void forceUpdate() {
+            usageTracker.update();
         }
 
         std::function<bool(Rml::String const&)> enableCondition;
@@ -78,6 +84,17 @@ private:
         Cursor{SDL_SYSTEM_CURSOR_NOT_ALLOWED, [](Rml::String const& cursorName){ return cursorName == "unavailable"; }},
         Cursor{SDL_SYSTEM_CURSOR_DEFAULT, [](Rml::String const& cursorName){ return cursorName.empty() || cursorName == "arrow"; }}
     };
+
+    struct Position {
+        int x, y;
+
+        bool operator==(Position const& other) const {
+            return x == other.x && y == other.y;
+        }
+    };
+
+    Position lastMousePosition{0,0};
+    Position currentMousePosition{0,0};
 };
 } // namespace Nebulite::Graphics
 #endif // NEBULITE_GRAPHICS_RML_SYSTEM_INTERFACE_HPP

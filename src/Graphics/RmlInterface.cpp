@@ -132,7 +132,7 @@ void RmlInterface::init(Core::Renderer& renderer, int const& width, int const& h
 
     // Data Model used for data-value sync
     dataModelConstructor = context->CreateDataModel(dataModelName);
-    update();
+    update(0,0);
 }
 
 namespace {
@@ -198,13 +198,6 @@ void RmlInterface::processRmlUiEvent(SDL_Event event) const {
 
     // Core events
     switch (event.type) {
-    case SDL_EVENT_MOUSE_MOTION:
-        context->ProcessMouseMove(
-            static_cast<int>(event.motion.x),
-            static_cast<int>(event.motion.y),
-            SdlModifierToRmlModifier(event.key.mod)
-        );
-        break;
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
     case SDL_EVENT_MOUSE_BUTTON_UP: {
         int button = 0;
@@ -247,6 +240,7 @@ void RmlInterface::processRmlUiEvent(SDL_Event event) const {
     case SDL_EVENT_TEXT_INPUT:
         context->ProcessTextInput(event.text.text);
         break;
+    case SDL_EVENT_MOUSE_MOTION:
     default:
         RmlSDL::InputEventHandler(context, window, event);
         break;
@@ -258,9 +252,9 @@ void RmlInterface::processRmlUiEvent(SDL_Event event) const {
     }
 }
 
-void RmlInterface::update() const {
+void RmlInterface::update(int const& mousePositionX, int const& mousePositionY) const {
     // Update SystemInterface
-    systemInterface->update();
+    systemInterface->update(mousePositionX, mousePositionY);
 
     // Update Documents
     for (auto const& doc : documentToContext | std::views::keys) {

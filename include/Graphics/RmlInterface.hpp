@@ -62,8 +62,10 @@ public:
 
     /**
      * @brief Update the RmlInterface, including all open documents and registered modules.
+     * @param mousePositionX The current X position of the mouse cursor, used for cursor management in the system interface
+     * @param mousePositionY The current Y position of the mouse cursor, used for cursor management in the system interface
      */
-    void update() const ;
+    void update(int const& mousePositionX, int const& mousePositionY) const ;
 
     /**
      * @brief Call the provided postRenderUpdate function of each registered module.
