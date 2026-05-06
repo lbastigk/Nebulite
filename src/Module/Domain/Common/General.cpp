@@ -75,17 +75,17 @@ Constants::Event General::func_if(std::span<std::string const> const& args, Inte
             // remove whitespaces
             for (size_t conditionEnd = commandStart-1; conditionEnd > 0; conditionEnd--) {
                 if (!args[conditionEnd].empty() && args[conditionEnd] != " ") {
-                    return {conditionEnd, commandStart};
+                    return {conditionEnd, commandStart+1};
                 }
             }
-            return {1, commandStart};
+            std::unreachable(); // trailing whitespace args should be impossible, we must find one that isn't a whitespace before then
         }
         return {1,2};
     };
 
     auto const [conditionEnd, commandStart] = commandStartFinder();
     std::string const condition = Utility::StringHandler::recombineArgs(args.subspan(1, conditionEnd));
-    std::string commands = Utility::StringHandler::recombineArgs(args.subspan(commandStart+1));
+    std::string commands = Utility::StringHandler::recombineArgs(args.subspan(commandStart));
 
     // condition must start with $( and end with )
     if (condition.front() != '$' || condition[1] != '(' || condition.back() != ')') {
@@ -94,7 +94,6 @@ Constants::Event General::func_if(std::span<std::string const> const& args, Inte
 
     // Conditional check
     if (Interaction::Logic::Expression::evalAsBool(condition, ctxScope)) {
-
         commands = __FUNCTION__ + std::string(" ") + commands;
         return ctx.self.parseStr(commands, ctx, ctxScope);
     }
