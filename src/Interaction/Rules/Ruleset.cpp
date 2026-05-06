@@ -76,7 +76,6 @@ bool JsonRuleset::evaluateCondition(Execution::Domain& other) {
 }
 
 void JsonRuleset::apply(Context& context, ContextScope& contextScope){
-
     // 1.) Assignments
     for (auto& assignment : assignments) {
         assignment.apply(contextScope);
@@ -86,10 +85,7 @@ void JsonRuleset::apply(Context& context, ContextScope& contextScope){
     for (auto& entry : functioncalls_global) {
         // replace vars
         std::string call = entry.eval(contextScope);
-
-        // TODO: Add taskQueue to any domain, then use context.global.getTaskQueue
-        // attach to task queue
-        Global::instance().getTaskQueue(Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
+        context.global.tasks.addTask(call);
     }
     for (auto& entry : functioncalls_self) {
         // replace vars
@@ -120,19 +116,15 @@ void JsonRuleset::apply() {
 
     // 2.) Function calls
     for (auto& entry : functioncalls_global) {
-        // replace vars
         std::string call = entry.eval(ctxScope);
-
-        // attach to task queue
-        Global::instance().getTaskQueue(Core::GlobalSpace::StandardTasks::internal)->pushBack(call);
+        ctx.global.tasks.addTask(call);
     }
+    // TODO: use their task queue instead
     for (auto& entry : functioncalls_self) {
-        // replace vars
         std::string const call = entry.eval(ctxScope);
         (void)self.parseStr(call, ctx, ctxScope);
     }
     for (auto& entry : functioncalls_other) {
-        // replace vars
         std::string const call = entry.eval(ctxScope);
         (void)self.parseStr(call, ctx, ctxScope);
     }

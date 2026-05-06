@@ -175,40 +175,8 @@ public:
 
     [[nodiscard]] bool criticalErrorOccurred() const { return errorOccurred; }
 
-
     //------------------------------------------
-    // Task Queue Management
-
-    /**
-     * @brief Clears all task queues.
-     */
-    void clearAllTaskQueues() {
-        std::ranges::for_each(tasks | std::views::values, [](auto &tq) {
-            if (tq) tq->clear();
-        });
-    }
-
-    /**
-     * @brief Gets a specific task queue by name.
-     * @param name The name of the task queue.
-     * @return Pointer to the TaskQueue instance, or nullptr if not found.
-     */
-    std::shared_ptr<Data::TaskQueue> getTaskQueue(std::string const& name) {
-        if (auto const it = tasks.find(name); it != tasks.end()) {
-            return it->second;
-        }
-        return nullptr;
-    }
-
-    /**
-     * @struct StandardTasks
-     * @brief Contains standard task queue names used in the GlobalSpace.
-     */
-    struct StandardTasks {
-        static auto constexpr always = "tasks::always";
-        static auto constexpr internal = "tasks::internal";
-        static auto constexpr script = "tasks::script";
-    };
+    // Event Management
 
     void notifyEvent(Constants::Event const& event) {
         switch (event) {
@@ -257,16 +225,6 @@ private:
 
     //------------------------------------------
     // Structs
-
-    /**
-     * @brief Contains task queues for different types of tasks.
-     */
-    absl::flat_hash_map<std::string,std::shared_ptr<Data::TaskQueue>> tasks; // Custom task queues added at runtime
-
-    /**
-     * @brief Contains results of the last task queue resolutions.
-     */
-    absl::flat_hash_map<std::string, Data::TaskQueueResult> queueResult;
 
     /**
      * @struct names
