@@ -132,6 +132,9 @@ The interactive console inside Nebulite also supports autocompletion.
 ```
 You should see a window pop up with a large gravity simulation running indefinitely.
 
+More demos and tests can be found in `./TaskFiles/`, including simpler gravity tests
+or a pong implementation:
+
 <p align="center">
   <img src="doc/images/demo.gif" alt="Conventional gravity test" width="45%">
   <img src="doc/images/pong.gif" alt="Pong" width="45%">
