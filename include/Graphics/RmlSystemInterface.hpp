@@ -5,6 +5,7 @@
 // Includes
 
 // External
+#include <RmlUi/Core/StringUtilities.h>
 #include <RmlUi_Platform_SDL.h>
 
 // Nebulite
@@ -48,7 +49,7 @@ private:
         SDL_Cursor* data = nullptr;
         Utility::TimeKeeper usageTracker;
     public:
-        explicit Cursor(SDL_SystemCursor const& id) : data(SDL_CreateSystemCursor(id)) {
+        explicit Cursor(SDL_SystemCursor const& id, auto&& condition) : data(SDL_CreateSystemCursor(id)), enableCondition(condition) {
             usageTracker.start();
             usageTracker.update();
         }
@@ -57,24 +58,26 @@ private:
             return data;
         }
 
-        void update() {
-            usageTracker.update();
-        }
-
         uint64_t dt() {
             return usageTracker.projected_dt();
         }
+
+        void update(Rml::String const& currentCursorName) {
+            if (enableCondition(currentCursorName)) usageTracker.update();
+        }
+
+        std::function<bool(Rml::String const&)> enableCondition;
     };
 
-    struct AvailableCursors {
-        Cursor general{SDL_SYSTEM_CURSOR_DEFAULT};
-        Cursor move{SDL_SYSTEM_CURSOR_MOVE};
-        Cursor pointer{SDL_SYSTEM_CURSOR_POINTER};
-        Cursor resize{SDL_SYSTEM_CURSOR_NWSE_RESIZE};
-        Cursor cross{SDL_SYSTEM_CURSOR_CROSSHAIR};
-        Cursor text{SDL_SYSTEM_CURSOR_TEXT};
-        Cursor unavailable{SDL_SYSTEM_CURSOR_NOT_ALLOWED};
-    } availableCursors;
+    std::array<Cursor, 7> availableCursors = {
+        Cursor{SDL_SYSTEM_CURSOR_MOVE, [](Rml::String const& cursorName){ return cursorName == "move" || Rml::StringUtilities::StartsWith(cursorName, "rmlui-scroll"); }},
+        Cursor{SDL_SYSTEM_CURSOR_POINTER, [](Rml::String const& cursorName){ return cursorName == "pointer"; }},
+        Cursor{SDL_SYSTEM_CURSOR_NWSE_RESIZE, [](Rml::String const& cursorName){ return cursorName == "resize"; }},
+        Cursor{SDL_SYSTEM_CURSOR_CROSSHAIR, [](Rml::String const& cursorName){ return cursorName == "cross"; }},
+        Cursor{SDL_SYSTEM_CURSOR_TEXT, [](Rml::String const& cursorName){ return cursorName == "text"; }},
+        Cursor{SDL_SYSTEM_CURSOR_NOT_ALLOWED, [](Rml::String const& cursorName){ return cursorName == "unavailable"; }},
+        Cursor{SDL_SYSTEM_CURSOR_DEFAULT, [](Rml::String const& cursorName){ return cursorName.empty() || cursorName == "arrow"; }}
+    };
 };
 } // namespace Nebulite::Graphics
 #endif // NEBULITE_GRAPHICS_RML_SYSTEM_INTERFACE_HPP
