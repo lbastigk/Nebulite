@@ -8,7 +8,6 @@
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Module/Domain/RenderObject/Ruleset.hpp"
 #include "Nebulite.hpp"
-#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::RenderObject {

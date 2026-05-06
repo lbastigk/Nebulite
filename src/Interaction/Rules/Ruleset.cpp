@@ -111,8 +111,8 @@ void JsonRuleset::apply(std::shared_ptr<Listener> const& contextOther) {
 }
 
 void JsonRuleset::apply() {
-    Context ctx{self, self, Global::instance()};
-    ContextScope ctxScope{self.domainScope, self.domainScope, Global::instance().domainScope};
+    Context const ctx{self, self, Global::instance()};
+    ContextScope const ctxScope{self.domainScope, self.domainScope, Global::instance().domainScope};
 
     // 1.) Assignments
     for (auto& assignment : assignments) {

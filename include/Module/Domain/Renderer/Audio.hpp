@@ -11,7 +11,6 @@
 
 // Standard Library
 #include <array>
-#include <cmath>
 #include <complex>
 #include <limits>
 #include <optional>
