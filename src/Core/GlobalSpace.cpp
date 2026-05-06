@@ -41,12 +41,6 @@ GlobalSpace::GlobalSpace(std::string const& name) :
     globalSpaceExists = true;
 
     //------------------------------------------
-    // Setup tasks
-    tasks[StandardTasks::always] = std::make_shared<Data::TaskQueue>(StandardTasks::always, false);
-    tasks[StandardTasks::internal] = std::make_shared<Data::TaskQueue>(StandardTasks::internal, true);
-    tasks[StandardTasks::script] = std::make_shared<Data::TaskQueue>(StandardTasks::script, true);
-
-    //------------------------------------------
     // General Variables
     names.binary = name;
     names.state = "";
@@ -76,9 +70,7 @@ void GlobalSpace::initialize() {
 Constants::Event GlobalSpace::updateInnerDomains() {
     // Update renderer if nothing is stopping us
     if (!renderer.isSkippingUpdate()) { // e.g. Console mode might flag renderer to skip update
-        for (auto const& tq : std::views::values(tasks)) {
-            tq->decrementWaitCounter();
-        }
+        tasks.decrementWaitCounter();
         invoke.update();        // Invoke broadcasted-listen-updates
         auto const event = renderer.update();      // Renderer updates its inner domains (e.g. RenderObjects)
 
@@ -98,7 +90,7 @@ Constants::Event GlobalSpace::update() {
     //------------------------------------------
     // TaskQueue parsing
     if (!queueParsed) {
-        notifyEvent(parseQueue());
+        parseTaskQueues(cmdVars.recover);
         queueParsed = true;
     }
 
@@ -125,7 +117,7 @@ Constants::Event GlobalSpace::update() {
     //------------------------------------------
     // Check if we need to continue the loop
     continueLoop = continueLoop && renderer.isSdlInitialized() && !renderer.shouldQuit();
-    if (tasks[StandardTasks::script]->isWaiting() && !renderer.isSdlInitialized()) {
+    if (tasks.scriptIsWaiting() && !renderer.isSdlInitialized()) {
         /**
          * @brief Overwrite: If there is a wait operation and no renderer exists,
          *        we need to continue the loop and decrease scriptWaitCounter
@@ -133,7 +125,7 @@ Constants::Event GlobalSpace::update() {
          *       but this could cause issues if the user wishes to quit while a task is still running.
          */
         continueLoop = true;
-        tasks[StandardTasks::script]->decrementWaitCounter();
+        tasks.decrementScriptWaitCounter();
         queueParsed = false;
     }
 
@@ -161,7 +153,7 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                tasks[StandardTasks::script]->pushBack(command);
+                tasks.addTask(command, Interaction::Execution::Tasks::StandardTasks::script);
             }
         }
     } else {
@@ -169,23 +161,14 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
         auto const cmdCount = Global::settings().memberSize(Module::Domain::GlobalSpace::Settings::Key::parseIfNoArgs);
         for (std::size_t i = 0; i < cmdCount; ++i) {
             if (std::string const cmd = Global::settings().get<std::string>(Module::Domain::GlobalSpace::Settings::Key::parseIfNoArgs.addIndex(i)).value_or(""); !cmd.empty()) {
-                tasks[StandardTasks::script]->pushBack(cmd);
+                tasks.addTask(cmd, Interaction::Execution::Tasks::StandardTasks::script);
             }
         }
     }
 }
 
 Constants::Event GlobalSpace::parseQueue() {
-    Interaction::Context ctx{*this, *this, *this};
-    Interaction::ContextScope ctxScope{domainScope, domainScope, domainScope};
-    queueResult.clear();
-    for (auto const& [name, queue] : tasks) {
-        queueResult[name] = queue->resolve(ctx, ctxScope, cmdVars.recover);
-        if (queueResult[name].encounteredCriticalResult && !cmdVars.recover) {
-            return queueResult[name].events.back();
-        }
-    }
-    return Constants::Event::Success;
+    return tasks.parse(*this, domainScope, cmdVars.recover);
 }
 
 Constants::Event GlobalSpace::preParse() {

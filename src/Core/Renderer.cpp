@@ -433,7 +433,8 @@ void Renderer::render() {
     renderFrame();
     status.skippedUpdateLastFrame = status.skipUpdate;
     status.skipUpdate = false;
-    updateModules(); // Update domain modules, potentially adding ImGui elements through render Callbacks
+    updateModules();
+    parseTaskQueues(true);
 
     // RML
     // Update variables

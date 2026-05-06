@@ -18,6 +18,7 @@
 #include "Interaction/Execution/DomainModule.hpp"
 #include "Interaction/Execution/DomainTree.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
+#include "Interaction/Execution/Tasks.hpp"
 
 //------------------------------------------
 // Forward declarations: Domains
@@ -370,9 +371,11 @@ public:
     }
 
     /**
-     * @brief Updates all DomainModules.
+     * @brief Updates all DomainModules and parses the TaskQueues
      */
     void updateModules() const ;
+
+    void parseTaskQueues(bool const& recover);
 
     /**
      * @brief Re-initializes all DomainModules.
@@ -440,6 +443,9 @@ public:
 
     // Stream for collecting any output during command execution, which can be used for debugging or logging purposes.
     Utility::IO::Capture capture;
+
+    // Tasks
+    Tasks tasks;
 
 protected:
     /**

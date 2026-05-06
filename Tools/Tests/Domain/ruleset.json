@@ -1,0 +1,11 @@
+[
+    {
+        "command": "task TaskFiles/Tests/Ruleset/broadcastListen.nebs",
+        "expected": {
+            "cout": [
+                "[DEBUG] Static ruleset '::whoInteracts' invoked! Domain self ID: 3, Domain other ID: 0"
+            ],
+            "cerr": []
+        }
+    }
+]

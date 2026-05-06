@@ -5,7 +5,6 @@
 #include "Core/GlobalSpace.hpp"
 #include "Module/Domain/GlobalSpace/General.hpp"
 #include "Nebulite.hpp"
-#include "Utility/IO/FileManagement.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
@@ -24,7 +23,7 @@ Constants::Event General::updateHook() {
 
 Constants::Event General::exit() const {
     // Clear all task queues to prevent further execution
-    domain.clearAllTaskQueues();
+    domain.tasks.clearAllTaskQueues();
 
     // Set the renderer to quit
     domain.quitRenderer();
@@ -33,8 +32,7 @@ Constants::Event General::exit() const {
 
 Constants::Event General::wait(int const argc, char** argv) const {
     if (argc == 2) {
-        // Standard wait acts on taskQueue "script"
-        domain.getTaskQueue(Core::GlobalSpace::StandardTasks::script)->incrementWaitCounter(std::stoull(argv[1]));
+        domain.tasks.incrementScriptWaitCounter(std::stoull(argv[1]));
         return Constants::Event::Success;
     }
     if (argc < 2) {
@@ -57,53 +55,8 @@ Constants::Event General::task(int const argc, char** argv) const {
     }
 
     // Warn if file ending is not .nebs
-    std::string const filename = argv[1];
-    if (filename.length() < 6 || !filename.ends_with(".nebs")) {
-        domain.capture.error.println("Warning: unexpected file ending for task file '", filename, "'. Expected '.nebs'. Trying to load anyway.");
-    }
-
-    // Using FileManagement to load the .nebs file
-    std::string file = Utility::IO::FileManagement::LoadFile(filename);
-    if (file.empty()) {
-        domain.capture.error.println("Error: ", argv[0], " Could not open file '", filename, "'.");
-        return Constants::StandardCapture::Error::File::invalidFile(domain.capture);
-    }
-
-    // Replace all "\n " with "\n" to allow for multi-line commands with leading spaces
-    while (file.find("\n ") != std::string::npos) {
-        file = Utility::StringHandler::replaceAll(file, "\n ", "\n");
-    }
-
-    // Replace all " \\\n" with "\\\n" to allow for multi-line commands with trailing spaces
-    while (file.find(" \\\n") != std::string::npos) {
-        file = Utility::StringHandler::replaceAll(file, " \\\n", "\\\n");
-    }
-
-    // Replace all "\\n" with an empty string to allow for multi-line commands in a single line
-    auto constexpr toReplace = "\\\n";
-    file = Utility::StringHandler::replaceAll(file, toReplace, "");
-
-    // Split std::string file into lines and remove comments
-    std::vector<std::string> lines;
-    std::istringstream stream(file);
-    std::string line;
-    while (std::getline(stream, line)) {
-        std::string_view lineView(line);
-        Utility::StringHandler::untilSpecialChar(lineView, '#'); // Remove comments.
-        Utility::StringHandler::lStrip(lineView, ' '); // Remove whitespaces at start
-        Utility::StringHandler::rStrip(lineView, ' '); // Remove whitespaces at end
-        if (lineView.empty()) {
-            continue;
-        }
-        // Insert line backwards, so we can process them in the order they were written later on:
-        lines.insert(lines.begin(), std::string(lineView));
-    }
-
-    // Now insert all lines into the task queue
-    for (auto const& taskLine : lines) {
-        domain.getTaskQueue(Core::GlobalSpace::StandardTasks::script)->pushFront(taskLine);
-    }
-    return Constants::Event::Success;
+    std::string const& filename = argv[1];
+    return domain.tasks.addScript(filename, domain.capture);
 }
 
 Constants::Event General::always(int argc, char** argv) const {
@@ -125,7 +78,7 @@ Constants::Event General::always(int argc, char** argv) const {
             command.erase(0, command.find_first_not_of(" \t"));
             command.erase(command.find_last_not_of(" \t") + 1);
             if (!command.empty()) {
-                domain.getTaskQueue(Core::GlobalSpace::StandardTasks::always)->pushBack(command);
+                domain.tasks.addTask(command, Interaction::Execution::Tasks::StandardTasks::always);
             }
         }
     }
@@ -133,7 +86,7 @@ Constants::Event General::always(int argc, char** argv) const {
 }
 
 Constants::Event General::alwaysClear() const {
-    domain.getTaskQueue(Core::GlobalSpace::StandardTasks::always)->clear();
+    domain.tasks.clearTaskQueue(Interaction::Execution::Tasks::StandardTasks::always);
     return Constants::Event::Success;
 }
 
