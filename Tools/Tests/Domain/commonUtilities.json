@@ -64,5 +64,23 @@
     {
         "command": "set-fps 60 ; wait 1; critical Aborting due to error!",
         "expected": { "cout": [], "cerr": ["Aborting due to error!"], "ignore_exit": true }
+    },
+    {
+        "command": [
+            "if $(0) then echo This will not print",
+            "if $(1) then echo This will print",
+            "if $(0) echo This will not print either",
+            "if $(1) echo This will print as well",
+            "if $(1 + 1) then echo This will also print",
+            "if $(0 + 0) then echo This will not print"
+        ],
+        "expected": {
+            "cout": [
+                "This will print",
+                "This will print as well",
+                "This will also print"
+            ],
+            "cerr": []
+        }
     }
 ]
