@@ -128,6 +128,12 @@ public:
         }
     }
 
+    Constants::Event parse(Domain& domain, Data::JsonScope& scope, bool const& recover) {
+        Context ctx{domain, domain, domain};
+        ContextScope ctxScope{scope, scope, scope};
+        return parse(ctx, ctxScope, recover);
+    }
+
     Constants::Event parse(Context& ctx, ContextScope& ctxScope, bool const& recover) {
         queueResult.clear();
         for (auto const& [name, queue] : tasks) {

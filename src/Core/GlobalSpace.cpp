@@ -90,7 +90,7 @@ Constants::Event GlobalSpace::update() {
     //------------------------------------------
     // TaskQueue parsing
     if (!queueParsed) {
-        notifyEvent(parseQueue());
+        parseTaskQueues(cmdVars.recover);
         queueParsed = true;
     }
 
@@ -168,9 +168,7 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
 }
 
 Constants::Event GlobalSpace::parseQueue() {
-    Interaction::Context ctx{*this, *this, *this};
-    Interaction::ContextScope ctxScope{domainScope, domainScope, domainScope};
-    return tasks.parse(ctx, ctxScope, cmdVars.recover);
+    return tasks.parse(*this, domainScope, cmdVars.recover);
 }
 
 Constants::Event GlobalSpace::preParse() {

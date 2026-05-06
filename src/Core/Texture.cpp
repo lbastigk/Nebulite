@@ -25,6 +25,7 @@ Texture::Texture(Data::JsonScope& documentReference, Utility::IO::Capture& paren
 
 Constants::Event Texture::update() {
     updateModules();
+    parseTaskQueues(true);
 
     // No evaluation of previous lines for now, just return NONE
     return Constants::Event::Success;

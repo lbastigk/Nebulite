@@ -58,6 +58,17 @@ void StaticRuleset::apply() {
 }
 
 //------------------------------------------
+// Task handling
+
+namespace {
+void sendTask(Execution::Domain& domain, std::string const& task) {
+    domain.tasks.addTask(task);
+    //domain.parseStr(task);
+}
+} // namespace
+
+
+//------------------------------------------
 // Derived Class Methods: JsonRuleset
 
 bool JsonRuleset::evaluateCondition(Execution::Domain& other) {
@@ -83,19 +94,13 @@ void JsonRuleset::apply(Context& context, ContextScope& contextScope){
 
     // 2.) Function calls
     for (auto& entry : functioncalls_global) {
-        // replace vars
-        std::string call = entry.eval(contextScope);
-        context.global.tasks.addTask(call);
+        sendTask(context.global, entry.eval(contextScope));
     }
     for (auto& entry : functioncalls_self) {
-        // replace vars
-        std::string const call = entry.eval(contextScope);
-        (void)context.self.parseStr(call, context, contextScope);
+        sendTask(context.self, entry.eval(contextScope));
     }
     for (auto& entry : functioncalls_other) {
-        // replace vars
-        std::string const call = entry.eval(contextScope);
-        (void)context.other.parseStr(call, context, contextScope);
+        sendTask(context.other, entry.eval(contextScope));
     }
 }
 
@@ -116,17 +121,14 @@ void JsonRuleset::apply() {
 
     // 2.) Function calls
     for (auto& entry : functioncalls_global) {
-        std::string call = entry.eval(ctxScope);
-        ctx.global.tasks.addTask(call);
+        sendTask(ctx.global, entry.eval(ctxScope));
     }
     // TODO: use their task queue instead
     for (auto& entry : functioncalls_self) {
-        std::string const call = entry.eval(ctxScope);
-        (void)self.parseStr(call, ctx, ctxScope);
+        sendTask(ctx.self, entry.eval(ctxScope));
     }
     for (auto& entry : functioncalls_other) {
-        std::string const call = entry.eval(ctxScope);
-        (void)self.parseStr(call, ctx, ctxScope);
+        sendTask(ctx.other, entry.eval(ctxScope));
     }
 }
 

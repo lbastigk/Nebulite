@@ -22,4 +22,6 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/Examples/RmlUi.nebs
+task TaskFiles/Tests/Functional/NebuliteError.nebs
+#exit
+#task TaskFiles/Examples/RmlUi.nebs

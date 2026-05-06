@@ -204,4 +204,8 @@ void Domain::updateModules() const {
     }
 }
 
+void Domain::parseTaskQueues(bool const& recover){
+    Global::instance().notifyEvent(tasks.parse(*this, domainScope, recover));
+}
+
 } // namespace Nebulite::Interaction::Execution

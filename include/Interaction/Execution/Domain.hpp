@@ -371,9 +371,11 @@ public:
     }
 
     /**
-     * @brief Updates all DomainModules.
+     * @brief Updates all DomainModules and parses the TaskQueues
      */
     void updateModules() const ;
+
+    void parseTaskQueues(bool const& recover);
 
     /**
      * @brief Re-initializes all DomainModules.

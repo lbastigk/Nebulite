@@ -154,6 +154,7 @@ Constants::Event RenderObject::update() {
     //------------------------------------------
     // Update modules and all inner domains
     updateModules();
+    parseTaskQueues(true);
     updateDrawcalls();
     return Constants::Event::Success;
 }
