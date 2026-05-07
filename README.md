@@ -177,8 +177,8 @@ These commands may be called by Parent-Domains, the interactive console, or Task
 # Example commands, parsed in the GlobalSpace domain
 set myVar 5               # Common function, available in all domains
 set-fps 60                # As GlobalSpace is a parent domain of Renderer, it is able to call its functions
-always eval echo {myVar}
-always eval set myVar $({myVar} + 1)
+always eval echo {self:myVar}
+always eval set myVar $({self:myVar} + 1)
 wait 100
 exit
 ```
