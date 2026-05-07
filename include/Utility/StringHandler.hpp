@@ -147,14 +147,39 @@ public:
     static std::vector<std::string> split(std::string_view const& input, char const& delimiter, bool const& keepDelimiter = false);
 
     /**
-     * @brief Splits a string on the same depth of parentheses.
+     * @brief Splits a string at a given delimiter, only if the depth of braces, parentheses and brackets is 0.
      * @param input The original string.
-     * @param delimiter The opening parenthesis to split on.
+     * @param delimiter The delimiter to split on
      * @return A vector of strings split on the same depth of parentheses.
-     * @todo Use all brace types and only split of they're all at zero depth + we're at a delimiter
-     *
      */
     static std::vector<std::string> splitOnSameDepth(std::string_view const& input, char const& delimiter);
+
+    enum Delimiter {parentheses, brace, bracket};
+
+    static char delimiterToOpeningChar(Delimiter const& delimiter) {
+        switch (delimiter) {
+            case parentheses: return '(';
+            case brace: return '{';
+            case bracket: return '[';
+            default: std::unreachable();
+        }
+    }
+    static char delimiterToClosingChar(Delimiter const& delimiter) {
+        switch (delimiter) {
+        case parentheses: return ')';
+        case brace: return '}';
+        case bracket: return ']';
+        default: std::unreachable();
+        }
+    }
+
+    /**
+     * @brief Splits a string at a given delimiter, not respecting the depth of any other characters.
+     * @param input The input string to split
+     * @param delimiter The delimiter to split on
+     * @return A vector of strings split on the same depth of the given delimiter
+     */
+    static std::vector<std::string> splitOnSameDepthOf(std::string_view const& input, Delimiter const& delimiter);
 };
 }   // namespace Nebulite::Utility
 #endif // NEBULITE_UTILITY_IO_STRING_HANDLER_HPP

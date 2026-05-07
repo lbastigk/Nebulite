@@ -279,13 +279,47 @@ std::vector<std::string> StringHandler::split(std::string_view const& input, cha
     return tokens;
 }
 
-std::vector<std::string> StringHandler::splitOnSameDepth(std::string_view const& input, char const& delimiter) {
-    std::vector<std::string> result;
+namespace {
+std::array<std::pair<char,char>,3> constexpr pairs = {
+    std::make_pair('(',  ')'),
+    std::make_pair('[',  ']'),
+    std::make_pair('{',  '}')
+};
 
-    // Map opening delimiters to their closing ones
-    static std::unordered_map<char, char> const pairs = {
-        {'(', ')'}, {'[', ']'}, {'{', '}'}
-    };
+int depth(std::string_view const& input) {
+    int count = 0;
+    for (auto const& c : input) {
+        for (auto const& [opening, closing] : pairs) {
+            if (c == opening) {
+                count++;
+            } else if (c == closing) {
+                count--;
+            }
+        }
+    }
+    return count;
+}
+
+int depthOf(std::string_view const& input, char const& delimiter) {
+    int count = 0;
+    for (auto const& c : input) {
+        for (auto const& [opening, closing] : pairs) {
+            if (opening != delimiter) continue;
+
+            if (c == opening) {
+                count++;
+            } else if (c == closing) {
+                count--;
+            }
+        }
+    }
+    return count;
+}
+
+} // namespace
+
+std::vector<std::string> old(std::string_view const& input, char const& delimiter) {
+    std::vector<std::string> result;
 
     // Find the matching closing delimiter
     char closing = 0;
@@ -333,6 +367,54 @@ std::vector<std::string> StringHandler::splitOnSameDepth(std::string_view const&
         result.push_back(current);
     }
 
+    return result;
+}
+
+std::vector<std::string> StringHandler::splitOnSameDepth(std::string_view const& input, char const& delimiter) {
+    auto basicSplitResult = split(input, delimiter, true);
+    decltype(basicSplitResult) result;
+    std::string workingPart;
+    for (auto const& part : basicSplitResult) {
+        workingPart += part;
+        if (depth(workingPart) == 0) {
+            result.push_back(workingPart);
+            workingPart.clear();
+        }
+    }
+    if (!workingPart.empty()) {
+        result.push_back(workingPart);
+    }
+    return result;
+}
+
+std::vector<std::string> StringHandler::splitOnSameDepthOf(std::string_view const& input, Delimiter const& delimiter) {
+    auto const openingChar = delimiterToOpeningChar(delimiter);
+    auto const closingChar = delimiterToClosingChar(delimiter);
+
+    auto basicSplitResult = split(input, openingChar, true);
+    decltype(basicSplitResult) result;
+    std::string workingPart;
+    for (auto const& part : basicSplitResult) {
+        workingPart += part;
+        if (depthOf(workingPart, openingChar) == 0) {
+            if (workingPart.contains(closingChar)) {
+                auto const pos = workingPart.find_last_of(closingChar);
+                result.push_back(workingPart.substr(0, pos+1));
+                workingPart = workingPart.substr(pos+1);
+                if (!workingPart.empty()) {
+                    result.push_back(workingPart);
+                    workingPart.clear();
+                }
+            }
+            else {
+                result.push_back(workingPart);
+                workingPart.clear();
+            }
+        }
+    }
+    if (!workingPart.empty()) {
+        result.push_back(workingPart);
+    }
     return result;
 }
 

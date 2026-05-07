@@ -98,36 +98,19 @@ bool JSON::isJsonOrJsonc(std::string_view const& str) {
 //------------------------------------------
 // Argument splitting for transformations
 
-namespace {
-auto constexpr braceOpen = '{';
-} // namespace
-
 std::vector<std::string> JSON::splitKeyWithTransformations(std::string_view const& key) {
-    // Split based on transformation pipe character, but respecting inner braces
-    auto const braceArgs = Utility::StringHandler::splitOnSameDepth(key, braceOpen);
-    std::vector<std::string> args;
-
-    if (!key.empty() && key.starts_with(SpecialCharacter::transformationPipe)) {
-        // No key provided, assume root and push back an empty string
-        args.emplace_back("");
-    }
-
-    for (auto const& arg : braceArgs) {
-        if (arg.starts_with(braceOpen)) {
-            // Add to last argument
-            if (!args.empty()) {
-                args.back() += arg;
-            }
-            else {
-                args.push_back(arg); // Should not happen, but just in case
-            }
-        } else {
-            // Split further on transformation piping character
-            auto splitArgs = Utility::StringHandler::split(arg, SpecialCharacter::transformationPipe);
-            args.insert(args.end(), splitArgs.begin(), splitArgs.end());
+    auto result = Utility::StringHandler::splitOnSameDepth(key, SpecialCharacter::transformationPipe);
+    for (auto& arg : result) {
+        if (arg.starts_with(SpecialCharacter::transformationPipe)) {
+            arg = arg.substr(1);
         }
     }
-    return args;
+    std::erase_if(result, [](std::string const& arg) { return arg.empty(); });
+    if (!key.empty() && key.starts_with(SpecialCharacter::transformationPipe)) {
+        // No key provided, assume root and push back an empty string
+        result.insert(result.begin(), "");
+    }
+    return result;
 }
 
 //------------------------------------------

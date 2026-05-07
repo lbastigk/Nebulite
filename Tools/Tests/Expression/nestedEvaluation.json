@@ -22,5 +22,9 @@
             ],
             "cerr": []
         }
+    },
+    {
+        "command": "task TaskFiles/Tests/Expression/nestedExpression.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

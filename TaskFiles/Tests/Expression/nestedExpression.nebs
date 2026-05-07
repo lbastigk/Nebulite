@@ -1,0 +1,11 @@
+## Tests nested expressions inside transformations
+# 1.) get the object in global scope
+# 2.) set a variable on the object to the result of the nested expression: {self:var|add 1}
+#     the expression is wrapped in an evaluation-delay, so it's not evaluated with the outer expression,
+#     but passed raw to the transformation
+# 3.) Assert the correctness of both values in the object
+set obj.var 1
+assign global:result = {global:obj|setFromResult val {1!self:var|add 1}}
+eval nop {global:result|get var|assert equals int 1}
+eval nop {global:result|get val|assert equals int 2}
+exit

@@ -72,19 +72,6 @@ public:
         "The expression is evaluated in the current scope, and the result is assigned to the given key.\n"
         "The entire context is local, meaning self, other, global are all the same and refer to the current scope.\n";
 
-    static bool asString(Data::JsonScope* jsonDoc);
-    static auto constexpr asStringName = "asString";
-    static auto constexpr asStringDesc = "Converts the current JSON value to a string representation.\n"
-        "Usage: |asString -> {string}\n"
-        "Either the value as string, or [array] or {object}\n";
-
-    static bool formatNumber(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
-    static auto constexpr formatNumberName = "formatNumber";
-    static auto constexpr formatNumberDesc = "If the stored value is a number, it is formatted with a given format specifier\n"
-        "Usage: |formatNumber <format> -> {string}"
-        "If the value stored is a non-numeric string, the value is not modified.\n"
-        "Example formatters: 04.2f, 5i, 06i\n";
-
     // TODO: Even though copy/move is implemented in DomainModule:JsonScope:SimpleData, having these as transformations as well could be useful
     //       instead of writing |parse copy <source> <destination>, we can simply write |copy <source> <destination>
 };

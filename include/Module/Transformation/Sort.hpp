@@ -54,12 +54,12 @@ public:
         "If the current value is not an array, the transformation fails.\n"
         "Usage: |sort numerically -> {sorted array}\n";
 
-    // TODO: Remove nested evaluation from expression class so this can work properly ...
     static bool sortCustom(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr sortCustomName = "sort custom";
     static auto constexpr sortCustomDesc = "Sorts the array in the current JSON value using a custom comparator expression.\n"
         "The comparator function uses the context self for the first element and other for the second element.\n"
-        "For example: $(gt({self:|length},{other:|length}))\n)"
+        "Provide a sort expression without the evaluation key '$'!"
+        "For example: ( gt({self:|length},{other:|length}) )\n"
         "Usage: |sort custom <expression> -> {sorted array}\n";
 
 private:
