@@ -122,31 +122,6 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& tiles, uin
     //------------------------------------------
     // Update only tiles that might be visible
 
-    // since one tile is size of screen, a max of 9 tiles
-    // [P] - Tile with Player
-    // [#] - loaded Tiles
-    // [ ] - inactive Tiles
-    //
-    // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-    // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-    // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-    // [ ][ ][ ][#][#][#][ ][ ][ ]
-    // [ ][ ][ ][#][P][#][ ][ ][ ]
-    // [ ][ ][ ][#][#][#][ ][ ][ ]
-    // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-    // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-    // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-    //
-    // NOTE:
-    // Later on it may be better to use a fixed tile size and load enough to cover the screen, + maybe 1-2 tiles extra on each side.
-    // Or, perhaps even better, use a fixed tile size + a fixed loading radius around the player position.
-    // This, however, requires the renderer to determine a maximum resolution beforehand based on the radius.
-    // Meaning it has to discard any requested resolution that is too high for the radius.
-    // Note that we cannot directly use the maximum tile radius, as for some positions it may be smaller!
-    // So we should subtract at least one tile, perhaps even two to be safe.
-    // Or we go the actual good way and do the math to determine hMax/wMax based on the radius and tile size.
-
-    // Create worker threads for batches in visible tiles, based on batch cost and other factors
     size_t workerIdx = 0;
     TileCoordinate lastPos;
     for (auto pos : tiles) {
