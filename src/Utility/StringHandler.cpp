@@ -4,7 +4,6 @@
 // Standard library
 #include <algorithm>
 #include <ranges>
-#include <unordered_map>
 
 // Nebulite
 #include "Nebulite.hpp"
@@ -280,7 +279,8 @@ std::vector<std::string> StringHandler::split(std::string_view const& input, cha
 }
 
 namespace {
-std::array<std::pair<char,char>,3> constexpr pairs = {
+
+std::array constexpr pairs = {
     std::make_pair('(',  ')'),
     std::make_pair('[',  ']'),
     std::make_pair('{',  '}')
@@ -317,58 +317,6 @@ int depthOf(std::string_view const& input, char const& delimiter) {
 }
 
 } // namespace
-
-std::vector<std::string> old(std::string_view const& input, char const& delimiter) {
-    std::vector<std::string> result;
-
-    // Find the matching closing delimiter
-    char closing = 0;
-    for (auto const& [potentialOpeningCharacter, potentialClosingCharacter] : pairs) {
-        if (potentialOpeningCharacter == delimiter) {
-            closing = potentialClosingCharacter;
-            break;
-        }
-    }
-
-    if (closing == 0) {
-        // Invalid delimiter
-        result.emplace_back(input);
-        return result;
-    }
-
-    int depth = 0;
-    std::string current;
-
-    for (size_t i = 0; i < input.size(); ++i) {
-        char const c = input[i];
-        current.push_back(c);
-
-        if (c == delimiter) {
-            depth++;
-        } else if (c == closing) {
-            depth--;
-            if (depth == 0) {
-                // We just closed a top-level pair
-                result.push_back(current);
-                current.clear();
-            }
-        } else if (depth == 0) {
-            // Outside delimiter groups
-            // If the current string is complete text before a new delimiter
-            if (i + 1 < input.size() && input[i + 1] == delimiter) {
-                result.push_back(current);
-                current.clear();
-            }
-        }
-    }
-
-    // If there's any leftover text
-    if (!current.empty()) {
-        result.push_back(current);
-    }
-
-    return result;
-}
 
 std::vector<std::string> StringHandler::splitOnSameDepth(std::string_view const& input, char const& delimiter) {
     auto basicSplitResult = split(input, delimiter, true);

@@ -77,7 +77,7 @@ namespace {
 /**
  * @brief Checks if the expression can be returned as a double pointer.
  *        Meaning no multi-resolve or transformations are used.
- * @param key The key to check.
+ * @param key The key to check, without context!
  * @return true if the expression can be returned as a double pointer, false otherwise.
  */
 bool isAvailableAsDoublePtr(std::string_view const& key) {
