@@ -130,7 +130,7 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
     // Meaning the first char is '{', but the string is not a valid JSON object
     if (!serialOrLinkWithCommands.empty() && serialOrLinkWithCommands.front() == '{' && !Data::JSON::isJsonOrJsonc(serialOrLinkWithCommands)) {
         // Split on same depth of '{' and '}' to isolate the variable part
-        auto parts = Utility::StringHandler::splitOnSameDepth(serialOrLinkWithCommands, '{');
+        auto parts = Utility::StringHandler::splitOnSameDepthOf(serialOrLinkWithCommands, Utility::StringHandler::Delimiter::brace);
 
         // First part is the variable with transformations
         std::string const& variableWithTransformations = parts[0];

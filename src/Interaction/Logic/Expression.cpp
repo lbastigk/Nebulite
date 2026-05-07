@@ -217,7 +217,7 @@ std::vector<std::string> getTokens(std::string_view const& expr) {
             std::string tokenWithoutStart = token.substr(start.length()); // Remove the leading '$'
 
             // Split on same depth
-            std::vector<std::string> subTokens = Utility::StringHandler::splitOnSameDepth(tokenWithoutStart, '(');
+            std::vector<std::string> subTokens = Utility::StringHandler::splitOnSameDepthOf(tokenWithoutStart, Utility::StringHandler::Delimiter::parentheses);
 
             // Add back the '$' + formatter to first subToken
             if (!subTokens.empty()) {
@@ -245,7 +245,7 @@ void Expression::parseIntoComponents(std::string_view const& expr) {
             } else {
                 // Current token is Text
                 // Perhaps mixed with variables...
-                for (auto const& subToken : Utility::StringHandler::splitOnSameDepth(token, '{')) {
+                for (auto const& subToken : Utility::StringHandler::splitOnSameDepthOf(token, Utility::StringHandler::Delimiter::brace)) {
                     // Token is type variable
                     if (isTypeVariable(subToken)) {
                         parseTokenTypeVariable(subToken);
@@ -375,7 +375,7 @@ void Expression::parseTokenTypeEval(std::string const& token) {
 
     // Register internal variables
     // And build equivalent expression using new variable names
-    for (auto const& subToken : Utility::StringHandler::splitOnSameDepth(expression, '{')) {
+    for (auto const& subToken : Utility::StringHandler::splitOnSameDepthOf(expression, Utility::StringHandler::Delimiter::brace)) {
         if (subToken.starts_with('{')) {
             std::string const te_name = varNameGen.getUniqueName(subToken);
             std::string key = subToken.substr(1, subToken.length() - 2);
