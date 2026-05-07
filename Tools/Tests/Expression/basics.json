@@ -54,5 +54,18 @@
             ],
             "cerr": []
         }
+    },
+    {
+        "command": [
+            "# Test if we can use an empty context and then transform it",
+            "eval echo {|echo TEST|setInt value 1|get value}"
+        ],
+        "expected": {
+            "cout": [
+                "TEST",
+                "1"
+            ],
+            "cerr": []
+        }
     }
 ]
