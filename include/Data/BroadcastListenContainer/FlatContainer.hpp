@@ -12,7 +12,7 @@
 
 // Nebulite
 #include "Data/BroadcastListenContainer/BaseContainer.hpp"
-#include "Data/Map/HotStringKeyMap.hpp"
+#include "Data/Map/StringMap.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -62,8 +62,8 @@ class FlatContainerImpl {
     void process();
 
     static auto constexpr activeWorkerCount = Constants::ThreadSettings::Maximum::invokeWorkerCount;
-    std::array<HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>>, activeWorkerCount> broadcasters = {};
-    std::array<HotStringKeyMap<std::vector<std::shared_ptr<Interaction::Rules::Listener>>>, activeWorkerCount> listeners = {};
+    std::array<StringMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>>, activeWorkerCount> broadcasters = {};
+    std::array<StringMap<std::vector<std::shared_ptr<Interaction::Rules::Listener>>>, activeWorkerCount> listeners = {};
 
 public:
     explicit FlatContainerImpl(Settings const& s) : settings(s) {}

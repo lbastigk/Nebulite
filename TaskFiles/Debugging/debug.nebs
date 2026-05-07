@@ -22,4 +22,9 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/Examples/RmlUi.nebs
+task TaskFiles/Benchmarks/gravity_unlimited.nebs
+time set-fixed-dt 100
+wait 3000
+exit
+
+#task TaskFiles/Examples/RmlUi.nebs

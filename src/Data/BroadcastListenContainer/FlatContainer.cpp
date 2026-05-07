@@ -14,23 +14,37 @@
 //------------------------------------------
 namespace Nebulite::Data::BroadcastListenContainer {
 
-void FlatContainerImpl::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+namespace {
+
+size_t& getThreadId() {
     static auto workerCount = Constants::ThreadSettings::getInvokeWorkerCount();
     static auto threadSpreader = Utility::Coordination::IdGenerator::atomicThreadIncrementGenerator();
     thread_local size_t threadId = threadSpreader();
     if (threadId >= workerCount) {
         throw std::runtime_error("Too many threads trying to broadcast, increase broadcasterSpreading or reduce thread count");
     }
+    return threadId;
+}
+
+} // namespace
+
+// TODO: the locks should not be necessary, but somehow they are ...
+// without them, the following test fails:
+// ./bin/Nebulite task TaskFiles/Benchmarks/gravity_unlimited.nebs
+// Absl hashmap is invalid during access ...
+// The lock decreases performance by ~10%
+// This seems to happen if objects leave the scene and are no longer broadcasting/listening?
+// Maybe the thread index assignment with thread_local doesn't work the way we think?
+
+void FlatContainerImpl::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+    auto const& threadId = getThreadId();
+    auto lock = broadcasters[threadId].lock(entry->getTopic());
     broadcasters[threadId][entry->getTopic()].push_back(entry);
 }
 
 void FlatContainerImpl::listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
-    static auto workerCount = Constants::ThreadSettings::getInvokeWorkerCount();
-    static auto threadSpreader = Utility::Coordination::IdGenerator::atomicThreadIncrementGenerator();
-    thread_local size_t threadId = threadSpreader();
-    if (threadId >= workerCount) {
-        throw std::runtime_error("Too many threads trying to listen, increase listenerSpreading or reduce thread count");
-    }
+    auto const& threadId = getThreadId();
+    auto lock = listeners[threadId].lock(listener->topic);
     listeners[threadId][listener->topic].push_back(listener);
 }
 
