@@ -112,13 +112,12 @@ public:
 
     /**
      * @brief Updates the environment's state.
-     * @param tilePositionX current camera tile position in the X direction.
-     * @param tilePositionY current camera tile position in the Y direction.
+     * @param tiles The tiles to update
      * @param dispResX display resolution width. Necessary for potential RenderObject reinsertions.
      * @param dispResY display resolution height. Necessary for potential RenderObject reinsertions.
      * @param rendererProcessor the RendererProcessor instance to use for parallel processing of batches.
      */
-    void updateObjects(int16_t const& tilePositionX, int16_t const& tilePositionY, uint16_t const& dispResX, uint16_t const& dispResY, Data::RendererProcessor const& rendererProcessor);
+    void updateObjects(std::vector<Data::TileCoordinate> const& tiles, uint16_t const& dispResX, uint16_t const& dispResY, Data::RendererProcessor const& rendererProcessor);
 
     /**
      * @brief Rebuilds the Container structure.
@@ -140,21 +139,19 @@ public:
 
     /**
      * @brief Retrieves the RenderObjectContainer at the specified position and layer.
-     * @param x The X coordinate of the tile.
-     * @param y The Y coordinate of the tile.
+     * @param pos The tile position
      * @param layer The layer index.
      * @return A reference to the RenderObjectContainer at the specified position and layer: A vector of batched RenderObjects.
      */
-    std::vector<Data::Batch>& getContainerAt(int16_t x, int16_t y, Layer layer);
+    std::vector<Data::Batch>& getContainerAt(Data::TileCoordinate const& pos, Layer layer);
 
     /**
      * @brief Checks if the specified position and layer are valid, meaning they are within the bounds of the environment.
-     * @param x The X coordinate of the tile.
-     * @param y The Y coordinate of the tile.
+     * @param pos The tile position
      * @param layer The layer index.
      * @return True if the position and layer are valid, false otherwise.
      */
-    bool isValidPosition(int x, int y, Layer layer);
+    bool isValidPosition(Data::TileCoordinate const& pos, Layer layer) const ;
 
     /**
      * @brief Purges all objects from the environment by placing them in the deletion process.
@@ -166,6 +163,20 @@ public:
      * @return The total number of render objects in the environment.
      */
     [[nodiscard]] size_t getObjectCount() const;
+
+    //------------------------------------------
+    // Viewport
+
+    auto viewport(std::vector<Data::TileCoordinate> const& visibleTiles, Layer const& layer) {
+        std::vector<std::vector<Data::Batch>*> result;
+        result.reserve(visibleTiles.size());
+        for (auto const& tile: visibleTiles) {
+            if (isValidPosition(tile, layer)) {
+                result.push_back(&getContainerAt(tile, layer));
+            }
+        }
+        return result;
+    }
 
 private:
     // All layers in rendering order

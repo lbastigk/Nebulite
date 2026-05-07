@@ -91,10 +91,10 @@ void Environment::append(RenderObject* toAppend, uint16_t const& dispResX, uint1
     }
 }
 
-void Environment::updateObjects(int16_t const& tilePositionX, int16_t const& tilePositionY, uint16_t const& dispResX, uint16_t const& dispResY, Data::RendererProcessor const& rendererProcessor) {
+void Environment::updateObjects(std::vector<Data::TileCoordinate> const& tiles, uint16_t const& dispResX, uint16_t const& dispResY, Data::RendererProcessor const& rendererProcessor) {
     for (unsigned int i = 0; i < allLayers.size(); i++) {
         rendererProcessor.prepareForNewLayer(&roc[i]);
-        roc[i].update(tilePositionX, tilePositionY, dispResX, dispResY, rendererProcessor);
+        roc[i].update(tiles, dispResX, dispResY, rendererProcessor);
     }
 }
 
@@ -117,16 +117,14 @@ RenderObject* Environment::getObjectFromId(size_t const& domainId) {
 //------------------------------------------
 // Container Management
 
-std::vector<Data::Batch>& Environment::getContainerAt(int16_t x, int16_t y, Layer layer) {
-    auto const pos = std::make_pair(x, y);
+std::vector<Data::Batch>& Environment::getContainerAt(Data::TileCoordinate const& pos, Layer layer) {
     if (static_cast<uint8_t>(layer) < allLayers.size()) {
         return roc[static_cast<uint8_t>(layer)].getContainerAt(pos);
     }
     return roc[0].getContainerAt(pos);
 }
 
-bool Environment::isValidPosition(int x, int y, Layer layer) {
-    auto const pos = std::make_pair(x, y);
+bool Environment::isValidPosition(Data::TileCoordinate const& pos, Layer layer) const {
     if (static_cast<uint8_t>(layer) < allLayers.size()) {
         return roc[static_cast<uint8_t>(layer)].isValidPosition(pos);
     }

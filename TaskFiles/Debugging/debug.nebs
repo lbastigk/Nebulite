@@ -22,4 +22,6 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/Examples/RmlUi.nebs
+task TaskFiles/VerticalSlice/levelDescription.nebs
+rmlui document load demo1 ./Resources/Rml/alignment.rml
+rmlui document load demo2 ./Resources/Rml/example.rml

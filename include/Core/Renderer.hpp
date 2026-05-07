@@ -511,6 +511,33 @@ private:
     SDL_Renderer* renderer{};
 
     //------------------------------------------
+    // Viewport
+
+    std::vector<Data::TileCoordinate> visibleTiles() const {
+        std::vector<Data::TileCoordinate> tiles;
+        tiles.reserve(9); // small fixed neighborhood
+        for (std::initializer_list<int16_t> const pm1 = {-1,0, 1}; int16_t const& dX : pm1) {
+            for (int16_t const& dY : pm1) {
+                tiles.push_back(Data::TileCoordinate{
+                    .x = static_cast<int16_t>(tilePositionX + dX),
+                    .y = static_cast<int16_t>(tilePositionY + dY)
+                });
+            }
+        }
+        return tiles;
+    }
+
+    void onViewport(Environment::Layer const& layer, auto&& function) {
+        for (auto const& tile : env.viewport(visibleTiles(), layer)) {
+            for (auto& [objects, _] : *tile) {
+                for (auto& obj : objects) {
+                    function(obj);
+                }
+            }
+        }
+    }
+
+    //------------------------------------------
     // Pipeline: Software / General
 
     void renderInit() const ;

@@ -45,7 +45,7 @@ public:
     RenderObjectContainer& operator=(RenderObjectContainer&&) = delete;
 
     //------------------------------------------
-    // constants
+    // Constants
 
     /**
      * @brief Target cost of each Render::update thread batch.
@@ -97,7 +97,7 @@ public:
      * @param position The tile position to check: (x, y).
      * @return True if the position contains objects, false otherwise.
      */
-    bool isValidPosition(std::pair<uint16_t, uint16_t> const& position);
+    bool isValidPosition(TileCoordinate const& position) const ;
 
     // removes all objects
     /**
@@ -118,20 +118,19 @@ public:
      * @brief Responsible for updating the state of all RenderObject instances
      *        that are currently within the specified tile viewport. It takes into account the
      *        display resolution for potential re-insertions.
-     * @param tilePosX The middle tile to in x-axis.
-     * @param tilePosY The middle tile to in y-axis.
+     * @param tiles The vector of tile coordinates that are currently within the viewport and need to be updated.
      * @param dispResX The display resolution width. Needed for potential re-insertion.
      * @param dispResY The display resolution height. Needed for potential re-insertion.
      * @param rendererProcessor The RendererProcessor instance to use for parallel processing of batches.
      */
-    void update(int16_t const& tilePosX, int16_t const& tilePosY, uint16_t const& dispResX, uint16_t const& dispResY, RendererProcessor const& rendererProcessor);
+    void update(std::vector<TileCoordinate> const& tiles, uint16_t const& dispResX, uint16_t const& dispResY, RendererProcessor const& rendererProcessor);
 
     /**
      * @brief Gets the vector of batches at the specified tile position.
      * @param position The tile position to query: (x, y).
      * @return A reference to the vector of batches at the specified position.
      */
-    std::vector<Batch>& getContainerAt(std::pair<uint16_t, uint16_t> const& position) {
+    std::vector<Batch>& getContainerAt(TileCoordinate const& position) {
         return ObjectContainer[position];
     }
 
@@ -163,7 +162,7 @@ public:
      * @param displayResolutionY The display resolution height, used to determine the tile size and position.
      * @return A pair of int16_t representing the tile position (tileX, tileY) corresponding to the RenderObject's coordinates.
      */
-    static std::pair<int16_t, int16_t> getTilePos(Core::RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY);
+    static TileCoordinate getTilePos(Core::RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY);
 
     /**
      * @brief Process for reinserting objects after they have been moved.
@@ -180,7 +179,7 @@ private:
      * @brief Holds all objects in the container.
      *        `ObjectContainer[tileX,tileY] -> vector<batch>`
      */
-    absl::flat_hash_map<std::pair<int16_t, int16_t>, std::vector<Batch>> ObjectContainer;
+    absl::flat_hash_map<TileCoordinate, std::vector<Batch>> ObjectContainer;
 };
 } // namespace Nebulite::Core
 #endif // NEBULITE_DATA_RENDER_OBJECT_CONTAINER_HPP

@@ -477,8 +477,7 @@ Constants::Event Renderer::update() {
         // Update environment
         Global::instance().notifyEvent(env.update());
         env.updateObjects(
-            tilePositionX,
-            tilePositionY,
+            visibleTiles(),
             domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
             domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0),
             rendererProcessor
@@ -676,26 +675,9 @@ void Renderer::renderFrame() {
     //Render Objects
     //For all layers, starting at 0
     for (auto const& layer : env.getAllLayerTypes()) {
-        // Get all tile positions to render
-        std::vector<std::pair<int16_t, int16_t>> tilesToRender;
-        for (int dX = tilePositionX == 0 ? 0 : -1; dX <= 1; dX++) {
-            for (int dY = tilePositionY == 0 ? 0 : -1; dY <= 1; dY++) {
-                if (env.isValidPosition(tilePositionX + dX, tilePositionY + dY, layer)) {
-                    tilesToRender.emplace_back(tilePositionX + dX, tilePositionY + dY);
-                }
-            }
-        }
-
-        // For all tiles to render
-        for (auto const& [tileX, tileY] : tilesToRender) {
-            // For all batches inside
-            for (auto const& [objectsInThisBatch, _] : env.getContainerAt(tileX, tileY, layer)) {
-                // For all objects in batch
-                for (auto const& obj : objectsInThisBatch) {
-                    renderObjectToScreen(obj, dispPosX, dispPosY);
-                }
-            }
-        }
+        onViewport(layer, [&](RenderObject* obj) {
+            renderObjectToScreen(obj, dispPosX, dispPosY);
+        });
 
         // Render all textures that were attached from outside processes
         for (auto const& [texture, rect] : std::views::values(BetweenLayerTextures[layer])) {

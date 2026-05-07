@@ -72,7 +72,7 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_
 // Pipeline
 
 void RenderObjectContainer::append(Core::RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY) {
-    std::pair<int16_t, int16_t> const pos = getTilePos(toAppend, dispResX, dispResY);
+    auto const pos = getTilePos(toAppend, dispResX, dispResY);
 
     // Try to insert into an existing batch
     auto const it = std::ranges::find_if(
@@ -101,14 +101,7 @@ void RenderObjectContainer::append(Core::RenderObject* toAppend, uint16_t const&
     ObjectContainer[pos].push_back(std::move(newBatch));
 }
 
-void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tilePosY, uint16_t const& dispResX, uint16_t const& dispResY, RendererProcessor const& rendererProcessor) {
-    //------------------------------------------
-    // Define tile offsets that are being rendered
-
-    // Currently, tile size is based on resolution so we render a 3x3 grid of tiles
-    static std::initializer_list<int16_t> constexpr tileOffsetsX = {-1, 0, 1};
-    static std::initializer_list<int16_t> constexpr tileOffsetsY = {-1, 0, 1};
-
+void RenderObjectContainer::update(std::vector<TileCoordinate> const& tiles, uint16_t const& dispResX, uint16_t const& dispResY, RendererProcessor const& rendererProcessor) {
     //------------------------------------------
     // 2-Step Deletion
 
@@ -155,41 +148,36 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
 
     // Create worker threads for batches in visible tiles, based on batch cost and other factors
     size_t workerIdx = 0;
-    std::pair<int16_t, int16_t> lastPos;
-    for (int16_t const dX : tileOffsetsX) {
-        for (int16_t const dY : tileOffsetsY) {
-            // Current tile position we want to update
-            std::pair<int16_t, int16_t> pos = std::make_pair(tilePosX - dX, tilePosY - dY);
+    TileCoordinate lastPos;
+    for (auto pos : tiles) {
+        // Check if container has tile at position, if not, skip
+        auto const it = ObjectContainer.find(pos);
+        if (it == ObjectContainer.end()) {
+            continue;
+        }
 
-            // Check if container has tile at position, if not, skip
-            auto const it = ObjectContainer.find(pos);
-            if (it == ObjectContainer.end()) {
-                continue;
+        // Create worker threads that try to closely match the batch cost goal
+        // If the current batch added to the worker exceeds the batch cost goal, we start a new worker thread for the next batch
+        for (auto& batch : it->second) {
+            if (rendererProcessor.batchWorkerPool[workerIdx]->workspace.cost + batch.estimatedCost > batchCostGoal || lastPos != pos) {
+                workerIdx++;
             }
 
-            // Create worker threads that try to closely match the batch cost goal
-            // If the current batch added to the worker exceeds the batch cost goal, we start a new worker thread for the next batch
-            for (auto& batch : it->second) {
-                if (rendererProcessor.batchWorkerPool[workerIdx]->workspace.cost + batch.estimatedCost > batchCostGoal || lastPos != pos) {
-                    workerIdx++;
-                }
-
-                if (workerIdx >= Constants::ThreadSettings::getRendererWorkerCount()) {
-                    rendererProcessor.processPool(); // Process all workers and reset pool
-                    workerIdx = 0; // Reset worker count for new batch of work
-                }
-
-                // Get current worker, set up workspace and add work to it
-                auto& currentWorker = rendererProcessor.batchWorkerPool[workerIdx]->workspace;
-                currentWorker.work.push_back(&batch);
-                currentWorker.pos = pos;
-                currentWorker.dispResX = dispResX;
-                currentWorker.dispResY = dispResY;
-                currentWorker.cost += batch.estimatedCost;
-
-                // Set last position for next iteration
-                lastPos = pos;
+            if (workerIdx >= Constants::ThreadSettings::getRendererWorkerCount()) {
+                rendererProcessor.processPool(); // Process all workers and reset pool
+                workerIdx = 0; // Reset worker count for new batch of work
             }
+
+            // Get current worker, set up workspace and add work to it
+            auto& currentWorker = rendererProcessor.batchWorkerPool[workerIdx]->workspace;
+            currentWorker.work.push_back(&batch);
+            currentWorker.pos = pos;
+            currentWorker.dispResX = dispResX;
+            currentWorker.dispResY = dispResY;
+            currentWorker.cost += batch.estimatedCost;
+
+            // Set last position for next iteration
+            lastPos = pos;
         }
     }
 
@@ -236,7 +224,7 @@ void RenderObjectContainer::reinsertAllObjects(uint16_t const& dispResX, uint16_
     }
 }
 
-bool RenderObjectContainer::isValidPosition(std::pair<uint16_t, uint16_t> const& position) {
+bool RenderObjectContainer::isValidPosition(TileCoordinate const& position) const {
     // Check if ObjectContainer is not empty
     auto const it = ObjectContainer.find(position);
     return it != ObjectContainer.end();
@@ -276,11 +264,11 @@ RenderObjectContainer::ContainerInfo RenderObjectContainer::getContainerInfo() c
     return info;
 }
 
-std::pair<int16_t, int16_t> RenderObjectContainer::getTilePos(Core::RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
+TileCoordinate RenderObjectContainer::getTilePos(Core::RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
     auto [x, y] = toAppend->getPosition();
-    auto correspondingTilePositionX = static_cast<int16_t>(x / static_cast<double>(displayResolutionX));
-    auto correspondingTilePositionY = static_cast<int16_t>(y / static_cast<double>(displayResolutionY));
-    return std::make_pair(correspondingTilePositionX, correspondingTilePositionY);
+    auto const correspondingTilePositionX = static_cast<int16_t>(x / static_cast<double>(displayResolutionX));
+    auto const correspondingTilePositionY = static_cast<int16_t>(y / static_cast<double>(displayResolutionY));
+    return {correspondingTilePositionX, correspondingTilePositionY};
 }
 
 } // namespace Nebulite::Core
