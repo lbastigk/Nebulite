@@ -185,7 +185,7 @@ public:
      */
     template<typename MetaInfo>
     void containerIteration(IteratorFunction<MetaInfo> const& function, MetaInfo const& metaInfo) {
-        for (auto const [tile, batches] : ObjectContainer) {
+        for (auto const& [tile, batches] : ObjectContainer) {
             function(tile, metaInfo, batches);
         }
     }

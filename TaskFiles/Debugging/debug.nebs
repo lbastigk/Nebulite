@@ -22,9 +22,7 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-# TODO: Somehow all objects are at tile (0,0)
 task TaskFiles/VerticalSlice/levelDescription.nebs
 wait 1
 fetch-container
 print renderer.environment.debug.container.objectCount
-exit

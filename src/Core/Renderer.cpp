@@ -79,8 +79,8 @@ void Renderer::setupDisplayValues() {
     fps.target = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::targetFPS).value_or(60);
 
     // Set in workspace
-    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X*windowScale);
-    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResY, Y*windowScale);
+    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResXWindow, X*windowScale);
+    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResYWindow, Y*windowScale);
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResXLogical, X);
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResYLogical, Y);
 
@@ -214,8 +214,8 @@ void Renderer::initSDL() {
         std::abort();
     }
     // Define window via x|y|w|h
-    int const w = domainScope.get<int>(Constants::KeyNames::Renderer::dispResX).value_or(0);
-    int const h = domainScope.get<int>(Constants::KeyNames::Renderer::dispResY).value_or(0);
+    int const w = domainScope.get<int>(Constants::KeyNames::Renderer::dispResXWindow).value_or(0);
+    int const h = domainScope.get<int>(Constants::KeyNames::Renderer::dispResYWindow).value_or(0);
 
     //------------------------------------------
     // Window and renderer
@@ -232,11 +232,7 @@ void Renderer::initSDL() {
     //------------------------------------------
     // UI
     initImgui();
-    Graphics::RmlInterface::instance().init(
-        *this,
-        domainScope.get<int>(Constants::KeyNames::Renderer::dispResX).value_or(800),
-        domainScope.get<int>(Constants::KeyNames::Renderer::dispResY).value_or(600)
-    );
+    Graphics::RmlInterface::instance().init(*this,w,h);
 
     //------------------------------------------
     // Cursor
@@ -304,14 +300,6 @@ void Renderer::loadFonts() {
 //------------------------------------------
 // Getting
 
-int Renderer::getResX() const { return domainScope.get<int>(Constants::KeyNames::Renderer::dispResX).value_or(0); }
-
-int Renderer::getResY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::dispResY).value_or(0); }
-
-int Renderer::getPosX() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionX).value_or(0); }
-
-int Renderer::getPosY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionY).value_or(0); }
-
 std::optional<size_t> Renderer::getIdFromIndex(size_t const& index) const {
     if (!indexToIdMap.contains(index)) {
         return std::nullopt; // No object with this index
@@ -352,8 +340,8 @@ std::string Renderer::serialize() {
 void Renderer::deserialize(std::string const& serialOrLink) noexcept {
     env.deserialize(
         serialOrLink,
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0)
+        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0),
+        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0)
     );
 }
 
@@ -482,8 +470,8 @@ Constants::Event Renderer::update() {
         Global::instance().notifyEvent(env.update());
         env.updateObjects(
             visibleTiles(),
-            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
-            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0),
+            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0),
+            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0),
             rendererProcessor
         );
     }
@@ -520,16 +508,16 @@ void Renderer::append(RenderObject* toAppend) {
     // Append to environment, based on layer
     env.append(
         toAppend,
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0),
+        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0),
+        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0),
         toAppend->domainScope.get<uint8_t>(Constants::KeyNames::RenderObject::layer).value_or(0)
     );
 }
 
 void Renderer::reinsertAllObjects() {
     env.reinsertAllObjects(
-    domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
-    domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0)
+    domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0),
+    domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0)
     );
 }
 
@@ -588,8 +576,8 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
     windowScale = scalar;
 
     // Set the new resolution in the workspace
-    domainScope.set<int>(Constants::KeyNames::Renderer::dispResX, w * windowScale);
-    domainScope.set<int>(Constants::KeyNames::Renderer::dispResY, h * windowScale);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResXWindow, w * windowScale);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResYWindow, h * windowScale);
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResXLogical, w);
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResYLogical, h);
     domainScope.set<uint8_t>(Constants::KeyNames::Renderer::windowScale, windowScale);
@@ -620,8 +608,8 @@ void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle) const {
     int newPosX = X;
     int newPosY = Y;
     if (isMiddle) {
-        newPosX -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResX).value_or(0) / 2;
-        newPosY -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResY).value_or(0) / 2;
+        newPosX -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0) / 2;
+        newPosY -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0) / 2;
     }
     domainScope.set<int>(Constants::KeyNames::Renderer::positionX, newPosX);
     domainScope.set<int>(Constants::KeyNames::Renderer::positionY, newPosY);
@@ -646,15 +634,15 @@ void Renderer::renderFrame() {
     auto const dispPosY = domainScope.get<int16_t>(Constants::KeyNames::Renderer::positionY).value_or(0);
 
     // Depending on position, set tiles to render
-    auto const dispResX = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0);
-    auto const dispResY = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0);
-    if (dispResX == 0 || dispResY == 0) {
+    auto const w = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0);
+    auto const h = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0);
+    if (w == 0 || h == 0) {
         // Avoid division by zero
         capture.error.println("Display resolution is zero, cannot render frame.");
         std::abort();
     }
-    tilePositionX = static_cast<int16_t>(dispPosX / dispResX);
-    tilePositionY = static_cast<int16_t>(dispPosY / dispResY);
+    tilePositionX = static_cast<int16_t>(dispPosX / w);
+    tilePositionY = static_cast<int16_t>(dispPosY / h);
 
     //------------------------------------------
     // FPS Count and Control

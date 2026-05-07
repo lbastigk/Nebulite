@@ -38,5 +38,5 @@ selected-object parse mirror on
 wait 1
 always assert $(gt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posX},0))
 always assert $(gt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posY},0))
-always assert $(lt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posX},{global:renderer.resolution.X}))
-always assert $(lt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posY},{global:renderer.resolution.X}))
+always assert $(lt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posX},{global:renderer.resolution.logical.X}))
+always assert $(lt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posY},{global:renderer.resolution.logical.X}))

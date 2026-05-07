@@ -282,36 +282,10 @@ public:
     [[nodiscard]] size_t getObjectCount() const { return env.getObjectCount(); }
 
     /**
-     * @brief Gets the current resolution in the X direction.
-     * @return The current resolution in the X direction.
-     */
-    [[nodiscard]] int getResX() const ;
-
-    /**
-     * @brief Gets the current resolution in the Y direction.
-     * @return The current resolution in the Y direction.
-     */
-    [[nodiscard]] int getResY() const ;
-
-    /**
      * @brief Gets the current FPS.
      * @return The current FPS.
      */
     [[nodiscard]] uint16_t getFPS() const { return fps.real; }
-
-    /**
-     * @brief Gets the current position of the camera in the X direction.
-     *        The position is considered to be the top left corner of the screen.
-     * @return The current position of the camera in the X direction.
-     */
-    [[nodiscard]] int getPosX() const ;
-
-    /**
-     * @brief Gets the current position of the camera in the Y direction.
-     *        The position is considered to be the top left corner of the screen.
-     * @return The current position of the camera in the Y direction.
-     */
-    [[nodiscard]] int getPosY() const ;
 
     /**
      * @brief Gets the current tile position of the camera in the X direction.
@@ -515,8 +489,10 @@ private:
 
     std::vector<Data::TileCoordinate> visibleTiles() const {
         std::vector<Data::TileCoordinate> tiles;
+
+        // For now, we render everything in a 3x3 grid
         tiles.reserve(9); // small fixed neighborhood
-        for (std::initializer_list<int16_t> const pm1 = {-1,0, 1}; int16_t const& dX : pm1) {
+        for (std::array<int16_t,3> constexpr pm1 = {-1,0, 1}; int16_t const& dX : pm1) {
             for (int16_t const& dY : pm1) {
                 tiles.push_back(Data::TileCoordinate{
                     .x = static_cast<int16_t>(tilePositionX + dX),

@@ -23,8 +23,8 @@ Camera::Camera() : RulesetModule(moduleName) {
     auto const token = getRulesetModuleAccessToken(*this);
     globalVal.camPosX = Global::shareScope(token).getStableDoublePointer(Constants::KeyNames::Renderer::positionX);
     globalVal.camPosY = Global::shareScope(token).getStableDoublePointer(Constants::KeyNames::Renderer::positionY);
-    globalVal.dispResX = Global::shareScope(token).getStableDoublePointer(Constants::KeyNames::Renderer::dispResX);
-    globalVal.dispResY = Global::shareScope(token).getStableDoublePointer(Constants::KeyNames::Renderer::dispResY);
+    globalVal.dispResX = Global::shareScope(token).getStableDoublePointer(Constants::KeyNames::Renderer::dispResXLogical);
+    globalVal.dispResY = Global::shareScope(token).getStableDoublePointer(Constants::KeyNames::Renderer::dispResYLogical);
 }
 
 // TODO: Add another namespace for camera following rulesets using a PT1 controller for smooth movement
