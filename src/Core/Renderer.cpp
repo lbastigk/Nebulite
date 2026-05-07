@@ -39,6 +39,10 @@ Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, Util
     baseDirectory = Utility::IO::FileManagement::currentDir();
 
     //------------------------------------------
+    // Inherit
+    inherit(&env);
+
+    //------------------------------------------
     // Start timers
     fps.controlTimer.start();
     fps.renderTimer.start();

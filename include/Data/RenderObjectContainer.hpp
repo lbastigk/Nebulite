@@ -174,6 +174,22 @@ public:
      */
     DeletionProcess deletionProcess;
 
+    template<typename MetaInfo>
+    using IteratorFunction = std::function<void(TileCoordinate const&, MetaInfo const&, std::vector<Batch> const&)>;
+
+    /**
+     * @brief iterate over all tile coordinates
+     * @tparam MetaInfo type of the meta information to pass to the function
+     * @param function iterator function
+     * @param metaInfo meta information to pass to the function
+     */
+    template<typename MetaInfo>
+    void containerIteration(IteratorFunction<MetaInfo> const& function, MetaInfo const& metaInfo) {
+        for (auto const [tile, batches] : ObjectContainer) {
+            function(tile, metaInfo, batches);
+        }
+    }
+
 private:
     /**
      * @brief Holds all objects in the container.

@@ -22,6 +22,9 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+# TODO: Somehow all objects are at tile (0,0)
 task TaskFiles/VerticalSlice/levelDescription.nebs
-rmlui document load demo1 ./Resources/Rml/alignment.rml
-rmlui document load demo2 ./Resources/Rml/example.rml
+wait 1
+fetch-container
+print renderer.environment.debug.container.objectCount
+exit

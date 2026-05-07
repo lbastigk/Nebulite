@@ -164,6 +164,16 @@ public:
      */
     [[nodiscard]] size_t getObjectCount() const;
 
+    /**
+     * @brief Iterate over all layers
+     * @param function iterator function
+     */
+    void containerIteration(Data::RenderObjectContainer::IteratorFunction<Layer> const& function) {
+        for (auto const [index, container] : roc | std::views::enumerate) {
+            container.containerIteration(function, static_cast<Layer>(index));
+        }
+    }
+
     //------------------------------------------
     // Viewport
 

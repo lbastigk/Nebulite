@@ -192,6 +192,10 @@ public:
      */
     void inherit(std::shared_ptr<FuncTree> const& toInherit) {
         inheritedTrees.push_back(toInherit);
+
+        for (auto& inner : toInherit->inheritedTrees) {
+            inheritedTrees.push_back(inner);
+        }
     }
 
     //------------------------------------------
