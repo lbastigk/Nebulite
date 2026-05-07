@@ -1,18 +1,16 @@
-#include "Module/Domain/Initializer.hpp"
-
 //------------------------------------------
-// Include Nebulite main header for settings access
+// Base includes
+
+// Nebulite
+#include "Core/GlobalSpace.hpp"
+#include "Core/RenderObject.hpp"
+#include "Core/Renderer.hpp"
+#include "Core/Texture.hpp"
+#include "Module/Domain/Initializer.hpp"
 #include "Nebulite.hpp"
 
 //------------------------------------------
-// Domain includes
-#include "Core/GlobalSpace.hpp"
-#include "Core/Renderer.hpp"
-#include "Core/Texture.hpp"
-#include "Core/RenderObject.hpp"
-
-//------------------------------------------
-// DomainModules
+// DomainModule includes
 
 // Common
 #include "Module/Domain/Common/ComplexData.hpp"
@@ -29,8 +27,8 @@
 // GlobalSpace
 #include "Module/Domain/GlobalSpace/Clock.hpp"
 #include "Module/Domain/GlobalSpace/Debug.hpp"
-#include "Module/Domain/GlobalSpace/FunctionCollision.hpp"   // Special debugging utilities for domain collision detection
 #include "Module/Domain/GlobalSpace/FeatureTest.hpp"         // Feature testing module
+#include "Module/Domain/GlobalSpace/FunctionCollision.hpp"   // Special debugging utilities for domain collision detection
 #include "Module/Domain/GlobalSpace/General.hpp"
 #include "Module/Domain/GlobalSpace/InputMapping.hpp"
 #include "Module/Domain/GlobalSpace/Physics.hpp"
@@ -53,9 +51,9 @@
 #include "Module/Domain/Renderer/RmlUi.hpp"
 
 // Texture
+#include "Module/Domain/Texture/Fill.hpp"
 #include "Module/Domain/Texture/General.hpp"
 #include "Module/Domain/Texture/Rotation.hpp"
-#include "Module/Domain/Texture/Fill.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain {
