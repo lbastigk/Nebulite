@@ -178,7 +178,8 @@ public:
     using IteratorFunction = std::function<void(TileCoordinate const&, MetaInfo const&, std::vector<Batch> const&)>;
 
     /**
-     * @brief iterate over all tile coordinates
+     * @brief iterate over all tile coordinates, providing access to each tiles batches of RenderObjects,
+     *        as well as metadata information provided by the caller.
      * @tparam MetaInfo type of the meta information to pass to the function
      * @param function iterator function
      * @param metaInfo meta information to pass to the function

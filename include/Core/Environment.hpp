@@ -165,7 +165,7 @@ public:
     [[nodiscard]] size_t getObjectCount() const;
 
     /**
-     * @brief Iterate over all layers
+     * @brief Iterate over all layers, providing access to the tile position, layer, and batches of render objects in each container.
      * @param function iterator function
      */
     void containerIteration(Data::RenderObjectContainer::IteratorFunction<Layer> const& function) {
