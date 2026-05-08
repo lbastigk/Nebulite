@@ -133,8 +133,6 @@ public:
      */
     struct DispatcherWorkspace {
         std::vector<Batch*> work;
-        int16_t tilePosX;
-        int16_t tilePosY;
         uint16_t dispResX;
         uint16_t dispResY;
         TileCoordinate pos;
