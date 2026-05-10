@@ -1,5 +1,5 @@
-#ifndef NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_BASE_TPP
-#define NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_BASE_TPP
+#ifndef NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_BASE_TPP
+#define NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_BASE_TPP
 
 #include "Interaction/Execution/DomainModuleBase.hpp"
 
@@ -16,7 +16,7 @@ void DomainModuleBase::bindFunctionStatic(
 ) {
     // Delegate to FuncTree helper to construct FunctionPtr and bind
     auto fp = FuncTreeType::makeFunctionPtr(functionPtr);
-    auto fp_identity = typename FuncTreeType::FunctionIdentity(functionPtr);
+    auto fp_identity = Utility::FunctionIdentity(functionPtr);
     if (helpDescription.ends_with('\n')) {
         tree->bindFunction({fp, fp_identity}, name, helpDescription);
     }
@@ -39,7 +39,7 @@ void DomainModuleBase::bindFunctionStatic(
 
     // Delegate to FuncTree helper that binds the member pointer to the object
     auto fp = FuncTreeType::makeFunctionPtr(objectPtr, functionPtr);
-    auto fp_identity = typename FuncTreeType::FunctionIdentity(objectPtr, functionPtr);
+    auto fp_identity = Utility::FunctionIdentity(objectPtr, functionPtr);
     if (helpDescription.ends_with('\n')) {
         tree->bindFunction({fp, fp_identity}, name, helpDescription);
     }
@@ -83,4 +83,4 @@ void DomainModuleBase::bindFunction(
     bindFunctionStatic(funcTree.get(), functionPtr, name, helpDescription);
 }
 } // namespace Nebulite::Interaction::Execution
-#endif // NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_BASE_TPP
+#endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_BASE_TPP
