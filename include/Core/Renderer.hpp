@@ -518,10 +518,12 @@ private:
         tiles.reserve(9); // small fixed neighborhood
         for (std::array<int16_t,3> constexpr pm1 = {-1,0, 1}; int16_t const& dX : pm1) {
             for (int16_t const& dY : pm1) {
-                tiles.push_back(Data::TileCoordinate{
-                    .x = static_cast<int16_t>(tilePositionX + dX),
-                    .y = static_cast<int16_t>(tilePositionY + dY)
-                });
+                tiles.push_back(
+                    Data::TileCoordinate(
+                        static_cast<int16_t>(tilePositionX + dX),
+                        static_cast<int16_t>(tilePositionY + dY)
+                    )
+                );
             }
         }
         return tiles;

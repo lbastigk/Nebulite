@@ -133,8 +133,8 @@ public:
      */
     struct DispatcherWorkspace {
         std::vector<Batch*> work;
-        uint16_t dispResX;
-        uint16_t dispResY;
+        uint16_t dispResX; // TODO: use tilingInformation struct instead
+        uint16_t dispResY; // TODO: use tilingInformation struct instead
         TileCoordinate pos;
         ReinsertionProcess* reinsertionProcess;
         DeletionProcess* deletionProcess;

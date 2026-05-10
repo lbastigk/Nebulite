@@ -4,15 +4,18 @@
 // Includes
 
 // Standard library
-#include <cstdint>
 #include <utility>
 
 //------------------------------------------
 namespace Nebulite::Data {
 
 struct TileCoordinate {
-    int16_t x;
-    int16_t y;
+    std::int16_t x;
+    std::int16_t y;
+
+    TileCoordinate() : x(0), y(0) {}
+
+    TileCoordinate(std::int16_t const xVal, std::int16_t const yVal) : x(xVal), y(yVal) {}
 
     // Add hashing capability
     bool operator==(const TileCoordinate& other) const {

@@ -240,6 +240,7 @@ RenderObjectContainer::ContainerInfo RenderObjectContainer::getContainerInfo() c
 }
 
 // TODO: move to container, use a TilingInformation struct that holds the w/h of each tile
+//       refactor all code using dispRes as tiling generator, e.g. the RendererProcessor class!
 TileCoordinate RenderObjectContainer::getTilePos(Core::RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
     auto [x, y] = toAppend->getPosition();
     auto const correspondingTilePositionX = static_cast<int16_t>(x / static_cast<double>(displayResolutionX));
