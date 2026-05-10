@@ -443,14 +443,29 @@ private:
                 std::string name = arg.substr(2);
 
                 // Set variable if attached
-                // TODO: Search in inherited FuncTrees as well
-                if (auto varIt = bindingContainer.variables.find(name); varIt != bindingContainer.variables.end()) {
+                bool found = false;
+                auto& vars = bindingContainer.variables;
+                if (auto const& varIt = vars.find(name); varIt != vars.end()) {
                     if (auto const& varInfo = varIt->second; varInfo.pointer) {
                         *varInfo.pointer = true;
+                        found = true;
                     }
-                } else {
-                    ExecutionErrorMessage::unknownVariable(TreeName, name);
                 }
+                else {
+                    for (auto const& inheritedTree : inheritedTrees) {
+                        auto& inheritedVars = inheritedTree->bindingContainer.variables;
+                        if (auto const& inheritedVarIt = inheritedVars.find(name); inheritedVarIt != inheritedVars.end()) {
+                            if (auto const& varInfo = inheritedVarIt->second; varInfo.pointer) {
+                                *varInfo.pointer = true;
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // Print error if not found
+                if (!found) ExecutionErrorMessage::unknownVariable(TreeName, name);
 
                 // Remove first arg
                 args = args.subspan(1);
