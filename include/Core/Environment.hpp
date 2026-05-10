@@ -93,10 +93,9 @@ public:
      * @details The deserialized JSON string is expected to have the same structure as the serialized format.
      *          See `serialize()` for more details.
      * @param serialOrLink The JSON string to deserialize or a link to the JSON file.
-     * @param dispResX Display resolution width. Necessary to position the object correctly in its tile-based container.
-     * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
+     * @param tilingInformation Width and height of each tile
      */
-    void deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY);
+    void deserialize(std::string const& serialOrLink, Data::TilingInformation const& tilingInformation);
 
     //------------------------------------------
     // Object Management
@@ -104,28 +103,25 @@ public:
     /**
      * @brief Appends a new RenderObject to the specified layer of the environment.
      * @param toAppend Pointer to the RenderObject to append.
-     * @param dispResX Display resolution width. Necessary to position the object correctly in its tile-based container.
-     * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
+     * @param tilingInformation Width and height of each tile
      * @param layer Layer index to append the object to (default is 0).
      */
-    void append(RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY, uint8_t const& layer = 0);
+    void append(RenderObject* toAppend, Data::TilingInformation const& tilingInformation, uint8_t const& layer = 0);
 
     /**
      * @brief Updates the environment's state.
      * @param tiles The tiles to update
-     * @param dispResX display resolution width. Necessary for potential RenderObject reinsertions.
-     * @param dispResY display resolution height. Necessary for potential RenderObject reinsertions.
+     * @param tilingInformation Width and height of each tile
      * @param rendererProcessor the RendererProcessor instance to use for parallel processing of batches.
      */
-    void updateObjects(std::vector<Data::TileCoordinate> const& tiles, uint16_t const& dispResX, uint16_t const& dispResY, Data::RendererProcessor const& rendererProcessor);
+    void updateObjects(std::vector<Data::TileCoordinate> const& tiles, Data::TilingInformation const& tilingInformation, Data::RendererProcessor const& rendererProcessor);
 
     /**
      * @brief Rebuilds the Container structure.
      * @details Responsible for reinserting all render objects into their respective containers.
-     * @param dispResX Display resolution width. Necessary for positioning the objects correctly in their tile-based containers.
-     * @param dispResY Display resolution height. Necessary for positioning the objects correctly in their tile-based containers.
+     * @param tilingInformation Width and height of each tile
      */
-    void reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY);
+    void reinsertAllObjects(Data::TilingInformation const& tilingInformation);
 
     /**
      * @brief Retrieves a RenderObject by its ID.

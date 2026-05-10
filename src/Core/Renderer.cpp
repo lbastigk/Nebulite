@@ -340,9 +340,46 @@ std::string Renderer::serialize() {
 void Renderer::deserialize(std::string const& serialOrLink) noexcept {
     env.deserialize(
         serialOrLink,
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0),
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0)
+        tilingInformation()
     );
+}
+
+//------------------------------------------
+// Viewport
+
+std::vector<Data::TileCoordinate> Renderer::visibleTiles() const {
+    auto const w = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0);
+    auto const h = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0);
+    auto const wCount = w / tilingInformation().w + 1;
+    auto const hCount = h / tilingInformation().h + 1;
+    std::vector<Data::TileCoordinate> tiles;
+    tiles.reserve(static_cast<size_t>(wCount)*static_cast<size_t>(hCount)*4u); // small fixed neighborhood
+    for (auto const dX : std::views::iota(-wCount, wCount)) {
+        for (auto const dY : std::views::iota(-hCount, hCount)) {
+            tiles.push_back(
+                Data::TileCoordinate(
+                    static_cast<int16_t>(cameraTilePosition.x + dX),
+                    static_cast<int16_t>(cameraTilePosition.y + dY)
+                )
+            );
+        }
+    }
+    return tiles;
+}
+
+void Renderer::onViewport(Environment::Layer const& layer, auto&& function) {
+    for (auto const& tile : env.viewport(visibleTiles(), layer)) {
+        for (auto& [objects, _] : *tile) {
+            for (auto& obj : objects) {
+                function(obj);
+            }
+        }
+    }
+}
+
+Data::TilingInformation Renderer::tilingInformation() const {
+    // For now, we use a simple 128*128 tiling
+    return {128, 128};
 }
 
 //------------------------------------------
@@ -470,8 +507,7 @@ Constants::Event Renderer::update() {
         Global::instance().notifyEvent(env.update());
         env.updateObjects(
             visibleTiles(),
-            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0),
-            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0),
+            tilingInformation(),
             rendererProcessor
         );
     }
@@ -508,17 +544,13 @@ void Renderer::append(RenderObject* toAppend) {
     // Append to environment, based on layer
     env.append(
         toAppend,
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0),
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0),
+        tilingInformation(),
         toAppend->domainScope.get<uint8_t>(Constants::KeyNames::RenderObject::layer).value_or(0)
     );
 }
 
 void Renderer::reinsertAllObjects() {
-    env.reinsertAllObjects(
-    domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0),
-    domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0)
-    );
+    env.reinsertAllObjects(tilingInformation());
 }
 
 //------------------------------------------
@@ -641,8 +673,12 @@ void Renderer::renderFrame() {
         capture.error.println("Display resolution is zero, cannot render frame.");
         std::abort();
     }
-    tilePositionX = static_cast<int16_t>(dispPosX / w);
-    tilePositionY = static_cast<int16_t>(dispPosY / h);
+
+    RenderObject::Position const pos{
+        dispPosX + w/2,
+        dispPosY + h/2
+    };
+    cameraTilePosition = Data::RenderObjectContainer::getTilePos(pos, tilingInformation());
 
     //------------------------------------------
     // FPS Count and Control

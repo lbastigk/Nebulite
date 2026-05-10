@@ -42,7 +42,7 @@ std::string RenderObjectContainer::serialize() {
     return doc.serialize();
 }
 
-void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY, Utility::IO::Capture& capture) {
+void RenderObjectContainer::deserialize(std::string const& serialOrLink, TilingInformation const& tilingInformation, Utility::IO::Capture& capture) {
     JSON layer;
     layer.deserialize(serialOrLink);
     if (layer.memberType("objects") == KeyType::array) {
@@ -63,7 +63,7 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_
 
             auto* ro = new Core::RenderObject(capture);
             ro->deserialize(str);
-            append(ro, dispResX, dispResY);
+            append(ro, tilingInformation);
         }
     }
 }
@@ -71,8 +71,8 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_
 //------------------------------------------
 // Pipeline
 
-void RenderObjectContainer::append(Core::RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY) {
-    auto const pos = getTilePos(toAppend, dispResX, dispResY);
+void RenderObjectContainer::append(Core::RenderObject* toAppend, TilingInformation const& tilingInformation) {
+    auto const pos = getTilePos(toAppend->getPosition(), tilingInformation);
 
     // Try to insert into an existing batch
     auto const it = std::ranges::find_if(
@@ -101,7 +101,7 @@ void RenderObjectContainer::append(Core::RenderObject* toAppend, uint16_t const&
     ObjectContainer[pos].push_back(std::move(newBatch));
 }
 
-void RenderObjectContainer::update(std::vector<TileCoordinate> const& tiles, uint16_t const& dispResX, uint16_t const& dispResY, RendererProcessor const& rendererProcessor) {
+void RenderObjectContainer::update(std::vector<TileCoordinate> const& tiles, TilingInformation const& tilingInformation, RendererProcessor const& rendererProcessor) {
     //------------------------------------------
     // 2-Step Deletion
 
@@ -147,8 +147,7 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& tiles, uin
             auto& currentWorker = rendererProcessor.batchWorkerPool[workerIdx]->workspace;
             currentWorker.work.push_back(&batch);
             currentWorker.pos = pos;
-            currentWorker.dispResX = dispResX;
-            currentWorker.dispResY = dispResY;
+            currentWorker.tilingInformation = tilingInformation;
             currentWorker.cost += batch.estimatedCost;
 
             // Set last position for next iteration
@@ -161,7 +160,7 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& tiles, uin
 
     // Objects to move to new tile positions
     for (auto const obj_ptr : reinsertionProcess.queue) {
-        append(obj_ptr, dispResX, dispResY);
+        append(obj_ptr, tilingInformation);
     }
     reinsertionProcess.queue.clear();
 }
@@ -180,7 +179,7 @@ Core::RenderObject* RenderObjectContainer::getObjectFromId(size_t const& domainI
     return nullptr; // Not found
 }
 
-void RenderObjectContainer::reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY) {
+void RenderObjectContainer::reinsertAllObjects(TilingInformation const& tilingInformation) {
     // Collect all objects
     std::vector<Core::RenderObject*> toReinsert;
     for (auto& batches : std::views::values(ObjectContainer)) {
@@ -195,7 +194,7 @@ void RenderObjectContainer::reinsertAllObjects(uint16_t const& dispResX, uint16_
 
     // Reinsert
     for (auto const& ptr : toReinsert) {
-        append(ptr, dispResX, dispResY);
+        append(ptr, tilingInformation);
     }
 }
 
@@ -239,13 +238,11 @@ RenderObjectContainer::ContainerInfo RenderObjectContainer::getContainerInfo() c
     return info;
 }
 
-// TODO: move to container, use a TilingInformation struct that holds the w/h of each tile
-//       refactor all code using dispRes as tiling generator, e.g. the RendererProcessor class!
-TileCoordinate RenderObjectContainer::getTilePos(Core::RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
-    auto [x, y] = toAppend->getPosition();
-    auto const correspondingTilePositionX = static_cast<int16_t>(x / static_cast<double>(displayResolutionX));
-    auto const correspondingTilePositionY = static_cast<int16_t>(y / static_cast<double>(displayResolutionY));
-    return {correspondingTilePositionX, correspondingTilePositionY};
+TileCoordinate RenderObjectContainer::getTilePos(Core::RenderObject::Position const& pos, TilingInformation const& tilingInformation) {
+    return {
+        static_cast<int16_t>(pos.x / static_cast<double>(tilingInformation.w)),
+        static_cast<int16_t>(pos.y / static_cast<double>(tilingInformation.h))
+    };
 }
 
 } // namespace Nebulite::Core

@@ -292,14 +292,14 @@ public:
      *        The position to check for tile position is considered to be the top left corner of the screen.
      * @return The current tile position of the camera in the X direction.
      */
-    [[nodiscard]] int16_t getTilePositionX() const noexcept { return tilePositionX; }
+    [[nodiscard]] int16_t getTilePositionX() const noexcept { return cameraTilePosition.x; }
 
     /**
      * @brief Gets the current tile position of the camera in the Y direction.
      *        The position to check for tile position is considered to be the top left corner of the screen.
      * @return The current tile position of the camera in the Y direction.
      */
-    [[nodiscard]] int16_t getTilePositionY() const noexcept { return tilePositionY; }
+    [[nodiscard]] int16_t getTilePositionY() const noexcept { return cameraTilePosition.y; }
 
     /**
      * @brief Gets the SDL_Renderer instance.
@@ -423,6 +423,15 @@ public:
         postRenderCallback.emplace_back(function);
     }
 
+    //------------------------------------------
+    // Viewport
+
+    std::vector<Data::TileCoordinate> visibleTiles() const ;
+
+    Data::TilingInformation tilingInformation() const ;
+
+    void onViewport(Environment::Layer const& layer, auto&& function);
+
 private:
     /**
      * @brief Called before parsing any commands.
@@ -472,8 +481,7 @@ private:
     std::string baseDirectory;
 
     // Positions
-    int16_t tilePositionX = 0;
-    int16_t tilePositionY = 0;
+    Data::TileCoordinate cameraTilePosition;
 
     // Custom Subclasses
     Environment env;
@@ -483,61 +491,6 @@ private:
     SDL_Window* window{};
 
     SDL_Renderer* renderer{};
-
-    //------------------------------------------
-    // Viewport
-
-    std::vector<Data::TileCoordinate> visibleTiles() const {
-        std::vector<Data::TileCoordinate> tiles;
-
-        // For now, we render everything in a 3x3 grid
-
-        // [P] - Tile with Player
-        // [#] - loaded Tiles
-        // [ ] - inactive Tiles
-        //
-        // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-        // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-        // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-        // [ ][ ][ ][#][#][#][ ][ ][ ]
-        // [ ][ ][ ][#][P][#][ ][ ][ ]
-        // [ ][ ][ ][#][#][#][ ][ ][ ]
-        // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-        // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-        // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-        //
-        // NOTE:
-        // Later on it may be better to use a fixed tile size and load enough to cover the screen, + maybe 1-2 tiles extra on each side.
-        // Or, perhaps even better, use a fixed tile size + a fixed loading radius around the player position.
-        // This, however, requires the renderer to determine a maximum resolution beforehand based on the radius.
-        // Meaning it has to discard any requested resolution that is too high for the radius.
-        // Note that we cannot directly use the maximum tile radius, as for some positions it may be smaller!
-        // So we should subtract at least one tile, perhaps even two to be safe.
-        // Or we go the actual good way and do the math to determine hMax/wMax based on the radius and tile size.
-
-        tiles.reserve(9); // small fixed neighborhood
-        for (std::array<int16_t,3> constexpr pm1 = {-1,0, 1}; int16_t const& dX : pm1) {
-            for (int16_t const& dY : pm1) {
-                tiles.push_back(
-                    Data::TileCoordinate(
-                        static_cast<int16_t>(tilePositionX + dX),
-                        static_cast<int16_t>(tilePositionY + dY)
-                    )
-                );
-            }
-        }
-        return tiles;
-    }
-
-    void onViewport(Environment::Layer const& layer, auto&& function) {
-        for (auto const& tile : env.viewport(visibleTiles(), layer)) {
-            for (auto& [objects, _] : *tile) {
-                for (auto& obj : objects) {
-                    function(obj);
-                }
-            }
-        }
-    }
 
     //------------------------------------------
     // Pipeline: Software / General
@@ -562,7 +515,6 @@ private:
 
     // Functions to execute after a full render pass
     std::vector<std::function<void()>> postRenderCallback;
-
 
     //------------------------------------------
     // For FPS Count and Control

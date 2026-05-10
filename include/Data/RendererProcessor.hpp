@@ -12,7 +12,7 @@
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
-#include "Data/TileCoordinate.hpp"
+#include "Data/Tiling.hpp"
 #include "Utility/Coordination/WorkDispatcher.hpp"
 
 //------------------------------------------
@@ -133,8 +133,7 @@ public:
      */
     struct DispatcherWorkspace {
         std::vector<Batch*> work;
-        uint16_t dispResX; // TODO: use tilingInformation struct instead
-        uint16_t dispResY; // TODO: use tilingInformation struct instead
+        TilingInformation tilingInformation;
         TileCoordinate pos;
         ReinsertionProcess* reinsertionProcess;
         DeletionProcess* deletionProcess;

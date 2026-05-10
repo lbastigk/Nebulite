@@ -4,10 +4,16 @@
 // Includes
 
 // Standard library
+#include <cstdint>
 #include <utility>
 
 //------------------------------------------
 namespace Nebulite::Data {
+
+struct TilingInformation {
+    std::uint16_t w;
+    std::uint16_t h;
+};
 
 struct TileCoordinate {
     std::int16_t x;

@@ -59,7 +59,7 @@ std::string Environment::serialize() {
     return doc.serialize();
 }
 
-void Environment::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY) {
+void Environment::deserialize(std::string const& serialOrLink, Data::TilingInformation const& tilingInformation) {
     Data::JSON file;
     file.deserialize(serialOrLink);
 
@@ -74,7 +74,7 @@ void Environment::deserialize(std::string const& serialOrLink, uint16_t const& d
             std::string str = layer.serialize();
 
             // Serialize container layer
-            roc[i].deserialize(str, dispResX, dispResY, capture);
+            roc[i].deserialize(str, tilingInformation, capture);
         }
     }
     reinitModules();
@@ -83,24 +83,24 @@ void Environment::deserialize(std::string const& serialOrLink, uint16_t const& d
 //------------------------------------------
 // Object Management
 
-void Environment::append(RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY, uint8_t const& layer) {
+void Environment::append(RenderObject* toAppend, Data::TilingInformation const& tilingInformation, uint8_t const& layer) {
     if (layer < allLayers.size()) {
-        roc[layer].append(toAppend, dispResX, dispResY);
+        roc[layer].append(toAppend, tilingInformation);
     } else {
-        roc[0].append(toAppend, dispResX, dispResY);
+        roc[0].append(toAppend, tilingInformation);
     }
 }
 
-void Environment::updateObjects(std::vector<Data::TileCoordinate> const& tiles, uint16_t const& dispResX, uint16_t const& dispResY, Data::RendererProcessor const& rendererProcessor) {
+void Environment::updateObjects(std::vector<Data::TileCoordinate> const& tiles, Data::TilingInformation const& tilingInformation, Data::RendererProcessor const& rendererProcessor) {
     for (unsigned int i = 0; i < allLayers.size(); i++) {
         rendererProcessor.prepareForNewLayer(&roc[i]);
-        roc[i].update(tiles, dispResX, dispResY, rendererProcessor);
+        roc[i].update(tiles, tilingInformation, rendererProcessor);
     }
 }
 
-void Environment::reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY) {
+void Environment::reinsertAllObjects(Data::TilingInformation const& tilingInformation) {
     for (unsigned int i = 0; i < allLayers.size(); i++) {
-        roc[i].reinsertAllObjects(dispResX, dispResY);
+        roc[i].reinsertAllObjects(tilingInformation);
     }
 }
 

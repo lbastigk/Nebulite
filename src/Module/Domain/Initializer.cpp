@@ -46,6 +46,7 @@
 #include "Module/Domain/Renderer/Audio.hpp"
 #include "Module/Domain/Renderer/Console.hpp"
 #include "Module/Domain/Renderer/General.hpp"
+#include "Module/Domain/Renderer/Grid.hpp"
 #include "Module/Domain/Renderer/Input.hpp"
 #include "Module/Domain/Renderer/RenderObjectDraft.hpp"
 #include "Module/Domain/Renderer/RmlUi.hpp"
@@ -240,6 +241,11 @@ void Initializer::initRenderer(Core::Renderer* target) {
     );
     target->initModule<Core::Renderer, Input>(
         "Renderer Input Functions",
+        Global::settings(),
+        *target
+    );
+    target->initModule<Core::Renderer, Grid>(
+        "Renderer Grid Functions",
         Global::settings(),
         *target
     );

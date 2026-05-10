@@ -13,7 +13,9 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
+#include "Core/RenderObject.hpp"
 #include "Data/RendererProcessor.hpp"
+#include "Data/Tiling.hpp"
 #include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
@@ -65,11 +67,10 @@ public:
     /**
      * @brief Deserializes the RenderObjectContainer from a JSON string.
      * @param serialOrLink JSON string representation of the container, or link to a json/jsonc file.
-     * @param dispResX Display resolution width for tile initialization.
-     * @param dispResY Display resolution height for tile initialization.
+     * @param tilingInformation Width and height of each tile
      * @param capture Capture instance to pass to RenderObjects during construction.
      */
-    void deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY, Utility::IO::Capture& capture);
+    void deserialize(std::string const& serialOrLink, TilingInformation const& tilingInformation, Utility::IO::Capture& capture);
 
     //------------------------------------------
     // Pipeline
@@ -78,19 +79,17 @@ public:
      * @brief Appends a RenderObject to the container.
      *        Places it in the appropriate tile and batches it through cost-estimation.
      * @param toAppend Pointer to the RenderObject to append.
-     * @param dispResX Display resolution width for tile placement.
-     * @param dispResY Display resolution height for tile placement.
+     * @param tilingInformation Width and height of each tile
      */
-    void append(Core::RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY);
+    void append(Core::RenderObject* toAppend, TilingInformation const& tilingInformation);
 
     /**
      * @brief Reinserts all objects into the container.
      *        Placing them in the appropriate tile and batch.
      *        Needed for re-evaluating their positions after a resize of the display.
-     * @param dispResX Display resolution width for tile placement.
-     * @param dispResY Display resolution height for tile placement.
+     * @param tilingInformation Width and height of each tile
      */
-    void reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY);
+    void reinsertAllObjects(TilingInformation const& tilingInformation);
 
     /**
      * @brief Checks if the given tile position is valid; contains objects.
@@ -119,11 +118,10 @@ public:
      *        that are currently within the specified tile viewport. It takes into account the
      *        display resolution for potential re-insertions.
      * @param tiles The vector of tile coordinates that are currently within the viewport and need to be updated.
-     * @param dispResX The display resolution width. Needed for potential re-insertion.
-     * @param dispResY The display resolution height. Needed for potential re-insertion.
+     * @param tilingInformation Width and height of each tile
      * @param rendererProcessor The RendererProcessor instance to use for parallel processing of batches.
      */
-    void update(std::vector<TileCoordinate> const& tiles, uint16_t const& dispResX, uint16_t const& dispResY, RendererProcessor const& rendererProcessor);
+    void update(std::vector<TileCoordinate> const& tiles, TilingInformation const& tilingInformation, RendererProcessor const& rendererProcessor);
 
     /**
      * @brief Gets the vector of batches at the specified tile position.
@@ -157,12 +155,11 @@ public:
 
     /**
      * @brief Calculates the corresponding tile position for a given RenderObject based on its coordinates and the display resolution.
-     * @param toAppend Pointer to the RenderObject for which to calculate the tile position.
-     * @param displayResolutionX The display resolution width, used to determine the tile size and position.
-     * @param displayResolutionY The display resolution height, used to determine the tile size and position.
+     * @param pos The position of the RenderObject
+     * @param tilingInformation The tiling size
      * @return A pair of int16_t representing the tile position (tileX, tileY) corresponding to the RenderObject's coordinates.
      */
-    static TileCoordinate getTilePos(Core::RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY);
+    static TileCoordinate getTilePos(Core::RenderObject::Position const& pos, TilingInformation const& tilingInformation);
 
     /**
      * @brief Process for reinserting objects after they have been moved.
