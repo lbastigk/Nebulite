@@ -351,19 +351,16 @@ The expressions given are evaluated in the context of
 - the listening object (`other`)
 - the global engine state (`global`)
 
-Note that the vector `exprs` holds assignments as
-`<context>.<key> <assignment-operator> <expression>`,
+Note that the vector `assign` holds assignments as
+`<context>:<key> <assignment-operator> <expression>`,
 which modify values in their respective JSON documents.
-Currently, all assignment operators support only numerical or string values.
-Complex types (arrays, objects) cannot be assigned or modified via expressions,
-only overwritten by numerical or string literals.
 Supported assignment operators:
-- `=`  : direct assignment (cast to either double or string, depending on expression)
+- `=`  : direct assignment (is able to store any JSON type, no casting)
 - `+=` : addition assignment (cast to double)
 - `*=` : multiplication assignment (cast to double)
 - `|=` : Concatenation assignment (cast to string)
 
-The function calls are parsed and executed in their respective context after expression evaluation.
+The function calls are executed in their respective context after expression evaluation.
 
 <!-- TOC --><a name="gui"></a>
 ### GUI
