@@ -21,7 +21,8 @@
 
 // Nebulite
 #include "Interaction/Execution/FuncTreeErrorMessages.hpp"
-#include "Utility/IO/Capture.hpp"  // Due to circular dependencies, we use Capture for logging instead of Nebulite.hpp that we use as constructor argument for the FuncTree to use
+#include "Utility/FunctionIdentity.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
@@ -86,76 +87,12 @@ public:
     >;
 
     /**
-     * @brief A unique identity to any FunctionPtr, allowing for comparison of function pointers to check if the same function (from the same location in memory)
-     *        is being bound again
-     */
-    struct FunctionIdentity {
-        void const* object = nullptr; // nullptr for free/static functions
-        std::array<std::byte, sizeof(void*) * 2> function{}; // stores function pointer bits
-
-        // Equality
-        bool operator==(FunctionIdentity const& other) const {
-            return object == other.object &&
-                   std::memcmp(function.data(), other.function.data(), function.size()) == 0;
-        }
-
-        // Check if Fn is of the correct type
-
-        // --- Constructors ---
-
-        // Free/static function
-        template<typename Fn>
-        //requires std::is_pointer_v<Fn> && std::is_function_v<std::remove_pointer_t<Fn>>
-        explicit FunctionIdentity(Fn fn) {
-            // Lambdas / closures are class types
-            static_assert(!std::is_class_v<Fn>,
-                "Lambdas and functors are not allowed. Extracting a pointer from them is not portable and may lead to collisions. Use a raw function pointer instead."
-            );
-
-            // std::function is not allowed
-            static_assert(!std::is_same_v<std::remove_cv_t<std::remove_reference_t<Fn>>, std::function<void()>>,
-                "std::function objects are not allowed. Use a raw function pointer instead."
-            );
-
-            // Must be a raw function pointer
-            static_assert(std::is_pointer_v<Fn> && std::is_function_v<std::remove_pointer_t<Fn>>,
-                "Only raw function pointers are allowed."
-            );
-
-            // Ensure the function fits in storage
-            static_assert(sizeof(function) >= sizeof(fn),
-                "Function too large to store in FunctionIdentity buffer. Please increase buffer size in FunctionIdentity::function."
-            );
-            std::memcpy(function.data(), &fn, sizeof(fn));
-        }
-
-        // Member function + object
-        template<typename Obj, typename MemFn>
-        explicit FunctionIdentity(Obj* obj, MemFn memFn) : object(obj) {
-            // Ensure the passed obj is not a nullptr
-            // As we use "this" inside the constructor of FuncTree to bind functions like "help" and "__complete__", this somehow fails...
-            if (obj == nullptr) {
-                throw std::invalid_argument(
-                    "Object pointer cannot be nullptr for member function pointers. "
-                    "Please use the free/static function constructor for improved safety."
-                );
-            }
-
-            // Ensure the function fits in storage
-            static_assert(sizeof(function) >= sizeof(memFn),
-                "Function too large to store in FunctionIdentity buffer. Please increase buffer size in FunctionIdentity::function."
-            );
-            std::memcpy(function.data(), &memFn, sizeof(memFn));
-        }
-    };
-
-    /**
      * @struct WrappedFunction
      * @brief Wraps a FunctionPtr with its identity for comparison purposes.
      */
     struct WrappedFunction {
         FunctionPtr function;
-        FunctionIdentity identity;
+        Utility::FunctionIdentity identity;
     };
 
     //------------------------------------------
@@ -465,7 +402,7 @@ private:
                 }
 
                 // Print error if not found
-                if (!found) ExecutionErrorMessage::unknownVariable(TreeName, name);
+                if (!found) ExecutionErrorMessage::unknownVariable(capture, TreeName, name);
 
                 // Remove first arg
                 args = args.subspan(1);
