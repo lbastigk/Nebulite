@@ -93,10 +93,9 @@ public:
      * @details The deserialized JSON string is expected to have the same structure as the serialized format.
      *          See `serialize()` for more details.
      * @param serialOrLink The JSON string to deserialize or a link to the JSON file.
-     * @param dispResX Display resolution width. Necessary to position the object correctly in its tile-based container.
-     * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
+     * @param tilingInformation Width and height of each tile
      */
-    void deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY);
+    void deserialize(std::string const& serialOrLink, Data::TilingInformation const& tilingInformation);
 
     //------------------------------------------
     // Object Management
@@ -104,29 +103,25 @@ public:
     /**
      * @brief Appends a new RenderObject to the specified layer of the environment.
      * @param toAppend Pointer to the RenderObject to append.
-     * @param dispResX Display resolution width. Necessary to position the object correctly in its tile-based container.
-     * @param dispResY Display resolution height. Necessary to position the object correctly in its tile-based container.
+     * @param tilingInformation Width and height of each tile
      * @param layer Layer index to append the object to (default is 0).
      */
-    void append(RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY, uint8_t const& layer = 0);
+    void append(RenderObject* toAppend, Data::TilingInformation const& tilingInformation, uint8_t const& layer = 0);
 
     /**
      * @brief Updates the environment's state.
-     * @param tilePositionX current camera tile position in the X direction.
-     * @param tilePositionY current camera tile position in the Y direction.
-     * @param dispResX display resolution width. Necessary for potential RenderObject reinsertions.
-     * @param dispResY display resolution height. Necessary for potential RenderObject reinsertions.
+     * @param tiles The tiles to update
+     * @param tilingInformation Width and height of each tile
      * @param rendererProcessor the RendererProcessor instance to use for parallel processing of batches.
      */
-    void updateObjects(int16_t const& tilePositionX, int16_t const& tilePositionY, uint16_t const& dispResX, uint16_t const& dispResY, Data::RendererProcessor const& rendererProcessor);
+    void updateObjects(std::vector<Data::TileCoordinate> const& tiles, Data::TilingInformation const& tilingInformation, Data::RendererProcessor const& rendererProcessor);
 
     /**
      * @brief Rebuilds the Container structure.
      * @details Responsible for reinserting all render objects into their respective containers.
-     * @param dispResX Display resolution width. Necessary for positioning the objects correctly in their tile-based containers.
-     * @param dispResY Display resolution height. Necessary for positioning the objects correctly in their tile-based containers.
+     * @param tilingInformation Width and height of each tile
      */
-    void reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY);
+    void reinsertAllObjects(Data::TilingInformation const& tilingInformation);
 
     /**
      * @brief Retrieves a RenderObject by its ID.
@@ -140,21 +135,19 @@ public:
 
     /**
      * @brief Retrieves the RenderObjectContainer at the specified position and layer.
-     * @param x The X coordinate of the tile.
-     * @param y The Y coordinate of the tile.
+     * @param pos The tile position
      * @param layer The layer index.
      * @return A reference to the RenderObjectContainer at the specified position and layer: A vector of batched RenderObjects.
      */
-    std::vector<Data::Batch>& getContainerAt(int16_t x, int16_t y, Layer layer);
+    std::vector<Data::Batch>& getContainerAt(Data::TileCoordinate const& pos, Layer layer);
 
     /**
      * @brief Checks if the specified position and layer are valid, meaning they are within the bounds of the environment.
-     * @param x The X coordinate of the tile.
-     * @param y The Y coordinate of the tile.
+     * @param pos The tile position
      * @param layer The layer index.
      * @return True if the position and layer are valid, false otherwise.
      */
-    bool isValidPosition(int x, int y, Layer layer);
+    [[nodiscard]] bool isValidPosition(Data::TileCoordinate const& pos, Layer layer) const ;
 
     /**
      * @brief Purges all objects from the environment by placing them in the deletion process.
@@ -166,6 +159,30 @@ public:
      * @return The total number of render objects in the environment.
      */
     [[nodiscard]] size_t getObjectCount() const;
+
+    /**
+     * @brief Iterate over all layers, providing access to the tile position, layer, and batches of render objects in each container.
+     * @param function iterator function
+     */
+    void containerIteration(Data::RenderObjectContainer::IteratorFunction<Layer> const& function) {
+        for (auto const [index, container] : roc | std::views::enumerate) {
+            container.containerIteration(function, static_cast<Layer>(index));
+        }
+    }
+
+    //------------------------------------------
+    // Viewport
+
+    auto viewport(std::vector<Data::TileCoordinate> const& visibleTiles, Layer const& layer) {
+        std::vector<std::vector<Data::Batch>*> result;
+        result.reserve(visibleTiles.size());
+        for (auto const& tile: visibleTiles) {
+            if (isValidPosition(tile, layer)) {
+                result.push_back(&getContainerAt(tile, layer));
+            }
+        }
+        return result;
+    }
 
 private:
     // All layers in rendering order

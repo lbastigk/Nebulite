@@ -48,8 +48,8 @@ std::string Environment::serialize() {
 
     // Serialize each container and add to the document
     for (unsigned int i = 0; i < allLayers.size(); i++) {
-        std::string key = "containerLayer" + std::to_string(i);
-        std::string serializedContainer = roc[i].serialize();
+        std::string const key = "containerLayer" + std::to_string(i);
+        std::string const serializedContainer = roc[i].serialize();
 
         // Add the container JSON object to the main document
         Data::JSON layer;
@@ -59,22 +59,22 @@ std::string Environment::serialize() {
     return doc.serialize();
 }
 
-void Environment::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY) {
+void Environment::deserialize(std::string const& serialOrLink, Data::TilingInformation const& tilingInformation) {
     Data::JSON file;
     file.deserialize(serialOrLink);
 
     // Getting all layers
     for (unsigned int i = 0; i < allLayers.size(); i++) {
         // Check if the key exists in the document
-        if (std::string key = "containerLayer" + std::to_string(i); file.memberType(key) != Data::KeyType::null) {
+        if (std::string const key = "containerLayer" + std::to_string(i); file.memberType(key) != Data::KeyType::null) {
             // Extract the value corresponding to the key
-            Data::JSON layer = file.getSubDoc(key);
+            Data::JSON const layer = file.getSubDoc(key);
 
             // Convert the JSON object to a pretty-printed string
-            std::string str = layer.serialize();
+            std::string const str = layer.serialize();
 
             // Serialize container layer
-            roc[i].deserialize(str, dispResX, dispResY, capture);
+            roc[i].deserialize(str, tilingInformation, capture);
         }
     }
     reinitModules();
@@ -83,31 +83,31 @@ void Environment::deserialize(std::string const& serialOrLink, uint16_t const& d
 //------------------------------------------
 // Object Management
 
-void Environment::append(RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY, uint8_t const& layer) {
+void Environment::append(RenderObject* toAppend, Data::TilingInformation const& tilingInformation, uint8_t const& layer) {
     if (layer < allLayers.size()) {
-        roc[layer].append(toAppend, dispResX, dispResY);
+        roc[layer].append(toAppend, tilingInformation);
     } else {
-        roc[0].append(toAppend, dispResX, dispResY);
+        roc[0].append(toAppend, tilingInformation);
     }
 }
 
-void Environment::updateObjects(int16_t const& tilePositionX, int16_t const& tilePositionY, uint16_t const& dispResX, uint16_t const& dispResY, Data::RendererProcessor const& rendererProcessor) {
+void Environment::updateObjects(std::vector<Data::TileCoordinate> const& tiles, Data::TilingInformation const& tilingInformation, Data::RendererProcessor const& rendererProcessor) {
     for (unsigned int i = 0; i < allLayers.size(); i++) {
         rendererProcessor.prepareForNewLayer(&roc[i]);
-        roc[i].update(tilePositionX, tilePositionY, dispResX, dispResY, rendererProcessor);
+        roc[i].update(tiles, tilingInformation, rendererProcessor);
     }
 }
 
-void Environment::reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY) {
+void Environment::reinsertAllObjects(Data::TilingInformation const& tilingInformation) {
     for (unsigned int i = 0; i < allLayers.size(); i++) {
-        roc[i].reinsertAllObjects(dispResX, dispResY);
+        roc[i].reinsertAllObjects(tilingInformation);
     }
 }
 
 RenderObject* Environment::getObjectFromId(size_t const& domainId) {
     // Go through all layers
     for (unsigned int i = 0; i < allLayers.size(); ++i) {
-        if (auto const obj = roc[i].getObjectFromId(domainId); obj != nullptr) {
+        if (auto* const obj = roc[i].getObjectFromId(domainId); obj != nullptr) {
             return obj;
         }
     }
@@ -117,16 +117,14 @@ RenderObject* Environment::getObjectFromId(size_t const& domainId) {
 //------------------------------------------
 // Container Management
 
-std::vector<Data::Batch>& Environment::getContainerAt(int16_t x, int16_t y, Layer layer) {
-    auto const pos = std::make_pair(x, y);
+std::vector<Data::Batch>& Environment::getContainerAt(Data::TileCoordinate const& pos, Layer layer) {
     if (static_cast<uint8_t>(layer) < allLayers.size()) {
         return roc[static_cast<uint8_t>(layer)].getContainerAt(pos);
     }
     return roc[0].getContainerAt(pos);
 }
 
-bool Environment::isValidPosition(int x, int y, Layer layer) {
-    auto const pos = std::make_pair(x, y);
+bool Environment::isValidPosition(Data::TileCoordinate const& pos, Layer layer) const {
     if (static_cast<uint8_t>(layer) < allLayers.size()) {
         return roc[static_cast<uint8_t>(layer)].isValidPosition(pos);
     }

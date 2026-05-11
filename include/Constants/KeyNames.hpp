@@ -41,8 +41,8 @@ struct KeyNames {
      * @details The scope is set to "renderer.", meaning the entire renderer lives inside this scope of the GlobalSpace.
      */
     struct Renderer : Data::KeyGroup<"renderer."> {
-        static auto constexpr dispResX = makeScoped("resolution.X");
-        static auto constexpr dispResY = makeScoped("resolution.Y");
+        static auto constexpr dispResXWindow = makeScoped("resolution.window.X");
+        static auto constexpr dispResYWindow = makeScoped("resolution.window.Y");
         static auto constexpr dispResXLogical = makeScoped("resolution.logical.X");
         static auto constexpr dispResYLogical = makeScoped("resolution.logical.Y");
         static auto constexpr positionX = makeScoped("position.X");

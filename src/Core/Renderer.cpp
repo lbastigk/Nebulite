@@ -5,14 +5,14 @@
 #include <random>
 
 // External
+#include <SDL3_image/SDL_image.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
-#include <SDL3_image/SDL_image.h>
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "Core/Renderer.hpp"
 #include "Core/RenderObject.hpp"
+#include "Core/Renderer.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
 #include "Module/Domain/Initializer.hpp"
@@ -32,11 +32,15 @@ double fontSize(auto const fontSizeKey, double defaultValue) {
 
 Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::IO::Capture& parentCapture) :
     Domain("Renderer", documentReference, parentCapture),
+    headless(flag_headless),
     env(documentReference, parentCapture){
     //------------------------------------------
     // Initialize internal variables
-    headless = flag_headless;
     baseDirectory = Utility::IO::FileManagement::currentDir();
+
+    //------------------------------------------
+    // Inherit
+    inherit(&env);
 
     //------------------------------------------
     // Start timers
@@ -75,8 +79,8 @@ void Renderer::setupDisplayValues() {
     fps.target = Global::settings().get<uint16_t>(Module::Domain::GlobalSpace::Settings::Key::targetFPS).value_or(60);
 
     // Set in workspace
-    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResX, X*windowScale);
-    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResY, Y*windowScale);
+    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResXWindow, X*windowScale);
+    domainScope.set<unsigned int>(Constants::KeyNames::Renderer::dispResYWindow, Y*windowScale);
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResXLogical, X);
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResYLogical, Y);
 
@@ -136,7 +140,7 @@ void Renderer::initImgui() {
     auto constexpr border  = ImVec4(0.18f, 0.20f, 0.22f, 1.00f);
     auto constexpr button  = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
 
-    ImVec4* colors = style.Colors;
+    auto* colors = style.Colors;
     colors[ImGuiCol_Text]                  = textCol;
     colors[ImGuiCol_WindowBg]              = layer0;
     colors[ImGuiCol_ChildBg]               = layer1;
@@ -210,8 +214,8 @@ void Renderer::initSDL() {
         std::abort();
     }
     // Define window via x|y|w|h
-    int const w = domainScope.get<int>(Constants::KeyNames::Renderer::dispResX).value_or(0);
-    int const h = domainScope.get<int>(Constants::KeyNames::Renderer::dispResY).value_or(0);
+    int const w = domainScope.get<int>(Constants::KeyNames::Renderer::dispResXWindow).value_or(0);
+    int const h = domainScope.get<int>(Constants::KeyNames::Renderer::dispResYWindow).value_or(0);
 
     //------------------------------------------
     // Window and renderer
@@ -228,11 +232,7 @@ void Renderer::initSDL() {
     //------------------------------------------
     // UI
     initImgui();
-    Graphics::RmlInterface::instance().init(
-        *this,
-        domainScope.get<int>(Constants::KeyNames::Renderer::dispResX).value_or(800),
-        domainScope.get<int>(Constants::KeyNames::Renderer::dispResY).value_or(600)
-    );
+    Graphics::RmlInterface::instance().init(*this,w,h);
 
     //------------------------------------------
     // Cursor
@@ -300,14 +300,6 @@ void Renderer::loadFonts() {
 //------------------------------------------
 // Getting
 
-int Renderer::getResX() const { return domainScope.get<int>(Constants::KeyNames::Renderer::dispResX).value_or(0); }
-
-int Renderer::getResY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::dispResY).value_or(0); }
-
-int Renderer::getPosX() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionX).value_or(0); }
-
-int Renderer::getPosY() const { return domainScope.get<int>(Constants::KeyNames::Renderer::positionY).value_or(0); }
-
 std::optional<size_t> Renderer::getIdFromIndex(size_t const& index) const {
     if (!indexToIdMap.contains(index)) {
         return std::nullopt; // No object with this index
@@ -329,7 +321,7 @@ std::optional<std::pair<RenderObject*, Data::JsonScope*>> Renderer::getObjectFro
         return std::nullopt; // No object with this index
     }
     auto const domainId = indexToIdMap[searchIndex];
-    if (auto ro = env.getObjectFromId(domainId); ro) {
+    if (auto* ro = env.getObjectFromId(domainId); ro) {
         return std::make_pair(ro, &ro->domainScope);
     }
     return std::nullopt; // Object retrieval failed somehow
@@ -348,9 +340,63 @@ std::string Renderer::serialize() {
 void Renderer::deserialize(std::string const& serialOrLink) noexcept {
     env.deserialize(
         serialOrLink,
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0)
+        tilingInformation()
     );
+}
+
+//------------------------------------------
+// Viewport
+
+std::vector<Data::TileCoordinate> Renderer::visibleTiles() const {
+    auto getTileCount = [&]() -> std::pair<int, int> {
+        auto const w = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0);
+        auto const h = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0);
+
+        switch (viewSetting) {
+        case ViewSetting::high: return {
+            w / tilingInformation().w + 1,
+            h / tilingInformation().h + 1
+        };
+        case ViewSetting::low: return {
+            w/4 / tilingInformation().w + 1,
+            h/4 / tilingInformation().h + 1
+        };
+        case ViewSetting::lowest:
+            return {1,1};
+        default:
+            std::unreachable();
+        }
+    };
+
+    auto [wCount, hCount] = getTileCount();
+
+    std::vector<Data::TileCoordinate> tiles;
+    tiles.reserve(static_cast<size_t>(wCount)*static_cast<size_t>(hCount)*4u); // small fixed neighborhood
+    for (auto const dX : std::views::iota(-wCount, wCount+1)) {
+        for (auto const dY : std::views::iota(-hCount, hCount+1)) {
+            tiles.emplace_back(
+                static_cast<int16_t>(cameraTilePosition.x + dX),
+                static_cast<int16_t>(cameraTilePosition.y + dY)
+            );
+        }
+    }
+    return tiles;
+}
+
+void Renderer::onViewport(Environment::Layer const& layer, auto&& function) {
+    for (auto const& tile : env.viewport(visibleTiles(), layer)) {
+        for (auto& [objects, _] : *tile) {
+            for (auto& obj : objects) {
+                function(obj);
+            }
+        }
+    }
+}
+
+Data::TilingInformation Renderer::tilingInformation() {
+    // If we ever decide to make the tiles depend on the resolution,
+    // we must re-activate reinsertion of all objects on resolution change!
+    return {.w=128, .h=128};
 }
 
 //------------------------------------------
@@ -477,10 +523,8 @@ Constants::Event Renderer::update() {
         // Update environment
         Global::instance().notifyEvent(env.update());
         env.updateObjects(
-            tilePositionX,
-            tilePositionY,
-            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
-            domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0),
+            visibleTiles(),
+            tilingInformation(),
             rendererProcessor
         );
     }
@@ -500,7 +544,7 @@ bool Renderer::timeToRender() {
     // set target to 16, remainder = 0.67
     // so do 16 for 67% of the time, and 17 for 33% of the time
     static std::uniform_real_distribution distribution(0.0, 1.0);
-    static std::hash<std::string> hashString;
+    static constexpr std::hash<std::string> hashString;
     static std::mt19937 randNum(hashString("RNG for FPS control"));
 
     double const target = 1000.0 / static_cast<double>(fps.target);
@@ -517,17 +561,39 @@ void Renderer::append(RenderObject* toAppend) {
     // Append to environment, based on layer
     env.append(
         toAppend,
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
-        domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0),
+        tilingInformation(),
         toAppend->domainScope.get<uint8_t>(Constants::KeyNames::RenderObject::layer).value_or(0)
     );
 }
 
 void Renderer::reinsertAllObjects() {
-    env.reinsertAllObjects(
-    domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0),
-    domainScope.get<uint16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0)
-    );
+    env.reinsertAllObjects(tilingInformation());
+}
+
+//------------------------------------------
+// Texture Management
+
+bool Renderer::attachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name, SDL_Texture* texture, std::optional<SDL_FRect> rect) {
+    if (texture == nullptr) {
+        return false; // Cannot attach a null texture
+    }
+    if (BetweenLayerTextures[aboveThisLayer].contains(name)) {
+        return false; // Texture with this name already exists in the specified layer
+    }
+    BetweenLayerTextures[aboveThisLayer][name] = std::make_pair(texture, rect);
+    return true;
+}
+
+bool Renderer::detachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name) {
+    if (BetweenLayerTextures[aboveThisLayer].contains(name)) {
+        BetweenLayerTextures[aboveThisLayer].erase(name);
+        return true;
+    }
+    return false;
+}
+
+void Renderer::detachAllTextures() {
+    BetweenLayerTextures.clear();
 }
 
 //------------------------------------------
@@ -563,7 +629,24 @@ void Renderer::destroy() {
 }
 
 //------------------------------------------
-// Manipulation
+// Setting
+
+void Renderer::setTargetFPS(uint16_t const& targetFps) {
+    fps.target = targetFps;
+}
+
+namespace {
+
+template <typename T>
+struct is_static_member_function
+    : std::bool_constant<
+        std::is_function_v<std::remove_pointer_t<T>>
+      > {};
+
+template <typename T>
+inline constexpr bool is_static_member_function_v = is_static_member_function<T>::value;
+
+} // namespace
 
 // This does not change the settings file, only the current session
 void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scalar) {
@@ -585,8 +668,8 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
     windowScale = scalar;
 
     // Set the new resolution in the workspace
-    domainScope.set<int>(Constants::KeyNames::Renderer::dispResX, w * windowScale);
-    domainScope.set<int>(Constants::KeyNames::Renderer::dispResY, h * windowScale);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResXWindow, w * windowScale);
+    domainScope.set<int>(Constants::KeyNames::Renderer::dispResYWindow, h * windowScale);
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResXLogical, w);
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResYLogical, h);
     domainScope.set<uint8_t>(Constants::KeyNames::Renderer::windowScale, windowScale);
@@ -597,9 +680,25 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
     // Rescale rml context
     Graphics::RmlInterface::instance().setDimensions(w * windowScale, h * windowScale);
 
-    // Reinsert objects
-    // TODO: Once fixed tiles are implemented, this isn't needed anymore
-    reinsertAllObjects();
+    // We assume that the tiling information is based on renderer states such as resolution,
+    // if it's not static. If that is the case, we must reinsert all objects to redistribute
+    // on resolution change
+    if constexpr (!is_static_member_function_v<decltype(&Renderer::tilingInformation)>) {
+        // Unreachable code if it's static, so we use a NOLINTNEXTLINE to suppress the warning
+        // NOLINTNEXTLINE
+        reinsertAllObjects();
+    }
+}
+
+void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle) const {
+    int newPosX = X;
+    int newPosY = Y;
+    if (isMiddle) {
+        newPosX -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0) / 2;
+        newPosY -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0) / 2;
+    }
+    domainScope.set<int>(Constants::KeyNames::Renderer::positionX, newPosX);
+    domainScope.set<int>(Constants::KeyNames::Renderer::positionY, newPosY);
 }
 
 void Renderer::moveCam(int const& dX, int const& dY) const {
@@ -613,22 +712,14 @@ void Renderer::moveCam(int const& dX, int const& dY) const {
     );
 }
 
-void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle) const {
-    int newPosX = X;
-    int newPosY = Y;
-    if (isMiddle) {
-        newPosX -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResX).value_or(0) / 2;
-        newPosY -= domainScope.get<int>(Constants::KeyNames::Renderer::dispResY).value_or(0) / 2;
-    }
-    domainScope.set<int>(Constants::KeyNames::Renderer::positionX, newPosX);
-    domainScope.set<int>(Constants::KeyNames::Renderer::positionY, newPosY);
-}
-
-//------------------------------------------
-// Setting
-
-void Renderer::setTargetFPS(uint16_t const& targetFps) {
-    fps.target = targetFps;
+SDL_FRect Renderer::scaleRectFromLogicalSize(SDL_FRect const& logicalRect) const {
+    auto const scale = static_cast<float>(windowScale);
+    return SDL_FRect{
+        .x=logicalRect.x * scale,
+        .y=logicalRect.y * scale,
+        .w=logicalRect.w * scale,
+        .h=logicalRect.h * scale
+    };
 }
 
 //------------------------------------------
@@ -643,15 +734,22 @@ void Renderer::renderFrame() {
     auto const dispPosY = domainScope.get<int16_t>(Constants::KeyNames::Renderer::positionY).value_or(0);
 
     // Depending on position, set tiles to render
-    auto const dispResX = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResX).value_or(0);
-    auto const dispResY = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResY).value_or(0);
-    if (dispResX == 0 || dispResY == 0) {
+    auto const w = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0);
+    auto const h = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0);
+    if (w == 0 || h == 0) {
         // Avoid division by zero
         capture.error.println("Display resolution is zero, cannot render frame.");
         std::abort();
     }
-    tilePositionX = static_cast<int16_t>(dispPosX / dispResX);
-    tilePositionY = static_cast<int16_t>(dispPosY / dispResY);
+
+    // Get tile position of camera center
+    cameraTilePosition = Data::RenderObjectContainer::getTilePos(
+        {
+            .x=dispPosX + w/2,
+            .y=dispPosY + h/2
+        },
+        tilingInformation()
+    );
 
     //------------------------------------------
     // FPS Count and Control
@@ -669,33 +767,17 @@ void Renderer::renderFrame() {
 
     //------------------------------------------
     // Rendering
-    if (renderer) {
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
-    }
+
+    // Black background
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
     //Render Objects
     //For all layers, starting at 0
-    for (auto const& layer : env.getAllLayerTypes()) {
-        // Get all tile positions to render
-        std::vector<std::pair<int16_t, int16_t>> tilesToRender;
-        for (int dX = tilePositionX == 0 ? 0 : -1; dX <= 1; dX++) {
-            for (int dY = tilePositionY == 0 ? 0 : -1; dY <= 1; dY++) {
-                if (env.isValidPosition(tilePositionX + dX, tilePositionY + dY, layer)) {
-                    tilesToRender.emplace_back(tilePositionX + dX, tilePositionY + dY);
-                }
-            }
-        }
-
-        // For all tiles to render
-        for (auto const& [tileX, tileY] : tilesToRender) {
-            // For all batches inside
-            for (auto const& [objectsInThisBatch, _] : env.getContainerAt(tileX, tileY, layer)) {
-                // For all objects in batch
-                for (auto const& obj : objectsInThisBatch) {
-                    renderObjectToScreen(obj, dispPosX, dispPosY);
-                }
-            }
-        }
+    for (auto const& layer : Environment::getAllLayerTypes()) {
+        // Render all objects in the viewport of this layer
+        onViewport(layer, [&](RenderObject* obj) {
+            renderObjectToScreen(obj, dispPosX, dispPosY);
+        });
 
         // Render all textures that were attached from outside processes
         for (auto const& [texture, rect] : std::views::values(BetweenLayerTextures[layer])) {
@@ -703,13 +785,7 @@ void Renderer::renderFrame() {
                 continue; // Skip if texture is null
             }
             // We assume the rect was already scaled correctly when added
-            SDL_FRect const rectF = {
-                static_cast<float>(rect->x),
-                static_cast<float>(rect->y),
-                static_cast<float>(rect->w),
-                static_cast<float>(rect->h)
-            };
-            if (!SDL_RenderTexture(renderer, texture, nullptr, &rectF)) {
+            if (!SDL_RenderTexture(renderer, texture, nullptr, rect.has_value() ? &rect.value() : nullptr)) {
                 capture.error.println("Failed to render between-layer texture: ", SDL_GetError());
             }
         }
@@ -741,7 +817,7 @@ SDL_Texture* Renderer::getTexture(std::string const& link) {
 }
 
 void Renderer::loadTexture(std::string const& link) {
-    if (auto const t = loadTextureToMemory(link); t != nullptr) TextureContainer[link] = t;
+    if (auto* const t = loadTextureToMemory(link); t != nullptr) TextureContainer[link] = t;
 }
 
 SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) {

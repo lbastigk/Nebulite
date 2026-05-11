@@ -54,7 +54,7 @@ public:
 
     //------------------------------------------
     // Printing helpers
-    
+
     /**
      * @brief Prints the provided arguments to the stream and captures them in a list.
      * @tparam Args The types of the arguments to print.

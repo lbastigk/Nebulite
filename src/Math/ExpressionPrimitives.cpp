@@ -14,6 +14,9 @@ namespace Nebulite::Math {
 
 // NOLINTNEXTLINE
 double ExpressionPrimitives::rng2arg(double a, double b) {
+    if (a<0) a = abs(a) * 125.5;
+    if (b<0) b = abs(b) * 125.5;
+
     uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663);
     seed = (seed ^ seed >> 30) * 0xbf58476d1ce4e5b9;
     seed = (seed ^ seed >> 27) * 0x94d049bb133111eb;
@@ -23,6 +26,10 @@ double ExpressionPrimitives::rng2arg(double a, double b) {
 
 // NOLINTNEXTLINE
 double ExpressionPrimitives::rng3arg(double a, double b, double c) {
+    if (a<0) a = abs(a) * 125.5;
+    if (b<0) b = abs(b) * 125.5;
+    if (c<0) c = abs(c) * 125.5;
+
     uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663) ^ static_cast<uint64_t>(c * 83492791);
     seed = (seed ^ seed >> 30) * 0xbf58476d1ce4e5b9;
     seed = (seed ^ seed >> 27) * 0x94d049bb133111eb;
@@ -32,6 +39,9 @@ double ExpressionPrimitives::rng3arg(double a, double b, double c) {
 
 // NOLINTNEXTLINE
 double ExpressionPrimitives::rng2argInt16(double a, double b) {
+    if (a<0) a = abs(a) * 125.5;
+    if (b<0) b = abs(b) * 125.5;
+
     uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663);
     seed = (seed ^ seed >> 30) * 0xbf58476d1ce4e5b9;
     seed = (seed ^ seed >> 27) * 0x94d049bb133111eb;
@@ -41,6 +51,10 @@ double ExpressionPrimitives::rng2argInt16(double a, double b) {
 
 // NOLINTNEXTLINE
 double ExpressionPrimitives::rng3argInt16(double a, double b, double c) {
+    if (a<0) a = abs(a) * 125.5;
+    if (b<0) b = abs(b) * 125.5;
+    if (c<0) c = abs(c) * 125.5;
+
     uint64_t seed = static_cast<uint64_t>(a * 73856093) ^ static_cast<uint64_t>(b * 19349663) ^ static_cast<uint64_t>(c * 83492791);
     seed = (seed ^ seed >> 30) * 0xbf58476d1ce4e5b9;
     seed = (seed ^ seed >> 27) * 0x94d049bb133111eb;

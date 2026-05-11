@@ -18,11 +18,12 @@ std::string RenderObjectContainer::serialize() {
     // Setup
 
     // Initialize RapidJSON document
-    JSON doc;
+    JsonScope doc;
+    auto const objectsArrayKey = doc.getRootScope().addMember("objects");
 
     //------------------------------------------
     // Get all objects in container
-    int i = 0;
+    std::size_t i = 0;
     for (auto& currentBatch : std::views::values(ObjectContainer)) {
         for (auto& [objects, _] : currentBatch) {
             for (auto const& obj : objects) {
@@ -30,8 +31,7 @@ std::string RenderObjectContainer::serialize() {
                 obj_serial.deserialize(obj->serialize());
 
                 // insert into doc
-                std::string key = "objects[" + std::to_string(i) + "]";
-                doc.setSubDoc(key, obj_serial);
+                doc.setSubDoc(objectsArrayKey.addIndex(i), obj_serial);
                 i++;
             }
         }
@@ -42,19 +42,20 @@ std::string RenderObjectContainer::serialize() {
     return doc.serialize();
 }
 
-void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_t const& dispResX, uint16_t const& dispResY, Utility::IO::Capture& capture) {
-    JSON layer;
-    layer.deserialize(serialOrLink);
-    if (layer.memberType("objects") == KeyType::array) {
-        for (uint32_t i = 0; i < layer.memberSize("objects"); i++) {
-            std::string key = "objects[" + std::to_string(i) + "]";
+void RenderObjectContainer::deserialize(std::string const& serialOrLink, TilingInformation const& tilingInformation, Utility::IO::Capture& capture) {
+    JsonScope doc;
+    auto const objectsArrayKey = doc.getRootScope().addMember("objects");
+    doc.deserialize(serialOrLink);
+    if (doc.memberType(objectsArrayKey) == KeyType::array) {
+        for (size_t i = 0; i < doc.memberSize(objectsArrayKey); i++) {
+            auto objectKey = objectsArrayKey.addIndex(i);
 
             // Check if serial or not:
-            auto ro_serial = layer.get<std::string>(key);
+            auto ro_serial = doc.get<std::string>(objectKey);
             std::string str;
             if (ro_serial.error()) {
                 JSON tmp;
-                tmp = layer.getSubDoc(key);
+                tmp = doc.getSubDoc(objectKey);
                 str = tmp.serialize();
             }
             else {
@@ -63,7 +64,7 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_
 
             auto* ro = new Core::RenderObject(capture);
             ro->deserialize(str);
-            append(ro, dispResX, dispResY);
+            append(ro, tilingInformation);
         }
     }
 }
@@ -71,8 +72,8 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, uint16_
 //------------------------------------------
 // Pipeline
 
-void RenderObjectContainer::append(Core::RenderObject* toAppend, uint16_t const& dispResX, uint16_t const& dispResY) {
-    std::pair<int16_t, int16_t> const pos = getTilePos(toAppend, dispResX, dispResY);
+void RenderObjectContainer::append(Core::RenderObject* toAppend, TilingInformation const& tilingInformation) {
+    auto const pos = getTilePos(toAppend->getPosition(), tilingInformation);
 
     // Try to insert into an existing batch
     auto const it = std::ranges::find_if(
@@ -101,14 +102,7 @@ void RenderObjectContainer::append(Core::RenderObject* toAppend, uint16_t const&
     ObjectContainer[pos].push_back(std::move(newBatch));
 }
 
-void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tilePosY, uint16_t const& dispResX, uint16_t const& dispResY, RendererProcessor const& rendererProcessor) {
-    //------------------------------------------
-    // Define tile offsets that are being rendered
-
-    // Currently, tile size is based on resolution so we render a 3x3 grid of tiles
-    static std::initializer_list<int16_t> constexpr tileOffsetsX = {-1, 0, 1};
-    static std::initializer_list<int16_t> constexpr tileOffsetsY = {-1, 0, 1};
-
+void RenderObjectContainer::update(std::vector<TileCoordinate> const& tiles, TilingInformation const& tilingInformation, RendererProcessor const& rendererProcessor) {
     //------------------------------------------
     // 2-Step Deletion
 
@@ -129,67 +123,36 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
     //------------------------------------------
     // Update only tiles that might be visible
 
-    // since one tile is size of screen, a max of 9 tiles
-    // [P] - Tile with Player
-    // [#] - loaded Tiles
-    // [ ] - inactive Tiles
-    //
-    // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-    // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-    // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-    // [ ][ ][ ][#][#][#][ ][ ][ ]
-    // [ ][ ][ ][#][P][#][ ][ ][ ]
-    // [ ][ ][ ][#][#][#][ ][ ][ ]
-    // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-    // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-    // [ ][ ][ ][ ][ ][ ][ ][ ][ ]
-    //
-    // NOTE:
-    // Later on it may be better to use a fixed tile size and load enough to cover the screen, + maybe 1-2 tiles extra on each side.
-    // Or, perhaps even better, use a fixed tile size + a fixed loading radius around the player position.
-    // This, however, requires the renderer to determine a maximum resolution beforehand based on the radius.
-    // Meaning it has to discard any requested resolution that is too high for the radius.
-    // Note that we cannot directly use the maximum tile radius, as for some positions it may be smaller!
-    // So we should subtract at least one tile, perhaps even two to be safe.
-    // Or we go the actual good way and do the math to determine hMax/wMax based on the radius and tile size.
-
-    // Create worker threads for batches in visible tiles, based on batch cost and other factors
     size_t workerIdx = 0;
-    std::pair<int16_t, int16_t> lastPos;
-    for (int16_t const dX : tileOffsetsX) {
-        for (int16_t const dY : tileOffsetsY) {
-            // Current tile position we want to update
-            std::pair<int16_t, int16_t> pos = std::make_pair(tilePosX - dX, tilePosY - dY);
+    TileCoordinate lastPos;
+    for (auto pos : tiles) {
+        // Check if container has tile at position, if not, skip
+        auto const it = ObjectContainer.find(pos);
+        if (it == ObjectContainer.end()) {
+            continue;
+        }
 
-            // Check if container has tile at position, if not, skip
-            auto const it = ObjectContainer.find(pos);
-            if (it == ObjectContainer.end()) {
-                continue;
+        // Create worker threads that try to closely match the batch cost goal
+        // If the current batch added to the worker exceeds the batch cost goal, we start a new worker thread for the next batch
+        for (auto& batch : it->second) {
+            if (rendererProcessor.batchWorkerPool[workerIdx]->workspace.cost + batch.estimatedCost > batchCostGoal || lastPos != pos) {
+                workerIdx++;
             }
 
-            // Create worker threads that try to closely match the batch cost goal
-            // If the current batch added to the worker exceeds the batch cost goal, we start a new worker thread for the next batch
-            for (auto& batch : it->second) {
-                if (rendererProcessor.batchWorkerPool[workerIdx]->workspace.cost + batch.estimatedCost > batchCostGoal || lastPos != pos) {
-                    workerIdx++;
-                }
-
-                if (workerIdx >= Constants::ThreadSettings::getRendererWorkerCount()) {
-                    rendererProcessor.processPool(); // Process all workers and reset pool
-                    workerIdx = 0; // Reset worker count for new batch of work
-                }
-
-                // Get current worker, set up workspace and add work to it
-                auto& currentWorker = rendererProcessor.batchWorkerPool[workerIdx]->workspace;
-                currentWorker.work.push_back(&batch);
-                currentWorker.pos = pos;
-                currentWorker.dispResX = dispResX;
-                currentWorker.dispResY = dispResY;
-                currentWorker.cost += batch.estimatedCost;
-
-                // Set last position for next iteration
-                lastPos = pos;
+            if (workerIdx >= Constants::ThreadSettings::getRendererWorkerCount()) {
+                rendererProcessor.processPool(); // Process all workers and reset pool
+                workerIdx = 0; // Reset worker count for new batch of work
             }
+
+            // Get current worker, set up workspace and add work to it
+            auto& currentWorker = rendererProcessor.batchWorkerPool[workerIdx]->workspace;
+            currentWorker.work.push_back(&batch);
+            currentWorker.pos = pos;
+            currentWorker.tilingInformation = tilingInformation;
+            currentWorker.cost += batch.estimatedCost;
+
+            // Set last position for next iteration
+            lastPos = pos;
         }
     }
 
@@ -198,7 +161,7 @@ void RenderObjectContainer::update(int16_t const& tilePosX, int16_t const& tileP
 
     // Objects to move to new tile positions
     for (auto const obj_ptr : reinsertionProcess.queue) {
-        append(obj_ptr, dispResX, dispResY);
+        append(obj_ptr, tilingInformation);
     }
     reinsertionProcess.queue.clear();
 }
@@ -217,7 +180,7 @@ Core::RenderObject* RenderObjectContainer::getObjectFromId(size_t const& domainI
     return nullptr; // Not found
 }
 
-void RenderObjectContainer::reinsertAllObjects(uint16_t const& dispResX, uint16_t const& dispResY) {
+void RenderObjectContainer::reinsertAllObjects(TilingInformation const& tilingInformation) {
     // Collect all objects
     std::vector<Core::RenderObject*> toReinsert;
     for (auto& batches : std::views::values(ObjectContainer)) {
@@ -232,11 +195,11 @@ void RenderObjectContainer::reinsertAllObjects(uint16_t const& dispResX, uint16_
 
     // Reinsert
     for (auto const& ptr : toReinsert) {
-        append(ptr, dispResX, dispResY);
+        append(ptr, tilingInformation);
     }
 }
 
-bool RenderObjectContainer::isValidPosition(std::pair<uint16_t, uint16_t> const& position) {
+bool RenderObjectContainer::isValidPosition(TileCoordinate const& position) const {
     // Check if ObjectContainer is not empty
     auto const it = ObjectContainer.find(position);
     return it != ObjectContainer.end();
@@ -276,11 +239,14 @@ RenderObjectContainer::ContainerInfo RenderObjectContainer::getContainerInfo() c
     return info;
 }
 
-std::pair<int16_t, int16_t> RenderObjectContainer::getTilePos(Core::RenderObject const* toAppend, uint16_t const& displayResolutionX, uint16_t const& displayResolutionY) {
-    auto [x, y] = toAppend->getPosition();
-    auto correspondingTilePositionX = static_cast<int16_t>(x / static_cast<double>(displayResolutionX));
-    auto correspondingTilePositionY = static_cast<int16_t>(y / static_cast<double>(displayResolutionY));
-    return std::make_pair(correspondingTilePositionX, correspondingTilePositionY);
+TileCoordinate RenderObjectContainer::getTilePos(Core::RenderObject::Position const& pos, TilingInformation const& tilingInformation) {
+    // The usage of double casting seems unnecessary here,
+    // there's probably an easier way using just integer division and maybe some modulo shenanigans
+    return {
+        // Small addition of 0.01 is necessary for pos where pos mod tilingInfo == 0, otherwise its tile coord is wrong
+        static_cast<int16_t>((pos.x+0.01) / static_cast<double>(tilingInformation.w) - (pos.x < 0 ? 1 : 0)),
+        static_cast<int16_t>((pos.y+0.01) / static_cast<double>(tilingInformation.h) - (pos.y < 0 ? 1 : 0)),
+    };
 }
 
 } // namespace Nebulite::Core

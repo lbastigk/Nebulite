@@ -1,0 +1,12 @@
+task TaskFiles/VerticalSlice/levelDescription.nebs
+wait 1
+grid on
+fetch-container
+
+# Layer 0: Background
+assert $(gt({global:renderer.environment.debug.container.objectCount.layer[0].tile|listMembers|length},10))
+# Layer 1: Player
+assert $(eq({global:renderer.environment.debug.container.objectCount.layer[1].tile|listMembers|length},1))
+
+exit
+

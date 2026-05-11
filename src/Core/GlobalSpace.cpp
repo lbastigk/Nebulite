@@ -3,8 +3,8 @@
 
 // Nebulite
 #include "Core/GlobalSpace.hpp"
-#include "Module/Domain/Initializer.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
+#include "Module/Domain/Initializer.hpp"
 #include "Nebulite.hpp"
 
 //------------------------------------------
@@ -144,7 +144,7 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
         }
 
         // Split oss.str() on ';' and push each trimmed command
-        std::string argStr = oss.str();
+        std::string const argStr = oss.str();
         std::stringstream ss(argStr);
         std::string command;
 

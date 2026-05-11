@@ -15,10 +15,7 @@
 namespace Nebulite::Core {
 
 Texture::Texture(Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture)
-    : Domain("Texture", documentReference, parentCapture) {
-    // Start with no texture
-    texture = nullptr;
-
+    : Domain("Texture", documentReference, parentCapture), texture(nullptr) {
     // Initialize all DomainModules
     Module::Domain::Initializer::initTexture(this);
 }
@@ -42,7 +39,8 @@ bool Texture::copyTexture() {
         }
     }
     // SDL3: query size, access and format using the new helpers
-    float fw = 0.0f, fh = 0.0f;
+    float fw = 0.0f;
+    float fh = 0.0f;
     if (SDL_GetTextureSize(texture, &fw, &fh) != 0) {
         capture.error.println("Failed to query texture: ", SDL_GetError());
         return false;

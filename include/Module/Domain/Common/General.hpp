@@ -83,6 +83,13 @@ public:
         "- Iterating over a range of values.\n"
         "- Creating complex control flows in scripts.\n";
 
+    // TODO: Add a capture progress tracker: capture.setProgress(<name>, <percentage>), + a capture.removeProgress(<name>)
+    [[nodiscard]] static Constants::Event func_forProgress(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    static auto constexpr func_forProgress_name = "for-progress";
+    static auto constexpr func_forProgress_desc = "Executes a for-loop with a function call, while providing a progress bar\n"
+        "\n"
+        "Usage: for-progress <var> <start> <end> <functioncall>\n";
+
     [[nodiscard]] static Constants::Event func_if(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr func_if_name = "if";
     static auto constexpr func_if_desc = "Executes a block of code if a condition is true.\n"
@@ -175,6 +182,7 @@ public:
         // Base functions
         bindFunction(&General::eval, eval_name, eval_desc);
         bindFunction(&General::func_for, func_for_name, func_for_desc);
+        bindFunction(&General::func_forProgress, func_forProgress_name, func_forProgress_desc);
         bindFunction(&General::func_if, func_if_name, func_if_desc);
         bindFunction(&General::echo, echo_name, echo_desc);
         bindFunction(&General::func_assert, assert_name, assert_desc);

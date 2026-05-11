@@ -86,10 +86,8 @@ void RendererProcessor::batchWorkerFunc(DispatcherWorkspace const& workspace){
 
         for (auto obj : batch->objects) {
             Global::instance().notifyEvent(obj->update());
-
-
             if (!obj->flag.deleteFromScene) {
-                if (RenderObjectContainer::getTilePos(obj, workspace.dispResX, workspace.dispResY) != workspace.pos) {
+                if (RenderObjectContainer::getTilePos(obj->getPosition(), workspace.tilingInformation) != workspace.pos) {
                     to_move_local.push_back(obj);
                 }
             } else {

@@ -96,7 +96,7 @@ private:
     static void align(DomainRenderingFlags::Alignment const& alignment);
 
     static void renderJsonTreeNode(Data::JsonScope const& s, Data::ScopedKeyView const& root);
-    
+
     static void renderDomainConsole(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, Utility::IO::Capture& capture, std::string const& name);
 };
 

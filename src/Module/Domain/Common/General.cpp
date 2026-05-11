@@ -140,6 +140,40 @@ Constants::Event General::func_for(std::span<std::string const> const& args, Int
     return Constants::Event::Success;
 }
 
+Constants::Event General::func_forProgress(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+    if (args.size() > 4) {
+        std::string const& varName = args[1];
+
+        int const iStart = std::stoi(Interaction::Logic::Expression::eval(args[2], ctxScope));
+        int const iEnd = std::stoi(Interaction::Logic::Expression::eval(args[3], ctxScope));
+
+        std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(4));
+        for (int i = iStart; i <= iEnd; i++) {
+            // Provide progress bar only to cout for now
+            size_t constexpr barWidth = 50;
+            double const progress = static_cast<double>(i - iStart) / static_cast<double>(iEnd - iStart + 1);
+
+            std::cout << "[";
+            auto const pos = static_cast<size_t>(barWidth * progress);
+            for (size_t barIdx = 0; barIdx < barWidth; ++barIdx) {
+                if (barIdx < pos) std::cout << "=";
+                else if (barIdx == pos) std::cout << ">";
+                else std::cout << " ";
+            }
+            std::cout << "] " << static_cast<int>(progress * 100.0) << " %\r";
+            std::cout.flush();
+
+            // for + args
+            std::string args_replaced = std::string(args[0]) + " " + Utility::StringHandler::replaceAll(argStr, '{' + varName + '}', std::to_string(i));
+            if (auto const event = ctx.self.parseStr(args_replaced, ctx, ctxScope); event != Constants::Event::Success) {
+                return event;
+            }
+        }
+        std::cout << std::endl;
+    }
+    return Constants::Event::Success;
+}
+
 Constants::Event General::nop(std::span<std::string const> const& /*args*/) {
     // Do nothing
     return Constants::Event::Success;

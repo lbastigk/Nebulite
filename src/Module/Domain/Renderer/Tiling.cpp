@@ -1,0 +1,131 @@
+//------------------------------------------
+// Includes
+
+// External
+#include "imgui.h"
+#include <imgui_impl_sdl3.h>
+#include <SDL3/SDL.h>
+
+// Nebulite
+#include "Core/Renderer.hpp"
+#include "Constants/KeyNames.hpp"
+#include "Module/Domain/Renderer/Tiling.hpp"
+
+//------------------------------------------
+namespace Nebulite::Module::Domain::Renderer {
+
+[[nodiscard]] Constants::Event Tiling::updateHook() {
+    if (!tileInfoRoutine) {
+        tileInfoRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
+            [&] {
+                // NOLINTNEXTLINE
+                auto const [wTile, hTile] = domain.tilingInformation();
+                moduleScope.set<uint16_t>(Key::tileSizeW, wTile);
+                moduleScope.set<uint16_t>(Key::tileSizeH, hTile);
+                auto const visibleTiles = domain.visibleTiles();
+                if (visibleTiles.size() < moduleScope.memberSize(Key::visibleTiles)) {
+                    // Not all entries will be overwritten, remove entire array
+                    moduleScope.removeMember(Key::visibleTiles);
+                }
+                for (auto [idx, tile] : visibleTiles | std::views::enumerate) {
+                    auto index = static_cast<size_t>(idx);
+                    auto keyX = Key::visibleTiles.addIndex(index).addMember("x");
+                    auto keyY = Key::visibleTiles.addIndex(index).addMember("y");
+                    moduleScope.set<int>(keyX, tile.x);
+                    moduleScope.set<int>(keyY, tile.y);
+                }
+            },
+            2000,
+            Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+        );
+    }
+    tileInfoRoutine->update();
+
+    if (gridOn) {
+        domain.addRenderCallback([&] {
+            auto const renderer = domain.getSdlRenderer();
+
+            // Camera pos
+            auto const x = moduleScope.get<int>(Constants::KeyNames::Renderer::positionX).value_or(0);
+            auto const y = moduleScope.get<int>(Constants::KeyNames::Renderer::positionY).value_or(0);
+
+            // Size of tiles
+            // NOLINTNEXTLINE
+            auto const [wTile, hTile] = domain.tilingInformation();
+            for (auto const& tile : domain.visibleTiles()) {
+                SDL_FRect rect;
+                rect.x = static_cast<float>(tile.x * wTile - x);
+                rect.y = static_cast<float>(tile.y * hTile - y);
+                rect.w = wTile;
+                rect.h = hTile;
+                auto scaledRect = domain.scaleRectFromLogicalSize(rect);
+                SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255); // Magenta for tile borders
+                SDL_RenderRect(renderer, &scaledRect);
+            }
+
+            // Render current tile pos using ImGui
+            auto const w = moduleScope.get<float>(Constants::KeyNames::Renderer::dispResXWindow).value_or(0.0);
+            ImGui::SetNextWindowPos(ImVec2(w - 5.0f, 5.0f), ImGuiCond_Always, ImVec2(1.0f, 0.0f));
+            ImGui::SetNextWindowBgAlpha(0.35f);
+
+            // Make the window tighter: small padding and item spacing
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(6.0f, 2.0f));
+            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4.0f, 2.0f));
+
+            ImGui::Begin(
+                "Tile pos",
+                nullptr,
+                ImGuiWindowFlags_NoDecoration |
+                ImGuiWindowFlags_AlwaysAutoResize |
+                ImGuiWindowFlags_NoFocusOnAppearing |
+                ImGuiWindowFlags_NoNav
+            );
+
+            ImGui::Text("Tile: (%+05d, %+05d)",  domain.getTilePositionX(), domain.getTilePositionY());
+            ImGui::End();
+            ImGui::PopStyleVar(2);
+        });
+    }
+    return Constants::Event::Success;
+}
+
+//------------------------------------------
+// Available Functions
+
+Constants::Event Tiling::gridToggle(std::span<std::string const> const& args) {
+    if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+    if (args.empty()) {
+        gridOn = !gridOn;
+        return Constants::Event::Success;
+    }
+    std::string const& arg = args[1];
+    if (arg == "on") {
+        gridOn = true;
+        return Constants::Event::Success;
+    }
+    if (arg == "off") {
+        gridOn = false;
+        return Constants::Event::Success;
+    }
+    return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
+}
+
+Constants::Event Tiling::viewToggle(std::span<std::string const> const& args) const {
+    if (args.size() < 2) return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
+    if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+    if (args[1] == "high") {
+        domain.setView(Core::Renderer::ViewSetting::high);
+        return Constants::Event::Success;
+    }
+    if (args[1] == "low") {
+        domain.setView(Core::Renderer::ViewSetting::low);
+        return Constants::Event::Success;
+    }
+    if (args[1] == "lowest") {
+        domain.setView(Core::Renderer::ViewSetting::lowest);
+        return Constants::Event::Success;
+    }
+    return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
+}
+
+} // namespace Nebulite::Module::Domain::Renderer

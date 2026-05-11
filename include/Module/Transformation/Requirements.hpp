@@ -58,7 +58,7 @@ public:
         "If the value is not empty, the transformation fails.\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |requireEmpty -> {value,<Returns false if not empty>}\n";
-    
+
     // [TYPE]
 
     static bool requireTypeObject(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc);
@@ -81,9 +81,9 @@ public:
         "If the value is not a basic value, the transformation fails.\n"
         "Accepts an optional user-defined error message as additional arguments.\n"
         "Usage: |requireTypeValue -> {value,<Returns false if not value>}\n";
-    
+
     // [MATCH]
-    
+
     static bool requireMatchRegex(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc);
     static auto constexpr requireMatchRegexName = "require match regex";
     static auto constexpr requireMatchesRegexDesc = "Requires that the current JSON string value matches a provided regular expression.\n"

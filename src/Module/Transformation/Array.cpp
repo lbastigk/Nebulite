@@ -1,6 +1,11 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <algorithm>
+#include <cstddef>
+#include <ranges>
+
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Data/Document/KeyType.hpp"
@@ -48,7 +53,7 @@ bool Array::at(std::span<std::string const> const& args, Data::JsonScope* jsonDo
         if (!ensureArray(jsonDoc)) {
             return false;
         }
-        auto const index = std::stoul(args[1]);
+        auto const index = std::stoul(args.at(1));
         if (index >= jsonDoc->memberSize(rootKey)) {
             return false; // Index out of bounds
         }
@@ -77,7 +82,7 @@ bool Array::reverse(Data::JsonScope* jsonDoc) {
     Data::JSON const tmp = jsonDoc->getSubDoc(rootKey);
     for (size_t i = 0; i < arraySize; ++i) {
         auto const key = rootKey.addIndex(i);
-        Data::JSON element = tmp.getSubDoc("[" + std::to_string(arraySize - 1 - i) + "]");
+        Data::JSON const element = tmp.getSubDoc("[" + std::to_string(arraySize - 1 - i) + "]");
         jsonDoc->setSubDoc(key, element);
     }
     return true;
@@ -126,7 +131,7 @@ bool Array::pushNumber(std::span<std::string const> const& args, Data::JsonScope
         return false;
     }
     try {
-        double const number = std::stod(args[1]);
+        double const number = std::stod(args.at(1));
         if (!ensureArray(jsonDoc)) {
             return false;
         }
@@ -149,8 +154,8 @@ bool Array::subspan(std::span<std::string const> const& args, Data::JsonScope* j
     jsonDoc->copyMember(rootKey, tmpKey); // Using copy, as current moveMember is more of a copy+delete and thus slower
 
     // Setup start index and length, with length defaulting to the rest of the array if not provided
-    size_t const startIndex = std::stoul(args[1]);
-    size_t const length = args.size() > 2 ? std::stoul(args[2]) : originalSize; // Set high enough length if not provided
+    size_t const startIndex = std::stoul(args.at(1));
+    size_t const length = args.size() > 2 ? std::stoul(args.at(2)) : originalSize; // Set high enough length if not provided
 
     // If start index is larger than original size, return empty array
     if (startIndex >= originalSize) {
@@ -174,7 +179,5 @@ bool Array::subspan(std::span<std::string const> const& args, Data::JsonScope* j
     }
     return true;
 }
-
-
 
 } // namespace Nebulite::Module::Transformation

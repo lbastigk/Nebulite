@@ -169,16 +169,7 @@ public:
      * @param rect Optional SDL_Rect defining the area to render the texture.
      * @return True if the texture was successfully attached, false otherwise.
      */
-    bool attachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name, SDL_Texture* texture, SDL_Rect* rect = nullptr) {
-        if (texture == nullptr) {
-            return false; // Cannot attach a null texture
-        }
-        if (BetweenLayerTextures[aboveThisLayer].contains(name)) {
-            return false; // Texture with this name already exists in the specified layer
-        }
-        BetweenLayerTextures[aboveThisLayer][name] = std::make_pair(texture, rect);
-        return true;
-    }
+    bool attachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name, SDL_Texture* texture,  std::optional<SDL_FRect> rect = std::nullopt);
 
     /**
      * @brief Detaches a texture above a specific layer.
@@ -186,20 +177,12 @@ public:
      * @param name The name of the texture to remove.
      * @return True if the texture was successfully removed, false otherwise.
      */
-    bool detachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name) {
-        if (BetweenLayerTextures[aboveThisLayer].contains(name)) {
-            BetweenLayerTextures[aboveThisLayer].erase(name);
-            return true;
-        }
-        return false;
-    }
+    bool detachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name);
 
     /**
      * @brief Detaches all textures from all layers.
      */
-    void detachAllTextures() {
-        BetweenLayerTextures.clear();
-    }
+    void detachAllTextures();
 
     //------------------------------------------
     // Purge
@@ -233,15 +216,6 @@ public:
     void setTargetFPS(uint16_t const& targetFps);
 
     /**
-     * @brief Sets the camera position.
-     * @param X The new X position of the camera.
-     * @param Y The new Y position of the camera.
-     * @param isMiddle If true, the (x,y) coordinates relate to the middle of the screen.
-     *                 If false, they relate to the top left corner.
-     */
-    void setCam(int const& X, int const& Y, bool const& isMiddle = false) const;
-
-    /**
      * @brief Changes the window size.
      *        Total size is `w*scalar x h*scalar`
      * @param w The new pixel width of the window.
@@ -251,20 +225,27 @@ public:
     void changeWindowSize(int const& w, int const& h, uint8_t const& scalar);
 
     /**
+     * @brief Sets the camera position.
+     * @param X The new X position of the camera.
+     * @param Y The new Y position of the camera.
+     * @param isMiddle If true, the (x,y) coordinates relate to the middle of the screen.
+     *                 If false, they relate to the top left corner.
+     */
+    void setCam(int const& X, int const& Y, bool const& isMiddle = false) const;
+
+    /**
      * @brief Moves the camera by a certain amount.
      * @param dX The amount to move the camera in the X direction.
      * @param dY The amount to move the camera in the Y direction.
      */
     void moveCam(int const& dX, int const& dY) const;
 
-    [[nodiscard]] SDL_FRect scaleRectFromLogicalSize(SDL_FRect const& logicalRect) const {
-        return SDL_FRect{
-            logicalRect.x * static_cast<float>(windowScale),
-            logicalRect.y * static_cast<float>(windowScale),
-            logicalRect.w * static_cast<float>(windowScale),
-            logicalRect.h * static_cast<float>(windowScale)
-        };
-    }
+    /**
+     * @brief Scales a rectangle from logical size to window size based on the current window scale factor.
+     * @param logicalRect The rect from the logical coordinate system to scale.
+     * @return The rect in the window coordinate system
+     */
+    [[nodiscard]] SDL_FRect scaleRectFromLogicalSize(SDL_FRect const& logicalRect) const ;
 
     //------------------------------------------
     // Getting
@@ -282,50 +263,24 @@ public:
     [[nodiscard]] size_t getObjectCount() const { return env.getObjectCount(); }
 
     /**
-     * @brief Gets the current resolution in the X direction.
-     * @return The current resolution in the X direction.
-     */
-    [[nodiscard]] int getResX() const ;
-
-    /**
-     * @brief Gets the current resolution in the Y direction.
-     * @return The current resolution in the Y direction.
-     */
-    [[nodiscard]] int getResY() const ;
-
-    /**
      * @brief Gets the current FPS.
      * @return The current FPS.
      */
     [[nodiscard]] uint16_t getFPS() const { return fps.real; }
 
     /**
-     * @brief Gets the current position of the camera in the X direction.
-     *        The position is considered to be the top left corner of the screen.
-     * @return The current position of the camera in the X direction.
-     */
-    [[nodiscard]] int getPosX() const ;
-
-    /**
-     * @brief Gets the current position of the camera in the Y direction.
-     *        The position is considered to be the top left corner of the screen.
-     * @return The current position of the camera in the Y direction.
-     */
-    [[nodiscard]] int getPosY() const ;
-
-    /**
      * @brief Gets the current tile position of the camera in the X direction.
      *        The position to check for tile position is considered to be the top left corner of the screen.
      * @return The current tile position of the camera in the X direction.
      */
-    [[nodiscard]] int16_t getTilePositionX() const noexcept { return tilePositionX; }
+    [[nodiscard]] int16_t getTilePositionX() const noexcept { return cameraTilePosition.x; }
 
     /**
      * @brief Gets the current tile position of the camera in the Y direction.
      *        The position to check for tile position is considered to be the top left corner of the screen.
      * @return The current tile position of the camera in the Y direction.
      */
-    [[nodiscard]] int16_t getTilePositionY() const noexcept { return tilePositionY; }
+    [[nodiscard]] int16_t getTilePositionY() const noexcept { return cameraTilePosition.y; }
 
     /**
      * @brief Gets the SDL_Renderer instance.
@@ -402,10 +357,19 @@ public:
      */
     [[nodiscard]] SDL_Texture* getTexture(std::string const& link);
 
-    static void destroyTexture(SDL_Texture* t) {
-        SDL_DestroyTexture(t);
-    }
+    /**
+     * @brief Routing texture memory management through the Renderer instance
+     * @details For now, this is just a simple SDL call, but might get more complicated later on
+     * @param t The texture to destroy
+     */
+    static void destroyTexture(SDL_Texture* t) {SDL_DestroyTexture(t);}
 
+    /**
+     * @brief Routing texture validity management through the Renderer instance
+     * @details For now, this is just a simple SDL call, but might get more complicated later on
+     * @param t The texture to verify
+     * @return True if the texture is valid, false otherwise.
+     */
     static bool isTextureValid(SDL_Texture const* t) noexcept {return t != nullptr; }
 
     //------------------------------------------
@@ -448,6 +412,37 @@ public:
     void addPostRenderCallback(std::function<void()> const& function) noexcept {
         postRenderCallback.emplace_back(function);
     }
+
+    //------------------------------------------
+    // Viewport
+
+    enum class ViewSetting {
+        high,
+        low,
+        lowest
+    } viewSetting = ViewSetting::high;
+
+    void setView(ViewSetting const view) noexcept {viewSetting = view;}
+
+    /**
+     * @brief Gets all visible tiles of the current renderer view
+     * @details Includes some margins, so not every tile is technically visible!
+     * @return A vector of TileCoordinates representing the tiles that are currently visible in the renderer's viewport.
+     */
+    [[nodiscard]] std::vector<Data::TileCoordinate> visibleTiles() const ;
+
+    /**
+     * @brief Gets tiling information for the renderer.
+     * @return A TilingInformation struct containing the width and height of the tiles used in the renderer.
+     */
+    static Data::TilingInformation tilingInformation();
+
+    /**
+     * @brief Executes a function on each RenderObject in the visible tiles of a specific layer.
+     * @param layer The layer for which to execute the function on visible RenderObjects.
+     * @param function The function to execute
+     */
+    void onViewport(Environment::Layer const& layer, auto&& function);
 
 private:
     /**
@@ -497,9 +492,10 @@ private:
      */
     std::string baseDirectory;
 
-    // Positions
-    int16_t tilePositionX = 0;
-    int16_t tilePositionY = 0;
+    /**
+     * @brief Represents the tile at the middle of the screen
+     */
+    Data::TileCoordinate cameraTilePosition;
 
     // Custom Subclasses
     Environment env;
@@ -533,7 +529,6 @@ private:
 
     // Functions to execute after a full render pass
     std::vector<std::function<void()>> postRenderCallback;
-
 
     //------------------------------------------
     // For FPS Count and Control
@@ -570,7 +565,7 @@ private:
         Environment::Layer,
         absl::flat_hash_map<
             std::string,
-            std::pair<SDL_Texture*, SDL_Rect*> // Pair of texture and its rectangle
+            std::pair<SDL_Texture*, std::optional<SDL_FRect>> // Pair of texture and its rectangle
         >
     > BetweenLayerTextures;
 

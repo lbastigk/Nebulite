@@ -287,9 +287,18 @@ std::optional<newType> JSON::convertVariant(RjDirectAccess::simpleValue const& v
         // Removing all qualifiers (const, volatile, references, etc.)
         using ValueT = std::decay_t<decltype(value)>;
 
+        // [???] -> [FLOAT]
+        // If newType is float, get double first and convert to float
+        if constexpr(std::is_same_v<newType, float>) {
+            if (auto const val = convertVariant<double>(var); val.has_value()) {
+                return std::optional<newType>(static_cast<float>(val.value()));
+            }
+            return std::optional<newType>(std::nullopt);
+        }
+
         // [DOUBLE] -> [BOOL]
         // First, as the static_cast from a direct conversion doesn't work well here
-        if constexpr (std::is_same_v<ValueT, double> && std::is_same_v<newType, bool>){
+        else if constexpr (std::is_same_v<ValueT, double> && std::is_same_v<newType, bool>){
             return std::optional<newType>{std::fabs(value) > std::numeric_limits<double>::epsilon()};
         }
 

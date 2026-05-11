@@ -41,7 +41,7 @@ FuncTree<returnValue, additionalArgs...>::FuncTree(std::string_view const& treeN
         FunctionInfo{
             {
                 makeFunctionPtr(this, &FuncTree::help),
-                FunctionIdentity{this, &FuncTree::help}
+                Utility::FunctionIdentity{this, &FuncTree::help}
             },
         helpDesc
         }
@@ -53,7 +53,7 @@ FuncTree<returnValue, additionalArgs...>::FuncTree(std::string_view const& treeN
         FunctionInfo{
             {
                 makeFunctionPtr(this, &FuncTree::complete),
-                FunctionIdentity{this, &FuncTree::complete}
+                Utility::FunctionIdentity{this, &FuncTree::complete}
             },
         completeDesc
         }
@@ -100,7 +100,7 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(
     std::string_view const& helpDescription
 ) {
     auto fp = makeFunctionPtr(functionPtr);
-    auto fp_identity = FunctionIdentity(functionPtr);
+    auto fp_identity = Utility::FunctionIdentity(functionPtr);
     bindFunction({fp, fp_identity}, name, helpDescription);
 }
 
@@ -110,14 +110,14 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(WrappedFunction cons
     if (name.find(' ') != std::string::npos) {
         std::vector<std::string> const pathStructure = Utility::StringHandler::split(name, ' ');
         if (pathStructure.size() < 2) {
-            BindErrorMessage::invalidFunctionName(name);
+            BindErrorMessage::invalidFunctionName(capture, name);
         }
         absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
         FuncTree* targetTree = this;
         for (size_t idx = 0; idx < pathStructure.size() - 1; idx++) {
             std::string const& currentCategoryName = pathStructure[idx];
             if (currentCategoryMap->find(currentCategoryName) == currentCategoryMap->end()) {
-                BindErrorMessage::missingCategory(TreeName, currentCategoryName, std::string(name));
+                BindErrorMessage::missingCategory(capture, TreeName, currentCategoryName, std::string(name));
             }
             targetTree = (*currentCategoryMap)[currentCategoryName].tree.get();
             currentCategoryMap = &targetTree->bindingContainer.categories;
@@ -132,7 +132,7 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(WrappedFunction cons
             using Decayed = std::decay_t<T>;
 
             if constexpr (std::is_same_v<Decayed, categoryIterator>) {
-                BindErrorMessage::functionShadowsCategory(name);
+                BindErrorMessage::functionShadowsCategory(capture, name);
             }
             else if constexpr (std::is_same_v<Decayed, functionIterator>) {
                 if (func.identity == iterator->second.function.identity) {
@@ -148,14 +148,13 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(WrappedFunction cons
 
                 if (conflictIt != inheritedTrees.end()) {
                     auto const& conflictTree = *conflictIt;
-                    BindErrorMessage::functionExistsInInheritedTree(
-                        TreeName, conflictTree->TreeName, name);
+                    BindErrorMessage::functionExistsInInheritedTree(capture, TreeName, conflictTree->TreeName, name);
                 }
 
-                BindErrorMessage::functionExists(TreeName, name);
+                BindErrorMessage::functionExists(capture, TreeName, name);
             }
             else if constexpr (std::is_same_v<Decayed, variableIterator>) {
-                BindErrorMessage::functionShadowsVariable(name);
+                BindErrorMessage::functionShadowsVariable(capture, name);
             }
 
             return false;
@@ -183,9 +182,9 @@ void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
         std::visit([&]<typename T>(T&&) {
             using Decayed = std::decay_t<T>;
             if constexpr (std::is_same_v<Decayed, categoryIterator>) {
-                BindErrorMessage::categoryExists(name);
+                BindErrorMessage::categoryExists(capture, name);
             } else if constexpr (std::is_same_v<Decayed, functionIterator>) {
-                BindErrorMessage::functionShadowsCategory(name);
+                BindErrorMessage::functionShadowsCategory(capture, name);
             }
         }, searchResult.value());
     }
@@ -199,14 +198,14 @@ void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
             currentCategoryMap = &(*currentCategoryMap)[currentCategoryName].tree->bindingContainer.categories;
         } else {
             // Category does not exist, throw error
-            BindErrorMessage::parentCategoryDoesNotExist(std::string(name), currentCategoryName);
+            BindErrorMessage::parentCategoryDoesNotExist(capture, std::string(name), currentCategoryName);
         }
     }
     // Last category, create it, if it doesn't exist yet
     std::string const& functionName = categoryStructure.back();
     if (currentCategoryMap->find(functionName) != currentCategoryMap->end()) {
         // Final category we wish to create already exists
-        BindErrorMessage::categoryExists(std::string(name));
+        BindErrorMessage::categoryExists(capture, std::string(name));
     }
     // Create category
     (*currentCategoryMap)[functionName] = {
@@ -224,12 +223,12 @@ template <typename returnValue, typename... additionalArgs>
 void FuncTree<returnValue, additionalArgs...>::bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription) {
     // Make sure there are no whitespaces in the variable name
     if (name.find(' ') != std::string::npos) {
-        BindErrorMessage::variableHasWhitespace(TreeName, name);
+        BindErrorMessage::variableHasWhitespace(capture, TreeName, name);
     }
 
     // Make sure the variable isn't bound yet
     if (bindingContainer.variables.find(name) != bindingContainer.variables.end()) {
-        BindErrorMessage::variableExists(TreeName, name);
+        BindErrorMessage::variableExists(capture, TreeName, name);
     }
 
     // Bind the variable
@@ -761,7 +760,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
     for (auto [i, arg] : args | std::views::enumerate) {
         arguments += std::string("argv[") + std::to_string(i) + "] = '" + arg + "'\n";
     }
-    ExecutionErrorMessage::functionNotFound(TreeName, arguments, function);
+    ExecutionErrorMessage::functionNotFound(capture, TreeName, arguments, function);
     return standardReturn.valFunctionNotFound;
 }
 

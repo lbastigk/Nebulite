@@ -1,0 +1,7 @@
+set-fps 1000
+set-res 1920 720
+
+set rml.settings.showInput 1
+set rml.input.animal dog
+
+rmlui document load test ./Resources/Rml/example.rml

@@ -33,7 +33,7 @@ std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
     size_t b = 0;
     for (size_t i = 1; i < N; ++i) {
         size_t bit = N >> 1;
-        while (b & bit) {
+        while (static_cast<bool>(b & bit)) {
             b ^= bit;
             bit >>= 1;
         }
@@ -76,7 +76,7 @@ std::vector<std::complex<double>> FFT::fftInverse(std::vector<std::complex<doubl
     size_t b = 0;
     for (size_t i = 1; i < N; ++i) {
         size_t bit = N >> 1;
-        while (b & bit) {
+        while (static_cast<bool>(b & bit)) {
             b ^= bit;
             bit >>= 1;
         }
@@ -133,7 +133,8 @@ std::complex<double> FFT::evalTransfer(double const& omega, std::vector<double> 
         zPow *= z;
     }
 
-    if (std::abs(denSum) < 1e-12)
+    static auto constexpr eps = 1e-12;
+    if (std::abs(denSum) < eps)
         return 0.0;
 
     return numSum / denSum;
@@ -142,7 +143,7 @@ std::complex<double> FFT::evalTransfer(double const& omega, std::vector<double> 
 std::vector<double> FFT::applyTransferFunction(std::vector<double> const& data, std::vector<double> const& num, std::vector<double> const& den) {
     auto X = fft(data);
     for (auto [k, x] : std::views::zip(std::views::iota(size_t{0}), X)) {
-        double omega = 2.0 * M_PI * static_cast<double>(k) / static_cast<double>(X.size());
+        double const omega = 2.0 * M_PI * static_cast<double>(k) / static_cast<double>(X.size());
         x *= evalTransfer(omega, num, den);
     }
     auto const y = fftInverse(X);

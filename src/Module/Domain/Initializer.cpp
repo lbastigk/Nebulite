@@ -49,6 +49,7 @@
 #include "Module/Domain/Renderer/Input.hpp"
 #include "Module/Domain/Renderer/RenderObjectDraft.hpp"
 #include "Module/Domain/Renderer/RmlUi.hpp"
+#include "Module/Domain/Renderer/Tiling.hpp"
 
 // Texture
 #include "Module/Domain/Texture/Fill.hpp"
@@ -240,6 +241,11 @@ void Initializer::initRenderer(Core::Renderer* target) {
     );
     target->initModule<Core::Renderer, Input>(
         "Renderer Input Functions",
+        Global::settings(),
+        *target
+    );
+    target->initModule<Core::Renderer, Tiling>(
+        "Renderer Grid Functions",
         Global::settings(),
         *target
     );
