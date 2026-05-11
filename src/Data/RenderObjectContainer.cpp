@@ -18,11 +18,12 @@ std::string RenderObjectContainer::serialize() {
     // Setup
 
     // Initialize RapidJSON document
-    JSON doc;
+    JsonScope doc;
+    auto const objectsArrayKey = doc.getRootScope().addMember("objects");
 
     //------------------------------------------
     // Get all objects in container
-    int i = 0;
+    std::size_t i = 0;
     for (auto& currentBatch : std::views::values(ObjectContainer)) {
         for (auto& [objects, _] : currentBatch) {
             for (auto const& obj : objects) {
@@ -30,8 +31,7 @@ std::string RenderObjectContainer::serialize() {
                 obj_serial.deserialize(obj->serialize());
 
                 // insert into doc
-                std::string key = "objects[" + std::to_string(i) + "]";
-                doc.setSubDoc(key, obj_serial);
+                doc.setSubDoc(objectsArrayKey.addIndex(i), obj_serial);
                 i++;
             }
         }
@@ -43,18 +43,19 @@ std::string RenderObjectContainer::serialize() {
 }
 
 void RenderObjectContainer::deserialize(std::string const& serialOrLink, TilingInformation const& tilingInformation, Utility::IO::Capture& capture) {
-    JSON layer;
-    layer.deserialize(serialOrLink);
-    if (layer.memberType("objects") == KeyType::array) {
-        for (uint32_t i = 0; i < layer.memberSize("objects"); i++) {
-            std::string key = "objects[" + std::to_string(i) + "]";
+    JsonScope doc;
+    auto const objectsArrayKey = doc.getRootScope().addMember("objects");
+    doc.deserialize(serialOrLink);
+    if (doc.memberType(objectsArrayKey) == KeyType::array) {
+        for (size_t i = 0; i < doc.memberSize(objectsArrayKey); i++) {
+            auto objectKey = objectsArrayKey.addIndex(i);
 
             // Check if serial or not:
-            auto ro_serial = layer.get<std::string>(key);
+            auto ro_serial = doc.get<std::string>(objectKey);
             std::string str;
             if (ro_serial.error()) {
                 JSON tmp;
-                tmp = layer.getSubDoc(key);
+                tmp = doc.getSubDoc(objectKey);
                 str = tmp.serialize();
             }
             else {
