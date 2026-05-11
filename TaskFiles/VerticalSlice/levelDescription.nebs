@@ -23,29 +23,26 @@ selected-object parse imgui-view on
 echo Adding background
 
 #   [X]        [Y]
-for i -40 39 for j -40 39 spawn ./Resources/Renderobjects/Plants/Grass/grass.jsonc \
+for-progress i -40 39 for j -40 39 spawn ./Resources/Renderobjects/Plants/Grass/grass.jsonc \
     |eval set posX $({i}*16) \
     |eval set posY $({j}*16) \
     |eval set draw.core.rect.src.x $(16*(rng2argInt16({i}*16,{j}*16)%3))
 
 ###########################
 # Part 3: some trees
-echo Adding Trees
 
-# random
+# Border
+echo Adding Trees: Border
+for i -40 39 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$({i}*16)|posY=$(-40*16)
+for i -40 39 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$({i}*16)|posY=$( 39*16)
+for i -39 38 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$(-40*16)|posY=$({i}*16)
+for i -39 38 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$( 39*16)|posY=$({i}*16)
+
+# Random
+echo Adding Trees: Random
 for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$( ({global:random.A} % 39)*16+00)|posY=$( ({global:random.B} % 39)*16+00)
 for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$( ({global:random.A} % 39)*16+00)|posY=$(-({global:random.B} % 39)*16+16)
 for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$(-({global:random.A} % 39)*16+16)|posY=$( ({global:random.B} % 39)*16+00)
 for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$(-({global:random.A} % 39)*16+16)|posY=$(-({global:random.B} % 39)*16+16)
 
-# border
-for i -40 39 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$({i}*16)|posY=$(-40*16)
-for i -40 39 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$({i}*16)|posY=$(39*16)
-for i -39 38 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$(-40*16)|posY=$({i}*16)
-for i -39 38 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$(39*16)|posY=$({i}*16)
 
-# Wait and exit
-# with serialization for debugging
-# wait 1200
-# serialize
-# exit
