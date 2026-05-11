@@ -46,10 +46,16 @@ public:
         bindFunction(&Tiling::viewToggle, viewToggleName, viewToggleDesc);
     }
 
-    struct Key : Data::KeyGroup<"renderer.">{};
+    struct Key : Data::KeyGroup<"renderer."> {
+        static auto constexpr tileSizeW = makeScoped("debug.tiling.size.w");
+        static auto constexpr tileSizeH = makeScoped("debug.tiling.size.h");
+        static auto constexpr visibleTiles = makeScoped("debug.tiling.visible");
+    };
 
 private:
     bool gridOn = false;
+
+    std::unique_ptr<Utility::Coordination::TimedRoutine> tileInfoRoutine;
 };
 
 } // namespace Nebulite::Module::Domain::Renderer

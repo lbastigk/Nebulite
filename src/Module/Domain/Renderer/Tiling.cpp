@@ -15,6 +15,28 @@
 namespace Nebulite::Module::Domain::Renderer {
 
 [[nodiscard]] Constants::Event Tiling::updateHook() {
+    if (!tileInfoRoutine) {
+        tileInfoRoutine = std::make_unique<Utility::Coordination::TimedRoutine>(
+            [&] {
+                // NOLINTNEXTLINE
+                auto const [wTile, hTile] = domain.tilingInformation();
+                moduleScope.set<uint16_t>(Key::tileSizeW, wTile);
+                moduleScope.set<uint16_t>(Key::tileSizeH, hTile);
+                moduleScope.removeMember(Key::visibleTiles);
+                for (auto [idx, tile] : domain.visibleTiles() | std::views::enumerate) {
+                    auto index = static_cast<size_t>(idx);
+                    auto keyX = Key::visibleTiles.addIndex(index).addMember("x");
+                    auto keyY = Key::visibleTiles.addIndex(index).addMember("y");
+                    moduleScope.set<int>(keyX, tile.x);
+                    moduleScope.set<int>(keyY, tile.y);
+                }
+            },
+            2000,
+            Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
+        );
+    }
+    tileInfoRoutine->update();
+
     if (gridOn) {
         domain.addRenderCallback([&] {
             auto const renderer = domain.getSdlRenderer();
