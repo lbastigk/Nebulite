@@ -46,10 +46,10 @@
 #include "Module/Domain/Renderer/Audio.hpp"
 #include "Module/Domain/Renderer/Console.hpp"
 #include "Module/Domain/Renderer/General.hpp"
-#include "Module/Domain/Renderer/Grid.hpp"
 #include "Module/Domain/Renderer/Input.hpp"
 #include "Module/Domain/Renderer/RenderObjectDraft.hpp"
 #include "Module/Domain/Renderer/RmlUi.hpp"
+#include "Module/Domain/Renderer/Tiling.hpp"
 
 // Texture
 #include "Module/Domain/Texture/Fill.hpp"
@@ -244,7 +244,7 @@ void Initializer::initRenderer(Core::Renderer* target) {
         Global::settings(),
         *target
     );
-    target->initModule<Core::Renderer, Grid>(
+    target->initModule<Core::Renderer, Tiling>(
         "Renderer Grid Functions",
         Global::settings(),
         *target

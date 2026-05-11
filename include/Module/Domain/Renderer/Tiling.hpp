@@ -17,7 +17,7 @@ class Renderer;
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
 
-class Grid final : public Interaction::Execution::DomainModule<Core::Renderer> {
+class Tiling final : public Interaction::Execution::DomainModule<Core::Renderer> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
@@ -41,9 +41,9 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      */
-    explicit Grid(ConstructorParams const& params) : DomainModule(params) {
-        bindFunction(&Grid::gridToggle, gridToggleName, gridToggleDesc);
-        bindFunction(&Grid::viewToggle, viewToggleName, viewToggleDesc);
+    explicit Tiling(ConstructorParams const& params) : DomainModule(params) {
+        bindFunction(&Tiling::gridToggle, gridToggleName, gridToggleDesc);
+        bindFunction(&Tiling::viewToggle, viewToggleName, viewToggleDesc);
     }
 
     struct Key : Data::KeyGroup<"renderer.">{};

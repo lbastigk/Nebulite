@@ -9,12 +9,12 @@
 // Nebulite
 #include "Core/Renderer.hpp"
 #include "Constants/KeyNames.hpp"
-#include "Module/Domain/Renderer/Grid.hpp"
+#include "Module/Domain/Renderer/Tiling.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
 
-[[nodiscard]] Constants::Event Grid::updateHook() {
+[[nodiscard]] Constants::Event Tiling::updateHook() {
     if (gridOn) {
         domain.addRenderCallback([&] {
             auto const renderer = domain.getSdlRenderer();
@@ -24,6 +24,7 @@ namespace Nebulite::Module::Domain::Renderer {
             auto const y = moduleScope.get<int>(Constants::KeyNames::Renderer::positionY).value_or(0);
 
             // Size of tiles
+            // NOLINTNEXTLINE
             auto const [wTile, hTile] = domain.tilingInformation();
             for (auto const& tile : domain.visibleTiles()) {
                 SDL_FRect rect;
@@ -38,7 +39,7 @@ namespace Nebulite::Module::Domain::Renderer {
 
             // Render current tile pos using ImGui
             auto const w = moduleScope.get<float>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0.0);
-            ImGui::SetNextWindowPos(ImVec2(w/2, 5.0f), ImGuiCond_Always);
+            ImGui::SetNextWindowPos(ImVec2(w - 5.0f, 5.0f), ImGuiCond_Always, ImVec2(1.0f, 0.0f));
             ImGui::SetNextWindowBgAlpha(0.35f);
 
             // Make the window tighter: small padding and item spacing
@@ -54,7 +55,7 @@ namespace Nebulite::Module::Domain::Renderer {
                 ImGuiWindowFlags_NoNav
             );
 
-            ImGui::Text("Tile: (%04d, %04d)", domain.getTilePositionX(), domain.getTilePositionY());
+            ImGui::Text("Tile: (%+05d, %+05d)",  domain.getTilePositionX(), domain.getTilePositionY());
             ImGui::End();
             ImGui::PopStyleVar(2); // pop ItemSpacing and WindowPadding
 
@@ -66,7 +67,7 @@ namespace Nebulite::Module::Domain::Renderer {
 //------------------------------------------
 // Available Functions
 
-Constants::Event Grid::gridToggle(std::span<std::string const> const& args) {
+Constants::Event Tiling::gridToggle(std::span<std::string const> const& args) {
     if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
 
     if (args.empty()) {
@@ -85,7 +86,7 @@ Constants::Event Grid::gridToggle(std::span<std::string const> const& args) {
     return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
 }
 
-Constants::Event Grid::viewToggle(std::span<std::string const> const& args) const {
+Constants::Event Tiling::viewToggle(std::span<std::string const> const& args) const {
     if (args.size() < 2) return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
 

@@ -240,9 +240,12 @@ RenderObjectContainer::ContainerInfo RenderObjectContainer::getContainerInfo() c
 }
 
 TileCoordinate RenderObjectContainer::getTilePos(Core::RenderObject::Position const& pos, TilingInformation const& tilingInformation) {
+    // The usage of double casting seems unnecessary here,
+    // there's probably an easier way using just integer division and maybe some modulo shenanigans
     return {
-        static_cast<int16_t>(pos.x / static_cast<double>(tilingInformation.w)),
-        static_cast<int16_t>(pos.y / static_cast<double>(tilingInformation.h))
+        // Small addition of 0.01 is necessary for pos where pos mod tilingInfo == 0, otherwise its tile coord is wrong
+        static_cast<int16_t>((pos.x+0.01) / static_cast<double>(tilingInformation.w) - (pos.x < 0 ? 1 : 0)),
+        static_cast<int16_t>((pos.y+0.01) / static_cast<double>(tilingInformation.h) - (pos.y < 0 ? 1 : 0)),
     };
 }
 
