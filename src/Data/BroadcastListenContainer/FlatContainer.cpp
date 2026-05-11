@@ -57,11 +57,12 @@ namespace {
  * @return A new range that is the result of rotating the input range by the specified percentage.
  */
 template <std::ranges::viewable_range R>
-auto rotate(R&& r, double percent){
-    auto size = std::ranges::size(r);
+auto rotate(R&& r, double percent) {
+    auto view = std::views::all(std::forward<R>(r));
+
+    auto size = std::ranges::size(view);
 
     if (size == 0) {
-        // offset = 0 → drop(0)+take(0) works fine
         percent = 0.0;
     }
 
@@ -71,11 +72,13 @@ auto rotate(R&& r, double percent){
 
     std::size_t const offset =
         size == 0 ? 0 :
-        static_cast<std::size_t>(std::floor(normalized * static_cast<double>(size))) % size;
+        static_cast<std::size_t>(
+            std::floor(normalized * static_cast<double>(size))
+        ) % size;
 
     return std::views::concat(
-        r | std::views::drop(offset),
-        r | std::views::take(offset)
+        view | std::views::drop(offset),
+        view | std::views::take(offset)
     );
 }
 } // namespace
