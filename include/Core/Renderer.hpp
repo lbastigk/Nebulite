@@ -416,6 +416,14 @@ public:
     //------------------------------------------
     // Viewport
 
+    enum class ViewSetting {
+        high,
+        low,
+        lowest
+    } viewSetting = ViewSetting::high;
+
+    void setView(ViewSetting const view) noexcept {viewSetting = view;}
+
     /**
      * @brief Gets all visible tiles of the current renderer view
      * @details Includes some margins, so not every tile is technically visible!

@@ -85,4 +85,23 @@ Constants::Event Grid::gridToggle(std::span<std::string const> const& args) {
     return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
 }
 
+Constants::Event Grid::viewToggle(std::span<std::string const> const& args) const {
+    if (args.size() < 2) return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
+    if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
+
+    if (args[1] == "high") {
+        domain.setView(Core::Renderer::ViewSetting::high);
+        return Constants::Event::Success;
+    }
+    if (args[1] == "low") {
+        domain.setView(Core::Renderer::ViewSetting::low);
+        return Constants::Event::Success;
+    }
+    if (args[1] == "lowest") {
+        domain.setView(Core::Renderer::ViewSetting::lowest);
+        return Constants::Event::Success;
+    }
+    return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
+}
+
 } // namespace Nebulite::Module::Domain::Renderer

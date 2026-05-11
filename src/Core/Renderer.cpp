@@ -348,14 +348,32 @@ void Renderer::deserialize(std::string const& serialOrLink) noexcept {
 // Viewport
 
 std::vector<Data::TileCoordinate> Renderer::visibleTiles() const {
-    auto const w = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0);
-    auto const h = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0);
-    auto const wCount = w / tilingInformation().w + 1;
-    auto const hCount = h / tilingInformation().h + 1;
+    auto getTileCount = [&]() -> std::pair<int, int> {
+        auto const w = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0);
+        auto const h = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0);
+
+        switch (viewSetting) {
+        case ViewSetting::high: return {
+            w / tilingInformation().w + 1,
+            h / tilingInformation().h + 1
+        };
+        case ViewSetting::low: return {
+            w/4 / tilingInformation().w + 1,
+            h/4 / tilingInformation().h + 1
+        };
+        case ViewSetting::lowest:
+            return {1,1};
+        default:
+            std::unreachable();
+        }
+    };
+
+    auto [wCount, hCount] = getTileCount();
+
     std::vector<Data::TileCoordinate> tiles;
     tiles.reserve(static_cast<size_t>(wCount)*static_cast<size_t>(hCount)*4u); // small fixed neighborhood
-    for (auto const dX : std::views::iota(-wCount, wCount)) {
-        for (auto const dY : std::views::iota(-hCount, hCount)) {
+    for (auto const dX : std::views::iota(-wCount, wCount+1)) {
+        for (auto const dY : std::views::iota(-hCount, hCount+1)) {
             tiles.emplace_back(
                 static_cast<int16_t>(cameraTilePosition.x + dX),
                 static_cast<int16_t>(cameraTilePosition.y + dY)

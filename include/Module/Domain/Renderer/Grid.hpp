@@ -30,6 +30,11 @@ public:
     static auto constexpr gridToggleDesc = "Toggle grid overlay on or off.\n"
         "Usage: grid [on/off]\n";
 
+    Constants::Event viewToggle(std::span<std::string const> const& args) const ;
+    static auto constexpr viewToggleName = "view";
+    static auto constexpr viewToggleDesc = "Toggle view setting to full, low or lowest\n"
+        "Usage: view <high/low/lowest>\n";
+
     //------------------------------------------
     // Setup
 
@@ -38,6 +43,7 @@ public:
      */
     explicit Grid(ConstructorParams const& params) : DomainModule(params) {
         bindFunction(&Grid::gridToggle, gridToggleName, gridToggleDesc);
+        bindFunction(&Grid::viewToggle, viewToggleName, viewToggleDesc);
     }
 
     struct Key : Data::KeyGroup<"renderer.">{};
