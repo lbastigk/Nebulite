@@ -48,8 +48,8 @@ std::string Environment::serialize() {
 
     // Serialize each container and add to the document
     for (unsigned int i = 0; i < allLayers.size(); i++) {
-        std::string key = "containerLayer" + std::to_string(i);
-        std::string serializedContainer = roc[i].serialize();
+        std::string const key = "containerLayer" + std::to_string(i);
+        std::string const serializedContainer = roc[i].serialize();
 
         // Add the container JSON object to the main document
         Data::JSON layer;
@@ -66,12 +66,12 @@ void Environment::deserialize(std::string const& serialOrLink, Data::TilingInfor
     // Getting all layers
     for (unsigned int i = 0; i < allLayers.size(); i++) {
         // Check if the key exists in the document
-        if (std::string key = "containerLayer" + std::to_string(i); file.memberType(key) != Data::KeyType::null) {
+        if (std::string const key = "containerLayer" + std::to_string(i); file.memberType(key) != Data::KeyType::null) {
             // Extract the value corresponding to the key
-            Data::JSON layer = file.getSubDoc(key);
+            Data::JSON const layer = file.getSubDoc(key);
 
             // Convert the JSON object to a pretty-printed string
-            std::string str = layer.serialize();
+            std::string const str = layer.serialize();
 
             // Serialize container layer
             roc[i].deserialize(str, tilingInformation, capture);
@@ -107,7 +107,7 @@ void Environment::reinsertAllObjects(Data::TilingInformation const& tilingInform
 RenderObject* Environment::getObjectFromId(size_t const& domainId) {
     // Go through all layers
     for (unsigned int i = 0; i < allLayers.size(); ++i) {
-        if (auto const obj = roc[i].getObjectFromId(domainId); obj != nullptr) {
+        if (auto* const obj = roc[i].getObjectFromId(domainId); obj != nullptr) {
             return obj;
         }
     }

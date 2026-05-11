@@ -212,7 +212,7 @@ public:
     std::optional<ContextAndScope> getRmlDocumentContextAndScope(Rml::ElementDocument* document);
 
     void setRmlElementContextAndScope(RmlElementIdentifier const& element, ContextAndScope const& ctxAndScope);
-    
+
     void setRmlDocumentContextAndScope(Rml::ElementDocument* document, ContextAndScope const& ctxAndScope);
 
     // TODO: Add a custom bind function for modules to use

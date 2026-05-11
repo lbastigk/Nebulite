@@ -57,6 +57,8 @@ public:
      * @details Only accessible by a select few classes that require full access, such as the Console and Expression evaluation.
      */
     class Full final : public BaseAccessToken {
+        // Private constructor is intended
+        // NOLINTNEXTLINE
         Full();
 
     public:

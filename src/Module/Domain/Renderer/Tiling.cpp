@@ -83,8 +83,7 @@ namespace Nebulite::Module::Domain::Renderer {
 
             ImGui::Text("Tile: (%+05d, %+05d)",  domain.getTilePositionX(), domain.getTilePositionY());
             ImGui::End();
-            ImGui::PopStyleVar(2); // pop ItemSpacing and WindowPadding
-
+            ImGui::PopStyleVar(2);
         });
     }
     return Constants::Event::Success;
@@ -95,7 +94,6 @@ namespace Nebulite::Module::Domain::Renderer {
 
 Constants::Event Tiling::gridToggle(std::span<std::string const> const& args) {
     if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
-
     if (args.empty()) {
         gridOn = !gridOn;
         return Constants::Event::Success;
@@ -115,7 +113,6 @@ Constants::Event Tiling::gridToggle(std::span<std::string const> const& args) {
 Constants::Event Tiling::viewToggle(std::span<std::string const> const& args) const {
     if (args.size() < 2) return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
-
     if (args[1] == "high") {
         domain.setView(Core::Renderer::ViewSetting::high);
         return Constants::Event::Success;

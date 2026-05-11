@@ -69,7 +69,7 @@ auto rotate(R&& r, double percent){
     if (normalized < 0)
         normalized += 1.0;
 
-    std::size_t offset =
+    std::size_t const offset =
         size == 0 ? 0 :
         static_cast<std::size_t>(std::floor(normalized * static_cast<double>(size))) % size;
 

@@ -15,7 +15,6 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "Constants/StandardCapture.hpp"
 #include "Core/RenderObject.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
 

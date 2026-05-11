@@ -42,7 +42,7 @@ public:
             std::string_view{l};
             std::string_view{r};
         }
-        
+
         constexpr bool operator()(const L& lhs, const R& rhs) const {
             const std::string_view a{lhs};
             const std::string_view b{rhs};

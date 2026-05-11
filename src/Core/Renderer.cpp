@@ -5,14 +5,14 @@
 #include <random>
 
 // External
+#include <SDL3_image/SDL_image.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
-#include <SDL3_image/SDL_image.h>
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "Core/Renderer.hpp"
 #include "Core/RenderObject.hpp"
+#include "Core/Renderer.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
 #include "Module/Domain/Initializer.hpp"
@@ -32,10 +32,10 @@ double fontSize(auto const fontSizeKey, double defaultValue) {
 
 Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::IO::Capture& parentCapture) :
     Domain("Renderer", documentReference, parentCapture),
+    headless(flag_headless),
     env(documentReference, parentCapture){
     //------------------------------------------
     // Initialize internal variables
-    headless = flag_headless;
     baseDirectory = Utility::IO::FileManagement::currentDir();
 
     //------------------------------------------
@@ -140,7 +140,7 @@ void Renderer::initImgui() {
     auto constexpr border  = ImVec4(0.18f, 0.20f, 0.22f, 1.00f);
     auto constexpr button  = ImVec4(0.12f, 0.14f, 0.16f, 1.00f);
 
-    ImVec4* colors = style.Colors;
+    auto* colors = style.Colors;
     colors[ImGuiCol_Text]                  = textCol;
     colors[ImGuiCol_WindowBg]              = layer0;
     colors[ImGuiCol_ChildBg]               = layer1;
@@ -321,7 +321,7 @@ std::optional<std::pair<RenderObject*, Data::JsonScope*>> Renderer::getObjectFro
         return std::nullopt; // No object with this index
     }
     auto const domainId = indexToIdMap[searchIndex];
-    if (auto ro = env.getObjectFromId(domainId); ro) {
+    if (auto* ro = env.getObjectFromId(domainId); ro) {
         return std::make_pair(ro, &ro->domainScope);
     }
     return std::nullopt; // Object retrieval failed somehow
@@ -396,7 +396,7 @@ void Renderer::onViewport(Environment::Layer const& layer, auto&& function) {
 Data::TilingInformation Renderer::tilingInformation() {
     // If we ever decide to make the tiles depend on the resolution,
     // we must re-activate reinsertion of all objects on resolution change!
-    return {128, 128};
+    return {.w=128, .h=128};
 }
 
 //------------------------------------------
@@ -544,7 +544,7 @@ bool Renderer::timeToRender() {
     // set target to 16, remainder = 0.67
     // so do 16 for 67% of the time, and 17 for 33% of the time
     static std::uniform_real_distribution distribution(0.0, 1.0);
-    static std::hash<std::string> hashString;
+    static constexpr std::hash<std::string> hashString;
     static std::mt19937 randNum(hashString("RNG for FPS control"));
 
     double const target = 1000.0 / static_cast<double>(fps.target);
@@ -715,10 +715,10 @@ void Renderer::moveCam(int const& dX, int const& dY) const {
 SDL_FRect Renderer::scaleRectFromLogicalSize(SDL_FRect const& logicalRect) const {
     auto const scale = static_cast<float>(windowScale);
     return SDL_FRect{
-        logicalRect.x * scale,
-        logicalRect.y * scale,
-        logicalRect.w * scale,
-        logicalRect.h * scale
+        .x=logicalRect.x * scale,
+        .y=logicalRect.y * scale,
+        .w=logicalRect.w * scale,
+        .h=logicalRect.h * scale
     };
 }
 
@@ -745,8 +745,8 @@ void Renderer::renderFrame() {
     // Get tile position of camera center
     cameraTilePosition = Data::RenderObjectContainer::getTilePos(
         {
-            dispPosX + w/2,
-            dispPosY + h/2
+            .x=dispPosX + w/2,
+            .y=dispPosY + h/2
         },
         tilingInformation()
     );
@@ -817,7 +817,7 @@ SDL_Texture* Renderer::getTexture(std::string const& link) {
 }
 
 void Renderer::loadTexture(std::string const& link) {
-    if (auto const t = loadTextureToMemory(link); t != nullptr) TextureContainer[link] = t;
+    if (auto* const t = loadTextureToMemory(link); t != nullptr) TextureContainer[link] = t;
 }
 
 SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) {
