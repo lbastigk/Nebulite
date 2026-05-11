@@ -3,9 +3,9 @@
 
 // Nebulite
 #include "Core/RenderObject.hpp"
-#include "Data/RendererProcessor.hpp"
-#include "Data/RenderObjectContainer.hpp"
 #include "Data/Document/JSON.hpp"
+#include "Data/RenderObjectContainer.hpp"
+#include "Data/RendererProcessor.hpp"
 #include "Utility/Coordination/WorkDispatcher.hpp"
 
 //------------------------------------------
@@ -160,7 +160,7 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& tiles, Til
     rendererProcessor.processPool();
 
     // Objects to move to new tile positions
-    for (auto const obj_ptr : reinsertionProcess.queue) {
+    for (auto* const obj_ptr : reinsertionProcess.queue) {
         append(obj_ptr, tilingInformation);
     }
     reinsertionProcess.queue.clear();
@@ -249,4 +249,4 @@ TileCoordinate RenderObjectContainer::getTilePos(Core::RenderObject::Position co
     };
 }
 
-} // namespace Nebulite::Core
+} // namespace Nebulite::Data

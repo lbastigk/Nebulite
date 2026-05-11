@@ -9,8 +9,24 @@
 namespace Nebulite::Data {
 
 TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool const& recover) {
-    Constants::Event currentResult;
+    Constants::Event currentResult{};
     TaskQueueResult fullResult;
+
+    auto resolve = [&](std::string argStr) {
+        // Add binary name if missing
+        if (!argStr.starts_with(settings.callbackName + " ")) {
+            argStr.insert(0, settings.callbackName + " ");
+        }
+
+        // Parse
+        currentResult = ctx.self.parseStr(argStr, ctx, ctxScope);
+
+        // Check result
+        if (currentResult == Constants::Event::Error) {
+            fullResult.encounteredCriticalResult = true;
+        }
+        fullResult.events.push_back(currentResult);
+    };
 
     // 1.) Process and pop tasks
     if (settings.clearAfterResolving) {
@@ -23,27 +39,15 @@ TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interaction::Conte
                 return fullResult;
 
             // Pop front
-            std::string argStr = tasks.list.front();
+            std::string const argStr = tasks.list.front();
             tasks.list.pop_front();
 
-            // Add binary name if missing
-            if (!argStr.starts_with(settings.callbackName + " ")) {
-                argStr.insert(0, settings.callbackName + " ");
-            }
-
-            // Parse
-            currentResult = ctx.self.parseStr(argStr, ctx, ctxScope);
-
-            // Check result
-            if (currentResult == Constants::Event::Error) {
-                fullResult.encounteredCriticalResult = true;
-            }
-            fullResult.events.push_back(currentResult);
+            resolve(argStr);
         }
     }
     // 2.) Process without popping tasks
     else {
-        for (auto const& argStrOrig : tasks.list) {
+        for (auto const& argStr : tasks.list) {
             // Check stop conditions on each iteration,
             // as they might have changed during parsing
             if (fullResult.encounteredCriticalResult && !recover)
@@ -51,32 +55,19 @@ TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interaction::Conte
             if (state.waitCounter > 0)
                 return fullResult;
 
-            // Add binary name if missing
-            std::string argStr = argStrOrig;
-            if (!argStr.starts_with(settings.callbackName + " ")) {
-                argStr.insert(0, settings.callbackName + " ");
-            }
-
-            // Parse
-            currentResult = ctx.self.parseStr(argStr, ctx, ctxScope);
-
-            // Check result
-            if (currentResult == Constants::Event::Error) {
-                fullResult.encounteredCriticalResult = true;
-            }
-            fullResult.events.push_back(currentResult);
+            resolve(argStr);
         }
     }
     return fullResult;
 }
 
 void TaskQueue::pushBack(std::string const& task) {
-    std::lock_guard lock(tasks.mutex);
+    std::scoped_lock const lock(tasks.mutex);
     tasks.list.push_back(task);
 }
 
 void TaskQueue::pushFront(std::string const& task) {
-    std::lock_guard lock(tasks.mutex);
+    std::scoped_lock const lock(tasks.mutex);
     tasks.list.push_front(task);
 }
 

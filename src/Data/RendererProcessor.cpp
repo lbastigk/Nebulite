@@ -3,15 +3,15 @@
 
 // Nebulite
 #include "Core/RenderObject.hpp"
-#include "Data/RendererProcessor.hpp"
 #include "Data/RenderObjectContainer.hpp"
+#include "Data/RendererProcessor.hpp"
 #include "Nebulite.hpp"
 
 //------------------------------------------
 // Helper
 namespace {
 size_t usedWorkerCount() {
-    static size_t usedWorkerCount = Nebulite::Constants::ThreadSettings::getRendererWorkerCount();
+    static size_t const usedWorkerCount = Nebulite::Constants::ThreadSettings::getRendererWorkerCount();
     return usedWorkerCount;
 }
 } // namespace
@@ -80,11 +80,11 @@ void RendererProcessor::batchWorkerFunc(DispatcherWorkspace const& workspace){
     // Process
     // We update each object and check if it needs to be moved or deleted
     // Every batch worker has potential objects to move or delete
-    for (auto& batch : workspace.work) {
+    for (auto const& batch : workspace.work) {
         std::vector<Core::RenderObject*> to_move_local;
         std::vector<Core::RenderObject*> to_delete_local;
 
-        for (auto obj : batch->objects) {
+        for (auto* obj : batch->objects) {
             Global::instance().notifyEvent(obj->update());
             if (!obj->flag.deleteFromScene) {
                 if (RenderObjectContainer::getTilePos(obj->getPosition(), workspace.tilingInformation) != workspace.pos) {
@@ -96,16 +96,16 @@ void RendererProcessor::batchWorkerFunc(DispatcherWorkspace const& workspace){
         }
 
         // All objects to move are collected in queue
-        for (auto ptr : to_move_local) {
+        for (auto* ptr : to_move_local) {
             batch->removeObject(ptr);
-            std::scoped_lock lock(workspace.reinsertionProcess->reinsertMutex);
+            std::scoped_lock const lock(workspace.reinsertionProcess->reinsertMutex);
             workspace.reinsertionProcess->queue.push_back(ptr);
         }
 
         // All objects to delete are collected in trash
-        for (auto ptr : to_delete_local) {
+        for (auto* ptr : to_delete_local) {
             batch->removeObject(ptr);
-            std::scoped_lock lock(workspace.deletionProcess->deleteMutex);
+            std::scoped_lock const lock(workspace.deletionProcess->deleteMutex);
             workspace.deletionProcess->trash.push_back(ptr);
         }
     }

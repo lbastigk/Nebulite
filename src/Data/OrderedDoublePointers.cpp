@@ -9,7 +9,7 @@
 namespace Nebulite::Data {
 
 double** MappedOrderedCacheList::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
-    Utility::Coordination::WriteLock lock(mtxMap);
+    Utility::Coordination::WriteLock const lock(mtxMap);
     return fromMap(uniqueId, keys);
 }
 
