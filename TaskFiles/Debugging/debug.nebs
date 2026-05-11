@@ -22,8 +22,4 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/VerticalSlice/levelDescription.nebs
-wait 1
-grid on
-fetch-container
-print renderer.environment.debug.container.objectCount
+task TaskFiles/Tests/RmlUi/example.nebs

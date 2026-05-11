@@ -27,8 +27,8 @@ namespace Nebulite::Module::Domain::Renderer {
             auto const [wTile, hTile] = domain.tilingInformation();
             for (auto const& tile : domain.visibleTiles()) {
                 SDL_FRect rect;
-                rect.x = tile.x * wTile - x;
-                rect.y = tile.y * hTile - y;
+                rect.x = static_cast<float>(tile.x * wTile - x);
+                rect.y = static_cast<float>(tile.y * hTile - y);
                 rect.w = wTile;
                 rect.h = hTile;
                 auto scaledRect = domain.scaleRectFromLogicalSize(rect);
@@ -37,7 +37,7 @@ namespace Nebulite::Module::Domain::Renderer {
             }
 
             // Render current tile pos using ImGui
-            auto const w = moduleScope.get<double>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0.0);
+            auto const w = moduleScope.get<float>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0.0);
             ImGui::SetNextWindowPos(ImVec2(w/2, 5.0f), ImGuiCond_Always);
             ImGui::SetNextWindowBgAlpha(0.35f);
 

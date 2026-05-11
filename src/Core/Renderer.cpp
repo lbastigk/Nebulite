@@ -356,11 +356,9 @@ std::vector<Data::TileCoordinate> Renderer::visibleTiles() const {
     tiles.reserve(static_cast<size_t>(wCount)*static_cast<size_t>(hCount)*4u); // small fixed neighborhood
     for (auto const dX : std::views::iota(-wCount, wCount)) {
         for (auto const dY : std::views::iota(-hCount, hCount)) {
-            tiles.push_back(
-                Data::TileCoordinate(
-                    static_cast<int16_t>(cameraTilePosition.x + dX),
-                    static_cast<int16_t>(cameraTilePosition.y + dY)
-                )
+            tiles.emplace_back(
+                static_cast<int16_t>(cameraTilePosition.x + dX),
+                static_cast<int16_t>(cameraTilePosition.y + dY)
             );
         }
     }
@@ -377,8 +375,9 @@ void Renderer::onViewport(Environment::Layer const& layer, auto&& function) {
     }
 }
 
-Data::TilingInformation Renderer::tilingInformation() const {
-    // For now, we use a simple 128*128 tiling
+Data::TilingInformation Renderer::tilingInformation() {
+    // If we ever decide to make the tiles depend on the resolution,
+    // we must re-activate reinsertion of all objects on resolution change!
     return {128, 128};
 }
 
@@ -554,6 +553,32 @@ void Renderer::reinsertAllObjects() {
 }
 
 //------------------------------------------
+// Texture Management
+
+bool Renderer::attachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name, SDL_Texture* texture, std::optional<SDL_FRect> rect) {
+    if (texture == nullptr) {
+        return false; // Cannot attach a null texture
+    }
+    if (BetweenLayerTextures[aboveThisLayer].contains(name)) {
+        return false; // Texture with this name already exists in the specified layer
+    }
+    BetweenLayerTextures[aboveThisLayer][name] = std::make_pair(texture, rect);
+    return true;
+}
+
+bool Renderer::detachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name) {
+    if (BetweenLayerTextures[aboveThisLayer].contains(name)) {
+        BetweenLayerTextures[aboveThisLayer].erase(name);
+        return true;
+    }
+    return false;
+}
+
+void Renderer::detachAllTextures() {
+    BetweenLayerTextures.clear();
+}
+
+//------------------------------------------
 // Purge
 
 void Renderer::purgeObjects() {
@@ -586,7 +611,24 @@ void Renderer::destroy() {
 }
 
 //------------------------------------------
-// Manipulation
+// Setting
+
+void Renderer::setTargetFPS(uint16_t const& targetFps) {
+    fps.target = targetFps;
+}
+
+namespace {
+
+template <typename T>
+struct is_static_member_function
+    : std::bool_constant<
+        std::is_function_v<std::remove_pointer_t<T>>
+      > {};
+
+template <typename T>
+inline constexpr bool is_static_member_function_v = is_static_member_function<T>::value;
+
+} // namespace
 
 // This does not change the settings file, only the current session
 void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scalar) {
@@ -620,20 +662,14 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
     // Rescale rml context
     Graphics::RmlInterface::instance().setDimensions(w * windowScale, h * windowScale);
 
-    // Reinsert objects
-    // TODO: Once fixed tiles are implemented, this isn't needed anymore
-    reinsertAllObjects();
-}
-
-void Renderer::moveCam(int const& dX, int const& dY) const {
-    domainScope.set<int>(
-        Constants::KeyNames::Renderer::positionX,
-        domainScope.get<int>(Constants::KeyNames::Renderer::positionX).value_or(0) + dX
-    );
-    domainScope.set<int>(
-        Constants::KeyNames::Renderer::positionY,
-        domainScope.get<int>(Constants::KeyNames::Renderer::positionY).value_or(0) + dY
-    );
+    // We assume that the tiling information is based on renderer states such as resolution,
+    // if it's not static. If that is the case, we must reinsert all objects to redistribute
+    // on resolution change
+    if constexpr (!is_static_member_function_v<decltype(&Renderer::tilingInformation)>) {
+        // Unreachable code if it's static, so we use a NOLINTNEXTLINE to suppress the warning
+        // NOLINTNEXTLINE
+        reinsertAllObjects();
+    }
 }
 
 void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle) const {
@@ -647,11 +683,25 @@ void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle) const {
     domainScope.set<int>(Constants::KeyNames::Renderer::positionY, newPosY);
 }
 
-//------------------------------------------
-// Setting
+void Renderer::moveCam(int const& dX, int const& dY) const {
+    domainScope.set<int>(
+        Constants::KeyNames::Renderer::positionX,
+        domainScope.get<int>(Constants::KeyNames::Renderer::positionX).value_or(0) + dX
+    );
+    domainScope.set<int>(
+        Constants::KeyNames::Renderer::positionY,
+        domainScope.get<int>(Constants::KeyNames::Renderer::positionY).value_or(0) + dY
+    );
+}
 
-void Renderer::setTargetFPS(uint16_t const& targetFps) {
-    fps.target = targetFps;
+SDL_FRect Renderer::scaleRectFromLogicalSize(SDL_FRect const& logicalRect) const {
+    auto const scale = static_cast<float>(windowScale);
+    return SDL_FRect{
+        logicalRect.x * scale,
+        logicalRect.y * scale,
+        logicalRect.w * scale,
+        logicalRect.h * scale
+    };
 }
 
 //------------------------------------------
@@ -674,11 +724,14 @@ void Renderer::renderFrame() {
         std::abort();
     }
 
-    RenderObject::Position const pos{
-        dispPosX + w/2,
-        dispPosY + h/2
-    };
-    cameraTilePosition = Data::RenderObjectContainer::getTilePos(pos, tilingInformation());
+    // Get tile position of camera center
+    cameraTilePosition = Data::RenderObjectContainer::getTilePos(
+        {
+            dispPosX + w/2,
+            dispPosY + h/2
+        },
+        tilingInformation()
+    );
 
     //------------------------------------------
     // FPS Count and Control
@@ -696,13 +749,14 @@ void Renderer::renderFrame() {
 
     //------------------------------------------
     // Rendering
-    if (renderer) {
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
-    }
+
+    // Black background
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
     //Render Objects
     //For all layers, starting at 0
-    for (auto const& layer : env.getAllLayerTypes()) {
+    for (auto const& layer : Environment::getAllLayerTypes()) {
+        // Render all objects in the viewport of this layer
         onViewport(layer, [&](RenderObject* obj) {
             renderObjectToScreen(obj, dispPosX, dispPosY);
         });
@@ -713,13 +767,7 @@ void Renderer::renderFrame() {
                 continue; // Skip if texture is null
             }
             // We assume the rect was already scaled correctly when added
-            SDL_FRect const rectF = {
-                static_cast<float>(rect->x),
-                static_cast<float>(rect->y),
-                static_cast<float>(rect->w),
-                static_cast<float>(rect->h)
-            };
-            if (!SDL_RenderTexture(renderer, texture, nullptr, &rectF)) {
+            if (!SDL_RenderTexture(renderer, texture, nullptr, rect.has_value() ? &rect.value() : nullptr)) {
                 capture.error.println("Failed to render between-layer texture: ", SDL_GetError());
             }
         }

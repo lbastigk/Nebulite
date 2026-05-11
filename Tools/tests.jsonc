@@ -61,6 +61,9 @@
         "Tools/Tests/Rulesets/DebugUtils.json",
         "Tools/Tests/Rulesets/selfOtherGlobalInteraction.json",
         //---------------------------------------
+        // Renderer Tests
+        "Tools/Tests/Renderer/tiling.json",
+        //---------------------------------------
         // RmlUi tests
         "Tools/Tests/RmlUi/basics.json",
         //---------------------------------------
