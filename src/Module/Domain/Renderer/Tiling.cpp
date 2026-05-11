@@ -22,8 +22,12 @@ namespace Nebulite::Module::Domain::Renderer {
                 auto const [wTile, hTile] = domain.tilingInformation();
                 moduleScope.set<uint16_t>(Key::tileSizeW, wTile);
                 moduleScope.set<uint16_t>(Key::tileSizeH, hTile);
-                moduleScope.removeMember(Key::visibleTiles);
-                for (auto [idx, tile] : domain.visibleTiles() | std::views::enumerate) {
+                auto const visibleTiles = domain.visibleTiles();
+                if (visibleTiles.size() < moduleScope.memberSize(Key::visibleTiles)) {
+                    // Not all entries will be overwritten, remove entire array
+                    moduleScope.removeMember(Key::visibleTiles);
+                }
+                for (auto [idx, tile] : visibleTiles | std::views::enumerate) {
                     auto index = static_cast<size_t>(idx);
                     auto keyX = Key::visibleTiles.addIndex(index).addMember("x");
                     auto keyY = Key::visibleTiles.addIndex(index).addMember("y");
