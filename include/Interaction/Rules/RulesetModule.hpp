@@ -71,7 +71,7 @@ protected:
         RulesetType const& type,
         void (DerivedRulesetModule::*func)(Context const&, double**&, double**&) const,
         std::string_view const& description,
-        BaseListFunction baseListFunc
+        BaseListFunction const& baseListFunc
     ){
         assert(func != nullptr);
         static_assert(isValidTopic(topic), "RulesetModule::bind(): The topic name is not valid. It must start with '::' and contain no spaces.");

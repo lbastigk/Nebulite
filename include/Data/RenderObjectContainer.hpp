@@ -96,7 +96,7 @@ public:
      * @param position The tile position to check: (x, y).
      * @return True if the position contains objects, false otherwise.
      */
-    bool isValidPosition(TileCoordinate const& position) const ;
+    [[nodiscard]] bool isValidPosition(TileCoordinate const& position) const ;
 
     // removes all objects
     /**

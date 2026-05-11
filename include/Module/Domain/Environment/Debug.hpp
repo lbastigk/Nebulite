@@ -36,7 +36,7 @@ public:
 
     // TODO: Add function to dump object count per tile
 
-    Constants::Event fetchContainer() const ;
+    [[nodiscard]] Constants::Event fetchContainer() const ;
     static auto constexpr fetchContainerName = "fetch-container";
     static auto constexpr fetchContainerDesc = "Fetches and returns information about the container, including object count per tile.";
 

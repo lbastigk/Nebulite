@@ -147,7 +147,7 @@ public:
      * @param layer The layer index.
      * @return True if the position and layer are valid, false otherwise.
      */
-    bool isValidPosition(Data::TileCoordinate const& pos, Layer layer) const ;
+    [[nodiscard]] bool isValidPosition(Data::TileCoordinate const& pos, Layer layer) const ;
 
     /**
      * @brief Purges all objects from the environment by placing them in the deletion process.
