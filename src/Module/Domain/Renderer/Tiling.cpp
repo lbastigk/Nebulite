@@ -60,7 +60,7 @@ namespace Nebulite::Module::Domain::Renderer {
             }
 
             // Render current tile pos using ImGui
-            auto const w = moduleScope.get<float>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0.0);
+            auto const w = moduleScope.get<float>(Constants::KeyNames::Renderer::dispResXWindow).value_or(0.0);
             ImGui::SetNextWindowPos(ImVec2(w - 5.0f, 5.0f), ImGuiCond_Always, ImVec2(1.0f, 0.0f));
             ImGui::SetNextWindowBgAlpha(0.35f);
 
