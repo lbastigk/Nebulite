@@ -3,8 +3,8 @@
  * @brief
  */
 
-#ifndef NEBULITE_CONSTANTS_STANDARD_CAPTURE_HPP
-#define NEBULITE_CONSTANTS_STANDARD_CAPTURE_HPP
+#ifndef CONSTANTS_STANDARDCAPTURE_HPP
+#define CONSTANTS_STANDARDCAPTURE_HPP
 
 //------------------------------------------
 // Includes
@@ -162,4 +162,4 @@ struct StandardCapture {
     };
 };
 } // namespace Nebulite::Constants
-#endif // NEBULITE_CONSTANTS_STANDARD_CAPTURE_HPP
+#endif // CONSTANTS_STANDARDCAPTURE_HPP

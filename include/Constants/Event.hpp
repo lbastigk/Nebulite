@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CONSTANTS_EVENT_HPP
+#define CONSTANTS_EVENT_HPP
 
 //------------------------------------------
 // Includes
@@ -17,3 +18,5 @@ enum class Event : std::uint8_t {
 };
 
 } // namespace Nebulite::Constants
+
+#endif // CONSTANTS_EVENT_HPP

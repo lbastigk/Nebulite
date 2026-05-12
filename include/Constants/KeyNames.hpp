@@ -9,8 +9,8 @@
  *          and to ensure consistency across the framework.
  */
 
-#ifndef NEBULITE_CONSTANTS_KEYNAMES_HPP
-#define NEBULITE_CONSTANTS_KEYNAMES_HPP
+#ifndef CONSTANTS_KEYNAMES_HPP
+#define CONSTANTS_KEYNAMES_HPP
 
 //------------------------------------------
 // Includes
@@ -95,4 +95,4 @@ struct KeyNames {
 };
 
 } // namespace Nebulite::Constants
-#endif // NEBULITE_CONSTANTS_KEYNAMES_HPP
+#endif // CONSTANTS_KEYNAMES_HPP

@@ -3,8 +3,8 @@
  * @brief Threading settings for Nebulite's rendering and expression evaluation.
  */
 
-#ifndef NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP
-#define NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP
+#ifndef CONSTANTS_THREADSETTINGS_HPP
+#define CONSTANTS_THREADSETTINGS_HPP
 
 //------------------------------------------
 // Includes
@@ -65,4 +65,4 @@ public:
 };
 } // namespace Nebulite::Constants
 
-#endif // NEBULITE_CONSTANTS_THREAD_SETTINGS_HPP
+#endif // CONSTANTS_THREADSETTINGS_HPP
