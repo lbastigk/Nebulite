@@ -3,8 +3,8 @@
  * @brief Contains the declaration of the Ruleset DomainModule for the GlobalSpace domain.
  */
 
-#ifndef MODULE_DOMAIN_GLOBAL_SPACE_RULESET_HPP
-#define MODULE_DOMAIN_GLOBAL_SPACE_RULESET_HPP
+#ifndef MODULE_DOMAIN_GLOBALSPACE_RULESET_HPP
+#define MODULE_DOMAIN_GLOBALSPACE_RULESET_HPP
 
 //------------------------------------------
 // Includes
@@ -73,4 +73,4 @@ public:
     };
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
-#endif // MODULE_DOMAIN_GLOBAL_SPACE_RULESET_HPP
+#endif // MODULE_DOMAIN_GLOBALSPACE_RULESET_HPP

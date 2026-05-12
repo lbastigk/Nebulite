@@ -3,8 +3,8 @@
  * @brief Contains the declaration of the Settings DomainModule for the GlobalSpace domain.
  */
 
-#ifndef MODULE_DOMAIN_GLOBAL_SPACE_SETTINGS_HPP
-#define MODULE_DOMAIN_GLOBAL_SPACE_SETTINGS_HPP
+#ifndef MODULE_DOMAIN_GLOBALSPACE_SETTINGS_HPP
+#define MODULE_DOMAIN_GLOBALSPACE_SETTINGS_HPP
 
 //------------------------------------------
 // Includes
@@ -123,4 +123,4 @@ private:
     void logInitError() const ;
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
-#endif // MODULE_DOMAIN_GLOBAL_SPACE_SETTINGS_HPP
+#endif // MODULE_DOMAIN_GLOBALSPACE_SETTINGS_HPP

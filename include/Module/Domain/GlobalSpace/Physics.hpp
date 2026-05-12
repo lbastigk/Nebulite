@@ -4,8 +4,8 @@
  *        containing keys for global physics constants and settings.
  */
 
-#ifndef MODULE_DOMAIN_GLOBAL_SPACE_PHYSICS_HPP
-#define MODULE_DOMAIN_GLOBAL_SPACE_PHYSICS_HPP
+#ifndef MODULE_DOMAIN_GLOBALSPACE_PHYSICS_HPP
+#define MODULE_DOMAIN_GLOBALSPACE_PHYSICS_HPP
 
 //------------------------------------------
 // Includes
@@ -13,14 +13,13 @@
 // Nebulite
 #include "Data/Document/KeyGroup.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
-#include "ScopeAccessor.hpp"
 
 //------------------------------------------
 // Forward declarations
 
 namespace Nebulite::Core {
 class GlobalSpace;
-} // namespace Core
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
@@ -105,4 +104,4 @@ private:
     void setupConstants() const ;
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
-#endif // MODULE_DOMAIN_GLOBAL_SPACE_PHYSICS_HPP
+#endif // MODULE_DOMAIN_GLOBALSPACE_PHYSICS_HPP

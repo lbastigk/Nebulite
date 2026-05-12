@@ -3,8 +3,8 @@
  * @brief Feature testing DomainModule for GlobalSpace.
  */
 
-#ifndef MODULE_DOMAIN_GLOBAL_SPACE_FEATURE_TEST_HPP
-#define MODULE_DOMAIN_GLOBAL_SPACE_FEATURE_TEST_HPP
+#ifndef MODULE_DOMAIN_GLOBALSPACE_FEATURETEST_HPP
+#define MODULE_DOMAIN_GLOBALSPACE_FEATURETEST_HPP
 
 //------------------------------------------
 // Includes
@@ -77,4 +77,4 @@ public:
     };
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
-#endif // MODULE_DOMAIN_GLOBAL_SPACE_FEATURE_TEST_HPP
+#endif // MODULE_DOMAIN_GLOBALSPACE_FEATURETEST_HPP

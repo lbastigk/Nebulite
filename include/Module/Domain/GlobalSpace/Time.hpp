@@ -3,8 +3,8 @@
  * @brief Contains the declaration of the Time DomainModule for the GlobalSpace domain.
  */
 
-#ifndef MODULE_DOMAIN_GLOBAL_SPACE_TIME_HPP
-#define MODULE_DOMAIN_GLOBAL_SPACE_TIME_HPP
+#ifndef MODULE_DOMAIN_GLOBALSPACE_TIME_HPP
+#define MODULE_DOMAIN_GLOBALSPACE_TIME_HPP
 
 //------------------------------------------
 // Includes
@@ -23,7 +23,7 @@
 
 namespace Nebulite::Core {
 class GlobalSpace;
-} // Nebulite::Core
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
@@ -155,4 +155,4 @@ private:
     uint64_t fixedDeltaTime = 0;
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
-#endif // MODULE_DOMAIN_GLOBAL_SPACE_TIME_HPP
+#endif // MODULE_DOMAIN_GLOBALSPACE_TIME_HPP

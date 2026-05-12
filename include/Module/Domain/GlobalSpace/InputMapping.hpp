@@ -1,3 +1,6 @@
+#ifndef MODULE_DOMAIN_GLOBALSPACE_INPUTMAPPING_HPP
+#define MODULE_DOMAIN_GLOBALSPACE_INPUTMAPPING_HPP
+
 /**
  * @file InputMapping.hpp
  * @brief Provides input binding utilities for the Nebulite engine.
@@ -119,7 +122,7 @@ private:
      */
     struct association{
         std::string key; // e.g. "space"
-        enum class action {
+        enum class action : uint8_t {
             empty,
             current,
             onPress,
@@ -148,22 +151,22 @@ private:
      * @brief Represents a mapping entry for input actions.
      * @details Any input action can be associated with up to three keys.
      */
-    struct mapEntry{
-        association slotA{"", association::action::empty}; // First key associated with the action
-        association slotB{"", association::action::empty}; // Second key associated with the action
-        association slotC{"", association::action::empty}; // Third key associated with the action
+    struct MapEntry{
+        association slotA{.key="", .type=association::action::empty}; // First key associated with the action
+        association slotB{.key="", .type=association::action::empty}; // Second key associated with the action
+        association slotC{.key="", .type=association::action::empty}; // Third key associated with the action
 
-        enum LockState {
+        enum class LockState : uint8_t {
             unlocked,   // The action is not locked and can be triggered by its associated keys.
             lockOnce,   // The action is locked for the current frame, preventing it from being triggered by any of its associated keys. It will be automatically unlocked in the next frame.
             lockOn      // The action is locked until it is manually unlocked, preventing it from being triggered by any of its associated keys.
-        } lockState = unlocked; // The current lock state of the action
+        } lockState = LockState::unlocked; // The current lock state of the action
     };
 
     /**
      * @brief Maps input actions to their associated keys.
      */
-    absl::flat_hash_map<std::string, mapEntry> mappings;
+    absl::flat_hash_map<std::string, MapEntry> mappings;
 
     /**
      * @brief Reloads all input mappings from the settings scope.
@@ -185,3 +188,5 @@ private:
     static void addMappingToScope(Data::JsonScope& scope, std::string const& action, std::array<std::pair<std::string, std::string>,3> const& slots);
 };
 }   // namespace Nebulite::Module::Domain::GlobalSpace
+
+#endif

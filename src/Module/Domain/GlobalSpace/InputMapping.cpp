@@ -42,12 +42,12 @@ Constants::Event InputMapping::lockOnce(std::span<std::string const> const& args
         // Find all actions that start with the given argument + "::"
         for (auto& [action, entry] : mappings) {
             if (action.starts_with(args[1] + "::")) {
-                entry.lockState = mapEntry::LockState::lockOnce;
+                entry.lockState = MapEntry::LockState::lockOnce;
             }
         }
         return Constants::Event::Success;
     }
-    it->second.lockState = mapEntry::LockState::lockOnce;
+    it->second.lockState = MapEntry::LockState::lockOnce;
     return Constants::Event::Success;
 }
 
@@ -64,12 +64,12 @@ Constants::Event InputMapping::lockOn(std::span<std::string const> const& args) 
         // Find all actions that start with the given argument + "::"
         for (auto& [action, entry] : mappings) {
             if (action.starts_with(args[1] + "::")) {
-                entry.lockState = mapEntry::LockState::lockOn;
+                entry.lockState = MapEntry::LockState::lockOn;
             }
         }
         return Constants::Event::Success;
     }
-    it->second.lockState = mapEntry::LockState::lockOn;
+    it->second.lockState = MapEntry::LockState::lockOn;
     return Constants::Event::Success;
 }
 
@@ -86,12 +86,12 @@ Constants::Event InputMapping::unlock(std::span<std::string const> const& args) 
         // Find all actions that start with the given argument + "::"
         for (auto& [action, entry] : mappings) {
             if (action.starts_with(args[1] + "::")) {
-                entry.lockState = mapEntry::LockState::unlocked;
+                entry.lockState = MapEntry::LockState::unlocked;
             }
         }
         return Constants::Event::Success;
     }
-    it->second.lockState = mapEntry::LockState::unlocked;
+    it->second.lockState = MapEntry::LockState::unlocked;
     return Constants::Event::Success;
 }
 
@@ -107,7 +107,7 @@ Constants::Event InputMapping::updateHook() {
 void InputMapping::reloadMappings() {
     mappings.clear();
     for (auto const& [member, key] : settingsScope.listAvailableMembersAndKeys(Settings::Key::inputMapping)) {
-        mapEntry entry;
+        MapEntry entry;
         entry.slotA.key = settingsScope.get<std::string>(key.addMember(InputMappingSlot::associationA)).value_or("");
         entry.slotA.type = stringToAssociationType(settingsScope.get<std::string>(key.addMember(InputMappingSlot::actionA)).value_or(""));
         entry.slotB.key = settingsScope.get<std::string>(key.addMember(InputMappingSlot::associationB)).value_or("");
@@ -148,12 +148,12 @@ void InputMapping::processMappings() {
         }
 
         // Process lock state and overwrite current value if necessary
-        if (entry.lockState == mapEntry::LockState::lockOn) {
+        if (entry.lockState == MapEntry::LockState::lockOn) {
             triggerCount = 0;
         }
-        if (entry.lockState == mapEntry::LockState::lockOnce) {
+        if (entry.lockState == MapEntry::LockState::lockOnce) {
             triggerCount = 0;
-            entry.lockState = mapEntry::LockState::unlocked;
+            entry.lockState = MapEntry::LockState::unlocked;
         }
 
         // Now we write the state into our mapping location
