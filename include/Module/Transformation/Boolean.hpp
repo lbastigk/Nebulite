@@ -29,7 +29,15 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    // TODO: not, and, or, xor, nand, nor, xnor, etc.
+    static bool booleanNot(Data::JsonScope* jsonDoc);
+    static auto constexpr booleanNotName = "not";
+    static auto constexpr booleanNotDesc = "Logical NOT operation on the current JSON value.\n"
+        "Usage: |not -> {value:bool}\n"
+        "Truthy values: true, 1, '1', 'true', 'yes', 'on' (case-insensitive)\n"
+        "Falsy values: false, 0, '0', 'false', 'no', 'off' (case-insensitive)\n"
+        "Any other value defaults to false, but fails if the value is null.\n";
+
+    // TODO: and, or, xor, nand, nor, xnor, etc.
     //       All array-based, make sure input is array before processing
     //       For this to work, we need the ensureArray transformation from Array module
 

@@ -22,6 +22,15 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
+set-res 1500 1500
+wait 1
+rmlui document load test Resources/Rml/debug.rml
+wait 10
+print debug
+
+wait 5000
+exit
+
 task TaskFiles/VerticalSlice/levelDescription.nebs
 set-res 1024 1024
 grid on
