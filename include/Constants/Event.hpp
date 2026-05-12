@@ -4,7 +4,8 @@
 // Includes
 
 // Standard library
-#include <cstdint>
+// NOLINTNEXTLINE
+#include <cstdint> // somehow flagged as not used
 
 //------------------------------------------
 namespace Nebulite::Constants {

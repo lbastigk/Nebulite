@@ -1,6 +1,12 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cmath>
+#include <functional>
+#include <span>
+#include <string>
+
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Module/Transformation/Arithmetic.hpp"
