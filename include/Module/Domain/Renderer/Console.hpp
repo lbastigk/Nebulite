@@ -11,8 +11,8 @@
 
 // Nebulite
 #include "Data/Document/KeyGroup.hpp"
-#include "Module/Domain/Renderer/Input.hpp"
 #include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Domain/Renderer/Input.hpp"
 
 //------------------------------------------
 // Forward declarations
