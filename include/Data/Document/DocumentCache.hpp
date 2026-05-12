@@ -101,7 +101,7 @@ private:
     /**
      * @brief Default zero value for stable double pointer retrieval, if document access fails.
      */
-    double const zero = 0.0;
+    static double constexpr zero = 0.0;
 
     /**
      * @brief Splits a doc:key string into its components, also works for doc|transform or doc:key|transform
@@ -111,9 +111,7 @@ private:
         auto const colonPos = doc_key.find(Interaction::ContextDeriver::contextKeySeparator);
 
         // Choose the first occurring separator
-        auto const pos = colonPos == std::string::npos ? barPos
-                           : barPos == std::string::npos ? colonPos
-                           : std::min(colonPos, barPos);
+        auto const pos = std::min(colonPos, barPos);
 
         if (pos == std::string::npos) {
             // No colon found, meaning the entire string is document name/link
