@@ -43,6 +43,11 @@ public:
 
     virtual ~BaseContainer() = default;
 
+    BaseContainer(const BaseContainer&) = delete;
+    BaseContainer& operator=(const BaseContainer&) = delete;
+    BaseContainer(BaseContainer&&) = delete;
+    BaseContainer& operator=(BaseContainer&&) = delete;
+
     //------------------------------------------
     // Worker thread access
 

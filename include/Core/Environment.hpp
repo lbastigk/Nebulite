@@ -3,8 +3,8 @@
  * @brief Contains the definition of the Nebulite::Core::Environment class.
  */
 
-#ifndef NEBULITE_CORE_ENVIRONMENT_HPP
-#define NEBULITE_CORE_ENVIRONMENT_HPP
+#ifndef CORE_ENVIRONMENT_HPP
+#define CORE_ENVIRONMENT_HPP
 
 //------------------------------------------
 // Includes
@@ -14,8 +14,8 @@
 #include <vector>
 
 // Nebulite
-#include "Data/RendererProcessor.hpp"
 #include "Data/RenderObjectContainer.hpp"
+#include "Data/RendererProcessor.hpp"
 #include "Interaction/Execution/Domain.hpp"
 
 //------------------------------------------
@@ -194,4 +194,4 @@ private:
 };
 } // namespace Nebulite::Core
 
-#endif // NEBULITE_CORE_ENVIRONMENT_HPP
+#endif // CORE_ENVIRONMENT_HPP

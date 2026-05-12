@@ -4,8 +4,8 @@
  * @details Multiple types of flat containers are available, determined by the FlatContainerType template parameter.
  */
 
-#ifndef NEBULITE_DATA_BROADCAST_LISTEN_CONTAINER_FLAT_CONTAINER_HPP
-#define NEBULITE_DATA_BROADCAST_LISTEN_CONTAINER_FLAT_CONTAINER_HPP
+#ifndef DATA_BROADCASTLISTENCONTAINER_FLATCONTAINER_HPP
+#define DATA_BROADCASTLISTENCONTAINER_FLATCONTAINER_HPP
 
 //------------------------------------------
 // Includes
@@ -25,7 +25,7 @@ struct Listener;
 //------------------------------------------
 namespace Nebulite::Data::BroadcastListenContainer {
 
-enum class FlatContainerType {
+enum class FlatContainerType : std::uint8_t {
     WithRotation, // Apply offset based on p = worker index / worker count, parts being p, others p^2
     WithoutRotation // No offset at all
 };
@@ -108,6 +108,11 @@ public:
 
     ~FlatContainer() override = default;
 
+    FlatContainer(const FlatContainer&) = delete;
+    FlatContainer& operator=(const FlatContainer&) = delete;
+    FlatContainer(FlatContainer&&) = delete;
+    FlatContainer& operator=(FlatContainer&&) = delete;
+
     /**
      * @brief Broadcasts a ruleset to all listeners on its topic.
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
@@ -150,4 +155,4 @@ private:
 };
 
 } // namespace Nebulite::Data::BroadcastListenContainer
-#endif // NEBULITE_DATA_BROADCAST_LISTEN_CONTAINER_FLAT_CONTAINER_HPP
+#endif // DATA_BROADCASTLISTENCONTAINER_FLATCONTAINER_HPP

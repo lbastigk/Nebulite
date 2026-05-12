@@ -6,8 +6,8 @@
  *        Manages rendering, task queues, RNGs, and similar global features.
  */
 
-#ifndef NEBULITE_CORE_GLOBAL_SPACE_HPP
-#define NEBULITE_CORE_GLOBAL_SPACE_HPP
+#ifndef CORE_GLOBALSPACE_HPP
+#define CORE_GLOBALSPACE_HPP
 
 //------------------------------------------
 // Includes
@@ -261,4 +261,4 @@ private:
     [[nodiscard]] Constants::Event updateInnerDomains();
 };
 } // namespace Nebulite::Core
-#endif // NEBULITE_CORE_GLOBAL_SPACE_HPP
+#endif // CORE_GLOBALSPACE_HPP

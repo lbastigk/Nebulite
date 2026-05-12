@@ -15,7 +15,7 @@
 namespace Nebulite::Core {
 
 Texture::Texture(Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture)
-    : Domain("Texture", documentReference, parentCapture), texture(nullptr) {
+    : Domain("Texture", documentReference, parentCapture) {
     // Initialize all DomainModules
     Module::Domain::Initializer::initTexture(this);
 }

@@ -4,8 +4,8 @@
  *        the game objects and managing the rendering pipeline.
  */
 
-#ifndef NEBULITE_CORE_RENDERER_HPP
-#define NEBULITE_CORE_RENDERER_HPP
+#ifndef CORE_RENDERER_HPP
+#define CORE_RENDERER_HPP
 
 //------------------------------------------
 // Includes
@@ -401,7 +401,7 @@ public:
      * @details Is executed once.
      * @param function The callback function to add
      */
-    void addRenderCallback(std::function<void()> const& function) noexcept {
+    void addRenderCallback(std::function<void()> const& function) {
         renderCallbacks.emplace_back(function);
     }
 
@@ -410,14 +410,14 @@ public:
     * @details Is executed once.
     * @param function The callback function to add.
     */
-    void addPostRenderCallback(std::function<void()> const& function) noexcept {
+    void addPostRenderCallback(std::function<void()> const& function) {
         postRenderCallback.emplace_back(function);
     }
 
     //------------------------------------------
     // Viewport
 
-    enum class ViewSetting {
+    enum class ViewSetting : std::uint8_t {
         high,
         low,
         lowest
@@ -582,4 +582,4 @@ private:
     void loadFonts();
 };
 } // namespace Nebulite::Core
-#endif // NEBULITE_CORE_RENDERER_HPP
+#endif // CORE_RENDERER_HPP

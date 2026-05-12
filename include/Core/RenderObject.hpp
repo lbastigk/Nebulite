@@ -3,8 +3,8 @@
  * @brief Declaration of the RenderObject class.
  */
 
-#ifndef NEBULITE_CORE_RENDEROBJECT_HPP
-#define NEBULITE_CORE_RENDEROBJECT_HPP
+#ifndef CORE_RENDEROBJECT_HPP
+#define CORE_RENDEROBJECT_HPP
 
 //------------------------------------------
 // Includes
@@ -196,4 +196,4 @@ private:
     void linkFrequentRefs();
 };
 } // namespace Nebulite::Core
-#endif // NEBULITE_CORE_RENDEROBJECT_HPP
+#endif // CORE_RENDEROBJECT_HPP

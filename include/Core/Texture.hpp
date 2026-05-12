@@ -3,8 +3,8 @@
  * @brief Texture management domain for Nebulite.
  */
 
-#ifndef NEBULITE_CORE_TEXTURE_HPP
-#define NEBULITE_CORE_TEXTURE_HPP
+#ifndef CORE_TEXTURE_HPP
+#define CORE_TEXTURE_HPP
 
 //------------------------------------------
 // Includes
@@ -117,7 +117,7 @@ private:
      *        If the texture is unmodified, this will reference the renderer's texture.
      *        If modified, it will be a separate texture.
      */
-    SDL_Texture* texture;
+    SDL_Texture* texture{nullptr};
 
     /**
      * @brief Flag indicating if the texture is stored locally (modified).
@@ -131,4 +131,4 @@ private:
     bool copyTexture();
 };
 } // namespace Nebulite::Core
-#endif // NEBULITE_CORE_TEXTURE_HPP
+#endif // CORE_TEXTURE_HPP
