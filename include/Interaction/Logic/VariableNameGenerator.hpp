@@ -1,12 +1,13 @@
-#ifndef NEBULITE_INTERACTION_LOGIC_VARIABLE_NAME_GENERATOR_HPP
-#define NEBULITE_INTERACTION_LOGIC_VARIABLE_NAME_GENERATOR_HPP
+#ifndef INTERACTION_LOGIC_VARIABLENAMEGENERATOR_HPP
+#define INTERACTION_LOGIC_VARIABLENAMEGENERATOR_HPP
 
 //------------------------------------------
 // Includes
 
 // Standard library
-
 #include <string>
+
+// External
 #include <absl/container/flat_hash_map.h>
 
 //------------------------------------------
@@ -44,4 +45,4 @@ public:
     void clear();
 };
 } // namespace Nebulite::Interaction::Logic
-#endif // NEBULITE_INTERACTION_LOGIC_VARIABLE_NAME_GENERATOR_HPP
+#endif // INTERACTION_LOGIC_VARIABLENAMEGENERATOR_HPP

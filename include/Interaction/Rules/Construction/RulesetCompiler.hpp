@@ -3,8 +3,8 @@
  * @brief This file contains the static RulesetCompiler class.
  */
 
-#ifndef NEBULITE_RULESET_COMPILER_HPP
-#define NEBULITE_RULESET_COMPILER_HPP
+#ifndef INTERACTION_RULES_CONSTRUCTION_RULESETCOMPILER_HPP
+#define INTERACTION_RULES_CONSTRUCTION_RULESETCOMPILER_HPP
 
 //------------------------------------------
 // Includes
@@ -105,4 +105,4 @@ private:
     static void setMetaData(RulesetVector const& rulesets);
 };
 } // namespace Nebulite::Interaction::Rules::Construction
-#endif // NEBULITE_RULESET_COMPILER_HPP
+#endif // INTERACTION_RULES_CONSTRUCTION_RULESETCOMPILER_HPP

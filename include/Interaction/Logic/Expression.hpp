@@ -64,6 +64,7 @@ public:
 
     // enable moving
     Expression(Expression&&) noexcept = default;
+    Expression& operator=(Expression&&) noexcept = default;
 
     /**
      * @brief Standard maximum recursion depth for nested expression evaluations.
@@ -301,7 +302,7 @@ private:
         void handleComponentTypeEval(std::string& token) const ;
 
     private:
-        enum class KeyEvaluationInfo {
+        enum class KeyEvaluationInfo : uint8_t {
             maximumDepthReached, // Could not resolve due to maximum depth reached
             noNesting // No nested variables found
         };

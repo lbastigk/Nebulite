@@ -1,6 +1,12 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+// NOLINTNEXTLINE
+#include <cstddef>
+#include <memory>
+#include <ranges>
+
 // Nebulite
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Rules/Ruleset.hpp"

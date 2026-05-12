@@ -3,8 +3,8 @@
  * @brief This file contains the Ruleset struct, representing a single invoke entry of a RenderObject for manipulation.
  */
 
-#ifndef NEBULITE_INTERACTION_RULES_RULESET_HPP
-#define NEBULITE_INTERACTION_RULES_RULESET_HPP
+#ifndef INTERACTION_RULES_RULESET_HPP
+#define INTERACTION_RULES_RULESET_HPP
 
 //------------------------------------------
 // Includes
@@ -334,4 +334,4 @@ private:
     }
 };
 } // namespace Nebulite::Interaction::Rules
-#endif // NEBULITE_INTERACTION_RULES_RULESET_HPP
+#endif // INTERACTION_RULES_RULESET_HPP

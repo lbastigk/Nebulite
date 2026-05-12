@@ -1,5 +1,5 @@
-#ifndef NEBULITE_INTERACTION_RULES_CONSTRUCTION_INITIALIZER_HPP
-#define NEBULITE_INTERACTION_RULES_CONSTRUCTION_INITIALIZER_HPP
+#ifndef INTERACTION_RULES_CONSTRUCTION_INITIALIZER_HPP
+#define INTERACTION_RULES_CONSTRUCTION_INITIALIZER_HPP
 
 namespace Nebulite::Interaction::Rules {
 class StaticRulesetMap;
@@ -12,4 +12,4 @@ namespace Construction {
 void rulesetMapInit(StaticRulesetMap* srm);
 } // namespace Construction
 } // namespace Nebulite::Interaction::Rules
-#endif // NEBULITE_INTERACTION_RULES_CONSTRUCTION_INITIALIZER_HPP
+#endif // INTERACTION_RULES_CONSTRUCTION_INITIALIZER_HPP

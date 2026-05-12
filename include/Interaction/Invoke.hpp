@@ -4,8 +4,8 @@
  *        dynamic object logic in the Nebulite engine.
  */
 
-#ifndef NEBULITE_INTERACTION_INVOKE_HPP
-#define NEBULITE_INTERACTION_INVOKE_HPP
+#ifndef INTERACTION_INVOKE_HPP
+#define INTERACTION_INVOKE_HPP
 
 //------------------------------------------
 // Includes
@@ -52,6 +52,13 @@ public:
      */
     ~Invoke();
 
+    // No copy or move
+
+    Invoke(Invoke&&) = delete;
+    Invoke& operator=(Invoke&&) = delete;
+    Invoke(Invoke const&) = delete;
+    Invoke& operator=(Invoke const&) = delete;
+
     //------------------------------------------
     // Send/Listen
 
@@ -92,7 +99,7 @@ private:
 
     using ContainerType = Data::BroadcastListenContainer::FlatContainer<Data::BroadcastListenContainer::FlatContainerType::WithRotation>;
 
-    std::unique_ptr<ContainerType> worker[Constants::ThreadSettings::Maximum::invokeWorkerCount];
+    std::array<std::unique_ptr<ContainerType>, Constants::ThreadSettings::Maximum::invokeWorkerCount> worker;
 
     size_t activeWorkerCount = Constants::ThreadSettings::getInvokeWorkerCount();
 
@@ -105,4 +112,4 @@ private:
     std::atomic<bool> stopFlag;
 };
 } // namespace Nebulite::Interaction
-#endif // NEBULITE_INTERACTION_INVOKE_HPP
+#endif // INTERACTION_INVOKE_HPP

@@ -3,8 +3,8 @@
  * @brief This file defines the RulesetModule class, for defining classes of static rulesets.
  */
 
-#ifndef NEBULITE_INTERACTION_RULES_RULESET_MODULE_HPP
-#define NEBULITE_INTERACTION_RULES_RULESET_MODULE_HPP
+#ifndef INTERACTION_RULES_RULESETMODULE_HPP
+#define INTERACTION_RULES_RULESETMODULE_HPP
 
 //------------------------------------------
 // Includes
@@ -120,4 +120,4 @@ private:
     uint64_t const id;
 };
 } // namespace Nebulite::Interaction::Rules
-#endif // NEBULITE_INTERACTION_RULES_RULESET_MODULE_HPP
+#endif // INTERACTION_RULES_RULESETMODULE_HPP

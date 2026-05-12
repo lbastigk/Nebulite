@@ -1,5 +1,5 @@
-#ifndef NEBULITE_INTERACTION_RULES_LISTENER_HPP
-#define NEBULITE_INTERACTION_RULES_LISTENER_HPP
+#ifndef INTERACTION_RULES_LISTENER_HPP
+#define INTERACTION_RULES_LISTENER_HPP
 
 //------------------------------------------
 // Includes
@@ -22,6 +22,8 @@ namespace Nebulite::Interaction::Rules {
  */
 struct Listener {
     explicit Listener(Execution::Domain& d, std::string const& t);
+    ~Listener() = default;
+
     Execution::Domain& domain;
     std::string topic;
     double** otr; // Pointer to the ordered cache list of the listener, for performance when evaluating rulesets
@@ -34,5 +36,5 @@ struct Listener {
     Listener& operator=(Listener&&) = delete;
 };
 } // namespace Nebulite::Interaction::Rules
-#endif // NEBULITE_INTERACTION_RULES_LISTENER_HPP
+#endif // INTERACTION_RULES_LISTENER_HPP
 

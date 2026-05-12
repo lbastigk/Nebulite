@@ -2,11 +2,63 @@
 // Includes
 
 // Nebulite
+#include "Interaction/Rules/Construction/Initializer.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 #include "Nebulite.hpp"
 
-
+//------------------------------------------
 namespace Nebulite::Interaction::Rules {
+
+StaticRulesetMap::StaticRulesetMap() {
+    invalidEntry = StaticRulesetWithMetadata{
+        StaticRulesetWithMetadata::Type::invalid,
+        "",
+        "",
+        nullptr
+    };
+    Construction::rulesetMapInit(this);
+    bindStaticRuleset(StaticRulesetWithMetadata{
+        StaticRulesetWithMetadata::Type::Local,
+        helpName,
+        helpDesc,
+        [this](const Context& context, double** slf, double** otr) { help(context, slf, otr); },
+        helpBaseListFunc
+    });
+}
+
+StaticRulesetMap& StaticRulesetMap::getInstance() {
+    static StaticRulesetMap instance;
+    return instance;
+}
+
+std::vector<StaticRulesetMap::StaticRulesetMetadata> StaticRulesetMap::getList() {
+    std::vector<StaticRulesetMetadata> list;
+    for (auto const& rule : getInstance().container | std::views::values) {
+        if (rule.type != StaticRulesetWithMetadata::Type::invalid) {
+            list.push_back(StaticRulesetMetadata{
+                rule.type,
+                std::string(rule.topic),
+                std::string(rule.description)
+            });
+        }
+    }
+    return list;
+}
+
+StaticRulesetMap::StaticRulesetWithMetadata& StaticRulesetMap::getStaticRulesetByName(std::string const& name) {
+    if (container.contains(name)) {
+        return container[name];
+    }
+    return invalidEntry;
+}
+
+void StaticRulesetMap::bindStaticRuleset(StaticRulesetWithMetadata const& func) {
+    // Exit program if duplicate
+    if (container.contains(func.topic)) {
+        throw std::runtime_error("Duplicate static ruleset name: " + std::string(func.topic));
+    }
+    container[func.topic] = func;
+}
 
 // NOLINTNEXTLINE
 void StaticRulesetMap::help(Interaction::Context const& context, double** /*slf*/, double** /*otr*/) const {

@@ -4,8 +4,8 @@
  *        Compared to json-defined rulesets, static rulesets are hardcoded for performance and reliability.
  */
 
-#ifndef NEBULITE_INTERACTION_RULES_STATIC_RULESETS_HPP
-#define NEBULITE_INTERACTION_RULES_STATIC_RULESETS_HPP
+#ifndef INTERACTION_RULES_STATICRULESETMAP_HPP
+#define INTERACTION_RULES_STATICRULESETMAP_HPP
 
 //------------------------------------------
 // Includes
@@ -17,8 +17,8 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
+
 #include "Interaction/Context.hpp"
-#include "Construction/Initializer.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -47,42 +47,24 @@ using BaseListFunction = std::function<double**(Execution::Domain const&)>;
 class StaticRulesetMap {
 public:
     struct StaticRulesetWithMetadata {
-        enum Type {
+        enum class Type : uint8_t {
             Local,
             Global,
             invalid
-        } type = invalid;
+        } type = Type::invalid;
         std::string_view topic;
         std::string_view description;
         StaticRulesetFunction function = nullptr;
         BaseListFunction baseListFunc = nullptr;
     };
 
-    StaticRulesetMap() {
-        invalidEntry = StaticRulesetWithMetadata{
-            StaticRulesetWithMetadata::Type::invalid,
-            "",
-            "",
-            nullptr
-        };
-        Construction::rulesetMapInit(this);
-        bindStaticRuleset(StaticRulesetWithMetadata{
-            StaticRulesetWithMetadata::Type::Local,
-            helpName,
-            helpDesc,
-            [this](const Context& context, double** slf, double** otr) { help(context, slf, otr); },
-            helpBaseListFunc
-        });
-    }
+    StaticRulesetMap();
 
     /**
      * @brief Returns the instance of the StaticRulesetMap.
      * @return Reference to the StaticRulesetMap instance.
      */
-    static StaticRulesetMap& getInstance() {
-        static StaticRulesetMap instance;
-        return instance;
-    }
+    static StaticRulesetMap& getInstance();
 
     // Owned version of metadata for sharing info
     struct StaticRulesetMetadata {
@@ -91,19 +73,12 @@ public:
         std::string description;
     };
 
-    static std::vector<StaticRulesetMetadata> getList() {
-        std::vector<StaticRulesetMetadata> list;
-        for (auto const& rule : getInstance().container | std::views::values) {
-            if (rule.type != StaticRulesetWithMetadata::Type::invalid) {
-                list.push_back(StaticRulesetMetadata{
-                    rule.type,
-                    std::string(rule.topic),
-                    std::string(rule.description)
-                });
-            }
-        }
-        return list;
-    }
+    /**
+     * @brief Get the metadata of all available static rulesets.
+     * @return A vector of StaticRulesetMetadata for all available static rulesets.
+     *         Each entry contains the type, topic, and description of a static ruleset.
+     */
+    static std::vector<StaticRulesetMetadata> getList();
 
     /**
      * @brief Retrieves a static ruleset function by name.
@@ -112,24 +87,13 @@ public:
      *         Returns an invalid entry if not found. Its type is `invalid`,
      *         and function pointer is `nullptr`.
      */
-    StaticRulesetWithMetadata& getStaticRulesetByName(std::string const& name) {
-        if (container.contains(name)) {
-            return container[name];
-        }
-        return invalidEntry;
-    }
+    StaticRulesetWithMetadata& getStaticRulesetByName(std::string const& name);
 
     /**
      * @brief Adds a static ruleset function to the map.
      * @param func Pointer to the static ruleset function, with metadata.
      */
-    void bindStaticRuleset(StaticRulesetWithMetadata const& func) {
-        // Exit program if duplicate
-        if (container.contains(func.topic)) {
-            throw std::runtime_error("Duplicate static ruleset name: " + std::string(func.topic));
-        }
-        container[func.topic] = func;
-    }
+    void bindStaticRuleset(StaticRulesetWithMetadata const& func);
 
 private:
     absl::flat_hash_map<std::string, StaticRulesetWithMetadata> container;
@@ -142,4 +106,4 @@ private:
     BaseListFunction const helpBaseListFunc = [](const Execution::Domain&) -> double** {return nullptr;};
 };
 } // namespace Nebulite::Interaction::Rules
-#endif // NEBULITE_INTERACTION_RULES_STATIC_RULESETS_HPP
+#endif // INTERACTION_RULES_STATICRULESETMAP_HPP
