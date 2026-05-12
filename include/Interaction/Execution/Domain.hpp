@@ -76,13 +76,18 @@ class ScopeOwnershipManager {
     std::unique_ptr<Data::JsonScope> _domainScopeOwned;
 
 public:
-    enum class ScopeOwnership {
+    enum class ScopeOwnership : bool {
         Owned, // Will create and own a new JsonScope (default constructor)
         Borrowed // Will be left empty
     };
 
     virtual ~ScopeOwnershipManager();
     explicit ScopeOwnershipManager(ScopeOwnership const& ownership = ScopeOwnership::Borrowed);
+
+    ScopeOwnershipManager(ScopeOwnershipManager const&) = delete;
+    ScopeOwnershipManager& operator=(ScopeOwnershipManager const&) = delete;
+    ScopeOwnershipManager(ScopeOwnershipManager&&) = delete;
+    ScopeOwnershipManager& operator=(ScopeOwnershipManager&&) = delete;
 };
 
 /**

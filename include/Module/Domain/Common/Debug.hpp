@@ -13,6 +13,13 @@
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction::Execution {
+class Domain;
+} // namespace Nebulite::Interaction::Execution
+
+//------------------------------------------
 namespace Nebulite::Module::Domain::Common {
 class Debug final : public Interaction::Execution::DomainModule<Interaction::Execution::Domain> {
 public:

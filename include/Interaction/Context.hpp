@@ -3,14 +3,15 @@
  * @brief Defines context structures for interaction of rulesets and functions
  *        within the Nebulite engine.
  */
-#ifndef NEBULITE_INTERACTION_CONTEXT_HPP
-#define NEBULITE_INTERACTION_CONTEXT_HPP
+#ifndef INTERACTION_CONTEXT_HPP
+#define INTERACTION_CONTEXT_HPP
 
 //------------------------------------------
 // Includes
 
 // Standard library
 #include <array>
+#include <cstdint>
 #include <optional>
 #include <string_view>
 #include <utility>
@@ -31,7 +32,7 @@ namespace Nebulite::Interaction {
 
 class ContextDeriver {
 public:
-    enum class TargetType {
+    enum class TargetType : uint8_t {
         self,
         other,
         global,
@@ -99,7 +100,8 @@ class ContextTemplate {
 public:
     Target& self;
     Target& other;
-    Target& global; // The global target, must be the owner of self and other to outlive them! Otherwise, some context storages may break!
+    Target& global;
+    // The global target, must be the owner of self and other to outlive them! Otherwise, some context storages may break!
 
     [[nodiscard]] std::optional<std::reference_wrapper<Target>> getTargetFromType(ContextDeriver::TargetType const& type) const {
         switch (type) {
@@ -161,4 +163,4 @@ public:
 class Context : public ContextTemplate<Execution::Domain>{};
 
 } // namespace Nebulite::Interaction
-#endif // NEBULITE_INTERACTION_CONTEXT_HPP
+#endif // INTERACTION_CONTEXT_HPP

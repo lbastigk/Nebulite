@@ -1,5 +1,5 @@
-#ifndef NEBULITE_MODULE_BASE_RML_UI_MODULE_HPP
-#define NEBULITE_MODULE_BASE_RML_UI_MODULE_HPP
+#ifndef MODULE_BASE_RMLUIMODULE_HPP
+#define MODULE_BASE_RMLUIMODULE_HPP
 
 //------------------------------------------
 // Includes
@@ -33,4 +33,4 @@ protected:
     Graphics::RmlInterface& interface;
 };
 } // namespace Nebulite::Module::Base
-#endif // NEBULITE_MODULE_BASE_RML_UI_MODULE_HPP
+#endif // MODULE_BASE_RMLUIMODULE_HPP

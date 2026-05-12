@@ -129,7 +129,7 @@ private:
      * @return The key string for the clock entry.
      */
     static std::string intervalToKey(uint64_t const& interval_ms) {
-        static uint16_t padding = 6; // Not enough for uint64_t max value, but reasonable for practical clock intervals
+        static uint16_t constexpr padding = 6; // Not enough for uint64_t max value, but reasonable for practical clock intervals
         return "ms" + std::to_string(interval_ms).insert(0, padding - std::to_string(interval_ms).length(), '0');
     }
 };

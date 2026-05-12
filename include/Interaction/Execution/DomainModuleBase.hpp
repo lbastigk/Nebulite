@@ -16,10 +16,6 @@ namespace Nebulite::Data {
 class JsonScope;
 } // namespace Nebulite::Data
 
-namespace Nebulite::Interaction::Execution {
-class Domain;
-} // namespace Nebulite::Interaction::Execution
-
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
 /**
@@ -46,6 +42,11 @@ public:
     );
 
     virtual ~DomainModuleBase();
+
+    DomainModuleBase(DomainModuleBase const&) = delete;
+    DomainModuleBase& operator=(DomainModuleBase const&) = delete;
+    DomainModuleBase(DomainModuleBase&&) = delete;
+    DomainModuleBase& operator=(DomainModuleBase&&) = delete;
 
     //------------------------------------------
     // Virtual functions for derived classes to implement

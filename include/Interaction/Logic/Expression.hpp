@@ -3,8 +3,8 @@
  * @brief This file contains the definition of the Expression class, which is responsible for parsing and evaluating expressions within the Nebulite engine.
  */
 
-#ifndef NEBULITE_INTERACTION_LOGIC_EXPRESSION_HPP
-#define NEBULITE_INTERACTION_LOGIC_EXPRESSION_HPP
+#ifndef INTERACTION_LOGIC_EXPRESSION_HPP
+#define INTERACTION_LOGIC_EXPRESSION_HPP
 
 //------------------------------------------
 // Includes
@@ -489,4 +489,4 @@ private:
 };
 
 } // namespace Nebulite::Interaction::Logic
-#endif // NEBULITE_INTERACTION_LOGIC_EXPRESSION_HPP
+#endif // INTERACTION_LOGIC_EXPRESSION_HPP

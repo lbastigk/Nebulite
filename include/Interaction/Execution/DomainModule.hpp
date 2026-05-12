@@ -33,11 +33,20 @@ template <typename DomainType>
 class DomainModule : public DomainModuleBase {
 public:
     struct ConstructorParams {
-        DomainType& domainReference; // Reference to the Domain instance this module is associated with.
-        std::string name; // Name of the DomainModule, useful for debugging and logging.
-        Data::JsonScope& scope; // JsonScope reference for this module to use as workspace.
-        std::shared_ptr<DomainTree> const& funcTreePtr; // Shared pointer to the FuncTree for binding functions and variables.
-        Data::JsonScope const& settings; // Const JsonScope reference for settings.
+        // Reference to the Domain instance this module is associated with.
+        DomainType& domainReference;
+
+        // Name of the DomainModule, useful for debugging and logging.
+        std::string name;
+
+        // JsonScope reference for this module to use as workspace.
+        Data::JsonScope& scope;
+
+        // Shared pointer to the FuncTree for binding functions and variables.
+        std::shared_ptr<DomainTree> const& funcTreePtr;
+
+        // Const JsonScope reference for settings.
+        Data::JsonScope const& settings;
     };
 
     /**
@@ -53,9 +62,11 @@ public:
 
     // Prevent copying
     DomainModule(DomainModule const&) = delete;
-
-    // Prevent assignment
     DomainModule& operator=(DomainModule const&) = delete;
+
+    // Prevent moving
+    DomainModule(DomainModule&&) = delete;
+    DomainModule& operator=(DomainModule&&) = delete;
 
 protected:
     //------------------------------------------

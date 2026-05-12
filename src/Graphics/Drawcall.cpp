@@ -4,18 +4,35 @@
 // Standard library
 #include <cfloat>
 #include <cmath>
+// NOLINTNEXTLINE
+#include <cstdint>
 #include <cstdlib>
-#include <random>
+#include <string>
+#include <utility>
+#include <vector>
 
 // External
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_surface.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Core/Renderer.hpp"
+#include "Data/Document/JsonScope.hpp"
+#include "Data/Document/KeyType.hpp"
 #include "Graphics/Drawcall.hpp"
 #include "Graphics/SdlPrimitive.hpp"
+// NOLINTNEXTLINE
+#include "Interaction/Context.hpp"
 #include "Math/Equality.hpp"
 #include "Nebulite.hpp"
 #include "Utility/Coordination/IdGenerator.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace {

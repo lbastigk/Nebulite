@@ -11,6 +11,13 @@
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction::Execution {
+class Domain;
+} // namespace Nebulite::Interaction::Execution
+
+//------------------------------------------
 namespace Nebulite::Module::Domain::Common {
 class RmlUi final : public Interaction::Execution::DomainModule<Interaction::Execution::Domain> {
 public:
@@ -22,6 +29,11 @@ public:
     explicit RmlUi(ConstructorParams const& params) : DomainModule(params) {}
 
     ~RmlUi() override ;
+
+    RmlUi(RmlUi const&) = delete;
+    RmlUi& operator=(RmlUi const&) = delete;
+    RmlUi(RmlUi&&) = delete;
+    RmlUi& operator=(RmlUi&&) = delete;
 };
 } // namespace Nebulite::Module::Domain::Common
 #endif // NEBULITE_MODULE_DOMAIN_COMMON_RMLUI_HPP

@@ -13,6 +13,13 @@
 #include "Interaction/Execution/DomainModule.hpp"
 
 //------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction::Execution {
+class Domain;
+} // namespace Nebulite::Interaction::Execution
+
+//------------------------------------------
 namespace Nebulite::Module::Domain::Common {
 /**
  * @class Nebulite::Module::Domain::Common::Ruleset
@@ -53,5 +60,5 @@ public:
         bindFunction(&Ruleset::invokeOnce, invokeOnceName, invokeOnceDesc);
     }
 };
-} // namespace Nebulite::Module::Domain::GlobalSpace
+} // namespace Nebulite::Module::Domain::Common
 #endif // NEBULITE_MODULE_DOMAIN_COMMON_RULESET_HPP
