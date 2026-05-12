@@ -43,7 +43,7 @@ void Input::mapKeyNames() {
     };
 
     // Keyboard
-    for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++
+    for (size_t scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++
          scancode) {
         char const* nameRaw = SDL_GetScancodeName(
             static_cast<SDL_Scancode>(scancode));
@@ -62,13 +62,13 @@ void Input::mapKeyNames() {
             // Don't add if there are special chars in Nebulite::Constants::keyName
             if (!Utility::StringHandler::containsAnyOf(
                 keyName, Data::JSON::reservedCharacters)) {
-                keyNames[scancode] = keyName;
+                keyboardState.keyNames[scancode] = keyName;
 
                 // Paths
-                auto currentPath = Key::keyboardCurrent.addMember(keyNames[scancode]);
-                auto deltaPath = Key::keyboardDelta.addMember(keyNames[scancode]);
-                deltaKey[scancode] = moduleScope.getStableDoublePointer(deltaPath);
-                currentKey[scancode] = moduleScope.getStableDoublePointer(currentPath);
+                auto currentPath = Key::keyboardCurrent.addMember(keyboardState.keyNames[scancode]);
+                auto deltaPath = Key::keyboardDelta.addMember(keyboardState.keyNames[scancode]);
+                keyboardState.deltaKey[scancode] = moduleScope.getStableDoublePointer(deltaPath);
+                keyboardState.currentKey[scancode] = moduleScope.getStableDoublePointer(currentPath);
             }
         }
     }
@@ -134,12 +134,12 @@ void Input::writeCurrentAndDeltaInputs() {
     //------------------------------------------
     // Keyboard
     auto const* keyState = SDL_GetKeyboardState(nullptr);
-    for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++scancode) {
-        if (!keyNames[scancode].empty()) {
+    for (size_t scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++scancode) {
+        if (!keyboardState.keyNames[scancode].empty()) {
             // Retrieve state, store previous state
             bool const currentPressed = keyState[scancode];
-            bool const prevPressed = prevKey[scancode];
-            prevKey[scancode] = currentPressed;
+            bool const prevPressed = keyboardState.prevKey[scancode];
+            keyboardState.prevKey[scancode] = currentPressed;
 
             int delta = 0;
             if (currentPressed && !prevPressed)
@@ -147,8 +147,8 @@ void Input::writeCurrentAndDeltaInputs() {
             else if (!currentPressed && prevPressed)
                 delta = -1;
 
-            *currentKey[scancode] = static_cast<double>(currentPressed);
-            *deltaKey[scancode] = static_cast<double>(delta);
+            *keyboardState.currentKey[scancode] = static_cast<double>(currentPressed);
+            *keyboardState.deltaKey[scancode] = static_cast<double>(delta);
         }
     }
 }
@@ -161,9 +161,9 @@ void Input::resetDeltaValues() const {
     *mouseDelta.right = 0.0;
 
     // 2.) Keyboard
-    for (int scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++scancode) {
-        if (!keyNames[scancode].empty()) {
-            *deltaKey[scancode] = 0.0;
+    for (size_t scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++scancode) {
+        if (!keyboardState.keyNames[scancode].empty()) {
+            *keyboardState.deltaKey[scancode] = 0.0;
         }
     }
 }

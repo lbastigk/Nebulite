@@ -95,8 +95,37 @@ private:
     bool resetDeltaOnNextUpdate = false;
 
     /**
+     * @struct KeyboardState
+     * @brief Stores key names, current states, previous states, and delta states for keyboard input.
+     */
+    struct KeyboardState {
+        /**
+         * @brief Array to store key names corresponding to SDL scancodes.
+         */
+        std::array<std::string, SDL_SCANCODE_COUNT> keyNames;
+
+        /**
+         * @brief Array to store pointers to double values representing the current states of keys.
+         * @details Represents their values inside the global document.
+         */
+        std::array<double*, SDL_SCANCODE_COUNT> currentKey = {nullptr};
+
+        /**
+         * @brief Array to store previous key states.
+         * @details We do not need to store current key states, as SDL does that for us.
+         */
+        std::array<bool, SDL_SCANCODE_COUNT> prevKey = {false};
+
+        /**
+         * @brief Array to store pointers to double values representing the delta states of keys.
+         * @details Represents their values inside the global document.
+         */
+        std::array<double*, SDL_SCANCODE_COUNT> deltaKey = {nullptr};
+    } keyboardState;
+
+    /**
      * @struct Mouse
-     * 
+     *
      * @brief Stores current and last Position/State of the mouse.
      */
     struct Mouse {
@@ -107,31 +136,6 @@ private:
         Uint32 lastState = 0;
         Uint32 state = 0;
     } mouse;
-
-    /**
-     * @brief Array to store key names corresponding to SDL scancodes.
-     */
-    std::string keyNames[SDL_SCANCODE_COUNT] = {""};
-
-    /**
-     * @brief Array to store previous key states.
-     * 
-     * We do not need to store current key states,
-     * as SDL does that for us.
-     */
-    bool prevKey[SDL_SCANCODE_COUNT] = {false}; // Previous key states
-
-    /**
-     * @brief Array to store pointers to double values representing the delta states of keys.
-     * Represents their values inside the global document.
-     */
-    double* deltaKey[SDL_SCANCODE_COUNT] = {nullptr}; // Pointers to delta key states in global doc
-
-    /**
-     * @brief Array to store pointers to double values representing the current states of keys.
-     * Represents their values inside the global document.
-     */
-    double* currentKey[SDL_SCANCODE_COUNT] = {nullptr}; // Pointers to current key states in global doc
 
     /**
      * @brief Mouse values
