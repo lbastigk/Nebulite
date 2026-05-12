@@ -1,11 +1,22 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstddef>
+#include <cstdint>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Core/GlobalSpace.hpp"
+#include "Data/Document/ScopedKey.hpp"
+#include "Module/Domain/GlobalSpace/Floating/RNG.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
 #include "Module/Domain/Initializer.hpp"
 #include "Nebulite.hpp"
+#include "ScopeAccessor.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {

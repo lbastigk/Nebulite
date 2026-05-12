@@ -1,13 +1,26 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <algorithm>
+// NOLINTNEXTLINE
+#include <cstdint>
+#include <memory>
+#include <numeric>
+#include <string>
+#include <vector>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Constants/KeyNames.hpp"
 #include "Core/RenderObject.hpp"
+#include "Data/Document/JsonScope.hpp"
+#include "Graphics/Drawcall.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Module/Domain/Initializer.hpp"
 #include "Nebulite.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {

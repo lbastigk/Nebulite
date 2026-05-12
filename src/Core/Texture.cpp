@@ -2,14 +2,19 @@
 // Includes
 
 // External
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_render.h>
 
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Core/Texture.hpp"
 #include "Graphics/Drawcall.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Module/Domain/Initializer.hpp"
 #include "Nebulite.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {

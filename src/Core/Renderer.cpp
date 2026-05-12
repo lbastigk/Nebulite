@@ -2,32 +2,56 @@
 // Includes
 
 // Standard library
+#include <algorithm>
+#include <cctype>
+#include <cstddef>
+#include <cstdint>
+#include <cstdlib>
+#include <functional>
+#include <optional>
 #include <random>
+#include <ranges>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 // External
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_init.h>
+#include <SDL3/SDL_keyboard.h>
+#include <SDL3/SDL_mouse.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_scancode.h>
+#include <SDL3/SDL_surface.h>
+#include <SDL3/SDL_video.h>
 #include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
+#include <imgui.h>
 #include <imgui_impl_sdl3.h>
 #include <imgui_impl_sdlrenderer3.h>
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Constants/KeyNames.hpp"
 #include "Core/RenderObject.hpp"
 #include "Core/Renderer.hpp"
-#include "Interaction/Invoke.hpp"
+#include "Data/RenderObjectContainer.hpp"
+#include "Data/Tiling.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
 #include "Module/Domain/Initializer.hpp"
 #include "Nebulite.hpp"
+#include "Utility/IO/Capture.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
 //------------------------------------------
 namespace Nebulite::Core {
 
 namespace {
-
 double fontSize(auto const fontSizeKey, double defaultValue) {
     return Global::settings().get<double>(fontSizeKey).value_or(defaultValue) * Global::settings().get<double>(Module::Domain::GlobalSpace::Settings::Key::fontScale).value_or(1.0);
 }
-
 } // namespace
 
 Renderer::Renderer(Data::JsonScope& documentReference, bool* flag_headless, Utility::IO::Capture& parentCapture) :
