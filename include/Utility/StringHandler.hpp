@@ -116,15 +116,6 @@ public:
     static ParseResult parseQuotedArguments(std::string_view const& cmd);
 
     /**
-     * @brief Recombines argc/argv into a single string with spaces.
-     *        Ensures that no extra spaces are added if the original arguments contained spaces.
-     * @param argc The number of arguments.
-     * @param argv The array of argument strings.
-     * @return The recombined argument string.
-     */
-    [[deprecated]] static std::string recombineArgs(int argc, char* argv[]);
-
-    /**
      * @brief Recombines a span of strings into a single string with spaces.
      *        Ensures that no extra spaces are added if the original arguments contained spaces.
      * @param args The span of argument strings.
@@ -160,7 +151,7 @@ public:
      *          - brace: '{' and '}'
      *          - bracket: '[' and ']'
      */
-    enum Delimiter {parentheses, brace, bracket};
+    enum class Delimiter : uint8_t {parentheses, brace, bracket};
 
     /**
      * @brief Converts a Delimiter enum value to its corresponding opening character.

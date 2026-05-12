@@ -94,8 +94,8 @@ public:
 
 private:
     template<class C, typename T, std::size_t... Is, typename F>
-    static constexpr C impl(std::index_sequence<Is...>, F&& generator) {
-        return { { static_cast<T>(std::invoke(generator, Is))... } };
+    static constexpr C impl(std::index_sequence<Is...> /*is*/, F&& generator) {
+        return { { static_cast<T>(std::invoke(std::forward<F>(generator), Is))... } };
     }
 };
 

@@ -205,13 +205,6 @@ StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string_view 
     return {.args = std::move(result), .unclosedQuote = state.inAnyQuote()};
 }
 
-// NOLINTNEXTLINE
-std::string StringHandler::recombineArgs(int const argc, char* argv[]) {
-    // Turn into vector and pass to span version for code reuse
-    std::vector<std::string> args(argv, argv + argc);
-    return recombineArgs(args);
-}
-
 std::string StringHandler::recombineArgs(std::span<std::string const> const& args) {
     std::string result;
     for (size_t i = 0; i < args.size(); ++i) {
@@ -338,17 +331,17 @@ std::vector<std::string> StringHandler::splitOnSameDepth(std::string_view const&
 
 char StringHandler::delimiterToOpeningChar(Delimiter const& delimiter) {
     switch (delimiter) {
-    case parentheses: return '(';
-    case brace: return '{';
-    case bracket: return '[';
+    case Delimiter::parentheses: return '(';
+    case Delimiter::brace: return '{';
+    case Delimiter::bracket: return '[';
     default: std::unreachable();
     }
 }
 char StringHandler::delimiterToClosingChar(Delimiter const& delimiter) {
     switch (delimiter) {
-    case parentheses: return ')';
-    case brace: return '}';
-    case bracket: return ']';
+    case Delimiter::parentheses: return ')';
+    case Delimiter::brace: return '}';
+    case Delimiter::bracket: return ']';
     default: std::unreachable();
     }
 }
