@@ -2,9 +2,15 @@
 // Includes
 
 // Standard library
+#include <cmath>
+#include <cstddef>
+#include <memory>
 #include <ranges>
+#include <stdexcept>
+#include <string>
 
 // Nebulite
+#include "Constants/ThreadSettings.hpp"
 #include "Data/BroadcastListenContainer/FlatContainer.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Listener.hpp"
@@ -15,7 +21,6 @@
 namespace Nebulite::Data::BroadcastListenContainer {
 
 namespace {
-
 size_t& getThreadId() {
     static auto workerCount = Constants::ThreadSettings::getInvokeWorkerCount();
     static auto threadSpreader = Utility::Coordination::IdGenerator::atomicThreadIncrementGenerator();
@@ -25,7 +30,6 @@ size_t& getThreadId() {
     }
     return threadId;
 }
-
 } // namespace
 
 // TODO: the locks should not be necessary, but somehow they are ...
