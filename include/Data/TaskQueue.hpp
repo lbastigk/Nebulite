@@ -3,8 +3,8 @@
  * @brief Definition of TaskQueue and TaskQueueResult structures for managing task queues in Nebulite.
  */
 
-#ifndef NEBULITE_DATA_TASKQUEUE_HPP
-#define NEBULITE_DATA_TASKQUEUE_HPP
+#ifndef DATA_TASKQUEUE_HPP
+#define DATA_TASKQUEUE_HPP
 
 //------------------------------------------
 // Includes
@@ -49,7 +49,7 @@ public:
      * @param callbackName The name used as arg[0] when parsing tasks from this queue.
      */
     explicit TaskQueue(std::string const& callbackName, bool const& clearAfterResolving = true)
-        : settings{callbackName, clearAfterResolving} {}
+        : settings{.callbackName=callbackName, .clearAfterResolving=clearAfterResolving} {}
 
     /**
      * @brief Resolves the task queue by parsing and executing each task in the context of the provided domain.
@@ -120,4 +120,4 @@ private:
     } state;
 };
 } // namespace Nebulite::Data
-#endif // NEBULITE_DATA_TASKQUEUE_HPP
+#endif // DATA_TASKQUEUE_HPP

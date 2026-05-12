@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DATA_TILING_HPP
+#define DATA_TILING_HPP
 
 //------------------------------------------
 // Includes
@@ -37,3 +38,5 @@ struct TileCoordinate {
 };
 
 } // namespace Nebulite::Data
+
+#endif // DATA_TILING_HPP

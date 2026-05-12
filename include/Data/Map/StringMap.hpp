@@ -4,8 +4,8 @@
  * @details Experimental, seems to crash sometimes.
  */
 
-#ifndef DATA_HOT_STRING_KEY_MAP_HPP
-#define DATA_HOT_STRING_KEY_MAP_HPP
+#ifndef DATA_MAP_STRINGMAP_HPP
+#define DATA_MAP_STRINGMAP_HPP
 
 //------------------------------------------
 // Includes
@@ -55,6 +55,8 @@ private:
 public:
     StringMap() = default;
 
+    ~StringMap() = default;
+
     StringMap(StringMap&& other) = delete;
     StringMap& operator=(StringMap&& other) = delete;
     StringMap(StringMap const&) = delete;
@@ -101,4 +103,4 @@ public:
 
 } // namespace Nebulite::Data
 
-#endif // DATA_HOT_STRING_KEY_MAP_HPP
+#endif // DATA_MAP_STRINGMAP_HPP

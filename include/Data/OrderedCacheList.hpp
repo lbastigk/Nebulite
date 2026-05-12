@@ -3,8 +3,8 @@
  * @brief Defines a list of double pointers for interaction logic.
  */
 
-#ifndef NEBULITE_DATA_ORDERED_DOUBLE_POINTERS_HPP
-#define NEBULITE_DATA_ORDERED_DOUBLE_POINTERS_HPP
+#ifndef DATA_ORDEREDCACHELIST_HPP
+#define DATA_ORDEREDCACHELIST_HPP
 
 //------------------------------------------
 // Includes
@@ -14,8 +14,8 @@
 
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
-#include "Utility/Coordination/SharedMutex.hpp"
 #include "Utility/Coordination/IdGenerator.hpp"
+#include "Utility/Coordination/SharedMutex.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -100,7 +100,7 @@ public:
 
     explicit OrderedCacheList(size_t const& exact_size) : orderedValues(exact_size) {}
 
-    DynamicFixedArray orderedValues {};
+    DynamicFixedArray orderedValues;
 };
 
 /**
@@ -166,4 +166,4 @@ private:
 };
 } // namespace Nebulite::Data
 
-#endif // NEBULITE_DATA_ORDERED_DOUBLE_POINTERS_HPP
+#endif // DATA_ORDEREDCACHELIST_HPP

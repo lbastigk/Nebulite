@@ -3,8 +3,8 @@
  * @brief Contains the Nebulite::Data::RenderObjectContainer class.
  */
 
-#ifndef NEBULITE_DATA_RENDER_OBJECT_CONTAINER_HPP
-#define NEBULITE_DATA_RENDER_OBJECT_CONTAINER_HPP
+#ifndef DATA_RENDEROBJECTCONTAINER_HPP
+#define DATA_RENDEROBJECTCONTAINER_HPP
 
 //------------------------------------------
 // Includes
@@ -200,5 +200,5 @@ private:
      */
     absl::flat_hash_map<TileCoordinate, std::vector<Batch>> ObjectContainer;
 };
-} // namespace Nebulite::Core
-#endif // NEBULITE_DATA_RENDER_OBJECT_CONTAINER_HPP
+} // namespace Nebulite::Data
+#endif // DATA_RENDEROBJECTCONTAINER_HPP

@@ -1,5 +1,5 @@
-#ifndef NEBULITE_DATA_RENDERER_PROCESSOR_HPP
-#define NEBULITE_DATA_RENDERER_PROCESSOR_HPP
+#ifndef DATA_RENDERERPROCESSOR_HPP
+#define DATA_RENDERERPROCESSOR_HPP
 
 //------------------------------------------
 // Includes
@@ -162,4 +162,4 @@ public:
 };
 
 } // namespace Nebulite::Data
-#endif // NEBULITE_DATA_RENDERER_PROCESSOR_HPP
+#endif // DATA_RENDERERPROCESSOR_HPP
