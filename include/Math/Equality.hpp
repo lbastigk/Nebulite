@@ -1,5 +1,5 @@
-#ifndef NEBULITE_MATH_EQUALITY_HPP
-#define NEBULITE_MATH_EQUALITY_HPP
+#ifndef MATH_EQUALITY_HPP
+#define MATH_EQUALITY_HPP
 
 //------------------------------------------
 // Includes
@@ -62,4 +62,4 @@ inline bool isZero(double const& value) {
 }
 
 } // namespace Nebulite::Math
-#endif // NEBULITE_MATH_EQUALITY_HPP
+#endif // MATH_EQUALITY_HPP

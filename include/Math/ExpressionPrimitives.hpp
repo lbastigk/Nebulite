@@ -3,8 +3,8 @@
  * @brief This file contains a collection of custom functions for TinyExpr used in Nebulite
  */
 
-#ifndef NEBULITE_MATH_EXPRESSION_PRIMITIVES_HPP
-#define NEBULITE_MATH_EXPRESSION_PRIMITIVES_HPP
+#ifndef MATH_EXPRESSIONPRIMITIVES_HPP
+#define MATH_EXPRESSIONPRIMITIVES_HPP
 
 //------------------------------------------
 // Includes
@@ -333,4 +333,4 @@ private:
     static std::vector<FunctionInfo> const& availableFunctions();
 };
 } // namespace Nebulite::Math
-#endif // NEBULITE_MATH_EXPRESSION_PRIMITIVES_HPP
+#endif // MATH_EXPRESSIONPRIMITIVES_HPP

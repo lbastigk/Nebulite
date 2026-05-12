@@ -3,8 +3,8 @@
  * @brief This file contains the declaration of the Fast Fourier Transform (FFT) function for audio processing in the Nebulite engine.
  */
 
-#ifndef NEBULITE_MATH_FFT_HPP
-#define NEBULITE_MATH_FFT_HPP
+#ifndef MATH_FFT_HPP
+#define MATH_FFT_HPP
 
 //------------------------------------------
 // Includes
@@ -53,4 +53,4 @@ public:
     static std::vector<double> applyTransferFunction(std::vector<double> const& data, std::vector<double> const& num, std::vector<double> const& den);
 };
 } // namespace Nebulite::Math
-#endif // NEBULITE_MATH_FFT_HPP
+#endif // MATH_FFT_HPP
