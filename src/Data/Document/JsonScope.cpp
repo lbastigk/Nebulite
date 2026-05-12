@@ -2,11 +2,23 @@
 // Includes
 
 // Standard library
-#include <array>
+// NOLINTNEXTLINE
+#include <cstddef>
+#include <expected>
+#include <memory>
+#include <mutex>
+#include <optional>
+#include <span>
+#include <string>
+#include <vector>
 
 // Nebulite
 #include "Data/Document/JSON.hpp"
+#include "Data/Document/KeyType.hpp"
+#include "Data/Document/RjDirectAccess.hpp"
 #include "Data/Document/ScopedKey.hpp"
+#include "Data/Document/SimpleValueError.hpp"
+#include "Data/OrderedCacheList.hpp"
 #include "Nebulite.hpp"
 #include "Utility/Generate.hpp"
 
@@ -167,7 +179,12 @@ std::vector<JsonScope::MemberAndKey> JsonScope::listAvailableMembersAndKeys(Scop
     std::vector<MemberAndKey> scopedKeys;
     scopedKeys.reserve(keys.size());
     for (auto const& k : keys) {
-        scopedKeys.emplace_back(MemberAndKey{k,key.addMember(k)});
+        scopedKeys.emplace_back(
+            MemberAndKey{
+                .member=k,
+                .key=key.addMember(k)
+            }
+        );
     }
     return scopedKeys;
 }

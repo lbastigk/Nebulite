@@ -2,11 +2,21 @@
 // Includes
 
 // Standard library
-#include <ranges>
+#include <algorithm>
+#include <cstddef>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 // External
-#include <rapidjson/stringbuffer.h>
+#include <rapidjson/document.h>
+#include <rapidjson/error/error.h>
 #include <rapidjson/prettywriter.h>
+#include <rapidjson/rapidjson.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 
 // Nebulite
 #include "Data/Document/RjDirectAccess.hpp"
@@ -37,7 +47,7 @@ rapidjson::Value* RjDirectAccess::traversePath(std::string_view const& key, rapi
 
     while (!keyView.empty()) {
         // Extract current key part (object key)
-        std::string keyPart = extractKeyPart(keyView);
+        std::string const keyPart = extractKeyPart(keyView);
 
         // Handle object key part if non-empty
         if (!keyPart.empty()) {
@@ -98,7 +108,7 @@ rapidjson::Value* RjDirectAccess::ensurePath(std::string_view const& key, rapidj
 
     while (!keyView.empty()) {
         // Extract current key part (object key)
-        std::string keyPart = extractKeyPart(keyView);
+        std::string const keyPart = extractKeyPart(keyView);
 
         // Handle object key part if non-empty
         if (!keyPart.empty()) {
@@ -117,7 +127,7 @@ rapidjson::Value* RjDirectAccess::ensurePath(std::string_view const& key, rapidj
         // Now handle zero or more array indices if they appear next
         while (!keyView.empty() && keyView[0] == SpecialCharacter::arrayOpen) {
             // Find closing character
-            size_t closeBracket = keyView.find(SpecialCharacter::arrayClose);
+            size_t const closeBracket = keyView.find(SpecialCharacter::arrayClose);
             if (closeBracket == std::string_view::npos) {
                 // Malformed key - missing closing character
                 return nullptr;
@@ -524,7 +534,7 @@ std::string RjDirectAccess::extractKeyPart(std::string_view& keyView) {
     }
 
     // Build the result string from the current data/length before modifying the input view.
-    std::string const result(keyView.data(), nextSep);
+    auto const result = std::string(keyView.substr(0, nextSep));
     keyView.remove_prefix(nextSep);
     return result;
 }

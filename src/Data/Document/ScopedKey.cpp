@@ -1,6 +1,15 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+// NOLINTNEXTLINE
+#include <cstddef>
+#include <optional>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <utility>
+
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Data/Document/ScopedKey.hpp"
@@ -11,8 +20,7 @@ namespace Nebulite::Data {
 
 // construct from a view + suffix
 ScopedKey::ScopedKey(ScopedKeyView const& base, std::string_view const& suffix)
-    : givenScope(base.givenScope), owned(base.key)
-{
+    : givenScope(base.givenScope), owned(base.key) {
     owned = ScopedKeyView::combineKeys(owned, suffix);
 }
 
@@ -22,7 +30,7 @@ ScopedKey::ScopedKey(std::optional<std::string_view> const& scope, std::string s
 ScopedKey::ScopedKey(std::string suffix)
     : owned(std::move(suffix)) {}
 
-std::string ScopedKey::toString() const{
+std::string ScopedKey::toString() const {
     return view().toString();
 }
 

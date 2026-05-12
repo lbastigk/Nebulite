@@ -1,10 +1,18 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <algorithm>
+#include <memory>
+#include <span>
+#include <string>
+#include <vector>
+
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonRvalueTransformer.hpp"
+#include "Data/Document/JsonScope.hpp"
+#include "Interaction/Execution/FuncTree.hpp"
 #include "Nebulite.hpp"
 
 // Nebulite: Transformation modules

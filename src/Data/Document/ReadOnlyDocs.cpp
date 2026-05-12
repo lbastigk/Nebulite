@@ -1,6 +1,13 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstddef>
+#include <iterator>
+#include <random>
+#include <string>
+#include <string_view>
+
 // Nebulite
 #include "Data/Document/ReadOnlyDocs.hpp"
 #include "Nebulite.hpp"
