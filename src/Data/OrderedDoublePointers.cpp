@@ -1,9 +1,16 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+// NOLINTNEXTLINE
+#include <cstdint>
+#include <vector>
+
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
+#include "Data/Document/ScopedKey.hpp"
 #include "Data/OrderedCacheList.hpp"
+#include "Utility/Coordination/SharedMutex.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

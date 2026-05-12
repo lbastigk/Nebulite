@@ -1,11 +1,22 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <mutex>
+#include <ranges>
+#include <stdexcept>
+#include <vector>
+
 // Nebulite
+#include "Constants/ThreadSettings.hpp"
 #include "Core/RenderObject.hpp"
 #include "Data/RenderObjectContainer.hpp"
 #include "Data/RendererProcessor.hpp"
 #include "Nebulite.hpp"
+#include "Utility/Coordination/WorkDispatcher.hpp"
 
 //------------------------------------------
 // Helper
