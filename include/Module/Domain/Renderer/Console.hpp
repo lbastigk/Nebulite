@@ -3,8 +3,8 @@
  * @brief This file contains the DomainModule of the GlobalSpace to provide console capabilities.
  */
 
-#ifndef NEBULITE_MODULE_DOMAIN_RENDERER_CONSOLE_HPP
-#define NEBULITE_MODULE_DOMAIN_RENDERER_CONSOLE_HPP
+#ifndef MODULE_DOMAIN_RENDERER_CONSOLE_HPP
+#define MODULE_DOMAIN_RENDERER_CONSOLE_HPP
 
 //------------------------------------------
 // Includes
@@ -77,4 +77,4 @@ private:
     bool consoleMode = false;
 };
 } // namespace Nebulite::Module::Domain::Renderer
-#endif // NEBULITE_MODULE_DOMAIN_RENDERER_CONSOLE_HPP
+#endif // MODULE_DOMAIN_RENDERER_CONSOLE_HPP

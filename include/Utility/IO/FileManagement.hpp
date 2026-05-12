@@ -3,8 +3,8 @@
  * @brief This file contains the FileManagement class for managing file operations.
  */
 
-#ifndef NEBULITE_UTILITY_FILE_MANAGEMENT_HPP
-#define NEBULITE_UTILITY_FILE_MANAGEMENT_HPP
+#ifndef UTILITY_FILE_MANAGEMENT_HPP
+#define UTILITY_FILE_MANAGEMENT_HPP
 
 //------------------------------------------
 // Includes
@@ -91,4 +91,4 @@ public:
      static std::vector<std::string> listContentInDirectory(std::string_view const& dir);
 };
 } // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_FILE_MANAGEMENT_HPP
+#endif // UTILITY_FILE_MANAGEMENT_HPP

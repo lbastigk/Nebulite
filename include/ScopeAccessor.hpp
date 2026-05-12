@@ -3,8 +3,8 @@
  * @brief Defines the ScopeAccessor class for providing access tokens to various Domain types, Modules, etc.
  */
 
-#ifndef NEBULITE_SCOPE_ACCESSOR_HPP
-#define NEBULITE_SCOPE_ACCESSOR_HPP
+#ifndef SCOPE_ACCESSOR_HPP
+#define SCOPE_ACCESSOR_HPP
 
 
 //------------------------------------------
@@ -95,4 +95,4 @@ public:
 
 } // namespace Nebulite
 #include "ScopeAccessor.tpp"
-#endif // NEBULITE_SCOPE_ACCESSOR_HPP
+#endif // SCOPE_ACCESSOR_HPP

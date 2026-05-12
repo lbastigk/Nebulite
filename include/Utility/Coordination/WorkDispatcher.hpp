@@ -3,8 +3,8 @@
  * @brief Definition of the WorkDispatcher class for managing worker threads that process work using provided functions and workspaces.
  */
 
-#ifndef NEBULITE_UTILITY_COORDINATION_WORK_DISPATCHER_HPP
-#define NEBULITE_UTILITY_COORDINATION_WORK_DISPATCHER_HPP
+#ifndef UTILITY_COORDINATION_WORK_DISPATCHER_HPP
+#define UTILITY_COORDINATION_WORK_DISPATCHER_HPP
 
 //------------------------------------------
 // Includes
@@ -56,4 +56,4 @@ private:
 };
 } // namespace Nebulite::Utility::Coordination
 #include "Utility/Coordination/WorkDispatcher.tpp"
-#endif // NEBULITE_UTILITY_COORDINATION_WORK_DISPATCHER_HPP
+#endif // UTILITY_COORDINATION_WORK_DISPATCHER_HPP

@@ -129,8 +129,8 @@ bindFunction(/**/,"MyCategory foo","<Description of foo>"); //<-- This would fai
  * @brief Contains the DomainModule of the GlobalSpace for MyFeature functions.
  */
 
-#ifndef NEBULITE_MODULE_DOMAIN_RENDEROBJECT_MYMODULE_HPP
-#define NEBULITE_MODULE_DOMAIN_RENDEROBJECT_MYMODULE_HPP
+#ifndef MODULE_DOMAIN_RENDEROBJECT_MYMODULE_HPP
+#define MODULE_DOMAIN_RENDEROBJECT_MYMODULE_HPP
 
 //------------------------------------------
 // Includes
@@ -217,7 +217,7 @@ public:
     };
 };
 } // namespace Nebulite::Module::Domain::RenderObject
-#endif // NEBULITE_MODULE_DOMAIN_RENDEROBJECT_MYMODULE_HPP
+#endif // MODULE_DOMAIN_RENDEROBJECT_MYMODULE_HPP
 
 ```
 

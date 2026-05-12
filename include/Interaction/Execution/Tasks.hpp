@@ -1,5 +1,5 @@
-#ifndef NEBULITE_INTERACTION_EXECUTION_TASKS_HPP
-#define NEBULITE_INTERACTION_EXECUTION_TASKS_HPP
+#ifndef INTERACTION_EXECUTION_TASKS_HPP
+#define INTERACTION_EXECUTION_TASKS_HPP
 
 //------------------------------------------
 // Includes
@@ -158,4 +158,4 @@ private:
 };
 
 } // namespace Nebulite::Interaction::Execution
-#endif // NEBULITE_INTERACTION_EXECUTION_TASKS_HPP
+#endif // INTERACTION_EXECUTION_TASKS_HPP

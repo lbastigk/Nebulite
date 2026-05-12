@@ -3,8 +3,8 @@
  * @brief Provides functions generating data structures.
  */
 
-#ifndef NEBULITE_UTILITY_INITIALIZER_HPP
-#define NEBULITE_UTILITY_INITIALIZER_HPP
+#ifndef UTILITY_INITIALIZER_HPP
+#define UTILITY_INITIALIZER_HPP
 
 //------------------------------------------
 // Includes
@@ -100,4 +100,4 @@ private:
 };
 
 } // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_INITIALIZER_HPP
+#endif // UTILITY_INITIALIZER_HPP

@@ -3,8 +3,8 @@
  * @brief Contains the Clock DomainModule for GlobalSpace.
  */
 
-#ifndef NEBULITE_MODULE_DOMAIN_GLOBAL_SPACE_CLOCK_HPP
-#define NEBULITE_MODULE_DOMAIN_GLOBAL_SPACE_CLOCK_HPP
+#ifndef MODULE_DOMAIN_GLOBAL_SPACE_CLOCK_HPP
+#define MODULE_DOMAIN_GLOBAL_SPACE_CLOCK_HPP
 
 //------------------------------------------
 // Includes
@@ -134,4 +134,4 @@ private:
     }
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
-#endif // NEBULITE_MODULE_DOMAIN_GLOBAL_SPACE_CLOCK_HPP
+#endif // MODULE_DOMAIN_GLOBAL_SPACE_CLOCK_HPP

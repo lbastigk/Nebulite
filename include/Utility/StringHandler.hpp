@@ -3,8 +3,8 @@
  * @brief Utility functions for string manipulation and parsing.
  */
 
-#ifndef NEBULITE_UTILITY_IO_STRING_HANDLER_HPP
-#define NEBULITE_UTILITY_IO_STRING_HANDLER_HPP
+#ifndef UTILITY_IO_STRING_HANDLER_HPP
+#define UTILITY_IO_STRING_HANDLER_HPP
 
 //------------------------------------------
 // Includes
@@ -185,4 +185,4 @@ public:
     static std::vector<std::string> splitOnSameDepthOf(std::string_view const& input, Delimiter const& delimiter);
 };
 }   // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_IO_STRING_HANDLER_HPP
+#endif // UTILITY_IO_STRING_HANDLER_HPP

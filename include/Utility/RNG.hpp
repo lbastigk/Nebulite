@@ -3,8 +3,8 @@
  * @brief Random Number Generation utilities.
  */
 
-#ifndef NEBULITE_UTILITY_RNG_HPP
-#define NEBULITE_UTILITY_RNG_HPP
+#ifndef UTILITY_RNG_HPP
+#define UTILITY_RNG_HPP
 
 //------------------------------------------
 // Includes
@@ -63,4 +63,4 @@ private:
 };
 
 } // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_RNG_HPP
+#endif // UTILITY_RNG_HPP

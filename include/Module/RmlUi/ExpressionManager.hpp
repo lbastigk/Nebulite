@@ -1,5 +1,5 @@
-#ifndef NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP
-#define NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP
+#ifndef MODULE_RMLUI_EXPRESSION_MANAGER_HPP
+#define MODULE_RMLUI_EXPRESSION_MANAGER_HPP
 
 //------------------------------------------
 // Includes
@@ -51,4 +51,4 @@ private:
     void resetExpressions();
 };
 } // namespace Nebulite::Module::RmlUi
-#endif // NEBULITE_MODULE_RMLUI_EXPRESSION_MANAGER_HPP
+#endif // MODULE_RMLUI_EXPRESSION_MANAGER_HPP

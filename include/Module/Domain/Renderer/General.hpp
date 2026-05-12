@@ -4,8 +4,8 @@
  *        This file contains a DomainModule for basic rendering-related functioncalls.
  */
 
-#ifndef NEBULITE_MODULE_DOMAIN_RENDERER_GENERAL_HPP
-#define NEBULITE_MODULE_DOMAIN_RENDERER_GENERAL_HPP
+#ifndef MODULE_DOMAIN_RENDERER_GENERAL_HPP
+#define MODULE_DOMAIN_RENDERER_GENERAL_HPP
 
 //------------------------------------------
 // Includes
@@ -206,4 +206,4 @@ private:
     Data::JsonScope* selectedRenderObjectData = nullptr;
 };
 } // namespace Nebulite::Module::Domain::Renderer
-#endif // NEBULITE_MODULE_DOMAIN_RENDERER_GENERAL_HPP
+#endif // MODULE_DOMAIN_RENDERER_GENERAL_HPP

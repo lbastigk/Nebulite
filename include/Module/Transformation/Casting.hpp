@@ -3,8 +3,8 @@
  * @brief Class for casting transformation functions.
  */
 
-#ifndef NEBULITE_TRANSFORMATION_MODULE_CASTING_HPP
-#define NEBULITE_TRANSFORMATION_MODULE_CASTING_HPP
+#ifndef TRANSFORMATION_MODULE_CASTING_HPP
+#define TRANSFORMATION_MODULE_CASTING_HPP
 
 //------------------------------------------
 // Includes
@@ -94,4 +94,4 @@ public:
         "Non-numeric values default to 0. Fails if the value is null.\n";
 };
 } // namespace Nebulite::Module::Transformation
-#endif // NEBULITE_TRANSFORMATION_MODULE_CASTING_HPP
+#endif // TRANSFORMATION_MODULE_CASTING_HPP

@@ -3,8 +3,8 @@
  * @brief This file defines the Movement ruleset module, containing static rulesets related to movement.
  */
 
-#ifndef NEBULITE_RULESET_MODULE_MOVEMENT_HPP
-#define NEBULITE_RULESET_MODULE_MOVEMENT_HPP
+#ifndef RULESET_MODULE_MOVEMENT_HPP
+#define RULESET_MODULE_MOVEMENT_HPP
 
 //------------------------------------------
 // Includes
@@ -121,4 +121,4 @@ private:
     };
 };
 } // namespace Nebulite::Module::Ruleset
-#endif // NEBULITE_RULESET_MODULE_MOVEMENT_HPP
+#endif // RULESET_MODULE_MOVEMENT_HPP

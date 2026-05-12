@@ -3,8 +3,8 @@
  * @brief Class for string transformation functions.
  */
 
-#ifndef NEBULITE_TRANSFORMATION_MODULE_STRING_HPP
-#define NEBULITE_TRANSFORMATION_MODULE_STRING_HPP
+#ifndef TRANSFORMATION_MODULE_STRING_HPP
+#define TRANSFORMATION_MODULE_STRING_HPP
 
 //------------------------------------------
 // Includes
@@ -150,4 +150,4 @@ public:
         "{string}: Substring to check for\n";
 };
 } // namespace Nebulite::Module::Transformation
-#endif // NEBULITE_TRANSFORMATION_MODULE_STRING_HPP
+#endif // TRANSFORMATION_MODULE_STRING_HPP

@@ -3,8 +3,8 @@
  * @brief Defines classes for capturing output.
  */
 
-#ifndef NEBULITE_UTILITY_IO_CAPTURE_HPP
-#define NEBULITE_UTILITY_IO_CAPTURE_HPP
+#ifndef UTILITY_IO_CAPTURE_HPP
+#define UTILITY_IO_CAPTURE_HPP
 
 //------------------------------------------
 // Includes
@@ -144,4 +144,4 @@ private:
 
 } // namespace Nebulite::Utility
 #include "Utility/IO/Capture.tpp"
-#endif // NEBULITE_UTILITY_IO_CAPTURE_HPP
+#endif // UTILITY_IO_CAPTURE_HPP

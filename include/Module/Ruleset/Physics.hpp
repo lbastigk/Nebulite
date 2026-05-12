@@ -3,8 +3,8 @@
  * @brief This file defines the Physics ruleset module, containing static rulesets related to physics.
  */
 
-#ifndef NEBULITE_RULESET_MODULE_PHYSICS_HPP
-#define NEBULITE_RULESET_MODULE_PHYSICS_HPP
+#ifndef RULESET_MODULE_PHYSICS_HPP
+#define RULESET_MODULE_PHYSICS_HPP
 
 //------------------------------------------
 // Includes
@@ -144,4 +144,4 @@ private:
     } globalVal = {};
 };
 } // namespace Nebulite::Module::Ruleset
-#endif // NEBULITE_RULESET_MODULE_PHYSICS_HPP
+#endif // RULESET_MODULE_PHYSICS_HPP

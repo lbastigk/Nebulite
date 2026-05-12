@@ -1,5 +1,5 @@
-#ifndef NEBULITE_UTILITY_SHARED_MUTEX_HPP
-#define NEBULITE_UTILITY_SHARED_MUTEX_HPP
+#ifndef UTILITY_SHARED_MUTEX_HPP
+#define UTILITY_SHARED_MUTEX_HPP
 
 //------------------------------------------
 // Includes
@@ -53,4 +53,4 @@ using WriteLock   = std::unique_lock<SharedMutex>;
 
 #endif // defined(_WIN32)
 } // namespace Nebulite::Utility::Coordination
-#endif // NEBULITE_UTILITY_SHARED_MUTEX_HPP
+#endif // UTILITY_SHARED_MUTEX_HPP

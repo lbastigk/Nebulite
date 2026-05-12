@@ -3,8 +3,8 @@
  * @brief Class for debug transformation functions.
  */
 
-#ifndef NEBULITE_TRANSFORMATION_MODULE_DEBUG_HPP
-#define NEBULITE_TRANSFORMATION_MODULE_DEBUG_HPP
+#ifndef TRANSFORMATION_MODULE_DEBUG_HPP
+#define TRANSFORMATION_MODULE_DEBUG_HPP
 
 //------------------------------------------
 // Includes
@@ -43,4 +43,4 @@ public:
     // TODO: log (to file), error (to stderr)
 };
 } // namespace Nebulite::Module::Transformation
-#endif // NEBULITE_TRANSFORMATION_MODULE_DEBUG_HPP
+#endif // TRANSFORMATION_MODULE_DEBUG_HPP

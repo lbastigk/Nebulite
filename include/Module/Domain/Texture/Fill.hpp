@@ -4,8 +4,8 @@
  *       Prioritize later, once some more important features are overhauled.
  */
 
-#ifndef NEBULITE_MODULE_DOMAIN_TEXTURE_FILL_HPP
-#define NEBULITE_MODULE_DOMAIN_TEXTURE_FILL_HPP
+#ifndef MODULE_DOMAIN_TEXTURE_FILL_HPP
+#define MODULE_DOMAIN_TEXTURE_FILL_HPP
 
 //------------------------------------------
 // Includes
@@ -55,4 +55,4 @@ public:
     }
 };
 } // namespace Nebulite::Module::Domain::Texture
-#endif // NEBULITE_MODULE_DOMAIN_TEXTURE_FILL_HPP
+#endif // MODULE_DOMAIN_TEXTURE_FILL_HPP

@@ -5,8 +5,8 @@
  *       E.g. with JSON files describing which modules to load.
  */
 
-#ifndef NEBULITE_MODULE_DOMAIN_INITIALIZER_HPP
-#define NEBULITE_MODULE_DOMAIN_INITIALIZER_HPP
+#ifndef MODULE_DOMAIN_INITIALIZER_HPP
+#define MODULE_DOMAIN_INITIALIZER_HPP
 
 //------------------------------------------
 // Includes
@@ -78,4 +78,4 @@ public:
     static void initTexture(Core::Texture* target);
 };
 } // namespace Nebulite::Module::Domain
-#endif // NEBULITE_MODULE_DOMAIN_INITIALIZER_HPP
+#endif // MODULE_DOMAIN_INITIALIZER_HPP

@@ -5,8 +5,8 @@
  * @details The main goal of this class is to manage hierarchical commands and arguments for modular and flexible execution.
  */
 
-#ifndef NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_HPP
-#define NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_HPP
+#ifndef INTERACTION_EXECUTION_FUNC_TREE_HPP
+#define INTERACTION_EXECUTION_FUNC_TREE_HPP
 
 //------------------------------------------
 // Includes
@@ -466,4 +466,4 @@ private:
 
 // Template implementations
 #include "Interaction/Execution/FuncTree.tpp"
-#endif // NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_HPP
+#endif // INTERACTION_EXECUTION_FUNC_TREE_HPP

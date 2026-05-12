@@ -3,8 +3,8 @@
  * @brief This file contains the DomainModule of the Texture for general functions.
  */
 
-#ifndef NEBULITE_MODULE_DOMAIN_TEXTURE_GENERAL_HPP
-#define NEBULITE_MODULE_DOMAIN_TEXTURE_GENERAL_HPP
+#ifndef MODULE_DOMAIN_TEXTURE_GENERAL_HPP
+#define MODULE_DOMAIN_TEXTURE_GENERAL_HPP
 
 //------------------------------------------
 // Includes
@@ -50,4 +50,4 @@ public:
     }
 };
 } // namespace Nebulite::Module::Domain::Texture
-#endif // NEBULITE_MODULE_DOMAIN_TEXTURE_GENERAL_HPP
+#endif // MODULE_DOMAIN_TEXTURE_GENERAL_HPP

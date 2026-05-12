@@ -3,8 +3,8 @@
  * @brief Holds specific functions for transforming document values during retrieval.
  */
 
-#ifndef NEBULITE_MODULE_BASE_TRANSFORMATION_MODULE_HPP
-#define NEBULITE_MODULE_BASE_TRANSFORMATION_MODULE_HPP
+#ifndef MODULE_BASE_TRANSFORMATIONMODULE_HPP
+#define MODULE_BASE_TRANSFORMATIONMODULE_HPP
 
 //------------------------------------------
 // Includes
@@ -31,6 +31,11 @@ public:
     explicit TransformationModule(std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> funcTree);
 
     virtual ~TransformationModule();
+
+    TransformationModule(const TransformationModule&) = delete;
+    TransformationModule& operator=(const TransformationModule&) = delete;
+    TransformationModule(TransformationModule&&) = delete;
+    TransformationModule& operator=(TransformationModule&&) = delete;
 
     /**
      * @brief Binds a static function to the transformation funcTree
@@ -76,4 +81,4 @@ private:
     std::shared_ptr<Interaction::Execution::FuncTree<bool, Data::JsonScope*>> transformationFuncTree;
 };
 } // namespace Nebulite::Module::Base
-#endif // NEBULITE_MODULE_BASE_TRANSFORMATION_MODULE_HPP
+#endif // MODULE_BASE_TRANSFORMATIONMODULE_HPP

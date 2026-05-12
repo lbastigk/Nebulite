@@ -1,5 +1,5 @@
-#ifndef NEBULITE_MODULE_RMLUI_REFLECTION_HPP
-#define NEBULITE_MODULE_RMLUI_REFLECTION_HPP
+#ifndef MODULE_RMLUI_REFLECTION_HPP
+#define MODULE_RMLUI_REFLECTION_HPP
 
 //------------------------------------------
 // Includes
@@ -90,4 +90,4 @@ private:
     void reflectElement(Rml::Element* element, std::unique_ptr<ReflectionEntry> const& entry);
 };
 } // namespace Nebulite::Module::RmlUi
-#endif // NEBULITE_MODULE_RMLUI_REFLECTION_HPP
+#endif // MODULE_RMLUI_REFLECTION_HPP

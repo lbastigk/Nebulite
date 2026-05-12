@@ -1,5 +1,5 @@
-#ifndef NEBULITE_SCOPE_ACCESSOR_TPP
-#define NEBULITE_SCOPE_ACCESSOR_TPP
+#ifndef SCOPE_ACCESSOR_TPP
+#define SCOPE_ACCESSOR_TPP
 
 //------------------------------------------
 // Includes
@@ -29,4 +29,4 @@ ScopeAccessor::DomainModuleToken<DomainType>::DomainModuleToken(Interaction::Exe
 }
 
 } // namespace Nebulite
-#endif // NEBULITE_SCOPE_ACCESSOR_TPP
+#endif // SCOPE_ACCESSOR_TPP

@@ -3,8 +3,8 @@
  * @brief Cross-platform glob pattern matching utility.
  */
 
-#ifndef NEBULITE_UTILITY_GLOB_HPP
-#define NEBULITE_UTILITY_GLOB_HPP
+#ifndef UTILITY_GLOB_HPP
+#define UTILITY_GLOB_HPP
 
 //------------------------------------------
 // Includes
@@ -40,4 +40,4 @@ inline bool globMatch(std::string const& pattern, std::string const& str) {
 #endif
 
 } // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_GLOB_HPP
+#endif // UTILITY_GLOB_HPP

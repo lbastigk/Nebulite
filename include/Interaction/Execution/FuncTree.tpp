@@ -3,8 +3,8 @@
  * @brief Implementation file for the Basic FuncTree class template functions.
  */
 
-#ifndef NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_TPP
-#define NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_TPP
+#ifndef INTERACTION_EXECUTION_FUNC_TREE_TPP
+#define INTERACTION_EXECUTION_FUNC_TREE_TPP
 
 //------------------------------------------
 // Includes
@@ -766,4 +766,4 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
 
 } // namespace Nebulite::Interaction::Execution
 #include "Interaction/Execution/FuncTreeArgumentCompletion.tpp"
-#endif // NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_TPP
+#endif // INTERACTION_EXECUTION_FUNC_TREE_TPP

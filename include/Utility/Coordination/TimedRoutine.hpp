@@ -3,8 +3,8 @@
  * @brief Definition of TimedRoutine class for scheduling routines at specific intervals.
  */
 
-#ifndef NEBULITE_UTILITY_COORDINATION_TIMED_ROUTINE_HPP
-#define NEBULITE_UTILITY_COORDINATION_TIMED_ROUTINE_HPP
+#ifndef UTILITY_COORDINATION_TIMED_ROUTINE_HPP
+#define UTILITY_COORDINATION_TIMED_ROUTINE_HPP
 
 //------------------------------------------
 // Includes
@@ -59,4 +59,4 @@ private:
     uint64_t interval;
 };
 } // namespace Nebulite::Utility::Coordination
-#endif // NEBULITE_UTILITY_COORDINATION_TIMED_ROUTINE_HPP
+#endif // UTILITY_COORDINATION_TIMED_ROUTINE_HPP

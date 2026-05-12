@@ -3,8 +3,8 @@
  * @brief Contains the declaration of the Debug DomainModule for the GlobalSpace domain.
  */
 
-#ifndef NEBULITE_MODULE_DOMAIN_GLOBAL_SPACE_DEBUG_HPP
-#define NEBULITE_MODULE_DOMAIN_GLOBAL_SPACE_DEBUG_HPP
+#ifndef MODULE_DOMAIN_GLOBAL_SPACE_DEBUG_HPP
+#define MODULE_DOMAIN_GLOBAL_SPACE_DEBUG_HPP
 
 //------------------------------------------
 // Includes
@@ -189,4 +189,4 @@ private:
     void addRoutines();
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
-#endif // NEBULITE_MODULE_DOMAIN_GLOBAL_SPACE_DEBUG_HPP
+#endif // MODULE_DOMAIN_GLOBAL_SPACE_DEBUG_HPP

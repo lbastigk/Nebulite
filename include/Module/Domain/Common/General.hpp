@@ -3,8 +3,8 @@
  * @brief Implementation of force and clearForce functions for forcing JSON variable values.
  */
 
-#ifndef NEBULITE_DOMAIN_MODULE_COMMON_GENERAL_HPP
-#define NEBULITE_DOMAIN_MODULE_COMMON_GENERAL_HPP
+#ifndef MODULE_DOMAIN_COMMON_GENERAL_HPP
+#define MODULE_DOMAIN_COMMON_GENERAL_HPP
 
 //------------------------------------------
 // Includes
@@ -224,4 +224,4 @@ private:
     } lastContext;
 };
 } // namespace Nebulite::Module::Domain::Common
-#endif // NEBULITE_DOMAIN_MODULE_COMMON_GENERAL_HPP
+#endif // MODULE_DOMAIN_COMMON_GENERAL_HPP

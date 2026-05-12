@@ -3,8 +3,8 @@
  * @brief Class for basic transformation functions.
  */
 
-#ifndef NEBULITE_TRANSFORMATION_MODULE_CORE_HPP
-#define NEBULITE_TRANSFORMATION_MODULE_CORE_HPP
+#ifndef TRANSFORMATION_MODULE_CORE_HPP
+#define TRANSFORMATION_MODULE_CORE_HPP
 
 //------------------------------------------
 // Includes
@@ -76,4 +76,4 @@ public:
     //       instead of writing |parse copy <source> <destination>, we can simply write |copy <source> <destination>
 };
 } // namespace Nebulite::Module::Transformation
-#endif // NEBULITE_TRANSFORMATION_MODULE_CORE_HPP
+#endif // TRANSFORMATION_MODULE_CORE_HPP

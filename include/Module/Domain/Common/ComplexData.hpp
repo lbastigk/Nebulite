@@ -3,8 +3,8 @@
  * @brief DomainModule for complex data operations on domain class Nebulite::Data::JSON
  */
 
-#ifndef NEBULITE_MODULE_DOMAIN_COMMON_COMPLEX_DATA_HPP
-#define NEBULITE_MODULE_DOMAIN_COMMON_COMPLEX_DATA_HPP
+#ifndef MODULE_DOMAIN_COMMON_COMPLEXDATA_HPP
+#define MODULE_DOMAIN_COMMON_COMPLEXDATA_HPP
 
 //------------------------------------------
 // Includes
@@ -108,5 +108,5 @@ public:
         bindFunction(&ComplexData::evaluateRecursive, evaluateRecursive_name, evaluateRecursive_desc);
     }
 };
-} // namespace Nebulite::JSON::DomainModule
-#endif // NEBULITE_MODULE_DOMAIN_COMMON_COMPLEX_DATA_HPP
+} // namespace Nebulite::Module::Domain::Common
+#endif // MODULE_DOMAIN_COMMON_COMPLEXDATA_HPP

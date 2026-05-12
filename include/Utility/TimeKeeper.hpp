@@ -3,8 +3,8 @@
  * @brief Contains the Nebulite::Utility::TimeKeeper class for managing time-related operations.
  */
 
-#ifndef NEBULITE_UTILITY_TIMEKEEPER_HPP
-#define NEBULITE_UTILITY_TIMEKEEPER_HPP
+#ifndef UTILITY_TIMEKEEPER_HPP
+#define UTILITY_TIMEKEEPER_HPP
 
 //------------------------------------------
 // Includes
@@ -182,4 +182,4 @@ private:
     } onSimulation;
 };
 }   // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_TIMEKEEPER_HPP
+#endif // UTILITY_TIMEKEEPER_HPP

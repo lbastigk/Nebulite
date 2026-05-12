@@ -3,8 +3,8 @@
  * @brief Debugging ruleset module for Nebulite interaction system.
  */
 
-#ifndef NEBULITE_RULESET_MODULE_DEBUG_HPP
-#define NEBULITE_RULESET_MODULE_DEBUG_HPP
+#ifndef RULESET_MODULE_DEBUG_HPP
+#define RULESET_MODULE_DEBUG_HPP
 
 //------------------------------------------
 // Includes
@@ -62,4 +62,4 @@ private:
     };
 };
 } // namespace Nebulite::Module::Ruleset
-#endif // NEBULITE_RULESET_MODULE_DEBUG_HPP
+#endif // RULESET_MODULE_DEBUG_HPP

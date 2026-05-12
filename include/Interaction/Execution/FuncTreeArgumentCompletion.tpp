@@ -7,8 +7,8 @@
  *          - Searching for bindings
  */
 
-#ifndef NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_ARGUMENT_COMPLETION_TPP
-#define NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_ARGUMENT_COMPLETION_TPP
+#ifndef INTERACTION_EXECUTION_FUNC_TREE_ARGUMENT_COMPLETION_TPP
+#define INTERACTION_EXECUTION_FUNC_TREE_ARGUMENT_COMPLETION_TPP
 
 //------------------------------------------
 // Includes
@@ -372,4 +372,4 @@ std::vector<std::string> FuncTree<returnValue, additionalArgs...>::findCompletio
 }
 
 } // namespace Nebulite::Interaction::Execution
-#endif // NEBULITE_INTERACTION_EXECUTION_FUNC_TREE_ARGUMENT_COMPLETION_TPP
+#endif // INTERACTION_EXECUTION_FUNC_TREE_ARGUMENT_COMPLETION_TPP

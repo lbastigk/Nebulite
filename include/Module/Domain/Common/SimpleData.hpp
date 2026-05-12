@@ -3,8 +3,8 @@
  * @brief DomainModule for simple data operations on domain class Nebulite::Data::JSON
  */
 
-#ifndef NEBULITE_MODULE_DOMAIN_COMMON_SIMPLEDATA_HPP
-#define NEBULITE_MODULE_DOMAIN_COMMON_SIMPLEDATA_HPP
+#ifndef MODULE_DOMAIN_COMMON_SIMPLEDATA_HPP
+#define MODULE_DOMAIN_COMMON_SIMPLEDATA_HPP
 
 //------------------------------------------
 // Includes
@@ -127,4 +127,4 @@ public:
     }
 };
 } // namespace Nebulite::Module::Domain::Common
-#endif // NEBULITE_MODULE_DOMAIN_COMMON_SIMPLEDATA_HPP
+#endif // MODULE_DOMAIN_COMMON_SIMPLEDATA_HPP

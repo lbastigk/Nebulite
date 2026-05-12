@@ -3,8 +3,8 @@
  * @brief Class for sorting transformation functions.
  */
 
-#ifndef NEBULITE_TRANSFORMATION_MODULE_SORT_HPP
-#define NEBULITE_TRANSFORMATION_MODULE_SORT_HPP
+#ifndef TRANSFORMATION_MODULE_SORT_HPP
+#define TRANSFORMATION_MODULE_SORT_HPP
 
 //------------------------------------------
 // Includes
@@ -86,4 +86,4 @@ private:
 };
 
 } // namespace Nebulite::Module::Transformation
-#endif // NEBULITE_TRANSFORMATION_MODULE_SORT_HPP
+#endif // TRANSFORMATION_MODULE_SORT_HPP

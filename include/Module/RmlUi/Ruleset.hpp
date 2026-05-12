@@ -1,5 +1,5 @@
-#ifndef NEBULITE_MODULE_RMLUI_RULESET_HPP
-#define NEBULITE_MODULE_RMLUI_RULESET_HPP
+#ifndef MODULE_RMLUI_RULESET_HPP
+#define MODULE_RMLUI_RULESET_HPP
 
 //------------------------------------------
 // Includes
@@ -42,4 +42,4 @@ private:
 };
 } // namespace Nebulite::Module::RmlUi
 
-#endif // NEBULITE_MODULE_RMLUI_RULESET_HPP
+#endif // MODULE_RMLUI_RULESET_HPP

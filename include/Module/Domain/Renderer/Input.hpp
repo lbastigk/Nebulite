@@ -3,8 +3,8 @@
  * @brief Input handling for the NEBULITE engine.
  */
 
-#ifndef NEBULITE_MODULE_DOMAIN_RENDERER_INPUT_HPP
-#define NEBULITE_MODULE_DOMAIN_RENDERER_INPUT_HPP
+#ifndef MODULE_DOMAIN_RENDERER_INPUT_HPP
+#define MODULE_DOMAIN_RENDERER_INPUT_HPP
 
 //------------------------------------------
 // Includes
@@ -149,4 +149,4 @@ private:
     MouseValues mouseDelta{};
 };
 } // namespace Nebulite::Module::Domain::Renderer
-#endif // NEBULITE_MODULE_DOMAIN_RENDERER_INPUT_HPP
+#endif // MODULE_DOMAIN_RENDERER_INPUT_HPP

@@ -3,8 +3,8 @@
  * @brief This file contains the DomainModule of the Renderer to provide RmlUi management utilities.
  */
 
-#ifndef NEBULITE_MODULE_DOMAIN_RENDERER_RMLUI_HPP
-#define NEBULITE_MODULE_DOMAIN_RENDERER_RMLUI_HPP
+#ifndef MODULE_DOMAIN_RENDERER_RMLUI_HPP
+#define MODULE_DOMAIN_RENDERER_RMLUI_HPP
 
 //------------------------------------------
 // Includes
@@ -78,5 +78,5 @@ public:
     };
 };
 } // namespace Nebulite::Module::Domain::Renderer
-#endif // NEBULITE_MODULE_DOMAIN_RENDERER_RMLUI_HPP
+#endif // MODULE_DOMAIN_RENDERER_RMLUI_HPP
 

@@ -1,5 +1,5 @@
-#ifndef NEBULITE_UTILITY_SORT_HPP
-#define NEBULITE_UTILITY_SORT_HPP
+#ifndef UTILITY_SORT_HPP
+#define UTILITY_SORT_HPP
 
 //------------------------------------------
 // Includes
@@ -59,4 +59,4 @@ public:
 };
 
 } // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_SORT_HPP
+#endif // UTILITY_SORT_HPP

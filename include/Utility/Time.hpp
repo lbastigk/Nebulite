@@ -3,8 +3,8 @@
  * @brief Provides utilities for time-related functions.
  */
 
-#ifndef NEBULITE_UTILITY_TIME_HPP
-#define NEBULITE_UTILITY_TIME_HPP
+#ifndef UTILITY_TIME_HPP
+#define UTILITY_TIME_HPP
 
 //------------------------------------------
 // Includes
@@ -91,4 +91,4 @@ public:
     static void waitNanoseconds(uint64_t const& nanoseconds);
 };
 }   // namespace Nebulite::Utility
-#endif // NEBULITE_UTILITY_TIME_HPP
+#endif // UTILITY_TIME_HPP

@@ -1,5 +1,5 @@
-#ifndef NEBULITE_MODULE_DOMAIN_COMMON_RMLUI_HPP
-#define NEBULITE_MODULE_DOMAIN_COMMON_RMLUI_HPP
+#ifndef MODULE_DOMAIN_COMMON_RMLUI_HPP
+#define MODULE_DOMAIN_COMMON_RMLUI_HPP
 
 // TODO: A module with just a destructor that removes any Renderer RmlUi documents based on the domain id
 
@@ -36,4 +36,4 @@ public:
     RmlUi& operator=(RmlUi&&) = delete;
 };
 } // namespace Nebulite::Module::Domain::Common
-#endif // NEBULITE_MODULE_DOMAIN_COMMON_RMLUI_HPP
+#endif // MODULE_DOMAIN_COMMON_RMLUI_HPP
