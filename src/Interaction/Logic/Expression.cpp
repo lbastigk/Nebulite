@@ -3,8 +3,8 @@
 
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
-#include "Interaction/Logic/VirtualDouble.hpp"
 #include "Interaction/Logic/Expression.hpp"
+#include "Interaction/Logic/VirtualDouble.hpp"
 #include "Math/Equality.hpp"
 #include "Math/ExpressionPrimitives.hpp"
 #include "Nebulite.hpp"
@@ -59,7 +59,7 @@ void Expression::reset() {
 void Expression::compileIfExpression(std::shared_ptr<Component> const& component) const {
     if (component->type == Component::Type::eval) {
         // Compile the expression using TinyExpr
-        int error;
+        int error{};
         component->expression = te_compile(component->stringRepresentation.c_str(), te_variables.data(), static_cast<int>(te_variables.size()), &error);
         if (error) {
             printCompileError(component, error);
@@ -81,9 +81,9 @@ namespace {
  * @return true if the expression can be returned as a double pointer, false otherwise.
  */
 bool isAvailableAsDoublePtr(std::string_view const& key) {
-    return key.find('{') == std::string::npos
-        && key.find('}') == std::string::npos
-        && key.find('|') == std::string::npos;
+    return !key.contains('{')
+        && !key.contains('}')
+        && !key.contains('|');
 }
 } // anonymous namespace
 
@@ -139,15 +139,12 @@ double* Expression::VirtualDoubleLists::registerVariable(ContextDeriver::TargetT
 void Expression::registerVariable(std::string te_name, std::string_view const& key, ContextDeriver::TargetType const& contextType) {
     // Check if variable exists in variables vector:
     bool const found = std::ranges::any_of(te_variables, [&](auto const& te_var) {
-        if (te_var.name == te_name) {
-            return true;
-        }
-        return false;
+        return te_var.name == te_name;
     });
 
     if (!found) {
         // Register cache based on context
-        auto const ptr = virtualDoubles.registerVariable(contextType, key);
+        auto* const ptr = virtualDoubles.registerVariable(contextType, key);
 
         // Store variable name for tinyexpr
         auto const te_name_ptr = std::make_shared<std::string>(te_name);
@@ -155,10 +152,10 @@ void Expression::registerVariable(std::string te_name, std::string_view const& k
 
         // Push back into variable components
         te_variables.push_back({
-            te_names.back()->c_str(),
-            ptr,
-            TE_VARIABLE,
-            nullptr
+            .name=te_names.back()->c_str(),
+            .address=ptr,
+            .type=TE_VARIABLE,
+            .context=nullptr
         });
     }
 }
@@ -213,8 +210,8 @@ std::vector<std::string> getTokens(std::string_view const& expr) {
             // Remove everything until a '('
             // This part represents the '$' + formatter
             // Cannot be used, as splitOnSameDepth expects the first character to be the opening parenthesis
-            std::string start = token.substr(0, token.find('('));
-            std::string tokenWithoutStart = token.substr(start.length()); // Remove the leading '$'
+            std::string const start = token.substr(0, token.find('('));
+            std::string const tokenWithoutStart = token.substr(start.length()); // Remove the leading '$'
 
             // Split on same depth
             std::vector<std::string> subTokens = Utility::StringHandler::splitOnSameDepthOf(tokenWithoutStart, Utility::StringHandler::Delimiter::parentheses);
@@ -288,9 +285,7 @@ Expression::Formatter Expression::Formatter::readFormatter(std::string const& fo
     if (formatter.size() > 1) {
         size_t const dotPos = formatter.find('.');
         // Read alignment
-        if (dotPos == 0) {
-            fmt.alignment = 0;
-        } else {
+        if (dotPos != 0) {
             fmt.alignment = std::stoi(formatter.substr(0, dotPos));
         }
         // Read precision
@@ -310,8 +305,8 @@ std::string Expression::Formatter::format(double const& value) const {
         double newValue = value;
 
         // Apply rounding if precision is specified
-        if (precision != -1) {
-            double const multiplier = std::pow(10.0, precision);
+        if (precision.has_value()) {
+            double const multiplier = std::pow(10.0, precision.value());
             newValue = std::round(value * multiplier) / multiplier;
         }
 
@@ -319,28 +314,27 @@ std::string Expression::Formatter::format(double const& value) const {
     }
 
     // Precision formatting (after rounding)
-    if (precision != -1) {
+    if (precision.has_value()) {
         if (size_t const dotPos = token.find('.'); dotPos != std::string::npos) {
-            if (size_t const currentPrecision = token.size() - dotPos - 1; currentPrecision < static_cast<size_t>(precision)) {
+            assert(dotPos > 0);
+            if (size_t const currentPrecision = token.size() - dotPos - 1; currentPrecision < precision.value()) {
                 // Add zeros to match the required precision
-                token.append(static_cast<size_t>(precision) - currentPrecision, '0');
-            } else if (currentPrecision > static_cast<size_t>(precision)) {
+                token.append(precision.value() - currentPrecision, '0');
+            } else if (currentPrecision > precision.value()) {
                 // Truncate to the required precision (should be minimal after rounding)
-                token.resize(dotPos + static_cast<size_t>(precision) + 1);
+                token.resize(dotPos + precision.value() + 1);
             }
         } else {
             // No decimal point, add one and pad with zeros
             token += '.';
-            token.append(static_cast<size_t>(precision), '0');
+            token.append(precision.value(), '0');
         }
     }
 
     // Adding padding
-    if (alignment > 0 && token.size() < static_cast<size_t>(alignment)) {
-        // Cast to int, as alignment may be negative (-1 signals no alignment)
-        int const size = static_cast<int>(token.size());
+    if (alignment.has_value() && token.size() < alignment.value()) {
         std::string padding;
-        for (int i = 0; i < alignment - size; i++) {
+        for (size_t i = 0; i < alignment.value() - token.size(); i++) {
             if (leadingZero) {
                 padding += "0";
             } else {

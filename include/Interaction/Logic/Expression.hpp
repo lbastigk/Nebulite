@@ -152,8 +152,8 @@ public:
      */
     struct Formatter {
         bool leadingZero = false; // If true, pad with leading zeros
-        int alignment = -1; // The alignment width of the component. -1 means no formatting.
-        int precision = -1; // The precision of the component. -1 means no formatting.
+        std::optional<size_t> alignment = std::nullopt;
+        std::optional<size_t> precision = std::nullopt;
 
         /**
          * @enum Nebulite::Interaction::Logic::Expression::Formatter::CastType
