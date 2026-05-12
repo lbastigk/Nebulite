@@ -158,7 +158,7 @@ protected:
     std::string topic = "all";
 
     /**
-     * @brief Baselist generator function
+     * @brief BaseList generator function
      */
     BaseListFunction baseListFunction;
 

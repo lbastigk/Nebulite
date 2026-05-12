@@ -45,6 +45,11 @@ public:
         }
     }
 
+    Texture(Texture const&) = delete;
+    Texture& operator=(Texture const&) = delete;
+    Texture(Texture&&) = delete;
+    Texture& operator=(Texture&&) = delete;
+
     /**
      * @brief Updates the texture.
      */

@@ -14,9 +14,9 @@
 #include <vector>
 
 // External
-#include <absl/container/flat_hash_map.h>
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Core/Environment.hpp"
@@ -221,6 +221,7 @@ public:
      * @param w The new pixel width of the window.
      * @param h The new pixel height of the window.
      * @param scalar The scaling factor to apply.
+     * @todo Realign to center of screen!
      */
     void changeWindowSize(int const& w, int const& h, uint8_t const& scalar);
 

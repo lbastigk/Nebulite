@@ -68,9 +68,10 @@ public:
     ~Environment() override ;
 
     // Suppress copy/move operators
-    Environment(Environment&& other) = delete;
-    Environment& operator=(Environment&& other) = delete;
-    Environment& operator=(Environment const& other) = delete;
+    Environment(Environment const&) = delete;
+    Environment& operator=(Environment const&) = delete;
+    Environment(Environment&&) = delete;
+    Environment& operator=(Environment&&) = delete;
 
     //------------------------------------------
     // Domain-related

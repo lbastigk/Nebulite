@@ -4,6 +4,7 @@
 // Includes
 
 // Standard library
+#include <cstdint>
 #include <utility>
 
 //------------------------------------------

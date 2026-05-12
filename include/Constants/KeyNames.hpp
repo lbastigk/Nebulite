@@ -95,5 +95,4 @@ struct KeyNames {
 };
 
 } // namespace Nebulite::Constants
-
 #endif // NEBULITE_CONSTANTS_KEYNAMES_HPP

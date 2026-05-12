@@ -48,9 +48,10 @@ public:
     //------------------------------------------
     // Disable Copying and Moving
 
-    RenderObject(RenderObject const& other) = delete;
-    RenderObject(RenderObject&& other) = delete;
-    RenderObject& operator=(RenderObject&& other) = delete;
+    RenderObject(RenderObject const&) = delete;
+    RenderObject& operator=(RenderObject const&) = delete;
+    RenderObject(RenderObject&&) = delete;
+    RenderObject& operator=(RenderObject&&) = delete;
 
     //------------------------------------------
     // Serializing/Deserializing
@@ -81,8 +82,8 @@ public:
      */
     [[nodiscard]] Position getPosition() const {
         return {
-            static_cast<int32_t>(std::lround(*refs.posX)),
-            static_cast<int32_t>(std::lround(*refs.posY))
+            .x=static_cast<int32_t>(std::lround(*refs.posX)),
+            .y=static_cast<int32_t>(std::lround(*refs.posY))
         };
     }
 
