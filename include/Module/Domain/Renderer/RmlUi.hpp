@@ -79,4 +79,3 @@ public:
 };
 } // namespace Nebulite::Module::Domain::Renderer
 #endif // MODULE_DOMAIN_RENDERER_RMLUI_HPP
-

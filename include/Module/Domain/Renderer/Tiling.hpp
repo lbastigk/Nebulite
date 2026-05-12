@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MODULE_DOMAIN_RENDERER_TILING_HPP
+#define MODULE_DOMAIN_RENDERER_TILING_HPP
 
 //------------------------------------------
 // Includes
@@ -57,5 +58,5 @@ private:
 
     std::unique_ptr<Utility::Coordination::TimedRoutine> tileInfoRoutine;
 };
-
 } // namespace Nebulite::Module::Domain::Renderer
+#endif // MODULE_DOMAIN_RENDERER_TILING_HPP
