@@ -41,6 +41,55 @@ std::optional<RjDirectAccess::simpleValue> RjDirectAccess::getSimpleValue(rapidj
     return  std::nullopt;
 }
 
+namespace {
+
+rapidjson::Value* traverseIntoObject(std::string const& keyPart, rapidjson::Value* current) {
+    if (!keyPart.empty()) {
+        if (!current->IsObject()) {
+            return nullptr;
+        }
+        if (!current->HasMember(keyPart.c_str())) {
+            return nullptr;
+        }
+        return &(*current)[keyPart.c_str()];
+    }
+    return current;
+}
+
+rapidjson::Value* traverseIntoArray(std::string_view& keyView, rapidjson::Value* current) {
+    // Find closing character
+    size_t const closeBracket = keyView.find(RjDirectAccess::SpecialCharacter::arrayClose);
+    if (closeBracket == std::string_view::npos) {
+        // Malformed key - missing closing character
+        return nullptr;
+    }
+
+    // Extract index string between open and close array character
+    std::string_view const idxStr = keyView.substr(1, closeBracket - 1);
+    unsigned int index = 0;
+    try {
+        index = static_cast<unsigned int>(std::stoul(std::string(idxStr)));
+    } catch (...) {
+        return nullptr; // invalid number
+    }
+
+    // Make sure current is an array
+    if (!current->IsArray()) {
+        return nullptr;
+    }
+
+    // Check if array size is high enough
+    if (current->Size() <= index) {
+        return nullptr;
+    }
+
+    // Remove processed '[index]'
+    keyView.remove_prefix(closeBracket + 1);
+    return &(*current)[index];
+}
+
+} // namespace
+
 rapidjson::Value* RjDirectAccess::traversePath(std::string_view const& key, rapidjson::Value& val) {
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
@@ -50,48 +99,13 @@ rapidjson::Value* RjDirectAccess::traversePath(std::string_view const& key, rapi
         std::string const keyPart = extractKeyPart(keyView);
 
         // Handle object key part if non-empty
-        if (!keyPart.empty()) {
-            if (!current->IsObject()) {
-                return nullptr;
-            }
-            if (!current->HasMember(keyPart.c_str())) {
-                return nullptr;
-            }
-            current = &(*current)[keyPart.c_str()];
-        }
+        current = traverseIntoObject(keyPart, current);
+        if (!current) return nullptr;
 
         // Now handle zero or more array indices if they appear next
         while (!keyView.empty() && keyView[0] == SpecialCharacter::arrayOpen) {
-            // Find closing character
-            size_t const closeBracket = keyView.find(SpecialCharacter::arrayClose);
-            if (closeBracket == std::string_view::npos) {
-                // Malformed key - missing closing character
-                return nullptr;
-            }
-
-            // Extract index string between open and close array character
-            std::string_view const idxStr = keyView.substr(1, closeBracket - 1);
-            unsigned int index = 0;
-            try {
-                index = static_cast<unsigned int>(std::stoul(std::string(idxStr)));
-            } catch (...) {
-                return nullptr; // invalid number
-            }
-
-            // Make sure current is an array
-            if (!current->IsArray()) {
-                return nullptr;
-            }
-
-            // Check if array size is high enough
-            if (current->Size() <= index) {
-                return nullptr;
-            }
-
-            current = &(*current)[index];
-
-            // Remove processed '[index]'
-            keyView.remove_prefix(closeBracket + 1);
+            current = traverseIntoArray(keyView, current);
+            if (!current) return nullptr;
         }
 
         // If next character is dot, skip it and continue
@@ -102,6 +116,59 @@ rapidjson::Value* RjDirectAccess::traversePath(std::string_view const& key, rapi
     return current;
 }
 
+namespace {
+
+rapidjson::Value* ensurePathIntoObject(std::string const& keyPart, rapidjson::Value* current, rapidjson::Document::AllocatorType& allocator) {
+    if (!keyPart.empty()) {
+        if (!current->IsObject()) {
+            current->SetObject();
+        }
+
+        if (!current->HasMember(keyPart.c_str())) {
+            rapidjson::Value keyVal(keyPart.c_str(), allocator);
+            rapidjson::Value newObj(rapidjson::kObjectType);
+            current->AddMember(keyVal, newObj, allocator);
+        }
+        return &(*current)[keyPart.c_str()];
+    }
+    return current;
+}
+
+rapidjson::Value* ensurePathIntoArray(std::string_view& keyView, rapidjson::Value* current, rapidjson::Document::AllocatorType& allocator) {
+    // Find closing character
+    size_t const closeBracket = keyView.find(RjDirectAccess::SpecialCharacter::arrayClose);
+    if (closeBracket == std::string_view::npos) {
+        // Malformed key - missing closing character
+        return nullptr;
+    }
+
+    // Extract index string between open and close array character
+    std::string_view const idxStr = keyView.substr(1, closeBracket - 1);
+    unsigned int index = 0;
+    try {
+        index = static_cast<unsigned int>(std::stoul(std::string(idxStr)));
+    } catch (...) {
+        return nullptr; // invalid number
+    }
+
+    // Make sure current is an array
+    if (!current->IsArray()) {
+        current->SetArray();
+    }
+
+    // Expand array if needed
+    while (current->Size() <= index) {
+        rapidjson::Value emptyObj(rapidjson::kObjectType);
+        current->PushBack(emptyObj, allocator);
+    }
+
+    // Remove processed '[index]'
+    keyView.remove_prefix(closeBracket + 1);
+    return &(*current)[index];
+}
+
+} // namespace
+
 rapidjson::Value* RjDirectAccess::ensurePath(std::string_view const& key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
     rapidjson::Value* current = &val;
     std::string_view keyView(key);
@@ -111,52 +178,13 @@ rapidjson::Value* RjDirectAccess::ensurePath(std::string_view const& key, rapidj
         std::string const keyPart = extractKeyPart(keyView);
 
         // Handle object key part if non-empty
-        if (!keyPart.empty()) {
-            if (!current->IsObject()) {
-                current->SetObject();
-            }
-
-            if (!current->HasMember(keyPart.c_str())) {
-                rapidjson::Value keyVal(keyPart.c_str(), allocator);
-                rapidjson::Value newObj(rapidjson::kObjectType);
-                current->AddMember(keyVal, newObj, allocator);
-            }
-            current = &(*current)[keyPart.c_str()];
-        }
+        current = ensurePathIntoObject(keyPart, current, allocator);
+        if (!current) return nullptr;
 
         // Now handle zero or more array indices if they appear next
         while (!keyView.empty() && keyView[0] == SpecialCharacter::arrayOpen) {
-            // Find closing character
-            size_t const closeBracket = keyView.find(SpecialCharacter::arrayClose);
-            if (closeBracket == std::string_view::npos) {
-                // Malformed key - missing closing character
-                return nullptr;
-            }
-
-            // Extract index string between open and close array character
-            std::string_view const idxStr = keyView.substr(1, closeBracket - 1);
-            unsigned int index = 0;
-            try {
-                index = static_cast<unsigned int>(std::stoul(std::string(idxStr)));
-            } catch (...) {
-                return nullptr; // invalid number
-            }
-
-            // Make sure current is an array
-            if (!current->IsArray()) {
-                current->SetArray();
-            }
-
-            // Expand array if needed
-            while (current->Size() <= index) {
-                rapidjson::Value emptyObj(rapidjson::kObjectType);
-                current->PushBack(emptyObj, allocator);
-            }
-
-            current = &(*current)[index];
-
-            // Remove processed '[index]'
-            keyView.remove_prefix(closeBracket + 1);
+            current = ensurePathIntoArray(keyView, current, allocator);
+            if (!current) return nullptr;
         }
 
         // If next character is dot, skip it and continue
