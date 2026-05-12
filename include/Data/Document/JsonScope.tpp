@@ -1,11 +1,10 @@
-#ifndef NEBULITE_DATA_DOCUMENT_JSON_SCOPE_BASE_TPP
-#define NEBULITE_DATA_DOCUMENT_JSON_SCOPE_BASE_TPP
+#ifndef DATA_DOCUMENT_JSONSCOPE_TPP
+#define DATA_DOCUMENT_JSONSCOPE_TPP
 
 //------------------------------------------
 // Includes
 
 // Nebulite
-#include "Data/Document/JsonScope.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/ScopedKey.hpp"
 
@@ -23,4 +22,4 @@ void JsonScope::set(ScopedKeyView const& key, T const& value) {
 }
 
 } // namespace Nebulite::Data
-#endif // NEBULITE_DATA_DOCUMENT_JSON_SCOPE_BASE_TPP
+#endif // DATA_DOCUMENT_JSONSCOPE_TPP

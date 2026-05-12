@@ -1,5 +1,5 @@
-#ifndef NEBULITE_DATA_DOCUMENT_KEY_GROUP_HPP
-#define NEBULITE_DATA_DOCUMENT_KEY_GROUP_HPP
+#ifndef DATA_DOCUMENT_KEYGROUP_HPP
+#define DATA_DOCUMENT_KEYGROUP_HPP
 
 //------------------------------------------
 // Includes
@@ -55,4 +55,4 @@ public:
     }
 };
 } // namespace Nebulite::Data
-#endif // NEBULITE_DATA_DOCUMENT_KEY_GROUP_HPP
+#endif // DATA_DOCUMENT_KEYGROUP_HPP

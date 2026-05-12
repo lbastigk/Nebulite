@@ -1,5 +1,5 @@
-#ifndef NEBULITE_DATA_DOCUMENT_JSON_SCOPE_BASE_HPP
-#define NEBULITE_DATA_DOCUMENT_JSON_SCOPE_BASE_HPP
+#ifndef DATA_DOCUMENT_JSONSCOPE_HPP
+#define DATA_DOCUMENT_JSONSCOPE_HPP
 
 //------------------------------------------
 // Includes
@@ -15,8 +15,8 @@
 // Nebulite
 #include "Constants/Alignment.hpp"
 #include "Constants/ThreadSettings.hpp"
-#include "Data/Document/RjDirectAccess.hpp"
 #include "Data/Document/KeyType.hpp"
+#include "Data/Document/RjDirectAccess.hpp"
 #include "Data/Document/SimpleValueError.hpp"
 #include "Data/OrderedCacheList.hpp"
 #include "Utility/Coordination/IdGenerator.hpp"
@@ -193,12 +193,12 @@ public:
 
     static size_t assignThreadIndex() {
         static auto indexCounter = Utility::Coordination::IdGenerator::atomicThreadIncrementGenerator();
-        thread_local size_t threadIndex = indexCounter();
+        thread_local size_t const threadIndex = indexCounter();
         return threadIndex;
     }
 
     double** ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
-        thread_local size_t threadIndex = assignThreadIndex();
+        thread_local size_t const threadIndex = assignThreadIndex();
         if (threadIndex >= noLockArraySize) {
             throw std::runtime_error("Thread index exceeds non-locking array size! Too many threads accessing ordered cache lists, increase noLockArraySize or reduce thread count.");
         }
@@ -281,4 +281,4 @@ public:
 };
 } // namespace Nebulite::Data
 #include "Data/Document/JsonScope.tpp"
-#endif // NEBULITE_DATA_DOCUMENT_JSON_SCOPE_BASE_HPP
+#endif // DATA_DOCUMENT_JSONSCOPE_HPP

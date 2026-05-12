@@ -5,8 +5,8 @@
  *          This allows for dynamic modification of JSON values during retrieval.
  */
 
-#ifndef NEBULITE_DATA_DOCUMENT_JSON_RVALUE_TRANSFORMER_HPP
-#define NEBULITE_DATA_DOCUMENT_JSON_RVALUE_TRANSFORMER_HPP
+#ifndef DATA_DOCUMENT_JSONRVALUETRANSFORMER_HPP
+#define DATA_DOCUMENT_JSONRVALUETRANSFORMER_HPP
 
 //------------------------------------------
 // Includes
@@ -96,4 +96,4 @@ public:
     bool parseSingleTransformation(std::span<std::string const> const& args, JsonScope* jsonDoc) const ;
 };
 } // namespace Nebulite::Data
-#endif // NEBULITE_DATA_DOCUMENT_JSON_RVALUE_TRANSFORMER_HPP
+#endif // DATA_DOCUMENT_JSONRVALUETRANSFORMER_HPP

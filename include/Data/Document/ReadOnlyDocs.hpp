@@ -2,8 +2,8 @@
  * @file ReadOnlyDocs.hpp
  * @brief Defines structures for managing read-only documents.
  */
-#ifndef NEBULITE_DATA_DOCUMENT_READ_ONLY_DOCS_HPP
-#define NEBULITE_DATA_DOCUMENT_READ_ONLY_DOCS_HPP
+#ifndef DATA_DOCUMENT_READONLYDOCS_HPP
+#define DATA_DOCUMENT_READONLYDOCS_HPP
 
 //------------------------------------------
 // Includes
@@ -68,4 +68,4 @@ public:
     ReadOnlyDoc* getDocument(std::string_view const& doc) const ;
 };
 } // namespace Nebulite::Data
-#endif // NEBULITE_DATA_DOCUMENT_READ_ONLY_DOCS_HPP
+#endif // DATA_DOCUMENT_READONLYDOCS_HPP

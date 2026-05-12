@@ -181,7 +181,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
         if (JSON tmp; getSubDocWithTransformations(key, tmp)) {
             return tmp.getVariant(Module::Base::TransformationModule::rootKeyStr);
         }
-        return std::unexpected(TRANSFORMATION_FAILURE);
+        return std::unexpected(SimpleValueRetrievalError::TRANSFORMATION_FAILURE);
     }
 
     // Check cache first
@@ -197,7 +197,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
         if (it != cache.end() && it->second->state == CacheEntry::EntryState::MALFORMED) {
             Global::capture().error.println("Warning: Attempted to access malformed key in getVariant(): ", key);
             Global::capture().error.println("This is a serious logic issue, the malformed key check should have happened already. Please report to the developers!");
-            return std::unexpected(MALFORMED_KEY);
+            return std::unexpected(SimpleValueRetrievalError::MALFORMED_KEY);
         }
 
         if (it != cache.end() && it->second->state != CacheEntry::EntryState::DELETED) {
@@ -741,19 +741,19 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getS
             }
         }
         if (val->IsNull()) {
-            return std::unexpected(IS_NULL);
+            return std::unexpected(SimpleValueRetrievalError::IS_NULL);
         }
         if (val->IsArray()) {
-            return std::unexpected(IS_ARRAY);
+            return std::unexpected(SimpleValueRetrievalError::IS_ARRAY);
         }
         if (val->IsObject()) {
-            return std::unexpected(IS_OBJECT);
+            return std::unexpected(SimpleValueRetrievalError::IS_OBJECT);
         }
-        return std::unexpected(CONVERSION_FAILURE);
+        return std::unexpected(SimpleValueRetrievalError::CONVERSION_FAILURE);
     }
 
     // Value could not be found, return empty optional
-    return std::unexpected(IS_NULL);
+    return std::unexpected(SimpleValueRetrievalError::IS_NULL);
 }
 
 } // namespace Utility

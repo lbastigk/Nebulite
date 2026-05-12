@@ -15,8 +15,8 @@
  *          This allows for greater separation of concerns and reduces accidental key misusage.
  */
 
-#ifndef NEBULITE_DATA_DOCUMENT_SCOPED_KEY_HPP
-#define NEBULITE_DATA_DOCUMENT_SCOPED_KEY_HPP
+#ifndef DATA_DOCUMENT_SCOPEDKEY_HPP
+#define DATA_DOCUMENT_SCOPEDKEY_HPP
 
 //------------------------------------------
 // Includes
@@ -43,6 +43,7 @@ namespace Nebulite::Data {
 template <std::size_t N>
 struct OptionalFixedString {
     char value[N == 0 ? 1 : N]{};
+    //std::array<char, N == 0 ? 1 : N> value{}; // TODO: use this instead
 
     // NOLINTNEXTLINE
     consteval OptionalFixedString(const char (&str)[N == 0 ? 1 : N]) {
@@ -255,4 +256,4 @@ public:
     [[nodiscard]] ScopedKey addMember(std::string_view const& member) const noexcept;
 };
 } // namespace Nebulite::Data
-#endif // NEBULITE_DATA_DOCUMENT_SCOPED_KEY_HPP
+#endif // DATA_DOCUMENT_SCOPEDKEY_HPP

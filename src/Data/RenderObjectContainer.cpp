@@ -1,12 +1,18 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <ranges>
+#include <string>
+
 // Nebulite
 #include "Core/RenderObject.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/RenderObjectContainer.hpp"
 #include "Data/RendererProcessor.hpp"
+#include "Data/Tiling.hpp"
 #include "Utility/Coordination/WorkDispatcher.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -53,7 +59,7 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, TilingI
             // Check if serial or not:
             auto ro_serial = doc.get<std::string>(objectKey);
             std::string str;
-            if (ro_serial.error()) {
+            if (!ro_serial.has_value()) {
                 JSON tmp;
                 tmp = doc.getSubDoc(objectKey);
                 str = tmp.serialize();

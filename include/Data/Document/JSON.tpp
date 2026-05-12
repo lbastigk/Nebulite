@@ -1,5 +1,5 @@
-#ifndef NEBULITE_DATA_DOCUMENT_JSON_TPP
-#define NEBULITE_DATA_DOCUMENT_JSON_TPP
+#ifndef DATA_DOCUMENT_JSON_TPP
+#define DATA_DOCUMENT_JSON_TPP
 
 //------------------------------------------
 // Includes
@@ -9,13 +9,14 @@
 #include <type_traits>
 
 // Nebulite
-#include "Data/Document/JSON.hpp"
+#include "Data/Document/TypeConversion.hpp"
 #include "Module/Base/TransformationModule.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
 
 template<typename>
+// NOLINTNEXTLINE
 struct is_std_optional : std::false_type {};
 
 template<typename U>
@@ -26,6 +27,7 @@ inline constexpr bool is_std_optional_v =
     is_std_optional<std::remove_cvref_t<T>>::value;
 
 template<typename>
+// NOLINTNEXTLINE
 struct is_std_expected : std::false_type {};
 
 template<typename T, typename E>
@@ -77,7 +79,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::get(std::string_view const& ke
         if (auto const converted = convertVariant<T>(var.value()); converted.has_value()) {
             return converted.value();
         }
-        return std::unexpected(CONVERSION_FAILURE);
+        return std::unexpected(SimpleValueRetrievalError::CONVERSION_FAILURE);
     }
     return std::unexpected{var.error()};
 }
@@ -105,7 +107,7 @@ std::expected<T, SimpleValueRetrievalError> JSON::getWithTransformations(std::st
     // Apply each transformation in sequence
     args.erase(args.begin());
     if (!JsonRvalueTransformer::instance().parse(args, &tempDoc)) {
-        return std::unexpected(TRANSFORMATION_FAILURE); // if any transformation fails, return default value
+        return std::unexpected(SimpleValueRetrievalError::TRANSFORMATION_FAILURE); // if any transformation fails, return default value
     }
     return tempDoc.get<T>(Module::Base::TransformationModule::rootKeyStr);
 }
@@ -135,149 +137,6 @@ std::optional<T> JSON::jsonValueToCache(std::string_view const& key, rapidjson::
     // Return converted value
     return convertVariant<T>(cache[key]->value);
 }
-
-// Having this flag active used to cause issues on macOS.
-// Since then the arguments were renamed, which likely caused compilation errors.
-#define ALLOW_STRING_TO_INTEGRAL_CONVERSIONS 1
-
-// Converter helper functions for convertVariant
-namespace ConverterHelper {
-    inline std::optional<bool> stringToBool(std::string const& stored){
-#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        if (stored == "true") return true;
-        if (stored == "false") return false;
-#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        // Handle numeric strings and "true"
-        if(Utility::StringHandler::isNumber(stored)){
-            try {
-                return std::stoi(stored) != 0;
-            } catch (...){
-                return std::nullopt;
-            }
-        }
-        return stored == "true";
-    }
-
-    inline std::optional<int> stringToInt(std::string const& stored){
-#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        if (stored == "true") return 1;
-        if (stored == "false") return 0;
-#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        try {
-            return std::stoi(stored);
-        } catch (...){
-            return std::nullopt;
-        }
-    }
-
-    inline std::optional<uint8_t> stringToUInt8(std::string const& stored){
-#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        if (stored == "true") return 1;
-        if (stored == "false") return 0;
-#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        try {
-            return static_cast<uint8_t>(std::stoul(stored));
-        } catch (...){
-            return std::nullopt;
-        }
-    }
-
-    inline std::optional<int8_t> stringToInt8(std::string const& stored){
-#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        if (stored == "true") return 1;
-        if (stored == "false") return 0;
-#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        try {
-            return static_cast<int8_t>(std::stol(stored));
-        } catch (...){
-            return std::nullopt;
-        }
-    }
-
-    inline std::optional<uint16_t> stringToUInt16(std::string const& stored){
-#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        if (stored == "true") return 1;
-        if (stored == "false") return 0;
-#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        try {
-            return static_cast<uint16_t>(std::stoul(stored));
-        } catch (...){
-            return std::nullopt;
-        }
-    }
-
-    inline std::optional<int16_t> stringToInt16(std::string const& stored){
-#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        if (stored == "true") return 1;
-        if (stored == "false") return 0;
-#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        try {
-            return static_cast<int16_t>(std::stol(stored));
-        } catch (...){
-            return std::nullopt;
-        }
-    }
-
-    inline std::optional<uint32_t> stringToUInt32(std::string const& stored){
-#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        if (stored == "true") return 1;
-        if (stored == "false") return 0;
-#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        try {
-            return static_cast<uint32_t>(std::stoul(stored));
-        } catch (...){
-            return std::nullopt;
-        }
-    }
-
-    inline std::optional<int32_t> stringToInt32(std::string const& stored){
-#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        if (stored == "true") return 1;
-        if (stored == "false") return 0;
-#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        try {
-            return static_cast<int32_t>(std::stol(stored));
-        } catch (...){
-            return std::nullopt;
-        }
-    }
-
-    inline std::optional<uint64_t> stringToUInt64(std::string const& stored){
-#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        if (stored == "true") return 1;
-        if (stored == "false") return 0;
-#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        try {
-            return std::stoull(stored);
-        } catch (...){
-            return std::nullopt;
-        }
-    }
-
-    inline std::optional<int64_t> stringToInt64(std::string const& stored){
-#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        if (stored == "true") return 1;
-        if (stored == "false") return 0;
-#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        try {
-            return std::stoll(stored);
-        } catch (...){
-            return std::nullopt;
-        }
-    }
-
-    inline std::optional<double> stringToDouble(std::string const& stored){
-#if ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        if (stored == "true") return 1.0;
-        if (stored == "false") return 0.0;
-#endif // ALLOW_STRING_TO_INTEGRAL_CONVERSIONS
-        try {
-            return std::stod(stored);
-        } catch (...){
-            return std::nullopt;
-        }
-    }
-} // namespace ConverterHelper
 
 // Using NOLINTNEXTLINE to silence "Arguments passed in possible wrong order" warnings
 template<typename newType>
@@ -311,47 +170,47 @@ std::optional<newType> JSON::convertVariant(RjDirectAccess::simpleValue const& v
         else if constexpr (std::is_same_v<ValueT, std::string>) {
             if constexpr (std::is_same_v<newType, bool>){
                 // NOLINTNEXTLINE
-                return ConverterHelper::stringToBool(value);
+                return TypeConversion::stringToBool(value);
             }
             else if constexpr (std::is_same_v<newType, int>){
                 // NOLINTNEXTLINE
-                return ConverterHelper::stringToInt(value);
+                return TypeConversion::stringToInt(value);
             }
             else if constexpr (std::is_same_v<newType, uint8_t>){
                 // NOLINTNEXTLINE
-                return ConverterHelper::stringToUInt8(value);
+                return TypeConversion::stringToUInt8(value);
             }
             else if constexpr (std::is_same_v<newType, int8_t>){
                 // NOLINTNEXTLINE
-                return ConverterHelper::stringToInt8(value);
+                return TypeConversion::stringToInt8(value);
             }
             else if constexpr (std::is_same_v<newType, uint16_t>){
                 // NOLINTNEXTLINE
-                return ConverterHelper::stringToUInt16(value);
+                return TypeConversion::stringToUInt16(value);
             }
             else if constexpr (std::is_same_v<newType, int16_t>){
                 // NOLINTNEXTLINE
-                return ConverterHelper::stringToInt16(value);
+                return TypeConversion::stringToInt16(value);
             }
             else if constexpr (std::is_same_v<newType, uint32_t>){
                 // NOLINTNEXTLINE
-                return ConverterHelper::stringToUInt32(value);
+                return TypeConversion::stringToUInt32(value);
             }
             else if constexpr (std::is_same_v<newType, int32_t>){
                 // NOLINTNEXTLINE
-                return ConverterHelper::stringToInt32(value);
+                return TypeConversion::stringToInt32(value);
             }
             else if constexpr (std::is_same_v<newType, uint64_t>){
                 // NOLINTNEXTLINE
-                return ConverterHelper::stringToUInt64(value);
+                return TypeConversion::stringToUInt64(value);
             }
             else if constexpr (std::is_same_v<newType, int64_t>){
                 // NOLINTNEXTLINE
-                return ConverterHelper::stringToInt64(value);
+                return TypeConversion::stringToInt64(value);
             }
             else if constexpr (std::is_same_v<newType, double>){
                 // NOLINTNEXTLINE
-                return ConverterHelper::stringToDouble(value);
+                return TypeConversion::stringToDouble(value);
             }
         }
 
@@ -368,5 +227,5 @@ std::optional<newType> JSON::convertVariant(RjDirectAccess::simpleValue const& v
     },
     var);
 }
-}   // namespace Nebulite::Utility
-#endif // NEBULITE_DATA_DOCUMENT_JSON_TPP
+} // namespace Nebulite::Data
+#endif // DATA_DOCUMENT_JSON_TPP

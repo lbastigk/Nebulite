@@ -1,5 +1,5 @@
-#ifndef NEBULITE_DATA_DOCUMENT_SIMPLE_VALUE_ERROR_HPP
-#define NEBULITE_DATA_DOCUMENT_SIMPLE_VALUE_ERROR_HPP
+#ifndef DATA_DOCUMENT_SIMPLEVALUEERROR_HPP
+#define DATA_DOCUMENT_SIMPLEVALUEERROR_HPP
 
 //------------------------------------------
 // Enum for simple value retrieval error
@@ -11,7 +11,7 @@ namespace Nebulite::Data {
  * @details This enum is used to indicate specific reasons for failure when attempting to retrieve a simple value,
  *          such as type mismatches, malformed keys, or transformation failures.
  */
-enum SimpleValueRetrievalError {
+enum class SimpleValueRetrievalError : std::uint8_t {
     TRANSFORMATION_FAILURE, // The specified transformations could not be applied successfully.
     CONVERSION_FAILURE,     // The value could not be converted to the requested type.
     MALFORMED_KEY,          // The provided key is malformed
@@ -20,4 +20,4 @@ enum SimpleValueRetrievalError {
     IS_NULL                 // The specified key is not a member of the JSON document (null).
 };
 } // namespace Nebulite::Data
-#endif // NEBULITE_DATA_DOCUMENT_SIMPLE_VALUE_ERROR_HPP
+#endif // DATA_DOCUMENT_SIMPLEVALUEERROR_HPP

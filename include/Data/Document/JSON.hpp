@@ -3,8 +3,8 @@
  * @brief A wrapper around rapidjson to simplify JSON manipulation in Nebulite.
  */
 
-#ifndef NEBULITE_DATA_DOCUMENT_JSON_HPP
-#define NEBULITE_DATA_DOCUMENT_JSON_HPP
+#ifndef DATA_DOCUMENT_JSON_HPP
+#define DATA_DOCUMENT_JSON_HPP
 
 //------------------------------------------
 // Includes
@@ -543,4 +543,4 @@ public:
 };
 } // namespace Nebulite::Data
 #include "JSON.tpp"
-#endif // NEBULITE_DATA_DOCUMENT_JSON_HPP
+#endif // DATA_DOCUMENT_JSON_HPP

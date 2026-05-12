@@ -4,8 +4,8 @@
  * Direct access to RapidJSON values
  */
 
-#ifndef NEBULITE_DATA_DOCUMENT_RJ_DIRECT_ACCESS_HPP
-#define NEBULITE_DATA_DOCUMENT_RJ_DIRECT_ACCESS_HPP
+#ifndef DATA_DOCUMENT_RJDIRECTACCESS_HPP
+#define DATA_DOCUMENT_RJDIRECTACCESS_HPP
 
 //------------------------------------------
 // Includes
@@ -152,7 +152,7 @@ public:
     //------------------------------------------
     // Serialization/Deserialization
 
-    enum class SerializationType {
+    enum class SerializationType : std::uint8_t {
         compact,
         pretty
     };
@@ -248,4 +248,4 @@ private:
 };
 } // namespace Nebulite::Data
 #include "RjDirectAccess.tpp"
-#endif // NEBULITE_DATA_DOCUMENT_RJ_DIRECT_ACCESS_HPP
+#endif // DATA_DOCUMENT_RJDIRECTACCESS_HPP

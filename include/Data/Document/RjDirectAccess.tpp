@@ -1,5 +1,5 @@
-#ifndef NEBULITE_DATA_DOCUMENT_RJ_DIRECT_ACCESS_TPP
-#define NEBULITE_DATA_DOCUMENT_RJ_DIRECT_ACCESS_TPP
+#ifndef DATA_DOCUMENT_RJDIRECTACCESS_TPP
+#define DATA_DOCUMENT_RJDIRECTACCESS_TPP
 
 //------------------------------------------
 // Includes
@@ -8,7 +8,6 @@
 #include <sstream>
 
 // Nebulite
-#include "Data/Document/RjDirectAccess.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------
@@ -218,4 +217,4 @@ template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value co
 }
 
 }   // namespace Nebulite::Data
-#endif // NEBULITE_DATA_DOCUMENT_RJ_DIRECT_ACCESS_TPP
+#endif // DATA_DOCUMENT_RJDIRECTACCESS_TPP
