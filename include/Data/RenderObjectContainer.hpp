@@ -192,6 +192,11 @@ private:
     /**
      * @brief Holds all objects in the container.
      *        `ObjectContainer[tileX,tileY] -> vector<batch>`
+     * @note Consider adding optional SDL_Texture + timer. If no object was modified for, e.g. 1sec, generate a single texture for the tile
+     *       This requires containerIteration function to return bool if object was updated, false otherwise
+     *       However, this requires lots of edge cases to consider, as objects can change state without being updated through rulesets,
+     *       such as outside manipulation with a "selected-object parse" call, etc.
+     *       Perhaps this isn't worth it
      */
     absl::flat_hash_map<TileCoordinate, std::vector<Batch>> ObjectContainer;
 };
