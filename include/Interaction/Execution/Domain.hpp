@@ -5,8 +5,8 @@
  *        The non-templated Domain class holds all common functionality for domains that do not require template parameters.
  */
 
-#ifndef NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
-#define NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
+#ifndef INTERACTION_EXECUTION_DOMAIN_HPP
+#define INTERACTION_EXECUTION_DOMAIN_HPP
 
 //------------------------------------------
 // Includes
@@ -100,6 +100,11 @@ public:
     explicit DocumentAccessor(); // Creates a new JsonScope owned by this DocumentAccessor
 
     ~DocumentAccessor() override;
+
+    DocumentAccessor(DocumentAccessor const&) = delete;
+    DocumentAccessor& operator=(DocumentAccessor const&) = delete;
+    DocumentAccessor(DocumentAccessor&&) = delete;
+    DocumentAccessor& operator=(DocumentAccessor&&) = delete;
 
     friend class Domain;
 
@@ -480,4 +485,4 @@ protected:
     void baseDeserialization(std::string const& serialOrLinkWithCommands);
 };
 } // namespace Nebulite::Interaction::Execution
-#endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_HPP
+#endif // INTERACTION_EXECUTION_DOMAIN_HPP

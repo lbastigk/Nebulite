@@ -1,9 +1,5 @@
-#ifndef NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_TPP
-#define NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_TPP
-
-#include "Interaction/Execution/DomainModule.hpp"
-
-// Small utilities
+#ifndef INTERACTION_EXECUTION_DOMAINMODULE_TPP
+#define INTERACTION_EXECUTION_DOMAINMODULE_TPP
 
 namespace Nebulite::Interaction::Execution {
 
@@ -21,4 +17,4 @@ template <typename DomainType>
 DomainModule<DomainType>::~DomainModule() = default;
 
 } // namespace Nebulite::Interaction::Execution
-#endif // NEBULITE_INTERACTION_EXECUTION_DOMAINMODULE_TPP
+#endif // INTERACTION_EXECUTION_DOMAINMODULE_TPP

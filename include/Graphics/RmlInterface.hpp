@@ -1,14 +1,14 @@
-#ifndef NEBULITE_GRAPHICS_RML_INTERFACE_HPP
-#define NEBULITE_GRAPHICS_RML_INTERFACE_HPP
+#ifndef GRAPHICS_RMLINTERFACE_HPP
+#define GRAPHICS_RMLINTERFACE_HPP
 
 //------------------------------------------
 // Includes
 
 // External
-#include <absl/container/flat_hash_map.h>
+#include <RmlUi/Core.h>
 #include <RmlUi_Platform_SDL.h>
 #include <RmlUi_Renderer_SDL.h>
-#include <RmlUi/Core.h>
+#include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Graphics/RmlSystemInterface.hpp"
@@ -37,6 +37,11 @@ class RmlInterface {
     ~RmlInterface();
 
 public:
+    RmlInterface(RmlInterface const&) = delete;
+    RmlInterface& operator=(RmlInterface const&) = delete;
+    RmlInterface(RmlInterface&&) = delete;
+    RmlInterface& operator=(RmlInterface&&) = delete;
+
     static auto constexpr contextName = "nebuliteRmlContext";
     static auto constexpr dataModelName = "nebuliteDataSync";
 
@@ -251,4 +256,4 @@ private:
     std::unique_ptr<DocumentManager> documentManager;
 };
 } // namespace Nebulite::Graphics
-#endif // NEBULITE_GRAPHICS_RML_INTERFACE_HPP
+#endif // GRAPHICS_RMLINTERFACE_HPP

@@ -1,5 +1,5 @@
-#ifndef NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_BASE_HPP
-#define NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_BASE_HPP
+#ifndef INTERACTION_EXECUTION_DOMAINMODULEBASE_HPP
+#define INTERACTION_EXECUTION_DOMAINMODULEBASE_HPP
 
 //------------------------------------------
 // Includes
@@ -159,9 +159,9 @@ public:
      */
     Data::JsonScope const& settingsScope;
 
-    enum class RoutineUpdateMode {
-        BEFORE_UPDATE_HOOK, ///< Update routines before calling the update hook
-        AFTER_UPDATE_HOOK   ///< Update routines after calling the update hook
+    enum class RoutineUpdateMode : uint8_t {
+        BEFORE_UPDATE_HOOK, // Update routines before calling the update hook
+        AFTER_UPDATE_HOOK   // Update routines after calling the update hook
     };
 
 protected:
@@ -199,4 +199,4 @@ private:
 };
 } // namespace Nebulite::Interaction::Execution
 #include "Interaction/Execution/DomainModuleBase.tpp"
-#endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_BASE_HPP
+#endif // INTERACTION_EXECUTION_DOMAINMODULEBASE_HPP

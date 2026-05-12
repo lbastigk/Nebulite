@@ -3,8 +3,8 @@
  * @brief This file contains the declaration of the Nebulite::Graphics::Drawcall base class.
  */
 
-#ifndef NEBULITE_GRAPHICS_DRAWCALL_HPP
-#define NEBULITE_GRAPHICS_DRAWCALL_HPP
+#ifndef GRAPHICS_DRAWCALL_HPP
+#define GRAPHICS_DRAWCALL_HPP
 
 //------------------------------------------
 // Includes
@@ -33,6 +33,11 @@ public:
     explicit Drawcall(Data::JsonScope& workspace, Utility::IO::Capture& parentCapture);
 
     ~Drawcall() = default;
+
+    Drawcall(Drawcall const&) = delete;
+    Drawcall& operator=(Drawcall const&) = delete;
+    Drawcall(Drawcall&&) = delete;
+    Drawcall& operator=(Drawcall&&) = delete;
 
     void draw(float const& offsetX, float const& offsetY);
 
@@ -152,11 +157,11 @@ private:
 
     bool reInitializeRequested = false;
 
-    SDL_FPoint rotationCenter{0.0f, 0.0f};
+    SDL_FPoint rotationCenter{.x=0.0f, .y=0.0f};
 
     // TODO: requestOverride, allowing us to redraw the texture every frame if needed
 
-    enum Type {
+    enum class Type : uint8_t {
         SPRITE,
         TEXT,
         CIRCLE,
@@ -173,7 +178,7 @@ private:
         //         scale tiles to 6.66x6.66 so that 3x3 tiles fit perfectly
         //         scale tiles to 10x10 so that 2x2 tiles fit perfectly
         //   > perhaps we should determine if we create a new texture for this or render directly from the original texture?
-    }type = SPRITE; // Default to sprite
+    }type = Type::SPRITE; // Default to sprite
 
     Data::JsonScope& drawcallScope;
     Core::Texture texture; // Holds the data for the texture to draw
@@ -218,4 +223,4 @@ private:
 };
 
 } // namespace Nebulite::Graphics
-#endif // NEBULITE_GRAPHICS_DRAWCALL_HPP
+#endif // GRAPHICS_DRAWCALL_HPP

@@ -114,7 +114,7 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
 
     switch (type) {
         // Sprite and text draw calls simply render their texture
-        case TEXT:
+        case Type::TEXT:
             // TODO: Why is the update needed for texts???
             //       After the first TimedRoutine trigger, the text drawcalls
             //       do not render properly unless we call updateDrawcallData continuously...
@@ -124,7 +124,7 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
             }
             renderTexture(renderer, offsetX, offsetY);
             break;
-        case SPRITE:
+        case Type::SPRITE:
             if (reInitializeRequested) {
                 initializeSprite();
                 reInitializeRequested = false;
@@ -132,7 +132,7 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
             renderTexture(renderer, offsetX, offsetY);
             break;
         // Later on, add more drawcall types here (geometry, etc.)
-        case CIRCLE:
+        case Type::CIRCLE:
             {
                 if (reInitializeRequested) {
                     initializeCircle();
@@ -144,7 +144,7 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
                 renderTexture(renderer, offsetX - additionalOffsetX, offsetY - additionalOffsetY);
             }
             break;
-        case POLYGON:
+        case Type::POLYGON:
             {
                 if (reInitializeRequested) {
                     initializePolygon();
@@ -170,20 +170,20 @@ void Drawcall::updateDrawcallData() {
     //       Perhaps some basic checks such as "has the text string/font size changed" would be sufficient for now
     //       However, any change in the drawcall data must be reflected here, otherwise the drawcall will not update properly!!
     if (auto const t = drawcallScope.get<std::string>(Key::type).value_or("sprite"); t == "sprite") {
-        type = SPRITE;
+        type = Type::SPRITE;
     }
     else if (t == "text") {
-        type = TEXT;
+        type = Type::TEXT;
     }
     else if (t == "circle") {
-        type = CIRCLE;
+        type = Type::CIRCLE;
     }
     else if (t == "polygon") {
-        type = POLYGON;
+        type = Type::POLYGON;
     }
     else {
         texture.capture.error.println("Unknown drawcall type: ", t, ". Defaulting to sprite.");
-        type = SPRITE;
+        type = Type::SPRITE;
     }
 
     // Setup rotation center

@@ -1,5 +1,5 @@
-#ifndef NEBULITE_GRAPHICS_IMGUI_HELPER_HPP
-#define NEBULITE_GRAPHICS_IMGUI_HELPER_HPP
+#ifndef GRAPHICS_IMGUIHELPER_HPP
+#define GRAPHICS_IMGUIHELPER_HPP
 
 //------------------------------------------
 // Includes
@@ -41,7 +41,7 @@ public:
         std::optional<ImVec2> windowPos = std::nullopt; // Optional position
         std::optional<ImVec2> windowSize = std::nullopt; // Optional size
 
-        enum class Alignment {
+        enum class Alignment : uint8_t {
             NONE, // No automatic alignment, use exact position specified in windowPos
             TOP,
             BOTTOM,
@@ -101,4 +101,4 @@ private:
 };
 
 } // namespace Nebulite::Graphics
-#endif // NEBULITE_GRAPHICS_IMGUI_HELPER_HPP
+#endif // GRAPHICS_IMGUIHELPER_HPP

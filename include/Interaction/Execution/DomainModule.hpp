@@ -4,17 +4,17 @@
  *        class to support category-based function bindings.
  */
 
-#ifndef NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_HPP
-#define NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_HPP
+#ifndef INTERACTION_EXECUTION_DOMAINMODULE_HPP
+#define INTERACTION_EXECUTION_DOMAINMODULE_HPP
 
 //------------------------------------------
 // Includes
 
 // Nebulite
-#include "ScopeAccessor.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Interaction/Execution/DomainTree.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
-#include "Data/Document/JsonScope.hpp"
+#include "ScopeAccessor.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
@@ -83,4 +83,4 @@ protected:
 };
 } // namespace Nebulite::Interaction::Execution
 #include "Interaction/Execution/DomainModule.tpp"
-#endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_HPP
+#endif // INTERACTION_EXECUTION_DOMAINMODULE_HPP

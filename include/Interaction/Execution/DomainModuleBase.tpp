@@ -1,11 +1,11 @@
-#ifndef NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_BASE_TPP
-#define NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_BASE_TPP
+#ifndef INTERACTION_EXECUTION_DOMAINMODULEBASE_TPP
+#define INTERACTION_EXECUTION_DOMAINMODULEBASE_TPP
 
-#include "Interaction/Execution/DomainModuleBase.hpp"
+//------------------------------------------
+namespace Nebulite::Interaction::Execution {
 
 // TODO: Consider using all of these directly to funcTree
 
-namespace Nebulite::Interaction::Execution {
 // Implementation: free/static/function-object overload
 template <typename Func, typename FuncTreeType>
 void DomainModuleBase::bindFunctionStatic(
@@ -83,4 +83,4 @@ void DomainModuleBase::bindFunction(
     bindFunctionStatic(funcTree.get(), functionPtr, name, helpDescription);
 }
 } // namespace Nebulite::Interaction::Execution
-#endif // NEBULITE_INTERACTION_EXECUTION_DOMAIN_MODULE_BASE_TPP
+#endif // INTERACTION_EXECUTION_DOMAINMODULEBASE_TPP
