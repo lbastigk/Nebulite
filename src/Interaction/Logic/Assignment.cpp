@@ -11,17 +11,20 @@
 namespace Nebulite::Interaction::Logic {
 
 namespace {
+
 struct OperationInfo {
     Assignment::Operation op;
     std::string_view symbol;
     constexpr OperationInfo(Assignment::Operation const& o, std::string_view const& s) noexcept : op(o), symbol(s) {}
 };
+
 std::array constexpr supportedOperations = {
     OperationInfo{Assignment::Operation::add, "+="},
     OperationInfo{Assignment::Operation::multiply, "*="},
     OperationInfo{Assignment::Operation::concat, "|="},
     OperationInfo{Assignment::Operation::set, "="} // Must come at last place, otherwise it is registered before any other operator
 };
+
 } // namespace
 
 bool Assignment::parse(std::string_view const& str) {
@@ -40,7 +43,7 @@ bool Assignment::parse(std::string_view const& str) {
     // 3.) Find the operator position, get views for key and value
     operation = Operation::null;
     for (auto const& [op, symbol] : supportedOperations) {
-        if (size_t pos; (pos = keyView.find(symbol)) != std::string::npos) {
+        if (size_t const pos = keyView.find(symbol); pos != std::string::npos) {
             operation = op;
             valueView.remove_prefix(pos + symbol.size());
             keyView.remove_suffix(keyView.size() - pos);
@@ -69,7 +72,7 @@ void Assignment::optimize(ContextScope const& contextScope){
      };
 
     // Keys with transformations cannot be optimized to use a stable double pointer
-    if (key->getFullExpression().find(Data::JSON::SpecialCharacter::transformationPipe) != std::string::npos) {
+    if (key->getFullExpression().contains(Data::JSON::SpecialCharacter::transformationPipe)) {
         return;
     }
 

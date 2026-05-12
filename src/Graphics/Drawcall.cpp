@@ -29,6 +29,7 @@ uint64_t rollingJitter(uint32_t const& size) {
 namespace Nebulite::Graphics {
 
 Drawcall::Drawcall(Data::JsonScope& workspace, Utility::IO::Capture& parentCapture) :
+    reInitializeRequested(true),
     drawcallScope(workspace),
     texture(workspace, parentCapture),
     updaterRoutine{
@@ -39,7 +40,6 @@ Drawcall::Drawcall(Data::JsonScope& workspace, Utility::IO::Capture& parentCaptu
         Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
     }
 {
-    reInitializeRequested = true;
     refs.initialize(workspace);
     updateDrawcallData();
 }
@@ -83,16 +83,16 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
     auto renderTexture = [this](Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY) {
         if (texture.isTextureValid()) {
             SDL_FRect const srcRect = {
-                std::floor(static_cast<float>(*refs.rectSrcX)),
-                std::floor(static_cast<float>(*refs.rectSrcY)),
-                std::floor(static_cast<float>(*refs.rectSrcW)),
-                std::floor(static_cast<float>(*refs.rectSrcH))
+                .x=std::floor(static_cast<float>(*refs.rectSrcX)),
+                .y=std::floor(static_cast<float>(*refs.rectSrcY)),
+                .w=std::floor(static_cast<float>(*refs.rectSrcW)),
+                .h=std::floor(static_cast<float>(*refs.rectSrcH))
             };
             SDL_FRect const dstRect = nebuliteRenderer.scaleRectFromLogicalSize({
-                std::floor(static_cast<float>(*refs.rectDstX) + dX),
-                std::floor(static_cast<float>(*refs.rectDstY) + dY),
-                std::floor(static_cast<float>(*refs.rectDstW)),
-                std::floor(static_cast<float>(*refs.rectDstH))
+                .x=std::floor(static_cast<float>(*refs.rectDstX) + dX),
+                .y=std::floor(static_cast<float>(*refs.rectDstY) + dY),
+                .w=std::floor(static_cast<float>(*refs.rectDstW)),
+                .h=std::floor(static_cast<float>(*refs.rectDstH))
             });
             if (!Math::isZero(*refs.rotationDegrees)) {
                 if (!SDL_RenderTextureRotated(nebuliteRenderer.getSdlRenderer(),texture.getSDLTexture(),&srcRect,&dstRect, *refs.rotationDegrees, &rotationCenter,SDL_FLIP_NONE)) {
@@ -256,8 +256,9 @@ void Drawcall::initializeSprite() {
     }
 
     // Set Source Rect, if it does not exist yet
-    if (auto const sdlTexture = Global::instance().getRenderer().getTexture(link); sdlTexture) {
-        float w, h;
+    if (auto* const sdlTexture = Global::instance().getRenderer().getTexture(link); sdlTexture) {
+        float w = 0.0;
+        float h = 0.0;
         SDL_GetTextureSize(sdlTexture, &w, & h);
 
         // Setup src values unless they are already defined
@@ -301,10 +302,10 @@ void Drawcall::initializeText() {
     }
 
     SDL_Color const textColor = {
-        static_cast<Uint8>(*refs.colorR),
-        static_cast<Uint8>(*refs.colorG),
-        static_cast<Uint8>(*refs.colorB),
-        static_cast<Uint8>(*refs.colorA)
+        .r=static_cast<Uint8>(*refs.colorR),
+        .g=static_cast<Uint8>(*refs.colorG),
+        .b=static_cast<Uint8>(*refs.colorB),
+        .a=static_cast<Uint8>(*refs.colorA)
     };
 
     SDL_Surface* surf = TTF_RenderText_Blended_Wrapped(font, text.c_str(), 0, textColor, 0);
@@ -320,7 +321,8 @@ void Drawcall::initializeText() {
         return;
     }
 
-    float w = 0, h = 0;
+    float w = 0;
+    float h = 0;
     if (!SDL_GetTextureSize(tex, &w, &h)) {
         texture.capture.error.println("SDL_GetTextureSize failed: ", SDL_GetError());
         SDL_DestroyTexture(tex);
@@ -362,10 +364,10 @@ void Drawcall::initializeCircle() {
 
     // Draw the circle
     SDL_Color const circleColor = {
-        static_cast<Uint8>(*refs.colorR),
-        static_cast<Uint8>(*refs.colorG),
-        static_cast<Uint8>(*refs.colorB),
-        static_cast<Uint8>(*refs.colorA)
+        .r=static_cast<Uint8>(*refs.colorR),
+        .g=static_cast<Uint8>(*refs.colorG),
+        .b=static_cast<Uint8>(*refs.colorB),
+        .a=static_cast<Uint8>(*refs.colorA)
     };
     SDL_SetRenderDrawColor(sdlRenderer, circleColor.r, circleColor.g, circleColor.b, circleColor.a);
     SdlPrimitive::drawFilledCircle(sdlRenderer, circleTexture, circleColor, radius);
@@ -427,7 +429,7 @@ void Drawcall::initializePolygon() {
     for (size_t i = 0; i < pointCount; ++i) {
         auto const pointX = w * drawcallScope.get<double>(Key::PolygonSpecific::points.addIndex(i).addMember("x")).value_or(0.0);
         auto const pointY = h * drawcallScope.get<double>(Key::PolygonSpecific::points.addIndex(i).addMember("y")).value_or(0.0);
-        points.push_back({ static_cast<float>(pointX), static_cast<float>(pointY) });
+        points.push_back({ .x=static_cast<float>(pointX), .y=static_cast<float>(pointY) });
     }
 
     // Create a texture for the polygon
@@ -439,10 +441,10 @@ void Drawcall::initializePolygon() {
         static_cast<int>(h)
     );
     SDL_Color const polyColor = {
-        static_cast<Uint8>(*refs.colorR),
-        static_cast<Uint8>(*refs.colorG),
-        static_cast<Uint8>(*refs.colorB),
-        static_cast<Uint8>(*refs.colorA)
+        .r=static_cast<Uint8>(*refs.colorR),
+        .g=static_cast<Uint8>(*refs.colorG),
+        .b=static_cast<Uint8>(*refs.colorB),
+        .a=static_cast<Uint8>(*refs.colorA)
     };
 
     if (!Math::isZero(*refs.polygonFilled)) {

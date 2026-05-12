@@ -20,14 +20,14 @@ void RmlSystemInterface::update(int const& mousePositionX, int const& mousePosit
         }
     }
     // Only reset cursor if mouse has moved
-    currentMousePosition = {mousePositionX, mousePositionY};
+    currentMousePosition = {.x=mousePositionX, .y=mousePositionY};
     if (!newCursor && currentMousePosition != lastMousePosition) {
         availableCursors.back().forceUpdate();
     }
     lastMousePosition = currentMousePosition;
 
     // Only update if cursor changed
-    static SDL_Cursor* lastCursor = nullptr;
+    static SDL_Cursor const* lastCursor = nullptr;
     if (newCursor && newCursor != lastCursor) {
         lastCursor = newCursor;
         SDL_SetCursor(newCursor);

@@ -7,8 +7,8 @@
 // Nebulite
 #include "Core/Renderer.hpp"
 #include "Graphics/RmlInterface.hpp"
-#include "Utility/IO/FileManagement.hpp"
 #include "Nebulite.hpp"
+#include "Utility/IO/FileManagement.hpp"
 
 // Nebulite: RmlUi-Modules
 #include "Module/RmlUi/ContextManager.hpp"
@@ -208,7 +208,7 @@ void RmlInterface::processRmlUiEvent(SDL_Event event) const {
         if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
             // We assume the mouse click unfocused the element.
             // If the click was at the elements position, ProcessMouseButtonDown will refocus the element.
-            if (auto const el = context->GetFocusElement(); el) el->Blur();
+            if (auto* const el = context->GetFocusElement(); el) el->Blur();
             context->ProcessMouseButtonDown(button, modifiers);
         }
         else {
@@ -268,7 +268,7 @@ void RmlInterface::update(int const& mousePositionX, int const& mousePositionY) 
 }
 
 void RmlInterface::postRenderUpdate() const {
-    for (auto& module : modules) {
+    for (auto const& module : modules) {
         module->postRenderUpdate();
     }
 }
@@ -301,7 +301,7 @@ bool RmlInterface::isTextInputFocused() const {
 void RmlInterface::updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*)> const& updateFunc) {
     auto const numChildren = static_cast<size_t>(element->GetNumChildren());
     for (size_t i = 0; i < numChildren; ++i) {
-        if (auto const child = element->GetChild(static_cast<int>(i)); child) {
+        if (auto* const child = element->GetChild(static_cast<int>(i)); child) {
             updateFunc(child, element);
             updateElement(child, updateFunc);
         }
@@ -333,8 +333,8 @@ bool RmlInterface::loadDocument(std::string_view const& name, std::string_view c
     Rml::ElementDocument* doc = context->LoadDocumentFromMemory(document);
     if (!doc) return false;
 
-    auto& id = ctx.self.getId();
-    auto ctxAndScope = ContextAndScope{ctx, ctxScope};
+    auto const& id = ctx.self.getId();
+    auto ctxAndScope = ContextAndScope{.ctx=ctx, .ctxScope=ctxScope};
 
     if (ownerToDocument[id].contains(name)) {
         return false; // Document with this name already exists for this owner
@@ -350,7 +350,7 @@ bool RmlInterface::removeDocument(size_t const& id, std::string_view const& name
     if (it == ownerToDocument[id].end()) {
         return false; // No document with this name for this owner
     }
-    auto const doc = it->second;
+    auto* const doc = it->second;
     doc->Close();
     ownerToDocument[id].erase(name);
     documentToContext.erase(doc);
