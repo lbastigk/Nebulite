@@ -71,7 +71,7 @@ public:
      * @brief Gets the index of the ruleset in the owning Domain's list of entries.
      * @return The index of the ruleset, as const reference.
      */
-    [[nodiscard]] uint32_t const& getIndex() const { return index; }
+    [[nodiscard]] size_t const& getIndex() const { return index; }
 
     /**
      * @brief Returns the topic of the ruleset.
@@ -127,7 +127,7 @@ protected:
     /**
      * @brief The index of this entry in the list of entries of the owning Domain.
      */
-    uint32_t index = 0;
+    size_t index = 0;
 
     /**
      * @brief Indicates whether the ruleset is global or local.

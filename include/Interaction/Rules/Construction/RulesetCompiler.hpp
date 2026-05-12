@@ -100,10 +100,9 @@ private:
 
     /**
      * @brief Sets metadata in the object.
-     * @param rulesetsLocal The local Ruleset objects.
-     * @param rulesetsGlobal The global Ruleset objects.
+     * @param rulesets The vector of Ruleset objects to set metadata for.
      */
-    static void setMetaData(RulesetVector const& rulesetsLocal, RulesetVector const& rulesetsGlobal);
+    static void setMetaData(RulesetVector const& rulesets);
 };
 } // namespace Nebulite::Interaction::Rules::Construction
 #endif // NEBULITE_RULESET_COMPILER_HPP

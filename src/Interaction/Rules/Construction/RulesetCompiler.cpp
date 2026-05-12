@@ -127,13 +127,9 @@ bool RulesetCompiler::getJsonRuleset(Data::JsonScope const& doc, Data::JsonScope
     return true;
 }
 
-void RulesetCompiler::setMetaData(RulesetVector const& rulesetsLocal, RulesetVector const& rulesetsGlobal) {
-    // Set indices
-    for (uint32_t i = 0; i < rulesetsLocal.size(); ++i) {
-        rulesetsLocal[i]->index = i;
-    }
-    for (uint32_t i = 0; i < rulesetsGlobal.size(); ++i) {
-        rulesetsGlobal[i]->index = i;
+void RulesetCompiler::setMetaData(RulesetVector const& rulesets) {
+    for (auto [i, ruleset] : rulesets | std::views::enumerate) {
+        ruleset->index = static_cast<size_t>(i);
     }
 }
 
@@ -192,7 +188,8 @@ void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulese
     }
 
     // Set necessary metadata
-    setMetaData(rulesetsGlobal, rulesetsLocal);
+    setMetaData(rulesetsGlobal);
+    setMetaData(rulesetsLocal);
 }
 
 void RulesetCompiler::optimize(std::shared_ptr<JsonRuleset> const& entry, Data::JsonScope& self) {
@@ -265,4 +262,4 @@ std::optional<std::shared_ptr<Ruleset>> RulesetCompiler::parseSingle(std::string
     return std::nullopt;
 }
 
-} // namespace Nebulite::Interaction::Rules
+} // namespace Nebulite::Interaction::Rules::Construction

@@ -40,8 +40,8 @@ void Ruleset::apply() {
 // Derived Class Methods: StaticRuleset
 
 void StaticRuleset::apply(Context& context, ContextScope& /*contextScope*/){
-    auto slfFromProvidedContext = baseListFunction(context.self);
-    auto otrFromProvidedContext = baseListFunction(context.other);
+    auto* slfFromProvidedContext = baseListFunction(context.self);
+    auto* otrFromProvidedContext = baseListFunction(context.other);
     staticFunction(context, slfFromProvidedContext, otrFromProvidedContext);
 }
 

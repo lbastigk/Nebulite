@@ -18,7 +18,7 @@ void RulesetModule::ensureBaseList(Execution::Domain const& domain, std::vector<
 
 BaseListFunction RulesetModule::generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const {
     BaseListFunction const baseListFunc = [this, baseKeys](const Execution::Domain& domain) -> double** {
-        double** v;
+        double** v{};
         ensureBaseList(domain, baseKeys, v);
         return v;
     };
