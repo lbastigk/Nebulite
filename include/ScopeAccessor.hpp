@@ -6,6 +6,7 @@
 #ifndef NEBULITE_SCOPE_ACCESSOR_HPP
 #define NEBULITE_SCOPE_ACCESSOR_HPP
 
+
 //------------------------------------------
 // Includes
 
@@ -63,6 +64,11 @@ public:
 
     public:
         ~Full();
+
+        Full(Full const&) = delete;
+        Full& operator=(Full const&) = delete;
+        Full(Full&&) = delete;
+        Full& operator=(Full&&) = delete;
 
         // Allowed accessors:
         friend class Core::GlobalSpace; // GlobalSpace needs to create the token and manage access to its Subdomains and itself

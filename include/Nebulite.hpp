@@ -1,8 +1,6 @@
 /**
  * @file Nebulite.hpp
  * @brief Central file for Nebulite namespace documentation and public singleton accessors.
- * @details Offers access to core Nebulite functionality for instances such as DomainModules,
- *          as well as namespace documentation.
  */
 
 #ifndef NEBULITE_HPP
