@@ -52,11 +52,11 @@ Constants::Event General::envDeload() const {
     return Constants::Event::Success;
 }
 
-Constants::Event General::spawn(int const argc, char** argv) const {
-    if (argc > 1) {
+Constants::Event General::spawn(std::span<std::string const> const& args) const {
+    if (args.size() > 1) {
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun
-        std::string const linkOrObject = Utility::StringHandler::recombineArgs(argc - 1, argv + 1);
+        std::string const linkOrObject = Utility::StringHandler::recombineArgs(args.subspan(1));
 
         // Create object with link to globalspace
         auto* ro = new Core::RenderObject(domain.capture);

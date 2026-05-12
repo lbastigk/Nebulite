@@ -57,7 +57,7 @@ public:
      *          - RenderObject deletion mechanism in Renderer::update()
      *          As of now, the implementation is fully functional so it's a low priority task.
      */
-    [[nodiscard]] Constants::Event spawn(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event spawn(std::span<std::string const> const& args) const ;
     static auto constexpr spawn_name = "spawn";
     static auto constexpr spawn_desc = "Spawn a RenderObject from a json/jsonc file.\n"
         "\n"

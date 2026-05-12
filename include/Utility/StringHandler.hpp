@@ -3,8 +3,8 @@
  * @brief Utility functions for string manipulation and parsing.
  */
 
-#ifndef UTILITY_IO_STRING_HANDLER_HPP
-#define UTILITY_IO_STRING_HANDLER_HPP
+#ifndef UTILITY_STRINGHANDLER_HPP
+#define UTILITY_STRINGHANDLER_HPP
 
 //------------------------------------------
 // Includes
@@ -122,7 +122,7 @@ public:
      * @param argv The array of argument strings.
      * @return The recombined argument string.
      */
-    static std::string recombineArgs(int argc, char* argv[]);
+    [[deprecated]] static std::string recombineArgs(int argc, char* argv[]);
 
     /**
      * @brief Recombines a span of strings into a single string with spaces.
@@ -185,4 +185,4 @@ public:
     static std::vector<std::string> splitOnSameDepthOf(std::string_view const& input, Delimiter const& delimiter);
 };
 }   // namespace Nebulite::Utility
-#endif // UTILITY_IO_STRING_HANDLER_HPP
+#endif // UTILITY_STRINGHANDLER_HPP

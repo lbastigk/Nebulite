@@ -3,8 +3,8 @@
  * @brief Compile-time evaluation utilities for Nebulite.
  */
 
-#ifndef UTILITY_COMPILE_TIME_EVALUATE_HPP
-#define UTILITY_COMPILE_TIME_EVALUATE_HPP
+#ifndef UTILITY_COMPILETIMEEVALUATE_HPP
+#define UTILITY_COMPILETIMEEVALUATE_HPP
 
 //------------------------------------------
 // Includes
@@ -45,4 +45,4 @@ public:
     }
 };
 } // namespace Nebulite::Utility
-#endif // UTILITY_COMPILE_TIME_EVALUATE_HPP
+#endif // UTILITY_COMPILETIMEEVALUATE_HPP
