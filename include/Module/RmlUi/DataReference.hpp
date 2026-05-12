@@ -1,5 +1,5 @@
-#ifndef MODULE_RMLUI_DATA_INPUT_HPP
-#define MODULE_RMLUI_DATA_INPUT_HPP
+#ifndef MODULE_RMLUI_DATAREFERENCE_HPP
+#define MODULE_RMLUI_DATAREFERENCE_HPP
 
 //------------------------------------------
 // Includes
@@ -67,4 +67,4 @@ private:
     static std::string normalize(std::string const& key);
 };
 } // namespace Nebulite::Module::RmlUi
-#endif // MODULE_RMLUI_DATA_INPUT_HPP
+#endif // MODULE_RMLUI_DATAREFERENCE_HPP

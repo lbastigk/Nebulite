@@ -5,15 +5,15 @@
 // Includes
 
 // External
-#include <absl/container/flat_hash_map.h>
 #include <RmlUi/Core.h>
+#include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Interaction/Logic/Expression.hpp"
-#include "Utility/IO/Capture.hpp"
-#include "Utility/Coordination/TimedRoutine.hpp"
 #include "Module/Base/RmlUiModule.hpp"
+#include "Utility/Coordination/TimedRoutine.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
@@ -51,7 +51,7 @@ private:
         Interaction::Logic::Expression reflectionListExpression; // Expression to generate an array of entries to reflect to
         Rml::String rmlValue; // Original RML value to replicate for each entry
         bool markedForDeletion = false;
-        std::vector<size_t> allocatedIds = {}; // Instead of constantly allocating new element Identifiers per reflection, we reuse them.
+        std::vector<size_t> allocatedIds; // Instead of constantly allocating new element Identifiers per reflection, we reuse them.
     };
 
     // Entries that we have to add to the active list

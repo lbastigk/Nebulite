@@ -1,5 +1,5 @@
-#ifndef MODULE_RMLUI_CONTEXT_MANAGER_HPP
-#define MODULE_RMLUI_CONTEXT_MANAGER_HPP
+#ifndef MODULE_RMLUI_CONTEXTMANAGER_HPP
+#define MODULE_RMLUI_CONTEXTMANAGER_HPP
 
 //------------------------------------------
 // Includes
@@ -18,4 +18,4 @@ public:
     void update() override ;
 };
 } // namespace Nebulite::Module::RmlUi
-#endif // MODULE_RMLUI_CONTEXT_MANAGER_HPP
+#endif // MODULE_RMLUI_CONTEXTMANAGER_HPP
