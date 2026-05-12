@@ -142,6 +142,6 @@ private:
     std::mutex historyMutex;  // Mutex for thread-safe access to outputList
 };
 
-} // namespace Nebulite::Utility
+} // namespace Nebulite::Utility::IO
 #include "Utility/IO/Capture.tpp"
 #endif // UTILITY_IO_CAPTURE_HPP

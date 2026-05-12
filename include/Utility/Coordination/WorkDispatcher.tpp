@@ -6,7 +6,8 @@ namespace Nebulite::Utility::Coordination {
 
 template<typename Workspace>
 WorkDispatcher<Workspace>::WorkDispatcher(std::atomic<bool>& stop, std::function<void(Workspace&)> const& wF, std::function<void(Workspace&)> const& iF)
-        : threadState{ .stopFlag = stop, .condition = {} }, workerFunction(wF), initFunction(iF)
+    : threadState{ .stopFlag = stop, .condition = {} }
+    , workerFunction(wF), initFunction(iF)
 {
     initializeWorkerThread();
 }
@@ -22,11 +23,6 @@ WorkDispatcher<Workspace>::~WorkDispatcher() {
 
 template<typename Workspace>
 void WorkDispatcher<Workspace>::initializeWorkerThread() {
-    /*
-    if constexpr (InitFunc != nullptr) {
-        InitFunc(workspace);
-    }
-    */
     if (initFunction != nullptr) {
         initFunction(workspace);
     }
@@ -62,7 +58,6 @@ void WorkDispatcher<Workspace>::process() {
         if (threadState.stopFlag.load()) break;
 
         // Call the template function
-        //WorkerFunc(workspace);
         workerFunction(workspace);
 
         // Notify that work is finished

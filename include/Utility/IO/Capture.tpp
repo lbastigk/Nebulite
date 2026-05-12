@@ -2,12 +2,6 @@
 #define UTILITY_IO_CAPTURE_TPP
 
 //------------------------------------------
-// Includes
-
-// Standard library
-#include "Utility/IO/Capture.hpp"
-
-//------------------------------------------
 namespace Nebulite::Utility::IO {
 
 template<std::ostream* BaseStream, HistoryLine::Type LineType>
@@ -20,7 +14,7 @@ void Stream<BaseStream, LineType>::putStr(std::string const& str, bool const& pr
     std::istringstream iss(str);
     std::string line;
     while (std::getline(iss, line)) {
-        capture->history.push_back({line, LineType});
+        capture->history.push_back({.content=line, .type=LineType});
     }
 }
 
@@ -29,7 +23,7 @@ template<typename... Args>
 void Stream<BaseStream, LineType>::print(bool const& printToConsole, Args&&... args) {
     std::ostringstream workingBuffer;
     if constexpr (sizeof...(args) != 0) {
-        (workingBuffer << ... << args);
+        (workingBuffer << ... << std::forward<Args>(args));
     }
     putStr(workingBuffer.str(), printToConsole);
 }
@@ -39,7 +33,7 @@ template<typename... Args>
 void Stream<BaseStream, LineType>::println(bool const& printToConsole, Args&&... args) {
     std::ostringstream workingBuffer;
     if constexpr (sizeof...(args) != 0) {
-        (workingBuffer << ... << args);
+        (workingBuffer << ... << std::forward<Args>(args));
     }
     workingBuffer << '\n';
     putStr(workingBuffer.str(), printToConsole);
