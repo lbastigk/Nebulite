@@ -168,4 +168,4 @@ void Input::resetDeltaValues() const {
     }
 }
 
-} // namespace Nebulite::Module::Domain::GlobalSpace
+} // namespace Nebulite::Module::Domain::Renderer

@@ -239,25 +239,25 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
         case SDL_AUDIO_F32:
             lengthPerSample = sizeof(float);
             convertFunc = [](Uint8 const* byteData) {
-                float buffer[4];
-                std::memcpy(buffer, byteData, sizeof(float));
-                return *reinterpret_cast<float*>(buffer);
+                std::array<float,4> buffer{};
+                std::memcpy(buffer.data(), byteData, sizeof(float));
+                return *buffer.data();
             };
             break;
         case SDL_AUDIO_S16:
             lengthPerSample = sizeof(int16_t);
             convertFunc = [](Uint8 const* byteData) {
-                int16_t buffer[4];
-                std::memcpy(buffer, byteData, sizeof(int16_t));
-                return static_cast<Settings::SampleType>(*reinterpret_cast<int16_t*>(buffer)) / static_cast<Settings::SampleType>(std::numeric_limits<int16_t>::max());
+                std::array<int16_t,4> buffer{};
+                std::memcpy(buffer.data(), byteData, sizeof(int16_t));
+                return static_cast<Settings::SampleType>(*buffer.data()) / static_cast<Settings::SampleType>(std::numeric_limits<int16_t>::max());
             };
             break;
         case SDL_AUDIO_U8:
             lengthPerSample = sizeof(uint8_t);
             convertFunc = [](Uint8 const* byteData) {
-                uint8_t buffer[4];
-                std::memcpy(buffer, byteData, sizeof(uint8_t));
-                Settings::SampleType const valueShifted = static_cast<Settings::SampleType>(*reinterpret_cast<uint8_t*>(buffer)) - static_cast<Settings::SampleType>(128);
+                std::array<uint8_t,4> buffer{};
+                std::memcpy(buffer.data(), byteData, sizeof(uint8_t));
+                Settings::SampleType const valueShifted = static_cast<Settings::SampleType>(*buffer.data()) - static_cast<Settings::SampleType>(128);
                 return valueShifted / (static_cast<Settings::SampleType>(std::numeric_limits<uint8_t>::max()) / static_cast<Settings::SampleType>(2));
             };
             break;

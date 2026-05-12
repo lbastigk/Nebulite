@@ -14,15 +14,15 @@
 #include "Utility/IO/FileManagement.hpp"
 
 //------------------------------------------
-#if defined(_WIN32)
-#include <windows.h>
+#ifdef _WIN32
 #include <psapi.h>
+#include <windows.h>
 #else
-#include <unistd.h>   // isatty, lstat
 #include <sys/stat.h> // struct stat, S_ISLNK
+#include <unistd.h>   // isatty, lstat
 #endif
-#include <memory>
 #include <fstream>
+#include <memory>
 
 //------------------------------------------
 // Platform-specific functions
@@ -36,7 +36,7 @@ auto const* logFilename = "errors.log";
  * @brief Safely opens a log file for writing, ensuring it is not a symlink.
  */
 bool safe_open_log(std::unique_ptr<std::ofstream>& out) {
-#if defined(_WIN32)
+#ifdef _WIN32
     DWORD attrs = GetFileAttributesA(logFilename);
     if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_REPARSE_POINT)) {
         return false;
@@ -52,7 +52,7 @@ bool safe_open_log(std::unique_ptr<std::ofstream>& out) {
 }
 
 void getMemoryUsageMB(double& virtualMemMB, double& residentMemMB) {
-#if defined(_WIN32)
+#ifdef _WIN32
     PROCESS_MEMORY_COUNTERS_EX pmc;
     GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
     virtualMemMB = static_cast<double>(pmc.PrivateUsage) / (1024.0 * 1024.0);
@@ -69,14 +69,32 @@ void getMemoryUsageMB(double& virtualMemMB, double& residentMemMB) {
 
     // dummy vars for leading entries in stat that we don't care about
     //
-    std::string pid, comm, state, ppid, pgrp, session, tty_nr;
-    std::string tpgid, flags, minflt, cminflt, majflt, cmajflt;
-    std::string utime, stime, cutime, cstime, priority, nice;
-    std::string O, itrealvalue, starttime;
+    std::string pid;
+    std::string comm;
+    std::string state;
+    std::string ppid;
+    std::string pgrp;
+    std::string session;
+    std::string tty_nr;
+    std::string tpgid;
+    std::string flags;
+    std::string minflt;
+    std::string cminflt;
+    std::string majflt;
+    std::string cmajflt;
+    std::string utime;
+    std::string stime;
+    std::string cutime;
+    std::string cstime;
+    std::string priority;
+    std::string nice;
+    std::string O;
+    std::string itrealvalue;
+    std::string starttime;
 
     // the two fields we want
-    unsigned long vsize;
-    long rss;
+    unsigned long vsize{};
+    long rss{};
 
     stat_stream >> pid >> comm >> state >> ppid >> pgrp >> session >> tty_nr
         >> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt
@@ -85,7 +103,7 @@ void getMemoryUsageMB(double& virtualMemMB, double& residentMemMB) {
 
     stat_stream.close();
 
-    long page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
+    auto const page_size_kb = sysconf(_SC_PAGE_SIZE) / 1024; // in case x86-64 is configured to use 2MB pages
     virtualMemMB = static_cast<double>(vsize) / (1024.0 * 1024.0);
     residentMemMB = static_cast<double>(rss) * static_cast<double>(page_size_kb) / 1024.0;
 #endif
@@ -178,8 +196,9 @@ Constants::Event Debug::errorLog(std::span<std::string const> const& args, Inter
     return Constants::Event::Success;
 }
 
-inline void clear_screen() {
-#if defined(_WIN32)
+namespace {
+void clear_screen() {
+#ifdef _WIN32
     // Use Win32 API to clear the console buffer and move cursor to home (0,0).
     HANDLE hStd = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hStd == INVALID_HANDLE_VALUE)
@@ -204,6 +223,8 @@ inline void clear_screen() {
     std::system("clear");
 #endif
 }
+} // namespace
+
 
 Constants::Event Debug::clearConsole(std::span<std::string const> const& /*args*/){
     clear_screen();

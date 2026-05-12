@@ -48,7 +48,7 @@ std::pair<ContextDeriver::TargetType, std::string_view> ContextDeriver::getTypeA
     }
     std::string_view const context = str.substr(0, firstSeparatorPosition);
 
-    auto const it = std::ranges::find_if(contextPrefixPairs, [&](auto const p) {
+    auto const* it = std::ranges::find_if(contextPrefixPairs, [&](auto const p) {
         return context == p.second;
     });
     if (it != contextPrefixPairs.end()) {
@@ -58,7 +58,7 @@ std::pair<ContextDeriver::TargetType, std::string_view> ContextDeriver::getTypeA
 }
 
 std::string ContextDeriver::typeToString(TargetType const& type){
-    auto const it = std::ranges::find_if(contextPrefixPairs, [&](auto const p) {
+    auto const* it = std::ranges::find_if(contextPrefixPairs, [&](auto const p) {
         return type == p.first;
     });
     if (it != contextPrefixPairs.end()) {

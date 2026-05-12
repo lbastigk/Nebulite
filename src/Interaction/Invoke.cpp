@@ -12,10 +12,7 @@ namespace Nebulite::Interaction {
 //------------------------------------------
 // Constructor / Destructor
 
-Invoke::Invoke() {
-    // Initialize synchronization primitives
-    stopFlag = false;
-
+Invoke::Invoke() : stopFlag(false) {
     // Create and start threads
     size_t workerIndex = 0;
     for (auto& w : worker | std::views::take(activeWorkerCount)) {

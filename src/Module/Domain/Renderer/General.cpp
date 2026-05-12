@@ -6,8 +6,8 @@
 #include "stb_image_write.h"
 
 // Nebulite
-#include "Core/Renderer.hpp"
 #include "Core/RenderObject.hpp"
+#include "Core/Renderer.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Module/Domain/Renderer/General.hpp"
 #include "Nebulite.hpp"
@@ -172,9 +172,10 @@ Constants::Event General::snapshot(int const argc, char** argv) const {
     fileName = argc == 2 ? argv[1] : "./Resources/Snapshots/snapshot.png";
     auto snapshotFunction = [&] {
         // Get current window/render target size
-        auto const window = domain.getSdlWindow();
-        auto const renderer = domain.getSdlRenderer();
-        int width, height;
+        auto* const window = domain.getSdlWindow();
+        auto* const renderer = domain.getSdlRenderer();
+        int width = 0;
+        int height = 0;
         if (window) {
             // Normal windowed mode
             SDL_GetWindowSize(window, &width, &height);
@@ -184,8 +185,8 @@ Constants::Event General::snapshot(int const argc, char** argv) const {
         }
 
         // Create surface to capture pixels
-        SDL_Rect const fullScreenRect = {0, 0, width, height};
-        auto const surface = SDL_RenderReadPixels(renderer, &fullScreenRect);
+        SDL_Rect const fullScreenRect = {.x=0, .y=0, .w=width, .h=height};
+        auto* const surface = SDL_RenderReadPixels(renderer, &fullScreenRect);
         if (!surface) {
             domain.capture.error.println("Failed to read pixels for snapshot: ", SDL_GetError());
             SDL_DestroySurface(surface);
@@ -235,7 +236,8 @@ std::string base64_encode(uint8_t const* data, size_t const& len) {
     // NOLINTNEXTLINE
     out.reserve(((len + 2) / 3) * 4);
 
-    int val = 0, valb = -6;
+    int val = 0;
+    int valb = -6;
     for (size_t i = 0; i < len; i++) {
         val = (val << 8) + data[i];
         valb += 8;
@@ -276,9 +278,10 @@ Constants::Event General::dumpView() const {
         Data::JSON view;
 
         // Get current window/render target size
-        auto const window = domain.getSdlWindow();
-        auto const renderer = domain.getSdlRenderer();
-        int width, height;
+        auto* const window = domain.getSdlWindow();
+        auto* const renderer = domain.getSdlRenderer();
+        int width = 0;
+        int height = 0;
         if (window) {
             // Normal windowed mode
             SDL_GetWindowSize(window, &width, &height);
@@ -288,7 +291,7 @@ Constants::Event General::dumpView() const {
         }
 
         // Create surface to capture pixels
-        SDL_Rect const fullScreenRect = {0, 0, width, height};
+        SDL_Rect const fullScreenRect = {.x=0, .y=0, .w=width, .h=height};
 
         // Read pixels into an SDL_Surface
         SDL_Surface* surface = SDL_RenderReadPixels(renderer, &fullScreenRect);
@@ -328,7 +331,7 @@ Constants::Event General::dumpView() const {
         // Instead of logging this info to the usual capture, we send it directly to cout.
         // Otherwise, this will clog up the domain viewer and make rendering super slow
         //domain.capture.log.println(view.serialize("", Data::RjDirectAccess::SerializationType::compact));
-        std::cout << view.serialize("", Data::RjDirectAccess::SerializationType::compact) << std::endl;
+        std::cout << view.serialize("", Data::RjDirectAccess::SerializationType::compact) << '\n';
     };
     domain.addPostRenderCallback(callback);
     return Constants::Event::Success;

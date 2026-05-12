@@ -131,7 +131,7 @@ Constants::Event General::func_for(std::span<std::string const> const& args, Int
         std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(4));
         for (int i = iStart; i <= iEnd; i++) {
             // for + args
-            std::string args_replaced = std::string(args[0]) + " " + Utility::StringHandler::replaceAll(argStr, '{' + varName + '}', std::to_string(i));
+            std::string const args_replaced = std::string(args[0]) + " " + Utility::StringHandler::replaceAll(argStr, '{' + varName + '}', std::to_string(i));
             if (auto const event = ctx.self.parseStr(args_replaced, ctx, ctxScope); event != Constants::Event::Success) {
                 return event;
             }
@@ -164,12 +164,12 @@ Constants::Event General::func_forProgress(std::span<std::string const> const& a
             std::cout.flush();
 
             // for + args
-            std::string args_replaced = std::string(args[0]) + " " + Utility::StringHandler::replaceAll(argStr, '{' + varName + '}', std::to_string(i));
+            std::string const args_replaced = std::string(args[0]) + " " + Utility::StringHandler::replaceAll(argStr, '{' + varName + '}', std::to_string(i));
             if (auto const event = ctx.self.parseStr(args_replaced, ctx, ctxScope); event != Constants::Event::Success) {
                 return event;
             }
         }
-        std::cout << std::endl;
+        std::cout << "\n";
     }
     return Constants::Event::Success;
 }

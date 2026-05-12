@@ -3,12 +3,11 @@
 
 // External
 #include "imgui.h"
-#include <imgui_impl_sdl3.h>
 #include <SDL3/SDL.h>
 
 // Nebulite
-#include "Core/Renderer.hpp"
 #include "Constants/KeyNames.hpp"
+#include "Core/Renderer.hpp"
 #include "Module/Domain/Renderer/Tiling.hpp"
 
 //------------------------------------------
@@ -43,7 +42,7 @@ namespace Nebulite::Module::Domain::Renderer {
 
     if (gridOn) {
         domain.addRenderCallback([&] {
-            auto const renderer = domain.getSdlRenderer();
+            auto* const renderer = domain.getSdlRenderer();
 
             // Camera pos
             auto const x = moduleScope.get<int>(Constants::KeyNames::Renderer::positionX).value_or(0);

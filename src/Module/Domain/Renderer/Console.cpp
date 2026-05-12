@@ -30,4 +30,4 @@ Constants::Event Console::updateHook() {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::Module::Domain::GlobalSpace::Console
+} // namespace Nebulite::Module::Domain::Renderer

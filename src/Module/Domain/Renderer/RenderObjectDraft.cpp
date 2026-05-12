@@ -36,4 +36,4 @@ Constants::Event RenderObjectDraft::draft_reset() {
     return Constants::Event::Success;
 }
 
-} // namespace Nebulite::Module::Domain::GlobalSpace
+} // namespace Nebulite::Module::Domain::Renderer

@@ -69,7 +69,7 @@ Constants::Event General::always(int argc, char** argv) const {
         }
 
         // Split oss.str() on ';' and push each trimmed command
-        std::string argStr = oss.str();
+        std::string const argStr = oss.str();
         std::stringstream ss(argStr);
         std::string command;
 

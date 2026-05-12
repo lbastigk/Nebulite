@@ -93,54 +93,54 @@ void ExpressionPrimitives::help(std::span<std::string const> const& args) {
 std::vector<ExpressionPrimitives::FunctionInfo> const& ExpressionPrimitives::availableFunctions() {
     static std::vector<FunctionInfo> const functions = {
         // Logical comparison functions
-        {gtName, gtDesc, reinterpret_cast<void*>(gt), TE_FUNCTION2, nullptr},
-        {ltName, ltDesc, reinterpret_cast<void*>(lt), TE_FUNCTION2, nullptr},
-        {geqName, geqDesc, reinterpret_cast<void*>(geq), TE_FUNCTION2, nullptr},
-        {leqName, leqDesc, reinterpret_cast<void*>(leq), TE_FUNCTION2, nullptr},
-        {eqName, eqDesc, reinterpret_cast<void*>(eq), TE_FUNCTION2, nullptr},
-        {neqName, neqDesc, reinterpret_cast<void*>(neq), TE_FUNCTION2, nullptr},
+        {.name=gtName, .description=gtDesc, .pointer=reinterpret_cast<void*>(gt), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=ltName, .description=ltDesc, .pointer=reinterpret_cast<void*>(lt), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=geqName, .description=geqDesc, .pointer=reinterpret_cast<void*>(geq), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=leqName, .description=leqDesc, .pointer=reinterpret_cast<void*>(leq), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=eqName, .description=eqDesc, .pointer=reinterpret_cast<void*>(eq), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=neqName, .description=neqDesc, .pointer=reinterpret_cast<void*>(neq), .type=TE_FUNCTION2, .context=nullptr},
 
         // Logical gate functions
-        {logicalNotName, logicalNotDesc, reinterpret_cast<void*>(logical_not), TE_FUNCTION1, nullptr},
-        {logicalAndName, logicalAndDesc, reinterpret_cast<void*>(logical_and), TE_FUNCTION2, nullptr},
-        {logicalOrName, logicalOrDesc, reinterpret_cast<void*>(logical_or), TE_FUNCTION2, nullptr},
-        {logicalXorName, logicalXorDesc, reinterpret_cast<void*>(logical_xor), TE_FUNCTION2, nullptr},
-        {logicalNandName, logicalNandDesc, reinterpret_cast<void*>(logical_nand), TE_FUNCTION2, nullptr},
-        {logicalNorName, logicalNorDesc, reinterpret_cast<void*>(logical_nor), TE_FUNCTION2, nullptr},
-        {logicalXnorName, logicalXnorDesc, reinterpret_cast<void*>(logical_xnor), TE_FUNCTION2, nullptr},
+        {.name=logicalNotName, .description=logicalNotDesc, .pointer=reinterpret_cast<void*>(logical_not), .type=TE_FUNCTION1, .context=nullptr},
+        {.name=logicalAndName, .description=logicalAndDesc, .pointer=reinterpret_cast<void*>(logical_and), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=logicalOrName, .description=logicalOrDesc, .pointer=reinterpret_cast<void*>(logical_or), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=logicalXorName, .description=logicalXorDesc, .pointer=reinterpret_cast<void*>(logical_xor), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=logicalNandName, .description=logicalNandDesc, .pointer=reinterpret_cast<void*>(logical_nand), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=logicalNorName, .description=logicalNorDesc, .pointer=reinterpret_cast<void*>(logical_nor), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=logicalXnorName, .description=logicalXnorDesc, .pointer=reinterpret_cast<void*>(logical_xnor), .type=TE_FUNCTION2, .context=nullptr},
 
         // Other logical functions
-        {toBipolarName, toBipolarDesc, reinterpret_cast<void*>(toBipolar), TE_FUNCTION1, nullptr},
+        {.name=toBipolarName, .description=toBipolarDesc, .pointer=reinterpret_cast<void*>(toBipolar), .type=TE_FUNCTION1, .context=nullptr},
 
         // Mapping functions
-        {mapName, mapDesc, reinterpret_cast<void*>(map), TE_FUNCTION5, nullptr},
-        {constrainName, constrainDesc, reinterpret_cast<void*>(constrain), TE_FUNCTION3, nullptr},
+        {.name=mapName, .description=mapDesc, .pointer=reinterpret_cast<void*>(map), .type=TE_FUNCTION5, .context=nullptr},
+        {.name=constrainName, .description=constrainDesc, .pointer=reinterpret_cast<void*>(constrain), .type=TE_FUNCTION3, .context=nullptr},
 
         // Maximum and Minimum functions
-        {maxName, maxDesc, reinterpret_cast<void*>(max), TE_FUNCTION2, nullptr},
-        {minName, minDesc, reinterpret_cast<void*>(min), TE_FUNCTION2, nullptr},
+        {.name=maxName, .description=maxDesc, .pointer=reinterpret_cast<void*>(max), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=minName, .description=minDesc, .pointer=reinterpret_cast<void*>(min), .type=TE_FUNCTION2, .context=nullptr},
 
         // Rounding
-        {roundName, roundDesc, reinterpret_cast<void*>(round), TE_FUNCTION2, nullptr},
-        {roundUpName, roundUpDesc, reinterpret_cast<void*>(roundUp), TE_FUNCTION2, nullptr},
-        {roundDownName, roundDownDesc, reinterpret_cast<void*>(roundDown), TE_FUNCTION2, nullptr},
+        {.name=roundName, .description=roundDesc, .pointer=reinterpret_cast<void*>(round), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=roundUpName, .description=roundUpDesc, .pointer=reinterpret_cast<void*>(roundUp), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=roundDownName, .description=roundDownDesc, .pointer=reinterpret_cast<void*>(roundDown), .type=TE_FUNCTION2, .context=nullptr},
 
         // More mathematical functions
-        {sgnName, sgnDesc, reinterpret_cast<void*>(sgn), TE_FUNCTION1, nullptr},
+        {.name=sgnName, .description=sgnDesc, .pointer=reinterpret_cast<void*>(sgn), .type=TE_FUNCTION1, .context=nullptr},
 
         // RNG functions
-        {rng2argName,rng2argDesc,reinterpret_cast<void*>(rng2arg), TE_FUNCTION2, nullptr},
-        {rng3argName,rng3argDesc,reinterpret_cast<void*>(rng3arg), TE_FUNCTION3, nullptr},
-        {rng2argInt16Name,rng2argInt16Desc,reinterpret_cast<void*>(rng2argInt16), TE_FUNCTION2, nullptr},
-        {rng3argInt16Name,rng3argInt16Desc,reinterpret_cast<void*>(rng3argInt16), TE_FUNCTION3, nullptr},
+        {.name=rng2argName,.description=rng2argDesc,.pointer=reinterpret_cast<void*>(rng2arg), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=rng3argName,.description=rng3argDesc,.pointer=reinterpret_cast<void*>(rng3arg), .type=TE_FUNCTION3, .context=nullptr},
+        {.name=rng2argInt16Name,.description=rng2argInt16Desc,.pointer=reinterpret_cast<void*>(rng2argInt16), .type=TE_FUNCTION2, .context=nullptr},
+        {.name=rng3argInt16Name,.description=rng3argInt16Desc,.pointer=reinterpret_cast<void*>(rng3argInt16), .type=TE_FUNCTION3, .context=nullptr},
     };
     return functions;
 }
 
 void ExpressionPrimitives::registerExpressions(std::vector<te_variable>& te_variables){
     for (const auto& funcInfo : availableFunctions()) {
-        te_variables.push_back({funcInfo.name, funcInfo.pointer, funcInfo.type, funcInfo.context});
+        te_variables.push_back({.name=funcInfo.name, .address=funcInfo.pointer, .type=funcInfo.type, .context=funcInfo.context});
     }
 }
 
-} // namespace Nebulite::Interaction::Logic
+} // namespace Nebulite::Math

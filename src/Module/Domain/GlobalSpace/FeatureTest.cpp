@@ -12,6 +12,7 @@ Constants::Event FeatureTest::updateHook() {
     return Constants::Event::Success;
 }
 
+namespace {
 class MathModifier {
 public:
     static double add(std::span<std::string const> const& args, double const input) {
@@ -28,6 +29,7 @@ public:
         return sum;
     }
 };
+} // namespace
 
 Constants::Event FeatureTest::testFuncTree() const {
     // Build a FuncTree with extra argument JSON&
