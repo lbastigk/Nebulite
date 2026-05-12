@@ -4,8 +4,6 @@
 // Includes
 
 // Standard library
-// NOLINTNEXTLINE
-#include <cstdint> // somehow flagged as not used
 #include <utility>
 
 //------------------------------------------

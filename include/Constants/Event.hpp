@@ -5,13 +5,12 @@
 // Includes
 
 // Standard library
-// NOLINTNEXTLINE
-#include <cstdint> // somehow flagged as not used
+#include <cstdint> // NOLINTTHISLINE
 
 //------------------------------------------
 namespace Nebulite::Constants {
 
-enum class Event : std::uint8_t {
+enum class Event : uint8_t {
     Success = 0,
     Warning,
     Error

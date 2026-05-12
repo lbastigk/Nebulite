@@ -1,11 +1,34 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <algorithm>
+#include <array>
+#include <cstddef>
+#include <expected>
+#include <memory>
+#include <mutex>
+#include <optional>
+#include <ranges>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
+
+// External
+#include <rapidjson/document.h>
+
 // Nebulite
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonScope.hpp"
+#include "Data/Document/KeyType.hpp"
+#include "Data/Document/RjDirectAccess.hpp"
+#include "Data/Document/SimpleValueError.hpp"
 #include "Math/Equality.hpp"
+#include "Module/Base/TransformationModule.hpp"
 #include "Nebulite.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 // Try to catch potential caching issues early
@@ -33,7 +56,7 @@ JSON::~JSON() {
 
 JSON& JSON::operator=(JSON&& other) noexcept {
     if (this != &other) {
-        std::scoped_lock lockGuard(mtx, other.mtx);
+        std::scoped_lock const lockGuard(mtx, other.mtx);
         doc = std::move(other.doc);
         cache = std::move(other.cache);
         cacheLine = std::move(other.cacheLine);
@@ -41,11 +64,8 @@ JSON& JSON::operator=(JSON&& other) noexcept {
     return *this;
 }
 
-JSON::JSON(JSON&& other) noexcept {
-    std::scoped_lock lockGuard(mtx, other.mtx); // Locks both, deadlock-free
-    doc = std::move(other.doc);
-    cache = std::move(other.cache);
-    cacheLine = std::move(other.cacheLine);
+JSON::JSON(JSON&& other) noexcept : cacheLine(std::move(other.cacheLine)), cache(std::move(other.cache)), doc(std::move(other.doc)) {
+    std::scoped_lock const lockGuard(mtx, other.mtx); // Locks both, deadlock-free
 }
 
 //------------------------------------------
@@ -258,17 +278,14 @@ bool JSON::getSubDocWithTransformations(std::string_view const& key, JSON& outDo
 
     // Apply each transformation in sequence
     args.erase(args.begin());
-    if (!JsonRvalueTransformer::instance().parse(args, &outDoc)) {
-        return false; // if any transformation fails, return default value
-    }
-    return true;
+    return JsonRvalueTransformer::instance().parse(args, &outDoc);
 }
 
 double* JSON::getStableDoublePointer(std::string_view const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
     // Check for transformations
-    if (key.find(SpecialCharacter::transformationPipe) != std::string::npos) {
+    if (key.contains(SpecialCharacter::transformationPipe)) {
         throw std::runtime_error("Transformations are not supported in getStableDoublePointer()");
     }
 
@@ -320,7 +337,7 @@ void JSON::setVariant(std::string_view const& key, RjDirectAccess::simpleValue c
     }
 
     // Check if key contains transformations
-    if (key.find(SpecialCharacter::transformationPipe) != std::string::npos) {
+    if (key.contains(SpecialCharacter::transformationPipe)) {
         Global::capture().error.println("Transformations are not supported in set(): ", key);
         return;
     }
@@ -372,7 +389,7 @@ void JSON::setSubDoc(std::string_view const& key, JSON const& child, std::string
     helperNonConstVar++; // Signal non-const operation
     child.flush();
 
-    if (auto const childVal = RjDirectAccess::traversePath(childKey, child.doc); childVal == nullptr) {
+    if (auto const* childVal = RjDirectAccess::traversePath(childKey, child.doc); childVal == nullptr) {
         RjDirectAccess::removeMember(key, doc);
     }
     else {
@@ -473,7 +490,7 @@ KeyType JSON::memberType(std::string_view const& key) const {
     flush();
 
     // If not cached, check rapidjson doc
-    auto const val = RjDirectAccess::traversePath(key, doc);
+    auto const* val = RjDirectAccess::traversePath(key, doc);
     if (val == nullptr || val->IsNull()) {
         return KeyType::null;
     }
@@ -512,7 +529,7 @@ std::string numberType(rapidjson::Value const* val) {
     std::unreachable();
 }
 
-std::array<std::pair<Fn, Formatter>, 6> generalTypeList = {{
+std::array<std::pair<Fn, Formatter>, 6> constexpr generalTypeList = {{
     {&rapidjson::Value::IsNull, [](rapidjson::Value const*) -> std::string { return "null"; }},
     {&rapidjson::Value::IsArray, [](rapidjson::Value const* val) -> std::string { return "array:" + std::to_string(val->Size()); }},
     {&rapidjson::Value::IsObject, [](rapidjson::Value const* val) -> std::string { return "object:" + std::to_string(val->MemberCount()); }},
@@ -539,7 +556,7 @@ std::string JSON::memberTypeString(std::string_view const& key) const {
     // Once partial flushing is available, we should use that to minimize the performance impact!
     // Flush before accessing the document to ensure integrity
     flush();
-    auto const val = RjDirectAccess::traversePath(key, doc);
+    auto const* val = RjDirectAccess::traversePath(key, doc);
     if (val == nullptr) {
         return "null";
     }
@@ -572,7 +589,7 @@ size_t JSON::memberSize(std::string_view const& key) const {
     }
     // Is array, get size
     flush(); // Ensure cache is flushed before accessing doc
-    auto const val = RjDirectAccess::traversePath(key, doc);
+    auto const* val = RjDirectAccess::traversePath(key, doc);
     return val->Size();
 }
 
@@ -756,4 +773,4 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getS
     return std::unexpected(SimpleValueRetrievalError::IS_NULL);
 }
 
-} // namespace Utility
+} // namespace Nebulite::Data
