@@ -336,6 +336,23 @@ std::vector<std::string> StringHandler::splitOnSameDepth(std::string_view const&
     return result;
 }
 
+char StringHandler::delimiterToOpeningChar(Delimiter const& delimiter) {
+    switch (delimiter) {
+    case parentheses: return '(';
+    case brace: return '{';
+    case bracket: return '[';
+    default: std::unreachable();
+    }
+}
+char StringHandler::delimiterToClosingChar(Delimiter const& delimiter) {
+    switch (delimiter) {
+    case parentheses: return ')';
+    case brace: return '}';
+    case bracket: return ']';
+    default: std::unreachable();
+    }
+}
+
 std::vector<std::string> StringHandler::splitOnSameDepthOf(std::string_view const& input, Delimiter const& delimiter) {
     auto const openingChar = delimiterToOpeningChar(delimiter);
     auto const closingChar = delimiterToClosingChar(delimiter);

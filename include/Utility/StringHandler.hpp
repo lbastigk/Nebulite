@@ -154,24 +154,27 @@ public:
      */
     static std::vector<std::string> splitOnSameDepth(std::string_view const& input, char const& delimiter);
 
+    /**
+     * @brief Type of delimiter:
+     * @details - parentheses: '(' and ')'
+     *          - brace: '{' and '}'
+     *          - bracket: '[' and ']'
+     */
     enum Delimiter {parentheses, brace, bracket};
 
-    static char delimiterToOpeningChar(Delimiter const& delimiter) {
-        switch (delimiter) {
-            case parentheses: return '(';
-            case brace: return '{';
-            case bracket: return '[';
-            default: std::unreachable();
-        }
-    }
-    static char delimiterToClosingChar(Delimiter const& delimiter) {
-        switch (delimiter) {
-        case parentheses: return ')';
-        case brace: return '}';
-        case bracket: return ']';
-        default: std::unreachable();
-        }
-    }
+    /**
+     * @brief Converts a Delimiter enum value to its corresponding opening character.
+     * @param delimiter The Delimiter enum value to convert.
+     * @return The corresponding opening character for the given Delimiter.
+     */
+    static char delimiterToOpeningChar(Delimiter const& delimiter);
+
+    /**
+     * @brief Converts a Delimiter enum value to its corresponding closing character.
+     * @param delimiter The Delimiter enum value to convert.
+     * @return The corresponding closing character for the given Delimiter.
+     */
+    static char delimiterToClosingChar(Delimiter const& delimiter);
 
     /**
      * @brief Splits a string at a given delimiter, not respecting the depth of any other characters.
