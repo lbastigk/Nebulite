@@ -1,5 +1,5 @@
-#ifndef SCOPE_ACCESSOR_TPP
-#define SCOPE_ACCESSOR_TPP
+#ifndef SCOPEACCESSOR_TPP
+#define SCOPEACCESSOR_TPP
 
 //------------------------------------------
 // Includes
@@ -9,7 +9,6 @@
 
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
-#include "ScopeAccessor.hpp"
 
 //------------------------------------------
 namespace Nebulite {
@@ -29,4 +28,4 @@ ScopeAccessor::DomainModuleToken<DomainType>::DomainModuleToken(Interaction::Exe
 }
 
 } // namespace Nebulite
-#endif // SCOPE_ACCESSOR_TPP
+#endif // SCOPEACCESSOR_TPP
