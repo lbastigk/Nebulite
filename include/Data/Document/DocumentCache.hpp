@@ -3,8 +3,8 @@
  * @brief This file contains the DocumentCache class for managing cached, read-only documents.
  */
 
-#ifndef NEBULITE_DATA_DOCUMENT_DOCUMENT_CACHE_HPP
-#define NEBULITE_DATA_DOCUMENT_DOCUMENT_CACHE_HPP
+#ifndef DATA_DOCUMENT_DOCUMENTCACHE_HPP
+#define DATA_DOCUMENT_DOCUMENTCACHE_HPP
 
 //------------------------------------------
 // Includes
@@ -178,4 +178,4 @@ std::expected<T, SimpleValueRetrievalError> DocumentCache::get(std::string const
 }
 
 } // namespace Nebulite::Data
-#endif // NEBULITE_DATA_DOCUMENT_DOCUMENT_CACHE_HPP
+#endif // DATA_DOCUMENT_DOCUMENTCACHE_HPP
