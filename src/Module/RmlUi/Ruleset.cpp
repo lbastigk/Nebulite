@@ -43,10 +43,10 @@ void Ruleset::OnElementDestroy(Rml::Element* element){
             return;
         }
 
-        if (auto const var = element->GetAttribute(rulesetAttributeOnDestroy); var) {
+        if (auto const* var = element->GetAttribute(rulesetAttributeOnDestroy); var) {
             toAdd.rulesetLink = var->Get<Rml::String>();
         }
-        if (auto const val = element->GetAttribute(parseOnDestroy); val) {
+        if (auto const* val = element->GetAttribute(parseOnDestroy); val) {
             toAdd.stringToParse = val->Get<Rml::String>();
         }
 

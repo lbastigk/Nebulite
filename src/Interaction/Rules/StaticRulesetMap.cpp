@@ -9,7 +9,7 @@
 namespace Nebulite::Interaction::Rules {
 
 // NOLINTNEXTLINE
-void StaticRulesetMap::help(Interaction::Context const& context, double**& /*slf*/, double**& /*otr*/) const {
+void StaticRulesetMap::help(Interaction::Context const& context, double** /*slf*/, double** /*otr*/) const {
     Global::capture().log.println("[Available static rulesets:");
     auto list = getList();
     std::ranges::sort(list, [](auto const& metadata1, auto const& metadata2) { return metadata1.topic < metadata2.topic; });

@@ -39,9 +39,9 @@ void DataReference::OnElementDestroy(Rml::Element* element) {
 
 void DataReference::registerDataValue(Rml::Element* element) {
     for (auto const& attribute : {dataValueAttribute, dataIfAttribute}) {
-        std::string backupAttribute = "__backup__" + std::string(attribute);
-        auto const rmlValue = element->GetAttribute(attribute);
-        auto const rmlBackupValue = element->GetAttribute(backupAttribute);
+        std::string const backupAttribute = "__backup__" + std::string(attribute);
+        auto const* rmlValue = element->GetAttribute(attribute);
+        auto const* rmlBackupValue = element->GetAttribute(backupAttribute);
         if (!rmlValue) continue;
         if (rmlValue->GetType() == Rml::Variant::STRING) {
             // Get either from backup or directly
@@ -109,7 +109,7 @@ void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIde
     // Update all registered entries
     if (auto const it = registeredEntries.find(id); it != registeredEntries.end()){
         // Check if a dummy scope is registered
-        auto& ctxScope = idContext ? idContext.value().ctxScope : docContext.value().ctxScope;
+        auto const& ctxScope = idContext ? idContext.value().ctxScope : docContext.value().ctxScope;
         if (ctxScope.hasDummyScope()) {
             capture.warning.println("Failed to update data reference, a context member has a dummy scope!");
             registeredEntries.erase(id);
@@ -124,7 +124,7 @@ void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIde
             return;
         }
 
-        // Now we can actually synchronize the values
+        // Get entry and target
         auto const& entry = it->second;
         auto const targetCheck = ctxScope.getTargetFromType(entry->targetType);
         if (!targetCheck) {
@@ -141,47 +141,52 @@ void DataReference::updateRegisteredValues(Graphics::RmlInterface::RmlElementIde
             return;
         }
 
-        // Determine data flow...
-        auto const registered = registeredStrings.find(entry->normalizedValue);
-        if (registered == registeredStrings.end()) {
-            return;
-        }
-        auto& currentRml = *registered->second;
-        auto const& previousRml = entry->previousRmlValue;
-        auto const currentDocument = target.get<std::string>(entry->key).value_or("");
-        auto const& previousDocument = entry->previousDocumentValue;
+        // Now we can actually synchronize the values
+        synchronizeEntry(entry, element, target);
+    }
+}
 
-        // 1.) rml -> document
-        if (currentRml != previousRml) {
-            target.set<std::string>(entry->key, currentRml);
-            entry->previousRmlValue = currentRml;
-            entry->previousDocumentValue = currentRml;
-        }
-        // 2.) document -> rml
-        else if (currentDocument != previousDocument) {
-            entry->element->SetAttribute("value", currentDocument);
-            currentRml = currentDocument;
-            entry->previousRmlValue = currentDocument;
-            entry->previousDocumentValue = currentDocument;
-            entry->element->GetOwnerDocument()->UpdateDocument();
-        }
+void DataReference::synchronizeEntry(std::unique_ptr<RegisteredEntry> const& entry, Rml::Element* element, Data::JsonScope& target){
+    // Determine data flow...
+    auto const registered = registeredStrings.find(entry->normalizedValue);
+    if (registered == registeredStrings.end()) {
+        return;
+    }
+    auto& currentRml = *registered->second;
+    auto const& previousRml = entry->previousRmlValue;
+    auto const currentDocument = target.get<std::string>(entry->key).value_or("");
+    auto const& previousDocument = entry->previousDocumentValue;
 
-        // 3.) data-if attribute
-        if (entry->innerRml.has_value() && entry->innerRml->empty()) {
-            entry->innerRml = element->GetInnerRML();
-            if (!entry->innerRml->empty()) {
-                element->SetInnerRML("");
-            }
+    // 1.) rml -> document
+    if (currentRml != previousRml) {
+        target.set<std::string>(entry->key, currentRml);
+        entry->previousRmlValue = currentRml;
+        entry->previousDocumentValue = currentRml;
+    }
+    // 2.) document -> rml
+    else if (currentDocument != previousDocument) {
+        entry->element->SetAttribute("value", currentDocument);
+        currentRml = currentDocument;
+        entry->previousRmlValue = currentDocument;
+        entry->previousDocumentValue = currentDocument;
+        entry->element->GetOwnerDocument()->UpdateDocument();
+    }
+
+    // 3.) data-if attribute
+    if (entry->innerRml.has_value() && entry->innerRml->empty()) {
+        entry->innerRml = element->GetInnerRML();
+        if (!entry->innerRml->empty()) {
+            element->SetInnerRML("");
         }
-        if (entry->innerRml.has_value() && !entry->innerRml->empty()) {
-            if (bool const show = target.get<bool>(entry->key).value_or(false); show && element->GetInnerRML().empty()) {
-                element->SetInnerRML(entry->innerRml.value());
-                element->GetOwnerDocument()->UpdateDocument();
-            }
-            else if (!show && !element->GetInnerRML().empty()) {
-                element->SetInnerRML("");
-                element->GetOwnerDocument()->UpdateDocument();
-            }
+    }
+    if (entry->innerRml.has_value() && !entry->innerRml->empty()) {
+        if (bool const show = target.get<bool>(entry->key).value_or(false); show && element->GetInnerRML().empty()) {
+            element->SetInnerRML(entry->innerRml.value());
+            element->GetOwnerDocument()->UpdateDocument();
+        }
+        else if (!show && !element->GetInnerRML().empty()) {
+            element->SetInnerRML("");
+            element->GetOwnerDocument()->UpdateDocument();
         }
     }
 }

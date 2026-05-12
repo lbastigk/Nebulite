@@ -30,7 +30,7 @@ Movement::Movement() : RulesetModule(moduleName) {
 }
 
 // NOLINTNEXTLINE
-void Movement::detectClipping(Interaction::Context const& context, double**& slf, double**& otr) const {
+void Movement::detectClipping(Interaction::Context const& context, double** slf, double** otr) const {
     // Assume context part is circle if radius is set (> 0)
     if (auto const& radius = Radius(slf, otr); radius.slf > 0.0 && radius.otr > 0.0) {
         // TODO
@@ -99,7 +99,7 @@ void Movement::detectClipping(Interaction::Context const& context, double**& slf
 }
 
 // NOLINTNEXTLINE
-void Movement::processClipping(Interaction::Context const& /*context*/, double**& slf, double**& /*otr*/) const {
+void Movement::processClipping(Interaction::Context const& /*context*/, double** slf, double** /*otr*/) const {
     // Nearest corners
     double& N = baseVal(slf, Key::clip_closest_N);
     double& E = baseVal(slf, Key::clip_closest_E);

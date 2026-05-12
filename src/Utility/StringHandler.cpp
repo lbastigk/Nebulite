@@ -54,7 +54,7 @@ std::string StringHandler::replaceAll(std::string target, std::string_view const
 
 bool StringHandler::containsAnyOf(std::string_view const& str, std::string_view const& chars) {
     return std::ranges::any_of(str, [&](char const c) {
-        return chars.find(c) != std::string::npos;
+        return chars.contains(c);
     });
 }
 
@@ -205,6 +205,7 @@ StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string_view 
     return {.args = std::move(result), .unclosedQuote = state.inAnyQuote()};
 }
 
+// NOLINTNEXTLINE
 std::string StringHandler::recombineArgs(int const argc, char* argv[]) {
     // Turn into vector and pass to span version for code reuse
     std::vector<std::string> args(argv, argv + argc);

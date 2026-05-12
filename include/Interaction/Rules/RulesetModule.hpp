@@ -69,7 +69,7 @@ protected:
     template<std::string_view const& topic, typename DerivedRulesetModule>
     void bind(
         RulesetType const& type,
-        void (DerivedRulesetModule::*func)(Context const&, double**&, double**&) const,
+        void (DerivedRulesetModule::*func)(Context const&, double**, double**) const,
         std::string_view const& description,
         BaseListFunction const& baseListFunc
     ){
@@ -82,7 +82,7 @@ protected:
             type,
             topic,
             description,
-            [this, func](Context const& ctx, double**& slf, double**& otr) { (static_cast<DerivedRulesetModule const*>(this)->*func)(ctx, slf, otr); },
+            [this, func](Context const& ctx, double** slf, double** otr) { (static_cast<DerivedRulesetModule const*>(this)->*func)(ctx, slf, otr); },
             baseListFunc
         });
     }
@@ -105,17 +105,6 @@ protected:
     }
 
     /**
-     * @brief Retrieves the ordered cache list of base values for the domain.
-     *        Instead of retrieving each value individually, this function fetches all required values in a single call.
-     *        This reduces lookup overhead and improves performance when accessing multiple base values.
-     * @param domain The domain from which to retrieve the base values.
-     * @param keys The array of keys to retrieve values for.
-     * @param arr The output array of ordered cache lists corresponding to the provided keys.
-     *            If arr passed is not null, this function will do nothing.
-     */
-    void ensureBaseList(Execution::Domain const& domain, std::vector<Data::ScopedKeyView> const& keys, double**& arr) const ;
-
-    /**
      * @brief Generates a BaseList-ensurer function for any provided keys.
      * @param baseKeys The key list to retrieve
      * @return The BaseList-ensurer function.
@@ -123,6 +112,7 @@ protected:
     [[nodiscard]] BaseListFunction generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const ;
 
 private:
+
     // Vector of all static rulesets from this module
     std::vector<StaticRulesetMap::StaticRulesetWithMetadata> moduleRulesets;
 

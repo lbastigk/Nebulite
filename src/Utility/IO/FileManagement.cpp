@@ -3,7 +3,6 @@
 
 // Standard library
 #include <filesystem>
-#include <iostream>
 #include <fstream>
 
 // Nebulite
@@ -16,7 +15,7 @@
 namespace {
 template <typename... Args>
 void errorPrintln(Args&&... args) {
-    Nebulite::Global::capture().error.println(args...);
+    Nebulite::Global::capture().error.println(std::forward<Args>(args)...);
 }
 } // namespace
 
@@ -122,4 +121,4 @@ std::vector<std::string> FileManagement::listContentInDirectory(std::string_view
     return entries;
 }
 
-} // namespace Nebulite::Utility
+} // namespace Nebulite::Utility::IO

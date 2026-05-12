@@ -7,14 +7,14 @@
 // Standard library
 
 // External
-#include <absl/container/flat_hash_map.h>
 #include <RmlUi/Core.h>
+#include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Interaction/Logic/Expression.hpp"
-#include "Utility/IO/Capture.hpp"
-#include "Utility/Coordination/TimedRoutine.hpp"
 #include "Module/Base/RmlUiModule.hpp"
+#include "Utility/Coordination/TimedRoutine.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
@@ -61,6 +61,8 @@ private:
     void registerDataValue(Rml::Element* element) ;
 
     void updateRegisteredValues(Graphics::RmlInterface::RmlElementIdentifier const& id, Rml::Element* element);
+
+    void synchronizeEntry(std::unique_ptr<RegisteredEntry> const& entry, Rml::Element* element, Data::JsonScope& target);
 
     static std::string normalize(std::string const& key);
 };

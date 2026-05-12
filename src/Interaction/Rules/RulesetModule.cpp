@@ -12,17 +12,10 @@ RulesetModule::RulesetModule(std::string_view const& moduleName)
 : id{Data::MappedOrderedCacheList::generateUniqueId(moduleName)}
 {}
 
-void RulesetModule::ensureBaseList(Execution::Domain const& domain, std::vector<Data::ScopedKeyView> const& keys, double**& arr) const {
-    arr = domain.ensureOrderedCacheList(id, keys);
-}
-
 BaseListFunction RulesetModule::generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const {
-    BaseListFunction const baseListFunc = [this, baseKeys](const Execution::Domain& domain) -> double** {
-        double** v{};
-        ensureBaseList(domain, baseKeys, v);
-        return v;
+    return [this, baseKeys](const Execution::Domain& domain) -> double** {
+        return domain.ensureOrderedCacheList(id, baseKeys);
     };
-    return baseListFunc;
 }
 
 } // namespace Nebulite::Interaction::Rules

@@ -21,8 +21,7 @@ std::function<size_t()> IdGenerator::atomicThreadRollGenerator(size_t const& dis
     auto counter = std::make_shared<std::atomic<size_t>>(0);
 
     return [counter, distributionSize] {
-        thread_local size_t idx =
-            counter->fetch_add(1, std::memory_order_relaxed) % distributionSize;
+        thread_local const size_t idx = counter->fetch_add(1, std::memory_order_relaxed) % distributionSize;
         return idx;
     };
 }
@@ -34,8 +33,7 @@ std::function<size_t()> IdGenerator::atomicThreadIncrementGenerator() {
     auto counter = std::make_shared<std::atomic<size_t>>(0);
 
     return [counter] {
-        thread_local size_t idx =
-            counter->fetch_add(1, std::memory_order_relaxed);
+        thread_local const size_t idx = counter->fetch_add(1, std::memory_order_relaxed);
         return idx;
     };
 }
@@ -52,7 +50,7 @@ std::function<uint32_t(std::string_view const&)> IdGenerator::stringToRollingIdG
             // Throw an error or handle overflow as needed
             throw std::overflow_error("Nebulite::Utility::Coordination::IdGenerator::stringToRollingIdGenerator has exceeded maximum limit.");
         }
-        std::scoped_lock lock(*mutex);
+        std::scoped_lock const lock(*mutex);
         if (auto const& it = idMap->find(key); it != idMap->end()) {
             return it->second;
         }

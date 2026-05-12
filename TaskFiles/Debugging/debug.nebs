@@ -27,4 +27,4 @@ set-res 1024 1024
 grid on
 view low
 
-#task TaskFiles/Tests/RmlUi/example.nebs
+task TaskFiles/Tests/RmlUi/example.nebs

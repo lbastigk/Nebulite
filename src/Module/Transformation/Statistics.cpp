@@ -2,8 +2,8 @@
 // Includes
 
 // Nebulite
-#include "Module/Transformation/Statistics.hpp"
 #include "Data/Document/JsonScope.hpp"
+#include "Module/Transformation/Statistics.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -108,7 +108,7 @@ bool Statistics::median(Data::JsonScope* scope) {
     }
 
     std::ranges::sort(values.begin(), values.end());
-    double medianValue;
+    double medianValue = 0.0;
     if (size % 2 == 0) {
         medianValue = (values[size / 2 - 1] + values[size / 2]) / 2.0;
     } else {

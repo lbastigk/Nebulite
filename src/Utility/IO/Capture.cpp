@@ -28,7 +28,7 @@ bool Capture::hasParent() const {
 
 void Capture::appendInput(std::string const& str) {
     std::scoped_lock const lock(historyMutex);
-    history.push_back({str, HistoryLine::Type::Input});
+    history.push_back({.content=str, .type=HistoryLine::Type::Input});
 }
 
 } // namespace Nebulite::Utility::IO

@@ -314,7 +314,7 @@ Define object interactions via JSON rulesets:
 or via static rulesets in C++ code:
 ```cpp
 // Called with keyword "::physics:gravity" (both broadcast and listen)
-void Physics::gravity(Interaction::Context const& context, double**& slf, double**& otr) const {
+void Physics::gravity(Interaction::Context const& context, double** slf, double** otr) const {
     double const dx = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
     double const dy = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
 

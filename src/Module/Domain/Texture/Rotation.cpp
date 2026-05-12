@@ -35,7 +35,8 @@ Constants::Event Rotation::rotate(int const argc, char** argv) const {
     }
 
     // Get the texture's width and height
-    float width, height;
+    float width = 0.0;
+    float height = 0.0;
     if (SDL_GetTextureSize(texture, &width, &height) != 0) {
         return Constants::StandardCapture::Error::Texture::queryFailed(domain.capture);
     }
@@ -58,7 +59,7 @@ Constants::Event Rotation::rotate(int const argc, char** argv) const {
 
     // Rotate the texture and render it to the new texture
     double const angle = std::stod(argv[1]);
-    SDL_FPoint const centerFloat = {width / 2.0f, height / 2.0f};
+    SDL_FPoint const centerFloat = {.x=width / 2.0f, .y=height / 2.0f};
     SDL_FlipMode constexpr flip = SDL_FLIP_NONE;
     SDL_RenderTextureRotated(renderer, texture, nullptr, nullptr, angle, &centerFloat, flip);
     SDL_SetRenderTarget(renderer, nullptr);

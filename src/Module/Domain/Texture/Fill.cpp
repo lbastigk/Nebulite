@@ -32,7 +32,9 @@ Constants::Event Fill::fill(int const argc, char** argv) const {
     }
 
     // Parse color arguments
-    Uint8 r = 0, g = 0, b = 0;
+    Uint8 r = 0;
+    Uint8 g = 0;
+    Uint8 b = 0;
     if (argc == 2) {
         if (std::string const color = argv[1]; color == "red") {
             r = 255;

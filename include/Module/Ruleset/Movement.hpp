@@ -26,11 +26,11 @@ public:
 
     // Global rulesets
 
-    void detectClipping(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    void detectClipping(Interaction::Context const& context, double** slf, double** otr) const ;
     static std::string_view constexpr detectClippingName = "::movement::detectClipping";
     static std::string_view constexpr detectClippingDesc = "Global ruleset to detect the closest object in each direction. The listeners distance is set.";
 
-    void processClipping(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    void processClipping(Interaction::Context const& context, double** slf, double** otr) const ;
     static std::string_view constexpr processClippingName = "::movement::processClipping";
     static std::string_view constexpr processClippingDesc = "Local ruleset to process collision clipping for the self entry based on position delta and closest objects.\n"
         "Call this ruleset after ::physics::applyForce. Requires ::physics::storeLastPosition to be called before ::physics::applyForce.";
@@ -115,7 +115,7 @@ private:
         double& slf;
         double& otr;
 
-        Radius(double**& slfBase, double**& otrBase)
+        Radius(double** slfBase, double** otrBase)
         : slf(baseVal(slfBase, Key::sizeR)), otr(baseVal(otrBase, Key::sizeR))
         {}
     };

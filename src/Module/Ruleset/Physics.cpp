@@ -39,7 +39,7 @@ Physics::Physics() : RulesetModule(moduleName) {
 // Global rulesets
 
 // TODO: add collision for circle-box and circle-circle
-void Physics::elasticCollision(Interaction::Context const& context, double**& slf, double**& otr) const {
+void Physics::elasticCollision(Interaction::Context const& context, double** slf, double** otr) const {
     //------------------------------------------
     // Base condition check
 
@@ -81,8 +81,8 @@ void Physics::elasticCollision(Interaction::Context const& context, double**& sl
 
         if (baseCondition) {
             // Overlap checks for each axis (?)
-            bool const conditionX = !(p1Y + size1Y - 2 < p2Y || p2Y + size2Y - 2 < p1Y);
-            bool const conditionY = !(p1X + size1X - 2 < p2X || p2X + size2X - 2 < p1X);
+            bool const conditionX = p1Y + size1Y - 2 >= p2Y && p2Y + size2Y - 2 >= p1Y;
+            bool const conditionY = p1X + size1X - 2 >= p2X && p2X + size2X - 2 >= p1X;
 
             // m1*v1 + m2*v2 = m1*v1new + m2*v2new
             // Split into v1new and v2new equations
@@ -133,7 +133,7 @@ void Physics::elasticCollision(Interaction::Context const& context, double**& sl
 }
 
 
-void Physics::gravity(Interaction::Context const& context, double**& slf, double**& otr) const {
+void Physics::gravity(Interaction::Context const& context, double** slf, double** otr) const {
     double const dx = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
     double const dy = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
 
@@ -156,12 +156,12 @@ void Physics::gravity(Interaction::Context const& context, double**& slf, double
 // Local rulesets
 
 // NOLINTNEXTLINE
-void Physics::storeLastPosition(Interaction::Context const& /*context*/, double**& slf, double**& /*otr*/) const {
+void Physics::storeLastPosition(Interaction::Context const& /*context*/, double** slf, double** /*otr*/) const {
     baseVal(slf, Key::physics_lastPositionX) = baseVal(slf, Key::posX);
     baseVal(slf, Key::physics_lastPositionY) = baseVal(slf, Key::posY);
 }
 
-void Physics::applyForce(Interaction::Context const& /*context*/, double**& slf, double**&) const {
+void Physics::applyForce(Interaction::Context const& /*context*/, double** slf, double** /*otr*/) const {
     // Pre-calculate values before locking
     double const dt = *globalVal.dt;
     double const invMass = 1.0 / baseVal(slf, Key::physics_mass);
@@ -190,7 +190,7 @@ void Physics::applyForce(Interaction::Context const& /*context*/, double**& slf,
 }
 
 // NOLINTNEXTLINE
-void Physics::applyCorrection(Interaction::Context const& context, double**& slf, double**&) const {
+void Physics::applyCorrection(Interaction::Context const& context, double** slf, double** /*otr*/) const {
     // Check if any corrections are significant enough to apply (greater than a small epsilon)
     if (!Math::isZero(baseVal(slf, Key::physics_correction_X))  || !Math::isZero(baseVal(slf, Key::physics_correction_Y))
      || !Math::isZero(baseVal(slf, Key::physics_correction_vX)) || !Math::isZero(baseVal(slf, Key::physics_correction_vY))) {
@@ -210,7 +210,7 @@ void Physics::applyCorrection(Interaction::Context const& context, double**& slf
 }
 
 // NOLINTNEXTLINE
-void Physics::drag(Interaction::Context const& context, double**& slf, double**&) const {
+void Physics::drag(Interaction::Context const& context, double** slf, double** /*otr*/) const {
     // Drag coefficient (tunable parameter)
     static constexpr double dragCoefficient = 0.1;
 

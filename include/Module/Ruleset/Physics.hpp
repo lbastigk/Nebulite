@@ -30,29 +30,29 @@ public:
 
     // Global rulesets
 
-    void elasticCollision(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    void elasticCollision(Interaction::Context const& context, double** slf, double** otr) const ;
     static std::string_view constexpr elasticCollisionName = "::physics::elasticCollision";
     static std::string_view constexpr elasticCollisionDesc = "Applies elastic collision velocity corrections between two RenderObjects based on their masses and velocities.";
 
-    void gravity(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    void gravity(Interaction::Context const& context, double** slf, double** otr) const ;
     static std::string_view constexpr gravityName = "::physics::gravity";
     static std::string_view constexpr gravityDesc = "Applies gravitational force between two render objects based on their masses and the gravitational constant.";
 
     // Local rulesets
 
-    void storeLastPosition(Interaction::Context const& context, double**& slf, double**& otr) const;
+    void storeLastPosition(Interaction::Context const& context, double** slf, double** otr) const;
     static std::string_view constexpr storeLastPositionName = "::physics::storeLastPosition";
     static std::string_view constexpr storeLastPositionDesc = "Stores the current position. Should be called before ::physics::applyForce.";
 
-    void applyForce(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    void applyForce(Interaction::Context const& context, double** slf, double** otr) const ;
     static std::string_view constexpr applyForceName = "::physics::applyForce";
     static std::string_view constexpr applyForceDesc = "Applies accumulated forces to the render object's acceleration, velocity, and position based on its mass and the simulation delta time.";
 
-    void applyCorrection(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    void applyCorrection(Interaction::Context const& context, double** slf, double** otr) const ;
     static std::string_view constexpr applyCorrectionName = "::physics::applyCorrection";
     static std::string_view constexpr applyCorrectionDesc = "Applies position and velocity corrections to resolve overlaps and prevent tunneling.";
 
-    void drag(Interaction::Context const& context, double**& slf, double**& otr) const ;
+    void drag(Interaction::Context const& context, double** slf, double** otr) const ;
     static std::string_view constexpr dragName = "::physics::drag";
     static std::string_view constexpr dragDesc = "Applies drag force to the render object, simulating air resistance based on its velocity and a drag coefficient.";
 

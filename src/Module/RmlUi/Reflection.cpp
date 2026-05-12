@@ -117,7 +117,7 @@ void Reflection::reflectElement(Rml::Element* element, std::unique_ptr<Reflectio
     auto const& scope = contextAndScope.value().ctxScope;
 
     // Get JSON to store result
-    auto const elementDocument = element->GetOwnerDocument();
+    auto* const elementDocument = element->GetOwnerDocument();
     if (reflectionResults[elementDocument].find(element) == reflectionResults[elementDocument].end()) {
         reflectionResults[elementDocument][element] = std::make_unique<Data::JSON>();
     }
@@ -159,16 +159,16 @@ void Reflection::reflectElement(Rml::Element* element, std::unique_ptr<Reflectio
                     .global = scope.global,
                 }
             };
-            auto const child = element->GetChild(static_cast<int>(i));
+            auto* const child = element->GetChild(static_cast<int>(i));
             if (entry->allocatedIds.size() > i) {
                 auto childId = Graphics::RmlInterface::RmlElementIdentifier(entry->allocatedIds[i]);
-                interface.setRmlElementContextAndScope(childId, {context, childContextScope});
+                interface.setRmlElementContextAndScope(childId, {.ctx=context, .ctxScope=childContextScope});
             }
             else {
                 Graphics::RmlInterface::RmlElementIdentifier::removeElementIdentifier(child);
-                Graphics::RmlInterface::RmlElementIdentifier childId(child);
+                Graphics::RmlInterface::RmlElementIdentifier const childId(child);
                 entry->allocatedIds.push_back(childId.getId());
-                interface.setRmlElementContextAndScope(childId, {context, childContextScope});
+                interface.setRmlElementContextAndScope(childId, {.ctx=context, .ctxScope=childContextScope});
             }
             Graphics::RmlInterface::RmlElementIdentifier::forceElementIdentifier(child, entry->allocatedIds[i]);
         }
