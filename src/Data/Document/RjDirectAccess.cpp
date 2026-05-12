@@ -41,8 +41,8 @@ std::optional<RjDirectAccess::simpleValue> RjDirectAccess::getSimpleValue(rapidj
     return  std::nullopt;
 }
 
-rapidjson::Value* RjDirectAccess::traversePath(std::string_view const& key, rapidjson::Value const& val) {
-    rapidjson::Value const* current = &val;
+rapidjson::Value* RjDirectAccess::traversePath(std::string_view const& key, rapidjson::Value& val) {
+    rapidjson::Value* current = &val;
     std::string_view keyView(key);
 
     while (!keyView.empty()) {
@@ -70,7 +70,7 @@ rapidjson::Value* RjDirectAccess::traversePath(std::string_view const& key, rapi
             }
 
             // Extract index string between open and close array character
-            std::string_view idxStr = keyView.substr(1, closeBracket - 1);
+            std::string_view const idxStr = keyView.substr(1, closeBracket - 1);
             unsigned int index = 0;
             try {
                 index = static_cast<unsigned int>(std::stoul(std::string(idxStr)));
@@ -99,7 +99,7 @@ rapidjson::Value* RjDirectAccess::traversePath(std::string_view const& key, rapi
             keyView.remove_prefix(1);
         }
     }
-    return const_cast<rapidjson::Value*>(current);
+    return current;
 }
 
 rapidjson::Value* RjDirectAccess::ensurePath(std::string_view const& key, rapidjson::Value& val, rapidjson::Document::AllocatorType& allocator) {
@@ -134,7 +134,7 @@ rapidjson::Value* RjDirectAccess::ensurePath(std::string_view const& key, rapidj
             }
 
             // Extract index string between open and close array character
-            std::string_view idxStr = keyView.substr(1, closeBracket - 1);
+            std::string_view const idxStr = keyView.substr(1, closeBracket - 1);
             unsigned int index = 0;
             try {
                 index = static_cast<unsigned int>(std::stoul(std::string(idxStr)));
@@ -365,12 +365,12 @@ std::string RjDirectAccess::stripComments(std::string_view const& jsonc) {
     return result;
 }
 
-rapidjson::Value* RjDirectAccess::traverseToParent(std::string_view const& fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex) {
+rapidjson::Value* RjDirectAccess::traverseToParent(std::string_view const& fullKey, rapidjson::Value& root, std::string& finalKey, int& arrayIndex) {
     std::string const keyStr(fullKey);
     size_t const lastDot = keyStr.find_last_of(SpecialCharacter::dot);
     size_t const lastBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
 
-    rapidjson::Value const* parent = nullptr;
+    rapidjson::Value* parent = nullptr;
     if (lastBracket != std::string::npos && (lastDot == std::string::npos || lastBracket > lastDot)) {
         // Last access is array index: var.subVar[2] or var[2]
         size_t const openBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
@@ -395,7 +395,7 @@ rapidjson::Value* RjDirectAccess::traverseToParent(std::string_view const& fullK
         finalKey = keyStr.substr(lastDot + 1);
         parent = traversePath(parentPath, root);
     }
-    return const_cast<rapidjson::Value*>(parent);
+    return parent;
 }
 
 void RjDirectAccess::removeMember(std::string_view const& key, rapidjson::Value& val) {
@@ -407,7 +407,7 @@ void RjDirectAccess::removeMember(std::string_view const& key, rapidjson::Value&
     }
 
     // Handle simple case: direct member of root document
-    if (key.find(SpecialCharacter::dot) == std::string::npos && key.find(SpecialCharacter::arrayOpen) == std::string::npos) {
+    if (!key.contains(SpecialCharacter::dot) && !key.contains(SpecialCharacter::arrayOpen)) {
         std::string const keyStr(key);
         if (val.HasMember(keyStr.c_str())) {
             val.RemoveMember(keyStr.c_str());
@@ -429,6 +429,7 @@ void RjDirectAccess::removeMember(std::string_view const& key, rapidjson::Value&
             // Remove an array element
             if (!finalKey.empty()) {
                 parent[arrayIndex].RemoveMember(finalKey.c_str());
+            // NOLINTNEXTLINE
             } else if (parent->IsArray() && arrayIndex < static_cast<int>(parent->Size())) {
                 parent->Erase(parent->Begin() + arrayIndex);
             }
@@ -454,7 +455,7 @@ bool RjDirectAccess::isValidKey(std::string_view const& key) {
     while (!keyView.empty()) {
         // Extract current key part (object key)
         // Validate object key part if non-empty
-        if (std::string keyPart = extractKeyPart(keyView); !keyPart.empty()) {
+        if (std::string const keyPart = extractKeyPart(keyView); !keyPart.empty()) {
             // Check for invalid characters in keyPart
             if (keyPart.find_first_of("[]") != std::string_view::npos) {
                 return false; // Invalid character found
@@ -470,7 +471,7 @@ bool RjDirectAccess::isValidKey(std::string_view const& key) {
             }
 
             // Extract index string between open and close character
-            if (std::string_view idxStr = keyView.substr(1, closeBracket - 1); !Utility::StringHandler::isNumber(std::string(idxStr))) {
+            if (std::string_view const idxStr = keyView.substr(1, closeBracket - 1); !Utility::StringHandler::isNumber(std::string(idxStr))) {
                 return false; // invalid number
             }
 
@@ -522,16 +523,18 @@ std::string RjDirectAccess::extractKeyPart(std::string_view& keyView) {
     size_t const dotPos = keyView.find(SpecialCharacter::dot);
     size_t const bracketPos = keyView.find(SpecialCharacter::arrayOpen);
 
-    size_t nextSep;
-    if (dotPos == std::string_view::npos && bracketPos == std::string_view::npos) {
-        nextSep = keyView.size(); // No separator - last key
-    } else if (dotPos == std::string_view::npos) {
-        nextSep = bracketPos;
-    } else if (bracketPos == std::string_view::npos) {
-        nextSep = dotPos;
-    } else {
-        nextSep = std::min(dotPos, bracketPos);
-    }
+    size_t const nextSep = [&] {
+        if (dotPos == std::string_view::npos && bracketPos == std::string_view::npos) {
+            return keyView.size(); // No separator - last key
+        }
+        if (dotPos == std::string_view::npos) {
+            return bracketPos;
+        }
+        if (bracketPos == std::string_view::npos) {
+            return dotPos;
+        }
+        return std::min(dotPos, bracketPos);
+    }();
 
     // Build the result string from the current data/length before modifying the input view.
     auto const result = std::string(keyView.substr(0, nextSep));

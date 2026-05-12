@@ -47,7 +47,7 @@ public:
      */
     static std::optional<simpleValue> getSimpleValue(rapidjson::Value const* val);
     template<typename RjValType>
-    static std::optional<simpleValue> getSimpleValue(std::string_view const& key, RjValType const& doc) {
+    static std::optional<simpleValue> getSimpleValue(std::string_view const& key, RjValType& doc) {
         // The given RjValType should be a Document
         // If we pass a rapidjson value, we risk not starting at the top of the document, where we should apply the key traversal
         static_assert(
@@ -122,7 +122,7 @@ public:
      * @param val The rapidjson value to search within.
      * @return A pointer to the found rapidjson value, or nullptr if not found.
      */
-    static rapidjson::Value* traversePath(std::string_view const& key, rapidjson::Value const& val);
+    static rapidjson::Value* traversePath(std::string_view const& key, rapidjson::Value& val);
 
     /**
      * @brief Traverses a rapidjson value to find or create a value within identified by its key.
@@ -147,7 +147,7 @@ public:
      * @param arrayIndex The index if the final key is an array index, -1 otherwise.
      * @return A pointer to the parent rapidjson value, or nullptr if not found
      */
-    static rapidjson::Value* traverseToParent(std::string_view const& fullKey, rapidjson::Value const& root, std::string& finalKey, int& arrayIndex);
+    static rapidjson::Value* traverseToParent(std::string_view const& fullKey, rapidjson::Value& root, std::string& finalKey, int& arrayIndex);
 
     //------------------------------------------
     // Serialization/Deserialization
