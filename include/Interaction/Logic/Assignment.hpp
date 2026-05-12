@@ -4,8 +4,8 @@
  *        string-defined variable assignments.
  */
 
-#ifndef NEBULITE_INTERACTION_LOGIC_ASSIGNMENT_HPP
-#define NEBULITE_INTERACTION_LOGIC_ASSIGNMENT_HPP
+#ifndef INTERACTION_LOGIC_ASSIGNMENT_HPP
+#define INTERACTION_LOGIC_ASSIGNMENT_HPP
 
 //------------------------------------------
 // Includes
@@ -134,4 +134,4 @@ private:
     Operation operation = Operation::null;
 };
 } // namespace Nebulite::Interaction::Logic
-#endif // NEBULITE_INTERACTION_LOGIC_ASSIGNMENT_HPP
+#endif // INTERACTION_LOGIC_ASSIGNMENT_HPP

@@ -3,8 +3,8 @@
  * @brief Definition of the virtual base class for broadcast-listen containers for rulesets.
  */
 
-#ifndef NEBULITE_DATA_BROADCAST_LISTEN_CONTAINER_BASE_CONTAINER_HPP
-#define NEBULITE_DATA_BROADCAST_LISTEN_CONTAINER_BASE_CONTAINER_HPP
+#ifndef DATA_BROADCASTLISTENCONTAINER_BASECONTAINER_HPP
+#define DATA_BROADCASTLISTENCONTAINER_BASECONTAINER_HPP
 
 //------------------------------------------
 // Includes
@@ -106,4 +106,4 @@ private:
     Utility::Coordination::WorkDispatcher<DerivedContainer> dispatcher;
 };
 } // namespace Nebulite::Data::BroadcastListenContainer
-#endif // NEBULITE_DATA_BROADCAST_LISTEN_CONTAINER_BASE_CONTAINER_HPP
+#endif // DATA_BROADCASTLISTENCONTAINER_BASECONTAINER_HPP

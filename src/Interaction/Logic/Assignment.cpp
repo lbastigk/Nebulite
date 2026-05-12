@@ -1,6 +1,9 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <string_view>
+
 // Nebulite
 #include "Core/GlobalSpace.hpp"
 #include "Data/Document/JsonScope.hpp"

@@ -4,13 +4,16 @@
 // Standard library
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <ranges>
 #include <span>
+#include <string>
 
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Module/Transformation/Array.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

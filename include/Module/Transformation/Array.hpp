@@ -3,8 +3,8 @@
  * @brief Class for array transformation functions.
  */
 
-#ifndef NEBULITE_TRANSFORMATION_MODULE_ARRAY_HPP
-#define NEBULITE_TRANSFORMATION_MODULE_ARRAY_HPP
+#ifndef MODULE_TRANSFORMATION_ARRAY_HPP
+#define MODULE_TRANSFORMATION_ARRAY_HPP
 
 //------------------------------------------
 // Includes
@@ -83,4 +83,4 @@ public:
     // TODO: dedupe, pick, omit
 };
 } // namespace Nebulite::Module::Transformation
-#endif // NEBULITE_TRANSFORMATION_MODULE_ARRAY_HPP
+#endif // MODULE_TRANSFORMATION_ARRAY_HPP

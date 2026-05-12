@@ -3,8 +3,8 @@
  * @brief Constants for data alignment in Nebulite.
  */
 
-#ifndef NEBULITE_CONSTANTS_ALIGNMENT_HPP
-#define NEBULITE_CONSTANTS_ALIGNMENT_HPP
+#ifndef CONSTANTS_ALIGNMENT_HPP
+#define CONSTANTS_ALIGNMENT_HPP
 
 //------------------------------------------
 // Includes
@@ -33,4 +33,4 @@ private:
 };
 
 } // namespace Nebulite::Constants
-#endif // NEBULITE_CONSTANTS_ALIGNMENT_HPP
+#endif // CONSTANTS_ALIGNMENT_HPP

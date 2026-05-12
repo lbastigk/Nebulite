@@ -1,5 +1,5 @@
-#ifndef NEBULITE_UTILITY_COORDINATION_WORK_DISPATCHER_TPP
-#define NEBULITE_UTILITY_COORDINATION_WORK_DISPATCHER_TPP
+#ifndef UTILITY_COORDINATION_WORKDISPATCHER_TPP
+#define UTILITY_COORDINATION_WORKDISPATCHER_TPP
 
 //------------------------------------------
 // Includes
@@ -79,4 +79,4 @@ void WorkDispatcher<Workspace>::process() {
 }
 
 } // namespace Nebulite::Utility::Coordination
-#endif // NEBULITE_UTILITY_COORDINATION_WORK_DISPATCHER_TPP
+#endif // UTILITY_COORDINATION_WORKDISPATCHER_TPP

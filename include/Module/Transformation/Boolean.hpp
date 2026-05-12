@@ -3,8 +3,8 @@
  * @brief Class for boolean transformation functions.
  */
 
-#ifndef NEBULITE_TRANSFORMATION_MODULE_BOOLEAN_HPP
-#define NEBULITE_TRANSFORMATION_MODULE_BOOLEAN_HPP
+#ifndef MODULE_TRANSFORMATION_BOOLEAN_HPP
+#define MODULE_TRANSFORMATION_BOOLEAN_HPP
 
 //------------------------------------------
 // Includes
@@ -37,4 +37,4 @@ public:
     //       boolean to unsigned: true -> 1, false -> 0
 };
 } // namespace Nebulite::Module::Transformation
-#endif // NEBULITE_TRANSFORMATION_MODULE_BOOLEAN_HPP
+#endif // MODULE_TRANSFORMATION_BOOLEAN_HPP

@@ -3,8 +3,8 @@
  * @brief Class for arithmetic transformation functions.
  */
 
-#ifndef NEBULITE_TRANSFORMATION_MODULE_ARITHMETIC_HPP
-#define NEBULITE_TRANSFORMATION_MODULE_ARITHMETIC_HPP
+#ifndef MODULE_TRANSFORMATION_ARITHMETIC_HPP
+#define MODULE_TRANSFORMATION_ARITHMETIC_HPP
 
 //------------------------------------------
 // Includes
@@ -83,4 +83,4 @@ private:
     static bool forall(std::span<std::string const> const& args, std::function<bool(std::string const&, Data::ScopedKeyView const& key)> const& func);
 };
 } // namespace Nebulite::Module::Transformation
-#endif // NEBULITE_TRANSFORMATION_MODULE_ARITHMETIC_HPP
+#endif // MODULE_TRANSFORMATION_ARITHMETIC_HPP

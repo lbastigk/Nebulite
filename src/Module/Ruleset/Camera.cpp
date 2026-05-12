@@ -2,6 +2,7 @@
 // Includes
 
 // Nebulite
+#include "Interaction/Rules/RulesetModule.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 #include "Module/Ruleset/Camera.hpp"
 #include "Nebulite.hpp"

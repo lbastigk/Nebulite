@@ -6,8 +6,8 @@
  *          contexts for efficient expression evaluation.
  */
 
-#ifndef NEBULITE_INTERACTION_LOGIC_VIRTUAL_DOUBLE_HPP
-#define NEBULITE_INTERACTION_LOGIC_VIRTUAL_DOUBLE_HPP
+#ifndef INTERACTION_LOGIC_VIRTUALDOUBLE_HPP
+#define INTERACTION_LOGIC_VIRTUALDOUBLE_HPP
 
 //------------------------------------------
 // Includes
@@ -110,4 +110,4 @@ public:
     }
 };
 }   // namespace Nebulite::Interaction::Logic
-#endif // NEBULITE_INTERACTION_LOGIC_VIRTUAL_DOUBLE_HPP
+#endif // INTERACTION_LOGIC_VIRTUALDOUBLE_HPP

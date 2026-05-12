@@ -3,8 +3,8 @@
  * @brief This file defines the Align ruleset module, containing static rulesets related to camera alignment.
  */
 
-#ifndef NEBULITE_RULESET_MODULE_CAMERA_HPP
-#define NEBULITE_RULESET_MODULE_CAMERA_HPP
+#ifndef MODULE_RULESET_CAMERA_HPP
+#define MODULE_RULESET_CAMERA_HPP
 
 //------------------------------------------
 // Includes
@@ -147,4 +147,4 @@ private:
     }
 };
 } // namespace Nebulite::Module::Ruleset
-#endif // NEBULITE_RULESET_MODULE_CAMERA_HPP
+#endif // MODULE_RULESET_CAMERA_HPP

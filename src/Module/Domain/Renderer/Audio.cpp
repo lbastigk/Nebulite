@@ -6,6 +6,7 @@
 
 // Nebulite
 #include "Module/Domain/Renderer/Audio.hpp"
+#include "Constants/Event.hpp"
 #include "Math/FFT.hpp"
 #include "Nebulite.hpp"
 #include "Utility/Generate.hpp"

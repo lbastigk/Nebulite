@@ -3,6 +3,7 @@
 
 // Standard library
 #include <regex>
+#include <span>
 
 // Nebulite
 #include "Module/Transformation/Assertions.hpp"

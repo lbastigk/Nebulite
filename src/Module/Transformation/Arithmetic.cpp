@@ -2,13 +2,18 @@
 // Includes
 
 // Standard library
+#include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <functional>
+#include <ranges>
+#include <limits>
 #include <span>
 #include <string>
 
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
+#include "Data/Document/ScopedKey.hpp"
 #include "Module/Transformation/Arithmetic.hpp"
 
 //------------------------------------------

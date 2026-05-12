@@ -3,8 +3,8 @@
  * @brief Class for assertion transformation functions.
  */
 
-#ifndef NEBULITE_TRANSFORMATION_MODULE_ASSERTIONS_HPP
-#define NEBULITE_TRANSFORMATION_MODULE_ASSERTIONS_HPP
+#ifndef MODULE_TRANSFORMATION_ASSERTIONS_HPP
+#define MODULE_TRANSFORMATION_ASSERTIONS_HPP
 
 //------------------------------------------
 // Includes
@@ -111,4 +111,4 @@ private:
     static void printUserDefinedMessage(std::span<std::string const> const& args);
 };
 } // namespace Nebulite::Module::Transformation
-#endif // NEBULITE_TRANSFORMATION_MODULE_ASSERTIONS_HPP
+#endif // MODULE_TRANSFORMATION_ASSERTIONS_HPP
