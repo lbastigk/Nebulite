@@ -1,8 +1,19 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <utility>
+
+// External
+#include <RmlUi/Config/Config.h>
+#include <RmlUi/Core/Log.h>
+#include <RmlUi_Platform_SDL.h>
+#include <SDL3/SDL_mouse.h>
+#include <SDL3/SDL_video.h>
+
 // Nebulite
 #include "Graphics/RmlSystemInterface.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics {

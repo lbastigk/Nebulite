@@ -5,6 +5,13 @@
 #include <algorithm>
 #include <cfloat>
 #include <cmath>
+#include <cstddef>
+#include <vector>
+
+// External
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 
 // Nebulite
 #include "Graphics/SdlPrimitive.hpp"

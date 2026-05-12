@@ -2,11 +2,36 @@
 // Includes
 
 // External
+#include <algorithm>
+#include <cstddef>
+// NOLINTNEXTLINE
+#include <cstdint>
+#include <functional>
+#include <memory>
+#include <optional>
+#include <ranges>
+#include <stdexcept>
+#include <string>
+#include <unordered_set>
+#include <utility>
+#include <vector>
+
+// External
+#include <RmlUi/Core/Core.h>
+#include <RmlUi/Core/Element.h>
 #include <RmlUi/Core/Input.h>
+#include <RmlUi_Platform_SDL.h>
+#include <RmlUi_Renderer_SDL.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL_mouse.h>
+#include <SDL3/SDL_scancode.h>
 
 // Nebulite
 #include "Core/Renderer.hpp"
 #include "Graphics/RmlInterface.hpp"
+#include "Graphics/RmlSystemInterface.hpp"
+#include "Interaction/Context.hpp"
 #include "Nebulite.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
@@ -79,10 +104,12 @@ RmlInterface& RmlInterface::instance() {
 RmlInterface::RmlInterface() = default;
 
 RmlInterface::~RmlInterface() {
+    // NOLINTBEGIN
     if (statusTracker.rmlInterfaceInitialized) {
         Rml::Shutdown();
         statusTracker.rmlInterfaceInitialized = false;
     }
+    // NOLINTEND
 }
 
 void RmlInterface::init(Core::Renderer& renderer, int const& width, int const& height){

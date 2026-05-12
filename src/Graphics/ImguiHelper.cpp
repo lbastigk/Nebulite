@@ -2,16 +2,32 @@
 // Includes
 
 // External
-#include "imgui.h"
-#include "misc/cpp/imgui_stdlib.h"
+#include <algorithm>
+#include <cstddef>
+#include <iterator>
+#include <ranges>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+// External
+#include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Data/Document/JsonScope.hpp"
+#include "Data/Document/KeyType.hpp"
 #include "Graphics/ImguiHelper.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Module/Domain/Common/General.hpp"
 #include "Nebulite.hpp"
+#include "Utility/IO/Capture.hpp"
 #include "Utility/IO/FileManagement.hpp"
+#include "Utility/Sort.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 // Helper functions
