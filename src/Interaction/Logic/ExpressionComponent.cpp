@@ -113,7 +113,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
     case ContextDeriver::TargetType::none: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
         {
             // This requires an empty document that acts as a parsing mechanism for the transformations
-            thread_local Data::JsonScope emptyDoc;
+            thread_local const Data::JsonScope emptyDoc;
             token = getStringValue(emptyDoc, scopedKey.view());
         }
         break;
@@ -173,7 +173,7 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
     case ContextDeriver::TargetType::none: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
         {
             // This requires an empty document that acts as a parsing mechanism for the transformations
-            thread_local Data::JsonScope emptyDoc;
+            thread_local const Data::JsonScope emptyDoc;
             token = emptyDoc.getSubDoc(scopedKey.view());
         }
         break;
@@ -191,7 +191,7 @@ void Expression::Component::handleComponentTypeEval(std::string& token) const {
 
 std::expected<std::string, Expression::Component::KeyEvaluationInfo> Expression::Component::evaluateKey(ContextScope const& context, size_t const& recursionDepth) const {
     // See if the variable contains an inner expression
-    if (stringRepresentation.find('$') != std::string::npos || stringRepresentation.find('{') != std::string::npos) {
+    if (stringRepresentation.contains('$') || stringRepresentation.contains('{')) {
         if (recursionDepth == 0) {
             Global::capture().error.println("Error: Maximum recursion depth reached when evaluating variable: ", key);
             return std::unexpected(KeyEvaluationInfo::maximumDepthReached);
@@ -212,8 +212,8 @@ std::optional<std::pair<std::string, ContextDeriver::TargetType>> Expression::Co
     }
 
     // If the evaluation changed anything, we must re-evaluate the context of the source
-    std::string evaluatedKey = s.has_value() ? ContextDeriver::stripContext(s.value()) : key;
-    ContextDeriver::TargetType source = s.has_value() ? ContextDeriver::getTypeFromString(s.value()) : contextType;
+    std::string const evaluatedKey = s.has_value() ? ContextDeriver::stripContext(s.value()) : key;
+    ContextDeriver::TargetType const source = s.has_value() ? ContextDeriver::getTypeFromString(s.value()) : contextType;
     return std::make_pair(evaluatedKey, source);
 }
 
