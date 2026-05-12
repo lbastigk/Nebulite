@@ -3,8 +3,8 @@
  * @brief Class for requirement transformation functions.
  */
 
-#ifndef TRANSFORMATION_MODULE_REQUIREMENTS_HPP
-#define TRANSFORMATION_MODULE_REQUIREMENTS_HPP
+#ifndef MODULE_TRANSFORMATION_REQUIREMENTS_HPP
+#define MODULE_TRANSFORMATION_REQUIREMENTS_HPP
 
 //------------------------------------------
 // Includes
@@ -113,4 +113,4 @@ private:
     static void printUserDefinedMessage(std::span<std::string const> const& args);
 };
 } // namespace Nebulite::Module::Transformation
-#endif // TRANSFORMATION_MODULE_REQUIREMENTS_HPP
+#endif // MODULE_TRANSFORMATION_REQUIREMENTS_HPP

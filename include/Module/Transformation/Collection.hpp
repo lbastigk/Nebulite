@@ -3,8 +3,8 @@
  * @brief Class for collection transformation functions.
  */
 
-#ifndef TRANSFORMATION_MODULE_COLLECTION_HPP
-#define TRANSFORMATION_MODULE_COLLECTION_HPP
+#ifndef MODULE_TRANSFORMATION_COLLECTION_HPP
+#define MODULE_TRANSFORMATION_COLLECTION_HPP
 
 //------------------------------------------
 // Includes
@@ -76,4 +76,4 @@ public:
         "Usage: |bundleToArray <key1> <key2> ... -> {array}\n";
 };
 } // namespace Nebulite::Module::Transformation
-#endif // TRANSFORMATION_MODULE_COLLECTION_HPP
+#endif // MODULE_TRANSFORMATION_COLLECTION_HPP

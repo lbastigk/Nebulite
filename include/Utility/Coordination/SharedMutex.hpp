@@ -1,13 +1,12 @@
-#ifndef UTILITY_SHARED_MUTEX_HPP
-#define UTILITY_SHARED_MUTEX_HPP
+#ifndef UTILITY_COORDINATION_SHAREDMUTEX_HPP
+#define UTILITY_COORDINATION_SHAREDMUTEX_HPP
 
 //------------------------------------------
 // Includes
 
 // Standard library
-#include <memory>
 #include <mutex>
-#if !defined(_WIN32)
+#ifndef _WIN32
   #include <shared_mutex>
 #endif // !defined(_WIN32)
 
@@ -16,7 +15,7 @@ namespace Nebulite::Utility::Coordination {
 
 // Perhaps using a different flag: NEBULITE_WINE_COMPATIBILITY or similar would be better
 // as the shared mutax should work on native Windows builds.
-#if defined(_WIN32)
+#ifndef _WIN32
 
 /**
  * @class Nebulite::Utility::Coordination::SharedMutex
@@ -53,4 +52,4 @@ using WriteLock   = std::unique_lock<SharedMutex>;
 
 #endif // defined(_WIN32)
 } // namespace Nebulite::Utility::Coordination
-#endif // UTILITY_SHARED_MUTEX_HPP
+#endif // UTILITY_COORDINATION_SHAREDMUTEX_HPP

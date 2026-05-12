@@ -3,8 +3,8 @@
  * @brief Class for statistics transformation functions.
  */
 
-#ifndef TRANSFORMATION_MODULE_STATISTICS_HPP
-#define TRANSFORMATION_MODULE_STATISTICS_HPP
+#ifndef MODULE_TRANSFORMATION_STATISTICS_HPP
+#define MODULE_TRANSFORMATION_STATISTICS_HPP
 
 //------------------------------------------
 // Includes
@@ -83,4 +83,4 @@ private:
     static double accumulate(Data::JsonScope const* scope, std::function<double(double, double)> const& func, double const& initialValue = 0.0);
 };
 } // namespace Nebulite::Module::Transformation
-#endif // TRANSFORMATION_MODULE_STATISTICS_HPP
+#endif // MODULE_TRANSFORMATION_STATISTICS_HPP

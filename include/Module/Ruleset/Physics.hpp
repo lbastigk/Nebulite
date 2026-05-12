@@ -3,8 +3,8 @@
  * @brief This file defines the Physics ruleset module, containing static rulesets related to physics.
  */
 
-#ifndef RULESET_MODULE_PHYSICS_HPP
-#define RULESET_MODULE_PHYSICS_HPP
+#ifndef MODULE_RULESET_PHYSICS_HPP
+#define MODULE_RULESET_PHYSICS_HPP
 
 //------------------------------------------
 // Includes
@@ -103,7 +103,7 @@ private:
      * @brief Enumeration of keys corresponding to physics-related base values.
      *        Used for indexing into the ordered cache list.
      */
-    enum class Key : std::size_t {
+    enum class Key : uint8_t {
         // Base values for size
         posX,
         posY,
@@ -144,4 +144,4 @@ private:
     } globalVal = {};
 };
 } // namespace Nebulite::Module::Ruleset
-#endif // RULESET_MODULE_PHYSICS_HPP
+#endif // MODULE_RULESET_PHYSICS_HPP

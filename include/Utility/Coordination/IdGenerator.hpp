@@ -3,8 +3,8 @@
  * @brief Contains the declaration of the IdGenerator class, which provides various ID generator functions for generating thread IDs or other unique identifiers in a thread-safe manner.
  */
 
-#ifndef UTILITY_COORDINATION_ID_GENERATOR_HPP
-#define UTILITY_COORDINATION_ID_GENERATOR_HPP
+#ifndef UTILITY_COORDINATION_IDGENERATOR_HPP
+#define UTILITY_COORDINATION_IDGENERATOR_HPP
 
 //------------------------------------------
 // Includes
@@ -45,4 +45,4 @@ public:
     static std::function<uint32_t(std::string_view const&)> stringToRollingIdGenerator();
 };
 } // namespace Nebulite::Utility::Coordination
-#endif // UTILITY_COORDINATION_ID_GENERATOR_HPP
+#endif // UTILITY_COORDINATION_IDGENERATOR_HPP

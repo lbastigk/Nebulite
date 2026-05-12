@@ -3,8 +3,8 @@
  * @brief Class for types transformation functions.
  */
 
-#ifndef TRANSFORMATION_MODULE_TYPES_HPP
-#define TRANSFORMATION_MODULE_TYPES_HPP
+#ifndef MODULE_TRANSFORMATION_TYPES_HPP
+#define MODULE_TRANSFORMATION_TYPES_HPP
 
 //------------------------------------------
 // Includes
@@ -61,4 +61,4 @@ public:
         "Usage: |exists  [key] -> {bool}\n";
 };
 } // namespace Nebulite::Module::Transformation
-#endif // TRANSFORMATION_MODULE_TYPES_HPP
+#endif // MODULE_TRANSFORMATION_TYPES_HPP

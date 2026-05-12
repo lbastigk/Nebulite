@@ -3,8 +3,8 @@
  * @brief This file defines the Movement ruleset module, containing static rulesets related to movement.
  */
 
-#ifndef RULESET_MODULE_MOVEMENT_HPP
-#define RULESET_MODULE_MOVEMENT_HPP
+#ifndef MODULE_RULESET_MOVEMENT_HPP
+#define MODULE_RULESET_MOVEMENT_HPP
 
 //------------------------------------------
 // Includes
@@ -78,7 +78,7 @@ private:
      * @brief Enumeration of keys corresponding to movement-related base values.
      *        Used for indexing into the ordered cache list.
      */
-    enum class Key : std::size_t {
+    enum class Key : uint8_t {
         // Position and size
         posX,
         posY,
@@ -121,4 +121,4 @@ private:
     };
 };
 } // namespace Nebulite::Module::Ruleset
-#endif // RULESET_MODULE_MOVEMENT_HPP
+#endif // MODULE_RULESET_MOVEMENT_HPP

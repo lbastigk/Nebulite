@@ -3,8 +3,8 @@
  * @brief Definition of TimedRoutine class for scheduling routines at specific intervals.
  */
 
-#ifndef UTILITY_COORDINATION_TIMED_ROUTINE_HPP
-#define UTILITY_COORDINATION_TIMED_ROUTINE_HPP
+#ifndef UTILITY_COORDINATION_TIMEDROUTINE_HPP
+#define UTILITY_COORDINATION_TIMEDROUTINE_HPP
 
 //------------------------------------------
 // Includes
@@ -28,7 +28,7 @@ namespace Nebulite::Utility::Coordination {
  */
 class TimedRoutine {
 public:
-    enum class ConstructionMode {
+    enum class ConstructionMode : bool {
         START_IMMEDIATELY,
         WAIT_FOR_START
         // TODO: START_AND_FORCE_EXECUTE to force an execution on the first update call
@@ -59,4 +59,4 @@ private:
     uint64_t interval;
 };
 } // namespace Nebulite::Utility::Coordination
-#endif // UTILITY_COORDINATION_TIMED_ROUTINE_HPP
+#endif // UTILITY_COORDINATION_TIMEDROUTINE_HPP

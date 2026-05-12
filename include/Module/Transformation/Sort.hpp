@@ -3,8 +3,8 @@
  * @brief Class for sorting transformation functions.
  */
 
-#ifndef TRANSFORMATION_MODULE_SORT_HPP
-#define TRANSFORMATION_MODULE_SORT_HPP
+#ifndef MODULE_TRANSFORMATION_SORT_HPP
+#define MODULE_TRANSFORMATION_SORT_HPP
 
 //------------------------------------------
 // Includes
@@ -71,7 +71,7 @@ private:
      * @param comparator The custom comparator function, taking both T and the JSON as possible value.
      */
     template <typename T>
-    static void sort(Data::JsonScope* jsonDoc, T const& fallbackValue, std::function<bool(std::pair<T, Data::JSON>&, std::pair<T, Data::JSON>&)> comparator) {
+    static void sort(Data::JsonScope* jsonDoc, T const& fallbackValue, std::function<bool(std::pair<T, Data::JSON>&, std::pair<T, Data::JSON>&)> const& comparator) {
         std::vector<std::pair<T, Data::JSON>> values;
         for (auto const idx : std::views::iota(std::size_t{0}, jsonDoc->memberSize(rootKey))) {
             auto const key = rootKey.addIndex(idx);
@@ -86,4 +86,4 @@ private:
 };
 
 } // namespace Nebulite::Module::Transformation
-#endif // TRANSFORMATION_MODULE_SORT_HPP
+#endif // MODULE_TRANSFORMATION_SORT_HPP

@@ -59,7 +59,7 @@ private:
         Constants::KeyNames::RenderObject::sizeX
     };
 
-    enum class Key : std::size_t {
+    enum class Key : uint8_t {
         posX,
         posY,
         spriteSizeX,
@@ -84,7 +84,7 @@ private:
         double y = 0.0;
     };
 
-    enum class Align {
+    enum class Align : uint8_t {
         Center,
         Top,
         Bottom,

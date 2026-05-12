@@ -3,8 +3,8 @@
  * @brief Debugging ruleset module for Nebulite interaction system.
  */
 
-#ifndef RULESET_MODULE_DEBUG_HPP
-#define RULESET_MODULE_DEBUG_HPP
+#ifndef MODULE_RULESET_DEBUG_HPP
+#define MODULE_RULESET_DEBUG_HPP
 
 //------------------------------------------
 // Includes
@@ -53,13 +53,9 @@ private:
     //------------------------------------------
     // Base value caching
 
-    const std::vector<Data::ScopedKeyView> baseKeys = {
-        // No keys required
-    };
+    const std::vector<Data::ScopedKeyView> baseKeys; // No keys required
 
-    enum class Key : size_t {
-        // No keys required
-    };
+    enum class Key : size_t {}; // No keys required
 };
 } // namespace Nebulite::Module::Ruleset
-#endif // RULESET_MODULE_DEBUG_HPP
+#endif // MODULE_RULESET_DEBUG_HPP

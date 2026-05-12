@@ -3,8 +3,8 @@
  * @brief Definition of the WorkDispatcher class for managing worker threads that process work using provided functions and workspaces.
  */
 
-#ifndef UTILITY_COORDINATION_WORK_DISPATCHER_HPP
-#define UTILITY_COORDINATION_WORK_DISPATCHER_HPP
+#ifndef UTILITY_COORDINATION_WORKDISPATCHER_HPP
+#define UTILITY_COORDINATION_WORKDISPATCHER_HPP
 
 //------------------------------------------
 // Includes
@@ -30,6 +30,11 @@ public:
 
     ~WorkDispatcher();
 
+    WorkDispatcher(WorkDispatcher const&) = delete;
+    WorkDispatcher& operator=(WorkDispatcher const&) = delete;
+    WorkDispatcher(WorkDispatcher&&) = delete;
+    WorkDispatcher& operator=(WorkDispatcher&&) = delete;
+
     void initializeWorkerThread();
 
     void waitForWorkFinished();
@@ -45,7 +50,7 @@ private:
         std::atomic<bool>& stopFlag;
         std::atomic<bool> workReady{false};
         std::atomic<bool> workFinished{false};
-        std::condition_variable_any condition = {};
+        std::condition_variable_any condition;
     } threadState;
 
     std::function<void(Workspace&)> workerFunction;
@@ -56,4 +61,4 @@ private:
 };
 } // namespace Nebulite::Utility::Coordination
 #include "Utility/Coordination/WorkDispatcher.tpp"
-#endif // UTILITY_COORDINATION_WORK_DISPATCHER_HPP
+#endif // UTILITY_COORDINATION_WORKDISPATCHER_HPP

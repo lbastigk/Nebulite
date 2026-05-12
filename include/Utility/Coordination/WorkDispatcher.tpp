@@ -2,17 +2,11 @@
 #define UTILITY_COORDINATION_WORKDISPATCHER_TPP
 
 //------------------------------------------
-// Includes
-
-// Nebulite
-#include "Utility/Coordination/WorkDispatcher.hpp"
-
-//------------------------------------------
 namespace Nebulite::Utility::Coordination {
 
 template<typename Workspace>
 WorkDispatcher<Workspace>::WorkDispatcher(std::atomic<bool>& stop, std::function<void(Workspace&)> const& wF, std::function<void(Workspace&)> const& iF)
-        : threadState{ .stopFlag = stop }, workerFunction(wF), initFunction(iF)
+        : threadState{ .stopFlag = stop, .condition = {} }, workerFunction(wF), initFunction(iF)
 {
     initializeWorkerThread();
 }
@@ -51,7 +45,7 @@ void WorkDispatcher<Workspace>::waitForWorkFinished() {
 
 template<typename Workspace>
 void WorkDispatcher<Workspace>::startWork() {
-    std::unique_lock lock(mutex);
+    std::unique_lock const lock(mutex);
     threadState.workReady = true;
     threadState.workFinished = false;
     threadState.condition.notify_one();
