@@ -1,8 +1,10 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <string>
+
 // Nebulite
-#include "Interaction/Logic/Expression.hpp"
 #include "Interaction/Rules/Listener.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 

@@ -1,7 +1,15 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <algorithm>
+#include <ranges>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
 // Nebulite
+#include "Interaction/Context.hpp"
 #include "Interaction/Rules/Construction/Initializer.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 #include "Nebulite.hpp"
@@ -11,18 +19,18 @@ namespace Nebulite::Interaction::Rules {
 
 StaticRulesetMap::StaticRulesetMap() {
     invalidEntry = StaticRulesetWithMetadata{
-        StaticRulesetWithMetadata::Type::invalid,
-        "",
-        "",
-        nullptr
+        .type=StaticRulesetWithMetadata::Type::invalid,
+        .topic="",
+        .description="",
+        .function=nullptr
     };
     Construction::rulesetMapInit(this);
     bindStaticRuleset(StaticRulesetWithMetadata{
-        StaticRulesetWithMetadata::Type::Local,
-        helpName,
-        helpDesc,
-        [this](const Context& context, double** slf, double** otr) { help(context, slf, otr); },
-        helpBaseListFunc
+        .type=StaticRulesetWithMetadata::Type::Local,
+        .topic=helpName,
+        .description=helpDesc,
+        .function=[this](const Context& context, double** slf, double** otr) { help(context, slf, otr); },
+        .baseListFunc=helpBaseListFunc
     });
 }
 
@@ -36,9 +44,9 @@ std::vector<StaticRulesetMap::StaticRulesetMetadata> StaticRulesetMap::getList()
     for (auto const& rule : getInstance().container | std::views::values) {
         if (rule.type != StaticRulesetWithMetadata::Type::invalid) {
             list.push_back(StaticRulesetMetadata{
-                rule.type,
-                std::string(rule.topic),
-                std::string(rule.description)
+                .type=rule.type,
+                .topic=std::string(rule.topic),
+                .description=std::string(rule.description)
             });
         }
     }

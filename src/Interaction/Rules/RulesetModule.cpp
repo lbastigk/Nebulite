@@ -1,9 +1,14 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <string_view>
+#include <vector>
+
 // Nebulite
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/RulesetModule.hpp"
+#include "Interaction/Rules/StaticRulesetMap.hpp"
 #include "Nebulite.hpp"
 
 //------------------------------------------
