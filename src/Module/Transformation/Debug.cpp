@@ -1,6 +1,12 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <algorithm>
+#include <ranges>
+#include <span>
+#include <string>
+
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Module/Transformation/Debug.hpp"

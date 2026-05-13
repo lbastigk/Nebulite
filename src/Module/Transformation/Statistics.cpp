@@ -1,8 +1,17 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <functional>
+#include <limits>
+#include <vector>
+
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
+#include "Data/Document/KeyType.hpp"
 #include "Module/Transformation/Statistics.hpp"
 
 //------------------------------------------

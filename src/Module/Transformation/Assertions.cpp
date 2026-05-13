@@ -2,12 +2,18 @@
 // Includes
 
 // Standard library
+#include <exception>
 #include <regex>
 #include <span>
+#include <stdexcept>
+#include <string>
 
 // Nebulite
+#include "Data/Document/JsonScope.hpp"
+#include "Data/Document/KeyType.hpp"
 #include "Module/Transformation/Assertions.hpp"
 #include "Nebulite.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -40,7 +46,7 @@ void Assertions::printUserDefinedMessage(std::span<std::string const> const& arg
 bool Assertions::assertNonEmpty(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
     if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
         printUserDefinedMessage(args);
-        static std::string errorMessage = std::string(assertNonEmptyName) + ": JSON value is null";
+        static std::string const errorMessage = std::string(assertNonEmptyName) + ": JSON value is null";
         throw std::runtime_error(errorMessage);
     }
     return true;
@@ -49,7 +55,7 @@ bool Assertions::assertNonEmpty(std::span<std::string const> const& args, Data::
 bool Assertions::assertEmpty(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc){
     if (jsonDoc->memberType(rootKey) != Data::KeyType::null) {
         printUserDefinedMessage(args);
-        static std::string errorMessage = std::string(assertEmptyName) + ": JSON value is not null";
+        static std::string const errorMessage = std::string(assertEmptyName) + ": JSON value is not null";
         throw std::runtime_error(errorMessage);
     }
     return true;
@@ -58,7 +64,7 @@ bool Assertions::assertEmpty(std::span<std::string const> const& args, Data::Jso
 bool Assertions::assertTypeObject(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::object) {
         printUserDefinedMessage(args);
-        static std::string errorMessage = std::string(assertTypeObjectName) + ": JSON value is not an object";
+        static std::string const errorMessage = std::string(assertTypeObjectName) + ": JSON value is not an object";
         throw std::runtime_error(errorMessage);
     }
     return true;
@@ -67,7 +73,7 @@ bool Assertions::assertTypeObject(std::span<std::string const> const& args, Data
 bool Assertions::assertTypeArray(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
         printUserDefinedMessage(args);
-        static std::string errorMessage = std::string(assertTypeArrayName) + ": JSON value is not an array";
+        static std::string const errorMessage = std::string(assertTypeArrayName) + ": JSON value is not an array";
         throw std::runtime_error(errorMessage);
     }
     return true;
@@ -76,7 +82,7 @@ bool Assertions::assertTypeArray(std::span<std::string const> const& args, Data:
 bool Assertions::assertTypeBasicValue(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::value) {
         printUserDefinedMessage(args);
-        static std::string errorMessage = std::string(assertTypeBasicValueName) + ": JSON value is not a basic value";
+        static std::string const errorMessage = std::string(assertTypeBasicValueName) + ": JSON value is not a basic value";
         throw std::runtime_error(errorMessage);
     }
     return true;

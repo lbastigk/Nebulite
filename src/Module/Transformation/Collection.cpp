@@ -2,13 +2,24 @@
 // Includes
 
 // Standard library
+#include <algorithm>
+#include <cstddef>
+// NOLINTNEXTLINE
+#include <cstdint>
+#include <ranges>
 #include <regex>
+#include <span>
+#include <string>
+#include <utility>
+#include <vector>
 
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
+#include "Data/Document/KeyType.hpp"
 #include "Module/Transformation/Collection.hpp"
 #include "Nebulite.hpp"
 #include "Utility/Glob.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

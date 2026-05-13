@@ -2,11 +2,17 @@
 // Includes
 
 // Standard library
-#include <regex>
+#include <span>
+#include <string>
 
 // Nebulite
+#include "Data/Document/JsonScope.hpp"
+#include "Data/Document/KeyType.hpp"
+#include "Interaction/Context.hpp"
+#include "Interaction/Logic/Expression.hpp"
 #include "Module/Transformation/Sort.hpp"
-#include "Nebulite.hpp"
+#include "Utility/Sort.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

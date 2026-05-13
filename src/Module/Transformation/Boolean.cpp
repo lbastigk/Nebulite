@@ -1,10 +1,13 @@
 //------------------------------------------
 // Includes
 
-// Nebulite
-#include "Module/Transformation/Boolean.hpp"
+// Standard library
+#include <string>
+#include <variant>
 
+// Nebulite
 #include "Data/Document/JsonScope.hpp"
+#include "Module/Transformation/Boolean.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -27,7 +30,7 @@ bool Boolean::booleanNot(Data::JsonScope* jsonDoc){
         } else if (std::holds_alternative<double>(val)) {
             result = std::get<double>(val) != 0.0;
         } else if (std::holds_alternative<std::string>(val)) {
-            std::string const& strVal = std::get<std::string>(val);
+            auto const& strVal = std::get<std::string>(val);
             result = !(strVal == "true" || strVal == "1" || strVal == "yes" || strVal == "on");
         } else {
             // For other types (objects, arrays), we can define them as truthy or falsy as needed

@@ -2,12 +2,15 @@
 // Includes
 
 // Standard library
-#include <cctype>
 #include <algorithm>
+#include <cctype>
+#include <cstddef>
+#include <string>
 
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Module/Transformation/String.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
@@ -215,7 +218,7 @@ bool String::strcompareContains(std::span<std::string const> const& args, Data::
     }
     auto const compareStr = Utility::StringHandler::recombineArgs(args.subspan(1));
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
-    jsonDoc->set(rootKey, str.find(compareStr) != std::string::npos);
+    jsonDoc->set(rootKey, str.contains(compareStr));
     return true;
 }
 
@@ -225,7 +228,7 @@ bool String::strcompareStartsWith(std::span<std::string const> const& args, Data
     }
     auto const compareStr = Utility::StringHandler::recombineArgs(args.subspan(1));
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
-    jsonDoc->set(rootKey, str.rfind(compareStr, 0) == 0);
+    jsonDoc->set(rootKey, str.starts_with(compareStr));
     return true;
 }
 
@@ -239,7 +242,7 @@ bool String::strcompareEndsWith(std::span<std::string const> const& args, Data::
         jsonDoc->set(rootKey, false);
         return true;
     }
-    jsonDoc->set(rootKey, str.compare(str.size() - compareStr.size(), compareStr.size(), compareStr) == 0);
+    jsonDoc->set(rootKey, str.ends_with(compareStr));
     return true;
 }
 

@@ -1,8 +1,14 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <span>
+#include <string>
+#include <utility>
+
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
+#include "Data/Document/KeyType.hpp"
 #include "Module/Transformation/Types.hpp"
 
 //------------------------------------------

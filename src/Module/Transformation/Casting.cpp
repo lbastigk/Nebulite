@@ -1,9 +1,23 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <algorithm>
+#include <cctype>
+#include <cmath>
+#include <iterator>
+#include <set>
+#include <span>
+#include <string>
+#include <utility>
+
 // Nebulite
+#include "Data/Document/JsonScope.hpp"
+#include "Data/Document/KeyType.hpp"
+#include "Interaction/Logic/Expression.hpp"
 #include "Module/Transformation/Casting.hpp"
 #include "Nebulite.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {
