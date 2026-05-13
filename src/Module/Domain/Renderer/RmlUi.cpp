@@ -1,8 +1,17 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+// NOLINTNEXTLINE
+#include <cstddef>
+#include <span>
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Core/Renderer.hpp"
+#include "Interaction/Context.hpp"
 #include "Module/Domain/Renderer/RmlUi.hpp"
 #include "Utility/StringHandler.hpp"
 

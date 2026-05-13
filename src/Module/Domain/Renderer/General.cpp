@@ -1,14 +1,35 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <exception>
+#include <filesystem>
+#include <functional>
+#include <iostream>
+#include <span>
+#include <string>
+#include <vector>
+
 // External
-#include "SDL3_image/SDL_image.h"
-#include "stb_image_write.h"
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_surface.h>
+#include <SDL3/SDL_video.h>
+#include <SDL3_image/SDL_image.h>
+#include <stb_image_write.h>
 
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Core/RenderObject.hpp"
 #include "Core/Renderer.hpp"
-#include "Interaction/Invoke.hpp"
+#include "Data/Document/JSON.hpp"
+#include "Data/Document/RjDirectAccess.hpp"
+#include "Interaction/Context.hpp"
 #include "Module/Domain/Renderer/General.hpp"
 #include "Nebulite.hpp"
 #include "Utility/IO/FileManagement.hpp"
@@ -237,19 +258,19 @@ std::string base64_encode(uint8_t const* data, size_t const& len) {
     out.reserve(((len + 2) / 3) * 4);
 
     int val = 0;
-    int valb = -6;
+    int valB = -6;
     for (size_t i = 0; i < len; i++) {
         val = (val << 8) + data[i];
-        valb += 8;
-        while (valb >= 0) {
+        valB += 8;
+        while (valB >= 0) {
             // NOLINTNEXTLINE
-            out.push_back(base64_chars[(val >> valb) & 0x3F]);
-            valb -= 6;
+            out.push_back(base64_chars[(val >> valB) & 0x3F]);
+            valB -= 6;
         }
     }
 
     // NOLINTNEXTLINE
-    if (valb > -6) out.push_back(base64_chars[((val << 8) >> (valb + 8)) & 0x3F]);
+    if (valB > -6) out.push_back(base64_chars[((val << 8) >> (valB + 8)) & 0x3F]);
     while (out.size() % 4) out.push_back('=');
 
     return out;

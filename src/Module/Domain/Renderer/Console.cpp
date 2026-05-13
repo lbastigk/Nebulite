@@ -2,11 +2,13 @@
 // Includes
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Core/Renderer.hpp"
 #include "Graphics/ImguiHelper.hpp"
 #include "Module/Domain/Renderer/Console.hpp"
+#include "Module/Domain/Renderer/Input.hpp"
 #include "Nebulite.hpp"
-
+#include "ScopeAccessor.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
@@ -27,6 +29,16 @@ Constants::Event Console::updateHook() {
         Interaction::ContextScope ctxScope = {Global::shareScope(accessToken), Global::shareScope(accessToken), Global::shareScope(accessToken)};
         Graphics::ImguiHelper::renderDomain(ctx, ctxScope, Global::capture(), "Console", flags);
     }
+    return Constants::Event::Success;
+}
+
+Constants::Event Console::consoleOpen() {
+    consoleMode = true;
+    return Constants::Event::Success;
+}
+
+Constants::Event Console::consoleClose() {
+    consoleMode = false;
     return Constants::Event::Success;
 }
 

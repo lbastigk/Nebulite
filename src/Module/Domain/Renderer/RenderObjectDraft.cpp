@@ -1,9 +1,16 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <span>
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Core/Renderer.hpp"
 #include "Module/Domain/Renderer/RenderObjectDraft.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
