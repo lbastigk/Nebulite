@@ -1,9 +1,19 @@
-#include "Utility/Time.hpp"
+//------------------------------------------
+// Includes
 
-#include <thread>
+// Standard library
 #include <array>
 #include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <ctime>
+#include <string>
+#include <thread>
 
+// Nebulite
+#include "Utility/Time.hpp"
+
+//------------------------------------------
 namespace Nebulite::Utility {
 
 std::string Time::TimeIso8601(ISO8601Format const& format, bool const& local) noexcept {

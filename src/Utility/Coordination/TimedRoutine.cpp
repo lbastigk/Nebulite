@@ -1,6 +1,10 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstdint>
+#include <functional>
+
 // Nebulite
 #include "Utility/Coordination/TimedRoutine.hpp"
 

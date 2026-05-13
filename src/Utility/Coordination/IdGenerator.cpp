@@ -3,8 +3,14 @@
 
 // Standard library
 #include <atomic>
+#include <cstddef>
+#include <cstdint>
+#include <functional>
 #include <memory>
 #include <mutex>
+#include <stdexcept>
+#include <string>
+#include <string_view>
 
 // External
 #include <absl/container/flat_hash_map.h>

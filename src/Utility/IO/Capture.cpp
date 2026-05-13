@@ -1,6 +1,11 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <deque>
+#include <mutex>
+#include <string>
+
 // Nebulite
 #include "Utility/IO/Capture.hpp"
 

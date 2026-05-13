@@ -3,7 +3,16 @@
 
 // Standard library
 #include <algorithm>
+#include <array>
+#include <cctype>
+#include <cstddef>
+#include <numeric>
 #include <ranges>
+#include <span>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 // Nebulite
 #include "Nebulite.hpp"
