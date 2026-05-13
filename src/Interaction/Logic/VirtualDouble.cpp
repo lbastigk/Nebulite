@@ -1,6 +1,10 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <stdexcept>
+#include <string_view>
+
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Interaction/Context.hpp"
@@ -9,12 +13,12 @@
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
 
-VirtualDouble::VirtualDouble(std::string_view const& k) noexcept {
+VirtualDouble::VirtualDouble(std::string_view const& k) {
     key = ContextDeriver::stripContext(k);
     scopedKey = Data::ScopedKey(key);
 }
 
-void VirtualDouble::linkExternalCache(Data::JsonScope const& json){
+void VirtualDouble::linkExternalCache(Data::JsonScope const& json) {
     if (externalReference != nullptr) {
         // This function should only be called once, throw error
         throw std::logic_error("External cache is already linked for key: " + key);

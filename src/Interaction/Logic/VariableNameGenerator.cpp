@@ -1,6 +1,11 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+// NOLINTNEXTLINE
+#include <cstdint>
+#include <string>
+
 // Nebulite
 #include "Interaction/Logic/VariableNameGenerator.hpp"
 

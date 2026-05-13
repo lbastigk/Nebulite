@@ -2,13 +2,24 @@
 // Includes
 
 // Standard library
+#include <algorithm>
+#include <array>
+#include <cstddef>
+#include <memory>
+#include <ranges>
+#include <string>
 #include <string_view>
+#include <utility>
 
 // Nebulite
 #include "Core/GlobalSpace.hpp"
 #include "Data/Document/JsonScope.hpp"
+#include "Data/Document/ScopedKey.hpp"
+#include "Interaction/Context.hpp"
 #include "Interaction/Logic/Assignment.hpp"
+#include "Interaction/Logic/Expression.hpp"
 #include "Nebulite.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {

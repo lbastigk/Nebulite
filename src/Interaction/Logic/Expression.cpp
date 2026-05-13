@@ -1,13 +1,32 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <cstddef>
+#include <iterator>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
+
+// External
+#include <tinyexpr.h>
+
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
+#include "Interaction/Context.hpp"
 #include "Interaction/Logic/Expression.hpp"
 #include "Interaction/Logic/VirtualDouble.hpp"
 #include "Math/Equality.hpp"
 #include "Math/ExpressionPrimitives.hpp"
 #include "Nebulite.hpp"
+#include "Utility/CompileTimeEvaluate.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
@@ -373,7 +392,7 @@ void Expression::parseTokenTypeEval(std::string const& token) {
         if (subToken.starts_with('{')) {
             std::string const te_name = varNameGen.getUniqueName(subToken);
             std::string key = subToken.substr(1, subToken.length() - 2);
-            ContextDeriver::TargetType contextType = ContextDeriver::getTypeFromString(key);
+            auto const contextType = ContextDeriver::getTypeFromString(key);
             key = ContextDeriver::stripContext(key);
             registerVariable(te_name, key, contextType);
             currentComponent->stringRepresentation += te_name;
@@ -597,7 +616,7 @@ bool Expression::recalculateIsReturnableAsDouble() const {
 }
 
 bool Expression::recalculateIsReturnableAsString() const {
-    return !(components.size() == 1 && components[0]->type == Component::Type::variable);
+    return components.size() != 1 || components[0]->type != Component::Type::variable;
 }
 
 bool Expression::recalculateIsAlwaysTrue() const {
@@ -678,7 +697,7 @@ Data::JSON Expression::evalAsJson(ContextScope const& context, size_t const& rec
 // Static document access
 
 Data::JsonScope const& Expression::emptyDoc() {
-    thread_local Data::JsonScope emptyDoc;
+    thread_local const Data::JsonScope emptyDoc;
     return emptyDoc;
 }
 

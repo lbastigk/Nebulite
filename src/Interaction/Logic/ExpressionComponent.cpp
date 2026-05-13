@@ -1,9 +1,21 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+// NOLINTNEXTLINE
+#include <cstddef>
+#include <expected>
+#include <optional>
+#include <string>
+#include <utility>
+
+// External
+#include <tinyexpr.h>
+
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Data/Document/SimpleValueError.hpp"
+#include "Interaction/Context.hpp"
 #include "Interaction/Logic/Expression.hpp"
 #include "Nebulite.hpp"
 
