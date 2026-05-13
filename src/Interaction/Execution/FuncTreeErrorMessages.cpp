@@ -1,8 +1,13 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <stdexcept>
+#include <string_view>
+
 // Nebulite
 #include "Interaction/Execution/FuncTreeErrorMessages.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {

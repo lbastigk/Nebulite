@@ -1,9 +1,14 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <memory>
+#include <utility>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Interaction/Execution/DomainModuleBase.hpp"
-#include "Nebulite.hpp"
+#include "Interaction/Execution/DomainTree.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
