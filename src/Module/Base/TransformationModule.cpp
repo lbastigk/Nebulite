@@ -1,7 +1,13 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <memory>
+#include <string_view>
+#include <utility>
+
 // Nebulite
+#include "Interaction/Execution/FuncTree.hpp"
 #include "Interaction/Logic/Expression.hpp"
 #include "Module/Base/TransformationModule.hpp"
 

@@ -3,7 +3,13 @@
 
 // Standard library
 #include <algorithm>
+#include <cmath>
+#include <complex>
+#include <cstdlib>
+// NOLINTNEXTLINE
+#include <math.h>
 #include <ranges>
+#include <vector>
 
 // Nebulite
 #include "Math/FFT.hpp"

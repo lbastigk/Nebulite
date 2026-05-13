@@ -2,8 +2,9 @@
 // Includes
 
 // Nebulite
+#include "Graphics/RmlInterface.hpp"
 #include "Module/Base/RmlUiModule.hpp"
-#include "Nebulite.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Base {

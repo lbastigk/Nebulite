@@ -1,6 +1,14 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+// NOLINTNEXTLINE
+#include <cstdlib>
+#include <cstdint>
+#include <span>
+#include <string>
+#include <vector>
+
 // External
 #include <tinyexpr.h>
 
@@ -8,6 +16,7 @@
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Math/ExpressionPrimitives.hpp"
 #include "Nebulite.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Math {
