@@ -1,7 +1,12 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Core/Texture.hpp"
 #include "Graphics/Drawcall.hpp"
 #include "Module/Domain/Texture/General.hpp"

@@ -1,7 +1,17 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <string>
+
+// External
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_stdinc.h>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Core/Texture.hpp"
 #include "Module/Domain/Texture/Fill.hpp"
 #include "Nebulite.hpp"

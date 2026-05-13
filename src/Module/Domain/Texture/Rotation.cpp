@@ -1,7 +1,16 @@
 //------------------------------------------
 // Includes
 
+// External
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_surface.h>
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Core/Texture.hpp"
 #include "Module/Domain/Texture/Rotation.hpp"
 #include "Nebulite.hpp"
