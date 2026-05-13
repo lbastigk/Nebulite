@@ -31,6 +31,9 @@
 #include <string>
 
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Data/Document/JsonScope.hpp"
+#include "Interaction/Context.hpp"
 #include "Module/Domain/GlobalSpace/Debug.hpp"
 #include "Nebulite.hpp"
 

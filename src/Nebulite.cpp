@@ -2,7 +2,11 @@
 // Includes
 
 // Nebulite
+#include "Core/GlobalSpace.hpp"
 #include "Nebulite.hpp"
+// NOLINTNEXTLINE
+#include "Data/Document/JsonScope.hpp"
+#include "ScopeAccessor.hpp"
 
 //------------------------------------------
 namespace Nebulite {

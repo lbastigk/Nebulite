@@ -1,8 +1,10 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <string>
+
 // Nebulite
-#include "Interaction/Execution/DomainModule.hpp"
 #include "ScopeAccessor.hpp"
 
 //------------------------------------------
