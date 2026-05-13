@@ -69,30 +69,26 @@ void Movement::detectClipping(Interaction::Context const& context, double** slf,
             if (isNorth) {
                 double const dist = p2Y - p1Y - size1Y;
                 auto lock = context.other.lockDocument();
-                if (double& closestCurrent = baseVal(otr, Key::clip_closest_N); closestCurrent > dist) {
-                    closestCurrent = dist;
-                }
+                double& closestCurrent = baseVal(otr, Key::clip_closest_N);
+                closestCurrent = std::min(closestCurrent, dist);
             }
             if (isEast) {
                 double const dist = p1X - p2X - size2X;
                 auto lock = context.other.lockDocument();
-                if (double& closestCurrent = baseVal(otr, Key::clip_closest_E); closestCurrent > dist) {
-                    closestCurrent = dist;
-                }
+                double& closestCurrent = baseVal(otr, Key::clip_closest_E);
+                closestCurrent = std::min(closestCurrent, dist);
             }
             if (isSouth) {
                 double const dist = p1Y - p2Y - size2Y;
                 auto lock = context.other.lockDocument();
-                if (double& closestCurrent = baseVal(otr, Key::clip_closest_S); closestCurrent > dist) {
-                    closestCurrent = dist;
-                }
+                double& closestCurrent = baseVal(otr, Key::clip_closest_S);
+                closestCurrent = std::min(closestCurrent, dist);
             }
             if (isWest) {
                 double const dist = p2X - p1X - size1X;
                 auto lock = context.other.lockDocument();
-                if (double& closestCurrent = baseVal(otr, Key::clip_closest_W); closestCurrent > dist) {
-                    closestCurrent = dist;
-                }
+                double& closestCurrent = baseVal(otr, Key::clip_closest_W);
+                closestCurrent = std::min(closestCurrent, dist);
             }
         }
     }
