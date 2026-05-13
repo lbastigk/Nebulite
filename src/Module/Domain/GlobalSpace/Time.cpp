@@ -1,7 +1,17 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+// NOLINTNEXTLINE
+#include <cstdint>
+#include <string>
+
+// External
+#include <SDL3/SDL_stdinc.h>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Module/Domain/GlobalSpace/Time.hpp"
 #include "Nebulite.hpp"
 

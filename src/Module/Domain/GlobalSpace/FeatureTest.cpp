@@ -1,7 +1,19 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <limits>
+#include <span>
+#include <stdexcept>
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
+#include "Data/Document/JSON.hpp"
+#include "Data/Document/ScopedKey.hpp"
+#include "Interaction/Execution/FuncTree.hpp"
+#include "Interaction/Logic/Expression.hpp"
 #include "Module/Domain/GlobalSpace/FeatureTest.hpp"
 #include "Nebulite.hpp"
 

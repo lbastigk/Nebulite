@@ -1,7 +1,14 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <span>
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
+#include "Interaction/Execution/FuncTree.hpp"
 #include "Module/Domain/GlobalSpace/FunctionCollision.hpp"
 #include "Nebulite.hpp"
 

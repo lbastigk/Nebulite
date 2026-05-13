@@ -2,9 +2,16 @@
 // Includes
 
 // Standard library
+#include <array>
 #include <cmath>
+#include <span>
+#include <string>
+#include <utility>
 
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
+#include "Interaction/Execution/DomainModule.hpp"
 #include "Math/Equality.hpp"
 #include "Module/Domain/GlobalSpace/InputMapping.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"

@@ -1,7 +1,13 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <sstream>
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Core/GlobalSpace.hpp"
 #include "Module/Domain/GlobalSpace/General.hpp"
 #include "Nebulite.hpp"

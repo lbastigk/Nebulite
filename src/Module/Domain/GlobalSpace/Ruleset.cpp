@@ -1,7 +1,14 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <memory>
+#include <span>
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Core/GlobalSpace.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Interaction/Rules/Listener.hpp"

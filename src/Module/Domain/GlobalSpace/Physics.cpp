@@ -2,6 +2,7 @@
 // Includes
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Module/Domain/GlobalSpace/Physics.hpp"
 #include "Nebulite.hpp"
 

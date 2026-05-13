@@ -1,7 +1,12 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <limits>
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Core/GlobalSpace.hpp"
 #include "Module/Domain/GlobalSpace/Floating/RNG.hpp"
 

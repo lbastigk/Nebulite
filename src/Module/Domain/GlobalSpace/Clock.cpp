@@ -1,7 +1,16 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+// NOLINTNEXTLINE
+#include <cstdint>
+#include <ranges>
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
+#include "Data/Document/KeyType.hpp"
 #include "Module/Domain/GlobalSpace/Clock.hpp"
 #include "Module/Domain/GlobalSpace/Time.hpp"
 #include "Nebulite.hpp"
