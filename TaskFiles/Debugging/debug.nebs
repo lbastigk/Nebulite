@@ -26,8 +26,6 @@ set-res 1500 1500
 wait 1
 rmlui document load test Resources/Rml/debug.rml
 wait 10
-print debug
-
 wait 5000
 exit
 

@@ -10,8 +10,8 @@
 
     <h1>Nebulite Runtime Inspector</h1>
 
-    <p data-eval="true">
-        Build type: {self:debug.buildType}
+    <p>
+        Debug mode: <b data-if="self:debug.buildType|strCompare equals debug">ON</b><b data-if="self:debug.buildType|strCompare equals debug|not">OFF</b>
     </p>
 
     <hr />
