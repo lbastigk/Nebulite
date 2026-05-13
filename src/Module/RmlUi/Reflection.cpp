@@ -2,13 +2,28 @@
 // Includes
 
 // Standard Library
-#include <regex>
+#include <cstddef>
+#include <cstdlib>
+#include <memory>
+#include <optional>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
+
+// External
+#include <RmlUi/Config/Config.h>
+#include <RmlUi/Core/Element.h>
 
 // Nebulite
-#include "Module/RmlUi/DataReference.hpp"
+#include "Data/Document/JSON.hpp"
+#include "Data/Document/KeyType.hpp"
+#include "Graphics/RmlInterface.hpp"
+#include "Module/Base/RmlUiModule.hpp"
 #include "Module/RmlUi/Reflection.hpp"
 #include "Nebulite.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {

@@ -1,10 +1,26 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <optional>
+#include <string>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+
+// External
+#include <RmlUi/Core/Element.h>
+#include <RmlUi/Core/ElementDocument.h>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Graphics/RmlInterface.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
+#include "Module/Base/RmlUiModule.hpp"
 #include "Module/RmlUi/Ruleset.hpp"
+#include "Utility/IO/Capture.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {

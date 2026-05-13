@@ -1,12 +1,17 @@
 //------------------------------------------
 // Includes
 
+// External
+#include <RmlUi/Core/Element.h>
+
 // Nebulite
+#include "Graphics/RmlInterface.hpp"
+#include "Module/Base/RmlUiModule.hpp"
 #include "Module/RmlUi/ContextManager.hpp"
 #include "Module/RmlUi/ExpressionManager.hpp"
 #include "Module/RmlUi/Reflection.hpp"
 #include "Module/RmlUi/Ruleset.hpp"
-#include "Nebulite.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {

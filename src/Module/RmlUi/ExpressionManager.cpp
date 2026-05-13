@@ -1,10 +1,20 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <memory>
+#include <string>
+
+// External
+#include <RmlUi/Core/Element.h>
+
 // Nebulite
+#include "Graphics/RmlInterface.hpp"
+#include "Interaction/Logic/Expression.hpp"
+#include "Module/Base/RmlUiModule.hpp"
 #include "Module/RmlUi/ExpressionManager.hpp"
-#include "Nebulite.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
