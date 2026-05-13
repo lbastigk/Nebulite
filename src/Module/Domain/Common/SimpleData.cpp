@@ -1,15 +1,30 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+// NOLINTNEXTLINE
+#include <cstddef>
+#include <span>
+#include <string>
+#include <vector>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Constants/StandardCapture.hpp"
+#include "Data/Document/KeyType.hpp"
+#include "Interaction/Context.hpp"
+#include "Interaction/Logic/Assignment.hpp"
 #include "Module/Domain/Common/SimpleData.hpp"
 #include "Nebulite.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
 
-Constants::Event SimpleData::updateHook() {return Constants::Event::Success;} // No periodic update needed, SimpleData is stateless
+Constants::Event SimpleData::updateHook() {
+    // No periodic update needed, SimpleData is stateless
+    return Constants::Event::Success;
+}
 
 //------------------------------------------
 // Domain-Bound Functions

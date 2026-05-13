@@ -1,7 +1,13 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <span>
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Module/Domain/Common/Filesystem.hpp"
 #include "Nebulite.hpp"
 #include "Utility/IO/FileManagement.hpp"

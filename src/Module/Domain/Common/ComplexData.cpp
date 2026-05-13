@@ -1,9 +1,21 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <functional>
+#include <span>
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
+#include "Data/Document/KeyType.hpp"
+#include "Data/Document/ScopedKey.hpp"
+#include "Interaction/Context.hpp"
+#include "Interaction/Logic/Expression.hpp"
 #include "Module/Domain/Common/ComplexData.hpp"
 #include "Nebulite.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {

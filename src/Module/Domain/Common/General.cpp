@@ -1,11 +1,23 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <algorithm>
+#include <cstddef>
+#include <iostream>
+#include <iterator>
+#include <span>
+#include <string>
+#include <utility>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Constants/StandardCapture.hpp"
 #include "Graphics/ImguiHelper.hpp"
+#include "Interaction/Logic/Expression.hpp"
 #include "Module/Domain/Common/General.hpp"
 #include "Nebulite.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {

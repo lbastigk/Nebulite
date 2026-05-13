@@ -1,13 +1,19 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <span>
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Core/GlobalSpace.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
-#include "Interaction/Rules/Listener.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Module/Domain/Common/Ruleset.hpp"
 #include "Nebulite.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
@@ -38,4 +44,4 @@ Constants::Event Ruleset::invokeOnce(std::span<std::string const> const& args) c
     return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
 }
 
-} // namespace Nebulite::Module::Domain::GlobalSpace
+} // namespace Nebulite::Module::Domain::Common
