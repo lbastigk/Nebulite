@@ -2,12 +2,13 @@
 // Includes
 
 // Standard Library
-#include <cfloat>
+#include <cmath>
 
 // Nebulite
-#include "Core/GlobalSpace.hpp"
+#include "Interaction/Context.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 #include "Math/Equality.hpp"
+#include "Module/Domain/GlobalSpace/Physics.hpp"
 #include "Module/Domain/GlobalSpace/Time.hpp"
 #include "Module/Ruleset/Physics.hpp"
 #include "Nebulite.hpp"
