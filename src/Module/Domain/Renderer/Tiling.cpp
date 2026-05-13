@@ -1,14 +1,28 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+// NOLINTNEXTLINE
+#include <cstdint>
+// NOLINTNEXTLINE
+#include <cstddef>
+#include <memory>
+#include <ranges>
+#include <span>
+#include <string>
+
 // External
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include <imgui.h>
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Constants/KeyNames.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Core/Renderer.hpp"
 #include "Module/Domain/Renderer/Tiling.hpp"
+#include "Utility/Coordination/TimedRoutine.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
@@ -27,9 +41,9 @@ namespace Nebulite::Module::Domain::Renderer {
                     moduleScope.removeMember(Key::visibleTiles);
                 }
                 for (auto [idx, tile] : visibleTiles | std::views::enumerate) {
-                    auto index = static_cast<size_t>(idx);
-                    auto keyX = Key::visibleTiles.addIndex(index).addMember("x");
-                    auto keyY = Key::visibleTiles.addIndex(index).addMember("y");
+                    auto key = Key::visibleTiles.addIndex(static_cast<size_t>(idx));
+                    auto keyX = key.addMember("x");
+                    auto keyY = key.addMember("y");
                     moduleScope.set<int>(keyX, tile.x);
                     moduleScope.set<int>(keyY, tile.y);
                 }

@@ -1,8 +1,15 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <span>
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Core/RenderObject.hpp"
+#include "Interaction/Context.hpp"
 #include "Module/Domain/RenderObject/Logging.hpp"
 #include "Nebulite.hpp"
 #include "Utility/IO/FileManagement.hpp"

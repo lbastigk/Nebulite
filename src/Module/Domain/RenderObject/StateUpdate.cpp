@@ -2,6 +2,7 @@
 // Includes
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Core/RenderObject.hpp"
 #include "Module/Domain/RenderObject/StateUpdate.hpp"
 

@@ -1,8 +1,13 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <string>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Core/RenderObject.hpp"
+#include "Data/Document/KeyType.hpp"
 #include "Module/Domain/RenderObject/Mirror.hpp"
 #include "Nebulite.hpp"
 
