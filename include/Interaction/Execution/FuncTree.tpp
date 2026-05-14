@@ -3,8 +3,8 @@
  * @brief Implementation file for the Basic FuncTree class template functions.
  */
 
-#ifndef INTERACTION_EXECUTION_FUNC_TREE_TPP
-#define INTERACTION_EXECUTION_FUNC_TREE_TPP
+#ifndef INTERACTION_EXECUTION_FUNCTREE_TPP
+#define INTERACTION_EXECUTION_FUNCTREE_TPP
 
 //------------------------------------------
 // Includes
@@ -16,7 +16,6 @@
 #include <string>
 
 // Nebulite
-#include "Interaction/Execution/FuncTree.hpp"
 #include "Interaction/Execution/FuncTreeErrorMessages.hpp"
 #include "Math/Equality.hpp"
 #include "Utility/CompileTimeEvaluate.hpp"
@@ -107,7 +106,7 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(
 template <typename returnValue, typename... additionalArgs>
 void FuncTree<returnValue, additionalArgs...>::bindFunction(WrappedFunction const& func, std::string_view const& name, std::string_view const& helpDescription) {
     // If the name has a whitespace, the function has to be bound to a category hierarchically
-    if (name.find(' ') != std::string::npos) {
+    if (name.contains(' ')) {
         std::vector<std::string> const pathStructure = Utility::StringHandler::split(name, ' ');
         if (pathStructure.size() < 2) {
             BindErrorMessage::invalidFunctionName(capture, name);
@@ -128,7 +127,7 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(WrappedFunction cons
     }
 
     if (auto searchResult = find(std::string(name)); searchResult.has_value()) {
-        bool const shouldReturn = std::visit([&]<typename T>(T&& iterator) -> bool {
+        bool const shouldReturn = std::visit([&]<typename T>(T& iterator) -> bool {
             using Decayed = std::decay_t<T>;
 
             if constexpr (std::is_same_v<Decayed, categoryIterator>) {
@@ -222,7 +221,7 @@ void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
 template <typename returnValue, typename... additionalArgs>
 void FuncTree<returnValue, additionalArgs...>::bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription) {
     // Make sure there are no whitespaces in the variable name
-    if (name.find(' ') != std::string::npos) {
+    if (name.contains(' ')) {
         BindErrorMessage::variableHasWhitespace(capture, TreeName, name);
     }
 
@@ -248,7 +247,7 @@ namespace ShapeClassifier {
 
     constexpr bool breakBuild = false;
 
-    enum class FunctionShape {
+    enum class FunctionShape : uint8_t {
         Unknown,
 
         // Member shapes
@@ -400,7 +399,7 @@ namespace ShapeClassifier {
         }
     }
 
-} // anonymous namespace
+} // namespace ShapeClassifier
 
 template <typename returnValue, typename... additionalArgs>
 template <typename Func>
@@ -522,6 +521,7 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
     else if constexpr (shape == ShapeClassifier::FunctionShape::Member_Modern_NoAddArgs) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::NoAddArgs>,
+            // NOLINTNEXTLINE
             [objectPtr, memberFunctionPtr](typename CmdArgs::Span args) {
                 return std::invoke(memberFunctionPtr, objectPtr, args);
         });
@@ -529,6 +529,7 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
     else if constexpr (shape == ShapeClassifier::FunctionShape::Member_Modern_NoAddArgsConstRef) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::NoAddArgsConstRef>,
+            // NOLINTNEXTLINE
             [objectPtr, memberFunctionPtr](typename CmdArgs::SpanConstRef args) {
                 return std::invoke(memberFunctionPtr, objectPtr, args);
         });
@@ -536,6 +537,7 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
     else if constexpr (shape == ShapeClassifier::FunctionShape::Member_Modern_Full) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::Full>,
+            // NOLINTNEXTLINE
             [objectPtr, memberFunctionPtr](typename CmdArgs::Span args, additionalArgs... rest) {
                 return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<additionalArgs>(rest)...);
         });
@@ -543,6 +545,7 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
     else if constexpr (shape == ShapeClassifier::FunctionShape::Member_Modern_FullConstRef) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::FullConstRef>,
+            // NOLINTNEXTLINE
             [objectPtr, memberFunctionPtr](typename CmdArgs::SpanConstRef args, additionalArgs... rest) {
                 return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<additionalArgs>(rest)...);
         });
@@ -689,7 +692,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
     auto functionPosition = bindingContainer.functions.find(function);
     if (functionPosition != bindingContainer.functions.end()) {
         auto& [functionPtr, description] = functionPosition->second.function;
-        return std::visit([&]<typename Func>(Func&& func) {
+        return std::visit([&]<typename Func>(Func& func) {
             using T = std::decay_t<Func>;
 
             // Legacy function types
@@ -719,7 +722,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
                     [](std::string const& str) { return const_cast<char*>(str.c_str()); }
                 );
                 argv_vec.push_back(nullptr); // Null-terminate
-                char** argv = argv_vec.data();
+                char* const* argv = argv_vec.data();
 
                 // Convert char** to char const**
                 std::vector<char const*> argv_const(argc);
@@ -766,4 +769,4 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
 
 } // namespace Nebulite::Interaction::Execution
 #include "Interaction/Execution/FuncTreeArgumentCompletion.tpp"
-#endif // INTERACTION_EXECUTION_FUNC_TREE_TPP
+#endif // INTERACTION_EXECUTION_FUNCTREE_TPP
