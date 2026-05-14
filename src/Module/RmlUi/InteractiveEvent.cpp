@@ -41,43 +41,11 @@ void InteractiveEvent::processRmlUiEvent(SDL_Event const& event, int const keyMo
 }
 
 void InteractiveEvent::OnElementDestroy(Rml::Element* element){
-    if (!element) return;
-    if (Attribute::OnDestroy::hasSupportedAttribute(element)) {
-        if (std::string const tag = element->GetTagName(); tag == "rml" || tag == "head" || tag == "body") {
-            capture.warning.println("Unsupported InteractiveEvent invocation position at tag: ", tag, ". Tags rml, head and body are not supported!");
-            capture.warning.println("Please place the tag in a separate div inside the body tag.");
-            return;
-        }
-
-        DeletedElement toAdd;
-        if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(element)) {
-            toAdd.elementIdentifier = Graphics::RmlInterface::RmlElementIdentifier(element);
-        }
-        toAdd.owner = element->GetOwnerDocument();
-
-        // Add action
-
-        if (auto const* var = element->GetAttribute(Attribute::OnDestroy::ruleset.toString()); var) {
-            toAdd.actions.rulesetLink = var->Get<Rml::String>();
-        }
-        if (auto const* val = element->GetAttribute(Attribute::OnDestroy::parse.toString()); val) {
-            toAdd.actions.stringToParse = val->Get<Rml::String>();
-        }
-        if (auto const* val = element->GetAttribute(Attribute::OnDestroy::special.toString()); val) {
-            toAdd.actions.specialAction = parseSpecialAction(val->Get<Rml::String>());
-        }
-
-        interactiveEventsToApply.emplace_back(std::move(toAdd));
+    if (auto const toAdd = Attribute::OnDestroy::processEvent(capture, element); toAdd) {
+        // TODO: is storage still required?
+        interactiveEventsToApply.push_back(toAdd.value());
+        //toAdd.value().apply(capture, interface);
     }
-}
-
-std::optional<InteractiveEvent::SpecialAction> InteractiveEvent::parseSpecialAction(std::string_view const& str){
-    for (auto const& [name, action] : supported) {
-        if (str == name) {
-            return action;
-        }
-    }
-    return std::nullopt;
 }
 
 void InteractiveEvent::DeletedElement::apply(Utility::IO::Capture& capture, Graphics::RmlInterface& interface) const {
@@ -98,6 +66,38 @@ void InteractiveEvent::DeletedElement::apply(Utility::IO::Capture& capture, Grap
     Actions::applyRuleset(actions.rulesetLink, capture, ctxAndScope.value());
     Actions::parseString(actions.stringToParse, capture, ctxAndScope.value());
     Actions::applySpecialAction(actions.specialAction, interface, nullptr, owner);
+}
+
+std::optional<InteractiveEvent::DeletedElement> InteractiveEvent::Attribute::OnDestroy::processEvent(Utility::IO::Capture& capture, Rml::Element* element){
+    if (!element) return std::nullopt;
+    if (hasSupportedAttribute(element)) {
+        if (std::string const tag = element->GetTagName(); tag == "rml" || tag == "head" || tag == "body") {
+            capture.warning.println("Unsupported InteractiveEvent invocation position at tag: ", tag, ". Tags rml, head and body are not supported!");
+            capture.warning.println("Please place the tag in a separate div inside the body tag.");
+            return std::nullopt;
+        }
+
+        DeletedElement toAdd;
+        if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(element)) {
+            toAdd.elementIdentifier = Graphics::RmlInterface::RmlElementIdentifier(element);
+        }
+        toAdd.owner = element->GetOwnerDocument();
+
+        // Add action
+
+        if (auto const* var = element->GetAttribute(ruleset.toString()); var) {
+            toAdd.actions.rulesetLink = var->Get<Rml::String>();
+        }
+        if (auto const* val = element->GetAttribute(parse.toString()); val) {
+            toAdd.actions.stringToParse = val->Get<Rml::String>();
+        }
+        if (auto const* val = element->GetAttribute(special.toString()); val) {
+            toAdd.actions.specialAction = Interaction::SpecialAction::get(val->Get<Rml::String>());
+        }
+
+        return toAdd;
+    }
+    return std::nullopt;
 }
 
 void InteractiveEvent::Attribute::OnEnter::processEvent(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int /*keyModifiers*/, Rml::Element* focusElement){
@@ -131,7 +131,7 @@ void InteractiveEvent::Attribute::OnEnter::processEvent(Graphics::RmlInterface& 
         }
     }
     if (auto const* val = focusElement->GetAttribute(special.toString())) {
-        auto const action = parseSpecialAction(val->Get<Rml::String>());
+        auto const action = Interaction::SpecialAction::get(val->Get<Rml::String>());
         Actions::applySpecialAction(action, manager, focusElement, focusElement->GetOwnerDocument());
     }
 }
@@ -171,13 +171,13 @@ void InteractiveEvent::Actions::parseString(std::optional<std::string> const& st
     }
 }
 
-void InteractiveEvent::Actions::applySpecialAction(std::optional<SpecialAction> const& action, Graphics::RmlInterface& manager, Rml::Element* element, Rml::ElementDocument* document) {
+void InteractiveEvent::Actions::applySpecialAction(std::optional<Interaction::SpecialAction::Type> const& action, Graphics::RmlInterface& manager, Rml::Element* element, Rml::ElementDocument* document) {
     if (!action) return;
     switch (action.value()) {
-    case SpecialAction::blurElement:
+    case Interaction::SpecialAction::Type::blurElement:
         if (element) element->Blur();
         break;
-    case SpecialAction::deleteDocument:
+    case Interaction::SpecialAction::Type::deleteDocument:
         if (document) manager.removeDocument(document);
         break;
     default:

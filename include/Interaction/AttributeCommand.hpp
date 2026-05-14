@@ -37,10 +37,41 @@ struct FullCommand {
     }
 };
 
+struct SpecialAction {
+    enum class Type : uint8_t {
+        deleteDocument,
+        blurElement
+    };
+
+    static auto constexpr supported = {
+        std::make_pair("deleteDocument", Type::deleteDocument),
+        std::make_pair("blurElement", Type::blurElement)
+    };
+
+    static std::optional<Type> get(std::string_view const& str){
+        for (auto const& [name, action] : supported) {
+            if (str == name) {
+                return action;
+            }
+        }
+        return std::nullopt;
+    }
+};
+
 template<AttributeCommandTrigger trigger>
 struct AttributeCommand {
     static constexpr FullCommand addCommand(std::string_view const& specialization) {
         return {trigger, specialization};
+    }
+
+    static auto constexpr ruleset = addCommand("invoke-ruleset");
+    static auto constexpr parse = addCommand("parse");
+    static auto constexpr special = addCommand("special");
+
+    static bool hasSupportedAttribute(Rml::Element* element) {
+        return element->GetAttribute(ruleset.toString())
+            || element->GetAttribute(parse.toString())
+            || element->GetAttribute(special.toString());
     }
 };
 
