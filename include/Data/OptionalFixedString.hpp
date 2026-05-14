@@ -34,11 +34,14 @@ struct OptionalFixedString {
     }
 
     static constexpr size_t length() {
+        static_assert(N > 0, "No string given");
         return N-1;
     }
 
+    // Returns the last character of the string, or '\0' if the string is empty
     [[nodiscard]] constexpr char back() const {
-        if constexpr (N == 0 || N == 1) { // Nullopt or empty string
+        static_assert(N > 0, "No string given");
+        if constexpr (N == 1) { // Empty string, return NULL instead
             return '\0';
         } else {
             return value[N - 2];
@@ -46,8 +49,8 @@ struct OptionalFixedString {
     }
 
     [[nodiscard]] constexpr std::string_view view() const {
-        if constexpr (N > 0) return {value.data(), N - 1};
-        else return {};
+        static_assert(N > 0, "No string given");
+        return {value.data(), N - 1};
     }
 };
 
