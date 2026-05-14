@@ -26,6 +26,9 @@
 #include <string>
 #include <string_view>
 
+// Nebulite
+#include "Data/OptionalFixedString.hpp"
+
 //------------------------------------------
 // Forward declarations
 
@@ -39,33 +42,6 @@ class JsonScope;
 // Helper struct for compile-time optional fixed strings as template parameters
 
 namespace Nebulite::Data {
-
-template <std::size_t N>
-struct OptionalFixedString {
-    char value[N == 0 ? 1 : N]{};
-    //std::array<char, N == 0 ? 1 : N> value{}; // TODO: use this instead
-
-    // NOLINTNEXTLINE
-    consteval OptionalFixedString(const char (&str)[N == 0 ? 1 : N]) {
-        static_assert(N > 0, "Use the default constructor for empty strings");
-        for (std::size_t i = 0; i < N; ++i) value[i] = str[i];
-    }
-
-    consteval OptionalFixedString() {
-        static_assert(N == 0, "Default constructor can only be used for empty strings");
-    }
-
-    static constexpr bool has_scope = N > 0;
-    constexpr std::string_view view() {
-        if constexpr (N > 0) return {value, N - 1};
-        else return {};
-    }
-};
-
-template <std::size_t N>
-OptionalFixedString(const char (&)[N]) -> OptionalFixedString<N>;
-
-OptionalFixedString() -> OptionalFixedString<0>;
 
 //------------------------------------------
 // Self-owning scoped key
@@ -208,22 +184,17 @@ public:
      */
     template <OptionalFixedString RequiredScope, typename T>
     static consteval ScopedKeyView createFromOptionalFixedString(T const& keyInScope) noexcept {
-        if constexpr (!RequiredScope.has_scope) {
+        if constexpr (!RequiredScope.hasValue()) {
             // no scope provided
             return {std::nullopt, std::string_view(keyInScope)};
         } else {
             // compute length at compile time
-            constexpr const char *s = RequiredScope.value;
-            constexpr std::size_t len = [] (const char *p) constexpr {
-                std::size_t i = 0;
-                while (p[i] != '\0') ++i;
-                return i;
-            }(s);
+            constexpr std::size_t len = RequiredScope.length();
 
             // static assert to ensure scope is valid
-            static_assert(len == 0 || s[len - 1] == '.', "ScopedKey: The provided scope must be empty or end with a dot ('.')");
+            static_assert(len == 0 || RequiredScope.back() == '.', "ScopedKey: The provided scope must be empty or end with a dot ('.')");
 
-            return {std::optional(std::string_view(s, len)), std::string_view(keyInScope)};
+            return {std::optional(RequiredScope.view()), std::string_view(keyInScope)};
         }
     }
 

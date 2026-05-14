@@ -38,9 +38,9 @@
 // Nebulite: RmlUi-Modules
 #include "Module/RmlUi/ContextManager.hpp"
 #include "Module/RmlUi/DataReference.hpp"
+#include "Module/RmlUi/EventBridge.hpp"
 #include "Module/RmlUi/ExpressionManager.hpp"
 #include "Module/RmlUi/Reflection.hpp"
-#include "Module/RmlUi/Ruleset.hpp"
 
 //------------------------------------------
 // Due to lifetime issues, we need to keep track of the interface
@@ -134,7 +134,7 @@ void RmlInterface::init(Core::Renderer& renderer, int const& width, int const& h
     RegisterPlugin(documentManager.get());
 
     // Plugins
-    modules.emplace_back(std::make_unique<Module::RmlUi::Ruleset>(renderer.capture, *this));
+    modules.emplace_back(std::make_unique<Module::RmlUi::EventBridge>(renderer.capture, *this));
     modules.emplace_back(std::make_unique<Module::RmlUi::ContextManager>(renderer.capture, *this));
     modules.emplace_back(std::make_unique<Module::RmlUi::DataReference>(renderer.capture, *this));
     modules.emplace_back(std::make_unique<Module::RmlUi::Reflection>(renderer.capture, *this));
@@ -213,14 +213,13 @@ bool isTextSdlScancode(SDL_Scancode const& scancode) {
 
 } // namespace
 
-void RmlInterface::processRmlUiEvent(SDL_Event event) const {
+void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
     // Just forwarding all events to RmlSDL::InputEventHandler has a ton of issues...
     // Instead, we manually translate the events and cherrypick what to process with RmlSDL::InputEventHandler
-
     // Click-activating text input fields is still a nightmare ...
-
     if (!context) return;
 
+    // Get common data for event processing
     auto const modifiers = SdlModifierToRmlModifier(event.key.mod);
 
     // Core events
@@ -235,7 +234,7 @@ void RmlInterface::processRmlUiEvent(SDL_Event event) const {
         if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
             // We assume the mouse click unfocused the element.
             // If the click was at the elements position, ProcessMouseButtonDown will refocus the element.
-            if (auto* const el = context->GetFocusElement(); el) el->Blur();
+            if (context->GetFocusElement()) context->GetFocusElement()->Blur();
             context->ProcessMouseButtonDown(button, modifiers);
         }
         else {
@@ -269,13 +268,20 @@ void RmlInterface::processRmlUiEvent(SDL_Event event) const {
         break;
     case SDL_EVENT_MOUSE_MOTION:
     default:
-        RmlSDL::InputEventHandler(context, window, event);
+        auto eventCopy = event;
+        RmlSDL::InputEventHandler(context, window, eventCopy);
         break;
     }
 
     // Handle Ctrl + A/C/V/X for text input fields
     if (modifiers & Rml::Input::KM_CTRL && event.type == SDL_EVENT_KEY_DOWN && isTextInputFocused()) {
-        RmlSDL::InputEventHandler(context, window, event);
+        auto eventCopy = event;
+        RmlSDL::InputEventHandler(context, window, eventCopy);
+    }
+
+    // Pass event to all modules
+    for (auto const& module : modules) {
+        module->processRmlUiEvent(event, modifiers, context->GetFocusElement());
     }
 }
 

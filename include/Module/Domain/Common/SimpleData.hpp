@@ -35,11 +35,10 @@ public:
 
     [[nodiscard]] static Constants::Event set(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     static auto constexpr set_name = "set";
-    static auto constexpr set_desc = "Set a key to a value in the JSON document.\n"
+    static auto constexpr set_desc = "Set a key to a string value in the JSON document.\n"
         "\n"
-        "Usage: set <key> <value>\n"
-        "\n"
-        "Note: All values are stored as strings.\n";
+        "Usage: set <key> [value]\n"
+        "If no value is provided, the value will be set to an empty string.\n";
 
     [[nodiscard]] static Constants::Event assign(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     static auto constexpr assign_name = "assign";

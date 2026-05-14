@@ -63,7 +63,7 @@ public:
      * @brief Translates and processes an SDL_Event
      * @param event The event to process
      */
-    void processRmlUiEvent(SDL_Event event) const ;
+    void processRmlUiEvent(SDL_Event const& event) const ;
 
     /**
      * @brief Update the RmlInterface, including all open documents and registered modules.
