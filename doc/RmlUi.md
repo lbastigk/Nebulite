@@ -23,5 +23,5 @@ The context of the action is determined by the element first, then the document 
 ### Supported special commands
 
 Supported special commands are:
-- `blurElement`: Blurs the element, causing it to lose focus if it has it.
+- `blurElement`: Blurs the currently focused element. Note that this might not be the element that the command is attached to, but the currently focused element in the document.
 - `deleteDocument`: Deletes the document of the element
