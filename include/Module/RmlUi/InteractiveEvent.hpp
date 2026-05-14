@@ -1,17 +1,15 @@
-#ifndef MODULE_RMLUI_INTERACTIVE_EVENT_HPP
-#define MODULE_RMLUI_INTERACTIVE_EVENT_HPP
+#ifndef MODULE_RMLUI_INTERACTIVEEVENT_HPP
+#define MODULE_RMLUI_INTERACTIVEEVENT_HPP
 
 //------------------------------------------
 // Includes
 
 // Nebulite
+#include "Interaction/AttributeCommand.hpp"
 #include "Module/Base/RmlUiModule.hpp"
 #include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
-
-// TODO: rename to Action
-
 namespace Nebulite::Module::RmlUi {
 class InteractiveEvent final : public Base::RmlUiModule {
 public:
@@ -24,27 +22,27 @@ public:
     void OnElementDestroy(Rml::Element* element) override ;
 
     struct Attribute {
-        struct OnDestroy {
-            static auto constexpr ruleset = "on-destroy-invoke-ruleset";
-            static auto constexpr parse = "on-destroy-parse";
-            static auto constexpr special = "on-destroy-special";
+        struct OnDestroy : Interaction::AttributeCommand<Interaction::AttributeCommandTrigger::onDestroy> {
+            static auto constexpr ruleset = addCommand("invoke-ruleset");
+            static auto constexpr parse = addCommand("parse");
+            static auto constexpr special = addCommand("special");
 
             static bool hasSupportedAttribute(Rml::Element* element) {
-                return element->GetAttribute(ruleset)
-                    || element->GetAttribute(parse)
-                    || element->GetAttribute(special);
+                return element->GetAttribute(ruleset.toString())
+                    || element->GetAttribute(parse.toString())
+                    || element->GetAttribute(special.toString());
             }
         };
 
-        struct OnEnter {
-            static auto constexpr ruleset = "on-enter-invoke-ruleset";
-            static auto constexpr parse = "on-enter-parse";
-            static auto constexpr special = "on-enter-special";
+        struct OnEnter : Interaction::AttributeCommand<Interaction::AttributeCommandTrigger::onEnter> {
+            static auto constexpr ruleset = addCommand("invoke-ruleset");
+            static auto constexpr parse = addCommand("parse");
+            static auto constexpr special = addCommand("special");
 
             static bool hasSupportedAttribute(Rml::Element* element) {
-                return element->GetAttribute(ruleset)
-                    || element->GetAttribute(parse)
-                    || element->GetAttribute(special);
+                return element->GetAttribute(ruleset.toString())
+                    || element->GetAttribute(parse.toString())
+                    || element->GetAttribute(special.toString());
             }
 
             static void processEvent(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
@@ -96,4 +94,4 @@ private:
 };
 } // namespace Nebulite::Module::RmlUi
 
-#endif // MODULE_RMLUI_INTERACTIVE_EVENT_HPP
+#endif // MODULE_RMLUI_INTERACTIVEEVENT_HPP

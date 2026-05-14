@@ -8,6 +8,7 @@
 #include <utility>
 
 // External
+#include <RmlUi/Config/Config.h>
 #include <RmlUi/Core/Element.h>
 #include <RmlUi/Core/ElementDocument.h>
 #include <SDL3/SDL_events.h>
@@ -56,13 +57,13 @@ void InteractiveEvent::OnElementDestroy(Rml::Element* element){
 
         // Add action
 
-        if (auto const* var = element->GetAttribute(Attribute::OnDestroy::ruleset); var) {
+        if (auto const* var = element->GetAttribute(Attribute::OnDestroy::ruleset.toString()); var) {
             toAdd.actions.rulesetLink = var->Get<Rml::String>();
         }
-        if (auto const* val = element->GetAttribute(Attribute::OnDestroy::parse); val) {
+        if (auto const* val = element->GetAttribute(Attribute::OnDestroy::parse.toString()); val) {
             toAdd.actions.stringToParse = val->Get<Rml::String>();
         }
-        if (auto const* val = element->GetAttribute(Attribute::OnDestroy::special); val) {
+        if (auto const* val = element->GetAttribute(Attribute::OnDestroy::special.toString()); val) {
             toAdd.actions.specialAction = parseSpecialAction(val->Get<Rml::String>());
         }
 
@@ -113,7 +114,7 @@ void InteractiveEvent::Attribute::OnEnter::processEvent(Graphics::RmlInterface& 
         }
         return std::optional<Graphics::RmlInterface::ContextAndScope>{};
     }();
-    if (auto const* val = focusElement->GetAttribute(ruleset)) {
+    if (auto const* val = focusElement->GetAttribute(ruleset.toString())) {
         if (ctxAndScope) {
             Actions::applyRuleset(val->Get<Rml::String>(), capture, ctxAndScope.value());
         }
@@ -121,7 +122,7 @@ void InteractiveEvent::Attribute::OnEnter::processEvent(Graphics::RmlInterface& 
             capture.warning.println("Element context could not be determined! Cannot apply ruleset: ", val->Get<Rml::String>());
         }
     }
-    if (auto const* val = focusElement->GetAttribute(parse)) {
+    if (auto const* val = focusElement->GetAttribute(parse.toString())) {
         if (ctxAndScope) {
             Actions::parseString(val->Get<Rml::String>(), capture, ctxAndScope.value());
         }
@@ -129,7 +130,7 @@ void InteractiveEvent::Attribute::OnEnter::processEvent(Graphics::RmlInterface& 
             capture.warning.println("Element context could not be determined! Cannot parse string: ", val->Get<Rml::String>());
         }
     }
-    if (auto const* val = focusElement->GetAttribute(special)) {
+    if (auto const* val = focusElement->GetAttribute(special.toString())) {
         auto const action = parseSpecialAction(val->Get<Rml::String>());
         Actions::applySpecialAction(action, manager, focusElement, focusElement->GetOwnerDocument());
     }
@@ -148,6 +149,7 @@ void InteractiveEvent::Actions::applyRuleset(std::optional<std::string> const& r
 }
 
 void InteractiveEvent::Actions::parseString(std::optional<std::string> const& stringToParse, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
+    // TODO use a taskqueue instead? Some refactoring of taskQueue for accepting a long string with ';' is required
     if (stringToParse) {
         auto& [ctx, scope] = ctxAndScope;
         for (auto& task : Utility::StringHandler::split(stringToParse.value(), ';')) {
