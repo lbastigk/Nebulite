@@ -9,7 +9,7 @@
 #include "Module/Base/RmlUiModule.hpp"
 #include "Module/RmlUi/ContextManager.hpp"
 #include "Module/RmlUi/ExpressionManager.hpp"
-#include "Module/RmlUi/InteractiveEvent.hpp"
+#include "Module/RmlUi/EventBridge.hpp"
 #include "Module/RmlUi/Reflection.hpp"
 #include "Utility/IO/Capture.hpp"
 
@@ -26,7 +26,7 @@ void ContextManager::update() {
 
         // Check for supported attributes
         return ExpressionManager::Attribute::hasSupportedAttribute(element) // Any expression requires context
-            || InteractiveEvent::Attribute::hasSupportedAttribute(element)  // Any interactive event requires context
+            || EventBridge::Attribute::hasSupportedAttribute(element)  // Any interactive event requires context
             // ^ Add any new attributes here ^
         ;
     };

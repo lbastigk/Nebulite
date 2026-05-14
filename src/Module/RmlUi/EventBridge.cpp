@@ -3,6 +3,7 @@
 
 // Standard library
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -21,30 +22,30 @@
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Module/Base/RmlUiModule.hpp"
-#include "Module/RmlUi/InteractiveEvent.hpp"
+#include "Module/RmlUi/EventBridge.hpp"
 #include "Utility/IO/Capture.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-InteractiveEvent::InteractiveEvent(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
+EventBridge::EventBridge(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
 
-void InteractiveEvent::update() {}
+void EventBridge::update() {}
 
-void InteractiveEvent::processRmlUiEvent(SDL_Event const& event, int const keyModifiers, Rml::Element* focusElement){
+void EventBridge::processRmlUiEvent(SDL_Event const& event, int const keyModifiers, Rml::Element* focusElement){
     Attribute::OnEnter::processTrigger(interface, capture, event, keyModifiers, focusElement);
 }
 
-void InteractiveEvent::OnElementDestroy(Rml::Element* element){
+void EventBridge::OnElementDestroy(Rml::Element* element){
     Attribute::OnDestroy::processTrigger(interface, capture, element);
 }
 
-void InteractiveEvent::Attribute::OnDestroy::processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element){
+void EventBridge::Attribute::OnDestroy::processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element){
     if (!element) return;
     if (hasSupportedAttribute(element)) {
         if (std::string const tag = element->GetTagName(); tag == "rml" || tag == "head" || tag == "body") {
-            capture.warning.println("Unsupported InteractiveEvent invocation position at tag: ", tag, ". Tags rml, head and body are not supported!");
+            capture.warning.println("Unsupported EventBridge invocation position at tag: ", tag, ". Tags rml, head and body are not supported!");
             capture.warning.println("Please place the tag in a separate div inside the body tag.");
             return;
         }
@@ -55,8 +56,8 @@ void InteractiveEvent::Attribute::OnDestroy::processTrigger(Graphics::RmlInterfa
         }
         toAdd.owner = element->GetOwnerDocument();
 
-        // Add action
-
+        // Process
+        static_assert(AttributeCommand<"">::specializationCount == 3, "If you added a new Rml attribute command specialization, make sure to add it to the trigger processing!");
         if (auto const* var = element->GetAttribute(ruleset.toString()); var) {
             toAdd.actions.rulesetLink = var->Get<Rml::String>();
         }
@@ -66,12 +67,11 @@ void InteractiveEvent::Attribute::OnDestroy::processTrigger(Graphics::RmlInterfa
         if (auto const* val = element->GetAttribute(special.toString()); val) {
             toAdd.actions.specialAction = Interaction::SpecialAction::get(val->Get<Rml::String>());
         }
-
         toAdd.apply(manager, capture);
     }
 }
 
-void InteractiveEvent::Attribute::OnEnter::processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int /*keyModifiers*/, Rml::Element* focusElement){
+void EventBridge::Attribute::OnEnter::processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int /*keyModifiers*/, Rml::Element* focusElement){
     if (!focusElement) return;
     if (event.type != SDL_EVENT_KEY_DOWN) return;
     if (event.key.scancode != SDL_SCANCODE_RETURN && event.key.scancode != SDL_SCANCODE_KP_ENTER) return;
@@ -85,6 +85,8 @@ void InteractiveEvent::Attribute::OnEnter::processTrigger(Graphics::RmlInterface
         }
         return std::optional<Graphics::RmlInterface::ContextAndScope>{};
     }();
+    // Process
+    static_assert(AttributeCommand<"">::specializationCount == 3, "If you added a new Rml attribute command specialization, make sure to add it to the trigger processing!");
     if (auto const* val = focusElement->GetAttribute(ruleset.toString())) {
         if (ctxAndScope) {
             Actions::applyRuleset(val->Get<Rml::String>(), capture, ctxAndScope.value());
@@ -107,7 +109,7 @@ void InteractiveEvent::Attribute::OnEnter::processTrigger(Graphics::RmlInterface
     }
 }
 
-void InteractiveEvent::Actions::applyRuleset(std::optional<std::string> const& rulesetLink, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
+void EventBridge::Actions::applyRuleset(std::optional<std::string> const& rulesetLink, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
     if (rulesetLink) {
         auto& [ctx, scope] = ctxAndScope;
         if (auto const ruleset = Interaction::Rules::Construction::RulesetCompiler::parseSingle(rulesetLink.value(), ctx.self); ruleset) {
@@ -119,7 +121,7 @@ void InteractiveEvent::Actions::applyRuleset(std::optional<std::string> const& r
     }
 }
 
-void InteractiveEvent::Actions::parseString(std::optional<std::string> const& stringToParse, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
+void EventBridge::Actions::parseString(std::optional<std::string> const& stringToParse, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
     // TODO use a taskqueue instead? Some refactoring of taskQueue for accepting a long string with ';' is required
     if (stringToParse) {
         auto& [ctx, scope] = ctxAndScope;
@@ -142,7 +144,7 @@ void InteractiveEvent::Actions::parseString(std::optional<std::string> const& st
     }
 }
 
-void InteractiveEvent::Actions::applySpecialAction(std::optional<Interaction::SpecialAction::Type> const& action, Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element, Rml::ElementDocument* document) {
+void EventBridge::Actions::applySpecialAction(std::optional<Interaction::SpecialAction::Type> const& action, Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element, Rml::ElementDocument* document) {
     if (!action) return;
     switch (action.value()) {
     case Interaction::SpecialAction::Type::debugLog:
@@ -167,7 +169,7 @@ void InteractiveEvent::Actions::applySpecialAction(std::optional<Interaction::Sp
     }
 }
 
-void InteractiveEvent::DeletedElement::apply(Graphics::RmlInterface& manager, Utility::IO::Capture& capture) const {
+void EventBridge::DeletedElement::apply(Graphics::RmlInterface& manager, Utility::IO::Capture& capture) const {
     auto ctxAndScope = [&] -> std::optional<Graphics::RmlInterface::ContextAndScope> {
         if (elementIdentifier.has_value()) {
             return manager.getRmlElementContextAndScope(elementIdentifier.value());
@@ -178,7 +180,7 @@ void InteractiveEvent::DeletedElement::apply(Graphics::RmlInterface& manager, Ut
         return std::nullopt;
     }();
     if (!ctxAndScope) {
-        // For some reason, InteractiveEvents are executed twice if we delete a domain with an open document. This catches the second call.
+        // For some reason, EventBridges are executed twice if we delete a domain with an open document. This catches the second call.
         return;
     }
 

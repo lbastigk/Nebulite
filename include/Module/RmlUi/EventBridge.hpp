@@ -1,5 +1,5 @@
-#ifndef MODULE_RMLUI_INTERACTIVEEVENT_HPP
-#define MODULE_RMLUI_INTERACTIVEEVENT_HPP
+#ifndef MODULE_RMLUI_EVENTBRIDGE_HPP
+#define MODULE_RMLUI_EVENTBRIDGE_HPP
 
 //------------------------------------------
 // Includes
@@ -11,9 +11,9 @@
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
-class InteractiveEvent final : public Base::RmlUiModule {
+class EventBridge final : public Base::RmlUiModule {
 public:
-    explicit InteractiveEvent(Utility::IO::Capture& c, Graphics::RmlInterface& i);
+    explicit EventBridge(Utility::IO::Capture& c, Graphics::RmlInterface& i);
 
     void update() override ;
 
@@ -31,6 +31,18 @@ public:
             static void processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
         };
 
+        // TODO: New Triggers:
+        // - onHover
+        // - onHoverEnter
+        // - onHoverLeave
+        // - onClick
+        // - onDoubleClick
+        // - onPress
+        // - onRelease
+        // - onFocus
+        // - onFocusEnter
+        // - onFocusLeave
+
         static bool hasSupportedAttribute(Rml::Element* element) {
             return OnDestroy::hasSupportedAttribute(element)
                 || OnEnter::hasSupportedAttribute(element);
@@ -42,6 +54,8 @@ private:
      * @brief Available actions from Rml attribute commands
      */
     struct Actions {
+        static_assert(Interaction::AttributeCommand<"">::specializationCount == 3, "If you added a new Rml attribute command specialization, make sure to add it to the Actions struct as well!");
+
         std::optional<std::string> rulesetLink = std::nullopt;
         std::optional<std::string> stringToParse = std::nullopt;
         std::optional<Interaction::SpecialAction::Type> specialAction = std::nullopt;
@@ -68,4 +82,4 @@ private:
 };
 } // namespace Nebulite::Module::RmlUi
 
-#endif // MODULE_RMLUI_INTERACTIVEEVENT_HPP
+#endif // MODULE_RMLUI_EVENTBRIDGE_HPP

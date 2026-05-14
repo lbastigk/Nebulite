@@ -57,10 +57,12 @@ struct SpecialAction {
 
 template <Data::OptionalFixedString trigger>
 struct AttributeCommand {
-
     static constexpr FullCommand<trigger> addCommand(std::string_view const& specialization) {
         return {specialization};
     }
+
+    // Specializations
+    static auto constexpr specializationCount = 3;
 
     static auto constexpr ruleset = addCommand("invokeRuleset");
     static auto constexpr parse = addCommand("parse");
@@ -71,6 +73,8 @@ struct AttributeCommand {
             || element->GetAttribute(parse.toString())
             || element->GetAttribute(special.toString());
     }
+
+
 };
 
 } // namespace Nebulite::Interaction
