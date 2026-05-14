@@ -9,11 +9,9 @@
 #include <utility>
 
 // External
-#include <RmlUi/Config/Config.h>
 #include <RmlUi/Core/Element.h>
 #include <RmlUi/Core/ElementDocument.h>
 #include <SDL3/SDL_events.h>
-#include <SDL3/SDL_scancode.h>
 
 // Nebulite
 #include "Constants/Event.hpp"
@@ -39,74 +37,6 @@ void EventBridge::processRmlUiEvent(SDL_Event const& event, int const keyModifie
 
 void EventBridge::OnElementDestroy(Rml::Element* element){
     Attribute::OnDestroy::processTrigger(interface, capture, element);
-}
-
-void EventBridge::Attribute::OnDestroy::processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element){
-    if (!element) return;
-    if (hasSupportedAttribute(element)) {
-        if (std::string const tag = element->GetTagName(); tag == "rml" || tag == "head" || tag == "body") {
-            capture.warning.println("Unsupported EventBridge invocation position at tag: ", tag, ". Tags rml, head and body are not supported!");
-            capture.warning.println("Please place the tag in a separate div inside the body tag.");
-            return;
-        }
-
-        DeletedElement toAdd;
-        if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(element)) {
-            toAdd.elementIdentifier = Graphics::RmlInterface::RmlElementIdentifier(element);
-        }
-        toAdd.owner = element->GetOwnerDocument();
-
-        // Process
-        static_assert(AttributeCommand<"">::specializationCount == 3, "If you added a new Rml attribute command specialization, make sure to add it to the trigger processing!");
-        if (auto const* var = element->GetAttribute(ruleset.toString()); var) {
-            toAdd.actions.rulesetLink = var->Get<Rml::String>();
-        }
-        if (auto const* val = element->GetAttribute(parse.toString()); val) {
-            toAdd.actions.stringToParse = val->Get<Rml::String>();
-        }
-        if (auto const* val = element->GetAttribute(special.toString()); val) {
-            toAdd.actions.specialAction = Interaction::SpecialAction::get(val->Get<Rml::String>());
-        }
-        toAdd.apply(manager, capture);
-    }
-}
-
-void EventBridge::Attribute::OnEnter::processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int /*keyModifiers*/, Rml::Element* focusElement){
-    if (!focusElement) return;
-    if (event.type != SDL_EVENT_KEY_DOWN) return;
-    if (event.key.scancode != SDL_SCANCODE_RETURN && event.key.scancode != SDL_SCANCODE_KP_ENTER) return;
-
-    auto ctxAndScope = [&] {
-        if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(focusElement)) {
-            if (auto const val = manager.getRmlElementContextAndScope(Graphics::RmlInterface::RmlElementIdentifier(focusElement)); val) return val;
-        }
-        if (focusElement->GetOwnerDocument()) {
-            return manager.getRmlDocumentContextAndScope(focusElement->GetOwnerDocument());
-        }
-        return std::optional<Graphics::RmlInterface::ContextAndScope>{};
-    }();
-    // Process
-    static_assert(AttributeCommand<"">::specializationCount == 3, "If you added a new Rml attribute command specialization, make sure to add it to the trigger processing!");
-    if (auto const* val = focusElement->GetAttribute(ruleset.toString())) {
-        if (ctxAndScope) {
-            Actions::applyRuleset(val->Get<Rml::String>(), capture, ctxAndScope.value());
-        }
-        else {
-            capture.warning.println("Element context could not be determined! Cannot apply ruleset: ", val->Get<Rml::String>());
-        }
-    }
-    if (auto const* val = focusElement->GetAttribute(parse.toString())) {
-        if (ctxAndScope) {
-            Actions::parseString(val->Get<Rml::String>(), capture, ctxAndScope.value());
-        }
-        else {
-            capture.warning.println("Element context could not be determined! Cannot parse string: ", val->Get<Rml::String>());
-        }
-    }
-    if (auto const* val = focusElement->GetAttribute(special.toString())) {
-        auto const action = Interaction::SpecialAction::get(val->Get<Rml::String>());
-        Actions::applySpecialAction(action, manager, capture, focusElement, focusElement->GetOwnerDocument());
-    }
 }
 
 void EventBridge::Actions::applyRuleset(std::optional<std::string> const& rulesetLink, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
@@ -167,26 +97,6 @@ void EventBridge::Actions::applySpecialAction(std::optional<Interaction::Special
     default:
         std::unreachable();
     }
-}
-
-void EventBridge::DeletedElement::apply(Graphics::RmlInterface& manager, Utility::IO::Capture& capture) const {
-    auto ctxAndScope = [&] -> std::optional<Graphics::RmlInterface::ContextAndScope> {
-        if (elementIdentifier.has_value()) {
-            return manager.getRmlElementContextAndScope(elementIdentifier.value());
-        }
-        if (owner) {
-            return manager.getRmlDocumentContextAndScope(owner);
-        }
-        return std::nullopt;
-    }();
-    if (!ctxAndScope) {
-        // For some reason, EventBridges are executed twice if we delete a domain with an open document. This catches the second call.
-        return;
-    }
-
-    Actions::applyRuleset(actions.rulesetLink, capture, ctxAndScope.value());
-    Actions::parseString(actions.stringToParse, capture, ctxAndScope.value());
-    Actions::applySpecialAction(actions.specialAction, manager, capture, nullptr, owner);
 }
 
 } // namespace Nebulite::Module::RmlUi

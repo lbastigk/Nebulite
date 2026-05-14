@@ -68,9 +68,13 @@ private:
     };
 
     /**
-     * @brief A deleted element and its actions. Storing the entry for one cycle is required
+     * @brief Struct for storing all relevant information for a triggered Rml event, as well as the actions to perform.
+     * @details Templated to allow for any type of Trigger. The full Document Attribute to check is build from that type
      */
-    struct DeletedElement {
+    template<typename>
+    struct BridgeEntry {
+        explicit BridgeEntry(Rml::Element* element);
+
         std::optional<Graphics::RmlInterface::RmlElementIdentifier> elementIdentifier = std::nullopt;
 
         Rml::ElementDocument* owner = nullptr;
@@ -80,6 +84,48 @@ private:
         void apply(Graphics::RmlInterface& manager, Utility::IO::Capture& capture) const ;
     };
 };
-} // namespace Nebulite::Module::RmlUi
 
+template<typename TriggerType>
+EventBridge::BridgeEntry<TriggerType>::BridgeEntry(Rml::Element* element){
+    assert(element);
+    if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(element)) {
+        elementIdentifier = Graphics::RmlInterface::RmlElementIdentifier(element);
+    }
+    owner = element ? element->GetOwnerDocument() : nullptr;
+
+    // Process
+    static_assert(Interaction::AttributeCommand<"">::specializationCount == 3, "If you added a new Rml attribute command specialization, make sure to add it to the trigger processing!");
+    if (auto const* var = element->GetAttribute(TriggerType::ruleset.toString()); var) {
+        actions.rulesetLink = var->template Get<Rml::String>();
+    }
+    if (auto const* val = element->GetAttribute(TriggerType::parse.toString()); val) {
+        actions.stringToParse = val->template Get<Rml::String>();
+    }
+    if (auto const* val = element->GetAttribute(TriggerType::special.toString()); val) {
+        actions.specialAction = Interaction::SpecialAction::get(val->template Get<Rml::String>());
+    }
+}
+
+template<typename TriggerType>
+void EventBridge::BridgeEntry<TriggerType>::apply(Graphics::RmlInterface& manager, Utility::IO::Capture& capture) const {
+    auto ctxAndScope = [&] -> std::optional<Graphics::RmlInterface::ContextAndScope> {
+        if (elementIdentifier.has_value()) {
+            return manager.getRmlElementContextAndScope(elementIdentifier.value());
+        }
+        if (owner) {
+            return manager.getRmlDocumentContextAndScope(owner);
+        }
+        return std::nullopt;
+    }();
+    if (!ctxAndScope) {
+        // For some reason, Entries are executed twice if we delete a domain with an open document. This catches the second call.
+        return;
+    }
+
+    Actions::applyRuleset(actions.rulesetLink, capture, ctxAndScope.value());
+    Actions::parseString(actions.stringToParse, capture, ctxAndScope.value());
+    Actions::applySpecialAction(actions.specialAction, manager, capture, nullptr, owner);
+}
+
+} // namespace Nebulite::Module::RmlUi
 #endif // MODULE_RMLUI_EVENTBRIDGE_HPP

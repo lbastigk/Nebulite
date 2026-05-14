@@ -73,8 +73,6 @@ struct AttributeCommand {
             || element->GetAttribute(parse.toString())
             || element->GetAttribute(special.toString());
     }
-
-
 };
 
 } // namespace Nebulite::Interaction
