@@ -17,11 +17,10 @@ namespace Nebulite::Data {
  */
 template <std::size_t N>
 struct OptionalFixedString {
-    char value[N == 0 ? 1 : N]{};
-    //std::array<char, N == 0 ? 1 : N> value{}; // TODO: use this instead
+    std::array<char, N == 0 ? 1 : N> value{};
 
     // NOLINTNEXTLINE
-    consteval OptionalFixedString(const char (&str)[N == 0 ? 1 : N]) {
+    consteval OptionalFixedString(char const (&str)[N == 0 ? 1 : N]) {
         static_assert(N > 0, "Use the default constructor for empty strings");
         for (std::size_t i = 0; i < N; ++i) value[i] = str[i];
     }
@@ -47,13 +46,16 @@ struct OptionalFixedString {
     }
 
     [[nodiscard]] constexpr std::string_view view() const {
-        if constexpr (N > 0) return {value, N - 1};
+        if constexpr (N > 0) return {value.data(), N - 1};
         else return {};
     }
 };
 
+// CTAD from string_view is difficult ...
+// So we use char here
 template <std::size_t N>
-OptionalFixedString(const char (&)[N]) -> OptionalFixedString<N>;
+// NOLINTNEXTLINE
+OptionalFixedString(char const(&)[N]) -> OptionalFixedString<N>;
 
 template <std::size_t N>
 OptionalFixedString(std::array<char, N>) -> OptionalFixedString<N>;

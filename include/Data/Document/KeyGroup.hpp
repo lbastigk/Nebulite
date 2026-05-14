@@ -40,11 +40,7 @@ public:
 
     static constexpr auto getScope() {
         if constexpr (Prefix.hasValue()) {
-            return std::string_view(Prefix.value, [] (const char* p) constexpr {
-                std::size_t i = 0;
-                while (p[i] != '\0') ++i;
-                return i;
-            }(Prefix.value));
+            return Prefix.view();
         } else {
             return std::nullopt;
         }
