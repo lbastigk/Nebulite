@@ -30,6 +30,24 @@ Constants::Event Debug::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
+Constants::Event Debug::fetchId(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+    if (args.size() < 2) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
+    }
+    auto const key = Data::ScopedKey(args[1]);
+    ctxScope.self.set(key, ctx.self.getId());
+    return Constants::Event::Success;
+}
+
+Constants::Event Debug::fetchName(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+    if (args.size() < 2) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
+    }
+    auto const key = Data::ScopedKey(args[1]);
+    ctxScope.self.set(key, ctx.self.getName());
+    return Constants::Event::Success;
+}
+
 Constants::Event Debug::print(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(ctx.self.capture);

@@ -29,6 +29,20 @@ public:
     //------------------------------------------
     // Available Functions
 
+    // Fetch
+
+    [[nodiscard]] static Constants::Event fetchId(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
+    static auto constexpr fetchId_name = "fetch-id";
+    static auto constexpr fetchId_desc = "Fetches the unique ID of the domain and stores it in the context scope for later use.\n"
+        "Usage: fetch-id <key>\n";
+
+    [[nodiscard]] static Constants::Event fetchName(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
+    static auto constexpr fetchName_name = "fetch-name";
+    static auto constexpr fetchName_desc = "Fetches the name of the domain and stores it in the context scope for later use.\n"
+        "Usage: fetch-name <key>\n";
+
+    // Message
+
     [[nodiscard]] static Constants::Event print(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     static auto constexpr print_name = "print";
     static auto constexpr print_desc = "Prints the JSON document to the console for debugging purposes.\n"
@@ -70,6 +84,12 @@ public:
      */
     explicit Debug(ConstructorParams const& params) : DomainModule(params) {
         // Binding
+
+        // Fetch
+        bindFunction(&Debug::fetchId, fetchId_name, fetchId_desc);
+        bindFunction(&Debug::fetchName, fetchName_name, fetchName_desc);
+
+        // Message
         bindFunction(&Debug::print, print_name, print_desc);
         bindFunction(&Debug::printId, printId_name, printId_desc);
         bindFunction(&Debug::error, error_name, error_desc);
