@@ -39,7 +39,7 @@ public:
     }
 
     static constexpr auto getScope() {
-        if constexpr (Prefix.has_scope) {
+        if constexpr (Prefix.hasValue()) {
             return std::string_view(Prefix.value, [] (const char* p) constexpr {
                 std::size_t i = 0;
                 while (p[i] != '\0') ++i;
@@ -51,7 +51,7 @@ public:
     }
 
     static auto constexpr hasScope() {
-        return Prefix.has_scope;
+        return Prefix.hasValue();
     }
 };
 } // namespace Nebulite::Data
