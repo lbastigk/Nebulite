@@ -47,7 +47,7 @@ Supported special commands are:
     <!-- Any onDestroy is activated when the element is removed from the document -->
     <!-- Or, if the document itself is removed. -->
     <div onDestroy#invokeRuleset="::debug::message"></div>
-    <div onDestroy#parse="set UI_DELETED 1 ; assert $(eq({self:UI_DELETED},1))"></div>
+    <div onDestroy#parse="set nameSet 1 ; assert $(eq({self:nameSet},1))"></div>
 
     <!-- Text input with onEnter actions -->
     <p>
