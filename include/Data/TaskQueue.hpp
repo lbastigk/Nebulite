@@ -45,8 +45,8 @@ class TaskQueue {
 public:
     /**
      * @brief Constructs a TaskQueue with specified settings.
-     * @param clearAfterResolving If true, the task queue is cleared after resolving tasks.
      * @param callbackName The name used as arg[0] when parsing tasks from this queue.
+     * @param clearAfterResolving If true, the task queue is cleared after resolving tasks.
      */
     explicit TaskQueue(std::string const& callbackName, bool const& clearAfterResolving = true)
         : settings{.callbackName=callbackName, .clearAfterResolving=clearAfterResolving} {}
