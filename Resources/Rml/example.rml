@@ -15,6 +15,17 @@
         <div on-destroy-invoke-ruleset="Resources/Rulesets/Debug/helloWorld.jsonc"></div>
         <div on-destroy-parse="set UI_DELETED 1 ; assert $(eq({self:UI_DELETED},1))"></div>
 
+        <!-- ideas for events:
+
+            on-destroy-invoke-ruleset <link>
+            on-destroy-parse <string>
+            on-destroy-special <delete/blur/...>
+
+            on-enter-invoke-ruleset <link>
+            on-enter-parse <string>
+            on-enter-special <delete/blur/...>
+        -->
+
         <!-- Toggle between bold and vanilla every second -->
         <p>
             <b data-if="global:time.t|toInt|add 0|mod 2">Hello world!</b>
@@ -43,7 +54,12 @@
 
         <!-- Set input, if self:rml.settings.showInput is true -->
         <p data-if="self:rml.settings.showInput">
-            <input type="text" data-value="self:rml.input.animal"/>
+            <input
+                type="text"
+                data-value="self:rml.input.animal"
+                on-enter-parse="eval echo Animal is {self:rml.input.animal}! ; set rml.input.animal"
+                on-enter-special="deleteDocument"
+            />
         </p>
 
         <hr />

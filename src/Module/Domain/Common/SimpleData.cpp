@@ -34,12 +34,11 @@ Constants::Event SimpleData::updateHook() {
 
 Constants::Event SimpleData::set(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
-    if (args.size() < 3) {
+    if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
-
     auto const key = ctxScope.self.getRootScope().addMember(args[1]);
-    std::string const value = Utility::StringHandler::recombineArgs(args.subspan(2));
+    std::string const value = args.size() < 3 ? std::string("") : Utility::StringHandler::recombineArgs(args.subspan(2));
     ctxScope.self.set(key, value);
     return Constants::Event::Success;
 }

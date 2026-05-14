@@ -1,6 +1,10 @@
 //------------------------------------------
 // Includes
 
+// External
+#include <RmlUi/Core/Element.h>
+#include <SDL3/SDL_events.h>
+
 // Nebulite
 #include "Graphics/RmlInterface.hpp"
 #include "Module/Base/RmlUiModule.hpp"
@@ -17,5 +21,11 @@ RmlUiModule::RmlUiModule(Utility::IO::Capture& c, Graphics::RmlInterface& i) :
 void RmlUiModule::update() {}
 
 void RmlUiModule::postRenderUpdate() {}
+
+void RmlUiModule::processRmlUiEvent(SDL_Event const& event, int const keyModifiers, Rml::Element* focusElement) {
+    (void) event;
+    (void) keyModifiers;
+    (void) focusElement;
+}
 
 } // namespace Nebulite::Module::Base

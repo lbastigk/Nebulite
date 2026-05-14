@@ -22,8 +22,7 @@ void ContextManager::update() {
     auto anySupportedAttribute = [] (Rml::Element* element) {
         return element->GetAttribute(ExpressionManager::evalAttribute)
             || element->GetAttribute(ExpressionManager::conditionalAttribute)
-            || element->GetAttribute(Ruleset::rulesetAttributeOnDestroy)
-            || element->GetAttribute(Ruleset::parseOnDestroy);
+            || Ruleset::Attribute::OnDestroy::hasSupportedAttribute(element);
     };
 
     for (auto const& document : interface.getOpenedDocuments()) {
