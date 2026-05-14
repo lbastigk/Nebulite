@@ -36,8 +36,14 @@ public:
         reflectionResults.erase(document);
     }
 
-    static auto constexpr reflectionAttribute = "data-reflect";
-    static auto constexpr reflectionOnceAttribute = "data-reflect-once";
+    struct Attribute {
+        static auto constexpr reflect = "data-reflect"; // Continuous reflection and evaluation
+        static auto constexpr reflectOne = "data-reflect-once"; // Reflect and evaluate once
+
+        static bool hasSupportedAttribute(Rml::Element* element) {
+            return element->GetAttribute(reflect) || element->GetAttribute(reflectOne);
+        }
+    };
 
 private:
     /**

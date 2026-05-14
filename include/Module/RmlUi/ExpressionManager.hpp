@@ -5,7 +5,6 @@
 // Includes
 
 // External
-#include <RmlUi/Core.h>
 #include <absl/container/flat_hash_map.h>
 #include <absl/container/node_hash_map.h>
 
@@ -26,8 +25,14 @@ public:
 
     void postRenderUpdate() override;
 
-    static auto constexpr evalAttribute = "data-eval";
-    static auto constexpr conditionalAttribute = "data-if";
+    struct Attribute {
+        static auto constexpr eval = "data-eval";
+        static auto constexpr conditional = "data-if";
+
+        static bool hasSupportedAttribute(Rml::Element* element) {
+            return element->GetAttribute(eval) || element->GetAttribute(conditional);
+        }
+    };
 
 private:
     bool expressionsWereEvaluated = false;

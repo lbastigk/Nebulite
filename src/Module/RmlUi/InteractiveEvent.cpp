@@ -19,31 +19,31 @@
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Module/Base/RmlUiModule.hpp"
-#include "Module/RmlUi/Ruleset.hpp"
+#include "Module/RmlUi/InteractiveEvent.hpp"
 #include "Utility/IO/Capture.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
 
-Ruleset::Ruleset(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
+InteractiveEvent::InteractiveEvent(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
 
-void Ruleset::update() {
-    for (auto& toApply : rulesetsToApply) {
+void InteractiveEvent::update() {
+    for (auto& toApply : interactiveEventsToApply) {
         toApply.apply(capture, interface);
     }
-    rulesetsToApply.clear();
+    interactiveEventsToApply.clear();
 }
 
-void Ruleset::processRmlUiEvent(SDL_Event const& event, int const keyModifiers, Rml::Element* focusElement){
+void InteractiveEvent::processRmlUiEvent(SDL_Event const& event, int const keyModifiers, Rml::Element* focusElement){
     Attribute::OnEnter::processEvent(interface, capture, event, keyModifiers, focusElement);
 }
 
-void Ruleset::OnElementDestroy(Rml::Element* element){
+void InteractiveEvent::OnElementDestroy(Rml::Element* element){
     if (!element) return;
     if (Attribute::OnDestroy::hasSupportedAttribute(element)) {
         if (std::string const tag = element->GetTagName(); tag == "rml" || tag == "head" || tag == "body") {
-            capture.warning.println("Unsupported ruleset invocation position at tag: ", tag, ". Tags rml, head and body are not supported!");
+            capture.warning.println("Unsupported InteractiveEvent invocation position at tag: ", tag, ". Tags rml, head and body are not supported!");
             capture.warning.println("Please place the tag in a separate div inside the body tag.");
             return;
         }
@@ -66,11 +66,11 @@ void Ruleset::OnElementDestroy(Rml::Element* element){
             toAdd.actions.specialAction = parseSpecialAction(val->Get<Rml::String>());
         }
 
-        rulesetsToApply.emplace_back(std::move(toAdd));
+        interactiveEventsToApply.emplace_back(std::move(toAdd));
     }
 }
 
-std::optional<Ruleset::SpecialAction> Ruleset::parseSpecialAction(std::string_view const& str){
+std::optional<InteractiveEvent::SpecialAction> InteractiveEvent::parseSpecialAction(std::string_view const& str){
     for (auto const& [name, action] : supported) {
         if (str == name) {
             return action;
@@ -79,7 +79,7 @@ std::optional<Ruleset::SpecialAction> Ruleset::parseSpecialAction(std::string_vi
     return std::nullopt;
 }
 
-void Ruleset::DeletedElement::apply(Utility::IO::Capture& capture, Graphics::RmlInterface& interface) const {
+void InteractiveEvent::DeletedElement::apply(Utility::IO::Capture& capture, Graphics::RmlInterface& interface) const {
     auto ctxAndScope = [&] -> std::optional<Graphics::RmlInterface::ContextAndScope> {
         if (elementIdentifier.has_value()) {
             return interface.getRmlElementContextAndScope(elementIdentifier.value());
@@ -90,23 +90,16 @@ void Ruleset::DeletedElement::apply(Utility::IO::Capture& capture, Graphics::Rml
         return std::nullopt;
     }();
     if (!ctxAndScope) {
-        // For some reason, rulesets are executed twice if we delete a domain with an open document. This catches the second call.
-        //if (rulesetLink) capture.warning.println("Owner context was deleted, cannot apply ruleset: ", rulesetLink.value());
-        //if (stringToParse) capture.warning.println("Owner context was deleted, cannot parse string: ", stringToParse.value());
+        // For some reason, InteractiveEvents are executed twice if we delete a domain with an open document. This catches the second call.
         return;
     }
 
-    // 1.) rulesetAttributeOnDestroy
     Actions::applyRuleset(actions.rulesetLink, capture, ctxAndScope.value());
-
-    // 2.) parseOnDestroy
     Actions::parseString(actions.stringToParse, capture, ctxAndScope.value());
-
-    // 3.) Special action
     Actions::applySpecialAction(actions.specialAction, interface, nullptr, owner);
 }
 
-void Ruleset::Attribute::OnEnter::processEvent(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int /*keyModifiers*/, Rml::Element* focusElement){
+void InteractiveEvent::Attribute::OnEnter::processEvent(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int /*keyModifiers*/, Rml::Element* focusElement){
     if (!focusElement) return;
     if (event.type != SDL_EVENT_KEY_DOWN) return;
     if (event.key.scancode != SDL_SCANCODE_RETURN && event.key.scancode != SDL_SCANCODE_KP_ENTER) return;
@@ -142,7 +135,7 @@ void Ruleset::Attribute::OnEnter::processEvent(Graphics::RmlInterface& manager, 
     }
 }
 
-void Ruleset::Actions::applyRuleset(std::optional<std::string> const& rulesetLink, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
+void InteractiveEvent::Actions::applyRuleset(std::optional<std::string> const& rulesetLink, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
     if (rulesetLink) {
         auto& [ctx, scope] = ctxAndScope;
         if (auto const ruleset = Interaction::Rules::Construction::RulesetCompiler::parseSingle(rulesetLink.value(), ctx.self); ruleset) {
@@ -154,7 +147,7 @@ void Ruleset::Actions::applyRuleset(std::optional<std::string> const& rulesetLin
     }
 }
 
-void Ruleset::Actions::parseString(std::optional<std::string> const& stringToParse, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
+void InteractiveEvent::Actions::parseString(std::optional<std::string> const& stringToParse, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope) {
     if (stringToParse) {
         auto& [ctx, scope] = ctxAndScope;
         for (auto& task : Utility::StringHandler::split(stringToParse.value(), ';')) {
@@ -176,7 +169,7 @@ void Ruleset::Actions::parseString(std::optional<std::string> const& stringToPar
     }
 }
 
-void Ruleset::Actions::applySpecialAction(std::optional<SpecialAction> const& action, Graphics::RmlInterface& manager, Rml::Element* element, Rml::ElementDocument* document) {
+void InteractiveEvent::Actions::applySpecialAction(std::optional<SpecialAction> const& action, Graphics::RmlInterface& manager, Rml::Element* element, Rml::ElementDocument* document) {
     if (!action) return;
     switch (action.value()) {
     case SpecialAction::blurElement:

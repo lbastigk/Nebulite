@@ -1,5 +1,5 @@
-#ifndef MODULE_RMLUI_RULESET_HPP
-#define MODULE_RMLUI_RULESET_HPP
+#ifndef MODULE_RMLUI_INTERACTIVE_EVENT_HPP
+#define MODULE_RMLUI_INTERACTIVE_EVENT_HPP
 
 //------------------------------------------
 // Includes
@@ -13,9 +13,9 @@
 // TODO: rename to Action
 
 namespace Nebulite::Module::RmlUi {
-class Ruleset final : public Base::RmlUiModule {
+class InteractiveEvent final : public Base::RmlUiModule {
 public:
-    explicit Ruleset(Utility::IO::Capture& c, Graphics::RmlInterface& i);
+    explicit InteractiveEvent(Utility::IO::Capture& c, Graphics::RmlInterface& i);
 
     void update() override ;
 
@@ -92,8 +92,8 @@ private:
         void apply(Utility::IO::Capture& capture, Graphics::RmlInterface& interface) const ;
     };
 
-    std::vector<DeletedElement> rulesetsToApply;
+    std::vector<DeletedElement> interactiveEventsToApply;
 };
 } // namespace Nebulite::Module::RmlUi
 
-#endif // MODULE_RMLUI_RULESET_HPP
+#endif // MODULE_RMLUI_INTERACTIVE_EVENT_HPP

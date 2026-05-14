@@ -39,8 +39,8 @@
 #include "Module/RmlUi/ContextManager.hpp"
 #include "Module/RmlUi/DataReference.hpp"
 #include "Module/RmlUi/ExpressionManager.hpp"
+#include "Module/RmlUi/InteractiveEvent.hpp"
 #include "Module/RmlUi/Reflection.hpp"
-#include "Module/RmlUi/Ruleset.hpp"
 
 //------------------------------------------
 // Due to lifetime issues, we need to keep track of the interface
@@ -134,7 +134,7 @@ void RmlInterface::init(Core::Renderer& renderer, int const& width, int const& h
     RegisterPlugin(documentManager.get());
 
     // Plugins
-    modules.emplace_back(std::make_unique<Module::RmlUi::Ruleset>(renderer.capture, *this));
+    modules.emplace_back(std::make_unique<Module::RmlUi::InteractiveEvent>(renderer.capture, *this));
     modules.emplace_back(std::make_unique<Module::RmlUi::ContextManager>(renderer.capture, *this));
     modules.emplace_back(std::make_unique<Module::RmlUi::DataReference>(renderer.capture, *this));
     modules.emplace_back(std::make_unique<Module::RmlUi::Reflection>(renderer.capture, *this));

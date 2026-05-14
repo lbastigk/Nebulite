@@ -66,17 +66,7 @@
             "exit"
         ],
         "expected": {
-            "cout": [
-                "",
-                "Help for function 'set':",
-                "",
-                "Set a key to a value in the JSON document.",
-                "",
-                "Usage: set <key> <value>",
-                "",
-                "Note: All values are stored as strings.",
-                ""
-            ],
+            "cout": ["", "Help for function 'set':", "", "Set a key to a string value in the JSON document.", "", "Usage: set <key> [value]", "If no value is provided, the value will be set to an empty string.", ""],
             "cerr": []
         }
     },

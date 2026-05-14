@@ -60,8 +60,8 @@ void Reflection::OnElementCreate(Rml::Element* element) {
         }
     };
 
-    addToList(reflectionAttribute, toAdd.reflections);
-    addToList(reflectionOnceAttribute, toAdd.reflectOnce);
+    addToList(Attribute::reflect, toAdd.reflections);
+    addToList(Attribute::reflectOne, toAdd.reflectOnce);
 }
 
 void Reflection::OnElementDestroy(Rml::Element* element) {
