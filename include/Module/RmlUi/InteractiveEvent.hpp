@@ -22,12 +22,12 @@ public:
     void OnElementDestroy(Rml::Element* element) override ;
 
     struct Attribute {
-        struct OnDestroy : Interaction::AttributeCommand<Interaction::AttributeCommandTrigger::onDestroy> {
+        struct OnDestroy : Interaction::AttributeCommand<"on-destroy"> {
             // Processing trigger during element deletion used to be buggy. If we ever notice an issue, store the DeletedElement and apply on next cycle
             static void processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element);
         };
 
-        struct OnEnter : Interaction::AttributeCommand<Interaction::AttributeCommandTrigger::onEnter> {
+        struct OnEnter : Interaction::AttributeCommand<"on-enter"> {
             static void processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
         };
 

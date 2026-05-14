@@ -8,32 +8,21 @@
 #include <string>
 #include <utility>
 
+// Nebulite
+#include "Data/OptionalFixedString.hpp"
+
 //------------------------------------------
 namespace Nebulite::Interaction {
 
-enum class AttributeCommandTrigger : uint8_t{
-    onDestroy, onEnter
-};
-
+template <Data::OptionalFixedString trigger>
 struct FullCommand {
     // NOLINTNEXTLINE
-    constexpr FullCommand(AttributeCommandTrigger trigger, std::string_view specialization) : command(trigger, specialization) {}
+    constexpr FullCommand(std::string_view special) : specialization(special) {}
 
-    std::pair<AttributeCommandTrigger, std::string_view> command;
+    std::string_view specialization;
 
     [[nodiscard]] std::string toString() const {
-        auto stringify = [](AttributeCommandTrigger const& tr) -> std::string {
-            switch (tr) {
-            case AttributeCommandTrigger::onDestroy:
-                return "on-destroy";
-            case AttributeCommandTrigger::onEnter:
-                return "on-enter";
-            default:
-                std::unreachable();
-            }
-        };
-        auto const& [tr, specialization] = command;
-        return stringify(tr) + "-" + std::string(specialization);
+        return std::string(trigger.view()) + "-" + std::string(specialization);
     }
 };
 
@@ -58,10 +47,11 @@ struct SpecialAction {
     }
 };
 
-template<AttributeCommandTrigger trigger>
+template <Data::OptionalFixedString trigger>
 struct AttributeCommand {
-    static constexpr FullCommand addCommand(std::string_view const& specialization) {
-        return {trigger, specialization};
+
+    static constexpr FullCommand<trigger> addCommand(std::string_view const& specialization) {
+        return {specialization};
     }
 
     static auto constexpr ruleset = addCommand("invoke-ruleset");
