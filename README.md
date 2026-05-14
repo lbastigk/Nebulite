@@ -394,10 +394,10 @@ Examples:
     <h1>RmlUi</h1>
 
     <!-- Set actions to do on destruction -->
-    <!-- Any on-destroy is activated when the element is removed from the document -->
+    <!-- Any onDestroy is activated when the element is removed from the document -->
     <!-- Or, if the document itself is removed. -->
-    <div on-destroy-invoke-ruleset="Resources/Rulesets/Debug/helloWorld.jsonc"></div>
-    <div on-destroy-parse="set UI_DELETED 1 ; assert $(eq({self:UI_DELETED},1))"></div>
+    <div onDestroy#invokeRuleset="Resources/Rulesets/Debug/helloWorld.jsonc"></div>
+    <div onDestroy#parse="set UI_DELETED 1 ; assert $(eq({self:UI_DELETED},1))"></div>
 
     <!-- Toggle between bold and vanilla every second -->
     <p>
@@ -430,8 +430,8 @@ Examples:
         <input
                 type="text"
                 data-value="self:rml.input.animal"
-                on-enter-parse="eval echo Animal is {self:rml.input.animal}! ; set rml.input.animal"
-                on-enter-special="deleteDocument"
+                onEnter#parse="eval echo Animal is {self:rml.input.animal}! ; set rml.input.animal"
+                onEnter#special="deleteDocument"
         />
     </p>
 

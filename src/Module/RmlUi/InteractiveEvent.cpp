@@ -103,7 +103,7 @@ void InteractiveEvent::Attribute::OnEnter::processTrigger(Graphics::RmlInterface
     }
     if (auto const* val = focusElement->GetAttribute(special.toString())) {
         auto const action = Interaction::SpecialAction::get(val->Get<Rml::String>());
-        Actions::applySpecialAction(action, manager, focusElement, focusElement->GetOwnerDocument());
+        Actions::applySpecialAction(action, manager, capture, focusElement, focusElement->GetOwnerDocument());
     }
 }
 
@@ -142,9 +142,20 @@ void InteractiveEvent::Actions::parseString(std::optional<std::string> const& st
     }
 }
 
-void InteractiveEvent::Actions::applySpecialAction(std::optional<Interaction::SpecialAction::Type> const& action, Graphics::RmlInterface& manager, Rml::Element* element, Rml::ElementDocument* document) {
+void InteractiveEvent::Actions::applySpecialAction(std::optional<Interaction::SpecialAction::Type> const& action, Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element, Rml::ElementDocument* document) {
     if (!action) return;
     switch (action.value()) {
+    case Interaction::SpecialAction::Type::debugLog:
+        capture.warning.println("Rml attribute command debug action triggered: Logging");
+        break;
+    case Interaction::SpecialAction::Type::debugWarning:
+        capture.warning.println("Rml attribute command debug action triggered: Warning");
+        break;
+    case Interaction::SpecialAction::Type::debugError:
+        capture.warning.println("Rml attribute command debug action triggered: Error");
+        break;
+    case Interaction::SpecialAction::Type::crash:
+        throw std::logic_error("Rml attribute command debug action triggered: Crash");
     case Interaction::SpecialAction::Type::blurElement:
         if (element) element->Blur();
         break;
@@ -173,7 +184,7 @@ void InteractiveEvent::DeletedElement::apply(Graphics::RmlInterface& manager, Ut
 
     Actions::applyRuleset(actions.rulesetLink, capture, ctxAndScope.value());
     Actions::parseString(actions.stringToParse, capture, ctxAndScope.value());
-    Actions::applySpecialAction(actions.specialAction, manager, nullptr, owner);
+    Actions::applySpecialAction(actions.specialAction, manager, capture, nullptr, owner);
 }
 
 } // namespace Nebulite::Module::RmlUi

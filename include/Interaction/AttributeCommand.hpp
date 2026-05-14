@@ -22,19 +22,27 @@ struct FullCommand {
     std::string_view specialization;
 
     [[nodiscard]] std::string toString() const {
-        return std::string(trigger.view()) + "-" + std::string(specialization);
+        return std::string(trigger.view()) + "#" + std::string(specialization);
     }
 };
 
 struct SpecialAction {
     enum class Type : uint8_t {
-        deleteDocument,
-        blurElement
+        blurElement,
+        crash,
+        debugError,
+        debugLog,
+        debugWarning,
+        deleteDocument
     };
 
     static auto constexpr supported = {
-        std::make_pair("deleteDocument", Type::deleteDocument),
-        std::make_pair("blurElement", Type::blurElement)
+        std::make_pair("blurElement", Type::blurElement),
+        std::make_pair("crash", Type::crash),
+        std::make_pair("debugError", Type::debugError),
+        std::make_pair("debugLog", Type::debugLog),
+        std::make_pair("debugWarning", Type::debugWarning),
+        std::make_pair("deleteDocument", Type::deleteDocument)
     };
 
     static std::optional<Type> get(std::string_view const& str){
@@ -54,7 +62,7 @@ struct AttributeCommand {
         return {specialization};
     }
 
-    static auto constexpr ruleset = addCommand("invoke-ruleset");
+    static auto constexpr ruleset = addCommand("invokeRuleset");
     static auto constexpr parse = addCommand("parse");
     static auto constexpr special = addCommand("special");
 
