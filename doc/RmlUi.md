@@ -17,7 +17,7 @@ The context of the action is determined by the element first, then the document 
 ### Specializations
 
 - `invokeRuleset` Expects a ruleset name or link as a parameter, which will be invoked
-- `parse` The given parameter will be parsed into the `self` domain
+- `parse` The given parameter will be parsed into the `self` domain. Supports multiple lines of code, separated by `;`.
 - `special` Expects a special command as a parameter, which will be executed
 
 ### Supported special commands
@@ -29,3 +29,35 @@ Supported special commands are:
 - `debugLog`: Logs a message to the console. This can be used to test logging in your UI.
 - `debugWarn`: Logs a warning message to the console. This can be used to test warning handling in your UI.
 - `deleteDocument`: Deletes the document of the element
+
+### Examples
+
+```html
+<rml>
+    <head>
+        <title>Rml attribute commands example</title>
+        <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
+        <link type="text/rcss" href="./Resources/Rml/window.rcss"/>
+        <link type="text/rcss" href="./Resources/Rml/text.rcss"/>
+    </head>
+    <body data-model="nebuliteDataSync" style="width: 800px; left:0%; width : 250px ; height: 100px">
+    <h2>Please enter your name</h2>
+
+    <!-- Set actions to do on destruction -->
+    <!-- Any onDestroy is activated when the element is removed from the document -->
+    <!-- Or, if the document itself is removed. -->
+    <div onDestroy#invokeRuleset="::debug::message"></div>
+    <div onDestroy#parse="set UI_DELETED 1 ; assert $(eq({self:UI_DELETED},1))"></div>
+
+    <!-- Text input with onEnter actions -->
+    <p>
+        <input
+                type="text"
+                data-value="self:name"
+                onEnter#parse="assign self:name = {self:name|capitalize} ; eval echo Hello {self:name}!"
+                onEnter#special="deleteDocument"
+        />
+    </p>
+    </body>
+</rml>
+```

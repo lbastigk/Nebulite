@@ -16,6 +16,7 @@
 namespace Nebulite::Module::Transformation {
 
 void String::bindTransformations() {
+    bindTransformation(&capitalize, capitalizeName, capitalizeDesc);
     bindTransformation(&toUpper, toUpperName, toUpperDesc);
     bindTransformation(&toLower, toLowerName, toLowerDesc);
     bindTransformation(&lPad, lPadName, lPadDesc);
@@ -36,6 +37,20 @@ void String::bindTransformations() {
     bindTransformation(&strcompareContains, strcompareContainsName, strcompareContainsDesc);
     bindTransformation(&strcompareStartsWith, strcompareStartsWithName, strcompareStartsWithDesc);
     bindTransformation(&strcompareEndsWith, strcompareEndsWithName, strcompareEndsWithDesc);
+
+
+}
+
+bool String::capitalize(Data::JsonScope* jsonDoc){
+    auto str = jsonDoc->get<std::string>(rootKey).value_or("");
+    if (!str.empty()) {
+        str[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(str[0])));
+        for (size_t i = 1; i < str.size(); ++i) {
+            str[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(str[i])));
+        }
+    }
+    jsonDoc->set(rootKey, str);
+    return true;
 }
 
 // NOLINTNEXTLINE

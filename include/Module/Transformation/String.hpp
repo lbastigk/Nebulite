@@ -28,6 +28,12 @@ public:
     //------------------------------------------
     // Available Transformations
 
+    static bool capitalize(Data::JsonScope* jsonDoc);
+    static auto constexpr capitalizeName = "capitalize";
+    static auto constexpr capitalizeDesc = "Capitalizes the current JSON string.\n"
+        "Usage: |capitalize {string} -> {string}\n"
+        "Only capitalizes the first character!\n";
+
     static bool toUpper(Data::JsonScope* jsonDoc);
     static auto constexpr toUpperName = "toUpper";
     static auto constexpr toUpperDesc = "Converts the current JSON string value to uppercase.\n"
