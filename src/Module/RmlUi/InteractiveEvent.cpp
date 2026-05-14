@@ -17,6 +17,7 @@
 // Nebulite
 #include "Constants/Event.hpp"
 #include "Graphics/RmlInterface.hpp"
+#include "Interaction/AttributeCommand.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Module/Base/RmlUiModule.hpp"
@@ -29,52 +30,23 @@ namespace Nebulite::Module::RmlUi {
 
 InteractiveEvent::InteractiveEvent(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
 
-void InteractiveEvent::update() {
-    for (auto& toApply : interactiveEventsToApply) {
-        toApply.apply(capture, interface);
-    }
-    interactiveEventsToApply.clear();
-}
+void InteractiveEvent::update() {}
 
 void InteractiveEvent::processRmlUiEvent(SDL_Event const& event, int const keyModifiers, Rml::Element* focusElement){
-    Attribute::OnEnter::processEvent(interface, capture, event, keyModifiers, focusElement);
+    Attribute::OnEnter::processTrigger(interface, capture, event, keyModifiers, focusElement);
 }
 
 void InteractiveEvent::OnElementDestroy(Rml::Element* element){
-    if (auto const toAdd = Attribute::OnDestroy::processEvent(capture, element); toAdd) {
-        // TODO: is storage still required?
-        interactiveEventsToApply.push_back(toAdd.value());
-        //toAdd.value().apply(capture, interface);
-    }
+    Attribute::OnDestroy::processTrigger(interface, capture, element);
 }
 
-void InteractiveEvent::DeletedElement::apply(Utility::IO::Capture& capture, Graphics::RmlInterface& interface) const {
-    auto ctxAndScope = [&] -> std::optional<Graphics::RmlInterface::ContextAndScope> {
-        if (elementIdentifier.has_value()) {
-            return interface.getRmlElementContextAndScope(elementIdentifier.value());
-        }
-        if (owner) {
-            return interface.getRmlDocumentContextAndScope(owner);
-        }
-        return std::nullopt;
-    }();
-    if (!ctxAndScope) {
-        // For some reason, InteractiveEvents are executed twice if we delete a domain with an open document. This catches the second call.
-        return;
-    }
-
-    Actions::applyRuleset(actions.rulesetLink, capture, ctxAndScope.value());
-    Actions::parseString(actions.stringToParse, capture, ctxAndScope.value());
-    Actions::applySpecialAction(actions.specialAction, interface, nullptr, owner);
-}
-
-std::optional<InteractiveEvent::DeletedElement> InteractiveEvent::Attribute::OnDestroy::processEvent(Utility::IO::Capture& capture, Rml::Element* element){
-    if (!element) return std::nullopt;
+void InteractiveEvent::Attribute::OnDestroy::processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element){
+    if (!element) return;
     if (hasSupportedAttribute(element)) {
         if (std::string const tag = element->GetTagName(); tag == "rml" || tag == "head" || tag == "body") {
             capture.warning.println("Unsupported InteractiveEvent invocation position at tag: ", tag, ". Tags rml, head and body are not supported!");
             capture.warning.println("Please place the tag in a separate div inside the body tag.");
-            return std::nullopt;
+            return;
         }
 
         DeletedElement toAdd;
@@ -95,12 +67,11 @@ std::optional<InteractiveEvent::DeletedElement> InteractiveEvent::Attribute::OnD
             toAdd.actions.specialAction = Interaction::SpecialAction::get(val->Get<Rml::String>());
         }
 
-        return toAdd;
+        toAdd.apply(manager, capture);
     }
-    return std::nullopt;
 }
 
-void InteractiveEvent::Attribute::OnEnter::processEvent(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int /*keyModifiers*/, Rml::Element* focusElement){
+void InteractiveEvent::Attribute::OnEnter::processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int /*keyModifiers*/, Rml::Element* focusElement){
     if (!focusElement) return;
     if (event.type != SDL_EVENT_KEY_DOWN) return;
     if (event.key.scancode != SDL_SCANCODE_RETURN && event.key.scancode != SDL_SCANCODE_KP_ENTER) return;
@@ -183,6 +154,26 @@ void InteractiveEvent::Actions::applySpecialAction(std::optional<Interaction::Sp
     default:
         std::unreachable();
     }
+}
+
+void InteractiveEvent::DeletedElement::apply(Graphics::RmlInterface& manager, Utility::IO::Capture& capture) const {
+    auto ctxAndScope = [&] -> std::optional<Graphics::RmlInterface::ContextAndScope> {
+        if (elementIdentifier.has_value()) {
+            return manager.getRmlElementContextAndScope(elementIdentifier.value());
+        }
+        if (owner) {
+            return manager.getRmlDocumentContextAndScope(owner);
+        }
+        return std::nullopt;
+    }();
+    if (!ctxAndScope) {
+        // For some reason, InteractiveEvents are executed twice if we delete a domain with an open document. This catches the second call.
+        return;
+    }
+
+    Actions::applyRuleset(actions.rulesetLink, capture, ctxAndScope.value());
+    Actions::parseString(actions.stringToParse, capture, ctxAndScope.value());
+    Actions::applySpecialAction(actions.specialAction, manager, nullptr, owner);
 }
 
 } // namespace Nebulite::Module::RmlUi

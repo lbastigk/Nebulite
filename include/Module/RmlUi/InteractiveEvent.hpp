@@ -21,6 +21,23 @@ public:
 
     void OnElementDestroy(Rml::Element* element) override ;
 
+    struct Attribute {
+        struct OnDestroy : Interaction::AttributeCommand<Interaction::AttributeCommandTrigger::onDestroy> {
+            // Processing trigger during element deletion used to be buggy. If we ever notice an issue, store the DeletedElement and apply on next cycle
+            static void processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element);
+        };
+
+        struct OnEnter : Interaction::AttributeCommand<Interaction::AttributeCommandTrigger::onEnter> {
+            static void processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
+        };
+
+        static bool hasSupportedAttribute(Rml::Element* element) {
+            return OnDestroy::hasSupportedAttribute(element)
+                || OnEnter::hasSupportedAttribute(element);
+        }
+    };
+
+private:
     /**
      * @brief Available actions from Rml attribute commands
      */
@@ -46,29 +63,8 @@ public:
 
         Actions actions;
 
-        void apply(Utility::IO::Capture& capture, Graphics::RmlInterface& interface) const ;
+        void apply(Graphics::RmlInterface& manager, Utility::IO::Capture& capture) const ;
     };
-
-    struct Attribute {
-        struct OnDestroy : Interaction::AttributeCommand<Interaction::AttributeCommandTrigger::onDestroy> {
-            static std::optional<DeletedElement> processEvent(Utility::IO::Capture& capture, Rml::Element* element);
-        };
-
-        struct OnEnter : Interaction::AttributeCommand<Interaction::AttributeCommandTrigger::onEnter> {
-            static void processEvent(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
-        };
-
-        static bool hasSupportedAttribute(Rml::Element* element) {
-            return OnDestroy::hasSupportedAttribute(element)
-                || OnEnter::hasSupportedAttribute(element);
-        }
-    };
-
-private:
-    /**
-     * @brief Storing Deleted Elements for one cycle
-     */
-    std::vector<DeletedElement> interactiveEventsToApply;
 };
 } // namespace Nebulite::Module::RmlUi
 
