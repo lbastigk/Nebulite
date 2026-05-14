@@ -15,6 +15,16 @@
 #include "Nebulite.hpp"
 
 //------------------------------------------
+// Due to lifetime issues, we need to keep track of the singleton
+// with an outside variable.
+
+namespace {
+struct StatusTracker {
+    bool mapDeleted = false;
+} statusTracker;
+} // namespace
+
+//------------------------------------------
 namespace Nebulite::Interaction::Rules {
 
 StaticRulesetMap::StaticRulesetMap() {
@@ -32,6 +42,10 @@ StaticRulesetMap::StaticRulesetMap() {
         .function=[this](const Context& context, double** slf, double** otr) { help(context, slf, otr); },
         .baseListFunc=helpBaseListFunc
     });
+}
+
+StaticRulesetMap::~StaticRulesetMap() {
+    statusTracker.mapDeleted = true;
 }
 
 StaticRulesetMap& StaticRulesetMap::getInstance() {
@@ -54,6 +68,18 @@ std::vector<StaticRulesetMap::StaticRulesetMetadata> StaticRulesetMap::getList()
 }
 
 StaticRulesetMap::StaticRulesetWithMetadata& StaticRulesetMap::getStaticRulesetByName(std::string const& name) {
+    // NOLINTBEGIN
+    if (statusTracker.mapDeleted) {
+        // Using a custom static invalid entry, just in case the in-class one becomes invalid!
+        static auto invalid = StaticRulesetWithMetadata{
+            .type=StaticRulesetWithMetadata::Type::invalid,
+            .topic="",
+            .description="",
+            .function=nullptr
+        };
+        return invalid;
+    }
+    // NOLINTEND
     if (container.contains(name)) {
         return container[name];
     }

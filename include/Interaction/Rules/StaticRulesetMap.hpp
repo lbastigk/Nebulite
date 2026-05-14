@@ -44,6 +44,7 @@ using BaseListFunction = std::function<double**(Execution::Domain const&)>;
 //------------------------------------------
 // Defining a Ruleset Map where static rulesets can be looked up by name
 
+// TODO: just like rmlinterface, we need a deletion tracker so we never use the global instance during destruction!
 class StaticRulesetMap {
 public:
     struct StaticRulesetWithMetadata {
@@ -59,6 +60,13 @@ public:
     };
 
     StaticRulesetMap();
+
+    ~StaticRulesetMap();
+
+    StaticRulesetMap(StaticRulesetMap const&) = delete;
+    StaticRulesetMap& operator=(StaticRulesetMap const&) = delete;
+    StaticRulesetMap(StaticRulesetMap&&) = delete;
+    StaticRulesetMap& operator=(StaticRulesetMap&&) = delete;
 
     /**
      * @brief Returns the instance of the StaticRulesetMap.
