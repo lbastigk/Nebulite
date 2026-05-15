@@ -40,4 +40,11 @@ void EventBridge::Attribute::OnEnter::processTrigger(Graphics::RmlInterface& man
     entry.apply(manager, capture);
 }
 
+void EventBridge::Attribute::OnClick::processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement){
+    if (!focusElement) return;
+    if (event.type != SDL_EVENT_MOUSE_BUTTON_DOWN) return;
+    BridgeEntry<OnClick> const entry(focusElement);
+    entry.apply(manager, capture);
+}
+
 } // namespace Nebulite::Module::RmlUi

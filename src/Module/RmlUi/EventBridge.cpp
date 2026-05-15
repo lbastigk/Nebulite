@@ -33,6 +33,7 @@ void EventBridge::update() {}
 
 void EventBridge::processRmlUiEvent(SDL_Event const& event, int const keyModifiers, Rml::Element* focusElement){
     Attribute::OnEnter::processTrigger(interface, capture, event, keyModifiers, focusElement);
+    Attribute::OnClick::processTrigger(interface, capture, event, keyModifiers, focusElement);
 }
 
 void EventBridge::OnElementDestroy(Rml::Element* element){

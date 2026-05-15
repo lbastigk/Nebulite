@@ -31,6 +31,10 @@ public:
             static void processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
         };
 
+        struct OnClick : Interaction::AttributeCommand<"onClick"> {
+            static  void processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int keyModifiers, Rml::Element* focusElement);
+        };
+
         // TODO: New Triggers:
         // - onHover
         // - onHoverEnter
