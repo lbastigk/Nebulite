@@ -16,12 +16,12 @@ function print_loc_for_dirs {
     CLOC_SETTINGS="--force-lang-def=./Tools/cloc_lang_define.txt $DIRS"
 
     NUM=$(cloc $CLOC_SETTINGS --csv 2>/dev/null | tail -1 | awk -F',' '{total=$3+$4+$5; print total}' 2>/dev/null)
-    printf "Lines of code for %-26s| %05d\n" "$LABEL" "$NUM"
+    printf "Lines of code for %-35s| %05d\n" "$LABEL" "$NUM"
 }
 
 # Custom lang define, counting:
 print_loc_for_dirs "./src ./include" "Source Code (C, C++)"
 print_loc_for_dirs "./Scripts" "Scripts (Python, Bash)"
 print_loc_for_dirs "./Tools/Tests/ ./Tools/tests.jsonc ./TaskFiles/" "Tests (JSON, nebs)"
-print_loc_for_dirs "./Resources" "Resources (JSON, RML)"
+print_loc_for_dirs "./Resources" "Resources (JSON, RML, RCSS)"
 print_loc_for_dirs "./interface" "Interfaces (Go)"
