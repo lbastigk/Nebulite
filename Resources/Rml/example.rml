@@ -2,11 +2,19 @@
     <head>
         <title>RmlUi demo</title>
         <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
-        <link type="text/rcss" href="./Resources/Rml/window.rcss"/>
-        <link type="text/rcss" href="./Resources/Rml/text.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/window.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/buttons.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/text.rcss"/>
     </head>
     <!-- one data model for all RmlUi documents, the proper Nebulite Context is handled automatically -->
     <body data-model="nebuliteDataSync" style="width: 800px;">
+        <div class="buttonAligner">
+            <button class="closeButton" onClick#special="crash">Crash</button>
+            <button class="saveButton" onClick#parse="echo Saving...">Save</button>
+            <button class="editButton" onClick#parse="echo Opening editor...">Edit</button>
+            <button class="closeButton" onClick#special="deleteDocument">&#x00D7;</button>
+        </div>
+
         <h1>RmlUi</h1>
 
         <!-- Set actions to do on destruction -->
@@ -48,6 +56,7 @@
                 data-value="self:rml.input.animal"
                 onEnter#parse="eval echo Animal is {self:rml.input.animal}! ; set rml.input.animal"
                 onEnter#special="deleteDocument"
+                onClick#parse="echo Selected the text input element!"
             />
         </p>
 

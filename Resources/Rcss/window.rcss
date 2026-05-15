@@ -10,7 +10,7 @@ body {
     color: #e3e3e3;
     background: #455d7a;
     border: 0.25em #233142;
-    border-radius: 1em;
+    border-radius: 0.5em;
 
     /* Size */
     width: 600px;

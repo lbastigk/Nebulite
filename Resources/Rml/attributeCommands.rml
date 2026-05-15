@@ -2,10 +2,11 @@
     <head>
         <title>Rml attribute commands example</title>
         <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
-        <link type="text/rcss" href="./Resources/Rml/window.rcss"/>
-        <link type="text/rcss" href="./Resources/Rml/text.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/window.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/text.rcss"/>
     </head>
     <body data-model="nebuliteDataSync" style="width: 800px; left:0%; width : 250px ; height: 100px">
+
     <h2>Please enter your name</h2>
 
     <!-- Set actions to do on destruction -->

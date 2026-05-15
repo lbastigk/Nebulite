@@ -386,8 +386,8 @@ Examples:
     <head>
         <title>RmlUi demo</title>
         <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
-        <link type="text/rcss" href="./Resources/Rml/window.rcss"/>
-        <link type="text/rcss" href="./Resources/Rml/text.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/window.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/text.rcss"/>
     </head>
     <!-- one data model for all RmlUi documents, the proper Nebulite Context is handled automatically -->
     <body data-model="nebuliteDataSync" style="width: 800px;">

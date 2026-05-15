@@ -1,0 +1,39 @@
+.buttonAligner {
+    position: absolute;
+    top: 0.2em;
+    right: 0.2em;
+
+    display: flex;
+    gap: 0.5em;
+}
+
+/* Base button style */
+.buttonAligner button {
+    height: 1.2em;
+    padding: 0;
+
+    border: 2px #233142;
+    border-radius: 0.25em;
+
+    font-size: 1em;
+    font-weight: bold;
+    line-height: 1;
+
+    cursor: pointer;
+    box-sizing: border-box;
+
+    color: #233142;
+}
+
+/* Individual button colors */
+.closeButton {
+    background-color: #f95959;
+}
+
+.editButton {
+    background-color: #f0d879;
+}
+
+.saveButton {
+    background-color: #7dd87d;
+}

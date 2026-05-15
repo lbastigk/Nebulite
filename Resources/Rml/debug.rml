@@ -2,8 +2,8 @@
     <head>
         <title>Nebulite Runtime Inspector</title>
         <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
-        <link type="text/rcss" href="./Resources/Rml/window.rcss"/>
-        <link type="text/rcss" href="./Resources/Rml/text.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/window.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/text.rcss"/>
     </head>
 
     <body data-model="nebuliteDataSync" style="width: 900px;">
