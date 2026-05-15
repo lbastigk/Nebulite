@@ -19,37 +19,23 @@
 namespace Nebulite::Module::Transformation {
 
 void Array::bindTransformations() {
-    bindTransformation(&Array::ensureArray, ensureArrayName, ensureArrayDesc);
+    // Ranges
     bindTransformation(&Array::at, atName, atDesc);
     bindTransformation(&Array::length, lengthName, lengthDesc);
-    bindTransformation(&Array::reverse, reverseName, reverseDesc);
     bindTransformation(&Array::first, firstName, firstDesc);
     bindTransformation(&Array::last, lastName, lastDesc);
+    bindTransformation(&Array::subspan, subspanName, subspanDesc);
+
+    // Modify
+    bindTransformation(&Array::reverse, reverseName, reverseDesc);
+    bindTransformation(&Array::ensureArray, ensureArrayName, ensureArrayDesc);
     bindTransformation(&Array::push, pushName, pushDesc);
     bindTransformation(&Array::pushNumber, pushNumberName, pushNumberDesc);
-    bindTransformation(&Array::subspan, subspanName, subspanDesc);
     bindTransformation(&Array::enumerate, enumerateName, enumerateDesc);
     bindTransformation(&Array::iota, iotaName, iotaDesc);
 }
 
-// Clang marks this function as having an unreachable branch,
-// because it thinks the first branch always returns true?
-// Disable the warning for this function.
-// NOLINTNEXTLINE
-bool Array::ensureArray(Data::JsonScope* jsonDoc) {
-    // Cache the original member type to avoid the analyzer thinking the second branch is unreachable
-    if (jsonDoc->memberType(rootKey) == Data::KeyType::array) {
-        return true;
-    }
-
-    // Single value, wrap into an array
-    auto const key = rootKey.addIndex(0);
-    jsonDoc->moveMember(rootKey, key); // Move the original value to the new array index
-
-    // Return whether wrapping succeeded
-    auto const newType = jsonDoc->memberType(rootKey);
-    return newType == Data::KeyType::array;
-}
+// Ranges
 
 bool Array::at(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 2) {
@@ -80,19 +66,6 @@ bool Array::length(Data::JsonScope* jsonDoc) {
     return true;
 }
 
-bool Array::reverse(Data::JsonScope* jsonDoc) {
-    if (!ensureArray(jsonDoc)) {
-        return false;
-    }
-    size_t const arraySize = jsonDoc->memberSize(rootKey);
-    Data::JSON const tmp = jsonDoc->getSubDoc(rootKey);
-    for (size_t i = 0; i < arraySize; ++i) {
-        auto const key = rootKey.addIndex(i);
-        Data::JSON const element = tmp.getSubDoc("[" + std::to_string(arraySize - 1 - i) + "]");
-        jsonDoc->setSubDoc(key, element);
-    }
-    return true;
-}
 
 bool Array::first(Data::JsonScope* jsonDoc) {
     if (!ensureArray(jsonDoc)) {
@@ -119,36 +92,6 @@ bool Array::last(Data::JsonScope* jsonDoc) {
     return true;
 }
 
-bool Array::push(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    if (args.size() < 2) {
-        return false;
-    }
-    if (!ensureArray(jsonDoc)) {
-        return false;
-    }
-    size_t const arraySize = jsonDoc->memberSize(rootKey);
-    auto const key = rootKey.addIndex(arraySize);
-    jsonDoc->set(key, Utility::StringHandler::recombineArgs(args.subspan(1)));
-    return true;
-}
-
-bool Array::pushNumber(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    if (args.size() != 2) {
-        return false;
-    }
-    try {
-        double const number = std::stod(args.at(1));
-        if (!ensureArray(jsonDoc)) {
-            return false;
-        }
-        size_t const arraySize = jsonDoc->memberSize(rootKey);
-        auto const key = rootKey.addIndex(arraySize);
-        jsonDoc->set(key, number);
-        return true;
-    } catch (...) {
-        return false;
-    }
-}
 
 bool Array::subspan(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() > 3) {
@@ -185,6 +128,73 @@ bool Array::subspan(std::span<std::string const> const& args, Data::JsonScope* j
     }
     return true;
 }
+
+// Modify
+
+bool Array::reverse(Data::JsonScope* jsonDoc) {
+    if (!ensureArray(jsonDoc)) {
+        return false;
+    }
+    size_t const arraySize = jsonDoc->memberSize(rootKey);
+    Data::JSON const tmp = jsonDoc->getSubDoc(rootKey);
+    for (size_t i = 0; i < arraySize; ++i) {
+        auto const key = rootKey.addIndex(i);
+        Data::JSON const element = tmp.getSubDoc("[" + std::to_string(arraySize - 1 - i) + "]");
+        jsonDoc->setSubDoc(key, element);
+    }
+    return true;
+}
+
+// Clang marks this function as having an unreachable branch,
+// because it thinks the first branch always returns true?
+// Disable the warning for this function.
+// NOLINTNEXTLINE
+bool Array::ensureArray(Data::JsonScope* jsonDoc) {
+    // Cache the original member type to avoid the analyzer thinking the second branch is unreachable
+    if (jsonDoc->memberType(rootKey) == Data::KeyType::array) {
+        return true;
+    }
+
+    // Single value, wrap into an array
+    auto const key = rootKey.addIndex(0);
+    jsonDoc->moveMember(rootKey, key); // Move the original value to the new array index
+
+    // Return whether wrapping succeeded
+    auto const newType = jsonDoc->memberType(rootKey);
+    return newType == Data::KeyType::array;
+}
+
+bool Array::push(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+    if (args.size() < 2) {
+        return false;
+    }
+    if (!ensureArray(jsonDoc)) {
+        return false;
+    }
+    size_t const arraySize = jsonDoc->memberSize(rootKey);
+    auto const key = rootKey.addIndex(arraySize);
+    jsonDoc->set(key, Utility::StringHandler::recombineArgs(args.subspan(1)));
+    return true;
+}
+
+bool Array::pushNumber(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+    if (args.size() != 2) {
+        return false;
+    }
+    try {
+        double const number = std::stod(args.at(1));
+        if (!ensureArray(jsonDoc)) {
+            return false;
+        }
+        size_t const arraySize = jsonDoc->memberSize(rootKey);
+        auto const key = rootKey.addIndex(arraySize);
+        jsonDoc->set(key, number);
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
 
 bool Array::enumerate(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
     if (args.size() < 2) return false;
