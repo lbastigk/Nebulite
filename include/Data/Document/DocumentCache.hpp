@@ -107,24 +107,27 @@ private:
      * @brief Splits a doc:key string into its components, also works for doc|transform or doc:key|transform
      */
     static std::pair<std::string, std::string> splitDocKey(std::string const& doc_key) {
-        auto const barPos = doc_key.find(JSON::SpecialCharacter::transformationPipe);
-        auto const colonPos = doc_key.find(Interaction::ContextDeriver::contextKeySeparator);
+        std::string_view doc_key_view(doc_key);
+        Utility::StringHandler::strip(doc_key_view, ' '); // Remove whitespace for more forgiving input handling
+
+        auto const barPos = doc_key_view.find(JSON::SpecialCharacter::transformationPipe);
+        auto const colonPos = doc_key_view.find(Interaction::ContextDeriver::contextKeySeparator);
 
         // Choose the first occurring separator
         auto const pos = std::min(colonPos, barPos);
 
         if (pos == std::string::npos) {
             // No colon found, meaning the entire string is document name/link
-            return {doc_key, ""};
+            return {std::string(doc_key_view), ""};
         }
-        auto const doc = doc_key.substr(0, pos);
-        auto const key = doc_key.substr(pos + 1);
+        auto const doc = doc_key_view.substr(0, pos);
+        auto const key = doc_key_view.substr(pos + 1);
 
         // Add back the transform part if needed
         if (pos == barPos) {
-            return {doc, JSON::SpecialCharacter::transformationPipe + key};
+            return {std::string(doc), JSON::SpecialCharacter::transformationPipe + std::string(key)};
         }
-        return {doc, key};
+        return {std::string(doc), std::string(key)};
     }
 
     /**
