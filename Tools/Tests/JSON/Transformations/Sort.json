@@ -1,18 +1,18 @@
 [
     {
-        "command": "task TaskFiles/Tests/Transformations/Sort/sortCaseInsensitive.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Sort/sortCaseInsensitive.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/Transformations/Sort/sortCaseSensitive.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Sort/sortCaseSensitive.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/Transformations/Sort/sortNumerically.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Sort/sortNumerically.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/Transformations/Sort/sortCustom.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Sort/sortCustom.nebs",
         "expected": { "cout": [], "cerr": [] }
     }
 ]

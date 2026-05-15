@@ -1,22 +1,22 @@
 [
     {
-        "command": "task TaskFiles/Tests/Transformations/Arithmetic/numericValues.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Arithmetic/numericValues.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/Transformations/Arithmetic/nonNumericValues.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Arithmetic/nonNumericValues.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/Transformations/Arithmetic/invalidNumericValues.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Arithmetic/invalidNumericValues.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/Transformations/Arithmetic/missingArguments.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Arithmetic/missingArguments.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/Transformations/Arithmetic/invalidArgumentCount.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Arithmetic/invalidArgumentCount.nebs",
         "expected": { "cout": [], "cerr": [] }
     }
 ]

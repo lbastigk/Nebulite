@@ -1,5 +1,16 @@
 [
     {
+        "command": "task TaskFiles/Tests/JSON/invalidate_json_value_children.nebs",
+        "expected": {
+            "cout": [
+                "{",
+                "    \"MyArray\": \"some_value\"",
+                "}"
+            ],
+            "cerr": []
+        }
+    },
+    {
         "command": [
             "# Test if no previous value is cached when using setSubDoc when using assign",
             "# If there is any 3 left in the output, there is a problem",

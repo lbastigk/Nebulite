@@ -53,7 +53,7 @@
     },
     {
         "command": [
-            "task TaskFiles/Tests/Transformations/assign.nebs"
+            "task TaskFiles/Tests/JSON/Transformations/assign.nebs"
         ],
         "expected": {
             "cout": [

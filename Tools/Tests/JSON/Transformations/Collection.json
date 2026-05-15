@@ -1,22 +1,22 @@
 [
     {
-        "command": "task TaskFiles/Tests/Transformations/Collection/map.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Collection/map.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/Transformations/Collection/get.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Collection/get.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/Transformations/Collection/listMembers.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Collection/listMembers.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/Transformations/Collection/listMembersAndValues.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Collection/listMembersAndValues.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/Transformations/Collection/bundleToArray.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Collection/bundleToArray.nebs",
         "expected": { "cout": [], "cerr": [] }
     }
 ]

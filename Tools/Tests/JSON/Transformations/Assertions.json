@@ -124,7 +124,7 @@
     },
     {
         "command": [
-            "task TaskFiles/Tests/Transformations/assertRegex.nebs"
+            "task TaskFiles/Tests/JSON/Transformations/assertRegex.nebs"
         ],
         "expected": {
             "cout": [],

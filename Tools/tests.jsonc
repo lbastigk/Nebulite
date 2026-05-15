@@ -36,14 +36,16 @@
         "Tools/Tests/Expression/nestedEvaluation.json",
         "Tools/Tests/Expression/types.json",
         //---------------------------------------
-        // Functioncall tests
+        // FuncTree tests
         "Tools/Tests/Functional/bindingCollisionDetection.json",
         "Tools/Tests/Functional/completion.json",
         //---------------------------------------
         // JSON tests
-        "Tools/Tests/JSON/Array.json",
+        "Tools/Tests/JSON/Basics.json",
         "Tools/Tests/JSON/Caching.json",
         "Tools/Tests/JSON/ComplexData.json",
+        //---------------------------------------
+        // JSON transformation tests
         "Tools/Tests/JSON/Transformations/Arithmetic.json",
         "Tools/Tests/JSON/Transformations/Array.json",
         "Tools/Tests/JSON/Transformations/Assertions.json",

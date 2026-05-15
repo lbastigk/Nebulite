@@ -181,7 +181,7 @@
     },
     {
         "command": [
-            "task TaskFiles/Tests/Transformations/arrayBundling.nebs"
+            "task TaskFiles/Tests/JSON/Transformations/arrayBundling.nebs"
         ],
         "expected": {
             "cout": [],
@@ -190,7 +190,7 @@
     },
     {
         "command": [
-            "task TaskFiles/Tests/Transformations/iota.nebs"
+            "task TaskFiles/Tests/JSON/Transformations/iota.nebs"
         ],
         "expected": {
             "cout": [],

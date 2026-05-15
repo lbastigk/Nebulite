@@ -16,16 +16,5 @@
                 "Invalid key: arr[d"
             ]
         }
-    },
-    {
-        "command": "task TaskFiles/Tests/JSON/invalidate_json_value_children.nebs",
-        "expected": { 
-            "cout": [
-                "{",
-                "    \"MyArray\": \"some_value\"",
-                "}"
-            ], 
-            "cerr": [] 
-        }
     }
 ]
