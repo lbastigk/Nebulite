@@ -1,0 +1,19 @@
+# Test iota-correctness
+
+# Base case: starting at 0
+assign global:result = {|iota 0 10}
+eval nop {global:result|length|assert equals int 10}
+eval nop {global:result|at 0|assert equals int 0}
+eval nop {global:result|at 9|assert equals int 9}
+
+# Starting at a positive number
+assign global:result = {|iota 5 15}
+eval nop {global:result|length|assert equals int 10}
+eval nop {global:result|at 0|assert equals int 5}
+eval nop {global:result|at 9|assert equals int 14}
+
+# Starting at a negative number
+assign global:result = {|iota -3 3}
+eval nop {global:result|length|assert equals int 6}
+eval nop {global:result|at 0|assert equals int -3}
+eval nop {global:result|at 5|assert equals int 2}
