@@ -11,6 +11,7 @@ The context of the action is determined by the element first, then the document 
 
 ### Triggers
 
+- `onClick`: The command will be executed when the element is clicked.
 - `onDestroy`: The command will be executed when the element is destroyed. This includes when the document is deleted, or when the element is removed from the document.
 - `onEnter`: The command will be executed if the element is in focus and the user presses the enter key.
 
@@ -37,8 +38,8 @@ Supported special commands are:
     <head>
         <title>Rml attribute commands example</title>
         <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
-        <link type="text/rcss" href="./Resources/Rml/window.rcss"/>
-        <link type="text/rcss" href="./Resources/Rml/text.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/window.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/text.rcss"/>
     </head>
     <body data-model="nebuliteDataSync" style="width: 800px; left:0%; width : 250px ; height: 100px">
     <h2>Please enter your name</h2>
