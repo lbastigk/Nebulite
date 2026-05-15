@@ -19,16 +19,13 @@ The context of the action is determined by the element first, then the document 
 
 - `invokeRuleset` Expects a ruleset name or link as a parameter, which will be invoked
 - `parse` The given parameter will be parsed into the `self` domain. Supports multiple lines of code, separated by `;`.
+See [Commands.md](Commands.md) for supported domain commands.
 - `special` Expects a special command as a parameter, which will be executed
 
 ### Supported special commands
 
 Supported special commands are:
 - `blurElement`: Blurs the currently focused element. Note that this might not be the element that the command is attached to, but the currently focused element in the document.
-- `crash`: Crashes the game immediately.
-- `debugError`: Logs an error message to the console. This can be used to test error handling in your UI.
-- `debugLog`: Logs a message to the console. This can be used to test logging in your UI.
-- `debugWarn`: Logs a warning message to the console. This can be used to test warning handling in your UI.
 - `deleteDocument`: Deletes the document of the element
 
 ### Examples

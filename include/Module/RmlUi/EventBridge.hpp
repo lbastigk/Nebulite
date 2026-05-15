@@ -68,7 +68,7 @@ private:
 
         static void parseString(std::optional<std::string> const& stringToParse, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope);
 
-        static void applySpecialAction(std::optional<Interaction::SpecialAction::Type> const& action, Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element, Rml::ElementDocument* document);
+        static void applySpecialAction(std::optional<Interaction::SpecialAction::Type> const& action, Graphics::RmlInterface& manager, Rml::Element* element, Rml::ElementDocument* document);
     };
 
     /**
@@ -128,7 +128,7 @@ void EventBridge::BridgeEntry<TriggerType>::apply(Graphics::RmlInterface& manage
 
     Actions::applyRuleset(actions.rulesetLink, capture, ctxAndScope.value());
     Actions::parseString(actions.stringToParse, capture, ctxAndScope.value());
-    Actions::applySpecialAction(actions.specialAction, manager, capture, nullptr, owner);
+    Actions::applySpecialAction(actions.specialAction, manager, nullptr, owner);
 }
 
 } // namespace Nebulite::Module::RmlUi

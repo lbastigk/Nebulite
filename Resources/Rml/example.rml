@@ -9,7 +9,7 @@
     <!-- one data model for all RmlUi documents, the proper Nebulite Context is handled automatically -->
     <body data-model="nebuliteDataSync" style="width: 800px;">
         <div class="buttonAligner">
-            <button class="closeButton" onClick#special="crash">Crash</button>
+            <button class="closeButton" onClick#parse="throw">Crash</button>
             <button class="saveButton" onClick#parse="echo Saving...">Save</button>
             <button class="editButton" onClick#parse="echo Opening editor...">Edit</button>
             <button class="closeButton" onClick#special="deleteDocument">&#x00D7;</button>

@@ -3,7 +3,6 @@
 
 // Standard library
 #include <optional>
-#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -75,20 +74,9 @@ void EventBridge::Actions::parseString(std::optional<std::string> const& stringT
     }
 }
 
-void EventBridge::Actions::applySpecialAction(std::optional<Interaction::SpecialAction::Type> const& action, Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element, Rml::ElementDocument* document) {
+void EventBridge::Actions::applySpecialAction(std::optional<Interaction::SpecialAction::Type> const& action, Graphics::RmlInterface& manager, Rml::Element* element, Rml::ElementDocument* document) {
     if (!action) return;
     switch (action.value()) {
-    case Interaction::SpecialAction::Type::debugLog:
-        capture.warning.println("Rml attribute command debug action triggered: Logging");
-        break;
-    case Interaction::SpecialAction::Type::debugWarning:
-        capture.warning.println("Rml attribute command debug action triggered: Warning");
-        break;
-    case Interaction::SpecialAction::Type::debugError:
-        capture.warning.println("Rml attribute command debug action triggered: Error");
-        break;
-    case Interaction::SpecialAction::Type::crash:
-        throw std::logic_error("Rml attribute command debug action triggered: Crash");
     case Interaction::SpecialAction::Type::blurElement:
         if (element) element->Blur();
         break;

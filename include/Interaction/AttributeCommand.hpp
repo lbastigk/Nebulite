@@ -29,19 +29,11 @@ struct FullCommand {
 struct SpecialAction {
     enum class Type : uint8_t {
         blurElement,
-        crash,
-        debugError,
-        debugLog,
-        debugWarning,
         deleteDocument
     };
 
     static auto constexpr supported = {
         std::make_pair("blurElement", Type::blurElement),
-        std::make_pair("crash", Type::crash),
-        std::make_pair("debugError", Type::debugError),
-        std::make_pair("debugLog", Type::debugLog),
-        std::make_pair("debugWarning", Type::debugWarning),
         std::make_pair("deleteDocument", Type::deleteDocument)
     };
 
