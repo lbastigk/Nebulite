@@ -28,6 +28,7 @@ void Array::bindTransformations() {
     bindTransformation(&Array::push, pushName, pushDesc);
     bindTransformation(&Array::pushNumber, pushNumberName, pushNumberDesc);
     bindTransformation(&Array::subspan, subspanName, subspanDesc);
+    bindTransformation(&Array::enumerate, enumerateName, enumerateDesc);
 }
 
 // Clang marks this function as having an unreachable branch,
@@ -181,6 +182,20 @@ bool Array::subspan(std::span<std::string const> const& args, Data::JsonScope* j
     for (size_t i = originalSize; i >= index; i--) {
         jsonDoc->removeMember(rootKey.addIndex(i));
     }
+    return true;
+}
+
+bool Array::enumerate(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+    if (args.size() < 2) return false;
+    if (jsonDoc->memberType(rootKey) != Data::KeyType::array) return false;
+    auto const indexKey = args.at(1);
+    std::ranges::for_each(
+        std::views::iota(size_t{0}, jsonDoc->memberSize(rootKey)),
+        [&](size_t const& i) {
+            auto const key = rootKey.addIndex(i).addMember(indexKey);
+            jsonDoc->set(key, i);
+        }
+    );
     return true;
 }
 

@@ -80,6 +80,12 @@ public:
     static auto constexpr subspanDesc = "Gets a subarray from the array in the current JSON value.\n"
         "Usage: |subspan <start> [<length>] -> {array}\n";
 
+    static bool enumerate(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr enumerateName = "enumerate";
+    static auto constexpr enumerateDesc = "Enumerates the array in the current JSON value.\n"
+        "Usage: |enumerate <indexKey> -> {array}\n"
+        "Where indexKey is the key of each array element to populate with the index of the element in the array.\n";
+
     // TODO: dedupe, pick, omit
 };
 } // namespace Nebulite::Module::Transformation
