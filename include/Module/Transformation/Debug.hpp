@@ -40,6 +40,12 @@ public:
     static auto constexpr printDesc = "Prints the current JSON value to the console.\n"
         "Usage: |print -> {unchanged-json}\n";
 
+    [[noreturn]] static bool unreachable(std::span<std::string const> const& args);
+    static auto constexpr unreachableName = "unreachable";
+    static auto constexpr unreachableDesc = "Indicates that the current code path should be unreachable.\n"
+        "If this transformation is executed, it indicates a bug in the program, and an error message is printed to the console.\n"
+        "Usage: |unreachable\n";
+
     // TODO: log (to file), error (to stderr)
 };
 } // namespace Nebulite::Module::Transformation

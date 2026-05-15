@@ -18,6 +18,7 @@ namespace Nebulite::Module::Transformation {
 void Debug::bindTransformations() {
     bindTransformation(&Debug::echo, echoName, echoDesc);
     bindTransformation(&Debug::print, printName, printDesc);
+    bindTransformation(&Debug::unreachable, unreachableName, unreachableDesc);
 }
 
 // Since this is for debugging only, we pass the output directly to global capture, instead of a local capture
@@ -53,6 +54,12 @@ bool Debug::print(std::span<std::string const> const& args, Data::JsonScope* jso
         }
     }
     return true;
+}
+
+bool Debug::unreachable(std::span<std::string const> const& args){
+    std::string const message = "Unreachable transformation path reached! " + Utility::StringHandler::recombineArgs(args.subspan(1));
+    Global::capture().error.println(message);
+    std::terminate();
 }
 
 } // namespace Nebulite::Module::Transformation
