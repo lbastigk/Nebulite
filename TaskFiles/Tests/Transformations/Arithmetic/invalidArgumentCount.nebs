@@ -1,0 +1,10 @@
+# Wrong argument count for transformation
+set var 10
+
+# sqrt expects exactly no argument, providing one should result in null
+assign global:result = {global:var|sqrt 2|unreachable}
+
+# Check that the result is null
+eval nop {global:result|assert empty}
+
+exit

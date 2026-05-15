@@ -1,0 +1,42 @@
+set test.val 3
+
+assign global:result.add = {global:test.val|add a}
+assign global:result.mod = {global:test.val|mod a}
+assign global:result.mul = {global:test.val|mul a}
+assign global:result.pow = {global:test.val|pow a}
+assign global:result.sub = {global:test.val|sub a}
+assign global:result.div = {global:test.val|div a}
+assign global:result.root = {global:test.val|root a}
+
+# Checking for null-values is tricky. We verify the members exist, but are null:
+# "add": null,
+# "mod": null,
+# "mul": null,
+# "pow": null,
+# "sub": null,
+# "div": null,
+# "root": null
+
+# 1.) Verify the result object exists and has the expected members
+eval nop {global:result|assert type object}
+eval nop {global:result|listMembers|length|assert equals int 7}
+
+# 2.) Verify the expected members are present (sorted for ease of maintenance)
+eval nop {global:result|listMembers|sort case-sensitive|at 0|assert equals string add}
+eval nop {global:result|listMembers|sort case-sensitive|at 1|assert equals string div}
+eval nop {global:result|listMembers|sort case-sensitive|at 2|assert equals string mod}
+eval nop {global:result|listMembers|sort case-sensitive|at 3|assert equals string mul}
+eval nop {global:result|listMembers|sort case-sensitive|at 4|assert equals string pow}
+eval nop {global:result|listMembers|sort case-sensitive|at 5|assert equals string root}
+eval nop {global:result|listMembers|sort case-sensitive|at 6|assert equals string sub}
+
+# 3.) Verify the members are null (empty)
+eval nop {global:result.add|assert empty}
+eval nop {global:result.mod|assert empty}
+eval nop {global:result.mul|assert empty}
+eval nop {global:result.pow|assert empty}
+eval nop {global:result.sub|assert empty}
+eval nop {global:result.div|assert empty}
+eval nop {global:result.root|assert empty}
+
+exit

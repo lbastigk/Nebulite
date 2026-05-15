@@ -1,0 +1,16 @@
+# Get value from array and object
+
+# Setup array
+set arr[0] 1
+set arr[1] 2
+set arr[2] 3
+
+# Setup object
+set obj.key1 value1
+set obj.key2 value2
+set obj.key3 value3
+
+# Calculate and verify
+eval nop {global:arr|get [1]|toInt|assert equals int 2}
+eval nop {global:obj|get key2     |assert equals string value2}
+exit

@@ -1,77 +1,18 @@
 [
     {
-        "command": [
-            "set arr[0] 8",
-            "set arr[1] 6",
-            "set arr[2] 7",
-            "set arr[3] 5",
-            "set arr[4] 3",
-            "set arr[5] 0",
-            "set arr[6] 9",
-            "eval nop {global:arr|sort numerically|map toInt|print}",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "[",
-                "    0,",
-                "    3,",
-                "    5,",
-                "    6,",
-                "    7,",
-                "    8,",
-                "    9",
-                "]"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/Transformations/Sort/sortCaseInsensitive.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": [
-            "set arr[0] Foxtrot",
-            "set arr[1] uniform",
-            "set arr[2] charlie",
-            "set arr[3] kilo",
-            "eval nop {global:arr|sort case-insensitive|print}",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "[",
-                "    \"charlie\",",
-                "    \"Foxtrot\",",
-                "    \"kilo\",",
-                "    \"uniform\"",
-                "]"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/Transformations/Sort/sortCaseSensitive.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": [
-            "set arr[0] Foxtrot",
-            "set arr[1] uniform",
-            "set arr[2] charlie",
-            "set arr[3] kilo",
-            "eval nop {global:arr|sort case-sensitive|print}",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "[",
-                "    \"Foxtrot\",",
-                "    \"charlie\",",
-                "    \"kilo\",",
-                "    \"uniform\"",
-                "]"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/Transformations/Sort/sortNumerically.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": [
-            "task TaskFiles/Tests/Transformations/customSort.nebs"
-        ],
+        "command": "task TaskFiles/Tests/Transformations/Sort/sortCustom.nebs",
         "expected": { "cout": [], "cerr": [] }
     }
 ]

@@ -1,99 +1,22 @@
 [
     {
-        "command": [
-            "# Testing non-numeric values in arithmetic transformations",
-            "set-fps 60",
-            "wait 1",
-            "set test.val 3",
-            "wait 1",
-            "eval echo {global:test.val|add 2}",
-            "eval echo {global:test.val|add a}",
-            "eval echo {global:test.val|mod 2}",
-            "eval echo {global:test.val|mod a}",
-            "eval echo {global:test.val|mul 2}",
-            "eval echo {global:test.val|mul a}",
-            "eval echo {global:test.val|pow 2}",
-            "eval echo {global:test.val|pow a}",
-            "eval echo {global:test.val|sub 2}",
-            "eval echo {global:test.val|sub a}",
-            "eval echo {global:test.val|div 2}",
-            "eval echo {global:test.val|div a}",
-            "eval echo {global:test.val|root 3|mul 10000|toInt}",
-            "eval echo {global:test.val|root a}",
-            "eval echo {global:test.val|sqrt|mul 10000|toInt}",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "5",
-                "[TRANSFORMATION_FAILURE]",
-                "1",
-                "[TRANSFORMATION_FAILURE]",
-                "6",
-                "[TRANSFORMATION_FAILURE]",
-                "9",
-                "[TRANSFORMATION_FAILURE]",
-                "1",
-                "[TRANSFORMATION_FAILURE]",
-                "1.5",
-                "[TRANSFORMATION_FAILURE]",
-                "14422",
-                "[TRANSFORMATION_FAILURE]",
-                "17320"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/Transformations/Arithmetic/numericValues.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": [
-            "# Testing invalid numeric values in arithmetic transformations",
-            "set-fps 60",
-            "wait 1",
-            "set test.val 3",
-            "wait 1",
-            "eval echo {global:test.val|mod 0}",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "[TRANSFORMATION_FAILURE]"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/Transformations/Arithmetic/nonNumericValues.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": [
-            "# Testing no values in arithmetic transformations",
-            "set-fps 60",
-            "wait 1",
-            "set test.val 3",
-            "wait 1",
-            "eval echo {global:test.val|add}",
-            "eval echo {global:test.val|mul}",
-            "eval echo {global:test.val|mod}",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "[TRANSFORMATION_FAILURE]",
-                "[TRANSFORMATION_FAILURE]",
-                "[TRANSFORMATION_FAILURE]"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/Transformations/Arithmetic/invalidNumericValues.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": [
-            "# Wrong argument count for transformation",
-            "set var 10",
-            "eval echo {global:var|sqrt 2}# sqrt expects exactly no argument, providing one should result in null",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "[TRANSFORMATION_FAILURE]"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/Transformations/Arithmetic/missingArguments.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/Transformations/Arithmetic/invalidArgumentCount.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

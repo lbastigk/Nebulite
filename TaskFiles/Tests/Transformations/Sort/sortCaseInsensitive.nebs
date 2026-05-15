@@ -1,0 +1,16 @@
+# Setup
+set arr[0] Foxtrot
+set arr[1] uniform
+set arr[2] charlie
+set arr[3] kilo
+
+# Sort
+assign global:result = {global:arr|sort case-insensitive}
+
+# Verify
+eval nop {global:result[0]|assert equals string charlie}
+eval nop {global:result[1]|assert equals string Foxtrot}
+eval nop {global:result[2]|assert equals string kilo}
+eval nop {global:result[3]|assert equals string uniform}
+
+exit

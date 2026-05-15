@@ -1,0 +1,32 @@
+# Testing invalid numeric values in arithmetic transformations",
+set test.val 3
+
+# Testing zero division and modulus
+assign global:result.add = {global:test.val|add|unreachable}
+assign global:result.div = {global:test.val|div|unreachable}
+assign global:result.mod = {global:test.val|mod|unreachable}
+assign global:result.mul = {global:test.val|mul|unreachable}
+assign global:result.pow = {global:test.val|pow|unreachable}
+assign global:result.root = {global:test.val|root|unreachable}
+assign global:result.sub = {global:test.val|sub|unreachable}
+
+# Verify result object exists, but its values are null due to invalid operations
+eval nop {global:result|assert type object}
+eval nop {global:result|listMembers|length|assert equals int 7}
+eval nop {global:result|listMembers|sort case-insensitive|at 0|assert equals string add}
+eval nop {global:result|listMembers|sort case-insensitive|at 1|assert equals string div}
+eval nop {global:result|listMembers|sort case-insensitive|at 2|assert equals string mod}
+eval nop {global:result|listMembers|sort case-insensitive|at 3|assert equals string mul}
+eval nop {global:result|listMembers|sort case-insensitive|at 4|assert equals string pow}
+eval nop {global:result|listMembers|sort case-insensitive|at 5|assert equals string root}
+eval nop {global:result|listMembers|sort case-insensitive|at 6|assert equals string sub}
+
+eval nop {global:result.add|assert empty}
+eval nop {global:result.div|assert empty}
+eval nop {global:result.mod|assert empty}
+eval nop {global:result.mul|assert empty}
+eval nop {global:result.pow|assert empty}
+eval nop {global:result.root|assert empty}
+eval nop {global:result.sub|assert empty}
+
+exit

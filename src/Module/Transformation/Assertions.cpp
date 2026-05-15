@@ -123,7 +123,7 @@ bool Assertions::assertEqualsInt(std::span<std::string const> const& args, Data:
     try {
         auto const expected = std::stoi(args[1]);
         if (jsonDoc->memberType(rootKey) != Data::KeyType::value) {
-            throw std::runtime_error(std::string(assertEqualsIntName) + ": Current JSON value is not a basic value, expected integer: " + std::to_string(expected));
+            throw std::runtime_error(std::string(assertEqualsIntName) + ": Current JSON value is not a basic value, expected integer: " + std::to_string(expected) + ". Value is: " + jsonDoc->serialize(rootKey));
         }
         if (auto const actual = jsonDoc->get<int>(rootKey).value_or(0); actual != expected) {
             throw std::runtime_error(std::string(assertEqualsIntName) + ": JSON value '" + std::to_string(actual) + "' does not equal expected integer '" + std::to_string(expected) + "'");

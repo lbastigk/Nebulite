@@ -1,0 +1,37 @@
+# Testing non-numeric values in arithmetic transformations
+set test.val 3
+
+assign global:result.add = {global:test.val|add 2}
+assign global:result.mod = {global:test.val|mod 2}
+assign global:result.mul = {global:test.val|mul 2}
+assign global:result.pow = {global:test.val|pow 2}
+assign global:result.sub = {global:test.val|sub 2}
+assign global:result.div = {global:test.val|div 2}
+assign global:result.root = {global:test.val|root 3|mul 10000|toInt} # For easy verification, we use an integer value
+assign global:result.sqrt = {global:test.val|sqrt|mul 10000|toInt} # For easy verification, we use an integer value
+
+# 1.) Verify the result object exists and has the expected members
+eval nop {global:result|assert type object}
+eval nop {global:result|listMembers|length|assert equals int 8}
+
+# 2.) Verify the expected members are present (sorted for ease of maintenance)
+eval nop {global:result|listMembers|sort case-sensitive|at 0|assert equals string add}
+eval nop {global:result|listMembers|sort case-sensitive|at 1|assert equals string div}
+eval nop {global:result|listMembers|sort case-sensitive|at 2|assert equals string mod}
+eval nop {global:result|listMembers|sort case-sensitive|at 3|assert equals string mul}
+eval nop {global:result|listMembers|sort case-sensitive|at 4|assert equals string pow}
+eval nop {global:result|listMembers|sort case-sensitive|at 5|assert equals string root}
+eval nop {global:result|listMembers|sort case-sensitive|at 6|assert equals string sqrt}
+eval nop {global:result|listMembers|sort case-sensitive|at 7|assert equals string sub}
+
+# 3.) Verify the members have the expected values
+eval nop {global:result.add|assert equals int 5}
+eval nop {global:result.mod|assert equals int 1}
+eval nop {global:result.mul|assert equals int 6}
+eval nop {global:result.pow|assert equals int 9}
+eval nop {global:result.sub|assert equals int 1}
+eval nop {global:result.div|assert equals int 1}
+eval nop {global:result.root|assert equals int 14422} # 3rd root of 3 is approximately 1.4422, multiplied by 10000 for verification
+eval nop {global:result.sqrt|assert equals int 17320} # Square root of 3 is approximately 1.732, multiplied by 10000 for verification
+
+exit

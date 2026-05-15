@@ -22,7 +22,7 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/Benchmarks/largeArray.nebs
+task TaskFiles/Tests/Transformations/Arithmetic/nonNumericValues.nebs
 
 #task TaskFiles/VerticalSlice/levelDescription.nebs
 #grid on

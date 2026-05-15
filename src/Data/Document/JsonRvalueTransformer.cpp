@@ -23,6 +23,7 @@
 #include "Module/Transformation/Casting.hpp"
 #include "Module/Transformation/Collection.hpp"
 #include "Module/Transformation/Debug.hpp"
+#include "Module/Transformation/Filter.hpp"
 #include "Module/Transformation/General.hpp"
 #include "Module/Transformation/Requirements.hpp"
 #include "Module/Transformation/Sort.hpp"
@@ -50,6 +51,7 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     initModule<Module::Transformation::Casting>();
     initModule<Module::Transformation::Collection>();
     initModule<Module::Transformation::Debug>();
+    initModule<Module::Transformation::Filter>();
     initModule<Module::Transformation::General>();
     initModule<Module::Transformation::Requirements>();
     initModule<Module::Transformation::Sort>();

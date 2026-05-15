@@ -1,0 +1,16 @@
+# Testing invalid numeric values in arithmetic transformations",
+set test.val 3
+
+# Testing zero division and modulus
+assign global:result.mod = {global:test.val|mod 0|echo This message should not be printed, as the transformation should fail}
+assign global:result.div = {global:test.val|div 0|echo This message should not be printed, as the transformation should fail}
+
+# Verify result object exists, but its values are null due to invalid operations
+eval nop {global:result|assert type object}
+eval nop {global:result|listMembers|length|assert equals int 2}
+eval nop {global:result|listMembers|sort case-insensitive|at 0|assert equals string div}
+eval nop {global:result|listMembers|sort case-insensitive|at 1|assert equals string mod}
+eval nop {global:result.mod|assert empty}
+eval nop {global:result.div|assert empty}
+
+exit

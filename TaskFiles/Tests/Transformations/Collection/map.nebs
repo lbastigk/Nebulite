@@ -1,0 +1,18 @@
+# Mapping function
+set val 10
+set arr[0] 1
+set arr[1] 2
+set arr[2] 3
+
+assign global:result.val = {global:val|map add 10}
+assign global:result.arr = {global:arr|map add 10}
+
+eval nop {global:result|assert type object}
+eval nop {global:result.val|assert type array}
+eval nop {global:result.arr|assert type array}
+
+eval nop {global:result.val|at 0|assert equals int 20}
+eval nop {global:result.arr|at 0|assert equals int 11}
+eval nop {global:result.arr|at 1|assert equals int 12}
+eval nop {global:result.arr|at 2|assert equals int 13}
+exit

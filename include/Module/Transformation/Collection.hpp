@@ -39,25 +39,6 @@ public:
     static auto constexpr getDesc = "Gets the value at the specified key from the current JSON object.\n"
         "Usage: |get <key> -> {value}\n";
 
-    static bool filterRegex(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
-    static auto constexpr filterRegexName = "filterRegex";
-    static auto constexpr filterRegexDesc = "Filters members in the current JSON array/object based on a regular expression pattern.\n"
-        "For arrays, the member names are the indices as strings: [0], [1], [2], ...\n"
-        "Wrap the pattern inside {!...} to avoid conflicts with piping character"
-        "Usage: |filterRegex {!<pattern>} -> {filtered array}\n"
-        "       |filterRegex <pattern>    -> {filtered array}\n";
-
-    static bool filterGlob(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
-    static auto constexpr filterGlobName = "filterGlob";
-    static auto constexpr filterGlobDesc = "Filters members in the current JSON array/object based on a glob pattern.\n"
-        "For arrays, the member names are the indices as strings: [0], [1], [2], ...\n"
-        "Usage: |filterGlob <pattern> -> {filtered array}\n";
-
-    static bool filterNulls(Data::JsonScope* jsonDoc);
-    static auto constexpr filterOutNullsName = "filterNulls";
-    static auto constexpr filterOutNullsDesc = "Filters out null values, empty objects, and empty arrays from the current JSON\n"
-        "Usage: |filterNulls -> {filtered json}\n";
-
     static bool listMembers(Data::JsonScope* jsonDoc);
     static auto constexpr listMembersName = "listMembers";
     static auto constexpr listMembersDesc = "Lists all members of the current JSON object as an array.\n"

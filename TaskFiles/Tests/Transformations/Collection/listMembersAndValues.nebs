@@ -1,0 +1,48 @@
+# List Members function
+
+# Array
+set arr[0] 1
+set arr[1] 2
+set arr[2] 3
+
+# Object
+set obj.key1 value1
+set obj.key2 value2
+set obj.key3 value3
+
+# List members
+assign global:result.arr = {global:arr|listMembersAndValues}
+assign global:result.obj = {global:obj|listMembersAndValues}
+
+# Verify
+eval nop {global:result.arr|assert type array}
+eval nop {global:result.arr|length|assert equals int 3}
+eval nop {global:result.arr|get [0]|assert type object}
+eval nop {global:result.arr|get [1]|assert type object}
+eval nop {global:result.arr|get [2]|assert type object}
+eval nop {global:result.arr|get [0]|listMembers|length|assert equals int 2}
+eval nop {global:result.arr|get [1]|listMembers|length|assert equals int 2}
+eval nop {global:result.arr|get [2]|listMembers|length|assert equals int 2}
+eval nop {global:result.arr|get [0].key|assert equals string [0]}
+eval nop {global:result.arr|get [1].key|assert equals string [1]}
+eval nop {global:result.arr|get [2].key|assert equals string [2]}
+eval nop {global:result.arr|get [0].value|assert equals int 1}
+eval nop {global:result.arr|get [1].value|assert equals int 2}
+eval nop {global:result.arr|get [2].value|assert equals int 3}
+
+eval nop {global:result.obj|assert type array}
+eval nop {global:result.obj|length|assert equals int 3}
+eval nop {global:result.obj|get [0]|assert type object}
+eval nop {global:result.obj|get [1]|assert type object}
+eval nop {global:result.obj|get [2]|assert type object}
+eval nop {global:result.obj|get [0]|listMembers|length|assert equals int 2}
+eval nop {global:result.obj|get [1]|listMembers|length|assert equals int 2}
+eval nop {global:result.obj|get [2]|listMembers|length|assert equals int 2}
+eval nop {global:result.obj|get [0].key|assert equals string key1}
+eval nop {global:result.obj|get [1].key|assert equals string key2}
+eval nop {global:result.obj|get [2].key|assert equals string key3}
+eval nop {global:result.obj|get [0].value|assert equals string value1}
+eval nop {global:result.obj|get [1].value|assert equals string value2}
+eval nop {global:result.obj|get [2].value|assert equals string value3}
+
+exit

@@ -1,0 +1,28 @@
+# Get function
+
+# Array
+set arr[0] 1
+set arr[1] 2
+set arr[2] 3
+
+# Object
+set obj.key1 value1
+set obj.key2 value2
+set obj.key3 value3
+
+# Bundle
+assign global:result.arr = {global:arr|bundleToArray [0] [1]}
+assign global:result.obj = {global:obj|bundleToArray key1 key2}
+
+# Verify
+eval nop {global:result.arr|assert type array}
+eval nop {global:result.arr|length|assert equals int 2}
+eval nop {global:result.arr|get [0]|assert equals int 1}
+eval nop {global:result.arr|get [1]|assert equals int 2}
+
+eval nop {global:result.obj|assert type array}
+eval nop {global:result.obj|length|assert equals int 2}
+eval nop {global:result.obj|get [0]|assert equals string value1}
+eval nop {global:result.obj|get [1]|assert equals string value2}
+
+exit
