@@ -1,0 +1,18 @@
+# Testing the performance of large arrays
+set-fps 5000
+
+# Settings
+set n 20000
+
+# Ensure the frame rate stabilizes before starting the test
+wait 100
+assign global:start = {global:time.runtime.t}
+
+# Create a large array and calculate the average
+assign global:result = {|iota 1 {global:n}|average}
+wait 1
+
+# Output the result and verify correctness
+eval echo Took $({global:time.runtime.t} - {global:start}) seconds. n = {global:n}
+assert $(eq({global:result},{global:n} / 2))
+exit

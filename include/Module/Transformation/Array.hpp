@@ -86,6 +86,12 @@ public:
         "Usage: |enumerate <indexKey> -> {array}\n"
         "Where indexKey is the key of each array element to populate with the index of the element in the array.\n";
 
+    static bool iota(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr iotaName = "iota";
+    static auto constexpr iotaDesc = "Generates an array of values.\n"
+        "Usage: |iota <start> <end> -> {array}\n"
+        "Generates an array containing the values from start (inclusive) to end (exclusive).\n";
+
     // TODO: dedupe, pick, omit
 };
 } // namespace Nebulite::Module::Transformation

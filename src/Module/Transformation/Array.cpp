@@ -29,6 +29,7 @@ void Array::bindTransformations() {
     bindTransformation(&Array::pushNumber, pushNumberName, pushNumberDesc);
     bindTransformation(&Array::subspan, subspanName, subspanDesc);
     bindTransformation(&Array::enumerate, enumerateName, enumerateDesc);
+    bindTransformation(&Array::iota, iotaName, iotaDesc);
 }
 
 // Clang marks this function as having an unreachable branch,
@@ -188,11 +189,27 @@ bool Array::subspan(std::span<std::string const> const& args, Data::JsonScope* j
 bool Array::enumerate(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
     if (args.size() < 2) return false;
     if (jsonDoc->memberType(rootKey) != Data::KeyType::array) return false;
-    auto const indexKey = args.at(1);
+    auto const& indexKey = args.at(1);
     std::ranges::for_each(
         std::views::iota(size_t{0}, jsonDoc->memberSize(rootKey)),
         [&](size_t const& i) {
             auto const key = rootKey.addIndex(i).addMember(indexKey);
+            jsonDoc->set(key, i);
+        }
+    );
+    return true;
+}
+
+bool Array::iota(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+    if (args.size() < 3) return false;
+    auto start = std::stoll(args.at(1));
+    auto end = std::stoll(args.at(2));
+    if (start > end) return false;
+    std::ranges::for_each(
+        std::views::iota(start, end),
+        [&](auto const& i) {
+            auto index = i - start;
+            auto const key = rootKey.addIndex(static_cast<size_t>(index));
             jsonDoc->set(key, i);
         }
     );
