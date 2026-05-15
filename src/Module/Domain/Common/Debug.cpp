@@ -30,6 +30,8 @@ Constants::Event Debug::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
+// Fetch
+
 Constants::Event Debug::fetchId(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -77,12 +79,7 @@ Constants::Event Debug::printId(std::span<std::string const> const& /*args*/, In
     return Constants::Event::Success;
 }
 
-Constants::Event Debug::error(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
-    auto const& argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    ctx.self.capture.error.println(argStr);
-    return Constants::Event::Success;
-}
-
+// Flow
 
 // Ignore lint: Function warn always returns Constants::Event::Warning
 // NOLINTNEXTLINE
@@ -95,14 +92,18 @@ Constants::Event Debug::warn(std::span<std::string const> const& args) const {
     return Constants::Event::Warning;
 }
 
-Constants::Event Debug::critical(std::span<std::string const> const& args) const {
-    if (args.size() < 2) {
-        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
-    }
-
-    std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
-    domain.capture.error.println(argStr);
+Constants::Event Debug::error(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) {
+    auto const& argStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    ctx.self.capture.error.println(argStr);
     return Constants::Event::Error;
+}
+
+Constants::Event Debug::func_throw(std::span<std::string const> const& args) {
+    std::string const message = [&] {
+        if (args.size() < 2) return std::string("");
+        return Utility::StringHandler::recombineArgs(args.subspan(1));
+    }();
+    throw std::runtime_error(message);
 }
 
 } // namespace Nebulite::Module::Domain::Common

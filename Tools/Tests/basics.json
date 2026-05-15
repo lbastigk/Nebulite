@@ -8,7 +8,7 @@
         "expected": { "cout": ["1234"], "cerr": [] }
     },
     {
-        "command": "error 1234",
+        "command": "warn 1234",
         "expected": { "cout": [], "cerr": ["1234"] }
     },
     {

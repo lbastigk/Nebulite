@@ -41,8 +41,6 @@ public:
     static auto constexpr fetchName_desc = "Fetches the name of the domain and stores it in the context scope for later use.\n"
         "Usage: fetch-name <key>\n";
 
-    // Message
-
     [[nodiscard]] static Constants::Event print(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
     static auto constexpr print_name = "print";
     static auto constexpr print_desc = "Prints the JSON document to the console for debugging purposes.\n"
@@ -55,12 +53,7 @@ public:
     static auto constexpr printId_desc = "Prints the unique ID of the domain to the console for debugging purposes.\n"
        "Usage: print-id\n";
 
-    [[nodiscard]] static Constants::Event error(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
-    static auto constexpr error_name = "error";
-    static auto constexpr error_desc = "Echoes all arguments as string to the standard error.\n"
-        "Usage: error <string...>\n"
-        "\n"
-        "- <string...>: One or more strings to echo to the standard error.\n";
+    // Flow
 
     [[nodiscard]] Constants::Event warn(std::span<std::string const> const& args) const ;
     static auto constexpr warn_name = "warn";
@@ -69,12 +62,19 @@ public:
         "\n"
         "- <string>: The warning message.\n";
 
-    [[nodiscard]] Constants::Event critical(std::span<std::string const> const& args) const ;
-    static auto constexpr critical_name = "critical";
-    static auto constexpr critical_desc = "Sends an error to the capture.\n"
-        "Usage: critical <string>\n"
+    [[nodiscard]] static Constants::Event error(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
+    static auto constexpr error_name = "error";
+    static auto constexpr error_desc = "Echoes all arguments as string to the standard error.\n"
+        "Usage: error <string...>\n"
         "\n"
-        "- <string>: The critical error message.\n";
+        "- <string...>: One or more strings to echo to the standard error.\n";
+
+    [[noreturn]] static Constants::Event func_throw(std::span<std::string const> const& args);
+    static auto constexpr func_throw_name = "throw";
+    static auto constexpr func_throw_desc = "Throws a runtime error with the provided message.\n"
+        "Usage: throw <string>\n"
+        "\n"
+        "- <string>: The error message for the thrown exception.\n";
 
     //------------------------------------------
     // Setup
@@ -88,17 +88,14 @@ public:
         // Fetch
         bindFunction(&Debug::fetchId, fetchId_name, fetchId_desc);
         bindFunction(&Debug::fetchName, fetchName_name, fetchName_desc);
-
-        // Message
         bindFunction(&Debug::print, print_name, print_desc);
         bindFunction(&Debug::printId, printId_name, printId_desc);
-        bindFunction(&Debug::error, error_name, error_desc);
-        bindFunction(&Debug::warn, warn_name, warn_desc);
-        bindFunction(&Debug::critical, critical_name, critical_desc);
-    }
 
-private:
-    absl::flat_hash_map<std::string, std::string> forced_global_values; // Key-Value pairs to set in global JSON
+        // Flow
+        bindFunction(&Debug::warn, warn_name, warn_desc);
+        bindFunction(&Debug::error, error_name, error_desc);
+        bindFunction(&Debug::func_throw, func_throw_name, func_throw_desc);
+    }
 };
 } // namespace Nebulite::Module::Domain::Common
 #endif // MODULE_DOMAIN_COMMON_DEBUG_HPP

@@ -46,10 +46,6 @@
         ], "cerr": [] }
     },
     {
-        "command": "error Hello, Error!",
-        "expected": { "cout": [], "cerr": ["Hello, Error!"] }
-    },
-    {
         "command": "print physics.G",
         "expected": { "cout": ["6.6743e-11"], "cerr": [] }
     },
@@ -62,7 +58,7 @@
         "expected": { "cout": [], "cerr": ["This is a warning!"] }
     },
     {
-        "command": "set-fps 60 ; wait 1; critical Aborting due to error!",
+        "command": "set-fps 60 ; wait 1; error Aborting due to error!",
         "expected": { "cout": [], "cerr": ["Aborting due to error!"], "ignore_exit": true }
     },
     {
