@@ -1,0 +1,27 @@
+# Testing ensureArray works correctly
+set test.val 3
+set test.arr[0] 1
+set test.arr[1] 2
+set test.arr[2] 3
+set test.obj.key1 value1
+set test.obj.key2 value2
+set test.obj.key3 value3
+
+# Calculate
+assign global:result.val = {global:test.val|ensureArray}
+assign global:result.arr = {global:test.arr|ensureArray}
+assign global:result.obj = {global:test.obj|ensureArray}
+
+#####################
+# Verify
+
+eval nop {global:result.val|assert type array}
+eval nop {global:result.val|length|assert equals int 1}
+
+eval nop {global:result.arr|assert type array}
+eval nop {global:result.arr|length|assert equals int 3}
+
+eval nop {global:result.obj|assert type array}
+eval nop {global:result.obj|length|assert equals int 1}
+
+exit

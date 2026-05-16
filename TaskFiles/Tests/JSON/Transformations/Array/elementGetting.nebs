@@ -1,0 +1,43 @@
+#########################################
+# Setup test data
+
+set test.arr[0] zero
+set test.arr[1] 1
+set test.arr[2].obj.key1 value1
+set test.arr[2].obj.key2 value2
+
+#########################################
+# Basic element getting: at, first, last
+
+# Calculate + verify
+eval nop {global:test.arr|at 0|assert equals string zero}
+eval nop {global:test.arr|at 1|assert equals int 1}
+eval nop {global:test.arr|at 2|assert type object}
+
+eval nop {global:test.arr|first|assert equals string zero}
+eval nop {global:test.arr|last|assert type object}
+
+#########################################
+# Try 'at' with invalid index / wrong argument count
+
+# Calculate
+assign global:result.inv1 = {global:test.arr|at a|unreachable}
+assign global:result.inv2 = {global:test.arr|at  |unreachable}
+assign global:result.inv3 = {global:test.arr|at|unreachable}
+assign global:result.inv4 = {global:test.arr|at 2 3|unreachable}
+
+# Verify
+eval nop {global:result|listMembers|length|assert equals int 4}
+eval nop {global:result|listMembers|sort case-insensitive|at 0|assert equals string inv1}
+eval nop {global:result|listMembers|sort case-insensitive|at 1|assert equals string inv2}
+eval nop {global:result|listMembers|sort case-insensitive|at 2|assert equals string inv3}
+eval nop {global:result|listMembers|sort case-insensitive|at 3|assert equals string inv4}
+eval nop {global:result.inv1|assert empty}
+eval nop {global:result.inv2|assert empty}
+eval nop {global:result.inv3|assert empty}
+eval nop {global:result.inv4|assert empty}
+
+#########################################
+# Wrong argument count
+
+exit

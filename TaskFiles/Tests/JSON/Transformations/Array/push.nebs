@@ -1,0 +1,32 @@
+# Setup test data
+
+set arr[0] 1
+set arr[1] 2
+set arr[2] 3
+
+
+# Calculate
+assign global:result1 = {global:arr|push text|push 1234|pushNumber 1234}
+assign global:result2 = {|push second|push third}
+
+# Verify
+eval nop {global:result1|assert type array}
+eval nop {global:result1|length|assert equals int 6}
+eval nop {global:result1|at 0|assert equals int 1}
+eval nop {global:result1|at 1|assert equals int 2}
+eval nop {global:result1|at 2|assert equals int 3}
+eval nop {global:result1|at 3|assert equals string text}
+eval nop {global:result1|at 4|assert equals string 1234}
+eval nop {global:result1|at 5|assert equals int 1234}
+
+eval nop {global:result2|assert type array}
+eval nop {global:result2|length|assert equals int 3}
+eval nop {global:result2|at 0|assert empty} # Pushing into an empty value causes the first element to be empty
+eval nop {global:result2|at 1|assert equals string second}
+eval nop {global:result2|at 2|assert equals string third}
+
+# TODO:
+# Reasoning behind the empty element: "nothing + something = [nothing, something]"
+# is unintuitive, perhaps we should change this behavior in the future ...
+
+exit

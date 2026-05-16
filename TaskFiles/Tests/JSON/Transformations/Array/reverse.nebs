@@ -1,0 +1,17 @@
+# Testing array first and last elements + reversing
+set test.arr[0] zero
+set test.arr[1] 1
+set test.arr[2] two
+set test.arr[3] 3
+set test.arr[4] four
+set test.arr[5] 5
+
+# Calculate + verify:
+eval nop {global:test.arr|first        |assert equals string zero}
+eval nop {global:test.arr|last         |assert equals int 5}
+eval nop {global:test.arr|reverse|first|assert equals int 5}
+eval nop {global:test.arr|reverse|last |assert equals string zero}
+eval nop {global:test.arr|at 2         |assert equals string two}
+eval nop {global:test.arr|reverse|at 2 |assert equals int 3}
+
+exit

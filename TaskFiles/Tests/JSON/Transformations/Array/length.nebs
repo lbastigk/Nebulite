@@ -1,0 +1,12 @@
+# Testing array length
+set test.val value
+set test.arr[5] 5
+set test.obj.key1 value1
+set test.obj.key2 value2
+
+# Calculate + verify:
+eval nop {global:test.val|length|assert equals int 1} # length of any value is 1
+eval nop {global:test.arr|length|assert equals int 6}
+eval nop {global:test.obj|length|assert equals int 1} # length of any object is 1
+
+exit
