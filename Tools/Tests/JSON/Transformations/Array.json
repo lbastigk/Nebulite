@@ -20,38 +20,8 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": [
-            "# Subspan of array",
-            "set arr[0] zero",
-            "set arr[1] 1",
-            "set arr[2] two",
-            "set arr[3] 3",
-            "set arr[4] four",
-            "eval nop {global:arr|subspan 1 1|print} # Subspan in range",
-            "eval nop {global:arr|subspan 2 3|print} # Subspan in range",
-            "eval nop {global:arr|subspan 2 4|print} # Subspan exceeding range, gets shortened (same output as previous)",
-            "eval nop {global:arr|subspan 8 2|print} # Subspan starting out of range, results empty array",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "[",
-                "    \"1\"",
-                "]",
-                "[",
-                "    \"two\",",
-                "    \"3\",",
-                "    \"four\"",
-                "]",
-                "[",
-                "    \"two\",",
-                "    \"3\",",
-                "    \"four\"",
-                "]",
-                "[]"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/JSON/Transformations/Array/subspan.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
         "command": "task TaskFiles/Tests/JSON/Transformations/arrayBundling.nebs",

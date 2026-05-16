@@ -1,0 +1,36 @@
+# Setup test data
+set arr[0] zero
+set arr[1] 1
+set arr[2] two
+set arr[3] 3
+set arr[4] four
+
+# Calculate
+assign global:result.span1 = {global:arr|subspan 1 1} # Subspan in range
+assign global:result.span2 = {global:arr|subspan 2 3} # Subspan in range
+assign global:result.span3 = {global:arr|subspan 2 4} # Subspan exceeding range, gets shortened (same output as previous)
+assign global:result.span4 = {global:arr|subspan 8 2} # Subspan starting out of range, results empty array
+
+# Verify
+
+eval nop {global:result.span1|assert type array}
+eval nop {global:result.span1|length|assert equals int 1}
+eval nop {global:result.span1|at 0|assert equals int 1}
+eval nop {global:result.span1|at 1|assert equals string two}
+
+eval nop {global:result.span2|assert type array}
+eval nop {global:result.span2|length|assert equals int 3}
+eval nop {global:result.span2|at 0|assert equals string two}
+eval nop {global:result.span2|at 1|assert equals int 3}
+eval nop {global:result.span2|at 2|assert equals string four}
+
+eval nop {global:result.span3|assert type array}
+eval nop {global:result.span3|length|assert equals int 3}
+eval nop {global:result.span3|at 0|assert equals string two}
+eval nop {global:result.span3|at 1|assert equals int 3}
+eval nop {global:result.span3|at 2|assert equals string four}
+
+eval nop {global:result.span4|assert type array}
+eval nop {global:result.span4|length|assert equals int 0}
+
+exit
