@@ -7,7 +7,6 @@
 // Standard library
 
 // External
-#include <RmlUi/Core.h>
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
@@ -29,8 +28,14 @@ public:
 
     void OnElementDestroy(Rml::Element* element) override ;
 
-    static auto constexpr dataValueAttribute = "data-value";
-    static auto constexpr dataIfAttribute = "data-if";
+    struct Attribute {
+        static auto constexpr dataValue = "data-value";
+        static auto constexpr dataIf = "data-if";
+
+        static bool hasSupportedAttribute(Rml::Element* element) {
+            return element->GetAttribute(dataValue) || element->GetAttribute(dataIf);
+        }
+    };
 
 private:
     absl::flat_hash_map<

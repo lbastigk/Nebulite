@@ -36,6 +36,7 @@
 #include "Utility/IO/FileManagement.hpp"
 
 // Nebulite: RmlUi-Modules
+#include "Module/RmlUi/Conditional.hpp"
 #include "Module/RmlUi/ContextManager.hpp"
 #include "Module/RmlUi/DataReference.hpp"
 #include "Module/RmlUi/EventBridge.hpp"
@@ -135,6 +136,7 @@ void RmlInterface::init(Core::Renderer& renderer, int const& width, int const& h
 
     // Plugins
     modules.emplace_back(std::make_unique<Module::RmlUi::EventBridge>(renderer.capture, *this));
+    modules.emplace_back(std::make_unique<Module::RmlUi::Conditional>(renderer.capture, *this));
     modules.emplace_back(std::make_unique<Module::RmlUi::ContextManager>(renderer.capture, *this));
     modules.emplace_back(std::make_unique<Module::RmlUi::DataReference>(renderer.capture, *this));
     modules.emplace_back(std::make_unique<Module::RmlUi::Reflection>(renderer.capture, *this));
