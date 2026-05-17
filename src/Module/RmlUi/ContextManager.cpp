@@ -7,6 +7,7 @@
 // Nebulite
 #include "Graphics/RmlInterface.hpp"
 #include "Module/Base/RmlUiModule.hpp"
+#include "Module/RmlUi/Conditional.hpp"
 #include "Module/RmlUi/ContextManager.hpp"
 #include "Module/RmlUi/ExpressionManager.hpp"
 #include "Module/RmlUi/EventBridge.hpp"
@@ -27,6 +28,7 @@ void ContextManager::update() {
         // Check for supported attributes
         return ExpressionManager::Attribute::hasSupportedAttribute(element) // Any expression requires context
             || EventBridge::Attribute::hasSupportedAttribute(element)  // Any interactive event requires context
+            || Conditional::Attribute::hasSupportedAttribute(element)
             // ^ Add any new attributes here ^
         ;
     };

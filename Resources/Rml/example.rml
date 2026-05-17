@@ -23,11 +23,20 @@
         <div onDestroy#invokeRuleset="Resources/Rulesets/Debug/helloWorld.jsonc"></div>
         <div onDestroy#parse="set UI_DELETED 1 ; assert $(eq({self:UI_DELETED},1))"></div>
 
-        <!-- Toggle between bold and vanilla every second -->
+        <!-- Blink: Toggle between bold and vanilla every second -->
         <p>
-            <b data-if="global:time.t|toInt|add 0|mod 2">Hello world!</b>
-            <div data-if="global:time.t|toInt|add 1|mod 2">Hello world!</div>
+            <!-- add 0 is necessary, as self:nameSet might return null, which 'not' will not consider false and fail -->
+            <div if="$({self:nameSet|add 0|not})">
+                <b if="$({global:time.t|toInt|add 2|mod 2})">Hello World!</b>
+                <div if="$({global:time.t|toInt|add 1|mod 2})">Hello World!</div>
+            </div>
+
+            <div if="$({self:nameSet})">
+                <b if="$({global:time.t|toInt|add 2|mod 2})" data-eval="true">Hello {self:name}!</b>
+                <div if="$({global:time.t|toInt|add 1|mod 2})" data-eval="true">Hello {self:name}!</div>
+            </div>
         </p>
+
 
         <hr />
         <h2>Expression</h2>
@@ -50,7 +59,7 @@
         </p>
 
         <!-- Set input, if self:rml.settings.showInput is true -->
-        <p data-if="self:rml.settings.showInput">
+        <p>
             <input
                 type="text"
                 data-value="self:rml.input.animal"

@@ -1,5 +1,23 @@
 # Nebulite RmlUi integration
 
+## Nebulite Data/Conditional Attributes
+
+Nebulite offers support for various Rml-Attributes to use the context-provided data in meaningful ways:
+please ensure that the body of your document has the `data-model="nebuliteDataSync"` attribute, 
+as some of the attributes rely on the data synchronization between Rml and Nebulite to work properly.
+
+- `data-eval`: Evaluates the inner Rml of the element and replaces the content of the element with the result.
+The syntax for the value is: `true/false`
+- `data-value`: Provides Rml with a variable from the context to sync. This is required for text inputs.
+The syntax for the value is: `context:key`.
+- `data-if`: The inner Rml of the element will only be rendered if the value of the attribute is truthy.
+The syntax for the value is: `context:key|optionalTransformations`.
+- `if`: A more powerful version of `data-if` that supports Nebulite expressions.
+The syntax for the value is any valid Nebulite expression. Note that the result is converted to a boolean.
+- `data-reflect`: The inner Rml of the element is repeated for each item in the provided list.
+The syntax for the value is any Nebulite expression. But as the expected output is an array, we must use: 
+`{context:key|optionalTransformations}`. The braces are required to indicate a variable access.
+
 ## Supported Rml attribute commands
 
 Nebulites RmlUi integration allows you to easily create interactive UI elements 

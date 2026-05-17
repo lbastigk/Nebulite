@@ -51,7 +51,7 @@ void DataReference::OnElementDestroy(Rml::Element* element) {
 //----------------------------------------------
 
 void DataReference::registerDataValue(Rml::Element* element) {
-    for (auto const& attribute : {dataValueAttribute, dataIfAttribute}) {
+    for (auto const& attribute : {Attribute::dataValue, Attribute::dataIf}) {
         std::string const backupAttribute = "__backup__" + std::string(attribute);
         auto const* rmlValue = element->GetAttribute(attribute);
         auto const* rmlBackupValue = element->GetAttribute(backupAttribute);
@@ -81,12 +81,12 @@ void DataReference::registerDataValue(Rml::Element* element) {
             entry->previousRmlValue = "";
             entry->previousDocumentValue = "";
             entry->isNewEntry = true;
-            entry->innerRml = "";
+            entry->innerRml = attribute == Attribute::dataIf ? std::optional<std::string>("") : std::nullopt;
             auto value = std::make_unique<Rml::String>();
             *value = "";
 
             // Remove data-if attribute
-            if (std::string(attribute) == dataIfAttribute) {
+            if (std::string(attribute) == Attribute::dataIf) {
                 entry->innerRml = "";
                 element->RemoveAttribute(attribute);
             }
