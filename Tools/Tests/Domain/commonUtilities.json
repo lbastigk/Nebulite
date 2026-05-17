@@ -78,5 +78,9 @@
             ],
             "cerr": []
         }
+    },
+    {
+        "command": "task TaskFiles/Tests/Domain/General/must-throw.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

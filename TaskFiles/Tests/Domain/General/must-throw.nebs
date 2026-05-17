@@ -1,0 +1,7 @@
+# Test the must-throw functionality
+
+# Catch a simple throw
+must-throw throw
+
+# Catch a throw from a must-throw
+must-throw must-throw nop

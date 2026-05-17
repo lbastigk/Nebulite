@@ -106,4 +106,19 @@ Constants::Event Debug::func_throw(std::span<std::string const> const& args) {
     throw std::runtime_error(message);
 }
 
+Constants::Event Debug::mustThrow(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+    if (args.size() < 2) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
+    }
+    auto const funcCallStr = Utility::StringHandler::recombineArgs(args);
+    try {
+        (void) ctx.self.parseStr(funcCallStr, ctx, ctxScope);
+    } catch (...) {
+        // An exception was thrown as expected
+        return Constants::Event::Success;
+    }
+    // No exception was thrown, but one was expected
+    throw std::runtime_error("Expected an exception to be thrown, but no exception was thrown.");
+}
+
 } // namespace Nebulite::Module::Domain::Common

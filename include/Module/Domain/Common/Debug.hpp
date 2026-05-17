@@ -76,6 +76,14 @@ public:
         "\n"
         "- <string>: The error message for the thrown exception.\n";
 
+    [[nodiscard]] static Constants::Event mustThrow(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    static auto constexpr mustThrow_name = "must-throw";
+    static auto constexpr mustThrow_desc = "Forwards the provided arguments as a function call and expects the function to throw.\n"
+        "If the function does not throw, a runtime error is thrown indicating that an exception was expected but not thrown.\n"
+        "Usage: must-throw <function call>\n"
+        "\n"
+        "- <function call>: A function call that is expected to throw an exception.\n";
+
     //------------------------------------------
     // Setup
 
@@ -95,6 +103,7 @@ public:
         bindFunction(&Debug::warn, warn_name, warn_desc);
         bindFunction(&Debug::error, error_name, error_desc);
         bindFunction(&Debug::func_throw, func_throw_name, func_throw_desc);
+        bindFunction(&Debug::mustThrow, mustThrow_name, func_throw_desc);
     }
 };
 } // namespace Nebulite::Module::Domain::Common
