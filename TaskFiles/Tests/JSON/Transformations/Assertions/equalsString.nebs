@@ -1,0 +1,8 @@
+# Test if a value is a string
+set myString abc
+
+# Scenario 1: must throw
+must-throw eval nop {global:myString|assert equals string def}
+
+# Scenario 2: success
+eval nop {global:myString|assert equals string abc}

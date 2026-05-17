@@ -1,0 +1,22 @@
+# Test if a value is a given integer
+set myInt 123
+set myObject.value1 123
+set myObject.value2 456
+set myObject.value3 789
+set myArray[0] 123
+set myArray[1] 456
+set myArray[2] 789
+
+# Scenario 1: must throw
+must-throw eval nop {global:myInt|assert equals int 456}
+must-throw eval nop {global:myObject|assert equals int 123}
+must-throw eval nop {global:myArray|assert equals int 123}
+
+# Scenario 2: success
+eval nop {global:myInt|assert equals int 123}
+eval nop {global:myObject.value1|assert equals int 123}
+eval nop {global:myObject.value2|assert equals int 456}
+eval nop {global:myObject.value3|assert equals int 789}
+eval nop {global:myArray[0]|assert equals int 123}
+eval nop {global:myArray[1]|assert equals int 456}
+eval nop {global:myArray[2]|assert equals int 789}

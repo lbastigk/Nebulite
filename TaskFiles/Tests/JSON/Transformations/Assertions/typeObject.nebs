@@ -1,0 +1,13 @@
+# Assert that a value is an object
+set basicValue value1
+set arrayValue[0] value1
+set arrayValue[1] value2
+set objectValue.key1 value1
+set objectValue.key2 value2
+
+# Scenario 1: must throw
+must-throw eval nop {global:basicValue|assert type object}
+must-throw eval nop {global:arrayValue|assert type object}
+
+# Scenario 2: success
+eval nop {global:objectValue|assert type object}

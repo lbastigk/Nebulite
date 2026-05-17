@@ -1,0 +1,10 @@
+# Test assertion that a value is an array
+set notAnArray "This is not an array"
+set isAnArray[0] value1
+set isAnArray[1] value2
+
+# Scenario 1: must throw
+must-throw eval nop {global:notAnArray|assert type array}
+
+# Scenario 2: success
+eval nop {global:isAnArray|assert type array}

@@ -1,0 +1,17 @@
+# Test assertion that a value is not empty
+set myBasicValue value
+set myNonBasicValue1.key1 value1
+set myNonBasicValue1.key2 value2
+set myNonBasicValue2[0] value1
+set myNonBasicValue2[1] value2
+
+# Scenario 1: must throw
+must-throw eval nop {global:myNonBasicValue1|assert type basicValue}
+must-throw eval nop {global:myNonBasicValue2|assert type basicValue}
+
+# Scenario 2: success
+eval nop {global:myBasicValue|assert type basicValue}
+eval nop {global:myNonBasicValue1.key1|assert type basicValue}
+eval nop {global:myNonBasicValue1.key2|assert type basicValue}
+eval nop {global:myNonBasicValue2[0]|assert type basicValue}
+eval nop {global:myNonBasicValue2[1]|assert type basicValue}

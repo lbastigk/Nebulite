@@ -1,0 +1,8 @@
+# Test if a value matches a regex - must throw
+set v MyTestString
+
+# Scenario 1: must throw
+must-throw eval nop {global:v|assert match regex ^My.*string$}
+
+# Scenario 2: success
+eval nop {global:v|assert match regex ^My.*String$}

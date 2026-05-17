@@ -1,0 +1,8 @@
+# Test assertion that a value is not empty
+set existingValue value
+
+# Scenario 1: must throw
+must-throw eval nop {global:missingValue|assert nonEmpty}
+
+# Scenario 2: success
+eval nop {global:existingValue|assert nonEmpty}

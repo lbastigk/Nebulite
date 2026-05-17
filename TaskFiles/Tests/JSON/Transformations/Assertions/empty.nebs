@@ -1,0 +1,8 @@
+# Test assertion for null value
+set exists someValue
+
+# Scenario 1: must throw
+must-throw eval nop {global:exists|assert empty}
+
+# Scenario 2: success
+eval nop {global:doesNotExist|assert empty}
