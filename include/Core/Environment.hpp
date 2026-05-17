@@ -189,6 +189,10 @@ private:
     // All layers in rendering order
     static std::array constexpr allLayers = {Layer::background, Layer::general, Layer::foreground, Layer::effects};
 
+    // TODO: turn layer0 into a "freeze-layer" for performance:
+    //       - no updates for objects
+    //       - pre-render texture for each tile (with some overhead in size, for overlapping objects
+    //       - only re-render texture if new objects are inserted
     // Inner RenderObject container layers
     std::array<Data::RenderObjectContainer, allLayers.size()> roc;
 };
