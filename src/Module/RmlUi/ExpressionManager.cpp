@@ -6,6 +6,7 @@
 #include <string>
 
 // External
+#include <RmlUi/Config/Config.h>
 #include <RmlUi/Core/Element.h>
 
 // Nebulite

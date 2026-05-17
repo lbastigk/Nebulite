@@ -16,8 +16,16 @@
 #include <vector>
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
-#include "Interaction/Context.hpp"
+#include "Constants/Event.hpp"
+#include "Utility/IO/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
 
 //------------------------------------------
 namespace Nebulite::Data {

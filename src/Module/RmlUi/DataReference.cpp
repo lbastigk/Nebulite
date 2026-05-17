@@ -3,6 +3,7 @@
 
 // Standard library
 #include <memory>
+#include <optional>
 #include <ranges>
 #include <string>
 #include <utility>

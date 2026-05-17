@@ -5,9 +5,10 @@
 #include <cmath>
 
 // Nebulite
-#include "Module/Domain/Renderer/Audio.hpp"
 #include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Math/FFT.hpp"
+#include "Module/Domain/Renderer/Audio.hpp"
 #include "Nebulite.hpp"
 #include "Utility/Generate.hpp"
 

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef INTERACTION_EXECUTION_DOMAINTREE_HPP
+#define INTERACTION_EXECUTION_DOMAINTREE_HPP
 
 //------------------------------------------
 // Includes
@@ -25,3 +26,4 @@ namespace Nebulite::Interaction::Execution {
 using DomainTree = FuncTree<Constants::Event, Context&, ContextScope&>;
 
 } // namespace Nebulite::Interaction::Execution
+#endif // INTERACTION_EXECUTION_DOMAINTREE_HPP
