@@ -14,14 +14,12 @@
 #include <vector>
 
 // External
-#include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Core/Environment.hpp"
 #include "Data/RendererProcessor.hpp"
-#include "Graphics/RmlInterface.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Module/Base/RmlUiModule.hpp"

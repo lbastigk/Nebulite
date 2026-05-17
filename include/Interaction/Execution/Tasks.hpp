@@ -68,12 +68,12 @@ public:
         std::string fileContent = Utility::IO::FileManagement::LoadFile(filename);
 
         // Replace all "\n " with "\n" to allow for multi-line commands with leading spaces
-        while (fileContent.find("\n ") != std::string::npos) {
+        while (fileContent.contains("\n ")) {
             fileContent = Utility::StringHandler::replaceAll(fileContent, "\n ", "\n");
         }
 
         // Replace all " \\\n" with "\\\n" to allow for multi-line commands with trailing spaces
-        while (fileContent.find(" \\\n") != std::string::npos) {
+        while (fileContent.contains(" \\\n")) {
             fileContent = Utility::StringHandler::replaceAll(fileContent, " \\\n", "\\\n");
         }
 

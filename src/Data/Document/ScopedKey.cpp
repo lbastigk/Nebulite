@@ -49,11 +49,11 @@ ScopedKey ScopedKey::nestKey(ScopedKeyView const& other) const {
     return this->view().nestKey(other);
 }
 
-ScopedKey ScopedKey::addIndex(size_t const& index) const noexcept{
+ScopedKey ScopedKey::addIndex(size_t const& index) const {
     return this->view().addIndex(index);
 }
 
-ScopedKey ScopedKey::addMember(std::string_view const& member) const noexcept{
+ScopedKey ScopedKey::addMember(std::string_view const& member) const {
     return this->view().addMember(member);
 }
 
@@ -138,12 +138,12 @@ ScopedKey ScopedKeyView::nestKey(ScopedKeyView const& other) const {
     return ScopedKey(givenScope, combineKeys(key,suffix));
 }
 
-ScopedKey ScopedKeyView::addIndex(size_t const& index) const noexcept {
+ScopedKey ScopedKeyView::addIndex(size_t const& index) const {
     std::string const arrayIndex = "[" + std::to_string(index) + "]";
     return *this + arrayIndex;
 }
 
-ScopedKey ScopedKeyView::addMember(std::string_view const& member) const noexcept {
+ScopedKey ScopedKeyView::addMember(std::string_view const& member) const {
     return *this + member;
 }
 

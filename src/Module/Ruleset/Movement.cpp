@@ -2,10 +2,11 @@
 // Includes
 
 // Standard Library
+#include <algorithm>
 #include <cfloat>
+#include <utility>
 
 // Nebulite
-#include "Core/GlobalSpace.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 #include "Module/Domain/GlobalSpace/Time.hpp"
 #include "Module/Ruleset/Movement.hpp"

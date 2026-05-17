@@ -5,8 +5,8 @@
  * @details The main goal of this class is to manage hierarchical commands and arguments for modular and flexible execution.
  */
 
-#ifndef INTERACTION_EXECUTION_FUNC_TREE_HPP
-#define INTERACTION_EXECUTION_FUNC_TREE_HPP
+#ifndef INTERACTION_EXECUTION_FUNCTREE_HPP
+#define INTERACTION_EXECUTION_FUNCTREE_HPP
 
 //------------------------------------------
 // Includes
@@ -49,6 +49,7 @@ public:
 
     // Supported function signatures
     struct SupportedFunctions {
+        // TODO: remove legacy function signatures
         struct Legacy {
             using IntChar = std::function<returnValue(int, char**)>;
             using IntConstChar = std::function<returnValue(int, char const**)>;
@@ -466,4 +467,4 @@ private:
 
 // Template implementations
 #include "Interaction/Execution/FuncTree.tpp"
-#endif // INTERACTION_EXECUTION_FUNC_TREE_HPP
+#endif // INTERACTION_EXECUTION_FUNCTREE_HPP

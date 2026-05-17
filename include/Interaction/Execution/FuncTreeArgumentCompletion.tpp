@@ -7,8 +7,8 @@
  *          - Searching for bindings
  */
 
-#ifndef INTERACTION_EXECUTION_FUNC_TREE_ARGUMENT_COMPLETION_TPP
-#define INTERACTION_EXECUTION_FUNC_TREE_ARGUMENT_COMPLETION_TPP
+#ifndef INTERACTION_EXECUTION_FUNCTREEARGUMENTCOMPLETION_TPP
+#define INTERACTION_EXECUTION_FUNCTREEARGUMENTCOMPLETION_TPP
 
 //------------------------------------------
 // Includes
@@ -77,7 +77,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::help(std::span<std::string
 template <typename returnValue, typename... additionalArgs>
 void FuncTree<returnValue, additionalArgs...>::specificHelp(std::string const& funcName) {
     if (BindingSearchResult const searchResult = find(funcName); searchResult.has_value()) {
-        std::visit([&]<typename T>(T&& iterator) {
+        std::visit([&]<typename T>(T& iterator) {
             using Decayed = std::decay_t<T>;
 
             if constexpr (std::is_same_v<Decayed, categoryIterator>) {
@@ -372,4 +372,4 @@ std::vector<std::string> FuncTree<returnValue, additionalArgs...>::findCompletio
 }
 
 } // namespace Nebulite::Interaction::Execution
-#endif // INTERACTION_EXECUTION_FUNC_TREE_ARGUMENT_COMPLETION_TPP
+#endif // INTERACTION_EXECUTION_FUNCTREEARGUMENTCOMPLETION_TPP

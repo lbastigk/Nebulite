@@ -109,12 +109,12 @@ public:
     /**
      * @brief Adds a specified index to the key
      */
-    [[nodiscard]] ScopedKey addIndex(size_t const& index) const noexcept;
+    [[nodiscard]] ScopedKey addIndex(size_t const& index) const ;
 
     /**
      * @brief Adds a specified member to the key
      */
-    [[nodiscard]] ScopedKey addMember(std::string_view const& member) const noexcept;
+    [[nodiscard]] ScopedKey addMember(std::string_view const& member) const ;
 };
 
 //------------------------------------------
@@ -219,12 +219,12 @@ public:
     /**
      * @brief Adds a specified index to the key
      */
-    [[nodiscard]] ScopedKey addIndex(size_t const& index) const noexcept;
+    [[nodiscard]] ScopedKey addIndex(size_t const& index) const ;
 
     /**
      * @brief Adds a specified member to the key
      */
-    [[nodiscard]] ScopedKey addMember(std::string_view const& member) const noexcept;
+    [[nodiscard]] ScopedKey addMember(std::string_view const& member) const ;
 };
 } // namespace Nebulite::Data
 #endif // DATA_DOCUMENT_SCOPEDKEY_HPP

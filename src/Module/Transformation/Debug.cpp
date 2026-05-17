@@ -3,6 +3,7 @@
 
 // Standard library
 #include <algorithm>
+#include <exception>
 #include <ranges>
 #include <span>
 #include <string>
@@ -11,6 +12,7 @@
 #include "Data/Document/JsonScope.hpp"
 #include "Module/Transformation/Debug.hpp"
 #include "Nebulite.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Transformation {

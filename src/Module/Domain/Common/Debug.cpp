@@ -3,6 +3,7 @@
 
 // Standard library
 #include <span>
+#include <stdexcept>
 #include <string>
 
 // Nebulite

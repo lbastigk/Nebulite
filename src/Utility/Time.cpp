@@ -16,7 +16,7 @@
 //------------------------------------------
 namespace Nebulite::Utility {
 
-std::string Time::TimeIso8601(ISO8601Format const& format, bool const& local) noexcept {
+std::string Time::TimeIso8601(ISO8601Format const& format, bool const& local) {
     // Get current time
     std::time_t const time = std::time(nullptr);
 

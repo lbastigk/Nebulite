@@ -64,7 +64,7 @@ public:
      * @param local If true, return the local time; otherwise, return UTC time.
      * @return The current time in ISO 8601 format.
      */
-    static std::string TimeIso8601(ISO8601Format const& format, bool const& local) noexcept ;
+    static std::string TimeIso8601(ISO8601Format const& format, bool const& local);
 
     /**
      * @brief Returns the current time since epoch in milliseconds.

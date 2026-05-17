@@ -7,7 +7,6 @@
 // NOLINTNEXTLINE
 #include <cstdint>
 #include <ranges>
-#include <regex>
 #include <span>
 #include <string>
 #include <utility>
