@@ -74,7 +74,7 @@ Constants::Event Time::time_haltOnce() {
     return Constants::Event::Success;
 }
 
-Constants::Event Time::time_lock(int const argc, char** argv) {
+Constants::Event Time::time_lock(int const argc, char const** argv) {
     if (argc < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -83,7 +83,7 @@ Constants::Event Time::time_lock(int const argc, char** argv) {
     return Constants::Event::Success;
 }
 
-Constants::Event Time::time_unlock(int const argc, char** argv) {
+Constants::Event Time::time_unlock(int const argc, char const** argv) {
     if (argc < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -101,7 +101,7 @@ Constants::Event Time::time_masterUnlock() {
     return Constants::Event::Success;
 }
 
-Constants::Event Time::time_setFixedDeltaTime(int const argc, char** argv) {
+Constants::Event Time::time_setFixedDeltaTime(int const argc, char const** argv) {
     if (argc < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

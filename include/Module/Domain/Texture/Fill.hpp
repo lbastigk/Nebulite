@@ -35,7 +35,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event fill(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event fill(int argc, char const** argv) const ;
     static auto constexpr fill_name = "fill";
     static auto constexpr fill_desc = "Fills the texture with a specified color.\n"
         "Usage:\n"

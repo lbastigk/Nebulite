@@ -36,7 +36,7 @@ Constants::Event General::exit() const {
     return Constants::Event::Success;
 }
 
-Constants::Event General::wait(int const argc, char** argv) const {
+Constants::Event General::wait(int const argc, char const** argv) const {
     if (argc == 2) {
         domain.tasks.incrementScriptWaitCounter(std::stoull(argv[1]));
         return Constants::Event::Success;
@@ -47,7 +47,7 @@ Constants::Event General::wait(int const argc, char** argv) const {
     return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
 }
 
-Constants::Event General::task(int const argc, char** argv) const {
+Constants::Event General::task(int const argc, char const** argv) const {
     domain.capture.log.println("Loading task list from file: ", argc > 1 ? std::string(argv[1]) : "none");
 
     // Rollback RNG, loading a task file should not change the RNG state
@@ -65,7 +65,7 @@ Constants::Event General::task(int const argc, char** argv) const {
     return domain.tasks.addScript(filename, domain.capture);
 }
 
-Constants::Event General::always(int argc, char** argv) const {
+Constants::Event General::always(int argc, char const** argv) const {
     if (argc > 1) {
         std::ostringstream oss;
         for (int i = 1; i < argc; ++i) {

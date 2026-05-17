@@ -24,7 +24,7 @@ Constants::Event Fill::updateHook() {
     return Constants::Event::Success;
 }
 
-Constants::Event Fill::fill(int const argc, char** argv) const {
+Constants::Event Fill::fill(int const argc, char const** argv) const {
     if (argc < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

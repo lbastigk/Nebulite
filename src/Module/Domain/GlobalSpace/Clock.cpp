@@ -62,7 +62,7 @@ void Clock::readClocksFromDocument() {
 //------------------------------------------
 // Functions
 
-Constants::Event Clock::addClock(int const argc, char** argv) {
+Constants::Event Clock::addClock(int const argc, char const** argv) {
     if (argc < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

@@ -34,7 +34,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event rotate(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event rotate(int argc, char const** argv) const ;
     static auto constexpr rotate_name = "rotate";
     static auto constexpr rotate_desc = "Rotate the texture by a specified angle.\n"
         "\n"

@@ -23,7 +23,7 @@ Constants::Event Rotation::updateHook() {
     return Constants::Event::Success;
 }
 
-Constants::Event Rotation::rotate(int const argc, char** argv) const {
+Constants::Event Rotation::rotate(int const argc, char const** argv) const {
     if (argc < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

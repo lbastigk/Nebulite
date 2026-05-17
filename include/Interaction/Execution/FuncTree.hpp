@@ -51,7 +51,6 @@ public:
     struct SupportedFunctions {
         // TODO: remove legacy function signatures
         struct Legacy {
-            using IntChar = std::function<returnValue(int, char**)>;
             using IntConstChar = std::function<returnValue(int, char const**)>;
         };
 
@@ -69,7 +68,6 @@ public:
     using FunctionPtr = std::conditional_t<sizeof...(additionalArgs) == 0,
         // no additional args -> avoid duplicates (keep only no-add variants)
         std::variant<
-            typename SupportedFunctions::Legacy::IntChar,
             typename SupportedFunctions::Legacy::IntConstChar,
             typename SupportedFunctions::Modern::NoAddArgs,
             typename SupportedFunctions::Modern::NoAddArgsConstRef,
@@ -77,7 +75,6 @@ public:
         >,
         // with additional args -> include full set
         std::variant<
-            typename SupportedFunctions::Legacy::IntChar,
             typename SupportedFunctions::Legacy::IntConstChar,
             typename SupportedFunctions::Modern::Full,
             typename SupportedFunctions::Modern::FullConstRef,

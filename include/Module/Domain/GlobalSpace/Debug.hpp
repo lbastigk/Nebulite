@@ -61,7 +61,7 @@ public:
         "Note: This function attempts to clear the console screen using system-specific commands.\n"
         "      It may not work in all environments or IDEs.\n";
 
-    [[nodiscard]] Constants::Event log_global(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event log_global(int argc, char const** argv) const ;
     static auto constexpr log_global_name = "log global";
     static auto constexpr log_global_desc = "Logs the global document to a file.\n"
         "Usage: log global [<filenames>...]\n"
@@ -69,7 +69,7 @@ public:
         "- <filenames>: Optional. One or more filenames to log the global document to.\n"
         "               If no filenames are provided, defaults to 'global.log.jsonc'.\n";
 
-    [[nodiscard]] Constants::Event log_state(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event log_state(int argc, char const** argv) const ;
     static auto constexpr log_state_name = "log state";
     static auto constexpr log_state_desc = "Logs the current state of the renderer to a file.\n"
         "Usage: log state [<filenames>...]\n"

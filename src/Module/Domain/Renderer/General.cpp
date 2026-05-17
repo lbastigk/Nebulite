@@ -93,7 +93,7 @@ Constants::Event General::spawn(std::span<std::string const> const& args) const 
     return Constants::Event::Success;
 }
 
-Constants::Event General::setResolution(int const argc, char** argv) const {
+Constants::Event General::setResolution(int const argc, char const** argv) const {
     int w = 1000;
     int h = 1000;
     uint8_t scalar = 1;
@@ -114,7 +114,7 @@ Constants::Event General::setResolution(int const argc, char** argv) const {
     return Constants::Event::Success;
 }
 
-Constants::Event General::setFPS(int const argc, char** argv) const {
+Constants::Event General::setFPS(int const argc, char const** argv) const {
     // Standard value for no argument
     uint16_t fps = 60;
     if (argc == 2) {
@@ -131,7 +131,7 @@ Constants::Event General::setFPS(int const argc, char** argv) const {
     return Constants::Event::Success;
 }
 
-Constants::Event General::showFPS(int const argc, char** argv) const {
+Constants::Event General::showFPS(int const argc, char const** argv) const {
     if (argc < 2) {
         domain.toggleFps(true);
     } else {
@@ -147,7 +147,7 @@ Constants::Event General::showFPS(int const argc, char** argv) const {
     return Constants::Event::Success;
 }
 
-Constants::Event General::cam_move(int const argc, char** argv) const {
+Constants::Event General::cam_move(int const argc, char const** argv) const {
     if (argc < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -161,7 +161,7 @@ Constants::Event General::cam_move(int const argc, char** argv) const {
     return Constants::Event::Success;
 }
 
-Constants::Event General::cam_set(int const argc, char** argv) const {
+Constants::Event General::cam_set(int const argc, char const** argv) const {
     if (argc == 3) {
         int const x = std::stoi(argv[1]);
         int const y = std::stoi(argv[2]);
@@ -184,7 +184,7 @@ Constants::Event General::cam_set(int const argc, char** argv) const {
     return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
 }
 
-Constants::Event General::snapshot(int const argc, char** argv) const {
+Constants::Event General::snapshot(int const argc, char const** argv) const {
     if (argc > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
@@ -358,7 +358,7 @@ Constants::Event General::dumpView() const {
     return Constants::Event::Success;
 }
 
-Constants::Event General::selectedObjectGet(int const argc, char** argv){
+Constants::Event General::selectedObjectGet(int const argc, char const** argv){
     if (argc != 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

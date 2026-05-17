@@ -133,7 +133,7 @@ Constants::Event Debug::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Event Debug::log_global(int const argc, char** argv) const {
+Constants::Event Debug::log_global(int const argc, char const** argv) const {
     std::string const serialized = moduleScope.serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
@@ -149,7 +149,7 @@ Constants::Event Debug::log_global(int const argc, char** argv) const {
     return Constants::Event::Success;
 }
 
-Constants::Event Debug::log_state(int const argc, char** argv) const {
+Constants::Event Debug::log_state(int const argc, char const** argv) const {
     std::string const serialized = domain.getRenderer().serialize();
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {

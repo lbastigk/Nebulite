@@ -36,7 +36,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event addClock(int argc, char** argv);
+    [[nodiscard]] Constants::Event addClock(int argc, char const** argv);
     static auto constexpr addClock_name = "add-clock";
     static auto constexpr addClock_desc = "Adds a clock with specified interval (ms) to the global clock system\n"
         "\n"

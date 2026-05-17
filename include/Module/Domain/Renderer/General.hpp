@@ -85,7 +85,7 @@ public:
         "\n"
         "Usage: env deload\n";
 
-    [[nodiscard]] Constants::Event setResolution(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event setResolution(int argc, char const** argv) const ;
     static auto constexpr setResolution_name = "set-res";
     static auto constexpr setResolution_desc = "Set resolution of renderer.\n"
         "\n"
@@ -94,21 +94,21 @@ public:
         "Defaults to 1000  for height if argument count < 2\n"
         "Defaults to 1     for scale if argument count < 3\n";
 
-    [[nodiscard]] Constants::Event setFPS(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event setFPS(int argc, char const** argv) const ;
     static auto constexpr setFPS_name = "set-fps";
     static auto constexpr setFPS_desc = "Set FPS of renderer.\n"
         "\n"
         "Usage: set-fps [fps]\n\n"
         "Defaults to 60 fps if no argument is provided\n";
 
-    [[nodiscard]] Constants::Event showFPS(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event showFPS(int argc, char const** argv) const ;
     static auto constexpr showFPS_name = "show-fps";
     static auto constexpr showFPS_desc = "Show FPS of renderer.\n"
         "\n"
         "Usage: show-fps [on|off]\n\n"
         "Defaults to on if no argument is provided\n";
 
-    [[nodiscard]] Constants::Event cam_move(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event cam_move(int argc, char const** argv) const ;
     static auto constexpr cam_move_name = "cam move";
     static auto constexpr cam_move_desc = "Move camera by a given delta.\n"
         "\n"
@@ -116,7 +116,7 @@ public:
         "<dx> : Delta x to move camera by\n"
         "<dy> : Delta y to move camera by\n";
 
-    [[nodiscard]] Constants::Event cam_set(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event cam_set(int argc, char const** argv) const ;
     static auto constexpr cam_set_name = "cam set";
     static auto constexpr cam_set_desc = "Set camera to concrete position.\n"
         "\n"
@@ -125,7 +125,7 @@ public:
         "<y> : Y position to set camera to\n"
         "[c] : Optional. If provided, sets the camera's center to the given position.\n";
 
-    [[nodiscard]] Constants::Event snapshot(int argc, char** argv) const ;
+    [[nodiscard]] Constants::Event snapshot(int argc, char const** argv) const ;
     static auto constexpr snapshot_name = "snapshot";
     static auto constexpr snapshot_desc = "Create a snapshot of the current renderer state.\n"
         "\n"
@@ -140,7 +140,7 @@ public:
         "\n"
         "Usage: dump-view\n";
 
-    [[nodiscard]] Constants::Event selectedObjectGet(int argc, char** argv);
+    [[nodiscard]] Constants::Event selectedObjectGet(int argc, char const** argv);
     static auto constexpr selectedObjectGet_name = "selected-object get";
     static auto constexpr selectedObjectGet_desc = "Get a renderobject by its index in the Renderer.\n"
         "The index is converted to its corresponding Domain ID and selected as the current RenderObject to interact with for other selected-object commands.\n"

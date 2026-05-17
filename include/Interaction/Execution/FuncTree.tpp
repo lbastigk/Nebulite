@@ -251,7 +251,6 @@ namespace ShapeClassifier {
         Unknown,
 
         // Member shapes
-        Member_Legacy_IntChar,
         Member_Legacy_IntConstChar,
 
         Member_Modern_NoAddArgs,
@@ -312,12 +311,8 @@ namespace ShapeClassifier {
 
         //------------------------------------------
 
-        if constexpr (std::is_invocable_r_v<returnValue, M, Obj, int, char**> ||
-                      std::is_invocable_r_v<returnValue, M, ConstObj, int, char**>) {
-            return FunctionShape::Member_Legacy_IntChar;
-        }
-        else if constexpr (std::is_invocable_r_v<returnValue, M, Obj, int, char const**> ||
-                           std::is_invocable_r_v<returnValue, M, ConstObj, int, char const**>) {
+        if constexpr (std::is_invocable_r_v<returnValue, M, Obj, int, char const**> ||
+                      std::is_invocable_r_v<returnValue, M, ConstObj, int, char const**>) {
             return FunctionShape::Member_Legacy_IntConstChar;
         }
         else if constexpr (std::is_invocable_r_v<returnValue, M, Obj, SpanConstRef, additionalArgs...> ||
@@ -504,14 +499,7 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
     using MemDecay = std::decay_t<MemFunc>;
 
     // Choose appropriate variant and wrap with a lambda that invokes member on objectPtr
-    if constexpr (constexpr ShapeClassifier::FunctionShape shape = ShapeClassifier::classifyFunction<MemDecay, returnValue, additionalArgs...>(); shape == ShapeClassifier::FunctionShape::Member_Legacy_IntChar) {
-        return FunctionPtrT(
-            std::in_place_type<typename SupportedFunctions::Legacy::IntChar>,
-            [objectPtr, memberFunctionPtr](int argc, char** argv) {
-                return std::invoke(memberFunctionPtr, objectPtr, argc, argv);
-        });
-    }
-    else if constexpr (shape == ShapeClassifier::FunctionShape::Member_Legacy_IntConstChar) {
+    if constexpr (constexpr ShapeClassifier::FunctionShape shape = ShapeClassifier::classifyFunction<MemDecay, returnValue, additionalArgs...>(); shape == ShapeClassifier::FunctionShape::Member_Legacy_IntConstChar) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Legacy::IntConstChar>,
             [objectPtr, memberFunctionPtr](int argc, char const** argv) {
@@ -696,21 +684,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
             using T = std::decay_t<Func>;
 
             // Legacy function types
-            if constexpr (std::is_same_v<T, std::function<returnValue(int, char**)>>) {
-                // Convert to argc/argv
-                size_t const argc = args.size();
-                std::vector<char*> argv_vec;
-                argv_vec.reserve(argc + 1);
-                std::transform(
-                    args.begin(),
-                    args.end(),
-                    std::back_inserter(argv_vec),
-                    [](std::string const& str) { return const_cast<char*>(str.c_str()); }
-                );
-                argv_vec.push_back(nullptr); // Null-terminate
-                char** argv = argv_vec.data();
-                return func(static_cast<int>(argc), argv);
-            } else if constexpr (std::is_same_v<T, std::function<returnValue(int, char const**)>>) {
+            if constexpr (std::is_same_v<T, std::function<returnValue(int, char const**)>>) {
                 // Convert to argc/argv
                 size_t const argc = args.size();
                 std::vector<char const*> argv_vec;

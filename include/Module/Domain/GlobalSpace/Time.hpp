@@ -46,7 +46,7 @@ public:
         "\n"
         "Usage: time halt-once\n";
 
-    [[nodiscard]] Constants::Event time_lock(int argc, char** argv);
+    [[nodiscard]] Constants::Event time_lock(int argc, char const** argv);
     static auto constexpr time_lock_name = "time lock";
     static auto constexpr time_lock_desc = "Locks time with lock provided,\n"
         "Time can only progress if no locks are present.\n"
@@ -55,7 +55,7 @@ public:
         "\n"
         "<lock_name> : Name of the lock to add. Any string without whitespace is valid.\n";
 
-    [[nodiscard]] Constants::Event time_unlock(int argc, char** argv);
+    [[nodiscard]] Constants::Event time_unlock(int argc, char const** argv);
     static auto constexpr time_unlock_name = "time unlock";
     static auto constexpr time_unlock_desc = "Removes a time lock.\n"
         "Time can only progress if no locks are present.\n"
@@ -71,7 +71,7 @@ public:
         "\n"
         "Usage: time master-unlock\n";
 
-    [[nodiscard]] Constants::Event time_setFixedDeltaTime(int argc, char** argv);
+    [[nodiscard]] Constants::Event time_setFixedDeltaTime(int argc, char const** argv);
     static auto constexpr time_setFixedDeltaTime_name = "time set-fixed-dt";
     static auto constexpr time_setFixedDeltaTime_desc = "Sets a fixed delta time in milliseconds for the simulation time.\n"
         "\n"
