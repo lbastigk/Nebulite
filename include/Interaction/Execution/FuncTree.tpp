@@ -713,22 +713,16 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
             } else if constexpr (std::is_same_v<T, std::function<returnValue(int, char const**)>>) {
                 // Convert to argc/argv
                 size_t const argc = args.size();
-                std::vector<char*> argv_vec;
+                std::vector<char const*> argv_vec;
                 argv_vec.reserve(argc + 1);
                 std::transform(
                     args.begin(),
                     args.end(),
                     std::back_inserter(argv_vec),
-                    [](std::string const& str) { return const_cast<char*>(str.c_str()); }
+                    [](std::string const& str) { return str.c_str(); }
                 );
                 argv_vec.push_back(nullptr); // Null-terminate
-                char* const* argv = argv_vec.data();
-
-                // Convert char** to char const**
-                std::vector<char const*> argv_const(argc);
-                for (size_t i = 0; i < static_cast<size_t>(argc); ++i)
-                    argv_const[i] = argv[i];
-                return func(static_cast<int>(argc), argv_const.data());
+                return func(static_cast<int>(argc), argv_vec.data());
             }
             // Modern function types
             else if constexpr (std::is_same_v<T, typename SupportedFunctions::Modern::Full> || std::is_same_v<T, typename SupportedFunctions::Modern::FullConstRef>) {
