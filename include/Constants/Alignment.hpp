@@ -21,14 +21,10 @@ class Alignment {
 public:
 #ifndef __cpp_lib_hardware_interference_size
     static constexpr std::size_t SIMD_ALIGN = 64; // fallback: 64 bytes covers AVX-512/AVX2
-#else
+#else // __cpp_lib_hardware_interference_size
     static constexpr std::size_t SIMD_ALIGN = std::hardware_destructive_interference_size;
-#endif
-private:
-    //------------------------------------------
-    // Assertions
+#endif // __cpp_lib_hardware_interference_size
 
-    // Check if SIMD_ALIGN is a power of two
     static_assert(Utility::CompileTimeEvaluate::isPowerOfTwo(SIMD_ALIGN), "SIMD_ALIGN must be a power of two.");
 };
 
