@@ -49,6 +49,7 @@
         "Tools/Tests/JSON/Transformations/Arithmetic.json",
         "Tools/Tests/JSON/Transformations/Array.json",
         "Tools/Tests/JSON/Transformations/Assertions.json",
+        "Tools/Tests/JSON/Transformations/Boolean.json",
         "Tools/Tests/JSON/Transformations/Casting.json",
         "Tools/Tests/JSON/Transformations/Collection.json",
         "Tools/Tests/JSON/Transformations/Debug.json",

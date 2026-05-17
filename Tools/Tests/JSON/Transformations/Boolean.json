@@ -1,0 +1,6 @@
+[
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Boolean/not.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    }
+]

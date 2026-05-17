@@ -1,0 +1,8 @@
+# Tests the boolean not transformation
+assign global:one = $(1)
+
+assign global:result.false = {global:one|not}
+assign global:result.true = {global:one|not|not}
+
+assert $(not({global:result.false}))
+assert $({global:result.true})
