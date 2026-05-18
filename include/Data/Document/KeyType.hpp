@@ -1,6 +1,13 @@
 #ifndef DATA_DOCUMENT_KEYTYPE_HPP
 #define DATA_DOCUMENT_KEYTYPE_HPP
 
+//------------------------------------------
+// Includes
+
+// Standard library
+#include <cstdint> // NOLINTTHISLINE
+
+//------------------------------------------
 namespace Nebulite::Data {
 /**
  * @enum KeyType

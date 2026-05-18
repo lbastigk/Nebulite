@@ -1,8 +1,3 @@
-/**
- * @file Nebulite.hpp
- * @brief Central file for Nebulite namespace documentation and public singleton accessors.
- */
-
 #ifndef NEBULITE_HPP
 #define NEBULITE_HPP
 

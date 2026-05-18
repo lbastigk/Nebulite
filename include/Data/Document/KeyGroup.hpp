@@ -9,7 +9,6 @@
 
 //------------------------------------------
 namespace Nebulite::Data {
-
 /**
  * @class KeyGroup
  * @brief A template class to group related keys under a common scope.
