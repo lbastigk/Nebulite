@@ -12,6 +12,9 @@
 // Standard library
 #include <string>
 
+// External
+#include <SDL3/SDL_rect.h>
+
 // Nebulite
 #include "Core/Texture.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
