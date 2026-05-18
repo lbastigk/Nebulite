@@ -37,22 +37,21 @@ bool FuncTree<returnValue, additionalArgs...>::hasFunction(std::string_view cons
     }
 
     // Depending on token count, function name is at different positions
-    std::string function;
-    if (tokens.size() == 1) {
-        // Case 1:
-        // Is a single function name.
-        // e.g.: "set"
-        function = tokens[0];
-    } else {
+    std::string const& function = [&] {
+        if (tokens.size() == 1) {
+            // Case 1:
+            // Is a single function name.
+            // e.g.: "set"
+            return tokens[0];
+        }
         // Case 2:
         // Is a full command
         // e.g.: <whereCommandComesFrom> set key value
-        function = tokens[1];
-    }
+        return tokens[1];
+    }();
 
     // See if the function is linked
-    return bindingContainer.functions.find(function) != bindingContainer.functions.end() ||
-           bindingContainer.categories.find(function) != bindingContainer.categories.end();
+    return bindingContainer.functions.contains(function) || bindingContainer.categories.contains(function);
 }
 
 template <typename returnValue, typename... additionalArgs>
@@ -155,10 +154,6 @@ void FuncTree<returnValue, additionalArgs...>::generalHelp() {
 template <typename returnValue, typename... additionalArgs>
 FuncTree<returnValue, additionalArgs...>::BindingSearchResult
 FuncTree<returnValue, additionalArgs...>::find(std::string const& name) {
-    categoryIterator catIt;
-    functionIterator funIt;
-    variableIterator varIt;
-
     // Helper lambda to search in inherited trees
     auto searchInInherited = [&](auto mapMember, auto& iteratorMember) -> bool {
         for (auto const& inheritedTree : inheritedTrees) {
@@ -173,7 +168,7 @@ FuncTree<returnValue, additionalArgs...>::find(std::string const& name) {
     };
 
     // --- Categories ---
-    catIt = bindingContainer.categories.find(name);
+    categoryIterator catIt = bindingContainer.categories.find(name);
     if (catIt == bindingContainer.categories.end()) {
         if (searchInInherited(&BindingContainer::categories, catIt)) {
             return catIt;
@@ -184,7 +179,7 @@ FuncTree<returnValue, additionalArgs...>::find(std::string const& name) {
     }
 
     // --- Functions ---
-    funIt = bindingContainer.functions.find(name);
+    functionIterator funIt = bindingContainer.functions.find(name);
     if (funIt == bindingContainer.functions.end()) {
         if (searchInInherited(&BindingContainer::functions, funIt)) {
             return funIt;
@@ -195,7 +190,7 @@ FuncTree<returnValue, additionalArgs...>::find(std::string const& name) {
     }
 
     // --- Variables ---
-    varIt = bindingContainer.variables.find(name);
+    variableIterator varIt = bindingContainer.variables.find(name);
     if (varIt == bindingContainer.variables.end()) {
         if (searchInInherited(&BindingContainer::variables, varIt)) {
             return varIt;
