@@ -1,9 +1,3 @@
-/**
- * @file RjDirectAccess.hpp
- * 
- * Direct access to RapidJSON values
- */
-
 #ifndef DATA_DOCUMENT_RJDIRECTACCESS_HPP
 #define DATA_DOCUMENT_RJDIRECTACCESS_HPP
 
@@ -12,6 +6,7 @@
 
 // Standard library
 #include <string>
+#include <cstdint> // NOLINTTHISLINE
 #include <variant>
 #include <vector>
 

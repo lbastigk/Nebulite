@@ -9,7 +9,6 @@
 #include <string>
 
 // Nebulite
-//#include "Module/Base/TransformationModule.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------

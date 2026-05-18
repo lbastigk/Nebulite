@@ -1,12 +1,12 @@
-/**
- * @file ReadOnlyDocs.hpp
- * @brief Defines structures for managing read-only documents.
- */
 #ifndef DATA_DOCUMENT_READONLYDOCS_HPP
 #define DATA_DOCUMENT_READONLYDOCS_HPP
 
 //------------------------------------------
 // Includes
+
+// Standard library
+#include <cstdint> // NOLINTTHISLINE
+#include <string>
 
 // Nebulite
 #include "Data/Document/JSON.hpp"
