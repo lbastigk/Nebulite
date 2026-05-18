@@ -15,8 +15,14 @@
 
 // Nebulite
 #include "Data/RenderObjectContainer.hpp"
-#include "Data/RendererProcessor.hpp"
 #include "Interaction/Execution/Domain.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Data {
+class RendererProcessor;
+} // namespace Nebulite::Data
 
 //------------------------------------------
 namespace Nebulite::Core {

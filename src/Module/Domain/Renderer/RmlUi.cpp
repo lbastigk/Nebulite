@@ -11,6 +11,7 @@
 #include "Constants/Event.hpp"
 #include "Constants/StandardCapture.hpp"
 #include "Core/Renderer.hpp"
+#include "Graphics/RmlInterface.hpp"
 #include "Interaction/Context.hpp"
 #include "Module/Domain/Renderer/RmlUi.hpp"
 #include "Utility/StringHandler.hpp"

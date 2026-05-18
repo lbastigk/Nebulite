@@ -39,6 +39,7 @@
 #include "Core/Renderer.hpp"
 #include "Data/RenderObjectContainer.hpp"
 #include "Data/Tiling.hpp"
+#include "Graphics/RmlInterface.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
 #include "Module/Domain/Initializer.hpp"
 #include "Nebulite.hpp"

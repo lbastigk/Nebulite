@@ -16,7 +16,7 @@
 //------------------------------------------
 namespace Nebulite::Data {
 
-TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool const& recover) {
+TaskQueue::TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool const& recover) {
     Constants::Event currentResult{};
     TaskQueueResult fullResult;
 

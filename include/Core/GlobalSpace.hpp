@@ -15,14 +15,26 @@
 // Standard library
 #include <string>
 
+// External
+#include <SDL3/SDL.h>
+
 // Nebulite
 #include "Core/Renderer.hpp"
 #include "Data/Document/DocumentCache.hpp"
-#include "Data/TaskQueue.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Invoke.hpp"
-#include "Interaction/Rules/Ruleset.hpp"
-#include "Module/Domain/GlobalSpace/Floating/RNG.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction::Rules {
+class Ruleset;
+struct Listener;
+} // namespace Nebulite::Interaction::Rules
+
+namespace Nebulite::Module::Domain::GlobalSpace {
+class RNG;
+} // namespace Nebulite::Module::Domain::GlobalSpace
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -56,7 +68,7 @@ public:
      */
     void initialize();
 
-    ~GlobalSpace() override = default;
+    ~GlobalSpace() override ;
 
     // Globalspace is wrapped in a singleton pattern
     // we disallow copying and moving
@@ -97,9 +109,7 @@ public:
     /**
      * @brief Quits the renderer by setting the quit flag.
      */
-    void quitRenderer() {
-        renderer.setQuit();
-    }
+    void quitRenderer();
 
     //------------------------------------------
     // Broadcast/Listen
@@ -108,17 +118,13 @@ public:
      * @brief Broadcasts a ruleset to other domains.
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
-    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) const {
-        invoke.broadcast(entry);
-    }
+    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) const ;
 
     /**
      * @brief Listens for rulesets on a specific topic.
      * @param listener The listener to add.
      */
-    void listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
-        invoke.listen(listener);
-    }
+    void listen(std::shared_ptr<Interaction::Rules::Listener> const& listener);
 
     //------------------------------------------
     // Getters
@@ -127,19 +133,19 @@ public:
      * @brief Gets a reference to the Renderer instance.
      * @return Reference to the Renderer instance.
      */
-    Renderer& getRenderer() { return renderer; }
+    Renderer& getRenderer();
 
     /**
      * @brief Gets a pointer to the SDL Renderer instance.
      * @return Pointer to the SDL_Renderer instance.
      */
-    [[nodiscard]] SDL_Renderer* getSdlRenderer() const { return renderer.getSdlRenderer(); }
+    [[nodiscard]] SDL_Renderer* getSdlRenderer() const ;
 
     /**
      * @brief Gets a reference to the global document cache.
      * @return Reference to the DocumentCache instance.
      */
-    Data::DocumentCache& getDocCache() { return docCache; }
+    Data::DocumentCache& getDocCache();
 
     //------------------------------------------
     // Id-index mapping
@@ -149,14 +155,14 @@ public:
     * @param index The index of the RenderObject in the rendering pipeline.
     * @return An optional containing the ID of the RenderObject if found, or std::nullopt if no object is associated with the given index.
     */
-    std::optional<size_t> getIdFromIndex(size_t const& index) const { return renderer.getIdFromIndex(index); }
+    std::optional<size_t> getIdFromIndex(size_t const& index) const ;
 
     /**
      * @brief Gets the RenderObject index in the rendering pipeline from its ID.
      * @param searchId The ID of the RenderObject to search for.
      * @return An optional containing the index of the RenderObject in the rendering pipeline if found, or std::nullopt if no object is associated with the given ID.
      */
-    std::optional<size_t> getIndexFromId(size_t const& searchId) const { return renderer.getIndexFromId(searchId); }
+    std::optional<size_t> getIndexFromId(size_t const& searchId) const ;
 
     //------------------------------------------
     // DomainModule variables
@@ -167,42 +173,26 @@ public:
         /*Add more variables as needed*/
     } cmdVars;
 
+    //------------------------------------------
+    // Status
+
     /**
      * @brief Checks if the main loop should continue running.
      * @return True if the main loop should continue, false otherwise.
      */
-    [[nodiscard]] bool shouldContinueLoop() const { return continueLoop; }
+    [[nodiscard]] bool shouldContinueLoop() const ;
 
-    [[nodiscard]] bool criticalErrorOccurred() const { return errorOccurred; }
+    [[nodiscard]] bool criticalErrorOccurred() const ;
 
     //------------------------------------------
     // Event Management
 
-    void notifyEvent(Constants::Event const& event) {
-        switch (event) {
-            case Constants::Event::Success:
-            case Constants::Event::Warning:
-                // No action needed
-                break;
-            case Constants::Event::Error:
-                if (!cmdVars.recover) {
-                    continueLoop = false; // Stop the main loop on critical error if not in recover mode
-                }
-                errorOccurred = true;
-                break;
-            default:
-                std::unreachable();
-        }
-    }
+    void notifyEvent(Constants::Event const& event);
 
     //------------------------------------------
     // Special Functions
 
-    void rngRollback() const {
-        if (floatingDM.rng) {
-            floatingDM.rng->rngRollback();
-        }
-    }
+    void rngRollback() const ;
 
 private:
     //------------------------------------------
@@ -220,7 +210,7 @@ private:
     // Renderer
     Renderer renderer;
 
-    // Invoke Object for parsing expressions etc.
+    // Invoke Object for managing broadcasted rulesets
     Interaction::Invoke invoke;
 
     //------------------------------------------

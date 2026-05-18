@@ -8,6 +8,7 @@
 #include "Data/TaskQueue.hpp"
 #include "Interaction/Context.hpp"
 #include "Interaction/Execution/Tasks.hpp"
+#include "Utility/IO/Capture.hpp"
 #include "Utility/IO/FileManagement.hpp"
 #include "Utility/StringHandler.hpp"
 

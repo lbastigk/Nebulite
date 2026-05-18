@@ -2,6 +2,7 @@
 // Includes
 
 // Nebulite
+#include "Graphics/RmlInterface.hpp"
 #include "Module/Domain/Common/RmlUi.hpp"
 #include "Nebulite.hpp"
 

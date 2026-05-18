@@ -22,6 +22,10 @@ namespace Nebulite::Interaction::Execution {
 class Domain;
 } // namespace Nebulite::Interaction::Execution
 
+namespace Nebulite::Utility::IO {
+class Capture;
+} // namespace Nebulite::Utility::IO
+
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
 /**
@@ -77,7 +81,7 @@ private:
     /**
      * @brief Contains results of the last task queue resolutions.
      */
-    absl::flat_hash_map<std::string, Data::TaskQueueResult> queueResult;
+    absl::flat_hash_map<std::string, Data::TaskQueue::TaskQueueResult> queueResult;
 };
 
 } // namespace Nebulite::Interaction::Execution

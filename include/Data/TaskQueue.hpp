@@ -17,7 +17,6 @@
 
 // Nebulite
 #include "Constants/Event.hpp"
-#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -29,16 +28,6 @@ class ContextScope;
 
 //------------------------------------------
 namespace Nebulite::Data {
-/**
- * @brief Represents the result of resolving a task queue.
- *        This structure holds the outcome of processing a task queue, including any errors
- *        encountered during resolution and whether the process was halted due to a critical error.
- */
-struct TaskQueueResult {
-    bool encounteredCriticalResult = false; // Indicates if a critical error was encountered during task resolution
-    std::vector<Constants::Event> events;   // List of events encountered during task resolution
-};
-
 /**
  * @struct Nebulite::Data::TaskQueue
  * @brief Represents a queue of tasks to be processed by the engine, including metadata.
@@ -58,6 +47,16 @@ public:
      */
     explicit TaskQueue(std::string const& callbackName, bool const& clearAfterResolving = true)
         : settings{.callbackName=callbackName, .clearAfterResolving=clearAfterResolving} {}
+
+    /**
+     * @brief Represents the result of resolving a task queue.
+     *        This structure holds the outcome of processing a task queue, including any errors
+     *        encountered during resolution and whether the process was halted due to a critical error.
+     */
+    struct TaskQueueResult {
+        bool encounteredCriticalResult = false; // Indicates if a critical error was encountered during task resolution
+        std::vector<Constants::Event> events;   // List of events encountered during task resolution
+    };
 
     /**
      * @brief Resolves the task queue by parsing and executing each task in the context of the provided domain.

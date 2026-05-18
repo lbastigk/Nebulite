@@ -16,6 +16,7 @@
 #include "Interaction/Context.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Execution/DomainTree.hpp"
+#include "Interaction/Logic/Expression.hpp"
 #include "Module/Domain/Initializer.hpp"
 #include "Nebulite.hpp"
 #include "Utility/IO/Capture.hpp"

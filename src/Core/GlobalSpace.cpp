@@ -4,14 +4,24 @@
 // Standard library
 #include <cstddef>
 #include <cstdint>
+#include <memory>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <utility>
+
+// External
+#include <SDL3/SDL_render.h>
 
 // Nebulite
 #include "Constants/Event.hpp"
 #include "Core/GlobalSpace.hpp"
+#include "Core/Renderer.hpp"
+#include "Data/Document/DocumentCache.hpp"
 #include "Data/Document/ScopedKey.hpp"
+#include "Interaction/Rules/Listener.hpp"
+#include "Interaction/Rules/Ruleset.hpp"
 #include "Module/Domain/GlobalSpace/Floating/RNG.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
 #include "Module/Domain/Initializer.hpp"
@@ -22,7 +32,10 @@
 namespace Nebulite::Core {
 
 GlobalSpace::GlobalSpace(std::string const& name) :
-    Domain("GlobalSpace", Global::shareScope(ScopeAccessor::Full(), "")), // Domain with reference to GlobalSpace and its full scope
+    Domain(
+        "GlobalSpace",
+        Global::shareScope(ScopeAccessor::Full(), "")
+    ),
     renderer(
         Global::shareScope(ScopeAccessor::Full(), "renderer"),
         &cmdVars.headless,
@@ -78,6 +91,8 @@ void GlobalSpace::initialize() {
     // If we ever need a full update beforehand, we should manually call update after full initialization
 }
 
+GlobalSpace::~GlobalSpace() = default;
+
 Constants::Event GlobalSpace::updateInnerDomains() {
     // Update renderer if nothing is stopping us
     if (!renderer.isSkippingUpdate()) { // e.g. Console mode might flag renderer to skip update
@@ -87,7 +102,7 @@ Constants::Event GlobalSpace::updateInnerDomains() {
 
         // Increment frame count and return event
         static size_t frameCount = 0;
-        static auto constexpr frameCountKey = Data::ScopedKeyView("time.frameCount");
+        static auto const frameCountKey = Data::ScopedKeyView("time").addMember("frameCount");
         domainScope.set<uint64_t>(frameCountKey, frameCount); // Starts at 0
         frameCount++;
         return event;
@@ -181,6 +196,94 @@ void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) 
 Constants::Event GlobalSpace::parseQueue() {
     return tasks.parse(*this, domainScope, cmdVars.recover);
 }
+
+void GlobalSpace::quitRenderer() {
+    renderer.setQuit();
+}
+
+//------------------------------------------
+// Broadcast/Listen
+
+void GlobalSpace::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) const {
+    invoke.broadcast(entry);
+}
+
+void GlobalSpace::listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
+    invoke.listen(listener);
+}
+
+//------------------------------------------
+// Getters
+
+Renderer& GlobalSpace::getRenderer() {
+    return renderer;
+}
+
+SDL_Renderer* GlobalSpace::getSdlRenderer() const {
+    return renderer.getSdlRenderer();
+}
+
+Data::DocumentCache& GlobalSpace::getDocCache() {
+    return docCache;
+}
+
+//------------------------------------------
+// Id-index mapping
+
+std::optional<size_t> GlobalSpace::getIdFromIndex(size_t const& index) const {
+    return renderer.getIdFromIndex(index);
+}
+
+std::optional<size_t> GlobalSpace::getIndexFromId(size_t const& searchId) const {
+    return renderer.getIndexFromId(searchId);
+}
+
+//------------------------------------------
+// Status
+
+/**
+ * @brief Checks if the main loop should continue running.
+ * @return True if the main loop should continue, false otherwise.
+ */
+[[nodiscard]] bool GlobalSpace::shouldContinueLoop() const {
+    return continueLoop;
+}
+
+[[nodiscard]] bool GlobalSpace::criticalErrorOccurred() const {
+    return errorOccurred;
+}
+
+//------------------------------------------
+// Event Management
+
+void GlobalSpace::notifyEvent(Constants::Event const& event) {
+    switch (event) {
+    case Constants::Event::Success:
+    case Constants::Event::Warning:
+        // No action needed
+        break;
+    case Constants::Event::Error:
+        if (!cmdVars.recover) {
+            continueLoop = false; // Stop the main loop on critical error if not in recover mode
+        }
+        errorOccurred = true;
+        break;
+    default:
+        std::unreachable();
+    }
+}
+
+//------------------------------------------
+// Special Functions
+
+void GlobalSpace::rngRollback() const {
+    if (floatingDM.rng) {
+        floatingDM.rng->rngRollback();
+    }
+}
+
+//------------------------------------------
+// Pre-parse
 
 Constants::Event GlobalSpace::preParse() {
     // NOTE: This function is only called once there is a parse-command
