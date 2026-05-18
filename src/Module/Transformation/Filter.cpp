@@ -2,9 +2,8 @@
 // Includes
 
 // Standard library
-// NOLINTNEXTLINE
-#include <cstdint>
-#include <ranges>
+#include <cstddef> // NOLINTTHISLINE
+#include <cstdint> // NOLINTTHISLINE
 #include <regex>
 #include <span>
 #include <string>
@@ -13,6 +12,7 @@
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Data/Document/KeyType.hpp"
+#include "Interaction/Context.hpp"
 #include "Interaction/Logic/Expression.hpp"
 #include "Module/Transformation/Filter.hpp"
 #include "Nebulite.hpp"

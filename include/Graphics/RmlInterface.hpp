@@ -6,7 +6,6 @@
 
 // External
 #include <RmlUi/Core.h>
-#include <RmlUi_Platform_SDL.h>
 #include <RmlUi_Renderer_SDL.h>
 #include <absl/container/flat_hash_map.h>
 

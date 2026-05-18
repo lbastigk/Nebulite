@@ -5,6 +5,7 @@
 // Includes
 
 // Standard library
+#include <cstdint> // NOLINTTHISLINE
 #include <utility>
 
 //------------------------------------------
@@ -38,5 +39,4 @@ struct TileCoordinate {
 };
 
 } // namespace Nebulite::Data
-
 #endif // DATA_TILING_HPP

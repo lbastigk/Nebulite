@@ -6,7 +6,6 @@
 
 // Standard library
 #include <array>
-#include <string>
 #include <string_view>
 
 //------------------------------------------

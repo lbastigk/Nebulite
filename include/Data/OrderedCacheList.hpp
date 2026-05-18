@@ -165,5 +165,4 @@ private:
     double** fromMap(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys);
 };
 } // namespace Nebulite::Data
-
 #endif // DATA_ORDEREDCACHELIST_HPP
