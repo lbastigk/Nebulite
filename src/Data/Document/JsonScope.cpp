@@ -28,23 +28,23 @@ namespace Nebulite::Data {
 // Constructing a JsonScope from a JSON document and a prefix
 JsonScope::JsonScope(JSON& doc, std::optional<std::string> const& prefix)
     // create a non-owning shared_ptr to the provided JSON (no delete on destruction)
-    : baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){})),
-      scopePrefix(prefix.has_value() ? std::optional(generatePrefix(prefix.value())) : std::nullopt),
-      odpCache(Utility::Generate::array<MappedOrderedCacheList, noLockArraySize>([this](size_t) {return MappedOrderedCacheList(*this);}))
+    : baseDocument(std::shared_ptr<JSON>(&doc, [](JSON*){}))
+    , scopePrefix(prefix.has_value() ? std::optional(generatePrefix(prefix.value())) : std::nullopt)
+    , odpCache(Utility::Generate::array<MappedOrderedCacheList, noLockArraySize>([this](size_t) {return MappedOrderedCacheList(*this);}))
 {}
 
 // Constructing a JsonScope from another JsonScope and a sub-prefix
 JsonScope::JsonScope(JsonScope const& other, std::optional<std::string> const& prefix)
-    : baseDocument(other.baseDocument),
-      scopePrefix(prefix.has_value() ? std::optional(ScopedKeyView(generatePrefix(prefix.value())).full(other)) : std::nullopt), // Generate full scoped prefix based on the other JsonScope and the new prefix
-      odpCache(Utility::Generate::array<MappedOrderedCacheList, noLockArraySize>([this](size_t){return MappedOrderedCacheList(*this);}))
+    : baseDocument(other.baseDocument)
+    , scopePrefix(prefix.has_value() ? std::optional(ScopedKeyView(generatePrefix(prefix.value())).full(other)) : std::nullopt) // Generate full scoped prefix based on the other JsonScope and the new prefix
+    , odpCache(Utility::Generate::array<MappedOrderedCacheList, noLockArraySize>([this](size_t){return MappedOrderedCacheList(*this);}))
 {}
 
 // Default constructor, we create a self-owned empty JSON document
 JsonScope::JsonScope()
-    : baseDocument(std::make_shared<JSON>()),
-      scopePrefix(""),
-      odpCache(Utility::Generate::array<MappedOrderedCacheList, noLockArraySize>([this](size_t) {return MappedOrderedCacheList(*this);}))
+    : baseDocument(std::make_shared<JSON>())
+    , scopePrefix("")
+    , odpCache(Utility::Generate::array<MappedOrderedCacheList, noLockArraySize>([this](size_t) {return MappedOrderedCacheList(*this);}))
 {}
 
 JsonScope::~JsonScope() = default;
