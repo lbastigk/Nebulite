@@ -1,10 +1,3 @@
-/**
- * @file JsonRvalueTransformer.hpp
- * @brief Data class for modifying JSON return value keys.
- * @details JSON(key) -> value | transformation on value | transformation on value ... -> new value
- *          This allows for dynamic modification of JSON values during retrieval.
- */
-
 #ifndef DATA_DOCUMENT_JSONRVALUETRANSFORMER_HPP
 #define DATA_DOCUMENT_JSONRVALUETRANSFORMER_HPP
 

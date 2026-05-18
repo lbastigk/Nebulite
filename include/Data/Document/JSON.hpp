@@ -1,8 +1,3 @@
-/**
- * @file JSON.hpp
- * @brief A wrapper around rapidjson to simplify JSON manipulation in Nebulite.
- */
-
 #ifndef DATA_DOCUMENT_JSON_HPP
 #define DATA_DOCUMENT_JSON_HPP
 

@@ -11,40 +11,19 @@
 // Nebulite
 #include "Data/Document/TypeConversion.hpp"
 #include "Module/Base/TransformationModule.hpp"
+#include "Utility/TypeCheck.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
 
-template<typename>
-// NOLINTNEXTLINE
-struct is_std_optional : std::false_type {};
-
-template<typename U>
-struct is_std_optional<std::optional<U>> : std::true_type {};
-
-template<typename T>
-inline constexpr bool is_std_optional_v =
-    is_std_optional<std::remove_cvref_t<T>>::value;
-
-template<typename>
-// NOLINTNEXTLINE
-struct is_std_expected : std::false_type {};
-
-template<typename T, typename E>
-struct is_std_expected<std::expected<T, E>> : std::true_type {};
-
-template<typename T>
-inline constexpr bool is_std_expected_v =
-    is_std_expected<std::remove_cvref_t<T>>::value;
-
 template<typename T>
 void JSON::set(std::string_view const& key, T const& val){
-    // Check if T is an optional type, and if so, throw an assertion error
-    static_assert(!is_std_optional_v<T>,
+    // Check if T is an optional/expected type, and if so, throw an assertion error
+    static_assert(!Utility::TypeCheck::is_std_optional_v<T>,
         "Setting optional types directly is not allowed. "
         "Please use the value inside the optional instead."
     );
-    static_assert(!is_std_expected_v<T>,
+    static_assert(!Utility::TypeCheck::is_std_expected_v<T>,
         "Setting expected types directly is not allowed. "
         "Please use the value inside the expected instead."
     );
