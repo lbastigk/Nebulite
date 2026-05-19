@@ -1,113 +1,34 @@
 [
     {
-        "command": [
-            "# Testing non-numeric values in arithmetic transformations",
-            "set test.val 3",
-            "eval echo {global:test.val|require nonEmpty}",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "3"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/JSON/Transformations/Requirements/empty.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": [
-            "# Testing non-numeric values in arithmetic transformations",
-            "eval echo {global:test.val|require nonEmpty}",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "[TRANSFORMATION_FAILURE]"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/JSON/Transformations/Requirements/equalsInt.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": [
-            "# Testing non-numeric values in arithmetic transformations",
-            "set test.val[0] 3",
-            "eval echo {global:test.val|require type array|at 0}",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "3"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/JSON/Transformations/Requirements/equalsString.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": [
-            "# Testing non-numeric values in arithmetic transformations",
-            "set test.val 3",
-            "eval echo {global:test.val|require type array}",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "[TRANSFORMATION_FAILURE]"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/JSON/Transformations/Requirements/matchesRegex.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": [
-            "# Testing non-numeric values in arithmetic transformations",
-            "set test.obj.val 3",
-            "eval echo {global:test.obj|require type object|get val}",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "3"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/JSON/Transformations/Requirements/nonEmpty.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": [
-            "# Testing non-numeric values in arithmetic transformations",
-            "set test.val 3",
-            "eval echo {global:test.val|require type object}",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "[TRANSFORMATION_FAILURE]"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/JSON/Transformations/Requirements/typeArray.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": [
-            "# Testing non-numeric values in arithmetic transformations",
-            "set test.obj.val 3",
-            "eval echo {global:test.obj.val|require type basicValue}",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "3"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/JSON/Transformations/Requirements/typeBasicValue.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": [
-            "# Testing non-numeric values in arithmetic transformations",
-            "set test.obj.val 3",
-            "eval echo {global:test.obj|require type basicValue}",
-            "exit"
-        ],
-        "expected": {
-            "cout": [
-                "[TRANSFORMATION_FAILURE]"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/JSON/Transformations/Requirements/typeObject.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

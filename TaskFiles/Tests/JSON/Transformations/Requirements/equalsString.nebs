@@ -1,0 +1,9 @@
+# Test if a value is a string
+set myString abc
+
+# Scenario 1: must fail
+eval nop {global:myString|require equals string def|unreachable}
+
+# Scenario 2: success
+assign global:result = {global:myString|require equals string abc}
+eval nop {global:result|assert equals string abc}

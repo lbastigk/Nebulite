@@ -17,12 +17,20 @@ namespace Nebulite::Module::Transformation {
 
 void Requirements::bindTransformations() {
     bindCategory(requireName, requireDesc);
+    bindTransformation(&Requirements::requireEmpty, requireEmptyName, requireEmptyDesc);
     bindTransformation(&Requirements::requireNonEmpty, requireNonEmptyName, requireNonEmptyDesc);
 
     bindCategory(requireTypeName, requireTypeDesc);
     bindTransformation(&Requirements::requireTypeObject, requireTypeObjectName, requireTypeObjectDesc);
     bindTransformation(&Requirements::requireTypeArray, requireTypeArrayName, requireTypeArrayDesc);
     bindTransformation(&Requirements::requireTypeBasicValue, requireTypeBasicValueName, requireTypeBasicValueDesc);
+
+    bindCategory(requireMatchName, requireMatchDesc);
+    bindTransformation(&Requirements::requireMatchRegex, requireMatchRegexName, requireMatchRegexDesc);
+
+    bindCategory(requireEqualsName, requireEqualsDesc);
+    bindTransformation(&Requirements::requireEqualsString, requireEqualsStringName, requireEqualsStringDesc);
+    bindTransformation(&Requirements::requireEqualsInt, requireEqualsIntName, requireEqualsIntDesc);
 }
 
 void Requirements::printUserDefinedMessage(std::span<std::string const> const& args){

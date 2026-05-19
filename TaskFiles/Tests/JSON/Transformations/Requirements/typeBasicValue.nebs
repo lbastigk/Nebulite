@@ -1,0 +1,24 @@
+# Test assertion that a value is not empty
+set myBasicValue value
+set myNonBasicValue1.key1 value1
+set myNonBasicValue1.key2 value2
+set myNonBasicValue2[0] value1
+set myNonBasicValue2[1] value2
+
+# Scenario 1: must fail
+assign global:result = {global:myNonBasicValue1|require type basicValue|unreachable}
+eval nop {global:result|assert empty}
+assign global:result = {global:myNonBasicValue2|require type basicValue|unreachable}
+eval nop {global:result|assert empty}
+
+# Scenario 2: success
+assign global:result = {global:myBasicValue|require type basicValue}
+eval nop {global:result|assert type basicValue}
+assign global:result = {global:myNonBasicValue1.key1|require type basicValue}
+eval nop {global:result|assert type basicValue}
+assign global:result = {global:myNonBasicValue1.key2|require type basicValue}
+eval nop {global:result|assert type basicValue}
+assign global:result = {global:myNonBasicValue2[0]|require type basicValue}
+eval nop {global:result|assert type basicValue}
+assign global:result = {global:myNonBasicValue2[1]|require type basicValue}
+eval nop {global:result|assert type basicValue}

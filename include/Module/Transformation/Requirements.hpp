@@ -86,7 +86,7 @@ public:
 
     static bool requireMatchRegex(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc);
     static auto constexpr requireMatchRegexName = "require match regex";
-    static auto constexpr requireMatchesRegexDesc = "Requires that the current JSON string value matches a provided regular expression.\n"
+    static auto constexpr requireMatchRegexDesc = "Requires that the current JSON string value matches a provided regular expression.\n"
         "If the value does not match the regular expression, the transformation fails.\n"
         "Usage: |require match regex <regex> -> {value,<Returns false if no match>}\n";
 

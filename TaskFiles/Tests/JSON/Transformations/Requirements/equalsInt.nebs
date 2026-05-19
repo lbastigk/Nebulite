@@ -1,0 +1,29 @@
+# Test if a value is a given integer
+set myInt 123
+set myObject.value1 123
+set myObject.value2 456
+set myObject.value3 789
+set myArray[0] 123
+set myArray[1] 456
+set myArray[2] 789
+
+# Scenario 1: must fail
+eval nop {global:myInt|require equals int 456|unreachable}
+eval nop {global:myObject|require equals int 123|unreachable}
+eval nop {global:myArray|require equals int 123|unreachable}
+
+# Scenario 2: success
+assign global:result = {global:myInt|require equals int 123}
+eval nop {global:result|require equals int 123}
+assign global:result = {global:myObject.value1|require equals int 123}
+eval nop {global:result|require equals int 123}
+assign global:result = {global:myObject.value2|require equals int 456}
+eval nop {global:result|require equals int 456}
+assign global:result = {global:myObject.value3|require equals int 789}
+eval nop {global:result|require equals int 789}
+assign global:result = {global:myArray[0]|require equals int 123}
+eval nop {global:result|require equals int 123}
+assign global:result = {global:myArray[1]|require equals int 456}
+eval nop {global:result|require equals int 456}
+assign global:result = {global:myArray[2]|require equals int 789}
+eval nop {global:result|require equals int 789}
