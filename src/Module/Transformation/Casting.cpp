@@ -28,7 +28,6 @@ void Casting::bindTransformations() {
     bindTransformation(&Casting::toBool, toBoolName, toBoolDesc);
     bindTransformation(&Casting::toDouble, toDoubleName, toDoubleDesc);
     bindTransformation(&Casting::toBoolString, toBoolStringName, toBoolStringDesc);
-    bindTransformation(&Casting::asString, asStringName, asStringDesc);
     bindTransformation(&Casting::formatNumber, formatNumberName, formatNumberDesc);
 
     // Two names for roundUp/roundDown
@@ -36,7 +35,6 @@ void Casting::bindTransformations() {
     bindTransformation(&Casting::roundUp, roundUpName2, roundDownDesc); // ceiling
     bindTransformation(&Casting::roundDown, roundDownName, roundDownDesc); // roundDown
     bindTransformation(&Casting::roundDown, roundDownName2, roundDownDesc); // floor
-
     bindTransformation(&Casting::round, roundName, roundDesc);
 }
 
@@ -54,13 +52,24 @@ bool Casting::toInt(Data::JsonScope* jsonDoc) {
 }
 
 bool Casting::toString(Data::JsonScope* jsonDoc) {
-    // Check if it has any value
-    if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
-        return false;
+    switch (jsonDoc->memberType(rootKey)) {
+    case Data::KeyType::null:
+        jsonDoc->set(rootKey, "null");
+        break;
+    case Data::KeyType::value: {
+            auto const valAsString = jsonDoc->get<std::string>(rootKey).value_or("");
+            jsonDoc->set<std::string>(rootKey, valAsString);
+        }
+        break;
+    case Data::KeyType::array:
+        jsonDoc->set(rootKey, "[array]");
+        break;
+    case Data::KeyType::object:
+        jsonDoc->set(rootKey, "{object}");
+        break;
+    default:
+        std::unreachable();
     }
-
-    auto const valAsString = jsonDoc->get<std::string>(rootKey).value_or("");
-    jsonDoc->set<std::string>(rootKey, valAsString);
     return true;
 }
 
@@ -115,26 +124,6 @@ bool Casting::toBoolString(Data::JsonScope* jsonDoc) {
     // Get current value as bool
     bool const boolValue = jsonDoc->get<bool>(rootKey).value_or(false);
     jsonDoc->set<std::string>(rootKey, boolValue ? "true" : "false");
-    return true;
-}
-
-bool Casting::asString(Data::JsonScope* jsonDoc){
-    switch (jsonDoc->memberType(rootKey)) {
-    case Data::KeyType::null:
-        jsonDoc->set(rootKey, "null");
-        break;
-    case Data::KeyType::value:
-        // Nothing to do
-        break;
-    case Data::KeyType::array:
-        jsonDoc->set(rootKey, "[array]");
-        break;
-    case Data::KeyType::object:
-        jsonDoc->set(rootKey, "{object}");
-        break;
-    default:
-        std::unreachable();
-    }
     return true;
 }
 

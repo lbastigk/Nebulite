@@ -36,9 +36,9 @@ public:
 
     static bool toString(Data::JsonScope* jsonDoc);
     static auto constexpr toStringName = "toString";
-    static auto constexpr toStringDesc = "Converts the current JSON value to a string.\n"
-        "Defaults to an empty string if no conversion is possible, but fails if the value is null.\n"
-        "Usage: |toString -> {value:string}\n";
+    static auto constexpr toStringDesc = "Converts the current JSON value to a string representation.\n"
+        "Usage: |asString -> {string}\n"
+        "Either the value as string, or '[array]' or '{object}' or 'null'\n";
 
     static bool toBool(Data::JsonScope* jsonDoc);
     static auto constexpr toBoolName = "toBool";
@@ -60,17 +60,12 @@ public:
         "Usage: |toBoolString -> {value:string}\n"
         "Either 'true' or 'false'\n";
 
-    static bool asString(Data::JsonScope* jsonDoc);
-    static auto constexpr asStringName = "asString";
-    static auto constexpr asStringDesc = "Converts the current JSON value to a string representation.\n"
-        "Usage: |asString -> {string}\n"
-        "Either the value as string, or [array] or {object}\n";
-
     static bool formatNumber(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr formatNumberName = "formatNumber";
     static auto constexpr formatNumberDesc = "If the stored value is a number, it is formatted with a given format specifier\n"
         "Usage: |formatNumber <format> -> {string}"
-        "If the value stored is a non-numeric string, the value is not modified.\n"
+        "If the stored value is a non-numeric string, the value is not modified.\n"
+        "If the stored value is not a simple value, the transformation fails.\n"
         "Example formatters: 04.2f, 5i, 06i\n";
 
     static bool roundUp(Data::JsonScope* jsonDoc);

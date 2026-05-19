@@ -86,7 +86,7 @@
             <!-- where arr is the generated array from the data-reflect statement -->
             <!-- you may also use context-marrying prefixes like "all:" or "local:" to reflect on a combination of contexts -->
             <p data-eval="true" style="margin: 0 0;">
-                {self:index|add 1}.) {self:key|asString|rPad 15 .}{self:value|asString|lPad 15 .}
+                {self:index|add 1}.) {self:key|toString|rPad 15 .}{self:value|toString|lPad 15 .}
             </p>
         </p>
     </body>
