@@ -28,8 +28,6 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    // TODO: Implement tests
-
     static bool sum(Data::JsonScope* scope);
     static auto constexpr sumName = "sum";
     static auto constexpr sumDesc = "Sums the elements of the array in the current JSON value.\n"
@@ -71,6 +69,8 @@ public:
     static auto constexpr stddevDesc = "Calculates the standard deviation of the elements of the array in the current JSON value.\n"
         "Input must be an array of numbers. If any element is not a number, the current value is not an array or the array is empty, the transformation fails.\n"
         "Usage: |stddev -> {number}\n";
+
+    // TODO: range, mode, mean(same as average)
 
 private:
     /**

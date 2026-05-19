@@ -1,0 +1,22 @@
+set arr1[0] 1
+set arr1[1] 1
+set arr1[2] 2
+set arr1[3] 3
+set arr1[4] 4
+set arr1[5] 1
+
+set arr2[0] 1.1
+set arr2[1] 1.1
+set arr2[2] 2.2
+set arr2[3] 3.3
+set arr2[4] 4.4
+set arr2[5] 1.1
+
+set arr3[0] 1
+set arr3[1] a
+set arr3[2] 2
+set arr3[3] 3
+
+eval nop {global:arr1|average|assert equals int 2}
+eval nop {global:arr2|average|assert equals string 2.2}
+eval nop {global:arr3|average|unreachable} # Fails because of the non-numeric value "a"
