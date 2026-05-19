@@ -1,0 +1,23 @@
+# Testing floating point to int casting/rounding
+set test.val1 3.99
+set test.val2 -2.01
+
+# Rounding
+eval nop {global:test.val1|round         |assert equals int  4}
+eval nop {global:test.val2|round         |assert equals int -2}
+eval nop {global:test.val1|roundUp       |assert equals int  4}
+eval nop {global:test.val2|roundUp       |assert equals int -2}
+eval nop {global:test.val1|roundDown     |assert equals int  3}
+eval nop {global:test.val2|roundDown     |assert equals int -3}
+
+# Secondary names for roundUp and roundDown:
+eval nop {global:test.val1|ceiling       |assert equals int  4}
+eval nop {global:test.val2|ceiling       |assert equals int -2}
+eval nop {global:test.val1|floor         |assert equals int  3}
+eval nop {global:test.val2|floor         |assert equals int -3}
+
+# toInt behaves differently than any rounding method:
+eval nop {global:test.val1|toInt         |assert equals int  3}
+eval nop {global:test.val2|toInt         |assert equals int -2}
+
+exit

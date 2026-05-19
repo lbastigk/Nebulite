@@ -117,16 +117,19 @@ bool Assertions::assertEqualsInt(std::span<std::string const> const& args, Data:
     if (args.size() < 2) {
         throw std::runtime_error(std::string(assertEqualsIntName) + ": No expected integer provided");
     }
-    if (args.size() > 2) {
-        throw std::runtime_error(std::string(assertEqualsIntName) + ": Too many arguments provided, expected exactly one integer argument");
-    }
     try {
-        auto const expected = std::stoi(args[1]);
+        auto const expected = Utility::StringHandler::recombineArgs(args.subspan(1));
+        auto const expectedInt = std::stoi(expected);
         if (jsonDoc->memberType(rootKey) != Data::KeyType::value) {
-            throw std::runtime_error(std::string(assertEqualsIntName) + ": Current JSON value is not a basic value, expected integer: " + std::to_string(expected) + ". Value is: " + jsonDoc->serialize(rootKey));
+            throw std::runtime_error(
+                std::string(assertEqualsIntName) + ": Current JSON value is not a basic value, expected integer: " + expected +
+                ". Value is: " + jsonDoc->serialize(rootKey));
         }
-        if (auto const actual = jsonDoc->get<int>(rootKey).value_or(0); actual != expected) {
-            throw std::runtime_error(std::string(assertEqualsIntName) + ": JSON value '" + std::to_string(actual) + "' does not equal expected integer '" + std::to_string(expected) + "'");
+        if (auto const actual = jsonDoc->get<int>(rootKey).value_or(0); actual != expectedInt) {
+            throw std::runtime_error(
+                std::string(assertEqualsIntName) + ": JSON value '" + std::to_string(actual) +
+                "' does not equal expected integer '" + std::to_string(expectedInt) +
+                "' (Converted from: '" + expected + "')");
         }
     }
     catch (std::exception const& e) {

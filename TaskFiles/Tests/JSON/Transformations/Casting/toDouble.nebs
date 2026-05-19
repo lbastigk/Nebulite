@@ -1,0 +1,27 @@
+# Testing double conversion
+
+# Setup
+assign global:workspace.integer = $i(42)
+assign global:workspace.float = $(3.1415926)
+assign global:workspace.zero = $i(0)
+assign global:workspace.bool = {|add 0|not}
+assign global:workspace.null = {|}
+assign global:workspace.string = Hello World
+assign global:workspace.array[0] = one
+assign global:workspace.array[1] = two
+assign global:workspace.array[2] = $(3)
+assign global:workspace.object.key = value
+assign global:workspace.object.number = $i(42)
+
+# Test conversion: toDouble -> serialize -> compare with expected string
+# We use serialize here to get the actual in-document representation of the value, without any additional formatting
+# that might occur with toString or formatNumber
+eval nop {global:workspace.integer|toDouble|serialize|assert equals string 42.0}
+eval nop {global:workspace.float|toDouble|serialize|assert equals string 3.1415926}
+
+# Test conversion of non-numeric types, which should fail
+eval nop {global:workspace.bool|toDouble|serialize|assert equals string 1.0}
+eval nop {global:workspace.null|toDouble|unreachable} # Fails
+eval nop {global:workspace.string|toDouble|serialize|assert equals string 0.0}
+eval nop {global:workspace.array|toDouble |serialize|assert equals string 0.0}
+eval nop {global:workspace.object|toDouble|serialize|assert equals string 0.0}

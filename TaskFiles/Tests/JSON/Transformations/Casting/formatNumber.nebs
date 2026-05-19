@@ -1,0 +1,32 @@
+# Test formatting numbers as strings
+
+# Setup
+assign global:workspace.integer = $i(42)
+assign global:workspace.float = $(3.1415926)
+assign global:workspace.bool = {|add 0|not}
+assign global:workspace.null = {|}
+assign global:workspace.string = Hello World
+assign global:workspace.array[0] = one
+assign global:workspace.array[1] = two
+assign global:workspace.array[2] = $(3)
+assign global:workspace.object.key = value
+assign global:workspace.object.number = $i(42)
+
+# Test integer formatting
+eval nop {global:workspace.integer|formatNumber 04i|assert equals string 0042}
+eval nop {global:workspace.integer|formatNumber 6i|strLen|assert equals int 6} # Whitespace checks are tricky, so we check in 2 parts: length and stripped content
+eval nop {global:workspace.integer|formatNumber 6i|lStrip|assert equals string 42}
+
+# Test float formatting
+eval nop {global:workspace.float|formatNumber .2f  |assert equals string 3.14}
+eval nop {global:workspace.float|formatNumber .4f  |assert equals string 3.1416} # Note the rounding
+eval nop {global:workspace.float|formatNumber 08.2f|assert equals string 00003.14} # Note the whitespace padding
+
+# Test formatting of non-numeric types
+# Note that formatNumber will pass through non-numeric simple values without formatting them,
+# but will fail on complex types like arrays and objects
+eval nop {global:workspace.bool|formatNumber 04i  |assert equals string true} # Bools are simple values, so they are passed through
+eval nop {global:workspace.string|formatNumber 04i|assert equals string Hello World} # Strings are simple values, so they are passed through
+eval nop {global:workspace.null|formatNumber 04i  |unreachable} # Nulls cannot be formatted, transformation fails
+eval nop {global:workspace.array|formatNumber 04i |unreachable} # Arrays cannot be formatted, transformation fails
+eval nop {global:workspace.object|formatNumber 04i|unreachable} # Objects cannot be formatted, transformation fails

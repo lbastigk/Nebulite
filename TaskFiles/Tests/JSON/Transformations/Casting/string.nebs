@@ -1,0 +1,29 @@
+# Test conversion to string representation,
+# both toString and asString
+
+# Setup
+assign global:workspace.integer = $i(42)
+assign global:workspace.float = $(3.14)
+assign global:workspace.bool = {|add 0|not}
+assign global:workspace.null = {|}
+assign global:workspace.array[0] = one
+assign global:workspace.array[1] = two
+assign global:workspace.array[2] = $(3)
+assign global:workspace.object.key = value
+assign global:workspace.object.number = $i(42)
+
+# Check the workspace
+eval nop {global:workspace.integer|assert equals int 42}
+eval nop {global:workspace.float|assert equals string 3.14} # later on we should use a more specific type for float
+eval nop {global:workspace.bool|assert type basicValue} # later on we should use a more specific type for bool
+eval nop {global:workspace.null|assert empty}
+eval nop {global:workspace.array|assert type array}
+eval nop {global:workspace.object|assert type object}
+
+# toString
+eval nop {global:workspace.integer|toString|assert equals string 42}
+eval nop {global:workspace.float|toString  |assert equals string 3.14}
+eval nop {global:workspace.bool|toString   |assert equals string true}
+eval nop {global:workspace.null|toString   |assert equals string null}
+eval nop {global:workspace.array|toString  |assert equals string [array]}
+eval nop {global:workspace.object|toString |assert equals string {object}}

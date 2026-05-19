@@ -28,6 +28,11 @@ public:
     //------------------------------------------
     // Available Transformations
 
+    static bool strLen(Data::JsonScope* jsonDoc);
+    static auto constexpr strLenName = "strLen";
+    static auto constexpr strLenDesc = "Calculates the length of the current JSON string value.\n"
+        "Usage: |strLen -> {int}\n";
+
     static bool capitalize(Data::JsonScope* jsonDoc);
     static auto constexpr capitalizeName = "capitalize";
     static auto constexpr capitalizeDesc = "Capitalizes the current JSON string.\n"

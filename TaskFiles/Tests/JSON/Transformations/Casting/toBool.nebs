@@ -1,0 +1,36 @@
+# Testing bool version
+
+# Setup
+assign global:workspace.integer = $i(42)
+assign global:workspace.float = $(3.1415926)
+assign global:workspace.zero = $i(0)
+assign global:workspace.bool = {|add 0|not}
+assign global:workspace.null = {|}
+assign global:workspace.string = Hello World
+assign global:workspace.array[0] = one
+assign global:workspace.array[1] = two
+assign global:workspace.array[2] = $(3)
+assign global:workspace.object.key = value
+assign global:workspace.object.number = $i(42)
+
+# Numeric values should convert to true, unless they are zero
+eval nop {global:workspace.integer|toBool      |assert equals string true}
+eval nop {global:workspace.integer|toBoolString|assert equals string true}
+eval nop {global:workspace.float|toBool        |assert equals string true}
+eval nop {global:workspace.float|toBoolString  |assert equals string true}
+eval nop {global:workspace.bool|toBool         |assert equals string true}
+eval nop {global:workspace.bool|toBoolString   |assert equals string true}
+eval nop {global:workspace.zero|toBool         |assert equals string false}
+eval nop {global:workspace.zero|toBoolString   |assert equals string false}
+
+# Nulls cannot be converted to bool, transformation fails
+eval nop {global:workspace.null|toBool      |unreachable}
+eval nop {global:workspace.null|toBoolString|unreachable}
+
+# Complex types are considered false when converting to bool
+eval nop {global:workspace.string|toBool      |assert equals string false}
+eval nop {global:workspace.string|toBoolString|assert equals string false}
+eval nop {global:workspace.array|toBool       |assert equals string false}
+eval nop {global:workspace.array|toBoolString |assert equals string false}
+eval nop {global:workspace.object|toBool      |assert equals string false}
+eval nop {global:workspace.object|toBoolString|assert equals string false}
