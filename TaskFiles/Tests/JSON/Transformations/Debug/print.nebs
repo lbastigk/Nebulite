@@ -1,0 +1,10 @@
+# Testing print debug transformation
+set result.value var
+set result.array[0] one
+set result.array[1] two
+set result.array[2] three
+set result.object.key1 value1
+set result.object.key2 value2
+set result.object.key3 value3
+
+eval nop {global:result|print}

@@ -1,0 +1,5 @@
+# Test debug transformation prints to capture
+eval nop {|echo Hello echo}
+eval nop {|warn Hello warn}
+eval nop {|error Hello error}
+exit

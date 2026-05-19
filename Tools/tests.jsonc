@@ -44,6 +44,7 @@
         "Tools/Tests/JSON/Basics.json",
         "Tools/Tests/JSON/Caching.json",
         "Tools/Tests/JSON/ComplexData.json",
+        "Tools/Tests/JSON/TransformationBasics.json", // Test of basic transformation syntax
         //---------------------------------------
         // JSON transformation tests
         "Tools/Tests/JSON/Transformations/Arithmetic.json",
