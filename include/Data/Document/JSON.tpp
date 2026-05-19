@@ -125,7 +125,8 @@ std::optional<newType> JSON::convertVariant(RjDirectAccess::simpleValue const& v
         // Removing all qualifiers (const, volatile, references, etc.)
         using ValueT = std::decay_t<decltype(value)>;
 
-        // [???] -> [FLOAT]
+        //------------------------------------------
+        // To float is seen as special case, as we do not store floats.
         // If newType is float, get double first and convert to float
         if constexpr(std::is_same_v<newType, float>) {
             if (auto const val = convertVariant<double>(var); val.has_value()) {
@@ -134,65 +135,32 @@ std::optional<newType> JSON::convertVariant(RjDirectAccess::simpleValue const& v
             return std::optional<newType>(std::nullopt);
         }
 
+        //------------------------------------------
+        // Try some special conversions first
+
+        // [BOOL] -> [STRING]
+        else if constexpr(std::is_same_v<ValueT, bool> && std::is_same_v<newType, std::string>) {
+            return TypeConversion::Bool::toString(value);
+        }
+
         // [DOUBLE] -> [BOOL]
         // First, as the static_cast from a direct conversion doesn't work well here
         else if constexpr (std::is_same_v<ValueT, double> && std::is_same_v<newType, bool>){
-            return std::optional<newType>{std::fabs(value) > std::numeric_limits<double>::epsilon()};
+            return TypeConversion::Double::toBool(value);
         }
 
-        // Basic direct conversions
+        // [STRING] -> [ANY]
+        else if constexpr (std::is_same_v<ValueT, std::string>) {
+            return TypeConversion::String::toAny<newType>(value);
+        }
+
+        //------------------------------------------
+        // Try basic direct conversions
+
+        // [ANY] -> [ANY] via static_cast
         else if constexpr (std::is_convertible_v<ValueT, newType>){
             return std::optional<newType>{static_cast<newType>(value)};
         }
-
-        // [STRING] -> [VALUE]
-        else if constexpr (std::is_same_v<ValueT, std::string>) {
-            if constexpr (std::is_same_v<newType, bool>){
-                // NOLINTNEXTLINE
-                return TypeConversion::stringToBool(value);
-            }
-            else if constexpr (std::is_same_v<newType, int>){
-                // NOLINTNEXTLINE
-                return TypeConversion::stringToInt(value);
-            }
-            else if constexpr (std::is_same_v<newType, uint8_t>){
-                // NOLINTNEXTLINE
-                return TypeConversion::stringToUInt8(value);
-            }
-            else if constexpr (std::is_same_v<newType, int8_t>){
-                // NOLINTNEXTLINE
-                return TypeConversion::stringToInt8(value);
-            }
-            else if constexpr (std::is_same_v<newType, uint16_t>){
-                // NOLINTNEXTLINE
-                return TypeConversion::stringToUInt16(value);
-            }
-            else if constexpr (std::is_same_v<newType, int16_t>){
-                // NOLINTNEXTLINE
-                return TypeConversion::stringToInt16(value);
-            }
-            else if constexpr (std::is_same_v<newType, uint32_t>){
-                // NOLINTNEXTLINE
-                return TypeConversion::stringToUInt32(value);
-            }
-            else if constexpr (std::is_same_v<newType, int32_t>){
-                // NOLINTNEXTLINE
-                return TypeConversion::stringToInt32(value);
-            }
-            else if constexpr (std::is_same_v<newType, uint64_t>){
-                // NOLINTNEXTLINE
-                return TypeConversion::stringToUInt64(value);
-            }
-            else if constexpr (std::is_same_v<newType, int64_t>){
-                // NOLINTNEXTLINE
-                return TypeConversion::stringToInt64(value);
-            }
-            else if constexpr (std::is_same_v<newType, double>){
-                // NOLINTNEXTLINE
-                return TypeConversion::stringToDouble(value);
-            }
-        }
-
         // [ARITHMETIC] -> [STRING]
         else if constexpr (std::is_arithmetic_v<ValueT> && std::is_same_v<newType, std::string>){
             return std::optional<newType>{std::to_string(value)};
