@@ -1,0 +1,10 @@
+# Testing an empty transformation chain
+set test.val 42
+
+# Should return a transformation failure, as we have an invalid empty transformation
+eval set result {global:test.val|}
+
+# Test if it is a transformation failure
+eval nop {global:result|assert equals string [TRANSFORMATION_FAILURE]}
+
+exit

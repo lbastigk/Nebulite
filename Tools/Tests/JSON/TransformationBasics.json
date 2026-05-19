@@ -1,0 +1,6 @@
+[
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/emptyTransformation.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    }
+]
