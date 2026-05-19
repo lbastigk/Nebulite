@@ -1,0 +1,28 @@
+set arr[0] 1
+set arr[1] 2
+set arr[2] 3
+set arr[10].var 11
+set arr[11] 12
+set obj.keyfoobar foobar
+set obj.keybarfoo barfoo
+set obj.keybarbaz barbaz
+
+# Filter
+assign global:result.arr = {global:arr|filterGlob \[1*\]|filterNulls}
+assign global:result.obj = {global:obj|filterGlob keybar*}
+
+# Verify results: arr
+eval nop {global:result.arr|assert type array}
+eval nop {global:result.arr|length|assert equals int 3}
+eval nop {global:result.arr[0]|assert equals int 2}
+eval nop {global:result.arr[1]|assert type object}
+eval nop {global:result.arr[1].var|assert equals int 11}
+eval nop {global:result.arr[2]|assert equals int 12}
+
+# Verify results: obj
+eval nop {global:result.obj|assert type object}
+eval nop {global:result.obj|listMembers|length|assert equals int 2}
+eval nop {global:result.obj.keybarfoo|assert equals string barfoo}
+eval nop {global:result.obj.keybarbaz|assert equals string barbaz}
+
+exit

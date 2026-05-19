@@ -43,7 +43,7 @@ public:
     static auto constexpr filterCustomName = "filterCustom";
     static auto constexpr filterCustomDesc = "Filters values in the current JSON array based on a custom filter expression\n"
         "Provide a filter expression without the evaluation key '$'!\n"
-        "For example: ( gt({value:|length}, 3) )\n"
+        "For example: ( gt({self:|length}, 3) )\n"
         "Usage: |filterCustom <expression> -> {filtered array}\n";
 
 private:
@@ -61,6 +61,7 @@ private:
                 values.emplace_back(std::move(doc));
             }
         }
+        jsonDoc->removeMember(rootKey);
         for (auto [idx, value] : values | std::views::enumerate) {
             auto const key = rootKey.addIndex(static_cast<size_t>(idx));
             jsonDoc->setSubDoc(key, value);

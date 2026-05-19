@@ -534,7 +534,7 @@ Data::JSON Expression::evalAsJson(std::string_view const& input, ContextScope co
 // Private helper functions
 
 void Expression::updateCaches(ContextScope const& context) const {
-    setupFirstContext(context);
+    //setupFirstContext(context); // TODO causes issues in some cases, e.g.: TaskFiles/Tests/JSON/Transformations/Filter/custom.nebs
     updateStableValues(context);
     updateUnstableValues(context);
 }

@@ -1,0 +1,44 @@
+# Test custom filter transformation
+
+# 1.) Array of arrays
+set test.arr1[0][9] 9
+set test.arr1[1][8] 8
+set test.arr1[2][7] 7
+set test.arr1[3][6] 6
+set test.arr1[4][5] 5
+set test.arr1[5][4] 4
+set test.arr1[6][3] 3
+set test.arr1[7][2] 2
+set test.arr1[8][1] 1
+set test.arr1[9][0] 0
+
+# 2.) Array of objects with numeric values a,b inside
+set test.arr2[0].a 9
+set test.arr2[0].b 0
+set test.arr2[1].a 8
+set test.arr2[1].b 1
+set test.arr2[2].a 7
+set test.arr2[2].b 2
+set test.arr2[3].a 6
+set test.arr2[3].b 3
+set test.arr2[4].a 5
+set test.arr2[4].b 4
+set test.arr2[5].a 4
+set test.arr2[5].b 5
+set test.arr2[6].a 3
+set test.arr2[6].b 6
+set test.arr2[7].a 2
+set test.arr2[7].b 7
+set test.arr2[8].a 1
+set test.arr2[8].b 8
+set test.arr2[9].a 0
+set test.arr2[9].b 9
+
+# Filter arr1: length of inner array should be gt 5
+# requires an evaluation-delay, otherwise the "assign" operation instantly evaluates the filter expression
+assign global:result.arr1 = {global:test.arr1|filterCustom (gt({1!self:|length},5))}
+assign global:result.arr2 = {global:test.arr2|filterCustom (gt({1!self:a}-{1!self:b},6))}
+
+# Check sizes
+eval nop {global:result.arr1|length|assert equals int 5}
+eval nop {global:result.arr2|length|assert equals int 2}

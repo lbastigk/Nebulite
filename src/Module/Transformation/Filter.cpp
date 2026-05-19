@@ -26,6 +26,7 @@ void Filter::bindTransformations(){
     bindTransformation(&Filter::filterRegex, filterRegexName, filterRegexDesc);
     bindTransformation(&Filter::filterGlob, filterGlobName, filterGlobDesc);
     bindTransformation(&Filter::filterNulls, filterOutNullsName, filterOutNullsDesc);
+    bindTransformation(&Filter::filterCustom, filterCustomName, filterCustomDesc);
 }
 
 bool Filter::filterRegex(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {

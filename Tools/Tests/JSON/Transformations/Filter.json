@@ -1,62 +1,14 @@
 [
     {
-        "command": [
-            "# Glob and null filtering function",
-            "task TaskFiles/Tests/JSON/Transformations/regex.nebs"
-        ],
-        "expected": {
-            "cout": [
-                "[",
-                "    \"2\",",
-                "    {",
-                "        \"var\": \"11\"",
-                "    },",
-                "    \"12\"",
-                "]",
-                "{",
-                "    \"keybarbaz\": \"barbaz\",",
-                "    \"keybarfoo\": \"barfoo\"",
-                "}"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/JSON/Transformations/Filter/glob.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": [
-            "# Glob and null filtering function",
-            "task TaskFiles/Tests/JSON/Transformations/glob.nebs"
-        ],
-        "expected": {
-            "cout": [
-                "[",
-                "    {},",
-                "    \"2\",",
-                "    {},",
-                "    {},",
-                "    {},",
-                "    {},",
-                "    {},",
-                "    {},",
-                "    {},",
-                "    {},",
-                "    {",
-                "        \"var\": \"11\"",
-                "    },",
-                "    \"12\"",
-                "]",
-                "[",
-                "    \"2\",",
-                "    {",
-                "        \"var\": \"11\"",
-                "    },",
-                "    \"12\"",
-                "]",
-                "{",
-                "    \"keybarbaz\": \"barbaz\",",
-                "    \"keybarfoo\": \"barfoo\"",
-                "}"
-            ],
-            "cerr": []
-        }
+        "command": "task TaskFiles/Tests/JSON/Transformations/Filter/regex.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Filter/custom.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]
