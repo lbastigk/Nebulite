@@ -39,6 +39,29 @@ set test.arr2[9].b 9
 assign global:result.arr1 = {global:test.arr1|filterCustom (gt({1!self:|length},5))}
 assign global:result.arr2 = {global:test.arr2|filterCustom (gt({1!self:a}-{1!self:b},6))}
 
-# Check sizes
+# Verify result: arr1
 eval nop {global:result.arr1|length|assert equals int 5}
+eval nop {global:result.arr1[0]|length|assert equals int 10}
+eval nop {global:result.arr1[0]|filterNulls|length|assert equals int 1}
+eval nop {global:result.arr1[0]|filterNulls|at 0|assert equals int 9}
+eval nop {global:result.arr1[1]|length|assert equals int 9}
+eval nop {global:result.arr1[1]|filterNulls|length|assert equals int 1}
+eval nop {global:result.arr1[1]|filterNulls|at 0|assert equals int 8}
+eval nop {global:result.arr1[2]|length|assert equals int 8}
+eval nop {global:result.arr1[2]|filterNulls|length|assert equals int 1}
+eval nop {global:result.arr1[2]|filterNulls|at 0|assert equals int 7}
+eval nop {global:result.arr1[3]|length|assert equals int 7}
+eval nop {global:result.arr1[3]|filterNulls|length|assert equals int 1}
+eval nop {global:result.arr1[3]|filterNulls|at 0|assert equals int 6}
+eval nop {global:result.arr1[4]|length|assert equals int 6}
+eval nop {global:result.arr1[4]|filterNulls|length|assert equals int 1}
+eval nop {global:result.arr1[4]|filterNulls|at 0|assert equals int 5}
+
+# Verify result: arr2
 eval nop {global:result.arr2|length|assert equals int 2}
+eval nop {global:result.arr2[0]|listMembers|length|assert equals int 2}
+eval nop {global:result.arr2[0].a|assert equals int 9}
+eval nop {global:result.arr2[0].b|assert equals int 0}
+eval nop {global:result.arr2[1]|listMembers|length|assert equals int 2}
+eval nop {global:result.arr2[1].a|assert equals int 8}
+eval nop {global:result.arr2[1].b|assert equals int 1}
