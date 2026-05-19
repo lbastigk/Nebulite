@@ -58,13 +58,6 @@ public:
     static auto constexpr removeMemberDesc = "Removes the member at the specified key from the JSON document.\n"
             "Usage: |removeMember <key1> <key2> ... -> {json}\n";
 
-    // Basically the same as assign, but weaker. Remove later
-    static bool setFromResult(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
-    static auto constexpr setFromResultName = "setFromResult";
-    static auto constexpr setFromResultDesc = "Sets the value at the specified key in the JSON document from the result of another expression.\n"
-        "Usage: |setFromResult <key> <expression> -> {json}\n"
-        "Inside the inner expression, all context is the own scope.\n";
-
     static bool assign(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr assignName = "assign";
     static auto constexpr assignDesc = "Assigns a value based on the result of an expression.\n"

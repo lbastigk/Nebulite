@@ -1,0 +1,11 @@
+# Test ability to set type of a value
+
+assign global:result.string = {|setString key value}
+assign global:result.int = {|setInt key 123}
+assign global:result.double = {|setDouble key 3.14}
+assign global:result.bool = {|setBool key true}
+
+eval nop {global:result.string.key|assert equals string value}
+eval nop {global:result.int.key|serialize   |assert equals string 123}
+eval nop {global:result.double.key|serialize|assert equals string 3.14}
+eval nop {global:result.bool.key|serialize  |assert equals string true}

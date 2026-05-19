@@ -5,7 +5,7 @@
 #     but passed raw to the transformation
 # 3.) Assert the correctness of both values in the object
 set obj.var 1
-assign global:result = {global:obj|setFromResult val {1!self:var|add 1}}
+assign global:result = {global:obj|assign self:val = {1!self:var|add 1}}
 eval nop {global:result|get var|assert equals int 1}
 eval nop {global:result|get val|assert equals int 2}
 exit

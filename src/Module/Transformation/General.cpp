@@ -22,7 +22,6 @@ void General::bindTransformations() {
     bindTransformation(&General::setDouble, setDoubleName, setDoubleDesc);
     bindTransformation(&General::setBool, setBoolName, setBoolDesc);
     bindTransformation(&General::removeMember, removeMemberName, removeMemberDesc);
-    bindTransformation(&General::setFromResult, setFromResultName, setFromResultDesc);
     bindTransformation(&General::assign, assignName, assignDesc);
 }
 
@@ -73,17 +72,6 @@ bool General::removeMember(std::span<std::string const> const& args, Data::JsonS
         auto const key = rootKey.addMember(arg);
         jsonDoc->removeMember(key);
     }
-    return true;
-}
-
-bool General::setFromResult(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    if (args.size() < 2) return false;
-    auto const key = rootKey.addMember(args[1]);
-    auto const innerEval = Utility::StringHandler::recombineArgs(args.subspan(2));
-
-    Interaction::ContextScope const context{*jsonDoc, *jsonDoc, *jsonDoc}; // Using the same scope for self, other and global since we only have access to one scope here
-    Data::JSON const transformationResult = Interaction::Logic::Expression::evalAsJson(innerEval, context); // Evaluating the expression to get the transformation result
-    jsonDoc->setSubDoc(key, transformationResult);
     return true;
 }
 

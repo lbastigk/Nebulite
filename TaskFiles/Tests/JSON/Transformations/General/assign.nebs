@@ -1,0 +1,16 @@
+# Check Nebulite properly handles nested transformations.
+set workspace.arr[0] 1
+set workspace.arr[1] 2
+set workspace.arr[2] 3
+
+# Using assign to create a new member with the result of a transformation
+# v General assign for result                                     v Assign length of array to new member
+assign global:result = {global:workspace|assign self:arraySize = {1!self:arr|length|toInt}}
+
+# Verify
+eval nop {global:result|listMembers|length|assert equals int 2}
+eval nop {global:result.arr|assert type array}
+eval nop {global:result.arr|length|assert equals int 3}
+eval nop {global:result.arraySize|assert equals int 3}
+
+exit

@@ -1,0 +1,23 @@
+# Remove member from object during transformation
+
+set test.var 42
+set test.arr[0] 56
+set test.arr[1] 78
+set test.obj.var1 12
+set test.obj.var2 34
+
+
+assign global:result.noVar = {global:test|removeMember var}
+assign global:result.noArr = {global:test|removeMember arr}
+assign global:result.noObj = {global:test|removeMember obj}
+
+# Test if the member was removed from the object
+eval nop {global:result.noVar.var|assert empty}
+eval nop {global:result.noVar.arr|assert type array}
+eval nop {global:result.noVar.obj|assert type object}
+eval nop {global:result.noArr.var|assert type basicValue}
+eval nop {global:result.noArr.arr|assert empty}
+eval nop {global:result.noArr.obj|assert type object}
+eval nop {global:result.noObj.var|assert type basicValue}
+eval nop {global:result.noObj.arr|assert type array}
+eval nop {global:result.noObj.obj|assert empty}
