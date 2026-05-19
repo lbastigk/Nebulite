@@ -1,0 +1,7 @@
+# Test unreachable transformation
+
+# Fails before the unreachable transformation is applied, so no outer catch is needed.
+eval nop {|require nonEmpty|print|unreachable}
+
+# Must-throw expects an error, coming from the 'unreachable' transformation
+must-throw eval nop {|unreachable}

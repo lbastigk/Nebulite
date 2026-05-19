@@ -1,5 +1,13 @@
 [
     {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Debug/capture.nebs",
+        "expected": { "cout": [ "Hello echo" ],  "cerr": [ "Hello warn", "Hello error" ] }
+    },
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Debug/unreachable.nebs",
+        "expected": { "cout": [],  "cerr": [] }
+    },
+    {
         "command": [
             "# Testing debug pseudo-transformations",
             "set-fps 60",
