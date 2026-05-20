@@ -245,25 +245,15 @@ bool String::strcompareContains(std::span<std::string const> const& args, Data::
 }
 
 bool String::strcompareStartsWith(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    if (args.size() < 2){
-        return false;
-    }
-    auto const compareStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const compareStr = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : " ";
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     jsonDoc->set(rootKey, str.starts_with(compareStr));
     return true;
 }
 
 bool String::strcompareEndsWith(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    if (args.size() < 2){
-        return false;
-    }
-    auto const compareStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const compareStr = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : " ";
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
-    if (compareStr.size() > str.size()) {
-        jsonDoc->set(rootKey, false);
-        return true;
-    }
     jsonDoc->set(rootKey, str.ends_with(compareStr));
     return true;
 }

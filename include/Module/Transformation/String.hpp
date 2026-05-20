@@ -152,13 +152,13 @@ public:
     static auto constexpr strcompareStartsWithName = "strCompare startsWith";
     static auto constexpr strcompareStartsWithDesc = "Checks if the current JSON string value starts with a specified substring.\n"
         "Usage: |strCompare startsWith {string} -> {bool}\n"
-        "{string}: Substring to check for\n";
+        "{string}: Substring to check for. If left empty, it checks for a whitespace.\n";
 
     static bool strcompareEndsWith(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr strcompareEndsWithName = "strCompare endsWith";
     static auto constexpr strcompareEndsWithDesc = "Checks if the current JSON string value ends with a specified substring.\n"
         "Usage: |strCompare endsWith {string} -> {bool}\n"
-        "{string}: Substring to check for\n";
+        "{string}: Substring to check for. If left empty, it checks for a whitespace.\n";
 };
 } // namespace Nebulite::Module::Transformation
 #endif // MODULE_TRANSFORMATION_STRING_HPP
