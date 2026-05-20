@@ -1,0 +1,7 @@
+# Test string replacement
+set sentence Hello World
+eval nop {global:sentence|replace World Nebulite|assert equals string Hello Nebulite}
+eval nop {global:sentence|replace Hello Hi|assert equals string Hi World}
+eval nop {global:sentence|replace o 0|assert equals string Hell0 W0rld}
+eval nop {global:sentence|replace l 1|assert equals string He11o Wor1d}
+eval nop {global:sentence|replace l 1|replace o 0|assert equals string He110 W0r1d}

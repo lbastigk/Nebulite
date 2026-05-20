@@ -1,0 +1,7 @@
+# Test all sorts of capitalization transformations
+set sentence Hello World
+
+eval nop {global:sentence|capitalize|assert equals string Hello world}
+eval nop {global:sentence|toUpper|assert equals string HELLO WORLD}
+eval nop {global:sentence|toLower|assert equals string hello world}
+exit

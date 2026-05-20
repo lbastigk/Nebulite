@@ -1,0 +1,11 @@
+set len[0]
+set len[1] a
+set len[2] ab
+set len[3] abc
+set len[4] abcd
+
+eval nop {global:len[0]|strLen|assert equals int 0}
+eval nop {global:len[1]|strLen|assert equals int 1}
+eval nop {global:len[2]|strLen|assert equals int 2}
+eval nop {global:len[3]|strLen|assert equals int 3}
+eval nop {global:len[4]|strLen|assert equals int 4}

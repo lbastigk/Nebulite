@@ -1,0 +1,22 @@
+set test.string "  HelloWorld  "
+
+# strip
+assign global:result[0] = {global:test.string|strip}
+assign global:result[1] = {global:test.string|lStrip}
+assign global:result[2] = {global:test.string|rStrip}
+
+# verify
+eval nop {global:result[0]|strCompare startsWith HelloWorld|assert equals int 1}
+eval nop {global:result[0]|strCompare endsWith HelloWorld|assert equals int 1}
+eval nop {global:result[0]|strLen|assert equals int 10}
+
+eval nop {global:result[1]|strCompare startsWith HelloWorld|assert equals int 1}
+eval nop {global:result[1]|strCompare endsWith|assert equals int 1}
+eval nop {global:result[1]|strLen|assert equals int 12}
+
+eval nop {global:result[2]|strCompare startsWith|assert equals int 1}
+eval nop {global:result[2]|strCompare endsWith HelloWorld|assert equals int 1}
+eval nop {global:result[2]|strLen|assert equals int 12}
+
+exit
+

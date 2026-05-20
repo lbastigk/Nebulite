@@ -1,0 +1,4 @@
+# String count appearance
+set test.string HelloWorldHello
+eval nop {global:test.string|strCountAppearance Hello|assert equals int 2}
+exit
