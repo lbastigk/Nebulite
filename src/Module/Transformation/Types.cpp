@@ -20,6 +20,7 @@ void Types::bindTransformations() {
     bindTransformation(&Types::typeAsString, typeAsStringName, typeAsStringDesc);
     bindTransformation(&Types::serialize, serializeName, serializeDesc);
     bindTransformation(&Types::deserialize, deserializeName, deserializeDesc);
+    bindTransformation(&Types::exists, existsName, existsDesc);
 }
 
 bool Types::typeAsNumber(Data::JsonScope* jsonDoc) {
@@ -61,10 +62,10 @@ bool Types::serialize(Data::JsonScope* jsonDoc) {
 
 bool Types::deserialize(Data::JsonScope* jsonDoc) {
     auto const serialized = jsonDoc->get<std::string>(rootKey).value_or("");
-    Data::JSON tempDoc;
     if (!Data::JSON::isJsonOrJsonc(serialized)) {
         return false;
     }
+    Data::JSON tempDoc;
     tempDoc.deserialize(serialized);
     jsonDoc->setSubDoc(rootKey, tempDoc);
     return true;

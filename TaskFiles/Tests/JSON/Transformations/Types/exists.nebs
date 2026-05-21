@@ -1,0 +1,16 @@
+# Setup workspace values
+set workspace.valueMember value
+set workspace.arrayMember[0] 0
+set workspace.arrayMember[1] 1
+set workspace.arrayMember[2] 2
+set workspace.objectMember.value0 0
+set workspace.objectMember.value1 1
+set workspace.objectMember.value2 2
+
+# Check that the members exist
+eval nop {global:workspace|exists valueMember|assert equals int 1}
+eval nop {global:workspace|exists arrayMember|assert equals int 1}
+eval nop {global:workspace|exists objectMember|assert equals int 1}
+eval nop {global:workspace|exists missingMember|assert equals int 0}
+
+exit

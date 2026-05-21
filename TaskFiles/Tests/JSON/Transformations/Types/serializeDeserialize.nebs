@@ -1,0 +1,32 @@
+# Test deserialization during transformation
+
+# Setup input data
+set workspace.input.a one
+set workspace.input.b two
+set workspace.input.c three
+set workspace.input.d[0] a
+set workspace.input.d[1] b
+set workspace.input.d[2] c
+set workspace.input.e.value0 a
+set workspace.input.e.value1 b
+set workspace.input.e.value2 c
+
+# Serialize the input data and then deserialize it back, storing the result in the workspace
+assign global:workspace.serial = {global:workspace.input|serialize}
+assign global:workspace.result = {global:workspace.serial|deserialize}
+
+# Verify
+eval nop {global:workspace.result|typeAsString|assert equals string object:5}
+eval nop {global:workspace.result.a|assert equals string one}
+eval nop {global:workspace.result.b|assert equals string two}
+eval nop {global:workspace.result.c|assert equals string three}
+eval nop {global:workspace.result.d|typeAsString|assert equals string array:3}
+eval nop {global:workspace.result.d[0]|assert equals string a}
+eval nop {global:workspace.result.d[1]|assert equals string b}
+eval nop {global:workspace.result.d[2]|assert equals string c}
+eval nop {global:workspace.result.e|typeAsString|assert equals string object:3}
+eval nop {global:workspace.result.e.value0|assert equals string a}
+eval nop {global:workspace.result.e.value1|assert equals string b}
+eval nop {global:workspace.result.e.value2|assert equals string c}
+
+exit
