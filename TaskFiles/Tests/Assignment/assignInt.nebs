@@ -1,8 +1,11 @@
-# Test if assign recognizes an expression that is storable as an int
+################################################################################################
+# Test if assign recognizes an expression that is storable as an int / not storable as an int
 # It also tests more complex operations where stored type and the type operated on must be int
-# E.g. if we want a*b to be stored as int, then a and b must be int as well
+# E.g. if we want n*m to be stored as int, then n and m must be int as well
+################################################################################################
 
-# Must be int, not float
+################################################
+# Storable as int
 
 assign global:values.a = $i(1+0) # Set
 assign global:values.b = $i(1+0)
@@ -19,13 +22,14 @@ eval nop {global:values.a|assert equals int 1}
 eval nop {global:values.b|assert equals int 2}
 eval nop {global:values.c|assert equals int 4}
 
+################################################
 # Must be float: starting with a float value
 
 assign global:values.a = $(1.1) # Set
 assign global:values.b = $(1.1)
-assign global:values.b += $i(1)  # Add
+assign global:values.b += $i(1) # Add
 assign global:values.c = $(1.1)
-assign global:values.c *= $i(2)  # Multiply
+assign global:values.c *= $i(2) # Multiply
 
 eval nop {global:values|assert type object}
 eval nop {global:values|listMembers|length|assert equals int 3}
@@ -36,12 +40,15 @@ eval nop {global:values.a|assert equals string 1.1}
 eval nop {global:values.b|assert equals string 2.1}
 eval nop {global:values.c|assert equals string 2.2}
 
-# Must be float: starting with an int, but then doing an operation that is not storable as int
-assign global:values.a = $(1.1)   # Set
+################################################
+# Must be float: starting with an int,
+# but then doing an operation where the result is not storable as int
+
+assign global:values.a = $(1.10) # Set
 assign global:values.b = $i(1+0)
-assign global:values.b += $(1.1)  # Add
+assign global:values.b += $(1.1) # Add
 assign global:values.c = $i(1+1)
-assign global:values.c *= $(2.2)  # Multiply
+assign global:values.c *= $(2.2) # Multiply
 
 eval nop {global:values|assert type object}
 eval nop {global:values|listMembers|length|assert equals int 3}
