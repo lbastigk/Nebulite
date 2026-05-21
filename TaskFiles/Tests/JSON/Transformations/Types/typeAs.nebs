@@ -1,0 +1,27 @@
+# Type to String transformation + Type to int transformation
+set workspace.arr[0] 1
+set workspace.arr[1] 2
+set workspace.arr[2] 3
+assign global:workspace.var = $i(42) # Ensure the value is stored as int, not string
+set workspace.obj.val 100
+
+# Complex type retrieval as string
+eval nop {global:workspace.dne|typeAsString|assert equals string null}
+eval nop {global:workspace.var|typeAsString|assert equals string value:int:64}
+eval nop {global:workspace.arr|typeAsString|assert equals string array:3}
+eval nop {global:workspace.obj|typeAsString|assert equals string object:1}
+
+# Simplified type retrieval as string
+eval nop {global:workspace.dne|typeAsSimpleString|assert equals string null}
+eval nop {global:workspace.var|typeAsSimpleString|assert equals string value}
+eval nop {global:workspace.arr|typeAsSimpleString|assert equals string array}
+eval nop {global:workspace.obj|typeAsSimpleString|assert equals string object}
+
+# Simplified type retrieval as enum
+# Order is: null=0, value=1, array=2, object=3
+eval nop {global:workspace.dne|typeAsNumber|assert equals int 0}
+eval nop {global:workspace.var|typeAsNumber|assert equals int 1}
+eval nop {global:workspace.arr|typeAsNumber|assert equals int 2}
+eval nop {global:workspace.obj|typeAsNumber|assert equals int 3}
+
+exit
