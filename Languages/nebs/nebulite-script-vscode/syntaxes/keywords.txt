@@ -7,7 +7,6 @@ always
 always-clear
 and
 array
-asString
 assert
 assign
 at
@@ -18,6 +17,7 @@ beep
 broadcast
 bundleToArray
 cam
+capitalize
 case-insensitive
 case-sensitive
 cat
@@ -31,9 +31,9 @@ collision-detect
 console
 constrain
 contains
+context-evaluation
 copy
 crash
-critical
 custom
 debug
 delete
@@ -48,6 +48,7 @@ empty
 endsWith
 ensure-array
 ensureArray
+enumerate
 env
 eq
 equals
@@ -55,17 +56,22 @@ error
 error-log
 eval
 evaluate
-evaluation
+exists
 exit
 expression-help
 feature-test
 fetch
+fetch-container
+fetch-id
+fetch-name
+filterCustom
 filterGlob
 filterNulls
 filterRegex
 first
 floor
 for
+for-progress
 formatNumber
 forward
 function
@@ -73,6 +79,7 @@ functree
 geq
 get
 global
+grid
 gt
 halt-once
 help
@@ -81,8 +88,11 @@ imgui-view
 input-mapping
 input-wait
 int
+invoke
+iota
 json
 key
+key-combination
 keyDelete
 lPad
 lPadNonNumeric
@@ -91,6 +101,7 @@ lStrip
 last
 length
 leq
+list
 listMembers
 listMembersAndValues
 listen
@@ -110,6 +121,7 @@ mirror
 mod
 move
 mul
+must-throw
 nand
 neq
 nonEmpty
@@ -174,7 +186,6 @@ set-res
 set-string
 setBool
 setDouble
-setFromResult
 setInt
 setString
 settings
@@ -188,8 +199,10 @@ standard-file
 startsWith
 state
 stddev
+store
 strCompare
 strCountAppearance
+strLen
 string
 strip
 sub
@@ -198,6 +211,7 @@ substring
 sum
 task
 test-filter
+throw
 time
 toBipolar
 toBool
@@ -212,7 +226,9 @@ typeAsNumber
 typeAsSimpleString
 typeAsString
 unlock
+unreachable
 variable
+view
 wait
 warn
 xnor

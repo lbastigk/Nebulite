@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Sun May  3 17:53:37 CEST 2026
+Generated on: Thu May 21 19:27:54 CEST 2026
 
 ## Table of Contents
 
@@ -34,7 +34,6 @@ Available Functions
 | `console` | Console commands and settings. |
 | `copy` | Copy data from one key to another. |
 | `crash` | Crashes the program, useful for checking if the testing suite can catch crashes. |
-| `critical` | Sends an error to the capture. |
 | `debug` | DomainModule for special debugging capabilities within the GlobalSpace. |
 | `draft` | Functions to manipulate and spawn RenderObjects in draft state |
 | `dump-view` | Dump the current view of the renderer to the console, as JSON. |
@@ -44,22 +43,28 @@ Available Functions
 | `error` | Echoes all arguments as string to the standard error. |
 | `error-log` | Activates or deactivates error logging to a file. |
 | `eval` | Evaluates an expression string and executes it. |
-| `evaluation` | Tests evaluation of self and other globals in one expression |
 | `exit` | Exits the entire program. |
 | `expression-help` | Lists all available expression functions with their descriptions. |
 | `feature-test` | Functions for testing features in the GlobalSpace |
+| `fetch-container` | Fetches and returns information about the container, including object count per tile. |
+| `fetch-id` | Fetches the unique ID of the domain and stores it in the context scope for later use. |
+| `fetch-name` | Fetches the name of the domain and stores it in the context scope for later use. |
 | `for` | Executes a for-loop with a function call. |
+| `for-progress` | Executes a for-loop with a function call, while providing a progress bar |
 | `forward` | Commands for forwarding function calls to other contexts (other or global). |
+| `grid` | Toggle grid overlay on or off. |
 | `help` | Show available commands and their descriptions |
 | `if` | Executes a block of code if a condition is true. |
 | `imgui-view` | Creates an ImGui view of the domain. |
 | `input-mapping` | Functions for mapping inputs to actions within the GlobalSpace. |
 | `input-wait` | Waits for user input before continuing. |
+| `invoke` | Applies all given rulesets once on the next update |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
 | `log` | Functions for logging various states and documents to files. |
 | `ls` | Lists the contents of a provided directory. |
 | `move` | Move data from one key to another. |
+| `must-throw` | Throws a runtime error with the provided message. |
 | `nop` | No operation. Does nothing. |
 | `play-sound` | Play a sound from a file. |
 | `play-sound-filtered` | Play a sound from a file with a filter applied to it. |
@@ -74,7 +79,7 @@ Available Functions
 | `rmlui` | Functions for managing RmlUI elements. |
 | `ruleset` | Functions for managing rulesets in the GlobalSpace. |
 | `selected-object` | Functions to select and interact with a selected RenderObject |
-| `set` | Set a key to a value in the JSON document. |
+| `set` | Set a key to a string value in the JSON document. |
 | `set-fps` | Set FPS of renderer. |
 | `set-res` | Set resolution of renderer. |
 | `settings` | Functions for managing global settings. |
@@ -83,7 +88,9 @@ Available Functions
 | `spawn` | Spawn a RenderObject from a json/jsonc file. |
 | `standard-file` | Functions for generating standard files for common resources. |
 | `task` | Loads tasks from a file into the taskQueue. |
+| `throw` | Throws a runtime error with the provided message. |
 | `time` | Commands for time management |
+| `view` | Toggle view setting to full, low or lowest |
 | `wait` | Sets the waitCounter to the given value to halt all script tasks for a given amount of frames. |
 | `warn` | Sends a warning to the capture. |
 
@@ -285,15 +292,6 @@ Usage: crash [<type>]
     - throw      : Throws an uncaught exception
 ```
 
-#### `critical`
-
-```
-Sends an error to the capture.
-Usage: critical <string>
-
-- <string>: The critical error message.
-```
-
 #### `debug`
 
 Available Functions
@@ -468,13 +466,6 @@ This evaluates to 'spawn ./Resources/RenderObjects/NAME.json',
 where NAME is the current value of the global variable ToSpawn
 ```
 
-#### `evaluation`
-
-```
-Tests evaluation of self and other globals in one expression
-Usage: evaluation
-```
-
 #### `exit`
 
 ```
@@ -501,14 +492,51 @@ Available Functions
 
 | Function | Description |
 |----------|-------------|
+| `context-evaluation` | Tests evaluation of self and other global variable access in one expression |
 | `functree` | Builds a funcTree with extra arguments and tests it |
 | `help` | Show available commands and their descriptions |
+| `key-combination` | Tests key-combinations for the ScopedKey class. |
+
+##### `feature-test context-evaluation`
+
+```
+Tests evaluation of self and other global variable access in one expression
+Usage: feature-test context-evaluation
+```
 
 ##### `feature-test functree`
 
 ```
 Builds a funcTree with extra arguments and tests it
 Usage: feature-test functree
+```
+
+##### `feature-test key-combination`
+
+```
+Tests key-combinations for the ScopedKey class.
+Usage: feature-test key-combination <key1> <key2>
+Using <empty> as argument will treated as an empty key.
+```
+
+#### `fetch-container`
+
+```
+Fetches and returns information about the container, including object count per tile.
+```
+
+#### `fetch-id`
+
+```
+Fetches the unique ID of the domain and stores it in the context scope for later use.
+Usage: fetch-id <key>
+```
+
+#### `fetch-name`
+
+```
+Fetches the name of the domain and stores it in the context scope for later use.
+Usage: fetch-name <key>
 ```
 
 #### `for`
@@ -531,6 +559,14 @@ This is useful for:
 - Repeating actions a specific number of times.
 - Iterating over a range of values.
 - Creating complex control flows in scripts.
+```
+
+#### `for-progress`
+
+```
+Executes a for-loop with a function call, while providing a progress bar
+
+Usage: for-progress <var> <start> <end> <functioncall>
 ```
 
 #### `forward`
@@ -563,6 +599,13 @@ Usage: forward other <functioncall>
 
 This command takes the arguments after 'forward other' and executes them as a command in the other context.
 This is useful for executing commands that are only available in the other context.
+```
+
+#### `grid`
+
+```
+Toggle grid overlay on or off.
+Usage: grid [on/off]
 ```
 
 #### `if`
@@ -639,6 +682,16 @@ Waits for user input before continuing.
 Usage: input-wait [prompt]
 
 Note: This function pauses execution until the user presses Enter
+```
+
+#### `invoke`
+
+```
+Applies all given rulesets once on the next update
+
+Usage: invoke <list>
+
+Use invoke ::help to list all available static rulesets.All rulesets are applied once on the next update cycle.
 ```
 
 #### `json`
@@ -752,6 +805,15 @@ Usage: ls [directoryPath]
 Move data from one key to another.
 
 Usage: move <source_key> <destination_key>
+```
+
+#### `must-throw`
+
+```
+Throws a runtime error with the provided message.
+Usage: throw <string>
+
+- <string>: The error message for the thrown exception.
 ```
 
 #### `nop`
@@ -891,8 +953,16 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `help` | Show available commands and their descriptions |
+| `list` | Lists all currently loaded RmlUI documents in the renderer's context. |
 | `load` | Loads an RmlUI document from a specified file path and adds it to the renderer's context. |
 | `remove` | Removes a loaded RmlUI document from the renderer's context by its name. |
+
+###### `rmlui document list`
+
+```
+Lists all currently loaded RmlUI documents in the renderer's context.
+Usage: rmlui document list
+```
 
 ###### `rmlui document load`
 
@@ -969,11 +1039,10 @@ Use 'selected-object parse help' to see available commands for the selected obje
 #### `set`
 
 ```
-Set a key to a value in the JSON document.
+Set a key to a string value in the JSON document.
 
-Usage: set <key> <value>
-
-Note: All values are stored as strings.
+Usage: set <key> [value]
+If no value is provided, the value will be set to an empty string.
 ```
 
 #### `set-fps`
@@ -1124,6 +1193,15 @@ Main task:
     mainCommand4
 ```
 
+#### `throw`
+
+```
+Throws a runtime error with the provided message.
+Usage: throw <string>
+
+- <string>: The error message for the thrown exception.
+```
+
 #### `time`
 
 Available Functions
@@ -1187,6 +1265,13 @@ Usage: time unlock <lock_name>
 <lock_name> : Name of the lock to remove. Must match an existing lock.
 ```
 
+#### `view`
+
+```
+Toggle view setting to full, low or lowest
+Usage: view <high/low/lowest>
+```
+
 #### `wait`
 
 ```
@@ -1225,23 +1310,27 @@ Available Functions
 | `assign` | Assign a key to a value in the JSON document (self) or the global context (global) |
 | `cat` | Opens a provided file and prints its content to the console. |
 | `copy` | Copy data from one key to another. |
-| `critical` | Sends an error to the capture. |
 | `delete` | Marks object for deletion |
 | `echo` | Echoes all arguments as string to the standard output. |
 | `ensure-array` | Ensure that a key is an array, converting a value to an array if necessary. |
 | `error` | Echoes all arguments as string to the standard error. |
 | `eval` | Evaluates an expression string and executes it. |
+| `fetch-id` | Fetches the unique ID of the domain and stores it in the context scope for later use. |
+| `fetch-name` | Fetches the name of the domain and stores it in the context scope for later use. |
 | `for` | Executes a for-loop with a function call. |
+| `for-progress` | Executes a for-loop with a function call, while providing a progress bar |
 | `forward` | Commands for forwarding function calls to other contexts (other or global). |
 | `help` | Show available commands and their descriptions |
 | `if` | Executes a block of code if a condition is true. |
 | `imgui-view` | Creates an ImGui view of the domain. |
+| `invoke` | Applies all given rulesets once on the next update |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
 | `log` | Logging utilities |
 | `ls` | Lists the contents of a provided directory. |
 | `mirror` | Mirror utilities for RenderObject to GlobalSpace synchronization |
 | `move` | Move data from one key to another. |
+| `must-throw` | Throws a runtime error with the provided message. |
 | `nop` | No operation. Does nothing. |
 | `pop-back` | Pop a value from the back of an array. |
 | `pop-front` | Pop a value from the front of an array. |
@@ -1252,7 +1341,8 @@ Available Functions
 | `query` | Functions to manipulate JSON data via SQL query results |
 | `reparse` | Commands for forwarding function calls to other contexts (other or global) while switching context. |
 | `ruleset` | Ruleset management functions for the RenderObject domain. |
-| `set` | Set a key to a value in the JSON document. |
+| `set` | Set a key to a string value in the JSON document. |
+| `throw` | Throws a runtime error with the provided message. |
 | `warn` | Sends a warning to the capture. |
 
 #### `assert`
@@ -1297,15 +1387,6 @@ Usage: cat <filePath>
 Copy data from one key to another.
 
 Usage: copy <source_key> <destination_key>
-```
-
-#### `critical`
-
-```
-Sends an error to the capture.
-Usage: critical <string>
-
-- <string>: The critical error message.
 ```
 
 #### `delete`
@@ -1370,6 +1451,20 @@ This evaluates to 'spawn ./Resources/RenderObjects/NAME.json',
 where NAME is the current value of the global variable ToSpawn
 ```
 
+#### `fetch-id`
+
+```
+Fetches the unique ID of the domain and stores it in the context scope for later use.
+Usage: fetch-id <key>
+```
+
+#### `fetch-name`
+
+```
+Fetches the name of the domain and stores it in the context scope for later use.
+Usage: fetch-name <key>
+```
+
 #### `for`
 
 ```
@@ -1390,6 +1485,14 @@ This is useful for:
 - Repeating actions a specific number of times.
 - Iterating over a range of values.
 - Creating complex control flows in scripts.
+```
+
+#### `for-progress`
+
+```
+Executes a for-loop with a function call, while providing a progress bar
+
+Usage: for-progress <var> <start> <end> <functioncall>
 ```
 
 #### `forward`
@@ -1445,6 +1548,16 @@ if $({global:settings.someFile|strCompare equals ./Resources/myFile.txt}) then e
 Creates an ImGui view of the domain.
 
 Usage: imgui-view <on/off>
+```
+
+#### `invoke`
+
+```
+Applies all given rulesets once on the next update
+
+Usage: invoke <list>
+
+Use invoke ::help to list all available static rulesets.All rulesets are applied once on the next update cycle.
 ```
 
 #### `json`
@@ -1628,6 +1741,15 @@ Move data from one key to another.
 Usage: move <source_key> <destination_key>
 ```
 
+#### `must-throw`
+
+```
+Throws a runtime error with the provided message.
+Usage: throw <string>
+
+- <string>: The error message for the thrown exception.
+```
+
 #### `nop`
 
 ```
@@ -1740,18 +1862,7 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `help` | Show available commands and their descriptions |
-| `once` | Applies all rulesets once on the next update |
 | `reload` | Reloads all rulesets for this RenderObject on the next update. |
-
-##### `ruleset once`
-
-```
-Applies all rulesets once on the next update
-
-Usage: ruleset once
-
-All rulesets are applied once on the next update cycle.
-```
 
 ##### `ruleset reload`
 
@@ -1766,11 +1877,19 @@ All rulesets are re-evaluated and reloaded on the next update cycle.
 #### `set`
 
 ```
-Set a key to a value in the JSON document.
+Set a key to a string value in the JSON document.
 
-Usage: set <key> <value>
+Usage: set <key> [value]
+If no value is provided, the value will be set to an empty string.
+```
 
-Note: All values are stored as strings.
+#### `throw`
+
+```
+Throws a runtime error with the provided message.
+Usage: throw <string>
+
+- <string>: The error message for the thrown exception.
 ```
 
 #### `warn`
@@ -1794,17 +1913,21 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `add` | Adds a numeric value to the current JSON value. |
-| `asString` | Converts the current JSON value to a string representation. |
 | `assert` | Assertion transformations that validate JSON values and throw exceptions on failure. |
 | `assign` | Assigns a value based on the result of an expression. |
 | `at` | Gets the element at the specified index from the array in the current JSON value. |
 | `average` | Calculates the average of the elements of the array in the current JSON value. |
 | `bundleToArray` | Gathers all members from the provided keys into an array. |
+| `capitalize` | Capitalizes the current JSON string. |
 | `ceiling` | Rounds the current JSON numeric value down to the nearest integer. |
 | `deserialize` | Deserializes the current JSON string value stored in root. |
 | `div` | Divides the current JSON value by a numeric value. |
 | `echo` | Echoes the provided arguments to the console, with newline. |
 | `ensureArray` | Ensures the current JSON value is an array. |
+| `enumerate` | Enumerates the array in the current JSON value. |
+| `error` | Echoes the provided arguments to the console as an error message, with newline. |
+| `exists` | Checks if a specified key exists in the current JSON object. |
+| `filterCustom` | Filters values in the current JSON array based on a custom filter expression |
 | `filterGlob` | Filters members in the current JSON array/object based on a glob pattern. |
 | `filterNulls` | Filters out null values, empty objects, and empty arrays from the current JSON |
 | `filterRegex` | Filters members in the current JSON array/object based on a regular expression pattern. |
@@ -1813,6 +1936,7 @@ Available Functions
 | `formatNumber` | If the stored value is a number, it is formatted with a given format specifier |
 | `get` | Gets the value at the specified key from the current JSON object. |
 | `help` | Show available commands and their descriptions |
+| `iota` | Generates an array of values. |
 | `lPad` | Pads the current JSON string value on the left with a specified character until it reaches a specified total length. |
 | `lPadNonNumeric` | Pads the current JSON non-numeric string value on the left with a specified character until it reaches a specified total length. |
 | `lPadNumeric` | Pads the current JSON numeric string value on the left with a specified character until it reaches a specified total length. |
@@ -1827,6 +1951,7 @@ Available Functions
 | `min` | Finds the minimum value among the elements of the array in the current JSON value. |
 | `mod` | Calculates the modulo of the current JSON value by a numeric value. |
 | `mul` | Multiplies the current JSON value by a numeric value. |
+| `not` | Logical NOT operation on the current JSON value. |
 | `pow` | Raises the current JSON value to the power of a numeric value. |
 | `print` | Prints the current JSON value to the console. |
 | `product` | Multiplies the elements of the array in the current JSON value. |
@@ -1847,14 +1972,15 @@ Available Functions
 | `serialize` | Serializes the current JSON value to a string. |
 | `setBool` | Sets a boolean value at the specified key in the JSON document. |
 | `setDouble` | Sets a double value at the specified key in the JSON document. |
-| `setFromResult` | Sets the value at the specified key in the JSON document from the result of another expression. |
 | `setInt` | Sets an integer value at the specified key in the JSON document. |
 | `setString` | Sets a string value at the specified key in the JSON document. |
 | `sort` | Sorting transformation functions |
 | `sqrt` | Calculates the square root of the current JSON value. |
 | `stddev` | Calculates the standard deviation of the elements of the array in the current JSON value. |
+| `store` | Stores the current JSON value as a file with the given name. |
 | `strCompare` | Functions for comparing string values. |
 | `strCountAppearance` | Counts the number of occurrences of a specified substring in the current JSON string value. |
+| `strLen` | Calculates the length of the current JSON string value. |
 | `strip` | Strips whitespace from both ends of the current JSON string value. |
 | `sub` | Subtracts a numeric value from the current JSON value. |
 | `subspan` | Gets a subarray from the array in the current JSON value. |
@@ -1865,11 +1991,13 @@ Available Functions
 | `toDouble` | Converts the current JSON value to a double. |
 | `toInt` | Casts the current JSON value to an integer. |
 | `toLower` | Converts the current JSON string value to lowercase. |
-| `toString` | Converts the current JSON value to a string. |
+| `toString` | Converts the current JSON value to a string representation. |
 | `toUpper` | Converts the current JSON string value to uppercase. |
 | `typeAsNumber` | Converts the current JSON type value to a number. |
 | `typeAsSimpleString` | Converts the current JSON type value to a string. |
 | `typeAsString` | Converts the current JSON type value to a string with metadata. |
+| `unreachable` | Indicates that the current code path should be unreachable. |
+| `warn` | Echoes the provided arguments to the console as a warning message, with newline. |
 
 #### `add`
 
@@ -1877,14 +2005,6 @@ Available Functions
 Adds a numeric value to the current JSON value.
 If multiple numbers are provided, the result is an array, one element for each provided argument.
 Usage: |add <number1> <number2> ... -> {number/array}
-```
-
-#### `asString`
-
-```
-Converts the current JSON value to a string representation.
-Usage: |asString -> {string}
-Either the value as string, or [array] or {object}
 ```
 
 #### `assert`
@@ -2031,6 +2151,14 @@ Gathers all members from the provided keys into an array.
 Usage: |bundleToArray <key1> <key2> ... -> {array}
 ```
 
+#### `capitalize`
+
+```
+Capitalizes the current JSON string.
+Usage: |capitalize {string} -> {string}
+Only capitalizes the first character!
+```
+
 #### `ceiling`
 
 ```
@@ -2067,6 +2195,38 @@ Usage: |echo <arg1> <arg2> -> {unchanged-json}
 Ensures the current JSON value is an array.
 If the current value is not an array, it is wrapped into a single-element array.
 Usage: |ensureArray -> {array}
+```
+
+#### `enumerate`
+
+```
+Enumerates the array in the current JSON value.
+Usage: |enumerate <indexKey> -> {array}
+Where indexKey is the key of each array element to populate with the index of the element in the array.
+```
+
+#### `error`
+
+```
+Echoes the provided arguments to the console as an error message, with newline.
+Usage: |error <arg1> <arg2> -> {unchanged-json}
+```
+
+#### `exists`
+
+```
+Checks if a specified key exists in the current JSON object.
+If no key is provided, checks if the current JSON value is not null.
+Usage: |exists  [key] -> {bool}
+```
+
+#### `filterCustom`
+
+```
+Filters values in the current JSON array based on a custom filter expression
+Provide a filter expression without the evaluation key '$'!
+For example: ( gt({self:|length}, 3) )
+Usage: |filterCustom <expression> -> {filtered array}
 ```
 
 #### `filterGlob`
@@ -2113,7 +2273,8 @@ Non-numeric values default to 0. Fails if the value is null.
 
 ```
 If the stored value is a number, it is formatted with a given format specifier
-Usage: |formatNumber <format> -> {string}If the value stored is a non-numeric string, the value is not modified.
+Usage: |formatNumber <format> -> {string}If the stored value is a non-numeric string, the value is not modified.
+If the stored value is not a simple value, the transformation fails.
 Example formatters: 04.2f, 5i, 06i
 ```
 
@@ -2122,6 +2283,14 @@ Example formatters: 04.2f, 5i, 06i
 ```
 Gets the value at the specified key from the current JSON object.
 Usage: |get <key> -> {value}
+```
+
+#### `iota`
+
+```
+Generates an array of values.
+Usage: |iota <start> <end> -> {array}
+Generates an array containing the values from start (inclusive) to end (exclusive).
 ```
 
 #### `lPad`
@@ -2239,6 +2408,14 @@ If multiple numbers are provided, the result is an array, one element for each p
 Usage: |multiply <number1> <number2> ... -> {number/array}
 ```
 
+#### `not`
+
+```
+Logical NOT operation on the current JSON value.
+Usage: |not -> {value:bool}
+Fails if the given value is not convertable to a boolean, e.g. objects, arrays or strings unlike 'true' or 'false'.
+```
+
 #### `pow`
 
 ```
@@ -2336,9 +2513,64 @@ Available Functions
 
 | Function | Description |
 |----------|-------------|
+| `empty` | Requires that the current JSON value is empty. |
+| `equals` | Requirement transformations that validate JSON value equality. |
 | `help` | Show available commands and their descriptions |
+| `match` | Requirement transformations that validate JSON string values with patterns. |
 | `nonEmpty` | Requires that the current JSON value is non-empty. |
 | `type` | Requirement transformations that validate JSON value types |
+
+##### `require empty`
+
+```
+Requires that the current JSON value is empty.
+If the value is not empty, the transformation fails.
+Accepts an optional user-defined error message as additional arguments.
+Usage: |requireEmpty -> {value,<Returns false if not empty>}
+```
+
+##### `require equals`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `int` | Requires that the current JSON value is an integer. |
+| `string` | Requires that the current JSON value is equal to the specified string. |
+
+###### `require equals int`
+
+```
+Requires that the current JSON value is an integer.
+If the value is not an integer, the transformation fails and the program exits.
+Usage: |require equals int <expected> -> {value,<Returns false if not equal>}
+```
+
+###### `require equals string`
+
+```
+Requires that the current JSON value is equal to the specified string.
+If the value is not equal to the specified string, the transformation fails and the program exits.
+Usage: |require equals string <expected> -> {value,<Returns false if not equal>}
+```
+
+##### `require match`
+
+Available Functions
+
+| Function | Description |
+|----------|-------------|
+| `help` | Show available commands and their descriptions |
+| `regex` | Requires that the current JSON string value matches a provided regular expression. |
+
+###### `require match regex`
+
+```
+Requires that the current JSON string value matches a provided regular expression.
+If the value does not match the regular expression, the transformation fails.
+Usage: |require match regex <regex> -> {value,<Returns false if no match>}
+```
 
 ##### `require nonEmpty`
 
@@ -2451,14 +2683,6 @@ Expects two arguments: <key> and <value>.
 Usage: |setDouble <key> <value> -> {json}
 ```
 
-#### `setFromResult`
-
-```
-Sets the value at the specified key in the JSON document from the result of another expression.
-Usage: |setFromResult <key> <expression> -> {json}
-Inside the inner expression, all context is the own scope.
-```
-
 #### `setInt`
 
 ```
@@ -2509,8 +2733,8 @@ Usage: |sort case-sensitive -> {sorted array}
 ```
 Sorts the array in the current JSON value using a custom comparator expression.
 The comparator function uses the context self for the first element and other for the second element.
-For example: $(gt({self:|length},{other:|length}))
-)Usage: |sort custom <expression> -> {sorted array}
+Provide a sort expression without the evaluation key '$'!For example: ( gt({self:|length},{other:|length}) )
+Usage: |sort custom <expression> -> {sorted array}
 ```
 
 ##### `sort numerically`
@@ -2537,6 +2761,13 @@ Input must be an array of numbers. If any element is not a number, the current v
 Usage: |stddev -> {number}
 ```
 
+#### `store`
+
+```
+Stores the current JSON value as a file with the given name.
+Usage: |store <filename> -> {unchanged-json}
+```
+
 #### `strCompare`
 
 Available Functions
@@ -2554,6 +2785,7 @@ Available Functions
 ```
 Checks if the current JSON string value contains a specified substring.
 Usage: |strCompare contains {string} -> {bool}
+Checks for whitespaces if no substring is given
 {string}: Substring to check for
 ```
 
@@ -2562,7 +2794,7 @@ Usage: |strCompare contains {string} -> {bool}
 ```
 Checks if the current JSON string value ends with a specified substring.
 Usage: |strCompare endsWith {string} -> {bool}
-{string}: Substring to check for
+{string}: Substring to check for. If left empty, it checks for a whitespace.
 ```
 
 ##### `strCompare equals`
@@ -2570,6 +2802,7 @@ Usage: |strCompare endsWith {string} -> {bool}
 ```
 Compares the current JSON string value with a specified string for equality.
 Usage: |strCompare equals {string} -> {bool}
+Checks if the string is empty if no argument is given
 {string}: String to compare with
 ```
 
@@ -2578,7 +2811,7 @@ Usage: |strCompare equals {string} -> {bool}
 ```
 Checks if the current JSON string value starts with a specified substring.
 Usage: |strCompare startsWith {string} -> {bool}
-{string}: Substring to check for
+{string}: Substring to check for. If left empty, it checks for a whitespace.
 ```
 
 #### `strCountAppearance`
@@ -2586,7 +2819,15 @@ Usage: |strCompare startsWith {string} -> {bool}
 ```
 Counts the number of occurrences of a specified substring in the current JSON string value.
 Usage: |strCountAppearance {substring} -> {number}
+Counts whitespaces if no substring is given
 {substring}: Substring to count
+```
+
+#### `strLen`
+
+```
+Calculates the length of the current JSON string value.
+Usage: |strLen -> {int}
 ```
 
 #### `strip`
@@ -2672,9 +2913,9 @@ Usage: |toLower -> {string}
 #### `toString`
 
 ```
-Converts the current JSON value to a string.
-Defaults to an empty string if no conversion is possible, but fails if the value is null.
-Usage: |toString -> {value:string}
+Converts the current JSON value to a string representation.
+Usage: |asString -> {string}
+Either the value as string, or '[array]' or '{object}' or 'null'
 ```
 
 #### `toUpper`
@@ -2703,6 +2944,21 @@ Usage: |typeAsString -> {value,array,object}
 ```
 Converts the current JSON type value to a string with metadata.
 Usage: |typeAsString -> {value:metadata,array:metadata,object:metadata}
+```
+
+#### `unreachable`
+
+```
+Indicates that the current code path should be unreachable.
+If this transformation is executed, it indicates a bug in the program, and an std::logic_error is thrown.
+Usage: |unreachable
+```
+
+#### `warn`
+
+```
+Echoes the provided arguments to the console as a warning message, with newline.
+Usage: |warn <arg1> <arg2> -> {unchanged-json}
 ```
 
 ## Expression Functions
