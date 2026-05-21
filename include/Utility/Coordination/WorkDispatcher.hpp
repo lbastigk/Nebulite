@@ -15,7 +15,7 @@
 #include <thread>
 
 // Nebulite
-#include "SharedMutex.hpp"
+#include "Utility/Coordination/SharedMutex.hpp"
 
 //------------------------------------------
 namespace Nebulite::Utility::Coordination {

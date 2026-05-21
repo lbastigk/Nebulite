@@ -15,7 +15,7 @@ namespace Nebulite::Utility::Coordination {
 
 // Perhaps using a different flag: NEBULITE_WINE_COMPATIBILITY or similar would be better
 // as the shared mutax should work on native Windows builds.
-#ifndef _WIN32
+#ifdef _WIN32
 
 /**
  * @class Nebulite::Utility::Coordination::SharedMutex
