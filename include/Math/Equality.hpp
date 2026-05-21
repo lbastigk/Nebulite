@@ -21,10 +21,14 @@ namespace Nebulite::Math {
  * @param b Second value
  * @return True if the values are considered equal, false otherwise.
  */
-template <typename T> bool isEqual(T const& a, T const& b) {
+template <typename T>
+bool constexpr isEqual(T const& a, T const& b) {
     // For any floating point, use an epsilon comparison to account for precision issues
     if constexpr (std::is_floating_point_v<T>) {
-        return std::fabs(a - b) < std::numeric_limits<T>::epsilon();
+        if (std::isnan(a) || std::isnan(b)) {
+            return false;
+        }
+        return std::abs(a - b) <= std::numeric_limits<T>::epsilon();
     }
     // For any T with an equality operator, use it
     else if constexpr (requires(T x, T y) { { x == y } -> std::convertible_to<bool>; }) {
@@ -42,14 +46,15 @@ template <typename T> bool isEqual(T const& a, T const& b) {
  * @param b Second value
  * @return True if the values are considered equal (including if both are NaN), false otherwise.
  */
-inline bool isEqualAllowNan(double const& a, double const& b) {
+template <typename T>
+bool constexpr isEqualAllowNan(T const& a, T const& b) {
     if (std::isnan(a) && std::isnan(b)) {
         return true; // Treat NaN values as equal
     }
     if (std::isnan(a) || std::isnan(b)) {
         return false; // If only one is NaN, they are not equal
     }
-    return std::fabs(a - b) < std::numeric_limits<double>::epsilon();
+    return std::abs(a - b) <= std::numeric_limits<double>::epsilon();
 }
 
 /**
@@ -57,8 +62,9 @@ inline bool isEqualAllowNan(double const& a, double const& b) {
  * @param value The value to check
  * @return True if the value is considered zero, false if it is considered nonzero (within an epsilon threshold).
  */
-inline bool isZero(double const& value) {
-    return std::fabs(value) <= std::numeric_limits<double>::epsilon();
+template <typename T>
+bool constexpr isZero(T const& value) {
+    return std::abs(value) <= std::numeric_limits<double>::epsilon();
 }
 
 } // namespace Nebulite::Math

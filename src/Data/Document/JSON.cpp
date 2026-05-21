@@ -696,7 +696,7 @@ void JSON::set_add(std::string_view const& key, double const& val) {
 
 void JSON::set_add(std::string_view const& key, uint64_t const& val) {
     std::scoped_lock const lockGuard(mtx);
-    static_assert(standardNumericValue == 0.0,
+    static_assert(Math::isZero(standardNumericValue),
         "This function relies on the standard numeric value being 0 for correct defaulting."
         " If this assertion fails, please review the implementation of set_add for int"
         " and ensure it properly defaults to 0 when retrieval fails."
