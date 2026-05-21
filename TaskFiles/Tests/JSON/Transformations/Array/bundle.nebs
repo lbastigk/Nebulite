@@ -1,3 +1,4 @@
+# Setup workspace values
 set workspace.valueMember value
 set workspace.arrayMember[0] 0
 set workspace.arrayMember[1] 1

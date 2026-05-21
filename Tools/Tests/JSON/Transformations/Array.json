@@ -24,11 +24,11 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/JSON/Transformations/arrayBundling.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Array/bundle.nebs",
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/JSON/Transformations/iota.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Array/iota.nebs",
         "expected": { "cout": [], "cerr": [] }
     }
 ]
