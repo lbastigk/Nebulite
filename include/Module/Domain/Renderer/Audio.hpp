@@ -22,7 +22,7 @@
 #include <SDL3/SDL.h>
 
 // Nebulite
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -38,7 +38,7 @@ namespace Nebulite::Module::Domain::Renderer {
  * @class Nebulite::Module::Domain::Renderer::Audio
  * @brief Basic Renderer-Related Functions
  */
-class Audio final : public Interaction::Execution::DomainModule<Core::Renderer> {
+class Audio final : public Base::DomainModule<Core::Renderer> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

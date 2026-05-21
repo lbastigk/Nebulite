@@ -12,7 +12,7 @@
 
 // Nebulite
 #include "Data/Document/KeyGroup.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -28,7 +28,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @brief The Physics DomainModule in the GlobalSpace,
  *        containing keys for global physics constants and settings.
  */
-class Physics final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
+class Physics final : public Base::DomainModule<Core::GlobalSpace> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

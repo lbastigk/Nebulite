@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -26,7 +26,7 @@ namespace Nebulite::Module::Domain::Renderer {
  * @class Nebulite::Module::Domain::Renderer::RmlUi
  * @brief DomainModule for RmlUi management functions
  */
-class RmlUi final : public Interaction::Execution::DomainModule<Core::Renderer> {
+class RmlUi final : public Base::DomainModule<Core::Renderer> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

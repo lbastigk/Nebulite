@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "Interaction/Rules/RulesetModule.hpp"
+#include "Module/Base/RulesetModule.hpp"
 #include "Module/Domain/GlobalSpace/Physics.hpp"
 
 //------------------------------------------
@@ -23,7 +23,7 @@ namespace Nebulite::Module::Ruleset {
  *          After that, the local module ::physics::applyForce needs to be called to apply the accumulated forces.
  *          Make sure to call them each frame, otherwise the forces will accumulate indefinitely!
  */
-class Physics : public Interaction::Rules::RulesetModule {
+class Physics : public Base::RulesetModule {
 public:
     //------------------------------------------
     // Functions

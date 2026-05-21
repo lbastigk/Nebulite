@@ -15,7 +15,7 @@
 // Nebulite
 #include "Constants/KeyNames.hpp"
 #include "Data/Document/ScopedKey.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 #include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
@@ -31,7 +31,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @class Nebulite::Module::Domain::GlobalSpace::Time
  * @brief DomainModule for time management within the GlobalSpace.
  */
-class Time final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
+class Time final : public Base::DomainModule<Core::GlobalSpace> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

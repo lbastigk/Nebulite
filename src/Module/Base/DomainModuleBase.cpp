@@ -7,14 +7,14 @@
 
 // Nebulite
 #include "Constants/Event.hpp"
-#include "Interaction/Execution/DomainModuleBase.hpp"
 #include "Interaction/Execution/DomainTree.hpp"
+#include "Module/Base/DomainModuleBase.hpp"
 
 //------------------------------------------
-namespace Nebulite::Interaction::Execution {
+namespace Nebulite::Module::Base {
 
 DomainModuleBase::DomainModuleBase(
-    std::shared_ptr<DomainTree> funcTreePtr,
+    std::shared_ptr<Interaction::Execution::DomainTree> funcTreePtr,
     Data::JsonScope& w,
     Data::JsonScope const& s
 ) : moduleScope(w), settingsScope(s), funcTree(std::move(funcTreePtr)) {}
@@ -25,4 +25,4 @@ Constants::Event DomainModuleBase::updateHook() { return Constants::Event::Succe
 
 void DomainModuleBase::reinit() {}
 
-} // namespace Nebulite::Interaction::Execution
+} // namespace Nebulite::Module::Base

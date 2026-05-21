@@ -35,8 +35,16 @@ in separate files and barely touching existing ones.
 <!-- TOC --><a name="testing"></a>
 ## Testing
 
-You can add custom taskfiles to the test suite by extending the main test file `Tools/tests.jsonc`.
-However, it is recommended to write the taskfiles inside the test json file itself for better portability:
+You can add custom tests to the test suite by extending the main test file `Tools/tests.jsonc` 
+with references to your own test files in `Tools/Tests/.../*.json`. 
+```jsonc
+"tests": [
+    // ... existing test files
+    "Tools/Tests/MyNewTestFile.json"
+]
+```
+Each test file should contain an array of test cases, where each test case includes a list of commands to execute 
+and the expected output.
 ```json
 [
     {
@@ -50,18 +58,48 @@ However, it is recommended to write the taskfiles inside the test json file itse
 ]
 ```
 
-After adding your test cases in `Tools/Tests/*.json`, add the file to `Tools/tests.jsonc` like so:
-```jsonc
-"tests": [
-    // ... existing test files
-    "Tools/Tests/MyNewTestFile.json"
+It is recommended to call taskFiles in your test files and validate the correctness inside the task file as much as possible:
+```json
+[
+    {
+      "command": "task TaskFiles/Tests/.../myTestFile.nebs",
+      "expected": { "cout": [], "cerr": [] }
+    }
 ]
+```
+
+```nebs
+# Setup workspace values
+set workspace.valueMember value
+set workspace.arrayMember[0] 0
+set workspace.arrayMember[1] 1
+set workspace.arrayMember[2] 2
+set workspace.objectMember.value0 0
+set workspace.objectMember.value1 1
+set workspace.objectMember.value2 2
+
+# Bundle the members into an array and store the result in the workspace
+assign global:workspace.result = {global:|bundleToArray workspace.valueMember workspace.arrayMember workspace.objectMember}
+
+# Confirm the result is correct
+eval nop {global:workspace.result[0]|typeAsString|assert equals string value:string:5}
+eval nop {global:workspace.result[1]|typeAsString|assert equals string array:3}
+eval nop {global:workspace.result[2]|typeAsString|assert equals string object:3}
 ```
 
 <!-- TOC --><a name="adding-features"></a>
 ## Adding Features
 
-Nebulite offers clean expansions of its functionality through its Modules, especially DomainModules.
+Nebulite offers clean expansions of its functionality through its Modules for:
+- Domains
+- RmlUI (aka Plugins)
+- Rulesets
+- Transformations
+
+See `include/Module/Base` for virtual base classes for each module type.
+
+### DomainModules
+
 Maintainers can create their own module classes and add them to a specific domain.
 Either for specific Domains such as Renderer or for the GlobalSpace, 
 or common functionality that is shared across multiple domains.
@@ -73,16 +111,86 @@ as well as an update routine, allowing us to declutter classes by binding routin
 - lifetime management
 
 and more. We then just insert each module into the class and its update function is automatically called.
+See `include/Module/Domain/` for the existing DomainModules. Modules are added via the initializer class
+`include/Module/Domain/Initializer.hpp`.
 
-Similarly, you can add or extend modules for other features such as:
-- `RmlUI` (aka Plugins) for UI features
-- `Ruleset` for custom hardcoded rulesets
-- `Transformation` for custom JSON returnvalue-transformation functions
+### RmlUI (aka Plugins)
 
-See `include/Module/` for the existing modules.
+RmlUi plugins allow you to easily add new UI element features, such as expression evaluation,
+custom command execution etc. They are added inside the RmlInterface class 
+`include/Graphics/RmlInterface.hpp` and are automatically initialized and updated.
+
+Each module has access to core RmlUi Plugin functions such as `OnDocumentLoad` and `OnElementCreate`, 
+as well as post-render callbacks, SDL event callbacks and update calls.
+Each module has access to features from the RmlInterface such as context access,
+unique Rml element identification, document management and more, 
+allowing for easy implementation of new features.
+
+### Rulesets
+
+RulesetModules allow you to implement local and global hardcoded rules, such as:
+- player movement
+- physics
+- game logic
+- debugging output on certain conditions
+
+and more.  They are added to the Ruleset Initializer class `Interaction/Rules/Construction/Initializer.hpp`.
+
+For rulesets to work, you must generate a list of keys that the module will use for its rules,
+and generate a baslist function on construction so that the Invoke class can generate the list of variables to pass to the ruleset on invocation. 
+
+Example, using the camera movement ruleset:
+```cpp
+// Define the list of scoped keys
+const std::vector<Data::ScopedKeyView> baseKeys = {
+    Constants::KeyNames::RenderObject::positionX,
+    Constants::KeyNames::RenderObject::positionY,
+    Constants::KeyNames::RenderObject::sizeX,
+    Constants::KeyNames::RenderObject::sizeX
+};
+
+// Shorthand enums to use
+enum class Key : uint8_t {
+    posX,
+    posY,
+    spriteSizeX,
+    spriteSizeY
+};
+```
+Inside the constructor, the function is generated and bound to each ruleset that needs it:
+```cpp
+auto const baseListFunc = generateBaseListFunction(baseKeys);
+bind<alignCenterName>(RulesetType::Local, &Camera::alignCenter, alignCenterDesc, baseListFunc);
+// ... bind other rulesets
+```
+On invocation, both slf and otr have the same list of variables. Use `baseVal(<enum>)` to access the variables in the ruleset function:
+```cpp
+void Camera::myCameraFunction(Interaction::Context const& /*context*/, double** slf, double** /*otr*/) {
+    // Access the variables using the baseVal function and the enum
+    double& posX = baseVal(Key::posX);
+    double& posY = baseVal(Key::posY);
+    double& spriteSizeX = baseVal(Key::spriteSizeX);
+    double& spriteSizeY = baseVal(Key::spriteSizeY);
+
+    // Implement the ruleset logic using the accessed variables
+    // ...
+}
+```
+
+### Transformations
+
+TransformationModules allow you to implement custom data transformations such as:
+- length of array
+- listing members
+- modifying specific members
+- glob/regex matching
+
+and more. Just like with DomainModules, implement a function and its name + description, and bind it.
+Then, initialize the module in the Transformation Initializer class, and the function will be available for on value transformation.
+Just add your custom module to the initializer class `include/Data/Document/JsonRvalueTransformer.hpp`.
 
 <!-- TOC --><a name="function-collision-prevention"></a>
-### Function Collision Prevention
+## Function Collision Prevention
 
 Domains follow an inheritance tree structure for their functions:
 - `GlobalSpace` automatically inherits all functions from `Renderer`
@@ -106,129 +214,16 @@ bindCategory("MyCategory","<Description of MyCategory>");
 bindFunction(/**/,"MyCategory foo","<Description of foo>"); //<-- This would fail without bindCategory being called first
 ```
 
-<!-- TOC --><a name="example-adding-a-new-globalspace-feature"></a>
-### Example: Adding a New GlobalSpace Feature
-
-<!-- TOC --><a name="step-by-step-process"></a>
-#### Step-by-Step Process
-
-1. **Create expansion file**
-2. **Inherit from DomainModule base class:**
-3. **Implement command methods:** Functions with `Nebulite::Constants::Event (std::span<std::string const> const& args)` signature
-4. **Implement the update method:** Override `Nebulite::Constants::Event update()` for per-frame updates
-5. **DomainModule init** inside `include/DomainModule/Initializer.hpp`, initialize the DomainModule
-
-<!-- TOC --><a name="complete-code-example"></a>
-#### Complete Code Example
-
-**Inside MyModule.hpp:**
-
-```cpp
-/**
- * @file MyModule.hpp
- * @brief Contains the DomainModule of the GlobalSpace for MyFeature functions.
- */
-
-#ifndef MODULE_DOMAIN_RENDEROBJECT_MYMODULE_HPP
-#define MODULE_DOMAIN_RENDEROBJECT_MYMODULE_HPP
-
-//------------------------------------------
-// Includes
-
-// Nebulite
-#include "Constants/StandardCapture.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
-
-//------------------------------------------
-// Forward declarations
-namespace Nebulite::Core {
-class RenderObject;
-}
-
-//------------------------------------------
-namespace Nebulite::Module::Domain::RenderObject {
-/**
- * @class Nebulite::Module::Domain::RenderObject::MyModule
- * @brief Example module for RenderObject domain using the Debug.hpp conventions.
- */
-class MyModule final : public Interaction::Execution::DomainModule<Core::RenderObject> {
-public:
-    [[nodiscard]] Constants::Event updateHook() override; // Per-frame update function
-    void reinit() override {}           // What to do on re-initialization
-
-    //------------------------------------------
-    // Available Functions
-
-    // Full command signature with caller context and its scope
-    // - context is helpful if we wish to modify the context that called the function
-    // - contextScope is helpful if we wish to modify the JSON scope from the context that called the function
-    // - Example: domainModules for modifying data needs to modify the callers scope (likely domain self of the interaction), not its own scope
-    [[nodiscard]] Constants::Event exampleCommand(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
-    static auto constexpr exampleCommand_name = "example do-something";
-    static auto constexpr exampleCommand_desc = "Performs an example action on the current RenderObject.\n"
-        "\n"
-        "Usage: example do-something [args]\n";
-
-    // Simplified command signature without caller and callerScope
-    [[nodiscard]] Constants::Event anotherCmd(std::span<std::string const> const& args);
-    static auto constexpr anotherCmd_name = "example another-cmd";
-    static auto constexpr anotherCmd_desc = "Another example command demonstrating binding and descriptions.\n"
-        "\n";
-        "Usage: example another-cmd [args]\n";
-
-    //------------------------------------------
-    // Categories
-    
-    static auto constexpr example_name = "example";
-    static auto constexpr example_desc = "Example functions for RenderObject domain";
-
-    //------------------------------------------
-    // Setup
-
-    /**
-     * @brief Initializes the module, binding functions and variables.
-     */
-    explicit MyModule(ConstructorParams const& params) : DomainModule(params) {
-        // Ensure category exists before binding functions that include it
-        bindCategory(example_name, example_desc);
-
-        // Bind functions using the name/description constants above
-        // Using a macro to ensure consistency
-        bindFunction(&MyModule::exampleCommand, exampleCommand_name, exampleCommand_desc);
-        bindFunction(&MyModule::anotherCmd, anotherCmd_name, anotherCmd_desc);
-    }
-    
-    // Add the following struct for sharing data between modules
-    struct Key : Data::KeyGroup<"myModule."> { // Sets scope of the module
-        // Any key created inside this struct can be accessed by other modules with the same scope or a higher scope
-        // If DECLARE_SCOPE is not used, this module will have no workspace (the initmodule function will recognize this and not create a workspace for it)
-        // DECLARE_SCOPE expects a scope from the root of the entire json document
-        // e.g. if the module is part of the Renderer domain, the scope would be "renderer.myModule"
-        //
-        // This functionality is a work in progress for arbitrary scoped domains, such as Textures.
-        // -> the texture scope from a RenderObject would be "draw.<drawcallname>"
-        //    The idea would be to make these keys per-object instead of static, 
-        //    so we can use texture.key.myValue instead of Texture::Key::myValue, which would be shared across all textures.
-        
-        // Example of a shared variable that can be accessed by other modules with the same or higher scope
-        // using MyModule::Key::myValue
-        // The MAKE_SCOPED macro ensures that the variable is nested within the module's scope
-        static auto constexpr myValue = makeScoped("myValue");
-    };
-};
-} // namespace Nebulite::Module::Domain::RenderObject
-#endif // MODULE_DOMAIN_RENDEROBJECT_MYMODULE_HPP
-
-```
-
 **Then add the header file to `include/DomainModule/Initializer.hpp` and initialize in the cpp file.**
 
 <!-- TOC --><a name="implementation-guidelines"></a>
 ### Implementation Guidelines
 
-- It is recommended to return `Nebulite::Constants::StandardCapture::Error::Functional::functionNotImplemented` in unfinished functions/features
-- Use the recommended class and namespace naming schemes for modules: 
+- It is recommended to return `Nebulite::Constants::StandardCapture::Error::Functional::functionNotImplemented(capture)` in unfinished DomainModule functions/features
+- Use the recommended class and namespace naming schemes for DomainModules: 
 `Nebulite::Module::Domain::<DomainName>::<ModuleName>`, where `<DomainName>` is `Common` if the module is for any Domain.
+- Same for any other module type, just replace `Domain` with the module type name, such as `Ruleset` or `RmlUi`
+- Add self-validating test scripts to `TaskFiles/Tests/...`, add a test file in `Tools/.../myTests.json` and reference them in `Tools/tests.jsonc`
 
 <!-- TOC --><a name="preview-editing-work-in-progress"></a>
 ## Preview Editing (Work in Progress)
@@ -249,11 +244,20 @@ Verify the coverage with `make build-and-coverage-report`.
 <!-- TOC --><a name="code-style"></a>
 ## Code Style
 
-- Follow the existing code style and conventions
+- Follow the existing code style and conventions, using clang is highly recommended for formatting and linting
 - Use meaningful variable and function names
-- Comment complex logic and algorithms
-- Create helper classes if necessary
+- Comment why, not what!
 - Keep functions focused and modular
+- Keep file size friendly and try to reason if an organizer class is needed to declutter the code
+- Stay curious regarding new c++ features and best practices, and apply them when possible:
+  - Use `auto` when the type is obvious from the context
+  - Use range-based for loops when iterating over containers
+  - Use constexpr as much as possible
+  - Use references, not pointers, when possible
+  - Lambdas are your friend
+  - While official support is still lacking, feel free to push for new features such as contracts and reflection
+- `using namespace` in header files will get you banished to the shadow realm
+- Use modern function signatures for Nebulite FuncTree bindings (span), not argc/argv!
 
 <!-- TOC --><a name="getting-help"></a>
 ## Getting Help
@@ -261,4 +265,4 @@ Verify the coverage with `make build-and-coverage-report`.
 - Check existing issues and discussions
 - Review the architecture documentation in the main README
 - Look at existing expansion implementations for patterns
-- Feel free to open an issue for questions or clarifications
+- Feel free to open an issue/discussion for bugs, questions or clarifications

@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -28,7 +28,7 @@ namespace Nebulite::Module::Domain::RenderObject {
  * 
  * Contains RenderObject-specific Mirror functionality, syncing data with the GlobalSpace document.
  */
-class Mirror final : public Interaction::Execution::DomainModule<Core::RenderObject> {
+class Mirror final : public Base::DomainModule<Core::RenderObject> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Data/Document/KeyGroup.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -26,7 +26,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @class Nebulite::Module::Domain::GlobalSpace::FeatureTest
  * @brief DomainModule for testing features in the GlobalSpace.
  */
-class FeatureTest final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
+class FeatureTest final : public Base::DomainModule<Core::GlobalSpace> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

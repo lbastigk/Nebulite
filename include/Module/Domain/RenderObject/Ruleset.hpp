@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Data/Document/KeyGroup.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 #include "Interaction/Rules/Listener.hpp"
 
 //------------------------------------------
@@ -27,7 +27,7 @@ namespace Nebulite::Module::Domain::RenderObject {
  * @class Nebulite::Module::Domain::RenderObject::Ruleset
  * @brief Ruleset management for the RenderObject tree DomainModule.
  */
-class Ruleset final : public Interaction::Execution::DomainModule<Core::RenderObject> {
+class Ruleset final : public Base::DomainModule<Core::RenderObject> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override ;

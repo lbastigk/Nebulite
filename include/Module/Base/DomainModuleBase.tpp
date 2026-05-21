@@ -2,7 +2,7 @@
 #define INTERACTION_EXECUTION_DOMAINMODULEBASE_TPP
 
 //------------------------------------------
-namespace Nebulite::Interaction::Execution {
+namespace Nebulite::Module::Base {
 
 // TODO: Consider using all of these directly to funcTree
 
@@ -82,5 +82,5 @@ void DomainModuleBase::bindFunction(
 ) {
     bindFunctionStatic(funcTree.get(), functionPtr, name, helpDescription);
 }
-} // namespace Nebulite::Interaction::Execution
+} // namespace Nebulite::Module::Base
 #endif // INTERACTION_EXECUTION_DOMAINMODULEBASE_TPP

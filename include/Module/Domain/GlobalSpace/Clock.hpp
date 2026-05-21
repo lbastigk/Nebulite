@@ -13,7 +13,7 @@
 #include "Constants/KeyNames.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonScope.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -28,7 +28,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @class Nebulite::Module::Domain::GlobalSpace::Clock
  * @brief DomainModule for clock management capabilities within the GlobalSpace.
  */
-class Clock final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
+class Clock final : public Base::DomainModule<Core::GlobalSpace> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

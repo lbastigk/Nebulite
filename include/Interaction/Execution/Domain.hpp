@@ -15,10 +15,10 @@
 #include <string_view>
 
 // Nebulite
-#include "Interaction/Execution/DomainModule.hpp"
 #include "Interaction/Execution/DomainTree.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Interaction/Execution/Tasks.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations: Domains
@@ -189,7 +189,7 @@ class Domain : public DocumentAccessor {
     /**
      * @brief Stores all available modules
      */
-    std::vector<std::unique_ptr<DomainModuleBase>> modules;
+    std::vector<std::unique_ptr<Module::Base::DomainModuleBase>> modules;
 
     /**
      * @brief Generates the unique id of this domain
@@ -320,7 +320,7 @@ public:
         if constexpr (HasKeyGroup<DomainModuleType>) {
             // Share the scope based on the module's defined scope
             auto& scope = DomainModuleType::Key::hasScope() ? domainReference.domainScope.shareScope(Data::ScopedKey(DomainModuleType::Key::getScope(), "")) : domainReference.domainScope.shareDummyScopeBase();
-            typename DomainModule<DomainType>::ConstructorParams params = {
+            typename Module::Base::DomainModule<DomainType>::ConstructorParams params = {
                 .domainReference = domainReference,
                 .name = moduleName,
                 .scope = scope,
@@ -333,7 +333,7 @@ public:
         }
         else {
             // No scope defined, share a dummy scope (no workspace)
-            typename DomainModule<DomainType>::ConstructorParams params = {
+            typename Module::Base::DomainModule<DomainType>::ConstructorParams params = {
                 .domainReference = domainReference,
                 .name = moduleName,
                 .scope = domainReference.domainScope.shareDummyScopeBase(),
@@ -363,7 +363,7 @@ public:
             // If the DomainType is the base Domain class, we must initialize modules without scope,
             // otherwise this will lead to circular initialization problems.
             static_assert(!HasKeyGroup<DomainModuleType>, "DomainModules linked to the base Domain class cannot have a scope. Please remove the static Key::scope member from the module. Use the callers scope instead!");
-            typename DomainModule<DomainType>::ConstructorParams params = {
+            typename Module::Base::DomainModule<DomainType>::ConstructorParams params = {
                 .domainReference = domainReference,
                 .name = moduleName,
                 .scope = domainReference.domainScope.shareDummyScopeBase(),

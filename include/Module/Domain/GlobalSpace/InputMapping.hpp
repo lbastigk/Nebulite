@@ -15,7 +15,7 @@
 // Includes
 
 // Nebulite
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 #include "Module/Domain/Renderer/Input.hpp"
 
 //------------------------------------------
@@ -31,7 +31,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @class Nebulite::Module::Domain::GlobalSpace::InputMapping
  * @brief DomainModule for mapping inputs to actions within the GlobalSpace.
  */
-class InputMapping final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
+class InputMapping final : public Base::DomainModule<Core::GlobalSpace> {
 public:
     /**
      * @brief Applies the input mappings, processing any new input events (via the Global Document) and updating the binding states.

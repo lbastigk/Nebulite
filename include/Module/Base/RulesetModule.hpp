@@ -3,8 +3,8 @@
  * @brief This file defines the RulesetModule class, for defining classes of static rulesets.
  */
 
-#ifndef INTERACTION_RULES_RULESETMODULE_HPP
-#define INTERACTION_RULES_RULESETMODULE_HPP
+#ifndef MODULE_BASE_RULESETMODULE_HPP
+#define MODULE_BASE_RULESETMODULE_HPP
 
 //------------------------------------------
 // Includes
@@ -18,10 +18,10 @@
 #include "ScopeAccessor.hpp"
 
 //------------------------------------------
-namespace Nebulite::Interaction::Rules {
+namespace Nebulite::Module::Base {
 class RulesetModule {
 public:
-    using RulesetType = StaticRulesetMap::StaticRulesetWithMetadata::Type;
+    using RulesetType = Interaction::Rules::StaticRulesetMap::StaticRulesetWithMetadata::Type;
 
     explicit RulesetModule(std::string_view const& moduleName);
 
@@ -29,7 +29,7 @@ public:
      * @brief Registers all static rulesets from this module into the given container
      * @param container The StaticRulesetMap to register into
      */
-    void registerModule(StaticRulesetMap& container) const {
+    void registerModule(Interaction::Rules::StaticRulesetMap& container) const {
         for (auto const& ruleset : moduleRulesets) {
             container.bindStaticRuleset(ruleset);
         }
@@ -69,9 +69,9 @@ protected:
     template<std::string_view const& topic, typename DerivedRulesetModule>
     void bind(
         RulesetType const& type,
-        void (DerivedRulesetModule::*func)(Context const&, double**, double**) const,
+        void (DerivedRulesetModule::*func)(Interaction::Context const&, double**, double**) const,
         std::string_view const& description,
-        BaseListFunction const& baseListFunc
+        Interaction::Rules::BaseListFunction const& baseListFunc
     ){
         assert(func != nullptr);
         static_assert(isValidTopic(topic), "RulesetModule::bind(): The topic name is not valid. It must start with '::' and contain no spaces.");
@@ -82,7 +82,9 @@ protected:
             type,
             topic,
             description,
-            [this, func](Context const& ctx, double** slf, double** otr) { (static_cast<DerivedRulesetModule const*>(this)->*func)(ctx, slf, otr); },
+            [this, func](Interaction::Context const& ctx, double** slf, double** otr) { (
+                static_cast<DerivedRulesetModule const*>(this)->*func)(ctx, slf, otr);
+            },
             baseListFunc
         });
     }
@@ -110,15 +112,15 @@ protected:
      * @param baseKeys The key list to retrieve
      * @return The BaseList-ensurer function.
      */
-    [[nodiscard]] BaseListFunction generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const ;
+    [[nodiscard]] Interaction::Rules::BaseListFunction generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const ;
 
 private:
 
     // Vector of all static rulesets from this module
-    std::vector<StaticRulesetMap::StaticRulesetWithMetadata> moduleRulesets;
+    std::vector<Interaction::Rules::StaticRulesetMap::StaticRulesetWithMetadata> moduleRulesets;
 
     // Unique identifier for caching
     uint64_t const id;
 };
 } // namespace Nebulite::Interaction::Rules
-#endif // INTERACTION_RULES_RULESETMODULE_HPP
+#endif // MODULE_BASE_RULESETMODULE_HPP

@@ -11,7 +11,7 @@
 // Includes
 
 // Nebulite
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -26,7 +26,7 @@ namespace Nebulite::Module::Domain::RenderObject {
  * @class Nebulite::Module::Domain::RenderObject::StateUpdate
  * @brief State update DomainModule of the RenderObject tree.
  */
-class StateUpdate final : public Interaction::Execution::DomainModule<Core::RenderObject> {
+class StateUpdate final : public Base::DomainModule<Core::RenderObject> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

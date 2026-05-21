@@ -11,7 +11,7 @@
 // Includes
 
 // Nebulite
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -27,7 +27,7 @@ namespace Nebulite::Module::Domain::Renderer {
  * @class Nebulite::Module::Domain::Renderer::General
  * @brief Basic Renderer-Related Functions
  */
-class General final : public Interaction::Execution::DomainModule<Core::Renderer> {
+class General final : public Base::DomainModule<Core::Renderer> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

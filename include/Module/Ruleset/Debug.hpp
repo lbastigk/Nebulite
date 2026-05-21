@@ -10,11 +10,11 @@
 // Includes
 
 // Nebulite
-#include "Interaction/Rules/RulesetModule.hpp"
+#include "Module/Base/RulesetModule.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Ruleset {
-class Debug : public Interaction::Rules::RulesetModule {
+class Debug : public Base::RulesetModule {
 public:
     //------------------------------------------
     // Functions

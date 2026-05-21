@@ -1,7 +1,7 @@
-#ifndef INTERACTION_EXECUTION_DOMAINMODULE_TPP
-#define INTERACTION_EXECUTION_DOMAINMODULE_TPP
+#ifndef MODULE_BASE_DOMAINMODULE_TPP
+#define MODULE_BASE_DOMAINMODULE_TPP
 
-namespace Nebulite::Interaction::Execution {
+namespace Nebulite::Module::Base {
 
 template <typename DomainType>
 DomainModule<DomainType>::DomainModule(ConstructorParams const& params)
@@ -16,5 +16,5 @@ DomainModule<DomainType>::DomainModule(ConstructorParams const& params)
 template <typename DomainType>
 DomainModule<DomainType>::~DomainModule() = default;
 
-} // namespace Nebulite::Interaction::Execution
-#endif // INTERACTION_EXECUTION_DOMAINMODULE_TPP
+} // namespace Nebulite::Module::Base
+#endif // MODULE_BASE_DOMAINMODULE_TPP

@@ -11,8 +11,8 @@
 // Nebulite
 #include "Constants/Event.hpp"
 #include "Constants/StandardCapture.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
 #include "Math/Equality.hpp"
+#include "Module/Base/DomainModule.hpp"
 #include "Module/Domain/GlobalSpace/InputMapping.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
 #include "Module/Domain/Renderer/Input.hpp"

@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -25,7 +25,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @class Nebulite::Module::Domain::GlobalSpace::General
  * @brief DomainModule for general-purpose functions within the GlobalSpace.
  */
-class General final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
+class General final : public Base::DomainModule<Core::GlobalSpace> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

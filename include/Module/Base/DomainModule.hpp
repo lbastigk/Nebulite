@@ -4,8 +4,8 @@
  *        class to support category-based function bindings.
  */
 
-#ifndef INTERACTION_EXECUTION_DOMAINMODULE_HPP
-#define INTERACTION_EXECUTION_DOMAINMODULE_HPP
+#ifndef MODULE_BASE_DOMAINMODULE_HPP
+#define MODULE_BASE_DOMAINMODULE_HPP
 
 //------------------------------------------
 // Includes
@@ -17,9 +17,9 @@
 #include "ScopeAccessor.hpp"
 
 //------------------------------------------
-namespace Nebulite::Interaction::Execution {
+namespace Nebulite::Module::Base {
 /**
- * @class Nebulite::Interaction::Execution::DomainModule
+ * @class Nebulite::Module::Base::DomainModule
  * @brief Wrapper class for binding functions to a specific category in the FuncTree and adding separate update routines.
  * @details Allows for cleaner separation of object files for different categories
  *          and reduces boilerplate code when attaching functions to the FuncTree.
@@ -43,7 +43,7 @@ public:
         Data::JsonScope& scope;
 
         // Shared pointer to the FuncTree for binding functions and variables.
-        std::shared_ptr<DomainTree> const& funcTreePtr;
+        std::shared_ptr<Interaction::Execution::DomainTree> const& funcTreePtr;
 
         // Const JsonScope reference for settings.
         Data::JsonScope const& settings;
@@ -92,6 +92,6 @@ protected:
         return ScopeAccessor::DomainModuleToken(derivedModule);
     }
 };
-} // namespace Nebulite::Interaction::Execution
-#include "Interaction/Execution/DomainModule.tpp"
-#endif // INTERACTION_EXECUTION_DOMAINMODULE_HPP
+} // namespace Nebulite::Module::Base
+#include "DomainModule.tpp"
+#endif // MODULE_BASE_DOMAINMODULE_HPP

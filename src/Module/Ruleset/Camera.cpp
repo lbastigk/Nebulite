@@ -4,7 +4,7 @@
 // Nebulite
 #include "Constants/KeyNames.hpp"
 #include "Interaction/Context.hpp"
-#include "Interaction/Rules/RulesetModule.hpp"
+#include "Module/Base/RulesetModule.hpp"
 #include "Module/Ruleset/Camera.hpp"
 #include "Nebulite.hpp"
 

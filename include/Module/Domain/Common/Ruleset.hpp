@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -25,7 +25,7 @@ namespace Nebulite::Module::Domain::Common {
  * @class Nebulite::Module::Domain::Common::Ruleset
  * @brief DomainModule for managing rulesets.
  */
-class Ruleset final : public Interaction::Execution::DomainModule<Interaction::Execution::Domain> {
+class Ruleset final : public Base::DomainModule<Interaction::Execution::Domain> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

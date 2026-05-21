@@ -12,7 +12,7 @@
 // Nebulite
 #include "Constants/KeyNames.hpp"
 #include "Data/Document/ScopedKey.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 #include "Utility/RNG.hpp"
 
 //------------------------------------------
@@ -28,7 +28,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @class Nebulite::Module::Domain::GlobalSpace::RNG
  * @brief DomainModule for RNG capabilities within the GlobalSpace.
  */
-class RNG final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
+class RNG final : public Base::DomainModule<Core::GlobalSpace> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

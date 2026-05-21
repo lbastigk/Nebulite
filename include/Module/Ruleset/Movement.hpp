@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "Interaction/Rules/RulesetModule.hpp"
+#include "Module/Base/RulesetModule.hpp"
 #include "Module/Domain/GlobalSpace/Physics.hpp"
 
 //------------------------------------------
@@ -19,7 +19,7 @@ namespace Nebulite::Module::Ruleset {
 /**
  * @brief The Movement ruleset module, containing static rulesets related to movement and collision clipping
  */
-class Movement : public Interaction::Rules::RulesetModule {
+class Movement : public Base::RulesetModule {
 public:
     //------------------------------------------
     // Functions

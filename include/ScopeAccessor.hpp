@@ -24,14 +24,14 @@ namespace Nebulite::Module::Domain::Renderer {
 class Console; // Forward declaration of Console
 } // namespace Nebulite::Module::Domain::Renderer
 
-namespace Nebulite::Interaction::Rules {
-class RulesetModule; // Forward declaration of RulesetModule
-} // namespace Nebulite::Interaction::Rules
+namespace Nebulite::Module::Base {
 
-namespace Nebulite::Interaction::Execution {
+class RulesetModule; // Forward declaration of RulesetModule
+
 template<typename DomainType>
 class DomainModule; // Forward declaration of DomainModule
-} // namespace Nebulite::Interaction::Execution
+
+} // namespace Nebulite::Module::Base
 
 namespace Nebulite {
 
@@ -77,18 +77,18 @@ public:
     // Provide scoped GlobalSpace access to DomainModules
     template<typename DomainType>
     class DomainModuleToken final : public BaseAccessToken {
-        explicit DomainModuleToken(Interaction::Execution::DomainModule<DomainType> const& dm);
+        explicit DomainModuleToken(Module::Base::DomainModule<DomainType> const& dm);
 
         // Allowed accessors:
-        friend class Interaction::Execution::DomainModule<DomainType>;
+        friend class Module::Base::DomainModule<DomainType>;
     };
 
     // Provide scoped GlobalSpace access to Ruleset-related classes
     class RulesetModuleToken final : public BaseAccessToken {
-        explicit RulesetModuleToken(Interaction::Rules::RulesetModule const& rm);
+        explicit RulesetModuleToken(Module::Base::RulesetModule const& rm);
 
         // Allowed accessors:
-        friend class Interaction::Rules::RulesetModule;
+        friend class Module::Base::RulesetModule;
     };
 };
 

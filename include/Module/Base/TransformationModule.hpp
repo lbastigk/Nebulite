@@ -14,7 +14,7 @@
 
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
-#include "Interaction/Execution/DomainModuleBase.hpp"
+#include "Module/Base/DomainModuleBase.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
 
 //------------------------------------------
@@ -46,7 +46,7 @@ public:
      */
     template <typename Func>
     void bindTransformation(Func functionPtr, std::string_view const& name, std::string_view const& helpDescription) const {
-        Interaction::Execution::DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), functionPtr, name, helpDescription);
+        DomainModuleBase::bindFunctionStatic(transformationFuncTree.get(), functionPtr, name, helpDescription);
     }
 
     /**

@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Data/Document/KeyGroup.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -26,7 +26,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
  * @class Nebulite::Module::Domain::GlobalSpace::Ruleset
  * @brief DomainModule for managing rulesets within the GlobalSpace.
  */
-class Ruleset final : public Interaction::Execution::DomainModule<Core::GlobalSpace> {
+class Ruleset final : public Base::DomainModule<Core::GlobalSpace> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

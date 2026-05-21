@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -26,7 +26,7 @@ namespace Nebulite::Module::Domain::Environment {
  * @class Nebulite::Module::Domain::Environment::Debug
  * @brief DomainModule for debugging utilities within the Environment domain.
  */
-class Debug final : public Interaction::Execution::DomainModule<Core::Environment> {
+class Debug final : public Base::DomainModule<Core::Environment> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

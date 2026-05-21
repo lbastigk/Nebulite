@@ -11,7 +11,7 @@
 
 // Nebulite
 #include "Data/Document/KeyGroup.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 #include "Module/Domain/Renderer/Input.hpp"
 
 //------------------------------------------
@@ -27,7 +27,7 @@ namespace Nebulite::Module::Domain::Renderer {
  * @class Nebulite::Module::Domain::Renderer::Console
  * @brief DomainModule for Console capabilities within the Renderer.
  */
-class Console final : public Interaction::Execution::DomainModule<Core::Renderer> {
+class Console final : public Base::DomainModule<Core::Renderer> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

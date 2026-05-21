@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -25,7 +25,7 @@ namespace Nebulite::Module::Domain::Texture {
  * @class Nebulite::Module::Domain::Texture::General
  * @brief DomainModule for general functions within the Texture.
  */
-class General final : public Interaction::Execution::DomainModule<Core::Texture> {
+class General final : public Base::DomainModule<Core::Texture> {
 public:
     [[nodiscard]] Constants::Event updateHook() override ;
     void reinit() override {}

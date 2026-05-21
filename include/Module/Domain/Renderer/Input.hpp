@@ -14,7 +14,7 @@
 
 // Nebulite
 #include "Data/Document/KeyGroup.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -29,7 +29,7 @@ namespace Nebulite::Module::Domain::Renderer {
  * @class Nebulite::Module::Domain::Renderer::Input
  * @brief DomainModule for handling input events and states.
  */
-class Input final : public Interaction::Execution::DomainModule<Core::Renderer> {
+class Input final : public Base::DomainModule<Core::Renderer> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

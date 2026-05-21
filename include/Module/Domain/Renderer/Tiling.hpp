@@ -6,7 +6,7 @@
 
 // Nebulite
 #include "Data/Document/KeyGroup.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -18,7 +18,7 @@ class Renderer;
 //------------------------------------------
 namespace Nebulite::Module::Domain::Renderer {
 
-class Tiling final : public Interaction::Execution::DomainModule<Core::Renderer> {
+class Tiling final : public Base::DomainModule<Core::Renderer> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

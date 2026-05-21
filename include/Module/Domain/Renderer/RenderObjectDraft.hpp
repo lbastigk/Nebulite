@@ -16,7 +16,7 @@
 // Nebulite
 #include "Constants/KeyNames.hpp"
 #include "Core/RenderObject.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -33,7 +33,7 @@ namespace Nebulite::Module::Domain::Renderer {
  * @details Allows for the creation and manipulation of RenderObjects in a draft state
  *          before spawning them into the Environment.
  */
-class RenderObjectDraft final : public Interaction::Execution::DomainModule<Core::Renderer> {
+class RenderObjectDraft final : public Base::DomainModule<Core::Renderer> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}

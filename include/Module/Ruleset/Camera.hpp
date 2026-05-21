@@ -11,11 +11,11 @@
 
 // Nebulite
 #include "Constants/KeyNames.hpp"
-#include "Interaction/Rules/RulesetModule.hpp"
+#include "Module/Base/RulesetModule.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Ruleset {
-class Camera : public Interaction::Rules::RulesetModule {
+class Camera : public Base::RulesetModule {
 public:
     //------------------------------------------
     // Functions

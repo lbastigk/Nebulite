@@ -1,5 +1,5 @@
-#ifndef INTERACTION_EXECUTION_DOMAINMODULEBASE_HPP
-#define INTERACTION_EXECUTION_DOMAINMODULEBASE_HPP
+#ifndef MODULE_BASE_DOMAINMODULEBASE_HPP
+#define MODULE_BASE_DOMAINMODULEBASE_HPP
 
 //------------------------------------------
 // Includes
@@ -17,9 +17,9 @@ class JsonScope;
 } // namespace Nebulite::Data
 
 //------------------------------------------
-namespace Nebulite::Interaction::Execution {
+namespace Nebulite::Module::Base {
 /**
- * @class Nebulite::Interaction::Execution::DomainModuleBase
+ * @class Nebulite::Module::Base::DomainModuleBase
  * @brief Base class for DomainModule to handle common functionality.
  * @details This class provides the foundational functionality for binding functions
  *          and variables to the FuncTree, allowing derived classes to focus on
@@ -36,7 +36,7 @@ public:
      *          the FuncTree pointer for binding functions and variables.
      */
     explicit DomainModuleBase(
-        std::shared_ptr<DomainTree> funcTreePtr,
+        std::shared_ptr<Interaction::Execution::DomainTree> funcTreePtr,
         Data::JsonScope& w,
         Data::JsonScope const& s
     );
@@ -196,8 +196,8 @@ private:
     /**
      * @brief Pointer to the internal FuncTree for binding functions and variables.
      */
-    std::shared_ptr<DomainTree> funcTree;
+    std::shared_ptr<Interaction::Execution::DomainTree> funcTree;
 };
-} // namespace Nebulite::Interaction::Execution
-#include "Interaction/Execution/DomainModuleBase.tpp"
-#endif // INTERACTION_EXECUTION_DOMAINMODULEBASE_HPP
+} // namespace Nebulite::Module::Base
+#include "DomainModuleBase.tpp"
+#endif // MODULE_BASE_DOMAINMODULEBASE_HPP

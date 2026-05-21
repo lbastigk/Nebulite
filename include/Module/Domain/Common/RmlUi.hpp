@@ -8,7 +8,7 @@
 
 // Nebulite
 #include "Interaction/Execution/Domain.hpp"
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -19,7 +19,7 @@ class Domain;
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::Common {
-class RmlUi final : public Interaction::Execution::DomainModule<Interaction::Execution::Domain> {
+class RmlUi final : public Base::DomainModule<Interaction::Execution::Domain> {
 public:
     [[nodiscard]] Constants::Event updateHook() override {
         return Constants::Event::Success;

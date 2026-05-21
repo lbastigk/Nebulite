@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Interaction/Execution/DomainModule.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -26,7 +26,7 @@ namespace Nebulite::Module::Domain::RenderObject {
  * @brief Logging DomainModule of the RenderObject Domain.
  * @details Contains RenderObject-specific logging functionality.
  */
-class Logging final : public Interaction::Execution::DomainModule<Core::RenderObject> {
+class Logging final : public Base::DomainModule<Core::RenderObject> {
 public:
     [[nodiscard]] Constants::Event updateHook() override;
     void reinit() override {}
