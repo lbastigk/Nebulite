@@ -120,7 +120,7 @@ public:
 
     double evalAsDouble(ContextScope const& context) const ;
 
-    int evalAsInt(ContextScope const& context) const ;
+    uint64_t evalAsInt(ContextScope const& context) const ;
 
     bool evalAsBool(ContextScope const& context) const ;
 

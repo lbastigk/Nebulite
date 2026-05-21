@@ -97,6 +97,7 @@ public:
 private:
     void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Data::JsonScope& target) const ;
     void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& val, Data::JsonScope& target) const ;
+    void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, uint64_t const& val, Data::JsonScope& target) const ;
     void setValueOfKey(double const& val, double* target) const ;
 
     /**

@@ -613,7 +613,7 @@ void Expression::updateUnstableValues(ContextScope const& context) const {
 bool Expression::recalculateIsReturnableAsDouble() const {
     return components.size() == 1
            && components[0]->type == Component::Type::eval
-           && (components[0]->formatter.cast == Formatter::CastType::none); // no formatter allowed!
+           && components[0]->formatter.cast == Formatter::CastType::none; // no formatter allowed!
 }
 
 bool Expression::recalculateIsReturnableAsInt() const {
@@ -680,9 +680,9 @@ double Expression::evalAsDouble(ContextScope const& context) const {
     return te_eval(components[0]->expression);
 }
 
-int Expression::evalAsInt(ContextScope const& context) const {
+uint64_t Expression::evalAsInt(ContextScope const& context) const {
     updateCaches(context);
-    return static_cast<int>(te_eval(components[0]->expression));
+    return static_cast<uint64_t>(te_eval(components[0]->expression));
 }
 
 bool Expression::evalAsBool(ContextScope const& context) const {

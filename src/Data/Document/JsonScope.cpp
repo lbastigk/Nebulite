@@ -122,7 +122,15 @@ void JsonScope::set_add(ScopedKeyView const& key, double const& val){
     doc().set_add(key.full(*this), val);
 }
 
+void JsonScope::set_add(ScopedKeyView const& key, uint64_t const& val){
+    doc().set_add(key.full(*this), val);
+}
+
 void JsonScope::set_multiply(ScopedKeyView const& key, double const& val){
+    doc().set_multiply(key.full(*this), val);
+}
+
+void JsonScope::set_multiply(ScopedKeyView const& key, uint64_t const& val){
     doc().set_multiply(key.full(*this), val);
 }
 

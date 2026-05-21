@@ -369,10 +369,14 @@ public:
      */
     void set_add(std::string_view const& key, double const& val);
 
+    void set_add(std::string_view const& key, uint64_t const& val);
+
     /**
      * @brief Performs a multiplication operation on a numeric value in the JSON document.
      */
     void set_multiply(std::string_view const& key, double const& val);
+
+    void set_multiply(std::string_view const& key, uint64_t const& val);
 
     /**
      * @brief Performs a concatenation operation on a string value in the JSON document.

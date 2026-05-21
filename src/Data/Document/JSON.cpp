@@ -156,7 +156,7 @@ void JSON::synchronizeChildren(std::string_view const& parentKey) const {
             if (auto const variant = RjDirectAccess::getSimpleValue(key, doc); variant.has_value()) {
                 entry->state = CacheEntry::EntryState::CLEAN;
                 entry->value = variant.value();
-                *entry->stable_double_ptr = convertVariant<double>(entry->value).value_or(standardNumericValue); // Default to NAN if conversion fails
+                *entry->stable_double_ptr = convertVariant<double>(entry->value).value_or(standardNumericValue); // Default to 0 if conversion fails
                 entry->last_double_value = *entry->stable_double_ptr;
             }
             else {
@@ -351,7 +351,7 @@ void JSON::setVariant(std::string_view const& key, RjDirectAccess::simpleValue c
         it->second->state = CacheEntry::EntryState::DIRTY;
 
         // Update double pointer value
-        *it->second->stable_double_ptr = convertVariant<double>(val).value_or(standardNumericValue); // Default to NAN if conversion fails
+        *it->second->stable_double_ptr = convertVariant<double>(val).value_or(standardNumericValue); // Default to 0 if conversion fails
         it->second->last_double_value = *it->second->stable_double_ptr;
     } else {
         // New cache value, structural validity is not guaranteed
@@ -366,7 +366,7 @@ void JSON::setVariant(std::string_view const& key, RjDirectAccess::simpleValue c
         // Set entry values
         new_entry->value = val;
         // Pointer was created in constructor, no need to redo make_shared
-        *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value).value_or(standardNumericValue); // Default to NAN if conversion fails
+        *new_entry->stable_double_ptr = convertVariant<double>(new_entry->value).value_or(standardNumericValue); // Default to 0 if conversion fails
         new_entry->last_double_value = *new_entry->stable_double_ptr;
         new_entry->state = CacheEntry::EntryState::DIRTY;
 
@@ -678,7 +678,7 @@ void JSON::set_add(std::string_view const& key, double const& val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
-    auto const current = get<double>(key).value_or(standardNumericValue); // Default to nan if retrieval fails
+    auto const current = get<double>(key).value_or(standardNumericValue); // Default to 0 if retrieval fails
     double const newValue = current + val;
 
     // Update double pointer value
@@ -694,11 +694,34 @@ void JSON::set_add(std::string_view const& key, double const& val) {
     }
 }
 
+void JSON::set_add(std::string_view const& key, uint64_t const& val) {
+    std::scoped_lock const lockGuard(mtx);
+    static_assert(standardNumericValue == 0.0,
+        "This function relies on the standard numeric value being 0 for correct defaulting."
+        " If this assertion fails, please review the implementation of set_add for int"
+        " and ensure it properly defaults to 0 when retrieval fails."
+    );
+    auto const current = getVariant(key).value_or(static_cast<int>(standardNumericValue));
+    std::visit([&]<typename T>(T const& currentVal) {
+        // Check if it's an integer
+        if constexpr(std::is_integral_v<T>) {
+            set<uint64_t>(key, static_cast<uint64_t>(currentVal) + val);
+        }
+        else if constexpr(std::is_floating_point_v<T>) {
+            set<double>(key, currentVal + static_cast<double>(val));
+        }
+        else {
+            auto const currentDbl = get<double>(key).value_or(static_cast<int>(standardNumericValue));
+            set<double>(key, currentDbl + static_cast<double>(val));
+        }
+    }, current);
+}
+
 void JSON::set_multiply(std::string_view const& key, double const& val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
-    auto const current = get<double>(key).value_or(standardNumericValue); // Default to NAN if retrieval fails
+    auto const current = get<double>(key).value_or(standardNumericValue); // Default to 0 if retrieval fails
     double const newValue = current * val;
 
     // Update double pointer value
@@ -714,6 +737,29 @@ void JSON::set_multiply(std::string_view const& key, double const& val) {
     }
 }
 
+void JSON::set_multiply(std::string_view const& key, uint64_t const& val) {
+    std::scoped_lock const lockGuard(mtx);
+    static_assert(standardNumericValue == 0.0,
+        "This function relies on the standard numeric value being 0 for correct defaulting."
+        " If this assertion fails, please review the implementation of set_add for int"
+        " and ensure it properly defaults to 0 when retrieval fails."
+    );
+    auto const current = getVariant(key).value_or(static_cast<int>(standardNumericValue));
+    std::visit([&]<typename T>(T const& currentVal) {
+        // Check if it's an integer
+        if constexpr(std::is_integral_v<T>) {
+            set<uint64_t>(key, static_cast<uint64_t>(currentVal) * val);
+        }
+        else if constexpr(std::is_floating_point_v<T>) {
+            set<double>(key, currentVal * static_cast<double>(val));
+        }
+        else {
+            auto const currentDbl = get<double>(key).value_or(static_cast<int>(standardNumericValue));
+            set<double>(key, currentDbl + static_cast<double>(val));
+        }
+    }, current);
+}
+
 void JSON::set_concat(std::string_view const& key, std::string_view const& valStr) {
     std::scoped_lock const lockGuard(mtx);
 
@@ -722,7 +768,7 @@ void JSON::set_concat(std::string_view const& key, std::string_view const& valSt
 
     // Update double pointer value to default NAN
     if (auto const it = cache.find(key); it != cache.end()) {
-        // Strings default to NAN
+        // Strings Default to 0
         *it->second->stable_double_ptr = standardNumericValue;
         it->second->last_double_value = standardNumericValue;
     }
@@ -751,7 +797,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getS
                 it->second->state = CacheEntry::EntryState::CLEAN;
 
                 // Set stable double pointer
-                *it->second->stable_double_ptr = convertVariant<double>(it->second->value).value_or(standardNumericValue); // Default to NAN if conversion fails
+                *it->second->stable_double_ptr = convertVariant<double>(it->second->value).value_or(standardNumericValue); // Default to 0 if conversion fails
                 it->second->last_double_value = *it->second->stable_double_ptr;
 
                 return v.value();

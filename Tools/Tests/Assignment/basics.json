@@ -2,5 +2,9 @@
     {
         "command": "task TaskFiles/Tests/Assignment/assignObject.nebs",
         "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/Assignment/assignInt.nebs",
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

@@ -154,6 +154,30 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double c
     }
 }
 
+// TODO: Check if value stored is int, perhaps using a separate set_add and set_multiply that checks the current value
+void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, uint64_t const& val, Data::JsonScope& target) const {
+    // Using Threadsafe manipulation methods of the JSON class:
+    switch (operation) {
+    case Operation::set:
+        target.set<uint64_t>(keyEvaluated, val);
+        break;
+    case Operation::add:
+        target.set_add(keyEvaluated, val);
+        break;
+    case Operation::multiply:
+        target.set_multiply(keyEvaluated, val);
+        break;
+    case Operation::concat:
+        target.set_concat(keyEvaluated, std::to_string(val));
+        break;
+    case Operation::null:
+        Global::capture().error.println("Could not determine context from key, skipping assignment");
+        break;
+    default:
+        std::unreachable();
+    }
+}
+
 void Assignment::setValueOfKey(double const& val, double* target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
@@ -225,7 +249,7 @@ void Assignment::apply(ContextScope const& context) const {
     else if (expression->isReturnableAsInt() && isNumericOperation(operation)) {
         auto const resolved = expression->evalAsInt(context);
         auto const scopedKey = Data::ScopedKey(key->eval(context));
-        targetDocument.set<int>(scopedKey.view(), resolved);
+        setValueOfKey(scopedKey.view(), resolved, targetDocument);
     }
     // Check if returning as a JSON is preferred
     else if (!expression->isReturnableAsString() && this->operation == Operation::set) {
