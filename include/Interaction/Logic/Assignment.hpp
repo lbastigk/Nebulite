@@ -28,7 +28,7 @@ class RulesetCompiler;
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
 /**
- * @struct Nebulite::Interaction::Logic::Assignment
+ * @class Nebulite::Interaction::Logic::Assignment
  * @brief Representing a variable assignment in the Nebulite scripting language.
  * @details [target] [operation] [value-to-evaluate]
  *          e.g.:
@@ -121,7 +121,7 @@ private:
      * @brief Expression assignment target as double pointer
      * @details Is only unequal to nullptr if:
      *          - onType is Self
-     *          - operation is numeric (add, multiply)
+     *          - operation is numeric (set, add, multiply)
      *          - expression is returnable as double
      */
     double* targetValuePtr = nullptr;

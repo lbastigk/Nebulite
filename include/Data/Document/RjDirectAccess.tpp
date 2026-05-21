@@ -46,47 +46,36 @@ bool RjDirectAccess::set(char const* key, T const& value, rapidjson::Value& val,
 // 1.) to JSON value
 //------------------------------------------
 
-// cppcheck-suppress constParameterReference
-template <> inline void RjDirectAccess::ConvertToJSONValue<bool>(bool const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+template <> inline void RjDirectAccess::ConvertToJSONValue<bool>(bool const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& /*allocator*/) {
     jsonValue.SetBool(data);
-    (void)allocator; // Suppress unused parameter warning
 }
 
-// cppcheck-suppress constParameterReference
-template <> inline void RjDirectAccess::ConvertToJSONValue<int>(int const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+template <> inline void RjDirectAccess::ConvertToJSONValue<int>(int const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& /*allocator*/) {
     jsonValue.SetInt(data);
-    (void)allocator; // Suppress unused parameter warning
 }
 
-// cppcheck-suppress constParameterReference
-template <> inline void RjDirectAccess::ConvertToJSONValue<uint32_t>(uint32_t const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+template <> inline void RjDirectAccess::ConvertToJSONValue<uint32_t>(uint32_t const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& /*allocator*/) {
     jsonValue.SetUint(data);
-    (void)allocator; // Suppress unused parameter warning
 }
 
-// cppcheck-suppress constParameterReference
-template <> inline void RjDirectAccess::ConvertToJSONValue<uint64_t>(uint64_t const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+template <> inline void RjDirectAccess::ConvertToJSONValue<uint64_t>(uint64_t const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& /*allocator*/) {
     jsonValue.SetUint64(data);
-    (void)allocator; // Suppress unused parameter warning
 }
 
-// cppcheck-suppress constParameterReference
-template <> inline void RjDirectAccess::ConvertToJSONValue<double>(double const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+template <> inline void RjDirectAccess::ConvertToJSONValue<double>(double const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& /*allocator*/) {
     jsonValue.SetDouble(data);
-    (void)allocator; // Suppress unused parameter warning
 }
 
-// cppcheck-suppress constParameterReference
-template <> inline void RjDirectAccess::ConvertToJSONValue<int64_t>(int64_t const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+template <> inline void RjDirectAccess::ConvertToJSONValue<int64_t>(int64_t const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& /*allocator*/) {
     jsonValue.SetInt64(data);
-    (void)allocator; // Suppress unused parameter warning
 }
 
 template <> inline void RjDirectAccess::ConvertToJSONValue<std::string>(std::string const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
     jsonValue.SetString(
         data.c_str(),
-        static_cast<rapidjson::SizeType>(data.length()), allocator
-        );
+        static_cast<rapidjson::SizeType>(data.length()),
+        allocator
+    );
 }
 
 template <> inline void RjDirectAccess::ConvertToJSONValue<char const*>(char const* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
@@ -105,11 +94,17 @@ template <> inline void RjDirectAccess::ConvertToJSONValue<char*>(char* const& d
     }
 }
 
-template <> inline void RjDirectAccess::ConvertToJSONValue<rapidjson::Value*>(rapidjson::Value* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) { jsonValue.CopyFrom(*data, allocator); }
+template <> inline void RjDirectAccess::ConvertToJSONValue<rapidjson::Value*>(rapidjson::Value* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+    jsonValue.CopyFrom(*data, allocator);
+}
 
-template <> inline void RjDirectAccess::ConvertToJSONValue<rapidjson::Document*>(rapidjson::Document* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) { jsonValue.CopyFrom(*data, allocator); }
+template <> inline void RjDirectAccess::ConvertToJSONValue<rapidjson::Document*>(rapidjson::Document* const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+    jsonValue.CopyFrom(*data, allocator);
+}
 
-template <> inline void RjDirectAccess::ConvertToJSONValue<rapidjson::Document>(rapidjson::Document const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) { jsonValue.CopyFrom(data, allocator); }
+template <> inline void RjDirectAccess::ConvertToJSONValue<rapidjson::Document>(rapidjson::Document const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator) {
+    jsonValue.CopyFrom(data, allocator);
+}
 
 // Template specialization for std::variant
 // So we don't have to manually call std::visit every time
@@ -216,5 +211,5 @@ template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value co
     }
 }
 
-}   // namespace Nebulite::Data
+} // namespace Nebulite::Data
 #endif // DATA_DOCUMENT_RJDIRECTACCESS_TPP

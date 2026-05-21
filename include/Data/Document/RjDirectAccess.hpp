@@ -5,8 +5,8 @@
 // Includes
 
 // Standard library
-#include <string>
 #include <cstdint> // NOLINTTHISLINE
+#include <string>
 #include <variant>
 #include <vector>
 
