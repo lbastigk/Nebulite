@@ -72,16 +72,27 @@ public:
     static constexpr size_t standardRecursionDepth = 10;
 
     /**
-     * @brief Checks if the expression can be returned as a double.
+     * @brief Checks if the expression can be returned as a double without losing information.
      * @details e.g.:
      *          "1 + 1"   is not returnable as double, as its just text
      *          "$(1+1)"  is returnable as double, as it evaluates to 2
      *          "$i(1+1)" is not returnable as double, due to the casting
-     *          An expression needs to consist of a single eval component with no cast to be returnable as double.
+     *          An expression needs to consist of a single eval component
+     *          with no cast and no formatting to be returnable as double.
      * @return True if the expression can be returned as a double, false otherwise.
      */
     [[nodiscard]] bool isReturnableAsDouble() const noexcept {
         return evaluationInfo.returnableAsDouble;
+    }
+
+    /**
+     * @brief Checks if the expression can be returned as into without losing information.
+     * @details An expression needs to consist of a single eval component
+     *          with cast to int and no formatting to be returnable as int.
+     * @return True if the expression can be returned as int, false otherwise
+     */
+    [[nodiscard]] bool isReturnableAsInt() const noexcept {
+        return evaluationInfo.returnableAsInt;
     }
 
     /**
@@ -108,6 +119,8 @@ public:
     std::string eval(ContextScope const& context, size_t const& recursionDepth = standardRecursionDepth) const ;
 
     double evalAsDouble(ContextScope const& context) const ;
+
+    int evalAsInt(ContextScope const& context) const ;
 
     bool evalAsBool(ContextScope const& context) const ;
 
@@ -138,6 +151,8 @@ public:
      * @return True if the expression can be returned as a double, false otherwise.
      */
     [[nodiscard]] bool recalculateIsReturnableAsDouble() const;
+
+    [[nodiscard]] bool recalculateIsReturnableAsInt() const;
 
     [[nodiscard]] bool recalculateIsReturnableAsString() const;
 
@@ -367,6 +382,11 @@ private:
          * @brief Only true if the expression consists of a single component of type eval
          */
         bool returnableAsDouble = false;
+
+        /**
+         * @brief Only true if the expression consists of a single component of type eval with cast to int
+         */
+        bool returnableAsInt = false;
 
         /**
          * @brief Only false if the expression consists of a single component of type variable

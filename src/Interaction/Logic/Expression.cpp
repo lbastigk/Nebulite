@@ -500,6 +500,7 @@ void Expression::parse(std::string_view const& expr) {
         compileIfExpression(component);
     }
     evaluationInfo.returnableAsDouble = recalculateIsReturnableAsDouble();
+    evaluationInfo.returnableAsInt = recalculateIsReturnableAsInt();
     evaluationInfo.returnableAsString = recalculateIsReturnableAsString();
     evaluationInfo.alwaysTrue = recalculateIsAlwaysTrue();
 
@@ -612,7 +613,16 @@ void Expression::updateUnstableValues(ContextScope const& context) const {
 bool Expression::recalculateIsReturnableAsDouble() const {
     return components.size() == 1
            && components[0]->type == Component::Type::eval
-           && components[0]->formatter.cast == Formatter::CastType::none;
+           && (components[0]->formatter.cast == Formatter::CastType::none); // no formatter allowed!
+}
+
+bool Expression::recalculateIsReturnableAsInt() const {
+    return components.size() == 1
+        && components[0]->type == Component::Type::eval
+        && !components[0]->formatter.alignment
+        && !components[0]->formatter.leadingZero
+        && !components[0]->formatter.precision
+        && components[0]->formatter.cast == Formatter::CastType::to_int;
 }
 
 bool Expression::recalculateIsReturnableAsString() const {
@@ -668,6 +678,11 @@ std::string Expression::eval(ContextScope const& context, size_t const& recursio
 double Expression::evalAsDouble(ContextScope const& context) const {
     updateCaches(context);
     return te_eval(components[0]->expression);
+}
+
+int Expression::evalAsInt(ContextScope const& context) const {
+    updateCaches(context);
+    return static_cast<int>(te_eval(components[0]->expression));
 }
 
 bool Expression::evalAsBool(ContextScope const& context) const {

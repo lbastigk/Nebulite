@@ -219,6 +219,14 @@ void Assignment::apply(ContextScope const& context) const {
             }
         }
     }
+    // If the expression is returnable as int, we use that
+    // only $i(...) is supported, as any formatting like $05i(...)
+    // would make the result a string to respect formatting
+    else if (expression->isReturnableAsInt() && isNumericOperation(operation)) {
+        auto const resolved = expression->evalAsInt(context);
+        auto const scopedKey = Data::ScopedKey(key->eval(context));
+        targetDocument.set<int>(scopedKey.view(), resolved);
+    }
     // Check if returning as a JSON is preferred
     else if (!expression->isReturnableAsString() && this->operation == Operation::set) {
         auto const resolved = expression->evalAsJson(context);
