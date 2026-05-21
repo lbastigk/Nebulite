@@ -22,9 +22,6 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/Tests/JSON/Transformations/Types/deserialize.nebs
-exit
-
 #task TaskFiles/VerticalSlice/levelDescription.nebs
 #grid on
 #view low
