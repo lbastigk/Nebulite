@@ -36,6 +36,9 @@
         "Tools/Tests/Expression/nestedEvaluation.json",
         "Tools/Tests/Expression/types.json",
         //---------------------------------------
+        // Assignment tests
+        "Tools/Tests/Assignment/basics.json",
+        //---------------------------------------
         // FuncTree tests
         "Tools/Tests/Functional/bindingCollisionDetection.json",
         "Tools/Tests/Functional/completion.json",

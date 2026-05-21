@@ -1,0 +1,6 @@
+[
+    {
+        "command": "task TaskFiles/Tests/Assignment/assignObject.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    }
+]
