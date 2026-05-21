@@ -128,6 +128,7 @@ public:
     static auto constexpr strCountAppearanceName = "strCountAppearance";
     static auto constexpr strCountAppearanceDesc = "Counts the number of occurrences of a specified substring in the current JSON string value.\n"
         "Usage: |strCountAppearance {substring} -> {number}\n"
+        "Counts whitespaces if no substring is given\n"
         "{substring}: Substring to count\n";
 
     static auto constexpr strcompareName = "strCompare";
@@ -140,12 +141,14 @@ public:
     static auto constexpr strcompareEqualsName = "strCompare equals";
     static auto constexpr strcompareEqualsDesc = "Compares the current JSON string value with a specified string for equality.\n"
         "Usage: |strCompare equals {string} -> {bool}\n"
+        "Checks if the string is empty if no argument is given\n"
         "{string}: String to compare with\n";
 
     static bool strcompareContains(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr strcompareContainsName = "strCompare contains";
     static auto constexpr strcompareContainsDesc = "Checks if the current JSON string value contains a specified substring.\n"
         "Usage: |strCompare contains {string} -> {bool}\n"
+        "Checks for whitespaces if no substring is given\n"
         "{string}: Substring to check for\n";
 
     static bool strcompareStartsWith(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);

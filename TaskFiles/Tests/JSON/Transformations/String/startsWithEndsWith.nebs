@@ -1,0 +1,10 @@
+# String starts with and ends with
+set test.string HelloWorld
+
+# Calculate and verify
+eval nop {global:test.string|strCompare startsWith Hello|assert equals int 1}
+eval nop {global:test.string|strCompare startsWith World|assert equals int 0}
+eval nop {global:test.string|strCompare endsWith World|assert equals int 1}
+eval nop {global:test.string|strCompare endsWith Hello|assert equals int 0}
+
+exit

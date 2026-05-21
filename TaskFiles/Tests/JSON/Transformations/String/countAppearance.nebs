@@ -1,4 +1,13 @@
-# String count appearance
-set test.string HelloWorldHello
-eval nop {global:test.string|strCountAppearance Hello|assert equals int 2}
+# Testing substring count appearance in a string
+
+# Setup test strings
+set test.string1 HelloWorldHello
+set test.string2 Hello World, Hello Nebulite!
+
+# count appearance and verify
+eval nop {global:test.string1|strCountAppearance Hello|assert equals int 2}
+eval nop {global:test.string1|strCountAppearance o|assert equals int 3}
+eval nop {global:test.string1|strCountAppearance O|assert equals int 0}
+eval nop {global:test.string2|strCountAppearance|assert equals int 3}
+
 exit

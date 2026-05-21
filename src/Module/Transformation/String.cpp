@@ -192,6 +192,9 @@ bool String::substring(std::span<std::string const> const& args, Data::JsonScope
     return true;
 }
 
+// TODO: Add explicit separator for target and replacement:
+//       |replace <target> -> <replacement>
+//       This will be used if args.size() > 3
 // NOLINTNEXTLINE
 bool String::replace(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3){
@@ -206,10 +209,7 @@ bool String::replace(std::span<std::string const> const& args, Data::JsonScope* 
 }
 
 bool String::strCountAppearance(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    if (args.size() < 2){
-        return false;
-    }
-    auto const substring = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const substring = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : " ";
     auto str = jsonDoc->get<std::string>(rootKey).value_or("");
     size_t count = 0;
     while (!substring.empty() && !str.empty()) {
@@ -225,20 +225,14 @@ bool String::strCountAppearance(std::span<std::string const> const& args, Data::
 }
 
 bool String::strcompareEquals(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    if (args.size() < 2){
-        return false;
-    }
-    auto const compareStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const compareStr = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : "";
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     jsonDoc->set(rootKey, str == compareStr);
     return true;
 }
 
 bool String::strcompareContains(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    if (args.size() < 2){
-        return false;
-    }
-    auto const compareStr = Utility::StringHandler::recombineArgs(args.subspan(1));
+    auto const compareStr = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : " ";
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     jsonDoc->set(rootKey, str.contains(compareStr));
     return true;
