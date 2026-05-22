@@ -17,9 +17,14 @@ void Boolean::bindTransformations() {
 }
 
 bool Boolean::booleanNot(Data::JsonScope* jsonDoc){
-    auto const val = jsonDoc->get<bool>(rootKey);
-    if (!val) return false;
-    jsonDoc->set<bool>(rootKey, !val.value());
+    if (auto const val = jsonDoc->get<bool>(rootKey); !val) {
+        // Assume value is false, set to true
+        jsonDoc->set<bool>(rootKey, true);
+    }
+    else {
+        // Invert
+        jsonDoc->set<bool>(rootKey, !val.value());
+    }
     return true;
 }
 

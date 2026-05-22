@@ -25,8 +25,7 @@
 
         <!-- Blink: Toggle between bold and vanilla every second -->
         <p>
-            <!-- add 0 is necessary, as self:nameSet might return null, which 'not' will not consider false and fail -->
-            <div if="$({self:nameSet|add 0|not})">
+            <div if="$({self:nameSet|not})">
                 <b if="$({global:time.t|toInt|add 2|mod 2})">Hello World!</b>
                 <div if="$({global:time.t|toInt|add 1|mod 2})">Hello World!</div>
             </div>

@@ -33,7 +33,7 @@ public:
     static auto constexpr booleanNotName = "not";
     static auto constexpr booleanNotDesc = "Logical NOT operation on the current JSON value.\n"
         "Usage: |not -> {value:bool}\n"
-        "Fails if the given value is not convertable to a boolean, e.g. objects, arrays or strings unlike 'true' or 'false'.";
+        "If the given value is not convertible to bool, the value is assumed to be false and is set to true";
 
     // TODO: and, or, xor, nand, nor, xnor, etc.
     //       All array-based, make sure input is array before processing
