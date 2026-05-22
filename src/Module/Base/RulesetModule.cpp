@@ -7,12 +7,13 @@
 
 // Nebulite
 #include "Interaction/Execution/Domain.hpp"
-#include "Module/Base/RulesetModule.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
+#include "Module/Base/RulesetModule.hpp"
 #include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Base {
+
 RulesetModule::RulesetModule(std::string_view const& moduleName)
 : id{Data::MappedOrderedCacheList::generateUniqueId(moduleName)}
 {}
@@ -23,4 +24,4 @@ Interaction::Rules::BaseListFunction RulesetModule::generateBaseListFunction(std
     };
 }
 
-} // namespace Nebulite::Interaction::Rules
+} // namespace Nebulite::Module::Base

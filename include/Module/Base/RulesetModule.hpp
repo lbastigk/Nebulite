@@ -122,5 +122,5 @@ private:
     // Unique identifier for caching
     uint64_t const id;
 };
-} // namespace Nebulite::Interaction::Rules
+} // namespace Nebulite::Module::Base
 #endif // MODULE_BASE_RULESETMODULE_HPP

@@ -15,27 +15,27 @@
 //------------------------------------------
 namespace Nebulite::Data {
 
-double** MappedOrderedCacheList::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
+double** MappedOrderedCacheList::ensureOrderedCacheList(size_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
     Utility::Coordination::WriteLock const lock(mtxMap);
     return fromMap(uniqueId, keys);
 }
 
-double** MappedOrderedCacheList::ensureOrderedCacheListNoLock(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
+double** MappedOrderedCacheList::ensureOrderedCacheListNoLock(size_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
     return fromMap(uniqueId, keys);
 }
 
-double** MappedOrderedCacheList::fromMap(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys){
+double** MappedOrderedCacheList::fromMap(size_t const& uniqueId, std::vector<ScopedKeyView> const& keys){
     if (auto const it = map.find(uniqueId); it != map.end()) [[likely]] {
-        return it->second.orderedValues.data();
+        return it->second.data();
     }
-    auto [newIt, inserted] = map.try_emplace(uniqueId, OrderedCacheList(keys.size()));
+    auto [newIt, inserted] = map.try_emplace(uniqueId, OrderedCacheList());
     if (inserted) {
+        newIt->second.reserve(keys.size());
         for (auto const& key : keys) {
-            double* ptr = reference.getStableDoublePointer(key);
-            newIt->second.orderedValues.push_back(ptr);
+            newIt->second.push_back(reference.getStableDoublePointer(key));
         }
     }
-    return newIt->second.orderedValues.data();
+    return newIt->second.data();
 }
 
 } // namespace Nebulite::Data
