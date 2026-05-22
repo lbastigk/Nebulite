@@ -9,4 +9,3 @@ assert $(gt({global:renderer.environment.debug.container.objectCount.layer[0].ti
 assert $(eq({global:renderer.environment.debug.container.objectCount.layer[1].tile|listMembers|length},1))
 
 exit
-
