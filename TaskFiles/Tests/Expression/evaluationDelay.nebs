@@ -1,7 +1,37 @@
-echo "Testing variable evaluation delay in Nebulite expressions"
+###################################################
+# Testing the evaluation delay operator "!"
+###################################################
 
+# Setup workspace
 set key value
-eval echo {global:key}
-eval echo {1!global:key}
-eval echo {2!global:key}
-eval echo {3!global:key}
+set bar value1.value2
+set foo.value1.value2 final_value
+
+###################################################
+# Base check: delay-number reduces by 1
+assign global:result[0] = {global:key}
+assign global:result[1] = {1!global:key}
+assign global:result[2] = {2!global:key}
+assign global:result[3] = {3!global:key}
+
+# Verify
+eval nop {global:result[0]|assert equals string value}
+eval nop {global:result[1]|substring 1 10|assert equals string global:key}
+eval nop {global:result[2]|substring 1 12|assert equals string 1!global:key}
+eval nop {global:result[3]|substring 1 12|assert equals string 2!global:key}
+
+###################################################
+# Check multiple levels of evaluation delay
+
+# This resolves to the unknown key "global:foo.{global:bar}", which is empty}
+eval nop {global:foo.{1!global:bar}|assert empty}
+
+# This delays the evaluation by one, so both are the same
+# ------- First eval
+# v  v--- Second eval
+eval assign global:result[4] = {1!global:foo.{global:bar}}
+     assign global:result[5] = {global:foo.{global:bar}}
+
+# Verify
+eval nop {global:result[4]|assert equals string final_value}
+eval nop {global:result[5]|assert equals string final_value}

@@ -1,17 +1,24 @@
-# @file multiresolve.nebs
-# @brief Test multi-resolve within a Nebulite expression
-# @description This test checks that multiple resolve calls within a single Nebulite expression are handled correctly.
-# Example usage:
-# {global:foo.{bar}} turns into {global:foo.value1.value2} if bar resolves to value1.value2
-# Then, {global:foo.value1.value2} is resolved to the final value.
-echo Testing multi-resolve in Nebulite expressions
-set bar value1.value2
+###################################################
+# Test multi-resolve within a Nebulite expression
+# Resolves inner expressions first
+# unless an evaluation-delay is specified,
+# which is not tested here
+###################################################
+
+# Setup workspace
 set foo.value1.value2 final_value
+set fooPath value1.value2   # describes a path to a value in foo
+set partialPath lue1.value2 # To check if multi-resolve works even if we insert mid-key and not after a dot
 
-# Normal resolution for comparison
-eval echo {global:foo.value1.value2}
-# Expected output: final_value
+###################################################
+# Normal resolution for comparison, hardcoded path
+eval nop {global:foo.value1.value2|assert equals string final_value}
 
-# Now, try to resolve {global:foo.{{global:bar}}}
-eval echo {global:foo.{global:bar}}
-# Expected output: final_value
+###################################################
+# Now, try to resolve using multi-resolve,
+# by using the value of fooPath as part of the path to resolve
+eval nop {global:foo.{global:fooPath}|assert equals string final_value}
+
+###################################################
+# Now test a partial path
+eval nop {global:foo.va{global:partialPath}|assert equals string final_value}
