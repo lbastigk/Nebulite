@@ -1,8 +1,17 @@
+# Spawn object
 set-fps 60
 spawn ./Resources/Renderobjects/Planets/sun.jsonc
+
+# select it
 selected-object get 1
+
+# change its position
 selected-object parse set posX 750
-selected-object parse set posY 750
-selected-object parse print posX
-selected-object parse print posY
+selected-object parse set posY 666
+
+# and assert the changes
+selected-object parse eval nop {self:posX|assert equals int 750}
+selected-object parse eval nop {self:posY|assert equals int 666}
+must-throw selected-object parse eval nop {self:posY|assert equals int 555}
+
 exit

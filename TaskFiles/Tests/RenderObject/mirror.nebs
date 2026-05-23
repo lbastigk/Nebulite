@@ -7,11 +7,13 @@ time set-fixed-dt 1
 spawn ./Resources/Renderobjects/Planets/sun.jsonc \
     |set posX 750 \
     |set posY 500 \
-    |set text.str SUN1
+    |set text.str SUN1 \
+    |set physics.mass 1000
 spawn ./Resources/Renderobjects/Planets/sun.jsonc \
     |set posX 250 \
     |set posY 500 \
-    |set text.str SUN2
+    |set text.str SUN2 \
+    |set physics.mass 1000
 
 ###############################
 # Setup mirror
@@ -28,12 +30,25 @@ wait 1
 # - velocity is opposite in x-direction
 # - acceleration is opposite in x-direction
 wait 10
-eval echo SUN1:  p({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posX},{global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posY})
-eval echo SUN1:  v({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.vX},{global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.vY})
-eval echo SUN1:  a({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.aX},{global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.aY})
-eval echo SUN1:  mass {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.mass}
-eval echo SUN2:  p({global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.posX},{global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.posY})
-eval echo SUN2:  v({global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.vX},{global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.vY})
-eval echo SUN2:  a({global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.aX},{global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.aY})
-eval echo SUN2:  mass {global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.mass}
+
+# Check obj1 values
+assert $(lt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posX},750))
+assert $(eq({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posY},500))
+assert $(lt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.vX},0))
+assert $(eq({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.vY},0))
+assert $(lt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.aX},0))
+assert $(eq({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.aY},0))
+
+# Check obj2 values
+assert $(gt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.posX},250))
+assert $(eq({global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.posY},500))
+assert $(gt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.vX},0))
+assert $(eq({global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.vY},0))
+assert $(gt({global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.aX},0))
+assert $(eq({global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.aY},0))
+
+# Check if both objects attract each other with the same force (opposite acceleration and velocity in x-direction)
+assert $(eq({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.aX},-{global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.aX}))
+assert $(eq({global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.physics.vX},-{global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.physics.vX}))
+
 exit
