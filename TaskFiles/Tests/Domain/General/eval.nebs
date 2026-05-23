@@ -1,0 +1,4 @@
+# Checks basic eval functionality, the expression functionality is tested extensively in other scripts.
+eval set out $(1+1)
+eval nop {global:out|assert equals int 2}
+must-throw eval nop {global:out|assert equals int 3}

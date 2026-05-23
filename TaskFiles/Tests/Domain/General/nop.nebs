@@ -1,0 +1,6 @@
+# Nop basically ignores every argument presented:
+nop
+nop assert $(0)
+nop assert $(1)
+nop abcdefg
+nop 1234567

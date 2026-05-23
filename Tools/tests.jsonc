@@ -18,14 +18,14 @@
         //---------------------------------------
         // Domain tests
         "Tools/Tests/Domain/basics.json",
-        "Tools/Tests/Domain/commonUtilities.json",
+        "Tools/Tests/Domain/output.json",
         "Tools/Tests/Domain/deserialization.json",
         "Tools/Tests/Domain/ruleset.json",
         //---------------------------------------
         // Tests from the featureTest DomainModule, for calling hardcoded test functions
-        "Tools/Tests/Integrated/funcTree.json",
-        "Tools/Tests/Integrated/keyCombination.json",
-        "Tools/Tests/Integrated/context.json",
+        "Tools/Tests/Integrated/funcTree.json", // Basic functree initialization and execution tests
+        "Tools/Tests/Integrated/keyCombination.json", // A common pitfall is that key combinations aren't done properly (trailing dots, dots before array indices, etc.). This catches those kinds of issues.
+        "Tools/Tests/Integrated/context.json", // Tests access to self/other/global context-model
         //---------------------------------------
         // Expression tests
         "Tools/Tests/Expression/basics.json",

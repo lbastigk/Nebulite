@@ -1,4 +1,4 @@
-# Testing passing of arguments by echoing them back
+# Testing whitespace passing of arguments by echoing them back
 echo 1234
 echo Hello, World!
 echo "Hello, World!"

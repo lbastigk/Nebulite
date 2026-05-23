@@ -1,0 +1,56 @@
+[
+    {
+        "command": "help",
+        "expected": { "cout": null, "cerr": [] }
+    },
+    {
+        "command": "echo 1234",
+        "expected": { "cout": ["1234"], "cerr": [] }
+    },
+    {
+        "command": "warn 1234",
+        "expected": { "cout": [], "cerr": ["1234"] }
+    },
+    {
+        "command": "print-id",
+        "expected": { "cout": ["0"], "cerr": [] }
+    },
+    {
+        "command": "warn This is a warning!",
+        "expected": { "cout": [], "cerr": ["This is a warning!"] }
+    },
+    {
+        "command": "help help",
+        "expected": {
+            "cout": ["", "Help for function 'help':", "", "Show available commands and their descriptions"],
+            "cerr": []
+        }
+    },
+    {
+        "command": [
+            "# Test completion",
+            "__complete__ feature-"
+        ],
+        "expected": { "cout": ["feature-test"], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/Domain/Output/whitespaces.nebs",
+        "expected": {
+            "cout": [
+                "1234",
+                "Hello, World!",
+                "Hello, World!",
+                "Hello, World!",
+                "Multiple  spaces  between  words  are  always  preserved",
+                "Multiple  spaces  between  words  are  always  preserved",
+                "Multiple  spaces  between  words  are  always  preserved",
+                "  Leading spaces are always preserved",
+                "  Leading spaces are always preserved",
+                "  Leading spaces are always preserved",
+                "Trailing spaces inside double quotes preserved  ",
+                "Trailing spaces inside single quotes preserved  "
+            ],
+            "cerr": []
+        }
+    }
+]

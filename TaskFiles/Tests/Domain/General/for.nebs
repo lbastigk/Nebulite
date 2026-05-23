@@ -1,0 +1,12 @@
+for i 0 5 set out[{i}] {i}
+
+eval nop {global:out|assert type array}
+eval nop {global:out|length|assert equals int 6}
+eval nop {global:out[0]|assert equals int 0}
+eval nop {global:out[1]|assert equals int 1}
+eval nop {global:out[2]|assert equals int 2}
+eval nop {global:out[3]|assert equals int 3}
+eval nop {global:out[4]|assert equals int 4}
+eval nop {global:out[5]|assert equals int 5}
+
+exit

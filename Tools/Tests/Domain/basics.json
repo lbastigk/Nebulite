@@ -1,43 +1,43 @@
 [
     {
-        "command": "help",
-        "expected": { "cout": null, "cerr": [] }
+        "command": "set-fps 60 ; wait 1; error Aborting due to error!",
+        "expected": { "cout": [], "cerr": ["Aborting due to error!"], "ignore_exit": true }
     },
     {
-        "command": "echo 1234",
-        "expected": { "cout": ["1234"], "cerr": [] }
+        "command": "task TaskFiles/Tests/Domain/General/nop.nebs",
+        "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "warn 1234",
-        "expected": { "cout": [], "cerr": ["1234"] }
+        "command": "task TaskFiles/Tests/Domain/General/if.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/Domain/General/for.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/Domain/General/must-throw.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/Domain/General/eval.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "assert $(eq(2+2,4))",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "assert $(eq(2+2,5))",
+        "expected": { "cout": [], "cerr": ["Critical Error: A custom assertion failed.", "Assertion failed: $(eq(2+2,5)) is not true."], "ignore_exit": true }
     },
     {
         "command": "'echo testing multiline echo ; echo this is the second line'",
         "expected": { "cout": [ "testing multiline echo", "this is the second line" ], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/ArgumentParsing/echoTests.nebs",
-        "expected": {
-            "cout": [
-                "1234",
-                "Hello, World!",
-                "Hello, World!",
-                "Hello, World!",
-                "Multiple  spaces  between  words  are  always  preserved",
-                "Multiple  spaces  between  words  are  always  preserved",
-                "Multiple  spaces  between  words  are  always  preserved",
-                "  Leading spaces are always preserved",
-                "  Leading spaces are always preserved",
-                "  Leading spaces are always preserved",
-                "Trailing spaces inside double quotes preserved  ",
-                "Trailing spaces inside single quotes preserved  "
-            ],
-            "cerr": []
-        }
-    },
-    {
-        "command": "'set-fps 60 ; wait 30 ; exit'",
-        "expected": { "cout": [], "cerr": [] }
+        "command": "print physics.G",
+        "expected": { "cout": ["6.6743e-11"], "cerr": [] }
     },
     {
         "command": "task TaskFiles/Tests/Functional/NebuliteError.nebs",
@@ -49,24 +49,5 @@
             ],
             "ignore_exit": true
         }
-    },
-    {
-        "command": [
-            "# ensures that help works properly",
-            "# simply checks if help <foo> returns without error and with an expected output",
-            "help set",
-            "exit"
-        ],
-        "expected": {
-            "cout": ["", "Help for function 'set':", "", "Set a key to a string value in the JSON document.", "", "Usage: set <key> [value]", "If no value is provided, the value will be set to an empty string.", ""],
-            "cerr": []
-        }
-    },
-    {
-        "command": [
-            "# Test completion",
-            "__complete__ feature-"
-        ],
-        "expected": { "cout": ["feature-test"], "cerr": [] }
     }
 ]

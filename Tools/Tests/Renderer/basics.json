@@ -1,0 +1,6 @@
+[
+    {
+        "command": "'set-fps 60 ; wait 30 ; exit'",
+        "expected": { "cout": [], "cerr": [] }
+    }
+]
