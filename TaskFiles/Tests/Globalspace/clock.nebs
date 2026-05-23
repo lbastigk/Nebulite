@@ -1,26 +1,27 @@
+# Renderer required for time to work
 set-fps 1000
+
+# Fixed dt is required for proper testing
 time set-fixed-dt 1
+
+# Add a clock that ticks every 10 ms, with id ms000010
 add-clock 10
+
+# Wait until just before the first clock tick
 wait 99
 
 # One frame before first clock tick
-print time.clocks.status.ms000010
-print time.t_ms
+eval nop {global:time.clocks.status.ms000010|assert equals int 0}
+eval nop {global:time.t_ms|assert equals int 99}
 wait 1
-# First clock tick
-print time.clocks.status.ms000010
-print time.t_ms
-wait 1
-# One frame after first clock tick
-print time.clocks.status.ms000010
-print time.t_ms
 
-# Expected output:
-# Loading task list from file: ...
-# 0.000000
-# 99
-# 1.000000
-# 100
-# 0.000000
-# 101
+# First clock tick
+eval nop {global:time.clocks.status.ms000010|assert equals int 1}
+eval nop {global:time.t_ms|assert equals int 100}
+wait 1
+
+# One frame after first clock tick
+eval nop {global:time.clocks.status.ms000010|assert equals int 0}
+eval nop {global:time.t_ms|assert equals int 101}
+
 exit

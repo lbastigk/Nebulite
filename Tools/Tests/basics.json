@@ -40,14 +40,6 @@
         "expected": { "cout": [], "cerr": [] }
     },
     {
-        "command": "task TaskFiles/Tests/Renderer/snapshot.nebs",
-        "expected": { "cout": [], "cerr": [] }
-    },
-    {
-        "command": "task TaskFiles/Tests/Globalspace/echo_time.nebs",
-        "expected": { "cout": [ "0.001", "1.001" ], "cerr": [] }
-    },
-    {
         "command": "task TaskFiles/Tests/Functional/NebuliteError.nebs",
         "expected": {
             "cout": [],

@@ -1,0 +1,18 @@
+[
+    {
+        "command": "task TaskFiles/Tests/Globalspace/frameCount.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/Globalspace/dtFixed.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/Globalspace/clock.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": "task TaskFiles/Tests/Globalspace/echo_time.nebs",
+        "expected": { "cout": [ "0.001", "1.001" ], "cerr": [] }
+    }
+]

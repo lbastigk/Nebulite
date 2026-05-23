@@ -1,0 +1,10 @@
+# Test to check initial time.t_ms value in debug vs release builds
+set-fps 1000
+time set-fixed-dt 1
+wait 1
+
+# Assert initial time values immediately after initialization
+eval nop {global:time.t_ms|assert equals int 1}
+eval nop {global:time.dt|assert equals string 0.001}
+
+exit

@@ -1,0 +1,4 @@
+set-fps 60 # Renderer needs to exist for time to work
+wait 31
+eval nop {global:time.frameCount|assert equals int 30}
+exit

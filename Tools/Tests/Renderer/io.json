@@ -1,0 +1,6 @@
+[
+    {
+        "command": "task TaskFiles/Tests/Renderer/snapshot.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    }
+]

@@ -18,7 +18,6 @@
         //---------------------------------------
         // Basic tests
         "Tools/Tests/basics.json",
-        "Tools/Tests/time.json",
         //---------------------------------------
         // Tests from the featureTest DomainModule, for calling hardcoded test functions
         "Tools/Tests/Integrated/funcTree.json",
@@ -68,8 +67,12 @@
         "Tools/Tests/Rulesets/DebugUtils.json",
         "Tools/Tests/Rulesets/selfOtherGlobalInteraction.json",
         //---------------------------------------
+        // GlobalSpace tests
+        "Tools/Tests/GlobalSpace/time.json",
+        //---------------------------------------
         // Renderer Tests
         "Tools/Tests/Renderer/tiling.json",
+        "Tools/Tests/Renderer/io.json",
         //---------------------------------------
         // RmlUi tests
         "Tools/Tests/RmlUi/basics.json",
