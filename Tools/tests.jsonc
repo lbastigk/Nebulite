@@ -16,18 +16,16 @@
     },
     "tests": [
         //---------------------------------------
-        // Basic tests
-        "Tools/Tests/basics.json",
+        // Domain tests
+        "Tools/Tests/Domain/basics.json",
+        "Tools/Tests/Domain/commonUtilities.json",
+        "Tools/Tests/Domain/deserialization.json",
+        "Tools/Tests/Domain/ruleset.json",
         //---------------------------------------
         // Tests from the featureTest DomainModule, for calling hardcoded test functions
         "Tools/Tests/Integrated/funcTree.json",
         "Tools/Tests/Integrated/keyCombination.json",
         "Tools/Tests/Integrated/context.json",
-        //---------------------------------------
-        // Domain tests
-        "Tools/Tests/Domain/commonUtilities.json",
-        "Tools/Tests/Domain/deserialization.json",
-        "Tools/Tests/Domain/ruleset.json",
         //---------------------------------------
         // Expression tests
         "Tools/Tests/Expression/basics.json",
@@ -69,6 +67,7 @@
         //---------------------------------------
         // GlobalSpace tests
         "Tools/Tests/GlobalSpace/time.json",
+        "Tools/Tests/GlobalSpace/mirror_draft_selection.json",
         //---------------------------------------
         // Renderer Tests
         "Tools/Tests/Renderer/tiling.json",
@@ -78,8 +77,7 @@
         "Tools/Tests/RmlUi/basics.json",
         //---------------------------------------
         // Misc tests, sort, expand and diversify later
-        "Tools/Tests/scenes.json",
-        "Tools/Tests/mirror_draft_selection.json"
+        "Tools/Tests/scenes.json"
     ],
     "timeout": 240 // Coverage reports can take a while to generate, so we set a higher timeout for all tests. Later on we should set a separate timeout for coverage tests, but for now this is good enough.
 }
