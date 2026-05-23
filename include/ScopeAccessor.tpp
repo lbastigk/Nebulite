@@ -15,6 +15,7 @@ namespace Nebulite {
 
 template <typename DomainType>
 ScopeAccessor::DomainModuleToken<DomainType>::DomainModuleToken(Module::Base::DomainModule<DomainType> const& dm){
+    // Root for a provided scope, type: DomainModule
     static auto constexpr root = Data::ScopedKeyView("providedScope.module.domain");
 
     if constexpr (std::is_same_v<DomainType, Core::GlobalSpace>) {

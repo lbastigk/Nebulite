@@ -16,31 +16,29 @@
 // Forward declarations
 
 namespace Nebulite::Core {
-class GlobalSpace; // Forward declaration of GlobalSpace
-class RenderObject; // Forward declaration of RenderObject
+class GlobalSpace;
+class RenderObject;
 } // namespace Nebulite::Core
 
 namespace Nebulite::Module::Domain::Renderer {
-class Console; // Forward declaration of Console
+class Console;
 } // namespace Nebulite::Module::Domain::Renderer
 
 namespace Nebulite::Module::Base {
 
-class RulesetModule; // Forward declaration of RulesetModule
+class RulesetModule;
 
 template<typename DomainType>
-class DomainModule; // Forward declaration of DomainModule
+class DomainModule;
 
 } // namespace Nebulite::Module::Base
 
-namespace Nebulite {
-
 //------------------------------------------
-// Define accessor for various scopes
-
+namespace Nebulite {
 /**
- * @brief Class to provide access tokens to the GlobalSpace document for various Domain types.
+ * @brief Class to provide access tokens to the GlobalSpace document for various classes.
  * @details The access tokens can only be constructed by their respective classes.
+ *          The access is restricted for some classes, providing only a subscope of the entire document.
  */
 class ScopeAccessor final {
 public:
@@ -91,7 +89,6 @@ public:
         friend class Module::Base::RulesetModule;
     };
 };
-
 } // namespace Nebulite
 #include "ScopeAccessor.tpp"
 #endif // SCOPEACCESSOR_HPP
