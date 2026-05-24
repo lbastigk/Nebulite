@@ -28,7 +28,7 @@
 
 //------------------------------------------
 #ifdef _WIN32
-#include <psapi.h>
+//#include <psapi.h>
 #include <windows.h>
 #else
 #include <sys/stat.h> // struct stat, S_ISLNK
@@ -66,10 +66,15 @@ bool safe_open_log(std::unique_ptr<std::ofstream>& out) {
 
 void getMemoryUsageMB(double& virtualMemMB, double& residentMemMB) {
 #ifdef _WIN32
+    // Broken atm
+    /*
     PROCESS_MEMORY_COUNTERS_EX pmc;
     GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
     virtualMemMB = static_cast<double>(pmc.PrivateUsage) / (1024.0 * 1024.0);
     residentMemMB = static_cast<double>(pmc.WorkingSetSize) / (1024.0 * 1024.0);
+    */
+    virtualMemMB = std::numeric_limits<double>::quiet_NaN();
+    residentMemMB = std::numeric_limits<double>::quiet_NaN();
 #else
     // derived from
     // https://stackoverflow.com/questions/669438/how-to-get-memory-usage-at-runtime-using-c
