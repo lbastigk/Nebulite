@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Thu May 21 19:27:54 CEST 2026
+Generated on: Mon May 25 00:11:46 CEST 2026
 
 ## Table of Contents
 
@@ -2413,7 +2413,7 @@ Usage: |multiply <number1> <number2> ... -> {number/array}
 ```
 Logical NOT operation on the current JSON value.
 Usage: |not -> {value:bool}
-Fails if the given value is not convertable to a boolean, e.g. objects, arrays or strings unlike 'true' or 'false'.
+If the given value is not convertible to bool, the value is assumed to be false and is set to true
 ```
 
 #### `pow`
