@@ -55,6 +55,13 @@ endif()
 # Linking
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -mwindows")
 
+# Ensure consistent exception handling for all static libraries
+# This prevents conflicts between Abseil's throw_delegate and libstdc++
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexceptions")
+
+# For MinGW, also ensure proper libstdc++ exception handling
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--allow-multiple-definition")
+
 if(NATIVE_WINDOWS)
     message(STATUS "Native Windows MinGW toolchain loaded")
 else()

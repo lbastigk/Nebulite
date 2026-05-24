@@ -20,6 +20,8 @@ set(STB_PATH            "${CMAKE_SOURCE_DIR}/external/stb")
 # Function to setup external subdirectories
 function(setup_external_subdirectories)
     message(STATUS "Setting up external subdirectories...")
+
+    # Add subdirectories for external dependencies
     add_subdirectory(${ABSEIL_PATH})
     add_subdirectory(${SDL3_PATH})
     add_subdirectory(${SDL3_TTF_PATH})
