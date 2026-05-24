@@ -204,23 +204,36 @@ Example for restricted key access:
 inline void exampleUsage() {
     // Our Data document
     Nebulite::Data::JSON doc;
+    
+    // We use two different scopes to demonstrate the access restictions:
+    // - physics
+    // - time
 
-    // Creating a JsonScope that acts on the "physics." sub-scope
-    Nebulite::Data::JsonScope physicsScope(doc, "physics.");
+    // Creating scopes from our document
+    Nebulite::Data::JsonScope physicsScope(doc, "physics");
+    Nebulite::Data::JsonScope timeScope(doc, "time");
 
     // Using ScopedKey to access data safely
-    Nebulite::Data::ScopedKey const velocityKey("physics.", "velocity");
-    Nebulite::Data::ScopedKey const timeInMsKey("time.","t_ms");
+    Nebulite::Data::ScopedKey const physicsKey("physics");
+    Nebulite::Data::ScopedKey const timeKey("time");
+    Nebulite::Data::ScopedKey const velocityKey = physicsKey.addMember("v");
+    Nebulite::Data::ScopedKey const timeInMsKey = timeKey.addMember("t_ms");
 
     // Set values
-    physicsScope.set<int>(velocityKey, 5.0);
+    physicsScope.set<double>(velocityKey, 5.0);
+    timeScope.set<double>(timeInMsKey, 100.0);
     
-    // Now we can get values using ScopedKey
+    // Now we can get values using ScopedKey.
+    // We "accidentally" try to access timeInMs from the physicsScope instead of the timeScope,
+    // which throws an exception, as the key is not in the physicsScope's access scope. 
+    // This allows us to catch potential bugs early on.
+    // An incorrect acces does NOT return a nullopt/unexpected value, 
+    // as false access attempts are considered logic errors
     auto const velocity = physicsScope.get<double>(velocityKey).value_or(0.0); // Success
     auto const timeInMs = physicsScope.get<double>(timeInMsKey).value_or(0.0); // Throws exception
 
-    Log::println("Velocity: ", velocity);
-    Log::println("Time in ms: ", timeInMs);
+    Nebulite::Global::capture().log.println("Velocity: ", velocity);
+    Nebulite::Global::capture().log.println("Time in ms: ", timeInMs);
 }
 ```
 
