@@ -23,9 +23,9 @@
         "Tools/Tests/Domain/ruleset.json",
         //---------------------------------------
         // Tests from the featureTest DomainModule, for calling hardcoded test functions
-        "Tools/Tests/Integrated/funcTree.json", // Basic functree initialization and execution tests
-        "Tools/Tests/Integrated/keyCombination.json", // A common pitfall is that key combinations aren't done properly (trailing dots, dots before array indices, etc.). This catches those kinds of issues.
-        "Tools/Tests/Integrated/context.json", // Tests access to self/other/global context-model
+        "Tools/Tests/Integrated/funcTree.json",         // Basic functree initialization and execution tests
+        "Tools/Tests/Integrated/keyCombination.json",   // JSON key combinations, making sure there are no trailing dots or other weirdness in key combinations: key.addMember("a").addIndex(3)...
+        "Tools/Tests/Integrated/context.json",          // Tests access to self/other/global context-model
         //---------------------------------------
         // Expression tests
         "Tools/Tests/Expression/basics.json",
@@ -44,7 +44,7 @@
         "Tools/Tests/JSON/Basics.json",
         "Tools/Tests/JSON/Caching.json",
         "Tools/Tests/JSON/ComplexData.json",
-        "Tools/Tests/JSON/TransformationBasics.json", // Test of basic transformation syntax
+        "Tools/Tests/JSON/TransformationBasics.json", // Test of basic transformation syntax, not specific to any particular transformation
         //---------------------------------------
         // JSON transformation tests
         "Tools/Tests/JSON/Transformations/Arithmetic.json",
