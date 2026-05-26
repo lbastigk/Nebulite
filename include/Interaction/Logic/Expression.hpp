@@ -186,7 +186,7 @@ public:
          * @param formatter The formatter string to parse.
          * @return a formatter, or nullopt
          */
-        static Formatter readFormatter(std::string const& formatter);
+        static Formatter readFormatter(std::string_view const& formatter);
 
         [[nodiscard]] std::string format(double const& value) const ;
     };
@@ -459,13 +459,13 @@ private:
      * @brief Used to parse a string token of type "eval" into a component.
      * @param token The token to parse.
      */
-    void parseTokenTypeEval(std::string const& token);
+    void parseTokenTypeEval(std::string_view const& token);
 
     /**
      * @brief Used to parse a string token of type "variable" into a component.
      * @param token The token to parse
      */
-    void parseTokenTypeVariable(std::string const& token);
+    void parseTokenTypeVariable(std::string_view const& token);
 
     /**
      * @brief Used to parse a string token of type "text" into a component.

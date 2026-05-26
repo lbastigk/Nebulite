@@ -25,7 +25,7 @@ void General::bindTransformations() {
     bindTransformation(&General::assign, assignName, assignDesc);
 }
 
-bool General::setString(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool General::setString(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey.addMember(args[1]);
     auto const value = std::string(args[2]);
@@ -33,11 +33,11 @@ bool General::setString(std::span<std::string const> const& args, Data::JsonScop
     return true;
 }
 
-bool General::setInt(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool General::setInt(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey.addMember(args[1]);
     try {
-        int const value = std::stoi(args[2]);
+        int const value = std::stoi(std::string(args[2]));
         jsonDoc->set<int>(key, value);
         return true;
     } catch (...) {
@@ -45,11 +45,11 @@ bool General::setInt(std::span<std::string const> const& args, Data::JsonScope* 
     }
 }
 
-bool General::setDouble(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool General::setDouble(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey.addMember(args[1]);
     try {
-        double const value = std::stod(args[2]);
+        double const value = std::stod(std::string(args[2]));
         jsonDoc->set<double>(key, value);
         return true;
     } catch (...) {
@@ -57,16 +57,16 @@ bool General::setDouble(std::span<std::string const> const& args, Data::JsonScop
     }
 }
 
-bool General::setBool(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool General::setBool(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3) return false;
     auto const key = rootKey.addMember(args[1]);
-    std::string const& valStr = args[2];
+    auto const& valStr = args[2];
     bool const value = valStr == "true";
     jsonDoc->set<bool>(key, value);
     return true;
 }
 
-bool General::removeMember(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool General::removeMember(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() < 2) return false;
     for (auto const& arg : args.subspan(1)) {
         auto const key = rootKey.addMember(arg);
@@ -75,7 +75,7 @@ bool General::removeMember(std::span<std::string const> const& args, Data::JsonS
     return true;
 }
 
-bool General::assign(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool General::assign(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.empty()) return false;
     Interaction::Logic::Assignment ass;
     ass.parse(Utility::StringHandler::recombineArgs(args.subspan(1)));

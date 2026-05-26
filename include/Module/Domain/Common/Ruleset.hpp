@@ -33,7 +33,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event invokeOnce(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event invokeOnce(std::span<std::string_view const> const& args) const ;
     static auto constexpr invokeOnceName = "invoke";
     static auto constexpr invokeOnceDesc = "Applies all given rulesets once on the next update\n"
         "\n"

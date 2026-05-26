@@ -32,7 +32,7 @@ Constants::Event SimpleData::updateHook() {
 //------------------------------------------
 // General set/get/remove functions
 
-Constants::Event SimpleData::set(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::set(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -43,7 +43,7 @@ Constants::Event SimpleData::set(std::span<std::string const> const& args, Inter
     return Constants::Event::Success;
 }
 
-Constants::Event SimpleData::assign(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope){
+Constants::Event SimpleData::assign(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope){
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -58,7 +58,7 @@ Constants::Event SimpleData::assign(std::span<std::string const> const& args, In
     return Constants::Event::Success;
 }
 
-Constants::Event SimpleData::move(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::move(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -72,7 +72,7 @@ Constants::Event SimpleData::move(std::span<std::string const> const& args, Inte
     return Constants::Event::Success;
 }
 
-Constants::Event SimpleData::copy(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::copy(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -86,7 +86,7 @@ Constants::Event SimpleData::copy(std::span<std::string const> const& args, Inte
     return Constants::Event::Success;
 }
 
-Constants::Event SimpleData::keyDelete(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::keyDelete(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -102,7 +102,7 @@ Constants::Event SimpleData::keyDelete(std::span<std::string const> const& args,
 //------------------------------------------
 // Array manipulation functions
 
-Constants::Event SimpleData::ensureArray(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::ensureArray(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         ctx.self.capture.error.println("Error: Too few arguments for ensureArray command.");
@@ -119,7 +119,7 @@ Constants::Event SimpleData::ensureArray(std::span<std::string const> const& arg
     return Constants::Event::Success;
 }
 
-Constants::Event SimpleData::push_back(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
+Constants::Event SimpleData::push_back(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
         ctx.self.capture.error.println("Error: Too many arguments for push_front command.");
@@ -151,7 +151,7 @@ Constants::Event SimpleData::push_back(std::span<std::string const> const& args,
     return Constants::Event::Success;
 }
 
-Constants::Event SimpleData::pop_back(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event SimpleData::pop_back(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         ctx.self.capture.error.println("Error: Too few arguments for push_back command.");
@@ -164,7 +164,7 @@ Constants::Event SimpleData::pop_back(std::span<std::string const> const& args, 
     auto const key = ctxScope.self.getRootScope().addMember(args[1]);
 
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
-        std::vector<std::string> ensureArrayArgs = {"", args[1]};
+        std::vector<std::string_view> ensureArrayArgs = {"", args[1]};
         if (Constants::Event const result = ensureArray(ensureArrayArgs, ctx, ctxScope); result != Constants::Event::Success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
@@ -182,7 +182,7 @@ Constants::Event SimpleData::pop_back(std::span<std::string const> const& args, 
     return Constants::Event::Success;
 }
 
-Constants::Event SimpleData::push_front(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event SimpleData::push_front(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() > 3) {
         ctx.self.capture.error.println("Error: Too many arguments for push_front command.");
@@ -199,7 +199,7 @@ Constants::Event SimpleData::push_front(std::span<std::string const> const& args
     }
 
     if (ctxScope.self.memberType(key) != Data::KeyType::array) {
-        std::vector<std::string> ensureArrayArgs = {"", args[1]};
+        std::vector<std::string_view> ensureArrayArgs = {"", args[1]};
         if (Constants::Event const result = ensureArray(ensureArrayArgs, ctx, ctxScope); result != Constants::Event::Success) {
             ctx.self.capture.error.println("Error: Failed to ensure array for key '", std::string(args[1]), "'.");
             return result;
@@ -233,7 +233,7 @@ Constants::Event SimpleData::push_front(std::span<std::string const> const& args
     return Constants::Event::Success;
 }
 
-Constants::Event SimpleData::pop_front(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event SimpleData::pop_front(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         ctx.self.capture.error.println("Error: Too few arguments for pop_front command.");

@@ -173,7 +173,7 @@ See also: [FuncTree](#functree)
 ### FuncTree
 Central function parsing logic. Allows for Functions of signature 
 
-`returnValue foo(std::span<std::string const> const& args, additionalArgs...)` 
+`returnValue foo(std::span<std::string_view const> const& args, additionalArgs...)` 
 
 to be bound to a keyword and executed with this keyword and its arguments. 
 

@@ -118,10 +118,10 @@ std::unique_lock<std::recursive_mutex> Domain::lockDocument() const {
     return domainScope.lock();
 }
 
-std::vector<std::string> Domain::stringToDeserializeTokens(std::string const& serialOrLinkWithCommands) {
+std::vector<std::string_view> Domain::stringToDeserializeTokens(std::string_view const& serialOrLinkWithCommands) {
     //------------------------------------------
     // Split the input into tokens
-    std::vector<std::string> tokens;
+    std::vector<std::string_view> tokens;
     if (Data::JSON::isJsonOrJsonc(serialOrLinkWithCommands)) {
         // Direct JSON string, no splitting
         tokens.push_back(serialOrLinkWithCommands);
@@ -133,7 +133,7 @@ std::vector<std::string> Domain::stringToDeserializeTokens(std::string const& se
 }
 
 void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
-    std::vector<std::string> tokens;
+    std::vector<std::string_view> tokens;
 
     //------------------------------------------
     // Check if the input is of type {variable|t1|t2|...}|c1|c2|...
@@ -144,7 +144,7 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
         auto parts = Utility::StringHandler::splitOnSameDepthOf(serialOrLinkWithCommands, Utility::StringHandler::Delimiter::brace);
 
         // First part is the variable with transformations
-        std::string const& variableWithTransformations = parts[0];
+        auto const& variableWithTransformations = parts[0];
 
         // Setup context for parsing
         ContextScope const ctxBase{domainScope, domainScope, Global::instance().domainScope};
@@ -176,7 +176,7 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
 
         // Pass only the serial/link part to deserialize
         // Argument parsing happens at the higher level
-        std::string const serialOrLink = tokens[0];
+        auto const& serialOrLink = tokens[0];
         domainScope.deserialize(serialOrLink);
         tokens.erase(tokens.begin()); // Remove the first token (path or serialized JSON)
     }
@@ -191,7 +191,7 @@ void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
         std::string callStr;
         if (auto const pos = token.find('='); pos != std::string::npos) {
             // Handle transformation (key=value)
-            std::string keyAndValue = token;
+            auto keyAndValue = std::string(token);
             if (pos != std::string::npos)
                 keyAndValue[pos] = ' ';
 

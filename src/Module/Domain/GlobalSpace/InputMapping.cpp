@@ -36,7 +36,7 @@ InputMapping::InputMapping(ConstructorParams const& params) :
     bindFunction(&InputMapping::unlock, unlockName, unlockDesc);
 }
 
-Constants::Event InputMapping::lockOnce(std::span<std::string const> const& args) {
+Constants::Event InputMapping::lockOnce(std::span<std::string_view const> const& args) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
@@ -48,7 +48,7 @@ Constants::Event InputMapping::lockOnce(std::span<std::string const> const& args
     if (it == mappings.end()) {
         // Find all actions that start with the given argument + "::"
         for (auto& [action, entry] : mappings) {
-            if (action.starts_with(args[1] + "::")) {
+            if (Utility::StringHandler::startsWithSequence(action, args[1], "::")) {
                 entry.lockState = MapEntry::LockState::lockOnce;
             }
         }
@@ -58,7 +58,7 @@ Constants::Event InputMapping::lockOnce(std::span<std::string const> const& args
     return Constants::Event::Success;
 }
 
-Constants::Event InputMapping::lockOn(std::span<std::string const> const& args) {
+Constants::Event InputMapping::lockOn(std::span<std::string_view const> const& args) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
@@ -70,7 +70,7 @@ Constants::Event InputMapping::lockOn(std::span<std::string const> const& args) 
     if (it == mappings.end()) {
         // Find all actions that start with the given argument + "::"
         for (auto& [action, entry] : mappings) {
-            if (action.starts_with(args[1] + "::")) {
+            if (Utility::StringHandler::startsWithSequence(action, args[1], "::")) {
                 entry.lockState = MapEntry::LockState::lockOn;
             }
         }
@@ -80,7 +80,7 @@ Constants::Event InputMapping::lockOn(std::span<std::string const> const& args) 
     return Constants::Event::Success;
 }
 
-Constants::Event InputMapping::unlock(std::span<std::string const> const& args) {
+Constants::Event InputMapping::unlock(std::span<std::string_view const> const& args) {
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
@@ -92,7 +92,7 @@ Constants::Event InputMapping::unlock(std::span<std::string const> const& args) 
     if (it == mappings.end()) {
         // Find all actions that start with the given argument + "::"
         for (auto& [action, entry] : mappings) {
-            if (action.starts_with(args[1] + "::")) {
+            if (Utility::StringHandler::startsWithSequence(action, args[1], "::")) {
                 entry.lockState = MapEntry::LockState::unlocked;
             }
         }

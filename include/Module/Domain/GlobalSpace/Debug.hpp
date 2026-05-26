@@ -38,7 +38,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event errorLog(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] Constants::Event errorLog(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr errorLog_name = "error-log";
     static auto constexpr errorLog_desc = "Activates or deactivates error logging to a file.\n"
         "Usage: error-log <on/off>\n"
@@ -49,7 +49,7 @@ public:
 
     // TODO: offer a per-domain clear option in Nebulite::Module::Domain::Common::Debug. This clears the global capture.
     //       perhaps naming them clear-all and clear respectively?
-    [[nodiscard]] static Constants::Event clearConsole(std::span<std::string const> const& args);
+    [[nodiscard]] static Constants::Event clearConsole(std::span<std::string_view const> const& args);
     static auto constexpr clearConsole_name = "clear";
     static auto constexpr clearConsole_desc = "Clears the console screen.\n"
         "Usage: clear\n"
@@ -73,7 +73,7 @@ public:
         "- <filenames>: Optional. One or more filenames to log the renderer state to.\n"
         "               If no filenames are provided, defaults to 'state.log.jsonc'.\n";
 
-    [[nodiscard]] static Constants::Event crash(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event crash(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr crash_name = "crash";
     static auto constexpr crash_desc = "Crashes the program, useful for checking if the testing suite can catch crashes.\n"
         "Usage: crash [<type>]\n"
@@ -84,21 +84,21 @@ public:
         "    - terminate  : Calls std::terminate()\n"
         "    - throw      : Throws an uncaught exception\n";
 
-    [[nodiscard]] static Constants::Event waitForInput(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] static Constants::Event waitForInput(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr waitForInput_name = "input-wait";
     static auto constexpr waitForInput_desc = "Waits for user input before continuing.\n"
         "Usage: input-wait [prompt]\n"
         "\n"
         "Note: This function pauses execution until the user presses Enter\n";
 
-    [[nodiscard]] Constants::Event standardFileRenderObject(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event standardFileRenderObject(std::span<std::string_view const> const& args) const ;
     static auto constexpr standardFileRenderObject_name = "standard-file render-object";
     static auto constexpr standardFileRenderObject_desc = "Logs a standard render object to a file: ./Resources/Renderobjects/standard.jsonc.\n"
         "Usage: standard-file render-object\n"
         "\n"
         "Note: This function creates or overwrites the file 'standard.jsonc' in the './Resources/Renderobjects/' directory.\n";
 
-    [[nodiscard]] static Constants::Event listExpressionFunctions(std::span<std::string const> const& args);
+    [[nodiscard]] static Constants::Event listExpressionFunctions(std::span<std::string_view const> const& args);
     static auto constexpr listExpressionFunctions_name = "expression-help";
     static auto constexpr listExpressionFunctions_desc = "Lists all available expression functions with their descriptions.\n"
         "Usage: expression-help\n"

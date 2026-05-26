@@ -21,7 +21,7 @@ namespace Nebulite::Interaction::Rules {
  * @brief Represents a listener for a specific topic
  */
 struct Listener {
-    explicit Listener(Execution::Domain& d, std::string const& t);
+    explicit Listener(Execution::Domain& d, std::string_view const& t);
     ~Listener() = default;
 
     Execution::Domain& domain;

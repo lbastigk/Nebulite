@@ -107,21 +107,21 @@ template <typename returnValue, typename... additionalArgs>
 void FuncTree<returnValue, additionalArgs...>::bindFunction(WrappedFunction const& func, std::string_view const& name, std::string_view const& helpDescription) {
     // If the name has a whitespace, the function has to be bound to a category hierarchically
     if (name.contains(' ')) {
-        std::vector<std::string> const pathStructure = Utility::StringHandler::split(name, ' ');
+        auto const pathStructure = Utility::StringHandler::split(name, ' ');
         if (pathStructure.size() < 2) {
             BindErrorMessage::invalidFunctionName(capture, name);
         }
         absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
         FuncTree* targetTree = this;
         for (size_t idx = 0; idx < pathStructure.size() - 1; idx++) {
-            std::string const& currentCategoryName = pathStructure[idx];
+            auto const& currentCategoryName = pathStructure[idx];
             if (currentCategoryMap->find(currentCategoryName) == currentCategoryMap->end()) {
                 BindErrorMessage::missingCategory(capture, TreeName, currentCategoryName, std::string(name));
             }
             targetTree = (*currentCategoryMap)[currentCategoryName].tree.get();
             currentCategoryMap = &targetTree->bindingContainer.categories;
         }
-        std::string const& functionName = pathStructure.back();
+        auto const& functionName = pathStructure.back();
         targetTree->bindFunction(func, functionName, helpDescription);
         return;
     }
@@ -189,7 +189,7 @@ void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
     }
 
     // Category traversal
-    std::vector<std::string> const categoryStructure = Utility::StringHandler::split(name, ' ');
+    auto const categoryStructure = Utility::StringHandler::split(name, ' ');
     absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
     for (auto const& currentCategoryName : categoryStructure | std::views::take(categoryStructure.size() - 1)) {
         if (currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()) {
@@ -201,7 +201,7 @@ void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
         }
     }
     // Last category, create it, if it doesn't exist yet
-    std::string const& functionName = categoryStructure.back();
+    auto const& functionName = categoryStructure.back();
     if (currentCategoryMap->find(functionName) != currentCategoryMap->end()) {
         // Final category we wish to create already exists
         BindErrorMessage::categoryExists(capture, std::string(name));
@@ -631,28 +631,30 @@ returnValue FuncTree<returnValue, additionalArgs...>::parseStr(std::string_view 
 
     // Quote-aware tokenization
     auto const [args, unclosedQuote] = Utility::StringHandler::parseQuotedArguments(cmd);
+    std::vector<std::string_view> argsView;
+    std::ranges::transform(args, std::back_inserter(argsView), [](const std::string& str) { return std::string_view(str); });
     if (unclosedQuote) {
         capture.error.println("Warning: Unclosed quote in command: ", cmd);
     }
-    return parse(args, addArgs...);
+    return parse(argsView, addArgs...);
 }
 
 template <typename returnValue, typename... additionalArgs>
-returnValue FuncTree<returnValue, additionalArgs...>::parse(std::vector<std::string> const& args, additionalArgs... addArgs) {
+returnValue FuncTree<returnValue, additionalArgs...>::parse(std::vector<std::string_view> const& args, additionalArgs... addArgs) {
     // Turn into span
     std::span const argsSpan(args.data(), args.size());
     return parse(argsSpan, addArgs...);
 }
 
 template <typename returnValue, typename... additionalArgs>
-returnValue FuncTree<returnValue, additionalArgs...>::parse(std::span<std::string const> const& args, additionalArgs... addArgs) {
+returnValue FuncTree<returnValue, additionalArgs...>::parse(std::span<std::string_view const> const& args, additionalArgs... addArgs) {
     auto actualArgs = args.subspan(1); // First arg is caller, remove
     processVariableArguments(actualArgs);
     if (actualArgs.empty()) {
         return standardReturn.valDefault; // Nothing to execute, return standard
     }
     // Call function
-    std::string funcName = actualArgs.front();
+    auto funcName = actualArgs.front();
     auto inheritedTree = findInInheritedTrees(funcName);
     if (inheritedTree != nullptr) {
         // Function is in inherited tree, call there
@@ -664,7 +666,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::parse(std::span<std::strin
 }
 
 template <typename returnValue, typename... additionalArgs>
-returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::string const& name, std::span<std::string const> const& args, additionalArgs... addArgs) {
+returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::string_view const& name, std::span<std::string_view const> const& args, additionalArgs... addArgs) {
     // Call preParse function if set
     if (preParse != nullptr) {
         if (returnValue err = preParse(); !Math::isEqual(err, standardReturn.valDefault)) {
@@ -689,9 +691,16 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
                 size_t const argc = args.size();
                 std::vector<char const*> argv_vec;
                 argv_vec.reserve(argc + 1);
+                std::vector<std::string> argsOwned;
                 std::transform(
                     args.begin(),
                     args.end(),
+                    std::back_inserter(argsOwned),
+                    [](std::string_view const& str) { return std::string(str); }
+                );
+                std::transform(
+                    argsOwned.begin(),
+                    argsOwned.end(),
                     std::back_inserter(argv_vec),
                     [](std::string const& str) { return str.c_str(); }
                 );

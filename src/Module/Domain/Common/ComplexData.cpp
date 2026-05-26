@@ -37,14 +37,14 @@ Constants::Event ComplexData::querySet() {
     return Constants::StandardCapture::Error::Functional::functionNotImplemented(domain.capture);
 }
 
-Constants::Event ComplexData::jsonSet(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event ComplexData::jsonSet(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
 
     // Argument parsing
-    std::string const& myKey = args[1];
+    auto const& myKey = args[1];
     std::string const expression = Utility::StringHandler::recombineArgs(args.subspan(2));
 
     // Evaluate
@@ -53,7 +53,7 @@ Constants::Event ComplexData::jsonSet(std::span<std::string const> const& args, 
     return Constants::Event::Success;
 }
 
-Constants::Event ComplexData::evaluateMember(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event ComplexData::evaluateMember(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     auto lock = ctxScope.self.lock(); // Lock the domain for thread-safe access
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
@@ -76,7 +76,7 @@ Constants::Event ComplexData::evaluateMember(std::span<std::string const> const&
     return Constants::Event::Success;
 }
 
-Constants::Event ComplexData::evaluateRecursive(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope){
+Constants::Event ComplexData::evaluateRecursive(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope){
     std::function<void(Data::ScopedKey const&)> recursiveEvaluate = [&](auto const& key) -> void {
         switch (ctxScope.self.memberType(key)) {
             case Data::KeyType::value:

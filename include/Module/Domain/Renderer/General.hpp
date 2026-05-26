@@ -57,7 +57,7 @@ public:
      *          - RenderObject deletion mechanism in Renderer::update()
      *          As of now, the implementation is fully functional so it's a low priority task.
      */
-    [[nodiscard]] Constants::Event spawn(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event spawn(std::span<std::string_view const> const& args) const ;
     static auto constexpr spawn_name = "spawn";
     static auto constexpr spawn_desc = "Spawn a RenderObject from a json/jsonc file.\n"
         "\n"
@@ -72,7 +72,7 @@ public:
         "- './Resources/Renderobjects/Planets/sun.jsonc'\n"
         "and spawns the first found object.\n";
 
-    [[nodiscard]] Constants::Event envLoad(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event envLoad(std::span<std::string_view const> const& args) const ;
     static auto constexpr envLoad_name = "env load";
     static auto constexpr envLoad_desc = "Load an environment/level from a json/jsonc file.\n"
         "\n"
@@ -147,7 +147,7 @@ public:
         "\n"
         "Usage: selected-object get <idx>\n";
 
-    [[nodiscard]] Constants::Event selectedObjectParse(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
+    [[nodiscard]] Constants::Event selectedObjectParse(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
     static auto constexpr selectedObjectParse_name = "selected-object parse";
     static auto constexpr selectedObjectParse_desc = "Parse a command on the selected RenderObject.\n"
         "\n"

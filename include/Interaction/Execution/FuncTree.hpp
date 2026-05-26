@@ -43,8 +43,8 @@ public:
 
     // Command argument span types
     struct CmdArgs {
-        using Span = std::span<std::string const>;
-        using SpanConstRef = std::span<std::string const> const&;
+        using Span = std::span<std::string_view const>;
+        using SpanConstRef = std::span<std::string_view const> const&;
     };
 
     // Supported function signatures
@@ -154,8 +154,8 @@ public:
      * @return The return value of the executed function, or the standard/error value.
      */
     returnValue parseStr(std::string_view const& cmd, additionalArgs... addArgs);
-    returnValue parse(std::vector<std::string> const& args, additionalArgs... addArgs);
-    returnValue parse(std::span<std::string const> const& args, additionalArgs... addArgs);
+    returnValue parse(std::vector<std::string_view> const& args, additionalArgs... addArgs);
+    returnValue parse(std::span<std::string_view const> const& args, additionalArgs... addArgs);
 
     //------------------------------------------
     // Binding (Functions, Categories, Variables)
@@ -229,7 +229,7 @@ public:
      * @param patternStr The pattern to match for completions, full command
      * @return A vector of possible completions
      */
-    std::vector<std::string> findCompletionForFullCommand(std::string const& patternStr);
+    std::vector<std::string> findCompletionForFullCommand(std::string_view const& patternStr);
 
 private:
     // Name of the tree, used for help and output
@@ -301,13 +301,13 @@ private:
      * @param addArgs Additional arguments to pass to the function.
      * @return The return value of the function.
      */
-    returnValue executeFunction(std::string const& name, std::span<std::string const> const& args, additionalArgs... addArgs);
+    returnValue executeFunction(std::string_view const& name, std::span<std::string_view const> const& args, additionalArgs... addArgs);
 
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
      * @return The standard return value.
      */
-    returnValue help(std::span<std::string const> const& args);
+    returnValue help(std::span<std::string_view const> const& args);
 
     /**
      * @brief Retrieves a list of all functions and their descriptions.
@@ -336,7 +336,7 @@ private:
     /**
      * @brief Displays detailed help for a specific function, category, or variable.
      */
-    void specificHelp(std::string const& funcName);
+    void specificHelp(std::string_view const& funcName);
 
     using categoryIterator = decltype(bindingContainer.categories)::iterator;
     using functionIterator = decltype(bindingContainer.functions)::iterator;
@@ -360,7 +360,7 @@ private:
      * @param name Name of the function/category/variable to find
      * @return SearchResult struct containing found flags
      */
-    BindingSearchResult find(std::string const& name);
+    BindingSearchResult find(std::string_view const& name);
 
     /**
      * @brief Displays general help for all functions, categories, and variables.
@@ -374,11 +374,11 @@ private:
      * @brief Processes variable arguments at the start of the argument list.
      * @param args The arguments to remove and process variable assignments from.
      */
-    void processVariableArguments(std::span<std::string const>& args) {
+    void processVariableArguments(std::span<std::string_view const>& args) {
         while (!args.empty()) {
             if (auto const& arg = args[0]; arg.length() >= 2 && arg.starts_with("--")) {
                 // Extract name
-                std::string name = arg.substr(2);
+                auto name = arg.substr(2);
 
                 // Set variable if attached
                 bool found = false;
@@ -419,7 +419,7 @@ private:
      * @param funcName Name of the function to find
      * @return Pointer to the FuncTree where the function was found, or nullptr if not found.
      */
-    std::shared_ptr<FuncTree> findInInheritedTrees(std::string const& funcName) {
+    std::shared_ptr<FuncTree> findInInheritedTrees(std::string_view const& funcName) {
         // Prerequisite if an inherited FuncTree is linked
         if (!inheritedTrees.empty() && !hasFunction(funcName)) {
             // Check if the function is in an inherited tree
@@ -442,14 +442,14 @@ private:
      * @param args A list of arguments to complete
      * @return The standard return value.
      */
-    returnValue complete(std::span<std::string const> const& args);
+    returnValue complete(std::span<std::string_view const> const& args);
 
     /**
      * @brief Finds possible completions for a given pattern and prefix in the current FuncTree.
      * @param pattern The pattern to match for completions
      * @return A vector of possible completions
      */
-    std::vector<std::string> findCompletions(std::string const& pattern);
+    std::vector<std::string> findCompletions(std::string_view const& pattern);
 
     /**
      * @brief Traverses into a category based on the provided name.
@@ -457,7 +457,7 @@ private:
      * @param ftree Pointer to the current FuncTree
      * @return Pointer to the FuncTree of the category, or nullptr if not found.
      */
-    FuncTree* traverseIntoCategory(std::string const& categoryName, FuncTree const* ftree);
+    FuncTree* traverseIntoCategory(std::string_view const& categoryName, FuncTree const* ftree);
 };
 } // namespace Nebulite::Interaction::Execution
 

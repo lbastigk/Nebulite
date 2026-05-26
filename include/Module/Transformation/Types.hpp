@@ -54,7 +54,7 @@ public:
     static auto constexpr deserializeDesc = "Deserializes the current JSON string value stored in root.\n"
         "Usage: |deserialize -> {value}\n";
 
-    static bool exists(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static bool exists(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr existsName = "exists";
     static auto constexpr existsDesc = "Checks if a specified key exists in the current JSON object.\n"
         "If no key is provided, checks if the current JSON value is not null.\n"

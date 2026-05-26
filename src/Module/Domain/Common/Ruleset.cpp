@@ -26,7 +26,7 @@ Constants::Event Ruleset::updateHook() {
 //------------------------------------------
 // Available Functions
 
-Constants::Event Ruleset::invokeOnce(std::span<std::string const> const& args) const {
+Constants::Event Ruleset::invokeOnce(std::span<std::string_view const> const& args) const {
     if (args.size() > 1) {
         std::string const arg = Utility::StringHandler::recombineArgs(args.subspan(1));
         if (auto const rs = Interaction::Rules::Construction::RulesetCompiler::parseSingle(arg, domain); rs.has_value()) {

@@ -34,14 +34,14 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event broadcast(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event broadcast(std::span<std::string_view const> const& args) const ;
     static auto constexpr broadcast_name = "ruleset broadcast";
     static auto constexpr broadcast_desc = "Broadcasts a ruleset to its specified topic.\n"
         "Usage: broadcast <ruleset>\n"
         "\n"
         "- ruleset: The ruleset content to be broadcasted.";
 
-    [[nodiscard]] Constants::Event listen(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event listen(std::span<std::string_view const> const& args) const ;
     static auto constexpr listen_name = "ruleset listen";
     static auto constexpr listen_desc = "Listens for rulesets on a specified topic.\n"
         "Usage: listen <topic>\n"

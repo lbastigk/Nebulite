@@ -71,12 +71,11 @@ bool Types::deserialize(Data::JsonScope* jsonDoc) {
     return true;
 }
 
-bool Types::exists(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool Types::exists(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() > 2) {
         return false;
     }
-    std::string const key = args.size() == 2 ? args[1] : "";
-    if (jsonDoc->memberType(rootKey.addMember(key)) == Data::KeyType::null) {
+    if (jsonDoc->memberType(rootKey.addMember(args.size() == 2 ? args[1] : "")) == Data::KeyType::null) {
         jsonDoc->set<bool>(rootKey, false);
     }
     else {

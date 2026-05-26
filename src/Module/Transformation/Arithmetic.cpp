@@ -30,7 +30,7 @@ void Arithmetic::bindTransformations() {
     bindTransformation(&Arithmetic::root, rootName, rootDesc);
 }
 
-bool Arithmetic::forall(std::span<std::string const> const& args, std::function<bool(std::string const&, Data::ScopedKeyView const& key)> const& func){
+bool Arithmetic::forall(std::span<std::string_view const> const& args, std::function<bool(std::string_view const&, Data::ScopedKeyView const& key)> const& func){
     if (args.size() < 2) {
         return false;
     }
@@ -50,25 +50,25 @@ bool Arithmetic::forall(std::span<std::string const> const& args, std::function<
     }
 }
 
-bool Arithmetic::add(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
-        double const num = std::stod(arg);
+bool Arithmetic::add(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
+    return forall(args, [jsonDoc](std::string_view const& arg, Data::ScopedKeyView const& key) {
+        double const num = std::stod(std::string(arg));
         jsonDoc->set_add(key, num);
         return true;
     });
 }
 
-bool Arithmetic::multiply(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
-        double const num = std::stod(arg);
+bool Arithmetic::multiply(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
+    return forall(args, [jsonDoc](std::string_view const& arg, Data::ScopedKeyView const& key) {
+        double const num = std::stod(std::string(arg));
         jsonDoc->set_multiply(key, num);
         return true;
     });
 }
 
-bool Arithmetic::mod(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
-        double const modValue = std::stod(arg);
+bool Arithmetic::mod(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
+    return forall(args, [jsonDoc](std::string_view const& arg, Data::ScopedKeyView const& key) {
+        double const modValue = std::stod(std::string(arg));
         auto const currentValue = jsonDoc->get<double>(key).value_or(0.0);
         if (std::fabs(modValue) < std::numeric_limits<double>::epsilon()) {
             return false; // Modulo by zero is undefined
@@ -79,9 +79,9 @@ bool Arithmetic::mod(std::span<std::string const> const& args, Data::JsonScope* 
     });
 }
 
-bool Arithmetic::pow(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
-        double const exponent = std::stod(arg);
+bool Arithmetic::pow(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
+    return forall(args, [jsonDoc](std::string_view const& arg, Data::ScopedKeyView const& key) {
+        double const exponent = std::stod(std::string(arg));
         auto const currentValue = jsonDoc->get<double>(key).value_or(0.0);
         double const result = std::pow(currentValue, exponent);
         jsonDoc->set<double>(key, result);
@@ -89,17 +89,17 @@ bool Arithmetic::pow(std::span<std::string const> const& args, Data::JsonScope* 
     });
 }
 
-bool Arithmetic::subtract(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
-        double const num = - std::stod(arg);
+bool Arithmetic::subtract(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
+    return forall(args, [jsonDoc](std::string_view const& arg, Data::ScopedKeyView const& key) {
+        double const num = - std::stod(std::string(arg));
         jsonDoc->set_add(key, num);
         return true;
     });
 }
 
-bool Arithmetic::divide(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
-        double const divisor = std::stod(arg);
+bool Arithmetic::divide(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
+    return forall(args, [jsonDoc](std::string_view const& arg, Data::ScopedKeyView const& key) {
+        double const divisor = std::stod(std::string(arg));
         if (std::fabs(divisor) < std::numeric_limits<double>::epsilon()) {
             return false; // Division by zero is undefined
         }
@@ -109,9 +109,9 @@ bool Arithmetic::divide(std::span<std::string const> const& args, Data::JsonScop
     });
 }
 
-bool Arithmetic::root(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
-    return forall(args, [jsonDoc](std::string const& arg, Data::ScopedKeyView const& key) {
-        double const n = std::stod(arg);
+bool Arithmetic::root(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
+    return forall(args, [jsonDoc](std::string_view const& arg, Data::ScopedKeyView const& key) {
+        double const n = std::stod(std::string(arg));
         if (std::fabs(n) < std::numeric_limits<double>::epsilon()) {
             return false; // Root of order zero is undefined
         }
@@ -125,7 +125,7 @@ bool Arithmetic::root(std::span<std::string const> const& args, Data::JsonScope*
     });
 }
 
-bool Arithmetic::sqrt(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool Arithmetic::sqrt(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 1) {
         return false; // No arguments should be provided for sqrt, as it's an operator with a single operand (the current JSON value)
     }

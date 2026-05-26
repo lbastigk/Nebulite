@@ -209,7 +209,7 @@ std::string JsonScope::serialize(ScopedKeyView const& key) const {
     return baseDocument->serialize(key.full(*this));
 }
 
-void JsonScope::deserialize(std::string const& serialOrLink) {
+void JsonScope::deserialize(std::string_view const& serialOrLink) {
     JSON tempDoc;
     tempDoc.deserialize(serialOrLink);
     static ScopedKeyView constexpr key("");
@@ -220,7 +220,7 @@ void JsonScope::deserialize(std::string const& serialOrLink) {
 //------------------------------------------
 // Transform
 
-bool JsonScope::transform(std::span<std::string const> const& args){
+bool JsonScope::transform(std::span<std::string_view const> const& args){
     return JsonRvalueTransformer::instance().parseSingleTransformation(args, this);
 }
 

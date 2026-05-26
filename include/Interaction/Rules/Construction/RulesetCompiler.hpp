@@ -39,7 +39,7 @@ public:
      * @param self The Domain instance associated with the entry.
      * @return An optional shared pointer to the parsed Ruleset object, or std::nullopt if parsing failed.
      */
-    static std::optional<std::shared_ptr<Ruleset>> parseSingle(std::string const& identifier, Execution::Domain& self);
+    static std::optional<std::shared_ptr<Ruleset>> parseSingle(std::string_view const& identifier, Execution::Domain& self);
 
 private:
     /**

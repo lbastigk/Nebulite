@@ -44,7 +44,7 @@ public:
     static auto constexpr selfOtherGlobalEvaluation_desc = "Tests evaluation of self and other global variable access in one expression\n"
         "Usage: feature-test context-evaluation\n";
 
-    [[nodiscard]] Constants::Event keyCombination(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event keyCombination(std::span<std::string_view const> const& args) const ;
     static auto constexpr keyCombination_name = "feature-test key-combination";
     static auto constexpr keyCombination_desc = "Tests key-combinations for the ScopedKey class.\n"
         "Usage: feature-test key-combination <key1> <key2>\n"

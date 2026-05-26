@@ -34,7 +34,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event debug_collisionDetect_function(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event debug_collisionDetect_function(std::span<std::string_view const> const& args) const ;
     static auto constexpr debug_collisionDetect_function_name = "debug collision-detect function";
     static auto constexpr debug_collisionDetect_function_desc = "Tests collision detection of function names\n"
         "\n"
@@ -44,7 +44,7 @@ public:
         "\n"
         "Defaults to fail\n";
 
-    [[nodiscard]] Constants::Event debug_collisionDetect_category(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event debug_collisionDetect_category(std::span<std::string_view const> const& args) const ;
     static auto constexpr debug_collisionDetect_category_name = "debug collision-detect category";
     static auto constexpr debug_collisionDetect_category_desc = "Tests collision detection of category names\n"
         "\n"
@@ -54,7 +54,7 @@ public:
         "\n"
         "Defaults to fail\n";
 
-    [[nodiscard]] Constants::Event debug_collisionDetect_variable(std::span<std::string const> const& args) const ;
+    [[nodiscard]] Constants::Event debug_collisionDetect_variable(std::span<std::string_view const> const& args) const ;
     static auto constexpr debug_collisionDetect_variable_name = "debug collision-detect variable";
     static auto constexpr debug_collisionDetect_variable_desc = "Tests collision detection of variable names\n"
         "\n"

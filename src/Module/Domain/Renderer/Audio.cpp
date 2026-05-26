@@ -19,7 +19,7 @@ Constants::Event Audio::updateHook() {
     return Constants::Event::Success;
 }
 
-Constants::Event Audio::beep(std::span<std::string const> const& args) const {
+Constants::Event Audio::beep(std::span<std::string_view const> const& args) const {
     if (args.size() < 2) {
         domain.capture.log.println("No waveform type specified. Defaulting to sine.");
         SDL_PutAudioStreamData(
@@ -57,7 +57,7 @@ Constants::Event Audio::beep(std::span<std::string const> const& args) const {
     return Constants::Event::Success;
 }
 
-Constants::Event Audio::playSound(std::span<std::string const> const& args) {
+Constants::Event Audio::playSound(std::span<std::string_view const> const& args) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -78,12 +78,12 @@ Constants::Event Audio::playSound(std::span<std::string const> const& args) {
     return Constants::Event::Success;
 }
 
-Constants::Event Audio::playSoundWithFilter(std::span<std::string const> const& args) {
+Constants::Event Audio::playSoundWithFilter(std::span<std::string_view const> const& args) {
     if (args.size() < 4) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
 
-    auto const& path = args[1];
+    auto const& path = std::string(args[1]);
     auto const sound = loadSound(path);
     if (!sound.has_value()) {
         domain.capture.error.println("Failed to load sound from path: ", path);
@@ -92,10 +92,10 @@ Constants::Event Audio::playSoundWithFilter(std::span<std::string const> const& 
 
     auto const [num, den] = [&]() -> std::pair<std::vector<double>, std::vector<double>> {
         try {
-            auto parse = [](std::string const& str) {
+            auto parse = [](std::string_view const& str) {
                 return Utility::StringHandler::split(str, ',')
-                    | std::views::transform([](std::string const& coeff) {
-                        return std::stod(coeff);
+                    | std::views::transform([](std::string_view const& coeff) {
+                        return std::stod(std::string(coeff));
                     })
                     | std::ranges::to<std::vector<double>>();
             };
@@ -131,7 +131,7 @@ Constants::Event Audio::playSoundWithFilter(std::span<std::string const> const& 
     return Constants::Event::Success;
 }
 
-Constants::Event Audio::testFilter(std::span<std::string const> const& args) const {
+Constants::Event Audio::testFilter(std::span<std::string_view const> const& args) const {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -146,13 +146,13 @@ Constants::Event Audio::testFilter(std::span<std::string const> const& args) con
 
     try {
         for (auto const& coeff : data) {
-            inputData.push_back(std::stod(coeff));
+            inputData.push_back(std::stod(std::string(coeff)));
         }
         for (auto const& coeff : num) {
-            numData.push_back(std::stod(coeff));
+            numData.push_back(std::stod(std::string(coeff)));
         }
         for (auto const& coeff : den) {
-            denData.push_back(std::stod(coeff));
+            denData.push_back(std::stod(std::string(coeff)));
         }
     } catch (std::exception const& e) {
         domain.capture.error.println("Failed to parse coefficients: ", e.what());

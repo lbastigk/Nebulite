@@ -28,23 +28,23 @@ void Debug::bindTransformations() {
 
 // Since this is for debugging only, we pass the output directly to global capture, instead of a local capture
 
-bool Debug::echo(std::span<std::string const> const& args) {
+bool Debug::echo(std::span<std::string_view const> const& args) {
     Global::capture().log.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
     return true;
 }
 
-bool Debug::warn(std::span<std::string const> const& args) {
+bool Debug::warn(std::span<std::string_view const> const& args) {
     Global::capture().warning.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
     return true;
 }
 
-bool Debug::error(std::span<std::string const> const& args) {
+bool Debug::error(std::span<std::string_view const> const& args) {
     Global::capture().error.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
     return true;
 }
 
 // NOLINTNEXTLINE
-bool Debug::print(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool Debug::print(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     // Print to cout, no modifications
     if (args.size() > 1) {
         for (auto const& arg : args | std::views::drop(1)) {
@@ -64,12 +64,12 @@ bool Debug::print(std::span<std::string const> const& args, Data::JsonScope* jso
     return true;
 }
 
-bool Debug::unreachable(std::span<std::string const> const& args){
+bool Debug::unreachable(std::span<std::string_view const> const& args){
     std::string const message = "Unreachable transformation path reached! " + Utility::StringHandler::recombineArgs(args.subspan(1));
     throw std::logic_error(message);
 }
 
-bool Debug::store(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc){
+bool Debug::store(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc){
     if (args.size() < 2) {
         Global::capture().error.println("store transformation requires at least one argument for the file name to store the JSON value under.");
         return false;

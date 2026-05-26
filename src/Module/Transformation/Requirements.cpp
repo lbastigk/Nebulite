@@ -33,14 +33,14 @@ void Requirements::bindTransformations() {
     bindTransformation(&Requirements::requireEqualsInt, requireEqualsIntName, requireEqualsIntDesc);
 }
 
-void Requirements::printUserDefinedMessage(std::span<std::string const> const& args){
+void Requirements::printUserDefinedMessage(std::span<std::string_view const> const& args){
     if (args.size() < 2) {
         return; // No message provided
     }
     Global::capture().error.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
 }
 
-bool Requirements::requireNonEmpty(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
+bool Requirements::requireNonEmpty(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc) {
     try {
         Assertions::assertNonEmpty(args, jsonDoc);
     }
@@ -50,7 +50,7 @@ bool Requirements::requireNonEmpty(std::span<std::string const> const& args, Dat
     return true;
 }
 
-bool Requirements::requireEmpty(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc){
+bool Requirements::requireEmpty(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc){
     try {
         Assertions::assertEmpty(args, jsonDoc);
     }
@@ -60,7 +60,7 @@ bool Requirements::requireEmpty(std::span<std::string const> const& args, Data::
     return true;
 }
 
-bool Requirements::requireTypeObject(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
+bool Requirements::requireTypeObject(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc) {
     try {
         Assertions::assertTypeObject(args, jsonDoc);
     }
@@ -70,7 +70,7 @@ bool Requirements::requireTypeObject(std::span<std::string const> const& args, D
     return true;
 }
 
-bool Requirements::requireTypeArray(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
+bool Requirements::requireTypeArray(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc) {
     try {
         Assertions::assertTypeArray(args, jsonDoc);
     }
@@ -80,7 +80,7 @@ bool Requirements::requireTypeArray(std::span<std::string const> const& args, Da
     return true;
 }
 
-bool Requirements::requireTypeBasicValue(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
+bool Requirements::requireTypeBasicValue(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc) {
     try {
         Assertions::assertTypeBasicValue(args, jsonDoc);
     }
@@ -90,7 +90,7 @@ bool Requirements::requireTypeBasicValue(std::span<std::string const> const& arg
     return true;
 }
 
-bool Requirements::requireMatchRegex(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc){
+bool Requirements::requireMatchRegex(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc){
     try {
         Assertions::assertMatchRegex(args, jsonDoc);
     }
@@ -100,7 +100,7 @@ bool Requirements::requireMatchRegex(std::span<std::string const> const& args, D
     return true;
 }
 
-bool Requirements::requireEqualsString(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc) {
+bool Requirements::requireEqualsString(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc) {
     try {
         Assertions::assertEqualsString(args, jsonDoc);
     }
@@ -110,7 +110,7 @@ bool Requirements::requireEqualsString(std::span<std::string const> const& args,
     return true;
 }
 
-bool Requirements::requireEqualsInt(std::span<std::string const> const& args, Data::JsonScope const* jsonDoc){
+bool Requirements::requireEqualsInt(std::span<std::string_view const> const& args, Data::JsonScope const* jsonDoc){
     try {
         Assertions::assertEqualsInt(args, jsonDoc);
     }

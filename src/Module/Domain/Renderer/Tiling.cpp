@@ -105,13 +105,13 @@ namespace Nebulite::Module::Domain::Renderer {
 //------------------------------------------
 // Available Functions
 
-Constants::Event Tiling::gridToggle(std::span<std::string const> const& args) {
+Constants::Event Tiling::gridToggle(std::span<std::string_view const> const& args) {
     if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     if (args.empty()) {
         gridOn = !gridOn;
         return Constants::Event::Success;
     }
-    std::string const& arg = args[1];
+    auto const& arg = args[1];
     if (arg == "on") {
         gridOn = true;
         return Constants::Event::Success;
@@ -123,7 +123,7 @@ Constants::Event Tiling::gridToggle(std::span<std::string const> const& args) {
     return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);
 }
 
-Constants::Event Tiling::viewToggle(std::span<std::string const> const& args) const {
+Constants::Event Tiling::viewToggle(std::span<std::string_view const> const& args) const {
     if (args.size() < 2) return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     if (args.size() > 2) return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     if (args[1] == "high") {

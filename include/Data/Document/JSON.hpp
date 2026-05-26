@@ -326,7 +326,7 @@ public:
     //------------------------------------------
     // Argument splitting for transformations
 
-    static std::vector<std::string> splitKeyWithTransformations(std::string_view const& key);
+    static std::vector<std::string_view> splitKeyWithTransformations(std::string_view const& key);
 
     //------------------------------------------
     // Set methods

@@ -190,7 +190,7 @@ void handleQuotedToken(std::string_view const& token, QuoteParseState& state, st
 // [Args]
 
 StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string_view const& cmd) {
-    std::vector<std::string> const tokens = split(cmd, ' ');
+    std::vector<std::string_view> const tokens = split(cmd, ' ');
     std::vector<std::string> result;
     QuoteParseState state;
 
@@ -214,7 +214,7 @@ StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string_view 
     return {.args = std::move(result), .unclosedQuote = state.inAnyQuote()};
 }
 
-std::string StringHandler::recombineArgs(std::span<std::string const> const& args) {
+std::string StringHandler::recombineArgs(std::span<std::string_view const> const& args) {
     std::string result;
     for (size_t i = 0; i < args.size(); ++i) {
         result += args[i];
@@ -231,51 +231,55 @@ std::string StringHandler::recombineArgs(std::span<std::string const> const& arg
 
 // [SPLIT]
 
-std::vector<std::string> StringHandler::split(std::string_view const& input, char const& delimiter, bool const& keepDelimiter) {
-    std::vector<std::string> tokens;
-
+std::vector<std::string_view> StringHandler::split(std::string_view const& input, char const delimiter, bool const keepDelimiter){
+    std::vector<std::string_view> tokens;
     if (!keepDelimiter) {
-        // Original behavior - split and exclude delimiter
-        size_t start = 0;
-        size_t end = 0;
-        while ((end = input.find(delimiter, start)) != std::string::npos) {
-            tokens.emplace_back(input.substr(start, end - start));
-            start = end + 1;
-        }
-        if (start < input.length()) {
-            tokens.emplace_back(input.substr(start));
-        }
-
-        if (!input.empty() && input.starts_with(delimiter) && !tokens.empty()) {
-            tokens.erase(tokens.begin());
-        }
-    } else {
-        // New behavior - split and keep delimiter at start of tokens
-        size_t pos = 0;
         size_t start = 0;
 
-        while ((pos = input.find(delimiter, start)) != std::string::npos) {
-            // Add everything before the delimiter as a token (if not empty)
-            if (pos > start) {
-                tokens.emplace_back(input.substr(start, pos - start));
+        while (start <= input.size()) {
+            size_t end = input.find(delimiter, start);
+
+            if (end == std::string_view::npos) {
+                end = input.size();
             }
 
-            // Find the next delimiter to determine where this token ends
-            size_t const nextPos = input.find(delimiter, pos + 1);
-            if (nextPos == std::string::npos) {
-                // No more delimiters, take rest of string
-                tokens.emplace_back(input.substr(pos));
+            tokens.emplace_back(input.substr(start, end - start));
+
+            if (end == input.size()) {
                 break;
             }
-            // Take from current delimiter to next delimiter
-            tokens.emplace_back(input.substr(pos, nextPos - pos));
-            start = nextPos;
+
+            start = end + 1;
         }
 
-        // If we never found a delimiter, add the whole string
-        if (tokens.empty() && !input.empty()) {
-            tokens.emplace_back(input);
+        return tokens;
+    }
+
+    // keep delimiter at start of token
+    size_t start = 0;
+
+    while (start < input.size()) {
+        size_t const pos = input.find(delimiter, start);
+
+        if (pos == std::string_view::npos) {
+            tokens.emplace_back(input.substr(start));
+            break;
         }
+
+        // text before delimiter
+        if (pos > start) {
+            tokens.emplace_back(input.substr(start, pos - start));
+        }
+
+        size_t const next = input.find(delimiter, pos + 1);
+
+        if (next == std::string_view::npos) {
+            tokens.emplace_back(input.substr(pos));
+            break;
+        }
+
+        tokens.emplace_back(input.substr(pos, next - pos));
+        start = next;
     }
 
     return tokens;
@@ -321,20 +325,39 @@ int depthOf(std::string_view const& input, char const& delimiter) {
 
 } // namespace
 
-std::vector<std::string> StringHandler::splitOnSameDepth(std::string_view const& input, char const& delimiter) {
-    auto basicSplitResult = split(input, delimiter, true);
-    decltype(basicSplitResult) result;
-    std::string workingPart;
+std::vector<std::string_view>
+StringHandler::splitOnSameDepth(std::string_view const& input, char const delimiter){
+    auto const basicSplitResult = split(input, delimiter, true);
+
+    std::vector<std::string_view> result;
+
+    std::string_view current;
+    size_t currentDepth = 0;
+
     for (auto const& part : basicSplitResult) {
-        workingPart += part;
-        if (depth(workingPart) == 0) {
-            result.push_back(workingPart);
-            workingPart.clear();
+
+        if (current.empty()) {
+            current = part;
+        } else {
+            // extend existing view
+            current = {
+                current.data(),
+                static_cast<std::size_t>(part.data() + part.size() - current.data())
+            };
+        }
+
+        currentDepth = depth(current);
+
+        if (currentDepth == 0) {
+            result.push_back(current);
+            current = {};
         }
     }
-    if (!workingPart.empty()) {
-        result.push_back(workingPart);
+
+    if (!current.empty()) {
+        result.push_back(current);
     }
+
     return result;
 }
 
@@ -346,6 +369,7 @@ char StringHandler::delimiterToOpeningChar(Delimiter const& delimiter) {
     default: std::unreachable();
     }
 }
+
 char StringHandler::delimiterToClosingChar(Delimiter const& delimiter) {
     switch (delimiter) {
     case Delimiter::parentheses: return ')';
@@ -355,34 +379,48 @@ char StringHandler::delimiterToClosingChar(Delimiter const& delimiter) {
     }
 }
 
-std::vector<std::string> StringHandler::splitOnSameDepthOf(std::string_view const& input, Delimiter const& delimiter) {
+std::vector<std::string_view>
+StringHandler::splitOnSameDepthOf(std::string_view const& input, Delimiter const& delimiter) {
     auto const openingChar = delimiterToOpeningChar(delimiter);
     auto const closingChar = delimiterToClosingChar(delimiter);
+    auto const basicSplitResult = split(input, openingChar, true);
 
-    auto basicSplitResult = split(input, openingChar, true);
-    decltype(basicSplitResult) result;
-    std::string workingPart;
+    std::vector<std::string_view> result;
+
+    std::string_view current;
+
     for (auto const& part : basicSplitResult) {
-        workingPart += part;
-        if (depthOf(workingPart, openingChar) == 0) {
-            if (workingPart.contains(closingChar)) {
-                auto const pos = workingPart.find_last_of(closingChar);
-                result.push_back(workingPart.substr(0, pos+1));
-                workingPart = workingPart.substr(pos+1);
-                if (!workingPart.empty()) {
-                    result.push_back(workingPart);
-                    workingPart.clear();
+
+        if (current.empty()) {
+            current = part;
+        } else {
+            // extend current view to include part
+            current = {
+                current.data(),
+                static_cast<std::size_t>(part.data() + part.size() - current.data())
+            };
+        }
+
+        if (depthOf(current, openingChar) == 0) {
+            if (auto const pos = current.find_last_of(closingChar); pos != std::string_view::npos) {
+                // [current.begin(), closingChar]
+                result.emplace_back(current.substr(0, pos + 1));
+
+                // trailing remainder after closingChar
+                if (auto const remainder = current.substr(pos + 1); !remainder.empty()) {
+                    result.emplace_back(remainder);
                 }
+            } else {
+                result.emplace_back(current);
             }
-            else {
-                result.push_back(workingPart);
-                workingPart.clear();
-            }
+            current = {};
         }
     }
-    if (!workingPart.empty()) {
-        result.push_back(workingPart);
+
+    if (!current.empty()) {
+        result.emplace_back(current);
     }
+
     return result;
 }
 
