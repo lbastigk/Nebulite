@@ -50,15 +50,19 @@ public:
     /**
      * @brief A list of reserved characters that cannot be used in key names.
      * @details - '[]' : Used for array indexing.
+     *          - '{}' : Could cause issues with object traversal and transformations, and just in general a bad idea for keys
+     *          - '()' : Just in general a bad idea for a key
      *          - '.'  : Used for nested object traversal.
      *          - '|'  : Used for piping transformations.
      *          - '"'  : Used for string encapsulation.
+     *          - '''  : Used for string encapsulation
      *          - ':'  : Used for Read-Only docs to separate link and key.
-     * @todo Proper API documentation for JSON key naming rules.
-     *       Including a 'why' for each character.
      */
-    static auto constexpr reservedCharacters = "[]{}.|\":";
+    static auto constexpr reservedCharacters = "[]{}().|\"':";
 
+    /**
+     * @brief Often used special characters for value retrieval
+     */
     struct SpecialCharacter {
         static auto constexpr arrayOpen = RjDirectAccess::SpecialCharacter::arrayOpen;
         static auto constexpr arrayClose = RjDirectAccess::SpecialCharacter::arrayClose;
@@ -68,6 +72,9 @@ public:
     };
 
 private:
+    /**
+     * @brief Standard numeric value used for initializing cache entries and failed variant conversions
+     */
     static double constexpr standardNumericValue = 0.0;
 
     /**
@@ -108,7 +115,7 @@ private:
             CLEAN, // Synchronized with RapidJSON document, real value. NOTE: This may be invalid at any time if double pointer is used elsewhere! This just marks the last known state.
             DIRTY, // Modified in cache, needs flushing to RapidJSON, real value
             DERIVED, // Deleted/nonexistent entry that was accessed via double pointer
-            DELETED, // Deleted entry due to deserialization, inner value is invalid
+            DELETED, // Deleted entry due to deserialization or child invalidation, inner value is invalid
             MALFORMED // A key that is known to be malformed due to transformations. Used in getStableDoublePointer for integrity.
         };
 
