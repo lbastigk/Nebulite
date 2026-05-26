@@ -35,7 +35,7 @@ namespace Nebulite::Interaction::Execution {
  *          Variables can be bound to the command tree and accessed within functions,
  *          provided the functions themselves have access to the space of the variables.
  */
-template <typename returnValue, typename... additionalArgs>
+template <typename ReturnValue, typename... AdditionalArgs>
 class FuncTree {
 public:
     //------------------------------------------
@@ -50,21 +50,21 @@ public:
     // Supported function signatures
     struct SupportedFunctions {
         struct Legacy {
-            using IntConstChar = std::function<returnValue(int, char const**)>;
+            using IntConstChar = std::function<ReturnValue(int, char const**)>;
         };
 
         struct Modern {
-            using Full = std::function<returnValue(typename CmdArgs::Span, additionalArgs...)>;
-            using FullConstRef = std::function<returnValue(typename CmdArgs::SpanConstRef, additionalArgs...)>;
-            using NoAddArgs = std::function<returnValue(typename CmdArgs::Span)>;
-            using NoAddArgsConstRef = std::function<returnValue(typename CmdArgs::SpanConstRef)>;
-            using NoCmdArgs = std::function<returnValue(additionalArgs...)>;
-            using NoArgs = std::function<returnValue()>;
+            using Full = std::function<ReturnValue(typename CmdArgs::Span, AdditionalArgs...)>;
+            using FullConstRef = std::function<ReturnValue(typename CmdArgs::SpanConstRef, AdditionalArgs...)>;
+            using NoAddArgs = std::function<ReturnValue(typename CmdArgs::Span)>;
+            using NoAddArgsConstRef = std::function<ReturnValue(typename CmdArgs::SpanConstRef)>;
+            using NoCmdArgs = std::function<ReturnValue(AdditionalArgs...)>;
+            using NoArgs = std::function<ReturnValue()>;
         };
     };
 
     // Function pointer type
-    using FunctionPtr = std::conditional_t<sizeof...(additionalArgs) == 0,
+    using FunctionPtr = std::conditional_t<sizeof...(AdditionalArgs) == 0,
         // no additional args -> avoid duplicates (keep only no-add variants)
         std::variant<
             typename SupportedFunctions::Legacy::IntConstChar,
@@ -118,7 +118,7 @@ public:
      * @param valFunctionNotFound Value to return if the parsed function was not found
      * @param captureInstance Capture instance for logging
      */
-    FuncTree(std::string_view const& treeName, returnValue const& valDefault, returnValue const& valFunctionNotFound, Utility::IO::Capture& captureInstance);
+    FuncTree(std::string_view const& treeName, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, Utility::IO::Capture& captureInstance);
 
     /**
      * @brief Inherits functions from another Tree.
@@ -139,7 +139,7 @@ public:
      * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
      * @param func Function to call before parsing
      */
-    void setPreParse(std::function<returnValue()> func) {
+    void setPreParse(std::function<ReturnValue()> func) {
         preParse = std::move(func);
     }
 
@@ -153,9 +153,9 @@ public:
      * @param addArgs Additional arguments to pass to the executed function
      * @return The return value of the executed function, or the standard/error value.
      */
-    returnValue parseStr(std::string_view const& cmd, additionalArgs... addArgs);
-    returnValue parse(std::vector<std::string_view> const& args, additionalArgs... addArgs);
-    returnValue parse(std::span<std::string_view const> const& args, additionalArgs... addArgs);
+    ReturnValue parseStr(std::string_view const& cmd, AdditionalArgs... addArgs);
+    ReturnValue parse(std::vector<std::string_view> const& args, AdditionalArgs... addArgs);
+    ReturnValue parse(std::span<std::string_view const> const& args, AdditionalArgs... addArgs);
 
     //------------------------------------------
     // Binding (Functions, Categories, Variables)
@@ -236,14 +236,14 @@ private:
     std::string TreeName;
 
     // Function to call before parsing (e.g., for setting up variables or locking resources)
-    std::function<returnValue()> preParse = nullptr;
+    std::function<ReturnValue()> preParse = nullptr;
 
     // Capture instance for logging
     Utility::IO::Capture& capture;
 
     struct StandardReturnValues {
-        returnValue valDefault;
-        returnValue valFunctionNotFound;
+        ReturnValue valDefault;
+        ReturnValue valFunctionNotFound;
     } standardReturn;
 
     /**
@@ -301,13 +301,13 @@ private:
      * @param addArgs Additional arguments to pass to the function.
      * @return The return value of the function.
      */
-    returnValue executeFunction(std::string_view const& name, std::span<std::string_view const> const& args, additionalArgs... addArgs);
+    ReturnValue executeFunction(std::string_view const& name, std::span<std::string_view const> const& args, AdditionalArgs... addArgs);
 
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
      * @return The standard return value.
      */
-    returnValue help(std::span<std::string_view const> const& args);
+    ReturnValue help(std::span<std::string_view const> const& args);
 
     /**
      * @brief Retrieves a list of all functions and their descriptions.
@@ -442,7 +442,7 @@ private:
      * @param args A list of arguments to complete
      * @return The standard return value.
      */
-    returnValue complete(std::span<std::string_view const> const& args);
+    ReturnValue complete(std::span<std::string_view const> const& args);
 
     /**
      * @brief Finds possible completions for a given pattern and prefix in the current FuncTree.

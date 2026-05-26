@@ -22,8 +22,8 @@
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
 
-template <typename returnValue, typename... additionalArgs>
-bool FuncTree<returnValue, additionalArgs...>::hasFunction(std::string_view const& nameOrCommand) {
+template <typename ReturnValue, typename... AdditionalArgs>
+bool FuncTree<ReturnValue, AdditionalArgs...>::hasFunction(std::string_view const& nameOrCommand) {
     // Make sure only the command name is used
     auto tokens = Utility::StringHandler::split(nameOrCommand, ' ');
 
@@ -54,8 +54,8 @@ bool FuncTree<returnValue, additionalArgs...>::hasFunction(std::string_view cons
     return bindingContainer.functions.contains(function) || bindingContainer.categories.contains(function);
 }
 
-template <typename returnValue, typename... additionalArgs>
-returnValue FuncTree<returnValue, additionalArgs...>::help(std::span<std::string_view const> const& args) {
+template <typename ReturnValue, typename... AdditionalArgs>
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::help(std::span<std::string_view const> const& args) {
     //------------------------------------------
     // Case 1: Detailed help for a specific function, category or variable
     if (args.size() > 1) {
@@ -72,8 +72,8 @@ returnValue FuncTree<returnValue, additionalArgs...>::help(std::span<std::string
     return standardReturn.valDefault;
 }
 
-template <typename returnValue, typename... additionalArgs>
-void FuncTree<returnValue, additionalArgs...>::specificHelp(std::string_view const& funcName) {
+template <typename ReturnValue, typename... AdditionalArgs>
+void FuncTree<ReturnValue, AdditionalArgs...>::specificHelp(std::string_view const& funcName) {
     if (BindingSearchResult const searchResult = find(funcName); searchResult.has_value()) {
         std::visit([&]<typename T>(T& iterator) {
             using Decayed = std::decay_t<T>;
@@ -99,8 +99,8 @@ void FuncTree<returnValue, additionalArgs...>::specificHelp(std::string_view con
     }
 }
 
-template <typename returnValue, typename... additionalArgs>
-void FuncTree<returnValue, additionalArgs...>::generalHelp() {
+template <typename ReturnValue, typename... AdditionalArgs>
+void FuncTree<ReturnValue, AdditionalArgs...>::generalHelp() {
     // Padding size for names
     // '<name padded> - <description>'
     uint16_t constexpr namePaddingSize = 25;
@@ -151,9 +151,9 @@ void FuncTree<returnValue, additionalArgs...>::generalHelp() {
     });
 }
 
-template <typename returnValue, typename... additionalArgs>
-FuncTree<returnValue, additionalArgs...>::BindingSearchResult
-FuncTree<returnValue, additionalArgs...>::find(std::string_view const& name) {
+template <typename ReturnValue, typename... AdditionalArgs>
+FuncTree<ReturnValue, AdditionalArgs...>::BindingSearchResult
+FuncTree<ReturnValue, AdditionalArgs...>::find(std::string_view const& name) {
     // Helper lambda to search in inherited trees
     auto searchInInherited = [&](auto mapMember, auto& iteratorMember) -> bool {
         for (auto const& inheritedTree : inheritedTrees) {
@@ -203,8 +203,8 @@ FuncTree<returnValue, additionalArgs...>::find(std::string_view const& name) {
     return std::nullopt;
 }
 
-template <typename returnValue, typename ... additionalArgs>
-returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::string_view const> const& args){
+template <typename ReturnValue, typename ... AdditionalArgs>
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::complete(std::span<std::string_view const> const& args){
     // Traverse into categories based on args, get pattern to complete
     auto const [pattern, ftree] = [&]() -> std::pair<std::string_view, FuncTree*> {
         auto argsSpan = args.subspan(1); // Skip binary name or last function name
@@ -258,8 +258,8 @@ returnValue FuncTree<returnValue, additionalArgs...>::complete(std::span<std::st
     return standardReturn.valDefault;
 }
 
-template <typename returnValue, typename ... additionalArgs>
-FuncTree<returnValue, additionalArgs...>* FuncTree<returnValue, additionalArgs...>::traverseIntoCategory(std::string_view const& categoryName, FuncTree const* ftree) {
+template <typename ReturnValue, typename ... AdditionalArgs>
+FuncTree<ReturnValue, AdditionalArgs...>* FuncTree<ReturnValue, AdditionalArgs...>::traverseIntoCategory(std::string_view const& categoryName, FuncTree const* ftree) {
     // Check direct categories first
     if (auto catIt = ftree->bindingContainer.categories.find(categoryName); catIt != ftree->bindingContainer.categories.end()) {
         return catIt->second.tree.get();
@@ -277,8 +277,8 @@ FuncTree<returnValue, additionalArgs...>* FuncTree<returnValue, additionalArgs..
     return nullptr;
 }
 
-template <typename returnValue, typename ... additionalArgs>
-std::vector<std::string> FuncTree<returnValue, additionalArgs...>::findCompletionForFullCommand(std::string_view const& patternStr) {
+template <typename ReturnValue, typename ... AdditionalArgs>
+std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletionForFullCommand(std::string_view const& patternStr) {
     auto [argsVec, _] = Utility::StringHandler::parseQuotedArguments(patternStr);
 
     // Traverse into categories based on args, get pattern to complete
@@ -334,8 +334,8 @@ std::vector<std::string> FuncTree<returnValue, additionalArgs...>::findCompletio
     return completions;
 }
 
-template <typename returnValue, typename ... additionalArgs>
-std::vector<std::string> FuncTree<returnValue, additionalArgs...>::findCompletions(std::string_view const& pattern) {
+template <typename ReturnValue, typename ... AdditionalArgs>
+std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletions(std::string_view const& pattern) {
     std::vector<std::string> completions;
     auto collect = [&](auto const& map, std::string_view const prefix = "") {
         for (auto const& [name, _] : map) {
