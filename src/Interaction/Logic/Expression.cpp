@@ -185,14 +185,14 @@ bool isTypeVariable(std::string_view const& str) {
     return str.starts_with('{') && str != "{object}";
 }
 
-std::vector<std::string_view> getTokens(std::string_view const& expr) {
+std::vector<std::string> getTokens(std::string_view const& expr) {
     // First, we must split the expression into tokens
     // Split, keep delimiter(at start)
     // "abc$def$ghi" -> ["abc", "$def", "$ghi"]
     auto tokensPhase1 = Utility::StringHandler::split(expr, '$', true);
 
     // Combine tokens where the amount of `(` + `{` and `}` + `)` are not the same
-    std::vector<std::string_view> tokensPhase2;
+    std::vector<std::string> tokensPhase2;
     std::string currentToken;
     for (auto& token : tokensPhase1) {
         int pCount = 0;
@@ -221,7 +221,7 @@ std::vector<std::string_view> getTokens(std::string_view const& expr) {
     }
 
     // Now we need to split on same depth
-    std::vector<std::string_view> tokens;
+    std::vector<std::string> tokens;
     for (auto const& token : tokensPhase2) {
         // If the first token starts with '$', it means the string started with '$'
         // If not, the first token is text before the first '$'
@@ -237,15 +237,18 @@ std::vector<std::string_view> getTokens(std::string_view const& expr) {
 
             // Add back the '$' + formatter to first subToken
             if (!subTokens.empty()) {
-                subTokens[0] = token.substr(0, start.length() + subTokens[0].length());
+                tokens.push_back(std::string(start) + std::string(subTokens[0]));
+                subTokens.erase(subTokens.begin()); // Remove the first token, as we already added it with the start
             }
 
             // Add all subtokens to the actual list of tokens
-            std::ranges::copy(subTokens, std::back_inserter(tokens));
+            std::ranges::for_each(subTokens, [&tokens](std::string_view const& entry) {
+                tokens.push_back(std::string(entry));
+            });
         } else {
             // If it doesn't start with a '$', it's a text token / potentially with variables inside
             // Just add the text token
-            tokens.push_back(token);
+            tokens.push_back(std::string(token));
         }
     }
     return tokens;
@@ -391,9 +394,8 @@ void Expression::parseTokenTypeEval(std::string_view const& token) {
     for (auto const& subToken : Utility::StringHandler::splitOnSameDepthOf(expression, Utility::StringHandler::Delimiter::brace)) {
         if (subToken.starts_with('{')) {
             auto const te_name = varNameGen.getUniqueName(subToken);
-            auto key = subToken.substr(1, subToken.length() - 2);
-            auto const contextType = ContextDeriver::getTypeFromString(key);
-            key = ContextDeriver::stripContext(key);
+            auto key = ContextDeriver::stripContext(subToken.substr(1, subToken.length() - 2));
+            auto const contextType = ContextDeriver::getTypeFromString(subToken.substr(1, subToken.length() - 2));
             registerVariable(te_name, key, contextType);
             currentComponent->stringRepresentation += te_name;
         } else {
@@ -495,7 +497,7 @@ Expression::Expression(std::string_view const& expr){
 void Expression::parse(std::string_view const& expr) {
     reset();
     fullExpression = expr;
-    parseIntoComponents(expr);
+    parseIntoComponents(fullExpression);
     for (auto& component : components) {
         compileIfExpression(component);
     }

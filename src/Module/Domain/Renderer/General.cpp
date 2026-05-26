@@ -359,8 +359,11 @@ Constants::Event General::dumpView() const {
 }
 
 Constants::Event General::selectedObjectGet(int const argc, char const** argv){
-    if (argc != 2) {
+    if (argc < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
+    }
+    if (argc > 2) {
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
 
     // Supports only uint32_t ids

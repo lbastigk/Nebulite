@@ -25,10 +25,10 @@ public:
 
     /**
      * @brief Checks if a given string_view str starts with a given sequence of string_views.
-     * @tparam Args The string_views to consider
+     * @tparam Args The string_views to consider as the start sequence. Any number of arguments is supported.
      * @param str The string to compare to
-     * @param args
-     * @return
+     * @param args The start sequence
+     * @return True if the string starts with the given sequence, false otherwise
      */
     template <typename... Args>
     static bool startsWithSequence(std::string_view const& str, Args... args) {

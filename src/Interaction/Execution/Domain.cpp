@@ -118,22 +118,24 @@ std::unique_lock<std::recursive_mutex> Domain::lockDocument() const {
     return domainScope.lock();
 }
 
-std::vector<std::string_view> Domain::stringToDeserializeTokens(std::string_view const& serialOrLinkWithCommands) {
+std::vector<std::string> Domain::stringToDeserializeTokens(std::string_view const& serialOrLinkWithCommands) {
     //------------------------------------------
     // Split the input into tokens
-    std::vector<std::string_view> tokens;
+    std::vector<std::string> tokens;
     if (Data::JSON::isJsonOrJsonc(serialOrLinkWithCommands)) {
         // Direct JSON string, no splitting
-        tokens.push_back(serialOrLinkWithCommands);
+        tokens.push_back(std::string(serialOrLinkWithCommands));
     } else {
         // Split based on transformations, indicated by '|'
-        tokens = Utility::StringHandler::split(serialOrLinkWithCommands, '|');
+        for (auto const& token : Utility::StringHandler::split(serialOrLinkWithCommands, '|')) {
+            tokens.push_back(std::string(token));
+        }
     }
     return tokens;
 }
 
 void Domain::baseDeserialization(std::string const& serialOrLinkWithCommands) {
-    std::vector<std::string_view> tokens;
+    std::vector<std::string> tokens;
 
     //------------------------------------------
     // Check if the input is of type {variable|t1|t2|...}|c1|c2|...

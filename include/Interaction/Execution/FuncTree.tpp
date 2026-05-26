@@ -728,11 +728,7 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
     }
     // Find function name in bindingContainer.categories
     if (bindingContainer.categories.find(function) != bindingContainer.categories.end()) {
-        std::string cmd;
-        for (auto const& arg : args) {
-            cmd += std::string(arg) + " ";
-        }
-        return bindingContainer.categories[function].tree->parseStr(cmd, addArgs...);
+        return bindingContainer.categories[function].tree->parseStr(Utility::StringHandler::recombineArgs(args), addArgs...);
     }
 
     // Return error if function not found
