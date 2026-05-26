@@ -38,10 +38,6 @@ public:
     //------------------------------------------
     // Available Functions
 
-    /**
-     * @todo: errorLog on causes crash with wine
-     *        wine: Unhandled page fault on write access to 0000000000000000 at address 0000000140167A65 (thread 0110), starting debugger...
-     */
     [[nodiscard]] Constants::Event errorLog(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr errorLog_name = "error-log";
     static auto constexpr errorLog_desc = "Activates or deactivates error logging to a file.\n"

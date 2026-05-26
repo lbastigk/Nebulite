@@ -49,7 +49,6 @@ public:
 
     // Supported function signatures
     struct SupportedFunctions {
-        // TODO: remove legacy function signatures
         struct Legacy {
             using IntConstChar = std::function<returnValue(int, char const**)>;
         };

@@ -31,12 +31,6 @@ namespace Nebulite::Data {
 /**
  * @struct Nebulite::Data::TaskQueue
  * @brief Represents a queue of tasks to be processed by the engine, including metadata.
- * @todo Would it make sense for this to be a class derived from Domain?
- *       That way, each taskQueue would have functions such as clear, wait, always etc.?
- *       Perhaps an idea for the future, for now we simply use separate taskQueueWrappers for each type:
- *       - script
- *       - always
- *       - internal
  */
 class TaskQueue {
 public:
