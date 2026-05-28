@@ -13,8 +13,9 @@ namespace Nebulite::Data {
 /**
  * @brief A template-parameter-friendly string, with nullopt-like capability
  * @tparam N Size of the string
+ * @tparam forceOutsideDefinition Useful if you want to force the definition of the string outside
  */
-template <std::size_t N>
+template <std::size_t N, bool forceOutsideDefinition = false>
 struct OptionalFixedString {
     std::array<char, N == 0 ? 1 : N> value{};
 
@@ -29,17 +30,17 @@ struct OptionalFixedString {
     }
 
     static constexpr bool hasValue() {
-        return N > 0;
+        return N > 0 && !forceOutsideDefinition;
     }
 
     static constexpr size_t length() {
-        static_assert(N > 0, "No string given");
+        static_assert(N > 0 && !forceOutsideDefinition, "No string given");
         return N-1;
     }
 
     // Returns the last character of the string, or '\0' if the string is empty
     [[nodiscard]] constexpr char back() const {
-        static_assert(N > 0, "No string given");
+        static_assert(N > 0 && !forceOutsideDefinition, "No string given");
         if constexpr (N == 1) { // Empty string, return NULL instead
             return '\0';
         } else {
@@ -48,8 +49,12 @@ struct OptionalFixedString {
     }
 
     [[nodiscard]] constexpr std::string_view view() const {
-        static_assert(N > 0, "No string given");
+        static_assert(N > 0 && !forceOutsideDefinition, "No string given");
         return {value.data(), N - 1};
+    }
+
+    [[nodiscard]] static constexpr bool hasOutsideDefinition() {
+        return forceOutsideDefinition;
     }
 };
 

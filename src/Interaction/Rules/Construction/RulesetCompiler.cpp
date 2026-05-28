@@ -151,18 +151,18 @@ void RulesetCompiler::setMetaData(RulesetVector const& rulesets) {
     }
 }
 
-void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulesetsLocal, Execution::Domain& self) {
+void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulesetsLocal, Execution::Domain& self, Data::JsonScope const& rulesetArray) {
     // Clean up existing entries - shared pointers will automatically handle cleanup
     rulesetsGlobal.clear();
     rulesetsLocal.clear();
 
     // Check if doc is valid
-    if (self.domainScope.memberType(Constants::KeyNames::RenderObject::Ruleset::list) != Data::KeyType::array) {
+    if (rulesetArray.memberType(rulesetArray.getRootScope()) != Data::KeyType::array) {
         return;
     }
 
     // Get size of entries
-    size_t const size = self.domainScope.memberSize(Constants::KeyNames::RenderObject::Ruleset::list);
+    size_t const size = rulesetArray.memberSize(rulesetArray.getRootScope());
     if (size == 0) {
         // Object has no rulesets
         return;
@@ -171,8 +171,8 @@ void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulese
     // Iterate through all entries
     for (size_t idx = 0; idx < size; ++idx) {
         // Parse entry into separate JSON object
-        auto const key = Constants::KeyNames::RenderObject::Ruleset::list.addIndex(idx);
-        auto Ruleset = getRuleset(self.domainScope, key.view(), self);
+        auto const key = rulesetArray.getRootScope().addIndex(idx);
+        auto Ruleset = getRuleset(rulesetArray, key.view(), self);
 
         if (std::holds_alternative<std::monostate>(Ruleset)) {
             // Skip invalid entry

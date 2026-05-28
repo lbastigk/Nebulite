@@ -30,8 +30,9 @@ public:
      * @param rulesetsGlobal The global Ruleset objects.
      * @param rulesetsLocal The local Ruleset objects.
      * @param self The Domain instance associated with the entries.
+     * @param rulesetArray The list of rulesets
      */
-    static void parse(RulesetVector& rulesetsGlobal, RulesetVector& rulesetsLocal, Execution::Domain& self);
+    static void parse(RulesetVector& rulesetsGlobal, RulesetVector& rulesetsLocal, Execution::Domain& self, Data::JsonScope const& rulesetArray);
 
     /**
      * @brief Parses a single Ruleset from a JSON key inside a Domain or a static ruleset identifier.

@@ -17,6 +17,7 @@
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Execution/DomainTree.hpp"
 #include "Interaction/Logic/Expression.hpp"
+#include "Module/Domain/Common/Ruleset.hpp"
 #include "Module/Domain/Initializer.hpp"
 #include "Nebulite.hpp"
 #include "Utility/IO/Capture.hpp"
@@ -219,6 +220,15 @@ void Domain::updateModules() const {
 
 void Domain::parseTaskQueues(bool const& recover){
     Global::instance().notifyEvent(tasks.parse(*this, domainScope, recover));
+}
+
+uint64_t Domain::estimateComputationalCost(bool const& onlyInternal) const {
+    Module::Domain::Common::Ruleset::Key const keys(domainScope);
+
+    if (onlyInternal) {
+        return domainScope.get<uint64_t>(keys.costLocal).value_or(0);
+    }
+    return domainScope.get<uint64_t>(keys.costTotal).value_or(0);
 }
 
 } // namespace Nebulite::Interaction::Execution
