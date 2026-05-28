@@ -50,14 +50,6 @@ public:
     // [GENERATE]
 
     /**
-     * @brief Repeats a given string a specified number of times.
-     * @param str The string to repeat.
-     * @param count The number of times to repeat the string.
-     * @return The resulting string after repetition.
-     */
-    static std::string repeat(std::string_view const& str, size_t const& count);
-
-    /**
      * @brief Pads a list of words with spaces to create a table-like view.
      * @details The padding is based on the longest word.
      * @param words The list of words to pad
