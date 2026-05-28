@@ -139,11 +139,12 @@ public:
      * @brief Parses a command string into individual arguments, taking quotes into account.
      * @details Due to quote handling, ParseResult::args is a vector of strings, not a vector of string_views.
      * @param cmd The command string to parse.
+     * @todo Returning a vector of string_views should be possible. Large refactor might be necessary
      */
     static ParseResult parseQuotedArguments(std::string_view const& cmd);
 
     /**
-     * @brief Recombines a span of strings into a single string with spaces.
+     * @brief Recombines a span of string_views into a single string with spaces.
      *        Ensures that no extra spaces are added if the original arguments contained spaces.
      * @param args The span of argument strings.
      * @return The recombined argument string.
