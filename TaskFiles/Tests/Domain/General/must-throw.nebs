@@ -1,7 +1,20 @@
 # Test the must-throw functionality
 
+# Idea: must-throw is basically a try-catch wrapper and expects the code inside to throw an error.
+# If it doesn't throw, must-throw itself will throw an error:
+#
+# # must-throw args
+# try:
+#   parse(args)
+# catch:
+#   return ok
+# throw "Expected an error to be thrown"
+#
+
 # Catch a simple throw
 must-throw throw
 
 # Catch a throw from a must-throw
 must-throw must-throw nop
+
+exit
