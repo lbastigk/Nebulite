@@ -10,7 +10,6 @@
 // Includes
 
 // Standard library
-#include <cstdlib>
 #include <cxxabi.h>
 #include <memory>
 #include <string>
@@ -243,156 +242,157 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindVariable(bool* varPtr, std::s
 // Binding helper
 
 namespace ShapeClassifier {
-    template<typename...> inline constexpr bool always_false = false;
 
-    constexpr bool breakBuild = false;
+// NOLINTNEXTLINE
+enum class FunctionShape : uint8_t {
+    Unknown,
 
-    enum class FunctionShape : uint8_t {
-        Unknown,
+    // Member shapes
+    Member_Legacy_IntConstChar,
 
-        // Member shapes
-        Member_Legacy_IntConstChar,
+    Member_Modern_NoAddArgs,
+    Member_Modern_NoAddArgsConstRef,
 
-        Member_Modern_NoAddArgs,
-        Member_Modern_NoAddArgsConstRef,
+    Member_Modern_Full,
+    Member_Modern_FullConstRef,
 
-        Member_Modern_Full,
-        Member_Modern_FullConstRef,
+    Member_NoArgs,
+    Member_NoCmdArgs,
 
-        Member_NoArgs,
-        Member_NoCmdArgs,
+    // Free / static shapes
+    Free_Legacy_IntChar,
+    Free_Legacy_IntConstChar,
 
-        // Free / static shapes
-        Free_Legacy_IntChar,
-        Free_Legacy_IntConstChar,
+    Free_Modern_NoAddArgs,
+    Free_Modern_NoAddArgsConstRef,
 
-        Free_Modern_NoAddArgs,
-        Free_Modern_NoAddArgsConstRef,
+    Free_Modern_Full,
+    Free_Modern_FullConstRef,
 
-        Free_Modern_Full,
-        Free_Modern_FullConstRef,
+    Free_NoArgs,
+    Free_NoCmdArgs
+};
 
-        Free_NoArgs,
-        Free_NoCmdArgs
-    };
+// Extract return, class and parameter list from member-function pointer types
+template <typename T> struct mfp_traits; // primary
 
-    // Extract return, class and parameter list from member-function pointer types
-    template <typename T> struct mfp_traits; // primary
+template <typename R, typename C, typename... Ps>
+struct mfp_traits<R(C::*)(Ps...)> {
+    using return_t = R;
+    using class_t = C;
+    using params  = std::tuple<Ps...>;
+    static constexpr bool is_const = false;
+};
 
-    template <typename R, typename C, typename... Ps>
-    struct mfp_traits<R(C::*)(Ps...)> {
-        using return_t = R;
-        using class_t = C;
-        using params  = std::tuple<Ps...>;
-        static constexpr bool is_const = false;
-    };
+template <typename R, typename C, typename... Ps>
+struct mfp_traits<R(C::*)(Ps...) const> {
+    using return_t = R;
+    using class_t = C;
+    using params  = std::tuple<Ps...>;
+    static constexpr bool is_const = true;
+};
 
-    template <typename R, typename C, typename... Ps>
-    struct mfp_traits<R(C::*)(Ps...) const> {
-        using return_t = R;
-        using class_t = C;
-        using params  = std::tuple<Ps...>;
-        static constexpr bool is_const = true;
-    };
+// Classify function pointers
+template <typename FunctionPointer, typename ReturnValue, typename... AdditionalArgs>
+// NOLINTNEXTLINE
+constexpr FunctionShape classifyFunctionPtr() {
+    using M = std::decay_t<FunctionPointer>;
+    using Traits = mfp_traits<M>;
+    using C = Traits::class_t;
 
-    // Classify function pointers
-    template <typename FunctionPointer, typename ReturnValue, typename... AdditionalArgs>
-    constexpr FunctionShape classifyFunctionPtr() {
-        using M = std::decay_t<FunctionPointer>;
-        using Traits = mfp_traits<M>;
-        using C = Traits::class_t;
+    using Span = FuncTree<ReturnValue, AdditionalArgs...>::CmdArgs::Span;
+    using SpanConstRef = FuncTree<ReturnValue, AdditionalArgs...>::CmdArgs::SpanConstRef;
 
-        using Span = FuncTree<ReturnValue, AdditionalArgs...>::CmdArgs::Span;
-        using SpanConstRef = FuncTree<ReturnValue, AdditionalArgs...>::CmdArgs::SpanConstRef;
+    // We test with both const and non-const object to support both member types
+    using Obj = C&;
+    using ConstObj = const C&;
 
-        // We test with both const and non-const object to support both member types
-        using Obj = C&;
-        using ConstObj = const C&;
+    //------------------------------------------
 
-        //------------------------------------------
-
-        if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, int, char const**> ||
-                      std::is_invocable_r_v<ReturnValue, M, ConstObj, int, char const**>) {
-            return FunctionShape::Member_Legacy_IntConstChar;
-        }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, SpanConstRef, AdditionalArgs...> ||
-                           std::is_invocable_r_v<ReturnValue, M, ConstObj, SpanConstRef, AdditionalArgs...>) {
-            return FunctionShape::Member_Modern_FullConstRef;
-        }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, Span, AdditionalArgs...> ||
-                           std::is_invocable_r_v<ReturnValue, M, ConstObj, Span, AdditionalArgs...>) {
-            return FunctionShape::Member_Modern_Full;
-        }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, SpanConstRef> ||
-                           std::is_invocable_r_v<ReturnValue, M, ConstObj, SpanConstRef>) {
-            return FunctionShape::Member_Modern_NoAddArgsConstRef;
-        }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, Span> ||
-                           std::is_invocable_r_v<ReturnValue, M, ConstObj, Span>) {
-            return FunctionShape::Member_Modern_NoAddArgs;
-        }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, AdditionalArgs...> ||
-                           std::is_invocable_r_v<ReturnValue, M, ConstObj, AdditionalArgs...>) {
-            return FunctionShape::Member_NoCmdArgs;
-        }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj> ||
-                           std::is_invocable_r_v<ReturnValue, M, ConstObj>) {
-            return FunctionShape::Member_NoArgs;
-        }
-        else {
-            return FunctionShape::Unknown;
-        }
+    if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, int, char const**> ||
+                  std::is_invocable_r_v<ReturnValue, M, ConstObj, int, char const**>) {
+        return FunctionShape::Member_Legacy_IntConstChar;
     }
-
-    // Classify free/static function pointers
-    template <typename FunctionPointer, typename ReturnValue, typename... AdditionalArgs>
-    constexpr FunctionShape classifyFreeFunction() {
-        using F = std::decay_t<FunctionPointer>;
-        using Span = FuncTree<ReturnValue, AdditionalArgs...>::CmdArgs::Span;
-        using SpanConstRef = FuncTree<ReturnValue, AdditionalArgs...>::CmdArgs::SpanConstRef;
-
-        if constexpr (std::is_invocable_r_v<ReturnValue, F, int, char**>) {
-            return FunctionShape::Free_Legacy_IntChar;
-        }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, F, int, char const**>) {
-            return FunctionShape::Free_Legacy_IntConstChar;
-        }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, F, SpanConstRef, AdditionalArgs...>) {
-            return FunctionShape::Free_Modern_FullConstRef;
-        }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, F, Span, AdditionalArgs...>) {
-            return FunctionShape::Free_Modern_Full;
-        }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, F, SpanConstRef>) {
-            return FunctionShape::Free_Modern_NoAddArgsConstRef;
-        }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, F, Span>) {
-            return FunctionShape::Free_Modern_NoAddArgs;
-        }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, F, AdditionalArgs...>) {
-            return FunctionShape::Free_NoCmdArgs;
-        }
-        else if constexpr (std::is_invocable_r_v<ReturnValue, F>) {
-            return FunctionShape::Free_NoArgs;
-        }
-        else {
-            return FunctionShape::Unknown;
-        }
+    else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, SpanConstRef, AdditionalArgs...> ||
+                       std::is_invocable_r_v<ReturnValue, M, ConstObj, SpanConstRef, AdditionalArgs...>) {
+        return FunctionShape::Member_Modern_FullConstRef;
     }
-
-    // Unified classifier that dispatches based on pointer category
-    template <typename FunctionPointer, typename ReturnValue, typename... AdditionalArgs>
-    constexpr FunctionShape classifyFunction() {
-        if constexpr (std::is_member_function_pointer_v<FunctionPointer>) {
-            return classifyFunctionPtr<FunctionPointer, ReturnValue, AdditionalArgs...>();
-        } else if constexpr (std::is_pointer_v<FunctionPointer> &&
-                             std::is_function_v<std::remove_pointer_t<FunctionPointer>>) {
-            return classifyFreeFunction<FunctionPointer, ReturnValue, AdditionalArgs...>();
-        } else {
-            static_assert(always_false<FunctionPointer>, "classifyFunction received an unsupported function pointer type.");
-            return FunctionShape::Unknown;
-        }
+    else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, Span, AdditionalArgs...> ||
+                       std::is_invocable_r_v<ReturnValue, M, ConstObj, Span, AdditionalArgs...>) {
+        return FunctionShape::Member_Modern_Full;
     }
+    else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, SpanConstRef> ||
+                       std::is_invocable_r_v<ReturnValue, M, ConstObj, SpanConstRef>) {
+        return FunctionShape::Member_Modern_NoAddArgsConstRef;
+    }
+    else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, Span> ||
+                       std::is_invocable_r_v<ReturnValue, M, ConstObj, Span>) {
+        return FunctionShape::Member_Modern_NoAddArgs;
+    }
+    else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj, AdditionalArgs...> ||
+                       std::is_invocable_r_v<ReturnValue, M, ConstObj, AdditionalArgs...>) {
+        return FunctionShape::Member_NoCmdArgs;
+    }
+    else if constexpr (std::is_invocable_r_v<ReturnValue, M, Obj> ||
+                       std::is_invocable_r_v<ReturnValue, M, ConstObj>) {
+        return FunctionShape::Member_NoArgs;
+    }
+    else {
+        return FunctionShape::Unknown;
+    }
+}
+
+// Classify free/static function pointers
+template <typename FunctionPointer, typename ReturnValue, typename... AdditionalArgs>
+// NOLINTNEXTLINE
+constexpr FunctionShape classifyFreeFunction() {
+    using F = std::decay_t<FunctionPointer>;
+    using Span = FuncTree<ReturnValue, AdditionalArgs...>::CmdArgs::Span;
+    using SpanConstRef = FuncTree<ReturnValue, AdditionalArgs...>::CmdArgs::SpanConstRef;
+
+    if constexpr (std::is_invocable_r_v<ReturnValue, F, int, char**>) {
+        return FunctionShape::Free_Legacy_IntChar;
+    }
+    else if constexpr (std::is_invocable_r_v<ReturnValue, F, int, char const**>) {
+        return FunctionShape::Free_Legacy_IntConstChar;
+    }
+    else if constexpr (std::is_invocable_r_v<ReturnValue, F, SpanConstRef, AdditionalArgs...>) {
+        return FunctionShape::Free_Modern_FullConstRef;
+    }
+    else if constexpr (std::is_invocable_r_v<ReturnValue, F, Span, AdditionalArgs...>) {
+        return FunctionShape::Free_Modern_Full;
+    }
+    else if constexpr (std::is_invocable_r_v<ReturnValue, F, SpanConstRef>) {
+        return FunctionShape::Free_Modern_NoAddArgsConstRef;
+    }
+    else if constexpr (std::is_invocable_r_v<ReturnValue, F, Span>) {
+        return FunctionShape::Free_Modern_NoAddArgs;
+    }
+    else if constexpr (std::is_invocable_r_v<ReturnValue, F, AdditionalArgs...>) {
+        return FunctionShape::Free_NoCmdArgs;
+    }
+    else if constexpr (std::is_invocable_r_v<ReturnValue, F>) {
+        return FunctionShape::Free_NoArgs;
+    }
+    else {
+        return FunctionShape::Unknown;
+    }
+}
+
+// Unified classifier that dispatches based on pointer category
+template <typename FunctionPointer, typename ReturnValue, typename... AdditionalArgs>
+// NOLINTNEXTLINE
+constexpr FunctionShape classifyFunction() {
+    if constexpr (std::is_member_function_pointer_v<FunctionPointer>) {
+        return classifyFunctionPtr<FunctionPointer, ReturnValue, AdditionalArgs...>();
+    } else if constexpr (std::is_pointer_v<FunctionPointer> &&
+                         std::is_function_v<std::remove_pointer_t<FunctionPointer>>) {
+        return classifyFreeFunction<FunctionPointer, ReturnValue, AdditionalArgs...>();
+    } else {
+        static_assert(Utility::CompileTimeEvaluate::always_false(), "classifyFunction received an unsupported function pointer type.");
+        return FunctionShape::Unknown;
+    }
+}
 
 } // namespace ShapeClassifier
 
@@ -405,7 +405,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
 
     // Helpful compile-time error for pointer-to-member functions passed without an object
     if constexpr (std::is_member_function_pointer_v<DecayF>) {
-        static_assert(ShapeClassifier::always_false<Func>,
+        static_assert(Utility::CompileTimeEvaluate::always_false(),
                       "makeFunctionPtr(func) received a pointer-to-member-function. "
                       "Pass an object + member pointer using makeFunctionPtr(objPtr, &Class::mem) "
                       "or provide a free/static function or callable (lambda/std::function).");
@@ -454,7 +454,7 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
                                 std::function<ReturnValue(AdditionalArgs...)>(functionPtr));
         }
         else {
-            static_assert(ShapeClassifier::always_false<Func>, "makeFunctionPtr(func) received an unknown free/static function pointer type");
+            static_assert(Utility::CompileTimeEvaluate::always_false(), "makeFunctionPtr(func) received an unknown free/static function pointer type");
         }
     }
 
@@ -484,8 +484,8 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
                             std::function<ReturnValue(AdditionalArgs...)>(functionPtr));
     }
     else {
-        static_assert(ShapeClassifier::always_false<Func>, "makeFunctionPtr(func) could not deduce a supported function shape");
-        std::abort();
+        static_assert(Utility::CompileTimeEvaluate::always_false(), "makeFunctionPtr(func) could not deduce a supported function shape");
+        std::unreachable();
     }
 }
 
@@ -564,8 +564,8 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
         }
     }
     else {
-        static_assert(ShapeClassifier::always_false<MemFunc>, "makeFunctionPtr(Obj, MemFunc) received an unsupported member function pointer type");
-        return FunctionPtrT{}; // Unreachable
+        static_assert(Utility::CompileTimeEvaluate::always_false(), "makeFunctionPtr(Obj, MemFunc) received an unsupported member function pointer type");
+        std::unreachable();
     }
 }
 
