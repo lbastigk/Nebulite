@@ -235,23 +235,18 @@ std::vector<std::string_view> StringHandler::split(std::string_view const& input
     std::vector<std::string_view> tokens;
     if (!keepDelimiter) {
         size_t start = 0;
-
         while (start <= input.size()) {
             size_t end = input.find(delimiter, start);
 
             if (end == std::string_view::npos) {
                 end = input.size();
             }
-
             tokens.emplace_back(input.substr(start, end - start));
-
             if (end == input.size()) {
                 break;
             }
-
             start = end + 1;
         }
-
         return tokens;
     }
 
@@ -260,7 +255,6 @@ std::vector<std::string_view> StringHandler::split(std::string_view const& input
 
     while (start < input.size()) {
         size_t const pos = input.find(delimiter, start);
-
         if (pos == std::string_view::npos) {
             tokens.emplace_back(input.substr(start));
             break;
@@ -272,12 +266,10 @@ std::vector<std::string_view> StringHandler::split(std::string_view const& input
         }
 
         size_t const next = input.find(delimiter, pos + 1);
-
         if (next == std::string_view::npos) {
             tokens.emplace_back(input.substr(pos));
             break;
         }
-
         tokens.emplace_back(input.substr(pos, next - pos));
         start = next;
     }
@@ -312,7 +304,6 @@ int depthOf(std::string_view const& input, char const& delimiter) {
     for (auto const& c : input) {
         for (auto const& [opening, closing] : pairs) {
             if (opening != delimiter) continue;
-
             if (c == opening) {
                 count++;
             } else if (c == closing) {
@@ -328,36 +319,29 @@ int depthOf(std::string_view const& input, char const& delimiter) {
 std::vector<std::string_view>
 StringHandler::splitOnSameDepth(std::string_view const& input, char const delimiter){
     auto const basicSplitResult = split(input, delimiter, true);
-
     std::vector<std::string_view> result;
-
     std::string_view current;
-    size_t currentDepth = 0;
-
+    int currentDepth = 0;
     for (auto const& part : basicSplitResult) {
-
         if (current.empty()) {
             current = part;
         } else {
             // extend existing view
             current = {
+                // NOLINTNEXTLINE
                 current.data(),
                 static_cast<std::size_t>(part.data() + part.size() - current.data())
             };
         }
-
         currentDepth = depth(current);
-
         if (currentDepth == 0) {
             result.push_back(current);
             current = {};
         }
     }
-
     if (!current.empty()) {
         result.push_back(current);
     }
-
     return result;
 }
 
@@ -384,23 +368,19 @@ StringHandler::splitOnSameDepthOf(std::string_view const& input, Delimiter const
     auto const openingChar = delimiterToOpeningChar(delimiter);
     auto const closingChar = delimiterToClosingChar(delimiter);
     auto const basicSplitResult = split(input, openingChar, true);
-
     std::vector<std::string_view> result;
-
     std::string_view current;
-
     for (auto const& part : basicSplitResult) {
-
         if (current.empty()) {
             current = part;
         } else {
             // extend current view to include part
             current = {
+                // NOLINTNEXTLINE
                 current.data(),
                 static_cast<std::size_t>(part.data() + part.size() - current.data())
             };
         }
-
         if (depthOf(current, openingChar) == 0) {
             if (auto const pos = current.find_last_of(closingChar); pos != std::string_view::npos) {
                 // [current.begin(), closingChar]
@@ -416,11 +396,9 @@ StringHandler::splitOnSameDepthOf(std::string_view const& input, Delimiter const
             current = {};
         }
     }
-
     if (!current.empty()) {
         result.emplace_back(current);
     }
-
     return result;
 }
 
