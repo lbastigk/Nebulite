@@ -32,22 +32,20 @@ public:
      */
     template <typename... Args>
     static bool startsWithSequence(std::string_view const& str, Args... args) {
-        size_t offset = 0;
-
-        auto check_one = [&](std::string_view const part) -> bool {
-            if (str.size() < offset + part.size()) {
+        static_assert(sizeof...(Args) > 0, "At least one sequence argument is required for startsWithSequence");
+        auto impl = [&]<typename First, typename... Rest>(auto&& self, std::string_view remaining, First first, Rest... rest) -> bool {
+            if (!remaining.starts_with(first)) {
                 return false;
             }
 
-            if (str.substr(offset, part.size()) != part) {
-                return false;
+            if constexpr (sizeof...(Rest) == 0) {
+                return true;
+            } else {
+                return self(self, remaining.substr(first.size()), rest...);
             }
-
-            offset += part.size();
-            return true;
         };
 
-        return (check_one(args) && ...);
+        return impl(impl, str, args...);
     }
 
     // [GENERATE]
