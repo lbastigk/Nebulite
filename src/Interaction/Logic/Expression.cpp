@@ -243,12 +243,12 @@ std::vector<std::string> getTokens(std::string_view const& expr) {
 
             // Add all subtokens to the actual list of tokens
             std::ranges::for_each(subTokens, [&tokens](std::string_view const& entry) {
-                tokens.push_back(std::string(entry));
+                tokens.emplace_back(entry);
             });
         } else {
             // If it doesn't start with a '$', it's a text token / potentially with variables inside
             // Just add the text token
-            tokens.push_back(std::string(token));
+            tokens.emplace_back(token);
         }
     }
     return tokens;

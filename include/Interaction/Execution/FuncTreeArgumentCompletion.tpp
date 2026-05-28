@@ -17,7 +17,8 @@
 #include <string>
 
 // Nebulite
-#include "Interaction/Execution/FuncTree.hpp" // NOLINTTHISLINE
+// NOLINTNEXTLINE
+#include "Interaction/Execution/FuncTree.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {

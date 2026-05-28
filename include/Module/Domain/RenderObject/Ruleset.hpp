@@ -11,8 +11,8 @@
 
 // Nebulite
 #include "Data/Document/KeyGroup.hpp"
-#include "Module/Base/DomainModule.hpp"
 #include "Interaction/Rules/Listener.hpp"
+#include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------
 // Forward declarations

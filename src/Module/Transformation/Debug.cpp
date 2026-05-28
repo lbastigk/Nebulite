@@ -2,9 +2,9 @@
 // Includes
 
 // Standard library
-#include <algorithm>
 #include <ranges>
 #include <span>
+#include <stdexcept>
 #include <string>
 
 // Nebulite

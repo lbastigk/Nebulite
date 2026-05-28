@@ -5,6 +5,7 @@
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 
 // Nebulite
 #include "Constants/Event.hpp"

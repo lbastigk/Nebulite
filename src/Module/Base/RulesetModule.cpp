@@ -20,7 +20,11 @@ RulesetModule::RulesetModule(std::string_view const& moduleName)
 
 Interaction::Rules::BaseListFunction RulesetModule::generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const {
     return [this, baseKeys](const Interaction::Execution::Domain& domain) -> double** {
-        return domain.ensureOrderedCacheList(id, baseKeys);
+        try {
+            return domain.ensureOrderedCacheList(id, baseKeys);
+        } catch (...) {
+            return nullptr;
+        }
     };
 }
 

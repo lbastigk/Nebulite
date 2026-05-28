@@ -17,6 +17,7 @@
 #include "Module/Domain/GlobalSpace/Settings.hpp"
 #include "Module/Domain/Renderer/Input.hpp"
 #include "Nebulite.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {

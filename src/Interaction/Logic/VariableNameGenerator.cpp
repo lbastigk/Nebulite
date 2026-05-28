@@ -5,6 +5,7 @@
 // NOLINTNEXTLINE
 #include <cstdint>
 #include <string>
+#include <string_view>
 
 // Nebulite
 #include "Interaction/Logic/VariableNameGenerator.hpp"

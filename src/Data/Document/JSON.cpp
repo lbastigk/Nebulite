@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+// NOLINTNEXTLINE
+#include <cstdint>
 #include <expected>
 #include <memory>
 #include <mutex>
@@ -14,6 +16,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <variant>
 #include <vector>
 
 // External
