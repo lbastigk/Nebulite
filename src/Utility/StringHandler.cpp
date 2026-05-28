@@ -62,12 +62,15 @@ bool StringHandler::isNumber(std::string_view const& str) {
     // Check if all characters are digits, +, -, or .
     // Then check if count of . is at most 1
     // Then check if + or - is only at the start
-    return std::ranges::all_of(str, [](char const c) {
-           return std::isdigit(c) || c == '+' || c == '-' || c == '.';
-       })
-       && std::ranges::count(str, '.') <= 1
-       && (str.find_first_of("+-") <= 0 || str.find_first_of("+-") == std::string::npos)
-       && !str.empty();
+    return !str.empty()
+        && std::ranges::all_of(str | std::views::enumerate, [](auto const& indexedChar) {
+            auto const& [index, c] = indexedChar;
+            if (index == 0 && (c == '+' || c == '-')){
+                return true; // Allow + or - at the start))
+            }
+            return std::isdigit(c) || c == '.';
+        })
+        && std::ranges::count(str, '.') <= 1;
 }
 
 // [STRIP]
