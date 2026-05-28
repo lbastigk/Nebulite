@@ -4,7 +4,7 @@
 // Standard library
 #include <memory>
 #include <span>
-#include <string>
+#include <string_view>
 
 // Nebulite
 #include "Constants/Event.hpp"
@@ -26,7 +26,7 @@ Constants::Event Ruleset::updateHook() {
 //------------------------------------------
 // Available Functions
 
-Constants::Event Ruleset::broadcast(std::span<std::string const> const& args) const {
+Constants::Event Ruleset::broadcast(std::span<std::string_view const> const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
@@ -41,7 +41,7 @@ Constants::Event Ruleset::broadcast(std::span<std::string const> const& args) co
     return Constants::StandardCapture::Error::Ruleset::parsingFailed(domain.capture);
 }
 
-Constants::Event Ruleset::listen(std::span<std::string const> const& args) const {
+Constants::Event Ruleset::listen(std::span<std::string_view const> const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

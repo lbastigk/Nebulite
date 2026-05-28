@@ -304,7 +304,7 @@ public:
      * @brief Prints a list of all available functions with their descriptions to the console.
      * @details Utilizes a temporary funcTree for the sole purpose of printing the list of functions with their descriptions in a formatted manner.
      */
-    static void help(std::span<std::string const> const& args);
+    static void help(std::span<std::string_view const> const& args);
 
 private:
     //------------------------------------------

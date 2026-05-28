@@ -35,7 +35,7 @@ namespace Nebulite::Interaction::Execution {
  *          Variables can be bound to the command tree and accessed within functions,
  *          provided the functions themselves have access to the space of the variables.
  */
-template <typename returnValue, typename... additionalArgs>
+template <typename ReturnValue, typename... AdditionalArgs>
 class FuncTree {
 public:
     //------------------------------------------
@@ -43,28 +43,28 @@ public:
 
     // Command argument span types
     struct CmdArgs {
-        using Span = std::span<std::string const>;
-        using SpanConstRef = std::span<std::string const> const&;
+        using Span = std::span<std::string_view const>;
+        using SpanConstRef = std::span<std::string_view const> const&;
     };
 
     // Supported function signatures
     struct SupportedFunctions {
         struct Legacy {
-            using IntConstChar = std::function<returnValue(int, char const**)>;
+            using IntConstChar = std::function<ReturnValue(int, char const**)>;
         };
 
         struct Modern {
-            using Full = std::function<returnValue(typename CmdArgs::Span, additionalArgs...)>;
-            using FullConstRef = std::function<returnValue(typename CmdArgs::SpanConstRef, additionalArgs...)>;
-            using NoAddArgs = std::function<returnValue(typename CmdArgs::Span)>;
-            using NoAddArgsConstRef = std::function<returnValue(typename CmdArgs::SpanConstRef)>;
-            using NoCmdArgs = std::function<returnValue(additionalArgs...)>;
-            using NoArgs = std::function<returnValue()>;
+            using Full = std::function<ReturnValue(typename CmdArgs::Span, AdditionalArgs...)>;
+            using FullConstRef = std::function<ReturnValue(typename CmdArgs::SpanConstRef, AdditionalArgs...)>;
+            using NoAddArgs = std::function<ReturnValue(typename CmdArgs::Span)>;
+            using NoAddArgsConstRef = std::function<ReturnValue(typename CmdArgs::SpanConstRef)>;
+            using NoCmdArgs = std::function<ReturnValue(AdditionalArgs...)>;
+            using NoArgs = std::function<ReturnValue()>;
         };
     };
 
     // Function pointer type
-    using FunctionPtr = std::conditional_t<sizeof...(additionalArgs) == 0,
+    using FunctionPtr = std::conditional_t<sizeof...(AdditionalArgs) == 0,
         // no additional args -> avoid duplicates (keep only no-add variants)
         std::variant<
             typename SupportedFunctions::Legacy::IntConstChar,
@@ -118,7 +118,7 @@ public:
      * @param valFunctionNotFound Value to return if the parsed function was not found
      * @param captureInstance Capture instance for logging
      */
-    FuncTree(std::string_view const& treeName, returnValue const& valDefault, returnValue const& valFunctionNotFound, Utility::IO::Capture& captureInstance);
+    FuncTree(std::string_view const& treeName, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, Utility::IO::Capture& captureInstance);
 
     /**
      * @brief Inherits functions from another Tree.
@@ -139,7 +139,7 @@ public:
      * @brief Links a function to call before parsing (e.g., for setting up variables or locking resources)
      * @param func Function to call before parsing
      */
-    void setPreParse(std::function<returnValue()> func) {
+    void setPreParse(std::function<ReturnValue()> func) {
         preParse = std::move(func);
     }
 
@@ -153,9 +153,9 @@ public:
      * @param addArgs Additional arguments to pass to the executed function
      * @return The return value of the executed function, or the standard/error value.
      */
-    returnValue parseStr(std::string_view const& cmd, additionalArgs... addArgs);
-    returnValue parse(std::vector<std::string> const& args, additionalArgs... addArgs);
-    returnValue parse(std::span<std::string const> const& args, additionalArgs... addArgs);
+    ReturnValue parseStr(std::string_view const& cmd, AdditionalArgs... addArgs);
+    ReturnValue parse(std::vector<std::string_view> const& args, AdditionalArgs... addArgs);
+    ReturnValue parse(std::span<std::string_view const> const& args, AdditionalArgs... addArgs);
 
     //------------------------------------------
     // Binding (Functions, Categories, Variables)
@@ -229,21 +229,21 @@ public:
      * @param patternStr The pattern to match for completions, full command
      * @return A vector of possible completions
      */
-    std::vector<std::string> findCompletionForFullCommand(std::string const& patternStr);
+    std::vector<std::string> findCompletionForFullCommand(std::string_view const& patternStr);
 
 private:
     // Name of the tree, used for help and output
     std::string TreeName;
 
     // Function to call before parsing (e.g., for setting up variables or locking resources)
-    std::function<returnValue()> preParse = nullptr;
+    std::function<ReturnValue()> preParse = nullptr;
 
     // Capture instance for logging
     Utility::IO::Capture& capture;
 
     struct StandardReturnValues {
-        returnValue valDefault;
-        returnValue valFunctionNotFound;
+        ReturnValue valDefault;
+        ReturnValue valFunctionNotFound;
     } standardReturn;
 
     /**
@@ -301,13 +301,13 @@ private:
      * @param addArgs Additional arguments to pass to the function.
      * @return The return value of the function.
      */
-    returnValue executeFunction(std::string const& name, std::span<std::string const> const& args, additionalArgs... addArgs);
+    ReturnValue executeFunction(std::string_view const& name, std::span<std::string_view const> const& args, AdditionalArgs... addArgs);
 
     /**
      * @brief Displays help information to all bound functions. Automatically bound to any FuncTree on construction.
      * @return The standard return value.
      */
-    returnValue help(std::span<std::string const> const& args);
+    ReturnValue help(std::span<std::string_view const> const& args);
 
     /**
      * @brief Retrieves a list of all functions and their descriptions.
@@ -336,7 +336,7 @@ private:
     /**
      * @brief Displays detailed help for a specific function, category, or variable.
      */
-    void specificHelp(std::string const& funcName);
+    void specificHelp(std::string_view const& funcName);
 
     using categoryIterator = decltype(bindingContainer.categories)::iterator;
     using functionIterator = decltype(bindingContainer.functions)::iterator;
@@ -360,7 +360,7 @@ private:
      * @param name Name of the function/category/variable to find
      * @return SearchResult struct containing found flags
      */
-    BindingSearchResult find(std::string const& name);
+    BindingSearchResult find(std::string_view const& name);
 
     /**
      * @brief Displays general help for all functions, categories, and variables.
@@ -370,68 +370,20 @@ private:
     //------------------------------------------
     // Argument processing helper
 
+    void processVariable(std::string_view const& varName);
+
     /**
      * @brief Processes variable arguments at the start of the argument list.
      * @param args The arguments to remove and process variable assignments from.
      */
-    void processVariableArguments(std::span<std::string const>& args) {
-        while (!args.empty()) {
-            if (auto const& arg = args[0]; arg.length() >= 2 && arg.starts_with("--")) {
-                // Extract name
-                std::string name = arg.substr(2);
-
-                // Set variable if attached
-                bool found = false;
-                auto& vars = bindingContainer.variables;
-                if (auto const& varIt = vars.find(name); varIt != vars.end()) {
-                    if (auto const& varInfo = varIt->second; varInfo.pointer) {
-                        *varInfo.pointer = true;
-                        found = true;
-                    }
-                }
-                else {
-                    for (auto const& inheritedTree : inheritedTrees) {
-                        auto& inheritedVars = inheritedTree->bindingContainer.variables;
-                        if (auto const& inheritedVarIt = inheritedVars.find(name); inheritedVarIt != inheritedVars.end()) {
-                            if (auto const& varInfo = inheritedVarIt->second; varInfo.pointer) {
-                                *varInfo.pointer = true;
-                                found = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                // Print error if not found
-                if (!found) ExecutionErrorMessage::unknownVariable(capture, TreeName, name);
-
-                // Remove first arg
-                args = args.subspan(1);
-            } else {
-                // no more vars to parse
-                return;
-            }
-        }
-    }
+    void processVariableArguments(std::span<std::string_view const>& args);
 
     /**
      * @brief Finds an argument in inherited FuncTrees.
      * @param funcName Name of the function to find
      * @return Pointer to the FuncTree where the function was found, or nullptr if not found.
      */
-    std::shared_ptr<FuncTree> findInInheritedTrees(std::string const& funcName) {
-        // Prerequisite if an inherited FuncTree is linked
-        if (!inheritedTrees.empty() && !hasFunction(funcName)) {
-            // Check if the function is in an inherited tree
-            for (auto& inheritedTree : inheritedTrees) {
-                if (inheritedTree != nullptr && inheritedTree->hasFunction(funcName)) {
-                    // Function is in inherited tree, parse there
-                    return inheritedTree;
-                }
-            }
-        }
-        return nullptr;
-    }
+    std::shared_ptr<FuncTree> findInInheritedTrees(std::string_view const& funcName);
 
     //------------------------------------------
     // Completion
@@ -442,14 +394,14 @@ private:
      * @param args A list of arguments to complete
      * @return The standard return value.
      */
-    returnValue complete(std::span<std::string const> const& args);
+    ReturnValue complete(std::span<std::string_view const> const& args);
 
     /**
      * @brief Finds possible completions for a given pattern and prefix in the current FuncTree.
      * @param pattern The pattern to match for completions
      * @return A vector of possible completions
      */
-    std::vector<std::string> findCompletions(std::string const& pattern);
+    std::vector<std::string> findCompletions(std::string_view const& pattern);
 
     /**
      * @brief Traverses into a category based on the provided name.
@@ -457,7 +409,7 @@ private:
      * @param ftree Pointer to the current FuncTree
      * @return Pointer to the FuncTree of the category, or nullptr if not found.
      */
-    FuncTree* traverseIntoCategory(std::string const& categoryName, FuncTree const* ftree);
+    FuncTree* traverseIntoCategory(std::string_view const& categoryName, FuncTree const* ftree);
 };
 } // namespace Nebulite::Interaction::Execution
 

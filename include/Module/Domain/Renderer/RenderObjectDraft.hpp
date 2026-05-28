@@ -41,7 +41,7 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event draft_parse(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    [[nodiscard]] Constants::Event draft_parse(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr draft_parse_name = "draft parse";
     static auto constexpr draft_parse_desc = "Parse Renderobject-specific functions on the draft.\n"
         "\n"

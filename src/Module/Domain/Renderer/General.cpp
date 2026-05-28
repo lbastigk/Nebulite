@@ -51,7 +51,7 @@ Constants::Event General::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Event General::envLoad(std::span<std::string const> const& args) const {
+Constants::Event General::envLoad(std::span<std::string_view const> const& args) const {
     if (args.size() < 2) {
         // no name provided, load empty env
         domain.deserialize("{}");
@@ -73,7 +73,7 @@ Constants::Event General::envDeload() const {
     return Constants::Event::Success;
 }
 
-Constants::Event General::spawn(std::span<std::string const> const& args) const {
+Constants::Event General::spawn(std::span<std::string_view const> const& args) const {
     if (args.size() > 1) {
         // Using all args, allowing for whitespaces in the link and in the following functioncalls:
         // e.g.: spawn Planets/sun.jsonc|set text.str This is a sun
@@ -359,8 +359,11 @@ Constants::Event General::dumpView() const {
 }
 
 Constants::Event General::selectedObjectGet(int const argc, char const** argv){
-    if (argc != 2) {
+    if (argc < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
+    }
+    if (argc > 2) {
+        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
 
     // Supports only uint32_t ids
@@ -376,7 +379,7 @@ Constants::Event General::selectedObjectGet(int const argc, char const** argv){
     return Constants::Event::Warning;
 }
 
-Constants::Event General::selectedObjectParse(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
+Constants::Event General::selectedObjectParse(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

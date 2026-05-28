@@ -130,7 +130,8 @@ void ExecutionErrorMessage::unknownVariable(Utility::IO::Capture& c, std::string
 
 void ExecutionErrorMessage::functionNotFound(Utility::IO::Capture& c, std::string_view const& tree, std::string_view const& function, std::string_view const& arguments) {
     c.error.println("Function '", function, "' not found in FuncTree '", tree, "', its inherited FuncTrees or their categories!");
-    c.error.println("Arguments: ", arguments);
+    c.error.println("Arguments:");
+    c.error.println(arguments);
 }
 
 

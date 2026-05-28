@@ -189,7 +189,7 @@ std::vector<std::string> getTokens(std::string_view const& expr) {
     // First, we must split the expression into tokens
     // Split, keep delimiter(at start)
     // "abc$def$ghi" -> ["abc", "$def", "$ghi"]
-    std::vector<std::string> tokensPhase1 = Utility::StringHandler::split(expr, '$', true);
+    auto tokensPhase1 = Utility::StringHandler::split(expr, '$', true);
 
     // Combine tokens where the amount of `(` + `{` and `}` + `)` are not the same
     std::vector<std::string> tokensPhase2;
@@ -229,23 +229,26 @@ std::vector<std::string> getTokens(std::string_view const& expr) {
             // Remove everything until a '('
             // This part represents the '$' + formatter
             // Cannot be used, as splitOnSameDepth expects the first character to be the opening parenthesis
-            std::string const start = token.substr(0, token.find('('));
-            std::string const tokenWithoutStart = token.substr(start.length()); // Remove the leading '$'
+            auto const start = token.substr(0, token.find('('));
+            auto const tokenWithoutStart = token.substr(start.length()); // Remove the leading '$'
 
             // Split on same depth
-            std::vector<std::string> subTokens = Utility::StringHandler::splitOnSameDepthOf(tokenWithoutStart, Utility::StringHandler::Delimiter::parentheses);
+            auto subTokens = Utility::StringHandler::splitOnSameDepthOf(tokenWithoutStart, Utility::StringHandler::Delimiter::parentheses);
 
             // Add back the '$' + formatter to first subToken
             if (!subTokens.empty()) {
-                subTokens[0] = start + subTokens[0];
+                tokens.push_back(std::string(start) + std::string(subTokens[0]));
+                subTokens.erase(subTokens.begin()); // Remove the first token, as we already added it with the start
             }
 
             // Add all subtokens to the actual list of tokens
-            std::ranges::copy(subTokens, std::back_inserter(tokens));
+            std::ranges::for_each(subTokens, [&tokens](std::string_view const& entry) {
+                tokens.push_back(std::string(entry));
+            });
         } else {
             // If it doesn't start with a '$', it's a text token / potentially with variables inside
             // Just add the text token
-            tokens.push_back(token);
+            tokens.push_back(std::string(token));
         }
     }
     return tokens;
@@ -276,7 +279,7 @@ void Expression::parseIntoComponents(std::string_view const& expr) {
     }
 }
 
-Expression::Formatter Expression::Formatter::readFormatter(std::string const& formatter) {
+Expression::Formatter Expression::Formatter::readFormatter(std::string_view const& formatter) {
     // Check formatter. Integer cast should not include precision. Is ignored later on in casting but acceptable as input
     // Examples:
     // $i     : leadingZero = false , alignment = -1 , precision = -1
@@ -305,11 +308,11 @@ Expression::Formatter Expression::Formatter::readFormatter(std::string const& fo
         size_t const dotPos = formatter.find('.');
         // Read alignment
         if (dotPos != 0) {
-            fmt.alignment = std::stoi(formatter.substr(0, dotPos));
+            fmt.alignment = std::stoi(std::string(formatter.substr(0, dotPos)));
         }
         // Read precision
         if (dotPos != std::string::npos) {
-            fmt.precision = std::stoi(formatter.substr(dotPos + 1));
+            fmt.precision = std::stoi(std::string(formatter.substr(dotPos + 1)));
         }
     }
     return fmt;
@@ -365,7 +368,7 @@ std::string Expression::Formatter::format(double const& value) const {
     return token;
 }
 
-void Expression::parseTokenTypeEval(std::string const& token) {
+void Expression::parseTokenTypeEval(std::string_view const& token) {
     // $[leading zero][alignment][.][precision]<type:f,i>
     // - bool leading zero   : on/off
     // - int alignment       : <0 means no formatting
@@ -382,18 +385,17 @@ void Expression::parseTokenTypeEval(std::string const& token) {
     auto const currentComponent = std::make_shared<Component>();
 
     size_t const pos = token.find('(');
-    std::string const formatter = token.substr(1, pos - 1); // Remove leading $
-    std::string const expression = token.substr(pos);
+    auto const formatter = token.substr(1, pos - 1); // Remove leading $
+    auto const expression = token.substr(pos);
     currentComponent->formatter = Formatter::readFormatter(formatter);
 
     // Register internal variables
     // And build equivalent expression using new variable names
     for (auto const& subToken : Utility::StringHandler::splitOnSameDepthOf(expression, Utility::StringHandler::Delimiter::brace)) {
         if (subToken.starts_with('{')) {
-            std::string const te_name = varNameGen.getUniqueName(subToken);
-            std::string key = subToken.substr(1, subToken.length() - 2);
-            auto const contextType = ContextDeriver::getTypeFromString(key);
-            key = ContextDeriver::stripContext(key);
+            auto const te_name = varNameGen.getUniqueName(subToken);
+            auto key = ContextDeriver::stripContext(subToken.substr(1, subToken.length() - 2));
+            auto const contextType = ContextDeriver::getTypeFromString(subToken.substr(1, subToken.length() - 2));
             registerVariable(te_name, key, contextType);
             currentComponent->stringRepresentation += te_name;
         } else {
@@ -410,17 +412,17 @@ void Expression::parseTokenTypeEval(std::string const& token) {
     components.push_back(currentComponent);
 }
 
-void Expression::parseTokenTypeVariable(std::string const& token) {
+void Expression::parseTokenTypeVariable(std::string_view const& token) {
     auto const currentComponent = std::make_shared<Component>();
 
     // 1.) remove {}
     // We keep all other potential {} inside the variable name for later MultiResolve
-    std::string inner = token.substr(1, token.length() - 2);
+    auto inner = token.substr(1, token.length() - 2);
 
     // 2.) Check if inner starts with a number followed by an exclamation mark, if so, this is an evaluation wait specifier,
     // and we set the evaluation wait of the component accordingly, and remove the specifier from the inner string
     if (auto const exclamationMarkPosition = inner.find('!'); exclamationMarkPosition != std::string::npos) {
-        if (std::string const beforeExclamation = inner.substr(0, exclamationMarkPosition); Utility::StringHandler::isNumber(beforeExclamation)) {
+        if (auto const beforeExclamation = inner.substr(0, exclamationMarkPosition); Utility::StringHandler::isNumber(beforeExclamation)) {
             if (!beforeExclamation.empty()) {
                 currentComponent->evaluationWait = std::stoul(std::string(beforeExclamation));
             }
@@ -495,7 +497,7 @@ Expression::Expression(std::string_view const& expr){
 void Expression::parse(std::string_view const& expr) {
     reset();
     fullExpression = expr;
-    parseIntoComponents(expr);
+    parseIntoComponents(fullExpression);
     for (auto& component : components) {
         compileIfExpression(component);
     }

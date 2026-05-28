@@ -21,6 +21,35 @@ namespace Nebulite::Utility {
  */
 class StringHandler {
 public:
+    // [COMPARE]
+
+    /**
+     * @brief Checks if a given string_view str starts with a given sequence of string_views.
+     * @tparam Args The string_views to consider as the start sequence. Any number of arguments is supported.
+     * @param str The string to compare to
+     * @param args The start sequence
+     * @return True if the string starts with the given sequence, false otherwise
+     */
+    template <typename... Args>
+    static bool startsWithSequence(std::string_view const& str, Args... args) {
+        size_t offset = 0;
+
+        auto check_one = [&](std::string_view const part) -> bool {
+            if (str.size() < offset + part.size()) {
+                return false;
+            }
+
+            if (str.substr(offset, part.size()) != part) {
+                return false;
+            }
+
+            offset += part.size();
+            return true;
+        };
+
+        return (check_one(args) && ...);
+    }
+
     // [GENERATE]
 
     /**
@@ -111,6 +140,7 @@ public:
 
     /**
      * @brief Parses a command string into individual arguments, taking quotes into account.
+     * @details Due to quote handling, ParseResult::args is a vector of strings, not a vector of string_views.
      * @param cmd The command string to parse.
      */
     static ParseResult parseQuotedArguments(std::string_view const& cmd);
@@ -121,21 +151,19 @@ public:
      * @param args The span of argument strings.
      * @return The recombined argument string.
      */
-    static std::string recombineArgs(std::span<std::string const> const& args);
+    static std::string recombineArgs(std::span<std::string_view const> const& args);
 
     // [SPLIT]
 
-    // TODO: modify split functions to return a vector of views
-    //       -> re-evaluate the usage inside nebulite first
-
     /**
      * @brief Splits a string into tokens based on a delimiter.
+     * @details The delimiter is kept at the front of the next token
      * @param input The original string.
      * @param delimiter The character to split the string on.
      * @param keepDelimiter Whether to keep the delimiter in the tokens. (Optional, default: false)
      * @return A vector of tokens extracted from the input string.
      */
-    static std::vector<std::string> split(std::string_view const& input, char const& delimiter, bool const& keepDelimiter = false);
+    static std::vector<std::string_view> split(std::string_view const& input, char delimiter, bool keepDelimiter = false);
 
     /**
      * @brief Splits a string at a given delimiter, only if the depth of braces, parentheses and brackets is 0.
@@ -143,7 +171,7 @@ public:
      * @param delimiter The delimiter to split on
      * @return A vector of strings split on the same depth of parentheses.
      */
-    static std::vector<std::string> splitOnSameDepth(std::string_view const& input, char const& delimiter);
+    static std::vector<std::string_view> splitOnSameDepth(std::string_view const& input, char delimiter);
 
     /**
      * @brief Type of delimiter:
@@ -173,7 +201,7 @@ public:
      * @param delimiter The delimiter to split on
      * @return A vector of strings split on the same depth of the given delimiter
      */
-    static std::vector<std::string> splitOnSameDepthOf(std::string_view const& input, Delimiter const& delimiter);
+    static std::vector<std::string_view> splitOnSameDepthOf(std::string_view const& input, Delimiter const& delimiter);
 };
 }   // namespace Nebulite::Utility
 #endif // UTILITY_STRINGHANDLER_HPP

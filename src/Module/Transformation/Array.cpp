@@ -37,7 +37,7 @@ void Array::bindTransformations() {
 
 // Ranges
 
-bool Array::at(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool Array::at(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -45,7 +45,7 @@ bool Array::at(std::span<std::string const> const& args, Data::JsonScope* jsonDo
         if (!ensureArray(jsonDoc)) {
             return false;
         }
-        auto const index = std::stoul(args.at(1));
+        auto const index = std::stoul(std::string(args.at(1)));
         if (index >= jsonDoc->memberSize(rootKey)) {
             return false; // Index out of bounds
         }
@@ -93,7 +93,7 @@ bool Array::last(Data::JsonScope* jsonDoc) {
 }
 
 
-bool Array::subspan(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool Array::subspan(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() > 3) {
         return false;
     }
@@ -103,8 +103,8 @@ bool Array::subspan(std::span<std::string const> const& args, Data::JsonScope* j
     jsonDoc->copyMember(rootKey, tmpKey); // Using copy, as current moveMember is more of a copy+delete and thus slower
 
     // Setup start index and length, with length defaulting to the rest of the array if not provided
-    size_t const startIndex = std::stoul(args.at(1));
-    size_t const length = args.size() > 2 ? std::stoul(args.at(2)) : originalSize; // Set high enough length if not provided
+    size_t const startIndex = std::stoul(std::string(args.at(1)));
+    size_t const length = args.size() > 2 ? std::stoul(std::string(args.at(2))) : originalSize; // Set high enough length if not provided
 
     // If start index is larger than original size, return empty array
     if (startIndex >= originalSize) {
@@ -164,7 +164,7 @@ bool Array::ensureArray(Data::JsonScope* jsonDoc) {
     return newType == Data::KeyType::array;
 }
 
-bool Array::push(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool Array::push(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() < 2) {
         return false;
     }
@@ -177,12 +177,12 @@ bool Array::push(std::span<std::string const> const& args, Data::JsonScope* json
     return true;
 }
 
-bool Array::pushNumber(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool Array::pushNumber(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
     try {
-        double const number = std::stod(args.at(1));
+        double const number = std::stod(std::string(args.at(1)));
         if (!ensureArray(jsonDoc)) {
             return false;
         }
@@ -196,7 +196,7 @@ bool Array::pushNumber(std::span<std::string const> const& args, Data::JsonScope
 }
 
 
-bool Array::enumerate(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+bool Array::enumerate(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
     if (args.size() < 2) return false;
     if (jsonDoc->memberType(rootKey) != Data::KeyType::array) return false;
     auto const& indexKey = args.at(1);
@@ -210,10 +210,10 @@ bool Array::enumerate(std::span<std::string const> const& args, Data::JsonScope*
     return true;
 }
 
-bool Array::iota(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+bool Array::iota(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
     if (args.size() < 3) return false;
-    auto start = std::stoll(args.at(1));
-    auto end = std::stoll(args.at(2));
+    auto start = std::stoll(std::string(args.at(1)));
+    auto end = std::stoll(std::string(args.at(2)));
     if (start > end) return false;
     std::ranges::for_each(
         std::views::iota(start, end),

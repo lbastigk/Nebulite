@@ -27,12 +27,12 @@ Constants::Event FeatureTest::updateHook() {
 namespace {
 class MathModifier {
 public:
-    static double add(std::span<std::string const> const& args, double const input) {
+    static double add(std::span<std::string_view const> const& args, double const input) {
         double sum = input;
         // Add all arguments but the first (which is the function name)
         for (auto const& arg : args.subspan(1)) {
             try {
-                sum += std::stod(arg);
+                sum += std::stod(std::string(arg));
             } catch (std::invalid_argument const&) {
                 // Ignore invalid arguments
                 return std::numeric_limits<double>::quiet_NaN();
@@ -88,15 +88,15 @@ Constants::Event FeatureTest::selfOtherGlobalEvaluation() const {
     return Constants::Event::Success;
 }
 
-Constants::Event FeatureTest::keyCombination(std::span<std::string const> const& args) const {
+Constants::Event FeatureTest::keyCombination(std::span<std::string_view const> const& args) const {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     if (args.size() > 3) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
-    std::string const key1 = args[1] == "<empty>" ? "" : args[1];
-    std::string const key2 = args[2] == "<empty>" ? "" : args[2];
+    auto const key1 = args[1] == "<empty>" ? "" : args[1];
+    auto const key2 = args[2] == "<empty>" ? "" : args[2];
     auto const key = Data::ScopedKey(key1).addMember(key2);
     domain.capture.log.println(key.view().toString());
     return Constants::Event::Success;

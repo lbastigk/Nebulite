@@ -472,7 +472,7 @@ protected:
      * @param serialOrLinkWithCommands The serialization string or link with commands to split.
      * @return A vector of tokens. First token is the serialization or link, subsequent tokens are commands.
      */
-    [[nodiscard]] static std::vector<std::string> stringToDeserializeTokens(std::string const& serialOrLinkWithCommands);
+    [[nodiscard]] static std::vector<std::string> stringToDeserializeTokens(std::string_view const& serialOrLinkWithCommands);
 
     /**
      * @brief Base deserialization function to be called by derived classes in their own deserialization.

@@ -118,14 +118,14 @@ bool JSON::isJsonOrJsonc(std::string_view const& str) {
 //------------------------------------------
 // Argument splitting for transformations
 
-std::vector<std::string> JSON::splitKeyWithTransformations(std::string_view const& key) {
+std::vector<std::string_view> JSON::splitKeyWithTransformations(std::string_view const& key) {
     auto result = Utility::StringHandler::splitOnSameDepth(key, SpecialCharacter::transformationPipe);
     for (auto& arg : result) {
         if (arg.starts_with(SpecialCharacter::transformationPipe)) {
             arg = arg.substr(1);
         }
     }
-    std::erase_if(result, [](std::string const& arg) { return arg.empty(); });
+    std::erase_if(result, [](std::string_view const& arg) { return arg.empty(); });
     if (!key.empty() && key.starts_with(SpecialCharacter::transformationPipe)) {
         // No key provided, assume root and push back an empty string
         result.insert(result.begin(), "");

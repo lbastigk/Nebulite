@@ -28,13 +28,13 @@ public:
     //------------------------------------------
     // Available Transformations
 
-    static bool map(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static bool map(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr mapName = "map";
     static auto constexpr mapDesc = "Applies a mapping function to each element in the array of the current JSON value.\n"
         "If the current value is not an array, it is first wrapped into a single-element array.\n"
         "Usage: |map <function> -> {array}\n";
 
-    static bool get(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static bool get(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr getName = "get";
     static auto constexpr getDesc = "Gets the value at the specified key from the current JSON object.\n"
         "Usage: |get <key> -> {value}\n";
@@ -51,7 +51,7 @@ public:
         "If the current value is an array, it lists the indices as strings.\n"
         "Usage: |listMembersAndValues -> {array of {key, value} objects}\n";
 
-    static bool bundleToArray(std::span<std::string const> const& args, Data::JsonScope* jsonDoc);
+    static bool bundleToArray(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr bundleToArrayName = "bundleToArray";
     static auto constexpr bundleToArrayDesc = "Gathers all members from the provided keys into an array.\n"
         "Usage: |bundleToArray <key1> <key2> ... -> {array}\n";

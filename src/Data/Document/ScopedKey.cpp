@@ -27,8 +27,8 @@ ScopedKey::ScopedKey(ScopedKeyView const& base, std::string_view const& suffix)
 ScopedKey::ScopedKey(std::optional<std::string_view> const& scope, std::string suffix)
     : givenScope(scope), owned(std::move(suffix)) {}
 
-ScopedKey::ScopedKey(std::string suffix)
-    : owned(std::move(suffix)) {}
+ScopedKey::ScopedKey(std::string_view const suffix)
+    : owned(std::string(suffix)) {}
 
 std::string ScopedKey::toString() const {
     return view().toString();

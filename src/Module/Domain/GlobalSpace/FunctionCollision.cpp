@@ -35,10 +35,10 @@ bool testFunctionCollision2(bool const& arg) {
 } // namespace
 
 
-Constants::Event FunctionCollision::debug_collisionDetect_function(std::span<std::string const> const& args) const {
+Constants::Event FunctionCollision::debug_collisionDetect_function(std::span<std::string_view const> const& args) const {
     bool fail = true;
     if (args.size() >= 2) {
-        if (std::string const& mode = args.at(1); mode == "succeed") {
+        if (auto const& mode = args.at(1); mode == "succeed") {
             fail = false;
         } else if (mode == "fail") {
             fail = true;
@@ -71,10 +71,10 @@ Constants::Event FunctionCollision::debug_collisionDetect_function(std::span<std
     return Constants::Event::Success;
 }
 
-Constants::Event FunctionCollision::debug_collisionDetect_category(std::span<std::string const> const& args) const {
+Constants::Event FunctionCollision::debug_collisionDetect_category(std::span<std::string_view const> const& args) const {
     bool fail = true;
     if (args.size() >= 2) {
-        if (std::string const& mode = args.at(1); mode == "succeed") {
+        if (auto const& mode = args.at(1); mode == "succeed") {
             fail = false;
         } else if (mode == "fail") {
             fail = true;
@@ -114,10 +114,10 @@ Constants::Event FunctionCollision::debug_collisionDetect_category(std::span<std
     return Constants::Event::Success;
 }
 
-Constants::Event FunctionCollision::debug_collisionDetect_variable(std::span<std::string const> const& args) const {
+Constants::Event FunctionCollision::debug_collisionDetect_variable(std::span<std::string_view const> const& args) const {
     bool fail = true;
     if (args.size() >= 2) {
-        if (std::string const& mode = args.at(1); mode == "succeed") {
+        if (auto const& mode = args.at(1); mode == "succeed") {
             fail = false;
         } else if (mode == "fail") {
             fail = true;

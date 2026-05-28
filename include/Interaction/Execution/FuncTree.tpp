@@ -10,13 +10,13 @@
 // Includes
 
 // Standard library
-#include <cstdlib>
 #include <cxxabi.h>
 #include <memory>
 #include <string>
 
 // Nebulite
 #include "Interaction/Execution/FuncTreeErrorMessages.hpp"
+#include "Interaction/Execution/ShapeClassifier.hpp"
 #include "Math/Equality.hpp"
 #include "Utility/CompileTimeEvaluate.hpp"
 #include "Utility/Sort.hpp"
@@ -28,11 +28,11 @@ namespace Nebulite::Interaction::Execution {
 //------------------------------------------
 // Constructor implementation
 
-template <typename returnValue, typename... additionalArgs>
-FuncTree<returnValue, additionalArgs...>::FuncTree(std::string_view const& treeName, returnValue const& valDefault, returnValue const& valFunctionNotFound, Utility::IO::Capture& captureInstance)
-    : TreeName(treeName),
-      capture(captureInstance),
-      standardReturn{valDefault, valFunctionNotFound}
+template <typename ReturnValue, typename... AdditionalArgs>
+FuncTree<ReturnValue, AdditionalArgs...>::FuncTree(std::string_view const& treeName, ReturnValue const& valDefault, ReturnValue const& valFunctionNotFound, Utility::IO::Capture& captureInstance)
+    : TreeName(treeName)
+    , capture(captureInstance)
+    , standardReturn{valDefault, valFunctionNotFound}
 {
     // Add help function for displaying help information
     bindingContainer.functions.emplace(
@@ -65,9 +65,9 @@ FuncTree<returnValue, additionalArgs...>::FuncTree(std::string_view const& treeN
 // For generating the Wrapper
 
 // Non-static overload: member-function pointer (non-const)
-template <typename returnValue, typename... additionalArgs>
+template <typename ReturnValue, typename... AdditionalArgs>
 template <typename R, typename C, typename... Ps>
-void FuncTree<returnValue, additionalArgs...>::bindFunction(
+void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(
     R (C::*functionPtr)(Ps...),
     std::string_view const& name,
     std::string_view const& helpDescription
@@ -78,9 +78,9 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(
 }
 
 // Non-static overload: member-function pointer (const)
-template <typename returnValue, typename... additionalArgs>
+template <typename ReturnValue, typename... AdditionalArgs>
 template <typename R, typename C, typename... Ps>
-void FuncTree<returnValue, additionalArgs...>::bindFunction(
+void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(
     R (C::*functionPtr)(Ps...) const,
     std::string_view const& name,
     std::string_view const& helpDescription
@@ -91,9 +91,9 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(
 }
 
 // Non-static overload: generic free/static/callable
-template <typename returnValue, typename... additionalArgs>
+template <typename ReturnValue, typename... AdditionalArgs>
 template <typename Func>
-void FuncTree<returnValue, additionalArgs...>::bindFunction(
+void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(
     Func functionPtr,
     std::string_view const& name,
     std::string_view const& helpDescription
@@ -103,25 +103,25 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(
     bindFunction({fp, fp_identity}, name, helpDescription);
 }
 
-template <typename returnValue, typename... additionalArgs>
-void FuncTree<returnValue, additionalArgs...>::bindFunction(WrappedFunction const& func, std::string_view const& name, std::string_view const& helpDescription) {
+template <typename ReturnValue, typename... AdditionalArgs>
+void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(WrappedFunction const& func, std::string_view const& name, std::string_view const& helpDescription) {
     // If the name has a whitespace, the function has to be bound to a category hierarchically
     if (name.contains(' ')) {
-        std::vector<std::string> const pathStructure = Utility::StringHandler::split(name, ' ');
+        auto const pathStructure = Utility::StringHandler::split(name, ' ');
         if (pathStructure.size() < 2) {
             BindErrorMessage::invalidFunctionName(capture, name);
         }
         absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
         FuncTree* targetTree = this;
         for (size_t idx = 0; idx < pathStructure.size() - 1; idx++) {
-            std::string const& currentCategoryName = pathStructure[idx];
+            auto const& currentCategoryName = pathStructure[idx];
             if (currentCategoryMap->find(currentCategoryName) == currentCategoryMap->end()) {
                 BindErrorMessage::missingCategory(capture, TreeName, currentCategoryName, std::string(name));
             }
             targetTree = (*currentCategoryMap)[currentCategoryName].tree.get();
             currentCategoryMap = &targetTree->bindingContainer.categories;
         }
-        std::string const& functionName = pathStructure.back();
+        auto const& functionName = pathStructure.back();
         targetTree->bindFunction(func, functionName, helpDescription);
         return;
     }
@@ -174,8 +174,8 @@ void FuncTree<returnValue, additionalArgs...>::bindFunction(WrappedFunction cons
     );
 }
 
-template <typename returnValue, typename... additionalArgs>
-void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view const& name, std::string_view const& helpDescription) {
+template <typename ReturnValue, typename... AdditionalArgs>
+void FuncTree<ReturnValue, AdditionalArgs...>::bindCategory(std::string_view const& name, std::string_view const& helpDescription) {
     // Check for shadowing issues
     if (BindingSearchResult const searchResult = find(std::string(name)); searchResult.has_value()) {
         std::visit([&]<typename T>(T&&) {
@@ -189,7 +189,7 @@ void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
     }
 
     // Category traversal
-    std::vector<std::string> const categoryStructure = Utility::StringHandler::split(name, ' ');
+    auto const categoryStructure = Utility::StringHandler::split(name, ' ');
     absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
     for (auto const& currentCategoryName : categoryStructure | std::views::take(categoryStructure.size() - 1)) {
         if (currentCategoryMap->find(currentCategoryName) != currentCategoryMap->end()) {
@@ -201,7 +201,7 @@ void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
         }
     }
     // Last category, create it, if it doesn't exist yet
-    std::string const& functionName = categoryStructure.back();
+    auto const& functionName = categoryStructure.back();
     if (currentCategoryMap->find(functionName) != currentCategoryMap->end()) {
         // Final category we wish to create already exists
         BindErrorMessage::categoryExists(capture, std::string(name));
@@ -218,8 +218,8 @@ void FuncTree<returnValue, additionalArgs...>::bindCategory(std::string_view con
     };
 }
 
-template <typename returnValue, typename... additionalArgs>
-void FuncTree<returnValue, additionalArgs...>::bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription) {
+template <typename ReturnValue, typename... AdditionalArgs>
+void FuncTree<ReturnValue, AdditionalArgs...>::bindVariable(bool* varPtr, std::string_view const& name, std::string_view const& helpDescription) {
     // Make sure there are no whitespaces in the variable name
     if (name.contains(' ')) {
         BindErrorMessage::variableHasWhitespace(capture, TreeName, name);
@@ -242,170 +242,16 @@ void FuncTree<returnValue, additionalArgs...>::bindVariable(bool* varPtr, std::s
 //------------------------------------------
 // Binding helper
 
-namespace ShapeClassifier {
-    template<typename...> inline constexpr bool always_false = false;
-
-    constexpr bool breakBuild = false;
-
-    enum class FunctionShape : uint8_t {
-        Unknown,
-
-        // Member shapes
-        Member_Legacy_IntConstChar,
-
-        Member_Modern_NoAddArgs,
-        Member_Modern_NoAddArgsConstRef,
-
-        Member_Modern_Full,
-        Member_Modern_FullConstRef,
-
-        Member_NoArgs,
-        Member_NoCmdArgs,
-
-        // Free / static shapes
-        Free_Legacy_IntChar,
-        Free_Legacy_IntConstChar,
-
-        Free_Modern_NoAddArgs,
-        Free_Modern_NoAddArgsConstRef,
-
-        Free_Modern_Full,
-        Free_Modern_FullConstRef,
-
-        Free_NoArgs,
-        Free_NoCmdArgs
-    };
-
-    // Extract return, class and parameter list from member-function pointer types
-    template <typename T> struct mfp_traits; // primary
-
-    template <typename R, typename C, typename... Ps>
-    struct mfp_traits<R(C::*)(Ps...)> {
-        using return_t = R;
-        using class_t = C;
-        using params  = std::tuple<Ps...>;
-        static constexpr bool is_const = false;
-    };
-
-    template <typename R, typename C, typename... Ps>
-    struct mfp_traits<R(C::*)(Ps...) const> {
-        using return_t = R;
-        using class_t = C;
-        using params  = std::tuple<Ps...>;
-        static constexpr bool is_const = true;
-    };
-
-    // Classify function pointers
-    template <typename FunctionPointer, typename returnValue, typename... additionalArgs>
-    constexpr FunctionShape classifyFunctionPtr() {
-        using M = std::decay_t<FunctionPointer>;
-        using Traits = mfp_traits<M>;
-        using C = Traits::class_t;
-
-        using Span = FuncTree<returnValue, additionalArgs...>::CmdArgs::Span;
-        using SpanConstRef = FuncTree<returnValue, additionalArgs...>::CmdArgs::SpanConstRef;
-
-        // We test with both const and non-const object to support both member types
-        using Obj = C&;
-        using ConstObj = const C&;
-
-        //------------------------------------------
-
-        if constexpr (std::is_invocable_r_v<returnValue, M, Obj, int, char const**> ||
-                      std::is_invocable_r_v<returnValue, M, ConstObj, int, char const**>) {
-            return FunctionShape::Member_Legacy_IntConstChar;
-        }
-        else if constexpr (std::is_invocable_r_v<returnValue, M, Obj, SpanConstRef, additionalArgs...> ||
-                           std::is_invocable_r_v<returnValue, M, ConstObj, SpanConstRef, additionalArgs...>) {
-            return FunctionShape::Member_Modern_FullConstRef;
-        }
-        else if constexpr (std::is_invocable_r_v<returnValue, M, Obj, Span, additionalArgs...> ||
-                           std::is_invocable_r_v<returnValue, M, ConstObj, Span, additionalArgs...>) {
-            return FunctionShape::Member_Modern_Full;
-        }
-        else if constexpr (std::is_invocable_r_v<returnValue, M, Obj, SpanConstRef> ||
-                           std::is_invocable_r_v<returnValue, M, ConstObj, SpanConstRef>) {
-            return FunctionShape::Member_Modern_NoAddArgsConstRef;
-        }
-        else if constexpr (std::is_invocable_r_v<returnValue, M, Obj, Span> ||
-                           std::is_invocable_r_v<returnValue, M, ConstObj, Span>) {
-            return FunctionShape::Member_Modern_NoAddArgs;
-        }
-        else if constexpr (std::is_invocable_r_v<returnValue, M, Obj, additionalArgs...> ||
-                           std::is_invocable_r_v<returnValue, M, ConstObj, additionalArgs...>) {
-            return FunctionShape::Member_NoCmdArgs;
-        }
-        else if constexpr (std::is_invocable_r_v<returnValue, M, Obj> ||
-                           std::is_invocable_r_v<returnValue, M, ConstObj>) {
-            return FunctionShape::Member_NoArgs;
-        }
-        else {
-            return FunctionShape::Unknown;
-        }
-    }
-
-    // Classify free/static function pointers
-    template <typename FunctionPointer, typename returnValue, typename... additionalArgs>
-    constexpr FunctionShape classifyFreeFunction() {
-        using F = std::decay_t<FunctionPointer>;
-        using Span = FuncTree<returnValue, additionalArgs...>::CmdArgs::Span;
-        using SpanConstRef = FuncTree<returnValue, additionalArgs...>::CmdArgs::SpanConstRef;
-
-        if constexpr (std::is_invocable_r_v<returnValue, F, int, char**>) {
-            return FunctionShape::Free_Legacy_IntChar;
-        }
-        else if constexpr (std::is_invocable_r_v<returnValue, F, int, char const**>) {
-            return FunctionShape::Free_Legacy_IntConstChar;
-        }
-        else if constexpr (std::is_invocable_r_v<returnValue, F, SpanConstRef, additionalArgs...>) {
-            return FunctionShape::Free_Modern_FullConstRef;
-        }
-        else if constexpr (std::is_invocable_r_v<returnValue, F, Span, additionalArgs...>) {
-            return FunctionShape::Free_Modern_Full;
-        }
-        else if constexpr (std::is_invocable_r_v<returnValue, F, SpanConstRef>) {
-            return FunctionShape::Free_Modern_NoAddArgsConstRef;
-        }
-        else if constexpr (std::is_invocable_r_v<returnValue, F, Span>) {
-            return FunctionShape::Free_Modern_NoAddArgs;
-        }
-        else if constexpr (std::is_invocable_r_v<returnValue, F, additionalArgs...>) {
-            return FunctionShape::Free_NoCmdArgs;
-        }
-        else if constexpr (std::is_invocable_r_v<returnValue, F>) {
-            return FunctionShape::Free_NoArgs;
-        }
-        else {
-            return FunctionShape::Unknown;
-        }
-    }
-
-    // Unified classifier that dispatches based on pointer category
-    template <typename FunctionPointer, typename returnValue, typename... additionalArgs>
-    constexpr FunctionShape classifyFunction() {
-        if constexpr (std::is_member_function_pointer_v<FunctionPointer>) {
-            return classifyFunctionPtr<FunctionPointer, returnValue, additionalArgs...>();
-        } else if constexpr (std::is_pointer_v<FunctionPointer> &&
-                             std::is_function_v<std::remove_pointer_t<FunctionPointer>>) {
-            return classifyFreeFunction<FunctionPointer, returnValue, additionalArgs...>();
-        } else {
-            static_assert(always_false<FunctionPointer>, "classifyFunction received an unsupported function pointer type.");
-            return FunctionShape::Unknown;
-        }
-    }
-
-} // namespace ShapeClassifier
-
-template <typename returnValue, typename... additionalArgs>
+template <typename ReturnValue, typename... AdditionalArgs>
 template <typename Func>
-FuncTree<returnValue, additionalArgs...>::FunctionPtr
-FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Func functionPtr) {
+FuncTree<ReturnValue, AdditionalArgs...>::FunctionPtr
+FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
     using FunctionPtrT = FunctionPtr;
     using DecayF = std::decay_t<Func>;
 
     // Helpful compile-time error for pointer-to-member functions passed without an object
     if constexpr (std::is_member_function_pointer_v<DecayF>) {
-        static_assert(ShapeClassifier::always_false<Func>,
+        static_assert(Utility::CompileTimeEvaluate::always_false(),
                       "makeFunctionPtr(func) received a pointer-to-member-function. "
                       "Pass an object + member pointer using makeFunctionPtr(objPtr, &Class::mem) "
                       "or provide a free/static function or callable (lambda/std::function).");
@@ -421,85 +267,85 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Func functionPtr) {
 
         // TODO: Allow for AddArgs with const classification
 
-        if constexpr (constexpr ShapeClassifier::FunctionShape shape = ShapeClassifier::classifyFunction<DecayF, returnValue, additionalArgs...>(); shape == ShapeClassifier::FunctionShape::Free_Legacy_IntChar) {
+        if constexpr (constexpr ShapeClassifier::FunctionShape shape = ShapeClassifier::classifyFunction<DecayF, ReturnValue, AdditionalArgs...>(); shape == ShapeClassifier::FunctionShape::Free_Legacy_IntChar) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Legacy::IntChar>,
-                                std::function<returnValue(int, char**)>(functionPtr));
+                                std::function<ReturnValue(int, char**)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::Free_Legacy_IntConstChar) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Legacy::IntConstChar>,
-                                std::function<returnValue(int, char const**)>(functionPtr));
+                                std::function<ReturnValue(int, char const**)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::Free_Modern_NoAddArgs) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgs>,
-                                std::function<returnValue(typename CmdArgs::Span)>(functionPtr));
+                                std::function<ReturnValue(typename CmdArgs::Span)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::Free_Modern_NoAddArgsConstRef) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgsConstRef>,
-                                std::function<returnValue(typename CmdArgs::SpanConstRef)>(functionPtr));
+                                std::function<ReturnValue(typename CmdArgs::SpanConstRef)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::Free_Modern_Full) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::Full>,
-                                std::function<returnValue(typename CmdArgs::Span, additionalArgs...)>(functionPtr));
+                                std::function<ReturnValue(typename CmdArgs::Span, AdditionalArgs...)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::Free_Modern_FullConstRef) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::FullConstRef>,
-                                std::function<returnValue(typename CmdArgs::SpanConstRef, additionalArgs...)>(functionPtr));
+                                std::function<ReturnValue(typename CmdArgs::SpanConstRef, AdditionalArgs...)>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::Free_NoArgs) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoArgs>,
-                                std::function<returnValue()>(functionPtr));
+                                std::function<ReturnValue()>(functionPtr));
         }
         else if constexpr (shape == ShapeClassifier::FunctionShape::Free_NoCmdArgs) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoCmdArgs>,
-                                std::function<returnValue(additionalArgs...)>(functionPtr));
+                                std::function<ReturnValue(AdditionalArgs...)>(functionPtr));
         }
         else {
-            static_assert(ShapeClassifier::always_false<Func>, "makeFunctionPtr(func) received an unknown free/static function pointer type");
+            static_assert(Utility::CompileTimeEvaluate::always_false(), "makeFunctionPtr(func) received an unknown free/static function pointer type");
         }
     }
 
     // If it's a callable object (lambda/std::function), try to pick a sensible alternative
-    if constexpr (std::is_invocable_v<Func, typename CmdArgs::Span, additionalArgs...>) {
+    if constexpr (std::is_invocable_v<Func, typename CmdArgs::Span, AdditionalArgs...>) {
         return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::Full>,
-                            std::function<returnValue(typename CmdArgs::Span, additionalArgs...)>(functionPtr));
+                            std::function<ReturnValue(typename CmdArgs::Span, AdditionalArgs...)>(functionPtr));
     }
-    else if constexpr (std::is_invocable_v<Func, typename CmdArgs::SpanConstRef, additionalArgs...>) {
+    else if constexpr (std::is_invocable_v<Func, typename CmdArgs::SpanConstRef, AdditionalArgs...>) {
         return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::FullConstRef>,
-                            std::function<returnValue(typename CmdArgs::SpanConstRef, additionalArgs...)>(functionPtr));
+                            std::function<ReturnValue(typename CmdArgs::SpanConstRef, AdditionalArgs...)>(functionPtr));
     }
     else if constexpr (std::is_invocable_v<Func, typename CmdArgs::Span>) {
         return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgs>,
-                            std::function<returnValue(typename CmdArgs::Span)>(functionPtr));
+                            std::function<ReturnValue(typename CmdArgs::Span)>(functionPtr));
     }
     else if constexpr (std::is_invocable_v<Func, typename CmdArgs::SpanConstRef>) {
         return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoAddArgsConstRef>,
-                            std::function<returnValue(typename CmdArgs::SpanConstRef)>(functionPtr));
+                            std::function<ReturnValue(typename CmdArgs::SpanConstRef)>(functionPtr));
     }
     else if constexpr (std::is_invocable_v<Func>) {
         return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoArgs>,
-                            std::function<returnValue()>(functionPtr));
+                            std::function<ReturnValue()>(functionPtr));
     }
-    else if constexpr (std::is_invocable_v<Func, additionalArgs...>) {
+    else if constexpr (std::is_invocable_v<Func, AdditionalArgs...>) {
         return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Modern::NoCmdArgs>,
-                            std::function<returnValue(additionalArgs...)>(functionPtr));
+                            std::function<ReturnValue(AdditionalArgs...)>(functionPtr));
     }
     else {
-        static_assert(ShapeClassifier::always_false<Func>, "makeFunctionPtr(func) could not deduce a supported function shape");
-        std::abort();
+        static_assert(Utility::CompileTimeEvaluate::always_false(), "makeFunctionPtr(func) could not deduce a supported function shape");
+        std::unreachable();
     }
 }
 
 // Member-binding helper: obj + member function pointer -> FunctionPtr
-template <typename returnValue, typename... additionalArgs>
+template <typename ReturnValue, typename... AdditionalArgs>
 template <typename Obj, typename MemFunc>
-FuncTree<returnValue, additionalArgs...>::FunctionPtr
-FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFunc memberFunctionPtr) {
+FuncTree<ReturnValue, AdditionalArgs...>::FunctionPtr
+FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFunc memberFunctionPtr) {
     using FunctionPtrT = FunctionPtr;
     static_assert(std::is_member_function_pointer_v<MemFunc>, "makeFunctionPtr(Obj, MemFunc) requires a member function pointer");
     using MemDecay = std::decay_t<MemFunc>;
 
     // Choose appropriate variant and wrap with a lambda that invokes member on objectPtr
-    if constexpr (constexpr ShapeClassifier::FunctionShape shape = ShapeClassifier::classifyFunction<MemDecay, returnValue, additionalArgs...>(); shape == ShapeClassifier::FunctionShape::Member_Legacy_IntConstChar) {
+    if constexpr (constexpr ShapeClassifier::FunctionShape shape = ShapeClassifier::classifyFunction<MemDecay, ReturnValue, AdditionalArgs...>(); shape == ShapeClassifier::FunctionShape::Member_Legacy_IntConstChar) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Legacy::IntConstChar>,
             [objectPtr, memberFunctionPtr](int argc, char const** argv) {
@@ -526,27 +372,27 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::Full>,
             // NOLINTNEXTLINE
-            [objectPtr, memberFunctionPtr](typename CmdArgs::Span args, additionalArgs... rest) {
-                return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<additionalArgs>(rest)...);
+            [objectPtr, memberFunctionPtr](typename CmdArgs::Span args, AdditionalArgs... rest) {
+                return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<AdditionalArgs>(rest)...);
         });
     }
     else if constexpr (shape == ShapeClassifier::FunctionShape::Member_Modern_FullConstRef) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::FullConstRef>,
             // NOLINTNEXTLINE
-            [objectPtr, memberFunctionPtr](typename CmdArgs::SpanConstRef args, additionalArgs... rest) {
-                return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<additionalArgs>(rest)...);
+            [objectPtr, memberFunctionPtr](typename CmdArgs::SpanConstRef args, AdditionalArgs... rest) {
+                return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<AdditionalArgs>(rest)...);
         });
     }
     else if constexpr (shape == ShapeClassifier::FunctionShape::Member_NoCmdArgs) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::NoCmdArgs>,
-            [objectPtr, memberFunctionPtr](additionalArgs... rest) {
-                return std::invoke(memberFunctionPtr, objectPtr, std::forward<additionalArgs>(rest)...);
+            [objectPtr, memberFunctionPtr](AdditionalArgs... rest) {
+                return std::invoke(memberFunctionPtr, objectPtr, std::forward<AdditionalArgs>(rest)...);
         });
     }
     else if constexpr (shape == ShapeClassifier::FunctionShape::Member_NoArgs) {
-        if constexpr (sizeof...(additionalArgs) == 0) {
+        if constexpr (sizeof...(AdditionalArgs) == 0) {
             // No extra args in FuncTree -> store as NoArgs
             return FunctionPtrT(
                 std::in_place_type<typename SupportedFunctions::Modern::NoArgs>,
@@ -554,26 +400,26 @@ FuncTree<returnValue, additionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
                     return std::invoke(memberFunctionPtr, objectPtr);
             });
         } else {
-            // FuncTree expects additionalArgs...: wrap the no-arg member into a callable that accepts (and ignores) those args
+            // FuncTree expects AdditionalArgs...: wrap the no-arg member into a callable that accepts (and ignores) those args
             return FunctionPtrT(
                 std::in_place_type<typename SupportedFunctions::Modern::NoCmdArgs>,
-                [objectPtr, memberFunctionPtr](additionalArgs... rest) {
+                [objectPtr, memberFunctionPtr](AdditionalArgs... rest) {
                     (void)sizeof...(rest); // silence unused-warning pattern (optional)
                     return std::invoke(memberFunctionPtr, objectPtr);
             });
         }
     }
     else {
-        static_assert(ShapeClassifier::always_false<MemFunc>, "makeFunctionPtr(Obj, MemFunc) received an unsupported member function pointer type");
-        return FunctionPtrT{}; // Unreachable
+        static_assert(Utility::CompileTimeEvaluate::always_false(), "makeFunctionPtr(Obj, MemFunc) received an unsupported member function pointer type");
+        std::unreachable();
     }
 }
 
 //------------------------------------------
 // Getter
 
-template <typename returnValue, typename... additionalArgs>
-std::vector<std::pair<std::string, std::string_view>> FuncTree<returnValue, additionalArgs...>::getAllFunctions() {
+template <typename ReturnValue, typename... AdditionalArgs>
+std::vector<std::pair<std::string, std::string_view>> FuncTree<ReturnValue, AdditionalArgs...>::getAllFunctions() {
     using Pair = std::pair<std::string, std::string_view>;
     std::vector<Pair> allFunctions;
     for (auto const& [name, info] : bindingContainer.functions) {
@@ -598,8 +444,8 @@ std::vector<std::pair<std::string, std::string_view>> FuncTree<returnValue, addi
     return allFunctions;
 }
 
-template <typename returnValue, typename... additionalArgs>
-std::vector<std::pair<std::string, std::string_view>> FuncTree<returnValue, additionalArgs...>::getAllVariables() {
+template <typename ReturnValue, typename... AdditionalArgs>
+std::vector<std::pair<std::string, std::string_view>> FuncTree<ReturnValue, AdditionalArgs...>::getAllVariables() {
     using Pair = std::pair<std::string, std::string_view>;
     std::vector<Pair> allVariables;
     for (auto const& [name, info] : bindingContainer.variables) {
@@ -622,8 +468,8 @@ std::vector<std::pair<std::string, std::string_view>> FuncTree<returnValue, addi
 //------------------------------------------
 // Parsing and execution
 
-template <typename returnValue, typename... additionalArgs>
-returnValue FuncTree<returnValue, additionalArgs...>::parseStr(std::string_view const& cmd, additionalArgs... addArgs) {
+template <typename ReturnValue, typename... AdditionalArgs>
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parseStr(std::string_view const& cmd, AdditionalArgs... addArgs) {
     // Early exit on empty command
     if (cmd.empty()) {
         return standardReturn.valDefault;
@@ -631,28 +477,30 @@ returnValue FuncTree<returnValue, additionalArgs...>::parseStr(std::string_view 
 
     // Quote-aware tokenization
     auto const [args, unclosedQuote] = Utility::StringHandler::parseQuotedArguments(cmd);
+    std::vector<std::string_view> argsView;
+    std::ranges::transform(args, std::back_inserter(argsView), [](const std::string& str) { return std::string_view(str); });
     if (unclosedQuote) {
         capture.error.println("Warning: Unclosed quote in command: ", cmd);
     }
-    return parse(args, addArgs...);
+    return parse(argsView, addArgs...);
 }
 
-template <typename returnValue, typename... additionalArgs>
-returnValue FuncTree<returnValue, additionalArgs...>::parse(std::vector<std::string> const& args, additionalArgs... addArgs) {
+template <typename ReturnValue, typename... AdditionalArgs>
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::vector<std::string_view> const& args, AdditionalArgs... addArgs) {
     // Turn into span
     std::span const argsSpan(args.data(), args.size());
     return parse(argsSpan, addArgs...);
 }
 
-template <typename returnValue, typename... additionalArgs>
-returnValue FuncTree<returnValue, additionalArgs...>::parse(std::span<std::string const> const& args, additionalArgs... addArgs) {
+template <typename ReturnValue, typename... AdditionalArgs>
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::parse(std::span<std::string_view const> const& args, AdditionalArgs... addArgs) {
     auto actualArgs = args.subspan(1); // First arg is caller, remove
     processVariableArguments(actualArgs);
     if (actualArgs.empty()) {
         return standardReturn.valDefault; // Nothing to execute, return standard
     }
     // Call function
-    std::string funcName = actualArgs.front();
+    auto funcName = actualArgs.front();
     auto inheritedTree = findInInheritedTrees(funcName);
     if (inheritedTree != nullptr) {
         // Function is in inherited tree, call there
@@ -663,11 +511,11 @@ returnValue FuncTree<returnValue, additionalArgs...>::parse(std::span<std::strin
     return executeFunction(funcName, actualArgs, addArgs...);
 }
 
-template <typename returnValue, typename... additionalArgs>
-returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::string const& name, std::span<std::string const> const& args, additionalArgs... addArgs) {
+template <typename ReturnValue, typename... AdditionalArgs>
+ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::string_view const& name, std::span<std::string_view const> const& args, AdditionalArgs... addArgs) {
     // Call preParse function if set
     if (preParse != nullptr) {
-        if (returnValue err = preParse(); !Math::isEqual(err, standardReturn.valDefault)) {
+        if (ReturnValue err = preParse(); !Math::isEqual(err, standardReturn.valDefault)) {
             return err; // Return error if preParse failed
         }
     }
@@ -684,14 +532,21 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
             using T = std::decay_t<Func>;
 
             // Legacy function types
-            if constexpr (std::is_same_v<T, std::function<returnValue(int, char const**)>>) {
+            if constexpr (std::is_same_v<T, std::function<ReturnValue(int, char const**)>>) {
                 // Convert to argc/argv
                 size_t const argc = args.size();
                 std::vector<char const*> argv_vec;
                 argv_vec.reserve(argc + 1);
+                std::vector<std::string> argsOwned;
                 std::transform(
                     args.begin(),
                     args.end(),
+                    std::back_inserter(argsOwned),
+                    [](std::string_view const& str) { return std::string(str); }
+                );
+                std::transform(
+                    argsOwned.begin(),
+                    argsOwned.end(),
                     std::back_inserter(argv_vec),
                     [](std::string const& str) { return str.c_str(); }
                 );
@@ -719,20 +574,74 @@ returnValue FuncTree<returnValue, additionalArgs...>::executeFunction(std::strin
     }
     // Find function name in bindingContainer.categories
     if (bindingContainer.categories.find(function) != bindingContainer.categories.end()) {
-        std::string cmd;
-        for (auto const& arg : args) {
-            cmd += std::string(arg) + " ";
-        }
-        return bindingContainer.categories[function].tree->parseStr(cmd, addArgs...);
+        return bindingContainer.categories[function].tree->parseStr(Utility::StringHandler::recombineArgs(args), addArgs...);
     }
 
     // Return error if function not found
-    std::string arguments;
-    for (auto [i, arg] : args | std::views::enumerate) {
-        arguments += std::string("argv[") + std::to_string(i) + "] = '" + arg + "'\n";
-    }
-    ExecutionErrorMessage::functionNotFound(capture, TreeName, arguments, function);
+    auto const arguments = std::ranges::fold_left(args | std::views::enumerate, std::string{}, [](std::string const& acc, auto indexedArg) {
+        auto [i, arg] = indexedArg;
+        return acc + std::string("argv[") + std::to_string(i) + "] = '" + arg + "'\n";
+    });
+    ExecutionErrorMessage::functionNotFound(capture, TreeName, function, arguments);
     return standardReturn.valFunctionNotFound;
+}
+
+//------------------------------------------
+// Argument processing helper
+
+template <typename ReturnValue, typename... AdditionalArgs>
+void FuncTree<ReturnValue, AdditionalArgs...>::processVariable(std::string_view const& varName) {
+    bool found = false;
+    auto& vars = bindingContainer.variables;
+    if (auto const& varIt = vars.find(varName); varIt != vars.end()) {
+        if (auto const& varInfo = varIt->second; varInfo.pointer) {
+            *varInfo.pointer = true;
+            found = true;
+        }
+    }
+    else {
+        for (auto const& inheritedTree : inheritedTrees) {
+            auto& inheritedVars = inheritedTree->bindingContainer.variables;
+            if (auto const& inheritedVarIt = inheritedVars.find(varName); inheritedVarIt != inheritedVars.end()) {
+                if (auto const& varInfo = inheritedVarIt->second; varInfo.pointer) {
+                    *varInfo.pointer = true;
+                    found = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    // Print error if not found
+    if (!found) ExecutionErrorMessage::unknownVariable(capture, TreeName, varName);
+}
+
+template <typename ReturnValue, typename... AdditionalArgs>
+void FuncTree<ReturnValue, AdditionalArgs...>::processVariableArguments(std::span<std::string_view const>& args) {
+    while (!args.empty()) {
+        if (auto const& arg = args[0]; arg.length() >= 2 && arg.starts_with("--")) {
+            processVariable(arg.substr(2));
+            args = args.subspan(1);
+        } else {
+            // no more vars to parse
+            return;
+        }
+    }
+}
+
+template <typename ReturnValue, typename... AdditionalArgs>
+std::shared_ptr<FuncTree<ReturnValue, AdditionalArgs...>> FuncTree<ReturnValue, AdditionalArgs...>::findInInheritedTrees(std::string_view const& funcName) {
+    // Prerequisite if an inherited FuncTree is linked
+    if (!inheritedTrees.empty() && !hasFunction(funcName)) {
+        // Check if the function is in an inherited tree
+        for (auto& inheritedTree : inheritedTrees) {
+            if (inheritedTree != nullptr && inheritedTree->hasFunction(funcName)) {
+                // Function is in inherited tree, parse there
+                return inheritedTree;
+            }
+        }
+    }
+    return nullptr;
 }
 
 } // namespace Nebulite::Interaction::Execution

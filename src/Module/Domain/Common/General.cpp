@@ -51,7 +51,7 @@ Constants::Event General::updateHook() {
     return Constants::Event::Success;
 }
 
-Constants::Event General::eval(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
+Constants::Event General::eval(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
     // TODO: An idea would be to only eval until the next "eval" keyword, allowing for nested evals within for-loops, ifs, etc.:
     //       Example:
     //       eval for i 1 {global.loopCount} eval process-state {global.currentState} {i}
@@ -69,12 +69,12 @@ Constants::Event General::eval(std::span<std::string const> const& args, Interac
     return ctx.self.parseStr(argsEvaluated, ctx, ctxScope);
 }
 
-Constants::Event General::echo(std::span<std::string const> const& args) const {
+Constants::Event General::echo(std::span<std::string_view const> const& args) const {
     domain.capture.log.println(Utility::StringHandler::recombineArgs(args.subspan(1)));
     return Constants::Event::Success;
 }
 
-Constants::Event General::func_if(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::func_if(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -112,7 +112,7 @@ Constants::Event General::func_if(std::span<std::string const> const& args, Inte
     return Constants::Event::Success;
 }
 
-Constants::Event General::func_assert(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event General::func_assert(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -133,9 +133,9 @@ Constants::Event General::func_assert(std::span<std::string const> const& args, 
     return Constants::Event::Success;
 }
 
-Constants::Event General::func_for(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::func_for(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() > 4) {
-        std::string const& varName = args[1];
+        auto const& varName = std::string(args[1]);
 
         int const iStart = std::stoi(Interaction::Logic::Expression::eval(args[2], ctxScope));
         int const iEnd = std::stoi(Interaction::Logic::Expression::eval(args[3], ctxScope));
@@ -152,9 +152,9 @@ Constants::Event General::func_for(std::span<std::string const> const& args, Int
     return Constants::Event::Success;
 }
 
-Constants::Event General::func_forProgress(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::func_forProgress(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() > 4) {
-        std::string const& varName = args[1];
+        auto const& varName = std::string(args[1]);
 
         int const iStart = std::stoi(Interaction::Logic::Expression::eval(args[2], ctxScope));
         int const iEnd = std::stoi(Interaction::Logic::Expression::eval(args[3], ctxScope));
@@ -186,14 +186,14 @@ Constants::Event General::func_forProgress(std::span<std::string const> const& a
     return Constants::Event::Success;
 }
 
-Constants::Event General::nop(std::span<std::string const> const& /*args*/) {
+Constants::Event General::nop(std::span<std::string_view const> const& /*args*/) {
     // Do nothing
     return Constants::Event::Success;
 }
 
 // [FORWARD/REPARSE[]
 
-Constants::Event General::forwardToOther(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::forwardToOther(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -201,7 +201,7 @@ Constants::Event General::forwardToOther(std::span<std::string const> const& arg
     return ctx.other.parseStr(argStr, ctx, ctxScope);
 }
 
-Constants::Event General::forwardToGlobal(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event General::forwardToGlobal(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -209,7 +209,7 @@ Constants::Event General::forwardToGlobal(std::span<std::string const> const& ar
     return ctx.global.parseStr(argStr, ctx, ctxScope);
 }
 
-Constants::Event General::reparseInOther(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event General::reparseInOther(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -231,7 +231,7 @@ Constants::Event General::reparseInOther(std::span<std::string const> const& arg
     return ctx.other.parseStr(argStr, otherCtx, otherCtxScope);
 }
 
-Constants::Event General::reparseInGlobal(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event General::reparseInGlobal(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
@@ -257,7 +257,7 @@ Constants::Event General::reparseInGlobal(std::span<std::string const> const& ar
 
 // [IMGUI]
 
-Constants::Event General::imguiView(std::span<std::string const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
+Constants::Event General::imguiView(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }

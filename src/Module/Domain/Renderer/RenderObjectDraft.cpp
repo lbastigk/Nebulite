@@ -19,7 +19,7 @@ Constants::Event RenderObjectDraft::updateHook() {
     return draft.get(domain.capture)->update();
 }
 
-Constants::Event RenderObjectDraft::draft_parse(std::span<std::string const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+Constants::Event RenderObjectDraft::draft_parse(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }

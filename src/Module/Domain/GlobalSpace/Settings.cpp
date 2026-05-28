@@ -50,30 +50,30 @@ Constants::Event Settings::overWriteSettingsFile() const {
     return saveSettings();
 }
 
-Constants::Event Settings::setSettingStr(std::span<std::string const> const& args) const {
+Constants::Event Settings::setSettingStr(std::span<std::string_view const> const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
-    std::string const& key = args[0];
-    std::string const& value = args[1];
+    auto const& key = args[0];
+    auto const& value = args[1];
 
     // Set string setting in global settings
-    moduleScope.set<std::string>(moduleScope.getRootScope().addMember(key), value);
+    moduleScope.set<std::string>(moduleScope.getRootScope().addMember(key), std::string(value));
     return Constants::Event::Success;
 }
 
-Constants::Event Settings::setSettingInt(std::span<std::string const> const& args) const {
+Constants::Event Settings::setSettingInt(std::span<std::string_view const> const& args) const {
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     if (args.size() > 2) {
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
-    std::string const& key = args[0];
-    int const value = std::stoi(args[1]);
+    auto const& key = args[0];
+    int const value = std::stoi(std::string(args[1]));
 
     // Set integer setting in global settings
     moduleScope.set<int>(moduleScope.getRootScope().addMember(key), value);

@@ -255,7 +255,7 @@ public:
     [[nodiscard]] std::string serialize(ScopedKeyView const& key) const ;
     [[nodiscard]] std::string serialize(ScopedKey const& key) const {return serialize(key.view());}
 
-    void deserialize(std::string const& serialOrLink);
+    void deserialize(std::string_view const& serialOrLink);
 
     //------------------------------------------
     // Transform
@@ -266,7 +266,7 @@ public:
      * @param args The arguments to parse
      * @return True if the transformation was successful, false otherwise.
      */
-    bool transform(std::span<std::string const> const& args);
+    bool transform(std::span<std::string_view const> const& args);
 
     //------------------------------------------
     // Access test

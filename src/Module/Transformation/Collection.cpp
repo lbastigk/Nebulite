@@ -29,7 +29,7 @@ void Collection::bindTransformations() {
     bindTransformation(&Collection::bundleToArray, bundleToArrayName, bundleToArrayDesc);
 }
 
-bool Collection::map(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool Collection::map(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
         auto const key = rootKey.addIndex(0);
         jsonDoc->moveMember(rootKey, key);
@@ -54,7 +54,7 @@ bool Collection::map(std::span<std::string const> const& args, Data::JsonScope* 
     return true;
 }
 
-bool Collection::get(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool Collection::get(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 2) {
         return false;
     }
@@ -68,11 +68,12 @@ bool Collection::listMembers(Data::JsonScope* jsonDoc){
     auto const membersAndKeys = jsonDoc->listAvailableMembersAndKeys(rootKey);
     jsonDoc->removeMember(rootKey);
     std::ranges::for_each(
-    std::views::zip(std::views::iota(std::size_t{0}), membersAndKeys),
+        membersAndKeys | std::views::enumerate,
         [&](auto const& enumeratedMemberAndKey) {
             auto const& [i, memberAndKey] = enumeratedMemberAndKey;
+            auto const index = static_cast<size_t>(i);
             auto const& [member, _] = memberAndKey;
-            auto key = Data::ScopedKey(rootKey.addIndex(i));
+            auto key = Data::ScopedKey(rootKey.addIndex(index));
             jsonDoc->set<std::string>(key,member);
         }
     );
@@ -80,12 +81,12 @@ bool Collection::listMembers(Data::JsonScope* jsonDoc){
 }
 
 bool Collection::listMembersAndValues(Data::JsonScope* jsonDoc){
+    // Copy values
     auto const membersAndKeys = jsonDoc->listAvailableMembersAndKeys(rootKey);
     std::vector<Data::JSON> values;
     std::ranges::for_each(
-    std::views::zip(std::views::iota(std::size_t{0}), membersAndKeys),
-        [&](auto const& enumeratedMemberAndKey) {
-            auto const& [i, memberAndKey] = enumeratedMemberAndKey;
+        membersAndKeys,
+        [&](auto const& memberAndKey) {
             auto const& [member, key] = memberAndKey;
             Data::JSON newObject;
             newObject.deserialize(jsonDoc->serialize(key));
@@ -93,22 +94,24 @@ bool Collection::listMembersAndValues(Data::JsonScope* jsonDoc){
         }
     );
 
+    // Reinsert, enumerated
     jsonDoc->removeMember(rootKey);
     std::ranges::for_each(
-    std::views::zip(std::views::iota(std::size_t{0}), membersAndKeys),
+        membersAndKeys | std::views::enumerate,
         [&](auto const& enumeratedMemberAndKey) {
             auto const& [i, memberAndKey] = enumeratedMemberAndKey;
+            auto const index = static_cast<size_t>(i);
             auto const& [member, key] = memberAndKey;
-            auto key1 = rootKey.addIndex(i).addMember("key");
-            auto key2 = rootKey.addIndex(i).addMember("value");
+            auto const key1 = rootKey.addIndex(index).addMember("key");
+            auto const key2 = rootKey.addIndex(index).addMember("value");
             jsonDoc->set<std::string>(key1,member);
-            jsonDoc->setSubDoc(key2,values[i]);
+            jsonDoc->setSubDoc(key2, values[index]);
         }
     );
     return true;
 }
 
-bool Collection::bundleToArray(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool Collection::bundleToArray(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() < 2) {
         return false;
     }

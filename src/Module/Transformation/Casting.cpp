@@ -127,7 +127,7 @@ bool Casting::toBoolString(Data::JsonScope* jsonDoc) {
     return true;
 }
 
-bool Casting::formatNumber(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+bool Casting::formatNumber(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
     if (jsonDoc->memberType(rootKey) != Data::KeyType::value) return false;
     if (args.size() != 2) return false;
     auto const value = jsonDoc->get<std::string>(rootKey);

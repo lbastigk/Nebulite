@@ -87,7 +87,7 @@ public:
 
     // direct construction
     explicit ScopedKey(std::optional<std::string_view> const& scope, std::string suffix);
-    explicit ScopedKey(std::string suffix);
+    explicit ScopedKey(std::string_view suffix);
 
     [[nodiscard]] std::string toString() const ;
 

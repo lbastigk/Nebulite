@@ -89,11 +89,11 @@ bool String::toLower(Data::JsonScope* jsonDoc) {
 }
 
 // NOLINTNEXTLINE
-bool String::lPad(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+bool String::lPad(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
     if (args.size() < 2) {
         return false;
     }
-    auto const size = std::stoul(args[1]);
+    auto const size = std::stoul(std::string(args[1]));
     auto const padChar = args.size() >= 3 ? args[2][0] : ' ';
     auto str = jsonDoc->get<std::string>(rootKey).value_or("");
     if (str.size() >= size) {
@@ -105,11 +105,11 @@ bool String::lPad(std::span<std::string const> const& args, Data::JsonScope* jso
 }
 
 // NOLINTNEXTLINE
-bool String::rPad(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool String::rPad(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() < 2) {
         return false;
     }
-    auto const size = std::stoul(args[1]);
+    auto const size = std::stoul(std::string(args[1]));
     auto const padChar = args.size() >= 3 ? args[2][0] : ' ';
     auto str = jsonDoc->get<std::string>(rootKey).value_or("");
     if (str.size() >= size) {
@@ -120,28 +120,28 @@ bool String::rPad(std::span<std::string const> const& args, Data::JsonScope* jso
     return true;
 }
 
-bool String::lPadNumeric(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+bool String::lPadNumeric(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
     if (Utility::StringHandler::isNumber(jsonDoc->get<std::string>(rootKey).value_or(""))) {
         return lPad(args, jsonDoc);
     }
     return true; // Not numeric, but not an error either, so we return true without modifying the string
 }
 
-bool String::rPadNumeric(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+bool String::rPadNumeric(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
     if (Utility::StringHandler::isNumber(jsonDoc->get<std::string>(rootKey).value_or(""))) {
             return rPad(args, jsonDoc);
     }
     return true; // Not numeric, but not an error either, so we return true without modifying the string
 }
 
-bool String::lPadNonNumeric(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+bool String::lPadNonNumeric(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
     if (!Utility::StringHandler::isNumber(jsonDoc->get<std::string>(rootKey).value_or(""))) {
         return lPad(args, jsonDoc);
     }
     return true; // numeric, but not an error either, so we return true without modifying the string
 }
 
-bool String::rPadNonNumeric(std::span<std::string const> const& args, Data::JsonScope* jsonDoc){
+bool String::rPadNonNumeric(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
     if (!Utility::StringHandler::isNumber(jsonDoc->get<std::string>(rootKey).value_or(""))) {
         return rPad(args, jsonDoc);
     }
@@ -176,12 +176,12 @@ bool String::rStrip(Data::JsonScope* jsonDoc) {
 }
 
 // NOLINTNEXTLINE
-bool String::substring(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool String::substring(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3){
         return false;
     }
-    auto const start = std::stoul(args[1]);
-    size_t const length = std::stoul(args[2]);
+    auto const start = std::stoul(std::string(args[1]));
+    size_t const length = std::stoul(std::string(args[2]));
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     if (start >= str.size()) {
         jsonDoc->set(rootKey, "");
@@ -196,7 +196,7 @@ bool String::substring(std::span<std::string const> const& args, Data::JsonScope
 //       |replace <target> -> <replacement>
 //       This will be used if args.size() > 3
 // NOLINTNEXTLINE
-bool String::replace(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool String::replace(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() != 3){
         return false;
     }
@@ -208,7 +208,7 @@ bool String::replace(std::span<std::string const> const& args, Data::JsonScope* 
     return true;
 }
 
-bool String::strCountAppearance(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool String::strCountAppearance(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     auto const substring = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : " ";
     auto str = jsonDoc->get<std::string>(rootKey).value_or("");
     size_t count = 0;
@@ -224,28 +224,28 @@ bool String::strCountAppearance(std::span<std::string const> const& args, Data::
     return true;
 }
 
-bool String::strcompareEquals(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool String::strcompareEquals(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     auto const compareStr = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : "";
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     jsonDoc->set(rootKey, str == compareStr);
     return true;
 }
 
-bool String::strcompareContains(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool String::strcompareContains(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     auto const compareStr = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : " ";
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     jsonDoc->set(rootKey, str.contains(compareStr));
     return true;
 }
 
-bool String::strcompareStartsWith(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool String::strcompareStartsWith(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     auto const compareStr = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : " ";
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     jsonDoc->set(rootKey, str.starts_with(compareStr));
     return true;
 }
 
-bool String::strcompareEndsWith(std::span<std::string const> const& args, Data::JsonScope* jsonDoc) {
+bool String::strcompareEndsWith(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     auto const compareStr = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : " ";
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     jsonDoc->set(rootKey, str.ends_with(compareStr));

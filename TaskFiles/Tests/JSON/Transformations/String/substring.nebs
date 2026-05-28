@@ -1,8 +1,10 @@
 # Test substrings
 set sentence Hello World
-eval nop {global:sentence|substring 0 5    |assert equals string Hello}
-eval nop {global:sentence|substring 6 11   |assert equals string World}
-eval nop {global:sentence|substring 0 11   |assert equals string Hello World}
-eval nop {global:sentence|substring 0 100  |assert equals string Hello World}
-eval nop {global:sentence|substring 6 100  |assert equals string World}
-eval nop {global:sentence|substring 100 200|assert equals string }
+eval nop {global:sentence|substring 000 005|assert equals string Hello}
+eval nop {global:sentence|substring 006 011|assert equals string World}
+eval nop {global:sentence|substring 000 011|assert equals string Hello World}
+eval nop {global:sentence|substring 000 100|assert equals string Hello World}
+eval nop {global:sentence|substring 006 100|assert equals string World}
+eval nop {global:sentence|substring 100 200|assert equals string}
+
+exit

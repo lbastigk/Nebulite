@@ -94,7 +94,7 @@ public:
      *         Returns an invalid entry if not found. Its type is `invalid`,
      *         and function pointer is `nullptr`.
      */
-    StaticRulesetWithMetadata& getStaticRulesetByName(std::string const& name);
+    StaticRulesetWithMetadata& getStaticRulesetByName(std::string_view const& name);
 
     /**
      * @brief Adds a static ruleset function to the map.
