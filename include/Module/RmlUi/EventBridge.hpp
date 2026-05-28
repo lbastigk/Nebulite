@@ -23,7 +23,8 @@ public:
 
     struct Attribute {
         struct OnDestroy : Interaction::AttributeCommand<"onDestroy"> {
-            // Processing trigger during element deletion used to be buggy. If we ever notice an issue, store the DeletedElement and apply on next cycle
+            // Processing trigger during element deletion used to be buggy.
+            // If we ever notice an issue, store the DeletedElement and apply on next cycle
             static void processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element);
         };
 
@@ -47,35 +48,37 @@ public:
         // - onFocusEnter
         // - onFocusLeave
 
+        template<typename...>
+        struct TypeList {};
+
+        // Ensure all Attributes are present. Later on we might improve this using C++26 reflection
+        using AttributeList = TypeList<
+            OnDestroy,
+            OnEnter,
+            OnClick
+        >;
+
+        template<typename... Ts>
+        struct ForEach;
+
+        template<typename... Ts>
+        struct ForEach<TypeList<Ts...>> {
+            static bool hasSupportedAttribute(Rml::Element* element) {
+                return (Ts::hasSupportedAttribute(element) || ...);
+            }
+        };
+
         static bool hasSupportedAttribute(Rml::Element* element) {
-            return OnDestroy::hasSupportedAttribute(element)
-                || OnEnter::hasSupportedAttribute(element);
+            return ForEach<AttributeList>::hasSupportedAttribute(element);
         }
     };
 
 private:
     /**
-     * @brief Available actions from Rml attribute commands
-     */
-    struct Actions {
-        static_assert(Interaction::AttributeCommand<"">::specializationCount == 3, "If you added a new Rml attribute command specialization, make sure to add it to the Actions struct as well!");
-
-        std::optional<std::string> rulesetLink = std::nullopt;
-        std::optional<std::string> stringToParse = std::nullopt;
-        std::optional<Interaction::SpecialAction::Type> specialAction = std::nullopt;
-
-        static void applyRuleset(std::optional<std::string> const& rulesetLink, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope);
-
-        static void parseString(std::optional<std::string> const& stringToParse, Utility::IO::Capture& cap, Graphics::RmlInterface::ContextAndScope& ctxAndScope);
-
-        static void applySpecialAction(std::optional<Interaction::SpecialAction::Type> const& action, Graphics::RmlInterface& manager, Rml::Element* element, Rml::ElementDocument* document);
-    };
-
-    /**
      * @brief Struct for storing all relevant information for a triggered Rml event, as well as the actions to perform.
      * @details Templated to allow for any type of Trigger. The full Document Attribute to check is build from that type
      */
-    template<typename>
+    template<typename TriggerType>
     struct BridgeEntry {
         explicit BridgeEntry(Rml::Element* element);
 
@@ -83,35 +86,23 @@ private:
 
         Rml::ElementDocument* owner = nullptr;
 
-        Actions actions;
+        Interaction::Actions<TriggerType> actions;
 
-        void apply(Graphics::RmlInterface& manager, Utility::IO::Capture& capture) const ;
+        void apply(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element) const ;
     };
 };
 
 template<typename TriggerType>
-EventBridge::BridgeEntry<TriggerType>::BridgeEntry(Rml::Element* element){
+EventBridge::BridgeEntry<TriggerType>::BridgeEntry(Rml::Element* element) : actions(element) {
     assert(element);
     if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(element)) {
         elementIdentifier = Graphics::RmlInterface::RmlElementIdentifier(element);
     }
     owner = element ? element->GetOwnerDocument() : nullptr;
-
-    // Process
-    static_assert(Interaction::AttributeCommand<"">::specializationCount == 3, "If you added a new Rml attribute command specialization, make sure to add it to the trigger processing!");
-    if (auto const* var = element->GetAttribute(TriggerType::ruleset.toString()); var) {
-        actions.rulesetLink = var->template Get<Rml::String>();
-    }
-    if (auto const* val = element->GetAttribute(TriggerType::parse.toString()); val) {
-        actions.stringToParse = val->template Get<Rml::String>();
-    }
-    if (auto const* val = element->GetAttribute(TriggerType::special.toString()); val) {
-        actions.specialAction = Interaction::SpecialAction::get(val->template Get<Rml::String>());
-    }
 }
 
 template<typename TriggerType>
-void EventBridge::BridgeEntry<TriggerType>::apply(Graphics::RmlInterface& manager, Utility::IO::Capture& capture) const {
+void EventBridge::BridgeEntry<TriggerType>::apply(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, Rml::Element* element) const {
     auto ctxAndScope = [&] -> std::optional<Graphics::RmlInterface::ContextAndScope> {
         if (elementIdentifier.has_value()) {
             return manager.getRmlElementContextAndScope(elementIdentifier.value());
@@ -122,13 +113,11 @@ void EventBridge::BridgeEntry<TriggerType>::apply(Graphics::RmlInterface& manage
         return std::nullopt;
     }();
     if (!ctxAndScope) {
-        // For some reason, Entries are executed twice if we delete a domain with an open document. This catches the second call.
+        // For some reason, Entries are executed twice if we delete a domain with an open document.
+        // This catches the second call.
         return;
     }
-
-    Actions::applyRuleset(actions.rulesetLink, capture, ctxAndScope.value());
-    Actions::parseString(actions.stringToParse, capture, ctxAndScope.value());
-    Actions::applySpecialAction(actions.specialAction, manager, nullptr, owner);
+    actions.apply(manager, capture, ctxAndScope.value(), element, owner);
 }
 
 } // namespace Nebulite::Module::RmlUi

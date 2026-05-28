@@ -26,7 +26,7 @@ void EventBridge::Attribute::OnDestroy::processTrigger(Graphics::RmlInterface& m
         return;
     }
     BridgeEntry<OnDestroy> const entry(element);
-    entry.apply(manager, capture);
+    entry.apply(manager, capture, element);
 }
 
 void EventBridge::Attribute::OnEnter::processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int /*keyModifiers*/, Rml::Element* focusElement){
@@ -34,14 +34,14 @@ void EventBridge::Attribute::OnEnter::processTrigger(Graphics::RmlInterface& man
     if (event.type != SDL_EVENT_KEY_DOWN) return;
     if (event.key.scancode != SDL_SCANCODE_RETURN && event.key.scancode != SDL_SCANCODE_KP_ENTER) return;
     BridgeEntry<OnEnter> const entry(focusElement);
-    entry.apply(manager, capture);
+    entry.apply(manager, capture, focusElement);
 }
 
 void EventBridge::Attribute::OnClick::processTrigger(Graphics::RmlInterface& manager, Utility::IO::Capture& capture, SDL_Event const& event, int /*keyModifiers*/, Rml::Element* focusElement){
     if (!focusElement) return;
     if (event.type != SDL_EVENT_MOUSE_BUTTON_DOWN) return;
     BridgeEntry<OnClick> const entry(focusElement);
-    entry.apply(manager, capture);
+    entry.apply(manager, capture, focusElement);
 }
 
 } // namespace Nebulite::Module::RmlUi

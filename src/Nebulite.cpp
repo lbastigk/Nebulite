@@ -25,6 +25,10 @@ Data::JsonScope& Global::shareScope(ScopeAccessor::BaseAccessToken const& at, st
     return globalDoc().shareManagedScopeBase(at.getPrefix() + prefix);
 }
 
+Utility::IO::Capture& Global::capture() {
+    return instance().capture;
+}
+
 //------------------------------------------
 // Private methods
 
