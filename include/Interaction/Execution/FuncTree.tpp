@@ -732,11 +732,11 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
     }
 
     // Return error if function not found
-    std::string arguments;
-    for (auto [i, arg] : args | std::views::enumerate) {
-        arguments += std::string("argv[") + std::to_string(i) + "] = '" + arg + "'\n";
-    }
-    ExecutionErrorMessage::functionNotFound(capture, TreeName, arguments, function);
+    auto const arguments = std::ranges::fold_left(args | std::views::enumerate, std::string{}, [](std::string const& acc, auto indexedArg) {
+        auto [i, arg] = indexedArg;
+        return acc + std::string("argv[") + std::to_string(i) + "] = '" + arg + "'\n";
+    });
+    ExecutionErrorMessage::functionNotFound(capture, TreeName, function, arguments);
     return standardReturn.valFunctionNotFound;
 }
 
