@@ -44,7 +44,6 @@ public:
                 return self(self, remaining.substr(first.size()), rest...);
             }
         };
-
         return impl(impl, str, args...);
     }
 

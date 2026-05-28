@@ -25,8 +25,8 @@ namespace Nebulite::Utility {
 
 std::string StringHandler::repeat(std::string_view const& str, size_t const& count){
     std::string result;
-    // NOLINTNEXTLINE
-    for (auto _ : std::views::iota(size_t{0}, count)) {
+    result.reserve(str.size() * count);
+    for ([[maybe_unused]] size_t const _ : std::views::iota(size_t{0}, count)) {
         result += str;
     }
     return result;
@@ -72,11 +72,11 @@ bool StringHandler::isNumber(std::string_view const& str) {
     // Then check if count of . is at most 1
     // Then check if + or - is only at the start
     return std::ranges::all_of(str, [](char const c) {
-               return std::isdigit(c) || c == '+' || c == '-' || c == '.';
-           })
-           && std::ranges::count(str, '.') <= 1
-           && (str.find_first_of("+-") <= 0 || str.find_first_of("+-") == std::string::npos)
-           && !str.empty();
+           return std::isdigit(c) || c == '+' || c == '-' || c == '.';
+       })
+       && std::ranges::count(str, '.') <= 1
+       && (str.find_first_of("+-") <= 0 || str.find_first_of("+-") == std::string::npos)
+       && !str.empty();
 }
 
 // [STRIP]
@@ -112,6 +112,11 @@ void StringHandler::strip(std::string_view& str, char const& specialChar) {
 
 // Helpers for parsing quoted arguments
 namespace {
+
+char singleQuote = '\'';
+
+char doubleQuote = '"';
+
 struct QuoteParseState {
     bool inDoubleQuote = false;
     bool inSingleQuote = false;
@@ -128,7 +133,7 @@ void handleEmptyToken(QuoteParseState const& state, std::vector<std::string>& re
     } else {
         // In quotes, append space to last token
         if (!result.empty()) {
-            result.back() += " ";
+            result.back() += ' ';
         }
     }
 }
@@ -147,11 +152,11 @@ std::string processQuoteToken(std::string_view const& token, char const quoteCha
 }
 
 void handleQuoteStart(std::string_view const& token, QuoteParseState& state, std::vector<std::string>& result) {
-    if (token[0] == '"') {
-        std::string const cleanToken = processQuoteToken(token, '"', state.inDoubleQuote);
+    if (token[0] == doubleQuote) {
+        std::string const cleanToken = processQuoteToken(token, doubleQuote, state.inDoubleQuote);
         result.push_back(cleanToken);
-    } else if (token[0] == '\'') {
-        std::string const cleanToken = processQuoteToken(token, '\'', state.inSingleQuote);
+    } else if (token[0] == singleQuote) {
+        std::string const cleanToken = processQuoteToken(token, singleQuote, state.inSingleQuote);
         result.push_back(cleanToken);
     } else {
         // Regular unquoted token
@@ -169,19 +174,19 @@ void handleQuoteEnd(std::string_view const& token, char const quoteChar, bool& q
     }
 
     if (!result.empty()) {
-        result.back() += " " + cleanToken;
+        result.back() += ' ' + cleanToken;
     }
 }
 
 void handleQuotedToken(std::string_view const& token, QuoteParseState& state, std::vector<std::string>& result) {
-    if (state.inDoubleQuote && !token.empty() && token.back() == '"') {
-        handleQuoteEnd(token, '"', state.inDoubleQuote, result);
-    } else if (state.inSingleQuote && !token.empty() && token.back() == '\'') {
-        handleQuoteEnd(token, '\'', state.inSingleQuote, result);
+    if (state.inDoubleQuote && !token.empty() && token.back() == doubleQuote) {
+        handleQuoteEnd(token, doubleQuote, state.inDoubleQuote, result);
+    } else if (state.inSingleQuote && !token.empty() && token.back() == singleQuote) {
+        handleQuoteEnd(token, singleQuote, state.inSingleQuote, result);
     } else {
         // Still in quotes, append to last token
         if (!result.empty()) {
-            result.back() += " " + std::string(token);
+            result.back() += ' ' + std::string(token);
         }
     }
 }
@@ -222,8 +227,9 @@ std::string StringHandler::recombineArgs(std::span<std::string_view const> const
         if (i < args.size() - 1) {
             // Important: don't add a whitespace if the argument already is a whitespace!
             // This is due to how parseQuotedArguments handles multiple spaces. They are treated as one arg per space.
-            if (!args[i].empty() && args[i][0] != ' ')
-                result += " ";
+            if (!args[i].empty() && args[i][0] != ' ') {
+                result += ' ';
+            }
         }
     }
     return result;
