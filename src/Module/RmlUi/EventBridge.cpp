@@ -55,7 +55,7 @@ void EventBridge::Actions::parseString(std::optional<std::string> const& stringT
     // TODO use a taskqueue instead? Some refactoring of taskQueue for accepting a long string with ';' is required
     if (stringToParse) {
         auto& [ctx, scope] = ctxAndScope;
-        for (auto& task : Utility::StringHandler::split(stringToParse.value(), ';')) {
+        for (auto const& task : Utility::StringHandler::split(stringToParse.value(), ';')) {
             std::string_view taskView = task;
             Utility::StringHandler::lStrip(taskView);
             switch (std::string const str = std::string(__FUNCTION__) + " " + taskView; ctx.self.parseStr(str,ctx, scope)) {

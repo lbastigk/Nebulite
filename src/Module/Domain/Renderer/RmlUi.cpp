@@ -51,8 +51,7 @@ Constants::Event RmlUi::removeDocument(std::span<std::string_view const> const& 
     if (args.size() < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
-    auto const& name = args[1];
-    if (!Graphics::RmlInterface::instance().removeDocument(ctx.self.getId(), name)) {
+    if (auto const& name = args[1]; !Graphics::RmlInterface::instance().removeDocument(ctx.self.getId(), name)) {
         domain.capture.warning.println("Failed to remove document: '", name, "'. Either the owner does not have a document with this name, or there was an issue removing the document. Please check the name, and try again.");
         domain.capture.warning.println("Ensure that the context self is the actual owner of the document!");
         return Constants::Event::Warning;
