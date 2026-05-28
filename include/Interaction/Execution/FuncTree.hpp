@@ -370,68 +370,20 @@ private:
     //------------------------------------------
     // Argument processing helper
 
+    void processVariable(std::string_view const& varName);
+
     /**
      * @brief Processes variable arguments at the start of the argument list.
      * @param args The arguments to remove and process variable assignments from.
      */
-    void processVariableArguments(std::span<std::string_view const>& args) {
-        while (!args.empty()) {
-            if (auto const& arg = args[0]; arg.length() >= 2 && arg.starts_with("--")) {
-                // Extract name
-                auto name = arg.substr(2);
-
-                // Set variable if attached
-                bool found = false;
-                auto& vars = bindingContainer.variables;
-                if (auto const& varIt = vars.find(name); varIt != vars.end()) {
-                    if (auto const& varInfo = varIt->second; varInfo.pointer) {
-                        *varInfo.pointer = true;
-                        found = true;
-                    }
-                }
-                else {
-                    for (auto const& inheritedTree : inheritedTrees) {
-                        auto& inheritedVars = inheritedTree->bindingContainer.variables;
-                        if (auto const& inheritedVarIt = inheritedVars.find(name); inheritedVarIt != inheritedVars.end()) {
-                            if (auto const& varInfo = inheritedVarIt->second; varInfo.pointer) {
-                                *varInfo.pointer = true;
-                                found = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                // Print error if not found
-                if (!found) ExecutionErrorMessage::unknownVariable(capture, TreeName, name);
-
-                // Remove first arg
-                args = args.subspan(1);
-            } else {
-                // no more vars to parse
-                return;
-            }
-        }
-    }
+    void processVariableArguments(std::span<std::string_view const>& args);
 
     /**
      * @brief Finds an argument in inherited FuncTrees.
      * @param funcName Name of the function to find
      * @return Pointer to the FuncTree where the function was found, or nullptr if not found.
      */
-    std::shared_ptr<FuncTree> findInInheritedTrees(std::string_view const& funcName) {
-        // Prerequisite if an inherited FuncTree is linked
-        if (!inheritedTrees.empty() && !hasFunction(funcName)) {
-            // Check if the function is in an inherited tree
-            for (auto& inheritedTree : inheritedTrees) {
-                if (inheritedTree != nullptr && inheritedTree->hasFunction(funcName)) {
-                    // Function is in inherited tree, parse there
-                    return inheritedTree;
-                }
-            }
-        }
-        return nullptr;
-    }
+    std::shared_ptr<FuncTree> findInInheritedTrees(std::string_view const& funcName);
 
     //------------------------------------------
     // Completion
