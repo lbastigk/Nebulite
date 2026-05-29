@@ -17,7 +17,6 @@
 #include "Interaction/Context.hpp"
 #include "Interaction/Logic/Expression.hpp"
 #include "Module/Transformation/Filter.hpp"
-#include "Nebulite.hpp"
 #include "Utility/Glob.hpp"
 #include "Utility/StringHandler.hpp"
 

@@ -13,8 +13,8 @@
 #include "Data/Document/KeyType.hpp"
 #include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Context.hpp"
+#include "Interaction/Execution/Domain.hpp"
 #include "Module/Domain/Common/Debug.hpp"
-#include "Nebulite.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------
