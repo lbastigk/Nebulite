@@ -32,22 +32,15 @@ size_t& getThreadId() {
 }
 } // namespace
 
-// TODO: the locks should not be necessary, but somehow they are ...
-// without them, the following test fails:
-// ./bin/Nebulite task TaskFiles/Benchmarks/gravity_unlimited.nebs
-// Absl hashmap is invalid during access ...
-// The lock decreases performance by ~10%
-// This seems to happen if objects leave the scene and are no longer broadcasting/listening?
-// Maybe the thread index assignment with thread_local doesn't work the way we think?
-
 void FlatContainerImpl::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> entry) {
     auto const& threadId = getThreadId();
-    auto lock = broadcasters[threadId].lock(entry->getTopic());
+    //auto lock = broadcasters[threadId].lock(entry->getTopic());
     broadcasters[threadId][entry->getTopic()].push_back(std::move(entry));
 }
 
 void FlatContainerImpl::listen(std::shared_ptr<Interaction::Rules::Listener> listener) {
     auto const& threadId = getThreadId();
+    // Lock is, for some reason, necessary ...
     auto lock = listeners[threadId].lock(listener->topic);
     listeners[threadId][listener->topic].push_back(std::move(listener));
 }
