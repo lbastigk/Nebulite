@@ -24,9 +24,10 @@ Constants::Event Ruleset::updateHook() {
     if (initialized) {
         // Reload rulesets if needed
         if (reloadRulesets) {
+            reloadRulesets = false;
+            Key const scopedKey(moduleScope);
             auto mtx = moduleScope.lock();
             Interaction::Rules::Construction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, domain, moduleScope.shareScope(scopedKey.broadcast));
-
             listeners.clear();
             for (size_t idx = 0; idx < subscription_size; idx++) {
                 auto const key = scopedKey.listen.addIndex(idx);
@@ -35,7 +36,32 @@ Constants::Event Ruleset::updateHook() {
                 listeners.push_back(listener);
             }
 
-            reloadRulesets = false;
+            //------------------------------------------
+            // Estimate cost of parsed rulesets
+
+            // Local entries
+            uint64_t const costLocal = std::accumulate(
+                rulesetsLocal.begin(), rulesetsLocal.end(), std::size_t{0},
+                [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+                    return acc + entry->getEstimatedCost();
+                }
+            );
+
+            // Global entries
+            uint64_t const costGlobal = std::accumulate(
+                rulesetsGlobal.begin(), rulesetsGlobal.end(), std::size_t{0},
+                [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+                    return acc + entry->getEstimatedCost();
+                }
+            );
+
+            moduleScope.set(scopedKey.costLocal, costLocal);
+            moduleScope.set(scopedKey.costGlobal, costGlobal);
+            moduleScope.set(scopedKey.costTotal, costLocal + costGlobal);
+            noRulesets = rulesetsLocal.empty() && rulesetsGlobal.empty();
+        }
+        if (noRulesets) {
+            return Constants::Event::Success;
         }
 
         // Directly apply local rulesets
@@ -55,29 +81,6 @@ Constants::Event Ruleset::updateHook() {
             // add pointer to invoke command to global
             Global::instance().broadcast(entry);
         }
-
-        //------------------------------------------
-        // Estimate cost of parsed rulesets
-
-        // Local entries
-        uint64_t const costLocal = std::accumulate(
-            rulesetsLocal.begin(), rulesetsLocal.end(), std::size_t{0},
-            [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
-                return acc + entry->getEstimatedCost();
-            }
-        );
-
-        // Global entries
-        uint64_t const costGlobal = std::accumulate(
-            rulesetsGlobal.begin(), rulesetsGlobal.end(), std::size_t{0},
-            [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
-                return acc + entry->getEstimatedCost();
-            }
-        );
-
-        moduleScope.set(scopedKey.costLocal, costLocal);
-        moduleScope.set(scopedKey.costGlobal, costGlobal);
-        moduleScope.set(scopedKey.costTotal, costLocal + costGlobal);
     }
     else {
         initialized = true;
@@ -86,6 +89,7 @@ Constants::Event Ruleset::updateHook() {
 }
 
 void Ruleset::reinit() {
+    Key const scopedKey(moduleScope);
     reloadRulesets = true;
     initialized = false;
     subscription_size = moduleScope.memberSize(scopedKey.listen);

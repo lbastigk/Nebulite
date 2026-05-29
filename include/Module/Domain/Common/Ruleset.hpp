@@ -77,7 +77,7 @@ public:
     /**
      * @brief Initializes the module, binding functions and variables.
      */
-    explicit Ruleset(ConstructorParams const& params) : DomainModule(params), scopedKey(params.scope) {
+    explicit Ruleset(ConstructorParams const& params) : DomainModule(params) {
         //------------------------------------------
         // Binding functions to the FuncTree
         bindCategory(ruleset_name, ruleset_desc);
@@ -88,6 +88,7 @@ public:
 
         //------------------------------------------
         // Initialize empty arrays for broadcast/listen, if keys don't exist
+        Key const scopedKey(moduleScope);
         if (params.scope.memberType(scopedKey.broadcast) == Data::KeyType::null) {
             params.scope.setEmptyArray(scopedKey.broadcast);
         }
@@ -112,9 +113,6 @@ public:
     };
 
 private:
-
-    Key scopedKey;
-
     // Check if the module is initialized and ready to use
     bool initialized = false;
 
@@ -123,6 +121,9 @@ private:
 
     // Check if rulesets need to be reloaded
     bool reloadRulesets = true;
+
+    // Check if no rulesets are present
+    bool noRulesets = false;
 
     // Global rulesets, intended for self-other-global interaction
     std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsGlobal;

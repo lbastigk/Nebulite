@@ -43,7 +43,11 @@ DocumentAccessor::DocumentAccessor() : ScopeOwnershipManager(ScopeOwnership::Own
 
 DocumentAccessor::~DocumentAccessor() = default;
 
-Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture) : DocumentAccessor(documentReference), domainName(name), capture(&parentCapture) {
+Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture)
+    : DocumentAccessor(documentReference)
+    , domainName(name)
+    , capture(&parentCapture)
+    , cost(domainScope){
     // FuncTree initialization
     funcTree = std::make_shared<DomainTree>(
         name,
@@ -57,7 +61,10 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Util
     Module::Domain::Initializer::initCommon(this);
 }
 
-Domain::Domain(std::string const& name, Utility::IO::Capture& parentCapture) : domainName(name), capture(&parentCapture) {
+Domain::Domain(std::string const& name, Utility::IO::Capture& parentCapture)
+    : domainName(name)
+    , capture(&parentCapture)
+    , cost(domainScope) {
     // FuncTree initialization
     funcTree = std::make_shared<DomainTree>(
         name,
@@ -71,7 +78,11 @@ Domain::Domain(std::string const& name, Utility::IO::Capture& parentCapture) : d
     Module::Domain::Initializer::initCommon(this);
 }
 
-Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : DocumentAccessor(documentReference), domainName(name), capture(nullptr) {
+Domain::Domain(std::string const& name, Data::JsonScope& documentReference)
+    : DocumentAccessor(documentReference)
+    , domainName(name)
+    , capture(nullptr)
+    , cost(domainScope) {
     // FuncTree initialization
     funcTree = std::make_shared<DomainTree>(
         name,
@@ -85,7 +96,10 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : Do
     Module::Domain::Initializer::initCommon(this);
 }
 
-Domain::Domain(std::string const& name) : domainName(name), capture(nullptr) {
+Domain::Domain(std::string const& name)
+    : domainName(name)
+    , capture(nullptr)
+    , cost(domainScope){
     // FuncTree initialization
     funcTree = std::make_shared<DomainTree>(
         name,
@@ -222,13 +236,21 @@ void Domain::parseTaskQueues(bool const& recover){
     Global::instance().notifyEvent(tasks.parse(*this, domainScope, recover));
 }
 
-uint64_t Domain::estimateComputationalCost(bool const& onlyInternal) const {
-    Module::Domain::Common::Ruleset::Key const keys(domainScope);
+// Cost
 
+Domain::Cost::Cost(Data::JsonScope const& scope) {
+    Module::Domain::Common::Ruleset::Key const keys(scope);
+    local = scope.getStableDoublePointer(keys.costLocal);
+    global = scope.getStableDoublePointer(keys.costGlobal);
+}
+
+uint64_t Domain::estimateComputationalCost(bool const& onlyInternal) const {
+    // TODO: Consider cost of inner domains, make function virtual and provide ownCost function for cost per domain
+    //       and then this function returns ownCost + cost of inner domains.
     if (onlyInternal) {
-        return domainScope.get<uint64_t>(keys.costLocal).value_or(0);
+        return static_cast<uint64_t>(*cost.local);
     }
-    return domainScope.get<uint64_t>(keys.costTotal).value_or(0);
+    return static_cast<uint64_t>(*cost.global) + static_cast<uint64_t>(*cost.local);
 }
 
 } // namespace Nebulite::Interaction::Execution

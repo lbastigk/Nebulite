@@ -479,6 +479,13 @@ public:
     uint64_t estimateComputationalCost(bool const& onlyInternal = true) const ;
 
 protected:
+    struct Cost {
+        explicit Cost(Data::JsonScope const& scope);
+
+        double* local;
+        double* global;
+    } cost;
+
     /**
      * @brief Offers access to the internal FuncTree for function binding.
      *        Marked as protected, as it's only used to initialize DomainModules.
