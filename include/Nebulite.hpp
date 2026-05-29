@@ -61,27 +61,4 @@ private:
 };
 
 } // namespace Nebulite
-
-//------------------------------------------
-// Header file usage detection
-
-#else // NEBULITE_HPP
-
-// If NEBULITE_HPP is already defined, the file is likely used in a header file context.
-// This is discouraged, as Nebulite.hpp is intended to be included only in source files.
-// Using it in header files can lead to nasty circular dependencies and lack of encapsulation.
-
-// Toggle between warning and error as needed:
-#define NEBULITE_IN_HEADER_BREAK_BUILD
-
-// Issue a warning or error based on the defined macro
-#ifdef NEBULITE_IN_HEADER_BREAK_BUILD
-    // Option 1: Just a warning
-    #warning "Likely use of Nebulite.hpp in a header file detected! Including Nebulite.hpp in a header file is discouraged. Please include it only in source files."
-#else
-    // Option 2: Compile-time error
-    // We choose to break the build to enforce this rule.
-    // While we won't detect all cases, this will catch many common scenarios.
-    #error "Likely use of Nebulite.hpp in a header file detected! Including Nebulite.hpp in a header file is discouraged. Please include it only in source files."
-#endif // NEBULITE_IN_HEADER_BREAK_BUILD
 #endif // NEBULITE_HPP

@@ -5,6 +5,7 @@
 // Includes
 
 // Standard library
+// NOLINTNEXTLINE
 #include <cstdint>
 
 // Nebulite

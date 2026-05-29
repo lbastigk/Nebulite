@@ -9,6 +9,7 @@
 #include <string_view>
 
 // Nebulite
+#include "Core/GlobalSpace.hpp"
 #include "Constants/Event.hpp"
 #include "Constants/StandardCapture.hpp"
 #include "Data/Document/JSON.hpp"
@@ -16,7 +17,6 @@
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Interaction/Logic/Expression.hpp"
 #include "Module/Domain/GlobalSpace/FeatureTest.hpp"
-#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
