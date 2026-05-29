@@ -476,7 +476,7 @@ public:
      * @param onlyInternal If true, only considers internal rulesets. Defaults to true.
      * @return The estimated computational cost.
      */
-    uint64_t estimateComputationalCost(bool const& onlyInternal = true) const ;
+    [[nodiscard]] uint64_t estimateComputationalCost(bool const& onlyInternal = true) const ;
 
 protected:
     struct Cost {

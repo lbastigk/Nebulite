@@ -2,8 +2,10 @@
 // Includes
 
 // Standard library
-#include <cstddef> // NOLINTTHISLINE
-#include <cstdint> // NOLINTTHISLINE
+// NOLINTNEXTLINE
+#include <cstddef>
+// NOLINTNEXTLINE
+#include <cstdint>
 #include <regex>
 #include <span>
 #include <string>

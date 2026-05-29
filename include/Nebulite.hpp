@@ -65,7 +65,7 @@ private:
 //------------------------------------------
 // Header file usage detection
 
-#else
+#else // NEBULITE_HPP
 
 // If NEBULITE_HPP is already defined, the file is likely used in a header file context.
 // This is discouraged, as Nebulite.hpp is intended to be included only in source files.

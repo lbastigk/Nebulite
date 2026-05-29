@@ -8,9 +8,9 @@
 #include <ranges>
 
 // Nebulite
+#include "Constants/ThreadSettings.hpp"
 #include "Interaction/Invoke.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
-#include "Nebulite.hpp"
 #include "Utility/Generate.hpp"
 
 //------------------------------------------
@@ -36,12 +36,12 @@ Invoke::~Invoke() {
 //------------------------------------------
 // Interactions
 
-void Invoke::broadcast(std::shared_ptr<Rules::Ruleset> entry) {
+void Invoke::broadcast(std::shared_ptr<Rules::Ruleset> const& entry) {
     // Thread assignment based on entry owner ID.
     // We used a hash of the id as domain ids may not be equally distributed
     // E.g. the Broadcasting RenderObjects may be distributed every n IDs, which would lead to all work being done on one thread and the others idle.
     size_t const threadIndex = entry->getIdHashed() % activeWorkerCount;
-    worker[threadIndex].broadcast(std::move(entry));
+    worker[threadIndex].broadcast(entry);
 }
 
 void Invoke::listen(std::shared_ptr<Rules::Listener> const& listener) {

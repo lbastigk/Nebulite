@@ -6,7 +6,8 @@
 #include <cassert>
 #include <cmath>
 #include <cstddef>
-#include <iterator>
+// NOLINTNEXTLINE
+#include <cstdint>
 #include <memory>
 #include <sstream>
 #include <string>

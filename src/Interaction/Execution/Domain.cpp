@@ -8,6 +8,7 @@
 #include <mutex>
 #include <numeric>
 #include <string>
+#include <string_view>
 #include <vector>
 
 // Nebulite
@@ -139,11 +140,11 @@ std::vector<std::string> Domain::stringToDeserializeTokens(std::string_view cons
     std::vector<std::string> tokens;
     if (Data::JSON::isJsonOrJsonc(serialOrLinkWithCommands)) {
         // Direct JSON string, no splitting
-        tokens.push_back(std::string(serialOrLinkWithCommands));
+        tokens.emplace_back(serialOrLinkWithCommands);
     } else {
         // Split based on transformations, indicated by '|'
         for (auto const& token : Utility::StringHandler::split(serialOrLinkWithCommands, '|')) {
-            tokens.push_back(std::string(token));
+            tokens.emplace_back(token);
         }
     }
     return tokens;

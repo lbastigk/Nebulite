@@ -3,10 +3,11 @@
 
 // Nebulite
 #include "Core/GlobalSpace.hpp"
-#include "Nebulite.hpp"
 // NOLINTNEXTLINE
 #include "Data/Document/JsonScope.hpp"
+#include "Nebulite.hpp"
 #include "ScopeAccessor.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite {

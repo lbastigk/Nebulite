@@ -13,7 +13,7 @@
 #include <unordered_set>
 
 // Nebulite
-#include "Constants/KeyNames.hpp"
+#include "Data/Document/KeyGroup.hpp"
 #include "Data/Document/ScopedKey.hpp"
 #include "Module/Base/DomainModule.hpp"
 #include "Utility/TimeKeeper.hpp"

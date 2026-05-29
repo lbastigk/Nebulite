@@ -68,7 +68,7 @@ public:
      *          that are listening for the entry's topic.
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
-    void broadcast(std::shared_ptr<Rules::Ruleset> entry);
+    void broadcast(std::shared_ptr<Rules::Ruleset> const& entry);
 
     /**
      * @brief Listens for rulesets on a specific topic.
