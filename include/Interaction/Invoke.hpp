@@ -68,7 +68,7 @@ public:
      *          that are listening for the entry's topic.
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
-    void broadcast(std::shared_ptr<Rules::Ruleset> const& entry) const ;
+    void broadcast(std::shared_ptr<Rules::Ruleset> entry);
 
     /**
      * @brief Listens for rulesets on a specific topic.
@@ -97,11 +97,13 @@ private:
     //------------------------------------------
     // Threading Containers
 
-    using ContainerType = Data::BroadcastListenContainer::FlatContainer<Data::BroadcastListenContainer::FlatContainerType::WithRotation>;
+    using ContainerType = Data::BroadcastListenContainer::FlatContainer<Data::BroadcastListenContainer::FlatContainerType::WithoutRotation>;
 
-    std::array<std::unique_ptr<ContainerType>, Constants::ThreadSettings::Maximum::invokeWorkerCount> worker;
+    std::array<ContainerType, Constants::ThreadSettings::Maximum::invokeWorkerCount> worker;
 
     size_t activeWorkerCount = Constants::ThreadSettings::getInvokeWorkerCount();
+
+    decltype(worker | std::views::take(activeWorkerCount)) activeWorkers;
 
     //------------------------------------------
     // Threading variables

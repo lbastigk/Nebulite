@@ -40,16 +40,16 @@ size_t& getThreadId() {
 // This seems to happen if objects leave the scene and are no longer broadcasting/listening?
 // Maybe the thread index assignment with thread_local doesn't work the way we think?
 
-void FlatContainerImpl::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+void FlatContainerImpl::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> entry) {
     auto const& threadId = getThreadId();
     auto lock = broadcasters[threadId].lock(entry->getTopic());
-    broadcasters[threadId][entry->getTopic()].push_back(entry);
+    broadcasters[threadId][entry->getTopic()].push_back(std::move(entry));
 }
 
-void FlatContainerImpl::listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
+void FlatContainerImpl::listen(std::shared_ptr<Interaction::Rules::Listener> listener) {
     auto const& threadId = getThreadId();
     auto lock = listeners[threadId].lock(listener->topic);
-    listeners[threadId][listener->topic].push_back(listener);
+    listeners[threadId][listener->topic].push_back(std::move(listener));
 }
 
 namespace {

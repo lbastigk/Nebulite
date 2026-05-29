@@ -33,7 +33,7 @@ namespace Nebulite::Data::BroadcastListenContainer {
 template<typename DerivedContainer>
 class BaseContainer {
 public:
-    explicit BaseContainer(std::atomic<bool>& stopFlag, uint32_t const& workerIndex, uint32_t const& workerCount, DerivedContainer container)
+    explicit BaseContainer(std::atomic<bool>& stopFlag, size_t const& workerIndex, size_t const& workerCount, DerivedContainer container)
         : workerInfo{workerIndex, workerCount}
         , dispatcher(stopFlag, processImpl, initImpl)
     {
@@ -89,8 +89,8 @@ public:
 
 protected:
     struct WorkerInfo {
-        uint32_t index;
-        uint32_t count;
+        size_t index;
+        size_t count;
     } workerInfo;
 
 private:
