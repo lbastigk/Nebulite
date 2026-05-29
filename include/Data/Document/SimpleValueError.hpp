@@ -2,6 +2,12 @@
 #define DATA_DOCUMENT_SIMPLEVALUEERROR_HPP
 
 //------------------------------------------
+// Includes
+
+// Standard library
+#include <cstdint>
+
+//------------------------------------------
 // Enum for simple value retrieval error
 
 namespace Nebulite::Data {
