@@ -3,9 +3,9 @@
 
 // Standard library
 #include <algorithm>
-#include <cstdint> // NOLINTTHISLINE
+// NOLINTNEXTLINE
+#include <cstdint>
 #include <memory>
-#include <numeric>
 #include <string>
 #include <vector>
 
@@ -15,7 +15,6 @@
 #include "Core/RenderObject.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Graphics/Drawcall.hpp"
-#include "Interaction/Rules/Construction/RulesetCompiler.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Module/Domain/Initializer.hpp"
 #include "Nebulite.hpp"
@@ -42,11 +41,6 @@ void setStandardValues(Data::JsonScope& document) {
     // Set default size
     document.set(Constants::KeyNames::RenderObject::sizeX, 32);
     document.set(Constants::KeyNames::RenderObject::sizeY, 32);
-
-    // Ruleset
-    document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::list);
-    document.setEmptyArray(Constants::KeyNames::RenderObject::Ruleset::listen);
-    document.set(Constants::KeyNames::RenderObject::Ruleset::listen.addIndex(0), std::string("all"));
 }
 } // namespace
 
@@ -169,38 +163,6 @@ Constants::Event RenderObject::update() {
     parseTaskQueues(true);
     updateDrawcalls();
     return Constants::Event::Success;
-}
-
-// TODO: Improve estimation by somehow leveraging a generated value from DomainModule Ruleset!
-//       Current implementation generates mock Rulesets again here, which is not optimal
-uint64_t RenderObject::estimateComputationalCost(bool const& onlyInternal) {
-    std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsGlobal;
-    std::vector<std::shared_ptr<Interaction::Rules::Ruleset>> rulesetsLocal;
-    Interaction::Rules::Construction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, *this);
-
-    //------------------------------------------
-    // Count number of $ and { in logical Arguments
-    uint64_t cost = 0;
-
-    // Local entries
-    cost = std::accumulate(
-        rulesetsLocal.begin(), rulesetsLocal.end(), cost,
-        [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
-            return acc + entry->getEstimatedCost();
-        }
-    );
-
-    // Global entries
-    if (!onlyInternal) {
-        cost = std::accumulate(
-            rulesetsGlobal.begin(), rulesetsGlobal.end(), cost,
-            [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
-                return acc + entry->getEstimatedCost();
-            }
-        );
-    }
-
-    return cost;
 }
 
 } // namespace Nebulite::Core

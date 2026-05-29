@@ -11,12 +11,12 @@
 // Nebulite
 #include "Constants/Event.hpp"
 #include "Constants/StandardCapture.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Math/Equality.hpp"
 #include "Module/Base/DomainModule.hpp"
 #include "Module/Domain/GlobalSpace/InputMapping.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
 #include "Module/Domain/Renderer/Input.hpp"
-#include "Nebulite.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------

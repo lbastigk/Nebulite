@@ -4,7 +4,6 @@
 // Nebulite
 #include "Constants/Event.hpp"
 #include "Module/Domain/GlobalSpace/Physics.hpp"
-#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {

@@ -12,11 +12,11 @@
 #include <RmlUi/Core/Element.h>
 
 // Nebulite
+#include "Data/Document/JsonScope.hpp"
 #include "Graphics/RmlInterface.hpp"
 #include "Interaction/Context.hpp"
 #include "Module/Base/RmlUiModule.hpp"
 #include "Module/RmlUi/DataReference.hpp"
-#include "Nebulite.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
 #include "Utility/IO/Capture.hpp"
 

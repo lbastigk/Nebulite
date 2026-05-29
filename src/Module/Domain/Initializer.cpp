@@ -32,14 +32,12 @@
 #include "Module/Domain/GlobalSpace/General.hpp"
 #include "Module/Domain/GlobalSpace/InputMapping.hpp"
 #include "Module/Domain/GlobalSpace/Physics.hpp"
-#include "Module/Domain/GlobalSpace/Ruleset.hpp"
 #include "Module/Domain/GlobalSpace/Settings.hpp"
 #include "Module/Domain/GlobalSpace/Time.hpp"
 
 // RenderObject
 #include "Module/Domain/RenderObject/Logging.hpp"
 #include "Module/Domain/RenderObject/Mirror.hpp"
-#include "Module/Domain/RenderObject/Ruleset.hpp"
 #include "Module/Domain/RenderObject/StateUpdate.hpp"
 
 // Renderer
@@ -130,11 +128,6 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
         Global::settings(),
         *target
     );
-    target->initModule<Core::GlobalSpace, Ruleset>(
-        "Global Ruleset Functions",
-        Global::settings(),
-        *target
-    );
 
     //------------------------------------------
     // Special debugging / testing utilities
@@ -206,11 +199,6 @@ void Initializer::initRenderObject(Core::RenderObject* target) {
     );
     target->initModule<Core::RenderObject, Mirror>(
         "RenderObject Mirror Functions",
-        Global::settings(),
-        *target
-    );
-    target->initModule<Core::RenderObject, Ruleset>(
-        "RenderObject Ruleset Functions",
         Global::settings(),
         *target
     );

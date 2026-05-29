@@ -118,7 +118,7 @@ public:
      * @brief Broadcasts a ruleset to other domains.
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
-    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) const ;
+    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
 
     /**
      * @brief Listens for rulesets on a specific topic.

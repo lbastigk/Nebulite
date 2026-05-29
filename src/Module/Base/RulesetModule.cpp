@@ -9,7 +9,6 @@
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 #include "Module/Base/RulesetModule.hpp"
-#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Base {

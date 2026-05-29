@@ -10,7 +10,7 @@
 // Includes
 
 // Nebulite
-#include "Constants/KeyNames.hpp"
+#include "Data/Document/KeyGroup.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------

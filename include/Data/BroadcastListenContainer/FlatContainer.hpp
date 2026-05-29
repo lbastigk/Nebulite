@@ -57,8 +57,8 @@ class FlatContainerImpl {
         return std::make_unique<FlatContainerImpl>(s);
     }
 
-    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry);
-    void listen(std::shared_ptr<Interaction::Rules::Listener> const& listener);
+    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> entry);
+    void listen(std::shared_ptr<Interaction::Rules::Listener> listener);
     void process();
 
     static auto constexpr activeWorkerCount = Constants::ThreadSettings::Maximum::invokeWorkerCount;
@@ -79,9 +79,8 @@ public:
 template <FlatContainerType Type>
 class FlatContainer final : public BaseContainer<FlatContainer<Type>*> {
 public:
-    explicit FlatContainer(std::atomic<bool>& stopFlag, uint32_t const& workerIndex, uint32_t const& workerCount)
-        : BaseContainer<FlatContainer*>(stopFlag, workerIndex, workerCount, this)
-    {
+    explicit FlatContainer(std::atomic<bool>& stopFlag, size_t const& workerIndex, size_t const& workerCount)
+        : BaseContainer<FlatContainer*>(stopFlag, workerIndex, workerCount, this) {
         FlatContainerImpl::Settings settings{};
 
         if constexpr (Type == FlatContainerType::WithRotation) { // Set offsets based on worker index

@@ -98,7 +98,9 @@ public:
     /**
      * @brief A constant representing the absence of a scope.
      */
-    static constexpr auto noScope = OptionalFixedString();
+    static auto constexpr noScope = OptionalFixedString();
+
+    static auto constexpr domainRootScope = OptionalFixedString<0, true>();
 
     /**
      * @brief Add another scopedKey to the current Key

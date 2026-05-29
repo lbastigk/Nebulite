@@ -329,7 +329,7 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
     completions.erase(std::remove(completions.begin(), completions.end(), "__complete__"), completions.end());
 
     // Remove any argument that is exactly equal to the pattern provided
-    std::erase_if(completions, [&](std::string_view const& completion){
+    std::erase_if(completions, [&pattern](auto const& completion){
         return completion == pattern;
     });
     return completions;

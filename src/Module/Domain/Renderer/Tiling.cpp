@@ -9,7 +9,6 @@
 #include <memory>
 #include <ranges>
 #include <span>
-#include <string>
 
 // External
 #include <SDL3/SDL_rect.h>

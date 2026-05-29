@@ -30,6 +30,7 @@ class KeyGroup {
 
 public:
     static consteval auto makeScoped(const char* keyStr) {
+        static_assert(!Prefix.hasOutsideDefinition(), "Cannot create scoped keys if the root scope isn't defined at compile time!");
         return ScopedKeyView::createFromOptionalFixedString<Prefix>(keyStr);
     }
 
@@ -47,6 +48,10 @@ public:
 
     static auto constexpr hasScope() {
         return Prefix.hasValue();
+    }
+
+    static auto constexpr useOutsideScope() {
+        return Prefix.hasOutsideDefinition();
     }
 };
 } // namespace Nebulite::Data

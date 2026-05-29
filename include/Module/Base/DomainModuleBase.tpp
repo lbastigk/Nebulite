@@ -1,5 +1,5 @@
-#ifndef INTERACTION_EXECUTION_DOMAINMODULEBASE_TPP
-#define INTERACTION_EXECUTION_DOMAINMODULEBASE_TPP
+#ifndef MODULE_BASE_DOMAINMODULEBASE_TPP
+#define MODULE_BASE_DOMAINMODULEBASE_TPP
 
 //------------------------------------------
 namespace Nebulite::Module::Base {
@@ -83,4 +83,4 @@ void DomainModuleBase::bindFunction(
     bindFunctionStatic(funcTree.get(), functionPtr, name, helpDescription);
 }
 } // namespace Nebulite::Module::Base
-#endif // INTERACTION_EXECUTION_DOMAINMODULEBASE_TPP
+#endif // MODULE_BASE_DOMAINMODULEBASE_TPP

@@ -12,8 +12,8 @@
 // Nebulite
 #include "Constants/Event.hpp"
 #include "Constants/StandardCapture.hpp"
+#include "Core/GlobalSpace.hpp"
 #include "Module/Domain/GlobalSpace/Time.hpp"
-#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {

@@ -8,6 +8,7 @@
 #include <mutex>
 #include <numeric>
 #include <string>
+#include <string_view>
 #include <vector>
 
 // Nebulite
@@ -17,6 +18,7 @@
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Execution/DomainTree.hpp"
 #include "Interaction/Logic/Expression.hpp"
+#include "Module/Domain/Common/Ruleset.hpp"
 #include "Module/Domain/Initializer.hpp"
 #include "Nebulite.hpp"
 #include "Utility/IO/Capture.hpp"
@@ -42,7 +44,11 @@ DocumentAccessor::DocumentAccessor() : ScopeOwnershipManager(ScopeOwnership::Own
 
 DocumentAccessor::~DocumentAccessor() = default;
 
-Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture) : DocumentAccessor(documentReference), domainName(name), capture(&parentCapture) {
+Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture)
+    : DocumentAccessor(documentReference)
+    , domainName(name)
+    , capture(&parentCapture)
+    , cost(domainScope){
     // FuncTree initialization
     funcTree = std::make_shared<DomainTree>(
         name,
@@ -56,7 +62,10 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference, Util
     Module::Domain::Initializer::initCommon(this);
 }
 
-Domain::Domain(std::string const& name, Utility::IO::Capture& parentCapture) : domainName(name), capture(&parentCapture) {
+Domain::Domain(std::string const& name, Utility::IO::Capture& parentCapture)
+    : domainName(name)
+    , capture(&parentCapture)
+    , cost(domainScope) {
     // FuncTree initialization
     funcTree = std::make_shared<DomainTree>(
         name,
@@ -70,7 +79,11 @@ Domain::Domain(std::string const& name, Utility::IO::Capture& parentCapture) : d
     Module::Domain::Initializer::initCommon(this);
 }
 
-Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : DocumentAccessor(documentReference), domainName(name), capture(nullptr) {
+Domain::Domain(std::string const& name, Data::JsonScope& documentReference)
+    : DocumentAccessor(documentReference)
+    , domainName(name)
+    , capture(nullptr)
+    , cost(domainScope) {
     // FuncTree initialization
     funcTree = std::make_shared<DomainTree>(
         name,
@@ -84,7 +97,10 @@ Domain::Domain(std::string const& name, Data::JsonScope& documentReference) : Do
     Module::Domain::Initializer::initCommon(this);
 }
 
-Domain::Domain(std::string const& name) : domainName(name), capture(nullptr) {
+Domain::Domain(std::string const& name)
+    : domainName(name)
+    , capture(nullptr)
+    , cost(domainScope){
     // FuncTree initialization
     funcTree = std::make_shared<DomainTree>(
         name,
@@ -124,11 +140,11 @@ std::vector<std::string> Domain::stringToDeserializeTokens(std::string_view cons
     std::vector<std::string> tokens;
     if (Data::JSON::isJsonOrJsonc(serialOrLinkWithCommands)) {
         // Direct JSON string, no splitting
-        tokens.push_back(std::string(serialOrLinkWithCommands));
+        tokens.emplace_back(serialOrLinkWithCommands);
     } else {
         // Split based on transformations, indicated by '|'
         for (auto const& token : Utility::StringHandler::split(serialOrLinkWithCommands, '|')) {
-            tokens.push_back(std::string(token));
+            tokens.emplace_back(token);
         }
     }
     return tokens;
@@ -219,6 +235,23 @@ void Domain::updateModules() const {
 
 void Domain::parseTaskQueues(bool const& recover){
     Global::instance().notifyEvent(tasks.parse(*this, domainScope, recover));
+}
+
+// Cost
+
+Domain::Cost::Cost(Data::JsonScope const& scope) {
+    Module::Domain::Common::Ruleset::Key const keys(scope);
+    local = scope.getStableDoublePointer(keys.costLocal);
+    global = scope.getStableDoublePointer(keys.costGlobal);
+}
+
+uint64_t Domain::estimateComputationalCost(bool const& onlyInternal) const {
+    // TODO: Consider cost of inner domains, make function virtual and provide ownCost function for cost per domain
+    //       and then this function returns ownCost + cost of inner domains.
+    if (onlyInternal) {
+        return static_cast<uint64_t>(*cost.local);
+    }
+    return static_cast<uint64_t>(*cost.global) + static_cast<uint64_t>(*cost.local);
 }
 
 } // namespace Nebulite::Interaction::Execution

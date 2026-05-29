@@ -107,7 +107,7 @@ struct FullCommand {
 
 template <Data::OptionalFixedString trigger>
 class AttributeCommand {
-    static constexpr FullCommand<trigger> addCommand(std::string_view const& specialization) {
+    static consteval FullCommand<trigger> addCommand(std::string_view const& specialization) {
         return {specialization};
     }
 public:

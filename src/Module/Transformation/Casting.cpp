@@ -16,7 +16,6 @@
 #include "Data/Document/KeyType.hpp"
 #include "Interaction/Logic/Expression.hpp"
 #include "Module/Transformation/Casting.hpp"
-#include "Nebulite.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------

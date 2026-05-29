@@ -12,7 +12,6 @@
 #include "Core/RenderObject.hpp"
 #include "Interaction/Context.hpp"
 #include "Module/Domain/RenderObject/Logging.hpp"
-#include "Nebulite.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
 //------------------------------------------

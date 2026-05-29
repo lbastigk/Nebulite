@@ -160,6 +160,14 @@ concept HasKeyGroup = requires {
     typename T::Key;           // nested Key type exists
     { T::Key::getScope() };    // Key::getScope() exists (now it's likely that Key inherits from KeyGroup.
 };
+
+template<typename T>
+concept HasDomainRootScopeKeyGroup = requires{
+    typename T::Key;                // nested Key type exists
+    { T::Key::getScope() };         // Key::getScope() exists (now it's likely that Key inherits from KeyGroup.
+    { T::Key::useOutsideScope()};   // Some KeyGroups force us to pick the scope
+};
+
 // Checking directly if Key inherits from KeyGroup would be more complex, so we ignore it for now...
 
 /**
@@ -362,11 +370,15 @@ public:
         if constexpr(std::is_same_v<DomainType, Domain>) {
             // If the DomainType is the base Domain class, we must initialize modules without scope,
             // otherwise this will lead to circular initialization problems.
-            static_assert(!HasKeyGroup<DomainModuleType>, "DomainModules linked to the base Domain class cannot have a scope. Please remove the static Key::scope member from the module. Use the callers scope instead!");
+            static_assert(!HasKeyGroup<DomainModuleType> || HasDomainRootScopeKeyGroup<DomainModuleType>,
+                "DomainModules linked to the base Domain class cannot have a predefined scope. "
+                "Please remove the static Key::scope member from the module or force domain scope using Data::KeyGroup<Data::ScopedKey::domainRootScope>."
+                "If possible, use the callers scope instead!"
+            );
             typename Module::Base::DomainModule<DomainType>::ConstructorParams params = {
                 .domainReference = domainReference,
                 .name = moduleName,
-                .scope = domainReference.domainScope.shareDummyScopeBase(),
+                .scope = HasDomainRootScopeKeyGroup<DomainModuleType> ? domainReference.domainScope.shareScope("") : domainReference.domainScope.shareDummyScopeBase(),
                 .funcTreePtr = funcTree,
                 .settings = settings
             };
@@ -457,7 +469,23 @@ public:
     // Tasks
     Tasks tasks;
 
+    // Estimate cost of rulesets
+    /**
+     * @brief Estimates the computational cost of updating the Domains associated rulesets.
+     *        Based on the amount of evaluations and variables in the ruleset.
+     * @param onlyInternal If true, only considers internal rulesets. Defaults to true.
+     * @return The estimated computational cost.
+     */
+    [[nodiscard]] uint64_t estimateComputationalCost(bool const& onlyInternal = true) const ;
+
 protected:
+    struct Cost {
+        explicit Cost(Data::JsonScope const& scope);
+
+        double* local;
+        double* global;
+    } cost;
+
     /**
      * @brief Offers access to the internal FuncTree for function binding.
      *        Marked as protected, as it's only used to initialize DomainModules.
