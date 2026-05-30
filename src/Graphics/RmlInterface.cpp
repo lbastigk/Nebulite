@@ -484,8 +484,8 @@ void RmlInterface::removeReferencesToId(size_t const& domainId){
     // NOLINTEND
 }
 
-std::optional<RmlInterface::ContextAndScope> RmlInterface::getRmlElementContextAndScope(RmlElementIdentifier const& element) {
-    if (auto const it = elementToContext.find(element); it != elementToContext.end()) {
+std::optional<RmlInterface::ContextAndScope> RmlInterface::getRmlElementContextAndScope(RmlElementIdentifier const& elementId) {
+    if (auto const it = elementToContext.find(elementId); it != elementToContext.end()) {
         return it->second;
     }
     return std::nullopt;
@@ -499,8 +499,8 @@ std::optional<RmlInterface::ContextAndScope> RmlInterface::getRmlDocumentContext
     return std::nullopt;
 }
 
-void RmlInterface::setRmlElementContextAndScope(RmlElementIdentifier const& element, ContextAndScope const& ctxAndScope) {
-    elementToContext.emplace(element, ctxAndScope);
+void RmlInterface::setRmlElementContextAndScope(RmlElementIdentifier const& elementId, ContextAndScope const& ctxAndScope) {
+    elementToContext.emplace(elementId, ctxAndScope);
 }
 
 void RmlInterface::setRmlDocumentContextAndScope(Rml::ElementDocument* document, ContextAndScope const& ctxAndScope) {

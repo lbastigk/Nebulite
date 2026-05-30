@@ -203,20 +203,63 @@ public:
         Interaction::ContextScope ctxScope;
     };
 
+    /**
+     * @brief Loads a document with a given context and scope
+     * @param name A name to give to the document
+     * @param path The path to the .rml file
+     * @param ctx The context of the document
+     * @param ctxScope The scope of the document
+     * @return True if the document was loaded successfully, false otherwise
+     */
     bool loadDocument(std::string_view const& name, std::string_view const& path, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope);
 
+    /**
+     * @brief Removes a document from a given owner id
+     * @param id The owner
+     * @param name The name of the document
+     * @return True if a document was found and removed, false otherwise
+     */
     bool removeDocument(size_t const& id, std::string_view const& name);
 
+    /**
+     * @brief Removes a document from a given document pointer
+     * @param doc The pointer of the document
+     * @return True if the document was removed sucessfully, false otherwise
+     */
     bool removeDocument(Rml::ElementDocument* doc);
 
+    /**
+     * @brief Replaces all references to a given owner id, so that no context interaction has access to the associated domain
+     * @param domainId The id of the domain
+     */
     void removeReferencesToId(size_t const& domainId);
 
-    std::optional<ContextAndScope> getRmlElementContextAndScope(RmlElementIdentifier const& element);
+    /**
+     * @brief Gets a context and scope from a given RML element id
+     * @param elementId The unique Rml element identifier
+     * @return The context and scope if it was found, or nullopt if not
+     */
+    std::optional<ContextAndScope> getRmlElementContextAndScope(RmlElementIdentifier const& elementId);
 
+    /**
+     * @brief Gets a context and scope from a given RML document
+     * @param document The document
+     * @return The context and scope if it was found, or nullopt if not
+     */
     std::optional<ContextAndScope> getRmlDocumentContextAndScope(Rml::ElementDocument* document);
 
-    void setRmlElementContextAndScope(RmlElementIdentifier const& element, ContextAndScope const& ctxAndScope);
+    /**
+     * @brief Sets a context and scope for an RML element
+     * @param elementId The unique Rml element identifier
+     * @param ctxAndScope The context and scope to set
+     */
+    void setRmlElementContextAndScope(RmlElementIdentifier const& elementId, ContextAndScope const& ctxAndScope);
 
+    /**
+     * @brief Sets a context and scope for an RML document
+     * @param document The Rml document
+     * @param ctxAndScope The context and scope to set
+     */
     void setRmlDocumentContextAndScope(Rml::ElementDocument* document, ContextAndScope const& ctxAndScope);
 
     // TODO: Add a custom bind function for modules to use
