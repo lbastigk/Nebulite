@@ -1,8 +1,3 @@
-/**
- * @file Audio.hpp
- * @brief Provides audio-related utilities for the Nebulite engine.
- */
-
 #ifndef MODULE_DOMAIN_RENDERER_AUDIO_HPP
 #define MODULE_DOMAIN_RENDERER_AUDIO_HPP
 
@@ -84,11 +79,6 @@ public:
 
     /**
      * @brief Initializes the module, binding functions and variables.
-     * @todo Add domainModules for camera and renderobject-selection and move respective functions in there.
-     * @todo Move functions for Renderer and Environment to domains themselves,
-     *       once they are implemented as such.
-     *       This will declutter the globalspace, separating its usage from the Renderer and Environment.
-     *       The only downside currently is that we have to implement a method to lazy-init the SDL Renderer within the Renderer domain itself.
      */
     explicit Audio(ConstructorParams const& params) : DomainModule(params) {
         bindFunction(&Audio::beep, beep_name, beep_desc);
@@ -151,20 +141,7 @@ private:
      * @param format The SDL_AudioFormat to convert.
      * @return A string representation of the audio format.
      */
-    static std::string sdlAudioFormatToString(SDL_AudioFormat const& format) {
-        switch (format) {
-            case SDL_AUDIO_U8: return "Unsigned 8-bit";
-            case SDL_AUDIO_S8: return "Signed 8-bit";
-            case SDL_AUDIO_F32: return "Floating point 32 bit";
-            case SDL_AUDIO_S16: return "Signed 16-bit";
-            case SDL_AUDIO_S16BE: return "Signed 16-bit big-endian";
-            case SDL_AUDIO_S32: return "Signed 32-bit";
-            case SDL_AUDIO_S32BE: return "Signed 32-bit big-endian";
-            case SDL_AUDIO_F32BE: return "Floating point 32-bit big-endian";
-            case SDL_AUDIO_UNKNOWN: return "Unknown";
-            default: std::unreachable();
-        }
-    }
+    static std::string sdlAudioFormatToString(SDL_AudioFormat const& format);
 };
 } // namespace Nebulite::Module::Domain::Renderer
 #endif // MODULE_DOMAIN_RENDERER_AUDIO_HPP

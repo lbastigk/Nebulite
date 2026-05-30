@@ -292,4 +292,19 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
     return it;
 }
 
+std::string Audio::sdlAudioFormatToString(SDL_AudioFormat const& format) {
+    switch (format) {
+    case SDL_AUDIO_U8: return "Unsigned 8-bit";
+    case SDL_AUDIO_S8: return "Signed 8-bit";
+    case SDL_AUDIO_F32: return "Floating point 32 bit";
+    case SDL_AUDIO_S16: return "Signed 16-bit";
+    case SDL_AUDIO_S16BE: return "Signed 16-bit big-endian";
+    case SDL_AUDIO_S32: return "Signed 32-bit";
+    case SDL_AUDIO_S32BE: return "Signed 32-bit big-endian";
+    case SDL_AUDIO_F32BE: return "Floating point 32-bit big-endian";
+    case SDL_AUDIO_UNKNOWN: return "Unknown";
+    default: std::unreachable();
+    }
+}
+
 } // namespace Nebulite::Module::Domain::Renderer
