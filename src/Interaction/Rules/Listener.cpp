@@ -3,6 +3,7 @@
 
 // Standard library
 #include <string>
+#include <string_view>
 
 // Nebulite
 #include "Interaction/Rules/Listener.hpp"

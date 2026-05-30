@@ -2,18 +2,22 @@
 // Includes
 
 // Standard library
+#include <cstddef>
+#include <stdexcept>
 #include <string>
 #include <utility>
 
 // External
+#include <RmlUi/Config/Config.h>
 #include <RmlUi/Core/Element.h>
 
 // Nebulite
 #include "Graphics/RmlInterface.hpp"
-#include "Interaction/Context.hpp"
+#include "Interaction/Logic/Expression.hpp"
+#include "Math/Equality.hpp"
 #include "Module/Base/RmlUiModule.hpp"
 #include "Module/RmlUi/Conditional.hpp"
-#include "Nebulite.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
@@ -53,7 +57,7 @@ void Conditional::OnElementCreate(Rml::Element* element){
     // Check for if-attribute
     if (Attribute::hasSupportedAttribute(element)) {
         auto id = Graphics::RmlInterface::RmlElementIdentifier(element);
-        std::string const condition = element->GetAttribute(Attribute::conditional)->Get<Rml::String>();
+        auto const condition = element->GetAttribute(Attribute::conditional)->Get<Rml::String>();
         newEntries.emplace(id, RegisteredEntry{
             .condition = Interaction::Logic::Expression(condition),
             .innerRml = "",
@@ -68,7 +72,7 @@ void Conditional::OnElementDestroy(Rml::Element* element){
 
     // Check for if-attribute
     if (Attribute::hasSupportedAttribute(element)) {
-        auto id = Graphics::RmlInterface::RmlElementIdentifier(element);
+        auto const id = Graphics::RmlInterface::RmlElementIdentifier(element);
         registeredEntries.erase(id);
         newEntries.erase(id);
     }

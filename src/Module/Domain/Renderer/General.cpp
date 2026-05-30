@@ -31,7 +31,6 @@
 #include "Data/Document/RjDirectAccess.hpp"
 #include "Interaction/Context.hpp"
 #include "Module/Domain/Renderer/General.hpp"
-#include "Nebulite.hpp"
 #include "Utility/IO/FileManagement.hpp"
 #include "Utility/StringHandler.hpp"
 

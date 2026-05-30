@@ -4,6 +4,8 @@
 // Standard library
 // NOLINTNEXTLINE
 #include <cstddef>
+// NOLINTNEXTLINE
+#include <cstdint>
 #include <expected>
 #include <memory>
 #include <mutex>
@@ -14,12 +16,12 @@
 
 // Nebulite
 #include "Data/Document/JSON.hpp"
+#include "Data/Document/JsonScope.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
 #include "Data/Document/ScopedKey.hpp"
 #include "Data/Document/SimpleValueError.hpp"
 #include "Data/OrderedCacheList.hpp"
-#include "Nebulite.hpp"
 #include "Utility/Generate.hpp"
 
 //------------------------------------------

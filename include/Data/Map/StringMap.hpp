@@ -85,14 +85,14 @@ public:
         }
     }
 
-    void forall(std::function<void(V&)> func) {
+    void forall(std::function<void(V&)> const& func) {
         for (auto& bucket : map) {
             for (auto& [_, value] : bucket) {
                 func(value);
             }
         }
     }
-    void forall(std::function<void(std::string const&, V&)> func) {
+    void forall(std::function<void(std::string const&, V&)> const& func) {
         for (auto& bucket : map) {
             for (auto& [key, value] : bucket) {
                 func(key, value);

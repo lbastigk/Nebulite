@@ -3,6 +3,8 @@
 
 // Standard library
 // NOLINTNEXTLINE
+#include <cstddef>
+// NOLINTNEXTLINE
 #include <cstdint>
 #include <vector>
 

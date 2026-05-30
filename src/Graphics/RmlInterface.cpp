@@ -32,7 +32,6 @@
 #include "Graphics/RmlInterface.hpp"
 #include "Graphics/RmlSystemInterface.hpp"
 #include "Interaction/Context.hpp"
-#include "Nebulite.hpp"
 #include "Utility/IO/FileManagement.hpp"
 
 // Nebulite: RmlUi-Modules

@@ -2,9 +2,17 @@
 // Includes
 
 // Standard library
+#include <memory>
+// NOLINTNEXTLINE
+#include <cstddef>
+#include <sstream>
+#include <algorithm>
+#include <ranges>
 #include <string>
+#include <vector>
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Data/TaskQueue.hpp"
 #include "Interaction/Context.hpp"
 #include "Interaction/Execution/Tasks.hpp"

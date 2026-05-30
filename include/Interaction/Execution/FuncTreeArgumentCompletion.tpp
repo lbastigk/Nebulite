@@ -242,15 +242,14 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::complete(std::span<std::st
         }
     }
 
-    // Sort and remove duplicates, filter out __complete__ from completions
+    // Sort and remove duplicates, filter out __complete__ from completions and any argument that is exactly equal to the pattern provided
     std::ranges::sort(completions);
-    completions.erase(std::unique(completions.begin(), completions.end()), completions.end());
-    completions.erase(std::remove(completions.begin(), completions.end(), "__complete__"), completions.end());
-
-    // Remove any argument that is exactly equal to the pattern provided
-    std::erase_if(completions, [&](auto const& completion){
-        return completion == pattern;
+    std::erase_if(completions, [seen = std::string{}, &pattern](std::string const& item) mutable {
+        bool const duplicate = item == seen;
+        seen = item;
+        return duplicate || item == pattern;
     });
+    std::erase(completions, "__complete__");
 
     // Output completions to stdout
     std::ranges::for_each(completions, [&](auto const& completion){
@@ -323,15 +322,15 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
         }
     }
 
-    // Sort and remove duplicates, filter out __complete__ from completions
+    // Sort and remove duplicates, filter out __complete__ from completions and any argument that is exactly equal to the pattern provided
     std::ranges::sort(completions);
-    completions.erase(std::unique(completions.begin(), completions.end()), completions.end());
-    completions.erase(std::remove(completions.begin(), completions.end(), "__complete__"), completions.end());
-
-    // Remove any argument that is exactly equal to the pattern provided
-    std::erase_if(completions, [&pattern](auto const& completion){
-        return completion == pattern;
+    std::erase_if(completions, [seen = std::string{}, &pattern](std::string const& item) mutable {
+        bool const duplicate = item == seen;
+        seen = item;
+        return duplicate || item == pattern;
     });
+    std::erase(completions, "__complete__");
+
     return completions;
 }
 

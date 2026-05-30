@@ -15,7 +15,6 @@
 #include <vector>
 
 // Nebulite
-#include "Nebulite.hpp"
 #include "Utility/StringHandler.hpp"
 
 //------------------------------------------

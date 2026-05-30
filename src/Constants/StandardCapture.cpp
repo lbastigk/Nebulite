@@ -1,8 +1,10 @@
 //------------------------------------------
 // Includes
 
-// Standard Library
+// Nebulite
 #include "Constants/StandardCapture.hpp"
+#include "Constants/Event.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Constants {
