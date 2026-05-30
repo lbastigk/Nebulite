@@ -253,6 +253,12 @@ private:
         std::unordered_set<Rml::ElementDocument*> openedDocuments;
     };
     std::unique_ptr<DocumentManager> documentManager;
+
+    // Event processing
+
+    void processMouseButtonEvent(SDL_Event const& event, int const& modifiers) const ;
+
+    void processKeyEvent(SDL_Event const& event, int const& modifiers) const ;
 };
 } // namespace Nebulite::Graphics
 #endif // GRAPHICS_RMLINTERFACE_HPP

@@ -214,6 +214,40 @@ bool isTextSdlScancode(SDL_Scancode const& scancode) {
 
 } // namespace
 
+void RmlInterface::processMouseButtonEvent(SDL_Event const& event, int const& modifiers) const {
+    int const button = [&event] {
+        if (event.button.button == SDL_BUTTON_LEFT) return 0;
+        if (event.button.button == SDL_BUTTON_RIGHT) return 1;
+        if (event.button.button == SDL_BUTTON_MIDDLE) return 2;
+        return 0;
+    }();
+
+    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
+        // We assume the mouse click unfocused the element.
+        // If the click was at the elements position, ProcessMouseButtonDown will refocus the element.
+        if (context->GetFocusElement()) context->GetFocusElement()->Blur();
+        context->ProcessMouseButtonDown(button, modifiers);
+    }
+    else {
+        context->ProcessMouseButtonUp(button, modifiers);
+    }
+}
+
+void RmlInterface::processKeyEvent(SDL_Event const& event, int const& modifiers) const {
+    // Skip keys that generate text input
+    if (isTextSdlScancode(event.key.scancode)) {
+        return;
+    }
+
+    auto const rmlKey = SDLKeyToRmlKey(event.key.scancode);
+    if (event.type == SDL_EVENT_KEY_DOWN) {
+        context->ProcessKeyDown(rmlKey, modifiers);
+    }
+    else {
+        context->ProcessKeyUp(rmlKey, modifiers);
+    }
+}
+
 void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
     // Just forwarding all events to RmlSDL::InputEventHandler has a ton of issues...
     // Instead, we manually translate the events and cherrypick what to process with RmlSDL::InputEventHandler
@@ -226,23 +260,9 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
     // Core events
     switch (event.type) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
-    case SDL_EVENT_MOUSE_BUTTON_UP: {
-        int button = 0;
-        if (event.button.button == SDL_BUTTON_LEFT) button = 0;
-        else if (event.button.button == SDL_BUTTON_RIGHT) button = 1;
-        else if (event.button.button == SDL_BUTTON_MIDDLE) button = 2;
-
-        if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
-            // We assume the mouse click unfocused the element.
-            // If the click was at the elements position, ProcessMouseButtonDown will refocus the element.
-            if (context->GetFocusElement()) context->GetFocusElement()->Blur();
-            context->ProcessMouseButtonDown(button, modifiers);
-        }
-        else {
-            context->ProcessMouseButtonUp(button, modifiers);
-        }
+    case SDL_EVENT_MOUSE_BUTTON_UP:
+        processMouseButtonEvent(event, modifiers);
         break;
-    }
     case SDL_EVENT_MOUSE_WHEEL: {
         context->ProcessMouseWheel(
             {event.wheel.x, event.wheel.y},
@@ -251,19 +271,9 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
         break;
     }
     case SDL_EVENT_KEY_DOWN:
-    case SDL_EVENT_KEY_UP: {
-        // Skip keys that generate text input
-        if (isTextSdlScancode(event.key.scancode)) {
-            break;
-        }
-
-        auto const rmlKey = SDLKeyToRmlKey(event.key.scancode);
-        if (event.type == SDL_EVENT_KEY_DOWN)
-            context->ProcessKeyDown(rmlKey, modifiers);
-        else
-            context->ProcessKeyUp(rmlKey, modifiers);
+    case SDL_EVENT_KEY_UP:
+        processKeyEvent(event, modifiers);
         break;
-    }
     case SDL_EVENT_TEXT_INPUT:
         context->ProcessTextInput(event.text.text);
         break;
