@@ -242,12 +242,10 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::complete(std::span<std::st
         }
     }
 
-    // Sort and remove duplicates, filter out __complete__ from completions and any argument that is exactly equal to the pattern provided
+    // Filter out __complete__ from and any argument that is exactly equal to the pattern provided
     std::ranges::sort(completions);
-    std::erase_if(completions, [seen = std::string{}, &pattern](std::string const& item) mutable {
-        bool const duplicate = item == seen;
-        seen = item;
-        return duplicate || item == pattern;
+    std::erase_if(completions, [&pattern](std::string const& completion) {
+        return completion == pattern;
     });
     std::erase(completions, "__complete__");
 
@@ -322,12 +320,10 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
         }
     }
 
-    // Sort and remove duplicates, filter out __complete__ from completions and any argument that is exactly equal to the pattern provided
+    // Filter out __complete__ from and any argument that is exactly equal to the pattern provided
     std::ranges::sort(completions);
-    std::erase_if(completions, [seen = std::string{}, &pattern](std::string const& item) mutable {
-        bool const duplicate = item == seen;
-        seen = item;
-        return duplicate || item == pattern;
+    std::erase_if(completions, [&pattern](std::string const& completion) {
+        return completion == pattern;
     });
     std::erase(completions, "__complete__");
 

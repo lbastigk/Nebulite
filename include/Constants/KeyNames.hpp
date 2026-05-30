@@ -71,12 +71,6 @@ struct KeyNames {
         static auto constexpr sizeX = makeScoped("size.x");
         static auto constexpr sizeY = makeScoped("size.y");
         static auto constexpr sizeR = makeScoped("size.r");
-
-        // Keys for Ruleset invocations and subscriptions
-        //struct Ruleset : KeyGroup<"ruleset."> {
-        //    static auto constexpr list = makeScoped("list");
-        //    static auto constexpr listen = makeScoped("listen");
-        //};
     };
 
     /**

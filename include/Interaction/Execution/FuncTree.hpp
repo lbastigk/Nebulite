@@ -399,7 +399,7 @@ private:
     /**
      * @brief Finds possible completions for a given pattern and prefix in the current FuncTree.
      * @param pattern The pattern to match for completions
-     * @return A vector of possible completions
+     * @return A vector of possible completions, sorted
      */
     std::vector<std::string> findCompletions(std::string_view const& pattern);
 
