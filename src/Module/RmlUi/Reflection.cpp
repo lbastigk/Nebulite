@@ -34,7 +34,7 @@ Reflection::Reflection(Utility::IO::Capture& c, Graphics::RmlInterface& i) : Rml
             removeDeletedElements();
             reflect();
         },
-        10, // ms
+        static_cast<size_t>(1000.0 / 144.0), // ms
         Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
     );
 }
@@ -112,8 +112,6 @@ Data::JSON& Reflection::evaluateReflectionList(std::unique_ptr<ReflectionEntry> 
         reflectionResults[elementDocument][element] = std::make_unique<Data::JSON>();
     }
     auto const& reflectionList = reflectionResults[elementDocument][element];
-
-    // Evaluate expression, result must be an array
     *reflectionList = entry->reflectionListExpression.evalAsJson(scope);
     return *reflectionList;
 }
@@ -127,6 +125,7 @@ void Reflection::setReflectionScopes(
         Interaction::ContextScope const& scope
     ) const {
     auto const childrenCount = static_cast<size_t>(element->GetNumChildren());
+    assert(childrenCount % listSize == 0);
     for (size_t i = 0; i < childrenCount; ++i) {
         auto const jsonIndex = i * listSize / childrenCount;
         std::string const childKey = Data::ScopedKey().addIndex(jsonIndex).toString();

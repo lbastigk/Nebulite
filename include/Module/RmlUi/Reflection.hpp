@@ -111,7 +111,7 @@ private:
     /**
      * @brief Sets the scopes for all parts of a reflection entry
      * @param reflectionList The list of values to use for each reflection
-     * @param listSize Size of reflectionList
+     * @param listSize Size of reflectionList (using memberSize is costly. Since it's already known, we just pass it)
      * @param entry The reflectionEntry
      * @param element The rml element associated with the reflection
      * @param context The context of the element
