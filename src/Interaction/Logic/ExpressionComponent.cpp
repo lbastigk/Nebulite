@@ -43,49 +43,33 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
     return *this;
 }
 
-bool Expression::Component::handleComponentTypeVariable(std::string& token, ContextScope const& context, size_t const& recursionDepth) const {
-    // Do not evaluate if wait is active
-    if (evaluationWait > 1) {
-        token = "{" + std::to_string(evaluationWait - 1) + "!" + stringRepresentation + "}";
-        return true;
-    }
-    if (evaluationWait == 1) {
-        token = "{" + stringRepresentation + "}";
-        return true;
-    }
+namespace {
 
-    // Evaluate inner variables/expressions if necessary, for example in {global:{self:info.requiredKey}}
-    auto nestedEvalResult = handleNesting(context, recursionDepth);
-    if (!nestedEvalResult.has_value()) {
-        return false;
+template<typename DocumentType, typename KeyType>
+std::string getStringValue(DocumentType const& doc, KeyType const& k) {
+    std::expected<std::string, Data::SimpleValueRetrievalError> value = doc.template get<std::string>(k);
+    if (value.has_value()) {
+        return value.value();
     }
-    auto const& [evaluatedKey, source] = nestedEvalResult.value();
+    switch (value.error()) {
+    case Data::SimpleValueRetrievalError::CONVERSION_FAILURE:
+        return "[TO_STRING_CONVERSION_FAILURE]";
+    case Data::SimpleValueRetrievalError::TRANSFORMATION_FAILURE:
+        return "[TRANSFORMATION_FAILURE]";
+    case Data::SimpleValueRetrievalError::MALFORMED_KEY:
+        return "[MALFORMED_KEY]";
+    case Data::SimpleValueRetrievalError::IS_NULL:
+        return "null";
+    case Data::SimpleValueRetrievalError::IS_ARRAY:
+        return "[array]";
+    case Data::SimpleValueRetrievalError::IS_OBJECT:
+        return "{object}";
+    default:
+        std::unreachable();
+    }
+}
 
-    // Helper lambda to convert a value to a string representation
-    auto getStringValue = []<typename DocumentType, typename KeyType>(DocumentType const& doc, KeyType const& k) -> std::string {
-        std::expected<std::string, Data::SimpleValueRetrievalError> value = doc.template get<std::string>(k);
-        if (value.has_value()) {
-            return value.value();
-        }
-        switch (value.error()) {
-            case Data::SimpleValueRetrievalError::CONVERSION_FAILURE:
-                return "[TO_STRING_CONVERSION_FAILURE]";
-            case Data::SimpleValueRetrievalError::TRANSFORMATION_FAILURE:
-                return "[TRANSFORMATION_FAILURE]";
-            case Data::SimpleValueRetrievalError::MALFORMED_KEY:
-                return "[MALFORMED_KEY]";
-            case Data::SimpleValueRetrievalError::IS_NULL:
-                return "null";
-            case Data::SimpleValueRetrievalError::IS_ARRAY:
-                return "[array]";
-            case Data::SimpleValueRetrievalError::IS_OBJECT:
-                return "{object}";
-            default:
-                std::unreachable();
-        }
-    };
-
-    // Now, use the key to get the value from the correct document
+void setToken(std::string& token, std::string const& evaluatedKey, ContextScope const& context, ContextDeriver::TargetType const& source) {
     auto const scopedKey = Data::ScopedKey(evaluatedKey);
     switch (source) {
     case ContextDeriver::TargetType::self: // {self:<key><transformations>}
@@ -132,6 +116,71 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
     default:
         std::unreachable();
     }
+}
+
+void setToken(Data::JSON& token, std::string const& evaluatedKey, ContextScope const& context, ContextDeriver::TargetType const& source) {
+    auto const scopedKey = Data::ScopedKey(evaluatedKey);
+    switch (source) {
+    case ContextDeriver::TargetType::self: // {self:<key><transformations>}
+        token = context.self.getSubDoc(scopedKey.view());
+        break;
+    case ContextDeriver::TargetType::other: // {other:<key><transformations>}
+        token = context.other.getSubDoc(scopedKey.view());
+        break;
+    case ContextDeriver::TargetType::local:
+    {
+        Data::JsonScope merged;
+        context.combineLocal(merged);
+        token = merged.getSubDoc(scopedKey.view());
+    }
+        break;
+    case ContextDeriver::TargetType::global: // {global:<key><transformations>}
+        token = context.global.getSubDoc(scopedKey.view());
+        break;
+    case ContextDeriver::TargetType::full:
+    {
+        Data::JsonScope merged;
+        context.combineAll(merged);
+        token = merged.getSubDoc(scopedKey.view());
+    }
+        break;
+    case ContextDeriver::TargetType::resource: // {<link><resource_key_or_transformations>}
+        token = Global::instance().getDocCache().getSubDoc(evaluatedKey);
+        break;
+    case ContextDeriver::TargetType::none: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
+    {
+        // This requires an empty document that acts as a parsing mechanism for the transformations
+        thread_local const Data::JsonScope emptyDoc;
+        token = emptyDoc.getSubDoc(scopedKey.view());
+    }
+        break;
+    default:
+        std::unreachable();
+    }
+}
+
+} // namespace
+
+bool Expression::Component::handleComponentTypeVariable(std::string& token, ContextScope const& context, size_t const& recursionDepth) const {
+    // Do not evaluate if wait is active
+    if (evaluationWait > 1) {
+        token = "{" + std::to_string(evaluationWait - 1) + "!" + stringRepresentation + "}";
+        return true;
+    }
+    if (evaluationWait == 1) {
+        token = "{" + stringRepresentation + "}";
+        return true;
+    }
+
+    // Evaluate inner variables/expressions if necessary, for example in {global:{self:info.requiredKey}}
+    auto nestedEvalResult = handleNesting(context, recursionDepth);
+    if (!nestedEvalResult.has_value()) {
+        return false;
+    }
+    auto const& [evaluatedKey, source] = nestedEvalResult.value();
+
+    // Now, use the key to get the value from the correct document
+    setToken(token, evaluatedKey, context, source);
     return true;
 }
 
@@ -154,44 +203,7 @@ bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, Conte
     auto const& [evaluatedKey, source] = nestedEvalResult.value();
 
     // Now, use the key to get the value from the correct document
-    auto const scopedKey = Data::ScopedKey(evaluatedKey);
-    switch (source) {
-    case ContextDeriver::TargetType::self: // {self:<key><transformations>}
-        token = context.self.getSubDoc(scopedKey.view());
-        break;
-    case ContextDeriver::TargetType::other: // {other:<key><transformations>}
-        token = context.other.getSubDoc(scopedKey.view());
-        break;
-    case ContextDeriver::TargetType::local:
-        {
-            Data::JsonScope merged;
-            context.combineLocal(merged);
-            token = merged.getSubDoc(scopedKey.view());
-        }
-        break;
-    case ContextDeriver::TargetType::global: // {global:<key><transformations>}
-        token = context.global.getSubDoc(scopedKey.view());
-        break;
-    case ContextDeriver::TargetType::full:
-        {
-            Data::JsonScope merged;
-            context.combineAll(merged);
-            token = merged.getSubDoc(scopedKey.view());
-        }
-        break;
-    case ContextDeriver::TargetType::resource: // {<link><resource_key_or_transformations>}
-        token = Global::instance().getDocCache().getSubDoc(evaluatedKey);
-        break;
-    case ContextDeriver::TargetType::none: // No document referenced, direct use of transformations: {|my|Transformations|come|directly|at|the|beginning}
-        {
-            // This requires an empty document that acts as a parsing mechanism for the transformations
-            thread_local const Data::JsonScope emptyDoc;
-            token = emptyDoc.getSubDoc(scopedKey.view());
-        }
-        break;
-    default:
-        std::unreachable();
-    }
+    setToken(token, evaluatedKey, context, source);
     return true;
 }
 
