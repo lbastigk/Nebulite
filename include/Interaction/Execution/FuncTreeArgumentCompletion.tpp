@@ -244,7 +244,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::complete(std::span<std::st
 
     // Filter out __complete__ from and any argument that is exactly equal to the pattern provided
     std::ranges::sort(completions);
-    std::erase_if(completions, [&pattern]<typename T>(T const& completion) {
+    std::erase_if(completions, [&]<typename T>(T const& completion) {
         return completion == pattern;
     });
     std::erase(completions, "__complete__");
@@ -322,7 +322,7 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
 
     // Filter out __complete__ from and any argument that is exactly equal to the pattern provided
     std::ranges::sort(completions);
-    std::erase_if(completions, [&pattern]<typename T>(T const& completion) {
+    std::erase_if(completions, [&]<typename T>(T const& completion) {
         return completion == pattern;
     });
     std::erase(completions, "__complete__");

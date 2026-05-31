@@ -13,11 +13,9 @@
 
 //------------------------------------------
 namespace Nebulite::Data {
-
 // Converter helper functions for convertVariant
 class TypeConversion {
 public:
-
     class String {
     public:
         template<typename newType>
@@ -202,6 +200,5 @@ public:
         }
     };
 };
-
 } // namespace Nebulite::Data
 #endif // DATA_DOCUMENT_TYPECONVERSION_HPP
