@@ -89,10 +89,48 @@ private:
 
     std::unique_ptr<Utility::Coordination::TimedRoutine> evaluationRoutine;
 
+    /**
+     * @brief Removes all entries that are marked for deletion from the active reflections list
+     */
     void removeDeletedElements();
 
+    /**
+     * @brief Modifies the elements of all registered reflection entries
+     */
     void reflect();
 
+    /**
+     * @brief Evaluates the expression of the ReflectionEntry
+     * @param entry The entry to evaluate the expression of
+     * @param element The rml element associated with the reflection
+     * @param scope The scope of the element
+     * @return The result of the expression
+     */
+    Data::JSON& evaluateReflectionList(std::unique_ptr<ReflectionEntry> const& entry, Rml::Element* element, Interaction::ContextScope const& scope);
+
+    /**
+     * @brief Sets the scopes for all parts of a reflection entry
+     * @param reflectionList The list of values to use for each reflection
+     * @param listSize Size of reflectionList
+     * @param entry The reflectionEntry
+     * @param element The rml element associated with the reflection
+     * @param context The context of the element
+     * @param scope The scope of the element
+     */
+    void setReflectionScopes(
+        Data::JSON& reflectionList,
+        size_t const& listSize,
+        std::unique_ptr<ReflectionEntry> const& entry,
+        Rml::Element const* element,
+        Interaction::Context const& context,
+        Interaction::ContextScope const& scope
+    ) const ;
+
+    /**
+     * @brief Reflects a single element based on the provided entry
+     * @param element The rml element to modify
+     * @param entry The reflection entry
+     */
     void reflectElement(Rml::Element* element, std::unique_ptr<ReflectionEntry> const& entry);
 };
 } // namespace Nebulite::Module::RmlUi
