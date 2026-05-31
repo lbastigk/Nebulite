@@ -22,10 +22,9 @@
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
 
-InputMapping::InputMapping(ConstructorParams const& params) :
-    DomainModule(params),
-    sdlPolledInput(moduleScope.getStableDoublePointer(Renderer::Input::Key::routineActivated)){ // Setup pointer to polled input key in Renderer::Input module, to sync our updates with it and avoid missing deltas
-
+InputMapping::InputMapping(ConstructorParams const& params)
+    : DomainModule(params)
+    , sdlPolledInput(moduleScope.getStableDoublePointer(Renderer::Input::Key::routineActivated)){ // Setup pointer to polled input key in Renderer::Input module, to sync our updates with it and avoid missing deltas
     // Load initial mappings from settings
     reloadMappings();
 

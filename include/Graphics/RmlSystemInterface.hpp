@@ -48,6 +48,7 @@ private:
     class Cursor {
         SDL_Cursor* data = nullptr;
         Utility::TimeKeeper usageTracker;
+
     public:
         explicit Cursor(SDL_SystemCursor const& id, auto&& condition) : data(SDL_CreateSystemCursor(id)), enableCondition(condition) {
             usageTracker.start();
