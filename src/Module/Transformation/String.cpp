@@ -38,8 +38,6 @@ void String::bindTransformations() {
     bindTransformation(&strcompareContains, strcompareContainsName, strcompareContainsDesc);
     bindTransformation(&strcompareStartsWith, strcompareStartsWithName, strcompareStartsWithDesc);
     bindTransformation(&strcompareEndsWith, strcompareEndsWithName, strcompareEndsWithDesc);
-
-
 }
 
 bool String::strLen(Data::JsonScope* jsonDoc){
