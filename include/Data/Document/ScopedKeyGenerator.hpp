@@ -41,6 +41,7 @@ struct OpData {
  * @details Generates a function that itself returns a ScopedKey when using ScopedKeyGenerator::build() at runtime.
  *          This allows for chaining operations at compile time, utilizing its security features compared to manually defining a key.
  * @tparam MaxOps Maximum operations allowed
+ * @todo Later on we might allow for true addMember and addIndex in ScopedKeyView using a fixed size buffer?
  */
 template<std::size_t MaxOps = 16>
 class ScopedKeyGenerator {
