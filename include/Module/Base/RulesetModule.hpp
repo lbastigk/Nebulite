@@ -97,11 +97,11 @@ protected:
      * @param v The ordered cache list of base values.
      * @param k The key corresponding to the desired base value.
      * @return A reference to the base value associated with the specified key.
-     * @tparam keyEnum An enumeration type representing the keys for base values.
+     * @tparam KeyEnum An enumeration type representing the keys for base values.
      */
-    template<typename keyEnum>
-    static double& baseVal(double** v, keyEnum k) noexcept {
-        static_assert(sizeof(keyEnum) == sizeof(uint8_t), "baseVal: keyEnum must be an enumeration with underlying type uint8_t");
+    template<typename KeyEnum>
+    static double& baseVal(double** v, KeyEnum k) noexcept {
+        static_assert(std::is_same_v<std::underlying_type_t<KeyEnum>, uint8_t>, "baseVal: keyEnum must be an enumeration with underlying type uint8_t");
         assert(v != nullptr);
         // NOLINTNEXTLINE
         return *v[static_cast<uint8_t>(k)];
@@ -115,7 +115,6 @@ protected:
     [[nodiscard]] Interaction::Rules::BaseListFunction generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const ;
 
 private:
-
     // Vector of all static rulesets from this module
     std::vector<Interaction::Rules::StaticRulesetMap::StaticRulesetWithMetadata> moduleRulesets;
 
