@@ -275,6 +275,14 @@ void Drawcall::ApplyDefault::Text(Data::JsonScope& scope) {
 //------------------------------------------
 // Specific initializers
 
+namespace {
+
+
+
+}
+
+
+
 void Drawcall::initializeSprite() {
     // Skip if renderer is not initialized
     if (!Global::instance().getRenderer().isSdlInitialized()) {
@@ -311,6 +319,26 @@ void Drawcall::initializeSprite() {
         // Linked externally, as it's managed by the texture container
         texture.linkExternalTexture(sdlTexture);
     }
+}
+
+void Drawcall::setStandardTextRectsIfMissing(float const w, float const h, TTF_Font* font) const {
+    // Cast to double
+    double const srcW = static_cast<double>(w) * 1.0;
+    double const srcH = static_cast<double>(h) * 1.0;
+    double const dstW = srcW * *refs.textFontsize / static_cast<double>(TTF_GetFontSize(font));
+    double const dstH = srcH * *refs.textFontsize / static_cast<double>(TTF_GetFontSize(font));
+
+    // Setup src values unless they are already defined
+    if (drawcallScope.memberType(Key::Rect::srcX) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcX, 0.0);
+    if (drawcallScope.memberType(Key::Rect::srcY) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcY, 0.0);
+    if (drawcallScope.memberType(Key::Rect::srcW) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcW, srcW);
+    if (drawcallScope.memberType(Key::Rect::srcH) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcH, srcH);
+
+    // Prefer measured pixel size for dst unless the caller explicitly set different values
+    if (drawcallScope.memberType(Key::Rect::dstX) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstX, 0.0);
+    if (drawcallScope.memberType(Key::Rect::dstY) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstY, 0.0);
+    if (drawcallScope.memberType(Key::Rect::dstW) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstW, dstW);
+    if (drawcallScope.memberType(Key::Rect::dstH) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstH, dstH);
 }
 
 void Drawcall::initializeText() {
@@ -361,25 +389,7 @@ void Drawcall::initializeText() {
         SDL_DestroyTexture(tex);
         return;
     }
-
-    // Cast to double
-    double const srcW = static_cast<double>(w) * 1.0;
-    double const srcH = static_cast<double>(h) * 1.0;
-    double const dstW = srcW * *refs.textFontsize / static_cast<double>(TTF_GetFontSize(font));
-    double const dstH = srcH * *refs.textFontsize / static_cast<double>(TTF_GetFontSize(font));
-
-    // Setup src values unless they are already defined
-    if (drawcallScope.memberType(Key::Rect::srcX) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcX, 0.0);
-    if (drawcallScope.memberType(Key::Rect::srcY) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcY, 0.0);
-    if (drawcallScope.memberType(Key::Rect::srcW) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcW, srcW);
-    if (drawcallScope.memberType(Key::Rect::srcH) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcH, srcH);
-
-    // Prefer measured pixel size for dst unless the caller explicitly set different values
-    if (drawcallScope.memberType(Key::Rect::dstX) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstX, 0.0);
-    if (drawcallScope.memberType(Key::Rect::dstY) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstY, 0.0);
-    if (drawcallScope.memberType(Key::Rect::dstW) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstW, dstW);
-    if (drawcallScope.memberType(Key::Rect::dstH) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstH, dstH);
-
+    setStandardTextRectsIfMissing(w, h, font);
     texture.setInternalTexture(tex);
 }
 

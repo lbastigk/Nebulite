@@ -14,6 +14,7 @@
 
 // External
 #include <SDL3/SDL_rect.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 // Nebulite
 #include "Core/Texture.hpp"
@@ -222,6 +223,14 @@ private:
      * @note Only called during the draw call, otherwise the thread safety would be compromised.
      */
     void initializeSprite();
+
+    /**
+     * @brief Sets standard text rect parameters in the drawcall scope if they are missing.
+     * @param w The width of the texture
+     * @param h The height of the texture
+     * @param font The font used
+     */
+    void setStandardTextRectsIfMissing(float w, float h, TTF_Font* font) const ;
 
     /**
      * @brief Initializes the drawcall as a text.
