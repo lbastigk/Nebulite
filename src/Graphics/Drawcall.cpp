@@ -94,6 +94,9 @@ void Drawcall::Refs::initialize(Data::JsonScope const& scope){
     polygonFilled = scope.getStableDoublePointer(Key::PolygonSpecific::filled);
 }
 
+//------------------------------------------
+// Rendering
+
 void Drawcall::renderTexture(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY){
     if (texture.isTextureValid()) {
         SDL_FRect const srcRect = {
@@ -183,6 +186,9 @@ void Drawcall::draw(float const& offsetX, float const& offsetY) {
     }
 }
 
+//------------------------------------------
+// Updates
+
 void Drawcall::update() {
     updaterRoutine.update();
     Global::instance().notifyEvent(texture.update());
@@ -229,6 +235,9 @@ void Drawcall::updateDrawcallData() {
     // Force re-initialization on next draw
     reInitializeRequested = true;
 }
+
+//------------------------------------------
+// Drawcall defaults
 
 Constants::Event Drawcall::parseStr(std::string const& str, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const {
     return texture.parseStr(str, ctx, ctxScope);
