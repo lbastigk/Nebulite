@@ -28,8 +28,8 @@
             "# This scene used to cause problems due to viewport leaving entities",
             "# causing issues with the Broadcast-listen-container",
             "task TaskFiles/Benchmarks/gravity_unlimited.nebs",
-            "time set-fixed-dt 100",
-            "wait 1000",
+            "time set-fixed-dt 1000",
+            "wait 100",
             "exit"
         ]
     }
