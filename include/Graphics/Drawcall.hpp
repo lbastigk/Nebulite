@@ -29,6 +29,10 @@ namespace Nebulite::Graphics {
  *          Each drawcall is able to forward arguments to the texture it owns,
  *          allowing for dynamic texture updates based on user-defined strings.
  *          Drawcalls properly manage texture metadata updates such as source/destination rectangles.
+ *          While the Texture class is able to parse commands that modify textures directly,
+ *          drawcalls are responsible for the first initialization and presentation of textures:
+ *          Drawcall -> create Texture and reinit on changes
+ *          Texture -> provide Texture memory modifications and memory management
  */
 class Drawcall {
 public:
@@ -196,6 +200,19 @@ private:
 
     // Allows periodic updating of drawcall data to reflect current state
     Utility::Coordination::TimedRoutine updaterRoutine;
+
+    //------------------------------------------
+    // Rendering
+
+    void renderTexture(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY);
+
+    void renderText(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY);
+
+    void renderSprite(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY);
+
+    void renderCircle(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY);
+
+    void renderPolygon(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY);
 
     //------------------------------------------
     // Specific initializers for each type

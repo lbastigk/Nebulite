@@ -45,18 +45,17 @@ uint64_t rollingJitter(uint32_t const& size) {
 //------------------------------------------
 namespace Nebulite::Graphics {
 
-Drawcall::Drawcall(Data::JsonScope& workspace, Utility::IO::Capture& parentCapture) :
-    reInitializeRequested(true),
-    drawcallScope(workspace),
-    texture(workspace, parentCapture),
-    updaterRoutine{
+Drawcall::Drawcall(Data::JsonScope& workspace, Utility::IO::Capture& parentCapture)
+    : reInitializeRequested(true)
+    , drawcallScope(workspace)
+    , texture(workspace, parentCapture)
+    , updaterRoutine{
         [this] {
             updateDrawcallData();
         },
         updateDrawcallDataIntervalMs + rollingJitter(updateDrawcallDataIntervalJitterMs),
         Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
-    }
-{
+    } {
     refs.initialize(workspace);
     updateDrawcallData();
 }
@@ -95,83 +94,91 @@ void Drawcall::Refs::initialize(Data::JsonScope const& scope){
     polygonFilled = scope.getStableDoublePointer(Key::PolygonSpecific::filled);
 }
 
-void Drawcall::draw(float const& offsetX, float const& offsetY) {
-    // Helper lambda to render the texture
-    auto renderTexture = [this](Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY) {
-        if (texture.isTextureValid()) {
-            SDL_FRect const srcRect = {
-                .x=std::floor(static_cast<float>(*refs.rectSrcX)),
-                .y=std::floor(static_cast<float>(*refs.rectSrcY)),
-                .w=std::floor(static_cast<float>(*refs.rectSrcW)),
-                .h=std::floor(static_cast<float>(*refs.rectSrcH))
-            };
-            SDL_FRect const dstRect = nebuliteRenderer.scaleRectFromLogicalSize({
-                .x=std::floor(static_cast<float>(*refs.rectDstX) + dX),
-                .y=std::floor(static_cast<float>(*refs.rectDstY) + dY),
-                .w=std::floor(static_cast<float>(*refs.rectDstW)),
-                .h=std::floor(static_cast<float>(*refs.rectDstH))
-            });
-            if (!Math::isZero(*refs.rotationDegrees)) {
-                if (!SDL_RenderTextureRotated(nebuliteRenderer.getSdlRenderer(),texture.getSDLTexture(),&srcRect,&dstRect, *refs.rotationDegrees, &rotationCenter,SDL_FLIP_NONE)) {
-                    texture.capture.error.println("Failed to render rotated sprite texture in drawcall: ", SDL_GetError());
-                }
-            }
-            else {
-                if (!SDL_RenderTexture(nebuliteRenderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect)) {
-                    texture.capture.error.println("Failed to render sprite texture in drawcall: ", SDL_GetError());
-                }
+void Drawcall::renderTexture(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY){
+    if (texture.isTextureValid()) {
+        SDL_FRect const srcRect = {
+            .x=std::floor(static_cast<float>(*refs.rectSrcX)),
+            .y=std::floor(static_cast<float>(*refs.rectSrcY)),
+            .w=std::floor(static_cast<float>(*refs.rectSrcW)),
+            .h=std::floor(static_cast<float>(*refs.rectSrcH))
+        };
+        SDL_FRect const dstRect = nebuliteRenderer.scaleRectFromLogicalSize({
+            .x=std::floor(static_cast<float>(*refs.rectDstX) + dX),
+            .y=std::floor(static_cast<float>(*refs.rectDstY) + dY),
+            .w=std::floor(static_cast<float>(*refs.rectDstW)),
+            .h=std::floor(static_cast<float>(*refs.rectDstH))
+        });
+        if (!Math::isZero(*refs.rotationDegrees)) {
+            if (!SDL_RenderTextureRotated(nebuliteRenderer.getSdlRenderer(),texture.getSDLTexture(),&srcRect,&dstRect, *refs.rotationDegrees, &rotationCenter,SDL_FLIP_NONE)) {
+                texture.capture.error.println("Failed to render rotated sprite texture in drawcall: ", SDL_GetError());
             }
         }
         else {
-            texture.capture.error.println("Attempted to draw uninitialized texture in drawcall.");
+            if (!SDL_RenderTexture(nebuliteRenderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect)) {
+                texture.capture.error.println("Failed to render sprite texture in drawcall: ", SDL_GetError());
+            }
         }
-    };
+    }
+    else {
+        texture.capture.error.println("Attempted to draw uninitialized texture in drawcall.");
+    }
+}
 
+void Drawcall::renderText(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY){
+    // TODO: Why is the update needed for texts???
+    //       After the first TimedRoutine trigger, the text drawcalls
+    //       do not render properly unless we call updateDrawcallData continuously...
+    if (reInitializeRequested) {
+        initializeText();
+        reInitializeRequested = false;
+    }
+    renderTexture(nebuliteRenderer, dX, dY);
+}
+
+void Drawcall::renderSprite(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY){
+    if (reInitializeRequested) {
+        initializeSprite();
+        reInitializeRequested = false;
+    }
+    renderTexture(nebuliteRenderer, dX, dY);
+}
+
+void Drawcall::renderCircle(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY){
+    if (reInitializeRequested) {
+        initializeCircle();
+        reInitializeRequested = false;
+    }
+    // Make sure the circle is centered
+    auto const additionalOffsetX = static_cast<float>(*refs.rectDstW / 2.0);
+    auto const additionalOffsetY = static_cast<float>(*refs.rectDstH / 2.0);
+    renderTexture(nebuliteRenderer, dX - additionalOffsetX, dY - additionalOffsetY);
+}
+
+void Drawcall::renderPolygon(Core::Renderer const& nebuliteRenderer, float const& dX, float const& dY){
+    if (reInitializeRequested) {
+        initializePolygon();
+        reInitializeRequested = false;
+    }
+    renderTexture(nebuliteRenderer, dX, dY);
+}
+
+void Drawcall::draw(float const& offsetX, float const& offsetY) {
     auto const& renderer = Global::instance().getRenderer();
-
     switch (type) {
         // Sprite and text draw calls simply render their texture
         case Type::TEXT:
-            // TODO: Why is the update needed for texts???
-            //       After the first TimedRoutine trigger, the text drawcalls
-            //       do not render properly unless we call updateDrawcallData continuously...
-            if (reInitializeRequested) {
-                initializeText();
-                reInitializeRequested = false;
-            }
-            renderTexture(renderer, offsetX, offsetY);
+            renderText(renderer, offsetX, offsetY);
             break;
         case Type::SPRITE:
-            if (reInitializeRequested) {
-                initializeSprite();
-                reInitializeRequested = false;
-            }
-            renderTexture(renderer, offsetX, offsetY);
+            renderSprite(renderer, offsetX, offsetY);
             break;
-        // Later on, add more drawcall types here (geometry, etc.)
         case Type::CIRCLE:
-            {
-                if (reInitializeRequested) {
-                    initializeCircle();
-                    reInitializeRequested = false;
-                }
-                // Make sure the circle is centered
-                auto const additionalOffsetX = static_cast<float>(*refs.rectDstW / 2.0);
-                auto const additionalOffsetY = static_cast<float>(*refs.rectDstH / 2.0);
-                renderTexture(renderer, offsetX - additionalOffsetX, offsetY - additionalOffsetY);
-            }
+            renderCircle(renderer, offsetX, offsetY);
             break;
         case Type::POLYGON:
-            {
-                if (reInitializeRequested) {
-                    initializePolygon();
-                    reInitializeRequested = false;
-                }
-                renderTexture(renderer, offsetX, offsetY);
-            }
+            renderPolygon(renderer, offsetX, offsetY);
             break;
         default:
-            // Unknown type
             std::unreachable();
     }
 }
