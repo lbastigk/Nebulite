@@ -1,8 +1,3 @@
-/**
- * @file StandardCapture.hpp
- * @brief
- */
-
 #ifndef CONSTANTS_STANDARDCAPTURE_HPP
 #define CONSTANTS_STANDARDCAPTURE_HPP
 

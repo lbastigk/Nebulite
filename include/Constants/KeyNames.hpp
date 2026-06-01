@@ -1,14 +1,3 @@
-/**
- * @file KeyNames.hpp
- * @brief Defines constant key names used throughout the Nebulite framework.
- * @details While for DomainModules we can write scoped keys directly within their classes,
- *          this is not feasible for Domain-Related keys due to their hierarchical nature.
- *          Specifically, DomainModules are never dependent on other DomainModules besides their key names.
- *          But Domains can own other Domains, requiring knowledge of their key names.
- *          Therefore, we centralize these key names here to avoid circular dependencies
- *          and to ensure consistency across the framework.
- */
-
 #ifndef CONSTANTS_KEYNAMES_HPP
 #define CONSTANTS_KEYNAMES_HPP
 
@@ -21,10 +10,15 @@
 
 //------------------------------------------
 namespace Nebulite::Constants {
-
 /**
  * @struct KeyNames
  * @brief Centralized struct for constant key names used throughout the Nebulite framework.
+ * @details While for DomainModules we can write scoped keys directly within their classes,
+ *          this is not feasible for Domain-Related keys due to their hierarchical nature.
+ *          Specifically, DomainModules are never dependent on other DomainModules besides their key names.
+ *          But Domains can own other Domains, requiring knowledge of their key names.
+ *          Therefore, we centralize these key names here to avoid circular dependencies
+ *          and to ensure consistency across the framework.
  */
 struct KeyNames {
     /**
@@ -87,6 +81,5 @@ struct KeyNames {
         static auto constexpr parseOnOther  = makeScoped("action.functioncall.other");
     };
 };
-
 } // namespace Nebulite::Constants
 #endif // CONSTANTS_KEYNAMES_HPP

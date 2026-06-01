@@ -5,7 +5,8 @@
 // Includes
 
 // Standard library
-#include <cstdint> // NOLINTTHISLINE
+// NOLINTNEXTLINE
+#include <cstdint>
 
 //------------------------------------------
 namespace Nebulite::Constants {

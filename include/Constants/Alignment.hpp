@@ -1,8 +1,3 @@
-/**
- * @file Alignment.hpp
- * @brief Constants for data alignment in Nebulite.
- */
-
 #ifndef CONSTANTS_ALIGNMENT_HPP
 #define CONSTANTS_ALIGNMENT_HPP
 
@@ -17,6 +12,10 @@
 
 //------------------------------------------
 namespace Nebulite::Constants {
+/**
+ * @class Alignment
+ * @brief Constants for data alignment in Nebulite.
+ */
 class Alignment {
 public:
 #ifndef __cpp_lib_hardware_interference_size

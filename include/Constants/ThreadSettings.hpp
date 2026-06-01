@@ -1,8 +1,3 @@
-/**
- * @file ThreadSettings.hpp
- * @brief Threading settings for Nebulite's rendering and expression evaluation.
- */
-
 #ifndef CONSTANTS_THREADSETTINGS_HPP
 #define CONSTANTS_THREADSETTINGS_HPP
 
@@ -10,7 +5,10 @@
 // Includes
 
 // Standard Library
+#include <algorithm>
 #include <cmath>
+// NOLINTNEXTLINE
+#include <cstddef>
 #include <thread>
 
 //------------------------------------------
