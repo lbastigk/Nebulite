@@ -1,10 +1,6 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <string>
-#include <variant>
-
 // Nebulite
 #include "Data/Document/JsonScope.hpp"
 #include "Module/Transformation/Boolean.hpp"

@@ -171,10 +171,6 @@ private:
     /**
      * @struct FrequentRefs
      * @brief Holds frequently used references for quick access.
-     * @note Another option would be to use static pointers for each method that needs them,
-     *       making variables more enclosed to their use case, but that would create duplicate pointers.
-     *       So this is a compromise between encapsulation and memory usage.
-     *       Later on, we may wish to use static in-function pointers like it's planned for rulesets.
      */
     struct FrequentRefs {
         // Position

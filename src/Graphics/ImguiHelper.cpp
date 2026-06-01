@@ -98,13 +98,14 @@ bool checkCompletionsForCommonPrefix(std::string_view const& input, std::vector<
     }
     const auto& first = completions.front();
     auto const mismatch_it = std::ranges::find_if(
-    std::views::iota(std::size_t{0}, first.size()),
-    [&](std::size_t const& i) {
-        char const c = first[i];
-        return std::ranges::any_of(completions, [&](const std::string& s) {
-            return i >= s.size() || s[i] != c;
-        });
-    });
+        std::views::iota(std::size_t{0}, first.size()),
+        [&](std::size_t const& i) {
+            char const c = first[i];
+            return std::ranges::any_of(completions, [&](const std::string& s) {
+                return i >= s.size() || s[i] != c;
+            });
+        }
+    );
 
     if (std::string const match = first.substr(0, mismatch_it == std::views::iota(std::size_t{0}, first.size()).end() ? first.size() : *mismatch_it); !match.empty() && !input.ends_with(match)) {
         completions.clear();

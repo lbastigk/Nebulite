@@ -9,7 +9,6 @@
 #include "Data/Document/JsonScope.hpp"
 #include "Interaction/Context.hpp"
 #include "Interaction/Logic/Assignment.hpp"
-#include "Interaction/Logic/Expression.hpp"
 #include "Module/Transformation/General.hpp"
 #include "Utility/StringHandler.hpp"
 
