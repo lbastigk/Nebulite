@@ -83,6 +83,21 @@ void addFileCompletions(std::string_view const& input, std::vector<std::string>&
     std::ranges::move(list, std::back_inserter(completions));
 }
 
+void addJsonCompletions(std::string_view const& input, std::vector<std::string>& completions, Nebulite::Data::JsonScope const& scope) {
+    auto const split = Nebulite::Utility::StringHandler::split(input, ' ');
+    if (split.empty()) return;
+    auto const& potentialKey = split.back();
+    auto const search = std::string(1, Nebulite::Data::JSON::SpecialCharacter::dot) + Nebulite::Data::JSON::SpecialCharacter::arrayClose;
+    auto const parentMemberPos = potentialKey.find_last_of(search);
+    auto parentMember = parentMemberPos == std::string::npos ? "" : potentialKey.substr(0, parentMemberPos+1);
+    if (parentMember.ends_with(".")) parentMember = parentMember.substr(0, parentMemberPos);
+    for (auto const& [member, key] : scope.listAvailableMembersAndKeys(scope.getRootScope().addMember(parentMember))) {
+        auto const entry = Nebulite::Data::ScopedKey(parentMember).addMember(member).toString();
+        if (!entry.starts_with(potentialKey)) continue;
+        completions.push_back(std::move(entry));
+    }
+}
+
 struct ConsoleState {
     std::string command;
     std::string draftCommand;
@@ -165,7 +180,7 @@ void completionCallback(ImGuiInputTextCallbackData* data, ConsoleState const* st
     auto completions = state->ctx->self.findCompletions(state->command);
     if (completions.empty()) addRootCompletions(state->command, completions, state->ctx->self);
     addFileCompletions(state->command, completions);
-    // TODO: add JSON key completions
+    addJsonCompletions(state->command, completions, state->ctxScope->self);
 
     // Finish completions
     std::ranges::sort(completions, Nebulite::Utility::Sort::caseInsensitiveLess);
