@@ -4,11 +4,9 @@
 //------------------------------------------
 // Includes
 
-// Standard library
-#include <utility>
-
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
+#include "Utility/CompileTimeEvaluate.hpp"
 
 //------------------------------------------
 namespace Nebulite {
@@ -23,8 +21,7 @@ ScopeAccessor::DomainModuleToken<DomainType>::DomainModuleToken(Module::Base::Do
     } else if constexpr (std::is_same_v<DomainType, Core::RenderObject>) {
         prefix = root.addMember("renderObject").addMember(dm.moduleScope.getScopePrefix()).toString();
     } else {
-        // Unsupported DomainType, please add the specialization for it in this constructor
-        std::unreachable();
+        static_assert(Utility::CompileTimeEvaluate::always_false(), "Unsupported DomainType for DomainModuleToken. Please add a specialization for it in the constructor.");
     }
 }
 
