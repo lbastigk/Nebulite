@@ -21,7 +21,8 @@ echo "Starting profiling.nebs"
 # - transformations
 # - physics
 # - gameScene
-set settings.profilingTask gameScene
+# - loading
+set settings.profilingTask loading
 ####################################################
 
 ###################
@@ -35,3 +36,7 @@ if $({global:settings.profilingTask|strCompare equals physics}) then task TaskFi
 ###################
 # 3.) Game scene
 if $({global:settings.profilingTask|strCompare equals gameScene}) then task TaskFiles/VerticalSlice/levelDescription.nebs
+
+###################
+# 4.) Loading times
+if $({global:settings.profilingTask|strCompare equals loading}) then task TaskFiles/Benchmarks/loading.nebs
