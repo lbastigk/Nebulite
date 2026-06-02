@@ -12,6 +12,7 @@
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
+#include "Data/Batch.hpp"
 #include "Data/Tiling.hpp"
 #include "Utility/Coordination/WorkDispatcher.hpp"
 
@@ -65,40 +66,6 @@ struct DeletionProcess {
 };
 
 /**
- * @struct Nebulite::Data::Batch
- * @brief Represents a batch of RenderObject instances in a given tile.
- *        `Batch -> vector<RenderObject*>`
- *        Used for threading and parallel processing of render objects.
- *        Basically a custom std::vector wrapper for easier cost management.
- */
-struct Batch {
-    // Collection of RenderObjects
-    std::vector<Core::RenderObject*> objects;
-
-    // Full estimated cost of the batch
-    uint64_t estimatedCost = 0;
-
-    /**
-     * @brief Pops the last RenderObject from the batch.
-     * @return Pointer to the popped RenderObject, or nullptr if batch is already empty.
-     */
-    Core::RenderObject* pop();
-
-    /**
-     * @brief Pushes a RenderObject into the batch.
-     * @param obj Pointer to the RenderObject to push.
-     */
-    void push(Core::RenderObject* obj);
-
-    /**
-     * @brief Removes a RenderObject from the batch.
-     * @param obj Pointer to the RenderObject to remove.
-     * @return True if the object was removed, false otherwise.
-     */
-    bool removeObject(Core::RenderObject* obj);
-};
-
-/**
  * @class Nebulite::Data::RendererProcessor
  * @brief Manages the processing of RenderObjects for rendering.
  *        This class is responsible for preparing RenderObjects for rendering by organizing them into batches,
@@ -132,12 +99,11 @@ public:
      * @brief Workspace struct for batch worker threads.
      */
     struct DispatcherWorkspace {
-        std::vector<Batch*> work;
+        Tile* work; // TODO: multiple tiles per worker might be better
         TilingInformation tilingInformation;
         TileCoordinate pos;
         ReinsertionProcess* reinsertionProcess;
         DeletionProcess* deletionProcess;
-        uint32_t cost = 0;
     };
 
     /**
@@ -159,6 +125,8 @@ public:
      * @brief Starts all batch worker threads to process the assigned batches in parallel.
      */
     void processPool() const ;
+
+    void processPool(size_t count) const ;
 };
 
 } // namespace Nebulite::Data

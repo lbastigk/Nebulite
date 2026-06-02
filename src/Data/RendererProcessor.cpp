@@ -91,47 +91,34 @@ void RendererProcessor::batchWorkerFunc(DispatcherWorkspace const& workspace){
     // Process
     // We update each object and check if it needs to be moved or deleted
     // Every batch worker has potential objects to move or delete
-    for (auto const& batch : workspace.work) {
-        std::vector<Core::RenderObject*> to_move_local;
-        std::vector<Core::RenderObject*> to_delete_local;
+    std::vector<Core::RenderObject*> to_move;
+    std::vector<Core::RenderObject*> to_delete;
 
-        for (auto* obj : batch->objects) {
-            Global::instance().notifyEvent(obj->update());
-            if (!obj->flag.deleteFromScene) {
-                if (RenderObjectContainer::getTilePos(obj->getPosition(), workspace.tilingInformation) != workspace.pos) {
-                    to_move_local.push_back(obj);
-                }
-            } else {
-                to_delete_local.push_back(obj);
-            }
-        }
+    workspace.work->update(to_move, to_delete, workspace.tilingInformation, workspace.pos);
 
-        // All objects to move are collected in queue
-        for (auto* ptr : to_move_local) {
-            batch->removeObject(ptr);
-            std::scoped_lock const lock(workspace.reinsertionProcess->reinsertMutex);
-            workspace.reinsertionProcess->queue.push_back(ptr);
-        }
+    // All objects to move are collected in queue
+    for (auto* ptr : to_move) {
+        std::scoped_lock const lock(workspace.reinsertionProcess->reinsertMutex);
+        workspace.reinsertionProcess->queue.push_back(ptr);
+    }
 
-        // All objects to delete are collected in trash
-        for (auto* ptr : to_delete_local) {
-            batch->removeObject(ptr);
-            std::scoped_lock const lock(workspace.deletionProcess->deleteMutex);
-            workspace.deletionProcess->trash.push_back(ptr);
-        }
+    // All objects to delete are collected in trash
+    for (auto* ptr : to_delete) {
+        std::scoped_lock const lock(workspace.deletionProcess->deleteMutex);
+        workspace.deletionProcess->trash.push_back(ptr);
     }
 }
 
 void RendererProcessor::processPool() const {
-    for (auto const& worker : batchWorkerPool | std::views::take(usedWorkerCount())) {
+    processPool(usedWorkerCount());
+}
+
+void RendererProcessor::processPool(size_t count) const {
+    for (auto const& worker : batchWorkerPool | std::views::take(count)) {
         worker->startWork();
     }
-    for (auto const& worker : batchWorkerPool | std::views::take(usedWorkerCount())) {
+    for (auto const& worker : batchWorkerPool | std::views::take(count)) {
         worker->waitForWorkFinished();
-    }
-    for (auto const& worker : batchWorkerPool | std::views::take(usedWorkerCount())) {
-        worker->workspace.work.clear();
-        worker->workspace.cost = 0;
     }
 }
 

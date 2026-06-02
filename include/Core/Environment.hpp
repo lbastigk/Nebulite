@@ -144,9 +144,9 @@ public:
      * @brief Retrieves the RenderObjectContainer at the specified position and layer.
      * @param pos The tile position
      * @param layer The layer index.
-     * @return A reference to the RenderObjectContainer at the specified position and layer: A vector of batched RenderObjects.
+     * @return A reference to the RenderObjectContainer at the specified position and layer.
      */
-    std::vector<Data::Batch>& getContainerAt(Data::TileCoordinate const& pos, Layer layer);
+    Data::Tile& getContainerAt(Data::TileCoordinate const& pos, Layer layer);
 
     /**
      * @brief Checks if the specified position and layer are valid, meaning they are within the bounds of the environment.
@@ -181,11 +181,11 @@ public:
     // Viewport
 
     auto viewport(std::vector<Data::TileCoordinate> const& visibleTiles, Layer const& layer) {
-        std::vector<std::vector<Data::Batch>*> result;
+        std::vector<Data::Tile*> result;
         result.reserve(visibleTiles.size());
         for (auto const& tile: visibleTiles) {
             if (isValidPosition(tile, layer)) {
-                result.push_back(&getContainerAt(tile, layer));
+                result.emplace_back(&getContainerAt(tile, layer));
             }
         }
         return result;

@@ -10,6 +10,7 @@
 
 // Nebulite
 #include "Data/Document/JSON.hpp"
+#include "Utility/Coordination/SharedMutex.hpp"
 #include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
@@ -43,6 +44,8 @@ private:
      * @brief Contains the cached documents mapped by their file paths.
      */
     mutable absl::flat_hash_map<std::string, ReadOnlyDoc> docs;
+
+    mutable Utility::Coordination::SharedMutex docsMutex; // Mutex to protect access to the docs map
 
 public:
     /**

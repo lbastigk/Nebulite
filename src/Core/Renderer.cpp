@@ -410,7 +410,7 @@ std::vector<Data::TileCoordinate> Renderer::visibleTiles() const {
 
 void Renderer::onViewport(Environment::Layer const& layer, auto&& function) {
     for (auto const& tile : env.viewport(visibleTiles(), layer)) {
-        for (auto& [objects, _] : *tile) {
+        for (auto& [objects, _] : tile->getBatches()) {
             for (auto& obj : objects) {
                 function(obj);
             }

@@ -47,15 +47,6 @@ public:
     RenderObjectContainer& operator=(RenderObjectContainer&&) = delete;
 
     //------------------------------------------
-    // Constants
-
-    /**
-     * @brief Target cost of each Render::update thread batch.
-     * @details Set to 0 to disable dynamic batching and process all members per tile in a single thread
-     */
-    static auto constexpr batchCostGoal = 256;
-
-    //------------------------------------------
     // Serialization / Deserialization
 
     /**
@@ -117,18 +108,18 @@ public:
      * @brief Responsible for updating the state of all RenderObject instances
      *        that are currently within the specified tile viewport. It takes into account the
      *        display resolution for potential re-insertions.
-     * @param tiles The vector of tile coordinates that are currently within the viewport and need to be updated.
+     * @param viewport The vector of tile coordinates that are currently within the viewport and need to be updated.
      * @param tilingInformation Width and height of each tile
      * @param rendererProcessor The RendererProcessor instance to use for parallel processing of batches.
      */
-    void update(std::vector<TileCoordinate> const& tiles, TilingInformation const& tilingInformation, RendererProcessor const& rendererProcessor);
+    void update(std::vector<TileCoordinate> const& viewport, TilingInformation const& tilingInformation, RendererProcessor const& rendererProcessor);
 
     /**
      * @brief Gets the vector of batches at the specified tile position.
      * @param position The tile position to query: (x, y).
-     * @return A reference to the vector of batches at the specified position.
+     * @return A reference to the Tile
      */
-    std::vector<Batch>& getContainerAt(TileCoordinate const& position) {
+    Tile& getContainerAt(TileCoordinate const& position) {
         return ObjectContainer[position];
     }
 
@@ -172,7 +163,7 @@ public:
     DeletionProcess deletionProcess;
 
     template<typename MetaInfo>
-    using IteratorFunction = std::function<void(TileCoordinate const&, MetaInfo const&, std::vector<Batch> const&)>;
+    using IteratorFunction = std::function<void(TileCoordinate const&, MetaInfo const&, Tile const&)>;
 
     /**
      * @brief iterate over all tile coordinates, providing access to each tiles batches of RenderObjects,
@@ -183,8 +174,8 @@ public:
      */
     template<typename MetaInfo>
     void containerIteration(IteratorFunction<MetaInfo> const& function, MetaInfo const& metaInfo) {
-        for (auto const& [tile, batches] : ObjectContainer) {
-            function(tile, metaInfo, batches);
+        for (auto const& [tileCoordinate, tile] : ObjectContainer) {
+            function(tileCoordinate, metaInfo, tile);
         }
     }
 
@@ -198,7 +189,7 @@ private:
      *       such as outside manipulation with a "selected-object parse" call, etc.
      *       Perhaps this isn't worth it
      */
-    absl::flat_hash_map<TileCoordinate, std::vector<Batch>> ObjectContainer;
+    absl::flat_hash_map<TileCoordinate, Tile> ObjectContainer;
 };
 } // namespace Nebulite::Data
 #endif // DATA_RENDEROBJECTCONTAINER_HPP

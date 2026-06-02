@@ -69,6 +69,9 @@
         "Tools/Tests/GlobalSpace/time.json",
         "Tools/Tests/GlobalSpace/mirror_draft_selection.json",
         //---------------------------------------
+        // Environment Tests
+        "Tools/Tests/Environment/basics.json",
+        //---------------------------------------
         // Renderer Tests
         "Tools/Tests/Renderer/tiling.json",
         "Tools/Tests/Renderer/io.json",

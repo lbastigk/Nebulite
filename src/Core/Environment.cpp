@@ -122,7 +122,7 @@ RenderObject* Environment::getObjectFromId(size_t const& domainId) {
 //------------------------------------------
 // Container Management
 
-std::vector<Data::Batch>& Environment::getContainerAt(Data::TileCoordinate const& pos, Layer layer) {
+Data::Tile& Environment::getContainerAt(Data::TileCoordinate const& pos, Layer layer) {
     if (static_cast<uint8_t>(layer) < allLayers.size()) {
         return roc[static_cast<uint8_t>(layer)].getContainerAt(pos);
     }
