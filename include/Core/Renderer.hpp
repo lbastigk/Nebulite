@@ -441,6 +441,8 @@ public:
      */
     void onViewport(Environment::Layer const& layer, auto&& function);
 
+    void onViewportTiles(Environment::Layer const& layer, auto&& function);
+
     Data::Tile const& getTile(Environment::Layer const& layer, Data::TileCoordinate const& pos) {
         return env.getContainerAt(pos, layer);
     }

@@ -52,9 +52,7 @@ class Tile {
     std::vector<Batch> batches; // While we no longer pass batches to the RendererProcessor, this structuring makes removing objects easier (less searching)
     SDL_Texture* texture = nullptr;
 
-    Utility::TimeKeeper lastBatchesUpdate;
-    Utility::TimeKeeper lastTextureUpdate;
-
+    void deleteTexture();
 public:
     //------------------------------------------
     // Constants
@@ -79,6 +77,8 @@ public:
     bool insertIfCostGoalMatches(Core::RenderObject* toAppend);
 
     void update(std::vector<Core::RenderObject*>& to_move, std::vector<Core::RenderObject*>& to_delete, TilingInformation const& tilingInformation, TileCoordinate const& coord);
+
+    SDL_Texture*& getTexture();
 };
 
 } // namespace Nebulite::Data

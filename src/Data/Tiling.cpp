@@ -8,18 +8,24 @@
 //------------------------------------------
 namespace Nebulite::Data {
 
+void Tile::deleteTexture(){
+    if (texture != nullptr) {
+        SDL_DestroyTexture(texture);
+        texture = nullptr;
+    }
+}
+
 std::vector<Batch> const& Tile::getBatches() const {
     return batches;
 }
 
 void Tile::clearBatches() {
     batches.clear();
-    lastBatchesUpdate.update();
+    deleteTexture();
 }
 
 void Tile::appendBatch(Batch const& batch) {
     batches.push_back(batch);
-    lastBatchesUpdate.update();
 }
 
 void Tile::moveObjects(std::vector<Core::RenderObject*>& destination) {
@@ -49,6 +55,7 @@ bool Tile::insertIfCostGoalMatches(Core::RenderObject* toAppend) {
     );
     if (it != batches.end()) {
         it->push(toAppend);
+        deleteTexture();
         return true;
     }
     return false;
@@ -84,9 +91,18 @@ void Tile::update(std::vector<Core::RenderObject*>& to_move, std::vector<Core::R
         // Update batch cost
         batch.updateCost();
 
+        // Invalidate texture
+        if (!to_move_local.empty() || !to_delete_local.empty()) {
+            deleteTexture();
+        }
+
         std::ranges::move(to_move_local.begin(), to_move_local.end(), std::back_inserter(to_move));
         std::ranges::move(to_delete_local.begin(), to_delete_local.end(), std::back_inserter(to_delete));
     }
+}
+
+SDL_Texture*& Tile::getTexture() {
+    return texture;
 }
 
 } // namespace Nebulite::Data

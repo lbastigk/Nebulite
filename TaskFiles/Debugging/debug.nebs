@@ -24,7 +24,7 @@ echo "Starting debug.nebs"
 
 task TaskFiles/VerticalSlice/levelDescription.nebs
 grid on
-view low
+view lowest
 
 #set-res 1024 1024
 

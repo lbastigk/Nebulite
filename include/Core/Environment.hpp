@@ -180,12 +180,20 @@ public:
     //------------------------------------------
     // Viewport
 
+    struct TileAndCoordinate {
+        Data::Tile* tile;
+        Data::TileCoordinate coordinate;
+    };
+
     auto viewport(std::vector<Data::TileCoordinate> const& visibleTiles, Layer const& layer) {
-        std::vector<Data::Tile*> result;
+        std::vector<TileAndCoordinate> result;
         result.reserve(visibleTiles.size());
-        for (auto const& tile: visibleTiles) {
-            if (isValidPosition(tile, layer)) {
-                result.emplace_back(&getContainerAt(tile, layer));
+        for (auto const& tileCoordinate : visibleTiles) {
+            if (isValidPosition(tileCoordinate, layer)) {
+                result.emplace_back(TileAndCoordinate{
+                    .tile = &getContainerAt(tileCoordinate, layer),
+                    .coordinate = tileCoordinate
+                });
             }
         }
         return result;
@@ -193,12 +201,13 @@ public:
 
 private:
     // All layers in rendering order
-    static std::array constexpr allLayers = {Layer::background, Layer::general, Layer::foreground, Layer::effects};
+    static std::array constexpr allLayers = {
+        Layer::background, // Special layer: uses pre-calculated textures. Only updated on object removal/insertion
+        Layer::general,
+        Layer::foreground,
+        Layer::effects
+    };
 
-    // TODO: turn layer0 into a "freeze-layer" for performance:
-    //       - no updates for objects
-    //       - pre-render texture for each tile (with some overhead in size, for overlapping objects
-    //       - only re-render texture if new objects are inserted
     // Inner RenderObject container layers
     std::array<Data::RenderObjectContainer, allLayers.size()> roc;
 };
