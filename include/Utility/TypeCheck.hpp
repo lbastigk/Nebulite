@@ -6,6 +6,7 @@
 
 // Standard library
 #include <expected>
+#include <optional>
 #include <type_traits>
 
 //------------------------------------------

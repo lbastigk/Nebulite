@@ -9,6 +9,7 @@
 // Standard library
 #include <array>
 #include <cstddef>
+#include <functional>
 #include <cstring>
 #include <stdexcept>
 #include <type_traits>
