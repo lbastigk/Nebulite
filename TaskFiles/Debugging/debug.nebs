@@ -22,11 +22,9 @@
 echo "Starting debug.nebs"
 # -----------------------------------------------------------------------------
 
-task TaskFiles/Tests/Scenes/Object_out_of_bounds.nebs
-
-#task TaskFiles/VerticalSlice/levelDescription.nebs
-#grid on
-#view low
+task TaskFiles/VerticalSlice/levelDescription.nebs
+grid on
+view low
 
 #set-res 1024 1024
 

@@ -64,15 +64,42 @@ namespace Nebulite::Module::Domain::Renderer {
             // Size of tiles
             // NOLINTNEXTLINE
             auto const [wTile, hTile] = domain.tilingInformation();
-            for (auto const& tile : domain.visibleTiles()) {
+            for (auto const& tilePosition : domain.visibleTiles()) {
                 SDL_FRect rect;
-                rect.x = static_cast<float>(tile.x * wTile - x);
-                rect.y = static_cast<float>(tile.y * hTile - y);
+                rect.x = static_cast<float>(tilePosition.x * wTile - x);
+                rect.y = static_cast<float>(tilePosition.y * hTile - y);
                 rect.w = wTile;
                 rect.h = hTile;
                 auto scaledRect = domain.scaleRectFromLogicalSize(rect);
                 SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255); // Magenta for tile borders
                 SDL_RenderRect(renderer, &scaledRect);
+
+                // Render object count and cost
+                size_t tileCost = 0;
+                size_t objectCount = 0;
+                for (auto layer : Core::Environment::getAllLayerTypes()) {
+                    auto const& tile = domain.getTile(layer, tilePosition);
+                    tileCost += std::accumulate(
+                        tile.getBatches().begin(), tile.getBatches().end(), std::size_t{0},
+                        [](size_t const acc, auto const& batch) {
+                            return acc + batch.estimatedCost;
+                        }
+                    );
+                    objectCount += std::accumulate(
+                        tile.getBatches().begin(), tile.getBatches().end(), std::size_t{0},
+                        [](size_t const acc, auto const& batch) {
+                            return acc + batch.objects.size();
+                        }
+                    );
+                }
+
+                // Render cost and count as text in the top-left corner of the tile
+                std::string metaInfoText = "Count: " + std::to_string(objectCount) + " Cost: " + std::to_string(tileCost);
+                ImGui::GetBackgroundDrawList()->AddText(
+                    ImVec2(scaledRect.x+2, scaledRect.y+2),
+                    ImColor(255, 0, 255, 255),
+                    metaInfoText.c_str()
+                );
             }
 
             // Render current tile pos using ImGui

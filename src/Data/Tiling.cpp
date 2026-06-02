@@ -81,6 +81,9 @@ void Tile::update(std::vector<Core::RenderObject*>& to_move, std::vector<Core::R
             batch.removeObject(ptr);
         }
 
+        // Update batch cost
+        batch.updateCost();
+
         std::ranges::move(to_move_local.begin(), to_move_local.end(), std::back_inserter(to_move));
         std::ranges::move(to_delete_local.begin(), to_delete_local.end(), std::back_inserter(to_delete));
     }

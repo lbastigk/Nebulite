@@ -30,14 +30,20 @@ size_t usedWorkerCount() {
 //------------------------------------------
 namespace Nebulite::Data {
 
+void Batch::updateCost(){
+    estimatedCost = 0;
+    for (auto const* obj : objects) {
+        estimatedCost += obj->estimateComputationalCost();
+    }
+}
+
 Core::RenderObject* Batch::pop() {
     if (objects.empty())
         return nullptr;
 
     Core::RenderObject* obj = objects.back(); // Get last element
-    estimatedCost -= obj->estimateComputationalCost(); // Adjust cost
     objects.pop_back(); // Remove from vector
-
+    updateCost();
     return obj;
 }
 

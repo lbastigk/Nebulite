@@ -5,6 +5,8 @@
 // Includes
 
 // Standard library
+// NOLINTNEXTLINE
+#include <cstdint>
 #include <vector>
 
 //------------------------------------------
@@ -33,6 +35,8 @@ struct Batch {
 
     // Full estimated cost of the batch
     uint64_t estimatedCost = 0;
+
+    void updateCost();
 
     /**
      * @brief Pops the last RenderObject from the batch.
