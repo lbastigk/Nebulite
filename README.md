@@ -73,6 +73,11 @@ allowing you to freely mix data-defined and hardcoded behavior within the same p
     - **self** / **other** / **global** context model, with flexible combinations (**all** and **local**)
     - Event broadcasting between objects or just per-object logic handling
 
+- **Seamless UI Integration**
+    - ImGui for hardcoded interfaces and tools
+    - RmlUI for complex, styled interfaces (menus, HUDs, etc.)
+    - Custom RmlUI plugins for direct integration with Nebulite's data model and expression system
+
 <!-- TOC --><a name="quick-start"></a>
 ### Quick Start
 
@@ -382,103 +387,29 @@ Nebulite includes two GUI libraries:
 - **ImGui** for in-game debug interfaces and tools
 - **RmlUI** for more complex, styled interfaces (menus, HUDs, etc.)
 
+Imgui is used for tools such as the Console or the Domain viewer, which allow for real-time inspection 
+and manipulation of the engine's state and data.
 <img src="doc/images/globalSpaceViewer.png" alt="Nebulite Overview" width="95%">
 
-The RmlUi implementation contains custom plugins to allow for seamless integration with Nebulite's data model and expression system,
-as well as Reflection capabilities for iterating over JSON data in the UI.
+The RmlUi implementation contains custom plugins to allow for seamless integration 
+with Nebulite's data model and expression system, such as:
+- event handling like `on-click` or actions to perform if elements or the document itself is loaded/deleted
+- automatic context and scope handling
+- reflection capabilities for iterating over JSON data in the UI
+
 Instead of using the default RmlUi syntax for data binding and event handling, use the standard Nebulite expression syntax.
 The context of each document is determined by the context of the caller:
 - If you call the document from a RenderObject, the self context is set to that object,
 - If you call it from GlobalSpace, every context is set to global.
 - If the document is called from an object interaction, the self and other context are set to the respective objects.
 
-Examples:
-
-```html
-<rml>
-    <head>
-        <title>RmlUi demo</title>
-        <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
-        <link type="text/rcss" href="./Resources/Rcss/window.rcss"/>
-        <link type="text/rcss" href="./Resources/Rcss/text.rcss"/>
-    </head>
-    <!-- one data model for all RmlUi documents, the proper Nebulite Context is handled automatically -->
-    <body data-model="nebuliteDataSync" style="width: 800px;">
-    <h1>RmlUi</h1>
-
-    <!-- Set actions to do on destruction -->
-    <!-- Any onDestroy is activated when the element is removed from the document -->
-    <!-- Or, if the document itself is removed. -->
-    <div onDestroy#invokeRuleset="Resources/Rulesets/Debug/helloWorld.jsonc"></div>
-    <div onDestroy#parse="set UI_DELETED 1 ; assert $(eq({self:UI_DELETED},1))"></div>
-
-    <!-- Toggle between bold and vanilla every second -->
-    <p>
-        <b data-if="global:time.t|toInt|add 0|mod 2">Hello world!</b>
-    <div data-if="global:time.t|toInt|add 1|mod 2">Hello world!</div>
-    </p>
-
-    <hr />
-    <h2>Expression</h2>
-
-    <!-- data-eval="true" allows for expression evaluation inside the tag -->
-    <p data-eval="true">
-        <!-- Example expression of a time code:  HH:MM:SS:FF at 24 fps -->
-        $02i({global:time.t|div 60|div 60|mod 60}):<!--
-            -->$02i({global:time.t|div 60|mod 60}):<!--
-            -->$02i({global:time.t|mod 60}):<!--
-            -->$02i({global:time.t|mul 24|mod 24})
-    </p>
-
-    <hr />
-    <h2>Data input</h2>
-
-    <!-- Show input -->
-    <p data-eval="true">
-        The quick brown fox jumps over the lazy {self:rml.input.animal}.
-    </p>
-
-    <!-- Set input, if self:rml.settings.showInput is true -->
-    <p data-if="self:rml.settings.showInput">
-        <input
-                type="text"
-                data-value="self:rml.input.animal"
-                onEnter#parse="eval echo Animal is {self:rml.input.animal}! ; set rml.input.animal"
-                onEnter#special="deleteDocument"
-        />
-    </p>
-
-    <hr />
-    <h2>Data-Reflect</h2>
-
-    <p data-eval="true">
-        global:time has {global:time|listMembers|length} members:
-    </p>
-    <!-- data-reflect allows for iterating over all array indices -->
-    <!-- You can use JSON-Transformation to turn objects into arrays for propper reflection -->
-    <!-- Here we use listMembersAndValues to get an array of objects -->
-    <!-- with key and value members for each entry in the original object -->
-    <!-- Data-reflect populates the self-context, all other contexts stay unchanged -->
-    <p data-reflect="{global:time|listMembersAndValues}">
-        <!-- For every index in the generated array, the following is repeated: -->
-        <!-- Each entry has access to arr[i] as {self:} -->
-        <!-- where arr is the generated array from the data-reflect statement -->
-        <!-- you may also use context-marrying prefixes like "all:" or "local:" to reflect on a combination of contexts -->
-    <p data-eval="true" style="margin: 0 0;">
-        {self:key|asString|rPad 15 .}{self:value|asString|lPad 15 .}
-    </p>
-    </p>
-    </body>
-</rml>
-```
-<img src="doc/images/RmlUi.png" alt="Nebulite Overview" width="95%">
-
-The document is loaded via the RmlUi DomainModule:
-```bash
-./bin/Nebulite "set rml.input.animal dog ; set rml.settings.showInput 1 ; rmlui document load myDemoDocument ./Resources/Rml/example.rml"
-```
-
 See [RmlUi.md](./doc/RmlUi.md) for more details on the RmlUi integration and supported attribute commands.
+See `./Resources/Rml/` for example documents and `./Resources/Rcss/` for example stylesheets.
+
+<img src="doc/images/RmlUi.png" alt="Nebulite Overview" width="95%">
+<img src="doc/images/UI.png" alt="Nebulite Overview" width="95%">
+
+
 
 <!-- TOC --><a name="runtime-modes"></a>
 ### Runtime Modes

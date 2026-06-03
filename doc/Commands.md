@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Mon May 25 00:11:46 CEST 2026
+Generated on: Thu Jun  4 01:30:19 CEST 2026
 
 ## Table of Contents
 
@@ -58,7 +58,6 @@ Available Functions
 | `imgui-view` | Creates an ImGui view of the domain. |
 | `input-mapping` | Functions for mapping inputs to actions within the GlobalSpace. |
 | `input-wait` | Waits for user input before continuing. |
-| `invoke` | Applies all given rulesets once on the next update |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
 | `log` | Functions for logging various states and documents to files. |
@@ -77,7 +76,7 @@ Available Functions
 | `query` | Functions to manipulate JSON data via SQL query results |
 | `reparse` | Commands for forwarding function calls to other contexts (other or global) while switching context. |
 | `rmlui` | Functions for managing RmlUI elements. |
-| `ruleset` | Functions for managing rulesets in the GlobalSpace. |
+| `ruleset` | Functions for managing rulesets. |
 | `selected-object` | Functions to select and interact with a selected RenderObject |
 | `set` | Set a key to a string value in the JSON document. |
 | `set-fps` | Set FPS of renderer. |
@@ -684,16 +683,6 @@ Usage: input-wait [prompt]
 Note: This function pauses execution until the user presses Enter
 ```
 
-#### `invoke`
-
-```
-Applies all given rulesets once on the next update
-
-Usage: invoke <list>
-
-Use invoke ::help to list all available static rulesets.All rulesets are applied once on the next update cycle.
-```
-
 #### `json`
 
 Available Functions
@@ -986,7 +975,9 @@ Available Functions
 |----------|-------------|
 | `broadcast` | Broadcasts a ruleset to its specified topic. |
 | `help` | Show available commands and their descriptions |
+| `invoke` | Applies the given ruleset on the next update |
 | `listen` | Listens for rulesets on a specified topic. |
+| `reload` | Reloads all rulesets for this domain on the next update. |
 
 ##### `ruleset broadcast`
 
@@ -997,6 +988,16 @@ Usage: broadcast <ruleset>
 - ruleset: The ruleset content to be broadcasted.
 ```
 
+##### `ruleset invoke`
+
+```
+Applies the given ruleset on the next update
+
+Usage: invoke <ruleset>
+
+Use invoke ::help to list all available static rulesets.
+```
+
 ##### `ruleset listen`
 
 ```
@@ -1004,6 +1005,16 @@ Listens for rulesets on a specified topic.
 Usage: listen <topic>
 
 - topic: The topic to listen for incoming rulesets.
+```
+
+##### `ruleset reload`
+
+```
+Reloads all rulesets for this domain on the next update.
+
+Usage: ruleset reload
+
+All rulesets are re-evaluated and reloaded on the next update cycle.
 ```
 
 #### `selected-object`
@@ -1323,7 +1334,6 @@ Available Functions
 | `help` | Show available commands and their descriptions |
 | `if` | Executes a block of code if a condition is true. |
 | `imgui-view` | Creates an ImGui view of the domain. |
-| `invoke` | Applies all given rulesets once on the next update |
 | `json` | Functions to manipulate JSON data via read-only JSON documents |
 | `keyDelete` | Delete a key from the JSON document. |
 | `log` | Logging utilities |
@@ -1340,7 +1350,7 @@ Available Functions
 | `push-front` | Push a value to the front of an array. |
 | `query` | Functions to manipulate JSON data via SQL query results |
 | `reparse` | Commands for forwarding function calls to other contexts (other or global) while switching context. |
-| `ruleset` | Ruleset management functions for the RenderObject domain. |
+| `ruleset` | Functions for managing rulesets. |
 | `set` | Set a key to a string value in the JSON document. |
 | `throw` | Throws a runtime error with the provided message. |
 | `warn` | Sends a warning to the capture. |
@@ -1548,16 +1558,6 @@ if $({global:settings.someFile|strCompare equals ./Resources/myFile.txt}) then e
 Creates an ImGui view of the domain.
 
 Usage: imgui-view <on/off>
-```
-
-#### `invoke`
-
-```
-Applies all given rulesets once on the next update
-
-Usage: invoke <list>
-
-Use invoke ::help to list all available static rulesets.All rulesets are applied once on the next update cycle.
 ```
 
 #### `json`
@@ -1861,13 +1861,44 @@ Available Functions
 
 | Function | Description |
 |----------|-------------|
+| `broadcast` | Broadcasts a ruleset to its specified topic. |
 | `help` | Show available commands and their descriptions |
-| `reload` | Reloads all rulesets for this RenderObject on the next update. |
+| `invoke` | Applies the given ruleset on the next update |
+| `listen` | Listens for rulesets on a specified topic. |
+| `reload` | Reloads all rulesets for this domain on the next update. |
+
+##### `ruleset broadcast`
+
+```
+Broadcasts a ruleset to its specified topic.
+Usage: broadcast <ruleset>
+
+- ruleset: The ruleset content to be broadcasted.
+```
+
+##### `ruleset invoke`
+
+```
+Applies the given ruleset on the next update
+
+Usage: invoke <ruleset>
+
+Use invoke ::help to list all available static rulesets.
+```
+
+##### `ruleset listen`
+
+```
+Listens for rulesets on a specified topic.
+Usage: listen <topic>
+
+- topic: The topic to listen for incoming rulesets.
+```
 
 ##### `ruleset reload`
 
 ```
-Reloads all rulesets for this RenderObject on the next update.
+Reloads all rulesets for this domain on the next update.
 
 Usage: ruleset reload
 
@@ -1920,6 +1951,7 @@ Available Functions
 | `bundleToArray` | Gathers all members from the provided keys into an array. |
 | `capitalize` | Capitalizes the current JSON string. |
 | `ceiling` | Rounds the current JSON numeric value down to the nearest integer. |
+| `default` | If the current value is null, default to a given String |
 | `deserialize` | Deserializes the current JSON string value stored in root. |
 | `div` | Divides the current JSON value by a numeric value. |
 | `echo` | Echoes the provided arguments to the console, with newline. |
@@ -2165,6 +2197,13 @@ Only capitalizes the first character!
 Rounds the current JSON numeric value down to the nearest integer.
 Usage: |roundDown/floor -> {value:int}
 Non-numeric values default to 0. Fails if the value is null.
+```
+
+#### `default`
+
+```
+If the current value is null, default to a given String
+Usage: |default -> {currentValue/string}
 ```
 
 #### `deserialize`

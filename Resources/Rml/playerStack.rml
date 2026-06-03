@@ -36,6 +36,7 @@
                     MP: {self:mp.current|default ---} / {self:mp.max|default ---}
                 </p>
             </div>
+            <div style="height: 10px"></div>
         </div>
     </body>
 </rml>

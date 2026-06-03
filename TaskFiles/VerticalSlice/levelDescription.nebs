@@ -12,10 +12,6 @@ echo
 echo Adding character with wasd-control
 spawn ./Resources/Renderobjects/Creatures/player.jsonc|posX=160|posY=160|physics.vNorm=100
 
-# Show imgui-view for debugging
-selected-object get 1
-selected-object parse imgui-view on
-
 ###########################
 # Part 2: Background
 echo Adding background
@@ -68,10 +64,21 @@ set players[3].name "Wizard of unlimited mp"
 set players[3].hp.current 40
 set players[3].hp.max 100
 set players[3].mp.current 1000
-#set players[3].mp.max 50
+#set players[3].mp.max 5000 # If left uncommented, UI sets max mp to "---"
 
 ###########################
-# User interface
+# Load User interface
 rmlui document load playerStack ./Resources/Rml/playerStack.rml
 rmlui document load actionWindow ./Resources/Rml/actionWindow.rml
 rmlui document load minimap ./Resources/Rml/minimap.rml
+
+###########################
+# Show imgui-view for debugging
+selected-object get 1
+selected-object parse imgui-view on
+
+###########################
+wait 100
+snapshot
+
+
