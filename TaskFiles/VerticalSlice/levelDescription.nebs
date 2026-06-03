@@ -45,4 +45,6 @@ for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX
 for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$(-({global:random.A} % 39)*16+16)|posY=$( ({global:random.B} % 39)*16+00)
 for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$(-({global:random.A} % 39)*16+16)|posY=$(-({global:random.B} % 39)*16+16)
 
-
+###########################
+# User interface
+rmlui document load generalGUI ./Resources/Rml/verticalSliceTestUi.rml

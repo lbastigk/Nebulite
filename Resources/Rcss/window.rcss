@@ -29,6 +29,19 @@ body {
     padding: 1em 1em;
 }
 
+.window {
+    color: #e3e3e3;
+    background: #455d7a;
+    border: 0.25em #233142;
+    border-radius: 0.5em;
+
+    font-size: 18px;
+    font-family: JetBrains Mono;
+    text-align: center;
+    padding: 1em 1em;
+}
+
+
 /* Horizontal rule */
 hr {
     display: block;
