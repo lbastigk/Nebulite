@@ -3,8 +3,7 @@
 
 // Standard library
 #include <memory>
-// NOLINTNEXTLINE
-#include <cstddef>
+#include <cstddef> // NOLINT
 #include <sstream>
 #include <algorithm>
 #include <ranges>

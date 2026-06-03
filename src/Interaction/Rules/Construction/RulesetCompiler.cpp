@@ -2,8 +2,7 @@
 // Includes
 
 // Standard library
-// NOLINTNEXTLINE
-#include <cstddef>
+#include <cstddef> // NOLINT
 #include <memory>
 #include <optional>
 #include <ranges>

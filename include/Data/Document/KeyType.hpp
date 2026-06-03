@@ -5,7 +5,7 @@
 // Includes
 
 // Standard library
-#include <cstdint> // NOLINTTHISLINE
+#include <cstdint> // NOLINT
 
 //------------------------------------------
 namespace Nebulite::Data {

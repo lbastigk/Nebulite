@@ -5,7 +5,7 @@
 // Includes
 
 // Standard library
-#include <cstdint> // NOLINTTHISLINE
+#include <cstdint> // NOLINT
 #include <utility>
 
 // External
@@ -13,7 +13,6 @@
 
 // Nebulite
 #include "Data/Batch.hpp"
-#include "Utility/TimeKeeper.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

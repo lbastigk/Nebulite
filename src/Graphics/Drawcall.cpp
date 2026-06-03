@@ -4,8 +4,7 @@
 // Standard library
 #include <cfloat>
 #include <cmath>
-// NOLINTNEXTLINE
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <cstdlib>
 #include <string>
 #include <utility>

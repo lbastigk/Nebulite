@@ -5,8 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
-// NOLINTNEXTLINE
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <expected>
 #include <memory>
 #include <mutex>

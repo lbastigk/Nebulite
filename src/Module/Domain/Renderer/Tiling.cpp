@@ -2,10 +2,8 @@
 // Includes
 
 // Standard library
-// NOLINTNEXTLINE
-#include <cstdint>
-// NOLINTNEXTLINE
-#include <cstddef>
+#include <cstdint> // NOLINT
+#include <cstddef> // NOLINT
 #include <memory>
 #include <ranges>
 #include <span>

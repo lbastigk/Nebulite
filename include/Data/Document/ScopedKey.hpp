@@ -148,12 +148,12 @@ class ScopedKeyView {
      *          that matches or is a sub-scope of this prefix.
      *          If not set, the key is assumed to be at the root scope.
      */
-    std::optional<std::string_view> givenScope = std::nullopt; // NOLINTTHISLINE
+    std::optional<std::string_view> givenScope = std::nullopt; // NOLINT
 
     /**
      * @brief The key string within the scope.
      */
-    std::string_view key; // NOLINTTHISLINE
+    std::string_view key; // NOLINT
 
     // allow the owning type to construct views pointing into its buffer
     friend class ScopedKey;

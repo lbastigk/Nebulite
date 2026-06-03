@@ -10,7 +10,7 @@
 // Includes
 
 // Standard library
-#include <cstdint> // NOLINTTHISLINE
+#include <cstdint> // NOLINT
 #include <string>
 
 //------------------------------------------

@@ -4,8 +4,7 @@
 // Standard library
 #include <algorithm>
 #include <cstddef>
-// NOLINTNEXTLINE
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <ranges>
 #include <span>
 #include <string>

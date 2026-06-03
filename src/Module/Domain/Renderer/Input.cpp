@@ -5,8 +5,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
-// NOLINTNEXTLINE
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <string>
 
 // External

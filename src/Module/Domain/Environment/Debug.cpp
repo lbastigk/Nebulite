@@ -2,8 +2,7 @@
 // Includes
 
 // Standard library
-// NOLINTNEXTLINE
-#include <cstddef>
+#include <cstddef> // NOLINT
 #include <numeric>
 #include <string>
 #include <vector>

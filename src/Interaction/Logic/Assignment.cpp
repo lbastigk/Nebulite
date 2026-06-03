@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
-#include <cstdint> // NOLINTTHISLINE
+#include <cstdint> // NOLINT
 #include <memory>
 #include <ranges>
 #include <string>

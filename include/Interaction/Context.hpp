@@ -11,8 +11,7 @@
 
 // Standard library
 #include <array>
-// NOLINTNEXTLINE
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <optional>
 #include <string_view>
 #include <utility>

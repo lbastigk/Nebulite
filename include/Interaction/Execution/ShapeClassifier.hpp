@@ -5,8 +5,7 @@
 // Includes
 
 // Standard library
-// NOLINTNEXTLINE
-#include <cstdint>
+#include <cstdint> // NOLINT
 
 // Nebulite
 #include "Utility/CompileTimeEvaluate.hpp"

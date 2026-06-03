@@ -7,8 +7,7 @@
 // Standard Library
 #include <algorithm>
 #include <cmath>
-// NOLINTNEXTLINE
-#include <cstddef>
+#include <cstddef> // NOLINT
 #include <thread>
 
 //------------------------------------------

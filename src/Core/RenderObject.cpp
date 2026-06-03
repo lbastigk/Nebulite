@@ -3,8 +3,7 @@
 
 // Standard library
 #include <algorithm>
-// NOLINTNEXTLINE
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <memory>
 #include <string>
 #include <vector>

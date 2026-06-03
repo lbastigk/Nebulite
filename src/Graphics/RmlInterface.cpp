@@ -4,8 +4,7 @@
 // External
 #include <algorithm>
 #include <cstddef>
-// NOLINTNEXTLINE
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <functional>
 #include <memory>
 #include <optional>
