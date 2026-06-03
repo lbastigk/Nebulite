@@ -1,0 +1,37 @@
+<rml>
+    <head>
+        <title>Player stack</title>
+        <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/window.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/buttons.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/text.rcss"/>
+    </head>
+    <body data-model="nebuliteDataSync"
+        style="
+            margin: 0;
+            padding: 0;
+            left: 84%;
+            top: 3%;
+            width: 15%;
+            height: 75%;
+            overflow: hidden;
+            background: transparent;
+            border: 0 transparent;
+            text-align: left;
+        "
+    >
+        <div data-reflect="{global:players}">
+            <div class="window" style="height: 15%; margin-bottom: 5%; padding: 4px; font-size: 12px;">
+                <p data-eval="true" style="margin: 0 0 2px 0;">
+                    {self:name|default Unnamed}
+                </p>
+                <p data-eval="true" style="margin: 0 0 2px 0;">
+                    HP: {self:hp.current|default ---} / {self:hp.max|default ---}
+                </p>
+                <p data-eval="true" style="margin: 0;">
+                    MP: {self:mp.current|default ---} / {self:mp.max|default ---}
+                </p>
+            </div>
+        </div>
+    </body>
+</rml>

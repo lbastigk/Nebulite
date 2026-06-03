@@ -1,8 +1,6 @@
-echo Hello \
- World!
-
 echo Vertical Slice test for Nebulite
 set-res 640 480 2
+#set-res 480 360 3
 set-fps 6000
 echo
 echo Nebulite vertical slice test
@@ -46,5 +44,34 @@ for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX
 for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$(-({global:random.A} % 39)*16+16)|posY=$(-({global:random.B} % 39)*16+16)
 
 ###########################
+# Setup pseudo info about players
+
+set players[0].name "Orgun the brave"
+set players[0].hp.current 100
+set players[0].hp.max 100
+set players[0].mp.current 50
+set players[0].mp.max 50
+
+set players[1].name "Helia, the apprentice"
+set players[1].hp.current 80
+set players[1].hp.max 100
+set players[1].mp.current 200
+set players[1].mp.max 500
+
+set players[2].name "Mira, the rogue"
+set players[2].hp.current 60
+set players[2].hp.max 100
+set players[2].mp.current 20
+set players[2].mp.max 50
+
+set players[3].name "Wizard of unlimited mp"
+set players[3].hp.current 40
+set players[3].hp.max 100
+set players[3].mp.current 1000
+#set players[3].mp.max 50
+
+###########################
 # User interface
-rmlui document load generalGUI ./Resources/Rml/verticalSliceTestUi.rml
+rmlui document load playerStack ./Resources/Rml/playerStack.rml
+rmlui document load actionWindow ./Resources/Rml/actionWindow.rml
+rmlui document load minimap ./Resources/Rml/minimap.rml

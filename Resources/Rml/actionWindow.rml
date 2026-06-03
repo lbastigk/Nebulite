@@ -1,0 +1,39 @@
+<rml>
+    <head>
+        <title>Player stack</title>
+        <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/window.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/buttons.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/text.rcss"/>
+    </head>
+    <body data-model="nebuliteDataSync"
+          style="
+            margin: 0;
+            padding: 0;
+            left: 5%;
+            top: 87%;
+            width: 90%;
+            height: 10%;
+            overflow: hidden;
+            background: transparent;
+            border: 0 transparent;
+            text-align: center;
+        "
+    >
+    <!-- Bottom window -->
+    <div class="window" style="
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                padding: 6px;
+            ">
+        <h3 data-eval="true" style="margin: 0 0 3px 0;">
+            Action / Dialogue Window. Position: ({global:renderer.position.X}, {global:renderer.position.Y})
+        </h3>
+        <p style="margin: 0; opacity: 0.85;">
+            Placeholder for combat log, dialogue, or player actions.
+        </p>
+    </div>
+
+    </body>
+</rml>

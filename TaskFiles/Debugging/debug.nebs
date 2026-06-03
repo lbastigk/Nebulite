@@ -25,3 +25,5 @@ echo "Starting debug.nebs"
 task TaskFiles/VerticalSlice/levelDescription.nebs
 grid on
 view lowest
+
+rmlui document load example ./Resources/Rml/example.rml
