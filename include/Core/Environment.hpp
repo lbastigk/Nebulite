@@ -48,11 +48,28 @@ public:
      *          *IMPORTANT:* New layers must be added to private variable `allLayers` in the correct order.
      */
     enum class Layer : uint8_t {
-        background,
+        background = 0,
         general,
         foreground,
         effects
     };
+
+private:
+
+    // All layers in rendering order
+    static std::array constexpr allLayers = {
+        Layer::background, // Special layer: uses pre-calculated textures. Only updated on object removal/insertion
+        Layer::general,
+        Layer::foreground,
+        Layer::effects
+    };
+
+    // Inner RenderObject container layers
+    std::array<Data::RenderObjectContainer, allLayers.size()> roc;
+public:
+
+    //------------------------------------------
+    // Layers
 
     /**
      * @brief Retrieves all layers in rendering order.
@@ -65,6 +82,8 @@ public:
     auto const& getAllLayers() {
         return roc;
     }
+
+    static auto constexpr layerCount = allLayers.size();
 
     //------------------------------------------
     // Special Members
@@ -144,9 +163,9 @@ public:
      * @brief Retrieves the RenderObjectContainer at the specified position and layer.
      * @param pos The tile position
      * @param layer The layer index.
-     * @return A reference to the RenderObjectContainer at the specified position and layer: A vector of batched RenderObjects.
+     * @return A reference to the RenderObjectContainer at the specified position and layer.
      */
-    std::vector<Data::Batch>& getContainerAt(Data::TileCoordinate const& pos, Layer layer);
+    Data::Tile& getContainerAt(Data::TileCoordinate const& pos, Layer layer);
 
     /**
      * @brief Checks if the specified position and layer are valid, meaning they are within the bounds of the environment.
@@ -180,27 +199,24 @@ public:
     //------------------------------------------
     // Viewport
 
+    struct TileAndCoordinate {
+        Data::Tile* tile;
+        Data::TileCoordinate coordinate;
+    };
+
     auto viewport(std::vector<Data::TileCoordinate> const& visibleTiles, Layer const& layer) {
-        std::vector<std::vector<Data::Batch>*> result;
+        std::vector<TileAndCoordinate> result;
         result.reserve(visibleTiles.size());
-        for (auto const& tile: visibleTiles) {
-            if (isValidPosition(tile, layer)) {
-                result.push_back(&getContainerAt(tile, layer));
+        for (auto const& tileCoordinate : visibleTiles) {
+            if (isValidPosition(tileCoordinate, layer)) {
+                result.emplace_back(TileAndCoordinate{
+                    .tile = &getContainerAt(tileCoordinate, layer),
+                    .coordinate = tileCoordinate
+                });
             }
         }
         return result;
     }
-
-private:
-    // All layers in rendering order
-    static std::array constexpr allLayers = {Layer::background, Layer::general, Layer::foreground, Layer::effects};
-
-    // TODO: turn layer0 into a "freeze-layer" for performance:
-    //       - no updates for objects
-    //       - pre-render texture for each tile (with some overhead in size, for overlapping objects
-    //       - only re-render texture if new objects are inserted
-    // Inner RenderObject container layers
-    std::array<Data::RenderObjectContainer, allLayers.size()> roc;
 };
 } // namespace Nebulite::Core
 

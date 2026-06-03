@@ -122,18 +122,12 @@ RenderObject* Environment::getObjectFromId(size_t const& domainId) {
 //------------------------------------------
 // Container Management
 
-std::vector<Data::Batch>& Environment::getContainerAt(Data::TileCoordinate const& pos, Layer layer) {
-    if (static_cast<uint8_t>(layer) < allLayers.size()) {
-        return roc[static_cast<uint8_t>(layer)].getContainerAt(pos);
-    }
-    return roc[0].getContainerAt(pos);
+Data::Tile& Environment::getContainerAt(Data::TileCoordinate const& pos, Layer layer) {
+    return roc[static_cast<uint8_t>(layer)].getContainerAt(pos);
 }
 
 bool Environment::isValidPosition(Data::TileCoordinate const& pos, Layer layer) const {
-    if (static_cast<uint8_t>(layer) < allLayers.size()) {
-        return roc[static_cast<uint8_t>(layer)].isValidPosition(pos);
-    }
-    return roc[0].isValidPosition(pos);
+    return roc[static_cast<uint8_t>(layer)].isValidPosition(pos);
 }
 
 void Environment::purgeObjects() {

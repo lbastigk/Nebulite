@@ -1,0 +1,34 @@
+spawn ./Resources/Renderobjects/standard.jsonc|set posX 200|set posY 200
+spawn ./Resources/Renderobjects/standard.jsonc|set posX 400|set posY 200
+spawn ./Resources/Renderobjects/standard.jsonc|set posX 200|set posY 400
+spawn ./Resources/Renderobjects/standard.jsonc|set posX 400|set posY 400
+
+wait 1
+fetch-container
+eval nop {global:renderer.environment.debug.container.objectCount.total|assert equals int 4}
+
+selected-object get 1
+selected-object parse delete
+wait 1
+fetch-container
+eval nop {global:renderer.environment.debug.container.objectCount.total|assert equals int 3}
+
+selected-object get 2
+selected-object parse delete
+wait 1
+fetch-container
+eval nop {global:renderer.environment.debug.container.objectCount.total|assert equals int 2}
+
+selected-object get 3
+selected-object parse delete
+wait 1
+fetch-container
+eval nop {global:renderer.environment.debug.container.objectCount.total|assert equals int 1}
+
+selected-object get 4
+selected-object parse delete
+wait 1
+fetch-container
+eval nop {global:renderer.environment.debug.container.objectCount.total|assert equals int 0}
+
+exit

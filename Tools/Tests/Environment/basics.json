@@ -1,0 +1,9 @@
+[
+    {
+        "command": "task TaskFiles/Tests/Environment/objectDeletion.nebs",
+        "expected": {
+            "cout": [],
+            "cerr": []
+        }
+    }
+]

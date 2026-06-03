@@ -38,8 +38,8 @@ std::string RenderObjectContainer::serialize() {
     //------------------------------------------
     // Get all objects in container
     std::size_t i = 0;
-    for (auto& currentBatch : std::views::values(ObjectContainer)) {
-        for (auto& [objects, _] : currentBatch) {
+    for (auto& tile : std::views::values(ObjectContainer)) {
+        for (auto& [objects, _] : tile.getBatches()) {
             for (auto const& obj : objects) {
                 JSON obj_serial;
                 obj_serial.deserialize(obj->serialize());
@@ -90,33 +90,17 @@ void RenderObjectContainer::append(Core::RenderObject* toAppend, TilingInformati
     auto const pos = getTilePos(toAppend->getPosition(), tilingInformation);
 
     // Try to insert into an existing batch
-    auto const it = std::ranges::find_if(
-        ObjectContainer[pos].begin(),
-        ObjectContainer[pos].end(),
-        // NOLINTNEXTLINE
-        [](Batch const& b) {
-            if constexpr (batchCostGoal == 0) {
-                // NOLINTNEXTLINE
-                return true; // No cost goal, accept all batches
-            }
-            else {
-                // NOLINTNEXTLINE
-                return b.estimatedCost <= batchCostGoal;
-            }
-        }
-    );
-    if (it != ObjectContainer[pos].end()) {
-        it->push(toAppend);
-        return;
+    if (ObjectContainer[pos].insertIfCostGoalMatches(toAppend)) {
+        return; // Successfully inserted into an existing batch
     }
 
     // No existing batch could accept the object, so create a new one
     Batch newBatch;
     newBatch.push(toAppend);
-    ObjectContainer[pos].push_back(std::move(newBatch));
+    ObjectContainer[pos].appendBatch(std::move(newBatch));
 }
 
-void RenderObjectContainer::update(std::vector<TileCoordinate> const& tiles, TilingInformation const& tilingInformation, RendererProcessor const& rendererProcessor) {
+void RenderObjectContainer::update(std::vector<TileCoordinate> const& viewport, TilingInformation const& tilingInformation, RendererProcessor const& rendererProcessor) {
     //------------------------------------------
     // 2-Step Deletion
 
@@ -138,40 +122,32 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& tiles, Til
     // Update only tiles that might be visible
 
     size_t workerIdx = 0;
-    TileCoordinate lastPos;
-    for (auto pos : tiles) {
+    for (auto tilePosition : viewport) {
         // Check if container has tile at position, if not, skip
-        auto const it = ObjectContainer.find(pos);
+        auto const it = ObjectContainer.find(tilePosition);
         if (it == ObjectContainer.end()) {
             continue;
         }
 
-        // Create worker threads that try to closely match the batch cost goal
-        // If the current batch added to the worker exceeds the batch cost goal, we start a new worker thread for the next batch
-        for (auto& batch : it->second) {
-            if (rendererProcessor.batchWorkerPool[workerIdx]->workspace.cost + batch.estimatedCost > batchCostGoal || lastPos != pos) {
-                workerIdx++;
-            }
+        // Create worker threads, one for each visible tile
+        // Get current worker, set up workspace and add work to it
+        auto& currentWorker = rendererProcessor.batchWorkerPool[workerIdx]->workspace;
+        currentWorker.work = &it->second;
+        currentWorker.pos = tilePosition;
+        currentWorker.tilingInformation = tilingInformation;
 
-            if (workerIdx >= Constants::ThreadSettings::getRendererWorkerCount()) {
-                rendererProcessor.processPool(); // Process all workers and reset pool
-                workerIdx = 0; // Reset worker count for new batch of work
-            }
-
-            // Get current worker, set up workspace and add work to it
-            auto& currentWorker = rendererProcessor.batchWorkerPool[workerIdx]->workspace;
-            currentWorker.work.push_back(&batch);
-            currentWorker.pos = pos;
-            currentWorker.tilingInformation = tilingInformation;
-            currentWorker.cost += batch.estimatedCost;
-
-            // Set last position for next iteration
-            lastPos = pos;
+        // if workerIdx exceeds, process pool
+        workerIdx++;
+        if (workerIdx == Constants::ThreadSettings::Maximum::rendererWorkerCount) {
+            rendererProcessor.processPool();
+            workerIdx = 0;
         }
     }
 
     // Process rest
-    rendererProcessor.processPool();
+    if (workerIdx > 0) {
+        rendererProcessor.processPool(workerIdx);
+    }
 
     // Objects to move to new tile positions
     for (auto* const obj_ptr : reinsertionProcess.queue) {
@@ -182,8 +158,8 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& tiles, Til
 
 Core::RenderObject* RenderObjectContainer::getObjectFromId(size_t const& domainId) {
     // Go through all batches
-    for (auto& batches : std::views::values(ObjectContainer)) {
-        for (auto& [objects, _] : batches) {
+    for (auto& tile : std::views::values(ObjectContainer)) {
+        for (auto& [objects, _] : tile.getBatches()) {
             for (auto const& object : objects) {
                 if (object->getId() == domainId) {
                     return object;
@@ -197,8 +173,8 @@ Core::RenderObject* RenderObjectContainer::getObjectFromId(size_t const& domainI
 void RenderObjectContainer::reinsertAllObjects(TilingInformation const& tilingInformation) {
     // Collect all objects
     std::vector<Core::RenderObject*> toReinsert;
-    for (auto& batches : std::views::values(ObjectContainer)) {
-        for (auto& [objects, _] : batches) {
+    for (auto& tile : std::views::values(ObjectContainer)) {
+        for (auto& [objects, _] : tile.getBatches()) {
             // Collect all objects from the batch
             std::ranges::copy(objects.begin(), objects.end(), std::back_inserter(toReinsert));
         }
@@ -220,21 +196,17 @@ bool RenderObjectContainer::isValidPosition(TileCoordinate const& position) cons
 }
 
 void RenderObjectContainer::purgeObjects() {
-    for (auto it = ObjectContainer.begin(); it != ObjectContainer.end();) {
-        for (auto& [objects, _] : it->second) {
-            // Move all objects to trash
-            std::ranges::move(objects.begin(), objects.end(), std::back_inserter(deletionProcess.trash));
-            objects.clear(); // Remove all objects from the batch
-        }
-        ++it;
+    for (auto& tile : std::views::values(ObjectContainer)) {
+        tile.moveObjects(deletionProcess.trash);
     }
+    ObjectContainer.clear();
 }
 
 size_t RenderObjectContainer::getObjectCount() const {
     // Calculate the total item count
     size_t totalCount = 0;
     for (auto const it = ObjectContainer.begin(); it != ObjectContainer.end();) {
-        totalCount += it->second.size();
+        totalCount += it->second.getBatches().size();
     }
     return totalCount;
 }
@@ -245,8 +217,8 @@ RenderObjectContainer::ContainerInfo RenderObjectContainer::getContainerInfo() c
     // Container stats
     info.containerTotalTiles = ObjectContainer.size();
     info.containerTotalCost = 0;
-    for (auto const& batches : std::views::values(ObjectContainer)) {
-        for (auto const& [_, cost] : batches) {
+    for (auto const& tile : std::views::values(ObjectContainer)) {
+        for (auto const& [_, cost] : tile.getBatches()) {
             info.containerTotalCost += cost;
         }
     }

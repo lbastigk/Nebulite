@@ -409,12 +409,18 @@ std::vector<Data::TileCoordinate> Renderer::visibleTiles() const {
 }
 
 void Renderer::onViewport(Environment::Layer const& layer, auto&& function) {
-    for (auto const& tile : env.viewport(visibleTiles(), layer)) {
-        for (auto& [objects, _] : *tile) {
+    for (auto const& [tile, coordinate] : env.viewport(visibleTiles(), layer)) {
+        for (auto& [objects, _] : tile->getBatches()) {
             for (auto& obj : objects) {
                 function(obj);
             }
         }
+    }
+}
+
+void Renderer::onViewportTiles(Environment::Layer const& layer, auto&& function) {
+    for (auto const& tileAndCoordinate : env.viewport(visibleTiles(), layer)) {
+        function(tileAndCoordinate);
     }
 }
 
@@ -800,9 +806,55 @@ void Renderer::renderFrame() {
     //For all layers, starting at 0
     for (auto const& layer : Environment::getAllLayerTypes()) {
         // Render all objects in the viewport of this layer
-        onViewport(layer, [&](RenderObject* obj) {
-            renderObjectToScreen(obj, dispPosX, dispPosY);
-        });
+        if (layer == Environment::Layer::background) {
+            onViewportTiles(layer, [&](Environment::TileAndCoordinate const& tileAndCoordinate) {
+                auto& texture = tileAndCoordinate.tile->getTexture();
+
+                // Re-render background texture
+                if (!texture) {
+                    texture = SDL_CreateTexture(
+                        renderer,
+                        SDL_PIXELFORMAT_RGBA8888,
+                        SDL_TEXTUREACCESS_TARGET,
+                        2*windowScale*tilingInformation().w,
+                        2*windowScale*tilingInformation().h
+                    );
+                    if (!texture) {
+                        capture.error.println("Failed to create render target texture.");
+                        std::abort();
+                    }
+                    SDL_SetRenderTarget(renderer, texture);
+                    for (auto& [objects, _] : tileAndCoordinate.tile->getBatches()) {
+                        for (auto& obj : objects) {
+                            renderObjectToScreen(
+                                obj,
+                                tileAndCoordinate.coordinate.x * tilingInformation().w,
+                                tileAndCoordinate.coordinate.y * tilingInformation().h
+                            );
+                        }
+                    }
+                }
+
+                // Render to screen
+                SDL_SetRenderTarget(renderer, nullptr);
+                SDL_FRect const destRect{
+                    .x = static_cast<float>(windowScale * (tileAndCoordinate.coordinate.x * tilingInformation().w - dispPosX)),
+                    .y = static_cast<float>(windowScale * (tileAndCoordinate.coordinate.y * tilingInformation().h - dispPosY)),
+                    .w = static_cast<float>(2 * windowScale * tilingInformation().w),
+                    .h = static_cast<float>(2 * windowScale * tilingInformation().h)
+                };
+                if (!SDL_RenderTexture(renderer, texture, nullptr, &destRect)) {
+                    capture.error.println("Failed to render background tile texture: ", SDL_GetError());
+                }
+            });
+        }
+        else {
+            onViewport(layer, [&](RenderObject* obj) {
+                renderObjectToScreen(obj, dispPosX, dispPosY);
+            });
+        }
+
+
 
         // Render all textures that were attached from outside processes
         for (auto const& [texture, rect] : std::views::values(BetweenLayerTextures[layer])) {

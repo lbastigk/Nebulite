@@ -1,0 +1,5 @@
+# Loading levelDescription.nebs and measuring the time it takes to load the scene.
+task TaskFiles/VerticalSlice/levelDescription.nebs
+wait 1
+eval echo Took {global:time.runtime.t} seconds to load levelDescription.nebs
+exit
