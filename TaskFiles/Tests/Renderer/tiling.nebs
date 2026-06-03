@@ -1,11 +1,27 @@
+###############################################
+# Tests the tiling system by
+# - loading a level
+# - fetching container information
+# - verifying tile count + layering
+
 task TaskFiles/VerticalSlice/levelDescription.nebs
 wait 1
 grid on
 fetch-container
 
-# Layer 0: Background
+# Verify layer count
+eval nop {global:renderer.environment.debug.container.objectCount.layer|length|assert equals int 4}
+
+# Layer 0: Background: Grass
 assert $(gt({global:renderer.environment.debug.container.objectCount.layer[0].tile|listMembers|length},10))
-# Layer 1: Player
-assert $(eq({global:renderer.environment.debug.container.objectCount.layer[1].tile|listMembers|length},1))
+
+# Layer 1: General: Player + Trees.
+assert $(gt({global:renderer.environment.debug.container.objectCount.layer[1].tile|listMembers|length},10))
+
+# Layer 2: Foreground: none so far
+assert $(eq({global:renderer.environment.debug.container.objectCount.layer[2].tile|listMembers|length},0))
+
+# Layer 3: effects: none so far
+assert $(eq({global:renderer.environment.debug.container.objectCount.layer[3].tile|listMembers|length},0))
 
 exit

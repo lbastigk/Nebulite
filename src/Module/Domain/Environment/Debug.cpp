@@ -33,7 +33,9 @@ Constants::Event Debug::updateHook() {
 }
 
 Constants::Event Debug::fetchContainer() const {
-    size_t objectCount = 0;
+    std::array<std::size_t, Core::Environment::layerCount> countPerLayer{};
+
+    // Get object count per active tile
     domain.containerIteration([&](Data::TileCoordinate const& tileCoordinate, Core::Environment::Layer const& layer, Data::Tile const& tile) {
         // Storing the information in a matrix [x][y] is not possible, as the tile positions can be negative
         // Instead, we store the position as key x<tile.x>y<tile.y>
@@ -41,12 +43,22 @@ Constants::Event Debug::fetchContainer() const {
         auto const layerKey = Key::containerObjectCount.addMember("layer").addIndex(static_cast<size_t>(layer));
         auto const tileKey = layerKey.addMember("tile").addMember(tileName);
         auto const& batches = tile.getBatches();
-        auto const batchCount = std::accumulate(batches.begin(), batches.end(), size_t{0}, [](size_t const acc, Data::Batch const& batch) {
+        auto const tileObjectCount = std::accumulate(batches.begin(), batches.end(), size_t{0}, [](size_t const acc, Data::Batch const& batch) {
             return acc + batch.objects.size();
         });
-        moduleScope.set<size_t>(tileKey, batchCount);
-        objectCount += batchCount;
+        moduleScope.set<size_t>(tileKey, tileObjectCount);
+        countPerLayer[static_cast<std::size_t>(layer)] += tileObjectCount;
     });
+
+    // Set total count per layer and accumulate
+    std::size_t objectCount = 0;
+    for (auto const [layer, count] : countPerLayer | std::views::enumerate) {
+        auto const layerKey = Key::containerObjectCount.addMember("layer").addIndex(static_cast<size_t>(layer));
+        moduleScope.set<size_t>(layerKey.addMember("total"), count);
+        objectCount += count;
+    }
+
+    // Set total count
     moduleScope.set<size_t>(Key::containerObjectCount.addMember("total"), objectCount);
     return Constants::Event::Success;
 }
