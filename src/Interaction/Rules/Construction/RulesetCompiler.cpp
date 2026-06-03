@@ -43,14 +43,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRule
         size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnSelf);
         for (size_t j = 0; j < funcSize; ++j) {
             auto const funcKey = Constants::KeyNames::Ruleset::parseOnSelf.addIndex(j);
-            auto funcCall = entryDoc.get<std::string>(funcKey).value_or("");
-
-            // The first arg has to be some reference of where the function is called
-            // Global functions explicitly place the Binary name on the front in the global space
-            // Here, we just reference "self" as the first argument
-            if (!funcCall.starts_with("self ")) {
-                funcCall.insert(0, "self ");
-            }
+            auto const funcCall = entryDoc.get<std::string>(funcKey).value_or("");
 
             // Create a new Expression, parse the function call
             Logic::Expression invokeExpr(funcCall);
@@ -61,14 +54,8 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRule
         size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnOther);
         for (size_t j = 0; j < funcSize; ++j) {
             auto const funcKey = Constants::KeyNames::Ruleset::parseOnOther.addIndex(j);
-            auto funcCall = entryDoc.get<std::string>(funcKey).value_or("");
+            auto const funcCall = entryDoc.get<std::string>(funcKey).value_or("");
 
-            // The first arg has to be some reference of where the function is called
-            // Global functions explicitly place the Binary name on the front in the global space
-            // Here, we just reference "other" as the first argument
-            if (!funcCall.starts_with("other ")) {
-                funcCall.insert(0, "other ");
-            }
             // Create a new Expression, parse the function call
             Logic::Expression invokeExpr(funcCall);
             Ruleset.functioncalls_other.emplace_back(std::move(invokeExpr));

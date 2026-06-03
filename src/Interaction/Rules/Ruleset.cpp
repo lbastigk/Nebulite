@@ -132,7 +132,6 @@ void JsonRuleset::apply() {
     for (auto& entry : functioncalls_global) {
         sendTask(ctx.global, entry.eval(ctxScope));
     }
-    // TODO: use their task queue instead
     for (auto& entry : functioncalls_self) {
         sendTask(ctx.self, entry.eval(ctxScope));
     }
