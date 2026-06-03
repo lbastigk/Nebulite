@@ -28,6 +28,11 @@ public:
     //------------------------------------------
     // Available Transformations
 
+    static bool defaultToString(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr defaultToStringName = "default";
+    static auto constexpr defaultToStringDesc = "If the current value is null, default to a given String\n"
+        "Usage: |default -> {currentValue/string}\n";
+
     static bool typeAsNumber(Data::JsonScope* jsonDoc);
     static auto constexpr typeAsNumberName = "typeAsNumber";
     static auto constexpr typeAsNumberDesc = "Converts the current JSON type value to a number.\n"

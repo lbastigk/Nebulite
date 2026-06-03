@@ -15,12 +15,20 @@
 namespace Nebulite::Module::Transformation {
 
 void Types::bindTransformations() {
+    bindTransformation(&Types::defaultToString, defaultToStringName, defaultToStringDesc);
     bindTransformation(&Types::typeAsNumber, typeAsNumberName, typeAsNumberDesc);
     bindTransformation(&Types::typeAsSimpleString, typeAsSimpleStringName, typeAsSimpleStringDesc);
     bindTransformation(&Types::typeAsString, typeAsStringName, typeAsStringDesc);
     bindTransformation(&Types::serialize, serializeName, serializeDesc);
     bindTransformation(&Types::deserialize, deserializeName, deserializeDesc);
     bindTransformation(&Types::exists, existsName, existsDesc);
+}
+
+bool Types::defaultToString(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
+    if (jsonDoc->memberType(rootKey) == Data::KeyType::null) {
+        jsonDoc->set<std::string>(rootKey, Utility::StringHandler::recombineArgs(args.subspan(1)));
+    }
+    return true;
 }
 
 bool Types::typeAsNumber(Data::JsonScope* jsonDoc) {
