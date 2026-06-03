@@ -20,11 +20,15 @@
             text-align: left;
         "
     >
-        <div data-reflect="{global:players}">
+        <!-- TODO: we could use reflect-once here and use an outside div with something like a reparse trigger -->
+        <!-- Meaning, if reparse-trigger="{...}" is true, call setInnerRml -->
+        <!-- This way, reflection is done once and we can retrigger if the player list changes -->
+        <div data-reflect="{global:players|ensureArray}">
             <div class="window" style="height: 15%; margin-bottom: 5%; padding: 4px; font-size: 12px;">
                 <p data-eval="true" style="margin: 0 0 2px 0;">
                     {self:name|default Unnamed}
                 </p>
+                <!-- TODO: add a picture -->
                 <p data-eval="true" style="margin: 0 0 2px 0;">
                     HP: {self:hp.current|default ---} / {self:hp.max|default ---}
                 </p>
