@@ -4,5 +4,11 @@
             "task TaskFiles/Tests/Ruleset/globalRulesets.nebs"
         ],
         "expected": { "cout": [], "cerr": [] }
+    },
+    {
+        "command": [
+            "task TaskFiles/Tests/Ruleset/parseOnContext.nebs"
+        ],
+        "expected": { "cout": [], "cerr": [] }
     }
 ]

@@ -1,0 +1,9 @@
+# Invoke a ruleset and see if functioncalls are parsed correctly
+ruleset invoke ./Resources/Rulesets/Debug/nameAll.jsonc
+wait 1
+
+# Now the variables calledAs.self/other/global should be set
+# All of them are set for the GlobalSpace, as it acts as all contexts at once
+assert $({self:calledAs.self})
+assert $({self:calledAs.other})
+assert $({self:calledAs.global})

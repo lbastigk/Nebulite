@@ -1,0 +1,18 @@
+{
+    "topic": "",
+    "condition": "1",
+    "action": {
+        "assign": [],
+        "functioncall": {
+            "global": [
+                "set calledAs.global 1"
+            ],
+            "self": [
+                "set calledAs.self 1"
+            ],
+            "other": [
+                "set calledAs.other 1"
+            ]
+        }
+    }
+}
