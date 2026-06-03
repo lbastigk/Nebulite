@@ -25,7 +25,3 @@ echo "Starting debug.nebs"
 task TaskFiles/VerticalSlice/levelDescription.nebs
 grid on
 view lowest
-
-#set-res 1024 1024
-
-#task TaskFiles/Tests/RmlUi/example.nebs
