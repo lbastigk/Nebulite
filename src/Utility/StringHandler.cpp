@@ -6,6 +6,7 @@
 #include <array>
 #include <cctype>
 #include <cstddef>
+#include <cstdint> // NOLINT
 #include <numeric>
 #include <ranges>
 #include <span>
