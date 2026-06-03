@@ -66,6 +66,7 @@ bool Collection::get(std::span<std::string_view const> const& args, Data::JsonSc
 bool Collection::listMembers(Data::JsonScope* jsonDoc){
     auto const membersAndKeys = jsonDoc->listAvailableMembersAndKeys(rootKey);
     jsonDoc->removeMember(rootKey);
+    jsonDoc->setEmptyArray(rootKey);
     std::ranges::for_each(
         membersAndKeys | std::views::enumerate,
         [&](auto const& enumeratedMemberAndKey) {
@@ -95,6 +96,7 @@ bool Collection::listMembersAndValues(Data::JsonScope* jsonDoc){
 
     // Reinsert, enumerated
     jsonDoc->removeMember(rootKey);
+    jsonDoc->setEmptyArray(rootKey);
     std::ranges::for_each(
         membersAndKeys | std::views::enumerate,
         [&](auto const& enumeratedMemberAndKey) {
