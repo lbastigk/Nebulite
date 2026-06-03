@@ -197,6 +197,7 @@ void Reflection::reflectElement(Rml::Element* element, std::unique_ptr<Reflectio
         newRml += entry->rmlValue;
     }
     element->SetInnerRML(newRml);
+    if (size == 0) return;
 
     // Check children size
     if (static_cast<size_t>(element->GetNumChildren()) % size == 0) {
