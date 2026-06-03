@@ -32,7 +32,7 @@ void setStandardValues(Data::JsonScope& document) {
     // General
     document.set(Constants::KeyNames::RenderObject::positionX, 0);
     document.set(Constants::KeyNames::RenderObject::positionY, 0);
-    document.set(Constants::KeyNames::RenderObject::layer, 0);
+    document.set(Constants::KeyNames::RenderObject::layer, 1);
 
     // Create a basic drawcall
     Graphics::Drawcall::ApplyDefault::Sprite(document.shareScope(Constants::KeyNames::RenderObject::draw.addMember("exampleSprite")));

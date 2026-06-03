@@ -22,7 +22,7 @@
         }
     },
     "id": 0,
-    "layer": 0,
+    "layer": 1,
     "physics": {
         "mass": 200000.0,
         "aX": 0.0,
