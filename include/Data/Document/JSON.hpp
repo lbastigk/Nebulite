@@ -12,6 +12,7 @@
 
 // External
 #include <absl/container/flat_hash_map.h>
+#include <rapidjson/document.h>
 
 // Nebulite
 #include "Data/Document/JsonRvalueTransformer.hpp"
