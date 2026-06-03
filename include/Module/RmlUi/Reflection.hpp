@@ -132,6 +132,16 @@ private:
      * @param entry The reflection entry
      */
     void reflectElement(Rml::Element* element, std::unique_ptr<ReflectionEntry> const& entry);
+
+    /**
+     * @brief Sets the proper context and scope of a given element and all its children, recursively
+     * @param element The element to set the context and scope of
+     * @param allocatedIds A list of allocated Ids. Will be resized if needed
+     * @param idsIndex Current index of allocatedIds to use. Will be incremented with each call
+     * @param context The context to set
+     * @param scope The scope to set
+     */
+    void contextScopeSetter(Rml::Element* element, std::vector<size_t>& allocatedIds, size_t& idsIndex, Interaction::Context const& context, Interaction::ContextScope const& scope) const ;
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // MODULE_RMLUI_REFLECTION_HPP

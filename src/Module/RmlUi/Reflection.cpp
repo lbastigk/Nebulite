@@ -116,6 +116,25 @@ Data::JSON& Reflection::evaluateReflectionList(std::unique_ptr<ReflectionEntry> 
     return *reflectionList;
 }
 
+void Reflection::contextScopeSetter(Rml::Element* element, std::vector<size_t>& allocatedIds, size_t& idsIndex, Interaction::Context const& context, Interaction::ContextScope const& scope) const {
+    if (allocatedIds.size() > idsIndex) {
+        auto const childId = Graphics::RmlInterface::RmlElementIdentifier(allocatedIds[idsIndex]);
+        interface.setRmlElementContextAndScope(childId, {.ctx=context, .ctxScope=scope});
+    }
+    else {
+        Graphics::RmlInterface::RmlElementIdentifier::removeElementIdentifier(element);
+        Graphics::RmlInterface::RmlElementIdentifier const childId(element);
+        allocatedIds.push_back(childId.getId());
+        interface.setRmlElementContextAndScope(childId, {.ctx=context, .ctxScope=scope});
+    }
+    Graphics::RmlInterface::RmlElementIdentifier::forceElementIdentifier(element, allocatedIds[idsIndex]);
+    idsIndex++;
+
+    for (int j = 0; j < element->GetNumChildren(); ++j) {
+        contextScopeSetter(element->GetChild(j), allocatedIds, idsIndex, context, scope);
+    }
+}
+
 void Reflection::setReflectionScopes(
         Data::JSON& reflectionList,
         size_t const& listSize,
@@ -126,7 +145,11 @@ void Reflection::setReflectionScopes(
     ) const {
     auto const childrenCount = static_cast<size_t>(element->GetNumChildren());
     assert(childrenCount % listSize == 0);
+    size_t idsIndex = 0;
     for (size_t i = 0; i < childrenCount; ++i) {
+
+        // TODO: set context and scope for any sub-children
+
         auto const jsonIndex = i * listSize / childrenCount;
         std::string const childKey = Data::ScopedKey().addIndex(jsonIndex).toString();
         auto& newScope = reflectionList.shareManagedScopeBase(childKey);
@@ -140,17 +163,7 @@ void Reflection::setReflectionScopes(
             }
         };
         auto* const child = element->GetChild(static_cast<int>(i));
-        if (entry->allocatedIds.size() > i) {
-            auto childId = Graphics::RmlInterface::RmlElementIdentifier(entry->allocatedIds[i]);
-            interface.setRmlElementContextAndScope(childId, {.ctx=context, .ctxScope=childContextScope});
-        }
-        else {
-            Graphics::RmlInterface::RmlElementIdentifier::removeElementIdentifier(child);
-            Graphics::RmlInterface::RmlElementIdentifier const childId(child);
-            entry->allocatedIds.push_back(childId.getId());
-            interface.setRmlElementContextAndScope(childId, {.ctx=context, .ctxScope=childContextScope});
-        }
-        Graphics::RmlInterface::RmlElementIdentifier::forceElementIdentifier(child, entry->allocatedIds[i]);
+        contextScopeSetter(child, entry->allocatedIds, idsIndex, context, childContextScope);
     }
 }
 

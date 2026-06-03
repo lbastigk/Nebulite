@@ -22,8 +22,14 @@ ContextManager::ContextManager(Utility::IO::Capture& c, Graphics::RmlInterface& 
 void ContextManager::update() {
     auto anySupportedAttribute = [] (Rml::Element* element, Rml::Element* parent) {
         // Skip elements that are part of a reflection, as they will be handled by the Reflection module
-        // TODO: is a parent escalation necessary? Checking parent of parent etc ... ?
-        if (Reflection::Attribute::hasSupportedAttribute(parent)) return false;
+        // In fact, skip any elements that are a child/grandchild/... of a reflection
+        auto* escalatedParent = parent;
+        while (escalatedParent) {
+            if (Reflection::Attribute::hasSupportedAttribute(escalatedParent)) {
+                return false;
+            }
+            escalatedParent = escalatedParent->GetParentNode();
+        }
 
         // Check for supported attributes
         return ExpressionManager::Attribute::hasSupportedAttribute(element) // Any expression requires context
