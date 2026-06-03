@@ -1,5 +1,9 @@
+cmake_minimum_required(VERSION 3.16)
+project(Nebulite LANGUAGES C CXX ASM_NASM)
+
 ############################################################
 ## Include CMake files
+include(${CMAKE_SOURCE_DIR}/Tools/CMake/optimizations.cmake)
 include(${CMAKE_SOURCE_DIR}/Tools/CMake/External/dependencies.cmake)
 include(${CMAKE_SOURCE_DIR}/Tools/CMake/External/initmodules.cmake)
 include(${CMAKE_SOURCE_DIR}/Tools/CMake/External/sdlsettings.cmake)
@@ -18,8 +22,6 @@ message(STATUS "Binary dir: ${CMAKE_BINARY_DIR}")
 
 ############################################################
 ## General Environment Setup
-cmake_minimum_required(VERSION 3.16)
-project(Nebulite LANGUAGES C CXX ASM_NASM)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 26)
@@ -30,10 +32,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # Setup assembler
-find_program(ASM_EXECUTABLE as)
-if(ASM_EXECUTABLE)
-    set(CMAKE_ASM_COMPILER ${ASM_EXECUTABLE} CACHE FILEPATH "System assembler")
-endif()
 enable_language(ASM)
 
 # Fix LTO-related toolchain issues if needed
@@ -57,6 +55,10 @@ setup_common_sources(Nebulite)
 configure_common_dependencies(Nebulite)
 configure_warnings(Nebulite)
 target_include_directories(Nebulite PUBLIC ${CMAKE_SOURCE_DIR}/include)
+
+############################################################
+# optimize
+optimize_rapidjson(Nebulite)
 
 ############################################################
 ## Platform-Specific
@@ -92,7 +94,7 @@ elseif(APPLE)
 ##################
 # LINUX          #
 ##################
-elseif(UNIX)
+elseif(LINUX)
     message(STATUS "Targeting Linux")
     
     # Include Linux-specific configuration
@@ -104,8 +106,5 @@ elseif(UNIX)
 # UNKNOWN        #
 ##################
 else()
-    message(STATUS "Targeting unknown platform... exiting.")
-
-    # exit
-    exit(1)
+    message(FATAL_ERROR "Unsupported platform")
 endif()
