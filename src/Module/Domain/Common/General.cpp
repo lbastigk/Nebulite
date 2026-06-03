@@ -149,8 +149,9 @@ Constants::Event General::func_for(std::span<std::string_view const> const& args
                 return event;
             }
         }
+        return Constants::Event::Success;
     }
-    return Constants::Event::Success;
+    return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
 }
 
 Constants::Event General::func_forProgress(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
@@ -161,9 +162,10 @@ Constants::Event General::func_forProgress(std::span<std::string_view const> con
         int const iEnd = std::stoi(Interaction::Logic::Expression::eval(args[3], ctxScope));
 
         std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(4));
+
+        size_t constexpr barWidth = 50;
         for (int i = iStart; i <= iEnd; i++) {
             // Provide progress bar only to cout for now
-            size_t constexpr barWidth = 50;
             double const progress = static_cast<double>(i - iStart) / static_cast<double>(iEnd - iStart + 1);
 
             std::cout << "[";
@@ -182,9 +184,17 @@ Constants::Event General::func_forProgress(std::span<std::string_view const> con
                 return event;
             }
         }
+        std::cout << "[";
+        for (size_t barIdx = 0; barIdx < barWidth; ++barIdx) {
+            std::cout << "=";
+        }
+        std::cout << "] " << 100 << " %\r";
+        std::cout.flush();
         std::cout << "\n";
+        return Constants::Event::Success;
     }
-    return Constants::Event::Success;
+    return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
+
 }
 
 Constants::Event General::nop(std::span<std::string_view const> const& /*args*/) {
