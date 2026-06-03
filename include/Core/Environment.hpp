@@ -48,11 +48,28 @@ public:
      *          *IMPORTANT:* New layers must be added to private variable `allLayers` in the correct order.
      */
     enum class Layer : uint8_t {
-        background,
+        background = 0,
         general,
         foreground,
         effects
     };
+
+private:
+
+    // All layers in rendering order
+    static std::array constexpr allLayers = {
+        Layer::background, // Special layer: uses pre-calculated textures. Only updated on object removal/insertion
+        Layer::general,
+        Layer::foreground,
+        Layer::effects
+    };
+
+    // Inner RenderObject container layers
+    std::array<Data::RenderObjectContainer, allLayers.size()> roc;
+public:
+
+    //------------------------------------------
+    // Layers
 
     /**
      * @brief Retrieves all layers in rendering order.
@@ -65,6 +82,8 @@ public:
     auto const& getAllLayers() {
         return roc;
     }
+
+    static auto constexpr layerCount = allLayers.size();
 
     //------------------------------------------
     // Special Members
@@ -198,18 +217,6 @@ public:
         }
         return result;
     }
-
-private:
-    // All layers in rendering order
-    static std::array constexpr allLayers = {
-        Layer::background, // Special layer: uses pre-calculated textures. Only updated on object removal/insertion
-        Layer::general,
-        Layer::foreground,
-        Layer::effects
-    };
-
-    // Inner RenderObject container layers
-    std::array<Data::RenderObjectContainer, allLayers.size()> roc;
 };
 } // namespace Nebulite::Core
 
