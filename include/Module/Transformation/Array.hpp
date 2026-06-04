@@ -96,7 +96,8 @@ public:
     static auto constexpr iotaName = "iota";
     static auto constexpr iotaDesc = "Generates an array of values.\n"
         "Usage: |iota <start> <end> -> {array}\n"
-        "Generates an array containing the values from start (inclusive) to end (exclusive).\n";
+        "Generates an array containing the values from start (inclusive) to end (exclusive).\n"
+        "If end is not greater than start, the result is an empty array.\n";
 };
 } // namespace Nebulite::Module::Transformation
 #endif // MODULE_TRANSFORMATION_ARRAY_HPP

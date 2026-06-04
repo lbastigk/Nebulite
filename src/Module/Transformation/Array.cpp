@@ -214,7 +214,10 @@ bool Array::iota(std::span<std::string_view const> const& args, Data::JsonScope*
     if (args.size() < 3) return false;
     auto start = std::stoll(std::string(args.at(1)));
     auto end = std::stoll(std::string(args.at(2)));
-    if (start > end) return false;
+    if (start >= end) {
+        jsonDoc->setEmptyArray(rootKey);
+        return true;
+    }
     std::ranges::for_each(
         std::views::iota(start, end),
         [&](auto const& i) {
