@@ -46,3 +46,26 @@ input.text {
     /* Size */
     width: 200px;
 }
+
+verb {
+    display: block;
+
+    /* Preserve newlines; allow wrapping for very long lines */
+    white-space: pre-wrap;    /* preserves newlines and wraps long lines */
+    /* alternate: use white-space: pre; to preserve whitespace and NOT wrap */
+
+    /* Visuals */
+    /*font-family: monospace;*/
+    font-size: 12px;
+    color: #eaeaea;
+    background: rgba(0,0,0,0.55);
+    padding: 6px;
+    border-radius: 4px;
+    box-sizing: border-box;
+
+    text-align: left;
+
+    /* Layout / overflow */
+    overflow: auto;      /* scroll if too tall */
+    white-space: pre-wrap;
+}

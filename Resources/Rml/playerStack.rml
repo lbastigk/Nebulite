@@ -10,9 +10,9 @@
         style="
             margin: 0;
             padding: 0;
-            left: 84%;
+            left: 89%;
             top: 3%;
-            width: 15%;
+            width: 10%;
             height: 75%;
             overflow: hidden;
             background: transparent;
@@ -23,12 +23,28 @@
         <!-- TODO: we could use reflect-once here and use an outside div with something like a reparse trigger -->
         <!-- Meaning, if reparse-trigger="{...}" is true, call setInnerRml -->
         <!-- This way, reflection is done once and we can retrigger if the player list changes -->
-        <div data-reflect="{global:players|ensureArray}">
-            <div class="window" style="height: 15%; margin-bottom: 5%; padding: 4px; font-size: 12px;">
+        <div data-reflect="{global:players|ensureArray|enumerate index}">
+            <div class="window" style="height: 10%; margin: 1%; padding: 4px; font-size: 10px;" >
+                <!-- Click surface -->
+                <!-- TODO: rml focus element is still buggy ... -->
+                <div onClick#parse="eval rmlui document load content{self:index} ./Resources/Rml/scopeContent.rml" style="
+                    position: absolute;
+                    width: 85%;
+                    height: 20%;
+                    background: transparent;
+                    cursor: pointer;
+                    z-index: 10;
+                "></div>
+
+                <!-- Content -->
                 <p data-eval="true" style="margin: 0 0 2px 0;">
-                    {self:name|default Unnamed}
+                    {self:index|add 1}.) {self:name|default Unnamed}
                 </p>
-                <!-- TODO: add a picture -->
+
+                <div data-eval="true" >
+                    <img class="player-image" src="{self:image|default ./Resources/Sprites/TEST_BMP_SMALL.bmp}" width="95%" height="95%"></img>
+                </div>
+
                 <p data-eval="true" style="margin: 0 0 2px 0;">
                     HP: {self:hp.current|default ---} / {self:hp.max|default ---}
                 </p>

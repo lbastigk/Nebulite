@@ -66,6 +66,8 @@ set players[3].hp.max 100
 set players[3].mp.current 1000
 #set players[3].mp.max 5000 # If left uncommented, UI sets max mp to "---"
 
+
+
 ###########################
 # Load User interface
 rmlui document load playerStack ./Resources/Rml/playerStack.rml
@@ -73,9 +75,18 @@ rmlui document load actionWindow ./Resources/Rml/actionWindow.rml
 rmlui document load minimap ./Resources/Rml/minimap.rml
 
 ###########################
-# Show imgui-view for debugging
+# Show imgui-view of player for debugging
 selected-object get 1
 selected-object parse imgui-view on
+
+###########################
+# Mirror player position to players[0]
+
+# A bit brittle, technically we want the always-task to be for the selected object
+# This would break if we ever change the selected object, but for this test it should be fine
+selected-object get 1
+always selected-object parse assign global:players[0].posX = {self:posX}
+always selected-object parse assign global:players[0].posY = {self:posY}
 
 ###########################
 wait 100

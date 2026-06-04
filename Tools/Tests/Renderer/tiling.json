@@ -1,6 +1,6 @@
 [
     {
         "command": "task TaskFiles/Tests/Renderer/tiling.nebs",
-        "expected": {"cout":  null, "cerr": [] }
+        "expected": {"cout":  null, "cerr": null }
     }
 ]

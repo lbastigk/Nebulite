@@ -28,7 +28,7 @@
                 padding: 6px;
             ">
         <h3 data-eval="true" style="margin: 0 0 3px 0;">
-            Action / Dialogue Window. Position: ({global:renderer.position.X}, {global:renderer.position.Y})
+            Action / Dialogue Window. Camera position: ({global:renderer.position.X}, {global:renderer.position.Y})
         </h3>
         <p style="margin: 0; opacity: 0.85;">
             Placeholder for combat log, dialogue, or player actions.

@@ -1,0 +1,32 @@
+<rml>
+    <head>
+        <title>Scope content</title>
+        <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/window.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/buttons.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/text.rcss"/>
+    </head>
+    <body data-model="nebuliteDataSync"
+          style="
+            margin: 0;
+            padding: 0;
+            left: 25%;
+            top: 25%;
+            width: 50%;
+            height: 50%;
+            overflow: hidden;
+            background: transparent;
+            border: 0 transparent;
+            text-align: left;
+        "
+    >
+
+    <div class="window" style="height: 95%; width: 95%; padding: 4px; font-size: 10px;">
+        <div class="buttonAligner" style="left:95%">
+            <button class="closeButton" onClick#special="deleteDocument">&#x00D7;</button>
+        </div>
+        <h1>Scope Content: Context self</h1>
+        <verb data-eval="true">{self:|serialize}</verb>
+    </div>
+    </body>
+</rml>
