@@ -1,38 +1,48 @@
 <rml>
     <head>
-        <title>Player stack</title>
+        <title>Action Window</title>
         <link type="text/rcss" href="./external/RmlUi/Samples/assets/rml.rcss"/>
         <link type="text/rcss" href="./Resources/Rcss/window.rcss"/>
         <link type="text/rcss" href="./Resources/Rcss/buttons.rcss"/>
         <link type="text/rcss" href="./Resources/Rcss/text.rcss"/>
     </head>
     <body data-model="nebuliteDataSync"
-          style="
+        style="
             margin: 0;
             padding: 0;
-            left: 5%;
-            top: 87%;
-            width: 90%;
-            height: 10%;
+            left: 0%;
+            width: 100%;
+            top: 83%;
+            height: 12%;
             overflow: hidden;
             background: transparent;
             border: 0 transparent;
             text-align: center;
         "
     >
+
+    <!-- SETTING: Amount of entries -->
+    <div if="0"> <!-- if=0 deletes all inner entries after the first update -->
+        <div onDestroy#parse="set rml.settings.actionWindow.entryCount 10"></div>
+    </div>
+
+    <!--
+        Since the amount should be known at runtime, we should later on just use a classic list.
+        That way, spacing and alignment is easier to realize.
+    -->
+
     <!-- Bottom window -->
-    <div class="window" style="
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                padding: 6px;
-            ">
-        <h3 data-eval="true" style="margin: 0 0 3px 0;">
-            Action / Dialogue Window. Camera position: ({global:renderer.position.X}, {global:renderer.position.Y})
-        </h3>
-        <p style="margin: 0; opacity: 0.85;">
-            Placeholder for combat log, dialogue, or player actions.
-        </p>
+    <!-- Generates N many hotkey-entries -->
+    <div class="window hotkey-aligner" data-reflect="{|iota 1 {self:rml.settings.actionWindow.entryCount|default 0|add 1}}">
+        <!-- Hotkey Entry -->
+        <div class="hotkey-entry">
+            <div data-eval="true">
+                <!-- Hotkey Image -->
+                <img class="hotkey-image" src="{self:image|default ./Resources/Sprites/TEST_BMP_SMALL.bmp}"></img>
+                <!-- Hotkey Enumeration -->
+                <b style="font-size: 10px;">{self:}</b>
+            </div>
+        </div>
     </div>
 
     </body>

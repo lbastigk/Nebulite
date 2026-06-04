@@ -88,8 +88,4 @@ selected-object get 1
 always selected-object parse assign global:players[0].posX = {self:posX}
 always selected-object parse assign global:players[0].posY = {self:posY}
 
-###########################
-wait 100
-snapshot
-
 
