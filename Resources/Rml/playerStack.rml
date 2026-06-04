@@ -38,7 +38,7 @@
 
                 <!-- Content -->
                 <p data-eval="true" style="margin: 0 0 2px 0;">
-                    {self:index|add 1}.) {self:name|default Unnamed}
+                    {self:name|default Unnamed}
                 </p>
 
                 <div data-eval="true" >
