@@ -21,9 +21,6 @@
             text-align: left;
         "
     >
-        <!-- TODO: we could use reflect-once here and use an outside div with something like a reparse trigger -->
-        <!-- Meaning, if reparse-trigger="{...}" is true, call setInnerRml -->
-        <!-- This way, reflection is done once and we can retrigger if the player list changes -->
         <div data-reflect="{global:players|ensureArray|enumerate index}">
             <div class="window" style="height: 10%; margin: 1%; padding: 4px; font-size: 10px;" >
                 <!-- Click surface -->
