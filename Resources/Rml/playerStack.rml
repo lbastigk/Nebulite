@@ -25,14 +25,17 @@
             <div class="window" style="height: 10%; margin: 1%; padding: 4px; font-size: 10px;" >
                 <!-- Click surface -->
                 <!-- TODO: rml focus element is still buggy ... -->
-                <div onClick#parse="eval rmlui document load content{self:index} ./Resources/Rml/scopeContent.rml" style="
-                    position: absolute;
-                    width: 85%;
-                    height: 20%;
-                    background: transparent;
-                    cursor: pointer;
-                    z-index: 10;
-                "></div>
+                <div
+                    onClick#parse="eval rmlui document load content{self:index} ./Resources/Rml/scopeContent.rml"
+                    style="
+                        position: absolute;
+                        width: 85%;
+                        height: 20%;
+                        background: transparent;
+                        cursor: pointer;
+                        z-index: 10;
+                    "
+                ></div>
 
                 <!-- Content -->
                 <p data-eval="true" style="margin: 0 0 2px 0;">
