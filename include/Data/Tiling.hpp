@@ -77,6 +77,8 @@ public:
 
     void update(std::vector<Core::RenderObject*>& to_move, std::vector<Core::RenderObject*>& to_delete, TilingInformation const& tilingInformation, TileCoordinate const& coord);
 
+    // TODO: Per-Tile-Rendering instead of exposing the (potential) tile texture, something like:
+    //       Tile::render(SDL_Renderer* renderer, float dX, float dY, bool allowTextureStorage);
     SDL_Texture*& getTexture();
 };
 
