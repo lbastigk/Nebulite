@@ -41,62 +41,6 @@ body {
     padding: 1em 1em;
 }
 
-.player-image {
-    border: 4px #233142;
-    border-radius: 4px;
-}
-
-.hotkey-aligner {
-    position: absolute;
-
-    left: 0;
-    right: 0;
-    top: 0;
-
-    width: 90%;
-    height: 100%;
-
-    /*max-height: 100px;*/
-
-    margin: 0 auto;
-
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-
-    gap: 8px;
-}
-
-.hotkey-entry {
-    flex-grow: 1;
-    flex-shrink: 1;
-    flex-basis: 0;
-
-    max-height: 90%;
-
-    padding: 0;
-    margin: 2px 2px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.hotkey-image {
-    border: 4px #233142;
-    border-radius: 4px;
-    width: 100%;
-    height: auto;
-}
-
-.hotkey-entry b {
-    display: block;
-    margin: 0;
-    line-height: 1;
-    flex-shrink: 0;
-}
-
 
 
 /* Horizontal rule */

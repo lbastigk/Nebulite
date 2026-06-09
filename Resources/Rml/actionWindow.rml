@@ -5,26 +5,22 @@
         <link type="text/rcss" href="./Resources/Rcss/window.rcss"/>
         <link type="text/rcss" href="./Resources/Rcss/buttons.rcss"/>
         <link type="text/rcss" href="./Resources/Rcss/text.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/hotkey.rcss"/>
     </head>
     <body data-model="nebuliteDataSync"
         style="
             margin: 0;
             padding: 0;
-            left: 0%;
+            left: 0;
             width: 100%;
-            top: 83%;
-            height: 12%;
+            top: 85%;
+            height: 10%;
             overflow: hidden;
             background: transparent;
             border: 0 transparent;
             text-align: center;
         "
     >
-
-    <!-- SETTING: Amount of entries -->
-    <div if="0"> <!-- if=0 deletes all inner entries after the first update -->
-        <div onDestroy#parse="set rml.settings.actionWindow.entryCount 10"></div>
-    </div>
 
     <!--
         Since the amount should be known at runtime, we should later on just use a classic list.
@@ -33,14 +29,14 @@
 
     <!-- Bottom window -->
     <!-- Generates N many hotkey-entries -->
-    <div class="window hotkey-aligner" data-reflect="{|iota 1 {self:rml.settings.actionWindow.entryCount|default 0|add 1}}">
+    <div class="window hotkey-aligner" data-reflect="{|iota 0 {self:rml.settings.actionWindow.entryCount|default 10}}">
         <!-- Hotkey Entry -->
         <div class="hotkey-entry">
             <div data-eval="true">
                 <!-- Hotkey Image -->
                 <img class="hotkey-image" src="{self:image|default ./Resources/Sprites/TEST_BMP_SMALL.bmp}"></img>
                 <!-- Hotkey Enumeration -->
-                <b style="font-size: 10px;">{self:}</b>
+                <b>{self:|add 1}</b>
             </div>
         </div>
     </div>

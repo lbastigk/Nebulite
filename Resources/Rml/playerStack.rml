@@ -5,6 +5,7 @@
         <link type="text/rcss" href="./Resources/Rcss/window.rcss"/>
         <link type="text/rcss" href="./Resources/Rcss/buttons.rcss"/>
         <link type="text/rcss" href="./Resources/Rcss/text.rcss"/>
+        <link type="text/rcss" href="./Resources/Rcss/playerStack.rcss"/>
     </head>
     <body data-model="nebuliteDataSync"
         style="

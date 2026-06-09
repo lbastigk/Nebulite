@@ -1,0 +1,6 @@
+
+
+.player-image {
+    border: 4px #233142;
+    border-radius: 4px;
+}
