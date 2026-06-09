@@ -56,7 +56,7 @@ struct MainReturnValues {
  * @brief Main function for the NEBULITE engine.
  * @details Initializes the engine, sets up the global space, and processes command-line arguments.
  */
-int main(int const argc, char* argv[]) {
+int main(int const argc, char const** argv) {
     auto const binaryName = std::string(argv[0]);
     auto& global = Nebulite::Global::instance();
     auto& capture = Nebulite::Global::capture();
@@ -64,12 +64,11 @@ int main(int const argc, char* argv[]) {
     //------------------------------------------
     // Initialize the global space, parse command line arguments
     global.initialize();
-    global.parseCommandLineArguments(argc, const_cast<char const**>(argv));
+    global.parseCommandLineArguments(argc, argv);
 
     //------------------------------------------
     // Render loop
-    do {
-        // At least one loop, to handle command line arguments
+    do { // At least one loop, to handle command line arguments
         global.notifyEvent(global.update());
     } while (global.shouldContinueLoop());
 
@@ -85,7 +84,8 @@ int main(int const argc, char* argv[]) {
         Nebulite::Interaction::Context ctx{global, global, global};
         Nebulite::Data::JsonScope dummy;
         Nebulite::Interaction::ContextScope dummyCtxScope{dummy, dummy, dummy};
-        if (auto const event = global.parseStr(binaryName + " " + std::string(Nebulite::Module::Domain::GlobalSpace::Debug::errorLog_name) + " off", ctx, dummyCtxScope); event != Nebulite::Constants::Event::Success) {
+        auto const command = binaryName + " " + std::string(Nebulite::Module::Domain::GlobalSpace::Debug::errorLog_name) + " off";
+        if (auto const event = global.parseStr(command, ctx, dummyCtxScope); event != Nebulite::Constants::Event::Success) {
             capture.error.println("Could not close log properly!");
             return MainReturnValues::logCloseError; // Closing log failed without exceptions
         }
