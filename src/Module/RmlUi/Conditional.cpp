@@ -61,7 +61,10 @@ void Conditional::RegisteredEntry::resolve(Graphics::RmlInterface::RmlElementIde
         originalDisplay = element->GetDisplay();
     }
     auto const ctxAndScope = interface.getRmlElementContextAndScope(id);
-    if (!ctxAndScope) return;
+    if (!ctxAndScope) {
+        hideElement();
+        return;
+    }
     if (!Math::isZero(std::stod(condition.eval(ctxAndScope->ctxScope)))) {
         showElement();
     }
