@@ -16,7 +16,10 @@
 
 //------------------------------------------
 namespace Nebulite::Module::RmlUi {
-
+/**
+ * @brief Adds the conditional "if"-attribute to elements
+ * @details Compared to data-if, this offers a more lightweight and direct integration into nebulites data system.
+ */
 class Conditional final : public Base::RmlUiModule {
 public:
     explicit Conditional(Utility::IO::Capture& c, Graphics::RmlInterface& i);
@@ -37,18 +40,19 @@ public:
 
 private:
     struct RegisteredEntry {
+        Rml::Style::Display originalDisplay;
         Interaction::Logic::Expression condition;
-        std::string innerRml;
         Rml::Element* element;
         bool newEntry = true; // new means that we need to get the inner rml on next update
 
         void resolve(Graphics::RmlInterface::RmlElementIdentifier const& id, Graphics::RmlInterface& interface);
+
+        void hideElement() const ;
+
+        void showElement() const ;
     };
 
-    // TODO: this structure does not work for nested ifs! New entries might be registered while out ifs are resolved
     absl::flat_hash_map<Graphics::RmlInterface::RmlElementIdentifier, RegisteredEntry> registeredEntries;
-
-    absl::flat_hash_map<Graphics::RmlInterface::RmlElementIdentifier, RegisteredEntry> newEntries;
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // MODULE_RMLUI_CONDITIONAL_HPP

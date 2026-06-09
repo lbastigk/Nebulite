@@ -69,6 +69,7 @@ function(configure_common_dependencies target_name)
             ${IMGUI_PATH}/backends
             ${RMLUI_PATH}/Backends
             ${RMLUI_PATH}/Include
+            ${RMLUI_PATH}/Source # Required for some definitions, such as ElementStyle
             ${STB_PATH}
     )
 
