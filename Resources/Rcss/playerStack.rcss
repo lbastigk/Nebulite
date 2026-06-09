@@ -1,6 +1,43 @@
+.player-stack{
+    margin: 0;
+    padding: 0;
+    left: 89%;
+    top: 3%;
+    width: 10%;
+    height: 80%;
+    overflow: hidden;
+    background: transparent;
+    border: 0 transparent;
+    text-align: left;
+}
 
+.player-entry{
+    height: 10%;
+    margin: 4px 0 4px 0;
+    padding: 4px;
+    font-size: 10px;
+}
+
+.click-surface{
+    position: absolute;
+    width: 85%;
+    height: 20%;
+    background: transparent;
+    cursor: pointer;
+    z-index: 10;
+}
 
 .player-image {
     border: 4px #233142;
     border-radius: 4px;
+    width: 90%;
+    height: 90%;
+}
+
+.name-container{
+    margin: 2px 0;
+}
+
+.hp-mp-container{
+    margin: 0 0 0 0;
 }

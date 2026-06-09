@@ -7,53 +7,31 @@
         <link type="text/rcss" href="./Resources/Rcss/text.rcss"/>
         <link type="text/rcss" href="./Resources/Rcss/playerStack.rcss"/>
     </head>
-    <body data-model="nebuliteDataSync"
-        style="
-            margin: 0;
-            padding: 0;
-            left: 89%;
-            top: 3%;
-            width: 10%;
-            height: 80%;
-            overflow: hidden;
-            background: transparent;
-            border: 0 transparent;
-            text-align: left;
-        "
-    >
+    <body class="player-stack" data-model="nebuliteDataSync">
         <div data-reflect="{global:players|ensureArray|enumerate index}">
-            <div class="window" style="height: 10%; margin: 1%; padding: 4px; font-size: 10px;" >
+            <div class="player-entry window">
                 <!-- Click surface -->
                 <!-- TODO: rml focus element is still buggy ... -->
                 <div
-                    onClick#parse="eval rmlui document load content{self:index} ./Resources/Rml/scopeContent.rml"
-                    style="
-                        position: absolute;
-                        width: 85%;
-                        height: 20%;
-                        background: transparent;
-                        cursor: pointer;
-                        z-index: 10;
-                    "
+                        class="click-surface"
+                        onClick#parse="eval rmlui document load content{self:index} ./Resources/Rml/scopeContent.rml"
                 ></div>
 
                 <!-- Content -->
-                <p data-eval="true" style="margin: 0 0 2px 0;">
+                <div class="name-container" data-eval="true">
                     {self:name|default Unnamed}
-                </p>
-
-                <div data-eval="true" >
-                    <img class="player-image" src="{self:image|default ./Resources/Sprites/TEST_BMP_SMALL.bmp}" width="95%" height="95%"></img>
                 </div>
 
-                <p data-eval="true" style="margin: 0 0 2px 0;">
+                <div data-eval="true">
+                    <img class="player-image" src="{self:image|default ./Resources/Sprites/TEST_BMP_SMALL.bmp}"></img>
+                </div>
+
+                <div class="hp-mp-container" data-eval="true">
                     HP: {self:hp.current|default ---} / {self:hp.max|default ---}
-                </p>
-                <p data-eval="true" style="margin: 0;">
+                    <br/>
                     MP: {self:mp.current|default ---} / {self:mp.max|default ---}
-                </p>
+                </div>
             </div>
-            <div style="height: 10px"></div>
         </div>
     </body>
 </rml>
