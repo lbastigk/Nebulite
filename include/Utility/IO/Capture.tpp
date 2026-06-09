@@ -2,6 +2,12 @@
 #define UTILITY_IO_CAPTURE_TPP
 
 //------------------------------------------
+// Includes
+
+// Standard library
+#include <sstream>
+
+//------------------------------------------
 namespace Nebulite::Utility::IO {
 
 template<std::ostream* BaseStream, HistoryLine::Type LineType>

@@ -15,6 +15,7 @@
 #include "Data/Document/JsonScope.hpp"
 #include "Graphics/RmlInterface.hpp"
 #include "Interaction/Context.hpp"
+#include "Interaction/Logic/Expression.hpp"
 #include "Module/Base/RmlUiModule.hpp"
 #include "Module/RmlUi/DataReference.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"

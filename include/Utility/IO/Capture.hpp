@@ -13,7 +13,6 @@
 #include <deque>
 #include <iostream>
 #include <mutex>
-#include <sstream>
 #include <string>
 
 //------------------------------------------

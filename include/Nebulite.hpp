@@ -6,9 +6,15 @@
 
 // Nebulite
 #include "Core/GlobalSpace.hpp"
-#include "Data/Document/JsonScope.hpp"
 #include "ScopeAccessor.hpp"
 #include "Utility/IO/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Data {
+class JsonScope;
+} // namespace Nebulite::Data
 
 //------------------------------------------
 // Global class for singleton access
