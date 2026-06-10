@@ -313,6 +313,49 @@ public:
     // Module Initialization and Updating
 
     /**
+     * @brief Derives the scope for a DomainModule based on the DomainType and DomainModuleType.
+     * @details The scope is derived based on the following rules:
+     *          1.) If the DomainType is the base Domain class, the scope is either dummy or the full scope
+     *              of the domain based on the presence of the KeyGroup and the useOutsideScope flag.
+     *          2.) The presence of a KeyGroup struct derived from Data::KeyGroup sets the scope
+     *          3.) If none of the above applies, a dummy scope is shared (no workspace)
+     * @tparam DomainType The type of Domain used
+     * @tparam DomainModuleType The type of DomainModule to derive the scope for
+     * @param domainScope The scope of the domain.
+     * @return A reference to the derived scope for the DomainModule.
+     */
+    template <typename DomainType, typename DomainModuleType>
+    static auto& scopeDeriver(Data::JsonScope& domainScope) {
+        if constexpr(std::is_same_v<DomainType, Domain>) { // Base class module specialties
+            static_assert(!HasKeyGroup<DomainModuleType> || HasDomainRootScopeKeyGroup<DomainModuleType>,
+                "DomainModules linked to the base Domain class cannot have a predefined scope. "
+                "Please remove the static Key::scope member from the module or force domain scope using Data::KeyGroup<Data::ScopedKey::domainRootScope>."
+                "If possible, use the callers scope inside functions instead of sharing scopes per module!"
+            );
+            if constexpr (HasDomainRootScopeKeyGroup<DomainModuleType>) {
+                return domainScope.shareScope("");
+            }
+            else {
+                return domainScope.shareDummyScopeBase();
+            }
+        }
+        else if constexpr (HasKeyGroup<DomainModuleType>) {
+            if constexpr (HasDomainRootScopeKeyGroup<DomainModuleType>) {
+                return domainScope.shareScope("");
+            }
+            else if constexpr (DomainModuleType::Key::hasScope()) {
+                return domainScope.shareScope(Data::ScopedKey(DomainModuleType::Key::getScope(), ""));
+            }
+            else {
+                return domainScope.shareDummyScopeBase();
+            }
+        }
+        else {
+            return domainScope.shareDummyScopeBase();
+        }
+    }
+
+    /**
      * @brief Creates a DomainModule of the specified type with proper linkage, deriving the scope from the module's static scope member.
      * @tparam DomainType The type of the domain to link the module to
      * @tparam DomainModuleType The type of module to initialize, must have a static member `Key::scope` that defines the scope for the module, else a dummy scope will be shared (no workspace)
@@ -324,40 +367,10 @@ public:
      */
     template <typename DomainType, typename DomainModuleType>
     static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference, std::shared_ptr<DomainTree> const& funcTree) {
-        auto scopeGetter = [&] -> Data::JsonScope& {
-            // 1.) Base class module specialties
-            if constexpr(std::is_same_v<DomainType, Domain>) {
-                static_assert(!HasKeyGroup<DomainModuleType> || HasDomainRootScopeKeyGroup<DomainModuleType>,
-                    "DomainModules linked to the base Domain class cannot have a predefined scope. "
-                    "Please remove the static Key::scope member from the module or force domain scope using Data::KeyGroup<Data::ScopedKey::domainRootScope>."
-                    "If possible, use the callers scope inside functions instead of sharing scopes per module!"
-                );
-                if constexpr (HasDomainRootScopeKeyGroup<DomainModuleType>) {
-                    return domainReference.domainScope.shareScope("");
-                }
-                else {
-                    return domainReference.domainScope.shareDummyScopeBase();
-                }
-            }
-            // 2.) Has KeyGroup member
-            else if constexpr (HasKeyGroup<DomainModuleType>) {
-                if constexpr (DomainModuleType::Key::hasScope()) {
-                    return domainReference.domainScope.shareScope(Data::ScopedKey(DomainModuleType::Key::getScope(), ""));
-                }
-                else {
-                    return domainReference.domainScope.shareDummyScopeBase();
-                }
-            }
-            // 3.) No scope
-            else {
-                return domainReference.domainScope.shareDummyScopeBase();
-            }
-        };
-        auto& scope = scopeGetter();
         typename Module::Base::DomainModule<DomainType>::ConstructorParams params = {
             .domainReference = domainReference,
             .name = moduleName,
-            .scope = scope,
+            .scope = scopeDeriver<DomainType, DomainModuleType>(domainReference.domainScope),
             .funcTreePtr = funcTree,
             .settings = settings
         };
