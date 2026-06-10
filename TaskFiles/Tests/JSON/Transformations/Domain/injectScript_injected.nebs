@@ -1,0 +1,8 @@
+# This script is called during script injection
+
+# for now, we just print the variables
+push-back arr 3
+keyDelete obj
+assign self:var = "injected value"
+
+print

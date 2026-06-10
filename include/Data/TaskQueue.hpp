@@ -26,6 +26,10 @@ class Context;
 class ContextScope;
 } // namespace Nebulite::Interaction
 
+namespace Nebulite::Utility::IO {
+class Capture;
+} // namespace Nebulite::Utility::IO
+
 //------------------------------------------
 namespace Nebulite::Data {
 /**
@@ -61,6 +65,8 @@ public:
      * @return The result of the task queue resolution.
      */
     TaskQueueResult resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool const& recover);
+
+    void addScript(std::string const& filename, Utility::IO::Capture& capture);
 
     /**
      * @brief Appends a task to the task queue.

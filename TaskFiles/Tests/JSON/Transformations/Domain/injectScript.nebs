@@ -1,0 +1,15 @@
+# Tests the ability of transformations to inject a script into the current scope by creating a temporary domain
+
+# Setting up workspace
+set workspace.var value
+set workspace.obj.var1 value1
+set workspace.obj.var2 value2
+set workspace.obj.var3 value3
+set workspace.arr[0] 0
+set workspace.arr[1] 1
+set workspace.arr[2] 2
+
+# Test injection of a script into the current scope
+assign global:result = {global:workspace|injectScript TaskFiles/Tests/JSON/Transformations/Domain/injectScript_injected.nebs}
+
+# Verify result

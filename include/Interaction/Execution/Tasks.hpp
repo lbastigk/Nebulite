@@ -58,7 +58,7 @@ public:
 
     void addTask(std::string const& name, std::string const& queueName = StandardTasks::internal);
 
-    Constants::Event addScript(std::string const& filename, Utility::IO::Capture& capture);
+    void addScript(std::string const& filename, Utility::IO::Capture& capture);
 
     void clearAllTaskQueues();
 
@@ -76,7 +76,7 @@ private:
     /**
      * @brief Contains task queues for different types of tasks.
      */
-    absl::flat_hash_map<std::string,std::shared_ptr<Data::TaskQueue>> tasks;
+    absl::flat_hash_map<std::string, std::shared_ptr<Data::TaskQueue>> tasks;
 
     /**
      * @brief Contains results of the last task queue resolutions.

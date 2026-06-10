@@ -61,7 +61,8 @@ Constants::Event General::task(int const argc, char const** argv) const {
 
     // Warn if file ending is not .nebs
     std::string const& filename = argv[1];
-    return domain.tasks.addScript(filename, domain.capture);
+    domain.tasks.addScript(filename, domain.capture);
+    return Constants::Event::Success;
 }
 
 Constants::Event General::always(int argc, char const** argv) const {

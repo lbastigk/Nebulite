@@ -11,6 +11,9 @@
 #include "Data/TaskQueue.hpp"
 #include "Interaction/Context.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Utility/IO/Capture.hpp"
+#include "Utility/IO/FileManagement.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -66,6 +69,49 @@ TaskQueue::TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interac
         }
     }
     return fullResult;
+}
+
+void TaskQueue::addScript(std::string const& filename, Utility::IO::Capture& capture){
+    if (filename.length() < 6 || !filename.ends_with(".nebs")) {
+        capture.error.println("Warning: unexpected file ending for task file '", filename, "'. Expected '.nebs'. Trying to load anyway.");
+    }
+
+    std::string fileContent = Utility::IO::FileManagement::LoadFile(filename);
+
+    // Replace all "\n " with "\n" to allow for multi-line commands with leading spaces
+    while (fileContent.contains("\n ")) {
+        fileContent = Utility::StringHandler::replaceAll(fileContent, "\n ", "\n");
+    }
+
+    // Replace all " \\\n" with "\\\n" to allow for multi-line commands with trailing spaces
+    while (fileContent.contains(" \\\n")) {
+        fileContent = Utility::StringHandler::replaceAll(fileContent, " \\\n", "\\\n");
+    }
+
+    // Replace all "\\n" with an empty string to allow for multi-line commands in a single line
+    auto constexpr toReplace = "\\\n";
+    fileContent = Utility::StringHandler::replaceAll(fileContent, toReplace, "");
+
+    // Split std::string file into lines and remove comments
+    std::vector<std::string> lines;
+    std::istringstream stream(fileContent);
+    std::string line;
+    while (std::getline(stream, line)) {
+        std::string_view lineView(line);
+        Utility::StringHandler::untilSpecialChar(lineView, '#'); // Remove comments.
+        Utility::StringHandler::lStrip(lineView, ' '); // Remove whitespaces at start
+        Utility::StringHandler::rStrip(lineView, ' '); // Remove whitespaces at end
+        if (lineView.empty()) {
+            continue;
+        }
+        // Insert line backwards, so we can process them in the order they were written later on:
+        lines.insert(lines.begin(), std::string(lineView));
+    }
+
+    // Now insert all lines into the task queue
+    for (auto const& taskLine : lines) {
+        pushFront(taskLine);
+    }
 }
 
 void TaskQueue::pushBack(std::string const& task) {

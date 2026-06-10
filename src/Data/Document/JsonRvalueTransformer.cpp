@@ -24,6 +24,7 @@
 #include "Module/Transformation/Casting.hpp"
 #include "Module/Transformation/Collection.hpp"
 #include "Module/Transformation/Debug.hpp"
+#include "Module/Transformation/Domain.hpp"
 #include "Module/Transformation/Filter.hpp"
 #include "Module/Transformation/General.hpp"
 #include "Module/Transformation/Requirements.hpp"
@@ -52,6 +53,7 @@ JsonRvalueTransformer::JsonRvalueTransformer() {
     initModule<Module::Transformation::Casting>();
     initModule<Module::Transformation::Collection>();
     initModule<Module::Transformation::Debug>();
+    initModule<Module::Transformation::Domain>();
     initModule<Module::Transformation::Filter>();
     initModule<Module::Transformation::General>();
     initModule<Module::Transformation::Requirements>();
