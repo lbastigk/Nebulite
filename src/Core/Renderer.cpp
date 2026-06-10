@@ -424,6 +424,10 @@ void Renderer::onViewportTiles(Environment::Layer const& layer, auto&& function)
     }
 }
 
+Data::Tile const& Renderer::getTile(Environment::Layer const& layer, Data::TileCoordinate const& pos) {
+    return env.getContainerAt(pos, layer);
+}
+
 Data::TilingInformation Renderer::tilingInformation() {
     // If we ever decide to make the tiles depend on the resolution,
     // we must re-activate reinsertion of all objects on resolution change!
@@ -637,7 +641,7 @@ void Renderer::purgeObjects() {
 void Renderer::purgeTextures() {
     // Release resources for TextureContainer
     for (auto const& texture : std::views::values(TextureContainer)) {
-        destroyTexture(texture);
+        SDL_DestroyTexture(texture);
     }
     TextureContainer.clear(); // Clear the map to release resources
 }

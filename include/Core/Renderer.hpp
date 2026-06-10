@@ -354,21 +354,6 @@ public:
      */
     [[nodiscard]] SDL_Texture* getTexture(std::string const& link);
 
-    /**
-     * @brief Routing texture memory management through the Renderer instance
-     * @details For now, this is just a simple SDL call, but might get more complicated later on
-     * @param t The texture to destroy
-     */
-    static void destroyTexture(SDL_Texture* t) {SDL_DestroyTexture(t);}
-
-    /**
-     * @brief Routing texture validity management through the Renderer instance
-     * @details For now, this is just a simple SDL call, but might get more complicated later on
-     * @param t The texture to verify
-     * @return True if the texture is valid, false otherwise.
-     */
-    static bool isTextureValid(SDL_Texture const* t) noexcept {return t != nullptr; }
-
     //------------------------------------------
     // Status
 
@@ -441,11 +426,20 @@ public:
      */
     void onViewport(Environment::Layer const& layer, auto&& function);
 
+    /**
+     * @brief Executes a function on each visible tile of a specific layer
+     * @param layer The layer for which to execute the function on visible tiles
+     * @param function The function to execute
+     */
     void onViewportTiles(Environment::Layer const& layer, auto&& function);
 
-    Data::Tile const& getTile(Environment::Layer const& layer, Data::TileCoordinate const& pos) {
-        return env.getContainerAt(pos, layer);
-    }
+    /**
+     * @brief Gets the tile at a specific coordinate and layer.
+     * @param layer The layer
+     * @param pos The tile coordinate
+     * @return A reference to the tile at the specified coordinate and layer.
+     */
+    Data::Tile const& getTile(Environment::Layer const& layer, Data::TileCoordinate const& pos);
 
 private:
     /**
