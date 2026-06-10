@@ -85,16 +85,6 @@ public:
         bindFunction(&Ruleset::broadcast, broadcast_name, broadcast_desc);
         bindFunction(&Ruleset::listen, listen_name, listen_desc);
         bindFunction(&Ruleset::reload, reload_name, reload_desc);
-
-        //------------------------------------------
-        // Initialize empty arrays for broadcast/listen, if keys don't exist
-        Key const scopedKey(moduleScope);
-        if (params.scope.memberType(scopedKey.broadcast) == Data::KeyType::null) {
-            params.scope.setEmptyArray(scopedKey.broadcast);
-        }
-        if (params.scope.memberType(scopedKey.listen) == Data::KeyType::null) {
-            params.scope.setEmptyArray(scopedKey.listen);
-        }
     }
 
     struct Key : Data::KeyGroup<Data::ScopedKey::domainRootScope> {
