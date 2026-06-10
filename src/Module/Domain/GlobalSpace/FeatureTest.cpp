@@ -79,8 +79,8 @@ Constants::Event FeatureTest::selfOtherGlobalEvaluation() const {
     // Test 2: share managed scopeBase
     {
         Data::JSON selfAndOther;
-        auto& self2 = selfAndOther.shareManagedScopeBase("self.");
-        auto& other2 = selfAndOther.shareManagedScopeBase("other.");
+        auto& self2 = selfAndOther.shareManagedScope("self.");
+        auto& other2 = selfAndOther.shareManagedScope("other.");
         self2.set(key, 5);
         other2.set(key, 4);
         Interaction::Logic::Expression const expr("{self:testKey} {other:testKey} {global:testKey}");

@@ -136,7 +136,7 @@ public:
     [[nodiscard]] JsonScope& shareScope(std::string const& key) const ;
 
     // Share a dummy scope, where all access is denied
-    [[nodiscard]] JsonScope& shareDummyScopeBase() ;
+    [[nodiscard]] JsonScope& shareDummyScope() ;
 
     //------------------------------------------
     // Getter

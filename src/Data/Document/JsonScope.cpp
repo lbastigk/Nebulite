@@ -53,18 +53,18 @@ JsonScope::~JsonScope() = default;
 // Sharing a scope
 
 JsonScope& JsonScope::shareScope(ScopedKeyView const& key) const {
-    return baseDocument->shareManagedScopeBase(
+    return baseDocument->shareManagedScope(
         key.full(*this)
     );
 }
 
 JsonScope& JsonScope::shareScope(std::string const& key) const {
-    return baseDocument->shareManagedScopeBase(
+    return baseDocument->shareManagedScope(
         ScopedKey(key).view().full(*this)
     );
 }
 
-JsonScope& JsonScope::shareDummyScopeBase() {
+JsonScope& JsonScope::shareDummyScope() {
     if (!scopePrefix.has_value() || !baseDocument) {
         return *this; // If this is already a dummy scope, return itself
     }
@@ -72,7 +72,7 @@ JsonScope& JsonScope::shareDummyScopeBase() {
     // Technically, key name does not matter.
     // But if the access control ever fails, at least we only access a known dummy scope,
     // instead of the entire scope.
-    return baseDocument->getDummyScopeBase();
+    return baseDocument->getDummyScope();
 }
 
 //------------------------------------------

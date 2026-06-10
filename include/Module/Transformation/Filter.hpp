@@ -57,7 +57,7 @@ private:
         for (auto const idx : std::views::iota(std::size_t{0}, jsonDoc->memberSize(rootKey))) {
             auto const key = rootKey.addIndex(idx);
             auto doc = jsonDoc->getSubDoc(key);
-            if (auto& scope = doc.shareManagedScopeBase(""); filter(scope)) {
+            if (auto& scope = doc.shareManagedScope(""); filter(scope)) {
                 values.emplace_back(std::move(doc));
             }
         }

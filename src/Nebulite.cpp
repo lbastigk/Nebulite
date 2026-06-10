@@ -17,12 +17,12 @@ Core::GlobalSpace& Global::instance(){
 }
 
 Data::JsonScope const& Global::settings() {
-    static auto const& settingsScopeConst = globalDoc().shareManagedScopeBase("settings");
+    static auto const& settingsScopeConst = globalDoc().shareManagedScope("settings");
     return settingsScopeConst;
 }
 
 Data::JsonScope& Global::shareScope(ScopeAccessor::BaseAccessToken const& at, std::string const& prefix) {
-    return globalDoc().shareManagedScopeBase(at.getPrefix() + prefix);
+    return globalDoc().shareManagedScope(at.getPrefix() + prefix);
 }
 
 Utility::IO::Capture& Global::capture() {

@@ -152,7 +152,7 @@ void Reflection::setReflectionScopes(
 
         auto const jsonIndex = i * listSize / childrenCount;
         std::string const childKey = Data::ScopedKey().addIndex(jsonIndex).toString();
-        auto& newScope = reflectionList.shareManagedScopeBase(childKey);
+        auto& newScope = reflectionList.shareManagedScope(childKey);
 
         // Keep nearly all context and contextScope the same, but modify scope of self
         Interaction::ContextScope const childContextScope{

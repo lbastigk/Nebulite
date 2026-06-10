@@ -54,8 +54,8 @@ bool Sort::sortCustom(std::span<std::string_view const> const& args, Data::JsonS
     if (args.size() < 2) return false;
     Interaction::Logic::Expression const expression('$' + Utility::StringHandler::recombineArgs(args.subspan(1)));
     arraySort<bool>(jsonDoc, false, [&](auto& a, auto& b) {
-        auto& slf = a.second.shareManagedScopeBase("");
-        auto& otr = b.second.shareManagedScopeBase("");
+        auto& slf = a.second.shareManagedScope("");
+        auto& otr = b.second.shareManagedScope("");
         Interaction::ContextScope const ctxScope{
             {
                 .self = slf,

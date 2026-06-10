@@ -235,9 +235,9 @@ private:
     //------------------------------------------
     // Scope sharing system
 
-    absl::flat_hash_map<std::string, std::unique_ptr<JsonScope>> managedScopeBases;
-    std::unique_ptr<JsonScope> fullScopeBaseInstance;
-    std::unique_ptr<JsonScope> dummyScopeBaseInstance;
+    absl::flat_hash_map<std::string, std::unique_ptr<JsonScope>> managedScopes;
+    std::unique_ptr<JsonScope> fullScopeInstance;
+    std::unique_ptr<JsonScope> dummyScopeInstance;
 
     //------------------------------------------
     // Cache management
@@ -291,7 +291,7 @@ public:
      * @brief Lazy-initialized full JsonScope representing the entire document.
      * @return Reference to the full JsonScope.
      */
-    JsonScope& fullScopeBase();
+    JsonScope& fullScope();
 
     /**
      * @brief Shares part JSON document as a JsonScope that is managed internally.
@@ -301,9 +301,9 @@ public:
      *               If empty, shares the entire document.
      * @return A JsonScope reference representing a part of the JSON document.
      */
-    JsonScope& shareManagedScopeBase(std::string_view const& prefix) ;
+    JsonScope& shareManagedScope(std::string_view const& prefix) ;
 
-    JsonScope& getDummyScopeBase();
+    JsonScope& getDummyScope();
 
     //------------------------------------------
     // Custom copy method

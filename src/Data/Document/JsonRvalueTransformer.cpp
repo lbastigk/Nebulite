@@ -92,7 +92,7 @@ bool JsonRvalueTransformer::parse(std::vector<std::string_view> const& transform
 }
 
 bool JsonRvalueTransformer::parse(std::vector<std::string_view> const& transformationList, JSON* jsonDoc) const {
-    auto& scope = jsonDoc->fullScopeBase();
+    auto& scope = jsonDoc->fullScope();
     return parse(transformationList, &scope);
 }
 

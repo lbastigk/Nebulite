@@ -73,25 +73,25 @@ JSON::JSON(JSON&& other) noexcept : cacheLine(std::move(other.cacheLine)), cache
 //------------------------------------------
 // Scope sharing
 
-JsonScope& JSON::shareManagedScopeBase(std::string_view const& prefix) {
+JsonScope& JSON::shareManagedScope(std::string_view const& prefix) {
     std::scoped_lock const lockGuard(mtx);
 
-    if (auto const it = managedScopeBases.find(prefix); it != managedScopeBases.end()) {
+    if (auto const it = managedScopes.find(prefix); it != managedScopes.end()) {
         return *it->second;
     }
-    managedScopeBases[prefix] = std::make_unique<JsonScope>(*this, std::string(prefix));
-    return *managedScopeBases[prefix];
+    managedScopes[prefix] = std::make_unique<JsonScope>(*this, std::string(prefix));
+    return *managedScopes[prefix];
 }
 
 //------------------------------------------
 // Dummy sharing
 
-JsonScope& JSON::getDummyScopeBase() {
+JsonScope& JSON::getDummyScope() {
     std::scoped_lock const lockGuard(mtx);
-    if (!dummyScopeBaseInstance) {
-        dummyScopeBaseInstance = std::make_unique<JsonScope>(*this, std::nullopt);
+    if (!dummyScopeInstance) {
+        dummyScopeInstance = std::make_unique<JsonScope>(*this, std::nullopt);
     }
-    return *dummyScopeBaseInstance;
+    return *dummyScopeInstance;
 }
 
 //------------------------------------------
@@ -138,12 +138,12 @@ std::vector<std::string_view> JSON::splitKeyWithTransformations(std::string_view
 //------------------------------------------
 // Private methods
 
-JsonScope& JSON::fullScopeBase() {
+JsonScope& JSON::fullScope() {
     std::scoped_lock const lockGuard(mtx);
-    if (!fullScopeBaseInstance) {
-        fullScopeBaseInstance = std::make_unique<JsonScope>(*this, "");
+    if (!fullScopeInstance) {
+        fullScopeInstance = std::make_unique<JsonScope>(*this, "");
     }
-    return *fullScopeBaseInstance;
+    return *fullScopeInstance;
 }
 
 void JSON::synchronizeChildren(std::string_view const& parentKey) const {

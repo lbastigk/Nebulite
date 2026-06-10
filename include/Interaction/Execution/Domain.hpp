@@ -336,7 +336,7 @@ public:
                 return domainScope.shareScope("");
             }
             else {
-                return domainScope.shareDummyScopeBase();
+                return domainScope.shareDummyScope();
             }
         }
         else if constexpr (HasKeyGroup<DomainModuleType>) {
@@ -347,11 +347,11 @@ public:
                 return domainScope.shareScope(Data::ScopedKey(DomainModuleType::Key::getScope(), ""));
             }
             else {
-                return domainScope.shareDummyScopeBase();
+                return domainScope.shareDummyScope();
             }
         }
         else {
-            return domainScope.shareDummyScopeBase();
+            return domainScope.shareDummyScope();
         }
     }
 
