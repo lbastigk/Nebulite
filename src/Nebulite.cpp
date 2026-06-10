@@ -3,8 +3,7 @@
 
 // Nebulite
 #include "Core/GlobalSpace.hpp"
-// NOLINTNEXTLINE
-#include "Data/Document/JsonScope.hpp"
+#include "Data/Document/JsonScope.hpp" // NOLINT
 #include "Nebulite.hpp"
 #include "ScopeAccessor.hpp"
 #include "Utility/IO/Capture.hpp"

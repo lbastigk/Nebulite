@@ -669,10 +669,7 @@ void Renderer::setTargetFPS(uint16_t const& targetFps) {
 namespace {
 
 template <typename T>
-struct is_static_member_function
-    : std::bool_constant<
-        std::is_function_v<std::remove_pointer_t<T>>
-      > {};
+struct is_static_member_function : std::bool_constant<std::is_function_v<std::remove_pointer_t<T>>> {};
 
 template <typename T>
 inline constexpr bool is_static_member_function_v = is_static_member_function<T>::value;
