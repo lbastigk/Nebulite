@@ -1,5 +1,10 @@
-# Tests the ability of transformations to inject a script into the current scope by creating a temporary domain
+################################################
+# Tests the ability of transformations
+# to inject a script into the current scope
+# by creating a temporary domain
+################################################
 
+##################################
 # Setting up workspace
 set workspace.var value
 set workspace.obj.var1 value1
@@ -9,7 +14,23 @@ set workspace.arr[0] 0
 set workspace.arr[1] 1
 set workspace.arr[2] 2
 
+##################################
+# Ensure that injectScript does not create any members if the script is empty
+
+# Inject
+assign global:result = {global:doesNotExist|injectScript TaskFiles/Tests/JSON/Transformations/Domain/injectScript_doNothing.nebs}
+
+# Verify
+eval nop {global:result|assert empty}
+
+##################################
 # Test injection of a script into the current scope
+
+# Inject
+# The script pushes a new value to arr, deletes obj, and assigns a new value to var
 assign global:result = {global:workspace|injectScript TaskFiles/Tests/JSON/Transformations/Domain/injectScript_injected.nebs}
 
 # Verify result
+eval nop {global:result|listMembers|length|assert equals int 2}
+eval nop {global:result.arr|length|assert equals int 4}
+eval nop {global:result.var|assert equals string injected value}

@@ -1,0 +1,6 @@
+[
+    {
+        "command": "task TaskFiles/Tests/JSON/Transformations/Domain/injectScript.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    }
+]

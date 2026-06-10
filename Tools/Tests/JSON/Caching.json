@@ -88,7 +88,7 @@
         "expected":{
             "cout":[
                 "[",
-                "    \"object:6\"",
+                "    \"object:4\"",
                 "]",
                 "[array]"
             ],

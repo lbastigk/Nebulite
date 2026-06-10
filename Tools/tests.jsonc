@@ -54,6 +54,7 @@
         "Tools/Tests/JSON/Transformations/Casting.json",
         "Tools/Tests/JSON/Transformations/Collection.json",
         "Tools/Tests/JSON/Transformations/Debug.json",
+        "Tools/Tests/JSON/Transformations/Domain.json",
         "Tools/Tests/JSON/Transformations/General.json",
         "Tools/Tests/JSON/Transformations/Requirements.json",
         "Tools/Tests/JSON/Transformations/Sort.json",
