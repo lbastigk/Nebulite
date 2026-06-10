@@ -13,7 +13,9 @@ namespace Nebulite::Data {
 /**
  * @brief A template-parameter-friendly string, with nullopt-like capability
  * @tparam N Size of the string
- * @tparam forceOutsideDefinition Useful if you want to force the definition of the string outside
+ * @tparam forceOutsideDefinition Useful if you want to force the definition of the string outside the struct.
+ *                                The idea is that, sometimes, we don't know the exact value at compile time,
+ *                                so outer processes shall deduct the value based on what the know.
  */
 template <std::size_t N, bool forceOutsideDefinition = false>
 struct OptionalFixedString {
@@ -22,6 +24,7 @@ struct OptionalFixedString {
     // NOLINTNEXTLINE
     consteval OptionalFixedString(char const (&str)[N == 0 ? 1 : N]) {
         static_assert(N > 0, "Use the default constructor for empty strings");
+        static_assert(!forceOutsideDefinition, "Cannot initialize string from literal when forceOutsideDefinition is true");
         for (std::size_t i = 0; i < N; ++i) value[i] = str[i];
     }
 
@@ -29,18 +32,14 @@ struct OptionalFixedString {
         static_assert(N == 0, "Default constructor can only be used for empty strings");
     }
 
-    static constexpr bool hasValue() {
-        return N > 0 && !forceOutsideDefinition;
-    }
-
+    template <typename = std::enable_if<(N > 0 && !forceOutsideDefinition)>>
     static constexpr size_t length() {
-        static_assert(N > 0 && !forceOutsideDefinition, "No string given");
         return N-1;
     }
 
     // Returns the last character of the string, or '\0' if the string is empty
+    template <typename = std::enable_if<(N > 0 && !forceOutsideDefinition)>>
     [[nodiscard]] constexpr char back() const {
-        static_assert(N > 0 && !forceOutsideDefinition, "No string given");
         if constexpr (N == 1) { // Empty string, return NULL instead
             return '\0';
         } else {
@@ -48,9 +47,13 @@ struct OptionalFixedString {
         }
     }
 
+    template <typename = std::enable_if<(N > 0 && !forceOutsideDefinition)>>
     [[nodiscard]] constexpr std::string_view view() const {
-        static_assert(N > 0 && !forceOutsideDefinition, "No string given");
         return {value.data(), N - 1};
+    }
+
+    static constexpr bool hasValue() {
+        return N > 0 && !forceOutsideDefinition;
     }
 
     [[nodiscard]] static constexpr bool hasOutsideDefinition() {

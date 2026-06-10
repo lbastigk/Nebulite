@@ -324,34 +324,46 @@ public:
      */
     template <typename DomainType, typename DomainModuleType>
     static std::unique_ptr<DomainModuleType> createModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference, std::shared_ptr<DomainTree> const& funcTree) {
-        // Determine the key from root level
-        if constexpr (HasKeyGroup<DomainModuleType>) {
-            // Share the scope based on the module's defined scope
-            auto& scope = DomainModuleType::Key::hasScope() ? domainReference.domainScope.shareScope(Data::ScopedKey(DomainModuleType::Key::getScope(), "")) : domainReference.domainScope.shareDummyScopeBase();
-            typename Module::Base::DomainModule<DomainType>::ConstructorParams params = {
-                .domainReference = domainReference,
-                .name = moduleName,
-                .scope = scope,
-                .funcTreePtr = funcTree,
-                .settings = settings
-            };
-            auto DomainModule = std::make_unique<DomainModuleType>(params);
-            DomainModule->reinit();
-            return DomainModule;
-        }
-        else {
-            // No scope defined, share a dummy scope (no workspace)
-            typename Module::Base::DomainModule<DomainType>::ConstructorParams params = {
-                .domainReference = domainReference,
-                .name = moduleName,
-                .scope = domainReference.domainScope.shareDummyScopeBase(),
-                .funcTreePtr = funcTree,
-                .settings = settings
-            };
-            auto DomainModule = std::make_unique<DomainModuleType>(params);
-            DomainModule->reinit();
-            return DomainModule;
-        }
+        auto scopeGetter = [&] -> Data::JsonScope& {
+            // 1.) Base class module specialties
+            if constexpr(std::is_same_v<DomainType, Domain>) {
+                static_assert(!HasKeyGroup<DomainModuleType> || HasDomainRootScopeKeyGroup<DomainModuleType>,
+                    "DomainModules linked to the base Domain class cannot have a predefined scope. "
+                    "Please remove the static Key::scope member from the module or force domain scope using Data::KeyGroup<Data::ScopedKey::domainRootScope>."
+                    "If possible, use the callers scope inside functions instead of sharing scopes per module!"
+                );
+                if constexpr (HasDomainRootScopeKeyGroup<DomainModuleType>) {
+                    return domainReference.domainScope.shareScope("");
+                }
+                else {
+                    return domainReference.domainScope.shareDummyScopeBase();
+                }
+            }
+            // 2.) Has KeyGroup member
+            else if constexpr (HasKeyGroup<DomainModuleType>) {
+                if constexpr (DomainModuleType::Key::hasScope()) {
+                    return domainReference.domainScope.shareScope(Data::ScopedKey(DomainModuleType::Key::getScope(), ""));
+                }
+                else {
+                    return domainReference.domainScope.shareDummyScopeBase();
+                }
+            }
+            // 3.) No scope
+            else {
+                return domainReference.domainScope.shareDummyScopeBase();
+            }
+        };
+        auto& scope = scopeGetter();
+        typename Module::Base::DomainModule<DomainType>::ConstructorParams params = {
+            .domainReference = domainReference,
+            .name = moduleName,
+            .scope = scope,
+            .funcTreePtr = funcTree,
+            .settings = settings
+        };
+        auto DomainModule = std::make_unique<DomainModuleType>(params);
+        DomainModule->reinit();
+        return DomainModule;
     }
 
     /**
@@ -367,29 +379,7 @@ public:
      */
     template <typename DomainType, typename DomainModuleType>
     void initModule(std::string const& moduleName, Data::JsonScope const& settings, DomainType& domainReference) {
-        if constexpr(std::is_same_v<DomainType, Domain>) {
-            // If the DomainType is the base Domain class, we must initialize modules without scope,
-            // otherwise this will lead to circular initialization problems.
-            static_assert(!HasKeyGroup<DomainModuleType> || HasDomainRootScopeKeyGroup<DomainModuleType>,
-                "DomainModules linked to the base Domain class cannot have a predefined scope. "
-                "Please remove the static Key::scope member from the module or force domain scope using Data::KeyGroup<Data::ScopedKey::domainRootScope>."
-                "If possible, use the callers scope instead!"
-            );
-            typename Module::Base::DomainModule<DomainType>::ConstructorParams params = {
-                .domainReference = domainReference,
-                .name = moduleName,
-                .scope = HasDomainRootScopeKeyGroup<DomainModuleType> ? domainReference.domainScope.shareScope("") : domainReference.domainScope.shareDummyScopeBase(),
-                .funcTreePtr = funcTree,
-                .settings = settings
-            };
-            auto DomainModule = std::make_unique<DomainModuleType>(params);
-            DomainModule->reinit();
-            modules.push_back(std::move(DomainModule));
-        } else {
-            auto DomainModule = createModule<DomainType, DomainModuleType>(moduleName, settings, domainReference, getFuncTree());
-            DomainModule->reinit();
-            modules.push_back(std::move(DomainModule));
-        }
+        modules.push_back(createModule<DomainType, DomainModuleType>(moduleName, settings, domainReference, funcTree));
     }
 
     /**
