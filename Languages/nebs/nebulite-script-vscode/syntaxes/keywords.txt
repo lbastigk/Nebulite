@@ -86,6 +86,7 @@ halt-once
 help
 if
 imgui-view
+injectScript
 input-mapping
 input-wait
 int

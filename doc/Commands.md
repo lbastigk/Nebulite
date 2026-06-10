@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Thu Jun  4 01:30:19 CEST 2026
+Generated on: Wed Jun 10 20:50:46 CEST 2026
 
 ## Table of Contents
 
@@ -1968,6 +1968,7 @@ Available Functions
 | `formatNumber` | If the stored value is a number, it is formatted with a given format specifier |
 | `get` | Gets the value at the specified key from the current JSON object. |
 | `help` | Show available commands and their descriptions |
+| `injectScript` | Injects a nebulite script to modify the json doc. |
 | `iota` | Generates an array of values. |
 | `lPad` | Pads the current JSON string value on the left with a specified character until it reaches a specified total length. |
 | `lPadNonNumeric` | Pads the current JSON non-numeric string value on the left with a specified character until it reaches a specified total length. |
@@ -2324,12 +2325,20 @@ Gets the value at the specified key from the current JSON object.
 Usage: |get <key> -> {value}
 ```
 
+#### `injectScript`
+
+```
+Injects a nebulite script to modify the json doc.
+Usage: |injectScript <path/to/script.nebs> -> {modified-json}
+```
+
 #### `iota`
 
 ```
 Generates an array of values.
 Usage: |iota <start> <end> -> {array}
 Generates an array containing the values from start (inclusive) to end (exclusive).
+If end is not greater than start, the result is an empty array.
 ```
 
 #### `lPad`
