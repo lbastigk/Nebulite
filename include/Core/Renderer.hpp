@@ -520,8 +520,6 @@ private:
 
     void renderFPS() const;
 
-    static void renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY);
-
     //------------------------------------------
     // Event and routine Handling
 

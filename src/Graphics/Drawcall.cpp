@@ -164,21 +164,20 @@ void Drawcall::renderPolygon(Core::Renderer const& nebuliteRenderer, float const
     renderTexture(nebuliteRenderer, dX, dY);
 }
 
-void Drawcall::draw(float const& offsetX, float const& offsetY) {
-    auto const& renderer = Global::instance().getRenderer();
+void Drawcall::draw(Core::Renderer const& nebuliteRenderer, float const& offsetX, float const& offsetY) {
     switch (type) {
         // Sprite and text draw calls simply render their texture
         case Type::TEXT:
-            renderText(renderer, offsetX, offsetY);
+            renderText(nebuliteRenderer, offsetX, offsetY);
             break;
         case Type::SPRITE:
-            renderSprite(renderer, offsetX, offsetY);
+            renderSprite(nebuliteRenderer, offsetX, offsetY);
             break;
         case Type::CIRCLE:
-            renderCircle(renderer, offsetX, offsetY);
+            renderCircle(nebuliteRenderer, offsetX, offsetY);
             break;
         case Type::POLYGON:
-            renderPolygon(renderer, offsetX, offsetY);
+            renderPolygon(nebuliteRenderer, offsetX, offsetY);
             break;
         default:
             std::unreachable();

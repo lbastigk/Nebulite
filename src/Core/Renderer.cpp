@@ -805,53 +805,26 @@ void Renderer::renderFrame() {
         // Render all objects in the viewport of this layer
         if (layer == Environment::Layer::background) {
             onViewportTiles(layer, [&](Environment::TileAndCoordinate const& tileAndCoordinate) {
-                auto& texture = tileAndCoordinate.tile->getTexture();
-
-                // Re-render background texture
-                if (!texture) {
-                    texture = SDL_CreateTexture(
-                        renderer,
-                        SDL_PIXELFORMAT_RGBA8888,
-                        SDL_TEXTUREACCESS_TARGET,
-                        2*windowScale*tilingInformation().w,
-                        2*windowScale*tilingInformation().h
-                    );
-                    if (!texture) {
-                        capture.error.println("Failed to create render target texture.");
-                        std::abort();
-                    }
-                    SDL_SetRenderTarget(renderer, texture);
-                    for (auto& [objects, _] : tileAndCoordinate.tile->getBatches()) {
-                        for (auto& obj : objects) {
-                            renderObjectToScreen(
-                                obj,
-                                tileAndCoordinate.coordinate.x * tilingInformation().w,
-                                tileAndCoordinate.coordinate.y * tilingInformation().h
-                            );
-                        }
-                    }
-                }
-
-                // Render to screen
-                SDL_SetRenderTarget(renderer, nullptr);
-                SDL_FRect const destRect{
-                    .x = static_cast<float>(windowScale * (tileAndCoordinate.coordinate.x * tilingInformation().w - dispPosX)),
-                    .y = static_cast<float>(windowScale * (tileAndCoordinate.coordinate.y * tilingInformation().h - dispPosY)),
-                    .w = static_cast<float>(2 * windowScale * tilingInformation().w),
-                    .h = static_cast<float>(2 * windowScale * tilingInformation().h)
-                };
-                if (!SDL_RenderTexture(renderer, texture, nullptr, &destRect)) {
-                    capture.error.println("Failed to render background tile texture: ", SDL_GetError());
-                }
+                tileAndCoordinate.tile->render(
+                    *this,
+                    tileAndCoordinate.coordinate,
+                    tilingInformation(),
+                    capture,
+                    dispPosX,
+                    dispPosY,
+                    windowScale
+                );
             });
         }
         else {
             onViewport(layer, [&](RenderObject* obj) {
-                renderObjectToScreen(obj, dispPosX, dispPosY);
+                obj->draw(
+                    *this,
+                    dispPosX,
+                    dispPosY
+                );
             });
         }
-
-
 
         // Render all textures that were attached from outside processes
         for (auto const& [texture, rect] : std::views::values(BetweenLayerTextures[layer])) {
@@ -864,13 +837,6 @@ void Renderer::renderFrame() {
             }
         }
     }
-}
-
-void Renderer::renderObjectToScreen(RenderObject* obj, int const& dispPosX, int const& dispPosY) {
-    obj->draw(
-        static_cast<float>(dispPosX),
-        static_cast<float>(dispPosY)
-    );
 }
 
 //------------------------------------------

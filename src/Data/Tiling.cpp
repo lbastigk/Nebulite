@@ -19,12 +19,7 @@ std::vector<Batch> const& Tile::getBatches() const {
     return batches;
 }
 
-void Tile::clearBatches() {
-    batches.clear();
-    deleteTexture();
-}
-
-void Tile::appendBatch(Batch const& batch) {
+void Tile::appendBatch(Batch&& batch) {
     batches.push_back(batch);
 }
 
@@ -61,7 +56,7 @@ bool Tile::insertIfCostGoalMatches(Core::RenderObject* toAppend) {
     return false;
 }
 
-void Tile::update(std::vector<Core::RenderObject*>& to_move, std::vector<Core::RenderObject*>& to_delete, TilingInformation const& tilingInformation, TileCoordinate const& coord) {
+void Tile::update(std::vector<Core::RenderObject*>& to_move, std::vector<Core::RenderObject*>& to_delete, TilingInformation const& tilingInfo, TileCoordinate const& coordinate) {
     for (auto& batch : batches) {
         std::vector<Core::RenderObject*> to_move_local;
         std::vector<Core::RenderObject*> to_delete_local;
@@ -71,7 +66,7 @@ void Tile::update(std::vector<Core::RenderObject*>& to_move, std::vector<Core::R
                 Global::instance().notifyEvent(event);
             }
             if (!obj->flag.deleteFromScene) {
-                if (RenderObjectContainer::getTilePos(obj->getPosition(), tilingInformation) != coord) {
+                if (RenderObjectContainer::getTilePos(obj->getPosition(), tilingInfo) != coordinate) {
                     to_move_local.push_back(obj);
                 }
             } else {
@@ -101,8 +96,53 @@ void Tile::update(std::vector<Core::RenderObject*>& to_move, std::vector<Core::R
     }
 }
 
-SDL_Texture*& Tile::getTexture() {
-    return texture;
+void Tile::render(
+    Core::Renderer const& nebuliteRenderer,
+    TileCoordinate const& coordinate,
+    TilingInformation const& tilingInfo,
+    Utility::IO::Capture& capture,
+    int const dispPosX,
+    int const dispPosY,
+    int const windowScale
+){
+    auto const renderer = nebuliteRenderer.getSdlRenderer();
+
+    // Re-render background texture
+    if (!texture) {
+        texture = SDL_CreateTexture(
+            renderer,
+            SDL_PIXELFORMAT_RGBA8888,
+            SDL_TEXTUREACCESS_TARGET,
+            2*windowScale*tilingInfo.w,
+            2*windowScale*tilingInfo.h
+        );
+        if (!texture) {
+            capture.error.println("Failed to create render target texture.");
+            std::abort();
+        }
+        SDL_SetRenderTarget(renderer, texture);
+        for (auto& [objects, _] : getBatches()) {
+            for (auto& obj : objects) {
+                obj->draw(
+                    nebuliteRenderer,
+                    coordinate.x * tilingInfo.w,
+                    coordinate.y * tilingInfo.h
+                );
+            }
+        }
+    }
+
+    // Render to screen
+    SDL_SetRenderTarget(renderer, nullptr);
+    SDL_FRect const destRect{
+        .x = static_cast<float>(windowScale * (coordinate.x * tilingInfo.w - dispPosX)),
+        .y = static_cast<float>(windowScale * (coordinate.y * tilingInfo.h - dispPosY)),
+        .w = static_cast<float>(2 * windowScale * tilingInfo.w),
+        .h = static_cast<float>(2 * windowScale * tilingInfo.h)
+    };
+    if (!SDL_RenderTexture(renderer, texture, nullptr, &destRect)) {
+        capture.error.println("Failed to render background tile texture: ", SDL_GetError());
+    }
 }
 
 } // namespace Nebulite::Data

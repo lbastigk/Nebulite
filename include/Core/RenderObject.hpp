@@ -118,12 +118,14 @@ public:
 
     /**
      * @brief Draws the RenderObject at the specified offset.
+     * @param renderer The renderer to use
      * @param offsetX The camera offset in the X direction.
      * @param offsetY The camera offset in the Y direction.
      */
-    void draw(float const& offsetX, float const& offsetY) {
+    void draw(Renderer const& renderer, float const& offsetX, float const& offsetY) {
         for (auto const& member : drawcallOrder) {
             drawcalls[member]->draw(
+                renderer,
                 static_cast<float>(*refs.posX) - offsetX,
                 static_cast<float>(*refs.posY) - offsetY
             );

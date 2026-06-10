@@ -47,7 +47,7 @@ public:
     Drawcall(Drawcall&&) = delete;
     Drawcall& operator=(Drawcall&&) = delete;
 
-    void draw(float const& offsetX, float const& offsetY);
+    void draw(Core::Renderer const& nebuliteRenderer, float const& offsetX, float const& offsetY);
 
     void update();
 

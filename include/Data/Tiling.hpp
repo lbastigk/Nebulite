@@ -13,6 +13,14 @@
 
 // Nebulite
 #include "Data/Batch.hpp"
+#include "Utility/IO/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Core {
+class Renderer;
+} // namespace Nebulite::Core
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -65,21 +73,64 @@ public:
     //------------------------------------------
     // Methods
 
+    /**
+     * @brief Allows read-only access to the internal batches of RenderObjects
+     * @return A const reference to the vector of batches contained in this tile. Each batch contains a vector of RenderObjects and an estimated cost.
+     */
     std::vector<Batch> const& getBatches() const ;
 
-    void clearBatches();
+    /**
+     * @brief Adds a provided batch to the existing batches
+     * @param batch The batch to add
+     */
+    void appendBatch(Batch&& batch);
 
-    void appendBatch(Batch const& batch);
-
+    /**
+     * @brief Moves all objects in the tile to the provided destination vector and clears the tile's batches.
+     * @param destination The vector to move the objects to. Objects will be moved (not copied) and the tile's batches will be cleared.
+     */
     void moveObjects(std::vector<Core::RenderObject*>& destination);
 
+    /**
+     * @brief Inserts an object into the first batch that has an estimated cost less than or equal to the batchCostGoal.
+     * @param toAppend The object to add
+     * @return True if a batch was found (object inserted), false if no batch was found (object not inserted)
+     */
     bool insertIfCostGoalMatches(Core::RenderObject* toAppend);
 
-    void update(std::vector<Core::RenderObject*>& to_move, std::vector<Core::RenderObject*>& to_delete, TilingInformation const& tilingInformation, TileCoordinate const& coord);
+    /**
+     * @brief Updates all objects of this tile
+     * @param to_move Objects moved out of the tile during the update
+     * @param to_delete Objects that were deleted during the update
+     * @param tilingInfo The pixel height/width of each tile
+     * @param coordinate The coordinate of this tile
+     */
+    void update(std::vector<Core::RenderObject*>& to_move, std::vector<Core::RenderObject*>& to_delete, TilingInformation const& tilingInfo, TileCoordinate const& coordinate);
 
-    // TODO: Per-Tile-Rendering instead of exposing the (potential) tile texture, something like:
-    //       Tile::render(SDL_Renderer* renderer, float dX, float dY, bool allowTextureStorage);
-    SDL_Texture*& getTexture();
+    /**
+     * @brief Renders the tile to the screen utilizing a pre-rendered texture
+     * @details If this tile has no pre-rendered texture, the texture is generated first, then rendered to the screen.
+     *          If a texture already exists, it is directly rendered to the screen.
+     *          The texture is invalidated and re-rendered whenever an object is added, removed, or moved from the tile.
+     *          Note that this should only be used for tiles that have no animated objects (e.g., background layer),
+     *          as animated objects would require constant re-rendering of the texture, which would be inefficient.
+     * @param nebuliteRenderer Nebulites renderer
+     * @param coordinate The coordinate of this tile
+     * @param tilingInfo The pixel height/width of each tile
+     * @param capture The capture instance for logging errors during texture creation and rendering
+     * @param dispPosX The display position, horizontally
+     * @param dispPosY The display position, vertically
+     * @param windowScale The scaling factor of the window
+     */
+    void render(
+        Core::Renderer const& nebuliteRenderer,
+        TileCoordinate const& coordinate,
+        TilingInformation const& tilingInfo,
+        Utility::IO::Capture& capture,
+        int dispPosX,
+        int dispPosY,
+        int windowScale
+    );
 };
 
 } // namespace Nebulite::Data
