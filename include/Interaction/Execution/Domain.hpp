@@ -200,37 +200,68 @@ class Domain : public DocumentAccessor {
     std::vector<std::unique_ptr<Module::Base::DomainModuleBase>> modules;
 
     /**
-     * @brief Generates the unique id of this domain
-     * @return The id generated
+     * @brief Holds identification information for the domain, including a unique ID and a hashed version of the ID for better distribution.
+     * @details The values are initialized lazily to ensure that they are only generated when needed.
      */
-    static size_t idGenerator() {
-        static std::atomic<size_t> idCounter{0};
-        idCounter.fetch_add(1, std::memory_order_relaxed);
-        size_t const id = idCounter.load(std::memory_order_relaxed) - 1; // Get the current value before incrementing
-        return id;
-    }
+    class Identifier {
+        /**
+         * @brief Generates the unique id of this domain
+         * @return The id generated
+         */
+        static size_t idGenerator() {
+            static std::atomic<size_t> idCounter{0};
+            idCounter.fetch_add(1, std::memory_order_relaxed);
+            size_t const id = idCounter.load(std::memory_order_relaxed) - 1; // Get the current value before incrementing
+            return id;
+        }
 
-    /**
-     * @brief Generates a hashed version of the domain id.
-     * @details This is done for proper distribution of the id to workers.
-     *          If every RenderObject has N many subdomains, the RenderObject (R) id will likely be
-     *          N*R+M, meaning the modulo is always the same. That's not optimal for proper worker distribution.
-     * @param x The id input
-     * @return The hashed id
-     */
-    static size_t splitMix64(size_t x) {
-        x += 0x9e3779b97f4a7c15;
-        x = (x ^ x >> 30) * 0xbf58476d1ce4e5b9;
-        x = (x ^ x >> 27) * 0x94d049bb133111eb;
-        x = x ^ x >> 31;
-        return x;
-    }
+        /**
+         * @brief Generates a hashed version of the domain id.
+         * @details This is done for proper distribution of the id to workers.
+         *          If every RenderObject has N many subdomains, the RenderObject (R) id will likely be
+         *          N*R+M, meaning the modulo is always the same. That's not optimal for proper worker distribution.
+         * @param x The id input
+         * @return The hashed id
+         */
+        static size_t splitMix64(size_t x) {
+            x += 0x9e3779b97f4a7c15;
+            x = (x ^ x >> 30) * 0xbf58476d1ce4e5b9;
+            x = (x ^ x >> 27) * 0x94d049bb133111eb;
+            x = x ^ x >> 31;
+            return x;
+        }
 
-    // Unique ID for the domain, used for ordered cache lists and other purposes
-    size_t id = idGenerator();
+        void init() {
+            id = idGenerator();
+            idHashed = splitMix64(id);
+            initialized = true;
+        }
 
-    // Hashed ID for better distribution
-    size_t idHashed = splitMix64(id);
+        bool initialized = false;
+
+        // Unique ID for the domain, used for ordered cache lists and other purposes
+        size_t id = 0;
+
+        // Hashed ID for better distribution
+        size_t idHashed = 0;
+
+    public:
+        size_t const& getId() {
+            if (!initialized) {
+                init();
+            }
+            return id;
+        }
+
+        size_t const& getIdHashed() {
+            if (!initialized) {
+                init();
+            }
+            return idHashed;
+        }
+    } mutable identifier;
+
+
 
     /**
      * @brief Necessary operations before parsing commands.
@@ -293,11 +324,11 @@ public:
     }
 
     [[nodiscard]] size_t const& getId() const {
-        return id;
+        return identifier.getId();
     }
 
     [[nodiscard]] size_t const& getIdHashed() const {
-        return idHashed;
+        return identifier.getIdHashed();
     }
 
     //------------------------------------------
