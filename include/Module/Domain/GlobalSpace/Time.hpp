@@ -94,6 +94,7 @@ public:
         static auto constexpr time_t_ms = makeScoped("t_ms");
         static auto constexpr time_dt = makeScoped("dt");
         static auto constexpr time_dt_ms = makeScoped("dt_ms");
+        static auto constexpr time_locked = makeScoped("lock");
 
         // More specific keys for actual runtime
         static auto constexpr runtime_t = makeScoped("runtime.t");

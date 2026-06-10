@@ -22,7 +22,7 @@ namespace Nebulite::Module::Domain::GlobalSpace {
 
 Constants::Event Time::updateHook() {
     //------------------------------------------
-    // Full time (runtime)
+    // Update runtime
 
     // Update
     RealTime.update();
@@ -35,7 +35,8 @@ Constants::Event Time::updateHook() {
     moduleScope.set<Uint64>(Key::runtime_dt_ms, dt_ms);
     moduleScope.set<Uint64>(Key::runtime_t_ms, t_ms);
 
-    // See if simulation time can progress
+    //------------------------------------------
+    // Update simulation time
     if (!haltThisFrame && timeLocks.empty() && !domain.getRenderer().isSkippingUpdate()) {
         //------------------------------------------
         // Simulation time (can be paused)
@@ -46,22 +47,24 @@ Constants::Event Time::updateHook() {
             SimulationTime.update(fixedDeltaTime);
         } else {
             // Use real delta time
+            // Perhaps adding a max delta time cap in the future to prevent huge jumps?
             SimulationTime.update(dt_ms);
         }
-        uint64_t const sim_dt_ms = SimulationTime.get_dt_ms();
-        uint64_t const sim_t_ms = SimulationTime.get_t_ms();
+        auto const sim_dt_ms = SimulationTime.get_dt_ms();
+        auto const sim_t_ms = SimulationTime.get_t_ms();
 
         // Set in doc
         moduleScope.set<double>(Key::time_dt, static_cast<double>(sim_dt_ms) / 1000.0);
         moduleScope.set<double>(Key::time_t, static_cast<double>(sim_t_ms) / 1000.0);
         moduleScope.set<Uint64>(Key::time_dt_ms, sim_dt_ms);
         moduleScope.set<Uint64>(Key::time_t_ms, sim_t_ms);
+        moduleScope.set<bool>(Key::time_locked, false);
     } else {
+        moduleScope.set<bool>(Key::time_locked, true);
         domain.getRenderer().skipUpdateNextFrame();
     }
     haltThisFrame = false;
 
-    // Ignoring results for now, just return NONE
     return Constants::Event::Success;
 }
 

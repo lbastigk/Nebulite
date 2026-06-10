@@ -25,9 +25,14 @@ for i 01 30 eval spawn ./Resources/Renderobjects/Boxes/collision_barrier.jsonc|p
 # Spawn on mouse click
 
 wait 100
-always if $(eq({global:renderer.input.mouse.delta.left},1)) eval set bounceCount $({global:bounceCount}+1)
-always if $(eq({global:renderer.input.mouse.delta.left},1)) eval echo Spawning at: ($06.2f({global:renderer.input.mouse.current.scaledX}),$06.2f({global:renderer.input.mouse.current.scaledY})) | Count: {global:bounceCount}
-always if $(eq({global:renderer.input.mouse.delta.left},1)) eval spawn ./Resources/Renderobjects/Boxes/bounce.jsonc|posX={global:renderer.input.mouse.current.scaledX}|posY={global:renderer.input.mouse.current.scaledY}|physics.vX={global:renderer.input.mouse.delta.scaledX}|physics.vY={global:renderer.input.mouse.delta.scaledY}
+always if $({global:time.lock|not} * eq({global:renderer.input.mouse.delta.left}, 1)) then eval set bounceCount $({global:bounceCount}+1)
+always if $({global:time.lock|not} * eq({global:renderer.input.mouse.delta.left}, 1)) then eval echo Spawning at: \
+    ({global:renderer.input.mouse.current.scaledX|formatNumber 06.2f},{global:renderer.input.mouse.current.scaledY|formatNumber 06.2f}) | Count: {global:bounceCount}
+always if $({global:time.lock|not} * eq({global:renderer.input.mouse.delta.left}, 1)) then eval spawn ./Resources/Renderobjects/Boxes/bounce.jsonc \
+    |posX={global:renderer.input.mouse.current.scaledX} \
+    |posY={global:renderer.input.mouse.current.scaledY} \
+    |physics.vX={global:renderer.input.mouse.delta.scaledX|mul 10} \
+    |physics.vY={global:renderer.input.mouse.delta.scaledY|mul 10}
 
 #########################################
 # If the bouncing block ever leaves the screen, throw an error
