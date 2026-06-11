@@ -69,6 +69,9 @@ Constants::Event Audio::playSound(std::span<std::string_view const> const& args)
         return Constants::StandardCapture::Error::File::invalidFile(domain.capture);
     }
 
+    // TODO: using SDL_PutAudioStreamData does not allow for multiple streams. We should switch to SDL_Mixer later on?
+    //       for now we just play the latest sound
+    SDL_ClearAudioStream(stream);
     SDL_PutAudioStreamData(
         stream,
         sound.value()->second.audioData.data(),
