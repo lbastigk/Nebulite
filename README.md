@@ -98,13 +98,13 @@ apt, dnf, yum and brew are supported.
 
 See the makefile for details on the installation process and the dependencies installed for each platform.
 
-The installation process, especially for package managers other than dnf, is not fully tested on all platforms, so 
+The installation process, especially for package managers other than dnf, is not fully tested on all platforms, so
 **if you notice any issues with the installation process, please tell!**
 
 3. Build binaries
 
 Windows and MacOs support is currently in early stages.
-We're actively looking for contributors to help with testing 
+We're actively looking for contributors to help with testing
 and improving the build process on these platforms.
 Any help is appreciated!
 
@@ -387,11 +387,11 @@ Nebulite includes two GUI libraries:
 - **ImGui** for in-game debug interfaces and tools
 - **RmlUI** for more complex, styled interfaces (menus, HUDs, etc.)
 
-Imgui is used for tools such as the Console or the Domain viewer, which allow for real-time inspection 
+Imgui is used for tools such as the Console or the Domain viewer, which allow for real-time inspection
 and manipulation of the engine's state and data.
 <img src="doc/images/globalSpaceViewer.png" alt="Nebulite Overview" width="95%">
 
-The RmlUi implementation contains custom plugins to allow for seamless integration 
+The RmlUi implementation contains custom plugins to allow for seamless integration
 with Nebulite's data model and expression system, such as:
 - event handling like `on-click` or actions to perform if elements or the document itself is loaded/deleted
 - automatic context and scope handling
