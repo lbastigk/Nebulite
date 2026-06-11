@@ -116,41 +116,29 @@ Data::JSON& Reflection::evaluateReflectionList(std::unique_ptr<ReflectionEntry> 
     return *reflectionList;
 }
 
-void Reflection::contextScopeSetter(Rml::Element* element, std::vector<size_t>& allocatedIds, size_t& idsIndex, Interaction::Context const& context, Interaction::ContextScope const& scope) const {
-    if (allocatedIds.size() > idsIndex) {
-        auto const childId = Graphics::RmlInterface::RmlElementIdentifier(allocatedIds[idsIndex]);
-        interface.setRmlElementContextAndScope(childId, {.ctx=context, .ctxScope=scope});
-    }
-    else {
-        Graphics::RmlInterface::RmlElementIdentifier::removeElementIdentifier(element);
-        Graphics::RmlInterface::RmlElementIdentifier const childId(element);
-        allocatedIds.push_back(childId.getId());
-        interface.setRmlElementContextAndScope(childId, {.ctx=context, .ctxScope=scope});
-    }
-    Graphics::RmlInterface::RmlElementIdentifier::forceElementIdentifier(element, allocatedIds[idsIndex]);
-    idsIndex++;
-
+void Reflection::setIdentifiers(Rml::Element* element, std::size_t const& id) {
+    Graphics::RmlInterface::RmlElementIdentifier::forceElementIdentifier(element, id);
     for (int j = 0; j < element->GetNumChildren(); ++j) {
-        contextScopeSetter(element->GetChild(j), allocatedIds, idsIndex, context, scope);
+        setIdentifiers(element->GetChild(j), id);
     }
 }
 
-void Reflection::setReflectionScopes(
-        Data::JSON& reflectionList,
-        size_t const& listSize,
-        std::unique_ptr<ReflectionEntry> const& entry,
-        Rml::Element const* element,
-        Interaction::Context const& context,
-        Interaction::ContextScope const& scope
-    ) const {
+void Reflection::setReflectionScopes(Data::JSON& reflectionList, std::unique_ptr<ReflectionEntry> const& entry, Rml::Element const* element, Graphics::RmlInterface::ContextAndScope const& contextAndScope) const {
     auto const childrenCount = static_cast<size_t>(element->GetNumChildren());
-    assert(childrenCount % listSize == 0);
     size_t idsIndex = 0;
+
+    while (entry->allocatedIds.size() < childrenCount) {
+        entry->allocatedIds.emplace_back(Graphics::RmlInterface::RmlElementIdentifier::idRoll());
+    }
+
+    size_t jsonIndex = 0;
     for (size_t i = 0; i < childrenCount; ++i) {
+        auto* const child = element->GetChild(static_cast<int>(i));
+        if (auto const value = child->GetAttribute("reflectionIndex"); value) {
+            jsonIndex = static_cast<size_t>(value->Get<int>());
+            continue; // The div that holds the reflection index does not need context/scope.
+        }
 
-        // TODO: set context and scope for any sub-children
-
-        auto const jsonIndex = i * listSize / childrenCount;
         std::string const childKey = Data::ScopedKey().addIndex(jsonIndex).toString();
         auto& newScope = reflectionList.shareManagedScope(childKey);
 
@@ -158,12 +146,16 @@ void Reflection::setReflectionScopes(
         Interaction::ContextScope const childContextScope{
             {
                 .self = newScope,
-                .other = scope.other,
-                .global = scope.global,
+                .other = contextAndScope.ctxScope.other,
+                .global = contextAndScope.ctxScope.global,
             }
         };
-        auto* const child = element->GetChild(static_cast<int>(i));
-        contextScopeSetter(child, entry->allocatedIds, idsIndex, context, childContextScope);
+
+        auto const& allocatedId = entry->allocatedIds[idsIndex];
+        setIdentifiers(child, allocatedId);
+        auto const identifier = Graphics::RmlInterface::RmlElementIdentifier(allocatedId);
+        interface.setRmlElementContextAndScope(identifier, {.ctx=contextAndScope.ctx, .ctxScope=childContextScope});
+        idsIndex++;
     }
 }
 
@@ -175,9 +167,8 @@ void Reflection::reflectElement(Rml::Element* element, std::unique_ptr<Reflectio
     // Get context and scope of this reflection
     auto const contextAndScope = [&](Rml::Element const* e) -> std::optional<Graphics::RmlInterface::ContextAndScope> {
         if (Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(e)) {
-            // Nested reflections are incredibly difficult to realize and would require a complete overhaul of the current system
-            // Perhaps later on we could use short-lived rml documents to generate reflection results and insert them in the main document,
-            // keeping track of each JSON reflection result
+            // If a reflection element already has an element identifier, it's likely that this is the result of a nested reflection.
+            // At the moment, this is not supported.
             throw std::logic_error("Nested reflection is not supported. Use JSON-Transformations on the outer reflection to mimic the inner one.");
         }
         if (auto const ownerContextAndScope = interface.getRmlDocumentContextAndScope(e->GetOwnerDocument()); ownerContextAndScope) {
@@ -188,15 +179,13 @@ void Reflection::reflectElement(Rml::Element* element, std::unique_ptr<Reflectio
     if (!contextAndScope) {
         return;
     }
-    auto const& context = contextAndScope.value().ctx;
-    auto const& scope = contextAndScope.value().ctxScope;
 
     // Get reflection result, must be an array to iterate over its members
-    auto& reflectionList = evaluateReflectionList(entry, element, scope);
+    auto& reflectionList = evaluateReflectionList(entry, element, contextAndScope.value().ctxScope);
     if (auto const type = reflectionList.memberType(""); type != Data::KeyType::array) {
         capture.warning.println("Reflection expression '", entry->reflectionListExpression.getFullExpression() ,"' did not evaluate to an array. Skipping reflection.");
         capture.warning.println("Result: " + reflectionList.serialize());
-        capture.warning.println("Self scope provided: ", scope.self.serialize() );
+        capture.warning.println("Self scope provided: ", contextAndScope.value().ctxScope.self.serialize() );
         std::abort();
     }
 
@@ -207,19 +196,17 @@ void Reflection::reflectElement(Rml::Element* element, std::unique_ptr<Reflectio
     size_t const size = reflectionList.memberSize("");
     std::string newRml;
     for (size_t i = 0; i < size; ++i) {
+        // Helps keeping track of the current index. Earlier versions relied on the fact that repeating the inner rml
+        // means we can just increase the index every n elements, where n is the amount of elements per reflection entry.
+        // But this approach limits our reflection abilities.
+        // Later on we might wish to do nested reflections where the amount of elements per entry isn't guaranteed to be the same.
+        // The dummy-element-approach addresses this problem
+        newRml += "<div reflectionIndex=\"" + std::to_string(i) + "\"></div>";
         newRml += entry->rmlValue;
     }
     element->SetInnerRML(newRml);
     if (size == 0) return;
-
-    // Check children size
-    if (static_cast<size_t>(element->GetNumChildren()) % size == 0) {
-        // For each element, overwrite context mapping
-        setReflectionScopes(reflectionList, size, entry, element, context, scope);
-    }
-    else {
-        capture.warning.println("Rml Children count does not match reflection count. Expected a multiple of: ", size, ", Actual: ", element->GetNumChildren(), ". Skipping reflection, Something went seriously wrong...");
-    }
+    setReflectionScopes(reflectionList, entry, element, contextAndScope.value());
 }
 
 } // namespace Nebulite::Module::RmlUi

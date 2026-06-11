@@ -111,20 +111,11 @@ private:
     /**
      * @brief Sets the scopes for all parts of a reflection entry
      * @param reflectionList The list of values to use for each reflection
-     * @param listSize Size of reflectionList (using memberSize is costly. Since it's already known, we just pass it)
      * @param entry The reflectionEntry
      * @param element The rml element associated with the reflection
-     * @param context The context of the element
-     * @param scope The scope of the element
+     * @param contextAndScope The context and scope of the element
      */
-    void setReflectionScopes(
-        Data::JSON& reflectionList,
-        size_t const& listSize,
-        std::unique_ptr<ReflectionEntry> const& entry,
-        Rml::Element const* element,
-        Interaction::Context const& context,
-        Interaction::ContextScope const& scope
-    ) const ;
+    void setReflectionScopes(Data::JSON& reflectionList, std::unique_ptr<ReflectionEntry> const& entry, Rml::Element const* element, Graphics::RmlInterface::ContextAndScope const& contextAndScope) const ;
 
     /**
      * @brief Reflects a single element based on the provided entry
@@ -134,14 +125,11 @@ private:
     void reflectElement(Rml::Element* element, std::unique_ptr<ReflectionEntry> const& entry);
 
     /**
-     * @brief Sets the proper context and scope of a given element and all its children, recursively
-     * @param element The element to set the context and scope of
-     * @param allocatedIds A list of allocated Ids. Will be resized if needed
-     * @param idsIndex Current index of allocatedIds to use. Will be incremented with each call
-     * @param context The context to set
-     * @param scope The scope to set
+     * @brief Sets the identifier of given element and all its children, recursively
+     * @param element The element to modify
+     * @param id The identifier to use for the element and all its children
      */
-    void contextScopeSetter(Rml::Element* element, std::vector<size_t>& allocatedIds, size_t& idsIndex, Interaction::Context const& context, Interaction::ContextScope const& scope) const ;
+    static void setIdentifiers(Rml::Element* element, std::size_t const& id);
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // MODULE_RMLUI_REFLECTION_HPP
