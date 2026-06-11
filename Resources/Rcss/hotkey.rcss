@@ -5,7 +5,7 @@
     right: 0;
     top: 0;
 
-    width: 90%;
+    width: 50%;
     height: 100%;
 
     /*max-height: 100px;*/
@@ -38,6 +38,15 @@
 }
 
 .hotkey-image {
+    border: 4px #233142;
+    image-color: rgba(200, 200, 200, 255);
+    border-radius: 4px;
+    margin: -4px;
+    width: 90%;
+    height: auto;
+}
+
+.hotkey-image-selected {
     border: 4px #233142;
     border-radius: 4px;
     margin: -4px;

@@ -88,4 +88,19 @@ selected-object get 1
 always selected-object parse assign global:players[0].posX = {self:posX}
 always selected-object parse assign global:players[0].posY = {self:posY}
 
+###########################
+# Use 1-9 for hotkey selection, + 0 for 10
+set rml.settings.actionWindow.entrySelected 1
+
+always if $({global:renderer.input.keyboard.delta.1}) then assign global:rml.settings.actionWindow.entrySelected = 1
+always if $({global:renderer.input.keyboard.delta.2}) then assign global:rml.settings.actionWindow.entrySelected = 2
+always if $({global:renderer.input.keyboard.delta.3}) then assign global:rml.settings.actionWindow.entrySelected = 3
+always if $({global:renderer.input.keyboard.delta.4}) then assign global:rml.settings.actionWindow.entrySelected = 4
+always if $({global:renderer.input.keyboard.delta.5}) then assign global:rml.settings.actionWindow.entrySelected = 5
+always if $({global:renderer.input.keyboard.delta.6}) then assign global:rml.settings.actionWindow.entrySelected = 6
+always if $({global:renderer.input.keyboard.delta.7}) then assign global:rml.settings.actionWindow.entrySelected = 7
+always if $({global:renderer.input.keyboard.delta.8}) then assign global:rml.settings.actionWindow.entrySelected = 8
+always if $({global:renderer.input.keyboard.delta.9}) then assign global:rml.settings.actionWindow.entrySelected = 9
+always if $({global:renderer.input.keyboard.delta.0}) then assign global:rml.settings.actionWindow.entrySelected = 10
+
 
