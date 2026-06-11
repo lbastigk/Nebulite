@@ -19,6 +19,7 @@ EventBridge::EventBridge(Utility::IO::Capture& c, Graphics::RmlInterface& i) : R
 void EventBridge::update() {}
 
 void EventBridge::processRmlUiEvent(SDL_Event const& event, int const keyModifiers, Rml::Element* focusElement){
+    // TODO: use RmlUi event listeners instead!
     Attribute::OnEnter::processTrigger(interface, capture, event, keyModifiers, focusElement);
     Attribute::OnClick::processTrigger(interface, capture, event, keyModifiers, focusElement);
 }
