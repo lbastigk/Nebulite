@@ -103,11 +103,11 @@ public:
 
         size_t id; // This elements id
 
-        static size_t idRoll(); // Get a new id
-
         static size_t& count(); // Get the current id count as reference
 
     public:
+        static size_t idRoll(); // Get a new id
+
         /**
          * @brief Get the current count of assigned identifiers.
          * @return The count of assigned identifiers.
