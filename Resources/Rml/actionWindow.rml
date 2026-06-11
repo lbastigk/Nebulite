@@ -29,7 +29,7 @@
 
     <!-- Bottom window -->
     <!-- Generates N many hotkey-entries -->
-    <div class="window hotkey-aligner" data-reflect-once="{|iota 0 {self:rml.settings.actionWindow.entryCount|default 10}}">
+    <div class="window hotkey-aligner" data-reflect-once="{global:hotkey|enumerate index}">
         <!-- Hotkey Entry -->
         <div if="$(1)">
             <div class="hotkey-entry">
@@ -40,20 +40,19 @@
 
                     <!-- selected -->
                     <img
-                        if="$(eq({self:},{other:rml.settings.actionWindow.entrySelected}-1))"
+                        if="$(eq({self:index},{other:rml.settings.actionWindow.entrySelected}-1))"
                         class="hotkey-image-selected"
                         src="{self:image|default ./Resources/Sprites/TEST100P/001.bmp}"
                     ></img>
 
                     <!-- not selected -->
                     <img
-                        if="$(neq({self:},{other:rml.settings.actionWindow.entrySelected}-1))"
+                        if="$(neq({self:index},{other:rml.settings.actionWindow.entrySelected}-1))"
                         class="hotkey-image"
                         src="{self:image|default ./Resources/Sprites/TEST100P/001.bmp}"
-                        srcAlternative="{self:image|default ./Resources/Sprites/TEST_BMP_SMALL.bmp}"
                     ></img>
                     <!-- Hotkey Enumeration -->
-                    <b>{self:|add 1}</b>
+                    <b>{self:index|add 1}</b>
                 </div>
             </div>
         </div>

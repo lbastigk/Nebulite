@@ -47,39 +47,29 @@ set players[0].hp.current 100
 set players[0].hp.max 100
 set players[0].mp.current 50
 set players[0].mp.max 50
+set players[0].image ./Resources/Sprites/TEST100P/001.bmp
 
 set players[1].name "Helia, the apprentice"
 set players[1].hp.current 80
 set players[1].hp.max 100
 set players[1].mp.current 200
 set players[1].mp.max 500
+set players[1].image ./Resources/Sprites/TEST100P/026.bmp
 
 set players[2].name "Mira, the rogue"
 set players[2].hp.current 60
 set players[2].hp.max 100
 set players[2].mp.current 20
 set players[2].mp.max 50
+set players[2].image ./Resources/Sprites/TEST100P/051.bmp
 
 set players[3].name "Wizard of unlimited mp"
 set players[3].hp.current 40
 set players[3].hp.max 100
 set players[3].mp.current 1000
 #set players[3].mp.max 5000 # If left uncommented, UI sets max mp to "---"
+set players[3].image ./Resources/Sprites/TEST100P/076.bmp
 
-
-
-###########################
-# Load User interface
-rmlui document load playerStack ./Resources/Rml/playerStack.rml
-rmlui document load actionWindow ./Resources/Rml/actionWindow.rml
-rmlui document load minimap ./Resources/Rml/minimap.rml
-
-###########################
-# Show imgui-view of player for debugging
-selected-object get 1
-selected-object parse imgui-view on
-
-###########################
 # Mirror player position to players[0]
 
 # A bit brittle, technically we want the always-task to be for the selected object
@@ -89,9 +79,24 @@ always selected-object parse assign global:players[0].posX = {self:posX}
 always selected-object parse assign global:players[0].posY = {self:posY}
 
 ###########################
-# Use 1-9 for hotkey selection, + 0 for 10
+# Hotkey
+
+# Setup hotkey list
+set hotkey[0].image ./Resources/Sprites/TEST100P/001.bmp
+set hotkey[1].image ./Resources/Sprites/TEST100P/001.bmp
+set hotkey[2].image ./Resources/Sprites/TEST100P/001.bmp
+set hotkey[3].image ./Resources/Sprites/TEST100P/001.bmp
+set hotkey[4].image ./Resources/Sprites/TEST100P/001.bmp
+set hotkey[5].image ./Resources/Sprites/TEST100P/001.bmp
+set hotkey[6].image ./Resources/Sprites/TEST100P/001.bmp
+set hotkey[7].image ./Resources/Sprites/TEST100P/001.bmp
+set hotkey[8].image ./Resources/Sprites/TEST100P/001.bmp
+set hotkey[9].image ./Resources/Sprites/TEST100P/001.bmp
+
+# Start index
 set rml.settings.actionWindow.entrySelected 1
 
+# Use 1-9 for hotkey selection, + 0 for 10
 always if $({global:renderer.input.keyboard.delta.1}) then assign global:rml.settings.actionWindow.entrySelected = 1
 always if $({global:renderer.input.keyboard.delta.2}) then assign global:rml.settings.actionWindow.entrySelected = 2
 always if $({global:renderer.input.keyboard.delta.3}) then assign global:rml.settings.actionWindow.entrySelected = 3
@@ -103,4 +108,13 @@ always if $({global:renderer.input.keyboard.delta.8}) then assign global:rml.set
 always if $({global:renderer.input.keyboard.delta.9}) then assign global:rml.settings.actionWindow.entrySelected = 9
 always if $({global:renderer.input.keyboard.delta.0}) then assign global:rml.settings.actionWindow.entrySelected = 10
 
+###########################
+# Show imgui-view of player for debugging
+selected-object get 1
+selected-object parse imgui-view on
 
+###########################
+# Load User interface
+rmlui document load playerStack ./Resources/Rml/playerStack.rml
+rmlui document load actionWindow ./Resources/Rml/actionWindow.rml
+rmlui document load minimap ./Resources/Rml/minimap.rml
