@@ -34,7 +34,18 @@ always spawn ./Resources/Renderobjects/Planets/obj2.jsonc \
     |eval set draw.core.rect.dst.h {global:planetSize} \
     |eval set draw.core.rect.dst.w {global:planetSize} \
 
-wait 1000
+selected-object get 1
+selected-object parse mirror on
+selected-object get 2
+selected-object parse mirror on
+
+always assign global:sunPos[0].x = {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posX}
+always assign global:sunPos[0].y = {global:providedScope.module.domain.renderObject.mirror.renderObject.idx1.posY}
+always assign global:sunPos[1].x = {global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.posX}
+always assign global:sunPos[1].y = {global:providedScope.module.domain.renderObject.mirror.renderObject.idx2.posY}
+always eval cam set $i(({global:sunPos[0].x}+{global:sunPos[1].x})/2) $i(({global:sunPos[0].y}+{global:sunPos[1].y})/2) c
+
+wait 2000
 always-clear
 wait 3000
 exit
