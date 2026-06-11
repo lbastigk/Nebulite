@@ -24,8 +24,8 @@ namespace Nebulite::Module::RmlUi {
 Conditional::Conditional(Utility::IO::Capture& c, Graphics::RmlInterface& i) : RmlUiModule(c,i) {}
 
 void Conditional::update() {
-    for (auto& [id, entry] : registeredEntries) {
-        entry.resolve(id, interface);
+    for (auto& entry : registeredEntries | std::views::values) {
+        entry.resolve(interface);
     }
 }
 
@@ -34,13 +34,11 @@ void Conditional::OnElementCreate(Rml::Element* element){
 
     // Check for if-attribute
     if (Attribute::hasSupportedAttribute(element)) {
-        auto id = Graphics::RmlInterface::RmlElementIdentifier(element);
         auto const condition = element->GetAttribute(Attribute::conditional)->Get<Rml::String>();
-        registeredEntries.emplace(id, RegisteredEntry{
-            .originalDisplay = Rml::Style::Display::Block, // default value, will be overridden on first resolve
-            .condition = Interaction::Logic::Expression(condition),
+        registeredEntries.emplace(element, RegisteredEntry{
             .element = element,
-            .newEntry = true
+            .originalDisplay = element->GetDisplay(),
+            .condition = Interaction::Logic::Expression(condition)
         });
     }
 }
@@ -50,17 +48,21 @@ void Conditional::OnElementDestroy(Rml::Element* element){
 
     // Check for if-attribute
     if (Attribute::hasSupportedAttribute(element)) {
-        auto const id = Graphics::RmlInterface::RmlElementIdentifier(element);
-        registeredEntries.erase(id);
+        registeredEntries.erase(element);
     }
 }
 
-void Conditional::RegisteredEntry::resolve(Graphics::RmlInterface::RmlElementIdentifier const& id, Graphics::RmlInterface& interface){
-    if (newEntry) {
-        newEntry = false;
-        originalDisplay = element->GetDisplay();
-    }
-    auto const ctxAndScope = interface.getRmlElementContextAndScope(id);
+void Conditional::RegisteredEntry::resolve(Graphics::RmlInterface& interface) const {
+    // Get context/scope for evaluation
+    auto const ctxAndScope = [&] -> std::optional<Graphics::RmlInterface::ContextAndScope> {
+        if (!Graphics::RmlInterface::RmlElementIdentifier::hasElementIdentifier(element)) {
+            return std::nullopt; // Or should we set an identifier?
+        }
+        auto const id = Graphics::RmlInterface::RmlElementIdentifier(element);
+        return interface.getRmlElementContextAndScope(id);
+    }();
+
+    // Show/Hide content
     if (!ctxAndScope) {
         hideElement();
         return;

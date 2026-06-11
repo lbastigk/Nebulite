@@ -40,19 +40,18 @@ public:
 
 private:
     struct RegisteredEntry {
-        Rml::Style::Display originalDisplay;
-        Interaction::Logic::Expression condition;
         Rml::Element* element;
-        bool newEntry = true; // new means that we need to get the inner rml on next update
+        Rml::Style::Display originalDisplay; // Original display style of the element
+        Interaction::Logic::Expression condition; // Condition to determine if the element should be shown or hidden
 
-        void resolve(Graphics::RmlInterface::RmlElementIdentifier const& id, Graphics::RmlInterface& interface);
+        void resolve(Graphics::RmlInterface& interface) const ;
 
         void hideElement() const ;
 
         void showElement() const ;
     };
 
-    absl::flat_hash_map<Graphics::RmlInterface::RmlElementIdentifier, RegisteredEntry> registeredEntries;
+    absl::flat_hash_map<Rml::Element*, RegisteredEntry> registeredEntries;
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // MODULE_RMLUI_CONDITIONAL_HPP
