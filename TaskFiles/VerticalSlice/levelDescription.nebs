@@ -8,31 +8,28 @@ echo Building simple level
 echo
 
 ###########################
-# Part 1: Player
+# Setup level
+
+# Player
+# Setting up as first object is helpful, as the id will be 1, which is easier to work with for testing
 echo Adding character with wasd-control
 spawn ./Resources/Renderobjects/Creatures/player.jsonc|posX=160|posY=160|physics.vNorm=100
 
-###########################
-# Part 2: Background
+# Background
 echo Adding background
-
-#   [X]        [Y]
 for-progress i -40 39 for j -40 39 spawn ./Resources/Renderobjects/Plants/Grass/grass.jsonc \
     |eval set posX $({i}*16) \
     |eval set posY $({j}*16) \
     |eval set draw.core.rect.src.x $(16*(rng2argInt16({i}*16,{j}*16)%3))
 
-###########################
-# Part 3: some trees
-
-# Border
+# Border Trees
 echo Adding Trees: Border
 for i -40 39 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$({i}*16)|posY=$(-40*16)
 for i -40 39 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$({i}*16)|posY=$( 39*16)
 for i -39 38 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$(-40*16)|posY=$({i}*16)
 for i -39 38 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$( 39*16)|posY=$({i}*16)
 
-# Random
+# Random Trees
 echo Adding Trees: Random
 for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$( ({global:random.A} % 39)*16+00)|posY=$( ({global:random.B} % 39)*16+00)
 for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$( ({global:random.A} % 39)*16+00)|posY=$(-({global:random.B} % 39)*16+16)
@@ -40,7 +37,7 @@ for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX
 for i 0 50 eval spawn ./Resources/Renderobjects/Plants/Trees/pinetree.jsonc|posX=$(-({global:random.A} % 39)*16+16)|posY=$(-({global:random.B} % 39)*16+16)
 
 ###########################
-# Setup pseudo info about players
+# Player stack info
 
 set players[0].name "Orgun the brave"
 set players[0].hp.current 100
@@ -49,14 +46,14 @@ set players[0].mp.current 50
 set players[0].mp.max 50
 set players[0].image ./Resources/Sprites/TEST100P/001.bmp
 
-set players[1].name "Helia, the apprentice"
+set players[1].name "Helia the apprentice"
 set players[1].hp.current 80
 set players[1].hp.max 100
 set players[1].mp.current 200
 set players[1].mp.max 500
 set players[1].image ./Resources/Sprites/TEST100P/026.bmp
 
-set players[2].name "Mira, the rogue"
+set players[2].name "Mira the rogue"
 set players[2].hp.current 60
 set players[2].hp.max 100
 set players[2].mp.current 20
@@ -71,7 +68,6 @@ set players[3].mp.current 1000
 set players[3].image ./Resources/Sprites/TEST100P/076.bmp
 
 # Mirror player position to players[0]
-
 # A bit brittle, technically we want the always-task to be for the selected object
 # This would break if we ever change the selected object, but for this test it should be fine
 selected-object get 1
@@ -79,7 +75,7 @@ always selected-object parse assign global:players[0].posX = {self:posX}
 always selected-object parse assign global:players[0].posY = {self:posY}
 
 ###########################
-# Hotkey
+# Hotkeys
 
 # Setup hotkey list
 set hotkey[0].image ./Resources/Sprites/TEST100P/001.bmp
@@ -96,17 +92,18 @@ set hotkey[9].image ./Resources/Sprites/TEST100P/001.bmp
 # Start index
 set rml.settings.actionWindow.entrySelected 1
 
+# Map player input to hotkey selection
 # Use 1-9 for hotkey selection, + 0 for 10
-always if $({global:renderer.input.keyboard.delta.1}) then assign global:rml.settings.actionWindow.entrySelected = 1
-always if $({global:renderer.input.keyboard.delta.2}) then assign global:rml.settings.actionWindow.entrySelected = 2
-always if $({global:renderer.input.keyboard.delta.3}) then assign global:rml.settings.actionWindow.entrySelected = 3
-always if $({global:renderer.input.keyboard.delta.4}) then assign global:rml.settings.actionWindow.entrySelected = 4
-always if $({global:renderer.input.keyboard.delta.5}) then assign global:rml.settings.actionWindow.entrySelected = 5
-always if $({global:renderer.input.keyboard.delta.6}) then assign global:rml.settings.actionWindow.entrySelected = 6
-always if $({global:renderer.input.keyboard.delta.7}) then assign global:rml.settings.actionWindow.entrySelected = 7
-always if $({global:renderer.input.keyboard.delta.8}) then assign global:rml.settings.actionWindow.entrySelected = 8
-always if $({global:renderer.input.keyboard.delta.9}) then assign global:rml.settings.actionWindow.entrySelected = 9
-always if $({global:renderer.input.keyboard.delta.0}) then assign global:rml.settings.actionWindow.entrySelected = 10
+always if $({global:input.actionWindow::slot::01}) then assign global:rml.settings.actionWindow.entrySelected = 1
+always if $({global:input.actionWindow::slot::02}) then assign global:rml.settings.actionWindow.entrySelected = 2
+always if $({global:input.actionWindow::slot::03}) then assign global:rml.settings.actionWindow.entrySelected = 3
+always if $({global:input.actionWindow::slot::04}) then assign global:rml.settings.actionWindow.entrySelected = 4
+always if $({global:input.actionWindow::slot::05}) then assign global:rml.settings.actionWindow.entrySelected = 5
+always if $({global:input.actionWindow::slot::06}) then assign global:rml.settings.actionWindow.entrySelected = 6
+always if $({global:input.actionWindow::slot::07}) then assign global:rml.settings.actionWindow.entrySelected = 7
+always if $({global:input.actionWindow::slot::08}) then assign global:rml.settings.actionWindow.entrySelected = 8
+always if $({global:input.actionWindow::slot::09}) then assign global:rml.settings.actionWindow.entrySelected = 9
+always if $({global:input.actionWindow::slot::10}) then assign global:rml.settings.actionWindow.entrySelected = 10
 
 ###########################
 # Show imgui-view of player for debugging
