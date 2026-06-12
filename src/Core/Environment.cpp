@@ -26,8 +26,8 @@
 namespace Nebulite::Core {
 
 Environment::Environment(Data::JsonScope& documentReference, Utility::IO::Capture& parentCapture)
-    : Domain("Environment", documentReference, parentCapture),
-      roc(Utility::Generate::array<Data::RenderObjectContainer, allLayers.size()>([](std::size_t) {
+    : Domain("Environment", documentReference, parentCapture)
+    , roc(Utility::Generate::array<Data::RenderObjectContainer, allLayers.size()>([](std::size_t) {
           return Data::RenderObjectContainer{};
       }))
 {
@@ -89,15 +89,18 @@ void Environment::deserialize(std::string const& serialOrLink, Data::TilingInfor
 // Object Management
 
 void Environment::append(RenderObject* toAppend, Data::TilingInformation const& tilingInformation, uint8_t const& layer) {
-    if (layer < allLayers.size()) {
-        roc[layer].append(toAppend, tilingInformation);
-    } else {
+    if (layer == 0 || layer >= allLayers.size()) {
+        if (toAppend->estimateComputationalCost() != 0) {
+            capture.log.println("Warning: Appending object with non-zero computational cost to background layer, which isn't updated. Consider moving the object to a higher layer so its rulesets are properly executed.");
+        }
         roc[0].append(toAppend, tilingInformation);
     }
+    roc[layer].append(toAppend, tilingInformation);
 }
 
 void Environment::updateObjects(std::vector<Data::TileCoordinate> const& tiles, Data::TilingInformation const& tilingInformation, Data::RendererProcessor const& rendererProcessor) {
-    for (unsigned int i = 0; i < allLayers.size(); i++) {
+    // Do not update lowest layer (background), as it is only for static tiles that do not need to be updated
+    for (unsigned int i = 1; i < allLayers.size(); i++) {
         rendererProcessor.prepareForNewLayer(&roc[i]);
         roc[i].update(tiles, tilingInformation, rendererProcessor);
     }
