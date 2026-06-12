@@ -28,10 +28,10 @@ namespace Nebulite::Utility::Coordination {
  */
 class TimedRoutine {
 public:
-    enum class ConstructionMode : bool {
-        START_IMMEDIATELY,
-        WAIT_FOR_START
-        // TODO: START_AND_FORCE_EXECUTE to force an execution on the first update call
+    enum class ConstructionMode : uint8_t {
+        START_IMMEDIATELY = 0,
+        WAIT_FOR_START,
+        START_IMMEDIATELY_AND_EXECUTE_ONCE
     };
 
     TimedRoutine(std::function<void()> const& routine, uint64_t const& intervalMillis, ConstructionMode const& mode = ConstructionMode::WAIT_FOR_START);

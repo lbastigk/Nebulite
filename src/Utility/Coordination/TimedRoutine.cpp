@@ -16,6 +16,10 @@ TimedRoutine::TimedRoutine(std::function<void()> const& routine, uint64_t const&
     if (mode == ConstructionMode::START_IMMEDIATELY) {
         timer.start();
     }
+    if (mode == ConstructionMode::START_IMMEDIATELY_AND_EXECUTE_ONCE) {
+        timer.start();
+        foo(); // Execute the routine immediately upon construction
+    }
 }
 
 void TimedRoutine::start() {
