@@ -69,6 +69,7 @@ filterCustom
 filterGlob
 filterNulls
 filterRegex
+find-parent-key
 first
 floor
 for
@@ -229,6 +230,7 @@ typeAsSimpleString
 typeAsString
 unlock
 unreachable
+update
 variable
 view
 wait

@@ -2,7 +2,7 @@
 
 This documentation is automatically generated.
 
-Generated on: Wed Jun 10 20:50:46 CEST 2026
+Generated on: Fri Jun 12 11:53:41 CEST 2026
 
 ## Table of Contents
 
@@ -492,6 +492,7 @@ Available Functions
 | Function | Description |
 |----------|-------------|
 | `context-evaluation` | Tests evaluation of self and other global variable access in one expression |
+| `find-parent-key` | Finds the parent key of a given key using the JSON::findParentKey method. |
 | `functree` | Builds a funcTree with extra arguments and tests it |
 | `help` | Show available commands and their descriptions |
 | `key-combination` | Tests key-combinations for the ScopedKey class. |
@@ -501,6 +502,14 @@ Available Functions
 ```
 Tests evaluation of self and other global variable access in one expression
 Usage: feature-test context-evaluation
+```
+
+##### `feature-test find-parent-key`
+
+```
+Finds the parent key of a given key using the JSON::findParentKey method.
+Usage: feature-test find-parent-key <key>
+Using no argument will treated as an empty key.
 ```
 
 ##### `feature-test functree`
@@ -1026,6 +1035,7 @@ Available Functions
 | `get` | Get a renderobject by its index in the Renderer. |
 | `help` | Show available commands and their descriptions |
 | `parse` | Parse a command on the selected RenderObject. |
+| `update` | Updates the currently selected object. |
 
 ##### `selected-object get`
 
@@ -1045,6 +1055,12 @@ Usage: selected-object parse <command>
 
 Use 'selected-object get <id>' to select a RenderObject first.
 Use 'selected-object parse help' to see available commands for the selected object.
+```
+
+##### `selected-object update`
+
+```
+Updates the currently selected object.
 ```
 
 #### `set`
