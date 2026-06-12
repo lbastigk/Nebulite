@@ -72,6 +72,8 @@ public:
         static auto constexpr linkKeySeparator = ':';
     };
 
+    static std::string_view findParentKey(std::string_view const& key);
+
 private:
     /**
      * @brief Standard numeric value used for initializing cache entries and failed variant conversions
@@ -207,9 +209,9 @@ private:
      * @brief Flush all DIRTY entries in the cache back to the RapidJSON document.
      * @details This ensures that the RapidJSON document is always structurally valid
      *          and up-to-date with the cached values.
-     * @todo Consider adding an optional prefix parameter to only flush a subset of the cache.
+     * @param key The key to flush. Finds the parent key and flushes all entries beginning with the parent key.
      */
-    void flush() const ;
+    void flush(std::string_view const& key) const ;
 
     //------------------------------------------
     // Return Value Transformation system

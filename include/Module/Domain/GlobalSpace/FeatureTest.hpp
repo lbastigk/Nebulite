@@ -24,7 +24,7 @@ class GlobalSpace;
 namespace Nebulite::Module::Domain::GlobalSpace {
 /**
  * @class Nebulite::Module::Domain::GlobalSpace::FeatureTest
- * @brief DomainModule for testing features in the GlobalSpace.
+ * @brief DomainModule for exposing functionality to test features in the GlobalSpace domain.
  */
 class FeatureTest final : public Base::DomainModule<Core::GlobalSpace> {
 public:
@@ -50,6 +50,12 @@ public:
         "Usage: feature-test key-combination <key1> <key2>\n"
         "Using <empty> as argument will treated as an empty key.\n";
 
+    [[nodiscard]] Constants::Event findParentKey(std::span<std::string_view const> const& args) const ;
+    static auto constexpr findParentKeyName = "feature-test find-parent-key";
+    static auto constexpr findParentKeyDesc = "Finds the parent key of a given key using the JSON::findParentKey method.\n"
+        "Usage: feature-test find-parent-key <key>\n"
+        "Using no argument will treated as an empty key.\n";
+
     //------------------------------------------
     // Categories
 
@@ -70,6 +76,7 @@ public:
         bindFunction(&FeatureTest::testFuncTree, testFuncTree_name, testFuncTree_desc);
         bindFunction(&FeatureTest::selfOtherGlobalEvaluation, selfOtherGlobalEvaluation_name, selfOtherGlobalEvaluation_desc);
         bindFunction(&FeatureTest::keyCombination, keyCombination_name, keyCombination_desc);
+        bindFunction(&FeatureTest::findParentKey, findParentKeyName, findParentKeyDesc);
     }
 
     struct Key : Data::KeyGroup<""> {

@@ -25,6 +25,7 @@
         // Tests from the featureTest DomainModule, for calling hardcoded test functions
         "Tools/Tests/Integrated/funcTree.json",         // Basic functree initialization and execution tests
         "Tools/Tests/Integrated/keyCombination.json",   // JSON key combinations, making sure there are no trailing dots or other weirdness in key combinations: key.addMember("a").addIndex(3)...
+        "Tools/Tests/Integrated/findParentKey.json",    // Finding the parent of a given key is important for cache invalidation
         "Tools/Tests/Integrated/context.json",          // Tests access to self/other/global context-model
         //---------------------------------------
         // Expression tests

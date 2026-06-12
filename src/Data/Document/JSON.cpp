@@ -40,8 +40,33 @@ static_assert(
     "JSON size has changed, please review the move assignment operator for potential cache invalidation issues."
 );
 
+
+
 //------------------------------------------
 namespace Nebulite::Data {
+
+//------------------------------------------
+// Prefix: parent finder
+
+std::string_view JSON::findParentKey(std::string_view const& key) {
+    if (key.empty()) {
+        return key.substr(0, 0); // Return empty string view
+    }
+    size_t const lastPos = key.find_last_of(".]");
+    if (lastPos == std::string_view::npos || lastPos == 0) {
+        return key.substr(0, 0); // Return empty string view
+    }
+    if (lastPos == key.length() - 1) {
+        return findParentKey(key.substr(0, key.length() > 1 ? key.length() - 1 : 0));
+    }
+    if (key[lastPos] == ']') {
+        return key.substr(0, lastPos+1);
+    }
+    return key.substr(0, lastPos);
+}
+
+//------------------------------------------
+// Construct / Destruct
 
 JSON::JSON() {
     cacheLine = std::make_unique<CacheLine>();
@@ -168,10 +193,14 @@ void JSON::synchronizeChildren(std::string_view const& parentKey) const {
     }
 }
 
-void JSON::flush() const {
+void JSON::flush(std::string_view const& key) const {
     std::scoped_lock const lockGuard(mtx);
 
-    for (auto& [key, entry] : cache) {
+    auto const parent = findParentKey(key);
+
+    for (auto& [entryKey, entry] : cache) {
+        if (!entryKey.starts_with(parent)) continue;
+
         // Skip malformed entries
         if (entry->state == CacheEntry::EntryState::MALFORMED) {
             continue;
@@ -186,7 +215,7 @@ void JSON::flush() const {
 
         // Every dirty entry is flushed back to the document and marked clean
         if (entry->state == CacheEntry::EntryState::DIRTY) {
-            (void)RjDirectAccess::set(key.c_str(), entry->value, doc, doc.GetAllocator());
+            (void)RjDirectAccess::set(entryKey.c_str(), entry->value, doc, doc.GetAllocator());
             entry->state = CacheEntry::EntryState::CLEAN;
         }
     }
@@ -239,7 +268,7 @@ std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> JSON::getV
     }
 
     // Check document, if not in cache
-    flush();
+    flush(key);
     return getSimpleValueFromDocument(key);
 }
 
@@ -249,7 +278,7 @@ JSON JSON::getSubDoc(std::string_view const& key) const {
     // Handle integrity via flushing
     // Makes sure we don't have to worry about cache and double pointers here
     // Full access to the rapidjson document after this point
-    flush();
+    flush(key);
 
     // Check if a transformation is present
     if (key.contains(SpecialCharacter::transformationPipe)) {
@@ -376,7 +405,7 @@ void JSON::setVariant(std::string_view const& key, RjDirectAccess::simpleValue c
         cache[key] = std::move(new_entry);
 
         // Flush to RapidJSON document for structural integrity
-        flush();
+        flush(key);
     }
 }
 
@@ -387,9 +416,9 @@ void JSON::setSubDoc(std::string_view const& key, JSON const& child, std::string
     deleteCacheEntry(key);
 
     // Flush own contents
-    flush();
+    flush(key);
     helperNonConstVar++; // Signal non-const operation
-    child.flush();
+    child.flush(childKey);
 
     if (auto const* childVal = RjDirectAccess::traversePath(childKey, child.doc); childVal == nullptr) {
         RjDirectAccess::removeMember(key, doc);
@@ -432,7 +461,7 @@ void JSON::setSubDoc(std::string_view const& key, JSON const& child, std::string
 void JSON::setEmptyArray(std::string_view const& key) {
     std::scoped_lock const lockGuard(mtx);
     helperNonConstVar++; // Signal non-const operation
-    flush();
+    flush(key);
     rapidjson::Value* val = RjDirectAccess::ensurePath(key, doc, doc.GetAllocator());
     val->SetArray();
 }
@@ -442,7 +471,7 @@ void JSON::setEmptyArray(std::string_view const& key) {
 
 std::string JSON::serialize(std::string_view const& key, RjDirectAccess::SerializationType const& type) const {
     std::scoped_lock const lockGuard(mtx);
-    flush(); // Ensure all changes are reflected in the document
+    flush(key); // Ensure all changes are reflected in the document
     if (key.empty()) {
         // Serialize entire doc
         return RjDirectAccess::serialize(doc, type);
@@ -456,7 +485,7 @@ void JSON::deserialize(std::string_view const& serialOrLink) {
     helperNonConstVar++; // Signal non-const operation
 
     // Reset document and cache
-    flush();
+    flush("");
     doc.SetObject();
     for (auto const& entry : std::views::values(cache)) {
         deleteCacheEntry(entry);
@@ -489,7 +518,7 @@ KeyType JSON::memberType(std::string_view const& key) const {
     // Checking cache is risky, as inner values may have changed ...
     // Once partial flushing is available, we should use that to minimize the performance impact!
     // Flush before accessing the document to ensure integrity
-    flush();
+    flush(key);
 
     // If not cached, check rapidjson doc
     auto const* val = RjDirectAccess::traversePath(key, doc);
@@ -557,7 +586,7 @@ std::string JSON::memberTypeString(std::string_view const& key) const {
     // Checking cache is risky, as inner values may have changed ...
     // Once partial flushing is available, we should use that to minimize the performance impact!
     // Flush before accessing the document to ensure integrity
-    flush();
+    flush(key);
     auto const* val = RjDirectAccess::traversePath(key, doc);
     if (val == nullptr) {
         return "null";
@@ -590,7 +619,7 @@ size_t JSON::memberSize(std::string_view const& key) const {
         return 1;
     }
     // Is array, get size
-    flush(); // Ensure cache is flushed before accessing doc
+    flush(key); // Ensure cache is flushed before accessing doc
     auto const* val = RjDirectAccess::traversePath(key, doc);
     return val->Size();
 }
@@ -600,7 +629,7 @@ void JSON::removeMember(std::string_view const& key) {
     helperNonConstVar++; // Signal non-const operation
 
     // Ensure cache is flushed before removing key
-    flush();
+    flush(key);
 
     // Remove member from cache, synchronize children
     cache.erase(key);
@@ -613,7 +642,7 @@ void JSON::moveMember(std::string_view const& fromKey, std::string_view const& t
     helperNonConstVar++; // Signal non-const operation
 
     // Ensure cache is flushed before moving key
-    flush();
+    flush("");
 
     // Edge case: toKey starts with fromKey, we need a temporary key to avoid deleting after moving
     if (std::string(toKey).starts_with(std::string(fromKey))) {
@@ -652,7 +681,7 @@ void JSON::copyMember(std::string_view const& fromKey, std::string_view const& t
     helperNonConstVar++; // Signal non-const operation
 
     // Ensure cache is flushed before copying key
-    flush();
+    flush("");
 
     setSubDoc(toKey, *this, fromKey);
 }
@@ -661,7 +690,7 @@ std::vector<std::string> JSON::listAvailableKeys(std::string_view const& key) co
     std::scoped_lock const lockGuard(mtx);
 
     // Flush cache before accessing document
-    flush();
+    flush(key);
 
     // Traverse to the specified key
     if (rapidjson::Value const* val = RjDirectAccess::traversePath(key, doc); val != nullptr) {
