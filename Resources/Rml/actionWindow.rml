@@ -34,18 +34,15 @@
         <div if="$(1)">
             <div class="hotkey-entry">
                 <div data-eval="true">
-                    <!-- Hotkey Image -->
-
+                    <!-- Hotkey Image ... -->
                     <!-- TODO: add overlay for selected image instead of a new image -->
-
-                    <!-- selected -->
+                    <!-- ... selected -->
                     <img
                         if="$(eq({self:index},{other:rml.settings.actionWindow.entrySelected}-1))"
                         class="hotkey-image-selected"
                         src="{self:image|default ./Resources/Sprites/TEST100P/001.bmp}"
                     ></img>
-
-                    <!-- not selected -->
+                    <!-- ... not selected -->
                     <img
                         if="$(neq({self:index},{other:rml.settings.actionWindow.entrySelected}-1))"
                         class="hotkey-image"

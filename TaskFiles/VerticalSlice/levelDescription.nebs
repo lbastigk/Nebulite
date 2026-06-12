@@ -1,11 +1,12 @@
-echo Vertical Slice test for Nebulite
+######################################################
+# Vertical Slice test for Nebulite
+######################################################
+
+###########################
+# Settings
 set-res 640 480 2
 #set-res 480 360 3
 set-fps 6000
-echo
-echo Nebulite vertical slice test
-echo Building simple level
-echo
 
 ###########################
 # Setup level
