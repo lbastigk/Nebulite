@@ -37,12 +37,12 @@ public:
     static std::function<size_t()> atomicThreadIncrementGenerator();
 
     /**
-     * @brief A generator function that returns a lambda which generates unique IDs for strings, rolling back to 1 after reaching UINT32_MAX.
+     * @brief A generator function that returns a lambda which generates unique IDs for strings.
      * @details This generator is thread-safe and can be used to generate unique IDs for strings in a concurrent environment. It uses a mutex to protect access to the internal map and counter.
-     * @return A lambda function that generates unique IDs for strings, rolling back to 1 after reaching UINT32_MAX.
-     * @todo Change to size_t
+     * @return A lambda function that generates unique IDs for strings.
+     * @throw std::overflow_error if the generator exceeds the maximum limit of size_t.
      */
-    static std::function<uint32_t(std::string_view const&)> stringToRollingIdGenerator();
+    static std::function<std::size_t(std::string_view const&)> stringToRollingIdGenerator();
 };
 } // namespace Nebulite::Utility::Coordination
 #endif // UTILITY_COORDINATION_IDGENERATOR_HPP
