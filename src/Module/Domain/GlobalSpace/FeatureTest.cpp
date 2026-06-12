@@ -17,6 +17,7 @@
 #include "Interaction/Execution/FuncTree.hpp"
 #include "Interaction/Logic/Expression.hpp"
 #include "Module/Domain/GlobalSpace/FeatureTest.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::GlobalSpace {
@@ -100,6 +101,12 @@ Constants::Event FeatureTest::keyCombination(std::span<std::string_view const> c
     auto const key2 = args[2] == "<empty>" ? "" : args[2];
     auto const key = Data::ScopedKey(key1).addMember(key2);
     domain.capture.log.println(key.view().toString());
+    return Constants::Event::Success;
+}
+
+Constants::Event FeatureTest::findParentKey(std::span<std::string_view const> const& args) const {
+    auto const key = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : "";
+    domain.capture.log.println(Data::JSON::findParentKey(key));
     return Constants::Event::Success;
 }
 

@@ -1,0 +1,34 @@
+[
+    {
+        "command": "feature-test find-parent-key",
+        "expected": { "cout": [""], "cerr": [] }
+    },
+    {
+        "command": "feature-test find-parent-key foo.bar",
+        "expected": { "cout": ["foo"], "cerr": [] }
+    },
+    {
+        "command": "feature-test find-parent-key foo.bar.baz",
+        "expected": { "cout": ["foo.bar"], "cerr": [] }
+    },
+    {
+        "command": "feature-test find-parent-key foo.bar[0]",
+        "expected": { "cout": ["foo"], "cerr": [] }
+    },
+    {
+        "command": "feature-test find-parent-key foo[0].bar",
+        "expected": { "cout": ["foo[0]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test find-parent-key [0][1][2]",
+        "expected": { "cout": ["[0][1]"], "cerr": [] }
+    },
+    {
+        "command": "feature-test find-parent-key a.b.c.d.",
+        "expected": { "cout": ["a.b.c"], "cerr": [] }
+    },
+    {
+        "command": "feature-test find-parent-key [0][1].",
+        "expected": { "cout": ["[0]"], "cerr": [] }
+    }
+]
