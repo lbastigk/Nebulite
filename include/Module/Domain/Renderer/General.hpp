@@ -140,6 +140,10 @@ public:
         "\n"
         "Usage: dump-view\n";
 
+    [[nodiscard]] Constants::Event selectedObjectUpdate() const ;
+    static auto constexpr selectedObjectUpdateName = "selected-object update";
+    static auto constexpr selectedObjectUpdateDesc = "Updates the currently selected object.";
+
     [[nodiscard]] Constants::Event selectedObjectGet(int argc, char const** argv);
     static auto constexpr selectedObjectGet_name = "selected-object get";
     static auto constexpr selectedObjectGet_desc = "Get a renderobject by its index in the Renderer.\n"
@@ -188,6 +192,7 @@ public:
         bindFunction(&General::cam_set, cam_set_name, cam_set_desc);
 
         bindCategory(selectedObject_name, selectedObject_desc);
+        bindFunction(&General::selectedObjectUpdate, selectedObjectUpdateName, selectedObjectUpdateDesc);
         bindFunction(&General::selectedObjectGet, selectedObjectGet_name, selectedObjectGet_desc);
         bindFunction(&General::selectedObjectParse, selectedObjectParse_name, selectedObjectParse_desc);
 

@@ -357,6 +357,14 @@ Constants::Event General::dumpView() const {
     return Constants::Event::Success;
 }
 
+Constants::Event General::selectedObjectUpdate() const {
+    if (selectedRenderObject) {
+        return selectedRenderObject->update();
+    }
+    domain.capture.warning.println("No RenderObject selected! Use selectedObjectGet <id> to select a valid object.");
+    return Constants::Event::Warning;
+}
+
 Constants::Event General::selectedObjectGet(int const argc, char const** argv){
     if (argc < 2) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
