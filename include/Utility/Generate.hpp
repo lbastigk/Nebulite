@@ -49,8 +49,6 @@ public:
 
         std::array<std::array<std::pair<size_t, size_t>, pairsPerRound>, roundCount> rounds{};
         std::array<size_t, roundCount> roundsAssigned{}; // Track how many pairs have been assigned to each round
-
-        // TODO: should be reduce-able to a 2x2 mask!
         static std::array<std::array<size_t, 4>, 4> constexpr baseMask = {
             {
                 {1, 2, 5, 6},
