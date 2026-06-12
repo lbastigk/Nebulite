@@ -24,10 +24,6 @@ Movement::Movement() : RulesetModule(moduleName) {
 
     // Local rulesets
     bind<processClippingName>(RulesetType::Local, &Movement::processClipping, processClippingDesc, baseListFunc);
-
-    // Global Variables
-    auto const token = getRulesetModuleAccessToken(*this);
-    globalVal.dt = Global::shareScope(token).getStableDoublePointer(Domain::GlobalSpace::Time::Key::time_dt); // Simulation delta time
 }
 
 // NOLINTNEXTLINE

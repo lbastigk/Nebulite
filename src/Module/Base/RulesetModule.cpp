@@ -9,6 +9,7 @@
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/StaticRulesetMap.hpp"
 #include "Module/Base/RulesetModule.hpp"
+#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Base {
@@ -25,6 +26,12 @@ Interaction::Rules::BaseListFunction RulesetModule::generateBaseListFunction(std
             return nullptr;
         }
     };
+}
+
+void RulesetModule::checkGlobalContextCorrectness(Interaction::Context const& context) {
+    if (context.global.getId() != Global::instance().getId()) {
+        throw std::runtime_error("The global context must be the actual GlobalSpace, as this function relies on pre-cached global variables.");
+    }
 }
 
 } // namespace Nebulite::Module::Base

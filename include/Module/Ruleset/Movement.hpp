@@ -101,16 +101,6 @@ private:
         position_last_Y
     };
 
-    // 2.) To retrieve from globalspace
-    /**
-     * @struct GlobalVal
-     * @brief Struct to hold pointers to global variables used in movement calculations.
-     */
-    struct GlobalVal {
-        /* Add more global variables here as needed */
-        double* dt = nullptr; // Time step for movement calculations
-    } globalVal = {};
-
     struct Radius {
         double& slf;
         double& otr;

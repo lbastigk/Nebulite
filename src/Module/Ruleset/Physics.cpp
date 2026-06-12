@@ -41,6 +41,10 @@ Physics::Physics() : RulesetModule(moduleName) {
 
 // TODO: add collision for circle-box and circle-circle
 void Physics::elasticCollision(Interaction::Context const& context, double** slf, double** otr) const {
+    if (context.global.getId() != Global::instance().getId()) {
+        throw std::runtime_error("The global context must be the actual GlobalSpace, as this Ruleset relies on global variables!");
+    }
+
     //------------------------------------------
     // Base condition check
 
@@ -135,6 +139,8 @@ void Physics::elasticCollision(Interaction::Context const& context, double** slf
 
 
 void Physics::gravity(Interaction::Context const& context, double** slf, double** otr) const {
+    checkGlobalContextCorrectness(context);
+
     double const dx = baseVal(slf, Key::posX) - baseVal(otr, Key::posX);
     double const dy = baseVal(slf, Key::posY) - baseVal(otr, Key::posY);
 
@@ -162,7 +168,9 @@ void Physics::storeLastPosition(Interaction::Context const& /*context*/, double*
     baseVal(slf, Key::physics_lastPositionY) = baseVal(slf, Key::posY);
 }
 
-void Physics::applyForce(Interaction::Context const& /*context*/, double** slf, double** /*otr*/) const {
+void Physics::applyForce(Interaction::Context const& context, double** slf, double** /*otr*/) const {
+    checkGlobalContextCorrectness(context);
+
     // Pre-calculate values before locking
     double const dt = *globalVal.dt;
     double const invMass = 1.0 / baseVal(slf, Key::physics_mass);

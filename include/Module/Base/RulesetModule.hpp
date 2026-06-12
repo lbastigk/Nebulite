@@ -114,6 +114,12 @@ protected:
      */
     [[nodiscard]] Interaction::Rules::BaseListFunction generateBaseListFunction(std::vector<Data::ScopedKeyView> const& baseKeys) const ;
 
+    /**
+     * @brief Checks if the global context is the actual GlobalSpace, and throws an exception if not.
+     * @details This is required for function relying on pre-cached global variables
+     */
+    static void checkGlobalContextCorrectness(Interaction::Context const& context);
+
 private:
     // Vector of all static rulesets from this module
     std::vector<Interaction::Rules::StaticRulesetMap::StaticRulesetWithMetadata> moduleRulesets;
