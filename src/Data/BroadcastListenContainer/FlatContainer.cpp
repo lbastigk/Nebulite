@@ -21,7 +21,7 @@
 namespace Nebulite::Data::BroadcastListenContainer {
 
 namespace {
-size_t& getThreadId() {
+size_t getThreadId() {
     static auto workerCount = Constants::ThreadSettings::getInvokeWorkerCount();
     static auto threadSpreader = Utility::Coordination::IdGenerator::atomicThreadIncrementGenerator();
     thread_local size_t threadId = threadSpreader();
@@ -33,13 +33,13 @@ size_t& getThreadId() {
 } // namespace
 
 void FlatContainerImpl::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> entry) {
-    auto const& threadId = getThreadId();
+    auto const threadId = getThreadId();
     //auto lock = broadcasters[threadId].lock(entry->getTopic());
     broadcasters[threadId][entry->getTopic()].push_back(std::move(entry));
 }
 
 void FlatContainerImpl::listen(std::shared_ptr<Interaction::Rules::Listener> listener) {
-    auto const& threadId = getThreadId();
+    auto const threadId = getThreadId();
     // Lock is, for some reason, necessary ...
     auto lock = listeners[threadId].lock(listener->topic);
     listeners[threadId][listener->topic].push_back(std::move(listener));
