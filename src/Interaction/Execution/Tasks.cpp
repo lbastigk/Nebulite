@@ -4,7 +4,6 @@
 // Standard library
 #include <memory>
 #include <cstddef> // NOLINT
-#include <sstream>
 #include <algorithm>
 #include <ranges>
 #include <string>

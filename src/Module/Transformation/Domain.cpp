@@ -17,16 +17,8 @@ bool Domain::injectScript(std::span<std::string_view const> const& args, Data::J
     if (args.size() < 2) return false;
     auto const link = Utility::StringHandler::recombineArgs(args.subspan(1));
     Interaction::Execution::Domain tempDomain("injectScriptTempDomain", *jsonDoc, Global::capture());
-    auto ctx = Interaction::Context({
-        .self = tempDomain,
-        .other = tempDomain,
-        .global = tempDomain,
-    });
-    auto ctxScope = Interaction::ContextScope({
-        .self = *jsonDoc,
-        .other = *jsonDoc,
-        .global = *jsonDoc,
-    });
+    auto ctx = Interaction::Context{tempDomain,tempDomain,tempDomain};
+    auto ctxScope = Interaction::ContextScope{*jsonDoc,*jsonDoc,*jsonDoc};
     Data::TaskQueue taskQueue("injectScript");
     taskQueue.addScript(link, Global::capture());
     do {
@@ -36,4 +28,4 @@ bool Domain::injectScript(std::span<std::string_view const> const& args, Data::J
     return true;
 }
 
-}
+} // namespace Nebulite::Module::Transformation

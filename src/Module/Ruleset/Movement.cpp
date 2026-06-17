@@ -11,7 +11,6 @@
 #include "Module/Domain/GlobalSpace/Time.hpp"
 #include "Module/Ruleset/Movement.hpp"
 #include "Nebulite.hpp"
-#include "ScopeAccessor.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Ruleset {

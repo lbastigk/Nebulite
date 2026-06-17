@@ -4,7 +4,7 @@
 // Standard library
 #include <atomic>
 #include <cstddef>
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <functional>
 #include <memory>
 #include <mutex>
