@@ -1,6 +1,7 @@
 echo Starting a game of pong
 set-fps 1000
 set-res 640 480 2
+cam set 0 0
 time set-fixed-dt 1     # Useful for spawn memleaktest
 
 set physics.G 10

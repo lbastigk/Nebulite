@@ -24,6 +24,7 @@ set snapshotInterval 100
 time set-fixed-dt 5
 set physics.G 10
 set-res 640 640 2
+cam set 0 0
 set-fps 10000
 show-fps on
 
