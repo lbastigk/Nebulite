@@ -382,19 +382,16 @@ public:
      * @brief Adds a callback function to be executed during the render pass
      * @details Is executed once.
      * @param function The callback function to add
+     * @param aboveThisLayer The layer above which to execute the callback. The callback will be executed after rendering the specified layer.
      */
-    void addRenderCallback(std::function<void()> const& function) {
-        renderCallbacks.emplace_back(function);
-    }
+    void addRenderCallback(std::function<void()> const& function, Environment::Layer const& aboveThisLayer = Environment::FinalLayer);
 
     /**
     * @brief Adds a callback function to be executed after the current render pass is complete.
     * @details Is executed once.
     * @param function The callback function to add.
     */
-    void addPostRenderCallback(std::function<void()> const& function) {
-        postRenderCallback.emplace_back(function);
-    }
+    void addPostRenderCallback(std::function<void()> const& function);
 
     //------------------------------------------
     // Viewport
@@ -405,7 +402,11 @@ public:
         lowest
     } viewSetting = ViewSetting::high;
 
-    void setView(ViewSetting const view) noexcept {viewSetting = view;}
+    /**
+     * @brief Sets the renderer view setting, determining the amount of tiles being updated and rendered.
+     * @param view The view setting to apply.
+     */
+    void setView(ViewSetting const& view) noexcept ;
 
     /**
      * @brief Gets all visible tiles of the current renderer view
@@ -521,7 +522,7 @@ private:
     std::vector<SDL_Event> events;
 
     // Functions to execute during rendering
-    std::vector<std::function<void()>> renderCallbacks;
+    absl::flat_hash_map<Environment::Layer, std::vector<std::function<void()>>> renderCallbacks;
 
     // Functions to execute after a full render pass
     std::vector<std::function<void()>> postRenderCallback;

@@ -54,6 +54,8 @@ public:
         effects
     };
 
+    static auto constexpr FinalLayer = Layer::effects;
+
 private:
 
     // All layers in rendering order
@@ -63,6 +65,8 @@ private:
         Layer::foreground,
         Layer::effects
     };
+
+    static_assert(allLayers.back() == FinalLayer, "Layer ordering changed, please review code.");
 
     // Inner RenderObject container layers
     std::array<Data::RenderObjectContainer, allLayers.size()> roc;

@@ -372,6 +372,10 @@ void Renderer::deserialize(std::string const& serialOrLink) noexcept {
 //------------------------------------------
 // Viewport
 
+void Renderer::setView(ViewSetting const& view) noexcept {
+    viewSetting = view;
+}
+
 std::vector<Data::TileCoordinate> Renderer::visibleTiles() const {
     auto getTileCount = [&]() -> std::pair<int, int> {
         auto const w = domainScope.get<int16_t>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0);
@@ -527,12 +531,6 @@ void Renderer::render() {
         static_cast<int>(y)
     );
     Graphics::RmlInterface::instance().render();
-
-    // Render callbacks, likely imgui functions
-    for (auto const& callback : renderCallbacks) {
-        callback();
-    }
-    renderCallbacks.clear();
 
     // Finalize render
     if (status.showFps) renderFPS();
@@ -850,6 +848,12 @@ void Renderer::renderFrame() {
                 capture.error.println("Failed to render between-layer texture: ", SDL_GetError());
             }
         }
+
+        // Process renderCallbacks for this layer
+        for (auto const& callback : renderCallbacks[layer]) {
+            callback();
+        }
+        renderCallbacks[layer].clear();
     }
 }
 
@@ -914,6 +918,17 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) {
 
     SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
     return texture;
+}
+
+//------------------------------------------
+// Callback
+
+void Renderer::addRenderCallback(std::function<void()> const& function, Environment::Layer const& aboveThisLayer) {
+    renderCallbacks[aboveThisLayer].emplace_back(function);
+}
+
+void Renderer::addPostRenderCallback(std::function<void()> const& function) {
+    postRenderCallback.emplace_back(function);
 }
 
 } // namespace Nebulite::Core
