@@ -35,7 +35,9 @@ TaskQueue::TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interac
         if (currentResult == Constants::Event::Error) {
             fullResult.encounteredCriticalResult = true;
         }
-        fullResult.events.push_back(currentResult);
+        if (currentResult != Constants::Event::Success) {
+            fullResult.events.push_back(currentResult);
+        }
     };
 
     // 1.) Process and pop tasks
