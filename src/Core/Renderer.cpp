@@ -684,17 +684,21 @@ inline constexpr bool is_static_member_function_v = is_static_member_function<T>
 void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scalar) {
     // Validate resolution and scalar
     if (w < 240 || w > 16384) {
-        capture.error.println("Selected resolution is not supported:", w, "x", h);
+        capture.error.println("Selected resolution is not supported:", w, "x", h, ". (w and h must be between 240 and 16384)");
         return;
     }
     if (h < 240 || h > 16384) {
-        capture.error.println("Selected resolution is not supported:", w, "x", h);
+        capture.error.println("Selected resolution is not supported:", w, "x", h, ". (w and h must be between 240 and 16384)");
         return;
     }
     if ( scalar < 1 || scalar > 8) {
-        capture.error.println("Selected window scaling is not supported:", static_cast<int>(scalar), "x");
+        capture.error.println("Selected window scaling is not supported:", static_cast<int>(scalar), "x", " (must be between 1 and 8)");
         return;
     }
+
+    // Find current center
+    auto const currentCenterX = domainScope.get<int>(Constants::KeyNames::Renderer::positionX).value_or(0) + domainScope.get<int>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0) / 2;
+    auto const currentCenterY = domainScope.get<int>(Constants::KeyNames::Renderer::positionY).value_or(0) + domainScope.get<int>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0) / 2;
 
     // Set new scalar
     windowScale = scalar;
@@ -705,6 +709,12 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResXLogical, w);
     domainScope.set<int>(Constants::KeyNames::Renderer::dispResYLogical, h);
     domainScope.set<uint8_t>(Constants::KeyNames::Renderer::windowScale, windowScale);
+
+    // Set new camera position (top left corner)
+    auto const newCamPosX = currentCenterX - domainScope.get<int>(Constants::KeyNames::Renderer::dispResXLogical).value_or(0) / 2;
+    auto const newCamPosY = currentCenterY - domainScope.get<int>(Constants::KeyNames::Renderer::dispResYLogical).value_or(0) / 2;
+    domainScope.set<int>(Constants::KeyNames::Renderer::positionX, newCamPosX);
+    domainScope.set<int>(Constants::KeyNames::Renderer::positionY, newCamPosY);
 
     // Set the physical window size
     SDL_SetWindowSize(window, w * windowScale, h * windowScale);

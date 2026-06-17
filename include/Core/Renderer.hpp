@@ -213,11 +213,12 @@ public:
 
     /**
      * @brief Changes the window size.
-     *        Total size is `w*scalar x h*scalar`
+     * @details Total size is `w*scalar x h*scalar`
+     *          The center of the screen remains the same before and after resizing,
+     *          so the camera position is adjusted accordingly.
      * @param w The new pixel width of the window.
      * @param h The new pixel height of the window.
      * @param scalar The scaling factor to apply.
-     * @todo Realign to center of screen!
      */
     void changeWindowSize(int const& w, int const& h, uint8_t const& scalar);
 
