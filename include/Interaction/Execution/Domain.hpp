@@ -113,12 +113,8 @@ public:
 
     friend class Domain;
 
-    // Allow other Domains to access documents from each other.
-    friend class Core::Environment;
-    friend class Core::GlobalSpace;
+    // TODO: Get rid of Renderer accessing scopes of RenderObjects
     friend class Core::Renderer;
-    friend class Core::RenderObject;
-    friend class Core::Texture;
 
     // Allow TaskQueue access to set caller scope
     friend class Data::TaskQueue;
@@ -138,7 +134,7 @@ public:
     // Initializer needs access to share scopes
     friend class Module::Domain::Initializer;
 
-private:
+protected:
     /**
      * @brief Each domain uses a JSON document to store its data.
      */
@@ -352,11 +348,11 @@ public:
      *          3.) If none of the above applies, a dummy scope is shared (no workspace)
      * @tparam DomainType The type of Domain used
      * @tparam DomainModuleType The type of DomainModule to derive the scope for
-     * @param domainScope The scope of the domain.
+     * @param jsonScope The scope of the domain.
      * @return A reference to the derived scope for the DomainModule.
      */
     template <typename DomainType, typename DomainModuleType>
-    static auto& scopeDeriver(Data::JsonScope& domainScope) {
+    static auto& scopeDeriver(Data::JsonScope& jsonScope) {
         if constexpr(std::is_same_v<DomainType, Domain>) { // Base class module specialties
             static_assert(!HasKeyGroup<DomainModuleType> || HasDomainRootScopeKeyGroup<DomainModuleType>,
                 "DomainModules linked to the base Domain class cannot have a predefined scope. "
@@ -364,25 +360,25 @@ public:
                 "If possible, use the callers scope inside functions instead of sharing scopes per module!"
             );
             if constexpr (HasDomainRootScopeKeyGroup<DomainModuleType>) {
-                return domainScope.shareScope("");
+                return jsonScope.shareScope("");
             }
             else {
-                return domainScope.shareDummyScope();
+                return jsonScope.shareDummyScope();
             }
         }
         else if constexpr (HasKeyGroup<DomainModuleType>) {
             if constexpr (HasDomainRootScopeKeyGroup<DomainModuleType>) {
-                return domainScope.shareScope("");
+                return jsonScope.shareScope("");
             }
             else if constexpr (DomainModuleType::Key::hasScope()) {
-                return domainScope.shareScope(Data::ScopedKey(DomainModuleType::Key::getScope(), ""));
+                return jsonScope.shareScope(Data::ScopedKey(DomainModuleType::Key::getScope(), ""));
             }
             else {
-                return domainScope.shareDummyScope();
+                return jsonScope.shareDummyScope();
             }
         }
         else {
-            return domainScope.shareDummyScope();
+            return jsonScope.shareDummyScope();
         }
     }
 
