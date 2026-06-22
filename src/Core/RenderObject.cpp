@@ -43,7 +43,9 @@ void setStandardValues(Data::JsonScope& document) {
 }
 } // namespace
 
-RenderObject::RenderObject(Utility::IO::Capture& parentCapture) : Domain("RenderObject", parentCapture) {
+RenderObject::RenderObject(Utility::IO::Capture& parentCapture)
+    : Domain("RenderObject", parentCapture)
+    , RenderObjectDocumentAccessor(domainScope){
     //------------------------------------------
     // Set standard values
     setStandardValues(domainScope);
@@ -77,15 +79,16 @@ void RenderObject::init() {
 RenderObject::~RenderObject() = default;
 
 //------------------------------------------
-// Draw
+// Drawcalls
 
-void RenderObject::sortDrawcalls() {
-    // re-generate drawcall order (alphabetical for now)
-    drawcallOrder.clear();
-    for (auto const& [member, _] : domainScope.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
-        drawcallOrder.push_back(member);
+void RenderObject::draw(Renderer const& renderer, float const& offsetX, float const& offsetY) {
+    for (auto const& member : drawcallOrder) {
+        drawcalls[member]->draw(
+            renderer,
+            static_cast<float>(*refs.posX) - offsetX,
+            static_cast<float>(*refs.posY) - offsetY
+        );
     }
-    std::ranges::sort(drawcallOrder.begin(), drawcallOrder.end());
 }
 
 void RenderObject::reinitDrawcalls() {
@@ -117,6 +120,15 @@ void RenderObject::reInitDrawcall(std::string const& drawcallName) {
     drawcalls[drawcallName] = std::make_unique<Graphics::Drawcall>(domainScope.shareScope(key.view()), capture);
 }
 
+void RenderObject::sortDrawcalls() {
+    // re-generate drawcall order (alphabetical for now)
+    drawcallOrder.clear();
+    for (auto const& [member, _] : domainScope.listAvailableMembersAndKeys(Constants::KeyNames::RenderObject::draw)) {
+        drawcallOrder.push_back(member);
+    }
+    std::ranges::sort(drawcallOrder.begin(), drawcallOrder.end());
+}
+
 void RenderObject::updateDrawcalls() {
     for (auto const& member : drawcallOrder) {
         drawcalls[member]->update();
@@ -146,10 +158,18 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
     Global::instance().notifyEvent(update());
 }
 
-void RenderObject::linkFrequentRefs() {
-    // Position and Size
-    refs.posX = domainScope.getStableDoublePointer(Constants::KeyNames::RenderObject::positionX);
-    refs.posY = domainScope.getStableDoublePointer(Constants::KeyNames::RenderObject::positionY);
+//------------------------------------------
+// Position/Layer
+
+[[nodiscard]] RenderObject::Position RenderObject::getPosition() const {
+    return {
+        .x=static_cast<int32_t>(std::lround(*refs.posX)),
+        .y=static_cast<int32_t>(std::lround(*refs.posY))
+    };
+}
+
+[[nodiscard]] uint8_t RenderObject::getLayer() const {
+    return domainScope.get<uint8_t>(Constants::KeyNames::RenderObject::layer).value_or(0);
 }
 
 //------------------------------------------
@@ -162,6 +182,15 @@ Constants::Event RenderObject::update() {
     parseTaskQueues(true);
     updateDrawcalls();
     return Constants::Event::Success;
+}
+
+//------------------------------------------
+// References
+
+void RenderObject::linkFrequentRefs() {
+    // Position and Size
+    refs.posX = domainScope.getStableDoublePointer(Constants::KeyNames::RenderObject::positionX);
+    refs.posY = domainScope.getStableDoublePointer(Constants::KeyNames::RenderObject::positionY);
 }
 
 } // namespace Nebulite::Core

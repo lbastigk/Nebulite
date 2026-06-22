@@ -22,13 +22,26 @@ class Ruleset;
 
 //------------------------------------------
 namespace Nebulite::Core {
+
+//------------------------------------------
+// Allow renderer to access document
+
+class RenderObjectDocumentAccessor {
+    Data::JsonScope& domainScopeForRenderer;
+
+    friend class Environment; // Required for selecting a RenderObject
+
+public:
+    explicit RenderObjectDocumentAccessor(Data::JsonScope& d) : domainScopeForRenderer(d) {}
+};
+
 /**
  * @class Nebulite::Core::RenderObject
  * @brief Represents a renderable object in the Nebulite engine.
  *        This class encapsulates all data and logic needed to
  *        display, update, and interact with a single object on the screen.
  */
-class RenderObject final : public Interaction::Execution::Domain {
+class RenderObject final : public Interaction::Execution::Domain, public RenderObjectDocumentAccessor {
 public:
     //------------------------------------------
     // Special member Functions
@@ -69,7 +82,7 @@ public:
     void deserialize(std::string const& serialOrLink);
 
     //------------------------------------------
-    // Get position
+    // Get position/layer
 
     struct Position {
         int32_t x;
@@ -80,12 +93,13 @@ public:
      * @brief Gets the position of the RenderObject.
      * @return The position of the RenderObject as a Position struct.
      */
-    [[nodiscard]] Position getPosition() const {
-        return {
-            .x=static_cast<int32_t>(std::lround(*refs.posX)),
-            .y=static_cast<int32_t>(std::lround(*refs.posY))
-        };
-    }
+    [[nodiscard]] Position getPosition() const ;
+
+    /**
+     * @brief Gets the layer of the RenderObject.
+     * @return The layer of the RenderObject, or 0 if not set.
+     */
+    [[nodiscard]] uint8_t getLayer() const ;
 
     //------------------------------------------
     // Update-Oriented functions
@@ -114,7 +128,7 @@ public:
     } flag;
 
     //------------------------------------------
-    // Draw
+    // Drawcalls
 
     /**
      * @brief Draws the RenderObject at the specified offset.
@@ -122,26 +136,21 @@ public:
      * @param offsetX The camera offset in the X direction.
      * @param offsetY The camera offset in the Y direction.
      */
-    void draw(Renderer const& renderer, float const& offsetX, float const& offsetY) {
-        for (auto const& member : drawcallOrder) {
-            drawcalls[member]->draw(
-                renderer,
-                static_cast<float>(*refs.posX) - offsetX,
-                static_cast<float>(*refs.posY) - offsetY
-            );
-        }
-    }
+    void draw(Renderer const& renderer, float const& offsetX, float const& offsetY);
 
-    //------------------------------------------
-    // Draw calls
-
-    // Re-initialize all drawcalls from document
+    /**
+     * @brief Re-initialize all drawcalls from document
+     */
     void reinitDrawcalls();
 
-    // Initialize only unknown drawcalls from document
+    /**
+     * @brief Initialize only unknown drawcalls from document
+     */
     void initDrawcalls();
 
-    // Reinitialize a specific drawcall from document
+    /**
+     * @brief Reinitialize a specific drawcall from document
+     */
     void reInitDrawcall(std::string const& drawcallName);
 
 private:
@@ -162,9 +171,14 @@ private:
     // Reference to members in hashmap sorted by their draw order
     std::vector<std::string> drawcallOrder;
 
+    /**
+     * @brief Sorts all drawcalls alphabetically
+     */
     void sortDrawcalls();
 
-    // Update all drawcalls
+    /**
+     * @brief Updates all drawcalls and their associated texture
+     */
     void updateDrawcalls();
 
     //------------------------------------------

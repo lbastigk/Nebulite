@@ -73,6 +73,23 @@ public:
     void deserialize(std::string const& serialOrLink) noexcept ;
 
     //------------------------------------------
+    // Get objects (exposing functions from environment)
+
+    /**
+    * @brief Gets the RenderObject ID from its index in the rendering pipeline.
+    * @param index The index of the RenderObject in the rendering pipeline.
+    * @return An optional containing the ID of the RenderObject if found, or std::nullopt if no object is associated with the given index.
+    */
+    std::optional<size_t> getIdFromIndex(size_t const& index) const ;
+
+    /**
+     * @brief Gets the RenderObject index in the rendering pipeline from its ID.
+     * @param searchId The ID of the RenderObject to search for.
+     * @return An optional containing the index of the RenderObject in the rendering pipeline if found, or std::nullopt if no object is associated with the given ID.
+     */
+    std::optional<size_t> getIndexFromId(size_t const& searchId) const ;
+
+    //------------------------------------------
     // Pipeline
 
     /**
@@ -295,28 +312,6 @@ public:
     [[nodiscard]] SDL_Window* getSdlWindow() const { return window; }
 
     /**
-     * @brief Gets the RenderObject ID from its index in the rendering pipeline.
-     * @param index The index of the RenderObject in the rendering pipeline.
-     * @return An optional containing the ID of the RenderObject if found, or std::nullopt if no object is associated with the given index.
-     */
-    [[nodiscard]] std::optional<size_t> getIdFromIndex(size_t const& index) const ;
-
-    /**
-     * @brief Gets the RenderObject index in the rendering pipeline from its ID.
-     * @param domainId The domain ID of the RenderObject to search for.
-     * @return An optional containing the index of the RenderObject in the rendering pipeline if found, or std::nullopt if no object is associated with the given ID.
-     */
-    [[nodiscard]] std::optional<size_t> getIndexFromId(size_t const& domainId) const ;
-
-    /**
-     * @brief Gets the RenderObject from its ID.
-     * @param searchIndex The Index of the RenderObject to retrieve. In chronological order based on when they were appended to the Renderer.
-     *        Does not change when objects are removed or purged.
-     * @return A pointer to the RenderObject, or nullptr if not found.
-     */
-    std::optional<std::pair<RenderObject*, Data::JsonScope*>> getObjectFromIndex(size_t const& searchIndex) ;
-
-    /**
      * @brief Gets the standard font used by the Renderer.
      *        Loads the font if it hasn't been loaded yet.
      * @return A pointer to the TTF_Font instance.
@@ -467,12 +462,6 @@ private:
 
     // External Flags
     bool* headless = nullptr;
-
-    //------------------------------------------
-    // Append index to domain id
-
-    absl::flat_hash_map<size_t, size_t> indexToIdMap;
-    size_t indexCounter = 1; // Start at 1 to avoid confusion with default value of 0
 
     //------------------------------------------
     // Display

@@ -148,7 +148,7 @@ public:
     Data::DocumentCache& getDocCache();
 
     //------------------------------------------
-    // Id-index mapping
+    // Id-index mapping (exposing functions from renderer)
 
     /**
     * @brief Gets the RenderObject ID from its index in the rendering pipeline.

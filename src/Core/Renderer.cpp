@@ -323,36 +323,6 @@ void Renderer::loadFonts() {
 }
 
 //------------------------------------------
-// Getting
-
-std::optional<size_t> Renderer::getIdFromIndex(size_t const& index) const {
-    if (!indexToIdMap.contains(index)) {
-        return std::nullopt; // No object with this index
-    }
-    return indexToIdMap.at(index);
-}
-
-std::optional<size_t> Renderer::getIndexFromId(size_t const& domainId) const {
-    for (const auto& [objIndex, objId] : indexToIdMap) {
-        if (objId == domainId) {
-            return objIndex; // Return the index associated with the given ID
-        }
-    }
-    return std::nullopt; // No index found for the given ID
-}
-
-std::optional<std::pair<RenderObject*, Data::JsonScope*>> Renderer::getObjectFromIndex(size_t const& searchIndex) {
-    if (!indexToIdMap.contains(searchIndex)) {
-        return std::nullopt; // No object with this index
-    }
-    auto const domainId = indexToIdMap[searchIndex];
-    if (auto* ro = env.getObjectFromId(domainId); ro) {
-        return std::make_pair(ro, &ro->domainScope);
-    }
-    return std::nullopt; // Object retrieval failed somehow
-}
-
-//------------------------------------------
 // Serialization / Deserialization
 
 // TODO: serialize/deserialize domain itself, pass subDoc for env into renderer
@@ -367,6 +337,17 @@ void Renderer::deserialize(std::string const& serialOrLink) noexcept {
         serialOrLink,
         tilingInformation()
     );
+}
+
+//------------------------------------------
+// Get objects
+
+std::optional<size_t> Renderer::getIdFromIndex(size_t const& index) const {
+    return env.getIdFromIndex(index);
+}
+
+std::optional<size_t> Renderer::getIndexFromId(size_t const& searchId) const {
+    return env.getIndexFromId(searchId);
 }
 
 //------------------------------------------
@@ -587,15 +568,11 @@ bool Renderer::timeToRender() {
 }
 
 void Renderer::append(RenderObject* toAppend) {
-    // Add domain id to map
-    indexToIdMap[indexCounter] = toAppend->getId();
-    indexCounter++;
-
     // Append to environment, based on layer
     env.append(
         toAppend,
         tilingInformation(),
-        toAppend->domainScope.get<uint8_t>(Constants::KeyNames::RenderObject::layer).value_or(0)
+        toAppend->getLayer()
     );
 }
 

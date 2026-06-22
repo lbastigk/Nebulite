@@ -29,7 +29,6 @@
 #include "Core/Renderer.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
-#include "Interaction/Context.hpp"
 #include "Module/Domain/Renderer/General.hpp"
 #include "Utility/IO/FileManagement.hpp"
 #include "Utility/StringHandler.hpp"
@@ -355,62 +354,6 @@ Constants::Event General::dumpView() const {
     };
     domain.addPostRenderCallback(callback);
     return Constants::Event::Success;
-}
-
-Constants::Event General::selectedObjectUpdate() const {
-    if (selectedRenderObject) {
-        return selectedRenderObject->update();
-    }
-    domain.capture.warning.println("No RenderObject selected! Use selectedObjectGet <id> to select a valid object.");
-    return Constants::Event::Warning;
-}
-
-Constants::Event General::selectedObjectGet(int const argc, char const** argv){
-    if (argc < 2) {
-        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
-    }
-    if (argc > 2) {
-        return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
-    }
-
-    // Supports only uint32_t ids
-    size_t const idx = std::stoul(argv[1]);
-    if (auto objAndScope = domain.getObjectFromIndex(idx); objAndScope.has_value()) {
-        auto [obj, scope] = objAndScope.value();
-        selectedRenderObject = obj;
-        selectedRenderObjectData = scope;
-        return Constants::Event::Success;
-    }
-    selectedRenderObject = nullptr;
-    domain.capture.warning.println("No RenderObject with ID ", idx, " found. Selection cleared.");
-    return Constants::Event::Warning;
-}
-
-Constants::Event General::selectedObjectParse(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const {
-    if (args.size() < 2) {
-        return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
-    }
-    std::string const command = Utility::StringHandler::recombineArgs(args.subspan(1));
-    if (selectedRenderObject == nullptr || selectedRenderObjectData == nullptr) {
-        domain.capture.warning.println("No RenderObject selected! Use selectedObjectGet <id> to select a valid object.");
-        return Constants::Event::Warning;
-    }
-
-    Interaction::Context objectCtx = {
-        {
-            .self = *selectedRenderObject,
-            .other = *selectedRenderObject,
-            .global = ctx.global
-        }
-    };
-    Interaction::ContextScope objectCtxScope = {
-        {
-            .self = *selectedRenderObjectData,
-            .other = *selectedRenderObjectData,
-            .global = ctxScope.global
-        }
-    };
-    return selectedRenderObject->parseStr(std::string(__FUNCTION__) + " " + command, objectCtx, objectCtxScope);
 }
 
 } // namespace Nebulite::Module::Domain::Renderer

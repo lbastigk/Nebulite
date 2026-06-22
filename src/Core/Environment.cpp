@@ -89,6 +89,10 @@ void Environment::deserialize(std::string const& serialOrLink, Data::TilingInfor
 // Object Management
 
 void Environment::append(RenderObject* toAppend, Data::TilingInformation const& tilingInformation, uint8_t const& layer) {
+    // Add domain id to map
+    indexToIdMap[indexCounter] = toAppend->getId();
+    indexCounter++;
+
     if (layer == 0 || layer >= allLayers.size()) {
         if (toAppend->estimateComputationalCost() != 0) {
             capture.log.println("Warning: Appending object with non-zero computational cost to background layer, which isn't updated. Consider moving the object to a higher layer so its rulesets are properly executed.");
@@ -120,6 +124,36 @@ RenderObject* Environment::getObjectFromId(size_t const& domainId) {
         }
     }
     return nullptr;
+}
+
+//------------------------------------------
+// Get object
+
+std::optional<size_t> Environment::getIdFromIndex(size_t const& index) const {
+    if (!indexToIdMap.contains(index)) {
+        return std::nullopt; // No object with this index
+    }
+    return indexToIdMap.at(index);
+}
+
+std::optional<size_t> Environment::getIndexFromId(size_t const& domainId) const {
+    for (const auto& [objIndex, objId] : indexToIdMap) {
+        if (objId == domainId) {
+            return objIndex; // Return the index associated with the given ID
+        }
+    }
+    return std::nullopt; // No index found for the given ID
+}
+
+std::optional<std::pair<RenderObject*, Data::JsonScope*>> Environment::getObjectFromIndex(size_t const& searchIndex) {
+    if (!indexToIdMap.contains(searchIndex)) {
+        return std::nullopt; // No object with this index
+    }
+    auto const domainId = indexToIdMap[searchIndex];
+    if (auto* ro = getObjectFromId(domainId); ro) {
+        return std::make_pair(ro, &ro->domainScopeForRenderer);
+    }
+    return std::nullopt; // Object retrieval failed somehow
 }
 
 //------------------------------------------

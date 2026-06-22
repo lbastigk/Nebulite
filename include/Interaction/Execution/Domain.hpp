@@ -113,9 +113,6 @@ public:
 
     friend class Domain;
 
-    // TODO: Get rid of Renderer accessing scopes of RenderObjects
-    friend class Core::Renderer;
-
     // Allow TaskQueue access to set caller scope
     friend class Data::TaskQueue;
 

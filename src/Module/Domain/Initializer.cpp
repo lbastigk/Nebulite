@@ -23,6 +23,7 @@
 
 // Environment
 #include "Module/Domain/Environment/Debug.hpp"
+#include "Module/Domain/Environment/SelectedObject.hpp"
 
 // GlobalSpace
 #include "Module/Domain/GlobalSpace/Clock.hpp"
@@ -100,6 +101,11 @@ void Initializer::initEnvironment(Core::Environment* target) {
 
     target->initModule<Core::Environment, Debug>(
         "Environment Debug Functions",
+        Global::settings(),
+        *target
+    );
+    target->initModule<Core::Environment, SelectedObject>(
+        "Environment Selected Object Functions",
         Global::settings(),
         *target
     );

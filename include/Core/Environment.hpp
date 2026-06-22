@@ -70,6 +70,12 @@ private:
 
     // Inner RenderObject container layers
     std::array<Data::RenderObjectContainer, allLayers.size()> roc;
+
+    //------------------------------------------
+    // Append index to domain id
+
+    absl::flat_hash_map<size_t, size_t> indexToIdMap;
+    size_t indexCounter = 1; // Start at 1 to avoid confusion with default value of 0
 public:
 
     //------------------------------------------
@@ -159,6 +165,31 @@ public:
      * @return A pointer to the RenderObject if found, nullptr otherwise.
      */
     RenderObject* getObjectFromId(size_t const& domainId);
+
+    //------------------------------------------
+    // Get object
+
+    /**
+     * @brief Gets the RenderObject ID from its index
+     * @param index The index of the RenderObject
+     * @return An optional containing the ID of the RenderObject if found, or std::nullopt if no object is associated with the given index.
+     */
+    [[nodiscard]] std::optional<size_t> getIdFromIndex(size_t const& index) const ;
+
+    /**
+     * @brief Gets the RenderObject index from its ID.
+     * @param domainId The domain ID of the RenderObject to search for.
+     * @return An optional containing the index of the RenderObject if found, or std::nullopt if no object is associated with the given ID.
+     */
+    [[nodiscard]] std::optional<size_t> getIndexFromId(size_t const& domainId) const ;
+
+    /**
+     * @brief Gets the RenderObject from its ID.
+     * @param searchIndex The Index of the RenderObject to retrieve. In chronological order based on when they were appended to the Renderer.
+     *        Does not change when objects are removed or purged.
+     * @return A pointer to the RenderObject, or nullptr if not found.
+     */
+    std::optional<std::pair<RenderObject*, Data::JsonScope*>> getObjectFromIndex(size_t const& searchIndex) ;
 
     //------------------------------------------
     // Container Management

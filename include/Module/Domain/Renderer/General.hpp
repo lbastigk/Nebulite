@@ -140,34 +140,11 @@ public:
         "\n"
         "Usage: dump-view\n";
 
-    [[nodiscard]] Constants::Event selectedObjectUpdate() const ;
-    static auto constexpr selectedObjectUpdateName = "selected-object update";
-    static auto constexpr selectedObjectUpdateDesc = "Updates the currently selected object.";
-
-    [[nodiscard]] Constants::Event selectedObjectGet(int argc, char const** argv);
-    static auto constexpr selectedObjectGet_name = "selected-object get";
-    static auto constexpr selectedObjectGet_desc = "Get a renderobject by its index in the Renderer.\n"
-        "The index is converted to its corresponding Domain ID and selected as the current RenderObject to interact with for other selected-object commands.\n"
-        "\n"
-        "Usage: selected-object get <idx>\n";
-
-    [[nodiscard]] Constants::Event selectedObjectParse(std::span<std::string_view const> const& args, Interaction::Context const& ctx, Interaction::ContextScope const& ctxScope) const ;
-    static auto constexpr selectedObjectParse_name = "selected-object parse";
-    static auto constexpr selectedObjectParse_desc = "Parse a command on the selected RenderObject.\n"
-        "\n"
-        "Usage: selected-object parse <command>\n"
-        "\n"
-        "Use 'selected-object get <id>' to select a RenderObject first.\n"
-        "Use 'selected-object parse help' to see available commands for the selected object.\n";
-
     //------------------------------------------
     // Categories
 
     static auto constexpr cam_name = "cam";
     static auto constexpr cam_desc = "Renderer Camera Functions";
-
-    static auto constexpr selectedObject_name = "selected-object";
-    static auto constexpr selectedObject_desc = "Functions to select and interact with a selected RenderObject";
 
     static auto constexpr env_name = "env";
     static auto constexpr env_desc = "Environment management functions";
@@ -191,24 +168,11 @@ public:
         bindFunction(&General::cam_move, cam_move_name, cam_move_desc);
         bindFunction(&General::cam_set, cam_set_name, cam_set_desc);
 
-        bindCategory(selectedObject_name, selectedObject_desc);
-        bindFunction(&General::selectedObjectUpdate, selectedObjectUpdateName, selectedObjectUpdateDesc);
-        bindFunction(&General::selectedObjectGet, selectedObjectGet_name, selectedObjectGet_desc);
-        bindFunction(&General::selectedObjectParse, selectedObjectParse_name, selectedObjectParse_desc);
-
         // TODO: move to env domainModule
         bindCategory(env_name, env_desc);
         bindFunction(&General::envLoad, envLoad_name, envLoad_desc);
         bindFunction(&General::envDeload, envDeload_name, envDeload_desc);
     }
-
-private:
-    /**
-     * @brief Pointer to the currently selected RenderObject
-     * @todo Move pointer ownership to env, so that we can unselect it if the object is deleted
-     */
-    Core::RenderObject* selectedRenderObject = nullptr;
-    Data::JsonScope* selectedRenderObjectData = nullptr;
 };
 } // namespace Nebulite::Module::Domain::Renderer
 #endif // MODULE_DOMAIN_RENDERER_GENERAL_HPP
