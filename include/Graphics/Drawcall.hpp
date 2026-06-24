@@ -10,7 +10,7 @@
 // Includes
 
 // Standard library
-#include <string>
+#include <string_view>
 
 // External
 #include <SDL3/SDL_rect.h>
@@ -52,7 +52,7 @@ public:
     void update();
 
     // Parse a string onto the texture
-    [[nodiscard]] Constants::Event parseStr(std::string const& str, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const ;
+    [[nodiscard]] Constants::Event parseStr(std::string_view str, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const ;
 
     class ApplyDefault {
     public:

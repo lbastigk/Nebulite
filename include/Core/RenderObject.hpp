@@ -153,6 +153,16 @@ public:
      */
     void reInitDrawcall(std::string const& drawcallName);
 
+    /**
+     * @brief Parses a command onto a drawcall
+     * @param drawCallName The name of the drawcall to parse the command onto
+     * @param args The arguments to parse
+     * @param ctx The context of the interaction
+     * @param ctxScope The context scope of the interaction
+     * @return Constants::Event indicating success or failure
+     */
+    Constants::Event parseDrawcallCommand(std::string_view drawCallName, std::string_view args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+
 private:
     //------------------------------------------
     // Initialization

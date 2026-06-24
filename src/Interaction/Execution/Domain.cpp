@@ -121,7 +121,7 @@ std::string const& Domain::scopePrefix() const {
     return domainScope.getScopePrefix();
 }
 
-Constants::Event Domain::parseStr(std::string const& str, Context& ctx, ContextScope& ctxScope) const {
+Constants::Event Domain::parseStr(std::string_view const str, Context& ctx, ContextScope& ctxScope) const {
     return funcTree->parseStr(str, ctx, ctxScope);
 }
 
