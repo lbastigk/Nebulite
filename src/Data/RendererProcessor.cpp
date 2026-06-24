@@ -19,15 +19,6 @@
 #include "Utility/Coordination/WorkDispatcher.hpp"
 
 //------------------------------------------
-// Helper
-namespace {
-size_t usedWorkerCount() {
-    static size_t const usedWorkerCount = Nebulite::Constants::ThreadSettings::getRendererWorkerCount();
-    return usedWorkerCount;
-}
-} // namespace
-
-//------------------------------------------
 namespace Nebulite::Data {
 
 void Batch::updateCost(){
@@ -70,7 +61,7 @@ RendererProcessor::RendererProcessor() {
     instanceExists = true;
 
     // Initialize worker pool
-    for (size_t i = 0; i < usedWorkerCount(); i++) {
+    for (size_t i = 0; i < Constants::ThreadSettings::getRendererWorkerCount(); i++) {
         batchWorkerPool[i] = std::make_unique<Utility::Coordination::WorkDispatcher<DispatcherWorkspace>>(stopFlag, batchWorkerFunc);
     }
 }
@@ -80,13 +71,13 @@ RendererProcessor::~RendererProcessor() {
     stopFlag = true;
 
     // 2.) Optionally, start work to wake any waiting threads
-    for (auto const& worker : batchWorkerPool | std::views::take(usedWorkerCount())) {
+    for (auto const& worker : batchWorkerPool | std::views::take(Constants::ThreadSettings::getRendererWorkerCount())) {
         worker->startWork();  // wakes worker so it can check stopFlag
     }
 }
 
 void RendererProcessor::prepareForNewLayer(RenderObjectContainer* layer) const {
-    for (auto const& worker : batchWorkerPool | std::views::take(usedWorkerCount())) {
+    for (auto const& worker : batchWorkerPool | std::views::take(Constants::ThreadSettings::getRendererWorkerCount())) {
         worker->workspace.reinsertionProcess = &layer->reinsertionProcess;
         worker->workspace.deletionProcess = &layer->deletionProcess;
     }
@@ -116,7 +107,7 @@ void RendererProcessor::batchWorkerFunc(DispatcherWorkspace const& workspace){
 }
 
 void RendererProcessor::processPool() const {
-    processPool(usedWorkerCount());
+    processPool(Constants::ThreadSettings::getRendererWorkerCount());
 }
 
 void RendererProcessor::processPool(size_t count) const {

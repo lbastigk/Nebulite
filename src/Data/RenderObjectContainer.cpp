@@ -39,7 +39,7 @@ std::string RenderObjectContainer::serialize() {
     // Get all objects in container
     std::size_t i = 0;
     for (auto& tile : std::views::values(ObjectContainer)) {
-        for (auto& [objects, _] : tile.getBatches()) {
+        for (auto const& objects : tile.getBatchedObjects()) {
             for (auto const& obj : objects) {
                 JSON obj_serial;
                 obj_serial.deserialize(obj->serialize());
@@ -138,7 +138,7 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& viewport, 
 
         // if workerIdx exceeds, process pool
         workerIdx++;
-        if (workerIdx == Constants::ThreadSettings::Maximum::rendererWorkerCount) {
+        if (workerIdx == Constants::ThreadSettings::getRendererWorkerCount()) {
             rendererProcessor.processPool();
             workerIdx = 0;
         }
@@ -159,7 +159,7 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& viewport, 
 Core::RenderObject* RenderObjectContainer::getObjectFromId(size_t const& domainId) {
     // Go through all batches
     for (auto& tile : std::views::values(ObjectContainer)) {
-        for (auto& [objects, _] : tile.getBatches()) {
+        for (auto const& objects : tile.getBatchedObjects()) {
             for (auto const& object : objects) {
                 if (object->getId() == domainId) {
                     return object;
@@ -174,7 +174,7 @@ void RenderObjectContainer::reinsertAllObjects(TilingInformation const& tilingIn
     // Collect all objects
     std::vector<Core::RenderObject*> toReinsert;
     for (auto& tile : std::views::values(ObjectContainer)) {
-        for (auto& [objects, _] : tile.getBatches()) {
+        for (auto const& objects : tile.getBatchedObjects()) {
             // Collect all objects from the batch
             std::ranges::copy(objects.begin(), objects.end(), std::back_inserter(toReinsert));
         }

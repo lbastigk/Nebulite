@@ -6,6 +6,7 @@
 
 // Standard library
 #include <cstdint> // NOLINT
+#include <ranges>
 #include <utility>
 
 // External
@@ -77,7 +78,15 @@ public:
      * @brief Allows read-only access to the internal batches of RenderObjects
      * @return A const reference to the vector of batches contained in this tile. Each batch contains a vector of RenderObjects and an estimated cost.
      */
-    std::vector<Batch> const& getBatches() const ;
+    [[nodiscard]] std::vector<Batch> const& getBatches() const ;
+
+    /**
+     * @brief Allows read-only access to the internal batches of RenderObjects, returning only the vectors of RenderObjects without their associated costs.
+     * @return A range of const references to the vectors of RenderObjects contained in each batch of this tile, without their associated costs.
+     */
+    [[nodiscard]] auto getBatchedObjects() const {
+        return getBatches() | std::views::transform([](Batch const& b) -> auto const& { return b.objects; });
+    }
 
     /**
      * @brief Adds a provided batch to the existing batches
