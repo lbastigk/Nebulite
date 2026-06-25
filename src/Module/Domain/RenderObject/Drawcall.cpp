@@ -30,13 +30,20 @@ Constants::Event Drawcall::updateHook() {
 //------------------------------------------
 // Domain-Bound Functions
 
-Constants::Event Drawcall::onDrawcallParse(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const{
+Constants::Event Drawcall::drawcallParse(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const {
     if (args.size() < 3) {
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
     }
     auto const drawcallName = args[1];
     auto const drawcallArgs = Utility::StringHandler::recombineArgs(args.subspan(2));
     return domain.parseDrawcallCommand(drawcallName, drawcallArgs, ctx, ctxScope);
+}
+
+Constants::Event Drawcall::drawcallList(Interaction::Context const& ctx, Interaction::ContextScope&) const {
+    for (auto const& drawcallName : domain.listDrawcalls()) {
+        ctx.self.capture.log.println(drawcallName);
+    }
+    return Constants::Event::Success;
 }
 
 } // namespace Nebulite::Module::Domain::RenderObject

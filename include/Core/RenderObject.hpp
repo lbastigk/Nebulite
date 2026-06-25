@@ -154,6 +154,14 @@ public:
     void reInitDrawcall(std::string const& drawcallName);
 
     /**
+     * @brief Lists all active drawcalls in the RenderObject
+     * @return A vector of strings containing the names of all active drawcalls
+     */
+    auto listDrawcalls() {
+        return drawcalls | std::views::keys;
+    }
+
+    /**
      * @brief Parses a command onto a drawcall
      * @param drawCallName The name of the drawcall to parse the command onto
      * @param args The arguments to parse

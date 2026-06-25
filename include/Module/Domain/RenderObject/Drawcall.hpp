@@ -29,19 +29,23 @@ public:
     //------------------------------------------
     // Available Functions
 
-    [[nodiscard]] Constants::Event onDrawcallParse(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const ;
-    static auto constexpr onDrawcallParse_name = "on-drawcall parse";
-    static auto constexpr onDrawcallParse_desc = "Parses a string command into a given drawcall name\n"
+    [[nodiscard]] Constants::Event drawcallParse(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const ;
+    static auto constexpr drawcallParse_name = "drawcall parse";
+    static auto constexpr drawcallParse_desc = "Parses a string command into a given drawcall name\n"
         "\n"
-        "Usage: on-drawcall parse <name> <args...>";
+        "Usage: drawcall parse <name> <args...>";
 
-    // TODO: Add more utils: list, remove, reinit, etc.
+    [[nodiscard]] Constants::Event drawcallList(Interaction::Context const& ctx, Interaction::ContextScope&) const ;
+    static auto constexpr drawcallList_name = "drawcall list";
+    static auto constexpr drawcallList_desc = "Lists all drawcall objects";
+
+    // TODO: Add more utils: remove, reinit, etc.
 
     //------------------------------------------
     // Categories
 
-    static auto constexpr onDrawcall_name = "on-drawcall";
-    static auto constexpr onDrawcall_desc = "Functions for performing actions on specific drawcalls";
+    static auto constexpr drawcall_name = "drawcall";
+    static auto constexpr drawcall_desc = "Drawcall utilities";
 
     //------------------------------------------
     // Setup
@@ -50,8 +54,9 @@ public:
      * @brief Initializes the module, binding functions and variables.
      */
     explicit Drawcall(ConstructorParams const& params) : DomainModule(params) {
-        bindCategory(onDrawcall_name, onDrawcall_desc);
-        bindFunction(&Drawcall::onDrawcallParse, onDrawcallParse_name, onDrawcallParse_desc);
+        bindCategory(drawcall_name, drawcall_desc);
+        bindFunction(&Drawcall::drawcallParse, drawcallParse_name, drawcallParse_desc);
+        bindFunction(&Drawcall::drawcallList, drawcallList_name, drawcallList_desc);
     }
 };
 } // namespace Nebulite::Module::Domain::RenderObject
