@@ -126,9 +126,8 @@ private:
 
     /**
      * @brief Makes a copy of the texture currently managed by this class.
-     * @return true if the copy was successful, false otherwise.
      */
-    bool copyTexture();
+    void copyTexture();
 };
 } // namespace Nebulite::Core
 #endif // CORE_TEXTURE_HPP
