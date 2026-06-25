@@ -4,7 +4,7 @@
         "expected": { "cout": [ "Hello echo" ],  "cerr": [ "Hello warn", "Hello error" ] }
     },
     {
-        "command": "task /home/leo/Projects/Nebulite/TaskFiles/Tests/JSON/Transformations/Debug/print.nebs",
+        "command": "task TaskFiles/Tests/JSON/Transformations/Debug/print.nebs",
         "expected": {
             "cout": [
                 "{",
