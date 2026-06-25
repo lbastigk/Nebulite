@@ -24,6 +24,8 @@ namespace Nebulite::Module::Transformation {
 void Filter::bindTransformations(){
     bindTransformation(&Filter::filterRegex, filterRegexName, filterRegexDesc);
     bindTransformation(&Filter::filterGlob, filterGlobName, filterGlobDesc);
+    bindTransformation(&Filter::filterRegexValue, filterRegexValueName, filterRegexValueDesc);
+    bindTransformation(&Filter::filterGlobValue, filterGlobValueName, filterGlobValueDesc);
     bindTransformation(&Filter::filterNulls, filterOutNullsName, filterOutNullsDesc);
     bindTransformation(&Filter::filterCustom, filterCustomName, filterCustomDesc);
 }
@@ -65,6 +67,76 @@ bool Filter::filterGlob(std::span<std::string_view const> const& args, Data::Jso
         }
     }
     jsonDoc->setSubDoc(rootKey, filtered);
+    return true;
+}
+
+namespace {
+std::vector<std::optional<std::string>> listMemberValues(Data::JsonScope const* jsonDoc, Data::ScopedKeyView const& rootKey) {
+    std::vector<std::optional<std::string>> values;
+    for (auto const index : std::views::iota(std::size_t{0}, jsonDoc->memberSize(rootKey))) {
+        auto const key = rootKey.addIndex(index);
+        if (auto const value = jsonDoc->get<std::string>(key); value.has_value()) {
+            values.push_back(value.value());
+        } else {
+            values.push_back(std::nullopt);
+        }
+    }
+    return values;
+}
+} // namespace
+
+bool Filter::filterRegexValue(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
+    if (args.size() != 2) {
+        return false;
+    }
+    if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
+        return false; // Not an array, cannot filter values
+    }
+
+    std::regex regexPattern;
+    try {
+        std::string const pattern = Utility::StringHandler::recombineArgs(args.subspan(1));
+        regexPattern = std::regex(pattern);
+    } catch (const std::regex_error&) {
+        return false; // Invalid regex pattern
+    }
+
+    // Get values and filter
+    auto const values = listMemberValues(jsonDoc, rootKey)
+        | std::views::filter([regexPattern](std::optional<std::string> const& value) { return value.has_value() && std::regex_match(value.value(), regexPattern); })
+        | std::views::transform([](std::optional<std::string> const& value) { return value.value(); })
+        | std::ranges::to<std::vector>();
+
+    // Set values
+    jsonDoc->setEmptyArray(rootKey);
+    for (auto [index, value] : values | std::views::enumerate) {
+        auto const key = rootKey.addIndex(static_cast<size_t>(index));
+        jsonDoc->set(key, value);
+    }
+    return true;
+}
+
+bool Filter::filterGlobValue(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
+    if (args.size() != 2) {
+        return false;
+    }
+    if (jsonDoc->memberType(rootKey) != Data::KeyType::array) {
+        return false; // Not an array, cannot filter values
+    }
+    auto const pattern = Utility::StringHandler::recombineArgs(args.subspan(1));
+
+    // Get values and filter
+    auto const values = listMemberValues(jsonDoc, rootKey)
+        | std::views::filter([pattern](std::optional<std::string> const& value) { return value.has_value() && Utility::globMatch(pattern, value.value()); })
+        | std::views::transform([](std::optional<std::string> const& value) { return value.value(); })
+        | std::ranges::to<std::vector>();
+
+    // Set values
+    jsonDoc->setEmptyArray(rootKey);
+    for (auto [index, value] : values | std::views::enumerate) {
+        auto const key = rootKey.addIndex(static_cast<size_t>(index));
+        jsonDoc->set(key, value);
+    }
     return true;
 }
 

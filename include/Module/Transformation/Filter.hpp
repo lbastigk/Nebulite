@@ -34,6 +34,17 @@ public:
         "For arrays, the member names are the indices as strings: [0], [1], [2], ...\n"
         "Usage: |filterGlob <pattern> -> {filtered array}\n";
 
+    static bool filterRegexValue(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr filterRegexValueName = "filterRegexValue";
+    static auto constexpr filterRegexValueDesc = "Filters values in the current JSON array based on a regular expression pattern.\n"
+        "Usage: |filterRegexValue {!<pattern>} -> {filtered array}\n"
+        "       |filterRegexValue <pattern>    -> {filtered array}\n";
+
+    static bool filterGlobValue(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr filterGlobValueName = "filterGlobValue";
+    static auto constexpr filterGlobValueDesc = "Filters values in the current JSON array based on a glob pattern.\n"
+        "Usage: |filterGlobValue <pattern> -> {filtered array}\n";
+
     static bool filterNulls(Data::JsonScope* jsonDoc);
     static auto constexpr filterOutNullsName = "filterNulls";
     static auto constexpr filterOutNullsDesc = "Filters out null values, empty objects, and empty arrays from the current JSON\n"
