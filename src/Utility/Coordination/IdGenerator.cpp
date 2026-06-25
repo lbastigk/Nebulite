@@ -21,26 +21,24 @@
 //------------------------------------------
 namespace Nebulite::Utility::Coordination {
 
-std::function<size_t()> IdGenerator::atomicThreadRollGenerator(size_t const& distributionSize) {
+std::function<size_t()> IdGenerator::atomicRollingIdGenerator(size_t const& distributionSize) {
     // Each call gets its own shared counter
     // Using a shared pointer is required so the lambda is copyable
     auto counter = std::make_shared<std::atomic<size_t>>(0);
 
     return [counter, distributionSize] {
-        thread_local const size_t idx = counter->fetch_add(1, std::memory_order_relaxed) % distributionSize;
-        return idx;
+        return counter->fetch_add(1, std::memory_order_relaxed) % distributionSize;
     };
 }
 
 
-std::function<size_t()> IdGenerator::atomicThreadIncrementGenerator() {
+std::function<size_t()> IdGenerator::atomicIncrementIdGenerator() {
     // Each call gets its own shared counter
     // Using a shared pointer is required so the lambda is copyable
     auto counter = std::make_shared<std::atomic<size_t>>(0);
 
     return [counter] {
-        thread_local const size_t idx = counter->fetch_add(1, std::memory_order_relaxed);
-        return idx;
+        return counter->fetch_add(1, std::memory_order_relaxed);
     };
 }
 

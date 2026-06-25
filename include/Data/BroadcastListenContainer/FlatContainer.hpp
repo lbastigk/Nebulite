@@ -53,8 +53,8 @@ class FlatContainerBase {
         return std::make_unique<FlatContainerBase>(s);
     }
 
-    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> entry);
-    void listen(std::shared_ptr<Interaction::Rules::Listener> listener);
+    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset>&& entry);
+    void listen(std::shared_ptr<Interaction::Rules::Listener>&& listener);
 
     /**
      * @brief Uses the provided offsets to process all broadcasted rulesets.
@@ -66,7 +66,9 @@ class FlatContainerBase {
      */
     void processWithoutRotation();
 
-    static auto constexpr activeWorkerCount = Constants::ThreadSettings::Maximum::invokeWorkerCount;
+    // rendererWorkerCount should be enough, but if we decide that rulesets are able to directly broadcast/listen, we need one slot for each thread!
+    static auto constexpr activeWorkerCount = Constants::ThreadSettings::Maximum::rendererWorkerCount;
+
     std::array<StringMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>>, activeWorkerCount> broadcasters = {};
     std::array<StringMap<std::vector<std::shared_ptr<Interaction::Rules::Listener>>>, activeWorkerCount> listeners = {};
 
@@ -121,16 +123,16 @@ public:
      * @brief Broadcasts a ruleset to all listeners on its topic.
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
-    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) override {
-        base->broadcast(entry);
+    void broadcast(std::shared_ptr<Interaction::Rules::Ruleset>&& entry) override {
+        base->broadcast(std::move(entry));
     }
 
     /**
      * @brief Listens for rulesets on a specific topic.
      * @param listener The listener to add.
      */
-    void listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) override {
-        base->listen(listener);
+    void listen(std::shared_ptr<Interaction::Rules::Listener>&& listener) override {
+        base->listen(std::move(listener));
     }
 
     /**

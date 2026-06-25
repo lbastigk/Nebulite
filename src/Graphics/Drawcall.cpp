@@ -36,7 +36,7 @@
 //------------------------------------------
 namespace {
 uint64_t rollingJitter(uint32_t const& size) {
-    static auto jitterGenerator = Nebulite::Utility::Coordination::IdGenerator::atomicThreadRollGenerator(size);
+    static auto jitterGenerator = Nebulite::Utility::Coordination::IdGenerator::atomicRollingIdGenerator(size);
     return jitterGenerator();
 }
 } // namespace

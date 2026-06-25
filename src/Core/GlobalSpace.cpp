@@ -203,12 +203,12 @@ void GlobalSpace::quitRenderer() {
 //------------------------------------------
 // Broadcast/Listen
 
-void GlobalSpace::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
-    invoke.broadcast(entry);
+void GlobalSpace::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> entry) {
+    invoke.broadcast(std::move(entry));
 }
 
-void GlobalSpace::listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) {
-    invoke.listen(listener);
+void GlobalSpace::listen(std::shared_ptr<Interaction::Rules::Listener> listener) {
+    invoke.listen(std::move(listener));
 }
 
 //------------------------------------------

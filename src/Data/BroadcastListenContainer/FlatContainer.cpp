@@ -6,7 +6,6 @@
 #include <cstddef>
 #include <memory>
 #include <ranges>
-#include <stdexcept>
 #include <string>
 
 // Nebulite
@@ -21,27 +20,59 @@
 namespace Nebulite::Data::BroadcastListenContainer {
 
 namespace {
-size_t getThreadId() {
-    static auto workerCount = Constants::ThreadSettings::getInvokeWorkerCount();
-    static auto threadSpreader = Utility::Coordination::IdGenerator::atomicThreadIncrementGenerator();
-    thread_local size_t threadId = threadSpreader();
-    if (threadId >= workerCount) {
-        throw std::runtime_error("Too many threads trying to broadcast, increase broadcasterSpreading or reduce thread count");
+
+class ThreadIdGenerator {
+
+    // Might be helpful for tracking max thread id set
+#ifdef NDEBUG
+    class Maximum {
+        std::atomic<size_t> maxThreadIdAtomic{0};
+
+    public:
+        size_t get() const {
+            return maxThreadIdAtomic.load(std::memory_order_acquire);
+        }
+
+        void set(size_t const threadId) {
+            maxThreadIdAtomic.store(threadId, std::memory_order_release);
+        }
+    };
+
+    static Maximum& maximum() {
+        static Maximum maximum;
+        return maximum;
     }
-    return threadId;
-}
+#endif
+
+public:
+    static size_t getThreadId() {
+        static auto threadSpreader = Utility::Coordination::IdGenerator::atomicIncrementIdGenerator();
+        thread_local size_t threadId = threadSpreader();
+
+        // Sanity check: cannot have more threads than workerCount
+        assert(threadId < Constants::ThreadSettings::getInvokeWorkerCount());
+
+#ifdef NDEBUG
+        if (threadId > maximum().get()) {
+            maximum().set(threadId);
+        }
+#endif
+
+        return threadId;
+    }
+};
+
 } // namespace
 
-void FlatContainerBase::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> entry) {
-    auto const threadId = getThreadId();
-    //auto lock = broadcasters[threadId].lock(entry->getTopic());
+void FlatContainerBase::broadcast(std::shared_ptr<Interaction::Rules::Ruleset>&& entry) {
+    thread_local auto threadId = ThreadIdGenerator::getThreadId();
+    assert(threadId < activeWorkerCount); // Too many threads trying to broadcast/listen, increase FlatContainerBase::activeWorkerCount
     broadcasters[threadId][entry->getTopic()].push_back(std::move(entry));
 }
 
-void FlatContainerBase::listen(std::shared_ptr<Interaction::Rules::Listener> listener) {
-    auto const threadId = getThreadId();
-    // Lock is, for some reason, necessary ...
-    auto lock = listeners[threadId].lock(listener->topic);
+void FlatContainerBase::listen(std::shared_ptr<Interaction::Rules::Listener>&& listener) {
+    thread_local auto threadId = ThreadIdGenerator::getThreadId();
+    assert(threadId < activeWorkerCount); // Too many threads trying to broadcast/listen, increase FlatContainerBase::activeWorkerCount
     listeners[threadId][listener->topic].push_back(std::move(listener));
 }
 

@@ -23,18 +23,18 @@ namespace Nebulite::Utility::Coordination {
 class IdGenerator {
 public:
     /**
-     * @brief A generator function that returns a lambda which generates a uniform distribution of thread IDs.
+     * @brief A generator function that returns a lambda which generates a uniform distribution of IDs.
      * @param distributionSize The size of the distribution.
-     * @return A lambda function that generates a uniform distribution of thread IDs.
+     * @return A lambda function that generates a uniform distribution of IDs.
      */
-    static std::function<size_t()> atomicThreadRollGenerator(size_t const& distributionSize);
+    static std::function<size_t()> atomicRollingIdGenerator(size_t const& distributionSize);
 
     /*
-     * @brief A generator function that returns a lambda which generates a uniform distribution of thread IDs that do not roll, but increase indefinitely.
+     * @brief A generator function that returns a lambda which generates a uniform distribution of IDs that do not roll, but increase indefinitely.
      * @details Maximum value is size_t max before  "accidentally" rolling, but this is unlikely to happen in practice.
-     * @return A lambda function that generates a uniform distribution of thread IDs that do not roll, but increase indefinitely.
+     * @return A lambda function that generates a uniform distribution of IDs that do not roll, but increase indefinitely.
      */
-    static std::function<size_t()> atomicThreadIncrementGenerator();
+    static std::function<size_t()> atomicIncrementIdGenerator();
 
     /**
      * @brief A generator function that returns a lambda which generates unique IDs for strings.
