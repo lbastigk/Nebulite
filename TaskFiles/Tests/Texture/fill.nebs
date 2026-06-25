@@ -1,0 +1,69 @@
+# Spawn player, select, parse into drawcall to fill texture by color
+
+# Important to set fps to 60, so the last phase has enough time to check for a potential rebuild trigger
+# If fps is too high, the test will finish before a rebuild can be triggered
+set-fps 60
+set-res 320 320 2
+
+spawn ./Resources/Renderobjects/Creatures/player.jsonc|posX=160|posY=160|physics.vNorm=100
+wait 2
+
+selected-object get 1
+selected-object parse imgui-view on
+
+####################################################
+# Phase 1: Texture is the classic player texture, just check that average-color returns values
+wait 1
+capture cap selected-object parse drawcall parse core average-color
+eval nop {global:cap|length|assert equals int 1}
+assign self:out.R = {global:cap[0]|split|filterGlobValue R=*|at 0|substring 2|toInt}
+assign self:out.G = {global:cap[0]|split|filterGlobValue G=*|at 0|substring 2|toInt}
+assign self:out.B = {global:cap[0]|split|filterGlobValue B=*|at 0|substring 2|toInt}
+assign self:out.A = {global:cap[0]|split|filterGlobValue A=*|at 0|substring 2|toInt}
+eval nop {self:out.R|assert nonEmpty}
+eval nop {self:out.G|assert nonEmpty}
+eval nop {self:out.B|assert nonEmpty}
+eval nop {self:out.A|assert nonEmpty}
+
+####################################################
+# Phase 2: Fill the texture with red, check that fill returns the correct color
+wait 1
+capture cap selected-object parse drawcall parse core fill red
+eval nop {global:cap|length|assert equals int 1}
+assign self:out.R = {global:cap[0]|split|filterGlobValue R=*|at 0|substring 2|toInt}
+assign self:out.G = {global:cap[0]|split|filterGlobValue G=*|at 0|substring 2|toInt}
+assign self:out.B = {global:cap[0]|split|filterGlobValue B=*|at 0|substring 2|toInt}
+eval nop {self:out.R|assert equals int 255}
+eval nop {self:out.G|assert equals int 0}
+eval nop {self:out.B|assert equals int 0}
+
+####################################################
+# Phase 3: Check that average-color returns red after the fill
+wait 1
+capture cap selected-object parse drawcall parse core average-color
+eval nop {global:cap|length|assert equals int 1}
+assign self:out.R = {global:cap[0]|split|filterGlobValue R=*|at 0|substring 2|toInt}
+assign self:out.G = {global:cap[0]|split|filterGlobValue G=*|at 0|substring 2|toInt}
+assign self:out.B = {global:cap[0]|split|filterGlobValue B=*|at 0|substring 2|toInt}
+assign self:out.A = {global:cap[0]|split|filterGlobValue A=*|at 0|substring 2|toInt}
+eval nop {self:out.R|assert equals int 255}
+eval nop {self:out.G|assert equals int 0}
+eval nop {self:out.B|assert equals int 0}
+eval nop {self:out.A|assert equals int 255}
+
+####################################################
+# Phase 4: Ensure a texture rebuild isn't triggered after the fill,
+#          which would reset the texture to its original state.
+wait 120
+capture cap selected-object parse drawcall parse core average-color
+eval nop {global:cap|length|assert equals int 1}
+assign self:out.R = {global:cap[0]|split|filterGlobValue R=*|at 0|substring 2|toInt}
+assign self:out.G = {global:cap[0]|split|filterGlobValue G=*|at 0|substring 2|toInt}
+assign self:out.B = {global:cap[0]|split|filterGlobValue B=*|at 0|substring 2|toInt}
+assign self:out.A = {global:cap[0]|split|filterGlobValue A=*|at 0|substring 2|toInt}
+eval nop {self:out.R|assert equals int 255}
+eval nop {self:out.G|assert equals int 0}
+eval nop {self:out.B|assert equals int 0}
+eval nop {self:out.A|assert equals int 255}
+
+exit

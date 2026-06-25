@@ -1,0 +1,6 @@
+[
+    {
+        "command": "task TaskFiles/Tests/Texture/fill.nebs",
+        "expected": { "cout": [], "cerr": [] }
+    }
+]

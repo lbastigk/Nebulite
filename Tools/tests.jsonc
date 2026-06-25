@@ -78,6 +78,9 @@
         "Tools/Tests/Renderer/tiling.json",
         "Tools/Tests/Renderer/io.json",
         //---------------------------------------
+        // Texture Tests
+        "Tools/Tests/Texture/fill.json",
+        //---------------------------------------
         // RmlUi tests
         "Tools/Tests/RmlUi/basics.json",
         //---------------------------------------
