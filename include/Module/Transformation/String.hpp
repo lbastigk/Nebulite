@@ -113,9 +113,9 @@ public:
     static bool substring(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr substringName = "substring";
     static auto constexpr substringDesc = "Extracts a substring from the current JSON string value.\n"
-        "Usage: |substring {start} {length} -> {string}\n"
+        "Usage: |substring {start} [length] -> {string}\n"
         "{start}: Starting index (0-based)\n"
-        "{length}: Length of the substring\n";
+        "[length]: Length of the substring. Optional\n";
 
     static bool replace(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr replaceName = "replace";
@@ -130,6 +130,15 @@ public:
         "Usage: |strCountAppearance {substring} -> {number}\n"
         "Counts whitespaces if no substring is given\n"
         "{substring}: Substring to count\n";
+
+    static bool split(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc);
+    static auto constexpr splitName = "split";
+    static auto constexpr splitDesc = "Splits the current JSON string value into an array of substrings based on a specified character delimiter.\n"
+        "Usage: |split {delimiter} -> {array}\n"
+        "{delimiter}: Delimiter to split the string by. If left empty, it splits by whitespace.\n";
+
+    //------------------------------------------
+    // strcompare
 
     static auto constexpr strcompareName = "strCompare";
     static auto constexpr strcompareDesc = "Functions for comparing string values.\n"

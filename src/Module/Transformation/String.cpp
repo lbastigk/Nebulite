@@ -32,6 +32,7 @@ void String::bindTransformations() {
     bindTransformation(&substring, substringName, substringDesc);
     bindTransformation(&replace, replaceName, replaceDesc);
     bindTransformation(&strCountAppearance, strCountAppearanceName, strCountAppearanceDesc);
+    bindTransformation(&split, splitName, splitDesc);
 
     bindCategory(strcompareName, strcompareDesc);
     bindTransformation(&strcompareEquals, strcompareEqualsName, strcompareEqualsDesc);
@@ -175,17 +176,21 @@ bool String::rStrip(Data::JsonScope* jsonDoc) {
 
 // NOLINTNEXTLINE
 bool String::substring(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
-    if (args.size() != 3){
+    if (args.size() > 3){
         return false;
     }
+    if (args.size() < 2) {
+        return false;
+    }
+
     auto const start = std::stoul(std::string(args[1]));
-    size_t const length = std::stoul(std::string(args[2]));
+
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     if (start >= str.size()) {
         jsonDoc->set(rootKey, "");
         return true;
     }
-    auto const substr = str.substr(start, length);
+    auto const substr = args.size() == 3 ? str.substr(start, std::stoul(std::string(args[2]))) : str.substr(start);
     jsonDoc->set(rootKey, substr);
     return true;
 }
@@ -221,6 +226,26 @@ bool String::strCountAppearance(std::span<std::string_view const> const& args, D
     jsonDoc->set(rootKey, count);
     return true;
 }
+
+bool String::split(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
+    if (args.size() > 2) {
+        return false;
+    }
+    if (args.size() == 2 && args[1].size() > 1) {
+        return false;
+    }
+    auto const delimiter = args.size() == 2 ? args[1].front() : ' ';
+    auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
+    jsonDoc->setEmptyArray(rootKey);
+    for (auto [index, word] : Utility::StringHandler::split(str, delimiter) | std::views::enumerate) {
+        auto const indexedKey = rootKey.addIndex(static_cast<size_t>(index));
+        jsonDoc->set(indexedKey, word);
+    }
+    return true;
+}
+
+//------------------------------------------
+// strcompare
 
 bool String::strcompareEquals(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     auto const compareStr = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : "";
