@@ -29,6 +29,14 @@ public:
     //------------------------------------------
     // Available Functions
 
+    [[nodiscard]] static Constants::Event capture(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
+    static auto constexpr capture_name = "capture";
+    static auto constexpr capture_desc = "Stores all capture output from a command into a given variable"
+        "\n"
+        "Usage: capture <variable> <command...>\n"
+        "\n"
+        "Any output is not printed to the console, but instead stored in the given variable.\n";
+
     [[nodiscard]] static Constants::Event eval(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope);
     static auto constexpr eval_name = "eval";
     static auto constexpr eval_desc = "Evaluates an expression string and executes it.\n"
@@ -187,6 +195,7 @@ public:
         // Binding
 
         // Base functions
+        bindFunction(&General::capture, capture_name, capture_desc);
         bindFunction(&General::eval, eval_name, eval_desc);
         bindFunction(&General::func_for, func_for_name, func_for_desc);
         bindFunction(&General::func_forProgress, func_forProgress_name, func_forProgress_desc);

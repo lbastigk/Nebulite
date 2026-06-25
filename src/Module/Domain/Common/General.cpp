@@ -52,6 +52,48 @@ Constants::Event General::updateHook() {
     return Constants::Event::Success;
 }
 
+Constants::Event General::capture(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
+    if (args.size() < 3) {
+        return Constants::StandardCapture::Warning::Functional::tooFewArgs(ctx.self.capture);
+    }
+    auto const key = ctxScope.self.getRootScope().addMember(args[1]);
+    ctxScope.self.setEmptyArray(key);
+    auto const argsToParse = Utility::StringHandler::recombineArgs(args.subspan(1));
+
+    auto const historySizeBeforeParsing = ctx.self.capture.getHistory().size();
+    bool const outputWasDisabled = ctx.self.capture.disableOutput();
+    auto const result = ctx.self.parseStr(argsToParse, ctx, ctxScope);
+    if (outputWasDisabled) {
+        ctx.self.capture.enableOutput();
+    }
+    auto const historySizeAfterParsing = ctx.self.capture.getHistory().size();
+
+
+    // Case 1: no new lines
+    if (historySizeAfterParsing == historySizeBeforeParsing) {
+        return result;
+    }
+
+    // Case 2: new lines
+    if (historySizeAfterParsing > historySizeBeforeParsing) {
+        // Output only new lines
+        for (auto const [i, index] : std::views::iota(historySizeBeforeParsing, historySizeAfterParsing) | std::views::enumerate) {
+            auto indexedKey = key.addIndex(static_cast<size_t>(i));
+            ctxScope.self.set<std::string>(indexedKey, ctx.self.capture.getHistory()[index].content);
+        }
+    }
+    // Case 3: fewer lines, meaning a clear occurred
+    else {
+        // Output everything
+        for (auto const [i, index] : std::views::iota(0ul, historySizeAfterParsing) | std::views::enumerate) {
+            auto indexedKey = key.addIndex(static_cast<size_t>(i));
+            ctxScope.self.set<std::string>(indexedKey, ctx.self.capture.getHistory()[index].content);
+        }
+    }
+    return result;
+
+}
+
 Constants::Event General::eval(std::span<std::string_view const> const& args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
     // TODO: An idea would be to only eval until the next "eval" keyword, allowing for nested evals within for-loops, ifs, etc.:
     //       Example:

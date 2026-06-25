@@ -17,10 +17,9 @@ std::deque<HistoryLine> const& Capture::getHistory() const {
 }
 
 Capture::Capture(Capture* parent)
-    : log(this, parent ? &parent->log : noParent),
-      warning(this, parent ? &parent->warning : noParent),
-      error(this, parent ? &parent->error : noParent)
-{}
+    : log(this, parent ? &parent->log : noParent)
+    , warning(this, parent ? &parent->warning : noParent)
+    , error(this, parent ? &parent->error : noParent) {}
 
 void Capture::clear(){
     history.clear();
@@ -31,9 +30,9 @@ bool Capture::hasParent() const {
     return log.hasParent();
 }
 
-void Capture::appendInput(std::string const& str) {
+void Capture::appendToHistory(std::string const& str, HistoryLine::Type const lineType) {
     std::scoped_lock const lock(historyMutex);
-    history.push_back({.content=str, .type=HistoryLine::Type::Input});
+    history.push_back({.content=str, .type=lineType, .silent = outputEnabled});
 }
 
 } // namespace Nebulite::Utility::IO

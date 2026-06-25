@@ -37,6 +37,7 @@ struct HistoryLine{
         Warning,
         Error
     } type;
+    bool silent;
 };
 
 /**
@@ -81,8 +82,12 @@ public:
  */
 template<std::ostream* BaseStream, HistoryLine::Type LineType>
 class HierarchicalStream {
+    friend class Capture;
+
     Stream<BaseStream, LineType> coutStream;
     HierarchicalStream* parent;
+
+    bool outputEnabled = true;
 
 public:
     explicit HierarchicalStream(Capture* cap, HierarchicalStream* par = nullptr)
@@ -106,9 +111,6 @@ public:
  */
 class Capture{
 public:
-    template<std::ostream* BaseStream, HistoryLine::Type LineType>
-    friend class Stream;
-
     static auto constexpr noParent = nullptr;
 
     explicit Capture(Capture* parent);
@@ -131,14 +133,46 @@ public:
     [[nodiscard]] bool hasParent() const ;
 
     /**
-     * @brief Appends input to the output log with thread safety.
+     * @brief Appends input to the history
      * @param str The string to append to the log.
+     * @param lineType The type of line to add.
      */
-    void appendInput(std::string const& str) ;
+    void appendToHistory(std::string const& str, HistoryLine::Type lineType);
+
+    /**
+     * @brief Disables the output temporarily, preventing any further output from being printed to the console.
+     * @details Output is still captured by the log!
+     * @return True if the output was successfully disabled, false if it was already disabled.
+     */
+    bool disableOutput() {
+        if (outputEnabled) {
+            outputEnabled = false;
+
+            // Disable for each stream
+            log.outputEnabled = false;
+            warning.outputEnabled = false;
+            error.outputEnabled = false;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * @brief Re-enables the output
+     */
+    void enableOutput() {
+        outputEnabled = true;
+
+        // Enable for each stream
+        log.outputEnabled = true;
+        warning.outputEnabled = true;
+        error.outputEnabled = true;
+    }
 
 private:
     std::deque<HistoryLine> history; // List of captured output lines
     std::mutex historyMutex;  // Mutex for thread-safe access to outputList
+    bool outputEnabled = true;
 };
 
 } // namespace Nebulite::Utility::IO

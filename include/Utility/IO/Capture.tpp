@@ -16,11 +16,10 @@ void Stream<BaseStream, LineType>::putStr(std::string const& str, bool const& pr
         *BaseStream << str;
     }
 
-    std::scoped_lock const lock(capture->historyMutex);
     std::istringstream iss(str);
     std::string line;
     while (std::getline(iss, line)) {
-        capture->history.push_back({.content=line, .type=LineType});
+        capture->appendToHistory(line, LineType);
     }
 }
 
@@ -53,7 +52,7 @@ void HierarchicalStream<BaseStream, LineType>::print(Args&&... args){
         parent->print(args...);
     }
     // Only print to console if this is the root stream, to avoid duplicate prints
-    coutStream.print(!parent, std::forward<Args>(args)...);
+    coutStream.print(!parent && outputEnabled, std::forward<Args>(args)...);
 }
 
 template<std::ostream* BaseStream, HistoryLine::Type LineType>
@@ -64,7 +63,7 @@ void HierarchicalStream<BaseStream, LineType>::println(Args&&... args){
         parent->println(args...);
     }
     // Only print to console if this is the root stream, to avoid duplicate prints
-    coutStream.println(!parent, std::forward<Args>(args)...);
+    coutStream.println(!parent && outputEnabled, std::forward<Args>(args)...);
 }
 
 } // namespace Nebulite::Utility::IO

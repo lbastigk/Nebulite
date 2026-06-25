@@ -395,9 +395,10 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
     ImGui::BeginChild("ConsoleOutput", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), true);
 
     ImGui::PushTextWrapPos(0.0f); // wrap at window/child width
-    for (const auto& [content, lineType] : capture.getHistory()){
+    for (const auto& [content, type, silent] : capture.getHistory()){
+        if (!silent) continue; // Skip silent entries
         std::string contentFull;
-        switch (lineType) {
+        switch (type) {
             case Utility::IO::HistoryLine::Type::Info:
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f)); // white
                 break;
@@ -443,7 +444,7 @@ void ImguiHelper::renderDomainConsole(Interaction::Context& ctx, Interaction::Co
 
     if (ImGui::InputText("##ConsoleInput", &command, ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory | ImGuiInputTextFlags_CallbackCompletion, consoleInputCallback, &state)) {
         if (!command.empty()){
-            capture.appendInput(command);
+            capture.appendToHistory(command, Utility::IO::HistoryLine::Type::Input);
             Global::instance().notifyEvent(domain.parseStr(__FUNCTION__ + std::string(" ") + command, ctx, ctxScope));
             command.clear();
             state.historyIndex = 0; // Reset history index after executing a command
