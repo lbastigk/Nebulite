@@ -19,6 +19,7 @@ namespace Nebulite::Module::Domain::RenderObject {
 
 //------------------------------------------
 // Update
+
 Constants::Event Logging::updateHook() {
     // Add Domain-specific updates here!
     // General rule:

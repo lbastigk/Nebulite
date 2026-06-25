@@ -37,6 +37,7 @@
 #include "Module/Domain/GlobalSpace/Time.hpp"
 
 // RenderObject
+#include "Module/Domain/RenderObject/Drawcall.hpp"
 #include "Module/Domain/RenderObject/Logging.hpp"
 #include "Module/Domain/RenderObject/Mirror.hpp"
 #include "Module/Domain/RenderObject/StateUpdate.hpp"
@@ -198,6 +199,11 @@ void Initializer::initGlobalSpace(Core::GlobalSpace* target) {
 void Initializer::initRenderObject(Core::RenderObject* target) {
     using namespace Nebulite::Module::Domain::RenderObject;
 
+    target->initModule<Core::RenderObject, Drawcall>(
+        "RenderObject Drawcall Functions",
+        Global::settings(),
+        *target
+    );
     target->initModule<Core::RenderObject, Logging>(
         "RenderObject Logging Functions",
         Global::settings(),

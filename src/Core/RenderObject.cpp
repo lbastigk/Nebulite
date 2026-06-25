@@ -135,6 +135,25 @@ void RenderObject::updateDrawcalls() {
     }
 }
 
+Constants::Event RenderObject::parseDrawcallCommand(std::string_view const drawCallName, std::string_view const args, Interaction::Context& ctx, Interaction::ContextScope& ctxScope){
+    if (drawCallName.empty()) {
+        capture.error.println("Drawcall name is empty. Cannot parse command.");
+        return Constants::Event::Error;
+    }
+    auto const drawcallIt = drawcalls.find(std::string(drawCallName));
+    if (drawcallIt == drawcalls.end()) {
+        capture.warning.println("Drawcall '", drawCallName, "' not found in RenderObject. Available drawcalls: ", [&]{
+            std::string result;
+            for (auto const& member: drawcalls | std::views::keys) {
+                result += member + " ";
+            }
+            return result;
+        }());
+        return Constants::Event::Warning;
+    }
+    return drawcallIt->second->parseStr(args, ctx, ctxScope);
+}
+
 //------------------------------------------
 // Marshalling
 

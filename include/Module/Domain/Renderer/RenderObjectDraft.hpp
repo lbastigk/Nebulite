@@ -14,8 +14,8 @@
 #include <string>
 
 // Nebulite
-#include "Constants/KeyNames.hpp"
 #include "Core/RenderObject.hpp"
+#include "Data/Document/KeyGroup.hpp"
 #include "Module/Base/DomainModule.hpp"
 
 //------------------------------------------

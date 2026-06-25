@@ -457,7 +457,7 @@ public:
      * @param ctxScope The context scope of the caller
      * @return Potential errors that occurred on command execution
      */
-    [[nodiscard]] Constants::Event parseStr(std::string const& str, Context& ctx, ContextScope& ctxScope) const ;
+    [[nodiscard]] Constants::Event parseStr(std::string_view str, Context& ctx, ContextScope& ctxScope) const ;
 
     /**
      * @brief Finds possible completions of registered functions, categories and variables for a given pattern

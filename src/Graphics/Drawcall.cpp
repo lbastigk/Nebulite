@@ -237,7 +237,7 @@ void Drawcall::updateDrawcallData() {
 //------------------------------------------
 // Drawcall defaults
 
-Constants::Event Drawcall::parseStr(std::string const& str, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const {
+Constants::Event Drawcall::parseStr(std::string_view const str, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) const {
     return texture.parseStr(str, ctx, ctxScope);
 }
 
