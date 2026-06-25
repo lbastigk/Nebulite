@@ -33,15 +33,11 @@ enum class FlatContainerType : std::uint8_t {
 template <FlatContainerType Type>
 class FlatContainer;
 
-class FlatContainerImpl {
+class FlatContainerBase {
     // All functions private, only accessible by FlatContainer, which is the only friend class
 
     template <FlatContainerType Type>
     friend class FlatContainer;
-
-    // Add entire workspace and functions from FlatContainer here
-    // Then we add FlatContainerImp as member of FlatContainer, and pass the settings to any function.
-    // Passing them during construction might work, but then we likely have to make FlatContainerImpl a unique_ptr.
 
     struct Settings {
         double relativeOffset;
@@ -53,20 +49,29 @@ class FlatContainerImpl {
 
     Settings const& settings;
 
-    static std::unique_ptr<FlatContainerImpl> create(Settings const& s) {
-        return std::make_unique<FlatContainerImpl>(s);
+    static std::unique_ptr<FlatContainerBase> create(Settings const& s) {
+        return std::make_unique<FlatContainerBase>(s);
     }
 
     void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> entry);
     void listen(std::shared_ptr<Interaction::Rules::Listener> listener);
-    void process();
+
+    /**
+     * @brief Uses the provided offsets to process all broadcasted rulesets.
+     */
+    void processWithRotation();
+
+    /**
+     * @brief Ignores settings and processes all broadcasted rulesets without any rotation or offset.
+     */
+    void processWithoutRotation();
 
     static auto constexpr activeWorkerCount = Constants::ThreadSettings::Maximum::invokeWorkerCount;
     std::array<StringMap<std::vector<std::shared_ptr<Interaction::Rules::Ruleset>>>, activeWorkerCount> broadcasters = {};
     std::array<StringMap<std::vector<std::shared_ptr<Interaction::Rules::Listener>>>, activeWorkerCount> listeners = {};
 
 public:
-    explicit FlatContainerImpl(Settings const& s) : settings(s) {}
+    explicit FlatContainerBase(Settings const& s) : settings(s) {}
 };
 
 /**
@@ -81,7 +86,7 @@ class FlatContainer final : public BaseContainer<FlatContainer<Type>*> {
 public:
     explicit FlatContainer(std::atomic<bool>& stopFlag, size_t const& workerIndex, size_t const& workerCount)
         : BaseContainer<FlatContainer*>(stopFlag, workerIndex, workerCount, this) {
-        FlatContainerImpl::Settings settings{};
+        FlatContainerBase::Settings settings{};
 
         if constexpr (Type == FlatContainerType::WithRotation) { // Set offsets based on worker index
             settings.relativeOffset = static_cast<double>(workerIndex) / static_cast<double>(workerCount);
@@ -102,7 +107,7 @@ public:
             std::unreachable();
         }
 
-        impl = FlatContainerImpl::create(settings);
+        base = FlatContainerBase::create(settings);
     }
 
     ~FlatContainer() override = default;
@@ -117,7 +122,7 @@ public:
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
     void broadcast(std::shared_ptr<Interaction::Rules::Ruleset> const& entry) override {
-        impl->broadcast(entry);
+        base->broadcast(entry);
     }
 
     /**
@@ -125,7 +130,7 @@ public:
      * @param listener The listener to add.
      */
     void listen(std::shared_ptr<Interaction::Rules::Listener> const& listener) override {
-        impl->listen(listener);
+        base->listen(listener);
     }
 
     /**
@@ -143,14 +148,19 @@ public:
      *        matching them with listeners and executing the appropriate actions.
      */
     void process() override {
-        impl->process();
+        if constexpr (Type == FlatContainerType::WithoutRotation) {
+            base->processWithoutRotation();
+        }
+        else {
+            base->processWithRotation();
+        }
     }
 
 private:
     /**
-     * @brief Non-templated implementation class of the FlatContainer
+     * @brief Non-templated base class of the FlatContainer
      */
-    std::unique_ptr<FlatContainerImpl> impl;
+    std::unique_ptr<FlatContainerBase> base;
 };
 
 } // namespace Nebulite::Data::BroadcastListenContainer

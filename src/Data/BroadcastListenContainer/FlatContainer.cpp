@@ -32,13 +32,13 @@ size_t getThreadId() {
 }
 } // namespace
 
-void FlatContainerImpl::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> entry) {
+void FlatContainerBase::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> entry) {
     auto const threadId = getThreadId();
     //auto lock = broadcasters[threadId].lock(entry->getTopic());
     broadcasters[threadId][entry->getTopic()].push_back(std::move(entry));
 }
 
-void FlatContainerImpl::listen(std::shared_ptr<Interaction::Rules::Listener> listener) {
+void FlatContainerBase::listen(std::shared_ptr<Interaction::Rules::Listener> listener) {
     auto const threadId = getThreadId();
     // Lock is, for some reason, necessary ...
     auto lock = listeners[threadId].lock(listener->topic);
@@ -80,7 +80,7 @@ auto rotate(R&& r, double percent) {
 }
 } // namespace
 
-void FlatContainerImpl::process() {
+void FlatContainerBase::processWithRotation() {
     for (auto& listenerMap : rotate(listeners, settings.listenerOffset)) {
         listenerMap.forall([&](std::string const& topic, auto& lv) {
             // Build a flattened view of all rulesets for this topic
@@ -95,6 +95,33 @@ void FlatContainerImpl::process() {
 
             // Apply all valid rulesets and clear listeners
             for (auto& listener : rotate(lv, settings.lvOffset)) {
+                for (auto const& ruleset : rulesets) {
+                    if (ruleset->getId() == listener->domain.getId()) continue;
+                    if (ruleset->evaluateCondition(listener->domain)) ruleset->apply(listener);
+                }
+            }
+            lv.clear();
+        });
+    }
+
+    // Cleanup: Clear all broadcasters
+    for (auto& broadcasterMap : broadcasters) {
+        broadcasterMap.forall([&](auto& bv) {
+            bv.clear();
+        });
+    }
+}
+
+void FlatContainerBase::processWithoutRotation(){
+    for (auto& listenerMap : listeners) {
+        listenerMap.forall([&](std::string const& topic, auto& lv) {
+            // Build a flattened view of all rulesets for this topic
+            auto rulesets = broadcasters
+                | std::views::transform([&](auto& broadcasterMap) -> auto& {return broadcasterMap[topic];})
+                | std::views::join;
+
+            // Apply all valid rulesets and clear listeners
+            for (auto& listener : lv) {
                 for (auto const& ruleset : rulesets) {
                     if (ruleset->getId() == listener->domain.getId()) continue;
                     if (ruleset->evaluateCondition(listener->domain)) ruleset->apply(listener);

@@ -22,7 +22,7 @@ echo "Starting profiling.nebs"
 # - physics
 # - gameScene
 # - loading
-set settings.profilingTask loading
+set settings.profilingTask physics
 ####################################################
 
 ###################
