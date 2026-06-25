@@ -111,7 +111,7 @@ void Drawcall::renderTexture(Core::Renderer const& nebuliteRenderer, float const
             .h=std::floor(static_cast<float>(*refs.rectDstH))
         });
         if (!Math::isZero(*refs.rotationDegrees)) {
-            if (!SDL_RenderTextureRotated(nebuliteRenderer.getSdlRenderer(),texture.getSDLTexture(),&srcRect,&dstRect, *refs.rotationDegrees, &rotationCenter,SDL_FLIP_NONE)) {
+            if (!SDL_RenderTextureRotated(nebuliteRenderer.getSdlRenderer(), texture.getSDLTexture(), &srcRect, &dstRect, *refs.rotationDegrees, &rotationCenter, SDL_FLIP_NONE)) {
                 texture.capture.error.println("Failed to render rotated sprite texture in drawcall: ", SDL_GetError());
             }
         }
@@ -193,20 +193,29 @@ void Drawcall::update() {
 }
 
 void Drawcall::updateDrawcallData() {
-    // TODO: Add more complicated diff-based update logic if needed
-    //       Otherwise the current implementation re-initializes the texture with every routine trigger
-    //       Perhaps some basic checks such as "has the text string/font size changed" would be sufficient for now
-    //       However, any change in the drawcall data must be reflected here, otherwise the drawcall will not update properly!!
+    // Setup new type and check if reinit of texture is required
     if (auto const t = drawcallScope.get<std::string>(Key::type).value_or("sprite"); t == "sprite") {
+        if (type != Type::SPRITE || diffSprite()) {
+            reInitializeRequested = true;
+        }
         type = Type::SPRITE;
     }
     else if (t == "text") {
+        if (type == Type::TEXT || diffText()) {
+            reInitializeRequested = true;
+        }
         type = Type::TEXT;
     }
     else if (t == "circle") {
+        if (type == Type::CIRCLE || diffCircle()) {
+            reInitializeRequested = true;
+        }
         type = Type::CIRCLE;
     }
     else if (t == "polygon") {
+        if (type == Type::POLYGON || diffPolygon()) {
+            reInitializeRequested = true;
+        }
         type = Type::POLYGON;
     }
     else {
@@ -229,9 +238,6 @@ void Drawcall::updateDrawcallData() {
         // Default to center of dst rect
         rotationCenter.y = static_cast<float>(*refs.rectDstH / 2.0);
     }
-
-    // Force re-initialization on next draw
-    reInitializeRequested = true;
 }
 
 //------------------------------------------
@@ -270,16 +276,28 @@ void Drawcall::ApplyDefault::Text(Data::JsonScope& scope) {
     // Default Rects will be set during initialization based on text size
 }
 
-//------------------------------------------
-// Specific initializers
+void Drawcall::setStandardTextRectsIfMissing(float const w, float const h, TTF_Font* font) const {
+    // Cast to double
+    double const srcW = static_cast<double>(w) * 1.0;
+    double const srcH = static_cast<double>(h) * 1.0;
+    double const dstW = srcW * *refs.textFontsize / static_cast<double>(TTF_GetFontSize(font));
+    double const dstH = srcH * *refs.textFontsize / static_cast<double>(TTF_GetFontSize(font));
 
-namespace {
+    // Setup src values unless they are already defined
+    if (drawcallScope.memberType(Key::Rect::srcX) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcX, 0.0);
+    if (drawcallScope.memberType(Key::Rect::srcY) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcY, 0.0);
+    if (drawcallScope.memberType(Key::Rect::srcW) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcW, srcW);
+    if (drawcallScope.memberType(Key::Rect::srcH) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcH, srcH);
 
-
-
+    // Prefer measured pixel size for dst unless the caller explicitly set different values
+    if (drawcallScope.memberType(Key::Rect::dstX) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstX, 0.0);
+    if (drawcallScope.memberType(Key::Rect::dstY) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstY, 0.0);
+    if (drawcallScope.memberType(Key::Rect::dstW) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstW, dstW);
+    if (drawcallScope.memberType(Key::Rect::dstH) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstH, dstH);
 }
 
-
+//------------------------------------------
+// Specific initializers
 
 void Drawcall::initializeSprite() {
     // Skip if renderer is not initialized
@@ -288,14 +306,14 @@ void Drawcall::initializeSprite() {
     }
 
     // Get Texture from container via link
-    std::string const link = drawcallScope.get<std::string>(Key::SpriteSpecific::imageLocation).value_or("");
-    if (link.empty()) {
+    state.sprite.link = drawcallScope.get<std::string>(Key::SpriteSpecific::imageLocation).value_or("");
+    if (state.sprite.link.empty()) {
         texture.capture.error.println("Sprite drawcall has empty texture link.");
         return;
     }
 
     // Set Source Rect, if it does not exist yet
-    if (auto* const sdlTexture = Global::instance().getRenderer().getTexture(link); sdlTexture) {
+    if (auto* const sdlTexture = Global::instance().getRenderer().getTexture(state.sprite.link); sdlTexture) {
         float w = 0.0;
         float h = 0.0;
         SDL_GetTextureSize(sdlTexture, &w, & h);
@@ -319,26 +337,6 @@ void Drawcall::initializeSprite() {
     }
 }
 
-void Drawcall::setStandardTextRectsIfMissing(float const w, float const h, TTF_Font* font) const {
-    // Cast to double
-    double const srcW = static_cast<double>(w) * 1.0;
-    double const srcH = static_cast<double>(h) * 1.0;
-    double const dstW = srcW * *refs.textFontsize / static_cast<double>(TTF_GetFontSize(font));
-    double const dstH = srcH * *refs.textFontsize / static_cast<double>(TTF_GetFontSize(font));
-
-    // Setup src values unless they are already defined
-    if (drawcallScope.memberType(Key::Rect::srcX) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcX, 0.0);
-    if (drawcallScope.memberType(Key::Rect::srcY) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcY, 0.0);
-    if (drawcallScope.memberType(Key::Rect::srcW) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcW, srcW);
-    if (drawcallScope.memberType(Key::Rect::srcH) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::srcH, srcH);
-
-    // Prefer measured pixel size for dst unless the caller explicitly set different values
-    if (drawcallScope.memberType(Key::Rect::dstX) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstX, 0.0);
-    if (drawcallScope.memberType(Key::Rect::dstY) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstY, 0.0);
-    if (drawcallScope.memberType(Key::Rect::dstW) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstW, dstW);
-    if (drawcallScope.memberType(Key::Rect::dstH) != Data::KeyType::value) drawcallScope.set<double>(Key::Rect::dstH, dstH);
-}
-
 void Drawcall::initializeText() {
     if (!Global::instance().getRenderer().isSdlInitialized()) return;
 
@@ -355,19 +353,19 @@ void Drawcall::initializeText() {
     }
 
     // TODO: Proper width wrapping based on fontsize and max width
-    auto text = drawcallScope.get<std::string>(Key::TextSpecific::str).value_or("");
-    if (text.empty()) {
-        text = " "; // Render at least a space to get height
+    state.text.text = drawcallScope.get<std::string>(Key::TextSpecific::str).value_or("");
+    if (state.text.text.empty()) {
+        state.text.text = " "; // Render at least a space to get height
     }
 
-    SDL_Color const textColor = {
+    state.text.textColor = {
         .r=static_cast<Uint8>(*refs.colorR),
         .g=static_cast<Uint8>(*refs.colorG),
         .b=static_cast<Uint8>(*refs.colorB),
         .a=static_cast<Uint8>(*refs.colorA)
     };
 
-    SDL_Surface* surf = TTF_RenderText_Blended_Wrapped(font, text.c_str(), 0, textColor, 0);
+    SDL_Surface* surf = TTF_RenderText_Blended_Wrapped(font, state.text.text.c_str(), 0, state.text.textColor, 0);
     if (!surf) {
         texture.capture.error.println("TTF_RenderText_Blended_Wrapped failed: ", SDL_GetError());
         return;
@@ -400,18 +398,18 @@ void Drawcall::initializeCircle() {
     }
 
     // Create a texture for the circle
-    int const radius = static_cast<int>(*refs.circleRadius);
-    SDL_Texture* circleTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, radius * 2, radius * 2);
+    state.circle.radius = static_cast<int>(*refs.circleRadius);
+    SDL_Texture* circleTexture = SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, state.circle.radius * 2, state.circle.radius * 2);
 
     // Draw the circle
-    SDL_Color const circleColor = {
+    state.circle.circleColor = {
         .r=static_cast<Uint8>(*refs.colorR),
         .g=static_cast<Uint8>(*refs.colorG),
         .b=static_cast<Uint8>(*refs.colorB),
         .a=static_cast<Uint8>(*refs.colorA)
     };
-    SDL_SetRenderDrawColor(sdlRenderer, circleColor.r, circleColor.g, circleColor.b, circleColor.a);
-    SdlPrimitive::drawFilledCircle(sdlRenderer, circleTexture, circleColor, radius);
+    SDL_SetRenderDrawColor(sdlRenderer, state.circle.circleColor.r, state.circle.circleColor.g, state.circle.circleColor.b, state.circle.circleColor.a);
+    SdlPrimitive::drawFilledCircle(sdlRenderer, circleTexture, state.circle.circleColor, state.circle.radius);
 
     // Setup src values unless they are already defined
     if (drawcallScope.memberType(Key::Rect::srcX) != Data::KeyType::value) {
@@ -421,10 +419,10 @@ void Drawcall::initializeCircle() {
         drawcallScope.set<double>(Key::Rect::srcY, 0.0);
     }
     if (drawcallScope.memberType(Key::Rect::srcW) != Data::KeyType::value) {
-        drawcallScope.set<double>(Key::Rect::srcW, 2*radius);
+        drawcallScope.set<double>(Key::Rect::srcW, 2*state.circle.radius);
     }
     if (drawcallScope.memberType(Key::Rect::srcH) != Data::KeyType::value) {
-        drawcallScope.set<double>(Key::Rect::srcH, 2*radius);
+        drawcallScope.set<double>(Key::Rect::srcH, 2*state.circle.radius);
     }
     texture.setInternalTexture(circleTexture);
 }
@@ -461,13 +459,13 @@ void Drawcall::initializePolygon() {
 
     // Get polygon points
     std::vector<SDL_FPoint> points;
-    size_t const pointCount = drawcallScope.memberSize(Key::PolygonSpecific::points);
-    if (pointCount < 2) { // Bump to 3 later on for filled polygons
+    state.polygon.pointCount = drawcallScope.memberSize(Key::PolygonSpecific::points);
+    if (state.polygon.pointCount < 2) { // Bump to 3 later on for filled polygons
         texture.capture.error.println("Polygon drawcall requires at least 2 points.");
         return;
     }
-    points.reserve(pointCount);
-    for (size_t i = 0; i < pointCount; ++i) {
+    points.reserve(state.polygon.pointCount);
+    for (size_t i = 0; i < state.polygon.pointCount; ++i) {
         auto const pointX = w * drawcallScope.get<double>(Key::PolygonSpecific::points.addIndex(i).addMember("x")).value_or(0.0);
         auto const pointY = h * drawcallScope.get<double>(Key::PolygonSpecific::points.addIndex(i).addMember("y")).value_or(0.0);
         points.push_back({ .x=static_cast<float>(pointX), .y=static_cast<float>(pointY) });
@@ -481,7 +479,7 @@ void Drawcall::initializePolygon() {
         static_cast<int>(w),
         static_cast<int>(h)
     );
-    SDL_Color const polyColor = {
+    state.polygon.polyColor = {
         .r=static_cast<Uint8>(*refs.colorR),
         .g=static_cast<Uint8>(*refs.colorG),
         .b=static_cast<Uint8>(*refs.colorB),
@@ -490,11 +488,11 @@ void Drawcall::initializePolygon() {
 
     if (!Math::isZero(*refs.polygonFilled)) {
         // Filled polygon
-        SdlPrimitive::drawFilledPolygon(sdlRenderer, polyTexture, polyColor, points);
+        SdlPrimitive::drawFilledPolygon(sdlRenderer, polyTexture, state.polygon.polyColor, points);
     }
     else {
         // Empty polygon
-        SdlPrimitive::drawEmptyPolygon(sdlRenderer, polyTexture, polyColor, points);
+        SdlPrimitive::drawEmptyPolygon(sdlRenderer, polyTexture, state.polygon.polyColor, points);
     }
 
     // Check for errors
@@ -503,6 +501,37 @@ void Drawcall::initializePolygon() {
         return;
     }
     texture.linkExternalTexture(polyTexture);
+}
+
+//------------------------------------------
+// Diff noticers for reinitialization
+
+bool Drawcall::diffSprite() const {
+    return state.sprite.link != drawcallScope.get<std::string>(Key::SpriteSpecific::imageLocation).value_or("");
+}
+
+bool Drawcall::diffText() const {
+    return state.text.text != drawcallScope.get<std::string>(Key::TextSpecific::str).value_or("")
+        || state.text.textColor.r != static_cast<Uint8>(*refs.colorR)
+        || state.text.textColor.g != static_cast<Uint8>(*refs.colorG)
+        || state.text.textColor.b != static_cast<Uint8>(*refs.colorB)
+        || state.text.textColor.a != static_cast<Uint8>(*refs.colorA);
+}
+
+bool Drawcall::diffCircle() const {
+    return state.circle.radius != static_cast<int>(*refs.circleRadius)
+        || state.circle.circleColor.r != static_cast<Uint8>(*refs.colorR)
+        || state.circle.circleColor.g != static_cast<Uint8>(*refs.colorG)
+        || state.circle.circleColor.b != static_cast<Uint8>(*refs.colorB)
+        || state.circle.circleColor.a != static_cast<Uint8>(*refs.colorA);
+}
+
+bool Drawcall::diffPolygon() const {
+    return state.polygon.pointCount != drawcallScope.memberSize(Key::PolygonSpecific::points)
+        || state.polygon.polyColor.r != static_cast<Uint8>(*refs.colorR)
+        || state.polygon.polyColor.g != static_cast<Uint8>(*refs.colorG)
+        || state.polygon.polyColor.b != static_cast<Uint8>(*refs.colorB)
+        || state.polygon.polyColor.a != static_cast<Uint8>(*refs.colorA);
 }
 
 } // namespace Nebulite::Graphics

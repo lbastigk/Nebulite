@@ -163,6 +163,29 @@ private:
         void initialize(Data::JsonScope const& scope);
     } refs;
 
+    // Important state for diff-logic
+    // Perhaps changing to std::variant is better, since only one type is required
+    struct State {
+        struct Sprite {
+            std::string link;
+        } sprite;
+
+        struct Text {
+            std::string text;
+            SDL_Color textColor;
+        } text;
+
+        struct Circle {
+            int radius;
+            SDL_Color circleColor;
+        } circle;
+
+        struct Polygon {
+            size_t pointCount;
+            SDL_Color polyColor;
+        } polygon;
+    } state;
+
     bool reInitializeRequested = false;
 
     SDL_FPoint rotationCenter{.x=0.0f, .y=0.0f};
@@ -249,6 +272,17 @@ private:
      * @note Only called during the draw call, otherwise the thread safety would be compromised.
      */
     void initializePolygon();
+
+    //------------------------------------------
+    // Diff noticers for reinitialization
+
+    bool diffSprite() const ;
+
+    bool diffText() const ;
+
+    bool diffCircle() const ;
+
+    bool diffPolygon() const ;
 };
 
 } // namespace Nebulite::Graphics

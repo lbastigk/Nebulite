@@ -44,6 +44,10 @@ public:
         "Where <color> can be 'red', 'green', or 'blue',\n"
         "and <r>, <g>, <b> are integer values (0-255) for red, green, and blue components.\n";
 
+    [[nodiscard]] Constants::Event averageColor() const;
+    static auto constexpr averageColor_name = "average-color";
+    static auto constexpr averageColor_desc = "Prints the average color of the texture.";
+
     //------------------------------------------
     // Setup
 
@@ -52,6 +56,7 @@ public:
      */
     explicit Fill(ConstructorParams const& params) : DomainModule(params) {
         bindFunction(&Fill::fill, fill_name, fill_desc);
+        bindFunction(&Fill::averageColor, averageColor_name, averageColor_desc);
     }
 };
 } // namespace Nebulite::Module::Domain::Texture
