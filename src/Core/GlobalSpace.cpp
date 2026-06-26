@@ -204,6 +204,7 @@ void GlobalSpace::quitRenderer() {
 // Broadcast/Listen
 
 void GlobalSpace::broadcast(std::shared_ptr<Interaction::Rules::Ruleset> entry) {
+    assert(!entry->getTopic().empty());
     invoke.broadcast(std::move(entry));
 }
 
