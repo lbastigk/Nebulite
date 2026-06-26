@@ -15,10 +15,10 @@
 #include <rapidjson/document.h>
 
 // Nebulite
-#include "Data/Document/JsonRvalueTransformer.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
 #include "Data/Document/SimpleValueError.hpp"
+#include "Utility/CompileTimeEvaluate.hpp"
 
 //------------------------------------------
 // Forward declarations

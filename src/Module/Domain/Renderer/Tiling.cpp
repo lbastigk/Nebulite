@@ -95,7 +95,7 @@ namespace Nebulite::Module::Domain::Renderer {
                 }
 
                 // Render cost and count as text in the top-left corner of the tile
-                std::string metaInfoText = "Count: " + std::to_string(objectCount) + " Cost: " + std::to_string(tileCost);
+                std::string const metaInfoText = "Count: " + std::to_string(objectCount) + " Cost: " + std::to_string(tileCost);
                 ImGui::GetBackgroundDrawList()->AddText(
                     ImVec2(scaledRect.x+2, scaledRect.y+2),
                     ImColor(255, 0, 255, 255),

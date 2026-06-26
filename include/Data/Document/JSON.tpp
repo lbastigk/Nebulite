@@ -6,9 +6,22 @@
 
 // Standard library
 #include <expected>
+#include <memory>
+#include <mutex>
+#include <optional>
+#include <string>
+#include <string_view>
 #include <type_traits>
+#include <utility>
+
+// External
+#include <rapidjson/document.h>
 
 // Nebulite
+#include "Data/Document/JSON.hpp"
+#include "Data/Document/JsonRvalueTransformer.hpp"
+#include "Data/Document/RjDirectAccess.hpp"
+#include "Data/Document/SimpleValueError.hpp"
 #include "Data/Document/TypeConversion.hpp"
 #include "Module/Base/TransformationModule.hpp"
 #include "Utility/TypeCheck.hpp"

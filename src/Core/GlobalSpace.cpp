@@ -2,9 +2,11 @@
 // Includes
 
 // Standard library
+#include <cassert>
 #include <cstddef>
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string>

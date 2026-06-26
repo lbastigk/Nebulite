@@ -4,7 +4,9 @@
 // Standard library
 #include <cstdint> // NOLINT
 #include <mutex>
+#include <sstream>
 #include <string>
+#include <vector>
 
 // Nebulite
 #include "Constants/Event.hpp"

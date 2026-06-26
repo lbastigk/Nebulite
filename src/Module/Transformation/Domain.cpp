@@ -6,8 +6,8 @@
 
 // Nebulite
 #include "Data/TaskQueue.hpp"
-#include "Module/Transformation/Domain.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Module/Transformation/Domain.hpp"
 #include "Nebulite.hpp"
 #include "Utility/StringHandler.hpp"
 

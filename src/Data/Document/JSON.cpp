@@ -23,6 +23,7 @@
 
 // Nebulite
 #include "Data/Document/JSON.hpp"
+#include "Data/Document/JsonRvalueTransformer.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Data/Document/RjDirectAccess.hpp"

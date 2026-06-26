@@ -3,8 +3,10 @@
 
 // Standard library
 #include <algorithm>
+#include <cmath>
 #include <cstdint> // NOLINT
 #include <memory>
+#include <ranges>
 #include <string>
 #include <vector>
 

@@ -1,9 +1,27 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <algorithm>
+#include <cstdlib>
+#include <iterator>
+#include <utility>
+#include <vector>
+
+// External
+#include <SDL3/SDL_error.h>
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Core/RenderObject.hpp"
+#include "Data/Batch.hpp"
+#include "Data/RenderObjectContainer.hpp"
 #include "Data/Tiling.hpp"
 #include "Nebulite.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {
@@ -20,7 +38,7 @@ std::vector<Batch> const& Tile::getBatches() const {
 }
 
 void Tile::appendBatch(Batch&& batch) {
-    batches.push_back(batch);
+    batches.push_back(std::move(batch));
 }
 
 void Tile::moveObjects(std::vector<Core::RenderObject*>& destination) {
@@ -105,7 +123,7 @@ void Tile::render(
     int const dispPosY,
     int const windowScale
 ){
-    auto const renderer = nebuliteRenderer.getSdlRenderer();
+    auto* const renderer = nebuliteRenderer.getSdlRenderer();
 
     // Re-render background texture
     if (!texture) {
@@ -121,12 +139,12 @@ void Tile::render(
             std::abort();
         }
         SDL_SetRenderTarget(renderer, texture);
-        for (auto& [objects, _] : getBatches()) {
-            for (auto& obj : objects) {
+        for (auto const& objects : getBatchedObjects()) {
+            for (auto const& obj : objects) {
                 obj->draw(
                     nebuliteRenderer,
-                    coordinate.x * tilingInfo.w,
-                    coordinate.y * tilingInfo.h
+                    static_cast<float>(coordinate.x * tilingInfo.w),
+                    static_cast<float>(coordinate.y * tilingInfo.h)
                 );
             }
         }

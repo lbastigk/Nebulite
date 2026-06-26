@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
+#include <ranges>
 #include <string>
 
 // Nebulite

@@ -4,6 +4,7 @@
 // Standard library
 #include <cstddef>
 #include <iterator>
+#include <mutex>
 #include <random>
 #include <string>
 #include <string_view>
@@ -46,7 +47,7 @@ void ReadOnlyDocs::update() const {
     // Check the last used time of a random document
     auto it = docs.begin();
     thread_local std::mt19937_64 rng{std::random_device{}()};
-    auto lock = std::lock_guard{docsMutex};
+    auto lock = std::scoped_lock{docsMutex};
     std::uniform_int_distribution<std::size_t> dist(0, docs.size() - 1);
     std::advance(it, dist(rng));
 
@@ -63,7 +64,7 @@ ReadOnlyDoc* ReadOnlyDocs::getDocument(std::string_view const& doc) const {
         return nullptr;
     }
     // Check if the document exists in the cache
-    auto lock = std::lock_guard{docsMutex};
+    auto lock = std::scoped_lock{docsMutex};
     auto it = docs.find(doc);
     if (it == docs.end()){
         // Load the document if it doesn't exist

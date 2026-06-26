@@ -5,6 +5,7 @@
 #include <cstddef> // NOLINT
 #include <cstdint> // NOLINT
 #include <optional>
+#include <ranges>
 #include <regex>
 #include <span>
 #include <string>
