@@ -2,6 +2,7 @@
 // Includes
 
 // Standard library
+#include <array>
 #include <cstddef> // NOLINT
 #include <numeric>
 #include <string>

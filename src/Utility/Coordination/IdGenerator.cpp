@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstdint> // NOLINT
 #include <functional>
+#include <limits>
 #include <memory>
 #include <mutex>
 #include <stdexcept>

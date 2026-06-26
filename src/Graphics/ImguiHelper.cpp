@@ -94,7 +94,7 @@ void addJsonCompletions(std::string_view const& input, std::vector<std::string>&
     for (auto const& [member, key] : scope.listAvailableMembersAndKeys(scope.getRootScope().addMember(parentMember))) {
         auto const entry = Nebulite::Data::ScopedKey(parentMember).addMember(member).toString();
         if (!entry.starts_with(potentialKey)) continue;
-        completions.push_back(std::move(entry));
+        completions.push_back(entry);
     }
 }
 

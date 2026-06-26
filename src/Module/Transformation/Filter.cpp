@@ -4,6 +4,7 @@
 // Standard library
 #include <cstddef> // NOLINT
 #include <cstdint> // NOLINT
+#include <optional>
 #include <regex>
 #include <span>
 #include <string>
@@ -76,9 +77,9 @@ std::vector<std::optional<std::string>> listMemberValues(Data::JsonScope const* 
     for (auto const index : std::views::iota(std::size_t{0}, jsonDoc->memberSize(rootKey))) {
         auto const key = rootKey.addIndex(index);
         if (auto const value = jsonDoc->get<std::string>(key); value.has_value()) {
-            values.push_back(value.value());
+            values.emplace_back(value.value());
         } else {
-            values.push_back(std::nullopt);
+            values.emplace_back(std::nullopt);
         }
     }
     return values;

@@ -5,6 +5,7 @@
 #include <cstddef> // NOLINT
 #include <memory>
 #include <ranges>
+#include <utility>
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"

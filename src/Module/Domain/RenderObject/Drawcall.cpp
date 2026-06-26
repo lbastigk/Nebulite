@@ -12,6 +12,7 @@
 #include "Core/RenderObject.hpp"
 #include "Interaction/Context.hpp"
 #include "Module/Domain/RenderObject/Drawcall.hpp"
+#include "Utility/StringHandler.hpp"
 
 //------------------------------------------
 namespace Nebulite::Module::Domain::RenderObject {
@@ -38,7 +39,7 @@ Constants::Event Drawcall::drawcallParse(std::span<std::string_view const> const
     return domain.parseDrawcallCommand(drawcallName, drawcallArgs, ctx, ctxScope);
 }
 
-Constants::Event Drawcall::drawcallList(Interaction::Context const& ctx, Interaction::ContextScope&) const {
+Constants::Event Drawcall::drawcallList(Interaction::Context const& ctx, Interaction::ContextScope& /*ctxScope*/) const {
     for (auto const& drawcallName : domain.listDrawcalls()) {
         ctx.self.capture.log.println(drawcallName);
     }

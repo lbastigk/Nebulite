@@ -5,8 +5,10 @@
 #include <cstdint> // NOLINT
 #include <cstddef> // NOLINT
 #include <memory>
+#include <numeric>
 #include <ranges>
 #include <span>
+#include <string>
 
 // External
 #include <SDL3/SDL_rect.h>
@@ -17,6 +19,7 @@
 #include "Constants/Event.hpp"
 #include "Constants/KeyNames.hpp"
 #include "Constants/StandardCapture.hpp"
+#include "Core/Environment.hpp"
 #include "Core/Renderer.hpp"
 #include "Module/Domain/Renderer/Tiling.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"

@@ -35,7 +35,7 @@ public:
         "\n"
         "Usage: drawcall parse <name> <args...>";
 
-    [[nodiscard]] Constants::Event drawcallList(Interaction::Context const& ctx, Interaction::ContextScope&) const ;
+    [[nodiscard]] Constants::Event drawcallList(Interaction::Context const& ctx, Interaction::ContextScope& ctxScope) const ;
     static auto constexpr drawcallList_name = "drawcall list";
     static auto constexpr drawcallList_desc = "Lists all drawcall objects";
 

@@ -124,7 +124,7 @@ public:
      * @brief Listens for rulesets on a specific topic.
      * @param listener The listener to add.
      */
-    void listen(std::shared_ptr<Interaction::Rules::Listener> listener);
+    void listen(std::shared_ptr<Interaction::Rules::Listener> const& listener);
 
     //------------------------------------------
     // Getters

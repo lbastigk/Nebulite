@@ -14,6 +14,7 @@
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Core/RenderObject.hpp"
+#include "Data/Batch.hpp"
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Data/RenderObjectContainer.hpp"

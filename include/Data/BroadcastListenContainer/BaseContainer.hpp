@@ -67,7 +67,8 @@ public:
      * @param entry The ruleset to broadcast. Make sure the topic is not empty, as this implies a local-only entry!
      */
     virtual void broadcast(std::shared_ptr<Interaction::Rules::Ruleset>&& entry) {
-        (void)entry;
+        // explicit consumption
+        auto local = std::move(entry); // NOLINT
     }
 
     /**
@@ -75,7 +76,8 @@ public:
      * @param listener The listener to add.
      */
     virtual void listen(std::shared_ptr<Interaction::Rules::Listener>&& listener) {
-        (void)listener;
+        // explicit consumption
+        auto local = std::move(listener); // NOLINT
     }
 
     /**
