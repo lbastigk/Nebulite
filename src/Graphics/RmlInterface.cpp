@@ -69,8 +69,8 @@ size_t RmlInterface::RmlElementIdentifier::getCount() {
     return count();
 }
 
-void RmlInterface::RmlElementIdentifier::forceElementIdentifier(Rml::Element* element, size_t const& id) {
-    element->SetAttribute(identifierAttribute, id);
+void RmlInterface::RmlElementIdentifier::forceElementIdentifier(Rml::Element* element, RmlElementIdentifier const& identifier) {
+    element->SetAttribute(identifierAttribute, identifier.id);
 }
 
 void RmlInterface::RmlElementIdentifier::removeElementIdentifier(Rml::Element* element) {
@@ -90,6 +90,10 @@ RmlInterface::RmlElementIdentifier::RmlElementIdentifier(Rml::Element* e){
         id = idRoll();
         e->SetAttribute(identifierAttribute, id);
     }
+}
+
+RmlInterface::RmlElementIdentifier RmlInterface::RmlElementIdentifier::newIdentifier() {
+    return RmlElementIdentifier{idRoll()};
 }
 
 // RmlInterface

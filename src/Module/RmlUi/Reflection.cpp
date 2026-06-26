@@ -116,7 +116,7 @@ Data::JSON& Reflection::evaluateReflectionList(std::unique_ptr<ReflectionEntry> 
     return *reflectionList;
 }
 
-void Reflection::setIdentifiers(Rml::Element* element, std::size_t const& id) {
+void Reflection::setIdentifiers(Rml::Element* element, Graphics::RmlInterface::RmlElementIdentifier const& id) {
     Graphics::RmlInterface::RmlElementIdentifier::forceElementIdentifier(element, id);
     for (int j = 0; j < element->GetNumChildren(); ++j) {
         setIdentifiers(element->GetChild(j), id);
@@ -128,7 +128,7 @@ void Reflection::setReflectionScopes(Data::JSON& reflectionList, std::unique_ptr
     size_t idsIndex = 0;
 
     while (entry->allocatedIds.size() < childrenCount) {
-        entry->allocatedIds.emplace_back(Graphics::RmlInterface::RmlElementIdentifier::idRoll());
+        entry->allocatedIds.emplace_back(Graphics::RmlInterface::RmlElementIdentifier::newIdentifier());
     }
 
     size_t jsonIndex = 0;

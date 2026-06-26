@@ -57,7 +57,7 @@ private:
         Interaction::Logic::Expression reflectionListExpression; // Expression to generate an array of entries to reflect to
         Rml::String rmlValue; // Original RML value to replicate for each entry
         bool markedForDeletion = false;
-        std::vector<size_t> allocatedIds; // Instead of constantly allocating new element Identifiers per reflection, we reuse them.
+        std::vector<Graphics::RmlInterface::RmlElementIdentifier> allocatedIds; // Instead of constantly allocating new element Identifiers per reflection, we reuse them.
     };
 
     // Entries that we have to add to the active list
@@ -129,7 +129,7 @@ private:
      * @param element The element to modify
      * @param id The identifier to use for the element and all its children
      */
-    static void setIdentifiers(Rml::Element* element, std::size_t const& id);
+    static void setIdentifiers(Rml::Element* element, Graphics::RmlInterface::RmlElementIdentifier const& id);
 };
 } // namespace Nebulite::Module::RmlUi
 #endif // MODULE_RMLUI_REFLECTION_HPP

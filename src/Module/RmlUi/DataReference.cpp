@@ -70,7 +70,7 @@ void DataReference::registerDataValue(Rml::Element* element) {
 
             // Normalize value + unique element id
             auto id = Graphics::RmlInterface::RmlElementIdentifier(element);
-            std::string const normalized = "ID__" + std::to_string(id.getId()) + "__VALUE__" + normalize(attributeValue);
+            std::string const normalized = "ID__" + std::string(id) + "__VALUE__" + normalize(attributeValue);
             element->SetAttribute(attribute, normalized);
 
             // Create entry + value

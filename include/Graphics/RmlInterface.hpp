@@ -105,9 +105,17 @@ public:
 
         static size_t& count(); // Get the current id count as reference
 
-    public:
-        static size_t idRoll(); // Get a new id
+        static size_t idRoll();
 
+        /**
+         * @brief Construct an identifier with a known id.
+         * @details This should only be used if you are sure the id is not already assigned to another element,
+         *          e.g. for the reflection module to assign a list of owned, pre-allocated, identifiers to newly generated elements
+         * @param knownId The id to use
+         */
+        explicit RmlElementIdentifier(size_t const& knownId) : id(knownId) {}
+
+    public:
         /**
          * @brief Get the current count of assigned identifiers.
          * @return The count of assigned identifiers.
@@ -118,10 +126,9 @@ public:
          * @brief Forces an Element to have a certain identifier id
          * @details This should be used with caution and only used with ids that are known to not be registered elsewhere
          * @param element The element to manipulate
-         * @param id The id to set
-         * @todo Pass an RmlElementIdentifier instead?
+         * @param identifier The identifier to set
          */
-        static void forceElementIdentifier(Rml::Element* element, size_t const& id);
+        static void forceElementIdentifier(Rml::Element* element, RmlElementIdentifier const& identifier);
 
         /**
          * @brief Remove the identifier attribute from an element, effectively unregistering it.
@@ -146,19 +153,17 @@ public:
         explicit RmlElementIdentifier(Rml::Element* e);
 
         /**
-         * @brief Construct an identifier with a known id.
-         * @details This should only be used if you are sure the id is not already assigned to another element,
-         *          e.g. for the reflection module to assign a list of owned, pre-allocated, identifiers to newly generated elements
-         * @param knownId The id to use
+         * @brief Generates a new RmlElementIdentifier with a unique id.
+         * @return The new RmlElementIdentifier
          */
-        explicit RmlElementIdentifier(size_t const& knownId) : id(knownId) {}
+        static RmlElementIdentifier newIdentifier();
 
         /**
-         * @brief Get the identifier's id.
-         * @return The id
+         * @brief Turns the RmlElementIdentifier into a string representation of its id.
+         * @return The string representation of the id
          */
-        [[nodiscard]] size_t getId() const noexcept {
-            return id;
+        [[nodiscard]] explicit operator std::string() const noexcept {
+            return std::to_string(id);
         }
 
         bool operator==(const RmlElementIdentifier& other) const {
