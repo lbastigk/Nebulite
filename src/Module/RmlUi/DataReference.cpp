@@ -96,7 +96,7 @@ void DataReference::registerDataValue(Rml::Element* element) {
             // Add Entry
             registeredEntries.emplace(id, std::move(entry));
             if (registeredStrings.find(normalized) == registeredStrings.end()) {
-                interface.dataModelConstructor.Bind(normalized, value.get());
+                interface.bindVariable(normalized, value.get());
                 registeredStrings.emplace(normalized, std::move(value));
             }
         }
@@ -188,6 +188,7 @@ void DataReference::synchronizeEntry(std::unique_ptr<RegisteredEntry> const& ent
     }
 
     // 3.) data-if attribute
+    // TODO: use show/hidden instead, as is done with the actual if-attribute (see Conditional.hpp)
     if (entry->innerRml.has_value() && entry->innerRml->empty()) {
         entry->innerRml = element->GetInnerRML();
         if (!entry->innerRml->empty()) {

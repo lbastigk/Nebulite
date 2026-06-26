@@ -267,12 +267,21 @@ public:
      */
     void setRmlDocumentContextAndScope(Rml::ElementDocument* document, ContextAndScope const& ctxAndScope);
 
-    // TODO: Add a custom bind function for modules to use
-    Rml::DataModelConstructor dataModelConstructor;
+    /**
+     * @brief Binds a variable to the RmlUi data model, allowing it to be accessed and modified from RmlUi documents.
+     * @tparam T The type of variable to add
+     * @param name The unique name of the variable
+     * @param value The address of the variable
+     */
+    template <typename T>
+    void bindVariable(std::string const& name, T* value) {
+        dataModelConstructor.Bind(name, value);
+    }
 
 private:
     std::unique_ptr<RenderInterface_SDL> renderInterface;
     std::unique_ptr<RmlSystemInterface> systemInterface;
+    Rml::DataModelConstructor dataModelConstructor;
     Rml::Context* context = nullptr;
     std::vector<std::unique_ptr<Module::Base::RmlUiModule>> modules;
     SDL_Window* window = nullptr;
