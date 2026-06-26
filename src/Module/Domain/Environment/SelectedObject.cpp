@@ -3,11 +3,9 @@
 
 // Standard library
 #include <cstddef> // NOLINT
-#include <filesystem>
 #include <span>
 #include <string>
 #include <string_view>
-#include <vector>
 
 // Nebulite
 #include "Constants/Event.hpp"

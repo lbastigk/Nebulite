@@ -16,6 +16,7 @@
 #include "Core/RenderObject.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Graphics/Drawcall.hpp"
+#include "Interaction/Context.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Module/Domain/Initializer.hpp"
 #include "Nebulite.hpp"
@@ -46,8 +47,7 @@ void setStandardValues(Data::JsonScope& document) {
 } // namespace
 
 RenderObject::RenderObject(Utility::IO::Capture& parentCapture)
-    : Domain("RenderObject", parentCapture)
-    , RenderObjectDocumentAccessor(domainScope){
+    : Domain("RenderObject", parentCapture){
     //------------------------------------------
     // Set standard values
     setStandardValues(domainScope);

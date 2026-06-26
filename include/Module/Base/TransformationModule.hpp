@@ -14,8 +14,8 @@
 
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
-#include "Module/Base/DomainModuleBase.hpp"
 #include "Interaction/Execution/FuncTree.hpp"
+#include "Module/Base/DomainModuleBase.hpp"
 
 //------------------------------------------
 // Forward declarations

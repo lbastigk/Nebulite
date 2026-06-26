@@ -1,5 +1,8 @@
 #ifndef DATA_DOCUMENT_JSON_TPP
 #define DATA_DOCUMENT_JSON_TPP
+#ifndef DATA_DOCUMENT_JSON_HPP
+    #include "Data/Document/JSON.hpp"
+#endif
 
 //------------------------------------------
 // Includes
@@ -18,7 +21,6 @@
 #include <rapidjson/document.h>
 
 // Nebulite
-#include "Data/Document/JSON.hpp"
 #include "Data/Document/JsonRvalueTransformer.hpp"
 #include "Data/Document/RjDirectAccess.hpp"
 #include "Data/Document/SimpleValueError.hpp"
@@ -133,8 +135,7 @@ std::optional<T> JSON::jsonValueToCache(std::string_view const& key, rapidjson::
 // Using NOLINTNEXTLINE to silence "Arguments passed in possible wrong order" warnings
 template<typename newType>
 std::optional<newType> JSON::convertVariant(RjDirectAccess::simpleValue const& var){
-    return std::visit([&]<typename T>(T const& value)
-    {
+    return std::visit([&]<typename T>(T const& value){
         // Removing all qualifiers (const, volatile, references, etc.)
         using ValueT = std::decay_t<decltype(value)>;
 

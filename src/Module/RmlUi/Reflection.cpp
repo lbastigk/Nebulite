@@ -19,6 +19,7 @@
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/KeyType.hpp"
 #include "Graphics/RmlInterface.hpp"
+#include "Interaction/Context.hpp"
 #include "Module/Base/RmlUiModule.hpp"
 #include "Module/RmlUi/Reflection.hpp"
 #include "Nebulite.hpp"
@@ -134,7 +135,7 @@ void Reflection::setReflectionScopes(Data::JSON& reflectionList, std::unique_ptr
     size_t jsonIndex = 0;
     for (size_t i = 0; i < childrenCount; ++i) {
         auto* const child = element->GetChild(static_cast<int>(i));
-        if (auto const value = child->GetAttribute("reflectionIndex"); value) {
+        if (auto const* value = child->GetAttribute("reflectionIndex"); value) {
             jsonIndex = static_cast<size_t>(value->Get<int>());
             continue; // The div that holds the reflection index does not need context/scope.
         }

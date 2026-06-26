@@ -1,8 +1,3 @@
-/**
- * @file Generate.hpp
- * @brief Provides functions generating data structures.
- */
-
 #ifndef UTILITY_GENERATE_HPP
 #define UTILITY_GENERATE_HPP
 

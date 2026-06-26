@@ -1,17 +1,22 @@
-/**
- * @file RenderObject.hpp
- * @brief Declaration of the RenderObject class.
- */
-
 #ifndef CORE_RENDEROBJECT_HPP
 #define CORE_RENDEROBJECT_HPP
 
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstdint> // NOLINT
+#include <memory>
+#include <string>
+#include <vector>
+
+// External
+#include <absl/container/flat_hash_map.h>
+
 // Nebulite
 #include "Graphics/Drawcall.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -26,13 +31,10 @@ namespace Nebulite::Core {
 //------------------------------------------
 // Allow renderer to access document
 
-class RenderObjectDocumentAccessor {
-    Data::JsonScope& domainScopeForRenderer;
-
-    friend class Environment; // Required for selecting a RenderObject
-
-public:
-    explicit RenderObjectDocumentAccessor(Data::JsonScope& d) : domainScopeForRenderer(d) {}
+// An explicit token that only Environment can instantiate
+class EnvironmentToken {
+    friend class Environment;
+    EnvironmentToken() = default; // Private constructor
 };
 
 /**
@@ -41,7 +43,7 @@ public:
  *        This class encapsulates all data and logic needed to
  *        display, update, and interact with a single object on the screen.
  */
-class RenderObject final : public Interaction::Execution::Domain, public RenderObjectDocumentAccessor {
+class RenderObject final : public Interaction::Execution::Domain {
 public:
     //------------------------------------------
     // Special member Functions
@@ -80,6 +82,13 @@ public:
      * @param serialOrLink The JSON string to deserialize.
      */
     void deserialize(std::string const& serialOrLink);
+
+    //------------------------------------------
+    // Document accessors
+
+    Data::JsonScope& getDocument(EnvironmentToken const&) const {
+        return domainScope;
+    }
 
     //------------------------------------------
     // Get position/layer

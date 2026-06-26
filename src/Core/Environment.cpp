@@ -151,7 +151,8 @@ std::optional<std::pair<RenderObject*, Data::JsonScope*>> Environment::getObject
     }
     auto const domainId = indexToIdMap[searchIndex];
     if (auto* ro = getObjectFromId(domainId); ro) {
-        return std::make_pair(ro, &ro->domainScopeForRenderer);
+        EnvironmentToken constexpr token;
+        return std::make_pair(ro, &ro->getDocument(token));
     }
     return std::nullopt; // Object retrieval failed somehow
 }
