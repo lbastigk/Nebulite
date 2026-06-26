@@ -171,6 +171,12 @@ protected:
 /**
  * @class Nebulite::Interaction::Rules::StaticRuleset
  * @brief Represents a single ruleset entry for static rulesets.
+ * @todo Add proximity-based specialisation, storing the broadcaster/listener tile position
+ *       Only do additional checks if max([abs(x1-x2), abs(y1-y2)]) <= 1
+ *       Make tilepos optional, if either 1 or 2 is not set, do the additional checks anyways
+ *       We need a proper way to store current tile pos of broadcaster and listener,
+ *       making sure the data is always up to date!
+ *       Examples for proximity-based rulesets: Collision, Attack damage
  */
 class StaticRuleset final : public Ruleset {
 public:
