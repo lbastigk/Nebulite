@@ -86,7 +86,12 @@ public:
     //------------------------------------------
     // Document accessors
 
-    Data::JsonScope& getDocument(EnvironmentToken const&) const {
+    /**
+     * @brief Gets the JSON document associated with the RenderObject.
+     * @details Only usable by Core::Environment
+     * @return A reference to the JSON document of the RenderObject.
+     */
+    Data::JsonScope& getDocument(EnvironmentToken const& /*token*/) const {
         return domainScope;
     }
 

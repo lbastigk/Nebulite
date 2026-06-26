@@ -16,11 +16,18 @@
 #include "Core/RenderObject.hpp"
 #include "Data/Document/JsonScope.hpp"
 #include "Graphics/Drawcall.hpp"
-#include "Interaction/Context.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
 #include "Module/Domain/Initializer.hpp"
 #include "Nebulite.hpp"
 #include "Utility/IO/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
 
 //------------------------------------------
 namespace Nebulite::Core {
@@ -144,13 +151,18 @@ Constants::Event RenderObject::parseDrawcallCommand(std::string_view const drawC
     }
     auto const drawcallIt = drawcalls.find(std::string(drawCallName));
     if (drawcallIt == drawcalls.end()) {
-        capture.warning.println("Drawcall '", drawCallName, "' not found in RenderObject. Available drawcalls: ", [&]{
-            std::string result;
-            for (auto const& member: drawcalls | std::views::keys) {
-                result += member + " ";
-            }
-            return result;
-        }());
+        capture.warning.println(
+            "Drawcall '",
+            drawCallName,
+            "' not found in RenderObject. Available drawcalls: ",
+            [&]{
+                std::string result;
+                for (auto const& member: drawcalls | std::views::keys) {
+                    result += member + " ";
+                }
+                return result;
+            }()
+        );
         return Constants::Event::Warning;
     }
     return drawcallIt->second->parseStr(args, ctx, ctxScope);

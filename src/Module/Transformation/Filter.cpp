@@ -129,7 +129,7 @@ bool Filter::filterGlobValue(std::span<std::string_view const> const& args, Data
 
     // Get values and filter
     auto const values = listMemberValues(jsonDoc, rootKey)
-        | std::views::filter([pattern](std::optional<std::string> const& value) { return value.has_value() && Utility::globMatch(pattern, value.value()); })
+        | std::views::filter([pattern](std::optional<std::string> const& value) { return value.has_value() && Utility::globMatch(pattern, value.value()); }) // NOLINT
         | std::views::transform([](std::optional<std::string> const& value) { return value.value(); })
         | std::ranges::to<std::vector>();
 
