@@ -59,7 +59,7 @@ private:
             return data;
         }
 
-        uint64_t dt() {
+        std::uint64_t dt() {
             return usageTracker.projected_dt();
         }
 

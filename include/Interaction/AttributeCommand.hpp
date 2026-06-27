@@ -5,7 +5,9 @@
 // Includes
 
 // Standard library
+#include <cstdint>
 #include <string>
+#include <string_view>
 #include <utility>
 
 // Nebulite
@@ -15,7 +17,7 @@
 namespace Nebulite::Interaction {
 
 struct SpecialAction {
-    enum class Type : uint8_t {
+    enum class Type : std::uint8_t {
         blurElement,
         deleteDocument
     };

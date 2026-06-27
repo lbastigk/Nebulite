@@ -1,8 +1,3 @@
-/**
- * @file FuncTree.tpp
- * @brief Implementation file for the Basic FuncTree class template functions.
- */
-
 #ifndef INTERACTION_EXECUTION_FUNCTREE_TPP
 #define INTERACTION_EXECUTION_FUNCTREE_TPP
 

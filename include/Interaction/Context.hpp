@@ -1,8 +1,3 @@
-/**
- * @file Context.hpp
- * @brief Defines context structures for interaction of rulesets and functions
- *        within the Nebulite engine.
- */
 #ifndef INTERACTION_CONTEXT_HPP
 #define INTERACTION_CONTEXT_HPP
 
@@ -12,7 +7,9 @@
 // Standard library
 #include <array>
 #include <cstdint> // NOLINT
+#include <functional>
 #include <optional>
+#include <string>
 #include <string_view>
 #include <utility>
 

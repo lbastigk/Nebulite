@@ -1,14 +1,15 @@
-/**
- * @file Invoke.hpp
- * @brief This file contains the declaration of the Invoke class, which is responsible for managing
- *        dynamic object logic in the Nebulite engine.
- */
-
 #ifndef INTERACTION_INVOKE_HPP
 #define INTERACTION_INVOKE_HPP
 
 //------------------------------------------
 // Includes
+
+// Standard library
+#include <array>
+#include <atomic>
+#include <cstddef> // NOLINT
+#include <memory>
+#include <ranges>
 
 // Nebulite
 #include "Constants/ThreadSettings.hpp"

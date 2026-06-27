@@ -221,7 +221,7 @@ public:
     /**
      * @brief Sets the target FPS for the renderer.
      */
-    void setTargetFPS(uint16_t const& targetFps);
+    void setTargetFPS(std::uint16_t const& targetFps);
 
     /**
      * @brief Changes the window size.
@@ -276,21 +276,21 @@ public:
      * @brief Gets the current FPS.
      * @return The current FPS.
      */
-    [[nodiscard]] uint16_t getFPS() const { return fps.real; }
+    [[nodiscard]] std::uint16_t getFPS() const { return fps.real; }
 
     /**
      * @brief Gets the current tile position of the camera in the X direction.
      *        The position to check for tile position is considered to be the top left corner of the screen.
      * @return The current tile position of the camera in the X direction.
      */
-    [[nodiscard]] int16_t getTilePositionX() const noexcept { return cameraTilePosition.x; }
+    [[nodiscard]] std::int16_t getTilePositionX() const noexcept { return cameraTilePosition.x; }
 
     /**
      * @brief Gets the current tile position of the camera in the Y direction.
      *        The position to check for tile position is considered to be the top left corner of the screen.
      * @return The current tile position of the camera in the Y direction.
      */
-    [[nodiscard]] int16_t getTilePositionY() const noexcept { return cameraTilePosition.y; }
+    [[nodiscard]] std::int16_t getTilePositionY() const noexcept { return cameraTilePosition.y; }
 
     /**
      * @brief Gets the SDL_Renderer instance.
@@ -516,9 +516,9 @@ private:
     struct FpsControl {
         Utility::TimeKeeper controlTimer;
         Utility::TimeKeeper renderTimer;
-        uint16_t target = 500; // Target framerate (e.g., 60 FPS)
-        uint16_t realCounter = 0; // Counts fps in a 1-second-interval; reset every second
-        uint16_t real = 0; // Actual fps this past second. Stores the last value of realCounter every second
+        std::uint16_t target = 500; // Target framerate (e.g., 60 FPS)
+        std::uint16_t realCounter = 0; // Counts fps in a 1-second-interval; reset every second
+        std::uint16_t real = 0; // Actual fps this past second. Stores the last value of realCounter every second
     } fps;
 
     //------------------------------------------

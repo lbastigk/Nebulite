@@ -9,6 +9,9 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstdint>
+
 // Nebulite
 #include "Constants/KeyNames.hpp"
 #include "Data/Document/ScopedKey.hpp"
@@ -86,7 +89,7 @@ private:
      *       Simplifies the rng rollback and update functions as well.
      */
     struct RngVars {
-        using rngSize_t = uint16_t; // Modify this to change the size of the RNGs
+        using rngSize_t = std::uint16_t; // Modify this to change the size of the RNGs
         Utility::RNG<rngSize_t> A; // RNG with key random.A
         Utility::RNG<rngSize_t> B; // RNG with key random.B
         Utility::RNG<rngSize_t> C; // RNG with key random.C

@@ -1,9 +1,3 @@
-/**
- * @file Assignment.hpp
- * @brief This file contains the Assignment struct, used to represent
- *        string-defined variable assignments.
- */
-
 #ifndef INTERACTION_LOGIC_ASSIGNMENT_HPP
 #define INTERACTION_LOGIC_ASSIGNMENT_HPP
 

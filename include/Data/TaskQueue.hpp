@@ -89,7 +89,7 @@ public:
      * @brief Increases the internal wait counter by the specified number of frames.
      * @param frames The number of frames to wait.
      */
-    void wait(uint64_t frames);
+    void wait(std::uint64_t frames);
 
     /**
      * @brief Clears all tasks from the task queue.
@@ -100,13 +100,13 @@ public:
      * @brief Increments the internal wait counter by a specified value.
      * @param increment The value to increment the wait counter by. Default is 1.
      */
-    void incrementWaitCounter(uint64_t increment = 1);
+    void incrementWaitCounter(std::uint64_t increment = 1);
 
     /**
      * @brief Decrements the internal wait counter by 1, ensuring it does not go below zero.
      * @param decrement The value to decrement the wait counter by. Default is 1.
      */
-    void decrementWaitCounter(uint64_t decrement = 1);
+    void decrementWaitCounter(std::uint64_t decrement = 1);
 
     /**
      * @brief Checks if the task queue is currently waiting.
@@ -128,7 +128,7 @@ private:
     } settings;
 
     struct State {
-        uint64_t waitCounter = 0; // Internal wait counter
+        std::uint64_t waitCounter = 0; // Internal wait counter
     } state;
 };
 } // namespace Nebulite::Data

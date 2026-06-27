@@ -5,6 +5,7 @@
 // Includes
 
 // Standard library
+#include <cstddef>
 #include <memory>
 #include <string>
 
@@ -12,6 +13,7 @@
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Data/TaskQueue.hpp"
 #include "Interaction/Context.hpp"
 
@@ -47,7 +49,7 @@ public:
 
     bool scriptIsWaiting();
 
-    void incrementScriptWaitCounter(size_t const& count);
+    void incrementScriptWaitCounter(std::size_t const& count);
 
     /**
      * @brief Gets a specific task queue by name.

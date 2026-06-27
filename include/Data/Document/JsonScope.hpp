@@ -203,7 +203,7 @@ public:
         return threadIndex;
     }
 
-    double** ensureOrderedCacheList(uint64_t const uniqueId, std::vector<ScopedKeyView> const& keys) {
+    double** ensureOrderedCacheList(std::uint64_t const uniqueId, std::vector<ScopedKeyView> const& keys) {
         thread_local size_t const threadIndex = assignThreadIndex();
         if (threadIndex >= noLockArraySize) {
             throw std::runtime_error("Thread index exceeds non-locking array size! Too many threads accessing ordered cache lists, increase noLockArraySize or reduce thread count.");

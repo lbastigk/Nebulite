@@ -54,11 +54,11 @@ template <> inline void RjDirectAccess::ConvertToJSONValue<int>(int const data, 
     jsonValue.SetInt(data);
 }
 
-template <> inline void RjDirectAccess::ConvertToJSONValue<uint32_t>(uint32_t const data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& /*allocator*/) {
+template <> inline void RjDirectAccess::ConvertToJSONValue<std::uint32_t>(std::uint32_t const data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& /*allocator*/) {
     jsonValue.SetUint(data);
 }
 
-template <> inline void RjDirectAccess::ConvertToJSONValue<uint64_t>(uint64_t const data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& /*allocator*/) {
+template <> inline void RjDirectAccess::ConvertToJSONValue<std::uint64_t>(std::uint64_t const data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& /*allocator*/) {
     jsonValue.SetUint64(data);
 }
 
@@ -137,12 +137,12 @@ template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value co
     }
 }
 
-template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, uint32_t& result, uint32_t const defaultValue) {
+template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, std::uint32_t& result, std::uint32_t const defaultValue) {
     if (jsonValue.IsUint()) {
         result = jsonValue.GetUint();
     } else if (jsonValue.IsNumber()) {
         if (int const tmp = jsonValue.GetInt(); tmp >= 0) {
-            result = static_cast<uint32_t>(tmp);
+            result = static_cast<std::uint32_t>(tmp);
         }
     } else if (jsonValue.IsString()) {
         std::istringstream iss(jsonValue.GetString());
@@ -152,17 +152,17 @@ template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value co
     }
 }
 
-template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, uint64_t& result, uint64_t const defaultValue) {
+template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value const& jsonValue, std::uint64_t& result, std::uint64_t const defaultValue) {
     if (jsonValue.IsString()) {
         std::istringstream iss(jsonValue.GetString());
         iss >> result;
     } else if (jsonValue.IsUint64()) {
         result = jsonValue.GetUint64();
     } else if (jsonValue.IsUint()) {
-        result = static_cast<uint64_t>(jsonValue.GetUint());
+        result = static_cast<std::uint64_t>(jsonValue.GetUint());
     } else if (jsonValue.IsNumber()) {
         if (int64_t const tmp = jsonValue.GetInt64(); tmp >= 0) {
-            result = static_cast<uint64_t>(tmp);
+            result = static_cast<std::uint64_t>(tmp);
         } else {
             result = defaultValue;
         }

@@ -17,8 +17,7 @@ namespace Nebulite::Utility {
 /**
  * @class RNG
  * @brief Simple RNG class using string seeds.
- * 
- * @tparam rngSize_t The type used for RNG values (e.g., uint32_t, uint64_t).
+ * @tparam rngSize_t The type used for RNG values (e.g., std::uint32_t, std::uint64_t).
  */
 template<typename rngSize_t>
 class RNG {

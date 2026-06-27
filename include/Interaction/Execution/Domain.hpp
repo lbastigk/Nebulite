@@ -1,10 +1,3 @@
-/**
- * @file Domain.hpp
- * @brief This file defines the Domain class, which serves as a base class for creating a Nebulite domain.
- *        The Domain class is split into a templated Domain class and a non-templated Domain class.
- *        The non-templated Domain class holds all common functionality for domains that do not require template parameters.
- */
-
 #ifndef INTERACTION_EXECUTION_DOMAIN_HPP
 #define INTERACTION_EXECUTION_DOMAIN_HPP
 
@@ -12,13 +5,21 @@
 // Includes
 
 // Standard library
+#include <cstddef> // NOLINT
+#include <cstdint> // NOLINT
+#include <memory>
+#include <mutex>
+#include <string>
 #include <string_view>
+#include <vector>
 
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Data/Document/ScopedKey.hpp"
 #include "Interaction/Execution/DomainTree.hpp"
-#include "Interaction/Execution/FuncTree.hpp"
 #include "Interaction/Execution/Tasks.hpp"
 #include "Module/Base/DomainModule.hpp"
+#include "Module/Base/DomainModuleBase.hpp"
 
 //------------------------------------------
 // Forward declarations: Domains
@@ -201,12 +202,7 @@ class Domain : public DocumentAccessor {
          * @brief Generates the unique id of this domain
          * @return The id generated
          */
-        static size_t idGenerator() {
-            static std::atomic<size_t> idCounter{0};
-            idCounter.fetch_add(1, std::memory_order_relaxed);
-            size_t const id = idCounter.load(std::memory_order_relaxed) - 1; // Get the current value before incrementing
-            return id;
-        }
+        static size_t idGenerator();
 
         /**
          * @brief Generates a hashed version of the domain id.
@@ -216,19 +212,9 @@ class Domain : public DocumentAccessor {
          * @param x The id input
          * @return The hashed id
          */
-        static size_t splitMix64(size_t x) {
-            x += 0x9e3779b97f4a7c15;
-            x = (x ^ x >> 30) * 0xbf58476d1ce4e5b9;
-            x = (x ^ x >> 27) * 0x94d049bb133111eb;
-            x = x ^ x >> 31;
-            return x;
-        }
+        static size_t splitMix64(size_t x);
 
-        void init() {
-            id = idGenerator();
-            idHashed = splitMix64(id);
-            initialized = true;
-        }
+        void init();
 
         bool initialized = false;
 
@@ -239,19 +225,17 @@ class Domain : public DocumentAccessor {
         size_t idHashed = 0;
 
     public:
-        size_t const& getId() {
-            if (!initialized) {
-                init();
-            }
-            return id;
-        }
+        /**
+         * @brief Gets the id of this identifier instance, potentially initializing it if it hasn't been initialized yet.
+         * @return The id
+         */
+        std::size_t const& getId();
 
-        size_t const& getIdHashed() {
-            if (!initialized) {
-                init();
-            }
-            return idHashed;
-        }
+        /**
+         * @brief Gets the hashed id of this identifier instance, potentially initializing it if it hasn't been initialized yet.
+         * @return The id
+         */
+        std::size_t const& getIdHashed();
     } mutable identifier;
 
 
@@ -483,7 +467,7 @@ public:
      * @param keys The vector of keys to populate the cache with if it does not exist.
      * @return A pointer to the ordered vector of double pointers for the specified keys.
      */
-    [[nodiscard]] double** ensureOrderedCacheList(uint64_t uniqueId, std::vector<Data::ScopedKeyView> const& keys) const ;
+    [[nodiscard]] double** ensureOrderedCacheList(std::uint64_t uniqueId, std::vector<Data::ScopedKeyView> const& keys) const ;
 
     /**
      * @brief Locks the domain's document for thread-safe access.
@@ -503,7 +487,7 @@ public:
      * @param onlyInternal If true, only considers internal rulesets. Defaults to true.
      * @return The estimated computational cost.
      */
-    [[nodiscard]] uint64_t estimateComputationalCost(bool onlyInternal = true) const ;
+    [[nodiscard]] std::uint64_t estimateComputationalCost(bool onlyInternal = true) const ;
 
 protected:
     struct Cost {

@@ -1,11 +1,3 @@
-/**
- * @file VirtualDouble.hpp
- * @brief Provides a wrapper for consistent access to double values in JSON documents.
- * @details This file contains the `VirtualDouble` class, which ensures compatibility with `tinyexpr`
- *          by linking variables to physical double addresses. It supports both remanent and non-remanent
- *          contexts for efficient expression evaluation.
- */
-
 #ifndef INTERACTION_LOGIC_VIRTUALDOUBLE_HPP
 #define INTERACTION_LOGIC_VIRTUALDOUBLE_HPP
 

@@ -27,10 +27,10 @@ public:
      *        All of these types are supported for direct access.
      */
     using simpleValue = std::variant<
-        int32_t,
-        int64_t,
-        uint32_t,
-        uint64_t,
+        std::int32_t,
+        std::int64_t,
+        std::uint32_t,
+        std::uint64_t,
         double,
         std::string,
         bool

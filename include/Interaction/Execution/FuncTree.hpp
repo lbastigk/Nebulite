@@ -1,10 +1,3 @@
-/**
- * @file FuncTree.hpp
- * @brief This file defines the FuncTree class, which is responsible for managing and executing functions
- *        through a command tree structure.
- * @details The main goal of this class is to manage hierarchical commands and arguments for modular and flexible execution.
- */
-
 #ifndef INTERACTION_EXECUTION_FUNCTREE_HPP
 #define INTERACTION_EXECUTION_FUNCTREE_HPP
 
@@ -12,15 +5,21 @@
 // Includes
 
 // Standard library
+#include <functional>
+#include <memory>
+#include <optional>
 #include <span>
+#include <string>
+#include <string_view>
+#include <type_traits>
 #include <utility>
+#include <variant>
 #include <vector>
 
 // External
 #include <absl/container/flat_hash_map.h>
 
 // Nebulite
-#include "Interaction/Execution/FuncTreeErrorMessages.hpp"
 #include "Utility/FunctionIdentity.hpp"
 #include "Utility/IO/Capture.hpp"
 
@@ -414,5 +413,5 @@ private:
 } // namespace Nebulite::Interaction::Execution
 
 // Template implementations
-#include "Interaction/Execution/FuncTree.tpp"
+#include "Interaction/Execution/FuncTree.tpp" // NOLINT
 #endif // INTERACTION_EXECUTION_FUNCTREE_HPP

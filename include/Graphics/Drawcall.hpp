@@ -222,7 +222,7 @@ private:
     // Updater
 
     static auto constexpr updateDrawcallDataIntervalMs = 1000u; // Update every second
-    static auto constexpr updateDrawcallDataIntervalJitterMs = static_cast<uint64_t>(0.2*updateDrawcallDataIntervalMs); // Add some jitter to avoid sync with other routines
+    static auto constexpr updateDrawcallDataIntervalJitterMs = static_cast<std::uint64_t>(0.2*updateDrawcallDataIntervalMs); // Add some jitter to avoid sync with other routines
 
     void updateDrawcallData();
 

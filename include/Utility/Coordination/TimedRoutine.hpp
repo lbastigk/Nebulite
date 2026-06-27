@@ -35,7 +35,7 @@ public:
         START_IMMEDIATELY_AND_EXECUTE_ONCE
     };
 
-    TimedRoutine(std::function<void()> const& routine, uint64_t intervalMillis, ConstructionMode mode = ConstructionMode::WAIT_FOR_START);
+    TimedRoutine(std::function<void()> const& routine, std::uint64_t intervalMillis, ConstructionMode mode = ConstructionMode::WAIT_FOR_START);
 
     /**
      * @brief Start the timer for the scheduled routine.
@@ -57,7 +57,7 @@ public:
 private:
     std::function<void()> foo;
     TimeKeeper timer;
-    uint64_t interval;
+    std::uint64_t interval;
 };
 } // namespace Nebulite::Utility::Coordination
 #endif // UTILITY_COORDINATION_TIMEDROUTINE_HPP

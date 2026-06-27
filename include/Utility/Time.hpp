@@ -28,10 +28,10 @@ public:
      * @brief Contains constants for time unit conversions.
      */
     struct Conversion{
-        static constexpr uint64_t millisecondsPerSecond = 1000U;
-        static constexpr uint64_t millisecondsPerMinute = 60U * millisecondsPerSecond;
-        static constexpr uint64_t millisecondsPerHour   = 60U * millisecondsPerMinute;
-        static constexpr uint64_t millisecondsPerDay    = 24U * millisecondsPerHour;
+        static constexpr std::uint64_t millisecondsPerSecond = 1000U;
+        static constexpr std::uint64_t millisecondsPerMinute = 60U * millisecondsPerSecond;
+        static constexpr std::uint64_t millisecondsPerHour   = 60U * millisecondsPerMinute;
+        static constexpr std::uint64_t millisecondsPerDay    = 24U * millisecondsPerHour;
     };
 
     /**
@@ -70,25 +70,25 @@ public:
      * @brief Returns the current time since epoch in milliseconds.
      * @return The current time since epoch in milliseconds.
      */
-    static uint64_t getTime() noexcept ;
+    static std::uint64_t getTime() noexcept ;
 
     /**
      * @brief Waits for the specified amount of time in milliseconds.
      * @param milliseconds The amount of time to wait in milliseconds.
      */
-    static void wait(uint64_t milliseconds);
+    static void wait(std::uint64_t milliseconds);
 
     /**
      * @brief Waits for the specified amount of time in microseconds.
      * @param microseconds The amount of time to wait in microseconds.
      */
-    static void waitMicroseconds(uint64_t microseconds);
+    static void waitMicroseconds(std::uint64_t microseconds);
 
     /**
      * @brief Waits for the specified amount of time in nanoseconds.
      * @param nanoseconds The amount of time to wait in nanoseconds.
      */
-    static void waitNanoseconds(uint64_t nanoseconds);
+    static void waitNanoseconds(std::uint64_t nanoseconds);
 };
 }   // namespace Nebulite::Utility
 #endif // UTILITY_TIME_HPP

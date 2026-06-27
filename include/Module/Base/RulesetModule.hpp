@@ -125,7 +125,7 @@ private:
     std::vector<Interaction::Rules::StaticRulesetMap::StaticRulesetWithMetadata> moduleRulesets;
 
     // Unique identifier for caching
-    uint64_t const id;
+    std::uint64_t const id;
 };
 } // namespace Nebulite::Module::Base
 #endif // MODULE_BASE_RULESETMODULE_HPP

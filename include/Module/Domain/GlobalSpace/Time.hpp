@@ -153,7 +153,7 @@ private:
     /**
      * @brief Fixed delta time for the simulation time. If 0, uses real delta time.
      */
-    uint64_t fixedDeltaTime = 0;
+    std::uint64_t fixedDeltaTime = 0;
 };
 } // namespace Nebulite::Module::Domain::GlobalSpace
 #endif // MODULE_DOMAIN_GLOBALSPACE_TIME_HPP

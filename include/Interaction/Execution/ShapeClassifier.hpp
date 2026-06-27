@@ -6,6 +6,8 @@
 
 // Standard library
 #include <cstdint> // NOLINT
+#include <tuple>
+#include <type_traits>
 
 // Nebulite
 #include "Utility/CompileTimeEvaluate.hpp"

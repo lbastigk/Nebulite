@@ -29,7 +29,7 @@ class VariableNameGenerator {
      * @param number The number to convert to a string representation.
      * @return A string representation of the given number using the custom base-26 encoding.
      */
-    static std::string numberToString(uint16_t number);
+    static std::string numberToString(std::uint16_t number);
 
 public:
     /**

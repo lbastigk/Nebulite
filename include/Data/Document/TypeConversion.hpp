@@ -37,15 +37,15 @@ public:
                 // NOLINTNEXTLINE
                 return toInt8(value);
             }
-            else if constexpr (std::is_same_v<newType, uint16_t>){
+            else if constexpr (std::is_same_v<newType, std::uint16_t>){
                 // NOLINTNEXTLINE
                 return toUInt16(value);
             }
-            else if constexpr (std::is_same_v<newType, int16_t>){
+            else if constexpr (std::is_same_v<newType, std::int16_t>){
                 // NOLINTNEXTLINE
                 return toInt16(value);
             }
-            else if constexpr (std::is_same_v<newType, uint32_t>){
+            else if constexpr (std::is_same_v<newType, std::uint32_t>){
                 // NOLINTNEXTLINE
                 return toUInt32(value);
             }
@@ -53,7 +53,7 @@ public:
                 // NOLINTNEXTLINE
                 return toInt32(value);
             }
-            else if constexpr (std::is_same_v<newType, uint64_t>){
+            else if constexpr (std::is_same_v<newType, std::uint64_t>){
                 // NOLINTNEXTLINE
                 return toUInt64(value);
             }
@@ -116,31 +116,31 @@ public:
             }
         }
 
-        static std::optional<uint16_t> toUInt16(std::string const& stored){
+        static std::optional<std::uint16_t> toUInt16(std::string const& stored){
             if (stored == "true") return 1;
             if (stored == "false") return 0;
             try {
-                return static_cast<uint16_t>(std::stoul(stored));
+                return static_cast<std::uint16_t>(std::stoul(stored));
             } catch (...){
                 return std::nullopt;
             }
         }
 
-        static std::optional<int16_t> toInt16(std::string const& stored){
+        static std::optional<std::int16_t> toInt16(std::string const& stored){
             if (stored == "true") return 1;
             if (stored == "false") return 0;
             try {
-                return static_cast<int16_t>(std::stol(stored));
+                return static_cast<std::int16_t>(std::stol(stored));
             } catch (...){
                 return std::nullopt;
             }
         }
 
-        static std::optional<uint32_t> toUInt32(std::string const& stored){
+        static std::optional<std::uint32_t> toUInt32(std::string const& stored){
             if (stored == "true") return 1;
             if (stored == "false") return 0;
             try {
-                return static_cast<uint32_t>(std::stoul(stored));
+                return static_cast<std::uint32_t>(std::stoul(stored));
             } catch (...){
                 return std::nullopt;
             }
@@ -156,7 +156,7 @@ public:
             }
         }
 
-        static std::optional<uint64_t> toUInt64(std::string const& stored){
+        static std::optional<std::uint64_t> toUInt64(std::string const& stored){
             if (stored == "true") return 1;
             if (stored == "false") return 0;
             try {

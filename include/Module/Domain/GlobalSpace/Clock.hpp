@@ -84,32 +84,32 @@ private:
      * @brief Current time in milliseconds since the program started.
      * @details Extracted from the global document, calculated via Time DomainModule.
      */
-    uint64_t current_time_ms = 0;
+    std::uint64_t current_time_ms = 0;
 
     /**
      * @struct ClockEntry
      * @brief Structure representing a clock entry in the global clock list.
      */
     struct ClockEntry {
-        uint64_t last_trigger_ms; // Last time the clock was triggered
-        uint64_t interval_ms; // Trigger interval in milliseconds
+        std::uint64_t last_trigger_ms; // Last time the clock was triggered
+        std::uint64_t interval_ms; // Trigger interval in milliseconds
         double* globalReference; // Pointer to the global document entry
 
-        ClockEntry(uint64_t interval, Data::JsonScope& doc, uint64_t current_time);
+        ClockEntry(std::uint64_t interval, Data::JsonScope& doc, std::uint64_t current_time);
 
         /**
          * @brief Updates the clock entry, setting the global reference based on the timer.
          * @details If dt is greater than or equal to the interval, sets the global reference to 1.0.
          *          Otherwise, sets it to 0.0.
          */
-        void update(uint64_t current_time);
+        void update(std::uint64_t current_time);
     };
 
     /**
      * @brief Map of clock interval to ClockEntry.
      * @details We use a hashmap so we can easily create new entries and check existing ones.
      */
-    absl::flat_hash_map<uint64_t, ClockEntry> clockEntries;
+    absl::flat_hash_map<std::uint64_t, ClockEntry> clockEntries;
 
     /**
      * @brief Reads the clock list from the global document.
@@ -122,14 +122,14 @@ private:
      * @brief Converts a clock interval in milliseconds to a key string.
      * @details Takes a clock interval in milliseconds and converts it into a key string with zero-padding
      *          that can be used to access the corresponding clock entry in the global document.
-     *          While up to uint64_t is supported, practical clock intervals should be much lower, so we don't pad for the full length.
+     *          While up to std::uint64_t is supported, practical clock intervals should be much lower, so we don't pad for the full length.
      *          This makes the keys more manageable while still being properly sorted for typical use cases.
      *          Example: An interval of 100ms becomes "ms000100".
      * @param interval_ms The clock interval in milliseconds.
      * @return The key string for the clock entry.
      */
-    static std::string intervalToKey(uint64_t interval_ms) {
-        static uint16_t constexpr padding = 6; // Not enough for uint64_t max value, but reasonable for practical clock intervals
+    static std::string intervalToKey(std::uint64_t const interval_ms) {
+        static std::uint16_t constexpr padding = 6; // Not enough for std::uint64_t max value, but reasonable for practical clock intervals
         return "ms" + std::to_string(interval_ms).insert(0, padding - std::to_string(interval_ms).length(), '0');
     }
 };

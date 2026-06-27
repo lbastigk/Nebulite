@@ -176,7 +176,7 @@ private:
     /**
      * @brief A helper variable that is modified to signal certain functions as non-const.
      */
-    int64_t helperNonConstVar = 0;
+    std::uint64_t helperNonConstVar = 0;
 
     /**
      * @brief The underlying RapidJSON document.

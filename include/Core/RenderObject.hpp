@@ -100,8 +100,8 @@ public:
     // Get position/layer
 
     struct Position {
-        int32_t x;
-        int32_t y;
+        std::int32_t x;
+        std::int32_t y;
     };
 
     /**

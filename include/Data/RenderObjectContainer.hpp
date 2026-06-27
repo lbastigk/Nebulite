@@ -154,7 +154,7 @@ public:
      * @brief Calculates the corresponding tile position for a given RenderObject based on its coordinates and the display resolution.
      * @param pos The position of the RenderObject
      * @param tilingInformation The tiling size
-     * @return A pair of int16_t representing the tile position (tileX, tileY) corresponding to the RenderObject's coordinates.
+     * @return A pair of std::int16_t representing the tile position (tileX, tileY) corresponding to the RenderObject's coordinates.
      */
     static TileCoordinate getTilePos(Core::RenderObject::Position const& pos, TilingInformation const& tilingInformation);
 

@@ -35,7 +35,7 @@ public:
      * @details Calculates the delta time since the last update and updates the timers full runtime.
      * @param fixed_dt_ms If greater than 0, this value will be used as the delta time instead of the calculated value.
      */
-    void update(uint64_t const fixed_dt_ms = 0) noexcept {
+    void update(std::uint64_t const fixed_dt_ms = 0) noexcept {
         //------------------------------------------
         // 1.) Gathering timing information, even if the timer is not running
         //     The whole timer works on dt integration, so we always need to know the current dt
@@ -98,7 +98,7 @@ public:
      *          If the timer is not running, the projected delta time will be zero.
      * @return The projected delta time in milliseconds.
      */
-    uint64_t projected_dt() noexcept {
+    std::uint64_t projected_dt() noexcept {
         if(running){
             onSimulation.last_t_ms = onUpdate.t_ms;
             onSimulation.t_ms = Time::getTime() - t_start;
@@ -115,7 +115,7 @@ public:
      *          as the update function allows for a custom dt.
      * @return The time elapsed since the timer started in milliseconds.
      */
-    [[nodiscard]] uint64_t get_t_ms() const noexcept {
+    [[nodiscard]] std::uint64_t get_t_ms() const noexcept {
         return t_ms;
     }
 
@@ -126,7 +126,7 @@ public:
      *          Note that the returned value is not necessarily equal to system time, as the update function allows for a custom dt.
      * @return The time difference between the last two updates in milliseconds.
      */
-    [[nodiscard]] uint64_t get_dt_ms() const noexcept {
+    [[nodiscard]] std::uint64_t get_dt_ms() const noexcept {
         return dt_ms;
     }
 
@@ -137,17 +137,17 @@ private:
      * @brief The start time in milliseconds when the timer was created.
      * @details For Reference: This value is used to calculate the total elapsed time since the timer was created.
      */
-    uint64_t t_start;
+    std::uint64_t t_start;
 
     /**
      * @brief The current time in milliseconds of the last update.
      */
-    uint64_t t_ms = 0;
+    std::uint64_t t_ms = 0;
 
     /**
      * @brief The delta time in milliseconds between the last two updates.
      */
-    uint64_t dt_ms = 0;
+    std::uint64_t dt_ms = 0;
 
     /**
      * @brief Indicates whether the timer is currently running.
@@ -159,25 +159,25 @@ private:
      * @struct OnUpdate
      * @brief Stores the timing information for the update phase.
      */
-    struct alignas(2 * sizeof(uint64_t)) OnUpdate{
-        uint64_t last_t_ms = 0;
-        uint64_t t_ms = 0;
+    struct alignas(2 * sizeof(std::uint64_t)) OnUpdate{
+        std::uint64_t last_t_ms = 0;
+        std::uint64_t t_ms = 0;
         OnUpdate() = default;
     } onUpdate;
 
     /**
      * @brief Ensures proper alignment for OnUpdate struct.
      */
-    static_assert(alignof(OnUpdate) >= 2 * sizeof(uint64_t), "OnUpdate alignment");
+    static_assert(alignof(OnUpdate) >= 2 * sizeof(std::uint64_t), "OnUpdate alignment");
 
     /**
      * @struct OnSimulation
      * @brief Stores the timing information for the update simulation phase.
      */
     struct OnSimulation{
-        uint64_t last_t_ms = 0;
-        uint64_t t_ms = 0;
-        uint64_t dt = 0;
+        std::uint64_t last_t_ms = 0;
+        std::uint64_t t_ms = 0;
+        std::uint64_t dt = 0;
         OnSimulation() = default;
     } onSimulation;
 };

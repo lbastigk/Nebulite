@@ -1,12 +1,3 @@
-/**
- * @file FuncTree.tpp
- * @brief Implementation file for the FuncTree argument completion and help functionality.
- * @details Contains all functions related to:
- *          - Argument completion
- *          - Help display
- *          - Searching for bindings
- */
-
 #ifndef INTERACTION_EXECUTION_FUNCTREEARGUMENTCOMPLETION_TPP
 #define INTERACTION_EXECUTION_FUNCTREEARGUMENTCOMPLETION_TPP
 
@@ -120,7 +111,7 @@ template <typename ReturnValue, typename... AdditionalArgs>
 void FuncTree<ReturnValue, AdditionalArgs...>::generalHelp() {
     // Padding size for names
     // '<name padded> - <description>'
-    uint16_t constexpr namePaddingSize = 25;
+    std::uint16_t constexpr namePaddingSize = 25;
 
     // Define a lambda to process each member
     auto displayMember = [&](std::string_view const& name, std::string_view const& description) -> void {

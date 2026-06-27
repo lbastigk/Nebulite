@@ -2,6 +2,8 @@
 // Includes
 
 // Standard library
+#include <atomic>
+#include <cstddef>
 #include <cstdint> // NOLINT
 #include <memory>
 #include <mutex>
@@ -251,6 +253,43 @@ uint64_t Domain::estimateComputationalCost(bool const onlyInternal) const {
         return static_cast<uint64_t>(*cost.local);
     }
     return static_cast<uint64_t>(*cost.global) + static_cast<uint64_t>(*cost.local);
+}
+
+// Identifier
+
+std::size_t Domain::Identifier::idGenerator() {
+    static std::atomic<std::size_t> idCounter{0};
+    idCounter.fetch_add(1, std::memory_order_relaxed);
+     std::size_t const id = idCounter.load(std::memory_order_relaxed) - 1; // Get the current value before incrementing
+    return id;
+}
+
+std::size_t Domain::Identifier::splitMix64(size_t x) {
+    x += 0x9e3779b97f4a7c15;
+    x = (x ^ x >> 30) * 0xbf58476d1ce4e5b9;
+    x = (x ^ x >> 27) * 0x94d049bb133111eb;
+    x = x ^ x >> 31;
+    return x;
+}
+
+void Domain::Identifier::init() {
+    id = idGenerator();
+    idHashed = splitMix64(id);
+    initialized = true;
+}
+
+std::size_t const& Domain::Identifier::getId() {
+    if (!initialized) {
+        init();
+    }
+    return id;
+}
+
+std::size_t const& Domain::Identifier::getIdHashed() {
+    if (!initialized) {
+        init();
+    }
+    return idHashed;
 }
 
 } // namespace Nebulite::Interaction::Execution

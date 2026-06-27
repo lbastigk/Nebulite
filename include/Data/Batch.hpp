@@ -33,7 +33,7 @@ struct Batch {
     std::vector<Core::RenderObject*> objects;
 
     // Full estimated cost of the batch
-    uint64_t estimatedCost = 0;
+    std::uint64_t estimatedCost = 0;
 
     void updateCost();
 

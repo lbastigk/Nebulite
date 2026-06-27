@@ -1,8 +1,3 @@
-/**
- * @file Expression.hpp
- * @brief This file contains the definition of the Expression class, which is responsible for parsing and evaluating expressions within the Nebulite engine.
- */
-
 #ifndef INTERACTION_LOGIC_EXPRESSION_HPP
 #define INTERACTION_LOGIC_EXPRESSION_HPP
 
@@ -10,8 +5,15 @@
 // Includes
 
 // Standard library
+#include <cstddef>
+#include <cstdint>
+#include <expected>
 #include <memory>
+#include <optional>
 #include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 // External
 #include <tinyexpr.h>
@@ -69,7 +71,7 @@ public:
     /**
      * @brief Standard maximum recursion depth for nested expression evaluations.
      */
-    static constexpr size_t standardRecursionDepth = 10;
+    static constexpr std::size_t standardRecursionDepth = 10;
 
     /**
      * @brief Checks if the expression can be returned as a double without losing information.
@@ -116,15 +118,15 @@ public:
     //------------------------------------------
     // Actual evaluation functions
 
-    std::string eval(ContextScope const& context, size_t const& recursionDepth = standardRecursionDepth) const ;
+    std::string eval(ContextScope const& context, std::size_t const& recursionDepth = standardRecursionDepth) const ;
 
     double evalAsDouble(ContextScope const& context) const ;
 
-    int64_t evalAsInt(ContextScope const& context) const ;
+    std::int64_t evalAsInt(ContextScope const& context) const ;
 
     bool evalAsBool(ContextScope const& context) const ;
 
-    Data::JSON evalAsJson(ContextScope const& context, size_t const& recursionDepth = standardRecursionDepth) const ;
+    Data::JSON evalAsJson(ContextScope const& context, std::size_t const& recursionDepth = standardRecursionDepth) const ;
 
     //------------------------------------------
     // Static functions for one-time evaluation
@@ -168,14 +170,14 @@ public:
      */
     struct Formatter {
         bool leadingZero = false; // If true, pad with leading zeros
-        std::optional<size_t> alignment = std::nullopt;
-        std::optional<size_t> precision = std::nullopt;
+        std::optional<std::size_t> alignment = std::nullopt;
+        std::optional<std::size_t> precision = std::nullopt;
 
         /**
          * @enum Nebulite::Interaction::Logic::Expression::Formatter::CastType
          * @brief Represents the type of cast to apply to an expression component.
          */
-        enum class CastType : uint8_t {
+        enum class CastType : std::uint8_t {
             none, // No cast -> using pure string
             to_int, // Cast to integer
             to_double // Cast to double
@@ -232,7 +234,7 @@ private:
          * @enum Nebulite::Interaction::Logic::Expression::Component::Type
          * @brief Each component can be of type variable, eval or text that differ in how they are evaluated.
          */
-        enum class Type : uint8_t {
+        enum class Type : std::uint8_t {
             variable, // outside $<cast>(...), Starts with self, other, global or a dot for link, represents a variable reference, outside an evaluatable context
             eval, // inside a $<cast>(...), represents an evaluatable expression
             text // outside a $<cast>(...), not a variable reference, Represents a plain text string
@@ -317,7 +319,7 @@ private:
         void handleComponentTypeEval(std::string& token) const ;
 
     private:
-        enum class KeyEvaluationInfo : uint8_t {
+        enum class KeyEvaluationInfo : std::uint8_t {
             maximumDepthReached, // Could not resolve due to maximum depth reached
             noNesting // No nested variables found
         };
