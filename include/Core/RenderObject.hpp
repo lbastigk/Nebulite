@@ -224,7 +224,7 @@ private:
         // Position
         double* posX = nullptr;
         double* posY = nullptr;
-    } refs = {};
+    } refs{};
 
     /**
      * @brief Links frequently used references from the JSON document for quick access.

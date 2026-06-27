@@ -1,8 +1,3 @@
-/**
- * @file Drawcall.hpp
- * @brief This file contains the declaration of the Nebulite::Graphics::Drawcall base class.
- */
-
 #ifndef GRAPHICS_DRAWCALL_HPP
 #define GRAPHICS_DRAWCALL_HPP
 
@@ -10,6 +5,10 @@
 // Includes
 
 // Standard library
+#include <SDL3/SDL_pixels.h>
+#include <cstddef> // NOLINT
+#include <cstdint> // NOLINT
+#include <string>
 #include <string_view>
 
 // External
@@ -17,8 +16,13 @@
 #include <SDL3_ttf/SDL_ttf.h>
 
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Core/Texture.hpp"
+#include "Data/Document/JsonScope.hpp"
+#include "Interaction/Context.hpp"
+#include "Interaction/Execution/Domain.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 namespace Nebulite::Graphics {
@@ -172,7 +176,7 @@ private:
 
         struct Text {
             std::string text;
-            SDL_Color textColor;
+            SDL_Color textColor{.r=0,.g=0,.b=0,.a=0};
         } text;
 
         struct Circle {
@@ -182,7 +186,7 @@ private:
 
         struct Polygon {
             size_t pointCount;
-            SDL_Color polyColor;
+            SDL_Color polyColor{.r=0,.g=0,.b=0,.a=0};
         } polygon;
     } state;
 

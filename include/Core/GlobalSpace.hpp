@@ -1,11 +1,3 @@
-/**
- * @file GlobalSpace.hpp
- * @brief Contains the Nebulite::Core::GlobalSpace class declaration 
- *        for the Nebulite Engine for core functionality
- *        and structures in Nebulite::Core namespace.
- *        Manages rendering, task queues, RNGs, and similar global features.
- */
-
 #ifndef CORE_GLOBALSPACE_HPP
 #define CORE_GLOBALSPACE_HPP
 

@@ -1,8 +1,3 @@
-/**
- * @file Texture.hpp
- * @brief Texture management domain for Nebulite.
- */
-
 #ifndef CORE_TEXTURE_HPP
 #define CORE_TEXTURE_HPP
 

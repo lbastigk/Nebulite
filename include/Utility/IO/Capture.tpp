@@ -5,7 +5,16 @@
 // Includes
 
 // Standard library
+#include <ostream>
 #include <sstream>
+#include <string>
+
+//------------------------------------------
+// Conditional includes
+
+#ifndef UTILITY_IO_CAPTURE_HPP
+    #include "Utility/IO/Capture.hpp"
+#endif // UTILITY_IO_CAPTURE_HPP
 
 //------------------------------------------
 namespace Nebulite::Utility::IO {

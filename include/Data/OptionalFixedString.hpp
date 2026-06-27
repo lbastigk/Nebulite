@@ -6,6 +6,7 @@
 
 // Standard library
 #include <array>
+#include <cstddef>
 #include <string_view>
 
 //------------------------------------------
@@ -32,14 +33,12 @@ struct OptionalFixedString {
         static_assert(N == 0, "Default constructor can only be used for empty strings");
     }
 
-    template <typename = std::enable_if<(N > 0 && !forceOutsideDefinition)>>
-    static constexpr size_t length() {
+    static constexpr size_t length() requires(N > 0 && !forceOutsideDefinition) {
         return N-1;
     }
 
     // Returns the last character of the string, or '\0' if the string is empty
-    template <typename = std::enable_if<(N > 0 && !forceOutsideDefinition)>>
-    [[nodiscard]] constexpr char back() const {
+    [[nodiscard]] constexpr char back() const requires(N > 0 && !forceOutsideDefinition) {
         if constexpr (N == 1) { // Empty string, return NULL instead
             return '\0';
         } else {
@@ -47,8 +46,7 @@ struct OptionalFixedString {
         }
     }
 
-    template <typename = std::enable_if<(N > 0 && !forceOutsideDefinition)>>
-    [[nodiscard]] constexpr std::string_view view() const {
+    [[nodiscard]] constexpr std::string_view view() const requires(N > 0 && !forceOutsideDefinition) {
         return {value.data(), N - 1};
     }
 

@@ -1,8 +1,3 @@
-/**
- * @file Environment.hpp
- * @brief Contains the definition of the Nebulite::Core::Environment class.
- */
-
 #ifndef CORE_ENVIRONMENT_HPP
 #define CORE_ENVIRONMENT_HPP
 
@@ -10,12 +5,24 @@
 // Includes
 
 // Standard library
+#include <array>
+#include <cstddef> // NOLINT
+#include <cstdint> // NOLINT
+#include <optional>
+#include <ranges>
 #include <string>
+#include <utility>
 #include <vector>
 
+// External
+#include <absl/container/flat_hash_map.h>
+
 // Nebulite
+#include "Constants/Event.hpp"
 #include "Data/RenderObjectContainer.hpp"
+#include "Data/Tiling.hpp"
 #include "Interaction/Execution/Domain.hpp"
+#include "Utility/IO/Capture.hpp"
 
 //------------------------------------------
 // Forward declarations

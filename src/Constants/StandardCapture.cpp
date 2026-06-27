@@ -2,8 +2,8 @@
 // Includes
 
 // Nebulite
-#include "Constants/StandardCapture.hpp"
 #include "Constants/Event.hpp"
+#include "Constants/StandardCapture.hpp"
 #include "Utility/IO/Capture.hpp"
 
 //------------------------------------------

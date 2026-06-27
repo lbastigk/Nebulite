@@ -2,6 +2,23 @@
 #define MODULE_BASE_DOMAINMODULEBASE_TPP
 
 //------------------------------------------
+// Includes
+
+// Standard library
+#include <string>
+#include <string_view>
+
+// Nebulite
+#include "Utility/FunctionIdentity.hpp"
+
+//------------------------------------------
+// Conditional includes
+
+#ifndef MODULE_BASE_DOMAINMODULEBASE_HPP
+    #include "Module/Base/DomainModuleBase.hpp"
+#endif // MODULE_BASE_DOMAINMODULEBASE_HPP
+
+//------------------------------------------
 namespace Nebulite::Module::Base {
 
 // TODO: Consider using all of these directly to funcTree

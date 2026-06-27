@@ -2,6 +2,21 @@
 #define UTILITY_COORDINATION_WORKDISPATCHER_TPP
 
 //------------------------------------------
+// Includes
+
+// Standard library
+#include <atomic>
+#include <functional>
+#include <mutex>
+
+//------------------------------------------
+// Conditional includes
+
+#ifndef UTILITY_COORDINATION_WORKDISPATCHER_HPP
+    #include "Utility/Coordination/WorkDispatcher.hpp"
+#endif // UTILITY_COORDINATION_WORKDISPATCHER_HPP
+
+//------------------------------------------
 namespace Nebulite::Utility::Coordination {
 
 template<typename Workspace>

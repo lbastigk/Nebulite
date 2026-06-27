@@ -1,8 +1,6 @@
 #ifndef UTILITY_FUNCTIONIDENTITY_HPP
 #define UTILITY_FUNCTIONIDENTITY_HPP
 
-#pragma once
-
 //------------------------------------------
 // Includes
 
@@ -81,6 +79,4 @@ struct FunctionIdentity {
 };
 
 } // namespace Nebulite::Utility
-
-
 #endif

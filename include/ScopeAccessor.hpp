@@ -56,7 +56,6 @@ public:
      */
     class Full final : public BaseAccessToken {
         // Private constructor is intended
-        // NOLINTNEXTLINE
         Full();
 
     public:
@@ -90,5 +89,5 @@ public:
     };
 };
 } // namespace Nebulite
-#include "ScopeAccessor.tpp"
+#include "ScopeAccessor.tpp" // NOLINT
 #endif // SCOPEACCESSOR_HPP

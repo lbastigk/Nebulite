@@ -1,8 +1,3 @@
-/**
- * @file IdGenerator.hpp
- * @brief Contains the declaration of the IdGenerator class, which provides various ID generator functions for generating thread IDs or other unique identifiers in a thread-safe manner.
- */
-
 #ifndef UTILITY_COORDINATION_IDGENERATOR_HPP
 #define UTILITY_COORDINATION_IDGENERATOR_HPP
 
@@ -10,6 +5,7 @@
 // Includes
 
 // Standard library
+#include <cstddef>
 #include <functional>
 
 //------------------------------------------

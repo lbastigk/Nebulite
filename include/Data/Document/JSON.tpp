@@ -1,8 +1,6 @@
 #ifndef DATA_DOCUMENT_JSON_TPP
 #define DATA_DOCUMENT_JSON_TPP
-#ifndef DATA_DOCUMENT_JSON_HPP
-    #include "Data/Document/JSON.hpp"
-#endif
+
 
 //------------------------------------------
 // Includes
@@ -27,6 +25,13 @@
 #include "Data/Document/TypeConversion.hpp"
 #include "Module/Base/TransformationModule.hpp"
 #include "Utility/TypeCheck.hpp"
+
+//------------------------------------------
+// Conditional includes
+
+#ifndef DATA_DOCUMENT_JSON_HPP
+    #include "Data/Document/JSON.hpp"
+#endif // DATA_DOCUMENT_JSON_HPP
 
 //------------------------------------------
 namespace Nebulite::Data {

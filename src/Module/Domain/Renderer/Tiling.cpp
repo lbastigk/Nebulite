@@ -78,7 +78,7 @@ namespace Nebulite::Module::Domain::Renderer {
                 // Render object count and cost
                 size_t tileCost = 0;
                 size_t objectCount = 0;
-                for (auto layer : Core::Environment::getAllLayerTypes()) {
+                for (auto const& layer : Core::Environment::getAllLayerTypes()) {
                     auto const& tile = domain.getTile(layer, tilePosition);
                     tileCost += std::accumulate(
                         tile.getBatches().begin(), tile.getBatches().end(), std::size_t{0},

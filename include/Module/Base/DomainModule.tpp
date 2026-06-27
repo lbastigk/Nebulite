@@ -1,6 +1,14 @@
 #ifndef MODULE_BASE_DOMAINMODULE_TPP
 #define MODULE_BASE_DOMAINMODULE_TPP
 
+//------------------------------------------
+// Conditional includes
+
+#ifndef MODULE_BASE_DOMAINMODULE_HPP
+    #include "Module/Base/DomainModule.hpp"
+#endif // MODULE_BASE_DOMAINMODULE_HPP
+
+//------------------------------------------
 namespace Nebulite::Module::Base {
 
 template <typename DomainType>

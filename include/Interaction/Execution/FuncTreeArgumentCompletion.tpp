@@ -14,11 +14,27 @@
 // Includes
 
 // Standard library
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <iterator>
+#include <optional>
+#include <span>
 #include <string>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 // Nebulite
-// NOLINTNEXTLINE
+#include "Utility/StringHandler.hpp"
+
+//------------------------------------------
+// Conditional includes
+
+#ifndef INTERACTION_EXECUTION_FUNCTREE_HPP
 #include "Interaction/Execution/FuncTree.hpp"
+#endif // INTERACTION_EXECUTION_FUNCTREE_HPP
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
@@ -244,7 +260,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::complete(std::span<std::st
 
     // Filter out __complete__ from and any argument that is exactly equal to the pattern provided
     std::ranges::sort(completions);
-    std::erase_if(completions, [&]<typename T>(T const& completion) {
+    std::erase_if(completions, [&](auto const& completion) {
         return completion == pattern;
     });
     std::erase(completions, "__complete__");

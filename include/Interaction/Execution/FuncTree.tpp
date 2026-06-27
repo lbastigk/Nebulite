@@ -10,17 +10,38 @@
 // Includes
 
 // Standard library
-#include <cxxabi.h>
+#include <algorithm>
+#include <cstddef>
+#include <functional>
+#include <iterator>
 #include <memory>
+#include <ranges>
+#include <span>
 #include <string>
+#include <string_view>
+#include <type_traits>
+#include <utility>
+#include <vector>
+
+// External
+#include <absl/container/flat_hash_map.h>
 
 // Nebulite
 #include "Interaction/Execution/FuncTreeErrorMessages.hpp"
 #include "Interaction/Execution/ShapeClassifier.hpp"
 #include "Math/Equality.hpp"
 #include "Utility/CompileTimeEvaluate.hpp"
+#include "Utility/FunctionIdentity.hpp"
+#include "Utility/IO/Capture.hpp"
 #include "Utility/Sort.hpp"
 #include "Utility/StringHandler.hpp"
+
+//------------------------------------------
+// Conditional includes
+
+#ifndef INTERACTION_EXECUTION_FUNCTREE_HPP
+#include "Interaction/Execution/FuncTree.hpp"
+#endif // INTERACTION_EXECUTION_FUNCTREE_HPP
 
 //------------------------------------------
 namespace Nebulite::Interaction::Execution {
@@ -647,5 +668,5 @@ std::shared_ptr<FuncTree<ReturnValue, AdditionalArgs...>> FuncTree<ReturnValue, 
 }
 
 } // namespace Nebulite::Interaction::Execution
-#include "Interaction/Execution/FuncTreeArgumentCompletion.tpp"
+#include "Interaction/Execution/FuncTreeArgumentCompletion.tpp" // NOLINT
 #endif // INTERACTION_EXECUTION_FUNCTREE_TPP

@@ -10,7 +10,9 @@
 // Includes
 
 // Standard library
+#include <cstddef> // NOLINT
 #include <string>
+#include <string_view>
 #include <vector>
 
 //------------------------------------------
@@ -169,7 +171,11 @@ public:
      *          - brace: '{' and '}'
      *          - bracket: '[' and ']'
      */
-    enum class Delimiter : uint8_t {parentheses, brace, bracket};
+    enum class Delimiter : std::uint8_t {
+        parentheses = 0,
+        brace,
+        bracket
+    };
 
     /**
      * @brief Converts a Delimiter enum value to its corresponding opening character.

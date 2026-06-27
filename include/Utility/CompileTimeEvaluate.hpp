@@ -1,8 +1,3 @@
-/**
- * @file CompileTimeEvaluate.hpp
- * @brief Compile-time evaluation utilities for Nebulite.
- */
-
 #ifndef UTILITY_COMPILETIMEEVALUATE_HPP
 #define UTILITY_COMPILETIMEEVALUATE_HPP
 
@@ -10,6 +5,7 @@
 // Includes
 
 // Standard library
+#include <cstddef>
 #include <string_view>
 
 //------------------------------------------

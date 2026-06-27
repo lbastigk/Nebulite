@@ -286,5 +286,5 @@ public:
     }
 };
 } // namespace Nebulite::Data
-#include "Data/Document/JsonScope.tpp"
+#include "Data/Document/JsonScope.tpp" // NOLINT
 #endif // DATA_DOCUMENT_JSONSCOPE_HPP

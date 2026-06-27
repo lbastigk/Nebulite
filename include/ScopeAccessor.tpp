@@ -9,6 +9,13 @@
 #include "Utility/CompileTimeEvaluate.hpp"
 
 //------------------------------------------
+// Conditional includes
+
+#ifndef SCOPEACCESSOR_HPP
+    #include "ScopeAccessor.hpp"
+#endif // SCOPEACCESSOR_HPP
+
+//------------------------------------------
 namespace Nebulite {
 
 template <typename DomainType>

@@ -1,8 +1,3 @@
-/**
- * @file WorkDispatcher.hpp
- * @brief Definition of the WorkDispatcher class for managing worker threads that process work using provided functions and workspaces.
- */
-
 #ifndef UTILITY_COORDINATION_WORKDISPATCHER_HPP
 #define UTILITY_COORDINATION_WORKDISPATCHER_HPP
 
@@ -10,6 +5,7 @@
 // Includes
 
 // Standard library
+#include <atomic>
 #include <condition_variable>
 #include <functional>
 #include <thread>
@@ -60,5 +56,5 @@ private:
     mutable SharedMutex mutex;
 };
 } // namespace Nebulite::Utility::Coordination
-#include "Utility/Coordination/WorkDispatcher.tpp"
+#include "Utility/Coordination/WorkDispatcher.tpp" // NOLINT
 #endif // UTILITY_COORDINATION_WORKDISPATCHER_HPP

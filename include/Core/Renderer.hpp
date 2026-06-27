@@ -1,9 +1,3 @@
-/**
- * @file Renderer.hpp
- * @brief This file contains the declaration of the Nebulite::Core::Renderer class, which is responsible for rendering
- *        the game objects and managing the rendering pipeline.
- */
-
 #ifndef CORE_RENDERER_HPP
 #define CORE_RENDERER_HPP
 
@@ -11,6 +5,7 @@
 // Includes
 
 // Standard library
+#include <string>
 #include <vector>
 
 // External

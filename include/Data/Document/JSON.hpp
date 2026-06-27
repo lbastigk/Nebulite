@@ -5,14 +5,21 @@
 // Includes
 
 // Standard library
+#include <array>
+#include <cstddef> // NOLINT
+#include <cstdint> // NOLINT
 #include <expected>
+#include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
-#include <variant>
+#include <string_view>
+#include <vector>
 
 // External
 #include <absl/container/flat_hash_map.h>
 #include <rapidjson/document.h>
+
 
 // Nebulite
 #include "Data/Document/KeyType.hpp"
@@ -146,7 +153,8 @@ private:
             }
             else [[likely]] {
                 // Assign stable double pointer from cacheline
-                stable_double_ptr = &cl[index++];
+                stable_double_ptr = &cl[index]; // NOLINT
+                index++;
                 *stable_double_ptr = standardNumericValue;
                 managedInternalDouble = false;
             }
@@ -551,5 +559,5 @@ public:
     std::expected<RjDirectAccess::simpleValue, SimpleValueRetrievalError> getSimpleValueFromDocument(std::string_view const& key) const ;
 };
 } // namespace Nebulite::Data
-#include "JSON.tpp"
+#include "JSON.tpp" // NOLINT
 #endif // DATA_DOCUMENT_JSON_HPP

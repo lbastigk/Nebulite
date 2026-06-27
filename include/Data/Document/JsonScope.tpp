@@ -4,9 +4,21 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <expected>
+
 // Nebulite
 #include "Data/Document/JSON.hpp"
 #include "Data/Document/ScopedKey.hpp"
+#include "Data/Document/SimpleValueError.hpp"
+
+
+//------------------------------------------
+// Conditional includes
+
+#ifndef DATA_DOCUMENT_JSONSCOPE_HPP
+    #include "Data/Document/JsonScope.hpp"
+#endif // DATA_DOCUMENT_JSONSCOPE_HPP
 
 //------------------------------------------
 namespace Nebulite::Data {

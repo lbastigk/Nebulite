@@ -64,10 +64,10 @@ public:
         for (size_t row = 0; row < N ; row++) {
             for (size_t col = 0; col < N; col++) {
                 // For each pair (row, col), determine which round it belongs to using the base mask and the row/col indices
-                size_t const localRound = baseMask[row % 4][col % 4] - 1; // Get the local round index from the base mask
-                size_t const rowGroup = row / 4; // Determine the group of the row (0 to N/4 - 1)
-                size_t const colGroup = col / 4; // Determine the group of the column
-                size_t const totalRound = localRound + 8*(rowGroup ^ colGroup);
+                auto const localRound = baseMask.at(row % 4).at(col % 4) - 1; // Get the local round index from the base mask
+                auto const rowGroup = row / 4; // Determine the group of the row (0 to N/4 - 1)
+                auto const colGroup = col / 4; // Determine the group of the column
+                auto const totalRound = localRound + 8*(rowGroup ^ colGroup);
                 rounds[totalRound][roundsAssigned[totalRound]] = {row, col};
                 ++roundsAssigned[totalRound];
             }
