@@ -1,8 +1,3 @@
-/**
- * @file Ruleset.hpp
- * @brief This file contains the Ruleset struct, representing a single invoke entry of a RenderObject for manipulation.
- */
-
 #ifndef INTERACTION_RULES_RULESET_HPP
 #define INTERACTION_RULES_RULESET_HPP
 
@@ -33,6 +28,8 @@ namespace Nebulite::Interaction::Rules {
  */
 class Ruleset {
 public:
+    // TODO: store global scope during entry creation?
+
     //------------------------------------------
     // Make Entry non-copyable and non-movable
     // All entries are local to their Domain
@@ -96,16 +93,18 @@ public:
 
     /**
      * @brief Checks if the ruleset is true in the context of the other render object.
-     * @param other The other domain to use as context 'other'.
+     * @param other The other context
+     * @param global The global context
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    virtual bool evaluateCondition(Execution::Domain& other);
+    virtual bool evaluateConditionGlobally(Execution::Domain& other, Execution::Domain& global);
 
     /**
      * @brief Checks if the ruleset is true with its own Domain as context other.
+     * @param global The global context
      * @return True if the ruleset is true in the context of its own Domain, false otherwise.
      */
-    virtual bool evaluateCondition();
+    virtual bool evaluateConditionLocally(Execution::Domain& global);
 
     /**
      * @brief Applies the ruleset with a full context given
@@ -114,14 +113,16 @@ public:
 
     /**
      * @brief Applies the ruleset
-     * @param contextOther The render object in the other domain.
+     * @param listener The listener domain.
+     * @param global The global context.
      */
-    virtual void apply(std::shared_ptr<Listener> const& contextOther);
+    virtual void apply(std::shared_ptr<Listener> const& listener, Execution::Domain& global);
 
     /**
      * @brief Applies the ruleset to its own Domain as context other.
+     * @param global The global context.
      */
-    virtual void apply();
+    virtual void apply(Execution::Domain& global);
 
 protected:
     /**
@@ -173,7 +174,7 @@ protected:
  * @brief Represents a single ruleset entry for static rulesets.
  * @todo Add proximity-based specialisation, storing the broadcaster/listener tile position
  *       Only do additional checks if max([abs(x1-x2), abs(y1-y2)]) <= 1
- *       Make tilepos optional, if either 1 or 2 is not set, do the additional checks anyways
+ *       Make tilePos optional, if either 1 or 2 is not set, do the additional checks anyways
  *       We need a proper way to store current tile pos of broadcaster and listener,
  *       making sure the data is always up to date!
  *       Examples for proximity-based rulesets: Collision, Attack damage
@@ -202,17 +203,18 @@ public:
     /**
      * @brief Checks if the ruleset is true in the context of the other render object.
      * @details For StaticRuleset, this always returns true.
-     * @param other The other render object to compare against.
+     * @param other The other context
+     * @param global The global context.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    bool evaluateCondition(Execution::Domain& other) override { (void)other ; return true; }
+    bool evaluateConditionGlobally(Execution::Domain& other, Execution::Domain& global) override ;
 
     /**
      * @brief Checks if the ruleset is true with its own Domain as context other.
      * @details For StaticRuleset, this always returns true.
      * @return True if the ruleset is true in the context of its own Domain, false otherwise.
      */
-    bool evaluateCondition() override { return evaluateCondition(self); }
+    bool evaluateConditionLocally(Execution::Domain& global) override ;
 
     /**
      * @brief Applies the ruleset with a full context given
@@ -221,14 +223,16 @@ public:
 
     /**
      * @brief Applies the ruleset
-     * @param contextOther The render object in the other domain.
+     * @param listener The listener domain.
+     * @param global The global context.
      */
-    void apply(std::shared_ptr<Listener> const& contextOther) override ;
+    void apply(std::shared_ptr<Listener> const& listener, Execution::Domain& global) override ;
 
     /**
      * @brief Applies the ruleset to its own Domain as contextOther.
+     * @param global The global context.
      */
-    void apply() override ;
+    void apply(Execution::Domain& global) override ;
 
 private:
     StaticRulesetFunction staticFunction = nullptr;
@@ -261,16 +265,17 @@ public:
 
     /**
      * @brief Checks if the ruleset is true in the context of the other render object.
-     * @param other The other render object to compare against.
+     * @param other The other context.
+     * @param global The global context.
      * @return True if the ruleset is true in the context of the other render object, false otherwise.
      */
-    bool evaluateCondition(Execution::Domain& other) override;
+    bool evaluateConditionGlobally(Execution::Domain& other, Execution::Domain& global) override;
 
     /**
      * @brief Checks if the ruleset is true in the context of its own Domain as otherObj.
      * @return True if the ruleset is true in the context of its own Domain, false otherwise.
      */
-    bool evaluateCondition() override { return evaluateCondition(self); }
+    bool evaluateConditionLocally(Execution::Domain& global) override { return evaluateConditionGlobally(self, global); }
 
     /**
      * @brief Applies the ruleset with a full context given
@@ -279,14 +284,16 @@ public:
 
     /**
      * @brief Applies the ruleset
-     * @param contextOther The render object in the other domain.
+     * @param listener The listener domain.
+     * @param global The global context.
      */
-    void apply(std::shared_ptr<Listener> const& contextOther) override;
+    void apply(std::shared_ptr<Listener> const& listener, Execution::Domain& global) override;
 
     /**
      * @brief Applies the ruleset to its own Domain as contextOther.
+     * @param global The global context.
      */
-    void apply() override ;
+    void apply(Execution::Domain& global) override ;
 
 private:
     //------------------------------------------

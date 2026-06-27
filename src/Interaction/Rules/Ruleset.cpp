@@ -25,28 +25,36 @@ size_t const& Ruleset::getId() const { return self.getId(); }
 
 size_t const& Ruleset::getIdHashed() const { return self.getIdHashed(); }
 
-bool Ruleset::evaluateCondition(Execution::Domain& /*other*/) {
+bool Ruleset::evaluateConditionGlobally(Execution::Domain& /*self*/, Execution::Domain& /*global*/) {
     return false;
 }
 
-bool Ruleset::evaluateCondition() {
-    return evaluateCondition(self);
+bool Ruleset::evaluateConditionLocally(Execution::Domain& global) {
+    return evaluateConditionGlobally(self, global);
 }
 
 void Ruleset::apply(Context& /*context*/, ContextScope& /*contextScope*/){
     // default no-op
 }
 
-void Ruleset::apply(std::shared_ptr<Listener> const& /*contextOther*/) {
+void Ruleset::apply(std::shared_ptr<Listener> const& /*listener*/, Execution::Domain& /*global*/) {
     // default no-op
 }
 
-void Ruleset::apply() {
+void Ruleset::apply(Execution::Domain& /*global*/) {
     // default no-op
 }
 
 //------------------------------------------
 // Derived Class Methods: StaticRuleset
+
+bool StaticRuleset::evaluateConditionGlobally(Execution::Domain& /*other*/, Execution::Domain& /*global*/) {
+    return true;
+}
+
+bool StaticRuleset::evaluateConditionLocally(Execution::Domain& /*global*/) {
+    return true;
+}
 
 void StaticRuleset::apply(Context& context, ContextScope& /*contextScope*/){
     auto* slfFromProvidedContext = baseListFunction(context.self);
@@ -54,15 +62,13 @@ void StaticRuleset::apply(Context& context, ContextScope& /*contextScope*/){
     staticFunction(context, slfFromProvidedContext, otrFromProvidedContext);
 }
 
-// TODO: don't assume we can use Global::instance(), use a provided global domain, once taskqueue appending is a part of any domain
-
-void StaticRuleset::apply(std::shared_ptr<Listener> const& contextOther) {
-    Context const context{self, contextOther->domain, Global::instance()};
-    staticFunction(context, slf, contextOther->otr);
+void StaticRuleset::apply(std::shared_ptr<Listener> const& listener, Execution::Domain& global) {
+    Context const context{self, listener->domain, global};
+    staticFunction(context, slf, listener->otr);
 }
 
-void StaticRuleset::apply() {
-    Context const context{self, self, Global::instance()};
+void StaticRuleset::apply(Execution::Domain& global) {
+    Context const context{self, self, global};
     staticFunction(context, slf, slf);
 }
 
@@ -72,7 +78,6 @@ void StaticRuleset::apply() {
 namespace {
 void sendTask(Execution::Domain& domain, std::string const& task) {
     domain.tasks.addTask(task);
-    //domain.parseStr(task);
 }
 } // namespace
 
@@ -80,12 +85,12 @@ void sendTask(Execution::Domain& domain, std::string const& task) {
 //------------------------------------------
 // Derived Class Methods: JsonRuleset
 
-bool JsonRuleset::evaluateCondition(Execution::Domain& other) {
+bool JsonRuleset::evaluateConditionGlobally(Execution::Domain& other, Execution::Domain& global) {
     // Check if logical arg is as simple as just "1", meaning true
     if (logicalArg->isAlwaysTrue())
         return true;
 
-    ContextScope const contextScope{self.domainScope, other.domainScope, Global::instance().domainScope};
+    ContextScope const contextScope{self.domainScope, other.domainScope, global.domainScope};
     double const result = logicalArg->evalAsDouble(contextScope);
     if (std::isnan(result)) {
         // We consider NaN as false
@@ -113,15 +118,15 @@ void JsonRuleset::apply(Context& context, ContextScope& contextScope){
     }
 }
 
-void JsonRuleset::apply(std::shared_ptr<Listener> const& contextOther) {
-    Context ctx{self, contextOther->domain, Global::instance()};
-    ContextScope contextScope{self.domainScope, contextOther->domain.domainScope, Global::instance().domainScope};
+void JsonRuleset::apply(std::shared_ptr<Listener> const& listener, Execution::Domain& global) {
+    Context ctx{self, listener->domain, global};
+    ContextScope contextScope{self.domainScope, listener->domain.domainScope, global.domainScope};
     apply(ctx, contextScope);
 }
 
-void JsonRuleset::apply() {
-    Context const ctx{self, self, Global::instance()};
-    ContextScope const ctxScope{self.domainScope, self.domainScope, Global::instance().domainScope};
+void JsonRuleset::apply(Execution::Domain& global) {
+    Context const ctx{self, self, global};
+    ContextScope const ctxScope{self.domainScope, self.domainScope, global.domainScope};
 
     // 1.) Assignments
     for (auto& assignment : assignments) {

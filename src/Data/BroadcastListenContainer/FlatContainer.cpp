@@ -14,6 +14,7 @@
 #include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Listener.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
+#include "Nebulite.hpp"
 #include "Utility/Coordination/IdGenerator.hpp"
 
 //------------------------------------------
@@ -128,7 +129,9 @@ void FlatContainerBase::processWithRotation() {
             for (auto& listener : rotate(lv, settings.lvOffset)) {
                 for (auto const& ruleset : rulesets) {
                     if (ruleset->getId() == listener->domain.getId()) continue;
-                    if (ruleset->evaluateCondition(listener->domain)) ruleset->apply(listener);
+                    if (ruleset->evaluateConditionGlobally(listener->domain, Global::instance())) {
+                        ruleset->apply(listener, Global::instance());
+                    }
                 }
             }
             lv.clear();
@@ -155,7 +158,9 @@ void FlatContainerBase::processWithoutRotation(){
             for (auto& listener : lv) {
                 for (auto const& ruleset : rulesets) {
                     if (ruleset->getId() == listener->domain.getId()) continue;
-                    if (ruleset->evaluateCondition(listener->domain)) ruleset->apply(listener);
+                    if (ruleset->evaluateConditionGlobally(listener->domain, Global::instance())) {
+                        ruleset->apply(listener, Global::instance());
+                    }
                 }
             }
             lv.clear();
