@@ -47,7 +47,7 @@ struct HistoryLine{
 template<std::ostream* /*BaseStream*/, HistoryLine::Type /*LineType*/>
 class Stream {
     Capture* capture; // Main capture reference so we can lock its mutex, so cout/cerr don't interfere with each other
-    void putStr(std::string const& str, bool const& printToConsole) const ;
+    void putStr(std::string const& str, bool printToConsole) const ;
 
 public:
     explicit Stream(Capture* c) : capture(c) {}
@@ -62,7 +62,7 @@ public:
      * @param args The arguments to print.
      */
     template<typename... Args>
-    void print(bool const& printToConsole, Args&&... args);
+    void print(bool printToConsole, Args&&... args);
 
     /**
      * @brief Prints the provided arguments followed by a newline to the stream and captures them in a list.
@@ -71,7 +71,7 @@ public:
      * @param args The arguments to print.
      */
     template<typename... Args>
-    void println(bool const& printToConsole, Args&&... args);
+    void println(bool printToConsole, Args&&... args);
 };
 
 /**

@@ -19,7 +19,7 @@
 //------------------------------------------
 namespace Nebulite::Graphics {
 
-void SdlPrimitive::drawFilledCircle(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Color const& color, int const& radius) {
+void SdlPrimitive::drawFilledCircle(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Color const& color, int const radius) {
     SDL_SetRenderTarget(renderer, texture);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);

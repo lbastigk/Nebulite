@@ -176,14 +176,14 @@ public:
      * @param delimiter The Delimiter enum value to convert.
      * @return The corresponding opening character for the given Delimiter.
      */
-    static char delimiterToOpeningChar(Delimiter const& delimiter);
+    static char delimiterToOpeningChar(Delimiter delimiter);
 
     /**
      * @brief Converts a Delimiter enum value to its corresponding closing character.
      * @param delimiter The Delimiter enum value to convert.
      * @return The corresponding closing character for the given Delimiter.
      */
-    static char delimiterToClosingChar(Delimiter const& delimiter);
+    static char delimiterToClosingChar(Delimiter delimiter);
 
     /**
      * @brief Splits a string at a given delimiter, not respecting the depth of any other characters.
@@ -191,7 +191,7 @@ public:
      * @param delimiter The delimiter to split on
      * @return A vector of strings split on the same depth of the given delimiter
      */
-    static std::vector<std::string_view> splitOnSameDepthOf(std::string_view const& input, Delimiter const& delimiter);
+    static std::vector<std::string_view> splitOnSameDepthOf(std::string_view const& input, Delimiter delimiter);
 };
 }   // namespace Nebulite::Utility
 #endif // UTILITY_STRINGHANDLER_HPP

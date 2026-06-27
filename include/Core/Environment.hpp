@@ -142,7 +142,7 @@ public:
      * @param tilingInformation Width and height of each tile
      * @param layer Layer index to append the object to (default is 0).
      */
-    void append(RenderObject* toAppend, Data::TilingInformation const& tilingInformation, uint8_t const& layer = 0);
+    void append(RenderObject* toAppend, Data::TilingInformation const& tilingInformation, uint8_t layer = 0);
 
     /**
      * @brief Updates the environment's state.
@@ -239,7 +239,7 @@ public:
         Data::TileCoordinate coordinate;
     };
 
-    auto viewport(std::vector<Data::TileCoordinate> const& visibleTiles, Layer const& layer) {
+    auto viewport(std::vector<Data::TileCoordinate> const& visibleTiles, Layer layer) {
         std::vector<TileAndCoordinate> result;
         result.reserve(visibleTiles.size());
         for (auto const& tileCoordinate : visibleTiles) {

@@ -27,7 +27,7 @@ void Statistics::bindTransformations() {
     bindTransformation(&stddev, stddevName, stddevDesc);
 }
 
-double Statistics::accumulate(Data::JsonScope const* scope, std::function<double(double, double)> const& func, double const& initialValue) {
+double Statistics::accumulate(Data::JsonScope const* scope, std::function<double(double, double)> const& func, double const initialValue) {
     if (scope->memberType(rootKey) != Data::KeyType::array) {
         return std::numeric_limits<double>::quiet_NaN();
     }

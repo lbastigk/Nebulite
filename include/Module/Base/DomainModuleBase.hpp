@@ -174,7 +174,7 @@ protected:
      * @param routine The routine to add
      * @param mode Update routine type, either before or after the update hook.
      */
-    void addRoutine(Utility::Coordination::TimedRoutine const& routine, RoutineUpdateMode const& mode) {
+    void addRoutine(Utility::Coordination::TimedRoutine const& routine, RoutineUpdateMode const mode) {
         if (mode == RoutineUpdateMode::BEFORE_UPDATE_HOOK) {
             routinesBeforeHook.push_back(routine);
         }

@@ -135,19 +135,19 @@ void InputMapping::processMappings() {
             if (key.empty())
                 continue;
             switch (type) {
-                case association::action::current:
+                case association::Action::current:
                     triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardCurrent.addMember(key)).value_or(0);
                     break;
-                case association::action::onPress:
+                case association::Action::onPress:
                     triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardDelta.addMember(key)) == 1;
                     break;
-                case association::action::onRelease:
+                case association::Action::onRelease:
                     triggerCount += moduleScope.get<int>(Renderer::Input::Key::keyboardDelta.addMember(key)) == -1;
                     break;
-                case association::action::onChange:
+                case association::Action::onChange:
                     triggerCount += abs(moduleScope.get<int>(Renderer::Input::Key::keyboardDelta.addMember(key)).value_or(0)) == 1;
                     break;
-                case association::action::empty:
+                case association::Action::empty:
                     break;
                 default:
                     std::unreachable();

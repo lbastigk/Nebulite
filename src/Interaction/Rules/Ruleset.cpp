@@ -11,9 +11,9 @@
 
 // Nebulite
 #include "Interaction/Context.hpp"
+#include "Interaction/Execution/Domain.hpp"
 #include "Interaction/Rules/Listener.hpp"
 #include "Interaction/Rules/Ruleset.hpp"
-#include "Nebulite.hpp"
 
 //------------------------------------------
 namespace Nebulite::Interaction::Rules {

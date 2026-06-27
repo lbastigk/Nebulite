@@ -99,7 +99,7 @@ public:
      * @brief Set the value of the VirtualDouble directly.
      * @param val The new double value to set.
      */
-    void setDirect(double const& val) noexcept ;
+    void setDirect(double val) noexcept ;
 
     /**
      * @brief Get a pointer to the linked double

@@ -91,7 +91,7 @@ public:
      * @param argc The number of command line arguments.
      * @param argv The array of command line argument strings.
      */
-    void parseCommandLineArguments(int const& argc, char const** argv);
+    void parseCommandLineArguments(int argc, char const** argv);
 
     /**
      * @brief Parses the task queue for execution.
@@ -187,7 +187,7 @@ public:
     //------------------------------------------
     // Event Management
 
-    void notifyEvent(Constants::Event const& event);
+    void notifyEvent(Constants::Event event);
 
     //------------------------------------------
     // Special Functions

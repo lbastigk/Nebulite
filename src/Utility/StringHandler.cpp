@@ -345,7 +345,7 @@ StringHandler::splitOnSameDepth(std::string_view const& input, char const delimi
     return result;
 }
 
-char StringHandler::delimiterToOpeningChar(Delimiter const& delimiter) {
+char StringHandler::delimiterToOpeningChar(Delimiter const delimiter) {
     switch (delimiter) {
     case Delimiter::parentheses: return '(';
     case Delimiter::brace: return '{';
@@ -354,7 +354,7 @@ char StringHandler::delimiterToOpeningChar(Delimiter const& delimiter) {
     }
 }
 
-char StringHandler::delimiterToClosingChar(Delimiter const& delimiter) {
+char StringHandler::delimiterToClosingChar(Delimiter const delimiter) {
     switch (delimiter) {
     case Delimiter::parentheses: return ')';
     case Delimiter::brace: return '}';
@@ -364,7 +364,7 @@ char StringHandler::delimiterToClosingChar(Delimiter const& delimiter) {
 }
 
 std::vector<std::string_view>
-StringHandler::splitOnSameDepthOf(std::string_view const& input, Delimiter const& delimiter) {
+StringHandler::splitOnSameDepthOf(std::string_view const& input, Delimiter const delimiter) {
     auto const openingChar = delimiterToOpeningChar(delimiter);
     auto const closingChar = delimiterToClosingChar(delimiter);
     auto const basicSplitResult = split(input, openingChar, true);

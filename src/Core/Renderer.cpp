@@ -353,7 +353,7 @@ std::optional<size_t> Renderer::getIndexFromId(size_t const& searchId) const {
 //------------------------------------------
 // Viewport
 
-void Renderer::setView(ViewSetting const& view) noexcept {
+void Renderer::setView(ViewSetting const view) noexcept {
     viewSetting = view;
 }
 
@@ -393,7 +393,7 @@ std::vector<Data::TileCoordinate> Renderer::visibleTiles() const {
     return tiles;
 }
 
-void Renderer::onViewport(Environment::Layer const& layer, auto&& function) {
+void Renderer::onViewport(Environment::Layer const layer, auto&& function) {
     for (auto const& [tile, coordinate] : env.viewport(visibleTiles(), layer)) {
         for (auto& [objects, _] : tile->getBatches()) {
             for (auto& obj : objects) {
@@ -403,13 +403,13 @@ void Renderer::onViewport(Environment::Layer const& layer, auto&& function) {
     }
 }
 
-void Renderer::onViewportTiles(Environment::Layer const& layer, auto&& function) {
+void Renderer::onViewportTiles(Environment::Layer const layer, auto&& function) {
     for (auto const& tileAndCoordinate : env.viewport(visibleTiles(), layer)) {
         function(tileAndCoordinate);
     }
 }
 
-Data::Tile const& Renderer::getTile(Environment::Layer const& layer, Data::TileCoordinate const& pos) {
+Data::Tile const& Renderer::getTile(Environment::Layer const layer, Data::TileCoordinate const& pos) {
     return env.getContainerAt(pos, layer);
 }
 
@@ -583,7 +583,7 @@ void Renderer::reinsertAllObjects() {
 //------------------------------------------
 // Texture Management
 
-bool Renderer::attachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name, SDL_Texture* texture, std::optional<SDL_FRect> rect) {
+bool Renderer::attachTextureAboveLayer(Environment::Layer const aboveThisLayer, std::string const& name, SDL_Texture* texture, std::optional<SDL_FRect> rect) {
     if (texture == nullptr) {
         return false; // Cannot attach a null texture
     }
@@ -594,7 +594,7 @@ bool Renderer::attachTextureAboveLayer(Environment::Layer const& aboveThisLayer,
     return true;
 }
 
-bool Renderer::detachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name) {
+bool Renderer::detachTextureAboveLayer(Environment::Layer const aboveThisLayer, std::string const& name) {
     if (BetweenLayerTextures[aboveThisLayer].contains(name)) {
         BetweenLayerTextures[aboveThisLayer].erase(name);
         return true;
@@ -656,7 +656,7 @@ inline constexpr bool is_static_member_function_v = is_static_member_function<T>
 } // namespace
 
 // This does not change the settings file, only the current session
-void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scalar) {
+void Renderer::changeWindowSize(int const w, int const h, uint8_t  const scalar) {
     // Validate resolution and scalar
     if (w < 240 || w > 16384) {
         capture.error.println("Selected resolution is not supported:", w, "x", h, ". (w and h must be between 240 and 16384)");
@@ -707,7 +707,7 @@ void Renderer::changeWindowSize(int const& w, int const& h, uint8_t const& scala
     }
 }
 
-void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle) const {
+void Renderer::setCam(int const X, int const Y, bool isMiddle) const {
     int newPosX = X;
     int newPosY = Y;
     if (isMiddle) {
@@ -718,7 +718,7 @@ void Renderer::setCam(int const& X, int const& Y, bool const& isMiddle) const {
     domainScope.set<int>(Constants::KeyNames::Renderer::positionY, newPosY);
 }
 
-void Renderer::moveCam(int const& dX, int const& dY) const {
+void Renderer::moveCam(int const dX, int const dY) const {
     domainScope.set<int>(
         Constants::KeyNames::Renderer::positionX,
         domainScope.get<int>(Constants::KeyNames::Renderer::positionX).value_or(0) + dX
@@ -900,7 +900,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) {
 //------------------------------------------
 // Callback
 
-void Renderer::addRenderCallback(std::function<void()> const& function, Environment::Layer const& aboveThisLayer) {
+void Renderer::addRenderCallback(std::function<void()> const& function, Environment::Layer const aboveThisLayer) {
     renderCallbacks[aboveThisLayer].emplace_back(function);
 }
 

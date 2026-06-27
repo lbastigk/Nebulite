@@ -102,7 +102,7 @@ Constants::Event Clock::addClock(int const argc, char const** argv) {
 //------------------------------------------
 // ClockEntry
 
-Clock::ClockEntry::ClockEntry(uint64_t const& interval, Data::JsonScope& doc, uint64_t const& current_time) :
+Clock::ClockEntry::ClockEntry(uint64_t const interval, Data::JsonScope& doc, uint64_t const current_time) :
     last_trigger_ms(current_time),
     interval_ms(interval) {
     // Extract reference to global document entry
@@ -111,7 +111,7 @@ Clock::ClockEntry::ClockEntry(uint64_t const& interval, Data::JsonScope& doc, ui
     this->globalReference = doc.getStableDoublePointer(key);
 }
 
-void Clock::ClockEntry::update(uint64_t const& current_time) {
+void Clock::ClockEntry::update(uint64_t const current_time) {
     // Check projected dt of timer
     if (current_time - last_trigger_ms >= interval_ms) {
         // Instead of setting last_trigger_ms to current_time,

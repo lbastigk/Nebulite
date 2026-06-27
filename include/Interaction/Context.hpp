@@ -77,7 +77,7 @@ public:
      */
     static std::pair<TargetType, std::string_view> getTypeAndPrefixFromString(std::string_view const& str);
 
-    static std::string typeToString(TargetType const& type);
+    static std::string typeToString(TargetType type);
 
     static auto constexpr contextKeySeparator = ':';
 
@@ -103,7 +103,7 @@ public:
     Target& global;
     // The global target, must be the owner of self and other to outlive them! Otherwise, some context storages may break!
 
-    [[nodiscard]] std::optional<std::reference_wrapper<Target>> getTargetFromType(ContextDeriver::TargetType const& type) const {
+    [[nodiscard]] std::optional<std::reference_wrapper<Target>> getTargetFromType(ContextDeriver::TargetType type) const {
         switch (type) {
             case ContextDeriver::TargetType::self:
                 return self;

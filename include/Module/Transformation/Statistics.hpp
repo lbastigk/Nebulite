@@ -80,7 +80,7 @@ private:
      * @param initialValue The initial value for the accumulation (default is 0.0, but can be set to 1.0 for product or +-infinity for min/max).
      * @return The accumulated result, or NaN if the input is invalid (not an array or contains non-numeric values).
      */
-    static double accumulate(Data::JsonScope const* scope, std::function<double(double, double)> const& func, double const& initialValue = 0.0);
+    static double accumulate(Data::JsonScope const* scope, std::function<double(double, double)> const& func, double initialValue = 0.0);
 };
 } // namespace Nebulite::Module::Transformation
 #endif // MODULE_TRANSFORMATION_STATISTICS_HPP

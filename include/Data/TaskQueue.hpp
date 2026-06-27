@@ -43,7 +43,7 @@ public:
      * @param callbackName The name used as arg[0] when parsing tasks from this queue.
      * @param clearAfterResolving If true, the task queue is cleared after resolving tasks.
      */
-    explicit TaskQueue(std::string const& callbackName, bool const& clearAfterResolving = true)
+    explicit TaskQueue(std::string const& callbackName, bool clearAfterResolving = true)
         : settings{.callbackName=callbackName, .clearAfterResolving=clearAfterResolving} {}
 
     /**
@@ -68,7 +68,7 @@ public:
      * @param recover If true, continues processing tasks even after encountering a critical error.
      * @return The result of the task queue resolution.
      */
-    TaskQueueResult resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool const& recover);
+    TaskQueueResult resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool recover);
 
     void addScript(std::string const& filename, Utility::IO::Capture& capture);
 
@@ -88,7 +88,7 @@ public:
      * @brief Increases the internal wait counter by the specified number of frames.
      * @param frames The number of frames to wait.
      */
-    void wait(uint64_t const& frames);
+    void wait(uint64_t frames);
 
     /**
      * @brief Clears all tasks from the task queue.
@@ -99,13 +99,13 @@ public:
      * @brief Increments the internal wait counter by a specified value.
      * @param increment The value to increment the wait counter by. Default is 1.
      */
-    void incrementWaitCounter(uint64_t const& increment = 1);
+    void incrementWaitCounter(uint64_t increment = 1);
 
     /**
      * @brief Decrements the internal wait counter by 1, ensuring it does not go below zero.
      * @param decrement The value to decrement the wait counter by. Default is 1.
      */
-    void decrementWaitCounter(uint64_t const& decrement = 1);
+    void decrementWaitCounter(uint64_t decrement = 1);
 
     /**
      * @brief Checks if the task queue is currently waiting.

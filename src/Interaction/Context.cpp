@@ -62,7 +62,7 @@ std::pair<ContextDeriver::TargetType, std::string_view> ContextDeriver::getTypeA
     return {TargetType::resource, str}; // All other prefixes are considered type resource
 }
 
-std::string ContextDeriver::typeToString(TargetType const& type){
+std::string ContextDeriver::typeToString(TargetType const type){
     auto const* it = std::ranges::find_if(contextPrefixPairs, [&](auto const p) {
         return type == p.first;
     });

@@ -106,7 +106,7 @@ bool isAvailableAsDoublePtr(std::string_view const& key) {
 }
 } // anonymous namespace
 
-double* Expression::VirtualDoubleLists::registerVariable(ContextDeriver::TargetType const& contextType, std::string_view const& key){
+double* Expression::VirtualDoubleLists::registerVariable(ContextDeriver::TargetType const contextType, std::string_view const& key){
     auto const vd = std::make_shared<VirtualDouble>(key);
     switch (contextType) {
     case ContextDeriver::TargetType::self:
@@ -155,7 +155,7 @@ double* Expression::VirtualDoubleLists::registerVariable(ContextDeriver::TargetT
     return vd->ptr();
 }
 
-void Expression::registerVariable(std::string te_name, std::string_view const& key, ContextDeriver::TargetType const& contextType) {
+void Expression::registerVariable(std::string te_name, std::string_view const& key, ContextDeriver::TargetType const contextType) {
     // Check if variable exists in variables vector:
     bool const found = std::ranges::any_of(te_variables, [&](auto const& te_var) {
         return te_var.name == te_name;
@@ -318,7 +318,7 @@ Expression::Formatter Expression::Formatter::readFormatter(std::string_view cons
     return fmt;
 }
 
-std::string Expression::Formatter::format(double const& value) const {
+std::string Expression::Formatter::format(double const value) const {
     std::string token;
     if (cast == CastType::to_int) {
         token = std::to_string(static_cast<int>(value));
@@ -449,7 +449,7 @@ void Expression::parseTokenTypeText(std::string_view const& token) {
     components.push_back(currentComponent);
 }
 
-void Expression::printCompileError(std::shared_ptr<Component> const& component, int const& error) const {
+void Expression::printCompileError(std::shared_ptr<Component> const& component, int const error) const {
     std::string offendingChar;
     if (error <= 0 || static_cast<size_t>(error) > component->stringRepresentation.size()) {
         offendingChar = "N/A (error position out of bounds)";
@@ -682,9 +682,9 @@ double Expression::evalAsDouble(ContextScope const& context) const {
     return te_eval(components[0]->expression);
 }
 
-uint64_t Expression::evalAsInt(ContextScope const& context) const {
+int64_t Expression::evalAsInt(ContextScope const& context) const {
     updateCaches(context);
-    return static_cast<uint64_t>(te_eval(components[0]->expression));
+    return static_cast<int64_t>(te_eval(components[0]->expression));
 }
 
 bool Expression::evalAsBool(ContextScope const& context) const {

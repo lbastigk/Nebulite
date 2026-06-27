@@ -118,19 +118,19 @@ void JsonScope::setEmptyArray(ScopedKeyView const& key){
 //------------------------------------------
 // Special sets for threadsafe maths operations
 
-void JsonScope::set_add(ScopedKeyView const& key, double const& val){
+void JsonScope::set_add(ScopedKeyView const& key, double const val){
     doc().set_add(key.full(*this), val);
 }
 
-void JsonScope::set_add(ScopedKeyView const& key, uint64_t const& val){
+void JsonScope::set_add(ScopedKeyView const& key, int64_t const val){
     doc().set_add(key.full(*this), val);
 }
 
-void JsonScope::set_multiply(ScopedKeyView const& key, double const& val){
+void JsonScope::set_multiply(ScopedKeyView const& key, double const val){
     doc().set_multiply(key.full(*this), val);
 }
 
-void JsonScope::set_multiply(ScopedKeyView const& key, uint64_t const& val){
+void JsonScope::set_multiply(ScopedKeyView const& key, int64_t const val){
     doc().set_multiply(key.full(*this), val);
 }
 

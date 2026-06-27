@@ -21,7 +21,7 @@ class RmlSystemInterface final : public SystemInterface_SDL {
 public:
     RmlSystemInterface(SDL_Window* w, Utility::IO::Capture& c);
 
-    void update(int const& mousePositionX, int const& mousePositionY);
+    void update(int mousePositionX, int mousePositionY);
 
     void disableLogging();
 

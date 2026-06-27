@@ -112,12 +112,12 @@ void Input::addRoutines(){
 namespace {
 
 // Helper to calculate mouse state from SDL values
-int calcMouseState(uint32_t const& key, uint32_t const& state) {
+int calcMouseState(uint32_t const key, uint32_t const state) {
     return !!(key & state);
 }
 
 // Helper to calculate mouse delta from SDL values
-int calcMouseDelta(uint32_t const& key, uint32_t const& currentState, uint32_t const& lastState) {
+int calcMouseDelta(uint32_t const key, uint32_t const currentState, uint32_t const lastState) {
     return !!(key & currentState) - !!(key & lastState);
 }
 

@@ -115,7 +115,7 @@ RmlInterface::~RmlInterface() {
     // NOLINTEND
 }
 
-void RmlInterface::init(Core::Renderer& renderer, int const& width, int const& height){
+void RmlInterface::init(Core::Renderer& renderer, int const width, int const height){
     window = renderer.getSdlWindow();
     Rml::Initialise();
     statusTracker.rmlInterfaceInitialized = true;
@@ -187,7 +187,7 @@ Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode const& keycode) {
     }
 }
 
-int SdlModifierToRmlModifier(uint32_t const& modifier) {
+int SdlModifierToRmlModifier(uint32_t const modifier) {
     int result = 0;
 
     if (modifier & SDL_KMOD_ALT)
@@ -217,7 +217,7 @@ bool isTextSdlScancode(SDL_Scancode const& scancode) {
 
 } // namespace
 
-void RmlInterface::processMouseButtonEvent(SDL_Event const& event, int const& modifiers) const {
+void RmlInterface::processMouseButtonEvent(SDL_Event const& event, int const modifiers) const {
     int const button = [&event] {
         if (event.button.button == SDL_BUTTON_LEFT) return 0;
         if (event.button.button == SDL_BUTTON_RIGHT) return 1;
@@ -236,7 +236,7 @@ void RmlInterface::processMouseButtonEvent(SDL_Event const& event, int const& mo
     }
 }
 
-void RmlInterface::processKeyEvent(SDL_Event const& event, int const& modifiers) const {
+void RmlInterface::processKeyEvent(SDL_Event const& event, int const modifiers) const {
     // Skip keys that generate text input
     if (isTextSdlScancode(event.key.scancode)) {
         return;
@@ -299,7 +299,7 @@ void RmlInterface::processRmlUiEvent(SDL_Event const& event) const {
     }
 }
 
-void RmlInterface::update(int const& mousePositionX, int const& mousePositionY) const {
+void RmlInterface::update(int const mousePositionX, int const mousePositionY) const {
     // Update SystemInterface
     systemInterface->update(mousePositionX, mousePositionY);
 
@@ -324,7 +324,7 @@ void RmlInterface::render() const {
     context->Render();
 }
 
-void RmlInterface::setDimensions(int const& width, int const& height) const {
+void RmlInterface::setDimensions(int const width, int const height) const {
     context->SetDimensions({width, height});
 }
 

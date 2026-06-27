@@ -26,7 +26,7 @@ public:
      * @param color The color of the circle.
      * @param radius The radius of the circle.
      */
-    static void drawFilledCircle(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Color const& color, int const& radius);
+    static void drawFilledCircle(SDL_Renderer* renderer, SDL_Texture* texture, SDL_Color const& color, int radius);
 
     /**
      * @brief Draws connected lines between the given points onto the specified texture using the provided renderer.

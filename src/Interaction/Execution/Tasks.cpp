@@ -76,13 +76,13 @@ void Tasks::decrementWaitCounter() {
     }
 }
 
-Constants::Event Tasks::parse(Domain& domain, Data::JsonScope& scope, bool const& recover) {
+Constants::Event Tasks::parse(Domain& domain, Data::JsonScope& scope, bool recover) {
     Context ctx{domain, domain, domain};
     ContextScope ctxScope{scope, scope, scope};
     return parse(ctx, ctxScope, recover);
 }
 
-Constants::Event Tasks::parse(Context& ctx, ContextScope& ctxScope, bool const& recover) {
+Constants::Event Tasks::parse(Context& ctx, ContextScope& ctxScope, bool recover) {
     queueResult.clear();
     for (auto const& [name, queue] : tasks) {
         queueResult[name] = queue->resolve(ctx, ctxScope, recover);

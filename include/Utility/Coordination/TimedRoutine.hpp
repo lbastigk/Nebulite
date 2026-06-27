@@ -34,7 +34,7 @@ public:
         START_IMMEDIATELY_AND_EXECUTE_ONCE
     };
 
-    TimedRoutine(std::function<void()> const& routine, uint64_t const& intervalMillis, ConstructionMode const& mode = ConstructionMode::WAIT_FOR_START);
+    TimedRoutine(std::function<void()> const& routine, uint64_t intervalMillis, ConstructionMode mode = ConstructionMode::WAIT_FOR_START);
 
     /**
      * @brief Start the timer for the scheduled routine.

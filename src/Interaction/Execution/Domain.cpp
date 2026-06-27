@@ -28,7 +28,7 @@ namespace Nebulite::Interaction::Execution {
 
 ScopeOwnershipManager::~ScopeOwnershipManager() = default;
 
-ScopeOwnershipManager::ScopeOwnershipManager(ScopeOwnership const& ownership) {
+ScopeOwnershipManager::ScopeOwnershipManager(ScopeOwnership const ownership) {
     if (ownership == ScopeOwnership::Owned) {
         _domainScopeOwned = std::make_unique<Data::JsonScope>();
     }
@@ -125,7 +125,7 @@ Constants::Event Domain::parseStr(std::string_view const str, Context& ctx, Cont
     return funcTree->parseStr(str, ctx, ctxScope);
 }
 
-double** Domain::ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<Data::ScopedKeyView> const& keys) const {
+double** Domain::ensureOrderedCacheList(uint64_t const uniqueId, std::vector<Data::ScopedKeyView> const& keys) const {
     return domainScope.ensureOrderedCacheList(uniqueId, keys);
 }
 
@@ -232,7 +232,7 @@ void Domain::updateModules() const {
     }
 }
 
-void Domain::parseTaskQueues(bool const& recover){
+void Domain::parseTaskQueues(bool const recover){
     Global::instance().notifyEvent(tasks.parse(*this, domainScope, recover));
 }
 
@@ -244,7 +244,7 @@ Domain::Cost::Cost(Data::JsonScope const& scope) {
     global = scope.getStableDoublePointer(keys.costGlobal);
 }
 
-uint64_t Domain::estimateComputationalCost(bool const& onlyInternal) const {
+uint64_t Domain::estimateComputationalCost(bool const onlyInternal) const {
     // TODO: Consider cost of inner domains, make function virtual and provide ownCost function for cost per domain
     //       and then this function returns ownCost + cost of inner domains.
     if (onlyInternal) {

@@ -119,7 +119,7 @@ std::vector<std::complex<double>> FFT::fftInverse(std::vector<std::complex<doubl
     return a;
 }
 
-std::complex<double> FFT::evalTransfer(double const& omega, std::vector<double> const& num, std::vector<double> const& den) {
+std::complex<double> FFT::evalTransfer(double const omega, std::vector<double> const& num, std::vector<double> const& den) {
     std::complex<double> const z = std::exp(std::complex(0.0, -omega));
     std::complex numSum(0.0);
     std::complex denSum(0.0);

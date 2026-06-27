@@ -159,7 +159,7 @@ Constants::Event GlobalSpace::update() {
     return Constants::Event::Success;
 }
 
-void GlobalSpace::parseCommandLineArguments(int const& argc, char const** argv) {
+void GlobalSpace::parseCommandLineArguments(int const argc, char const** argv) {
     //------------------------------------------
     // Add main args to taskList, split by ';'
     if (argc > 1) {
@@ -258,7 +258,7 @@ std::optional<size_t> GlobalSpace::getIndexFromId(size_t const& searchId) const 
 //------------------------------------------
 // Event Management
 
-void GlobalSpace::notifyEvent(Constants::Event const& event) {
+void GlobalSpace::notifyEvent(Constants::Event event) {
     switch (event) {
     case Constants::Event::Success:
     case Constants::Event::Warning:

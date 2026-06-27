@@ -25,11 +25,11 @@ Constants::Event FunctionCollision::updateHook() {
 // Available Functions
 
 namespace {
-bool testFunctionCollision1(bool const& arg) {
+bool testFunctionCollision1(bool arg) {
     return arg;
 }
 
-bool testFunctionCollision2(bool const& arg) {
+bool testFunctionCollision2(bool arg) {
     (void)arg; // Avoid unused parameter warning
     return true;
 }
@@ -48,7 +48,7 @@ Constants::Event FunctionCollision::debug_collisionDetect_function(std::span<std
         }
     }
 
-    Interaction::Execution::FuncTree<bool,bool const&> testTree("Test",true,true, domain.capture);
+    Interaction::Execution::FuncTree<bool,bool> testTree("Test",true,true, domain.capture);
 
     if (fail) {
         // This will fail, as the function name is already registered
@@ -84,7 +84,7 @@ Constants::Event FunctionCollision::debug_collisionDetect_category(std::span<std
         }
     }
 
-    Interaction::Execution::FuncTree<bool,bool const&> testTree("Test",true,true, domain.capture);
+    Interaction::Execution::FuncTree<bool,bool> testTree("Test",true,true, domain.capture);
 
     if (fail) {
         // This will fail, as the category name is already registered

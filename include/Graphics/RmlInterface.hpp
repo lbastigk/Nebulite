@@ -56,7 +56,7 @@ public:
      * @param width The width of the context
      * @param height The height of the context
      */
-    void init(Core::Renderer& renderer, int const& width, int const& height);
+    void init(Core::Renderer& renderer, int width, int height);
 
     /**
      * @brief Translates and processes an SDL_Event
@@ -69,7 +69,7 @@ public:
      * @param mousePositionX The current X position of the mouse cursor, used for cursor management in the system interface
      * @param mousePositionY The current Y position of the mouse cursor, used for cursor management in the system interface
      */
-    void update(int const& mousePositionX, int const& mousePositionY) const ;
+    void update(int mousePositionX, int mousePositionY) const ;
 
     /**
      * @brief Call the provided postRenderUpdate function of each registered module.
@@ -86,7 +86,7 @@ public:
      * @param width The width of the context
      * @param height The height of the context
      */
-    void setDimensions(int const& width, int const& height) const ;
+    void setDimensions(int width, int height) const ;
 
     /**
      * @brief Checks if the focused element is a text input
@@ -313,9 +313,9 @@ private:
 
     // Event processing
 
-    void processMouseButtonEvent(SDL_Event const& event, int const& modifiers) const ;
+    void processMouseButtonEvent(SDL_Event const& event, int modifiers) const ;
 
-    void processKeyEvent(SDL_Event const& event, int const& modifiers) const ;
+    void processKeyEvent(SDL_Event const& event, int modifiers) const ;
 };
 } // namespace Nebulite::Graphics
 #endif // GRAPHICS_RMLINTERFACE_HPP

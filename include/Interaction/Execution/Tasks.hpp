@@ -68,9 +68,9 @@ public:
 
     void decrementWaitCounter();
 
-    Constants::Event parse(Domain& domain, Data::JsonScope& scope, bool const& recover);
+    Constants::Event parse(Domain& domain, Data::JsonScope& scope, bool recover);
 
-    Constants::Event parse(Context& ctx, ContextScope& ctxScope, bool const& recover);
+    Constants::Event parse(Context& ctx, ContextScope& ctxScope, bool recover);
 
 private:
     /**

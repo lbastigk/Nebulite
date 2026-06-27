@@ -82,7 +82,7 @@ public:
     };
 
     virtual ~ScopeOwnershipManager();
-    explicit ScopeOwnershipManager(ScopeOwnership const& ownership = ScopeOwnership::Borrowed);
+    explicit ScopeOwnershipManager(ScopeOwnership ownership = ScopeOwnership::Borrowed);
 
     ScopeOwnershipManager(ScopeOwnershipManager const&) = delete;
     ScopeOwnershipManager& operator=(ScopeOwnershipManager const&) = delete;
@@ -424,7 +424,7 @@ public:
      */
     void updateModules() const ;
 
-    void parseTaskQueues(bool const& recover);
+    void parseTaskQueues(bool recover);
 
     /**
      * @brief Re-initializes all DomainModules.
@@ -483,7 +483,7 @@ public:
      * @param keys The vector of keys to populate the cache with if it does not exist.
      * @return A pointer to the ordered vector of double pointers for the specified keys.
      */
-    [[nodiscard]] double** ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<Data::ScopedKeyView> const& keys) const ;
+    [[nodiscard]] double** ensureOrderedCacheList(uint64_t uniqueId, std::vector<Data::ScopedKeyView> const& keys) const ;
 
     /**
      * @brief Locks the domain's document for thread-safe access.
@@ -503,7 +503,7 @@ public:
      * @param onlyInternal If true, only considers internal rulesets. Defaults to true.
      * @return The estimated computational cost.
      */
-    [[nodiscard]] uint64_t estimateComputationalCost(bool const& onlyInternal = true) const ;
+    [[nodiscard]] uint64_t estimateComputationalCost(bool onlyInternal = true) const ;
 
 protected:
     struct Cost {

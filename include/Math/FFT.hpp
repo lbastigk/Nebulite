@@ -41,7 +41,7 @@ public:
      * @param den The coefficients of the denominator of the transfer function.
      * @return A complex number representing the value of the transfer function at the specified frequency.
      */
-    static std::complex<double> evalTransfer(double const& omega,std::vector<double> const& num,std::vector<double> const& den);
+    static std::complex<double> evalTransfer(double omega,std::vector<double> const& num,std::vector<double> const& den);
 
     /**
      * @brief Applies a transfer function defined by the given numerator and denominator coefficients to the input sound data.

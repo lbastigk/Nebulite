@@ -30,7 +30,7 @@ namespace {
 struct OperationInfo {
     Assignment::Operation op;
     std::string_view symbol;
-    constexpr OperationInfo(Assignment::Operation const& o, std::string_view const& s) noexcept : op(o), symbol(s) {}
+    constexpr OperationInfo(Assignment::Operation const o, std::string_view const& s) noexcept : op(o), symbol(s) {}
 };
 
 std::array constexpr supportedOperations = {
@@ -132,7 +132,7 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::str
     }
 }
 
-void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const& val, Data::JsonScope& target) const {
+void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double const val, Data::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
         case Operation::set:
@@ -156,11 +156,11 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double c
 }
 
 // TODO: Check if value stored is int, perhaps using a separate set_add and set_multiply that checks the current value
-void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, uint64_t const& val, Data::JsonScope& target) const {
+void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, int64_t const val, Data::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Operation::set:
-        target.set<uint64_t>(keyEvaluated, val);
+        target.set<int64_t>(keyEvaluated, val);
         break;
     case Operation::add:
         target.set_add(keyEvaluated, val);
@@ -179,7 +179,7 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, uint64_t
     }
 }
 
-void Assignment::setValueOfKey(double const& val, double* target) const {
+void Assignment::setValueOfKey(double const val, double* target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
         case Operation::set:
@@ -201,11 +201,9 @@ void Assignment::setValueOfKey(double const& val, double* target) const {
 }
 
 namespace {
-
-bool isNumericOperation(Assignment::Operation const& op) {
+bool isNumericOperation(Assignment::Operation const op) {
     return op == Assignment::Operation::set || op == Assignment::Operation::add || op == Assignment::Operation::multiply;
 }
-
 } // namespace
 
 void Assignment::apply(ContextScope const& context) const {

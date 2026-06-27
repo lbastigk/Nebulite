@@ -45,7 +45,7 @@ Expression::Component& Expression::Component::operator=(Component&& other) noexc
 namespace {
 
 template<typename DocumentType, typename KeyType>
-std::string getStringValue(DocumentType const& doc, KeyType const& k) {
+std::string getStringValue(DocumentType const& doc, KeyType k) {
     std::expected<std::string, Data::SimpleValueRetrievalError> value = doc.template get<std::string>(k);
     if (value.has_value()) {
         return value.value();
@@ -68,7 +68,7 @@ std::string getStringValue(DocumentType const& doc, KeyType const& k) {
     }
 }
 
-void setToken(std::string& token, std::string const& evaluatedKey, ContextScope const& context, ContextDeriver::TargetType const& source) {
+void setToken(std::string& token, std::string const& evaluatedKey, ContextScope const& context, ContextDeriver::TargetType const source) {
     auto const scopedKey = Data::ScopedKey(evaluatedKey);
     switch (source) {
     case ContextDeriver::TargetType::self: // {self:<key><transformations>}
@@ -117,7 +117,7 @@ void setToken(std::string& token, std::string const& evaluatedKey, ContextScope 
     }
 }
 
-void setToken(Data::JSON& token, std::string const& evaluatedKey, ContextScope const& context, ContextDeriver::TargetType const& source) {
+void setToken(Data::JSON& token, std::string const& evaluatedKey, ContextScope const& context, ContextDeriver::TargetType const source) {
     auto const scopedKey = Data::ScopedKey(evaluatedKey);
     switch (source) {
     case ContextDeriver::TargetType::self: // {self:<key><transformations>}

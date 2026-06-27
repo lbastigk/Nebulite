@@ -7,6 +7,7 @@
 // Standard library
 #include <cstdint> // NOLINT
 #include <string>
+#include <string_view>
 #include <variant>
 #include <vector>
 
@@ -89,24 +90,44 @@ public:
     // Conversion
 
     /**
-     * @brief Converts a rapidjson value to a C++ type.
-     * @tparam T The C++ type to convert to.
+     * @brief Converts a rapidjson value to a given type.
+     * @tparam T The type to convert to.
      * @param jsonValue The rapidjson value to convert.
-     * @param result The C++ variable to store the result.
+     * @param result The variable to store the result of.
      * @param defaultValue The default value to use if conversion fails.
      */
-    template <typename T>
+    template <typename T> requires (!std::is_trivially_copyable_v<T>)
     static void ConvertFromJSONValue(rapidjson::Value const& jsonValue, T& result, T const& defaultValue = T());
 
     /**
-     * @brief Converts a C++ type to a rapidjson value.
-     * @tparam T The C++ type to convert from.
-     * @param data The C++ variable to convert.
+     * @brief Converts a rapidjson value to a given type.
+     * @tparam T The type to convert to.
+     * @param jsonValue The rapidjson value to convert.
+     * @param result The variable to store the result of.
+     * @param defaultValue The default value to use if conversion fails.
+     */
+    template <typename T> requires std::is_trivially_copyable_v<T>
+    static void ConvertFromJSONValue(rapidjson::Value const& jsonValue, T& result, T defaultValue = T());
+
+    /**
+     * @brief Converts a given type to a rapidjson value.
+     * @tparam T The type to convert from.
+     * @param data The variable to convert.
      * @param jsonValue The rapidjson value to store the result.
      * @param allocator The allocator to use for creating new rapidjson values.
      */
-    template <typename T>
+    template <typename T> requires (!std::is_trivially_copyable_v<T>)
     static void ConvertToJSONValue(T const& data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
+
+    /**
+     * @brief Converts a given type to a rapidjson value.
+     * @tparam T The type to convert from.
+     * @param data The variable to convert.
+     * @param jsonValue The rapidjson value to store the result.
+     * @param allocator The allocator to use for creating new rapidjson values.
+     */
+    template <typename T> requires std::is_trivially_copyable_v<T>
+    static void ConvertToJSONValue(T data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& allocator);
 
     //------------------------------------------
     // Document traversal
@@ -242,5 +263,5 @@ private:
     static std::string extractKeyPart(std::string_view& keyView);
 };
 } // namespace Nebulite::Data
-#include "RjDirectAccess.tpp"
+#include "RjDirectAccess.tpp" // NOLINT
 #endif // DATA_DOCUMENT_RJDIRECTACCESS_HPP

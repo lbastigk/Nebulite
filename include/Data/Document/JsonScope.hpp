@@ -174,17 +174,17 @@ public:
     //------------------------------------------
     // Special sets for threadsafe maths operations
 
-    void set_add(ScopedKeyView const& key, double const& val);
-    void set_add(ScopedKey const& key, double const& val) {set_add(key.view(), val);}
+    void set_add(ScopedKeyView const& key, double val);
+    void set_add(ScopedKey const& key, double const val) {set_add(key.view(), val);}
 
-    void set_add(ScopedKeyView const& key, uint64_t const& val);
-    void set_add(ScopedKey const& key, uint64_t const& val) {set_add(key.view(), val);}
+    void set_add(ScopedKeyView const& key, int64_t val);
+    void set_add(ScopedKey const& key, int64_t const val) {set_add(key.view(), val);}
 
-    void set_multiply(ScopedKeyView const& key, double const& val);
-    void set_multiply(ScopedKey const& key, double const& val) {set_multiply(key.view(), val);}
+    void set_multiply(ScopedKeyView const& key, double val);
+    void set_multiply(ScopedKey const& key, double const val) {set_multiply(key.view(), val);}
 
-    void set_multiply(ScopedKeyView const& key, uint64_t const& val);
-    void set_multiply(ScopedKey const& key, uint64_t const& val) {set_multiply(key.view(), val);}
+    void set_multiply(ScopedKeyView const& key, int64_t val);
+    void set_multiply(ScopedKey const& key, int64_t const val) {set_multiply(key.view(), val);}
 
     void set_concat(ScopedKeyView const& key, std::string const& valStr);
     void set_concat(ScopedKey const& key, std::string const& valStr) {set_concat(key.view(), valStr);}
@@ -203,7 +203,7 @@ public:
         return threadIndex;
     }
 
-    double** ensureOrderedCacheList(uint64_t const& uniqueId, std::vector<ScopedKeyView> const& keys) {
+    double** ensureOrderedCacheList(uint64_t const uniqueId, std::vector<ScopedKeyView> const& keys) {
         thread_local size_t const threadIndex = assignThreadIndex();
         if (threadIndex >= noLockArraySize) {
             throw std::runtime_error("Thread index exceeds non-locking array size! Too many threads accessing ordered cache lists, increase noLockArraySize or reduce thread count.");

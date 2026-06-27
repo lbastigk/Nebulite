@@ -120,7 +120,7 @@ public:
 
     double evalAsDouble(ContextScope const& context) const ;
 
-    uint64_t evalAsInt(ContextScope const& context) const ;
+    int64_t evalAsInt(ContextScope const& context) const ;
 
     bool evalAsBool(ContextScope const& context) const ;
 
@@ -188,7 +188,7 @@ public:
          */
         static Formatter readFormatter(std::string_view const& formatter);
 
-        [[nodiscard]] std::string format(double const& value) const ;
+        [[nodiscard]] std::string format(double value) const ;
     };
 
 private:
@@ -369,7 +369,7 @@ private:
          * @param key The key to register
          * @return Pointer to the registered variable
          */
-        double* registerVariable(ContextDeriver::TargetType const& contextType, std::string_view const& key);
+        double* registerVariable(ContextDeriver::TargetType contextType, std::string_view const& key);
     } virtualDoubles;
 
     /**
@@ -447,7 +447,7 @@ private:
      * @param key The key in the JSON document that the variable refers to.
      * @param contextType The context from which the variable is being registered.
      */
-    void registerVariable(std::string te_name, std::string_view const& key, ContextDeriver::TargetType const& contextType);
+    void registerVariable(std::string te_name, std::string_view const& key, ContextDeriver::TargetType contextType);
 
     /**
      * @brief Parses the given expression into a series of components.
@@ -476,7 +476,7 @@ private:
     /**
      * @brief Prints a compilation error message to cerr, includes tips for fixing the error.
      */
-    void printCompileError(std::shared_ptr<Component> const& component, int const& error) const;
+    void printCompileError(std::shared_ptr<Component> const& component, int error) const;
 
     //------------------------------------------
     // Cache helper functions

@@ -64,7 +64,7 @@ public:
      * @param local If true, return the local time; otherwise, return UTC time.
      * @return The current time in ISO 8601 format.
      */
-    static std::string TimeIso8601(ISO8601Format const& format, bool const& local);
+    static std::string TimeIso8601(ISO8601Format format, bool local);
 
     /**
      * @brief Returns the current time since epoch in milliseconds.
@@ -76,19 +76,19 @@ public:
      * @brief Waits for the specified amount of time in milliseconds.
      * @param milliseconds The amount of time to wait in milliseconds.
      */
-    static void wait(uint64_t const& milliseconds);
+    static void wait(uint64_t milliseconds);
 
     /**
      * @brief Waits for the specified amount of time in microseconds.
      * @param microseconds The amount of time to wait in microseconds.
      */
-    static void waitMicroseconds(uint64_t const& microseconds);
+    static void waitMicroseconds(uint64_t microseconds);
 
     /**
      * @brief Waits for the specified amount of time in nanoseconds.
      * @param nanoseconds The amount of time to wait in nanoseconds.
      */
-    static void waitNanoseconds(uint64_t const& nanoseconds);
+    static void waitNanoseconds(uint64_t nanoseconds);
 };
 }   // namespace Nebulite::Utility
 #endif // UTILITY_TIME_HPP

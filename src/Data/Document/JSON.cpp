@@ -470,7 +470,7 @@ void JSON::setEmptyArray(std::string_view const& key) {
 //------------------------------------------
 // Serialize/Deserialize
 
-std::string JSON::serialize(std::string_view const& key, RjDirectAccess::SerializationType const& type) const {
+std::string JSON::serialize(std::string_view const& key, RjDirectAccess::SerializationType const type) const {
     std::scoped_lock const lockGuard(mtx);
     flush(key); // Ensure all changes are reflected in the document
     if (key.empty()) {
@@ -706,7 +706,7 @@ std::vector<std::string> JSON::listAvailableKeys(std::string_view const& key) co
 // TODO: optimize by avoiding double cache lookups
 // special get-function that returns the cache pointer instead of value
 
-void JSON::set_add(std::string_view const& key, double const& val) {
+void JSON::set_add(std::string_view const& key, double const val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
@@ -726,7 +726,7 @@ void JSON::set_add(std::string_view const& key, double const& val) {
     }
 }
 
-void JSON::set_add(std::string_view const& key, uint64_t const& val) {
+void JSON::set_add(std::string_view const& key, int64_t const val) {
     std::scoped_lock const lockGuard(mtx);
     static_assert(Math::isZero(standardNumericValue),
         "This function relies on the standard numeric value being 0 for correct defaulting."
@@ -737,7 +737,7 @@ void JSON::set_add(std::string_view const& key, uint64_t const& val) {
     std::visit([&]<typename T>(T const& currentVal) {
         // Check if it's an integer
         if constexpr(std::is_integral_v<T>) {
-            set<uint64_t>(key, static_cast<uint64_t>(currentVal) + val);
+            set<int64_t>(key, static_cast<int64_t>(currentVal) + val);
         }
         else if constexpr(std::is_floating_point_v<T>) {
             set<double>(key, currentVal + static_cast<double>(val));
@@ -749,7 +749,7 @@ void JSON::set_add(std::string_view const& key, uint64_t const& val) {
     }, current);
 }
 
-void JSON::set_multiply(std::string_view const& key, double const& val) {
+void JSON::set_multiply(std::string_view const& key, double const val) {
     std::scoped_lock const lockGuard(mtx);
 
     // Get current value
@@ -769,7 +769,7 @@ void JSON::set_multiply(std::string_view const& key, double const& val) {
     }
 }
 
-void JSON::set_multiply(std::string_view const& key, uint64_t const& val) {
+void JSON::set_multiply(std::string_view const& key, int64_t const val) {
     std::scoped_lock const lockGuard(mtx);
     static_assert(Math::isZero(standardNumericValue),
         "This function relies on the standard numeric value being 0 for correct defaulting."
@@ -780,7 +780,7 @@ void JSON::set_multiply(std::string_view const& key, uint64_t const& val) {
     std::visit([&]<typename T>(T const& currentVal) {
         // Check if it's an integer
         if constexpr(std::is_integral_v<T>) {
-            set<uint64_t>(key, static_cast<uint64_t>(currentVal) * val);
+            set<int64_t>(key, static_cast<int64_t>(currentVal) * val);
         }
         else if constexpr(std::is_floating_point_v<T>) {
             set<double>(key, currentVal * static_cast<double>(val));

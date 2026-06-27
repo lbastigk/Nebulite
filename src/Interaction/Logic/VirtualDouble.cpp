@@ -38,7 +38,7 @@ void VirtualDouble::copyFromJson(Data::JsonScope const& json) {
     copiedValue = json.get<double>(scopedKey).value_or(0.0);
 }
 
-void VirtualDouble::setDirect(double const& val) noexcept {
+void VirtualDouble::setDirect(double const val) noexcept {
     copiedValue = val;
 }
 

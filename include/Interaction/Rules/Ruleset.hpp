@@ -86,7 +86,7 @@ public:
      * @brief Checks whether the ruleset is global.
      * @return True if the ruleset is global, false otherwise.
      */
-    [[nodiscard]] bool const& isGlobal() const { return _isGlobal; }
+    [[nodiscard]] bool isGlobal() const { return _isGlobal; }
 
     //------------------------------------------
     // Methods: Workflow

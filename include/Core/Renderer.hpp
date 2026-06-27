@@ -182,7 +182,7 @@ public:
      * @param rect Optional SDL_Rect defining the area to render the texture.
      * @return True if the texture was successfully attached, false otherwise.
      */
-    bool attachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name, SDL_Texture* texture,  std::optional<SDL_FRect> rect = std::nullopt);
+    bool attachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string const& name, SDL_Texture* texture,  std::optional<SDL_FRect> rect = std::nullopt);
 
     /**
      * @brief Detaches a texture above a specific layer.
@@ -190,7 +190,7 @@ public:
      * @param name The name of the texture to remove.
      * @return True if the texture was successfully removed, false otherwise.
      */
-    bool detachTextureAboveLayer(Environment::Layer const& aboveThisLayer, std::string const& name);
+    bool detachTextureAboveLayer(Environment::Layer aboveThisLayer, std::string const& name);
 
     /**
      * @brief Detaches all textures from all layers.
@@ -221,7 +221,7 @@ public:
     /**
      * @brief Toggles the display of the FPS counter.
      */
-    void toggleFps(bool const& show = true) { status.showFps = show; }
+    void toggleFps(bool show = true) { status.showFps = show; }
 
     /**
      * @brief Sets the target FPS for the renderer.
@@ -237,7 +237,7 @@ public:
      * @param h The new pixel height of the window.
      * @param scalar The scaling factor to apply.
      */
-    void changeWindowSize(int const& w, int const& h, uint8_t const& scalar);
+    void changeWindowSize(int w, int h, uint8_t scalar);
 
     /**
      * @brief Sets the camera position.
@@ -246,14 +246,14 @@ public:
      * @param isMiddle If true, the (x,y) coordinates relate to the middle of the screen.
      *                 If false, they relate to the top left corner.
      */
-    void setCam(int const& X, int const& Y, bool const& isMiddle = false) const;
+    void setCam(int X, int Y, bool isMiddle = false) const;
 
     /**
      * @brief Moves the camera by a certain amount.
      * @param dX The amount to move the camera in the X direction.
      * @param dY The amount to move the camera in the Y direction.
      */
-    void moveCam(int const& dX, int const& dY) const;
+    void moveCam(int dX, int dY) const;
 
     /**
      * @brief Scales a rectangle from logical size to window size based on the current window scale factor.
@@ -379,7 +379,7 @@ public:
      * @param function The callback function to add
      * @param aboveThisLayer The layer above which to execute the callback. The callback will be executed after rendering the specified layer.
      */
-    void addRenderCallback(std::function<void()> const& function, Environment::Layer const& aboveThisLayer = Environment::FinalLayer);
+    void addRenderCallback(std::function<void()> const& function, Environment::Layer aboveThisLayer = Environment::FinalLayer);
 
     /**
     * @brief Adds a callback function to be executed after the current render pass is complete.
@@ -401,7 +401,7 @@ public:
      * @brief Sets the renderer view setting, determining the amount of tiles being updated and rendered.
      * @param view The view setting to apply.
      */
-    void setView(ViewSetting const& view) noexcept ;
+    void setView(ViewSetting view) noexcept ;
 
     /**
      * @brief Gets all visible tiles of the current renderer view
@@ -421,14 +421,14 @@ public:
      * @param layer The layer for which to execute the function on visible RenderObjects.
      * @param function The function to execute
      */
-    void onViewport(Environment::Layer const& layer, auto&& function);
+    void onViewport(Environment::Layer layer, auto&& function);
 
     /**
      * @brief Executes a function on each visible tile of a specific layer
      * @param layer The layer for which to execute the function on visible tiles
      * @param function The function to execute
      */
-    void onViewportTiles(Environment::Layer const& layer, auto&& function);
+    void onViewportTiles(Environment::Layer layer, auto&& function);
 
     /**
      * @brief Gets the tile at a specific coordinate and layer.
@@ -436,7 +436,7 @@ public:
      * @param pos The tile coordinate
      * @return A reference to the tile at the specified coordinate and layer.
      */
-    Data::Tile const& getTile(Environment::Layer const& layer, Data::TileCoordinate const& pos);
+    Data::Tile const& getTile(Environment::Layer layer, Data::TileCoordinate const& pos);
 
 private:
     /**

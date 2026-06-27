@@ -38,7 +38,7 @@ Constants::Event Debug::fetchContainer() const {
     std::array<std::size_t, Core::Environment::layerCount> countPerLayer{};
 
     // Get object count per active tile
-    domain.containerIteration([&](Data::TileCoordinate const& tileCoordinate, Core::Environment::Layer const& layer, Data::Tile const& tile) {
+    domain.containerIteration([&](Data::TileCoordinate const& tileCoordinate, Core::Environment::Layer const layer, Data::Tile const& tile) {
         // Storing the information in a matrix [x][y] is not possible, as the tile positions can be negative
         // Instead, we store the position as key x<tile.x>y<tile.y>
         std::string const tileName = "x" + std::to_string(tileCoordinate.x) + "y" + std::to_string(tileCoordinate.y);

@@ -1,22 +1,25 @@
 #ifndef MODULE_DOMAIN_GLOBALSPACE_INPUTMAPPING_HPP
 #define MODULE_DOMAIN_GLOBALSPACE_INPUTMAPPING_HPP
 
-/**
- * @file InputMapping.hpp
- * @brief Provides input binding utilities for the Nebulite engine.
- *
- * This file contains a GlobalTree DomainModule to handle input bindings.
- * Note that this file is a work in progress!
- */
-
-#pragma once
-
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <array>
+#include <cstdint>
+#include <span>
+#include <string>
+#include <string_view>
+
+// External
+#include <absl/container/flat_hash_map.h>
+#include <utility>
+
 // Nebulite
+#include "Constants/Event.hpp"
+#include "Data/Document/JsonScope.hpp"
+#include "Data/Document/KeyGroup.hpp"
 #include "Module/Base/DomainModule.hpp"
-#include "Module/Domain/Renderer/Input.hpp"
 
 //------------------------------------------
 // Forward declarations
@@ -122,29 +125,29 @@ private:
      */
     struct association{
         std::string key; // e.g. "space"
-        enum class action : uint8_t {
+        enum class Action : uint8_t {
             empty,
             current,
             onPress,
             onRelease,
             onChange // Any change in state, either press or release
-        } type = action::empty;
+        } type = Action::empty;
     };
 
-    static association::action stringToAssociationType(std::string const& typeStr) {
+    static association::Action stringToAssociationType(std::string const& typeStr) {
         if (typeStr == "current") {
-            return association::action::current;
+            return association::Action::current;
         }
         if (typeStr == "onPress") {
-            return association::action::onPress;
+            return association::Action::onPress;
         }
         if (typeStr == "onRelease") {
-            return association::action::onRelease;
+            return association::Action::onRelease;
         }
         if (typeStr == "onChange") {
-            return association::action::onChange;
+            return association::Action::onChange;
         }
-        return association::action::empty;
+        return association::Action::empty;
     }
 
     /**
@@ -152,9 +155,9 @@ private:
      * @details Any input action can be associated with up to three keys.
      */
     struct MapEntry{
-        association slotA{.key="", .type=association::action::empty}; // First key associated with the action
-        association slotB{.key="", .type=association::action::empty}; // Second key associated with the action
-        association slotC{.key="", .type=association::action::empty}; // Third key associated with the action
+        association slotA{.key="", .type=association::Action::empty}; // First key associated with the action
+        association slotB{.key="", .type=association::Action::empty}; // Second key associated with the action
+        association slotC{.key="", .type=association::Action::empty}; // Third key associated with the action
 
         enum class LockState : uint8_t {
             unlocked,   // The action is not locked and can be triggered by its associated keys.
@@ -189,4 +192,4 @@ private:
 };
 }   // namespace Nebulite::Module::Domain::GlobalSpace
 
-#endif
+#endif // MODULE_DOMAIN_GLOBALSPACE_INPUTMAPPING_HPP

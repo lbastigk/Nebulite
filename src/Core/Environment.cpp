@@ -88,7 +88,7 @@ void Environment::deserialize(std::string const& serialOrLink, Data::TilingInfor
 //------------------------------------------
 // Object Management
 
-void Environment::append(RenderObject* toAppend, Data::TilingInformation const& tilingInformation, uint8_t const& layer) {
+void Environment::append(RenderObject* toAppend, Data::TilingInformation const& tilingInformation, uint8_t  const layer) {
     // Add domain id to map
     indexToIdMap[indexCounter] = toAppend->getId();
     indexCounter++;

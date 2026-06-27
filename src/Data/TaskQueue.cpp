@@ -23,7 +23,6 @@
 namespace Nebulite::Data {
 
 namespace {
-
 void resolveArgument(std::string& argStr, TaskQueue::TaskQueueResult& fullResult, std::string_view const callbackName, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
     // Add binary name if missing
     if (argStr.size() < callbackName.size() + 1 || !argStr.starts_with(callbackName) || argStr[callbackName.size()] != ' ') {
@@ -42,10 +41,9 @@ void resolveArgument(std::string& argStr, TaskQueue::TaskQueueResult& fullResult
         fullResult.events.push_back(currentResult);
     }
 }
-
 } // namespace
 
-TaskQueue::TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool const& recover) {
+TaskQueue::TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool const recover) {
     TaskQueueResult fullResult;
 
     // 1.) Process and pop tasks
@@ -134,7 +132,7 @@ void TaskQueue::pushFront(std::string const& task) {
     tasks.list.push_front(task);
 }
 
-void TaskQueue::wait(uint64_t const& frames) {
+void TaskQueue::wait(uint64_t const frames) {
     state.waitCounter += frames;
 }
 
@@ -143,11 +141,11 @@ void TaskQueue::clear() {
     state.waitCounter = 0;
 }
 
-void TaskQueue::incrementWaitCounter(uint64_t const& increment) {
+void TaskQueue::incrementWaitCounter(uint64_t const increment) {
     state.waitCounter += increment;
 }
 
-void TaskQueue::decrementWaitCounter(uint64_t const& decrement) {
+void TaskQueue::decrementWaitCounter(uint64_t const decrement) {
     if (state.waitCounter >= decrement) {
         state.waitCounter -= decrement;
     } else {

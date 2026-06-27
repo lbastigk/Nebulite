@@ -377,16 +377,16 @@ public:
     /**
      * @brief Performs an addition operation on a numeric value in the JSON document.
      */
-    void set_add(std::string_view const& key, double const& val);
+    void set_add(std::string_view const& key, double val);
 
-    void set_add(std::string_view const& key, uint64_t const& val);
+    void set_add(std::string_view const& key, int64_t val);
 
     /**
      * @brief Performs a multiplication operation on a numeric value in the JSON document.
      */
-    void set_multiply(std::string_view const& key, double const& val);
+    void set_multiply(std::string_view const& key, double val);
 
-    void set_multiply(std::string_view const& key, uint64_t const& val);
+    void set_multiply(std::string_view const& key, int64_t val);
 
     /**
      * @brief Performs a concatenation operation on a string value in the JSON document.
@@ -526,7 +526,7 @@ public:
      * @param type Type of serialization. Defaults to pretty printing.
      * @return The serialized JSON string.
      */
-    std::string serialize(std::string_view const& key = "", RjDirectAccess::SerializationType const& type = RjDirectAccess::SerializationType::pretty) const ;
+    std::string serialize(std::string_view const& key = "", RjDirectAccess::SerializationType type = RjDirectAccess::SerializationType::pretty) const ;
 
     /**
      * @brief Deserializes a JSON string or loads from a file, with optional modifications.

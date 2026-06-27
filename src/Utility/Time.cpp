@@ -16,7 +16,7 @@
 //------------------------------------------
 namespace Nebulite::Utility {
 
-std::string Time::TimeIso8601(ISO8601Format const& format, bool const& local) {
+std::string Time::TimeIso8601(ISO8601Format const format, bool const local) {
     // Get current time
     std::time_t const time = std::time(nullptr);
 
@@ -68,15 +68,15 @@ uint64_t Time::getTime() noexcept {
     );
 }
 
-void Time::wait(uint64_t const& milliseconds) {
+void Time::wait(uint64_t const milliseconds) {
     std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
 }
 
-void Time::waitMicroseconds(uint64_t const& microseconds) {
+void Time::waitMicroseconds(uint64_t const microseconds) {
     std::this_thread::sleep_for(std::chrono::microseconds(microseconds));
 }
 
-void Time::waitNanoseconds(uint64_t const& nanoseconds) {
+void Time::waitNanoseconds(uint64_t const nanoseconds) {
     std::this_thread::sleep_for(std::chrono::nanoseconds(nanoseconds));
 }
 
