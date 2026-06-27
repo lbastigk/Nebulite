@@ -19,10 +19,17 @@
 #include "Constants/Event.hpp"
 #include "Core/Texture.hpp"
 #include "Data/Document/JsonScope.hpp"
-#include "Interaction/Context.hpp"
 #include "Interaction/Execution/Domain.hpp"
 #include "Utility/Coordination/TimedRoutine.hpp"
 #include "Utility/IO/Capture.hpp"
+
+//------------------------------------------
+// Forward declarations
+
+namespace Nebulite::Interaction {
+class Context;
+class ContextScope;
+} // namespace Nebulite::Interaction
 
 //------------------------------------------
 namespace Nebulite::Graphics {

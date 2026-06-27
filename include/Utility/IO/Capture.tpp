@@ -37,7 +37,7 @@ template<typename... Args>
 void Stream<BaseStream, LineType>::print(bool const printToConsole, Args&&... args) {
     std::ostringstream workingBuffer;
     if constexpr (sizeof...(args) != 0) {
-        (workingBuffer << ... << std::forward<Args>(args));
+        (workingBuffer << ... << logArg(std::forward<Args>(args)));
     }
     putStr(workingBuffer.str(), printToConsole);
 }
@@ -47,7 +47,7 @@ template<typename... Args>
 void Stream<BaseStream, LineType>::println(bool const printToConsole, Args&&... args) {
     std::ostringstream workingBuffer;
     if constexpr (sizeof...(args) != 0) {
-        (workingBuffer << ... << std::forward<Args>(args));
+        (workingBuffer << ... << logArg(std::forward<Args>(args)));
     }
     workingBuffer << '\n';
     putStr(workingBuffer.str(), printToConsole);

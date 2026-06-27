@@ -178,7 +178,7 @@ public:
          * @brief Turns the RmlElementIdentifier into a string representation of its id.
          * @return The string representation of the id
          */
-        [[nodiscard]] explicit operator std::string() const noexcept {
+        [[nodiscard]] explicit operator std::string() const {
             return std::to_string(id);
         }
 

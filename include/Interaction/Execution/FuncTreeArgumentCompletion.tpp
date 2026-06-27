@@ -330,7 +330,7 @@ std::vector<std::string> FuncTree<ReturnValue, AdditionalArgs...>::findCompletio
     // Filter out __complete__ from and any argument that is exactly equal to the pattern provided
     std::ranges::sort(completions);
     std::erase_if(completions, [&]<typename T>(T const& completion) {
-        return completion == pattern;
+        return completion == pattern; // NOLINT
     });
     std::erase(completions, "__complete__");
 
