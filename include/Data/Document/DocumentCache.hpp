@@ -1,13 +1,11 @@
-/**
- * @file DocumentCache.hpp
- * @brief This file contains the DocumentCache class for managing cached, read-only documents.
- */
-
 #ifndef DATA_DOCUMENT_DOCUMENTCACHE_HPP
 #define DATA_DOCUMENT_DOCUMENTCACHE_HPP
 
 //------------------------------------------
 // Includes
+
+// Standard library
+#include <string>
 
 // Nebulite
 #include "Data/Document/ReadOnlyDocs.hpp"
@@ -105,6 +103,7 @@ private:
 
     /**
      * @brief Splits a doc:key string into its components, also works for doc|transform or doc:key|transform
+     * @todo Returning a pair of string_views should be possible?
      */
     static std::pair<std::string, std::string> splitDocKey(std::string const& doc_key) {
         std::string_view doc_key_view(doc_key);

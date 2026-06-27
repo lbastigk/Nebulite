@@ -13,8 +13,8 @@ namespace Nebulite::Data {
  * @enum KeyType
  * @brief Enum representing the type stored of a key in the JSON document.
  */
-enum class KeyType : uint8_t {
-    null,
+enum class KeyType : std::uint8_t {
+    null = 0,
     value,
     array,
     object

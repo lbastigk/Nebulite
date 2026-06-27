@@ -1,9 +1,3 @@
-/**
- * @file FlatContainer.hpp
- * @brief Contains the definition of the Flat Broadcast-listen container model.
- * @details Multiple types of flat containers are available, determined by the FlatContainerType template parameter.
- */
-
 #ifndef DATA_BROADCASTLISTENCONTAINER_FLATCONTAINER_HPP
 #define DATA_BROADCASTLISTENCONTAINER_FLATCONTAINER_HPP
 

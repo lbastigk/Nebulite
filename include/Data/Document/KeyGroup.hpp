@@ -4,8 +4,12 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <optional>
+
 // Nebulite
 #include "Data/Document/ScopedKey.hpp"
+#include "Data/OptionalFixedString.hpp"
 
 //------------------------------------------
 namespace Nebulite::Data {

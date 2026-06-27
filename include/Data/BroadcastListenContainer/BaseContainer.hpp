@@ -1,8 +1,3 @@
-/**
- * @file BaseContainer.hpp
- * @brief Definition of the virtual base class for broadcast-listen containers for rulesets.
- */
-
 #ifndef DATA_BROADCASTLISTENCONTAINER_BASECONTAINER_HPP
 #define DATA_BROADCASTLISTENCONTAINER_BASECONTAINER_HPP
 

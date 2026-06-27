@@ -15,7 +15,7 @@
 
 // Standard library
 #include <algorithm>
-#include <cstddef>
+#include <cstddef> // NOLINT
 #include <cstdint>
 #include <iterator>
 #include <optional>
@@ -261,7 +261,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::complete(std::span<std::st
     // Filter out __complete__ from and any argument that is exactly equal to the pattern provided
     std::ranges::sort(completions);
     std::erase_if(completions, [&](auto const& completion) {
-        return completion == pattern;
+        return completion == pattern; // NOLINT
     });
     std::erase(completions, "__complete__");
 

@@ -8,6 +8,9 @@
 #include <cstdint> // NOLINT
 #include <string>
 
+// External
+#include <absl/container/flat_hash_map.h>
+
 // Nebulite
 #include "Data/Document/JSON.hpp"
 #include "Utility/Coordination/SharedMutex.hpp"

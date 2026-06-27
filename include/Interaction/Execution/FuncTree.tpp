@@ -11,7 +11,7 @@
 
 // Standard library
 #include <algorithm>
-#include <cstddef>
+#include <cstddef> // NOLINT
 #include <functional>
 #include <iterator>
 #include <memory>

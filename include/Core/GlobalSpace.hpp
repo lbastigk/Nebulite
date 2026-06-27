@@ -5,6 +5,9 @@
 // Includes
 
 // Standard library
+#include <cstdint> // NOLINT
+#include <memory>
+#include <optional>
 #include <string>
 
 // External

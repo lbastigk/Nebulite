@@ -12,7 +12,6 @@
 #include "Data/Document/ScopedKey.hpp"
 #include "Data/Document/SimpleValueError.hpp"
 
-
 //------------------------------------------
 // Conditional includes
 

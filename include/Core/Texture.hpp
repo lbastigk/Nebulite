@@ -4,6 +4,9 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <string>
+
 // External
 #include <SDL3/SDL_render.h>
 

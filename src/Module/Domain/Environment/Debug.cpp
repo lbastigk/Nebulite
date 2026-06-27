@@ -13,7 +13,6 @@
 #include "Constants/Event.hpp"
 #include "Core/Environment.hpp"
 #include "Data/Batch.hpp"
-#include "Data/RendererProcessor.hpp"
 #include "Data/Tiling.hpp"
 #include "Module/Domain/Environment/Debug.hpp"
 

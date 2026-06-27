@@ -7,6 +7,7 @@
 // Standard library
 #include <cstdint> // NOLINT
 #include <memory>
+#include <ranges>
 #include <string>
 #include <vector>
 

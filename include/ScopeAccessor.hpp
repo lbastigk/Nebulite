@@ -56,11 +56,10 @@ public:
      */
     class Full final : public BaseAccessToken {
         // Private constructor is intended
-        Full();
+        Full(); // NOLINT
+        ~Full(); // NOLINT
 
     public:
-        ~Full();
-
         Full(Full const&) = delete;
         Full& operator=(Full const&) = delete;
         Full(Full&&) = delete;
