@@ -9,8 +9,14 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstddef> // NOLINT
+#include <functional>
+#include <string>
+
 // External
 #include <absl/container/flat_hash_map.h>
+#include <vector>
 
 // Nebulite
 #include "Core/RenderObject.hpp"

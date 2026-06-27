@@ -4,10 +4,26 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstddef> // NOLINT
+#include <functional>
+#include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <unordered_set>
+#include <utility>
+#include <vector>
+
 // External
-#include <RmlUi/Core.h>
+#include <RmlUi/Core/DataModelHandle.h>
+#include <RmlUi/Core/Element.h>
+#include <RmlUi/Core/Plugin.h>
 #include <RmlUi_Renderer_SDL.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_video.h>
 #include <absl/container/flat_hash_map.h>
+
 
 // Nebulite
 #include "Graphics/RmlSystemInterface.hpp"
@@ -229,7 +245,7 @@ public:
     /**
      * @brief Removes a document from a given document pointer
      * @param doc The pointer of the document
-     * @return True if the document was removed sucessfully, false otherwise
+     * @return True if the document was removed successfully, false otherwise
      */
     bool removeDocument(Rml::ElementDocument* doc);
 

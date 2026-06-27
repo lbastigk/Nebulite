@@ -7,7 +7,9 @@
 // Standard library
 #include <array>
 #include <atomic>
+#include <cstddef> // NOLINT
 #include <memory>
+#include <mutex>
 #include <vector>
 
 // Nebulite
@@ -99,11 +101,11 @@ public:
      * @brief Workspace struct for batch worker threads.
      */
     struct DispatcherWorkspace {
-        Tile* work; // TODO: multiple tiles per worker might be better
+        Tile* work = nullptr; // TODO: multiple tiles per worker might be better
         TilingInformation tilingInformation;
         TileCoordinate pos;
-        ReinsertionProcess* reinsertionProcess;
-        DeletionProcess* deletionProcess;
+        ReinsertionProcess* reinsertionProcess = nullptr;
+        DeletionProcess* deletionProcess = nullptr;
     };
 
     /**

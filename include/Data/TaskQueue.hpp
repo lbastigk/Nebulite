@@ -10,6 +10,7 @@
 // Includes
 
 // Standard library
+#include <cstdint>
 #include <deque>
 #include <mutex>
 #include <string>

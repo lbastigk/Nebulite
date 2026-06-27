@@ -9,6 +9,11 @@
 //------------------------------------------
 // Includes
 
+// Standard library
+#include <cstddef> // NOLINT
+#include <string_view>
+#include <vector>
+
 // External
 #include <absl/container/flat_hash_map.h>
 

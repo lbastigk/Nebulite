@@ -22,6 +22,7 @@
 // Includes
 
 // Standard library
+#include <cstddef>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -111,7 +112,7 @@ public:
     /**
      * @brief Adds a specified index to the key
      */
-    [[nodiscard]] ScopedKey addIndex(size_t const& index) const ;
+    [[nodiscard]] ScopedKey addIndex(std::size_t const& index) const ;
 
     /**
      * @brief Adds a specified member to the key
@@ -221,7 +222,7 @@ public:
     /**
      * @brief Adds a specified index to the key
      */
-    [[nodiscard]] ScopedKey addIndex(size_t const& index) const ;
+    [[nodiscard]] ScopedKey addIndex(std::size_t const& index) const ;
 
     /**
      * @brief Adds a specified member to the key

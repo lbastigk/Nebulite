@@ -48,7 +48,7 @@ ScopedKey ScopedKey::nestKey(ScopedKeyView const& other) const {
     return this->view().nestKey(other);
 }
 
-ScopedKey ScopedKey::addIndex(size_t const& index) const {
+ScopedKey ScopedKey::addIndex(std::size_t const& index) const {
     return this->view().addIndex(index);
 }
 
@@ -137,7 +137,7 @@ ScopedKey ScopedKeyView::nestKey(ScopedKeyView const& other) const {
     return ScopedKey(givenScope, combineKeys(key,suffix));
 }
 
-ScopedKey ScopedKeyView::addIndex(size_t const& index) const {
+ScopedKey ScopedKeyView::addIndex(std::size_t const& index) const {
     std::string const arrayIndex = "[" + std::to_string(index) + "]";
     return *this + arrayIndex;
 }

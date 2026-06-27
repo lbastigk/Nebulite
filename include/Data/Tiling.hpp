@@ -8,6 +8,7 @@
 #include <cstdint> // NOLINT
 #include <ranges>
 #include <utility>
+#include <vector>
 
 // External
 #include <SDL3/SDL_render.h>
@@ -27,8 +28,8 @@ class Renderer;
 namespace Nebulite::Data {
 
 struct TilingInformation {
-    std::uint16_t w;
-    std::uint16_t h;
+    std::uint16_t w = 0;
+    std::uint16_t h = 0;
 };
 
 struct TileCoordinate {

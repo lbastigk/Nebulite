@@ -59,5 +59,3 @@ struct Batch {
 
 } // namespace Nebulite::Data
 #endif // DATA_BATCH_HPP
-
-

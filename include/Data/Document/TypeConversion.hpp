@@ -5,6 +5,7 @@
 // Includes
 
 // Standard library
+#include <cstdint>
 #include <optional>
 #include <string>
 

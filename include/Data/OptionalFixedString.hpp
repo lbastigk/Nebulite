@@ -16,7 +16,7 @@ namespace Nebulite::Data {
  * @tparam N Size of the string
  * @tparam forceOutsideDefinition Useful if you want to force the definition of the string outside the struct.
  *                                The idea is that, sometimes, we don't know the exact value at compile time,
- *                                so outer processes shall deduct the value based on what the know.
+ *                                so outer processes shall deduct the value based on what they know.
  */
 template <std::size_t N, bool forceOutsideDefinition = false>
 struct OptionalFixedString {

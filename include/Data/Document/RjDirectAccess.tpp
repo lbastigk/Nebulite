@@ -5,10 +5,10 @@
 // Includes
 
 // Standard library
-#include <sstream>
+#include <sstream> // NOLINT
 
 // Nebulite
-#include "Utility/StringHandler.hpp"
+#include "Utility/StringHandler.hpp" // NOLINT
 
 //------------------------------------------
 namespace Nebulite::Data {

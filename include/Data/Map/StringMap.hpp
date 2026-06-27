@@ -16,6 +16,7 @@
 #include <functional>
 #include <limits>
 #include <string>
+#include <string_view>
 
 // External
 #include <absl/container/flat_hash_map.h>
