@@ -220,7 +220,7 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
     }
 
     Uint8* data = nullptr;
-    Uint32 length = 0;
+    std::uint32_t length = 0;
     SDL_AudioSpec wavSpec = {};
     SDL_LoadWAV(path.c_str(), &wavSpec, &data, &length);
     if (!data || length == 0) {
@@ -238,7 +238,7 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
 
     // Push sound data into cache
     Sound sound;
-    auto lengthPerSample = 0;
+    std::uint32_t lengthPerSample = 0;
     std::function<Settings::SampleType(Uint8* data)> convertFunc = nullptr;
     switch (wavSpec.format) {
         case SDL_AUDIO_F32:

@@ -133,8 +133,8 @@ private:
         float posY = 0;
         float lastPosX = 0;
         float lastPosY = 0;
-        Uint32 lastState = 0;
-        Uint32 state = 0;
+        std::uint32_t lastState = 0;
+        std::uint32_t state = 0;
     } mouse;
 
     /**
