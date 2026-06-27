@@ -6,9 +6,11 @@
 
 // Standard library
 #include <array>
+#include <cstddef>
 #include <functional>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 // Nebulite
 #include "Utility/CompileTimeEvaluate.hpp"
@@ -20,12 +22,18 @@ class Generate {
 public:
     template<typename T, std::size_t N, typename F>
     static constexpr std::array<T, N> array(F&& generator) {
-        return impl<std::array<T, N>,T>(std::make_index_sequence<N>{}, std::forward<F>(generator));
+        return impl<std::array<T, N>,T>(
+            std::make_index_sequence<N>{},
+            std::forward<F>(generator)
+        );
     }
 
     template<std::size_t N, typename F>
     static constexpr std::string string(F&& generator) {
-        return impl<std::string, char>(std::make_index_sequence<N>{}, std::forward<F>(generator));
+        return impl<std::string, char>(
+            std::make_index_sequence<N>{},
+            std::forward<F>(generator)
+        );
     }
 
     /**

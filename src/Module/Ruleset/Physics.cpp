@@ -3,6 +3,7 @@
 
 // Standard Library
 #include <cmath>
+#include <stdexcept>
 
 // Nebulite
 #include "Interaction/Context.hpp"

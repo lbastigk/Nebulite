@@ -36,7 +36,8 @@
 
 //------------------------------------------
 namespace {
-uint64_t rollingJitter(uint32_t const size) {
+template<uint32_t size>
+uint64_t rollingJitter() {
     static auto jitterGenerator = Nebulite::Utility::Coordination::IdGenerator::atomicRollingIdGenerator(size);
     return jitterGenerator();
 }
@@ -53,7 +54,7 @@ Drawcall::Drawcall(Data::JsonScope& workspace, Utility::IO::Capture& parentCaptu
         [this] {
             updateDrawcallData();
         },
-        updateDrawcallDataIntervalMs + rollingJitter(updateDrawcallDataIntervalJitterMs),
+        updateDrawcallDataIntervalMs + rollingJitter<updateDrawcallDataIntervalJitterMs>(),
         Utility::Coordination::TimedRoutine::ConstructionMode::START_IMMEDIATELY
     } {
     refs.initialize(workspace);

@@ -258,7 +258,7 @@ std::optional<size_t> GlobalSpace::getIndexFromId(size_t const& searchId) const 
 //------------------------------------------
 // Event Management
 
-void GlobalSpace::notifyEvent(Constants::Event event) {
+void GlobalSpace::notifyEvent(Constants::Event const event) {
     switch (event) {
     case Constants::Event::Success:
     case Constants::Event::Warning:

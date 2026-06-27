@@ -11,7 +11,7 @@
 namespace Nebulite::Utility::IO {
 
 template<std::ostream* BaseStream, HistoryLine::Type LineType>
-void Stream<BaseStream, LineType>::putStr(std::string const& str, bool printToConsole) const {
+void Stream<BaseStream, LineType>::putStr(std::string const& str, bool const printToConsole) const {
     if (printToConsole) {
         *BaseStream << str;
     }
@@ -25,7 +25,7 @@ void Stream<BaseStream, LineType>::putStr(std::string const& str, bool printToCo
 
 template<std::ostream* BaseStream, HistoryLine::Type LineType>
 template<typename... Args>
-void Stream<BaseStream, LineType>::print(bool printToConsole, Args&&... args) {
+void Stream<BaseStream, LineType>::print(bool const printToConsole, Args&&... args) {
     std::ostringstream workingBuffer;
     if constexpr (sizeof...(args) != 0) {
         (workingBuffer << ... << std::forward<Args>(args));
@@ -35,7 +35,7 @@ void Stream<BaseStream, LineType>::print(bool printToConsole, Args&&... args) {
 
 template<std::ostream* BaseStream, HistoryLine::Type LineType>
 template<typename... Args>
-void Stream<BaseStream, LineType>::println(bool printToConsole, Args&&... args) {
+void Stream<BaseStream, LineType>::println(bool const printToConsole, Args&&... args) {
     std::ostringstream workingBuffer;
     if constexpr (sizeof...(args) != 0) {
         (workingBuffer << ... << std::forward<Args>(args));

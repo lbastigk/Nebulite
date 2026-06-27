@@ -103,7 +103,7 @@ public:
     Target& global;
     // The global target, must be the owner of self and other to outlive them! Otherwise, some context storages may break!
 
-    [[nodiscard]] std::optional<std::reference_wrapper<Target>> getTargetFromType(ContextDeriver::TargetType type) const {
+    [[nodiscard]] std::optional<std::reference_wrapper<Target>> getTargetFromType(ContextDeriver::TargetType const type) const {
         switch (type) {
             case ContextDeriver::TargetType::self:
                 return self;

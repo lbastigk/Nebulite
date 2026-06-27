@@ -13,9 +13,9 @@
 // Nebulite
 #include "Constants/ThreadSettings.hpp"
 #include "Core/RenderObject.hpp"
+#include "Data/Batch.hpp"
 #include "Data/RenderObjectContainer.hpp"
 #include "Data/RendererProcessor.hpp"
-#include "Nebulite.hpp"
 #include "Utility/Coordination/WorkDispatcher.hpp"
 
 //------------------------------------------

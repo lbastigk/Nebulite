@@ -2,10 +2,12 @@
 // Includes
 
 // Standard library
+#include <ranges>
 #include <string>
 
 // External
 #include <SDL3/SDL_error.h>
+#include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_stdinc.h>
 
@@ -111,7 +113,8 @@ Constants::Event Fill::averageColor() const {
     SDL_SetRenderTarget(renderer, texture);
 
     // Get surface
-    float fw, fh;
+    float fw = 0;
+    float fh = 0;
     if (!SDL_GetTextureSize(texture, &fw, &fh)) {
         return Constants::StandardCapture::Error::Texture::queryFailed(domain.capture);
     }
@@ -132,7 +135,10 @@ Constants::Event Fill::averageColor() const {
     Uint64 b = 0;
     Uint64 a = 0;
     for (auto [x, y] : std::views::cartesian_product(std::views::iota(0, w), std::views::iota(0, h))) {
-        Uint8 pr, pg, pb, pa;
+        Uint8 pr = 0;
+        Uint8 pg = 0;
+        Uint8 pb = 0;
+        Uint8 pa = 0;
         if (!SDL_ReadSurfacePixel(surf, x, y, &pr, &pg, &pb, &pa)) {
             return Constants::StandardCapture::Error::Texture::queryFailed(domain.capture);
         }

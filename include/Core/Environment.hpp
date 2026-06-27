@@ -239,7 +239,7 @@ public:
         Data::TileCoordinate coordinate;
     };
 
-    auto viewport(std::vector<Data::TileCoordinate> const& visibleTiles, Layer layer) {
+    auto viewport(std::vector<Data::TileCoordinate> const& visibleTiles, Layer const layer) {
         std::vector<TileAndCoordinate> result;
         result.reserve(visibleTiles.size());
         for (auto const& tileCoordinate : visibleTiles) {

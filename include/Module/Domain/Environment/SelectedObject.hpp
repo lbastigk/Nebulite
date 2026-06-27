@@ -80,5 +80,5 @@ private:
     Core::RenderObject* selectedRenderObject = nullptr;
     Data::JsonScope* selectedRenderObjectData = nullptr;
 };
-} // namespace Nebulite::Module::Domain::Renderer
+} // namespace Nebulite::Module::Domain::Environment
 #endif // MODULE_DOMAIN_ENVIRONMENT_SELECTEDOBJECT_HPP

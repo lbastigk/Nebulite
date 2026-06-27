@@ -221,7 +221,7 @@ public:
     /**
      * @brief Toggles the display of the FPS counter.
      */
-    void toggleFps(bool show = true) { status.showFps = show; }
+    void toggleFps(bool const show = true) { status.showFps = show; }
 
     /**
      * @brief Sets the target FPS for the renderer.
