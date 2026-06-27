@@ -38,13 +38,8 @@ enable_language(ASM)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static libraries for external deps" FORCE)
 lto_fix()
 
-# Prepare SDL settings
+# Prepare SDL settings5a
 sdl_setup()
-
-# Compatibility settings + test disabling
-#set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING "Compatibility for older externals" FORCE)
-set(BUILD_TESTING OFF CACHE BOOL "Disable building tests" FORCE)
-set(ABSL_BUILD_TESTING OFF CACHE BOOL "Disable Abseil tests" FORCE)
 
 ############################################################
 ## Setup Project

@@ -2,24 +2,30 @@
 # Shortcut paths to external dependencies
 
 # SDL3 official repositories
-set(SDL3_PATH           "${CMAKE_SOURCE_DIR}/external/SDL3")
-set(SDL3_TTF_PATH       "${CMAKE_SOURCE_DIR}/external/SDL3_ttf")
-set(SDL3_IMAGE_PATH     "${CMAKE_SOURCE_DIR}/external/SDL3_image")
+set(SDL3_PATH           "${PROJECT_SOURCE_DIR}/external/SDL3")
+set(SDL3_TTF_PATH       "${PROJECT_SOURCE_DIR}/external/SDL3_ttf")
+set(SDL3_IMAGE_PATH     "${PROJECT_SOURCE_DIR}/external/SDL3_image")
 
 # GUI libraries
-set(IMGUI_PATH          "${CMAKE_SOURCE_DIR}/external/imgui")
-set(RMLUI_PATH          "${CMAKE_SOURCE_DIR}/external/RmlUi")
+set(IMGUI_PATH          "${PROJECT_SOURCE_DIR}/external/imgui")
+set(RMLUI_PATH          "${PROJECT_SOURCE_DIR}/external/RmlUi")
 
 # Other external libraries
-set(RAPIDJSON_PATH      "${CMAKE_SOURCE_DIR}/external/rapidjson")
-set(TINYEXPR_PATH       "${CMAKE_SOURCE_DIR}/external/tinyexpr")
-set(ABSEIL_PATH         "${CMAKE_SOURCE_DIR}/external/abseil")
-set(STB_PATH            "${CMAKE_SOURCE_DIR}/external/stb")
+set(RAPIDJSON_PATH      "${PROJECT_SOURCE_DIR}/external/rapidjson")
+set(TINYEXPR_PATH       "${PROJECT_SOURCE_DIR}/external/tinyexpr")
+set(ABSEIL_PATH         "${PROJECT_SOURCE_DIR}/external/abseil")
+set(STB_PATH            "${PROJECT_SOURCE_DIR}/external/stb")
 
 ############################################################
 # Function to setup external subdirectories
 function(setup_external_subdirectories)
     message(STATUS "Setting up external subdirectories...")
+
+    # Add flags before adding subdirectories
+    set(ABSL_PROPAGATE_CXX_STD ON CACHE BOOL "" FORCE)
+    set(ABSL_USE_SYSTEM_INCLUDES ON CACHE BOOL "" FORCE)
+    set(ABSL_BUILD_TESTING OFF CACHE BOOL "" FORCE)
+    set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
 
     # Add subdirectories for external dependencies
     add_subdirectory(${ABSEIL_PATH})
@@ -47,7 +53,11 @@ endfunction()
 function(configure_common_dependencies target_name)
     message(STATUS "Configuring common dependencies for target: ${target_name}")
 
-    add_compile_definitions(RMLUI_SDL_VERSION_MAJOR=3)
+    # Set SDL version macro for RmlUi
+    target_compile_definitions(${target_name}
+            PRIVATE
+            RMLUI_SDL_VERSION_MAJOR=3
+    )
 
     # Include directories
     # normal include dir
@@ -61,7 +71,7 @@ function(configure_common_dependencies target_name)
             SYSTEM PRIVATE
             ${RAPIDJSON_PATH}/include
             ${TINYEXPR_PATH}
-            ${ABSEIL_PATH}
+            #${ABSEIL_PATH}
             ${SDL3_PATH}/include/
             ${SDL3_TTF_PATH}/include
             ${SDL3_IMAGE_PATH}/include
@@ -74,16 +84,19 @@ function(configure_common_dependencies target_name)
     )
 
     # Setup imgui library
-    add_library(imgui STATIC
-            ${IMGUI_PATH}/imgui.cpp
-            ${IMGUI_PATH}/imgui_draw.cpp
-            ${IMGUI_PATH}/imgui_tables.cpp
-            ${IMGUI_PATH}/imgui_widgets.cpp
-            ${IMGUI_PATH}/imgui_demo.cpp     # optional
-            ${IMGUI_PATH}/backends/imgui_impl_sdl3.cpp
-            ${IMGUI_PATH}/backends/imgui_impl_sdlrenderer3.cpp
-            ${IMGUI_PATH}/misc/cpp/imgui_stdlib.cpp
-    )
+    if(NOT TARGET imgui)
+        add_library(imgui STATIC
+                ${IMGUI_PATH}/imgui.cpp
+                ${IMGUI_PATH}/imgui_draw.cpp
+                ${IMGUI_PATH}/imgui_tables.cpp
+                ${IMGUI_PATH}/imgui_widgets.cpp
+                ${IMGUI_PATH}/imgui_demo.cpp     # optional
+                ${IMGUI_PATH}/backends/imgui_impl_sdl3.cpp
+                ${IMGUI_PATH}/backends/imgui_impl_sdlrenderer3.cpp
+                ${IMGUI_PATH}/misc/cpp/imgui_stdlib.cpp
+        )
+    endif()
+
     target_include_directories(imgui PUBLIC
             ${IMGUI_PATH}
             ${IMGUI_PATH}/backends
@@ -92,9 +105,9 @@ function(configure_common_dependencies target_name)
 
     # Link libraries
     target_link_libraries(${target_name} PRIVATE
-            absl::base
-            absl::synchronization
-            absl::strings
+            #absl::base
+            #absl::synchronization
+            #absl::strings
             absl::hash
             absl::flat_hash_map
             imgui
