@@ -58,7 +58,7 @@ bool Assignment::parse(std::string_view const& str) {
     // 3.) Find the operator position, get views for key and value
     operation = Operation::null;
     for (auto const& [op, symbol] : supportedOperations) {
-        if (size_t const pos = keyView.find(symbol); pos != std::string::npos) {
+        if (std::size_t const pos = keyView.find(symbol); pos != std::string::npos) {
             operation = op;
             valueView.remove_prefix(pos + symbol.size());
             keyView.remove_suffix(keyView.size() - pos);
@@ -156,7 +156,7 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double c
 }
 
 // TODO: Check if value stored is int, perhaps using a separate set_add and set_multiply that checks the current value
-void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, int64_t const val, Data::JsonScope& target) const {
+void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::int64_t const val, Data::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
     case Operation::set:

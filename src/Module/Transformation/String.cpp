@@ -52,7 +52,7 @@ bool String::capitalize(Data::JsonScope* jsonDoc){
     auto str = jsonDoc->get<std::string>(rootKey).value_or("");
     if (!str.empty()) {
         str[0] = static_cast<char>(std::toupper(static_cast<unsigned char>(str[0])));
-        for (size_t i = 1; i < str.size(); ++i) {
+        for (std::size_t i = 1; i < str.size(); ++i) {
             str[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(str[i])));
         }
     }
@@ -215,7 +215,7 @@ bool String::replace(std::span<std::string_view const> const& args, Data::JsonSc
 bool String::strCountAppearance(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     auto const substring = args.size() > 1 ? Utility::StringHandler::recombineArgs(args.subspan(1)) : " ";
     auto str = jsonDoc->get<std::string>(rootKey).value_or("");
-    size_t count = 0;
+    std::size_t count = 0;
     while (!substring.empty() && !str.empty()) {
         auto const pos = str.find(substring);
         if (pos == std::string::npos) {

@@ -20,8 +20,8 @@
 namespace Nebulite::Module::Domain::Environment {
 
 Constants::Event Debug::updateHook() {
-    size_t containerTotalTiles = 0;
-    size_t containerTotalCost = 0;
+    std::size_t containerTotalTiles = 0;
+    std::size_t containerTotalCost = 0;
     for (auto const& layer : domain.getAllLayers()) {
         // NOLINTNEXTLINE
         auto const& info = layer.getContainerInfo();
@@ -44,7 +44,7 @@ Constants::Event Debug::fetchContainer() const {
         auto const layerKey = Key::containerObjectCount.addMember("layer").addIndex(static_cast<size_t>(layer));
         auto const tileKey = layerKey.addMember("tile").addMember(tileName);
         auto const& batches = tile.getBatches();
-        auto const tileObjectCount = std::accumulate(batches.begin(), batches.end(), size_t{0}, [](size_t const acc, Data::Batch const& batch) {
+        auto const tileObjectCount = std::accumulate(batches.begin(), batches.end(), std::size_t{0}, [](std::size_t const acc, Data::Batch const& batch) {
             return acc + batch.objects.size();
         });
         moduleScope.set<size_t>(tileKey, tileObjectCount);

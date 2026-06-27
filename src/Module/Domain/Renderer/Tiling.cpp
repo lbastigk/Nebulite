@@ -76,19 +76,19 @@ namespace Nebulite::Module::Domain::Renderer {
                 SDL_RenderRect(renderer, &scaledRect);
 
                 // Render object count and cost
-                size_t tileCost = 0;
-                size_t objectCount = 0;
+                std::size_t tileCost = 0;
+                std::size_t objectCount = 0;
                 for (auto const& layer : Core::Environment::getAllLayerTypes()) {
                     auto const& tile = domain.getTile(layer, tilePosition);
                     tileCost += std::accumulate(
                         tile.getBatches().begin(), tile.getBatches().end(), std::size_t{0},
-                        [](size_t const acc, auto const& batch) {
+                        [](std::size_t const acc, auto const& batch) {
                             return acc + batch.estimatedCost;
                         }
                     );
                     objectCount += std::accumulate(
                         tile.getBatches().begin(), tile.getBatches().end(), std::size_t{0},
-                        [](size_t const acc, auto const& batch) {
+                        [](std::size_t const acc, auto const& batch) {
                             return acc + batch.objects.size();
                         }
                     );

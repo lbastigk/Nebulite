@@ -64,7 +64,7 @@ public:
      * @param doc_key The key to check.
      * @return The size of the key.
      */
-    size_t memberSize(std::string const& doc_key) const ;
+    std::size_t memberSize(std::string const& doc_key) const ;
 
     /**
      * @brief Serializes the entire document or a portion of the document

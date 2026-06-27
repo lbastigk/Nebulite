@@ -38,8 +38,8 @@ bool Collection::map(std::span<std::string_view const> const& args, Data::JsonSc
         return false; // still not an array, something went wrong
     }
 
-    size_t const arraySize = jsonDoc->memberSize(rootKey);
-    for (uint32_t idx = 0; idx < arraySize; ++idx) {
+    std::size_t const arraySize = jsonDoc->memberSize(rootKey);
+    for (std::uint32_t idx = 0; idx < arraySize; ++idx) {
         // Set temp document with current element
         auto const elementKey = rootKey.addIndex(idx);
 

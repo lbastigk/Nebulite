@@ -123,12 +123,12 @@ Constants::Event General::func_if(std::span<std::string_view const> const& args,
     }
 
     // See if any arg is "then", if so, only evaluate until then, and execute the rest as commands if the condition is true
-    auto commandStartFinder = [&]-> std::pair<size_t, size_t> {
+    auto commandStartFinder = [&]-> std::pair<size_t, std::size_t> {
         if (auto const it = std::ranges::find(args, std::string("then")); it != args.end()) {
             auto const commandStart = static_cast<size_t>(std::distance(args.begin(), it));
 
             // remove whitespaces
-            for (size_t conditionEnd = commandStart-1; conditionEnd > 0; conditionEnd--) {
+            for (std::size_t conditionEnd = commandStart-1; conditionEnd > 0; conditionEnd--) {
                 if (!args[conditionEnd].empty() && args[conditionEnd] != " ") {
                     return {conditionEnd, commandStart+1};
                 }
@@ -205,14 +205,14 @@ Constants::Event General::func_forProgress(std::span<std::string_view const> con
 
         std::string const argStr = Utility::StringHandler::recombineArgs(args.subspan(4));
 
-        size_t constexpr barWidth = 50;
+        std::size_t constexpr barWidth = 50;
         for (int i = iStart; i <= iEnd; i++) {
             // Provide progress bar only to cout for now
             double const progress = static_cast<double>(i - iStart) / static_cast<double>(iEnd - iStart + 1);
 
             std::cout << "[";
             auto const pos = static_cast<size_t>(barWidth * progress);
-            for (size_t barIdx = 0; barIdx < barWidth; ++barIdx) {
+            for (std::size_t barIdx = 0; barIdx < barWidth; ++barIdx) {
                 if (barIdx < pos) std::cout << "=";
                 else if (barIdx == pos) std::cout << ">";
                 else std::cout << " ";
@@ -227,7 +227,7 @@ Constants::Event General::func_forProgress(std::span<std::string_view const> con
             }
         }
         std::cout << "[";
-        for (size_t barIdx = 0; barIdx < barWidth; ++barIdx) {
+        for (std::size_t barIdx = 0; barIdx < barWidth; ++barIdx) {
             std::cout << "=";
         }
         std::cout << "] " << 100 << " %\r";

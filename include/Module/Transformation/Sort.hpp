@@ -79,7 +79,7 @@ private:
         }
         std::ranges::sort(values.begin(), values.end(), comparator);
         for (auto [idx, value] : values | std::views::enumerate) {
-            auto const key = rootKey.addIndex(static_cast<size_t>(idx));
+            auto const key = rootKey.addIndex(static_cast<std::size_t>(idx));
             jsonDoc->setSubDoc(key, value.second);
         }
     }

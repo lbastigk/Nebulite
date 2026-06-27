@@ -56,7 +56,7 @@ private:
      * @param index The index of the expression in the entry document.
      * @return The extracted expression as a Logic::Assignment object, or std::nullopt if extraction failed.
      */
-    static std::optional<Logic::Assignment> getAssignment(Data::JsonScope const& entry,size_t const& index);
+    static std::optional<Logic::Assignment> getAssignment(Data::JsonScope const& entry, std::size_t const& index);
 
     /**
      * @brief Extracts all expressions from a JSON entry document.

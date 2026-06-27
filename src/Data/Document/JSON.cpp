@@ -53,7 +53,7 @@ std::string_view JSON::findParentKey(std::string_view const& key) {
     if (key.empty()) {
         return key.substr(0, 0); // Return empty string view
     }
-    size_t const lastPos = key.find_last_of(".]");
+    std::size_t const lastPos = key.find_last_of(".]");
     if (lastPos == std::string_view::npos || lastPos == 0) {
         return key.substr(0, 0); // Return empty string view
     }
@@ -726,7 +726,7 @@ void JSON::set_add(std::string_view const& key, double const val) {
     }
 }
 
-void JSON::set_add(std::string_view const& key, int64_t const val) {
+void JSON::set_add(std::string_view const& key, std::int64_t const val) {
     std::scoped_lock const lockGuard(mtx);
     static_assert(Math::isZero(standardNumericValue),
         "This function relies on the standard numeric value being 0 for correct defaulting."
@@ -769,7 +769,7 @@ void JSON::set_multiply(std::string_view const& key, double const val) {
     }
 }
 
-void JSON::set_multiply(std::string_view const& key, int64_t const val) {
+void JSON::set_multiply(std::string_view const& key, std::int64_t const val) {
     std::scoped_lock const lockGuard(mtx);
     static_assert(Math::isZero(standardNumericValue),
         "This function relies on the standard numeric value being 0 for correct defaulting."

@@ -12,7 +12,7 @@
 //------------------------------------------
 namespace Nebulite::Interaction::Logic {
 
-std::string VariableNameGenerator::numberToString(uint16_t number) {
+std::string VariableNameGenerator::numberToString(std::uint16_t number) {
     std::string result;
     do {
         char const ch = static_cast<char>('a' + number % 26);

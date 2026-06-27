@@ -305,7 +305,7 @@ Expression::Formatter Expression::Formatter::readFormatter(std::string_view cons
         fmt.leadingZero = true;
     }
     if (formatter.size() > 1) {
-        size_t const dotPos = formatter.find('.');
+        std::size_t const dotPos = formatter.find('.');
         // Read alignment
         if (dotPos != 0) {
             fmt.alignment = std::stoi(std::string(formatter.substr(0, dotPos)));
@@ -337,9 +337,9 @@ std::string Expression::Formatter::format(double const value) const {
 
     // Precision formatting (after rounding)
     if (precision.has_value()) {
-        if (size_t const dotPos = token.find('.'); dotPos != std::string::npos) {
+        if (std::size_t const dotPos = token.find('.'); dotPos != std::string::npos) {
             assert(dotPos > 0);
-            if (size_t const currentPrecision = token.size() - dotPos - 1; currentPrecision < precision.value()) {
+            if (std::size_t const currentPrecision = token.size() - dotPos - 1; currentPrecision < precision.value()) {
                 // Add zeros to match the required precision
                 token.append(precision.value() - currentPrecision, '0');
             } else if (currentPrecision > precision.value()) {
@@ -356,7 +356,7 @@ std::string Expression::Formatter::format(double const value) const {
     // Adding padding
     if (alignment.has_value() && token.size() < alignment.value()) {
         std::string padding;
-        for (size_t i = 0; i < alignment.value() - token.size(); i++) {
+        for (std::size_t i = 0; i < alignment.value() - token.size(); i++) {
             if (leadingZero) {
                 padding += "0";
             } else {
@@ -384,7 +384,7 @@ void Expression::parseTokenTypeEval(std::string_view const& token) {
     // $4.2f(2/3)   "4.2f"          "(2/3)"
     auto const currentComponent = std::make_shared<Component>();
 
-    size_t const pos = token.find('(');
+    std::size_t const pos = token.find('(');
     auto const formatter = token.substr(1, pos - 1); // Remove leading $
     auto const expression = token.substr(pos);
     currentComponent->formatter = Formatter::readFormatter(formatter);
@@ -642,7 +642,7 @@ bool Expression::recalculateIsAlwaysTrue() const {
 //------------------------------------------
 // Actual expression evaluation
 
-std::string Expression::eval(ContextScope const& context, size_t const& recursionDepth) const {
+std::string Expression::eval(ContextScope const& context, std::size_t const& recursionDepth) const {
     //------------------------------------------
     // Update caches so that tinyexpr has the correct references
     updateCaches(context);
@@ -692,7 +692,7 @@ bool Expression::evalAsBool(ContextScope const& context) const {
     return !Math::isZero(result);
 }
 
-Data::JSON Expression::evalAsJson(ContextScope const& context, size_t const& recursionDepth) const {
+Data::JSON Expression::evalAsJson(ContextScope const& context, std::size_t const& recursionDepth) const {
     if (components.size() == 1 && components[0]->type != Component::Type::text) {
         if (components[0]->type == Component::Type::eval) {
             Data::JSON jsonResult;

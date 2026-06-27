@@ -47,7 +47,7 @@ using BaseListFunction = std::function<double**(Execution::Domain const&)>;
 class StaticRulesetMap {
 public:
     struct StaticRulesetWithMetadata {
-        enum class Type : uint8_t {
+        enum class Type : std::uint8_t {
             Local,
             Global,
             invalid

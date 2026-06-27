@@ -177,14 +177,14 @@ public:
     void set_add(ScopedKeyView const& key, double val);
     void set_add(ScopedKey const& key, double const val) {set_add(key.view(), val);}
 
-    void set_add(ScopedKeyView const& key, int64_t val);
-    void set_add(ScopedKey const& key, int64_t const val) {set_add(key.view(), val);}
+    void set_add(ScopedKeyView const& key, std::int64_t val);
+    void set_add(ScopedKey const& key, std::int64_t const val) {set_add(key.view(), val);}
 
     void set_multiply(ScopedKeyView const& key, double val);
     void set_multiply(ScopedKey const& key, double const val) {set_multiply(key.view(), val);}
 
-    void set_multiply(ScopedKeyView const& key, int64_t val);
-    void set_multiply(ScopedKey const& key, int64_t const val) {set_multiply(key.view(), val);}
+    void set_multiply(ScopedKeyView const& key, std::int64_t val);
+    void set_multiply(ScopedKey const& key, std::int64_t const val) {set_multiply(key.view(), val);}
 
     void set_concat(ScopedKeyView const& key, std::string const& valStr);
     void set_concat(ScopedKey const& key, std::string const& valStr) {set_concat(key.view(), valStr);}
@@ -197,14 +197,14 @@ public:
     //------------------------------------------
     // Extra fast ordered cache list retrieval with minimal locking
 
-    static size_t assignThreadIndex() {
+    static std::size_t assignThreadIndex() {
         static auto indexCounter = Utility::Coordination::IdGenerator::atomicIncrementIdGenerator();
-        thread_local size_t const threadIndex = indexCounter();
+        thread_local std::size_t const threadIndex = indexCounter();
         return threadIndex;
     }
 
     double** ensureOrderedCacheList(std::uint64_t const uniqueId, std::vector<ScopedKeyView> const& keys) {
-        thread_local size_t const threadIndex = assignThreadIndex();
+        thread_local std::size_t const threadIndex = assignThreadIndex();
         if (threadIndex >= noLockArraySize) {
             throw std::runtime_error("Thread index exceeds non-locking array size! Too many threads accessing ordered cache lists, increase noLockArraySize or reduce thread count.");
         }
@@ -220,8 +220,8 @@ public:
     [[nodiscard]] std::string memberTypeString(ScopedKeyView const& key) const ;
     [[nodiscard]] std::string memberTypeString(ScopedKey const& key) const {return memberTypeString(key.view());}
 
-    [[nodiscard]] size_t memberSize(ScopedKeyView const& key) const ;
-    [[nodiscard]] size_t memberSize(ScopedKey const& key) const {return memberSize(key.view());}
+    [[nodiscard]] std::size_t memberSize(ScopedKeyView const& key) const ;
+    [[nodiscard]] std::size_t memberSize(ScopedKey const& key) const {return memberSize(key.view());}
 
     void removeMember(ScopedKeyView const& key);
     void removeMember(ScopedKey const& key) {removeMember(key.view());}

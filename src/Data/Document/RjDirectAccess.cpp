@@ -58,7 +58,7 @@ rapidjson::Value* traverseIntoObject(std::string const& keyPart, rapidjson::Valu
 
 rapidjson::Value* traverseIntoArray(std::string_view& keyView, rapidjson::Value* current) {
     // Find closing character
-    size_t const closeBracket = keyView.find(RjDirectAccess::SpecialCharacter::arrayClose);
+    std::size_t const closeBracket = keyView.find(RjDirectAccess::SpecialCharacter::arrayClose);
     if (closeBracket == std::string_view::npos) {
         // Malformed key - missing closing character
         return nullptr;
@@ -136,7 +136,7 @@ rapidjson::Value* ensurePathIntoObject(std::string const& keyPart, rapidjson::Va
 
 rapidjson::Value* ensurePathIntoArray(std::string_view& keyView, rapidjson::Value* current, rapidjson::Document::AllocatorType& allocator) {
     // Find closing character
-    size_t const closeBracket = keyView.find(RjDirectAccess::SpecialCharacter::arrayClose);
+    std::size_t const closeBracket = keyView.find(RjDirectAccess::SpecialCharacter::arrayClose);
     if (closeBracket == std::string_view::npos) {
         // Malformed key - missing closing character
         return nullptr;
@@ -332,7 +332,7 @@ bool handleSingleLineComment(char const c, ParseState& state, std::string& resul
     return true; // Character was handled
 }
 
-bool handleMultiLineComment(char const c, char const next, ParseState& state, size_t& skipNext) {
+bool handleMultiLineComment(char const c, char const next, ParseState& state, std::size_t& skipNext) {
     if (c == '*' && next == '/') {
         state.inMultiComment = false;
         skipNext = 1; // Skip the '/'
@@ -352,7 +352,7 @@ bool handleStringContent(char const c, ParseState& state, std::string& result) {
     return true; // Character was handled
 }
 
-bool handleRegularContent(char const c, char const next, ParseState& state, std::string& result, size_t& skipNext) {
+bool handleRegularContent(char const c, char const next, ParseState& state, std::string& result, std::size_t& skipNext) {
     if (c == '"') {
         state.inString = true;
         result += c;
@@ -373,10 +373,10 @@ std::string RjDirectAccess::stripComments(std::string_view const& jsonc) {
     std::string result;
     result.reserve(jsonc.size());
     ParseState state;
-    for (size_t i = 0; i < jsonc.size(); ++i) {
+    for (std::size_t i = 0; i < jsonc.size(); ++i) {
         char const c = jsonc[i];
         char const next = i + 1 < jsonc.size() ? jsonc[i + 1] : '\0';
-        size_t skipNext = 0;
+        std::size_t skipNext = 0;
 
         if (state.inSingleComment) {
             handleSingleLineComment(c, state, result);
@@ -395,14 +395,14 @@ std::string RjDirectAccess::stripComments(std::string_view const& jsonc) {
 
 rapidjson::Value* RjDirectAccess::traverseToParent(std::string_view const& fullKey, rapidjson::Value& root, std::string& finalKey, int& arrayIndex) {
     std::string const keyStr(fullKey);
-    size_t const lastDot = keyStr.find_last_of(SpecialCharacter::dot);
-    size_t const lastBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
+    std::size_t const lastDot = keyStr.find_last_of(SpecialCharacter::dot);
+    std::size_t const lastBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
 
     rapidjson::Value* parent = nullptr;
     if (lastBracket != std::string::npos && (lastDot == std::string::npos || lastBracket > lastDot)) {
         // Last access is array index: var.subVar[2] or var[2]
-        size_t const openBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
-        if (size_t const closeBracket = keyStr.find_last_of(SpecialCharacter::arrayClose); openBracket != std::string::npos && closeBracket != std::string::npos && closeBracket > openBracket) {
+        std::size_t const openBracket = keyStr.find_last_of(SpecialCharacter::arrayOpen);
+        if (std::size_t const closeBracket = keyStr.find_last_of(SpecialCharacter::arrayClose); openBracket != std::string::npos && closeBracket != std::string::npos && closeBracket > openBracket) {
             std::string const parentPath = keyStr.substr(0, openBracket);
             std::string const indexStr = keyStr.substr(openBracket + 1, closeBracket - openBracket - 1);
 
@@ -493,7 +493,7 @@ bool RjDirectAccess::isValidKey(std::string_view const& key) {
         // Now handle zero or more array indices if they appear next
         while (!keyView.empty() && keyView[0] == SpecialCharacter::arrayOpen) {
             // Find closing character
-            size_t const closeBracket = keyView.find(SpecialCharacter::arrayClose);
+            std::size_t const closeBracket = keyView.find(SpecialCharacter::arrayClose);
             if (closeBracket == std::string_view::npos) {
                 return false; // Malformed key - missing closing character
             }
@@ -519,9 +519,9 @@ std::vector<std::string> RjDirectAccess::listAvailableKeys(rapidjson::Value cons
     std::vector<std::string> keys;
     if (val.IsArray()) {
         // Generate a list of array keys: [0], [1], ...
-        size_t const arrSize = val.Size();
+        std::size_t const arrSize = val.Size();
         keys.reserve(arrSize);
-        for (size_t i = 0; i < arrSize; ++i) {
+        for (std::size_t i = 0; i < arrSize; ++i) {
             keys.emplace_back("[" + std::to_string(i) + "]");
         }
         // Note: array keys are inherently ordered by index, no need to sort
@@ -548,10 +548,10 @@ std::vector<std::string> RjDirectAccess::listAvailableKeys(rapidjson::Value cons
 // Helper for key traversal: extracts next key part and advances the view
 std::string RjDirectAccess::extractKeyPart(std::string_view& keyView) {
     // Find dot or array opening char as next separators
-    size_t const dotPos = keyView.find(SpecialCharacter::dot);
-    size_t const bracketPos = keyView.find(SpecialCharacter::arrayOpen);
+    std::size_t const dotPos = keyView.find(SpecialCharacter::dot);
+    std::size_t const bracketPos = keyView.find(SpecialCharacter::arrayOpen);
 
-    size_t const nextSep = [&] {
+    std::size_t const nextSep = [&] {
         if (dotPos == std::string_view::npos && bracketPos == std::string_view::npos) {
             return keyView.size(); // No separator - last key
         }

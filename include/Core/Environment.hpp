@@ -54,7 +54,7 @@ public:
      *          Starting with the lowest layer (background) and ending with the highest layer (menu).
      *          *IMPORTANT:* New layers must be added to private variable `allLayers` in the correct order.
      */
-    enum class Layer : uint8_t {
+    enum class Layer : std::uint8_t {
         background = 0,
         general,
         foreground,
@@ -81,8 +81,8 @@ private:
     //------------------------------------------
     // Append index to domain id
 
-    absl::flat_hash_map<size_t, size_t> indexToIdMap;
-    size_t indexCounter = 1; // Start at 1 to avoid confusion with default value of 0
+    absl::flat_hash_map<std::size_t, std::size_t> indexToIdMap;
+    std::size_t indexCounter = 1; // Start at 1 to avoid confusion with default value of 0
 public:
 
     //------------------------------------------
@@ -149,7 +149,7 @@ public:
      * @param tilingInformation Width and height of each tile
      * @param layer Layer index to append the object to (default is 0).
      */
-    void append(RenderObject* toAppend, Data::TilingInformation const& tilingInformation, uint8_t layer = 0);
+    void append(RenderObject* toAppend, Data::TilingInformation const& tilingInformation, std::uint8_t layer = 0);
 
     /**
      * @brief Updates the environment's state.
@@ -171,7 +171,7 @@ public:
      * @param domainId The ID of the RenderObject to retrieve.
      * @return A pointer to the RenderObject if found, nullptr otherwise.
      */
-    RenderObject* getObjectFromId(size_t const& domainId);
+    RenderObject* getObjectFromId(std::size_t const& domainId);
 
     //------------------------------------------
     // Get object
@@ -181,14 +181,14 @@ public:
      * @param index The index of the RenderObject
      * @return An optional containing the ID of the RenderObject if found, or std::nullopt if no object is associated with the given index.
      */
-    [[nodiscard]] std::optional<size_t> getIdFromIndex(size_t const& index) const ;
+    [[nodiscard]] std::optional<std::size_t> getIdFromIndex(std::size_t const& index) const ;
 
     /**
      * @brief Gets the RenderObject index from its ID.
      * @param domainId The domain ID of the RenderObject to search for.
      * @return An optional containing the index of the RenderObject if found, or std::nullopt if no object is associated with the given ID.
      */
-    [[nodiscard]] std::optional<size_t> getIndexFromId(size_t const& domainId) const ;
+    [[nodiscard]] std::optional<std::size_t> getIndexFromId(std::size_t const& domainId) const ;
 
     /**
      * @brief Gets the RenderObject from its ID.
@@ -196,7 +196,7 @@ public:
      *        Does not change when objects are removed or purged.
      * @return A pointer to the RenderObject, or nullptr if not found.
      */
-    std::optional<std::pair<RenderObject*, Data::JsonScope*>> getObjectFromIndex(size_t const& searchIndex) ;
+    std::optional<std::pair<RenderObject*, Data::JsonScope*>> getObjectFromIndex(std::size_t const& searchIndex) ;
 
     //------------------------------------------
     // Container Management
@@ -226,7 +226,7 @@ public:
      * @brief Retrieves the total number of render objects in the environment.
      * @return The total number of render objects in the environment.
      */
-    [[nodiscard]] size_t getObjectCount() const;
+    [[nodiscard]] std::size_t getObjectCount() const;
 
     /**
      * @brief Iterate over all layers, providing access to the tile position, layer, and batches of render objects in each container.

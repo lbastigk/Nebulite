@@ -132,7 +132,7 @@ void TaskQueue::pushFront(std::string const& task) {
     tasks.list.push_front(task);
 }
 
-void TaskQueue::wait(uint64_t const frames) {
+void TaskQueue::wait(std::uint64_t const frames) {
     state.waitCounter += frames;
 }
 
@@ -141,11 +141,11 @@ void TaskQueue::clear() {
     state.waitCounter = 0;
 }
 
-void TaskQueue::incrementWaitCounter(uint64_t const increment) {
+void TaskQueue::incrementWaitCounter(std::uint64_t const increment) {
     state.waitCounter += increment;
 }
 
-void TaskQueue::decrementWaitCounter(uint64_t const decrement) {
+void TaskQueue::decrementWaitCounter(std::uint64_t const decrement) {
     if (state.waitCounter >= decrement) {
         state.waitCounter -= decrement;
     } else {

@@ -18,9 +18,9 @@ namespace Nebulite::Constants {
  * @brief Threading settings for Nebulite's Ruleset processing
  */
 class ThreadSettings {
-    static size_t getThreadCount() {
-        size_t const threadCount = std::min(
-            std::max(static_cast<size_t>(std::thread::hardware_concurrency()), static_cast<size_t>(1)),
+    static std::size_t getThreadCount() {
+        std::size_t const threadCount = std::min(
+            std::max(static_cast<std::size_t>(std::thread::hardware_concurrency()), static_cast<std::size_t>(1)),
             Maximum::totalThreadCount
         );
         return threadCount;
@@ -34,30 +34,30 @@ class ThreadSettings {
     static_assert(Spreading::invokeWorker + Spreading::rendererWorker < 1.0, "Thread spreading percentages must sum to less than 1.0 to not take up all available threads.");
 
 public:
-    static size_t getInvokeWorkerCount() {
+    static std::size_t getInvokeWorkerCount() {
         return std::max(
-            static_cast<size_t>(1),
-            static_cast<size_t>(std::floor(static_cast<double>(getThreadCount()) * Spreading::invokeWorker))
+            static_cast<std::size_t>(1),
+            static_cast<std::size_t>(std::floor(static_cast<double>(getThreadCount()) * Spreading::invokeWorker))
         );
     }
 
-    static size_t getRendererWorkerCount() {
+    static std::size_t getRendererWorkerCount() {
         return std::max(
-            static_cast<size_t>(1),
-            static_cast<size_t>(std::floor(static_cast<double>(getThreadCount()) * Spreading::rendererWorker))
+            static_cast<std::size_t>(1),
+            static_cast<std::size_t>(std::floor(static_cast<double>(getThreadCount()) * Spreading::rendererWorker))
         );
     }
 
     // Maximum values, for array initialization
     struct Maximum {
         // Absolute maximum thread count that gets considered for spreading, to prevent overflow in extreme cases
-        static size_t constexpr totalThreadCount = 32;
+        static std::size_t constexpr totalThreadCount = 32;
 
         // Maximum invoke worker count
-        static size_t constexpr invokeWorkerCount = static_cast<size_t>(static_cast<double>(totalThreadCount) * Spreading::invokeWorker);
+        static std::size_t constexpr invokeWorkerCount = static_cast<std::size_t>(static_cast<double>(totalThreadCount) * Spreading::invokeWorker);
 
         // Maximum renderer worker count
-        static size_t constexpr rendererWorkerCount = static_cast<size_t>(static_cast<double>(totalThreadCount) * Spreading::rendererWorker);
+        static std::size_t constexpr rendererWorkerCount = static_cast<std::size_t>(static_cast<double>(totalThreadCount) * Spreading::rendererWorker);
     };
 };
 } // namespace Nebulite::Constants

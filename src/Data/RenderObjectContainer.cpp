@@ -62,7 +62,7 @@ void RenderObjectContainer::deserialize(std::string const& serialOrLink, TilingI
     auto const objectsArrayKey = doc.getRootScope().addMember("objects");
     doc.deserialize(serialOrLink);
     if (doc.memberType(objectsArrayKey) == KeyType::array) {
-        for (size_t i = 0; i < doc.memberSize(objectsArrayKey); i++) {
+        for (std::size_t i = 0; i < doc.memberSize(objectsArrayKey); i++) {
             auto objectKey = objectsArrayKey.addIndex(i);
 
             // Check if serial or not:
@@ -122,7 +122,7 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& viewport, 
     //------------------------------------------
     // Update only tiles that might be visible
 
-    size_t workerIdx = 0;
+    std::size_t workerIdx = 0;
     for (auto tilePosition : viewport) {
         // Check if container has tile at position, if not, skip
         auto const it = ObjectContainer.find(tilePosition);
@@ -157,7 +157,7 @@ void RenderObjectContainer::update(std::vector<TileCoordinate> const& viewport, 
     reinsertionProcess.queue.clear();
 }
 
-Core::RenderObject* RenderObjectContainer::getObjectFromId(size_t const& domainId) {
+Core::RenderObject* RenderObjectContainer::getObjectFromId(std::size_t const& domainId) {
     // Go through all batches
     for (auto& tile : std::views::values(ObjectContainer)) {
         for (auto const& objects : tile.getBatchedObjects()) {
@@ -205,7 +205,7 @@ void RenderObjectContainer::purgeObjects() {
 
 size_t RenderObjectContainer::getObjectCount() const {
     // Calculate the total item count
-    size_t totalCount = 0;
+    std::size_t totalCount = 0;
     for (auto const it = ObjectContainer.begin(); it != ObjectContainer.end();) {
         totalCount += it->second.getBatches().size();
     }

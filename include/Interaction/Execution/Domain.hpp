@@ -202,7 +202,7 @@ class Domain : public DocumentAccessor {
          * @brief Generates the unique id of this domain
          * @return The id generated
          */
-        static size_t idGenerator();
+        static std::size_t idGenerator();
 
         /**
          * @brief Generates a hashed version of the domain id.
@@ -212,17 +212,17 @@ class Domain : public DocumentAccessor {
          * @param x The id input
          * @return The hashed id
          */
-        static size_t splitMix64(size_t x);
+        static std::size_t splitMix64(std::size_t x);
 
         void init();
 
         bool initialized = false;
 
         // Unique ID for the domain, used for ordered cache lists and other purposes
-        size_t id = 0;
+        std::size_t id = 0;
 
         // Hashed ID for better distribution
-        size_t idHashed = 0;
+        std::size_t idHashed = 0;
 
     public:
         /**
@@ -300,11 +300,11 @@ public:
         }
     }
 
-    [[nodiscard]] size_t const& getId() const {
+    [[nodiscard]] std::size_t const& getId() const {
         return identifier.getId();
     }
 
-    [[nodiscard]] size_t const& getIdHashed() const {
+    [[nodiscard]] std::size_t const& getIdHashed() const {
         return identifier.getIdHashed();
     }
 

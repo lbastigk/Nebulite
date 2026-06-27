@@ -54,7 +54,7 @@ public:
      *        Does not include successful results
      * @note Since Events just hold the type (Warning, Error), returning a vector of results might be unnecessary.
      *       Although it's sort of useful, as we can count the amount of events and inform: "Task encountered X warnings and Y errors"
-     *       Later on we might change that to 2 size_t that count the amount of warnings and errors, instead of returning a vector of events.
+     *       Later on we might change that to 2 std::size_t that count the amount of warnings and errors, instead of returning a vector of events.
      */
     struct TaskQueueResult {
         bool encounteredCriticalResult = false; // Indicates if a critical error was encountered during task resolution

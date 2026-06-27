@@ -127,7 +127,7 @@ Constants::Event Domain::parseStr(std::string_view const str, Context& ctx, Cont
     return funcTree->parseStr(str, ctx, ctxScope);
 }
 
-double** Domain::ensureOrderedCacheList(uint64_t const uniqueId, std::vector<Data::ScopedKeyView> const& keys) const {
+double** Domain::ensureOrderedCacheList(std::uint64_t const uniqueId, std::vector<Data::ScopedKeyView> const& keys) const {
     return domainScope.ensureOrderedCacheList(uniqueId, keys);
 }
 
@@ -264,7 +264,7 @@ std::size_t Domain::Identifier::idGenerator() {
     return id;
 }
 
-std::size_t Domain::Identifier::splitMix64(size_t x) {
+std::size_t Domain::Identifier::splitMix64(std::size_t x) {
     x += 0x9e3779b97f4a7c15;
     x = (x ^ x >> 30) * 0xbf58476d1ce4e5b9;
     x = (x ^ x >> 27) * 0x94d049bb133111eb;

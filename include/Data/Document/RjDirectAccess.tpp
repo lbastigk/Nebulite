@@ -66,7 +66,7 @@ template <> inline void RjDirectAccess::ConvertToJSONValue<double>(double const 
     jsonValue.SetDouble(data);
 }
 
-template <> inline void RjDirectAccess::ConvertToJSONValue<int64_t>(int64_t const data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& /*allocator*/) {
+template <> inline void RjDirectAccess::ConvertToJSONValue<std::int64_t>(std::int64_t const data, rapidjson::Value& jsonValue, rapidjson::Document::AllocatorType& /*allocator*/) {
     jsonValue.SetInt64(data);
 }
 
@@ -161,7 +161,7 @@ template <> inline void RjDirectAccess::ConvertFromJSONValue(rapidjson::Value co
     } else if (jsonValue.IsUint()) {
         result = static_cast<std::uint64_t>(jsonValue.GetUint());
     } else if (jsonValue.IsNumber()) {
-        if (int64_t const tmp = jsonValue.GetInt64(); tmp >= 0) {
+        if (std::int64_t const tmp = jsonValue.GetInt64(); tmp >= 0) {
             result = static_cast<std::uint64_t>(tmp);
         } else {
             result = defaultValue;

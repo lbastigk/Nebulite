@@ -57,7 +57,7 @@ namespace Nebulite::Graphics {
 // RmlInterface::RmlElementIdentifier
 
 size_t& RmlInterface::RmlElementIdentifier::count() {
-    static size_t rollingIdentifier = 0;
+    static std::size_t rollingIdentifier = 0;
     return rollingIdentifier;
 }
 
@@ -187,7 +187,7 @@ Rml::Input::KeyIdentifier SDLKeyToRmlKey(SDL_Keycode const& keycode) {
     }
 }
 
-int SdlModifierToRmlModifier(uint32_t const modifier) {
+int SdlModifierToRmlModifier(std::uint32_t const modifier) {
     int result = 0;
 
     if (modifier & SDL_KMOD_ALT)
@@ -347,7 +347,7 @@ bool RmlInterface::isTextInputFocused() const {
 
 void RmlInterface::updateElement(Rml::Element* element, std::function<void(Rml::Element*, Rml::Element*)> const& updateFunc) {
     auto const numChildren = static_cast<size_t>(element->GetNumChildren());
-    for (size_t i = 0; i < numChildren; ++i) {
+    for (std::size_t i = 0; i < numChildren; ++i) {
         if (auto* const child = element->GetChild(static_cast<int>(i)); child) {
             updateFunc(child, element);
             updateElement(child, updateFunc);
@@ -392,7 +392,7 @@ bool RmlInterface::loadDocument(std::string_view const& name, std::string_view c
     return true;
 }
 
-bool RmlInterface::removeDocument(size_t const& id, std::string_view const& name) {
+bool RmlInterface::removeDocument(std::size_t const& id, std::string_view const& name) {
     auto const it = std::ranges::find(ownerToDocument[id], name, [](auto const& pair) { return pair.first; });
     if (it == ownerToDocument[id].end()) {
         return false; // No document with this name for this owner
@@ -421,7 +421,7 @@ bool RmlInterface::removeDocument(Rml::ElementDocument* doc) {
     return foundInOwnerMap && foundInContextMap;
 }
 
-void RmlInterface::removeReferencesToId(size_t const& domainId){
+void RmlInterface::removeReferencesToId(std::size_t const& domainId){
     // This function might be called after the interface is already deleted... So we keep track of the singleton
     // NOLINTBEGIN
     if (!statusTracker.rmlInterfaceInitialized) return;

@@ -47,8 +47,8 @@ Constants::Event SelectedObject::selectedObjectGet(int const argc, char const** 
         return Constants::StandardCapture::Warning::Functional::tooManyArgs(domain.capture);
     }
 
-    // Supports only uint32_t ids
-    size_t const idx = std::stoul(argv[1]);
+    // Supports only std::uint32_t ids
+    std::size_t const idx = std::stoul(argv[1]);
     if (auto objAndScope = domain.getObjectFromIndex(idx); objAndScope.has_value()) {
         auto [obj, scope] = objAndScope.value();
         selectedRenderObject = obj;

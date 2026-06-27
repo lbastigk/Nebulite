@@ -160,7 +160,7 @@ public:
      */
     Data::JsonScope const& settingsScope;
 
-    enum class RoutineUpdateMode : uint8_t {
+    enum class RoutineUpdateMode : std::uint8_t {
         BEFORE_UPDATE_HOOK, // Update routines before calling the update hook
         AFTER_UPDATE_HOOK   // Update routines after calling the update hook
     };

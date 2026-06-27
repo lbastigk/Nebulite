@@ -103,7 +103,7 @@ private:
      * @brief Enumeration of keys corresponding to physics-related base values.
      *        Used for indexing into the ordered cache list.
      */
-    enum class Key : uint8_t {
+    enum class Key : std::uint8_t {
         // Base values for size
         posX,
         posY,

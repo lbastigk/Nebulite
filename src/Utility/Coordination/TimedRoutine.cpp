@@ -11,7 +11,7 @@
 //------------------------------------------
 namespace Nebulite::Utility::Coordination {
 
-TimedRoutine::TimedRoutine(std::function<void()> const& routine, uint64_t const intervalMillis, ConstructionMode const mode)
+TimedRoutine::TimedRoutine(std::function<void()> const& routine, std::uint64_t const intervalMillis, ConstructionMode const mode)
         : foo(routine), interval(intervalMillis) {
     if (mode == ConstructionMode::START_IMMEDIATELY) {
         timer.start();

@@ -25,7 +25,7 @@ Constants::Event Audio::beep(std::span<std::string_view const> const& args) cons
         SDL_PutAudioStreamData(
             stream,
             basicAudioWaveforms.sineBuffer.data(),
-            static_cast<int>(basicAudioWaveforms.sineBuffer.size() * sizeof(int16_t))
+            static_cast<int>(basicAudioWaveforms.sineBuffer.size() * sizeof(std::int16_t))
         );
         return Constants::Event::Success;
     }
@@ -35,19 +35,19 @@ Constants::Event Audio::beep(std::span<std::string_view const> const& args) cons
             SDL_PutAudioStreamData(
                 stream,
                 basicAudioWaveforms.sineBuffer.data(),
-                static_cast<int>(basicAudioWaveforms.sineBuffer.size() * sizeof(int16_t))
+                static_cast<int>(basicAudioWaveforms.sineBuffer.size() * sizeof(std::int16_t))
             );
         } else if (arg == "triangle") {
             SDL_PutAudioStreamData(
                 stream,
                 basicAudioWaveforms.triangleBuffer.data(),
-                static_cast<int>(basicAudioWaveforms.triangleBuffer.size() * sizeof(int16_t))
+                static_cast<int>(basicAudioWaveforms.triangleBuffer.size() * sizeof(std::int16_t))
             );
         } else if (arg == "square") {
             SDL_PutAudioStreamData(
                 stream,
                 basicAudioWaveforms.squareBuffer.data(),
-                static_cast<int>(basicAudioWaveforms.squareBuffer.size() * sizeof(int16_t))
+                static_cast<int>(basicAudioWaveforms.squareBuffer.size() * sizeof(std::int16_t))
             );
         } else {
             domain.capture.warning.println("Unknown waveform type: ", arg);
@@ -238,7 +238,7 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
 
     // Push sound data into cache
     Sound sound;
-    size_t lengthPerSample = 0;
+    auto lengthPerSample = 0;
     std::function<Settings::SampleType(Uint8* data)> convertFunc = nullptr;
     switch (wavSpec.format) {
         case SDL_AUDIO_F32:
@@ -250,18 +250,18 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
             };
             break;
         case SDL_AUDIO_S16:
-            lengthPerSample = sizeof(int16_t);
+            lengthPerSample = sizeof(std::int16_t);
             convertFunc = [](Uint8 const* byteData) {
                 std::array<int16_t,4> buffer{};
-                std::memcpy(buffer.data(), byteData, sizeof(int16_t));
+                std::memcpy(buffer.data(), byteData, sizeof(std::int16_t));
                 return static_cast<Settings::SampleType>(*buffer.data()) / static_cast<Settings::SampleType>(std::numeric_limits<int16_t>::max());
             };
             break;
         case SDL_AUDIO_U8:
-            lengthPerSample = sizeof(uint8_t);
+            lengthPerSample = sizeof(std::uint8_t);
             convertFunc = [](Uint8 const* byteData) {
                 std::array<uint8_t,4> buffer{};
-                std::memcpy(buffer.data(), byteData, sizeof(uint8_t));
+                std::memcpy(buffer.data(), byteData, sizeof(std::uint8_t));
                 Settings::SampleType const valueShifted = static_cast<Settings::SampleType>(*buffer.data()) - static_cast<Settings::SampleType>(128);
                 return valueShifted / (static_cast<Settings::SampleType>(std::numeric_limits<uint8_t>::max()) / static_cast<Settings::SampleType>(2));
             };
@@ -279,9 +279,9 @@ std::optional<decltype(Audio::soundCache.find(""))> Audio::loadSound(std::string
             std::unreachable();
     }
 
-    size_t const sampleCount = length / lengthPerSample;
+    auto const sampleCount = length / lengthPerSample;
     sound.audioData.reserve(sampleCount);
-    for (size_t i = 0; i < sampleCount; ++i) {
+    for (std::size_t i = 0; i < sampleCount; ++i) {
         sound.audioData.push_back(convertFunc(data + i * lengthPerSample));
     }
 

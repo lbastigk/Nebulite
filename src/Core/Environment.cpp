@@ -88,7 +88,7 @@ void Environment::deserialize(std::string const& serialOrLink, Data::TilingInfor
 //------------------------------------------
 // Object Management
 
-void Environment::append(RenderObject* toAppend, Data::TilingInformation const& tilingInformation, uint8_t  const layer) {
+void Environment::append(RenderObject* toAppend, Data::TilingInformation const& tilingInformation, std::uint8_t  const layer) {
     // Add domain id to map
     indexToIdMap[indexCounter] = toAppend->getId();
     indexCounter++;
@@ -116,7 +116,7 @@ void Environment::reinsertAllObjects(Data::TilingInformation const& tilingInform
     }
 }
 
-RenderObject* Environment::getObjectFromId(size_t const& domainId) {
+RenderObject* Environment::getObjectFromId(std::size_t const& domainId) {
     // Go through all layers
     for (unsigned int i = 0; i < allLayers.size(); ++i) {
         if (auto* const obj = roc[i].getObjectFromId(domainId); obj != nullptr) {
@@ -129,14 +129,14 @@ RenderObject* Environment::getObjectFromId(size_t const& domainId) {
 //------------------------------------------
 // Get object
 
-std::optional<size_t> Environment::getIdFromIndex(size_t const& index) const {
+std::optional<size_t> Environment::getIdFromIndex(std::size_t const& index) const {
     if (!indexToIdMap.contains(index)) {
         return std::nullopt; // No object with this index
     }
     return indexToIdMap.at(index);
 }
 
-std::optional<size_t> Environment::getIndexFromId(size_t const& domainId) const {
+std::optional<size_t> Environment::getIndexFromId(std::size_t const& domainId) const {
     for (const auto& [objIndex, objId] : indexToIdMap) {
         if (objId == domainId) {
             return objIndex; // Return the index associated with the given ID
@@ -145,7 +145,7 @@ std::optional<size_t> Environment::getIndexFromId(size_t const& domainId) const 
     return std::nullopt; // No index found for the given ID
 }
 
-std::optional<std::pair<RenderObject*, Data::JsonScope*>> Environment::getObjectFromIndex(size_t const& searchIndex) {
+std::optional<std::pair<RenderObject*, Data::JsonScope*>> Environment::getObjectFromIndex(std::size_t const& searchIndex) {
     if (!indexToIdMap.contains(searchIndex)) {
         return std::nullopt; // No object with this index
     }
@@ -178,7 +178,7 @@ void Environment::purgeObjects() {
 size_t Environment::getObjectCount() const {
     return std::accumulate(
         roc.begin(), roc.end(), 0u,
-        [](size_t const acc, Data::RenderObjectContainer const& container) {
+        [](std::size_t const acc, Data::RenderObjectContainer const& container) {
             return acc + container.getObjectCount();
         }
     );

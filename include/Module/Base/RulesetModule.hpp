@@ -101,10 +101,10 @@ protected:
      */
     template<typename KeyEnum>
     static double& baseVal(double** v, KeyEnum k) noexcept {
-        static_assert(std::is_same_v<std::underlying_type_t<KeyEnum>, uint8_t>, "baseVal: keyEnum must be an enumeration with underlying type uint8_t");
+        static_assert(std::is_same_v<std::underlying_type_t<KeyEnum>, std::uint8_t>, "baseVal: keyEnum must be an enumeration with underlying type std::uint8_t");
         assert(v != nullptr);
         // NOLINTNEXTLINE
-        return *v[static_cast<uint8_t>(k)];
+        return *v[static_cast<std::uint8_t>(k)];
     }
 
     /**

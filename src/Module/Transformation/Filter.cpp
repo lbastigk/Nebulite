@@ -158,7 +158,7 @@ bool Filter::filterNulls(Data::JsonScope* jsonDoc) {
 
     // For arrays and objects, we need to iterate through members
     auto const rootType = jsonDoc->memberType(rootKey);
-    size_t arrayIndex = 0;
+    std::size_t arrayIndex = 0;
     auto const memberKeyPairs = jsonDoc->listAvailableMembersAndKeys(rootKey);
     Data::JSON filteredObject;
     for (const auto& [member, key] : memberKeyPairs) {

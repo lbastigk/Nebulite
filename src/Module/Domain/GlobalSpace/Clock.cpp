@@ -38,9 +38,9 @@ void Clock::readClocksFromDocument() {
         return;
     }
 
-    uint64_t const size = moduleScope.memberSize(Key::arr_active_clocks);
+    std::uint64_t const size = moduleScope.memberSize(Key::arr_active_clocks);
 
-    for (uint64_t i = 0; i < size; i++) {
+    for (std::uint64_t i = 0; i < size; i++) {
         auto key = Key::arr_active_clocks.addIndex(i);
         if (auto const interval_type = moduleScope.memberType(key); interval_type != Data::KeyType::value) {
             // Invalid entry, skip
@@ -70,7 +70,7 @@ Constants::Event Clock::addClock(int const argc, char const** argv) {
     }
 
     // Parse interval
-    uint64_t interval_ms = 0;
+    std::uint64_t interval_ms = 0;
     try {
         interval_ms = std::stoull(argv[1]);
     } catch (...) {
@@ -102,7 +102,7 @@ Constants::Event Clock::addClock(int const argc, char const** argv) {
 //------------------------------------------
 // ClockEntry
 
-Clock::ClockEntry::ClockEntry(uint64_t const interval, Data::JsonScope& doc, uint64_t const current_time) :
+Clock::ClockEntry::ClockEntry(std::uint64_t const interval, Data::JsonScope& doc, std::uint64_t const current_time) :
     last_trigger_ms(current_time),
     interval_ms(interval) {
     // Extract reference to global document entry
@@ -111,14 +111,14 @@ Clock::ClockEntry::ClockEntry(uint64_t const interval, Data::JsonScope& doc, uin
     this->globalReference = doc.getStableDoublePointer(key);
 }
 
-void Clock::ClockEntry::update(uint64_t const current_time) {
+void Clock::ClockEntry::update(std::uint64_t const current_time) {
     // Check projected dt of timer
     if (current_time - last_trigger_ms >= interval_ms) {
         // Instead of setting last_trigger_ms to current_time,
         // we set it forward by as much interval_ms as possible to avoid drift
         // in case of delays
-        uint64_t const dt = current_time - last_trigger_ms;
-        uint64_t const intervals_passed = dt / interval_ms;
+        std::uint64_t const dt = current_time - last_trigger_ms;
+        std::uint64_t const intervals_passed = dt / interval_ms;
         last_trigger_ms += intervals_passed * interval_ms;
         *globalReference = 1.0;
     } else {

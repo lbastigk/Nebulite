@@ -65,8 +65,8 @@ void addFileCompletions(std::string_view const& input, std::vector<std::string>&
 
     // Separate inner from outer directory and get the actual input we need to complete
     std::string const& pattern = args.back();  // Get last argument, which is the one we want to complete
-    size_t const startIndex = pattern.starts_with("./") ? 2 : 0; // If pattern starts with "./", we want to ignore that for file searching
-    size_t const endIndex = find_pos_or_fallback(pattern.substr(startIndex)) + startIndex;
+    std::size_t const startIndex = pattern.starts_with("./") ? 2 : 0; // If pattern starts with "./", we want to ignore that for file searching
+    std::size_t const endIndex = find_pos_or_fallback(pattern.substr(startIndex)) + startIndex;
     auto const inputToComplete = pattern.substr(endIndex != startIndex ? endIndex + 1 : startIndex);
     auto const innerDir = std::string(pattern.substr(startIndex, endIndex - startIndex)) + Nebulite::Utility::IO::FileManagement::preferredSeparator();
     auto const directory = Nebulite::Utility::IO::FileManagement::CombinePaths(".", innerDir == "/" ? "" : innerDir);
@@ -101,7 +101,7 @@ void addJsonCompletions(std::string_view const& input, std::vector<std::string>&
 struct ConsoleState {
     std::string command;
     std::string draftCommand;
-    size_t historyIndex = 0;
+    std::size_t historyIndex = 0;
     Nebulite::Utility::IO::Capture* capture = nullptr;
     Nebulite::Interaction::Context* ctx = nullptr;
     Nebulite::Interaction::ContextScope* ctxScope = nullptr;
@@ -133,7 +133,7 @@ bool checkCompletionsForCommonPrefix(std::string_view const& input, std::vector<
 void historyScrollingCallback(ImGuiInputTextCallbackData* data, ConsoleState* state) {
     auto const historySize = state->capture->getHistory().size();
     if (data->EventKey == ImGuiKey_UpArrow) {
-        size_t newIndex = state->historyIndex;
+        std::size_t newIndex = state->historyIndex;
         if (state->historyIndex == 0) {
             state->draftCommand = state->command; // Save current command as draft if we are at the start of history
         }
@@ -153,7 +153,7 @@ void historyScrollingCallback(ImGuiInputTextCallbackData* data, ConsoleState* st
         if (state->historyIndex == 0) {
             return; // Already at the end of history, nothing to do
         }
-        size_t newIndex = state->historyIndex - 1;
+        std::size_t newIndex = state->historyIndex - 1;
         while (newIndex > 0) {
             if (state->capture->getHistory().at(historySize - newIndex).type == Nebulite::Utility::IO::HistoryLine::Type::Input) {
                 state->historyIndex = newIndex;

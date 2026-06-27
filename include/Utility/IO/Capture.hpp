@@ -31,7 +31,7 @@ namespace Nebulite::Utility::IO {
  */
 struct HistoryLine{
     std::string content;
-    enum class Type : uint8_t {
+    enum class Type : std::uint8_t {
         Input,
         Info,
         Warning,

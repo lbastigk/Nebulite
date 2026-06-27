@@ -43,16 +43,16 @@ public:
      * @tparam N The number of elements to pair. Must be of the form 4*n^k for some n >= 1 and k >= 0 to ensure proper pairing and round generation.
      * @return A 2D array representing the pairing table, where each row contains pairs of indices representing the paired elements for that round.
      */
-    template <size_t N>
+    template <std::size_t N>
     static consteval auto pairingTable() {
         static_assert(N%4 == 0 && N >=4 && CompileTimeEvaluate::isPowerOfTwo(N/4), "N must be of type 4*n^k for some n >= 1 and k >= 0 to ensure proper pairing and round generation.");
 
         static auto constexpr roundCount = 2*N;
         static auto constexpr pairsPerRound = N/2;
 
-        std::array<std::array<std::pair<size_t, size_t>, pairsPerRound>, roundCount> rounds{};
-        std::array<size_t, roundCount> roundsAssigned{}; // Track how many pairs have been assigned to each round
-        static std::array<std::array<size_t, 4>, 4> constexpr baseMask = {
+        std::array<std::array<std::pair<std::size_t, std::size_t>, pairsPerRound>, roundCount> rounds{};
+        std::array<std::size_t, roundCount> roundsAssigned{}; // Track how many pairs have been assigned to each round
+        static std::array<std::array<std::size_t, 4>, 4> constexpr baseMask = {
             {
                 {1, 2, 5, 6},
                 {4, 3, 8, 7},
@@ -61,8 +61,8 @@ public:
             }
         };
 
-        for (size_t row = 0; row < N ; row++) {
-            for (size_t col = 0; col < N; col++) {
+        for (std::size_t row = 0; row < N ; row++) {
+            for (std::size_t col = 0; col < N; col++) {
                 // For each pair (row, col), determine which round it belongs to using the base mask and the row/col indices
                 auto const localRound = baseMask.at(row % 4).at(col % 4) - 1; // Get the local round index from the base mask
                 auto const rowGroup = row / 4; // Determine the group of the row (0 to N/4 - 1)
@@ -74,15 +74,15 @@ public:
         }
 
         // Additional checks, just to be sure the generated table is correct.
-        for (size_t r = 0; r < roundCount; ++r) {
+        for (std::size_t r = 0; r < roundCount; ++r) {
             // Each round must have exactly pairsPerRound pairs
             if (roundsAssigned[r] != pairsPerRound) {
                 throw std::runtime_error("Invalid pairing: round does not contain the expected number of pairs!");
             }
         }
-        for (size_t r = 0; r < roundCount; ++r) {
-            for (size_t i = 0; i < pairsPerRound; ++i) {
-                for (size_t j = i + 1; j < pairsPerRound; ++j) {
+        for (std::size_t r = 0; r < roundCount; ++r) {
+            for (std::size_t i = 0; i < pairsPerRound; ++i) {
+                for (std::size_t j = i + 1; j < pairsPerRound; ++j) {
                     if (rounds[r][i] == rounds[r][j]) {
                         throw std::runtime_error("Duplicate pair detected in a round!");
                     }

@@ -117,11 +117,11 @@ public:
     class RmlElementIdentifier {
         static auto constexpr identifierAttribute = "element-identifier";
 
-        size_t id; // This elements id
+        std::size_t id; // This elements id
 
-        static size_t& count(); // Get the current id count as reference
+        static std::size_t& count(); // Get the current id count as reference
 
-        static size_t idRoll();
+        static std::size_t idRoll();
 
         /**
          * @brief Construct an identifier with a known id.
@@ -129,14 +129,14 @@ public:
          *          e.g. for the reflection module to assign a list of owned, pre-allocated, identifiers to newly generated elements
          * @param knownId The id to use
          */
-        explicit RmlElementIdentifier(size_t const& knownId) : id(knownId) {}
+        explicit RmlElementIdentifier(std::size_t const& knownId) : id(knownId) {}
 
     public:
         /**
          * @brief Get the current count of assigned identifiers.
          * @return The count of assigned identifiers.
          */
-        static size_t getCount();
+        static std::size_t getCount();
 
         /**
          * @brief Forces an Element to have a certain identifier id
@@ -206,13 +206,13 @@ public:
      * @brief Get the count of currently opened Rml Documents
      * @return The count of currently opened documents
      */
-    [[nodiscard]] size_t countOpenedDocuments() const ;
+    [[nodiscard]] std::size_t countOpenedDocuments() const ;
 
     /**
      * @brief Get a list of all opened Rml Documents with their associated owner domain id and document name
      * @return The list
      */
-    [[nodiscard]] std::vector<std::pair<size_t, std::string>> listOpenedDocuments() const ;
+    [[nodiscard]] std::vector<std::pair<std::size_t, std::string>> listOpenedDocuments() const ;
 
     // Context Management
 
@@ -240,7 +240,7 @@ public:
      * @param name The name of the document
      * @return True if a document was found and removed, false otherwise
      */
-    bool removeDocument(size_t const& id, std::string_view const& name);
+    bool removeDocument(std::size_t const& id, std::string_view const& name);
 
     /**
      * @brief Removes a document from a given document pointer
@@ -253,7 +253,7 @@ public:
      * @brief Replaces all references to a given owner id, so that no context interaction has access to the associated domain
      * @param domainId The id of the domain
      */
-    void removeReferencesToId(size_t const& domainId);
+    void removeReferencesToId(std::size_t const& domainId);
 
     /**
      * @brief Gets a context and scope from a given RML element id
@@ -304,7 +304,7 @@ private:
 
     // Owner -> name -> document
     absl::flat_hash_map<
-        size_t, // owner domain id
+        std::size_t, // owner domain id
         absl::flat_hash_map<
             std::string, // document name
             Rml::ElementDocument*

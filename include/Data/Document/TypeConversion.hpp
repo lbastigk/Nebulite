@@ -29,11 +29,11 @@ public:
                 // NOLINTNEXTLINE
                 return toInt(value);
             }
-            else if constexpr (std::is_same_v<newType, uint8_t>){
+            else if constexpr (std::is_same_v<newType, std::uint8_t>){
                 // NOLINTNEXTLINE
                 return toUInt8(value);
             }
-            else if constexpr (std::is_same_v<newType, int8_t>){
+            else if constexpr (std::is_same_v<newType, std::int8_t>){
                 // NOLINTNEXTLINE
                 return toInt8(value);
             }
@@ -49,7 +49,7 @@ public:
                 // NOLINTNEXTLINE
                 return toUInt32(value);
             }
-            else if constexpr (std::is_same_v<newType, int32_t>){
+            else if constexpr (std::is_same_v<newType, std::int32_t>){
                 // NOLINTNEXTLINE
                 return toInt32(value);
             }
@@ -57,7 +57,7 @@ public:
                 // NOLINTNEXTLINE
                 return toUInt64(value);
             }
-            else if constexpr (std::is_same_v<newType, int64_t>){
+            else if constexpr (std::is_same_v<newType, std::int64_t>){
                 // NOLINTNEXTLINE
                 return toInt64(value);
             }
@@ -96,21 +96,21 @@ public:
             }
         }
 
-        static std::optional<uint8_t> toUInt8(std::string const& stored){
+        static std::optional<std::uint8_t> toUInt8(std::string const& stored){
             if (stored == "true") return 1;
             if (stored == "false") return 0;
             try {
-                return static_cast<uint8_t>(std::stoul(stored));
+                return static_cast<std::uint8_t>(std::stoul(stored));
             } catch (...){
                 return std::nullopt;
             }
         }
 
-        static std::optional<int8_t> toInt8(std::string const& stored){
+        static std::optional<std::int8_t> toInt8(std::string const& stored){
             if (stored == "true") return 1;
             if (stored == "false") return 0;
             try {
-                return static_cast<int8_t>(std::stol(stored));
+                return static_cast<std::int8_t>(std::stol(stored));
             } catch (...){
                 return std::nullopt;
             }
@@ -146,11 +146,11 @@ public:
             }
         }
 
-        static std::optional<int32_t> toInt32(std::string const& stored){
+        static std::optional<std::int32_t> toInt32(std::string const& stored){
             if (stored == "true") return 1;
             if (stored == "false") return 0;
             try {
-                return static_cast<int32_t>(std::stol(stored));
+                return static_cast<std::int32_t>(std::stol(stored));
             } catch (...){
                 return std::nullopt;
             }
@@ -166,7 +166,7 @@ public:
             }
         }
 
-        static std::optional<int64_t> toInt64(std::string const& stored){
+        static std::optional<std::int64_t> toInt64(std::string const& stored){
             if (stored == "true") return 1;
             if (stored == "false") return 0;
             try {

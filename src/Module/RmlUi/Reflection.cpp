@@ -126,14 +126,14 @@ void Reflection::setIdentifiers(Rml::Element* element, Graphics::RmlInterface::R
 
 void Reflection::setReflectionScopes(Data::JSON& reflectionList, std::unique_ptr<ReflectionEntry> const& entry, Rml::Element const* element, Graphics::RmlInterface::ContextAndScope const& contextAndScope) const {
     auto const childrenCount = static_cast<size_t>(element->GetNumChildren());
-    size_t idsIndex = 0;
+    std::size_t idsIndex = 0;
 
     while (entry->allocatedIds.size() < childrenCount) {
         entry->allocatedIds.emplace_back(Graphics::RmlInterface::RmlElementIdentifier::newIdentifier());
     }
 
-    size_t jsonIndex = 0;
-    for (size_t i = 0; i < childrenCount; ++i) {
+    std::size_t jsonIndex = 0;
+    for (std::size_t i = 0; i < childrenCount; ++i) {
         auto* const child = element->GetChild(static_cast<int>(i));
         if (auto const* value = child->GetAttribute("reflectionIndex"); value) {
             jsonIndex = static_cast<size_t>(value->Get<int>());
@@ -194,9 +194,9 @@ void Reflection::reflectElement(Rml::Element* element, std::unique_ptr<Reflectio
     if (entry->rmlValue.empty()) {
         entry->rmlValue = element->GetInnerRML();
     }
-    size_t const size = reflectionList.memberSize("");
+    std::size_t const size = reflectionList.memberSize("");
     std::string newRml;
-    for (size_t i = 0; i < size; ++i) {
+    for (std::size_t i = 0; i < size; ++i) {
         // Helps keeping track of the current index. Earlier versions relied on the fact that repeating the inner rml
         // means we can just increase the index every n elements, where n is the amount of elements per reflection entry.
         // But this approach limits our reflection abilities.

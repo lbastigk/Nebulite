@@ -322,9 +322,9 @@ void Debug::addRoutines() {
         Utility::Coordination::TimedRoutine(
             [this] {
                 // store worker count in global document
-                size_t const invokeWorkerCount = Constants::ThreadSettings::getInvokeWorkerCount();
-                size_t const rendererWorkerCount = Constants::ThreadSettings::getRendererWorkerCount();
-                size_t const workerCount = invokeWorkerCount + rendererWorkerCount;
+                std::size_t const invokeWorkerCount = Constants::ThreadSettings::getInvokeWorkerCount();
+                std::size_t const rendererWorkerCount = Constants::ThreadSettings::getRendererWorkerCount();
+                std::size_t const workerCount = invokeWorkerCount + rendererWorkerCount;
 
                 moduleScope.set<size_t>(Key::workerInvokeUsed, invokeWorkerCount);
                 moduleScope.set<size_t>(Key::workerRendererUsed, rendererWorkerCount);

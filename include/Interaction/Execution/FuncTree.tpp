@@ -129,7 +129,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::bindFunction(WrappedFunction cons
         }
         absl::flat_hash_map<std::string, CategoryInfo>* currentCategoryMap = &bindingContainer.categories;
         FuncTree* targetTree = this;
-        for (size_t idx = 0; idx < pathStructure.size() - 1; idx++) {
+        for (std::size_t idx = 0; idx < pathStructure.size() - 1; idx++) {
             auto const& currentCategoryName = pathStructure[idx];
             if (currentCategoryMap->find(currentCategoryName) == currentCategoryMap->end()) {
                 BindErrorMessage::missingCategory(capture, TreeName, currentCategoryName, std::string(name));
@@ -552,7 +552,7 @@ ReturnValue FuncTree<ReturnValue, AdditionalArgs...>::executeFunction(std::strin
             // Legacy function types
             if constexpr (std::is_same_v<T, std::function<ReturnValue(int, char const**)>>) {
                 // Convert to argc/argv
-                size_t const argc = args.size();
+                std::size_t const argc = args.size();
                 std::vector<char const*> argv_vec;
                 argv_vec.reserve(argc + 1);
                 std::vector<std::string> argsOwned;

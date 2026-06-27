@@ -46,7 +46,7 @@ private:
 
     std::array<Utility::Coordination::SharedMutex, BucketCount> bucketMutex; // Mutexes for each character bucket
 
-    static size_t getIndex(std::string_view const& key) {
+    static std::size_t getIndex(std::string_view const& key) {
         if (key.empty()) {
             return 0;
         }

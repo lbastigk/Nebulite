@@ -114,7 +114,7 @@ public:
      * @brief Gets the layer of the RenderObject.
      * @return The layer of the RenderObject, or 0 if not set.
      */
-    [[nodiscard]] uint8_t getLayer() const ;
+    [[nodiscard]] std::uint8_t getLayer() const ;
 
     //------------------------------------------
     // Update-Oriented functions

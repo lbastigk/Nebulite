@@ -262,7 +262,7 @@ private:
          * @brief The evaluation wait count. Used to delay the evaluation of a component.
          * @details For each evaluation, the count is reduced by 1. Only for component type Variable!
          */
-        size_t evaluationWait = 0;
+        std::size_t evaluationWait = 0;
 
         /**
          * @brief Pointer to the tinyexpr representation of the expression.
@@ -300,7 +300,7 @@ private:
          * @param recursionDepth The current recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(std::string& token, ContextScope const& context, size_t const& recursionDepth) const ;
+        bool handleComponentTypeVariable(std::string& token, ContextScope const& context, std::size_t const& recursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of a variable component as a JSON value.
@@ -310,7 +310,7 @@ private:
          * @param recursionDepth The current recursion depth for nested evaluations.
          * @return True if the evaluation was successful, false otherwise.
          */
-        bool handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, size_t const& recursionDepth) const ;
+        bool handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, std::size_t const& recursionDepth) const ;
 
         /**
          * @brief Handles the evaluation of an eval component.
@@ -332,9 +332,9 @@ private:
          * @param recursionDepth The current recursion depth for nested evaluations.
          * @return The evaluated string if successful, or std::nullopt if evaluation fails.
          */
-        [[nodiscard]] std::expected<std::string, KeyEvaluationInfo> evaluateKey(ContextScope const& context, size_t const& recursionDepth) const ;
+        [[nodiscard]] std::expected<std::string, KeyEvaluationInfo> evaluateKey(ContextScope const& context, std::size_t const& recursionDepth) const ;
 
-        [[nodiscard]] std::optional<std::pair<std::string, ContextDeriver::TargetType>> handleNesting(ContextScope const& context, size_t const& recursionDepth) const ;
+        [[nodiscard]] std::optional<std::pair<std::string, ContextDeriver::TargetType>> handleNesting(ContextScope const& context, std::size_t const& recursionDepth) const ;
     };
 
     /**

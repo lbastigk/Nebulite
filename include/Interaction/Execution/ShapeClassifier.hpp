@@ -20,7 +20,7 @@ namespace Nebulite::Interaction::Execution {
  */
 class ShapeClassifier {
 public:
-    enum class FunctionShape : uint8_t {
+    enum class FunctionShape : std::uint8_t {
         Unknown,
 
         // Member shapes

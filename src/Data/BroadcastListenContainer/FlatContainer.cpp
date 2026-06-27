@@ -30,11 +30,11 @@ class ThreadIdGenerator {
         std::atomic<size_t> maxThreadIdAtomic{0};
 
     public:
-        size_t get() const {
+        std::size_t get() const {
             return maxThreadIdAtomic.load(std::memory_order_acquire);
         }
 
-        void set(size_t const threadId) {
+        void set(std::size_t const threadId) {
             maxThreadIdAtomic.store(threadId, std::memory_order_release);
         }
     };
@@ -46,9 +46,9 @@ class ThreadIdGenerator {
 #endif
 
 public:
-    static size_t getThreadId() {
+    static std::size_t getThreadId() {
         static auto threadSpreader = Utility::Coordination::IdGenerator::atomicIncrementIdGenerator();
-        thread_local size_t threadId = threadSpreader();
+        thread_local std::size_t threadId = threadSpreader();
 
         // Sanity check: cannot have more threads than workerCount
         assert(threadId < Constants::ThreadSettings::getInvokeWorkerCount());

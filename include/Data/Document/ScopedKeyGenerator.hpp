@@ -21,7 +21,7 @@ enum class OpType { Member, Index };
 struct OpData {
     OpType type;
     std::string_view memberName;
-    size_t indexValue;
+    std::size_t indexValue;
 
     // constexpr default constructor so std::array<OpData, N> can be value-initialized
     constexpr OpData()
@@ -32,7 +32,7 @@ struct OpData {
         : type(OpType::Member), memberName(name), indexValue(0) {}
 
     // NOLINTNEXTLINE
-    explicit constexpr OpData(size_t const& index)
+    explicit constexpr OpData(std::size_t const& index)
         : type(OpType::Index), indexValue(index) {}
 };
 
@@ -69,7 +69,7 @@ public:
         return result;
     }
 
-    constexpr ScopedKeyGenerator addIndex(size_t const& index) const {
+    constexpr ScopedKeyGenerator addIndex(std::size_t const& index) const {
         auto result = *this;
         if (result.count_ < MaxOps) {
             result.ops_[result.count_] = OpData(index);

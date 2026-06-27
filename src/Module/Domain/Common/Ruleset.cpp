@@ -34,7 +34,7 @@ Constants::Event Ruleset::updateHook() {
             auto mtx = moduleScope.lock();
             Interaction::Rules::Construction::RulesetCompiler::parse(rulesetsGlobal, rulesetsLocal, domain, moduleScope.shareScope(scopedKey.broadcast));
             listeners.clear();
-            for (size_t idx = 0; idx < subscription_size; idx++) {
+            for (std::size_t idx = 0; idx < subscription_size; idx++) {
                 auto const key = scopedKey.listen.addIndex(idx);
                 auto const subscription = moduleScope.get<std::string>(key).value_or("");
                 auto listener = std::make_shared<Interaction::Rules::Listener>(domain, subscription);
@@ -45,17 +45,17 @@ Constants::Event Ruleset::updateHook() {
             // Estimate cost of parsed rulesets
 
             // Local entries
-            uint64_t const costLocal = std::accumulate(
+            std::uint64_t const costLocal = std::accumulate(
                 rulesetsLocal.begin(), rulesetsLocal.end(), std::size_t{0},
-                [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+                [](std::uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
                     return acc + entry->getEstimatedCost();
                 }
             );
 
             // Global entries
-            uint64_t const costGlobal = std::accumulate(
+            std::uint64_t const costGlobal = std::accumulate(
                 rulesetsGlobal.begin(), rulesetsGlobal.end(), std::size_t{0},
-                [](uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
+                [](std::uint64_t const acc, std::shared_ptr<Interaction::Rules::Ruleset> const& entry) {
                     return acc + entry->getEstimatedCost();
                 }
             );

@@ -55,7 +55,7 @@ private:
 
     const std::vector<Data::ScopedKeyView> baseKeys; // No keys required
 
-    enum class Key : size_t {}; // No keys required
+    enum class Key : std::size_t {}; // No keys required
 };
 } // namespace Nebulite::Module::Ruleset
 #endif // MODULE_RULESET_DEBUG_HPP

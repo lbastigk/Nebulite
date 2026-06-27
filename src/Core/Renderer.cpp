@@ -244,7 +244,7 @@ void Renderer::initSDL() {
 
     //------------------------------------------
     // Window and renderer
-    uint32_t const flags = *headless ? SDL_WINDOW_HIDDEN : 0
+    std::uint32_t const flags = *headless ? SDL_WINDOW_HIDDEN : 0
     | SDL_WINDOW_HIGH_PIXEL_DENSITY // Add more necessary flags here
     ;
 
@@ -342,11 +342,11 @@ void Renderer::deserialize(std::string const& serialOrLink) noexcept {
 //------------------------------------------
 // Get objects
 
-std::optional<size_t> Renderer::getIdFromIndex(size_t const& index) const {
+std::optional<size_t> Renderer::getIdFromIndex(std::size_t const& index) const {
     return env.getIdFromIndex(index);
 }
 
-std::optional<size_t> Renderer::getIndexFromId(size_t const& searchId) const {
+std::optional<size_t> Renderer::getIndexFromId(std::size_t const& searchId) const {
     return env.getIndexFromId(searchId);
 }
 
@@ -563,7 +563,7 @@ bool Renderer::timeToRender() {
 
     double const target = 1000.0 / static_cast<double>(fps.target);
     double const remainder = target - static_cast<double>(static_cast<uint32_t>(target)); // between 0.0 and 1.0
-    uint32_t const adjustedTarget = static_cast<uint32_t>(target) + (distribution(randNum) < remainder ? 1 : 0);
+    std::uint32_t const adjustedTarget = static_cast<uint32_t>(target) + (distribution(randNum) < remainder ? 1 : 0);
     return fps.controlTimer.projected_dt() >= adjustedTarget;
 }
 
@@ -641,7 +641,7 @@ void Renderer::destroy() {
 //------------------------------------------
 // Setting
 
-void Renderer::setTargetFPS(uint16_t const& targetFps) {
+void Renderer::setTargetFPS(std::uint16_t const& targetFps) {
     fps.target = targetFps;
 }
 
@@ -656,7 +656,7 @@ inline constexpr bool is_static_member_function_v = is_static_member_function<T>
 } // namespace
 
 // This does not change the settings file, only the current session
-void Renderer::changeWindowSize(int const w, int const h, uint8_t  const scalar) {
+void Renderer::changeWindowSize(int const w, int const h, std::uint8_t  const scalar) {
     // Validate resolution and scalar
     if (w < 240 || w > 16384) {
         capture.error.println("Selected resolution is not supported:", w, "x", h, ". (w and h must be between 240 and 16384)");
@@ -860,7 +860,7 @@ SDL_Texture* Renderer::loadTextureToMemory(std::string const& link) {
 
     // Get file extension, based on last dot
     std::string extension;
-    if (size_t const dotPos = path.find_last_of('.'); dotPos != std::string::npos) {
+    if (std::size_t const dotPos = path.find_last_of('.'); dotPos != std::string::npos) {
         extension = path.substr(dotPos + 1);
     } else {
         capture.error.println("Failed to load image '", path, "': No file extension found.");

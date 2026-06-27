@@ -33,7 +33,7 @@ struct OptionalFixedString {
         static_assert(N == 0, "Default constructor can only be used for empty strings");
     }
 
-    static constexpr size_t length() requires(N > 0 && !forceOutsideDefinition) {
+    static constexpr std::size_t length() requires(N > 0 && !forceOutsideDefinition) {
         return N-1;
     }
 

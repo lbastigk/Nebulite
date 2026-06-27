@@ -29,8 +29,8 @@ namespace Nebulite::Interaction::Rules::Construction {
 void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRuleset& Ruleset) {
     // Get function calls: GLOBAL, SELF, OTHER
     if (entryDoc.memberType(Constants::KeyNames::Ruleset::parseOnGlobal) == Data::KeyType::array) {
-        size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnGlobal);
-        for (size_t j = 0; j < funcSize; ++j) {
+        std::size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnGlobal);
+        for (std::size_t j = 0; j < funcSize; ++j) {
             auto const funcKey = Constants::KeyNames::Ruleset::parseOnGlobal.addIndex(j);
             auto funcCall = entryDoc.get<std::string>(funcKey).value_or("");
 
@@ -40,8 +40,8 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRule
         }
     }
     if (entryDoc.memberType(Constants::KeyNames::Ruleset::parseOnSelf) == Data::KeyType::array) {
-        size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnSelf);
-        for (size_t j = 0; j < funcSize; ++j) {
+        std::size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnSelf);
+        for (std::size_t j = 0; j < funcSize; ++j) {
             auto const funcKey = Constants::KeyNames::Ruleset::parseOnSelf.addIndex(j);
             auto const funcCall = entryDoc.get<std::string>(funcKey).value_or("");
 
@@ -51,8 +51,8 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRule
         }
     }
     if (entryDoc.memberType(Constants::KeyNames::Ruleset::parseOnOther) == Data::KeyType::array) {
-        size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnOther);
-        for (size_t j = 0; j < funcSize; ++j) {
+        std::size_t const funcSize = entryDoc.memberSize(Constants::KeyNames::Ruleset::parseOnOther);
+        for (std::size_t j = 0; j < funcSize; ++j) {
             auto const funcKey = Constants::KeyNames::Ruleset::parseOnOther.addIndex(j);
             auto const funcCall = entryDoc.get<std::string>(funcKey).value_or("");
 
@@ -63,7 +63,7 @@ void RulesetCompiler::getFunctionCalls(Data::JsonScope const& entryDoc, JsonRule
     }
 }
 
-std::optional<Logic::Assignment> RulesetCompiler::getAssignment(Data::JsonScope const& entry, size_t const& index) {
+std::optional<Logic::Assignment> RulesetCompiler::getAssignment(Data::JsonScope const& entry, std::size_t const& index) {
     auto const exprKey = Constants::KeyNames::Ruleset::assignments.addIndex(index);
     if (Logic::Assignment assignment; assignment.parse(entry.get<std::string>(exprKey).value_or(""))) {
         return assignment;
@@ -73,8 +73,8 @@ std::optional<Logic::Assignment> RulesetCompiler::getAssignment(Data::JsonScope 
 
 bool RulesetCompiler::getAssignments(std::shared_ptr<JsonRuleset> const& Ruleset, Data::JsonScope const& entry) {
     if (entry.memberType(Constants::KeyNames::Ruleset::assignments) == Data::KeyType::array) {
-        size_t const exprSize = entry.memberSize(Constants::KeyNames::Ruleset::assignments);
-        for (size_t j = 0; j < exprSize; ++j) {
+        std::size_t const exprSize = entry.memberSize(Constants::KeyNames::Ruleset::assignments);
+        for (std::size_t j = 0; j < exprSize; ++j) {
             if (auto v = getAssignment(entry, j); v.has_value()) {
                 Ruleset->assignments.emplace_back(std::move(*v));
             }
@@ -89,8 +89,8 @@ bool RulesetCompiler::getAssignments(std::shared_ptr<JsonRuleset> const& Ruleset
 std::string RulesetCompiler::getCondition(Data::JsonScope const& entry) {
     std::string logicalArg;
     if (entry.memberType(Constants::KeyNames::Ruleset::condition) == Data::KeyType::array) {
-        size_t const logicalArgSize = entry.memberSize(Constants::KeyNames::Ruleset::condition);
-        for (size_t j = 0; j < logicalArgSize; ++j) {
+        std::size_t const logicalArgSize = entry.memberSize(Constants::KeyNames::Ruleset::condition);
+        for (std::size_t j = 0; j < logicalArgSize; ++j) {
             auto logicalArgKey = Constants::KeyNames::Ruleset::condition.addIndex(j);
             logicalArg += "(" + entry.get<std::string>(logicalArgKey).value_or("0") + ")";
             if (j < logicalArgSize - 1) {
@@ -148,14 +148,14 @@ void RulesetCompiler::parse(RulesetVector& rulesetsGlobal, RulesetVector& rulese
     }
 
     // Get size of entries
-    size_t const size = rulesetArray.memberSize(rulesetArray.getRootScope());
+    std::size_t const size = rulesetArray.memberSize(rulesetArray.getRootScope());
     if (size == 0) {
         // Object has no rulesets
         return;
     }
 
     // Iterate through all entries
-    for (size_t idx = 0; idx < size; ++idx) {
+    for (std::size_t idx = 0; idx < size; ++idx) {
         // Parse entry into separate JSON object
         auto const key = rulesetArray.getRootScope().addIndex(idx);
         auto Ruleset = getRuleset(rulesetArray, key.view(), self);

@@ -108,7 +108,7 @@ public:
      * @brief Gets the total count of RenderObject instances in the container.
      * @return The total number of RenderObject instances.
      */
-    [[nodiscard]] size_t getObjectCount() const;
+    [[nodiscard]] std::size_t getObjectCount() const;
 
     /**
      * @brief Responsible for updating the state of all RenderObject instances
@@ -137,12 +137,12 @@ public:
      * @param domainId The unique ID of the RenderObject to retrieve.
      * @return Pointer to the RenderObject if found, nullptr otherwise.
      */
-    Core::RenderObject* getObjectFromId(size_t const& domainId);
+    Core::RenderObject* getObjectFromId(std::size_t const& domainId);
 
     struct ContainerInfo {
         // Container stats
-        size_t containerTotalTiles = 0;
-        size_t containerTotalCost = 0;
+        std::size_t containerTotalTiles = 0;
+        std::size_t containerTotalCost = 0;
     };
 
     /**

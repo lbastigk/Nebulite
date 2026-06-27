@@ -22,7 +22,7 @@
 //------------------------------------------
 namespace Nebulite::Utility::Coordination {
 
-std::function<size_t()> IdGenerator::atomicRollingIdGenerator(size_t const& distributionSize) {
+std::function<size_t()> IdGenerator::atomicRollingIdGenerator(std::size_t const& distributionSize) {
     // Each call gets its own shared counter
     // Using a shared pointer is required so the lambda is copyable
     auto counter = std::make_shared<std::atomic<size_t>>(0);

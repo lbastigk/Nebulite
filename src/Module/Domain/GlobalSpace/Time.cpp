@@ -26,8 +26,8 @@ Constants::Event Time::updateHook() {
 
     // Update
     RealTime.update();
-    uint64_t const dt_ms = RealTime.get_dt_ms();
-    uint64_t const t_ms = RealTime.get_t_ms();
+    std::uint64_t const dt_ms = RealTime.get_dt_ms();
+    std::uint64_t const t_ms = RealTime.get_t_ms();
 
     // Set in doc
     moduleScope.set<double>(Key::runtime_dt, static_cast<double>(dt_ms) / 1000.0);
@@ -108,7 +108,7 @@ Constants::Event Time::time_setFixedDeltaTime(int const argc, char const** argv)
         return Constants::StandardCapture::Warning::Functional::tooFewArgs(domain.capture);
     }
     try {
-        uint64_t const dt = std::stoull(argv[1]);
+        std::uint64_t const dt = std::stoull(argv[1]);
         fixedDeltaTime = dt;
     } catch (...) {
         return Constants::StandardCapture::Warning::Functional::unknownArg(domain.capture);

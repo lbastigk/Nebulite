@@ -40,7 +40,7 @@ void SdlPrimitive::drawLines(SDL_Renderer* renderer, SDL_Texture* texture, SDL_C
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-    for (size_t i = 0; i < points.size() - 1; ++i) {
+    for (std::size_t i = 0; i < points.size() - 1; ++i) {
         SDL_RenderLine(
             renderer,
             points[i].x, points[i].y,
@@ -84,7 +84,7 @@ void SdlPrimitive::drawFilledPolygon(SDL_Renderer* renderer, SDL_Texture* textur
         std::vector<float> intersections;
 
         // Walk polygon edges
-        for (size_t i = 0; i < points.size(); ++i) {
+        for (std::size_t i = 0; i < points.size(); ++i) {
             auto const& [p1x, p1y] = points[i];
             auto const& [p2x, p2y] = points[(i + 1) % points.size()];
 
@@ -112,7 +112,7 @@ void SdlPrimitive::drawFilledPolygon(SDL_Renderer* renderer, SDL_Texture* textur
         std::ranges::sort(intersections.begin(), intersections.end());
 
         // Fill between pairs
-        for (size_t i = 0; i + 1 < intersections.size(); i += 2) {
+        for (std::size_t i = 0; i + 1 < intersections.size(); i += 2) {
             int const x1 = static_cast<int>(std::ceil(intersections[i]));
             int const x2 = static_cast<int>(std::floor(intersections[i + 1]));
             SDL_RenderLine(

@@ -23,20 +23,20 @@ public:
      * @param distributionSize The size of the distribution.
      * @return A lambda function that generates a uniform distribution of IDs.
      */
-    static std::function<size_t()> atomicRollingIdGenerator(size_t const& distributionSize);
+    static std::function<std::size_t()> atomicRollingIdGenerator(std::size_t const& distributionSize);
 
     /*
      * @brief A generator function that returns a lambda which generates a uniform distribution of IDs that do not roll, but increase indefinitely.
-     * @details Maximum value is size_t max before  "accidentally" rolling, but this is unlikely to happen in practice.
+     * @details Maximum value is std::size_t max before  "accidentally" rolling, but this is unlikely to happen in practice.
      * @return A lambda function that generates a uniform distribution of IDs that do not roll, but increase indefinitely.
      */
-    static std::function<size_t()> atomicIncrementIdGenerator();
+    static std::function<std::size_t()> atomicIncrementIdGenerator();
 
     /**
      * @brief A generator function that returns a lambda which generates unique IDs for strings.
      * @details This generator is thread-safe and can be used to generate unique IDs for strings in a concurrent environment. It uses a mutex to protect access to the internal map and counter.
      * @return A lambda function that generates unique IDs for strings.
-     * @throw std::overflow_error if the generator exceeds the maximum limit of size_t.
+     * @throw std::overflow_error if the generator exceeds the maximum limit of std::size_t.
      */
     static std::function<std::size_t(std::string_view const&)> stringToRollingIdGenerator();
 };

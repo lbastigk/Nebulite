@@ -29,7 +29,7 @@ namespace Nebulite::Utility::Coordination {
  */
 class TimedRoutine {
 public:
-    enum class ConstructionMode : uint8_t {
+    enum class ConstructionMode : std::uint8_t {
         START_IMMEDIATELY = 0,
         WAIT_FOR_START,
         START_IMMEDIATELY_AND_EXECUTE_ONCE

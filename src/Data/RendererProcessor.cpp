@@ -61,7 +61,7 @@ RendererProcessor::RendererProcessor() {
     instanceExists = true;
 
     // Initialize worker pool
-    for (size_t i = 0; i < Constants::ThreadSettings::getRendererWorkerCount(); i++) {
+    for (std::size_t i = 0; i < Constants::ThreadSettings::getRendererWorkerCount(); i++) {
         batchWorkerPool[i] = std::make_unique<Utility::Coordination::WorkDispatcher<DispatcherWorkspace>>(stopFlag, batchWorkerFunc);
     }
 }
@@ -110,7 +110,7 @@ void RendererProcessor::processPool() const {
     processPool(Constants::ThreadSettings::getRendererWorkerCount());
 }
 
-void RendererProcessor::processPool(size_t count) const {
+void RendererProcessor::processPool(std::size_t count) const {
     for (auto const& worker : batchWorkerPool | std::views::take(count)) {
         worker->startWork();
     }

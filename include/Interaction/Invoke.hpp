@@ -102,7 +102,7 @@ private:
 
     std::array<ContainerType, Constants::ThreadSettings::Maximum::invokeWorkerCount> worker;
 
-    size_t activeWorkerCount = Constants::ThreadSettings::getInvokeWorkerCount();
+    std::size_t activeWorkerCount = Constants::ThreadSettings::getInvokeWorkerCount();
 
     decltype(worker | std::views::take(activeWorkerCount)) activeWorkers;
 

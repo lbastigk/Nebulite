@@ -117,7 +117,7 @@ void FuncTree<ReturnValue, AdditionalArgs...>::generalHelp() {
     auto displayMember = [&](std::string_view const& name, std::string_view const& description) -> void {
         // Only show the first line of the description
         auto descriptionFirstLine = std::string(description);
-        if (size_t const newlinePos = description.find('\n'); newlinePos != std::string::npos) {
+        if (std::size_t const newlinePos = description.find('\n'); newlinePos != std::string::npos) {
             descriptionFirstLine = description.substr(0, newlinePos);
         }
         auto paddedName = std::string(name);

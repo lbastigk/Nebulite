@@ -156,7 +156,7 @@ void setToken(Data::JSON& token, std::string const& evaluatedKey, ContextScope c
 
 } // namespace
 
-bool Expression::Component::handleComponentTypeVariable(std::string& token, ContextScope const& context, size_t const& recursionDepth) const {
+bool Expression::Component::handleComponentTypeVariable(std::string& token, ContextScope const& context, std::size_t const& recursionDepth) const {
     // Do not evaluate if wait is active
     if (evaluationWait > 1) {
         token = "{" + std::to_string(evaluationWait - 1) + "!" + stringRepresentation + "}";
@@ -179,7 +179,7 @@ bool Expression::Component::handleComponentTypeVariable(std::string& token, Cont
     return true;
 }
 
-bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, size_t const& recursionDepth) const {
+bool Expression::Component::handleComponentTypeVariable(Data::JSON& token, ContextScope const& context, std::size_t const& recursionDepth) const {
     // Do not evaluate if wait is active
     if (evaluationWait > 1) {
         token.set<std::string>("", "{" + std::to_string(evaluationWait - 1) + "!" + stringRepresentation + "}");
@@ -208,7 +208,7 @@ void Expression::Component::handleComponentTypeEval(std::string& token) const {
     token = formatter.format(te_eval(expression));
 }
 
-std::expected<std::string, Expression::Component::KeyEvaluationInfo> Expression::Component::evaluateKey(ContextScope const& context, size_t const& recursionDepth) const {
+std::expected<std::string, Expression::Component::KeyEvaluationInfo> Expression::Component::evaluateKey(ContextScope const& context, std::size_t const& recursionDepth) const {
     // See if the variable contains an inner expression
     if (stringRepresentation.contains('$') || stringRepresentation.contains('{')) {
         if (recursionDepth == 0) {
@@ -222,7 +222,7 @@ std::expected<std::string, Expression::Component::KeyEvaluationInfo> Expression:
     return std::unexpected(KeyEvaluationInfo::noNesting);
 }
 
-std::optional<std::pair<std::string, ContextDeriver::TargetType>> Expression::Component::handleNesting(ContextScope const& context, size_t const& recursionDepth) const {
+std::optional<std::pair<std::string, ContextDeriver::TargetType>> Expression::Component::handleNesting(ContextScope const& context, std::size_t const& recursionDepth) const {
     auto s = evaluateKey(context, recursionDepth);
 
     // If max depth was reached, return false

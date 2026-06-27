@@ -28,7 +28,7 @@ namespace Nebulite::Data::BroadcastListenContainer {
 template<typename DerivedContainer>
 class BaseContainer {
 public:
-    explicit BaseContainer(std::atomic<bool>& stopFlag, size_t const& workerIndex, size_t const& workerCount, DerivedContainer container)
+    explicit BaseContainer(std::atomic<bool>& stopFlag, std::size_t const& workerIndex, std::size_t const& workerCount, DerivedContainer container)
         : workerInfo{workerIndex, workerCount}
         , dispatcher(stopFlag, processImpl, initImpl)
     {
@@ -86,8 +86,8 @@ public:
 
 protected:
     struct WorkerInfo {
-        size_t index;
-        size_t count;
+        std::size_t index;
+        std::size_t count;
     } workerInfo;
 
 private:
@@ -98,7 +98,7 @@ private:
     static void ensureEarlyThreadId() {
         thread_local bool threadIdAssigned = false;
         if (threadIdAssigned) return;
-        if (size_t const id = JsonScope::assignThreadIndex(); id >= JsonScope::noLockArraySize) {
+        if (std::size_t const id = JsonScope::assignThreadIndex(); id >= JsonScope::noLockArraySize) {
             throw std::runtime_error("Thread ID exceeds non-locking array size!");
         }
         threadIdAssigned = true;

@@ -74,7 +74,7 @@ private:
         }
         jsonDoc->removeMember(rootKey);
         for (auto [idx, value] : values | std::views::enumerate) {
-            auto const key = rootKey.addIndex(static_cast<size_t>(idx));
+            auto const key = rootKey.addIndex(static_cast<std::size_t>(idx));
             jsonDoc->setSubDoc(key, value);
         }
     }

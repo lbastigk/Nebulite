@@ -107,7 +107,7 @@ private:
     bool initialized = false;
 
     // Size of subscriptions
-    size_t subscription_size = 0;
+    std::size_t subscription_size = 0;
 
     // Check if rulesets need to be reloaded
     bool reloadRulesets = true;

@@ -80,7 +80,7 @@ public:
     /**
      * @brief Type of operation used
      */
-    enum class Operation : uint8_t {
+    enum class Operation : std::uint8_t {
         null,       // No operation
         set,        // '='
         add,        // '+='
@@ -91,7 +91,7 @@ public:
 private:
     void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::string const& val, Data::JsonScope& target) const ;
     void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double val, Data::JsonScope& target) const ;
-    void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, int64_t val, Data::JsonScope& target) const ;
+    void setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::int64_t val, Data::JsonScope& target) const ;
     void setValueOfKey(double val, double* target) const ;
 
     /**

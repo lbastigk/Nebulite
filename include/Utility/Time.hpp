@@ -39,7 +39,7 @@ public:
      * @details Defines the different formats available for ISO 8601 date strings
      *          and is to be used with the TimeIso8601 function.
      */
-    enum class ISO8601Format : uint8_t {
+    enum class ISO8601Format : std::uint8_t {
         YYYY,
         YYYY_MM,
         YYYY_MM_DD,

@@ -95,7 +95,7 @@ Constants::Event General::spawn(std::span<std::string_view const> const& args) c
 Constants::Event General::setResolution(int const argc, char const** argv) const {
     int w = 1000;
     int h = 1000;
-    uint8_t scalar = 1;
+    std::uint8_t scalar = 1;
     if (argc > 1) {
         w = std::stoi(argv[1]);
     }
@@ -115,7 +115,7 @@ Constants::Event General::setResolution(int const argc, char const** argv) const
 
 Constants::Event General::setFPS(int const argc, char const** argv) const {
     // Standard value for no argument
-    uint16_t fps = 60;
+    std::uint16_t fps = 60;
     if (argc == 2) {
         int const fpsSigned = std::stoi(argv[1]);
         fps = static_cast<uint16_t>(fpsSigned);
@@ -251,14 +251,14 @@ auto constexpr base64_chars =
     "abcdefghijklmnopqrstuvwxyz"
     "0123456789+/";
 
-std::string base64_encode(uint8_t const* data, size_t const& len) {
+std::string base64_encode(std::uint8_t const* data, std::size_t const& len) {
     std::string out;
     // NOLINTNEXTLINE
     out.reserve(((len + 2) / 3) * 4);
 
     int val = 0;
     int valB = -6;
-    for (size_t i = 0; i < len; i++) {
+    for (std::size_t i = 0; i < len; i++) {
         val = (val << 8) + data[i];
         valB += 8;
         while (valB >= 0) {
@@ -322,7 +322,7 @@ Constants::Event General::dumpView() const {
             return;
         }
         auto const pitch = static_cast<size_t>(surface->pitch);
-        uint8_t const* pixels = static_cast<uint8_t*>(surface->pixels);
+        std::uint8_t const* pixels = static_cast<uint8_t*>(surface->pixels);
 
         // Using stb_image to convert to jpeg
         JpegMemory jpegBuffer;

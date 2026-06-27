@@ -20,25 +20,25 @@ namespace Nebulite::Math {
 // TODO: Large refactor + testing required!
 
 std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
-    size_t const n = data.size();
+    std::size_t const n = data.size();
     if (n == 0) return {};
 
     // next power of two
-    size_t N = 1;
+    std::size_t N = 1;
     while (N < n) N <<= 1;
 
     std::vector<std::complex<double>> a(N);
 
-    for (size_t i = 0; i < n; ++i)
+    for (std::size_t i = 0; i < n; ++i)
         // NOLINTNEXTLINE
         a[i] = static_cast<double>(data[i]);
-    for (size_t i = n; i < N; ++i)
+    for (std::size_t i = n; i < N; ++i)
         a[i] = 0.0;
 
     // bit-reversal permutation
-    size_t b = 0;
-    for (size_t i = 1; i < N; ++i) {
-        size_t bit = N >> 1;
+    std::size_t b = 0;
+    for (std::size_t i = 1; i < N; ++i) {
+        std::size_t bit = N >> 1;
         while (static_cast<bool>(b & bit)) {
             b ^= bit;
             bit >>= 1;
@@ -50,14 +50,14 @@ std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
     }
 
     // FFT stages
-    for (size_t len = 2; len <= N; len <<= 1) {
+    for (std::size_t len = 2; len <= N; len <<= 1) {
         double const ang = -2.0 * M_PI / static_cast<double>(len);
         std::complex const wLen(std::cos(ang), std::sin(ang));
 
-        for (size_t i = 0; i < N; i += len) {
+        for (std::size_t i = 0; i < N; i += len) {
             std::complex w(1.0);
 
-            for (size_t j = 0; j < len / 2; ++j) {
+            for (std::size_t j = 0; j < len / 2; ++j) {
                 auto u = a[i + j];
                 auto v = a[i + j + len / 2] * w;
 
@@ -73,15 +73,15 @@ std::vector<std::complex<double>> FFT::fft(std::vector<double> const& data) {
 }
 
 std::vector<std::complex<double>> FFT::fftInverse(std::vector<std::complex<double>> const& X) {
-    size_t const N = X.size();
+    std::size_t const N = X.size();
     if (N == 0) return {};
 
     std::vector<std::complex<double>> a = X;
 
     // bit-reversal permutation
-    size_t b = 0;
-    for (size_t i = 1; i < N; ++i) {
-        size_t bit = N >> 1;
+    std::size_t b = 0;
+    for (std::size_t i = 1; i < N; ++i) {
+        std::size_t bit = N >> 1;
         while (static_cast<bool>(b & bit)) {
             b ^= bit;
             bit >>= 1;
@@ -93,14 +93,14 @@ std::vector<std::complex<double>> FFT::fftInverse(std::vector<std::complex<doubl
     }
 
     // IFFT stages (note sign flip)
-    for (size_t len = 2; len <= N; len <<= 1) {
+    for (std::size_t len = 2; len <= N; len <<= 1) {
         double const ang = 2.0 * M_PI / static_cast<double>(len);
         std::complex const wLen(std::cos(ang), std::sin(ang));
 
-        for (size_t i = 0; i < N; i += len) {
+        for (std::size_t i = 0; i < N; i += len) {
             std::complex w(1.0);
 
-            for (size_t j = 0; j < len / 2; ++j) {
+            for (std::size_t j = 0; j < len / 2; ++j) {
                 auto u = a[i + j];
                 auto v = a[i + j + len / 2] * w;
 
@@ -148,7 +148,7 @@ std::complex<double> FFT::evalTransfer(double const omega, std::vector<double> c
 
 std::vector<double> FFT::applyTransferFunction(std::vector<double> const& data, std::vector<double> const& num, std::vector<double> const& den) {
     auto X = fft(data);
-    for (auto [k, x] : std::views::zip(std::views::iota(size_t{0}), X)) {
+    for (auto [k, x] : std::views::zip(std::views::iota(std::size_t{0}), X)) {
         double const omega = 2.0 * M_PI * static_cast<double>(k) / static_cast<double>(X.size());
         x *= evalTransfer(omega, num, den);
     }

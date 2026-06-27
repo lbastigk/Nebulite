@@ -201,7 +201,7 @@ void RenderObject::deserialize(std::string const& serialOrLink) {
     };
 }
 
-[[nodiscard]] uint8_t RenderObject::getLayer() const {
+[[nodiscard]] std::uint8_t RenderObject::getLayer() const {
     return domainScope.get<uint8_t>(Constants::KeyNames::RenderObject::layer).value_or(0);
 }
 

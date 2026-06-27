@@ -103,7 +103,7 @@ private:
     /**
      * @brief Current index in the cacheline for the next double value.
      */
-    mutable size_t cacheline_index = 0;
+    mutable std::size_t cacheline_index = 0;
 
     /**
      * @struct CacheEntry
@@ -121,7 +121,7 @@ private:
          *        - On flushing, all DIRTY entries become CLEAN again. VIRTUAL entries remain VIRTUAL as they are not flushed.
          *        - Values may be marked DELETED if their parent is modified or deleted.
          */
-        enum class EntryState : uint8_t {
+        enum class EntryState : std::uint8_t {
             CLEAN, // Synchronized with RapidJSON document, real value. NOTE: This may be invalid at any time if double pointer is used elsewhere! This just marks the last known state.
             DIRTY, // Modified in cache, needs flushing to RapidJSON, real value
             DERIVED, // Deleted/nonexistent entry that was accessed via double pointer
@@ -146,7 +146,7 @@ private:
         EntryState state = EntryState::DIRTY; // Default to dirty: each new entry needs flushing
         bool managedInternalDouble = false; // Whether the stable double pointer is managed internally or externally (from cacheline)
 
-        CacheEntry(CacheLine& cl, size_t& index) {
+        CacheEntry(CacheLine& cl, std::size_t& index) {
             if (index >= CACHELINE_SIZE) [[unlikely]] {
                 stable_double_ptr = new double(standardNumericValue);
                 managedInternalDouble = true;
@@ -387,14 +387,14 @@ public:
      */
     void set_add(std::string_view const& key, double val);
 
-    void set_add(std::string_view const& key, int64_t val);
+    void set_add(std::string_view const& key, std::int64_t val);
 
     /**
      * @brief Performs a multiplication operation on a numeric value in the JSON document.
      */
     void set_multiply(std::string_view const& key, double val);
 
-    void set_multiply(std::string_view const& key, int64_t val);
+    void set_multiply(std::string_view const& key, std::int64_t val);
 
     /**
      * @brief Performs a concatenation operation on a string value in the JSON document.
@@ -485,7 +485,7 @@ public:
      * @param key The key to check.
      * @return The size of the key.
      */
-    size_t memberSize(std::string_view const& key) const ;
+    std::size_t memberSize(std::string_view const& key) const ;
 
     /**
      * @brief Removes a key from the JSON document.

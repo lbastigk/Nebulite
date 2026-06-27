@@ -185,7 +185,7 @@ private:
         } circle;
 
         struct Polygon {
-            size_t pointCount;
+            std::size_t pointCount;
             SDL_Color polyColor{.r=0,.g=0,.b=0,.a=0};
         } polygon;
     } state;
@@ -196,7 +196,7 @@ private:
 
     // TODO: requestOverride, allowing us to redraw the texture every frame if needed
 
-    enum class Type : uint8_t {
+    enum class Type : std::uint8_t {
         SPRITE,
         TEXT,
         CIRCLE,

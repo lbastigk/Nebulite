@@ -145,7 +145,7 @@ Constants::Event SimpleData::push_back(std::span<std::string_view const> const& 
         }
     }
 
-    size_t const size = ctxScope.self.memberSize(key);
+    std::size_t const size = ctxScope.self.memberSize(key);
     auto const itemKey = key.addIndex(size);
     ctxScope.self.set(itemKey, value);
     return Constants::Event::Success;
@@ -171,7 +171,7 @@ Constants::Event SimpleData::pop_back(std::span<std::string_view const> const& a
         }
     }
 
-    size_t const size = ctxScope.self.memberSize(key);
+    std::size_t const size = ctxScope.self.memberSize(key);
     if (size == 0) {
         // nothing to pop out, not seen as error
         return Constants::Event::Success;
@@ -206,13 +206,13 @@ Constants::Event SimpleData::push_front(std::span<std::string_view const> const&
         }
     }
 
-    size_t const size = ctxScope.self.memberSize(key);
+    std::size_t const size = ctxScope.self.memberSize(key);
 
     //------------------------------------------
     // Security check:
     // if any array item is a document, throw error
     // This feature is yet to be implemented!
-    for (size_t i = 0; i < size; ++i) {
+    for (std::size_t i = 0; i < size; ++i) {
         auto itemKey = key.addIndex(i);
         if (Data::KeyType const itemType = ctxScope.self.memberType(itemKey); itemType == Data::KeyType::object) {
             ctx.self.capture.error.println("Error: Cannot push_front into an array containing documents.");
@@ -222,7 +222,7 @@ Constants::Event SimpleData::push_front(std::span<std::string_view const> const&
 
     //------------------------------------------
     // Move all existing items one step forward
-    for (size_t i = size; i > 0; --i) {
+    for (std::size_t i = size; i > 0; --i) {
         auto itemKey = key.addIndex(i - 1);
         auto itemValue = ctxScope.self.get<std::string>(itemKey).value_or("");
         auto newItemKey = key.addIndex(i);
@@ -255,13 +255,13 @@ Constants::Event SimpleData::pop_front(std::span<std::string_view const> const& 
         }
     }
 
-    size_t const size = ctxScope.self.memberSize(key);
+    std::size_t const size = ctxScope.self.memberSize(key);
 
     //------------------------------------------
     // Security check:
     // if any array item is a document, throw error
     // This feature is yet to be implemented!
-    for (size_t i = 0; i < size; ++i) {
+    for (std::size_t i = 0; i < size; ++i) {
         if (ctxScope.self.memberType(key.addIndex(i)) == Data::KeyType::object) {
             ctx.self.capture.error.println("Error: Cannot push_front into an array containing documents.");
             return Constants::StandardCapture::Error::Functional::functionNotImplemented(ctx.self.capture);
@@ -270,7 +270,7 @@ Constants::Event SimpleData::pop_front(std::span<std::string_view const> const& 
 
     //------------------------------------------
     // Move all existing items one step back
-    for (size_t i = 1; i < size; i++) {
+    for (std::size_t i = 1; i < size; i++) {
         auto itemKey = key.addIndex(i);
         auto itemValue = ctxScope.self.get<std::string>(itemKey).value_or("");
         auto newItemKey = key.addIndex(i - 1);

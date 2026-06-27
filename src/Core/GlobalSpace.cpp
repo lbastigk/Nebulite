@@ -102,7 +102,7 @@ Constants::Event GlobalSpace::updateInnerDomains() {
         auto const event = renderer.update();      // Renderer updates its inner domains (e.g. RenderObjects)
 
         // Increment frame count and return event
-        static size_t frameCount = 0;
+        static std::size_t frameCount = 0;
         static auto const frameCountKey = Data::ScopedKeyView("time").addMember("frameCount");
         domainScope.set<uint64_t>(frameCountKey, frameCount); // Starts at 0
         frameCount++;
@@ -232,11 +232,11 @@ Data::DocumentCache& GlobalSpace::getDocCache() {
 //------------------------------------------
 // Id-index mapping
 
-std::optional<size_t> GlobalSpace::getIdFromIndex(size_t const& index) const {
+std::optional<size_t> GlobalSpace::getIdFromIndex(std::size_t const& index) const {
     return renderer.getIdFromIndex(index);
 }
 
-std::optional<size_t> GlobalSpace::getIndexFromId(size_t const& searchId) const {
+std::optional<size_t> GlobalSpace::getIndexFromId(std::size_t const& searchId) const {
     return renderer.getIndexFromId(searchId);
 }
 

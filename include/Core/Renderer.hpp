@@ -75,14 +75,14 @@ public:
     * @param index The index of the RenderObject in the rendering pipeline.
     * @return An optional containing the ID of the RenderObject if found, or std::nullopt if no object is associated with the given index.
     */
-    std::optional<size_t> getIdFromIndex(size_t const& index) const ;
+    std::optional<std::size_t> getIdFromIndex(std::size_t const& index) const ;
 
     /**
      * @brief Gets the RenderObject index in the rendering pipeline from its ID.
      * @param searchId The ID of the RenderObject to search for.
      * @return An optional containing the index of the RenderObject in the rendering pipeline if found, or std::nullopt if no object is associated with the given ID.
      */
-    std::optional<size_t> getIndexFromId(size_t const& searchId) const ;
+    std::optional<std::size_t> getIndexFromId(std::size_t const& searchId) const ;
 
     //------------------------------------------
     // Pipeline
@@ -232,7 +232,7 @@ public:
      * @param h The new pixel height of the window.
      * @param scalar The scaling factor to apply.
      */
-    void changeWindowSize(int w, int h, uint8_t scalar);
+    void changeWindowSize(int w, int h, std::uint8_t scalar);
 
     /**
      * @brief Sets the camera position.
@@ -264,13 +264,13 @@ public:
      * @brief Gets the amount of textures currently loaded.
      * @return The number of textures.
      */
-    [[nodiscard]] size_t getTextureAmount() const { return TextureContainer.size(); }
+    [[nodiscard]] std::size_t getTextureAmount() const { return TextureContainer.size(); }
 
     /**
      * @brief Gets the amount of RenderObjects currently loaded.
      * @return The number of RenderObjects in the environment.
      */
-    [[nodiscard]] size_t getObjectCount() const { return env.getObjectCount(); }
+    [[nodiscard]] std::size_t getObjectCount() const { return env.getObjectCount(); }
 
     /**
      * @brief Gets the current FPS.
@@ -484,7 +484,7 @@ private:
     Environment env;
 
     // Rendering
-    uint8_t windowScale = 1;
+    std::uint8_t windowScale = 1;
     SDL_Window* window{};
 
     SDL_Renderer* renderer{};

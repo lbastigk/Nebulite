@@ -33,13 +33,13 @@ double Statistics::accumulate(Data::JsonScope const* scope, std::function<double
     }
 
     double result = initialValue;
-    size_t const size = scope->memberSize(rootKey);
+    std::size_t const size = scope->memberSize(rootKey);
 
     if (size == 0) {
         return result;
     }
 
-    for (size_t i = 0; i < size; ++i) {
+    for (std::size_t i = 0; i < size; ++i) {
         auto const key = rootKey.addIndex(i);
         double const value = scope->get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
         if (std::isnan(value)) {
@@ -101,13 +101,13 @@ bool Statistics::median(Data::JsonScope* scope) {
         return false;
     }
 
-    size_t const size = scope->memberSize(rootKey);
+    std::size_t const size = scope->memberSize(rootKey);
     if (size == 0) {
         return false;
     }
 
     std::vector<double> values(size);
-    for (size_t i = 0; i < size; ++i) {
+    for (std::size_t i = 0; i < size; ++i) {
         auto const key = rootKey.addIndex(i);
         double const value = scope->get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
         if (std::isnan(value)) {
@@ -132,14 +132,14 @@ bool Statistics::stddev(Data::JsonScope* scope) {
         return false;
     }
 
-    size_t const size = scope->memberSize(rootKey);
+    std::size_t const size = scope->memberSize(rootKey);
     if (size == 0) {
         return false;
     }
 
     std::vector<double> values(size);
     double sum = 0.0;
-    for (size_t i = 0; i < size; ++i) {
+    for (std::size_t i = 0; i < size; ++i) {
         auto const key = rootKey.addIndex(i);
         double const value = scope->get<double>(key).value_or(std::numeric_limits<double>::quiet_NaN());
         if (std::isnan(value)) {

@@ -23,7 +23,7 @@ namespace Nebulite::Utility {
 
 // [GENERATE]
 
-std::string StringHandler::createPaddedTable(std::vector<std::string> const& words, size_t const& rowSize){
+std::string StringHandler::createPaddedTable(std::vector<std::string> const& words, std::size_t const& rowSize){
     // Find largest word
     auto maxSize = std::ranges::max_element(words, [](std::string_view const& a, std::string_view const& b) {
         return a.size() < b.size();
@@ -76,24 +76,24 @@ bool StringHandler::isNumber(std::string_view const& str) {
 // [STRIP]
 
 void StringHandler::untilSpecialChar(std::string_view& str, char const& specialChar) {
-    if (size_t const pos = str.find(specialChar); pos != std::string::npos && pos < str.size()) {
+    if (std::size_t const pos = str.find(specialChar); pos != std::string::npos && pos < str.size()) {
         str.remove_suffix(str.size() - pos);
     }
 }
 
 void StringHandler::afterSpecialChar(std::string_view& str, char const& specialChar) {
-    if (size_t const pos = str.find(specialChar); pos != std::string::npos && pos + 1 < str.size()) {
+    if (std::size_t const pos = str.find(specialChar); pos != std::string::npos && pos + 1 < str.size()) {
         str.remove_prefix(pos + 1);
     }
 }
 
 void StringHandler::lStrip(std::string_view& str, char const& specialChar) {
-    size_t const start = str.find_first_not_of(specialChar);
+    std::size_t const start = str.find_first_not_of(specialChar);
     str.remove_prefix(start == std::string::npos ? 0 : start);
 }
 
 void StringHandler::rStrip(std::string_view& str, char const& specialChar) {
-    size_t const end = str.find_last_not_of(specialChar);
+    std::size_t const end = str.find_last_not_of(specialChar);
     str.remove_suffix(end == std::string::npos ? 0 : str.size() - end - 1);
 }
 
@@ -215,7 +215,7 @@ StringHandler::ParseResult StringHandler::parseQuotedArguments(std::string_view 
 
 std::string StringHandler::recombineArgs(std::span<std::string_view const> const& args) {
     std::string result;
-    for (size_t i = 0; i < args.size(); ++i) {
+    for (std::size_t i = 0; i < args.size(); ++i) {
         result += args[i];
         // Don't add a whitespace if it's the last argument
         if (i < args.size() - 1) {
@@ -234,9 +234,9 @@ std::string StringHandler::recombineArgs(std::span<std::string_view const> const
 std::vector<std::string_view> StringHandler::split(std::string_view const& input, char const delimiter, bool const keepDelimiter){
     std::vector<std::string_view> tokens;
     if (!keepDelimiter) {
-        size_t start = 0;
+        std::size_t start = 0;
         while (start <= input.size()) {
-            size_t end = input.find(delimiter, start);
+            std::size_t end = input.find(delimiter, start);
 
             if (end == std::string_view::npos) {
                 end = input.size();
@@ -251,10 +251,10 @@ std::vector<std::string_view> StringHandler::split(std::string_view const& input
     }
 
     // keep delimiter at start of token
-    size_t start = 0;
+    std::size_t start = 0;
 
     while (start < input.size()) {
-        size_t const pos = input.find(delimiter, start);
+        std::size_t const pos = input.find(delimiter, start);
         if (pos == std::string_view::npos) {
             tokens.emplace_back(input.substr(start));
             break;
@@ -265,7 +265,7 @@ std::vector<std::string_view> StringHandler::split(std::string_view const& input
             tokens.emplace_back(input.substr(start, pos - start));
         }
 
-        size_t const next = input.find(delimiter, pos + 1);
+        std::size_t const next = input.find(delimiter, pos + 1);
         if (next == std::string_view::npos) {
             tokens.emplace_back(input.substr(pos));
             break;

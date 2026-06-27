@@ -125,7 +125,7 @@ private:
      */
     struct association{
         std::string key; // e.g. "space"
-        enum class Action : uint8_t {
+        enum class Action : std::uint8_t {
             empty,
             current,
             onPress,
@@ -159,7 +159,7 @@ private:
         association slotB{.key="", .type=association::Action::empty}; // Second key associated with the action
         association slotC{.key="", .type=association::Action::empty}; // Third key associated with the action
 
-        enum class LockState : uint8_t {
+        enum class LockState : std::uint8_t {
             unlocked,   // The action is not locked and can be triggered by its associated keys.
             lockOnce,   // The action is locked for the current frame, preventing it from being triggered by any of its associated keys. It will be automatically unlocked in the next frame.
             lockOn      // The action is locked until it is manually unlocked, preventing it from being triggered by any of its associated keys.

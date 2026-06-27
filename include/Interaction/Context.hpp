@@ -29,7 +29,7 @@ namespace Nebulite::Interaction {
 
 class ContextDeriver {
 public:
-    enum class TargetType : uint8_t {
+    enum class TargetType : std::uint8_t {
         self,
         other,
         global,

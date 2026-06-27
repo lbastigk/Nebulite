@@ -59,7 +59,7 @@ void Input::mapKeyNames() {
     };
 
     // Keyboard
-    for (size_t scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++
+    for (std::size_t scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++
          scancode) {
         char const* nameRaw = SDL_GetScancodeName(
             static_cast<SDL_Scancode>(scancode));
@@ -112,12 +112,12 @@ void Input::addRoutines(){
 namespace {
 
 // Helper to calculate mouse state from SDL values
-int calcMouseState(uint32_t const key, uint32_t const state) {
+int calcMouseState(std::uint32_t const key, std::uint32_t const state) {
     return !!(key & state);
 }
 
 // Helper to calculate mouse delta from SDL values
-int calcMouseDelta(uint32_t const key, uint32_t const currentState, uint32_t const lastState) {
+int calcMouseDelta(std::uint32_t const key, std::uint32_t const currentState, std::uint32_t const lastState) {
     return !!(key & currentState) - !!(key & lastState);
 }
 
@@ -150,7 +150,7 @@ void Input::writeCurrentAndDeltaInputs() {
     //------------------------------------------
     // Keyboard
     auto const* keyState = SDL_GetKeyboardState(nullptr);
-    for (size_t scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++scancode) {
+    for (std::size_t scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++scancode) {
         if (!keyboardState.keyNames[scancode].empty()) {
             // Retrieve state, store previous state
             bool const currentPressed = keyState[scancode];
@@ -177,7 +177,7 @@ void Input::resetDeltaValues() const {
     *mouseDelta.right = 0.0;
 
     // 2.) Keyboard
-    for (size_t scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++scancode) {
+    for (std::size_t scancode = SDL_SCANCODE_UNKNOWN; scancode < SDL_SCANCODE_COUNT; ++scancode) {
         if (!keyboardState.keyNames[scancode].empty()) {
             *keyboardState.deltaKey[scancode] = 0.0;
         }

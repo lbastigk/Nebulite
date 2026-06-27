@@ -128,7 +128,7 @@ public:
      */
     void processPool() const ;
 
-    void processPool(size_t count) const ;
+    void processPool(std::size_t count) const ;
 };
 
 } // namespace Nebulite::Data
