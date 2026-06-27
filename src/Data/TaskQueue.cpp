@@ -6,6 +6,8 @@
 #include <mutex>
 #include <sstream>
 #include <string>
+#include <string_view>
+#include <utility>
 #include <vector>
 
 // Nebulite
@@ -20,27 +22,31 @@
 //------------------------------------------
 namespace Nebulite::Data {
 
+namespace {
+
+void resolveArgument(std::string& argStr, TaskQueue::TaskQueueResult& fullResult, std::string_view const callbackName, Interaction::Context& ctx, Interaction::ContextScope& ctxScope) {
+    // Add binary name if missing
+    if (argStr.size() < callbackName.size() + 1 || !argStr.starts_with(callbackName) || argStr[callbackName.size()] != ' ') {
+        argStr.insert(0, " ");
+        argStr.insert(0, callbackName);
+    }
+
+    // Parse
+    Constants::Event const currentResult = ctx.self.parseStr(argStr, ctx, ctxScope);
+
+    // Check result
+    if (currentResult == Constants::Event::Error) {
+        fullResult.encounteredCriticalResult = true;
+    }
+    if (currentResult != Constants::Event::Success) {
+        fullResult.events.push_back(currentResult);
+    }
+}
+
+} // namespace
+
 TaskQueue::TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interaction::ContextScope& ctxScope, bool const& recover) {
-    Constants::Event currentResult{};
     TaskQueueResult fullResult;
-
-    auto resolve = [&](std::string argStr) {
-        // Add binary name if missing
-        if (!argStr.starts_with(settings.callbackName + " ")) {
-            argStr.insert(0, settings.callbackName + " ");
-        }
-
-        // Parse
-        currentResult = ctx.self.parseStr(argStr, ctx, ctxScope);
-
-        // Check result
-        if (currentResult == Constants::Event::Error) {
-            fullResult.encounteredCriticalResult = true;
-        }
-        if (currentResult != Constants::Event::Success) {
-            fullResult.events.push_back(currentResult);
-        }
-    };
 
     // 1.) Process and pop tasks
     if (settings.clearAfterResolving) {
@@ -52,16 +58,15 @@ TaskQueue::TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interac
             if (state.waitCounter > 0)
                 return fullResult;
 
-            // Pop front
-            std::string const argStr = tasks.list.front();
+            // Resolve and remove from list
+            auto argStr = std::move(tasks.list.front());
             tasks.list.pop_front();
-
-            resolve(argStr);
+            resolveArgument(argStr, fullResult, settings.callbackName, ctx, ctxScope);
         }
     }
     // 2.) Process without popping tasks
     else {
-        for (auto const& argStr : tasks.list) {
+        for (auto& argStr : tasks.list) {
             // Check stop conditions on each iteration,
             // as they might have changed during parsing
             if (fullResult.encounteredCriticalResult && !recover)
@@ -69,7 +74,8 @@ TaskQueue::TaskQueueResult TaskQueue::resolve(Interaction::Context& ctx, Interac
             if (state.waitCounter > 0)
                 return fullResult;
 
-            resolve(argStr);
+            // Resolve, keep in queue
+            resolveArgument(argStr, fullResult, settings.callbackName, ctx, ctxScope);
         }
     }
     return fullResult;

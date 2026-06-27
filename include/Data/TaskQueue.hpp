@@ -122,7 +122,7 @@ private:
     threadsafeTasks tasks; // Thread-safe task queue
 
     struct Settings {
-        std::string callbackName; // Name used as arg[0] when parsing tasks from this queue
+        std::string const callbackName; // Name used as arg[0] when parsing tasks from this queue
         bool clearAfterResolving = true;
     } settings;
 
