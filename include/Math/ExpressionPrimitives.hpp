@@ -30,36 +30,31 @@ public:
     //----------------------------------
     // Logical comparison functions
 
-    // NOLINTNEXTLINE
-    static double gt(double a, double b) { return a > b; }
+    static double gt(double const a, double const b) { return a > b; }
     static auto constexpr gtName = "gt";
     static auto constexpr gtDesc = "Returns 1 if a is greater than b.\n"
         "Otherwise returns 0.\n"
         "Usage: gt(a, b)";
 
-    // NOLINTNEXTLINE
-    static double lt(double a, double b) { return a < b; }
+    static double lt(double const a, double const b) { return a < b; }
     static auto constexpr ltName = "lt";
     static auto constexpr ltDesc = "Returns 1 if a is less than b.\n"
         "Otherwise returns 0.\n"
         "Usage: lt(a, b)";
 
-    // NOLINTNEXTLINE
-    static double geq(double a, double b) { return a >= b; }
+    static double geq(double const a, double const b) { return a >= b; }
     static auto constexpr geqName = "geq";
     static auto constexpr geqDesc = "Returns 1 if a is greater than or equal to b.\n"
         "Otherwise returns 0.\n"
         "Usage: geq(a, b)";
 
-    // NOLINTNEXTLINE
-    static double leq(double a, double b) { return a <= b; }
+    static double leq(double const a, double const b) { return a <= b; }
     static auto constexpr leqName = "leq";
     static auto constexpr leqDesc = "Returns 1 if a is less than or equal to b.\n"
         "Otherwise returns 0.\n"
         "Usage: leq(a, b)";
 
-    // NOLINTNEXTLINE
-    static double eq(double a, double b) {
+    static double eq(double const a, double const b) {
         return std::fabs(a - b) < DBL_EPSILON;
     }
     static auto constexpr eqName = "eq";
@@ -67,8 +62,7 @@ public:
         "Equality is tested within a small epsilon (DBL_EPSILON) to handle floating point imprecision.\n"
         "Usage: eq(a, b)";
 
-    // NOLINTNEXTLINE
-    static double neq(double a, double b) {
+    static double neq(double const a, double const b) {
         return std::fabs(a - b) > DBL_EPSILON;
     }
     static auto constexpr neqName = "neq";
@@ -79,8 +73,7 @@ public:
     //----------------------------------
     // Logical gate functions
 
-    // NOLINTNEXTLINE
-    static double logical_not(double a) {
+    static double logical_not(double const a) {
         return !(std::fabs(a) > DBL_EPSILON);
     }
     static auto constexpr logicalNotName = "not";
@@ -88,8 +81,7 @@ public:
         "Values with absolute value <= DBL_EPSILON are treated as false.\n"
         "Usage: not(a)";
 
-    // NOLINTNEXTLINE
-    static double logical_and(double a, double b) {
+    static double logical_and(double const a, double const b) {
         bool const aLogical = std::fabs(a) > DBL_EPSILON;
         bool const bLogical = std::fabs(b) > DBL_EPSILON;
         return aLogical && bLogical;
@@ -99,8 +91,7 @@ public:
         "A value is considered true when its absolute value is greater than DBL_EPSILON.\n"
         "Usage: and(a, b)";
 
-    // NOLINTNEXTLINE
-    static double logical_or(double a, double b) {
+    static double logical_or(double const a, double const b) {
         bool const aLogical = std::fabs(a) > DBL_EPSILON;
         bool const bLogical = std::fabs(b) > DBL_EPSILON;
         return aLogical || bLogical;
@@ -110,8 +101,7 @@ public:
         "A value is considered true when its absolute value is greater than DBL_EPSILON.\n"
         "Usage: or(a, b)";
 
-    // NOLINTNEXTLINE
-    static double logical_xor(double a, double b) {
+    static double logical_xor(double const a, double const b) {
         bool const aLogical = std::fabs(a) > DBL_EPSILON;
         bool const bLogical = std::fabs(b) > DBL_EPSILON;
         return aLogical != bLogical;
@@ -121,8 +111,7 @@ public:
         "Uses DBL_EPSILON threshold to determine logical truthiness.\n"
         "Usage: xor(a, b)";
 
-    // NOLINTNEXTLINE
-    static double logical_nand(double a, double b) {
+    static double logical_nand(double const a, double const b) {
         bool const aLogical = std::fabs(a) > DBL_EPSILON;
         bool const bLogical = std::fabs(b) > DBL_EPSILON;
         return !(aLogical && bLogical);
@@ -132,8 +121,7 @@ public:
         "Uses DBL_EPSILON to determine logical truthiness.\n"
         "Usage: nand(a, b)";
 
-    // NOLINTNEXTLINE
-    static double logical_nor(double a, double b) {
+    static double logical_nor(double const a, double const b) {
         bool const aLogical = std::fabs(a) > DBL_EPSILON;
         bool const bLogical = std::fabs(b) > DBL_EPSILON;
         return !(aLogical || bLogical);
@@ -143,8 +131,7 @@ public:
         "Values with absolute value <= DBL_EPSILON are treated as false.\n"
         "Usage: nor(a, b)";
 
-    // NOLINTNEXTLINE
-    static double logical_xnor(double a, double b) {
+    static double logical_xnor(double const a, double const b) {
         bool const aLogical = std::fabs(a) > DBL_EPSILON;
         bool const bLogical = std::fabs(b) > DBL_EPSILON;
         return aLogical == bLogical;
@@ -156,8 +143,7 @@ public:
 
     // Other logical functions
 
-    // NOLINTNEXTLINE
-    static double toBipolar(double a) {
+    static double toBipolar(double const a) {
         return std::fabs(a) > DBL_EPSILON ? 1 : -1;
     }
     static auto constexpr toBipolarName = "toBipolar";
@@ -169,8 +155,7 @@ public:
     //----------------------------------
     // Mapping functions
 
-    // NOLINTNEXTLINE
-    static double map(double value, double in_min, double in_max, double out_min, double out_max) {
+    static double map(double const value, double const in_min, double const in_max, double const out_min, double const out_max) {
         if (std::fabs(in_max - in_min) < DBL_EPSILON) { return out_min; } // Prevent division by zero
         if (value < in_min) { return out_min; }
         if (value > in_max) { return out_max; }
@@ -180,8 +165,7 @@ public:
     static auto constexpr mapDesc = "Linearly maps a value from one range to another.\n"
         "Usage: map(value, in_min, in_max, out_min, out_max)";
 
-    // NOLINTNEXTLINE
-    static double constrain(double value, double min, double max) {
+    static double constrain(double const value, double const min, double const max) {
         if (value < min) { return min; }
         if (value > max) { return max; }
         return value;
@@ -193,14 +177,12 @@ public:
     //----------------------------------
     // Maximum and Minimum functions
 
-    // NOLINTNEXTLINE
-    static double max(double a, double b) { return (a > b) ? a : b; }
+    static double max(double const a, double const b) { return std::max(a,b); }
     static auto constexpr maxName = "max";
     static auto constexpr maxDesc = "Returns the greater of a and b.\n"
             "Usage: max(a, b)";
 
-    // NOLINTNEXTLINE
-    static double min(double a, double b) { return (a < b) ? a : b; }
+    static double min(double const a, double const b) { return std::min(a,b); }
     static auto constexpr minName = "min";
     static auto constexpr minDesc = "Returns the lesser of a and b.\n"
         "Usage: min(a, b)";
@@ -208,8 +190,7 @@ public:
     //----------------------------------
     // Rounding
 
-    // NOLINTNEXTLINE
-    static double round(double a, double b) {
+    static double round(double const a, double const b) {
         auto const digits = std::floor(b);
         return std::round(a * std::pow(10, digits)) / std::pow(10, digits);
     }
@@ -217,8 +198,7 @@ public:
     static auto constexpr roundDesc = "Rounds the first argument to the amount of decimal places specified by the second argument.\n"
         "Usage: round(a, b)";
 
-    // NOLINTNEXTLINE
-    static double roundUp(double a, double b) {
+    static double roundUp(double const a, double const b) {
         auto const digits = std::floor(b);
         return std::floor(a * std::pow(10, digits)) / std::pow(10, digits);
     }
@@ -226,8 +206,7 @@ public:
     static auto constexpr roundUpDesc = "Rounds the first argument up to the amount of decimal places specified by the second argument.\n"
         "Usage: roundUp(a, b)";
 
-    // NOLINTNEXTLINE
-    static auto constexpr roundDown(double a, double b) {
+    static auto constexpr roundDown(double const a, double const b) {
         auto const digits = std::floor(b);
         return std::ceil(a * std::pow(10, digits)) / std::pow(10, digits);
     }
@@ -238,8 +217,7 @@ public:
     //----------------------------------
     // More mathematical functions
 
-    // NOLINTNEXTLINE
-    static double sgn(double a) { return std::copysign(1.0, a); }
+    static double sgn(double const a) { return std::copysign(1.0, a); }
     static auto constexpr sgnName = "sgn";
     static auto constexpr sgnDesc = "Returns the sign of a.\n"
         "Returns 1 if a is positive, -1 if a is negative, and 0 if a is zero.\n"
@@ -259,28 +237,24 @@ public:
     // However, perhaps this can still occur if we seed from a non-deterministic source (e.g. time) or derived non-deterministic source.
     // IMPORTANT: Consider non-deterministic propagation!
 
-    // NOLINTNEXTLINE
     static double rng2arg(double a, double b);
     static auto constexpr rng2argName = "rng2arg";
     static auto constexpr rng2argDesc = "Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a and b.\n"
         "The same input values will always produce the same output, making it suitable for deterministic procedural generation.\n"
         "Usage: rng2arg(a, b)";
 
-    // NOLINTNEXTLINE
     static double rng3arg(double a, double b, double c);
     static auto constexpr rng3argName = "rng3arg";
     static auto constexpr rng3argDesc = "Returns a pseudo-random number between 0 and 1, deterministically seeded from the input values a, b, and c.\n"
         "The same input values will always produce the same output, making it suitable for deterministic procedural generation.\n"
         "Usage: rng3arg(a, b, c)";
 
-    // NOLINTNEXTLINE
     static double rng2argInt16(double a, double b);
     static auto constexpr rng2argInt16Name = "rng2argInt16";
     static auto constexpr rng2argInt16Desc = "Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a and b.\n"
         "The same input values will always produce the same output, making it suitable for deterministic procedural generation.\n"
         "Usage: rng2argInt16(a, b)";
 
-    // NOLINTNEXTLINE
     static double rng3argInt16(double a, double b, double c);
     static auto constexpr rng3argInt16Name = "rng3argInt16";
     static auto constexpr rng3argInt16Desc = "Returns a pseudo-random integer between 0 and 32767, deterministically seeded from the input values a, b, and c.\n"

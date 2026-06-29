@@ -22,47 +22,36 @@ public:
         template<typename newType>
         static constexpr std::optional<newType> toAny(std::string const& value) {
             if constexpr (std::is_same_v<newType, bool>){
-                // NOLINTNEXTLINE
                 return toBool(value);
             }
             else if constexpr (std::is_same_v<newType, int>){
-                // NOLINTNEXTLINE
                 return toInt(value);
             }
             else if constexpr (std::is_same_v<newType, std::uint8_t>){
-                // NOLINTNEXTLINE
                 return toUInt8(value);
             }
             else if constexpr (std::is_same_v<newType, std::int8_t>){
-                // NOLINTNEXTLINE
                 return toInt8(value);
             }
             else if constexpr (std::is_same_v<newType, std::uint16_t>){
-                // NOLINTNEXTLINE
                 return toUInt16(value);
             }
             else if constexpr (std::is_same_v<newType, std::int16_t>){
-                // NOLINTNEXTLINE
                 return toInt16(value);
             }
             else if constexpr (std::is_same_v<newType, std::uint32_t>){
-                // NOLINTNEXTLINE
                 return toUInt32(value);
             }
             else if constexpr (std::is_same_v<newType, std::int32_t>){
-                // NOLINTNEXTLINE
                 return toInt32(value);
             }
             else if constexpr (std::is_same_v<newType, std::uint64_t>){
-                // NOLINTNEXTLINE
                 return toUInt64(value);
             }
             else if constexpr (std::is_same_v<newType, std::int64_t>){
-                // NOLINTNEXTLINE
                 return toInt64(value);
             }
             else if constexpr (std::is_same_v<newType, double>){
-                // NOLINTNEXTLINE
                 return toDouble(value);
             }
             else if constexpr (std::is_same_v<newType, std::string>) {

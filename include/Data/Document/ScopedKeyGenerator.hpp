@@ -27,12 +27,10 @@ struct OpData {
     constexpr OpData()
         : type(OpType::Member), indexValue(0) {}
 
-    // NOLINTNEXTLINE
-    explicit constexpr OpData(std::string_view const& name)
+    explicit constexpr OpData(std::string_view const& name) // NOLINT
         : type(OpType::Member), memberName(name), indexValue(0) {}
 
-    // NOLINTNEXTLINE
-    explicit constexpr OpData(std::size_t const& index)
+    explicit constexpr OpData(std::size_t const& index) // NOLINT
         : type(OpType::Index), indexValue(index) {}
 };
 

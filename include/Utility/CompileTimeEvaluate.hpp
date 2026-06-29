@@ -36,8 +36,7 @@ public:
      * @return true if the number is a power of two, false otherwise.
      */
     static bool consteval isPowerOfTwo(std::size_t const& n) {
-        // NOLINTNEXTLINE
-        return n > 0 && (n & (n - 1)) == 0;
+        return n > 0 && (n & (n - 1)) == 0; // NOLINT
     }
 };
 } // namespace Nebulite::Utility

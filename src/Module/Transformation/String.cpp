@@ -5,7 +5,9 @@
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
+#include <iterator>
 #include <ranges>
+#include <span>
 #include <string>
 
 // Nebulite
@@ -60,7 +62,6 @@ bool String::capitalize(Data::JsonScope* jsonDoc){
     return true;
 }
 
-// NOLINTNEXTLINE
 bool String::toUpper(Data::JsonScope* jsonDoc) {
     auto str = jsonDoc->get<std::string>(rootKey).value_or("");
     std::ranges::transform(
@@ -74,7 +75,6 @@ bool String::toUpper(Data::JsonScope* jsonDoc) {
     return true;
 }
 
-// NOLINTNEXTLINE
 bool String::toLower(Data::JsonScope* jsonDoc) {
     auto str = jsonDoc->get<std::string>(rootKey).value_or("");
     std::ranges::transform(
@@ -88,7 +88,6 @@ bool String::toLower(Data::JsonScope* jsonDoc) {
     return true;
 }
 
-// NOLINTNEXTLINE
 bool String::lPad(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc){
     if (args.size() < 2) {
         return false;
@@ -104,7 +103,6 @@ bool String::lPad(std::span<std::string_view const> const& args, Data::JsonScope
     return true;
 }
 
-// NOLINTNEXTLINE
 bool String::rPad(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() < 2) {
         return false;
@@ -148,7 +146,6 @@ bool String::rPadNonNumeric(std::span<std::string_view const> const& args, Data:
     return true; // numeric, but not an error either, so we return true without modifying the string
 }
 
-// NOLINTNEXTLINE
 bool String::strip(Data::JsonScope* jsonDoc) {
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     std::string_view view = str;
@@ -157,7 +154,6 @@ bool String::strip(Data::JsonScope* jsonDoc) {
     return true;
 }
 
-// NOLINTNEXTLINE
 bool String::lStrip(Data::JsonScope* jsonDoc) {
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     std::string_view view = str;
@@ -166,7 +162,6 @@ bool String::lStrip(Data::JsonScope* jsonDoc) {
     return true;
 }
 
-// NOLINTNEXTLINE
 bool String::rStrip(Data::JsonScope* jsonDoc) {
     auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
     std::string_view view = str;
@@ -175,7 +170,6 @@ bool String::rStrip(Data::JsonScope* jsonDoc) {
     return true;
 }
 
-// NOLINTNEXTLINE
 bool String::substring(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     if (args.size() > 3){
         return false;
@@ -196,10 +190,6 @@ bool String::substring(std::span<std::string_view const> const& args, Data::Json
     return true;
 }
 
-// TODO: Add explicit separator for target and replacement:
-//       |replace <target> -> <replacement>
-//       This will be used if args.size() > 3
-// NOLINTNEXTLINE
 bool String::replace(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
     auto replacer = [jsonDoc](std::string_view const target, std::string_view const replacement) {
         auto const str = jsonDoc->get<std::string>(rootKey).value_or("");

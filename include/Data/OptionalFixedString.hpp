@@ -22,8 +22,7 @@ template <std::size_t N, bool forceOutsideDefinition = false>
 struct OptionalFixedString {
     std::array<char, N == 0 ? 1 : N> value{};
 
-    // NOLINTNEXTLINE
-    consteval OptionalFixedString(char const (&str)[N == 0 ? 1 : N]) {
+    consteval OptionalFixedString(char const (&str)[N == 0 ? 1 : N]) { // NOLINT
         static_assert(N > 0, "Use the default constructor for empty strings");
         static_assert(!forceOutsideDefinition, "Cannot initialize string from literal when forceOutsideDefinition is true");
         for (std::size_t i = 0; i < N; ++i) value[i] = str[i];

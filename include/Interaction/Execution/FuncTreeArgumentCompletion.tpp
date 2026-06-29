@@ -7,7 +7,7 @@
 // Standard library
 #include <algorithm>
 #include <cstddef> // NOLINT
-#include <cstdint>
+#include <cstdint> // NOLINT
 #include <iterator>
 #include <optional>
 #include <span>

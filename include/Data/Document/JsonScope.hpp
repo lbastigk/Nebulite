@@ -47,8 +47,10 @@ public:
 private:
     std::shared_ptr<JSON> baseDocument;
 
-    // NOLINTNEXTLINE
-    JSON& doc(){return *baseDocument;} // For non-const-access, carrying over the non-const-attribute of baseDocument
+    // For non-const-access, carrying over the non-const-attribute of baseDocument
+    JSON& doc() { // NOLINT
+        return *baseDocument;
+    }
 
     /**
      * @brief The Prefix of the scope. A nullopt indicates that this JsonScope is a dummy (no access allowed).

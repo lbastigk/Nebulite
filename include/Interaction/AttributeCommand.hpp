@@ -97,8 +97,7 @@ private:
 
 template <Data::OptionalFixedString trigger>
 struct FullCommand {
-    // NOLINTNEXTLINE
-    constexpr FullCommand(std::string_view special) : specialization(special) {}
+    constexpr FullCommand(std::string_view special) : specialization(special) {} // NOLINT
 
     std::string_view specialization;
 

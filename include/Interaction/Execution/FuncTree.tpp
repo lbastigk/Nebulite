@@ -280,9 +280,6 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Func functionPtr) {
 
     // If raw function pointer (free/static)
     if constexpr (std::is_pointer_v<DecayF> && std::is_function_v<std::remove_pointer_t<DecayF>>) {
-
-        // TODO: Allow for AddArgs with const classification
-
         if constexpr (constexpr ShapeClassifier::FunctionShape shape = ShapeClassifier::classifyFunction<DecayF, ReturnValue, AdditionalArgs...>(); shape == ShapeClassifier::FunctionShape::Free_Legacy_IntChar) {
             return FunctionPtrT(std::in_place_type<typename SupportedFunctions::Legacy::IntChar>,
                                 std::function<ReturnValue(int, char**)>(functionPtr));
@@ -371,41 +368,42 @@ FuncTree<ReturnValue, AdditionalArgs...>::makeFunctionPtr(Obj* objectPtr, MemFun
     else if constexpr (shape == ShapeClassifier::FunctionShape::Member_Modern_NoAddArgs) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::NoAddArgs>,
-            // NOLINTNEXTLINE
-            [objectPtr, memberFunctionPtr](typename CmdArgs::Span args) {
+            [objectPtr, memberFunctionPtr](typename CmdArgs::Span args) { // NOLINT(readability-redundant-typename)
                 return std::invoke(memberFunctionPtr, objectPtr, args);
-        });
+            }
+        );
     }
     else if constexpr (shape == ShapeClassifier::FunctionShape::Member_Modern_NoAddArgsConstRef) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::NoAddArgsConstRef>,
-            // NOLINTNEXTLINE
-            [objectPtr, memberFunctionPtr](typename CmdArgs::SpanConstRef args) {
+            [objectPtr, memberFunctionPtr](typename CmdArgs::SpanConstRef args) { // NOLINT(readability-redundant-typename)
                 return std::invoke(memberFunctionPtr, objectPtr, args);
-        });
+            }
+        );
     }
     else if constexpr (shape == ShapeClassifier::FunctionShape::Member_Modern_Full) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::Full>,
-            // NOLINTNEXTLINE
-            [objectPtr, memberFunctionPtr](typename CmdArgs::Span args, AdditionalArgs... rest) {
+            [objectPtr, memberFunctionPtr](typename CmdArgs::Span args, AdditionalArgs... rest) { // NOLINT(readability-redundant-typename)
                 return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<AdditionalArgs>(rest)...);
-        });
+            }
+        );
     }
     else if constexpr (shape == ShapeClassifier::FunctionShape::Member_Modern_FullConstRef) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::FullConstRef>,
-            // NOLINTNEXTLINE
-            [objectPtr, memberFunctionPtr](typename CmdArgs::SpanConstRef args, AdditionalArgs... rest) {
+            [objectPtr, memberFunctionPtr](typename CmdArgs::SpanConstRef args, AdditionalArgs... rest) { // NOLINT(readability-redundant-typename)
                 return std::invoke(memberFunctionPtr, objectPtr, args, std::forward<AdditionalArgs>(rest)...);
-        });
+            }
+        );
     }
     else if constexpr (shape == ShapeClassifier::FunctionShape::Member_NoCmdArgs) {
         return FunctionPtrT(
             std::in_place_type<typename SupportedFunctions::Modern::NoCmdArgs>,
             [objectPtr, memberFunctionPtr](AdditionalArgs... rest) {
                 return std::invoke(memberFunctionPtr, objectPtr, std::forward<AdditionalArgs>(rest)...);
-        });
+            }
+        );
     }
     else if constexpr (shape == ShapeClassifier::FunctionShape::Member_NoArgs) {
         if constexpr (sizeof...(AdditionalArgs) == 0) {
