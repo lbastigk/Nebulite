@@ -201,14 +201,33 @@ bool String::substring(std::span<std::string_view const> const& args, Data::Json
 //       This will be used if args.size() > 3
 // NOLINTNEXTLINE
 bool String::replace(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc) {
-    if (args.size() != 3){
-        return false;
+    auto replacer = [jsonDoc](std::string_view const target, std::string_view const replacement) {
+        auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
+        auto const replacedStr = Utility::StringHandler::replaceAll(str, target, replacement);
+        jsonDoc->set(rootKey, replacedStr);
+    };
+
+    if (args.size() < 2) return false;
+    if (args.size() == 2){
+        replacer(args[1], "");
     }
-    auto const& target = args[1];
-    auto const& replacement = args[2];
-    auto const str = jsonDoc->get<std::string>(rootKey).value_or("");
-    auto const replacedStr = Utility::StringHandler::replaceAll(str, target, replacement);
-    jsonDoc->set(rootKey, replacedStr);
+    else if (args.size() == 3) {
+        replacer(args[1], args[2]);
+    }
+    else {
+        // Args is larger than 3
+        // Find arg equal to "->". All args before are target, all args after are replacement
+        auto const it = std::ranges::find(args, std::string_view{"->"});
+        if (it == args.end()) {
+            return false; // invalid argument
+        }
+        auto const target = args.subspan(1, static_cast<std::size_t>(std::distance(args.begin(), it) - 1));
+        auto const replacement = args.subspan(static_cast<std::size_t>(std::distance(args.begin(), it) + 1));
+        if (target.empty() || replacement.empty()) {
+            return false; // invalid argument
+        }
+        replacer(Utility::StringHandler::recombineArgs(target), Utility::StringHandler::recombineArgs(replacement));
+    }
     return true;
 }
 

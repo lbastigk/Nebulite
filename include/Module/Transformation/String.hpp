@@ -122,7 +122,10 @@ public:
     static auto constexpr replaceDesc = "Replaces all occurrences of a target substring with a replacement substring in the current JSON string value.\n"
         "Usage: |replace {target} {replacement} -> {string}\n"
         "{target}: Substring to be replaced\n"
-        "{replacement}: Substring to replace with\n";
+        "{replacement}: Substring to replace with\n"
+        "If only {target} is provided, it will be replaced with an empty string.\n"
+        "If the target or replacement strings contain spaces, use an arrow '->' to separate them:"
+        "|replace {target} -> {replacement}\n";
 
     static bool strCountAppearance(std::span<std::string_view const> const& args, Data::JsonScope* jsonDoc);
     static auto constexpr strCountAppearanceName = "strCountAppearance";

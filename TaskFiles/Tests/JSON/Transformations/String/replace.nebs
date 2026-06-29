@@ -1,7 +1,45 @@
-# Test string replacement
+##########################################
+# Test string replacement transformation
+##########################################
+
+##########################################
+# Setup test variables
 set sentence Hello World
+set longSentence We have been trying to reach you regarding your cars extended warranty
+
+##########################################
+# Ensure that the assert part is actually executed and not skipped due to some replace failure
+must-throw eval nop {global:sentence|replace World|rStrip|assert equals string notEqual}
+
+##########################################
+# Basic single arg replacement
+eval nop {global:sentence|replace World|rStrip|assert equals string Hello}
+eval nop {global:sentence|replace DoesNotExist|rStrip|assert equals string Hello World}
+
+##########################################
+# Basic dual arg replacement
 eval nop {global:sentence|replace World Nebulite|assert equals string Hello Nebulite}
 eval nop {global:sentence|replace Hello Hi|assert equals string Hi World}
 eval nop {global:sentence|replace o 0|assert equals string Hell0 W0rld}
 eval nop {global:sentence|replace l 1|assert equals string He11o Wor1d}
 eval nop {global:sentence|replace l 1|replace o 0|assert equals string He110 W0r1d}
+eval nop {global:sentence|replace DoesNotExist WillNotBeInserted|rStrip|assert equals string Hello World}
+
+##########################################
+# Multiple arg replacement
+eval nop {global:sentence|replace World -> Nebulite|assert equals string Hello Nebulite}
+eval nop {global:longSentence|replace extended warranty -> extended coverage|assert equals string We have been trying to reach you regarding your cars extended coverage}
+
+
+##########################################
+# Test invalid arguments
+
+# Store result. As the args are invalid, any following transformations will not be executed.
+assign global:result.a = {global:sentence|replace}
+assign global:result.b = {global:sentence|replace too many arguments} # > 2 provided args requires arrow
+assign global:result.c = {global:sentence|replace -> missing target} # target cannot be empty
+
+# Verify they're null/empty
+eval nop {global:result.a|assert empty}
+eval nop {global:result.b|assert empty}
+eval nop {global:result.c|assert empty}
