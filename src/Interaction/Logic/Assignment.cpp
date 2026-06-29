@@ -155,7 +155,6 @@ void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, double c
     }
 }
 
-// TODO: Check if value stored is int, perhaps using a separate set_add and set_multiply that checks the current value
 void Assignment::setValueOfKey(Data::ScopedKeyView const& keyEvaluated, std::int64_t const val, Data::JsonScope& target) const {
     // Using Threadsafe manipulation methods of the JSON class:
     switch (operation) {
